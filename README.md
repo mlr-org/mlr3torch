@@ -4,6 +4,12 @@
 # mlr3torch
 
 <!-- badges: start -->
+
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![R-CMD-check](https://github.com/jemus42/mlr3keras/workflows/R-CMD-check/badge.svg)](https://github.com/jemus42/mlr3keras/actions)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/mlr3torch)](https://CRAN.R-project.org/package=mlr3torch)
 <!-- badges: end -->
 
 The goal of {mlr3torch} is to connect
