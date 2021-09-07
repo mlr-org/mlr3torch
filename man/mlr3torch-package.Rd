@@ -4,9 +4,9 @@
 \name{mlr3torch-package}
 \alias{mlr3torch}
 \alias{mlr3torch-package}
-\title{mlr3torch: What the Package Does (One Line, Title Case)}
+\title{mlr3torch: Torch Models for 'mlr3'}
 \description{
-What the package does (one paragraph).
+Provides torch models as learners for the mlr3 ecosystem.
 }
 \author{
 \strong{Maintainer}: Lukas Burk \email{github@quantenbrot.de} (\href{https://orcid.org/0000-0001-7528-3795}{ORCID})

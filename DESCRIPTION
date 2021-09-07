@@ -1,5 +1,5 @@
 Package: mlr3torch
-Title: What the Package Does (One Line, Title Case)
+Title: Torch Models for 'mlr3'
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Lukas",
@@ -7,11 +7,16 @@ Authors@R:
            role = c("aut", "cre"),
            email = "github@quantenbrot.de",
            comment = c(ORCID = "0000-0001-7528-3795"))
-Description: What the package does (one paragraph).
+Description: Provides torch models as learners for the mlr3 ecosystem.
 License: LGPL (>= 3)
+Imports: 
+    lifecycle,
+    mlr3,
+    mlr3misc,
+    paradox,
+    R6,
+    tabnet
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
-Imports: 
-    lifecycle
