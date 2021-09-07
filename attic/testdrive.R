@@ -1,10 +1,11 @@
 # Testing tabnet ----
 library(tabnet)
-data(ames, package = 'modeldata')
+# data(ames, package = 'modeldata')
+german_credit <- mlr3::tsk("german_credit")$data()
 
-fit <- tabnet_fit(Street ~ ., data = ames, epochs = 10)
-predict(fit, ames[1:10,])
-predict(fit, ames[1:10,], type = "prob")
+fit <- tabnet_fit(credit_risk ~ ., data = german_credit, epochs = 10)
+predict(fit, german_credit[1:10,])
+predict(fit, german_credit[1:10,], type = "prob")
 
 
 # mlr3torch tabnet --------------------------------------------------------
@@ -57,8 +58,6 @@ tictoc::tic()
 keras_tabnet$train(task)
 tictoc::toc()
 
-
-
 preds <- keras_tabnet$predict(task)
 preds$confusion
 preds$score(msr("classif.acc"))
@@ -84,6 +83,8 @@ train_torchtabnet <- function(task, epochs = 10L) {
   torch_tabnet$param_set$values$attention_width = 8
 
   torch_tabnet$train(task = task)
+
+  cat("torch task acc", torch_tabnet$predict(task)$score(msr('classif.acc'))[[1]])
 }
 
 train_kerastabnet <- function(task, epochs = 10L) {
@@ -94,12 +95,13 @@ train_kerastabnet <- function(task, epochs = 10L) {
   keras_tabnet$param_set$values$epochs = epochs
   keras_tabnet$param_set$values$batch_size = 256L
   keras_tabnet$param_set$values$num_decision_steps = 2
-
   # N_d and N_a
   keras_tabnet$param_set$values$output_dim = 8
   keras_tabnet$param_set$values$feature_dim = 8
 
   keras_tabnet$train(task = task)
+
+  cat("keras task acc: ", keras_tabnet$predict(task)$score(msr('classif.acc'))[[1]])
 }
 
 
@@ -107,7 +109,7 @@ train_kerastabnet <- function(task, epochs = 10L) {
 benchres <- microbenchmark::microbenchmark(
   train_torchtabnet(tsk("german_credit"), epochs = 10L),
   train_kerastabnet(tsk("german_credit"), epochs = 10L),
-  times = 5
+  times = 10
 )
 
 saveRDS(benchres, file = "attic/benchres_german-credit.rds")
@@ -116,5 +118,4 @@ ggplot2::autoplot(benchres)
 
 # pushoverr::pushover_normal('benchmark done')
 
-keras_tabnet$predict(task)$score(msr('classif.acc'))
-torch_tabnet$predict(task)$score(msr('classif.acc'))
+
