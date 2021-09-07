@@ -19,17 +19,16 @@ LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function() {
-      # FIXME - MANUALLY ADD PARAM_SET BELOW AND THEN DELETE THIS LINE
       ps = ParamSet$new(list(
         ParamInt$new("batch_size", default = 256L, lower = 1L, upper = Inf, tags = "train"),
         ParamDbl$new("penalty",    default = 0.001, tags = "train"),
 
         # FIXME: NULL here is used for bool FALSE, not sure what to do there.
-        # ParamInt$new("clip_value", default = NULL, lower = 0, upper = Inf, tags = "train"),
+        ParamUty$new("clip_value",         default = NULL, tags = "train"),
         ParamFct$new("loss",               default = "auto", levels = c("auto", "mse", "cross_entropy"), tags = "train"),
         ParamInt$new("epochs",             default = 5L,  lower = 1L, upper = Inf, tags = "train"),
         ParamLgl$new("drop_last",          default = FALSE, tags = "train"),
-        ParamInt$new("decision_width",     default = 32L, lower = 1L, upper = Inf, tags = "train"),
+        ParamInt$new("decision_width",     default = 8L, lower = 1L, upper = Inf, tags = "train"),
         ParamInt$new("attention_width",    default = 8L, lower = 1L, upper = Inf, tags = "train"),
         ParamInt$new("num_steps",          default = 3L,  lower = 1L, upper = Inf, tags = "train"),
         ParamDbl$new("feature_reusage",    default = 1.3, lower = 0, upper = Inf, tags = "train"),
@@ -38,11 +37,11 @@ LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
         ParamDbl$new("valid_split",        default = 0, lower = 0, upper = 1, tags = "train"),
         ParamDbl$new("learn_rate",         default = 0.02, lower = 0, upper = 1, tags = "train"),
 
-        # FIXME: Can't list all optimizers in levels, or should I?
-        # ParamFct$new("optimizer", default = "adam", tags = "train"),
+        # FIXME: Currently either 'adam' or arbitrary optimizer function according to docs
+        ParamUty$new("optimizer", default = "adam", tags = "train"),
 
-        # FIXME: This is either NULL or a function
-        # ParamFct$new("lr_scheduler", default = NULL, levels = c("step"), tags = "train"),
+        # FIXME: This is either NULL or a function or explicit "steps", needs custom_check fun
+        ParamUty$new("lr_scheduler", default = NULL, tags = "train"),
 
         ParamDbl$new("lr_decay",          default = 0.1, lower = 0, upper = 1, tags = "train"),
         ParamInt$new("step_size",         default = 30L, lower = 1L, upper = Inf, tags = "train"),
@@ -58,36 +57,35 @@ LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
       ))
 
       # FIXME - MANUALLY UPDATE PARAM VALUES BELOW IF APPLICABLE THEN DELETE THIS LINE.
-      # OTHERWISE DELETE THIS AND LINE BELOW.
-      # ps$values = list(
-      #   batch_size = 256,
-      #   penalty = 0.001,
-      #   #clip_value = NULL,
-      #   loss = "auto",
-      #   epochs = 5,
-      #   drop_last = FALSE,
-      #   decision_width = NULL,
-      #   attention_width = NULL,
-      #   num_steps = 3,
-      #   feature_reusage = 1.3,
-      #   mask_type = "sparsemax",
-      #   virtual_batch_size = 128,
-      #   valid_split = 0,
-      #   learn_rate = 0.02,
-      #   #optimizer = "adam",
-      #   #lr_scheduler = NULL,
-      #   lr_decay = 0.1,
-      #   step_size = 30,
-      #   checkpoint_epochs = 10,
-      #   cat_emb_dim = 1,
-      #   num_independent = 2,
-      #   num_shared = 2,
-      #   momentum = 0.02,
-      #   pretraining_ratio = 0.5,
-      #   verbose = FALSE,
-      #   device = "auto"
-      #   #importance_sample_size = NULL
-      # )
+      ps$values = list(
+        batch_size = 256,
+        penalty = 0.001,
+        #clip_value = NULL,
+        loss = "auto",
+        epochs = 5,
+        drop_last = FALSE,
+        decision_width = 8L,
+        attention_width = 8L,
+        num_steps = 3,
+        feature_reusage = 1.3,
+        mask_type = "sparsemax",
+        virtual_batch_size = 128,
+        valid_split = 0,
+        learn_rate = 0.02,
+        optimizer = "adam",
+        #lr_scheduler = NULL,
+        #lr_decay = 0.1,
+        #step_size = 30,
+        checkpoint_epochs = 10,
+        cat_emb_dim = 1,
+        num_independent = 2,
+        num_shared = 2,
+        momentum = 0.02,
+        pretraining_ratio = 0.5,
+        verbose = FALSE,
+        device = "auto"
+        #importance_sample_size = NULL
+      )
 
       super$initialize(
         id = "classif.torch.tabnet",
@@ -118,18 +116,9 @@ LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
       # set column names to ensure consistency in fit and predict
       self$state$feature_names = task$feature_names
 
-      # # FIXME - If learner does not have 'weights' property then delete these lines.
-      # if ("weights" %in% task$properties) {
-      #   pars = insert_named(pars, list(weights = task$weights$weight))
-      # }
-
-      # FIXME - <Create objects for the train call>
-      # <At least "data" and "formula" are required>
+      # Create objects for the train call
       formula = task$formula()
       data = task$data()
-
-      # FIXME - <here is space for some custom adjustments before proceeding to the
-      # train call. Check other learners for what can be done here>
 
       # use the mlr3misc::invoke function (it's similar to do.call())
       mlr3misc::invoke(tabnet::tabnet_fit,
@@ -145,11 +134,19 @@ LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
       # get newdata and ensure same ordering in train and predict
       newdata = task$data(cols = self$state$feature_names)
 
-      pred = mlr3misc::invoke(predict, self$model, new_data = newdata,
-                              type = "class", .args = pars)
+      if (self$predict_type == "response") {
+        pred = mlr3misc::invoke(predict, self$model, new_data = newdata,
+                                type = "class", .args = pars)
 
-      # ADD PREDICTIONS TO LIST BELOW
-      list(response = pred[[".pred_class"]])
+        list(response = pred[[".pred_class"]])
+      } else {
+        pred = mlr3misc::invoke(predict, self$model, new_data = newdata,
+                                type = "prob", .args = pars)
+
+        # Result will be a df with one column per variable with names '.pred_<level>'
+        list(prob = pred)
+      }
+
     }
   )
 )
