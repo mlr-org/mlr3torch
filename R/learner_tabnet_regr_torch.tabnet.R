@@ -1,9 +1,9 @@
-#' @title Classification TabNet Learner
+#' @title Regression TabNet Learner
 #' @author Lukas Burk
-#' @name mlr_learners_classif.torch.tabnet
+#' @name mlr_learners_regr.torch.tabnet
 #'
 # @template class_learner
-# @templateVar id classif.torch.tabnet
+# @templateVar id regr.torch.tabnet
 # @templateVar caller tabnet
 #'
 #' @references
@@ -12,8 +12,8 @@
 # @template seealso_learner
 # @template example
 #' @export
-LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
-  inherit = LearnerClassif,
+LearnerRegrTorchTabnet = R6::R6Class("LearnerRegrTorchTabnet",
+  inherit = LearnerRegr,
 
   public = list(
     #' @description
@@ -88,13 +88,12 @@ LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
       )
 
       super$initialize(
-        id = "classif.torch.tabnet",
+        id = "regr.torch.tabnet",
         packages = "tabnet",
         feature_types = c("logical", "integer", "numeric", "factor", "ordered"),
-        predict_types = c("response", "prob"),
         param_set = ps,
-        properties = c("importance", "missings", "multiclass", "selected_features", "twoclass", "weights"),
-        man = "mlr3torch::mlr_learners_classif.torch.tabnet"
+        properties = c("importance", "missings", "selected_features"),
+        man = "mlr3torch::mlr_learners_regr.torch.tabnet"
       )
     }
 
@@ -134,19 +133,12 @@ LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
       # get newdata and ensure same ordering in train and predict
       newdata = task$data(cols = self$state$feature_names)
 
-      if (self$predict_type == "response") {
-        pred = mlr3misc::invoke(predict, self$model, new_data = newdata,
-                                type = "class", .args = pars)
 
-        list(response = pred[[".pred_class"]])
-      } else {
-        pred = mlr3misc::invoke(predict, self$model, new_data = newdata,
-                                type = "prob", .args = pars)
+      pred = mlr3misc::invoke(predict, self$model, new_data = newdata,
+                              .args = pars)
 
-        # Result will be a df with one column per variable with names '.pred_<level>'
-        list(prob = pred)
-      }
-
+      list(response = pred[[".pred"]])
     }
+
   )
 )

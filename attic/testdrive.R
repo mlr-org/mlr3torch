@@ -1,5 +1,6 @@
 # Testing tabnet ----
 library(tabnet)
+library(mlr3)
 # data(ames, package = 'modeldata')
 german_credit <- mlr3::tsk("german_credit")$data()
 
@@ -7,20 +8,29 @@ fit <- tabnet_fit(credit_risk ~ ., data = german_credit, epochs = 10)
 predict(fit, german_credit[1:10,])
 predict(fit, german_credit[1:10,], type = "prob")
 
+# Regression
+data("kc_housing", package = "mlr3data")
+
+# Drop columns with missings and class POSIXct for simplicity
+kc_housing <- kc_housing[, setdiff(names(kc_housing), c("date", "sqft_basement", "yr_renovated"))]
+
+tictoc::tic()
+fit_reg <- tabnet_fit(price ~ ., data = kc_housing, epochs = 10)
+tictoc::toc()
+
+pred_reg <- predict(fit_reg, new_data = kc_housing[1:10, ])
 
 # mlr3torch tabnet --------------------------------------------------------
 
 library(mlr3)
 library(mlr3torch)
 
+## Classification ----
 task <- tsk("german_credit")
 
-# Instantiate Learner
 lrn = LearnerClassifTorchTabnet$new()
 
-# Set Learner Hyperparams
 lrn$param_set$values$epochs = 10
-
 
 # Train and Predict
 tictoc::tic()
@@ -38,6 +48,36 @@ preds_prob <- lrn$predict(task)
 # preds$score(msr("time_predict"))
 # preds$score(msr("time_train"))
 
+## Regression ----
+data("kc_housing", package = "mlr3data")
+# Drop columns with missings and class POSIXct for simplicity
+kc_housing <- kc_housing[, setdiff(names(kc_housing), c("date", "sqft_basement", "yr_renovated"))]
+task_regr <- TaskRegr$new("kc_housing", kc_housing, target = "price")
+
+lrn = LearnerRegrTorchTabnet$new()
+lrn$param_set$values <- list(
+  verbose = TRUE,
+  epochs = 200,
+  penalty = 0.0005, # 0.001
+  decision_width = 64,
+  attention_width = 64,
+  num_steps = 4,
+  lr_scheduler = "step",
+  device = "cuda"
+)
+
+
+# Train and Predict
+tictoc::tic()
+lrn$train(task_regr)
+tictoc::toc()
+
+preds <- lrn$predict(task_regr)
+preds$score(msr("regr.rmse"))
+
+library(ggplot2)
+library(mlr3viz)
+autoplot(preds)
 
 # mlr3keras tabnet --------------------------------------------------------
 # remotes::install_github('mlr-org/mlr3keras')
