@@ -31,11 +31,16 @@ task <- tsk("german_credit")
 lrn = LearnerClassifTorchTabnet$new()
 
 lrn$param_set$values$epochs = 10
+lrn$param_set$values$decision_width = NULL
+lrn$param_set$values$attention_width = 8
 
 # Train and Predict
 tictoc::tic()
 lrn$train(task)
 tictoc::toc()
+
+lrn$model$fit$config$n_a == lrn$param_set$values$attention_width
+lrn$model$fit$config$n_d == lrn$param_set$values$attention_width
 
 preds <- lrn$predict(task)
 

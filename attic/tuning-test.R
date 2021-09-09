@@ -11,11 +11,15 @@ kc_housing <- kc_housing[, setdiff(names(kc_housing), c("date", "sqft_basement",
 task_regr <- TaskRegr$new("kc_housing", kc_housing, target = "price")
 
 lrn = LearnerRegrTorchTabnet$new()
+
+# Set attention_width to NULL and tune over decision_width, as model authors
+# recommend N_d == N_a and {tabnet} sets N_d == N_a if either is NULL
 lrn$param_set$values <- list(
   # verbose = TRUE,
   epochs = 50,
   lr_scheduler = "step",
-  device = "cuda"
+  device = "cuda",
+  attention_width = NULL
 )
 
 lrn_graph <- po("scale") %>>%
@@ -23,28 +27,26 @@ lrn_graph <- po("scale") %>>%
 
 search_space <- ps(
   #penalty = p_dbl(lower = 0.0001, upper = 0.001),
-  decision_width = p_int(lower = 8, upper = 64),
-  attention_width = p_int(lower = 8, upper = 64),
+  decision_width = p_int(lower = log2(8), upper = log2(64), trafo = function(x) 2^x),
+  #attention_width = p_int(lower = 8, upper = 64),
   num_steps = p_int(lower = 3, upper = 10)
 )
-
-rsmp_holdout <- rsmp("holdout")
-measure <- msr("regr.rmse")
-trm_evals <- trm("evals", n_evals = 50)
 
 instance <- TuningInstanceSingleCrit$new(
   task = task_regr,
   learner = lrn,
-  resampling = rsmp_holdout,
-  measure = measure,
+  resampling = rsmp("holdout"),
+  measure = msr("regr.rmse"),
   search_space = search_space,
-  terminator = trm_evals
+  terminator = trm("evals", n_evals = 50)
 )
 
-tuner <- tnr("random_search", batch_size = 5)
+tuner <- tnr("grid_search", resolution = 1, batch_size = 4)
 
-future::plan("multisession", workers = 12)
+future::plan("multisession", workers = 4)
 
 tuner$optimize(instance)
 
 instance$result_learner_param_vals
+
+saveRDS(instance, "attic/tuning-result.rds")
