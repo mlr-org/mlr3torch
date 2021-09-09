@@ -12,25 +12,27 @@ task_regr <- TaskRegr$new("kc_housing", kc_housing, target = "price")
 
 lrn = LearnerRegrTorchTabnet$new()
 
-# Set attention_width to NULL and tune over decision_width, as model authors
-# recommend N_d == N_a and {tabnet} sets N_d == N_a if either is NULL
-lrn$param_set$values$attention_width <- NULL
-
-lrn$param_set$values <- list(
-  # verbose = TRUE,
-  epochs = 50,
-  lr_scheduler = "step",
-  device = "cuda"
-)
-
 lrn_graph <- po("scale") %>>%
   po("learner", learner = lrn)
+lrn_graph <- GraphLearner$new(lrn_graph)
+
+# Set attention_width to NULL and tune over decision_width, as model authors
+# recommend N_d == N_a and {tabnet} sets N_d == N_a if either is NULL
+lrn_graph$param_set$values$regr.torch.tabnet.attention_width <- NULL
+
+lrn_graph$param_set$values <- list(
+  scale.robust = FALSE,
+  # verbose = TRUE,
+  regr.torch.tabnet.epochs = 50,
+  regr.torch.tabnet.lr_scheduler = "step",
+  regr.torch.tabnet.device = "cuda"
+)
 
 search_space <- ps(
   #penalty = p_dbl(lower = 0.0001, upper = 0.001),
-  decision_width = p_int(lower = log2(8), upper = log2(64), trafo = function(x) 2^x),
+  regr.torch.tabnet.decision_width = p_int(lower = log2(8), upper = log2(64), trafo = function(x) 2^x),
   #attention_width = p_int(lower = 8, upper = 64),
-  num_steps = p_int(lower = 3, upper = 10)
+  regr.torch.tabnet.num_steps = p_int(lower = 3, upper = 10)
 )
 
 instance <- TuningInstanceSingleCrit$new(
