@@ -44,7 +44,7 @@ instance <- TuningInstanceSingleCrit$new(
   terminator = trm("evals", n_evals = 50)
 )
 
-tuner <- tnr("grid_search", resolution = 1, batch_size = 4)
+tuner <- tnr("grid_search", resolution = 4, batch_size = 4)
 
 future::plan("multisession", workers = 4)
 
