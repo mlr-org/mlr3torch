@@ -10,6 +10,7 @@ Authors@R:
 Description: Provides torch models as learners for the mlr3 ecosystem.
 License: LGPL (>= 3)
 Imports: 
+    checkmate,
     lifecycle,
     mlr3,
     mlr3misc,
