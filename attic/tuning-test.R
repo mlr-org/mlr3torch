@@ -14,12 +14,13 @@ lrn = LearnerRegrTorchTabnet$new()
 
 # Set attention_width to NULL and tune over decision_width, as model authors
 # recommend N_d == N_a and {tabnet} sets N_d == N_a if either is NULL
+lrn$param_set$values$attention_width <- NULL
+
 lrn$param_set$values <- list(
   # verbose = TRUE,
   epochs = 50,
   lr_scheduler = "step",
-  device = "cuda",
-  attention_width = NULL
+  device = "cuda"
 )
 
 lrn_graph <- po("scale") %>>%
@@ -34,7 +35,7 @@ search_space <- ps(
 
 instance <- TuningInstanceSingleCrit$new(
   task = task_regr,
-  learner = lrn,
+  learner = lrn_graph,
   resampling = rsmp("holdout"),
   measure = msr("regr.rmse"),
   search_space = search_space,
