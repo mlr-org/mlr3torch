@@ -12,6 +12,19 @@
 # @template seealso_learner
 # @template example
 #' @export
+#' @examples
+#' \dontrun{
+#' library(mlr3)
+#' library(mlr3torch)
+#' # Creating a learner & training on example task
+#' lrn = LearnerRegrTorchTabnet$new()
+#' lrn$param_set$values$epochs = 10
+#' lrn$train(tsk("boston_housing"))
+#'
+#' # Predict on training data, get RMSE
+#' predictions <- lrn$predict(tsk("boston_housing"))
+#' predictions$score(msr("regr.rmse"))
+#' }
 LearnerRegrTorchTabnet = R6::R6Class("LearnerRegrTorchTabnet",
   inherit = LearnerRegr,
 

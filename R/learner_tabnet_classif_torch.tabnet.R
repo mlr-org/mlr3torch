@@ -12,6 +12,15 @@
 # @template seealso_learner
 # @template example
 #' @export
+#' @examples
+#' \dontrun{
+#' task <- tsk("german_credit")
+#' lrn = LearnerClassifTorchTabnet$new()
+#'
+#' lrn$param_set$values$epochs = 10
+#' lrn$param_set$values$attention_width = 8
+#' lrn$train(task)
+#' }
 LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
   inherit = LearnerClassif,
 

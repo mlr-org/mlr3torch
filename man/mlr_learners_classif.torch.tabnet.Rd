@@ -9,6 +9,16 @@ Classification TabNet Learner
 
 Classification TabNet Learner
 }
+\examples{
+\dontrun{
+task <- tsk("german_credit")
+lrn = LearnerClassifTorchTabnet$new()
+
+lrn$param_set$values$epochs = 10
+lrn$param_set$values$attention_width = 8
+lrn$train(task)
+}
+}
 \references{
 <FIXME - DELETE THIS AND LINE ABOVE IF OMITTED>
 }
