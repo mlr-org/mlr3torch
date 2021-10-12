@@ -153,7 +153,10 @@ LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
                                 type = "prob", .args = pars)
 
         # Result will be a df with one column per variable with names '.pred_<level>'
-        list(prob = pred)
+        # we want the names without ".pred"
+        names(pred) <- sub(pattern = ".pred_", replacement = "", names(pred))
+
+        list(prob = as.matrix(pred))
       }
 
     }
