@@ -7,7 +7,7 @@
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![R-CMD-check](https://github.com/jemus42/mlr3keras/workflows/R-CMD-check/badge.svg)](https://github.com/jemus42/mlr3keras/actions)
+[![R-CMD-check](https://github.com/mlr-org/mlr3torch/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mlr-org/mlr3torch/actions/workflows/R-CMD-check.yaml)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/mlr3torch)](https://CRAN.R-project.org/package=mlr3torch)
 <!-- badges: end -->
@@ -16,22 +16,41 @@ The goal of {mlr3torch} is to connect
 [{mlr3}](https://github.com/mlr-org/mlr3) with
 [{torch}](https://github.com/mlverse/torch).
 
+It is in the very early stages of development and it’s future and scope
+are yet to be determined.
+
 ## Installation
 
-<!-- You can install the released version of mlr3torch from [CRAN](https://CRAN.R-project.org) with: -->
-<!-- ``` r -->
-<!-- install.packages("mlr3torch") -->
-<!-- ``` -->
-
 ``` r
-remotes::install_github("jemus42/mlr3torch")
+remotes::install_github("mlr-org/mlr3torch")
 ```
 
-## Example
+## `tabnet` Example
 
-This is a basic example which shows you how to solve a common problem:
+Using the [{tabnet}](https://github.com/mlverse/tabnet) learner for
+classification:
 
 ``` r
+library(mlr3)
+library(mlr3viz)
 library(mlr3torch)
-## basic example code
+
+task <- tsk("german_credit")
+
+# Set up the learner
+lrn_tabnet <- LearnerClassifTorchTabnet$new()
+lrn_tabnet$param_set$values$epochs <- 10
+
+# Train and Predict
+lrn_tabnet$train(task)
+
+preds <- lrn_tabnet$predict(task)
+
+preds$confusion
+preds$score(msr("classif.acc"))
+
+lrn_tabnet$predict_type <- "prob"
+preds_prob <- lrn_tabnet$predict(task)
+
+autoplot(preds_prob, type = "roc")
 ```
