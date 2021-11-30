@@ -9,7 +9,7 @@ lrn <- lrn("classif.torch.tabnet", epochs = 5L, num_threads = 1L)
 cli::cli_h1("CV without parallelisation")
 tictoc::tic()
 set.seed(247)
-torch::torch_manual_seed(247)
+# torch::torch_manual_seed(247)
 rr_single <- resample(
   task = tsk("spam"),
   learner = lrn,
@@ -23,7 +23,7 @@ cli::cli_h1("CV with plan('multisession')")
 tictoc::tic()
 future::plan("multisession")
 set.seed(247)
-torch::torch_manual_seed(247)
+# torch::torch_manual_seed(247)
 rr_multisession <- resample(
   task = tsk("spam"),
   learner = lrn,
@@ -51,19 +51,27 @@ if (interactive()) {
   cli::cli_h1("Checking sequential resampling")
   rr_singles <- purrr::map(fs::dir_ls(here::here("attic"), glob = "*rr_single*rds"), readRDS)
 
-  cli::cli_text("Checking if predictions are the same")
-  all.equal(rr_singles[[1]]$predictions(), rr_singles[[2]]$predictions())
+  cli::cli_text(
+    "Checking if predictions are the same: ",
+    purrr::reduce(purrr::map(rr_singles, ~.x$predictions()), all.equal)
+  )
 
-  cli::cli_text("Checking if scored CE is the same")
-  all.equal(rr_singles[[1]]$score()[["classif.ce"]], rr_singles[[2]]$score()[["classif.ce"]])
+  cli::cli_text(
+    "Checking if scored CE is the same: ",
+    purrr::reduce(purrr::map(rr_singles, ~.x$score()[["classif.ce"]]), all.equal)
+  )
 
   cli::cli_h1("Checking multisession resampling")
   rr_multisess <- purrr::map(fs::dir_ls(here::here("attic"), glob = "*rr_multisession*rds"), readRDS)
 
-  cli::cli_text("Checking if predictions are the same")
-  all.equal(rr_multisess[[1]]$predictions(), rr_multisess[[2]]$predictions())
+  cli::cli_text(
+    "Checking if predictions are the same: ",
+    purrr::reduce(purrr::map(rr_multisess, ~.x$predictions()), all.equal)
+  )
 
-  cli::cli_text("Checking if scored CE is the same")
-  all.equal(rr_multisess[[1]]$score()[["classif.ce"]], rr_multisess[[2]]$score()[["classif.ce"]])
+  cli::cli_text(
+    "Checking if scored CE is the same: ",
+    purrr::reduce(purrr::map(rr_multisess, ~.x$score()[["classif.ce"]]), all.equal)
+  )
 
 }
