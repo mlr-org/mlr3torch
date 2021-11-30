@@ -1,38 +1,33 @@
-#' @title Regression TabNet Learner
+#' @title Classification TabNet Learner
 #' @author Lukas Burk
-#' @name mlr_learners_regr.torch.tabnet
+#' @name classif.torch.tabnet
 #'
 # @template class_learner
-# @templateVar id regr.torch.tabnet
+# @templateVar id classif.torch.tabnet
 # @templateVar caller tabnet
 #'
-#' @references
-#' <FIXME - DELETE THIS AND LINE ABOVE IF OMITTED>
 #'
 # @template seealso_learner
 # @template example
 #' @export
 #' @examples
 #' \dontrun{
-#' library(mlr3)
-#' library(mlr3torch)
-#' # Creating a learner & training on example task
-#' lrn = LearnerRegrTorchTabnet$new()
-#' lrn$param_set$values$epochs = 10
-#' lrn$train(tsk("boston_housing"))
+#' task <- tsk("german_credit")
+#' lrn = LearnerClassifTorchTabnet$new()
 #'
-#' # Predict on training data, get RMSE
-#' predictions <- lrn$predict(tsk("boston_housing"))
-#' predictions$score(msr("regr.rmse"))
+#' lrn$param_set$values$epochs = 10
+#' lrn$param_set$values$attention_width = 8
+#' lrn$train(task)
 #' }
-LearnerRegrTorchTabnet = R6::R6Class("LearnerRegrTorchTabnet",
-  inherit = LearnerRegr,
+LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
+  inherit = LearnerClassif,
 
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function() {
       ps = ParamSet$new(list(
+        ParamInt$new("num_threads", default = 1L, lower = 1L, upper = Inf, tags = "train"),
         ParamInt$new("batch_size", default = 256L, lower = 1L, upper = Inf, tags = "train"),
         ParamDbl$new("penalty",    default = 0.001, tags = "train"),
 
@@ -71,6 +66,7 @@ LearnerRegrTorchTabnet = R6::R6Class("LearnerRegrTorchTabnet",
 
       # FIXME - MANUALLY UPDATE PARAM VALUES BELOW IF APPLICABLE THEN DELETE THIS LINE.
       ps$values = list(
+        num_threads = 1L,
         batch_size = 256,
         penalty = 0.001,
         #clip_value = NULL,
@@ -101,12 +97,13 @@ LearnerRegrTorchTabnet = R6::R6Class("LearnerRegrTorchTabnet",
       )
 
       super$initialize(
-        id = "regr.torch.tabnet",
+        id = "classif.torch.tabnet",
         packages = "tabnet",
         feature_types = c("logical", "integer", "numeric", "factor", "ordered"),
+        predict_types = c("response", "prob"),
         param_set = ps,
-        properties = c("importance", "missings", "selected_features"),
-        man = "mlr3torch::mlr_learners_regr.torch.tabnet"
+        properties = c("importance", "missings", "multiclass", "selected_features", "twoclass", "weights"),
+        man = "classif.torch.tabnet"
       )
     }
 
@@ -124,6 +121,9 @@ LearnerRegrTorchTabnet = R6::R6Class("LearnerRegrTorchTabnet",
     .train = function(task) {
       # get parameters for training
       pars = self$param_set$get_values(tags = "train")
+
+      # Set number of threads
+      torch::torch_set_num_threads(pars$num_threads)
 
       # set column names to ensure consistency in fit and predict
       self$state$feature_names = task$feature_names
@@ -146,12 +146,22 @@ LearnerRegrTorchTabnet = R6::R6Class("LearnerRegrTorchTabnet",
       # get newdata and ensure same ordering in train and predict
       newdata = task$data(cols = self$state$feature_names)
 
+      if (self$predict_type == "response") {
+        pred = mlr3misc::invoke(predict, self$model, new_data = newdata,
+                                type = "class", .args = pars)
 
-      pred = mlr3misc::invoke(predict, self$model, new_data = newdata,
-                              .args = pars)
+        list(response = pred[[".pred_class"]])
+      } else {
+        pred = mlr3misc::invoke(predict, self$model, new_data = newdata,
+                                type = "prob", .args = pars)
 
-      list(response = pred[[".pred"]])
+        # Result will be a df with one column per variable with names '.pred_<level>'
+        # we want the names without ".pred"
+        names(pred) <- sub(pattern = ".pred_", replacement = "", names(pred))
+
+        list(prob = as.matrix(pred))
+      }
+
     }
-
   )
 )
