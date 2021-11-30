@@ -27,7 +27,7 @@ LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function() {
       ps = ParamSet$new(list(
-        ParamInt$new("num_threads", default = 1L, lower = 1L, upper = Inf, tags = "train"),
+        ParamInt$new("num_threads", default = 1L, lower = 1L, upper = Inf, tags = "control"),
         ParamInt$new("batch_size", default = 256L, lower = 1L, upper = Inf, tags = "train"),
         ParamDbl$new("penalty",    default = 0.001, tags = "train"),
 
@@ -121,9 +121,10 @@ LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
     .train = function(task) {
       # get parameters for training
       pars = self$param_set$get_values(tags = "train")
+      pars_control = self$param_set$get_values(tags = "control")
 
       # Set number of threads
-      torch::torch_set_num_threads(pars$num_threads)
+      torch::torch_set_num_threads(pars_control$num_threads)
 
       # set column names to ensure consistency in fit and predict
       self$state$feature_names = task$feature_names
