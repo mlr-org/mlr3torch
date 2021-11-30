@@ -15,10 +15,10 @@ Imports:
     mlr3,
     mlr3misc,
     paradox,
-    R6,
-    tabnet
+    R6
 Suggests: 
     lgr,
+    tabnet,
     testthat (>= 3.0.0)
 Remotes:
     mlverse/tabnet
