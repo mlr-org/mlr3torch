@@ -10,7 +10,6 @@
 #' <FIXME - DELETE THIS AND LINE ABOVE IF OMITTED>
 #'
 # @template seealso_learner
-# @template example
 #' @export
 #' @examples
 #' \dontrun{

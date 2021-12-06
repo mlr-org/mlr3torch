@@ -8,7 +8,6 @@
 #'
 #'
 # @template seealso_learner
-# @template example
 #' @export
 #' @examples
 #' \dontrun{
@@ -27,7 +26,7 @@ LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function() {
       ps = ParamSet$new(list(
-        ParamInt$new("num_threads", default = 1L, lower = 1L, upper = Inf, tags = "control"),
+        ParamInt$new("num_threads", default = 1L, lower = 1L, upper = Inf, tags = "train"),
         ParamInt$new("batch_size", default = 256L, lower = 1L, upper = Inf, tags = "train"),
         ParamDbl$new("penalty",    default = 0.001, tags = "train"),
 
@@ -103,7 +102,7 @@ LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
         predict_types = c("response", "prob"),
         param_set = ps,
         properties = c("importance", "missings", "multiclass", "selected_features", "twoclass", "weights"),
-        man = "classif.torch.tabnet"
+        man = "mlr3torch::classif.torch.tabnet"
       )
     }
 
