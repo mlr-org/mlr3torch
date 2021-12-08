@@ -2,7 +2,9 @@
 
 export(LearnerClassifTorchTabnet)
 export(LearnerRegrTorchTabnet)
+export(df_from_imagenet_dir)
 import(checkmate)
+import(data.table)
 import(mlr3)
 import(mlr3misc)
 import(paradox)

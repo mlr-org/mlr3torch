@@ -10,6 +10,6 @@ register_mlr3 = function() {
 
 }
 
-.onLoad = function(libname, pkgname) { # nolint
+.onLoad = function(libname, pkgname) {
   register_namespace_callback(pkgname, "mlr3", register_mlr3)
 }

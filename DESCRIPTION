@@ -11,11 +11,13 @@ Description: Provides torch models as learners for the mlr3 ecosystem.
 License: LGPL (>= 3)
 Imports: 
     checkmate,
+    data.table,
     lifecycle,
     mlr3,
     mlr3misc,
     paradox,
-    R6
+    R6,
+    torch
 Suggests: 
     lgr,
     tabnet,
