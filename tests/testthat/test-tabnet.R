@@ -15,13 +15,13 @@ test_that("Learner can be instantiated", {
 })
 
 # # FIXME: Figure out what autotest tests and why it fails on feat_all_binary
-# test_that("autotest", {
-#   learner = LearnerClassifTorchTabnet$new()
-#   learner$param_set$values$epochs = 3L
-#   expect_learner(learner)
-#   result = run_autotest(learner, exclude = "(feat_single|sanity)", check_replicable = FALSE)
-#   expect_true(result, info = result$error)
-# })
+test_that("autotest", {
+  learner = LearnerClassifTorchTabnet$new()
+  learner$param_set$values$epochs = 3L
+  expect_learner(learner)
+  result = run_autotest(learner, exclude = "(feat_single|sanity)", check_replicable = FALSE)
+  expect_true(result, info = result$error)
+})
 
 
 # Regression --------------------------------------------------------------
