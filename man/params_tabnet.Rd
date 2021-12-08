@@ -7,8 +7,8 @@
 params_tabnet()
 }
 \value{
-Object of classes \verb{ParamSet" "R6"}, suitable for use with \code{\link{classif.torch.tabnet}}
-and \verb{[regr.torch.tabnet]}.
+Object of classes \verb{ParamSet" "R6"}, suitable for use with
+\code{\link{mlr_learners_classif.torch.tabnet}} and \code{\link{mlr_learners_regr.torch.tabnet}}.
 }
 \description{
 Used to de-duplicate learner setup.
