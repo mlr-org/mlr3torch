@@ -1,8 +1,8 @@
 #' Wrapper for the TabNet ParamSet
 #'
 #' Used to de-duplicate learner setup.
-#' @return Object of classes `ParamSet" "R6"`, suitable for use with [`classif.torch.tabnet`]
-#' and `[regr.torch.tabnet]`.
+#' @return Object of classes `ParamSet" "R6"`, suitable for use with
+#' [`mlr_learners_classif.torch.tabnet`] and [`mlr_learners_regr.torch.tabnet`].
 #' @keywords internal
 #'
 params_tabnet <- function() {

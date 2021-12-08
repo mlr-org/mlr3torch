@@ -14,7 +14,10 @@
 #' @author Florian Pfisterer
 #' @examples
 #' \dontrun{
-#' df_from_imagenet_dir(c("/opt/example-data/imagenette2-160/train/", "/opt/example-data/imagenette2-160/val/"))
+#' df_from_imagenet_dir(c(
+#'   "/opt/example-data/imagenette2-160/train/",
+#'   "/opt/example-data/imagenette2-160/val/"
+#' ))
 #'
 #' }
 df_from_imagenet_dir = function(dirs) {
