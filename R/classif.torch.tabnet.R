@@ -7,7 +7,7 @@
 #' @templateVar caller tabnet
 #'
 #'
-# @template seealso_learner
+#' @template seealso_learner
 #' @export
 #' @examples
 #' \dontrun{

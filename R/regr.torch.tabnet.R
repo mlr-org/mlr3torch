@@ -9,7 +9,7 @@
 #' @references
 #' <FIXME - DELETE THIS AND LINE ABOVE IF OMITTED>
 #'
-# @template seealso_learner
+#' @template seealso_learner
 #' @export
 #' @examples
 #' \dontrun{

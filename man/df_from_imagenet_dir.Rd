@@ -12,8 +12,8 @@ df_from_imagenet_dir(dirs)
 List of dirs to create dataframes from.}
 }
 \value{
-\code{\link{data.frame}}\cr
-with columns "image" and "class" (the class).
+\code{\link{data.table}} with columns "image" and "class" (the class).
+Column "image" has additional class "imageuri".
 }
 \description{
 The imagenet directory structure is laid out as follows
@@ -28,9 +28,5 @@ df_from_imagenet_dir(c(
   "/opt/example-data/imagenette2-160/train/",
   "/opt/example-data/imagenette2-160/val/"
 ))
-
 }
-}
-\author{
-Florian Pfisterer
 }
