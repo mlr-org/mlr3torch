@@ -1,21 +1,23 @@
 #' @title Classification TabNet Learner
 #' @author Lukas Burk
-#' @name classif.torch.tabnet
+#' @name mlr_learners_classif.torch.tabnet
 #'
-# @template class_learner
-# @templateVar id classif.torch.tabnet
-# @templateVar caller tabnet
+#' @template class_learner
+#' @templateVar id classif.torch.tabnet
+#' @templateVar caller tabnet
 #'
 #'
 # @template seealso_learner
 #' @export
 #' @examples
 #' \dontrun{
+#' library(mlr3)
+#' library(mlr3torch)
 #' task <- tsk("german_credit")
-#' lrn = LearnerClassifTorchTabnet$new()
+#' lrn <- lrn("classif.torch.tabnet")
 #'
-#' lrn$param_set$values$epochs = 10
-#' lrn$param_set$values$attention_width = 8
+#' lrn$param_set$values$epochs <- 10
+#' lrn$param_set$values$attention_width <- 8
 #' lrn$train(task)
 #' }
 LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
@@ -25,75 +27,7 @@ LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function() {
-      ps = ParamSet$new(list(
-        ParamInt$new("num_threads", default = 1L, lower = 1L, upper = Inf, tags = "train"),
-        ParamInt$new("batch_size", default = 256L, lower = 1L, upper = Inf, tags = "train"),
-        ParamDbl$new("penalty",    default = 0.001, tags = "train"),
-
-        # FIXME: NULL here is used for bool FALSE, not sure what to do there.
-        ParamUty$new("clip_value",         default = NULL, tags = "train"),
-        ParamFct$new("loss",               default = "auto", levels = c("auto", "mse", "cross_entropy"), tags = "train"),
-        ParamInt$new("epochs",             default = 5L,  lower = 1L, upper = Inf, tags = "train"),
-        ParamLgl$new("drop_last",          default = FALSE, tags = "train"),
-        ParamInt$new("decision_width",     default = 8L, lower = 1L, upper = Inf, tags = "train"),
-        ParamInt$new("attention_width",    default = 8L, lower = 1L, upper = Inf, tags = "train"),
-        ParamInt$new("num_steps",          default = 3L,  lower = 1L, upper = Inf, tags = "train"),
-        ParamDbl$new("feature_reusage",    default = 1.3, lower = 0, upper = Inf, tags = "train"),
-        ParamFct$new("mask_type",          default = "sparsemax", levels = c("sparsemax", "entmax"), tags = "train"),
-        ParamInt$new("virtual_batch_size", default = 128L, lower = 1L, upper = Inf, tags = "train"),
-        ParamDbl$new("valid_split",        default = 0, lower = 0, upper = 1, tags = "train"),
-        ParamDbl$new("learn_rate",         default = 0.02, lower = 0, upper = 1, tags = "train"),
-
-        # FIXME: Currently either 'adam' or arbitrary optimizer function according to docs
-        ParamUty$new("optimizer", default = "adam", tags = "train"),
-
-        # FIXME: This is either NULL or a function or explicit "steps", needs custom_check fun
-        ParamUty$new("lr_scheduler", default = NULL, tags = "train"),
-
-        ParamDbl$new("lr_decay",          default = 0.1, lower = 0, upper = 1, tags = "train"),
-        ParamInt$new("step_size",         default = 30L, lower = 1L, upper = Inf, tags = "train"),
-        ParamInt$new("checkpoint_epochs", default = 10L, lower = 1L, upper = Inf, tags = "train"),
-        ParamInt$new("cat_emb_dim",       default = 1L, lower = 0L, upper = Inf, tags = "train"),
-        ParamInt$new("num_independent",   default = 2L, lower = 0, upper = Inf, tags = "train"),
-        ParamInt$new("num_shared",        default = 2L, lower = 0, upper = Inf, tags = "train"),
-        ParamDbl$new("momentum",          default = 0.02, lower = 0, upper = 1, tags = "train"),
-        ParamDbl$new("pretraining_ratio", default = 0.5, lower = 0, upper = 1, tags = "train"),
-        ParamLgl$new("verbose",           default = FALSE, tags = "train"),
-        ParamFct$new("device",            default = "auto", levels = c("auto", "cpu", "cuda"), tags = "train")
-        # ParamDbl$new("importance_sample_size", lower = 0, upper = 1, tags = "train"),
-      ))
-
-      # FIXME - MANUALLY UPDATE PARAM VALUES BELOW IF APPLICABLE THEN DELETE THIS LINE.
-      ps$values = list(
-        num_threads = 1L,
-        batch_size = 256,
-        penalty = 0.001,
-        #clip_value = NULL,
-        loss = "auto",
-        epochs = 5,
-        drop_last = FALSE,
-        decision_width = 8L,
-        attention_width = 8L,
-        num_steps = 3,
-        feature_reusage = 1.3,
-        mask_type = "sparsemax",
-        virtual_batch_size = 128,
-        valid_split = 0,
-        learn_rate = 0.02,
-        optimizer = "adam",
-        #lr_scheduler = NULL,
-        #lr_decay = 0.1,
-        #step_size = 30,
-        checkpoint_epochs = 10,
-        cat_emb_dim = 1,
-        num_independent = 2,
-        num_shared = 2,
-        momentum = 0.02,
-        pretraining_ratio = 0.5,
-        verbose = FALSE,
-        device = "auto"
-        #importance_sample_size = NULL
-      )
+      ps = params_tabnet()
 
       super$initialize(
         id = "classif.torch.tabnet",
@@ -102,7 +36,7 @@ LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
         predict_types = c("response", "prob"),
         param_set = ps,
         properties = c("importance", "missings", "multiclass", "selected_features", "twoclass", "weights"),
-        man = "mlr3torch::classif.torch.tabnet"
+        man = "mlr3torch::mlr_learners_classif.torch.tabnet"
       )
     }
 
@@ -121,6 +55,9 @@ LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
       # get parameters for training
       pars = self$param_set$get_values(tags = "train")
       pars_control = self$param_set$get_values(tags = "control")
+
+      # Drop control par from training pars as tabnet_fit doesn't know it
+      pars <- pars[!(names(pars) %in% names(pars_control))]
 
       # Set number of threads
       torch::torch_set_num_threads(pars_control$num_threads)
