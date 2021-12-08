@@ -12,6 +12,7 @@ License: LGPL (>= 3)
 Imports: 
     checkmate,
     data.table,
+    fs,
     lifecycle,
     mlr3,
     mlr3misc,

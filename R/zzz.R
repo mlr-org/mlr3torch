@@ -1,12 +1,23 @@
 register_mlr3 = function() {
-  x = utils::getFromNamespace("mlr_learners", ns = "mlr3")
+
+  # Learners ----------------------------------------------------------------
+
+  lrns = utils::getFromNamespace("mlr_learners", ns = "mlr3")
 
   # classification learners
-  x$add("classif.torch.tabnet", LearnerClassifTorchTabnet)
+  lrns$add("classif.torch.tabnet", LearnerClassifTorchTabnet)
 
 
   # regression learners
-  x$add("regr.torch.tabnet", LearnerRegrTorchTabnet)
+  lrns$add("regr.torch.tabnet", LearnerRegrTorchTabnet)
+
+
+  # Reflections -------------------------------------------------------------
+  reflcts = utils::getFromNamespace("mlr_reflections", ns = "mlr3")
+
+  # Image URI feature (e.g. file path to .jpg etc.) for image classif tasks
+  reflcts$task_feature_types[["img"]] <- "imageuri"
+
 
 }
 

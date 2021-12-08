@@ -8,29 +8,23 @@
 #' One directory for each class. The folders directly contain the images.
 #' @param dirs [`character`]\cr
 #'   List of dirs to create dataframes from.
-#' @return [`data.frame`]\cr
-#'   with columns "image" and "class" (the class).
+#' @return [`data.table`] with columns "image" and "class" (the class).
+#' Column "image" has additional class "imageuri".
 #' @export
-#' @author Florian Pfisterer
 #' @examples
 #' \dontrun{
 #' df_from_imagenet_dir(c(
 #'   "/opt/example-data/imagenette2-160/train/",
 #'   "/opt/example-data/imagenette2-160/val/"
 #' ))
-#'
 #' }
-df_from_imagenet_dir = function(dirs) {
-  rbindlist(map(dirs, function(y) {
-    dt = rbindlist(map(list.dirs(y, recursive = FALSE), function(x) {
-      data.table(
-        class = basename(x),
-        image = list.files(x, full.names = TRUE)
-      )
-    }))
-    set(dt, j = "class", value = as.factor(dt$class))
-    return(dt)
-  }))
+df_from_imagenet_dir <- function(dirs) {
+  img_file <- fs::dir_ls(dirs, recurse = TRUE, type = "file")
+  img_class <- fs::path_file(fs::path_dir(img_file))
+  class(img_file) <- c("imageuri", "character")
+
+  data.table::data.table(
+    class = factor(img_class),
+    image = img_file
+  )
 }
-
-
