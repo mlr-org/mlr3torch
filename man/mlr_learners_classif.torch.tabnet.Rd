@@ -55,6 +55,7 @@ lrn("classif.torch.tabnet")
    pretraining_ratio \tab numeric \tab 0.5 \tab \eqn{[0, 1]}{[0, 1]} \tab - \cr
    verbose \tab logical \tab FALSE \tab - \tab TRUE, FALSE \cr
    device \tab character \tab auto \tab - \tab auto, cpu, cuda \cr
+   importance_sample_size \tab integer \tab - \tab \eqn{[0, 1e+05]}{[0, 1e+05]} \tab - \cr
 }
 }
 
@@ -69,6 +70,9 @@ lrn$param_set$values$epochs <- 10
 lrn$param_set$values$attention_width <- 8
 lrn$train(task)
 }
+}
+\references{
+Arik, S. O. & Pfister, T. TabNet: Attentive Interpretable Tabular Learning. arXiv:1908.07442 [cs, stat] (2020).
 }
 \seealso{
 \itemize{
@@ -91,6 +95,7 @@ Lukas Burk
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{LearnerClassifTorchTabnet$new()}}
+\item \href{#method-importance}{\code{LearnerClassifTorchTabnet$importance()}}
 \item \href{#method-clone}{\code{LearnerClassifTorchTabnet$clone()}}
 }
 }
@@ -117,6 +122,19 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \if{html}{\out{<div class="r">}}\preformatted{LearnerClassifTorchTabnet$new()}\if{html}{\out{</div>}}
 }
 
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-importance"></a>}}
+\if{latex}{\out{\hypertarget{method-importance}{}}}
+\subsection{Method \code{importance()}}{
+The importance scores are extracted from the slot \code{.$model$fit$importances}.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LearnerClassifTorchTabnet$importance()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Named \code{numeric()}.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

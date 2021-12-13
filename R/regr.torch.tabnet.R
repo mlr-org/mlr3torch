@@ -7,7 +7,7 @@
 #' @templateVar caller tabnet
 #'
 #' @references
-#' <FIXME - DELETE THIS AND LINE ABOVE IF OMITTED>
+#' Arik, S. O. & Pfister, T. TabNet: Attentive Interpretable Tabular Learning. arXiv:1908.07442 \[cs, stat\] (2020).
 #'
 #' @template seealso_learner
 #' @export
@@ -28,14 +28,13 @@
 #' predictions <- lrn$predict(task)
 #' predictions$score(msr("regr.rmse"))
 #' }
-LearnerRegrTorchTabnet = R6::R6Class("LearnerRegrTorchTabnet",
+LearnerRegrTorchTabnet <- R6::R6Class("LearnerRegrTorchTabnet",
   inherit = LearnerRegr,
-
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function() {
-      ps = params_tabnet()
+      ps <- params_tabnet()
 
       super$initialize(
         id = "regr.torch.tabnet",
@@ -45,53 +44,55 @@ LearnerRegrTorchTabnet = R6::R6Class("LearnerRegrTorchTabnet",
         properties = c("importance", "missings", "selected_features"),
         man = "mlr3torch::mlr_learners_regr.torch.tabnet"
       )
+    },
+
+    #' @description
+    #' The importance scores are extracted from the slot `.$model$fit$importances`.
+    #' @return Named `numeric()`.
+    importance = function() {
+      if (is.null(self$model)) {
+        stopf("No model stored")
+      }
+      imp <- self$model$fit$importances
+      sort(stats::setNames(imp$importance, imp$variables), decreasing = TRUE)
     }
-
-    # FIXME - ADD IMPORTANCE METHOD HERE AND DELETE THIS LINE.
-    # <See LearnerRegrRandomForest for an example>
-    # @description
-    # The importance scores are extracted from the slot <FIXME>.
-    # @return Named `numeric()`.
-    # importance = function() { }
-
   ),
-
   private = list(
-
     .train = function(task) {
       # get parameters for training
-      pars = self$param_set$get_values(tags = "train")
+      pars <- self$param_set$get_values(tags = "train")
 
       # Drop control par from training pars as tabnet_fit doesn't know it
       pars <- pars[!(names(pars) %in% names(pars_control))]
 
       # set column names to ensure consistency in fit and predict
-      self$state$feature_names = task$feature_names
+      self$state$feature_names <- task$feature_names
 
       # Create objects for the train call
-      formula = task$formula()
-      data = task$data()
+      formula <- task$formula()
+      data <- task$data()
 
       # use the mlr3misc::invoke function (it's similar to do.call())
       mlr3misc::invoke(tabnet::tabnet_fit,
-                       formula = formula,
-                       data = data,
-                       .args = pars)
+        formula = formula,
+        data = data,
+        .args = pars
+      )
     },
-
     .predict = function(task) {
       # get parameters with tag "predict"
-      pars = self$param_set$get_values(tags = "predict")
+      pars <- self$param_set$get_values(tags = "predict")
 
       # get newdata and ensure same ordering in train and predict
-      newdata = task$data(cols = self$state$feature_names)
+      newdata <- task$data(cols = self$state$feature_names)
 
 
-      pred = mlr3misc::invoke(predict, self$model, new_data = newdata,
-                              .args = pars)
+      pred <- mlr3misc::invoke(predict, self$model,
+        new_data = newdata,
+        .args = pars
+      )
 
       list(response = pred[[".pred"]])
     }
-
   )
 )

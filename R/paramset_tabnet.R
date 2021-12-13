@@ -41,40 +41,16 @@ params_tabnet <- function() {
     ParamDbl$new("momentum",          default = 0.02, lower = 0, upper = 1, tags = "train"),
     ParamDbl$new("pretraining_ratio", default = 0.5, lower = 0, upper = 1, tags = "train"),
     ParamLgl$new("verbose",           default = FALSE, tags = "train"),
-    ParamFct$new("device",            default = "auto", levels = c("auto", "cpu", "cuda"), tags = "train")
-    # ParamDbl$new("importance_sample_size", lower = 0, upper = 1, tags = "train"),
+    ParamFct$new("device",            default = "auto", levels = c("auto", "cpu", "cuda"), tags = "train"),
+    ParamInt$new("importance_sample_size", lower = 0, upper = 1e5, special_vals = list(NULL), tags = "train")
   ))
 
   # Set param values that differ from default in tabnet_fit
   ps$values = list(
     num_threads = 1L,
-    batch_size = 256,
-    penalty = 0.001,
     #clip_value = NULL,
-    loss = "auto",
-    epochs = 5,
-    drop_last = FALSE,
     decision_width = 8L,
-    attention_width = 8L,
-    num_steps = 3,
-    feature_reusage = 1.3,
-    mask_type = "sparsemax",
-    virtual_batch_size = 128,
-    valid_split = 0,
-    learn_rate = 0.02,
-    optimizer = "adam",
-    #lr_scheduler = NULL,
-    #lr_decay = 0.1,
-    #step_size = 30,
-    checkpoint_epochs = 10,
-    cat_emb_dim = 1,
-    num_independent = 2,
-    num_shared = 2,
-    momentum = 0.02,
-    pretraining_ratio = 0.5,
-    verbose = FALSE,
-    device = "auto"
-    #importance_sample_size = NULL
+    attention_width = 8L
   )
 
   ps

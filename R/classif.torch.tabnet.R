@@ -5,7 +5,8 @@
 #' @template class_learner
 #' @templateVar id classif.torch.tabnet
 #' @templateVar caller tabnet
-#'
+#' @references
+#' Arik, S. O. & Pfister, T. TabNet: Attentive Interpretable Tabular Learning. arXiv:1908.07442 \[cs, stat\] (2020).
 #'
 #' @template seealso_learner
 #' @export
@@ -38,15 +39,18 @@ LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
         properties = c("importance", "missings", "multiclass", "selected_features", "twoclass", "weights"),
         man = "mlr3torch::mlr_learners_classif.torch.tabnet"
       )
+    },
+
+    #' @description
+    #' The importance scores are extracted from the slot `.$model$fit$importances`.
+    #' @return Named `numeric()`.
+    importance = function() {
+      if (is.null(self$model)) {
+        stopf("No model stored")
+      }
+      imp <- self$model$fit$importances
+      sort(stats::setNames(imp$importance, imp$variables), decreasing = TRUE)
     }
-
-    # FIXME - ADD IMPORTANCE METHOD HERE AND DELETE THIS LINE.
-    # <See LearnerRegrRandomForest for an example>
-    # @description
-    # The importance scores are extracted from the slot <FIXME>.
-    # @return Named `numeric()`.
-    # importance = function() { }
-
   ),
 
   private = list(
