@@ -33,7 +33,7 @@ LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
       super$initialize(
         id = "classif.torch.tabnet",
         packages = "tabnet",
-        feature_types = c("logical", "integer", "numeric", "factor", "ordered"),
+        feature_types = c("integer", "numeric", "factor", "ordered"),
         predict_types = c("response", "prob"),
         param_set = ps,
         properties = c("importance", "missings", "multiclass", "selected_features", "twoclass", "weights"),

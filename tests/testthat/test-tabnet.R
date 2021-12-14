@@ -14,7 +14,6 @@ test_that("Learner can be instantiated", {
   expect_identical(lrn$param_set$values$decision_width, NULL)
 })
 
-# # FIXME: Figure out what autotest tests and why it fails on feat_all_binary
 test_that("autotest", {
   learner = LearnerClassifTorchTabnet$new()
   learner$param_set$values$epochs = 3L
