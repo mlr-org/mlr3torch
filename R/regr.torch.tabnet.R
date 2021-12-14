@@ -41,7 +41,7 @@ LearnerRegrTorchTabnet <- R6::R6Class("LearnerRegrTorchTabnet",
         packages = "tabnet",
         feature_types = c("integer", "numeric", "factor", "ordered"),
         param_set = ps,
-        properties = c("importance", "missings"),
+        properties = c("importance"),
         man = "mlr3torch::mlr_learners_regr.torch.tabnet"
       )
     },
