@@ -20,7 +20,7 @@ lrn("regr.torch.tabnet")
 \itemize{
 \item Task type: \dQuote{regr}
 \item Predict Types: \dQuote{response}
-\item Feature Types: \dQuote{integer}, \dQuote{numeric}, \dQuote{factor}, \dQuote{ordered}
+\item Feature Types: \dQuote{logical}, \dQuote{integer}, \dQuote{numeric}, \dQuote{factor}, \dQuote{ordered}
 \item Required Packages: \CRANpkg{mlr3}, \CRANpkg{tabnet}
 }
 }

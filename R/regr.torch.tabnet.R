@@ -39,7 +39,7 @@ LearnerRegrTorchTabnet <- R6::R6Class("LearnerRegrTorchTabnet",
       super$initialize(
         id = "regr.torch.tabnet",
         packages = "tabnet",
-        feature_types = c("integer", "numeric", "factor", "ordered"),
+        feature_types = c("logical", "integer", "numeric", "factor", "ordered"),
         param_set = ps,
         properties = c("importance"),
         man = "mlr3torch::mlr_learners_regr.torch.tabnet"
@@ -69,13 +69,13 @@ LearnerRegrTorchTabnet <- R6::R6Class("LearnerRegrTorchTabnet",
       self$state$feature_names <- task$feature_names
 
       # Create objects for the train call
-      formula <- task$formula()
-      data <- task$data()
+      # formula <- task$formula()
+      # data <- task$data()
 
       # use the mlr3misc::invoke function (it's similar to do.call())
       mlr3misc::invoke(tabnet::tabnet_fit,
-        formula = formula,
-        data = data,
+        x = task$data(cols = task$feature_names),
+        y = task$data(cols = task$target_names),
         .args = pars
       )
     },

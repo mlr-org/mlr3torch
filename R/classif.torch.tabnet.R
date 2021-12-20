@@ -33,7 +33,7 @@ LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
       super$initialize(
         id = "classif.torch.tabnet",
         packages = "tabnet",
-        feature_types = c("integer", "numeric", "factor", "ordered"),
+        feature_types = c("logical", "integer", "numeric", "factor", "ordered"),
         predict_types = c("response", "prob"),
         param_set = ps,
         properties = c("importance", "multiclass", "twoclass", "weights"),
@@ -70,13 +70,13 @@ LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
       self$state$feature_names = task$feature_names
 
       # Create objects for the train call
-      formula = task$formula()
-      data = task$data()
+      # formula = task$formula()
+      # data = task$data()
 
       # use the mlr3misc::invoke function (it's similar to do.call())
       mlr3misc::invoke(tabnet::tabnet_fit,
-                       formula = formula,
-                       data = data,
+                       x = task$data(cols = task$feature_names),
+                       y = task$data(cols = task$target_names),
                        .args = pars)
     },
 
