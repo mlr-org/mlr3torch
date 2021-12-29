@@ -18,7 +18,8 @@ Imports:
     mlr3misc,
     paradox,
     R6,
-    torch
+    torch, 
+    mlr3pipelines
 Suggests: 
     lgr,
     tabnet,
