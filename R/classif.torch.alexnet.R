@@ -60,7 +60,8 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
         id = "classif.torch.alexnet",
         packages = c("torchvision", "torch"),
         feature_types = c("imageuri"),
-        predict_types = c("response", "prob"),
+        # FIXME: prob prediction missing
+        predict_types = c("response"), #, "prob"),
         param_set = ps,
         properties = c("multiclass", "twoclass"),
         man = "mlr3torch::mlr_learners_classif.torch.alexnet"
@@ -95,7 +96,6 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
       train_dl <- torch::dataloader(train_ds, batch_size = pars$batch_size, shuffle = TRUE, drop_last = pars$drop_last)
       valid_dl <- torch::dataloader(valid_ds, batch_size = pars$batch_size, shuffle = FALSE, drop_last = pars$drop_last)
 
-      # browser()
       train_alexnet(
         pretrained = pars$pretrained,
         train_dl = train_dl, valid_dl = valid_dl,
@@ -119,25 +119,6 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
       # Drop control par from training pars
       pars <- pars[!(names(pars) %in% names(pars_control))]
 
-      # get newdata and ensure same ordering in train and predict
-      # newdata = task$data(cols = self$state$feature_names)
-
-      # if (self$predict_type == "response") {
-      #   pred = mlr3misc::invoke(predict, self$model, new_data = newdata,
-      #                           type = "class", .args = pars)
-      #
-      #   list(response = pred[[".pred_class"]])
-      # } else {
-      #   pred = mlr3misc::invoke(predict, self$model, new_data = newdata,
-      #                           type = "prob", .args = pars)
-      #
-      #   # Result will be a df with one column per variable with names '.pred_<level>'
-      #   # we want the names without ".pred"
-      #   names(pred) <- sub(pattern = ".pred_", replacement = "", names(pred))
-      #
-      #   list(prob = as.matrix(pred))
-      # }
-
       # FIXME: hardcoded transform for prediction
       img_transforms <- function(img) {
         img %>%
@@ -153,16 +134,36 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
       test_ds <- img_dataset(task$data(), transform = img_transforms)
       test_dl <- torch::dataloader(test_ds, batch_size = 1, shuffle = TRUE, drop_last = FALSE)
 
+      # Not sure if eval mode needed here
       self$model$eval()
 
       # FIXME: Collect class predictions / class probs
+      pred_class <- integer(0)
+
       torch::with_no_grad({
         coro::loop(for (b in test_dl) {
-          pred <- self$model(batch[[1]]$to(device = pars_control$device))
-          #
-          pred <- pred$argmax()
+          pred <- self$model(b[[1]]$to(device = pars_control$device))
+
+          pred <- as.integer(pred$argmax(dim = 2))
+          pred_class <- c(pred_class, pred)
         })
       })
+
+
+      if (self$predict_type == "response") {
+        targets <- task$data(cols = "target")[[1]]
+        list(response = levels(targets)[pred_class])
+      } else {
+        #   pred = mlr3misc::invoke(predict, self$model, new_data = newdata,
+        #                           type = "prob", .args = pars)
+        #
+        #   # Result will be a df with one column per variable with names '.pred_<level>'
+        #   # we want the names without ".pred"
+        #   names(pred) <- sub(pattern = ".pred_", replacement = "", names(pred))
+        #
+        #   list(prob = as.matrix(pred))
+      }
+
 
     }
   )
@@ -250,7 +251,7 @@ train_alexnet <- function(
     })
 
     scheduler$step()
-    if (verbose) mlr3misc::catf("[epoch %d]: Loss = %3f.2, Acc= %3f.2 \n", epoch, mean(l), mean(acc))
+    if (verbose) mlr3misc::catf("[epoch %d]: Loss = %3.2f, Acc= %3.2f \n", epoch, mean(l), mean(acc))
   }
 
   # Return model object after training loop

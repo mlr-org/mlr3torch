@@ -19,7 +19,7 @@ lrn("classif.torch.alexnet")
 
 \itemize{
 \item Task type: \dQuote{classif}
-\item Predict Types: \dQuote{response}, \dQuote{prob}
+\item Predict Types: \dQuote{response}
 \item Feature Types: \dQuote{imageuri}
 \item Required Packages: \CRANpkg{mlr3}, \CRANpkg{torchvision}, \CRANpkg{torch}
 }
