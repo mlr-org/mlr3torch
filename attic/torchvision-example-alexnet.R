@@ -55,7 +55,7 @@ img_transforms <- function(img) {
     # first convert image to tensor
     transform_to_tensor() %>%
     # # then move to the GPU (if available)
-    # (function(x) x$to(device = device)) %>%
+    (function(x) x$to(device = device)) %>%
     # Required resize for alexnet
     transform_resize(c(64,64))
 }
@@ -78,7 +78,7 @@ valid_dl <- dataloader(valid_ds, batch_size = 32, shuffle = FALSE, drop_last = T
 # Model -------------------------------------------------------------------
 
 model <- model_alexnet(pretrained = FALSE, num_classes = train_ds$num_classes)
-# model$to(device = device)
+model$to(device = device)
 
 optimizer <- optim_adam(model$parameters)
 scheduler <- lr_step(optimizer, step_size = 1, 0.95)
@@ -97,7 +97,7 @@ train_step <- function(batch) {
 }
 
 valid_step <- function(batch) {
-  # browser()
+  browser()
   model$eval()
   pred <- model(batch[[1]]$to(device = device))
   pred <- torch_topk(pred, k = 5, dim = 2, TRUE, TRUE)[[2]]

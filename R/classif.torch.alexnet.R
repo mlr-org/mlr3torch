@@ -132,7 +132,7 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
 
       # FIXME: Ad hoc dataloader from input task with 1 possibly huge batch
       test_ds <- img_dataset(task$data(), transform = img_transforms)
-      test_dl <- torch::dataloader(test_ds, batch_size = 1, shuffle = TRUE, drop_last = FALSE)
+      test_dl <- torch::dataloader(test_ds, batch_size = 1, shuffle = FALSE, drop_last = FALSE)
 
       # Not sure if eval mode needed here
       self$model$eval()
@@ -188,7 +188,7 @@ train_alexnet <- function(
   if (device == "auto") device <- if (torch::cuda_is_available()) "cuda" else "cpu"
 
   model <- torchvision::model_alexnet(pretrained = pretrained, num_classes = num_classes)
-  # model$to(device = device)
+  model$to(device = device)
 
   # FIXME: Set lr, or maybe default is okay when using scheduler anyway
   optimizer <- switch(optimizer,

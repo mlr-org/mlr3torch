@@ -2,13 +2,15 @@ library(mlr3)
 library(mlr3torch)
 library(torch)
 
+to_device <- function(x, device) x$to(device = device)
+
 img_task_df <- df_from_imagenet_dir(c(
   "/opt/example-data/imagenette2-160/train/"
   # "/opt/example-data/imagenette2-160/val/"
 ))
 
 # Subsample for faster testing, 5 imgs per class
-img_task_df <- img_task_df[img_task_df[, .I[sample.int(.N, min(min(5L, .N), .N))], by = .(target)]$V1]
+# img_task_df <- img_task_df[img_task_df[, .I[sample.int(.N, min(min(5L, .N), .N))], by = .(target)]$V1]
 
 # Make it a task
 img_task <- mlr3::as_task_classif(img_task_df, target = "target")
@@ -18,7 +20,7 @@ img_transforms <- function(img) {
     # first convert image to tensor
     torchvision::transform_to_tensor() |>
     # # then move to the GPU (if available)
-    # (function(x) x$to(device = device)) %>%
+    to_device("cuda") |>
     # Required resize for alexnet
     torchvision::transform_resize(c(64,64))
 }
@@ -29,8 +31,9 @@ lrn_alexnet <- lrn("classif.torch.alexnet",
                    # Can't use pretrained on 10-class dataset yet, expects 1000
                    pretrained = FALSE,
                    img_transforms = img_transforms,
-                   batch_size = 10,
-                   epochs = 2
+                   batch_size = 32,
+                   epochs = 20,
+                   device = "cuda"
                    )
 
 
