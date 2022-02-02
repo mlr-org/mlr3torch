@@ -50,6 +50,9 @@ img_task_df <- df_from_imagenet_dir(c(
 train_idx <- sample(nrow(img_task_df), 256)
 val_idx <- sample(setdiff(seq_len(nrow(img_task_df)), train_idx), 64)
 
+train_idx <- sample(nrow(img_task_df), floor(nrow(img_task_df) * 0.8))
+val_idx <- setdiff(seq_len(nrow(img_task_df)), train_idx)
+
 img_transforms <- function(img) {
   img %>%
     # first convert image to tensor
@@ -57,7 +60,7 @@ img_transforms <- function(img) {
     # # then move to the GPU (if available)
     (function(x) x$to(device = device)) %>%
     # Required resize for alexnet
-    transform_resize(c(64,64))
+    transform_resize(c(128,128))
 }
 
 train_ds <- img_dataset(img_task_df, row_ids = train_idx, transform = img_transforms)
@@ -97,7 +100,7 @@ train_step <- function(batch) {
 }
 
 valid_step <- function(batch) {
-  browser()
+  #browser()
   model$eval()
   pred <- model(batch[[1]]$to(device = device))
   pred <- torch_topk(pred, k = 5, dim = 2, TRUE, TRUE)[[2]]
@@ -107,7 +110,7 @@ valid_step <- function(batch) {
   correct$to(dtype = torch_float32())$mean()$item()
 }
 
-for (epoch in 1:2) {
+for (epoch in 1:5) {
 
   pb <- progress::progress_bar$new(
     total = length(train_dl),
@@ -130,7 +133,7 @@ for (epoch in 1:2) {
   })
 
   scheduler$step()
-  cat(sprintf("[epoch %d]: Loss = %3f, Acc= %3f \n", epoch, mean(l), mean(acc)))
+  cat(sprintf("[epoch %d]: Loss = %3f, Acc = %3f \n", epoch, mean(l), mean(acc)))
 }
 
 

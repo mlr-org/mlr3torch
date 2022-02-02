@@ -140,11 +140,13 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
       # FIXME: Collect class predictions / class probs
       pred_class <- integer(0)
 
+      browser()
       torch::with_no_grad({
         coro::loop(for (b in test_dl) {
           pred <- self$model(b[[1]]$to(device = pars_control$device))
 
-          pred <- as.integer(pred$argmax(dim = 2))
+          # as.integer coercion requires tensor to be on CPU
+          pred <- as.integer(pred$argmax(dim = 2)$to(device = "cpu"))
           pred_class <- c(pred_class, pred)
         })
       })
@@ -214,6 +216,7 @@ train_alexnet <- function(
   }
 
   valid_step <- function(batch) {
+    # browser()
     model$eval()
     pred <- model(batch[[1]]$to(device = device))
     # Example code had $add(1) after topk presumably b/c 0-indexed in old versions?
@@ -233,7 +236,7 @@ train_alexnet <- function(
       format = "[:bar] :eta Loss: :loss"
     )
     }
-
+    # browser()
     # FIXME: Probably should pre-allocate loss / acc vectors at some point
     l <- c()
     coro::loop(for (b in train_dl) {
@@ -251,7 +254,8 @@ train_alexnet <- function(
     })
 
     scheduler$step()
-    if (verbose) mlr3misc::catf("[epoch %d]: Loss = %3.2f, Acc= %3.2f \n", epoch, mean(l), mean(acc))
+    if (verbose) cat(sprintf("[epoch %d]: Loss = %3f, Acc = %3f \n", epoch, mean(l), mean(acc)))
+
   }
 
   # Return model object after training loop
