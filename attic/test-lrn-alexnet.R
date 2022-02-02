@@ -23,25 +23,26 @@ img_transforms <- function(img) {
     # # then move to the GPU (if available)
     (function(x) x$to(device = device)) %>%
     # Required resize for alexnet
-    torchvision::transform_resize(c(128,128))
+    torchvision::transform_resize(c(64,64))
 }
 
 
 lrn_alexnet <- lrn("classif.torch.alexnet",
+                   predict_type = "response",
                    num_threads = 15,
                    # Can't use pretrained on 10-class dataset yet, expects 1000
                    pretrained = FALSE,
                    img_transforms = img_transforms,
-                   batch_size = 64,
+                   batch_size = 10,
                    epochs = 2,
-                   device = "cuda"
+                   device = device
                    )
 
 
 lrn_alexnet$train(img_task)
 
 
-lrn_alexnet$model
+# lrn_alexnet$model
 
 lrn_alexnet$predict(img_task, row_ids = 1:10)
 

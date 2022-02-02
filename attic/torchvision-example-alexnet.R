@@ -110,7 +110,7 @@ valid_step <- function(batch) {
   correct$to(dtype = torch_float32())$mean()$item()
 }
 
-for (epoch in 1:5) {
+for (epoch in 1:2) {
 
   pb <- progress::progress_bar$new(
     total = length(train_dl),
