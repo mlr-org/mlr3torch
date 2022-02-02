@@ -61,7 +61,7 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
         packages = c("torchvision", "torch"),
         feature_types = c("imageuri"),
         # FIXME: prob prediction missing
-        predict_types = c("response"), #, "prob"),
+        predict_types = c("response", "prob"),
         param_set = ps,
         properties = c("multiclass", "twoclass"),
         man = "mlr3torch::mlr_learners_classif.torch.alexnet"
@@ -89,6 +89,9 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
       # Validation split & datasets/loaders-------------------------------------
       val_idx <- sample(task$nrow, floor(task$nrow * pars$valid_split))
       train_idx <- setdiff(seq_len(task$nrow), val_idx)
+
+      # Check if sample sizes would be smaller than batch size
+      if (min(length(train_idx), length(val_idx)) < pars$batch_size) stop("batch_size larger than sample size")
 
       train_ds <- img_dataset(task$data(), row_ids = train_idx, transform = pars$img_transforms)
       valid_ds <- img_dataset(task$data(), row_ids = val_idx, transform = pars$img_transforms)
@@ -132,40 +135,56 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
 
       # FIXME: Ad hoc dataloader from input task with 1 possibly huge batch
       test_ds <- img_dataset(task$data(), transform = img_transforms)
-      test_dl <- torch::dataloader(test_ds, batch_size = 1, shuffle = FALSE, drop_last = FALSE)
+      test_dl <- torch::dataloader(test_ds, batch_size = task$nrow, shuffle = FALSE, drop_last = FALSE)
 
       # Not sure if eval mode needed here
       self$model$eval()
 
       # FIXME: Collect class predictions / class probs
-      pred_class <- integer(0)
-
-      browser()
-      torch::with_no_grad({
-        coro::loop(for (b in test_dl) {
-          pred <- self$model(b[[1]]$to(device = pars_control$device))
-
-          # as.integer coercion requires tensor to be on CPU
-          pred <- as.integer(pred$argmax(dim = 2)$to(device = "cpu"))
-          pred_class <- c(pred_class, pred)
-        })
-      })
-
+      # Note on prediction:
+      # batch_size should be higher probably, but i.e. single-sample predictions
+      # should also be allowed. Maybe not even necessary to use a dl here?
+      # devices: model should be called on batch with both on same device
+      # but to be coerced to R-native data structure, tensors have to be
+      # moved to cpu first
 
       if (self$predict_type == "response") {
+        pred_class <- integer(0)
+
+        torch::with_no_grad({
+          coro::loop(for (b in test_dl) {
+            pred <- self$model(b[[1]]$to(device = pars_control$device))
+
+            # as.integer coercion requires tensor to be on CPU
+            pred <- as.integer(pred$argmax(dim = 2)$to(device = "cpu"))
+            pred_class <- c(pred_class, pred)
+          })
+        })
         targets <- task$data(cols = "target")[[1]]
         list(response = levels(targets)[pred_class])
       } else {
-        #   pred = mlr3misc::invoke(predict, self$model, new_data = newdata,
-        #                           type = "prob", .args = pars)
-        #
-        #   # Result will be a df with one column per variable with names '.pred_<level>'
-        #   # we want the names without ".pred"
-        #   names(pred) <- sub(pattern = ".pred_", replacement = "", names(pred))
-        #
-        #   list(prob = as.matrix(pred))
-      }
+        # pred_class <- integer(0)
 
+        pred_prob <- matrix(
+          NA_real_,
+          ncol = length(task$class_names),
+          nrow = 0,
+          dimnames = list(NULL, task$class_names)
+        )
+
+        # browser()
+        torch::with_no_grad({
+          coro::loop(for (b in test_dl) {
+            pred <- self$model(b[[1]]$to(device = pars_control$device))
+
+            pred <- pred$softmax(dim = 2)$to(device = "cpu")
+            pred <- as.matrix(pred)
+            pred_prob <- rbind(pred_prob, pred)
+          })
+        })
+
+        list(prob = pred_prob)
+      }
 
     }
   )
@@ -216,7 +235,6 @@ train_alexnet <- function(
   }
 
   valid_step <- function(batch) {
-    # browser()
     model$eval()
     pred <- model(batch[[1]]$to(device = device))
     # Example code had $add(1) after topk presumably b/c 0-indexed in old versions?
@@ -236,7 +254,7 @@ train_alexnet <- function(
       format = "[:bar] :eta Loss: :loss"
     )
     }
-    # browser()
+
     # FIXME: Probably should pre-allocate loss / acc vectors at some point
     l <- c()
     coro::loop(for (b in train_dl) {
