@@ -19,7 +19,7 @@ lrn("classif.torch.alexnet")
 
 \itemize{
 \item Task type: \dQuote{classif}
-\item Predict Types: \dQuote{response}
+\item Predict Types: \dQuote{response}, \dQuote{prob}
 \item Feature Types: \dQuote{imageuri}
 \item Required Packages: \CRANpkg{mlr3}, \CRANpkg{torchvision}, \CRANpkg{torch}
 }
@@ -27,19 +27,21 @@ lrn("classif.torch.alexnet")
 
 \section{Parameters}{
 \tabular{lllll}{
-   Id \tab Type \tab Default \tab Range \tab Levels \cr
-   pretrained \tab logical \tab TRUE \tab - \tab TRUE, FALSE \cr
-   num_threads \tab integer \tab 1 \tab \eqn{[1, \infty)}{[1, Inf)} \tab - \cr
-   batch_size \tab integer \tab 256 \tab \eqn{[1, \infty)}{[1, Inf)} \tab - \cr
-   loss \tab character \tab cross_entropy \tab - \tab cross_entropy \cr
-   epochs \tab integer \tab 5 \tab \eqn{[1, \infty)}{[1, Inf)} \tab - \cr
-   drop_last \tab logical \tab TRUE \tab - \tab TRUE, FALSE \cr
-   valid_split \tab numeric \tab 0.2 \tab \eqn{[0, 1]}{[0, 1]} \tab - \cr
-   step_size \tab integer \tab 1 \tab \eqn{[1, \infty)}{[1, Inf)} \tab - \cr
-   img_transforms \tab list \tab NULL \tab - \tab - \cr
-   optimizer \tab list \tab adam \tab - \tab - \cr
-   verbose \tab logical \tab TRUE \tab - \tab TRUE, FALSE \cr
-   device \tab character \tab auto \tab - \tab auto, cpu, cuda \cr
+   Id \tab Type \tab Default \tab Levels \tab Range \cr
+   pretrained \tab logical \tab TRUE \tab TRUE, FALSE \tab - \cr
+   num_threads \tab integer \tab 1 \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
+   batch_size \tab integer \tab 256 \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
+   loss \tab character \tab cross_entropy \tab cross_entropy \tab - \cr
+   epochs \tab integer \tab 5 \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
+   drop_last \tab logical \tab TRUE \tab TRUE, FALSE \tab - \cr
+   valid_split \tab numeric \tab 0.2 \tab  \tab \eqn{[0, 1]}{[0, 1]} \cr
+   step_size \tab integer \tab 1 \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
+   img_transform_train \tab untyped \tab  \tab  \tab - \cr
+   img_transform_val \tab untyped \tab  \tab  \tab - \cr
+   img_transform_predict \tab untyped \tab  \tab  \tab - \cr
+   optimizer \tab untyped \tab adam \tab  \tab - \cr
+   verbose \tab logical \tab TRUE \tab TRUE, FALSE \tab - \cr
+   device \tab untyped \tab cpu \tab  \tab - \cr
 }
 }
 

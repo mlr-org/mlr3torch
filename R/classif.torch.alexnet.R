@@ -38,7 +38,7 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
         # FIXME: Currently either 'adam' or arbitrary optimizer function according to docs
         ParamUty$new("optimizer",   default = "adam", tags = "train"),
         ParamLgl$new("verbose",     default = TRUE, tags = "control"),
-        ParamUty$new("device",      default = "auto", custom_check = param_check_device, tags = "control")
+        ParamUty$new("device",      default = "cpu", custom_check = function(x) x %in% get_available_device(), tags = "control")
       ))
 
       # Set param values that differ from default in tabnet_fit
@@ -57,7 +57,7 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
         img_transform_predict = NULL,
         optimizer = "adam",
         verbose = TRUE,
-        device = "auto"
+        device = "cpu"
       )
 
       super$initialize(
@@ -199,9 +199,11 @@ train_alexnet <- function(
   device
   ) {
 
-  if (device == "auto") device <- if (torch::cuda_is_available()) "cuda" else "cpu"
-
-  model <- torchvision::model_alexnet(pretrained = pretrained, num_classes = num_classes)
+  if (pretrained) {
+    model <- torchvision::model_alexnet(pretrained = TRUE)
+  } else {
+    model <- torchvision::model_alexnet(pretrained = FALSE, num_classes = num_classes)
+  }
   model$to(device = device)
 
   # FIXME: Set lr, or maybe default is okay when using scheduler anyway
