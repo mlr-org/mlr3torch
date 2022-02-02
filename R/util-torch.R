@@ -44,11 +44,3 @@ choose_device <- function(gpu_index = 0) {
 
   device
 }
-
-#' Check if provided device is actually available
-#' Used as custom_check in ParamUty
-#' @keywords internals
-#' @param x Parameter passed for `device` in ParamUty.
-param_check_device <- function(x) {
-  x %in% get_available_device()
-}
