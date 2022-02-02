@@ -32,11 +32,13 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
         #ParamDbl$new("learn_rate",  default = 0.02, lower = 0, upper = 1, tags = "train"),
         ParamInt$new("step_size", default = 1, lower = 1, upper = Inf, tags = "train"),
         # FIXME: Shoddy placeholder, needs more thinking
-        ParamUty$new("img_transforms",  default = NULL, tags = "train"),
+        ParamUty$new("img_transform_train",  default = NULL, tags = "train"),
+        ParamUty$new("img_transform_val",  default = NULL, tags = "train"),
+        ParamUty$new("img_transform_predict",  default = NULL, tags = "predict"),
         # FIXME: Currently either 'adam' or arbitrary optimizer function according to docs
         ParamUty$new("optimizer",   default = "adam", tags = "train"),
         ParamLgl$new("verbose",     default = TRUE, tags = "control"),
-        ParamFct$new("device",      default = "auto", levels = c("auto", "cpu", "cuda"), tags = "control")
+        ParamUty$new("device",      default = "auto", custom_check = param_check_device, tags = "control")
       ))
 
       # Set param values that differ from default in tabnet_fit
@@ -50,7 +52,9 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
         valid_split = 0.2,
         step_size = 1,
         # FIXME: Figure out transform placement
-        img_transforms = NULL,
+        img_transform_train = NULL,
+        img_transform_val = NULL,
+        img_transform_predict = NULL,
         optimizer = "adam",
         verbose = TRUE,
         device = "auto"
@@ -93,8 +97,8 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
       # Check if sample sizes would be smaller than batch size
       if (min(length(train_idx), length(val_idx)) < pars$batch_size) stop("batch_size larger than sample size")
 
-      train_ds <- img_dataset(task$data(), row_ids = train_idx, transform = pars$img_transforms)
-      valid_ds <- img_dataset(task$data(), row_ids = val_idx, transform = pars$img_transforms)
+      train_ds <- img_dataset(task$data(), row_ids = train_idx, transform = pars$img_transform_train)
+      valid_ds <- img_dataset(task$data(), row_ids = val_idx, transform = pars$img_transform_val)
 
       train_dl <- torch::dataloader(train_ds, batch_size = pars$batch_size, shuffle = TRUE, drop_last = pars$drop_last)
       valid_dl <- torch::dataloader(valid_ds, batch_size = pars$batch_size, shuffle = FALSE, drop_last = pars$drop_last)
@@ -122,19 +126,8 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
       # Drop control par from training pars
       pars <- pars[!(names(pars) %in% names(pars_control))]
 
-      # FIXME: hardcoded transform for prediction
-      img_transforms <- function(img) {
-        img %>%
-          # first convert image to tensor
-          torchvision::transform_to_tensor() %>%
-          # # then move to the GPU (if available)
-          (function(x) x$to(device = pars_control$device)) %>%
-          # Required resize for alexnet
-          torchvision::transform_resize(c(64,64))
-      }
-
       # FIXME: Ad hoc dataloader from input task with 1 possibly huge batch
-      test_ds <- img_dataset(task$data(), transform = img_transforms)
+      test_ds <- img_dataset(task$data(), transform = pars$img_transform_predict)
       test_dl <- torch::dataloader(test_ds, batch_size = task$nrow, shuffle = FALSE, drop_last = FALSE)
 
       # Not sure if eval mode needed here
