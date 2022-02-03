@@ -201,6 +201,7 @@ train_alexnet <- function(
 
   if (pretrained) {
     model <- torchvision::model_alexnet(pretrained = TRUE)
+    model <- reset_last_layer(model, num_classes)
   } else {
     model <- torchvision::model_alexnet(pretrained = FALSE, num_classes = num_classes)
   }

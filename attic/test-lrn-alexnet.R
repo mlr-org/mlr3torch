@@ -7,7 +7,7 @@ library(torch)
 img_task_df <- df_from_imagenet_dir("/opt/example-data/imagenette2-160/train/")
 
 # Subsample for faster testing, 5 imgs per class
-# img_task_df <- img_task_df[img_task_df[, .I[sample.int(.N, min(min(5L, .N), .N))], by = .(target)]$V1]
+img_task_df <- img_task_df[img_task_df[, .I[sample.int(.N, min(min(5L, .N), .N))], by = .(target)]$V1]
 
 # Make it a task
 img_task <- mlr3::as_task_classif(img_task_df, target = "target")
@@ -15,11 +15,11 @@ img_task <- mlr3::as_task_classif(img_task_df, target = "target")
 img_transforms <- function(img) {
   img %>%
     # first convert image to tensor
-    torchvision::transform_to_tensor()$to(device = choose_device()) %>%
+    torchvision::transform_to_tensor() %>%# $to(device = choose_device()) %>%
     # # then move to the GPU (if available)
-    # (function(x) x$to(device = choose_device())) %>%
+    (function(x) x$to(device = choose_device())) %>%
     # Required resize for alexnet
-    torchvision::transform_resize(c(160,160))
+    torchvision::transform_resize(c(64,64))
 }
 
 
@@ -27,12 +27,12 @@ lrn_alexnet <- lrn("classif.torch.alexnet",
                    predict_type = "response",
                    num_threads = 15,
                    # Can't use pretrained on 10-class dataset yet, expects 1000
-                   pretrained = FALSE,
+                   pretrained = TRUE,
                    img_transform_train = img_transforms,
-                   img_transform_val= img_transform,
+                   img_transform_val= img_transforms,
                    img_transform_predict = img_transforms,
-                   batch_size = 128,
-                   epochs = 30,
+                   batch_size = 10,
+                   epochs = 15,
                    device = choose_device()
                    )
 

@@ -2,7 +2,7 @@
 #'
 #' Used for pretrained models where the last layer is set to e.g. 1000 classes
 #' but training is intended to be applied to e.g. 10 classes.
-#'
+#' @rdname reset-layer
 #' @param model A pretrained model, e.g.
 #' `torchvision::model_alexnet(pretrained = TRUE)`
 #' @param num_classes Number of desired output classes.
@@ -19,18 +19,38 @@
 #' model$classifier[[7]]$out_feature
 #' }
 reset_last_layer <- function(model, num_classes, bias = TRUE) {
-  # Number of modules total, assuming last module is the classifier
-  module_count <- length(model$children)
+  UseMethod("reset_last_layer")
+}
 
-  # 0-indexed last layer index
-  last_layer_index <- length(model[[module_count]]) - 1
+#' @rdname reset-layer
+#' @export
+reset_last_layer.AlexNet <- function(model, num_classes, bias = TRUE) {
 
-  # reset with linear layer based on input
-  model[[module_count]][[last_layer_index]] <- torch::nn_linear(
-    in_features = model[[module_count]][[last_layer_index - 1]]$out_feature,
+  # Freeze weights
+  for (par in model$parameters) {
+    par$requires_grad_(FALSE)
+  }
+
+  model$classifier$`6` <- torch::nn_linear(
+    in_features = model$classifier$`6`$in_features,
+    out_features = num_classes, 
+    bias = bias
+  )
+  return(model)
+}
+
+#' @rdname reset-layer
+#' @export
+reset_last_layer.resnet <- function(model, num_classes, bias = TRUE) {
+  # Freeze weights
+  for (par in model$parameters) {
+    par$requires_grad_(FALSE)
+  }
+
+  model$fc <- torch::nn_linear(
+    in_features = model$fc$in_features,
     out_features = num_classes,
     bias = bias
   )
-
-  model
+  return(model)
 }
