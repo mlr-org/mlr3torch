@@ -29,7 +29,7 @@ lrn_alexnet <- lrn("classif.torch.alexnet",
                    # Can't use pretrained on 10-class dataset yet, expects 1000
                    pretrained = TRUE,
                    img_transform_train = img_transforms,
-                   img_transform_val= img_transforms,
+                   img_transform_val = img_transforms,
                    img_transform_predict = img_transforms,
                    batch_size = 10,
                    epochs = 15,

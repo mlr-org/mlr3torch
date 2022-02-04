@@ -64,7 +64,6 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
         id = "classif.torch.alexnet",
         packages = c("torchvision", "torch"),
         feature_types = c("imageuri"),
-        # FIXME: prob prediction missing
         predict_types = c("response", "prob"),
         param_set = ps,
         properties = c("multiclass", "twoclass"),
@@ -103,7 +102,7 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
       train_dl <- torch::dataloader(train_ds, batch_size = pars$batch_size, shuffle = TRUE, drop_last = pars$drop_last)
       valid_dl <- torch::dataloader(valid_ds, batch_size = pars$batch_size, shuffle = FALSE, drop_last = pars$drop_last)
 
-      train_alexnet(
+      ret <- train_alexnet(
         pretrained = pars$pretrained,
         train_dl = train_dl, valid_dl = valid_dl,
         num_classes = length(img_task$class_names),
@@ -115,6 +114,10 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
         verbose = pars_control$verbose,
         device = pars_control$device
       )
+
+      # Return model only, not sure where/how/if to store history
+      # ret$history
+      ret$model
 
     },
 
@@ -215,7 +218,7 @@ train_alexnet <- function(
   # FIXME: Parameterize gamma? Value copied verbatim from example docs
   scheduler <- torch::lr_step(optimizer, step_size = step_size, gamma = 0.95)
 
-  loss_fn <- switch (loss,
+  loss_fn <- switch(loss,
     "cross_entropy" = torch::nn_cross_entropy_loss()
   )
 
@@ -251,7 +254,10 @@ train_alexnet <- function(
     )
     }
 
-    # FIXME: Probably should pre-allocate loss / acc vectors at some point
+    # Note: Probably should pre-allocate loss / acc vectors at some point
+    # Not trivial though, pre-allocating with number of batches would work
+    # but indexing within coro::loop not possible since `b` does not 
+    # contain batch index
     l <- c()
     coro::loop(for (b in train_dl) {
       loss <- train_step(b)
@@ -273,5 +279,5 @@ train_alexnet <- function(
   }
 
   # Return model object after training loop
-  return(model)
+  list(model = model, history = list(loss = l, acc = acc))
 }

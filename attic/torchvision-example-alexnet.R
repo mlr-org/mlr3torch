@@ -80,7 +80,8 @@ valid_dl <- dataloader(valid_ds, batch_size = 32, shuffle = FALSE, drop_last = T
 
 # Model -------------------------------------------------------------------
 
-model <- model_alexnet(pretrained = FALSE, num_classes = train_ds$num_classes)
+model <- model_alexnet(pretrained = TRUE)
+model <- reset_last_layer(model, train_ds$num_classes)
 model$to(device = device)
 
 optimizer <- optim_adam(model$parameters)
@@ -117,14 +118,14 @@ for (epoch in 1:2) {
     format = "[:bar] :eta Loss: :loss"
   )
 
-  l <- c()
+  l <- numeric(0)
   coro::loop(for (b in train_dl) {
     loss <- train_step(b)
     l <- c(l, loss$item())
     pb$tick(tokens = list(loss = mean(l)))
   })
 
-  acc <- c()
+  acc <- numeric(0)
   with_no_grad({
     coro::loop(for (b in valid_dl) {
       accuracy <- valid_step(b)
