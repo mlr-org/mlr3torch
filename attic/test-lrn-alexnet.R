@@ -19,12 +19,12 @@ img_transforms <- function(img) {
     # # then move to the GPU (if available)
     (function(x) x$to(device = choose_device())) %>%
     # Required resize for alexnet
-    torchvision::transform_resize(c(64,64))
+    torchvision::transform_resize(c(64, 64))
 }
 
 
 lrn_alexnet <- lrn("classif.torch.alexnet",
-                   predict_type = "response",
+                   predict_type = "prob",
                    num_threads = 15,
                    # Can't use pretrained on 10-class dataset yet, expects 1000
                    pretrained = TRUE,

@@ -94,7 +94,9 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
       train_idx <- setdiff(seq_len(task$nrow), val_idx)
 
       # Check if sample sizes would be smaller than batch size
-      if (min(length(train_idx), length(val_idx)) < pars$batch_size) stop("batch_size larger than sample size")
+      if (min(length(train_idx), length(val_idx)) < pars$batch_size) {
+        stop("batch_size larger than sample size")
+      }
 
       train_ds <- img_dataset(task$data(), row_ids = train_idx, transform = pars$img_transform_train)
       valid_ds <- img_dataset(task$data(), row_ids = val_idx, transform = pars$img_transform_val)
@@ -123,10 +125,10 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
 
     .predict = function(task) {
       # get parameters with tag "predict"
-      pars = self$param_set$get_values(tags = "predict")
-      pars_control = self$param_set$get_values(tags = "control")
+      pars <- self$param_set$get_values(tags = "predict")
+      pars_control <- self$param_set$get_values(tags = "control")
 
-      # Drop control par from training pars
+      # Drop control param from training pars
       pars <- pars[!(names(pars) %in% names(pars_control))]
 
       # FIXME: Ad hoc dataloader from input task with 1 possibly huge batch
@@ -159,8 +161,8 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
         targets <- task$data(cols = "target")[[1]]
         list(response = levels(targets)[pred_class])
       } else {
-        # pred_class <- integer(0)
-
+        # Initialize 0-row matrix with proper type + column num
+        # colnames need to correspond to class names
         pred_prob <- matrix(
           NA_real_,
           ncol = length(task$class_names),
@@ -168,7 +170,6 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
           dimnames = list(NULL, task$class_names)
         )
 
-        # browser()
         torch::with_no_grad({
           coro::loop(for (b in test_dl) {
             pred <- self$model(b[[1]]$to(device = pars_control$device))
@@ -236,8 +237,7 @@ train_alexnet <- function(
   valid_step <- function(batch) {
     model$eval()
     pred <- model(batch[[1]]$to(device = device))
-    # Example code had $add(1) after topk presumably b/c 0-indexed in old versions?
-    # k = 5 from example code
+    # TODO: k = 5 from example code, parameterize?
     pred <- torch::torch_topk(pred, k = 5, dim = 2, TRUE, TRUE)[[2]]
     pred <- pred$to(device = torch::torch_device("cpu"))
     correct <- batch[[2]]$view(c(-1, 1))$eq(pred)$any(dim = 2)
@@ -248,10 +248,10 @@ train_alexnet <- function(
   for (epoch in seq_len(epochs)) {
 
     if (verbose) {
-    pb <- progress::progress_bar$new(
-      total = length(train_dl),
-      format = "[:bar] :eta Loss: :loss"
-    )
+      pb <- progress::progress_bar$new(
+        total = length(train_dl),
+        format = "[:bar] :eta Loss: :loss"
+      )
     }
 
     # Note: Probably should pre-allocate loss / acc vectors at some point
@@ -278,6 +278,6 @@ train_alexnet <- function(
 
   }
 
-  # Return model object after training loop
+  # Return model object after training loop, including history
   list(model = model, history = list(loss = l, acc = acc))
 }
