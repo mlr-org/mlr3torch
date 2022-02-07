@@ -27,11 +27,21 @@ Same as input \code{model} with modified last layer.
 Used for pretrained models where the last layer is set to e.g. 1000 classes
 but training is intended to be applied to e.g. 10 classes.
 }
+\note{
+As of this, this also freezes the parameters of all but the last layer.
+}
 \examples{
 \dontrun{
+# AlexNet
 model <- torchvision::model_alexnet(pretrained = TRUE)
 model$classifier[[7]]$out_feature
 model <- reset_last_layer(model, 10)
 model$classifier[[7]]$out_feature
+
+# ResNet
+model <- torchvision::model_resnet18(pretrained = TRUE)
+model$fc$out_feature
+model <- reset_last_layer(model, 10)
+model$fc$out_feature
 }
 }
