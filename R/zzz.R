@@ -31,13 +31,13 @@ register_mlr3 = function() {
 
   local({
     torch_reflections$loss <- list(
-      classif <- c(
+      classif = c(
         "adaptive_log_softmax_with", "bce", "bce_with_logits", "cosine_embedding",
-        "ctc", "hinge_embedding", "kl_div", "margin_ranking", "multi_margin",
-        "multilabel_margin", "multilabel_soft_margin", "nll", "soft_margin",
-        "triplet_margin", "triplet_margin_with_distance"
+        "ctc", "cross_entropy", "hinge_embedding", "kl_div", "margin_ranking",
+        "multi_margin", "multilabel_margin", "multilabel_soft_margin", "nll",
+        "soft_margin", "triplet_margin", "triplet_margin_with_distance"
       ),
-      regr <- c("l1", "mse", "poisson_nll", "smooth_l1")
+      regr = c("l1", "mse", "poisson_nll", "smooth_l1")
     )
 
     torch_reflections$optimizer <- c(
