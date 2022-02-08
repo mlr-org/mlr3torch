@@ -15,57 +15,35 @@
 #' library(mlr3torch)
 #' }
 LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
-  inherit = LearnerClassif,
+  inherit = LearnerClassifTorch,
 
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function() {
       ps <- ParamSet$new(list(
-        ParamLgl$new("pretrained",  default = TRUE, tags = "train"),
-        ParamInt$new("num_threads", default = 1L, lower = 1L, upper = Inf, tags =  c("train", "control")),
-        ParamInt$new("batch_size",  default = 256L, lower = 1L, upper = Inf, tags = "train"),
-        ParamFct$new("loss",        default = "cross_entropy", levels = c("cross_entropy"), tags = "train"),
-        ParamInt$new("epochs",      default = 5L,  lower = 1L, upper = Inf, tags = "train"),
-        ParamLgl$new("drop_last",   default = TRUE, tags = "train"),
-        ParamDbl$new("valid_split", default = 0.2, lower = 0, upper = 1, tags = "train"),
-        #ParamDbl$new("learn_rate",  default = 0.02, lower = 0, upper = 1, tags = "train"),
-        ParamInt$new("step_size", default = 1, lower = 1, upper = Inf, tags = "train"),
+        ParamLgl$new("pretrained", default = TRUE, tags = "train")
         # FIXME: Shoddy placeholder, needs more thinking
-        ParamUty$new("img_transform_train",  default = NULL, tags = "train"),
-        ParamUty$new("img_transform_val",  default = NULL, tags = "train"),
-        ParamUty$new("img_transform_predict",  default = NULL, tags = "predict"),
-        # FIXME: Currently either 'adam' or arbitrary optimizer function according to docs
-        ParamUty$new("optimizer",   default = "adam", tags = "train"),
-        ParamLgl$new("verbose",     default = TRUE, tags = "control"),
-        ParamUty$new("device",      default = "cpu", custom_check = function(x) x %in% get_available_device(), tags = "control")
+        # ParamUty$new("img_transform_train",  default = NULL, tags = "train"),
+        # ParamUty$new("img_transform_val",  default = NULL, tags = "train"),
+        # ParamUty$new("img_transform_predict",  default = NULL, tags = "predict")
       ))
 
       # Set param values that differ from default in tabnet_fit
       ps$values = list(
-        pretrained = TRUE,
-        num_threads = 1L,
-        batch_size = 128L,
-        loss = "cross_entropy",
-        epochs = 10L,
-        drop_last = TRUE,
-        valid_split = 0.2,
-        step_size = 1,
+        pretrained = TRUE
         # FIXME: Figure out transform placement
-        img_transform_train = NULL,
-        img_transform_val = NULL,
-        img_transform_predict = NULL,
-        optimizer = "adam",
-        verbose = TRUE,
-        device = "cpu"
+        # img_transform_train = NULL,
+        # img_transform_val = NULL,
+        # img_transform_predict = NULL
       )
 
       super$initialize(
         id = "classif.torch.alexnet",
         packages = c("torchvision", "torch"),
+        param_set = ps,
         feature_types = c("imageuri"),
         predict_types = c("response", "prob"),
-        param_set = ps,
         properties = c("multiclass", "twoclass"),
         man = "mlr3torch::mlr_learners_classif.torch.alexnet"
       )
@@ -131,9 +109,9 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
       # Drop control param from training pars
       pars <- pars[!(names(pars) %in% names(pars_control))]
 
-      # FIXME: Ad hoc dataloader from input task with 1 possibly huge batch
+      # TODO: See if reusing batch_size here is problematic
       test_ds <- img_dataset(task$data(), transform = pars$img_transform_predict)
-      test_dl <- torch::dataloader(test_ds, batch_size = task$nrow, shuffle = FALSE, drop_last = FALSE)
+      test_dl <- torch::dataloader(test_ds, batch_size = pars$batch_size, shuffle = FALSE, drop_last = FALSE)
 
       # Not sure if eval mode needed here
       self$model$eval()
@@ -256,7 +234,7 @@ train_alexnet <- function(
 
     # Note: Probably should pre-allocate loss / acc vectors at some point
     # Not trivial though, pre-allocating with number of batches would work
-    # but indexing within coro::loop not possible since `b` does not 
+    # but indexing within coro::loop not possible since `b` does not
     # contain batch index
     l <- c()
     coro::loop(for (b in train_dl) {
