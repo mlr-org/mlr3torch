@@ -27,7 +27,7 @@ LearnerClassifTorch = R6::R6Class("LearnerClassifTorch",
     ) {
       ps <- ParamSet$new(list(
         ParamInt$new("num_threads", default = 1L, lower = 1L, upper = Inf, tags =  c("train", "control")),
-        ParamInt$new("batch_size",  default = 256L, lower = 1L, upper = Inf, tags = c("train", "predict")),
+        ParamInt$new("batch_size",  default = 128L, lower = 1L, upper = Inf, tags = c("train", "predict")),
         ParamFct$new("loss",        default = "cross_entropy", levels = torch_reflections$loss$classif, tags = "train"),
         ParamInt$new("epochs",      default = 5L,  lower = 1L, upper = Inf, tags = "train"),
         ParamLgl$new("drop_last",   default = TRUE, tags = "train"),

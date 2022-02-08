@@ -29,7 +29,7 @@ lrn("classif.torch.alexnet")
 \tabular{lllll}{
    Id \tab Type \tab Default \tab Levels \tab Range \cr
    num_threads \tab integer \tab 1 \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
-   batch_size \tab integer \tab 256 \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
+   batch_size \tab integer \tab 128 \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
    loss \tab character \tab cross_entropy \tab adaptive_log_softmax_with, bce, bce_with_logits, cosine_embedding, ctc, cross_entropy, hinge_embedding, kl_div, margin_ranking, multi_margin, \link{...} \tab - \cr
    epochs \tab integer \tab 5 \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
    drop_last \tab logical \tab TRUE \tab TRUE, FALSE \tab - \cr
