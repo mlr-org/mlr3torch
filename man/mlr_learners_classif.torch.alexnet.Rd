@@ -36,7 +36,6 @@ lrn("classif.torch.alexnet")
    valid_split \tab numeric \tab 0.2 \tab  \tab \eqn{[0, 1]}{[0, 1]} \cr
    step_size \tab integer \tab 1 \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
    img_transform_train \tab untyped \tab  \tab  \tab - \cr
-   img_transform_val \tab untyped \tab  \tab  \tab - \cr
    img_transform_predict \tab untyped \tab  \tab  \tab - \cr
    optimizer \tab character \tab adam \tab rprop, rmsprop, adagrad, asgd, adadelta, lbfgs, sgd, adam \tab - \cr
    verbose \tab logical \tab TRUE \tab TRUE, FALSE \tab - \cr

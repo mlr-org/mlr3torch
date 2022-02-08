@@ -27,16 +27,16 @@ LearnerClassifTorch = R6::R6Class("LearnerClassifTorch",
     ) {
       ps <- ParamSet$new(list(
         ParamInt$new("num_threads", default = 1L, lower = 1L, upper = Inf, tags =  c("train", "control")),
-        ParamInt$new("batch_size",  default = 256L, lower = 1L, upper = Inf, tags = "train"),
+        ParamInt$new("batch_size",  default = 256L, lower = 1L, upper = Inf, tags = c("train", "predict")),
         ParamFct$new("loss",        default = "cross_entropy", levels = torch_reflections$loss$classif, tags = "train"),
         ParamInt$new("epochs",      default = 5L,  lower = 1L, upper = Inf, tags = "train"),
         ParamLgl$new("drop_last",   default = TRUE, tags = "train"),
         ParamDbl$new("valid_split", default = 0.2, lower = 0, upper = 1, tags = "train"),
+        # FIXME: Add LR
         #ParamDbl$new("learn_rate",  default = 0.02, lower = 0, upper = 1, tags = "train"),
         ParamInt$new("step_size", default = 1, lower = 1, upper = Inf, tags = "train"),
         ParamUty$new("img_transform_train",  default = NULL, tags = "train"),
-        ParamUty$new("img_transform_val",  default = NULL, tags = "train"),
-        ParamUty$new("img_transform_predict",  default = NULL, tags = "predict"),
+        ParamUty$new("img_transform_predict",  default = NULL, tags = c("train", "predict")),
         ParamFct$new("optimizer",   default = "adam", levels = torch_reflections$optimizer, tags = "train"),
         ParamLgl$new("verbose",     default = TRUE, tags = "control"),
         ParamUty$new("device",      default = "cpu", custom_check = function(x) x %in% get_available_device(), tags = "control")
@@ -53,10 +53,9 @@ LearnerClassifTorch = R6::R6Class("LearnerClassifTorch",
         step_size = 1,
         # FIXME: Figure out transform placement
         img_transform_train = NULL,
-        img_transform_val = NULL,
         img_transform_predict = NULL,
         optimizer = "adam",
-        #verbose = TRUE,
+        verbose = TRUE,
         device = "cpu"
       )
 
@@ -75,51 +74,16 @@ LearnerClassifTorch = R6::R6Class("LearnerClassifTorch",
   private = list(
 
     .train = function(task) {
-      # get parameters for training
-      pars = self$param_set$get_values(tags = "train")
-      pars_control = self$param_set$get_values(tags = "control")
+      # # get parameters for training
+      # pars = self$param_set$get_values(tags = "train")
+      # pars_control = self$param_set$get_values(tags = "control")
+      #
+      # # Drop control par from training pars
+      # pars <- pars[!(names(pars) %in% names(pars_control))]
+      #
+      # # Set number of threads
+      # torch::torch_set_num_threads(pars_control$num_threads)
 
-      # Drop control par from training pars
-      pars <- pars[!(names(pars) %in% names(pars_control))]
-
-      # Set number of threads
-      torch::torch_set_num_threads(pars_control$num_threads)
-
-      # set column names to ensure consistency in fit and predict
-      # (pasted from tabnet learner, unlikely to be useful?)
-      # self$state$feature_names = task$feature_names
-
-      # Validation split & datasets/loaders-------------------------------------
-      val_idx <- sample(task$nrow, floor(task$nrow * pars$valid_split))
-      train_idx <- setdiff(seq_len(task$nrow), val_idx)
-
-      # Check if sample sizes would be smaller than batch size
-      if (min(length(train_idx), length(val_idx)) < pars$batch_size) {
-        stop("batch_size larger than sample size")
-      }
-
-      train_ds <- img_dataset(task$data(), row_ids = train_idx, transform = pars$img_transform_train)
-      valid_ds <- img_dataset(task$data(), row_ids = val_idx, transform = pars$img_transform_val)
-
-      train_dl <- torch::dataloader(train_ds, batch_size = pars$batch_size, shuffle = TRUE, drop_last = pars$drop_last)
-      valid_dl <- torch::dataloader(valid_ds, batch_size = pars$batch_size, shuffle = FALSE, drop_last = pars$drop_last)
-
-      # ret <- train_alexnet(
-      #   pretrained = pars$pretrained,
-      #   train_dl = train_dl, valid_dl = valid_dl,
-      #   num_classes = length(img_task$class_names),
-      #   optimizer = pars$optimizer,
-      #   #scheduler,
-      #   step_size = pars$step_size,
-      #   loss = pars$loss,
-      #   epochs = pars$epochs,
-      #   verbose = pars_control$verbose,
-      #   device = pars_control$device
-      # )
-
-      # Return model only, not sure where/how/if to store history
-      # ret$history
-      ret$model
 
     },
 

@@ -23,19 +23,11 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
     initialize = function() {
       ps <- ParamSet$new(list(
         ParamLgl$new("pretrained", default = TRUE, tags = "train")
-        # FIXME: Shoddy placeholder, needs more thinking
-        # ParamUty$new("img_transform_train",  default = NULL, tags = "train"),
-        # ParamUty$new("img_transform_val",  default = NULL, tags = "train"),
-        # ParamUty$new("img_transform_predict",  default = NULL, tags = "predict")
       ))
 
       # Set param values that differ from default in tabnet_fit
       ps$values = list(
         pretrained = TRUE
-        # FIXME: Figure out transform placement
-        # img_transform_train = NULL,
-        # img_transform_val = NULL,
-        # img_transform_predict = NULL
       )
 
       super$initialize(
@@ -77,7 +69,7 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
       }
 
       train_ds <- img_dataset(task$data(), row_ids = train_idx, transform = pars$img_transform_train)
-      valid_ds <- img_dataset(task$data(), row_ids = val_idx, transform = pars$img_transform_val)
+      valid_ds <- img_dataset(task$data(), row_ids = val_idx, transform = pars$img_transform_predict)
 
       train_dl <- torch::dataloader(train_ds, batch_size = pars$batch_size, shuffle = TRUE, drop_last = pars$drop_last)
       valid_dl <- torch::dataloader(valid_ds, batch_size = pars$batch_size, shuffle = FALSE, drop_last = pars$drop_last)
