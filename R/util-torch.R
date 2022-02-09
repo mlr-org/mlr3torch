@@ -83,6 +83,7 @@ choose_device <- function(gpu_index = 0) {
 #' # Equivalent to calling:
 #' torch_bce <- torch::nn_bce_loss()
 get_torch_loss <- function(name) {
+  # FIXME: Pass arguments to generator function
   switch(
     name,
     adaptive_log_softmax_with = torch::nn_adaptive_log_softmax_with_loss(),
@@ -120,7 +121,7 @@ get_torch_loss <- function(name) {
 #' - `"rmsprop"`: [`torch::optim_rmsprop`][torch::optim_rmsprop]
 #' - `"rprop"`: [`torch::optim_rprop`][torch::optim_rprop]
 #' - `"sgd"`: [`torch::optim_sgd`][torch::optim_sgd]
-#' - `"madgrad"`: [`madgrad::optim_madgrad`]
+#' - `"madgrad"`: [`madgrad::optim_madgrad`][madgrad::optim_madgrad]
 #'
 #' @param name `[character]` Name of the optimizer.
 #'
