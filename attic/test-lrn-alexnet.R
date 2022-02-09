@@ -13,13 +13,14 @@ img_task_df <- img_task_df[img_task_df[, .I[sample.int(.N, min(min(5L, .N), .N))
 img_task <- mlr3::as_task_classif(img_task_df, target = "target")
 
 img_transforms <- function(img) {
-  img %>%
-    # first convert image to tensor
-    torchvision::transform_to_tensor() %>%# $to(device = choose_device()) %>%
-    # # then move to the GPU (if available)
-    (function(x) x$to(device = choose_device())) %>%
-    # Required resize for alexnet
-    torchvision::transform_resize(c(64, 64))
+  # Transformation to tensor is always required
+  img <- torchvision::transform_to_tensor(img)
+  # Move to GPU if available
+  img$to(device = choose_device())
+  # Resize images
+  img <- torchvision::transform_resize(img, size = c(64, 64))
+
+  img
 }
 
 
@@ -29,18 +30,19 @@ lrn_alexnet <- lrn("classif.torch.alexnet",
                    # Can't use pretrained on 10-class dataset yet, expects 1000
                    pretrained = TRUE,
                    img_transform_train = img_transforms,
-                   img_transform_val = img_transforms,
                    img_transform_predict = img_transforms,
                    batch_size = 10,
-                   epochs = 15,
+                   epochs = 10,
                    device = choose_device()
                    )
 
+lrn_alexnet$param_set
 
 lrn_alexnet$train(img_task)
 
-
-# lrn_alexnet$model
+# Luz also gives us metrics for free
+names(lrn_alexnet$model)
+data.table::rbindlist(lrn_alexnet$model$records$metrics$train)
 
 
 img_test <- df_from_imagenet_dir("/opt/example-data/imagenette2-160/val/")
@@ -52,3 +54,4 @@ preds <- lrn_alexnet$predict(img_task_test)
 
 preds$score(msr("classif.acc"))
 preds$score(msr("classif.ce"))
+preds$confusion

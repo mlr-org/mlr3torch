@@ -9,6 +9,8 @@
 #' @import mlr3
 #' @import checkmate
 #' @import data.table
+#' @import torch
+#' @import luz
 #' @importFrom R6 R6Class
 ## usethis namespace: end
 NULL

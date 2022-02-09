@@ -76,22 +76,34 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
       train_dl <- torch::dataloader(train_ds, batch_size = pars$batch_size, shuffle = TRUE, drop_last = pars$drop_last)
       valid_dl <- torch::dataloader(valid_ds, batch_size = pars$batch_size, shuffle = FALSE, drop_last = pars$drop_last)
 
-      train_alexnet(
-        pretrained = pars$pretrained,
-        train_dl = train_dl, valid_dl = valid_dl,
-        num_classes = length(img_task$class_names),
-        optimizer = pars$optimizer,
-        #scheduler,
-        step_size = pars$step_size,
-        loss = pars$loss,
-        epochs = pars$epochs,
-        verbose = pars_control$verbose,
-        device = pars_control$device
+      model <- torch::nn_module(
+        initialize = function(num_classes, pretrained = TRUE) {
+
+          if (pretrained) {
+            self$model <- torchvision::model_alexnet(pretrained = TRUE)
+            self$model <- reset_last_layer(self$model, num_classes)
+          } else {
+            self$model <- torchvision::model_alexnet(pretrained = FALSE, num_classes = num_classes)
+          }
+
+        },
+        forward = function(x) {
+          self$model$forward(x)
+        }
       )
 
-      # Return model only, not sure where/how/if to store history
-      # ret$history
-      # ret$model
+      model_fit <- luz::setup(
+          module = model,
+          loss = get_torch_loss(pars$loss),
+          optimizer = get_torch_optimizer(pars$optimizer),
+          metrics = list(
+            luz::luz_metric_accuracy()
+          )
+        ) %>%
+        luz::set_hparams(num_classes = train_ds$num_classes, pretrained = pars$pretrained) %>%
+        luz::fit(train_dl, epochs = pars$epochs, valid_data = valid_dl)
+
+      model_fit
 
     },
 
@@ -107,156 +119,30 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
       test_ds <- img_dataset(task$data(), transform = pars$img_transform_predict)
       test_dl <- torch::dataloader(test_ds, batch_size = pars$batch_size, shuffle = FALSE, drop_last = FALSE)
 
-      # Not sure if eval mode needed here
-      self$model$model$eval()
-
-      # FIXME: Collect class predictions / class probs
       # Note on prediction:
-      # batch_size should be higher probably, but i.e. single-sample predictions
-      # should also be allowed. Maybe not even necessary to use a dl here?
-      # devices: model should be called on batch with both on same device
-      # but to be coerced to R-native data structure, tensors have to be
-      # moved to cpu first
+      # Needs move to CPU to convert to R-native data structure
+      # Calls luz' predict method, requires luz to be loaded
+      model_pred <- predict(self$model, test_dl, verbose = pars_control$verbose)
 
       if (self$predict_type == "response") {
-        pred_class <- integer(0)
 
-        torch::with_no_grad({
-          coro::loop(for (b in test_dl) {
-            pred <- self$model$model(b[[1]]$to(device = pars_control$device))
+        pred_class <- as.integer(model_pred$argmax(dim = 2)$to(device = "cpu"))
 
-            # as.integer coercion requires tensor to be on CPU
-            pred <- as.integer(pred$argmax(dim = 2)$to(device = "cpu"))
-            pred_class <- c(pred_class, pred)
-          })
-        })
+        # FIXME: Store class labels in learner based on input task
+        # This is a "make it kind of work"-level hack
         targets <- task$data(cols = "target")[[1]]
+
         list(response = levels(targets)[pred_class])
       } else {
-        # Initialize 0-row matrix with proper type + column num
-        # colnames need to correspond to class names
-        pred_prob <- matrix(
-          NA_real_,
-          ncol = length(task$class_names),
-          nrow = 0,
-          dimnames = list(NULL, task$class_names)
-        )
 
-        torch::with_no_grad({
-          coro::loop(for (b in test_dl) {
-            pred <- self$model$mdoel(b[[1]]$to(device = pars_control$device))
+        pred_matrix <- as.matrix(model_pred$softmax(dim = 2)$to(device = "cpu"))
 
-            pred <- pred$softmax(dim = 2)$to(device = "cpu")
-            pred <- as.matrix(pred)
-            pred_prob <- rbind(pred_prob, pred)
-          })
-        })
+        # FIXME: Same fragile class name hack
+        colnames(pred_matrix) <- task$class_names
 
-        list(prob = pred_prob)
+        list(prob = pred_matrix)
       }
 
     }
   )
 )
-
-#' Wrapper to fit alexnet within learner
-#' @keywords internal
-#' @return Trained nn_module object
-train_alexnet <- function(
-  pretrained = FALSE,
-  train_dl, valid_dl,
-  num_classes,
-  optimizer = "adam",
-  #scheduler,
-  step_size = 1,
-  loss,
-  epochs,
-  verbose,
-  device
-  ) {
-
-  if (pretrained) {
-    model <- torchvision::model_alexnet(pretrained = TRUE)
-    model <- reset_last_layer(model, num_classes)
-  } else {
-    model <- torchvision::model_alexnet(pretrained = FALSE, num_classes = num_classes)
-  }
-  model$to(device = device)
-
-  # FIXME: Set lr, or maybe default is okay when using scheduler anyway
-  optimizer <- get_torch_optimizer(optimizer)
-  optimizer <- optimizer(model$parameters)
-
-  # FIXME: Parameterize gamma? Value copied verbatim from example docs
-  scheduler <- torch::lr_step(optimizer, step_size = step_size, gamma = 0.95)
-
-  loss_fn <- get_torch_loss(loss)
-
-  # Training loop -----------------------------------------------------------
-
-  train_step <- function(batch) {
-    optimizer$zero_grad()
-    output <- model(batch[[1]]$to(device = device))
-    loss <- loss_fn(output, batch[[2]]$to(device = device))
-    loss$backward()
-    optimizer$step()
-    loss
-  }
-
-  valid_step <- function(batch) {
-    model$eval()
-    pred <- model(batch[[1]]$to(device = device))
-    # TODO: k = 5 from example code, parameterize?
-    pred <- torch::torch_topk(pred, k = 1, dim = 2, TRUE, TRUE)[[2]]
-    pred <- pred$to(device = torch::torch_device("cpu"))
-    correct <- batch[[2]]$view(c(-1, 1))$eq(pred)$any(dim = 2)
-    model$train()
-    correct$to(dtype = torch::torch_float32())$mean()$item()
-  }
-
-  loss_epoch <- c()
-  accuracy_epoch <- c()
-
-  for (epoch in seq_len(epochs)) {
-
-    if (verbose) {
-      pb <- progress::progress_bar$new(
-        total = length(train_dl),
-        format = "[:bar] :eta Loss: :loss"
-      )
-    }
-
-    # Note: Probably should pre-allocate loss / acc vectors at some point
-    # Not trivial though, pre-allocating with number of batches would work
-    # but indexing within coro::loop not possible since `b` does not
-    # contain batch index
-    l <- c()
-    coro::loop(for (b in train_dl) {
-      loss <- train_step(b)
-      l <- c(l, loss$item())
-      if (verbose) pb$tick(tokens = list(loss = mean(l)))
-    })
-
-    acc <- c()
-    torch::with_no_grad({
-      coro::loop(for (b in valid_dl) {
-        accuracy <- valid_step(b)
-        acc <- c(acc, accuracy)
-      })
-    })
-
-    scheduler$step()
-    loss_epoch <- c(loss_epoch, mean(l))
-    accuracy_epoch <- c(accuracy_epoch, mean(acc))
-    if (verbose) cat(sprintf("[epoch %d]: Loss = %3f, Acc = %3f \n", epoch, mean(l), mean(acc)))
-
-  }
-
-  # Return model object after training loop, including history
-  list(
-    model = model,
-    history = data.table(
-      epoch = seq_len(epochs), loss = loss_epoch, accuracy = accuracy_epoch
-    )
-  )
-}
