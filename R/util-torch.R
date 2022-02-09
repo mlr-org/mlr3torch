@@ -112,14 +112,15 @@ get_torch_loss <- function(name) {
 #'
 #' The following optimizers are currently supported:
 #'
-#' - `"adadelta"`: [`torch::optim_adadelta`](torch::optim_adadelta)
-#' - `"adagrad"`: [`torch::optim_adagrad`](torch::optim_adagrad)
-#' - `"adam"`: [`torch::optim_adam`](torch::optim_adam)
-#' - `"asgd"`: [`torch::optim_asgd`](torch::optim_asgd)
-#' - `"lbfgs"`: [`torch::optim_lbfgs`](torch::optim_lbfgs)
-#' - `"rmsprop"`: [`torch::optim_rmsprop`](torch::optim_rmsprop)
-#' - `"rprop"`: [`torch::optim_rprop`](torch::optim_rprop)
-#' - `"sgd"`: [`torch::optim_sgd`](torch::optim_sgd)
+#' - `"adadelta"`: [`torch::optim_adadelta`][torch::optim_adadelta]
+#' - `"adagrad"`: [`torch::optim_adagrad`][torch::optim_adagrad]
+#' - `"adam"`: [`torch::optim_adam`][torch::optim_adam]
+#' - `"asgd"`: [`torch::optim_asgd`][torch::optim_asgd]
+#' - `"lbfgs"`: [`torch::optim_lbfgs`][torch::optim_lbfgs]
+#' - `"rmsprop"`: [`torch::optim_rmsprop`][torch::optim_rmsprop]
+#' - `"rprop"`: [`torch::optim_rprop`][torch::optim_rprop]
+#' - `"sgd"`: [`torch::optim_sgd`][torch::optim_sgd]
+#' - `"madgrad"`: [`madgrad::optim_madgrad`]
 #'
 #' @param name `[character]` Name of the optimizer.
 #'
@@ -132,6 +133,11 @@ get_torch_loss <- function(name) {
 #' # Same as [`torch::optim_adam`]
 #' identical(adam, torch::optim_adam)
 get_torch_optimizer <- function(name) {
+
+  if (name == "madgrad" & !requireNamespace("madgrad", quietly = TRUE)) {
+    stop("Please install 'madgrad' to use the madgrad optimizer")
+  }
+
   switch(
     name,
     adadelta = torch::optim_adadelta,
@@ -141,7 +147,8 @@ get_torch_optimizer <- function(name) {
     lbfgs = torch::optim_lbfgs,
     rmsprop = torch::optim_rmsprop,
     rprop = torch::optim_rprop,
-    sgd = torch::optim_sgd
+    sgd = torch::optim_sgd,
+    madgrad = madgrad::optim_madgrad
   )
 }
 

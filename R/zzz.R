@@ -15,6 +15,7 @@ register_mlr3 = function() {
   lrns = utils::getFromNamespace("mlr_learners", ns = "mlr3")
 
   # classification learners
+  lrns$add("classif.torch", LearnerClassifTorch)
   lrns$add("classif.torch.tabnet", LearnerClassifTorchTabnet)
   lrns$add("classif.torch.alexnet", LearnerClassifTorchAlexNet)
 
@@ -41,7 +42,8 @@ register_mlr3 = function() {
     )
 
     torch_reflections$optimizer <- c(
-      "rprop", "rmsprop", "adagrad", "asgd", "adadelta", "lbfgs", "sgd", "adam"
+      "rprop", "rmsprop", "adagrad", "asgd", "adadelta", "lbfgs", "sgd",
+      "adam", "madgrad"
       )
   })
 

@@ -2,15 +2,9 @@
 % Please edit documentation in R/utils-models.R
 \name{reset_last_layer}
 \alias{reset_last_layer}
-\alias{reset_last_layer.AlexNet}
-\alias{reset_last_layer.resnet}
 \title{Reset a classification models last layer}
 \usage{
 reset_last_layer(model, num_classes, bias = TRUE)
-
-\method{reset_last_layer}{AlexNet}(model, num_classes, bias = TRUE)
-
-\method{reset_last_layer}{resnet}(model, num_classes, bias = TRUE)
 }
 \arguments{
 \item{model}{A pretrained model, e.g.

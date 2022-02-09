@@ -22,6 +22,7 @@ Imports:
     torch,
     torchvision
 Suggests: 
+    madgrad,
     lgr,
     tabnet,
     testthat (>= 3.0.0)

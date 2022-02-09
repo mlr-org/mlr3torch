@@ -37,7 +37,7 @@ lrn("classif.torch.alexnet")
    step_size \tab integer \tab 1 \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
    img_transform_train \tab untyped \tab  \tab  \tab - \cr
    img_transform_predict \tab untyped \tab  \tab  \tab - \cr
-   optimizer \tab character \tab adam \tab rprop, rmsprop, adagrad, asgd, adadelta, lbfgs, sgd, adam \tab - \cr
+   optimizer \tab character \tab adam \tab rprop, rmsprop, adagrad, asgd, adadelta, lbfgs, sgd, adam, madgrad \tab - \cr
    verbose \tab logical \tab TRUE \tab TRUE, FALSE \tab - \cr
    device \tab untyped \tab cpu \tab  \tab - \cr
    pretrained \tab logical \tab TRUE \tab TRUE, FALSE \tab - \cr
@@ -51,7 +51,8 @@ library(mlr3torch)
 }
 }
 \references{
-
+Krizhevsky, A. One weird trick for parallelizing convolutional neural
+networks. arXiv:1404.5997 (2014).
 }
 \seealso{
 \itemize{

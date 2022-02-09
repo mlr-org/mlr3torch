@@ -17,14 +17,15 @@ The following optimizers are currently supported:
 }
 \details{
 \itemize{
-\item \code{"adadelta"}: \url{torch::optim_adadelta}
-\item \code{"adagrad"}: \url{torch::optim_adagrad}
-\item \code{"adam"}: \url{torch::optim_adam}
-\item \code{"asgd"}: \url{torch::optim_asgd}
-\item \code{"lbfgs"}: \url{torch::optim_lbfgs}
-\item \code{"rmsprop"}: \url{torch::optim_rmsprop}
-\item \code{"rprop"}: \url{torch::optim_rprop}
-\item \code{"sgd"}: \url{torch::optim_sgd}
+\item \code{"adadelta"}: \code{\link[torch:optim_adadelta]{torch::optim_adadelta}}
+\item \code{"adagrad"}: \code{\link[torch:optim_adagrad]{torch::optim_adagrad}}
+\item \code{"adam"}: \code{\link[torch:optim_adam]{torch::optim_adam}}
+\item \code{"asgd"}: \code{\link[torch:optim_asgd]{torch::optim_asgd}}
+\item \code{"lbfgs"}: \code{\link[torch:optim_lbfgs]{torch::optim_lbfgs}}
+\item \code{"rmsprop"}: \code{\link[torch:optim_rmsprop]{torch::optim_rmsprop}}
+\item \code{"rprop"}: \code{\link[torch:optim_rprop]{torch::optim_rprop}}
+\item \code{"sgd"}: \code{\link[torch:optim_sgd]{torch::optim_sgd}}
+\item \code{"madgrad"}: \code{\link[madgrad:optim_madgrad]{madgrad::optim_madgrad}}
 }
 }
 \examples{

@@ -6,6 +6,8 @@
 #' @templateVar id classif.torch.alexnet
 #' @templateVar caller model_alexnet
 #' @references
+#' Krizhevsky, A. One weird trick for parallelizing convolutional neural
+#' networks. arXiv:1404.5997 (2014).
 #'
 #' @template seealso_learner
 #' @export
@@ -74,7 +76,7 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
       train_dl <- torch::dataloader(train_ds, batch_size = pars$batch_size, shuffle = TRUE, drop_last = pars$drop_last)
       valid_dl <- torch::dataloader(valid_ds, batch_size = pars$batch_size, shuffle = FALSE, drop_last = pars$drop_last)
 
-      ret <- train_alexnet(
+      train_alexnet(
         pretrained = pars$pretrained,
         train_dl = train_dl, valid_dl = valid_dl,
         num_classes = length(img_task$class_names),
@@ -89,7 +91,7 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
 
       # Return model only, not sure where/how/if to store history
       # ret$history
-      ret$model
+      # ret$model
 
     },
 
@@ -106,7 +108,7 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
       test_dl <- torch::dataloader(test_ds, batch_size = pars$batch_size, shuffle = FALSE, drop_last = FALSE)
 
       # Not sure if eval mode needed here
-      self$model$eval()
+      self$model$model$eval()
 
       # FIXME: Collect class predictions / class probs
       # Note on prediction:
@@ -121,7 +123,7 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
 
         torch::with_no_grad({
           coro::loop(for (b in test_dl) {
-            pred <- self$model(b[[1]]$to(device = pars_control$device))
+            pred <- self$model$model(b[[1]]$to(device = pars_control$device))
 
             # as.integer coercion requires tensor to be on CPU
             pred <- as.integer(pred$argmax(dim = 2)$to(device = "cpu"))
@@ -142,7 +144,7 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
 
         torch::with_no_grad({
           coro::loop(for (b in test_dl) {
-            pred <- self$model(b[[1]]$to(device = pars_control$device))
+            pred <- self$model$mdoel(b[[1]]$to(device = pars_control$device))
 
             pred <- pred$softmax(dim = 2)$to(device = "cpu")
             pred <- as.matrix(pred)
@@ -182,16 +184,13 @@ train_alexnet <- function(
   model$to(device = device)
 
   # FIXME: Set lr, or maybe default is okay when using scheduler anyway
-  optimizer <- switch(optimizer,
-    "adam" = torch::optim_adam(model$parameters)
-  )
+  optimizer <- get_torch_optimizer(optimizer)
+  optimizer <- optimizer(model$parameters)
 
   # FIXME: Parameterize gamma? Value copied verbatim from example docs
   scheduler <- torch::lr_step(optimizer, step_size = step_size, gamma = 0.95)
 
-  loss_fn <- switch(loss,
-    "cross_entropy" = torch::nn_cross_entropy_loss()
-  )
+  loss_fn <- get_torch_loss(loss)
 
   # Training loop -----------------------------------------------------------
 
@@ -208,12 +207,15 @@ train_alexnet <- function(
     model$eval()
     pred <- model(batch[[1]]$to(device = device))
     # TODO: k = 5 from example code, parameterize?
-    pred <- torch::torch_topk(pred, k = 5, dim = 2, TRUE, TRUE)[[2]]
+    pred <- torch::torch_topk(pred, k = 1, dim = 2, TRUE, TRUE)[[2]]
     pred <- pred$to(device = torch::torch_device("cpu"))
     correct <- batch[[2]]$view(c(-1, 1))$eq(pred)$any(dim = 2)
     model$train()
     correct$to(dtype = torch::torch_float32())$mean()$item()
   }
+
+  loss_epoch <- c()
+  accuracy_epoch <- c()
 
   for (epoch in seq_len(epochs)) {
 
@@ -244,10 +246,17 @@ train_alexnet <- function(
     })
 
     scheduler$step()
+    loss_epoch <- c(loss_epoch, mean(l))
+    accuracy_epoch <- c(accuracy_epoch, mean(acc))
     if (verbose) cat(sprintf("[epoch %d]: Loss = %3f, Acc = %3f \n", epoch, mean(l), mean(acc)))
 
   }
 
   # Return model object after training loop, including history
-  list(model = model, history = list(loss = l, acc = acc))
+  list(
+    model = model,
+    history = data.table(
+      epoch = seq_len(epochs), loss = loss_epoch, accuracy = accuracy_epoch
+    )
+  )
 }
