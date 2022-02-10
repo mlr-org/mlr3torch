@@ -48,7 +48,7 @@ data.table::rbindlist(lrn_alexnet$model$records$metrics$train)
 img_test <- df_from_imagenet_dir("/opt/example-data/imagenette2-160/val/")
 
 # Make it a task
-img_task_test <- mlr3::as_task_classif(img_task_df, target = "target")
+img_task_test <- mlr3::as_task_classif(img_test, target = "target")
 
 preds <- lrn_alexnet$predict(img_task_test)
 

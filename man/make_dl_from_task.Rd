@@ -28,11 +28,13 @@ Must begin with \code{\link[torchvision:transform_to_tensor]{torchvision::transf
 to GPU if available.}
 
 \item{transform_val}{Same as \code{transform_train} but applied to the validation
-data, typically only including necessary transformations.}
+data, typically only including necessary transformations. Ignored if
+\code{valid_split} is \code{0}.}
 }
 \value{
-A list containing elements \code{train} and (if \code{valid_split > 0}) \code{val},
+A list containing elements \code{train} and \code{val},
 each containing the respective \code{\link[torch:dataloader]{dataloader}} objects.
+If \code{valid_split == 0}, a single dataloader is returned directly.
 }
 \description{
 Convert a task to torch dataloader(s)
@@ -40,9 +42,10 @@ Convert a task to torch dataloader(s)
 \examples{
 \dontrun{
 dls <- make_dl_from_task(
-  img_task, valid_split = 0.2, batch_size = 32,
+  img_task,
+  valid_split = 0.2,
   transform_train = img_transforms,
-  transform_val = img_transforms, drop_last = TRUE
+  transform_val = img_transforms
 )
 # Verify counts in dataloaders
 dls$train$.length()
@@ -55,13 +58,8 @@ dls$val$.length() / (dls$train$.length() + dls$val$.length())
 dls <- make_dl_from_task(
   img_task,
   valid_split = 0,
-  batch_size = 32,
-  transform_train = img_transforms,
-  drop_last = TRUE
+  transform_train = img_transforms
 )
-
-# Verify counts in dataloaders
-dls$train$.length()
 
 }
 }

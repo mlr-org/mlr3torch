@@ -1,7 +1,7 @@
 #' @title Classification AlexNet Learner
 #' @author Lukas Burk
 #' @name mlr_learners_classif.torch.alexnet
-#'
+#' @usage NULL
 #' @template class_learner
 #' @templateVar id classif.torch.alexnet
 #' @templateVar caller model_alexnet
@@ -62,19 +62,14 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
       # self$state$feature_names = task$feature_names
 
       # Validation split & datasets/loaders-------------------------------------
-      val_idx <- sample(task$nrow, floor(task$nrow * pars$valid_split))
-      train_idx <- setdiff(seq_len(task$nrow), val_idx)
-
-      # Check if sample sizes would be smaller than batch size
-      if (min(length(train_idx), length(val_idx)) < pars$batch_size) {
-        stop("batch_size larger than sample size")
-      }
-
-      train_ds <- img_dataset(task$data(), row_ids = train_idx, transform = pars$img_transform_train)
-      valid_ds <- img_dataset(task$data(), row_ids = val_idx, transform = pars$img_transform_predict)
-
-      train_dl <- torch::dataloader(train_ds, batch_size = pars$batch_size, shuffle = TRUE, drop_last = pars$drop_last)
-      valid_dl <- torch::dataloader(valid_ds, batch_size = pars$batch_size, shuffle = FALSE, drop_last = pars$drop_last)
+      dls <- make_dl_from_task(
+        task,
+        valid_split = pars$valid_split,
+        batch_size = pars$batch_size,
+        transform_train = pars$img_transform_train,
+        transform_val = pars$img_transform_predict,
+        drop_last = pars$drop_last
+      )
 
       model <- torch::nn_module(
         initialize = function(num_classes, pretrained = TRUE) {
@@ -100,8 +95,13 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
             luz::luz_metric_accuracy()
           )
         ) %>%
-        luz::set_hparams(num_classes = train_ds$num_classes, pretrained = pars$pretrained) %>%
-        luz::fit(train_dl, epochs = pars$epochs, valid_data = valid_dl)
+        luz::set_hparams(num_classes = length(task$class_names), pretrained = pars$pretrained) %>%
+        luz::fit(
+          data = dls$train,
+          epochs = pars$epochs,
+          # Only pass validation dl if it exists, hinging on valid_split
+          valid_data = if (pars$valid_split > 0) dls$val else NULL
+        )
 
       model_fit
 
@@ -115,14 +115,19 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
       # Drop control param from training pars
       pars <- pars[!(names(pars) %in% names(pars_control))]
 
-      # TODO: See if reusing batch_size here is problematic
-      test_ds <- img_dataset(task$data(), transform = pars$img_transform_predict)
-      test_dl <- torch::dataloader(test_ds, batch_size = pars$batch_size, shuffle = FALSE, drop_last = FALSE)
-
+      dls <- make_dl_from_task(
+        task,
+        # Set to 0 to create only one dl
+        valid_split = 0,
+        batch_size = pars$batch_size,
+        # Only 'train' dl will be created, but with predict transformations
+        transform_train = pars$img_transform_predict,
+        drop_last = FALSE
+      )
       # Note on prediction:
       # Needs move to CPU to convert to R-native data structure
       # Calls luz' predict method, requires luz to be loaded
-      model_pred <- predict(self$model, test_dl, verbose = pars_control$verbose)
+      model_pred <- predict(self$model, dls$train, verbose = pars_control$verbose)
 
       if (self$predict_type == "response") {
 
