@@ -1,9 +1,10 @@
-#' import paradox
-#' import R6
-#' import torch
-#' import luz
-#' import mlr3pipelines
-#' import mlr3
+#' @import paradox
+#' @import R6
+#' @import torch
+#' @import luz
+#' @import mlr3pipelines
+#' @importFrom mlr3pipelines `%>>%`
+#' @import mlr3
 "_PACKAGE"
 
 
@@ -12,6 +13,7 @@ register_mlr3 = function() {
   # Learners ----------------------------------------------------------------
 
   lrns = utils::getFromNamespace("mlr_learners", ns = "mlr3")
+  tsks = utils::getFromNamespace("mlr_tasks", ns = "mlr3")
 
   # classification learners
   lrns$add("classif.torch.tabnet", LearnerClassifTorchTabnet)
@@ -26,6 +28,7 @@ register_mlr3 = function() {
 
   # Image URI feature (e.g. file path to .jpg etc.) for image classif tasks
   reflcts$task_feature_types[["img"]] = "imageuri"
+  reflcts$data_formats = c(reflcts$data_formats, "torch_tensor")
 
 }
 
