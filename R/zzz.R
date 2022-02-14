@@ -18,6 +18,7 @@ register_mlr3 = function() {
   # lrns$add("classif.torch", LearnerClassifTorch)
   lrns$add("classif.torch.tabnet", LearnerClassifTorchTabnet)
   lrns$add("classif.torch.alexnet", LearnerClassifTorchAlexNet)
+  lrns$add("classif.torch.resnet", LearnerClassifTorchResNet)
 
   # regression learners
   lrns$add("regr.torch.tabnet", LearnerRegrTorchTabnet)
@@ -45,6 +46,13 @@ register_mlr3 = function() {
       "rprop", "rmsprop", "adagrad", "asgd", "adadelta", "lbfgs", "sgd",
       "adam", "madgrad"
       )
+
+    # Resnet configs included in torchvision, used to check config arg in ResNet
+    # learner
+    torch_reflections$models$resnet_configs <- c(
+      "resnet101", "resnet152", "resnet18", "resnet34", "resnet50",
+      "wide_resnet101_2", "wide_resnet50_2"
+    )
   })
 
 }

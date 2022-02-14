@@ -3,6 +3,7 @@
 S3method(reset_last_layer,AlexNet)
 S3method(reset_last_layer,resnet)
 export(LearnerClassifTorchAlexNet)
+export(LearnerClassifTorchResNet)
 export(LearnerClassifTorchTabnet)
 export(LearnerRegrTorchTabnet)
 export(choose_device)
