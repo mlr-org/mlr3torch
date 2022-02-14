@@ -34,7 +34,7 @@ lrn("classif.torch.alexnet")
    epochs \tab integer \tab 5 \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
    drop_last \tab logical \tab TRUE \tab TRUE, FALSE \tab - \cr
    valid_split \tab numeric \tab 0.2 \tab  \tab \eqn{[0, 1]}{[0, 1]} \cr
-   step_size \tab integer \tab 1 \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
+   learn_rate \tab numeric \tab 0.02 \tab  \tab \eqn{[0, 1]}{[0, 1]} \cr
    img_transform_train \tab untyped \tab  \tab  \tab - \cr
    img_transform_predict \tab untyped \tab  \tab  \tab - \cr
    optimizer \tab character \tab adam \tab rprop, rmsprop, adagrad, asgd, adadelta, lbfgs, sgd, adam, madgrad \tab - \cr

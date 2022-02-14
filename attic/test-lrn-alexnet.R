@@ -25,14 +25,15 @@ img_transforms <- function(img) {
 
 
 lrn_alexnet <- lrn("classif.torch.alexnet",
-                   predict_type = "prob",
+                   predict_type = "response",
                    num_threads = 15,
-                   # Can't use pretrained on 10-class dataset yet, expects 1000
+                   valid_split = 0.2,
                    pretrained = TRUE,
                    img_transform_train = img_transforms,
                    img_transform_predict = img_transforms,
                    batch_size = 10,
-                   epochs = 10,
+                   learn_rate = 0.03,
+                   epochs = 5,
                    device = choose_device()
                    )
 

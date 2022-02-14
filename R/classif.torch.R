@@ -6,7 +6,7 @@
 #'
 #' @template seealso_learner
 #' @templateVar learner_name classif.torch
-#' @export
+# @export
 #' @examples
 #' \dontrun{
 #' library(mlr3)
@@ -32,9 +32,8 @@ LearnerClassifTorch = R6::R6Class("LearnerClassifTorch",
         ParamInt$new("epochs",      default = 5L,  lower = 1L, upper = Inf, tags = "train"),
         ParamLgl$new("drop_last",   default = TRUE, tags = "train"),
         ParamDbl$new("valid_split", default = 0.2, lower = 0, upper = 1, tags = "train"),
-        # FIXME: Add LR
-        #ParamDbl$new("learn_rate",  default = 0.02, lower = 0, upper = 1, tags = "train"),
-        ParamInt$new("step_size", default = 1, lower = 1, upper = Inf, tags = "train"),
+        ParamDbl$new("learn_rate",  default = 0.02, lower = 0, upper = 1, tags = "train"),
+        #ParamInt$new("step_size", default = 1, lower = 1, upper = Inf, tags = "train"),
         ParamUty$new("img_transform_train",  default = NULL, tags = "train"),
         ParamUty$new("img_transform_predict",  default = NULL, tags = c("train", "predict")),
         ParamFct$new("optimizer",   default = "adam", levels = torch_reflections$optimizer, tags = "train"),
@@ -50,7 +49,8 @@ LearnerClassifTorch = R6::R6Class("LearnerClassifTorch",
         epochs = 10L,
         drop_last = TRUE,
         valid_split = 0.2,
-        step_size = 1,
+        learn_rate = 0.02,
+        #step_size = 1,
         # FIXME: Figure out transform placement
         img_transform_train = NULL,
         img_transform_predict = NULL,

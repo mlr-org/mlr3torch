@@ -34,7 +34,7 @@ data, typically only including necessary transformations. Ignored if
 \value{
 A list containing elements \code{train} and \code{val},
 each containing the respective \code{\link[torch:dataloader]{dataloader}} objects.
-If \code{valid_split == 0}, a single dataloader is returned directly.
+If \code{valid_split == 0}, the list contains a single dataloader \code{"train"}.
 }
 \description{
 Convert a task to torch dataloader(s)

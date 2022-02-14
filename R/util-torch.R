@@ -73,6 +73,8 @@ choose_device <- function(gpu_index = 0) {
 #' - `"triplet_margin"`: [`torch::nn_triplet_margin_loss()`]
 #' - `"triplet_margin_with_distance"`: [`torch::nn_triplet_margin_with_distance_loss()`]
 #' @param name `[character]` Name of the loss function.
+#' @param ... Optional named arguments passed to the loss function generator,
+#' e.g. `weight` for [`torch::nn_bce_loss()`].
 #'
 #' @return An object inherting from `"nn_loss"` and `"nn_module"`.
 #' @export
@@ -82,30 +84,34 @@ choose_device <- function(gpu_index = 0) {
 #'
 #' # Equivalent to calling:
 #' torch_bce <- torch::nn_bce_loss()
-get_torch_loss <- function(name) {
-  # FIXME: Pass arguments to generator function
+#'
+#' # With arguments
+#' bce <- get_torch_loss("bce", reduction = "none")
+#' # reduction is set in resulting module
+#' bce$reduction
+get_torch_loss <- function(name, ...) {
   switch(
     name,
-    adaptive_log_softmax_with = torch::nn_adaptive_log_softmax_with_loss(),
-    bce = torch::nn_bce_loss(),
-    bce_with_logits = torch::nn_bce_with_logits_loss(),
-    cosine_embedding = torch::nn_cosine_embedding_loss(),
-    cross_entropy = torch::nn_cross_entropy_loss(),
-    ctc = torch::nn_ctc_loss(),
-    hinge_embedding = torch::nn_hinge_embedding_loss(),
-    kl_div = torch::nn_kl_div_loss(),
-    l1 = torch::nn_l1_loss(),
-    margin_ranking = torch::nn_margin_ranking_loss(),
-    mse = torch::nn_mse_loss(),
-    multi_margin = torch::nn_multi_margin_loss(),
-    multilabel_margin = torch::nn_multilabel_margin_loss(),
-    multilabel_soft_margin = torch::nn_multilabel_soft_margin_loss(),
-    nll = torch::nn_nll_loss(),
-    poisson_nll = torch::nn_poisson_nll_loss(),
-    smooth_l1 = torch::nn_smooth_l1_loss(),
-    soft_margin = torch::nn_soft_margin_loss(),
-    triplet_margin = torch::nn_triplet_margin_loss(),
-    triplet_margin_with_distance = torch::nn_triplet_margin_with_distance_loss()
+    adaptive_log_softmax_with = torch::nn_adaptive_log_softmax_with_loss(...),
+    bce = torch::nn_bce_loss(...),
+    bce_with_logits = torch::nn_bce_with_logits_loss(...),
+    cosine_embedding = torch::nn_cosine_embedding_loss(...),
+    cross_entropy = torch::nn_cross_entropy_loss(...),
+    ctc = torch::nn_ctc_loss(...),
+    hinge_embedding = torch::nn_hinge_embedding_loss(...),
+    kl_div = torch::nn_kl_div_loss(...),
+    l1 = torch::nn_l1_loss(...),
+    margin_ranking = torch::nn_margin_ranking_loss(...),
+    mse = torch::nn_mse_loss(...),
+    multi_margin = torch::nn_multi_margin_loss(...),
+    multilabel_margin = torch::nn_multilabel_margin_loss(...),
+    multilabel_soft_margin = torch::nn_multilabel_soft_margin_loss(...),
+    nll = torch::nn_nll_loss(...),
+    poisson_nll = torch::nn_poisson_nll_loss(...),
+    smooth_l1 = torch::nn_smooth_l1_loss(...),
+    soft_margin = torch::nn_soft_margin_loss(...),
+    triplet_margin = torch::nn_triplet_margin_loss(...),
+    triplet_margin_with_distance = torch::nn_triplet_margin_with_distance_loss(...)
   )
 }
 
@@ -131,7 +137,7 @@ get_torch_loss <- function(name) {
 #' @examples
 #' adam <- get_torch_optimizer("adam")
 #'
-#' # Same as [`torch::optim_adam`]
+#' # Same as torch::optim_adam
 #' identical(adam, torch::optim_adam)
 get_torch_optimizer <- function(name) {
 

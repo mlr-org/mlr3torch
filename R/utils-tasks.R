@@ -15,7 +15,7 @@
 #'
 #' @return A list containing elements `train` and `val`,
 #' each containing the respective [`dataloader`][torch::dataloader] objects.
-#' If `valid_split == 0`, a single dataloader is returned directly.
+#' If `valid_split == 0`, the list contains a single dataloader `"train"`.
 #' @export
 #'
 #' @examples
@@ -80,18 +80,17 @@ make_dl_from_task <- function(
   train_dl <- torch::dataloader(train_ds, batch_size = batch_size,
                                 shuffle = TRUE, drop_last = drop_last)
 
+  dls <- list(train = train_dl)
+
   if (valid_split > 0) {
     valid_ds <- img_dataset(task$data(), row_ids = valid_ids,
                             transform = transform_val)
     valid_dl <- torch::dataloader(valid_ds, batch_size = batch_size,
                                   shuffle = FALSE, drop_last = drop_last)
+
+    dls$val <- valid_dl
   }
 
-  # Return dingle dataload if valid_split == 0, otherwise list of two dls
-  if (valid_split > 0) {
-    list(train = train_dl, val = valid_dl)
-  } else {
-    train_dl
-  }
+  dls
 
 }

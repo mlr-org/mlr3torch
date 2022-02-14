@@ -27,7 +27,7 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
         ParamLgl$new("pretrained", default = TRUE, tags = "train")
       ))
 
-      # Set param values that differ from default in tabnet_fit
+      # Set param values to defaults above
       ps$values = list(
         pretrained = TRUE
       )
@@ -95,10 +95,14 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
             luz::luz_metric_accuracy()
           )
         ) %>%
+        # Pass arguments to the nn_module initialize method
         luz::set_hparams(num_classes = length(task$class_names), pretrained = pars$pretrained) %>%
+        # Pass arguments to the optimizer
+        luz::set_opt_hparams(lr = pars$learn_rate) %>%
         luz::fit(
           data = dls$train,
           epochs = pars$epochs,
+          # accelerator = luz::accelerator(),
           # Only pass validation dl if it exists, hinging on valid_split
           valid_data = if (pars$valid_split > 0) dls$val else NULL
         )
@@ -117,7 +121,7 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
 
       dls <- make_dl_from_task(
         task,
-        # Set to 0 to create only one dl
+        # Set to 0 to create only one dl: dls$train
         valid_split = 0,
         batch_size = pars$batch_size,
         # Only 'train' dl will be created, but with predict transformations

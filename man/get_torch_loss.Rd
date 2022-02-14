@@ -4,10 +4,13 @@
 \alias{get_torch_loss}
 \title{Retrieve a torch loss function by name}
 \usage{
-get_torch_loss(name)
+get_torch_loss(name, ...)
 }
 \arguments{
 \item{name}{\verb{[character]} Name of the loss function.}
+
+\item{...}{Optional named arguments passed to the loss function generator,
+e.g. \code{weight} for \code{\link[torch:nn_bce_loss]{torch::nn_bce_loss()}}.}
 }
 \value{
 An object inherting from \code{"nn_loss"} and \code{"nn_module"}.
@@ -44,6 +47,11 @@ bce <- get_torch_loss("bce")
 
 # Equivalent to calling:
 torch_bce <- torch::nn_bce_loss()
+
+# With arguments
+bce <- get_torch_loss("bce", reduction = "none")
+# reduction is set in resulting module
+bce$reduction
 }
 \seealso{
 Other torch objects: 
