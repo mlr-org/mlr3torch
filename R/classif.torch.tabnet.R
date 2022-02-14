@@ -52,9 +52,7 @@ LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
       sort(stats::setNames(imp$importance, imp$variables), decreasing = TRUE)
     }
   ),
-
   private = list(
-
     .train = function(task) {
       # get parameters for training
       pars = self$param_set$get_values(tags = "train")
