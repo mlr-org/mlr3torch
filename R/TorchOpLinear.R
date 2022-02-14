@@ -30,5 +30,6 @@ TorchOpLinear = R6::R6Class("TorchOpLinear",
   )
 )
 
+#' @include mlr_torchops.R
 mlr_torchops$add("linear", value = TorchOpLinear)
-.__bobs__.[["linear"]] = TorchOpLinear$private_methods$.build
+# .__bobs__.[["linear"]] = TorchOpLinear$private_methods$.build

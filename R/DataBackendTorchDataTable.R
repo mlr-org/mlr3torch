@@ -66,7 +66,6 @@ SequentialSampler = R6::R6Class(
   )
 )
 
-#' @export
 # SequentialSubsetSampler = R6Class(
 #   "utils_sampler_sequential",
 #   lock_objects = FALSE,
@@ -159,7 +158,10 @@ cat2tensor = function(data, device) {
   data = copy(data)
   encode = function(col) {
     if (is.character(col)) {
-      col = as.factor(col)
+      stop("Not implemented yet")
+      # here we have to be careful what happens if certain characters don't appear in the
+      # train set e.g., it needs to be ensured that the characters are always encoded correctly
+      # col = as.factor(col)
     }
     col = as.integer(col)
     return(col)
@@ -178,7 +180,7 @@ cat2tensor = function(data, device) {
 }
 
 
-# Creates a dataset from a data.table and then creates a dataloader from the dataset
+#' Creates a dataset from a data.table and then creates a dataloader from the dataset
 make_dataloader = function(task, batch_size, device) {
   data = task$data() # already respects row_roles$use
   target = task$col_roles$target

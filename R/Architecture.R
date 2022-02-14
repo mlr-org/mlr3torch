@@ -46,7 +46,8 @@ reduce_architecture = function(architecture, task) {
     tensors = lhs[["tensors"]]
     layers = lhs[["layers"]]
     layer_desc = rhs
-    builder = get(layer_desc[["operator"]], envir = .__bobs__.)
+    builder = mlr_torchops$get(layer_desc[["operator"]])$build
+    # builder = get(layer_desc[["operator"]], envir = .__bobs__.)
     layer = builder(tensors, layer_desc[["param_vals"]], task)
     xs = tensors[startsWith(names(tensors), "x")]
     if (length(xs) == 1) { # almost always except for the encoder (maybe others later)

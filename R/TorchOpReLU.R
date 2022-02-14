@@ -23,5 +23,6 @@ TorchOpReLU = R6Class("TorchOpReLU",
   )
 )
 
+#' @include mlr_torchops.R
 mlr_torchops$add("relu", value = TorchOpReLU)
-.__bobs__.[["relu"]] = TorchOpReLU$private_methods$.build
+# .__bobs__.[["relu"]] = TorchOpReLU$private_methods$.build

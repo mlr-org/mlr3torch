@@ -125,5 +125,7 @@ nn_tokenizer_categorical = nn_module(
 )
 
 
+#' @include mlr_torchops.R
 mlr_torchops$add("tokenizer", value = TorchOpTokenizer)
-.__bobs__.[["tokenizer"]] = TorchOpTokenizer$private_methods$.build
+# TODO: Integrate .__bobs__. into the dictionary
+# .__bobs__.[["tokenizer"]] = TorchOpTokenizer$private_methods$.build

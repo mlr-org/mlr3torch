@@ -7,8 +7,9 @@ dl_paramset = function(network = TRUE, architecture = TRUE) {
     n_epochs = p_int(tags = "train", lower = 0L),
     device = p_fct(tags = c("train", "predict"), levels = c("cpu", "cuda"), default = "cpu"),
     batch_size = p_int(tags = c("train", "predict"), lower = 1L, default = 16L),
-    architecture = p_uty(tags = "train")
+    architecture = p_uty(tags = c("train", "required"))
   )
+
   # if (architecture) {
   #   # TODO: Make architecture and network exclusive
   #   param_set$add(

@@ -29,9 +29,9 @@ TorchOp = R6Class("TorchOp",
         packages = packages
       )
     },
-    build = function(x, network, param_vals, task) {
+    build = function(input, param_vals, task) {
       # TODO: Do checks
-      private$.build(x, network, param_vals, task)
+      private$.build(input, param_vals, task)
     }
   ),
   private = list(

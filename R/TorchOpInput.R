@@ -30,3 +30,6 @@ TorchOpInput = R6Class("TorchOpInput",
     }
   )
 )
+
+#' @include mlr_torchops.R
+mlr_torchops$add("input", value = TorchOpInput)
