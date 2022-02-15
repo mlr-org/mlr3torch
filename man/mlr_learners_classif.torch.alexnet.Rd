@@ -21,7 +21,7 @@ lrn("classif.torch.alexnet")
 \item Task type: \dQuote{classif}
 \item Predict Types: \dQuote{response}, \dQuote{prob}
 \item Feature Types: \dQuote{imageuri}
-\item Required Packages: \CRANpkg{mlr3}, \CRANpkg{torchvision}, \CRANpkg{torch}
+\item Required Packages: \CRANpkg{mlr3}, \CRANpkg{torchvision}, \CRANpkg{torch}, \CRANpkg{luz}
 }
 }
 

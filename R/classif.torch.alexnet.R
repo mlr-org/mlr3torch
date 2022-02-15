@@ -34,7 +34,7 @@ LearnerClassifTorchAlexNet = R6::R6Class("LearnerClassifTorchAlexNet",
 
       super$initialize(
         id = "classif.torch.alexnet",
-        packages = c("torchvision", "torch"),
+        packages = c("torchvision", "torch", "luz"),
         param_set = ps,
         feature_types = c("imageuri"),
         predict_types = c("response", "prob"),

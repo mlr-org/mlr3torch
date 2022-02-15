@@ -89,62 +89,18 @@ LearnerClassifTorch = R6::R6Class("LearnerClassifTorch",
 
     .predict = function(task) {
       # get parameters with tag "predict"
-      pars <- self$param_set$get_values(tags = "predict")
-      pars_control <- self$param_set$get_values(tags = "control")
-
-      # Drop control param from training pars
-      pars <- pars[!(names(pars) %in% names(pars_control))]
-
-      # FIXME: Ad hoc dataloader from input task with 1 possibly huge batch
-      test_ds <- img_dataset(task$data(), transform = pars$img_transform_predict)
-      test_dl <- torch::dataloader(test_ds, batch_size = task$nrow, shuffle = FALSE, drop_last = FALSE)
-
-      # Not sure if eval mode needed here
-      self$model$eval()
-
-      # FIXME: Collect class predictions / class probs
-      # Note on prediction:
-      # batch_size should be higher probably, but i.e. single-sample predictions
-      # should also be allowed. Maybe not even necessary to use a dl here?
-      # devices: model should be called on batch with both on same device
-      # but to be coerced to R-native data structure, tensors have to be
-      # moved to cpu first
+      # pars <- self$param_set$get_values(tags = "predict")
+      # pars_control <- self$param_set$get_values(tags = "control")
+      #
+      # # Drop control param from training pars
+      # pars <- pars[!(names(pars) %in% names(pars_control))]
 
       if (self$predict_type == "response") {
-        pred_class <- integer(0)
 
-        torch::with_no_grad({
-          coro::loop(for (b in test_dl) {
-            pred <- self$model(b[[1]]$to(device = pars_control$device))
-
-            # as.integer coercion requires tensor to be on CPU
-            pred <- as.integer(pred$argmax(dim = 2)$to(device = "cpu"))
-            pred_class <- c(pred_class, pred)
-          })
-        })
-        targets <- task$data(cols = "target")[[1]]
-        list(response = levels(targets)[pred_class])
+        # list(response = levels(targets)[pred_class])
       } else {
-        # Initialize 0-row matrix with proper type + column num
-        # colnames need to correspond to class names
-        pred_prob <- matrix(
-          NA_real_,
-          ncol = length(task$class_names),
-          nrow = 0,
-          dimnames = list(NULL, task$class_names)
-        )
 
-        torch::with_no_grad({
-          coro::loop(for (b in test_dl) {
-            pred <- self$model(b[[1]]$to(device = pars_control$device))
-
-            pred <- pred$softmax(dim = 2)$to(device = "cpu")
-            pred <- as.matrix(pred)
-            pred_prob <- rbind(pred_prob, pred)
-          })
-        })
-
-        list(prob = pred_prob)
+        # list(prob = pred_prob)
       }
 
     }

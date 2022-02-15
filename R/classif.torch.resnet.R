@@ -36,7 +36,7 @@ LearnerClassifTorchResNet = R6::R6Class("LearnerClassifTorchResNet",
 
      super$initialize(
        id = "classif.torch.resnet",
-       packages = c("torchvision", "torch"),
+       packages = c("torchvision", "torch", "luz"),
        param_set = ps,
        feature_types = c("imageuri"),
        predict_types = c("response", "prob"),
