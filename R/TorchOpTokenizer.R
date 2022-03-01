@@ -1,49 +1,84 @@
-TorchOpTokenizer = R6Class("TorchOpEncoder",
+#' @export
+TorchOpTokenizer = R6Class("TorchOpTokenizer",
   inherit = TorchOp,
   public = list(
-    initialize = function(id = "linear", param_vals = list()) {
+    initialize = function(id = "tokenizer", param_vals = list()) {
       param_set = ps(
-        d_token = p_int(1L, Inf, tags = "train"),
-        bias = p_lgl(default = TRUE, tags = "train")
+        d_token = p_int(1L, Inf, tags = c("train", "required")),
+        bias = p_lgl(default = TRUE, tags = "train"),
+        cls = p_lgl(default = TRUE, tags = "train")
       )
       super$initialize(
         id = id,
         param_set = param_set,
         param_vals = param_vals
       )
-    }
+    },
+    names_in = list(
+      x_num = c("batch", "feature"),
+      x_cat = c("batch", "feature")
+    ),
+    names_out = c("batch", "feature")
   ),
   private = list(
     .operator = "tokenizer",
     .build = function(x, param_vals, task) {
+      bias = param_vals[["bias"]] %??% TRUE
+      cls = param_vals[["cls"]] %??% TRUE
+      d_token = param_vals[["d_token"]]
 
-      # x is a list
-      layer = torch::nn_linear(
-        in_features = dim(x[[2L]]),
-        out_features = params,
-        bias = param_set$values$bias
+      n_features = sum(map_lgl(task$data(cols = task$col_roles$feature), is.numeric))
+      cardinalities = Filter(function(x) !is.numeric(x), task$data(cols = task$col_roles$feature)) |>
+        map_int(.f = nlevels) |>
+        unname()
+
+      layer = nn_tokenizer(
+        n_features = n_features,
+        cardinalities = cardinalities,
+        d_token = d_token,
+        bias = bias,
+        cls = cls
       )
       return(layer)
     }
   )
 )
 
+#' nn_tokenizer
 nn_tokenizer = nn_module(
   "nn_tokenizer",
-  initialize = function(n_features, cardinalities, d_token, bias) {
-    self$tokenizer_num = nn_tokenizer_numeric(n_features, d_token, bias)
-    self$tokenizer_cat = nn_tokenizer_categorical(cardinalities, d_token, bias)
+  initialize = function(n_features, cardinalities, d_token, bias, cls) {
+    self$tokenizers = list()
+    assert_true(n_features > 0L || length(cardinalities) > 0L)
+    if (n_features > 0L) {
+      self$tokenizer_num = nn_tokenizer_numeric(n_features, d_token, bias)
+    }
+    if (length(cardinalities) > 0L) {
+      self$tokenizer_cat = nn_tokenizer_categorical(cardinalities, d_token, bias)
+    }
+    if (cls) {
+      self$cls = nn_cls(d_token)
+    }
   },
-  forward = function(input) {
-    tokens_num = self$tokenizer_num(input[["num"]])
-    tokens_cat = self$tokenizer_cat(input[["cat"]])
-    tokens = torch_cat(list(tokens_num, tokens_cat), dim = 2L)
-
+  forward = function(input_num = NULL, input_cat = NULL) {
+    tokens = list()
+    if (!is.null(input_num)) {
+      tokens[["x_num"]] = self$tokenizer_num(input_num)
+    }
+    if (!is.null(input_cat)) {
+      tokens[["x_cat"]] = self$tokenizer_num(input_cat)
+    }
+    tokens = torch_cat(tokens, dim = 2L)
+    if (!is.null(self$cls)) {
+      tokens = self$cls(tokens)
+    }
+    return(tokens)
   }
 )
 
 # adapted from: https://github.com/yandex-research/rtdl/blob/main/rtdl/modules.py
 
+# TODO: add kaiming initialization as done here: https://github.com/yandex-research/rtdl/blob/main/bin/ft_transformer.py
 #' Uniform initialization
 initialize_token_ = function(x, d) {
   d_sqrt_inv = 1 / sqrt(d)
@@ -127,5 +162,3 @@ nn_tokenizer_categorical = nn_module(
 
 #' @include mlr_torchops.R
 mlr_torchops$add("tokenizer", value = TorchOpTokenizer)
-# TODO: Integrate .__bobs__. into the dictionary
-# .__bobs__.[["tokenizer"]] = TorchOpTokenizer$private_methods$.build

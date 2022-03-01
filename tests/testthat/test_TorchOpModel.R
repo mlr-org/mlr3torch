@@ -5,7 +5,7 @@ test_that("Can create and train simple network", {
   to_relu1 = TorchOpReLU$new("relu")
   to_linear2 = TorchOpLinear$new("linear2", param_vals = list(out_features = 1))
   to_model = TorchOpModel$new()
-  to_model$param_set$values$optimizer = optim_adam
+  to("model", optimizer = optim_adagrad, optimizer_args = list(lr = 0.01),
   to_model$param_set$values$optimizer_args = list(lr = 0.01)
   to_model$param_set$values$criterion = nn_mse_loss
   to_model$param_set$values$device = "cpu"

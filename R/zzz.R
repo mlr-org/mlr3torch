@@ -3,6 +3,7 @@
 #' @import torch
 #' @import luz
 #' @import mlr3pipelines
+#' @import mlr3misc
 #' @importFrom mlr3pipelines `%>>%`
 #' @import mlr3
 "_PACKAGE"

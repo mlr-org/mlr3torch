@@ -1,7 +1,7 @@
 test_that("Can train TorchOpLinear", {
   task = make_mtcars_task()
   to_input = TorchOpInput$new()
-  to_linear = TorchOpLinear$new(param_vals = list(units = 10))
+  to_linear = TorchOpLinear$new(param_vals = list(out_features = 10))
 
   graph = Graph$new()
   graph$add_pipeop(to_input)

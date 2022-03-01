@@ -1,3 +1,6 @@
+#' @title Abstract Base Class for Torch Operators
+#' @description All TorchOps inherit from this class.
+#' @export
 TorchOp = R6Class("TorchOp",
   inherit = mlr3pipelines::PipeOp,
   public = list(
@@ -29,9 +32,17 @@ TorchOp = R6Class("TorchOp",
         packages = packages
       )
     },
+    #' Builds the torch layer
+    #' @param input (torch_tensor) The torch tensor that is the input to this layer.
+    #' @param param_vals (list()) parameter values passed to the build function.
+    #' @param task (mlr3::Task) The task on which the architecture is trained.
     build = function(input, param_vals, task) {
       # TODO: Do checks
+
       private$.build(input, param_vals, task)
+    },
+    repr = function(param_vals) {
+      sprinf("<%s: %s>", self$.operator, param_vals)
     }
   ),
   private = list(
@@ -43,7 +54,7 @@ TorchOp = R6Class("TorchOp",
       }
       task = inputs[["task"]]
       architecture = inputs[["architecture"]]
-      architecture$add(private$.operator, self$param_set$get_values(tag = "train"))
+      architecture$add(self$build, self$param_set$get_values(tag = "train"))
       self$state = "trained"
       output = list(task = inputs[["task"]], architecture = architecture)
       return(output)
@@ -54,7 +65,7 @@ TorchOp = R6Class("TorchOp",
       output = list(task = task, architecture = architecture)
       return(output)
     },
-    .bob = function(x, network, param_vals) {
+    .build = function(input, param_vals, task) {
       stop("ABC")
     }
   )

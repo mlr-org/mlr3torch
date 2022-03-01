@@ -19,7 +19,8 @@ TorchOpLinear = R6::R6Class("TorchOpLinear",
   private = list(
     .operator = "linear",
     .build = function(input, param_vals, task) {
-      # TODO: Do this prettier
+      # TODO: Define a clean interface what dimensions a TorchOp requires as input and what
+      # it then outputs
       assert_true("y" %in% names(input))
       assert_true(sum(startsWith(names(input), "x")) == 1)
       in_features = dim(input[startsWith(names(input), "x")][[1L]])[[2L]]

@@ -47,7 +47,7 @@
 # )
 
 # Copied from torch
-SequentialSampler = R6::R6Class(
+SequentialSampler = R6Class(
   "utils_sampler_sequential",
   lock_objects = FALSE,
   inherit = torch:::Sampler,
@@ -124,9 +124,7 @@ make_dataset = function(data, target, features, batch_size, device, rows = NULL)
     y = cat2tensor(data[, ..target], device = device)
   }
 
-  data_list = list(
-    y = y
-  )
+  data_list = list(y = y)
 
   if (!is.null(x_num)) {
     data_list[["x_num"]] = x_num

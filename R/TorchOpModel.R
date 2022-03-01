@@ -8,10 +8,11 @@ TorchOpModel = R6Class("TorchOpModel",
         optimizer = p_uty(tags = "train"),
         optimizer_args = p_uty(tags = "train"),
         criterion_args = p_uty(tags = "train"),
-        n_epochs = p_int(tags = "train", lower = 0L),
+        n_epochs = p_int(default = 0L, tags = "train", lower = 0L),
         device = p_fct(tags = c("train", "predict"), levels = c("cpu", "cuda"), default = "cpu"),
         batch_size = p_int(tags = c("train", "predict"), lower = 1L)
       )
+      param_set$values$n_epochs = 0L
       output = data.table(name = "output", train = "Task", predict = "Prediction")
 
       super$initialize(

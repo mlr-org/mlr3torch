@@ -18,7 +18,7 @@ TorchOpReLU = R6Class("TorchOpReLU",
   private = list(
     .operator = "relu",
     .build = function(input, param_vals, task) {
-      mlr3misc::invoke(nn_relu, .args = param_vals)
+      invoke(nn_relu, .args = param_vals)
     }
   )
 )

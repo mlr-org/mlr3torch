@@ -1,5 +1,4 @@
 # TODO: Check with concrete numbers that everything works as intented
-
 test_that("nn_tokenizer_numeric works", {
   n = 16
   d_token = 3
@@ -27,6 +26,7 @@ test_that("nn_tokenizer_categorical works", {
 
 })
 
+# TODO: add edge cases: no numeric and no categorical features
 test_that("nn_tokenizer works", {
   n = 16
   d_token = 3
@@ -43,6 +43,17 @@ test_that("nn_tokenizer works", {
   input_num = torch_randn(n, n_features)
 
   tokenizer = nn_tokenizer(n_features, cardinalities, d_token, bias)
-  output = tokenizer(list(num = input_num, cat = input_cat))
+  output = tokenizer(list(x_num = input_num, x_cat = input_cat))
   expect_true(all(dim(output) == c(n, n_features + length(cardinalities), d_token)))
+})
+
+test_that("TorchOpTokenizer works", {
+  d_token = 7
+  task = tsk("boston_housing")
+  graph = top("input") %>>%
+    top("tokenizer", d_token = d_token) %>>%
+    top("model", optimizer = optim_adam, criterion = nn_mse_loss)
+  output = graph$train(task)
+
+  graph$predict(task)
 })

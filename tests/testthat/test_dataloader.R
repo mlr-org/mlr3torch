@@ -1,6 +1,5 @@
 make_data = function() {
   data.table(
-    x_chr = c("a", "b", "a"),
     x_lgl = c(FALSE, TRUE, FALSE),
     x_fct = as.factor(c("l1", "l2", "l1")),
     x_int = 3:1,
@@ -12,17 +11,16 @@ make_data = function() {
 
 test_that("cat2tensor works", {
   dat = data.table(
-    x_char = c("a", "b", "c"),
     x_lgl = c(TRUE, FALSE, FALSE),
     x_fct = as.factor(c("l1", "l2", "l1"))
   )
   tensor_expected = torch_tensor(
     matrix(
-      c(1L, 1L, 1L,
-        2L, 0L, 2L,
-        3L, 0L, 1L),
+      c(1L, 1L,
+        0L, 2L,
+        0L, 1L),
       byrow = TRUE,
-      ncol = 3
+      ncol = 2
     )
   )
   tensor = cat2tensor(dat, device = "cpu")
@@ -30,12 +28,11 @@ test_that("cat2tensor works", {
 })
 
 test_that("make_dataset works", {
-  data = make_data()
+  dat = make_data()
   fn = make_dataset(
-    1:3,
-    data,
+    data = dat,
     target = "y",
-    features = paste0("x_", c("chr", "lgl", "fct", "int", "num")),
+    features = paste0("x_", c("lgl", "fct", "int", "num")),
     batch_size = 1,
     device = "cpu"
   )
@@ -195,5 +192,16 @@ test_that("DataBackendTorchDataTable works with only categorical", {
   expect_true(is.null(batches[["x_num"]]))
   expect_true(torch_equal(batch1_expected[["x_cat"]], batches[[1]]$x_cat))
   expect_true(torch_equal(batch1_expected[["y"]], batches[[1]]$y))
+
+})
+
+test_that("make_dataloader works with boston_housing", {
+  dl = make_dataloader(tsk("boston_housing"), 1, "cpu")
+  expect_error(dl$.iter()$.next(), regexp = NA)
+})
+
+test_that("make_dataloader works with mtcars", {
+  dl = make_dataloader(tsk("mtcars"), 1, "cpu")
+  expect_error(batch <<- dl$.iter()$.next(), regexp = NA)
 
 })
