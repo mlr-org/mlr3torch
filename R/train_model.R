@@ -44,7 +44,7 @@ train_torch = function(model, task, optimizer, criterion, n_epochs, batch_size, 
       }
       y_hat = model$forward(xs)
       if (inherits(criterion, "nn_crossentropy_loss")) {
-        y_true = batch$y[, 1]
+        y_true = batch$y[, 1L]
       } else {
         y_true = batch$y
       }

@@ -36,17 +36,22 @@ TorchOp = R6Class("TorchOp",
     #' @param input (torch_tensor) The torch tensor that is the input to this layer.
     #' @param param_vals (list()) parameter values passed to the build function.
     #' @param task (mlr3::Task) The task on which the architecture is trained.
-    build = function(input, param_vals, task) {
-      # TODO: Do checks
-
+    build = function(input, task) {
+      # TODO: Dlo checks
+      param_vals = self$param_set$get_values(tag = "train")
       private$.build(input, param_vals, task)
     },
-    repr = function(param_vals) {
-      sprinf("<%s: %s>", self$.operator, param_vals)
+    #' Provides the repreesntation for the TorchOp.
+    repr = function() {
+      sprinf("<%s: %s>", self$.operator, self$param_set$get_values(tag = "train"))
+    }
+  ),
+  active = list(
+    .operator = function() {
+      formals(self$initialize)[["id"]]
     }
   ),
   private = list(
-    .operator = "abstract",
     .train = function(inputs) {
       if (!is.null(self$state)) {
         # architecture is already built
@@ -54,7 +59,7 @@ TorchOp = R6Class("TorchOp",
       }
       task = inputs[["task"]]
       architecture = inputs[["architecture"]]
-      architecture$add(self$build, self$param_set$get_values(tag = "train"))
+      architecture$add(self$build)
       self$state = "trained"
       output = list(task = inputs[["task"]], architecture = architecture)
       return(output)
@@ -66,6 +71,9 @@ TorchOp = R6Class("TorchOp",
       return(output)
     },
     .build = function(input, param_vals, task) {
+      stop("ABC")
+    },
+    .output_dim = function(input_dim) {
       stop("ABC")
     }
   )

@@ -1,5 +1,7 @@
-#'  @title Linear TorchOp
+#' @title Linear TorchOp
 #' @include TorchOpLinear.R
+#' @section Dimensions
+#' (n, ..., in_features) --> (n, ..., out_features)
 #' @export
 TorchOpLinear = R6::R6Class("TorchOpLinear",
   inherit = TorchOp,
@@ -21,10 +23,8 @@ TorchOpLinear = R6::R6Class("TorchOpLinear",
     .build = function(input, param_vals, task) {
       # TODO: Define a clean interface what dimensions a TorchOp requires as input and what
       # it then outputs
-      assert_true("y" %in% names(input))
-      assert_true(sum(startsWith(names(input), "x")) == 1)
-      in_features = dim(input[startsWith(names(input), "x")][[1L]])[[2L]]
-      assert_true(length(input) == 2)
+      assert_names(names(input), subset.of = c("x", "y"))
+      in_features = input$x$shape[length(input$x$shape)]
       layer = invoke(nn_linear, in_features = in_features, .args = param_vals)
       return(layer)
     }
@@ -33,4 +33,3 @@ TorchOpLinear = R6::R6Class("TorchOpLinear",
 
 #' @include mlr_torchops.R
 mlr_torchops$add("linear", value = TorchOpLinear)
-# .__bobs__.[["linear"]] = TorchOpLinear$private_methods$.build

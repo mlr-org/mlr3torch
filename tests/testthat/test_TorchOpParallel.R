@@ -8,7 +8,7 @@ test_that("Can easily create skip connection with TorchOps", {
     top("flatten", start_dim = 2, end_dim = 3) %>>%
     top("parallel", .paths = list(a = block1, b = block2)) %>>%
     top("linear", out_features = 1L) %>>%
-    top("model", n_epochs = 10L, optimizer = optim_adam, criterion = nn_mse_loss)
+    top("model", n_epochs = 0L, optimizer = optim_adam, criterion = nn_mse_loss)
 
   learner = GraphLearner$new(graph, task_type = "regr")
   learner$train(task)

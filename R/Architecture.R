@@ -18,7 +18,7 @@ Architecture = R6Class("Architecture",
     print = function() {
       catf("<Architecture>")
       for (layer in self$layers) {
-        catf(" <%s: %s>", get_private(layer[["operator"]])$.operator,
+        catf(" <%s: %s>", get_private(layer[["builder"]])$.operator,
           format_named_list(layer[["param_vals"]]))
       }
     },
@@ -57,7 +57,7 @@ reduce_architecture = function(architecture, task, input = NULL) {
     # either they get their own subclass or we simply check here (e.g. length(formalArgs))
     builder = layer_desc[["builder"]]
     # builder = get(layer_desc[["operator"]], envir = .__bobs__.)
-    layer = builder(tensors, layer_desc[["param_vals"]], task)
+    layer = builder(tensors, task)
     xs = tensors[startsWith(names(tensors), "x")]
     if (inherits(layer, "nn_tokenizer")) {
       x_new = with_no_grad(layer(input_num = xs[["x_num"]], input_cat = xs[["x_cat"]]))

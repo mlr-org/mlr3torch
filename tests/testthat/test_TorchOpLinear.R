@@ -1,5 +1,10 @@
 test_that("Can train TorchOpLinear", {
-  task = make_mtcars_task()
+  task = tsk("mtcars")
+  graph = top("input") %>>%
+    top("linear", id = "linear1", out_features = 10L) %>>%
+    top("relu") %>>%
+    top("linear", id = "linear2", out_features = 1L)
+
   to_input = TorchOpInput$new()
   to_linear = TorchOpLinear$new(param_vals = list(out_features = 10))
 
@@ -25,4 +30,26 @@ test_that("Can train TorchOpLinear", {
 
   expect_identical(task, train_output[[1]])
   expect_r6(train_output[[2]], "Architecture")
+})
+
+test_that("TorchOpLinear works with 2D Tensor", {
+  task = tsk("mtcars")
+  input = torch_randn(16, 7)
+  linear = TorchOpLinear$new(
+    param_vals = list(out_features = 10)
+  )
+  layer = linear$build(list(x = input), task)
+  output = with_no_grad(layer(input))
+  expect_equal(output$shape, c(16, 10))
+})
+
+test_that("TorchOpLinear works with 2D Tensor", {
+  task = tsk("mtcars")
+  input = torch_randn(16, 7, 18)
+  linear = TorchOpLinear$new(
+    param_vals = list(out_features = 10)
+  )
+  layer = linear$build(list(x = input), task)
+  output = with_no_grad(layer(input))
+  expect_equal(output$shape, c(16, 7, 10))
 })
