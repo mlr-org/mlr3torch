@@ -55,4 +55,3 @@ preds <- lrn_alexnet$predict(img_task_test)
 
 preds$score(msr("classif.acc"))
 preds$score(msr("classif.ce"))
-preds$confusion

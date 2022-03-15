@@ -30,6 +30,12 @@ remotes::install_github("mlr-org/mlr3torch")
 Using the [{tabnet}](https://github.com/mlverse/tabnet) learner for
 classification:
 
+
+# Credit
+This API is heavily inspired by:
+
+* Keras
+
 ``` r
 library(mlr3)
 library(mlr3viz)

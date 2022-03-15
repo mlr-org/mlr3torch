@@ -165,5 +165,3 @@ get_torch_optimizer <- function(name) {
     stop("Optimizer not supported")
   )
 }
-
-

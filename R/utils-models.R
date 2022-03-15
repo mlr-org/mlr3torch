@@ -5,7 +5,6 @@
 #'
 #' @note As of this, this also freezes the parameters of all but the last layer.
 #'
-# @rdname reset-layer
 #' @param model A pretrained model, e.g.
 #' `torchvision::model_alexnet(pretrained = TRUE)`
 #' @param num_classes Number of desired output classes.
@@ -32,7 +31,6 @@ reset_last_layer <- function(model, num_classes, bias = TRUE) {
   UseMethod("reset_last_layer")
 }
 
-# @rdname reset-layer
 #' @export
 reset_last_layer.AlexNet <- function(model, num_classes, bias = TRUE) {
 
@@ -49,7 +47,6 @@ reset_last_layer.AlexNet <- function(model, num_classes, bias = TRUE) {
   return(model)
 }
 
-# @rdname reset-layer
 #' @export
 reset_last_layer.resnet <- function(model, num_classes, bias = TRUE) {
   # Freeze weights
