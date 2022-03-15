@@ -11,6 +11,7 @@
 #' @import data.table
 #' @import torch
 #' @import luz
+#' @import mlr3pipelines
 #' @importFrom R6 R6Class
 ## usethis namespace: end
 NULL
