@@ -90,6 +90,11 @@ choose_device <- function(gpu_index = 0) {
 #' # reduction is set in resulting module
 #' bce$reduction
 get_torch_loss <- function(name, ...) {
+
+  if (inherits(name, "nn_loss") & inherits(name, "nn_module_generator")) {
+    return(name(...))
+  }
+
   switch(
     name,
     adaptive_log_softmax_with = torch::nn_adaptive_log_softmax_with_loss(...),
@@ -111,7 +116,8 @@ get_torch_loss <- function(name, ...) {
     smooth_l1 = torch::nn_smooth_l1_loss(...),
     soft_margin = torch::nn_soft_margin_loss(...),
     triplet_margin = torch::nn_triplet_margin_loss(...),
-    triplet_margin_with_distance = torch::nn_triplet_margin_with_distance_loss(...)
+    triplet_margin_with_distance = torch::nn_triplet_margin_with_distance_loss(...),
+    stop("Loss not supported")
   )
 }
 
@@ -155,7 +161,8 @@ get_torch_optimizer <- function(name) {
     rmsprop = torch::optim_rmsprop,
     rprop = torch::optim_rprop,
     sgd = torch::optim_sgd,
-    madgrad = madgrad::optim_madgrad
+    madgrad = madgrad::optim_madgrad,
+    stop("Optimizer not supported")
   )
 }
 
