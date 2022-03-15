@@ -14,12 +14,14 @@ Imports:
     data.table,
     fs,
     lifecycle,
+    luz,
     mlr3,
     mlr3misc,
     paradox,
     R6,
-    torch, 
-    mlr3pipelines
+    mlr3pipelines,
+    torch,
+    torchvision
 Suggests: 
     lgr,
     tabnet,

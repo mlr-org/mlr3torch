@@ -44,19 +44,23 @@ library(mlr3torch)
 task <- tsk("german_credit")
 
 # Set up the learner
-lrn_tabnet <- LearnerClassifTorchTabnet$new()
-lrn_tabnet$param_set$values$epochs <- 10
+lrn_tabnet <- lrn("classif.torch.tabnet", epochs = 5)
 
 # Train and Predict
-lrn_tabnet$train(task)
+lrn_tabnet$train(task, row_ids = 1:900)
 
-preds <- lrn_tabnet$predict(task)
+preds <- lrn_tabnet$predict(task, row_ids = 901:1000)
 
+# Investigate predictions
 preds$confusion
 preds$score(msr("classif.acc"))
 
+# Predict probabilities instead
 lrn_tabnet$predict_type <- "prob"
 preds_prob <- lrn_tabnet$predict(task)
 
 autoplot(preds_prob, type = "roc")
+
+# Examine variable importance scores
+lrn_tabnet$importance()
 ```
