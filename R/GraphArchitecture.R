@@ -5,7 +5,7 @@
 #' for the ptr field that is the current output of the architecture. Because of this they
 #' are stored in environments that can be simultaneously modified through all the shallow copies.
 #'
-Architecture = R6Class("Architecture",
+Graphitecture = R6Class("Graphitecture",
   storage = NULL,
   ptr = NULL,
   public = list(
@@ -22,7 +22,7 @@ Architecture = R6Class("Architecture",
       assert_true(id %nin% self$ids())
       new_node = data.table(
         id = id,
-        parents = list(ptr),
+        parents = list("id"),
         builder = list(builder)
       )
       rbind(self$storage$nodes, new_node)
@@ -61,6 +61,14 @@ Architecture = R6Class("Architecture",
   )
 )
 
+make_nn_module = function(layers) {
+  nn_module(
+    initialize = function(layers) {
+      for (layer i )
+    }
+    forwa
+  )
+}
 
 architecture_reduce = function(architecture, task) {
   ids = architecture$ids(sorted = TRUE)
@@ -84,6 +92,17 @@ architecture_reduce = function(architecture, task) {
   }
 }
 
+#' This builds a nn_module from the graph architecture
+#' Even though the grpah is already sorted once
+#'
+reduce_graph_architecture = function(arc, task) {
+  mlr3misc::topo_sort
+
+}
+
+make_parents = function(edges, nodes) {
+
+}
 
 id         parents
 <char>          <list>
