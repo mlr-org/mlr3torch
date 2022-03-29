@@ -19,12 +19,14 @@ LearnerRegrTorch = R6Class("LearnerRegrTorch",
       if (!length(self$state)) {
         private$.build(task)
       }
+      dataloader = make_dataloader(task)
       if (self$param_set$values$n_epochs > 0L) {
         assert(!is.null(self$state$optimizer))
         assert(!is.null(self$state$criterion))
         train_torch(
           model = self$state$model,
           task = task,
+          dataloader = dataloader,
           optimizer = self$state$optimizer,
           criterion = self$state$criterion,
           n_epochs = self$param_set$values$n_epochs,

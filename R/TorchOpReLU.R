@@ -17,7 +17,7 @@ TorchOpReLU = R6Class("TorchOpReLU",
   ),
   private = list(
     .operator = "relu",
-    .build = function(input, param_vals, task) {
+    .build = function(input, param_vals, task, y) {
       invoke(nn_relu, .args = param_vals)
     }
   )
@@ -25,4 +25,3 @@ TorchOpReLU = R6Class("TorchOpReLU",
 
 #' @include mlr_torchops.R
 mlr_torchops$add("relu", value = TorchOpReLU)
-# .__bobs__.[["relu"]] = TorchOpReLU$private_methods$.build

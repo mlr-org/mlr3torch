@@ -5,9 +5,9 @@
 #' @export
 LearnerTorchClassifAbstract = R6Class("LearnerTorchClassifAbstract",
   inherit = LearnerClassif,
-  optimizer = NULL,
-  criterion = NULL,
   public = list(
+    optimizer = NULL,
+    criterion = NULL,
     initialize = function(id, param_vals, param_set = ps(), .optimizer = NULL, .criterion = NULL) {
       self$optimizer = .optimizer
       self$criterion = .criterion

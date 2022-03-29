@@ -1,9 +1,9 @@
 test_that("Can train TorchOpLinear", {
   task = tsk("mtcars")
-  graph = top("input") %>>%
-    top("linear", id = "linear1", out_features = 10L) %>>%
+  graph = top("linear", id = "linear1", out_features = 10L) %>>%
     top("relu") %>>%
     top("linear", id = "linear2", out_features = 1L)
+  graph$train(task)
 
   to_input = TorchOpInput$new()
   to_linear = TorchOpLinear$new(param_vals = list(out_features = 10))

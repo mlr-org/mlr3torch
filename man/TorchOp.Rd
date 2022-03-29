@@ -14,6 +14,7 @@ All TorchOps inherit from this class.
 \itemize{
 \item \href{#method-new}{\code{TorchOp$new()}}
 \item \href{#method-build}{\code{TorchOp$build()}}
+\item \href{#method-repr}{\code{TorchOp$repr()}}
 \item \href{#method-clone}{\code{TorchOp$clone()}}
 }
 }
@@ -47,7 +48,7 @@ All TorchOps inherit from this class.
 \if{latex}{\out{\hypertarget{method-build}{}}}
 \subsection{Method \code{build()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchOp$build(input, param_vals, task)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TorchOp$build(input, task, y)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -55,12 +56,22 @@ All TorchOps inherit from this class.
 \describe{
 \item{\code{input}}{(torch_tensor) The torch tensor that is the input to this layer.}
 
-\item{\code{param_vals}}{(list()) parameter values passed to the build function.}
+\item{\code{task}}{(mlr3::Task) The task on which the architecture is trained.
+Provides the repreesntation for the TorchOp.}
 
-\item{\code{task}}{(mlr3::Task) The task on which the architecture is trained.}
+\item{\code{param_vals}}{(list()) parameter values passed to the build function.}
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-repr"></a>}}
+\if{latex}{\out{\hypertarget{method-repr}{}}}
+\subsection{Method \code{repr()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TorchOp$repr()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

@@ -1,5 +1,5 @@
 LearnerTorchClassifAbstract = R6Class("LearnerTorchClassifAbstract",
-  inherit = "LearnerClassif",
+  inherit = LearnerClassif,
   public = list(
     initialize = function(id = "classif.torch.abstract", param_vals = list(),
       param_set, .optimizer, .criterion

@@ -22,7 +22,7 @@ TorchOpTokenizer = R6Class("TorchOpTokenizer",
   ),
   private = list(
     .operator = "tokenizer",
-    .build = function(x, param_vals, task) {
+    .build = function(input, task, param_vals, y) {
       bias = param_vals[["bias"]] %??% TRUE
       cls = param_vals[["cls"]] %??% TRUE
       d_token = param_vals[["d_token"]]
@@ -60,7 +60,9 @@ nn_tokenizer = nn_module(
       self$cls = nn_cls(d_token)
     }
   },
-  forward = function(input_num = NULL, input_cat = NULL) {
+  forward = function(input) {
+    input_num = input$input_num
+    input_cat = input$input_cat
     tokens = list()
     if (!is.null(input_num)) {
       tokens[["x_num"]] = self$tokenizer_num(input_num)

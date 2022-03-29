@@ -1,7 +1,7 @@
 Package: mlr3torch
 Title: Torch Models for 'mlr3'
 Version: 0.0.0.9000
-Authors@R: 
+Authors@R:
     person(given = "Lukas",
            family = "Burk",
            role = c("aut", "cre"),
@@ -9,7 +9,7 @@ Authors@R:
            comment = c(ORCID = "0000-0001-7528-3795"))
 Description: Provides torch models as learners for the mlr3 ecosystem.
 License: LGPL (>= 3)
-Imports: 
+Imports:
     checkmate,
     data.table,
     fs,
@@ -22,7 +22,7 @@ Imports:
     mlr3pipelines,
     torch,
     torchvision
-Suggests: 
+Suggests:
     lgr,
     tabnet,
     testthat (>= 3.0.0)
@@ -33,39 +33,55 @@ Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
-Collate: 
+Collate:
     'Architecture.R'
-    'DataBackendTorchDataTable.R'
     'LearnerClassifTorch.R'
     'LearnerRegrTorch.R'
     'LearnerTorch.R'
+    'LearnerTorchClassifAbstract.R'
+    'LearnerTorchRegrAbstract.R'
     'TorchOp.R'
+    'TorchOpActivation.R'
+    'mlr_torchops.R'
+    'TorchOpBlock.R'
     'TorchOpCustom.R'
     'TorchOpDropout.R'
-    'mlr_torchops.R'
     'TorchOpFlatten.R'
+    'TorchOpFork.R'
     'TorchOpHead.R'
     'TorchOpHeadCLS.R'
+    'TorchOpIndexSelect.R'
     'TorchOpInput.R'
     'TorchOpLinear.R'
+    'TorchOpMerge.R'
     'TorchOpModel.R'
+    'TorchOpParallel.R'
     'TorchOpReLU.R'
     'TorchOpRepeat.R'
-    'TorchOpSelectCLS.R'
     'TorchOpSelfAttention.R'
     'TorchOpSkip.R'
+    'TorchOpSkipCon.R'
     'TorchOpSoftmax.R'
     'TorchOpTokenizer.R'
+    'autotest_torchop.R'
     'bibentries.R'
+    'classif.torch.alexnet.R'
     'classif.torch.tabnet.R'
+    'dataloader.R'
     'dl_paramset.R'
-    'images-helpers.R'
+    'extractors.R'
+    'image-task.R'
+    'make_dataloader.R'
     'mlr3torch-package.R'
     'nn_cls.R'
     'nn_rtdl_attention.R'
     'paramset_tabnet.R'
+    'paramsets_criterion.R'
+    'paramsets_optim.R'
     'regr.torch.tabnet.R'
     'top.R'
-    'train_model.R'
+    'train.R'
+    'util-torch.R'
+    'utils-models.R'
     'utils.R'
     'zzz.R'

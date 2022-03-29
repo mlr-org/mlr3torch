@@ -127,10 +127,10 @@ make_dataset = function(data, target, features, batch_size, device, rows = NULL)
   data_list = list(y = y)
 
   if (!is.null(x_num)) {
-    data_list[["x_num"]] = x_num
+    data_list[["input_num"]] = x_num
   }
   if (!is.null(x_cat)) {
-    data_list[["x_cat"]] = x_cat
+    data_list[["input_cat"]] = x_cat
   }
 
   data_set = dataset(

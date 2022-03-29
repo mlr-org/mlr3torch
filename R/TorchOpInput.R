@@ -22,7 +22,7 @@ TorchOpInput = R6Class("TorchOpInput",
   ),
   private = list(
     .train = function(inputs) {
-      self$state = "trained"
+      self$state = list()
       list(task = inputs[["task"]], architecture = Architecture$new())
     },
     .predict = function(inputs) {

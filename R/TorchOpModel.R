@@ -25,6 +25,7 @@ TorchOpModel = R6Class("TorchOpModel",
   ),
   private = list(
     .train = function(inputs) {
+      inputs = inputs[[1L]]
       if (is.null(self$state$learner)) {
         task_type = inputs[["task"]]$task_type
         self$state$learner = switch(task_type,

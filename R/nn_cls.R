@@ -2,6 +2,7 @@
 #' @description Appends a trainable [CLS] Token along the second dimension.
 #' @references
 #' `r format_bib("devlin2018bert", "gorishniy2021revisiting")
+#'
 #' @export
 nn_cls = nn_module("nn_cls",
   initialize = function(d_token) {

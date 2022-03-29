@@ -24,7 +24,7 @@ TorchOpCustom = R6Class("TorchOpCustom",
   ),
   private = list(
     .operator = "custom",
-    .build = function(input, param_vals, task) {
+    .build = function(input, task, param_vals, y) {
       pars = self$param_set$get_values(tags = "train")
       fn = pars[["fn"]]
       args = pars[["args"]]

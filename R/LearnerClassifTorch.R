@@ -1,6 +1,9 @@
+#'
 LearnerClassifTorch = R6Class("LearnerClassifTorch",
-  inherit = "LearnerClassifTorchAbstract",
+  inherit = LearnerClassifTorchAbstract,
   public = list(
+    #' @description Initializes an object of class LearnerClassifTorch
+    #' @param .architecture (mlr3torch::Architecture || torch::nn_module)
     initialize = function(id = "classif.torch", param_vals = list(), .architecture,
       .optimizer, .criterion) {
       param_set = ps(
@@ -29,8 +32,11 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
       pars = self$param_set$get_values(tag = "train")
     },
     .build = function(pars) {
-      reduction = reduce_architecture(pars[["architecture"]], task)
-      model = reduction[["model"]]
+      if (inherits(pars[["architecture"]], "Architecture")) {
+        model = reduce_architecture(pars[["architecture"]], task)[["model"]]
+      } else {
+        model = pars[["architecture"]]
+      }
       list(
         model = model,
         optimizer = mlr3misc::invoke(pars[["optimizer"]], .args = pars[["optimizer_args"]],

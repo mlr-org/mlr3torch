@@ -42,7 +42,7 @@ register_mlr3 = function() {
   reflcts$data_formats = c(reflcts$data_formats, "torch_tensor")
 
   local({
-    torch_reflections$loss <- list(
+    torch_reflections$loss = list(
       classif = c(
         "adaptive_log_softmax_with", "bce", "bce_with_logits", "cosine_embedding",
         "ctc", "cross_entropy", "hinge_embedding", "kl_div", "margin_ranking",
@@ -52,9 +52,9 @@ register_mlr3 = function() {
       regr = c("l1", "mse", "poisson_nll", "smooth_l1")
     )
 
-    torch_reflections$optimizer <- c(
+    torch_reflections$optimizer = c(
       "rprop", "rmsprop", "adagrad", "asgd", "adadelta", "lbfgs", "sgd", "adam"
-      )
+    )
   })
 
 }

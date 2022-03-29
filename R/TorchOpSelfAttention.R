@@ -24,7 +24,7 @@ TorchOpSelfAttention = R6Class("TorchOpSelfAttention",
   ),
   private = list(
     .operator = "selfattention",
-    .build = function(input, param_vals, task) {
+    .build = function(input, param_vals, task, y) {
       layer = invoke(nn_self_attention, .args = param_vals)
       return(layer)
     }

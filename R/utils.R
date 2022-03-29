@@ -19,3 +19,13 @@ extract_paramset = function(graphs) {
   )
   return(psn)
 }
+
+get_orphan = function(nodes) {
+  orphans = nodes[["id"]][map_lgl(nodes[["parents"]], function(x) !length(x))]
+  assert_true(length(orphans) == 1L)
+  return(orphans)
+}
+
+is_tokenizer = function(x) {
+  assert_true("TorchOpTokenizer" %in% attr(orphan, "TorchOp"))
+}

@@ -34,7 +34,7 @@ TorchOpRepeat = R6Class(
         }
       }
       architecture$add(private$.operator, self$param_set$get_values(tag = "train"))
-      self$state = "trained"
+      self$state = list()
       output = list(task = inputs[["task"]], architecture = architecture)
       return(output)
 
