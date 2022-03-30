@@ -21,7 +21,7 @@ TorchOpMerge = R6Class("TorchOpMerge",
     #' @param .innum (`character()`) number of inputs.
     initialize = function(id = "merge", param_vals = list(), .innum) {
       param_set = ps(
-        method = p_fct(levels = c("add", "mul", "stack"))
+        method = p_fct(levels = c("add", "mul", "stack"), tags = "train")
       )
       input = data.table(
         name = paste0("input", seq_len(.innum)),
@@ -37,34 +37,15 @@ TorchOpMerge = R6Class("TorchOpMerge",
     }
   ),
   private = list(
-    .train = function(inputs) {
-      architecture = inputs[[1L]][["architecture"]]$clone(deep = FALSE)
-      architecture$ptr = self$id
-      ptrs = map(map(inputs[[1L]], "architecture"), "ptr")
-      architecture$add_node(self$id, private$.build)
-      # TODO: input checks: either task or list(task, architecture)
-      if (!is.null(self$state)) { # this means the architecture is already built
-        return(inputs)
-      }
-      if (test_r6(inputs[[1L]], "Task")) { # this means this torchop is the first in the architecture
-        # and we have to build the architecture
-        task = inputs[[1L]]
-        architecture = Architecture$new()
-      } else {
-        task = inputs[["input"]][["task"]]
-        architecture = inputs[["input"]][["architecture"]]
-      }
-
-    },
     #' @description builds the merger
     #' @param input a list of tensors
     #' @param param_vals parameter values
     #' @param task the task
     #' @param y the target
-    .build = function(input, param_vals, task, y) {
+    .build = function(inputs, param_vals, task, y) {
       # input are various tensors
       method = param_vals$method
-      shapes = map(input, dim)
+      shapes = map(inputs, dim)
       if (method %in% c("add", "multiply")) {
         assert_true(length(unique(shapes)) == 1L)
       }
@@ -74,9 +55,9 @@ TorchOpMerge = R6Class("TorchOpMerge",
       }
 
       layer = switch(method,
-        add = nn_reduce_sum$new(),
-        multiply = nn_reduce_multiply$new(),
-        concat = nn_reduce_concat$new(dim = length(shapes[[1L]]))
+        add = nn_reduce_sum(),
+        multiply = nn_reduce_multiply(),
+        concat = nn_reduce_concat(dim = length(shapes[[1L]]))
       )
       return(layer)
     }
@@ -84,24 +65,25 @@ TorchOpMerge = R6Class("TorchOpMerge",
 )
 
 
+
 nn_reduce_multiply = nn_module(
   initialize = function() NULL,
-  forward = function(inputs) {
-    torch_prod(torch_stack(input), dim = 1L)
+  forward = function(...) {
+    torch_prod(torch_stack(list(...)), dim = 1L)
   }
 )
 
 nn_reduce_sum = nn_module(
   initialize = function() NULL,
-  forward = function(inputs) {
-    torch_sum(torch_stack(input), dim = 1L)
+  forward = function(...) {
+    torch_sum(torch_stack(list(...)), dim = 1L)
   }
 )
 
 nn_reduce_concat = nn_module(
   initialize = function(dim) self$dim = dim,
-  forward = function(inputs) {
-    torch_stack(inputs, dim = self$dim)
+  forward = function(...) {
+    torch_stack(list(...), dim = self$dim)
   }
 )
 

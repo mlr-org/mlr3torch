@@ -62,27 +62,55 @@ TorchOp = R6Class("TorchOp",
       if (!is.null(self$state)) { # this means the architecture is already built
         return(inputs)
       }
-      if (test_r6(inputs[[1L]], "Task")) { # this means this torchop is the first in the architecture
+      is_start = test_r6(inputs[[1L]], "Task")
+      if (is_start) { # this means this torchop is the first in the architecture
         # and we have to build the architecture
         task = inputs[[1L]]
         architecture = Architecture$new()
       } else {
-        task = inputs[["input"]][["task"]]
-        architecture = inputs[["input"]][["architecture"]]
+        # all inputs should have the same task and architecture, so we pick the first one because
+        # it always exists (there must be at least one input channel)
+        task = inputs[[1L]][["task"]]
+        architecture = inputs[[1L]][["architecture"]]
       }
+
       architecture$add_node(self)
+
+      output = map(
+        self$output$name,
+        function(channel) {
+          list(task = task, architecture = architecture, channel = channel, id = self$id)
+        }
+      )
       self$state = list()
-      output = list(list(task = task, architecture = architecture))
+      set_names(output, self$output$name)
+      if (is_start) { # No edges to build
+        return(output)
+      }
+      # Build edges
+      if (!is_start) {
+        input_channels = names(inputs)
+        for (i in seq_along(inputs)) {
+          input = inputs[[i]]
+          architecture$add_edge(
+            src_id = input[["id"]],
+            src_channel = input[["channel"]],
+            dst_id = self$id,
+            dst_channel = input_channels[[i]]
+          )
+        }
+      }
+
       return(output)
     },
     .predict = function(inputs) {
-      inputs = inputs[[1L]]
+      # inputs = inputs[[1L]]
       task = inputs[["task"]]
       architecture = inputs[["architecture"]]
       output = list(task = task, architecture = architecture)
       return(output)
     },
-    .build = function(input, param_vals, task, y) {
+    .build = function(inputs, param_vals, task, y) {
       stop("ABC")
     },
     .output_dim = function(input_dim) {

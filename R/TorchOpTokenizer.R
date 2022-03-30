@@ -22,15 +22,14 @@ TorchOpTokenizer = R6Class("TorchOpTokenizer",
   ),
   private = list(
     .operator = "tokenizer",
-    .build = function(input, task, param_vals, y) {
+    .build = function(inputs, task, param_vals, y) {
       bias = param_vals[["bias"]] %??% TRUE
       cls = param_vals[["cls"]] %??% TRUE
       d_token = param_vals[["d_token"]]
 
       n_features = sum(map_lgl(task$data(cols = task$col_roles$feature), is.numeric))
-      cardinalities = Filter(function(x) !is.numeric(x), task$data(cols = task$col_roles$feature)) |>
-        map_int(.f = nlevels) |>
-        unname()
+      cardinalities = Filter(function(x) !is.numeric(x), task$data(cols = task$col_roles$feature))
+      cardinalities = unname(map_int(cardinalities, .f = nlevels))
 
       layer = nn_tokenizer(
         n_features = n_features,

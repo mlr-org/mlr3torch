@@ -24,7 +24,7 @@ TorchOpSkipCon = R6Class("TorchOpSkipCon",
     }
   ),
   private = list(
-    .build = function(input, param_vals, task, y) {
+    .build = function(inputs, param_vals, task, y) {
       x = input[["x"]]
       skip.bias = param_vals[["skip.bias"]] %??% TRUE
 

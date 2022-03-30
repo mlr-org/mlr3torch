@@ -18,7 +18,7 @@ TorchOpIndexSelect = R6Class("TorchOpIndexSelect",
   ),
   private = list(
     .operator = "indexselect",
-    .build = function(input, param_vals, task, y) {
+    .build = function(inputs, param_vals, task, y) {
       dim = param_vals[["dim"]] %??% 2L
       index = param_vals[["index"]] %??% -1L
       layer = nn_module(

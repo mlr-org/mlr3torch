@@ -18,10 +18,21 @@ test_that("Architecture is working", {
 })
 
 if (FALSE) {
-  library(mlr3pipelines)
-  library(mlr3)
-  graph = po("pca") %>>%
-    po("learner", lrn("regr.rpart"))
+  task = tsk("mtcars")
+  graph = top("tokenizer", d_token = 3L) %>>% top("fork", .outnum = 2L) %>>%
+    gunion(
+      graphs = list(
+        a = top("linear", out_features = 10L),
+        b = top("linear", out_features = 10L) %>>% top("relu")
+      )
+    ) %>>%
+    top("merge", method = "add", .innum = 2L)
+  a = graph$train(task)[[1L]][[2L]]
+
+  debugonce(architecture_reduce)
+  res = architecture_reduce(a, task)
+  edges = res$edges
+  layers = res$l
 }
 
 test_that("Architecture is working", {

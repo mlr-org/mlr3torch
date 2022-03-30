@@ -14,7 +14,7 @@ TorchOpBlock = R6Class("TorchOpBlock",
   private = list(
     .operator = "block",
     .block = NULL,
-    .build = function(input, param_vals, task, y) {
+    .build = function(inputs, param_vals, task, y) {
       architecture = private$.block$train(task)[[2]]
       layer_block = architecture_reduce(architecture, task, input)
       return(layer_block)

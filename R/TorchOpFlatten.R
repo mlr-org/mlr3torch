@@ -16,9 +16,9 @@ TorchOpFlatten = R6Class(
     }
   ),
   private = list(
-    .build = function(input, param_vals, task, y) {
-      start_dim = param_vals[["start_dim"]] %??% 2L
-      end_dim = param_vals[["end_dim"]] %??% -1L
+    .build = function(inputs, param_vals, task, y) {
+      start_dim = param_vals$start_dim %??% 2L
+      end_dim = param_vals$end_dim %??% -1L
       layer = nn_flatten(start_dim, end_dim)
       return(layer)
     },

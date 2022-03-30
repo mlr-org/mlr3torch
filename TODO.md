@@ -1,3 +1,5 @@
+# SOFORT: Fixe test_GraphArchitecture.R (irgendwie wird der merge call nicht zurückgegeben)
+
 Nächste Schritte:
 - Ziel: Präsentation
 - Bis dahin:
@@ -11,6 +13,8 @@ Bis: 3.5.
   dem topologishen Sort vorgegeben (weil wir da ja dann die inputs in die liste schreiben),
   das ist der entry point
 - Naming: maybe rename parents and children to sccsrs and predecessors (like in pipelines)
+- TorchOpAttention (mit key, value input) --> test dass auch mehrere input channels von
+verschiedenen nodes kein problem sind. Evtl auch mit mehrerern outputs (?)
 
 
 Steps for the graph architecture:

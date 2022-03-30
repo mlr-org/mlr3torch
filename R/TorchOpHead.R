@@ -18,7 +18,7 @@ TorchOpHead = R6Class("TorchOpHead",
   ),
   private = list(
     .operator = "head",
-    .build = function(input, task, param_vals, y) {
+    .build = function(inputs, task, param_vals, y) {
       bias = param_vals[["bias"]] %??% TRUE
       in_features = x$shape[[2L]]
 

@@ -34,7 +34,7 @@ TorchOpParallel = R6Class("TorchOpParallel",
     .operator = "parallel",
     .paths = NULL,
     .reduce = NULL,
-    .build = function(input, param_vals, task, y) {
+    .build = function(inputs, param_vals, task, y) {
       outputs = map(private$.paths,
         function(graph) graph$train(task)
       )

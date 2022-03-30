@@ -20,7 +20,8 @@ TorchOpLinear = R6::R6Class("TorchOpLinear",
   ),
   private = list(
     .operator = "linear",
-    .build = function(input, param_vals, task, y) {
+    .build = function(inputs, param_vals, task, y) {
+      input = inputs$input
       # TODO: Define a clean interface what dimensions a TorchOp requires as input and what
       # it then outputs
       in_features = input$shape[length(input$shape)]
