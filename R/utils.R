@@ -29,3 +29,19 @@ get_orphan = function(nodes) {
 is_tokenizer = function(x) {
   assert_true("TorchOpTokenizer" %in% attr(orphan, "TorchOp"))
 }
+
+# Mostly used in the tests to get a single batch from a task that can be fed into a network
+make_batch = function(task, batch_size) {
+  dl = make_dataloader(task, batch_size = batch_size, device = "cpu")
+  batch = dl$.iter()$.next()
+  y = batch$y
+  batch$y = NULL
+  return(batch)
+}
+
+get_instance = function(task) {
+  #' TODO: Change this to "meta"
+  data_loader = make_dataloader(task, 1, "cpu")
+  instance = data_loader$.iter()$.next()
+  return(instance)
+}

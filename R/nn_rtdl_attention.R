@@ -1,7 +1,8 @@
+
 #' @references
 #' `r format_bib("gorishniy2021revisiting", "devlin2018bert")`
 #' @export
-nn_self_attention = nn_module("nn_self_attention",
+nn_attention = nn_module("nn_attention",
   initialize = function(d_token, n_heads = 1L, dropout = 0.5, bias = TRUE,
     initialization = "kaiming") {
     n_heads = assert_int(n_heads)
@@ -51,10 +52,9 @@ nn_self_attention = nn_module("nn_self_attention",
     x = x$reshape(batch_size * self$n_heads, n_tokens, d_head)
     return(x)
   },
-  # forward = function(x_q, x_kv) { # TODO: implement this efficiently
-  forward = function(x) {
-    x_q = x
-    x_kv = x
+  forward = function(query, key) {
+    x_q = query
+    x_kv = key
     q = self$W_q(x_q)
     k = self$W_k(x_kv)
     v = self$W_v(x_kv)
@@ -81,5 +81,15 @@ nn_self_attention = nn_module("nn_self_attention",
     }
     output = list(x = x, attention = list(logits = attention_logits, probs = attention_probs))
     return(output)
+  }
+)
+
+nn_self_attention = nn_module(
+  inherit = nn_attention,
+  initialize = function(d_token, n_heads = 1L, dropout = 0.5, bias = TRUE) {
+    super$initialize(d_token, n_heads, dropout, bias)
+  },
+  forward = function(input) {
+    super$forward(query = input, key = input)
   }
 )

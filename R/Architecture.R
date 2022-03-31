@@ -19,8 +19,10 @@ Architecture = R6Class("Architecture",
     add_node = function(op) {
       self$add_pipeop(op)
     },
-    reduce = function(task, input = NULL) {
-      architecture_reduce(self, task, input)
+    build = function(task, input = NULL) {
+      reduction = architecture_reduce(self, task, input)
+      edges = simplify_graph(reduction$edges)
+      nn_graph_network$new(edges, reduction$layers)
     }
   )
 )
@@ -88,16 +90,10 @@ architecture_reduce = function(self, task = NULL, input = NULL) {
     names(input) = input_tbl$name
 
     lg$debug("Running PipeOp '%s$%s()'", id, fun, pipeop = op, input = input)
-    if (inherits(id, "merge")) {
-      browser()
-    }
 
     # TODO: maybe generalize this with reflections
     if (test_r6(op, "TorchOpFork")) {
       edges[get("src_id") == id, fork := TRUE]
-      layer = NULL
-      output = input
-    } else if (test_r6(op, "TorchOpMerge")) {
       layer = NULL
       output = input
     } else {
@@ -109,6 +105,7 @@ architecture_reduce = function(self, task = NULL, input = NULL) {
 
     layers[[id]] = layer
     edges[list(id, op$output$name), "payload" := list(output), on = c("src_id", "src_channel")]
+
   }
 
   # get payload of edges that go to terminal node.
@@ -120,44 +117,32 @@ architecture_reduce = function(self, task = NULL, input = NULL) {
   filter_noop(output)
   edges$payload = NULL
 
+
   return(list(layers = layers, output = output, edges = edges))
 }
 
-#' This removes the forks from the edges and directly connects the appropriate ids
-#' before it is
-#'                 --> layer1
-#' layer0 --> fork
-#'                 --> layer2
-#' then it is
-#'       --> layer1
-#' layer0
-#'       --> layer2
+#' This directly connects the parents of a fork to its branches
 simplify_graph = function(edges) {
-  # TODO: test what happens when thereeare two forks immediately after one another
-  # TODO: the edges have to be topologically sorted (i think)
   edges = copy(edges)
   fork_ids = unique(edges[get("fork")]$src_id)
-  edges$keep = TRUE # for the rows that are forks we will set keep = FALSE and remove them
-  # at the end of the function
-  # #
   for (fork_id in fork_ids) {
+    # a  fork looks like:
+    #                  --> linear1
+    # linear0 --> fork
+    #                  --> linear2
+    # we want to connect parent(fork) to linear1 and linear2, the parent is:
+    # parent(fork) = linear0
+    # -----------------------------
     parent = edges[fork_id, "src_id", on = "dst_id"][[1L]]
-    edges[parent, keep := FALSE, on = "src_id"]
-    edges[fork_id, `:=`(src_id = parent, fork = FALSE), on = "src_id"]
+    # we connect all the branches of the fork (linear1 and linear2) to the parent(fork) = linear0
+    #         --> linear1
+    # linear0
+    #         --> linear2
     edges[fork_id, src_id := parent, on = "src_id"]
-    # edges[fork_id, keep := FALSE, on = "dst_id"]
   }
-  # edges["__initial__", src_channel := "output", on = "src_id"]
-  # edges["__terminal__", keep := FALSE, on = "dst_id"]
-  edges = edges[get("keep"), list(src_id, src_channel, dst_id, dst_channel)]
-  # this is a bit hacky and probably does not work in general, it requires that the first layer
-  # has only one channel that is called "input" --> currently this is kind-of the case, isn't it?
+  # we remove:
+  # linear0 --> fork
+  # as these connections are not needed but still in the table
+  edges = edges[!fork_ids, on = "dst_id"]
   return(edges)
-}
-
-get_instance = function(task) {
-  #' TODO: Change this to "meta"
-  data_loader = make_dataloader(task, 1, "cpu")
-  instance = data_loader$.iter()$.next()
-  return(instance)
 }

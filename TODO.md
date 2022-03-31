@@ -9,10 +9,6 @@ Nächste Schritte:
 - Vignette: 3 Levels: TorchOp, Preconfigured, Komplett flexibel
 - Vereinigen: make_dataloder für verschiedene Datentypen + Füge preprocessing options hinzu
 Bis: 3.5.
-- Problem mit der Nicht-kommutativität des concat mergers. Die Reihenfolge wird von
-  dem topologishen Sort vorgegeben (weil wir da ja dann die inputs in die liste schreiben),
-  das ist der entry point
-- Naming: maybe rename parents and children to sccsrs and predecessors (like in pipelines)
 - TorchOpAttention (mit key, value input) --> test dass auch mehrere input channels von
 verschiedenen nodes kein problem sind. Evtl auch mit mehrerern outputs (?)
 
@@ -25,6 +21,9 @@ Steps for the graph architecture:
 Long term idea:
 - be able to easily reparametrize the graph: something like the code below should produce a graph
 with the parameter x that is set as a.out_features and b.out_features
+- Overwrite %>>% to automatically increment the ids (e.g. for relu)
+- Overwrite %>>% to automatically set innum and outnum of fork / merge (?)
+- Be able to plot the network (with the tensor dimensions at each node)
 ```r
 g = paragraph(
   list(
