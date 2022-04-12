@@ -1,5 +1,26 @@
 # SOFORT: Fixe test_GraphArchitecture.R (irgendwie wird der merge call nicht zurückgegeben)
 
+# Transformationen:
+1. Vorschlag: In den Task schreiben
+2. Attribute (schreibe Subset Funktion)
+Inherite von PipeOpTaskPreproc
+
+
+# Paramset:
+- lr scheduler
+
+# Sampler
+provide more sampler --> shuffling data e.g.
+
+# To decide:
+- net() vs net$forward()
+- Wie machen wir es mit den weights? optimizer vs class weights in der loss function?
+
+# Dataloader
+--> we should maybe only make one dataset and then use dataset_subset (from mlverse::torch)
+- implement set / row_ids when the test_ids PR is done
+
+
 Nächste Schritte:
 - Ziel: Präsentation
 - Bis dahin:
@@ -11,6 +32,7 @@ Nächste Schritte:
 Bis: 3.5.
 - TorchOpAttention (mit key, value input) --> test dass auch mehrere input channels von
 verschiedenen nodes kein problem sind. Evtl auch mit mehrerern outputs (?)
+- Define a type for the info we sent along the torchops
 
 
 Steps for the graph architecture:
@@ -18,12 +40,14 @@ Steps for the graph architecture:
 - FastAI: FitoneBatch FitOneEpoch FitAll fastai/learner.py
 
 
-Long term idea:
+Long term goals
+- Do decent logging
 - be able to easily reparametrize the graph: something like the code below should produce a graph
 with the parameter x that is set as a.out_features and b.out_features
-- Overwrite %>>% to automatically increment the ids (e.g. for relu)
-- Overwrite %>>% to automatically set innum and outnum of fork / merge (?)
+- Overwrite %>>% to automatically inPipe
+crement the ids (e.g. for relu)
 - Be able to plot the network (with the tensor dimensions at each node)
+
 ```r
 g = paragraph(
   list(

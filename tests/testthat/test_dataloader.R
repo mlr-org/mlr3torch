@@ -29,7 +29,7 @@ test_that("cat2tensor works", {
 
 test_that("make_dataset works", {
   dat = make_data()
-  fn = make_dataset(
+  fn = make_tabular_dataset(
     data = dat,
     target = "y",
     features = paste0("x_", c("lgl", "fct", "int", "num")),

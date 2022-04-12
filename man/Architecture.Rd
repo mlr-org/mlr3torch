@@ -2,116 +2,64 @@
 % Please edit documentation in R/Architecture.R
 \name{Architecture}
 \alias{Architecture}
-\title{Neural Network (Graph-) Architecture}
+\title{Neral Network (Graph-) Architecture}
 \description{
-Instances of this class represent abstract architectures that can be built from
-a Task. The nodes are the ids and the edges is the data-flow.
-Ea
+Neral Network (Graph-) Architecture
 
-The nodes and edges are stored in an environment. This makes it possible to have different
-shallow copies (with different pointer) in the dataflow induced by training the graph.
-The nodes and edges are stored in an environment, because due to the TorchOpParallel \link{name?}
-operator there can be multiple shallow copies of this architecture that are identical except
-for the ptr field that is the current output of the architecture. Because of this they
-are stored in environments that can be simultaneously modified through all the shallow copies.
+Neral Network (Graph-) Architecture
 }
-\section{Difference to \link[mlr3pipelines}{
-Graph]{mlr3pipelines::Graph}
-The difference to a Graph is that there is only always one edge between nodes, therefore
-one das not have to bother with different channels.
-}
-
-\section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{ptr}}{(\code{character(1)}) Points to the last node that was added to the Architecture}
-}
-\if{html}{\out{</div>}}
+\section{Super class}{
+\code{\link[mlr3pipelines:Graph]{mlr3pipelines::Graph}} -> \code{Architecture}
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{Architecture$new()}}
-\item \href{#method-add_node}{\code{Architecture$add_node()}}
-\item \href{#method-reduce}{\code{Architecture$reduce()}}
-\item \href{#method-ids}{\code{Architecture$ids()}}
-\item \href{#method-branch}{\code{Architecture$branch()}}
-\item \href{#method-parents}{\code{Architecture$parents()}}
-\item \href{#method-builder}{\code{Architecture$builder()}}
+\item \href{#method-add_torchop}{\code{Architecture$add_torchop()}}
+\item \href{#method-build}{\code{Architecture$build()}}
+\item \href{#method-plot}{\code{Architecture$plot()}}
 \item \href{#method-clone}{\code{Architecture$clone()}}
 }
 }
+\if{html}{
+\out{<details ><summary>Inherited methods</summary>}
+\itemize{
+\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="add_edge">}\href{../../mlr3pipelines/html/Graph.html#method-add_edge}{\code{mlr3pipelines::Graph$add_edge()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="add_pipeop">}\href{../../mlr3pipelines/html/Graph.html#method-add_pipeop}{\code{mlr3pipelines::Graph$add_pipeop()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="chain">}\href{../../mlr3pipelines/html/Graph.html#method-chain}{\code{mlr3pipelines::Graph$chain()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="ids">}\href{../../mlr3pipelines/html/Graph.html#method-ids}{\code{mlr3pipelines::Graph$ids()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="initialize">}\href{../../mlr3pipelines/html/Graph.html#method-initialize}{\code{mlr3pipelines::Graph$initialize()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="predict">}\href{../../mlr3pipelines/html/Graph.html#method-predict}{\code{mlr3pipelines::Graph$predict()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="print">}\href{../../mlr3pipelines/html/Graph.html#method-print}{\code{mlr3pipelines::Graph$print()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="set_names">}\href{../../mlr3pipelines/html/Graph.html#method-set_names}{\code{mlr3pipelines::Graph$set_names()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="train">}\href{../../mlr3pipelines/html/Graph.html#method-train}{\code{mlr3pipelines::Graph$train()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="update_ids">}\href{../../mlr3pipelines/html/Graph.html#method-update_ids}{\code{mlr3pipelines::Graph$update_ids()}}\out{</span>}
+}
+\out{</details>}
+}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
-\subsection{Method \code{new()}}{
-Initializes an object of class Architecture.
+\if{html}{\out{<a id="method-add_torchop"></a>}}
+\if{latex}{\out{\hypertarget{method-add_torchop}{}}}
+\subsection{Method \code{add_torchop()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Architecture$new()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Architecture$add_torchop(op)}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-add_node"></a>}}
-\if{latex}{\out{\hypertarget{method-add_node}{}}}
-\subsection{Method \code{add_node()}}{
-add_node
+\if{html}{\out{<a id="method-build"></a>}}
+\if{latex}{\out{\hypertarget{method-build}{}}}
+\subsection{Method \code{build()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Architecture$add_node(x, parents = NULL)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{x}}{(mlr3torch::TorchOp)}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-reduce"></a>}}
-\if{latex}{\out{\hypertarget{method-reduce}{}}}
-\subsection{Method \code{reduce()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Architecture$reduce(task, input = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Architecture$build(task, input = NULL)}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-ids"></a>}}
-\if{latex}{\out{\hypertarget{method-ids}{}}}
-\subsection{Method \code{ids()}}{
-Returns the ids of the nodes
-Returns list of parents for the id
+\if{html}{\out{<a id="method-plot"></a>}}
+\if{latex}{\out{\hypertarget{method-plot}{}}}
+\subsection{Method \code{plot()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Architecture$ids(sorted = FALSE)}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-branch"></a>}}
-\if{latex}{\out{\hypertarget{method-branch}{}}}
-\subsection{Method \code{branch()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Architecture$branch(name)}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-parents"></a>}}
-\if{latex}{\out{\hypertarget{method-parents}{}}}
-\subsection{Method \code{parents()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Architecture$parents(id)}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-builder"></a>}}
-\if{latex}{\out{\hypertarget{method-builder}{}}}
-\subsection{Method \code{builder()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Architecture$builder(id)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Architecture$plot()}\if{html}{\out{</div>}}
 }
 
 }

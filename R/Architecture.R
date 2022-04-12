@@ -1,28 +1,19 @@
-#' @title Neural Network (Graph-) Architecture
-#' @description Instances of this class represent abstract architectures that can be built from
-#' a Task. The nodes are the ids and the edges is the data-flow.
-#'
-#' The nodes and edges are stored in an environment. This makes it possible to have different
-#' shallow copies (with different pointer) in the dataflow induced by training the graph.
-#' The nodes and edges are stored in an environment, because due to the TorchOpParallel [name?]
-#' operator there can be multiple shallow copies of this architecture that are identical except
-#' for the ptr field that is the current output of the architecture. Because of this they
-#' are stored in environments that can be simultaneously modified through all the shallow copies.
-#'
-#' @section Difference to [mlr3pipelines::Graph]
-#'  The difference to a Graph is that there is only always one edge between nodes, therefore
-#'  one das not have to bother with different channels.
-#'
+#' @title Neral Network (Graph-) Architecture
+#' @export
 Architecture = R6Class("Architecture",
   inherit = Graph,
   public = list(
-    add_node = function(op) {
-      self$add_pipeop(op)
+    add_torchop = function(op) {
+      super$add_pipeop(op)
     },
     build = function(task, input = NULL) {
       reduction = architecture_reduce(self, task, input)
-      edges = simplify_graph(reduction$edges)
-      nn_graph_network$new(edges, reduction$layers)
+      # edges  simplify_graph(reduction$edges)
+      nn_graph$new(reduction$edges, reduction$layers)
+    },
+    plot = function() {
+      # TODO: show tensor dimensions of the inputs of the nodes
+      stop("Not implemented yet.")
     }
   )
 )
@@ -44,8 +35,6 @@ Architecture = R6Class("Architecture",
 #' @param input (torch::Tensor) The input tensor. If NULL the output of the data-loader that is
 #' generated from the task is used. (E.g. used when reducing a block)
 
-#' To reduce an architecture we need the input for the orphan
-
 architecture_reduce = function(self, task = NULL, input = NULL) {
   graph_input = self$input
   graph_output = self$output
@@ -58,13 +47,11 @@ architecture_reduce = function(self, task = NULL, input = NULL) {
   instance = get_instance(task)
   y = instance[["y"]]
   if (is.null(input)) {
-    instance[["y"]] = NULL
-    input = instance
+    input = instance$x
   } else {
-    if (!inherits(inut, "torch_tensor")) {
-      input = list(x = input)
-    }
+    input = list(x = input)
   }
+
 
   edges = copy(self$edges)
   edges = rbind(edges,
@@ -79,7 +66,6 @@ architecture_reduce = function(self, task = NULL, input = NULL) {
 
   # get the topo-sorted pipeop ids
   ids = self$ids(sorted = TRUE) # won't contain __initial__  or __terminal__ which are only in our local copy
-  edges$fork = FALSE
 
   # walk over ids, building each operator
   for (id in ids) {
@@ -91,19 +77,8 @@ architecture_reduce = function(self, task = NULL, input = NULL) {
 
     lg$debug("Running PipeOp '%s$%s()'", id, fun, pipeop = op, input = input)
 
-    # TODO: maybe generalize this with reflections
-    if (test_r6(op, "TorchOpFork")) {
-      edges[get("src_id") == id, fork := TRUE]
-      layer = NULL
-      output = input
-    } else {
-      layer = op$build(input, task, y)
-      output = with_no_grad(
-        invoke(layer, .args = input)
-      )
-    }
-
-    layers[[id]] = layer
+    c(layers[[id]], output) %<-% op$build(input, task, y)
+    # layers[[id]] = layer
     edges[list(id, op$output$name), "payload" := list(output), on = c("src_id", "src_channel")]
 
   }
@@ -119,30 +94,4 @@ architecture_reduce = function(self, task = NULL, input = NULL) {
 
 
   return(list(layers = layers, output = output, edges = edges))
-}
-
-#' This directly connects the parents of a fork to its branches
-simplify_graph = function(edges) {
-  edges = copy(edges)
-  fork_ids = unique(edges[get("fork")]$src_id)
-  for (fork_id in fork_ids) {
-    # a  fork looks like:
-    #                  --> linear1
-    # linear0 --> fork
-    #                  --> linear2
-    # we want to connect parent(fork) to linear1 and linear2, the parent is:
-    # parent(fork) = linear0
-    # -----------------------------
-    parent = edges[fork_id, "src_id", on = "dst_id"][[1L]]
-    # we connect all the branches of the fork (linear1 and linear2) to the parent(fork) = linear0
-    #         --> linear1
-    # linear0
-    #         --> linear2
-    edges[fork_id, src_id := parent, on = "src_id"]
-  }
-  # we remove:
-  # linear0 --> fork
-  # as these connections are not needed but still in the table
-  edges = edges[!fork_ids, on = "dst_id"]
-  return(edges)
 }

@@ -47,17 +47,18 @@ All TorchOps inherit from this class.
 \if{html}{\out{<a id="method-build"></a>}}
 \if{latex}{\out{\hypertarget{method-build}{}}}
 \subsection{Method \code{build()}}{
+Builds the torch layer
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchOp$build(input, task, y)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TorchOp$build(inputs, task, y)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{input}}{(torch_tensor) The torch tensor that is the input to this layer.}
-
 \item{\code{task}}{(mlr3::Task) The task on which the architecture is trained.
 Provides the repreesntation for the TorchOp.}
+
+\item{\code{input}}{(torch_tensor) The torch tensor that is the input to this layer.}
 
 \item{\code{param_vals}}{(list()) parameter values passed to the build function.}
 }

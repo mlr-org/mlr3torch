@@ -1,4 +1,3 @@
-#' TODO: This should not stay that way we can save the computation in the last attention layer
 #' if we are only interested in the [CLS] Token.
 #' @export
 TorchOpIndexSelect = R6Class("TorchOpIndexSelect",

@@ -60,8 +60,9 @@ nn_tokenizer = nn_module(
     }
   },
   forward = function(input) {
-    input_num = input$input_num
-    input_cat = input$input_cat
+    browser()
+    input_num = input$num
+    input_cat = input$cat
     tokens = list()
     if (!is.null(input_num)) {
       tokens[["x_num"]] = self$tokenizer_num(input_num)
@@ -80,7 +81,7 @@ nn_tokenizer = nn_module(
 # adapted from: https://github.com/yandex-research/rtdl/blob/main/rtdl/modules.py
 
 # TODO: add kaiming initialization as done here: https://github.com/yandex-research/rtdl/blob/main/bin/ft_transformer.py
-#' Uniform initialization
+# Uniform initialization
 initialize_token_ = function(x, d) {
   d_sqrt_inv = 1 / sqrt(d)
   nn_init_uniform_(x, a = -d_sqrt_inv, b = d_sqrt_inv)

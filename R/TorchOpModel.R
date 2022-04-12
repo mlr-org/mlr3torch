@@ -1,19 +1,14 @@
+#' TorchOpModelClassif and TorchOpModelRegr inherit from this R6 Class.
 #' @export
 TorchOpModel = R6Class("TorchOpModel",
   inherit = TorchOp,
   public = list(
-    initialize = function(id = "model", param_vals = list()) {
-      param_set = ps(
-        criterion = p_uty(tags = "train"),
-        optimizer = p_uty(tags = "train"),
-        optimizer_args = p_uty(tags = "train"),
-        criterion_args = p_uty(tags = "train"),
-        n_epochs = p_int(default = 0L, tags = "train", lower = 0L),
-        device = p_fct(tags = c("train", "predict"), levels = c("cpu", "cuda"), default = "cpu"),
-        batch_size = p_int(tags = c("train", "predict"), lower = 1L)
-      )
-      param_set$values$n_epochs = 0L
-      output = data.table(name = "output", train = "Task", predict = "Prediction")
+    initialize = function(id, param_vals, .task_type) {
+      private$.task_type = .task_type
+      param_set = make_standard_paramset(.task_type)
+      param_set$values$epochs = 0L
+      input = data.table(name = "input", train = "ModelArgs", predict = "Task")
+      output = data.table(name = "output", train = "NULL", predict = "Prediction")
 
       super$initialize(
         id = id,
@@ -25,26 +20,78 @@ TorchOpModel = R6Class("TorchOpModel",
   ),
   private = list(
     .train = function(inputs) {
-      inputs = inputs[[1L]]
-      if (is.null(self$state$learner)) {
-        task_type = inputs[["task"]]$task_type
-        self$state$learner = switch(task_type,
-          classif = LearnerClassifTorch$new(),
-          regr = LearnerRegrTorch$new(),
-          stopf("Invalid task type %s.", task_type)
-        )
-        self$state$learner$param_set$values = self$param_set$values
-        self$state$learner$param_set$values$architecture = inputs[["architecture"]]
-        self$state$learner$train(inputs[["task"]])
-        list(task = inputs[["task"]])
-      }
+      input = inputs$input
+      learner = switch(private$.task_type,
+        classif = LearnerClassifTorch$new(id = self$id),
+        regr = LearnerRegrTorch$new(id = self$id),
+        stopf("Unsupported task type '%s'.", private$.task_type)
+      )
+      pars = self$param_set$get_values(tags = "train")
+      pars_piped = list(
+        architecture = input$architecture,
+        optimizer = input$optimizer,
+        optimizer_args = input$optimizer_args,
+        criterion = input$criterion,
+        criterion_args = input$criterion_args
+      )
+      pars_piped = Filter(function(x) !is.null(x), pars_piped)
+      pars = insert_named(pars, pars_piped)
+      learner$param_set$values = pars
+
+      private$.learner = learner
+      on.exit({
+        private$.learner$state = NULL
+      })
+      self$state = private$.learner$train(input$task)$state
+
+      list(NULL)
     },
     .predict = function(inputs) {
-      prediction = self$state$learner$predict(inputs[["task"]])
-      list(output = prediction)
+      on.exit({
+        private$.learner$state = NULL
+      })
+      task = inputs[[1]]
+      private$.learner$state = self$state
+      list(private$.learner$predict(task))
+    },
+    .task_type = NULL,
+    .learner = NULL
+  )
+)
+
+TorchOpModelClassif = R6Class(
+  inherit = TorchOpModel,
+  public = list(
+    initialize = function(id = "model.classif", param_vals = list()) {
+      super$initialize(
+        id = id,
+        param_vals = param_vals,
+        .task_type = "classif"
+      )
     }
   )
 )
 
+#' @export
+TorchOpModelRegr = R6Class(
+  inherit = TorchOpModel,
+  public = list(
+    initialize = function(id = "model.regr", param_vals = list()) {
+      super$initialize(
+        id = id,
+        param_vals = param_vals,
+        .task_type = "regr"
+      )
+    }
+  )
+)
+
+
 #' @include mlr_torchops.R
 mlr_torchops$add("model", value = TorchOpModel)
+
+#' @include mlr_torchops.R
+mlr_torchops$add("model.regr", value = TorchOpModelRegr)
+
+#' @include mlr_torchops.R
+mlr_torchops$add("model.classif", value = TorchOpModelClassif)

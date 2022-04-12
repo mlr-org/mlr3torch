@@ -19,7 +19,7 @@ test_that("Architecture is working", {
 
 if (FALSE) {
   task = tsk("mtcars")
-  graph = top("tokenizer", d_token = 3L) %>>% top("fork", .outnum = 2L) %>>%
+  graph = top("tokenizer", d_token = 3L) %>>%
     gunion(
       graphs = list(
         a = top("linear", out_features = 10L),

@@ -42,5 +42,5 @@ TorchOpRepeat = R6Class(
   )
 )
 
-#' @incude mlr_torchops.R
+#' @include mlr_torchops.R
 mlr_torchops$add("repeat", TorchOpRepeat)

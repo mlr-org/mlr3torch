@@ -32,16 +32,35 @@ is_tokenizer = function(x) {
 
 # Mostly used in the tests to get a single batch from a task that can be fed into a network
 make_batch = function(task, batch_size) {
-  dl = make_dataloader(task, batch_size = batch_size, device = "cpu")
+  dl = as_dataloader(task, batch_size = batch_size, device = "cpu")
   batch = dl$.iter()$.next()
   y = batch$y
-  batch$y = NULL
   return(batch)
 }
 
 get_instance = function(task) {
-  #' TODO: Change this to "meta"
-  data_loader = make_dataloader(task, 1, "cpu")
+  # TODO: Change this to "meta"
+  data_loader = as_dataloader(task, batch_size = 1, device = "cpu")
   instance = data_loader$.iter()$.next()
   return(instance)
+}
+
+is_tabular = function(task) {
+  test("imageuri" %nin% task$features)
+}
+
+get_optimizer = function(name) {
+  getFromNamespace(sprintf("optim_%s", name), ns = "torch")
+}
+
+get_criterion = function(name) {
+  getFromNamespace(sprintf("nn_%s_loss", name), ns = "torch")
+}
+
+assert_optimizer = function(x) {
+  assert_true(class(attr(x, "Optimizer")) == "R6ClassGenerator")
+}
+
+assert_criterion = function(x) {
+  assert_true(inherits(x, "nn_loss"))
 }

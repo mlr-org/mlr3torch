@@ -28,7 +28,7 @@ TorchOpCustom = R6Class("TorchOpCustom",
       pars = self$param_set$get_values(tags = "train")
       fn = pars[["fn"]]
       args = pars[["args"]]
-      invoke(fn, input, .args = args)
+      invoke(fn, inputs, .args = args)
     }
   )
 )

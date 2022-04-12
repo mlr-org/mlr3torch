@@ -4,14 +4,6 @@
 #' This however is not the case when stacking tensors. If for some reason the order of stacking.
 #' is relevant for your model, it has to be created manually.
 #' The order in which the tensors are concatenated is [input1, input2, input3]
-#' @example
-#' graph = top("fork", .outnum = 2L) %>>%
-#'   gunion(list(a = top("linear", out_features = 10L), b = top("linear", out_features = 10L)))
-#' graph$add_pipeop(top("merge", .innum = 2L, method = "cat"))
-#' graph$add_edge("a.linear", "merge", dst_channel = "input2")
-#' graph$add_edge("b.linear", "merge", dst_channel = "input1")
-#' graph$edges
-#'
 TorchOpMerge = R6Class("TorchOpMerge",
   inherit = TorchOp,
   public = list(
@@ -58,16 +50,8 @@ TorchOpMerge = R6Class("TorchOpMerge",
       # map(inputs, dim) does not apply the function dim()
       shapes = map(inputs, dim)
       dim = param_vals$dim %??% length(shapes[[1L]])
-      assert_true(dim <= length(shapes[[1L]]))
-
-      if (method %in% c("add", "mul")) {
-        assert_true(length(unique(shapes)) == 1L)
-      }
-      if (method == "cat") {
-        shapes_wo_dim = map(shapes, function(x) x[-dim])
-        assert_true(length(unique(shapes_wo_dim)) == 1L)
-      }
-
+      # NOTE: no input checking, this is automatically done when the forward function
+      # is called afterwards
       layer = switch(method,
         add = nn_merge_sum(),
         mul = nn_merge_mul(),

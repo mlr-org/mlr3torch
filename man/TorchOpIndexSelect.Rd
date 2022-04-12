@@ -2,13 +2,10 @@
 % Please edit documentation in R/TorchOpIndexSelect.R
 \name{TorchOpIndexSelect}
 \alias{TorchOpIndexSelect}
-\title{TODO: This should not stay that way we can save the computation in the last attention layer
-if we are only interested in the \link{CLS} Token.}
+\title{if we are only interested in the \link{CLS} Token.}
 \description{
-TODO: This should not stay that way we can save the computation in the last attention layer
 if we are only interested in the \link{CLS} Token.
 
-TODO: This should not stay that way we can save the computation in the last attention layer
 if we are only interested in the \link{CLS} Token.
 }
 \section{Super classes}{

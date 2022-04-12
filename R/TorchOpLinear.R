@@ -3,7 +3,7 @@
 #' @section Dimensions
 #' (n, ..., in_features) --> (n, ..., out_features)
 #' @export
-TorchOpLinear = R6::R6Class("TorchOpLinear",
+TorchOpLinear = R6Class("TorchOpLinear",
   inherit = TorchOp,
   public = list(
     initialize = function(id = "linear", param_vals = list()) {

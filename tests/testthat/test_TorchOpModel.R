@@ -1,72 +1,34 @@
-test_that("Can create and train simple network", {
-  task = tsk("mtcars")
-  to_input = TorchOpInput$new()
-  to_linear1 = TorchOpLinear$new("linear1", param_vals = list(out_features = 10))
-  to_relu1 = TorchOpReLU$new("relu")
-  to_linear2 = TorchOpLinear$new("linear2", param_vals = list(out_features = 1))
-  to_model = TorchOpModel$new()
-  to("model", optimizer = optim_adagrad, optimizer_args = list(lr = 0.01),
-  to_model$param_set$values$optimizer_args = list(lr = 0.01)
-  to_model$param_set$values$criterion = nn_mse_loss
-  to_model$param_set$values$device = "cpu"
-  to_model$param_set$values$n_epochs = 100
-  to_model$param_set$values$batch_size = 16
-
-  graph = to_input %>>%
-    to_linear1 %>>%
-    to_relu1 %>>%
-    to_linear2 %>>%
-    to_model
-  graph$train(task)
-  graph$predict(task)
-
+test_that("TorchOpModel works", {
+  task = tsk("iris")
+  graph = po("pca") %>>%
+    top("input") %>>%
+    top("tokenizer", d_token = 3L) %>>%
+    top("flatten") %>>%
+    top("linear", out_features = 1L) %>>%
+    top("model.classif", criterion = "cross_entropy", optimizer = "adam", batch_size = 16L,
+      device = "cpu", epochs = 100L
+    )
+  glrn = as_learner(graph)
+  glrn$train(task)
 })
 
-test_that("Can create more complicated network", {
+test_that("TorchOpModel works", {
+  task = tsk("iris")
+  graph = po("pca") %>>%
+    top("input") %>>%
+    top("tokenizer", d_token = 1L) %>>%
+    top("flatten") %>>%
+    top("linear1", out_features = 10L) %>>%
+    top("relu") %>>%
+    top("linear2", out_features = 4L) %>>%
+    top("model.classif", batch_size = 16L, epochs = 10L,
+      criterion = "cross_entropy",
+      optimizer = "adam",
+      optimizer_args = list(lr = 0.01)
+    )
 
-  # library(torch)
-  # library(mlr3torch)
-  # library(mlr3pipelines)
-  # library(mlr3)
-
-  graph = Graph$new()
-  to_input = TorchOpInput$new()
-  to_linear1 = TorchOpLinear$new("linear1")
-  to_linear1$param_set$values$out_features = 10
-  to_relu = TorchOpReLU$new()
-  to_linear2 = TorchOpLinear$new("linear2")
-  to_linear2$param_set$values$out_features = 1
-  to_model = TorchOpModel$new()
-  to_model$param_set$values$optimizer = optim_adam
-  to_model$param_set$values$criterion = nn_mse_loss
-  to_model$param_set$values$device = "cpu"
-  to_model$param_set$values$n_epochs = 0
-  to_model$param_set$values$batch_size = 1
-
-  graph$add_pipeop(to_input)
-  graph$add_pipeop(to_linear1)
-  graph$add_pipeop(to_relu)
-  graph$add_pipeop(to_linear2)
-  graph$add_pipeop(to_model)
-
-  graph$add_edge(src_id = "input", dst_id = "linear1", src_channel = "task",
-    dst_channel = "task")
-  graph$add_edge(src_id = "input", dst_id = "linear1",
-    src_channel = "architecture", dst_channel = "architecture")
-  graph$add_edge(src_id = "linear1", dst_id = "relu", src_channel = "task",
-    dst_channel = "task")
-  graph$add_edge(src_id = "linear1", dst_id = "relu",
-    src_channel = "architecture", dst_channel = "architecture")
-  graph$add_edge(src_id = "relu", dst_id = "linear2", src_channel = "task",
-    dst_channel = "task")
-  graph$add_edge(src_id = "relu", dst_id = "linear2",
-    src_channel = "architecture", dst_channel = "architecture")
-  graph$add_edge(src_id = "linear2", dst_id = "model", src_channel = "task",
-    dst_channel = "task")
-  graph$add_edge(src_id = "linear2", dst_id = "model",
-    src_channel = "architecture", dst_channel = "architecture")
-
-  task = tsk("mtcars")
-  graph$train(task)
+  glrn = as_learner(graph)
+  resampling = rsmp("holdout")
+  rr = resample(task, glrn, resampling)
 
 })

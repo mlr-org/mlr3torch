@@ -10,10 +10,6 @@ TorchOpHead = R6Class("TorchOpHead",
         param_set = param_set,
         param_vals = param_vals
       )
-    },
-    names_in = c("batch", "feature", "token"),
-    names_out = function(names_in) {
-      c("batch", "response")
     }
   ),
   private = list(
