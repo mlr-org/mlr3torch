@@ -66,8 +66,6 @@ Collate:
     'TorchOpTokenizer.R'
     'autotest_torchop.R'
     'bibentries.R'
-    'classif.torch.R'
-    'classif.torch.alexnet.R'
     'dataloader.R'
     'dl_paramset.R'
     'image-task.R'

@@ -5,46 +5,10 @@
 \alias{LearnerClassifTorchResNet}
 \title{Classification ResNet Learner}
 \description{
-Calls \link[torchvision:model_resnet]{torchvision::model_resnet} from package \CRANpkg{torchvision}.
-}
-\section{Dictionary}{
- This \link{Learner} can be instantiated via the
-\link[mlr3misc:Dictionary]{dictionary} \link{mlr_learners} or with the associated
-sugar function \code{\link[=lrn]{lrn()}}:\preformatted{mlr_learners$get("classif.torch.resnet")
-lrn("classif.torch.resnet")
-}
-}
+Classification ResNet Learner
 
-\section{Meta Information}{
-
-\itemize{
-\item Task type: \dQuote{classif}
-\item Predict Types: \dQuote{response}, \dQuote{prob}
-\item Feature Types: \dQuote{imageuri}
-\item Required Packages: \CRANpkg{mlr3}, \CRANpkg{torchvision}, \CRANpkg{torch}, \CRANpkg{luz}
+Classification ResNet Learner
 }
-}
-
-\section{Parameters}{
-\tabular{lllll}{
-   Id \tab Type \tab Default \tab Levels \tab Range \cr
-   num_threads \tab integer \tab 1 \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
-   batch_size \tab integer \tab 128 \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
-   loss \tab character \tab cross_entropy \tab adaptive_log_softmax_with, bce, bce_with_logits, cosine_embedding, ctc, cross_entropy, hinge_embedding, kl_div, margin_ranking, multi_margin, \link{...} \tab - \cr
-   epochs \tab integer \tab 5 \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
-   drop_last \tab logical \tab TRUE \tab TRUE, FALSE \tab - \cr
-   valid_split \tab numeric \tab 0.2 \tab  \tab \eqn{[0, 1]}{[0, 1]} \cr
-   learn_rate \tab numeric \tab 0.02 \tab  \tab \eqn{[0, 1]}{[0, 1]} \cr
-   img_transform_train \tab untyped \tab  \tab  \tab - \cr
-   img_transform_predict \tab untyped \tab  \tab  \tab - \cr
-   optimizer \tab character \tab adam \tab rprop, rmsprop, adagrad, asgd, adadelta, lbfgs, sgd, adam, madgrad \tab - \cr
-   verbose \tab logical \tab TRUE \tab TRUE, FALSE \tab - \cr
-   device \tab untyped \tab cpu \tab  \tab - \cr
-   pretrained \tab logical \tab TRUE \tab TRUE, FALSE \tab - \cr
-   resnet_config \tab character \tab resnet18 \tab resnet101, resnet152, resnet18, resnet34, resnet50, wide_resnet101_2, wide_resnet50_2 \tab - \cr
-}
-}
-
 \examples{
 \dontrun{
 library(mlr3)
@@ -69,7 +33,7 @@ library(mlr3torch)
 Lukas Burk
 }
 \section{Super classes}{
-\code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3:LearnerClassif]{mlr3::LearnerClassif}} -> \code{\link[mlr3torch:LearnerClassifTorch]{mlr3torch::LearnerClassifTorch}} -> \code{LearnerClassifTorchResNet}
+\code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3torch:DeepLearner]{mlr3torch::DeepLearner}} -> \code{\link[mlr3torch:LearnerClassifTorch]{mlr3torch::LearnerClassifTorch}} -> \code{LearnerClassifTorchResNet}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -89,6 +53,7 @@ Lukas Burk
 \item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="print">}\href{../../mlr3/html/Learner.html#method-print}{\code{mlr3::Learner$print()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset">}\href{../../mlr3/html/Learner.html#method-reset}{\code{mlr3::Learner$reset()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train">}\href{../../mlr3/html/Learner.html#method-train}{\code{mlr3::Learner$train()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerClassifTorch" data-id=".predict">}\href{../../mlr3torch/html/LearnerClassifTorch.html#method-.predict}{\code{mlr3torch::LearnerClassifTorch$.predict()}}\out{</span>}
 }
 \out{</details>}
 }
