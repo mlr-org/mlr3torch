@@ -3,14 +3,15 @@ test_that("Linear GraphNetwork works", {
   d_token = 3L
   task = tsk("iris")
   batch = make_batch(task, batch_size = batch_size)
-  graph = top("tokenizer", d_token = d_token) %>>%
+  graph = top("input") %>>%
+    top("tokenizer", d_token = d_token) %>>%
     top("flatten") %>>%
     top("linear1", out_features = 10L) %>>%
     top("relu1") %>>%
     top("linear2", out_features = 1L)
   architecture = graph$train(task)[[1L]][[2L]]
   net = architecture$build(task)
-  y_hat = net$forward(batch)
+  y_hat = net$forward(batch$x)
   expect_equal(y_hat$shape, c(batch_size, 1L))
 })
 
@@ -19,7 +20,8 @@ test_that("GraphNetwork with forking of depth 1 works", {
   batch_size = 9L
   task = tsk("iris")
   batch = make_batch(task, batch_size)
-  graph = top("tokenizer", d_token = d_token) %>>%
+  graph = top("input") %>>%
+    top("tokenizer", d_token = d_token) %>>%
     top("flatten") %>>%
     gunion(
       graphs = list(
@@ -31,7 +33,7 @@ test_that("GraphNetwork with forking of depth 1 works", {
     top("linear", out_features = 1L)
   architecture = graph$train(task)[[1L]][[2L]]
   net = architecture$build(task)
-  y_hat = net$forward(batch)
+  y_hat = net$forward(batch$x)
   expect_equal(y_hat$shape, c(batch_size, 1L))
 })
 
@@ -55,7 +57,8 @@ test_that("GraphNetwork with forking (depth 2) works", {
     top("merge", method = "mul", .innum = 2L)
 
 
-  graph = top("tokenizer", d_token = d_token) %>>%
+  graph = top("input") %>>%
+    top("tokenizer", d_token = d_token) %>>%
     top("flatten") %>>%
     gunion(
       graphs = list(
@@ -67,6 +70,6 @@ test_that("GraphNetwork with forking (depth 2) works", {
     top("linear", out_features = 1L)
   architecture = graph$train(task)[[1L]][[2L]]
   net = architecture$build(task)
-  y_hat = net$forward(batch)
+  y_hat = net$forward(batch$x)
   expect_equal(y_hat$shape, c(batch_size, 1L))
 })

@@ -1,7 +1,7 @@
 # TODO: Add debug option to the forward functoin (keeps tensors in the data.table while the other
 # one frees them)
 nn_graph = nn_module(
-  "nn_graph",
+  "nn_Graph",
   initialize = function(edges, layers) {
     # TODO: maybe check for topological sort?
     edges = copy(edges)

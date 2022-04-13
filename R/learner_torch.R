@@ -24,28 +24,28 @@ learner_classif_torch_predict = function(self, task) {
   })
 
   responses = as.factor(responses)
-  browser()
   levels(responses) = task$levels(cols = task$target_names)[[1L]]
   list(response = responses)
 }
 
 # Train function for the classification torch learne
 learner_classif_torch_train = function(self, state, task) {
-
   pars = self$param_set$get_values(tags = "train")
   epochs = pars$epochs
   device = pars$device
   batch_size = pars$batch_size
   drop_last = pars$drop_last %??% FALSE
   shuffle = pars$shuffle %??% TRUE
+  valid_rsmp = rsmp("holdout", ratio = 1 - valid_split)
+
+  c(train_ids, valid_ids) %<-% valid_rsmp$instantiate(task)$instance
 
   # TODO: "train" set is currently not really supprted (I think) must to setdiff(use, test) (?)
-  warningf("train and valid loader are the same")
   train_loader = as_dataloader(task, device = device, batch_size = batch_size,
-    shuffle = shuffle, drop_last = drop_last
+    shuffle = shuffle, drop_last = drop_last, row_ids = train_ids
   )
   valid_loader = as_dataloader(task, device = device, batch_size = batch_size,
-    shuffle = shuffle, drop_last = drop_last
+    shuffle = shuffle, drop_last = drop_last, row_ids = valid_ids
   )
 
   network = state$network
@@ -54,7 +54,8 @@ learner_classif_torch_train = function(self, state, task) {
   history = state$history
 
   for (epoch in seq_len(epochs)) {
-    losses = list()
+    train_loss = numeric(length(train_loader))
+    i = 1L
     loop(for (batch in train_loader) {
       optimizer$zero_grad()
       y = batch$y
@@ -65,21 +66,30 @@ learner_classif_torch_train = function(self, state, task) {
       loss = criterion(y_hat, y_true)
       loss$backward()
       optimizer$step()
-      losses = c(losses, loss$item())
+      train_loss[[i]] = loss$item()
+      i = i + 1L
     })
+    history$train_loss[[epoch]] = train_loss
 
-    with_no_grad(
-      loop(for (batch in valid_loader) {
-        y = batch$y
-        # x = batch4
-      })
-    )
+    test_loss = numeric(length(valid_loader))
+    i = 1L
+    loop(for (batch in valid_loader) {
+      y = batch$y
+      x = batch$x
+      y_hat = with_no_grad(network$forward(x))
+      y_true = batch$y[, 1L]
+      loss = criterion(y_hat, y_true)
+      test_loss[[i]] = loss$item()
+      i = i + 1L
+    })
+    history$test_loss[[epoch]] = test_loss
   }
   list(
     network = network,
     optimizer = optimizer,
     criterion = criterion,
-    history = history
+    history = history,
+    valid_ids = valid_ids
   )
 }
 
@@ -88,6 +98,8 @@ learner_classif_torch_train = function(self, state, task) {
 
 build_torch = function(self, task) {
   pars = self$param_set$get_values(tag = "train")
+  optim_args = self$param_set$get_values(tags = "optimizer")
+  pars = remove_named(pars, names(optim_args))
   if (test_r6(pars$architecture, "Architecture")) {
     network = pars$architecture$build(task)
   } else if (test_r6(pars$architecture, "nn_Module")) {
@@ -95,11 +107,11 @@ build_torch = function(self, task) {
   } else {
     stopf("Invalid argument for architecture.")
   }
+  optim_name = get_private(self)$.optimizer
 
-  optimizer_args = pars$optimizer_args %??% list()
-  criterion_args = pars$criterion_args %??% list()
-  optimizer = invoke(get_optimizer(pars$optimizer), .args = optimizer_args, params = network$parameters)
-  criterion = invoke(get_criterion(pars$criterion), .args = criterion_args)
+  crit_args = pars$criterion_args %??% list()
+  optimizer = invoke(get_optimizer(optim_name), .args = optim_args, params = network$parameters)
+  criterion = invoke(get_criterion(pars$criterion), .args = crit_args)
 
   list(
     network = network,

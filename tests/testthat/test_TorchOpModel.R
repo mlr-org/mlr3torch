@@ -24,7 +24,7 @@ test_that("TorchOpModel works", {
     top("model.classif", batch_size = 16L, epochs = 10L,
       criterion = "cross_entropy",
       optimizer = "adam",
-      optimizer_args = list(lr = 0.01)
+      lr = 0.01
     )
 
   glrn = as_learner(graph)

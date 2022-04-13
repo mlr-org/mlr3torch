@@ -60,7 +60,6 @@ nn_tokenizer = nn_module(
     }
   },
   forward = function(input) {
-    browser()
     input_num = input$num
     input_cat = input$cat
     tokens = list()

@@ -16,7 +16,7 @@ TorchOpOptimizer = R6Class(
   private = list(
     .train = function(inputs) {
       inputs$input[["optimizer"]] = private$.optimizer
-      inputs$input[["optimizer_args"]] = self$param_set$get_values(tags = "train")
+      inputs$input[["optim_args"]] = self$param_set$get_values(tags = "train")
       return(inputs)
     },
     .optimizer = NULL

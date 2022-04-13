@@ -22,7 +22,8 @@ Imports:
     mlr3pipelines,
     torch,
     torchvision,
-    zeallot
+    zeallot,
+    coro
 Suggests:
     lgr,
     tabnet,
@@ -36,7 +37,6 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 Collate:
     'Architecture.R'
-    'DagNetwork.R'
     'DataBackendDataLoader.R'
     'GraphNetwork.R'
     'History.R'
@@ -44,7 +44,6 @@ Collate:
     'LearnerClassifTorch.R'
     'LearnerRegrTorch.R'
     'LearnerTorch.R'
-    'Sampler.R'
     'TorchOp.R'
     'TorchOpActivation.R'
     'mlr_torchops.R'
@@ -63,7 +62,6 @@ Collate:
     'TorchOpModel.R'
     'TorchOpOptimizer.R'
     'TorchOpParallel.R'
-    'TorchOpPreproc.R'
     'TorchOpReLU.R'
     'TorchOpRepeat.R'
     'TorchOpSelect.R'
@@ -80,14 +78,12 @@ Collate:
     'classif.torch.tabnet.R'
     'criterion_paramsets.R'
     'dataloader.R'
-    'extractors.R'
     'graphs.R'
     'image-task.R'
     'learner_torch.R'
     'make_dataloader.R'
     'make_paramset.R'
     'mlr3torch-package.R'
-    'model_input.R'
     'nn_cls.R'
     'nn_rtdl_attention.R'
     'optim_paramsets.R'
@@ -97,8 +93,6 @@ Collate:
     'paramsets_optim.R'
     'regr.torch.tabnet.R'
     'top.R'
-    'top_secret.R'
-    'torch_paramsets.R'
     'train.R'
     'util-torch.R'
     'utils-models.R'

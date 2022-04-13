@@ -3,9 +3,9 @@
 TorchOpModel = R6Class("TorchOpModel",
   inherit = TorchOp,
   public = list(
-    initialize = function(id, param_vals, .task_type) {
+    initialize = function(id, param_vals, .task_type, .optimizer) {
       private$.task_type = .task_type
-      param_set = make_standard_paramset(.task_type)
+      param_set = make_standard_paramset(.task_type, .optimizer)
       param_set$values$epochs = 0L
       input = data.table(name = "input", train = "ModelArgs", predict = "Task")
       output = data.table(name = "output", train = "NULL", predict = "Prediction")
@@ -30,9 +30,9 @@ TorchOpModel = R6Class("TorchOpModel",
       pars_piped = list(
         architecture = input$architecture,
         optimizer = input$optimizer,
-        optimizer_args = input$optimizer_args,
+        optim_args = input$optim_args,
         criterion = input$criterion,
-        criterion_args = input$criterion_args
+        crit_args = input$crit_args
       )
       pars_piped = Filter(function(x) !is.null(x), pars_piped)
       pars = insert_named(pars, pars_piped)

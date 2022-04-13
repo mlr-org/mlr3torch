@@ -5,13 +5,13 @@ as_dataset = function(x, ...) {
 }
 
 #' @export
-as_dataset.Task = function(x, batch_size, device = NULL, ...) { # nolint
+as_dataset.Task = function(x, batch_size, device = NULL, row_ids = NULL, ...) { # nolint
   task = x
   feature_types = task$feature_types$type
   features = task$feature_names
   target = task$target_names
 
-  data = task$data() # already respects row_roles$use
+  data = task$data(row = row_ids) # already respects row_roles$use
 
   if ("imageuri" %in% feature_types) {
     stopf("Not supported yet.")

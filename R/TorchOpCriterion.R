@@ -15,7 +15,7 @@ TorchOpCriterion = R6Class(
   private = list(
     .train = function(inputs) {
       inputs$input[["criterion"]] = private$.criterion
-      inputs$input[["criterion_args"]] = self$param_set$get_values(tags = "train")
+      inputs$input[["crit_args"]] = self$param_set$get_values(tags = "train")
       return(inputs)
     },
     .criterion = NULL

@@ -4,21 +4,20 @@
 #' It takes a task and converts it first to a dataset and then to a dataloader
 #' @export
 #' @param x (`any`) object to be converted to a dataloader.
-as_dataloader = function(x, sets, batch_size, device, ...) {
+as_dataloader = function(x, row_ids, batch_size, device, ...) {
   UseMethod("as_dataloader")
 }
 
 #' @export
-as_dataloader.Task = function(x, batch_size, device, ...) { # nolint
+as_dataloader.Task = function(x, batch_size, device, row_ids, ...) { # nolint
   # TODO: Check that arguments go correctly into as_dataset and as_dataloader (argument names
   # must be disjunct --> what if not??? -> they must be listed explicitly like batch_size below)
-  dataset = as_dataset(x, batch_size = batch_size, device = device)
+  dataset = as_dataset(x, batch_size = batch_size, device = device, row_ids = row_ids)
   as_dataloader(dataset, batch_size = batch_size, ...)
 }
 
 as_dataloader.DataBackend = function(x, sets, shuffle, drop_last, target, features) { # nolint
-  print("hallo")
-
+  stop("Not implemented yet.")
 }
 
 #' @export

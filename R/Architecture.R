@@ -10,10 +10,6 @@ Architecture = R6Class("Architecture",
       reduction = architecture_reduce(self, task, input)
       # edges  simplify_graph(reduction$edges)
       nn_graph$new(reduction$edges, reduction$layers)
-    },
-    plot = function() {
-      # TODO: show tensor dimensions of the inputs of the nodes
-      stop("Not implemented yet.")
     }
   )
 )

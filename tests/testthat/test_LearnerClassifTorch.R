@@ -8,12 +8,12 @@ test_that("LearnerClassifTorch works with nn_module as architecture", {
     nn_linear(10, 4)
   )
 
-  l = lrn("classif.torch", optimizer = "adam", criterion = "cross_entropy", architecture = net,
-    optimizer_args = list(lr = 0.01), device = "cpu", epochs = 1L, batch_size = 16L
+  l = lrn("classif.torch", .optimizer = "adam", criterion = "cross_entropy", architecture = net,
+    lr = 0.1, device = "cpu", epochs = 10L, batch_size = 16L
   )
   l$train(task)
-  l$predict(task)
-
+  expect_error(l$train(task), regexp = NA)
+  expect_error(l$predict(task), regexp = NA)
 })
 
 test_that("LearnerClassifTorch works with Architecture as architecture", {

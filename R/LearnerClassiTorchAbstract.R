@@ -6,7 +6,7 @@
 #' @parameter
 #'
 #' @export
-LearnerClassifTorchBase = R6Class("LearnerClassifTorchBase",
+LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
   inherit = LearnerClassif,
   public = list(
     optimizer_class = NULL,
@@ -18,8 +18,9 @@ LearnerClassifTorchBase = R6Class("LearnerClassifTorchBase",
     #' @param param_set (`paradox::ParamSet`) Additional parameters to the standard paramset.
     #' @param optimizer (`character(1)`) The name of the optimizer.
     #' @param criterion (`character(1)` || `nn_loss`).
-    initialize = function(id, param_set = ps(), label = NULL, properties = NULL,
+    initialize = function(id, .optimizer, param_set = ps(), label = NULL, properties = NULL,
       packages = character(0), predict_types = NULL, feature_types, preprocessing) {
+      private$.optimizer = .optimizer
       # FIXME: loglik?
       if (is.null(properties)) {
         properties = c("weights", "multiclass", "twoclass", "hotstart_forward")
@@ -31,7 +32,7 @@ LearnerClassifTorchBase = R6Class("LearnerClassifTorchBase",
       packages = union(c("mlr3torch", "torch"), packages)
       # note that we don't have to explicitly check that the optimizer params are disjunct from
       # the remaining parameters as this is done here anyway (call fails if it doesn't).
-      param_set = make_standard_paramset("classif")
+      param_set = make_standard_paramset("classif", .optimizer)
 
       super$initialize(
         id = id,
@@ -47,40 +48,28 @@ LearnerClassifTorchBase = R6Class("LearnerClassifTorchBase",
   ),
   private = list(
     .train = function(task) {
-      state = private$.build(task)
-      learner_classif_torch_train(self, state, task)
+      stop("ABC")
     },
     .predict = function(task) {
-      # When keep_last_prediction = TRUE we store the predictions of the last validation and we
-      # therefore don't have to recompute them in the resample(), but can simple return the
-      # cached predictions
-      learner_classif_torch_predict(self, task)
-    },
-    .build = function(task) {
-      build_torch(self, task)
+      stop("ABC")
     }
   ),
   active = list(
     #' @field params ()
     parameters = function(rhs) {
-      assert_ro_binding(rhs)
-      self$state$network$parameters
+      stop("ABC")
     },
     history = function(rhs) {
-      assert_ro_binding(rhs)
-      self$state$history
+      stop("ABC")
     },
     optimizer = function(rhs) {
-      assert_ro_binding(rhs)
-      self$state$model$optimizer
+      stop("ABC")
     },
     criterion = function(rhs) {
-      assert_ro_binding(rhs)
-      self$state$model$criterion
+      stop("ABC")
     },
     network = function(rhs) {
-      assert_ro_binding(rhs)
-      self$state$model$network
+      stop("ABC")
     }
   )
 )
