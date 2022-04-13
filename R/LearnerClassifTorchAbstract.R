@@ -32,7 +32,7 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
       packages = union(c("mlr3torch", "torch"), packages)
       # note that we don't have to explicitly check that the optimizer params are disjunct from
       # the remaining parameters as this is done here anyway (call fails if it doesn't).
-      standard_params = make_standard_paramset("classif", .optimizer)
+      standard_params = make_standard_paramset("classif", .optimizer, architecture = TRUE)
       param_set$add(standard_params)
 
 

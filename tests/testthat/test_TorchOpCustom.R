@@ -8,7 +8,7 @@ test_that("TorchOpCustom .build works", {
   top_custom$param_set$values$args = list(out_features = 3)
   top_relu = TorchOpReLU$new()
   architecture = Architecture$new()
-  architecture$add(top_custom)$add(top_relu)
+  architecture$add_torchop(top_custom)$add_torchop(top_relu)
   tensor = torch_randn(16, 7)
   input = list(x = tensor)
   layer = top_custom$build(input)

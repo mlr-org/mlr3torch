@@ -1,6 +1,5 @@
-make_standard_paramset = function(task_type, optimizer) {
+make_standard_paramset = function(task_type, optimizer, architecture = FALSE) {
   param_set = ps(
-    architecture = p_uty(tags = "train", custom_check = check_architecture),
     optim_args = p_uty(tags = "train"),
     criterion = p_fct(levels = torch_reflections$loss[[task_type]], tags = "train"),
     crit_args = p_uty(tags = "train"),
@@ -13,9 +12,12 @@ make_standard_paramset = function(task_type, optimizer) {
     drop_last = p_lgl(default = FALSE, tags = "train"),
     valid_split = p_dbl(default = 0.33, lower = 0, upper = 1, tags = "train")
   )
-  param_set$values$valid_split = rsmp("holdout")
+  param_set$values$valid_split = 0.33
   optim_paramset = make_paramset_optim(optimizer)
   param_set$add(optim_paramset)
+  if (architecture) {
+    param_set$add(ParamUty$new("architecture", tags = "train", custom_check = check_architecture))
+  }
   return(param_set)
 }
 

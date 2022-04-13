@@ -9,7 +9,7 @@ as_dataloader = function(x, row_ids, batch_size, device, ...) {
 }
 
 #' @export
-as_dataloader.Task = function(x, batch_size, device, row_ids, ...) { # nolint
+as_dataloader.Task = function(x, batch_size, device, row_ids = NULL, ...) { # nolint
   # TODO: Check that arguments go correctly into as_dataset and as_dataloader (argument names
   # must be disjunct --> what if not??? -> they must be listed explicitly like batch_size below)
   dataset = as_dataset(x, batch_size = batch_size, device = device, row_ids = row_ids)

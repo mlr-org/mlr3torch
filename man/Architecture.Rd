@@ -16,7 +16,6 @@ Neral Network (Graph-) Architecture
 \itemize{
 \item \href{#method-add_torchop}{\code{Architecture$add_torchop()}}
 \item \href{#method-build}{\code{Architecture$build()}}
-\item \href{#method-plot}{\code{Architecture$plot()}}
 \item \href{#method-clone}{\code{Architecture$clone()}}
 }
 }
@@ -28,6 +27,7 @@ Neral Network (Graph-) Architecture
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="chain">}\href{../../mlr3pipelines/html/Graph.html#method-chain}{\code{mlr3pipelines::Graph$chain()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="ids">}\href{../../mlr3pipelines/html/Graph.html#method-ids}{\code{mlr3pipelines::Graph$ids()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="initialize">}\href{../../mlr3pipelines/html/Graph.html#method-initialize}{\code{mlr3pipelines::Graph$initialize()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="plot">}\href{../../mlr3pipelines/html/Graph.html#method-plot}{\code{mlr3pipelines::Graph$plot()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="predict">}\href{../../mlr3pipelines/html/Graph.html#method-predict}{\code{mlr3pipelines::Graph$predict()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="print">}\href{../../mlr3pipelines/html/Graph.html#method-print}{\code{mlr3pipelines::Graph$print()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="set_names">}\href{../../mlr3pipelines/html/Graph.html#method-set_names}{\code{mlr3pipelines::Graph$set_names()}}\out{</span>}
@@ -51,15 +51,6 @@ Neral Network (Graph-) Architecture
 \subsection{Method \code{build()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Architecture$build(task, input = NULL)}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-plot"></a>}}
-\if{latex}{\out{\hypertarget{method-plot}{}}}
-\subsection{Method \code{plot()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Architecture$plot()}\if{html}{\out{</div>}}
 }
 
 }

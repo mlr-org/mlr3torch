@@ -2,10 +2,14 @@
 % Please edit documentation in R/TorchOpModel.R
 \name{TorchOpModel}
 \alias{TorchOpModel}
-\title{TorchOpModelClassif and TorchOpModelRegr inherit from this R6 Class.}
+\title{Builds a mlr3 Torch Learner from its input}
 \description{
-TorchOpModelClassif and TorchOpModelRegr inherit from this R6 Class.
-
+Use TorchOpModeLClassif or TorchOpModelRegr for the respective task type.
+During \verb{$train()} this TorchOp first builds the model (network, optimizer,
+criterion, ...) and afterwards trains the network.
+It's parameterset is identical to LearnerClassifTorch and LearnerRegrTorch respectively.
+}
+\details{
 TorchOpModelClassif and TorchOpModelRegr inherit from this R6 Class.
 }
 \section{Super classes}{
@@ -34,7 +38,7 @@ TorchOpModelClassif and TorchOpModelRegr inherit from this R6 Class.
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchOpModel$new(id, param_vals, .task_type)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TorchOpModel$new(id, param_vals, .task_type, .optimizer)}\if{html}{\out{</div>}}
 }
 
 }

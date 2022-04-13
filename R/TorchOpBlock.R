@@ -22,5 +22,13 @@ TorchOpBlock = R6Class("TorchOpBlock",
   )
 )
 
+block = function(graph, id) {
+
+}
+if (FALSE) {
+  g = top("linear", out_features = 10L) %>>%
+    top("relu")
+}
+
 #' @include mlr_torchops.R
 mlr_torchops$add("block", TorchOpBlock)

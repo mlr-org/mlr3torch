@@ -4,7 +4,7 @@
 \alias{as_dataloader}
 \title{Converts an object to a torch::DataLoader}
 \usage{
-as_dataloader(x, sets, batch_size, device, ...)
+as_dataloader(x, row_ids, batch_size, device, ...)
 }
 \arguments{
 \item{x}{(\code{any}) object to be converted to a dataloader.}

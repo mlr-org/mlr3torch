@@ -32,6 +32,16 @@ make_paramset_sgd = function() {
   )
 }
 
+make_paramset_asgd = function() {
+  ps(
+    lr = p_dbl(default = 1e-2, lower = 0, tags = c("required", c("train", "optimizer"))),
+    lambd = p_dbl(lower = 0, upper = 1, default = 1e-4, tags = c("train", "optimizer")),
+    alpha = p_dbl(lower = 0, upper = Inf, default = 0.75, tags = c("train", "optimizer")),
+    t0 = p_int(lower = 1L, upper = Inf, default = 1e6, tags = c("train", "optimizer")),
+    weight_decay = p_dbl(default = 0, lower = 0, upper = 1, tags = c("train", "optimizer"))
+  )
+}
+
 make_paramset_rprop = function() {
   check_etas = function(x) {
     if (test_numeric(x, lower = 0, upper = Inf, finite = TRUE, len = 2L)) {
@@ -73,7 +83,7 @@ make_paramset_adadelta = function() {
   ps(
     lr = p_dbl(default = 1, lower = 0, tags = c("train", "optimizer")),
     rho = p_dbl(default = 0.9, lower = 0, upper = 1, tags = c("train", "optimizer")),
-    eps = p_dbl(1e-06, lower = 1e-16, upper = 1e-4, tags = c("train", "optimizer")),
+    eps = p_dbl(default = 1e-06, lower = 1e-16, upper = 1e-4, tags = c("train", "optimizer")),
     weight_decay = p_dbl(default = 0, lower = 0, upper = 1, tags = c("train", "optimizer"))
   )
 }
@@ -82,11 +92,11 @@ make_paramset_lbfgs = function() {
   ps(
     lr = p_dbl(default = 1, lower = 0, tags = c("train", "optimizer")),
     max_iter = p_int(default = 20, lower = 1, tags = c("train", "optimizer")),
-    max_eval = p_dbl(default = "max_iter * 1.25", lower = 1L, tags = c("train", "optimizer")),
+    max_eval = p_dbl(lower = 1L, tags = c("train", "optimizer")),
     tolerance_grad = p_dbl(default = 1e-07, lower = 1e-16, upper = 1e-4, tags = c("train", "optimizer")),
-    tolerance_change = p_dvl(default = 1e-09, lower = 1e-16, upper = 1e-4, tags = c("train", "optimizer")),
+    tolerance_change = p_dbl(default = 1e-09, lower = 1e-16, upper = 1e-4, tags = c("train", "optimizer")),
     history_size = p_int(default = 100L, lower = 1L, tags = c("train", "optimizer")),
-    line_search_fn = p_fct(default = NULL, special_vals = list(NULL), levels = list("strong_wolfe"),
+    line_search_fn = p_fct(default = "strong_wolfe", levels = c("strong_wolfe"),
       tags = c("train", "optimizer"))
   )
 }
@@ -94,6 +104,7 @@ make_paramset_lbfgs = function() {
 optim_paramsets = Dictionary$new()
 optim_paramsets$add("adam", make_paramset_adam)
 optim_paramsets$add("sgd", make_paramset_sgd)
+optim_paramsets$add("asgd", make_paramset_asgd)
 optim_paramsets$add("rprop", make_paramset_rprop)
 optim_paramsets$add("rmsprop", make_paramset_rmsprop)
 optim_paramsets$add("adagrad", make_paramset_adagrad)

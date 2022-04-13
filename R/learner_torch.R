@@ -36,6 +36,7 @@ learner_classif_torch_train = function(self, state, task) {
   batch_size = pars$batch_size
   drop_last = pars$drop_last %??% FALSE
   shuffle = pars$shuffle %??% TRUE
+  valid_split = pars$valid_split
   valid_rsmp = rsmp("holdout", ratio = 1 - valid_split)
 
   c(train_ids, valid_ids) %<-% valid_rsmp$instantiate(task)$instance

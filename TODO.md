@@ -1,5 +1,16 @@
 # SOFORT: Fixe test_GraphArchitecture.R (irgendwie wird der merge call nicht zurückgegeben)
 
+next:
+1. Continue going through all test files (starting from top, came until TorchOpCustom)
+2. Go through R files and remove old stuff
+3. Fix rcmd check
+
+## block()
+--> What is a block?
+I think block() should create a TorchOpBlock and does some nice things like appending missing
+top("input") and potentially also reparametrize the thing --> we need a language for that
+
+
 # Transformationen:
 1. Vorschlag: In den Task schreiben
 2. Attribute (schreibe Subset Funktion)
@@ -8,9 +19,6 @@ Inherite von PipeOpTaskPreproc
 
 # Paramset:
 - lr scheduler
-
-# Sampler
-provide more sampler --> shuffling data e.g.
 
 # To decide:
 - net() vs net$forward()
