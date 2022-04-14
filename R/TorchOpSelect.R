@@ -1,16 +1,19 @@
 TorchOpSelect = R6Class("TorchOpSelect",
   inherit = TorchOp,
   public = list(
-    types = NULL,
-    initialize = function(id, param_vals, types) {
-      self$types = types
-      assert_char(types, min.len = 1L)
+    initialize = function(id = "select", param_vals = list(), .types) {
+      private$.types = .types
+      assert_character(.types, min.len = 1L)
+      super$initialize(
+        id = id,
+        param_vals = param_vals,
+        param_set = ps()
+      )
     }
   ),
   private = list(
-    .build = function(input, param_vals, task, y) {
-      assert_list(input)
-      types = self$types
+    .build = function(inputs, param_vals, task, y) {
+      assert_list(inputs)
       nn_module(
         initialize = function(types) {
           self$types = types
@@ -19,10 +22,11 @@ TorchOpSelect = R6Class("TorchOpSelect",
           if (length(self$types) > 1L) {
             return(inputs[self$types])
           }
-          input[[types]]
+          inputs[[self$types]]
         }
-      )$new()
-    }
+      )$new(private$.types)
+    },
+    .types = NULL
   )
 )
 

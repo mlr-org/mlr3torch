@@ -41,15 +41,15 @@ nn_attention = nn_module("nn_attention",
     }
   },
   reshape = function(x) {
-    batch_size = x$shape[[1]]
-    n_tokens = x$shape[[2]]
-    d_token = x$shape[[3]]
+    batch_size = x$shape[[1L]]
+    n_tokens = x$shape[[2L]]
+    d_tokens = x$shape[[3L]]
 
-    d_head = d_token %/% self$n_heads
+    d_head = d_tokens %/% self$n_heads
 
     x = x$reshape(c(batch_size, n_tokens, self$n_heads, d_head))
-    x = x$transpose(1, 2)
-    x = x$reshape(batch_size * self$n_heads, n_tokens, d_head)
+    x = x$transpose(2L, 3L)
+    x = x$reshape(c(batch_size * self$n_heads, n_tokens, d_head))
     return(x)
   },
   forward = function(query, key) {
@@ -58,29 +58,31 @@ nn_attention = nn_module("nn_attention",
     q = self$W_q(x_q)
     k = self$W_k(x_kv)
     v = self$W_v(x_kv)
+    # TODO: This should be moved somewhere else?
     for (tensor in list(q, k, v)) {
-      assert(tensor$shape[-1L] %% self$n_heads == 0L)
+      assert_true(tensor$shape[length(tensor$shape)] %% self$n_heads == 0L)
     }
     batch_size = nrow(q)
-    d_head_key = k$shape[[-1L]] # self.n_heads
-    d_head_value = v$shape[[-1L]] # self.n_heads
-    n_q_tokens = q$shape[[1L]]
+    d_head_key = k$shape[[length(k$shape)]] # self.n_heads
+    d_head_value = v$shape[[length(v$shape)]] # self.n_heads
+    n_q_tokens = q$shape[[2L]]
     q = self$reshape(q)
     k = self$reshape(k)
-    attention_logits = torch_mul(q, k.transpose(2L, 3L) / math.sqrt(d_head_key))
+    attention_logits = torch_matmul(q, k$transpose(2L, 3L) / sqrt(d_head_key))
     attention_probs = nnf_softmax(attention_logits, dim = -1L)
     if (!is.null(self$dropout)) {
       attention_probs = self$dropout(attention_probs)
     }
-    x = torch_mul(attention_probs, self$reshape(v))
-    x = x$reshape(batch_size, self$n_heads, n_q_tokens, d_head_value)
+    x = torch_matmul(attention_probs, self$reshape(v))
+    x = x$reshape(c(batch_size, self$n_heads, n_q_tokens, d_head_value))
     x = x$transpose(2L, 3L)
-    x = x$reshape(batch_size, n_q_tokens, self$n_heads * d_head_value)
+    x = x$reshape(c(batch_size, n_q_tokens, self$n_heads * d_head_value))
     if (!is.null(self$W_out)) {
       x = self$W_out
     }
-    output = list(x = x, attention = list(logits = attention_logits, probs = attention_probs))
-    return(output)
+    # output = list(x = x, attention = list(logits = attention_logits, probs = attention_probs))
+    # return(output)
+    return(x)
   }
 )
 

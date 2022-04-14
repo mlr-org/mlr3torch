@@ -3,7 +3,6 @@ TorchOpAttention = R6Class("TorchOpAttention",
   public = list(
     initialize = function(id = "attention", param_vals = list()) {
       param_set = ps(
-        d_token = p_int(default = NO_DEF, lower = 1L, tags = "train"),
         n_heads = p_int(default = 1L, lower = 1L, tags = "train"),
         dropout = p_dbl(default = 0.5, lower = 0, upper = 1, tags = "train"),
         bias = p_lgl(default = TRUE, tags = "train"),
@@ -11,7 +10,7 @@ TorchOpAttention = R6Class("TorchOpAttention",
         initialization = p_fct(default = "kaiming", levels = c("kaiming", "xavier"))
       )
       input = data.table(
-        name = c("query", "value"),
+        name = c("query", "key"),
         train = c("ModelArgs", "ModelArgs"),
         predict = c("*", "*")
       )
@@ -24,24 +23,18 @@ TorchOpAttention = R6Class("TorchOpAttention",
     }
   ),
   private = list(
-    .train = function(inputs) {
+    .build = function(inputs, param_vals, task, y) {
+      query = inputs$query
+      key = inputs$key
+      # TODO: What exactly are the assumptions here?
+      assert_true(length(query$shape) == 3L)
+      assert_true(length(key$shape) == 3L)
+      assert_true(all.equal(query$shape[2:3], key$shape[2:3]))
+      d_token = query$shape[[3L]]
+      invoke(nn_attention, .args = param_vals, d_token = d_token)
     }
   )
 )
 
 #' @include mlr_torchops.R
 mlr_torchops$add("attention", TorchOpAttention)
-
-if (FALSE) {
-  graph = top("linear0") %>>%
-    top("relu") %>>%
-    gunion(
-      graphs = list(
-        value = top("linear", out_features = 10L),
-        query = top("linear", out_features = 10L)
-      )
-    ) %>>%
-    top("selfattention")
-  # top("linear") %>>%
-  #   top("attention")
-}

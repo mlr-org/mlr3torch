@@ -36,7 +36,7 @@ TorchOpModel = R6Class("TorchOpModel",
       # TODO: maybe the learner and the TorchOp should actually share the param-set?
       pars = self$param_set$get_values(tags = "train")
       if (!is.null(pars$architecture)) {
-        warningf("Parameter 'architecture' was set, but is overwritten by ModelInput.")
+        warningf("Parameter 'architecture' was set, but is overwritten by ModelArgs")
       }
       pars$architecture = input$architecture
       learner$param_set$values = pars

@@ -13,7 +13,7 @@ TorchOpMerge = R6Class("TorchOpMerge",
     #' @param .innum (`character()`) number of inputs.
     initialize = function(id = "merge", param_vals = list(), .innum = NULL) {
       param_set = ps(
-        method = p_fct(levels = c("add", "mul", "cat"), tags = "train"),
+        method = p_fct(levels = c("add", "mul", "cat"), tags = c("train", "required")),
         dim = p_int(tags = "train")
       )
       if (is.null(.innum)) {

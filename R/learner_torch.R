@@ -23,7 +23,7 @@ learner_classif_torch_predict = function(self, task) {
     i = i + 1L
   })
 
-  responses = as.factor(responses)
+  class(responses) = "factor"
   levels(responses) = task$levels(cols = task$target_names)[[1L]]
   list(response = responses)
 }

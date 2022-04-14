@@ -6,7 +6,7 @@ TorchOpIndexSelect = R6Class("TorchOpIndexSelect",
     initialize = function(id = "indexselect", param_vals = list()) {
       param_set = ps(
         dim = p_int(default = 2L, lower = 0L),
-        index = p_int(default = -1L)
+        index = p_int(lower = 0)
       )
       super$initialize(
         id = id,
@@ -18,14 +18,19 @@ TorchOpIndexSelect = R6Class("TorchOpIndexSelect",
   private = list(
     .operator = "indexselect",
     .build = function(inputs, param_vals, task, y) {
+      input = inputs$input
       dim = param_vals[["dim"]] %??% 2L
-      index = param_vals[["index"]] %??% -1L
+      index = param_vals[["index"]] %??% input$shape[[dim]]
       layer = nn_module(
         "indexselect",
+        initialize = function(dim, index) {
+          self$dim = dim
+          self$index = index
+        },
         forward = function(input) {
-          torch_index_select(input, dim, torch_tensor(index, dtype = torch_int()))
+          torch_index_select(input, self$dim, torch_tensor(self$index, dtype = torch_int()))
         }
-      )()
+      )(dim = dim, index = index)
       return(layer)
     }
   )

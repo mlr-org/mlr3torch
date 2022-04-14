@@ -1,9 +1,13 @@
 # SOFORT: Fixe test_GraphArchitecture.R (irgendwie wird der merge call nicht zurückgegeben)
 
+
 next:
 1. Continue going through all test files (starting from top, came until TorchOpCustom)
 2. Go through R files and remove old stuff
 3. Fix rcmd check
+
+## Questions:
+- should we allow ops with more than one output? (attention logits and probs of nn_attention)
 
 ## block()
 --> What is a block?
@@ -27,6 +31,14 @@ Inherite von PipeOpTaskPreproc
 # Dataloader
 --> we should maybe only make one dataset and then use dataset_subset (from mlverse::torch)
 - implement set / row_ids when the test_ids PR is done
+
+# Tests:
+  - always test the edge case with batch_size = 1 (keepdim = TRUE)
+
+# Visualization:
+
+  - Plot tensor dimensions
+  - Also plot channels for something like attention (otherwise unclear what key and value is)
 
 
 Nächste Schritte:
