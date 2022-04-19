@@ -30,6 +30,7 @@ register_mlr3 = function() {
   # classification learners
   lrns$add("classif.torch.tabnet", LearnerClassifTorchTabnet)
   lrns$add("classif.torch.alexnet", LearnerClassifTorchAlexNet)
+  lrns$add("classif.torch", LearnerClassifTorch)
 
   # regression learners
   lrns$add("regr.torch.tabnet", LearnerRegrTorchTabnet)

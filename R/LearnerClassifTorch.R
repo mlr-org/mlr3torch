@@ -53,5 +53,3 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
     }
   )
 )
-
-mlr_learners$add("classif.torch", LearnerClassifTorch)
