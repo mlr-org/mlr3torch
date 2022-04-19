@@ -57,6 +57,12 @@ register_mlr3 = function() {
     torch_reflections$optimizer = c(
       "rprop", "rmsprop", "adagrad", "asgd", "adadelta", "lbfgs", "sgd", "adam"
     )
+
+    torch_reflections$activation = c(
+      "elu", "hardshrink", "hardsigmoid", "hardtanh", "hardswish", "leakyrelu", "logsigmoid",
+      "multihead_attention", "prelu", "relu", "relu6", "rrelu", "selu", "sigmoid", "silu", "mish",
+      "softplus", "softshrink", "softsign", "tanh", "tanhshrink", "threshold", "glu"
+    )
   })
 
 }

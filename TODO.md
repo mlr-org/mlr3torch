@@ -9,6 +9,7 @@ next:
 
 ## Questions:
 - should we allow ops with more than one output? (attention logits and probs of nn_attention)
+- How to deal with PRELU activation function (has learnable parameter + device argument)
 
 ## block()
 --> What is a block?
