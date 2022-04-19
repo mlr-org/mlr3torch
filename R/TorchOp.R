@@ -25,7 +25,8 @@ TorchOp = R6Class("TorchOp",
     #' @param task (mlr3::Task) The task on which the architecture is trained.
     build = function(inputs, task, y) {
       # TODO: Do checks
-      if (length(inputs) > 1L) {
+      if ((length(inputs) > 1L) && is.list(inputs)) { # Merging branches --> all tasks need to be
+        # identical
         hashes = map(map(inputs, "task"), "hash")
         assert_true(length(unique(hashes)) == 1L)
       }

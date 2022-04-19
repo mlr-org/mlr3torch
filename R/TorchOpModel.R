@@ -1,18 +1,19 @@
 #' @title Builds a mlr3 Torch Learner from its input
 #' @description Use TorchOpModeLClassif or TorchOpModelRegr for the respective task type.
 #' During `$train()` this TorchOp first builds the model (network, optimizer,
-#' criterion, ...) and afterwards trains the network.
+#' loss, ...) and afterwards trains the network.
 #' It's parameterset is identical to LearnerClassifTorch and LearnerRegrTorch respectively.
 #' @details TorchOpModelClassif and TorchOpModelRegr inherit from this R6 Class.
 #' @export
 TorchOpModel = R6Class("TorchOpModel",
   inherit = TorchOp,
   public = list(
-    initialize = function(id, param_vals, .task_type, .optimizer) {
+    initialize = function(id, param_vals, .task_type, .optimizer, .loss) {
       assert_true(.optimizer %in% torch_reflections$optimizer)
       private$.optimizer = .optimizer
+      private$.loss = .loss
       private$.task_type = .task_type
-      param_set = make_standard_paramset(.task_type, .optimizer, architecture = TRUE)
+      param_set = make_paramset(.task_type, .optimizer, .loss, architecture = TRUE)
       param_set$values$epochs = 0L
       input = data.table(name = "input", train = "ModelArgs", predict = "Task")
       output = data.table(name = "output", train = "NULL", predict = "Prediction")
@@ -29,8 +30,12 @@ TorchOpModel = R6Class("TorchOpModel",
     .train = function(inputs) {
       input = inputs$input
       learner = switch(private$.task_type,
-        classif = LearnerClassifTorch$new(id = self$id, .optimizer = private$.optimizer),
-        regr = LearnerRegrTorch$new(id = self$id, .optimizer = private$.optimizer),
+        classif = LearnerClassifTorch$new(id = self$id, .optimizer = private$.optimizer,
+          .loss = private$.loss
+        ),
+        regr = LearnerRegrTorch$new(id = self$id, .optimizer = private$.optimizer,
+          .loss = private$.loss
+        ),
         stopf("Unsupported task type '%s'.", private$.task_type)
       )
       # TODO: maybe the learner and the TorchOp should actually share the param-set?
@@ -60,7 +65,8 @@ TorchOpModel = R6Class("TorchOpModel",
     },
     .task_type = NULL,
     .learner = NULL,
-    .optimizer = NULL
+    .optimizer = NULL,
+    .loss = NULL
   )
 )
 
@@ -68,12 +74,13 @@ TorchOpModel = R6Class("TorchOpModel",
 TorchOpModelClassif = R6Class(
   inherit = TorchOpModel,
   public = list(
-    initialize = function(id = "model", param_vals = list(), .optimizer) {
+    initialize = function(id = "model", param_vals = list(), .optimizer, .loss) {
       super$initialize(
         id = id,
         param_vals = param_vals,
         .task_type = "classif",
-        .optimizer = .optimizer
+        .optimizer = .optimizer,
+        .loss = .loss
       )
     }
   )
@@ -83,12 +90,13 @@ TorchOpModelClassif = R6Class(
 TorchOpModelRegr = R6Class(
   inherit = TorchOpModel,
   public = list(
-    initialize = function(id = "model", param_vals = list(), .optimizer) {
+    initialize = function(id = "model", param_vals = list(), .optimizer, .loss) {
       super$initialize(
         id = id,
         param_vals = param_vals,
         .task_type = "regr",
-        .optimizer = .optimizer
+        .optimizer = .optimizer,
+        .loss = .loss
       )
     }
   )

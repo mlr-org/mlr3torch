@@ -56,6 +56,6 @@ if (FALSE) {
     top("relu") %>>%
     top("linear", out_features = 10L)
   skipcon = TorchOpSkipCon$new(.path = list(a = graph))
-  graph = top("input") %>>% skipcon %>>% top("model", criterion = nn_mse_loss, optimizer = optim_adam)
+  graph = top("input") %>>% skipcon %>>% top("model", loss = nn_mse_loss, optimizer = optim_adam)
   outputs = graph$train(task)
 }

@@ -48,8 +48,8 @@ make_tabular_dataset = function(data, target, features, batch_size, device) {
     },
     .getbatch = function(index) {
       list(
-        y = self$data$y[index, keepdim = TRUE],
-        x = Map(function(type) self$data[[type]][index, keepdim = TRUE], self$feature_types)
+        y = self$data$y[index, drop = FALSE],
+        x = Map(function(type) self$data[[type]][index, drop = FALSE], self$feature_types)
       )
     },
     .length = function() {

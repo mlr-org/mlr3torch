@@ -2,13 +2,14 @@
 LearnerClassifTorch = R6Class("LearnerClassifTorch",
   inherit = LearnerClassifTorchAbstract,
   public = list(
-    initialize = function(id = "classif.torch", param_vals = list(), .optimizer) {
+    initialize = function(id = "classif.torch", param_vals = list(), .optimizer, .loss) {
       super$initialize(
         id = id,
         properties = c("twoclass", "multiclass", "hotstart_forward", "weights"),
         label = "Neural Network Classifier",
         feature_types = c("logical", "integer", "numeric", "factor"),
-        .optimizer = .optimizer
+        .optimizer = .optimizer,
+        .loss = .loss
       )
     }
   ),
@@ -42,9 +43,9 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
       assert_ro_binding(rhs)
       self$state$model$optimizer
     },
-    criterion = function(rhs) {
+    loss = function(rhs) {
       assert_ro_binding(rhs)
-      self$state$model$criterion
+      self$state$model$loss
     },
     network = function(rhs) {
       assert_ro_binding(rhs)
@@ -54,8 +55,3 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
 )
 
 mlr_learners$add("classif.torch", LearnerClassifTorch)
-
-
-if (FALSE) {
-  l = lrn("classif.torch", optimizer = "adam", criterion = "bce")
-}

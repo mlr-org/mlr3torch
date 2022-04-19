@@ -55,9 +55,11 @@ here the layer must be an `nn_module()` with a forward function that:
   * Takes in one or more arguments
   * Outputs a single tensors
 
-The number of arguments of the forward function must coincide with the number of channels
-of the TorchOp. In case the TorchOp has a vararg channel (...), the layer's forward function
-should also have a dots argument
+The argument names of the forward function of the nn_module that is built from the TorchOp must
+be identical (weaken this in case of one input?) to the input channels of the TorchOp
+
+In case the TorchOp has a vararg channel (...), the layer's forward function
+should also have a dots argument.
 
 
 ## Architecture

@@ -53,7 +53,7 @@ get_optimizer = function(name) {
   getFromNamespace(sprintf("optim_%s", name), ns = "torch")
 }
 
-get_criterion = function(name) {
+get_loss = function(name) {
   getFromNamespace(sprintf("nn_%s_loss", name), ns = "torch")
 }
 
@@ -61,6 +61,6 @@ assert_optimizer = function(x) {
   assert_true(class(attr(x, "Optimizer")) == "R6ClassGenerator")
 }
 
-assert_criterion = function(x) {
+assert_loss = function(x) {
   assert_true(inherits(x, "nn_loss"))
 }

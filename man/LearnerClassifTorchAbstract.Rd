@@ -57,6 +57,7 @@ The parameters of the learner are constructed dynamically, depending on the choi
 \if{html}{\out{<div class="r">}}\preformatted{LearnerClassifTorchAbstract$new(
   id,
   .optimizer,
+  .loss,
   param_set = ps(),
   label = NULL,
   properties = NULL,

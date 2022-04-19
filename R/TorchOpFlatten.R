@@ -17,8 +17,7 @@ TorchOpFlatten = R6Class(
   ),
   private = list(
     .build = function(inputs, param_vals, task, y) {
-      layer = invoke(nn_flatten, .args = param_vals)
-      return(layer)
+      invoke(nn_flatten, .args = param_vals)
     },
     .operator = "flatten"
   )

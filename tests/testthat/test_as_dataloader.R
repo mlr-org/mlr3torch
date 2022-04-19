@@ -5,8 +5,6 @@ test_that("as_dataloader works", {
     regexp = NA
   )
   dl = as_dataloader(task, device = "cpu", batch_size = 16L)
-
-  loop(for (batch in dl) {
-    print(batch)
-  })
+  batch = dl$.iter()$.next()
+  expect_equal(batch$y$shape, c(16, 1))
 })

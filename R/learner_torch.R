@@ -51,7 +51,7 @@ learner_classif_torch_train = function(self, state, task) {
 
   network = state$network
   optimizer = state$optimizer
-  criterion = state$criterion
+  loss_fn = state$loss
   history = state$history
 
   for (epoch in seq_len(epochs)) {
@@ -64,7 +64,7 @@ learner_classif_torch_train = function(self, state, task) {
       y_hat = network$forward(x)
       y_true = batch$y[, 1L]
 
-      loss = criterion(y_hat, y_true)
+      loss = loss_fn(y_hat, y_true)
       loss$backward()
       optimizer$step()
       train_loss[[i]] = loss$item()
@@ -79,7 +79,7 @@ learner_classif_torch_train = function(self, state, task) {
       x = batch$x
       y_hat = with_no_grad(network$forward(x))
       y_true = batch$y[, 1L]
-      loss = criterion(y_hat, y_true)
+      loss = loss_fn(y_hat, y_true)
       test_loss[[i]] = loss$item()
       i = i + 1L
     })
@@ -88,7 +88,7 @@ learner_classif_torch_train = function(self, state, task) {
   list(
     network = network,
     optimizer = optimizer,
-    criterion = criterion,
+    loss = loss_fn,
     history = history,
     valid_ids = valid_ids
   )
@@ -99,8 +99,15 @@ learner_classif_torch_train = function(self, state, task) {
 
 build_torch = function(self, task) {
   pars = self$param_set$get_values(tag = "train")
-  optim_args = self$param_set$get_values(tags = "optimizer")
-  pars = remove_named(pars, names(optim_args))
+
+  pars_optim = pars[startsWith(names(pars), "opt.")]
+  names(pars_optim) = gsub("opt.", "", names(pars_optim), fixed = TRUE)
+
+  pars_loss = pars[startsWith(names(pars), "loss.")]
+  names(pars_loss) = gsub("loss.", "", names(pars_loss), fixed = TRUE)
+
+  pars = remove_named(pars, c(names(pars_optim), names(pars_loss)))
+
   if (test_r6(pars$architecture, "Architecture")) {
     network = pars$architecture$build(task)
   } else if (test_r6(pars$architecture, "nn_Module")) {
@@ -108,16 +115,18 @@ build_torch = function(self, task) {
   } else {
     stopf("Invalid argument for architecture.")
   }
-  optim_name = get_private(self)$.optimizer
 
-  crit_args = pars$criterion_args %??% list()
-  optimizer = invoke(get_optimizer(optim_name), .args = optim_args, params = network$parameters)
-  criterion = invoke(get_criterion(pars$criterion), .args = crit_args)
+  optim_name = get_private(self)$.optimizer
+  loss_name = get_private(self)$.loss
+
+
+  optimizer = invoke(get_optimizer(optim_name), .args = pars_optim, params = network$parameters)
+  loss = invoke(get_loss(loss_name), .args = pars_loss)
 
   list(
     network = network,
     optimizer = optimizer,
-    criterion = criterion,
+    loss = loss,
     history = History$new()
   )
 }

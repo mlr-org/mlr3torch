@@ -67,7 +67,7 @@ nn_tokenizer = nn_module(
       tokens[["x_num"]] = self$tokenizer_num(input_num)
     }
     if (!is.null(input_cat)) {
-      tokens[["x_cat"]] = self$tokenizer_num(input_cat)
+      tokens[["x_cat"]] = self$tokenizer_cat(input_cat)
     }
     tokens = torch_cat(tokens, dim = 2L)
     if (!is.null(self$cls)) {
