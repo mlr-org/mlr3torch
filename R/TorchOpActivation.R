@@ -1,3 +1,4 @@
+#' @title Torch Activation Function
 #' @export
 TorchOpActivation = R6Class("TorchOpActivation",
   inherit = TorchOp,

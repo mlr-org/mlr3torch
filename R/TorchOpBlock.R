@@ -1,3 +1,4 @@
+#' @title Create a TorchOpBlock
 #' @export
 TorchOpBlock = R6Class("TorchOpBlock",
   inherit = TorchOp,

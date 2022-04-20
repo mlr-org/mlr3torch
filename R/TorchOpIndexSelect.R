@@ -1,4 +1,4 @@
-#' if we are only interested in the [CLS] Token.
+#' if we are only interested in the CLS Token.
 #' @export
 TorchOpIndexSelect = R6Class("TorchOpIndexSelect",
   inherit = TorchOp,
