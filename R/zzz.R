@@ -4,8 +4,9 @@
 #' @import luz
 #' @import mlr3pipelines
 #' @import mlr3misc
-#' @importFrom mlr3pipelines `%>>%`
 #' @import mlr3
+#' @importFrom zeallot `%<-%`
+#' @importFrom coro loop
 NULL
 
 #' @title Reflections mechanism for torch
@@ -29,6 +30,7 @@ register_mlr3 = function() {
   # classification learners
   lrns$add("classif.torch.tabnet", LearnerClassifTorchTabnet)
   lrns$add("classif.torch.alexnet", LearnerClassifTorchAlexNet)
+  lrns$add("classif.torch", LearnerClassifTorch)
 
   # regression learners
   lrns$add("regr.torch.tabnet", LearnerRegrTorchTabnet)
@@ -42,7 +44,7 @@ register_mlr3 = function() {
   reflcts$data_formats = c(reflcts$data_formats, "torch_tensor")
 
   local({
-    torch_reflections$loss <- list(
+    torch_reflections$loss = list(
       classif = c(
         "adaptive_log_softmax_with", "bce", "bce_with_logits", "cosine_embedding",
         "ctc", "cross_entropy", "hinge_embedding", "kl_div", "margin_ranking",
@@ -52,13 +54,23 @@ register_mlr3 = function() {
       regr = c("l1", "mse", "poisson_nll", "smooth_l1")
     )
 
-    torch_reflections$optimizer <- c(
+    torch_reflections$optimizer = c(
       "rprop", "rmsprop", "adagrad", "asgd", "adadelta", "lbfgs", "sgd", "adam"
-      )
+    )
+
+    torch_reflections$activation = c(
+      "elu", "hardshrink", "hardsigmoid", "hardtanh", "hardswish", "leaky_relu", "log_sigmoid",
+      "prelu", "relu", "relu6", "rrelu", "selu", "sigmoid",
+      "softplus", "softshrink", "softsign", "tanh", "tanhshrink", "threshold", "glu"
+    )
   })
 
 }
 
 .onLoad = function(libname, pkgname) {
   register_namespace_callback(pkgname, "mlr3", register_mlr3)
+  assign("lg", lgr::get_logger(pkgname), envir = parent.env(environment()))
+  if (Sys.getenv("IN_PKGDOWN") == "true") {
+    lg$set_threshold("warn")
+  }
 }

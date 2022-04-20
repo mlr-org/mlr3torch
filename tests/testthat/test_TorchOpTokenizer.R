@@ -1,3 +1,4 @@
+
 # TODO: Check with concrete numbers that everything works as intented
 test_that("nn_tokenizer_numeric works", {
   n = 16
@@ -33,6 +34,7 @@ test_that("nn_tokenizer works", {
   bias = TRUE
   n_features = 2
   cardinalities = c(10, 2, 4)
+  cls = FALSE
   cols = list()
   for (i in seq_along(cardinalities)) {
     col = torch_randint(low = 1L, high = cardinalities[i] + 1L, size = n)[.., NULL]
@@ -42,8 +44,8 @@ test_that("nn_tokenizer works", {
   input_cat = torch_cat(cols, 2L)$to(torch_long())
   input_num = torch_randn(n, n_features)
 
-  tokenizer = nn_tokenizer(n_features, cardinalities, d_token, bias)
-  output = tokenizer(list(x_num = input_num, x_cat = input_cat))
+  tokenizer = nn_tokenizer(n_features, cardinalities, d_token, bias, cls)
+  output = tokenizer(list(num = input_num, cat = input_cat))
   expect_true(all(dim(output) == c(n, n_features + length(cardinalities), d_token)))
 })
 
@@ -51,9 +53,6 @@ test_that("TorchOpTokenizer works", {
   d_token = 7
   task = tsk("boston_housing")
   graph = top("input") %>>%
-    top("tokenizer", d_token = d_token) %>>%
-    top("model", optimizer = optim_adam, criterion = nn_mse_loss)
-  output = graph$train(task)
-
-  graph$predict(task)
+    top("tokenizer", d_token = d_token)
+  expect_error(graph, regexp = NA)
 })

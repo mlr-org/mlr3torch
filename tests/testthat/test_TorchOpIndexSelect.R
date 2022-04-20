@@ -1,14 +1,8 @@
-test_that("TorchOpIndexSelect works", {
+test_that("TorchOp works", {
   task = tsk("mtcars")
-  block = top("selfattenttion") %>>%
-    top("linear")
-  graph = top("input") %>>%
-    top("tokenizer", d_token = 5) %>>%
-    top("repeat", block = block, times = 2) %>>%
-    top("indexselect") %>>%
-    top("head") %>>%
-    top("model", optimizer = optim_adam, criterion = nn_mse_loss)
-
-  output = graph$train(task)
-
+  y = torch_randn(1)
+  x = torch_randn(16, 5, 10)
+  op = top("indexselect")
+  c(layer, output) %<-% op$build(list(input = x), task, y)
+  expect_equal(output$shape, c(16, 1, 10))
 })

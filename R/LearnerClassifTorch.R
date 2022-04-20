@@ -1,34 +1,55 @@
+#' @title LearnerTorchClassif
 LearnerClassifTorch = R6Class("LearnerClassifTorch",
-  inherit = LearnerTorch,
+  inherit = LearnerClassifTorchAbstract,
   public = list(
-    initialize = function() {
-      # TODO: modify input checks to classification
+    initialize = function(id = "classif.torch", param_vals = list(), .optimizer, .loss) {
       super$initialize(
-        task_type = "classif",
-        predict_types = c("response", "prob"),
-        param_set = dl_paramset(),
-        properties = c("twoclass", "multiclass")
+        id = id,
+        properties = c("twoclass", "multiclass", "hotstart_forward", "weights"),
+        label = "Neural Network Classifier",
+        feature_types = c("logical", "integer", "numeric", "factor"),
+        .optimizer = .optimizer,
+        .loss = .loss
       )
+    }
+  ),
+  private = list(
+    .train = function(task) {
+      state = private$.build(task)
+      learner_classif_torch_train(self, state, task)
     },
     .predict = function(task) {
-      pred_mat = super$.predict(task)
-      response = torch_max(pred_mat, dim = 2L)[[2L]]$to(device = "cpu")
-      response = recover_factor(response)
-      if (self$predict_type == "response") {
-        return(list(response = response))
-      }
-      if (self$predict_type == "prob") {
-        pred_matrix = as.matrix(pred_mat$to(device = "cpu"))
-        colnames(pred_matrix = levels)
-        return(list(prob = pred_matrix, response = response))
-      }
+      # When keep_last_prediction = TRUE we store the predictions of the last validation and we
+      # therefore don't have to recompute them in the resample(), but can simple return the
+      # cached predictions
+      learner_classif_torch_predict(self, task)
+    },
+    .build = function(task) {
+      build_torch(self, task)
+    },
+    .optimizer = NULL
+  ),
+  active = list(
+    #' @field params ()
+    parameters = function(rhs) {
+      assert_ro_binding(rhs)
+      self$state$model$network$parameters
+    },
+    history = function(rhs) {
+      assert_ro_binding(rhs)
+      self$state$model$history
+    },
+    optimizer = function(rhs) {
+      assert_ro_binding(rhs)
+      self$state$model$optimizer
+    },
+    loss = function(rhs) {
+      assert_ro_binding(rhs)
+      self$state$model$loss
+    },
+    network = function(rhs) {
+      assert_ro_binding(rhs)
+      self$state$model$network
     }
   )
 )
-
-#' Recover the factor encoding for the prediction
-recover_factor = function(target, task) {
-  levels = levels(task$data(cols = task$col_roles$target))
-  target_fct = structure(targe, class = "factor", levels = levels)
-
-}

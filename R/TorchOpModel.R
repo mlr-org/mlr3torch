@@ -1,19 +1,22 @@
+#' @title Builds a mlr3 Torch Learner from its input
+#' @description Use TorchOpModeLClassif or TorchOpModelRegr for the respective task type.
+#' During `$train()` this TorchOp first builds the model (network, optimizer,
+#' loss, ...) and afterwards trains the network.
+#' It's parameterset is identical to LearnerClassifTorch and LearnerRegrTorch respectively.
+#' @details TorchOpModelClassif and TorchOpModelRegr inherit from this R6 Class.
 #' @export
 TorchOpModel = R6Class("TorchOpModel",
   inherit = TorchOp,
   public = list(
-    initialize = function(id = "model", param_vals = list()) {
-      param_set = ps(
-        criterion = p_uty(tags = "train"),
-        optimizer = p_uty(tags = "train"),
-        optimizer_args = p_uty(tags = "train"),
-        criterion_args = p_uty(tags = "train"),
-        n_epochs = p_int(default = 0L, tags = "train", lower = 0L),
-        device = p_fct(tags = c("train", "predict"), levels = c("cpu", "cuda"), default = "cpu"),
-        batch_size = p_int(tags = c("train", "predict"), lower = 1L)
-      )
-      param_set$values$n_epochs = 0L
-      output = data.table(name = "output", train = "Task", predict = "Prediction")
+    initialize = function(id, param_vals, .task_type, .optimizer, .loss) {
+      assert_true(.optimizer %in% torch_reflections$optimizer)
+      private$.optimizer = .optimizer
+      private$.loss = .loss
+      private$.task_type = .task_type
+      param_set = make_paramset(.task_type, .optimizer, .loss, architecture = TRUE)
+      param_set$values$epochs = 0L
+      input = data.table(name = "input", train = "ModelArgs", predict = "Task")
+      output = data.table(name = "output", train = "NULL", predict = "Prediction")
 
       super$initialize(
         id = id,
@@ -25,25 +28,82 @@ TorchOpModel = R6Class("TorchOpModel",
   ),
   private = list(
     .train = function(inputs) {
-      if (is.null(self$state$learner)) {
-        task_type = inputs[["task"]]$task_type
-        self$state$learner = switch(task_type,
-          classif = LearnerClassifTorch$new(),
-          regr = LearnerRegrTorch$new(),
-          stopf("Invalid task type %s.", task_type)
-        )
-        self$state$learner$param_set$values = self$param_set$values
-        self$state$learner$param_set$values$architecture = inputs[["architecture"]]
-        self$state$learner$train(inputs[["task"]])
-        list(task = inputs[["task"]])
+      input = inputs$input
+      learner = switch(private$.task_type,
+        classif = LearnerClassifTorch$new(id = self$id, .optimizer = private$.optimizer,
+          .loss = private$.loss
+        ),
+        regr = LearnerRegrTorch$new(id = self$id, .optimizer = private$.optimizer,
+          .loss = private$.loss
+        ),
+        stopf("Unsupported task type '%s'.", private$.task_type)
+      )
+      # TODO: maybe the learner and the TorchOp should actually share the param-set?
+      pars = self$param_set$get_values(tags = "train")
+      if (!is.null(pars$architecture)) {
+        warningf("Parameter 'architecture' was set, but is overwritten by ModelArgs")
       }
+      pars$architecture = input$architecture
+      learner$param_set$values = pars
+
+      private$.learner = learner
+      on.exit({
+        private$.learner$state = NULL
+      })
+      self$state = private$.learner$train(input$task)$state
+
+      list(NULL)
     },
     .predict = function(inputs) {
-      prediction = self$state$learner$predict(inputs[["task"]])
-      list(output = prediction)
+      # This is copied from mlr3pipelines (PipeOpLearner)
+      on.exit({
+        private$.learner$state = NULL
+      })
+      task = inputs[[1]]
+      private$.learner$state = self$state
+      list(private$.learner$predict(task))
+    },
+    .task_type = NULL,
+    .learner = NULL,
+    .optimizer = NULL,
+    .loss = NULL
+  )
+)
+
+#' @export
+TorchOpModelClassif = R6Class(
+  inherit = TorchOpModel,
+  public = list(
+    initialize = function(id = "model", param_vals = list(), .optimizer, .loss) {
+      super$initialize(
+        id = id,
+        param_vals = param_vals,
+        .task_type = "classif",
+        .optimizer = .optimizer,
+        .loss = .loss
+      )
+    }
+  )
+)
+
+#' @export
+TorchOpModelRegr = R6Class(
+  inherit = TorchOpModel,
+  public = list(
+    initialize = function(id = "model", param_vals = list(), .optimizer, .loss) {
+      super$initialize(
+        id = id,
+        param_vals = param_vals,
+        .task_type = "regr",
+        .optimizer = .optimizer,
+        .loss = .loss
+      )
     }
   )
 )
 
 #' @include mlr_torchops.R
-mlr_torchops$add("model", value = TorchOpModel)
+mlr_torchops$add("model.regr", value = TorchOpModelRegr)
+
+#' @include mlr_torchops.R
+mlr_torchops$add("model.classif", value = TorchOpModelClassif)

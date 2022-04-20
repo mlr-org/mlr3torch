@@ -1,94 +1,93 @@
-#' @description
+#' @title Neral Network (Graph-) Architecture
 #' @export
-
 Architecture = R6Class("Architecture",
+  inherit = Graph,
   public = list(
-    layers = NULL,
-    initialize = function() {
-      self$layers = list()
+    add_torchop = function(op) {
+      super$add_pipeop(op)
     },
-    add = function(builder, param_vals = NULL) {
-      layer = list(
-        builder = builder,
-        param_vals = param_vals
-      )
-      self$layers[[length(self$layers) + 1]] = assert_layer(layer)
-      invisible(self)
-    },
-    print = function() {
-      catf("<Architecture>")
-      for (layer in self$layers) {
-        catf(" <%s: %s>", get_private(layer[["builder"]])$.operator,
-          format_named_list(layer[["param_vals"]]))
-      }
-    },
-
-    build = function(task) {
-      network = reduce_architecture(self, task)
-      return(network)
+    build = function(task, input = NULL) {
+      reduction = architecture_reduce(self, task, input)
+      # edges  simplify_graph(reduction$edges)
+      nn_graph$new(reduction$edges, reduction$layers)
     }
   )
 )
 
-format_named_list = function(l) {
-  .f = function(x, y) {
-    paste(y, x, sep = " = ")
-  }
-  paste(imap(l, .f), collapse = ", ")
-}
+#' @title Reduce an Architecture to Layers (nn_modules)
+#' @description A Architecture contains builders (nodes) and edges that indicate how the data will
+#' flow through the layers that are constructed by the builders.
+#' This function builds all the layers.
+#' For that the ids of the grpah need to be topologically sorted and then one has to loop over the
+#' topologically sorted layers and call the build function. The outputs of each layer are safed
+#' until all the direct children of the node are built.
+#'
+#' This structure is essentially identical to the network_forward function only that we here
+#' additionally call the build function and also that the task is passe == idxd instead of the actual
+#' network input as obtained from the dataloader.
+#'
+#' @param architecture (mlr3torch::Architecture) The architecture that is being build from the task.
+#' @param task (mlr3::Task) The task for which to build the architecture.
+#' @param input (torch::Tensor) The input tensor. If NULL the output of the data-loader that is
+#' generated from the task is used. (E.g. used when reducing a block)
 
-reduce_architecture = function(architecture, task, input = NULL) {
-  if (is.null(input)) {
-    data_loader = make_dataloader(task, 1, "cpu") # TODO: don't build full dataloader here
-    input = data_loader$.iter()$.next()
-  }
-  init = list(
-    tensors = input,
-    layers = list()
+architecture_reduce = function(self, task = NULL, input = NULL) {
+  graph_input = self$input
+  graph_output = self$output
+  assert(
+    test_true(nrow(graph_input) == 1L),
+    test_true(nrow(graph_output) == 2L)
   )
-  f = function(lhs, rhs) {
-    tensors = lhs[["tensors"]]
-    layers = lhs[["layers"]]
-    layer_desc = rhs
-    # TODO: Maybe we can use get(mlr_torchops$items), which would mean we don't have to
-    # initialize the elements (we can simply use the .build method as a class method).
-    # ATTENTION: We would have to take care of those TorchOp that require arguments
-    # to be initialized and whose .build methods depends on that (e.g. TorchOpParallel)
-    # either they get their own subclass or we simply check here (e.g. length(formalArgs))
-    builder = layer_desc[["builder"]]
-    # builder = get(layer_desc[["operator"]], envir = .__bobs__.)
-    layer = builder(tensors, task)
-    xs = tensors[startsWith(names(tensors), "x")]
-    if (inherits(layer, "nn_tokenizer")) {
-      x_new = with_no_grad(layer(input_num = xs[["x_num"]], input_cat = xs[["x_cat"]]))
-    } else if (length(xs) == 1L) {
-      x_new = layer(xs[[1L]])
-    } else {
-      stop("Not yet implemented!")
-    }
-    layers = append(layers, layer)
-    tensors_new = list(x = x_new)
-    if ("y" %in% names(tensors)) {
-      tensors_new[["y"]] = tensors[["y"]]
-    }
-    output = list(
-      tensors = tensors_new,
-      layers = layers
-    )
-    return(output)
+  layers = list()
+
+  instance = get_instance(task)
+  y = instance[["y"]]
+  if (is.null(input)) {
+    input = instance$x
+  } else {
+    input = list(x = input)
   }
-  reduction = Reduce(f, architecture$layers, init)
-  layers = reduction[["layers"]]
-  model_output = reduction[["tensors"]]
-  model = invoke(nn_sequential, .args = layers)
-  return(list(model = model, output = model_output))
-}
 
-assert_layer = function(layer) {
-  assert_names(names(layer), subset.of = c("builder", "param_vals"), must.include = "builder")
-  assert_list(layer, min.len = 1L, max.len = 2L)
-}
 
-assert_layers = function(layers) {
-  assert(map(layers, assert_layer))
+  edges = copy(self$edges)
+  edges = rbind(edges,
+    data.table(src_id = "__initial__", src_channel = graph_input$name,
+      dst_id = graph_input$op.id, dst_channel = graph_input$channel.name),
+    data.table(src_id = graph_output$op.id, src_channel = graph_output$channel.name,
+      dst_id = "__terminal__", dst_channel = graph_output$name))
+
+  # add new column to store content that is sent along an edge
+  edges$payload = list()
+  edges[get("src_id") == "__initial__", "payload" := list(list(input))]
+
+  # get the topo-sorted pipeop ids
+  ids = self$ids(sorted = TRUE) # won't contain __initial__  or __terminal__ which are only in our local copy
+
+  # walk over ids, building each operator
+  for (id in ids) {
+    op = self$pipeops[[id]]
+    input_tbl = edges[get("dst_id") == id, list(name = get("dst_channel"), payload = get("payload"))][op$input$name, , on = "name"]
+    edges[get("dst_id") == id, "payload" := list(list(NULL))]
+    input = input_tbl$payload
+    names(input) = input_tbl$name
+
+    lg$debug("Running PipeOp '%s$%s()'", id, fun, pipeop = op, input = input)
+
+    c(layers[[id]], output) %<-% op$build(input, task, y)
+    # layers[[id]] = layer
+    edges[list(id, op$output$name), "payload" := list(output), on = c("src_id", "src_channel")]
+
+  }
+
+  # get payload of edges that go to terminal node.
+  # can't use 'dst_id == "__terminal__", because output channel names for Graphs may be duplicated.
+  output_tbl = edges[list(graph_output$op.id, graph_output$channel.name),
+    c("dst_channel", "payload"), on = c("src_id", "src_channel")]
+  output = output_tbl$payload
+  names(output) = output_tbl$dst_channel
+  filter_noop(output)
+  edges$payload = NULL
+
+
+  return(list(layers = layers, output = output, edges = edges))
 }

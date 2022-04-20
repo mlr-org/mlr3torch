@@ -63,11 +63,11 @@ lrn("classif.torch.tabnet")
 \dontrun{
 library(mlr3)
 library(mlr3torch)
-task <- tsk("german_credit")
-lrn <- lrn("classif.torch.tabnet")
+task = tsk("german_credit")
+lrn = lrn("classif.torch.tabnet")
 
-lrn$param_set$values$epochs <- 10
-lrn$param_set$values$attention_width <- 8
+lrn$param_set$values$epochs = 10
+lrn$param_set$values$attention_width = 8
 lrn$train(task)
 }
 }

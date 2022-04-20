@@ -16,11 +16,8 @@ TorchOpFlatten = R6Class(
     }
   ),
   private = list(
-    .build = function(input, param_vals, task) {
-      start_dim = param_vals[["start_dim"]] %??% 2L
-      end_dim = param_vals[["end_dim"]] %??% -1L
-      layer = nn_flatten(start_dim, end_dim)
-      return(layer)
+    .build = function(inputs, param_vals, task, y) {
+      invoke(nn_flatten, .args = param_vals)
     },
     .operator = "flatten"
   )
@@ -28,13 +25,3 @@ TorchOpFlatten = R6Class(
 
 #' @include mlr_torchops.R
 mlr_torchops$add("flatten", TorchOpFlatten)
-
-nn_flatten = nn_module("nn_flatten",
-  initialize = function(start_dim, end_dim) {
-    self$start_dim = start_dim
-    self$end_dim = end_dim
-  },
-  forward = function(input) {
-    torch_flatten(input, start_dim = self$start_dim, end_dim = self$end_dim)
-  }
-)

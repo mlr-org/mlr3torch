@@ -1,0 +1,76 @@
+## Dataloader
+
+Structure of the batches obtained by the dataloader constructed via `as_dataloader()`
+
+1. *num*, *cat*, *img* (only 1L)
+
+   Return type: `r list(x = list(img = I, cat = list(num = N, cat = C)), y = Y)`
+   where:
+
+    * I is a tensor (n_batch, ...)
+    * N is a tensor (n_batch, n_num)
+    * C is a tensor (n_batch, n_cat)
+
+2. *img* and *cat* xor *num
+
+   Same as in 1. with only one list element in *cat*
+
+3. Only an image
+
+   Return type: `r list(x = I, y = Y)`
+
+    * Where I  is a (n_batch, ...) image
+
+  --> Drop everything that is not needed
+
+
+## TorchOp
+
+*Definition*
+
+A `TorchOp` is an Operator that either has ModelArgs as an Input or output channel (or both)
+during train-time.
+
+All but:
+
+  * TorchOpModel
+  * TorchOpInput
+
+have it as both input and output channels during train.
+
+All but TorchOpModel
+
+
+
+Moreover all TorchOps have a private `$.build()` method with arguments:
+
+  * inputs
+  * task
+  * y
+  * param_vals
+
+The output is of the form `r list(layer = ..., output = ...)`
+here the layer must be an `nn_module()` with a forward function that:
+
+  * Takes in one or more arguments
+  * Outputs a single tensors
+
+The argument names of the forward function of the nn_module that is built from the TorchOp must
+be identical (weaken this in case of one input?) to the input channels of the TorchOp
+
+In case the TorchOp has a vararg channel (...), the layer's forward function
+should also have a dots argument.
+
+
+## Architecture
+
+An `Architecture` inherits from a graph and has an additonal *build*  method, that creates a
+`nn_graph` that is an nn_module
+
+
+## Head
+
+* For regression it is clear --> output the actual prediction
+* For classification: Output the scores
+
+

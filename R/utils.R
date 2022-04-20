@@ -19,3 +19,53 @@ extract_paramset = function(graphs) {
   )
   return(psn)
 }
+
+get_orphan = function(nodes) {
+  orphans = nodes[["id"]][map_lgl(nodes[["parents"]], function(x) !length(x))]
+  assert_true(length(orphans) == 1L)
+  return(orphans)
+}
+
+is_tokenizer = function(x) {
+  assert_true("TorchOpTokenizer" %in% attr(orphan, "TorchOp"))
+}
+
+# Mostly used in the tests to get a single batch from a task that can be fed into a network
+make_batch = function(task, batch_size) {
+  dl = as_dataloader(task, batch_size = batch_size, device = "cpu")
+  batch = dl$.iter()$.next()
+  y = batch$y
+  return(batch)
+}
+
+get_instance = function(task) {
+  # TODO: Change this to "meta"
+  data_loader = as_dataloader(task, batch_size = 1, device = "cpu")
+  instance = data_loader$.iter()$.next()
+  return(instance)
+}
+
+is_tabular = function(task) {
+  test("imageuri" %nin% task$features)
+}
+
+get_optimizer = function(name) {
+  getFromNamespace(sprintf("optim_%s", name), ns = "torch")
+}
+
+get_loss = function(name) {
+  getFromNamespace(sprintf("nn_%s_loss", name), ns = "torch")
+}
+
+get_activation = function(name) {
+  assert_choice(name, torch_reflections$activation)
+  getFromNamespace(sprintf("nn_%s", name), ns = "torch")
+}
+
+assert_optimizer = function(x) {
+  assert_true(class(attr(x, "Optimizer")) == "R6ClassGenerator")
+}
+
+assert_loss = function(x) {
+  assert_true(inherits(x, "nn_loss"))
+}

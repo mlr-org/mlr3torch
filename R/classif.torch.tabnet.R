@@ -14,11 +14,11 @@
 #' \dontrun{
 #' library(mlr3)
 #' library(mlr3torch)
-#' task <- tsk("german_credit")
-#' lrn <- lrn("classif.torch.tabnet")
+#' task = tsk("german_credit")
+#' lrn = lrn("classif.torch.tabnet")
 #'
-#' lrn$param_set$values$epochs <- 10
-#' lrn$param_set$values$attention_width <- 8
+#' lrn$param_set$values$epochs = 10
+#' lrn$param_set$values$attention_width = 8
 #' lrn$train(task)
 #' }
 LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
@@ -48,7 +48,7 @@ LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
       if (is.null(self$model)) {
         stopf("No model stored")
       }
-      imp <- self$model$fit$importances
+      imp = self$model$fit$importances
       sort(stats::setNames(imp$importance, imp$variables), decreasing = TRUE)
     }
   ),
@@ -61,7 +61,7 @@ LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
       pars_control = self$param_set$get_values(tags = "control")
 
       # Drop control par from training pars as tabnet_fit doesn't know it
-      pars <- pars[!(names(pars) %in% names(pars_control))]
+      pars = pars[!(names(pars) %in% names(pars_control))]
 
       # Set number of threads
       torch::torch_set_num_threads(pars_control$num_threads)
@@ -75,9 +75,9 @@ LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
 
       # use the mlr3misc::invoke function (it's similar to do.call())
       mlr3misc::invoke(tabnet::tabnet_fit,
-                       x = task$data(cols = task$feature_names),
-                       y = task$data(cols = task$target_names),
-                       .args = pars)
+        x = task$data(cols = task$feature_names),
+        y = task$data(cols = task$target_names),
+        .args = pars)
     },
 
     .predict = function(task) {
@@ -89,16 +89,16 @@ LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
 
       if (self$predict_type == "response") {
         pred = mlr3misc::invoke(predict, self$model, new_data = newdata,
-                                type = "class", .args = pars)
+          type = "class", .args = pars)
 
         list(response = pred[[".pred_class"]])
       } else {
         pred = mlr3misc::invoke(predict, self$model, new_data = newdata,
-                                type = "prob", .args = pars)
+          type = "prob", .args = pars)
 
         # Result will be a df with one column per variable with names '.pred_<level>'
         # we want the names without ".pred"
-        names(pred) <- sub(pattern = ".pred_", replacement = "", names(pred))
+        names(pred) = sub(pattern = ".pred_", replacement = "", names(pred))
 
         list(prob = as.matrix(pred))
       }

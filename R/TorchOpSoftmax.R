@@ -17,7 +17,7 @@ TorchOpSoftmax = R6::R6Class("TorchOpSoftmax",
   ),
   private = list(
     .operator = "linear",
-    .build = function(input, param_vals, task) {
+    .build = function(inputs, param_vals, task, y) {
       layer = invoke(nn_softmax, .args = param_vals)
       return(layer)
     }

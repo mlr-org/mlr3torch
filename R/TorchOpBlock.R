@@ -1,9 +1,10 @@
+#' @title Create a TorchOpBlock
 #' @export
 TorchOpBlock = R6Class("TorchOpBlock",
   inherit = TorchOp,
   public = list(
     initialize = function(id = "block", param_vals = list(), .block) {
-      self$.block = assert_graph(.block)
+      private$.block = assert_graph(.block)
       super$initialize(
         id = id,
         param_set = .block$param_set,
@@ -14,13 +15,21 @@ TorchOpBlock = R6Class("TorchOpBlock",
   private = list(
     .operator = "block",
     .block = NULL,
-    .build = function(input, param_vals, task) {
-      architecture = self$.block$train(task)[[2]]
-      layer_block = reduce_architecture(architecture, task, input)
+    .build = function(inputs, param_vals, task, y) {
+      architecture = private$.block$train(task)[[2]]
+      layer_block = architecture_reduce(architecture, task, input)
       return(layer_block)
     }
   )
 )
+
+block = function(graph, id) {
+
+}
+if (FALSE) {
+  g = top("linear", out_features = 10L) %>>%
+    top("relu")
+}
 
 #' @include mlr_torchops.R
 mlr_torchops$add("block", TorchOpBlock)

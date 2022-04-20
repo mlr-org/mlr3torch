@@ -1,0 +1,52 @@
+# Early stopping in mlr3torch
+
+```{r}
+library(mlr3)
+task = tsk("iris")
+
+# define train test valid ids
+task$set_row_roles(rows = 101:150, roles = "holdout")
+
+```
+
+
+1. Simple method 
+```{r}
+library(mlr3torch)
+library(mlr3tuning)
+learner = lrn("classif.rpart")
+task = tsk("iris")
+task$set_row_roles(101:150, "holdout")
+learner$train(task, row_ids = 101:150)
+
+rr = resample(task, learner, rsmp("holdout", ratio = 0.67))
+learner$predict(task)
+
+learner$train(
+  
+)
+
+rr = resample(task, learner, resampling)
+
+learner$train(task)
+
+
+
+search_space = 
+
+at = auto_tuner(
+  method = "random_search", 
+  task = tsk("iris"), 
+  learner = learner, 
+  resampling = rsmp("holdout"), 
+  measure = msr("regr.mse"), 
+  term_evals = 10L
+)
+
+at$train(task)
+
+
+
+```
+
+

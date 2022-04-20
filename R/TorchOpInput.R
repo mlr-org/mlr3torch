@@ -1,15 +1,13 @@
+#' Parameters:
+#'  - simplify: whether to simplfy the output of the dataloader
 #' @export
 TorchOpInput = R6Class("TorchOpInput",
   inherit = TorchOp,
   public = list(
     initialize = function(id = "input", param_vals = list()) {
-      param_set = ps()
       input = data.table(name = "task", train = "Task", predict = "Task")
-      output = data.table(
-        name = c("task", "architecture"),
-        train = c("Task", "Architecture"),
-        predict = c("Task", "*")
-      )
+      output = data.table(name = "output", train = "ModelArgs", predict = "Task")
+      param_set = ps()
 
       super$initialize(
         id = id,
@@ -22,11 +20,18 @@ TorchOpInput = R6Class("TorchOpInput",
   ),
   private = list(
     .train = function(inputs) {
-      self$state = "trained"
-      list(task = inputs[["task"]], architecture = Architecture$new())
+      self$state = list()
+      model_args = structure(class = "ModelArgs",
+        list(
+          architecture = Architecture$new(),
+          task = inputs$task,
+          id = NULL
+        )
+      )
+      list(output = model_args)
     },
     .predict = function(inputs) {
-      list(inputs[["task"]], architecture = NULL)
+      inputs
     }
   )
 )

@@ -24,7 +24,7 @@ TorchOpSkipCon = R6Class("TorchOpSkipCon",
     }
   ),
   private = list(
-    .build = function(input, param_vals, task) {
+    .build = function(inputs, param_vals, task, y) {
       x = input[["x"]]
       skip.bias = param_vals[["skip.bias"]] %??% TRUE
 
@@ -36,7 +36,6 @@ TorchOpSkipCon = R6Class("TorchOpSkipCon",
 
       out_features = tensor_out$shape[[length(tensor_out$shape)]]
       assert(length(tensor_out$shape) == length(x$shape))
-      browser()
       residual = nn_linear(x$shape[[length(x$shape)]], tensor_out$shape[[length(tensor_out$shape)]])
 
       layer = nn_parallel(residual, layer, private$.reduce)
@@ -47,6 +46,7 @@ TorchOpSkipCon = R6Class("TorchOpSkipCon",
   )
 )
 
+#' @include mlr_torchops.R
 mlr_torchops$add("skipcon", value = TorchOpSkipCon)
 
 if (FALSE) {
@@ -56,6 +56,6 @@ if (FALSE) {
     top("relu") %>>%
     top("linear", out_features = 10L)
   skipcon = TorchOpSkipCon$new(.path = list(a = graph))
-  graph = top("input") %>>% skipcon %>>% top("model", criterion = nn_mse_loss, optimizer = optim_adam)
+  graph = top("input") %>>% skipcon %>>% top("model", loss = nn_mse_loss, optimizer = optim_adam)
   outputs = graph$train(task)
 }

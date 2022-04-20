@@ -22,15 +22,14 @@ TorchOpTokenizer = R6Class("TorchOpTokenizer",
   ),
   private = list(
     .operator = "tokenizer",
-    .build = function(x, param_vals, task) {
+    .build = function(inputs, task, param_vals, y) {
       bias = param_vals[["bias"]] %??% TRUE
       cls = param_vals[["cls"]] %??% TRUE
       d_token = param_vals[["d_token"]]
 
       n_features = sum(map_lgl(task$data(cols = task$col_roles$feature), is.numeric))
-      cardinalities = Filter(function(x) !is.numeric(x), task$data(cols = task$col_roles$feature)) |>
-        map_int(.f = nlevels) |>
-        unname()
+      cardinalities = Filter(function(x) !is.numeric(x), task$data(cols = task$col_roles$feature))
+      cardinalities = unname(map_int(cardinalities, .f = nlevels))
 
       layer = nn_tokenizer(
         n_features = n_features,
@@ -60,13 +59,15 @@ nn_tokenizer = nn_module(
       self$cls = nn_cls(d_token)
     }
   },
-  forward = function(input_num = NULL, input_cat = NULL) {
+  forward = function(input) {
+    input_num = input$num
+    input_cat = input$cat
     tokens = list()
     if (!is.null(input_num)) {
       tokens[["x_num"]] = self$tokenizer_num(input_num)
     }
     if (!is.null(input_cat)) {
-      tokens[["x_cat"]] = self$tokenizer_num(input_cat)
+      tokens[["x_cat"]] = self$tokenizer_cat(input_cat)
     }
     tokens = torch_cat(tokens, dim = 2L)
     if (!is.null(self$cls)) {
@@ -79,7 +80,7 @@ nn_tokenizer = nn_module(
 # adapted from: https://github.com/yandex-research/rtdl/blob/main/rtdl/modules.py
 
 # TODO: add kaiming initialization as done here: https://github.com/yandex-research/rtdl/blob/main/bin/ft_transformer.py
-#' Uniform initialization
+# Uniform initialization
 initialize_token_ = function(x, d) {
   d_sqrt_inv = 1 / sqrt(d)
   nn_init_uniform_(x, a = -d_sqrt_inv, b = d_sqrt_inv)

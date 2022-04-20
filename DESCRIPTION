@@ -1,7 +1,7 @@
 Package: mlr3torch
 Title: Torch Models for 'mlr3'
 Version: 0.0.0.9000
-Authors@R: 
+Authors@R:
     person(given = "Lukas",
            family = "Burk",
            role = c("aut", "cre"),
@@ -9,7 +9,7 @@ Authors@R:
            comment = c(ORCID = "0000-0001-7528-3795"))
 Description: Provides torch models as learners for the mlr3 ecosystem.
 License: LGPL (>= 3)
-Imports: 
+Imports:
     checkmate,
     data.table,
     fs,
@@ -21,8 +21,10 @@ Imports:
     R6,
     mlr3pipelines,
     torch,
-    torchvision
-Suggests: 
+    torchvision,
+    zeallot,
+    coro
+Suggests:
     lgr,
     tabnet,
     testthat (>= 3.0.0)
@@ -33,39 +35,66 @@ Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
-Collate: 
+Collate:
     'Architecture.R'
-    'DataBackendTorchDataTable.R'
+    'DataBackendDataLoader.R'
+    'GraphNetwork.R'
+    'History.R'
+    'LearnerClassifAlexNet.R'
     'LearnerClassifTorch.R'
+    'LearnerClassifTorchAbstract.R'
     'LearnerRegrTorch.R'
     'LearnerTorch.R'
     'TorchOp.R'
+    'mlr_torchops.R'
+    'TorchOpActivation.R'
+    'TorchOpAttention.R'
+    'TorchOpBlock.R'
     'TorchOpCustom.R'
     'TorchOpDropout.R'
-    'mlr_torchops.R'
     'TorchOpFlatten.R'
     'TorchOpHead.R'
     'TorchOpHeadCLS.R'
+    'TorchOpIndexSelect.R'
     'TorchOpInput.R'
     'TorchOpLinear.R'
+    'TorchOpMerge.R'
     'TorchOpModel.R'
+    'TorchOpOptimizer.R'
+    'TorchOpParallel.R'
     'TorchOpReLU.R'
     'TorchOpRepeat.R'
-    'TorchOpSelectCLS.R'
+    'TorchOpSelect.R'
     'TorchOpSelfAttention.R'
     'TorchOpSkip.R'
+    'TorchOpSkipCon.R'
     'TorchOpSoftmax.R'
     'TorchOpTokenizer.R'
+    'as_dataloader.R'
+    'as_dataset.R'
+    'autotest_torchop.R'
     'bibentries.R'
+    'classif.torch.alexnet.R'
     'classif.torch.tabnet.R'
-    'dl_paramset.R'
-    'images-helpers.R'
+    'dataloader.R'
+    'graphs.R'
+    'image-task.R'
+    'learner_torch.R'
+    'make_dataloader.R'
+    'make_paramset.R'
     'mlr3torch-package.R'
+    'nn_attention.R'
     'nn_cls.R'
-    'nn_rtdl_attention.R'
+    'optim_paramsets.R'
+    'parallel.R'
+    'paramset_activation.R'
+    'paramset_loss.R'
+    'paramset_optim.R'
     'paramset_tabnet.R'
     'regr.torch.tabnet.R'
     'top.R'
-    'train_model.R'
+    'train.R'
+    'util-torch.R'
+    'utils-models.R'
     'utils.R'
     'zzz.R'

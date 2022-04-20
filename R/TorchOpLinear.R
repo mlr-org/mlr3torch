@@ -3,7 +3,7 @@
 #' @section Dimensions
 #' (n, ..., in_features) --> (n, ..., out_features)
 #' @export
-TorchOpLinear = R6::R6Class("TorchOpLinear",
+TorchOpLinear = R6Class("TorchOpLinear",
   inherit = TorchOp,
   public = list(
     initialize = function(id = "linear", param_vals = list()) {
@@ -20,11 +20,11 @@ TorchOpLinear = R6::R6Class("TorchOpLinear",
   ),
   private = list(
     .operator = "linear",
-    .build = function(input, param_vals, task) {
+    .build = function(inputs, param_vals, task, y) {
+      input = inputs$input
       # TODO: Define a clean interface what dimensions a TorchOp requires as input and what
       # it then outputs
-      assert_names(names(input), subset.of = c("x", "y"))
-      in_features = input$x$shape[length(input$x$shape)]
+      in_features = input$shape[length(input$shape)]
       layer = invoke(nn_linear, in_features = in_features, .args = param_vals)
       return(layer)
     }

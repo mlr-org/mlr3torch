@@ -1,9 +1,13 @@
-test_that("Can build NeuralNetwork from Architecture", {
-  # DataBackendTorchDataTable$debug("dataloader")
-  task = tsk("mtcars")
-  architecture = Architecture$new()
-  architecture$add("linear", list(out_features = 10))
-  architecture$add("relu")
-  output = reduce_architecture(architecture, task)
-  network = output[["network"]]
+test_that("Architecture is working", {
+  task = tsk("iris")
+  a = Architecture$new()
+  a$add_torchop(top("tokenizer", d_token = 3L))
+  a$add_torchop(top("flatten"))
+  a$add_torchop(top("linear", out_features = 1L))
+  a$add_torchop(top("relu"))
+  a$add_edge("tokenizer", "flatten")
+  a$add_edge("flatten", "linear")
+  a$add_edge("linear", "relu")
+  net = a$build(task)
+  expect_r6(net, "nn_Graph")
 })

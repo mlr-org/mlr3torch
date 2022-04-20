@@ -15,7 +15,7 @@ TorchOpDropout = R6Class("TorchOpDropout",
   ),
   private = list(
     .operator = "dropout",
-    .build = function(input, param_vals, task) {
+    .build = function(inputs, param_vals, task, y) {
       p = param_vals[["p"]] %??% 0.5
       inplace = param_vals[["inplace"]] %??% FALSE
       layer = nn_dropout(p, inplace)

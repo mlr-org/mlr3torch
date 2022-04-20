@@ -256,7 +256,7 @@ train_alexnet <- function(
 
     # Note: Probably should pre-allocate loss / acc vectors at some point
     # Not trivial though, pre-allocating with number of batches would work
-    # but indexing within coro::loop not possible since `b` does not 
+    # but indexing within coro::loop not possible since `b` does not
     # contain batch index
     l <- c()
     coro::loop(for (b in train_dl) {
