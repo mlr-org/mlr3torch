@@ -5,7 +5,7 @@ TorchOpActivation = R6Class("TorchOpActivation",
     initialize = function(id = .activation, param_vals = list(), .activation) {
       assert_choice(.activation, torch_reflections$activation)
       private$.activation = .activation
-      param_set = make_paramset_activation(.activation)
+      param_set = activation_paramsets$get(.activation)
       super$initialize(
         id = id,
         param_set = param_set,
@@ -23,4 +23,5 @@ TorchOpActivation = R6Class("TorchOpActivation",
   )
 )
 
+#' @include mlr_torchops.R
 mlr_torchops$add("activation", TorchOpActivation)

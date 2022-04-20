@@ -1,49 +1,67 @@
-make_paramset_activation = function(activation) {
-  activation_paramseta$get(activation)
-}
-
-make_paramset_simple = function() {
-  ps(
-    inplace = p_lgl(default = FALSE, tags = "train")
-  )
-}
-
-make_paramset_empty = function() {
-  ps(
-    inplace = p_lgl(default = FALSE, tags = "train")
-  )
-}
-
+activation_paramsets = Dictionary$new()
 
 make_paramset_elu = function() {
   ps(
-    alpha = p_dbl(tags = "train")
+    alpha = p_dbl(default = 1, tags = "train"),
+    inplace = p_lgl(default = FALSE, tags = "train")
+  )
+}
+activation_paramsets$add("elu", make_paramset_elu)
+
+make_paramset_hardshrink = function() {
+  ps(
+    lambd = p_dbl(default = 0.5, tags = "train")
   )
 }
 
-make_paramset_hardhsrink = function() {
+activation_paramsets$add("hardshrink", make_paramset_hardshrink)
+
+make_paramset_hardsigmoid = function() {
   ps()
 }
 
-make_paramset_harsigmoid = function() {
+activation_paramsets$add("hardsigmoid", make_paramset_hardsigmoid)
+
+make_paramset_hardtanh = function() {
+  ps(
+    min_val = p_dbl(default = -1, tags = "train"),
+    max_val = p_dbl(default = 1, tags = "train"),
+    inplace = p_lgl(default = FALSE, tags = "train")
+  )
+}
+
+activation_paramsets$add("hardtanh", make_paramset_hardtanh)
+
+make_paramset_hardswish = function() {
   ps()
 }
 
-make_paramset_leakyrelu = function() {
+activation_paramsets$add("hardswish", make_paramset_hardswish)
+
+make_paramset_leaky_relu = function() {
+  ps(
+    negative_slope = p_dbl(default = 0.01, tags = "train"),
+    inplace = p_lgl(default = FALSE, tags = "train")
+  )
+}
+
+activation_paramsets$add("leaky_relu", make_paramset_leaky_relu)
+
+make_paramset_log_sigmoid = function() {
   ps()
 }
 
-make_paramset_logsigmoid = function() {
-  ps()
-}
+activation_paramsets$add("log_sigmoid", make_paramset_log_sigmoid)
 
-make_paramset_multihead_attention = function() {
-  ps()
-}
 
 make_paramset_prelu = function() {
-  ps()
+  ps(
+    num_parameters = p_int(1, tags = "train"),
+    init = p_dbl(default = 0.25, tags = "train")
+  )
 }
+
+activation_paramsets$add("prelu", make_paramset_prelu)
 
 make_paramset_relu = function() {
   ps(
@@ -51,23 +69,33 @@ make_paramset_relu = function() {
   )
 }
 
+activation_paramsets$add("relu", make_paramset_relu)
+
 make_paramset_relu6 = function() {
   ps(
     inplace = p_lgl(default = FALSE, tags = "train")
   )
 }
 
+activation_paramsets$add("relu6", make_paramset_relu6)
+
 make_paramset_rrelu = function() {
   ps(
+    lower = p_dbl(default = 1 / 8, tags = "train"),
+    upper = p_dbl(default = 1 / 3, tags = "train"),
     inplace = p_lgl(default = FALSE, tags = "train")
   )
 }
+
+activation_paramsets$add("rrelu", make_paramset_rrelu)
 
 make_paramset_selu = function() {
   ps(
     inplace = p_lgl(tags = "train")
   )
 }
+
+activation_paramsets$add("selu", make_paramset_selu)
 
 make_paramset_celu = function() {
   ps(
@@ -76,47 +104,55 @@ make_paramset_celu = function() {
   )
 }
 
+activation_paramsets$add("celu", make_paramset_celu)
+
 make_paramset_gelu = function() {
   ps()
 }
+
+activation_paramsets$add("gelu", make_paramset_gelu)
 
 make_paramset_sigmoid = function() {
   ps()
 }
 
-make_paramset_silu = function() {
-  ps(
-    inplace = p_lgl(default = FALSE, tags = "train")
-  )
-}
+activation_paramsets$add("sigmoid", make_paramset_sigmoid)
 
-make_paramset_mish = function() {
-  ps(
-    inplace = p_lgl(default = FALSE, tags = "train")
-  )
-}
 
 make_paramset_softplus = function() {
-  ps()
+  ps(
+    beta = p_dbl(default = 1, tags = "train"),
+    threshold = p_dbl(default = 20, tags = "train")
+  )
 }
+
+activation_paramsets$add("softplus", make_paramset_softplus)
 
 make_paramset_softshrink = function() {
   ps(
-    lambda = p_dbl(default = 0.5, upper = 1, tags = "train")
+    lambd = p_dbl(default = 0.5, upper = 1, tags = "train")
   )
 }
+
+activation_paramsets$add("softshrink", make_paramset_softshrink)
 
 make_paramset_softsign = function() {
   ps()
 }
 
+activation_paramsets$add("softsign", make_paramset_softsign)
+
 make_paramset_tanh = function() {
   ps()
 }
 
+activation_paramsets$add("tanh", make_paramset_tanh)
+
 make_paramset_tanhshrink = function() {
   ps()
 }
+
+activation_paramsets$add("tanhshrink", make_paramset_tanhshrink)
 
 make_paramset_threshold = function() {
   ps(
@@ -127,18 +163,29 @@ make_paramset_threshold = function() {
   )
 }
 
+activation_paramsets$add("threshold", make_paramset_threshold)
+
 make_paramset_glu = function() {
   ps(
     dim = p_int(default = -1L, lower = 1L, tags = "train", special_vals = list(-1L))
   )
 }
 
+activation_paramsets$add("glu", make_paramset_glu)
 
+# Only in Pyorch
+# make_paramset_silu = function() {
+#   ps(
+#     inplace = p_lgl(default = FALSE, tags = "train")
+#   )
+# }
+#
+# activation_paramsets$add("silu", make_paramset_silu)
 
-
-activation_paramsets = Dictionary$new()
-activation_paramsets$add("relu", make_paramset_simple)
-activation_paramsets$add("sigmoid", make_paramset_empty)
-      "elu", "hardshrink", "hardsigmoid", "hardtanh", "hardswish", "leakyrelu", "logsigmoid",
-      "multihead_attention", "prelu", "relu", "relu6", "rrelu", "selu", "sigmoid", "silu", "mish",
-      "softplus", "softshrink", "softsign", "tanh", "tanhshrink", "threshold", "glu"
+# make_paramset_mish = function() {
+#   ps(
+#     inplace = p_lgl(default = FALSE, tags = "train")
+#   )
+# }
+#
+# activation_paramsets$add("mish", make_paramset_mish)

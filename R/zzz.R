@@ -59,8 +59,8 @@ register_mlr3 = function() {
     )
 
     torch_reflections$activation = c(
-      "elu", "hardshrink", "hardsigmoid", "hardtanh", "hardswish", "leakyrelu", "logsigmoid",
-      "multihead_attention", "prelu", "relu", "relu6", "rrelu", "selu", "sigmoid", "silu", "mish",
+      "elu", "hardshrink", "hardsigmoid", "hardtanh", "hardswish", "leaky_relu", "log_sigmoid",
+      "prelu", "relu", "relu6", "rrelu", "selu", "sigmoid",
       "softplus", "softshrink", "softsign", "tanh", "tanhshrink", "threshold", "glu"
     )
   })

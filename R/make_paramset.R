@@ -15,9 +15,9 @@ make_paramset = function(task_type, optimizer, loss, architecture = FALSE) {
   }
   param_set$add(ps1)
   param_set$values$valid_split = 0.33
-  optim_paramset = make_paramset_optim(optimizer)
+  optim_paramset = optim_paramsets$get(optimizer)
   optim_paramset$set_id = "opt"
-  loss_paramset = make_paramset_loss(loss)
+  loss_paramset = loss_paramsets$get(loss)
   loss_paramset$set_id = "loss"
 
   param_set$add(optim_paramset)
