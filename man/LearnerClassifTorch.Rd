@@ -51,7 +51,12 @@ LearnerTorchClassif
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LearnerClassifTorch$new(id = "classif.torch", param_vals = list(), .optimizer)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LearnerClassifTorch$new(
+  id = "classif.torch",
+  param_vals = list(),
+  .optimizer,
+  .loss
+)}\if{html}{\out{</div>}}
 }
 
 }

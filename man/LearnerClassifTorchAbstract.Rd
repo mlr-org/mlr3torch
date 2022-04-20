@@ -73,13 +73,13 @@ The parameters of the learner are constructed dynamically, depending on the choi
 \describe{
 \item{\code{id}}{(\code{character(1)}) The id of the learner.}
 
+\item{\code{.optimizer}}{(\code{character(1)}) The name of the optimizer.}
+
+\item{\code{.loss}}{(\code{character(1)} || \code{nn_loss}).}
+
 \item{\code{param_set}}{(\code{paradox::ParamSet}) Additional parameters to the standard paramset.}
 
 \item{\code{param_vals}}{(\code{list()}) Parameters values to be set.}
-
-\item{\code{optimizer}}{(\code{character(1)}) The name of the optimizer.}
-
-\item{\code{criterion}}{(\code{character(1)} || \code{nn_loss}).}
 }
 \if{html}{\out{</div>}}
 }

@@ -6,7 +6,7 @@
 \description{
 Use TorchOpModeLClassif or TorchOpModelRegr for the respective task type.
 During \verb{$train()} this TorchOp first builds the model (network, optimizer,
-criterion, ...) and afterwards trains the network.
+loss, ...) and afterwards trains the network.
 It's parameterset is identical to LearnerClassifTorch and LearnerRegrTorch respectively.
 }
 \details{
@@ -38,7 +38,7 @@ TorchOpModelClassif and TorchOpModelRegr inherit from this R6 Class.
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchOpModel$new(id, param_vals, .task_type, .optimizer)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TorchOpModel$new(id, param_vals, .task_type, .optimizer, .loss)}\if{html}{\out{</div>}}
 }
 
 }
