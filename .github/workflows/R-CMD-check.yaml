@@ -12,6 +12,9 @@ name: R-CMD-check
 
 jobs:
   R-CMD-check:
+    # Don't run the Job twice when merging PRs
+    if: github.event.pull_request.merged == 'false'
+
     runs-on: ${{ matrix.config.os }}
 
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
