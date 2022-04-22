@@ -69,3 +69,14 @@ assert_optimizer = function(x) {
 assert_loss = function(x) {
   assert_true(inherits(x, "nn_loss"))
 }
+
+get_cache_dir = function(cache) {
+  if (isFALSE(cache)) {
+    return(FALSE)
+  }
+  if (isTRUE(cache)) {
+    cache = R_user_dir("mlr3torch", "cache")
+  }
+  assert(check_directory_exists(cache), check_path_for_output(cache))
+  normalizePath(cache, mustWork = FALSE)
+}

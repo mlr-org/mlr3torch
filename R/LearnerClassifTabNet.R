@@ -6,7 +6,7 @@
 #' @templateVar id classif.torch.tabnet
 #' @templateVar caller tabnet
 #' @references
-#' Arik, S. O. & Pfister, T. TabNet: Attentive Interpretable Tabular Learning. arXiv:1908.07442 \[cs, stat\] (2020).
+#' `r format_bib("arik2021tabnet")f
 #'
 #' @template seealso_learner
 #' @export
@@ -21,7 +21,7 @@
 #' lrn$param_set$values$attention_width = 8
 #' lrn$train(task)
 #' }
-LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
+LearnerClassifTabNet = R6Class("LearnerClassifTabNet",
   inherit = LearnerClassif,
 
   public = list(
@@ -52,16 +52,12 @@ LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
       sort(stats::setNames(imp$importance, imp$variables), decreasing = TRUE)
     }
   ),
-
   private = list(
-
     .train = function(task) {
       # get parameters for training
       pars = self$param_set$get_values(tags = "train")
-      pars_control = self$param_set$get_values(tags = "control")
-
-      # Drop control par from training pars as tabnet_fit doesn't know it
-      pars = pars[!(names(pars) %in% names(pars_control))]
+      pars_threads = pars$num_threads
+      pars$num_threads = NULL
 
       # Set number of threads
       torch::torch_set_num_threads(pars_control$num_threads)
@@ -77,7 +73,8 @@ LearnerClassifTorchTabnet = R6::R6Class("LearnerClassifTorchTabnet",
       mlr3misc::invoke(tabnet::tabnet_fit,
         x = task$data(cols = task$feature_names),
         y = task$data(cols = task$target_names),
-        .args = pars)
+        .args = pars
+      )
     },
 
     .predict = function(task) {

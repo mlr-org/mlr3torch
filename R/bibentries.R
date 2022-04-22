@@ -18,6 +18,20 @@ bibentries = c( # nolint start
     journal = "Advances in neural information processing systems",
     volume = "30",
     year = "2017"
+  ),
+  arik2021tabnet = bibentry("inproceedings",
+    title = "Tabnet: Attentive interpretable tabular learning",
+    author = "Ar\xc4\xb1k, Sercan O and Pfister, Tomas",
+    booktitle = "AAAI",
+    volume = "35",
+    pages = "6679--6687",
+    year = "2021"
+  ),
+  krizhevsky2014one = bibentry("article",
+    title = "One weird trick for parallelizing convolutional neural networks",
+    author = "Krizhevsky, Alex",
+    journal = "arXiv preprint arXiv:1404.5997",
+    year = "2014"
   )
 
 ) # nolint end

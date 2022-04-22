@@ -2,11 +2,11 @@
 % Please edit documentation in R/DataBackendDataLoader.R
 \name{DataBackendDataLoader}
 \alias{DataBackendDataLoader}
-\title{This is the DataBackend for a torch::dataloader}
+\title{This is the DataBackend for a}
 \description{
-This is the DataBackend for a torch::dataloader
+This is the DataBackend for a
 
-This is the DataBackend for a torch::dataloader
+This is the DataBackend for a
 }
 \section{Super class}{
 \code{\link[mlr3:DataBackend]{mlr3::DataBackend}} -> \code{DataBackendDataLoader}

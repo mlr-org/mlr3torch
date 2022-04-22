@@ -1,4 +1,4 @@
-#' This is the DataBackend for a torch::dataloader
+#' This is the DataBackend for a
 DataBackendDataLoader = R6Class("DataBackendDataLoader",
   inherit = DataBackend,
   public = list(
