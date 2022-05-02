@@ -101,7 +101,6 @@ train_step <- function(batch) {
 }
 
 valid_step <- function(batch) {
-  #browser()
   model$eval()
   pred <- model(batch[[1]]$to(device = device))
   pred <- torch_topk(pred, k = 5, dim = 2, TRUE, TRUE)[[2]]
