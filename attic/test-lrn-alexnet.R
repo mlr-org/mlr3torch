@@ -23,7 +23,7 @@ img_transforms <- function(img) {
 }
 
 
-lrn_alexnet <- lrn("classif.torch.alexnet",
+lrn_alexnet <- lrn("classif.alexnet",
                    predict_type = "prob",
                    num_threads = 15,
                    # Can't use pretrained on 10-class dataset yet, expects 1000
