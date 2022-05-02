@@ -37,9 +37,9 @@ reset_last_layer <- function(model, num_classes, bias = TRUE) {
 reset_last_layer.AlexNet <- function(model, num_classes, bias = TRUE) {
 
   # Freeze weights
-  for (par in model$parameters) {
-    par$requires_grad_(FALSE)
-  }
+  # for (par in model$parameters) {
+  #   par$requires_grad_(FALSE)
+  # }
 
   model$classifier$`6` <- torch::nn_linear(
     in_features = model$classifier$`6`$in_features,
