@@ -4,7 +4,7 @@
 \alias{make_tabular_dataset}
 \title{Creates a data_set from a data_table}
 \usage{
-make_tabular_dataset(data, target, features, batch_size, device)
+make_tabular_dataset(data, target, features, device)
 }
 \description{
 Creates a data_set from a data_table

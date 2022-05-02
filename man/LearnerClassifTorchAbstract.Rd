@@ -29,6 +29,7 @@ It is not intended for direct use.
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{LearnerClassifTorchAbstract$new()}}
+\item \href{#method-build}{\code{LearnerClassifTorchAbstract$build()}}
 \item \href{#method-clone}{\code{LearnerClassifTorchAbstract$clone()}}
 }
 }
@@ -64,7 +65,8 @@ The parameters of the learner are constructed dynamically, depending on the choi
   packages = character(0),
   predict_types = NULL,
   feature_types,
-  preprocessing
+  preprocessing,
+  man
 )}\if{html}{\out{</div>}}
 }
 
@@ -83,6 +85,15 @@ The parameters of the learner are constructed dynamically, depending on the choi
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-build"></a>}}
+\if{latex}{\out{\hypertarget{method-build}{}}}
+\subsection{Method \code{build()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LearnerClassifTorchAbstract$build(task)}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

@@ -11,20 +11,6 @@ LearnerTorchClassif
 \section{Super classes}{
 \code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3:LearnerClassif]{mlr3::LearnerClassif}} -> \code{\link[mlr3torch:LearnerClassifTorchAbstract]{mlr3torch::LearnerClassifTorchAbstract}} -> \code{LearnerClassifTorch}
 }
-\section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{params}}{()}
-}
-\if{html}{\out{</div>}}
-}
-\section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{params}}{()}
-}
-\if{html}{\out{</div>}}
-}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -43,6 +29,7 @@ LearnerTorchClassif
 \item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="print">}\href{../../mlr3/html/Learner.html#method-print}{\code{mlr3::Learner$print()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset">}\href{../../mlr3/html/Learner.html#method-reset}{\code{mlr3::Learner$reset()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train">}\href{../../mlr3/html/Learner.html#method-train}{\code{mlr3::Learner$train()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerClassifTorchAbstract" data-id="build">}\href{../../mlr3torch/html/LearnerClassifTorchAbstract.html#method-build}{\code{mlr3torch::LearnerClassifTorchAbstract$build()}}\out{</span>}
 }
 \out{</details>}
 }
