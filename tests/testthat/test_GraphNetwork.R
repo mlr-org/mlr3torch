@@ -2,7 +2,7 @@ test_that("Linear GraphNetwork works", {
   batch_size = 16L
   d_token = 3L
   task = tsk("iris")
-  batch = make_batch(task, batch_size = batch_size)
+  batch = get_batch(task, batch_size = batch_size, device = "cpu")
   graph = top("input") %>>%
     top("tokenizer", d_token = d_token) %>>%
     top("flatten") %>>%
@@ -19,7 +19,7 @@ test_that("GraphNetwork with forking of depth 1 works", {
   d_token = 4L
   batch_size = 9L
   task = tsk("iris")
-  batch = make_batch(task, batch_size)
+  batch = get_batch(task, batch_size, device = "cpu")
   graph = top("input") %>>%
     top("tokenizer", d_token = d_token) %>>%
     top("flatten") %>>%
@@ -47,7 +47,7 @@ test_that("GraphNetwork with forking (depth 2) works", {
   d_token = 4L
   batch_size = 9L
   task = tsk("iris")
-  batch = make_batch(task, batch_size)
+  batch = get_batch(task, batch_size, device = "cpu")
   a = gunion(
     graphs = list(
       c = top("linear", out_features = 3L),
