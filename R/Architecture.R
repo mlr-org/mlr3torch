@@ -40,7 +40,7 @@ architecture_reduce = function(self, task = NULL, input = NULL) {
   )
   layers = list()
 
-  instance = get_instance(task)
+  instance = get_batch(task, batch_size = 1L, device = "cpu")
   y = instance[["y"]]
   if (is.null(input)) {
     input = instance$x
