@@ -23,7 +23,8 @@ Imports:
     torch,
     torchvision,
     zeallot,
-    coro
+    coro,
+    magick
 Suggests:
     lgr,
     tabnet,
@@ -46,8 +47,10 @@ Collate:
     'LearnerClassifTorchAbstract.R'
     'LearnerRegrTorch.R'
     'LearnerTorch.R'
-    'TorchOp.R'
     'mlr_torchops.R'
+    'PipeOpImageTrafo.R'
+    'TaskClassif_tiny_imagenet.R'
+    'TorchOp.R'
     'TorchOpActivation.R'
     'TorchOpAttention.R'
     'TorchOpBlock.R'
@@ -78,21 +81,24 @@ Collate:
     'dataloader.R'
     'graphs.R'
     'image-task.R'
+    'imageuri.R'
     'learner_torch.R'
     'make_dataloader.R'
+    'make_image_dataset.R'
     'make_paramset.R'
     'mlr3torch-package.R'
     'nn_attention.R'
     'nn_cls.R'
-    'optim_paramsets.R'
     'parallel.R'
-    'paramset_activation.R'
-    'paramset_loss.R'
-    'paramset_optim.R'
     'paramset_tabnet.R'
+    'paramsets_activation.R'
+    'paramsets_image_trafo.R'
+    'paramsets_loss.R'
+    'paramsets_optim.R'
     'top.R'
     'train.R'
     'util-torch.R'
     'utils-models.R'
     'utils.R'
+    'utils_task.R'
     'zzz.R'
