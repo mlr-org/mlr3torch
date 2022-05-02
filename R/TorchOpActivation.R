@@ -6,7 +6,7 @@ TorchOpActivation = R6Class("TorchOpActivation",
     initialize = function(id = .activation, param_vals = list(), .activation) {
       assert_choice(.activation, torch_reflections$activation)
       private$.activation = .activation
-      param_set = activation_paramsets$get(.activation)
+      param_set = paramsets_activation$get(.activation)
       super$initialize(
         id = id,
         param_set = param_set,
