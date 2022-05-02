@@ -1,9 +1,9 @@
 #' @title Classification TabNet Learner
 #' @author Lukas Burk
-#' @name mlr_learners_classif.torch.tabnet
+#' @name mlr_learners_classif.tabnet
 #'
 #' @template class_learner
-#' @templateVar id classif.torch.tabnet
+#' @templateVar id classif.tabnet
 #' @templateVar caller tabnet
 #' @references
 #' `r format_bib("arik2021tabnet")f
@@ -15,7 +15,7 @@
 #' library(mlr3)
 #' library(mlr3torch)
 #' task = tsk("german_credit")
-#' lrn = lrn("classif.torch.tabnet")
+#' lrn = lrn("classif.tabnet")
 #'
 #' lrn$param_set$values$epochs = 10
 #' lrn$param_set$values$attention_width = 8
@@ -31,13 +31,13 @@ LearnerClassifTabNet = R6Class("LearnerClassifTabNet",
       ps = params_tabnet()
 
       super$initialize(
-        id = "classif.torch.tabnet",
+        id = "classif.tabnet",
         packages = "tabnet",
         feature_types = c("logical", "integer", "numeric", "factor", "ordered"),
         predict_types = c("response", "prob"),
         param_set = ps,
         properties = c("importance", "multiclass", "twoclass", "weights"),
-        man = "mlr3torch::mlr_learners_classif.torch.tabnet"
+        man = "mlr3torch::mlr_learners_classif.tabnet"
       )
     },
 

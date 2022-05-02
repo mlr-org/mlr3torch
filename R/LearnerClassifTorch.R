@@ -1,4 +1,5 @@
 #' @title LearnerTorchClassif
+#' @export
 LearnerClassifTorch = R6Class("LearnerClassifTorch",
   inherit = LearnerClassifTorchAbstract,
   public = list(
@@ -9,47 +10,23 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
         label = "Neural Network Classifier",
         feature_types = c("logical", "integer", "numeric", "factor"),
         .optimizer = .optimizer,
-        .loss = .loss
+        .loss = .loss,
+        man = "mlr3torch::mlr_learners_classif.torch"
       )
     }
   ),
   private = list(
-    .train = function(task) {
-      state = private$.build(task)
-      learner_classif_torch_train(self, state, task)
-    },
-    .predict = function(task) {
-      # When keep_last_prediction = TRUE we store the predictions of the last validation and we
-      # therefore don't have to recompute them in the resample(), but can simple return the
-      # cached predictions
-      learner_classif_torch_predict(self, task)
-    },
-    .build = function(task) {
-      build_torch(self, task)
+    .network = function(task) {
+      architecture = self$param_set$values$architecture
+
+      if (test_r6(architecture, "Architecture")) {
+        network = architecture$build(task)
+      } else if (test_r6(architecture, "nn_Module")) {
+        network = architecture$clone(deep = TRUE)
+      } else {
+        stopf("Invalid argument for architecture.")
+      }
     },
     .optimizer = NULL
-  ),
-  active = list(
-    #' @field params ()
-    parameters = function(rhs) {
-      assert_ro_binding(rhs)
-      self$state$model$network$parameters
-    },
-    history = function(rhs) {
-      assert_ro_binding(rhs)
-      self$state$model$history
-    },
-    optimizer = function(rhs) {
-      assert_ro_binding(rhs)
-      self$state$model$optimizer
-    },
-    loss = function(rhs) {
-      assert_ro_binding(rhs)
-      self$state$model$loss
-    },
-    network = function(rhs) {
-      assert_ro_binding(rhs)
-      self$state$model$network
-    }
   )
 )
