@@ -11,6 +11,14 @@ next:
 - should we allow ops with more than one output? (attention logits and probs of nn_attention)
 - How to deal with PRELU activation function (has learnable parameter + device argument)
 - Learning rate scheduler: Method (callback) or parameter?
+- For validation metrics: mlr3 measures or torch losses?
+- Free parameters of certain layers?
+- Why freeze all parameters in reset_last_layer (?)
+- Call `$to("cuda")` before or after the transformations
+- Raise issue in torchvision
+
+Problems:
+- Conflict between lgr and progress
 
 ## block()
 --> What is a block?
@@ -22,6 +30,12 @@ top("input") and potentially also reparametrize the thing --> we need a language
 1. Vorschlag: In den Task schreiben
 2. Attribute (schreibe Subset Funktion)
 Inherite von PipeOpTaskPreproc
+
+Cache directory:
+  torch caches models in rappdirs::user_cache_dir (.cache/torch), but we do in
+  .cache/R/torch --> problem?
+
+
 
 
 # Paramset:
@@ -67,8 +81,6 @@ Long term goals
 - Do decent logging
 - be able to easily reparametrize the graph: something like the code below should produce a graph
 with the parameter x that is set as a.out_features and b.out_features
-- Overwrite %>>% to automatically inPipe
-crement the ids (e.g. for relu)
 - Be able to plot the network (with the tensor dimensions at each node)
 
 ```r
