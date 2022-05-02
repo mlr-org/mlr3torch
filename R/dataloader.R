@@ -1,5 +1,5 @@
 #' Creates a data_set from a data_table
-make_tabular_dataset = function(data, target, features, batch_size, device) {
+make_tabular_dataset = function(data, target, features, device) {
   # data = data[, cols]
   # target_col = which(colnames(data) == target)
   # feature_cols = setdiff(seq_len(nrow(data)), target_col)
@@ -24,12 +24,12 @@ make_tabular_dataset = function(data, target, features, batch_size, device) {
 
   if (is.numeric(data[[target]])) {
     y = torch_tensor(
-      data = as.matrix(data[, ..target]),
+      data = data[, ..target][[1L]],
       dtype = torch_float(),
       device = device
     )
   } else { # classification
-    y = cat2tensor(data[, ..target], device = device)
+    y = cat2tensor(data[, ..target], device = device)[,1]
   }
 
   data_list = list(y = y)
