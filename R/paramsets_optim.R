@@ -2,7 +2,7 @@
 #' @export
 make_paramset_optim = function(optimizer) {
   # TODO: verify all the parameters here that the ranges make sensee
-  optim_paramsets$get(optimizer)
+  paramsets_optim$get(optimizer)
 }
 
 make_paramset_adam = function() {
@@ -101,12 +101,12 @@ make_paramset_lbfgs = function() {
   )
 }
 
-optim_paramsets = Dictionary$new()
-optim_paramsets$add("adam", make_paramset_adam)
-optim_paramsets$add("sgd", make_paramset_sgd)
-optim_paramsets$add("asgd", make_paramset_asgd)
-optim_paramsets$add("rprop", make_paramset_rprop)
-optim_paramsets$add("rmsprop", make_paramset_rmsprop)
-optim_paramsets$add("adagrad", make_paramset_adagrad)
-optim_paramsets$add("adadelta", make_paramset_adadelta)
-optim_paramsets$add("lbfgs", make_paramset_lbfgs)
+paramsets_optim = Dictionary$new()
+paramsets_optim$add("adam", make_paramset_adam)
+paramsets_optim$add("sgd", make_paramset_sgd)
+paramsets_optim$add("asgd", make_paramset_asgd)
+paramsets_optim$add("rprop", make_paramset_rprop)
+paramsets_optim$add("rmsprop", make_paramset_rmsprop)
+paramsets_optim$add("adagrad", make_paramset_adagrad)
+paramsets_optim$add("adadelta", make_paramset_adadelta)
+paramsets_optim$add("lbfgs", make_paramset_lbfgs)

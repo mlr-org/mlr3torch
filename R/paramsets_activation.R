@@ -1,4 +1,4 @@
-activation_paramsets = Dictionary$new()
+paramsets_activation = Dictionary$new()
 
 make_paramset_elu = function() {
   ps(
@@ -6,7 +6,7 @@ make_paramset_elu = function() {
     inplace = p_lgl(default = FALSE, tags = "train")
   )
 }
-activation_paramsets$add("elu", make_paramset_elu)
+paramsets_activation$add("elu", make_paramset_elu)
 
 make_paramset_hardshrink = function() {
   ps(
@@ -14,13 +14,13 @@ make_paramset_hardshrink = function() {
   )
 }
 
-activation_paramsets$add("hardshrink", make_paramset_hardshrink)
+paramsets_activation$add("hardshrink", make_paramset_hardshrink)
 
 make_paramset_hardsigmoid = function() {
   ps()
 }
 
-activation_paramsets$add("hardsigmoid", make_paramset_hardsigmoid)
+paramsets_activation$add("hardsigmoid", make_paramset_hardsigmoid)
 
 make_paramset_hardtanh = function() {
   ps(
@@ -30,13 +30,13 @@ make_paramset_hardtanh = function() {
   )
 }
 
-activation_paramsets$add("hardtanh", make_paramset_hardtanh)
+paramsets_activation$add("hardtanh", make_paramset_hardtanh)
 
 make_paramset_hardswish = function() {
   ps()
 }
 
-activation_paramsets$add("hardswish", make_paramset_hardswish)
+paramsets_activation$add("hardswish", make_paramset_hardswish)
 
 make_paramset_leaky_relu = function() {
   ps(
@@ -45,13 +45,13 @@ make_paramset_leaky_relu = function() {
   )
 }
 
-activation_paramsets$add("leaky_relu", make_paramset_leaky_relu)
+paramsets_activation$add("leaky_relu", make_paramset_leaky_relu)
 
 make_paramset_log_sigmoid = function() {
   ps()
 }
 
-activation_paramsets$add("log_sigmoid", make_paramset_log_sigmoid)
+paramsets_activation$add("log_sigmoid", make_paramset_log_sigmoid)
 
 
 make_paramset_prelu = function() {
@@ -61,7 +61,7 @@ make_paramset_prelu = function() {
   )
 }
 
-activation_paramsets$add("prelu", make_paramset_prelu)
+paramsets_activation$add("prelu", make_paramset_prelu)
 
 make_paramset_relu = function() {
   ps(
@@ -69,7 +69,7 @@ make_paramset_relu = function() {
   )
 }
 
-activation_paramsets$add("relu", make_paramset_relu)
+paramsets_activation$add("relu", make_paramset_relu)
 
 make_paramset_relu6 = function() {
   ps(
@@ -77,7 +77,7 @@ make_paramset_relu6 = function() {
   )
 }
 
-activation_paramsets$add("relu6", make_paramset_relu6)
+paramsets_activation$add("relu6", make_paramset_relu6)
 
 make_paramset_rrelu = function() {
   ps(
@@ -87,7 +87,7 @@ make_paramset_rrelu = function() {
   )
 }
 
-activation_paramsets$add("rrelu", make_paramset_rrelu)
+paramsets_activation$add("rrelu", make_paramset_rrelu)
 
 make_paramset_selu = function() {
   ps(
@@ -95,7 +95,7 @@ make_paramset_selu = function() {
   )
 }
 
-activation_paramsets$add("selu", make_paramset_selu)
+paramsets_activation$add("selu", make_paramset_selu)
 
 make_paramset_celu = function() {
   ps(
@@ -104,19 +104,19 @@ make_paramset_celu = function() {
   )
 }
 
-activation_paramsets$add("celu", make_paramset_celu)
+paramsets_activation$add("celu", make_paramset_celu)
 
 make_paramset_gelu = function() {
   ps()
 }
 
-activation_paramsets$add("gelu", make_paramset_gelu)
+paramsets_activation$add("gelu", make_paramset_gelu)
 
 make_paramset_sigmoid = function() {
   ps()
 }
 
-activation_paramsets$add("sigmoid", make_paramset_sigmoid)
+paramsets_activation$add("sigmoid", make_paramset_sigmoid)
 
 
 make_paramset_softplus = function() {
@@ -126,7 +126,7 @@ make_paramset_softplus = function() {
   )
 }
 
-activation_paramsets$add("softplus", make_paramset_softplus)
+paramsets_activation$add("softplus", make_paramset_softplus)
 
 make_paramset_softshrink = function() {
   ps(
@@ -134,25 +134,25 @@ make_paramset_softshrink = function() {
   )
 }
 
-activation_paramsets$add("softshrink", make_paramset_softshrink)
+paramsets_activation$add("softshrink", make_paramset_softshrink)
 
 make_paramset_softsign = function() {
   ps()
 }
 
-activation_paramsets$add("softsign", make_paramset_softsign)
+paramsets_activation$add("softsign", make_paramset_softsign)
 
 make_paramset_tanh = function() {
   ps()
 }
 
-activation_paramsets$add("tanh", make_paramset_tanh)
+paramsets_activation$add("tanh", make_paramset_tanh)
 
 make_paramset_tanhshrink = function() {
   ps()
 }
 
-activation_paramsets$add("tanhshrink", make_paramset_tanhshrink)
+paramsets_activation$add("tanhshrink", make_paramset_tanhshrink)
 
 make_paramset_threshold = function() {
   ps(
@@ -163,7 +163,7 @@ make_paramset_threshold = function() {
   )
 }
 
-activation_paramsets$add("threshold", make_paramset_threshold)
+paramsets_activation$add("threshold", make_paramset_threshold)
 
 make_paramset_glu = function() {
   ps(
@@ -171,7 +171,7 @@ make_paramset_glu = function() {
   )
 }
 
-activation_paramsets$add("glu", make_paramset_glu)
+paramsets_activation$add("glu", make_paramset_glu)
 
 # Only in Pyorch
 # make_paramset_silu = function() {
@@ -180,7 +180,7 @@ activation_paramsets$add("glu", make_paramset_glu)
 #   )
 # }
 #
-# activation_paramsets$add("silu", make_paramset_silu)
+# paramsets_activation$add("silu", make_paramset_silu)
 
 # make_paramset_mish = function() {
 #   ps(
@@ -188,4 +188,4 @@ activation_paramsets$add("glu", make_paramset_glu)
 #   )
 # }
 #
-# activation_paramsets$add("mish", make_paramset_mish)
+# paramsets_activation$add("mish", make_paramset_mish)

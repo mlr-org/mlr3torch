@@ -8,14 +8,26 @@ make_paramset = function(task_type, optimizer, loss, architecture = FALSE) {
     early_stopping_set = p_fct(default = "test", levels = c("test", "train"), special_vals = list(NULL)),
     shuffle = p_lgl(default = TRUE, tags = "train"),
     drop_last = p_lgl(default = FALSE, tags = "train"),
-    valid_split = p_dbl(default = 0.33, lower = 0, upper = 1, tags = "train")
+    valid_split = p_dbl(default = 0.33, lower = 0, upper = 1, tags = c("train")),
+    num_threads = p_int(default = 1L, lower = 1L, tags = c("train", "predict", "threads")),
+    train_fn = p_uty(tags = "train"),
+    valid_fn = p_uty(tags = "train"),
+    train_augmentation = p_uty(tags = "train"),
+    valid_augmentation = p_uty(tags = "train")
   )
   if (architecture) {
     ps1$add(ParamUty$new("architecture", tags = "train", custom_check = check_architecture))
   }
   param_set$add(ps1)
+  param_set$values = list(
+    valid_split = 0.33,
+    train_fn = default_train_fn,
+    valid_fn = default_valid_fn,
+    num_threads = 1L
+  )
   param_set$values$valid_split = 0.33
-  optim_paramset = optim_paramsets$get(optimizer)
+
+  optim_paramset = paramsets_optim$get(optimizer)
   optim_paramset$set_id = "opt"
   loss_paramset = loss_paramsets$get(loss)
   loss_paramset$set_id = "loss"
