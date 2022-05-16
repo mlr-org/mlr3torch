@@ -25,6 +25,7 @@ Neral Network (Graph-) Architecture
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="add_edge">}\href{../../mlr3pipelines/html/Graph.html#method-add_edge}{\code{mlr3pipelines::Graph$add_edge()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="add_pipeop">}\href{../../mlr3pipelines/html/Graph.html#method-add_pipeop}{\code{mlr3pipelines::Graph$add_pipeop()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="chain">}\href{../../mlr3pipelines/html/Graph.html#method-chain}{\code{mlr3pipelines::Graph$chain()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="help">}\href{../../mlr3pipelines/html/Graph.html#method-help}{\code{mlr3pipelines::Graph$help()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="ids">}\href{../../mlr3pipelines/html/Graph.html#method-ids}{\code{mlr3pipelines::Graph$ids()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="initialize">}\href{../../mlr3pipelines/html/Graph.html#method-initialize}{\code{mlr3pipelines::Graph$initialize()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="plot">}\href{../../mlr3pipelines/html/Graph.html#method-plot}{\code{mlr3pipelines::Graph$plot()}}\out{</span>}

@@ -6,9 +6,9 @@ test_that("Linear GraphNetwork works", {
   graph = top("input") %>>%
     top("tokenizer", d_token = d_token) %>>%
     top("flatten") %>>%
-    top("linear1", out_features = 10L) %>>%
-    top("relu1") %>>%
-    top("linear2", out_features = 1L)
+    top("linear_1", out_features = 10L) %>>%
+    top("relu_1") %>>%
+    top("linear_2", out_features = 1L)
   architecture = graph$train(task)[[1L]][[2L]]
   net = architecture$build(task)
   y_hat = net$forward(batch$x)

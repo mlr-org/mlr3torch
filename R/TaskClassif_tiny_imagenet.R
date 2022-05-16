@@ -7,7 +7,7 @@
 # NULL
 
 load_task_tiny_imagenet = function(id = "tiny_imagenet") {
-  rlang::local_options(timeout = 120L) # download takes long
+  rlang::local_options(timeout = 300L) # download takes long
   cache_dir = R_user_dir("mlr3torch", "cache")
   superdir = sprintf("%s/data", cache_dir)
   dir = sprintf("%s/tiny-imagenet-200", superdir)

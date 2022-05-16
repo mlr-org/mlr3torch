@@ -32,9 +32,11 @@ tops.character = function(.objs, ...) {
 }
 
 extract_key = function(x) {
-  if (grepl("_", x)) {
-    key = strsplit(x, split = "_")[[1]][[1L]]
+  if (grepl("_\\d+$", x)) {
+    split = strsplit(x, split = "_")[[1L]]
+    key = paste0(split[-length(split)], collapse = "_")
     return(key)
   }
+
   return(x)
 }

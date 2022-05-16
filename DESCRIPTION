@@ -28,7 +28,8 @@ Imports:
 Suggests:
     lgr,
     tabnet,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    zip
 Remotes:
   sebffischer/torchvision@tiny_imagenet
 Config/testthat/edition: 3
