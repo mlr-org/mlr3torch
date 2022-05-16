@@ -30,7 +30,7 @@ Suggests:
     tabnet,
     testthat (>= 3.0.0)
 Remotes:
-  sebffischer/mlr3torch@tiny_imagenet
+  sebffischer/torchvision@tiny_imagenet
 Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
