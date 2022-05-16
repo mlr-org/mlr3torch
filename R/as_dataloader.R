@@ -4,6 +4,7 @@
 #' It takes a task and converts it first to a dataset and then to a dataloader
 #' @export
 #' @param x (`any`) object to be converted to a dataloader.
+#' @param ... Additional arguments.
 as_dataloader = function(x, ...) {
   UseMethod("as_dataloader")
 }

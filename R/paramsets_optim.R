@@ -1,10 +1,3 @@
-#' Dictionary of TorchOps
-#' @export
-make_paramset_optim = function(optimizer) {
-  # TODO: verify all the parameters here that the ranges make sensee
-  paramsets_optim$get(optimizer)
-}
-
 make_paramset_adam = function() {
   check_betas = function(x) {
     if (test_numeric(x, lower = 0, upper = 1, any.missing = FALSE, len = 2L)) {

@@ -6,6 +6,10 @@
 \usage{
 imageuri(x)
 }
+\arguments{
+\item{x}{(\code{character()})\cr
+Character vector containig the paths to the images.}
+}
 \description{
 Creates a class "images", that contains the uris of images.
 }

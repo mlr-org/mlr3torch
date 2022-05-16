@@ -12,6 +12,8 @@
 #' @importFrom R6 R6Class is.R6
 #' @importFrom zeallot `%<-%`
 #' @importFrom coro loop
+#' @importFrom methods formalArgs
+#' @importFrom utils getFromNamespace
 #'
 #' @description
 #'   mlr3torch Connects the R [torch][torch] package to mlr3.

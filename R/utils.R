@@ -42,10 +42,6 @@ get_batch.Task = function(x, batch_size, device) {
 .S3method("get_batch", "dataset", get_batch.dataset)
 .S3method("get_batch", "Task", get_batch.Task)
 
-is_tabular = function(task) {
-  test("imageuri" %nin% task$features)
-}
-
 get_optimizer = function(name) {
   getFromNamespace(sprintf("optim_%s", name), ns = "torch")
 }

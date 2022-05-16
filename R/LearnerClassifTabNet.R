@@ -60,7 +60,7 @@ LearnerClassifTabNet = R6Class("LearnerClassifTabNet",
       pars$num_threads = NULL
 
       # Set number of threads
-      torch::torch_set_num_threads(pars_control$num_threads)
+      torch::torch_set_num_threads(pars_threads)
 
       # set column names to ensure consistency in fit and predict
       self$state$feature_names = task$feature_names

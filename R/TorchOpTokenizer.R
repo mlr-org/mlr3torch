@@ -43,7 +43,17 @@ TorchOpTokenizer = R6Class("TorchOpTokenizer",
   )
 )
 
-#' nn_tokenizer
+#' Tabular Tokenizers
+#'
+#' Tokenizes tabular data.
+#'
+#' @param n_features (`integer(1)`)\cr
+#'   The number of numeric features.
+#' @param cardinalities (`integer()`)\cr
+#'
+#'
+#'
+#' @references `r format_bib("gorishniy2021revisiting")`
 nn_tokenizer = nn_module(
   "nn_tokenizer",
   initialize = function(n_features, cardinalities, d_token, bias, cls) {

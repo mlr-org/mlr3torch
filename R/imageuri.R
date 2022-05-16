@@ -1,6 +1,8 @@
 #' @title Create an object of class "imageuri"
 #' @description
 #'   Creates a class "images", that contains the uris of images.
+#' @param x (`character()`)\cr
+#'   Character vector containig the paths to the images.
 #' @export
 imageuri = function(x) {
   assert_character(x)

@@ -7,12 +7,12 @@
 # NULL
 
 load_task_tiny_imagenet = function(id = "tiny_imagenet") {
-  rlang::local_options(timeout = 120L)
+  rlang::local_options(timeout = 120L) # download takes long
   cache_dir = R_user_dir("mlr3torch", "cache")
   superdir = sprintf("%s/data", cache_dir)
   dir = sprintf("%s/tiny-imagenet-200", superdir)
 
-  torchvision::tiny_imagenet_dataset(root = superdir, download = !dir.exists(dir))
+  torchvision::tiny_imagenet_dataset(root = superdir, download = TRUE)
 
   lookup = fread(sprintf("%s/words.txt", dir), header = FALSE)
   colnames(lookup) = c("id", "label")

@@ -11,7 +11,7 @@ top = function(.obj, ...) {
 
 #' @rdname top
 #' @export
-tops = function(.ob, ...) {
+tops = function(.objs, ...) {
   UseMethod("tops")
 }
 
@@ -32,17 +32,9 @@ tops.character = function(.objs, ...) {
 }
 
 extract_key = function(x) {
-  chars = strsplit(x, "")[[1L]]
-  is_digit = suppressWarnings(!is.na(as.numeric(chars)))
-  if (!sum(is_digit)) {
-    return(character(0))
+  if (grepl("_", x)) {
+    key = strsplit(x, split = "_")[[1]][[1L]]
+    return(key)
   }
-  ids = which(is_digit)
-  mx = max(ids)
-  mn = min(ids)
-  l = length(chars)
-  n = sum(is_digit)
-  # checks that the last values are continously digits, abc123 is valid, ab1c23 is invalid
-  assert_true((mx == l) && (mn == (l - n + 1)))
-  return(paste0(chars[!is_digit], collapse = ""))
+  return(x)
 }

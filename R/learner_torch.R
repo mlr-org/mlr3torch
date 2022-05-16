@@ -33,7 +33,10 @@ learner_classif_torch_predict = function(self, task) {
 
 # Train function for the classification torch learne
 learner_classif_torch_train = function(self, model, task) {
-  c(network, optimizer, loss_fn, history) %<-% model[c("network", "optimizer", "loss_fn", "history")]
+  network = model$network
+  optimizer = model$optimizer
+  loss_fn = model$loss_fn
+  history = model$history
   reset_eval = network$training
   on.exit(if (reset_eval) network$eval(), add = TRUE)
   network$train()

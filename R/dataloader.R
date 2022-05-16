@@ -1,4 +1,3 @@
-#' Creates a data_set from a data_table
 make_tabular_dataset = function(data, target, features, device) {
   # data = data[, cols]
   # target_col = which(colnames(data) == target)

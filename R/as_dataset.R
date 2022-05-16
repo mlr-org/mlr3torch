@@ -1,4 +1,6 @@
 #' @title Converts an object to a torch::Dataset
+#' @param x (any)\cr Object to be converted to a [torch::dataset].
+#' @param ... Additional arguments.
 #' @export
 as_dataset = function(x, ...) {
   UseMethod("as_dataset")

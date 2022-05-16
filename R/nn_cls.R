@@ -1,9 +1,10 @@
-#' @title \[CLS\] Token
-#' @description Appends a trainable \[CLS\] Token along the second dimension.
-#' @references
-#' `r format_bib("devlin2018bert", "gorishniy2021revisiting")
+#' \[CLS\] Token
 #'
-#' @export
+#' Appends a trainable \[CLS\] Token along the second dimension.
+#'
+#' @param d_token (`integer(1)`) The token dimensionality.
+#'
+#' `r format_bib("devlin2018bert", "gorishniy2021revisiting")
 nn_cls = nn_module("nn_cls",
   initialize = function(d_token) {
     self$weight = nn_parameter(torch_empty(d_token))

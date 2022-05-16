@@ -1,4 +1,3 @@
-#' @title Creates a Single Image Dataset
 make_image_dataset = function(task, augmentation = NULL) {
   y = task$data(cols = task$target_names)[[1L]]
   y = as.integer(y)
@@ -38,12 +37,3 @@ make_image_dataset = function(task, augmentation = NULL) {
   )(y, uri, trafos)
 }
 
-
-
-
-if (FALSE) {
-  library(magick)
-  task = tsk("tiny_imagenet")
-  ds = make_image_dataset(task)
-  batch = ds$.getbatch(1:3)
-}
