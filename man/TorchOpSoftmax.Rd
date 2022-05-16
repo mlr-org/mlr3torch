@@ -32,7 +32,7 @@ TorchOpSoftmax
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
-Initializes an object of class \link{TorchOpSoftmax}\cr
+Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{TorchOpSoftmax$new(id = "softmax", param_vals = list())}\if{html}{\out{</div>}}
 }
@@ -40,9 +40,8 @@ Initializes an object of class \link{TorchOpSoftmax}\cr
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{id}}{( \code{character(1)}) The id of the \link{TorchOp}.}
-
-\item{\code{param_vals}}{(\code{named_list()}) The parameter values.}
+\item{\code{id}}{(\code{character(1)})\cr
+The id for of the object.}
 }
 \if{html}{\out{</div>}}
 }

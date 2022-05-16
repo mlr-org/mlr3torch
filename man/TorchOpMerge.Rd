@@ -40,6 +40,12 @@ The order in which the tensors are concatenated is \link{input1, input2, input3}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 Initilizes a new instance of this class.\cr
+
+
+Initializes an instance of this \link[R6:R6Class]{R6} class.
+
+
+Initializes an object of class \link{TorchOpInput}
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{TorchOpMerge$new(id = "merge", param_vals = list(), .innum = NULL)}\if{html}{\out{</div>}}
 }
@@ -49,7 +55,14 @@ Initilizes a new instance of this class.\cr
 \describe{
 \item{\code{id}}{(\code{character(1)}) The id of the TorchOp.}
 
+\item{\code{id}}{(\code{character(1)})\cr
+The for of the object.}
+
+\item{\code{id}}{(\code{character(1)}) The id of the object.}
+
 \item{\code{param_vals}}{(\code{list()}) List of parameter values.}
+
+\item{\code{param_vals}}{(\verb{named list()}) The parameter values.}
 
 \item{\code{.innum}}{(\code{character()}) number of inputs.}
 }

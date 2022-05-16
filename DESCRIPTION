@@ -14,6 +14,7 @@ Imports:
     fs,
     luz,
     magick,
+    methods,
     mlr3,
     mlr3misc,
     mlr3pipelines,
@@ -47,7 +48,6 @@ Collate:
     'PipeOpImageTrafo.R'
     'TaskClassif_tiny_imagenet.R'
     'TorchOp.R'
-    'torch_reflections.R'
     'TorchOpActivation.R'
     'TorchOpAttention.R'
     'TorchOpBlock.R'
@@ -86,6 +86,7 @@ Collate:
     'paramsets_loss.R'
     'paramsets_optim.R'
     'top.R'
+    'torch_reflections.R'
     'util-torch.R'
     'utils-models.R'
     'utils.R'

@@ -4,9 +4,11 @@
 TorchOpSoftmax = R6::R6Class("TorchOpSoftmax",
   inherit = TorchOp,
   public = list(
-    #' @description Initializes an object of class [TorchOpSoftmax]\cr
-    #' @param id ( `character(1)`) The id of the [TorchOp].
-    #' @param param_vals (`named_list()`) The parameter values.
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
+    #' @param id (`character(1)`)\cr
+    #'   The id for of the object.
+    #' @parm param_vals (named `list()`)\cr
+    #'   The initial parameters for the object.
     initialize = function(id = "softmax", param_vals = list()) {
       param_set = ps(
         dim = p_int(1L, Inf, tags = c("train", "required"))

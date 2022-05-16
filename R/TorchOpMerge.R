@@ -12,8 +12,16 @@ TorchOpMerge = R6Class("TorchOpMerge",
   public = list(
     #' @description Initilizes a new instance of this class.\cr
     #' @param id (`character(1)`) The id of the TorchOp.
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
+    #' @param id (`character(1)`)\cr
+    #'   The for of the object.
+    #' @parm param_vals (named `list()`)\cr
+    #'   The initial parameters for the object.
     #' @param param_vals (`list()`) List of parameter values.
     #' @param .innum (`character()`) number of inputs.
+    #' @description Initializes an object of class [TorchOpInput]
+    #' @param id (`character(1)`) The id of the object.
+    #' @param param_vals (`named list()`) The parameter values.
     initialize = function(id = "merge", param_vals = list(), .innum = NULL) {
       param_set = ps(
         method = p_fct(levels = c("add", "mul", "cat"), tags = c("train", "required")),

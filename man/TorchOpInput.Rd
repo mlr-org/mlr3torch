@@ -41,7 +41,7 @@ Parameters:
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
-Initializes an object of class \link{TorchOpInput}
+Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{TorchOpInput$new(id = "input", param_vals = list())}\if{html}{\out{</div>}}
 }
@@ -49,9 +49,8 @@ Initializes an object of class \link{TorchOpInput}
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{id}}{(\code{character(1)}) The id of the object.}
-
-\item{\code{param_vals}}{(\verb{named list()}) The parameter values.}
+\item{\code{id}}{(\code{character(1)})\cr
+The id for of the object.}
 }
 \if{html}{\out{</div>}}
 }

@@ -4,7 +4,9 @@
 \alias{TorchOpIndexSelect}
 \title{if we are only interested in the CLS Token.}
 \description{
-initializes an object
+if we are only interested in the CLS Token.
+
+if we are only interested in the CLS Token.
 }
 \section{Super classes}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:TorchOp]{mlr3torch::TorchOp}} -> \code{TorchOpIndexSelect}
@@ -30,6 +32,7 @@ initializes an object
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
+Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{TorchOpIndexSelect$new(id = "indexselect", param_vals = list())}\if{html}{\out{</div>}}
 }
@@ -37,9 +40,8 @@ initializes an object
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{id}}{(\code{character(1)}\cr The id of the object.}
-
-\item{\code{param_vals}}{(\verb{named list()})\cr The parameter values.}
+\item{\code{id}}{(\code{character(1)})\cr
+The id for of the object.}
 }
 \if{html}{\out{</div>}}
 }

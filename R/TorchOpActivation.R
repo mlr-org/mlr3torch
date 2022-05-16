@@ -3,6 +3,11 @@
 TorchOpActivation = R6Class("TorchOpActivation",
   inherit = TorchOp,
   public = list(
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
+    #' @param id (`character(1)`)\cr
+    #'   The id for of the object.
+    #' @parm param_vals (named `list()`)\cr
+    #'   The initial parameters for the object.
     initialize = function(id = .activation, param_vals = list(), .act) {
       assert_choice(.act, torch_reflections$activation)
       private$.act = .act

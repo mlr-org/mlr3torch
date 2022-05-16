@@ -2,6 +2,11 @@
 TorchOpSelfAttention = R6Class("TorchOpSelfAttention",
   inherit = TorchOp,
   public = list(
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
+    #' @param id (`character(1)`)\cr
+    #'   The id for of the object.
+    #' @parm param_vals (named `list()`)\cr
+    #'   The initial parameters for the object.
     initialize = function(id = "selfattention", param_vals = list()) {
       param_set = ps(
         d_token = p_int(default = NO_DEF, lower = 1L, tags = "train"),
