@@ -3,14 +3,13 @@
 \name{mlr_learners_classif.alexnet}
 \alias{mlr_learners_classif.alexnet}
 \alias{LearnerClassifAlexNet}
-\title{Classification AlexNet Learner}
+\title{AlexNet Image Classifier}
 \description{
-Calls \link{model_alexnet} from package \CRANpkg{mlr3torch}.
+Convolutional network for image classification.
 }
 \section{Dictionary}{
- This \link{Learner} can be instantiated via the
-\link[mlr3misc:Dictionary]{dictionary} \link{mlr_learners} or with the associated
-sugar function \code{\link[=lrn]{lrn()}}:\preformatted{mlr_learners$get("classif.alexnet")
+
+This \link{Learner} can be instantiated via the \link[mlr3misc:Dictionary]{dictionary} \link{mlr_learners} or with the associated sugar function \code{\link[=lrn]{lrn()}}:\preformatted{mlr_learners$get("classif.alexnet")
 lrn("classif.alexnet")
 }
 }
@@ -39,8 +38,7 @@ lrn("classif.alexnet")
    num_threads \tab integer \tab 1 \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
    train_fn \tab untyped \tab - \tab  \tab - \cr
    valid_fn \tab untyped \tab - \tab  \tab - \cr
-   train_augmentation \tab untyped \tab - \tab  \tab - \cr
-   valid_augmentation \tab untyped \tab - \tab  \tab - \cr
+   augmentation \tab untyped \tab - \tab  \tab - \cr
    architecture \tab untyped \tab - \tab  \tab - \cr
    opt.lr \tab numeric \tab 0.001 \tab  \tab \eqn{[0, \infty)}{[0, Inf)} \cr
    opt.betas \tab untyped \tab c    , 0.9  , 0.999 \tab  \tab - \cr
@@ -54,10 +52,56 @@ lrn("classif.alexnet")
 }
 }
 
+\section{Architecture}{
+
+Calls \link[torchvision:model_alexnet]{torchvision::model_alexnet} from package \CRANpkg{torchvision} to load the
+network architecture. If the parameter \code{pretrained == TRUE}, the learner is initialized
+with pretrained weights and the final layer is replaced with an simple linear
+output layer tailored to the task when the method \verb{$train()} is called.
+}
+
+\section{Optimizer}{
+
+The following optimizers are supported and can be set during construction using the
+\code{.optimizer} argument.
+\itemize{
+\item adadelta
+\item adagrad
+\item adam
+\item asgd
+\item lbfgs
+\item rmsprop
+\item rprop
+\item sgd
+}
+
+Depending on \code{.optimizer}, the constructor arguments of the corresponding
+\link[torch:optimizer]{optimizer} are dynamically set as parameters of the learner, prefixed by
+"opt.".
+The optimizer cannot be changed after the learner was constructed.
+}
+
+\section{Loss}{
+
+For classificatoin tasks, the following lossses are supported and can be set during construction
+using the \code{.loss} argument:
+\itemize{
+\item mse
+}
+
+The default is set to "cross_entropy". Depending on the loss the constructor arguments of the
+corresponding loss funcction are dynamically set as parameters of the learner, prefixed by
+"loss.", see section \emph{Parameters} for an example using the \code{.loss = "cross_entropy"}.
+The loss function cannot be changed after the learner was constructed.
+}
+
 \examples{
-\dontrun{
-library(mlr3)
-library(mlr3torch)
+if (requireNamespace("mlr3torch", quietly = TRUE) && requireNamespace("torch", quietly = TRUE) && requireNamespace("torchvision", quietly = TRUE)) {
+  learner = mlr3::lrn("classif.alexnet")
+  print(learner)
+
+  # available parameters:
+learner$param_set$ids()
 }
 }
 \references{
@@ -75,9 +119,6 @@ Krizhevsky, Alex (2014).
 \item \CRANpkg{mlr3pipelines} to combine learners with pre- and postprocessing steps.
 \item \CRANpkg{mlr3tuning} for tuning of hyperparameters, \CRANpkg{mlr3tuningspaces} for established default tuning spaces.
 }
-}
-\author{
-Lukas Burk
 }
 \section{Super classes}{
 \code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3:LearnerClassif]{mlr3::LearnerClassif}} -> \code{\link[mlr3torch:LearnerClassifTorchAbstract]{mlr3torch::LearnerClassifTorchAbstract}} -> \code{LearnerClassifAlexNet}
@@ -113,6 +154,19 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \if{html}{\out{<div class="r">}}\preformatted{LearnerClassifAlexNet$new(.optimizer = "adam", .loss = "cross_entropy")}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{.optimizer}}{(\code{character()})\cr
+A character string containing the name of the optimizer.
+Possible values are \code{torch_reflections$optimizer}.}
+
+\item{\code{.loss}}{(\code{character()})\cr
+A character string containing the name of the loss function
+For possible values see \code{torch_reflections$loss}.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

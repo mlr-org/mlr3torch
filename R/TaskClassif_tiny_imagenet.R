@@ -7,15 +7,12 @@
 # NULL
 
 load_task_tiny_imagenet = function(id = "tiny_imagenet") {
+  rlang::local_options(timeout = 120L)
   cache_dir = R_user_dir("mlr3torch", "cache")
-  dir = sprintf("%s/data", cache_dir)
+  superdir = sprintf("%s/data", cache_dir)
+  dir = sprintf("%s/tiny-imagenet-200", superdir)
 
-  if (!dir.exists(dir)) {
-    # TODO: We only need the download here and not the construction of the dataset
-    torchvision::tiny_imagenet_dataset(root = dir, download = !dir.exists(dir))
-  }
-
-  dir = sprintf("%s/tiny-imagenet-200", dir)
+  torchvision::tiny_imagenet_dataset(root = superdir, download = !dir.exists(dir))
 
   lookup = fread(sprintf("%s/words.txt", dir), header = FALSE)
   colnames(lookup) = c("id", "label")

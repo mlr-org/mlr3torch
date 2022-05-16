@@ -1,5 +1,5 @@
-#' @title [CLS] Token
-#' @description Appends a trainable [CLS] Token along the second dimension.
+#' @title \[CLS\] Token
+#' @description Appends a trainable \[CLS\] Token along the second dimension.
 #' @references
 #' `r format_bib("devlin2018bert", "gorishniy2021revisiting")
 #'

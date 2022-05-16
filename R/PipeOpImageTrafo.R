@@ -1,6 +1,6 @@
 #' @export
 PipeOpImageTrafo = R6Class("TorchOpImageTrafo",
-  inherit = mlr3pipelines::PipeOpTaskPreproc,
+  inherit = mlr3pipelines::PipeOpTaskPreprocSimple,
   public = list(
     initialize = function(id = .trafo, param_vals = list(), .trafo) {
       assert_choice(.trafo, torch_reflections$image_trafos)

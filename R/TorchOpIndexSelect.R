@@ -3,6 +3,7 @@
 TorchOpIndexSelect = R6Class("TorchOpIndexSelect",
   inherit = TorchOp,
   public = list(
+    #' @template initialize
     initialize = function(id = "indexselect", param_vals = list()) {
       param_set = ps(
         dim = p_int(default = 2L, lower = 0L),

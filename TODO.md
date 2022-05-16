@@ -19,6 +19,7 @@ next:
 
 Problems:
 - Conflict between lgr and progress
+- Check that train and eval mode are correctly applied during train valid and predict
 
 ## block()
 --> What is a block?

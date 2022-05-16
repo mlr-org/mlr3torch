@@ -12,8 +12,7 @@ make_paramset = function(task_type, optimizer, loss, architecture = FALSE) {
     num_threads = p_int(default = 1L, lower = 1L, tags = c("train", "predict", "threads")),
     train_fn = p_uty(tags = "train"),
     valid_fn = p_uty(tags = "train"),
-    train_augmentation = p_uty(tags = "train"),
-    valid_augmentation = p_uty(tags = "train")
+    augmentation = p_uty(tags = "train")
   )
   if (architecture) {
     ps1$add(ParamUty$new("architecture", tags = "train", custom_check = check_architecture))
@@ -29,7 +28,7 @@ make_paramset = function(task_type, optimizer, loss, architecture = FALSE) {
 
   optim_paramset = paramsets_optim$get(optimizer)
   optim_paramset$set_id = "opt"
-  loss_paramset = loss_paramsets$get(loss)
+  loss_paramset = paramsets_loss$get(loss)
   loss_paramset$set_id = "loss"
 
   param_set$add(optim_paramset)

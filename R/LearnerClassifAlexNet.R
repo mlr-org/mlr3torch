@@ -1,27 +1,33 @@
-#' @title Classification AlexNet Learner
-#' @author Lukas Burk
+#' @title AlexNet Image Classifier
+#'
 #' @name mlr_learners_classif.alexnet
-#' @usage NULL
-#' @template class_learner
+#'
+#' @description
+#' Convolutional network for image classification.
+#'
 #' @templateVar id classif.alexnet
-#' @templateVar caller model_alexnet
+#' @templateVar pkg torchvision
+#' @templateVar model model_alexnet
+#'
+#' @template learner
+#' @template pretrained
+#' @template optimizer
+#' @template loss_classif
 #'
 #' @references
 #' `r format_bib("krizhevsky2014one")`
 #'
-#' @template seealso_learner
 #' @export
-#' @examples
-#' \dontrun{
-#' library(mlr3)
-#' library(mlr3torch)
-#' }
-LearnerClassifAlexNet = R6::R6Class("LearnerClassifAlexNet",
+#' @template seealso_learner
+#' @template example
+LearnerClassifAlexNet = R6Class("LearnerClassifAlexNet",
   inherit = LearnerClassifTorchAbstract,
 
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template param_.optimizer
+    #' @template param_.loss
     initialize = function(.optimizer = "adam", .loss = "cross_entropy") {
       param_set = ps(
         pretrained = p_lgl(default = TRUE, tags = "train")

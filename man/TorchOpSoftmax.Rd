@@ -25,7 +25,6 @@ TorchOpSoftmax
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print">}\href{../../mlr3pipelines/html/PipeOp.html#method-print}{\code{mlr3pipelines::PipeOp$print()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train">}\href{../../mlr3pipelines/html/PipeOp.html#method-train}{\code{mlr3pipelines::PipeOp$train()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="build">}\href{../../mlr3torch/html/TorchOp.html#method-build}{\code{mlr3torch::TorchOp$build()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="repr">}\href{../../mlr3torch/html/TorchOp.html#method-repr}{\code{mlr3torch::TorchOp$repr()}}\out{</span>}
 }
 \out{</details>}
 }
@@ -33,10 +32,20 @@ TorchOpSoftmax
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
+Initializes an object of class \link{TorchOpSoftmax}\cr
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{TorchOpSoftmax$new(id = "softmax", param_vals = list())}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{id}}{( \code{character(1)}) The id of the \link{TorchOp}.}
+
+\item{\code{param_vals}}{(\code{named_list()}) The parameter values.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

@@ -112,14 +112,14 @@ get_torch_loss <- function(name) {
 #'
 #' The following optimizers are currently supported:
 #'
-#' - `"adadelta"`: [`torch::optim_adadelta`](torch::optim_adadelta)
-#' - `"adagrad"`: [`torch::optim_adagrad`](torch::optim_adagrad)
-#' - `"adam"`: [`torch::optim_adam`](torch::optim_adam)
-#' - `"asgd"`: [`torch::optim_asgd`](torch::optim_asgd)
-#' - `"lbfgs"`: [`torch::optim_lbfgs`](torch::optim_lbfgs)
-#' - `"rmsprop"`: [`torch::optim_rmsprop`](torch::optim_rmsprop)
-#' - `"rprop"`: [`torch::optim_rprop`](torch::optim_rprop)
-#' - `"sgd"`: [`torch::optim_sgd`](torch::optim_sgd)
+#' - `"adadelta"`: [`torch::optim_adadelta`][torch::optim_adadelta]
+#' - `"adagrad"`: [`torch::optim_adagrad`][torch::optim_adagrad]
+#' - `"adam"`: [`torch::optim_adam`][torch::optim_adam]
+#' - `"asgd"`: [`torch::optim_asgd`][torch::optim_asgd]
+#' - `"lbfgs"`: [`torch::optim_lbfgs`][torch::optim_lbfgs]
+#' - `"rmsprop"`: [`torch::optim_rmsprop`][torch::optim_rmsprop]
+#' - `"rprop"`: [`torch::optim_rprop`][torch::optim_rprop]
+#' - `"sgd"`: [`torch::optim_sgd`][torch::optim_sgd]
 #'
 #' @param name `[character]` Name of the optimizer.
 #'

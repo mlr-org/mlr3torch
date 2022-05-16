@@ -45,7 +45,7 @@ learner_classif_torch_train = function(self, model, task) {
   drop_last = pars$drop_last %??% FALSE
   shuffle = pars$shuffle %??% TRUE
   valid_split = pars$valid_split
-  augmentation = pars$augmentatoin
+  augmentation = pars$augmentation
 
   train_fn = pars$train_fn
   valid_fn = pars$valid_fn
@@ -59,9 +59,7 @@ learner_classif_torch_train = function(self, model, task) {
   train_set = as_dataset(task, device, augmentation, train_ids)
   valid_set = as_dataset(task, device, NULL, valid_ids)
 
-  train_loader = as_dataloader(train_set, batch_size = batch_size, drop_last = drop_last,
-    augmentation = train_augmentation
-  )
+  train_loader = as_dataloader(train_set, batch_size = batch_size, drop_last = drop_last)
   valid_loader = as_dataloader(valid_set, batch_size = batch_size, drop_last = drop_last)
 
   history$n_train = length(train_loader)
@@ -75,15 +73,19 @@ learner_classif_torch_train = function(self, model, task) {
       format = "[:bar] :eta Loss: :loss"
     )
 
+    network$train()
+
     loop(for (batch in train_loader) {
       train_fn(batch, network, optimizer, loss_fn, history)
       history$train_iter = history$train_iter + 1L
       pb$tick(tokens = list(loss = history$last_train_loss))
     })
 
-    pb = progress::progress_bar$new( total = length(valid_loader), format = "[:bar]")
+    pb = progress::progress_bar$new(total = length(valid_loader), format = "[:bar]")
 
     history$valid_iter = 1L
+
+    network$eval()
     loop(for (batch in valid_loader) {
       valid_fn(batch, network, loss_fn, history)
       history$valid_iter = history$valid_iter + 1L

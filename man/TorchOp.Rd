@@ -14,7 +14,6 @@ All TorchOps inherit from this class.
 \itemize{
 \item \href{#method-new}{\code{TorchOp$new()}}
 \item \href{#method-build}{\code{TorchOp$build()}}
-\item \href{#method-repr}{\code{TorchOp$repr()}}
 \item \href{#method-clone}{\code{TorchOp$clone()}}
 }
 }
@@ -31,6 +30,7 @@ All TorchOps inherit from this class.
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
+Initializes a new instance of this \link[R6:R6Class]{R6 Class}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{TorchOp$new(
   id,
@@ -42,12 +42,38 @@ All TorchOps inherit from this class.
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{id}}{(\code{character(1)})\cr
+Identifier for the new instance.}
+
+\item{\code{param_set}}{(\code{ParamSet})\cr
+Parameter set to be set for the \link[mlr3pipelines:PipeOp]{PipeOp}.}
+
+\item{\code{param_vals}}{(named \code{list()})\cr
+Named list with parameter values to be set after construction.}
+
+\item{\code{input}}{(\code{data.table()})\cr
+Input channels to be set for the \link[mlr3pipelines:PipeOp]{PipeOp}.
+The input default name is "input", accpets "ModelArgs" during \verb{$train()} and a "Task"
+during \verb{$predict()}.}
+
+\item{\code{output}}{(\code{data.table()})\cr
+Output channels to be set for the \link[mlr3pipelines:PipeOp]{PipeOp}.
+The output default name is "output", accepts "ModelArgs" during \verb{$train()} and a "Task"
+during \verb{$predict()}.}
+
+\item{\code{packages}}{(\code{character()}) The packages on which the \link{TorchOp} depends.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-build"></a>}}
 \if{latex}{\out{\hypertarget{method-build}{}}}
 \subsection{Method \code{build()}}{
-Builds the torch layer
+Builds a Torch Operator
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{TorchOp$build(inputs, task, y)}\if{html}{\out{</div>}}
 }
@@ -55,24 +81,23 @@ Builds the torch layer
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{task}}{(mlr3::Task) The task on which the architecture is trained.
-Provides the repreesntation for the TorchOp.}
+\item{\code{inputs}}{(named \code{list()})\cr
+Named list of \link[torch:torch_tensor]{\code{torch_tensor}s} that form a batch that is the input
+for the current layer. The names have to correspond to the names of the
+\link[=TorchOp]{TorchOp's} input channels.}
 
-\item{\code{input}}{(torch_tensor) The torch tensor that is the input to this layer.}
+\item{\code{task}}{(\code{mlr3::Task})\cr
+The task for which to build the architecture.}
 
-\item{\code{param_vals}}{(list()) parameter values passed to the build function.}
+\item{\code{y}}{(\code{torch_tensor})\cr
+A batch of the target variable.}
 }
 \if{html}{\out{</div>}}
 }
+\subsection{Returns}{
+\code{torch::nn_module()} where the arguments of the \verb{$forward()} function correspond
+to the names of the input channels and the output is a single \code{torch_tensor}.
 }
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-repr"></a>}}
-\if{latex}{\out{\hypertarget{method-repr}{}}}
-\subsection{Method \code{repr()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchOp$repr()}\if{html}{\out{</div>}}
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

@@ -45,5 +45,6 @@ print.imageuri = function(x, ...) {
   catf(" * N(Trafos): %d", n_trafos)
   catf(" * Data Type: %s", class(attr(x, "transformed"))[[1L]])
   catf(" * Example uri: %s", x[[1L]])
+  invisible(x)
 }
 

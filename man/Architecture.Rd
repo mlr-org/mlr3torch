@@ -40,19 +40,40 @@ Neral Network (Graph-) Architecture
 \if{html}{\out{<a id="method-add_torchop"></a>}}
 \if{latex}{\out{\hypertarget{method-add_torchop}{}}}
 \subsection{Method \code{add_torchop()}}{
+Adds a new \link{TorchOp} to the list of \link{TorchOp}s.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Architecture$add_torchop(op)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{op}}{(\code{TorchOp}) The TorchOp.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-build"></a>}}
 \if{latex}{\out{\hypertarget{method-build}{}}}
 \subsection{Method \code{build()}}{
+Builds an \link[torch:nn_module]{torch::nn_module}
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Architecture$build(task, input = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{task}}{(\verb{[mlr3::Task]}) The task for which to build the network.}
+
+\item{\code{input}}{(\code{any}) The input for the network. Uses the first instance if left as NULL.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Returns the layers, the output and the edges.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

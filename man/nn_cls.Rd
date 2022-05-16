@@ -2,7 +2,7 @@
 % Please edit documentation in R/nn_cls.R
 \name{nn_cls}
 \alias{nn_cls}
-\title{\link{CLS} Token}
+\title{[CLS] Token}
 \usage{
 nn_cls(d_token)
 }
@@ -10,7 +10,7 @@ nn_cls(d_token)
 \item{x}{(`torch_tensor) The input tensor}
 }
 \description{
-Appends a trainable \link{CLS} Token along the second dimension.
+Appends a trainable [CLS] Token along the second dimension.
 }
 \references{
 `r format_bib("devlin2018bert", "gorishniy2021revisiting")

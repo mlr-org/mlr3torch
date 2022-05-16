@@ -57,3 +57,11 @@ transform_random_apply(img)
 
 
 
+library(torch)
+library(torchvision)
+
+img = torch_randn(3, 64, 64)
+A = torch_randn(3 * 64^2)
+b = torch_randn(3 * 64^2)
+transform_linear_transformation(img, A, b)
+

@@ -4,7 +4,7 @@
 #' It takes a task and converts it first to a dataset and then to a dataloader
 #' @export
 #' @param x (`any`) object to be converted to a dataloader.
-as_dataloader = function(x, row_ids, batch_size, device, ...) {
+as_dataloader = function(x, ...) {
   UseMethod("as_dataloader")
 }
 
@@ -17,9 +17,9 @@ as_dataloader.Task = function(x, batch_size, device, row_ids = NULL, ...) { # no
 }
 
 #' @export
-as_dataloader.dataset = function(x, batch_size, ...) { # nolint
+as_dataloader.dataset = function(x, batch_size, device, ...) { # nolint
   dataloader(
-    data = x,
+    dataset = x,
     batch_size = batch_size,
     ...
   )

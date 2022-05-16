@@ -1,11 +1,14 @@
 #' @title Linear TorchOp
 #' @include TorchOpLinear.R
-#' @section Dimensions
+#' @section Dimensions:
 #' (n, ..., in_features) --> (n, ..., out_features)
 #' @export
 TorchOpLinear = R6Class("TorchOpLinear",
   inherit = TorchOp,
   public = list(
+    #' @description Initializes an object of class [TorchOpLinear]
+    #' @param id (`integer(1)`) The id of the object.
+    #' @param param_vals (`named list( )`) The parameter values.
     initialize = function(id = "linear", param_vals = list()) {
       param_set = ps(
         out_features = p_int(1L, Inf, tags = c("train", "required")),

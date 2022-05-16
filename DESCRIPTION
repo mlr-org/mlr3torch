@@ -2,35 +2,32 @@ Package: mlr3torch
 Title: Torch Models for 'mlr3'
 Version: 0.0.0.9000
 Authors@R:
-    person(given = "Lukas",
-           family = "Burk",
-           role = c("aut", "cre"),
-           email = "github@quantenbrot.de",
+    person("Lukas", "Burk", , "github@quantenbrot.de", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-7528-3795"))
 Description: Provides torch models as learners for the mlr3 ecosystem.
 License: LGPL (>= 3)
 Imports:
+    backports,
     checkmate,
+    coro,
     data.table,
     fs,
-    lifecycle,
     luz,
+    magick,
     mlr3,
     mlr3misc,
-    paradox,
-    R6,
     mlr3pipelines,
+    paradox,
+    progress,
+    R6,
+    rlang,
     torch,
     torchvision,
-    zeallot,
-    coro,
-    magick
+    zeallot
 Suggests:
     lgr,
     tabnet,
     testthat (>= 3.0.0)
-Remotes:
-    mlverse/tabnet
 Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
@@ -38,7 +35,6 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 Collate:
     'Architecture.R'
-    'DataBackendDataLoader.R'
     'GraphNetwork.R'
     'History.R'
     'LearnerClassifAlexNet.R'
@@ -66,19 +62,15 @@ Collate:
     'TorchOpModel.R'
     'TorchOpOptimizer.R'
     'TorchOpParallel.R'
-    'TorchOpReLU.R'
-    'TorchOpRepeat.R'
     'TorchOpSelect.R'
     'TorchOpSelfAttention.R'
-    'TorchOpSkip.R'
-    'TorchOpSkipCon.R'
     'TorchOpSoftmax.R'
     'TorchOpTokenizer.R'
     'as_dataloader.R'
     'as_dataset.R'
-    'autotest_torchop.R'
     'bibentries.R'
     'dataloader.R'
+    'field_id.R'
     'graphs.R'
     'image-task.R'
     'imageuri.R'
@@ -96,7 +88,7 @@ Collate:
     'paramsets_loss.R'
     'paramsets_optim.R'
     'top.R'
-    'train.R'
+    'torch_reflections.R'
     'util-torch.R'
     'utils-models.R'
     'utils.R'

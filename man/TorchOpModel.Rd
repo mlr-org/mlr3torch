@@ -29,7 +29,6 @@ TorchOpModelClassif and TorchOpModelRegr inherit from this R6 Class.
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print">}\href{../../mlr3pipelines/html/PipeOp.html#method-print}{\code{mlr3pipelines::PipeOp$print()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train">}\href{../../mlr3pipelines/html/PipeOp.html#method-train}{\code{mlr3pipelines::PipeOp$train()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="build">}\href{../../mlr3torch/html/TorchOp.html#method-build}{\code{mlr3torch::TorchOp$build()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="repr">}\href{../../mlr3torch/html/TorchOp.html#method-repr}{\code{mlr3torch::TorchOp$repr()}}\out{</span>}
 }
 \out{</details>}
 }
@@ -37,10 +36,26 @@ TorchOpModelClassif and TorchOpModelRegr inherit from this R6 Class.
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
+Creates an object of class \link{TorchOpModel}\cr
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{TorchOpModel$new(id, param_vals, .task_type, .optimizer, .loss)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{id}}{(\code{character(1)}) The id of the object.}
+
+\item{\code{param_vals}}{(\verb{named list()}) A list containing the initial parameter values.}
+
+\item{\code{.task_type}}{(\code{character(1)}) The task type, see mlr_reflections$task_types.}
+
+\item{\code{.optimizer}}{(\code{character(1)}) The optimizer, see torch_reflections$optimizer.}
+
+\item{\code{.loss}}{(\code{character(1)}) The loss function, see torch_reflections$loss.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

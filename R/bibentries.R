@@ -14,7 +14,7 @@ bibentries = c( # nolint start
   ),
   vaswani2017attention = bibentry("article",
     title = "Attention is all you need",
-    author = "Vaswani, Ashish and Shazeer, Noam and Parmar, Niki and Uszkoreit, Jakob and Jones, Llion and Gomez, Aidan N and Kaiser, Łukasz and Polosukhin, Illia",
+    author = "Vaswani, Ashish and Shazeer, Noam and Parmar, Niki and Uszkoreit, Jakob and Jones, Llion and Gomez, Aidan N and Kaiser, \xc5\x81ukasz and Polosukhin, Illia",
     journal = "Advances in neural information processing systems",
     volume = "30",
     year = "2017"
