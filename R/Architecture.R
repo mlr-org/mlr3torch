@@ -3,9 +3,16 @@
 Architecture = R6Class("Architecture",
   inherit = Graph,
   public = list(
+    #' @description Adds a new [TorchOp] to the list of [TorchOp]s.
+    #' @param op (`TorchOp`) The TorchOp.
     add_torchop = function(op) {
+      assert_true(inherits(op, "TorchOp"))
       super$add_pipeop(op)
     },
+    #' @description Builds an [torch::nn_module]
+    #' @param task (`[mlr3::Task]`) The task for which to build the network.
+    #' @param input (`any`) The input for the network. Uses the first instance if left as NULL.
+    #' @return Returns the layers, the output and the edges.
     build = function(task, input = NULL) {
       reduction = architecture_reduce(self, task, input)
       # edges  simplify_graph(reduction$edges)
@@ -13,23 +20,6 @@ Architecture = R6Class("Architecture",
     }
   )
 )
-
-#' @title Reduce an Architecture to Layers (nn_modules)
-#' @description A Architecture contains builders (nodes) and edges that indicate how the data will
-#' flow through the layers that are constructed by the builders.
-#' This function builds all the layers.
-#' For that the ids of the grpah need to be topologically sorted and then one has to loop over the
-#' topologically sorted layers and call the build function. The outputs of each layer are safed
-#' until all the direct children of the node are built.
-#'
-#' This structure is essentially identical to the network_forward function only that we here
-#' additionally call the build function and also that the task is passe == idxd instead of the actual
-#' network input as obtained from the dataloader.
-#'
-#' @param architecture (mlr3torch::Architecture) The architecture that is being build from the task.
-#' @param task (mlr3::Task) The task for which to build the architecture.
-#' @param input (torch::Tensor) The input tensor. If NULL the output of the data-loader that is
-#' generated from the task is used. (E.g. used when reducing a block)
 
 architecture_reduce = function(self, task = NULL, input = NULL) {
   graph_input = self$input
@@ -40,7 +30,7 @@ architecture_reduce = function(self, task = NULL, input = NULL) {
   )
   layers = list()
 
-  instance = get_instance(task)
+  instance = get_batch(task, batch_size = 1L, device = "cpu")
   y = instance[["y"]]
   if (is.null(input)) {
     input = instance$x
@@ -71,7 +61,7 @@ architecture_reduce = function(self, task = NULL, input = NULL) {
     input = input_tbl$payload
     names(input) = input_tbl$name
 
-    lg$debug("Running PipeOp '%s$%s()'", id, fun, pipeop = op, input = input)
+    lg$debug("Running PipeOp '%s'", id, pipeop = op, input = input)
 
     c(layers[[id]], output) %<-% op$build(input, task, y)
     # layers[[id]] = layer

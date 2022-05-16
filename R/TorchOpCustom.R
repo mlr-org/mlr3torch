@@ -9,6 +9,11 @@
 TorchOpCustom = R6Class("TorchOpCustom",
   inherit = TorchOp,
   public = list(
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
+    #' @param id (`character(1)`)\cr
+    #'   The id for of the object.
+    #' @parm param_vals (named `list()`)\cr
+    #'   The initial parameters for the object.
     initialize = function(id = "custom", param_vals = list()) {
       param_set = ps(
         fn = p_uty(tags = c("train", "required"), custom_check = check_fn),

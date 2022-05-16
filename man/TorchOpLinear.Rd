@@ -8,6 +8,11 @@ Linear TorchOp
 
 Linear TorchOp
 }
+\section{Dimensions}{
+
+(n, ..., in_features) --> (n, ..., out_features)
+}
+
 \section{Super classes}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:TorchOp]{mlr3torch::TorchOp}} -> \code{TorchOpLinear}
 }
@@ -21,11 +26,11 @@ Linear TorchOp
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
+\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help">}\href{../../mlr3pipelines/html/PipeOp.html#method-help}{\code{mlr3pipelines::PipeOp$help()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict">}\href{../../mlr3pipelines/html/PipeOp.html#method-predict}{\code{mlr3pipelines::PipeOp$predict()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print">}\href{../../mlr3pipelines/html/PipeOp.html#method-print}{\code{mlr3pipelines::PipeOp$print()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train">}\href{../../mlr3pipelines/html/PipeOp.html#method-train}{\code{mlr3pipelines::PipeOp$train()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="build">}\href{../../mlr3torch/html/TorchOp.html#method-build}{\code{mlr3torch::TorchOp$build()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="repr">}\href{../../mlr3torch/html/TorchOp.html#method-repr}{\code{mlr3torch::TorchOp$repr()}}\out{</span>}
 }
 \out{</details>}
 }
@@ -33,10 +38,19 @@ Linear TorchOp
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
+Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{TorchOpLinear$new(id = "linear", param_vals = list())}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{id}}{(\code{character(1)})\cr
+The id for of the object.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

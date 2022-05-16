@@ -4,10 +4,12 @@
 \alias{as_dataloader}
 \title{Converts an object to a torch::DataLoader}
 \usage{
-as_dataloader(x, row_ids, batch_size, device, ...)
+as_dataloader(x, ...)
 }
 \arguments{
 \item{x}{(\code{any}) object to be converted to a dataloader.}
+
+\item{...}{Additional arguments.}
 }
 \description{
 It takes a task and converts it first to a dataset and then to a dataloader

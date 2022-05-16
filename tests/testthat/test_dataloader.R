@@ -33,7 +33,6 @@ test_that("make_dataset works", {
     data = dat,
     target = "y",
     features = paste0("x_", c("lgl", "fct", "int", "num")),
-    batch_size = 1,
     device = "cpu"
   )
 

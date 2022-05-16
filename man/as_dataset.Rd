@@ -6,6 +6,11 @@
 \usage{
 as_dataset(x, ...)
 }
+\arguments{
+\item{x}{(any)\cr Object to be converted to a \link[torch:dataset]{torch::dataset}.}
+
+\item{...}{Additional arguments.}
+}
 \description{
 Converts an object to a torch::Dataset
 }

@@ -4,6 +4,21 @@
 TorchOp = R6Class("TorchOp",
   inherit = PipeOp,
   public = list(
+    #' @description Initializes a new instance of this [R6 Class][R6::R6Class].
+    #' @template param_id
+    #' @param param_set (`ParamSet`)\cr
+    #'   Parameter set to be set for the [PipeOp][mlr3pipelines::PipeOp].
+    #' @param param_vals (named `list()`)\cr
+    #'   Named list with parameter values to be set after construction.
+    #' @param input (`data.table()`)\cr
+    #'   Input channels to be set for the [PipeOp][mlr3pipelines::PipeOp].
+    #'   The input default name is "input", accpets "ModelArgs" during `$train()` and a "Task"
+    #'   during `$predict()`.
+    #' @param output (`data.table()`)\cr
+    #'   Output channels to be set for the [PipeOp][mlr3pipelines::PipeOp].
+    #'   The output default name is "output", accepts "ModelArgs" during `$train()` and a "Task"
+    #'   during `$predict()`.
+    #' @param packages (`character()`) The packages on which the [TorchOp][TorchOp] depends.
     initialize = function(id, param_set, param_vals, input = NULL, output = NULL, packages = NULL) {
       # default input and output channels, packages
       input = input %??% data.table(name = "input", train = "ModelArgs", predict = "Task")
@@ -19,10 +34,18 @@ TorchOp = R6Class("TorchOp",
         packages = packages
       )
     },
-    #' @description Builds the torch layer
-    #' @param input (torch_tensor) The torch tensor that is the input to this layer.
-    #' @param param_vals (list()) parameter values passed to the build function.
-    #' @param task (mlr3::Task) The task on which the architecture is trained.
+    #' @description Builds a Torch Operator
+    #'
+    #' @param inputs (named `list()`)\cr
+    #'   Named list of [`torch_tensor`s][torch::torch_tensor] that form a batch that is the input
+    #'   for the current layer. The names have to correspond to the names of the
+    #'   [TorchOp's][TorchOp] input channels.
+    #' @param task (`mlr3::Task`)\cr
+    #'   The task for which to build the architecture.
+    #' @param y (`torch_tensor`)\cr
+    #'   A batch of the target variable.
+    #' @return `torch::nn_module()` where the arguments of the `$forward()` function correspond
+    #' to the names of the input channels and the output is a single `torch_tensor`.
     build = function(inputs, task, y) {
       # TODO: Do checks
       if ((length(inputs) > 1L) && is.list(inputs)) { # Merging branches --> all tasks need to be
@@ -47,10 +70,6 @@ TorchOp = R6Class("TorchOp",
       }
 
       return(list(layer = layer, output = output))
-    },
-    #' Provides the repreesntation for the TorchOp.
-    repr = function() {
-      sprinf("<%s: %s>", self$.operator, self$param_set$get_values(tag = "train"))
     }
   ),
   active = list(

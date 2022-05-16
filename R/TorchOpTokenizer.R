@@ -2,6 +2,11 @@
 TorchOpTokenizer = R6Class("TorchOpTokenizer",
   inherit = TorchOp,
   public = list(
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
+    #' @param id (`character(1)`)\cr
+    #'   The id for of the object.
+    #' @parm param_vals (named `list()`)\cr
+    #'   The initial parameters for the object.
     initialize = function(id = "tokenizer", param_vals = list()) {
       param_set = ps(
         d_token = p_int(1L, Inf, tags = c("train", "required")),
@@ -43,7 +48,17 @@ TorchOpTokenizer = R6Class("TorchOpTokenizer",
   )
 )
 
-#' nn_tokenizer
+#' Tabular Tokenizers
+#'
+#' Tokenizes tabular data.
+#'
+#' @param n_features (`integer(1)`)\cr
+#'   The number of numeric features.
+#' @param cardinalities (`integer()`)\cr
+#'
+#'
+#'
+#' @references `r format_bib("gorishniy2021revisiting")`
 nn_tokenizer = nn_module(
   "nn_tokenizer",
   initialize = function(n_features, cardinalities, d_token, bias, cls) {

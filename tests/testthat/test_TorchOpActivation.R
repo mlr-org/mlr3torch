@@ -1,5 +1,5 @@
-test_that("All activation functions can be constructred", {
+test_that("All activation functions can be constructed", {
   for (act in torch_reflections$activation) {
-    expect_r6(top("activation", .activation = act), "TorchOp")
+    expect_r6(top(sprintf("%s_1", act)), "TorchOp")
   }
 })

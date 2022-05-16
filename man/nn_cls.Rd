@@ -2,16 +2,19 @@
 % Please edit documentation in R/nn_cls.R
 \name{nn_cls}
 \alias{nn_cls}
-\title{\link{CLS} Token}
+\title{[CLS] Token}
 \usage{
 nn_cls(d_token)
 }
 \arguments{
+\item{d_token}{(\code{integer(1)}) The token dimensionality.
+
+`r format_bib("devlin2018bert", "gorishniy2021revisiting")
+Appends a CLS token along the token dimension
+(n_batch, n_features, d_token) --> (n_batch, n_features + 1, d_token)}
+
 \item{x}{(`torch_tensor) The input tensor}
 }
 \description{
-Appends a trainable \link{CLS} Token along the second dimension.
-}
-\references{
-`r format_bib("devlin2018bert", "gorishniy2021revisiting")
+Appends a trainable [CLS] Token along the second dimension.
 }

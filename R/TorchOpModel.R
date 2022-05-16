@@ -8,6 +8,12 @@
 TorchOpModel = R6Class("TorchOpModel",
   inherit = TorchOp,
   public = list(
+    #' @description Creates an object of class [TorchOpModel]\cr
+    #' @param id (`character(1)`) The id of the object.
+    #' @param param_vals (`named list()`) A list containing the initial parameter values.
+    #' @param .task_type (`character(1)`) The task type, see mlr_reflections$task_types.
+    #' @param .optimizer (`character(1)`) The optimizer, see torch_reflections$optimizer.
+    #' @param .loss (`character(1)`) The loss function, see torch_reflections$loss.
     initialize = function(id, param_vals, .task_type, .optimizer, .loss) {
       assert_true(.optimizer %in% torch_reflections$optimizer)
       private$.optimizer = .optimizer

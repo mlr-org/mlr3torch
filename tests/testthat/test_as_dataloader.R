@@ -6,5 +6,5 @@ test_that("as_dataloader works", {
   )
   dl = as_dataloader(task, device = "cpu", batch_size = 16L)
   batch = dl$.iter()$.next()
-  expect_equal(batch$y$shape, c(16, 1))
+  expect_equal(batch$y$shape, 16)
 })

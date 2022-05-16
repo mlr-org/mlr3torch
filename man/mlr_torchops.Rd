@@ -5,7 +5,7 @@
 \alias{mlr_torchops}
 \title{Dictionary of TorchOps}
 \format{
-An object of class \code{DictionaryTorchOp} (inherits from \code{Dictionary}, \code{R6}) of length 15.
+An object of class \code{DictionaryTorchOp} (inherits from \code{Dictionary}, \code{R6}) of length 14.
 }
 \usage{
 mlr_torchops

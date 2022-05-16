@@ -1,39 +1,58 @@
 #' @import paradox
-#' @import R6
+#' @import mlr3
+#' @import checkmate
+#' @import data.table
+#' @import mlr3misc
+#' @importFrom R6 R6Class
 #' @import torch
 #' @import luz
 #' @import mlr3pipelines
 #' @import mlr3misc
 #' @import mlr3
+#' @importFrom R6 R6Class is.R6
 #' @importFrom zeallot `%<-%`
 #' @importFrom coro loop
-NULL
+#' @importFrom methods formalArgs
+#' @importFrom utils getFromNamespace
+#'
+#' @description
+#'   mlr3torch Connects the R [torch][torch] package to mlr3.
+#'   Neural Networks can be implemented on three different levels of control:
+#'
+#'   * Custom `nn_module`
+#'   * Build an `Architecture` using `TorchOp`s.
+#'   * Use a predefined architecture
+#'
+#' @section Feature Types:
+#'   It adds the feature type "imageuri", which is a S3 class based on a character vector with
+#'   additional attributes.
+#'
+"_PACKAGE"
 
-#' @title Reflections mechanism for torch
-#'
-#' @details
-#' Used to store / extend available hyperparameter levels for options used throughout torch,
-#' e.g. the available 'loss' for a given Learner.
-#'
-#' @format [environment].
-#' @export
-torch_reflections = new.env(parent = emptyenv())
 
 
 register_mlr3 = function() {
+
 
   # Learners ----------------------------------------------------------------
 
   lrns = utils::getFromNamespace("mlr_learners", ns = "mlr3")
   tsks = utils::getFromNamespace("mlr_tasks", ns = "mlr3")
 
+  tsks$add("tiny_imagenet", load_task_tiny_imagenet)
+
   # classification learners
-  lrns$add("classif.torch.tabnet", LearnerClassifTorchTabnet)
-  lrns$add("classif.torch.alexnet", LearnerClassifTorchAlexNet)
+  lrns$add("classif.tabnet", LearnerClassifTabNet)
+  lrns$add("classif.alexnet", LearnerClassifAlexNet)
   lrns$add("classif.torch", LearnerClassifTorch)
 
   # regression learners
-  lrns$add("regr.torch.tabnet", LearnerRegrTorchTabnet)
+  # lrns$add("regr.torch.tabnet", LearnerClassifTabNet)
+
+  # PipeOps
+  mlr_pipeops = mlr3pipelines::mlr_pipeops
+  mlr_pipeops$add("imagetrafo", PipeOpImageTrafo)
+
 
 
   # Reflections -------------------------------------------------------------
@@ -41,33 +60,13 @@ register_mlr3 = function() {
 
   # Image URI feature (e.g. file path to .jpg etc.) for image classif tasks
   reflcts$task_feature_types[["img"]] = "imageuri"
-  reflcts$data_formats = c(reflcts$data_formats, "torch_tensor")
-
-  local({
-    torch_reflections$loss = list(
-      classif = c(
-        "adaptive_log_softmax_with", "bce", "bce_with_logits", "cosine_embedding",
-        "ctc", "cross_entropy", "hinge_embedding", "kl_div", "margin_ranking",
-        "multi_margin", "multilabel_margin", "multilabel_soft_margin", "nll",
-        "soft_margin", "triplet_margin", "triplet_margin_with_distance"
-      ),
-      regr = c("l1", "mse", "poisson_nll", "smooth_l1")
-    )
-
-    torch_reflections$optimizer = c(
-      "rprop", "rmsprop", "adagrad", "asgd", "adadelta", "lbfgs", "sgd", "adam"
-    )
-
-    torch_reflections$activation = c(
-      "elu", "hardshrink", "hardsigmoid", "hardtanh", "hardswish", "leaky_relu", "log_sigmoid",
-      "prelu", "relu", "relu6", "rrelu", "selu", "sigmoid",
-      "softplus", "softshrink", "softsign", "tanh", "tanhshrink", "threshold", "glu"
-    )
-  })
-
 }
 
 .onLoad = function(libname, pkgname) {
+  # For caching directory
+  backports::import(pkgname)
+  backports::import(pkgname, "R_user_dir", force = TRUE)
+
   register_namespace_callback(pkgname, "mlr3", register_mlr3)
   assign("lg", lgr::get_logger(pkgname), envir = parent.env(environment()))
   if (Sys.getenv("IN_PKGDOWN") == "true") {

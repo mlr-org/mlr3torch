@@ -2,10 +2,21 @@
 % Please edit documentation in R/TorchOpTokenizer.R
 \name{nn_tokenizer}
 \alias{nn_tokenizer}
-\title{nn_tokenizer}
+\title{Tabular Tokenizers}
 \usage{
 nn_tokenizer(n_features, cardinalities, d_token, bias, cls)
 }
+\arguments{
+\item{n_features}{(\code{integer(1)})\cr
+The number of numeric features.}
+
+\item{cardinalities}{(\code{integer()})\cr}
+}
 \description{
-nn_tokenizer
+Tokenizes tabular data.
+}
+\references{
+Gorishniy Y, Rubachev I, Khrulkov V, Babenko A (2021).
+\dQuote{Revisiting Deep Learning Models for Tabular Data.}
+\emph{arXiv}, \bold{2106.11959}.
 }

@@ -7,7 +7,7 @@
 \usage{
 top(.obj, ...)
 
-tops(.ob, ...)
+tops(.objs, ...)
 }
 \description{
 Create

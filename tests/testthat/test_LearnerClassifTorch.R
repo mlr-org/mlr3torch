@@ -21,9 +21,9 @@ test_that("LearnerClassifTorch works with Architecture as architecture", {
   graph = top("input") %>>%
     top("tokenizer", d_token = 5L) %>>%
     top("flatten") %>>%
-    top("linear1", out_features = 10L) %>>%
+    top("linear_1", out_features = 10L) %>>%
     top("relu") %>>%
-    top("linear2", out_features = 4L)
+    top("linear_2", out_features = 4L)
 
   architecture = graph$train(task)[[1L]]$architecture
   l = lrn("classif.torch", .optimizer = "adam", .loss = "cross_entropy",

@@ -43,7 +43,7 @@ library(mlr3torch)
 task <- tsk("german_credit")
 
 # Set up the learner
-lrn_tabnet <- lrn("classif.torch.tabnet", epochs = 5)
+lrn_tabnet <- lrn("classif.tabnet", epochs = 5)
 
 # Train and Predict
 lrn_tabnet$train(task, row_ids = 1:900)

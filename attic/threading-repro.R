@@ -3,7 +3,7 @@ library(mlr3)
 library(mlr3torch)
 library(mlr3benchmark)
 
-lrn <- lrn("classif.torch.tabnet", epochs = 5L, num_threads = 1L)
+lrn <- lrn("classif.tabnet", epochs = 5L, num_threads = 1L)
 
 # Without parallelization -------------------------------------------------
 cli::cli_h1("CV without parallelisation")

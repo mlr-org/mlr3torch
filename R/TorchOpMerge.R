@@ -1,16 +1,27 @@
-#' @section Order of Inputs
+#' @title Merges Multiple Tensors
+#' @description Merges multiple tensors.
+#' @section Order of Inputs:
 #' Addition and multiplication are albeit not computationally commutative and associative
 #' comutative, meaning the order in which they are executed is (mathematically) irrelevant.
 #' This however is not the case when stacking tensors. If for some reason the order of stacking.
 #' is relevant for your model, it has to be created manually.
 #' The order in which the tensors are concatenated is [input1, input2, input3]
+#' @export
 TorchOpMerge = R6Class("TorchOpMerge",
   inherit = TorchOp,
   public = list(
-    #' @description Initilizes a new instance of this class.
+    #' @description Initilizes a new instance of this class.\cr
     #' @param id (`character(1)`) The id of the TorchOp.
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
+    #' @param id (`character(1)`)\cr
+    #'   The for of the object.
+    #' @parm param_vals (named `list()`)\cr
+    #'   The initial parameters for the object.
     #' @param param_vals (`list()`) List of parameter values.
     #' @param .innum (`character()`) number of inputs.
+    #' @description Initializes an object of class [TorchOpInput]
+    #' @param id (`character(1)`) The id of the object.
+    #' @param param_vals (`named list()`) The parameter values.
     initialize = function(id = "merge", param_vals = list(), .innum = NULL) {
       param_set = ps(
         method = p_fct(levels = c("add", "mul", "cat"), tags = c("train", "required")),
@@ -38,11 +49,6 @@ TorchOpMerge = R6Class("TorchOpMerge",
     }
   ),
   private = list(
-    #' @description builds the merger
-    #' @param input a list of tensors
-    #' @param param_vals parameter values
-    #' @param task the task
-    #' @param y the target
     .build = function(inputs, param_vals, task, y) {
       # input are various tensors
       method = param_vals$method
