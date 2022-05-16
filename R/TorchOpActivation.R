@@ -51,41 +51,41 @@ make_torchop_activation = function(classname, act) {
 #' @export
 TorchOpElu = make_torchop_activation("Elu", "elu")
 #' @export
-TorchOpElu = make_torchop_activation("HardShrink", "hardshrink")
+TorchOpHardShrink = make_torchop_activation("HardShrink", "hardshrink")
 #' @export
-TorchOpElu = make_torchop_activation("HardSigmoid", "hardsigmoid")
+TorchOpHardSigmoid = make_torchop_activation("HardSigmoid", "hardsigmoid")
 #' @export
-TorchOpElu = make_torchop_activation("HardTanh", "hardtanh")
+TorchOpHardTanh = make_torchop_activation("HardTanh", "hardtanh")
 #' @export
-TorchOpElu = make_torchop_activation("HardSwish", "hardwish")
+TorchOpHardSwish = make_torchop_activation("HardSwish", "hardswish")
 #' @export
-TorchOpElu = make_torchop_activation("LeakyRelu", "leaky_relu")
+TorchOpLeakyReLU = make_torchop_activation("LeakyReLU", "leaky_relu")
 #' @export
-TorchOpElu = make_torchop_activation("LogSigmoid", "log_sigmoid")
+TorchOpLogSigmoid = make_torchop_activation("LogSigmoid", "log_sigmoid")
 #' @export
-TorchOpElu = make_torchop_activation("PReLU", "prelu")
+TorchOpPReLU = make_torchop_activation("PReLU", "prelu")
 #' @export
-TorchOpElu = make_torchop_activation("ReLU", "relu")
+TorchOpReLU = make_torchop_activation("ReLU", "relu")
 #' @export
-TorchOpElu = make_torchop_activation("ReLU6", "relu6")
+TorchOpReLU6 = make_torchop_activation("ReLU6", "relu6")
 #' @export
-TorchOpElu = make_torchop_activation("RReLU", "rrelu")
+TorchOpRReLU = make_torchop_activation("RReLU", "rrelu")
 #' @export
-TorchOpElu = make_torchop_activation("SeLU", "selu")
+TorchOpSeLU = make_torchop_activation("SeLU", "selu")
 #' @export
-TorchOpElu = make_torchop_activation("Sigmoid", "sigmoid")
+TorchOpSigmoid = make_torchop_activation("Sigmoid", "sigmoid")
 #' @export
-TorchOpElu = make_torchop_activation("SoftPlus", "softplus")
+TorchOpSoftPlus = make_torchop_activation("SoftPlus", "softplus")
 #' @export
-TorchOpElu = make_torchop_activation("SoftShrink", "softshrink")
+TorchOpSoftShrink = make_torchop_activation("SoftShrink", "softshrink")
 #' @export
-TorchOpElu = make_torchop_activation("SoftSign", "softsign")
+TorchOpSoftSign = make_torchop_activation("SoftSign", "softsign")
 #' @export
-TorchOpElu = make_torchop_activation("Tanh", "tanh")
+TorchOpTanh = make_torchop_activation("Tanh", "tanh")
 #' @export
-TorchOpElu = make_torchop_activation("TanhShrink", "tanhshrink")
+TorchOpTanhShrink = make_torchop_activation("TanhShrink", "tanhshrink")
 #' @export
-TorchOpElu = make_torchop_activation("Threshold", "threshold")
+TorchOpThreshold = make_torchop_activation("Threshold", "threshold")
 #' @export
-TorchOpElu = make_torchop_activation("GLU", "glu")
+TorchOpGLU = make_torchop_activation("GLU", "glu")
 
