@@ -5,7 +5,7 @@ TorchOpTokenizer = R6Class("TorchOpTokenizer",
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
     #' @param id (`character(1)`)\cr
     #'   The id for of the object.
-    #' @parm param_vals (named `list()`)\cr
+    #' @param param_vals (named `list()`)\cr
     #'   The initial parameters for the object.
     initialize = function(id = "tokenizer", param_vals = list()) {
       param_set = ps(
@@ -18,12 +18,7 @@ TorchOpTokenizer = R6Class("TorchOpTokenizer",
         param_set = param_set,
         param_vals = param_vals
       )
-    },
-    names_in = list(
-      x_num = c("batch", "feature"),
-      x_cat = c("batch", "feature")
-    ),
-    names_out = c("batch", "feature")
+    }
   ),
   private = list(
     .operator = "tokenizer",
@@ -104,10 +99,12 @@ initialize_token_ = function(x, d) {
 nn_tokenizer_numeric = nn_module(
   "nn_tokenizer_numeric",
   initialize = function(n_features, d_token, bias) {
-    self$n_features = assert_integerish(n_features, lower = 1L, any.missing = FALSE, len = 1,
+    self$n_features = assert_integerish(n_features,
+      lower = 1L, any.missing = FALSE, len = 1,
       coerce = TRUE
     )
-    self$d_token = assert_integerish(d_token, lower = 1L, any.missing = FALSE, len = 1,
+    self$d_token = assert_integerish(d_token,
+      lower = 1L, any.missing = FALSE, len = 1,
       coerce = TRUE
     )
     assert_flag(bias)
@@ -139,10 +136,14 @@ nn_tokenizer_numeric = nn_module(
 nn_tokenizer_categorical = nn_module(
   "nn_tokenizer_categorical",
   initialize = function(cardinalities, d_token, bias) {
-    self$cardinalities = assert_integerish(cardinalities, lower = 1L, any.missing = FALSE,
-      min.len = 1L, coerce = TRUE)
-    self$d_token = assert_integerish(d_token, lower = 1L, any.missing = FALSE, len = 1,
-      coerce = TRUE)
+    self$cardinalities = assert_integerish(cardinalities,
+      lower = 1L, any.missing = FALSE,
+      min.len = 1L, coerce = TRUE
+    )
+    self$d_token = assert_integerish(d_token,
+      lower = 1L, any.missing = FALSE, len = 1,
+      coerce = TRUE
+    )
     assert_flag(bias)
     cardinalities_cs = cumsum(cardinalities)
     category_offsets = torch_tensor(c(0, cardinalities_cs[-length(cardinalities_cs)]),

@@ -1,6 +1,6 @@
 test_that("TorchOpMerge works", {
   task = tsk("iris")
-  to = top("merge", method = "add")
+  to = top("merge", .method = "add")
   x1 = torch_randn(1, 3)
   x2 = torch_randn(1, 3)
   y = torch_randn(1)

@@ -6,8 +6,10 @@ TorchOpActivation = R6Class("TorchOpActivation",
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
     #' @param id (`character(1)`)\cr
     #'   The id for of the object.
-    #' @parm param_vals (named `list()`)\cr
+    #' @param param_vals (named `list()`)\cr
     #'   The initial parameters for the object.
+    #' @param .act (`character(1)`)\cr
+    #'   The activation function (see `torch_reflections$activation`).
     initialize = function(id = .activation, param_vals = list(), .act) {
       assert_choice(.act, torch_reflections$activation)
       private$.act = .act
@@ -88,4 +90,3 @@ TorchOpTanhShrink = make_torchop_activation("TanhShrink", "tanhshrink")
 TorchOpThreshold = make_torchop_activation("Threshold", "threshold")
 #' @export
 TorchOpGLU = make_torchop_activation("GLU", "glu")
-

@@ -7,7 +7,7 @@ TorchOpInput = R6Class("TorchOpInput",
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
     #' @param id (`character(1)`)\cr
     #'   The id for of the object.
-    #' @parm param_vals (named `list()`)\cr
+    #' @param param_vals (named `list()`)\cr
     #'   The initial parameters for the object.
     initialize = function(id = "input", param_vals = list()) {
       input = data.table(name = "task", train = "Task", predict = "Task")
@@ -26,7 +26,8 @@ TorchOpInput = R6Class("TorchOpInput",
   private = list(
     .train = function(inputs) {
       self$state = list()
-      model_args = structure(class = "ModelArgs",
+      model_args = structure(
+        class = "ModelArgs",
         list(
           architecture = Architecture$new(),
           task = inputs$task,

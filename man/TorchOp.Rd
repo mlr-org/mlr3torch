@@ -14,6 +14,7 @@ All TorchOps inherit from this class.
 \itemize{
 \item \href{#method-new}{\code{TorchOp$new()}}
 \item \href{#method-build}{\code{TorchOp$build()}}
+\item \href{#method-print}{\code{TorchOp$print()}}
 \item \href{#method-clone}{\code{TorchOp$clone()}}
 }
 }
@@ -22,7 +23,6 @@ All TorchOps inherit from this class.
 \itemize{
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help">}\href{../../mlr3pipelines/html/PipeOp.html#method-help}{\code{mlr3pipelines::PipeOp$help()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict">}\href{../../mlr3pipelines/html/PipeOp.html#method-predict}{\code{mlr3pipelines::PipeOp$predict()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print">}\href{../../mlr3pipelines/html/PipeOp.html#method-print}{\code{mlr3pipelines::PipeOp$print()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train">}\href{../../mlr3pipelines/html/PipeOp.html#method-train}{\code{mlr3pipelines::PipeOp$train()}}\out{</span>}
 }
 \out{</details>}
@@ -98,6 +98,24 @@ A batch of the target variable.}
 \subsection{Returns}{
 \code{torch::nn_module()} where the arguments of the \verb{$forward()} function correspond
 to the names of the input channels and the output is a single \code{torch_tensor}.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
+\subsection{Method \code{print()}}{
+Printer for this object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TorchOp$print(...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{(any)\cr
+Currently unused.}
+}
+\if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}

@@ -24,7 +24,8 @@ Imports:
     rlang,
     torch,
     torchvision,
-    zeallot
+    zeallot,
+    bbotk
 Suggests:
     lgr,
     tabnet,
@@ -32,6 +33,7 @@ Suggests:
     zip
 Remotes:
   sebffischer/torchvision@tiny_imagenet
+  mlr-org/bbotk@callbacks
 Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
@@ -53,7 +55,6 @@ Collate:
     'TorchOp.R'
     'TorchOpActivation.R'
     'TorchOpAttention.R'
-    'TorchOpBlock.R'
     'TorchOpCustom.R'
     'TorchOpDropout.R'
     'TorchOpFlatten.R'
@@ -64,7 +65,6 @@ Collate:
     'TorchOpMerge.R'
     'TorchOpModel.R'
     'TorchOpOptimizer.R'
-    'TorchOpParallel.R'
     'TorchOpSelect.R'
     'TorchOpSelfAttention.R'
     'TorchOpSoftmax.R'
@@ -83,6 +83,7 @@ Collate:
     'mlr3torch-package.R'
     'nn_attention.R'
     'nn_cls.R'
+    'operators.R'
     'paramset_tabnet.R'
     'paramsets_activation.R'
     'paramsets_image_trafo.R'

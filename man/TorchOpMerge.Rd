@@ -12,7 +12,7 @@ Addition and multiplication are albeit not computationally commutative and assoc
 comutative, meaning the order in which they are executed is (mathematically) irrelevant.
 This however is not the case when stacking tensors. If for some reason the order of stacking.
 is relevant for your model, it has to be created manually.
-The order in which the tensors are concatenated is \link{input1, input2, input3}
+The order in which the tensors are concatenated is \link{input1, input2, input3}.
 }
 
 \section{Super classes}{
@@ -30,9 +30,9 @@ The order in which the tensors are concatenated is \link{input1, input2, input3}
 \itemize{
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help">}\href{../../mlr3pipelines/html/PipeOp.html#method-help}{\code{mlr3pipelines::PipeOp$help()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict">}\href{../../mlr3pipelines/html/PipeOp.html#method-predict}{\code{mlr3pipelines::PipeOp$predict()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print">}\href{../../mlr3pipelines/html/PipeOp.html#method-print}{\code{mlr3pipelines::PipeOp$print()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train">}\href{../../mlr3pipelines/html/PipeOp.html#method-train}{\code{mlr3pipelines::PipeOp$train()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="build">}\href{../../mlr3torch/html/TorchOp.html#method-build}{\code{mlr3torch::TorchOp$build()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="print">}\href{../../mlr3torch/html/TorchOp.html#method-print}{\code{mlr3torch::TorchOp$print()}}\out{</span>}
 }
 \out{</details>}
 }
@@ -40,32 +40,26 @@ The order in which the tensors are concatenated is \link{input1, input2, input3}
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
-Initilizes a new instance of this class.\cr
-
-
 Initializes an instance of this \link[R6:R6Class]{R6} class.
-
-
-Initializes an object of class \link{TorchOpInput}
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchOpMerge$new(id = "merge", param_vals = list(), .innum = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TorchOpMerge$new(id = "merge", param_vals = list(), .method, .innum = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{id}}{(\code{character(1)}) The id of the TorchOp.}
-
 \item{\code{id}}{(\code{character(1)})\cr
 The for of the object.}
 
-\item{\code{id}}{(\code{character(1)}) The id of the object.}
+\item{\code{param_vals}}{(named \code{list()})\cr
+The initial parameters for the object.}
 
-\item{\code{param_vals}}{(\code{list()}) List of parameter values.}
+\item{\code{.method}}{(\code{character(1)})\cr
+The method for the concatenation. One of "add"}
 
-\item{\code{param_vals}}{(\verb{named list()}) The parameter values.}
-
-\item{\code{.innum}}{(\code{character()}) number of inputs.}
+\item{\code{.innum}}{(\code{character()})\cr
+Number of inputs (optional). If provided, input channels are set to \code{"input1"}, \code{"input2"},
+etc..}
 }
 \if{html}{\out{</div>}}
 }

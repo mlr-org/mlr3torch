@@ -41,21 +41,21 @@ learner_classif_torch_train = function(self, model, task) {
   on.exit(if (reset_eval) network$eval(), add = TRUE)
   network$train()
 
-  pars = self$param_set$get_values(tags = "train")
-  epochs = pars$epochs
-  device = pars$device
-  batch_size = pars$batch_size
-  drop_last = pars$drop_last %??% FALSE
-  shuffle = pars$shuffle %??% TRUE
-  valid_split = pars$valid_split
-  augmentation = pars$augmentation
+  p = self$param_set$get_values(tags = "train")
+  epochs = p$epochs
+  device = p$device
+  batch_size = p$batch_size
+  drop_last = p$drop_last %??% FALSE
+  shuffle = p$shuffle %??% TRUE
+  valid_split = p$valid_split
+  augmentation = p$augmentation
 
-  train_fn = pars$train_fn
-  valid_fn = pars$valid_fn
+  train_fn = p$train_fn
+  valid_fn = p$valid_fn
 
-  valid_rsmp = rsmp("holdout", ratio = 1 - valid_split)
+  valid_rsmp = rsmp("holdout", ratio = 1 - p$valid_split)
 
-  torch_set_num_threads(pars$num_threads)
+  torch_set_num_threads(p$num_threads)
 
   c(train_ids, valid_ids) %<-% valid_rsmp$instantiate(task)$instance
 
@@ -109,9 +109,6 @@ learner_classif_torch_train = function(self, model, task) {
   )
 }
 
-default_epoch_fn = function(network, optimizer, loss_fn, history) {
-  NULL
-}
 
 default_train_fn = function(batch, network, optimizer, loss_fn, history) {
   optimizer$zero_grad()
@@ -120,14 +117,12 @@ default_train_fn = function(batch, network, optimizer, loss_fn, history) {
   loss$backward()
   optimizer$step()
   history$add_train_loss(loss$item())
-  NULL
 }
 
 default_valid_fn = function(batch, network, loss_fn, history) {
   y_hat = with_no_grad(network$forward(batch$x))
   loss = loss_fn(y_hat, batch$y)
   history$add_valid_loss(loss$item())
-  NULL
 }
 
 

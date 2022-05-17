@@ -1,10 +1,12 @@
 #' Extracts the parametersts from various grpahs
 extract_paramset = function(graphs) {
   psn = ps() # param set new
-  imap(graphs,
+  imap(
+    graphs,
     function(graph, name) {
       pvals = graph$param_set$values
-      map(graph$param_set$params,
+      map(
+        graph$param_set$params,
         function(param) {
           pido = param$id # param id old
           pidn = sprintf("%s.%s", name, param$id)
@@ -76,4 +78,32 @@ get_cache_dir = function(cache) {
   }
   assert(check_directory_exists(cache), check_path_for_output(cache))
   normalizePath(cache, mustWork = FALSE)
+}
+
+# We need this to avoid name clashes in PipeOpFFE
+uniqueify = function(name, existing, count = 0L) {
+  # Special case that covers 99.99 % of the cases in the PipeOp above
+  if ((count == 0L) && name %nin% existing) {
+    return(name)
+  }
+
+  if (count == 100L) {
+    stopf("Choose a better name.")
+  }
+
+  count_inc = count + 1L
+  alternative = sprintf("%s_%s", name, count_inc)
+  if (alternative %nin% existing) {
+    return(alternative)
+  } else {
+    uniqueify(name, existing, count_inc)
+  }
+}
+
+is_torchop = function(x) {
+  inherits(x, "TorchOp")
+}
+
+is_graph = function(x) {
+  inherits(x, "Graph")
 }

@@ -2,16 +2,34 @@
 % Please edit documentation in R/top.R
 \name{top}
 \alias{top}
-\alias{tops}
 \title{Shorthand TorchOp Constructor}
 \usage{
 top(.obj, ...)
+}
+\arguments{
+\item{.obj}{(\code{character(1)})\cr
+The object from which to construct a \code{PipeOp}. If this is a
+\code{character(1)}, it is looked up in the \code{\link{mlr_pipeops}} dictionary.
+Otherwise, it is converted to a \code{PipeOp}.
+It is possible to append a \code{"_[number]"} to the id, to conveniently extract the element
+specified by the id without the suffix, while setting giving a different id to the \code{TorchOp}.
+[]}
 
-tops(.objs, ...)
+\item{...}{\code{any}\cr
+Additional parameters to give to constructed object.
+This may be an argument of the constructor of the
+\code{TorchOp}, in which case it is given to this constructor;
+or it may be a parameter value, in which case it is
+given to the \code{param_vals} argument of the constructor.}
 }
 \description{
-Create
-\itemize{
-\item a \code{TorchOp} from \code{mlr_torchops} from given ID
+Create a \code{TorchOp} from \code{mlr_torchops} from given ID.
+The object is initialized with given parameters and \code{param_vals}.
 }
+\examples{
+# these are all equivalent
+top("linear", out_features = 10L, id = "linear_1")
+top("linear_1", out_features = 10L)
+mlr_torchops$get("linear", out_features = 10L, id = "linear_1")
+
 }

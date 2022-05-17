@@ -9,3 +9,4 @@
 ^mlr3torch.*\.tar\.gz$
 ^mlr3torch.*\.tgz$
 ^.pre-commit-config.yaml
+^\.pre-commit-config\.yaml$

@@ -25,9 +25,9 @@ args: the ... in the call above
 \itemize{
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help">}\href{../../mlr3pipelines/html/PipeOp.html#method-help}{\code{mlr3pipelines::PipeOp$help()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict">}\href{../../mlr3pipelines/html/PipeOp.html#method-predict}{\code{mlr3pipelines::PipeOp$predict()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print">}\href{../../mlr3pipelines/html/PipeOp.html#method-print}{\code{mlr3pipelines::PipeOp$print()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train">}\href{../../mlr3pipelines/html/PipeOp.html#method-train}{\code{mlr3pipelines::PipeOp$train()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="build">}\href{../../mlr3torch/html/TorchOp.html#method-build}{\code{mlr3torch::TorchOp$build()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="print">}\href{../../mlr3torch/html/TorchOp.html#method-print}{\code{mlr3torch::TorchOp$print()}}\out{</span>}
 }
 \out{</details>}
 }
@@ -45,6 +45,9 @@ Initializes an instance of this \link[R6:R6Class]{R6} class.
 \describe{
 \item{\code{id}}{(\code{character(1)})\cr
 The id for of the object.}
+
+\item{\code{param_vals}}{(named \code{list()})\cr
+The initial parameters for the object.}
 }
 \if{html}{\out{</div>}}
 }

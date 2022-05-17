@@ -22,7 +22,6 @@
 #' @template example
 LearnerClassifAlexNet = R6Class("LearnerClassifAlexNet",
   inherit = LearnerClassifTorchAbstract,
-
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
@@ -42,13 +41,12 @@ LearnerClassifAlexNet = R6Class("LearnerClassifAlexNet",
         predict_types = "response",
         properties = c("multiclass", "twoclass"),
         man = "mlr3torch::mlr_learners_classif.alexnet",
-        .optimizer = .optimizer,
-        .loss = .loss,
+        optimizer = .optimizer,
+        loss = .loss,
         label = "AlexNet Image Classifier"
       )
     }
   ),
-
   private = list(
     .network = function(task) {
       pretrained = self$param_set$values$pretrained
