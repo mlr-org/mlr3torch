@@ -10,7 +10,6 @@ repos:
         - mlr-org/styler.mlr
     -   id: roxygenize
         additional_dependencies:
-        -   mlr-org/styler.mlr
         -    backports
         -    checkmate
         -    coro
@@ -35,6 +34,8 @@ repos:
     # -   id: codemeta-description-updated
     -   id: use-tidy-description
     -   id: lintr
+        additional_dependencies:
+        - checkmate
     -   id: spell-check
         exclude: >
           (?x)^(
