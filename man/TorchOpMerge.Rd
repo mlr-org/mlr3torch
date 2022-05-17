@@ -6,15 +6,29 @@
 \description{
 Merges multiple tensors.
 }
-\section{Order of Inputs}{
+\section{Order of inputs}{
 
-Addition and multiplication are albeit not computationally commutative and associative
-comutative, meaning the order in which they are executed is (mathematically) irrelevant.
-This however is not the case when stacking tensors. If for some reason the order of stacking.
-is relevant for your model, it has to be created manually.
-The order in which the tensors are concatenated is \link{input1, input2, input3}.
+In case the order of input matters (e.g. for method "cat"), the constructor argument 'innum'
+should be set.
 }
 
+\examples{
+
+top1 = top("linear_1", out_features = 10L)
+top2 = top("linear_2", out_features = 10L)
+
+# order is not specified:
+top_add = top("add")
+graph = gunion(list(top1, top2)) \%>>\% top_add
+
+# order is specified:
+top_cat = top("cat", .innum = 2)
+graph = gunion(list(top1, top2))
+graph$add_pipeop(top_cat)
+graph$add_edge(src_id = "linear_1", dst_id = "cat", dst_channel = "input2")
+graph$add_edge(src_id = "linear_2", dst_id = "cat", dst_channel = "input1")
+
+}
 \section{Super classes}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:TorchOp]{mlr3torch::TorchOp}} -> \code{TorchOpMerge}
 }
@@ -49,17 +63,18 @@ Initializes an instance of this \link[R6:R6Class]{R6} class.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{id}}{(\code{character(1)})\cr
-The for of the object.}
+The id for of the new object.}
 
 \item{\code{param_vals}}{(named \code{list()})\cr
 The initial parameters for the object.}
 
 \item{\code{.method}}{(\code{character(1)})\cr
-The method for the concatenation. One of "add"}
+The method for the concatenation. One of "add", "mul" or "cat".}
 
-\item{\code{.innum}}{(\code{character()})\cr
-Number of inputs (optional). If provided, input channels are set to \code{"input1"}, \code{"input2"},
-etc..}
+\item{\code{.innum}}{(\code{integer(1)})\cr
+The number of input channels (optional). If provided, the input channels are set to
+\code{"input1"}, \code{"input2"}, etc.. Otherwise the input channel is set to \code{...} (a 'vararg' channel).
+Should be set, in case the order of the inputs is relevant.}
 }
 \if{html}{\out{</div>}}
 }

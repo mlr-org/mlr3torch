@@ -26,8 +26,7 @@
 #'
 #' @export
 top = function(.obj, ...) {
-  key = extract_key(.obj)
-  dictionary_sugar_get(dict = mlr_torchops, .key = .obj, ...)
+  dictionary_sugar_get(dict = mlr_torchops, .key = extract_key(.obj), id = .obj, ...)
 }
 
 extract_key = function(x) {
@@ -37,5 +36,5 @@ extract_key = function(x) {
     return(key)
   }
 
-  return(x)
+  x
 }

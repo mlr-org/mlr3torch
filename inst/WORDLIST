@@ -20,6 +20,7 @@ GraphNetwork
 imagenet
 imageuri
 Initilizes
+innum
 LazyData
 LearnerClassifAlexNet
 LearnerClassifTabNet
@@ -34,6 +35,7 @@ luz
 magick
 mlr
 ModelArgs
+mul
 nn
 optim
 ORCID
@@ -79,5 +81,6 @@ TorchOpTokenizer
 torchvision
 trafo
 util
+vararg
 zeallot
 zzz

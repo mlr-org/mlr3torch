@@ -47,7 +47,7 @@ Initializes a new instance of this \link[R6:R6Class]{R6 Class}.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{id}}{(\code{character(1)})\cr
-Identifier for the new instance.}
+The id for of the new object.}
 
 \item{\code{param_set}}{(\code{ParamSet})\cr
 Parameter set to be set for the \link[mlr3pipelines:PipeOp]{PipeOp}.}
