@@ -31,6 +31,7 @@ Concatenate torch tensors.
 \if{html}{\out{<a id="method-new"></a>}}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
+Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{TorchOpCat$new(id = "cat", param_vals = list(), .innum = NULL)}\if{html}{\out{</div>}}
 }
@@ -38,9 +39,6 @@ Concatenate torch tensors.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{id}}{(\code{character(1)})\cr
-The id for of the new object.}
-
 \item{\code{param_vals}}{(named \code{list()})\cr
 The initial parameters for the object.}
 

@@ -35,7 +35,25 @@ repos:
     -   id: use-tidy-description
     -   id: lintr
         additional_dependencies:
-        - checkmate
+        -    backports
+        -    checkmate
+        -    coro
+        -    data.table
+        -    fs
+        -    luz
+        -    magick
+        -    methods
+        -    mlr3
+        -    mlr3misc
+        -    mlr3pipelines
+        -    paradox
+        -    progress
+        -    R6
+        -    rlang
+        -    torch
+        -    torchvision
+        -    zeallot
+        -    mlr-org/bbotk@callbacks
     -   id: spell-check
         exclude: >
           (?x)^(

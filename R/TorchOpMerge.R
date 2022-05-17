@@ -136,13 +136,14 @@ TorchOpMul = R6Class("TorchOpMul",
 #' @description
 #' Concatenate torch tensors.
 #'
+#' @template param_param_vals
+#' @template param_.innum
+#'
 #' @export
 TorchOpCat = R6Class("TorchOpCat",
   inherit = TorchOpMerge,
   public = list(
-    #' @template param_id
-    #' @template param_param_vals
-    #' @template param_.innum
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "cat", param_vals = list(), .innum = NULL) {
       super$initialize(
         id = id,
