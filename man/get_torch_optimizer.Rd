@@ -28,7 +28,7 @@ The following optimizers are currently supported:
 }
 }
 \examples{
-adam <- get_torch_optimizer("adam")
+adam = get_torch_optimizer("adam")
 
 # Same as [`torch::optim_adam`]
 identical(adam, torch::optim_adam)

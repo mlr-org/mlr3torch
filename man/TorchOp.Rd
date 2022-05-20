@@ -12,24 +12,24 @@ All TorchOps inherit from this class.
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{TorchOp$new()}}
-\item \href{#method-build}{\code{TorchOp$build()}}
-\item \href{#method-print}{\code{TorchOp$print()}}
-\item \href{#method-clone}{\code{TorchOp$clone()}}
+\item \href{#method-TorchOp-new}{\code{TorchOp$new()}}
+\item \href{#method-TorchOp-build}{\code{TorchOp$build()}}
+\item \href{#method-TorchOp-print}{\code{TorchOp$print()}}
+\item \href{#method-TorchOp-clone}{\code{TorchOp$clone()}}
 }
 }
-\if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
-\itemize{
-\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help">}\href{../../mlr3pipelines/html/PipeOp.html#method-help}{\code{mlr3pipelines::PipeOp$help()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict">}\href{../../mlr3pipelines/html/PipeOp.html#method-predict}{\code{mlr3pipelines::PipeOp$predict()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train">}\href{../../mlr3pipelines/html/PipeOp.html#method-train}{\code{mlr3pipelines::PipeOp$train()}}\out{</span>}
-}
-\out{</details>}
-}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-TorchOp-new"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchOp-new}{}}}
 \subsection{Method \code{new()}}{
 Initializes a new instance of this \link[R6:R6Class]{R6 Class}.
 \subsection{Usage}{
@@ -71,8 +71,8 @@ during \verb{$predict()}.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-build"></a>}}
-\if{latex}{\out{\hypertarget{method-build}{}}}
+\if{html}{\out{<a id="method-TorchOp-build"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchOp-build}{}}}
 \subsection{Method \code{build()}}{
 Builds a Torch Operator
 \subsection{Usage}{
@@ -83,7 +83,7 @@ Builds a Torch Operator
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{inputs}}{(named \code{list()})\cr
-Named list of \link[torch:torch_tensor]{\code{torch_tensor}s} that form a batch that is the input
+Named list of \code{torch_tensor}s that form a batch that is the input
 for the current layer. The names have to correspond to the names of the
 \link[=TorchOp]{TorchOp's} input channels.}
 
@@ -101,8 +101,8 @@ to the names of the input channels and the output is a single \code{torch_tensor
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-print"></a>}}
-\if{latex}{\out{\hypertarget{method-print}{}}}
+\if{html}{\out{<a id="method-TorchOp-print"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchOp-print}{}}}
 \subsection{Method \code{print()}}{
 Printer for this object.
 \subsection{Usage}{
@@ -119,8 +119,8 @@ Currently unused.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-TorchOp-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchOp-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

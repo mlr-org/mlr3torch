@@ -17,31 +17,29 @@
 #' @examples
 #' \dontrun{
 #' # AlexNet
-#' model <- torchvision::model_alexnet(pretrained = TRUE)
+#' model = torchvision::model_alexnet(pretrained = TRUE)
 #' model$classifier[[7]]$out_feature
-#' model <- reset_last_layer(model, 10)
+#' model = reset_last_layer(model, 10)
 #' model$classifier[[7]]$out_feature
 #'
 #' # ResNet
-#' model <- torchvision::model_resnet18(pretrained = TRUE)
+#' model = torchvision::model_resnet18(pretrained = TRUE)
 #' model$fc$out_feature
-#' model <- reset_last_layer(model, 10)
+#' model = reset_last_layer(model, 10)
 #' model$fc$out_feature
 #' }
-reset_last_layer <- function(model, num_classes, bias = TRUE) {
+reset_last_layer = function(model, num_classes, bias, freeze) {
+  if (freeze) {
+    freeze_params(model)
+  }
   UseMethod("reset_last_layer")
 }
 
+
 #' @rdname reset-layer
 #' @export
-reset_last_layer.AlexNet <- function(model, num_classes, bias = TRUE) {
-
-  # Freeze weights
-  # for (par in model$parameters) {
-  #   par$requires_grad_(FALSE)
-  # }
-
-  model$classifier$`6` <- torch::nn_linear(
+reset_last_layer.AlexNet = function(model, num_classes, bias = TRUE, freeze = FALSE) {
+  model$classifier$`6` = torch::nn_linear(
     in_features = model$classifier$`6`$in_features,
     out_features = num_classes,
     bias = bias
@@ -51,13 +49,8 @@ reset_last_layer.AlexNet <- function(model, num_classes, bias = TRUE) {
 
 #' @rdname reset-layer
 #' @export
-reset_last_layer.resnet <- function(model, num_classes, bias = TRUE) {
-  # Freeze weights
-  for (par in model$parameters) {
-    par$requires_grad_(FALSE)
-  }
-
-  model$fc <- torch::nn_linear(
+reset_last_layer.resnet = function(model, num_classes, bias = TRUE, freeze = FALSE) {
+  model$fc = torch::nn_linear(
     in_features = model$fc$in_features,
     out_features = num_classes,
     bias = bias

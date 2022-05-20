@@ -37,7 +37,7 @@ TorchOp = R6Class("TorchOp",
     #' @description Builds a Torch Operator
     #'
     #' @param inputs (named `list()`)\cr
-    #'   Named list of [`torch_tensor`s][torch::torch_tensor] that form a batch that is the input
+    #'   Named list of `torch_tensor`s that form a batch that is the input
     #'   for the current layer. The names have to correspond to the names of the
     #'   [TorchOp's][TorchOp] input channels.
     #' @param task (`mlr3::Task`)\cr

@@ -1,36 +1,29 @@
 # SOFORT: Fixe test_GraphArchitecture.R (irgendwie wird der merge call nicht zurückgegeben)
 
-
-next:
-1. Continue going through all test files (starting from top, came until TorchOpCustom)
-2. Go through R files and remove old stuff
-3. Fix rcmd check
 4. Help pages with dynamic parameters need special care
 
 ## Questions:
 - should we allow ops with more than one output? (attention logits and probs of nn_attention)
-- How to deal with PRELU activation function (has learnable parameter + device argument)
-- Learning rate scheduler: Method (callback) or parameter?
+  --> Yes
 - For validation metrics: mlr3 measures or torch losses?
 - Free parameters of certain layers?
-- Why freeze all parameters in reset_last_layer (?)
-- Call `$to("cuda")` before or after the transformations
-- Raise issue in torchvision
 
-Problems:
+
+# Freeezing Parameters
+  --> When using pretrained models we should include a paramteter "free" that is TRUE by default
+  and freezes all but the last layer. This can be changed during training using callbacks.
+
+# Problems
+
 - Conflict between lgr and progress
-- Check that train and eval mode are correctly applied during train valid and predict
 
-## block()
---> What is a block?
-I think block() should create a TorchOpBlock and does some nice things like appending missing
-top("input") and potentially also reparametrize the thing --> we need a language for that
+# Repeat
+The repeat operator should (try) to repeat the next n %>>% actions applied to the graph.
 
+# Measures:
 
-# Transformationen:
-1. Vorschlag: In den Task schreiben
-2. Attribute (schreibe Subset Funktion)
-Inherite von PipeOpTaskPreproc
+* Properly support the mlr3 measures for tracking the loss.
+
 
 Cache directory:
   torch caches models in rappdirs::user_cache_dir (.cache/torch), but we do in

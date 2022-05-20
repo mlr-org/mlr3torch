@@ -28,7 +28,7 @@ make_tabular_dataset = function(data, target, features, device) {
       device = device
     )
   } else { # classification
-    y = cat2tensor(data[, ..target], device = device)[,1]
+    y = cat2tensor(data[, ..target], device = device)[, 1]
   }
 
   data_list = list(y = y)

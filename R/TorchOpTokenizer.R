@@ -16,7 +16,8 @@ TorchOpTokenizer = R6Class("TorchOpTokenizer",
       super$initialize(
         id = id,
         param_set = param_set,
-        param_vals = param_vals
+        param_vals = param_vals,
+        input = input
       )
     }
   ),

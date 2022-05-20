@@ -10,53 +10,21 @@ Calls \link[tabnet:tabnet]{tabnet::tabnet} from package \CRANpkg{tabnet}.
 \section{Dictionary}{
  This \link{Learner} can be instantiated via the
 \link[mlr3misc:Dictionary]{dictionary} \link{mlr_learners} or with the associated
-sugar function \code{\link[=lrn]{lrn()}}:\preformatted{mlr_learners$get("classif.tabnet")
+sugar function \code{\link[=lrn]{lrn()}}:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{mlr_learners$get("classif.tabnet")
 lrn("classif.tabnet")
-}
+}\if{html}{\out{</div>}}
 }
 
 \section{Meta Information}{
 
-\itemize{
-\item Task type: \dQuote{classif}
-\item Predict Types: \dQuote{response}, \dQuote{prob}
-\item Feature Types: \dQuote{logical}, \dQuote{integer}, \dQuote{numeric}, \dQuote{factor}, \dQuote{ordered}
-\item Required Packages: \CRANpkg{mlr3}, \CRANpkg{tabnet}
-}
+, * Task type: \dQuote{classif}, * Predict Types: \dQuote{response}, \dQuote{prob}, * Feature Types: \dQuote{logical}, \dQuote{integer}, \dQuote{numeric}, \dQuote{factor}, \dQuote{ordered}, * Required Packages: \CRANpkg{mlr3}, \CRANpkg{tabnet}
 }
 
 \section{Parameters}{
-\tabular{lllll}{
-   Id \tab Type \tab Default \tab Levels \tab Range \cr
-   num_threads \tab integer \tab 1 \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
-   batch_size \tab integer \tab 256 \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
-   penalty \tab numeric \tab 0.001 \tab  \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
-   clip_value \tab untyped \tab  \tab  \tab - \cr
-   loss \tab character \tab auto \tab auto, mse, cross_entropy \tab - \cr
-   epochs \tab integer \tab 5 \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
-   drop_last \tab logical \tab FALSE \tab TRUE, FALSE \tab - \cr
-   decision_width \tab integer \tab 8 \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
-   attention_width \tab integer \tab 8 \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
-   num_steps \tab integer \tab 3 \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
-   feature_reusage \tab numeric \tab 1.3 \tab  \tab \eqn{[0, \infty)}{[0, Inf)} \cr
-   mask_type \tab character \tab sparsemax \tab sparsemax, entmax \tab - \cr
-   virtual_batch_size \tab integer \tab 128 \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
-   valid_split \tab numeric \tab 0 \tab  \tab \eqn{[0, 1]}{[0, 1]} \cr
-   learn_rate \tab numeric \tab 0.02 \tab  \tab \eqn{[0, 1]}{[0, 1]} \cr
-   optimizer \tab untyped \tab adam \tab  \tab - \cr
-   lr_scheduler \tab untyped \tab  \tab  \tab - \cr
-   lr_decay \tab numeric \tab 0.1 \tab  \tab \eqn{[0, 1]}{[0, 1]} \cr
-   step_size \tab integer \tab 30 \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
-   checkpoint_epochs \tab integer \tab 10 \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
-   cat_emb_dim \tab integer \tab 1 \tab  \tab \eqn{[0, \infty)}{[0, Inf)} \cr
-   num_independent \tab integer \tab 2 \tab  \tab \eqn{[0, \infty)}{[0, Inf)} \cr
-   num_shared \tab integer \tab 2 \tab  \tab \eqn{[0, \infty)}{[0, Inf)} \cr
-   momentum \tab numeric \tab 0.02 \tab  \tab \eqn{[0, 1]}{[0, 1]} \cr
-   pretraining_ratio \tab numeric \tab 0.5 \tab  \tab \eqn{[0, 1]}{[0, 1]} \cr
-   verbose \tab logical \tab FALSE \tab TRUE, FALSE \tab - \cr
-   device \tab character \tab auto \tab auto, cpu, cuda \tab - \cr
-   importance_sample_size \tab integer \tab - \tab  \tab \eqn{[0, 1e+05]}{[0, 1e+05]} \cr
-}
+
+, |Id                     |Type      |Default   |Levels                   |Range                                |, |:----------------------|:---------|:---------|:------------------------|:------------------------------------|, |num_threads            |integer   |1         |                         |\eqn{[1, \infty)}{[1, Inf)}          |, |batch_size             |integer   |256       |                         |\eqn{[1, \infty)}{[1, Inf)}          |, |penalty                |numeric   |0.001     |                         |\eqn{(-\infty, \infty)}{(-Inf, Inf)} |, |clip_value             |untyped   |          |                         |-                                    |, |loss                   |character |auto      |auto, mse, cross_entropy |-                                    |, |epochs                 |integer   |5         |                         |\eqn{[1, \infty)}{[1, Inf)}          |, |drop_last              |logical   |FALSE     |TRUE, FALSE              |-                                    |, |decision_width         |integer   |8         |                         |\eqn{[1, \infty)}{[1, Inf)}          |, |attention_width        |integer   |8         |                         |\eqn{[1, \infty)}{[1, Inf)}          |, |num_steps              |integer   |3         |                         |\eqn{[1, \infty)}{[1, Inf)}          |, |feature_reusage        |numeric   |1.3       |                         |\eqn{[0, \infty)}{[0, Inf)}          |, |mask_type              |character |sparsemax |sparsemax, entmax        |-                                    |, |virtual_batch_size     |integer   |128       |                         |\eqn{[1, \infty)}{[1, Inf)}          |, |valid_split            |numeric   |0         |                         |\eqn{[0, 1]}{[0, 1]}                 |, |learn_rate             |numeric   |0.02      |                         |\eqn{[0, 1]}{[0, 1]}                 |, |optimizer              |untyped   |adam      |                         |-                                    |, |lr_scheduler           |untyped   |          |                         |-                                    |, |lr_decay               |numeric   |0.1       |                         |\eqn{[0, 1]}{[0, 1]}                 |, |step_size              |integer   |30        |                         |\eqn{[1, \infty)}{[1, Inf)}          |, |checkpoint_epochs      |integer   |10        |                         |\eqn{[1, \infty)}{[1, Inf)}          |, |cat_emb_dim            |integer   |1         |                         |\eqn{[0, \infty)}{[0, Inf)}          |, |num_independent        |integer   |2         |                         |\eqn{[0, \infty)}{[0, Inf)}          |, |num_shared             |integer   |2         |                         |\eqn{[0, \infty)}{[0, Inf)}          |, |momentum               |numeric   |0.02      |                         |\eqn{[0, 1]}{[0, 1]}                 |, |pretraining_ratio      |numeric   |0.5       |                         |\eqn{[0, 1]}{[0, 1]}                 |, |verbose                |logical   |FALSE     |TRUE, FALSE              |-                                    |, |device                 |character |auto      |auto, cpu, cuda          |-                                    |, |importance_sample_size |integer   |-         |                         |\eqn{[0, 1e+05]}{[0, 1e+05]}         |
 }
 
 \examples{
@@ -94,28 +62,28 @@ Lukas Burk
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{LearnerClassifTabNet$new()}}
-\item \href{#method-importance}{\code{LearnerClassifTabNet$importance()}}
-\item \href{#method-clone}{\code{LearnerClassifTabNet$clone()}}
+\item \href{#method-LearnerClassifTabNet-new}{\code{LearnerClassifTabNet$new()}}
+\item \href{#method-LearnerClassifTabNet-importance}{\code{LearnerClassifTabNet$importance()}}
+\item \href{#method-LearnerClassifTabNet-clone}{\code{LearnerClassifTabNet$clone()}}
 }
 }
-\if{html}{
-\out{<details ><summary>Inherited methods</summary>}
-\itemize{
-\item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner">}\href{../../mlr3/html/Learner.html#method-base_learner}{\code{mlr3::Learner$base_learner()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="format">}\href{../../mlr3/html/Learner.html#method-format}{\code{mlr3::Learner$format()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help">}\href{../../mlr3/html/Learner.html#method-help}{\code{mlr3::Learner$help()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict">}\href{../../mlr3/html/Learner.html#method-predict}{\code{mlr3::Learner$predict()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata">}\href{../../mlr3/html/Learner.html#method-predict_newdata}{\code{mlr3::Learner$predict_newdata()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="print">}\href{../../mlr3/html/Learner.html#method-print}{\code{mlr3::Learner$print()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset">}\href{../../mlr3/html/Learner.html#method-reset}{\code{mlr3::Learner$reset()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train">}\href{../../mlr3/html/Learner.html#method-train}{\code{mlr3::Learner$train()}}\out{</span>}
-}
-\out{</details>}
-}
+\if{html}{\out{
+<details><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner"><a href='../../mlr3/html/Learner.html#method-Learner-base_learner'><code>mlr3::Learner$base_learner()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="format"><a href='../../mlr3/html/Learner.html#method-Learner-format'><code>mlr3::Learner$format()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help"><a href='../../mlr3/html/Learner.html#method-Learner-help'><code>mlr3::Learner$help()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict"><a href='../../mlr3/html/Learner.html#method-Learner-predict'><code>mlr3::Learner$predict()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata"><a href='../../mlr3/html/Learner.html#method-Learner-predict_newdata'><code>mlr3::Learner$predict_newdata()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="print"><a href='../../mlr3/html/Learner.html#method-Learner-print'><code>mlr3::Learner$print()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset"><a href='../../mlr3/html/Learner.html#method-Learner-reset'><code>mlr3::Learner$reset()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train"><a href='../../mlr3/html/Learner.html#method-Learner-train'><code>mlr3::Learner$train()</code></a></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-LearnerClassifTabNet-new"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerClassifTabNet-new}{}}}
 \subsection{Method \code{new()}}{
 Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
@@ -124,8 +92,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-importance"></a>}}
-\if{latex}{\out{\hypertarget{method-importance}{}}}
+\if{html}{\out{<a id="method-LearnerClassifTabNet-importance"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerClassifTabNet-importance}{}}}
 \subsection{Method \code{importance()}}{
 The importance scores are extracted from the slot \code{.$model$fit$importances}.
 \subsection{Usage}{
@@ -137,8 +105,8 @@ Named \code{numeric()}.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-LearnerClassifTabNet-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerClassifTabNet-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

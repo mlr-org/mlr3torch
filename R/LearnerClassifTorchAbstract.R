@@ -73,13 +73,13 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
   private = list(
     .train = function(task) {
       model = self$build(task)
-      learner_classif_torch_train(self, model, task)
+      learner_torch_train(self, model, task)
     },
     .predict = function(task) {
       # When keep_last_prediction = TRUE we store the predictions of the last validation and we
       # therefore don't have to recompute them in the resample(), but can simple return the
       # cached predictions
-      learner_classif_torch_predict(self, task)
+      learner_torch_predict(self, task)
     },
     .optimizer = NULL,
     .loss = NULL
@@ -103,11 +103,11 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
       assert_ro_binding(rhs)
       self$state$model$optimizer
     },
-    #' @field loss (`nn_loss()`)\cr
+    #' @field loss_fn (`nn_loss()`)\cr
     #'   The loss function.
-    loss = function(rhs) {
+    loss_fn = function(rhs) {
       assert_ro_binding(rhs)
-      self$state$model$loss
+      self$state$model$loss_fn
     },
     #' @field network ([`nn_module()`][torch::nn_module])\cr
     #'   The network.

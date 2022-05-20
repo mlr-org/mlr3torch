@@ -29,61 +29,12 @@ repos:
         -    torchvision
         -    zeallot
         -    mlr-org/bbotk@callbacks
-    # -   id: roxygenize
+        -    lgr
+        -    tabnet
+        -    zip
     # codemeta must be above use-tidy-description when both are used
     # -   id: codemeta-description-updated
     -   id: use-tidy-description
-    -   id: lintr
-        additional_dependencies:
-        -    backports
-        -    checkmate
-        -    coro
-        -    data.table
-        -    fs
-        -    luz
-        -    magick
-        -    methods
-        -    mlr3
-        -    mlr3misc
-        -    mlr3pipelines
-        -    paradox
-        -    progress
-        -    R6
-        -    rlang
-        -    torch
-        -    torchvision
-        -    zeallot
-        -    mlr-org/bbotk@callbacks
-    -   id: spell-check
-        exclude: >
-          (?x)^(
-          .*\.[rR]|
-          .*\.feather|
-          .*\.jpeg|
-          .*\.pdf|
-          .*\.png|
-          .*\.py|
-          .*\.RData|
-          .*\.rds|
-          .*\.Rds|
-          .*\.Rproj|
-          .*\.sh|
-          (.*/|)\.gitignore|
-          (.*/|)\.gitlab-ci\.yml|
-          (.*/|)\.lintr|
-          (.*/|)\.pre-commit-.*|
-          (.*/|)\.Rbuildignore|
-          (.*/|)\.Renviron|
-          (.*/|)\.Rprofile|
-          (.*/|)\.travis\.yml|
-          (.*/|)appveyor\.yml|
-          (.*/|)NAMESPACE|
-          (.*/|)renv/settings\.dcf|
-          (.*/|)renv\.lock|
-          (.*/|)WORDLIST|
-          \.github/workflows/.*|
-          data/.*|
-          )$
     # -   id: lintr
     -   id: readme-rmd-rendered
     -   id: parsable-R
@@ -103,4 +54,5 @@ repos:
         entry: Cannot commit .Rhistory, .RData, .Rds or .rds.
         language: fail
         files: '\.Rhistory|\.RData|\.Rds|\.rds$'
+        exclude: inst/data
         # `exclude: <regex>` to allow committing specific files

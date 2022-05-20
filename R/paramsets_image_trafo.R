@@ -96,7 +96,7 @@ make_paramset_random_resized_crop = function() {
   ps(
     size = p_uty(tags = c("train", "predict", "required")),
     scale = p_uty(default = c(0.08, 1), tags = c("train", "predict")),
-    ratio = p_uty(default = c(3/4, 4/3), tags = c("train", "predict")),
+    ratio = p_uty(default = c(3 / 4, 4 / 3), tags = c("train", "predict")),
     interpolation = p_fct(levels = magick::filter_types(), special_vals = list(0L, 2L, 3L),
       tags = c("train", "predict")
     )

@@ -6,11 +6,11 @@
 \alias{reset_last_layer.resnet}
 \title{Reset a classification models last layer}
 \usage{
-reset_last_layer(model, num_classes, bias = TRUE)
+reset_last_layer(model, num_classes, bias, freeze)
 
-\method{reset_last_layer}{AlexNet}(model, num_classes, bias = TRUE)
+\method{reset_last_layer}{AlexNet}(model, num_classes, bias = TRUE, freeze = FALSE)
 
-\method{reset_last_layer}{resnet}(model, num_classes, bias = TRUE)
+\method{reset_last_layer}{resnet}(model, num_classes, bias = TRUE, freeze = FALSE)
 }
 \arguments{
 \item{model}{A pretrained model, e.g.
@@ -33,15 +33,15 @@ As of this, this also freezes the parameters of all but the last layer.
 \examples{
 \dontrun{
 # AlexNet
-model <- torchvision::model_alexnet(pretrained = TRUE)
+model = torchvision::model_alexnet(pretrained = TRUE)
 model$classifier[[7]]$out_feature
-model <- reset_last_layer(model, 10)
+model = reset_last_layer(model, 10)
 model$classifier[[7]]$out_feature
 
 # ResNet
-model <- torchvision::model_resnet18(pretrained = TRUE)
+model = torchvision::model_resnet18(pretrained = TRUE)
 model$fc$out_feature
-model <- reset_last_layer(model, 10)
+model = reset_last_layer(model, 10)
 model$fc$out_feature
 }
 }

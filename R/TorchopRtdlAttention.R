@@ -1,4 +1,4 @@
-TorchOpAttention = R6Class("TorchOpAttention",
+TorchOpRtdlAttention = R6Class("TorchOpAttention",
   inherit = TorchOp,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
@@ -6,7 +6,7 @@ TorchOpAttention = R6Class("TorchOpAttention",
     #'   The id for of the object.
     #' @param param_vals (named `list()`)\cr
     #'   The initial parameters for the object.
-    initialize = function(id = "attention", param_vals = list()) {
+    initialize = function(id = "rdtl_attention", param_vals = list()) {
       param_set = ps(
         n_heads = p_int(default = 1L, lower = 1L, tags = "train"),
         dropout = p_dbl(default = 0.5, lower = 0, upper = 1, tags = "train"),
@@ -42,4 +42,4 @@ TorchOpAttention = R6Class("TorchOpAttention",
 )
 
 #' @include mlr_torchops.R
-mlr_torchops$add("attention", TorchOpAttention)
+mlr_torchops$add("rtdl_attention", TorchOpRtdlAttention)

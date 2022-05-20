@@ -38,7 +38,7 @@ Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 Collate:
     'Architecture.R'
     'GraphNetwork.R'
@@ -52,9 +52,10 @@ Collate:
     'mlr_torchops.R'
     'PipeOpImageTrafo.R'
     'TaskClassif_tiny_imagenet.R'
+    'TaskClassif_toytask.R'
+    'TorchContext.R'
     'TorchOp.R'
     'TorchOpActivation.R'
-    'TorchOpAttention.R'
     'TorchOpCustom.R'
     'TorchOpDropout.R'
     'TorchOpFlatten.R'
@@ -66,17 +67,21 @@ Collate:
     'TorchOpModel.R'
     'TorchOpOptimizer.R'
     'TorchOpSelect.R'
-    'TorchOpSelfAttention.R'
     'TorchOpSoftmax.R'
     'TorchOpTokenizer.R'
+    'TorchopRtdlAttention.R'
     'as_dataloader.R'
     'as_dataset.R'
+    'autotest.R'
+    'autotest_learner.R'
     'bibentries.R'
+    'callbacks.R'
     'dataloader.R'
     'graphs.R'
     'image-task.R'
     'imageuri.R'
-    'learner_torch.R'
+    'learner_torch_predict.R'
+    'learner_torch_train.R'
     'make_dataloader.R'
     'make_image_dataset.R'
     'make_paramset.R'

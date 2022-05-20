@@ -30,37 +30,40 @@ remotes::install_github("mlr-org/mlr3torch")
 Using the [{tabnet}](https://github.com/mlverse/tabnet) learner for
 classification:
 
-
-# Credit
-This API is heavily inspired by:
-
-* Keras
-
 ``` r
 library(mlr3)
 library(mlr3viz)
 library(mlr3torch)
 
-task <- tsk("german_credit")
+task = tsk("german_credit")
 
 # Set up the learner
-lrn_tabnet <- lrn("classif.tabnet", epochs = 5)
+lrn_tabnet = lrn("classif.tabnet", epochs = 5)
 
 # Train and Predict
 lrn_tabnet$train(task, row_ids = 1:900)
 
-preds <- lrn_tabnet$predict(task, row_ids = 901:1000)
+preds = lrn_tabnet$predict(task, row_ids = 901:1000)
 
 # Investigate predictions
 preds$confusion
 preds$score(msr("classif.acc"))
 
 # Predict probabilities instead
-lrn_tabnet$predict_type <- "prob"
-preds_prob <- lrn_tabnet$predict(task)
+lrn_tabnet$predict_type = "prob"
+preds_prob = lrn_tabnet$predict(task)
 
 autoplot(preds_prob, type = "roc")
 
 # Examine variable importance scores
 lrn_tabnet$importance()
 ```
+
+# Credit
+
+This API is heavily inspired by:
+
+  - Keras
+  - Pytorch Lightning
+  - Luz
+  - FastAI

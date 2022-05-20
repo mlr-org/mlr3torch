@@ -4,6 +4,7 @@
 #' Merges multiple tensors.
 #'
 #' @template param_id
+#' @template param_param_set
 #' @template param_param_vals
 #' @param .method (`character(1)`)\cr
 #'   The method for the concatenation. One of "add", "mul" or "cat".
@@ -29,17 +30,17 @@
 #' graph$add_pipeop(top_cat)
 #' graph$add_edge(src_id = "linear_1", dst_id = "cat", dst_channel = "input2")
 #' graph$add_edge(src_id = "linear_2", dst_id = "cat", dst_channel = "input1")
-#'
-#' @export
+#' @rdname torchop_merge
+NULL
+#>
+
 TorchOpMerge = R6Class("TorchOpMerge",
   inherit = TorchOp,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
-    initialize = function(id = "merge", param_vals = list(), .method, .innum = NULL) {
+    initialize = function(id = "merge", param_set = ps(), param_vals = list(), .method,
+      .innum = NULL) {
       private$.method = assert_choice(.method, c("add", "mul", "cat"))
-      param_set = ps(
-        dim = p_int(tags = "train")
-      )
       if (is.null(.innum)) {
         input = data.table(
           name = "...",
@@ -63,18 +64,10 @@ TorchOpMerge = R6Class("TorchOpMerge",
   ),
   private = list(
     .build = function(inputs, param_vals, task, y) {
-      # input are various tensors
-      method = param_vals$method
-      # order of the next two calls is important, because if we overwrite dim first,
-      # map(inputs, dim) does not apply the function dim()
-      shapes = map(inputs, dim)
-      dim = param_vals$dim %??% length(shapes[[1L]])
-      # NOTE: no input checking, this is automatically done when the forward function
-      # is called afterwards
-      layer = switch(method,
-        add = nn_merge_sum(dim),
-        mul = nn_merge_mul(dim),
-        cat = nn_merge_cat(dim)
+      layer = switch(private$.method,
+        add = nn_merge_sum(),
+        mul = nn_merge_mul(),
+        cat = nn_merge_cat(self$param_set$value$dim)
       )
       return(layer)
     },
@@ -82,15 +75,7 @@ TorchOpMerge = R6Class("TorchOpMerge",
   )
 )
 
-#' @title Add Torch Tensors
-#'
-#' @description
-#' Add torch tensors.
-#'
-#' @template param_id
-#' @template param_param_vals
-#' @template param_.innum
-#'
+#' @rdname torchop_merge
 #' @export
 TorchOpAdd = R6Class("TorchOpAdd",
   inherit = TorchOpMerge,
@@ -107,14 +92,7 @@ TorchOpAdd = R6Class("TorchOpAdd",
   )
 )
 
-#' @title Multiply Torch Tensors
-#'
-#' @description
-#' Concatenate torch tensors.
-#' @template param_id
-#' @template param_param_vals
-#' @template param_.innum
-#'
+#' @rdname torchop_merge
 #' @export
 TorchOpMul = R6Class("TorchOpMul",
   inherit = TorchOpMerge,
@@ -131,23 +109,20 @@ TorchOpMul = R6Class("TorchOpMul",
   )
 )
 
-#' @title Concatenate Torch Tensors
-#'
-#' @description
-#' Concatenate torch tensors.
-#'
-#' @template param_param_vals
-#' @template param_.innum
-#'
+#' @rdname torchop_merge
 #' @export
 TorchOpCat = R6Class("TorchOpCat",
   inherit = TorchOpMerge,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "cat", param_vals = list(), .innum = NULL) {
+      param_set = ps(
+        dim = p_int(lower = 0L, tags = c("train", "required"))
+      )
       super$initialize(
         id = id,
         param_vals = param_vals,
+        param_set = param_set,
         .method = "cat",
         .innum = .innum
       )
@@ -157,17 +132,17 @@ TorchOpCat = R6Class("TorchOpCat",
 
 nn_merge_mul = nn_module(
   "merge_multiply",
-  initialize = function(dim) self$dim = dim,
+  initialize = function() NULL,
   forward = function(...) {
-    torch_prod(torch_stack(list(...)), dim = self$dim)
+    torch_prod(torch_stack(list(...)), dim = 1L)
   }
 )
 
 nn_merge_sum = nn_module(
   "merge_sum",
-  initialize = function(dim) self$dim = dim,
+  initialize = function() NULL,
   forward = function(...) {
-    torch_sum(torch_stack(list(...)), dim = self$dim)
+    torch_sum(torch_stack(list(...)), dim = 1L)
   }
 )
 

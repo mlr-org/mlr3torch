@@ -9,11 +9,11 @@
 #' @examples
 #' # Returns at least "cpu"
 #' get_available_device()
-get_available_device <- function() {
-  devices <- NULL
+get_available_device = function() {
+  devices = NULL
 
   if (torch::cuda_is_available()) {
-    devices <- paste0("cuda:", seq(0, torch::cuda_device_count() - 1))
+    devices = paste0("cuda:", seq(0, torch::cuda_device_count() - 1))
   }
 
   c("cpu", devices)
@@ -33,12 +33,14 @@ get_available_device <- function() {
 #'
 #' # Choose second GPU if available
 #' # choose_device(1)
-choose_device <- function(gpu_index = 0) {
+choose_device = function(gpu_index = 0) {
   checkmate::assert_int(gpu_index)
 
-  if (!torch::cuda_is_available()) return("cpu")
+  if (!torch::cuda_is_available()) {
+    return("cpu")
+  }
 
-  device <- paste0("cuda:", gpu_index)
+  device = paste0("cuda:", gpu_index)
 
   stopifnot(device %in% get_available_device())
 
@@ -78,11 +80,11 @@ choose_device <- function(gpu_index = 0) {
 #' @export
 #' @family torch objects
 #' @examples
-#' bce <- get_torch_loss("bce")
+#' bce = get_torch_loss("bce")
 #'
 #' # Equivalent to calling:
-#' torch_bce <- torch::nn_bce_loss()
-get_torch_loss <- function(name) {
+#' torch_bce = torch::nn_bce_loss()
+get_torch_loss = function(name) {
   switch(
     name,
     adaptive_log_softmax_with = torch::nn_adaptive_log_softmax_with_loss(),
@@ -127,11 +129,11 @@ get_torch_loss <- function(name) {
 #' @export
 #' @family torch objects
 #' @examples
-#' adam <- get_torch_optimizer("adam")
+#' adam = get_torch_optimizer("adam")
 #'
 #' # Same as [`torch::optim_adam`]
 #' identical(adam, torch::optim_adam)
-get_torch_optimizer <- function(name) {
+get_torch_optimizer = function(name) {
   switch(
     name,
     adadelta = torch::optim_adadelta,
@@ -144,5 +146,3 @@ get_torch_optimizer <- function(name) {
     sgd = torch::optim_sgd
   )
 }
-
-

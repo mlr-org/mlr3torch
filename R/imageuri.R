@@ -49,4 +49,3 @@ print.imageuri = function(x, ...) {
   catf(" * Example uri: %s", x[[1L]])
   invisible(x)
 }
-

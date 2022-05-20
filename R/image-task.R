@@ -23,18 +23,18 @@
 #'   "/opt/example-data/imagenette2-160/"
 #' )
 #' }
-df_from_imagenet_dir <- function(dirs) {
+df_from_imagenet_dir = function(dirs) {
 
   # known / valid image extensions to avoid e.g. spurious csv files
-  img_ext <- c("jpg", "jpeg", "png")
+  img_ext = c("jpg", "jpeg", "png")
 
-  img_file <- fs::dir_ls(dirs, recurse = TRUE, type = "file")
+  img_file = fs::dir_ls(dirs, recurse = TRUE, type = "file")
 
   # Subset to valid image files (by extension at least)
-  img_file <- img_file[which(tolower(fs::path_ext(img_file)) %in% img_ext)]
+  img_file = img_file[which(tolower(fs::path_ext(img_file)) %in% img_ext)]
 
-  img_class <- fs::path_file(fs::path_dir(img_file))
-  class(img_file) <- c("imageuri", "character")
+  img_class = fs::path_file(fs::path_dir(img_file))
+  class(img_file) = c("imageuri", "character")
 
   data.table::data.table(
     target = factor(img_class),
@@ -60,60 +60,60 @@ df_from_imagenet_dir <- function(dirs) {
 #' @examples
 #' \dontrun{
 #' # Dataset of all imagenette160 images
-#' image_dt <- df_from_imagenet_dir("/opt/example-data/imagenette2-160/")
-#' img_ds   <- img_dataset(image_dt)
+#' image_dt = df_from_imagenet_dir("/opt/example-data/imagenette2-160/")
+#' img_ds = img_dataset(image_dt)
 #'
 #' # Datasets for train- and validation images
 #' # Inferring set from file path (URI)
-#' train_ids <- grepl("/train/", image_dt$uri)
-#' val_ids   <- grepl("/val/", image_dt$uri)
+#' train_ids = grepl("/train/", image_dt$uri)
+#' val_ids = grepl("/val/", image_dt$uri)
 #'
-#' img_train_ds <- img_dataset(image_dt, row_ids = train_ids)
-#' img_val_ds   <- img_dataset(image_dt, row_ids = val_ids)
+#' img_train_ds = img_dataset(image_dt, row_ids = train_ids)
+#' img_val_ds = img_dataset(image_dt, row_ids = val_ids)
 #'
 #' # Adding transformations, including device placement
-#' device <- if(torch::cuda_is_available()) "cuda" else "cpu"
+#' device = if (torch::cuda_is_available()) "cuda" else "cpu"
 #'
-#' to_device <- function(x, device) {
+#' to_device = function(x, device) {
 #'   x$to(device = device)
 #' }
 #'
-#' img_transform <- function(x) {
+#' img_transform = function(x) {
 #'   x %>%
 #'     torchvision::transform_to_tensor() %>%
 #'     to_device(device) %>%
 #'     torchvision::transform_resize(c(64, 64))
 #' }
 #'
-#' img_train_ds <- img_dataset(image_dt, row_ids = train_ids, img_transform)
-#' img_val_ds   <- img_dataset(image_dt, row_ids = val_ids, img_transform)
+#' img_train_ds = img_dataset(image_dt, row_ids = train_ids, img_transform)
+#' img_val_ds = img_dataset(image_dt, row_ids = val_ids, img_transform)
 #' }
-img_dataset <- torch::dataset(
+img_dataset = torch::dataset(
   "image-dataset",
 
   # Input is the result of df_from_imagenet_dir()
   # classes are converted to integers since they are stored as factors
   # which should make class id <-> name conversion easy(ish)
   initialize = function(df, row_ids = NULL,
-                        transform = torchvision::transform_to_tensor,
-                        target_transform = NULL) {
+    transform = torchvision::transform_to_tensor,
+    target_transform = NULL) {
 
     if (!is.null(row_ids)) df <- df[row_ids, ]
 
-    self$num_classes <- length(unique(df[["target"]]))
+    self$num_classes = length(unique(df[["target"]]))
 
-    self$uri <- df[["uri"]]
-    self$target <- torch::torch_tensor(as.integer(df[["target"]]))
-    self$transform <- transform
-    self$target_transform <- target_transform
+    self$uri = df[["uri"]]
+    self$target = torch::torch_tensor(as.integer(df[["target"]]))
+    self$transform = transform
+    self$target_transform = target_transform
   },
 
   # Get individual item based on index only
   .getitem = function(index) {
 
     # target <- torch_tensor(self$class[index])
-    target <- as.integer(self$target[index])
-    img <- torchvision::magick_loader(self$uri[[index]])
+    target = as.integer(self$target[index])
+    img = torchvision::magick_loader(self$uri[[index]])
 
     if (!is.null(self$transform)) img <- self$transform(img)
     if (!is.null(self$target_transform)) target <- self$target_transform(target)
