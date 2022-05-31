@@ -7,7 +7,7 @@
 Prints a progress-bar and the metrics for training and validation.
 }
 \section{Super classes}{
-\code{\link[bbotk:Callback]{bbotk::Callback}} -> \code{\link[mlr3torch:CallbackTorch]{mlr3torch::CallbackTorch}} -> \code{CallbackTorchProgress}
+\code{\link[mlr3torch:Callback]{mlr3torch::Callback}} -> \code{\link[mlr3torch:CallbackTorch]{mlr3torch::CallbackTorch}} -> \code{CallbackTorchProgress}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -24,7 +24,7 @@ Prints a progress-bar and the metrics for training and validation.
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="bbotk" data-topic="Callback" data-id="call"><a href='../../bbotk/html/Callback.html#method-Callback-call'><code>bbotk::Callback$call()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="Callback" data-id="call"><a href='../../mlr3torch/html/Callback.html#method-Callback-call'><code>mlr3torch::Callback$call()</code></a></li>
 </ul>
 </details>
 }}
@@ -32,8 +32,9 @@ Prints a progress-bar and the metrics for training and validation.
 \if{html}{\out{<a id="method-CallbackTorchProgress-new"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackTorchProgress-new}{}}}
 \subsection{Method \code{new()}}{
+Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$new(id = "progress")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$new()}\if{html}{\out{</div>}}
 }
 
 }
@@ -41,8 +42,9 @@ Prints a progress-bar and the metrics for training and validation.
 \if{html}{\out{<a id="method-CallbackTorchProgress-on_before_train_epoch"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackTorchProgress-on_before_train_epoch}{}}}
 \subsection{Method \code{on_before_train_epoch()}}{
+Initializes the progress bar for the training.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_before_train_epoch(context)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_before_train_epoch()}\if{html}{\out{</div>}}
 }
 
 }
@@ -50,8 +52,9 @@ Prints a progress-bar and the metrics for training and validation.
 \if{html}{\out{<a id="method-CallbackTorchProgress-on_after_train_batch"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackTorchProgress-on_after_train_batch}{}}}
 \subsection{Method \code{on_after_train_batch()}}{
+Updates the progress bar for the training.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_after_train_batch(context)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_after_train_batch()}\if{html}{\out{</div>}}
 }
 
 }
@@ -59,8 +62,9 @@ Prints a progress-bar and the metrics for training and validation.
 \if{html}{\out{<a id="method-CallbackTorchProgress-on_before_valid_epoch"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackTorchProgress-on_before_valid_epoch}{}}}
 \subsection{Method \code{on_before_valid_epoch()}}{
+Initializes the progress bar for the validation.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_before_valid_epoch(context)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_before_valid_epoch()}\if{html}{\out{</div>}}
 }
 
 }
@@ -68,8 +72,9 @@ Prints a progress-bar and the metrics for training and validation.
 \if{html}{\out{<a id="method-CallbackTorchProgress-on_after_valid_batch"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackTorchProgress-on_after_valid_batch}{}}}
 \subsection{Method \code{on_after_valid_batch()}}{
+Updates the progress bar for the validation.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_after_valid_batch(context)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_after_valid_batch()}\if{html}{\out{</div>}}
 }
 
 }
@@ -77,8 +82,9 @@ Prints a progress-bar and the metrics for training and validation.
 \if{html}{\out{<a id="method-CallbackTorchProgress-on_after_valid_epoch"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackTorchProgress-on_after_valid_epoch}{}}}
 \subsection{Method \code{on_after_valid_epoch()}}{
+Prints the results of the epoch.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_after_valid_epoch(context)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_after_valid_epoch()}\if{html}{\out{</div>}}
 }
 
 }

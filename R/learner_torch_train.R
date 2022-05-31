@@ -3,15 +3,13 @@ train_eval = function(learner, history, epochs, callbacks, train_loader,
   valid_loader, context, ids
 ) {
   call = function(step) {
-    bbotk::call_back(step, callbacks, context)
+    call_back(step, callbacks)
   }
 
   call("on_start")
 
   for (epoch in seq_len(epochs)) {
     learner$network$train()
-
-    history$increment("epoch")
 
     call("on_before_train_epoch")
 
@@ -60,6 +58,9 @@ train_eval = function(learner, history, epochs, callbacks, train_loader,
     })
 
     call("on_after_valid_epoch")
+
+    history$increment("epoch")
+
   }
 
   call("on_end")
@@ -124,7 +125,7 @@ learner_torch_train = function(self, model, task) {
 
   self$state = list(model = model)
 
-  history = History$new(p$epochs, length(train_loader), length(valid_loader))
+  history = History$new(length(train_loader), length(valid_loader))
 
   context = ContextTorch$new(
     learner = self,
@@ -132,6 +133,8 @@ learner_torch_train = function(self, model, task) {
     task = task,
     measures = measures
   )
+
+  iwalk(p$callbacks, function(callback, ...) callback$context = context)
 
   train_eval(
     learner = self,

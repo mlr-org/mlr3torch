@@ -1,3 +1,6 @@
+#' @title Tabular Tokenizer
+#' @description
+#' Tokenizes tabular data.
 #' @export
 TorchOpTokenizer = R6Class("TorchOpTokenizer",
   inherit = TorchOp,
@@ -13,19 +16,19 @@ TorchOpTokenizer = R6Class("TorchOpTokenizer",
         bias = p_lgl(default = TRUE, tags = "train"),
         cls = p_lgl(default = TRUE, tags = "train")
       )
+      param_set$values = list(bias = TRUE, cls = TRUE)
       super$initialize(
         id = id,
         param_set = param_set,
-        param_vals = param_vals,
-        input = input
+        param_vals = param_vals
       )
     }
   ),
   private = list(
     .operator = "tokenizer",
     .build = function(inputs, task, param_vals, y) {
-      bias = param_vals[["bias"]] %??% TRUE
-      cls = param_vals[["cls"]] %??% TRUE
+      bias = param_vals[["bias"]]
+      cls = param_vals[["cls"]]
       d_token = param_vals[["d_token"]]
 
       n_features = sum(map_lgl(task$data(cols = task$col_roles$feature), is.numeric))

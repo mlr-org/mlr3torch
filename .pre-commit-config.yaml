@@ -28,7 +28,6 @@ repos:
         -    torch
         -    torchvision
         -    zeallot
-        -    mlr-org/bbotk@callbacks
         -    lgr
         -    tabnet
         -    zip
@@ -54,5 +53,5 @@ repos:
         entry: Cannot commit .Rhistory, .RData, .Rds or .rds.
         language: fail
         files: '\.Rhistory|\.RData|\.Rds|\.rds$'
-        exclude: inst/data
+        exclude: inst/toytask
         # `exclude: <regex>` to allow committing specific files

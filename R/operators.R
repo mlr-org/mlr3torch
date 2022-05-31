@@ -10,14 +10,14 @@
 #' @return
 #' Returns a [Graph][mlr3pipelines::Graph].
 #' @export
-`%+%` = function(a, b) {
-  UseMethod("%+%")
+`%++%` = function(a, b) { # nolint
+  UseMethod("%++%")
 }
 
 #' @param a,b (`TorchOp` or `Graph`)\cr
 #'   Graph / PipeOps whose outputs are to be add
 #' @export
-`%+%.Graph` = function(a, b) {
+`%++%.Graph` = function(a, b) { # nolint
   assert_mergeable(a)
   assert_mergeable(b)
   a = as_graph(a)
@@ -35,8 +35,8 @@
 
 
 #' @export
-`%+%.TorchOp` = function(a, b) {
-  as_graph(a) %+% as_graph(b)
+`%++%.TorchOp` = function(a, b) { # nolint
+  as_graph(a) %++% as_graph(b)
 }
 
 assert_mergeable = function(a) {

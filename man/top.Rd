@@ -30,6 +30,6 @@ The object is initialized with given parameters and \code{param_vals}.
 # these are all equivalent
 top("linear", out_features = 10L, id = "linear_1")
 top("linear_1", out_features = 10L)
-mlr_torchops$get("linear", out_features = 10L, id = "linear_1")
+mlr_torchops$get("linear", param_vals = list(out_features = 10L), id = "linear_1")
 
 }

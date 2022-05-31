@@ -1,4 +1,8 @@
-TorchOpHead = R6Class("TorchOpHead",
+#' @title Output Layer for a Neural Network
+#' @description
+#' Creates a output layer for the given task
+#' @export
+TorchOpOutput = R6Class("TorchOpOutput",
   inherit = TorchOp,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
@@ -41,4 +45,4 @@ TorchOpHead = R6Class("TorchOpHead",
   )
 )
 
-mlr_torchops$add("head", TorchOpHead)
+mlr_torchops$add("output", TorchOpOutput)

@@ -1,3 +1,9 @@
+#' @title Initialization of ModelArgs
+#'
+#' @description
+#' Outputs an object of class `"ModelArgs"` that is used internally to build Torch Learners using
+#' `TorchOp`'s.
+#'
 #' @template param_id
 #' @template param_param_vals
 #' @export

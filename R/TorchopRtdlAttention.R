@@ -1,3 +1,8 @@
+#' @title Tabular Attention Mechanism from RTDL paper
+#' @description
+#' This is a R reimplementan of the tabular attention layer as implemented in the paper
+#' "revisiting tabular deep learning".
+#' @export
 TorchOpRtdlAttention = R6Class("TorchOpAttention",
   inherit = TorchOp,
   public = list(

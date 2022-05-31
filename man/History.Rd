@@ -8,13 +8,34 @@ Training History for a Torch Learner
 The train logs are saved in the field '$train\verb{and the validation logs are saved in the field}$valid`. They are named lists respectively, each containing a list again that contains
 a list for each epoch.
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{train}}{(\code{list()})\cr
+Contains the training history.}
+
+\item{\code{valid}}{(\code{list()})\cr
+Contains the validation history.}
+
+\item{\code{steps}}{(\code{list()})\cr
+Contains the steps (number of batches) for training and validation, i.e.
+\code{steps$train} and \code{steps$valid} are the train and validation steps respecitvely.}
+
+\item{\code{step}}{(named \code{list()})\cr
+Named list where \code{step$train} contains the current training step and \code{step$valid}
+indicates the current valdiation step}
+
+\item{\code{epoch}}{(\code{integer(1)})\cr
+The current epoch.}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-History-new}{\code{History$new()}}
 \item \href{#method-History-append}{\code{History$append()}}
 \item \href{#method-History-increment}{\code{History$increment()}}
-\item \href{#method-History-print}{\code{History$print()}}
 \item \href{#method-History-clone}{\code{History$clone()}}
 }
 }
@@ -24,9 +45,20 @@ a list for each epoch.
 \subsection{Method \code{new()}}{
 Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{History$new(epochs, steps_train, steps_valid)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{History$new(steps_train, steps_valid)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{steps_train}}{(\code{integer(1)})\cr
+The number of training steps.}
+
+\item{\code{steps_valid}}{(\code{integer(1)})\cr
+The number of validation steps.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-History-append"></a>}}
@@ -66,24 +98,6 @@ Increments the epoch or train/valid step.
 \describe{
 \item{\code{what}}{(\code{character(1)})\cr
 Must be epoch, train or valid.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-History-print"></a>}}
-\if{latex}{\out{\hypertarget{method-History-print}{}}}
-\subsection{Method \code{print()}}{
-Prints the object.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{History$print(...)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{(any)\cr
-Currently unused.}
 }
 \if{html}{\out{</div>}}
 }

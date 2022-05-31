@@ -1,3 +1,8 @@
+#' @title Dropout Layer
+#' @description
+#' Dropout layer.
+#'
+#' @export
 TorchOpDropout = R6Class("TorchOpDropout",
   inherit = TorchOp,
   public = list(

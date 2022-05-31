@@ -22,11 +22,17 @@
 #' # these are all equivalent
 #' top("linear", out_features = 10L, id = "linear_1")
 #' top("linear_1", out_features = 10L)
-#' mlr_torchops$get("linear", out_features = 10L, id = "linear_1")
+#' mlr_torchops$get("linear", param_vals = list(out_features = 10L), id = "linear_1")
 #'
 #' @export
 top = function(.obj, ...) {
-  dictionary_sugar_get(dict = mlr_torchops, .key = extract_key(.obj), id = .obj, ...)
+  key = extract_key(.obj)
+  if (key != .obj) {
+    assert_true(!hasArg("id"))
+    op = dictionary_sugar_get(dict = mlr_torchops, .key = key, id = .obj, ...)
+    return(op)
+  }
+  dictionary_sugar_get(dict = mlr_torchops, .key = .obj, ...)
 }
 
 extract_key = function(x) {

@@ -3,8 +3,15 @@ torch_callbacks = mlr3misc::Dictionary$new()
 
 #' @title Retrieve a callback
 #' @export
-cllb = function(id) {
-  torch_callbacks$get(id)
+cllb = function(id, ...) {
+  torch_callbacks$get(id, ...)
+}
+
+#' @title Retrieve callbacks
+#' @export
+cllbs = function(ids, ...) {
+  map(ids, function(id) cllb(id, ...))
+
 }
 
 
@@ -13,8 +20,11 @@ cllb = function(id) {
 #' All Callbacks for the Torch Learners should inherit from this class.
 #' @export
 CallbackTorch = R6Class("CallbackTorch",
-  inherit = bbotk::Callback,
+  inherit = Callback,
   public = list(
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
+    #' @param id (`character(1)`)\cr
+    #'   The id for the new object.
     initialize = function(id) {
       x = names(self)
       callbacks = x[startsWith(x, "on_")]
@@ -27,7 +37,10 @@ CallbackTorch = R6Class("CallbackTorch",
         stopf(message)
       }
       super$initialize(id)
-    }
+    },
+    #' @field context ([`ContextTorch`][ContextTorch])\cr
+    #'   The context in which'the callbacks are evaluated.
+    context = NULL
   ),
   private = list(
     .steps = c(
@@ -52,32 +65,43 @@ CallbackTorchProgress = R6Class("CallbackTorchProgress",
   inherit = CallbackTorch,
   lock_objects = FALSE,
   public = list(
-    initialize = function(id = "progress") {
-      super$initialize(id = id)
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
+    initialize = function() {
+      super$initialize(id = "progress")
     },
-    on_before_train_epoch = function(context) {
-      catf("Epoch %s", context$history$epoch)
+    #' @description
+    #' Initializes the progress bar for the training.
+    on_before_train_epoch = function() {
+      catf("Epoch %s", self$context$history$epoch)
       self$pb_train = progress::progress_bar$new(
-        total = context$history$steps$train,
+        total = self$context$history$steps$train,
         format = "Training [:bar]"
       )
     },
-    on_after_train_batch = function(context) {
+    #' @description
+    #' Updates the progress bar for the training.
+    on_after_train_batch = function() {
       self$pb_train$tick()
     },
-    on_before_valid_epoch = function(context) {
+    #' @description
+    #' Initializes the progress bar for the validation.
+    on_before_valid_epoch = function() {
       self$pb_valid = progress::progress_bar$new(
-        total = context$history$steps$valid,
+        total = self$context$history$steps$valid,
         format = "Validation: [:bar]"
       )
     },
-    on_after_valid_batch = function(context) {
-      self$pb_valid$tick(tokens = list(loss = context$history$last_train_loss))
+    #' @description
+    #' Updates the progress bar for the validation.
+    on_after_valid_batch = function() {
+      self$pb_valid$tick(tokens = list(loss = self$context$history$last_train_loss))
     },
-    on_after_valid_epoch = function(context) {
-      catf("\n[Summary epoch %s]", context$history$epoch)
-      catf("----------------")
-      history = context$history
+    #' @description
+    #' Prints the results of the epoch.
+    on_after_valid_epoch = function() {
+      catf("\n[Summary epoch %s]", self$context$history$epoch)
+      catf("------------------")
+      history = self$context$history
       for (phase in c("train", "valid")) {
         if (length(names(history[[phase]]))) {
           catf("Measures %s:", capitalize(phase))

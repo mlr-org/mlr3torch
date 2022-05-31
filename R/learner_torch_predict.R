@@ -1,15 +1,12 @@
 # Here are the standard methods that are shared between all the TorchLearners
 learner_torch_predict = function(self, task) {
   model = self$state$model
-  reset_train = model$network$training
-  on.exit(if (reset_train) model$network$train(), add = TRUE)
-  model$network$eval()
-
   network = model$network
+  network$eval()
 
-  pars = self$param_set$get_values(tags = "predict")
-  device = pars$device
-  batch_size = pars$batch_size
+  p = self$param_set$get_values(tags = "predict")
+  device = p$device
+  batch_size = p$batch_size
 
   data_loader = as_dataloader(task, device = device, batch_size = batch_size, drop_last = FALSE)
   npred = length(data_loader$dataset) # length of dataloader are the batches

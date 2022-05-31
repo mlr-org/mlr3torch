@@ -1,6 +1,6 @@
 test_that("History works", {
   run = function() {
-    history = History$new(10, 2, 1)
+    history = History$new(2, 1)
     history$append("accuracy", 0.8, "train")
     history$increment("train")
     history$append("accuracy", 0.9, "train")
@@ -17,7 +17,10 @@ test_that("History works", {
     history$append("acc", 0.6, "valid")
     history$increment("valid")
     history$append("acc", 0.7, "valid")
+
+    history
   }
+  history = run()
 
   train_expected = list(
     accuracy = list(

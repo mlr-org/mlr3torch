@@ -124,6 +124,9 @@ TorchOp = R6Class("TorchOp",
       }
 
       return(output)
+    },
+    .predict = function(inputs) {
+      inputs
     }
   )
 )

@@ -13,4 +13,5 @@ test_that("Callbacks work", {
   task = toytask()
   task$row_roles$use = 1:40
   l$train(task)
+  expect_error(l$train(task), regexp = NA)
 })

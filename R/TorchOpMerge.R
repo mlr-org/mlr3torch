@@ -3,13 +3,6 @@
 #' @description
 #' Merges multiple tensors.
 #'
-#' @template param_id
-#' @template param_param_set
-#' @template param_param_vals
-#' @param .method (`character(1)`)\cr
-#'   The method for the concatenation. One of "add", "mul" or "cat".
-#' @template param_.innum
-#'
 #' @section Order of inputs:
 #' In case the order of input matters (e.g. for method "cat"), the constructor argument 'innum'
 #' should be set.
@@ -31,13 +24,22 @@
 #' graph$add_edge(src_id = "linear_1", dst_id = "cat", dst_channel = "input2")
 #' graph$add_edge(src_id = "linear_2", dst_id = "cat", dst_channel = "input1")
 #' @rdname torchop_merge
-NULL
-#>
-
 TorchOpMerge = R6Class("TorchOpMerge",
   inherit = TorchOp,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
+    #' @param id (`character(1)`)\cr
+    #'   The id for of the new object.
+    #' @param param_set (`paradox::ParamSet`)\cr
+    #'   The parameter set.
+    #' @param param_vals (named `list()`)\cr
+    #'   The initial parameters for the object.
+    #' @param .innum (`integer(1)`)\cr
+    #'   The number of input channels (optional). If provided, the input channels are set to
+    #'   `"input1"`, `"input2"`, etc.. Otherwise the input channel is set to `...` (a 'vararg' channel).
+    #'   Should be set, in case the order of the inputs is relevant.
+    #' @param .method (`character(1)`)\cr
+    #'   The method for the concatenation. One of "add", "mul" or "cat".
     initialize = function(id = "merge", param_set = ps(), param_vals = list(), .method,
       .innum = NULL) {
       private$.method = assert_choice(.method, c("add", "mul", "cat"))
@@ -67,7 +69,7 @@ TorchOpMerge = R6Class("TorchOpMerge",
       layer = switch(private$.method,
         add = nn_merge_sum(),
         mul = nn_merge_mul(),
-        cat = nn_merge_cat(self$param_set$value$dim)
+        cat = nn_merge_cat(self$param_set$values$dim)
       )
       return(layer)
     },
@@ -81,6 +83,16 @@ TorchOpAdd = R6Class("TorchOpAdd",
   inherit = TorchOpMerge,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
+    #' @param id (`character(1)`)\cr
+    #'   The id for of the new object.
+    #' @param param_set (`paradox::ParamSet`)\cr
+    #'   The parameter set.
+    #' @param param_vals (named `list()`)\cr
+    #'   The initial parameters for the object.
+    #' @param .innum (`integer(1)`)\cr
+    #'   The number of input channels (optional). If provided, the input channels are set to
+    #'   `"input1"`, `"input2"`, etc.. Otherwise the input channel is set to `...` (a 'vararg' channel).
+    #'   Should be set, in case the order of the inputs is relevant.
     initialize = function(id = "add", param_vals = list(), .innum = NULL) {
       super$initialize(
         id = id,
@@ -98,6 +110,16 @@ TorchOpMul = R6Class("TorchOpMul",
   inherit = TorchOpMerge,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
+    #' @param id (`character(1)`)\cr
+    #'   The id for of the new object.
+    #' @param param_set (`paradox::ParamSet`)\cr
+    #'   The parameter set.
+    #' @param param_vals (named `list()`)\cr
+    #'   The initial parameters for the object.
+    #' @param .innum (`integer(1)`)\cr
+    #'   The number of input channels (optional). If provided, the input channels are set to
+    #'   `"input1"`, `"input2"`, etc.. Otherwise the input channel is set to `...` (a 'vararg' channel).
+    #'   Should be set, in case the order of the inputs is relevant.
     initialize = function(id = "mul", param_vals = list(), .innum = NULL) {
       super$initialize(
         id = id,
@@ -115,6 +137,16 @@ TorchOpCat = R6Class("TorchOpCat",
   inherit = TorchOpMerge,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
+    #' @param id (`character(1)`)\cr
+    #'   The id for of the new object.
+    #' @param param_set (`paradox::ParamSet`)\cr
+    #'   The parameter set.
+    #' @param param_vals (named `list()`)\cr
+    #'   The initial parameters for the object.
+    #' @param .innum (`integer(1)`)\cr
+    #'   The number of input channels (optional). If provided, the input channels are set to
+    #'   `"input1"`, `"input2"`, etc.. Otherwise the input channel is set to `...` (a 'vararg' channel).
+    #'   Should be set, in case the order of the inputs is relevant.
     initialize = function(id = "cat", param_vals = list(), .innum = NULL) {
       param_set = ps(
         dim = p_int(lower = 0L, tags = c("train", "required"))

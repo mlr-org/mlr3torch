@@ -7,7 +7,15 @@
 All Callbacks for the Torch Learners should inherit from this class.
 }
 \section{Super class}{
-\code{\link[bbotk:Callback]{bbotk::Callback}} -> \code{CallbackTorch}
+\code{\link[mlr3torch:Callback]{mlr3torch::Callback}} -> \code{CallbackTorch}
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{context}}{(\code{\link{ContextTorch}})\cr
+The context in which'the callbacks are evaluated.}
+}
+\if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -19,7 +27,7 @@ All Callbacks for the Torch Learners should inherit from this class.
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="bbotk" data-topic="Callback" data-id="call"><a href='../../bbotk/html/Callback.html#method-Callback-call'><code>bbotk::Callback$call()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="Callback" data-id="call"><a href='../../mlr3torch/html/Callback.html#method-Callback-call'><code>mlr3torch::Callback$call()</code></a></li>
 </ul>
 </details>
 }}
@@ -27,10 +35,19 @@ All Callbacks for the Torch Learners should inherit from this class.
 \if{html}{\out{<a id="method-CallbackTorch-new"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackTorch-new}{}}}
 \subsection{Method \code{new()}}{
+Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CallbackTorch$new(id)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{id}}{(\code{character(1)})\cr
+The id for the new object.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackTorch-clone"></a>}}

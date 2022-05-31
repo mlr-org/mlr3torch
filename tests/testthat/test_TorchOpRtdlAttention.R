@@ -1,7 +1,7 @@
 test_that("TorchOpSelfAttention works with single input (selfattention)", {
   task = tsk("mtcars")
   self_attention = top("tokenizer") %>>%
-    top("selfattention") %>>%
+    top("rtdl_attention") %>>%
     top("linear")
 })
 
@@ -15,8 +15,13 @@ test_that("TorchOpSelfAttention works with two different inputs", {
         b = top("linear", out_features = 10L)
       )
     ) %>>%
-    top("attention")
+    top("rtdl_attention")
   architecture = g$train(task)[[1L]]$architecture
   network = architecture$build(task)
   expect_r6(network, "nn_Graph")
 })
+
+
+if (FALSE) {
+
+}

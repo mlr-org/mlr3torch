@@ -62,7 +62,7 @@ register_mlr3 = function() {
   reflcts$task_feature_types[["img"]] = "imageuri"
 }
 
-.onLoad = function(libname, pkgname) {
+.onLoad = function(libname, pkgname) { # nolint
   # For caching directory
   backports::import(pkgname)
   backports::import(pkgname, "R_user_dir", force = TRUE)

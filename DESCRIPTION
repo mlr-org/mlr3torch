@@ -24,8 +24,7 @@ Imports:
     rlang,
     torch,
     torchvision,
-    zeallot,
-    bbotk
+    zeallot
 Suggests:
     lgr,
     tabnet,
@@ -33,7 +32,6 @@ Suggests:
     zip
 Remotes:
   sebffischer/torchvision@tiny_imagenet,
-  mlr-org/bbotk@callbacks
 Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
@@ -41,6 +39,7 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.0
 Collate:
     'Architecture.R'
+    'Callback.R'
     'GraphNetwork.R'
     'History.R'
     'LearnerClassifAlexNet.R'
@@ -56,17 +55,15 @@ Collate:
     'TorchContext.R'
     'TorchOp.R'
     'TorchOpActivation.R'
-    'TorchOpCustom.R'
     'TorchOpDropout.R'
     'TorchOpFlatten.R'
-    'TorchOpHead.R'
     'TorchOpIndexSelect.R'
     'TorchOpInput.R'
     'TorchOpLinear.R'
     'TorchOpMerge.R'
     'TorchOpModel.R'
     'TorchOpOptimizer.R'
-    'TorchOpSelect.R'
+    'TorchOpOutput.R'
     'TorchOpSoftmax.R'
     'TorchOpTokenizer.R'
     'TorchopRtdlAttention.R'
