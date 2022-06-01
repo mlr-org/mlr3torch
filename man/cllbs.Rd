@@ -6,6 +6,13 @@
 \usage{
 cllbs(ids, ...)
 }
+\arguments{
+\item{...}{(any)\cr
+Additional initialization arguments for the callbacks.}
+
+\item{id}{(\code{character(1)})\cr
+The callback's id.}
+}
 \description{
 Retrieve callbacks
 }

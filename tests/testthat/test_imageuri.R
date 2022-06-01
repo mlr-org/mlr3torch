@@ -1,6 +1,6 @@
 test_that("imageuri, works", {
   # TODO: need some random pictures for that in inst
-  uris = list.files(system.file("inst", "toytask", "images", package = "mlr3torch"), full.name = TRUE)
+  uris = list.files(system.file("toytask", "images", package = "mlr3torch"), full.name = TRUE)
   images = imageuri(uris)
   expect_true(inherits(images, "imageuri"))
 })

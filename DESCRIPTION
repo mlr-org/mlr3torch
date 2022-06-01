@@ -31,7 +31,7 @@ Suggests:
     testthat (>= 3.0.0),
     zip
 Remotes:
-  sebffischer/torchvision@torch_flatten,
+  mlverse/torchvision
 Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
@@ -40,6 +40,8 @@ RoxygenNote: 7.2.0
 Collate:
     'Architecture.R'
     'Callback.R'
+    'callbacks.R'
+    'CallbackTorchProgress.R'
     'GraphNetwork.R'
     'History.R'
     'LearnerClassifAlexNet.R'
@@ -72,7 +74,6 @@ Collate:
     'autotest.R'
     'autotest_learner.R'
     'bibentries.R'
-    'callbacks.R'
     'dataloader.R'
     'graphs.R'
     'image-task.R'

@@ -4,9 +4,8 @@
 \alias{TorchOpActivation}
 \title{Torch Activation Function}
 \description{
-Torch Activation Function
-
-Torch Activation Function
+Class for Torch activation functions
+Don't use this class directly but the corresponding object.
 }
 \section{Super classes}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:TorchOp]{mlr3torch::TorchOp}} -> \code{TorchOpActivation}
@@ -35,7 +34,7 @@ Torch Activation Function
 \subsection{Method \code{new()}}{
 Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchOpActivation$new(id = .activation, param_vals = list(), .act)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TorchOpActivation$new(id = .act, param_vals = list(), .act)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

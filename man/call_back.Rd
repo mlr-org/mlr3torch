@@ -4,7 +4,7 @@
 \alias{call_back}
 \title{Call Callbacks}
 \usage{
-call_back(step, callbacks)
+call_back(step, callbacks, context)
 }
 \description{
 Call list of callbacks with context at specific step.

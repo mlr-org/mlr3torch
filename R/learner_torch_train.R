@@ -2,9 +2,6 @@
 train_eval = function(learner, history, epochs, callbacks, train_loader,
   valid_loader, context, ids
 ) {
-  call = function(step) {
-    call_back(step, callbacks)
-  }
 
   call("on_start")
 
@@ -134,7 +131,9 @@ learner_torch_train = function(self, model, task) {
     measures = measures
   )
 
-  iwalk(p$callbacks, function(callback, ...) callback$context = context)
+  call = function(step) {
+    call_back(step, callbacks)
+  }
 
   train_eval(
     learner = self,

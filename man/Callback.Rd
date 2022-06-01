@@ -13,9 +13,6 @@ Use \code{callback()} function to create a \link{Callback}.
 \describe{
 \item{\code{id}}{(\code{character(1)})\cr
 Identifier for the callback.}
-
-\item{\code{context}}{(\code{\link{Context}})\cr
-The context in which to call the callback.}
 }
 \if{html}{\out{</div>}}
 }
@@ -51,7 +48,7 @@ Identifier for the new callback.}
 \subsection{Method \code{call()}}{
 Call.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Callback$call(step)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Callback$call(step, context)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -59,6 +56,9 @@ Call.
 \describe{
 \item{\code{step}}{(\code{character(1)})\cr
 Step.}
+
+\item{\code{context}}{(\code{Context})\cr
+Context.}
 }
 \if{html}{\out{</div>}}
 }

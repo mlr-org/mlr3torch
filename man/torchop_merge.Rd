@@ -16,6 +16,7 @@ should be set.
 }
 
 \examples{
+library("mlr3pipelines")
 
 top1 = top("linear_1", out_features = 10L)
 top2 = top("linear_2", out_features = 10L)

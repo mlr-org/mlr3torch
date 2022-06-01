@@ -12,7 +12,7 @@
 #' @importFrom R6 R6Class is.R6
 #' @importFrom zeallot `%<-%`
 #' @importFrom coro loop
-#' @importFrom methods formalArgs
+#' @importFrom methods formalArgs hasArg
 #' @importFrom utils getFromNamespace
 #'
 #' @description
@@ -30,6 +30,7 @@
 "_PACKAGE"
 
 
+utils::globalVariables(c("..", "self", "private", "super", "N"))
 
 register_mlr3 = function() {
 

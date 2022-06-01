@@ -9,14 +9,6 @@ All Callbacks for the Torch Learners should inherit from this class.
 \section{Super class}{
 \code{\link[mlr3torch:Callback]{mlr3torch::Callback}} -> \code{CallbackTorch}
 }
-\section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{context}}{(\code{\link{ContextTorch}})\cr
-The context in which'the callbacks are evaluated.}
-}
-\if{html}{\out{</div>}}
-}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{

@@ -5,10 +5,6 @@ date: "2/14/2022"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
 ## Building torch networks with PipeOp's
 
 
@@ -39,21 +35,21 @@ graph$add_pipeop(to_linear2)
 graph$add_pipeop(to_model)
 
 graph$add_edge(src_id = "input", dst_id = "linear1", src_channel = "task",
-               dst_channel = "task")
+  dst_channel = "task")
 graph$add_edge(src_id = "input", dst_id = "linear1",
-               src_channel = "architecture", dst_channel = "architecture")
+  src_channel = "architecture", dst_channel = "architecture")
 graph$add_edge(src_id = "linear1", dst_id = "relu", src_channel = "task",
-               dst_channel = "task")
+  dst_channel = "task")
 graph$add_edge(src_id = "linear1", dst_id = "relu",
-               src_channel = "architecture", dst_channel = "architecture")
+  src_channel = "architecture", dst_channel = "architecture")
 graph$add_edge(src_id = "relu", dst_id = "linear2", src_channel = "task",
-               dst_channel = "task")
+  dst_channel = "task")
 graph$add_edge(src_id = "relu", dst_id = "linear2",
-               src_channel = "architecture", dst_channel = "architecture")
+  src_channel = "architecture", dst_channel = "architecture")
 graph$add_edge(src_id = "linear2", dst_id = "model", src_channel = "task",
-               dst_channel = "task")
+  dst_channel = "task")
 graph$add_edge(src_id = "linear2", dst_id = "model",
-               src_channel = "architecture", dst_channel = "architecture")
+  src_channel = "architecture", dst_channel = "architecture")
 
 task = tsk("mtcars")
 graph$train(task)

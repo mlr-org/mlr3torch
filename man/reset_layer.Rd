@@ -19,6 +19,9 @@ reset_last_layer(model, num_classes, bias, freeze)
 \item{num_classes}{Number of desired output classes.}
 
 \item{bias}{\verb{[TRUE]} Whether to use bias in the last layer.}
+
+\item{freeze}{(\code{logical(1)})\cr
+Whether to freee all layers expect for the output layer.}
 }
 \value{
 Same as input \code{model} with modified last layer.

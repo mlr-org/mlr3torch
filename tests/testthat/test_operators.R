@@ -7,9 +7,13 @@ test_that("+ works", {
   expect_true(g$rhs == "add")
   expect_true(all(g$lhs == c("linear_1", "linear_2")))
 
-  p3 = top("linear_3", out_features = 10)
-
-  g = g %++% p3
+  g = p1 %**% p2
   expect_r6(g, "Graph")
-  expect_true(g$rhs == "add_1")
+  expect_true(g$rhs == "mul")
+  expect_true(all(g$lhs == c("linear_1", "linear_2")))
+
+  g = p1 %cc% p2
+  expect_r6(g, "Graph")
+  expect_true(g$rhs == "cat")
+  expect_true(all(g$lhs == c("linear_1", "linear_2")))
 })

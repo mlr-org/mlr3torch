@@ -27,15 +27,13 @@ Callback = R6::R6Class("Callback",
     #'
     #' @param step (`character(1)`)\cr
     #'   Step.
-    call = function(step) {
+    #' @param context (`Context`)\cr
+    #'   Context.
+    call = function(step, context) {
       if (!is.null(self[[step]])) {
-        self[[step]]()
+        self[[step]](context)
       }
-
-    },
-    #' @field context ([`Context`][Context])\cr
-    #'   The context in which to call the callback.
-    context = NULL
+    }
   )
 )
 
@@ -53,7 +51,7 @@ Callback = R6::R6Class("Callback",
 #'   The argument names indicate the step in which the method is called.
 as_callback = function(id, ...) {
   callback_methods = list(...)
-  assert_subset(names(callback_methods), bbotk_reflections$callback_steps)
+  assert_subset(names(callback_methods), torch_reflections$callback_steps)
   walk(callback_methods, function(method) assert_names(formalArgs(method), identical.to = "context"))
   callback = Callback$new(id = id)
   iwalk(callback_methods, function(method, step) {
@@ -69,8 +67,7 @@ as_callback = function(id, ...) {
 #'
 #' @keywords internal
 #' @export
-call_back = function(step, callbacks) {
-  callbacks = Filter(function(x) !is.null(x), callbacks)
-  walk(callbacks, function(callback) callback$call(step))
+call_back = function(step, callbacks, context) {
+  walk(callbacks, function(callback) callback$call(step, context))
   return(invisible(NULL))
 }

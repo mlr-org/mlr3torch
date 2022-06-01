@@ -6,7 +6,6 @@ task = tsk("iris")
 
 # define train test valid ids
 task$set_row_roles(rows = 101:150, roles = "holdout")
-
 ```
 
 
@@ -22,9 +21,7 @@ learner$train(task, row_ids = 101:150)
 rr = resample(task, learner, rsmp("holdout", ratio = 0.67))
 learner$predict(task)
 
-learner$train(
-  
-)
+learner$train()
 
 rr = resample(task, learner, resampling)
 
@@ -32,21 +29,16 @@ learner$train(task)
 
 
 
-search_space = 
+search_space =
 
-at = auto_tuner(
-  method = "random_search", 
-  task = tsk("iris"), 
-  learner = learner, 
-  resampling = rsmp("holdout"), 
-  measure = msr("regr.mse"), 
-  term_evals = 10L
-)
+  at = auto_tuner(
+    method = "random_search",
+    task = tsk("iris"),
+    learner = learner,
+    resampling = rsmp("holdout"),
+    measure = msr("regr.mse"),
+    term_evals = 10L
+  )
 
 at$train(task)
-
-
-
 ```
-
-

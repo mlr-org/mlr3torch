@@ -72,5 +72,3 @@ An `Architecture` inherits from a graph and has an additonal *build*  method, th
 
 * For regression it is clear --> output the actual prediction
 * For classification: Output the scores
-
-

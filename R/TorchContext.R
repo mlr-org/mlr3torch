@@ -1,3 +1,4 @@
+#' @title Context where torch Callbacks are evaluted
 #' @description
 #' Context for training a TorchModel
 #'
