@@ -4,7 +4,7 @@ train_eval = function(learner, history, epochs, callbacks, train_loader,
 ) {
 
   call = function(step) {
-    call_back(step, callbacks)
+    call_back(step, callbacks, context)
   }
 
   call("on_start")

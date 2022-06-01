@@ -17,7 +17,7 @@ CallbackTorchProgress = R6Class("CallbackTorchProgress",
     #'   The context in which the callback is called.
     on_before_train_epoch = function(context) {
       catf("Epoch %s", context$history$epoch)
-      pb_train = progress::progress_bar$new(
+      self$pb_train = progress::progress_bar$new(
         total = context$history$steps$train,
         format = "Training [:bar]"
       )

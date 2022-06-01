@@ -8,5 +8,6 @@ test_that("LearnerClasifAlexnet runs", {
   task = toytask()
   resampling = rsmp("holdout")
   task$row_roles$use = sample(task$nrow, size = 100)
+  learner$train(task)
   expect_error(learner$train(task), regexp = NA)
 })

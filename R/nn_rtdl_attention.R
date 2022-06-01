@@ -16,7 +16,7 @@
 #' @references
 #' `r format_bib("gorishniy2021revisiting", "devlin2018bert")`
 #' @export
-nn_rtdl_attention = nn_module("nn_attention",
+nn_rtdl_attention = nn_module("nn_rtdl_attention",
   initialize = function(d_token, n_heads = 1L, dropout = 0.5, bias = TRUE,
     initialization = "kaiming") {
     n_heads = assert_int(n_heads)

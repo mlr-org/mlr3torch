@@ -24,7 +24,7 @@ nn_graph = nn_module(
 
 
 network_forward = function(layers, edges, ids, input) {
-  edges["__initial__", input := list(list(input)), on = "src_id", with = FALSE]
+  edges["__initial__", input := list(list(..input)), on = "src_id"]
   for (i in seq_along(layers)) {
     input = edges[ids[[i]], list(dst_channel = get("dst_channel"), input = input), on = "dst_id"]
     input = set_names(
