@@ -11,9 +11,4 @@ test_that("+ works", {
   expect_r6(g, "Graph")
   expect_true(g$rhs == "mul")
   expect_true(all(g$lhs == c("linear_1", "linear_2")))
-
-  g = p1 %cc% p2
-  expect_r6(g, "Graph")
-  expect_true(g$rhs == "cat")
-  expect_true(all(g$lhs == c("linear_1", "linear_2")))
 })

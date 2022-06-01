@@ -12,7 +12,7 @@ cllb = function(id, ...) {
 }
 
 #' @title Retrieve callbacks
-#' @param id (`character(1)`)\cr
+#' @param ids (`character(1)`)\cr
 #'   The callback's id.
 #' @param ... (any)\cr
 #'   Additional initialization arguments for the callbacks.

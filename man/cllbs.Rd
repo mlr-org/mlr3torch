@@ -7,11 +7,11 @@
 cllbs(ids, ...)
 }
 \arguments{
+\item{ids}{(\code{character(1)})\cr
+The callback's id.}
+
 \item{...}{(any)\cr
 Additional initialization arguments for the callbacks.}
-
-\item{id}{(\code{character(1)})\cr
-The callback's id.}
 }
 \description{
 Retrieve callbacks

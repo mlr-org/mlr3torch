@@ -41,7 +41,7 @@ TorchOpRtdlAttention = R6Class("TorchOpAttention",
       assert_true(length(key$shape) == 3L)
       assert_true(all.equal(query$shape[2:3], key$shape[2:3]))
       d_token = query$shape[[3L]]
-      invoke(nn_attention, .args = param_vals, d_token = d_token)
+      invoke(nn_rtdl_attention, .args = param_vals, d_token = d_token)
     }
   )
 )

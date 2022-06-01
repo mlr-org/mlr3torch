@@ -62,8 +62,6 @@ TorchOpTokenizer = R6Class("TorchOpTokenizer",
 #' @param cls (`logical(1)`)\cr
 #'   Whether to add a cls token.
 #'
-#'
-#'
 #' @references `r format_bib("gorishniy2021revisiting")`
 nn_tokenizer = nn_module(
   "nn_tokenizer",

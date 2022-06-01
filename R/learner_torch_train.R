@@ -3,6 +3,10 @@ train_eval = function(learner, history, epochs, callbacks, train_loader,
   valid_loader, context, ids
 ) {
 
+  call = function(step) {
+    call_back(step, callbacks)
+  }
+
   call("on_start")
 
   for (epoch in seq_len(epochs)) {
@@ -73,8 +77,9 @@ train_eval = function(learner, history, epochs, callbacks, train_loader,
 
 
 score_measures = function(context, phase) {
-
   measures = context$measures[[phase]]
+  truth = context$last$truth
+  response = context$last$response
   scores = imap(
     measures,
     function(measure, name) {
@@ -131,9 +136,6 @@ learner_torch_train = function(self, model, task) {
     measures = measures
   )
 
-  call = function(step) {
-    call_back(step, callbacks)
-  }
 
   train_eval(
     learner = self,
@@ -149,7 +151,6 @@ learner_torch_train = function(self, model, task) {
 
 
 
-#' @export build_torch
 build_torch = function(self, task, network = NULL) {
   p = self$param_set$get_values(tag = "train")
 

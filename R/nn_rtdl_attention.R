@@ -1,8 +1,22 @@
 
+#' @title Attention Mechanism from RTDL paper
+#' @description
+#' This is a reimplementation of the rtdl python library.
+#'
+#' @param d_token (`integer(1)`)\cr
+#'   The dimension of the tokens.
+#' @param n_heads (`integer(1)`)\cr
+#'   The number of heads.
+#' @param dropout (`numeric(1)`)\cr
+#'   The dropout probability.
+#' @param bias (`logical(1)`)\cr
+#'   Whether to use a bias.
+#' @param initialization (`character(1)`)\cr
+#'   Which initialization strategy to use.
 #' @references
 #' `r format_bib("gorishniy2021revisiting", "devlin2018bert")`
 #' @export
-nn_attention = nn_module("nn_attention",
+nn_rtdl_attention = nn_module("nn_attention",
   initialize = function(d_token, n_heads = 1L, dropout = 0.5, bias = TRUE,
     initialization = "kaiming") {
     n_heads = assert_int(n_heads)
@@ -83,15 +97,5 @@ nn_attention = nn_module("nn_attention",
     # output = list(x = x, attention = list(logits = attention_logits, probs = attention_probs))
     # return(output)
     return(x)
-  }
-)
-
-nn_self_attention = nn_module(
-  inherit = nn_attention,
-  initialize = function(d_token, n_heads = 1L, dropout = 0.5, bias = TRUE) {
-    super$initialize(d_token, n_heads, dropout, bias)
-  },
-  forward = function(input) {
-    super$forward(query = input, key = input)
   }
 )
