@@ -8,6 +8,7 @@ repos:
         args: [--style_pkg=styler.mlr, --style_fun=mlr_style]
         additional_dependencies:
         - mlr-org/styler.mlr
+        exclude: man-roxygen/
     -   id: roxygenize
         additional_dependencies:
         -    backports
@@ -37,8 +38,11 @@ repos:
     # -   id: lintr
     -   id: readme-rmd-rendered
     -   id: parsable-R
+        exclude: man-roxygen/
     -   id: no-browser-statement
+        exclude: man-roxygen/
     -   id: deps-in-desc
+        exclude: man-roxygen/
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.2.0
     hooks:

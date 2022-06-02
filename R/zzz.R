@@ -14,9 +14,10 @@
 #' @importFrom coro loop
 #' @importFrom methods formalArgs hasArg
 #' @importFrom utils getFromNamespace
+#' @importFrom progress progress_bar
 #'
 #' @description
-#'   mlr3torch Connects the R [torch][torch] package to mlr3.
+#'   mlr3torch Connects the R `torch` package to mlr3.
 #'   Neural Networks can be implemented on three different levels of control:
 #'
 #'   * Custom `nn_module`

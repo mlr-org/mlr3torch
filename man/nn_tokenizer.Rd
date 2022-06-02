@@ -16,11 +16,11 @@ The cardinalities (levels) for the factor variables.}
 \item{d_token}{(\code{integer(1)})\cr
 The dimension of the tokens.}
 
+\item{bias}{(\code{logical(1)})\cr
+Whether to use a bias.}
+
 \item{cls}{(\code{logical(1)})\cr
 Whether to add a cls token.}
-
-\item{d_bias}{(\code{logical(1)})\cr
-Whether to use a bias.}
 }
 \description{
 Tokenizes tabular data.

@@ -57,7 +57,7 @@ TorchOpTokenizer = R6Class("TorchOpTokenizer",
 #'   The cardinalities (levels) for the factor variables.
 #' @param d_token (`integer(1)`)\cr
 #'   The dimension of the tokens.
-#' @param d_bias (`logical(1)`)\cr
+#' @param bias (`logical(1)`)\cr
 #'   Whether to use a bias.
 #' @param cls (`logical(1)`)\cr
 #'   Whether to add a cls token.

@@ -75,6 +75,7 @@ Collate:
     'autotest_learner.R'
     'bibentries.R'
     'dataloader.R'
+    'globals.R'
     'graphs.R'
     'image-task.R'
     'imageuri.R'

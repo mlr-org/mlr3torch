@@ -1,3 +1,6 @@
+#' @title Dictionary with Torch Callbackss
+#' @description
+#' Dictionary containing callbacks for the torch Learner.
 #' @export
 torch_callbacks = mlr3misc::Dictionary$new()
 

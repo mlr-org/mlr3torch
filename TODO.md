@@ -1,5 +1,3 @@
-# SOFORT: Fixe test_GraphArchitecture.R (irgendwie wird der merge call nicht zurückgegeben)
-
 4. Help pages with dynamic parameters need special care
 
 ## Questions:
@@ -44,7 +42,7 @@ Cache directory:
 - implement set / row_ids when the test_ids PR is done
 
 # Tests:
-  - always test the edge case with batch_size = 1 (drop = TRUE)
+  - always test the edge case with batch\_size = 1 (drop = TRUE)
 
 # Visualization:
 

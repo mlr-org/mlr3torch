@@ -25,6 +25,7 @@ Neral Network (Graph-) Architecture
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="add_edge"><a href='../../mlr3pipelines/html/Graph.html#method-Graph-add_edge'><code>mlr3pipelines::Graph$add_edge()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="add_pipeop"><a href='../../mlr3pipelines/html/Graph.html#method-Graph-add_pipeop'><code>mlr3pipelines::Graph$add_pipeop()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="chain"><a href='../../mlr3pipelines/html/Graph.html#method-Graph-chain'><code>mlr3pipelines::Graph$chain()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="help"><a href='../../mlr3pipelines/html/Graph.html#method-Graph-help'><code>mlr3pipelines::Graph$help()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="ids"><a href='../../mlr3pipelines/html/Graph.html#method-Graph-ids'><code>mlr3pipelines::Graph$ids()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="initialize"><a href='../../mlr3pipelines/html/Graph.html#method-Graph-initialize'><code>mlr3pipelines::Graph$initialize()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="plot"><a href='../../mlr3pipelines/html/Graph.html#method-Graph-plot'><code>mlr3pipelines::Graph$plot()</code></a></li>

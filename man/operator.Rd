@@ -23,7 +23,7 @@ a \%**\% b
 \method{\%**\%}{TorchOp}(a, b)
 }
 \arguments{
-\item{a, }{b (\code{Graph} or \code{TorchOp})\cr
+\item{a, b}{(\code{Graph} or \code{TorchOp})\cr
 Values to be e.g. added, multiplied etc..}
 }
 \value{

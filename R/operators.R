@@ -4,7 +4,7 @@
 #' A [`gunion()`][mlr3pipelines::gunion] is created and the outputs of a and b are
 #' added using the [TorchOpMerge].
 #'
-#' @param a, b (`Graph` or `TorchOp`)\cr
+#' @param a,b (`Graph` or `TorchOp`)\cr
 #'   Values to be e.g. added, multiplied etc..
 #'
 #' @return

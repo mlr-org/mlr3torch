@@ -70,13 +70,10 @@ The loss function cannot be changed after the learner was constructed.
 }
 
 \examples{
-if (requireNamespace("mlr3torch", quietly = TRUE) && requireNamespace("torch", quietly = TRUE) && requireNamespace("torchvision", quietly = TRUE)) {
-  learner = mlr3::lrn("classif.alexnet")
-  print(learner)
-
-  # available parameters:
+learner = mlr3::lrn("classif.alexnet")
+print(learner)
+# available parameters:
 learner$param_set$ids()
-}
 }
 \references{
 Krizhevsky, Alex (2014).

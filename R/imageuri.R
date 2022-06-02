@@ -22,6 +22,16 @@ imageuri = function(x) {
   imageuri(unclass(obj)[...])
 }
 
+#' @title Transforms an Imageuri
+#'
+#' @description
+#' Transforms an imageuri.
+#'
+#' @param x (`imageuri()`)\cr
+#'   Imageuri vector.
+#' @param trafo (`function`)\cr
+#'   The image transformation. Must be a function with one argument.
+#'
 #' @export
 transform_imageuri = function(x, trafo) {
   assert_true(class(x)[[1L]] == "imageuri")
