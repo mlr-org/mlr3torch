@@ -1,4 +1,4 @@
-test_that("LearnerClasifAlexnet runs", {
+test_that("LearnerClassifAlexnet runs", {
   learner = lrn("classif.alexnet",
     epochs = 1L,
     batch_size = 1L,
