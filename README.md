@@ -1,88 +1,86 @@
----
-output: github_document
----
-
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-
-
-# mlr3torch
+mlr3torch
+=========
 
 <!-- badges: start -->
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![R-CMD-check](https://github.com/mlr-org/mlr3torch/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mlr-org/mlr3torch/actions/workflows/R-CMD-check.yaml)
-[![CRAN status](https://www.r-pkg.org/badges/version/mlr3torch)](https://CRAN.R-project.org/package=mlr3torch)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/mlr3torch)](https://CRAN.R-project.org/package=mlr3torch)
 <!-- badges: end -->
 
-The goal of {mlr3torch} is to connect [{mlr3}](https://github.com/mlr-org/mlr3) with [{torch}](https://github.com/mlverse/torch).
+The goal of {mlr3torch} is to connect
+[{mlr3}](https://github.com/mlr-org/mlr3) with
+[{torch}](https://github.com/mlverse/torch).
 
-It is in the very early stages of development and it's future and scope are yet to be determined.
+It is in the very early stages of development and it’s future and scope
+are yet to be determined.
 
-## Installation
+Installation
+------------
 
-```r
-remotes::install_github("mlr-org/mlr3torch")
-```
+    remotes::install_github("mlr-org/mlr3torch")
 
-## `tabnet` Example
+`tabnet` Example
+----------------
 
-Using the [{tabnet}](https://github.com/mlverse/tabnet) learner for classification:
+Using the [{tabnet}](https://github.com/mlverse/tabnet) learner for
+classification:
 
+    library(mlr3)
+    library(mlr3viz)
+    library(mlr3torch)
 
-```r
-library(mlr3)
-library(mlr3viz)
-library(mlr3torch)
+    task = tsk("german_credit")
 
-task = tsk("german_credit")
+    # Set up the learner
+    lrn_tabnet = lrn("classif.tabnet", epochs = 5)
 
-# Set up the learner
-lrn_tabnet = lrn("classif.tabnet", epochs = 5)
+    # Train and Predict
+    lrn_tabnet$train(task, row_ids = 1:900)
 
-# Train and Predict
-lrn_tabnet$train(task, row_ids = 1:900)
+    preds = lrn_tabnet$predict(task, row_ids = 901:1000)
 
-preds = lrn_tabnet$predict(task, row_ids = 901:1000)
+    # Investigate predictions
+    preds$confusion
+    preds$score(msr("classif.acc"))
 
-# Investigate predictions
-preds$confusion
-preds$score(msr("classif.acc"))
+    # Predict probabilities instead
+    lrn_tabnet$predict_type = "prob"
+    preds_prob = lrn_tabnet$predict(task)
 
-# Predict probabilities instead
-lrn_tabnet$predict_type = "prob"
-preds_prob = lrn_tabnet$predict(task)
+    autoplot(preds_prob, type = "roc")
 
-autoplot(preds_prob, type = "roc")
+    # Examine variable importance scores
+    lrn_tabnet$importance()
 
-# Examine variable importance scores
-lrn_tabnet$importance()
-```
+Using `TorchOp`s
+----------------
 
+    task = tsk("iris")
 
-```r
-task = tsk("iris")
+    graph = top("input") %>>%
+      top("tokenizer", d_token = 1) %>>%
+      top("flatten") %>>%
+      top("relu_1") %>>%
+      top("linear_1", out_features = 10) %>>%
+      top("relu_2") %>>%
+      top("linear_2", out_features = 4L) %>>%
+      top("model.classif", epochs = 10L, batch_size = 16L, .loss = "cross_entropy", .optimizer = "adam")
 
-graph = top("input") %>>%
-  top("tokenizer", d_token = 1) %>>%
-  top("flatten") %>>%
-  top("relu_1") %>>%
-  top("linear_1", out_features = 10) %>>%
-  top("relu_2") %>>%
-  top("linear_2", out_features = 4L) %>>%
-  top("model.classif", epochs = 10L, batch_size = 16L, .loss = "cross_entropy", .optimizer = "adam")
+    glrn = as_learner(graph)
+    glrn$train(task)
 
-glrn = as_learner(graph)
-glrn$train(task)
-```
+Credit
+------
 
+Some parts of the implementation are inspired by other deep learning
+libraries:
 
-## Using `TorchOp`s
-
-## Credit
-
-Some parts of the implementation are inspired by other deep learning libraries:
-
-* [Keras](https://keras.io/) - Building networks using `TorchOp`'s feels similar to using the
-  `keras`.
-* [Luz](https://github.com/mlverse/luz) - Our implementation of callbacks is inspired by the
-  R package `luz`
+-   [Keras](https://keras.io/) - Building networks using `TorchOp`’s
+    feels similar to using the `keras`.
+-   [Luz](https://github.com/mlverse/luz) - Our implementation of
+    callbacks is inspired by the R package `luz`

@@ -64,6 +64,8 @@ autoplot(preds_prob, type = "roc")
 lrn_tabnet$importance()
 ```
 
+## Using `TorchOp`s
+
 ```{r torchop, eval = FALSE}
 task = tsk("iris")
 
@@ -81,7 +83,6 @@ glrn$train(task)
 ```
 
 
-## Using `TorchOp`s
 
 ## Credit
 
