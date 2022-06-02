@@ -31,14 +31,17 @@ Suggests:
     testthat (>= 3.0.0),
     zip
 Remotes:
-  sebffischer/torchvision@tiny_imagenet
+  mlverse/torchvision
 Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 Collate:
     'Architecture.R'
+    'Callback.R'
+    'callbacks.R'
+    'CallbackTorchProgress.R'
     'GraphNetwork.R'
     'History.R'
     'LearnerClassifAlexNet.R'
@@ -50,39 +53,40 @@ Collate:
     'mlr_torchops.R'
     'PipeOpImageTrafo.R'
     'TaskClassif_tiny_imagenet.R'
+    'TaskClassif_toytask.R'
+    'TorchContext.R'
     'TorchOp.R'
     'TorchOpActivation.R'
-    'TorchOpAttention.R'
-    'TorchOpBlock.R'
-    'TorchOpCustom.R'
     'TorchOpDropout.R'
     'TorchOpFlatten.R'
-    'TorchOpHead.R'
     'TorchOpIndexSelect.R'
     'TorchOpInput.R'
     'TorchOpLinear.R'
     'TorchOpMerge.R'
     'TorchOpModel.R'
     'TorchOpOptimizer.R'
-    'TorchOpParallel.R'
-    'TorchOpSelect.R'
-    'TorchOpSelfAttention.R'
+    'TorchOpOutput.R'
     'TorchOpSoftmax.R'
     'TorchOpTokenizer.R'
+    'TorchopRtdlAttention.R'
     'as_dataloader.R'
     'as_dataset.R'
+    'autotest.R'
+    'autotest_learner.R'
     'bibentries.R'
     'dataloader.R'
+    'globals.R'
     'graphs.R'
     'image-task.R'
     'imageuri.R'
-    'learner_torch.R'
+    'learner_torch_predict.R'
+    'learner_torch_train.R'
     'make_dataloader.R'
     'make_image_dataset.R'
     'make_paramset.R'
-    'mlr3torch-package.R'
-    'nn_attention.R'
     'nn_cls.R'
+    'nn_rtdl_attention.R'
+    'operators.R'
     'paramset_tabnet.R'
     'paramsets_activation.R'
     'paramsets_image_trafo.R'

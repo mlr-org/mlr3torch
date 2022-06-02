@@ -1,2 +1,2 @@
 #' @param id (`character(1)`)\cr
-#'   Identifier for the new instance.
+#'   The id for of the new object.

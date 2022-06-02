@@ -1,4 +1,3 @@
-
 # TODO: Check with concrete numbers that everything works as intented
 test_that("nn_tokenizer_numeric works", {
   n = 16

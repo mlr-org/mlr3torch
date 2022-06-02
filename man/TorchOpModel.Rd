@@ -18,24 +18,23 @@ TorchOpModelClassif and TorchOpModelRegr inherit from this R6 Class.
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{TorchOpModel$new()}}
-\item \href{#method-clone}{\code{TorchOpModel$clone()}}
+\item \href{#method-TorchOpModel-new}{\code{TorchOpModel$new()}}
+\item \href{#method-TorchOpModel-clone}{\code{TorchOpModel$clone()}}
 }
 }
-\if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
-\itemize{
-\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help">}\href{../../mlr3pipelines/html/PipeOp.html#method-help}{\code{mlr3pipelines::PipeOp$help()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict">}\href{../../mlr3pipelines/html/PipeOp.html#method-predict}{\code{mlr3pipelines::PipeOp$predict()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print">}\href{../../mlr3pipelines/html/PipeOp.html#method-print}{\code{mlr3pipelines::PipeOp$print()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train">}\href{../../mlr3pipelines/html/PipeOp.html#method-train}{\code{mlr3pipelines::PipeOp$train()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="build">}\href{../../mlr3torch/html/TorchOp.html#method-build}{\code{mlr3torch::TorchOp$build()}}\out{</span>}
-}
-\out{</details>}
-}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="build"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-build'><code>mlr3torch::TorchOp$build()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="print"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-print'><code>mlr3torch::TorchOp$print()</code></a></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-TorchOpModel-new"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchOpModel-new}{}}}
 \subsection{Method \code{new()}}{
 Creates an object of class \link{TorchOpModel}\cr
 \subsection{Usage}{
@@ -45,22 +44,27 @@ Creates an object of class \link{TorchOpModel}\cr
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{id}}{(\code{character(1)}) The id of the object.}
+\item{\code{id}}{(\code{character(1)})\cr
+The id of the object.}
 
-\item{\code{param_vals}}{(\verb{named list()}) A list containing the initial parameter values.}
+\item{\code{param_vals}}{(\verb{named list()})\cr
+A list containing the initial parameter values.}
 
-\item{\code{.task_type}}{(\code{character(1)}) The task type, see mlr_reflections$task_types.}
+\item{\code{.task_type}}{(\code{character(1)})\cr
+The task type, see mlr_reflections$task_types.}
 
-\item{\code{.optimizer}}{(\code{character(1)}) The optimizer, see torch_reflections$optimizer.}
+\item{\code{.optimizer}}{(\code{character(1)})\cr
+The optimizer, see torch_reflections$optimizer.}
 
-\item{\code{.loss}}{(\code{character(1)}) The loss function, see torch_reflections$loss.}
+\item{\code{.loss}}{(\code{character(1)})\cr
+The loss function, see torch_reflections$loss.}
 }
 \if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-TorchOpModel-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchOpModel-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

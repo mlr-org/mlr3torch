@@ -8,7 +8,6 @@ make_image_dataset = function(task, augmentation = NULL) {
   assert_true(inherits(image, "magick-image") || inherits(image, "torch_tensor"))
   if (inherits(image, "magick-image")) {
     trafos = c(trafos, torchvision::transform_to_tensor)
-
   }
 
   dataset(
@@ -20,7 +19,7 @@ make_image_dataset = function(task, augmentation = NULL) {
     },
     # Here we implement .getitem because this probably makes parallelization easier (?)
     .getitem = function(index) {
-      y = self$y[index, drop = FALSE]
+      y = self$y[index, drop = TRUE]
       uri = self$uri[index]
       image = magick::image_read(uri)
       for (trafo in self$trafos) {
@@ -36,4 +35,3 @@ make_image_dataset = function(task, augmentation = NULL) {
     }
   )(y, uri, trafos)
 }
-

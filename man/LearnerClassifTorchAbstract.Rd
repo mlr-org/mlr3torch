@@ -11,61 +11,64 @@ It is not intended for direct use.
 \section{Super classes}{
 \code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3:LearnerClassif]{mlr3::LearnerClassif}} -> \code{LearnerClassifTorchAbstract}
 }
-\section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{params}}{()}
-}
-\if{html}{\out{</div>}}
-}
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
-\item{\code{params}}{()}
+\item{\code{parameters}}{(\code{list()})\cr
+A list with the network's parameters.}
+
+\item{\code{history}}{(\link[=History]{`History})\cr
+History of the training proceess.}
+
+\item{\code{optimizer}}{(\code{\link[torch:optimizer]{torch_Optimizer}})\cr
+The optimizer.}
+
+\item{\code{loss_fn}}{(\code{nn_loss()})\cr
+The loss function.}
+
+\item{\code{network}}{(\code{\link[torch:nn_module]{nn_module()}})\cr
+The network.}
 }
 \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{LearnerClassifTorchAbstract$new()}}
-\item \href{#method-build}{\code{LearnerClassifTorchAbstract$build()}}
-\item \href{#method-clone}{\code{LearnerClassifTorchAbstract$clone()}}
+\item \href{#method-LearnerClassifTorchAbstract-new}{\code{LearnerClassifTorchAbstract$new()}}
+\item \href{#method-LearnerClassifTorchAbstract-build}{\code{LearnerClassifTorchAbstract$build()}}
+\item \href{#method-LearnerClassifTorchAbstract-clone}{\code{LearnerClassifTorchAbstract$clone()}}
 }
 }
-\if{html}{
-\out{<details ><summary>Inherited methods</summary>}
-\itemize{
-\item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner">}\href{../../mlr3/html/Learner.html#method-base_learner}{\code{mlr3::Learner$base_learner()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="format">}\href{../../mlr3/html/Learner.html#method-format}{\code{mlr3::Learner$format()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help">}\href{../../mlr3/html/Learner.html#method-help}{\code{mlr3::Learner$help()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict">}\href{../../mlr3/html/Learner.html#method-predict}{\code{mlr3::Learner$predict()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata">}\href{../../mlr3/html/Learner.html#method-predict_newdata}{\code{mlr3::Learner$predict_newdata()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="print">}\href{../../mlr3/html/Learner.html#method-print}{\code{mlr3::Learner$print()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset">}\href{../../mlr3/html/Learner.html#method-reset}{\code{mlr3::Learner$reset()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train">}\href{../../mlr3/html/Learner.html#method-train}{\code{mlr3::Learner$train()}}\out{</span>}
-}
-\out{</details>}
-}
+\if{html}{\out{
+<details><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner"><a href='../../mlr3/html/Learner.html#method-Learner-base_learner'><code>mlr3::Learner$base_learner()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="format"><a href='../../mlr3/html/Learner.html#method-Learner-format'><code>mlr3::Learner$format()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help"><a href='../../mlr3/html/Learner.html#method-Learner-help'><code>mlr3::Learner$help()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict"><a href='../../mlr3/html/Learner.html#method-Learner-predict'><code>mlr3::Learner$predict()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata"><a href='../../mlr3/html/Learner.html#method-Learner-predict_newdata'><code>mlr3::Learner$predict_newdata()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="print"><a href='../../mlr3/html/Learner.html#method-Learner-print'><code>mlr3::Learner$print()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset"><a href='../../mlr3/html/Learner.html#method-Learner-reset'><code>mlr3::Learner$reset()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train"><a href='../../mlr3/html/Learner.html#method-Learner-train'><code>mlr3::Learner$train()</code></a></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-LearnerClassifTorchAbstract-new"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerClassifTorchAbstract-new}{}}}
 \subsection{Method \code{new()}}{
-Initializes an object.
-The parameters of the learner are constructed dynamically, depending on the choice of the
-\code{optimizer}.
+Initializes an object of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LearnerClassifTorchAbstract$new(
   id,
-  .optimizer,
-  .loss,
+  optimizer,
+  loss,
   param_set = ps(),
   label = NULL,
   properties = NULL,
   packages = character(0),
   predict_types = NULL,
   feature_types,
-  preprocessing,
   man
 )}\if{html}{\out{</div>}}
 }
@@ -73,31 +76,61 @@ The parameters of the learner are constructed dynamically, depending on the choi
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{id}}{(\code{character(1)}) The id of the learner.}
+\item{\code{id}}{(\code{character(1)})\cr
+The id for the learner.}
 
-\item{\code{.optimizer}}{(\code{character(1)}) The name of the optimizer.}
+\item{\code{optimizer}}{(\code{character(1)})\cr
+The optimizer, see \code{torch_reflections$optimizer}.}
 
-\item{\code{.loss}}{(\code{character(1)} || \code{nn_loss}).}
+\item{\code{loss}}{(\code{character(1)})\cr
+The loss, see \code{torch_reflections$loss}.}
 
-\item{\code{param_set}}{(\code{paradox::ParamSet}) Additional parameters to the standard paramset.}
+\item{\code{param_set}}{(\code{paradox::ParamSet})\cr
+Additional parameters to the standard paramset created by \code{make_paramset()}.}
 
-\item{\code{param_vals}}{(\code{list()}) Parameters values to be set.}
+\item{\code{label}}{(\code{character(1)})\cr
+The label for the learner.}
+
+\item{\code{properties}}{(\code{character()})\cr
+The properties for the learner, see \code{mlr_reflections$learner_properties}.}
+
+\item{\code{packages}}{(\code{character()})\cr
+The additional packages on which the learner depends.}
+
+\item{\code{predict_types}}{(\code{character()})\cr
+The learner's predict types, see \code{mlr_reflections$learner_predict_types}.}
+
+\item{\code{feature_types}}{(\code{character()})\cr
+The feature types the learner can deal with, see \code{mlr_reflections$task_feature_types}.}
+
+\item{\code{man}}{(\code{character(1)})\cr
+String in the format \verb{[pkg]::[topic]} pointing to a manual page for this object.
+The referenced help package can be opened via method \verb{$help()}.}
 }
 \if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-build"></a>}}
-\if{latex}{\out{\hypertarget{method-build}{}}}
+\if{html}{\out{<a id="method-LearnerClassifTorchAbstract-build"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerClassifTorchAbstract-build}{}}}
 \subsection{Method \code{build()}}{
+Builds the model \code{list(network, optimizer, loss_fn, history)}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LearnerClassifTorchAbstract$build(task)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{task}}{(\code{\link[mlr3:Task]{Task}})\cr
+The task for which to build the network.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-LearnerClassifTorchAbstract-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerClassifTorchAbstract-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

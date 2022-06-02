@@ -1,14 +1,16 @@
-#' Parameters:
-#'  - simplify: whether to simplfy the output of the dataloader
+#' @title Initialization of ModelArgs
+#'
+#' @description
+#' Outputs an object of class `"ModelArgs"` that is used internally to build Torch Learners using
+#' `TorchOp`'s.
+#'
+#' @template param_id
+#' @template param_param_vals
 #' @export
 TorchOpInput = R6Class("TorchOpInput",
   inherit = TorchOp,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
-    #' @param id (`character(1)`)\cr
-    #'   The id for of the object.
-    #' @parm param_vals (named `list()`)\cr
-    #'   The initial parameters for the object.
     initialize = function(id = "input", param_vals = list()) {
       input = data.table(name = "task", train = "Task", predict = "Task")
       output = data.table(name = "output", train = "ModelArgs", predict = "Task")
@@ -26,7 +28,8 @@ TorchOpInput = R6Class("TorchOpInput",
   private = list(
     .train = function(inputs) {
       self$state = list()
-      model_args = structure(class = "ModelArgs",
+      model_args = structure(
+        class = "ModelArgs",
         list(
           architecture = Architecture$new(),
           task = inputs$task,

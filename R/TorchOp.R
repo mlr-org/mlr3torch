@@ -37,7 +37,7 @@ TorchOp = R6Class("TorchOp",
     #' @description Builds a Torch Operator
     #'
     #' @param inputs (named `list()`)\cr
-    #'   Named list of [`torch_tensor`s][torch::torch_tensor] that form a batch that is the input
+    #'   Named list of `torch_tensor`s that form a batch that is the input
     #'   for the current layer. The names have to correspond to the names of the
     #'   [TorchOp's][TorchOp] input channels.
     #' @param task (`mlr3::Task`)\cr
@@ -64,18 +64,31 @@ TorchOp = R6Class("TorchOp",
       output = try(with_no_grad(do.call(layer$forward, args = inputs)), silent = TRUE)
 
       if (inherits(output, "try-error")) {
-        stopf("Forward pass on the created layer (%s) failed with the given input.",
-          private$.operator
+        stopf(
+          "Forward pass for the layer from '%s' failed for the given input.",
+          class(self)[[1L]]
         )
       }
 
       return(list(layer = layer, output = output))
-    }
-  ),
-  active = list(
-    .operator = function() {
-      # TODO: This is a bit suspicious
-      formals(self$initialize)[["id"]]
+    },
+    #' @description Printer for this object.
+    #' @param ... (any)\cr
+    #'   Currently unused.
+    print = function(...) {
+      type_table_printout = function(table) {
+        strings = do.call(sprintf, cbind(fmt = "%s`[%s,%s]", table[, c("name", "train", "predict")]))
+        strings = strwrap(paste(strings, collapse = ", "), indent = 2, exdent = 2)
+        if (length(strings) > 6) {
+          strings = c(strings[1:5], sprintf("  [... (%s lines omitted)]", length(strings) - 5))
+        }
+        gsub("`", " ", paste(strings, collapse = "\n"))
+      }
+
+      catf("TorchOp: <%s> (%strained)", self$id, if (self$is_trained) "" else "not ")
+      catf("values: <%s>", as_short_string(self$param_set$values))
+      catf("Input channels <name [train type, predict type]>:\n%s", type_table_printout(self$input))
+      catf("Output channels <name [train type, predict type]>:\n%s", type_table_printout(self$output))
     }
   ),
   private = list(
@@ -88,7 +101,8 @@ TorchOp = R6Class("TorchOp",
       output = map(
         self$output$name,
         function(channel) {
-          structure(class = "ModelArgs",
+          structure(
+            class = "ModelArgs",
             list(task = task, architecture = architecture, channel = channel, id = self$id)
           )
         }
@@ -113,12 +127,6 @@ TorchOp = R6Class("TorchOp",
     },
     .predict = function(inputs) {
       inputs
-    },
-    .build = function(inputs, param_vals, task, y) {
-      stop("ABC")
-    },
-    .output_dim = function(input_dim) {
-      stop("ABC")
     }
   )
 )

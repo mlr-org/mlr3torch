@@ -40,10 +40,10 @@ The following loss functions are currently supported:
 }
 }
 \examples{
-bce <- get_torch_loss("bce")
+bce = get_torch_loss("bce")
 
 # Equivalent to calling:
-torch_bce <- torch::nn_bce_loss()
+torch_bce = torch::nn_bce_loss()
 }
 \seealso{
 Other torch objects: 

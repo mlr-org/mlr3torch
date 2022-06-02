@@ -59,4 +59,15 @@ local({
     "random_apply",
     "to_tensor"
   )
+  torch_reflections$callback_steps = callback_steps = c(
+    "start",
+    "before_train_epoch",
+    "before_train_batch",
+    "after_train_batch",
+    "before_valid_epoch",
+    "before_valid_batch",
+    "after_valid_batch",
+    "after_valid_epoch",
+    "end"
+  )
 })

@@ -1,43 +1,60 @@
 #' @title Merges Multiple Tensors
-#' @description Merges multiple tensors.
-#' @section Order of Inputs:
-#' Addition and multiplication are albeit not computationally commutative and associative
-#' comutative, meaning the order in which they are executed is (mathematically) irrelevant.
-#' This however is not the case when stacking tensors. If for some reason the order of stacking.
-#' is relevant for your model, it has to be created manually.
-#' The order in which the tensors are concatenated is [input1, input2, input3]
+#'
+#' @description
+#' Merges multiple tensors.
+#'
+#' @section Order of inputs:
+#' In case the order of input matters (e.g. for method "cat"), the constructor argument 'innum'
+#' should be set.
 #' @export
+#'
+#' @examples
+#' library("mlr3pipelines")
+#'
+#' top1 = top("linear_1", out_features = 10L)
+#' top2 = top("linear_2", out_features = 10L)
+#'
+#' # order is not specified:
+#' top_add = top("add")
+#' graph = gunion(list(top1, top2)) %>>% top_add
+#'
+#' # order is specified:
+#' top_cat = top("cat", .innum = 2)
+#' graph = gunion(list(top1, top2))
+#' graph$add_pipeop(top_cat)
+#' graph$add_edge(src_id = "linear_1", dst_id = "cat", dst_channel = "input2")
+#' graph$add_edge(src_id = "linear_2", dst_id = "cat", dst_channel = "input1")
+#' @rdname torchop_merge
 TorchOpMerge = R6Class("TorchOpMerge",
   inherit = TorchOp,
   public = list(
-    #' @description Initilizes a new instance of this class.\cr
-    #' @param id (`character(1)`) The id of the TorchOp.
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
     #' @param id (`character(1)`)\cr
-    #'   The for of the object.
-    #' @parm param_vals (named `list()`)\cr
+    #'   The id for of the new object.
+    #' @param param_set (`paradox::ParamSet`)\cr
+    #'   The parameter set.
+    #' @param param_vals (named `list()`)\cr
     #'   The initial parameters for the object.
-    #' @param param_vals (`list()`) List of parameter values.
-    #' @param .innum (`character()`) number of inputs.
-    #' @description Initializes an object of class [TorchOpInput]
-    #' @param id (`character(1)`) The id of the object.
-    #' @param param_vals (`named list()`) The parameter values.
-    initialize = function(id = "merge", param_vals = list(), .innum = NULL) {
-      param_set = ps(
-        method = p_fct(levels = c("add", "mul", "cat"), tags = c("train", "required")),
-        dim = p_int(tags = "train")
-      )
+    #' @param .innum (`integer(1)`)\cr
+    #'   The number of input channels (optional). If provided, the input channels are set to
+    #'   `"input1"`, `"input2"`, etc.. Otherwise the input channel is set to `...` (a 'vararg' channel).
+    #'   Should be set, in case the order of the inputs is relevant.
+    #' @param .method (`character(1)`)\cr
+    #'   The method for the concatenation. One of "add", "mul" or "cat".
+    initialize = function(id = "merge", param_set = ps(), param_vals = list(), .method,
+      .innum = NULL) {
+      private$.method = assert_choice(.method, c("add", "mul", "cat"))
       if (is.null(.innum)) {
         input = data.table(
           name = "...",
-          train = "*",
-          predict = "*"
+          train = "ModelArgs",
+          predict = "Task"
         )
       } else {
         input = data.table(
           name = paste0("input", seq_len(.innum)),
-          train = rep("*", times = .innum),
-          predict = rep("*", times = .innum)
+          train = rep("ModelArgs", times = .innum),
+          predict = rep("Task", times = .innum)
         )
       }
       super$initialize(
@@ -50,25 +67,101 @@ TorchOpMerge = R6Class("TorchOpMerge",
   ),
   private = list(
     .build = function(inputs, param_vals, task, y) {
-      # input are various tensors
-      method = param_vals$method
-      # order of the next two calls is important, because if we overwrite dim first,
-      # map(inputs, dim) does not apply the function dim()
-      shapes = map(inputs, dim)
-      dim = param_vals$dim %??% length(shapes[[1L]])
-      # NOTE: no input checking, this is automatically done when the forward function
-      # is called afterwards
-      layer = switch(method,
+      layer = switch(private$.method,
         add = nn_merge_sum(),
         mul = nn_merge_mul(),
-        cat = nn_merge_cat(dim = dim)
+        cat = nn_merge_cat(self$param_set$values$dim)
       )
       return(layer)
+    },
+    .method = NULL
+  )
+)
+
+#' @rdname torchop_merge
+#' @export
+TorchOpAdd = R6Class("TorchOpAdd",
+  inherit = TorchOpMerge,
+  public = list(
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
+    #' @param id (`character(1)`)\cr
+    #'   The id for of the new object.
+    #' @param param_set (`paradox::ParamSet`)\cr
+    #'   The parameter set.
+    #' @param param_vals (named `list()`)\cr
+    #'   The initial parameters for the object.
+    #' @param .innum (`integer(1)`)\cr
+    #'   The number of input channels (optional). If provided, the input channels are set to
+    #'   `"input1"`, `"input2"`, etc.. Otherwise the input channel is set to `...` (a 'vararg' channel).
+    #'   Should be set, in case the order of the inputs is relevant.
+    initialize = function(id = "add", param_vals = list(), .innum = NULL) {
+      super$initialize(
+        id = id,
+        param_vals = param_vals,
+        .method = "add",
+        .innum = .innum
+      )
     }
   )
 )
 
+#' @rdname torchop_merge
+#' @export
+TorchOpMul = R6Class("TorchOpMul",
+  inherit = TorchOpMerge,
+  public = list(
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
+    #' @param id (`character(1)`)\cr
+    #'   The id for of the new object.
+    #' @param param_set (`paradox::ParamSet`)\cr
+    #'   The parameter set.
+    #' @param param_vals (named `list()`)\cr
+    #'   The initial parameters for the object.
+    #' @param .innum (`integer(1)`)\cr
+    #'   The number of input channels (optional). If provided, the input channels are set to
+    #'   `"input1"`, `"input2"`, etc.. Otherwise the input channel is set to `...` (a 'vararg' channel).
+    #'   Should be set, in case the order of the inputs is relevant.
+    initialize = function(id = "mul", param_vals = list(), .innum = NULL) {
+      super$initialize(
+        id = id,
+        param_vals = param_vals,
+        .method = "mul",
+        .innum = .innum
+      )
+    }
+  )
+)
 
+#' @rdname torchop_merge
+#' @export
+TorchOpCat = R6Class("TorchOpCat",
+  inherit = TorchOpMerge,
+  public = list(
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
+    #' @param id (`character(1)`)\cr
+    #'   The id for of the new object.
+    #' @param param_set (`paradox::ParamSet`)\cr
+    #'   The parameter set.
+    #' @param param_vals (named `list()`)\cr
+    #'   The initial parameters for the object.
+    #' @param .innum (`integer(1)`)\cr
+    #'   The number of input channels (optional). If provided, the input channels are set to
+    #'   `"input1"`, `"input2"`, etc.. Otherwise the input channel is set to `...` (a 'vararg' channel).
+    #'   Should be set, in case the order of the inputs is relevant.
+    initialize = function(id = "cat", param_vals = list(), .innum = NULL) {
+      param_set = ps(
+        dim = p_int(lower = 0L, tags = c("train", "required"))
+      )
+      super$initialize(
+        id = id,
+        param_vals = param_vals,
+        param_set = param_set,
+        .method = "cat",
+        .innum = .innum
+      )
+    }
+  )
+)
 
 nn_merge_mul = nn_module(
   "merge_multiply",
@@ -96,3 +189,9 @@ nn_merge_cat = nn_module(
 
 #' @include mlr_torchops.R
 mlr_torchops$add("merge", TorchOpMerge)
+#' @include mlr_torchops.R
+mlr_torchops$add("add", TorchOpAdd)
+#' @include mlr_torchops.R
+mlr_torchops$add("mul", TorchOpMul)
+#' @include mlr_torchops.R
+mlr_torchops$add("cat", TorchOpCat)

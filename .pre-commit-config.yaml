@@ -2,50 +2,49 @@
 # R specific hooks: https://github.com/lorenzwalthert/precommit
 repos:
 -   repo: https://github.com/lorenzwalthert/precommit
-    rev: v0.2.2.9013
+    rev: v0.2.2.9019
     hooks:
     -   id: style-files
         args: [--style_pkg=styler.mlr, --style_fun=mlr_style]
         additional_dependencies:
-        -    mlr-org/styler.mlr
-        exclude: 'tests/testthat/.*/.*\.R'
+        - mlr-org/styler.mlr
+        exclude: man-roxygen/
     -   id: roxygenize
+        additional_dependencies:
+        -    backports
+        -    checkmate
+        -    coro
+        -    data.table
+        -    fs
+        -    luz
+        -    magick
+        -    methods
+        -    mlr3
+        -    mlr3misc
+        -    mlr3pipelines
+        -    paradox
+        -    progress
+        -    R6
+        -    rlang
+        -    torch
+        -    torchvision
+        -    zeallot
+        -    lgr
+        -    tabnet
+        -    zip
     # codemeta must be above use-tidy-description when both are used
     # -   id: codemeta-description-updated
     -   id: use-tidy-description
-    -   id: spell-check
-        exclude: >
-          (?x)^(
-          data/.*|
-          \.github/workflows/.+|
-          tests/testthat/.*/.*-in_tree|
-          (.*/|)\.Rprofile|
-          (.*/|)\.Renviron|
-          (.*/|)renv\.lock|
-          (.*/|)renv/settings\.dcf|
-          (.*/|)\.gitignore|
-          (.*/|)NAMESPACE|
-          (.*/|)WORDLIST|
-          (.*/|)\.travis.yml|
-          (.*/|)appveyor.yml|
-          (.*/|)\.Rbuildignore|
-          (.*/|)\.pre-commit-.*|
-          .*\.[rR]|
-          .*\.Rproj|
-          .*\.py|
-          .*\.feather|
-          .*\.rds|
-          .*\.Rds|
-          .*\.sh|
-          .*\.RData
-          )$
+    # -   id: lintr
     -   id: readme-rmd-rendered
     -   id: parsable-R
+        exclude: man-roxygen/
     -   id: no-browser-statement
+        exclude: man-roxygen/
     -   id: deps-in-desc
-        args: [--allow_private_imports]
+        exclude: man-roxygen/
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0
+    rev: v4.2.0
     hooks:
     -   id: check-added-large-files
         args: ['--maxkb=200']
@@ -58,7 +57,5 @@ repos:
         entry: Cannot commit .Rhistory, .RData, .Rds or .rds.
         language: fail
         files: '\.Rhistory|\.RData|\.Rds|\.rds$'
-        # `exclude: <regex>` to allow committing specific files.
-
-ci:
-    autoupdate_schedule: monthly
+        exclude: inst/toytask
+        # `exclude: <regex>` to allow committing specific files

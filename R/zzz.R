@@ -12,11 +12,12 @@
 #' @importFrom R6 R6Class is.R6
 #' @importFrom zeallot `%<-%`
 #' @importFrom coro loop
-#' @importFrom methods formalArgs
+#' @importFrom methods formalArgs hasArg
 #' @importFrom utils getFromNamespace
+#' @importFrom progress progress_bar
 #'
 #' @description
-#'   mlr3torch Connects the R [torch][torch] package to mlr3.
+#'   mlr3torch Connects the R `torch` package to mlr3.
 #'   Neural Networks can be implemented on three different levels of control:
 #'
 #'   * Custom `nn_module`
@@ -30,6 +31,7 @@
 "_PACKAGE"
 
 
+utils::globalVariables(c("..", "self", "private", "super", "N"))
 
 register_mlr3 = function() {
 
@@ -62,7 +64,7 @@ register_mlr3 = function() {
   reflcts$task_feature_types[["img"]] = "imageuri"
 }
 
-.onLoad = function(libname, pkgname) {
+.onLoad = function(libname, pkgname) { # nolint
   # For caching directory
   backports::import(pkgname)
   backports::import(pkgname, "R_user_dir", force = TRUE)

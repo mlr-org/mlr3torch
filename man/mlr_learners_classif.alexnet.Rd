@@ -9,47 +9,21 @@ Convolutional network for image classification.
 }
 \section{Dictionary}{
 
-This \link{Learner} can be instantiated via the \link[mlr3misc:Dictionary]{dictionary} \link{mlr_learners} or with the associated sugar function \code{\link[=lrn]{lrn()}}:\preformatted{mlr_learners$get("classif.alexnet")
+This \link{Learner} can be instantiated via the \link[mlr3misc:Dictionary]{dictionary} \link{mlr_learners} or with the associated sugar function \code{\link[=lrn]{lrn()}}:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{mlr_learners$get("classif.alexnet")
 lrn("classif.alexnet")
-}
+}\if{html}{\out{</div>}}
 }
 
 \section{Meta Information}{
 
-\itemize{
-\item Task type: \dQuote{classif}
-\item Predict Types: \dQuote{response}
-\item Feature Types: \dQuote{imageuri}
-\item Required Packages: \CRANpkg{mlr3}, \CRANpkg{mlr3torch}, \CRANpkg{torch}, \CRANpkg{torchvision}
-}
+, * Task type: \dQuote{classif}, * Predict Types: \dQuote{response}, * Feature Types: \dQuote{imageuri}, * Required Packages: \CRANpkg{mlr3}, \CRANpkg{mlr3torch}, \CRANpkg{torch}, \CRANpkg{torchvision}
 }
 
 \section{Parameters}{
-\tabular{lllll}{
-   Id \tab Type \tab Default \tab Levels \tab Range \cr
-   epochs \tab integer \tab - \tab  \tab \eqn{[0, \infty)}{[0, Inf)} \cr
-   device \tab character \tab auto \tab auto, cpu, cuda \tab - \cr
-   batch_size \tab integer \tab 16 \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
-   keep_last_prediction \tab logical \tab TRUE \tab TRUE, FALSE \tab - \cr
-   early_stopping_set \tab character \tab test \tab test, train \tab - \cr
-   shuffle \tab logical \tab TRUE \tab TRUE, FALSE \tab - \cr
-   drop_last \tab logical \tab FALSE \tab TRUE, FALSE \tab - \cr
-   valid_split \tab numeric \tab 0.33 \tab  \tab \eqn{[0, 1]}{[0, 1]} \cr
-   num_threads \tab integer \tab 1 \tab  \tab \eqn{[1, \infty)}{[1, Inf)} \cr
-   train_fn \tab untyped \tab - \tab  \tab - \cr
-   valid_fn \tab untyped \tab - \tab  \tab - \cr
-   augmentation \tab untyped \tab - \tab  \tab - \cr
-   architecture \tab untyped \tab - \tab  \tab - \cr
-   opt.lr \tab numeric \tab 0.001 \tab  \tab \eqn{[0, \infty)}{[0, Inf)} \cr
-   opt.betas \tab untyped \tab c    , 0.9  , 0.999 \tab  \tab - \cr
-   opt.eps \tab numeric \tab 1e-08 \tab  \tab \eqn{[1e-16, 1e-04]}{[1e-16, 1e-04]} \cr
-   opt.weight_decay \tab numeric \tab 0 \tab  \tab \eqn{[0, 1]}{[0, 1]} \cr
-   opt.amsgrad \tab logical \tab FALSE \tab TRUE, FALSE \tab - \cr
-   loss.weight \tab untyped \tab - \tab  \tab - \cr
-   loss.ignore_index \tab integer \tab - \tab  \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
-   loss.reduction \tab character \tab mean \tab mean, sum \tab - \cr
-   pretrained \tab logical \tab TRUE \tab TRUE, FALSE \tab - \cr
-}
+
+, |Id                   |Type      |Default             |Levels                |Range                                |, |:--------------------|:---------|:-------------------|:---------------------|:------------------------------------|, |augmentation         |untyped   |-                   |                      |-                                    |, |batch_size           |integer   |16                  |                      |\eqn{[1, \infty)}{[1, Inf)}          |, |callbacks            |untyped   |-                   |                      |-                                    |, |device               |character |auto                |auto, cpu, cuda, meta |-                                    |, |drop_last            |logical   |FALSE               |TRUE, FALSE           |-                                    |, |epochs               |integer   |-                   |                      |\eqn{[0, \infty)}{[0, Inf)}          |, |keep_last_prediction |logical   |TRUE                |TRUE, FALSE           |-                                    |, |measures             |untyped   |-                   |                      |-                                    |, |num_threads          |integer   |1                   |                      |\eqn{[1, \infty)}{[1, Inf)}          |, |shuffle              |logical   |TRUE                |TRUE, FALSE           |-                                    |, |valid_split          |numeric   |0.33                |                      |\eqn{[0, 1]}{[0, 1]}                 |, |architecture         |untyped   |-                   |                      |-                                    |, |opt.lr               |numeric   |0.001               |                      |\eqn{[0, \infty)}{[0, Inf)}          |, |opt.betas            |untyped   |c    , 0.9  , 0.999 |                      |-                                    |, |opt.eps              |numeric   |1e-08               |                      |\eqn{[1e-16, 1e-04]}{[1e-16, 1e-04]} |, |opt.weight_decay     |numeric   |0                   |                      |\eqn{[0, 1]}{[0, 1]}                 |, |opt.amsgrad          |logical   |FALSE               |TRUE, FALSE           |-                                    |, |loss.weight          |untyped   |-                   |                      |-                                    |, |loss.ignore_index    |integer   |-                   |                      |\eqn{(-\infty, \infty)}{(-Inf, Inf)} |, |loss.reduction       |character |mean                |mean, sum             |-                                    |, |pretrained           |logical   |TRUE                |TRUE, FALSE           |-                                    |, |freeze               |logical   |TRUE iff pretrained |TRUE, FALSE           |-                                    |
 }
 
 \section{Architecture}{
@@ -96,13 +70,10 @@ The loss function cannot be changed after the learner was constructed.
 }
 
 \examples{
-if (requireNamespace("mlr3torch", quietly = TRUE) && requireNamespace("torch", quietly = TRUE) && requireNamespace("torchvision", quietly = TRUE)) {
-  learner = mlr3::lrn("classif.alexnet")
-  print(learner)
-
-  # available parameters:
+learner = mlr3::lrn("classif.alexnet")
+print(learner)
+# available parameters:
 learner$param_set$ids()
-}
 }
 \references{
 Krizhevsky, Alex (2014).
@@ -126,28 +97,28 @@ Krizhevsky, Alex (2014).
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{LearnerClassifAlexNet$new()}}
-\item \href{#method-clone}{\code{LearnerClassifAlexNet$clone()}}
+\item \href{#method-LearnerClassifAlexNet-new}{\code{LearnerClassifAlexNet$new()}}
+\item \href{#method-LearnerClassifAlexNet-clone}{\code{LearnerClassifAlexNet$clone()}}
 }
 }
-\if{html}{
-\out{<details ><summary>Inherited methods</summary>}
-\itemize{
-\item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner">}\href{../../mlr3/html/Learner.html#method-base_learner}{\code{mlr3::Learner$base_learner()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="format">}\href{../../mlr3/html/Learner.html#method-format}{\code{mlr3::Learner$format()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help">}\href{../../mlr3/html/Learner.html#method-help}{\code{mlr3::Learner$help()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict">}\href{../../mlr3/html/Learner.html#method-predict}{\code{mlr3::Learner$predict()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata">}\href{../../mlr3/html/Learner.html#method-predict_newdata}{\code{mlr3::Learner$predict_newdata()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="print">}\href{../../mlr3/html/Learner.html#method-print}{\code{mlr3::Learner$print()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset">}\href{../../mlr3/html/Learner.html#method-reset}{\code{mlr3::Learner$reset()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train">}\href{../../mlr3/html/Learner.html#method-train}{\code{mlr3::Learner$train()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerClassifTorchAbstract" data-id="build">}\href{../../mlr3torch/html/LearnerClassifTorchAbstract.html#method-build}{\code{mlr3torch::LearnerClassifTorchAbstract$build()}}\out{</span>}
-}
-\out{</details>}
-}
+\if{html}{\out{
+<details><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner"><a href='../../mlr3/html/Learner.html#method-Learner-base_learner'><code>mlr3::Learner$base_learner()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="format"><a href='../../mlr3/html/Learner.html#method-Learner-format'><code>mlr3::Learner$format()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help"><a href='../../mlr3/html/Learner.html#method-Learner-help'><code>mlr3::Learner$help()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict"><a href='../../mlr3/html/Learner.html#method-Learner-predict'><code>mlr3::Learner$predict()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata"><a href='../../mlr3/html/Learner.html#method-Learner-predict_newdata'><code>mlr3::Learner$predict_newdata()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="print"><a href='../../mlr3/html/Learner.html#method-Learner-print'><code>mlr3::Learner$print()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset"><a href='../../mlr3/html/Learner.html#method-Learner-reset'><code>mlr3::Learner$reset()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train"><a href='../../mlr3/html/Learner.html#method-Learner-train'><code>mlr3::Learner$train()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerClassifTorchAbstract" data-id="build"><a href='../../mlr3torch/html/LearnerClassifTorchAbstract.html#method-LearnerClassifTorchAbstract-build'><code>mlr3torch::LearnerClassifTorchAbstract$build()</code></a></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-LearnerClassifAlexNet-new"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerClassifAlexNet-new}{}}}
 \subsection{Method \code{new()}}{
 Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
@@ -169,8 +140,8 @@ For possible values see \code{torch_reflections$loss}.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-LearnerClassifAlexNet-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerClassifAlexNet-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

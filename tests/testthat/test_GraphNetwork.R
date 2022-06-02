@@ -29,7 +29,7 @@ test_that("GraphNetwork with forking of depth 1 works", {
         b = top("linear", out_features = 3L)
       )
     ) %>>%
-    top("merge", method = "add", .innum = 2L) %>>%
+    top("merge", .method = "add", .innum = 2L) %>>%
     top("linear", out_features = 1L)
   architecture = graph$train(task)[[1L]][[2L]]
   net = architecture$build(task)
@@ -54,7 +54,7 @@ test_that("GraphNetwork with forking (depth 2) works", {
       d = top("linear", out_features = 3L)
     )
   ) %>>%
-    top("merge", method = "mul", .innum = 2L)
+    top("merge", .method = "mul", .innum = 2L)
 
 
   graph = top("input") %>>%
@@ -66,7 +66,7 @@ test_that("GraphNetwork with forking (depth 2) works", {
         b = top("linear", out_features = 3L)
       )
     ) %>>%
-    top("merge", method = "add") %>>%
+    top("merge", .method = "add") %>>%
     top("linear", out_features = 1L)
   architecture = graph$train(task)[[1L]][[2L]]
   net = architecture$build(task)

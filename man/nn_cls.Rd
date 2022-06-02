@@ -7,13 +7,16 @@
 nn_cls(d_token)
 }
 \arguments{
-\item{d_token}{(\code{integer(1)}) The token dimensionality.
+\item{d_token}{(\code{integer(1)})\cr
+The token dimensionality.
 
-`r format_bib("devlin2018bert", "gorishniy2021revisiting")
-Appends a CLS token along the token dimension
-(n_batch, n_features, d_token) --> (n_batch, n_features + 1, d_token)}
+Devlin, Jacob, Chang, Ming-Wei, Lee, Kenton, Toutanova, Kristina (2018).
+\dQuote{Bert: Pre-training of deep bidirectional transformers for language understanding.}
+\emph{arXiv preprint arXiv:1810.04805}.
 
-\item{x}{(`torch_tensor) The input tensor}
+Gorishniy Y, Rubachev I, Khrulkov V, Babenko A (2021).
+\dQuote{Revisiting Deep Learning Models for Tabular Data.}
+\emph{arXiv}, \bold{2106.11959}.}
 }
 \description{
 Appends a trainable [CLS] Token along the second dimension.

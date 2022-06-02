@@ -14,32 +14,31 @@ Neral Network (Graph-) Architecture
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-add_torchop}{\code{Architecture$add_torchop()}}
-\item \href{#method-build}{\code{Architecture$build()}}
-\item \href{#method-clone}{\code{Architecture$clone()}}
+\item \href{#method-Architecture-add_torchop}{\code{Architecture$add_torchop()}}
+\item \href{#method-Architecture-build}{\code{Architecture$build()}}
+\item \href{#method-Architecture-clone}{\code{Architecture$clone()}}
 }
 }
-\if{html}{
-\out{<details ><summary>Inherited methods</summary>}
-\itemize{
-\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="add_edge">}\href{../../mlr3pipelines/html/Graph.html#method-add_edge}{\code{mlr3pipelines::Graph$add_edge()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="add_pipeop">}\href{../../mlr3pipelines/html/Graph.html#method-add_pipeop}{\code{mlr3pipelines::Graph$add_pipeop()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="chain">}\href{../../mlr3pipelines/html/Graph.html#method-chain}{\code{mlr3pipelines::Graph$chain()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="help">}\href{../../mlr3pipelines/html/Graph.html#method-help}{\code{mlr3pipelines::Graph$help()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="ids">}\href{../../mlr3pipelines/html/Graph.html#method-ids}{\code{mlr3pipelines::Graph$ids()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="initialize">}\href{../../mlr3pipelines/html/Graph.html#method-initialize}{\code{mlr3pipelines::Graph$initialize()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="plot">}\href{../../mlr3pipelines/html/Graph.html#method-plot}{\code{mlr3pipelines::Graph$plot()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="predict">}\href{../../mlr3pipelines/html/Graph.html#method-predict}{\code{mlr3pipelines::Graph$predict()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="print">}\href{../../mlr3pipelines/html/Graph.html#method-print}{\code{mlr3pipelines::Graph$print()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="set_names">}\href{../../mlr3pipelines/html/Graph.html#method-set_names}{\code{mlr3pipelines::Graph$set_names()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="train">}\href{../../mlr3pipelines/html/Graph.html#method-train}{\code{mlr3pipelines::Graph$train()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="update_ids">}\href{../../mlr3pipelines/html/Graph.html#method-update_ids}{\code{mlr3pipelines::Graph$update_ids()}}\out{</span>}
-}
-\out{</details>}
-}
+\if{html}{\out{
+<details><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="add_edge"><a href='../../mlr3pipelines/html/Graph.html#method-Graph-add_edge'><code>mlr3pipelines::Graph$add_edge()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="add_pipeop"><a href='../../mlr3pipelines/html/Graph.html#method-Graph-add_pipeop'><code>mlr3pipelines::Graph$add_pipeop()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="chain"><a href='../../mlr3pipelines/html/Graph.html#method-Graph-chain'><code>mlr3pipelines::Graph$chain()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="ids"><a href='../../mlr3pipelines/html/Graph.html#method-Graph-ids'><code>mlr3pipelines::Graph$ids()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="initialize"><a href='../../mlr3pipelines/html/Graph.html#method-Graph-initialize'><code>mlr3pipelines::Graph$initialize()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="plot"><a href='../../mlr3pipelines/html/Graph.html#method-Graph-plot'><code>mlr3pipelines::Graph$plot()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="predict"><a href='../../mlr3pipelines/html/Graph.html#method-Graph-predict'><code>mlr3pipelines::Graph$predict()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="print"><a href='../../mlr3pipelines/html/Graph.html#method-Graph-print'><code>mlr3pipelines::Graph$print()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="set_names"><a href='../../mlr3pipelines/html/Graph.html#method-Graph-set_names'><code>mlr3pipelines::Graph$set_names()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="train"><a href='../../mlr3pipelines/html/Graph.html#method-Graph-train'><code>mlr3pipelines::Graph$train()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="Graph" data-id="update_ids"><a href='../../mlr3pipelines/html/Graph.html#method-Graph-update_ids'><code>mlr3pipelines::Graph$update_ids()</code></a></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-add_torchop"></a>}}
-\if{latex}{\out{\hypertarget{method-add_torchop}{}}}
+\if{html}{\out{<a id="method-Architecture-add_torchop"></a>}}
+\if{latex}{\out{\hypertarget{method-Architecture-add_torchop}{}}}
 \subsection{Method \code{add_torchop()}}{
 Adds a new \link{TorchOp} to the list of \link{TorchOp}s.
 \subsection{Usage}{
@@ -55,8 +54,8 @@ Adds a new \link{TorchOp} to the list of \link{TorchOp}s.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-build"></a>}}
-\if{latex}{\out{\hypertarget{method-build}{}}}
+\if{html}{\out{<a id="method-Architecture-build"></a>}}
+\if{latex}{\out{\hypertarget{method-Architecture-build}{}}}
 \subsection{Method \code{build()}}{
 Builds an \link[torch:nn_module]{torch::nn_module}
 \subsection{Usage}{
@@ -77,8 +76,8 @@ Returns the layers, the output and the edges.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-Architecture-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-Architecture-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

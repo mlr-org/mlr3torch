@@ -2,33 +2,33 @@ make_tabular_dataset = function(data, target, features, device) {
   # data = data[, cols]
   # target_col = which(colnames(data) == target)
   # feature_cols = setdiff(seq_len(nrow(data)), target_col)
-  is_numeric = map_lgl(data[, ..features], is.numeric)
+  is_numeric = map_lgl(data[, features, with = FALSE], is.numeric)
   features_num = features[is_numeric]
   features_cat = features[!is_numeric]
   cols = c(target, features_num, features_cat)
-  data = data[, ..cols]
+  data = data[j = cols, with = FALSE]
 
   x_num = NULL
   x_cat = NULL
   if (length(features_num)) {
     x_num = torch_tensor(
-      data = as.matrix(data[, ..features_num]),
+      data = as.matrix(data[j = features_num, with = FALSE]),
       dtype = torch_float(),
       device = device
     )
   }
   if (length(features_cat)) {
-    x_cat = cat2tensor(data[, ..features_cat], device = device)
+    x_cat = cat2tensor(data[j = features_cat, with = FALSE], device = device)
   }
 
   if (is.numeric(data[[target]])) {
     y = torch_tensor(
-      data = data[, ..target][[1L]],
+      data = data[j = target, with = FALSE][[1L]],
       dtype = torch_float(),
       device = device
     )
   } else { # classification
-    y = cat2tensor(data[, ..target], device = device)[,1]
+    y = cat2tensor(data[j = target, with = FALSE], device = device)[, 1]
   }
 
   data_list = list(y = y)

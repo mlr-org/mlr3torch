@@ -1,5 +1,4 @@
-# test_that("make_image_dataset works", {
-#   task = tsk("tiny_imagenet")
-#   ds = as_dataset(task)
-#
-# })
+test_that("make_image_dataset works", {
+  task = tsk("tiny_imagenet")
+  expect_error(as_dataset(task), regexp = NA)
+})

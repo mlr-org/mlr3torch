@@ -22,7 +22,6 @@
 #' @template example
 LearnerClassifAlexNet = R6Class("LearnerClassifAlexNet",
   inherit = LearnerClassifTorchAbstract,
-
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
@@ -30,9 +29,15 @@ LearnerClassifAlexNet = R6Class("LearnerClassifAlexNet",
     #' @template param_.loss
     initialize = function(.optimizer = "adam", .loss = "cross_entropy") {
       param_set = ps(
-        pretrained = p_lgl(default = TRUE, tags = "train")
+        pretrained = p_lgl(default = TRUE, tags = "train"),
+        freeze = p_lgl(default = "TRUE iff pretrained", tags = "train",
+          special_vals = list("TRUE iff pretrained")
+        )
       )
-      param_set$values$pretrained = TRUE
+      default_params = list(
+        pretrained = TRUE
+      )
+      param_set$values = default_params
 
       super$initialize(
         id = "classif.alexnet",
@@ -42,23 +47,27 @@ LearnerClassifAlexNet = R6Class("LearnerClassifAlexNet",
         predict_types = "response",
         properties = c("multiclass", "twoclass"),
         man = "mlr3torch::mlr_learners_classif.alexnet",
-        .optimizer = .optimizer,
-        .loss = .loss,
+        optimizer = .optimizer,
+        loss = .loss,
         label = "AlexNet Image Classifier"
       )
     }
   ),
-
   private = list(
     .network = function(task) {
-      pretrained = self$param_set$values$pretrained
+      p = self$param_set$get_values(tag = "train")
+      pretrained = p$pretrained
+      freeze = p$freeze %??% pretrained
+
       num_classes = nlevels(task$truth())
       if (pretrained) {
         network = torchvision::model_alexnet(pretrained = TRUE)
-        for (par in network$parameters) {
-          par$requires_grad_(FALSE)
-        }
-        network = reset_last_layer(network, num_classes)
+        network = reset_last_layer(
+          model = network,
+          num_classes = num_classes,
+          bias = TRUE,
+          freeze = freeze
+        )
         return(network)
       }
       torchvision::model_alexnet(pretrained = FALSE, num_classes = num_classes)

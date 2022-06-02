@@ -33,32 +33,32 @@ Create a torch dataset from a data.table of images
 \examples{
 \dontrun{
 # Dataset of all imagenette160 images
-image_dt <- df_from_imagenet_dir("/opt/example-data/imagenette2-160/")
-img_ds   <- img_dataset(image_dt)
+image_dt = df_from_imagenet_dir("/opt/example-data/imagenette2-160/")
+img_ds = img_dataset(image_dt)
 
 # Datasets for train- and validation images
 # Inferring set from file path (URI)
-train_ids <- grepl("/train/", image_dt$uri)
-val_ids   <- grepl("/val/", image_dt$uri)
+train_ids = grepl("/train/", image_dt$uri)
+val_ids = grepl("/val/", image_dt$uri)
 
-img_train_ds <- img_dataset(image_dt, row_ids = train_ids)
-img_val_ds   <- img_dataset(image_dt, row_ids = val_ids)
+img_train_ds = img_dataset(image_dt, row_ids = train_ids)
+img_val_ds = img_dataset(image_dt, row_ids = val_ids)
 
 # Adding transformations, including device placement
-device <- if(torch::cuda_is_available()) "cuda" else "cpu"
+device = if (torch::cuda_is_available()) "cuda" else "cpu"
 
-to_device <- function(x, device) {
+to_device = function(x, device) {
   x$to(device = device)
 }
 
-img_transform <- function(x) {
+img_transform = function(x) {
   x \%>\%
     torchvision::transform_to_tensor() \%>\%
     to_device(device) \%>\%
     torchvision::transform_resize(c(64, 64))
 }
 
-img_train_ds <- img_dataset(image_dt, row_ids = train_ids, img_transform)
-img_val_ds   <- img_dataset(image_dt, row_ids = val_ids, img_transform)
+img_train_ds = img_dataset(image_dt, row_ids = train_ids, img_transform)
+img_val_ds = img_dataset(image_dt, row_ids = val_ids, img_transform)
 }
 }
