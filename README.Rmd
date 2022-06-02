@@ -75,7 +75,7 @@ graph = top("input") %>>%
   top("relu_1") %>>%
   top("linear_1", out_features = 10) %>>%
   top("relu_2") %>>%
-  top("linear_2", out_features = 4L) %>>%
+  top("output") %>>%
   top("model.classif", epochs = 10L, batch_size = 16L, .loss = "cross_entropy", .optimizer = "adam")
 
 glrn = as_learner(graph)
