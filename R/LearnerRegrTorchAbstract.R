@@ -37,8 +37,8 @@ LearnerRegrTorchAbstract = R6Class("LearnerRegrTorchAbstract",
       private$.loss = assert_choice(loss, torch_reflections$loss$regr)
       # FIXME: loglik?
       properties = properties %??% c("weights", "multiclass", "twoclass", "hotstart_forward")
-      predict_types =  predict_types %??% "response"
-     label = label %??% "Neural Network Regression Model"
+      predict_types = predict_types %??% "response"
+      label = label %??% "Neural Network Regression Model"
 
       packages = assert_character(packages, any.missing = FALSE, min.chars = 1L)
       packages = union(c("mlr3torch", "torch"), packages)

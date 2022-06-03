@@ -12,3 +12,4 @@
 ^\.pre-commit-config\.yaml$
 TODO.md
 bugs.md
+^\.vscode$

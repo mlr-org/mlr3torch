@@ -37,7 +37,7 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
       private$.loss = assert_choice(loss, torch_reflections$loss$classif)
       # FIXME: loglik?
       properties = properties %??% c("weights", "multiclass", "twoclass", "hotstart_forward")
-      predict_types =  predict_types %??% "response"
+      predict_types = predict_types %??% "response"
       label = label %??% "Neural Network Classification Model"
 
       packages = assert_character(packages, any.missing = FALSE, min.chars = 1L)

@@ -32,16 +32,16 @@ lrn("regr.tabnet")
 library(mlr3)
 library(mlr3torch)
 
-task <- tsk("boston_housing")
+task = tsk("boston_housing")
 
 # Creating a learner & training on example task
-lrn <- lrn("regr.tabnet")
+lrn = lrn("regr.tabnet")
 
-lrn$param_set$values$epochs <- 10
+lrn$param_set$values$epochs = 10
 lrn$train(task)
 
 # Predict on training data, get RMSE
-predictions <- lrn$predict(task)
+predictions = lrn$predict(task)
 predictions$score(msr("regr.rmse"))
 }
 }
