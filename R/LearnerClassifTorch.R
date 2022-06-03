@@ -12,12 +12,15 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
     #'   The optimizer, see `torch_reflections$optimizer`.
     #' @param .loss (`character(1)`)\cr
     #'   The loss, see `torch_reflections$loss`.
-    initialize = function(id = "classif.torch", param_vals = list(), .optimizer, .loss) {
+    #' @param .feature_types (`character()`)\cr
+    #'   The feature types the learner supports. The default is all feature types.
+    initialize = function(id = "classif.torch", param_vals = list(), .optimizer, .loss,
+      .feature_types = NULL) {
       super$initialize(
         id = id,
-        properties = c("twoclass", "multiclass", "hotstart_forward", "weights"),
-        label = "Neural Network Classifier",
-        feature_types = c("logical", "integer", "numeric", "factor"),
+        properties = c("weights", "twoclass", "multiclass", "hotstart_forward"),
+        label = "Regression Network",
+        feature_types = .feature_types %??% mlr_reflections$task_feature_types,
         optimizer = .optimizer,
         loss = .loss,
         man = "mlr3torch::mlr_learners_classif.torch"

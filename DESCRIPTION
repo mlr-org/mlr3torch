@@ -49,6 +49,7 @@ Collate:
     'LearnerClassifTorch.R'
     'LearnerClassifTorchAbstract.R'
     'LearnerRegrTorch.R'
+    'LearnerRegrTorchAbstract.R'
     'LearnerTorch.R'
     'mlr_torchops.R'
     'PipeOpImageTrafo.R'

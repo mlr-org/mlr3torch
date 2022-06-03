@@ -1,5 +1,8 @@
 #' @title Output Layer for a Neural Network
 #' @description
+#' Calls `torch::nn_linear()` with the correct parameters.
+#' @section Input:
+#' This TorchOp expects as input a 2 dimensional torch tensor when building.
 #' Creates a output layer for the given task
 #' @export
 TorchOpOutput = R6Class("TorchOpOutput",
@@ -10,10 +13,12 @@ TorchOpOutput = R6Class("TorchOpOutput",
     #'   The id for of the object.
     #' @param param_vals (named `list()`)\cr
     #'   The initial parameters for the object.
-    initialize = function(id = "head", param_vals = list()) {
+    initialize = function(id = "output", param_vals = list()) {
       param_set = ps(
         bias = p_lgl(default = TRUE, tags = "train")
       )
+      param_set$values = list(bias = TRUE)
+
       super$initialize(
         id = id,
         param_set = param_set,
@@ -24,20 +29,17 @@ TorchOpOutput = R6Class("TorchOpOutput",
   private = list(
     .operator = "head",
     .build = function(inputs, task, param_vals, y) {
-      bias = param_vals[["bias"]] %??% TRUE
+      x = inputs$input
+      assert_true(length(x$shape) == 2L)
       in_features = x$shape[[2L]]
 
-      if (task$task_type == "classif") {
-        out_features = length(task$levels(task$col_roles$target))
-      } else if (task$task_type == "regr") {
-        out_features = 1L
-      } else {
-        stop("Task type not supported!")
-      }
+      out_features = switch(task$task_type,
+        classif = length(task$class_names),
+        regr = 1,
+        stopf("Task type not supported!")
+      )
 
-      layer = nn_linear(in_features, out_features)
-
-      return(layer)
+      nn_linear(in_features, out_features)
     },
     .name = function(x) {
       x

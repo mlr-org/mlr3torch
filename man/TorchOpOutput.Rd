@@ -4,8 +4,14 @@
 \alias{TorchOpOutput}
 \title{Output Layer for a Neural Network}
 \description{
+Calls \code{torch::nn_linear()} with the correct parameters.
+}
+\section{Input}{
+
+This TorchOp expects as input a 2 dimensional torch tensor when building.
 Creates a output layer for the given task
 }
+
 \section{Super classes}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:TorchOp]{mlr3torch::TorchOp}} -> \code{TorchOpOutput}
 }
@@ -32,7 +38,7 @@ Creates a output layer for the given task
 \subsection{Method \code{new()}}{
 Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchOpOutput$new(id = "head", param_vals = list())}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TorchOpOutput$new(id = "output", param_vals = list())}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

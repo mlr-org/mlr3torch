@@ -4,6 +4,7 @@
 #' loss, ...) and afterwards trains the network.
 #' It's parameterset is identical to LearnerClassifTorch and LearnerRegrTorch respectively.
 #' @details TorchOpModelClassif and TorchOpModelRegr inherit from this R6 Class.
+#' @name mlr_torchops.model
 #' @export
 TorchOpModel = R6Class("TorchOpModel",
   inherit = TorchOp,
@@ -23,9 +24,9 @@ TorchOpModel = R6Class("TorchOpModel",
       assert_true(.optimizer %in% torch_reflections$optimizer)
       private$.optimizer = .optimizer
       private$.loss = .loss
-      private$.task_type = .task_type
+      private$.task_type = assert_choice(.task_type, c("classif", "regr"))
+
       param_set = make_paramset(.task_type, .optimizer, .loss, architecture = TRUE)
-      param_set$values$epochs = 0L
       input = data.table(name = "input", train = "ModelArgs", predict = "Task")
       output = data.table(name = "output", train = "NULL", predict = "Prediction")
 
@@ -40,22 +41,35 @@ TorchOpModel = R6Class("TorchOpModel",
   private = list(
     .train = function(inputs) {
       input = inputs$input
-      learner = switch(private$.task_type,
-        classif = LearnerClassifTorch$new(id = self$id, .optimizer = private$.optimizer,
-          .loss = private$.loss
-        ),
-        regr = LearnerRegrTorch$new(id = self$id, .optimizer = private$.optimizer,
-          .loss = private$.loss
-        ),
-        stopf("Unsupported task type '%s'.", private$.task_type)
-      )
+      task = input$task
+
       # TODO: maybe the learner and the TorchOp should actually share the param-set?
       pars = self$param_set$get_values(tags = "train")
       if (!is.null(pars$architecture)) {
-        warningf("Parameter 'architecture' was set, but is overwritten by ModelArgs")
+        stopf("Parameter 'architecture' was set, but is overwritten by ModelArgs")
       }
-      pars$architecture = input$architecture
-      learner$param_set$values = pars
+
+      class = switch(private$.task_type,
+        regr = LearnerRegrTorch,
+        classif = LearnerClassifTorch
+      )
+      learner = class$new(
+        id = self$id,
+        .optimizer = private$.optimizer,
+        .loss = private$.loss,
+        .feature_types = unique(task$feature_types$type)
+      )
+
+      learner$param_set$values = insert_named(pars, list(architecture = input$architecture))
+      learner$properties = if (private$.task_type == "regr") {
+        c("weights", "hotstart_forward")
+      } else if (private$.task_type == "classif") {
+        if (length(task$class_names) == 2L) { # 1L is set as multiclass
+          c("twoclass", "weights", "hotstart_forward")
+        } else {
+          c("multiclass", "weights", "hotstart_forward")
+        }
+      }
 
       private$.learner = learner
       on.exit({
