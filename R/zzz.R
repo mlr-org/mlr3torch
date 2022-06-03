@@ -49,7 +49,7 @@ register_mlr3 = function() {
   lrns$add("classif.torch", LearnerClassifTorch)
 
   # regression learners
-  # lrns$add("regr.torch.tabnet", LearnerClassifTabNet)
+  lrns$add("regr.tabnet", LearnerRegrTabNet)
 
   # PipeOps
   mlr_pipeops = mlr3pipelines::mlr_pipeops
