@@ -6,7 +6,7 @@
 #' @templateVar id classif.tabnet
 #' @templateVar caller tabnet
 #' @references
-#' `r format_bib("arik2021tabnet")f
+#' `r format_bib("arik2021tabnet")`
 #'
 #' @template seealso_learner
 #' @export

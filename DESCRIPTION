@@ -48,6 +48,7 @@ Collate:
     'LearnerClassifTabNet.R'
     'LearnerClassifTorch.R'
     'LearnerClassifTorchAbstract.R'
+    'LearnerRegrTabNet.R'
     'LearnerRegrTorch.R'
     'LearnerRegrTorchAbstract.R'
     'LearnerTorch.R'
