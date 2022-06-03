@@ -12,7 +12,6 @@ Imports:
     coro,
     data.table,
     fs,
-    luz,
     magick,
     methods,
     mlr3,

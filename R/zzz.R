@@ -5,7 +5,6 @@
 #' @import mlr3misc
 #' @importFrom R6 R6Class
 #' @import torch
-#' @import luz
 #' @import mlr3pipelines
 #' @import mlr3misc
 #' @import mlr3
