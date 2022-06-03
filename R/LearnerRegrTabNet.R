@@ -60,9 +60,11 @@ LearnerRegrTabNet = R6::R6Class("LearnerRegrTabnet",
     .train = function(task) {
       # get parameters for training
       pars = self$param_set$get_values(tags = "train")
+      pars_threads = pars$num_threads
+      pars$num_threads = NULL
 
-      # Drop control par from training pars as tabnet_fit doesn't know it
-      pars = pars[!(names(pars) %in% names(pars_control))]
+      # Set number of threads
+      torch::torch_set_num_threads(pars_threads)
 
       # set column names to ensure consistency in fit and predict
       self$state$feature_names = task$feature_names
@@ -80,7 +82,6 @@ LearnerRegrTabNet = R6::R6Class("LearnerRegrTabnet",
 
       # get newdata and ensure same ordering in train and predict
       newdata = task$data(cols = self$state$feature_names)
-
 
       pred = mlr3misc::invoke(predict, self$model,
         new_data = newdata,

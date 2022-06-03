@@ -38,3 +38,11 @@ test_that("Learner can be instantiated", {
   expect_identical(lrn$param_set$values$attention_width, 8L)
   expect_identical(lrn$param_set$values$decision_width, NULL)
 })
+
+test_that("autotest", {
+  learner = LearnerRegrTabNet$new()
+  learner$param_set$values$epochs = 3L
+  expect_learner(learner)
+  result = run_autotest(learner, exclude = "(feat_single|sanity)", check_replicable = FALSE)
+  expect_true(result, info = result$error)
+})

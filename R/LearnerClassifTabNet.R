@@ -65,10 +65,6 @@ LearnerClassifTabNet = R6Class("LearnerClassifTabNet",
       # set column names to ensure consistency in fit and predict
       self$state$feature_names = task$feature_names
 
-      # Create objects for the train call
-      # formula = task$formula()
-      # data = task$data()
-
       # use the mlr3misc::invoke function (it's similar to do.call())
       mlr3misc::invoke(tabnet::tabnet_fit,
         x = task$data(cols = task$feature_names),
