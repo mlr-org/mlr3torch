@@ -1,7 +1,7 @@
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-mlr3torch
-=========
+# mlr3torch
 
 <!-- badges: start -->
 
@@ -19,68 +19,70 @@ The goal of {mlr3torch} is to connect
 It is in the very early stages of development and it’s future and scope
 are yet to be determined.
 
-Installation
-------------
+## Installation
 
-    remotes::install_github("mlr-org/mlr3torch")
+``` r
+remotes::install_github("mlr-org/mlr3torch")
+```
 
-`tabnet` Example
-----------------
+## `tabnet` Example
 
 Using the [{tabnet}](https://github.com/mlverse/tabnet) learner for
 classification:
 
-    library(mlr3)
-    library(mlr3viz)
-    library(mlr3torch)
+``` r
+library(mlr3)
+library(mlr3viz)
+library(mlr3torch)
 
-    task = tsk("german_credit")
+task = tsk("german_credit")
 
-    # Set up the learner
-    lrn_tabnet = lrn("classif.tabnet", epochs = 5)
+# Set up the learner
+lrn_tabnet = lrn("classif.tabnet", epochs = 5)
 
-    # Train and Predict
-    lrn_tabnet$train(task, row_ids = 1:900)
+# Train and Predict
+lrn_tabnet$train(task, row_ids = 1:900)
 
-    preds = lrn_tabnet$predict(task, row_ids = 901:1000)
+preds = lrn_tabnet$predict(task, row_ids = 901:1000)
 
-    # Investigate predictions
-    preds$confusion
-    preds$score(msr("classif.acc"))
+# Investigate predictions
+preds$confusion
+preds$score(msr("classif.acc"))
 
-    # Predict probabilities instead
-    lrn_tabnet$predict_type = "prob"
-    preds_prob = lrn_tabnet$predict(task)
+# Predict probabilities instead
+lrn_tabnet$predict_type = "prob"
+preds_prob = lrn_tabnet$predict(task)
 
-    autoplot(preds_prob, type = "roc")
+autoplot(preds_prob, type = "roc")
 
-    # Examine variable importance scores
-    lrn_tabnet$importance()
+# Examine variable importance scores
+lrn_tabnet$importance()
+```
 
-Using `TorchOp`s
-----------------
+## Using `TorchOp`s
 
-    task = tsk("iris")
+``` r
+task = tsk("iris")
 
-    graph = top("input") %>>%
-      top("tokenizer", d_token = 1) %>>%
-      top("flatten") %>>%
-      top("relu_1") %>>%
-      top("linear_1", out_features = 10) %>>%
-      top("relu_2") %>>%
-      top("linear_2", out_features = 4L) %>>%
-      top("model.classif", epochs = 10L, batch_size = 16L, .loss = "cross_entropy", .optimizer = "adam")
+graph = top("input") %>>%
+  top("tokenizer", d_token = 1) %>>%
+  top("flatten") %>>%
+  top("relu_1") %>>%
+  top("linear_1", out_features = 10) %>>%
+  top("relu_2") %>>%
+  top("output") %>>%
+  top("model.classif", epochs = 10L, batch_size = 16L, .loss = "cross_entropy", .optimizer = "adam")
 
-    glrn = as_learner(graph)
-    glrn$train(task)
+glrn = as_learner(graph)
+glrn$train(task)
+```
 
-Credit
-------
+## Credit
 
 Some parts of the implementation are inspired by other deep learning
 libraries:
 
--   [Keras](https://keras.io/) - Building networks using `TorchOp`’s
+  - [Keras](https://keras.io/) - Building networks using `TorchOp`’s
     feels similar to using the `keras`.
--   [Luz](https://github.com/mlverse/luz) - Our implementation of
+  - [Luz](https://github.com/mlverse/luz) - Our implementation of
     callbacks is inspired by the R package `luz`
