@@ -27,7 +27,7 @@ test_that("autotest", {
 test_that("Learner can be instantiated", {
   skip_if_not_installed("tabnet")
 
-  lrn = LearnerRegrTabnet$new()
+  lrn = LearnerRegrTabNet$new()
 
   lrn$param_set$values$epochs = 10L
   lrn$param_set$values$decision_width = NULL
