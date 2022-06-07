@@ -31,7 +31,7 @@ TorchOpInput = R6Class("TorchOpInput",
       model_args = structure(
         class = "ModelArgs",
         list(
-          architecture = Architecture$new(),
+          architecture = Graphitecture$new(),
           task = inputs$task,
           id = NULL
         )

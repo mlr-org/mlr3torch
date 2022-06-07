@@ -1,6 +1,6 @@
-test_that("Architecture is working", {
+test_that("GraphArchitecture is working", {
   task = tsk("iris")
-  a = Architecture$new()
+  a = Graphitecture$new()
   a$add_torchop(top("tokenizer", d_token = 3L))
   a$add_torchop(top("flatten"))
   a$add_torchop(top("linear", out_features = 1L))

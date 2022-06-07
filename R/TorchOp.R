@@ -70,6 +70,13 @@ TorchOp = R6Class("TorchOp",
         )
       }
 
+      if (!is.list(output) && self$outnum == 1L) {
+        output = set_names(list(output), self$output$name)
+      } else {
+        assert_list(output)
+        assert_set_equal(self$output$name, names(output))
+      }
+
       return(list(layer = layer, output = output))
     },
     #' @description Printer for this object.

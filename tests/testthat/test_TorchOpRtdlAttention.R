@@ -22,6 +22,3 @@ test_that("TorchOpSelfAttention works with two different inputs", {
 })
 
 
-if (FALSE) {
-
-}

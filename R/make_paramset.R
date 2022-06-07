@@ -41,7 +41,7 @@ check_callbacks = function(x) {
 }
 
 check_architecture = function(x) {
-  if (test_r6(x, "Architecture") || test_r6(x, "nn_Module")) {
+  if (test_r6(x, "Architecture") || test_r6(x, "nn_Module") || test_r6(x, "Graphitecture")) {
     return(TRUE)
   }
   return("Parameter 'architecture' must either be an mlr3torch::Architecture or torch::nn_Module.")

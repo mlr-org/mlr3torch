@@ -31,7 +31,7 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
     .network = function(task) {
       architecture = self$param_set$values$architecture
 
-      if (test_r6(architecture, "Architecture")) {
+      if (test_r6(architecture, "Graphitecture")) {
         network = architecture$build(task)
       } else if (test_r6(architecture, "nn_Module")) {
         network = architecture$clone(deep = TRUE)

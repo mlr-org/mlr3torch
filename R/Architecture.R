@@ -1,18 +1,10 @@
-#' @title Neral Network (Graph-) Architecture
-#' @export
-Architecture = R6Class("Architecture",
+Graphitecture = R6Class("Graphitecture",
   inherit = Graph,
   public = list(
-    #' @description Adds a new [TorchOp] to the list of [TorchOp]s.
-    #' @param op (`TorchOp`) The TorchOp.
     add_torchop = function(op) {
       assert_true(inherits(op, "TorchOp"))
       super$add_pipeop(op)
     },
-    #' @description Builds an [torch::nn_module]
-    #' @param task (`[mlr3::Task]`) The task for which to build the network.
-    #' @param input (`any`) The input for the network. Uses the first instance if left as NULL.
-    #' @return Returns the layers, the output and the edges.
     build = function(task, input = NULL) {
       reduction = architecture_reduce(self, task, input)
       # edges  simplify_graph(reduction$edges)
@@ -37,7 +29,6 @@ architecture_reduce = function(self, task = NULL, input = NULL) {
   } else {
     input = list(x = input)
   }
-
 
   edges = copy(self$edges)
   edges = rbind(edges,
@@ -65,7 +56,7 @@ architecture_reduce = function(self, task = NULL, input = NULL) {
 
     c(layers[[id]], output) %<-% op$build(input, task, y)
     # layers[[id]] = layer
-    edges[list(id, op$output$name), "payload" := list(output), on = c("src_id", "src_channel")]
+    edges[list(id, op$output$name), "payload" := output, on = c("src_id", "src_channel")]
 
   }
 
