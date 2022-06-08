@@ -14,7 +14,6 @@ TorchOpInput = R6Class("TorchOpInput",
     initialize = function(id = "input", param_vals = list()) {
       input = data.table(name = "task", train = "Task", predict = "Task")
       output = data.table(name = "output", train = "ModelArgs", predict = "Task")
-      param_set = ps()
 
       super$initialize(
         id = id,
@@ -43,6 +42,13 @@ TorchOpInput = R6Class("TorchOpInput",
     }
   )
 )
+
+check_select = function(x) {
+  if (test_subset(x, c("img", "num", "cat"))) {
+    return(TRUE)
+  }
+  "Must be subset of c('img', 'num', 'cat')"
+}
 
 #' @include mlr_torchops.R
 mlr_torchops$add("input", value = TorchOpInput)

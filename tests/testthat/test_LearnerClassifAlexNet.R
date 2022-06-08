@@ -3,7 +3,9 @@ test_that("LearnerClassifAlexnet runs", {
     epochs = 1L,
     batch_size = 1L,
     callbacks = list(cllb("torch.progress")),
-    measures = list("acc")
+    measures = list("acc"),
+    .optimizer = "adam",
+    .loss = "cross_entropy"
   )
   task = toytask()
   resampling = rsmp("holdout")

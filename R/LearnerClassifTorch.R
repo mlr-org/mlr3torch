@@ -16,6 +16,8 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
     #'   The feature types the learner supports. The default is all feature types.
     initialize = function(id = "classif.torch", param_vals = list(), .optimizer, .loss,
       .feature_types = NULL) {
+      param_set = ps()
+      param_set$add(ParamUty$new("architecture", tags = "train", custom_check = check_architecture))
       super$initialize(
         id = id,
         properties = c("weights", "twoclass", "multiclass", "hotstart_forward"),
@@ -23,7 +25,8 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
         feature_types = .feature_types %??% mlr_reflections$task_feature_types,
         optimizer = .optimizer,
         loss = .loss,
-        man = "mlr3torch::mlr_learners_classif.torch"
+        man = "mlr3torch::mlr_learners_classif.torch",
+        param_set = param_set
       )
     }
   ),

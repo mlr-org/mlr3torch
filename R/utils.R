@@ -33,6 +33,11 @@ get_activation = function(name) {
   getFromNamespace(sprintf("nn_%s", name), ns = "torch")
 }
 
+get_normalization = function(name) {
+  assert_choice(name, torch_reflections$normalization)
+  getFromNamespace(sprintf("nn_%s", name), ns = "torch")
+}
+
 get_image_trafo = function(trafo) {
   torch_trafo = getFromNamespace(x = sprintf("transform_%s", trafo), ns = "torchvision")
 }

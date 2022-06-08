@@ -21,7 +21,6 @@ TorchOpIndexSelect = R6Class("TorchOpIndexSelect",
     }
   ),
   private = list(
-    .operator = "indexselect",
     .build = function(inputs, param_vals, task, y) {
       input = inputs$input
       dim = param_vals[["dim"]] %??% 2L

@@ -27,7 +27,6 @@ TorchOpOutput = R6Class("TorchOpOutput",
     }
   ),
   private = list(
-    .operator = "head",
     .build = function(inputs, task, param_vals, y) {
       x = inputs$input
       assert_true(length(x$shape) == 2L)

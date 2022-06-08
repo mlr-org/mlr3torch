@@ -1,4 +1,4 @@
-make_paramset = function(task_type, optimizer, loss, architecture = FALSE) {
+make_paramset = function(task_type, optimizer, loss) {
   param_set = ParamSetCollection$new(sets = list())
   ps1 = ps(
     augmentation = p_uty(tags = "train"),
@@ -14,9 +14,6 @@ make_paramset = function(task_type, optimizer, loss, architecture = FALSE) {
     shuffle = p_lgl(default = TRUE, tags = "train"),
     valid_split = p_dbl(default = 0.33, lower = 0, upper = 1, tags = "train")
   )
-  if (architecture) {
-    ps1$add(ParamUty$new("architecture", tags = "train", custom_check = check_architecture))
-  }
   param_set$add(ps1)
   param_set$values = list(
     valid_split = 0.33,

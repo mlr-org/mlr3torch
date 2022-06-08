@@ -26,7 +26,12 @@ TorchOpModel = R6Class("TorchOpModel",
       private$.loss = .loss
       private$.task_type = assert_choice(.task_type, c("classif", "regr"))
 
-      param_set = make_paramset(.task_type, .optimizer, .loss, architecture = TRUE)
+
+      param_set = make_paramset(.task_type, .optimizer, .loss)
+      param_set$add(
+        ParamUty$new("architecture", tags = "train", custom_check = check_architecture)
+      )
+
       input = data.table(name = "input", train = "ModelArgs", predict = "Task")
       output = data.table(name = "output", train = "NULL", predict = "Prediction")
 

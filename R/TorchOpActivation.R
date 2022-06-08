@@ -25,7 +25,6 @@ TorchOpActivation = R6Class("TorchOpActivation",
     }
   ),
   private = list(
-    .operator = "activation",
     .build = function(inputs, param_vals, task, y) {
       constructor = get_activation(private$.act)
       invoke(constructor, .args = param_vals)

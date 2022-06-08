@@ -46,6 +46,7 @@ register_mlr3 = function() {
   lrns$add("classif.tabnet", LearnerClassifTabNet)
   lrns$add("classif.alexnet", LearnerClassifAlexNet)
   lrns$add("classif.torch", LearnerClassifTorch)
+  lrns$add("classif.tab_resnet", LearnerClassifTabResNet)
 
   # regression learners
   lrns$add("regr.tabnet", LearnerRegrTabNet)
