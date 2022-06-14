@@ -4,8 +4,16 @@
 \alias{TorchOpLayerNorm}
 \title{Layer Norm}
 \description{
-layer normalization
+Normalizes over the last 'dims' dimensions of a tensor.
 }
+\section{Parameters}{
+
+\itemize{
+\item \code{dims} :: \code{integer(1)}\cr
+The nunber of dimnensions over which will be normalized (starting from the last dimension).
+}
+}
+
 \section{Super classes}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:TorchOp]{mlr3torch::TorchOp}} -> \code{TorchOpLayerNorm}
 }
@@ -31,7 +39,7 @@ layer normalization
 \if{latex}{\out{\hypertarget{method-TorchOpLayerNorm-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchOpLayerNorm$new(id, param_vals)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TorchOpLayerNorm$new(id = "layer_norm", param_vals = list())}\if{html}{\out{</div>}}
 }
 
 }

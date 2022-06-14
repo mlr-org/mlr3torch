@@ -120,24 +120,10 @@ Gorishniy Y, Rubachev I, Khrulkov V, Babenko A (2021).
 \if{html}{\out{<a id="method-LearnerClassifTabResNet-new"></a>}}
 \if{latex}{\out{\hypertarget{method-LearnerClassifTabResNet-new}{}}}
 \subsection{Method \code{new()}}{
-Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LearnerClassifTabResNet$new(.optimizer = "adam", .loss = "cross_entropy")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LearnerClassifTabResNet$new(.loss, .optimizer)}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{.optimizer}}{(\code{character()})\cr
-A character string containing the name of the optimizer.
-Possible values are \code{torch_reflections$optimizer}.}
-
-\item{\code{.loss}}{(\code{character()})\cr
-A character string containing the name of the loss function
-For possible values see \code{torch_reflections$loss}.}
-}
-\if{html}{\out{</div>}}
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-LearnerClassifTabResNet-clone"></a>}}

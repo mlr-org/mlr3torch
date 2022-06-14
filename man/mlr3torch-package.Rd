@@ -10,8 +10,8 @@ mlr3torch Connects the R \code{torch} package to mlr3.
 Neural Networks can be implemented on three different levels of control:
 \itemize{
 \item Custom \code{nn_module}
-\item Build an \code{Architecture} using \code{TorchOp}s.
-\item Use a predefined architecture
+\item Using \code{TorchOp}s
+\item Predefined architectures via \code{Learner}s
 }
 }
 \section{Feature Types}{

@@ -33,7 +33,7 @@ TorchOpRtdlAttention = R6Class("TorchOpAttention",
     }
   ),
   private = list(
-    .build = function(inputs, param_vals, task, y) {
+    .build = function(inputs, param_vals, task) {
       query = inputs$query
       key = inputs$key
       # TODO: What exactly are the assumptions here?

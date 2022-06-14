@@ -66,7 +66,7 @@ TorchOpMerge = R6Class("TorchOpMerge",
     }
   ),
   private = list(
-    .build = function(inputs, param_vals, task, y) {
+    .build = function(inputs, param_vals, task) {
       layer = switch(private$.method,
         add = nn_merge_sum(),
         mul = nn_merge_mul(),

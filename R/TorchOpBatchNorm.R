@@ -38,7 +38,7 @@ TorchOpBatchNorm = R6Class("TorchOpBatchNorm1D",
     }
   ),
   private = list(
-    .build = function(inputs, param_vals, task, y) {
+    .build = function(inputs, param_vals, task) {
       input = inputs$input
       assert_integer(length(input$shape), lower = 2L, upper = 5L)
 
@@ -52,7 +52,7 @@ TorchOpBatchNorm = R6Class("TorchOpBatchNorm1D",
       )
 
       layer = invoke(
-        class$new,
+        class,
         num_features = num_features,
         .args = param_vals
       )

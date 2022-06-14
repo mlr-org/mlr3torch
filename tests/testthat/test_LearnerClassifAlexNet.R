@@ -2,7 +2,7 @@ test_that("LearnerClassifAlexnet runs", {
   learner = lrn("classif.alexnet",
     epochs = 1L,
     batch_size = 1L,
-    callbacks = list(cllb("torch.progress")),
+    callbacks = list(),
     measures = list("acc"),
     .optimizer = "adam",
     .loss = "cross_entropy"

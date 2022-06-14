@@ -4,7 +4,7 @@
 \alias{TorchOp}
 \title{Abstract Base Class for Torch Operators}
 \description{
-All TorchOps inherit from this class.
+All TorchOps inherit from this class. @export
 }
 \section{Super class}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{TorchOp}
@@ -87,7 +87,7 @@ for the current layer. The names have to correspond to the names of the
 \link[=TorchOp]{TorchOp's} input channels.}
 
 \item{\code{task}}{(\code{mlr3::Task})\cr
-The task for which to build the architecture.}
+The task for which to build the network.}
 
 \item{\code{y}}{(\code{torch_tensor})\cr
 A batch of the target variable.}

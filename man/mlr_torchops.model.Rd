@@ -39,7 +39,7 @@ TorchOpModelClassif and TorchOpModelRegr inherit from this R6 Class.
 \subsection{Method \code{new()}}{
 Creates an object of class \link{TorchOpModel}\cr
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchOpModel$new(id, param_vals, .task_type, .optimizer, .loss)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TorchOpModel$new(id, param_vals, .task_type)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

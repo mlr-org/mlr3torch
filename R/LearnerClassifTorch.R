@@ -14,17 +14,18 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
     #'   The loss, see `torch_reflections$loss`.
     #' @param .feature_types (`character()`)\cr
     #'   The feature types the learner supports. The default is all feature types.
-    initialize = function(id = "classif.torch", param_vals = list(), .optimizer, .loss,
+    initialize = function(id = "classif.torch", param_vals = list(), .optimizer, .loss, .network,
       .feature_types = NULL) {
+      private$..network = .network
       param_set = ps()
-      param_set$add(ParamUty$new("architecture", tags = "train", custom_check = check_architecture))
+
       super$initialize(
         id = id,
         properties = c("weights", "twoclass", "multiclass", "hotstart_forward"),
-        label = "Regression Network",
+        label = "Classification Network",
         feature_types = .feature_types %??% mlr_reflections$task_feature_types,
-        optimizer = .optimizer,
-        loss = .loss,
+        .optimizer = .optimizer,
+        .loss = .loss,
         man = "mlr3torch::mlr_learners_classif.torch",
         param_set = param_set
       )
@@ -32,15 +33,8 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
   ),
   private = list(
     .network = function(task) {
-      architecture = self$param_set$values$architecture
-
-      if (test_r6(architecture, "Graphitecture")) {
-        network = architecture$build(task)
-      } else if (test_r6(architecture, "nn_Module")) {
-        network = architecture$clone(deep = TRUE)
-      } else {
-        stopf("Invalid argument for architecture.")
-      }
-    }
+      private$..network
+    },
+    ..network = NULL
   )
 )

@@ -32,7 +32,7 @@ Classification model.
 \subsection{Method \code{new()}}{
 Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchOpModelClassif$new(id = "model", param_vals = list(), .optimizer, .loss)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TorchOpModelClassif$new(id = "model", param_vals = list())}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

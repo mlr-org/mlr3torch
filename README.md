@@ -83,6 +83,6 @@ Some parts of the implementation are inspired by other deep learning
 libraries:
 
   - [Keras](https://keras.io/) - Building networks using `TorchOp`’s
-    feels similar to using the `keras`.
+    feels similar to using `keras`.
   - [Luz](https://github.com/mlverse/luz) - Our implementation of
     callbacks is inspired by the R package `luz`

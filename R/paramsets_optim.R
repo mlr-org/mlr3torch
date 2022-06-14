@@ -103,3 +103,4 @@ paramsets_optim$add("rmsprop", make_paramset_rmsprop)
 paramsets_optim$add("adagrad", make_paramset_adagrad)
 paramsets_optim$add("adadelta", make_paramset_adadelta)
 paramsets_optim$add("lbfgs", make_paramset_lbfgs)
+

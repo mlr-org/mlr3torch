@@ -20,17 +20,10 @@ TorchOpModel = R6Class("TorchOpModel",
     #'   The optimizer, see torch_reflections$optimizer.
     #' @param .loss (`character(1)`)\cr
     #'   The loss function, see torch_reflections$loss.
-    initialize = function(id, param_vals, .task_type, .optimizer, .loss) {
-      assert_true(.optimizer %in% torch_reflections$optimizer)
-      private$.optimizer = .optimizer
-      private$.loss = .loss
+    initialize = function(id, param_vals, .task_type) {
       private$.task_type = assert_choice(.task_type, c("classif", "regr"))
 
-
-      param_set = make_paramset(.task_type, .optimizer, .loss)
-      param_set$add(
-        ParamUty$new("architecture", tags = "train", custom_check = check_architecture)
-      )
+      param_set = make_paramset(.task_type)
 
       input = data.table(name = "input", train = "ModelArgs", predict = "Task")
       output = data.table(name = "output", train = "NULL", predict = "Prediction")
@@ -48,11 +41,16 @@ TorchOpModel = R6Class("TorchOpModel",
       input = inputs$input
       task = input$task
 
+      network = input$network
+      network$add_edge(
+        src_id = input$id,
+        dst_id = "__terminal__",
+        src_channel = input$channel,
+        dst_channel = "output"
+      )
+
       # TODO: maybe the learner and the TorchOp should actually share the param-set?
       pars = self$param_set$get_values(tags = "train")
-      if (!is.null(pars$architecture)) {
-        stopf("Parameter 'architecture' was set, but is overwritten by ModelArgs")
-      }
 
       class = switch(private$.task_type,
         regr = LearnerRegrTorch,
@@ -60,12 +58,23 @@ TorchOpModel = R6Class("TorchOpModel",
       )
       learner = class$new(
         id = self$id,
-        .optimizer = private$.optimizer,
-        .loss = private$.loss,
+        .optimizer = input$optimizer,
+        .loss = input$loss,
+        .network = input$network,
         .feature_types = unique(task$feature_types$type)
       )
 
-      learner$param_set$values = insert_named(pars, list(architecture = input$architecture))
+      if (length(input$optim_args)) {
+        names(input$optim_args) = paste0("opt.", names(input$optim_args))
+        pars = insert_named(pars, input$optim_args)
+      }
+      if (length(input$loss_args)) {
+        names(input$loss_args) = paste0("opt.", names(input$loss_args))
+        pars = insert_named(pars, input$loss_args)
+      }
+
+      learner$param_set$values = pars
+
       learner$properties = if (private$.task_type == "regr") {
         c("weights", "hotstart_forward")
       } else if (private$.task_type == "classif") {
@@ -94,9 +103,7 @@ TorchOpModel = R6Class("TorchOpModel",
       list(private$.learner$predict(task))
     },
     .task_type = NULL,
-    .learner = NULL,
-    .optimizer = NULL,
-    .loss = NULL
+    .learner = NULL
   )
 )
 
@@ -116,13 +123,11 @@ TorchOpModelClassif = R6Class(
     #'   The optimizer.
     #' @param .loss (`character(1)`)\cr
     #'   The loss function.
-    initialize = function(id = "model", param_vals = list(), .optimizer, .loss) {
+    initialize = function(id = "model", param_vals = list()) {
       super$initialize(
         id = id,
         param_vals = param_vals,
-        .task_type = "classif",
-        .optimizer = .optimizer,
-        .loss = .loss
+        .task_type = "classif"
       )
     }
   )
@@ -144,13 +149,11 @@ TorchOpModelRegr = R6Class(
     #'   The optimizer.
     #' @param .loss (`character(1)`)\cr
     #'   The loss function.
-    initialize = function(id = "model", param_vals = list(), .optimizer, .loss) {
+    initialize = function(id = "model", param_vals = list()) {
       super$initialize(
         id = id,
         param_vals = param_vals,
-        .task_type = "regr",
-        .optimizer = .optimizer,
-        .loss = .loss
+        .task_type = "regr"
       )
     }
   )

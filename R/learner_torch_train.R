@@ -16,14 +16,17 @@ train_eval = function(learner, history, epochs, callbacks, train_loader,
 
     loop(for (batch in train_loader) {
 
+      learner$optimizer$zero_grad()
+
       call("on_before_train_batch")
 
       y_hat = learner$network$forward(batch$x)
 
       loss = learner$loss_fn(y_hat, batch$y)
+
       loss$backward()
+
       learner$optimizer$step()
-      learner$optimizer$zero_grad()
 
       history$append("train_loss", loss$item(), "train")
 
@@ -108,15 +111,21 @@ learner_torch_train = function(self, model, task) {
   ids = rsmp("holdout", ratio = 1 - p$valid_split)$instantiate(task)$instance
   names(ids) = c("train", "valid")
 
-  train_set = as_dataset(task, device = p$device, augmentation = p$augmentation,
-    row_ids = ids$train, shuffle = shuffle
-  )
-  valid_set = as_dataset(task, device = p$device, augmentation = NULL,
-    row_ids = ids$valid, shuffle = FALSE
+  train_set = as_dataset(task, device = p$device, augmentation = NULL,
+    row_ids = ids$train
   )
 
-  train_loader = as_dataloader(train_set, batch_size = p$batch_size, drop_last = p$drop_last)
-  valid_loader = as_dataloader(valid_set, batch_size = p$batch_size, drop_last = p$drop_last)
+  valid_set = as_dataset(task, device = p$device, augmentation = NULL,
+    row_ids = ids$valid
+  )
+
+  train_loader = as_dataloader(train_set, batch_size = p$batch_size, drop_last = p$drop_last,
+    shuffle = p$shuffle
+  )
+
+  valid_loader = as_dataloader(valid_set, batch_size = p$batch_size, drop_last = p$drop_last,
+    shuffle = FALSE
+  )
 
 
   # we set the state of the learner here for convenience, it will be reset to NULL before
@@ -128,6 +137,7 @@ learner_torch_train = function(self, model, task) {
   self$state = list(model = model)
 
   history = History$new(length(train_loader), length(valid_loader))
+  self$state$history = history
 
   context = ContextTorch$new(
     learner = self,

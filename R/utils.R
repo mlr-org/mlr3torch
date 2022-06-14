@@ -3,16 +3,16 @@ get_batch = function(x, batch_size, device) {
   UseMethod("get_batch")
 }
 
-get_batch.dataset = function(x, batch_size, device) {
+get_batch.dataset = function(x, batch_size, device) { # nolint
   get_batch(as_dataloader(x, device = device, batch_size = batch_size))
 }
 
-get_batch.dataloader = function(x, ...) {
+get_batch.dataloader = function(x, ...) { # nolint
   # TODO: Change this to "meta"
   instance = x$.iter()$.next()
 }
 
-get_batch.Task = function(x, batch_size, device) {
+get_batch.Task = function(x, batch_size, device) { # nolint
   get_batch(as_dataloader(x, batch_size = batch_size, device = device))
 }
 

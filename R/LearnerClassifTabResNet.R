@@ -23,34 +23,45 @@
 LearnerClassifTabResNet = R6Class("LearnerClassifTabResNet",
   inherit = LearnerClassifTorchAbstract,
   public = list(
-    #' @description
-    #' Creates a new instance of this [R6][R6::R6Class] class.
-    #' @template param_.optimizer
-    #' @template param_.loss
-    initialize = function(.optimizer = "adam", .loss = "cross_entropy") {
-      private$.block = top("tab_resnet.block", id = "")
-
-      param_set = private$.block$param_set
+    initialize = function(.loss, .optimizer) {
+      param_set = make_paramset_tab_resnet_block()
+      for (param in param_set$params_unid) {
+        param$tags = unique(c(param$tags, "network"))
+      }
+      # walk(param_set$params, function(p) p$tags = unique(c(p$tags, "network")))
 
       super$initialize(
         id = "classif.tab_resnet",
-        packages = c("torchvision", "torch"),
+        packages = "torch",
         param_set = param_set,
         feature_types = c("numeric", "integer"),
-        predict_types = "response",
-        properties = c("multiclass", "twoclass"),
+        predict_types = c("response"),
+        properties = c("multiclass", "twoclass", "weights", "hotstart_forward"),
         man = "mlr3torch::mlr_learners_classif.tab_resnet",
         .optimizer = .optimizer,
         .loss = .loss,
         label = "Tabular ResNet"
       )
+
     }
   ),
   private = list(
     .network = function(task) {
-      build_tabular_resnet(self, private$.block, task)
-    },
-    .block = NULL
+      pv = self$param_set$get_values(tags = "network")
+      ii = startsWith(names(pv), "batch_norm")
+      bn_args = pv[ii]
+      names(bn_args) = gsub("batch_norm.", "", names(bn_args))
+      pv[ii] = NULL
+
+      graph = top("input") %>>%
+        top("select", .items = "num") %>>%
+        invoke(top, .obj = "tab_resnet_block", .args = pv) %>>%
+        invoke(top, .obj = "batch_norm", .args = bn_args) %>>%
+        invoke(top, .obj = pv$activation, .args = pv$activation_args) %>>%
+        top("output")
+
+      graph$train(task)[[1L]]$network
+    }
   )
 )
 

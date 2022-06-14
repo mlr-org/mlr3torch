@@ -1,13 +1,17 @@
 #' @title Layer Norm
 #' @description
-#' layer normalization
+#' Normalizes over the last 'dims' dimensions of a tensor.
+#' @section Parameters:
+#' * `dims` :: `integer(1)`\cr
+#'   The nunber of dimnensions over which will be normalized (starting from the last dimension).
+#'
 #' @export
 TorchOpLayerNorm = R6Class("TorchOpLayerNorm",
   inherit = TorchOp,
   public = list(
-    initialize = function(id, param_vals) {
+    initialize = function(id = "layer_norm", param_vals = list()) {
       param_set = ps(
-        normalized_shape = p_uty(tags = c("required", "train")),
+        dims = p_int(lower = 1L, tags = c("train", "required")),
         elementwise_affine = p_lgl(default = TRUE, tags = c("required", "train"))
       )
       param_set$values = list(
@@ -17,7 +21,15 @@ TorchOpLayerNorm = R6Class("TorchOpLayerNorm",
     }
   ),
   private = list(
-    .build = function(inputs, param_vals, task, y) {
+    .build = function(inputs, param_vals, task) {
+      input = inputs$input
+      s = inputs$input$shape
+      dims = param_vals$dims
+      param_vals$dims = NULL
+
+      assert_true(dims < length(s), .var.name = "parameter 'dims'")
+      ld = tail(s, n = dims)
+      param_vals = insert_named(param_vals, list(normalized_shape = ld))
       invoke(nn_layer_norm, .args = param_vals)
     }
   )
