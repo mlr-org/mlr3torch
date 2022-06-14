@@ -47,8 +47,8 @@ LearnerClassifAlexNet = R6Class("LearnerClassifAlexNet",
         predict_types = "response",
         properties = c("multiclass", "twoclass"),
         man = "mlr3torch::mlr_learners_classif.alexnet",
-        optimizer = .optimizer,
-        loss = .loss,
+        .optimizer = .optimizer,
+        .loss = .loss,
         label = "AlexNet Image Classifier"
       )
     }

@@ -27,8 +27,7 @@ TorchOpOutput = R6Class("TorchOpOutput",
     }
   ),
   private = list(
-    .operator = "head",
-    .build = function(inputs, task, param_vals, y) {
+    .build = function(inputs, task, param_vals) {
       x = inputs$input
       assert_true(length(x$shape) == 2L)
       in_features = x$shape[[2L]]
@@ -40,9 +39,6 @@ TorchOpOutput = R6Class("TorchOpOutput",
       )
 
       nn_linear(in_features, out_features)
-    },
-    .name = function(x) {
-      x
     }
   )
 )

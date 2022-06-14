@@ -4,7 +4,7 @@
 \alias{TorchOp}
 \title{Abstract Base Class for Torch Operators}
 \description{
-All TorchOps inherit from this class.
+All TorchOps inherit from this class. @export
 }
 \section{Super class}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{TorchOp}
@@ -21,7 +21,6 @@ All TorchOps inherit from this class.
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></li>
 </ul>
@@ -88,7 +87,7 @@ for the current layer. The names have to correspond to the names of the
 \link[=TorchOp]{TorchOp's} input channels.}
 
 \item{\code{task}}{(\code{mlr3::Task})\cr
-The task for which to build the architecture.}
+The task for which to build the network.}
 
 \item{\code{y}}{(\code{torch_tensor})\cr
 A batch of the target variable.}

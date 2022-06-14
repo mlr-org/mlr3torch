@@ -1,4 +1,4 @@
-make_paramset = function(task_type, optimizer, loss, architecture = FALSE) {
+make_paramset = function(task_type, optimizer = NULL, loss = NULL) {
   param_set = ParamSetCollection$new(sets = list())
   ps1 = ps(
     augmentation = p_uty(tags = "train"),
@@ -14,9 +14,6 @@ make_paramset = function(task_type, optimizer, loss, architecture = FALSE) {
     shuffle = p_lgl(default = TRUE, tags = "train"),
     valid_split = p_dbl(default = 0.33, lower = 0, upper = 1, tags = "train")
   )
-  if (architecture) {
-    ps1$add(ParamUty$new("architecture", tags = "train", custom_check = check_architecture))
-  }
   param_set$add(ps1)
   param_set$values = list(
     valid_split = 0.33,
@@ -26,9 +23,19 @@ make_paramset = function(task_type, optimizer, loss, architecture = FALSE) {
     measures = list()
   )
 
-  optim_paramset = paramsets_optim$get(optimizer)
+  if (is.null(optimizer)) {
+    optim_paramset = ps()
+  } else {
+    optim_paramset = paramsets_optim$get(optimizer)
+  }
+
   optim_paramset$set_id = "opt"
-  loss_paramset = paramsets_loss$get(loss)
+
+  if (is.null(loss)) {
+    loss_paramset = ps()
+  } else {
+    loss_paramset = paramsets_loss$get(loss)
+  }
   loss_paramset$set_id = "loss"
 
   param_set$add(optim_paramset)
@@ -40,11 +47,8 @@ check_callbacks = function(x) {
   assert_true(all(map_lgl(x, function(x) inherits(x, "CallbackTorch"))))
 }
 
-check_architecture = function(x) {
-  if (test_r6(x, "Architecture") || test_r6(x, "nn_Module") || test_r6(x, "Graphitecture")) {
-    return(TRUE)
-  }
-  return("Parameter 'architecture' must either be an mlr3torch::Architecture or torch::nn_Module.")
+check_network = function(x) {
+  test_r6(x, "nn_Module")
 }
 
 check_measures = function(x) {

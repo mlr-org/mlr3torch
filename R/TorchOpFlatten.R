@@ -21,10 +21,9 @@ TorchOpFlatten = R6Class(
     }
   ),
   private = list(
-    .build = function(inputs, param_vals, task, y) {
+    .build = function(inputs, param_vals, task) {
       invoke(nn_flatten, .args = param_vals)
-    },
-    .operator = "flatten"
+    }
   )
 )
 

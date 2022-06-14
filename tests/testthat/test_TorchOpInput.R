@@ -3,4 +3,7 @@ test_that("TorchOpInput works", {
   to = top("input")
   model_args = to$train(list(task))$output
   expect_true(inherits(model_args, "ModelArgs"))
+
+  g = top("input") %>>% top("tokenizer", d_token = 3L)
+  out = g$train(task)
 })

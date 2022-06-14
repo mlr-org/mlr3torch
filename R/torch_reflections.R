@@ -29,6 +29,8 @@ local({
     "softplus", "softshrink", "softsign", "tanh", "tanhshrink", "threshold", "glu"
   )
 
+  torch_reflections$normalization = c("batch_norm")
+
   torch_reflections$image_trafos = c(
     "random_crop",
     "center_crop",

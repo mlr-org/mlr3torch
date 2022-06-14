@@ -4,7 +4,7 @@ test_that("TorchOpLinear works in 2D", {
   x = torch_randn(1, 5)
   y = torch_randn(1)
   task = tsk("iris")
-  c(layer, output) %<-% to$build(list(input = x), task, y)
+  c(layer, output) %<-% to$build(list(input = x), task)
   expect_equal(output$output$shape, c(1, 10))
 })
 
@@ -14,6 +14,6 @@ test_that("TorchOpLinear works in 3D", {
   x = torch_randn(1, 5, 7)
   y = torch_randn(1)
   task = tsk("iris")
-  c(layer, output) %<-% to$build(list(input = x), task, y)
+  c(layer, output) %<-% to$build(list(input = x), task)
   expect_equal(output$output$shape, c(1, 5, 10))
 })

@@ -6,12 +6,18 @@ test_that("TorchOpModel works", {
     top("flatten") %>>%
     top("linear_1", out_features = 20L) %>>%
     top("relu_1") %>>%
-    top("linear_2", out_features = 4L) %>>%
-    top("model.classif", .loss = "cross_entropy", .optimizer = "adam", batch_size = 16L,
-      device = "cpu", epochs = 1L
+    top("output") %>>%
+    top("loss", .loss = "cross_entropy") %>>%
+    top("optimizer", .optimizer = "adam") %>>%
+    top("model.classif",
+      batch_size = 16L,
+      device = "cpu",
+      epochs = 10L,
+      callbacks = list()
     )
   glrn = as_learner(graph)
   glrn$id = "net"
+  glrn$train(task)
   expect_error(glrn$train(task), regexp = NA)
   expect_error(glrn$predict(task), regexp = NA)
 

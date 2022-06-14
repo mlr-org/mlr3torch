@@ -1,5 +1,4 @@
 #' @import paradox
-#' @import mlr3
 #' @import checkmate
 #' @import data.table
 #' @import mlr3misc
@@ -20,15 +19,14 @@
 #'   Neural Networks can be implemented on three different levels of control:
 #'
 #'   * Custom `nn_module`
-#'   * Build an `Architecture` using `TorchOp`s.
-#'   * Use a predefined architecture
+#'   * Using `TorchOp`s
+#'   * Predefined architectures via `Learner`s
 #'
 #' @section Feature Types:
 #'   It adds the feature type "imageuri", which is a S3 class based on a character vector with
 #'   additional attributes.
 #'
 "_PACKAGE"
-
 
 utils::globalVariables(c("..", "self", "private", "super", "N"))
 
@@ -46,6 +44,7 @@ register_mlr3 = function() {
   lrns$add("classif.tabnet", LearnerClassifTabNet)
   lrns$add("classif.alexnet", LearnerClassifAlexNet)
   lrns$add("classif.torch", LearnerClassifTorch)
+  lrns$add("classif.tab_resnet", LearnerClassifTabResNet)
 
   # regression learners
   lrns$add("regr.tabnet", LearnerRegrTabNet)
@@ -55,9 +54,10 @@ register_mlr3 = function() {
   mlr_pipeops$add("imagetrafo", PipeOpImageTrafo)
 
 
-
   # Reflections -------------------------------------------------------------
   reflcts = utils::getFromNamespace("mlr_reflections", ns = "mlr3")
+
+  reflcts$learner_param_tags = c(reflcts$learner_param_tags, "network")
 
   # Image URI feature (e.g. file path to .jpg etc.) for image classif tasks
   reflcts$task_feature_types[["img"]] = "imageuri"
@@ -68,9 +68,12 @@ register_mlr3 = function() {
   backports::import(pkgname)
   backports::import(pkgname, "R_user_dir", force = TRUE)
 
+  private = "hallo"
+
   register_namespace_callback(pkgname, "mlr3", register_mlr3)
   assign("lg", lgr::get_logger(pkgname), envir = parent.env(environment()))
   if (Sys.getenv("IN_PKGDOWN") == "true") {
     lg$set_threshold("warn")
   }
 }
+

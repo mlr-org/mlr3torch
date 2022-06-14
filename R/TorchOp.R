@@ -1,6 +1,5 @@
 #' @title Abstract Base Class for Torch Operators
-#' @description All TorchOps inherit from this class.
-#' @export
+#' @description All TorchOps inherit from this class. @export
 TorchOp = R6Class("TorchOp",
   inherit = PipeOp,
   public = list(
@@ -41,12 +40,10 @@ TorchOp = R6Class("TorchOp",
     #'   for the current layer. The names have to correspond to the names of the
     #'   [TorchOp's][TorchOp] input channels.
     #' @param task (`mlr3::Task`)\cr
-    #'   The task for which to build the architecture.
-    #' @param y (`torch_tensor`)\cr
-    #'   A batch of the target variable.
+    #'   The task for which to build the network.
     #' @return `torch::nn_module()` where the arguments of the `$forward()` function correspond
     #' to the names of the input channels and the output is a single `torch_tensor`.
-    build = function(inputs, task, y) {
+    build = function(inputs, task) {
       # TODO: Do checks
       if ((length(inputs) > 1L) && is.list(inputs)) { # Merging branches --> all tasks need to be
         # identical
@@ -58,10 +55,15 @@ TorchOp = R6Class("TorchOp",
       layer = private$.build(
         inputs = inputs,
         param_vals = param_vals,
-        task = task,
-        y = y
+        task = task
       )
-      output = try(with_no_grad(do.call(layer$forward, args = inputs)), silent = TRUE)
+      # not exactly sue why we have to do this, but otherwise there were bugs with the
+      # running_var in the batch_norm1d being -nan
+      layer$eval()
+      output = try(with_no_grad(invoke(layer$forward, .args = inputs)), silent = TRUE)
+      layer$train()
+      # otherwise batch_norm had some weird bug
+      reset_running_stats(layer)
 
       if (inherits(output, "try-error")) {
         stopf(
@@ -101,36 +103,41 @@ TorchOp = R6Class("TorchOp",
   private = list(
     .train = function(inputs) {
       task = inputs[[1L]][["task"]]
-      architecture = inputs[[1L]][["architecture"]]
+      network = inputs[[1L]][["network"]]
 
-      architecture$add_torchop(self)
+      pv = self$param_set$get_values(tags = "train")
+      layer_inputs = map(inputs, "output")
+      c(layer, outputs) %<-% self$build(layer_inputs, task)
 
-      output = map(
+      network$add_layer(self$id, layer)
+      iwalk(
+        inputs,
+        function(input, nm) {
+          network$add_edge(
+            src_id = input$id,
+            src_channel = input[["channel"]],
+            dst_id = self$id,
+            dst_channel = nm
+          )
+        }
+
+      )
+
+      outputs = map(
         self$output$name,
         function(channel) {
           structure(
             class = "ModelArgs",
-            list(task = task, architecture = architecture, channel = channel, id = self$id)
+            list(task = task, network = network, channel = channel, id = self$id,
+              output = outputs[[channel]]
+            )
           )
         }
       )
       self$state = list()
-      set_names(output, self$output$name)
+      set_names(outputs, self$output$name)
 
-      input_channels = names(inputs)
-      for (i in seq_along(inputs)) {
-        input = inputs[[i]]
-        if (!is.null(input$id)) {
-          architecture$add_edge(
-            src_id = input$id,
-            src_channel = input[["channel"]],
-            dst_id = self$id,
-            dst_channel = input_channels[[i]]
-          )
-        }
-      }
-
-      return(output)
+      return(outputs)
     },
     .predict = function(inputs) {
       inputs

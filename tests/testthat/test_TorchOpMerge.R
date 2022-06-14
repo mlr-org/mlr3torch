@@ -9,17 +9,17 @@ test_that("TorchOpMerge works", {
   y = torch_randn(1)
   inputs = list(input1 = x1, input2 = x2)
 
-  c(layer, output) %<-% top("add")$build(inputs, task, ty)
+  c(layer, output) %<-% top("add")$build(inputs, task)
   expect_true(torch_equal(x1 + x2, output$output))
 
-  c(layer, output) %<-% top("mul")$build(inputs, task, ty)
+  c(layer, output) %<-% top("mul")$build(inputs, task)
   expect_true(torch_equal(x1 * x2, output$output))
 
-  c(layer, output) %<-% top("cat", dim = 2L)$build(inputs, task, ty)
+  c(layer, output) %<-% top("cat", dim = 2L)$build(inputs, task)
   expect_true(torch_equal(torch_cat(list(x1, x2), dim = 2L), output$output))
 
 
-  c(layer, output) %<-% top("cat", dim = 1L)$build(inputs, task, ty)
+  c(layer, output) %<-% top("cat", dim = 1L)$build(inputs, task)
   expect_true(torch_equal(torch_cat(list(x1, x2), dim = 1L), output$output))
 })
 

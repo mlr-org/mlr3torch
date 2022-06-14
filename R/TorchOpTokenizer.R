@@ -25,8 +25,7 @@ TorchOpTokenizer = R6Class("TorchOpTokenizer",
     }
   ),
   private = list(
-    .operator = "tokenizer",
-    .build = function(inputs, task, param_vals, y) {
+    .build = function(inputs, task, param_vals) {
       bias = param_vals[["bias"]]
       cls = param_vals[["cls"]]
       d_token = param_vals[["d_token"]]

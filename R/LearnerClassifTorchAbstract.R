@@ -31,10 +31,10 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
   inherit = LearnerClassif,
   public = list(
     #' @description Initializes an object of this [R6][R6::R6Class] class.
-    initialize = function(id, optimizer, loss, param_set = ps(), label = NULL, properties = NULL,
+    initialize = function(id, .optimizer, .loss, param_set = ps(), label = NULL, properties = NULL,
       packages = character(0), predict_types = NULL, feature_types, man) {
-      private$.optimizer = assert_choice(optimizer, torch_reflections$optimizer)
-      private$.loss = assert_choice(loss, torch_reflections$loss$classif)
+      private$.optimizer = assert_choice(.optimizer, torch_reflections$optimizer)
+      private$.loss = assert_choice(.loss, torch_reflections$loss$classif)
       # FIXME: loglik?
       properties = properties %??% c("weights", "multiclass", "twoclass", "hotstart_forward")
       predict_types = predict_types %??% "response"
@@ -44,7 +44,7 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
       packages = union(c("mlr3torch", "torch"), packages)
       # note that we don't have to explicitly check that the optimizer params are disjunct from
       # the remaining parameters as this is done here anyway (call fails if it doesn't).
-      param_set_complete = make_paramset("classif", optimizer, loss, architecture = TRUE)
+      param_set_complete = make_paramset("classif", .optimizer, .loss)
       param_set_complete$add(param_set)
 
       super$initialize(

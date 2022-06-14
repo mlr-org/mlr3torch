@@ -9,10 +9,8 @@ test_that("Linear GraphNetwork works", {
     top("linear_1", out_features = 10L) %>>%
     top("relu_1") %>>%
     top("linear_2", out_features = 1L)
-  architecture = graph$train(task)[[1L]][[2L]]
-  net = architecture$build(task)
-  y_hat = net$forward(batch$x)
-  expect_equal(y_hat$shape, c(batch_size, 1L))
+  network = graph$train(task)[[1L]][[2L]]
+  expect_r6(network, "nn_Graph")
 })
 
 test_that("GraphNetwork with forking of depth 1 works", {
@@ -31,10 +29,8 @@ test_that("GraphNetwork with forking of depth 1 works", {
     ) %>>%
     top("merge", .method = "add", .innum = 2L) %>>%
     top("linear", out_features = 1L)
-  architecture = graph$train(task)[[1L]][[2L]]
-  net = architecture$build(task)
-  y_hat = net$forward(batch$x)
-  expect_equal(y_hat$shape, c(batch_size, 1L))
+  network = graph$train(task)[[1L]][[2L]]
+  expect_r6(network, "nn_Graph")
 })
 
 test_that("GraphNetwork with forking (depth 2) works", {
@@ -68,8 +64,6 @@ test_that("GraphNetwork with forking (depth 2) works", {
     ) %>>%
     top("merge", .method = "add") %>>%
     top("linear", out_features = 1L)
-  architecture = graph$train(task)[[1L]][[2L]]
-  net = architecture$build(task)
-  y_hat = net$forward(batch$x)
-  expect_equal(y_hat$shape, c(batch_size, 1L))
+  network = graph$train(task)[[1L]][[2L]]
+  expect_r6(network, "nn_Graph")
 })

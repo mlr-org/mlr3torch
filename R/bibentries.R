@@ -32,6 +32,14 @@ bibentries = c( # nolint start
     author = "Krizhevsky, Alex",
     journal = "arXiv preprint arXiv:1404.5997",
     year = "2014"
-  )
+  ),
 
+  ioffe2015batch = bibentry("inproceedings",
+    title = "Batch normalization: Accelerating deep network training by reducing internal covariate shift",
+    author = "Ioffe, Sergey and Szegedy, Christian",
+    booktitle = "International conference on machine learning",
+    pages = "448--456",
+    year = "2015",
+    organization = "PMLR"
+  )
 ) # nolint end

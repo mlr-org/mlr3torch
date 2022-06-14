@@ -44,7 +44,7 @@ CallbackTorchProgress = R6Class("CallbackTorchProgress",
     #' @param context (`Context`)\cr
     #'   The context in which the callback is called.
     on_after_valid_batch = function(context) {
-      self$pb_valid$tick(tokens = list(loss = context$history$last_train_loss))
+      self$pb_valid$tick(tokens = list(loss = context$history$last_valid_loss))
     },
     #' @description
     #' Prints the results of the epoch.

@@ -3,7 +3,7 @@
 #' Class for Torch activation functions
 #' Don't use this class directly but the corresponding object.
 #' @export
-TorchOpActivation = R6Class("TorchOpActivation",
+TorchOpActivationAbstract = R6Class("TorchOpActivationAbstract",
   inherit = TorchOp,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
@@ -25,8 +25,7 @@ TorchOpActivation = R6Class("TorchOpActivation",
     }
   ),
   private = list(
-    .operator = "activation",
-    .build = function(inputs, param_vals, task, y) {
+    .build = function(inputs, param_vals, task) {
       constructor = get_activation(private$.act)
       invoke(constructor, .args = param_vals)
     },
@@ -34,11 +33,45 @@ TorchOpActivation = R6Class("TorchOpActivation",
   )
 )
 
+#' @title Activation Functions
+#' @description
+#' This is implements all generic activation function.
+#' @export
+TorchOpActivation = R6Class("TorchOpActivation",
+  inherit = TorchOp,
+  public = list(
+    initialize = function(id = "activation", param_vals = list()) {
+      param_set = ps(
+        activation = p_fct(levels = torch_reflections$activation, tags = c("train", "required")),
+        activation_args = p_uty(tags = "train")
+      )
+
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals
+      )
+    }
+  ),
+  private = list(
+    .build = function(inputs, param_vals, task) {
+      aa = self$param_set$values$activation_args
+      a = self$param_set$values$activation
+      aclass = get_activation(a)
+
+      invoke(aclass, .args = aa)
+    }
+  )
+)
+
+#'
+mlr_torchops$add("activation", TorchOpActivation)
+
 make_torchop_activation = function(act) {
   mlr_torchops$add(
     act,
     function(id = act, param_vals = list()) {
-      TorchOpActivation$new(id = id, param_vals = param_vals, .act = act)
+      TorchOpActivationAbstract$new(id = id, param_vals = param_vals, .act = act)
     }
   )
 }
