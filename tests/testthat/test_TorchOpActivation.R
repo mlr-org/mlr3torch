@@ -5,13 +5,11 @@ test_that("All activation functions can be constructed", {
 })
 
 test_that("TorchOpActivation works", {
-  act = top("activation", activation = "relu", activation_args = list(inplace = TRUE))
-  f = get_private(act)$.build(NULL, act$param_set$values, NULL)
+  act = top("activation", fn = "relu", args = list(inplace = TRUE))
+  f = get_private(act)$.build(NULL, act$param_set$values)
 
   # this tests that the inplace parameters is properly passed
   x = torch_randn(10, 3)
   y = f(x)
   expect_true(torch_equal(x, y))
-
-
 })

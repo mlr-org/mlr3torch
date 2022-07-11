@@ -1,19 +1,20 @@
-test_that("TorchOpLinear works in 2D", {
-  d = 10
-  to = top("linear", out_features = d)
-  x = torch_randn(1, 5)
-  y = torch_randn(1)
+test_that("TorchOpLinear works", {
   task = tsk("iris")
-  c(layer, output) %<-% to$build(list(input = x), task)
-  expect_equal(output$output$shape, c(1, 10))
-})
+  op = top("linear")
 
-test_that("TorchOpLinear works in 3D", {
-  d = 10
-  to = top("linear", out_features = d)
-  x = torch_randn(1, 5, 7)
-  y = torch_randn(1)
-  task = tsk("iris")
-  c(layer, output) %<-% to$build(list(input = x), task)
-  expect_equal(output$output$shape, c(1, 5, 10))
+  for (i in seq_len(3)) {
+    bias = sample(c(TRUE, FALSE), 1)
+    out_features = sample(1:20, 1)
+    ndim = sample(2:5, 1)
+    dims = sample.int(20, ndim)
+    inputs = list(input = invoke(torch_randn, .args = dims))
+
+
+    expect_torchop(
+      op = op,
+      inputs = inputs,
+      param_vals = list(out_features = out_features),
+      task = task
+    )
+  }
 })

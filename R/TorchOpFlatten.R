@@ -1,4 +1,9 @@
-#' Note that we changed the default from 0L to 1L for start dim
+#' @title Flattens Tensor
+#' @description
+#' Flattens a tensor
+#' @section Calls:
+#' Calls `nn_flatten()`
+#'
 #' @export
 TorchOpFlatten = R6Class(
   inherit = TorchOp,
@@ -21,7 +26,8 @@ TorchOpFlatten = R6Class(
     }
   ),
   private = list(
-    .build = function(inputs, param_vals, task) {
+    .build = function(inputs, task) {
+      param_vals = self$param_set$get_values(tag = "train")
       invoke(nn_flatten, .args = param_vals)
     }
   )

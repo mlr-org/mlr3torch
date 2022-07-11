@@ -34,41 +34,6 @@ with pretrained weights and the final layer is replaced with an simple linear
 output layer tailored to the task when the method \verb{$train()} is called.
 }
 
-\section{Optimizer}{
-
-The following optimizers are supported and can be set during construction using the
-\code{.optimizer} argument.
-\itemize{
-\item adadelta
-\item adagrad
-\item adam
-\item asgd
-\item lbfgs
-\item rmsprop
-\item rprop
-\item sgd
-}
-
-Depending on \code{.optimizer}, the constructor arguments of the corresponding
-\link[torch:optimizer]{optimizer} are dynamically set as parameters of the learner, prefixed by
-"opt.".
-The optimizer cannot be changed after the learner was constructed.
-}
-
-\section{Loss}{
-
-For classificatoin tasks, the following lossses are supported and can be set during construction
-using the \code{.loss} argument:
-\itemize{
-\item mse
-}
-
-The default is set to "cross_entropy". Depending on the loss the constructor arguments of the
-corresponding loss funcction are dynamically set as parameters of the learner, prefixed by
-"loss.", see section \emph{Parameters} for an example using the \code{.loss = "cross_entropy"}.
-The loss function cannot be changed after the learner was constructed.
-}
-
 \examples{
 learner = mlr3::lrn("classif.alexnet")
 print(learner)
@@ -120,10 +85,24 @@ Gorishniy Y, Rubachev I, Khrulkov V, Babenko A (2021).
 \if{html}{\out{<a id="method-LearnerClassifTabResNet-new"></a>}}
 \if{latex}{\out{\hypertarget{method-LearnerClassifTabResNet-new}{}}}
 \subsection{Method \code{new()}}{
+Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LearnerClassifTabResNet$new(.loss, .optimizer)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LearnerClassifTabResNet$new(loss, optimizer)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{loss}}{(\code{character()})\cr
+A character string containing the name of the loss function
+For possible values see \code{torch_reflections$loss}.}
+
+\item{\code{optimizer}}{(\code{character()})\cr
+A character string containing the name of the optimizer.
+Possible values are \code{torch_reflections$optimizer}.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-LearnerClassifTabResNet-clone"></a>}}

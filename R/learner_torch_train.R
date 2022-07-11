@@ -20,7 +20,7 @@ train_eval = function(learner, history, epochs, callbacks, train_loader,
 
       call("on_before_train_batch")
 
-      y_hat = learner$network$forward(batch$x)
+      y_hat = learner$network(batch$x)
 
       loss = learner$loss_fn(y_hat, batch$y)
 

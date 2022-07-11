@@ -19,7 +19,7 @@
 #' graph = gunion(list(top1, top2)) %>>% top_add
 #'
 #' # order is specified:
-#' top_cat = top("cat", .innum = 2)
+#' top_cat = top("cat", .nnum = 2)
 #' graph = gunion(list(top1, top2))
 #' graph$add_pipeop(top_cat)
 #' graph$add_edge(src_id = "linear_1", dst_id = "cat", dst_channel = "input2")
@@ -35,16 +35,16 @@ TorchOpMerge = R6Class("TorchOpMerge",
     #'   The parameter set.
     #' @param param_vals (named `list()`)\cr
     #'   The initial parameters for the object.
-    #' @param .innum (`integer(1)`)\cr
+    #' @param innum (`integer(1)`)\cr
     #'   The number of input channels (optional). If provided, the input channels are set to
     #'   `"input1"`, `"input2"`, etc.. Otherwise the input channel is set to `...` (a 'vararg' channel).
     #'   Should be set, in case the order of the inputs is relevant.
     #' @param .method (`character(1)`)\cr
     #'   The method for the concatenation. One of "add", "mul" or "cat".
     initialize = function(id = "merge", param_set = ps(), param_vals = list(), .method,
-      .innum = NULL) {
+      innum = NULL) {
       private$.method = assert_choice(.method, c("add", "mul", "cat"))
-      if (is.null(.innum)) {
+      if (is.null(innum)) {
         input = data.table(
           name = "...",
           train = "ModelArgs",
@@ -52,9 +52,9 @@ TorchOpMerge = R6Class("TorchOpMerge",
         )
       } else {
         input = data.table(
-          name = paste0("input", seq_len(.innum)),
-          train = rep("ModelArgs", times = .innum),
-          predict = rep("Task", times = .innum)
+          name = paste0("input", seq_len(innum)),
+          train = rep("ModelArgs", times = innum),
+          predict = rep("Task", times = innum)
         )
       }
       super$initialize(
@@ -66,13 +66,20 @@ TorchOpMerge = R6Class("TorchOpMerge",
     }
   ),
   private = list(
-    .build = function(inputs, param_vals, task) {
-      layer = switch(private$.method,
-        add = nn_merge_sum(),
-        mul = nn_merge_mul(),
-        cat = nn_merge_cat(self$param_set$values$dim)
+    .build = function(inputs, task) {
+      pv = self$param_set$get_values(tag = "train")
+
+      fn = switch(private$.method,
+        add = nn_merge_sum,
+        mul = nn_merge_mul,
+        cat = nn_merge_cat
       )
-      return(layer)
+      if (private$.method == "cat") {
+        args = list(dim = self$param_set$values$dim)
+      } else {
+        args = list()
+      }
+      invoke(fn, .args = args)
     },
     .method = NULL
   )
@@ -90,16 +97,16 @@ TorchOpAdd = R6Class("TorchOpAdd",
     #'   The parameter set.
     #' @param param_vals (named `list()`)\cr
     #'   The initial parameters for the object.
-    #' @param .innum (`integer(1)`)\cr
+    #' @param innum (`integer(1)`)\cr
     #'   The number of input channels (optional). If provided, the input channels are set to
     #'   `"input1"`, `"input2"`, etc.. Otherwise the input channel is set to `...` (a 'vararg' channel).
     #'   Should be set, in case the order of the inputs is relevant.
-    initialize = function(id = "add", param_vals = list(), .innum = NULL) {
+    initialize = function(id = "add", param_vals = list(), innum = NULL) {
       super$initialize(
         id = id,
         param_vals = param_vals,
         .method = "add",
-        .innum = .innum
+        innum = innum
       )
     }
   )
@@ -117,16 +124,16 @@ TorchOpMul = R6Class("TorchOpMul",
     #'   The parameter set.
     #' @param param_vals (named `list()`)\cr
     #'   The initial parameters for the object.
-    #' @param .innum (`integer(1)`)\cr
+    #' @param innum (`integer(1)`)\cr
     #'   The number of input channels (optional). If provided, the input channels are set to
     #'   `"input1"`, `"input2"`, etc.. Otherwise the input channel is set to `...` (a 'vararg' channel).
     #'   Should be set, in case the order of the inputs is relevant.
-    initialize = function(id = "mul", param_vals = list(), .innum = NULL) {
+    initialize = function(id = "mul", param_vals = list(), innum = NULL) {
       super$initialize(
         id = id,
         param_vals = param_vals,
         .method = "mul",
-        .innum = .innum
+        innum = innum
       )
     }
   )
@@ -144,24 +151,35 @@ TorchOpCat = R6Class("TorchOpCat",
     #'   The parameter set.
     #' @param param_vals (named `list()`)\cr
     #'   The initial parameters for the object.
-    #' @param .innum (`integer(1)`)\cr
+    #' @param innum (`integer(1)`)\cr
     #'   The number of input channels (optional). If provided, the input channels are set to
     #'   `"input1"`, `"input2"`, etc.. Otherwise the input channel is set to `...` (a 'vararg' channel).
     #'   Should be set, in case the order of the inputs is relevant.
-    initialize = function(id = "cat", param_vals = list(), .innum = NULL) {
+    initialize = function(id = "cat", param_vals = list(), innum = NULL) {
       param_set = ps(
-        dim = p_int(lower = 0L, tags = c("train", "required"))
+        dim = p_uty(tags = c("train", "required"), custom_check = check_cat_dim)
       )
       super$initialize(
         id = id,
         param_vals = param_vals,
         param_set = param_set,
         .method = "cat",
-        .innum = .innum
+        innum = innum
       )
     }
   )
 )
+
+check_cat_dim = function(x) {
+  msg = check_int(x, lower = 1L)
+  if (is.character(msg)) {
+    return(msg)
+  }
+  if (x == 1L) {
+    warningf("The parameter 'dim' of TorchOpCat is set to 1L, which is probably the batch dimension")
+  }
+  TRUE
+}
 
 nn_merge_mul = nn_module(
   "merge_multiply",

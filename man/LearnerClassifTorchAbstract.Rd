@@ -61,8 +61,8 @@ Initializes an object of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LearnerClassifTorchAbstract$new(
   id,
-  .optimizer,
-  .loss,
+  optimizer,
+  loss,
   param_set = ps(),
   label = NULL,
   properties = NULL,
@@ -78,6 +78,12 @@ Initializes an object of this \link[R6:R6Class]{R6} class.
 \describe{
 \item{\code{id}}{(\code{character(1)})\cr
 The id for the learner.}
+
+\item{\code{optimizer}}{(\code{character(1)})\cr
+The optimizer, see \code{torch_reflections$optimizer}.}
+
+\item{\code{loss}}{(\code{character(1)})\cr
+The loss, see \code{torch_reflections$loss$classif}.}
 
 \item{\code{param_set}}{(\code{paradox::ParamSet})\cr
 Additional parameters to the standard paramset created by \code{make_paramset()}.}

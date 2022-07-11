@@ -16,9 +16,9 @@ TorchOpModel = R6Class("TorchOpModel",
     #'   A list containing the initial parameter values.
     #' @param .task_type (`character(1)`)\cr
     #'   The task type, see mlr_reflections$task_types.
-    #' @param .optimizer (`character(1)`)\cr
+    #' @param optimizer (`character(1)`)\cr
     #'   The optimizer, see torch_reflections$optimizer.
-    #' @param .loss (`character(1)`)\cr
+    #' @param loss (`character(1)`)\cr
     #'   The loss function, see torch_reflections$loss.
     initialize = function(id, param_vals, .task_type) {
       private$.task_type = assert_choice(.task_type, c("classif", "regr"))
@@ -57,11 +57,10 @@ TorchOpModel = R6Class("TorchOpModel",
         classif = LearnerClassifTorch
       )
       learner = class$new(
-        id = self$id,
-        .optimizer = input$optimizer,
-        .loss = input$loss,
-        .network = input$network,
-        .feature_types = unique(task$feature_types$type)
+        optimizer = input$optimizer,
+        loss = input$loss,
+        network = input$network,
+        feature_types = unique(task$feature_types$type)
       )
 
       if (length(input$optim_args)) {
@@ -121,7 +120,7 @@ TorchOpModelClassif = R6Class(
     #'   The initial parameters for the object.
     #' @param .optimizer (`character(1)`)\cr
     #'   The optimizer.
-    #' @param .loss (`character(1)`)\cr
+    #' @param loss (`character(1)`)\cr
     #'   The loss function.
     initialize = function(id = "model", param_vals = list()) {
       super$initialize(
@@ -145,9 +144,9 @@ TorchOpModelRegr = R6Class(
     #'   The id for of the object.
     #' @param param_vals (named `list()`)\cr
     #'   The initial parameters for the object.
-    #' @param .optimizer (`character(1)`)\cr
+    #' @param optimizer (`character(1)`)\cr
     #'   The optimizer.
-    #' @param .loss (`character(1)`)\cr
+    #' @param loss (`character(1)`)\cr
     #'   The loss function.
     initialize = function(id = "model", param_vals = list()) {
       super$initialize(

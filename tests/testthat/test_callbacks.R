@@ -2,16 +2,22 @@ test_that("Callbacks work", {
   callbacks = list(
     cllb("torch.progress")
   )
-  l = lrn("classif.alexnet",
+  l = lrn("classif.tab_resnet",
     epochs = 1L,
     batch_size = 16L,
     device = "cpu",
     callbacks = callbacks,
     valid_split = 0.2,
-    measures = list()
+    measures = list(),
+    optimizer = "adam",
+    loss = "cross_entropy",
+    n_blocks = 1,
+    d_main = 10,
+    d_hidden = 20,
+    dropout_first = 0.2,
+    dropout_second = 0.3
   )
-  task = toytask()
-  task$row_roles$use = 1:40
+  task = tsk("iris")
   l$train(task)
   expect_error(l$train(task), regexp = NA)
 })

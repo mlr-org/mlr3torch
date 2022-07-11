@@ -1,5 +1,6 @@
 #' @title Abstract Base Class for Torch Operators
-#' @description All TorchOps inherit from this class. @export
+#' @description All TorchOps inherit from this class.
+#' @export
 TorchOp = R6Class("TorchOp",
   inherit = PipeOp,
   public = list(
@@ -23,6 +24,7 @@ TorchOp = R6Class("TorchOp",
       input = input %??% data.table(name = "input", train = "ModelArgs", predict = "Task")
       output = output %??% data.table(name = "output", train = "ModelArgs", predict = "Task")
       packages = packages %??% c("torch", "mlr3torch")
+      assert_true(id != "repeat") # this leads to bugs
 
       super$initialize(
         id = id,
@@ -33,7 +35,12 @@ TorchOp = R6Class("TorchOp",
         packages = packages
       )
     },
-    #' @description Builds a Torch Operator
+    #' @description
+    #' Builds a Torch Operator. This is not applicable to all TorchOp's, exceptions are:
+    #'  * TorchOpOptimizer
+    #'  * TorchOpLoss
+    #'  * TorchOpModel
+    #'  * TorchOpBlock
     #'
     #' @param inputs (named `list()`)\cr
     #'   Named list of `torch_tensor`s that form a batch that is the input
@@ -44,19 +51,13 @@ TorchOp = R6Class("TorchOp",
     #' @return `torch::nn_module()` where the arguments of the `$forward()` function correspond
     #' to the names of the input channels and the output is a single `torch_tensor`.
     build = function(inputs, task) {
-      # TODO: Do checks
       if ((length(inputs) > 1L) && is.list(inputs)) { # Merging branches --> all tasks need to be
         # identical
         hashes = map(map(inputs, "task"), "hash")
         assert_true(length(unique(hashes)) == 1L)
       }
 
-      param_vals = self$param_set$get_values(tag = "train")
-      layer = private$.build(
-        inputs = inputs,
-        param_vals = param_vals,
-        task = task
-      )
+      layer = private$.build(inputs, task)
       # not exactly sue why we have to do this, but otherwise there were bugs with the
       # running_var in the batch_norm1d being -nan
       layer$eval()
@@ -67,19 +68,19 @@ TorchOp = R6Class("TorchOp",
 
       if (inherits(output, "try-error")) {
         stopf(
-          "Forward pass for the layer from '%s' failed for the given input.",
-          class(self)[[1L]]
+          "Forward pass for the layer from '%s' failed for the given input.\nMessage: %s",
+          class(self)[[1L]], output
         )
       }
 
-      if (!is.list(output) && self$outnum == 1L) {
+      if (inherits(output, "torch_tensor")) {
         output = set_names(list(output), self$output$name)
       } else {
         assert_list(output)
         assert_set_equal(self$output$name, names(output))
       }
 
-      return(list(layer = layer, output = output))
+      list(layer = layer, output = output)
     },
     #' @description Printer for this object.
     #' @param ... (any)\cr
@@ -109,7 +110,7 @@ TorchOp = R6Class("TorchOp",
       layer_inputs = map(inputs, "output")
       c(layer, outputs) %<-% self$build(layer_inputs, task)
 
-      network$add_layer(self$id, layer)
+      network$add_layer(self$id, layer, self$input$name, self$output$name)
       iwalk(
         inputs,
         function(input, nm) {
@@ -120,7 +121,6 @@ TorchOp = R6Class("TorchOp",
             dst_channel = nm
           )
         }
-
       )
 
       outputs = map(
@@ -141,6 +141,9 @@ TorchOp = R6Class("TorchOp",
     },
     .predict = function(inputs) {
       inputs
+    },
+    .build = function(inputs, task) {
+      stopf("Private method $.build() not applicable to this TorchOp.")
     }
   )
 )

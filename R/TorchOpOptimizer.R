@@ -2,10 +2,10 @@
 TorchOpOptimizer = R6Class("TorchOpOptimizer",
   inherit = TorchOp,
   public = list(
-    initialize = function(id = .optimizer, param_vals = list(), .optimizer) {
-      assert_choice(.optimizer, torch_reflections$optimizer)
-      param_set = paramsets_optim$get(.optimizer)
-      private$.optimizer = .optimizer
+    initialize = function(id = optimizer, param_vals = list(), optimizer) {
+      assert_choice(optimizer, torch_reflections$optimizer)
+      param_set = paramsets_optim$get(optimizer)
+      private$.optimizer = optimizer
       super$initialize(
         id = id,
         param_set = param_set,

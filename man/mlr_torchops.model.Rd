@@ -26,6 +26,7 @@ TorchOpModelClassif and TorchOpModelRegr inherit from this R6 Class.
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="build"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-build'><code>mlr3torch::TorchOp$build()</code></a></li>
@@ -54,10 +55,10 @@ A list containing the initial parameter values.}
 \item{\code{.task_type}}{(\code{character(1)})\cr
 The task type, see mlr_reflections$task_types.}
 
-\item{\code{.optimizer}}{(\code{character(1)})\cr
+\item{\code{optimizer}}{(\code{character(1)})\cr
 The optimizer, see torch_reflections$optimizer.}
 
-\item{\code{.loss}}{(\code{character(1)})\cr
+\item{\code{loss}}{(\code{character(1)})\cr
 The loss function, see torch_reflections$loss.}
 }
 \if{html}{\out{</div>}}

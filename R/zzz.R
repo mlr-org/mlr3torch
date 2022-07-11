@@ -31,8 +31,6 @@
 utils::globalVariables(c("..", "self", "private", "super", "N"))
 
 register_mlr3 = function() {
-
-
   # Learners ----------------------------------------------------------------
 
   lrns = utils::getFromNamespace("mlr_learners", ns = "mlr3")
@@ -45,6 +43,7 @@ register_mlr3 = function() {
   lrns$add("classif.alexnet", LearnerClassifAlexNet)
   lrns$add("classif.torch", LearnerClassifTorch)
   lrns$add("classif.tab_resnet", LearnerClassifTabResNet)
+  lrns$add("classif.mlp", LearnerClassifMLP)
 
   # regression learners
   lrns$add("regr.tabnet", LearnerRegrTabNet)
@@ -57,7 +56,7 @@ register_mlr3 = function() {
   # Reflections -------------------------------------------------------------
   reflcts = utils::getFromNamespace("mlr_reflections", ns = "mlr3")
 
-  reflcts$learner_param_tags = c(reflcts$learner_param_tags, "network")
+  reflcts$learner_param_tags = c(reflcts$learner_param_tags, "network", "optimizer", "loss")
 
   # Image URI feature (e.g. file path to .jpg etc.) for image classif tasks
   reflcts$task_feature_types[["img"]] = "imageuri"
@@ -76,4 +75,3 @@ register_mlr3 = function() {
     lg$set_threshold("warn")
   }
 }
-

@@ -26,7 +26,7 @@ top_add = top("add")
 graph = gunion(list(top1, top2)) \%>>\% top_add
 
 # order is specified:
-top_cat = top("cat", .innum = 2)
+top_cat = top("cat", .nnum = 2)
 graph = gunion(list(top1, top2))
 graph$add_pipeop(top_cat)
 graph$add_edge(src_id = "linear_1", dst_id = "cat", dst_channel = "input2")
@@ -45,6 +45,7 @@ graph$add_edge(src_id = "linear_2", dst_id = "cat", dst_channel = "input1")
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="build"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-build'><code>mlr3torch::TorchOp$build()</code></a></li>
@@ -63,7 +64,7 @@ Initializes an instance of this \link[R6:R6Class]{R6} class.
   param_set = ps(),
   param_vals = list(),
   .method,
-  .innum = NULL
+  innum = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -82,7 +83,7 @@ The initial parameters for the object.}
 \item{\code{.method}}{(\code{character(1)})\cr
 The method for the concatenation. One of "add", "mul" or "cat".}
 
-\item{\code{.innum}}{(\code{integer(1)})\cr
+\item{\code{innum}}{(\code{integer(1)})\cr
 The number of input channels (optional). If provided, the input channels are set to
 \code{"input1"}, \code{"input2"}, etc.. Otherwise the input channel is set to \code{...} (a 'vararg' channel).
 Should be set, in case the order of the inputs is relevant.}
@@ -121,6 +122,7 @@ The objects of this class are cloneable with this method.
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="build"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-build'><code>mlr3torch::TorchOp$build()</code></a></li>
@@ -134,7 +136,7 @@ The objects of this class are cloneable with this method.
 \subsection{Method \code{new()}}{
 Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchOpAdd$new(id = "add", param_vals = list(), .innum = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TorchOpAdd$new(id = "add", param_vals = list(), innum = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -146,7 +148,7 @@ The id for of the new object.}
 \item{\code{param_vals}}{(named \code{list()})\cr
 The initial parameters for the object.}
 
-\item{\code{.innum}}{(\code{integer(1)})\cr
+\item{\code{innum}}{(\code{integer(1)})\cr
 The number of input channels (optional). If provided, the input channels are set to
 \code{"input1"}, \code{"input2"}, etc.. Otherwise the input channel is set to \code{...} (a 'vararg' channel).
 Should be set, in case the order of the inputs is relevant.}
@@ -188,6 +190,7 @@ The objects of this class are cloneable with this method.
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="build"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-build'><code>mlr3torch::TorchOp$build()</code></a></li>
@@ -201,7 +204,7 @@ The objects of this class are cloneable with this method.
 \subsection{Method \code{new()}}{
 Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchOpMul$new(id = "mul", param_vals = list(), .innum = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TorchOpMul$new(id = "mul", param_vals = list(), innum = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -213,7 +216,7 @@ The id for of the new object.}
 \item{\code{param_vals}}{(named \code{list()})\cr
 The initial parameters for the object.}
 
-\item{\code{.innum}}{(\code{integer(1)})\cr
+\item{\code{innum}}{(\code{integer(1)})\cr
 The number of input channels (optional). If provided, the input channels are set to
 \code{"input1"}, \code{"input2"}, etc.. Otherwise the input channel is set to \code{...} (a 'vararg' channel).
 Should be set, in case the order of the inputs is relevant.}
@@ -255,6 +258,7 @@ The objects of this class are cloneable with this method.
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="build"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-build'><code>mlr3torch::TorchOp$build()</code></a></li>
@@ -268,7 +272,7 @@ The objects of this class are cloneable with this method.
 \subsection{Method \code{new()}}{
 Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchOpCat$new(id = "cat", param_vals = list(), .innum = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TorchOpCat$new(id = "cat", param_vals = list(), innum = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -280,7 +284,7 @@ The id for of the new object.}
 \item{\code{param_vals}}{(named \code{list()})\cr
 The initial parameters for the object.}
 
-\item{\code{.innum}}{(\code{integer(1)})\cr
+\item{\code{innum}}{(\code{integer(1)})\cr
 The number of input channels (optional). If provided, the input channels are set to
 \code{"input1"}, \code{"input2"}, etc.. Otherwise the input channel is set to \code{...} (a 'vararg' channel).
 Should be set, in case the order of the inputs is relevant.}

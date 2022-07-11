@@ -70,7 +70,7 @@ lrn_tabnet$importance()
 task = tsk("iris")
 
 graph = top("input") %>>%
-  top("tokenizer", d_token = 1) %>>%
+  top("tokenizer_tabular", d_token = 1) %>>%
   top("flatten") %>>%
   top("relu_1") %>>%
   top("linear_1", out_features = 10) %>>%

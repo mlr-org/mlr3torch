@@ -2,13 +2,13 @@ test_that("TorchOpModel works", {
   task = tsk("iris")
   graph = po("pca") %>>%
     top("input") %>>%
-    top("tokenizer", d_token = 1L) %>>%
+    top("tab_tokenizer", d_token = 1L) %>>%
     top("flatten") %>>%
     top("linear_1", out_features = 20L) %>>%
     top("relu_1") %>>%
     top("output") %>>%
-    top("loss", .loss = "cross_entropy") %>>%
-    top("optimizer", .optimizer = "adam") %>>%
+    top("loss", loss = "cross_entropy") %>>%
+    top("optimizer", optimizer = "adam") %>>%
     top("model.classif",
       batch_size = 16L,
       device = "cpu",

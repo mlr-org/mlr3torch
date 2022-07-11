@@ -4,8 +4,8 @@ test_that("LearnerClassifAlexnet runs", {
     batch_size = 1L,
     callbacks = list(),
     measures = list("acc"),
-    .optimizer = "adam",
-    .loss = "cross_entropy"
+    optimizer = "adam",
+    loss = "cross_entropy"
   )
   task = toytask()
   resampling = rsmp("holdout")

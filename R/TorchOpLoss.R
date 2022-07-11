@@ -2,10 +2,10 @@
 TorchOpLoss = R6Class("TorchOpLoss",
   inherit = TorchOp,
   public = list(
-    initialize = function(id = .loss, param_vals = list(), .loss) {
-      assert_choice(.loss, unlist(torch_reflections$loss))
-      param_set = paramsets_loss$get(.loss)
-      private$.loss = .loss
+    initialize = function(id = loss, param_vals = list(), loss) {
+      assert_choice(loss, unlist(torch_reflections$loss))
+      param_set = paramsets_loss$get(loss)
+      private$.loss = loss
       super$initialize(
         id = id,
         param_set = param_set,

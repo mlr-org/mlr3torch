@@ -2,7 +2,7 @@
 #' @description
 #' Tokenizes tabular data.
 #' @export
-TorchOpTokenizer = R6Class("TorchOpTokenizer",
+TorchOpTabTokenizer = R6Class("TorchOpTabularTokenizer",
   inherit = TorchOp,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
@@ -10,7 +10,7 @@ TorchOpTokenizer = R6Class("TorchOpTokenizer",
     #'   The id for of the object.
     #' @param param_vals (named `list()`)\cr
     #'   The initial parameters for the object.
-    initialize = function(id = "tokenizer", param_vals = list()) {
+    initialize = function(id = "tab_tokenizer", param_vals = list()) {
       param_set = ps(
         d_token = p_int(1L, Inf, tags = c("train", "required")),
         bias = p_lgl(default = TRUE, tags = "train"),
@@ -25,7 +25,8 @@ TorchOpTokenizer = R6Class("TorchOpTokenizer",
     }
   ),
   private = list(
-    .build = function(inputs, task, param_vals) {
+    .build = function(inputs, task) {
+      param_vals = self$param_set$get_values(tag = "train")
       bias = param_vals[["bias"]]
       cls = param_vals[["cls"]]
       d_token = param_vals[["d_token"]]
@@ -33,15 +34,9 @@ TorchOpTokenizer = R6Class("TorchOpTokenizer",
       n_features = sum(map_lgl(task$data(cols = task$col_roles$feature), is.numeric))
       cardinalities = Filter(function(x) !is.numeric(x), task$data(cols = task$col_roles$feature))
       cardinalities = unname(map_int(cardinalities, .f = nlevels))
+      args = insert_named(param_vals, list(n_features = n_features, cardinalities = cardinalities))
 
-      layer = nn_tokenizer(
-        n_features = n_features,
-        cardinalities = cardinalities,
-        d_token = d_token,
-        bias = bias,
-        cls = cls
-      )
-      return(layer)
+      invoke(nn_tab_tokenizer, .args = args)
     }
   )
 )
@@ -62,8 +57,8 @@ TorchOpTokenizer = R6Class("TorchOpTokenizer",
 #'   Whether to add a cls token.
 #'
 #' @references `r format_bib("gorishniy2021revisiting")`
-nn_tokenizer = nn_module(
-  "nn_tokenizer",
+nn_tab_tokenizer = nn_module(
+  "nn_tab_tokenizer",
   initialize = function(n_features, cardinalities, d_token, bias, cls) {
     self$tokenizers = list()
     assert_true(n_features > 0L || length(cardinalities) > 0L)
@@ -186,4 +181,4 @@ nn_tokenizer_categorical = nn_module(
 
 
 #' @include mlr_torchops.R
-mlr_torchops$add("tokenizer", value = TorchOpTokenizer)
+mlr_torchops$add("tab_tokenizer", value = TorchOpTabTokenizer)

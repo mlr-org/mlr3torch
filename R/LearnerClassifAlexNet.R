@@ -17,6 +17,9 @@
 #' @references
 #' `r format_bib("krizhevsky2014one")`
 #'
+#' @template param_optimizer
+#' @template param_loss
+#'
 #' @export
 #' @template seealso_learner
 #' @template example
@@ -25,9 +28,7 @@ LearnerClassifAlexNet = R6Class("LearnerClassifAlexNet",
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    #' @template param_.optimizer
-    #' @template param_.loss
-    initialize = function(.optimizer = "adam", .loss = "cross_entropy") {
+    initialize = function(optimizer = "adam", loss = "cross_entropy") {
       param_set = ps(
         pretrained = p_lgl(default = TRUE, tags = "train"),
         freeze = p_lgl(default = "TRUE iff pretrained", tags = "train",
@@ -47,8 +48,8 @@ LearnerClassifAlexNet = R6Class("LearnerClassifAlexNet",
         predict_types = "response",
         properties = c("multiclass", "twoclass"),
         man = "mlr3torch::mlr_learners_classif.alexnet",
-        .optimizer = .optimizer,
-        .loss = .loss,
+        optimizer = optimizer,
+        loss = loss,
         label = "AlexNet Image Classifier"
       )
     }

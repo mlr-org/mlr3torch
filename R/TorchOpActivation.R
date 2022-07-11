@@ -1,51 +1,47 @@
 #' @title Torch Activation Function
 #' @description
-#' Class for Torch activation functions
-#' Don't use this class directly but the corresponding object.
-#' @export
-TorchOpActivationAbstract = R6Class("TorchOpActivationAbstract",
-  inherit = TorchOp,
-  public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
-    #' @param id (`character(1)`)\cr
-    #'   The id for of the object.
-    #' @param param_vals (named `list()`)\cr
-    #'   The initial parameters for the object.
-    #' @param .act (`character(1)`)\cr
-    #'   The activation function (see `torch_reflections$activation`).
-    initialize = function(id = .act, param_vals = list(), .act) {
-      assert_choice(.act, torch_reflections$activation)
-      private$.act = .act
-      param_set = paramsets_activation$get(.act)
-      super$initialize(
-        id = id,
-        param_set = param_set,
-        param_vals = param_vals
-      )
-    }
-  ),
-  private = list(
-    .build = function(inputs, param_vals, task) {
-      constructor = get_activation(private$.act)
-      invoke(constructor, .args = param_vals)
-    },
-    .act = NULL
-  )
-)
-
-#' @title Activation Functions
-#' @description
-#' This is implements all generic activation function.
+#' Common activation functions. They can also be accessed directly via their `"id"` through
+#' the short-hand constructor `"top"`.
+#'
+#' @section Parameters:
+#' If the value of the `activation` constructor argument is set to one of the available activation
+#' functions (see `torch_reflections$activation`). The parameter set is dynamically constructed and
+#' set to the parameters of the activation functions.
+#'
+#' If left as `NULL`, the parameters are set to `fn` and `args`:
+#' * `fn` `character(1)`\cr
+#'   The choice of the activation function, see `torch_reflections$activation`.
+#' * `args`:: `list`\cr
+#'   A list with arguments for the actication function.
+#'
+#' @template param_id
+#' @template param_param_vals
+#' @param activation (`character(1)`)\cr The activation function, see `torch_reflections$activation`.
+#'
+#' @examples
+#' top("relu")
+#' # is the same as
+#' top("activation", activation = "relu")
+#'
 #' @export
 TorchOpActivation = R6Class("TorchOpActivation",
   inherit = TorchOp,
   public = list(
-    initialize = function(id = "activation", param_vals = list()) {
-      param_set = ps(
-        activation = p_fct(levels = torch_reflections$activation, tags = c("train", "required")),
-        activation_args = p_uty(tags = "train")
-      )
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    initialize = function(id = ifelse(is.null(activation), "activation", activation),
+      param_vals = list(), activation = NULL) {
+      assert_choice(activation, torch_reflections$activation, null.ok = TRUE)
+      private$.activation = activation
 
+      if (!is.null(activation)) {
+        param_set = paramsets_activation$get(activation)
+      } else {
+        param_set = ps(
+          fn = p_fct(levels = torch_reflections$activation, tags = c("train", "required")),
+          args = p_uty(tags = "train", custom_check = check_activation_args)
+        )
+      }
       super$initialize(
         id = id,
         param_set = param_set,
@@ -54,24 +50,28 @@ TorchOpActivation = R6Class("TorchOpActivation",
     }
   ),
   private = list(
-    .build = function(inputs, param_vals, task) {
-      aa = self$param_set$values$activation_args
-      a = self$param_set$values$activation
-      aclass = get_activation(a)
+    .build = function(inputs, task) {
+      if (!is.null(private$.activation)) {
+        pv = self$param_set$get_values(tag = "train")
+        layer = invoke(get_activation(private$.activation), .args = pv)
+        return(layer)
+      }
+      pv = self$param_set$get_values(tag = "train")
 
-      invoke(aclass, .args = aa)
-    }
+      invoke(get_activation(pv$fn), .args = pv$args)
+    },
+    .activation = NULL
   )
 )
 
-#'
+#' @include mlr_torchops.R
 mlr_torchops$add("activation", TorchOpActivation)
 
-make_torchop_activation = function(act) {
+make_torchop_activation = function(activation) {
   mlr_torchops$add(
-    act,
-    function(id = act, param_vals = list()) {
-      TorchOpActivationAbstract$new(id = id, param_vals = param_vals, .act = act)
+    activation,
+    function(id = activation, param_vals = list()) {
+      TorchOpActivation$new(id = id, param_vals = param_vals, activation = activation)
     }
   )
 }

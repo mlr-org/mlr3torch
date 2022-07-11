@@ -27,7 +27,8 @@ TorchOpOutput = R6Class("TorchOpOutput",
     }
   ),
   private = list(
-    .build = function(inputs, task, param_vals) {
+    .build = function(inputs, task) {
+      param_vals = self$param_set$get_values(tag = "train")
       x = inputs$input
       assert_true(length(x$shape) == 2L)
       in_features = x$shape[[2L]]
@@ -38,7 +39,7 @@ TorchOpOutput = R6Class("TorchOpOutput",
         stopf("Task type not supported!")
       )
 
-      nn_linear(in_features, out_features)
+      invoke(nn_linear, in_features = in_features, out_features = out_features)
     }
   )
 )

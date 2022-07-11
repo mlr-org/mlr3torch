@@ -5,13 +5,18 @@
 #' * `dims` :: `integer(1)`\cr
 #'   The nunber of dimnensions over which will be normalized (starting from the last dimension).
 #'
+#' @template param_id
+#' @template param_param_vals
+#'
 #' @export
 TorchOpLayerNorm = R6Class("TorchOpLayerNorm",
   inherit = TorchOp,
   public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id = "layer_norm", param_vals = list()) {
       param_set = ps(
-        dims = p_int(lower = 1L, tags = c("train", "required")),
+        n_dim = p_int(lower = 1L, tags = c("train", "required")),
         elementwise_affine = p_lgl(default = TRUE, tags = c("required", "train"))
       )
       param_set$values = list(
@@ -21,16 +26,15 @@ TorchOpLayerNorm = R6Class("TorchOpLayerNorm",
     }
   ),
   private = list(
-    .build = function(inputs, param_vals, task) {
+    .build = function(inputs, task) {
+      param_vals = self$param_set$get_values(tag = "train")
       input = inputs$input
       s = inputs$input$shape
-      dims = param_vals$dims
-      param_vals$dims = NULL
-
-      assert_true(dims < length(s), .var.name = "parameter 'dims'")
-      ld = tail(s, n = dims)
-      param_vals = insert_named(param_vals, list(normalized_shape = ld))
-      invoke(nn_layer_norm, .args = param_vals)
+      n_dim = param_vals$n_dim
+      param_vals$n_dim = NULL
+      ld = tail(s, n = n_dim)
+      args = insert_named(param_vals, list(normalized_shape = ld))
+      invoke(nn_layer_norm, .args = args)
     }
   )
 )
