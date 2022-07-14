@@ -12,28 +12,28 @@ Dropout layer.
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-TorchOpDropout-intialize}{\code{TorchOpDropout$intialize()}}
+\item \href{#method-TorchOpDropout-new}{\code{TorchOpDropout$new()}}
 \item \href{#method-TorchOpDropout-clone}{\code{TorchOpDropout$clone()}}
 }
 }
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="build"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-build'><code>mlr3torch::TorchOp$build()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="initialize"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-initialize'><code>mlr3torch::TorchOp$initialize()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="print"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-print'><code>mlr3torch::TorchOp$print()</code></a></li>
 </ul>
 </details>
 }}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TorchOpDropout-intialize"></a>}}
-\if{latex}{\out{\hypertarget{method-TorchOpDropout-intialize}{}}}
-\subsection{Method \code{intialize()}}{
+\if{html}{\out{<a id="method-TorchOpDropout-new"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchOpDropout-new}{}}}
+\subsection{Method \code{new()}}{
 Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchOpDropout$intialize(id = "dropout", param_vals = list())}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TorchOpDropout$new(id = "dropout", param_vals = list())}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

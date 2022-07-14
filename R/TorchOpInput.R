@@ -12,11 +12,9 @@ TorchOpInput = R6Class("TorchOpInput",
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "input", param_vals = list()) {
-      input = data.table(name = "task", train = "Task", predict = "Task")
+      input = data.table(name = "input", train = "Task", predict = "Task")
       output = data.table(name = "output", train = "ModelArgs", predict = "Task")
-      param_set = ps(
-        select = p_uty(tags = "train", custom_check = check_select)
-      )
+      param_set = ps()
 
       super$initialize(
         id = id,
@@ -29,7 +27,7 @@ TorchOpInput = R6Class("TorchOpInput",
   ),
   private = list(
     .train = function(inputs) {
-      instance = get_batch(inputs$task, batch_size = 1L, device = "cpu")
+      instance = get_batch(inputs$input, batch_size = 1L, device = "cpu")
       y = instance$y
       x = instance$x
 
@@ -37,9 +35,9 @@ TorchOpInput = R6Class("TorchOpInput",
       model_args = structure(
         class = "ModelArgs",
         list(
-          network = nn_graph$new(),
-          task = inputs$task,
+          network = nn_graph(),
           id = "__initial__",
+          task = inputs$input,
           channel = "output",
           output = x,
           y = y
@@ -53,14 +51,6 @@ TorchOpInput = R6Class("TorchOpInput",
   )
 )
 
-check_select = function(x) {
-  if (is.null(x)) {
-    return(TRUE)
-  } else if (test_subset(x, c("img", "num", "cat"))) {
-    return(TRUE)
-  }
-  "Must be subset of c('img', 'num', 'cat')"
-}
 
 #' @include mlr_torchops.R
 mlr_torchops$add("input", value = TorchOpInput)

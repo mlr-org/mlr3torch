@@ -11,7 +11,7 @@ TorchOpDropout = R6Class("TorchOpDropout",
     #'   The id for of the object.
     #' @param param_vals (named `list()`)\cr
     #'   The initial parameters for the object.
-    intialize = function(id = "dropout", param_vals = list()) {
+    initialize = function(id = "dropout", param_vals = list()) {
       param_set = ps(
         p = p_dbl(default = 0.5, lower = 0, upper = 1, tags = "train"),
         inplace = p_lgl(default = FALSE, tags = "train")
@@ -24,11 +24,13 @@ TorchOpDropout = R6Class("TorchOpDropout",
     }
   ),
   private = list(
-    .build = function(inputs, param_vals, task) {
-      p = param_vals[["p"]] %??% 0.5
-      inplace = param_vals[["inplace"]] %??% FALSE
-      layer = nn_dropout(p, inplace)
-      return(layer)
+    .build = function(inputs, task) {
+      param_vals = self$param_set$get_values(tag = "train")
+
+      invoke(nn_dropout, .args = param_vals)
     }
   )
 )
+
+#' @include mlr_torchops.R
+mlr_torchops$add("dropout", TorchOpDropout)

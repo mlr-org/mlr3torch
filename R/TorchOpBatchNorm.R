@@ -18,10 +18,15 @@
 #' @section References:
 #' * r format_bib("ioffe2015batch")`
 #'
+#' @template param_id
+#' @template param_param_vals
+#'
 #' @export
-TorchOpBatchNorm = R6Class("TorchOpBatchNorm1D",
+TorchOpBatchNorm = R6Class("TorchOpBatchNorm",
   inherit = TorchOp,
   public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id = "batch_norm", param_vals = list()) {
       param_set = ps(
         eps = p_dbl(default = 1e-05, lower = 0, tags = "train"),
@@ -38,12 +43,11 @@ TorchOpBatchNorm = R6Class("TorchOpBatchNorm1D",
     }
   ),
   private = list(
-    .build = function(inputs, param_vals, task) {
+    .build = function(inputs, task) {
+      param_vals = self$param_set$get_values(tag = "train")
       input = inputs$input
       assert_integer(length(input$shape), lower = 2L, upper = 5L)
-
-      num_features = input$shape[2L]
-      class = switch(length(input$shape),
+      fn = switch(length(input$shape),
         NULL,
         torch::nn_batch_norm1d,
         torch::nn_batch_norm1d,
@@ -51,13 +55,9 @@ TorchOpBatchNorm = R6Class("TorchOpBatchNorm1D",
         torch::nn_batch_norm3d
       )
 
-      layer = invoke(
-        class,
-        num_features = num_features,
-        .args = param_vals
-      )
+      args = insert_named(param_vals, list(num_features = input$shape[2L]))
 
-      return(layer)
+      invoke(fn, .args = args)
     }
   )
 )
@@ -65,3 +65,13 @@ TorchOpBatchNorm = R6Class("TorchOpBatchNorm1D",
 
 #' @include mlr_torchops.R
 mlr_torchops$add("batch_norm", TorchOpBatchNorm)
+
+
+make_paramset_batch_norm = function() {
+  param_set = ps(
+    eps = p_dbl(default = 1e-05, lower = 0, tags = "train"),
+    momentum = p_dbl(default = 0.1, lower = 0, tags = "train"),
+    affine = p_lgl(default = TRUE, tags = "train"),
+    track_running_stats = p_lgl(default = TRUE, tags = "train")
+  )
+}

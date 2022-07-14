@@ -4,7 +4,7 @@
 \alias{TorchOp}
 \title{Abstract Base Class for Torch Operators}
 \description{
-All TorchOps inherit from this class. @export
+All TorchOps inherit from this class.
 }
 \section{Super class}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{TorchOp}
@@ -21,6 +21,7 @@ All TorchOps inherit from this class. @export
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></li>
 </ul>
@@ -73,9 +74,15 @@ during \verb{$predict()}.}
 \if{html}{\out{<a id="method-TorchOp-build"></a>}}
 \if{latex}{\out{\hypertarget{method-TorchOp-build}{}}}
 \subsection{Method \code{build()}}{
-Builds a Torch Operator
+Builds a Torch Operator. This is not applicable to all TorchOp's, exceptions are:
+\itemize{
+\item TorchOpOptimizer
+\item TorchOpLoss
+\item TorchOpModel
+\item TorchOpBlock
+}
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchOp$build(inputs, task, y)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TorchOp$build(inputs, task)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -88,9 +95,6 @@ for the current layer. The names have to correspond to the names of the
 
 \item{\code{task}}{(\code{mlr3::Task})\cr
 The task for which to build the network.}
-
-\item{\code{y}}{(\code{torch_tensor})\cr
-A batch of the target variable.}
 }
 \if{html}{\out{</div>}}
 }

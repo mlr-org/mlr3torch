@@ -137,3 +137,7 @@ freeze_params = function(model) {
     par$requires_grad_(FALSE)
   }
 }
+
+dbuild = function(op) {
+  debugonce(op$.__enclos_env__$.build)
+}

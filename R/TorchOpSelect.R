@@ -2,9 +2,10 @@
 TorchOpSelect = R6Class("TorchOpSelect",
   inherit = TorchOp,
   public = list(
-    initialize = function(id = "select", param_vals = list(), .items) {
-      private$.items = .items
-      param_set = ps()
+    initialize = function(id = "select", param_vals = list()) {
+      param_set = ps(
+        items = p_uty(tags = c("required", "train"), custom_check = check_select)
+      )
       super$initialize(
         id = id,
         param_set = param_set,
@@ -13,13 +14,14 @@ TorchOpSelect = R6Class("TorchOpSelect",
     }
   ),
   private = list(
-    .build = function(inputs, param_vals, task) {
+    .build = function(inputs, task) {
+      param_vals = self$param_set$get_values(tag = "train")
       input = inputs$input
-      assert_subset(private$.items, names(input))
-      layer = nn_select(items = private$.items)
-      return(layer)
-    },
-    .items = NULL
+      items = param_vals$items
+      assert_list(input)
+      assert_subset(items, names(input))
+      invoke(nn_select, .args = param_vals)
+    }
   )
 )
 
@@ -38,3 +40,13 @@ nn_select = nn_module("nn_select",
 
 #' @include mlr_torchops.R
 mlr_torchops$add("select", TorchOpSelect)
+
+
+check_select = function(x) {
+  if (is.null(x)) {
+    return(TRUE)
+  } else if (test_subset(x, c("img", "num", "cat"))) {
+    return(TRUE)
+  }
+  "Must be subset of c(\"img\", \"num\", \"cat\")"
+}

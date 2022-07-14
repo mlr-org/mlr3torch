@@ -43,15 +43,15 @@ test_that("nn_tokenizer works", {
   input_cat = torch_cat(cols, 2L)$to(torch_long())
   input_num = torch_randn(n, n_features)
 
-  tokenizer = nn_tokenizer(n_features, cardinalities, d_token, bias, cls)
+  tokenizer = nn_tab_tokenizer(n_features, cardinalities, d_token, bias, cls)
   output = tokenizer(list(num = input_num, cat = input_cat))
   expect_true(all(dim(output) == c(n, n_features + length(cardinalities), d_token)))
 })
 
-test_that("TorchOpTokenizer works", {
+test_that("TorchOpTabTokenizer works", {
   d_token = 7
   task = tsk("boston_housing")
   graph = top("input") %>>%
-    top("tokenizer", d_token = d_token)
+    top("tab_tokenizer", d_token = d_token)
   expect_error(graph, regexp = NA)
 })

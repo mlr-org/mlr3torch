@@ -2,9 +2,31 @@
 % Please edit documentation in R/TorchOpActivation.R
 \name{TorchOpActivation}
 \alias{TorchOpActivation}
-\title{Activation Functions}
+\title{Torch Activation Function}
 \description{
-This is implements all generic activation function.
+Common activation functions. They can also be accessed directly via their \code{"id"} through
+the short-hand constructor \code{"top"}.
+}
+\section{Parameters}{
+
+If the value of the \code{activation} constructor argument is set to one of the available activation
+functions (see \code{torch_reflections$activation}). The parameter set is dynamically constructed and
+set to the parameters of the activation functions.
+
+If left as \code{NULL}, the parameters are set to \code{fn} and \code{args}:
+\itemize{
+\item \code{fn} \code{character(1)}\cr
+The choice of the activation function, see \code{torch_reflections$activation}.
+\item \code{args}:: \code{list}\cr
+A list with arguments for the actication function.
+}
+}
+
+\examples{
+top("relu")
+# is the same as
+top("activation", activation = "relu")
+
 }
 \section{Super classes}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:TorchOp]{mlr3torch::TorchOp}} -> \code{TorchOpActivation}
@@ -19,6 +41,7 @@ This is implements all generic activation function.
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="build"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-build'><code>mlr3torch::TorchOp$build()</code></a></li>
@@ -30,10 +53,28 @@ This is implements all generic activation function.
 \if{html}{\out{<a id="method-TorchOpActivation-new"></a>}}
 \if{latex}{\out{\hypertarget{method-TorchOpActivation-new}{}}}
 \subsection{Method \code{new()}}{
+Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchOpActivation$new(id = "activation", param_vals = list())}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TorchOpActivation$new(
+  id = ifelse(is.null(activation), "activation", activation),
+  param_vals = list(),
+  activation = NULL
+)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{id}}{(\code{character(1)})\cr
+The id for of the new object.}
+
+\item{\code{param_vals}}{(named \code{list()})\cr
+The initial parameters for the object.}
+
+\item{\code{activation}}{(\code{character(1)})\cr The activation function, see \code{torch_reflections$activation}.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TorchOpActivation-clone"></a>}}

@@ -11,8 +11,9 @@
 #'
 #' @template learner
 #' @template pretrained
-#' @template optimizer
-#' @template loss_classif
+#'
+#' @template param_optimizer
+#' @template param_loss
 #'
 #' @references
 #' `r format_bib("gorishniy2021revisiting")`
@@ -23,12 +24,13 @@
 LearnerClassifTabResNet = R6Class("LearnerClassifTabResNet",
   inherit = LearnerClassifTorchAbstract,
   public = list(
-    initialize = function(.loss, .optimizer) {
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    initialize = function(loss, optimizer) {
       param_set = make_paramset_tab_resnet_block()
       for (param in param_set$params_unid) {
         param$tags = unique(c(param$tags, "network"))
       }
-      # walk(param_set$params, function(p) p$tags = unique(c(p$tags, "network")))
 
       super$initialize(
         id = "classif.tab_resnet",
@@ -38,8 +40,8 @@ LearnerClassifTabResNet = R6Class("LearnerClassifTabResNet",
         predict_types = c("response"),
         properties = c("multiclass", "twoclass", "weights", "hotstart_forward"),
         man = "mlr3torch::mlr_learners_classif.tab_resnet",
-        .optimizer = .optimizer,
-        .loss = .loss,
+        optimizer = optimizer,
+        loss = loss,
         label = "Tabular ResNet"
       )
 
@@ -48,20 +50,21 @@ LearnerClassifTabResNet = R6Class("LearnerClassifTabResNet",
   private = list(
     .network = function(task) {
       pv = self$param_set$get_values(tags = "network")
-      ii = startsWith(names(pv), "batch_norm")
+      ii = startsWith(names(pv), "bn.")
       bn_args = pv[ii]
-      names(bn_args) = gsub("batch_norm.", "", names(bn_args))
+      names(bn_args) = gsub("bn.", "", names(bn_args))
       pv[ii] = NULL
 
       graph = top("input") %>>%
-        top("select", .items = "num") %>>%
-        invoke(top, .obj = "tab_resnet_block", .args = pv) %>>%
+        top("select", items = "num") %>>%
+        invoke(top, .obj = "tab_resnet_blocks", .args = pv) %>>%
         invoke(top, .obj = "batch_norm", .args = bn_args) %>>%
         invoke(top, .obj = pv$activation, .args = pv$activation_args) %>>%
         top("output")
 
-      graph$train(task)[[1L]]$network
+      network = graph$train(task)[[1L]]$network
+
+      return(network)
     }
   )
 )
-

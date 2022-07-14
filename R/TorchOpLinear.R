@@ -24,13 +24,16 @@ TorchOpLinear = R6Class("TorchOpLinear",
     }
   ),
   private = list(
-    .build = function(inputs, param_vals, task) {
+    .build = function(inputs, task) {
+      param_vals = self$param_set$get_values(tag = "train")
       input = inputs$input
+      assert_true(length(input$shape) >= 2L)
       # TODO: Define a clean interface what dimensions a TorchOp requires as input and what
       # it then outputs
       in_features = input$shape[length(input$shape)]
-      layer = invoke(nn_linear, in_features = in_features, .args = param_vals)
-      return(layer)
+      args = insert_named(param_vals, list(in_features = in_features))
+
+      invoke(nn_linear, .args = args)
     }
   )
 )

@@ -1,58 +1,26 @@
 test_that("TorchOpBatchNorm works", {
-  bnop = top("batch_norm")
-  x = torch_abs(torch_randn(10, 3))
-  c(layer, output) %<-% bnop$build(list(input = x))
-  y = output$output
-  expect_true(all(colMeans(as.array(x)) >= colMeans(as.array(y))))
+  task = tsk("iris")
+  op = top("batch_norm")
+  for (i in seq_len(3)) {
+    param_vals = list(
+      eps = runif(1, 0, 0.001),
+      momentum = runif(1),
+      affine = sample(c(TRUE, FALSE), 1),
+      track_running_stats = sample(c(TRUE, FALSE), 1)
+    )
 
-  bnop = top("batch_norm")
-  x = torch_abs(torch_randn(10, 3))
-  c(layer, output) %<-% bnop$build(list(input = x))
-  y = layer$forward(x)
-  s = torch_sum(y)
-  expect_true(s$item() <= 0.0001)
-  expect_true(inherits(layer, "nn_batch_norm1d"))
+    ndim = sample(2:5, 1)
 
-  x = torch_abs(torch_randn(10, 3, 4))
-  c(layer, output) %<-% bnop$build(list(input = x))
-  s = torch_sum(y)
-  expect_true(s$item() <= 0.0001)
-  expect_true(inherits(layer, "nn_batch_norm1d"))
+    dims = sample(10, ndim, TRUE)
+    inputs = list(input = invoke(torch_randn, .args = dims))
 
-  x = torch_abs(torch_randn(10, 3, 4, 5))
-  c(layer, output) %<-% bnop$build(list(input = x))
-  s = torch_sum(y)
-  expect_true(s$item() <= 0.0001)
-  expect_true(inherits(layer, "nn_batch_norm2d"))
+    args = list(num_features = inputs$input$shape[2L])
 
-  x = torch_abs(torch_randn(10, 3, 4, 5, 6))
-  c(layer, output) %<-% bnop$build(list(input = x))
-  s = torch_sum(y)
-  expect_true(s$item() <= 0.0001)
-  expect_true(inherits(layer, "nn_batch_norm3d"))
-
-
-  layer$eval()
-  layer$forward(x)
-})
-
-test_that("running_var is not -nan", {
-  bnop = top("batch_norm")
-  x = torch_abs(torch_randn(10, 3))
-  c(layer, output) %<-% bnop$build(list(input = x))
-  y = output$output
-  expect_true(all(colMeans(as.array(x)) >= colMeans(as.array(y))))
-
-  bn = nn_batch_norm1d(10)
-  x = torch_randn(16, 10)
-  lin = nn_linear(10, 1)
-
-  opt = optim_adam(bn$parameters)
-
-  y_true = torch_randn(16, 1)
-  y_hat = lin(bn(x))
-  loss_fn = nn_mse_loss()
-  loss = loss_fn(y_true, y_hat)
-  opt$step()
-
+    expect_torchop(
+      op = op,
+      inputs = inputs,
+      param_vals = param_vals,
+      task = task
+    )
+  }
 })

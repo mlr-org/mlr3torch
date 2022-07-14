@@ -8,4 +8,8 @@ mlr_test_helpers = list.files(system.file("testthat", package = "mlr3"), pattern
 mlr_test_helpers = mlr_test_helpers[!grepl("helper\\_debugging\\.[rR]", mlr_test_helpers)]
 lapply(mlr_test_helpers, source)
 
+torch_test_helpers = list.files(system.file("testthat", package = "mlr3torch"), pattern = "^helper.*\\.[rR]$", full.names = TRUE)
+torch_test_helpers = torch_test_helpers[!grepl("helper\\_debugging\\.[rR]", torch_test_helpers)]
+lapply(torch_test_helpers, source)
+
 rm(mlr_test_helpers)

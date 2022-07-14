@@ -32,18 +32,19 @@ second dimension.
 }
 
 \section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:TorchOp]{mlr3torch::TorchOp}} -> \code{TorchOpBatchNorm1D}
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:TorchOp]{mlr3torch::TorchOp}} -> \code{TorchOpBatchNorm}
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-TorchOpBatchNorm1D-new}{\code{TorchOpBatchNorm$new()}}
-\item \href{#method-TorchOpBatchNorm1D-clone}{\code{TorchOpBatchNorm$clone()}}
+\item \href{#method-TorchOpBatchNorm-new}{\code{TorchOpBatchNorm$new()}}
+\item \href{#method-TorchOpBatchNorm-clone}{\code{TorchOpBatchNorm$clone()}}
 }
 }
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="build"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-build'><code>mlr3torch::TorchOp$build()</code></a></li>
@@ -52,17 +53,29 @@ second dimension.
 </details>
 }}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TorchOpBatchNorm1D-new"></a>}}
-\if{latex}{\out{\hypertarget{method-TorchOpBatchNorm1D-new}{}}}
+\if{html}{\out{<a id="method-TorchOpBatchNorm-new"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchOpBatchNorm-new}{}}}
 \subsection{Method \code{new()}}{
+Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{TorchOpBatchNorm$new(id = "batch_norm", param_vals = list())}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{id}}{(\code{character(1)})\cr
+The id for of the new object.}
+
+\item{\code{param_vals}}{(named \code{list()})\cr
+The initial parameters for the object.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TorchOpBatchNorm1D-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-TorchOpBatchNorm1D-clone}{}}}
+\if{html}{\out{<a id="method-TorchOpBatchNorm-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchOpBatchNorm-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{
