@@ -2,7 +2,7 @@
 # R specific hooks: https://github.com/lorenzwalthert/precommit
 repos:
 -   repo: https://github.com/lorenzwalthert/precommit
-    rev: v0.2.2.9019
+    rev: v0.3.2
     hooks:
     -   id: style-files
         args: [--style_pkg=styler.mlr, --style_fun=mlr_style]
@@ -30,6 +30,7 @@ repos:
         -    zeallot
         -    lgr
         -    tabnet
+        -    testthat
         -    zip
     # codemeta must be above use-tidy-description when both are used
     # -   id: codemeta-description-updated
@@ -43,7 +44,7 @@ repos:
     -   id: deps-in-desc
         exclude: man-roxygen/
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.2.0
+    rev: v4.3.0
     hooks:
     -   id: check-added-large-files
         args: ['--maxkb=200']
