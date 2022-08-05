@@ -45,6 +45,3 @@ PipeOpImageTrafo = R6Class("TorchOpImageTrafo",
     .trafo = NULL
   )
 )
-
-#' @include mlr_torchops.R
-mlr_torchops$add("imagetrafo", value = function() stopf("Please use po('imagetrafo', ...))."))

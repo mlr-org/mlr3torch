@@ -45,7 +45,7 @@ nn_graph = nn_module(
       src_id = last_id,
       dst_id = "__terminal__",
       src_channel = last_channel,
-      dst_channel = "output"
+      dst_channel = "input"
     )
     invisible(self)
   },

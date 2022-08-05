@@ -1,16 +1,22 @@
 #' @title Linear TorchOp
-#' @include TorchOpLinear.R
-#' @section Dimensions:
-#' (n, ..., in_features) --> (n, ..., out_features)
+#' @description
+#' Standard linear layer.
+#'
+#' @section Calls:
+#' Calls `torch::nn_linear()`.
+#'
+#' @section Custom mlr3 parameters:
+#' * `in_channels` - This parameter is inferred as the last dimension of the input tensor.
+#'
+#' @template param_id
+#' @template param_param_vals
+#'
+#'
 #' @export
 TorchOpLinear = R6Class("TorchOpLinear",
   inherit = TorchOp,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
-    #' @param id (`character(1)`)\cr
-    #'   The id for of the object.
-    #' @param param_vals (named `list()`)\cr
-    #'   The initial parameters for the object.
     initialize = function(id = "linear", param_vals = list()) {
       param_set = ps(
         out_features = p_int(1L, Inf, tags = c("train", "required")),

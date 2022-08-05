@@ -11,21 +11,17 @@ and [torch](https://github.com/mlverse/torch) R package.
 
 # Intro
 
-TorchOps are a way to build neural networks using the graph-language implemented in {mlr3pipelines}.
-The underlying idea is that neural networks can be represented as directed acyclic
-graphs (DAG)s. {mlr3pipelines} provides a language for DAGs, making it the perfect library
-to build upon.
+In this article we will show how one can use the language implemented in
+mlr3pipelines to obtain fully parameterized neural networks. The driving idea
+is the observation that neural networks can be represented as directed acyclic
+graphs (DAG). mlr3pipelines provides a language to build graphs and use them for training
+and prediction, making it the foundation to build upon.
 
-In order to incrementally increase the complexity we will first simplify the walk-through by
-assuming that each TorchOp has exactly one input channel and one output channel.
-This allows us to only consider sequential models - e.g. defined by `nn_sequential` - which
-simplifies the explanations considerably and already allows us to expose much - but not all
-of the TorchOps's functionality.
 
-## The central building block: TorchOp
+# The central building block: TorchOp
 
-A `TorchOp` is a special PipeOp
-It can be constructed using the shorthand constructor `top()`:
+A `TorchOp` is a child class of `PipeOp` and can be constructed using the shorthand constructor
+`top()`:
 
 ```{r, include = FALSE}
 devtools::load_all("~/mlr/mlr3torch")
@@ -34,16 +30,14 @@ top_linear = top("linear", out_features = 10L)
 
 ```{r, result = 'asis'}
 library(mlr3torch)
-library(torch)
 top_linear = top("linear", out_features = 10L)
 ```
 
 
-By adding a `"_{n}"` to the end of the TorchOps id, one can conveniently modify it's id.
+By adding a `_{n}` to the end of the TorchOps id, one can conveniently retrieve the same TorchOp
+with an incremented id.
 
 ```{r, result = 'asis'}
-library(mlr3torch)
-
 top("linear_1", out_features = 10L)$id
 ```
 
@@ -53,23 +47,33 @@ The available TorchOps are stored in the dictionary `mlr_torchops`:
 mlr_torchops
 ```
 
-Because a `TorchOp` is a `PipeOp`, it can be added to Graphs and connected with other `PipeOps`,
-as long as the input channels and output channels are matching.
+Because a TorchOp is a PipeOp, it can be added to Graphs and connected with other PipeOps,
+as long as the connected input and output channels are matching.
 Except for `TorchOpInput` however, it is only possible to connect TorchOps with other TorchOps,
-because they require as input a - losely defined - object of class `"ModelConfig"`.
+because they require as training input an object of class `ModelConfig` that will be explained
+later.
 
-## TorchOps: Training
+In order to incrementally increase the complexity in our explanation, we will first simplify the
+explanandum by assuming that each TorchOp has exactly one input channel and one output channel.
+This allows us to consider only linear graphs and thereby only sequential models as defined by
+`torch::nn_sequential()`.
 
-We will proceed by:
-1. Showing what can be done with TorchOps
-1. Showing how it did what it did.
+# Linear Networks
+
+We will proceed by showing
+
+1. what happens when training a Graph consisting of TorchOps and then
+1. how it happened.
 
 For that we will train a simple feed forward network on the german credit classification task.
 
 ```{r, result = 'asis'}
 task = tsk("german_credit")
 
-graph =
+ids = partition(task)
+task$set_row_roles(ids$test, "holdout")
+
+graph_lin =
   # Initializes the DL Model
   top("input") %>>%
   # architecture
@@ -88,20 +92,25 @@ graph =
     epochs = 1
   )
 
-graph$plot(html = TRUE)
+graph_lin$plot(html = TRUE)
 
-graph$train(task)
+graph_lin$train(task)
+
+graph_lin$predict(task)
 ```
 
-We will now walk through what each of the PipeOps did.
+We will now walk through those steps.
 
-### Step 1: Initialize the ModelConfig
+
+## Training the Graph
+
+### Initialize the ModelConfig
 
 The `top("input")` marks the start of the network. This is important because TorchOps are
 simply PipeOps and can therefore be combined with other preprocessing steps defined in
-{mlr3pipelines} as we will see later. For the time being we can think of it as outputting
-a list as defined below. ^[Note that we have to include the task here, as otherwise subsequent
-TorchOps don't have access to the task.]
+mlr3pipelines, as we will see later. For the time being we can think of training a `TorchOpInput`
+as taking a task and outputting a list containing an empty sequential network, an example batch, and
+the task itself.
 
 ```{r}
 
@@ -111,31 +120,37 @@ model_config = list(network = nn_sequential(), output = x, task = task)
 class(model_config) = "ModelConfig"
 ```
 
-Subsequent TorchOps will add layers to the `nn_sequential` as we will see now.
+Subsequent TorchOps will add modules to the `nn_sequential` as we will see now. The example
+batch is included so that subsequent layers can automatically infer auxiliary parameters like the
+input dimension of a linear network.
 
-### Step 2: Add Layers
-
-
-#### Encoder for Tabular Data
+### Adding Layers
 
 Neural networks can only deal with floating point values and therefore factor variables and logicals
-have to be encoded.
-Therefore the first layer we will add is the Tabular Tokenizer. What it does during training
-is to call it's `$build()` method which - for the given task and the input to this layer -
-returns an `nn_module` and the output of applying this layer to it's input.
-
-This `nn_module` is then added to the `nn_sequential` stored in the `ModelConfig` and the
-previous layer's output is replacted with the output of the current layer.
-^[The `$output` of the `ModelConfig` is a named `list()`, where the names correspond to the output
-channels - in this case `"output"` which we are currently neglecting.]
+have to be encoded.The first layer we will add is therefore a tabular tokenizer `TorchOpTabTokenizer`.
+During training it get's a ModelConfig similar to the one defined above. It then calls its
+`$build()` method which - for the given task and input - returns an `nn_module` and the
+layer's output, which is a 3d tensor with dimension (batch, features, token).
+^[When passing the previous layers output we have to wrap the previous output in `list(input = ...)`
+because there could be multiple input channels, which we are currently ignoring.
+In this case there is only one, called `"input"` which explains the name. Also the returned output
+is a named list, where the names correspond to the output channels, in this case `"output"`.]
 
 ```{r}
-res = top("tab_tokenizer", d_token = 2L)$build(list(input = model_config$output), task)
+res = top("tab_tokenizer", d_token = 2L)$build(
+  list(input = model_config$output),
+  task
+)
 
 names(res)
 res$layer
 str(res$output) # this is the output of this layer for the example batch
+```
 
+The `nn_module` is then added to the network stored in the ModelConfig and the
+previous layer's output is replaced with the output of the current layer.
+
+```{r}
 model_config$network$add_module("tab_tokenizer", res$layer)
 model_config$output = res$output
 
@@ -144,11 +159,9 @@ model_config$network
 
 #### Flatten the data
 
-The tabular tokenizer outputs a three-dimensional tensor with dimensions
-`(batch_size, n_features, d_token)`. Because we want to apply a simple feed forward network we will
-flatten the tensor to the dimension `(batch_size, n_features * d_token)`
-Due to the way the Tabular Tokenizer is written, its output is a three dimensional tensor.
-Because we want to create a simple feed forward network we will now flatten the tensor.
+The tabular tokenizer outputs a three-dimensional tensor with dimensions (batch, features, token).
+Because we want to create a simple feed forward network we will flatten the tensor to two dimensions
+using `TorchOpFlatten`.
 
 ```{r}
 res = top("flatten")$build(list(input = model_config$output$output), task)
@@ -162,8 +175,8 @@ model_config$network
 
 #### Linear Layer
 
-Now we finally have the data in a shape is ready to be fed into a standard feed forward network
-We will add a linear layer with 10 hidden units.
+Now we have the data in a form that is ready to be fed into a standard feed forward network implemented
+as `TorchOpLinear`. We will add a linear layer with 10 output units.
 
 ```{r}
 res = top("linear", out_features = 10)$build(list(input = model_config$output$output), task)
@@ -175,7 +188,7 @@ model_config$network
 
 #### Activation Function
 
-The next step is to add a ReLU activation function.
+The next step is the ReLU activation function `TorchOpReLU`.
 
 ```{r}
 output = top("relu")$build(list(input = model_config$output$output), task)
@@ -186,7 +199,7 @@ model_config$network
 
 #### Output Layer
 
-The next layer will be the classification output layer. This is a linear layer where
+The last layer is the classification output layer `TorchOpOutput`. This is a linear layer for which
 the number of classes is inferred from the task.
 
 ```{r}
@@ -202,18 +215,18 @@ in `model_config$output`.
 
 
 ```{r, result = 'asis'}
+library(torch)
 torch_equal(
   model_config$network(x),
   model_config$output$output
 )
 ```
-### Step 3: Training the network
 
-The TorchOp that takes a `ModelConfig` and executes it, is `TorchOpModel{Classif, Regr}`.
-Before it is trainable however, we need to configure the optimizer and the loss function.
-This can be done using `TorchOpOptimizer` and `TorchOpLoss`. What they essentially do during the
-train phase is:
+## Training the network
 
+We have now defined the network architecture and will continue with configuring the optimizer
+via `TorchOpOptimizer` and the loss function implemented as `TorchOpLoss`. What they essentially
+do during training is the following.
 
 ```{r, result = 'asis'}
 model_config$optimizer = "adam"
@@ -222,8 +235,10 @@ model_config$loss = "cross_entropy"
 model_config$loss_args = list()
 ```
 
-Then we can in principle pass the `ModelConfig` to the `TorchOpModelClassif` that lets us
-configure the remaining training arguments. ^[Note that due to some details and simplifications
+The TorchOp that takes a model config as defined above and executes it, is `TorchOpModel`. It has
+two child classes `TorchOpModelClassif` and `TorchOpModelRegr`. It furthermore lets us specify
+the remaining training arguments that are available to torch learners in mlr3torch.
+^[Note that due to some details and simplifications
 in the explanation, we cannot actually pass the manually defined `model_config` to the TorchOp
 above, but conceptually this is what happens.]
 
@@ -235,30 +250,168 @@ to_model = top("model.classif",
 )
 ```
 
-The `TorchOpModel` does the following during train:
+The `TorchOpModel` then does the following:
 
-1. Initialize the optimizer with the network parameters
+1. Initialize the optimizer with the network parameters.
 1. Initialize the loss function.
 1. Create a learner similar to `Learner{Classif, Regr}Torch` and set it's parameters.
 1. Train the learner.
 
-It's output is NULL, but the resulting learner is stored in it's state.
+It's output is `NULL`, but the trained learner is stored in it's state.
 
-## TorchOps: Prediction
+## Prediction Phase
 
-The prediction phase is considerably easier to understand.
-
-All TorchOps except for `TorchOpModel` output the input task as-is during the predict
-phase. The `TorchOpModel` uses the stored learner to make predictions for the input task.
-^[We only trained the network for one epoch and the predictions are therefore quite poor,
-despite predicting on the test data.]
+During the prediction phase, all TorchOps except for `TorchOpModel` simply forward the
+input task as is. ^[Recall that the types of channels can differ between the `"train"` and the
+`"predict"` phase.]
+Their goal is essentially to get the task to `TorchOpModel`, which will make the predictions using
+the trained network and output them.
 
 ```{r, result = 'asis'}
-graph$predict(task)
+output = graph_lin$pipeops$tab_tokenizer$predict(list(input = task))
+output$output
+```
+
+# Nonlinear networks
+
+In this section we will relax the linearity assumption which will allow us to build nonlinear
+networks.^[Nonlinear with respect to its graph structure and not nonlinear functions.]
+This means that we now allow for multiple input and output channels, although we will only
+include the former in this example. We will start again by first showing an example and then
+walking through it step by step. Note that we only cover the "dif" between the nonlinear and
+linear case and will not repeat the workings that were already fully explainable in the
+simplified case covered in the previous section.
+
+We will start by creating a network that is identical to the previous one, except for adding a skip-connection.
+
+```{r, result = 'asis'}
+graph_nonlin = top("input") %>>%
+  top("tab_tokenizer", d_token = 2) %>>%
+  top("flatten") %>>%
+  gunion(list(
+    a = top("linear", out_features = 10L) %>>% top("relu"),
+    b = top("linear", out_features = 10L)
+   )) %>>%
+  top("add") %>>%
+  top("output")
+
+graph_nonlin$plot(html = TRUE)
+```
+
+The nonlinearity is introduced by `flatten`, which is connected to both `a.linear` and `b.linear`.
+Note that it does not have two different output channels but its one output channel is connected
+to multiple input channels. The subsequent branches are a non-linear path and a linear path
+(the skip-connection) and are merged using `add`.
+
+The underlying idea that makes these networks possible is to replace the `nn_sequential`
+with a more flexible network `nn_graph`.
+
+A `nn_graph` contains modules (that are added by the TorchOps) and edges that determine the
+data-flow between the modules during the forward path.
+The graph-structure in the `nn_graph` is essentially identical to the graph structure of
+`TorchOp`s minus `TorchOp{Input, Optimizer, Loss, Model}` (which do not modify the network).
+
+We will now look at the constructed network and then dive into the details of how it came about.
+
+```{r, result = 'asis'}
+res = graph_nonlin$train(task)
+network = res[[1L]]$network
+network$set_terminal()
+network$edges
+```
+
+A couple of questions have to be answered:
+
+1. How are the channels edges in the `nn_graph` connected to the `TorchOp` channels.
+1. How was it possible to construct this graph.
+
+To answer the first question we will consider the `TorchOpAdd`
+
+```{r, result = 'asis'}
+top_add = top("add")
+res = top_add$build(
+  list(input1 = torch_randn(16, 3), input2 = torch_randn(16, 3)),
+  task
+)
+res[[1]]$layer
+formalArgs(res$layer)
+```
+
+Because the input channel of `TorchOpAdd` is a vararg channel, it takes as an argument `...`.
+
+In general it should hold that:
+
+* The input channels of a `TorchOp` translate to the arguments of its constructed `nn_module`
+* In case a `TorchOp` has multiple output channels, its constructed `nn_module` should return
+  a list with the names corresponding to those channels. In the special case of one output
+  channel it is ok that the `nn_module` returns a tensor because `nn_graph` is smart enough
+  to figure it out.
+
+
+To answer the second question:
+The "problem" that has to be overcome is that the `PipeOp`s are not
+aware of the `Graph` they are in (by design). Otherwise we could simply copy and adjust the
+edges stored in `graph_nonlin$edges`
+
+This means, that the graph-structure has to be recreated during the train-phase of the graph.
+This is implemented via a with a message-passing system, in which a `TorchOp` always receives
+information about the `TorchOp` and channel that "sent" the `ModelConfig`.
+
+```{r, result = 'asis'}
+res = (top("input") %>>% top("tab_tokenizer", d_token = 2))$train(task)
+
+res[[1]]$channel
+res[[1]]$id
+```
+
+The next TorchOp can add the corresponding edges to the `nn_graph` for each of its input channels
+and replace the `channel` and `id` with its own channel and id.
+In case it has multiple output channels, the channels of the output `ModelConfig` must correspond
+to the respective output channel.
+
+```{r, result = 'asis'}
+res = top("flatten")$train(res)
+res[[1]]$network$edges
+
+res[[1]]$channel
+res[[1]]$id
+```
+
+This means that both `a.linear` and `b.linear` get the result from above.
+
+```{r, result = 'asis'}
+path_a = top("linear", out_features = 10, id = "a.linear") %>>% top("relu", id = "a.relu")
+res_a = path_a$train(res[[1]])
+res_a[[1L]]$network$edges
+res_a[[1L]]$channel
+res_a[[1L]]$id
+```
+
+Both `linear.a` and `linear.b` modify the network **in place**. This means the `$network` saved
+in the model-config that is the input to the skip-connection, will be up-to date.
+The `ModelConfig` however is simply a list with a class, for which the typical copy-on-modify
+semantics hold, therefore after the path `linear.a` is executed, the `linear.b` will still have
+the correct input id and channel from `flatten`.
+
+```{r, result = 'asis'}
+res_b = top("linear", out_features = 10, id = "b.linear")$train(list(input = res[[1L]]))
+
+res_b[[1L]]$network$edges
+res_b[[1L]]$channel
+res_b[[1L]]$id
+```
+
+In the next step, these results are passed to `TorchOpAdd`. In each of its input channels
+it obtains a `ModelConfig` with a different `id` and `channel` and it can connect those with
+the input channel at which it arrived
+
+```{r, result = 'asis'}
+res = top("add")$train(list(input1 = res_a[[1]], input2 = res_b[[1]]))
+res[[1]]$network$edges
 ```
 
 
-## Building a complete modelling pipeline
+# Including preprocessing
 
 In this part we will show that TorchOps can be combine with other PipeOps.
 
@@ -266,7 +419,8 @@ In this part we will show that TorchOps can be combine with other PipeOps.
 ```{r, result = 'asis'}
 library(mlr3pipelines)
 
-graph_network = po("scale") %>>%
+
+graph_full = po("scale") %>>%
   po("pca") %>>%
   top("input") %>>%
   top("tab_tokenizer", d_token = 1L) %>>%
@@ -282,7 +436,7 @@ graph_network = po("scale") %>>%
     device = "cpu"
   )
 
-learner = as_learner_torch(graph_network)
+learner = as_learner_torch(graph_full)
 
 ids = partition(task)
 
@@ -291,88 +445,15 @@ learner$train(task, ids$train)
 learner$predict(task, ids$test)
 ```
 
-```{r}
 
-res = graph_network$train(task)
-
-network = res[[1]]$network
-
-print(network)
-
-graph_trainer = top("optimizer", "sgd", lr = 0.1) %>>%
-  top("loss", "cross_entropy") %>>%
-  top("model.classif",
-    batch_size = 16,
-    device = "cpu",
-    epochs = 1
-  )
-```
-
-## Relaxing linearity
-
-In the next step we will relax the linearity assumption.
-This means that we now allow for multiple input and output channels, although we will only
-include the former in the example.
-
-
-```{r, result = 'asis'}
-graph = top("input") %>>%
-  top("tab_tokenizer", d_token = 2) %>>%
-  top("flatten") %>>%
-  gunion(list(
-    a = top("linear", out_features = 10L) %>>% top("relu"),
-    b = top("linear", out_features = 10L)
-   )) %>>%
-  top("add", innum = 2L) %>>%
-  top("output")
-
-graph$plot(html = TRUE)
-```
-
-From the visualization it is clear, that the `TorchOpAdd` as more than one input channel.
-As it's name suggests, it adds up the inputs.
-This relaxes the simplifying assumption we made in the previous section.
-Previously we started with an empty `nn_sequential` and the `TorchOp`s sequentiall added their
-layer linearly.
-
-The first `TorchOp` that deviates from that assumption is the branch from `TorchOpFlatten`,
-which goes into two paths. The underlying idea that makes these kinds of networks possible
-is to replace the `nn_sequential` with an `nn_graph`. A `nn_graph` simply contains the `nn_module`s
-created by the `TorchOp`s, as well as additional meta-information that determine the data-flow
-between those modules, i.e. the `edges`.
-
-We will first look at the final result, and then dive into the details of how it came about.
-
-```{r, result = 'asis'}
-res = graph$train(task)
-network = res[[1L]]$network
-
-network$edges
-```
-
-We see that the output of `flatten` goes into both `a.linear` and `b.linear`, while `b.linear`
-(the skip connection) goes into the input channel `input2` of `add`, `a.linear` first goes into
-`a.relu` and then into the channel `input1` from `add`.
-
-The graph-structure in the `nn_graph` is essentially identical to the graph structure
-of `TorchOp`s minus `TorchOp{Input, Optimizer, Loss, Model}` which - as seen earlier - fulfill
-a special role.
-
-So, how does this work? The "problem" that has to be overcome is that the `TorchOp`s are not
-aware of the `Graph` they are in (by design). This means, that the graph-structure has to be
-recreated with a message-passing system, in which a `TorchOp` always receives information about
-the `TorchOp` that "sent" the `ModelConfig`.
-
-
-## Tuning a Network
+# Tuning a network
 
 ```{r, result = 'asis'}
 
+
 ```
 
-
-
-## Why bother?
+# Why bother?
 
 The creation of neural networks using TorchOps has various advantages:
 
@@ -380,4 +461,6 @@ The creation of neural networks using TorchOps has various advantages:
 * One can easily obtain custom, fully parameterized neural networks.
 * One does not need to learn a new syntax when alreading being familiar with {mlr3pipelines}.
 * Auxiliary parameters such as the input dimension of a linear layer or the outputs of the
-  output layer re automatically inferred.
+  output layer are automatically inferred, this is similar to Lazy Modules in PyTorch
+
+
