@@ -9,19 +9,6 @@
 torch_reflections = new.env(parent = emptyenv())
 
 local({
-  torch_reflections$loss = list(
-    classif = c(
-      "adaptive_log_softmax_with", "bce", "bce_with_logits", "cosine_embedding",
-      "ctc", "cross_entropy", "hinge_embedding", "kl_div", "margin_ranking",
-      "multi_margin", "multilabel_margin", "multilabel_soft_margin", "nll",
-      "soft_margin", "triplet_margin", "triplet_margin_with_distance"
-    ),
-    regr = c("l1", "mse", "poisson_nll", "smooth_l1")
-  )
-
-  torch_reflections$optimizer = c(
-    "rprop", "rmsprop", "adagrad", "asgd", "adadelta", "lbfgs", "sgd", "adam"
-  )
 
   torch_reflections$activation = c(
     "elu", "hardshrink", "hardsigmoid", "hardtanh", "hardswish", "leaky_relu", "log_sigmoid",

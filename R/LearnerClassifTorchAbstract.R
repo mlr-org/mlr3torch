@@ -6,8 +6,8 @@
 #'
 #' @param id (`character(1)`)\cr
 #'   The id of the learner.
-#' @param optimizer (`character(1)`)\cr
-#'   The optimizer, see `torch_reflections$optimizer`.
+#' @param optimizer ([`ParamdOptimizer`])\cr
+#'   The optimizer.
 #' @param loss (`character(1)`)\cr
 #'   The loss, see `torch_reflections$loss$classif`.
 #' @param param_set (`paradox::ParamSet`)\cr
@@ -33,8 +33,9 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
     #' @description Initializes an object of this [R6][R6::R6Class] class.
     initialize = function(id, optimizer, loss, param_set = ps(), label = NULL, properties = NULL,
       packages = character(0), predict_types = NULL, feature_types, man) {
-      private$.optimizer = assert_choice(optimizer, torch_reflections$optimizer)
-      private$.loss = assert_choice(loss, torch_reflections$loss$classif)
+      private$.optimizer = as_paramd_optimizer(optimizer, clone = TRUE)
+      private$.loss = as_paramd_loss(loss, clone = TRUE)
+      assert_subset("classif", private$.loss$tasktypes)
       # FIXME: loglik?
       properties = properties %??% c("weights", "multiclass", "twoclass", "hotstart_forward")
       predict_types = predict_types %??% "response"
@@ -42,8 +43,41 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
 
       packages = assert_character(packages, any.missing = FALSE, min.chars = 1L)
       packages = union(c("mlr3torch", "torch"), packages)
-      # note that we don't have to explicitly check that the optimizer params are disjunct from
-      # the remaining parameters as this is done here anyway (call fails if it doesn't).
+
+
+      private$.optimizer$param_set$set_id = "opt"
+      private$.loss$param_set$set_id = "loss"
+
+      p = ps(
+        batch_size            = p_int(tags = c("train", "predict", "required"), lower = 1L, default = 16L),
+        epochs                = p_int(tags = c("train", "hotstart", "required"), lower = 0L),
+        device                = p_fct(tags = c("train", "predict"), levels = c("auto", "cpu", "cuda", "meta"), default = "auto"), # nolint
+        measures_train        = p_uty(tags = "train", custom_check = check_measures),
+        measures_valid        = p_uty(tags = "train", custom_check = check_measures),
+        augmentation          = p_uty(tags = "train"),
+        callbacks             = p_uty(tags = "train", custom_check = check_callbacks),
+        drop_last             = p_lgl(default = FALSE, tags = "train"),
+        keep_last_prediction  = p_lgl(default = TRUE, tags = "train"),
+        num_threads           = p_int(default = 1L, lower = 1L, tags = c("train", "predict", "threads")),
+        shuffle               = p_lgl(default = TRUE, tags = "train"),
+        early_stopping_rounds = p_int(default = 0L, tags = "train")
+      )
+
+      p$values = list(
+        num_threads = 1L,
+        drop_last = FALSE,
+        shuffle = TRUE
+      )
+
+      # TODO: the following breaks when learner is cloned; see e.g. PipeOp / PipeOpLearnerCV on how to properly handle this.
+      param_set_complete = ParamSetCollection$new(list(
+        param_set,
+        p,
+        private$.optimizer$param_set,
+        private$.loss$param_set
+      ))
+
+
       param_set_complete = make_paramset("classif", optimizer, loss)
       param_set_complete$add(param_set)
 
@@ -58,14 +92,6 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
         feature_types = feature_types,
         man = man
       )
-    },
-    #' @description Builds the model `list(network, optimizer, loss_fn, history)`.
-    #' @param task ([`Task`][mlr3::Task])\cr
-    #'   The task for which to build the network.
-    build = function(task) {
-      network = private$.network(task)
-      model = build_torch(self, task, network)
-      return(model)
     },
     #' @description Assembles the network, optimizer and loss_fn after saving and loading the learner.
     unserialize = function(device = NULL) {
@@ -121,7 +147,12 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
   ),
   private = list(
     .train = function(task) {
-      model = self$build(task)
+      network = private$.network(task)
+      model = list(
+        network = network,
+        optimizer = private$.optimizer$get_optimizer(network$parameters),
+        loss_fn = private$.loss$get_loss()
+      )
       learner_torch_train(self, model, task)
     },
     .predict = function(task) {
