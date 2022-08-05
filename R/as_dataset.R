@@ -19,7 +19,7 @@ as_dataset.Task = function(x, device = NULL, augmentation = NULL, row_ids = NULL
   if ("imageuri" %in% feature_types) {
     assert_true(length(task$feature_names) == 1L)
     ds = make_image_dataset(task, augmentation)
-  } else if (all(feature_types %in% c("factor", "numeric", "integer", "logical"))) {
+  } else if (all(feature_types %in% c("factor", "numeric", "integer", "logical", "ordered"))) {
     if (!is.null(augmentation)) {
       stopf("Augmentation is currently not supported for tabular data.")
     }

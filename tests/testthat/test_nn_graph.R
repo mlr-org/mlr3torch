@@ -82,6 +82,24 @@ test_that("fork at the beginning works", {
   net(list(num = torch_randn(16, 4)))
 })
 
+test_that("GraphNetwork works when a unnamed list is returned by nn_module", {
+  # max_pool2d returns a unnamed list whose names we have to set
+  task = toytask()
+  g = top("input") %>>%
+    top("conv2d", kernel_size = 3L, out_channels = 1L) %>>%
+    top("max_pool2d", kernel_size = 1L, return_indices = TRUE)
+
+  expect_error(g$train(task), regexp = NA)
+
+})
+
+test_that("Name conflicts", {
+  net = nn_graph()
+  expect_error(net$add_module("add_module", nn_linear(10, 1)), regexp = NA)
+
+})
+
+
 # TODO: Need to wait for the pipelines PR
 # test_that("would work with multi-output torchops", {
 #   TorchOpMO = R6Class("TorchOpMO",
@@ -90,7 +108,7 @@ test_that("fork at the beginning works", {
 #       initialize = function(id = "mo", param_vals = list()) {
 #         output = data.table(
 #           name = c("output1", "output2"),
-#           train = c("ModelArgs", "ModelArgs"),
+#           train = c("ModelConfig", "ModelConfig"),
 #           predict = c("Task", "Task")
 #         )
 #         super$initialize(
@@ -144,3 +162,6 @@ test_that("fork at the beginning works", {
 #
 #
 # })
+
+
+

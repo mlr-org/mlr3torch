@@ -1,8 +1,17 @@
+#' @title Loss Function
+#' @examples
+#' g = top("input") %>>%
+#'   top("select", items = "num") %>>%
+#'   top("output") %>>%
+#'   top("loss", "mse")
+#'
+#' task = tsk("iris")
+#' g$train(task)
 #' @export
 TorchOpLoss = R6Class("TorchOpLoss",
   inherit = TorchOp,
   public = list(
-    initialize = function(id = loss, param_vals = list(), loss) {
+    initialize = function(loss, id = "loss", param_vals = list()) {
       assert_choice(loss, unlist(torch_reflections$loss))
       param_set = paramsets_loss$get(loss)
       private$.loss = loss

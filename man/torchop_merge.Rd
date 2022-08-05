@@ -26,7 +26,7 @@ top_add = top("add")
 graph = gunion(list(top1, top2)) \%>>\% top_add
 
 # order is specified:
-top_cat = top("cat", .nnum = 2)
+top_cat = top("cat", innum = 2)
 graph = gunion(list(top1, top2))
 graph$add_pipeop(top_cat)
 graph$add_edge(src_id = "linear_1", dst_id = "cat", dst_channel = "input2")
@@ -45,11 +45,11 @@ graph$add_edge(src_id = "linear_2", dst_id = "cat", dst_channel = "input1")
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="build"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-build'><code>mlr3torch::TorchOp$build()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="print"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-print'><code>mlr3torch::TorchOp$print()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="build"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-build'><code>mlr3torch::TorchOp$build()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="print"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-print'><code>mlr3torch::TorchOp$print()</code></a></span></li>
 </ul>
 </details>
 }}
@@ -122,11 +122,11 @@ The objects of this class are cloneable with this method.
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="build"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-build'><code>mlr3torch::TorchOp$build()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="print"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-print'><code>mlr3torch::TorchOp$print()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="build"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-build'><code>mlr3torch::TorchOp$build()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="print"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-print'><code>mlr3torch::TorchOp$print()</code></a></span></li>
 </ul>
 </details>
 }}
@@ -190,11 +190,11 @@ The objects of this class are cloneable with this method.
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="build"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-build'><code>mlr3torch::TorchOp$build()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="print"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-print'><code>mlr3torch::TorchOp$print()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="build"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-build'><code>mlr3torch::TorchOp$build()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="print"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-print'><code>mlr3torch::TorchOp$print()</code></a></span></li>
 </ul>
 </details>
 }}
@@ -258,11 +258,11 @@ The objects of this class are cloneable with this method.
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="build"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-build'><code>mlr3torch::TorchOp$build()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="print"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-print'><code>mlr3torch::TorchOp$print()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="build"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-build'><code>mlr3torch::TorchOp$build()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="print"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-print'><code>mlr3torch::TorchOp$print()</code></a></span></li>
 </ul>
 </details>
 }}

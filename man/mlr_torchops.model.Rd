@@ -26,11 +26,11 @@ TorchOpModelClassif and TorchOpModelRegr inherit from this R6 Class.
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="build"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-build'><code>mlr3torch::TorchOp$build()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="print"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-print'><code>mlr3torch::TorchOp$print()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="build"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-build'><code>mlr3torch::TorchOp$build()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchOp" data-id="print"><a href='../../mlr3torch/html/TorchOp.html#method-TorchOp-print'><code>mlr3torch::TorchOp$print()</code></a></span></li>
 </ul>
 </details>
 }}
@@ -40,7 +40,7 @@ TorchOpModelClassif and TorchOpModelRegr inherit from this R6 Class.
 \subsection{Method \code{new()}}{
 Creates an object of class \link{TorchOpModel}\cr
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchOpModel$new(id, param_vals, .task_type)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{TorchOpModel$new(id, param_vals, task_type)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -52,7 +52,7 @@ The id of the object.}
 \item{\code{param_vals}}{(\verb{named list()})\cr
 A list containing the initial parameter values.}
 
-\item{\code{.task_type}}{(\code{character(1)})\cr
+\item{\code{task_type}}{(\code{character(1)})\cr
 The task type, see mlr_reflections$task_types.}
 
 \item{\code{optimizer}}{(\code{character(1)})\cr

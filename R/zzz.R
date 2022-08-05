@@ -28,7 +28,6 @@
 #'
 "_PACKAGE"
 
-utils::globalVariables(c("..", "self", "private", "super", "N"))
 
 register_mlr3 = function() {
   # Learners ----------------------------------------------------------------
@@ -66,8 +65,6 @@ register_mlr3 = function() {
   # For caching directory
   backports::import(pkgname)
   backports::import(pkgname, "R_user_dir", force = TRUE)
-
-  private = "hallo"
 
   register_namespace_callback(pkgname, "mlr3", register_mlr3)
   assign("lg", lgr::get_logger(pkgname), envir = parent.env(environment()))

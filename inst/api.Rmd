@@ -28,7 +28,7 @@ Structure of the batches obtained by the dataloader constructed via `as_dataload
 
 *Definition*
 
-A `TorchOp` is an Operator that either has ModelArgs as an Input or output channel (or both)
+A `TorchOp` is an Operator that either has ModelConfig as an Input or output channel (or both)
 during train-time.
 
 All but:

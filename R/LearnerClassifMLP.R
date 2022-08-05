@@ -5,16 +5,26 @@
 #' @description
 #' Simple multi layer perceptron with dropout.
 #'
+#' @section Architecture:
+#' One layer is: $dropout(activation(linear(x)))$.
+#' These layers are stacked and the final output layer is a simple classification layer.
+#'
 #' @section Parameters:
+#' *Learner specific parameters*:
 #' * `act` :: `character(1)`\cr
 #'   Activation function.
 #' * `act_args` :: named `list()`\cr
 #'   A named list with initialization arguments for the activation function.
-#' * `n_layers` :: `integer(1)`\cr
+#' * `layers` :: `integer(1)`\cr
 #'   The number of layers.
 #' * `p` :: `numeric(1)`\cr
 #'   The dropout probability.
 #'
+#' `r include_template("generic_parameters")`
+#'
+#' @templateVar id classif.mlp
+#' @template learner
+#' @template example
 #' @export
 LearnerClassifMLP = R6Class("LearnerClassifMLP",
   inherit = LearnerClassifTorchAbstract,
@@ -27,7 +37,7 @@ LearnerClassifMLP = R6Class("LearnerClassifMLP",
       param_set = ps(
         activation = p_fct(default = "relu", levels = torch_reflections$activation, tags = c("train", "network", "required")),
         activation_args = p_uty(default = list(), tags = c("train", "network")),
-        n_layers = p_int(lower = 1L, tags = c("train", "network", "required")),
+        layers = p_int(lower = 1L, tags = c("train", "network", "required")),
         d_hidden = p_int(lower = 1L, tags = c("train", "network", "required")),
         p = p_dbl(default = 0.5, lower = 0, upper = 1, tags = c("train", "network", "required"))
       )
@@ -53,7 +63,7 @@ LearnerClassifMLP = R6Class("LearnerClassifMLP",
 
       graph = top("input") %>>%
         top("select", items = "num") %>>%
-        top("repeat", block, times = pv$n_layers) %>>%
+        top("repeat", block, times = pv$layer) %>>%
         top("output")
 
       network = graph$train(task)[[1L]]$network

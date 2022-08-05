@@ -5,7 +5,7 @@
 #' It is not intended for direct use.
 #'
 #' @param id (`character(1)`)\cr
-#'   The id for the learner.
+#'   The id of the learner.
 #' @param optimizer (`character(1)`)\cr
 #'   The optimizer, see `torch_reflections$optimizer`.
 #' @param loss (`character(1)`)\cr
@@ -66,6 +66,57 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
       network = private$.network(task)
       model = build_torch(self, task, network)
       return(model)
+    },
+    #' @description Assembles the network, optimizer and loss_fn after saving and loading the learner.
+    unserialize = function(device = NULL) {
+      device = device %??% self$param_set$values$device %??% "cpu"
+      model = self$state$model
+
+      network_sd = torch_load_list(model$raw$network)
+      optimizer_sd = torch_load_list(model$raw$optimizer)
+      loss_fn_sd = torch_load_list(model$raw$loss_fn)
+
+      model$network$.load_state_dict(network_sd)
+      model$optimizer$.load_state_dict(optimizer_sd)
+      model$loss_fn$.load_state_dict(loss_fn_sd)
+      invisible(self)
+    },
+    serialize = function(objs = c("network", "optimizer", "loss_fn")) {
+      assert_subset(objs, c("network", "optimizer", "loss_fn"), empty.ok = TRUE)
+
+      serialize_tensors = function(x) {
+        lapply(x, function(x) {
+            if (inherits(x, "torch_tensor")) {
+              torch:::tensor_to_raw_vector_with_class(x)
+            } else if (is.list(x)) {
+              serialize_tensors(x)
+            } else {
+              x
+            }
+          })
+      }
+      g = function(l) {
+        iwalk(
+          l,
+          function(x, nm) {
+            if (inherits(x, "torch_tensor")) {
+              NULL
+            } else if (is.list(x)) {
+              g(x)
+            } else {
+              x
+            }
+          }
+        )
+      }
+      walk(objs,
+        function(obj) {
+          self$state$model$raw$state_dict[[obj]] = serialize_tensors(self[[obj]]$state_dict())
+          proto = self[[obj]]$clone()
+          self$state$model$raw$prototype[[obj]] = g(proto$modules)
+        }
+      )
+      invisible(self)
     }
   ),
   private = list(
@@ -83,12 +134,6 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
     .loss = NULL
   ),
   active = list(
-    #' @field parameters (`list()`)\cr
-    #'   A list with the network's parameters.
-    parameters = function(rhs) {
-      assert_ro_binding(rhs)
-      self$state$model$network$parameters
-    },
     #' @field history ([`History][History])\cr
     #'   History of the training proceess.
     history = function(rhs) {

@@ -12,21 +12,13 @@ a list for each epoch.
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{train}}{(\code{list()})\cr
-Contains the training history.}
+Contains the training losses.}
 
 \item{\code{valid}}{(\code{list()})\cr
-Contains the validation history.}
+A list containing the different measures evaluated for each validation epoch.}
 
-\item{\code{steps}}{(\code{list()})\cr
-Contains the steps (number of batches) for training and validation, i.e.
-\code{steps$train} and \code{steps$valid} are the train and validation steps respecitvely.}
-
-\item{\code{step}}{(named \code{list()})\cr
-Named list where \code{step$train} contains the current training step and \code{step$valid}
-indicates the current valdiation step}
-
-\item{\code{epoch}}{(\code{integer(1)})\cr
-The current epoch.}
+\item{\code{train}}{(\code{list()})\cr
+A list containing the different measures evaluated for each training epoch.}
 }
 \if{html}{\out{</div>}}
 }
@@ -34,8 +26,6 @@ The current epoch.}
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-History-new}{\code{History$new()}}
-\item \href{#method-History-append}{\code{History$append()}}
-\item \href{#method-History-increment}{\code{History$increment()}}
 \item \href{#method-History-clone}{\code{History$clone()}}
 }
 }
@@ -43,61 +33,19 @@ The current epoch.}
 \if{html}{\out{<a id="method-History-new"></a>}}
 \if{latex}{\out{\hypertarget{method-History-new}{}}}
 \subsection{Method \code{new()}}{
-Initializes an instance of this \link[R6:R6Class]{R6} class.
+Initializes an object of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{History$new(steps_train, steps_valid)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{History$new(measures_valid, measures_train)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{steps_train}}{(\code{integer(1)})\cr
-The number of training steps.}
+\item{\code{measures_valid}}{(\code{list()})\cr
+List of measures to calculate as validation metrics.}
 
-\item{\code{steps_valid}}{(\code{integer(1)})\cr
-The number of validation steps.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-History-append"></a>}}
-\if{latex}{\out{\hypertarget{method-History-append}{}}}
-\subsection{Method \code{append()}}{
-Appends the value for a measure.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{History$append(measure, value, phase)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{measure}}{(\code{character(1)})\cr
-The measure that is saved.}
-
-\item{\code{value}}{(\code{character(1)})\cr
-The value for the masure that is being saved.}
-
-\item{\code{phase}}{(\verb{character(1})\cr
-The phase, either "train" or "valid".}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-History-increment"></a>}}
-\if{latex}{\out{\hypertarget{method-History-increment}{}}}
-\subsection{Method \code{increment()}}{
-Increments the epoch or train/valid step.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{History$increment(what)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{what}}{(\code{character(1)})\cr
-Must be epoch, train or valid.}
+\item{\code{measures_valid}}{(\code{list()})\cr
+List of measures to calculate as training metrics.}
 }
 \if{html}{\out{</div>}}
 }

@@ -1,2 +1,2 @@
 # to silence RCMD check
-utils::globalVariables("..input")
+utils::globalVariables(c("..", "self", "private", "super", "N", "..input"))

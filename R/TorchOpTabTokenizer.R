@@ -14,9 +14,9 @@ TorchOpTabTokenizer = R6Class("TorchOpTabularTokenizer",
       param_set = ps(
         d_token = p_int(1L, Inf, tags = c("train", "required")),
         bias = p_lgl(default = TRUE, tags = "train"),
-        cls = p_lgl(default = TRUE, tags = "train")
+        cls = p_lgl(default = FALSE, tags = "train")
       )
-      param_set$values = list(bias = TRUE, cls = TRUE)
+      param_set$values = list(bias = TRUE, cls = FALSE)
       super$initialize(
         id = id,
         param_set = param_set,

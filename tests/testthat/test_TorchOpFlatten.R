@@ -6,10 +6,11 @@ test_that("TorchOpFlatten works", {
     end_dim = 3L
   )
   inputs = list(input = torch_randn(16, 8, 9))
+  op$param_set$values = insert_named(op$param_set$values, param_vals)
   expect_torchop(
     op = op,
     inputs = inputs,
-    param_vals = param_vals,
-    task = task
+    task = task,
+    class = "nn_flatten"
   )
 })

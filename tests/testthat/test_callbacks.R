@@ -7,7 +7,6 @@ test_that("Callbacks work", {
     batch_size = 16L,
     device = "cpu",
     callbacks = callbacks,
-    valid_split = 0.2,
     measures = list(),
     optimizer = "adam",
     loss = "cross_entropy",

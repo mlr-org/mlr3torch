@@ -18,12 +18,12 @@ lrn("classif.alexnet")
 
 \section{Meta Information}{
 
-, * Task type: \dQuote{classif}, * Predict Types: \dQuote{response}, * Feature Types: \dQuote{imageuri}, * Required Packages: \CRANpkg{mlr3}, \CRANpkg{mlr3torch}, \CRANpkg{torch}, \CRANpkg{torchvision}
+\itemize{
+\item Task type: \dQuote{classif}
+\item Predict Types: \dQuote{response}
+\item Feature Types: \dQuote{imageuri}
+\item Required Packages: \CRANpkg{mlr3}, \CRANpkg{mlr3torch}, \CRANpkg{torch}, \CRANpkg{torchvision}
 }
-
-\section{Parameters}{
-
-, |Id                   |Type      |Default             |Levels                |Range                                |, |:--------------------|:---------|:-------------------|:---------------------|:------------------------------------|, |augmentation         |untyped   |-                   |                      |-                                    |, |batch_size           |integer   |16                  |                      |\eqn{[1, \infty)}{[1, Inf)}          |, |callbacks            |untyped   |-                   |                      |-                                    |, |device               |character |auto                |auto, cpu, cuda, meta |-                                    |, |drop_last            |logical   |FALSE               |TRUE, FALSE           |-                                    |, |epochs               |integer   |-                   |                      |\eqn{[0, \infty)}{[0, Inf)}          |, |keep_last_prediction |logical   |TRUE                |TRUE, FALSE           |-                                    |, |measures             |untyped   |-                   |                      |-                                    |, |num_threads          |integer   |1                   |                      |\eqn{[1, \infty)}{[1, Inf)}          |, |shuffle              |logical   |TRUE                |TRUE, FALSE           |-                                    |, |valid_split          |numeric   |0.33                |                      |\eqn{[0, 1]}{[0, 1]}                 |, |opt.lr               |numeric   |0.001               |                      |\eqn{[0, \infty)}{[0, Inf)}          |, |opt.betas            |untyped   |c    , 0.9  , 0.999 |                      |-                                    |, |opt.eps              |numeric   |1e-08               |                      |\eqn{[1e-16, 1e-04]}{[1e-16, 1e-04]} |, |opt.weight_decay     |numeric   |0                   |                      |\eqn{[0, 1]}{[0, 1]}                 |, |opt.amsgrad          |logical   |FALSE               |TRUE, FALSE           |-                                    |, |loss.weight          |untyped   |-                   |                      |-                                    |, |loss.ignore_index    |integer   |-                   |                      |\eqn{(-\infty, \infty)}{(-Inf, Inf)} |, |loss.reduction       |character |mean                |mean, sum             |-                                    |, |pretrained           |logical   |TRUE                |TRUE, FALSE           |-                                    |, |freeze               |logical   |TRUE iff pretrained |TRUE, FALSE           |-                                    |
 }
 
 \section{Architecture}{
@@ -104,15 +104,17 @@ Krizhevsky, Alex (2014).
 \if{html}{\out{
 <details><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner"><a href='../../mlr3/html/Learner.html#method-Learner-base_learner'><code>mlr3::Learner$base_learner()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="format"><a href='../../mlr3/html/Learner.html#method-Learner-format'><code>mlr3::Learner$format()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help"><a href='../../mlr3/html/Learner.html#method-Learner-help'><code>mlr3::Learner$help()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict"><a href='../../mlr3/html/Learner.html#method-Learner-predict'><code>mlr3::Learner$predict()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata"><a href='../../mlr3/html/Learner.html#method-Learner-predict_newdata'><code>mlr3::Learner$predict_newdata()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="print"><a href='../../mlr3/html/Learner.html#method-Learner-print'><code>mlr3::Learner$print()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset"><a href='../../mlr3/html/Learner.html#method-Learner-reset'><code>mlr3::Learner$reset()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train"><a href='../../mlr3/html/Learner.html#method-Learner-train'><code>mlr3::Learner$train()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerClassifTorchAbstract" data-id="build"><a href='../../mlr3torch/html/LearnerClassifTorchAbstract.html#method-LearnerClassifTorchAbstract-build'><code>mlr3torch::LearnerClassifTorchAbstract$build()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner"><a href='../../mlr3/html/Learner.html#method-Learner-base_learner'><code>mlr3::Learner$base_learner()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="format"><a href='../../mlr3/html/Learner.html#method-Learner-format'><code>mlr3::Learner$format()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help"><a href='../../mlr3/html/Learner.html#method-Learner-help'><code>mlr3::Learner$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict"><a href='../../mlr3/html/Learner.html#method-Learner-predict'><code>mlr3::Learner$predict()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata"><a href='../../mlr3/html/Learner.html#method-Learner-predict_newdata'><code>mlr3::Learner$predict_newdata()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="print"><a href='../../mlr3/html/Learner.html#method-Learner-print'><code>mlr3::Learner$print()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset"><a href='../../mlr3/html/Learner.html#method-Learner-reset'><code>mlr3::Learner$reset()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train"><a href='../../mlr3/html/Learner.html#method-Learner-train'><code>mlr3::Learner$train()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerClassifTorchAbstract" data-id="build"><a href='../../mlr3torch/html/LearnerClassifTorchAbstract.html#method-LearnerClassifTorchAbstract-build'><code>mlr3torch::LearnerClassifTorchAbstract$build()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerClassifTorchAbstract" data-id="serialize"><a href='../../mlr3torch/html/LearnerClassifTorchAbstract.html#method-LearnerClassifTorchAbstract-serialize'><code>mlr3torch::LearnerClassifTorchAbstract$serialize()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerClassifTorchAbstract" data-id="unserialize"><a href='../../mlr3torch/html/LearnerClassifTorchAbstract.html#method-LearnerClassifTorchAbstract-unserialize'><code>mlr3torch::LearnerClassifTorchAbstract$unserialize()</code></a></span></li>
 </ul>
 </details>
 }}

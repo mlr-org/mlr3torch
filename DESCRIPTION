@@ -6,6 +6,9 @@ Authors@R:
            comment = c(ORCID = "0000-0001-7528-3795"))
 Description: Provides torch models as learners for the mlr3 ecosystem.
 License: LGPL (>= 3)
+Depends:
+    mlr3 (>= 0.13.1),
+    R (>= 3.1.0)
 Imports:
     backports,
     checkmate,
@@ -28,18 +31,22 @@ Suggests:
     lgr,
     tabnet,
     testthat (>= 3.0.0),
-    zip
+    zip,
+    mlbench
 Remotes:
   mlverse/torchvision
 Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1
 Collate:
     'Callback.R'
+    'CallbackTorchLogger.R'
     'callbacks.R'
     'CallbackTorchProgress.R'
+    'ContextTorch.R'
+    'GraphLearnerTorch.R'
     'GraphNetwork.R'
     'History.R'
     'LearnerClassifAlexNet.R'
@@ -49,37 +56,43 @@ Collate:
     'LearnerClassifTorch.R'
     'LearnerClassifTorchAbstract.R'
     'LearnerRegrTabNet.R'
-    'LearnerTorch.R'
+    'LearnerTorchModel.R'
     'mlr_torchops.R'
     'PipeOpImageTrafo.R'
+    'TaskClassifSpiral.R'
     'TaskClassif_tiny_imagenet.R'
     'TaskClassif_toytask.R'
-    'TorchContext.R'
     'TorchOp.R'
     'TorchOpActivation.R'
+    'TorchOpAvgPool.R'
     'TorchOpBatchNorm.R'
     'TorchOpConv.R'
+    'TorchOpConvTranspose.R'
     'TorchOpDropout.R'
     'TorchOpFlatten.R'
     'TorchOpInput.R'
     'TorchOpLayerNorm.R'
     'TorchOpLinear.R'
     'TorchOpLoss.R'
+    'TorchOpMaxPool.R'
     'TorchOpMerge.R'
     'TorchOpModel.R'
     'TorchOpOptimizer.R'
     'TorchOpOutput.R'
     'TorchOpRepeat.R'
+    'TorchOpReshape.R'
     'TorchOpSelect.R'
     'TorchOpSoftmax.R'
     'TorchOpTabResNetBlocks.R'
-    'TorchOpTokenizer.R'
+    'TorchOpTabTokenizer.R'
     'as_dataloader.R'
     'as_dataset.R'
+    'as_learner.R'
     'autotest.R'
     'autotest_learner.R'
     'bibentries.R'
     'block.R'
+    'build_torch.R'
     'dataloader.R'
     'globals.R'
     'image-task.R'
@@ -97,7 +110,9 @@ Collate:
     'paramsets_image_trafo.R'
     'paramsets_loss.R'
     'paramsets_optim.R'
+    'reexports.R'
     'reset.R'
+    'serialize.R'
     'top.R'
     'torch_reflections.R'
     'util-torch.R'

@@ -14,18 +14,18 @@ TorchOpModel = R6Class("TorchOpModel",
     #'   The id of the object.
     #' @param param_vals (`named list()`)\cr
     #'   A list containing the initial parameter values.
-    #' @param .task_type (`character(1)`)\cr
+    #' @param task_type (`character(1)`)\cr
     #'   The task type, see mlr_reflections$task_types.
     #' @param optimizer (`character(1)`)\cr
     #'   The optimizer, see torch_reflections$optimizer.
     #' @param loss (`character(1)`)\cr
     #'   The loss function, see torch_reflections$loss.
-    initialize = function(id, param_vals, .task_type) {
-      private$.task_type = assert_choice(.task_type, c("classif", "regr"))
+    initialize = function(id, param_vals, task_type) {
+      private$.task_type = assert_choice(task_type, c("classif", "regr"))
 
-      param_set = make_paramset(.task_type)
+      param_set = make_paramset(task_type)
 
-      input = data.table(name = "input", train = "ModelArgs", predict = "Task")
+      input = data.table(name = "input", train = "ModelConfig", predict = "Task")
       output = data.table(name = "output", train = "NULL", predict = "Prediction")
 
       super$initialize(
@@ -42,30 +42,25 @@ TorchOpModel = R6Class("TorchOpModel",
       task = input$task
 
       network = input$network
-      network$add_edge(
-        src_id = input$id,
-        dst_id = "__terminal__",
-        src_channel = input$channel,
-        dst_channel = "output"
-      )
+      network$set_terminal()
 
       # TODO: maybe the learner and the TorchOp should actually share the param-set?
       pars = self$param_set$get_values(tags = "train")
 
       class = switch(private$.task_type,
-        regr = LearnerRegrTorch,
-        classif = LearnerClassifTorch
+        regr = LearnerRegrTorchModel,
+        classif = LearnerClassifTorchModel
       )
       learner = class$new(
         optimizer = input$optimizer,
         loss = input$loss,
-        network = input$network,
-        feature_types = unique(task$feature_types$type)
+        feature_types = unique(task$feature_types$type),
+        network = network
       )
 
-      if (length(input$optim_args)) {
-        names(input$optim_args) = paste0("opt.", names(input$optim_args))
-        pars = insert_named(pars, input$optim_args)
+      if (length(input$optimizer_args)) {
+        names(input$optimizer_args) = paste0("opt.", names(input$optimizer_args))
+        pars = insert_named(pars, input$optimizer_args)
       }
       if (length(input$loss_args)) {
         names(input$loss_args) = paste0("opt.", names(input$loss_args))
@@ -110,7 +105,7 @@ TorchOpModel = R6Class("TorchOpModel",
 #' @description
 #' Classification model.
 #' @export
-TorchOpModelClassif = R6Class(
+TorchOpModelClassif = R6Class("TorchOpModelClassif",
   inherit = TorchOpModel,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
@@ -126,7 +121,7 @@ TorchOpModelClassif = R6Class(
       super$initialize(
         id = id,
         param_vals = param_vals,
-        .task_type = "classif"
+        task_type = "classif"
       )
     }
   )
@@ -136,7 +131,7 @@ TorchOpModelClassif = R6Class(
 #' @description
 #' Regression model.
 #' @export
-TorchOpModelRegr = R6Class(
+TorchOpModelRegr = R6Class("TorchOpModelRegr",
   inherit = TorchOpModel,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
@@ -152,7 +147,7 @@ TorchOpModelRegr = R6Class(
       super$initialize(
         id = id,
         param_vals = param_vals,
-        .task_type = "regr"
+        task_type = "regr"
       )
     }
   )

@@ -39,7 +39,7 @@ TorchOpRepeat = R6Class("TorchOpRepeat", inherit = TorchOp,
       g = private$.graph$clone(deep = TRUE)
       g$update_ids(prefix = "b1.")
       model_args = structure(
-        class = "ModelArgs",
+        class = "ModelConfig",
         list(
           network = nn_graph(),
           task = task,

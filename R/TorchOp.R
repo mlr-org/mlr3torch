@@ -1,5 +1,76 @@
 #' @title Abstract Base Class for Torch Operators
-#' @description All TorchOps inherit from this class.
+#'
+#' @description
+#' `TorchOp` can be combined in a [mlr3pipelines::Graph] to obtain a - custom, yet fully
+#' parameterized - neural network learner.
+#'
+#' @details
+#'
+#' Internally, this configuration is stored in a list with the class `"ModelConfig"` that
+#' can be seen as the input to [LearnerTorchClassif] / [LearnerTorchRegr].
+#' The parameter set for [TorchOpModel] in combination with the ModelConfig define all
+#' parameters to train a [LearnerClassifTorch] or [LearnerRegrTorch].
+#'
+#' The ModelConfig is initialized by [TorchOpInput].
+#' The ModelConfig is executed using [TorchOpModel].
+#' All other [TorchOp]s modify the ModelConfig.
+#'
+#'
+#' All other TorchOps modify the ModelConfig, see section *Building the Network*
+#'
+#' Those modifications are threefold:
+#'
+#'   * Modify the network represented as a [nn_graph]
+#'   * Configure the optimizer through TorchOpOptimizer
+#'   * Configure the loss through TorchOpLoss
+#'
+#' @section Building the Network:
+#'
+#'
+#' @section Network modifiers:
+#' Each TorchOp that has a private `.build` function implemented modifies the architecture of the
+#' neural network. To do so, it has to do two things:
+#' 1. Build a `"nn_module"` using it's input, the task for which it is being built and the parameters
+#' that are set.
+#' 2. Connect the (id_prev, out_channel_prev) that create its input to its respective
+#' (id_current, in_channel_current)
+#'
+#' The edges of this graph network are build by a message-passing mechanism.
+#' I.e. when a TorchOp outputs a ModelConfig to it's various channel, it always includes its own
+#' id and the output of the channel. This allows the next TorchOp to not add the edges to the
+#' graph network.
+#'
+#' For more details see [nn_graph].
+#'
+#' @section ModelConfig:
+#' An object of class `"ModelConfig"` is a `list()` with the class attribute set to `"ModelConfig"`.
+#' It is only used internally, hence there is no constructor provided.
+#' A ModelConfig
+#'
+#' @section Special TorchOps:
+#' TorchOpOptimizer, TorchOpLoss, TorchOpInput and TorchOpOutputy, TorchOpRepeat.
+#'
+#' @examples
+#' task = tsk("iris")
+#' top("input")$train(list(task))$output
+#'
+#' graph = top("input") %>>%
+#'   top("select", items = "num") %>>%
+#'   top("linear", out_features = 10L) %>>%
+#'   top("relu") %>>%
+#'   top("output") %>>%
+#'   top("optimizer", optimizer = "adam", lr = 0.1) %>>%
+#'   top("loss", "cross_entropy") %>>%
+#'   top("model.classif", batch_size = 16L, epochs = 1L)
+#'
+#' learner = as_learner(graph)
+#' # we can modify the architecture
+#' learner
+#' learner$param_set$values$linear.out_features = 20L
+#'
+#' learner$train(task)
+#'
+#'
 #' @export
 TorchOp = R6Class("TorchOp",
   inherit = PipeOp,
@@ -12,17 +83,17 @@ TorchOp = R6Class("TorchOp",
     #'   Named list with parameter values to be set after construction.
     #' @param input (`data.table()`)\cr
     #'   Input channels to be set for the [PipeOp][mlr3pipelines::PipeOp].
-    #'   The input default name is "input", accpets "ModelArgs" during `$train()` and a "Task"
+    #'   The input default name is "input", accpets "ModelConfig" during `$train()` and a "Task"
     #'   during `$predict()`.
     #' @param output (`data.table()`)\cr
     #'   Output channels to be set for the [PipeOp][mlr3pipelines::PipeOp].
-    #'   The output default name is "output", accepts "ModelArgs" during `$train()` and a "Task"
+    #'   The output default name is "output", accepts "ModelConfig" during `$train()` and a "Task"
     #'   during `$predict()`.
     #' @param packages (`character()`) The packages on which the [TorchOp][TorchOp] depends.
     initialize = function(id, param_set, param_vals, input = NULL, output = NULL, packages = NULL) {
       # default input and output channels, packages
-      input = input %??% data.table(name = "input", train = "ModelArgs", predict = "Task")
-      output = output %??% data.table(name = "output", train = "ModelArgs", predict = "Task")
+      input = input %??% data.table(name = "input", train = "ModelConfig", predict = "Task")
+      output = output %??% data.table(name = "output", train = "ModelConfig", predict = "Task")
       packages = packages %??% c("torch", "mlr3torch")
       assert_true(id != "repeat") # this leads to bugs
 
@@ -40,7 +111,6 @@ TorchOp = R6Class("TorchOp",
     #'  * TorchOpOptimizer
     #'  * TorchOpLoss
     #'  * TorchOpModel
-    #'  * TorchOpBlock
     #'
     #' @param inputs (named `list()`)\cr
     #'   Named list of `torch_tensor`s that form a batch that is the input
@@ -77,7 +147,11 @@ TorchOp = R6Class("TorchOp",
         output = set_names(list(output), self$output$name)
       } else {
         assert_list(output)
-        assert_set_equal(self$output$name, names(output))
+        if (is.null(names(output))) {
+          names(output) = self$output$name
+        } else {
+          assert_set_equal(self$output$name, names(output))
+        }
       }
 
       list(layer = layer, output = output)
@@ -127,7 +201,7 @@ TorchOp = R6Class("TorchOp",
         self$output$name,
         function(channel) {
           structure(
-            class = "ModelArgs",
+            class = "ModelConfig",
             list(task = task, network = network, channel = channel, id = self$id,
               output = outputs[[channel]]
             )

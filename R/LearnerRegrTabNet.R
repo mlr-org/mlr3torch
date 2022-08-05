@@ -41,7 +41,8 @@ LearnerRegrTabNet = R6::R6Class("LearnerRegrTabnet",
         feature_types = c("logical", "integer", "numeric", "factor", "ordered"),
         param_set = ps,
         properties = c("importance"),
-        man = "mlr3torch::mlr_learners_regr.tabnet"
+        man = "mlr3torch::mlr_learners_regr.tabnet",
+        label = "Attentive Interpretable Tabular Network"
       )
     },
 

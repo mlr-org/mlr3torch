@@ -1,0 +1,150 @@
+---
+title: "mlr3torch"
+author: "Sebastian Fischer"
+date: '2022-07-15'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(mlr3)
+devtools::load_all("~/mlr/mlr3torch")
+```
+
+
+## What is mlr3torch
+
+mlr3torch can be seen as the successor to mlr3keras and extends the mlr3verse
+to deep learning. This means that: 
+
+1. It is possible to train neural networks implemented in {torch}
+1. It adds a new feature type `"imageuri"` that extends mlr3 to images.
+
+There are three levels of control for how neural network architectures can be 
+defined, sorted by the amount of control you have over the network architecture:
+
+* Predefined architectures implemented as Learners
+* Define neural networks using [TorchOp]s
+* Fully custom neural networks defined as `nn_module`s
+
+## Quickstart
+
+We will now show how briefly how to use the three levels of control and afterwards
+explain the new feature type `"imageuri"`.
+   
+For the first part, we will use the classic "spirals" task. 
+
+```{r, generate-task}
+gen = tgen("spirals", sd = 0.05)
+plot(gen)
+task = gen$generate(n = 100L)
+```
+After loading mlr3torch, we can see that we have new learners available: 
+    
+```{r}
+library(mlr3torch)
+as.data.table(mlr_learners)[, .(key, label)]
+```
+
+We will use the `"learner.mlp"`, which is a simple multi-layer perceptron with 
+dropout. 
+
+```{r, eval = TRUE}
+learner = lrn("classif.mlp", optimizer = "adam", loss = "cross_entropy")
+```
+
+We set `optimizer = "adam"` and `loss = "cross_entropy"`. Note that these are
+construction arguments and not parameters, meaning they cannot be altered
+after the learner has been constructed.
+
+The reason for this is that the learner now automatically inferred the
+parameters of the optimizer (prefixed by `opt.`) and the loss function 
+(prefixed by `loss.`).
+
+There are three parameters that allow to configure the network architecture. 
+The parameter `layers` determines the number of latent layers with 
+dimension `d_hidden`. The dropout probability is given by the parameter `p`.
+
+Apart from these specific parameters there are generic parameters that are available for almost all torch networks and that allow to configure the  training process. 
+They include the number of epochs, the batch size or the device and will be addressed in [this section](LINK!!!).
+
+```{r}
+learner$param_set
+```
+
+We now set some of the previously mentioned parameters.
+
+```{r, eval = FALSE}
+pars = list(
+  layers = 2, 
+  d_hidden = 50, 
+  p = 0.2, 
+  epochs = 10,  
+  batch_size = 100, 
+  opt.lr = 0.3
+)
+learner$param_set$values = c(learner$param_set$values, pars)
+```
+
+We can now train this learner and visualize it's predictions.
+
+```{r}
+learner$train(task)
+```
+
+
+The second way to define the network is to use [LearnerClassifTorch] or 
+[LearnerClassifRegr] and set the parameter `network` to an `"nn_module()"`.
+To know how to define this, it is important to know the structure of the data 
+that is output by the dataloader.
+For tasks that only contain tabular data, the output is a named list 
+`list(num = ..., cat = ...)`. Where the element `num` is a tensor of type float
+containing all the numeric observations (`double` or `integer`), while the element `cat`
+is a tensor of type long, containing all the categorical observations encoded as intgegers.
+
+For regression tasks, the output of the neural network must have (batch_size, 1)  and for classification (batch_size, 1).
+ val
+```{r}
+library(torch)
+my_module = nn_module(
+  "nn_linear", 
+  initialize = function(in_features, out_features) {
+    self$linear = nn_linear(in_features, out_features)
+  }, 
+  forward = function(input) {
+    x = input$num
+    x = self$linear(x)
+    return(x)
+  }
+)
+
+# 4 features and 3 classes
+my_network = my_module(4, 3)
+
+learner = lrn(
+  "classif.torch", 
+  network = my_network, 
+  optimizer = "adam", # optimizer 
+  epochs = 20L,  # number of epochs
+  opt.lr = 0.5,
+  batch_size = 64L, # the batch size
+  device = "cpu", # where the computations take place
+  loss = "cross_entropy" # loss for trainig
+)
+
+#learner$train(task)
+#p = learner$predict(task)
+#p$score(msr("classif.acc"))
+```
+
+
+### Understanding TorchOps
+
+Readers should be familiar with mlr3pipelines.
+To how a Graph consisting of TorchOps works, we have to distinguish between the
+training and the prediction phase.
+
+**Training phase**
+All but TorchOpInput and TorchOpModel take as input an object of class `"ModelConfig"`
+and output an object of class `"ModelConfig"`
+

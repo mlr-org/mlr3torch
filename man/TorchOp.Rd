@@ -4,7 +4,84 @@
 \alias{TorchOp}
 \title{Abstract Base Class for Torch Operators}
 \description{
-All TorchOps inherit from this class.
+\code{TorchOp} can be combined in a \link[mlr3pipelines:Graph]{mlr3pipelines::Graph} to obtain a - custom, yet fully
+parameterized - neural network learner.
+}
+\details{
+Internally, this configuration is stored in a list with the class \code{"ModelConfig"} that
+can be seen as the input to \link{LearnerTorchClassif} / \link{LearnerTorchRegr}.
+The parameter set for \link{TorchOpModel} in combination with the ModelConfig define all
+parameters to train a \link{LearnerClassifTorch} or \link{LearnerRegrTorch}.
+
+The ModelConfig is initialized by \link{TorchOpInput}.
+The ModelConfig is executed using \link{TorchOpModel}.
+All other \link{TorchOp}s modify the ModelConfig.
+
+All other TorchOps modify the ModelConfig, see section \emph{Building the Network}
+
+Those modifications are threefold:
+\itemize{
+\item Modify the network represented as a \link{nn_graph}
+\item Configure the optimizer through TorchOpOptimizer
+\item Configure the loss through TorchOpLoss
+}
+}
+\section{Building the Network}{
+
+}
+
+\section{Network modifiers}{
+
+Each TorchOp that has a private \code{.build} function implemented modifies the architecture of the
+neural network. To do so, it has to do two things:
+\enumerate{
+\item Build a \code{"nn_module"} using it's input, the task for which it is being built and the parameters
+that are set.
+\item Connect the (id_prev, out_channel_prev) that create its input to its respective
+(id_current, in_channel_current)
+}
+
+The edges of this graph network are build by a message-passing mechanism.
+I.e. when a TorchOp outputs a ModelConfig to it's various channel, it always includes its own
+id and the output of the channel. This allows the next TorchOp to not add the edges to the
+graph network.
+
+For more details see \link{nn_graph}.
+}
+
+\section{ModelConfig}{
+
+An object of class \code{"ModelConfig"} is a \code{list()} with the class attribute set to \code{"ModelConfig"}.
+It is only used internally, hence there is no constructor provided.
+A ModelConfig
+}
+
+\section{Special TorchOps}{
+
+TorchOpOptimizer, TorchOpLoss, TorchOpInput and TorchOpOutputy, TorchOpRepeat.
+}
+
+\examples{
+task = tsk("iris")
+top("input")$train(list(task))$output
+
+graph = top("input") \%>>\%
+  top("select", items = "num") \%>>\%
+  top("linear", out_features = 10L) \%>>\%
+  top("relu") \%>>\%
+  top("output") \%>>\%
+  top("optimizer", optimizer = "adam", lr = 0.1) \%>>\%
+  top("loss", "cross_entropy") \%>>\%
+  top("model.classif", batch_size = 16L, epochs = 1L)
+
+learner = as_learner(graph)
+# we can modify the architecture
+learner
+learner$param_set$values$linear.out_features = 20L
+
+learner$train(task)
+
+
 }
 \section{Super class}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{TorchOp}
@@ -21,9 +98,9 @@ All TorchOps inherit from this class.
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
 </ul>
 </details>
 }}
@@ -57,12 +134,12 @@ Named list with parameter values to be set after construction.}
 
 \item{\code{input}}{(\code{data.table()})\cr
 Input channels to be set for the \link[mlr3pipelines:PipeOp]{PipeOp}.
-The input default name is "input", accpets "ModelArgs" during \verb{$train()} and a "Task"
+The input default name is "input", accpets "ModelConfig" during \verb{$train()} and a "Task"
 during \verb{$predict()}.}
 
 \item{\code{output}}{(\code{data.table()})\cr
 Output channels to be set for the \link[mlr3pipelines:PipeOp]{PipeOp}.
-The output default name is "output", accepts "ModelArgs" during \verb{$train()} and a "Task"
+The output default name is "output", accepts "ModelConfig" during \verb{$train()} and a "Task"
 during \verb{$predict()}.}
 
 \item{\code{packages}}{(\code{character()}) The packages on which the \link{TorchOp} depends.}
@@ -79,7 +156,6 @@ Builds a Torch Operator. This is not applicable to all TorchOp's, exceptions are
 \item TorchOpOptimizer
 \item TorchOpLoss
 \item TorchOpModel
-\item TorchOpBlock
 }
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{TorchOp$build(inputs, task)}\if{html}{\out{</div>}}

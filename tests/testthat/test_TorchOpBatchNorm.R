@@ -16,11 +16,16 @@ test_that("TorchOpBatchNorm works", {
 
     args = list(num_features = inputs$input$shape[2L])
 
+    op$param_set$values = insert_named(op$param_set$values, param_vals)
+
     expect_torchop(
       op = op,
       inputs = inputs,
-      param_vals = param_vals,
-      task = task
+      task = task,
+      "nn_batch_norm_",
+      exclude = c(
+        "num_features" # inferred
+      )
     )
   }
 })

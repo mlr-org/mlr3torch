@@ -1,6 +1,6 @@
 #' @title Layer Norm
 #' @description
-#' Normalizes over the last 'dims' dimensions of a tensor.
+#' Normalizes over the last 'n_dim' dimensions of a tensor.
 #' @section Parameters:
 #' * `dims` :: `integer(1)`\cr
 #'   The nunber of dimnensions over which will be normalized (starting from the last dimension).
@@ -17,7 +17,8 @@ TorchOpLayerNorm = R6Class("TorchOpLayerNorm",
     initialize = function(id = "layer_norm", param_vals = list()) {
       param_set = ps(
         n_dim = p_int(lower = 1L, tags = c("train", "required")),
-        elementwise_affine = p_lgl(default = TRUE, tags = c("required", "train"))
+        elementwise_affine = p_lgl(default = TRUE, tags = c("required", "train")),
+        eps = p_dbl(default = 1e-5, lower = 0, tags = "train")
       )
       param_set$values = list(
         elementwise_affine = TRUE

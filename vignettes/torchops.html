@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-0.9.533">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Sebastian Fischer">
+<meta name="dcterms.date" content="2022-07-15">
+
+<title>TorchOps</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="torchops_files/libs/clipboard/clipboard.min.js"></script>
+<script src="torchops_files/libs/quarto-html/quarto.js"></script>
+<script src="torchops_files/libs/quarto-html/popper.min.js"></script>
+<script src="torchops_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="torchops_files/libs/quarto-html/anchor.min.js"></script>
+<link href="torchops_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="torchops_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="torchops_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="torchops_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="torchops_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+<script src="torchops_files/libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+<link href="torchops_files/libs/vis-9.1.0/vis-network.min.css" rel="stylesheet">
+<script src="torchops_files/libs/vis-9.1.0/vis-network.min.js"></script>
+<script src="torchops_files/libs/visNetwork-binding-2.1.0/visNetwork.js"></script>
+
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+</div>
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">TorchOps</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading"></div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">July 15, 2022</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<p><strong>Prerequisits</strong> You should be familiar with the <a href="https://mlr3book.mlr-org.com/05-pipelines.html">mlr3pipelines</a> and <a href="https://github.com/mlverse/torch">torch</a> R package.</p>
+<section id="intro" class="level1 page-columns page-full">
+<h1>Intro</h1>
+<p>TorchOps are a way to build neural networks using the graph-language implemented in {mlr3pipelines}. The underlying idea is that neural networks can be represented as directed acyclic graphs (DAG)s. {mlr3pipelines} provides a language for DAGs, making it the perfect library to build upon.</p>
+<p>In order to incrementally increase the complexity we will first simplify the walk-through by assuming that each TorchOp has exactly one input channel and one output channel. This allows us to only consider sequential models - e.g.&nbsp;defined by <code>nn_sequential</code> - which simplifies the explanations considerably and already allows us to expose much - but not all of the TorchOps’s functionality.</p>
+<section id="the-central-building-block-torchop" class="level2">
+<h2 class="anchored" data-anchor-id="the-central-building-block-torchop">The central building block: TorchOp</h2>
+<p>A <code>TorchOp</code> is a special PipeOp It can be constructed using the shorthand constructor <code>top()</code>:</p>
+<div class="cell" data-result="asis">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mlr3torch)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(torch)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>top_linear <span class="ot">=</span> <span class="fu">top</span>(<span class="st">"linear"</span>, <span class="at">out_features =</span> 10L)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>By adding a <code>"_{n}"</code> to the end of the TorchOps id, one can conveniently modify it’s id.</p>
+<div class="cell" data-result="asis">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mlr3torch)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">top</span>(<span class="st">"linear_1"</span>, <span class="at">out_features =</span> 10L)<span class="sc">$</span>id</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "linear_1"</code></pre>
+</div>
+</div>
+<p>The available TorchOps are stored in the dictionary <code>mlr_torchops</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>mlr_torchops</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;DictionaryTorchOp&gt; with 57 stored values
+Keys: activation, add, avg_pool1d, avg_pool2d, avg_pool3d, batch_norm,
+  cat, conv_transpose1d, conv_transpose2d, conv_transpose3d, conv1d,
+  conv2d, conv3d, dropout, elu, flatten, glu, hardshrink, hardsigmoid,
+  hardswish, hardtanh, imagetrafo, input, layer_norm, leaky_relu,
+  linear, log_sigmoid, loss, max_pool1d, max_pool2d, max_pool3d, merge,
+  model.classif, model.regr, mul, optimizer, output, prelu, relu,
+  relu6, repeat, reshape, rrelu, select, selu, sigmoid, softmax,
+  softplus, softshrink, softsign, squeeze, tab_resnet_blocks,
+  tab_tokenizer, tanh, tanhshrink, threshold, unsqueeze</code></pre>
+</div>
+</div>
+<p>Because a <code>TorchOp</code> is a <code>PipeOp</code>, it can be added to Graphs and connected with other <code>PipeOps</code>, as long as the input channels and output channels are matching. Except for <code>TorchOpInput</code> however, it is only possible to connect TorchOps with other TorchOps, because they require as input a - losely defined - object of class <code>"ModelConfig"</code>.</p>
+</section>
+<section id="torchops-training" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="torchops-training">TorchOps: Training</h2>
+<p>We will proceed by: 1. Showing what can be done with TorchOps 1. Showing how it did what it did.</p>
+<p>For that we will train a simple feed forward network on the german credit classification task.</p>
+<div class="cell" data-result="asis">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>task <span class="ot">=</span> <span class="fu">tsk</span>(<span class="st">"german_credit"</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>graph <span class="ot">=</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Initializes the DL Model</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top</span>(<span class="st">"input"</span>) <span class="sc">%&gt;&gt;%</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># architecture</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top</span>(<span class="st">"tab_tokenizer"</span>, <span class="at">d_token =</span> 1L) <span class="sc">%&gt;&gt;%</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top</span>(<span class="st">"flatten"</span>) <span class="sc">%&gt;&gt;%</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top</span>(<span class="st">"linear"</span>, <span class="at">out_features =</span> 10L) <span class="sc">%&gt;&gt;%</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top</span>(<span class="st">"relu"</span>) <span class="sc">%&gt;&gt;%</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top</span>(<span class="st">"output"</span>) <span class="sc">%&gt;&gt;%</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Optimizer and Loss config</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top</span>(<span class="st">"optimizer"</span>, <span class="st">"sgd"</span>, <span class="at">lr =</span> <span class="fl">0.1</span>) <span class="sc">%&gt;&gt;%</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top</span>(<span class="st">"loss"</span>, <span class="st">"cross_entropy"</span>) <span class="sc">%&gt;&gt;%</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Train the network</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top</span>(<span class="st">"model.classif"</span>,</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">batch_size =</span> <span class="dv">16</span>,</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">device =</span> <span class="st">"cpu"</span>,</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">epochs =</span> <span class="dv">1</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>graph<span class="sc">$</span><span class="fu">plot</span>(<span class="at">html =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="htmlwidget-1f18289a53c304784a6a" style="width:50%;height:400px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-1f18289a53c304784a6a">{"x":{"nodes":{"id":["input","tab_tokenizer","flatten","linear","relu","output","optimizer","loss","<INPUT>","model","<OUTPUT>"],"label":["input","tab_tokenizer","flatten","linear","relu","output","optimizer","loss","<INPUT>","model","<OUTPUT>"],"shape":["box","box","box","box","box","box","box","box","database","box","ellipse"],"color":["lightblue","lightblue","lightblue","lightblue","lightblue","lightblue","lightblue","lightblue","rgba(0,204,102,0.2)","lightblue","rgba(255,51,51,0.2)"],"value":[1,1,1,1,1,1,1,1,0.8,1,0.8],"title":["<p>TorchOp: <b>input<\/b> (not trained)<br>values: <b>list()<\/b><br>Input channels <b>name [train type, predict type]<\/b>:<br>  input [Task,Task]<br>Output channels <b>name [train type, predict type]<\/b>:<br>  output [ModelConfig,Task]<\/p>","<p>TorchOp: <b>tab_tokenizer<\/b> (not trained)<br>values: <b>bias=TRUE, cls=FALSE, d_token=1<\/b><br>Input channels <b>name [train type, predict type]<\/b>:<br>  input [ModelConfig,Task]<br>Output channels <b>name [train type, predict type]<\/b>:<br>  output [ModelConfig,Task]<\/p>","<p>TorchOp: <b>flatten<\/b> (not trained)<br>values: <b>list()<\/b><br>Input channels <b>name [train type, predict type]<\/b>:<br>  input [ModelConfig,Task]<br>Output channels <b>name [train type, predict type]<\/b>:<br>  output [ModelConfig,Task]<\/p>","<p>TorchOp: <b>linear<\/b> (not trained)<br>values: <b>out_features=10<\/b><br>Input channels <b>name [train type, predict type]<\/b>:<br>  input [ModelConfig,Task]<br>Output channels <b>name [train type, predict type]<\/b>:<br>  output [ModelConfig,Task]<\/p>","<p>TorchOp: <b>relu<\/b> (not trained)<br>values: <b>list()<\/b><br>Input channels <b>name [train type, predict type]<\/b>:<br>  input [ModelConfig,Task]<br>Output channels <b>name [train type, predict type]<\/b>:<br>  output [ModelConfig,Task]<\/p>","<p>TorchOp: <b>output<\/b> (not trained)<br>values: <b>bias=TRUE<\/b><br>Input channels <b>name [train type, predict type]<\/b>:<br>  input [ModelConfig,Task]<br>Output channels <b>name [train type, predict type]<\/b>:<br>  output [ModelConfig,Task]<\/p>","<p>TorchOp: <b>optimizer<\/b> (not trained)<br>values: <b>lr=0.1<\/b><br>Input channels <b>name [train type, predict type]<\/b>:<br>  input [ModelConfig,Task]<br>Output channels <b>name [train type, predict type]<\/b>:<br>  output [ModelConfig,Task]<\/p>","<p>TorchOp: <b>loss<\/b> (not trained)<br>values: <b>list()<\/b><br>Input channels <b>name [train type, predict type]<\/b>:<br>  input [ModelConfig,Task]<br>Output channels <b>name [train type, predict type]<\/b>:<br>  output [ModelConfig,Task]<\/p>","<p>Input:<br>Name: input.input<br>Train: Task<br>Predict: Task<\/p>","<p>TorchOp: <b>model<\/b> (not trained)<br>values: <b>batch_size=16, epochs=1, device=cpu, drop_last=FALSE, num_threads=1, shuffle=TRUE<\/b><br>Input channels <b>name [train type, predict type]<\/b>:<br>  input [ModelConfig,Task]<br>Output channels <b>name [train type, predict type]<\/b>:<br>  output [NULL,Prediction]<\/p>","<p>Output:<br>Name: model.output<br>Train: NULL<br>Predict: Prediction<\/p>"],"x":[0,0,0,0,0,0,0,0,0,0,0],"y":[-0.8,-0.6,-0.4,-0.2,0,0.2,0.4,0.6,-1,0.8,1]},"edges":{"from":["input","tab_tokenizer","flatten","linear","relu","output","optimizer","loss","<INPUT>","model"],"to":["tab_tokenizer","flatten","linear","relu","output","optimizer","loss","model","input","<OUTPUT>"],"color":["lightblue","lightblue","lightblue","lightblue","lightblue","lightblue","lightblue","lightblue","lightblue","lightblue"]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot","physics":false},"manipulation":{"enabled":false},"edges":{"arrows":"to","smooth":{"enabled":false,"forceDirection":"vertical"}},"physics":{"stabilization":false}},"groups":null,"width":"50%","height":"400px","idselection":{"enabled":false},"byselection":{"enabled":false},"main":null,"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)","igraphlayout":{"type":"full"}},"evals":[],"jsHooks":[]}</script>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>graph<span class="sc">$</span><span class="fu">train</span>(task)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$model.output
+NULL</code></pre>
+</div>
+</div>
+<p>We will now walk through what each of the PipeOps did.</p>
+<section id="step-1-initialize-the-modelconfig" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="step-1-initialize-the-modelconfig">Step 1: Initialize the ModelConfig</h3>
+<div class="page-columns page-full"><p>The <code>top("input")</code> marks the start of the network. This is important because TorchOps are simply PipeOps and can therefore be combined with other preprocessing steps defined in {mlr3pipelines} as we will see later. For the time being we can think of it as outputting a list as defined below. <a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p><div class="no-row-height column-margin column-container"><li id="fn1" role="doc-endnote"><p><sup>1</sup>&nbsp;Note that we have to include the task here, as otherwise subsequent TorchOps don’t have access to the task.</p></li></div></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">=</span> mlr3torch<span class="sc">:::</span><span class="fu">get_batch</span>(task, 1L, <span class="st">"cpu"</span>)<span class="sc">$</span>x</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>List of 2
+ $ num:Float [1:1, 1:3]
+ $ cat:Long [1:1, 1:17]</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>model_config <span class="ot">=</span> <span class="fu">list</span>(<span class="at">network =</span> <span class="fu">nn_sequential</span>(), <span class="at">output =</span> x, <span class="at">task =</span> task)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(model_config) <span class="ot">=</span> <span class="st">"ModelConfig"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Subsequent TorchOps will add layers to the <code>nn_sequential</code> as we will see now.</p>
+</section>
+<section id="step-2-add-layers" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="step-2-add-layers">Step 2: Add Layers</h3>
+<section id="encoder-for-tabular-data" class="level4 page-columns page-full">
+<h4 class="anchored" data-anchor-id="encoder-for-tabular-data">Encoder for Tabular Data</h4>
+<p>Neural networks can only deal with floating point values and therefore factor variables and logicals have to be encoded. Therefore the first layer we will add is the Tabular Tokenizer. What it does during training is to call it’s <code>$build()</code> method which - for the given task and the input to this layer - returns an <code>nn_module</code> and the output of applying this layer to it’s input.</p>
+<div class="page-columns page-full"><p>This <code>nn_module</code> is then added to the <code>nn_sequential</code> stored in the <code>ModelConfig</code> and the previous layer’s output is replacted with the output of the current layer. <a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p><div class="no-row-height column-margin column-container"><li id="fn2" role="doc-endnote"><p><sup>2</sup>&nbsp;The <code>$output</code> of the <code>ModelConfig</code> is a named <code>list()</code>, where the names correspond to the output channels - in this case <code>"output"</code> which we are currently neglecting.</p></li></div></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">=</span> <span class="fu">top</span>(<span class="st">"tab_tokenizer"</span>, <span class="at">d_token =</span> 2L)<span class="sc">$</span><span class="fu">build</span>(<span class="fu">list</span>(<span class="at">input =</span> model_config<span class="sc">$</span>output), task)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "layer"  "output"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>layer</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>An `nn_module` containing 184 parameters.
+
+── Modules ─────────────────────────────────────────────────────────────────────
+• tokenizer_num: &lt;nn_tokenizer_numeric&gt; #12 parameters
+• tokenizer_cat: &lt;nn_tokenizer_categorical&gt; #172 parameters</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(res<span class="sc">$</span>output) <span class="co"># this is the output of this layer for the example batch</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>List of 1
+ $ output:Float [1:1, 1:20, 1:2]</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>model_config<span class="sc">$</span>network<span class="sc">$</span><span class="fu">add_module</span>(<span class="st">"tab_tokenizer"</span>, res<span class="sc">$</span>layer)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>model_config<span class="sc">$</span>output <span class="ot">=</span> res<span class="sc">$</span>output</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>model_config<span class="sc">$</span>network</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>An `nn_module` containing 184 parameters.
+
+── Modules ─────────────────────────────────────────────────────────────────────
+• tab_tokenizer: &lt;nn_tab_tokenizer&gt; #184 parameters</code></pre>
+</div>
+</div>
+</section>
+<section id="flatten-the-data" class="level4">
+<h4 class="anchored" data-anchor-id="flatten-the-data">Flatten the data</h4>
+<p>The tabular tokenizer outputs a three-dimensional tensor with dimensions <code>(batch_size, n_features, d_token)</code>. Because we want to apply a simple feed forward network we will flatten the tensor to the dimension <code>(batch_size, n_features * d_token)</code> Due to the way the Tabular Tokenizer is written, its output is a three dimensional tensor. Because we want to create a simple feed forward network we will now flatten the tensor.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">=</span> <span class="fu">top</span>(<span class="st">"flatten"</span>)<span class="sc">$</span><span class="fu">build</span>(<span class="fu">list</span>(<span class="at">input =</span> model_config<span class="sc">$</span>output<span class="sc">$</span>output), task)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>output<span class="sc">$</span>output<span class="sc">$</span>shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  1 40</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>model_config<span class="sc">$</span>network<span class="sc">$</span><span class="fu">add_module</span>(<span class="st">"flatten"</span>, res<span class="sc">$</span>layer)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>model_config<span class="sc">$</span>output <span class="ot">=</span> res<span class="sc">$</span>output</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>model_config<span class="sc">$</span>network</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>An `nn_module` containing 184 parameters.
+
+── Modules ─────────────────────────────────────────────────────────────────────
+• tab_tokenizer: &lt;nn_tab_tokenizer&gt; #184 parameters
+• flatten: &lt;nn_flatten&gt; #0 parameters</code></pre>
+</div>
+</div>
+</section>
+<section id="linear-layer" class="level4">
+<h4 class="anchored" data-anchor-id="linear-layer">Linear Layer</h4>
+<p>Now we finally have the data in a shape is ready to be fed into a standard feed forward network We will add a linear layer with 10 hidden units.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">=</span> <span class="fu">top</span>(<span class="st">"linear"</span>, <span class="at">out_features =</span> <span class="dv">10</span>)<span class="sc">$</span><span class="fu">build</span>(<span class="fu">list</span>(<span class="at">input =</span> model_config<span class="sc">$</span>output<span class="sc">$</span>output), task)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>model_config<span class="sc">$</span>network<span class="sc">$</span><span class="fu">add_module</span>(<span class="st">"linear"</span>, res<span class="sc">$</span>layer)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>model_config<span class="sc">$</span>output <span class="ot">=</span> res<span class="sc">$</span>output</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>model_config<span class="sc">$</span>network</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>An `nn_module` containing 594 parameters.
+
+── Modules ─────────────────────────────────────────────────────────────────────
+• tab_tokenizer: &lt;nn_tab_tokenizer&gt; #184 parameters
+• flatten: &lt;nn_flatten&gt; #0 parameters
+• linear: &lt;nn_linear&gt; #410 parameters</code></pre>
+</div>
+</div>
+</section>
+<section id="activation-function" class="level4">
+<h4 class="anchored" data-anchor-id="activation-function">Activation Function</h4>
+<p>The next step is to add a ReLU activation function.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>output <span class="ot">=</span> <span class="fu">top</span>(<span class="st">"relu"</span>)<span class="sc">$</span><span class="fu">build</span>(<span class="fu">list</span>(<span class="at">input =</span> model_config<span class="sc">$</span>output<span class="sc">$</span>output), task)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>model_config<span class="sc">$</span>network<span class="sc">$</span><span class="fu">add_module</span>(<span class="st">"relu"</span>, output<span class="sc">$</span>layer)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>model_config<span class="sc">$</span>output <span class="ot">=</span> output<span class="sc">$</span>output</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>model_config<span class="sc">$</span>network</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>An `nn_module` containing 594 parameters.
+
+── Modules ─────────────────────────────────────────────────────────────────────
+• tab_tokenizer: &lt;nn_tab_tokenizer&gt; #184 parameters
+• flatten: &lt;nn_flatten&gt; #0 parameters
+• linear: &lt;nn_linear&gt; #410 parameters
+• relu: &lt;nn_relu&gt; #0 parameters</code></pre>
+</div>
+</div>
+</section>
+<section id="output-layer" class="level4">
+<h4 class="anchored" data-anchor-id="output-layer">Output Layer</h4>
+<p>The next layer will be the classification output layer. This is a linear layer where the number of classes is inferred from the task.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>output <span class="ot">=</span> <span class="fu">top</span>(<span class="st">"output"</span>)<span class="sc">$</span><span class="fu">build</span>(<span class="fu">list</span>(<span class="at">input =</span> model_config<span class="sc">$</span>output<span class="sc">$</span>output), task)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>model_config<span class="sc">$</span>network<span class="sc">$</span><span class="fu">add_module</span>(<span class="st">"output"</span>, output<span class="sc">$</span>layer)</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>model_config<span class="sc">$</span>output <span class="ot">=</span> output<span class="sc">$</span>output</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>model_config<span class="sc">$</span>network</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>An `nn_module` containing 616 parameters.
+
+── Modules ─────────────────────────────────────────────────────────────────────
+• tab_tokenizer: &lt;nn_tab_tokenizer&gt; #184 parameters
+• flatten: &lt;nn_flatten&gt; #0 parameters
+• linear: &lt;nn_linear&gt; #410 parameters
+• relu: &lt;nn_relu&gt; #0 parameters
+• output: &lt;nn_linear&gt; #22 parameters</code></pre>
+</div>
+</div>
+<p>We could now apply the obtained network to the original input <code>x</code> and get the same value as stored in <code>model_config$output</code>.</p>
+<div class="cell" data-result="asis">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">torch_equal</span>(</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  model_config<span class="sc">$</span><span class="fu">network</span>(x),</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  model_config<span class="sc">$</span>output<span class="sc">$</span>output</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="step-3-training-the-network" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="step-3-training-the-network">Step 3: Training the network</h3>
+<p>The TorchOp that takes a <code>ModelConfig</code> and executes it, is <code>TorchOpModel{Classif, Regr}</code>. Before it is trainable however, we need to configure the optimizer and the loss function. This can be done using <code>TorchOpOptimizer</code> and <code>TorchOpLoss</code>. What they essentially do during the train phase is:</p>
+<div class="cell" data-result="asis">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>model_config<span class="sc">$</span>optimizer <span class="ot">=</span> <span class="st">"adam"</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>model_config<span class="sc">$</span>optimizer_args <span class="ot">=</span> <span class="fu">list</span>(<span class="at">lr =</span> <span class="fl">0.1</span>)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>model_config<span class="sc">$</span>loss <span class="ot">=</span> <span class="st">"cross_entropy"</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>model_config<span class="sc">$</span>loss_args <span class="ot">=</span> <span class="fu">list</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="page-columns page-full"><p>Then we can in principle pass the <code>ModelConfig</code> to the <code>TorchOpModelClassif</code> that lets us configure the remaining training arguments. <a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p><div class="no-row-height column-margin column-container"><li id="fn3" role="doc-endnote"><p><sup>3</sup>&nbsp;Note that due to some details and simplifications in the explanation, we cannot actually pass the manually defined <code>model_config</code> to the TorchOp above, but conceptually this is what happens.</p></li></div></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>to_model <span class="ot">=</span> <span class="fu">top</span>(<span class="st">"model.classif"</span>,</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">batch_size =</span> <span class="dv">16</span>,</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">device =</span> <span class="st">"cpu"</span>,</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">epochs =</span> <span class="dv">1</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The <code>TorchOpModel</code> does the following during train:</p>
+<ol type="1">
+<li>Initialize the optimizer with the network parameters</li>
+<li>Initialize the loss function.</li>
+<li>Create a learner similar to <code>Learner{Classif, Regr}Torch</code> and set it’s parameters.</li>
+<li>Train the learner.</li>
+</ol>
+<p>It’s output is NULL, but the resulting learner is stored in it’s state.</p>
+</section>
+</section>
+<section id="torchops-prediction" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="torchops-prediction">TorchOps: Prediction</h2>
+<p>The prediction phase is considerably easier to understand.</p>
+<div class="page-columns page-full"><p>All TorchOps except for <code>TorchOpModel</code> output the input task as-is during the predict phase. The <code>TorchOpModel</code> uses the stored learner to make predictions for the input task. <a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a></p><div class="no-row-height column-margin column-container"><li id="fn4" role="doc-endnote"><p><sup>4</sup>&nbsp;We only trained the network for one epoch and the predictions are therefore quite poor, despite predicting on the test data.</p></li></div></div>
+<div class="cell" data-result="asis">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>graph<span class="sc">$</span><span class="fu">predict</span>(task)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$model.output
+&lt;PredictionClassif&gt; for 1000 observations:
+    row_ids truth response
+          1  good     good
+          2   bad     good
+          3  good     good
+---                       
+        998  good     good
+        999   bad     good
+       1000  good     good</code></pre>
+</div>
+</div>
+</section>
+<section id="building-a-complete-modelling-pipeline" class="level2">
+<h2 class="anchored" data-anchor-id="building-a-complete-modelling-pipeline">Building a complete modelling pipeline</h2>
+<p>In this part we will show that TorchOps can be combine with other PipeOps.</p>
+<div class="cell" data-result="asis">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mlr3pipelines)</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>graph_network <span class="ot">=</span> <span class="fu">po</span>(<span class="st">"scale"</span>) <span class="sc">%&gt;&gt;%</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">po</span>(<span class="st">"pca"</span>) <span class="sc">%&gt;&gt;%</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top</span>(<span class="st">"input"</span>) <span class="sc">%&gt;&gt;%</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top</span>(<span class="st">"tab_tokenizer"</span>, <span class="at">d_token =</span> 1L) <span class="sc">%&gt;&gt;%</span></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top</span>(<span class="st">"flatten"</span>) <span class="sc">%&gt;&gt;%</span></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top</span>(<span class="st">"linear"</span>, <span class="at">out_features =</span> 10L) <span class="sc">%&gt;&gt;%</span></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top</span>(<span class="st">"relu"</span>) <span class="sc">%&gt;&gt;%</span></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top</span>(<span class="st">"output"</span>) <span class="sc">%&gt;&gt;%</span></span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top</span>(<span class="st">"optimizer"</span>, <span class="st">"sgd"</span>, <span class="at">lr =</span> <span class="fl">0.1</span>) <span class="sc">%&gt;&gt;%</span></span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top</span>(<span class="st">"loss"</span>, <span class="st">"cross_entropy"</span>) <span class="sc">%&gt;&gt;%</span></span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top</span>(<span class="st">"model.classif"</span>,</span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">epochs =</span> <span class="dv">1</span>,</span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">batch_size =</span> <span class="dv">16</span>,</span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">device =</span> <span class="st">"cpu"</span></span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a>learner <span class="ot">=</span> <span class="fu">as_learner_torch</span>(graph_network)</span>
+<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a>ids <span class="ot">=</span> <span class="fu">partition</span>(task)</span>
+<span id="cb36-22"><a href="#cb36-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-23"><a href="#cb36-23" aria-hidden="true" tabindex="-1"></a>learner<span class="sc">$</span><span class="fu">train</span>(task, ids<span class="sc">$</span>train)</span>
+<span id="cb36-24"><a href="#cb36-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-25"><a href="#cb36-25" aria-hidden="true" tabindex="-1"></a>learner<span class="sc">$</span><span class="fu">predict</span>(task, ids<span class="sc">$</span>test)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;PredictionClassif&gt; for 330 observations:
+    row_ids truth response
+          3  good     good
+          7  good     good
+          8  good     good
+---                       
+        967   bad     good
+        973   bad     good
+        980   bad     good</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">=</span> graph_network<span class="sc">$</span><span class="fu">train</span>(task)</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>network <span class="ot">=</span> res[[<span class="dv">1</span>]]<span class="sc">$</span>network</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(network)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>NULL</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>graph_trainer <span class="ot">=</span> <span class="fu">top</span>(<span class="st">"optimizer"</span>, <span class="st">"sgd"</span>, <span class="at">lr =</span> <span class="fl">0.1</span>) <span class="sc">%&gt;&gt;%</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top</span>(<span class="st">"loss"</span>, <span class="st">"cross_entropy"</span>) <span class="sc">%&gt;&gt;%</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top</span>(<span class="st">"model.classif"</span>,</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">batch_size =</span> <span class="dv">16</span>,</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">device =</span> <span class="st">"cpu"</span>,</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">epochs =</span> <span class="dv">1</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="relaxing-linearity" class="level2">
+<h2 class="anchored" data-anchor-id="relaxing-linearity">Relaxing linearity</h2>
+<p>In the next step we will relax the linearity assumption. This means that we now allow for multiple input and output channels, although we will only include the former in the example.</p>
+<div class="cell" data-result="asis">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>graph <span class="ot">=</span> <span class="fu">top</span>(<span class="st">"input"</span>) <span class="sc">%&gt;&gt;%</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top</span>(<span class="st">"tab_tokenizer"</span>, <span class="at">d_token =</span> <span class="dv">2</span>) <span class="sc">%&gt;&gt;%</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top</span>(<span class="st">"flatten"</span>) <span class="sc">%&gt;&gt;%</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gunion</span>(<span class="fu">list</span>(</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">a =</span> <span class="fu">top</span>(<span class="st">"linear"</span>, <span class="at">out_features =</span> 10L) <span class="sc">%&gt;&gt;%</span> <span class="fu">top</span>(<span class="st">"relu"</span>),</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">b =</span> <span class="fu">top</span>(<span class="st">"linear"</span>, <span class="at">out_features =</span> 10L)</span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>   )) <span class="sc">%&gt;&gt;%</span></span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top</span>(<span class="st">"add"</span>, <span class="at">innum =</span> 2L) <span class="sc">%&gt;&gt;%</span></span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">top</span>(<span class="st">"output"</span>)</span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>graph<span class="sc">$</span><span class="fu">plot</span>(<span class="at">html =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="htmlwidget-522cee3cbb369cb1d186" style="width:50%;height:400px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-522cee3cbb369cb1d186">{"x":{"nodes":{"id":["input","tab_tokenizer","a.linear","flatten","a.relu","b.linear","add","<INPUT>","output","<OUTPUT>"],"label":["input","tab_tokenizer","a.linear","flatten","a.relu","b.linear","add","<INPUT>","output","<OUTPUT>"],"shape":["box","box","box","box","box","box","box","database","box","ellipse"],"color":["lightblue","lightblue","lightblue","lightblue","lightblue","lightblue","lightblue","rgba(0,204,102,0.2)","lightblue","rgba(255,51,51,0.2)"],"value":[1,1,1,1,1,1,1,0.8,1,0.8],"title":["<p>TorchOp: <b>input<\/b> (not trained)<br>values: <b>list()<\/b><br>Input channels <b>name [train type, predict type]<\/b>:<br>  input [Task,Task]<br>Output channels <b>name [train type, predict type]<\/b>:<br>  output [ModelConfig,Task]<\/p>","<p>TorchOp: <b>tab_tokenizer<\/b> (not trained)<br>values: <b>bias=TRUE, cls=FALSE, d_token=2<\/b><br>Input channels <b>name [train type, predict type]<\/b>:<br>  input [ModelConfig,Task]<br>Output channels <b>name [train type, predict type]<\/b>:<br>  output [ModelConfig,Task]<\/p>","<p>TorchOp: <b>a.linear<\/b> (not trained)<br>values: <b>out_features=10<\/b><br>Input channels <b>name [train type, predict type]<\/b>:<br>  input [ModelConfig,Task]<br>Output channels <b>name [train type, predict type]<\/b>:<br>  output [ModelConfig,Task]<\/p>","<p>TorchOp: <b>flatten<\/b> (not trained)<br>values: <b>list()<\/b><br>Input channels <b>name [train type, predict type]<\/b>:<br>  input [ModelConfig,Task]<br>Output channels <b>name [train type, predict type]<\/b>:<br>  output [ModelConfig,Task]<\/p>","<p>TorchOp: <b>a.relu<\/b> (not trained)<br>values: <b>list()<\/b><br>Input channels <b>name [train type, predict type]<\/b>:<br>  input [ModelConfig,Task]<br>Output channels <b>name [train type, predict type]<\/b>:<br>  output [ModelConfig,Task]<\/p>","<p>TorchOp: <b>b.linear<\/b> (not trained)<br>values: <b>out_features=10<\/b><br>Input channels <b>name [train type, predict type]<\/b>:<br>  input [ModelConfig,Task]<br>Output channels <b>name [train type, predict type]<\/b>:<br>  output [ModelConfig,Task]<\/p>","<p>TorchOp: <b>add<\/b> (not trained)<br>values: <b>list()<\/b><br>Input channels <b>name [train type, predict type]<\/b>:<br>  input1 [ModelConfig,Task], input2 [ModelConfig,Task]<br>Output channels <b>name [train type, predict type]<\/b>:<br>  output [ModelConfig,Task]<\/p>","<p>Input:<br>Name: input.input<br>Train: Task<br>Predict: Task<\/p>","<p>TorchOp: <b>output<\/b> (not trained)<br>values: <b>bias=TRUE<\/b><br>Input channels <b>name [train type, predict type]<\/b>:<br>  input [ModelConfig,Task]<br>Output channels <b>name [train type, predict type]<\/b>:<br>  output [ModelConfig,Task]<\/p>","<p>Output:<br>Name: output.output<br>Train: ModelConfig<br>Predict: Task<\/p>"],"x":[0,0,-1,0,-1,1,0,0,0,0],"y":[-0.75,-0.5,0,-0.25,0.25,0,0.5,-1,0.75,1]},"edges":{"from":["input","tab_tokenizer","a.linear","flatten","flatten","a.relu","b.linear","add","<INPUT>","output"],"to":["tab_tokenizer","flatten","a.relu","a.linear","b.linear","add","add","output","input","<OUTPUT>"],"color":["lightblue","lightblue","lightblue","lightblue","lightblue","lightblue","lightblue","lightblue","lightblue","lightblue"]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot","physics":false},"manipulation":{"enabled":false},"edges":{"arrows":"to","smooth":{"enabled":false,"forceDirection":"vertical"}},"physics":{"stabilization":false}},"groups":null,"width":"50%","height":"400px","idselection":{"enabled":false},"byselection":{"enabled":false},"main":null,"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)","igraphlayout":{"type":"full"}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<p>From the visualization it is clear, that the <code>TorchOpAdd</code> as more than one input channel. As it’s name suggests, it adds up the inputs. This relaxes the simplifying assumption we made in the previous section. Previously we started with an empty <code>nn_sequential</code> and the <code>TorchOp</code>s sequentiall added their layer linearly.</p>
+<p>The first <code>TorchOp</code> that deviates from that assumption is the branch from <code>TorchOpFlatten</code>, which goes into two paths. The underlying idea that makes these kinds of networks possible is to replace the <code>nn_sequential</code> with an <code>nn_graph</code>. A <code>nn_graph</code> simply contains the <code>nn_module</code>s created by the <code>TorchOp</code>s, as well as additional meta-information that determine the data-flow between those modules, i.e.&nbsp;the <code>edges</code>.</p>
+<p>We will first look at the final result, and then dive into the details of how it came about.</p>
+<div class="cell" data-result="asis">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">=</span> graph<span class="sc">$</span><span class="fu">train</span>(task)</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>network <span class="ot">=</span> res[[1L]]<span class="sc">$</span>network</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>network<span class="sc">$</span>edges</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          src_id        dst_id src_channel dst_channel
+          &lt;char&gt;        &lt;char&gt;      &lt;char&gt;      &lt;char&gt;
+1:   __initial__ tab_tokenizer      output       input
+2: tab_tokenizer       flatten      output       input
+3:       flatten      a.linear      output       input
+4:       flatten      b.linear      output       input
+5:      a.linear        a.relu      output       input
+6:        a.relu           add      output      input1
+7:      b.linear           add      output      input2
+8:           add        output      output       input</code></pre>
+</div>
+</div>
+<p>We see that the output of <code>flatten</code> goes into both <code>a.linear</code> and <code>b.linear</code>, while <code>b.linear</code> (the skip connection) goes into the input channel <code>input2</code> of <code>add</code>, <code>a.linear</code> first goes into <code>a.relu</code> and then into the channel <code>input1</code> from <code>add</code>.</p>
+<p>The graph-structure in the <code>nn_graph</code> is essentially identical to the graph structure of <code>TorchOp</code>s minus <code>TorchOp{Input, Optimizer, Loss, Model}</code> which - as seen earlier - fulfill a special role.</p>
+<p>So, how does this work? The “problem” that has to be overcome is that the <code>TorchOp</code>s are not aware of the <code>Graph</code> they are in (by design). This means, that the graph-structure has to be recreated with a message-passing system, in which a <code>TorchOp</code> always receives information about the <code>TorchOp</code> that “sent” the <code>ModelConfig</code>.</p>
+</section>
+<section id="tuning-a-network" class="level2">
+<h2 class="anchored" data-anchor-id="tuning-a-network">Tuning a Network</h2>
+<div class="cell" data-result="asis">
+
+</div>
+</section>
+<section id="why-bother" class="level2">
+<h2 class="anchored" data-anchor-id="why-bother">Why bother?</h2>
+<p>The creation of neural networks using TorchOps has various advantages:</p>
+<ul>
+<li>Seemingless integration into the {mlr3} ecosystem.</li>
+<li>One can easily obtain custom, fully parameterized neural networks.</li>
+<li>One does not need to learn a new syntax when alreading being familiar with {mlr3pipelines}.</li>
+<li>Auxiliary parameters such as the input dimension of a linear layer or the outputs of the output layer re automatically inferred.</li>
+</ul>
+</section>
+</section>
+
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

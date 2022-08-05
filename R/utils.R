@@ -141,3 +141,15 @@ freeze_params = function(model) {
 dbuild = function(op) {
   debugonce(op$.__enclos_env__$.build)
 }
+
+make_named_returns = function(f) {
+  assert_class(f, "nn_module")
+  g = function() {
+
+  }
+}
+
+include_template = function(x) {
+  paste(readLines(system.file("templates", paste0(x, ".md"), package = "mlr3torch")), collapse = "\n")
+}
+

@@ -19,7 +19,7 @@ All Callbacks for the Torch Learners should inherit from this class.
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="Callback" data-id="call"><a href='../../mlr3torch/html/Callback.html#method-Callback-call'><code>mlr3torch::Callback$call()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="Callback" data-id="call"><a href='../../mlr3torch/html/Callback.html#method-Callback-call'><code>mlr3torch::Callback$call()</code></a></span></li>
 </ul>
 </details>
 }}

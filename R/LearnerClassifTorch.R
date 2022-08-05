@@ -1,5 +1,8 @@
 #' @title LearnerTorchClassif
 #'
+#' @description
+#' This implements a custom neural network.
+#'
 #' @name mlr_learners_classif.torch
 #'
 #' @template param_id
@@ -10,19 +13,20 @@
 #'   The feature types the learner supports. The default is all feature types.
 #' @param network (`nn_module()`)\cr
 #'   An object of class `"nn_module"` as defined in `torch`.
+#'
 #' @export
+#' @examples
 LearnerClassifTorch = R6Class("LearnerClassifTorch",
   inherit = LearnerClassifTorchAbstract,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
-    initialize = function(param_vals = list(), optimizer, loss, network,
-      feature_types = NULL) {
-      if (inherits(network, "nn_Module")) {
-        stopf("The network must be initialized by calling the function (and not with '$new()').")
+    initialize = function(module, param_set = NULL, optimizer = "adam", loss = "cross_entropy", param_vals = list(), feature_types = NULL) {
+      private$.module = module
+      if (inherits(module, "nn_module_generator")) {
+        param_set = make_paramset_module(module)
+      } else {
+        stopf("Construction argument 'module' must either be NULL or a nn_module_generator.")
       }
-      assert(check_function(network), check_class(network, "nn_module"))
-      private$..network = network
-      param_set = ps()
 
       super$initialize(
         id = "classif.torch",
@@ -38,8 +42,14 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
   ),
   private = list(
     .network = function(task) {
-      private$..network
+      pv = self$param_set$get_values(tags = "network")
+      invoke(
+        self$.module,
+        task = task,
+        .args = pv
+      )
     },
-    ..network = NULL
+    .module = NULL
   )
 )
+

@@ -16,11 +16,13 @@ test_that("TorchOpConv1D", {
 
     inputs = list(input = invoke(torch_randn, .args = shape))
 
+    op$param_set$values = insert_named(op$param_set$values, param_vals)
     expect_torchop(
       op = op,
       inputs = inputs,
-      param_vals = param_vals,
-      task = task
+      task = task,
+      class = "nn_conv1d",
+      exclude = "in_channels"
     )
   }
 })
@@ -43,11 +45,13 @@ test_that("TorchOpConv2D", {
 
     inputs = list(input = invoke(torch_randn, .args = shape))
 
+    op$param_set$values = insert_named(op$param_set$values, param_vals)
     expect_torchop(
       op = op,
       inputs = inputs,
-      param_vals = param_vals,
-      task = task
+      task = task,
+      class = "nn_conv2d",
+      exclude = "in_channels"
     )
   }
 })
@@ -70,11 +74,13 @@ test_that("TorchOpConv3D", {
 
     inputs = list(input = invoke(torch_randn, .args = shape))
 
+    op$param_set$values = insert_named(op$param_set$values, param_vals)
     expect_torchop(
       op = op,
       inputs = inputs,
-      param_vals = param_vals,
-      task = task
+      task = task,
+      class = "nn_conv3d",
+      exclude = "in_channels"
     )
   }
 })

@@ -1,8 +1,5 @@
-# When calling this function, everything is alrady prepared
-train_eval = function(learner, history, epochs, callbacks, train_loader,
-  valid_loader, context, ids
-) {
-
+train_eval = function(learner, network, optimizer, loss_fn, history, epochs, callbacks, train_loader,
+  valid_loader, context, task, measures_train, measures_valid) {
   call = function(step) {
     call_back(step, callbacks, context)
   }
@@ -10,113 +7,106 @@ train_eval = function(learner, history, epochs, callbacks, train_loader,
   call("on_start")
 
   for (epoch in seq_len(epochs)) {
-    learner$network$train()
+    context$epoch = context$epoch + 1L
+
+    network$train()
+
+    history$train_loss[[context$epoch]] = numeric(length(train_loader))
+    predictions = vector("list", length(train_loader))
+
+    context$iter = 0L
 
     call("on_before_train_epoch")
 
     loop(for (batch in train_loader) {
-
-      learner$optimizer$zero_grad()
+      context$iter = context$iter + 1L
+      optimizer$zero_grad()
 
       call("on_before_train_batch")
 
-      y_hat = learner$network(batch$x)
+      y_hat = network(batch$x)
 
-      loss = learner$loss_fn(y_hat, batch$y)
+      loss = loss_fn(y_hat, batch$y)
 
       loss$backward()
+      history$train_loss[[context$epoch]][[context$iter]] = loss$item()
+      predictions[[context$iter]] = y_hat$detach()
 
-      learner$optimizer$step()
+      call("on_after_backward")
 
-      history$append("train_loss", loss$item(), "train")
-
-      context$last = list(
-        response = as.array(y_hat),
-        truth = as.array(batch$y)
-      )
-
-      score_measures(context, "train")
+      optimizer$step()
 
       call("on_after_train_batch")
-
-      history$increment("train")
     })
 
-    learner$network$eval()
+    eval_network(learner, network = network, valid_loader, task, context, measures_valid)
 
-    call("on_before_valid_epoch")
-
-    loop(for (batch in valid_loader) {
-
-      call("on_before_valid_batch")
-
-      y_hat = with_no_grad(learner$network$forward(batch$x))
-
-      context$last = list(response = as.array(y_hat), truth = as.array(batch$y))
-
-      score_measures(context, "valid")
-
-      call("on_after_valid_batch")
-
-      history$increment("valid")
-    })
-
-    call("on_after_valid_epoch")
-
-    history$increment("epoch")
-
+    # TODO: implement early stopping
   }
 
   call("on_end")
 
   list(
-    network = learner$network,
-    optimizer = learner$optimizer,
-    loss_fn = learner$loss_fn,
+    network = network,
+    optimizer = optimizer,
+    loss_fn = loss_fn,
     history = history,
-    ids = ids
+    raw = NULL
   )
 }
 
 
-score_measures = function(context, phase) {
-  measures = context$measures[[phase]]
-  truth = context$last$truth
-  response = context$last$response
-  scores = imap(
-    measures,
-    function(measure, name) {
-      measure(truth = truth, response = response)
-    }
-  )
+eval_network = function(learner, network, valid_loader, task, context, measures) {
+  history = context$history
+  network$eval()
+  predictions = vector("list", length(valid_loader))
+  iter = 1L
+  if (length(valid_loader)) {
+    loop(for (batch in valid_loader) {
+      predictions[[iter]] = with_no_grad(network$forward(batch$x))
+      iter = iter + 1L
+    })
 
-  iwalk(
-    scores,
-    function(value, measure) {
-      context$history$append(
-        measure = measure,
-        value = value,
-        phase = phase
-      )
-    }
-  )
+    prediction = torch_cat(predictions, dim = 1L)
+
+    prediction = encode_prediction(learner, prediction, task)
+    prediction = as_prediction_data(prediction, task = task, check = TRUE,
+      row_ids = task$row_roles$early_stopping
+    )
+    prediction = as_prediction(prediction, task = task)
+
+    walk(
+      measures,
+      function(measure) {
+        score = measure$score(prediction, task = task, train_set = task$row_roles$use)
+        history$valid[[measure$id]][[context$epoch]] = score
+      }
+    )
+  }
+  NULL
 }
+
 
 learner_torch_train = function(self, model, task) {
   p = self$param_set$get_values(tags = "train")
   model$network$to(device = p$device)
   torch_set_num_threads(p$num_threads)
 
-
-  ids = rsmp("holdout", ratio = 1 - p$valid_split)$instantiate(task)$instance
-  names(ids) = c("train", "valid")
+  p$measures_valid = p$measures_valid %??% list()
+  p$measures_train = p$measures_train %??% list()
+  if (!is.list(p$measures_valid)) {
+    p$measures_valid = list(p$measures_valid)
+  }
+  if (!is.list(p$measures_train)) {
+    p$measures_train = list(p$measures_train)
+  }
 
   train_set = as_dataset(task, device = p$device, augmentation = NULL,
-    row_ids = ids$train
+    row_ids = task$row_roles$use
   )
 
   valid_set = as_dataset(task, device = p$device, augmentation = NULL,
-    row_ids = ids$valid
+    row_ids = task$row_roles$early_stopping
   )
 
   train_loader = as_dataloader(train_set, batch_size = p$batch_size, drop_last = p$drop_last,
@@ -127,60 +117,31 @@ learner_torch_train = function(self, model, task) {
     shuffle = FALSE
   )
 
-
-  # we set the state of the learner here for convenience, it will be reset to NULL before
-  # returning from .train
-
-  measures = split_list(p$measures, c("train|^$", "valid|^$"))
-  measures = map(measures, get_measures)
-
-  self$state = list(model = model)
-
-  history = History$new(length(train_loader), length(valid_loader))
-  self$state$history = history
+  history = History$new(measures_valid = p$measures_valid, measures_train = p$measures_train)
 
   context = ContextTorch$new(
     learner = self,
     history = history,
     task = task,
-    measures = measures
+    train_loader = train_loader,
+    valid_loader = valid_loader
   )
-
 
   train_eval(
     learner = self,
+    network = model$network,
+    optimizer = model$optimizer,
+    loss_fn = model$loss_fn,
     history = history,
     epochs = p$epochs,
     train_loader = train_loader,
     valid_loader = valid_loader,
     context = context,
     callbacks = p$callbacks,
-    ids = ids
+    task = task,
+    measures_valid = p$measures_valid,
+    measures_train = p$measures_train
   )
 }
 
 
-
-build_torch = function(self, task, network = NULL) {
-  p = self$param_set$get_values(tag = "train")
-
-  pars_optim = p[startsWith(names(p), "opt.")]
-  names(pars_optim) = gsub("opt.", "", names(pars_optim), fixed = TRUE)
-
-  pars_loss = p[startsWith(names(p), "loss.")]
-  names(pars_loss) = gsub("loss.", "", names(pars_loss), fixed = TRUE)
-
-  pars = remove_named(p, c(names(pars_optim), names(pars_loss)))
-
-  optim_name = get_private(self)$.optimizer
-  loss_name = get_private(self)$.loss
-
-  optimizer = invoke(get_optimizer(optim_name), .args = pars_optim, params = network$parameters)
-  loss_fn = invoke(get_loss(loss_name), .args = pars_loss)
-
-  list(
-    network = network,
-    optimizer = optimizer,
-    loss_fn = loss_fn
-  )
-}

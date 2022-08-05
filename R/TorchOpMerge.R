@@ -19,7 +19,7 @@
 #' graph = gunion(list(top1, top2)) %>>% top_add
 #'
 #' # order is specified:
-#' top_cat = top("cat", .nnum = 2)
+#' top_cat = top("cat", innum = 2)
 #' graph = gunion(list(top1, top2))
 #' graph$add_pipeop(top_cat)
 #' graph$add_edge(src_id = "linear_1", dst_id = "cat", dst_channel = "input2")
@@ -47,13 +47,13 @@ TorchOpMerge = R6Class("TorchOpMerge",
       if (is.null(innum)) {
         input = data.table(
           name = "...",
-          train = "ModelArgs",
+          train = "ModelConfig",
           predict = "Task"
         )
       } else {
         input = data.table(
           name = paste0("input", seq_len(innum)),
-          train = rep("ModelArgs", times = innum),
+          train = rep("ModelConfig", times = innum),
           predict = rep("Task", times = innum)
         )
       }

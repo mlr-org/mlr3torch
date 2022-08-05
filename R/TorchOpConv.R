@@ -1,9 +1,13 @@
 #' @title Convolution
 #' @description
-#' 1D, 2D and 3D Convolution. The number of input channels is inferred from the second tensor
-#' dimension.
+#' 1D, 2D and 3D Convolution
+#'
 #' @section Calls:
-#'  * `"conv1d"`:
+#' Calls `torch::nn_conv1d()`, `torch::nn_conv2d` or `torch::nn_conv3d()`.
+#'
+#' @section Custom mlr3 parameters:
+#' * `in_channels` - This parameter is inferred as the second dimension of the input tensor.
+#'
 #' @name conv
 NULL
 
@@ -106,7 +110,10 @@ TorchOpConv3D = R6Class("TorchOpConv3D",
 make_paramset_conv = function(d) {
   force(d)
   check_fn = function(x) {
-    check_integerish(x, min.len = 1L, max.len = d, any.missing = FALSE)
+    if (is.null(x) || test_integerish(x, any.missing = FALSE) && (length(x) %in% c(1, d))) {
+      return(TRUE)
+    }
+    sprintf("Must be an integerish vector of length 1 or %s", d)
   }
 
   padding_levels = c("zeros", "circular", "replicate")

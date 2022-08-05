@@ -26,7 +26,7 @@ LearnerClassifTabResNet = R6Class("LearnerClassifTabResNet",
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(loss, optimizer) {
+    initialize = function(loss = "cross_entropy", optimizer = "adam") {
       param_set = make_paramset_tab_resnet_block()
       for (param in param_set$params_unid) {
         param$tags = unique(c(param$tags, "network"))

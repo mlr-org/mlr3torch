@@ -1,6 +1,7 @@
 #' @title Context where torch Callbacks are evaluted
 #' @description
-#' Context for training a TorchModel
+#' Context for training a TorchModel.
+#' This is the - mostly read-only - information callbacks have access to.
 #'
 #' @export
 ContextTorch = R6Class("ContextTorch",
@@ -13,23 +14,77 @@ ContextTorch = R6Class("ContextTorch",
     #'   The machine learning task.
     #' @param history ([`History`][History])\cr
     #'   The history for the torch learner.
-    #' @param measures (named `list()`)\cr
-    #'   A list containing the sublists `"train"` and `"valid"` that contain the measures that
-    #'   will be used during training and validation.
-    initialize = function(learner, task, history, measures) {
+    initialize = function(learner, task, history, train_loader, valid_loader, epoch = NULL) {
       private$.learner = learner
       private$.task = task
       private$.history = history
-      private$.measures = measures
-    }
+      private$.train_loader = train_loader
+      private$.valid_loader = valid_loader
+      if (is.null(epoch)) {
+        self$epoch = 0L
+      } else {
+        self$epoch = epoch
+      }
+    },
+    epoch = NULL
   ),
   private = list(
     .learner = NULL,
     .task = NULL,
     .history = NULL,
-    .measures = NULL
+    .train_iter = NULL,
+    .valid_iter = NULL,
+    .epoch = NULL
   ),
   active = list(
+    #' @field train_loader (`dataloader`)\cr
+    #'   The training loader.
+    train_loader = function(rhs) {
+      assert_ro_binding(rhs)
+      private$.train_loader
+    },
+    #' @field valid_loader (`dataloader`)\cr
+    #'   The validation loader.
+    valid_loader = function(rhs) {
+      assert_ro_binding(rhs)
+      private$.valid_loader
+    },
+    #' @field y_hat (`list(1)`)\cr
+    #'   The previous prediction.
+    y_hat = function(rhs) {
+      assert_ro_binding(rhs)
+      private$.y_hat
+    },
+    #' @field y (`list(1)`)\cr
+    #'   The previous truth.
+    y = function(rhs) {
+      assert_ro_binding(rhs)
+      private$.y
+    },
+    #' @field pred_train (`list(1)`)\cr
+    #'   The predictions of the validation phase.
+    pred_train = function(rhs) {
+      assert_ro_binding(rhs)
+      private$.pred_train
+    },
+    #' @field pred_valid (`list(1)`)\cr
+    #'   The predictions of the validation phase.
+    pred_valid = function(rhs) {
+      assert_ro_binding(rhs)
+      private$.pred_valid
+    },
+    #' @field train_iter (`integer(1)`)\cr
+    #'   The training iteration.
+    train_iter = function(rhs) {
+      assert_ro_binding(rhs)
+      private$.train_iter
+    },
+    #' @field valid_iter (`integer(1)`)\cr
+    #'   The validation iteration.
+    valid_iter = function(rhs) {
+      assert_ro_binding(rhs)
+      private$.valid_iter
+    },
     #' @field network (`torch::nn_module()`)\cr
     #'   The torch network.
     network = function(rhs) {
@@ -63,7 +118,7 @@ ContextTorch = R6Class("ContextTorch",
       if (missing(rhs)) {
         private$.history
       } else {
-        private$learner$history = rhs
+        private$.learner$history = rhs
       }
     },
     #' @field task ([`Task`][mlr3::Task])\cr
@@ -77,12 +132,6 @@ ContextTorch = R6Class("ContextTorch",
     learner = function(rhs) {
       assert_ro_binding(rhs)
       private$.learner
-    },
-    #' @field measures (`???`)\cr
-    #'   The measures.
-    measures = function(rhs) {
-      assert_ro_binding(rhs)
-      private$.measures
     }
   )
 )

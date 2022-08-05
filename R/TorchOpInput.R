@@ -1,7 +1,7 @@
-#' @title Initialization of ModelArgs
+#' @title Initialization of ModelConfig
 #'
 #' @description
-#' Outputs an object of class `"ModelArgs"` that is used internally to build Torch Learners using
+#' Outputs an object of class `"ModelConfig"` that is used internally to build Torch Learners using
 #' `TorchOp`'s.
 #'
 #' @template param_id
@@ -13,7 +13,7 @@ TorchOpInput = R6Class("TorchOpInput",
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "input", param_vals = list()) {
       input = data.table(name = "input", train = "Task", predict = "Task")
-      output = data.table(name = "output", train = "ModelArgs", predict = "Task")
+      output = data.table(name = "output", train = "ModelConfig", predict = "Task")
       param_set = ps()
 
       super$initialize(
@@ -33,7 +33,7 @@ TorchOpInput = R6Class("TorchOpInput",
 
       self$state = list()
       model_args = structure(
-        class = "ModelArgs",
+        class = "ModelConfig",
         list(
           network = nn_graph(),
           id = "__initial__",

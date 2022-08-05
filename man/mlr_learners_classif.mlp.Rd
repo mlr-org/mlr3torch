@@ -7,20 +7,85 @@
 \description{
 Simple multi layer perceptron with dropout.
 }
+\section{Architecture}{
+
+One layer is: $dropout(activation(linear(x)))$.
+These layers are stacked and the final output layer is a simple classification layer.
+}
+
 \section{Parameters}{
 
+\emph{Learner specific parameters}:
 \itemize{
 \item \code{act} :: \code{character(1)}\cr
 Activation function.
 \item \code{act_args} :: named \code{list()}\cr
 A named list with initialization arguments for the activation function.
-\item \code{n_layers} :: \code{integer(1)}\cr
+\item \code{layers} :: \code{integer(1)}\cr
 The number of layers.
 \item \code{p} :: \code{numeric(1)}\cr
 The dropout probability.
 }
+
+\emph{Generic Parameters}:
+\itemize{
+\item \code{batch_size} :: \code{integer(1)}\cr
+The batch size for training and evaluating the network.
+\item \code{epochs} :: \code{integer(1)}\cr
+The number of training epochs.
+\item \code{callbacks} :: \code{list()}\cr
+A list of Callbacks.
+\item \code{device} :: \code{character(1)}\cr
+The default to be used for training and evaluating the network.
+\item \code{measures} :: \code{character(1)}\cr
+A list of measures used for model validation.
+These are stored in the learner's history.
+\item \code{augmentation} :: \code{function}\cr
+A function that transforms the batches returned by the data-loader.
+\item \code{callbacks} :: \code{list()}\cr
+A list of Callbacks to customize the training process.
+\item \code{drop_last} :: \code{logical(1)}\cr
+Whether to drop the last batch in each epoch.
+\item \code{keep_last_prediction} :: \code{logical(1)}\cr
+Whether to keep the last prediction. If set to \code{TRUE} this can avoid superfluous predictions.
+\item \code{num_threads} :: \code{integer(1)}\cr
+The number of threads to be used during training. Only relevant if the training is on the
+CPU.
+\item \code{shuffle} :: \code{logical(1)}\cr
+Whether to shuffle the training data. This can be useful when the data is sorted.
+\item \code{early_stopping_rounds} :: \code{integer(1)}\cr
+The patience parameter for the early stopping.
 }
 
+The parameters for the optimizer and the loss function are dynamically inferred during construction.
+Consult the help pages of the {torch} package for their description.
+}
+
+\section{Dictionary}{
+
+This \link{Learner} can be instantiated via the \link[mlr3misc:Dictionary]{dictionary} \link{mlr_learners} or with the associated sugar function \code{\link[=lrn]{lrn()}}:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{mlr_learners$get("classif.mlp")
+lrn("classif.mlp")
+}\if{html}{\out{</div>}}
+}
+
+\section{Meta Information}{
+
+\itemize{
+\item Task type: \dQuote{classif}
+\item Predict Types: \dQuote{response}
+\item Feature Types: \dQuote{integer}, \dQuote{numeric}
+\item Required Packages: \CRANpkg{mlr3}, \CRANpkg{mlr3torch}, \CRANpkg{torch}
+}
+}
+
+\examples{
+learner = mlr3::lrn("classif.mlp")
+print(learner)
+# available parameters:
+learner$param_set$ids()
+}
 \section{Super classes}{
 \code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3:LearnerClassif]{mlr3::LearnerClassif}} -> \code{\link[mlr3torch:LearnerClassifTorchAbstract]{mlr3torch::LearnerClassifTorchAbstract}} -> \code{LearnerClassifMLP}
 }
@@ -34,15 +99,17 @@ The dropout probability.
 \if{html}{\out{
 <details><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner"><a href='../../mlr3/html/Learner.html#method-Learner-base_learner'><code>mlr3::Learner$base_learner()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="format"><a href='../../mlr3/html/Learner.html#method-Learner-format'><code>mlr3::Learner$format()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help"><a href='../../mlr3/html/Learner.html#method-Learner-help'><code>mlr3::Learner$help()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict"><a href='../../mlr3/html/Learner.html#method-Learner-predict'><code>mlr3::Learner$predict()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata"><a href='../../mlr3/html/Learner.html#method-Learner-predict_newdata'><code>mlr3::Learner$predict_newdata()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="print"><a href='../../mlr3/html/Learner.html#method-Learner-print'><code>mlr3::Learner$print()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset"><a href='../../mlr3/html/Learner.html#method-Learner-reset'><code>mlr3::Learner$reset()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train"><a href='../../mlr3/html/Learner.html#method-Learner-train'><code>mlr3::Learner$train()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerClassifTorchAbstract" data-id="build"><a href='../../mlr3torch/html/LearnerClassifTorchAbstract.html#method-LearnerClassifTorchAbstract-build'><code>mlr3torch::LearnerClassifTorchAbstract$build()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner"><a href='../../mlr3/html/Learner.html#method-Learner-base_learner'><code>mlr3::Learner$base_learner()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="format"><a href='../../mlr3/html/Learner.html#method-Learner-format'><code>mlr3::Learner$format()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help"><a href='../../mlr3/html/Learner.html#method-Learner-help'><code>mlr3::Learner$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict"><a href='../../mlr3/html/Learner.html#method-Learner-predict'><code>mlr3::Learner$predict()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata"><a href='../../mlr3/html/Learner.html#method-Learner-predict_newdata'><code>mlr3::Learner$predict_newdata()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="print"><a href='../../mlr3/html/Learner.html#method-Learner-print'><code>mlr3::Learner$print()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset"><a href='../../mlr3/html/Learner.html#method-Learner-reset'><code>mlr3::Learner$reset()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train"><a href='../../mlr3/html/Learner.html#method-Learner-train'><code>mlr3::Learner$train()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerClassifTorchAbstract" data-id="build"><a href='../../mlr3torch/html/LearnerClassifTorchAbstract.html#method-LearnerClassifTorchAbstract-build'><code>mlr3torch::LearnerClassifTorchAbstract$build()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerClassifTorchAbstract" data-id="serialize"><a href='../../mlr3torch/html/LearnerClassifTorchAbstract.html#method-LearnerClassifTorchAbstract-serialize'><code>mlr3torch::LearnerClassifTorchAbstract$serialize()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerClassifTorchAbstract" data-id="unserialize"><a href='../../mlr3torch/html/LearnerClassifTorchAbstract.html#method-LearnerClassifTorchAbstract-unserialize'><code>mlr3torch::LearnerClassifTorchAbstract$unserialize()</code></a></span></li>
 </ul>
 </details>
 }}

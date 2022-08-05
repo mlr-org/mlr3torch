@@ -51,7 +51,7 @@ NULL
 
 assert_mergeable = function(a) {
   if (is_graph(a)) {
-    assert_true(a$pipeops[[a$rhs]]$outnum == 1L && a$pipeops[[a$rhs]]$output$train == "ModelArgs")
+    assert_true(a$pipeops[[a$rhs]]$outnum == 1L && a$pipeops[[a$rhs]]$output$train == "ModelConfig")
     return(TRUE)
   } else if (is_torchop(a)) {
     return(TRUE)

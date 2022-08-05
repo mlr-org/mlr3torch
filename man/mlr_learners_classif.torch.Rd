@@ -5,9 +5,7 @@
 \alias{LearnerClassifTorch}
 \title{LearnerTorchClassif}
 \description{
-LearnerTorchClassif
-
-LearnerTorchClassif
+This implements a custom neural network.
 }
 \section{Super classes}{
 \code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3:LearnerClassif]{mlr3::LearnerClassif}} -> \code{\link[mlr3torch:LearnerClassifTorchAbstract]{mlr3torch::LearnerClassifTorchAbstract}} -> \code{LearnerClassifTorch}
@@ -22,15 +20,17 @@ LearnerTorchClassif
 \if{html}{\out{
 <details><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner"><a href='../../mlr3/html/Learner.html#method-Learner-base_learner'><code>mlr3::Learner$base_learner()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="format"><a href='../../mlr3/html/Learner.html#method-Learner-format'><code>mlr3::Learner$format()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help"><a href='../../mlr3/html/Learner.html#method-Learner-help'><code>mlr3::Learner$help()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict"><a href='../../mlr3/html/Learner.html#method-Learner-predict'><code>mlr3::Learner$predict()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata"><a href='../../mlr3/html/Learner.html#method-Learner-predict_newdata'><code>mlr3::Learner$predict_newdata()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="print"><a href='../../mlr3/html/Learner.html#method-Learner-print'><code>mlr3::Learner$print()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset"><a href='../../mlr3/html/Learner.html#method-Learner-reset'><code>mlr3::Learner$reset()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train"><a href='../../mlr3/html/Learner.html#method-Learner-train'><code>mlr3::Learner$train()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerClassifTorchAbstract" data-id="build"><a href='../../mlr3torch/html/LearnerClassifTorchAbstract.html#method-LearnerClassifTorchAbstract-build'><code>mlr3torch::LearnerClassifTorchAbstract$build()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner"><a href='../../mlr3/html/Learner.html#method-Learner-base_learner'><code>mlr3::Learner$base_learner()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="format"><a href='../../mlr3/html/Learner.html#method-Learner-format'><code>mlr3::Learner$format()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help"><a href='../../mlr3/html/Learner.html#method-Learner-help'><code>mlr3::Learner$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict"><a href='../../mlr3/html/Learner.html#method-Learner-predict'><code>mlr3::Learner$predict()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata"><a href='../../mlr3/html/Learner.html#method-Learner-predict_newdata'><code>mlr3::Learner$predict_newdata()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="print"><a href='../../mlr3/html/Learner.html#method-Learner-print'><code>mlr3::Learner$print()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset"><a href='../../mlr3/html/Learner.html#method-Learner-reset'><code>mlr3::Learner$reset()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train"><a href='../../mlr3/html/Learner.html#method-Learner-train'><code>mlr3::Learner$train()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerClassifTorchAbstract" data-id="build"><a href='../../mlr3torch/html/LearnerClassifTorchAbstract.html#method-LearnerClassifTorchAbstract-build'><code>mlr3torch::LearnerClassifTorchAbstract$build()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerClassifTorchAbstract" data-id="serialize"><a href='../../mlr3torch/html/LearnerClassifTorchAbstract.html#method-LearnerClassifTorchAbstract-serialize'><code>mlr3torch::LearnerClassifTorchAbstract$serialize()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerClassifTorchAbstract" data-id="unserialize"><a href='../../mlr3torch/html/LearnerClassifTorchAbstract.html#method-LearnerClassifTorchAbstract-unserialize'><code>mlr3torch::LearnerClassifTorchAbstract$unserialize()</code></a></span></li>
 </ul>
 </details>
 }}
@@ -41,10 +41,11 @@ LearnerTorchClassif
 Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LearnerClassifTorch$new(
+  module,
+  param_set = NULL,
+  optimizer = "adam",
+  loss = "cross_entropy",
   param_vals = list(),
-  optimizer,
-  loss,
-  network,
   feature_types = NULL
 )}\if{html}{\out{</div>}}
 }
@@ -52,9 +53,6 @@ Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{param_vals}}{(named \code{list()})\cr
-The initial parameters for the object.}
-
 \item{\code{optimizer}}{(\code{character()})\cr
 A character string containing the name of the optimizer.
 Possible values are \code{torch_reflections$optimizer}.}
@@ -63,8 +61,8 @@ Possible values are \code{torch_reflections$optimizer}.}
 A character string containing the name of the loss function
 For possible values see \code{torch_reflections$loss}.}
 
-\item{\code{network}}{(\code{nn_module()})\cr
-An object of class \code{"nn_module"} as defined in \code{torch}.}
+\item{\code{param_vals}}{(named \code{list()})\cr
+The initial parameters for the object.}
 
 \item{\code{feature_types}}{(\code{character()})\cr
 The feature types the learner supports. The default is all feature types.}
