@@ -9,44 +9,52 @@
 #' @name max_pool
 NULL
 
-#' @param return_indices (`logical(1)`)\cr
-#'   Whether to return the inidices.
-#' @template param_id
-#' @template param_param_vals
-#' @rdname max_pool
-#' @export
-TorchOpMaxPool1D = R6Class("TorchOpMaxPool1D",
-  inherit = TorchOp,
+TorchOpMaxPool = R6Class("TorchOpMaxPool",
+  inherit = PipeOpTorch,
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(return_indices = FALSE, id = "max_pool1d", param_vals = list()) {
-      param_set = make_paramset_max_pool(d = 1L)
+    initialize = function(id, d, module_generator, return_indices = FALSE, param_vals = list()) {
+      private$.d = assert_int(d)
+
+      param_set = ps(
+        kernel_size = p_uty(custom_check = check_fn(d), tags = c("required", "train")),
+        stride = p_uty(default = NULL, custom_check = check_fn(d), tags = "train"),
+        padding = p_uty(default = 0L, custom_check = check_fn(d), tags = "train"),
+        dilation = p_int(default = 1L, tags = "train"),
+        ceil_mode = p_lgl(default = FALSE, tags = "train")
+      )
+
       private$.return_indices = assert_flag(return_indices)
-      if (return_indices) {
-        output = data.table(
-          name = c("output", "indices"),
-          train = c("ModelConfig", "ModelConfig"),
-          predict = c("ModelConfig", "ModelConfig")
-        )
-      } else {
-        output = data.table(name = "output", train = "ModelConfig", predict = "ModelConfig")
-      }
+
       super$initialize(
         id = id,
+        module_generator = module_generator,
         param_vals = param_vals,
         param_set = param_set,
-        output = output
+        multi_output = if (return_indices) 2,
       )
     }
   ),
   private = list(
-    .build = function(inputs, task) {
-      param_vals = self$param_set$get_values(tag = "train")
-      assert_true(length(inputs$input$shape) == 3L)
-      invoke(nn_max_pool1d, .args = param_vals, return_indices = private$.return_indices)
+    .shapes_out = function(shapes_in, param_vals) {
+      res = list(conv_output_shape(
+        shape_in = shapes_in[[1]],
+        conv_dim = private$.d,
+        padding = param_vals$padding %??% 0,
+        dilation = param_vals$dilation %??% 1,
+        stride = param_vals$stride %??% param_vals$kernel_size,
+        kernel_size = param_vals$kernel_size,
+        ceil_mode = param_vals$ceil_mode %??% FALSE
+      ))
+
+      if (private$.return_indices) rep(res, 2) else res
     },
-    .return_indices = NULL
+    .shape_dependent_params = function(shapes_in) {
+      list(return_indices = private$.return_indices)
+    },
+    .return_indices = NULL,
+    .d = NULL
   )
 )
 
@@ -56,38 +64,11 @@ TorchOpMaxPool1D = R6Class("TorchOpMaxPool1D",
 #' @template param_param_vals
 #' @rdname max_pool
 #' @export
-TorchOpMaxPool2D = R6Class("TorchOpMaxPool2D",
-  inherit = TorchOp,
+TorchOpMaxPool1D = R6Class("TorchOpMaxPool1D", inherit = TorchOpMaxPool,
   public = list(
-    #' @description
-    #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(return_indices = FALSE, id = "max_pool2d", param_vals = list()) {
-      param_set = make_paramset_max_pool(d = 2L)
-      private$.return_indices = assert_flag(return_indices)
-      if (return_indices) {
-        output = data.table(
-          name = c("output", "indices"),
-          train = c("ModelConfig", "ModelConfig"),
-          predict = c("ModelConfig", "ModelConfig")
-        )
-      } else {
-        output = data.table(name = "output", train = "ModelConfig", predict = "ModelConfig")
-      }
-      super$initialize(
-        id = id,
-        param_vals = param_vals,
-        param_set = param_set,
-        output = output
-      )
+    initialize = function(id = "max_pool1d", return_indices = FALSE, param_vals = list()) {
+      super$initialize(id = id, d = 1, module_generator = nn_max_pool1d, return_indices = return_indices, param_vals = param_vals)
     }
-  ),
-  private = list(
-    .build = function(inputs, task) {
-      param_vals = self$param_set$get_values(tag = "train")
-      assert_true(length(inputs$input$shape) == 4L)
-      invoke(nn_max_pool2d, .args = param_vals, return_indices = private$.return_indices)
-    },
-    .return_indices = NULL
   )
 )
 
@@ -97,60 +78,28 @@ TorchOpMaxPool2D = R6Class("TorchOpMaxPool2D",
 #' @template param_param_vals
 #' @rdname max_pool
 #' @export
-TorchOpMaxPool3D = R6Class("TorchOpMaxPool3D",
-  inherit = TorchOp,
+TorchOpMaxPool2D = R6Class("TorchOpMaxPool2D", inherit = TorchOpMaxPool,
   public = list(
-    #' @description
-    #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(return_indices = FALSE, id = "max_pool3d", param_vals = list()) {
-      param_set = make_paramset_max_pool(d = 3L)
-      private$.return_indices = assert_flag(return_indices)
-      if (return_indices) {
-        output = data.table(
-          name = c("output", "indices"),
-          train = c("ModelConfig", "ModelConfig"),
-          predict = c("ModelConfig", "ModelConfig")
-        )
-      } else {
-        output = data.table(name = "output", train = "ModelConfig", predict = "ModelConfig")
-      }
-      super$initialize(
-        id = id,
-        param_vals = param_vals,
-        param_set = param_set,
-        output = output
-      )
+    initialize = function(id = "max_pool2d", return_indices = FALSE, param_vals = list()) {
+      super$initialize(id = id, d = 2, module_generator = nn_max_pool2d,  return_indices = return_indices, param_vals = param_vals)
     }
-  ),
-  private = list(
-    .build = function(inputs, task) {
-      param_vals = self$param_set$get_values(tag = "train")
-      assert_true(length(inputs$input$shape) == 5L)
-      invoke(nn_max_pool3d, .args = param_vals, return_indices = private$.return_indices)
-    },
-    .return_indices = NULL
   )
 )
 
 
-
-make_paramset_max_pool = function(d) {
-  force(d)
-  check_fn = function(x) {
-    if (is.null(x) || test_integerish(x, any.missing = FALSE) && (length(x) %in% c(1, d))) {
-      return(TRUE)
+#' @param return_indices (`logical(1)`)\cr
+#'   Whether to return the inidices.
+#' @template param_id
+#' @template param_param_vals
+#' @rdname max_pool
+#' @export
+TorchOpMaxPool3D = R6Class("TorchOpMaxPool3D", inherit = TorchOpMaxPool,
+  public = list(
+    initialize = function(id = "max_pool3d", return_indices = FALSE, param_vals = list()) {
+      super$initialize(id = id, d = 3, module_generator = nn_max_pool3d, return_indices = return_indices, param_vals = param_vals)
     }
-    sprintf("Must be an integerish vector of length 1 or %s", d)
-  }
-
-  ps(
-    kernel_size = p_uty(custom_check = check_fn, tags = c("required", "train")),
-    stride = p_uty(default = NULL, custom_check = check_fn, tags = "train"),
-    padding = p_uty(default = 0L, custom_check = check_fn, tags = "train"),
-    dilation = p_int(default = 1L, tags = "train"),
-    ceil_mode = p_lgl(default = FALSE, tags = "train")
   )
-}
+)
 
 #' @include mlr_torchops.R
 mlr_torchops$add("max_pool1d", TorchOpMaxPool1D)

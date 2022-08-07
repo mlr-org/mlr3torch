@@ -9,26 +9,25 @@
 #' g$train(task)
 #' @export
 TorchOpLoss = R6Class("TorchOpLoss",
-  inherit = TorchOp,
+  inherit = PipeOpTorch,
   public = list(
-    initialize = function(loss, id = "loss", param_vals = list()) {
-      assert_choice(loss, unlist(torch_reflections$loss))
-      param_set = paramsets_loss$get(loss)
-      private$.loss = loss
+    initialize = function(optimizer, id = "loss", param_vals = list()) {
+      assert_r6(optimizer, "ParamdLoss")
+      private$.loss = optimizer
       super$initialize(
         id = id,
-        param_set = param_set,
+        param_set = alist(private$.optimizer$param_set),
         param_vals = param_vals
       )
-
     }
   ),
   private = list(
     .train = function(inputs) {
-      inputs$input[["loss"]] = private$.loss
-      inputs$input[["loss_args"]] = self$param_set$get_values(tags = "train")
-      return(inputs)
+      inputs[[1]]$loss = private$.loss$clone(deep = TRUE)
+      inputs
     },
+    .shapes_out = function(shapes_in, param_vals) shapes_in,
+    .shape_dependent_params = function(shapes_in) list(),
     .loss = NULL
   )
 )

@@ -6,8 +6,8 @@
 #' @details TorchOpModelClassif and TorchOpModelRegr inherit from this R6 Class.
 #' @name mlr_torchops.model
 #' @export
-TorchOpModel = R6Class("TorchOpModel",
-  inherit = TorchOp,
+PipeOpTorchModel = R6Class("PipeOpTorchModel",
+  inherit = PipeOp,
   public = list(
     #' @description Creates an object of class [TorchOpModel]\cr
     #' @param id (`character(1)`)\cr
@@ -23,81 +23,51 @@ TorchOpModel = R6Class("TorchOpModel",
     initialize = function(id, param_vals, task_type) {
       private$.task_type = assert_choice(task_type, c("classif", "regr"))
 
-      param_set = make_paramset(task_type)
+      param_set = paramset_torchlearner()
 
-      input = data.table(name = "input", train = "ModelConfig", predict = "Task")
-      output = data.table(name = "output", train = "NULL", predict = "Prediction")
+      input = data.table(name = "input", train = "ModelDescriptor", predict = mlr_reflections$task_types["classif", task])
+      output = data.table(name = "output", train = "NULL", predict = mlr_reflections$task_types["classif", prediction])
 
       super$initialize(
         id = id,
         param_set = param_set,
         param_vals = param_vals,
+        input = input,
         output = output
       )
     }
   ),
   private = list(
     .train = function(inputs) {
-      input = inputs$input
-      task = input$task
-
-      network = input$network
-      network$set_terminal()
-
-      # TODO: maybe the learner and the TorchOp should actually share the param-set?
-      pars = self$param_set$get_values(tags = "train")
+      md = inputs[[1]]
+      param_vals = self$param_set$get_values()
 
       class = switch(private$.task_type,
         regr = LearnerRegrTorchModel,
         classif = LearnerClassifTorchModel
       )
+
       learner = class$new(
-        optimizer = input$optimizer,
-        loss = input$loss,
-        feature_types = unique(task$feature_types$type),
-        network = network
+        optimizer = md$optimizer,
+        loss = md$loss,
+        packages = md$graph$packages
+        network = nn_graph(md, md$.pointer)
       )
 
-      if (length(input$optimizer_args)) {
-        names(input$optimizer_args) = paste0("opt.", names(input$optimizer_args))
-        pars = insert_named(pars, input$optimizer_args)
-      }
-      if (length(input$loss_args)) {
-        names(input$loss_args) = paste0("opt.", names(input$loss_args))
-        pars = insert_named(pars, input$loss_args)
-      }
+      learner$param_set$values = insert_named(learner$param_set$values, param_vals)
 
-      learner$param_set$values = pars
+      learner$train(md$task)
 
-      learner$properties = if (private$.task_type == "regr") {
-        c("weights", "hotstart_forward")
-      } else if (private$.task_type == "classif") {
-        if (length(task$class_names) == 2L) { # 1L is set as multiclass
-          c("twoclass", "weights", "hotstart_forward")
-        } else {
-          c("multiclass", "weights", "hotstart_forward")
-        }
-      }
-
-      private$.learner = learner
-      on.exit({
-        private$.learner$state = NULL
-      })
-      self$state = private$.learner$train(input$task)$state
+      self$state = learner
 
       list(NULL)
     },
     .predict = function(inputs) {
       # This is copied from mlr3pipelines (PipeOpLearner)
-      on.exit({
-        private$.learner$state = NULL
-      })
       task = inputs[[1]]
-      private$.learner$state = self$state
       list(private$.learner$predict(task))
     },
     .task_type = NULL,
-    .learner = NULL
   )
 )
 
@@ -105,8 +75,8 @@ TorchOpModel = R6Class("TorchOpModel",
 #' @description
 #' Classification model.
 #' @export
-TorchOpModelClassif = R6Class("TorchOpModelClassif",
-  inherit = TorchOpModel,
+PipeOpTorchModelClassif = R6Class("PipeOpTorchModelClassif",
+  inherit = PipeOpTorchModel,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
     #' @param id (`character(1)`)\cr
@@ -131,8 +101,8 @@ TorchOpModelClassif = R6Class("TorchOpModelClassif",
 #' @description
 #' Regression model.
 #' @export
-TorchOpModelRegr = R6Class("TorchOpModelRegr",
-  inherit = TorchOpModel,
+PipeOpTorchModelRegr = R6Class("PipeOpTorchModelRegr",
+  inherit = PipeOpTorchModel,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
     #' @param id (`character(1)`)\cr
@@ -154,7 +124,7 @@ TorchOpModelRegr = R6Class("TorchOpModelRegr",
 )
 
 #' @include mlr_torchops.R
-mlr_torchops$add("model.regr", value = TorchOpModelRegr)
+mlr_torchops$add("model.regr", value = PipeOpTorchModelRegr)
 
 #' @include mlr_torchops.R
-mlr_torchops$add("model.classif", value = TorchOpModelClassif)
+mlr_torchops$add("model.classif", value = PipeOpTorchModelClassif)

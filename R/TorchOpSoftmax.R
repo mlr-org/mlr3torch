@@ -2,7 +2,7 @@
 #' @include TorchOpSoftmax.R
 #' @export
 TorchOpSoftmax = R6::R6Class("TorchOpSoftmax",
-  inherit = TorchOp,
+  inherit = PipeOpTorch,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
     #' @param id (`character(1)`)\cr
@@ -15,16 +15,15 @@ TorchOpSoftmax = R6::R6Class("TorchOpSoftmax",
       )
       super$initialize(
         id = id,
+        module_generator = nn_softmax,
         param_set = param_set,
         param_vals = param_vals
       )
     }
   ),
   private = list(
-    .build = function(inputs, task) {
-      param_vals = self$param_set$get_values(tag = "train")
-      invoke(nn_softmax, .args = param_vals)
-    }
+    .shapes_out = function(shapes_in, param_vals) shapes_in,
+    .shape_dependent_params = function(shapes_in) list()
   )
 )
 

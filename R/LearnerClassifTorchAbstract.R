@@ -48,20 +48,7 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
       private$.optimizer$param_set$set_id = "opt"
       private$.loss$param_set$set_id = "loss"
 
-      p = ps(
-        batch_size            = p_int(tags = c("train", "predict", "required"), lower = 1L, default = 16L),
-        epochs                = p_int(tags = c("train", "hotstart", "required"), lower = 0L),
-        device                = p_fct(tags = c("train", "predict"), levels = c("auto", "cpu", "cuda", "meta"), default = "auto"), # nolint
-        measures_train        = p_uty(tags = "train", custom_check = check_measures),
-        measures_valid        = p_uty(tags = "train", custom_check = check_measures),
-        augmentation          = p_uty(tags = "train"),
-        callbacks             = p_uty(tags = "train", custom_check = check_callbacks),
-        drop_last             = p_lgl(default = FALSE, tags = "train"),
-        keep_last_prediction  = p_lgl(default = TRUE, tags = "train"),
-        num_threads           = p_int(default = 1L, lower = 1L, tags = c("train", "predict", "threads")),
-        shuffle               = p_lgl(default = TRUE, tags = "train"),
-        early_stopping_rounds = p_int(default = 0L, tags = "train")
-      )
+      p = paramset_torchlearner()
 
       p$values = list(
         num_threads = 1L,
@@ -92,57 +79,6 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
         feature_types = feature_types,
         man = man
       )
-    },
-    #' @description Assembles the network, optimizer and loss_fn after saving and loading the learner.
-    unserialize = function(device = NULL) {
-      device = device %??% self$param_set$values$device %??% "cpu"
-      model = self$state$model
-
-      network_sd = torch_load_list(model$raw$network)
-      optimizer_sd = torch_load_list(model$raw$optimizer)
-      loss_fn_sd = torch_load_list(model$raw$loss_fn)
-
-      model$network$.load_state_dict(network_sd)
-      model$optimizer$.load_state_dict(optimizer_sd)
-      model$loss_fn$.load_state_dict(loss_fn_sd)
-      invisible(self)
-    },
-    serialize = function(objs = c("network", "optimizer", "loss_fn")) {
-      assert_subset(objs, c("network", "optimizer", "loss_fn"), empty.ok = TRUE)
-
-      serialize_tensors = function(x) {
-        lapply(x, function(x) {
-            if (inherits(x, "torch_tensor")) {
-              torch:::tensor_to_raw_vector_with_class(x)
-            } else if (is.list(x)) {
-              serialize_tensors(x)
-            } else {
-              x
-            }
-          })
-      }
-      g = function(l) {
-        iwalk(
-          l,
-          function(x, nm) {
-            if (inherits(x, "torch_tensor")) {
-              NULL
-            } else if (is.list(x)) {
-              g(x)
-            } else {
-              x
-            }
-          }
-        )
-      }
-      walk(objs,
-        function(obj) {
-          self$state$model$raw$state_dict[[obj]] = serialize_tensors(self[[obj]]$state_dict())
-          proto = self[[obj]]$clone()
-          self$state$model$raw$prototype[[obj]] = g(proto$modules)
-        }
-      )
-      invisible(self)
     }
   ),
   private = list(
@@ -161,6 +97,7 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
       # cached predictions
       learner_torch_predict(self, task)
     },
+    .network = function(task) stop(".network must be implemented."),
     .optimizer = NULL,
     .loss = NULL
   ),
@@ -191,3 +128,21 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
     }
   )
 )
+
+
+paramset_torchlearner = function() {
+  ps(
+    batch_size            = p_int(tags = c("train", "predict", "required"), lower = 1L, default = 16L),
+    epochs                = p_int(tags = c("train", "hotstart", "required"), lower = 0L),
+    device                = p_fct(tags = c("train", "predict"), levels = c("auto", "cpu", "cuda", "meta"), default = "auto"), # nolint
+    measures_train        = p_uty(tags = "train", custom_check = check_measures),
+    measures_valid        = p_uty(tags = "train", custom_check = check_measures),
+    augmentation          = p_uty(tags = "train"),
+    callbacks             = p_uty(tags = "train", custom_check = check_callbacks),
+    drop_last             = p_lgl(default = FALSE, tags = "train"),
+    keep_last_prediction  = p_lgl(default = TRUE, tags = "train"),
+    num_threads           = p_int(default = 1L, lower = 1L, tags = c("train", "predict", "threads")),
+    shuffle               = p_lgl(default = TRUE, tags = "train"),
+    early_stopping_rounds = p_int(default = 0L, tags = "train")
+  )
+}

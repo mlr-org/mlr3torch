@@ -1,102 +1,103 @@
 #' @title Graph Network
 #' @description
-#' NOTE: Don't use this directly but build it using [TorchOp]s.
 #'
-#' Neural networks can be represented as Graphs as defined in [mlr3pipelines].
-#' The nodes define the operations that are being applied to the data, and the edges define
-#' the data-flow.
-#' An graph network essentially consists of a list of `nn_module`s
+#' Represents a NN using a [`Graph`] that contains [`PipeOpModule`]s.
 #'
-#'
-#'
-#'
-#'
-#' @examples
-#' \dontrun{
-#' # define a graph that represents a skip-connection
-#' graph = top("input") %>>%
-#'   gunion(
-#'     list(
-#'       top("linear_1", out_features = 10L) %>>% top("relu"),
-#'       top("linear_2")
-#'     )
-#'   ) %>>%
-#'   top("add") %>>%
-#'   top("output")
-#'
-#' graph$plot()
-#' }
 # '@export
 nn_graph = nn_module(
   "nn_graph",
-  initialize = function() {
-    # TODO: maybe check for topological sort?
-    private$.edges = setDT(named_list(c("src_id", "dst_id", "src_channel", "dst_channel"), character(0)))
-    private$.ids = character(0)
-    private$.outputs = list()
-    private$.inputs = list()
-    # edges = edges[order(dst_channel), list(src_channel, dst_id, dst_channel, payload), by = src_id]
-  },
-  set_terminal = function() {
-    last_id = tail(private$.ids, 1L)
-    last_channel = private$.outputs[[last_id]]
-    assert_true(length(last_channel) == 1L)
-    self$add_edge(
-      src_id = last_id,
-      dst_id = "__terminal__",
-      src_channel = last_channel,
-      dst_channel = "input"
-    )
-    invisible(self)
-  },
-  forward = function(input) {
-    edges = private$.edges
-    # loads the input into all channels
-    edges["__initial__", payload := list(list(..input)), on = "src_id"]
-    for (id in private$.ids) {
-      layer = self[[id]]
-      input_name = private$.inputs[[id]]
-      output_name = private$.outputs[[id]]
-      # every input channel of the current layer is the dst_channel exactly once
-      # Not really sure why we sort according to the name afterwards
-      input_tbl = edges[get("dst_id") == id, list(name = get("dst_channel"), payload = get("payload"))][input_name, , on = "name"]
-      # we clear the input of the current layer
-      edges[get("dst_id") == id, "payload" := list(list(NULL))]
-      # and generate the input for the current layer
-      input = input_tbl$payload
-      names(input) = input_tbl$name
+  #' @param model_descriptor ([`ModelDescriptor`])\cr
+  #'   Model Descriptor. `.pointer` is ignored, instead `output_pointer` values are used.
+  #' @param output_pointers (`list` of `character`)\cr
+  #'   Collection of `.pointer`s that indicate what part of the `model_descriptor$graph` is being used for output.
+  #'   Entries have the format of `ModelDescriptor$.pointer`.
+  #' @param list_output (`logical(1)`)\cr
+  #'   Whether output should be a list of tensors. If `FALSE`, then `length(output_pointers)` must be 1.
+  initialize = function(model_descriptor, output_pointers, list_output = FALSE) {
+    assert_class(model_descriptor, "ModelDescriptor")
+    self$list_output = assert_flag(list_output)
+    graph = model_descriptor$graph
+    self$shapes_in = model_descriptor$shapes_in
+    self$input_map = model_descriptor$input_map
 
-      lg$debug("Running PipeOp '%s$%s()'", id, fun, pipeop = op, input = input)
+    assert_list(output_pointers, types = "character", len = if (!list_output) 1)
+    self$output_map = character(0)
+    outnames = graph$output$name
 
-      # this now either outputs a tensor or a named list of tensors
-      output = do.call(layer, args = input)
-      if (is.null(names(output))) {
-        if (inherits(output, "torch_tensor")) {
-          output = set_names(list(output), output_name)
-        } else { # is already a list
-          output = set_names(output, output_name)
+    for (idx in seq_along(output_pointers)) {
+      op = output_pointers[[idx]]
+      assert_character(op, min.len = 1, max.len = 2, any.missing = FALSE)
+      if (length() == 1) {
+        # output pointer referring to input shape
+        # --> we add a PipeOpNop that just pipes the input through.
+        nopid = unique_id(paste(c("nop", op), collapse = "_"), names(graph$pipeops))
+        graph$add_pipeop(po("nop", id = nopid))
+        self$input_map[[paste0(nopid, ".input")]] = op
+        self$output_map[[idx]] = paste0(nopid, ".output")
+      } else {
+        # output pointer referring to graph channel.
+        op_canonical = paste(op, collapse = ".")
+        # is this a terminal channel?
+        if (op_canonical %nin% outnames) {
+          # no --> we add a nop-pipeop to create a terminal channel
+          nopid = unique_id(paste(c("output", op), collapse = "_"), names(graph$pipeops))
+          graph$add_pipeop(po("nop", id = nopid))
+          graph$add_edge(src_id = op[[1]], src_channel = op[[2]], dst_id = nopid)
+          op_canonical = paste0(nopid, ".output")
         }
+        self$output_map[[idx]] = op_canonical
       }
+    }
 
-      edges[list(id, output_name), "payload" := list(..output[get("src_channel")]), on = c("src_id", "src_channel")]
-    }
-    return(output[[1L]])
+    self$graph_input_name = graph$input$name  # cache this, it is expensive
+
+    # sanity checks all graph inputs have an entry in self$input_map
+    assert_names(names(self$input_map), permutation.of = self$graph_input_name)
+
+    pos = Filter(function(x) inherits(x, "PipeOpModule"), graph$pipeops)
+    self$modules = nn_module_list(map(pos, "module"))  # this is necessary to make torch aware of all the included parameters
+    self$graph = graph
   },
-  add_edge = function(src_id, dst_id, src_channel, dst_channel) {
-    row = data.table(src_id, src_channel, dst_id, dst_channel)
-    private$.edges = rbind(private$.edges, row, fill = TRUE)
-  },
-  add_layer = function(id, layer, inputs, outputs) {
-    assert_true(id %nin% private$.ids)
-    self[[id]] = layer
-    private$.ids = c(private$.ids, id)
-    private$.inputs[[id]] = inputs
-    private$.outputs[[id]] = outputs
-  },
-  active = list(
-    edges = function(rhs) {
-      assert_ro_binding(rhs)
-      private$.edges
-    }
-  )
+  forward = function(...) {
+    inputs = argument_matcher(names(self$shapes_in))(...)
+
+    inputs = unname(inputs[self$input_map[self$graph_input_name]])
+
+    outputs = self$graph$train(inputs, single_input = FALSE)
+
+    outputs = outputs[self$output_map]
+
+    if (!self$list_output) outputs = outputs[[1]]
+
+    outputs
+  }
 )
+
+# a function that has argument names 'names' and returns its arguments as a named list.
+# used to simulate argument matching for `...`-functions.
+# example:
+# f = argument_matcher(c("a", "b", "c"))
+# f(1, 2, 3) --> list(a = 1, b = 2, c = 3)
+# f(1, 2, a = 3) --> list(a = 3, b = 1, c = 2)
+# usecase:
+# ff = function(...) {
+#   l <- argument_matcher(c("a", "b", "c"))(...)
+#   l$a + l$b
+# }
+# # behaves like
+# ff(a, b, c) a + b
+# (Except in the awquard case of missing args)
+argument_matcher = function(names) {
+  local(as.function(c(named_list(names, substitute()), quote(as.list(environment())))), envir = topenv())
+}
+
+# make unique ID that starts with 'newid' and appends _1, _2, etc. to avoid collisions
+unique_id = function(newid, existing_ids) {
+  proposal = newid
+  i = 1
+  while (proposal %in% existing_ids) {
+    proposal = sprintf("%s_%s", newid, i)
+    i = i + 1
+  }
+  proposal
+}

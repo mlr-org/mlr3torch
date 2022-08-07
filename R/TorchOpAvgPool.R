@@ -9,111 +9,94 @@
 #' @name avg_pool
 NULL
 
-#' @template param_id
-#' @template param_param_vals
-#' @rdname avg_pool
-#' @export
-TorchOpAvgPool1D = R6Class("TorchOpAvgPool1D",
-  inherit = TorchOp,
+TorchOpConv = R6Class("TorchOpAvgPool",
+  inherit = PipeOpTorch,
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(id = "avg_pool1d", param_vals = list()) {
-      param_set = make_paramset_avg_pool(d = 1L)
+    initialize = function(id, d, module_generator, param_vals = list()) {
+      private$.d = assert_int(d)
+
+      param_set = ps(
+        kernel_size = p_uty(custom_check = check_fn(d), tags = c("required", "train")),
+        stride = p_uty(default = NULL, custom_check = check_fn(d), tags = "train"),
+        padding = p_uty(default = 0L, custom_check = check_fn(d), tags = "train"),
+        ceil_mode = p_lgl(default = FALSE, tags = "train"),
+        count_include_pad = p_lgl(default = TRUE, tags = "train")
+      )
+      if (d >= 2L) {
+        param_set$add(ParamDbl$new("divisor_override", lower = 0, tags = "train"))
+      }
+
       super$initialize(
         id = id,
+        module_generator = module_generator,
         param_vals = param_vals,
         param_set = param_set
       )
     }
   ),
   private = list(
-    .build = function(inputs, task) {
-      param_vals = self$param_set$get_values(tag = "train")
-      assert_true(length(inputs$input$shape) == 3L)
-      invoke(nn_avg_pool1d, .args = param_vals)
-    }
+    .shapes_out = function(shapes_in, param_vals) {
+      list(avg_output_shape(
+        shape_in = shapes_in[[1]],
+        conv_dim = private$.d,
+        padding = param_vals$padding %??% 0,
+        stride = param_vals$stride %??% 1,
+        kernel_size = param_vals$kernel_size,
+        ceil_mode = param_vals$ceil_mode %??% FALSE
+      ))
+    },
+    .shape_dependent_params = function(shapes_in) list(),
+    .d = NULL
   )
 )
 
-#' @template param_id
-#' @template param_param_vals
-#' @rdname avg_pool
-#' @export
-TorchOpAvgPool2D = R6Class("TorchOpAvgPool1D",
-  inherit = TorchOp,
-  public = list(
-    #' @description
-    #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(id = "avg_pool2d", param_vals = list()) {
-      param_set = make_paramset_avg_pool(d = 2L)
-      super$initialize(
-        id = id,
-        param_vals = param_vals,
-        param_set = param_set
-      )
-    }
-  ),
-  private = list(
-    .build = function(inputs, task) {
-      param_vals = self$param_set$get_values(tag = "train")
-      assert_true(length(inputs$input$shape) == 4L)
-      invoke(nn_avg_pool2d, .args = param_vals)
-    }
+avg_output_shape = function(shape_in, conv_dim, padding, stride, kernel_size, ceil_mode = FALSE) {
+  assert_int(shape_in, min.len = conv_dim)
+  shape_head = utils::head(shape_in, -conv_dim)
+  shape_tail = utils::tail(shape_in, conv_dim)
+  c(shape_head,
+    (if (ceil_mode) base::ceiling else base::floor)((shape_tail + 2 * padding - kernel_size) / stride + 1)
   )
-)
-
-#' @template param_id
-#' @template param_param_vals
-#' @rdname avg_pool
-#' @export
-TorchOpAvgPool3D = R6Class("TorchOpAvgPool1D",
-  inherit = TorchOp,
-  public = list(
-    #' @description
-    #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(id = "avg_pool3d", param_vals = list()) {
-      param_set = make_paramset_avg_pool(d = 3L)
-      super$initialize(
-        id = id,
-        param_vals = param_vals,
-        param_set = param_set
-      )
-    }
-  ),
-  private = list(
-    .build = function(inputs, task) {
-      param_vals = self$param_set$get_values(tag = "train")
-      assert_true(length(inputs$input$shape) == 5L)
-      invoke(nn_avg_pool3d, .args = param_vals)
-    }
-  )
-)
-
-
-
-make_paramset_avg_pool = function(d) {
-  force(d)
-  check_fn = function(x) {
-    if (is.null(x) || test_integerish(x, any.missing = FALSE) && (length(x) %in% c(1, d))) {
-      return(TRUE)
-    }
-    sprintf("Must be an integerish vector of length 1 or %s", d)
-  }
-
-  param_set = ps(
-    kernel_size = p_uty(custom_check = check_fn, tags = c("required", "train")),
-    stride = p_uty(default = NULL, custom_check = check_fn, tags = "train"),
-    padding = p_uty(default = 0L, custom_check = check_fn, tags = "train"),
-    ceil_mode = p_lgl(default = FALSE, tags = "train"),
-    count_include_pad = p_lgl(default = TRUE, tags = "train")
-  )
-  if (d >= 2L) {
-    param_set$add(ParamDbl$new("divisor_override", lower = 0.00001, tags = "train"))
-  }
-
-  param_set
 }
+
+#' @template param_id
+#' @template param_param_vals
+#' @rdname avg_pool
+#' @export
+TorchOpAvgPool1D = R6Class("TorchOpAvgPool1D", inherit = TorchOpAvgPool,
+  public = list(
+    initialize = function(id = "avg_pool1d", param_vals = list()) {
+      super$initialize(id = id, d = 1, module_generator = nn_avg_pool1d, param_vals = param_vals)
+    }
+  )
+)
+
+
+#' @template param_id
+#' @template param_param_vals
+#' @rdname avg_pool
+#' @export
+TorchOpAvgPool2D = R6Class("TorchOpAvgPool2D", inherit = TorchOpAvgPool,
+  public = list(
+    initialize = function(id = "avg_pool2d", param_vals = list()) {
+      super$initialize(id = id, d = 2, module_generator = nn_avg_pool2d, param_vals = param_vals)
+    }
+  )
+)
+
+#' @template param_id
+#' @template param_param_vals
+#' @rdname avg_pool
+#' @export
+TorchOpAvgPool2D = R6Class("TorchOpAvgPool2D", inherit = TorchOpAvgPool,
+  public = list(
+    initialize = function(id = "avg_pool2d", param_vals = list()) {
+      super$initialize(id = id, d = 2, module_generator = nn_avg_pool2d, param_vals = param_vals)
+    }
+  )
+)
 
 #' @include mlr_torchops.R
 mlr_torchops$add("avg_pool1d", TorchOpAvgPool1D)

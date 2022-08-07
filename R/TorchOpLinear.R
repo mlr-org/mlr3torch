@@ -14,7 +14,7 @@
 #'
 #' @export
 TorchOpLinear = R6Class("TorchOpLinear",
-  inherit = TorchOp,
+  inherit = PipeOpTorch,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "linear", param_vals = list()) {
@@ -25,22 +25,14 @@ TorchOpLinear = R6Class("TorchOpLinear",
       super$initialize(
         id = id,
         param_set = param_set,
-        param_vals = param_vals
+        param_vals = param_vals,
+        module_generator = nn_linear
       )
     }
   ),
   private = list(
-    .build = function(inputs, task) {
-      param_vals = self$param_set$get_values(tag = "train")
-      input = inputs$input
-      assert_true(length(input$shape) >= 2L)
-      # TODO: Define a clean interface what dimensions a TorchOp requires as input and what
-      # it then outputs
-      in_features = input$shape[length(input$shape)]
-      args = insert_named(param_vals, list(in_features = in_features))
-
-      invoke(nn_linear, .args = args)
-    }
+    .shape_dependent_params = function(shapes_in) list(in_features = shapes_in[[1]]),
+    .shapes_out = function(shapes_in, param_vals) list(head(shapes_in[[1]], -1), param_vals$out_features)
   )
 )
 
