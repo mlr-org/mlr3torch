@@ -129,7 +129,6 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
   )
 )
 
-
 paramset_torchlearner = function() {
   ps(
     batch_size            = p_int(tags = c("train", "predict", "required"), lower = 1L, default = 16L),

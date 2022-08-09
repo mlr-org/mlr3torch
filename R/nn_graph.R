@@ -17,46 +17,46 @@ nn_graph = nn_module(
     assert_class(model_descriptor, "ModelDescriptor")
     self$list_output = assert_flag(list_output)
     graph = model_descriptor$graph
-    self$shapes_in = model_descriptor$shapes_in
-    self$input_map = model_descriptor$input_map
-
-    assert_list(output_pointers, types = "character", len = if (!list_output) 1)
-    self$output_map = character(0)
-    outnames = graph$output$name
-
-    for (idx in seq_along(output_pointers)) {
-      op = output_pointers[[idx]]
-      assert_character(op, min.len = 1, max.len = 2, any.missing = FALSE)
-      if (length() == 1) {
-        # output pointer referring to input shape
-        # --> we add a PipeOpNop that just pipes the input through.
-        nopid = unique_id(paste(c("nop", op), collapse = "_"), names(graph$pipeops))
-        graph$add_pipeop(po("nop", id = nopid))
-        self$input_map[[paste0(nopid, ".input")]] = op
-        self$output_map[[idx]] = paste0(nopid, ".output")
-      } else {
-        # output pointer referring to graph channel.
-        op_canonical = paste(op, collapse = ".")
-        # is this a terminal channel?
-        if (op_canonical %nin% outnames) {
-          # no --> we add a nop-pipeop to create a terminal channel
-          nopid = unique_id(paste(c("output", op), collapse = "_"), names(graph$pipeops))
-          graph$add_pipeop(po("nop", id = nopid))
-          graph$add_edge(src_id = op[[1]], src_channel = op[[2]], dst_id = nopid)
-          op_canonical = paste0(nopid, ".output")
-        }
-        self$output_map[[idx]] = op_canonical
-      }
-    }
+    self$graph = graph
 
     self$graph_input_name = graph$input$name  # cache this, it is expensive
 
-    # sanity checks all graph inputs have an entry in self$input_map
-    assert_names(names(self$input_map), permutation.of = self$graph_input_name)
+    # all graph inputs have an entry in self$shapes_in
+    # ModelDescriptor allows Graph to grow by-reference and therefore may have
+    # an incomplete $ingress-slot. However, by the time we create an nn_graph,
+    # the `graph` must be final, so $ingress must be complete.
+    assert_names(names(model_descriptor$ingress), permutation.of = self$graph_input_name)
 
-    pos = Filter(function(x) inherits(x, "PipeOpModule"), graph$pipeops)
-    self$modules = nn_module_list(map(pos, "module"))  # this is necessary to make torch aware of all the included parameters
-    self$graph = graph
+    self$shapes_in = map(model_descriptor$ingress, "shape")
+
+    assert_list(output_pointers, types = "character", len = if (!list_output) 1)
+
+    self$output_map = character(0)
+
+    graph_output = graph$output  # cache this, it is expensive
+    self$output_map = map_chr(output_pointers, function(op) {
+      assert_character(op, len = 2, any.missing = FALSE)
+      # output pointer referring to graph channel.
+      op_name = paste(op, collapse = ".")
+      # is this a terminal channel?
+      # note we don't just rely on matching op_canonical with output channel name, since
+      # pipeop 'a.b' with channel 'c' would produce the same name as pipeop 'a' with channel 'b.c'.
+      channel_match = graph_output[as.list(op), on = c("op.id", "channel.name"), nomatch = NULL]
+      if (!nrow(channel)) {
+        # The indicated channel is not terminal. May happen if output of operation1 gets routed
+        # to operation2 and *also* to output: the graph doesn't know that operation1's result should
+        # be an output as well --> we add a nop-pipeop to create a terminal channel
+        nopid = unique_id(paste(c("output", op), collapse = "_"), names(graph$pipeops))
+        graph$add_pipeop(po("nop", id = nopid))
+        graph$add_edge(src_id = op[[1]], src_channel = op[[2]], dst_id = nopid)
+        op_name = paste0(nopid, ".output")
+      }
+      op_name
+    })
+
+    # the following is necessary to make torch aware of all the included parameters
+    mops = Filter(function(x) inherits(x, "PipeOpModule"), graph$pipeops)
+    self$modules = nn_module_list(map(mops, "module"))
   },
   forward = function(...) {
     inputs = argument_matcher(names(self$shapes_in))(...)

@@ -2,8 +2,8 @@ LearnerClassifTorchModel = R6Class("LearnerClassifTorchModel",
   inherit = LearnerClassifTorchAbstract,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
-    initialize = function(network, optimizer, loss, feature_types = NULL, packages = character(0)) {
-      private$.network_stored = network
+    initialize = function(network, optimizer = t_opt("adam"), loss = t_loss("cross_entropy"), feature_types = NULL, packages = character(0)) {
+      private$.network_stored = assert_class(network, "nn_module")
       super$initialize(
         id = "classif.torch",
         properties = c("weights", "twoclass", "multiclass", "hotstart_forward"),

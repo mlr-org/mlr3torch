@@ -25,20 +25,3 @@ check_network = function(x) {
     TRUE
   }
 }
-
-make_paramset_module = function(module) {
-  pars = formalArgs(module)
-  assert_true("..." %nin% pars)
-
-  pars = lapply(
-    pars,
-    function(par) {
-      if (par == "task") {
-        NULL
-      }
-      ParamUty$new(id = paste0("net.", par), tags = "network")
-    }
-  )
-  param_set = ParamSet$new(pars)
-}
-

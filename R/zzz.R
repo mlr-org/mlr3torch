@@ -28,6 +28,9 @@
 #'
 "_PACKAGE"
 
+# to silence RCMD check
+utils::globalVariables(c("..", "self", "private", "super", "N", "..input"))
+
 
 register_mlr3 = function() {
   # Learners ----------------------------------------------------------------
@@ -38,11 +41,11 @@ register_mlr3 = function() {
   tsks$add("tiny_imagenet", load_task_tiny_imagenet)
 
   # classification learners
-  lrns$add("classif.tabnet", LearnerClassifTabNet)
-  lrns$add("classif.alexnet", LearnerClassifAlexNet)
+  ## lrns$add("classif.tabnet", LearnerClassifTabNet)
+  ## lrns$add("classif.alexnet", LearnerClassifAlexNet)
   lrns$add("classif.torch", LearnerClassifTorch)
-  lrns$add("classif.tab_resnet", LearnerClassifTabResNet)
-  lrns$add("classif.mlp", LearnerClassifMLP)
+  ## lrns$add("classif.tab_resnet", LearnerClassifTabResNet)
+  ## lrns$add("classif.mlp", LearnerClassifMLP)
 
   # regression learners
   lrns$add("regr.tabnet", LearnerRegrTabNet)

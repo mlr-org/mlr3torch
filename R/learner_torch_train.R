@@ -55,21 +55,24 @@ train_eval = function(learner, network, optimizer, loss_fn, history, epochs, cal
   )
 }
 
+torch_network_predict = function(network, loader) {
+  iter = 1L
+  loop(for (batch in valid_loader) {
+    predictions[[iter]] = with_no_grad(do.call(network$forward, batch$x))
+    iter = iter + 1L
+  })
+  prediction = torch_cat(predictions, dim = 1L)
+}
 
-eval_network = function(learner, network, valid_loader, task, context, measures) {
-  history = context$history
+eval_network = function(predict_type, network, valid_loader, task, measures) {
   network$eval()
   predictions = vector("list", length(valid_loader))
-  iter = 1L
+
   if (length(valid_loader)) {
-    loop(for (batch in valid_loader) {
-      predictions[[iter]] = with_no_grad(network$forward(batch$x))
-      iter = iter + 1L
-    })
+    prediction = torch_network_predict(network, valid_loader)
+    prediction = encode_prediction(predict_type, prediction, task)
 
-    prediction = torch_cat(predictions, dim = 1L)
 
-    prediction = encode_prediction(learner, prediction, task)
     prediction = as_prediction_data(prediction, task = task, check = TRUE,
       row_ids = task$row_roles$early_stopping
     )
@@ -87,33 +90,49 @@ eval_network = function(learner, network, valid_loader, task, context, measures)
 }
 
 
-learner_torch_train = function(self, model, task) {
-  p = self$param_set$get_values(tags = "train")
-  model$network$to(device = p$device)
-  torch_set_num_threads(p$num_threads)
+learner_torch_train = function(self, model, optimizer, loss_fn, task) {
+  param_vals = self$param_set$get_values(tags = "train")
 
-  p$measures_valid = p$measures_valid %??% list()
-  p$measures_train = p$measures_train %??% list()
-  if (!is.list(p$measures_valid)) {
-    p$measures_valid = list(p$measures_valid)
+  network$to(device = param_vals$device)
+
+  torch_set_num_threads(param_vals$num_threads)
+
+  normalize_to_list = function(x) {
+    if (is.null(x)) return(list())
+    if (!is.list(x)) return(list(x))
+    x
   }
-  if (!is.list(p$measures_train)) {
-    p$measures_train = list(p$measures_train)
-  }
 
-  train_set = as_dataset(task, device = p$device, augmentation = NULL,
-    row_ids = task$row_roles$use
+  param_vals$measures_train = normalize_to_list(param_vals$measures_train)
+  param_vals$measures_valid = normalize_to_list(param_vals$measures_valid)
+
+  train_set = task_dataset(
+    task,
+    feature_ingress_tokens = feature_ingress_tokens,
+    target_batchgetter = target_batchgetter,
+    device = param_vals$device
   )
 
-  valid_set = as_dataset(task, device = p$device, augmentation = NULL,
-    row_ids = task$row_roles$early_stopping
+  valid_task = task$clone()$filter(integer(0))
+  valid_task$set_row_roles(task$row_roles$early_stopping, "use")
+  valid_set = task_dataset(
+    valid_task,
+    feature_ingress_tokens = feature_ingress_tokens,
+    target_batchgetter = target_batchgetter,
+    device = param_vals$device
   )
 
-  train_loader = as_dataloader(train_set, batch_size = p$batch_size, drop_last = p$drop_last,
-    shuffle = p$shuffle
+  train_loader = dataloader(
+    dataset = train_set,
+    batch_size = param_vals$batch_size,
+    drop_last = param_vals$drop_last,
+    shuffle = param_vals$shuffle
   )
 
-  valid_loader = as_dataloader(valid_set, batch_size = p$batch_size, drop_last = p$drop_last,
+  valid_loader = dataloader(
+    dataset = valid_set,
+    batch_size = param_vals$batch_size,
+    drop_last = param_vals$drop_last,
     shuffle = FALSE
   )
 

@@ -17,24 +17,23 @@ learner_torch_predict = function(self, task) {
 
   prediction = torch_cat(predictions, dim = 1L)
 
-  encode_prediction(self, prediction, task)
+  encode_prediction(prediction, self$predict_type, task)
 }
 
-# self is learner
-encode_prediction = function(self, prediction, task) {
+encode_prediction = function(prediction, predict_type, task) {
   response = prob = NULL
   if (task$task_type == "classif") {
-    if (self$predict_type == "response") {
+    if (predict_type == "response") {
       response = as.integer(prediction$argmax(dim = 2L))
       class(response) = "factor"
       levels(response) = task$levels(cols = task$target_names)[[1L]]
-    } else if (self$predict_type == "prob") {
+    } else if (predict_type == "prob") {
       prob = as.numeric(nnf_softmax(prediction, dim = 2L))
       colnames(prob) = task$target_names
     }
     return(list(response = response, prob = prob))
   } else if (task$task_type == "regr") {
-    if (self$predict_type == "response") {
+    if (predict_type == "response") {
       return(response = as.numeric(prediction))
     } else {
       stopf("Invalid predict_type for task_type 'regr'.")

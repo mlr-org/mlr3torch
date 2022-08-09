@@ -4,83 +4,60 @@
 #' Represents a model; possibly a complete model, possibly one in the process of being built up.
 #'
 #' This model takes input tensors of shapes `shapes_in` and
-#' pipes them through `graph`. Input shapes get mapped to input channels of `graph` by `input_map`.
+#' pipes them through `graph`. Input shapes get mapped to input channels of `graph`.
 #' Output shapes are named by the output channels of `graph`; it is also possible
 #' to represent no-ops on tensors, in which case names of input and output should be identical.
 #'
 #' `ModelDescriptor` objects typically represent partial models being built up, in which case the `.pointer` slot indicates
-#' a specific item of `.pointer_shape` that should be extended.
+#' a specific point in the graph that produces a tensor of shape `.pointer_shape`, on which the graph should be extended.
 #'
 #' It is allowed for the `graph` in this structure to be modified by-reference in different parts of the code.
-#' However, these modifications may never remove any input channels of the `Graph`, i.e. no element of `graph$input` may be
-#' removed by reference, e.g. by adding an edge to the `Graph` that has the input channel of a `PipeOp` that was previously
-#' without parent as its destination.
+#' However, these modifications may never add edges with elements of the `Graph` as destination. In particular, no element
+#' of `graph$input` may be removed by reference, e.g. by adding an edge to the `Graph` that has the input channel of a `PipeOp`
+#' that was previously without parent as its destination.
 #'
 #' @param graph ([`Graph`][mlr3pipelines::Graph])\cr
 #'   `Graph` of [`PipeOpModule`] operators.
-#' @param shapes_in (uniquely named `list` of `integer`)\cr
-#'   List of shapes that go into `graph`.
-#' @param input_map (named `character`)\cr
-#'   Mapping input channels of `graph` to names of `shapes_in`. The values of `input_map` must all be in `names(shapes_in)`.
-#'   `names(input_map)` must be a subset of `graph$input$name`. The values of `input_map` need not be unique, it is therefore
-#'    possible to map multiple `graph` input channels to the same input shape.
+#' @param ingress (uniquely named `list` of `TorchIngressToken`)\cr
+#'   List of inputs that go into `graph`. Names of this must be a subset of `graph$input$name`.
 #' @param task ([`Task`][mlr3::Task])\cr
 #'   (Training)-Task for which the model is being built. May be necessary for for some aspects of what loss to use etc.
-#'   Only target info should be used.
-#' @param features_in (uniquely named `list` of `character`)\cr
-#'   List features of the `task` that are used as input source for each `shapes_in` entry. All entries of `features_in` should
-#'   be subsets of `task$feature_names`.
 #' @param optimizer ([`ParamdOptimizer`] | `NULL`)\cr
 #'   Additional info: what optimizer to use.
 #' @param loss ([`ParamdLoss`] | `NULL`)\cr
 #'   Additional info: what loss to use.
 #' @param callbacks (`list`)\cr
 #'   Callbacks.
-#' @param .pointer (`character(1)` | `character(2)` | `NULL`)\cr
-#'   Indicating an element on which a model is being built. Must have either one or two elements. If it has one element,
-#'   it designates an item of `shapes_in`. If it has two elements, it points to an output channel within `graph`:
+#' @param .pointer (`character(2)` | `NULL`)\cr
+#'   Indicating an element on which a model is. Points to an output channel within `graph`:
 #'   Element 1 is the `PipeOp`'s id and element 2 is that `PipeOp`'s output channel.
-#' @param .pointer_shape (`integer`)\cr
-#'   Shape of the output indicated by `.pointer`. If `.pointer` has one element, i.e. points to `shapes_in`, this must be
-#'   equal to `shapes_in[[.pointer]]`.
+#' @param .pointer_shape (`integer` | `NULL`)\cr
+#'   Shape of the output indicated by `.pointer`.
 #' @return a `ModelDescriptor`.
-ModelDescriptor = function(graph, shapes_in, input_map, task, features_in, optimizer = NULL, loss = NULL, callbacks = list(), .pointer = NULL, .pointer_shape = NULL) {
+ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, callbacks = list(), .pointer = NULL, .pointer_shape = NULL) {
   assert_r6(graph, "Graph")
   innames = graph$input$name  # graph$input$name access is slow
 
-  assert_list(shapes_in, min.len = 1, types = "numeric", names = "unique", any.missing = FALSE)
+  assert_list(ingress, min.len = 1, types = "TorchIngressToken", names = "unique", any.missing = FALSE)
 
-  # conditions on input_map: maps shapes_in to graph$input$name
-  assert_character(input_map, any.missing = FALSE, names = "unique", unique = TRUE)
-  assert_names(names(input_map), subset.of = innames)
-  assert_subset(input_map, names(shapes_in))
+  # conditions on ingress: maps shapes_in to graph$input$name
+  assert_names(names(ingress), subset.of = innames)
 
   assert_r6(task, "Task")
-
-  assert_list(features_in, types = "numeric", names = "unique", any.missing = FALSE)
-  assert_names(names(features_in), permutation.of = names(shapes_in))
-  lapply(features_in, assert_subset, choices = task$feature_names)
 
   assert_r6(optimizer, "ParamdOptimizer", null.ok = TRUE)
   assert_r6(loss, "ParamdLoss", null.ok = TRUE)
   assert_list(callbacks, any.missing = FALSE)
   if (!is.null(.pointer)) {
-    assert_integerish(.pointer_shape, min.len = 1)
-    if (length(.pointer) == 1) {
-      assert_choice(.pointer, names(shapes_in))
-      assert_true(identical(.pointer_shape, shapes_in[[.pointer]]))
-    } else {
-      assert_choice(.pointer[[1]], names(graph$pipeops))
-      assert_choice(.pointer[[2]], graph$pipeops[[.pointer[[1]]]]$output$name)
-    }
+    assert_integerish(.pointer_shape, len = 2)
+    assert_choice(.pointer[[1]], names(graph$pipeops))
+    assert_choice(.pointer[[2]], graph$pipeops[[.pointer[[1]]]]$output$name)
   }
 
   structure(list(
     graph = graph,
-    shapes_in = shapes_in,
-    input_map = input_map,
+    ingress = ingress,
     task = task,
-    features_in = features_in,
     optimizer = optimizer,
     loss = loss,
     callbacks = callbacks,
@@ -97,7 +74,7 @@ print.ModelDescriptor = function(x, ...) {
   }
   cat(sprintf("ModelDescriptor (%s ops):\n%s\noptimizer: %s\nloss: %s\n%s callbacks%s\n",
     length(x$graph$pipeops),
-    shape_to_str(x$shapes_in),
+    shape_to_str(map(x$ingress, "shape")),
     if (is.null(x$optimizer)) "N/A" else if (is.null(x$optimizer$label)) "unknown" else x$optimizer$label,
     if (is.null(x$loss)) "N/A" else if (is.null(x$loss$label)) "unknown" else x$loss$label,
     length(x$callbacks),
@@ -176,13 +153,11 @@ model_descriptor_union = function(mds1, mds2) {
 
   ModelDescriptor(
     graph = graph,
-    shapes_in = merge_assert_id(mds1$shapes_in, mds2$shapes_in, .var.name = "shapes_in"),
-    input_map = merge_assert_id(mds1$input_map, mds2$input_map, .var.name = "input_map"),
+    ingress = merge_assert_id(mds1$ingress, mds2$ingress, .var.name = "ingress"),
     task = task,
-    features_in = merge_assert_id(mds1$features_in, mds2$features_in, .var.name = "features_in"),
     optimizer = coalesce_assert_id(mds1$optimizer, mds2$optimizer, .var.name = "optimizer"),
     loss = coalesce_assert_id(mds1$loss, mds2$loss, .var.name = "loss"),
-    callbacks = merge_assert_id(mds1$shapes_in, mds2$shapes_in, .var.name = "callbacks")
+    callbacks = merge_assert_id(mds1$callbacks, mds2$callbacks, .var.name = "callbacks")
   )
 }
 

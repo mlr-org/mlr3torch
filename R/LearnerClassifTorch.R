@@ -20,10 +20,11 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
   inherit = LearnerClassifTorchAbstract,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
-    initialize = function(module, param_set = NULL, optimizer = "adam", loss = "cross_entropy", param_vals = list(), feature_types = NULL) {
+    initialize = function(module, param_set = NULL, optimizer = t_opt("adam"), loss = t_loss("cross_entropy"), param_vals = list(), feature_types = NULL) {
       private$.module = module
       if (inherits(module, "nn_module_generator")) {
-        param_set = make_paramset_module(module)
+        param_set = inferps(module)
+        param_set$set_id = "net"
       } else {
         stopf("Construction argument 'module' must either be NULL or a nn_module_generator.")
       }
@@ -52,4 +53,3 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
     .module = NULL
   )
 )
-
