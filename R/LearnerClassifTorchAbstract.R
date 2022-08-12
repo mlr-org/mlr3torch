@@ -83,13 +83,7 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
   ),
   private = list(
     .train = function(task) {
-      network = private$.network(task)
-      model = list(
-        network = network,
-        optimizer = private$.optimizer$get_optimizer(network$parameters),
-        loss_fn = private$.loss$get_loss()
-      )
-      learner_torch_train(self, model, task)
+      learner_torch_train(self, private, super, task)
     },
     .predict = function(task) {
       # When keep_last_prediction = TRUE we store the predictions of the last validation and we
@@ -102,12 +96,6 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
     .loss = NULL
   ),
   active = list(
-    #' @field history ([`History][History])\cr
-    #'   History of the training proceess.
-    history = function(rhs) {
-      assert_ro_binding(rhs)
-      self$state$model$history
-    },
     #' @field optimizer ([`torch_Optimizer`][torch::optimizer])\cr
     #'  The optimizer.
     optimizer = function(rhs) {
