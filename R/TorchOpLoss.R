@@ -12,7 +12,7 @@ TorchOpLoss = R6Class("TorchOpLoss",
   inherit = PipeOpTorch,
   public = list(
     initialize = function(optimizer, id = "loss", param_vals = list()) {
-      assert_r6(optimizer, "ParamdLoss")
+      assert_r6(optimizer, "TorchLoss")
       private$.loss = optimizer
       super$initialize(
         id = id,

@@ -22,9 +22,9 @@
 #'   List of inputs that go into `graph`. Names of this must be a subset of `graph$input$name`.
 #' @param task ([`Task`][mlr3::Task])\cr
 #'   (Training)-Task for which the model is being built. May be necessary for for some aspects of what loss to use etc.
-#' @param optimizer ([`ParamdOptimizer`] | `NULL`)\cr
+#' @param optimizer ([`TorchOptimizer`] | `NULL`)\cr
 #'   Additional info: what optimizer to use.
-#' @param loss ([`ParamdLoss`] | `NULL`)\cr
+#' @param loss ([`TorchLoss`] | `NULL`)\cr
 #'   Additional info: what loss to use.
 #' @param callbacks (`list`)\cr
 #'   Callbacks.
@@ -45,8 +45,8 @@ ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, 
 
   assert_r6(task, "Task")
 
-  assert_r6(optimizer, "ParamdOptimizer", null.ok = TRUE)
-  assert_r6(loss, "ParamdLoss", null.ok = TRUE)
+  assert_r6(optimizer, "TorchOptimizer", null.ok = TRUE)
+  assert_r6(loss, "TorchLoss", null.ok = TRUE)
   assert_list(callbacks, any.missing = FALSE)
   if (!is.null(.pointer)) {
     assert_integerish(.pointer_shape, len = 2)

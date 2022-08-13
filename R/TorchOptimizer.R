@@ -1,5 +1,5 @@
 
-#' @title Convert to ParamdOptimizer
+#' @title Convert to TorchOptimizer
 #' @export
 as_paramd_optimizer = function(x, clone = FALSE) {
   assert_flag(clone)
@@ -8,17 +8,17 @@ as_paramd_optimizer = function(x, clone = FALSE) {
 
 #' @export
 as_paramd_optimizer.torch_optimizer_generator = function(x, clone = FALSE) {
-  ParamdOptimizer$new(x, label = deparse(substitute(x))[[1]])
+  TorchOptimizer$new(x, label = deparse(substitute(x))[[1]])
 }
 
 #' @export
-as_paramd_optimizer.ParamdOptimizer = function(x, clone = FALSE) {
+as_paramd_optimizer.TorchOptimizer = function(x, clone = FALSE) {
   if (clone) x$clone(deep = TRUE) else x
 }
 
-#' @title ParamdOptimizer
+#' @title TorchOptimizer
 #' @export
-ParamdOptimizer = R6::R6Class("ParamdOptimizer",
+TorchOptimizer = R6::R6Class("TorchOptimizer",
   public = list(
     label = NULL,
     optimizer = NULL,
@@ -68,7 +68,7 @@ mlr3torch_optimizers$add("adam",
       weight_decay = p_dbl(default = 0, lower = 0, upper = 1, tags = c("train", "optimizer")),
       amsgrad = p_lgl(default = FALSE, tags = c("train", "optimizer"))
     )
-    ParamdOptimizer$new(torch::optim_adam, p, "adam")
+    TorchOptimizer$new(torch::optim_adam, p, "adam")
   }
 )
 
@@ -82,7 +82,7 @@ mlr3torch_optimizers$add("sgd",
       weight_decay = p_dbl(0, 1, default = 0, tags = c("train", "optimizer")),
       nesterov = p_dbl(default = 0, upper = 1, lower = 0, tags = c("train", "optimizer"))
     )
-    ParamdOptimizer$new(torch::optim_sgd, p, "sgd")
+    TorchOptimizer$new(torch::optim_sgd, p, "sgd")
   }
 )
 
@@ -96,7 +96,7 @@ mlr3torch_optimizers$add("asgd",
       t0 = p_int(lower = 1L, upper = Inf, default = 1e6, tags = c("train", "optimizer")),
       weight_decay = p_dbl(default = 0, lower = 0, upper = 1, tags = c("train", "optimizer"))
     )
-    ParamdOptimizer$new(torch::optim_asgd, p, "asgd")
+    TorchOptimizer$new(torch::optim_asgd, p, "asgd")
   }
 )
 
@@ -116,7 +116,7 @@ mlr3torch_optimizers$add("rprop",
       etas = p_uty(default = c(0.5, 1.2), tags = c("train", "optimizer")),
       step_sizes = p_uty(c(1e-06, 50), tags = c("train", "optimizer"))
     )
-    ParamdOptimizer$new(torch::optim_rprop, p, "rprop")
+    TorchOptimizer$new(torch::optim_rprop, p, "rprop")
   }
 )
 
@@ -131,7 +131,7 @@ mlr3torch_optimizers$add("rmsprop",
       momentum = p_dbl(default = 0, lower = 0, upper = 1, tags = c("train", "optimizer")),
       centered = p_lgl(tags = c("train", "optimizer"))
     )
-    ParamdOptimizer$new(torch::optim_rmsprop, p, "rmsprop")
+    TorchOptimizer$new(torch::optim_rmsprop, p, "rmsprop")
   }
 )
 
@@ -145,7 +145,7 @@ mlr3torch_optimizers$add("adagrad",
       initial_accumulator_value = p_dbl(default = 0, lower = 0, tags = c("train", "optimizer")),
       eps = p_dbl(default = 1e-10, lower = 1e-16, upper = 1e-4, tags = c("train", "optimizer"))
     )
-    ParamdOptimizer$new(torch::optim_adagrad, p, "adagrad")
+    TorchOptimizer$new(torch::optim_adagrad, p, "adagrad")
   }
 )
 
@@ -158,7 +158,7 @@ mlr3torch_optimizers$add("adadelta",
       eps = p_dbl(default = 1e-06, lower = 1e-16, upper = 1e-4, tags = c("train", "optimizer")),
       weight_decay = p_dbl(default = 0, lower = 0, upper = 1, tags = c("train", "optimizer"))
     )
-    ParamdOptimizer$new(torch::optim_adadelta, p, "adadelta")
+    TorchOptimizer$new(torch::optim_adadelta, p, "adadelta")
   }
 )
 
@@ -175,7 +175,7 @@ mlr3torch_optimizers$add("lbfgs",
       line_search_fn = p_fct(default = "strong_wolfe", levels = c("strong_wolfe"),
         tags = c("train", "optimizer"))
     )
-    ParamdOptimizer$new(torch::optim_lbfgs, p, "lbfgs")
+    TorchOptimizer$new(torch::optim_lbfgs, p, "lbfgs")
   }
 )
 

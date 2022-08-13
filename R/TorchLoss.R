@@ -1,5 +1,5 @@
 
-#' @title Convert to ParamdLoss
+#' @title Convert to TorchLoss
 #' @export
 as_paramd_loss = function(x, clone = FALSE) {
   assert_flag(clone)
@@ -8,17 +8,17 @@ as_paramd_loss = function(x, clone = FALSE) {
 
 #' @export
 as_paramd_loss.nn_loss = function(x, clone = FALSE) {
-  ParamdLoss$new(x, label = deparse(substitute(x))[[1]])
+  TorchLoss$new(x, label = deparse(substitute(x))[[1]])
 }
 
 #' @export
-as_paramd_loss.ParamdLoss = function(x, clone = FALSE) {
+as_paramd_loss.TorchLoss = function(x, clone = FALSE) {
   if (clone) x$clone(deep = TRUE) else x
 }
 
-#' @title ParamdLoss
+#' @title TorchLoss
 #' @export
-ParamdLoss = R6::R6Class("ParamdLoss",
+TorchLoss = R6::R6Class("TorchLoss",
   public = list(
     label = NULL,
     tasktypes = NULL,
@@ -56,14 +56,14 @@ t_loss = function(.key, ...) {
 
 mlr3torch_losses$add("mse", function() {
     p = ps(reduction = p_fct(levels = c("mean", "sum"), default = "mean", tags = "train"))
-    ParamdLoss$new(torch::nn_mse_loss, "regr", p, "mse")
+    TorchLoss$new(torch::nn_mse_loss, "regr", p, "mse")
   }
 )
 
 
 mlr3torch_losses$add("l1", function() {
     p = ps()
-    ParamdLoss$new(torch::nn_l1_loss, "regr", p, "l1")
+    TorchLoss$new(torch::nn_l1_loss, "regr", p, "l1")
   }
 )
 
@@ -74,6 +74,6 @@ mlr3torch_losses$add("cross_entropy", function() {
       ignore_index = p_int(),
       reduction = p_fct(levels = c("mean", "sum"), default = "mean")
     )
-    ParamdLoss$new(torch::nn_cross_entropy_loss, "classif", p, "cross_entropy")
+    TorchLoss$new(torch::nn_cross_entropy_loss, "classif", p, "cross_entropy")
   }
 )

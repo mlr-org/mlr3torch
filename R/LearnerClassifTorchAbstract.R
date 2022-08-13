@@ -6,7 +6,7 @@
 #'
 #' @param id (`character(1)`)\cr
 #'   The id of the learner.
-#' @param optimizer ([`ParamdOptimizer`])\cr
+#' @param optimizer ([`TorchOptimizer`])\cr
 #'   The optimizer.
 #' @param loss (`character(1)`)\cr
 #'   The loss, see `torch_reflections$loss$classif`.
