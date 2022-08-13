@@ -27,7 +27,7 @@ utils::globalVariables(c("self", "private", "super"))
 po_register_env = new.env()
 register_po = function(name, constructor, metainf = NULL) {
   if (name %in% names(po_register_env)) stopf("pipeop %s registered twice", name)
-  po_register_env[[name]] = substitute(mlr_pipeops$add(name, constructor, metainf))
+  po_register_env[[name]] = constructor
 }
 
 register_mlr3 = function() {
@@ -44,6 +44,7 @@ register_mlr3 = function() {
 
 register_mlr3pipelines = function() {
   mlr_pipeops = utils::getFromNamespace("mlr_pipeops", ns = "mlr3pipelines")
+  imap(as.list(po_register_env), function(value, name) mlr_pipeops$add(name, value))
   lapply(po_register_env, eval)
 }
 
@@ -53,7 +54,7 @@ register_mlr3pipelines = function() {
   backports::import(pkgname, "R_user_dir", force = TRUE)
 
   register_namespace_callback(pkgname, "mlr3", register_mlr3)
-#  register_namespace_callback(pkgname, "mlr3pipelines", register_mlr3pipelines)
+  register_namespace_callback(pkgname, "mlr3pipelines", register_mlr3pipelines)
 
   assign("lg", lgr::get_logger(pkgname), envir = parent.env(environment()))
   if (Sys.getenv("IN_PKGDOWN") == "true") {

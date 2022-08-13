@@ -89,10 +89,10 @@ PipeOpTorchAvgPool2D = R6Class("PipeOpTorchAvgPool2D", inherit = PipeOpTorchAvgP
 #' @template param_param_vals
 #' @rdname avg_pool
 #' @export
-PipeOpTorchAvgPool2D = R6Class("PipeOpTorchAvgPool2D", inherit = PipeOpTorchAvgPool,
+PipeOpTorchAvgPool3D = R6Class("PipeOpTorchAvgPool3D", inherit = PipeOpTorchAvgPool,
   public = list(
-    initialize = function(id = "nn_avg_pool2d", param_vals = list()) {
-      super$initialize(id = id, d = 2, module_generator = nn_avg_pool2d, param_vals = param_vals)
+    initialize = function(id = "nn_avg_pool3d", param_vals = list()) {
+      super$initialize(id = id, d = 3, module_generator = nn_avg_pool3d, param_vals = param_vals)
     }
   )
 )

@@ -4,6 +4,7 @@
 \alias{avg_pool}
 \alias{PipeOpTorchAvgPool1D}
 \alias{PipeOpTorchAvgPool2D}
+\alias{PipeOpTorchAvgPool3D}
 \title{Average Pooling}
 \description{
 1D, 2D and 3D Average Pooling.
@@ -136,13 +137,13 @@ The objects of this class are cloneable with this method.
 }
 }
 \section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{mlr3torch::PipeOpTorch}} -> \code{mlr3torch::PipeOpTorchAvgPool} -> \code{PipeOpTorchAvgPool2D}
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{mlr3torch::PipeOpTorch}} -> \code{mlr3torch::PipeOpTorchAvgPool} -> \code{PipeOpTorchAvgPool3D}
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-PipeOpTorchAvgPool2D-new}{\code{PipeOpTorchAvgPool2D$new()}}
-\item \href{#method-PipeOpTorchAvgPool2D-clone}{\code{PipeOpTorchAvgPool2D$clone()}}
+\item \href{#method-PipeOpTorchAvgPool3D-new}{\code{PipeOpTorchAvgPool3D$new()}}
+\item \href{#method-PipeOpTorchAvgPool3D-clone}{\code{PipeOpTorchAvgPool3D$clone()}}
 }
 }
 \if{html}{\out{
@@ -157,11 +158,11 @@ The objects of this class are cloneable with this method.
 </details>
 }}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-PipeOpTorchAvgPool2D-new"></a>}}
-\if{latex}{\out{\hypertarget{method-PipeOpTorchAvgPool2D-new}{}}}
+\if{html}{\out{<a id="method-PipeOpTorchAvgPool3D-new"></a>}}
+\if{latex}{\out{\hypertarget{method-PipeOpTorchAvgPool3D-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchAvgPool2D$new(id = "nn_avg_pool2d", param_vals = list())}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchAvgPool3D$new(id = "nn_avg_pool3d", param_vals = list())}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -177,12 +178,12 @@ The initial parameters for the object.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-PipeOpTorchAvgPool2D-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-PipeOpTorchAvgPool2D-clone}{}}}
+\if{html}{\out{<a id="method-PipeOpTorchAvgPool3D-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-PipeOpTorchAvgPool3D-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchAvgPool2D$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchAvgPool3D$clone(deep = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

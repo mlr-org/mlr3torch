@@ -25,7 +25,8 @@ make_activation = function(name, param_set, parent_env = parent.frame()) {
     ),
     parent_env = parent_env
   )
-  eval(substitute(register_po(idname, constructor = result), list(idname = idname, result = as.symbol(classname))))
+#  eval(substitute(register_po(idname, constructor = result), list(idname = idname, result = as.symbol(classname))))
+  register_po(idname, result)
   result
 }
 
