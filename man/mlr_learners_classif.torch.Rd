@@ -28,9 +28,6 @@ This implements a custom neural network.
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="print"><a href='../../mlr3/html/Learner.html#method-Learner-print'><code>mlr3::Learner$print()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset"><a href='../../mlr3/html/Learner.html#method-Learner-reset'><code>mlr3::Learner$reset()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train"><a href='../../mlr3/html/Learner.html#method-Learner-train'><code>mlr3::Learner$train()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerClassifTorchAbstract" data-id="build"><a href='../../mlr3torch/html/LearnerClassifTorchAbstract.html#method-LearnerClassifTorchAbstract-build'><code>mlr3torch::LearnerClassifTorchAbstract$build()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerClassifTorchAbstract" data-id="serialize"><a href='../../mlr3torch/html/LearnerClassifTorchAbstract.html#method-LearnerClassifTorchAbstract-serialize'><code>mlr3torch::LearnerClassifTorchAbstract$serialize()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerClassifTorchAbstract" data-id="unserialize"><a href='../../mlr3torch/html/LearnerClassifTorchAbstract.html#method-LearnerClassifTorchAbstract-unserialize'><code>mlr3torch::LearnerClassifTorchAbstract$unserialize()</code></a></span></li>
 </ul>
 </details>
 }}
@@ -43,8 +40,8 @@ Initializes an instance of this \link[R6:R6Class]{R6} class.
 \if{html}{\out{<div class="r">}}\preformatted{LearnerClassifTorch$new(
   module,
   param_set = NULL,
-  optimizer = "adam",
-  loss = "cross_entropy",
+  optimizer = t_opt("adam"),
+  loss = t_loss("cross_entropy"),
   param_vals = list(),
   feature_types = NULL
 )}\if{html}{\out{</div>}}

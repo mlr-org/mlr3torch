@@ -50,7 +50,7 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
       learner = class$new(
         optimizer = md$optimizer,
         loss = md$loss,
-        packages = md$graph$packages
+        packages = md$graph$packages,
         network = nn_graph(md, md$.pointer)
       )
 
@@ -67,7 +67,7 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
       task = inputs[[1]]
       list(private$.learner$predict(task))
     },
-    .task_type = NULL,
+    .task_type = NULL
   )
 )
 
@@ -124,5 +124,5 @@ PipeOpTorchModelRegr = R6Class("PipeOpTorchModelRegr",
 )
 
 #' @include zzz.R
-register_po("torch_model.regr", value = PipeOpTorchModelRegr)
-register_po("torch_model.classif", value = PipeOpTorchModelClassif)
+register_po("torch_model.regr", PipeOpTorchModelRegr)
+register_po("torch_model.classif", PipeOpTorchModelClassif)

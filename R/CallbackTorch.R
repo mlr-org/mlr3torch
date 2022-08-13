@@ -52,17 +52,19 @@ callback_torch = function(name = NULL, inherit = CallbackTorch,
     on_epoch_end = assert_function(on_epoch_end, nargs = 0, null.ok = TRUE),
     on_batch_begin = assert_function(on_batch_begin, nargs = 0, null.ok = TRUE),
     on_batch_end = assert_function(on_batch_end, nargs = 0, null.ok = TRUE),
-    on_after_backward = assert_function(on_after_backward, nargs = 0, null.ok = TRUE)
+    on_after_backward = assert_function(on_after_backward, nargs = 0, null.ok = TRUE),
     on_batch_valid_begin = assert_function(on_batch_valid_begin, nargs = 0, null.ok = TRUE),
-    on_batch_valid_end = assert_function(on_batch_valid_end, nargs = 0, null.ok = TRUE),
+    on_batch_valid_end = assert_function(on_batch_valid_end, nargs = 0, null.ok = TRUE)
   )
   assert_list(public, null.ok = TRUE, names = "unique")
-  assert_names(names(public), disjunct.from = names(more_public))
+  if (length(public)) assert_names(names(public), disjunct.from = names(more_public))
   assert_list(private, null.ok = TRUE, names = "unique")
   assert_list(active, null.ok = TRUE, names = "unique")
   assert_environment(parent_env)
   more_public = Filter(function(x) !is.null(x), more_public)
+  parent_env_shim = new.env(parent = parent_env)
+  parent_env_shim$inherit = inherit
   R6::R6Class(classname = name, inherit = inherit, public = c(more_public, public),
-    private = private, active = active, parent_env = parent_env, lock_objects = FALSE)
+    private = private, active = active, parent_env = parent_env_shim, lock_objects = FALSE)
 }
 

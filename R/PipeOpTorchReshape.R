@@ -139,7 +139,7 @@ nn_unsqueeze = nn_module(
   }
 )
 
-#' @include mlr_torchops.R
+#' @include zzz.R
 register_po("nn_reshape", PipeOpTorchReshape)
 register_po("nn_unsqueeze", PipeOpTorchUnsqueeze)
 register_po("nn_squeeze", PipeOpTorchSqueeze)

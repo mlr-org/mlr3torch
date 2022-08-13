@@ -30,7 +30,7 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
       task = inputs[[1]]
       param_vals = self$param_set$get_values()
       graph = as_graph(po("nop", id = self$id))
-      batchgetter = private$.get_batchgetter(task, param_vals),
+      batchgetter = private$.get_batchgetter(task, param_vals)
 
 
       ## In case the user is tempted to do things that will break in bad ways...
@@ -99,14 +99,14 @@ PipeOpTorchIngressNumeric = R6Class("PipeOpTorchIngressNumeric",
     }
   ),
   private = list(
-    .shape = function(task, param_vals) c(NA, task$feature_names)
+    .shape = function(task, param_vals) c(NA, task$feature_names),
     .get_batchgetter = function(task, param_vals) {
       if (!all(task$feature_types$type %in% c("numeric", "integer"))) {
         stop("PipeOpTorchIngressNumeric only works tasks with all numeric features; Consider using po(\"select\").")
       }
       crate(function(data, device) {
         torch_tensor(
-          data = as.matrix(data)
+          data = as.matrix(data),
           dtype = torch_float(),
           device = device
         )
@@ -127,14 +127,14 @@ PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
     speak = function() cat("I am the ingress cat, meow! ^._.^\n")
   ),
   private = list(
-    .shape = function(task, param_vals) c(NA, task$feature_names)
+    .shape = function(task, param_vals) c(NA, task$feature_names),
     .get_batchgetter = function(task, param_vals) {
       if (!all(task$feature_types$type %in% c("factor", "ordered"))) {
         stop("PipeOpTorchIngressCategorical only works on tasks with all factorial (or ordered) features; Consider using po(\"select\").")
       }
       crate(function(data, device) {
         torch_tensor(
-          data = as.matrix(data[, lapply(.SD, as.integer)])
+          data = as.matrix(data[, lapply(.SD, as.integer)]),
           dtype = torch_long(),
           device = device
         )
@@ -160,7 +160,7 @@ PipeOpTorchIngressImages = R6Class("PipeOpTorchIngressImages",
     }
   ),
   private = list(
-    .shape = function(task, param_vals) c(NA, param_vals$channels, param_vals$pixels_height, param_vals$pixels_width)
+    .shape = function(task, param_vals) c(NA, param_vals$channels, param_vals$pixels_height, param_vals$pixels_width),
     .get_batchgetter = function(task, param_vals) {
       if (identical(task$feature_types$type, "imageuri")) {
         stop("PipeOpTorchIngressImages only works on tasks with a single \"imageur\"-feature; Consider using po(\"select\").")

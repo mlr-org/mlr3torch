@@ -53,7 +53,7 @@ register_mlr3pipelines = function() {
   backports::import(pkgname, "R_user_dir", force = TRUE)
 
   register_namespace_callback(pkgname, "mlr3", register_mlr3)
-  register_namespace_callback(pkgname, "mlr3pipelines", register_mlr3pipelines)
+#  register_namespace_callback(pkgname, "mlr3pipelines", register_mlr3pipelines)
 
   assign("lg", lgr::get_logger(pkgname), envir = parent.env(environment()))
   if (Sys.getenv("IN_PKGDOWN") == "true") {

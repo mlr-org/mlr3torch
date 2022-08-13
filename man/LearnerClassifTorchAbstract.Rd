@@ -14,9 +14,6 @@ It is not intended for direct use.
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
-\item{\code{history}}{(\link[=History]{`History})\cr
-History of the training proceess.}
-
 \item{\code{optimizer}}{(\code{\link[torch:optimizer]{torch_Optimizer}})\cr
 The optimizer.}
 
@@ -32,9 +29,6 @@ The network.}
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-LearnerClassifTorchAbstract-new}{\code{LearnerClassifTorchAbstract$new()}}
-\item \href{#method-LearnerClassifTorchAbstract-build}{\code{LearnerClassifTorchAbstract$build()}}
-\item \href{#method-LearnerClassifTorchAbstract-unserialize}{\code{LearnerClassifTorchAbstract$unserialize()}}
-\item \href{#method-LearnerClassifTorchAbstract-serialize}{\code{LearnerClassifTorchAbstract$serialize()}}
 \item \href{#method-LearnerClassifTorchAbstract-clone}{\code{LearnerClassifTorchAbstract$clone()}}
 }
 }
@@ -78,8 +72,8 @@ Initializes an object of this \link[R6:R6Class]{R6} class.
 \item{\code{id}}{(\code{character(1)})\cr
 The id of the learner.}
 
-\item{\code{optimizer}}{(\code{character(1)})\cr
-The optimizer, see \code{torch_reflections$optimizer}.}
+\item{\code{optimizer}}{(\code{\link{TorchOptimizer}})\cr
+The optimizer.}
 
 \item{\code{loss}}{(\code{character(1)})\cr
 The loss, see \code{torch_reflections$loss$classif}.}
@@ -108,45 +102,6 @@ The referenced help package can be opened via method \verb{$help()}.}
 }
 \if{html}{\out{</div>}}
 }
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-LearnerClassifTorchAbstract-build"></a>}}
-\if{latex}{\out{\hypertarget{method-LearnerClassifTorchAbstract-build}{}}}
-\subsection{Method \code{build()}}{
-Builds the model \code{list(network, optimizer, loss_fn, history)}.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LearnerClassifTorchAbstract$build(task)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{task}}{(\code{\link[mlr3:Task]{Task}})\cr
-The task for which to build the network.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-LearnerClassifTorchAbstract-unserialize"></a>}}
-\if{latex}{\out{\hypertarget{method-LearnerClassifTorchAbstract-unserialize}{}}}
-\subsection{Method \code{unserialize()}}{
-Assembles the network, optimizer and loss_fn after saving and loading the learner.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LearnerClassifTorchAbstract$unserialize(device = NULL)}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-LearnerClassifTorchAbstract-serialize"></a>}}
-\if{latex}{\out{\hypertarget{method-LearnerClassifTorchAbstract-serialize}{}}}
-\subsection{Method \code{serialize()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LearnerClassifTorchAbstract$serialize(
-  objs = c("network", "optimizer", "loss_fn")
-)}\if{html}{\out{</div>}}
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-LearnerClassifTorchAbstract-clone"></a>}}

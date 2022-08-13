@@ -1,8 +1,9 @@
 #' @title Shows Training Process in the Console
 #' @description
 #' Prints a progress bar and the metrics for training and validation.
+#' @include CallbackTorch.R
 #' @export
-CallbackTorchProgress = callback(
+CallbackTorchProgress = callback_torch(
   on_epoch_begin = function() {
     catf("Epoch %s", epoch)
     self$pb_train = progress::progress_bar$new(

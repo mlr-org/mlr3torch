@@ -26,5 +26,5 @@ PipeOpTorchDropout = R6Class("PipeOpTorchDropout",
   )
 )
 
-#' @include mlr_torchops.R
+#' @include zzz.R
 register_po("nn_dropout", PipeOpTorchDropout)

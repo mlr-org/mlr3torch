@@ -6,131 +6,80 @@
 \description{
 Prints a progress bar and the metrics for training and validation.
 }
-\section{Super classes}{
-\code{\link[mlr3torch:Callback]{mlr3torch::Callback}} -> \code{\link[mlr3torch:CallbackTorch]{mlr3torch::CallbackTorch}} -> \code{CallbackTorchProgress}
+\section{Super class}{
+\code{\link[mlr3torch:CallbackTorch]{mlr3torch::CallbackTorch}}
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-CallbackTorchProgress-new}{\code{CallbackTorchProgress$new()}}
-\item \href{#method-CallbackTorchProgress-on_before_train_epoch}{\code{CallbackTorchProgress$on_before_train_epoch()}}
-\item \href{#method-CallbackTorchProgress-on_after_train_batch}{\code{CallbackTorchProgress$on_after_train_batch()}}
-\item \href{#method-CallbackTorchProgress-on_before_valid_epoch}{\code{CallbackTorchProgress$on_before_valid_epoch()}}
-\item \href{#method-CallbackTorchProgress-on_after_valid_batch}{\code{CallbackTorchProgress$on_after_valid_batch()}}
-\item \href{#method-CallbackTorchProgress-on_after_valid_epoch}{\code{CallbackTorchProgress$on_after_valid_epoch()}}
-\item \href{#method-CallbackTorchProgress-clone}{\code{CallbackTorchProgress$clone()}}
+\item \href{#method-NA-on_epoch_begin}{\code{CallbackTorchProgress$on_epoch_begin()}}
+\item \href{#method-NA-on_batch_end}{\code{CallbackTorchProgress$on_batch_end()}}
+\item \href{#method-NA-on_before_validation}{\code{CallbackTorchProgress$on_before_validation()}}
+\item \href{#method-NA-on_batch_valid_end}{\code{CallbackTorchProgress$on_batch_valid_end()}}
+\item \href{#method-NA-on_epoch_end}{\code{CallbackTorchProgress$on_epoch_end()}}
+\item \href{#method-unknown-clone}{\code{CallbackTorchProgress$clone()}}
 }
 }
 \if{html}{\out{
-<details open><summary>Inherited methods</summary>
+<details><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="Callback" data-id="call"><a href='../../mlr3torch/html/Callback.html#method-Callback-call'><code>mlr3torch::Callback$call()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackTorch" data-id="initialize"><a href='../../mlr3torch/html/CallbackTorch.html#method-CallbackTorch-initialize'><code>mlr3torch::CallbackTorch$initialize()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackTorch" data-id="on_after_backward"><a href='../../mlr3torch/html/CallbackTorch.html#method-CallbackTorch-on_after_backward'><code>mlr3torch::CallbackTorch$on_after_backward()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackTorch" data-id="on_batch_begin"><a href='../../mlr3torch/html/CallbackTorch.html#method-CallbackTorch-on_batch_begin'><code>mlr3torch::CallbackTorch$on_batch_begin()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackTorch" data-id="on_batch_valid_begin"><a href='../../mlr3torch/html/CallbackTorch.html#method-CallbackTorch-on_batch_valid_begin'><code>mlr3torch::CallbackTorch$on_batch_valid_begin()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackTorch" data-id="on_begin"><a href='../../mlr3torch/html/CallbackTorch.html#method-CallbackTorch-on_begin'><code>mlr3torch::CallbackTorch$on_begin()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackTorch" data-id="on_end"><a href='../../mlr3torch/html/CallbackTorch.html#method-CallbackTorch-on_end'><code>mlr3torch::CallbackTorch$on_end()</code></a></span></li>
 </ul>
 </details>
 }}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackTorchProgress-new"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackTorchProgress-new}{}}}
-\subsection{Method \code{new()}}{
-Initializes an instance of this \link[R6:R6Class]{R6} class.
+\if{html}{\out{<a id="method-NA-on_epoch_begin"></a>}}
+\if{latex}{\out{\hypertarget{method-NA-on_epoch_begin}{}}}
+\subsection{Method \code{on_epoch_begin()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$new()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_epoch_begin()}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackTorchProgress-on_before_train_epoch"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackTorchProgress-on_before_train_epoch}{}}}
-\subsection{Method \code{on_before_train_epoch()}}{
-Initializes the progress bar for the training.
+\if{html}{\out{<a id="method-NA-on_batch_end"></a>}}
+\if{latex}{\out{\hypertarget{method-NA-on_batch_end}{}}}
+\subsection{Method \code{on_batch_end()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_before_train_epoch(context)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_batch_end()}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{context}}{(\code{Context})\cr
-The context in which the callback is called.}
-}
-\if{html}{\out{</div>}}
-}
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackTorchProgress-on_after_train_batch"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackTorchProgress-on_after_train_batch}{}}}
-\subsection{Method \code{on_after_train_batch()}}{
-Updates the progress bar for the training.
+\if{html}{\out{<a id="method-NA-on_before_validation"></a>}}
+\if{latex}{\out{\hypertarget{method-NA-on_before_validation}{}}}
+\subsection{Method \code{on_before_validation()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_after_train_batch(context)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_before_validation()}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{context}}{(\code{Context})\cr
-The context in which the callback is called.}
-}
-\if{html}{\out{</div>}}
-}
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackTorchProgress-on_before_valid_epoch"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackTorchProgress-on_before_valid_epoch}{}}}
-\subsection{Method \code{on_before_valid_epoch()}}{
-Initializes the progress bar for the validation.
+\if{html}{\out{<a id="method-NA-on_batch_valid_end"></a>}}
+\if{latex}{\out{\hypertarget{method-NA-on_batch_valid_end}{}}}
+\subsection{Method \code{on_batch_valid_end()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_before_valid_epoch(context)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_batch_valid_end()}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{context}}{(\code{Context})\cr
-The context in which the callback is called.}
-}
-\if{html}{\out{</div>}}
-}
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackTorchProgress-on_after_valid_batch"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackTorchProgress-on_after_valid_batch}{}}}
-\subsection{Method \code{on_after_valid_batch()}}{
-Updates the progress bar for the validation.
+\if{html}{\out{<a id="method-NA-on_epoch_end"></a>}}
+\if{latex}{\out{\hypertarget{method-NA-on_epoch_end}{}}}
+\subsection{Method \code{on_epoch_end()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_after_valid_batch(context)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_epoch_end()}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{context}}{(\code{Context})\cr
-The context in which the callback is called.}
-}
-\if{html}{\out{</div>}}
-}
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackTorchProgress-on_after_valid_epoch"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackTorchProgress-on_after_valid_epoch}{}}}
-\subsection{Method \code{on_after_valid_epoch()}}{
-Prints the results of the epoch.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_after_valid_epoch(context)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{context}}{(\code{Context})\cr
-The context in which the callback is called.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackTorchProgress-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackTorchProgress-clone}{}}}
+\if{html}{\out{<a id="method-unknown-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-unknown-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

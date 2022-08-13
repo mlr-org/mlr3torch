@@ -101,7 +101,7 @@ PipeOpTorchMaxPool3D = R6Class("PipeOpTorchMaxPool3D", inherit = PipeOpTorchMaxP
   )
 )
 
-#' @include mlr_torchops.R
+#' @include zzz.R
 register_po("nn_max_pool1d", PipeOpTorchMaxPool1D)
 register_po("nn_max_pool2d", PipeOpTorchMaxPool2D)
 register_po("nn_max_pool3d", PipeOpTorchMaxPool3D)
