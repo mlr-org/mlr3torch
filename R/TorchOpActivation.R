@@ -28,7 +28,7 @@ make_activation = function(name, param_set, parent_env = parent.frame()) {
     ),
     parent_env = parent_env
   )
-  mlr_torchops$add(idname, value = result)
+  eval(substitute(po_register(idname, value = result), list(idname = as.symbol(idname), result = as.symbol(classname))))
   result
 }
 
