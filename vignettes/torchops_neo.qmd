@@ -93,4 +93,4 @@ output
 
 ## `Graph` as a Torch module
 
-The native class in `torch` that represents a transformation of tensors is the `nn_module`. It has various advantages to have the `Graph` of `PipeOpModule` also be a 
+The native class in `torch` that represents a transformation of tensors is the `nn_module`. It would therefore also be advantageous to have the `Graph` of `PipeOpModule` also be a `nn_module`. 
