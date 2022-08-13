@@ -31,6 +31,11 @@
 # to silence RCMD check
 utils::globalVariables(c("..", "self", "private", "super", "N", "..input"))
 
+pos = new.env()
+register_po = function(name, constructor, metainf = NULL) {
+  if (name %in% names(pos)) stopf("pipeop %s registered twice", name)
+  pos[[name]] = substitute(mlr_pipeops$add(name, constructor, metainf))
+}
 
 register_mlr3 = function() {
   # Learners ----------------------------------------------------------------

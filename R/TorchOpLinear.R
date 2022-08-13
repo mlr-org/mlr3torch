@@ -13,11 +13,11 @@
 #'
 #'
 #' @export
-TorchOpLinear = R6Class("TorchOpLinear",
+PipeOpTorchLinear = R6Class("PipeOpTorchLinear",
   inherit = PipeOpTorch,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
-    initialize = function(id = "linear", param_vals = list()) {
+    initialize = function(id = "nn_linear", param_vals = list()) {
       param_set = ps(
         out_features = p_int(1L, Inf, tags = c("train", "required")),
         bias = p_lgl(default = TRUE, tags = "train")
@@ -37,4 +37,4 @@ TorchOpLinear = R6Class("TorchOpLinear",
 )
 
 #' @include mlr_torchops.R
-mlr_torchops$add("linear", value = TorchOpLinear)
+mlr_torchops$add("nn_linear", value = PipeOpTorchLinear)

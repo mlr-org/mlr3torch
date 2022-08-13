@@ -44,4 +44,3 @@ CallbackTorchProgress = callback(
   }
 )
 
-torch_callbacks$add("progress", CallbackTorchProgress)

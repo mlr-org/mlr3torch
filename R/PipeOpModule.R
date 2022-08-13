@@ -43,7 +43,7 @@ PipeOpModule = R6Class("PipeOpModule",
   private = list(
     .train = function(inputs) {
       self$state = list()  # PipeOp API requires this.
-      outputs = do.call(self$module, inputs)
+      outputs = do.call(self$module, unname(inputs))
       outname = self$output$name
       if (identical(outname, "output")) outputs = list(outputs)  # the only case where module does not produce a list
       outputs
@@ -53,5 +53,4 @@ PipeOpModule = R6Class("PipeOpModule",
     }
   )
 )
-
 

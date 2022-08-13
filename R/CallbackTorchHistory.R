@@ -1,5 +1,5 @@
 
-
+#' @export
 CallbackTorchHistory = callback_torch(
   on_begin = function() {
     self$hist_train = list(list(epoch = numeric(0)))
