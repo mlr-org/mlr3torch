@@ -36,5 +36,6 @@ PipeOpTorchLinear = R6Class("PipeOpTorchLinear",
   )
 )
 
-#' @include mlr_torchops.R
-mlr_torchops$add("nn_linear", value = PipeOpTorchLinear)
+#' @include zzz.R
+register_po("nn_linear", PipeOpTorchLinear)
+

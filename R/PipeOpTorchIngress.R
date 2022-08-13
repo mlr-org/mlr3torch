@@ -115,6 +115,9 @@ PipeOpTorchIngressNumeric = R6Class("PipeOpTorchIngressNumeric",
   )
 )
 
+#' @include zzz.R
+register_po("ingress_num", PipeOpTorchIngressNumeric)
+
 PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
   inherit = PipeOpTorchIngress,
   public = list(
@@ -139,6 +142,7 @@ PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
     }
   )
 )
+register_po("ingress_cat", PipeOpTorchIngressCategorical)
 
 # uses task with "imageuri" column and loads this as images.
 # doesn't do any preprocessing or so (image resizing) and instead just errors if images don't fit.
@@ -173,3 +177,4 @@ PipeOpTorchIngressImages = R6Class("PipeOpTorchIngressImages",
     }
   )
 )
+register_po("ingress_img", PipeOpTorchIngressImages)

@@ -14,7 +14,7 @@ CallbackTorchProgress = callback(
     self$pb_train$tick(tokens = list(loss = state$last_loss))
   },
   on_before_validation = function() {
-    self$pb_valid = progress_bar$new(
+    self$pb_valid = progress::progress_bar$new(
       total = length(self$state$loader_valid),
       format = "Validation: [:bar]"
     )

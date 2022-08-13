@@ -8,31 +8,23 @@ Description: Provides torch models as learners for the mlr3 ecosystem.
 License: LGPL (>= 3)
 Depends:
     mlr3 (>= 0.13.1),
+    mlr3pipelines,
     R (>= 3.1.0)
 Imports:
     backports,
     checkmate,
-    coro,
-    data.table,
-    fs,
-    magick,
-    methods,
-    mlr3,
-    mlr3misc,
-    mlr3pipelines,
-    paradox,
-    progress,
-    R6,
-    rlang,
-    torch,
-    torchvision,
-    zeallot
-Suggests:
     lgr,
-    tabnet,
-    testthat (>= 3.0.0),
-    zip,
-    mlbench
+    torch,
+    mlr3misc,
+    data.table,
+    coro,
+    paradox,
+    R6
+Suggests:
+    torchvision,
+    magick,
+    progress,
+    testthat (>= 3.0.0)
 Remotes:
   mlverse/torchvision
 Config/testthat/edition: 3

@@ -47,7 +47,8 @@ ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, 
 
   assert_r6(optimizer, "TorchOptimizer", null.ok = TRUE)
   assert_r6(loss, "TorchLoss", null.ok = TRUE)
-  assert_list(callbacks, any.missing = FALSE)
+  assert_list(callbacks, any.missing = FALSE, types = "R6ClassGenerator")
+
   if (!is.null(.pointer)) {
     assert_integerish(.pointer_shape, len = 2)
     assert_choice(.pointer[[1]], names(graph$pipeops))

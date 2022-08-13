@@ -17,8 +17,9 @@ inferps = function(fn, ignore = character(0)) {
 
   do.call(paradox::ps, frm_domains)
 }
+
 check_callbacks = function(x) {
-  assert_true(all(map_lgl(x, function(x) inherits(x, "CallbackTorch"))))
+  check_list(x, types = "R6ClassGenerator", any.missing = FALSE)
 }
 
 check_measures = function(x) {
