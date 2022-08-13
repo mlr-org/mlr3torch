@@ -6,7 +6,7 @@ PipeOpTorchActivation = R6Class("PipeOpTorchActivation",
 #' @include zzz.R
 make_activation = function(name, param_set, parent_env = parent.frame()) {
   classname = paste0("PipeOpTorchActivation", capitalize(name))
-  idname = paste0("activation_", name)
+  idname = paste0("nn_act_", name)
 
   result <- R6Class(classname,
     inherit = PipeOpTorchActivation,
