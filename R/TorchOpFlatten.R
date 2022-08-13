@@ -5,7 +5,7 @@
 #' Calls `nn_flatten()`
 #'
 #' @export
-TorchOpFlatten = R6Class(
+PipeOpTorchFlatten = R6Class(
   inherit = PipeOpTorch,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
@@ -13,7 +13,7 @@ TorchOpFlatten = R6Class(
     #'   The id for of the object.
     #' @param param_vals (named `list()`)\cr
     #'   The initial parameters for the object.
-    initialize = function(id = "flatten", param_vals = list()) {
+    initialize = function(id = "nn_flatten", param_vals = list()) {
       param_set = ps(
         start_dim = p_int(default = 2L, lower = 1L, tags = "train"),
         end_dim = p_int(default = -1L, lower = 1L, tags = "train", special_vals = list(-1L))
@@ -27,7 +27,6 @@ TorchOpFlatten = R6Class(
     }
   ),
   private = list(
-    .shape_dependent_params = function(shapes_in) list(),
     .shapes_out = function(shapes_in, param_vals) {
       shape = shapes_in[[1]]
       start_dim = param_vals$start_dim %??% 2
@@ -43,5 +42,5 @@ TorchOpFlatten = R6Class(
   )
 )
 
-#' @include mlr_torchops.R
-mlr_torchops$add("flatten", TorchOpFlatten)
+#' @include zzz.R
+register_po("nn_flatten", PipeOpTorchFlatten)

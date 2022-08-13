@@ -94,7 +94,7 @@ print.TorchIngressToken = function(x, ...) {
 PipeOpTorchIngressNumeric = R6Class("PipeOpTorchIngressNumeric",
   inherit = PipeOpTorchIngress,
   public = list(
-    initialize = function(id = "ingress_num", param_vals = list()) {
+    initialize = function(id = "torch_ingress_num", param_vals = list()) {
       super$initialize(id = id, param_vals = param_vals)
     }
   ),
@@ -116,12 +116,12 @@ PipeOpTorchIngressNumeric = R6Class("PipeOpTorchIngressNumeric",
 )
 
 #' @include zzz.R
-register_po("ingress_num", PipeOpTorchIngressNumeric)
+register_po("torch_ingress_num", PipeOpTorchIngressNumeric)
 
 PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
   inherit = PipeOpTorchIngress,
   public = list(
-    initialize = function(id = "ingress_cat", param_vals = list()) {
+    initialize = function(id = "torch_ingress_cat", param_vals = list()) {
       super$initialize(id = id, param_vals = param_vals)
     },
     speak = function() cat("I am the ingress cat, meow! ^._.^\n")
@@ -142,7 +142,7 @@ PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
     }
   )
 )
-register_po("ingress_cat", PipeOpTorchIngressCategorical)
+register_po("torch_ingress_cat", PipeOpTorchIngressCategorical)
 
 # uses task with "imageuri" column and loads this as images.
 # doesn't do any preprocessing or so (image resizing) and instead just errors if images don't fit.
@@ -150,7 +150,7 @@ register_po("ingress_cat", PipeOpTorchIngressCategorical)
 PipeOpTorchIngressImages = R6Class("PipeOpTorchIngressImages",
   inherit = PipeOpTorchIngress,
   public = list(
-    initialize = function(id = "ingress_img", param_vals = list()) {
+    initialize = function(id = "torch_ingress_img", param_vals = list()) {
       param_set = ps(
         channels = p_int(1),
         pixels_height = p_int(1),
@@ -177,4 +177,4 @@ PipeOpTorchIngressImages = R6Class("PipeOpTorchIngressImages",
     }
   )
 )
-register_po("ingress_img", PipeOpTorchIngressImages)
+register_po("torch_ingress_img", PipeOpTorchIngressImages)

@@ -1,18 +1,18 @@
 
 #' @title Convert to TorchLoss
 #' @export
-as_paramd_loss = function(x, clone = FALSE) {
+as_torch_loss = function(x, clone = FALSE) {
   assert_flag(clone)
-  UseMethod("as_paramd_loss")
+  UseMethod("as_torch_loss")
 }
 
 #' @export
-as_paramd_loss.nn_loss = function(x, clone = FALSE) {
+as_torch_loss.nn_loss = function(x, clone = FALSE) {
   TorchLoss$new(x, label = deparse(substitute(x))[[1]])
 }
 
 #' @export
-as_paramd_loss.TorchLoss = function(x, clone = FALSE) {
+as_torch_loss.TorchLoss = function(x, clone = FALSE) {
   if (clone) x$clone(deep = TRUE) else x
 }
 

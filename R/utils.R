@@ -45,3 +45,11 @@ check_network = function(x) {
     TRUE
   }
 }
+
+check_vector = function(d) function(x) {
+  if (is.null(x) || test_integerish(x, any.missing = FALSE) && (length(x) %in% c(1, d))) {
+    return(TRUE)
+  }
+  sprintf("Must be an integerish vector of length 1 or %s", d)
+}
+

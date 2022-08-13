@@ -9,7 +9,7 @@
 #' @name max_pool
 NULL
 
-TorchOpMaxPool = R6Class("TorchOpMaxPool",
+PipeOpTorchMaxPool = R6Class("PipeOpTorchMaxPool",
   inherit = PipeOpTorch,
   public = list(
     #' @description
@@ -18,9 +18,9 @@ TorchOpMaxPool = R6Class("TorchOpMaxPool",
       private$.d = assert_int(d)
 
       param_set = ps(
-        kernel_size = p_uty(custom_check = check_fn(d), tags = c("required", "train")),
-        stride = p_uty(default = NULL, custom_check = check_fn(d), tags = "train"),
-        padding = p_uty(default = 0L, custom_check = check_fn(d), tags = "train"),
+        kernel_size = p_uty(custom_check = check_vector(d), tags = c("required", "train")),
+        stride = p_uty(default = NULL, custom_check = check_vector(d), tags = "train"),
+        padding = p_uty(default = 0L, custom_check = check_vector(d), tags = "train"),
         dilation = p_int(default = 1L, tags = "train"),
         ceil_mode = p_lgl(default = FALSE, tags = "train")
       )
@@ -50,8 +50,8 @@ TorchOpMaxPool = R6Class("TorchOpMaxPool",
 
       if (private$.return_indices) rep(res, 2) else res
     },
-    .shape_dependent_params = function(shapes_in) {
-      list(return_indices = private$.return_indices)
+    .shape_dependent_params = function(shapes_in, param_vals) {
+      c(param_vals, list(return_indices = private$.return_indices))
     },
     .return_indices = NULL,
     .d = NULL
@@ -64,9 +64,9 @@ TorchOpMaxPool = R6Class("TorchOpMaxPool",
 #' @template param_param_vals
 #' @rdname max_pool
 #' @export
-TorchOpMaxPool1D = R6Class("TorchOpMaxPool1D", inherit = TorchOpMaxPool,
+PipeOpTorchMaxPool1D = R6Class("PipeOpTorchMaxPool1D", inherit = PipeOpTorchMaxPool,
   public = list(
-    initialize = function(id = "max_pool1d", return_indices = FALSE, param_vals = list()) {
+    initialize = function(id = "nn_max_pool1d", return_indices = FALSE, param_vals = list()) {
       super$initialize(id = id, d = 1, module_generator = nn_max_pool1d, return_indices = return_indices, param_vals = param_vals)
     }
   )
@@ -78,9 +78,9 @@ TorchOpMaxPool1D = R6Class("TorchOpMaxPool1D", inherit = TorchOpMaxPool,
 #' @template param_param_vals
 #' @rdname max_pool
 #' @export
-TorchOpMaxPool2D = R6Class("TorchOpMaxPool2D", inherit = TorchOpMaxPool,
+PipeOpTorchMaxPool2D = R6Class("PipeOpTorchMaxPool2D", inherit = PipeOpTorchMaxPool,
   public = list(
-    initialize = function(id = "max_pool2d", return_indices = FALSE, param_vals = list()) {
+    initialize = function(id = "nn_max_pool2d", return_indices = FALSE, param_vals = list()) {
       super$initialize(id = id, d = 2, module_generator = nn_max_pool2d,  return_indices = return_indices, param_vals = param_vals)
     }
   )
@@ -93,17 +93,15 @@ TorchOpMaxPool2D = R6Class("TorchOpMaxPool2D", inherit = TorchOpMaxPool,
 #' @template param_param_vals
 #' @rdname max_pool
 #' @export
-TorchOpMaxPool3D = R6Class("TorchOpMaxPool3D", inherit = TorchOpMaxPool,
+PipeOpTorchMaxPool3D = R6Class("PipeOpTorchMaxPool3D", inherit = PipeOpTorchMaxPool,
   public = list(
-    initialize = function(id = "max_pool3d", return_indices = FALSE, param_vals = list()) {
+    initialize = function(id = "nn_max_pool3d", return_indices = FALSE, param_vals = list()) {
       super$initialize(id = id, d = 3, module_generator = nn_max_pool3d, return_indices = return_indices, param_vals = param_vals)
     }
   )
 )
 
 #' @include mlr_torchops.R
-mlr_torchops$add("max_pool1d", TorchOpMaxPool1D)
-#' @include mlr_torchops.R
-mlr_torchops$add("max_pool2d", TorchOpMaxPool2D)
-#' @include mlr_torchops.R
-mlr_torchops$add("max_pool3d", TorchOpMaxPool3D)
+register_po("nn_max_pool1d", PipeOpTorchMaxPool1D)
+register_po("nn_max_pool2d", PipeOpTorchMaxPool2D)
+register_po("nn_max_pool3d", PipeOpTorchMaxPool3D)

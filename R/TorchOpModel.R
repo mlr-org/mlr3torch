@@ -87,7 +87,7 @@ PipeOpTorchModelClassif = R6Class("PipeOpTorchModelClassif",
     #'   The optimizer.
     #' @param loss (`character(1)`)\cr
     #'   The loss function.
-    initialize = function(id = "model", param_vals = list()) {
+    initialize = function(id = "torch_model.classif", param_vals = list()) {
       super$initialize(
         id = id,
         param_vals = param_vals,
@@ -113,7 +113,7 @@ PipeOpTorchModelRegr = R6Class("PipeOpTorchModelRegr",
     #'   The optimizer.
     #' @param loss (`character(1)`)\cr
     #'   The loss function.
-    initialize = function(id = "model", param_vals = list()) {
+    initialize = function(id = "torch_model.regr", param_vals = list()) {
       super$initialize(
         id = id,
         param_vals = param_vals,
@@ -123,8 +123,6 @@ PipeOpTorchModelRegr = R6Class("PipeOpTorchModelRegr",
   )
 )
 
-#' @include mlr_torchops.R
-mlr_torchops$add("model.regr", value = PipeOpTorchModelRegr)
-
-#' @include mlr_torchops.R
-mlr_torchops$add("model.classif", value = PipeOpTorchModelClassif)
+#' @include zzz.R
+register_po("torch_model.regr", value = PipeOpTorchModelRegr)
+register_po("torch_model.classif", value = PipeOpTorchModelClassif)

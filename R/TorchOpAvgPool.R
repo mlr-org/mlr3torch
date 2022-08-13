@@ -9,7 +9,7 @@
 #' @name avg_pool
 NULL
 
-TorchOpConv = R6Class("TorchOpAvgPool",
+PipeOpTorchAvgPool = R6Class("PipeOpTorchAvgPool",
   inherit = PipeOpTorch,
   public = list(
     #' @description
@@ -18,9 +18,9 @@ TorchOpConv = R6Class("TorchOpAvgPool",
       private$.d = assert_int(d)
 
       param_set = ps(
-        kernel_size = p_uty(custom_check = check_fn(d), tags = c("required", "train")),
-        stride = p_uty(default = NULL, custom_check = check_fn(d), tags = "train"),
-        padding = p_uty(default = 0L, custom_check = check_fn(d), tags = "train"),
+        kernel_size = p_uty(custom_check = check_vector(d), tags = c("required", "train")),
+        stride = p_uty(default = NULL, custom_check = check_vector(d), tags = "train"),
+        padding = p_uty(default = 0L, custom_check = check_vector(d), tags = "train"),
         ceil_mode = p_lgl(default = FALSE, tags = "train"),
         count_include_pad = p_lgl(default = TRUE, tags = "train")
       )
@@ -47,7 +47,6 @@ TorchOpConv = R6Class("TorchOpAvgPool",
         ceil_mode = param_vals$ceil_mode %??% FALSE
       ))
     },
-    .shape_dependent_params = function(shapes_in) list(),
     .d = NULL
   )
 )
@@ -65,9 +64,9 @@ avg_output_shape = function(shape_in, conv_dim, padding, stride, kernel_size, ce
 #' @template param_param_vals
 #' @rdname avg_pool
 #' @export
-TorchOpAvgPool1D = R6Class("TorchOpAvgPool1D", inherit = TorchOpAvgPool,
+PipeOpTorchAvgPool1D = R6Class("PipeOpTorchAvgPool1D", inherit = PipeOpTorchAvgPool,
   public = list(
-    initialize = function(id = "avg_pool1d", param_vals = list()) {
+    initialize = function(id = "nn_avg_pool1d", param_vals = list()) {
       super$initialize(id = id, d = 1, module_generator = nn_avg_pool1d, param_vals = param_vals)
     }
   )
@@ -78,9 +77,9 @@ TorchOpAvgPool1D = R6Class("TorchOpAvgPool1D", inherit = TorchOpAvgPool,
 #' @template param_param_vals
 #' @rdname avg_pool
 #' @export
-TorchOpAvgPool2D = R6Class("TorchOpAvgPool2D", inherit = TorchOpAvgPool,
+PipeOpTorchAvgPool2D = R6Class("PipeOpTorchAvgPool2D", inherit = PipeOpTorchAvgPool,
   public = list(
-    initialize = function(id = "avg_pool2d", param_vals = list()) {
+    initialize = function(id = "nn_avg_pool2d", param_vals = list()) {
       super$initialize(id = id, d = 2, module_generator = nn_avg_pool2d, param_vals = param_vals)
     }
   )
@@ -90,17 +89,15 @@ TorchOpAvgPool2D = R6Class("TorchOpAvgPool2D", inherit = TorchOpAvgPool,
 #' @template param_param_vals
 #' @rdname avg_pool
 #' @export
-TorchOpAvgPool2D = R6Class("TorchOpAvgPool2D", inherit = TorchOpAvgPool,
+PipeOpTorchAvgPool2D = R6Class("PipeOpTorchAvgPool2D", inherit = PipeOpTorchAvgPool,
   public = list(
-    initialize = function(id = "avg_pool2d", param_vals = list()) {
+    initialize = function(id = "nn_avg_pool2d", param_vals = list()) {
       super$initialize(id = id, d = 2, module_generator = nn_avg_pool2d, param_vals = param_vals)
     }
   )
 )
 
-#' @include mlr_torchops.R
-mlr_torchops$add("avg_pool1d", TorchOpAvgPool1D)
-#' @include mlr_torchops.R
-mlr_torchops$add("avg_pool2d", TorchOpAvgPool2D)
-#' @include mlr_torchops.R
-mlr_torchops$add("avg_pool3d", TorchOpAvgPool3D)
+#' @include zzz.R
+register_po("nn_avg_pool1d", PipeOpTorchAvgPool1D)
+register_po("nn_avg_pool2d", PipeOpTorchAvgPool2D)
+register_po("nn_avg_pool3d", PipeOpTorchAvgPool3D)

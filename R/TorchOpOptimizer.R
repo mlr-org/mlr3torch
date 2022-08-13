@@ -1,9 +1,9 @@
 #' @export
-TorchOpOptimizer = R6Class("TorchOpOptimizer",
+PipeOpTorchOptimizer = R6Class("PipeOpTorchOptimizer",
   inherit = PipeOpTorch,
   public = list(
-    initialize = function(optimizer, id = "optimizer", param_vals = list()) {
-      assert_r6(optimizer, "TorchOptimizer")
+    initialize = function(optimizer, id = "torch_optimizer", param_vals = list()) {
+      assert_r6(optimizer, "PipeOpTorchtimizer")
       private$.optimizer = optimizer
       super$initialize(
         id = id,
@@ -17,11 +17,9 @@ TorchOpOptimizer = R6Class("TorchOpOptimizer",
       inputs[[1]]$optimizer = private$.optimizer$clone(deep = TRUE)
       inputs
     },
-    .shapes_out = function(shapes_in, param_vals) shapes_in,
-    .shape_dependent_params = function(shapes_in) list(),
     .optimizer = NULL
   )
 )
 
-#' @include mlr_torchops.R
-mlr_torchops$add("optimizer", TorchOpOptimizer)
+#' @include zzz.R
+register_po("torch_optimizer", PipeOpTorchOptimizer)

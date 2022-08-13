@@ -9,36 +9,29 @@
 #' @template param_param_vals
 #'
 #' @export
-TorchOpLayerNorm = R6Class("TorchOpLayerNorm",
-  inherit = TorchOp,
+PipeOpTorchLayerNorm = R6Class("PipeOpTorchLayerNorm",
+  inherit = PipeOpTorch,
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(id = "layer_norm", param_vals = list()) {
+    initialize = function(id = "nn_layer_norm", param_vals = list()) {
       param_set = ps(
         n_dim = p_int(lower = 1L, tags = c("train", "required")),
-        elementwise_affine = p_lgl(default = TRUE, tags = c("required", "train")),
+        elementwise_affine = p_lgl(default = TRUE, tags = "train"),
         eps = p_dbl(default = 1e-5, lower = 0, tags = "train")
       )
-      param_set$values = list(
-        elementwise_affine = TRUE
-      )
-      super$initialize(id = id, param_vals = param_vals, param_set = param_set)
+      super$initialize(id = id, param_vals = param_vals, param_set = param_set, module_generator = nn_layer_norm)
     }
   ),
   private = list(
-    .build = function(inputs, task) {
-      param_vals = self$param_set$get_values(tag = "train")
-      input = inputs$input
-      s = inputs$input$shape
-      n_dim = param_vals$n_dim
+    .shape_dependent_params = function(shapes_in, param_vals) {
+      assert_int(param_vals$n_dim, upper = length(shapes_in))
+      param_vals$normalized_shape = utils::tail(shapes_in, param_vals$n_dim)
       param_vals$n_dim = NULL
-      ld = tail(s, n = n_dim)
-      args = insert_named(param_vals, list(normalized_shape = ld))
-      invoke(nn_layer_norm, .args = args)
+      param_vals
     }
   )
 )
 
-#' @include mlr_torchops.R
-mlr_torchops$add("layer_norm", TorchOpLayerNorm)
+#' @include zzz.R
+register_po("nn_layer_norm", PipeOpTorchLayerNorm)

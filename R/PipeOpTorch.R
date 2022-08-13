@@ -70,16 +70,10 @@ PipeOpTorch = R6Class("PipeOpTorch",
     # TODO: make module a read-only active binding
   ),
   private = list(
-    .shapes_out = function(shapes_in, param_vals) {
-      # must be a function list(shapes) -> list(shapes), making use of param_vals
-      stop("private$.shapes_out must be implemented.")
-    },
-    .shape_dependent_params = function(shapes_in) {
-      # should be overloaded:
-      stop("private$.shape_dependent_params must be implemented.")
-    },
+    .shapes_out = function(shapes_in, param_vals) shapes_in,
+    .shape_dependent_params = function(shapes_in, param_vals) param_vals,
     .make_module = function(shapes_in, param_vals) {
-      do.call(self$module_generator, c(private$.shape_dependent_params(shapes_in), param_vals))
+      do.call(self$module_generator, private$.shape_dependent_params(shapes_in, param_vals))
     },
     .train = function(inputs) {
       param_vals = self$param_set$get_values()

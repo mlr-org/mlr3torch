@@ -33,8 +33,8 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
     #' @description Initializes an object of this [R6][R6::R6Class] class.
     initialize = function(id, optimizer, loss, param_set = ps(), label = NULL, properties = NULL,
       packages = character(0), predict_types = NULL, feature_types, man) {
-      private$.optimizer = as_paramd_optimizer(optimizer, clone = TRUE)
-      private$.loss = as_paramd_loss(loss, clone = TRUE)
+      private$.optimizer = as_torch_optimizer(optimizer, clone = TRUE)
+      private$.loss = as_torch_loss(loss, clone = TRUE)
       assert_subset("classif", private$.loss$tasktypes)
       # FIXME: loglik?
       properties = properties %??% c("weights", "multiclass", "twoclass", "hotstart_forward")

@@ -9,24 +9,9 @@
 #' @export
 #'
 #' @examples
-#' library("mlr3pipelines")
-#'
-#' top1 = top("linear_1", out_features = 10L)
-#' top2 = top("linear_2", out_features = 10L)
-#'
-#' # order is not specified:
-#' top_add = top("add")
-#' graph = gunion(list(top1, top2)) %>>% top_add
-#'
-#' # order is specified:
-#' top_cat = top("cat", innum = 2)
-#' graph = gunion(list(top1, top2))
-#' graph$add_pipeop(top_cat)
-#' graph$add_edge(src_id = "linear_1", dst_id = "cat", dst_channel = "input2")
-#' graph$add_edge(src_id = "linear_2", dst_id = "cat", dst_channel = "input1")
 #' @rdname torchop_merge
-TorchOpMerge = R6Class("TorchOpMerge",
-  inherit = TorchOp,
+PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
+  inherit = PipeOpTorch,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
     #' @param id (`character(1)`)\cr
@@ -41,72 +26,39 @@ TorchOpMerge = R6Class("TorchOpMerge",
     #'   Should be set, in case the order of the inputs is relevant.
     #' @param .method (`character(1)`)\cr
     #'   The method for the concatenation. One of "add", "mul" or "cat".
-    initialize = function(id = "merge", param_set = ps(), param_vals = list(), .method,
-      innum = NULL) {
-      private$.method = assert_choice(.method, c("add", "mul", "cat"))
-      if (is.null(innum)) {
-        input = data.table(
-          name = "...",
-          train = "ModelConfig",
-          predict = "Task"
-        )
-      } else {
-        input = data.table(
-          name = paste0("input", seq_len(innum)),
-          train = rep("ModelConfig", times = innum),
-          predict = rep("Task", times = innum)
-        )
-      }
+    initialize = function(id, module_generator, param_set = ps(), innum = 0, param_vals = list()) {
       super$initialize(
         id = id,
+        module_generator = module_generator,
         param_set = param_set,
         param_vals = param_vals,
-        input = input
+        multi_input = innum
       )
     }
   ),
   private = list(
-    .build = function(inputs, task) {
-      pv = self$param_set$get_values(tag = "train")
-
-      fn = switch(private$.method,
-        add = nn_merge_sum,
-        mul = nn_merge_mul,
-        cat = nn_merge_cat
-      )
-      if (private$.method == "cat") {
-        args = list(dim = self$param_set$values$dim)
-      } else {
-        args = list()
-      }
-      invoke(fn, .args = args)
-    },
-    .method = NULL
+    .shapes_out = function(shapes_in, param_vals) {
+      assert_true(length(unique(map_int(shapes_in, length))) == 1)
+      uniques = apply(as.data.frame(shapes_in), 1, function(row) {
+        row = unique(row)
+        sum(!is.na(row))
+      })
+      assert_true(all(uniques == 1))
+      shapes_in[[1]]
+    }
   )
 )
 
 #' @rdname torchop_merge
 #' @export
-TorchOpAdd = R6Class("TorchOpAdd",
-  inherit = TorchOpMerge,
+PipeOpTorchMergeSum = R6Class("PipeOpTorchMergeSum", inherit = PipeOpTorchMerge,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
-    #' @param id (`character(1)`)\cr
-    #'   The id for of the new object.
-    #' @param param_set (`paradox::ParamSet`)\cr
-    #'   The parameter set.
-    #' @param param_vals (named `list()`)\cr
-    #'   The initial parameters for the object.
-    #' @param innum (`integer(1)`)\cr
-    #'   The number of input channels (optional). If provided, the input channels are set to
-    #'   `"input1"`, `"input2"`, etc.. Otherwise the input channel is set to `...` (a 'vararg' channel).
-    #'   Should be set, in case the order of the inputs is relevant.
-    initialize = function(id = "add", param_vals = list(), innum = NULL) {
+    initialize = function(id = "nn_merge_sum", innum = 0, param_vals = list()) {
       super$initialize(
         id = id,
-        param_vals = param_vals,
-        .method = "add",
-        innum = innum
+        module_generator = nn_merge_sum,
+        innum = innum,
+        param_vals = param_vals
       )
     }
   )
@@ -114,26 +66,14 @@ TorchOpAdd = R6Class("TorchOpAdd",
 
 #' @rdname torchop_merge
 #' @export
-TorchOpMul = R6Class("TorchOpMul",
-  inherit = TorchOpMerge,
+PipeOpTorchMergeProd = R6Class("PipeOpTorchMergeProd", inherit = PipeOpTorchMerge,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
-    #' @param id (`character(1)`)\cr
-    #'   The id for of the new object.
-    #' @param param_set (`paradox::ParamSet`)\cr
-    #'   The parameter set.
-    #' @param param_vals (named `list()`)\cr
-    #'   The initial parameters for the object.
-    #' @param innum (`integer(1)`)\cr
-    #'   The number of input channels (optional). If provided, the input channels are set to
-    #'   `"input1"`, `"input2"`, etc.. Otherwise the input channel is set to `...` (a 'vararg' channel).
-    #'   Should be set, in case the order of the inputs is relevant.
-    initialize = function(id = "mul", param_vals = list(), innum = NULL) {
+    initialize = function(id = "nn_merge_prod", innum = 0, param_vals = list()) {
       super$initialize(
         id = id,
-        param_vals = param_vals,
-        .method = "mul",
-        innum = innum
+        module_generator = nn_merge_prod,
+        innum = innum,
+        param_vals = param_vals
       )
     }
   )
@@ -141,48 +81,54 @@ TorchOpMul = R6Class("TorchOpMul",
 
 #' @rdname torchop_merge
 #' @export
-TorchOpCat = R6Class("TorchOpCat",
-  inherit = TorchOpMerge,
+PipeOpTorchMergeCat = R6Class("PipeOpTorchMergeCat", inherit = PipeOpTorchMerge,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
-    #' @param id (`character(1)`)\cr
-    #'   The id for of the new object.
-    #' @param param_set (`paradox::ParamSet`)\cr
-    #'   The parameter set.
-    #' @param param_vals (named `list()`)\cr
-    #'   The initial parameters for the object.
-    #' @param innum (`integer(1)`)\cr
-    #'   The number of input channels (optional). If provided, the input channels are set to
-    #'   `"input1"`, `"input2"`, etc.. Otherwise the input channel is set to `...` (a 'vararg' channel).
-    #'   Should be set, in case the order of the inputs is relevant.
-    initialize = function(id = "cat", param_vals = list(), innum = NULL) {
-      param_set = ps(
-        dim = p_uty(tags = c("train", "required"), custom_check = check_cat_dim)
-      )
+    initialize = function(id = "nn_merge_cat", innum = 0, param_vals = list()) {
+      param_set = ps(dim = p_int(tags = c("train", "required")))
+      param_set$values$dim = -1
       super$initialize(
         id = id,
-        param_vals = param_vals,
+        module_generator = nn_merge_cat,
+        innum = innum,
         param_set = param_set,
-        .method = "cat",
-        innum = innum
+        param_vals = param_vals
       )
+    },
+    speak = function() cat("I am the merge cat, meow! ^._.^\n")
+  ),
+  private = list(
+    .shapes_out = function(shapes_in, param_vals) {
+      assert_true(length(unique(map_int(shapes_in, length))) == 1)
+
+      true_dim = param_vals$dim
+      if (true_dim < 0) {
+        true_dim = 1 + length(shapes_in[[1]]) - true_dim
+      }
+      assert_int(true_dim, lower = 1, upper = length(shapes_in[[1]]))
+
+      shapes_matrix = as.matrix(as.data.frame(shapes_in))
+
+      uniques = apply(shapes_matrix, 1, function(row) {
+        row = unique(row)
+        sum(!is.na(row))
+      })
+
+      assert_true(all(uniques[-true_dim] == 1))
+
+      returnshape = apply(shapes_matrix, 1, function(row) {
+        row = unique(row)
+        row = row[!is.na(row)]
+        if (length(row)) row[[1]] else NA
+      })
+      returnshape[true_dim] = sum(shapes_matrix[true_dim, ])
+      list(returnshape)
     }
   )
 )
 
-check_cat_dim = function(x) {
-  msg = check_int(x, lower = 1L)
-  if (is.character(msg)) {
-    return(msg)
-  }
-  if (x == 1L) {
-    warningf("The parameter 'dim' of TorchOpCat is set to 1L, which is probably the batch dimension")
-  }
-  TRUE
-}
 
-nn_merge_mul = nn_module(
-  "merge_multiply",
+nn_merge_prod = nn_module(
+  "nn_merge_prod",
   initialize = function() NULL,
   forward = function(...) {
     torch_prod(torch_stack(list(...)), dim = 1L)
@@ -190,7 +136,7 @@ nn_merge_mul = nn_module(
 )
 
 nn_merge_sum = nn_module(
-  "merge_sum",
+  "nn_merge_sum",
   initialize = function() NULL,
   forward = function(...) {
     torch_sum(torch_stack(list(...)), dim = 1L)
@@ -198,18 +144,14 @@ nn_merge_sum = nn_module(
 )
 
 nn_merge_cat = nn_module(
-  "merge_cat",
+  "nn_merge_cat",
   initialize = function(dim) self$dim = dim,
   forward = function(...) {
     torch_cat(list(...), dim = self$dim)
   }
 )
 
-#' @include mlr_torchops.R
-mlr_torchops$add("merge", TorchOpMerge)
-#' @include mlr_torchops.R
-mlr_torchops$add("add", TorchOpAdd)
-#' @include mlr_torchops.R
-mlr_torchops$add("mul", TorchOpMul)
-#' @include mlr_torchops.R
-mlr_torchops$add("cat", TorchOpCat)
+#' @include zzz.R
+register_po("nn_merge_sum", PipeOpTorchAdd)
+register_po("nn_merge_prod", PipeOpTorchMul)
+register_po("nn_merge_cat", PipeOpTorchCat)

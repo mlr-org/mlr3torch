@@ -22,12 +22,14 @@
 #' @template param_param_vals
 #'
 #' @export
-TorchOpBatchNorm = R6Class("TorchOpBatchNorm",
-  inherit = TorchOp,
+PipeOpTorchBatchNorm = R6Class("PipeOpTorchBatchNorm",
+  inherit = PipeOpTorch,
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(id = "batch_norm", param_vals = list()) {
+    initialize = function(id, module_generator, min_dim, max_dim, param_vals = list()) {
+      private$.min_dim = assert_int(min_dim, lower = 1)
+      private$.max_dim = assert_int(max_dim, min_dim = 1)
       param_set = ps(
         eps = p_dbl(default = 1e-05, lower = 0, tags = "train"),
         momentum = p_dbl(default = 0.1, lower = 0, tags = "train"),
@@ -43,35 +45,43 @@ TorchOpBatchNorm = R6Class("TorchOpBatchNorm",
     }
   ),
   private = list(
-    .build = function(inputs, task) {
-      param_vals = self$param_set$get_values(tag = "train")
-      input = inputs$input
-      assert_integer(length(input$shape), lower = 2L, upper = 5L)
-      fn = switch(length(input$shape),
-        NULL,
-        torch::nn_batch_norm1d,
-        torch::nn_batch_norm1d,
-        torch::nn_batch_norm2d,
-        torch::nn_batch_norm3d
-      )
-
-      args = insert_named(param_vals, list(num_features = input$shape[2L]))
-
-      invoke(fn, .args = args)
+    .min_dim = NULL,
+    .max_dim = NULL,
+    .shapes_out = function(shapes_in, param_vals) {
+      list(assert_numeric(shapes_in[[1]], min.len = private$.min_dim, max.len = private$.max_dim))
     }
   )
 )
 
 
-#' @include mlr_torchops.R
-mlr_torchops$add("batch_norm", TorchOpBatchNorm)
-
-
-make_paramset_batch_norm = function() {
-  param_set = ps(
-    eps = p_dbl(default = 1e-05, lower = 0, tags = "train"),
-    momentum = p_dbl(default = 0.1, lower = 0, tags = "train"),
-    affine = p_lgl(default = TRUE, tags = "train"),
-    track_running_stats = p_lgl(default = TRUE, tags = "train")
+PipeOpTorchBatchNorm1D = R6Class("PipeOpTorchBatchNorm1D", inherit = PipeOpTorchBatchNorm,
+  public = list(
+    initialize = function(id = "nn_batch_norm1d", param_vals = list()) {
+      super$initialize(id = id, module_generator = nn_batch_norm1d, min_dim = 2, max_dim = 3, param_vals = param_vals)
+    }
   )
-}
+)
+
+PipeOpTorchBatchNorm2D = R6Class("PipeOpTorchBatchNorm2D", inherit = PipeOpTorchBatchNorm,
+  public = list(
+    initialize = function(id = "nn_batch_norm2d", param_vals = list()) {
+      super$initialize(id = id, module_generator = nn_batch_norm2d, min_dim = 4, max_dim = 4, param_vals = param_vals)
+    }
+  )
+)
+
+PipeOpTorchBatchNorm3D = R6Class("PipeOpTorchBatchNorm3D", inherit = PipeOpTorchBatchNorm,
+  public = list(
+    initialize = function(id = "nn_batch_norm3d", param_vals = list()) {
+      super$initialize(id = id, module_generator = nn_batch_norm3d, min_dim = 5, max_dim = 5, param_vals = param_vals)
+    }
+  )
+)
+
+
+#' @include zzz.R
+register_po("nn_batch_norm1d", PipeOpTorchBatchNorm1D)
+register_po("nn_batch_norm2d", PipeOpTorchBatchNorm1D)
+register_po("nn_batch_norm3d", PipeOpTorchBatchNorm1D)
+
+

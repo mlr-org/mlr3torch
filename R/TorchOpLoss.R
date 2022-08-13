@@ -8,12 +8,12 @@
 #' task = tsk("iris")
 #' g$train(task)
 #' @export
-TorchOpLoss = R6Class("TorchOpLoss",
+PipeOpTorchLoss = R6Class("PipeOpTorchLoss",
   inherit = PipeOpTorch,
   public = list(
-    initialize = function(optimizer, id = "loss", param_vals = list()) {
-      assert_r6(optimizer, "TorchLoss")
-      private$.loss = optimizer
+    initialize = function(loss, id = "torch_loss", param_vals = list()) {
+      assert_r6(loss, "TorchLoss")
+      private$.loss = loss
       super$initialize(
         id = id,
         param_set = alist(private$.optimizer$param_set),
@@ -26,11 +26,9 @@ TorchOpLoss = R6Class("TorchOpLoss",
       inputs[[1]]$loss = private$.loss$clone(deep = TRUE)
       inputs
     },
-    .shapes_out = function(shapes_in, param_vals) shapes_in,
-    .shape_dependent_params = function(shapes_in) list(),
     .loss = NULL
   )
 )
 
-#' @include mlr_torchops.R
-mlr_torchops$add("loss", TorchOpLoss)
+#' @include zzz.R
+register_po("torch_loss", PipeOpTorchLoss)

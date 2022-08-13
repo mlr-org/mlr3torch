@@ -1,18 +1,18 @@
 
 #' @title Convert to TorchOptimizer
 #' @export
-as_paramd_optimizer = function(x, clone = FALSE) {
+as_torch_optimizer = function(x, clone = FALSE) {
   assert_flag(clone)
-  UseMethod("as_paramd_optimizer")
+  UseMethod("as_torch_optimizer")
 }
 
 #' @export
-as_paramd_optimizer.torch_optimizer_generator = function(x, clone = FALSE) {
+as_torch_optimizer.torch_optimizer_generator = function(x, clone = FALSE) {
   TorchOptimizer$new(x, label = deparse(substitute(x))[[1]])
 }
 
 #' @export
-as_paramd_optimizer.TorchOptimizer = function(x, clone = FALSE) {
+as_torch_optimizer.TorchOptimizer = function(x, clone = FALSE) {
   if (clone) x$clone(deep = TRUE) else x
 }
 

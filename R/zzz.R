@@ -24,10 +24,10 @@
 # to silence RCMD check
 utils::globalVariables(c("self", "private", "super"))
 
-po_register = new.env()
+po_register_env = new.env()
 register_po = function(name, constructor, metainf = NULL) {
-  if (name %in% names(po_register)) stopf("pipeop %s registered twice", name)
-  po_register[[name]] = substitute(mlr_pipeops$add(name, constructor, metainf))
+  if (name %in% names(po_register_env)) stopf("pipeop %s registered twice", name)
+  po_register_env[[name]] = substitute(mlr_pipeops$add(name, constructor, metainf))
 }
 
 register_mlr3 = function() {
@@ -44,7 +44,7 @@ register_mlr3 = function() {
 
 register_mlr3pipelines = function() {
   mlr_pipeops = utils::getFromNamespace("mlr_pipeops", ns = "mlr3pipelines")
-  lapply(po_register, eval)
+  lapply(po_register_env, eval)
 }
 
 .onLoad = function(libname, pkgname) { # nolint

@@ -21,36 +21,36 @@ devtools::load_all()
 # - Some special ops should probably not inherit from torchop
 # - want to have lightweight wrapper around nn_-modules so that Graph$train() can
 
-# |- [ ] TorchOpInput
+# |- [X] TorchOpInput
 # |- [X] TorchOpOutput
 # |- [X] TorchOpModel
 # |  |- [X] TorchOpModelClassif
 # |  |- [X] TorchOpModelRegr
-# |- [ ] TorchOpActivation: ....
+# |- [X] TorchOpActivation: ....
 # |  --> paramsets_activation
 # |- [X] TorchOpLoss
 # |  --> paramsets_loss
 # |- [X] TorchOpSoftmax
-# |- [ ] TorchOpMerge
-# |  |- [ ] TorchOpAdd
-# |  |- [ ] TorchOpMul
-# |  |- [ ] TorchOpCat
+# |- [X] TorchOpMerge
+# |  |- [X] TorchOpAdd
+# |  |- [X] TorchOpMul
+# |  |- [X] TorchOpCat
 # |- [X] TorchOpOptimizer
 # |  --> paramsets_optim
 # |- [X] TorchOpAvgPool
 # |- [X] TorchOpConv
 # |- [X] TorchOpMaxPool
-# |- [ ] TorchOpBatchNorm
-# |- [ ] TorchOpDropout
+# |- [X] TorchOpBatchNorm
+# |- [X] TorchOpDropout
 # |- [X] TorchOpFlatten
 # |- [X] TorchOpLinear
-# |- [ ] TorchOpConvTranspose
-# |- [ ] TorchOpLayerNorm
-# |- [ ] TorchOpReshape, TorchOpSqueeze, TorchOpUnsqueeze
+# |- [X] TorchOpConvTranspose
+# |- [X] TorchOpLayerNorm
+# |- [X] TorchOpReshape, TorchOpSqueeze, TorchOpUnsqueeze
 # |- [-] TorchOpSelect
 # |- [-] TorchOpRepeat
-# |- [ ] TorchOpTabResNetBlocks
-# |- [ ] TorchOpTabTokenizer
+# |- [-] TorchOpTabResNetBlocks
+# |- [-] TorchOpTabTokenizer
 
 # GraphLearnerTorch: additional info on learning process; should probably be in the TorchLearner
 
