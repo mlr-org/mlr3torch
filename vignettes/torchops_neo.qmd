@@ -71,6 +71,7 @@ po_module_1 <- PipeOpModule$new("module_1", module_1)
 It is used in the familiar way:
 ```r
 output <- po_module_1$train(list(input))[[1]]
+output
 ```
 
 Note we only use the `$train()`, since Torch modules do not have anything that maps to the `state` (it is filled by an empty list).
@@ -93,4 +94,57 @@ output
 
 ## `Graph` as a Torch module
 
-The native class in `torch` that represents a transformation of tensors is the `nn_module`. It would therefore also be advantageous to have the `Graph` of `PipeOpModule` also be a `nn_module`. 
+The native class in `torch` that represents a transformation of tensors is the `nn_module`. It would therefore also be advantageous to have the `Graph` of `PipeOpModule` also be a `nn_module`. This is particularly useful because the `nn_module` does some accounting of the model parameters that it contains for backpropagation (I believe).
+
+Instead of having a class that inherits both from `nn_module` and `Graph` (which doesn't work in R6, since multiple inheritance is not available), there is a class that inherits from `nn_module` and contains a `Graph` member slot (composition). This class is [`nn_graph`]. It is constructed with a `Graph`, as well as information about the shape(s) of the `torch_tensor`(s) it expects as inputs.
+
+Shape info is communicated as an integer-valued `numeric` vector; dimensions that are arbitrary, e.g. batch-size, is given as `NA`.
+Our network expects an input of shape `c(NA, 3)`, since the first layer was created as `nn_linear(in_features = 3)`. (Currently nothing is done with this shape information, but it could in the future be used for asserts, or maybe to concatenate `nn_graph`s.)
+
+If the `Graph` has multiple outputs, it is also possible to select a subset of outputs to use, or change the output order, by giving the `output_map` argument.
+
+```r
+# the name of the single input is:
+module_graph$input
+
+graph_module <- nn_graph(
+  module_graph,
+  shapes_in = list(module_1.input1 = c(NA, 3))
+)
+```
+
+This module gives us the convenience of torch `nn_module` objects, e.g.:
+
+```r
+graph_module$children
+```
+
+And it can be used to transform tensors just as any other torch `nn_module`:
+
+```r
+graph_module(input)
+```
+
+# Building Torch Models for Tasks using `PipeOpTorch`
+
+The [`PipeOpModule`] represents anf `nn_module` that is fixed for a specific tensor shape and which has no hyperparameters. When constructing a neural network using these operators, one has to take care to have the output shape of operations match the input shapes of the following operations.
+
+A complete `Graph` of matching [`PipeOpModule`]s can be constructed using operators that mostly inherit from [`PipeOpTorch`], making use of the [`ModelDescriptor`] class. The [`ModelDescriptor`] class contains a `Graph` of [`PipeOpModule`] and some more necessary meta-info. The [`PipeOpTorch`] transforms a [`ModelDescriptor`] and adds more [`PipeOpModule`]s to the `Graph`.
+
+[`ModelDescriptor`]s always build up a [`Graph`] for a specific [`Task`]. The easiest way to initialize a proper [`ModelDescriptor`] is to use the appropriate [`PipeOpTorchIngress`] `PipeOp` for a given datatype. 
+
+```r
+task = tsk("iris")
+
+po_torch_in <- PipeOpTorchIngressNumeric$new()
+md <- po_torch_in$train(list(task))[[1]]
+
+md
+```
+
+```r
+po_torch_linear <- po("nn_linear", out_features = 3)
+md <- po_torch_linear$train(list(md))[[1]]
+```
+
+
