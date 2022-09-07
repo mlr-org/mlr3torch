@@ -4,18 +4,20 @@
 \alias{nn_graph}
 \title{Graph Network}
 \usage{
-nn_graph(model_descriptor, output_pointers, list_output = FALSE)
+nn_graph(graph, shapes_in, output_map = graph$output, list_output = FALSE)
 }
 \arguments{
-\item{model_descriptor}{(\code{\link{ModelDescriptor}})\cr
-Model Descriptor. \code{.pointer} is ignored, instead \code{output_pointer} values are used.}
+\item{graph}{(\code{\link[mlr3pipeline:Graph]{Graph}})\cr
+The \code{\link[mlr3pipelines:Graph]{Graph}} to wrap.}
 
-\item{output_pointers}{(\code{list} of \code{character})\cr
-Collection of \code{.pointer}s that indicate what part of the \code{model_descriptor$graph} is being used for output.
-Entries have the format of \code{ModelDescriptor$.pointer}.}
+\item{shapes_in}{(named \code{integer})\cr
+Shape info of tensors that go into \code{graph}. Names must be \code{graph$input$name}, possibly in different order.}
+
+\item{output_map}{(\code{character})\cr
+Which of \code{graph}'s outputs to use. Must be a subset of \code{graph$output$name}.}
 
 \item{list_output}{(\code{logical(1)})\cr
-Whether output should be a list of tensors. If \code{FALSE}, then \code{length(output_pointers)} must be 1.}
+Whether output should be a list of tensors. If \code{FALSE}, then \code{length(output_map)} must be 1.}
 }
 \description{
 Represents a NN using a \code{\link{Graph}} that contains \code{\link{PipeOpModule}}s.
