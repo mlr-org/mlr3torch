@@ -38,7 +38,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
       # default input and output channels, packages
       assert_int(multi_input, null.ok = TRUE, lower = 0)
       assert_int(multi_output, null.ok = TRUE, lower = 1)
-      self$module_generator = assert_class(module, "nn_module_generator", null.ok = TRUE)
+      self$module_generator = assert_class(module_generator, "nn_module_generator", null.ok = TRUE)
       assert_character(packages, any.missing = FALSE)
 
       inname = if (multi_input == 0) "..." else sprintf("input%s", seq_len(multi_input))
@@ -99,7 +99,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
 
       # Now begin creating the result-object: it contains a merged version of all `inputs`' $graph slots etc.
       # The only thing missing afterwards is (1) integrating module_op to the merged $graph, and adding `.pointer`s.
-      result_template = Reduce(inputs, model_descriptor_union)
+      result_template = Reduce(model_descriptor_union, inputs)
 
       # integrate the operation into the graph
       result_template$graph$add_pipeop(module_op)

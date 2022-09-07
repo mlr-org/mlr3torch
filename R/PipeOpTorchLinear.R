@@ -31,7 +31,7 @@ PipeOpTorchLinear = R6Class("PipeOpTorchLinear",
     }
   ),
   private = list(
-    .shape_dependent_params = function(shapes_in, param_vals) c(param_vals, list(in_features = shapes_in[[1]])),
+    .shape_dependent_params = function(shapes_in, param_vals) c(param_vals, list(in_features = tail(shapes_in[[1]], 1))),
     .shapes_out = function(shapes_in, param_vals) list(c(head(shapes_in[[1]], -1), param_vals$out_features))
   )
 )

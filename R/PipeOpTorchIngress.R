@@ -37,7 +37,7 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
       ## But this test could also be left out.
       forbidden_env = parent.env(environment())
       test_env = environment(batchgetter)
-      while (!is.namespace(test_env) && !identical(test_env, .GlobalEnv) && !identical(test_env, emptyenv())) {
+      while (!isNamespace(test_env) && !identical(test_env, .GlobalEnv) && !identical(test_env, emptyenv())) {
         if (identical(test_env, forbidden_env)) stop(".get_batchgetter() must not return a member of the PipeOpTorchIngress object itself. Use mlr3misc::crate()!")
         test_env = parent.env(test_env)
       }
@@ -49,13 +49,13 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
       )
 
       self$state = list(ingress$shape)  # PipeOp API requires us to only set this to some list. We set it to output shape to ease debugging.
-      ModelDescriptor(
+      list(ModelDescriptor(
         graph = graph,
         ingress = structure(list(ingress), names = graph$input$name),
         task = task,
-        .pointer = as.character(graph$output[c("op.id", "channel.name")]),
+        .pointer = as.character(graph$output[, c("op.id", "channel.name"), with = FALSE]),
         .pointer_shape = ingress$shape
-      )
+      ))
     },
     .predict = function(inputs) inputs
   ),
@@ -99,7 +99,7 @@ PipeOpTorchIngressNumeric = R6Class("PipeOpTorchIngressNumeric",
     }
   ),
   private = list(
-    .shape = function(task, param_vals) c(NA, task$feature_names),
+    .shape = function(task, param_vals) c(NA, length(task$feature_names)),
     .get_batchgetter = function(task, param_vals) {
       if (!all(task$feature_types$type %in% c("numeric", "integer"))) {
         stop("PipeOpTorchIngressNumeric only works tasks with all numeric features; Consider using po(\"select\").")
@@ -127,7 +127,7 @@ PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
     speak = function() cat("I am the ingress cat, meow! ^._.^\n")
   ),
   private = list(
-    .shape = function(task, param_vals) c(NA, task$feature_names),
+    .shape = function(task, param_vals) c(NA, length(task$feature_names)),
     .get_batchgetter = function(task, param_vals) {
       if (!all(task$feature_types$type %in% c("factor", "ordered"))) {
         stop("PipeOpTorchIngressCategorical only works on tasks with all factorial (or ordered) features; Consider using po(\"select\").")

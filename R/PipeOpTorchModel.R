@@ -51,7 +51,7 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
         optimizer = md$optimizer,
         loss = md$loss,
         packages = md$graph$packages,
-        network = nn_graph(md, md$.pointer)
+        network = model_descriptor_to_module(md, md$.pointer)
       )
 
       learner$param_set$values = insert_named(learner$param_set$values, param_vals)
