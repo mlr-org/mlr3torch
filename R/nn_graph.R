@@ -18,7 +18,7 @@
 #' @export
 model_descriptor_to_module = function(model_descriptor, output_pointers, list_output = FALSE) {
   assert_class(model_descriptor, "ModelDescriptor")
-  self$list_output = assert_flag(list_output)
+  assert_flag(list_output)
 
   # all graph inputs have an entry in self$shapes_in
   # ModelDescriptor allows Graph to grow by-reference and therefore may have
@@ -27,6 +27,8 @@ model_descriptor_to_module = function(model_descriptor, output_pointers, list_ou
   shapes_in = map(model_descriptor$ingress, "shape")
 
   assert_list(output_pointers, types = "character", len = if (!list_output) 1)
+
+  graph = model_descriptor$graph
 
   graph_output = graph$output  # cache this, it is expensive
   output_map = map_chr(output_pointers, function(op) {
@@ -37,7 +39,7 @@ model_descriptor_to_module = function(model_descriptor, output_pointers, list_ou
     # note we don't just rely on matching op_canonical with output channel name, since
     # pipeop 'a.b' with channel 'c' would produce the same name as pipeop 'a' with channel 'b.c'.
     channel_match = graph_output[as.list(op), on = c("op.id", "channel.name"), nomatch = NULL]
-    if (!nrow(channel)) {
+    if (!nrow(channel_match)) {
       # The indicated channel is not terminal. May happen if output of operation1 gets routed
       # to operation2 and *also* to output: the graph doesn't know that operation1's result should
       # be an output as well --> we add a nop-pipeop to create a terminal channel
@@ -61,7 +63,7 @@ model_descriptor_to_module = function(model_descriptor, output_pointers, list_ou
 # '@export
 nn_graph = nn_module(
   "nn_graph",
-  #' @param graph ([`Graph`][mlr3pipeline::Graph])\cr
+  #' @param graph ([`Graph`][mlr3pipelines::Graph])\cr
   #'   The [`Graph`][mlr3pipelines::Graph] to wrap.
   #' @param shapes_in (named `integer`)\cr
   #'   Shape info of tensors that go into `graph`. Names must be `graph$input$name`, possibly in different order.
@@ -96,6 +98,20 @@ nn_graph = nn_module(
     if (!self$list_output) outputs = outputs[[1]]
 
     outputs
+  },
+  reset_parameters = function() {
+    # recursively call $reset_parameters()
+    recursive_reset = function(network) {
+      for (child in network$children) {
+        if (is.function(child$reset_parameters)) {
+          child$reset_parameters()
+          next
+        }
+        Recall(child)
+      }
+    }
+
+    recursive_reset(self)
   }
 )
 

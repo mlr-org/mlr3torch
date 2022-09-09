@@ -5,14 +5,14 @@
 #' @export
 CallbackTorchProgress = callback_torch(
   on_epoch_begin = function() {
-    catf("Epoch %s", epoch)
+    catf("Epoch %s", self$state$epoch)
     self$pb_train = progress::progress_bar$new(
       total = length(self$state$loader_train),
       format = "Training [:bar]"
     )
   },
   on_batch_end = function() {
-    self$pb_train$tick(tokens = list(loss = state$last_loss))
+    self$pb_train$tick(tokens = list(loss = self$state$last_loss))
   },
   on_before_validation = function() {
     self$pb_valid = progress::progress_bar$new(
@@ -25,15 +25,15 @@ CallbackTorchProgress = callback_torch(
   },
   on_epoch_end = function() {
     scores = list()
-    scores$train = state$last_scores_train
-    scores$valid = state$last_scores_valid
+    scores$train = self$state$last_scores_train
+    scores$valid = self$state$last_scores_valid
 
     scores = Filter(function(x) length(x) > 0, scores)
 
     if (!length(scores)) {
-      catf("[End of epoch %s]", state$epoch)
+      catf("[End of epoch %s]", self$state$epoch)
     } else {
-      catf("\n[Summary epoch %s]", state$epoch)
+      catf("\n[Summary epoch %s]", self$state$epoch)
       cat("------------------\n")
       for (phase in names(scores)) {
         catf("Measures (%s):", capitalize(phase))

@@ -92,7 +92,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
       module_op = PipeOpModule$new(
         id = self$id,
         module = module,
-        multi_input = nrow(self$input),
+        multi_input = length(inputs),
         multi_output = if (!identical(self$output$name, "output")) nrow(self$output),
         packages = self$packages
       )
@@ -105,22 +105,13 @@ PipeOpTorch = R6Class("PipeOpTorch",
       result_template$graph$add_pipeop(module_op)
       # All of the `inputs` contained possibly the same `graph`, but definitely had different `.pointer`s,
       # indicating the different channels from within the `graph` that should be connected to the new operation.
-      # However, a `.pointer` may also refer directly to an input-shape -- especially when the `graph` is initially
-      # empty -- in which case we leave the respective input of the new module_op empty and instead update the input_map.
       for (i in seq_along(inputs)) {
         ptr = input_pointers[[i]]
         current_channel = module_op$input$name[[i]]
-        if (length(ptr == 1)) {  # pointer refers to input shape
-          # global_inchannel is the entry of graph$input$name that refers to module_op's i'th input.
-          global_inchannel = sprintf("%s.%s", module_op$id, current_channel)
-          assert_true(global_inchannel %nin% names(result_template$input_map))
-          result_template$input_map[[global_inchannel]] = ptr
-        } else {
-          result_template$graph$add_edge(
-            src_id = ptr[[1]], src_channel = ptr[[2]],
-            dst_id = module_op$id, dst_channel = current_channel
-          )
-        }
+        result_template$graph$add_edge(
+          src_id = ptr[[1]], src_channel = ptr[[2]],
+          dst_id = module_op$id, dst_channel = current_channel
+        )
       }
 
       # now we split up the result_template into one item per output channel.
@@ -142,7 +133,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
       if (length(inputs) > 1) {
         inputs = PipeOpFeatureUnion$new()$train(inputs)
       }
-      rep(inputs[[1]], nrow(self$output))
+      rep(inputs[1], nrow(self$output))
     }
   )
 )

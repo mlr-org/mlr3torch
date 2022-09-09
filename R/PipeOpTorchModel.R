@@ -47,11 +47,15 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
         classif = LearnerClassifTorchModel
       )
 
+      network = model_descriptor_to_module(md, list(md$.pointer))
+      network$reset_parameters()
+
       learner = class$new(
+        network = network,
+        ingress_tokens = md$ingress,
         optimizer = md$optimizer,
         loss = md$loss,
-        packages = md$graph$packages,
-        network = model_descriptor_to_module(md, md$.pointer)
+        packages = md$graph$packages
       )
 
       learner$param_set$values = insert_named(learner$param_set$values, param_vals)
@@ -65,7 +69,7 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
     .predict = function(inputs) {
       # This is copied from mlr3pipelines (PipeOpLearner)
       task = inputs[[1]]
-      list(private$.learner$predict(task))
+      list(self$state$predict(task))
     },
     .task_type = NULL
   )

@@ -4,7 +4,7 @@
 #' This is the - mostly read-only - information callbacks have access to.
 #'
 #' @export
-TorchState = R6Class("ContextTorch",
+TorchState = R6Class("TorchState",
   lock_objects = FALSE,
   public = list(
     #' @description Initializes an object of this [R6][R6::R6Class] class.

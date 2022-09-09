@@ -43,8 +43,8 @@ PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
         row = unique(row)
         sum(!is.na(row))
       })
-      assert_true(all(uniques == 1))
-      shapes_in[[1]]
+      assert_true(all(uniques <= 1))
+      shapes_in[1]
     }
   )
 )
@@ -102,7 +102,7 @@ PipeOpTorchMergeCat = R6Class("PipeOpTorchMergeCat", inherit = PipeOpTorchMerge,
 
       true_dim = param_vals$dim
       if (true_dim < 0) {
-        true_dim = 1 + length(shapes_in[[1]]) - true_dim
+        true_dim = 1 + length(shapes_in[[1]]) + true_dim
       }
       assert_int(true_dim, lower = 1, upper = length(shapes_in[[1]]))
 
@@ -113,7 +113,7 @@ PipeOpTorchMergeCat = R6Class("PipeOpTorchMergeCat", inherit = PipeOpTorchMerge,
         sum(!is.na(row))
       })
 
-      assert_true(all(uniques[-true_dim] == 1))
+      assert_true(all(uniques[-true_dim] <= 1))
 
       returnshape = apply(shapes_matrix, 1, function(row) {
         row = unique(row)

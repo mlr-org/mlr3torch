@@ -16,8 +16,9 @@ PipeOpTorchLoss = R6Class("PipeOpTorchLoss",
       private$.loss = loss
       super$initialize(
         id = id,
-        param_set = alist(private$.optimizer$param_set),
-        param_vals = param_vals
+        param_set = alist(private$.loss$param_set),
+        param_vals = param_vals,
+        module_generator = NULL
       )
     }
   ),

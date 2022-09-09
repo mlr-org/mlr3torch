@@ -68,7 +68,7 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
       shape = shapes_in[[1]]
       true_dim = param_vals$dim
       if (true_dim < 0) {
-        true_dim = 1 + length(shape) - true_dim
+        true_dim = 1 + length(shape) + true_dim
       }
       assert_int(true_dim, lower = 1, upper = length(shape))
 

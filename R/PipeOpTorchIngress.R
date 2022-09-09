@@ -104,16 +104,23 @@ PipeOpTorchIngressNumeric = R6Class("PipeOpTorchIngressNumeric",
       if (!all(task$feature_types$type %in% c("numeric", "integer"))) {
         stop("PipeOpTorchIngressNumeric only works tasks with all numeric features; Consider using po(\"select\").")
       }
-      crate(function(data, device) {
-        torch_tensor(
-          data = as.matrix(data),
-          dtype = torch_float(),
-          device = device
-        )
-      })
+      batchgetter_num
     }
   )
 )
+
+#' @title Batchgetter for Numeric Data
+#'
+#' @param data (`data.table`)\cr
+#'   `data.table` to be converted to a `tensor`.
+#' @export
+batchgetter_num = function(data, device) {
+  torch_tensor(
+    data = as.matrix(data),
+    dtype = torch_float(),
+    device = device
+  )
+}
 
 #' @include zzz.R
 register_po("torch_ingress_num", PipeOpTorchIngressNumeric)
@@ -132,16 +139,24 @@ PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
       if (!all(task$feature_types$type %in% c("factor", "ordered"))) {
         stop("PipeOpTorchIngressCategorical only works on tasks with all factorial (or ordered) features; Consider using po(\"select\").")
       }
-      crate(function(data, device) {
-        torch_tensor(
-          data = as.matrix(data[, lapply(.SD, as.integer)]),
-          dtype = torch_long(),
-          device = device
-        )
-      })
+      batchgetter_categ
     }
   )
 )
+
+#' @title Batchgetter for categorical data
+#'
+#' @param data (`data.table`)\cr
+#'   `data.table` to be converted to a `tensor`.
+#' @export
+batchgetter_categ = function(data, device) {
+  torch_tensor(
+    data = as.matrix(data[, lapply(.SD, as.integer)]),
+    dtype = torch_long(),
+    device = device
+  )
+}
+
 register_po("torch_ingress_cat", PipeOpTorchIngressCategorical)
 
 # uses task with "imageuri" column and loads this as images.
@@ -173,7 +188,7 @@ PipeOpTorchIngressImages = R6Class("PipeOpTorchIngressImages",
           torch_reshape(tnsr, imgshape)
         })
         torch_cat(tensors, dim = 1)$to(device = device)
-      }, imgshape)
+      }, imgshape, .parent = topenv())
     }
   )
 )

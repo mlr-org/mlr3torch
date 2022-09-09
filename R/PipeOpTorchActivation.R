@@ -8,21 +8,29 @@ make_activation = function(name, param_set, parent_env = parent.frame()) {
   classname = paste0("PipeOpTorchActivation", capitalize(name))
   idname = paste0("nn_act_", name)
 
+  ps = substitute(param_set)
+  module = as.symbol(paste0("nn_", name))
+
+  init_fun_proto = function(id = idname, param_vals = list()) {
+    param_set = ps
+    super$initialize(
+      id = id,
+      param_set = param_set,
+      param_vals = param_vals,
+      module_generator = module
+    )
+  }
+
+  # uber-hacky, but document() won't work otherwise
+  init_fun = init_fun_proto
+  formals(init_fun) = pairlist(id = idname, param_vals = list())
+  body(init_fun)[[2]][[3]] = ps
+  body(init_fun)[[3]][[5]] = module
+  attributes(init_fun) = attributes(init_fun_proto)
+
   result <- R6Class(classname,
     inherit = PipeOpTorchActivation,
-    public = list(
-      initialize = eval(substitute(function(id = idname, param_vals = list()) {
-        param_set = ps
-        super$initialize(
-          id = id,
-          param_set = param_set,
-          param_vals = param_vals,
-          module_generator = module
-        )
-      },
-      list(idname = idname, ps = substitute(param_set), module = as.symbol(paste0("nn_", name)))),
-      envir = parent_env)
-    ),
+    public = list(initialize = init_fun),
     parent_env = parent_env
   )
 #  eval(substitute(register_po(idname, constructor = result), list(idname = idname, result = as.symbol(classname))))

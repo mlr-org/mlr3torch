@@ -103,6 +103,7 @@ print.ModelDescriptor = function(x, ...) {
 #' @param mds2 (`list` of `ModelDescriptor`)
 #'   The second [`ModelDescriptor`].
 #' @return a `ModelDescriptor`.
+#' @export
 model_descriptor_union = function(mds1, mds2) {
   assert_class(mds1, "ModelDescriptor")
   assert_class(mds2, "ModelDescriptor")
@@ -115,7 +116,7 @@ model_descriptor_union = function(mds1, mds2) {
     assert_true(identical(graph$pipeops[common_names], mds2$graph$pipeops[common_names]))
 
     # copy all PipeOps that are in mds2 but not in mds1
-    graph$pipeops = c(graph$pipeops, mds2$graph$pipeops[setdiff(mds2$graph$pipeops, common_names)])
+    graph$pipeops = c(graph$pipeops, mds2$graph$pipeops[setdiff(names(mds2$graph$pipeops), common_names)])
 
     # clear param_set cache
     graph$.__enclos_env__$private$.param_set = NULL
@@ -126,7 +127,7 @@ model_descriptor_union = function(mds1, mds2) {
     # IDs and channel names that get new input edges. These channels must not already have incoming edges in mds1.
     new_input_edges = unique(new_edges[, c("dst_id", "dst_channel"), with = FALSE])
 
-    forbidden_edges = graph$edges[new_input_edges, on = c("dst_id", "dst_channel")]
+    forbidden_edges = graph$edges[new_input_edges, on = c("dst_id", "dst_channel"), nomatch = NULL]
     if (nrow(forbidden_edges)) stop(sprintf("PipeOp(s) %s have differing incoming edges in mds1 and mds2.", paste(forbidden_edges$dst_id, collapse = ", ")))
     graph$edges = rbind(graph$edges, new_edges)
   }
@@ -135,7 +136,7 @@ model_descriptor_union = function(mds1, mds2) {
     common_names = intersect(names(a), names(b))
     assert_true(identical(a[common_names], b[common_names]), .var.name = sprintf("common entries of %s of ModelDescriptors being merged are identical"))
     a[names(b)] = b
-    x
+    a
   }
 
   coalesce_assert_id = function(a, b, .var.name) {
@@ -154,11 +155,11 @@ model_descriptor_union = function(mds1, mds2) {
 
   ModelDescriptor(
     graph = graph,
-    ingress = merge_assert_id(mds1$ingress, mds2$ingress, .var.name = "ingress"),
+    ingress = merge_assert_unique(mds1$ingress, mds2$ingress, .var.name = "ingress"),
     task = task,
     optimizer = coalesce_assert_id(mds1$optimizer, mds2$optimizer, .var.name = "optimizer"),
     loss = coalesce_assert_id(mds1$loss, mds2$loss, .var.name = "loss"),
-    callbacks = merge_assert_id(mds1$callbacks, mds2$callbacks, .var.name = "callbacks")
+    callbacks = merge_assert_unique(mds1$callbacks, mds2$callbacks, .var.name = "callbacks")
   )
 }
 

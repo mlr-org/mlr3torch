@@ -11,7 +11,7 @@
 #' @param loss (`character(1)`)\cr
 #'   The loss, see `torch_reflections$loss$classif`.
 #' @param param_set (`paradox::ParamSet`)\cr
-#'   Additional parameters to the standard paramset created by `make_paramset()`.
+#'   Additional parameters to the standard paramset.
 #' @param label (`character(1)`)\cr
 #'   The label for the learner.
 #' @param properties (`character()`)\cr
@@ -64,8 +64,7 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
         private$.loss$param_set
       ))
 
-
-      param_set_complete = make_paramset("classif", optimizer, loss)
+      param_set_complete = paramset_torchlearner()
       param_set_complete$add(param_set)
 
       super$initialize(
@@ -89,9 +88,10 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
       # When keep_last_prediction = TRUE we store the predictions of the last validation and we
       # therefore don't have to recompute them in the resample(), but can simple return the
       # cached predictions
-      learner_torch_predict(self, task)
+      learner_torch_predict(self, private, super, task)
     },
     .network = function(task) stop(".network must be implemented."),
+    .dataloader = function(task, param_vals) stop(".dataloader must be implemented."),
     .optimizer = NULL,
     .loss = NULL
   ),
@@ -119,7 +119,7 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
 
 paramset_torchlearner = function() {
   ps(
-    batch_size            = p_int(tags = c("train", "predict", "required"), lower = 1L, default = 16L),
+    batch_size            = p_int(tags = c("train", "predict"), lower = 1L, default = 1L),
     epochs                = p_int(tags = c("train", "hotstart", "required"), lower = 0L),
     device                = p_fct(tags = c("train", "predict"), levels = c("auto", "cpu", "cuda", "meta"), default = "auto"), # nolint
     measures_train        = p_uty(tags = "train", custom_check = check_measures),
