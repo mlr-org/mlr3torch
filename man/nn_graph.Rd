@@ -4,10 +4,10 @@
 \alias{nn_graph}
 \title{Graph Network}
 \usage{
-nn_graph(graph, shapes_in, output_map = graph$output, list_output = FALSE)
+nn_graph(graph, shapes_in, output_map = graph$output$name, list_output = FALSE)
 }
 \arguments{
-\item{graph}{(\code{\link[mlr3pipeline:Graph]{Graph}})\cr
+\item{graph}{(\code{\link[mlr3pipelines:Graph]{Graph}})\cr
 The \code{\link[mlr3pipelines:Graph]{Graph}} to wrap.}
 
 \item{shapes_in}{(named \code{integer})\cr

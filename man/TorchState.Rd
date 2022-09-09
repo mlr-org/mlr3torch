@@ -10,13 +10,13 @@ This is the - mostly read-only - information callbacks have access to.
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-ContextTorch-new}{\code{TorchState$new()}}
-\item \href{#method-ContextTorch-clone}{\code{TorchState$clone()}}
+\item \href{#method-TorchState-new}{\code{TorchState$new()}}
+\item \href{#method-TorchState-clone}{\code{TorchState$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-ContextTorch-new"></a>}}
-\if{latex}{\out{\hypertarget{method-ContextTorch-new}{}}}
+\if{html}{\out{<a id="method-TorchState-new"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchState-new}{}}}
 \subsection{Method \code{new()}}{
 Initializes an object of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
@@ -45,8 +45,8 @@ The torch learner.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-ContextTorch-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-ContextTorch-clone}{}}}
+\if{html}{\out{<a id="method-TorchState-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchState-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

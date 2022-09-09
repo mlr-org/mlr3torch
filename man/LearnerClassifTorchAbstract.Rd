@@ -79,7 +79,7 @@ The optimizer.}
 The loss, see \code{torch_reflections$loss$classif}.}
 
 \item{\code{param_set}}{(\code{paradox::ParamSet})\cr
-Additional parameters to the standard paramset created by \code{make_paramset()}.}
+Additional parameters to the standard paramset.}
 
 \item{\code{label}}{(\code{character(1)})\cr
 The label for the learner.}
