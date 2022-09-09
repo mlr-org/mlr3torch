@@ -1,3 +1,5 @@
+#' @title create dataset from task
+#' @export
 task_dataset = dataset(
   initialize = function(task, feature_ingress_tokens, target_batchgetter = NULL, device = "cpu") {
     self$task = assert_r6(task, "Task")

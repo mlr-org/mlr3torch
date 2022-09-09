@@ -1,3 +1,6 @@
+
+#' @title LearnerClassifTorchModel
+#' @export
 LearnerClassifTorchModel = R6Class("LearnerClassifTorchModel",
   inherit = LearnerClassifTorchAbstract,
   public = list(

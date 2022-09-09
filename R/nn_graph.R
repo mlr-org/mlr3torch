@@ -60,7 +60,7 @@ model_descriptor_to_module = function(model_descriptor, output_pointers, list_ou
 #'
 #' Represents a NN using a [`Graph`] that contains [`PipeOpModule`]s.
 #'
-# '@export
+#' @export
 nn_graph = nn_module(
   "nn_graph",
   #' @param graph ([`Graph`][mlr3pipelines::Graph])\cr
