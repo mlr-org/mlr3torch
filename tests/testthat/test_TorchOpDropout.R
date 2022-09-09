@@ -11,11 +11,12 @@ test_that("TorchOpDropout works", {
     dims = sample(10, ndim, TRUE)
     inputs = list(input = invoke(torch_randn, .args = dims))
 
+    op$param_set$values = insert_named(op$param_set$values, param_vals)
     expect_torchop(
       op = op,
       inputs = inputs,
-      param_vals = param_vals,
-      task = task
+      task = task,
+      class = "nn_dropout"
     )
   }
 })

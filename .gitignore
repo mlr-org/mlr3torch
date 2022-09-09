@@ -5,3 +5,4 @@ mlr3torch.Rcheck/
 mlr3torch*.tar.gz
 mlr3torch*.tgz
 .vscode/tasks.json
+*~

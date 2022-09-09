@@ -12,15 +12,15 @@ test_that("TorchOpModel works", {
     top("model.classif",
       batch_size = 16L,
       device = "cpu",
-      epochs = 10L,
+      epochs = 1L,
       callbacks = list()
     )
-  glrn = as_learner(graph)
+  glrn = as_learner_torch(graph)
   glrn$id = "net"
   glrn$train(task)
   expect_error(glrn$train(task), regexp = NA)
   expect_error(glrn$predict(task), regexp = NA)
 
-  resampling = rsmp("cv")
+  resampling = rsmp("cv", folds = 2)
   expect_error(resample(task, glrn, resampling), regexp = NA)
 })

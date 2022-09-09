@@ -17,12 +17,13 @@ test_that("TorchOpTabResNetBlocks works", {
     n_features = sample(1:10, 1)
     n_batch = sample(1:3, 1)
     inputs = list(input = torch_randn(n_batch, n_features))
+    op$param_set$values = insert_named(op$param_set$values, param_vals)
 
     expect_torchop(
       op = op,
       inputs = inputs,
-      param_vals = param_vals,
-      task = task
+      task = task,
+      "nn_tab_resnet_blocks"
     )
 
   }

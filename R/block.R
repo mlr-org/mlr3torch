@@ -1,3 +1,0 @@
-block = function(graph, rep) {
-
-}

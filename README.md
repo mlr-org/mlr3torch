@@ -73,7 +73,7 @@ graph = top("input") %>>%
   top("output") %>>%
   top("model.classif", epochs = 10L, batch_size = 16L, .loss = "cross_entropy", .optimizer = "adam")
 
-glrn = as_learner(graph)
+glrn = as_learner_torch(graph)
 glrn$train(task)
 ```
 

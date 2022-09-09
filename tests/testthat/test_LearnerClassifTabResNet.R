@@ -14,7 +14,6 @@ test_that("LearnerClassifTabResNet works", {
     # training args
     batch_size = 16L,
     epochs = 10L,
-    valid_split = 0.2,
     opt.lr = 0.03,
     callbacks = list(),
     shuffle = TRUE

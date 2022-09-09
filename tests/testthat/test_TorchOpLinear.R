@@ -9,12 +9,15 @@ test_that("TorchOpLinear works", {
     dims = sample.int(20, ndim)
     inputs = list(input = invoke(torch_randn, .args = dims))
 
+    param_vals = list(out_features = out_features)
 
+    op$param_set$values = insert_named(op$param_set$values, param_vals)
     expect_torchop(
       op = op,
       inputs = inputs,
-      param_vals = list(out_features = out_features),
-      task = task
+      task = task,
+      class = "nn_linear",
+      exclude = "in_features"
     )
   }
 })

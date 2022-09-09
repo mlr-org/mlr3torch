@@ -5,9 +5,7 @@
 \alias{LearnerClassifTorch}
 \title{LearnerTorchClassif}
 \description{
-LearnerTorchClassif
-
-LearnerTorchClassif
+This implements a custom neural network.
 }
 \section{Super classes}{
 \code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3:LearnerClassif]{mlr3::LearnerClassif}} -> \code{\link[mlr3torch:LearnerClassifTorchAbstract]{mlr3torch::LearnerClassifTorchAbstract}} -> \code{LearnerClassifTorch}
@@ -30,7 +28,6 @@ LearnerTorchClassif
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="print"><a href='../../mlr3/html/Learner.html#method-Learner-print'><code>mlr3::Learner$print()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset"><a href='../../mlr3/html/Learner.html#method-Learner-reset'><code>mlr3::Learner$reset()</code></a></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train"><a href='../../mlr3/html/Learner.html#method-Learner-train'><code>mlr3::Learner$train()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerClassifTorchAbstract" data-id="build"><a href='../../mlr3torch/html/LearnerClassifTorchAbstract.html#method-LearnerClassifTorchAbstract-build'><code>mlr3torch::LearnerClassifTorchAbstract$build()</code></a></li>
 </ul>
 </details>
 }}
@@ -41,10 +38,11 @@ LearnerTorchClassif
 Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LearnerClassifTorch$new(
+  module,
+  param_set = NULL,
+  optimizer = t_opt("adam"),
+  loss = t_loss("cross_entropy"),
   param_vals = list(),
-  optimizer,
-  loss,
-  network,
   feature_types = NULL
 )}\if{html}{\out{</div>}}
 }
@@ -52,9 +50,6 @@ Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{param_vals}}{(named \code{list()})\cr
-The initial parameters for the object.}
-
 \item{\code{optimizer}}{(\code{character()})\cr
 A character string containing the name of the optimizer.
 Possible values are \code{torch_reflections$optimizer}.}
@@ -63,8 +58,8 @@ Possible values are \code{torch_reflections$optimizer}.}
 A character string containing the name of the loss function
 For possible values see \code{torch_reflections$loss}.}
 
-\item{\code{network}}{(\code{nn_module()})\cr
-An object of class \code{"nn_module"} as defined in \code{torch}.}
+\item{\code{param_vals}}{(named \code{list()})\cr
+The initial parameters for the object.}
 
 \item{\code{feature_types}}{(\code{character()})\cr
 The feature types the learner supports. The default is all feature types.}
