@@ -91,6 +91,8 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
       learner_torch_predict(self, private, super, task)
     },
     .network = function(task) stop(".network must be implemented."),
+    # the dataloader gets param_vals that may be different from self$param_set$values, e.g.
+    # when the dataloader for validation data is loaded, `shuffle` is set to FALSE.
     .dataloader = function(task, param_vals) stop(".dataloader must be implemented."),
     .optimizer = NULL,
     .loss = NULL
