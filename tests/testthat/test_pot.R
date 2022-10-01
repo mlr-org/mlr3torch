@@ -21,7 +21,6 @@ test_that("pot works", {
 })
 
 test_that("pot gives informative error message", {
-  # without id increment
-  # for nn_
-  expect_error(pot("nn_linear"), regex = "You probably wanted po")
+  expect_error(pot("nn_linear"), regex = "You probably wanted po(\"nn_", fixed = TRUE)
+  expect_error(pot("torch_optimizer"), regex = "You probably wanted po(\"torch_", fixed = TRUE)
 })
