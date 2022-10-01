@@ -19,3 +19,9 @@ test_that("pot works", {
   expect_r6(obj, "PipeOpTorchOptimizer")
   expect_true(obj$id == "optimizer_90")
 })
+
+test_that("pot gives informative error message", {
+  # without id increment
+  # for nn_
+  expect_error(pot("nn_linear"), regex = "You probably wanted po")
+})

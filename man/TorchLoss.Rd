@@ -23,7 +23,7 @@ TorchLoss
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{TorchLoss$new(
   torch_loss,
-  tasktypes = NULL,
+  task_types = NULL,
   param_set = NULL,
   label = deparse(substitute(torch_loss))[[1]]
 )}\if{html}{\out{</div>}}

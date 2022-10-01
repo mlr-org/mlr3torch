@@ -78,7 +78,6 @@ train_loop = function(state, cbs) {
     predictions = list()
     indices = list()
     state$batch = 0
-#    browser()
     coro::loop(for (batch in state$loader_train) {
       state$batch = state$batch + 1
 

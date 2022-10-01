@@ -23,12 +23,12 @@ Prints a progress bar and the metrics for training and validation.
 \if{html}{\out{
 <details><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackTorch" data-id="initialize"><a href='../../mlr3torch/html/CallbackTorch.html#method-CallbackTorch-initialize'><code>mlr3torch::CallbackTorch$initialize()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackTorch" data-id="on_after_backward"><a href='../../mlr3torch/html/CallbackTorch.html#method-CallbackTorch-on_after_backward'><code>mlr3torch::CallbackTorch$on_after_backward()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackTorch" data-id="on_batch_begin"><a href='../../mlr3torch/html/CallbackTorch.html#method-CallbackTorch-on_batch_begin'><code>mlr3torch::CallbackTorch$on_batch_begin()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackTorch" data-id="on_batch_valid_begin"><a href='../../mlr3torch/html/CallbackTorch.html#method-CallbackTorch-on_batch_valid_begin'><code>mlr3torch::CallbackTorch$on_batch_valid_begin()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackTorch" data-id="on_begin"><a href='../../mlr3torch/html/CallbackTorch.html#method-CallbackTorch-on_begin'><code>mlr3torch::CallbackTorch$on_begin()</code></a></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackTorch" data-id="on_end"><a href='../../mlr3torch/html/CallbackTorch.html#method-CallbackTorch-on_end'><code>mlr3torch::CallbackTorch$on_end()</code></a></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackTorch" data-id="initialize"><a href='../../mlr3torch/html/CallbackTorch.html#method-CallbackTorch-initialize'><code>mlr3torch::CallbackTorch$initialize()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackTorch" data-id="on_after_backward"><a href='../../mlr3torch/html/CallbackTorch.html#method-CallbackTorch-on_after_backward'><code>mlr3torch::CallbackTorch$on_after_backward()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackTorch" data-id="on_batch_begin"><a href='../../mlr3torch/html/CallbackTorch.html#method-CallbackTorch-on_batch_begin'><code>mlr3torch::CallbackTorch$on_batch_begin()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackTorch" data-id="on_batch_valid_begin"><a href='../../mlr3torch/html/CallbackTorch.html#method-CallbackTorch-on_batch_valid_begin'><code>mlr3torch::CallbackTorch$on_batch_valid_begin()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackTorch" data-id="on_begin"><a href='../../mlr3torch/html/CallbackTorch.html#method-CallbackTorch-on_begin'><code>mlr3torch::CallbackTorch$on_begin()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackTorch" data-id="on_end"><a href='../../mlr3torch/html/CallbackTorch.html#method-CallbackTorch-on_end'><code>mlr3torch::CallbackTorch$on_end()</code></a></span></li>
 </ul>
 </details>
 }}

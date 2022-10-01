@@ -4,7 +4,7 @@
 \alias{as_torch_optimizer}
 \title{Convert to TorchOptimizer}
 \usage{
-as_torch_optimizer(x, clone = FALSE)
+as_torch_optimizer(x, clone = FALSE, ...)
 }
 \description{
 Convert to TorchOptimizer

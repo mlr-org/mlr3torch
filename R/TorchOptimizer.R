@@ -30,7 +30,6 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
     param_set = NULL,
     initialize = function(torch_optimizer, param_set = NULL, label = deparse(substitute(torch_optimizer))[[1]]) {
       assert_r6(param_set, "ParamSet", null.ok = TRUE)
-      browser()
       self$label = assert_string(label)
       self$optimizer = assert_class(torch_optimizer, "torch_optimizer_generator")  # maybe too strict?
 

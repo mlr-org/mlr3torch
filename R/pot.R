@@ -1,14 +1,26 @@
-#' @title Convenience Function to Retrieve a PipeOpTorch without the Prefix torch_ or nn_
+#' @title Convenience Function to Retrieve a PipeOpTorch without the Prefix
+#'
 #' @description
-#' All classes that inherit from [PipeOpTorch]
+#' Sugar function that allows to construct all [PipeOp]s relating to torch without needing to
+#' write out the the prefixes `"torch_"` and `"nn_"`.
+#' The `id` of the resulting object is also without the prefix.
+#'
+#' Possible objects to construct are:
+#' * All objects inheriting from [PipeOpTorch], i.e. [PipeOpTorchLinear], [PipeOpTorchReLU], etc..
+#' * All objects inheritng from [PipeOpTorchIngress] which is the entry point to the network.
+#' * [PipeOpTorchLoss] which allows to configure the loss function.
+#' * [PipeOpTorchOptimizer] which allows to configure the loss Optimizer.
+#' * All objects inheriting from [PipeOpTorchModel] which transforms the [ModelDescriptor] into
+#'   a torch [mlr3::Learner] and trains it.
 #'
 #' @name pot
 #' @examples
-#' po("nn_linear", id = "linear)
+#' po("nn_linear", id = "linear")
 #' # is the same as
 #' pot("linear")
 #'
-#' po("torch_optimizer", "adam", id = "adam") is the same as
+#' po("torch_optimizer", "adam", id = "adam")
+#' # is the same as
 #' pot("optimizer", "adam")
 #'
 #' @export
@@ -38,5 +50,5 @@ pot = function(.key, ...) {
 #' @export
 pots = function(.keys, ...) {
   objs = map(.keys, pot, ...)
-  walk(objs, function(obj) obj$id = gsub("^torch_", "", obj$id))
+  walk(objs, function(obj) obj$id = gsub("^(nn_|torch_)", "", obj$id))
 }
