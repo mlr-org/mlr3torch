@@ -3,8 +3,7 @@ PipeOpTorchOptimizer = R6Class("PipeOpTorchOptimizer",
   inherit = PipeOpTorch,
   public = list(
     initialize = function(optimizer, id = "torch_optimizer", param_vals = list()) {
-      assert_r6(optimizer, "TorchOptimizer")
-      private$.optimizer = optimizer
+      private$.optimizer = assert_r6(as_torch_optimizer(optimizer), "TorchOptimizer")
       super$initialize(
         id = id,
         param_set = alist(private$.optimizer$param_set),

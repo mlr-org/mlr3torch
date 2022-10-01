@@ -35,7 +35,7 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
       packages = character(0), predict_types = NULL, feature_types, man) {
       private$.optimizer = as_torch_optimizer(optimizer, clone = TRUE)
       private$.loss = as_torch_loss(loss, clone = TRUE)
-      assert_subset("classif", private$.loss$tasktypes)
+      assert_subset("classif", private$.loss$task_types)
       # FIXME: loglik?
       properties = properties %??% c("weights", "multiclass", "twoclass", "hotstart_forward")
       predict_types = predict_types %??% "response"

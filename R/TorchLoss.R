@@ -16,17 +16,22 @@ as_torch_loss.TorchLoss = function(x, clone = FALSE) {
   if (clone) x$clone(deep = TRUE) else x
 }
 
+#' @export
+as_torch_loss.character = function(x, clone = FALSE, ...) {
+  t_loss(x, ...)
+}
+
 #' @title TorchLoss
 #' @export
 TorchLoss = R6::R6Class("TorchLoss",
   public = list(
     label = NULL,
-    tasktypes = NULL,
+    task_types = NULL,
     loss = NULL,
     param_set = NULL,
-    initialize = function(torch_loss, tasktypes = NULL, param_set = NULL, label = deparse(substitute(torch_loss))[[1]]) {
+    initialize = function(torch_loss, task_types = NULL, param_set = NULL, label = deparse(substitute(torch_loss))[[1]]) {
       assert_r6(param_set, "ParamSet", null.ok = TRUE)
-      self$tasktypes = assert_subset(tasktypes, mlr_reflections$task_types$type)
+      self$task_types = assert_subset(task_types, mlr_reflections$task_types$type)
       self$label = assert_string(label)
       self$loss = assert_class(torch_loss, "nn_loss")  # maybe too strict?
 

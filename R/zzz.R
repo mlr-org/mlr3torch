@@ -25,9 +25,17 @@
 utils::globalVariables(c("self", "private", "super"))
 
 po_register_env = new.env()
+po_register_env$.nn_ids = character()
+po_register_env$.torch_ids = character()
+
 register_po = function(name, constructor, metainf = NULL) {
   if (name %in% names(po_register_env)) stopf("pipeop %s registered twice", name)
   po_register_env[[name]] = constructor
+  if (grepl("^torch_", name)) {
+    po_register_env$.torch_ids = c(po_register_env$.torch_ids, name)
+  } else if (grepl("^nn_", name)) {
+    po_register_env$.nn_ids = c(po_register_env$.nn_ids, name)
+  }
 }
 
 register_mlr3 = function() {

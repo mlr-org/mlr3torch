@@ -1,7 +1,7 @@
 
 #' @title Convert to TorchOptimizer
 #' @export
-as_torch_optimizer = function(x, clone = FALSE) {
+as_torch_optimizer = function(x, clone = FALSE, ...) {
   assert_flag(clone)
   UseMethod("as_torch_optimizer")
 }
@@ -16,6 +16,11 @@ as_torch_optimizer.TorchOptimizer = function(x, clone = FALSE) {
   if (clone) x$clone(deep = TRUE) else x
 }
 
+#' @export
+as_torch_optimizer.character = function(x, ...) {
+  t_opt(x, ...)
+}
+
 #' @title TorchOptimizer
 #' @export
 TorchOptimizer = R6::R6Class("TorchOptimizer",
@@ -25,6 +30,7 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
     param_set = NULL,
     initialize = function(torch_optimizer, param_set = NULL, label = deparse(substitute(torch_optimizer))[[1]]) {
       assert_r6(param_set, "ParamSet", null.ok = TRUE)
+      browser()
       self$label = assert_string(label)
       self$optimizer = assert_class(torch_optimizer, "torch_optimizer_generator")  # maybe too strict?
 
