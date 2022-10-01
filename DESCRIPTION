@@ -14,7 +14,7 @@ Imports:
     backports,
     checkmate,
     lgr,
-    torch,
+    torch (>= 0.8.1),
     mlr3misc,
     data.table,
     coro,
@@ -69,5 +69,6 @@ Collate:
     'autotest_learner.R'
     'learner_torch_methods.R'
     'nn_graph.R'
+    'pot.R'
     'task_dataset.R'
     'utils.R'
