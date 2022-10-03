@@ -26,3 +26,32 @@ test_that("TorchOpMerge works", {
 })
 
 # TODO: Also test for order here
+
+test_that("TorchOpMergeAdd works", {
+  task = tsk("iris")
+  graph = gunion(list(pot("ingress_num_1"), pot("ingress_num_2"))) %>>%
+    pot("merge_sum", innum = 2L)
+
+  graph = graph
+  id = "merge_sum"
+  module_class = "nn_merge_sum"
+  task = tsk("iris")
+
+  autotest_torchop(
+    graph = graph,
+    id = "merge_sum",
+    module_class = "nn_merge_sum",
+    task = tsk("iris")
+  )
+
+  out = graph$train(task)
+  g = md$graph
+
+  testobj = g$pipeops$merge_sum
+
+  fargs = formalArgs(testobj$module$forward)
+  innames = testobj$input$name
+
+  expect_true(all(sort(fargs) == sort(innames)))
+})
+

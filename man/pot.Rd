@@ -29,7 +29,8 @@ po("nn_linear", id = "linear")
 # is the same as
 pot("linear")
 
-po("torch_optimizer", "adam", id = "adam") is the same as
+po("torch_optimizer", "adam", id = "adam")
+# is the same as
 pot("optimizer", "adam")
 
 }

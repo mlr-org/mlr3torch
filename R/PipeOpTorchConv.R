@@ -1,16 +1,12 @@
-#' @title Convolution
+#' @title
 #' @description
 #' 1D, 2D and 3D Convolution
 #'
 #' @section Calls:
 #' Calls `torch::nn_conv1d()`, `torch::nn_conv2d` or `torch::nn_conv3d()`.
 #'
-#' @section Custom mlr3 parameters:
+#' @section Inferred parameters
 #' * `in_channels` - This parameter is inferred as the second dimension of the input tensor.
-#'
-#' @name conv
-NULL
-
 PipeOpTorchConv = R6Class("PipeOpTorchConv",
   inherit = PipeOpTorch,
   public = list(
@@ -54,6 +50,10 @@ PipeOpTorchConv = R6Class("PipeOpTorchConv",
         out_channels = param_vals$out_channels,
         ceil_mode = FALSE
       ))
+    },
+    .shape_dependent_params = function(shapes_in, param_vals) {
+      c(param_vals, in_channels = shapes_in[1])
+
     },
     .d = NULL
   )

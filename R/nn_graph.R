@@ -25,6 +25,14 @@ model_descriptor_to_module = function(model_descriptor, output_pointers, list_ou
   # an incomplete $ingress-slot. However, by the time we create an nn_graph,
   # the `graph` must be final, so $ingress must be complete.
   shapes_in = map(model_descriptor$ingress, "shape")
+  features = task$feature_types$id
+  used_features = unique(unlist(map(model_descriptor$ingress, "features")))
+  unused_features = setdiff(features, used_features)
+  if (length(unused_features)) {
+    stopf(
+      "Task '%s' has features: {%s}", task$id, paste0(unused_features, collapse = ", "),
+    )
+  }
 
   assert_list(output_pointers, types = "character", len = if (!list_output) 1)
 

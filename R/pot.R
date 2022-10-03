@@ -50,5 +50,4 @@ pot = function(.key, ...) {
 #' @export
 pots = function(.keys, ...) {
   objs = map(.keys, pot, ...)
-  walk(objs, function(obj) obj$id = gsub("^(nn_|torch_)", "", obj$id))
 }

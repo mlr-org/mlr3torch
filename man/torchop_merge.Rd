@@ -67,9 +67,6 @@ Should be set, in case the order of the inputs is relevant.}
 
 \item{\code{param_vals}}{(named \code{list()})\cr
 The initial parameters for the object.}
-
-\item{\code{.method}}{(\code{character(1)})\cr
-The method for the concatenation. One of "add", "mul" or "cat".}
 }
 \if{html}{\out{</div>}}
 }

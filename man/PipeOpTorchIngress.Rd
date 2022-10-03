@@ -9,6 +9,14 @@ Use this as entry-point to mlr3torch-networks.
 \section{Super class}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{PipeOpTorchIngress}
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{feature_types}}{(\code{character()})\cr
+The feature types used by this ingress operator.}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -37,7 +45,8 @@ Use this as entry-point to mlr3torch-networks.
   param_vals = list(),
   input = data.table(name = "input", train = "Task", predict = "Task"),
   output = data.table(name = "output", train = "ModelDescriptor", predict = "Task"),
-  packages = character(0)
+  packages = character(0),
+  feature_types
 )}\if{html}{\out{</div>}}
 }
 

@@ -8,35 +8,34 @@
 #' should be set.
 #' @export
 #'
+#' @template param_id
+#' @template param_param_vals
+#' @template param_param_set
+#' @param innum (`integer(1)`)\cr
+#'   The number of input channels (optional). If provided, the input channels are set to
+#'   `"input1"`, `"input2"`, etc.. Otherwise the input channel is set to `...` (a 'vararg' channel).
+#'   Should be set, in case the order of the inputs is relevant.
+#'
 #' @examples
 #' @rdname torchop_merge
 PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
   inherit = PipeOpTorch,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
-    #' @param id (`character(1)`)\cr
-    #'   The id for of the new object.
-    #' @param param_set (`paradox::ParamSet`)\cr
-    #'   The parameter set.
-    #' @param param_vals (named `list()`)\cr
-    #'   The initial parameters for the object.
-    #' @param innum (`integer(1)`)\cr
-    #'   The number of input channels (optional). If provided, the input channels are set to
-    #'   `"input1"`, `"input2"`, etc.. Otherwise the input channel is set to `...` (a 'vararg' channel).
-    #'   Should be set, in case the order of the inputs is relevant.
-    #' @param .method (`character(1)`)\cr
-    #'   The method for the concatenation. One of "add", "mul" or "cat".
     initialize = function(id, module_generator, param_set = ps(), innum = 0, param_vals = list()) {
+      private$.innum = assert_int(innum, lower = 0)
+      inname = if (innum == 0) "..." else paste0("input", seq_len(innum))
       super$initialize(
         id = id,
         module_generator = module_generator,
         param_set = param_set,
         param_vals = param_vals,
-        multi_input = innum
+        inname = inname
       )
     }
   ),
   private = list(
+    .innum = NULL,
     .shapes_out = function(shapes_in, param_vals) {
       assert_true(length(unique(map_int(shapes_in, length))) == 1)
       uniques = apply(as.data.frame(shapes_in), 1, function(row) {
@@ -54,12 +53,23 @@ PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
 PipeOpTorchMergeSum = R6Class("PipeOpTorchMergeSum", inherit = PipeOpTorchMerge,
   public = list(
     initialize = function(id = "nn_merge_sum", innum = 0, param_vals = list()) {
+      private$.innum = innum
       super$initialize(
         id = id,
-        module_generator = nn_merge_sum,
+        module_generator = NULL,
         innum = innum,
         param_vals = param_vals
       )
+    }
+  ),
+  private = list(
+    .innum = NULL,
+    .make_module = function(shapes_in, param_vals) {
+      innum = private$.innum
+      argnames = if (innum == 0) "..." else paste0(paste0("input", seq_len(innum), collapse = ", "))
+      call = sprintf("torch_sum(torch_stack(list(%s)), dim = 1L)", argnames)
+      forward = eval(str2lang(sprintf("function(%s) %s", argnames, call)))
+      nn_module("nn_merge_sum", forward = forward)()
     }
   )
 )
@@ -75,6 +85,15 @@ PipeOpTorchMergeProd = R6Class("PipeOpTorchMergeProd", inherit = PipeOpTorchMerg
         innum = innum,
         param_vals = param_vals
       )
+    }
+  ),
+  private = list(
+    .make_module = function(shapes_in, param_vals) {
+      innum = private$.innum
+      argnames = if (innum == 0) "..." else paste0(paste0("input", seq_len(innum), collapse = ", "))
+      call = sprintf("torch_prod(torch_stack(list(%s)), dim = 1L)", argnames)
+      forward = eval(str2lang(sprintf("function(%s) %s", argnames, call)))
+      nn_module("nn_merge_prod", forward = forward)()
     }
   )
 )
@@ -97,6 +116,13 @@ PipeOpTorchMergeCat = R6Class("PipeOpTorchMergeCat", inherit = PipeOpTorchMerge,
     speak = function() cat("I am the merge cat, meow! ^._.^\n")
   ),
   private = list(
+    .make_module = function(shapes_in, param_vals) {
+      innum = private$.innum
+      argnames = if (innum == 0) "..." else paste0(paste0("input", seq_len(innum), collapse = ", "))
+      call = sprintf("torch_cat(list(%s)), dim = self$dim)", argnames)
+      forward = eval(str2lang(sprintf("function(%s) %s", argnames, call)))
+      nn_module("nn_merge_cat", forward = forward)()
+    },
     .shapes_out = function(shapes_in, param_vals) {
       assert_true(length(unique(map_int(shapes_in, length))) == 1)
 
@@ -124,31 +150,6 @@ PipeOpTorchMergeCat = R6Class("PipeOpTorchMergeCat", inherit = PipeOpTorchMerge,
       list(returnshape)
     }
   )
-)
-
-
-nn_merge_prod = nn_module(
-  "nn_merge_prod",
-  initialize = function() NULL,
-  forward = function(...) {
-    torch_prod(torch_stack(list(...)), dim = 1L)
-  }
-)
-
-nn_merge_sum = nn_module(
-  "nn_merge_sum",
-  initialize = function() NULL,
-  forward = function(...) {
-    torch_sum(torch_stack(list(...)), dim = 1L)
-  }
-)
-
-nn_merge_cat = nn_module(
-  "nn_merge_cat",
-  initialize = function(dim) self$dim = dim,
-  forward = function(...) {
-    torch_cat(list(...), dim = self$dim)
-  }
 )
 
 #' @include zzz.R

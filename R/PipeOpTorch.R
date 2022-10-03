@@ -1,17 +1,37 @@
 #' @title Base Class for Torch Module Constructor Wrappers
 #'
+#' @usage NULL
+#' @name mlr_pipeops_torch
+#' @format [`R6Class`] object inheriting from [`PipeOpTaskPreproc`]/[`PipeOp`].
+#'
 #' @description
-#' `PipeOpTorch` wraps a `torch::nn_module_generator`. It builds an isomorphic `Graph` and also keeps track of the tensor shape(s) involved.
+#' `PipeOpTorch` wraps a `torch::nn_module_generator`. It builds an isomorphic `Graph` and also keeps track of the
+#' tensor shape(s) involved.
+#'
+#' @section Input and Output Channels:
+#'
+#' During training, all input channels take in a [ModelDescriptor] and output a [ModelDescriptor].
+#' During prediction, all input channels take in a [mlr3::Task] and output the same [mlr3::Task].
+#'
+#' The generated [PipeOpModule] has exactly the same input and output channels.
+#' The names of the input channels correspond to the argument names of the generated `nn_module`.
+#' The output channels should correspond to the
+#'
+#'
+#'
+#' The output is the input [`Task`][mlr3::Task] with all affected numeric features replaced by their
+#' non-negative components.
 #'
 #' @section Inheriting:
-#' When inheriting from this class, one should overload the `private$.shapes_out()` and the `private$.shape_dependent_params()`
-#' methods.
+#' When inheriting from this class, one should overload the `private$.shapes_out()` and the `private$.shape_dependent_
+#' params()` methods.
 #'
-#' `private$.shapes_out()` gets a list of `numeric` vectors as input. This list indicates the shape of input tensors that will be fed
-#' to the module's `$forward()` function. The list has one item per input tensor, typically only one. The shape vectors may contain `NA`
-#' entries indicating arbitrary size (typically used for the batch dimension). The function should return a list of shapes of tensors that
-#' are created by the module. If `multi_output` is `NULL` it should be of length 1. If `multi_output` is an `integer(1)`, then
-#' this should be the same length as the return value of the module's `$forward()`.
+#' `private$.shapes_out()` gets a list of `numeric` vectors as input. This list indicates the shape of input tensors
+#' that will be fed to the module's `$forward()` function. The list has one item per input tensor, typically only one.
+#' The shape vectors may contain `NA` entries indicating arbitrary size (typically used for the batch dimension). The
+#' function should return a list of shapes of tensors that are created by the module. If `multi_output` is `NULL` it
+#' should be of length 1. If `multi_output` is an `integer(1)`, then this should be the sgraph = ame length as the return value
+#' of the module's `$forward()`.
 #'
 #' `private$.shape_dependent_params()` calculates construction arguments of `module_generator` that depend on the input shape.
 #' It should return a named list.
@@ -19,6 +39,27 @@
 #' It is possible to overload `private$.make_module()` instead of `private$.shape_dependent_params()`, in which case it is even allowed
 #' to not give a `module_generator` during construction.
 #'
+#' @param module_generator (`nn_module_generator` | `NULL`)\cr
+#'   When this is `NULL`, then `private$.make_module` must be overloaded.
+#' @param inname (`character()` or `NULL`)\cr
+#'   The names of the [PipeOp]'s input channels.
+#'   If `module_generator` is not `NULL`, they must be a permutation of the argument names of the module's `forward`
+#'   function. This is also the default behaviour
+#'   inferred from the forward function of the module generator.
+#'   Otherwise this can be a character vector giving the names, or an integer `n`, such that the
+#'   names are `input1, input2, ..., input<n>`.
+#' @param outname (`character()`) \cr
+#'   The names of the [PipeOp]'s output channels channels.
+#'   The default is `"output"`.
+#'   In case there is more than one output channel, the `nn_module` that is constructed by this
+#'   [PipeOp] during training must return a named list, where the names of the list are the
+#'   names out the output channels. When providing an integer `n`, the names are set to
+#'   `input1, input2, ..., input<n>`.
+#' @template param_id
+#' @template param_param_set
+#' @template param_param_vals
+#' @param packages (`character()`)\cr
+#'    The R packages this [PipeOP] depends on.
 #' @examples
 #' @export
 PipeOpTorch = R6Class("PipeOpTorch",
@@ -26,23 +67,22 @@ PipeOpTorch = R6Class("PipeOpTorch",
   public = list(
     module_generator = NULL,
     #' @description Initializes a new instance of this [R6 Class][R6::R6Class].
-    #' @param module_generator (`nn_module_generator` | `NULL`)\cr
-    #'   When this is `NULL`, then `private$.make_module` must be overloaded.
-    #' @param multi_input (`NULL` | `integer(1)`)\cr
-    #'   `0`: `...`-input. Otherwise: `multi_input` times input channel named `input1:`...`input#`.\cr
-    #'   `module`'s `$forward` function must take `...`-input if `multi_input` is 0, and must have `multi_input` arguments otherwise.
-    #' @param multi_output (`NULL` | `integer(1)`)\cr
-    #'   `NULL`: single output. Otherwise: `multi_output` times output channel named `output1:`...`input#`.\cr
-    #'   `module`'s `$forward` function must return a `list` of `torch_tensor` if `multi_output` is not `NULL`.
-    initialize = function(id, module_generator, param_set = ps(), param_vals = list(), multi_input = 1, multi_output = NULL, packages = character(0)) {
-      # default input and output channels, packages
-      assert_int(multi_input, null.ok = TRUE, lower = 0)
-      assert_int(multi_output, null.ok = TRUE, lower = 1)
+    initialize = function(id, module_generator, param_set = ps(), param_vals = list(),
+      inname = NULL, outname = "output", packages = "torch") {
       self$module_generator = assert_class(module_generator, "nn_module_generator", null.ok = TRUE)
-      assert_character(packages, any.missing = FALSE)
+      assert_names(outname, type = "strict")
+      assert(check_names(inname, type = "strict"), if (is.null(module_generator)) TRUE else check_true(is.null(inname)))
 
-      inname = if (multi_input == 0) "..." else sprintf("input%s", seq_len(multi_input))
-      outname = if (is.null(multi_output)) "output" else sprintf("output%s", seq_len(multi_output))
+      if (!is.null(module_generator)) {
+        argnames = formalArgs(module_generator$public_methods$forward)
+        if (is.null(inname)) {
+          inname = argnames
+        } else {
+          assert_true(all(sort(inname) == sort(argnames)))
+        }
+      }
+
+      assert_character(packages, any.missing = FALSE)
       input = data.table(name = inname, train = "ModelDescriptor", predict = "Task")
       output = data.table(name = outname, train = "ModelDescriptor", predict = "Task")
 
@@ -92,8 +132,8 @@ PipeOpTorch = R6Class("PipeOpTorch",
       module_op = PipeOpModule$new(
         id = self$id,
         module = module,
-        multi_input = length(inputs),
-        multi_output = if (!identical(self$output$name, "output")) nrow(self$output),
+        inname = self$input$name,
+        outname = self$output$name,
         packages = self$packages
       )
 

@@ -1,17 +1,59 @@
-#' @title Linear TorchOp
-#' @description
-#' Standard linear layer.
+#' @inherit torch::nn_linear title
+#' @inherit torch::nn_linear description
+#'
+#' @name mlr_pipeops_nn_linear
+#' @format [`R6Class`] object inheriting from [`PipeOpTorch`]/[`PipeOp`].
 #'
 #' @section Calls:
-#' Calls `torch::nn_linear()`.
+#' Calls [torch::nn_linear()] when trained.
 #'
-#' @section Custom mlr3 parameters:
-#' * `in_channels` - This parameter is inferred as the last dimension of the input tensor.
+#' @section Input and Output Channels:
+#' See [PipeOpTorch] for a description.
+#' Input and output channels take
 #'
+#' The output is the input [`Task`][mlr3::Task] with all affected numeric features replaced by their
+#' non-negative components.
+#'
+#' @inheritSection PipeOpTorch
+#' The `$state` is a named `list` with the `$state` elements inherited from [`PipeOpTaskPreproc`],
+#' as well as the elements of the object returned by [`nmf()`][NMF::nmf].
+#'
+#' @section Parameters:
+#'
+#' **Available**
+#'
+#' * `out_features` :: `integer(1)`\cr
+#'   Size of each output sample.
+#' * `bias` :: `logical(1)`\cr
+#'   If set to `FALSE`, the layer will not learn an additive bias. Default: `TRUE`
+#'
+#' **Inferred**
+#'
+#' * `in_features` :: `integer(1)`\cr
+#'   Last dimension of the input shape.
+#'
+#' @inheritSection torch::nn_linear Shape
+#' @inheritSection torch::nn_linear Attributes
+#' @inheritSection torch::nn_linear references
+#'
+#' @section Methods:
+#' Only methods inherited from [`PipeOpTorch`]/[`PipeOp`].
+#'
+#' @examples
+#' # po
+#' obj = po("nn_linear", out_features = 10)
+#' obj$id
+#' obj$module_generator
+#' obj$shapes_out(c(16, 5, 7))
+#'
+#' # pot
+#' obj = pot("linear", out_features = 10)
+#' obj$id
+#' obj$module_generator
+#'
+#' @family PipeOpTorch
 #' @template param_id
 #' @template param_param_vals
-#'
-#'
 #' @export
 PipeOpTorchLinear = R6Class("PipeOpTorchLinear",
   inherit = PipeOpTorch,

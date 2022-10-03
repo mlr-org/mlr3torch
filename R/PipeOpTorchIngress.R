@@ -8,10 +8,15 @@
 PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
   inherit = PipeOp,
   public = list(
+    #' @field feature_types (`character()`)\cr
+    #'   The feature types used by this ingress operator.
+    feature_types = NULL,
     initialize = function(id, param_set = ps(), param_vals = list(),
-        input = data.table(name = "input", train = "Task", predict = "Task"),
-        output = data.table(name = "output", train = "ModelDescriptor", predict = "Task"),
-        packages = character(0)) {
+      input = data.table(name = "input", train = "Task", predict = "Task"),
+      output = data.table(name = "output", train = "ModelDescriptor", predict = "Task"),
+      packages = character(0), feature_types) {
+      self$feature_types = feature_types
+      lockBinding("feature_types", self)
 
      super$initialize(
         id = id,
@@ -58,7 +63,7 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
       ))
     },
     .predict = function(inputs) inputs
-  ),
+  )
 )
 
 #' @title Torch Ingress Token
@@ -94,16 +99,17 @@ print.TorchIngressToken = function(x, ...) {
 PipeOpTorchIngressNumeric = R6Class("PipeOpTorchIngressNumeric",
   inherit = PipeOpTorchIngress,
   public = list(
+    #'
+    feature_types = c("numeric", "integer"),
     initialize = function(id = "torch_ingress_num", param_vals = list()) {
-      super$initialize(id = id, param_vals = param_vals)
+      super$initialize(id = id, param_vals = param_vals, feature_types = c("numeric", "integer"))
     }
   ),
   private = list(
-    .shape = function(task, param_vals) c(NA, length(task$feature_names)),
+    .shape = function(task, param_vals) {
+      c(NA, sum(task$feature_types$type %in% self$feature_types))
+    },
     .get_batchgetter = function(task, param_vals) {
-      if (!all(task$feature_types$type %in% c("numeric", "integer"))) {
-        stop("PipeOpTorchIngressNumeric only works tasks with all numeric features; Consider using po(\"select\").")
-      }
       batchgetter_num
     }
   )
@@ -129,16 +135,15 @@ PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
   inherit = PipeOpTorchIngress,
   public = list(
     initialize = function(id = "torch_ingress_cat", param_vals = list()) {
-      super$initialize(id = id, param_vals = param_vals)
+      super$initialize(id = id, param_vals = param_vals, feature_types = c("factor", "ordered"))
     },
     speak = function() cat("I am the ingress cat, meow! ^._.^\n")
   ),
   private = list(
-    .shape = function(task, param_vals) c(NA, length(task$feature_names)),
+    .shape = function(task, param_vals) {
+      c(NA, sum(task$feature_types$type %in% self$feature_types))
+    },
     .get_batchgetter = function(task, param_vals) {
-      if (!all(task$feature_types$type %in% c("factor", "ordered"))) {
-        stop("PipeOpTorchIngressCategorical only works on tasks with all factorial (or ordered) features; Consider using po(\"select\").")
-      }
       batchgetter_categ
     }
   )
@@ -177,9 +182,6 @@ PipeOpTorchIngressImages = R6Class("PipeOpTorchIngressImages",
   private = list(
     .shape = function(task, param_vals) c(NA, param_vals$channels, param_vals$pixels_height, param_vals$pixels_width),
     .get_batchgetter = function(task, param_vals) {
-      if (identical(task$feature_types$type, "imageuri")) {
-        stop("PipeOpTorchIngressImages only works on tasks with a single \"imageur\"-feature; Consider using po(\"select\").")
-      }
       imgshape = c(param_vals$channels, param_vals$pixels_height, param_vals$pixels_width)
       crate(function(data, device) {
         tensors = lapply(data[[1]], function(uri) {
