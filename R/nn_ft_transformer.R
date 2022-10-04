@@ -259,7 +259,6 @@ nn_multi_head_attention = nn_module(
 )
 
 
-
 nn_ffn = nn_module(
   "nn_ffn",
   initialize = function(d_token, d_hidden, bias_first, bias_second, dropout, activation) {
@@ -277,4 +276,158 @@ nn_ffn = nn_module(
     return(x)
   }
 )
+
+
+nn_head = nn_module(
+  "nn_head",
+  initialize = function(d_in, bias, activation, normalization, d_out) {
+    self$normalization = normalization
+    self$activation = activation
+    self$linear_second = nn_linear(d_in, d_out, bias)
+  },
+  forward = function(x) {
+    x = x[, -1]
+    x = self$normalization(x)
+    x = self$activation(x)
+    x = self$linear(x)
+    return(x)
+  }
+)
+
+
+nn_transformer = nn_module(
+  "nn_transformer",
+  initialize = function(d_token,
+                        n_blocks,
+                        attention_n_heads,
+                        attention_dropout,
+                        attention_initialization,
+                        attention_normalization,
+                        ffn_d_hidden,
+                        ffn_dropout,
+                        ffn_activation,
+                        ffn_normalization,
+                        residual_dropout,
+                        prenormalization,
+                        first_prenormalization,
+                        last_layer_query_idx,
+                        n_tokens,
+                        kv_compression_ratio,
+                        kv_compression_sharing,
+                        head_activation,
+                        head_normalization,
+                        d_out) {
+    # TODO: check of last_layer_query_idx type
+    if (!prenormalization) {
+      assert(!first_prenormalization, "If `prenormalization` is False, then `first_prenormalization` must be False")
+    }
+    # TODO: check of all_or_none of [n_tokens, kv_compression_ratio, kv_compression_sharing]
+    assert(kv_compression_sharing %in% c(NULL, 'headwise', 'key-value', 'layerwise'))
+    if (!prenormalization) {
+      warning("prenormalization is set to False. Are you sure about this? The training can become less stable. You can turn off this warning by tweaking the rtdl.Transformer.WARNINGS dictionary.")
+      assert(!first_prenormalization, "If prenormalization is False, then first_prenormalization is ignored and must be set to False")
+    }
+    if (prenormalization & first_prenormalization) {
+      warning("first_prenormalization is set to True. Are you sure about this? For example, the vanilla FTTransformer with first_prenormalization=True performs SIGNIFICANTLY worse. You can turn off this warning by tweaking the rtdl.Transformer.WARNINGS dictionary.")
+      Sys.sleep(3)
+    }
+    if (kv_compression_ratio & kv_compression_sharing == 'layerwise') {
+      self$shared_kv_compression = self$make_kv_compression(n_tokens, kv_compression_ratio)
+    } else {
+      self$shared_kv_compression = NULL
+    }
+    self$prenormalization = prenormalization
+    self$last_layer_query_idx = last_layer_query_idx
+    self$blocks = nn_module_list()
+    for (layer_idx in 1:n_blocks) {
+      # TODO there was no ModuleDict
+      layer = list("attention" = nn_multi_head_attention(d_token=d_token,
+                                                         n_heads=attention_n_heads,
+                                                         dropout=attention_dropout,
+                                                         bias=TRUE,
+                                                         initialization=attention_initialization),
+                   "ffn" = nn_ffn(d_token=d_token,
+                                  d_hidden=ffn_d_hidden,
+                                  bias_first=TRUE,
+                                  bias_second=TRUE,
+                                  dropout=ffn_dropout,
+                                  activation=ffn_activation),
+                   "attention_residual_dropout" = nn_dropout(residual_dropout),
+                   "ffn_residual_dropout" = nn_dropout(residual_dropout),
+                   "output" = nn_identity(), # for hooks-based introspection
+      )
+      if (layer_idx | !prenormalization | first_prenormalization) {
+        layer$attention_normalization = attention_normalization(d_token) # TODO was with _make_nn_module
+      }
+      layer$ffn_normalization = ffn_normalization(d_token) # TODO was with _make_nn_module
+      if (kv_compression_ratio & is.null(self$shared_kv_compression)) {
+        layer$key_compression = make_kv_compression(n_tokens, kv_compression_ratio)
+        if (kv_compression_sharing == 'headwise') {
+          layer$value_compression = make_kv_compression(n_tokens, kv_compression_ratio)
+        } else {
+          assert(kv_compression_sharing == 'key-value', "Internal message error") # TODO error text
+        }
+      }
+      self$blocks = append(layer, self$blocks)
+    }
+    self$head = nn_head(d_in=d_token,
+                        d_out=d_out,
+                        bias=TRUE,
+                        activation=head_activation, # type: ignore
+                        normalization=if (prenormalization) head_normalization else 'Identity') # TODO will this Identity work
+  },
+  make_kv_compression = function(n_tokens, kv_compression_ratio) {
+    assert(n_tokens & kv_compression_ratio, "Internal error happened!") # TODO internal error message
+    return(nn_linear(n_tokens, floor(n_tokens * kv_compression_ratio), bias=FALSE))
+  },
+  get_kv_compressions_ = function(layer) {
+    if(!is.null(self$shared_kv_compression)) {
+      result = c(self$shared_kv_compression, self$shared_kv_compression)
+    } else {
+      if ("key_compression" %in% names(layer) & "value_compression" %in% names(layer)) {
+        result = c(layer$key_compression, layer$value_compression)
+      } else {
+        if ("key_compression" %in% names(layer)) {
+          result = c(layer$key_compression, layer$key_compression)
+        } else {
+          result = c(NULL, NULL)
+        }
+      }
+    }
+  },
+  start_residual_ = function(layer, stage, x) {
+    assert(stage %in% c("attention", "ffn"), "Internal error") # TODO error message
+    x_residual = x
+    if (self$prenormalization) {
+      norm_key = paste0(stage, "_normalization")
+      if (norm_key %in% names(layer)) {
+        x_residual = layer[[norm_key]](x_residual)
+      }
+    }
+    return(x_residual)
+  },
+  end_residual_ = function(layer, stage, x, x_residual) {
+    assert(stage %in% c("attention", "ffn"), "Internal error") # TODO error message
+    x_residual = layer[[paste0(stage, "_residual_dropout")]](x_residual)
+    x = x + x_residual
+    if (!self$prenormalization) {
+      x = layer[[paste0(stage, "_normalization")]](x)
+    }
+    return(x)
+  },
+  forward = function(x) {
+    assert(x$ndim == 3, "The input must have 3 dimensions: (n_objects, n_tokens, d_token)")
+    for (layer_idx in 1:length(self$blocks)) {
+      layer = self$blocks[[layer_idx]]
+      query_idx = if (layer_idx == length(self$blocks)) self$last_layer_query_idx else NULL
+      x_residual = self$start_residual_(layer, 'attention', x)
+      # TODO continue
+    }
+  }
+)
+
+
+
+
+
 
