@@ -1,11 +1,11 @@
-#' @title Output Layer for a Neural Network
+#' @title Head for Neural Networks.
 #' @description
 #' Calls `torch::nn_linear()` with the correct parameters.
-#' @section Input:
-#' This TorchOp expects as input a 2 dimensional torch tensor when building.
-#' Creates a output layer for the given task
+#'
+#' @template param_id
+#' @template param_param_vals
 #' @export
-PipeOpTorchOutput = R6Class("PipeOpTorchOutput",
+PipeOpTorchHead = R6Class("PipeOpTorchHead",
   inherit = PipeOpTorch,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
@@ -13,16 +13,18 @@ PipeOpTorchOutput = R6Class("PipeOpTorchOutput",
     #'   The id for of the object.
     #' @param param_vals (named `list()`)\cr
     #'   The initial parameters for the object.
-    initialize = function(id = "torch_output", param_vals = list()) {
+    initialize = function(id = "nn_head", param_vals = list()) {
       param_set = ps(
         bias = p_lgl(default = TRUE, tags = "train")
       )
       param_set$values = list(bias = TRUE)
 
       super$initialize(
+        module_generator = NULL,
         id = id,
         param_set = param_set,
-        param_vals = param_vals
+        param_vals = param_vals,
+        inname = "input"
       )
     }
   ),
@@ -38,16 +40,16 @@ PipeOpTorchOutput = R6Class("PipeOpTorchOutput",
       param_vals = self$param_set$get_values()
 
       task = inputs[[1]]$task
-      out_features = switch(task$task_type,
+      param_vals$out_features = switch(task$task_type,
         classif = length(task$class_names),
         regr = 1,
         stopf("Task type not supported!")
       )
 
-      PipeOpTorchLinear$new(out_features = out_features, param_vals = param_vals)$train(inputs)
+      PipeOpTorchLinear$new(id = self$id, param_vals = param_vals)$train(inputs)
     }
   )
 )
 
 #' @include zzz.R
-register_po("torch_output", PipeOpTorchOutput)
+register_po("nn_head", PipeOpTorchHead)
