@@ -16,7 +16,7 @@ Imports:
     lgr,
     rlang,
     torch (>= 0.8.1),
-    mlr3misc,
+    mlr3misc (>= 0.11.0),
     data.table,
     coro,
     paradox,
@@ -51,6 +51,7 @@ Collate:
     'PipeOpTorchConvTranspose.R'
     'PipeOpTorchDropout.R'
     'PipeOpTorchFlatten.R'
+    'PipeOpTorchHead.R'
     'PipeOpTorchIngress.R'
     'PipeOpTorchLayerNorm.R'
     'PipeOpTorchLinear.R'
@@ -59,7 +60,6 @@ Collate:
     'PipeOpTorchMerge.R'
     'PipeOpTorchModel.R'
     'PipeOpTorchOptimizer.R'
-    'PipeOpTorchOutput.R'
     'PipeOpTorchReshape.R'
     'PipeOpTorchSoftmax.R'
     'TaskClassif_tiny_imagenet.R'
