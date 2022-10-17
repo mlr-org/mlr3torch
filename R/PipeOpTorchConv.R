@@ -10,8 +10,7 @@
 PipeOpTorchConv = R6Class("PipeOpTorchConv",
   inherit = PipeOpTorch,
   public = list(
-    #' @description
-    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id, d, module_generator, param_vals = list()) {
       private$.d = assert_int(d)
 
@@ -60,6 +59,46 @@ PipeOpTorchConv = R6Class("PipeOpTorchConv",
 )
 
 
+#' @title 1D Convolution
+#'
+#' @usage NULL
+#' @template pipeop_torch_format
+#'
+#' @inherit torch::nn_conv1d description
+#'
+#' @section Torch Module:
+#' Wraps torch module [`torch::nn_conv1d`].
+#'
+#' @template pipeop_torch_channels
+#' @template pipeop_torch_state
+#'
+#' @section Parameters:
+#'
+#' * The parameter `in_features` is automaticll
+#'
+#' * `out_channels` :: (`integer(1))\cr
+#'   Number of channels produced by the convolution
+#'
+#' * `kernel_size` :: (`integer()`)\cr
+#'   Size of the convolving kernel
+#'
+#' * `stride` :: (`integer()`)\cr
+#'   Stride of the convolution. Default:
+#' * `padding` :: (`integer()`)\cr
+#'   Padding added to both sides of the input. Default: 0
+#' * `dilation` :: (`integer()`)\cr
+#'   Spacing between kernel elements.
+#' * `groups` :: (int, optional): Number of blocked connections from input
+#'           channels to output channels. Default: 1
+#'
+#'     bias: (bool, optional): If ‘TRUE’, adds a learnable bias to the
+#'           output. Default: ‘TRUE’
+#'
+#' padding_mode: (string, optional): ‘'zeros'’, ‘'reflect'’, ‘'replicate'’
+#'           or ‘'circular'’. Default: ‘'zeros'’
+#'
+#'
+#'
 #' @template param_id
 #' @template param_param_vals
 #' @rdname conv

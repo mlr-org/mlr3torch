@@ -4,10 +4,12 @@
 \alias{PipeOpTorchLoss}
 \title{Loss Function}
 \description{
-Loss Function
-
-Loss Function
+Configures the \code{loss} of a \code{\link{ModelDescriptor}}.
 }
+\section{Input and Output Channels}{
+
+}
+
 \examples{
 g = top("input") \%>>\%
   top("select", items = "num") \%>>\%
@@ -17,8 +19,11 @@ g = top("input") \%>>\%
 task = tsk("iris")
 g$train(task)
 }
-\section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{mlr3torch::PipeOpTorch}} -> \code{PipeOpTorchLoss}
+\seealso{
+PipeOpTorch, PipeOpTorchOptimizer
+}
+\section{Super class}{
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{PipeOpTorchLoss}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -34,7 +39,6 @@ g$train(task)
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-print'><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="PipeOpTorch" data-id="shapes_out"><a href='../../mlr3torch/html/PipeOpTorch.html#method-PipeOpTorch-shapes_out'><code>mlr3torch::PipeOpTorch$shapes_out()</code></a></span></li>
 </ul>
 </details>
 }}
@@ -42,10 +46,25 @@ g$train(task)
 \if{html}{\out{<a id="method-PipeOpTorchLoss-new"></a>}}
 \if{latex}{\out{\hypertarget{method-PipeOpTorchLoss-new}{}}}
 \subsection{Method \code{new()}}{
+Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchLoss$new(loss, id = "torch_loss", param_vals = list())}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{loss}}{(\code{\link{TorchLoss}})\cr
+The loss function.}
+
+\item{\code{id}}{(\code{character(1)})\cr
+The id for of the new object.}
+
+\item{\code{param_vals}}{(named \code{list()})\cr
+The initial parameters for the object.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipeOpTorchLoss-clone"></a>}}

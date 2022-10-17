@@ -10,8 +10,7 @@ CallbackTorch = R6::R6Class("CallbackTorch",
   lock_objects = FALSE,
   cloneable = FALSE,
   public = list(
-    #' @description
-    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     #'
     #' @param id (`character(1)`)\cr
     #'   Identifier for the new callback.

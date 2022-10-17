@@ -6,14 +6,7 @@ inferps = function(fn, ignore = character(0)) {
   frm = formals(fn)
   frm = frm[names(frm) %nin% ignore]
 
-  frm_domains = lapply(frm, function(formal) {
-    switch(typeof(formal),
-      logical = p_lgl(),
-      integer = p_int(),
-      double = p_dbl(),
-      p_uty()
-    )
-  })
+  frm_domains = lapply(frm, function(formal) p_uty())
 
   do.call(paradox::ps, frm_domains)
 }

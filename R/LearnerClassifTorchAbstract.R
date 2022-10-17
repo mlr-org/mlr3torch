@@ -30,7 +30,7 @@
 LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
   inherit = LearnerClassif,
   public = list(
-    #' @description Initializes an object of this [R6][R6::R6Class] class.
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id, optimizer, loss, param_set = ps(), label = NULL, properties = NULL,
       packages = character(0), predict_types = NULL, feature_types, man) {
       private$.optimizer = as_torch_optimizer(optimizer, clone = TRUE)

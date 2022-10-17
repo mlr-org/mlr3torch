@@ -16,9 +16,12 @@
 #' @param list_output (`logical(1)`)\cr
 #'   Whether output should be a list of tensors. If `FALSE`, then `length(output_pointers)` must be 1.
 #' @export
-model_descriptor_to_module = function(model_descriptor, output_pointers, list_output = FALSE) {
+model_descriptor_to_module = function(model_descriptor, output_pointers = NULL, list_output = FALSE) {
   assert_class(model_descriptor, "ModelDescriptor")
   assert_flag(list_output)
+  assert_list(output_pointers, types = "character", len = if (!list_output) 1, null.ok = TRUE)
+  output_pointers = output_pointers %??% list(model_descriptor$.pointer)
+
 
   # all graph inputs have an entry in self$shapes_in
   # ModelDescriptor allows Graph to grow by-reference and therefore may have
@@ -30,11 +33,10 @@ model_descriptor_to_module = function(model_descriptor, output_pointers, list_ou
   unused_features = setdiff(features, used_features)
   if (length(unused_features)) {
     stopf(
-      "Task '%s' has features: {%s}", task$id, paste0(unused_features, collapse = ", "),
+      "Task '%s' has features: {%s}", task$id, str_collapse(unused_features, n = 5),
     )
   }
 
-  assert_list(output_pointers, types = "character", len = if (!list_output) 1)
 
   graph = model_descriptor$graph
 
@@ -52,6 +54,7 @@ model_descriptor_to_module = function(model_descriptor, output_pointers, list_ou
       # to operation2 and *also* to output: the graph doesn't know that operation1's result should
       # be an output as well --> we add a nop-pipeop to create a terminal channel
       nopid = unique_id(paste(c("output", op), collapse = "_"), names(graph$pipeops))
+
       graph$add_pipeop(po("nop", id = nopid))
       graph$add_edge(src_id = op[[1]], src_channel = op[[2]], dst_id = nopid)
       op_name = paste0(nopid, ".output")
@@ -61,7 +64,6 @@ model_descriptor_to_module = function(model_descriptor, output_pointers, list_ou
 
   nn_graph(graph, shapes_in, output_map, list_output = list_output)
 }
-
 
 #' @title Graph Network
 #' @description

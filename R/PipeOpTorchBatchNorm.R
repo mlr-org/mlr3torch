@@ -25,8 +25,7 @@
 PipeOpTorchBatchNorm = R6Class("PipeOpTorchBatchNorm",
   inherit = PipeOpTorch,
   public = list(
-    #' @description
-    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id, module_generator, min_dim, max_dim, param_vals = list()) {
       private$.min_dim = assert_int(min_dim, lower = 1)
       private$.max_dim = assert_int(max_dim, min_dim = 1)
@@ -53,25 +52,30 @@ PipeOpTorchBatchNorm = R6Class("PipeOpTorchBatchNorm",
   )
 )
 
-
+#' @export
 PipeOpTorchBatchNorm1D = R6Class("PipeOpTorchBatchNorm1D", inherit = PipeOpTorchBatchNorm,
   public = list(
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "nn_batch_norm1d", param_vals = list()) {
       super$initialize(id = id, module_generator = nn_batch_norm1d, min_dim = 2, max_dim = 3, param_vals = param_vals)
     }
   )
 )
 
+#' @export
 PipeOpTorchBatchNorm2D = R6Class("PipeOpTorchBatchNorm2D", inherit = PipeOpTorchBatchNorm,
   public = list(
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "nn_batch_norm2d", param_vals = list()) {
       super$initialize(id = id, module_generator = nn_batch_norm2d, min_dim = 4, max_dim = 4, param_vals = param_vals)
     }
   )
 )
 
+#' @export
 PipeOpTorchBatchNorm3D = R6Class("PipeOpTorchBatchNorm3D", inherit = PipeOpTorchBatchNorm,
   public = list(
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "nn_batch_norm3d", param_vals = list()) {
       super$initialize(id = id, module_generator = nn_batch_norm3d, min_dim = 5, max_dim = 5, param_vals = param_vals)
     }

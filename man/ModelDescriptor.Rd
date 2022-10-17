@@ -17,7 +17,7 @@ ModelDescriptor(
 }
 \arguments{
 \item{graph}{(\code{\link[mlr3pipelines:Graph]{Graph}})\cr
-\code{Graph} of \code{\link{PipeOpModule}} operators.}
+\code{Graph} of \code{\link{PipeOpModule}} and \code{\link{PipeOpNOP}} operators.}
 
 \item{ingress}{(uniquely named \code{list} of \code{TorchIngressToken})\cr
 List of inputs that go into \code{graph}. Names of this must be a subset of \code{graph$input$name}.}
@@ -31,8 +31,8 @@ Additional info: what optimizer to use.}
 \item{loss}{(\code{\link{TorchLoss}} | \code{NULL})\cr
 Additional info: what loss to use.}
 
-\item{callbacks}{(\code{list})\cr
-Callbacks.}
+\item{callbacks}{(A \code{list} of \code{\link{CallbackTorch}})\cr
+Additional info: what callbacks to use.}
 
 \item{.pointer}{(\code{character(2)} | \code{NULL})\cr
 Indicating an element on which a model is. Points to an output channel within \code{graph}:
@@ -42,21 +42,31 @@ Element 1 is the \code{PipeOp}'s id and element 2 is that \code{PipeOp}'s output
 Shape of the output indicated by \code{.pointer}.}
 }
 \value{
-a \code{ModelDescriptor}.
+(\code{ModelDescriptor})
 }
 \description{
-Represents a model; possibly a complete model, possibly one in the process of being built up.
+Represents a \emph{model}; possibly a complete model, possibly one in the process of being built up.
 
 This model takes input tensors of shapes \code{shapes_in} and
 pipes them through \code{graph}. Input shapes get mapped to input channels of \code{graph}.
 Output shapes are named by the output channels of \code{graph}; it is also possible
 to represent no-ops on tensors, in which case names of input and output should be identical.
 
-\code{ModelDescriptor} objects typically represent partial models being built up, in which case the \code{.pointer} slot indicates
-a specific point in the graph that produces a tensor of shape \code{.pointer_shape}, on which the graph should be extended.
-
+\code{ModelDescriptor} objects typically represent partial models being built up, in which case the \code{.pointer} slot
+indicates a specific point in the graph that produces a tensor of shape \code{.pointer_shape}, on which the graph should
+be extended.
 It is allowed for the \code{graph} in this structure to be modified by-reference in different parts of the code.
-However, these modifications may never add edges with elements of the \code{Graph} as destination. In particular, no element
-of \code{graph$input} may be removed by reference, e.g. by adding an edge to the \code{Graph} that has the input channel of a \code{PipeOp}
-that was previously without parent as its destination.
+However, these modifications may never add edges with elements of the \code{Graph} as destination. In particular, no
+element of \code{graph$input} may be removed by reference, e.g. by adding an edge to the \code{Graph} that has the input
+channel of a \code{PipeOp} that was previously without parent as its destination.
+
+In most cases it is better to create a specific \code{ModelDescriptor} by training a \code{\link{Graph}} consisting (mostly) of
+operators \code{\link{PipeOpTorchIngress}} and \code{\link{PipeOpTorch}}.
+
+A \code{ModelDescriptor} can be converted to a \code{\link{nn_graph}} via \code{\link{model_descriptor_to_module}}.
 }
+\section{Fields}{
+
+See the description of the parameters.
+}
+

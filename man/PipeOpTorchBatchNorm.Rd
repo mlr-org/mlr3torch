@@ -56,7 +56,7 @@ second dimension.
 \if{html}{\out{<a id="method-PipeOpTorchBatchNorm-new"></a>}}
 \if{latex}{\out{\hypertarget{method-PipeOpTorchBatchNorm-new}{}}}
 \subsection{Method \code{new()}}{
-Creates a new instance of this \link[R6:R6Class]{R6} class.
+Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchBatchNorm$new(
   id,

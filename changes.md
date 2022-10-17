@@ -8,3 +8,10 @@
   * fix channels PipeOpTorch (PipeOpTorchLinear fails)
   * finish documentation schema of pipeoptorch
   * finish autotest for pipeoptorch
+  * I prefer nn_relu over nn_act_relu
+
+
+
+Changes:
+* inferps does not infer int etc. as scalar params like ParamInt (this might be wrong) but as ParamUty
+

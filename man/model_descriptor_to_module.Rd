@@ -6,7 +6,7 @@
 \usage{
 model_descriptor_to_module(
   model_descriptor,
-  output_pointers,
+  output_pointers = NULL,
   list_output = FALSE
 )
 }

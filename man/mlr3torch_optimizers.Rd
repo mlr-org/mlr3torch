@@ -11,6 +11,21 @@ An object of class \code{DictionaryMlr3torchOptimizers} (inherits from \code{Dic
 mlr3torch_optimizers
 }
 \description{
-Optimizers
+Dictionary of torch optimizers.
+See \code{\link{t_opt}} for conveniently retrieving optimizers.
 }
+\section{Available Optimizers}{
+
+\itemize{
+\item adadelta - \code{\link[torch:optim_adadelta]{torch::optim_adadelta}}
+\item adagrad - \code{\link[torch:optim_adagrad]{torch::optim_adagrad}}
+\item adam - \code{\link[torch:optim_adam]{torch::optim_adam}}
+\item asgd - \code{\link[torch:optim_asgd]{torch::optim_asgd}}
+\item lbfgs - \code{\link[torch:optim_lbfgs]{torch::optim_lbfgs}}
+\item rmsprop - \code{\link[torch:optim_rmsprop]{torch::optim_rmsprop}}
+\item rprop - \code{\link[torch:optim_rprop]{torch::optim_rprop}}
+\item sgd - \code{\link[torch:optim_sgd]{torch::optim_sgd}}
+}
+}
+
 \keyword{datasets}

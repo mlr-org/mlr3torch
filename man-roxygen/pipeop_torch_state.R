@@ -1,0 +1,2 @@
+#' @section State:
+#' See [`PipeOpTorch`].

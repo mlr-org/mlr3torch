@@ -8,27 +8,76 @@
 \code{\link{R6Class}} object inheriting from \link{PipeOp`}.
 }
 \description{
-\code{PipeOpModule} wraps a \code{torch::nn_module}. Graphs of \code{PipeOpModule}s are combined in a \code{\link{nn_gaph}}.
-Usually, a \code{\link{PipeOpModule}} is generated during the training phase of a \code{\link{PipeOpTorch}} as shown in the examples.
+\code{PipeOpModule} wraps an \code{\link{nn_module}} that is being called during the \code{train} phase of this \code{\link{PipeOp}}.
+By doing so, this allows to assemble \code{PipeOpModule}s in a computational \link[=`Graph`]{graph} that represents a neural
+network architecture. Such a graph can also be used to create a \code{\link{nn_graph}} that can be treated like any other
+\code{\link{nn_module}}.
+
+In most cases it is easier to create such a network by creating a isomorphic graph consisting
+of nodes of class \code{\link{PipeOpTorchIngress}} and \code{\link{PipeOpTorch}}. This graph will then generate the graph consiting
+of \code{PipeOpModule}s during its training phase.
+
+The \verb{$predict} method does currently not serve a meaningful purpose.
 }
+\section{Input and Output Channels}{
+
+The number and names of the input and output channels can be set during construction. They input and output
+\code{"torch_tensor"} during training, and \code{NULL} during prediction.
+}
+
 \section{State}{
 
-The \verb{$state} is an empty list().
+The \verb{$state} is an empty \code{list()}.
 }
 
 \section{Parameters}{
 
-This \link{PipeOp} does not have any parameters.
+No parameters.
+}
+
+\section{Internals}{
+
+During training, the wrapped \code{\link{nn_module}} is called with the provided inputs in the order in which the channels
+are defined. Arguments are \strong{not} matched by name.
 }
 
 \examples{
+# one input and output channel:#'   of the output channels.
+po_module = PipeOpModule$new("linear", torch::nn_linear(10, 20), inname = "input", outname = "output")
+x = torch::torch_randn(16, 10)
+y = po_module$train(list(input = x))
+str(y)
+
+# multiple channels
+nn_custom = torch::nn_module("nn_custom",
+  initialize = function(in_features, out_features) {
+    self$lin1 = torch::nn_linear(in_features, out_features)
+    self$lin2 = torch::nn_linear(in_features, out_features)
+  },
+  forward = function(x, z) {
+    list(out1 = self$lin1(x), out2 = torch::nnf_relu(self$lin2(z)))
+  }
+)
+
+module = nn_custom(3, 2)
+po_module = PipeOpModule$new("custom", module, inname = c("x", "z"), outname = c("out1", "out2"))
+x = torch::torch_randn(1, 3)
+z = torch::torch_randn(1, 3)
+out = po_module$train(list(x = x, z = z))
+str(out)
+
+
+# in a nn_graph
 graph = pot("ingress_num") \%>>\% pot("linear", out_features = 10L)
 result = graph$train(tsk("iris"))
 linear_module = result[[1L]]$graph$pipeops$linear
-
+linear_module
 formalArgs(linear_module$module)
-linear$module$input$name
+linear_module$input$name
 
+}
+\seealso{
+nn_module, mlr_pipeops_torch, nn_graph, model_descriptor_to_module, PipeOp, Graph
 }
 \section{Super class}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{PipeOpModule}
@@ -37,6 +86,7 @@ linear$module$input$name
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-PipeOpModule-new}{\code{PipeOpModule$new()}}
+\item \href{#method-PipeOpModule-print}{\code{PipeOpModule$print()}}
 \item \href{#method-PipeOpModule-clone}{\code{PipeOpModule$clone()}}
 }
 }
@@ -45,7 +95,6 @@ linear$module$input$name
 <ul>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-print'><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
 </ul>
 </details>
@@ -54,14 +103,14 @@ linear$module$input$name
 \if{html}{\out{<a id="method-PipeOpModule-new"></a>}}
 \if{latex}{\out{\hypertarget{method-PipeOpModule-new}{}}}
 \subsection{Method \code{new()}}{
-Initializes a new instance of this \link[R6:R6Class]{R6 Class}.
+Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{PipeOpModule$new(
   id,
   module,
-  inname,
   outname,
   param_vals = list(),
+  inname,
   packages = character(0)
 )}\if{html}{\out{</div>}}
 }
@@ -69,32 +118,36 @@ Initializes a new instance of this \link[R6:R6Class]{R6 Class}.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{id}}{(\code{character(1)})\cr
-The id for of the new object.}
-
-\item{\code{inname}}{(\code{character()})\cr
-The names of the input channels, must correspond to the argument names of the wrapped \link[torch:nn_module]{torch::nn_module}.}
+\item{\code{module}}{(\code{nn_module})\cr
+The \link[torch:nn_module]{module} that is wrapped.}
 
 \item{\code{outname}}{(\code{character()})
-The names of the output channels. If the \link[torch:nn_module]{module} returns a list of tensors, this must be a
-permutation of the names of the returned list.
-If there is only one output channel, the underlying \link[torch:nn_module]{module} must return a
-\link[torch:torch_tensor]{tensor} and the outname can be selected.}
+The names of the output channels.
+If this parameter has length 1, the parameter \link[torch:nn_module]{module} must return a \link[torch:tensor]{tensor}.
+Otherwise it must return a \code{list()} of tensors of corresponding length.}
 
 \item{\code{param_vals}}{(named \code{list()})\cr
 The initial parameters for the object.}
 
 \item{\code{packages}}{(\code{character()})\cr
 The R packages this object depends on.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipeOpModule-print"></a>}}
+\if{latex}{\out{\hypertarget{method-PipeOpModule-print}{}}}
+\subsection{Method \code{print()}}{
+Prints the object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PipeOpModule$print(...)}\if{html}{\out{</div>}}
+}
 
-\item{\code{multi_input}}{(\code{NULL} | \code{integer(1)})\cr
-\code{0}: \code{...}-input. Otherwise: \code{multi_input} times input channel named \verb{input1:}...\code{input#}.\cr
-\code{module}'s \verb{$forward} function must take \code{...}-input if \code{multi_input} is 0, and must have \code{multi_input}
-arguments otherwise.}
-
-\item{\code{multi_output}}{(\code{NULL} | \code{integer(1)})\cr
-\code{NULL}: single output. Otherwise: \code{multi_output} times output channel named \verb{output1:}...\code{input#}.\cr
-\code{module}'s \verb{$forward} function must return a \code{list} of \code{torch_tensor} if \code{multi_output} is not \code{NULL}.}
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{(any)\cr}}{Additional parameters passed to the printer of the wrapped \code{nn_module}.}
 }
 \if{html}{\out{</div>}}
 }

@@ -28,7 +28,7 @@ Use \code{callback()} function to create a \link{Callback}.
 \if{html}{\out{<a id="method-CallbackTorch-new"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackTorch-new}{}}}
 \subsection{Method \code{new()}}{
-Creates a new instance of this \link[R6:R6Class]{R6} class.
+Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CallbackTorch$new(state)}\if{html}{\out{</div>}}
 }

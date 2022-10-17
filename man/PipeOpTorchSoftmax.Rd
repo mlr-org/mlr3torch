@@ -2,12 +2,21 @@
 % Please edit documentation in R/PipeOpTorchSoftmax.R
 \name{PipeOpTorchSoftmax}
 \alias{PipeOpTorchSoftmax}
-\title{TorchOpSoftmax}
-\description{
-TorchOpSoftmax
-
-TorchOpSoftmax
+\title{Softmax}
+\format{
+\link[R6:R6Class]{R6::R6Class} inheriting from \link{PipeOpTorch}.
 }
+\description{
+Applies the Softmax function to an n-dimensional input Tensor
+rescaling them so that the elements of the n-dimensional output Tensor
+lie in the range \verb{[0,1]} and sum to 1.
+Softmax is defined as:
+}
+\section{Torch Module}{
+
+Wraps \code{\link[torch:nn_softmax]{torch::nn_softmax}}.
+}
+
 \section{Super classes}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{mlr3torch::PipeOpTorch}} -> \code{PipeOpTorchSoftmax}
 }

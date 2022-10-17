@@ -18,7 +18,7 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
       self$feature_types = feature_types
       lockBinding("feature_types", self)
 
-     super$initialize(
+      super$initialize(
         id = id,
         param_set = param_set,
         param_vals = param_vals,
@@ -43,9 +43,16 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
       forbidden_env = parent.env(environment())
       test_env = environment(batchgetter)
       while (!isNamespace(test_env) && !identical(test_env, .GlobalEnv) && !identical(test_env, emptyenv())) {
-        if (identical(test_env, forbidden_env)) stop(".get_batchgetter() must not return a member of the PipeOpTorchIngress object itself. Use mlr3misc::crate()!")
+        if (identical(test_env, forbidden_env)) {
+          stopf(".get_batchgetter() must not return a member of the PipeOpTorchIngress object itself.")
+        }
         test_env = parent.env(test_env)
       }
+
+      if (!sum(task$feature_types$type %in% self$feature_types)) {
+        stopf("%s with id '%s' got task with no feature types that it can process.", class(self)[[1L]], self$id)
+      }
+
 
       ingress = TorchIngressToken(
         features = task$feature_names,
@@ -53,7 +60,7 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
         shape = private$.shape(task, param_vals)
       )
 
-      self$state = list(ingress$shape)  # PipeOp API requires us to only set this to some list. We set it to output shape to ease debugging.
+      self$state = list(ingress$shape)  # PipeOp API requires us to only set this to some list.
       list(ModelDescriptor(
         graph = graph,
         ingress = structure(list(ingress), names = graph$input$name),
@@ -96,10 +103,12 @@ print.TorchIngressToken = function(x, ...) {
 }
 
 
+#' @title Torch Entry Point for Numeric Features
+#' @description
+#'
 PipeOpTorchIngressNumeric = R6Class("PipeOpTorchIngressNumeric",
   inherit = PipeOpTorchIngress,
   public = list(
-    #'
     feature_types = c("numeric", "integer"),
     initialize = function(id = "torch_ingress_num", param_vals = list()) {
       super$initialize(id = id, param_vals = param_vals, feature_types = c("numeric", "integer"))
@@ -131,6 +140,7 @@ batchgetter_num = function(data, device) {
 #' @include zzz.R
 register_po("torch_ingress_num", PipeOpTorchIngressNumeric)
 
+#' @title Torch Entry Point for Categorical Features
 PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
   inherit = PipeOpTorchIngress,
   public = list(
@@ -164,6 +174,8 @@ batchgetter_categ = function(data, device) {
 
 register_po("torch_ingress_cat", PipeOpTorchIngressCategorical)
 
+# @title Torch Entry Point for Images
+# @description
 # uses task with "imageuri" column and loads this as images.
 # doesn't do any preprocessing or so (image resizing) and instead just errors if images don't fit.
 # also no data augmentation etc.

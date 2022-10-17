@@ -39,11 +39,7 @@ autotest_torchop = function(graph, id, task, module_class = NULL) {
   testmodule = testobj$module
 
   # class of generated module is as expected
-  if (!is.null(module_class)) {
-    expect_class(testmodule, c(module_class, "nn_module"))
-  } else  {
-    expect_class(testmodule, "nn_module")
-  }
+  expect_class(testmodule, c(module_class, "nn_module"), null.ok = TRUE)
 
   # argument names of forward function match names of input channels
   fargs = formalArgs(testmodule$forward)
@@ -67,7 +63,8 @@ autotest_torchop = function(graph, id, task, module_class = NULL) {
   layerout = out[[md$.pointer]]
   layerin = out[[head(ob, length(op) - 1L)]]
 
-  # we need
+  # Here we need to check that shapes out is working.
+  expect_list(private$.shapes_out(shapes_in, pv), len = nrow(self$output), types = "numeric")
 
 
 

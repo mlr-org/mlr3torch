@@ -50,7 +50,7 @@ The network.}
 \if{html}{\out{<a id="method-LearnerClassifTorchAbstract-new"></a>}}
 \if{latex}{\out{\hypertarget{method-LearnerClassifTorchAbstract-new}{}}}
 \subsection{Method \code{new()}}{
-Initializes an object of this \link[R6:R6Class]{R6} class.
+Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LearnerClassifTorchAbstract$new(
   id,

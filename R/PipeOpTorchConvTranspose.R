@@ -8,9 +8,7 @@
 #' @section Custom mlr3 parameters:
 #' * `in_channels` - This parameter is inferred as the second dimension of the input tensor.
 #'
-#' @template param_id
-#' @template param_param_vals
-#' @name conv_transpose
+#' @export
 NULL
 
 PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",

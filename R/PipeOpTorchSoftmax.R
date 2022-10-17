@@ -1,4 +1,20 @@
-#' @title TorchOpSoftmax
+#' @title Softmax
+#'
+#' @usage NULL
+#' @template pipeop_torch_format
+#'
+#' @inherit torch::nn_softmax description
+#'
+#' @description
+#'
+#' @section Torch Module:
+#' Wraps [`torch::nn_softmax`].
+#'
+#'
+#' @template torch_license_docu
+#' @template param_id
+#' @template param_param_vals
+#'
 #' @export
 PipeOpTorchSoftmax = R6::R6Class("PipeOpTorchSoftmax",
   inherit = PipeOpTorch,

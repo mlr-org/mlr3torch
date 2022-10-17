@@ -3,15 +3,47 @@
 \name{PipeOpTorchLayerNorm}
 \alias{PipeOpTorchLayerNorm}
 \title{Layer Norm}
-\description{
-Normalizes over the last 'n_dim' dimensions of a tensor.
+\format{
+\link[R6:R6Class]{R6::R6Class} inheriting from \link{PipeOpTorch}.
 }
+\description{
+Applies Layer Normalization over a mini-batch of inputs as described in
+the paper \href{https://arxiv.org/abs/1607.06450}{Layer Normalization}
+}
+\section{Torch Module}{
+
+Wraps the torch module \code{\link[torch:nn_layer_norm]{nn_layer_norm}}.
+}
+
+\section{Input and Output channels}{
+
+See \code{\link{PipeOpTorch}}.
+}
+
+\section{State}{
+
+See \code{\link{PipeOpTorch}}.
+}
+
 \section{Parameters}{
 
+See arguments of \code{\link[torch:nn_layer_norm]{torch::nn_layer_norm}}.
 \itemize{
 \item \code{dims} :: \code{integer(1)}\cr
-The nunber of dimnensions over which will be normalized (starting from the last dimension).
+The numer of dimensions over which will be normalized (starting from the last dimension).
+\item \code{eps} :: \code{numeric(1)}\cr
+A value added to the denominator for numerical stability.
+Default: 1e-5.
+\item \code{elementwise_affine}\cr
+A boolean value that when set to ‘TRUE’, this module has learnable per-element affine parameters initialized to
+ones (for weights) and zeros (for biases). Default: ‘TRUE’.
 }
+}
+
+\section{Internals}{
+
+The parameter \code{normalized_shape} of the wrapped \code{torch::nn_layer_norm} is inferred as the dimensions of the the
+last \code{n_dim} layers.
 }
 
 \section{Super classes}{
@@ -39,7 +71,7 @@ The nunber of dimnensions over which will be normalized (starting from the last 
 \if{html}{\out{<a id="method-PipeOpTorchLayerNorm-new"></a>}}
 \if{latex}{\out{\hypertarget{method-PipeOpTorchLayerNorm-new}{}}}
 \subsection{Method \code{new()}}{
-Creates a new instance of this \link[R6:R6Class]{R6} class.
+Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchLayerNorm$new(id = "nn_layer_norm", param_vals = list())}\if{html}{\out{</div>}}
 }

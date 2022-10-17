@@ -2,11 +2,39 @@
 % Please edit documentation in R/TorchLoss.R
 \name{TorchLoss}
 \alias{TorchLoss}
-\title{TorchLoss}
+\title{Torch Loss}
 \description{
-TorchLoss
+This wraps a \code{torch::nn_loss}.
+Can be used to configure the \code{loss} of a \code{\link{ModelDescriptor}}..
 
-TorchLoss
+For a list of available parameters, seen \code{\link{mlr3torch_losses}}.
+}
+\examples{
+# Create a new Torch Loss
+loss = TorchLoss$new(torch_loss = torch::nn_mse_loss, task_types = "regr")
+# If the param set is not specified, parameters are inferred but are of class ParamUty
+loss$param_set
+# Construct the actual loss function
+l = loss$get_loss
+
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{label}}{(\code{character(1)})\cr
+Label for this object.
+Can be used in tables, plot and text output instead of the ID.}
+
+\item{\code{task_types}}{(\code{character()})\cr
+The task types this object supports.}
+
+\item{\code{loss}}{(\code{nn_loss})\cr\
+The generator of the loss function.}
+
+\item{\code{packages}}{(\code{character()})\cr
+The packages this optimizer uses.}
+}
+\if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -20,15 +48,34 @@ TorchLoss
 \if{html}{\out{<a id="method-TorchLoss-new"></a>}}
 \if{latex}{\out{\hypertarget{method-TorchLoss-new}{}}}
 \subsection{Method \code{new()}}{
+Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{TorchLoss$new(
   torch_loss,
   task_types = NULL,
   param_set = NULL,
-  label = deparse(substitute(torch_loss))[[1]]
+  label = deparse(substitute(torch_loss))[[1]],
+  packages = "torch"
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{torch_loss}}{(\code{nn_loss})\cr
+A generator for a loss.}
+
+\item{\code{param_set}}{(\code{paradox::ParamSet})\cr
+The parameter set.}
+
+\item{\code{label}}{(\code{character(1)})\cr
+Label for the new instance.}
+
+\item{\code{packages}}{(\code{character()})\cr
+The R packages this object depends on.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TorchLoss-get_loss"></a>}}

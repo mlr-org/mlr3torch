@@ -14,7 +14,8 @@ task_dataset = dataset(
     x = lapply(self$feature_ingress_tokens, function(it) {
       it$batchgetter(datapool[, it$features, with = FALSE], self$device)
     })
-    y = if (!is.null(self$target_batchgetter)) self$target_batchgetter(datapool[, self$task$target_names, with = FALSE], self$device)
+    y = if (!is.null(self$target_batchgetter)) self$target_batchgetter(datapool[, self$task$target_names, with = FALSE],
+      self$device)
     list(x = x, y = y, .index = index)
   },
   .length = function() {

@@ -6,6 +6,21 @@
 \usage{
 t_opt(.key, ...)
 }
+\arguments{
+\item{.key}{(\code{character(1)})\cr
+Key of the object to retrieve.}
+
+\item{...}{(any)\cr
+See description of \code{\link{dictionary_sugar_get}}.}
+}
+\value{
+A \code{\link{TorchOptimizer}}
+}
 \description{
 Optimizers Quick Access
+}
+\examples{
+torch_opt = t_opt("adam", lr = 0.1)
+torch_opt$param_set
+torch_opt$optimizer
 }

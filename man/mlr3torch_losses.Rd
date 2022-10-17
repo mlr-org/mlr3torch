@@ -3,7 +3,7 @@
 \docType{data}
 \name{mlr3torch_losses}
 \alias{mlr3torch_losses}
-\title{Losses}
+\title{Loss Functions}
 \format{
 An object of class \code{DictionaryMlr3torchLosses} (inherits from \code{Dictionary}, \code{R6}) of length 13.
 }
@@ -11,6 +11,16 @@ An object of class \code{DictionaryMlr3torchLosses} (inherits from \code{Diction
 mlr3torch_losses
 }
 \description{
-Losses
+Dictionary of torch loss functions
+See \code{\link{t_loss}} for conveniently retrieving a loss function.
 }
+\section{Available Loss Functions}{
+
+\itemize{
+\item mse - \code{\link[torch:nn_mse_loss]{torch::nn_mse_loss}}
+\item l1 - \code{\link[torch:nn_l1_loss]{torch::nn_l1_loss}}
+\item cross_entropy - \code{\link[torch:nn_cross_entropy_loss]{torch::nn_cross_entropy_loss}}
+}
+}
+
 \keyword{datasets}

@@ -152,6 +152,12 @@ PipeOpTorchMergeCat = R6Class("PipeOpTorchMergeCat", inherit = PipeOpTorchMerge,
   )
 )
 
+# nn_merge_cat = nn_module("nn_merge_cat",
+#   NULL
+#
+# )
+
+
 #' @include zzz.R
 register_po("nn_merge_sum", PipeOpTorchMergeSum)
 register_po("nn_merge_prod", PipeOpTorchMergeProd)

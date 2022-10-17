@@ -2,8 +2,30 @@ Package: mlr3torch
 Title: Torch Models for 'mlr3'
 Version: 0.0.0.9000
 Authors@R:
-    person("Lukas", "Burk", , "github@quantenbrot.de", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0001-7528-3795"))
+    c(person(given = "Sebastian",
+             family = "Fischer",
+             role = c("cre", "aut"),
+             email = "sebf.fischer@gmail.com",
+             comment = c(ORCID = "0000-0002-9609-3197")),
+      person(given = "Bernd",
+             family = "Bischl",
+             role = "ctb",
+             email = "bernd_bischl@gmx.net",
+             comment = c(ORCID = "0000-0001-6002-6980")),
+      person(given = "Lukas",
+             family = "Burk",
+             role = "aut",
+             email = "github@quantenbrot.de",
+             comment = c(ORCID = "0000-0001-7528-3795")),
+      person(given = "Martin",
+             family = "Binder",
+             role = "aut",
+             email = "mlr.developer@mb706.com"),
+      person(given = "Florian",
+             family = "Pfisterer",
+             role = "ctb",
+             email = "pfistererf@googlemail.com",
+             comment = c(ORCID = "0000-0001-8867-762X")))
 Description: Provides torch models as learners for the mlr3 ecosystem.
 License: LGPL (>= 3)
 Depends:
