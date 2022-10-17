@@ -70,7 +70,7 @@ PipeOpTorchConv = R6Class("PipeOpTorchConv",
 #' Wraps torch module [`torch::nn_conv1d`].
 #'
 #' @template pipeop_torch_channels
-#' @template pipeop_torch_state
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #'

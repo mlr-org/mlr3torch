@@ -1,12 +1,16 @@
 #' @title Linear Layer
 #'
 #' @usage NULL
+#' @name pipeop_torch_linear
 #' @template pipeop_torch_format
 #'
 #' @inherit torch::nn_linear description
 #'
 #' @section Module:
-#' Calls [`torch::nn_linear`] when trained.
+#' Calls [`torch::nn_linear()`] when trained.
+#'
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' * `out_features` :: `integer(1)`\cr
@@ -27,13 +31,13 @@
 #' # pot
 #' obj = pot("linear", out_features = 10)
 #' obj$id
-#' obj$module_generator
 #'
 #' @template torch_license_docu
 #'
 #' @family PipeOpTorch
 #' @template param_id
 #' @template param_param_vals
+#'
 #' @export
 PipeOpTorchLinear = R6Class("PipeOpTorchLinear",
   inherit = PipeOpTorch,

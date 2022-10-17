@@ -1,35 +1,46 @@
-#' @title Layer Norm
+#' @title Layer Normalization
 #'
 #' @usage NULL
+#' @name pipeop_torch_layer_norm
 #' @template pipeop_torch_format
 #'
 #' @inherit torch::nn_layer_norm description
 #'
-#' @section Torch Module:
-#' Wraps the torch module [`nn_layer_norm`][torch::nn_layer_norm].
+#' @section Module:
+#' Calls [`torch::nn_layer_norm()`] when trained.
 #'
-#' @template pipeop_torch_channels
-#' @template pipeop_torch_state
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
-#' See arguments of [`torch::nn_layer_norm`].
-#' * `dims` :: `integer(1)`\cr The numer of dimensions over which will be normalized (starting from the last dimension).
+#' * `dims` :: `integer(1)`\cr
+#'   The number of dimensions over which will be normalized (starting from the last dimension).
+#' * `elementwise_affine` :: `logical(1)`\cr
+#'   Whether to learn affine-linear parameters initialized to `1` for weights and to `0` for biases.
+#'   The default is `TRUE`.
 #' * `eps` :: `numeric(1)`\cr
 #'   A value added to the denominator for numerical stability.
-#'   Default: 1e-5.
-#' * `elementwise_affine`\cr
-#'   A boolean value that when set to ‘TRUE’, this module has learnable per-element affine parameters initialized to
-#'   ones (for weights) and zeros (for biases). Default: ‘TRUE’.
+#'   The default is `1e-5`.
 #'
-#' @section Internals:
-#' The parameter `normalized_shape` of the wrapped `torch::nn_layer_norm` is inferred as the dimensions of the the
-#' last `n_dim` layers.
+#' @template pipeop_torch_methods
+#'
+#' @examples
+#' # po
+#' obj = po("nn_layer_norm", n_dim = 2)
+#' obj$id
+#' obj$module_generator
+#' obj$shapes_out(c(16, 5, 7))
+#'
+#' # pot
+#' obj = pot("layer_norm", n_dim = 2)
+#' obj$id
 #'
 #' @template torch_license_docu
 #'
 #' @family PipeOpTorch
 #' @template param_id
 #' @template param_param_vals
+#'
 #' @export
 PipeOpTorchLayerNorm = R6Class("PipeOpTorchLayerNorm",
   inherit = PipeOpTorch,

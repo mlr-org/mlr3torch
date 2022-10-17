@@ -16,7 +16,7 @@ should be set.
 }
 
 \section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{mlr3torch::PipeOpTorch}} -> \code{PipeOpTorchMerge}
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{mlr3torch::PipeOpTorch} -> \code{PipeOpTorchMerge}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -90,7 +90,7 @@ The objects of this class are cloneable with this method.
 }
 }
 \section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{mlr3torch::PipeOpTorch}} -> \code{\link[mlr3torch:PipeOpTorchMerge]{mlr3torch::PipeOpTorchMerge}} -> \code{PipeOpTorchMergeSum}
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{mlr3torch::PipeOpTorch} -> \code{\link[mlr3torch:PipeOpTorchMerge]{mlr3torch::PipeOpTorchMerge}} -> \code{PipeOpTorchMergeSum}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -138,7 +138,7 @@ The objects of this class are cloneable with this method.
 }
 }
 \section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{mlr3torch::PipeOpTorch}} -> \code{\link[mlr3torch:PipeOpTorchMerge]{mlr3torch::PipeOpTorchMerge}} -> \code{PipeOpTorchMergeProd}
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{mlr3torch::PipeOpTorch} -> \code{\link[mlr3torch:PipeOpTorchMerge]{mlr3torch::PipeOpTorchMerge}} -> \code{PipeOpTorchMergeProd}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -186,7 +186,7 @@ The objects of this class are cloneable with this method.
 }
 }
 \section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{mlr3torch::PipeOpTorch}} -> \code{\link[mlr3torch:PipeOpTorchMerge]{mlr3torch::PipeOpTorchMerge}} -> \code{PipeOpTorchMergeCat}
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{mlr3torch::PipeOpTorch} -> \code{\link[mlr3torch:PipeOpTorchMerge]{mlr3torch::PipeOpTorchMerge}} -> \code{PipeOpTorchMergeCat}
 }
 \section{Methods}{
 \subsection{Public methods}{

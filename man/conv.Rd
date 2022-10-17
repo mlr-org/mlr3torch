@@ -27,7 +27,7 @@ See \code{\link{PipeOpTorch}}.
 
 \section{State}{
 
-See \code{\link{PipeOpTorch}}.
+The state is the value calculated by the public method \code{shapes_out()}.
 }
 
 \section{Parameters}{
@@ -56,7 +56,7 @@ or ‘'circular'’. Default: ‘'zeros'’
 }
 
 \section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{mlr3torch::PipeOpTorch}} -> \code{mlr3torch::PipeOpTorchConv} -> \code{PipeOpTorchConv1D}
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{mlr3torch::PipeOpTorch} -> \code{mlr3torch::PipeOpTorchConv} -> \code{PipeOpTorchConv1D}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -115,7 +115,7 @@ The objects of this class are cloneable with this method.
 }
 }
 \section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{mlr3torch::PipeOpTorch}} -> \code{mlr3torch::PipeOpTorchConv} -> \code{PipeOpTorchConv2D}
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{mlr3torch::PipeOpTorch} -> \code{mlr3torch::PipeOpTorchConv} -> \code{PipeOpTorchConv2D}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -174,7 +174,7 @@ The objects of this class are cloneable with this method.
 }
 }
 \section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{mlr3torch::PipeOpTorch}} -> \code{mlr3torch::PipeOpTorchConv} -> \code{PipeOpTorchConv3D}
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{mlr3torch::PipeOpTorch} -> \code{mlr3torch::PipeOpTorchConv} -> \code{PipeOpTorchConv3D}
 }
 \section{Methods}{
 \subsection{Public methods}{

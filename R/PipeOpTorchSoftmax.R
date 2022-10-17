@@ -1,17 +1,37 @@
 #' @title Softmax
 #'
 #' @usage NULL
+#' @name pipeop_torch_softmax
 #' @template pipeop_torch_format
 #'
 #' @inherit torch::nn_softmax description
 #'
-#' @description
+#' @section Module:
+#' Calls [`torch::nn_softmax()`] when trained.
 #'
-#' @section Torch Module:
-#' Wraps [`torch::nn_softmax`].
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
 #'
+#' @section Parameters:
+#' * `dim` :: `integer(1)`\cr
+#'   A dimension along which Softmax will be computed (so every slice along dim will sum to 1).
+#'
+#' @template pipeop_torch_methods
+#'
+#' @examples
+#' # po
+#' obj = po("nn_linear", out_features = 10)
+#' obj$id
+#' obj$module_generator
+#' obj$shapes_out(c(16, 5, 7))
+#'
+#' # pot
+#' obj = pot("linear", out_features = 10)
+#' obj$id
 #'
 #' @template torch_license_docu
+#'
+#' @family PipeOpTorch
 #' @template param_id
 #' @template param_param_vals
 #'

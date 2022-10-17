@@ -1,4 +1,4 @@
-#' @title Base Class for Torch Module Constructor Wrappers
+
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch

@@ -19,7 +19,7 @@
 }
 
 \section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{mlr3torch::PipeOpTorch}} -> \code{mlr3torch::PipeOpTorchAvgPool} -> \code{PipeOpTorchAvgPool1D}
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{mlr3torch::PipeOpTorch} -> \code{mlr3torch::PipeOpTorchAvgPool} -> \code{PipeOpTorchAvgPool1D}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -78,7 +78,7 @@ The objects of this class are cloneable with this method.
 }
 }
 \section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{mlr3torch::PipeOpTorch}} -> \code{mlr3torch::PipeOpTorchAvgPool} -> \code{PipeOpTorchAvgPool2D}
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{mlr3torch::PipeOpTorch} -> \code{mlr3torch::PipeOpTorchAvgPool} -> \code{PipeOpTorchAvgPool2D}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -137,7 +137,7 @@ The objects of this class are cloneable with this method.
 }
 }
 \section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{mlr3torch::PipeOpTorch}} -> \code{mlr3torch::PipeOpTorchAvgPool} -> \code{PipeOpTorchAvgPool3D}
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{mlr3torch::PipeOpTorch} -> \code{mlr3torch::PipeOpTorchAvgPool} -> \code{PipeOpTorchAvgPool3D}
 }
 \section{Methods}{
 \subsection{Public methods}{
