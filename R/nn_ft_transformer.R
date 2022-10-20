@@ -5,6 +5,7 @@
 
 library(R6)
 library(torch)
+library(torchopt) # question: can i use this?
 library(checkmate)
 source("./R/activations.R")
 
@@ -27,14 +28,17 @@ source("./R/activations.R")
 #' @references `r format_bib("gorishniy2021revisiting")`
 nn_tab_tokenizer = nn_module(
   "nn_tab_tokenizer",
-  initialize = function(n_features, cardinalities, d_token, bias, cls) {
+  initialize = function(n_features, cardinalities, d_token, bias=TRUE, cls=FALSE) {
     self$tokenizers = list()
+    self$n_tokens = 0
     assert_true(n_features > 0L || length(cardinalities) > 0L)
     if (n_features > 0L) {
       self$tokenizer_num = nn_tokenizer_numeric(n_features, d_token, bias)
+      self$n_tokens = self$n_tokens + self$tokenizer_num$n_tokens
     }
     if (length(cardinalities) > 0L) {
       self$tokenizer_cat = nn_tokenizer_categorical(cardinalities, d_token, bias)
+      self$n_tokens = self$n_tokens + self$tokenizer_cat$n_tokens
     }
     if (cls) {
       self$cls = nn_cls(d_token)
@@ -60,9 +64,8 @@ nn_tab_tokenizer = nn_module(
 
 # TODO: add kaiming initialization as done here: https://github.com/yandex-research/rtdl/blob/main/bin/ft_transformer.py
 # Uniform initialization
-initialize_token_ = function(x, d, init_type) {
+initialize_token_ = function(x, d, init_type="") { #TODO init type
   d_sqrt_inv = 1 / sqrt(d)
-  if (init_type == '')
   nn_init_uniform_(x, a = -d_sqrt_inv, b = d_sqrt_inv)
 }
 
@@ -87,6 +90,7 @@ nn_tokenizer_numeric = nn_module(
     }
 
     self$reset_parameters()
+    self$n_tokens = self$weight$shape[1]
   },
   reset_parameters = function() {
     initialize_token_(self$weight, self$d_token)
@@ -130,6 +134,7 @@ nn_tokenizer_categorical = nn_module(
     }
 
     self$reset_parameters()
+    self$n_tokens = self$category_offsets$shape[1]
   },
   reset_parameters = function() {
     initialize_token_(self$embeddings$weight, d = self$d_token)
@@ -310,10 +315,10 @@ nn_transformer = nn_module(
                         residual_dropout,
                         prenormalization,
                         first_prenormalization,
-                        last_layer_query_idx,
-                        n_tokens,
-                        kv_compression_ratio,
-                        kv_compression_sharing,
+                        last_layer_query_idx=NULL,
+                        n_tokens=NULL,
+                        kv_compression_ratio=NULL,
+                        kv_compression_sharing=NULL,
                         head_activation,
                         head_normalization,
                         d_out) {
@@ -322,16 +327,15 @@ nn_transformer = nn_module(
       assert(!first_prenormalization, "If `prenormalization` is False, then `first_prenormalization` must be False")
     }
     # TODO: check of all_or_none of [n_tokens, kv_compression_ratio, kv_compression_sharing]
-    assert(kv_compression_sharing %in% c(NULL, 'headwise', 'key-value', 'layerwise'))
+    assert(kv_compression_sharing %in% c('headwise', 'key-value', 'layerwise') || is.null(kv_compression_sharing))
     if (!prenormalization) {
       warning("prenormalization is set to False. Are you sure about this? The training can become less stable. You can turn off this warning by tweaking the rtdl.Transformer.WARNINGS dictionary.")
       assert(!first_prenormalization, "If prenormalization is False, then first_prenormalization is ignored and must be set to False")
     }
-    if (prenormalization & first_prenormalization) {
+    if (prenormalization && first_prenormalization) {
       warning("first_prenormalization is set to True. Are you sure about this? For example, the vanilla FTTransformer with first_prenormalization=True performs SIGNIFICANTLY worse. You can turn off this warning by tweaking the rtdl.Transformer.WARNINGS dictionary.")
-      Sys.sleep(3)
     }
-    if (kv_compression_ratio & kv_compression_sharing == 'layerwise') {
+    if (!is.null(kv_compression_ratio) && kv_compression_sharing == 'layerwise') {
       self$shared_kv_compression = self$make_kv_compression(n_tokens, kv_compression_ratio)
     } else {
       self$shared_kv_compression = NULL
@@ -421,13 +425,189 @@ nn_transformer = nn_module(
       layer = self$blocks[[layer_idx]]
       query_idx = if (layer_idx == length(self$blocks)) self$last_layer_query_idx else NULL
       x_residual = self$start_residual_(layer, 'attention', x)
-      # TODO continue
+
+      x_residual_arg = if (is.null(query_idx)) x_residual else x_residual[, query_idx]
+      compressions = self$get_kv_compressions_(layer)
+      x_residual_vec = layer[['attention']](x_residual_arg,
+                                            x_residual,
+                                            compressions[1],
+                                            compressions[2])
+      x = if (!is.null(query_idx)) x[, query_idx] else x
+      x = self$end_residual_(layer, 'attention', x, x_residual)
+
+      x_residual = self$start_residual_(layer, 'ffn', x)
+      x_residual = layer[['ffn']](x_residual)
+      x = self$end_residual_(layer, 'ffn', x, x_residual)
+      x = layer[['output']](x)
     }
+    x = self$head(x)
+    return(x)
   }
 )
 
 
+get_baseline_transformer_subconfig = function() {
+  parameters = list(
+    'attention_n_heads'=8,
+    'attention_initialization'='kaiming',
+    'ffn_activation'=nn_reglu(),
+    'attention_normalization'=nn_layer_norm,
+    'ffn_normalization'=nn_layer_norm,
+    'prenormalization'=TRUE,
+    'first_prenormalization'=FALSE,
+    'last_layer_query_idx'=NULL,
+    'n_tokens'=NULL,
+    'kv_compression_ratio'=NULL,
+    'kv_compression_sharing'=NULL,
+    'head_activation'=nn_relu(),
+    'head_normalization'=nn_layer_norm
+  )
+  return(parameters)
+}
 
+get_default_transformer_config = function(n_blocks = 3) {
+  assert(1 <= n_blocks && n_blocks <= 6)
+  grid = list(
+    'd_token'=c(96, 128, 192, 256, 320, 384),
+    'attention_dropout'=c(0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+    'ffn_dropout'=c(0.0, 0.05, 0.1, 0.15, 0.2, 0.25)
+  )
+
+  arch_subconfig = list()
+  for (i in 1:length(grid)) {
+    k = names(grid)[i]
+    v = grid[[i]]
+    arch_subconfig[[k]] = v[n_blocks]
+  }
+
+  baseline_subconfig = get_baseline_transformer_subconfig()
+  ffn_d_hidden_factor = if (class(baseline_subconfig[['ffn_activation']])[1] %in% c("nn_reglu", "nn_geglu")) (4 / 3) else 2.0
+  parameters = list(
+    'n_blocks' = n_blocks,
+    'residual_dropout' = 0.0,
+    'ffn_d_hidden' = floor(arch_subconfig[['d_token']] * ffn_d_hidden_factor)
+  )
+  parameters = append(parameters, arch_subconfig)
+  parameters = append(parameters, baseline_subconfig)
+  return(parameters)
+}
+
+make_ = function(n_num_features, cat_cardinalities, transformer_config) {
+  feature_tokenizer = nn_tab_tokenizer(n_features=n_num_features,
+                                       cardinalities=cat_cardinalities,
+                                       d_token=transformer_config$d_token)
+  if (is.null(transformer_config$d_out)) {
+    transformer_config$head_activation = NULL
+  }
+  if (!is.null(transformer_config$kv_compression_ratio)) {
+    transformer_config$n_tokens = feature_tokenizer$n_tokens + 1
+  }
+  print(transformer_config)
+  return(nn_ft_transformer(feature_tokenizer,
+                           do.call("nn_transformer", transformer_config)
+  ))
+}
+
+make_baseline = function(n_num_features,
+                         cat_cardinalities,
+                         d_token,
+                         n_blocks,
+                         attention_dropout,
+                         ffn_d_hidden,
+                         ffn_dropout,
+                         residual_dropout,
+                         last_layer_query_idx=NULL,
+                         kv_compression_ratio=NULL,
+                         kv_compression_sharing=NULL,
+                         d_out) {
+  transformer_config = get_baseline_transformer_subconfig()
+  locals <- as.list(environment())
+  for (arg_name in c('n_blocks',
+                     'd_token',
+                     'attention_dropout',
+                     'ffn_d_hidden',
+                     'ffn_dropout',
+                     'residual_dropout',
+                     'last_layer_query_idx',
+                     'kv_compression_ratio',
+                     'kv_compression_sharing',
+                     'd_out')) {
+    transformer_config[[arg_name]] = locals[[arg_name]]
+  }
+  return(make_(n_num_features, cat_cardinalities, transformer_config))
+}
+
+make_default = function(n_num_features,
+                        cat_cardinalities,
+                        n_blocks,
+                        last_layer_query_idx=NULL,
+                        kv_compression_ratio=NULL,
+                        kv_compression_sharing=NULL,
+                        d_out) {
+  transformer_config = get_default_transformer_config(n_blocks=n_blocks)
+  locals <- as.list(environment())
+  for (arg_name in c('last_layer_query_idx',
+                     'kv_compression_ratio',
+                     'kv_compression_sharing',
+                     'd_out')) {
+    transformer_config[[arg_name]] = locals[[arg_name]]
+  }
+  return (make_(n_num_features, cat_cardinalities, transformer_config))
+}
+
+nn_ft_transformer = nn_module(
+  "nn_ft_transformer",
+  initialize = function(feature_tokenizer, transformer) {
+    if (transformer$prenormalization) {
+      assert(!("attention_normalization" %in% transformer$blocks[1]),
+             "In the prenormalization setting, FT-Transformer does not allow using the first normalization layer in the first transformer block")
+    }
+    self$feature_tokenizer = feature_tokenizer
+    self$cls_token = nn_cls_token(feature_tokenizer$d_token, feature_tokenizer$initialization)
+    self$transformer = transformer
+  },
+  optimization_param_groups = function() {
+    no_wd_names = c('feature_tokenizer', 'normalization', '.bias')
+    # TODO two assert check missed
+    needs_wd_ = function(name) {
+      res = c()
+      for (x in no_wd_names) {
+        check_par = grepl(x, name, fixed=TRUE)
+        res = c(res, !check_par)
+      }
+      return(all(res))
+    }
+    named_params = self$named_parameters()
+    params_need = c()
+    params_not_need = c()
+    for (i in length(named_params)) {
+      key = names(named_params)[i]
+      val = named_params[[i]]
+      if (needs_wd_(key)) {
+        params_need = c(params_need, val)
+      } else {
+        params_not_need = c(params_not_need, val)
+      }
+    }
+    result = c(
+      list("params" = params_need),
+      list("params" = params_not_need,
+           "weight_decay" = 0.0)
+    )
+    return(result)
+  },
+  make_default_optimizer = function() {
+    return(optim_adamw(self$optimization_param_groups(),
+                       lr=1e-4,
+                       weight_decay=1e-5))
+  },
+  forward = function(x_num, x_cat) {
+    x = self$feature_tokenizer(x_num, x_cat)
+    x = self$cls_token(x)
+    x = self$transformer(x)
+    return(x)
+  }
+)
 
 
 

@@ -93,5 +93,37 @@ kv_compression = nn_linear(n_tokens, n_tokens %/% 4)
 module(a, a, kv_compression, kv_compression)
 
 
+# _______________________________________
+
+x_num = torch_randn(4, 3)
+mat = matrix(nrow=4, ncol=2)
+mat[1, ] = c(1L, 2L)
+mat[2, ] = c(2L, 1L)
+mat[3, ] = c(1L, 3L)
+mat[4, ] = c(2L, 2L)
+x_cat = torch_tensor(mat)
+
+module = make_baseline(
+  n_num_features=3,
+  cat_cardinalities=c(2, 3),
+  d_token=8,
+  n_blocks=2,
+  attention_dropout=0.2,
+  ffn_d_hidden=6,
+  ffn_dropout=0.2,
+  residual_dropout=0.0,
+  d_out=1
+)
+
+# x = module(x_num, x_cat)
+# assert x.shape == (4, 1)
+# module = FTTransformer.make_default(
+#   n_num_features=3,
+#   cat_cardinalities=[2, 3],
+#   d_out=1,
+# )
+# x = module(x_num, x_cat)
+# assert x.shape == (4, 1)
+
 
 
