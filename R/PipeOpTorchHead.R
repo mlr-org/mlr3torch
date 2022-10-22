@@ -1,9 +1,40 @@
-#' @title Head for Neural Networks.
-#' @description
-#' Calls `torch::nn_linear()` with the correct parameters.
+#' @title Head
 #'
+#' @usage NULL
+#' @name pipeop_torch_head
+#' @template pipeop_torch_format
+#'
+#' @description
+#' Output head for classification and regresssion.
+#'
+#' @section Module:
+#' Calls [`torch::nn_linear()`] with the output dimension inferred from the task.
+#'
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
+#'
+#' @section Parameters:
+#' * `bias` :: `logical(1)`\cr
+#'   Whether to use a bias.
+#'   Default is `TRUE`.
+#'
+#' @examples
+#' # po
+#' obj = po("nn_head")
+#' obj$id
+#' obj$module_generator
+#' obj$shapes_out(c(16, 10))
+#'
+#' # pot
+#' obj = pot("head")
+#' obj$id
+#'
+#' @template torch_license_docu
+#'
+#' @family PipeOpTorch
 #' @template param_id
 #' @template param_param_vals
+#'
 #' @export
 PipeOpTorchHead = R6Class("PipeOpTorchHead",
   inherit = PipeOpTorch,
@@ -14,9 +45,7 @@ PipeOpTorchHead = R6Class("PipeOpTorchHead",
     #' @param param_vals (named `list()`)\cr
     #'   The initial parameters for the object.
     initialize = function(id = "nn_head", param_vals = list()) {
-      param_set = ps(
-        bias = p_lgl(default = TRUE, tags = "train")
-      )
+      param_set = ps(bias = p_lgl(default = TRUE, tags = "train"))
       param_set$values = list(bias = TRUE)
 
       super$initialize(

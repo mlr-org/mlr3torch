@@ -4,7 +4,7 @@
 #' @name pipeop_torch_layer_norm
 #' @template pipeop_torch_format
 #'
-#' @inherit torch::nn_layer_norm description
+#' @inherit torch::nnf_layer_norm description
 #'
 #' @section Module:
 #' Calls [`torch::nn_layer_norm()`] when trained.
@@ -21,8 +21,6 @@
 #' * `eps` :: `numeric(1)`\cr
 #'   A value added to the denominator for numerical stability.
 #'   The default is `1e-5`.
-#'
-#' @template pipeop_torch_methods
 #'
 #' @examples
 #' # po

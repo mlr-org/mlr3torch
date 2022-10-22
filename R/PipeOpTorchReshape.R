@@ -1,12 +1,39 @@
-#' @title Reshape Operations
-#' @description
-#' Reshapes a tensor to the given shape or squeezes / unsqueezes a tensor for the given dim
-#' @name reshape_ops
-NULL
-
+#' @title Reshape a Tensor
+#'
+#' @usage NULL
+#' @name pipeop_torch_reshape
+#' @template pipeop_torch_format
+#'
+#' @inherit torch::nn_reshape description
+#'
+#' @section Module:
+#' Calls [`torch::nn_reshape()`] when trained.
+#' This internally calls [`torch::torch_reshape()`] with the given `shape`.
+#'
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
+#'
+#' @section Parameters:
+#' `shape` :: `integer(1)`\cr
+#'   The desired output shape.
+#'
+#' @examples
+#' # po
+#' obj = po("nn_reshape", shape = c(-1, 25))
+#' obj$id
+#' obj$module_generator
+#' obj$shapes_out(c(16, 5, 5))
+#'
+#' # pot
+#' obj = pot("reshape")
+#' obj$id
+#'
+#' @template torch_license_docu
+#'
+#' @family PipeOpTorch
 #' @template param_id
 #' @template param_param_vals
-#' @rdname reshape_ops
+#'
 #' @export
 PipeOpTorchReshape = R6Class("PipeOpTorchReshape",
   inherit = PipeOpTorch,
@@ -44,9 +71,41 @@ PipeOpTorchReshape = R6Class("PipeOpTorchReshape",
   )
 )
 
+#' @title Squeeze a Tensor
+#'
+#' @usage NULL
+#' @name pipeop_torch_squeeze
+#' @template pipeop_torch_format
+#'
+#' @inherit torch::nn_squeeze description
+#'
+#' @section Module:
+#' Calls [`torch::nn_squeeze()`] when trained.
+#' This internally calls [`torch::torch_squeeze()`].
+#'
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
+#'
+#' @section Parameters:
+#' No parameters.
+#'
+#' @examples
+#' # po
+#' obj = po("nn_squeeze")
+#' obj$id
+#' obj$module_generator
+#' obj$shapes_out(c(16, 5, 5))
+#'
+#' # pot
+#' obj = pot("squeeze")
+#' obj$id
+#'
+#' @template torch_license_docu
+#'
+#' @family PipeOpTorch
 #' @template param_id
 #' @template param_param_vals
-#' @rdname reshape_ops
+#'
 #' @export
 PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
   inherit = PipeOpTorch,
@@ -80,9 +139,41 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
   )
 )
 
+#' @title Unqueeze a Tensor
+#'
+#' @usage NULL
+#' @name pipeop_torch_squeeze
+#' @template pipeop_torch_format
+#'
+#' @inherit torch::nn_squeze description
+#'
+#' @section Module:
+#' Calls [`torch::nn_squeeze()`] when trained.
+#' This internally calls [`torch::torch_unsqueeze()`].
+#'
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
+#'
+#' @section Parameters:
+#' No parameters.
+#'
+#' @examples
+#' # po
+#' obj = po("nn_unsqueeze")
+#' obj$id
+#' obj$module_generator
+#' obj$shapes_out(c(16, 5, 5))
+#'
+#' # pot
+#' obj = pot("unsqueeze")
+#' obj$id
+#'
+#' @template torch_license_docu
+#'
+#' @family PipeOpTorch
 #' @template param_id
 #' @template param_param_vals
-#' @rdname reshape_ops
+#'
 #' @export
 PipeOpTorchUnsqueeze = R6Class("PipeOpTorchUnqueeze",
   inherit = PipeOpTorch,
@@ -112,15 +203,95 @@ PipeOpTorchUnsqueeze = R6Class("PipeOpTorchUnqueeze",
   )
 )
 
+
+#' @title Flattens a Tensor
+#'
+#' @usage NULL
+#' @name pipeop_torch_flatten
+#' @template pipeop_torch_format
+#'
+#' @inherit torch::nn_flatten description
+#'
+#' @section Module:
+#' Calls [`torch::nn_flatten()`] when trained.
+#'
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
+#'
+#' @section Parameters:
+#' `start_dim` :: `integer(1)`\cr
+#'   At wich dimension to start flattening. Default is 2.
+#' `end_dim` :: `integer(1)`\cr
+#'   At wich dimension to stop flattening. Default is -1.
+#'
+#' @examples
+#' # po
+#' obj = po("nn_flatten", start_dim = 2, end_dim = 3)
+#' obj$id
+#' obj$module_generator
+#' obj$shapes_out(c(16, 5, 5))
+#'
+#' # pot
+#' obj = pot("flatten")
+#' obj$id
+#'
+#' @template torch_license_docu
+#'
+#' @family PipeOpTorch
+#' @template param_id
+#' @template param_param_vals
+#'
+#' @export
+PipeOpTorchFlatten = R6Class(
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
+    initialize = function(id = "nn_flatten", param_vals = list()) {
+      param_set = ps(
+        start_dim = p_int(default = 2L, lower = 1L, tags = "train"),
+        end_dim = p_int(default = -1L, lower = 1L, tags = "train", special_vals = list(-1L))
+      )
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_flatten
+      )
+    }
+  ),
+  private = list(
+    .shapes_out = function(shapes_in, param_vals) {
+      shape = shapes_in[[1]]
+      start_dim = param_vals$start_dim %??% 2
+      end_dim = param_vals$end_dim %??% 2
+
+      if (start_dim < 0) start_dim = 1 + length(shape) + start_dim
+      if (end_dim < 0) end_dim = 1 + length(shape) + end_dim
+      assert_int(start_dim, lower = 1, upper = length(shape))
+      assert_int(end_dim, lower = start_dim, upper = length(shape))
+
+      list(c(shape[seq_len(start_dim - 1)], prod(shape[start_dim:end_dim]), shape[seq_len(length(shape) - end_dim) + end_dim])) # nolint
+    }
+  )
+)
+
+#' @title Reshape
+#'
+#' @description Reshape a tensor to the given shape.
+#' @export
 nn_reshape = nn_module(
   initialize = function(shape) {
     self$shape = shape
   },
   forward = function(input) {
-    input$reshape(self$shape)
+    input$reshape(c(self$shape))
   }
 )
 
+#' @title Squeeze
+#'
+#' @description Squeezes a tensor.
+#' @export
 nn_squeeze = nn_module(
   initialize = function(dim) {
     self$dim = dim
@@ -130,6 +301,10 @@ nn_squeeze = nn_module(
   }
 )
 
+#' @title Unsqueeze
+#'
+#' @description Unsqueezes a tensor.
+#' @export
 nn_unsqueeze = nn_module(
   initialize = function(dim) {
     self$dim = dim
@@ -143,3 +318,4 @@ nn_unsqueeze = nn_module(
 register_po("nn_reshape", PipeOpTorchReshape)
 register_po("nn_unsqueeze", PipeOpTorchUnsqueeze)
 register_po("nn_squeeze", PipeOpTorchSqueeze)
+register_po("nn_flatten", PipeOpTorchFlatten)

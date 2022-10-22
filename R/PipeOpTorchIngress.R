@@ -3,7 +3,10 @@
 #' @description
 #' Use this as entry-point to mlr3torch-networks.
 #'
-#' @examples
+#' @template param_param_vals
+#' @template param_param_set
+#' @template param_id
+#'
 #' @export
 PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
   inherit = PipeOp,
@@ -11,6 +14,7 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
     #' @field feature_types (`character()`)\cr
     #'   The feature types used by this ingress operator.
     feature_types = NULL,
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id, param_set = ps(), param_vals = list(),
       input = data.table(name = "input", train = "Task", predict = "Task"),
       output = data.table(name = "output", train = "ModelDescriptor", predict = "Task"),
@@ -109,7 +113,7 @@ print.TorchIngressToken = function(x, ...) {
 PipeOpTorchIngressNumeric = R6Class("PipeOpTorchIngressNumeric",
   inherit = PipeOpTorchIngress,
   public = list(
-    feature_types = c("numeric", "integer"),
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "torch_ingress_num", param_vals = list()) {
       super$initialize(id = id, param_vals = param_vals, feature_types = c("numeric", "integer"))
     }
@@ -144,9 +148,11 @@ register_po("torch_ingress_num", PipeOpTorchIngressNumeric)
 PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
   inherit = PipeOpTorchIngress,
   public = list(
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "torch_ingress_cat", param_vals = list()) {
       super$initialize(id = id, param_vals = param_vals, feature_types = c("factor", "ordered"))
     },
+    #' @description What does the cat say?
     speak = function() cat("I am the ingress cat, meow! ^._.^\n")
   ),
   private = list(
@@ -182,6 +188,7 @@ register_po("torch_ingress_cat", PipeOpTorchIngressCategorical)
 PipeOpTorchIngressImages = R6Class("PipeOpTorchIngressImages",
   inherit = PipeOpTorchIngress,
   public = list(
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "torch_ingress_img", param_vals = list()) {
       param_set = ps(
         channels = p_int(1),

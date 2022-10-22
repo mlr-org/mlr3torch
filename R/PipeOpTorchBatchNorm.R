@@ -1,23 +1,35 @@
 #' @title Batch Normalization
+#'
+#' @usage NULL
+#' @name pipeop_torch_batch_norm
+#' @template pipeop_torch_format
+#'
 #' @description
-#' Batch normalization.
-#' @section Inferred Parameters:
-#' Depending on the shape of the input, the corresponding batch-norm is chosen.
+#' Base class for batch normalization.
+#' Don't use this class directly.
 #'
-#'  * 2d input: 1d
-#'  * 3d input: 1d
-#'  * 4d input: 2d
-#'  * 5d input: 3d
+#' @section Module:
+#' See the respective child class.
 #'
-#' * The parameter `num_features` is automatically inferred from the input as the size of the
-#' second dimension.
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
 #'
-#' @section Calls:
-#' `nn_batch_norm1d()`, `nn_batch_norm2d()` or `nn_batch_norm3d()` depending on the input.
+#' @section Parameters:
+#' * `eps` :: `numeric(1)`\cr
+#'   A value added to the denominator for numerical stability. Default: `1e-5`.
+#' * `momentum` :: `numeric(1)`\cr
+#'   The value used for the running_mean and running_var computation. Can be set to `NULL` for cumulative moving average
+#'   (i.e. simple average). Default: 0.1
+#' * `affine` :: `logical(1)`\cr
+#'   a boolean value that when set to `TRUE`, this module has learnable affine parameters. Default: `TRUE`
+#' * `track_running_stats` :: `logical(1)`\cr
+#'   a boolean value that when set to `TRUE`, this module tracks the running mean and variance, and when set to `FALSE`,
+#'   this module does not track such statistics and always uses batch statistics in both training and eval modes.
+#'   Default: `TRUE`
 #'
-#' @section References:
-#' * r format_bib("ioffe2015batch")`
+#' @template torch_license_docu
 #'
+#' @family PipeOpTorch
 #' @template param_id
 #' @template param_param_vals
 #'
@@ -52,6 +64,39 @@ PipeOpTorchBatchNorm = R6Class("PipeOpTorchBatchNorm",
   )
 )
 
+#' @title 1D Batch Normalization
+#'
+#' @usage NULL
+#' @name pipeop_torch_batch_norm1d
+#' @template pipeop_torch_format
+#'
+#' @inherit pipeop_torch_batch_norm description
+#'
+#' @section Module:
+#' Calls [ `torch::nn_batch_norm1d()`].
+#'
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
+#'
+#' @section Parameters:
+#' * `eps` :: `numeric(1)`\cr
+#'   A value added to the denominator for numerical stability. Default: `1e-5`.
+#' * `momentum` :: `numeric(1)`\cr
+#'   The value used for the running_mean and running_var computation. Can be set to `NULL` for cumulative moving average
+#'   (i.e. simple average). Default: 0.1
+#' * `affine` :: `logical(1)`\cr
+#'   a boolean value that when set to `TRUE`, this module has learnable affine parameters. Default: `TRUE`
+#' * `track_running_stats` :: `logical(1)`\cr
+#'   a boolean value that when set to `TRUE`, this module tracks the running mean and variance, and when set to `FALSE`,
+#'   this module does not track such statistics and always uses batch statistics in both training and eval modes.
+#'   Default: `TRUE`
+#'
+#' @template torch_license_docu
+#'
+#' @family PipeOpTorch
+#' @template param_id
+#' @template param_param_vals
+#'
 #' @export
 PipeOpTorchBatchNorm1D = R6Class("PipeOpTorchBatchNorm1D", inherit = PipeOpTorchBatchNorm,
   public = list(
@@ -62,6 +107,39 @@ PipeOpTorchBatchNorm1D = R6Class("PipeOpTorchBatchNorm1D", inherit = PipeOpTorch
   )
 )
 
+#' @title 1D Batch Normalization
+#'
+#' @usage NULL
+#' @name pipeop_torch_batch_norm1d
+#' @template pipeop_torch_format
+#'
+#' @inheritSection pipeops_torch_batch_norm description
+#'
+#' @section Module:
+#' Calls [ `torch::nn_batch_norm1d()`].
+#'
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
+#'
+#' @section Parameters:
+#' * `eps` :: `numeric(1)`\cr
+#'   A value added to the denominator for numerical stability. Default: `1e-5`.
+#' * `momentum` :: `numeric(1)`\cr
+#'   The value used for the running_mean and running_var computation. Can be set to `NULL` for cumulative moving average
+#'   (i.e. simple average). Default: 0.1
+#' * `affine` :: `logical(1)`\cr
+#'   a boolean value that when set to `TRUE`, this module has learnable affine parameters. Default: `TRUE`
+#' * `track_running_stats` :: `logical(1)`\cr
+#'   a boolean value that when set to `TRUE`, this module tracks the running mean and variance, and when set to `FALSE`,
+#'   this module does not track such statistics and always uses batch statistics in both training and eval modes.
+#'   Default: `TRUE`
+#'
+#' @template torch_license_docu
+#'
+#' @family PipeOpTorch
+#' @template param_id
+#' @template param_param_vals
+#'
 #' @export
 PipeOpTorchBatchNorm2D = R6Class("PipeOpTorchBatchNorm2D", inherit = PipeOpTorchBatchNorm,
   public = list(
@@ -72,6 +150,39 @@ PipeOpTorchBatchNorm2D = R6Class("PipeOpTorchBatchNorm2D", inherit = PipeOpTorch
   )
 )
 
+#' @title 1D Batch Normalization
+#'
+#' @usage NULL
+#' @name pipeop_torch_batch_norm1d
+#' @template pipeop_torch_format
+#'
+#' @inheritSection pipeops_torch_batch_norm description
+#'
+#' @section Module:
+#' Calls [ `torch::nn_batch_norm1d()`].
+#'
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
+#'
+#' @section Parameters:
+#' * `eps` :: `numeric(1)`\cr
+#'   A value added to the denominator for numerical stability. Default: `1e-5`.
+#' * `momentum` :: `numeric(1)`\cr
+#'   The value used for the running_mean and running_var computation. Can be set to `NULL` for cumulative moving average
+#'   (i.e. simple average). Default: 0.1
+#' * `affine` :: `logical(1)`\cr
+#'   a boolean value that when set to `TRUE`, this module has learnable affine parameters. Default: `TRUE`
+#' * `track_running_stats` :: `logical(1)`\cr
+#'   a boolean value that when set to `TRUE`, this module tracks the running mean and variance, and when set to `FALSE`,
+#'   this module does not track such statistics and always uses batch statistics in both training and eval modes.
+#'   Default: `TRUE`
+#'
+#' @template torch_license_docu
+#'
+#' @family PipeOpTorch
+#' @template param_id
+#' @template param_param_vals
+#'
 #' @export
 PipeOpTorchBatchNorm3D = R6Class("PipeOpTorchBatchNorm3D", inherit = PipeOpTorchBatchNorm,
   public = list(

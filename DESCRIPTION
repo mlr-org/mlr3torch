@@ -53,7 +53,7 @@ Remotes:
 Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
-Roxygen: list(markdown = TRUE)
+Roxygen: list(markdown = TRUE, r6 = FALSE)
 RoxygenNote: 7.2.1
 Collate:
     'CallbackTorch.R'
@@ -65,14 +65,13 @@ Collate:
     'ModelDescriptor.R'
     'PipeOpModule.R'
     'PipeOpTorch.R'
-    'zzz.R'
     'PipeOpTorchActivation.R'
+    'zzz.R'
     'PipeOpTorchAvgPool.R'
     'PipeOpTorchBatchNorm.R'
     'PipeOpTorchConv.R'
     'PipeOpTorchConvTranspose.R'
     'PipeOpTorchDropout.R'
-    'PipeOpTorchFlatten.R'
     'PipeOpTorchHead.R'
     'PipeOpTorchIngress.R'
     'PipeOpTorchLayerNorm.R'

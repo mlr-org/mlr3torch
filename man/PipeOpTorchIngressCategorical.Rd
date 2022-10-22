@@ -33,6 +33,7 @@ Torch Entry Point for Categorical Features
 \if{html}{\out{<a id="method-PipeOpTorchIngressCategorical-new"></a>}}
 \if{latex}{\out{\hypertarget{method-PipeOpTorchIngressCategorical-new}{}}}
 \subsection{Method \code{new()}}{
+Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchIngressCategorical$new(
   id = "torch_ingress_cat",
@@ -45,6 +46,7 @@ Torch Entry Point for Categorical Features
 \if{html}{\out{<a id="method-PipeOpTorchIngressCategorical-speak"></a>}}
 \if{latex}{\out{\hypertarget{method-PipeOpTorchIngressCategorical-speak}{}}}
 \subsection{Method \code{speak()}}{
+What does the cat say?
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchIngressCategorical$speak()}\if{html}{\out{</div>}}
 }

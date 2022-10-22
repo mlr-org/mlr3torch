@@ -1,16 +1,45 @@
-#' @title Dropout Layer
-#' @description
-#' Dropout layer.
+#' @title Dropout
+#'
+#' @usage NULL
+#' @name pipeop_torch_dropout
+#' @template pipeop_torch_format
+#'
+#' @inherit torch::nnf_dropout description
+#'
+#' @section Module:
+#' Calls [`torch::nn_dropout()`] when trained.
+#'
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
+#'
+#' @section Parameters:
+#' * `p` :: `numeric(1)`\cr
+#'  Probability of an element to be zeroed. Default: 0.5 inplace
+#' * `inplace` :: `logical(1)`\cr
+#'   If set to `TRUE`, will do this operation in-place. Default: `FALSE.`
+#'
+#' @examples
+#' # po
+#' obj = po("nn_dropout")
+#' obj$id
+#' obj$module_generator
+#' obj$shapes_out(c(16, 5, 7))
+#'
+#' # pot
+#' obj = pot("dropout")
+#' obj$id
+#'
+#' @template torch_license_docu
+#'
+#' @family PipeOpTorch
+#' @template param_id
+#' @template param_param_vals
 #'
 #' @export
 PipeOpTorchDropout = R6Class("PipeOpTorchDropout",
   inherit = PipeOpTorch,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
-    #' @param id (`character(1)`)\cr
-    #'   The id for of the object.
-    #' @param param_vals (named `list()`)\cr
-    #'   The initial parameters for the object.
     initialize = function(id = "nn_dropout", param_vals = list()) {
       param_set = ps(
         p = p_dbl(default = 0.5, lower = 0, upper = 1, tags = "train"),

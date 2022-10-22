@@ -1,21 +1,51 @@
 #' @title Average Pooling
-#' @description
-#' 1D, 2D and 3D Average Pooling.
-#' @section Calls:
-#' * `nn_avg_pool1d`
-#' * `nn_avg_pool2d`
-#' * `nn_avg_pool3d`
 #'
-#' @name avg_pool
-NULL
-
+#' @usage NULL
+#' @name pipeop_torch_avg_pool
+#' @template pipeop_torch_format
+#'
+#' @description
+#' Base class for average pooling.
+#' Don't use this class directly.
+#'
+#' @section Module:
+#' See the respective child class.
+#'
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
+#'
+#' @section Parameters:
+#' * `kernel_size` :: (`integer()`)\cr
+#'   The size of the window. Can be a single number or a vector.
+#' * `stride` :: `integer()`\cr
+#'   The stride of the window. Can be a single number or a vector. Default: `kernel_size`.
+#' * `padding` :: `integer()`\cr
+#'   Implicit zero paddings on both sides of the input. Can be a single number or a vector. Default: 0.
+#' * `ceil_mode` :: `integer()`\cr
+#'   When `TRUE`, will use ceil instead of floor to compute the output shape. Default: `FALSE`.
+#' * `count_include_pad` :: `logical(1)`\cr
+#'   When `TRUE`, will include the zero-padding in the averaging calculation. Default: `TRUE`.
+#' * `divisor_override` :: `logical(1)`\cr
+#'   If specified, it will be used as divisor, otherwise size of the pooling region will be used. Default: NULL.
+#'   Only available for dimension greater than 1.
+#' @template pipeop_torch_methods
+#' @template torch_license_docu
+#'
+#' @family PipeOpTorch
+#' @template param_id
+#' @template param_param_vals
+#' @param d (`integer(1)`)\cr
+#'   The dimension of the average pooling operation.
+#'
+#' @export
 PipeOpTorchAvgPool = R6Class("PipeOpTorchAvgPool",
   inherit = PipeOpTorch,
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(id, d, module_generator, param_vals = list()) {
-      private$.d = assert_int(d)
+    initialize = function(id, d, param_vals = list()) {
+      private$.d = assert_int(d, lower = 1, upper = 3)
+      module_generator = switch(d, nn_avg_pool1d, nn_avg_pool2d, nn_avg_pool3d)
 
       param_set = ps(
         kernel_size = p_uty(custom_check = check_vector(d), tags = c("required", "train")),
@@ -30,7 +60,6 @@ PipeOpTorchAvgPool = R6Class("PipeOpTorchAvgPool",
 
       super$initialize(
         id = id,
-        module_generator = module_generator,
         param_vals = param_vals,
         param_set = param_set
       )
@@ -52,7 +81,7 @@ PipeOpTorchAvgPool = R6Class("PipeOpTorchAvgPool",
 )
 
 avg_output_shape = function(shape_in, conv_dim, padding, stride, kernel_size, ceil_mode = FALSE) {
-  assert_int(shape_in, min.len = conv_dim)
+  shape_in = assert_integerish(shape_in, min.len = conv_dim, coerce = TRUE)
   shape_head = utils::head(shape_in, -conv_dim)
   shape_tail = utils::tail(shape_in, conv_dim)
   c(shape_head,
@@ -60,39 +89,136 @@ avg_output_shape = function(shape_in, conv_dim, padding, stride, kernel_size, ce
   )
 }
 
+#' @title 1D Average Pooling
+#'
+#' @usage NULL
+#' @name pipeop_torch_avg_pool1d
+#' @template pipeop_torch_format
+#'
+#' @inherit torch::nnf_avg_pool1d description
+#'
+#' @section Module:
+#' Calls [`torch::nn_adaptive_avg_pool1d()`] when trained.
+#'
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
+#'
+#' @inheritSection PipeOpTorchAvgPool Parameters
+#' @template pipeop_torch_methods
+#'
+#' @template torch_license_docu
+#'
+#' @family PipeOpTorch
 #' @template param_id
 #' @template param_param_vals
-#' @rdname avg_pool
+#'
+#' @examples
+#' # po
+#' obj = po("nn_avg_pool1d", kernel_size = 3)
+#' obj$id
+#' obj$module_generator
+#' obj$shapes_out(c(16, 5, 100))
+#'
+#' # pot
+#' obj = pot("avg_pool1d")
+#' obj$id
+#'
 #' @export
 PipeOpTorchAvgPool1D = R6Class("PipeOpTorchAvgPool1D", inherit = PipeOpTorchAvgPool,
   public = list(
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "nn_avg_pool1d", param_vals = list()) {
-      super$initialize(id = id, d = 1, module_generator = nn_avg_pool1d, param_vals = param_vals)
+      super$initialize(id = id, d = 1, param_vals = param_vals)
     }
   )
 )
 
 
+#' @title 2D Average Pooling
+#'
+#' @usage NULL
+#' @name pipeop_torch_avg_pool2d
+#' @template pipeop_torch_format
+#'
+#' @inherit torch::nnf_avg_pool2d description
+#'
+#' @section Module:
+#' Calls [`torch::nn_adaptive_avg_pool2d()`] when trained.
+#'
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
+#'
+#' @inheritSection PipeOpTorchAvgPool Parameters
+#' @template pipeop_torch_methods
+#'
+#' @template torch_license_docu
+#'
+#' @family PipeOpTorch
 #' @template param_id
 #' @template param_param_vals
-#' @rdname avg_pool
+#'
+#' @examples
+#' # po
+#' obj = po("nn_avg_pool2d", kernel_size = 3)
+#' obj$id
+#' obj$module_generator
+#' obj$shapes_out(c(16, 5, 100))
+#'
+#' # pot
+#' obj = pot("avg_pool2d")
+#' obj$id
+#'
 #' @export
 PipeOpTorchAvgPool2D = R6Class("PipeOpTorchAvgPool2D", inherit = PipeOpTorchAvgPool,
   public = list(
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "nn_avg_pool2d", param_vals = list()) {
-      super$initialize(id = id, d = 2, module_generator = nn_avg_pool2d, param_vals = param_vals)
+      super$initialize(id = id, d = 2, param_vals = param_vals)
     }
   )
 )
 
+#' @title 3D Average Pooling
+#'
+#' @usage NULL
+#' @name pipeop_torch_avg_pool3d
+#' @template pipeop_torch_format
+#'
+#' @inherit torch::nnf_avg_pool3d description
+#'
+#' @section Module:
+#' Calls [`torch::nn_adaptive_avg_pool3d()`] when trained.
+#'
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
+#'
+#' @inheritSection PipeOpTorchAvgPool Parameters
+#' @template pipeop_torch_methods
+#'
+#' @template torch_license_docu
+#'
+#' @family PipeOpTorch
 #' @template param_id
 #' @template param_param_vals
-#' @rdname avg_pool
+#'
+#' @examples
+#' # po
+#' obj = po("nn_avg_pool3d", kernel_size = 3)
+#' obj$id
+
+#' obj$module_generator
+#' obj$shapes_out(c(16, 5, 100))
+#'
+#' # pot
+#' obj = pot("avg_pool3d")
+#' obj$id
+#'
 #' @export
 PipeOpTorchAvgPool3D = R6Class("PipeOpTorchAvgPool3D", inherit = PipeOpTorchAvgPool,
   public = list(
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "nn_avg_pool3d", param_vals = list()) {
-      super$initialize(id = id, d = 3, module_generator = nn_avg_pool3d, param_vals = param_vals)
+      super$initialize(id = id, d = 3, param_vals = param_vals)
     }
   )
 )

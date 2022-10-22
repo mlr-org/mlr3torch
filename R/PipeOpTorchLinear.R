@@ -4,7 +4,7 @@
 #' @name pipeop_torch_linear
 #' @template pipeop_torch_format
 #'
-#' @inherit torch::nn_linear description
+#' @inherit torch::nnf_linear description
 #'
 #' @section Module:
 #' Calls [`torch::nn_linear()`] when trained.
@@ -18,8 +18,6 @@
 #' * `bias` :: `logical(1)`\cr
 #'   Whether to use a bias.
 #'   Default is `TRUE`.
-#'
-#' @template pipeop_torch_methods
 #'
 #' @examples
 #' # po

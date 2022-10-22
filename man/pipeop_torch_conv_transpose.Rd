@@ -33,9 +33,9 @@ The state is the value calculated by the public method \code{shapes_out()}.
 \item \code{out_channels} :: \code{integer(1)}\cr
 Number of output channels produce by the convolution.
 \item \code{kernel_size} :: \code{integer()}\cr
-Size of the kernel.
+Size of the convolving kernel.
 \item \code{stride} :: \code{integer()}\cr
-Stride of the convolution. The default is 1.
+Stride of the convolution. Default: 1.
 \item \code{padding} :: \verb{ (}integer()`)\cr
 ‘dilation * (kernel_size - 1) - padding’ zero-padding will be added to both sides of the input. Default: 0.
 \item \code{output_padding} ::\code{integer()}\cr
@@ -51,25 +51,56 @@ The padding mode. One of \code{"zeros"}, \code{"reflect"}, \code{"replicate"}, o
 }
 }
 
-\section{Methods}{
-
-Only methods inherited from \code{\link{PipeOpTorch}}/\code{\link{PipeOp}}.
-}
-
 \section{Credit}{
 
 Parts of this documentation have been copied or adapted from the R package \link{torch}, that comes under the
 MIT license, which is included in the help page of \link{mlr3torch}, as well as in the top-level folder of the
-installed R package.
+package source.
 }
 
 \seealso{
 Other PipeOpTorch: 
+\code{\link{pipeop_torch_act_celu}},
+\code{\link{pipeop_torch_act_elu}},
+\code{\link{pipeop_torch_act_gelu}},
+\code{\link{pipeop_torch_act_glu}},
+\code{\link{pipeop_torch_act_rrelu}},
+\code{\link{pipeop_torch_act_selu}},
+\code{\link{pipeop_torch_act_sigmoid}},
+\code{\link{pipeop_torch_act_softplus}},
+\code{\link{pipeop_torch_act_softshrink}},
+\code{\link{pipeop_torch_act_tanhshrink}},
+\code{\link{pipeop_torch_act_tanh}},
+\code{\link{pipeop_torch_act}},
+\code{\link{pipeop_torch_avg_pool1d}},
+\code{\link{pipeop_torch_avg_pool2d}},
+\code{\link{pipeop_torch_avg_pool3d}},
+\code{\link{pipeop_torch_avg_pool}},
+\code{\link{pipeop_torch_batch_norm1d}},
+\code{\link{pipeop_torch_batch_norm}},
+\code{\link{pipeop_torch_conv1d}},
+\code{\link{pipeop_torch_conv2d}},
+\code{\link{pipeop_torch_conv3d}},
 \code{\link{pipeop_torch_conv_transpose1d}},
 \code{\link{pipeop_torch_conv_transpose2d}},
 \code{\link{pipeop_torch_conv_transpose3d}},
+\code{\link{pipeop_torch_conv}},
+\code{\link{pipeop_torch_dropout}},
+\code{\link{pipeop_torch_flatten}},
+\code{\link{pipeop_torch_head}},
 \code{\link{pipeop_torch_layer_norm}},
-\code{\link{pipeop_torch_linear}}
+\code{\link{pipeop_torch_linear}},
+\code{\link{pipeop_torch_max_pool1d}},
+\code{\link{pipeop_torch_max_pool2d}},
+\code{\link{pipeop_torch_max_pool3d}},
+\code{\link{pipeop_torch_max_pool}},
+\code{\link{pipeop_torch_merge_cat}},
+\code{\link{pipeop_torch_merge_prod}},
+\code{\link{pipeop_torch_merge_sum}},
+\code{\link{pipeop_torch_merge}},
+\code{\link{pipeop_torch_reshape}},
+\code{\link{pipeop_torch_softmax}},
+\code{\link{pipeop_torch_squeeze}}
 }
 \concept{PipeOpTorch}
 \section{Super classes}{

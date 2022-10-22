@@ -38,6 +38,7 @@ The feature types used by this ingress operator.}
 \if{html}{\out{<a id="method-PipeOpTorchIngress-new"></a>}}
 \if{latex}{\out{\hypertarget{method-PipeOpTorchIngress-new}{}}}
 \subsection{Method \code{new()}}{
+Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchIngress$new(
   id,
@@ -50,6 +51,20 @@ The feature types used by this ingress operator.}
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{id}}{(\code{character(1)})\cr
+The id for of the new object.}
+
+\item{\code{param_set}}{(\code{paradox::ParamSet})\cr
+The parameter set.}
+
+\item{\code{param_vals}}{(named \code{list()})\cr
+The initial parameters for the object.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipeOpTorchIngress-clone"></a>}}

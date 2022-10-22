@@ -18,9 +18,9 @@
 #' * `out_channels` :: `integer(1)`\cr
 #'   Number of output channels produce by the convolution.
 #' * `kernel_size` :: `integer()`\cr
-#'   Size of the kernel.
+#'   Size of the convolving kernel.
 #' * `stride` :: `integer()`\cr
-#'   Stride of the convolution. The default is 1.
+#'   Stride of the convolution. Default: 1.
 #' * `padding` :: ` (`integer()`)\cr
 #'  ‘dilation * (kernel_size - 1) - padding’ zero-padding will be added to both sides of the input. Default: 0.
 #' * `output_padding` ::`integer()`\cr
@@ -33,8 +33,6 @@
 #'   Spacing between kernel elements. Default: 1.
 #' * `padding_mode` :: `character(1)`\cr
 #'   The padding mode. One of `"zeros"`, `"reflect"`, `"replicate"`, or `"circular"`. Default is `"zeros"`.
-#'
-#' @template pipeop_torch_methods
 #'
 #' @template torch_license_docu
 #'
@@ -102,7 +100,7 @@ PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",
 #' @name pipeop_torch_conv_transpose1d
 #' @template pipeop_torch_format
 #'
-#' @inherit torch::nn_conv_transpose1d description
+#' @inherit torch::nnf_conv_transpose1d description
 #'
 #' @section Module:
 #' Calls [`torch::nn_conv_transpose1d()`]
@@ -111,8 +109,6 @@ PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",
 #' @template pipeop_torch_state_default
 #'
 #' @inheritSection pipeop_torch_conv_transpose Parameters
-#'
-#' @template pipeop_torch_methods
 #'
 #' @template torch_license_docu
 #'
@@ -123,6 +119,7 @@ PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",
 #' @export
 PipeOpTorchConvTranspose1D = R6Class("PipeOpTorchConvTranspose1D", inherit = PipeOpTorchConvTranspose,
   public = list(
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "conv1d", param_vals = list()) {
       super$initialize(id = id, d = 1, module_generator = nn_conv1d, param_vals = param_vals)
     }
@@ -136,7 +133,7 @@ PipeOpTorchConvTranspose1D = R6Class("PipeOpTorchConvTranspose1D", inherit = Pip
 #' @name pipeop_torch_conv_transpose2d
 #' @template pipeop_torch_format
 #'
-#' @inherit torch::nn_conv_transpose2d description
+#' @inherit torch::nnf_conv_transpose2d description
 #'
 #' @section Module:
 #' Calls [`torch::nn_conv_transpose2d()`]
@@ -145,8 +142,6 @@ PipeOpTorchConvTranspose1D = R6Class("PipeOpTorchConvTranspose1D", inherit = Pip
 #' @template pipeop_torch_state_default
 #'
 #' @inheritSection pipeops_torch_conv_transpose Parameters
-#'
-#' @template pipeop_torch_methods
 #'
 #' @template torch_license_docu
 #'
@@ -157,6 +152,7 @@ PipeOpTorchConvTranspose1D = R6Class("PipeOpTorchConvTranspose1D", inherit = Pip
 #' @export
 PipeOpTorchConvTranspose2D = R6Class("PipeOpTorchConvTranspose2D", inherit = PipeOpTorchConvTranspose,
   public = list(
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "conv2d", param_vals = list()) {
       super$initialize(id = id, d = 2, module_generator = nn_conv2d, param_vals = param_vals)
     }
@@ -169,7 +165,7 @@ PipeOpTorchConvTranspose2D = R6Class("PipeOpTorchConvTranspose2D", inherit = Pip
 #' @name pipeop_torch_conv_transpose3d
 #' @template pipeop_torch_format
 #'
-#' @inherit torch::nn_conv_transpose3d description
+#' @inherit torch::nnf_conv_transpose3d description
 #'
 #' @section Module:
 #' Calls [`torch::nn_conv_transpose3d()`]
@@ -178,8 +174,6 @@ PipeOpTorchConvTranspose2D = R6Class("PipeOpTorchConvTranspose2D", inherit = Pip
 #' @template pipeop_torch_state_default
 #'
 #' @inheritSection pipeops_torch_conv_transpose Parameters
-#'
-#' @template pipeop_torch_methods
 #'
 #' @template torch_license_docu
 #'
@@ -190,6 +184,7 @@ PipeOpTorchConvTranspose2D = R6Class("PipeOpTorchConvTranspose2D", inherit = Pip
 #' @export
 PipeOpTorchConvTranspose3D = R6Class("PipeOpTorchConvTranspose3D", inherit = PipeOpTorchConvTranspose,
   public = list(
+    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "conv3d", param_vals = list()) {
       super$initialize(id = id, d = 3, module_generator = nn_conv3d, param_vals = param_vals)
     }
@@ -203,7 +198,7 @@ register_po("nn_conv_transpose3d", PipeOpTorchConvTranspose3D)
 
 
 conv_transpose_output_shape = function(shape_in, dim, padding, dilation, stride, kernel_size, output_padding, out_channels) {
-  assert_int(shape_in, min.len = conv_dim)
+  assert_integer(shape_in, min.len = conv_dim)
   shape_head = utils::head(shape_in, -(dim + 1))
   shape_tail = utils::tail(shape_in, dim)
   c(shape_head, out_channels,

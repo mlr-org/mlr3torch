@@ -4,7 +4,7 @@
 #' @name pipeop_torch_softmax
 #' @template pipeop_torch_format
 #'
-#' @inherit torch::nn_softmax description
+#' @inherit torch::nnf_softmax description
 #'
 #' @section Module:
 #' Calls [`torch::nn_softmax()`] when trained.
@@ -15,8 +15,6 @@
 #' @section Parameters:
 #' * `dim` :: `integer(1)`\cr
 #'   A dimension along which Softmax will be computed (so every slice along dim will sum to 1).
-#'
-#' @template pipeop_torch_methods
 #'
 #' @examples
 #' # po
@@ -40,10 +38,6 @@ PipeOpTorchSoftmax = R6::R6Class("PipeOpTorchSoftmax",
   inherit = PipeOpTorch,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
-    #' @param id (`character(1)`)\cr
-    #'   The id for of the object.
-    #' @param param_vals (named `list()`)\cr
-    #'   The initial parameters for the object.
     initialize = function(id = "nn_softmax", param_vals = list()) {
       param_set = ps(
         dim = p_int(1L, Inf, tags = c("train", "required"))

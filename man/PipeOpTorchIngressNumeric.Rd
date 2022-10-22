@@ -32,6 +32,7 @@ Torch Entry Point for Numeric Features
 \if{html}{\out{<a id="method-PipeOpTorchIngressNumeric-new"></a>}}
 \if{latex}{\out{\hypertarget{method-PipeOpTorchIngressNumeric-new}{}}}
 \subsection{Method \code{new()}}{
+Initializes an instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchIngressNumeric$new(id = "torch_ingress_num", param_vals = list())}\if{html}{\out{</div>}}
 }
