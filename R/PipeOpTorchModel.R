@@ -102,6 +102,10 @@ PipeOpTorchModelClassif = R6Class("PipeOpTorchModelClassif",
 )
 
 #' @title Regression Model
+#'
+#' @usage NULL
+#' @name pipeop_torch
+#'
 #' @description
 #' Regression model.
 #' @export

@@ -1,26 +1,46 @@
 #' @title LearnerTorchClassif
 #'
+#' @usage  NULL
+#' @name mlr_learners_classif.torch
+#' @format [`R6Class`] inheriting from [`LearnerClassifTorchAbstract`].
+#'
 #' @description
 #' This implements a custom neural network.
 #'
-#' @name mlr_learners_classif.torch
-#'
-#' @template param_id
-#' @template param_param_vals
-#' @template param_optimizer
-#' @template param_loss
-#' @param feature_types (`character()`)\cr
-#'   The feature types the learner supports. The default is all feature types.
-#' @param network (`nn_module()`)\cr
+#' @section Construction
+#' ```
+#' LearnerClassifTorch$new(module, param_set = NULL, optimizer = t_opt("adam"), loss = t_loss("cross_entropy"),
+#'   param_vals = list(), feature_types = NULL)
+#' ```
+#' * `module` ::
 #'   An object of class `"nn_module"` as defined in `torch`.
+#' *  `param_set` ::
+#' * `optimizer` ::
+#' * `loss` ::
+#' * `param_vals` ::
+#' * `feature_types` ::
+#'   The feature types the learner supports. The default is all feature types.
+#'
+#' @section Internals:
+#' TODO:
+#'
+#' @section Parameters:
+#' The parameter set defined as argument `param_set` during construction.
+#'
+#' @section Fields:
+#' Only fields inherited from [`LearnerClassifTorch`], [`LearnerClassif`] or [`Learner`].
+#'
+#' @section Methods:
+#' Only methods inherited from [`LearnerClassifTorch`], [`LearnerClassif`] or [`Learner`].
 #'
 #' @export
 #' @examples
+#' # TODO:
 LearnerClassifTorch = R6Class("LearnerClassifTorch",
   inherit = LearnerClassifTorchAbstract,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
-    initialize = function(module, param_set = NULL, optimizer = t_opt("adam"), loss = t_loss("cross_entropy"), param_vals = list(), feature_types = NULL) {
+    initialize = function(module, param_set = NULL, optimizer = t_opt("adam"), loss = t_loss("cross_entropy"),
+      param_vals = list(), feature_types = NULL) {
       private$.module = module
       if (inherits(module, "nn_module_generator")) {
         param_set = inferps(module)

@@ -5,27 +5,25 @@
 \alias{PipeOpTorchLayerNorm}
 \title{Layer Normalization}
 \format{
-\link[R6:R6Class]{R6::R6Class} inheriting from \link{PipeOpTorch}.
-}
-\arguments{
-\item{id}{(\code{character(1)})\cr
-The id for of the new object.}
-
-\item{param_vals}{(named \code{list()})\cr
-The initial parameters for the object.}
+\link{\code{R6Class}} inheriting from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
 \description{
 Initializes an instance of this \link[R6:R6Class]{R6} class.
 }
-\section{Module}{
+\section{Construction}{
 
-Calls \code{\link[torch:nn_layer_norm]{torch::nn_layer_norm()}} when trained.
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{PipeOpTorchLayerNorm$new(id = "nn_layer_norm", param_vals = list())
+}\if{html}{\out{</div>}}
+\itemize{
+\item \code{id} :: \code{character(1)}\cr The id for the object. The default is "nn_layer_norm".
+\item \code{param_vals}` :: named \code{list()}\cr List of hyperparameter settings. Default is  \code{list()}.
+}
 }
 
 \section{Input and Output Channels}{
 
-One input channel called \code{"input"} and one output channel called \code{"output"}.
-For an explanation see \code{\link{PipeOpTorch}}.
+One input channel called \code{"input"} and one output channel called‘"output"’. For an explanation see \link{\code{PipeOpTorch}}.
 }
 
 \section{State}{
@@ -43,15 +41,26 @@ Whether to learn affine-linear parameters initialized to \code{1} for weights an
 The default is \code{TRUE}.
 \item \code{eps} :: \code{numeric(1)}\cr
 A value added to the denominator for numerical stability.
-The default is \code{1e-5}.
 }
+}
+
+\section{Internals}{
+
+Calls \code{\link[torch:nn_layer_norm]{torch::nn_layer_norm()}} when trained.
+}
+
+\section{Fields}{
+ Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+}
+
+\section{Methods}{
+ Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
 
 \section{Credit}{
-
-Parts of this documentation have been copied or adapted from the R package \link{torch}, that comes under the
-MIT license, which is included in the help page of \link{mlr3torch}, as well as in the top-level folder of the
-package source.
+ Parts of this documentation have been copied or adapted from the R package \link{torch}, that comes under the
+MIT license, which is included in the help page of \link{\code{mlr3torch}}, as well as in the top-level folder of
+the package source.
 }
 
 \examples{
@@ -72,8 +81,8 @@ Other PipeOpTorch:
 \code{\link{pipeop_torch_avg_pool2d}},
 \code{\link{pipeop_torch_avg_pool3d}},
 \code{\link{pipeop_torch_avg_pool}},
-\code{\link{pipeop_torch_batch_norm1d}},
 \code{\link{pipeop_torch_batch_norm}},
+\code{\link{pipeop_torch_celu}},
 \code{\link{pipeop_torch_conv1d}},
 \code{\link{pipeop_torch_conv2d}},
 \code{\link{pipeop_torch_conv3d}},
@@ -85,8 +94,15 @@ Other PipeOpTorch:
 \code{\link{pipeop_torch_dropout}},
 \code{\link{pipeop_torch_elu}},
 \code{\link{pipeop_torch_flatten}},
+\code{\link{pipeop_torch_gelu}},
+\code{\link{pipeop_torch_glu}},
+\code{\link{pipeop_torch_hard_shrink}},
+\code{\link{pipeop_torch_hardsigmoid}},
+\code{\link{pipeop_torch_hard}},
 \code{\link{pipeop_torch_head}},
+\code{\link{pipeop_torch_leaky_relu}},
 \code{\link{pipeop_torch_linear}},
+\code{\link{pipeop_torch_log_sigmoid}},
 \code{\link{pipeop_torch_max_pool1d}},
 \code{\link{pipeop_torch_max_pool2d}},
 \code{\link{pipeop_torch_max_pool3d}},
@@ -95,8 +111,20 @@ Other PipeOpTorch:
 \code{\link{pipeop_torch_merge_prod}},
 \code{\link{pipeop_torch_merge_sum}},
 \code{\link{pipeop_torch_merge}},
+\code{\link{pipeop_torch_prelu}},
+\code{\link{pipeop_torch_relu6}},
+\code{\link{pipeop_torch_relu}},
 \code{\link{pipeop_torch_reshape}},
+\code{\link{pipeop_torch_rrelu}},
+\code{\link{pipeop_torch_selu}},
+\code{\link{pipeop_torch_sigmoid}},
 \code{\link{pipeop_torch_softmax}},
-\code{\link{pipeop_torch_squeeze}}
+\code{\link{pipeop_torch_softplus}},
+\code{\link{pipeop_torch_softshrink}},
+\code{\link{pipeop_torch_softsign}},
+\code{\link{pipeop_torch_squeeze}},
+\code{\link{pipeop_torch_tanhshrink}},
+\code{\link{pipeop_torch_tanh}},
+\code{\link{pipeop_torch_threshold}}
 }
 \concept{PipeOpTorch}

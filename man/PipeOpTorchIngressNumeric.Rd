@@ -4,5 +4,7 @@
 \alias{PipeOpTorchIngressNumeric}
 \title{Torch Entry Point for Numeric Features}
 \description{
+Numeric Ingress
+
 Initializes an instance of this \link[R6:R6Class]{R6} class.
 }

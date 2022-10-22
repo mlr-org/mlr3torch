@@ -43,7 +43,8 @@
 #' @param .pointer_shape (`integer` | `NULL`)\cr
 #'   Shape of the output indicated by `.pointer`.
 #'
-#' @seealso
+#' @seealso model_descriptor_to_module, model_descriptor_union, PipeOpTorch, PipeOpModule, PipeOpTorchIngress,
+#' TorchIngressToken
 #' @return (`ModelDescriptor`)
 ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, callbacks = list(), .pointer = NULL,
   .pointer_shape = NULL) {

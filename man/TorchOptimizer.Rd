@@ -3,48 +3,45 @@
 \name{TorchOptimizer}
 \alias{TorchOptimizer}
 \title{Torch Optimizer}
+\format{
+\link[R6:R6Class]{R6::R6Class}
+}
 \arguments{
-\item{torch_optimizer}{(\code{torch_optimizer_generator})\cr
-A generator for an optimizer.}
-
-\item{param_set}{(\code{paradox::ParamSet})\cr
-The parameter set.}
-
-\item{label}{(\code{character(1)})\cr
-Label for the new instance.}
-
-\item{packages}{(\code{character()})\cr
-The R packages this object depends on.}
-
 \item{params}{(\code{list} of \code{\link[torch:nn_parameter]{torch::nn_parameter}})\cr
 The parameters that are trained by the optimizer.}
 }
 \description{
 This wraps a \code{torch::torch_optimizer_generator}.
-Can be used to configure the \code{optimizer} of a \code{\link{ModelDescriptor}}..
+Can be used to configure the \code{optimizer} of a \code{\link{ModelDescriptor}}.
 
-For a list of available parameters, seen \code{\link{mlr3torch_optimizers}}.
-
-Creates a new instance of this \link[R6:R6Class]{R6} class.
+For a list of available optimizersparameters, seen \code{\link{mlr3torch_optimizers}}.
 
 Constructs the optimizer for the given parameter values.
 }
 \section{Fields}{
 
-\describe{
-\item{\code{label}}{(\code{character(1)})\cr
-Label for this object.
-Can be used in tables, plot and text output instead of the ID.}
+\itemize{
+\item \code{label} :: \code{character(1)}\cr
+The label for the object.
+\item \code{task_types} :: \code{character()}\cr
+The task types that are supported.
+\item \code{loss} :: `
+The generator of the optimizer.
+\item \code{param_set} :: \code{paradox::ParamSet}\cr
+The parameter set.
+\item \code{packages} :: \code{character()}\cr
+The packages this optimizer requires.
+}
+}
 
-\item{\code{optimizer}}{(\code{torch_optimizer_generator})\cr
-The generator of the optimizer.}
+\section{Methods}{
 
-\item{\code{param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}})\cr
-The parameter set.}
-
-\item{\code{packages}}{(\code{character()})\cr
-The packages this optimizer uses.}
-}}
+\itemize{
+\item \code{get_optimizer(params)}\cr
+(\code{list} of \code{\link[torch:nn_parameter]{torch::nn_parameter}}) -> \code{torch_optimizer()}
+Initializes the torch loss for the provided params (network) for the fiven parameter values (\code{ParamSet}).
+}
+}
 
 \examples{
 # Create a new Torch Optimizer
@@ -56,3 +53,4 @@ opt$param_set
 net = nn_linear(10, 1)
 o = opt$get_optimizer(net$parameters)
 }
+\concept{TorchLoss}

@@ -39,8 +39,6 @@ The referenced help package can be opened via method \verb{$help()}.}
 All Torch Classification Learners should inherit from this base class.
 It implements basic functionality that can be reused for all sort of learners
 It is not intended for direct use.
-
-Initializes an instance of this \link[R6:R6Class]{R6} class.
 }
 \section{Fields}{
 

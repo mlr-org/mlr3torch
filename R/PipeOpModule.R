@@ -16,6 +16,18 @@
 #'
 #' The `$predict` method does currently not serve a meaningful purpose.
 #'
+#' @section Construction: `r roxy_pipeop_torch_construction("Module")`
+#' `r roxy_param_id("module")`
+#' `r roxy_param_param_vals()`
+#' `r roxy_param_packages()`
+#' * `module` :: `nn_module`\cr
+#'   The [module][torch::nn_module] that is wrapped.
+#' * `inname` :: `character()`\cr
+#'   The names of the input channels.
+#' * `outname` :: `character()`\cr
+#'   The names of the output channels. If this parameter has length 1, the parameter [module][torch::nn_module] must
+#'   return a [tensor][torch::torch_tensor]. Otherwise it must return a `list()` of tensors of corresponding length.
+#'
 #' @section Input and Output Channels:
 #' The number and names of the input and output channels can be set during construction. They input and output
 #' `"torch_tensor"` during training, and `NULL` during prediction.
@@ -30,19 +42,18 @@
 #' During training, the wrapped [`nn_module`] is called with the provided inputs in the order in which the channels
 #' are defined. Arguments are **not** matched by name.
 #'
-#  @template param_id
-#' @template param_param_vals
-#' @template param_packages
-#' @param module (`nn_module`)\cr
-#'   The [module][torch::nn_module] that is wrapped.
-#' @param outname (`character()`)
-#'   The names of the output channels.
-#'   If this parameter has length 1, the parameter [module][torch::nn_module] must return a [tensor][torch::tensor].
-#'   Otherwise it must return a `list()` of tensors of corresponding length.
+#' @section Fields:
+#' * `module` :: `nn_module`\cr
+#'   The torch module.
 #'
+#' @section Methods:
+#' Only methods inherited from [`PipeOp`].
+#'
+#' @seealso nn_module, mlr_pipeops_torch, nn_graph, model_descriptor_to_module, PipeOp, Graph
+#' @export
 #' @examples
-#' # one input and output channel:#'   of the output channels.
-
+#' # one input and output channel:
+#'
 #' po_module = PipeOpModule$new("linear", torch::nn_linear(10, 20), inname = "input", outname = "output")
 #' x = torch::torch_randn(16, 10)
 #' y = po_module$train(list(input = x))
@@ -74,14 +85,10 @@
 #' linear_module
 #' formalArgs(linear_module$module)
 #' linear_module$input$name
-#'
-#' @seealso nn_module, mlr_pipeops_torch, nn_graph, model_descriptor_to_module, PipeOp, Graph
-#' @export
 PipeOpModule = R6Class("PipeOpModule",
   inherit = PipeOp,
   public = list(
     module = NULL,
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id, module, outname, param_vals = list(), inname, packages = character(0)) {
       private$.multi_output = length(outname) > 1L
       self$module = assert_class(module, "nn_module")
@@ -99,20 +106,16 @@ PipeOpModule = R6Class("PipeOpModule",
         param_vals = param_vals,
         packages = packages
       )
-    },
-    #' @description
-    #' Prints the object.
-    #' @param (any)\cr
-    #'   Additional parameters passed to the printer of the wrapped `nn_module`.
-    print = function(...) {
-      output = c(sprintf("<PipeOpModule:%s>", self$id), capture.output(print(self$module, ...)))
-      output[2] = sub("^An", "Wrapping an",  output[2])
-      walk(output, function(l) catn(l))
     }
+    # TOD: Maybe implement printer
+    # print = function(...) {
+    #   output = c(sprintf("<PipeOpModule:%s>", self$id), capture.output(print(self$module, ...)))
+    #   output[2] = sub("^An", "Wrapping an",  output[2])
+    #   walk(output, function(l) catn(l))
+    # }
   ),
   private = list(
     .train = function(inputs) {
-      browser()
       self$state = list()  # PipeOp API requires this.
       # the inputs are passed in the order in which they appear in `graph$input`
       # Note that PipeOpTorch ensures that (unless the forward method has a ... argument) the input channels are
@@ -129,3 +132,5 @@ PipeOpModule = R6Class("PipeOpModule",
   )
 )
 
+#' @include zzz.R
+register_po("module", PipeOpModule)

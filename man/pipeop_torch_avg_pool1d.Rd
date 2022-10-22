@@ -5,44 +5,64 @@
 \alias{PipeOpTorchAvgPool1D}
 \title{1D Average Pooling}
 \format{
-\link[R6:R6Class]{R6::R6Class} inheriting from \link{PipeOpTorch}.
-}
-\arguments{
-\item{id}{(\code{character(1)})\cr
-The id for of the new object.}
-
-\item{param_vals}{(named \code{list()})\cr
-The initial parameters for the object.}
+\link{\code{R6Class}} inheriting from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
 \description{
-Initializes an instance of this \link[R6:R6Class]{R6} class.
+Applies a 1D adaptive average pooling over an input signal composed of
+several input planes.
 }
-\section{Module}{
-
-Calls \code{\link[torch:nn_adaptive_avg_pool1d]{torch::nn_adaptive_avg_pool1d()}} when trained.
+\section{Construction}{
+ \code{PipeOpTorchAvgPool1D$new(id, param_vals = list())}
+\itemize{
+\item \code{id} :: \code{character(1)}\cr The id for the object. The default is "nn_avg_pool1d".
+\item \code{param_vals}` :: named \code{list()}\cr List of hyperparameter settings. Default is  \code{list()}.
+}
 }
 
 \section{Input and Output Channels}{
-
-One input channel called \code{"input"} and one output channel called \code{"output"}.
-For an explanation see \code{\link{PipeOpTorch}}.
+ One input channel called \code{"input"} and one output channel called‘"output"’. For an explanation see \link{\code{PipeOpTorch}}.
 }
 
 \section{State}{
+ The state is the value calculated by the public method \code{shapes_out()}.
+}
 
-The state is the value calculated by the public method \code{shapes_out()}.
+\section{Internals}{
+
+Calls \code{\link[=nn_avg_pool1d]{nn_avg_pool1d()}} during training.
+}
+
+\section{Fields}{
+ Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
 
 \section{Methods}{
-
-Only methods inherited from \code{\link{PipeOpTorch}}/\code{\link{PipeOp}}.
+ Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
 
 \section{Credit}{
+ Parts of this documentation have been copied or adapted from the R package \link{torch}, that comes under the
+MIT license, which is included in the help page of \link{\code{mlr3torch}}, as well as in the top-level folder of
+the package source.
+}
 
-Parts of this documentation have been copied or adapted from the R package \link{torch}, that comes under the
-MIT license, which is included in the help page of \link{mlr3torch}, as well as in the top-level folder of the
-package source.
+\section{Parameters}{
+
+\itemize{
+\item \code{kernel_size} :: (\code{integer()})\cr
+The size of the window. Can be a single number or a vector.
+\item \code{stride} :: \code{integer()}\cr
+The stride of the window. Can be a single number or a vector. Default: \code{kernel_size}.
+\item \code{padding} :: \code{integer()}\cr
+Implicit zero paddings on both sides of the input. Can be a single number or a vector. Default: 0.
+\item \code{ceil_mode} :: \code{integer()}\cr
+When \code{TRUE}, will use ceil instead of floor to compute the output shape. Default: \code{FALSE}.
+\item \code{count_include_pad} :: \code{logical(1)}\cr
+When \code{TRUE}, will include the zero-padding in the averaging calculation. Default: \code{TRUE}.
+\item \code{divisor_override} :: \code{logical(1)}\cr
+If specified, it will be used as divisor, otherwise size of the pooling region will be used. Default: NULL.
+Only available for dimension greater than 1.
+}
 }
 
 \examples{
@@ -62,8 +82,8 @@ Other PipeOpTorch:
 \code{\link{pipeop_torch_avg_pool2d}},
 \code{\link{pipeop_torch_avg_pool3d}},
 \code{\link{pipeop_torch_avg_pool}},
-\code{\link{pipeop_torch_batch_norm1d}},
 \code{\link{pipeop_torch_batch_norm}},
+\code{\link{pipeop_torch_celu}},
 \code{\link{pipeop_torch_conv1d}},
 \code{\link{pipeop_torch_conv2d}},
 \code{\link{pipeop_torch_conv3d}},
@@ -75,9 +95,16 @@ Other PipeOpTorch:
 \code{\link{pipeop_torch_dropout}},
 \code{\link{pipeop_torch_elu}},
 \code{\link{pipeop_torch_flatten}},
+\code{\link{pipeop_torch_gelu}},
+\code{\link{pipeop_torch_glu}},
+\code{\link{pipeop_torch_hard_shrink}},
+\code{\link{pipeop_torch_hardsigmoid}},
+\code{\link{pipeop_torch_hard}},
 \code{\link{pipeop_torch_head}},
 \code{\link{pipeop_torch_layer_norm}},
+\code{\link{pipeop_torch_leaky_relu}},
 \code{\link{pipeop_torch_linear}},
+\code{\link{pipeop_torch_log_sigmoid}},
 \code{\link{pipeop_torch_max_pool1d}},
 \code{\link{pipeop_torch_max_pool2d}},
 \code{\link{pipeop_torch_max_pool3d}},
@@ -86,8 +113,20 @@ Other PipeOpTorch:
 \code{\link{pipeop_torch_merge_prod}},
 \code{\link{pipeop_torch_merge_sum}},
 \code{\link{pipeop_torch_merge}},
+\code{\link{pipeop_torch_prelu}},
+\code{\link{pipeop_torch_relu6}},
+\code{\link{pipeop_torch_relu}},
 \code{\link{pipeop_torch_reshape}},
+\code{\link{pipeop_torch_rrelu}},
+\code{\link{pipeop_torch_selu}},
+\code{\link{pipeop_torch_sigmoid}},
 \code{\link{pipeop_torch_softmax}},
-\code{\link{pipeop_torch_squeeze}}
+\code{\link{pipeop_torch_softplus}},
+\code{\link{pipeop_torch_softshrink}},
+\code{\link{pipeop_torch_softsign}},
+\code{\link{pipeop_torch_squeeze}},
+\code{\link{pipeop_torch_tanhshrink}},
+\code{\link{pipeop_torch_tanh}},
+\code{\link{pipeop_torch_threshold}}
 }
 \concept{PipeOpTorch}

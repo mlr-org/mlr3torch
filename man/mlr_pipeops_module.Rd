@@ -7,23 +7,6 @@
 \format{
 \code{\link{R6Class}} object inheriting from \link{PipeOp`}.
 }
-\arguments{
-\item{param_vals}{(named \code{list()})\cr
-The initial parameters for the object.}
-
-\item{packages}{(\code{character()})\cr
-The R packages this object depends on.}
-
-\item{module}{(\code{nn_module})\cr
-The \link[torch:nn_module]{module} that is wrapped.}
-
-\item{outname}{(\code{character()})
-The names of the output channels.
-If this parameter has length 1, the parameter \link[torch:nn_module]{module} must return a \link[torch:tensor]{tensor}.
-Otherwise it must return a \code{list()} of tensors of corresponding length.}
-
-\item{(any)\cr}{Additional parameters passed to the printer of the wrapped \code{nn_module}.}
-}
 \description{
 \code{PipeOpModule} wraps an \code{\link{nn_module}} that is being called during the \code{train} phase of this \code{\link{PipeOp}}.
 By doing so, this allows to assemble \code{PipeOpModule}s in a computational \link[=`Graph`]{graph} that represents a neural
@@ -35,11 +18,22 @@ of nodes of class \code{\link{PipeOpTorchIngress}} and \code{\link{PipeOpTorch}}
 of \code{PipeOpModule}s during its training phase.
 
 The \verb{$predict} method does currently not serve a meaningful purpose.
-
-Initializes an instance of this \link[R6:R6Class]{R6} class.
-
-Prints the object.
 }
+\section{Construction}{
+ \code{PipeOpTorchModule$new(id, param_vals = list())}
+\itemize{
+\item \code{id} :: \code{character(1)}\cr The id for the object. The default is "module".
+\item \code{param_vals}` :: named \code{list()}\cr List of hyperparameter settings. Default is  \code{list()}.
+\item \code{module} :: \code{nn_module}\cr
+The \link[torch:nn_module]{module} that is wrapped.
+\item \code{inname} :: \code{character()}\cr
+The names of the input channels.
+\item \code{outname} :: \code{character()}\cr
+The names of the output channels. If this parameter has length 1, the parameter \link[torch:nn_module]{module} must
+return a \link[torch:torch_tensor]{tensor}. Otherwise it must return a \code{list()} of tensors of corresponding length.
+}
+}
+
 \section{Input and Output Channels}{
 
 The number and names of the input and output channels can be set during construction. They input and output
@@ -62,8 +56,22 @@ During training, the wrapped \code{\link{nn_module}} is called with the provided
 are defined. Arguments are \strong{not} matched by name.
 }
 
+\section{Fields}{
+
+\itemize{
+\item \code{module} :: \code{nn_module}\cr
+The torch module.
+}
+}
+
+\section{Methods}{
+
+Only methods inherited from \code{\link{PipeOp}}.
+}
+
 \examples{
-# one input and output channel:#'   of the output channels.
+# one input and output channel:
+
 po_module = PipeOpModule$new("linear", torch::nn_linear(10, 20), inname = "input", outname = "output")
 x = torch::torch_randn(16, 10)
 y = po_module$train(list(input = x))
@@ -95,7 +103,6 @@ linear_module = result[[1L]]$graph$pipeops$linear
 linear_module
 formalArgs(linear_module$module)
 linear_module$input$name
-
 }
 \seealso{
 nn_module, mlr_pipeops_torch, nn_graph, model_descriptor_to_module, PipeOp, Graph

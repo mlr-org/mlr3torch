@@ -1,23 +1,34 @@
 #' @title Head
 #'
 #' @usage NULL
-#' @name pipeop_torch_head
-#' @template pipeop_torch_format
+#' @name mlr_pipeops_torch_head
+#' @format `r roxy_pipeop_torch_format()`
 #'
 #' @description
 #' Output head for classification and regresssion.
 #'
-#' @section Module:
-#' Calls [`torch::nn_linear()`] with the output dimension inferred from the task.
+#' @section
+#' ```
+#' PipeOpTorchHead$new(id = "nn_head", param_vals = list())
+#' ```
+#' `r roxy_param_id("Modulenn_head")`
+#' `r roxy_param_param_vals()`
 #'
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch_state_default
+#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
+#' @section State: `r roxy_pipeop_torch_state_default()`
 #'
 #' @section Parameters:
 #' * `bias` :: `logical(1)`\cr
-#'   Whether to use a bias.
-#'   Default is `TRUE`.
+#'   Whether to use a bias. Default is `TRUE`.
 #'
+#' @section Internals:
+#' Calls [`torch::nn_linear()`] with the output dimension inferred from the task.
+#'
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Credit: `r roxy_pipeop_torch_license()`
+#' @family PipeOpTorch
+#' @export
 #' @examples
 #' # po
 #' obj = po("nn_head")
@@ -29,21 +40,9 @@
 #' obj = pot("head")
 #' obj$id
 #'
-#' @template torch_license_docu
-#'
-#' @family PipeOpTorch
-#' @template param_id
-#' @template param_param_vals
-#'
-#' @export
 PipeOpTorchHead = R6Class("PipeOpTorchHead",
   inherit = PipeOpTorch,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
-    #' @param id (`character(1)`)\cr
-    #'   The id for of the object.
-    #' @param param_vals (named `list()`)\cr
-    #'   The initial parameters for the object.
     initialize = function(id = "nn_head", param_vals = list()) {
       param_set = ps(bias = p_lgl(default = TRUE, tags = "train"))
       param_set$values = list(bias = TRUE)

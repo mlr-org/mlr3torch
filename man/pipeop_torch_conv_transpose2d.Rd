@@ -5,49 +5,81 @@
 \alias{PipeOpTorchConvTranspose2D}
 \title{Transpose 2D Convolution}
 \format{
-\link[R6:R6Class]{R6::R6Class} inheriting from \link{PipeOpTorch}.
-}
-\arguments{
-\item{id}{(\code{character(1)})\cr
-The id for of the new object.}
-
-\item{param_vals}{(named \code{list()})\cr
-The initial parameters for the object.}
+\link{\code{R6Class}} inheriting from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
 \description{
 Initializes an instance of this \link[R6:R6Class]{R6} class.
 }
-\section{Module}{
+\section{Construction}{
+ \code{PipeOpTorchConvTranspose2D$new(id, param_vals = list())}
+\itemize{
+\item \code{id} :: \code{character(1)}\cr The id for the object. The default is "nn_conv_transpose2d".
+\item \code{param_vals}` :: named \code{list()}\cr List of hyperparameter settings. Default is  \code{list()}.
+}
+}
+
+\section{Input and Output Channels}{
+ One input channel called \code{"input"} and one output channel called‘"output"’. For an explanation see \link{\code{PipeOpTorch}}.
+}
+
+\section{State}{
+ The state is the value calculated by the public method \code{shapes_out()}.
+}
+
+\section{Internals}{
 
 Calls \code{\link[torch:nn_conv_transpose2d]{torch::nn_conv_transpose2d()}}
 }
 
-\section{Input and Output Channels}{
-
-One input channel called \code{"input"} and one output channel called \code{"output"}.
-For an explanation see \code{\link{PipeOpTorch}}.
+\section{Fields}{
+ Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
 
-\section{State}{
-
-The state is the value calculated by the public method \code{shapes_out()}.
+\section{Methods}{
+ Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
 
 \section{Credit}{
-
-Parts of this documentation have been copied or adapted from the R package \link{torch}, that comes under the
-MIT license, which is included in the help page of \link{mlr3torch}, as well as in the top-level folder of the
-package source.
+ Parts of this documentation have been copied or adapted from the R package \link{torch}, that comes under the
+MIT license, which is included in the help page of \link{\code{mlr3torch}}, as well as in the top-level folder of
+the package source.
 }
 
+\section{Parameters}{
+
+\itemize{
+\item \code{out_channels} :: \code{integer(1)}\cr
+Number of output channels produce by the convolution.
+\item \code{kernel_size} :: \code{integer()}\cr
+Size of the convolving kernel.
+\item \code{stride} :: \code{integer()}\cr
+Stride of the convolution. Default: 1.
+\item \code{padding} :: \verb{ (}integer()`)\cr
+‘dilation * (kernel_size - 1) - padding’ zero-padding will be added to both sides of the input. Default: 0.
+\item \code{output_padding} ::\code{integer()}\cr
+Additional size added to one side of the output shape. Default: 0.
+\item \code{groups} :: \code{integer()}\cr
+Number of blocked connections from input channels to output channels. Default: 1
+\item \code{bias} :: \code{logical(1)}\cr
+If ‘True’, adds a learnable bias to the output. Default: ‘TRUE’.
+\item \code{dilation} :: \code{integer()}\cr
+Spacing between kernel elements. Default: 1.
+\item \code{padding_mode} :: \code{character(1)}\cr
+The padding mode. One of \code{"zeros"}, \code{"reflect"}, \code{"replicate"}, or \code{"circular"}. Default is \code{"zeros"}.
+}
+}
+
+\examples{
+TODO:
+}
 \seealso{
 Other PipeOpTorch: 
 \code{\link{pipeop_torch_avg_pool1d}},
 \code{\link{pipeop_torch_avg_pool2d}},
 \code{\link{pipeop_torch_avg_pool3d}},
 \code{\link{pipeop_torch_avg_pool}},
-\code{\link{pipeop_torch_batch_norm1d}},
 \code{\link{pipeop_torch_batch_norm}},
+\code{\link{pipeop_torch_celu}},
 \code{\link{pipeop_torch_conv1d}},
 \code{\link{pipeop_torch_conv2d}},
 \code{\link{pipeop_torch_conv3d}},
@@ -58,9 +90,16 @@ Other PipeOpTorch:
 \code{\link{pipeop_torch_dropout}},
 \code{\link{pipeop_torch_elu}},
 \code{\link{pipeop_torch_flatten}},
+\code{\link{pipeop_torch_gelu}},
+\code{\link{pipeop_torch_glu}},
+\code{\link{pipeop_torch_hard_shrink}},
+\code{\link{pipeop_torch_hardsigmoid}},
+\code{\link{pipeop_torch_hard}},
 \code{\link{pipeop_torch_head}},
 \code{\link{pipeop_torch_layer_norm}},
+\code{\link{pipeop_torch_leaky_relu}},
 \code{\link{pipeop_torch_linear}},
+\code{\link{pipeop_torch_log_sigmoid}},
 \code{\link{pipeop_torch_max_pool1d}},
 \code{\link{pipeop_torch_max_pool2d}},
 \code{\link{pipeop_torch_max_pool3d}},
@@ -69,8 +108,20 @@ Other PipeOpTorch:
 \code{\link{pipeop_torch_merge_prod}},
 \code{\link{pipeop_torch_merge_sum}},
 \code{\link{pipeop_torch_merge}},
+\code{\link{pipeop_torch_prelu}},
+\code{\link{pipeop_torch_relu6}},
+\code{\link{pipeop_torch_relu}},
 \code{\link{pipeop_torch_reshape}},
+\code{\link{pipeop_torch_rrelu}},
+\code{\link{pipeop_torch_selu}},
+\code{\link{pipeop_torch_sigmoid}},
 \code{\link{pipeop_torch_softmax}},
-\code{\link{pipeop_torch_squeeze}}
+\code{\link{pipeop_torch_softplus}},
+\code{\link{pipeop_torch_softshrink}},
+\code{\link{pipeop_torch_softsign}},
+\code{\link{pipeop_torch_squeeze}},
+\code{\link{pipeop_torch_tanhshrink}},
+\code{\link{pipeop_torch_tanh}},
+\code{\link{pipeop_torch_threshold}}
 }
 \concept{PipeOpTorch}

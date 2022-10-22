@@ -6,6 +6,10 @@
 \usage{
 nn_reshape(shape)
 }
+\arguments{
+\item{shape}{(\code{integer()})\cr
+The desired output shape.}
+}
 \description{
 Reshape a tensor to the given shape.
 }

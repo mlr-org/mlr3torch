@@ -1,16 +1,23 @@
 #' @title Layer Normalization
 #'
 #' @usage NULL
-#' @name pipeop_torch_layer_norm
-#' @template pipeop_torch_format
+#' @name mlr_pipeops_torch_layer_norm
+#' @format `r roxy_pipeop_torch_format()`
 #'
 #' @inherit torch::nnf_layer_norm description
 #'
-#' @section Module:
-#' Calls [`torch::nn_layer_norm()`] when trained.
+#' @section Construction:
+#' ```
+#' PipeOpTorchLayerNorm$new(id = "nn_layer_norm", param_vals = list())
+#' ```
+#' `r roxy_param_id("nn_layer_norm")`
+#' `r roxy_param_param_vals()`
 #'
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch_state_default
+#' @section Input and Output Channels:
+#' `r roxy_pipeop_torch_channels_default()`
+#'
+#' @section State:
+#' `r roxy_pipeop_torch_state_default()`
 #'
 #' @section Parameters:
 #' * `dims` :: `integer(1)`\cr
@@ -20,8 +27,15 @@
 #'   The default is `TRUE`.
 #' * `eps` :: `numeric(1)`\cr
 #'   A value added to the denominator for numerical stability.
-#'   The default is `1e-5`.
 #'
+#' @section Internals:
+#' Calls [`torch::nn_layer_norm()`] when trained.
+#'
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Credit: `r roxy_pipeop_torch_license()`
+#' @family PipeOpTorch
+#' @export
 #' @examples
 #' # po
 #' obj = po("nn_layer_norm", n_dim = 2)
@@ -33,17 +47,9 @@
 #' obj = pot("layer_norm", n_dim = 2)
 #' obj$id
 #'
-#' @template torch_license_docu
-#'
-#' @family PipeOpTorch
-#' @template param_id
-#' @template param_param_vals
-#'
-#' @export
 PipeOpTorchLayerNorm = R6Class("PipeOpTorchLayerNorm",
   inherit = PipeOpTorch,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "nn_layer_norm", param_vals = list()) {
       param_set = ps(
         n_dim = p_int(lower = 1L, tags = c("train", "required")),

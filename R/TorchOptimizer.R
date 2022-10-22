@@ -5,7 +5,7 @@
 #' @param x (any)\cr
 #'   Object to convert to a [`TorchOptimizer`].
 #' @param clone (`logical(1)`\cr
-#'   Whether to make a deep clone.
+#'   Whether to make a deep clone. Default is `FALSE`.
 #' @param ...
 #' @export
 as_torch_optimizer = function(x, clone = FALSE, ...) {
@@ -29,17 +29,46 @@ as_torch_optimizer.character = function(x, ...) { # nolint
 }
 
 #' @title Torch Optimizer
+#'
+#' @usage NULL
+#' @format [R6::R6Class]
 #' @description
 #' This wraps a `torch::torch_optimizer_generator`.
-#' Can be used to configure the `optimizer` of a [`ModelDescriptor`]..
+#' Can be used to configure the `optimizer` of a [`ModelDescriptor`].
 #'
-#' For a list of available parameters, seen [`mlr3torch_optimizers`].
+#' For a list of available optimizersparameters, seen [`mlr3torch_optimizers`].
 #'
-#' @param torch_optimizer (`torch_optimizer_generator`)\cr
+#' @section Construction
+#' ```
+#' TorchOptimizer$new(torch_optimizer, param_set = NULL, label = deparse(substitute(torch_optimizer))[[1]],
+#'   packages = "torch")
+#' ```
+#'
+#' * `torch_optimizer` :: (`torch_optimizer_generator`)\cr
 #'   A generator for an optimizer.
-#' @template param_param_set
-#' @template param_label
-#' @template param_packages
+#' * `param_set`
+#' * `param_label`
+#' * `param_packages`
+#'
+#' @section Fields:
+#' * `label` :: `character(1)`\cr
+#'  The label for the object.
+#' * `task_types` :: `character()`\cr
+#'  The task types that are supported.
+#' * `loss` :: `
+#'   The generator of the optimizer.
+#' * `param_set` :: `paradox::ParamSet`\cr
+#'   The parameter set.
+#' * `packages` :: `character()`\cr
+#'   The packages this optimizer requires.
+#'
+#' @section Methods:
+#' * `get_optimizer(params)`\cr
+#'   (`list` of [`torch::nn_parameter`]) -> `torch_optimizer()`
+#'   Initializes the torch loss for the provided params (network) for the fiven parameter values (`ParamSet`).
+#'
+#' @family TorchLoss
+#' @export
 #' @examples
 #' # Create a new Torch Optimizer
 #' opt = TorchOptimizer$new(torch::optim_adam, label = "adam")
@@ -49,20 +78,12 @@ as_torch_optimizer.character = function(x, ...) { # nolint
 #' # Create the optimizer for a network
 #' net = nn_linear(10, 1)
 #' o = opt$get_optimizer(net$parameters)
-#' @export
 TorchOptimizer = R6::R6Class("TorchOptimizer",
   public = list(
-    #' @template field_label
     label = NULL,
-    #' @field optimizer (`torch_optimizer_generator`)\cr
-    #'   The generator of the optimizer.
     optimizer = NULL,
-    #' @template field_param_set
     param_set = NULL,
-    #' @template field_packages
     packages = NULL,
-    #' @description
-    #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(torch_optimizer, param_set = NULL, label = deparse(substitute(torch_optimizer))[[1]],
       packages = "torch") {
       assert_r6(param_set, "ParamSet", null.ok = TRUE)

@@ -20,8 +20,6 @@
 #' * `p` :: `numeric(1)`\cr
 #'   The dropout probability.
 #'
-#' `r include_template("generic_parameters")`
-#'
 #' @templateVar id classif.mlp
 #' @template learner
 #' @template example

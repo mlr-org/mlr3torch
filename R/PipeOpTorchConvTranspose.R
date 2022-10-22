@@ -1,18 +1,22 @@
-#' @title Transpose Convolution
+#' @title Base Class Transpose Convolution
 #'
 #' @usage NULL
 #' @name pipeop_torch_conv_transpose
-#' @template pipeop_torch_format
+#' @format `r roxy_pipeop_torch_format()`
 #'
 #' @description
 #' Base class for transpose convolution.
 #' Don't use this class directly.
 #'
-#' @section Module:
-#' See the respective child class.
+#' @section Construction: `r roxy_pipeop_torch_construction("ConvTranspose")`
+#' `r roxy_param_id()`
+#' `r roxy_param_param_vals()`
+#' `r roxy_param_module_generator()`
+#' * `d` :: `integer(1)`\cr
+#'   The dimension of the transpose convolution.
 #'
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch_state_default
+#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
+#' @section State: `r roxy_pipeop_torch_state_default()`
 #'
 #' @section Parameters:
 #' * `out_channels` :: `integer(1)`\cr
@@ -34,22 +38,17 @@
 #' * `padding_mode` :: `character(1)`\cr
 #'   The padding mode. One of `"zeros"`, `"reflect"`, `"replicate"`, or `"circular"`. Default is `"zeros"`.
 #'
-#' @template torch_license_docu
+#' @section Internals:
+#' See the respective child class.
 #'
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
-#' @param d (`integer(1)`)\cr
-#'   The dimension of the convolution.
-#' @param module_generator (`nn_module_generator`)\cr
-#'   The module generator for the corresponding `<n>`-dimension convolution.
-#' @template param_id
-#' @template param_param_vals
-#'
 #' @export
 PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",
   inherit = PipeOpTorch,
   public = list(
-    #' @description
-    #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id, d, module_generator, param_vals = list()) {
       private$.d = assert_int(d)
 
@@ -98,29 +97,34 @@ PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",
 #'
 #' @usage NULL
 #' @name pipeop_torch_conv_transpose1d
-#' @template pipeop_torch_format
+#' @format `r roxy_pipeop_torch_format()`
 #'
 #' @inherit torch::nnf_conv_transpose1d description
 #'
-#' @section Module:
-#' Calls [`torch::nn_conv_transpose1d()`]
+#' @section Construction: `r roxy_pipeop_torch_construction("ConvTranspose1D")`
+#' `r roxy_param_id("nn_conv_transpose1d")`
+#' `r roxy_param_param_vals()`
 #'
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch_state_default
+#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
+#'
+#' @section State: `r roxy_pipeop_torch_state_default()`
 #'
 #' @inheritSection pipeop_torch_conv_transpose Parameters
 #'
-#' @template torch_license_docu
+#' @section Internals:
+#' Calls [`torch::nn_conv_transpose1d()`]
 #'
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
-#' @template param_id
-#' @template param_param_vals
-#'
 #' @export
+#' @examples
+#' TODO:
 PipeOpTorchConvTranspose1D = R6Class("PipeOpTorchConvTranspose1D", inherit = PipeOpTorchConvTranspose,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
-    initialize = function(id = "conv1d", param_vals = list()) {
+    initialize = function(id = "conv_transpose1d", param_vals = list()) {
       super$initialize(id = id, d = 1, module_generator = nn_conv1d, param_vals = param_vals)
     }
   )
@@ -131,25 +135,30 @@ PipeOpTorchConvTranspose1D = R6Class("PipeOpTorchConvTranspose1D", inherit = Pip
 #'
 #' @usage NULL
 #' @name pipeop_torch_conv_transpose2d
-#' @template pipeop_torch_format
+#' @format `r roxy_pipeop_torch_format()`
 #'
 #' @inherit torch::nnf_conv_transpose2d description
 #'
-#' @section Module:
+#' @section Construction: `r roxy_pipeop_torch_construction("ConvTranspose2D")`
+#' `r roxy_param_id("nn_conv_transpose2d")`
+#' `r roxy_param_param_vals()`
+#'
+#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
+#'
+#' @section State: `r roxy_pipeop_torch_state_default()`
+#'
+#' @inheritSection pipeop_torch_conv_transpose Parameters
+#'
+#' @section Internals:
 #' Calls [`torch::nn_conv_transpose2d()`]
 #'
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch_state_default
-#'
-#' @inheritSection pipeops_torch_conv_transpose Parameters
-#'
-#' @template torch_license_docu
-#'
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
-#' @template param_id
-#' @template param_param_vals
-#'
 #' @export
+#' @examples
+#' TODO:
 PipeOpTorchConvTranspose2D = R6Class("PipeOpTorchConvTranspose2D", inherit = PipeOpTorchConvTranspose,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.
@@ -163,25 +172,30 @@ PipeOpTorchConvTranspose2D = R6Class("PipeOpTorchConvTranspose2D", inherit = Pip
 #'
 #' @usage NULL
 #' @name pipeop_torch_conv_transpose3d
-#' @template pipeop_torch_format
+#' @format `r roxy_pipeop_torch_format()`
 #'
 #' @inherit torch::nnf_conv_transpose3d description
 #'
-#' @section Module:
+#' @section Construction: `r roxy_pipeop_torch_construction("ConvTranspose3D")`
+#' `r roxy_param_id("nn_conv_transpose3d")`
+#' `r roxy_param_param_vals()`
+#'
+#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
+#'
+#' @section State: `r roxy_pipeop_torch_state_default()`
+#'
+#' @inheritSection pipeop_torch_conv_transpose Parameters
+#'
+#' @section Internals:
 #' Calls [`torch::nn_conv_transpose3d()`]
 #'
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch_state_default
-#'
-#' @inheritSection pipeops_torch_conv_transpose Parameters
-#'
-#' @template torch_license_docu
-#'
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
-#' @template param_id
-#' @template param_param_vals
-#'
 #' @export
+#' @examples
+#' TODO:
 PipeOpTorchConvTranspose3D = R6Class("PipeOpTorchConvTranspose3D", inherit = PipeOpTorchConvTranspose,
   public = list(
     #' @description Initializes an instance of this [R6][R6::R6Class] class.

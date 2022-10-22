@@ -7,8 +7,8 @@
 nn_merge_cat(dim)
 }
 \arguments{
-\item{dim}{(\code{integer(1)}\cr
-The dimension for the concatenation.)}
+\item{dim}{(\code{integer(1)})\cr
+The dimension for the concatenation.}
 }
 \description{
 Concatenates multiple tensors on a given dimension.

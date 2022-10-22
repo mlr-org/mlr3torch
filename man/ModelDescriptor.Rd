@@ -70,3 +70,7 @@ A \code{ModelDescriptor} can be converted to a \code{\link{nn_graph}} via \code{
 See the description of the parameters.
 }
 
+\seealso{
+model_descriptor_to_module, model_descriptor_union, PipeOpTorch, PipeOpModule, PipeOpTorchIngress,
+TorchIngressToken
+}

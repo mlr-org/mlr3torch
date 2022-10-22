@@ -1,39 +1,41 @@
 #' @title Softmax
 #'
 #' @usage NULL
-#' @name pipeop_torch_softmax
-#' @template pipeop_torch_format
+#' @name mlr_pipeops_torch_softmax
+#' @format `r roxy_pipeop_torch_format()`
 #'
 #' @inherit torch::nnf_softmax description
 #'
-#' @section Module:
-#' Calls [`torch::nn_softmax()`] when trained.
+#' @section Construction: `r roxy_pipeop_torch_construction("Softmax")`
+#' `r roxy_param_id("softmax")`
+#' `r roxy_param_param_vals()`
 #'
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch_state_default
+#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
+#'
+#' @section State: `r roxy_pipeop_torch_state_default()`
 #'
 #' @section Parameters:
 #' * `dim` :: `integer(1)`\cr
 #'   A dimension along which Softmax will be computed (so every slice along dim will sum to 1).
 #'
+#' @section Internals:
+#' Calls [`torch::nn_softmax()`] when trained.
+#'
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Credit: `r roxy_pipeop_torch_license()`
+#' @family PipeOpTorch
+#' @export
 #' @examples
 #' # po
-#' obj = po("nn_linear", out_features = 10)
+#' obj = po("nn_softmax")
 #' obj$id
 #' obj$module_generator
 #' obj$shapes_out(c(16, 5, 7))
 #'
 #' # pot
-#' obj = pot("linear", out_features = 10)
+#' obj = pot("softmax")
 #' obj$id
-#'
-#' @template torch_license_docu
-#'
-#' @family PipeOpTorch
-#' @template param_id
-#' @template param_param_vals
-#'
-#' @export
 PipeOpTorchSoftmax = R6::R6Class("PipeOpTorchSoftmax",
   inherit = PipeOpTorch,
   public = list(

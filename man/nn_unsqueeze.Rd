@@ -6,6 +6,10 @@
 \usage{
 nn_unsqueeze(dim)
 }
+\arguments{
+\item{dim}{(\code{integer(1)})\cr
+The dimension to unsqueeze.}
+}
 \description{
-Unsqueezes a tensor.
+Unsqueezes a tensor by calling \code{\link[torch:torch_unsqueeze]{torch::torch_unsqueeze()}} with the given dimension \code{dim}.
 }

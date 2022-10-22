@@ -3,11 +3,33 @@
 #' @description
 #' Use this as entry-point to mlr3torch-networks.
 #'
-#' @template param_param_vals
-#' @template param_param_set
-#' @template param_id
+#' @section Construction:
+#' ```
+#' PipeOpTorchIngress$new(id, param_set = ps(), param_vals = list(),
+#'   input = data.table(name = "input", train = "Task", predict = "Task"),
+#'   output = data.table(name = "output", train = "ModelDescriptor", predict = "Task"),
+#'   packages = character(0), feature_types)
+#' ```
+#' `r roxy_pipeop_torch_id()`
+#' `r roxy_pipeop_torch_param_set()`
+#' `r roxy_pipeop_torch_param_vals()`
+#' * `input` :: `data.table()`\cr
+#'   The input channels for this `PipeOp`. See [`PipeOp`] for an explanation.
+#' * `output` :: `data.table()`\cr
+#'   The output channels for this `PipeOp`. See [`PipeOp`] for an explanation.
+#' * `packages` :: `character() cr
+#'   The packages this `PipeOpTorchIngress` depends on.
+#'
+#' @section Input and Output Channels:
+#' @section State:
+#'
+#' @section Parameters:
+#'
+#'
 #'
 #' @export
+#' @example
+#' # TODO:
 PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
   inherit = PipeOp,
   public = list(
@@ -108,7 +130,7 @@ print.TorchIngressToken = function(x, ...) {
 
 
 #' @title Torch Entry Point for Numeric Features
-#' @description
+#' @description Numeric Ingress
 #'
 PipeOpTorchIngressNumeric = R6Class("PipeOpTorchIngressNumeric",
   inherit = PipeOpTorchIngress,

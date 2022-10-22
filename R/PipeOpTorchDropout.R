@@ -1,16 +1,20 @@
 #' @title Dropout
 #'
 #' @usage NULL
-#' @name pipeop_torch_dropout
-#' @template pipeop_torch_format
+#' @name mlr_pipeops_torch_dropout
+#' @format `r roxy_pipeop_torch_format()`
 #'
 #' @inherit torch::nnf_dropout description
 #'
-#' @section Module:
-#' Calls [`torch::nn_dropout()`] when trained.
+#' @section Construction:
+#' ```
+#' PipeOpTorchDropout$new()id = "nn_dropout", param_vals = list()
+#' ```
+#' `r roxy_param_id("nn_layer_norm")`
+#' `r roxy_param_param_vals()`
 #'
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch_state_default
+#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
+#' @section State: `r roxy_pipeop_torch_state_default()`
 #'
 #' @section Parameters:
 #' * `p` :: `numeric(1)`\cr
@@ -18,6 +22,14 @@
 #' * `inplace` :: `logical(1)`\cr
 #'   If set to `TRUE`, will do this operation in-place. Default: `FALSE.`
 #'
+#' @section Internals:
+#' Calls [`torch::nn_dropout()`] when trained.
+#'
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Credit: `r roxy_pipeop_torch_license()`
+#' @family PipeOpTorch
+#' @export
 #' @examples
 #' # po
 #' obj = po("nn_dropout")
@@ -29,13 +41,6 @@
 #' obj = pot("dropout")
 #' obj$id
 #'
-#' @template torch_license_docu
-#'
-#' @family PipeOpTorch
-#' @template param_id
-#' @template param_param_vals
-#'
-#' @export
 PipeOpTorchDropout = R6Class("PipeOpTorchDropout",
   inherit = PipeOpTorch,
   public = list(

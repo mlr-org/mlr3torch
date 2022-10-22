@@ -2,15 +2,12 @@
 #'
 #' @usage NULL
 #' @name pipeop_torch_linear
-#' @template pipeop_torch_format
+#' @format `r roxy_pipeop_torch_format()`
 #'
 #' @inherit torch::nnf_linear description
 #'
-#' @section Module:
-#' Calls [`torch::nn_linear()`] when trained.
-#'
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch_state_default
+#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
+#' @section State: `r roxy_pipeop_torch_state_default()`
 #'
 #' @section Parameters:
 #' * `out_features` :: `integer(1)`\cr
@@ -19,6 +16,14 @@
 #'   Whether to use a bias.
 #'   Default is `TRUE`.
 #'
+#' @section Internals:
+#' Calls [`torch::nn_linear()`] when trained.
+#'
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Credit: `r roxy_pipeop_torch_license()`
+#' @family PipeOpTorch
+#' @export
 #' @examples
 #' # po
 #' obj = po("nn_linear", out_features = 10)
@@ -30,17 +35,9 @@
 #' obj = pot("linear", out_features = 10)
 #' obj$id
 #'
-#' @template torch_license_docu
-#'
-#' @family PipeOpTorch
-#' @template param_id
-#' @template param_param_vals
-#'
-#' @export
 PipeOpTorchLinear = R6Class("PipeOpTorchLinear",
   inherit = PipeOpTorch,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "nn_linear", param_vals = list()) {
       param_set = ps(
         out_features = p_int(1L, Inf, tags = c("train", "required")),

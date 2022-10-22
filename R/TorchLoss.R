@@ -28,17 +28,53 @@ as_torch_loss.character = function(x, clone = FALSE) { # nolint
 }
 
 #' @title Torch Loss
+#'
+#' @usage NULL
+#' @name torch_loss
+#' @format [R6::R6Class]
+#'
 #' @description
 #' This wraps a `torch::nn_loss`.
 #' Can be used to configure the `loss` of a [`ModelDescriptor`]..
-#'
 #' For a list of available parameters, seen [`mlr3torch_losses`].
 #'
-#' @param torch_loss (`nn_loss`)\cr
-#'   A generator for a loss.
-#' @template param_param_set
-#' @template param_label
-#' @template param_packages
+#' @section Construction:
+#' ```
+#' TorchLoss$new(torch_loss, task_types, param_set = NULL, label = deparse(substitute(torch_loss))[[1]],
+#' packages = "torch")$new()
+#' ```
+#' * `torch_loss` :: `nn_loss`\cr
+#'   The loss module.
+#' * `task_types` :: `character()`\cr
+#'   The task types supported by this loss.
+#' * `label` :: `character(1)`\cr
+#'   The label for the `TorchLoss`.
+#' * `packages` :: `character()`\cr
+#'   The packages this loss depends on.
+#' `r roxy_param_param_set()`
+#'
+#' @section Parameters:
+#' Defined by the constructor argument `param_set`.
+#'
+#' @section Fields:
+#' * `label` :: `character(1)`\cr
+#'  The label for the object.
+#' * `task_types` :: `character()`\cr
+#'  The task types that are supported.
+#' * `loss` :: `
+#'   The generator of the loss function.
+#' * `param_set` :: `paradox::ParamSet`\cr
+#'   The parameter set.
+#' * `packages` :: `character()`\cr
+#'   The packages this loss requires.
+#'
+#' @section Methods:
+#' * `get_loss()`\cr
+#'   () -> `nn_loss()`
+#'   Initializes the torch loss for the given parameter values.
+#'
+#' @family TorchOptimizer
+#' @export
 #' @examples
 #' # Create a new Torch Loss
 #' loss = TorchLoss$new(torch_loss = torch::nn_mse_loss, task_types = "regr")
@@ -47,23 +83,15 @@ as_torch_loss.character = function(x, clone = FALSE) { # nolint
 #' # Construct the actual loss function
 #' l = loss$get_loss
 #'
-#' @export
 TorchLoss = R6::R6Class("TorchLoss",
   public = list(
-    #' @template field_label
     label = NULL,
-    #' @template field_task_types
     task_types = NULL,
-    #' @field loss (`nn_loss`)\cr\
-    #'   The generator of the loss function.
     loss = NULL,
-    #' @field param_param_set
     param_set = NULL,
-    #' @template field_packages
     packages = NULL,
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
-    initialize = function(torch_loss, task_types = NULL, param_set = NULL,
-      label = deparse(substitute(torch_loss))[[1]], packages = "torch") {
+    initialize = function(torch_loss, task_types, param_set = NULL, label = deparse(substitute(torch_loss))[[1]],
+      packages = "torch") {
       assert_r6(param_set, "ParamSet", null.ok = TRUE)
       self$task_types = assert_subset(task_types, mlr_reflections$task_types$type)
       self$label = assert_string(label)

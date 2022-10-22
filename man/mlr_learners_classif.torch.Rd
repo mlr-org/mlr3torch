@@ -4,29 +4,32 @@
 \alias{mlr_learners_classif.torch}
 \alias{LearnerClassifTorch}
 \title{LearnerTorchClassif}
-\arguments{
-\item{id}{(\code{character(1)})\cr
-The id for of the new object.}
-
-\item{param_vals}{(named \code{list()})\cr
-The initial parameters for the object.}
-
-\item{optimizer}{(\code{character()})\cr
-A character string containing the name of the optimizer.
-Possible values are \code{torch_reflections$optimizer}.}
-
-\item{loss}{(\code{character()})\cr
-A character string containing the name of the loss function
-For possible values see \code{torch_reflections$loss}.}
-
-\item{feature_types}{(\code{character()})\cr
-The feature types the learner supports. The default is all feature types.}
-
-\item{network}{(\code{nn_module()})\cr
-An object of class \code{"nn_module"} as defined in \code{torch}.}
+\format{
+\code{\link{R6Class}} inheriting from \code{\link{LearnerClassifTorchAbstract}}.
 }
 \description{
 This implements a custom neural network.
+}
+\section{Internals}{
 
-Initializes an instance of this \link[R6:R6Class]{R6} class.
+TODO:
+}
+
+\section{Parameters}{
+
+The parameter set defined as argument \code{param_set} during construction.
+}
+
+\section{Fields}{
+
+Only fields inherited from \code{\link{LearnerClassifTorch}}, \code{\link{LearnerClassif}} or \code{\link{Learner}}.
+}
+
+\section{Methods}{
+
+Only methods inherited from \code{\link{LearnerClassifTorch}}, \code{\link{LearnerClassif}} or \code{\link{Learner}}.
+}
+
+\examples{
+# TODO:
 }

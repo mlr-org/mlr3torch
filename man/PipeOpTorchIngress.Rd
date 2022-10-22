@@ -3,16 +3,6 @@
 \name{PipeOpTorchIngress}
 \alias{PipeOpTorchIngress}
 \title{Entrypoint to Torch Network}
-\arguments{
-\item{param_vals}{(named \code{list()})\cr
-The initial parameters for the object.}
-
-\item{param_set}{(\code{paradox::ParamSet})\cr
-The parameter set.}
-
-\item{id}{(\code{character(1)})\cr
-The id for of the new object.}
-}
 \description{
 Use this as entry-point to mlr3torch-networks.
 
@@ -24,4 +14,37 @@ Initializes an instance of this \link[R6:R6Class]{R6} class.
 \item{\code{feature_types}}{(\code{character()})\cr
 The feature types used by this ingress operator.}
 }}
+
+\section{Construction}{
+
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{PipeOpTorchIngress$new(id, param_set = ps(), param_vals = list(),
+  input = data.table(name = "input", train = "Task", predict = "Task"),
+  output = data.table(name = "output", train = "ModelDescriptor", predict = "Task"),
+  packages = character(0), feature_types)
+}\if{html}{\out{</div>}}
+
+\verb{r roxy_pipeop_torch_id()}
+\verb{r roxy_pipeop_torch_param_set()}
+\verb{r roxy_pipeop_torch_param_vals()}
+\itemize{
+\item \code{input} :: \code{data.table()}\cr
+The input channels for this \code{PipeOp}. See \code{\link{PipeOp}} for an explanation.
+\item \code{output} :: \code{data.table()}\cr
+The output channels for this \code{PipeOp}. See \code{\link{PipeOp}} for an explanation.
+\item \code{packages} :: \verb{character() cr The packages this }PipeOpTorchIngress` depends on.
+}
+}
+
+\section{Input and Output Channels}{
+
+}
+
+\section{State}{
+
+}
+
+\section{Parameters}{
+
+}
 

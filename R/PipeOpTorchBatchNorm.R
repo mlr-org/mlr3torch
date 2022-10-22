@@ -1,18 +1,24 @@
-#' @title Batch Normalization
+#' @title Base Class for Batch Normalization
 #'
 #' @usage NULL
-#' @name pipeop_torch_batch_norm
-#' @template pipeop_torch_format
+#' @name mlr_pipeops_torch_batch_norm
+#' @format `r roxy_pipeop_torch_format()`
 #'
 #' @description
 #' Base class for batch normalization.
 #' Don't use this class directly.
 #'
-#' @section Module:
-#' See the respective child class.
+#' @section Construction: `r roxy_pipeop_torch_construction("BatchNorm")`
+#' `r roxy_param_id()`
+#' `r roxy_param_param_vals()`
+#' `r roxy_param_module_generator()`
+#' * `min_dim` :: `integer(1)`\cr
+#'   The minimum number of dimension for the input tensor.
+#' * `max_dim` :: `integer(1)`\cr
+#'   The maximum number of dimension for the input tensor.
 #'
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch_state_default
+#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
+#' @section State: `r roxy_pipeop_torch_state_default()`
 #'
 #' @section Parameters:
 #' * `eps` :: `numeric(1)`\cr
@@ -27,12 +33,13 @@
 #'   this module does not track such statistics and always uses batch statistics in both training and eval modes.
 #'   Default: `TRUE`
 #'
-#' @template torch_license_docu
+#' @section Internals:
+#' See the respective child class.
 #'
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
-#' @template param_id
-#' @template param_param_vals
-#'
 #' @export
 PipeOpTorchBatchNorm = R6Class("PipeOpTorchBatchNorm",
   inherit = PipeOpTorch,
@@ -67,16 +74,21 @@ PipeOpTorchBatchNorm = R6Class("PipeOpTorchBatchNorm",
 #' @title 1D Batch Normalization
 #'
 #' @usage NULL
-#' @name pipeop_torch_batch_norm1d
-#' @template pipeop_torch_format
+#' @name mlr_pipeops_torch_batch_norm
+#' @format `r roxy_pipeop_torch_format()`
 #'
-#' @inherit pipeop_torch_batch_norm description
+#' @inherit torch::nnf_batch_norm1d description
 #'
-#' @section Module:
-#' Calls [ `torch::nn_batch_norm1d()`].
+#' @description
+#' Base class for batch normalization.
+#' Don't use this class directly.
 #'
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch_state_default
+#' @section Construction: `r roxy_pipeop_torch_construction("BatchNorm1D")`
+#' `r roxy_param_id("nn_batch_norm_1d")`
+#' `r roxy_param_param_vals()`
+#'
+#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
+#' @section State: `r roxy_pipeop_torch_state_default()`
 #'
 #' @section Parameters:
 #' * `eps` :: `numeric(1)`\cr
@@ -91,12 +103,13 @@ PipeOpTorchBatchNorm = R6Class("PipeOpTorchBatchNorm",
 #'   this module does not track such statistics and always uses batch statistics in both training and eval modes.
 #'   Default: `TRUE`
 #'
-#' @template torch_license_docu
+#' @section Internals:
+#' See the respective child class.
 #'
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
-#' @template param_id
-#' @template param_param_vals
-#'
 #' @export
 PipeOpTorchBatchNorm1D = R6Class("PipeOpTorchBatchNorm1D", inherit = PipeOpTorchBatchNorm,
   public = list(
@@ -107,19 +120,20 @@ PipeOpTorchBatchNorm1D = R6Class("PipeOpTorchBatchNorm1D", inherit = PipeOpTorch
   )
 )
 
-#' @title 1D Batch Normalization
+#' @title 2D Batch Normalization
 #'
 #' @usage NULL
-#' @name pipeop_torch_batch_norm1d
-#' @template pipeop_torch_format
+#' @name mlr_pipeops_torch_batch_norm
+#' @format `r roxy_pipeop_torch_format()`
 #'
-#' @inheritSection pipeops_torch_batch_norm description
+#' @inherit torch::nnf_batch_norm2d description
 #'
-#' @section Module:
-#' Calls [ `torch::nn_batch_norm1d()`].
+#' @section Construction: `r roxy_pipeop_torch_construction("BatchNorm2D")`
+#' `r roxy_param_id("nn_batch_norm_2d")`
+#' `r roxy_param_param_vals()`
 #'
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch_state_default
+#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
+#' @section State: `r roxy_pipeop_torch_state_default()`
 #'
 #' @section Parameters:
 #' * `eps` :: `numeric(1)`\cr
@@ -134,12 +148,13 @@ PipeOpTorchBatchNorm1D = R6Class("PipeOpTorchBatchNorm1D", inherit = PipeOpTorch
 #'   this module does not track such statistics and always uses batch statistics in both training and eval modes.
 #'   Default: `TRUE`
 #'
-#' @template torch_license_docu
+#' @section Internals:
+#' See the respective child class.
 #'
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
-#' @template param_id
-#' @template param_param_vals
-#'
 #' @export
 PipeOpTorchBatchNorm2D = R6Class("PipeOpTorchBatchNorm2D", inherit = PipeOpTorchBatchNorm,
   public = list(
@@ -150,19 +165,20 @@ PipeOpTorchBatchNorm2D = R6Class("PipeOpTorchBatchNorm2D", inherit = PipeOpTorch
   )
 )
 
-#' @title 1D Batch Normalization
+#' @title 3D Batch Normalization
 #'
 #' @usage NULL
-#' @name pipeop_torch_batch_norm1d
-#' @template pipeop_torch_format
+#' @name mlr_pipeops_torch_batch_norm
+#' @format `r roxy_pipeop_torch_format()`
 #'
-#' @inheritSection pipeops_torch_batch_norm description
+#' @inherit torch::nnf_batch_norm3d description
 #'
-#' @section Module:
-#' Calls [ `torch::nn_batch_norm1d()`].
+#' @section Construction: `r roxy_pipeop_torch_construction("BatchNorm3D")`
+#' `r roxy_param_id("nn_batch_norm_3d")`
+#' `r roxy_param_param_vals()`
 #'
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch_state_default
+#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
+#' @section State: `r roxy_pipeop_torch_state_default()`
 #'
 #' @section Parameters:
 #' * `eps` :: `numeric(1)`\cr
@@ -177,12 +193,13 @@ PipeOpTorchBatchNorm2D = R6Class("PipeOpTorchBatchNorm2D", inherit = PipeOpTorch
 #'   this module does not track such statistics and always uses batch statistics in both training and eval modes.
 #'   Default: `TRUE`
 #'
-#' @template torch_license_docu
+#' @section Internals:
+#' See the respective child class.
 #'
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
-#' @template param_id
-#' @template param_param_vals
-#'
 #' @export
 PipeOpTorchBatchNorm3D = R6Class("PipeOpTorchBatchNorm3D", inherit = PipeOpTorchBatchNorm,
   public = list(
