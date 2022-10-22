@@ -44,7 +44,6 @@
 PipeOpTorchDropout = R6Class("PipeOpTorchDropout",
   inherit = PipeOpTorch,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "nn_dropout", param_vals = list()) {
       param_set = ps(
         p = p_dbl(default = 0.5, lower = 0, upper = 1, tags = "train"),

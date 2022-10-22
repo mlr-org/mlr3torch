@@ -32,13 +32,11 @@
 #'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
-#' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
 PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
   inherit = PipeOpTorch,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id, module_generator, param_set = ps(), innum = 0, param_vals = list()) {
       private$.innum = assert_int(innum, lower = 0)
       inname = if (innum == 0) "..." else paste0("input", seq_len(innum))
@@ -96,7 +94,6 @@ PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
 #'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
-#' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
 #' @examples
@@ -111,7 +108,6 @@ PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
 #' obj$id
 PipeOpTorchMergeSum = R6Class("PipeOpTorchMergeSum", inherit = PipeOpTorchMerge,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "nn_merge_sum", innum = 0, param_vals = list()) {
       super$initialize(
         id = id,
@@ -130,7 +126,7 @@ PipeOpTorchMergeSum = R6Class("PipeOpTorchMergeSum", inherit = PipeOpTorchMerge,
 #' @name mlr_pipeops_torch_merge_prod
 #' @format `r roxy_pipeop_torch_format()`
 #'
-#' @inherit torch::nnf_merge_prod description
+#' @inherit nn_merge_prod description
 #'
 #' @section Construction:
 #' ```
@@ -152,7 +148,6 @@ PipeOpTorchMergeSum = R6Class("PipeOpTorchMergeSum", inherit = PipeOpTorchMerge,
 #'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
-#' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
 #' @examples
@@ -168,7 +163,6 @@ PipeOpTorchMergeSum = R6Class("PipeOpTorchMergeSum", inherit = PipeOpTorchMerge,
 #'
 PipeOpTorchMergeProd = R6Class("PipeOpTorchMergeProd", inherit = PipeOpTorchMerge,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "nn_merge_prod", innum = 0, param_vals = list()) {
       super$initialize(
         id = id,
@@ -186,7 +180,7 @@ PipeOpTorchMergeProd = R6Class("PipeOpTorchMergeProd", inherit = PipeOpTorchMerg
 #' @name mlr_pipeops_torch_merge_cat
 #' @format `r roxy_pipeop_torch_format()`
 #'
-#' @inherit torch::nnf_merge_cat description
+#' @inherit nn_merge_cat description
 #'
 #' @section Construction:
 #' ```
@@ -208,7 +202,6 @@ PipeOpTorchMergeProd = R6Class("PipeOpTorchMergeProd", inherit = PipeOpTorchMerg
 #'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
-#' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
 #' @examples
@@ -224,7 +217,6 @@ PipeOpTorchMergeProd = R6Class("PipeOpTorchMergeProd", inherit = PipeOpTorchMerg
 #'
 PipeOpTorchMergeCat = R6Class("PipeOpTorchMergeCat", inherit = PipeOpTorchMerge,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "nn_merge_cat", innum = 0, param_vals = list()) {
       param_set = ps(dim = p_int(tags = c("train", "required")))
       param_set$values$dim = -1

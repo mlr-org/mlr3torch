@@ -4,5 +4,5 @@
 \alias{LearnerClassifTorchModel}
 \title{LearnerClassifTorchModel}
 \description{
-Initializes an instance of this \link[R6:R6Class]{R6} class.
+Create
 }

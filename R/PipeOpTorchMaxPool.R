@@ -1,9 +1,7 @@
 #' @title Base Class for Max Pooling
 #'
 #' @usage NULL
-#' @name
-#'
-#' jkjpipeop_torch_max_pool
+#' @name mlr_pipeops_torch_max_pool
 #' @format `r roxy_pipeop_torch_format()`
 #'
 #' @description
@@ -57,7 +55,6 @@ PipeOpTorchMaxPool = R6Class("PipeOpTorchMaxPool",
     initialize = function(id, d, return_indices = FALSE, param_vals = list()) {
       private$.d = assert_int(d, lower = 1, upper = 3, coerce = TRUE)
       module_generator = switch(private$.d, nn_max_pool1d, nn_max_pool2d, nn_max_pool3d)
-q
       param_set = ps(
         kernel_size = p_uty(custom_check = check_vector(d), tags = c("required", "train")),
         stride = p_uty(default = NULL, custom_check = check_vector(d), tags = "train"),
@@ -102,7 +99,7 @@ q
 #' @title 1D Max Pooling
 #'
 #' @usage NULL
-#' @name pipeop_torch_max_pool1d
+#' @name mlr_pipeops_torch_max_pool1d
 #' @format `r roxy_pipeop_torch_format()`
 #'
 #' @inherit torch::nnf_max_pool1d description
@@ -116,10 +113,10 @@ q
 #' * `return_indices` :: `logical(1)`\cr
 #'   Whether to return the indices as well, in which case there are two output channels `"output"` and `"indices"`.
 #'
-#' @inheritSection pipeop_torch_max_pool Input and Output Channels
+#' @inheritSection mlr_pipeops_torch_max_pool Input and Output Channels
 #' @section State: `r roxy_pipeop_torch_state_default()`
 #'
-#' @inheritSection pipeop_torch_max_pool Parameters
+#' @inheritSection mlr_pipeops_torch_max_pool Parameters
 #'
 #' @section Internals:
 #' Calls [`torch::nn_max_pool3d()`] during training.
@@ -144,7 +141,6 @@ q
 #'
 PipeOpTorchMaxPool1D = R6Class("PipeOpTorchMaxPool1D", inherit = PipeOpTorchMaxPool,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "nn_max_pool1d", return_indices = FALSE, param_vals = list()) {
       super$initialize(id = id, d = 1, return_indices = return_indices, param_vals = param_vals)
     }
@@ -154,7 +150,7 @@ PipeOpTorchMaxPool1D = R6Class("PipeOpTorchMaxPool1D", inherit = PipeOpTorchMaxP
 #' @title 2D Max Pooling
 #'
 #' @usage NULL
-#' @name pipeop_torch_max_pool2d
+#' @name mlr_pipeops_torch_max_pool2d
 #' @format `r roxy_pipeop_torch_format()`
 #'
 #' @inherit torch::nnf_max_pool2d description
@@ -168,16 +164,16 @@ PipeOpTorchMaxPool1D = R6Class("PipeOpTorchMaxPool1D", inherit = PipeOpTorchMaxP
 #' * `return_indices` :: `logical(1)`\cr
 #'   Whether to return the indices as well, in which case there are two output channels `"output"` and `"indices"`.
 #'
-#' @inheritSection pipeop_torch_max_pool Input and Output Channels
+#' @inheritSection mlr_pipeops_torch_max_pool Input and Output Channels
 #' @section State: `r roxy_pipeop_torch_state_default()`
 #'
-#' @inheritSection pipeop_torch_max_pool Parameters
+#' @inheritSection mlr_pipeops_torch_max_pool Parameters
 #'
 #' @section Internals:
 #' Calls [`torch::nn_max_pool2d()`] during training.
 #'
-#' @Section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @Section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -194,7 +190,6 @@ PipeOpTorchMaxPool1D = R6Class("PipeOpTorchMaxPool1D", inherit = PipeOpTorchMaxP
 #'
 PipeOpTorchMaxPool2D = R6Class("PipeOpTorchMaxPool2D", inherit = PipeOpTorchMaxPool,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "nn_max_pool2d", return_indices = FALSE, param_vals = list()) {
       super$initialize(id = id, d = 2, return_indices = return_indices, param_vals = param_vals)
     }
@@ -205,7 +200,7 @@ PipeOpTorchMaxPool2D = R6Class("PipeOpTorchMaxPool2D", inherit = PipeOpTorchMaxP
 #' @title 3D Max Pooling
 #'
 #' @usage NULL
-#' @name pipeop_torch_max_pool3d
+#' @name mlr_pipeops_torch_max_pool3d
 #' @format `r roxy_pipeop_torch_format()`
 #'
 #' @inherit torch::nnf_max_pool3d description
@@ -219,16 +214,16 @@ PipeOpTorchMaxPool2D = R6Class("PipeOpTorchMaxPool2D", inherit = PipeOpTorchMaxP
 #' * `return_indices` :: `logical(1)`\cr
 #'   Whether to return the indices as well, in which case there are two output channels `"output"` and `"indices"`.
 #'
-#' @inheritSection pipeop_torch_max_pool Input and Output Channels
+#' @inheritSection mlr_pipeops_torch_max_pool Input and Output Channels
 #' @section State: `r roxy_pipeop_torch_state_default()`
 #'
-#' @inheritSection pipeop_torch_max_pool Parameters
+#' @inheritSection mlr_pipeops_torch_max_pool Parameters
 #'
 #' @section Internals:
 #' Calls [`torch::nn_max_pool3d()`] during training.
 #'
-#' @Section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @Section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -244,7 +239,6 @@ PipeOpTorchMaxPool2D = R6Class("PipeOpTorchMaxPool2D", inherit = PipeOpTorchMaxP
 #' obj$id
 PipeOpTorchMaxPool3D = R6Class("PipeOpTorchMaxPool3D", inherit = PipeOpTorchMaxPool,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "nn_max_pool3d", return_indices = FALSE, param_vals = list()) {
       super$initialize(id = id, d = 3, return_indices = return_indices, param_vals = param_vals)
     }

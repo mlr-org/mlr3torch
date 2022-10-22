@@ -31,7 +31,7 @@ as_torch_loss.character = function(x, clone = FALSE) { # nolint
 #'
 #' @usage NULL
 #' @name torch_loss
-#' @format [R6::R6Class]
+#' @format [`R6Class`]
 #'
 #' @description
 #' This wraps a `torch::nn_loss`.
@@ -43,6 +43,7 @@ as_torch_loss.character = function(x, clone = FALSE) { # nolint
 #' TorchLoss$new(torch_loss, task_types, param_set = NULL, label = deparse(substitute(torch_loss))[[1]],
 #' packages = "torch")$new()
 #' ```
+#' `r roxy_param_param_set()`
 #' * `torch_loss` :: `nn_loss`\cr
 #'   The loss module.
 #' * `task_types` :: `character()`\cr
@@ -51,7 +52,6 @@ as_torch_loss.character = function(x, clone = FALSE) { # nolint
 #'   The label for the `TorchLoss`.
 #' * `packages` :: `character()`\cr
 #'   The packages this loss depends on.
-#' `r roxy_param_param_set()`
 #'
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
@@ -70,7 +70,7 @@ as_torch_loss.character = function(x, clone = FALSE) { # nolint
 #'
 #' @section Methods:
 #' * `get_loss()`\cr
-#'   () -> `nn_loss()`
+#'   () -> `nn_loss()`\cr
 #'   Initializes the torch loss for the given parameter values.
 #'
 #' @family TorchOptimizer
@@ -82,7 +82,6 @@ as_torch_loss.character = function(x, clone = FALSE) { # nolint
 #' loss$param_set
 #' # Construct the actual loss function
 #' l = loss$get_loss
-#'
 TorchLoss = R6::R6Class("TorchLoss",
   public = list(
     label = NULL,

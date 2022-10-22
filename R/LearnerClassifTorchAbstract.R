@@ -1,8 +1,16 @@
 #' @title Abstract Base Class for Torch Classification Network
+#'
+#' @usage NULL
+#' @name mlr_learners_classif.torch_abstract
 #' @description
 #' All Torch Classification Learners should inherit from this base class.
 #' It implements basic functionality that can be reused for all sort of learners
 #' It is not intended for direct use.
+#'
+#' @section Construction:
+#' ```
+#' LearnerClassifTorchAbstract$new()
+#' ```
 #'
 #' @param id (`character(1)`)\cr
 #'   The id of the learner.

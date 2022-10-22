@@ -5,11 +5,6 @@
 TorchOpTabTokenizer = R6Class("TorchOpTabularTokenizer",
   inherit = TorchOp,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
-    #' @param id (`character(1)`)\cr
-    #'   The id for of the object.
-    #' @param param_vals (named `list()`)\cr
-    #'   The initial parameters for the object.
     initialize = function(id = "tab_tokenizer", param_vals = list()) {
       param_set = ps(
         d_token = p_int(1L, Inf, tags = c("train", "required")),

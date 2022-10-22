@@ -7,7 +7,7 @@
 #' @description
 #' This implements a custom neural network.
 #'
-#' @section Construction
+#' @section Construction:
 #' ```
 #' LearnerClassifTorch$new(module, param_set = NULL, optimizer = t_opt("adam"), loss = t_loss("cross_entropy"),
 #'   param_vals = list(), feature_types = NULL)

@@ -39,7 +39,6 @@
 PipeOpTorchSoftmax = R6::R6Class("PipeOpTorchSoftmax",
   inherit = PipeOpTorch,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "nn_softmax", param_vals = list()) {
       param_set = ps(
         dim = p_int(1L, Inf, tags = c("train", "required"))

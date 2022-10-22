@@ -5,7 +5,7 @@
 \alias{TorchLoss}
 \title{Torch Loss}
 \format{
-\link[R6:R6Class]{R6::R6Class}
+\code{\link{R6Class}}
 }
 \description{
 This wraps a \code{torch::nn_loss}.
@@ -19,6 +19,7 @@ For a list of available parameters, seen \code{\link{mlr3torch_losses}}.
 packages = "torch")$new()
 }\if{html}{\out{</div>}}
 \itemize{
+\item \code{param_set} :: \code{paradox::ParamSet}\cr The parameter set.
 \item \code{torch_loss} :: \code{nn_loss}\cr
 The loss module.
 \item \code{task_types} :: \code{character()}\cr
@@ -27,7 +28,6 @@ The task types supported by this loss.
 The label for the \code{TorchLoss}.
 \item \code{packages} :: \code{character()}\cr
 The packages this loss depends on.
-\verb{r roxy_param_param_set()}
 }
 }
 
@@ -56,7 +56,7 @@ The packages this loss requires.
 
 \itemize{
 \item \code{get_loss()}\cr
-() -> \code{nn_loss()}
+() -> \code{nn_loss()}\cr
 Initializes the torch loss for the given parameter values.
 }
 }
@@ -68,6 +68,5 @@ loss = TorchLoss$new(torch_loss = torch::nn_mse_loss, task_types = "regr")
 loss$param_set
 # Construct the actual loss function
 l = loss$get_loss
-
 }
 \concept{TorchOptimizer}

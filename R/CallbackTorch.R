@@ -10,10 +10,6 @@ CallbackTorch = R6::R6Class("CallbackTorch",
   lock_objects = FALSE,
   cloneable = FALSE,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
-    #'
-    #' @param id (`character(1)`)\cr
-    #'   Identifier for the new callback.
     initialize = function(state) {
       self$state = assert_r6(state, "TorchState")
     },

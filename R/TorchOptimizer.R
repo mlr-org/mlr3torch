@@ -1,4 +1,5 @@
 #' @title Convert to TorchOptimizer
+#'
 #' @description
 #' Converts an object to a [`TorchOptimizer`].
 #'
@@ -6,8 +7,8 @@
 #'   Object to convert to a [`TorchOptimizer`].
 #' @param clone (`logical(1)`\cr
 #'   Whether to make a deep clone. Default is `FALSE`.
-#' @param ...
-#' @export
+#' @param ... Additional arguments.
+#!' @export
 as_torch_optimizer = function(x, clone = FALSE, ...) {
   assert_flag(clone)
   UseMethod("as_torch_optimizer")
@@ -24,21 +25,24 @@ as_torch_optimizer.TorchOptimizer = function(x, clone = FALSE) { # nolint
 }
 
 #' @export
-as_torch_optimizer.character = function(x, ...) { # nolint
+as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
+  # clone argument is irrelevant
   t_opt(x, ...)
 }
 
 #' @title Torch Optimizer
 #'
 #' @usage NULL
+#' @name torch_optimizer
 #' @format [R6::R6Class]
+#'
 #' @description
 #' This wraps a `torch::torch_optimizer_generator`.
 #' Can be used to configure the `optimizer` of a [`ModelDescriptor`].
 #'
 #' For a list of available optimizersparameters, seen [`mlr3torch_optimizers`].
 #'
-#' @section Construction
+#' @section Construction:
 #' ```
 #' TorchOptimizer$new(torch_optimizer, param_set = NULL, label = deparse(substitute(torch_optimizer))[[1]],
 #'   packages = "torch")

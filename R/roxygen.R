@@ -79,3 +79,24 @@ roxy_param_packages = function() {
 roxy_param_innum = function() {
 
 }
+
+roxy_construction = function(x) {
+  find_obj_with_init = function(x) {
+    if (!is.null(x$public_methods$initialize)) {
+      return(x)
+    } else {
+      recurse(get(x$classname))
+    }
+  }
+  obj_with_init = find_obj_with_init(x)
+  init = obj_with_init$public_methods$initialize
+  fs = formals(init)
+  args = names(fs)
+  defaults = unname(fs)
+  defaults = map_chr(defaults, function(x) if (is.character(x)) sprintf("\"%s\"", x) else format(x))
+
+  inner = paste0(paste0(args, ifelse(defaults == "", "", " = "), defaults), collapse = ", ")
+
+  constr = sprintf("%s$new(%s)", x$classname, inner)
+  constrwrap = strwrap(constr, indent = 2, width = 50)
+}

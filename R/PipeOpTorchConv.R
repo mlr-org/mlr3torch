@@ -47,7 +47,6 @@
 PipeOpTorchConv = R6Class("PipeOpTorchConv",
   inherit = PipeOpTorch,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id, d, module_generator, param_vals = list()) {
       private$.d = assert_int(d)
 
@@ -108,7 +107,7 @@ PipeOpTorchConv = R6Class("PipeOpTorchConv",
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
 #'
-#' @inheritSection pipeop_torch_conv Parameters
+#' @inheritSection mlr_pipeops_torch_conv Parameters
 #'
 #' @section Internals:
 #' Calls [`torch::nn_conv1d()`] when trained.
@@ -130,7 +129,6 @@ PipeOpTorchConv = R6Class("PipeOpTorchConv",
 #' obj$id
 PipeOpTorchConv1D = R6Class("PipeOpTorchConv1D", inherit = PipeOpTorchConv,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "nn_conv1d", param_vals = list()) {
       super$initialize(id = id, d = 1, module_generator = nn_conv1d, param_vals = param_vals)
     }
@@ -153,7 +151,7 @@ PipeOpTorchConv1D = R6Class("PipeOpTorchConv1D", inherit = PipeOpTorchConv,
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
 #'
-#' @inheritSection pipeop_torch_conv Parameters
+#' @inheritSection mlr_pipeops_torch_conv Parameters
 #'
 #' @section Internals:
 #' Calls [`torch::nn_conv2d()`] when trained.
@@ -176,7 +174,6 @@ PipeOpTorchConv1D = R6Class("PipeOpTorchConv1D", inherit = PipeOpTorchConv,
 #'
 PipeOpTorchConv2D = R6Class("PipeOpTorchConv2D", inherit = PipeOpTorchConv,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "nn_conv2d", param_vals = list()) {
       super$initialize(id = id, d = 2, module_generator = nn_conv2d, param_vals = param_vals)
     }
@@ -198,7 +195,7 @@ PipeOpTorchConv2D = R6Class("PipeOpTorchConv2D", inherit = PipeOpTorchConv,
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
 #'
-#' @inheritSection pipeop_torch_conv Parameters
+#' @inheritSection mlr_pipeops_torch_conv Parameters
 #'
 #' @section Internals:
 #' Calls [`torch::nn_conv3d()`] when trained.
@@ -221,7 +218,6 @@ PipeOpTorchConv2D = R6Class("PipeOpTorchConv2D", inherit = PipeOpTorchConv,
 #'
 PipeOpTorchConv3D = R6Class("PipeOpTorchConv3D", inherit = PipeOpTorchConv,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "nn_conv3d", param_vals = list()) {
       super$initialize(id = id, d = 3, module_generator = nn_conv3d, param_vals = param_vals)
     }

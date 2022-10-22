@@ -3,14 +3,8 @@
 \name{CallbackTorch}
 \alias{CallbackTorch}
 \title{Callback}
-\arguments{
-\item{id}{(\code{character(1)})\cr
-Identifier for the new callback.}
-}
 \description{
 Callback
 
 Use \code{callback()} function to create a \link{Callback}.
-
-Initializes an instance of this \link[R6:R6Class]{R6} class.
 }

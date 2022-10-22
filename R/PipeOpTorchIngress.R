@@ -1,18 +1,25 @@
 #' @title Entrypoint to Torch Network
 #'
+#' @usage NULL
+#' @name mlr_pipeops_torch_ingress
+#' @format [`R6Class`] inheriting from [`PipeOp`].
+#'
 #' @description
+#' Abstract B
 #' Use this as entry-point to mlr3torch-networks.
 #'
 #' @section Construction:
+#'
 #' ```
 #' PipeOpTorchIngress$new(id, param_set = ps(), param_vals = list(),
 #'   input = data.table(name = "input", train = "Task", predict = "Task"),
 #'   output = data.table(name = "output", train = "ModelDescriptor", predict = "Task"),
 #'   packages = character(0), feature_types)
 #' ```
-#' `r roxy_pipeop_torch_id()`
-#' `r roxy_pipeop_torch_param_set()`
-#' `r roxy_pipeop_torch_param_vals()`
+#'
+#' `r roxy_param_id()`
+#' `r roxy_param_param_set()`
+#' `r roxy_param_param_vals()`
 #' * `input` :: `data.table()`\cr
 #'   The input channels for this `PipeOp`. See [`PipeOp`] for an explanation.
 #' * `output` :: `data.table()`\cr
@@ -20,23 +27,28 @@
 #' * `packages` :: `character() cr
 #'   The packages this `PipeOpTorchIngress` depends on.
 #'
-#' @section Input and Output Channels:
+#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State:
+#' The state is set to the input shape.
 #'
 #' @section Parameters:
+#' Defined by the construction argument `param_set`.
 #'
+#' @section Internals:
+#' TODO: (not clear yet whether the current design stays).
 #'
+#' @section Fields:
+#' * `feature_types` :: `character(1)`\cr
+#'   The features types that can be consumed by this `PipeOpTorchIngress`.
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #'
 #' @export
-#' @example
+#' @examples
 #' # TODO:
 PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
   inherit = PipeOp,
   public = list(
-    #' @field feature_types (`character()`)\cr
-    #'   The feature types used by this ingress operator.
     feature_types = NULL,
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id, param_set = ps(), param_vals = list(),
       input = data.table(name = "input", train = "Task", predict = "Task"),
       output = data.table(name = "output", train = "ModelDescriptor", predict = "Task"),
@@ -135,7 +147,6 @@ print.TorchIngressToken = function(x, ...) {
 PipeOpTorchIngressNumeric = R6Class("PipeOpTorchIngressNumeric",
   inherit = PipeOpTorchIngress,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "torch_ingress_num", param_vals = list()) {
       super$initialize(id = id, param_vals = param_vals, feature_types = c("numeric", "integer"))
     }
@@ -167,10 +178,17 @@ batchgetter_num = function(data, device) {
 register_po("torch_ingress_num", PipeOpTorchIngressNumeric)
 
 #' @title Torch Entry Point for Categorical Features
+#'
+#' @usage NULL
+#' @name mlr_pipeops_torch_ingress_cat
+#' @format [`R6Class`] inheriting from [`PipeOpTorchIngress`]/[`PipeOpTorch`].
+#'
+#' @description
+#' Entry point for categorical features in torch network.
+#'
 PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
   inherit = PipeOpTorchIngress,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "torch_ingress_cat", param_vals = list()) {
       super$initialize(id = id, param_vals = param_vals, feature_types = c("factor", "ordered"))
     },
@@ -191,6 +209,8 @@ PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
 #'
 #' @param data (`data.table`)\cr
 #'   `data.table` to be converted to a `tensor`.
+#' @param device (`character(1)`)\cr
+#'   The device.
 #' @export
 batchgetter_categ = function(data, device) {
   torch_tensor(
@@ -202,15 +222,36 @@ batchgetter_categ = function(data, device) {
 
 register_po("torch_ingress_cat", PipeOpTorchIngressCategorical)
 
-# @title Torch Entry Point for Images
-# @description
-# uses task with "imageuri" column and loads this as images.
-# doesn't do any preprocessing or so (image resizing) and instead just errors if images don't fit.
-# also no data augmentation etc.
+#' @title Torch Entry Point for Images
+#' @usage NULL
+#' @name mlr_pipeops_torch_ingress_img
+#' @format [`R6Class`] inheriting from [`PipeOpTorchIngress`] and [`PipeOp`].
+#'
+#' @description
+#' uses task with "imageuri" column and loads this as images.
+#' doesn't do any preprocessing or so (image resizing) and instead just errors if images don't fit.
+#' also no data augmentation etc.
+#'
+#' @section Construction:
+#'
+#' @section Parameters:
+#' * `channels` :: `integer(1)`\cr
+#'   The number of input channels.
+#' * `pixels_height` :: `integer(1)`\cr
+#'   The height of the pixels.
+#'
+#' @section Internals:
+#' @section Fields:
+#' @section Methods:
+#'
+#' @family PipeOpTorch
+#'
+#' @export
+#' @examples
+#' # TODO
 PipeOpTorchIngressImages = R6Class("PipeOpTorchIngressImages",
   inherit = PipeOpTorchIngress,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "torch_ingress_img", param_vals = list()) {
       param_set = ps(
         channels = p_int(1),

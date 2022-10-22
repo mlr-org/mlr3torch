@@ -10,6 +10,24 @@
 \description{
 This implements a custom neural network.
 }
+\section{Construction}{
+
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{LearnerClassifTorch$new(module, param_set = NULL, optimizer = t_opt("adam"), loss = t_loss("cross_entropy"),
+  param_vals = list(), feature_types = NULL)
+}\if{html}{\out{</div>}}
+\itemize{
+\item \code{module} ::
+An object of class \code{"nn_module"} as defined in \code{torch}.
+\item \code{param_set} ::
+\item \code{optimizer} ::
+\item \code{loss} ::
+\item \code{param_vals} ::
+\item \code{feature_types} ::
+The feature types the learner supports. The default is all feature types.
+}
+}
+
 \section{Internals}{
 
 TODO:

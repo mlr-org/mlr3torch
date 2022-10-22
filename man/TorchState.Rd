@@ -10,6 +10,4 @@ The torch learner.}
 \description{
 State for training a TorchModel.
 This is the - mostly read-only - information callbacks have access to.
-
-Initializes an instance of this \link[R6:R6Class]{R6} class.
 }

@@ -7,7 +7,7 @@
 #' @description
 #' Output head for classification and regresssion.
 #'
-#' @section
+#' @section Construction:
 #' ```
 #' PipeOpTorchHead$new(id = "nn_head", param_vals = list())
 #' ```

@@ -1,11 +1,12 @@
-
 #' @title LearnerClassifTorchModel
+#' @description
+#' Create
 #' @export
 LearnerClassifTorchModel = R6Class("LearnerClassifTorchModel",
   inherit = LearnerClassifTorchAbstract,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
-    initialize = function(network, ingress_tokens, optimizer = t_opt("adam"), loss = t_loss("cross_entropy"), feature_types = NULL, packages = character(0)) {
+    initialize = function(network, ingress_tokens, optimizer = t_opt("adam"), loss = t_loss("cross_entropy"),
+      feature_types = NULL, packages = character(0)) {
       private$.network_stored = assert_class(network, "nn_module")
       private$.ingress_tokens = assert_list(ingress_tokens, types = "TorchIngressToken")
       super$initialize(

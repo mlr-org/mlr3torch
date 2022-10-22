@@ -5,13 +5,6 @@
 PipeOpImageTrafo = R6Class("TorchOpImageTrafo",
   inherit = mlr3pipelines::PipeOpTaskPreprocSimple,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
-    #' @param id (`character(1)`)\cr
-    #'   The id for of the object.
-    #' @param param_vals (named `list()`)\cr
-    #'   The initial parameters for the object.
-    #' @param .trafo (`character(1)`)\cr
-    #'   The transformation to apply.
     initialize = function(id = .trafo, param_vals = list(), .trafo) {
       assert_choice(.trafo, torch_reflections$image_trafos)
       private$.trafo = .trafo

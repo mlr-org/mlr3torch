@@ -7,9 +7,7 @@
 #' @inherit torch::nnf_layer_norm description
 #'
 #' @section Construction:
-#' ```
-#' PipeOpTorchLayerNorm$new(id = "nn_layer_norm", param_vals = list())
-#' ```
+#' `r roxy_construction(PipeOpTorchLayerNorm)`
 #' `r roxy_param_id("nn_layer_norm")`
 #' `r roxy_param_param_vals()`
 #'

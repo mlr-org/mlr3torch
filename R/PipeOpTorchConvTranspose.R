@@ -1,7 +1,7 @@
 #' @title Base Class Transpose Convolution
 #'
 #' @usage NULL
-#' @name pipeop_torch_conv_transpose
+#' @name mlr_pipeops_torch_conv_transpose
 #' @format `r roxy_pipeop_torch_format()`
 #'
 #' @description
@@ -96,7 +96,7 @@ PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",
 #' @title Transpose 1D Convolution
 #'
 #' @usage NULL
-#' @name pipeop_torch_conv_transpose1d
+#' @name mlr_pipeops_torch_conv_transpose1d
 #' @format `r roxy_pipeop_torch_format()`
 #'
 #' @inherit torch::nnf_conv_transpose1d description
@@ -109,7 +109,7 @@ PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",
 #'
 #' @section State: `r roxy_pipeop_torch_state_default()`
 #'
-#' @inheritSection pipeop_torch_conv_transpose Parameters
+#' @inheritSection mlr_pipeops_torch_conv_transpose Parameters
 #'
 #' @section Internals:
 #' Calls [`torch::nn_conv_transpose1d()`]
@@ -123,7 +123,6 @@ PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",
 #' TODO:
 PipeOpTorchConvTranspose1D = R6Class("PipeOpTorchConvTranspose1D", inherit = PipeOpTorchConvTranspose,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "conv_transpose1d", param_vals = list()) {
       super$initialize(id = id, d = 1, module_generator = nn_conv1d, param_vals = param_vals)
     }
@@ -134,7 +133,7 @@ PipeOpTorchConvTranspose1D = R6Class("PipeOpTorchConvTranspose1D", inherit = Pip
 #' @title Transpose 2D Convolution
 #'
 #' @usage NULL
-#' @name pipeop_torch_conv_transpose2d
+#' @name mlr_pipeops_torch_conv_transpose2d
 #' @format `r roxy_pipeop_torch_format()`
 #'
 #' @inherit torch::nnf_conv_transpose2d description
@@ -147,7 +146,7 @@ PipeOpTorchConvTranspose1D = R6Class("PipeOpTorchConvTranspose1D", inherit = Pip
 #'
 #' @section State: `r roxy_pipeop_torch_state_default()`
 #'
-#' @inheritSection pipeop_torch_conv_transpose Parameters
+#' @inheritSection mlr_pipeops_torch_conv_transpose Parameters
 #'
 #' @section Internals:
 #' Calls [`torch::nn_conv_transpose2d()`]
@@ -161,7 +160,6 @@ PipeOpTorchConvTranspose1D = R6Class("PipeOpTorchConvTranspose1D", inherit = Pip
 #' TODO:
 PipeOpTorchConvTranspose2D = R6Class("PipeOpTorchConvTranspose2D", inherit = PipeOpTorchConvTranspose,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "conv2d", param_vals = list()) {
       super$initialize(id = id, d = 2, module_generator = nn_conv2d, param_vals = param_vals)
     }
@@ -171,7 +169,7 @@ PipeOpTorchConvTranspose2D = R6Class("PipeOpTorchConvTranspose2D", inherit = Pip
 #' @title Transpose 3D Convolution
 #'
 #' @usage NULL
-#' @name pipeop_torch_conv_transpose3d
+#' @name mlr_pipeops_torch_conv_transpose3d
 #' @format `r roxy_pipeop_torch_format()`
 #'
 #' @inherit torch::nnf_conv_transpose3d description
@@ -184,7 +182,7 @@ PipeOpTorchConvTranspose2D = R6Class("PipeOpTorchConvTranspose2D", inherit = Pip
 #'
 #' @section State: `r roxy_pipeop_torch_state_default()`
 #'
-#' @inheritSection pipeop_torch_conv_transpose Parameters
+#' @inheritSection mlr_pipeops_torch_conv_transpose Parameters
 #'
 #' @section Internals:
 #' Calls [`torch::nn_conv_transpose3d()`]
@@ -198,7 +196,6 @@ PipeOpTorchConvTranspose2D = R6Class("PipeOpTorchConvTranspose2D", inherit = Pip
 #' TODO:
 PipeOpTorchConvTranspose3D = R6Class("PipeOpTorchConvTranspose3D", inherit = PipeOpTorchConvTranspose,
   public = list(
-    #' @description Initializes an instance of this [R6][R6::R6Class] class.
     initialize = function(id = "conv3d", param_vals = list()) {
       super$initialize(id = id, d = 3, module_generator = nn_conv3d, param_vals = param_vals)
     }

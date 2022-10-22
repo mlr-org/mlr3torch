@@ -56,8 +56,6 @@ LazyData: true
 Roxygen: list(markdown = TRUE, r6 = FALSE)
 RoxygenNote: 7.2.1
 Collate:
-    'zzz.R'
-    'ActivationNew.R'
     'CallbackTorch.R'
     'CallbackTorchHistory.R'
     'CallbackTorchProgress.R'
@@ -65,8 +63,10 @@ Collate:
     'LearnerClassifTorchAbstract.R'
     'LearnerTorchModel.R'
     'ModelDescriptor.R'
+    'zzz.R'
     'PipeOpModule.R'
     'PipeOpTorch.R'
+    'PipeOpTorchActivation.R'
     'PipeOpTorchAvgPool.R'
     'PipeOpTorchBatchNorm.R'
     'PipeOpTorchConv.R'
