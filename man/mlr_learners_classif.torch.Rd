@@ -4,84 +4,29 @@
 \alias{mlr_learners_classif.torch}
 \alias{LearnerClassifTorch}
 \title{LearnerTorchClassif}
-\description{
-This implements a custom neural network.
-}
-\section{Super classes}{
-\code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3:LearnerClassif]{mlr3::LearnerClassif}} -> \code{\link[mlr3torch:LearnerClassifTorchAbstract]{mlr3torch::LearnerClassifTorchAbstract}} -> \code{LearnerClassifTorch}
-}
-\section{Methods}{
-\subsection{Public methods}{
-\itemize{
-\item \href{#method-LearnerClassifTorch-new}{\code{LearnerClassifTorch$new()}}
-\item \href{#method-LearnerClassifTorch-clone}{\code{LearnerClassifTorch$clone()}}
-}
-}
-\if{html}{\out{
-<details><summary>Inherited methods</summary>
-<ul>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner"><a href='../../mlr3/html/Learner.html#method-Learner-base_learner'><code>mlr3::Learner$base_learner()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="format"><a href='../../mlr3/html/Learner.html#method-Learner-format'><code>mlr3::Learner$format()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help"><a href='../../mlr3/html/Learner.html#method-Learner-help'><code>mlr3::Learner$help()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict"><a href='../../mlr3/html/Learner.html#method-Learner-predict'><code>mlr3::Learner$predict()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata"><a href='../../mlr3/html/Learner.html#method-Learner-predict_newdata'><code>mlr3::Learner$predict_newdata()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="print"><a href='../../mlr3/html/Learner.html#method-Learner-print'><code>mlr3::Learner$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset"><a href='../../mlr3/html/Learner.html#method-Learner-reset'><code>mlr3::Learner$reset()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train"><a href='../../mlr3/html/Learner.html#method-Learner-train'><code>mlr3::Learner$train()</code></a></span></li>
-</ul>
-</details>
-}}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-LearnerClassifTorch-new"></a>}}
-\if{latex}{\out{\hypertarget{method-LearnerClassifTorch-new}{}}}
-\subsection{Method \code{new()}}{
-Initializes an instance of this \link[R6:R6Class]{R6} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LearnerClassifTorch$new(
-  module,
-  param_set = NULL,
-  optimizer = t_opt("adam"),
-  loss = t_loss("cross_entropy"),
-  param_vals = list(),
-  feature_types = NULL
-)}\if{html}{\out{</div>}}
-}
+\arguments{
+\item{id}{(\code{character(1)})\cr
+The id for of the new object.}
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{optimizer}}{(\code{character()})\cr
+\item{param_vals}{(named \code{list()})\cr
+The initial parameters for the object.}
+
+\item{optimizer}{(\code{character()})\cr
 A character string containing the name of the optimizer.
 Possible values are \code{torch_reflections$optimizer}.}
 
-\item{\code{loss}}{(\code{character()})\cr
+\item{loss}{(\code{character()})\cr
 A character string containing the name of the loss function
 For possible values see \code{torch_reflections$loss}.}
 
-\item{\code{param_vals}}{(named \code{list()})\cr
-The initial parameters for the object.}
-
-\item{\code{feature_types}}{(\code{character()})\cr
+\item{feature_types}{(\code{character()})\cr
 The feature types the learner supports. The default is all feature types.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-LearnerClassifTorch-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-LearnerClassifTorch-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LearnerClassifTorch$clone(deep = FALSE)}\if{html}{\out{</div>}}
-}
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
+\item{network}{(\code{nn_module()})\cr
+An object of class \code{"nn_module"} as defined in \code{torch}.}
 }
-\if{html}{\out{</div>}}
-}
-}
+\description{
+This implements a custom neural network.
+
+Initializes an instance of this \link[R6:R6Class]{R6} class.
 }

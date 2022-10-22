@@ -7,6 +7,23 @@
 \format{
 \code{\link{R6Class}} object inheriting from \link{PipeOp`}.
 }
+\arguments{
+\item{param_vals}{(named \code{list()})\cr
+The initial parameters for the object.}
+
+\item{packages}{(\code{character()})\cr
+The R packages this object depends on.}
+
+\item{module}{(\code{nn_module})\cr
+The \link[torch:nn_module]{module} that is wrapped.}
+
+\item{outname}{(\code{character()})
+The names of the output channels.
+If this parameter has length 1, the parameter \link[torch:nn_module]{module} must return a \link[torch:tensor]{tensor}.
+Otherwise it must return a \code{list()} of tensors of corresponding length.}
+
+\item{(any)\cr}{Additional parameters passed to the printer of the wrapped \code{nn_module}.}
+}
 \description{
 \code{PipeOpModule} wraps an \code{\link{nn_module}} that is being called during the \code{train} phase of this \code{\link{PipeOp}}.
 By doing so, this allows to assemble \code{PipeOpModule}s in a computational \link[=`Graph`]{graph} that represents a neural
@@ -18,6 +35,10 @@ of nodes of class \code{\link{PipeOpTorchIngress}} and \code{\link{PipeOpTorch}}
 of \code{PipeOpModule}s during its training phase.
 
 The \verb{$predict} method does currently not serve a meaningful purpose.
+
+Initializes an instance of this \link[R6:R6Class]{R6} class.
+
+Prints the object.
 }
 \section{Input and Output Channels}{
 
@@ -78,95 +99,4 @@ linear_module$input$name
 }
 \seealso{
 nn_module, mlr_pipeops_torch, nn_graph, model_descriptor_to_module, PipeOp, Graph
-}
-\section{Super class}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{PipeOpModule}
-}
-\section{Methods}{
-\subsection{Public methods}{
-\itemize{
-\item \href{#method-PipeOpModule-new}{\code{PipeOpModule$new()}}
-\item \href{#method-PipeOpModule-print}{\code{PipeOpModule$print()}}
-\item \href{#method-PipeOpModule-clone}{\code{PipeOpModule$clone()}}
-}
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
-<ul>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
-</ul>
-</details>
-}}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-PipeOpModule-new"></a>}}
-\if{latex}{\out{\hypertarget{method-PipeOpModule-new}{}}}
-\subsection{Method \code{new()}}{
-Initializes an instance of this \link[R6:R6Class]{R6} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipeOpModule$new(
-  id,
-  module,
-  outname,
-  param_vals = list(),
-  inname,
-  packages = character(0)
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{module}}{(\code{nn_module})\cr
-The \link[torch:nn_module]{module} that is wrapped.}
-
-\item{\code{outname}}{(\code{character()})
-The names of the output channels.
-If this parameter has length 1, the parameter \link[torch:nn_module]{module} must return a \link[torch:tensor]{tensor}.
-Otherwise it must return a \code{list()} of tensors of corresponding length.}
-
-\item{\code{param_vals}}{(named \code{list()})\cr
-The initial parameters for the object.}
-
-\item{\code{packages}}{(\code{character()})\cr
-The R packages this object depends on.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-PipeOpModule-print"></a>}}
-\if{latex}{\out{\hypertarget{method-PipeOpModule-print}{}}}
-\subsection{Method \code{print()}}{
-Prints the object.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipeOpModule$print(...)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{(any)\cr}}{Additional parameters passed to the printer of the wrapped \code{nn_module}.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-PipeOpModule-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-PipeOpModule-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipeOpModule$clone(deep = FALSE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

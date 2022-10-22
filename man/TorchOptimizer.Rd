@@ -3,24 +3,34 @@
 \name{TorchOptimizer}
 \alias{TorchOptimizer}
 \title{Torch Optimizer}
+\arguments{
+\item{torch_optimizer}{(\code{torch_optimizer_generator})\cr
+A generator for an optimizer.}
+
+\item{param_set}{(\code{paradox::ParamSet})\cr
+The parameter set.}
+
+\item{label}{(\code{character(1)})\cr
+Label for the new instance.}
+
+\item{packages}{(\code{character()})\cr
+The R packages this object depends on.}
+
+\item{params}{(\code{list} of \code{\link[torch:nn_parameter]{torch::nn_parameter}})\cr
+The parameters that are trained by the optimizer.}
+}
 \description{
 This wraps a \code{torch::torch_optimizer_generator}.
 Can be used to configure the \code{optimizer} of a \code{\link{ModelDescriptor}}..
 
 For a list of available parameters, seen \code{\link{mlr3torch_optimizers}}.
-}
-\examples{
-# Create a new Torch Optimizer
-opt = TorchOptimizer$new(torch::optim_adam, label = "adam")
-# If the param set is not specified, parameters are inferred but are of class ParamUty
-opt$param_set
 
-# Create the optimizer for a network
-net = nn_linear(10, 1)
-o = opt$get_optimizer(net$parameters)
+Creates a new instance of this \link[R6:R6Class]{R6} class.
+
+Constructs the optimizer for the given parameter values.
 }
-\section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
+\section{Fields}{
+
 \describe{
 \item{\code{label}}{(\code{character(1)})\cr
 Label for this object.
@@ -34,82 +44,15 @@ The parameter set.}
 
 \item{\code{packages}}{(\code{character()})\cr
 The packages this optimizer uses.}
-}
-\if{html}{\out{</div>}}
-}
-\section{Methods}{
-\subsection{Public methods}{
-\itemize{
-\item \href{#method-TorchOptimizer-new}{\code{TorchOptimizer$new()}}
-\item \href{#method-TorchOptimizer-get_optimizer}{\code{TorchOptimizer$get_optimizer()}}
-\item \href{#method-TorchOptimizer-clone}{\code{TorchOptimizer$clone()}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TorchOptimizer-new"></a>}}
-\if{latex}{\out{\hypertarget{method-TorchOptimizer-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of this \link[R6:R6Class]{R6} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchOptimizer$new(
-  torch_optimizer,
-  param_set = NULL,
-  label = deparse(substitute(torch_optimizer))[[1]],
-  packages = "torch"
-)}\if{html}{\out{</div>}}
-}
+}}
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{torch_optimizer}}{(\code{torch_optimizer_generator})\cr
-A generator for an optimizer.}
+\examples{
+# Create a new Torch Optimizer
+opt = TorchOptimizer$new(torch::optim_adam, label = "adam")
+# If the param set is not specified, parameters are inferred but are of class ParamUty
+opt$param_set
 
-\item{\code{param_set}}{(\code{paradox::ParamSet})\cr
-The parameter set.}
-
-\item{\code{label}}{(\code{character(1)})\cr
-Label for the new instance.}
-
-\item{\code{packages}}{(\code{character()})\cr
-The R packages this object depends on.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TorchOptimizer-get_optimizer"></a>}}
-\if{latex}{\out{\hypertarget{method-TorchOptimizer-get_optimizer}{}}}
-\subsection{Method \code{get_optimizer()}}{
-Constructs the optimizer for the given parameter values.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchOptimizer$get_optimizer(params)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{params}}{(\code{list} of \code{\link[torch:nn_parameter]{torch::nn_parameter}})\cr
-The parameters that are trained by the optimizer.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TorchOptimizer-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-TorchOptimizer-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchOptimizer$clone(deep = FALSE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
+# Create the optimizer for a network
+net = nn_linear(10, 1)
+o = opt$get_optimizer(net$parameters)
 }

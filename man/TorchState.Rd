@@ -3,62 +3,13 @@
 \name{TorchState}
 \alias{TorchState}
 \title{Context where torch Callbacks are evaluted}
+\arguments{
+\item{learner}{(\code{\link[mlr3:Learner]{mlr3::Learner}})\cr
+The torch learner.}
+}
 \description{
 State for training a TorchModel.
 This is the - mostly read-only - information callbacks have access to.
-}
-\section{Methods}{
-\subsection{Public methods}{
-\itemize{
-\item \href{#method-TorchState-new}{\code{TorchState$new()}}
-\item \href{#method-TorchState-clone}{\code{TorchState$clone()}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TorchState-new"></a>}}
-\if{latex}{\out{\hypertarget{method-TorchState-new}{}}}
-\subsection{Method \code{new()}}{
+
 Initializes an instance of this \link[R6:R6Class]{R6} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchState$new(
-  learner,
-  task_train,
-  task_valid = NULL,
-  loader_train,
-  loader_valid = NULL,
-  measures_train = NULL,
-  measures_valid = NULL,
-  network,
-  optimizer,
-  loss_fn,
-  total_epochs
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{learner}}{(\code{\link[mlr3:Learner]{mlr3::Learner}})\cr
-The torch learner.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TorchState-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-TorchState-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchState$clone(deep = FALSE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

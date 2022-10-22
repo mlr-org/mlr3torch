@@ -7,9 +7,18 @@
 \format{
 \link[R6:R6Class]{R6::R6Class} inheriting from \link{PipeOpTorch}.
 }
+\arguments{
+\item{id}{(\code{character(1)})\cr
+The id for of the new object.}
+
+\item{param_vals}{(named \code{list()})\cr
+The initial parameters for the object.}
+}
 \description{
 Base class for transpose convolution.
 Don't use this class directly.
+
+Initializes an instance of this \link[R6:R6Class]{R6} class.
 }
 \section{Module}{
 
@@ -58,18 +67,6 @@ package source.
 
 \seealso{
 Other PipeOpTorch: 
-\code{\link{pipeop_torch_act_celu}},
-\code{\link{pipeop_torch_act_elu}},
-\code{\link{pipeop_torch_act_gelu}},
-\code{\link{pipeop_torch_act_glu}},
-\code{\link{pipeop_torch_act_rrelu}},
-\code{\link{pipeop_torch_act_selu}},
-\code{\link{pipeop_torch_act_sigmoid}},
-\code{\link{pipeop_torch_act_softplus}},
-\code{\link{pipeop_torch_act_softshrink}},
-\code{\link{pipeop_torch_act_tanhshrink}},
-\code{\link{pipeop_torch_act_tanh}},
-\code{\link{pipeop_torch_act}},
 \code{\link{pipeop_torch_avg_pool1d}},
 \code{\link{pipeop_torch_avg_pool2d}},
 \code{\link{pipeop_torch_avg_pool3d}},
@@ -84,6 +81,7 @@ Other PipeOpTorch:
 \code{\link{pipeop_torch_conv_transpose3d}},
 \code{\link{pipeop_torch_conv_transpose}},
 \code{\link{pipeop_torch_dropout}},
+\code{\link{pipeop_torch_elu}},
 \code{\link{pipeop_torch_flatten}},
 \code{\link{pipeop_torch_head}},
 \code{\link{pipeop_torch_layer_norm}},
@@ -101,63 +99,3 @@ Other PipeOpTorch:
 \code{\link{pipeop_torch_squeeze}}
 }
 \concept{PipeOpTorch}
-\section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{mlr3torch::PipeOpTorch} -> \code{PipeOpTorchConv}
-}
-\section{Methods}{
-\subsection{Public methods}{
-\itemize{
-\item \href{#method-PipeOpTorchConv-new}{\code{PipeOpTorchConv$new()}}
-\item \href{#method-PipeOpTorchConv-clone}{\code{PipeOpTorchConv$clone()}}
-}
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
-<ul>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-print'><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="PipeOpTorch" data-id="shapes_out"><a href='../../mlr3torch/html/PipeOpTorch.html#method-PipeOpTorch-shapes_out'><code>mlr3torch::PipeOpTorch$shapes_out()</code></a></span></li>
-</ul>
-</details>
-}}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-PipeOpTorchConv-new"></a>}}
-\if{latex}{\out{\hypertarget{method-PipeOpTorchConv-new}{}}}
-\subsection{Method \code{new()}}{
-Initializes an instance of this \link[R6:R6Class]{R6} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchConv$new(id, d, module_generator, param_vals = list())}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{id}}{(\code{character(1)})\cr
-The id for of the new object.}
-
-\item{\code{param_vals}}{(named \code{list()})\cr
-The initial parameters for the object.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-PipeOpTorchConv-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-PipeOpTorchConv-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchConv$clone(deep = FALSE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
-}

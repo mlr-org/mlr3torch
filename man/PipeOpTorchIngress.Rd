@@ -3,84 +3,25 @@
 \name{PipeOpTorchIngress}
 \alias{PipeOpTorchIngress}
 \title{Entrypoint to Torch Network}
+\arguments{
+\item{param_vals}{(named \code{list()})\cr
+The initial parameters for the object.}
+
+\item{param_set}{(\code{paradox::ParamSet})\cr
+The parameter set.}
+
+\item{id}{(\code{character(1)})\cr
+The id for of the new object.}
+}
 \description{
 Use this as entry-point to mlr3torch-networks.
+
+Initializes an instance of this \link[R6:R6Class]{R6} class.
 }
-\section{Super class}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{PipeOpTorchIngress}
-}
-\section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
+\section{Fields}{
+
 \describe{
 \item{\code{feature_types}}{(\code{character()})\cr
 The feature types used by this ingress operator.}
-}
-\if{html}{\out{</div>}}
-}
-\section{Methods}{
-\subsection{Public methods}{
-\itemize{
-\item \href{#method-PipeOpTorchIngress-new}{\code{PipeOpTorchIngress$new()}}
-\item \href{#method-PipeOpTorchIngress-clone}{\code{PipeOpTorchIngress$clone()}}
-}
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
-<ul>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-print'><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
-</ul>
-</details>
 }}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-PipeOpTorchIngress-new"></a>}}
-\if{latex}{\out{\hypertarget{method-PipeOpTorchIngress-new}{}}}
-\subsection{Method \code{new()}}{
-Initializes an instance of this \link[R6:R6Class]{R6} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchIngress$new(
-  id,
-  param_set = ps(),
-  param_vals = list(),
-  input = data.table(name = "input", train = "Task", predict = "Task"),
-  output = data.table(name = "output", train = "ModelDescriptor", predict = "Task"),
-  packages = character(0),
-  feature_types
-)}\if{html}{\out{</div>}}
-}
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{id}}{(\code{character(1)})\cr
-The id for of the new object.}
-
-\item{\code{param_set}}{(\code{paradox::ParamSet})\cr
-The parameter set.}
-
-\item{\code{param_vals}}{(named \code{list()})\cr
-The initial parameters for the object.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-PipeOpTorchIngress-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-PipeOpTorchIngress-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchIngress$clone(deep = FALSE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
-}

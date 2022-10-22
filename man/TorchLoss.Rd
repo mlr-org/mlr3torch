@@ -3,23 +3,29 @@
 \name{TorchLoss}
 \alias{TorchLoss}
 \title{Torch Loss}
+\arguments{
+\item{torch_loss}{(\code{nn_loss})\cr
+A generator for a loss.}
+
+\item{param_set}{(\code{paradox::ParamSet})\cr
+The parameter set.}
+
+\item{label}{(\code{character(1)})\cr
+Label for the new instance.}
+
+\item{packages}{(\code{character()})\cr
+The R packages this object depends on.}
+}
 \description{
 This wraps a \code{torch::nn_loss}.
 Can be used to configure the \code{loss} of a \code{\link{ModelDescriptor}}..
 
 For a list of available parameters, seen \code{\link{mlr3torch_losses}}.
-}
-\examples{
-# Create a new Torch Loss
-loss = TorchLoss$new(torch_loss = torch::nn_mse_loss, task_types = "regr")
-# If the param set is not specified, parameters are inferred but are of class ParamUty
-loss$param_set
-# Construct the actual loss function
-l = loss$get_loss
 
+Initializes an instance of this \link[R6:R6Class]{R6} class.
 }
-\section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
+\section{Fields}{
+
 \describe{
 \item{\code{label}}{(\code{character(1)})\cr
 Label for this object.
@@ -33,74 +39,14 @@ The generator of the loss function.}
 
 \item{\code{packages}}{(\code{character()})\cr
 The packages this optimizer uses.}
-}
-\if{html}{\out{</div>}}
-}
-\section{Methods}{
-\subsection{Public methods}{
-\itemize{
-\item \href{#method-TorchLoss-new}{\code{TorchLoss$new()}}
-\item \href{#method-TorchLoss-get_loss}{\code{TorchLoss$get_loss()}}
-\item \href{#method-TorchLoss-clone}{\code{TorchLoss$clone()}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TorchLoss-new"></a>}}
-\if{latex}{\out{\hypertarget{method-TorchLoss-new}{}}}
-\subsection{Method \code{new()}}{
-Initializes an instance of this \link[R6:R6Class]{R6} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchLoss$new(
-  torch_loss,
-  task_types = NULL,
-  param_set = NULL,
-  label = deparse(substitute(torch_loss))[[1]],
-  packages = "torch"
-)}\if{html}{\out{</div>}}
-}
+}}
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{torch_loss}}{(\code{nn_loss})\cr
-A generator for a loss.}
+\examples{
+# Create a new Torch Loss
+loss = TorchLoss$new(torch_loss = torch::nn_mse_loss, task_types = "regr")
+# If the param set is not specified, parameters are inferred but are of class ParamUty
+loss$param_set
+# Construct the actual loss function
+l = loss$get_loss
 
-\item{\code{param_set}}{(\code{paradox::ParamSet})\cr
-The parameter set.}
-
-\item{\code{label}}{(\code{character(1)})\cr
-Label for the new instance.}
-
-\item{\code{packages}}{(\code{character()})\cr
-The R packages this object depends on.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TorchLoss-get_loss"></a>}}
-\if{latex}{\out{\hypertarget{method-TorchLoss-get_loss}{}}}
-\subsection{Method \code{get_loss()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchLoss$get_loss()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TorchLoss-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-TorchLoss-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchLoss$clone(deep = FALSE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

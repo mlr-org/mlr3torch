@@ -3,133 +3,14 @@
 \name{CallbackTorch}
 \alias{CallbackTorch}
 \title{Callback}
+\arguments{
+\item{id}{(\code{character(1)})\cr
+Identifier for the new callback.}
+}
 \description{
 Callback
 
 Use \code{callback()} function to create a \link{Callback}.
-}
-\section{Methods}{
-\subsection{Public methods}{
-\itemize{
-\item \href{#method-CallbackTorch-new}{\code{CallbackTorch$new()}}
-\item \href{#method-CallbackTorch-on_begin}{\code{CallbackTorch$on_begin()}}
-\item \href{#method-CallbackTorch-on_end}{\code{CallbackTorch$on_end()}}
-\item \href{#method-CallbackTorch-on_epoch_begin}{\code{CallbackTorch$on_epoch_begin()}}
-\item \href{#method-CallbackTorch-on_before_validation}{\code{CallbackTorch$on_before_validation()}}
-\item \href{#method-CallbackTorch-on_epoch_end}{\code{CallbackTorch$on_epoch_end()}}
-\item \href{#method-CallbackTorch-on_batch_begin}{\code{CallbackTorch$on_batch_begin()}}
-\item \href{#method-CallbackTorch-on_batch_end}{\code{CallbackTorch$on_batch_end()}}
-\item \href{#method-CallbackTorch-on_after_backward}{\code{CallbackTorch$on_after_backward()}}
-\item \href{#method-CallbackTorch-on_batch_valid_begin}{\code{CallbackTorch$on_batch_valid_begin()}}
-\item \href{#method-CallbackTorch-on_batch_valid_end}{\code{CallbackTorch$on_batch_valid_end()}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackTorch-new"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackTorch-new}{}}}
-\subsection{Method \code{new()}}{
+
 Initializes an instance of this \link[R6:R6Class]{R6} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorch$new(state)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{id}}{(\code{character(1)})\cr
-Identifier for the new callback.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackTorch-on_begin"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackTorch-on_begin}{}}}
-\subsection{Method \code{on_begin()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorch$on_begin()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackTorch-on_end"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackTorch-on_end}{}}}
-\subsection{Method \code{on_end()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorch$on_end()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackTorch-on_epoch_begin"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackTorch-on_epoch_begin}{}}}
-\subsection{Method \code{on_epoch_begin()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorch$on_epoch_begin()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackTorch-on_before_validation"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackTorch-on_before_validation}{}}}
-\subsection{Method \code{on_before_validation()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorch$on_before_validation()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackTorch-on_epoch_end"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackTorch-on_epoch_end}{}}}
-\subsection{Method \code{on_epoch_end()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorch$on_epoch_end()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackTorch-on_batch_begin"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackTorch-on_batch_begin}{}}}
-\subsection{Method \code{on_batch_begin()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorch$on_batch_begin()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackTorch-on_batch_end"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackTorch-on_batch_end}{}}}
-\subsection{Method \code{on_batch_end()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorch$on_batch_end()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackTorch-on_after_backward"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackTorch-on_after_backward}{}}}
-\subsection{Method \code{on_after_backward()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorch$on_after_backward()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackTorch-on_batch_valid_begin"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackTorch-on_batch_valid_begin}{}}}
-\subsection{Method \code{on_batch_valid_begin()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorch$on_batch_valid_begin()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackTorch-on_batch_valid_end"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackTorch-on_batch_valid_end}{}}}
-\subsection{Method \code{on_batch_valid_end()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorch$on_batch_valid_end()}\if{html}{\out{</div>}}
-}
-
-}
 }

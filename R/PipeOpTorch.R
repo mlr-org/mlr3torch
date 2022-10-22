@@ -238,10 +238,11 @@ PipeOpTorch = R6Class("PipeOpTorch",
     module_generator = NULL,
     #' @description Initializes a new instance of this [R6 Class][R6::R6Class].
     initialize = function(id, module_generator, param_set = ps(), param_vals = list(),
-      inname = NULL, outname = "output", packages = "torch") {
+      inname = NULL, outname = "output", packages = "torch", tags = NULL) {
       self$module_generator = assert_class(module_generator, "nn_module_generator", null.ok = TRUE)
       lockBinding("module_generator", self)
       assert_names(outname, type = "strict", .var.name = "output channel names")
+      assert_character(tags, null.ok = TRUE)
       if (is.null(module_generator)) {
         assert_names(inname, type = "strict", .var.name = "input channel names")
       } else {
@@ -264,7 +265,8 @@ PipeOpTorch = R6Class("PipeOpTorch",
         param_vals = param_vals,
         input = input,
         output = output,
-        packages = packages
+        packages = packages,
+        tags = unique(c("torch", tags))
       )
     },
     #' @description
