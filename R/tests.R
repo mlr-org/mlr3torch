@@ -114,16 +114,16 @@ module = make_baseline(
   residual_dropout=0.0,
   d_out=1
 )
+x = module(x_num, x_cat)
+assert_true(all(x$shape == c(4, 1)))
 
-# x = module(x_num, x_cat)
-# assert x.shape == (4, 1)
-# module = FTTransformer.make_default(
-#   n_num_features=3,
-#   cat_cardinalities=[2, 3],
-#   d_out=1,
-# )
-# x = module(x_num, x_cat)
-# assert x.shape == (4, 1)
+module = make_default(
+  n_num_features=3,
+  cat_cardinalities=c(2, 3),
+  d_out=1
+)
+x = module(x_num, x_cat)
+assert_true(all(x$shape == c(4, 1)))
 
 
 

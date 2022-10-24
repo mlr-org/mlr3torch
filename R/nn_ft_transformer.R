@@ -31,17 +31,21 @@ nn_tab_tokenizer = nn_module(
   initialize = function(n_features, cardinalities, d_token, bias=TRUE, cls=FALSE) {
     self$tokenizers = list()
     self$n_tokens = 0
+    self$d_token = 0
+    self$initialization = "uniform"
     assert_true(n_features > 0L || length(cardinalities) > 0L)
     if (n_features > 0L) {
-      self$tokenizer_num = nn_tokenizer_numeric(n_features, d_token, bias)
+      self$tokenizer_num = nn_tokenizer_numeric(n_features, d_token, bias, self$initialization)
       self$n_tokens = self$n_tokens + self$tokenizer_num$n_tokens
+      self$d_token = self$tokenizer_num$d_token
     }
     if (length(cardinalities) > 0L) {
-      self$tokenizer_cat = nn_tokenizer_categorical(cardinalities, d_token, bias)
+      self$tokenizer_cat = nn_tokenizer_categorical(cardinalities, d_token, bias, self$initialization)
       self$n_tokens = self$n_tokens + self$tokenizer_cat$n_tokens
+      if (self$d_token == 0) self$d_token = self$tokenizer_cat$d_token
     }
     if (cls) {
-      self$cls = nn_cls(d_token)
+      self$cls = nn_cls_token(d_token, self$initialization)
     }
   },
   forward = function(input_num, input_cat) {
@@ -53,7 +57,7 @@ nn_tab_tokenizer = nn_module(
       tokens[["x_cat"]] = self$tokenizer_cat(input_cat)
     }
     tokens = torch_cat(tokens, dim = 2L)
-    if (!is.null(self$cls)) { # TODO question
+    if (!is.null(self$cls)) {
       tokens = self$cls(tokens)
     }
     return(tokens)
@@ -62,16 +66,19 @@ nn_tab_tokenizer = nn_module(
 
 # adapted from: https://github.com/yandex-research/rtdl/blob/main/rtdl/modules.py
 
-# TODO: add kaiming initialization as done here: https://github.com/yandex-research/rtdl/blob/main/bin/ft_transformer.py
-# Uniform initialization
-initialize_token_ = function(x, d, init_type="") { #TODO init type
+initialize_token_ = function(x, d, initialization="") {
+  assert(initialization %in% c("uniform", "normal"), "Only uniform and normal initialization types are supported!")
   d_sqrt_inv = 1 / sqrt(d)
-  nn_init_uniform_(x, a = -d_sqrt_inv, b = d_sqrt_inv)
+  if (initialization == "uniform") {
+    return(nn_init_uniform_(x, a = -d_sqrt_inv, b = d_sqrt_inv))
+  } else {
+    return(nn_init_normal_(x, std=d_sqrt_inv))
+  }
 }
 
 nn_tokenizer_numeric = nn_module(
   "nn_tokenizer_numeric",
-  initialize = function(n_features, d_token, bias) {
+  initialize = function(n_features, d_token, bias, initialization) {
     self$n_features = checkmate::assert_integerish(n_features,
                                         lower = 1L, any.missing = FALSE, len = 1,
                                         coerce = TRUE
@@ -80,6 +87,7 @@ nn_tokenizer_numeric = nn_module(
                                      lower = 1L, any.missing = FALSE, len = 1,
                                      coerce = TRUE
     )
+    self$initialization = initialization
     checkmate::assert_flag(bias)
 
     self$weight = nn_parameter(torch_empty(self$n_features, d_token))
@@ -91,11 +99,12 @@ nn_tokenizer_numeric = nn_module(
 
     self$reset_parameters()
     self$n_tokens = self$weight$shape[1]
+    self$d_token = self$weight$shape[2]
   },
   reset_parameters = function() {
-    initialize_token_(self$weight, self$d_token)
+    initialize_token_(self$weight, self$d_token, self$initialization)
     if (!is.null(self$bias)) {
-      initialize_token_(self$bias, self$d_token)
+      initialize_token_(self$bias, self$d_token, self$initialization)
     }
   },
   forward = function(input) {
@@ -109,7 +118,7 @@ nn_tokenizer_numeric = nn_module(
 
 nn_tokenizer_categorical = nn_module(
   "nn_tokenizer_categorical",
-  initialize = function(cardinalities, d_token, bias) {
+  initialize = function(cardinalities, d_token, bias, initialization) {
     self$cardinalities = assert_integerish(cardinalities,
                                            lower = 1L, any.missing = FALSE,
                                            min.len = 1L, coerce = TRUE
@@ -118,6 +127,7 @@ nn_tokenizer_categorical = nn_module(
                                      lower = 1L, any.missing = FALSE, len = 1,
                                      coerce = TRUE
     )
+    self$initialization = initialization
     assert_flag(bias)
     cardinalities_cs = cumsum(cardinalities)
     category_offsets = torch_tensor(c(0, cardinalities_cs[-length(cardinalities_cs)]),
@@ -135,11 +145,12 @@ nn_tokenizer_categorical = nn_module(
 
     self$reset_parameters()
     self$n_tokens = self$category_offsets$shape[1]
+    self$d_token = self$embeddings$embedding_dim
   },
   reset_parameters = function() {
-    initialize_token_(self$embeddings$weight, d = self$d_token)
+    initialize_token_(self$embeddings$weight, d = self$d_token, self$initialization)
     if (!is.null(self$bias)) {
-      initialize_token_(self$bias, d = self$d_token)
+      initialize_token_(self$bias, d = self$d_token, self$initialization)
     }
   },
   forward = function(input) {
@@ -154,16 +165,17 @@ nn_tokenizer_categorical = nn_module(
 
 nn_cls_token = nn_module(
   "nn_cls_token",
-  initialize = function(d_token) {
+  initialize = function(d_token, initialization) {
     self$d_token = checkmate::assert_integerish(d_token,
                                                 lower = 1L, any.missing = FALSE, len = 1,
                                                 coerce = TRUE
     )
     self$weight = nn_parameter(torch_empty(d_token))
+    self$initialization = initialization
     self$reset_parameters()
   },
   reset_parameters = function() {
-    initialize_token_(self$weight, d = self$d_token)
+    initialize_token_(self$weight, d = self$d_token, self$initialization)
   },
   expand = function(...) {
     leading_dimensions = list(...)
@@ -174,7 +186,7 @@ nn_cls_token = nn_module(
     return(self$weight$view(c(new_dims, -1))$expand(c(leading_dimensions, -1)))
   },
   forward = function(input) {
-    return(torch_cat(list(input, self$expand(x$shape[1], 1)), dim=2)) # the length of tensor, multiplies all dimensions
+    return(torch_cat(list(input, self$expand(input$shape[1], 1)), dim=2)) # the length of tensor, multiplies all dimensions
   }
 )
 
@@ -267,7 +279,7 @@ nn_multi_head_attention = nn_module(
 nn_ffn = nn_module(
   "nn_ffn",
   initialize = function(d_token, d_hidden, bias_first, bias_second, dropout, activation) {
-    coef = if (identical(activation, nn_geglu) | identical(activation, nn_reglu)) 2 else 1
+    coef = if (class(activation)[1] %in% c("nn_reglu", "nn_geglu")) 2 else 1
     self$linear_first = nn_linear(d_token, d_hidden * coef, bias_first)
     self$activation = activation
     self$dropout = nn_dropout(dropout)
@@ -286,9 +298,9 @@ nn_ffn = nn_module(
 nn_head = nn_module(
   "nn_head",
   initialize = function(d_in, bias, activation, normalization, d_out) {
-    self$normalization = normalization
+    self$normalization = normalization(d_in)
     self$activation = activation
-    self$linear_second = nn_linear(d_in, d_out, bias)
+    self$linear = nn_linear(d_in, d_out, bias)
   },
   forward = function(x) {
     x = x[, -1]
@@ -342,7 +354,7 @@ nn_transformer = nn_module(
     }
     self$prenormalization = prenormalization
     self$last_layer_query_idx = last_layer_query_idx
-    self$blocks = nn_module_list()
+    self$blocks = list()
     for (layer_idx in 1:n_blocks) {
       # TODO there was no ModuleDict
       layer = list("attention" = nn_multi_head_attention(d_token=d_token,
@@ -358,13 +370,13 @@ nn_transformer = nn_module(
                                   activation=ffn_activation),
                    "attention_residual_dropout" = nn_dropout(residual_dropout),
                    "ffn_residual_dropout" = nn_dropout(residual_dropout),
-                   "output" = nn_identity(), # for hooks-based introspection
+                   "output" = nn_identity() # for hooks-based introspection
       )
       if (layer_idx | !prenormalization | first_prenormalization) {
         layer$attention_normalization = attention_normalization(d_token) # TODO was with _make_nn_module
       }
       layer$ffn_normalization = ffn_normalization(d_token) # TODO was with _make_nn_module
-      if (kv_compression_ratio & is.null(self$shared_kv_compression)) {
+      if (!is.null(kv_compression_ratio) && is.null(self$shared_kv_compression)) {
         layer$key_compression = make_kv_compression(n_tokens, kv_compression_ratio)
         if (kv_compression_sharing == 'headwise') {
           layer$value_compression = make_kv_compression(n_tokens, kv_compression_ratio)
@@ -372,8 +384,9 @@ nn_transformer = nn_module(
           assert(kv_compression_sharing == 'key-value', "Internal message error") # TODO error text
         }
       }
-      self$blocks = append(layer, self$blocks)
+      self$blocks[[layer_idx]] = layer
     }
+    self$blocks = nn_module_list(self$blocks)
     self$head = nn_head(d_in=d_token,
                         d_out=d_out,
                         bias=TRUE,
@@ -502,7 +515,6 @@ make_ = function(n_num_features, cat_cardinalities, transformer_config) {
   if (!is.null(transformer_config$kv_compression_ratio)) {
     transformer_config$n_tokens = feature_tokenizer$n_tokens + 1
   }
-  print(transformer_config)
   return(nn_ft_transformer(feature_tokenizer,
                            do.call("nn_transformer", transformer_config)
   ))
@@ -539,7 +551,7 @@ make_baseline = function(n_num_features,
 
 make_default = function(n_num_features,
                         cat_cardinalities,
-                        n_blocks,
+                        n_blocks=3,
                         last_layer_query_idx=NULL,
                         kv_compression_ratio=NULL,
                         kv_compression_sharing=NULL,
@@ -559,7 +571,7 @@ nn_ft_transformer = nn_module(
   "nn_ft_transformer",
   initialize = function(feature_tokenizer, transformer) {
     if (transformer$prenormalization) {
-      assert(!("attention_normalization" %in% transformer$blocks[1]),
+      assert(!("attention_normalization" %in% transformer$blocks[[1]]),
              "In the prenormalization setting, FT-Transformer does not allow using the first normalization layer in the first transformer block")
     }
     self$feature_tokenizer = feature_tokenizer
