@@ -8,9 +8,8 @@
 #' It is not intended for direct use.
 #'
 #' @section Construction:
-#' ```
-#' LearnerClassifTorchAbstract$new()
-#' ```
+#' `r roxy_construction(LearnerClassifTorchAbstract)`
+#'
 #'
 #' @param id (`character(1)`)\cr
 #'   The id of the learner.

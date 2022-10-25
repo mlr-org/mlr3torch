@@ -6,6 +6,11 @@
 #'
 #' @inherit torch::nnf_linear description
 #'
+#' @section Construction:
+#' `r roxy_construction(PipeOpTorchLinear)`
+#' `r roxy_param_id("nn_linear")`
+#' `r roxy_param_param_vals()`
+#'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
 #'

@@ -93,10 +93,9 @@ roxy_construction = function(x) {
   fs = formals(init)
   args = names(fs)
   defaults = unname(fs)
-  defaults = map_chr(defaults, function(x) if (is.character(x)) sprintf("\"%s\"", x) else format(x))
+  defaults = map_chr(defaults, function(x) deparse(x))
 
   inner = paste0(paste0(args, ifelse(defaults == "", "", " = "), defaults), collapse = ", ")
 
-  constr = sprintf("%s$new(%s)", x$classname, inner)
-  constrwrap = strwrap(constr, indent = 2, width = 50)
+  sprintf("\\code{%s$new(%s)}", x$classname, inner)
 }

@@ -56,8 +56,6 @@ The network.}
 
 \section{Construction}{
 
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{LearnerClassifTorchAbstract$new()
-}\if{html}{\out{</div>}}
+\code{LearnerClassifTorchAbstract$new(id, optimizer, loss, param_set = ps(), label = NULL, properties = NULL, packages = character(0), predict_types = NULL, feature_types, man)}
 }
 
