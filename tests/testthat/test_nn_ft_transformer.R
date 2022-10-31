@@ -49,7 +49,7 @@ test_that("Classification token block works properly", {
   x = torch_randn(batch_size, n_tokens, d_token)
   x = cls_token(x)
   expect_true(all(x$shape == c(batch_size, n_tokens + 1, d_token)))
-  expect_true(all(x[, -1, ] == cls_token$expand(x$shape[1]))) # TODO reckeck
+  expect_true(torch_equal(x[, -1, ], cls_token$expand(x$shape[1])))
 })
 
 test_that("Multi-head attention block of FTTransformer works properly", {
@@ -59,7 +59,7 @@ test_that("Multi-head attention block of FTTransformer works properly", {
   n_heads = 6
   a = torch_randn(n_objects, n_tokens, d_token)
   b = torch_randn(n_objects, n_tokens * 2, d_token)
-  module = nn_multi_head_attention(
+  module = nn_ft_multi_head_attention(
     d_token=d_token, n_heads=n_heads, dropout=0.2, bias=TRUE, initialization='kaiming'
   )
 
