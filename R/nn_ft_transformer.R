@@ -67,7 +67,7 @@ nn_tab_tokenizer = nn_module(
 # adapted from: https://github.com/yandex-research/rtdl/blob/main/rtdl/modules.py
 
 initialize_token_ = function(x, d, initialization="") {
-  assert(initialization %in% c("uniform", "normal"), "Only uniform and normal initialization types are supported!")
+  assert_choice(initialization, c("uniform", "normal"))
   d_sqrt_inv = 1 / sqrt(d)
   if (initialization == "uniform") {
     return(nn_init_uniform_(x, a = -d_sqrt_inv, b = d_sqrt_inv))
@@ -217,9 +217,9 @@ nn_ft_multi_head_attention = nn_module(
   "nn_ft_multi_head_attention",
   initialize = function(d_token, n_heads, dropout, bias, initialization) {
     if (n_heads > 1) {
-      assert(d_token %% n_heads == 0, 'd_token must be a multiple of n_heads')
+      assert_true(d_token %% n_heads == 0)
     }
-    assert(initialization %in% c('kaiming', 'xavier'))
+    assert_choice(initialization, c('kaiming', 'xavier'))
 
     self$W_q = nn_linear(d_token, d_token, bias)
     self$W_k = nn_linear(d_token, d_token, bias)
@@ -247,7 +247,7 @@ nn_ft_multi_head_attention = nn_module(
     return(input$reshape(c(batch_size, n_tokens, self$n_heads, d_head))$transpose(2, 3)$reshape(c(batch_size * self$n_heads, n_tokens, d_head)))
   },
   forward = function(x_q, x_kv, key_compression=NULL, value_compression=NULL) {
-    assert(all_or_none_(key_compression, value_compression), "If key_compression is (not) None, then value_compression must (not) be None")
+    assert_true(all_or_none_(key_compression, value_compression))
     q = self$W_q(x_q)
     k = self$W_k(x_kv)
     v = self$W_v(x_kv)
@@ -343,14 +343,14 @@ nn_ft_transformer_block = nn_module(
       }
     }
     if (!prenormalization) {
-      assert(!first_prenormalization, "If `prenormalization` is False, then `first_prenormalization` must be False")
+      assert_true(!first_prenormalization)
     }
-    assert(all_or_none_(n_tokens, kv_compression_ratio, kv_compression_sharing), "If any of the following arguments is (not) None, then all of them must (not) be None: n_tokens, kv_compression_ratio, kv_compression_sharing")
+    assert_true(all_or_none_(n_tokens, kv_compression_ratio, kv_compression_sharing))
 
-    assert(kv_compression_sharing %in% c('headwise', 'key_value', 'layerwise') || is.null(kv_compression_sharing))
+    assert_true(kv_compression_sharing %in% c('headwise', 'key_value', 'layerwise') || is.null(kv_compression_sharing))
     if (!prenormalization) {
       warning("prenormalization is set to False. Are you sure about this? The training can become less stable. You can turn off this warning by tweaking the rtdl.Transformer.WARNINGS dictionary.")
-      assert(!first_prenormalization, "If prenormalization is False, then first_prenormalization is ignored and must be set to False")
+      assert_true(!first_prenormalization)
     }
     if (prenormalization && first_prenormalization) {
       warning("first_prenormalization is set to True. Are you sure about this? For example, the vanilla FTTransformer with first_prenormalization=True performs SIGNIFICANTLY worse. You can turn off this warning by tweaking the rtdl.Transformer.WARNINGS dictionary.")
@@ -388,7 +388,7 @@ nn_ft_transformer_block = nn_module(
         if (kv_compression_sharing == 'headwise') {
           layer$value_compression = make_kv_compression(n_tokens, kv_compression_ratio)
         } else {
-          assert(kv_compression_sharing == 'key_value', "kv_compression_sharing parameter should be set to either 'headwise' or 'key_value'!")
+          assert_true(kv_compression_sharing == 'key_value', "kv_compression_sharing parameter should be set to either 'headwise' or 'key_value'!")
         }
       }
       self$blocks[[layer_idx]] = layer
@@ -401,7 +401,7 @@ nn_ft_transformer_block = nn_module(
                            normalization=if (prenormalization) head_normalization else nn_identity)
   },
   make_kv_compression = function(n_tokens, kv_compression_ratio) {
-    assert(n_tokens && kv_compression_ratio, "n_tokens and kv_compression_ratio should both be defined!")
+    assert_true(n_tokens && kv_compression_ratio)
     return(nn_linear(n_tokens, floor(n_tokens * kv_compression_ratio), bias=FALSE))
   },
   get_kv_compressions_ = function(layer) {
@@ -439,7 +439,7 @@ nn_ft_transformer_block = nn_module(
     return(x)
   },
   forward = function(x) {
-    assert(x$ndim == 3, "The input must have 3 dimensions: (n_objects, n_tokens, d_token)")
+    assert_true(x$ndim == 3)
     for (layer_idx in seq_len(length(self$blocks))) {
       layer = self$blocks[[layer_idx]]
       query_idx = if (layer_idx == length(self$blocks)) self$last_layer_query_idx else NULL
@@ -485,7 +485,7 @@ get_baseline_transformer_subconfig = function() {
 }
 
 get_default_transformer_config = function(n_blocks = 3) {
-  assert(1 <= n_blocks && n_blocks <= 6)
+  assert_true(1 <= n_blocks && n_blocks <= 6)
   grid = list(
     d_token=c(96, 128, 192, 256, 320, 384),
     attention_dropout=c(0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
@@ -577,8 +577,7 @@ nn_ft_transformer = nn_module(
   "nn_ft_transformer",
   initialize = function(feature_tokenizer, transformer) {
     if (transformer$prenormalization) {
-      assert(!("attention_normalization" %in% transformer$blocks[[1]]),
-             "In the prenormalization setting, FT-Transformer does not allow using the first normalization layer in the first transformer block")
+      assert_true(!("attention_normalization" %in% transformer$blocks[[1]]))
     }
     self$feature_tokenizer = feature_tokenizer
     self$cls_token = nn_cls_token(feature_tokenizer$d_token, feature_tokenizer$initialization)
@@ -586,7 +585,7 @@ nn_ft_transformer = nn_module(
   },
   optimization_param_groups = function() {
     no_wd_names = c('feature_tokenizer', 'normalization', '.bias')
-    assert("nn_tab_tokenizer" %in% class(self$feature_tokenizer), "Feature Tokenizer of nn_ft_transformer has incorrect module type!")
+    assert_choice("nn_tab_tokenizer", class(self$feature_tokenizer))
     needs_wd_ = function(name) {
       res = c()
       for (x in no_wd_names) {

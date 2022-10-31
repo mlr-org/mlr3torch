@@ -5,7 +5,7 @@ x = torch_randn(4, 2)
 n_objects = x$shape[1]
 n_features = x$shape[2]
 d_token = 3
-tokenizer = nn_tokenizer_numeric(n_features, d_token, TRUE)
+tokenizer = nn_tokenizer_numeric(n_features, d_token, TRUE, 'uniform')
 tokens = tokenizer(x)
 assert_true(all(tokens$shape == c(n_objects, n_features, d_token)))
 
@@ -21,7 +21,7 @@ x = torch_tensor(mat)
 n_objects = x$shape[1]
 n_features = x$shape[2]
 d_token = 3
-tokenizer = nn_tokenizer_categorical(cardinalities, d_token, TRUE)
+tokenizer = nn_tokenizer_categorical(cardinalities, d_token, TRUE, 'uniform')
 tokens = tokenizer(x)
 assert_true(all(tokens$shape == c(n_objects, n_features, d_token)))
 
@@ -47,7 +47,7 @@ assert_true(all(tokens$shape == c(n_objects, n_num_features + n_cat_features, d_
 batch_size = 2
 n_tokens = 3
 d_token = 4
-cls_token = nn_cls_token(d_token)
+cls_token = nn_cls_token(d_token, 'uniform')
 x = torch_randn(batch_size, n_tokens, d_token)
 x = cls_token(x)
 assert_true(all(x$shape == c(batch_size, n_tokens + 1, d_token)))
@@ -74,7 +74,7 @@ d_token = 12
 n_heads = 6
 a = torch_randn(n_objects, n_tokens, d_token)
 b = torch_randn(n_objects, n_tokens * 2, d_token)
-module = nn_multi_head_attention(
+module = nn_ft_multi_head_attention(
   d_token=d_token, n_heads=n_heads, dropout=0.2, bias=TRUE, initialization='kaiming'
 )
 # self-attention
