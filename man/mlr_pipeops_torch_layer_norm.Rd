@@ -15,7 +15,7 @@ Applies Layer Normalization for last certain number of dimensions.
 \code{PipeOpTorchLayerNorm$new(id = "nn_layer_norm", param_vals = list())}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object. The default is "nn_layer_norm".
-\item \code{param_vals}` :: named \code{list()}\cr List of hyperparameter settings. Default is  \code{list()}.
+\item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
 }
 }
 

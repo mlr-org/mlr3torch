@@ -10,7 +10,7 @@ learner_torch_train = function(self, private, super, task) {
 
   normalize_to_list = function(x) {
     if (length(x) == 0) return(list())
-    if (!is.list(x)) return(structure(list(x), names= x$id))
+    if (!is.list(x)) return(structure(list(x), names = x$id))
     if (is.null(names(x))) names(x) = map_chr(x, "id")
     x
   }
@@ -24,7 +24,7 @@ learner_torch_train = function(self, private, super, task) {
 
   network = private$.network(task)$to(device = param_vals$device %??% "auto")
 
-  state = TorchState$new(
+  ctx = ContextTorch$new(
     learner = self,
     task_train = task,
     task_valid = if (task_valid$nrow) valid_task,
@@ -38,85 +38,85 @@ learner_torch_train = function(self, private, super, task) {
     total_epochs = param_vals$epochs
   )
 
-  cbs = lapply(param_vals$callbacks, function(x) x$new(state))
+  cbs = lapply(param_vals$callbacks, function(x) x$new(ctx))
 
-  train_loop(state, cbs)
+  train_loop(ctx, cbs)
 }
 
-train_loop = function(state, cbs) {
+train_loop = function(ctx, cbs) {
 
   call = function(step_name) {
-    lapply(cbs, function(x) x[[step_name]]())
+    lapply(cbs, function(x) x[[step_name]](ctx))
   }
 
   ## we do this so if the learner should crash the intermediate progress is saved somewhere
-  state$learner$state$model = list(
-    network = state$network,
-    optimizer = state$optimizer,
-    loss_fn = state$loss_fn,
+  ctx$learner$state$model = list(
+    network = ctx$network,
+    optimizer = ctx$optimizer,
+    loss_fn = ctx$loss_fn,
     callback_instances = cbs
   )
 
   # note that task_valid may be present (callbacks could do their own validation)
-  does_validation = length(state$measures_valid)
+  does_validation = length(ctx$measures_valid)
 
   call("on_begin")
 
   on.exit({
     # in case a callback wants to finalize things
     call("on_end")
-  })
+  }, add = TRUE)
 
 
-  state$network$train()
+  ctx$network$train()
 
-  state$epoch = 0
-  while (state$epoch < state$total_epochs) {
-    state$epoch = state$epoch + 1
+  ctx$epoch = 0
+  while (ctx$epoch < ctx$total_epochs) {
+    ctx$epoch = ctx$epoch + 1
     call("on_epoch_begin")
 
     predictions = list()
     indices = list()
-    state$batch = 0
-    coro::loop(for (batch in state$loader_train) {
-      state$batch = state$batch + 1
+    ctx$batch = 0
+    coro::loop(for (batch in ctx$loader_train) {
+      ctx$batch = ctx$batch + 1
 
-      state$optimizer$zero_grad()
+      ctx$optimizer$zero_grad()
 
       call("on_batch_begin")
 
-      y_hat = do.call(state$network, batch$x)
+      y_hat = do.call(ctx$network, batch$x)
 
-      loss = state$loss_fn(y_hat, batch$y)
+      loss = ctx$loss_fn(y_hat, batch$y)
 
       loss$backward()
 
       call("on_after_backward")
 
-      state$last_loss = loss$item()
+      ctx$last_loss = loss$item()
       predictions[[length(predictions) + 1]] = y_hat$detach()
       indices[[length(indices) + 1]] = as.numeric(batch$.index)
-      state$optimizer$step()
+      ctx$optimizer$step()
 
       call("on_batch_end")
     })
 
-    state$last_scores_train = measure_prediction(torch_cat(predictions, dim = 1L), state$measures_train, state$task_train, state$task_train$row_ids[unlist(indices)])
+    ctx$last_scores_train = measure_prediction(torch_cat(predictions, dim = 1L), ctx$measures_train, ctx$task_train, ctx$task_train$row_ids[unlist(indices)])
 
     call("on_before_validation")
     if (does_validation) {
-      state$network$eval()
-      pred_tensor = torch_network_predict(state$network, state$loader_valid, call)
-      state$last_scores_valid = measure_prediction(pred_tensor, state$measures_valid, state$task_valid, state$task_valid$row_ids)
-      state$network$train()
+      ctx$network$eval()
+      pred_tensor = torch_network_predict(ctx$network, ctx$loader_valid, call)
+      ctx$last_scores_valid = measure_prediction(pred_tensor, ctx$measures_valid, ctx$task_valid, ctx$task_valid$row_ids)
+      ctx$network$train()
     }
     call("on_epoch_end")
   }
 
   list(
-    network = state$network,
-    optimizer = state$optimizer,
-    loss_fn = state$loss_fn,
+    network = ctx$network,
+    optimizer = ctx$optimizer,
+    loss_fn = ctx$loss_fn,
     callback_instances = cbs
   )
 }

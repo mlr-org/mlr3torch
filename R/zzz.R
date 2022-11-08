@@ -51,6 +51,8 @@
 # to silence RCMD check
 utils::globalVariables(c("self", "private", "super"))
 
+
+
 po_register_env = new.env()
 
 register_po = function(name, constructor, metainf = NULL) {
@@ -68,6 +70,10 @@ register_mlr3 = function() {
 
   # Image URI feature (e.g. file path to .jpg etc.) for image classif tasks
   mlr_reflections$task_feature_types[["img"]] = "imageuri"
+
+  mlr_callbacks = utils::getFromNamespace("mlr_callbacks", ns = "mlr3misc")
+  mlr_callbacks$add("torch.history", CallbackTorchHistory)
+  mlr_callbacks$add("torch.progress", CallbackTorchProgress)
 }
 
 register_mlr3pipelines = function() {

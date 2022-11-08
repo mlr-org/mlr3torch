@@ -22,7 +22,7 @@ Use this as entry-point to mlr3torch-networks.
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object.
 \item \code{param_set} :: \code{paradox::ParamSet}\cr The parameter set.
-\item \code{param_vals}` :: named \code{list()}\cr List of hyperparameter settings. Default is  \code{list()}.
+\item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
 \item \code{input} :: \code{data.table()}\cr
 The input channels for this \code{PipeOp}. See \code{\link{PipeOp}} for an explanation.
 \item \code{output} :: \code{data.table()}\cr

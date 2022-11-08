@@ -19,7 +19,7 @@ Base class for merge operations.
  \code{PipeOpTorchMerge$new(id, param_vals = list())}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object. The default is "module".
-\item \code{param_vals}` :: named \code{list()}\cr List of hyperparameter settings. Default is  \code{list()}.
+\item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
 \item \code{param_set} :: \code{paradox::ParamSet}\cr The parameter set.
 \item \code{module_generator} :: \code{nn_module_generator}\cr The torch module generator.
 \item \code{innum} :: \code{integer(1)}\cr

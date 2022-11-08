@@ -30,7 +30,7 @@ roxy_pipeop_torch_methods_default = function() { # nolint
 }
 
 roxy_param_param_vals = function() {
-  "* \\code{param_vals}` :: named \\code{list()}\\cr List of hyperparameter settings. Default is  \\code{list()}."
+  "* \\code{param_vals} :: named \\code{list()}\\cr List of hyperparameter settings to overwrite the initial values. Default is  \\code{list()}." # nolint
 }
 
 roxy_param_module_generator = function() {
@@ -66,14 +66,9 @@ roxy_pipeop_torch_format = function() {
   # "Blablabla"
 }
 
-roxy_consturction = function(obj) {
-  sprintf("%s$new()")
-
-
-}
 
 roxy_param_packages = function() {
-
+  "* \\code{packages}` :: named \\code{list()}\\cr List of packages settings. Default is  \\code{list()}."
 }
 
 roxy_param_innum = function() {
@@ -85,7 +80,7 @@ roxy_construction = function(x) {
     if (!is.null(x$public_methods$initialize)) {
       return(x)
     } else {
-      recurse(get(x$classname))
+      find_obj_with_init(get(x$classname))
     }
   }
   obj_with_init = find_obj_with_init(x)

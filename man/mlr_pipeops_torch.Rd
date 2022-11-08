@@ -40,7 +40,7 @@ The return is a named list, where the names are the names of the output channels
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object.
 \item \code{param_set} :: \code{paradox::ParamSet}\cr The parameter set.
-\item \code{param_vals}` :: named \code{list()}\cr List of hyperparameter settings. Default is  \code{list()}.
+\item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
 \item \code{module_generator} :: \code{nn_module_generator} | \code{NULL}\cr
 The module generator that is wrapped by this \code{PipeOpTorch}.
 When this is \code{NULL}, then \code{private$.make_module()} must be overloaded.

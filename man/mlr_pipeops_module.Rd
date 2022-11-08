@@ -10,34 +10,36 @@
 \description{
 \code{PipeOpModule} wraps an \code{\link{nn_module}} that is being called during the \code{train} phase of this \code{\link{PipeOp}}.
 By doing so, this allows to assemble \code{PipeOpModule}s in a computational \link[=`Graph`]{graph} that represents a neural
-network architecture. Such a graph can also be used to create a \code{\link{nn_graph}} that can be treated like any other
-\code{\link{nn_module}}.
+network architecture. Such a graph can also be used to create a \code{\link{nn_graph}} which inherits from \code{\link{nn_module}}.
 
 In most cases it is easier to create such a network by creating a isomorphic graph consisting
-of nodes of class \code{\link{PipeOpTorchIngress}} and \code{\link{PipeOpTorch}}. This graph will then generate the graph consiting
+of nodes of class \code{\link{PipeOpTorchIngress}} and \code{\link{PipeOpTorch}}. This graph will then generate the graph consisting
 of \code{PipeOpModule}s during its training phase.
 
-The \verb{$predict} method does currently not serve a meaningful purpose.
+The \code{predict} method does currently not serve a meaningful purpose.
 }
 \section{Construction}{
- \code{PipeOpTorchModule$new(id, param_vals = list())}
+
+\code{PipeOpModule$new(id, module, inname, outname, param_vals = list(), packages = character(0))}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object. The default is "module".
-\item \code{param_vals}` :: named \code{list()}\cr List of hyperparameter settings. Default is  \code{list()}.
-\item \code{module} :: \code{nn_module}\cr
-The \link[torch:nn_module]{module} that is wrapped.
+\item \code{module} :: \code{\link{nn_module}}\cr
+The torch module that is being wrapped.
 \item \code{inname} :: \code{character()}\cr
 The names of the input channels.
 \item \code{outname} :: \code{character()}\cr
 The names of the output channels. If this parameter has length 1, the parameter \link[torch:nn_module]{module} must
 return a \link[torch:torch_tensor]{tensor}. Otherwise it must return a \code{list()} of tensors of corresponding length.
+\item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
+\item \code{packages}` :: named \code{list()}\cr List of packages settings. Default is  \code{list()}.
 }
 }
 
 \section{Input and Output Channels}{
 
 The number and names of the input and output channels can be set during construction. They input and output
-\code{"torch_tensor"} during training, and \code{NULL} during prediction.
+\code{"torch_tensor"} during training, and \code{NULL} during prediction as the prediction phase currently serves no
+meaningful purpose.
 }
 
 \section{State}{
@@ -60,7 +62,7 @@ are defined. Arguments are \strong{not} matched by name.
 
 \itemize{
 \item \code{module} :: \code{nn_module}\cr
-The torch module.
+The torch module that is called during the training phase of the PipeOpModule.
 }
 }
 
@@ -70,14 +72,16 @@ Only methods inherited from \code{\link{PipeOp}}.
 }
 
 \examples{
-# one input and output channel:
+## creating an PipeOpModule manually
 
+# one input and output channel
 po_module = PipeOpModule$new("linear", torch::nn_linear(10, 20), inname = "input", outname = "output")
 x = torch::torch_randn(16, 10)
+# This calls the forward function of the wrapped module.
 y = po_module$train(list(input = x))
 str(y)
 
-# multiple channels
+# multiple input and output channels
 nn_custom = torch::nn_module("nn_custom",
   initialize = function(in_features, out_features) {
     self$lin1 = torch::nn_linear(in_features, out_features)
@@ -95,10 +99,11 @@ z = torch::torch_randn(1, 3)
 out = po_module$train(list(x = x, z = z))
 str(out)
 
-
-# in a nn_graph
+# How a PipeOpModule is usually generated
 graph = pot("ingress_num") \%>>\% pot("linear", out_features = 10L)
 result = graph$train(tsk("iris"))
+# The PipeOpTorchLinear generates a PipeOpModule and adds it to a new graph that represents the architecture
+result[[1]]$graph
 linear_module = result[[1L]]$graph$pipeops$linear
 linear_module
 formalArgs(linear_module$module)

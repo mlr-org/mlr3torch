@@ -15,7 +15,7 @@ Don't use this class directly.
  \code{PipeOpTorchAvgPool$new(id, param_vals = list())}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object.
-\item \code{param_vals}` :: named \code{list()}\cr List of hyperparameter settings. Default is  \code{list()}.
+\item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
 \item \code{d} :: \code{integer(1)}\cr
 The dimension for the average pooling operation.
 }

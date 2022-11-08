@@ -7,30 +7,35 @@
 #' @description
 #' `PipeOpModule` wraps an [`nn_module`] that is being called during the `train` phase of this [`PipeOp`].
 #' By doing so, this allows to assemble `PipeOpModule`s in a computational [graph][`Graph`] that represents a neural
-#' network architecture. Such a graph can also be used to create a [`nn_graph`] that can be treated like any other
-#' [`nn_module`].
+#' network architecture. Such a graph can also be used to create a [`nn_graph`] which inherits from [`nn_module`].
 #'
 #' In most cases it is easier to create such a network by creating a isomorphic graph consisting
-#' of nodes of class [`PipeOpTorchIngress`] and [`PipeOpTorch`]. This graph will then generate the graph consiting
+#' of nodes of class [`PipeOpTorchIngress`] and [`PipeOpTorch`]. This graph will then generate the graph consisting
 #' of `PipeOpModule`s during its training phase.
 #'
-#' The `$predict` method does currently not serve a meaningful purpose.
+#' The `predict` method does currently not serve a meaningful purpose.
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("Module")`
+#' @section Construction:
+#' `r roxy_construction(PipeOpModule)`
+#'
 #' `r roxy_param_id("module")`
-#' `r roxy_param_param_vals()`
-#' `r roxy_param_packages()`
-#' * `module` :: `nn_module`\cr
-#'   The [module][torch::nn_module] that is wrapped.
+#'
+#' * `module` :: [`nn_module`]\cr
+#'   The torch module that is being wrapped.
 #' * `inname` :: `character()`\cr
 #'   The names of the input channels.
 #' * `outname` :: `character()`\cr
 #'   The names of the output channels. If this parameter has length 1, the parameter [module][torch::nn_module] must
 #'   return a [tensor][torch::torch_tensor]. Otherwise it must return a `list()` of tensors of corresponding length.
 #'
+#' `r roxy_param_param_vals()`
+#'
+#' `r roxy_param_packages()`
+#'
 #' @section Input and Output Channels:
 #' The number and names of the input and output channels can be set during construction. They input and output
-#' `"torch_tensor"` during training, and `NULL` during prediction.
+#' `"torch_tensor"` during training, and `NULL` during prediction as the prediction phase currently serves no
+#' meaningful purpose.
 #'
 #' @section State:
 #' The `$state` is an empty `list()`.
@@ -44,7 +49,7 @@
 #'
 #' @section Fields:
 #' * `module` :: `nn_module`\cr
-#'   The torch module.
+#'   The torch module that is called during the training phase of the PipeOpModule.
 #'
 #' @section Methods:
 #' Only methods inherited from [`PipeOp`].
@@ -52,14 +57,16 @@
 #' @seealso nn_module, mlr_pipeops_torch, nn_graph, model_descriptor_to_module, PipeOp, Graph
 #' @export
 #' @examples
-#' # one input and output channel:
+#' ## creating an PipeOpModule manually
 #'
+#' # one input and output channel
 #' po_module = PipeOpModule$new("linear", torch::nn_linear(10, 20), inname = "input", outname = "output")
 #' x = torch::torch_randn(16, 10)
+#' # This calls the forward function of the wrapped module.
 #' y = po_module$train(list(input = x))
 #' str(y)
 #'
-#' # multiple channels
+#' # multiple input and output channels
 #' nn_custom = torch::nn_module("nn_custom",
 #'   initialize = function(in_features, out_features) {
 #'     self$lin1 = torch::nn_linear(in_features, out_features)
@@ -77,10 +84,11 @@
 #' out = po_module$train(list(x = x, z = z))
 #' str(out)
 #'
-#'
-#' # in a nn_graph
+#' # How a PipeOpModule is usually generated
 #' graph = pot("ingress_num") %>>% pot("linear", out_features = 10L)
 #' result = graph$train(tsk("iris"))
+#' # The PipeOpTorchLinear generates a PipeOpModule and adds it to a new graph that represents the architecture
+#' result[[1]]$graph
 #' linear_module = result[[1L]]$graph$pipeops$linear
 #' linear_module
 #' formalArgs(linear_module$module)
@@ -89,7 +97,7 @@ PipeOpModule = R6Class("PipeOpModule",
   inherit = PipeOp,
   public = list(
     module = NULL,
-    initialize = function(id, module, outname, param_vals = list(), inname, packages = character(0)) {
+    initialize = function(id, module, inname, outname, param_vals = list(), packages = character(0)) {
       private$.multi_output = length(outname) > 1L
       self$module = assert_class(module, "nn_module")
       lockBinding("module", self)
@@ -107,7 +115,7 @@ PipeOpModule = R6Class("PipeOpModule",
         packages = packages
       )
     }
-    # TOD: Maybe implement printer
+    # TODO: Maybe implement printer
     # print = function(...) {
     #   output = c(sprintf("<PipeOpModule:%s>", self$id), capture.output(print(self$module, ...)))
     #   output[2] = sub("^An", "Wrapping an",  output[2])

@@ -15,7 +15,7 @@ Applies a linear transformation to the incoming data: \eqn{y = xA^T + b}.
 \code{PipeOpTorchLinear$new(id = "nn_linear", param_vals = list())}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object. The default is "nn_linear".
-\item \code{param_vals}` :: named \code{list()}\cr List of hyperparameter settings. Default is  \code{list()}.
+\item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
 }
 }
 

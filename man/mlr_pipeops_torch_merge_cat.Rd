@@ -17,7 +17,7 @@ What does the cat say?
 }\if{html}{\out{</div>}}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object. The default is "nn_merge_cat".
-\item \code{param_vals}` :: named \code{list()}\cr List of hyperparameter settings. Default is  \code{list()}.
+\item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
 \item \code{innum} :: \code{integer(1)}\cr
 The number of inputs. Default is 0 which means there is one \emph{vararg} input channel.
 }

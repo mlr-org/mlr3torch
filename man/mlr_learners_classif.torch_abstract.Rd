@@ -4,58 +4,85 @@
 \alias{mlr_learners_classif.torch_abstract}
 \alias{LearnerClassifTorchAbstract}
 \title{Abstract Base Class for Torch Classification Network}
-\arguments{
-\item{id}{(\code{character(1)})\cr
-The id of the learner.}
-
-\item{optimizer}{(\code{\link{TorchOptimizer}})\cr
-The optimizer.}
-
-\item{loss}{(\code{character(1)})\cr
-The loss, see \code{torch_reflections$loss$classif}.}
-
-\item{param_set}{(\code{paradox::ParamSet})\cr
-Additional parameters to the standard paramset.}
-
-\item{label}{(\code{character(1)})\cr
-The label for the learner.}
-
-\item{properties}{(\code{character()})\cr
-The properties for the learner, see \code{mlr_reflections$learner_properties}.}
-
-\item{packages}{(\code{character()})\cr
-The additional packages on which the learner depends.}
-
-\item{predict_types}{(\code{character()})\cr
-The learner's predict types, see \code{mlr_reflections$learner_predict_types}.}
-
-\item{feature_types}{(\code{character()})\cr
-The feature types the learner can deal with, see \code{mlr_reflections$task_feature_types}.}
-
-\item{man}{(\code{character(1)})\cr
-String in the format \verb{[pkg]::[topic]} pointing to a manual page for this object.
-The referenced help package can be opened via method \verb{$help()}.}
+\format{
+\code{\link{R6Class}} object inheriting from \code{\link{LearnerClassif}}.
 }
 \description{
+This base class provides the basic functionality for training and prediction of a neural network.
 All Torch Classification Learners should inherit from this base class.
-It implements basic functionality that can be reused for all sort of learners
-It is not intended for direct use.
 }
-\section{Fields}{
-
-\describe{
-\item{\code{optimizer}}{(\code{\link[torch:optimizer]{torch_Optimizer}})\cr
-The optimizer.}
-
-\item{\code{loss_fn}}{(\code{nn_loss()})\cr
-The loss function.}
-
-\item{\code{network}}{(\code{\link[torch:nn_module]{nn_module()}})\cr
-The network.}
-}}
-
 \section{Construction}{
 
-\code{LearnerClassifTorchAbstract$new(id, optimizer, loss, param_set = ps(), label = NULL, properties = NULL, packages = character(0), predict_types = NULL, feature_types, man)}
+\code{LearnerClassifTorchAbstract$new(id, optimizer, loss, param_set, label = NULL, properties = NULL, packages = character(0), predict_types = NULL, feature_types, man)}
+\itemize{
+\item \code{id} :: (\code{character(1)})\cr
+The id of the learner.
+\item \code{optimizer} :: (\code{\link{TorchOptimizer}})\cr
+The optimizer for the model.
+\item \code{loss} :: (\code{\link{TorchLoss}})\cr
+The loss for the model.
+\item \code{param_set} (\code{paradox::ParamSet})\cr
+Additional parameters to the standard paramset.
+\item \code{label} :: (\code{character(1)})\cr
+The label for the learner.
+\item \code{properties} :: (\code{character()})\cr
+The properties for the learner, see \code{mlr_reflections$learner_properties}.
+\item \code{packages} :: (\code{character()})\cr
+The additional packages on which the learner depends.
+\item \code{predict_types} :: (\code{character()})\cr
+The learner's predict types, see \code{mlr_reflections$learner_predict_types}.
+\item \code{feature_types} :: (\code{character()})\cr
+The feature types the learner can deal with, see \code{mlr_reflections$task_feature_types}.
+\item \code{man} :: (\code{character(1)})\cr
+String in the format \verb{[pkg]::[topic]} pointing to a manual page for this object.
+The referenced help package can be opened via method \verb{$help()}.
+}
 }
 
+\section{Parameters}{
+
+\itemize{
+\item \code{batch_size} :: (\code{integer(1)})\cr
+The batch size.
+\item \code{epochs} :: \code{integer(1)}\cr
+The number of epochs.
+\item \code{device} :: \code{character(1)}\cr
+The device. One of \code{"auto"}, \code{"cpu"}, or \code{"cuda"}.
+\item \code{measures_train} :: \code{list()} of \code{\link{Measure}}s.
+Measures to be evaluated during training.
+\item \code{measures_valid} :: \code{list()} of \code{\link{Measure}}s.
+Measures to be evaluated during validation.
+\item \code{augmentation} :: ??
+TODO:
+\item \code{callbacks} :: (list of) \code{CallbackTorch}\cr
+The callbacks to .
+\item \code{drop_last} :: \code{logical(1)}\cr
+Whether to drop the last batch in each epoch during training. Default is \code{FALSE}.
+\item \code{num_threads} :: \code{integer(1)}\cr
+The number of threads (if \code{device} is \code{"cpu"}). Default is 1.
+\item \code{shuffle} :: \code{logical(1)}\cr
+Whether to shuffle the instances in the dataset. Default is \code{TRUE}.
+}
+}
+
+\section{Inheriting}{
+
+When inheriting from this class, one should overload the \code{private$.network(task)} method which should construct
+a \code{nn_module()} object for the given task and parameter values.
+}
+
+\section{Fields}{
+
+Fields inherited from \code{\link{LearnerClassif}} and
+\itemize{
+\item \code{network} :: (\code{\link[torch:nn_module]{nn_module()}})\cr
+The network (only available after training).
+}
+}
+
+\section{Methods}{
+
+Only methods inherited from LearnerClassif.
+}
+
+\concept{Learners}

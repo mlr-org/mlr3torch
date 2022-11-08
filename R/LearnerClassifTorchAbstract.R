@@ -1,48 +1,61 @@
 #' @title Abstract Base Class for Torch Classification Network
 #'
-#' @usage NULL
 #' @name mlr_learners_classif.torch_abstract
+#' @format [`R6Class`] object inheriting from [`LearnerClassif`].
+#'
 #' @description
+#' This base class provides the basic functionality for training and prediction of a neural network.
 #' All Torch Classification Learners should inherit from this base class.
-#' It implements basic functionality that can be reused for all sort of learners
-#' It is not intended for direct use.
 #'
 #' @section Construction:
 #' `r roxy_construction(LearnerClassifTorchAbstract)`
 #'
-#'
-#' @param id (`character(1)`)\cr
+#' * `id` :: (`character(1)`)\cr
 #'   The id of the learner.
-#' @param optimizer ([`TorchOptimizer`])\cr
-#'   The optimizer.
-#' @param loss (`character(1)`)\cr
-#'   The loss, see `torch_reflections$loss$classif`.
-#' @param param_set (`paradox::ParamSet`)\cr
+#' * `optimizer` :: ([`TorchOptimizer`])\cr
+#'   The optimizer for the model.
+#' * `loss` :: ([`TorchLoss`])\cr
+#'   The loss for the model.
+#' * `param_set` (`paradox::ParamSet`)\cr
 #'   Additional parameters to the standard paramset.
-#' @param label (`character(1)`)\cr
+#' * `label` :: (`character(1)`)\cr
 #'   The label for the learner.
-#' @param properties (`character()`)\cr
+#' * `properties` :: (`character()`)\cr
 #'   The properties for the learner, see `mlr_reflections$learner_properties`.
-#' @param packages (`character()`)\cr
+#' * `packages` :: (`character()`)\cr
 #'   The additional packages on which the learner depends.
-#' @param predict_types (`character()`)\cr
+#' * `predict_types` :: (`character()`)\cr
 #'   The learner's predict types, see `mlr_reflections$learner_predict_types`.
-#' @param feature_types (`character()`)\cr
+#' * `feature_types` :: (`character()`)\cr
 #'   The feature types the learner can deal with, see `mlr_reflections$task_feature_types`.
-#' @param man (`character(1)`)\cr
+#' * `man` :: (`character(1)`)\cr
 #'   String in the format `[pkg]::[topic]` pointing to a manual page for this object.
 #'   The referenced help package can be opened via method `$help()`.
 #'
+#' @template paramset_torchlearner
+#'
+#' @section Inheriting:
+#' When inheriting from this class, one should overload the `private$.network(task)` method which should construct
+#' a `nn_module()` object for the given task and parameter values.
+#'
+#' @section Fields:
+#' Fields inherited from [`LearnerClassif`] and
+#' * `network` :: ([`nn_module()`][torch::nn_module])\cr
+#'   The network (only available after training).
+#'
+#' @section Methods:
+#' Only methods inherited from LearnerClassif.
+#'
+#' @family Learners
 #' @export
 LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
   inherit = LearnerClassif,
   public = list(
-    initialize = function(id, optimizer, loss, param_set = ps(), label = NULL, properties = NULL,
+    initialize = function(id, optimizer, loss, param_set, label = NULL, properties = NULL,
       packages = character(0), predict_types = NULL, feature_types, man) {
       private$.optimizer = as_torch_optimizer(optimizer, clone = TRUE)
       private$.loss = as_torch_loss(loss, clone = TRUE)
       assert_subset("classif", private$.loss$task_types)
-      # FIXME: loglik?
       properties = properties %??% c("weights", "multiclass", "twoclass", "hotstart_forward")
       predict_types = predict_types %??% "response"
       label = label %??% "Classification Neural Network"
@@ -104,23 +117,12 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
     .loss = NULL
   ),
   active = list(
-    #' @field optimizer ([`torch_Optimizer`][torch::optimizer])\cr
-    #'  The optimizer.
-    optimizer = function(rhs) {
-      assert_ro_binding(rhs)
-      self$state$model$optimizer
-    },
-    #' @field loss_fn (`nn_loss()`)\cr
-    #'   The loss function.
-    loss_fn = function(rhs) {
-      assert_ro_binding(rhs)
-      self$state$model$loss_fn
-    },
-    #' @field network ([`nn_module()`][torch::nn_module])\cr
-    #'   The network.
     network = function(rhs) {
       assert_ro_binding(rhs)
-      self$state$model$network
+      if (is.null(self$state)) {
+        stopf("Cannot access network before training.")
+      }
+      self$state$network
     }
   )
 )

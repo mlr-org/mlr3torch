@@ -27,7 +27,7 @@ Don't use this class directly.
  \code{PipeOpTorchBatchNorm$new(id, param_vals = list())}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object.
-\item \code{param_vals}` :: named \code{list()}\cr List of hyperparameter settings. Default is  \code{list()}.
+\item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
 \item \code{module_generator} :: \code{nn_module_generator}\cr The torch module generator.
 \item \code{min_dim} :: \code{integer(1)}\cr
 The minimum number of dimension for the input tensor.
@@ -38,19 +38,19 @@ The maximum number of dimension for the input tensor.
  \code{PipeOpTorchBatchNorm1D$new(id, param_vals = list())}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object. The default is "nn_batch_norm_1d".
-\item \code{param_vals}` :: named \code{list()}\cr List of hyperparameter settings. Default is  \code{list()}.
+\item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
 }
 
  \code{PipeOpTorchBatchNorm2D$new(id, param_vals = list())}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object. The default is "nn_batch_norm_2d".
-\item \code{param_vals}` :: named \code{list()}\cr List of hyperparameter settings. Default is  \code{list()}.
+\item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
 }
 
  \code{PipeOpTorchBatchNorm3D$new(id, param_vals = list())}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object. The default is "nn_batch_norm_3d".
-\item \code{param_vals}` :: named \code{list()}\cr List of hyperparameter settings. Default is  \code{list()}.
+\item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
 }
 }
 

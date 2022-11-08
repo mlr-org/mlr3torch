@@ -20,7 +20,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 }\if{html}{\out{</div>}}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object.
-\item \code{param_vals}` :: named \code{list()}\cr List of hyperparameter settings. Default is  \code{list()}.
+\item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
 \item \code{d} :: \code{integer(1)}\cr
 The dimension of the max pooling operation.
 \item \code{return_indices} :: \code{logical(1)}\cr

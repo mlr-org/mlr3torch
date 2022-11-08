@@ -1,14 +1,30 @@
-#' @title Context where torch Callbacks are evaluted
+#' @title Context where torch Callbacks are evaluated.
+#'
+#' @format [`R6Class`] object inheriting from [`mlr3::Context`][mlr3::Context].
+#'
 #' @description
-#' State for training a TorchModel.
-#' This is the - mostly read-only - information callbacks have access to.
+#' Context for training a TorchModel.
+#' This is the - mostly read-only - information callbacks have access to:
+#'
+#' The following objects are available:
+#' * `learner` :: The torch learner.
+#' * `task_train` :: The training task.
+#' * `task_valid` :: The validation task.
+#' * `loader_train` :: The data loadder for training.
+#' * `loader_valid` :: The data loader for validation.
+#' * `measures_train` :: The measures for training.
+#' * `measures_valid` :: The measures for validation.
+#' * `network` :: The network.
+#' * `optimizer` :: The optimizer.
+#' * `loss_fn` :: The loss function.
+#' * `batch` :: The iteration of the batch.
+#' * `total_epochs` :: The total number of epochs the learner is training
 #'
 #' @export
-TorchState = R6Class("TorchState",
+ContextTorch = R6Class("ContextTorch",
+  inherit = Context,
   lock_objects = FALSE,
   public = list(
-    #' @param learner ([`mlr3::Learner`][mlr3::Learner])\cr
-    #'   The torch learner.
     initialize = function(learner, task_train, task_valid = NULL, loader_train, loader_valid = NULL,
       measures_train = NULL, measures_valid = NULL, network, optimizer, loss_fn, total_epochs) {
       self$learner = assert_r6(learner, "Learner")
