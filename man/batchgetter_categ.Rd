@@ -14,5 +14,5 @@ batchgetter_categ(data, device)
 The device.}
 }
 \description{
-Batchgetter for categorical data
+Converts a data frame of categorical data into a long tensor.
 }

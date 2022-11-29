@@ -38,17 +38,16 @@ Can optionally do the operation in-place. Default: \code{FALSE}.
 }
 }
 
-\section{Internals}{
-
-Calls \code{\link[torch:nn_hardtanh]{torch::nn_hardtanh()}} when trained.
-}
-
 \section{Fields}{
  Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
 
 \section{Methods}{
  Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+}
+
+\section{Internals}{
+ Calls \code{\link[torch:nn_hardtanh]{torch::nn_hardtanh()}} when trained.
 }
 
 \section{Credit}{

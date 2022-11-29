@@ -33,11 +33,10 @@
 #'   this module does not track such statistics and always uses batch statistics in both training and eval modes.
 #'   Default: `TRUE`
 #'
-#' @section Internals:
-#' See the respective child class.
-#'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' See the respective child class.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -102,11 +101,10 @@ PipeOpTorchBatchNorm = R6Class("PipeOpTorchBatchNorm",
 #'   this module does not track such statistics and always uses batch statistics in both training and eval modes.
 #'   Default: `TRUE`
 #'
-#' @section Internals:
-#' See the respective child class.
-#'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' See the respective child class.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -146,11 +144,10 @@ PipeOpTorchBatchNorm1D = R6Class("PipeOpTorchBatchNorm1D", inherit = PipeOpTorch
 #'   this module does not track such statistics and always uses batch statistics in both training and eval modes.
 #'   Default: `TRUE`
 #'
-#' @section Internals:
-#' See the respective child class.
-#'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' See the respective child class.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -190,11 +187,10 @@ PipeOpTorchBatchNorm2D = R6Class("PipeOpTorchBatchNorm2D", inherit = PipeOpTorch
 #'   this module does not track such statistics and always uses batch statistics in both training and eval modes.
 #'   Default: `TRUE`
 #'
-#' @section Internals:
-#' See the respective child class.
-#'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' See the respective child class.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export

@@ -8,17 +8,13 @@
 \code{\link{R6Class}} inheriting from \code{\link{PipeOp}}.
 }
 \description{
-Abstract B
 Use this as entry-point to mlr3torch-networks.
+Unless you are an advanced user, you should not need to use this directly but \code{\link{PipeOpTorchIngressNumeric}},
+\code{\link{PipeOpTorchIngressCategorical}} or \code{\link{PipeOpTorchIngressImage}}.
 }
 \section{Construction}{
 
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{PipeOpTorchIngress$new(id, param_set = ps(), param_vals = list(),
-  input = data.table(name = "input", train = "Task", predict = "Task"),
-  output = data.table(name = "output", train = "ModelDescriptor", predict = "Task"),
-  packages = character(0), feature_types)
-}\if{html}{\out{</div>}}
+\code{PipeOpTorchIngress$new(id, param_set = ps(), param_vals = list(), input = data.table(name = "input", train = "Task", predict = "Task"), output = data.table(name = "output", train = "ModelDescriptor", predict = "Task"), packages = character(0), feature_types)}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object.
 \item \code{param_set} :: \code{paradox::ParamSet}\cr The parameter set.
@@ -45,11 +41,6 @@ The state is set to the input shape.
 Defined by the construction argument \code{param_set}.
 }
 
-\section{Internals}{
-
-TODO: (not clear yet whether the current design stays).
-}
-
 \section{Fields}{
 
 \itemize{
@@ -62,6 +53,10 @@ The features types that can be consumed by this \code{PipeOpTorchIngress}.
  Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
 
-\examples{
-# TODO:
+\section{Internals}{
+
+Creates an object of class \code{\link{TorchIngressToken}} for the given task.
+Using this token, a \code{\link{ModelDescriptor}} object is created and output.
 }
+
+\concept{PipeOp}

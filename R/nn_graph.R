@@ -3,7 +3,6 @@
 #' @title Create nn_module from ModelDescriptor
 #'
 #' @description
-#'
 #' Creates the [`nn_graph`] from a [`ModelDescriptor`]. Mostly for internal use, since the [`ModelDescriptor`] is in most
 #' circumstances harder to use than just creating [`nn_graph`] directly.
 #'
@@ -22,21 +21,12 @@ model_descriptor_to_module = function(model_descriptor, output_pointers = NULL, 
   assert_list(output_pointers, types = "character", len = if (!list_output) 1, null.ok = TRUE)
   output_pointers = output_pointers %??% list(model_descriptor$.pointer)
 
-
   # all graph inputs have an entry in self$shapes_in
   # ModelDescriptor allows Graph to grow by-reference and therefore may have
   # an incomplete $ingress-slot. However, by the time we create an nn_graph,
   # the `graph` must be final, so $ingress must be complete.
   shapes_in = map(model_descriptor$ingress, "shape")
   features = task$feature_types$id
-  used_features = unique(unlist(map(model_descriptor$ingress, "features")))
-  unused_features = setdiff(features, used_features)
-  if (length(unused_features)) {
-    stopf(
-      "Task '%s' has features: {%s}", task$id, str_collapse(unused_features, n = 5),
-    )
-  }
-
 
   graph = model_descriptor$graph
 
@@ -66,21 +56,22 @@ model_descriptor_to_module = function(model_descriptor, output_pointers = NULL, 
 }
 
 #' @title Graph Network
-#' @description
 #'
+#' @description
 #' Represents a NN using a [`Graph`] that contains [`PipeOpModule`]s.
+#'
+#' @param graph ([`Graph`][mlr3pipelines::Graph])\cr
+#'   The [`Graph`][mlr3pipelines::Graph] to wrap.
+#' @param shapes_in (named `integer`)\cr
+#'   Shape info of tensors that go into `graph`. Names must be `graph$input$name`, possibly in different order.
+#' @param output_map (`character`)\cr
+#'   Which of `graph`'s outputs to use. Must be a subset of `graph$output$name`.
+#' @param list_output (`logical(1)`)\cr
+#'   Whether output should be a list of tensors. If `FALSE`, then `length(output_map)` must be 1.
 #'
 #' @export
 nn_graph = nn_module(
   "nn_graph",
-  #' @param graph ([`Graph`][mlr3pipelines::Graph])\cr
-  #'   The [`Graph`][mlr3pipelines::Graph] to wrap.
-  #' @param shapes_in (named `integer`)\cr
-  #'   Shape info of tensors that go into `graph`. Names must be `graph$input$name`, possibly in different order.
-  #' @param output_map (`character`)\cr
-  #'   Which of `graph`'s outputs to use. Must be a subset of `graph$output$name`.
-  #' @param list_output (`logical(1)`)\cr
-  #'   Whether output should be a list of tensors. If `FALSE`, then `length(output_map)` must be 1.
   initialize = function(graph, shapes_in, output_map = graph$output$name, list_output = FALSE) {
 
     self$list_output = assert_flag(list_output)

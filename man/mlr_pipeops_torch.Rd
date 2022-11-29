@@ -121,7 +121,7 @@ The module generator wrapped by this \code{PipeOpTorch}. If \code{NULL}, the pri
 \section{Methods}{
 
 \itemize{
-\item \verb{shapes_out(shapes_in)\\cr  (}list()\code{of}integer()\code{or}integer()\verb{) --> (}list()\code{of}integer()`)\cr
+\item \verb{shapes_out(shapes_in)\\cr  (}list()\code{of}integer()\code{or}integer()\verb{) -> (}list()\code{of}integer()`)\cr
 Calculates the output shapes for the given input shapes and parameters.
 }
 }

@@ -28,11 +28,6 @@ The feature types the learner supports. The default is all feature types.
 }
 }
 
-\section{Internals}{
-
-TODO:
-}
-
 \section{Parameters}{
 
 The parameter set defined as argument \code{param_set} during construction.
@@ -46,6 +41,11 @@ Only fields inherited from \code{\link{LearnerClassifTorch}}, \code{\link{Learne
 \section{Methods}{
 
 Only methods inherited from \code{\link{LearnerClassifTorch}}, \code{\link{LearnerClassif}} or \code{\link{Learner}}.
+}
+
+\section{Internals}{
+
+TODO:
 }
 
 \examples{

@@ -55,9 +55,9 @@ make_activation = function(name, class, param_set, parent_env = parent.frame()) 
 #' * `inplace` :: `logical(1)`\cr
 #'   Whether to do the operation in-place. Default: `FALSE`.
 #'
-#' @section Internals: Calls [`torch::nn_elu()`] when trained.
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals: Calls [`torch::nn_elu()`] when trained.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -85,9 +85,9 @@ PipeOpTorchELU = make_activation("elu", "ELU", param_set = ps(
 #' * `lambd` :: `numeric(1)`\cr
 #'   The $\lambda$ value for the Hardshrink formulation formulation. Default 0.5.
 #'
-#' @section Internals: Calls [`torch::nn_hardshrink()`] when trained.
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals: Calls [`torch::nn_hardshrink()`] when trained.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -113,9 +113,9 @@ PipeOpTorchHardShrink = make_activation("hardshrink", "HardShrink", param_set = 
 #' @section Parameters:
 #' No parameters.
 #'
-#' @section Internals: Calls [`torch::nn_hardsigmoid()`] when trained.
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals: Calls [`torch::nn_hardsigmoid()`] when trained.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -144,11 +144,9 @@ PipeOpTorchHardSigmoid = make_activation("hardsigmoid", "HardSigmoid", param_set
 #' * `inplace` :: `logical(1)`\cr
 #'   Can optionally do the operation in-place. Default: `FALSE`.
 #'
-#' @section Internals:
-#' Calls [`torch::nn_hardtanh()`] when trained.
-#'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals: Calls [`torch::nn_hardtanh()`] when trained.
 #' @section Credit:
 #' `r roxy_pipeop_torch_license()`
 #'
@@ -180,9 +178,9 @@ PipeOpTorchHardTanh = make_activation("hardtanh", "HardTanh", param_set = ps(
 # #' @section Parameters:
 # #' No parameters.
 # #'
-# #' @section Internals: Calls [`torch::nn_hardswish()`] when trained.
 # #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 # #' @section Methods: `r roxy_pipeop_torch_methods_default()`
+# #' @section Internals: Calls [`torch::nn_hardswish()`] when trained.
 # #' @section Credit: `r roxy_pipeop_torch_license()`
 # #' @family PipeOpTorch
 # #' @export
@@ -209,9 +207,9 @@ PipeOpTorchHardTanh = make_activation("hardtanh", "HardTanh", param_set = ps(
 #' * `inplace` :: `logical(1)`\cr
 #'   Can optionally do the operation in-place. Default: ‘FALSE’.
 #'
-#' @section Internals: Calls [`torch::nn_hardswish()`] when trained.
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals: Calls [`torch::nn_hardswish()`] when trained.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export

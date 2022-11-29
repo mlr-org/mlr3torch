@@ -5,17 +5,12 @@
 #' @format [`R6Class`] inheriting from [`PipeOp`].
 #'
 #' @description
-#' Abstract B
 #' Use this as entry-point to mlr3torch-networks.
+#' Unless you are an advanced user, you should not need to use this directly but [`PipeOpTorchIngressNumeric`],
+#' [`PipeOpTorchIngressCategorical`] or [`PipeOpTorchIngressImage`].
 #'
 #' @section Construction:
-#'
-#' ```
-#' PipeOpTorchIngress$new(id, param_set = ps(), param_vals = list(),
-#'   input = data.table(name = "input", train = "Task", predict = "Task"),
-#'   output = data.table(name = "output", train = "ModelDescriptor", predict = "Task"),
-#'   packages = character(0), feature_types)
-#' ```
+#' `r roxy_construction(PipeOpTorchIngress)`
 #'
 #' `r roxy_param_id()`
 #' `r roxy_param_param_set()`
@@ -34,17 +29,18 @@
 #' @section Parameters:
 #' Defined by the construction argument `param_set`.
 #'
-#' @section Internals:
-#' TODO: (not clear yet whether the current design stays).
-#'
 #' @section Fields:
 #' * `feature_types` :: `character(1)`\cr
 #'   The features types that can be consumed by this `PipeOpTorchIngress`.
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #'
+#' @section Internals:
+#' Creates an object of class [`TorchIngressToken`] for the given task.
+#' The purpuse of this is to store the information on how to construct the torch dataloader from the task for this
+#' entry point of the network. This is done in the function [`task_dataset()`].
+#'
+#' @family PipeOp
 #' @export
-#' @examples
-#' # TODO:
 PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
   inherit = PipeOp,
   public = list(
@@ -55,6 +51,14 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
       packages = character(0), feature_types) {
       self$feature_types = feature_types
       lockBinding("feature_types", self)
+      ps_tmp = ps(
+        affect_columns = p_uty(custom_check = check_function_or_null, default = selector_all(), tags = "train")
+      )
+      if (param_set$length > 0) {
+        param_set = ParamSetCollection$new(list(param_set, ps_tmp))
+      } else {
+        param_set = ps_tmp
+      }
 
       super$initialize(
         id = id,
@@ -70,6 +74,7 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
     .get_batchgetter = function(task, param_vals) stop("private$.get_batchgetter() must be implemented."),
     .shape = function(task, param_vals) stop("private$.shape() must be implemented."),
     .train = function(inputs) {
+      pv = self$param_set$get_values(tags = "train")
       task = inputs[[1]]
       param_vals = self$param_set$get_values()
       graph = as_graph(po("nop", id = self$id))
@@ -87,13 +92,11 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
         test_env = parent.env(test_env)
       }
 
-      if (!sum(task$feature_types$type %in% self$feature_types)) {
-        stopf("%s with id '%s' got task with no feature types that it can process.", class(self)[[1L]], self$id)
+      if (!any(task$feature_types$type %in% self$feature_types)) {
+        warningf("%s with id '%s' got task with no feature types that it can process.", class(self)[[1L]], self$id)
       }
-
-
       ingress = TorchIngressToken(
-        features = task$feature_names,
+        features = pv$affect_columns(task),
         batchgetter = batchgetter,
         shape = private$.shape(task, param_vals)
       )
@@ -113,6 +116,11 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
 
 #' @title Torch Ingress Token
 #'
+#' @description
+#' This function creates an S3 class of class `"TorchIngressToken"`, which is an internal data structure.
+#' It contains the (meta-)information of how a batch is generated from a [`Task`] and fed into an entry point
+#' of the neural network. It is stored as the `ingress` field in a [`ModelDescriptor`].
+#'
 #' @param features (`character`)\cr
 #'   Features on which the batchgetter will operate.
 #' @param batchgetter (`function`)\cr
@@ -120,8 +128,7 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
 #'   the output of `Task$data(rows = batch_indices, cols = features)`
 #'   and it should produce a tensor of shape `shape_out`.
 #' @param shape (`integer`)\cr
-#'   Shape that `batchgetter` will produce. Batch-dimension should
-#'   be included as `NA`.
+#'   Shape that `batchgetter` will produce. Batch-dimension should be included as `NA`.
 #' @return `TorchIngressToken` object.
 #' @export
 TorchIngressToken = function(features, batchgetter, shape) {
@@ -142,8 +149,41 @@ print.TorchIngressToken = function(x, ...) {
 
 
 #' @title Torch Entry Point for Numeric Features
-#' @description Numeric Ingress
+#' @usage NULL
+#' @name mlr_pipeops_torch_ingress_numeric
+#' @format [`R6Class`] object inheriting from [`PipeOpTorchIngress`] / [`PipeOp`].
 #'
+#' @description
+#' Ingress PipeOp that represents a numeric (`integer()` and `numeric()`) entry point to a torch network.
+#'
+#' @section Construction:
+#' `r roxy_construction(PipeOpTorchIngressNumeric)`
+#'
+#' `r roxy_param_id()`
+#' `r roxy_param_param_vals()`
+#'
+#' @section Input and Output Channels:
+#' `r roxy_pipeop_torch_channels_default()`
+#' @inheritSection mlr_pipeops_torch_ingress State
+#' @section Parameters:
+#' * `affect_columns` :: `function` | [`Selector`] | `NULL` \cr
+#'   What columns the [`PipeOpTorchIngressNumeric`] should operate on.
+#' @section Fields:
+#' Only fields inherited from [`PipeOpTorchIngress`] / [`PipeOp`].
+#' @section Methods:
+#' Only methods inherited from [`PipeOpTorchIngress`] / [`PipeOp`].
+#' @section Internals:
+#' Uses [batchgetter_num()].
+#'
+#' @export
+#' @examples
+#' po_ingress = pot("ingress_num", affect_columns = selector_type(c("numeric", "integer")))
+#' task = tsk("penguins")
+#' # The output is a TorchIngressToken
+#' token = po_ingress$train(list(task))[[1L]]
+#' # M
+#' ingress_num = token$ingress$ingress_num.input
+#' ingress_num$batchgetter(task$data(1:5, ingress_num$features), "cpu")
 PipeOpTorchIngressNumeric = R6Class("PipeOpTorchIngressNumeric",
   inherit = PipeOpTorchIngress,
   public = list(
@@ -163,8 +203,13 @@ PipeOpTorchIngressNumeric = R6Class("PipeOpTorchIngressNumeric",
 
 #' @title Batchgetter for Numeric Data
 #'
-#' @param data (`data.table`)\cr
+#' @description
+#' Converts a data frame of numeric data into a float tensor.
+#'
+#' @param data (`data.table()`)\cr
 #'   `data.table` to be converted to a `tensor`.
+#' @param device (`character(1)`)\cr
+#'   The device on which the tensor should be created.
 #' @export
 batchgetter_num = function(data, device) {
   torch_tensor(
@@ -178,21 +223,40 @@ batchgetter_num = function(data, device) {
 register_po("torch_ingress_num", PipeOpTorchIngressNumeric)
 
 #' @title Torch Entry Point for Categorical Features
-#'
 #' @usage NULL
 #' @name mlr_pipeops_torch_ingress_cat
 #' @format [`R6Class`] inheriting from [`PipeOpTorchIngress`]/[`PipeOpTorch`].
 #'
 #' @description
-#' Entry point for categorical features in torch network.
+#' Ingress PipeOp that represents a categorical (`factor()` and `logical()`) entry point to a torch network.
 #'
+#' @section Construction:
+#' `r roxy_construction(PipeOpTorchIngressCategorical)`
+#'
+#' `r roxy_param_id()`
+#' `r roxy_param_param_vals()`
+#'
+#' @section Input and Output Channels:
+#' `r roxy_pipeop_torch_channels_default()`
+#' @section State:
+#' `r roxy_pipeop_torch_state_default()`
+#' @section Parameters:
+#' * `affect_columns` :: `function` | [`Selector`] | `NULL` \cr
+#'   What columns the [`PipeOpTorchIngressCategorical`] should operate on.
+#' @section Fields:
+#' Only fields inherited from [`PipeOpTorchIngress`] / [`PipeOp`].
+#' @section Methods:
+#' Only methods inherited from [`PipeOpTorchIngress`] / [`PipeOp`].
+#' @section Internals:
+#' Uses [batchgetter_categ()].
+#' @section see
+#' @export
 PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
   inherit = PipeOpTorchIngress,
   public = list(
     initialize = function(id = "torch_ingress_cat", param_vals = list()) {
       super$initialize(id = id, param_vals = param_vals, feature_types = c("factor", "ordered"))
     },
-    #' @description What does the cat say?
     speak = function() cat("I am the ingress cat, meow! ^._.^\n")
   ),
   private = list(
@@ -206,6 +270,9 @@ PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
 )
 
 #' @title Batchgetter for categorical data
+#'
+#' @description
+#' Converts a data frame of categorical data into a long tensor.
 #'
 #' @param data (`data.table`)\cr
 #'   `data.table` to be converted to a `tensor`.
@@ -233,26 +300,37 @@ register_po("torch_ingress_cat", PipeOpTorchIngressCategorical)
 #' also no data augmentation etc.
 #'
 #' @section Construction:
+#' `r roxy_construction(PipeOpTorchIngressImage)`
 #'
+#' @section Input and Output Channels:
+#' `r roxy_pipeop_torch_channels_default()`
+#' @section State:
+#' `r roxy_pipeop_torch_state_default()`
 #' @section Parameters:
+#' * `affect_columns` :: `function` | [`Selector`] | `NULL` \cr
+#'   What columns the [`PipeOpTorchIngressImage`] should operate on.
 #' * `channels` :: `integer(1)`\cr
 #'   The number of input channels.
 #' * `pixels_height` :: `integer(1)`\cr
 #'   The height of the pixels.
-#'
-#' @section Internals:
+#' * `pixels_width` :: `integer(1)`\cr
+#'   The width of the pixels.
 #' @section Fields:
+#' Only fields inherited from [`PipeOpTorchIngress`] / [`PipeOp`].
 #' @section Methods:
+#' Only methods inherited from [`PipeOpTorchIngress`] / [`PipeOp`].
+#' @section Internals:
+#' Uses `magick::image_read()`'to load the image.
 #'
 #' @family PipeOpTorch
 #'
 #' @export
 #' @examples
 #' # TODO
-PipeOpTorchIngressImages = R6Class("PipeOpTorchIngressImages",
+PipeOpTorchIngressImage = R6Class("PipeOpTorchIngressImage",
   inherit = PipeOpTorchIngress,
   public = list(
-    initialize = function(id = "torch_ingress_img", param_vals = list()) {
+    initialize = function(id = "torch_ingress_img", param_vals = list(), param_set = param_set) {
       param_set = ps(
         channels = p_int(1),
         pixels_height = p_int(1),
@@ -276,4 +354,4 @@ PipeOpTorchIngressImages = R6Class("PipeOpTorchIngressImages",
     }
   )
 )
-register_po("torch_ingress_img", PipeOpTorchIngressImages)
+register_po("torch_ingress_img", PipeOpTorchIngressImage)

@@ -26,11 +26,12 @@
 #' * `eps` :: `numeric(1)`\cr
 #'   A value added to the denominator for numerical stability.
 #'
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#'
 #' @section Internals:
 #' Calls [`torch::nn_layer_norm()`] when trained.
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export

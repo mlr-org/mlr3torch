@@ -1,4 +1,4 @@
-exect_torchop = function(op, inputs, task, class, exclude = character(0L), expected_class) {
+expect_torchop = function(op, inputs, task, class, exclude = character(0L), expected_class) {
   module =
 
 

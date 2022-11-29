@@ -20,14 +20,14 @@
 #' @section Parameters:
 #' The parameters of the constructor argument `loss`.
 #'
-#' @section Internals:
-#' TODO:
-#'
 #' @section Fields:
 #' Only fields inherited from [`PipeOp`].
 #'
 #' @section Methods:
 #' Only ,methods inherited from [`PipeOp`].
+#'
+#' @section Internals:
+#' TODO:
 #'
 #' @seealso PipeOpTorch, PipeOpTorchOptimizer
 #' @export

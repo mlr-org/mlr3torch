@@ -42,3 +42,19 @@ The parent environment for the \code{\link{R6Class}}.}
 \description{
 Convenience function to create a callback for torch.
 }
+\section{Stages}{
+
+\itemize{
+\item \code{begin} :: Run before the training loop begins.
+\item \code{epoch_begin} :: Run he beginning of each epoch.
+\item \code{before_validation} :: Run before each validation loop.
+\item \code{batch_begin} :: Run before the forward call.
+\item \code{after_backward} :: Run after the backward call.
+\item \code{batch_end} :: Run after the optimizer step.
+\item \code{batch_valid_begin} :: Run before the forward call in the validation loop.
+\item \code{batch_valid_end} :: Run after the forward call in the validation loop.
+\item \code{epoch_end} :: Run at the end of each epoch
+\item \code{end} :: Run at the end of the training loop.
+}
+}
+

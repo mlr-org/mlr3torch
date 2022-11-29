@@ -13,12 +13,11 @@
 #' * `shape` :: `integer(1)`\cr
 #'   The desired output shape.
 #'
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
 #' Calls [`nn_reshape()`] when trained.
 #' This internally calls [`torch::torch_reshape()`] with the given `shape`.
-#'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export

@@ -64,13 +64,6 @@ Whether to shuffle the instances in the dataset. Default is \code{TRUE}.
 }
 }
 
-\section{Internals}{
-
-First a \code{\link{nn_graph}} is created by calling \code{\link[=model_descriptor_to_module]{model_descriptor_to_module()}} and than a \code{LearnerClassifTorchModel}
-is created from the \code{module}, is initialized for the specification provided in the input \code{\link{ModelDescriptor}}.
-Then the parameters are set according to the parameters specified in \code{PipeOpTorchModel} and its '$train()\verb{ method is called on the [}Task\verb{] provided through the [}ModelDescriptor`].
-}
-
 \section{Fields}{
 
 Only fields inherited from \code{\link{PipeOp}}.
@@ -79,6 +72,13 @@ Only fields inherited from \code{\link{PipeOp}}.
 \section{Methods}{
 
 Only Methods inherited from \code{\link{PipeOp}}.
+}
+
+\section{Internals}{
+
+First a \code{\link{nn_graph}} is created by calling \code{\link[=model_descriptor_to_module]{model_descriptor_to_module()}} and than a \code{LearnerClassifTorchModel}
+is created from the \code{module}, is initialized for the specification provided in the input \code{\link{ModelDescriptor}}.
+Then the parameters are set according to the parameters specified in \code{PipeOpTorchModel} and its '$train()\verb{ method is called on the [}Task\verb{] provided through the [}ModelDescriptor`].
 }
 
 \seealso{

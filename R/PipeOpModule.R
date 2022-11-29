@@ -43,16 +43,17 @@
 #' @section Parameters:
 #' No parameters.
 #'
-#' @section Internals:
-#' During training, the wrapped [`nn_module`] is called with the provided inputs in the order in which the channels
-#' are defined. Arguments are **not** matched by name.
-#'
 #' @section Fields:
 #' * `module` :: `nn_module`\cr
 #'   The torch module that is called during the training phase of the PipeOpModule.
 #'
 #' @section Methods:
 #' Only methods inherited from [`PipeOp`].
+#'
+#' @section Internals:
+#' During training, the wrapped [`nn_module`] is called with the provided inputs in the order in which the channels
+#' are defined. Arguments are **not** matched by name.
+#'
 #'
 #' @seealso nn_module, mlr_pipeops_torch, nn_graph, model_descriptor_to_module, PipeOp, Graph
 #' @export

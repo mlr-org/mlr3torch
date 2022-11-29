@@ -28,17 +28,17 @@ Whether to return the indices as well, in which case there are two output channe
  The state is the value calculated by the public method \code{shapes_out()}.
 }
 
-\section{Internals}{
-
-Calls \code{\link[torch:nn_max_pool2d]{torch::nn_max_pool2d()}} during training.
-}
-
 \section{Fields}{
  Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
 
 \section{Methods}{
  Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+}
+
+\section{Internals}{
+
+Calls \code{\link[torch:nn_max_pool2d]{torch::nn_max_pool2d()}} during training.
 }
 
 \section{Credit}{

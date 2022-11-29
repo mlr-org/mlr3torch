@@ -52,12 +52,6 @@ The \verb{$state} is an empty \code{list()}.
 No parameters.
 }
 
-\section{Internals}{
-
-During training, the wrapped \code{\link{nn_module}} is called with the provided inputs in the order in which the channels
-are defined. Arguments are \strong{not} matched by name.
-}
-
 \section{Fields}{
 
 \itemize{
@@ -69,6 +63,12 @@ The torch module that is called during the training phase of the PipeOpModule.
 \section{Methods}{
 
 Only methods inherited from \code{\link{PipeOp}}.
+}
+
+\section{Internals}{
+
+During training, the wrapped \code{\link{nn_module}} is called with the provided inputs in the order in which the channels
+are defined. Arguments are \strong{not} matched by name.
 }
 
 \examples{

@@ -92,7 +92,7 @@
 #'
 #' @section Methods:
 #' * `shapes_out(shapes_in)\cr
-#'  (`list()` of `integer()` or `integer()`) --> (`list()` of `integer()`)\cr
+#'  (`list()` of `integer()` or `integer()`) -> (`list()` of `integer()`)\cr
 #'  Calculates the output shapes for the given input shapes and parameters.
 #'
 #' @section Internals:

@@ -27,11 +27,10 @@
 #' @section State: `r roxy_pipeop_torch_state_default()`
 #' @section Parameters: See the respective child class.
 #'
-#' @section Internals:
-#' See the respective child class.
-#'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' See the respective child class.
 #' @family PipeOpTorch
 #' @export
 PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
@@ -89,11 +88,10 @@ PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
 #' @section Parameters:
 #' No parameters.
 #'
-#' @section Internals:
-#' Calls [`nn_merge_sum()`] when trained.
-#'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' Calls [`nn_merge_sum()`] when trained.
 #' @family PipeOpTorch
 #' @export
 #' @examples
@@ -143,11 +141,11 @@ PipeOpTorchMergeSum = R6Class("PipeOpTorchMergeSum", inherit = PipeOpTorchMerge,
 #' @section Parameters:
 #' No parameters.
 #'
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
 #' Calls [`nn_merge_prod()`] when trained.
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @family PipeOpTorch
 #' @export
 #' @examples
@@ -197,11 +195,11 @@ PipeOpTorchMergeProd = R6Class("PipeOpTorchMergeProd", inherit = PipeOpTorchMerg
 #' @section Parameters:
 #' No parameters.
 #'
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
 #' Calls [`nn_merge_cat()`] when trained.
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @family PipeOpTorch
 #' @export
 #' @examples

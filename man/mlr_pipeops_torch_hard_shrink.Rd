@@ -34,16 +34,16 @@ The $\lambda$ value for the Hardshrink formulation formulation. Default 0.5.
 }
 }
 
-\section{Internals}{
- Calls \code{\link[torch:nn_hardshrink]{torch::nn_hardshrink()}} when trained.
-}
-
 \section{Fields}{
  Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
 
 \section{Methods}{
  Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+}
+
+\section{Internals}{
+ Calls \code{\link[torch:nn_hardshrink]{torch::nn_hardshrink()}} when trained.
 }
 
 \section{Credit}{

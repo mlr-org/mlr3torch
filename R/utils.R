@@ -46,3 +46,4 @@ check_vector = function(d) function(x) {
   sprintf("Must be an integerish vector of length 1 or %s", d)
 }
 
+check_function_or_null = function(x) check_function(x, null.ok = TRUE)

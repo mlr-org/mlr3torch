@@ -18,11 +18,10 @@
 #' * `dim` :: `integer(1)`\cr
 #'   A dimension along which Softmax will be computed (so every slice along dim will sum to 1).
 #'
-#' @section Internals:
-#' Calls [`torch::nn_softmax()`] when trained.
-#'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' Calls [`torch::nn_softmax()`] when trained.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export

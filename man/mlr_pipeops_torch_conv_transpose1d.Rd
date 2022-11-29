@@ -27,17 +27,17 @@ composed of several input planes, sometimes also called "deconvolution".
  The state is the value calculated by the public method \code{shapes_out()}.
 }
 
-\section{Internals}{
-
-Calls \code{\link[torch:nn_conv_transpose1d]{torch::nn_conv_transpose1d()}}
-}
-
 \section{Fields}{
  Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
 
 \section{Methods}{
  Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+}
+
+\section{Internals}{
+
+Calls \code{\link[torch:nn_conv_transpose1d]{torch::nn_conv_transpose1d()}}
 }
 
 \section{Credit}{

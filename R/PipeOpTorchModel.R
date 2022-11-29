@@ -48,17 +48,17 @@
 #' * `shuffle` :: `logical(1)`\cr
 #'   Whether to shuffle the instances in the dataset. Default is `TRUE`.
 #'
-#' @section Internals:
-#' First a [`nn_graph`] is created by calling [`model_descriptor_to_module()`] and than a `LearnerClassifTorchModel`
-#' is created from the `module`, is initialized for the specification provided in the input [`ModelDescriptor`].
-#' Then the parameters are set according to the parameters specified in `PipeOpTorchModel` and its '$train()` method
-#' is called on the [`Task`] provided through the [`ModelDescriptor`].
-#'
 #' @section Fields:
 #' Only fields inherited from [`PipeOp`].
 #'
 #' @section Methods:
 #' Only Methods inherited from [`PipeOp`].
+#'
+#' @section Internals:
+#' First a [`nn_graph`] is created by calling [`model_descriptor_to_module()`] and than a `LearnerClassifTorchModel`
+#' is created from the `module`, is initialized for the specification provided in the input [`ModelDescriptor`].
+#' Then the parameters are set according to the parameters specified in `PipeOpTorchModel` and its '$train()` method
+#' is called on the [`Task`] provided through the [`ModelDescriptor`].
 #'
 #' @family PipeOpTorch
 #' @export

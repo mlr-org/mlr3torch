@@ -38,17 +38,17 @@ The state is the value calculated by the public method \code{shapes_out()}.
 No parameters.
 }
 
-\section{Internals}{
-
-Calls \code{\link[=nn_merge_sum]{nn_merge_sum()}} when trained.
-}
-
 \section{Fields}{
  Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
 
 \section{Methods}{
  Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+}
+
+\section{Internals}{
+
+Calls \code{\link[=nn_merge_sum]{nn_merge_sum()}} when trained.
 }
 
 \examples{

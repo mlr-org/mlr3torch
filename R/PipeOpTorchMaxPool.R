@@ -39,11 +39,10 @@
 #' * `ceil_mode` :: `logical(1)`\cr
 #'   When True, will use ceil instead of floor to compute the output shape. Default: `FALSE`
 #'
-#' @section Internals:
-#' See the respective child class.
-#'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' See the respective child class.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -118,13 +117,10 @@ PipeOpTorchMaxPool = R6Class("PipeOpTorchMaxPool",
 #'
 #' @inheritSection mlr_pipeops_torch_max_pool Parameters
 #'
-#' @section Internals:
-#' Calls [`torch::nn_max_pool3d()`] during training.
-#' The
-#'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
-#'
+#' @section Internals:
+#' Calls [`torch::nn_max_pool3d()`] during training.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -169,11 +165,11 @@ PipeOpTorchMaxPool1D = R6Class("PipeOpTorchMaxPool1D", inherit = PipeOpTorchMaxP
 #'
 #' @inheritSection mlr_pipeops_torch_max_pool Parameters
 #'
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
 #' Calls [`torch::nn_max_pool2d()`] during training.
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -219,11 +215,11 @@ PipeOpTorchMaxPool2D = R6Class("PipeOpTorchMaxPool2D", inherit = PipeOpTorchMaxP
 #'
 #' @inheritSection mlr_pipeops_torch_max_pool Parameters
 #'
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
 #' Calls [`torch::nn_max_pool3d()`] during training.
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export

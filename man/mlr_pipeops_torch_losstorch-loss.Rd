@@ -33,11 +33,6 @@ The loss function.
 The parameters of the constructor argument \code{loss}.
 }
 
-\section{Internals}{
-
-TODO:
-}
-
 \section{Fields}{
 
 Only fields inherited from \code{\link{PipeOp}}.
@@ -46,6 +41,11 @@ Only fields inherited from \code{\link{PipeOp}}.
 \section{Methods}{
 
 Only ,methods inherited from \code{\link{PipeOp}}.
+}
+
+\section{Internals}{
+
+TODO:
 }
 
 \examples{

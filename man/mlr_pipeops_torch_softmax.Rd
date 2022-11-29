@@ -34,17 +34,17 @@ A dimension along which Softmax will be computed (so every slice along dim will 
 }
 }
 
-\section{Internals}{
-
-Calls \code{\link[torch:nn_softmax]{torch::nn_softmax()}} when trained.
-}
-
 \section{Fields}{
  Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
 
 \section{Methods}{
  Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+}
+
+\section{Internals}{
+
+Calls \code{\link[torch:nn_softmax]{torch::nn_softmax()}} when trained.
 }
 
 \section{Credit}{

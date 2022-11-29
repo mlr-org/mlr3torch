@@ -31,16 +31,16 @@ Applies the element-wise function \eqn{\mbox{Hardsigmoid}(x) = \frac{ReLU6(x + 3
 No parameters.
 }
 
-\section{Internals}{
- Calls \code{\link[torch:nn_hardsigmoid]{torch::nn_hardsigmoid()}} when trained.
-}
-
 \section{Fields}{
  Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
 
 \section{Methods}{
  Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+}
+
+\section{Internals}{
+ Calls \code{\link[torch:nn_hardsigmoid]{torch::nn_hardsigmoid()}} when trained.
 }
 
 \section{Credit}{

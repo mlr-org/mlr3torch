@@ -1,8 +1,3 @@
-
-
-
-
-
 learner_torch_train = function(self, private, super, task) {
   param_vals = self$param_set$get_values(tags = "train")
 

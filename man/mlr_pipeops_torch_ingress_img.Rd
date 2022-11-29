@@ -2,7 +2,7 @@
 % Please edit documentation in R/PipeOpTorchIngress.R
 \name{mlr_pipeops_torch_ingress_img}
 \alias{mlr_pipeops_torch_ingress_img}
-\alias{PipeOpTorchIngressImages}
+\alias{PipeOpTorchIngressImage}
 \title{Torch Entry Point for Images}
 \format{
 \code{\link{R6Class}} inheriting from \code{\link{PipeOpTorchIngress}} and \code{\link{PipeOp}}.
@@ -14,6 +14,17 @@ also no data augmentation etc.
 }
 \section{Construction}{
 
+\code{PipeOpTorchIngressImage$new(id = "torch_ingress_img", param_vals = list())}
+}
+
+\section{Input and Output Channels}{
+
+One input channel called \code{"input"} and one output channel called‘"output"’. For an explanation see \link{\code{PipeOpTorch}}.
+}
+
+\section{State}{
+
+The state is the value calculated by the public method \code{shapes_out()}.
 }
 
 \section{Parameters}{
@@ -26,16 +37,19 @@ The height of the pixels.
 }
 }
 
-\section{Internals}{
-
-}
-
 \section{Fields}{
 
+Only fields inherited from \code{\link{PipeOpTorchIngress}} / \code{\link{PipeOp}}.
 }
 
 \section{Methods}{
 
+Only methods inherited from \code{\link{PipeOpTorchIngress}} / \code{\link{PipeOp}}.
+}
+
+\section{Internals}{
+
+Uses \code{magick::image_read()}'to load the image.
 }
 
 \examples{

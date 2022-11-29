@@ -36,17 +36,17 @@ The number of inputs. Default is 0 which means there is one \emph{vararg} input 
 No parameters.
 }
 
-\section{Internals}{
-
-Calls \code{\link[=nn_merge_cat]{nn_merge_cat()}} when trained.
-}
-
 \section{Fields}{
  Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
 
 \section{Methods}{
  Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+}
+
+\section{Internals}{
+
+Calls \code{\link[=nn_merge_cat]{nn_merge_cat()}} when trained.
 }
 
 \examples{

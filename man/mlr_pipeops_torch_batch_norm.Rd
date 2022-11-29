@@ -136,20 +136,6 @@ Default: \code{TRUE}
 }
 }
 
-\section{Internals}{
-
-See the respective child class.
-
-
-See the respective child class.
-
-
-See the respective child class.
-
-
-See the respective child class.
-}
-
 \section{Fields}{
  Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 
@@ -168,6 +154,20 @@ See the respective child class.
  Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 
  Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+}
+
+\section{Internals}{
+
+See the respective child class.
+
+
+See the respective child class.
+
+
+See the respective child class.
+
+
+See the respective child class.
 }
 
 \section{Credit}{

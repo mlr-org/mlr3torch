@@ -52,17 +52,17 @@ The padding mode. One of \code{"zeros"}, \code{"reflect"}, \code{"replicate"}, o
 }
 }
 
-\section{Internals}{
-
-See the respective child class.
-}
-
 \section{Fields}{
  Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
 
 \section{Methods}{
  Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+}
+
+\section{Internals}{
+
+See the respective child class.
 }
 
 \section{Credit}{

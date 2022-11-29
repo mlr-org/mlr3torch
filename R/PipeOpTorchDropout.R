@@ -22,11 +22,10 @@
 #' * `inplace` :: `logical(1)`\cr
 #'   If set to `TRUE`, will do this operation in-place. Default: `FALSE.`
 #'
-#' @section Internals:
-#' Calls [`torch::nn_dropout()`] when trained.
-#'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' Calls [`torch::nn_dropout()`] when trained.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export

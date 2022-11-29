@@ -36,11 +36,10 @@
 #' * `padding_mode` :: `character(1)`\cr
 #'   The padding mode. One of `"zeros"`, `"reflect"`, `"replicate"`, or `"circular"`. Default is `"zeros"`.
 #'
-#' @section Internals:
-#' See the respective child class.
-#'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' See the respective child class.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -109,11 +108,10 @@ PipeOpTorchConv = R6Class("PipeOpTorchConv",
 #'
 #' @inheritSection mlr_pipeops_torch_conv Parameters
 #'
-#' @section Internals:
-#' Calls [`torch::nn_conv1d()`] when trained.
-#'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' Calls [`torch::nn_conv1d()`] when trained.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -153,11 +151,10 @@ PipeOpTorchConv1D = R6Class("PipeOpTorchConv1D", inherit = PipeOpTorchConv,
 #'
 #' @inheritSection mlr_pipeops_torch_conv Parameters
 #'
-#' @section Internals:
-#' Calls [`torch::nn_conv2d()`] when trained.
-#'
 #' @section Fields `r roxy_pipeop_torch_fields_default()`
 #' @section Methods `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' Calls [`torch::nn_conv2d()`] when trained.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -197,11 +194,10 @@ PipeOpTorchConv2D = R6Class("PipeOpTorchConv2D", inherit = PipeOpTorchConv,
 #'
 #' @inheritSection mlr_pipeops_torch_conv Parameters
 #'
-#' @section Internals:
-#' Calls [`torch::nn_conv3d()`] when trained.
-#'
 #' @section Fields `r roxy_pipeop_torch_fields_default()`
 #' @section Methods `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' Calls [`torch::nn_conv3d()`] when trained.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export

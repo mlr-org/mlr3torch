@@ -17,7 +17,6 @@
 #' @section Inheriting:
 #' It is recommended to use the sugar function [`callback_torch()] to create custom callbacks.
 #'
-#'
 #' @section Stages:
 #' * `begin` :: Run before the training loop begins.
 #' * `epoch_begin` :: Run he beginning of each epoch.
@@ -67,7 +66,7 @@ CallbackTorch = R6Class("CallbackTorch",
 #' @param parent_env (`environment()`)\cr
 #'   The parent environment for the [`R6Class`].
 #'
-#' @inheritSection CallbackTorch Stages
+#' @inheritSection mlr_callbacks_torch Stages
 #'
 #' @export
 callback_torch = function(name = NULL,

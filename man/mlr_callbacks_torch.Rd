@@ -16,7 +16,7 @@ that takes as argument a \code{\link{ContextTorch}} which gives access to the re
 }
 \section{Construction}{
 
-\verb{r roxy_construction(CallbackTorch)}
+\code{CallbackTorch$new(id, label = NA_character_, man = NA_character_)}
 See \code{\link{Callback}} for the construction arguments.
 }
 

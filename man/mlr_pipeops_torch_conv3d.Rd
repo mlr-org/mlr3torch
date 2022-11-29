@@ -27,17 +27,17 @@ planes.
  The state is the value calculated by the public method \code{shapes_out()}.
 }
 
-\section{Internals}{
-
-Calls \code{\link[torch:nn_conv3d]{torch::nn_conv3d()}} when trained.
-}
-
 \section{Fields Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.}{
 NA
 }
 
 \section{Methods Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.}{
 NA
+}
+
+\section{Internals}{
+
+Calls \code{\link[torch:nn_conv3d]{torch::nn_conv3d()}} when trained.
 }
 
 \section{Credit}{

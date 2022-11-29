@@ -38,17 +38,17 @@ Default is \code{TRUE}.
 }
 }
 
-\section{Internals}{
-
-Calls \code{\link[torch:nn_linear]{torch::nn_linear()}} when trained.
-}
-
 \section{Fields}{
  Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
 
 \section{Methods}{
  Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+}
+
+\section{Internals}{
+
+Calls \code{\link[torch:nn_linear]{torch::nn_linear()}} when trained.
 }
 
 \section{Credit}{

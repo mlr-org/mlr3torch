@@ -38,11 +38,10 @@
 #' * `padding_mode` :: `character(1)`\cr
 #'   The padding mode. One of `"zeros"`, `"reflect"`, `"replicate"`, or `"circular"`. Default is `"zeros"`.
 #'
-#' @section Internals:
-#' See the respective child class.
-#'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' See the respective child class.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -111,11 +110,10 @@ PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",
 #'
 #' @inheritSection mlr_pipeops_torch_conv_transpose Parameters
 #'
-#' @section Internals:
-#' Calls [`torch::nn_conv_transpose1d()`]
-#'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' Calls [`torch::nn_conv_transpose1d()`]
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -148,11 +146,10 @@ PipeOpTorchConvTranspose1D = R6Class("PipeOpTorchConvTranspose1D", inherit = Pip
 #'
 #' @inheritSection mlr_pipeops_torch_conv_transpose Parameters
 #'
-#' @section Internals:
-#' Calls [`torch::nn_conv_transpose2d()`]
-#'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' Calls [`torch::nn_conv_transpose2d()`]
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -184,11 +181,10 @@ PipeOpTorchConvTranspose2D = R6Class("PipeOpTorchConvTranspose2D", inherit = Pip
 #'
 #' @inheritSection mlr_pipeops_torch_conv_transpose Parameters
 #'
-#' @section Internals:
-#' Calls [`torch::nn_conv_transpose3d()`]
-#'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' Calls [`torch::nn_conv_transpose3d()`]
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export

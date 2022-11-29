@@ -21,17 +21,14 @@
 #' * `feature_types` ::
 #'   The feature types the learner supports. The default is all feature types.
 #'
-#' @section Internals:
-#' TODO:
-#'
 #' @section Parameters:
 #' The parameter set defined as argument `param_set` during construction.
-#'
 #' @section Fields:
 #' Only fields inherited from [`LearnerClassifTorch`], [`LearnerClassif`] or [`Learner`].
-#'
 #' @section Methods:
 #' Only methods inherited from [`LearnerClassifTorch`], [`LearnerClassif`] or [`Learner`].
+#' @section Internals:
+#' TODO:
 #'
 #' @export
 #' @examples

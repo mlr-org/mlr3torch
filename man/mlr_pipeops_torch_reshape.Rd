@@ -26,18 +26,18 @@ The desired output shape.
 }
 }
 
-\section{Internals}{
-
-Calls \code{\link[=nn_reshape]{nn_reshape()}} when trained.
-This internally calls \code{\link[torch:torch_reshape]{torch::torch_reshape()}} with the given \code{shape}.
-}
-
 \section{Fields}{
  Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
 
 \section{Methods}{
  Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+}
+
+\section{Internals}{
+
+Calls \code{\link[=nn_reshape]{nn_reshape()}} when trained.
+This internally calls \code{\link[torch:torch_reshape]{torch::torch_reshape()}} with the given \code{shape}.
 }
 
 \section{Credit}{

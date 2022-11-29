@@ -21,11 +21,10 @@
 #' * `bias` :: `logical(1)`\cr
 #'   Whether to use a bias. Default is `TRUE`.
 #'
-#' @section Internals:
-#' Calls [`torch::nn_linear()`] with the output dimension inferred from the task.
-#'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' Calls [`torch::nn_linear()`] with the output dimension inferred from the task.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
