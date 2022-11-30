@@ -14,10 +14,7 @@ For a list of available parameters, seen \code{\link{mlr3torch_losses}}.
 }
 \section{Construction}{
 
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{TorchLoss$new(torch_loss, task_types, param_set = NULL, label = deparse(substitute(torch_loss))[[1]],
-packages = "torch")$new()
-}\if{html}{\out{</div>}}
+\code{PipeOpTorchLoss$new(loss, id = "torch_loss", param_vals = list())}
 \itemize{
 \item \code{param_set} :: \code{paradox::ParamSet}\cr The parameter set.
 \item \code{torch_loss} :: \code{nn_loss}\cr

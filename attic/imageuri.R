@@ -6,14 +6,10 @@
 #' @export
 imageuri = function(x) {
   assert_character(x)
-  input = magick::image_read(x[[1L]])
   # input = torchvision::transform_to_tensor(input)$to(device = "cpu")
   structure(
-    class = c("imageuri", "character"),
     x,
-    input = input,
-    transformed = input,
-    trafos = list()
+    class = c("imageuri", "character")
   )
 }
 

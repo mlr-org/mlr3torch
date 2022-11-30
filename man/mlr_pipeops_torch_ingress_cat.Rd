@@ -8,9 +8,7 @@
 \code{\link{R6Class}} inheriting from \code{\link{PipeOpTorchIngress}}/\code{\link{PipeOpTorch}}.
 }
 \description{
-Ingress PipeOp that represents a categorical (\code{factor()} and \code{logical()}) entry point to a torch network.
-
-What does the cat say?
+Ingress PipeOp that represents a categorical (\code{factor()}, \code{ordered()} and \code{logical()}) entry point to a torch network.
 }
 \section{Construction}{
 
@@ -33,7 +31,11 @@ The state is the value calculated by the public method \code{shapes_out()}.
 
 \section{Parameters}{
 
-No parameters.
+\itemize{
+\item \code{select} :: \code{logical(1)}\cr
+Whether \code{PipeOp} should selected the supported feature types. Otherwise it will err on receiving tasks
+with unsupported feature types.
+}
 }
 
 \section{Fields}{
@@ -51,7 +53,16 @@ Only methods inherited from \code{\link{PipeOpTorchIngress}} / \code{\link{PipeO
 Uses \code{\link[=batchgetter_categ]{batchgetter_categ()}}.
 }
 
-\section{see}{
-NA
+\examples{
+po_ingress = po("torch_ingress_cat", select = TRUE)
+task = tsk("german_credit")
+# The output is a TorchIngressToken
+token = po_ingress$train(list(task))[[1L]]
+ingress = token$ingress[[1L]]
+ingress$batchgetter(task$data(1, ingress$features), "cpu")
 }
-
+\seealso{
+Other PipeOps: 
+\code{\link{mlr_pipeops_torch_ingress_numeric}}
+}
+\concept{PipeOps}

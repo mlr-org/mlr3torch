@@ -22,15 +22,10 @@
 #' @family PipeOpTorch
 #' @export
 #' @examples
-#' # po
 #' obj = po("nn_reshape", shape = c(-1, 25))
 #' obj$id
 #' obj$module_generator
 #' obj$shapes_out(c(16, 5, 5))
-#'
-#' # pot
-#' obj = pot("reshape")
-#' obj$id
 PipeOpTorchReshape = R6Class("PipeOpTorchReshape",
   inherit = PipeOpTorch,
   public = list(
@@ -85,22 +80,16 @@ PipeOpTorchReshape = R6Class("PipeOpTorchReshape",
 #' @section Parameters:
 #' No parameters.
 #'
-#' @examples
-#' # po
-#' obj = po("nn_squeeze")
-#' obj$id
-#' obj$module_generator
-#' obj$shapes_out(c(16, 5, 5))
-#'
-#' # pot
-#' obj = pot("squeeze")
-#' obj$id
-#'
 #' @section Credit:
 #' `r roxy_pipeop_torch_license()`
 #'
 #' @family PipeOpTorch
 #' @export
+#' @examples
+#' obj = po("nn_squeeze")
+#' obj$id
+#' obj$module_generator
+#' obj$shapes_out(c(16, 5, 5))
 PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
   inherit = PipeOpTorch,
   public = list(
@@ -157,22 +146,16 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
 #' @section Methods:
 #' `r roxy_pipeop_torch_methods_default()`
 #'
-#' @examples
-#' # po
-#' obj = po("nn_unsqueeze")
-#' obj$id
-#' obj$module_generator
-#' obj$shapes_out(c(16, 5, 5))
-#'
-#' # pot
-#' obj = pot("unsqueeze")
-#' obj$id
-#'
 #' @section Credit:
 #' `r roxy_pipeop_torch_license()`
 #'
 #' @family PipeOpTorch
 #' @export
+#' @examples
+#' obj = po("nn_unsqueeze")
+#' obj$id
+#' obj$module_generator
+#' obj$shapes_out(c(16, 5, 5))
 PipeOpTorchUnsqueeze = R6Class("PipeOpTorchUnqueeze",
   inherit = PipeOpTorch,
   public = list(
@@ -228,22 +211,16 @@ PipeOpTorchUnsqueeze = R6Class("PipeOpTorchUnqueeze",
 #' @section Methods:
 #' `r roxy_pipeop_torch_methods_default()`
 #'
-#' @examples
-#' # po
-#' obj = po("nn_flatten", start_dim = 2, end_dim = 3)
-#' obj$id
-#' obj$module_generator
-#' obj$shapes_out(c(16, 5, 5))
-#'
-#' # pot
-#' obj = pot("flatten")
-#' obj$id
-#'
 #' @section Credit:
 #' `r roxy_pipeop_torch_license()`
 #'
 #' @family PipeOpTorch
 #' @export
+#' @examples
+#' obj = po("nn_flatten", start_dim = 2, end_dim = 3)
+#' obj$id
+#' obj$module_generator
+#' obj$shapes_out(c(16, 5, 5))
 PipeOpTorchFlatten = R6Class(
   inherit = PipeOpTorch,
   public = list(

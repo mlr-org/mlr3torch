@@ -68,26 +68,14 @@ Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
 
 \examples{
-# po
 obj = po("nn_squeeze")
 obj$id
 obj$module_generator
 obj$shapes_out(c(16, 5, 5))
-
-# pot
-obj = pot("squeeze")
-obj$id
-
-# po
 obj = po("nn_unsqueeze")
 obj$id
 obj$module_generator
 obj$shapes_out(c(16, 5, 5))
-
-# pot
-obj = pot("unsqueeze")
-obj$id
-
 }
 \seealso{
 Other PipeOpTorch: 
@@ -114,7 +102,6 @@ Other PipeOpTorch:
 \code{\link{mlr_pipeops_torch_hardsigmoid}},
 \code{\link{mlr_pipeops_torch_hard}},
 \code{\link{mlr_pipeops_torch_head}},
-\code{\link{mlr_pipeops_torch_ingress_img}},
 \code{\link{mlr_pipeops_torch_layer_norm}},
 \code{\link{mlr_pipeops_torch_leaky_relu}},
 \code{\link{mlr_pipeops_torch_log_sigmoid}},
@@ -169,7 +156,6 @@ Other PipeOpTorch:
 \code{\link{mlr_pipeops_torch_hardsigmoid}},
 \code{\link{mlr_pipeops_torch_hard}},
 \code{\link{mlr_pipeops_torch_head}},
-\code{\link{mlr_pipeops_torch_ingress_img}},
 \code{\link{mlr_pipeops_torch_layer_norm}},
 \code{\link{mlr_pipeops_torch_leaky_relu}},
 \code{\link{mlr_pipeops_torch_log_sigmoid}},

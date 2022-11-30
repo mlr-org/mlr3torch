@@ -1,6 +1,6 @@
 roxy_param_id = function(id = NULL) {
   paste0(
-    "* `id` :: `character(1)`\\cr The id for the object.",
+    "`id` :: `character(1)`\\cr The id for the object.",
     if (!is.null(id)) sprintf(" The default is \"%s\".", id)
   )
 }
@@ -16,7 +16,7 @@ roxy_pipeop_torch_construction = function(class, id = NULL) {
 
 roxy_pipeop_torch_param_id = function(id = NULL) {
   sprintf(
-    "* \\code{id} :: \\code{character(1)}\\cr Identifier of the resulting object.%s",
+    "\\code{id} :: \\code{character(1)}\\cr Identifier of the resulting object.%s",
     if (is.null(id))  "" else sprintf("Default is \"%s\"", id)
   )
 }
@@ -30,15 +30,15 @@ roxy_pipeop_torch_methods_default = function() { # nolint
 }
 
 roxy_param_param_vals = function() {
-  "* \\code{param_vals} :: named \\code{list()}\\cr List of hyperparameter settings to overwrite the initial values. Default is  \\code{list()}." # nolint
+  "\\code{param_vals} :: named \\code{list()}\\cr List of hyperparameter settings to overwrite the initial values. Default is  \\code{list()}." # nolint
 }
 
 roxy_param_module_generator = function() {
-  "* \\code{module_generator} :: \\code{nn_module_generator}\\cr The torch module generator."
+  "\\code{module_generator} :: \\code{nn_module_generator}\\cr The torch module generator."
 }
 
 roxy_param_param_set = function() {
-  "* \\code{param_set} :: \\code{paradox::ParamSet}\\cr The parameter set."
+  "\\code{param_set} :: \\code{paradox::ParamSet}\\cr The parameter set."
 }
 
 roxy_pipeop_torch_license = function() {
@@ -68,7 +68,7 @@ roxy_pipeop_torch_format = function() {
 
 
 roxy_param_packages = function() {
-  "* \\code{packages}` :: named \\code{list()}\\cr List of packages settings. Default is  \\code{list()}."
+  "\\code{packages}` :: named \\code{list()}\\cr List of packages settings. Default is  \\code{list()}."
 }
 
 roxy_param_innum = function() {

@@ -9,9 +9,7 @@ Configures the \code{loss} of a \code{\link{ModelDescriptor}}.
 }
 \section{Construction}{
 
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{PipeOpTorchLoss$new(loss, id = "torch_loss", param_vals = list())
-}\if{html}{\out{</div>}}
+\code{PipeOpTorchLoss$new(loss, id = "torch_loss", param_vals = list())}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object. The default is "torch_loss".
 \item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.

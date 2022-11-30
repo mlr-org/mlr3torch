@@ -14,7 +14,7 @@ Unless you are an advanced user, you should not need to use this directly but \c
 }
 \section{Construction}{
 
-\code{PipeOpTorchIngress$new(id, param_set = ps(), param_vals = list(), input = data.table(name = "input", train = "Task", predict = "Task"), output = data.table(name = "output", train = "ModelDescriptor", predict = "Task"), packages = character(0), feature_types)}
+\code{PipeOpTorchIngress$new(id, param_set = ps(), param_vals = list(), packages = character(0), feature_types)}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object.
 \item \code{param_set} :: \code{paradox::ParamSet}\cr The parameter set.
@@ -56,7 +56,12 @@ The features types that can be consumed by this \code{PipeOpTorchIngress}.
 \section{Internals}{
 
 Creates an object of class \code{\link{TorchIngressToken}} for the given task.
-Using this token, a \code{\link{ModelDescriptor}} object is created and output.
+The purpuse of this is to store the information on how to construct the torch dataloader from the task for this
+entry point of the network. This is done in the function \code{\link[=task_dataset]{task_dataset()}}.
 }
 
+\seealso{
+Other PipeOp: 
+\code{\link{mlr_pipeops_torch_ingress_img}}
+}
 \concept{PipeOp}

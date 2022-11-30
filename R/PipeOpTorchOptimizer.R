@@ -8,7 +8,8 @@ PipeOpTorchOptimizer = R6Class("PipeOpTorchOptimizer",
         id = id,
         param_set = alist(private$.optimizer$param_set),
         param_vals = param_vals,
-        module_generator = NULL
+        module_generator = NULL,
+        inname = "input"
       )
     }
   ),

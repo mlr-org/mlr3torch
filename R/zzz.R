@@ -74,11 +74,14 @@ register_mlr3 = function() {
   mlr_callbacks = utils::getFromNamespace("mlr_callbacks", ns = "mlr3misc")
   mlr_callbacks$add("torch.history", CallbackTorchHistory)
   mlr_callbacks$add("torch.progress", CallbackTorchProgress)
+
+  mlr_tasks$add("tiny_imagenet", load_task_tiny_imagenet)
 }
 
 register_mlr3pipelines = function() {
   mlr_pipeops = utils::getFromNamespace("mlr_pipeops", ns = "mlr3pipelines")
   imap(as.list(po_register_env), function(value, name) mlr_pipeops$add(name, value))
+  mlr_reflections$pipeops$valid_tags = unique(c(mlr_reflections$pipeops$valid_tags, "torch"))
   lapply(po_register_env, eval)
 }
 

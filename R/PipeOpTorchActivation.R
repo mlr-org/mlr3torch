@@ -42,9 +42,9 @@ make_activation = function(name, class, param_set, parent_env = parent.frame()) 
 #'
 #' @inherit torch::nnf_elu description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("ELU")`
-#' `r roxy_param_id("nn_elu")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchELU)`
+#' * `r roxy_param_id("nn_elu")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -74,9 +74,9 @@ PipeOpTorchELU = make_activation("elu", "ELU", param_set = ps(
 #'
 #' @inherit torch::nnf_hardshrink description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("HardShrink")`
-#' `r roxy_param_id("nn_hardshrink")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchHardShrink)`
+#' * `r roxy_param_id("nn_hardshrink")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -103,9 +103,9 @@ PipeOpTorchHardShrink = make_activation("hardshrink", "HardShrink", param_set = 
 #'
 #' @inherit torch::nnf_hardsigmoid description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("HardSigmoid")`
-#' `r roxy_param_id("nn_hardsigmoid")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchHardSigmoid)`
+#' * `r roxy_param_id("nn_hardsigmoid")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -129,9 +129,9 @@ PipeOpTorchHardSigmoid = make_activation("hardsigmoid", "HardSigmoid", param_set
 #'
 #' @inherit torch::nnf_hardtanh description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("HardTanh")`
-#' `r roxy_param_id("nn_hardtanh")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchHardTanh)`
+#' * `r roxy_param_id("nn_hardtanh")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -167,9 +167,9 @@ PipeOpTorchHardTanh = make_activation("hardtanh", "HardTanh", param_set = ps(
 # #'
 # #' @inherit torch::nnf_hardwish description
 # #'
-# #' @section Construction: `r roxy_pipeop_torch_construction("HardSwish")`
-# #' `r roxy_param_id("nn_hardswish")`
-# #' `r roxy_param_param_vals()`
+# #' @section Construction: `r roxy_construction(PipeOpTorchHardSwish)`
+# #' * `r roxy_param_id("nn_hardswish")`
+# #' * `r roxy_param_param_vals()`
 # #'
 # #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 # #'
@@ -194,9 +194,9 @@ PipeOpTorchHardTanh = make_activation("hardtanh", "HardTanh", param_set = ps(
 #'
 #' @inherit torch::nnf_leaky_relu description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("LeakyReLU")`
-#' `r roxy_param_id("nn_leaky_relu")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchLeakyReLU)`
+#' * `r roxy_param_id("nn_leaky_relu")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -226,9 +226,9 @@ PipeOpTorchLeakyReLU = make_activation("leaky_relu", "LeakyReLU", param_set = ps
 #'
 #' @inherit torch::nnf_logsigmoid description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("LogSigmoid")`
-#' `r roxy_param_id("nn_log_sigmoid")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchLogSigmoid)`
+#' * `r roxy_param_id("nn_log_sigmoid")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -252,9 +252,9 @@ PipeOpTorchLogSigmoid = make_activation("log_sigmoid", "LogSigmoid", param_set =
 #'
 #' @inherit torch::nnf_prelu description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("PReLU")`
-#' `r roxy_param_id("nn_prelu")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchPReLU)`
+#' * `r roxy_param_id("nn_prelu")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -284,9 +284,9 @@ PipeOpTorchPReLU = make_activation("prelu", "PReLU", param_set = ps(
 #'
 #' @inherit torch::nnf_relu description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("ReLU")`
-#' `r roxy_param_id("nn_relu")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchReLU)`
+#' * `r roxy_param_id("nn_relu")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -313,9 +313,9 @@ PipeOpTorchReLU = make_activation("relu", "ReLU", param_set = ps(
 #'
 #' @inherit torch::nnf_relu6 description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("Relu6")`
-#' `r roxy_param_id("nn_relu6")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchRelu6)`
+#' * `r roxy_param_id("nn_relu6")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -342,9 +342,9 @@ PipeOpTorchRelu6 = make_activation("relu6", "ReLU6", param_set = ps(
 #'
 #' @inherit torch::nnf_rrelu description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("RReLU")`
-#' `r roxy_param_id("nn_rrelu")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchRReLU)`
+#' * `r roxy_param_id("nn_rrelu")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -377,9 +377,9 @@ PipeOpTorchRReLU = make_activation("rrelu", "RReLU", param_set = ps(
 #'
 #' @inherit torch::nnf_selu description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("SELU")`
-#' `r roxy_param_id("nn_selu")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchSELU)`
+#' * `r roxy_param_id("nn_selu")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -406,9 +406,9 @@ PipeOpTorchSELU = make_activation("selu", "SELU", param_set = ps(
 #'
 #' @inherit torch::nnf_celu description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("CELU")`
-#' `r roxy_param_id("nn_celu")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchCELU)`
+#' * `r roxy_param_id("nn_celu")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -425,7 +425,7 @@ PipeOpTorchSELU = make_activation("selu", "SELU", param_set = ps(
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
-PipeOpTorchCelu = make_activation("celu", "CELU", param_set = ps(
+PipeOpTorchCELU = make_activation("celu", "CELU", param_set = ps(
   alpha = p_dbl(default = 1.0, tags = "train"),
   inplace = p_lgl(default = FALSE, tags = "train")
 ))
@@ -438,9 +438,9 @@ PipeOpTorchCelu = make_activation("celu", "CELU", param_set = ps(
 #'
 #' @inherit torch::nnf_gelu description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("GELU")`
-#' `r roxy_param_id("nn_gelu")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchGELU)`
+#' * `r roxy_param_id("nn_gelu")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -464,9 +464,9 @@ PipeOpTorchGELU = make_activation("gelu", "GELU", param_set = ps())
 #'
 #' @inherit torch::nnf_sigmoid description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("Sigmoid")`
-#' `r roxy_param_id("nn_sigmodi")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchSigmoid)`
+#' * `r roxy_param_id("nn_sigmoid")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -490,9 +490,9 @@ PipeOpTorchSigmoid = make_activation("sigmoid", "Sigmoid", param_set = ps())
 #'
 #' @inherit torch::nnf_softplus description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("SoftPlus")`
-#' `r roxy_param_id("nn_softplus")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchSoftPlus)`
+#' * `r roxy_param_id("nn_softplus")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -523,9 +523,9 @@ PipeOpTorchSoftPlus = make_activation("softplus", "SoftPlus",
 #'
 #' @inherit torch::nnf_softshrink description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("SoftShrink")`
-#' `r roxy_param_id("nn_softshrink")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchSoftShrink)`
+#' * `r roxy_param_id("nn_softshrink")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -540,7 +540,7 @@ PipeOpTorchSoftPlus = make_activation("softplus", "SoftPlus",
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
-PipeOpTorchtSoftShrink = make_activation("softshrink", "SoftShrink", param_set = ps(
+PipeOpTorchSoftShrink = make_activation("softshrink", "SoftShrink", param_set = ps(
   lambd = p_dbl(default = 0.5, upper = 1, tags = "train")
 ))
 
@@ -552,9 +552,9 @@ PipeOpTorchtSoftShrink = make_activation("softshrink", "SoftShrink", param_set =
 #'
 #' @inherit torch::nnf_softsign description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("SoftSign")`
-#' `r roxy_param_id("nn_softsign")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchSoftSign)`
+#' * `r roxy_param_id("nn_softsign")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -568,7 +568,7 @@ PipeOpTorchtSoftShrink = make_activation("softshrink", "SoftShrink", param_set =
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
-PipeOpTorchActSoftSign = make_activation("softsign", "SoftSign", param_set = ps())
+PipeOpTorchSoftSign = make_activation("softsign", "SoftSign", param_set = ps())
 
 #' @title Tanh Activation Function
 #'
@@ -578,9 +578,9 @@ PipeOpTorchActSoftSign = make_activation("softsign", "SoftSign", param_set = ps(
 #'
 #' @inherit torch::nn_tanh description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("Tanh")`
-#' `r roxy_param_id("nn_tanh")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchTanh)`
+#' * `r roxy_param_id("nn_tanh")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -594,7 +594,7 @@ PipeOpTorchActSoftSign = make_activation("softsign", "SoftSign", param_set = ps(
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
-PipeOpTorchActTanh = make_activation("tanh", "Tanh", param_set = ps())
+PipeOpTorchTanh = make_activation("tanh", "Tanh", param_set = ps())
 
 #' @title Tanh Shrink Activation Function
 #'
@@ -604,9 +604,9 @@ PipeOpTorchActTanh = make_activation("tanh", "Tanh", param_set = ps())
 #'
 #' @inherit torch::nnf_tanhshrink description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("TanhShrink")`
-#' `r roxy_param_id("nn_tanhshrink")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchTanhShrink)`
+#' * `r roxy_param_id("nn_tanhshrink")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -620,7 +620,7 @@ PipeOpTorchActTanh = make_activation("tanh", "Tanh", param_set = ps())
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
-PipeOpTorchActTanhShrink = make_activation("tanhshrink", "TanhShrink", param_set = ps())
+PipeOpTorchTanhShrink = make_activation("tanhshrink", "TanhShrink", param_set = ps())
 
 #' @title Treshol Activation Function
 #'
@@ -630,9 +630,9 @@ PipeOpTorchActTanhShrink = make_activation("tanhshrink", "TanhShrink", param_set
 #'
 #' @inherit torch::nnf_threshold description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("Threshold")`
-#' `r roxy_param_id("nn_threshold")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchThreshold)`
+#' * `r roxy_param_id("nn_threshold")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -665,9 +665,9 @@ PipeOpTorchThreshold = make_activation("threshold", "Threshold", param_set = ps(
 #'
 #' @inherit torch::nnf_glu description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("GLU")`
-#' `r roxy_param_id("nn_glu")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchGLU)`
+#' * `r roxy_param_id("nn_glu")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`

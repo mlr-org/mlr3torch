@@ -12,9 +12,9 @@
 #' @section Construction:
 #' `r roxy_construction(PipeOpTorchIngress)`
 #'
-#' `r roxy_param_id()`
-#' `r roxy_param_param_set()`
-#' `r roxy_param_param_vals()`
+#' * `r roxy_param_id()`
+#' * `r roxy_param_param_set()`
+#' * `r roxy_param_param_vals()`
 #' * `input` :: `data.table()`\cr
 #'   The input channels for this `PipeOp`. See [`PipeOp`] for an explanation.
 #' * `output` :: `data.table()`\cr
@@ -45,27 +45,26 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
   inherit = PipeOp,
   public = list(
     feature_types = NULL,
-    initialize = function(id, param_set = ps(), param_vals = list(),
-      input = data.table(name = "input", train = "Task", predict = "Task"),
-      output = data.table(name = "output", train = "ModelDescriptor", predict = "Task"),
-      packages = character(0), feature_types) {
+    initialize = function(id, param_set = ps(), param_vals = list(), packages = character(0), feature_types) {
       self$feature_types = feature_types
       lockBinding("feature_types", self)
       ps_tmp = ps(
-        affect_columns = p_uty(custom_check = check_function_or_null, default = selector_all(), tags = "train")
+        select = p_lgl(default = FALSE, tags = "train")
       )
+
       if (param_set$length > 0) {
         param_set = ParamSetCollection$new(list(param_set, ps_tmp))
       } else {
         param_set = ps_tmp
       }
+      param_set$values$select = FALSE
 
       super$initialize(
         id = id,
         param_set = param_set,
         param_vals = param_vals,
-        input = input,
-        output = output,
+        input = data.table(name = "input", train = "Task", predict = "Task"),
+        output = data.table(name = "output", train = "ModelDescriptor", predict = "Task"),
         packages = packages
       )
      }
@@ -75,14 +74,18 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
     .shape = function(task, param_vals) stop("private$.shape() must be implemented."),
     .train = function(inputs) {
       pv = self$param_set$get_values(tags = "train")
+      if (any(task$missings())) {
+        # NAs are converted to their underlying machine representation when calling `torch_tensor()`
+        # https://github.com/mlverse/torch/issues/933
+        stopf("No missing values allowed in task '%s'.", task$id)
+      }
       task = inputs[[1]]
       param_vals = self$param_set$get_values()
       graph = as_graph(po("nop", id = self$id))
       batchgetter = private$.get_batchgetter(task, param_vals)
 
-
-      ## In case the user is tempted to do things that will break in bad ways...
-      ## But this test could also be left out.
+      # In case the user is tempted to do things that will break in bad ways...
+      # But this test could also be left out.
       forbidden_env = parent.env(environment())
       test_env = environment(batchgetter)
       while (!isNamespace(test_env) && !identical(test_env, .GlobalEnv) && !identical(test_env, emptyenv())) {
@@ -92,11 +95,19 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
         test_env = parent.env(test_env)
       }
 
-      if (!any(task$feature_types$type %in% self$feature_types)) {
-        warningf("%s with id '%s' got task with no feature types that it can process.", class(self)[[1L]], self$id)
+      if (pv$select) {
+        task = po("select", selector = selector_type(self$feature_types))$train(list(task))[[1L]]
+      } else {
+        if (!all(task$feature_types$type %in% self$feature_types)) {
+          stopf("Task contains features of type %s, but only %s are allowed. Use parameter `select` to avoid this.",
+            paste0(unique(task$feature_types$type[!(task$feature_types$type %in% self$feature_types)]), collapse = ", "),
+            paste0(self$feature_types, collapse = ", ")
+          )
+        }
       }
+
       ingress = TorchIngressToken(
-        features = pv$affect_columns(task),
+        features = task$feature_names,
         batchgetter = batchgetter,
         shape = private$.shape(task, param_vals)
       )
@@ -159,15 +170,16 @@ print.TorchIngressToken = function(x, ...) {
 #' @section Construction:
 #' `r roxy_construction(PipeOpTorchIngressNumeric)`
 #'
-#' `r roxy_param_id()`
-#' `r roxy_param_param_vals()`
+#' * `r roxy_param_id()`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels:
 #' `r roxy_pipeop_torch_channels_default()`
 #' @inheritSection mlr_pipeops_torch_ingress State
 #' @section Parameters:
-#' * `affect_columns` :: `function` | [`Selector`] | `NULL` \cr
-#'   What columns the [`PipeOpTorchIngressNumeric`] should operate on.
+#' * `select` :: `logical(1)`\cr
+#'   Whether `PipeOp` should selected the supported feature types. Otherwise it will err, when receiving tasks
+#'   with unsupported feature types.
 #' @section Fields:
 #' Only fields inherited from [`PipeOpTorchIngress`] / [`PipeOp`].
 #' @section Methods:
@@ -176,14 +188,15 @@ print.TorchIngressToken = function(x, ...) {
 #' Uses [batchgetter_num()].
 #'
 #' @export
+#' @family PipeOps
 #' @examples
-#' po_ingress = pot("ingress_num", affect_columns = selector_type(c("numeric", "integer")))
-#' task = tsk("penguins")
+#' # We set select to TRUE because the data contains factors as well
+#' po_ingress = po("torch_ingress_num", select = TRUE)
+#' task = tsk("mtcars")
 #' # The output is a TorchIngressToken
 #' token = po_ingress$train(list(task))[[1L]]
-#' # M
-#' ingress_num = token$ingress$ingress_num.input
-#' ingress_num$batchgetter(task$data(1:5, ingress_num$features), "cpu")
+#' ingress = token$ingress[[1L]]
+#' ingress$batchgetter(task$data(1:5, ingress$features), "cpu")
 PipeOpTorchIngressNumeric = R6Class("PipeOpTorchIngressNumeric",
   inherit = PipeOpTorchIngress,
   public = list(
@@ -193,6 +206,8 @@ PipeOpTorchIngressNumeric = R6Class("PipeOpTorchIngressNumeric",
   ),
   private = list(
     .shape = function(task, param_vals) {
+      # Note that this function can only be called successfully if either select is TRUE or the task contains
+      # only integers and numerics. In both cases the formula below is correct
       c(NA, sum(task$feature_types$type %in% self$feature_types))
     },
     .get_batchgetter = function(task, param_vals) {
@@ -228,34 +243,43 @@ register_po("torch_ingress_num", PipeOpTorchIngressNumeric)
 #' @format [`R6Class`] inheriting from [`PipeOpTorchIngress`]/[`PipeOpTorch`].
 #'
 #' @description
-#' Ingress PipeOp that represents a categorical (`factor()` and `logical()`) entry point to a torch network.
+#' Ingress PipeOp that represents a categorical (`factor()`, `ordered()` and `logical()`) entry point to a torch network.
 #'
 #' @section Construction:
 #' `r roxy_construction(PipeOpTorchIngressCategorical)`
 #'
-#' `r roxy_param_id()`
-#' `r roxy_param_param_vals()`
+#' * `r roxy_param_id()`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels:
 #' `r roxy_pipeop_torch_channels_default()`
 #' @section State:
 #' `r roxy_pipeop_torch_state_default()`
 #' @section Parameters:
-#' * `affect_columns` :: `function` | [`Selector`] | `NULL` \cr
-#'   What columns the [`PipeOpTorchIngressCategorical`] should operate on.
+#' * `select` :: `logical(1)`\cr
+#'   Whether `PipeOp` should selected the supported feature types. Otherwise it will err on receiving tasks
+#'   with unsupported feature types.
 #' @section Fields:
 #' Only fields inherited from [`PipeOpTorchIngress`] / [`PipeOp`].
 #' @section Methods:
 #' Only methods inherited from [`PipeOpTorchIngress`] / [`PipeOp`].
 #' @section Internals:
-#' Uses [batchgetter_categ()].
-#' @section see
+#' Uses [`batchgetter_categ()`].
+#' @family PipeOps
 #' @export
+#' @examples
+# We set select to TRUE because the data contains factors as well
+#' po_ingress = po("torch_ingress_cat", select = TRUE)
+#' task = tsk("german_credit")
+#' # The output is a TorchIngressToken
+#' token = po_ingress$train(list(task))[[1L]]
+#' ingress = token$ingress[[1L]]
+#' ingress$batchgetter(task$data(1, ingress$features), "cpu")
 PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
   inherit = PipeOpTorchIngress,
   public = list(
     initialize = function(id = "torch_ingress_cat", param_vals = list()) {
-      super$initialize(id = id, param_vals = param_vals, feature_types = c("factor", "ordered"))
+      super$initialize(id = id, param_vals = param_vals, feature_types = c("factor", "ordered", "logical"))
     },
     speak = function() cat("I am the ingress cat, meow! ^._.^\n")
   ),
@@ -264,6 +288,8 @@ PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
       c(NA, sum(task$feature_types$type %in% self$feature_types))
     },
     .get_batchgetter = function(task, param_vals) {
+      # Note that this function can only be called successfully if either select is TRUE or the task contains
+      # only factors and logicals. In both cases the formula below is correct
       batchgetter_categ
     }
   )
@@ -307,42 +333,47 @@ register_po("torch_ingress_cat", PipeOpTorchIngressCategorical)
 #' @section State:
 #' `r roxy_pipeop_torch_state_default()`
 #' @section Parameters:
-#' * `affect_columns` :: `function` | [`Selector`] | `NULL` \cr
-#'   What columns the [`PipeOpTorchIngressImage`] should operate on.
+#' * `select` :: `logical(1)`\cr
+#'   Whether `PipeOp` should selected the supported feature types. Otherwise it will err, when receiving tasks
+#'   with unsupported feature types.
 #' * `channels` :: `integer(1)`\cr
 #'   The number of input channels.
-#' * `pixels_height` :: `integer(1)`\cr
+#' * `height` :: `integer(1)`\cr
 #'   The height of the pixels.
-#' * `pixels_width` :: `integer(1)`\cr
+#' * `width` :: `integer(1)`\cr
 #'   The width of the pixels.
 #' @section Fields:
 #' Only fields inherited from [`PipeOpTorchIngress`] / [`PipeOp`].
 #' @section Methods:
 #' Only methods inherited from [`PipeOpTorchIngress`] / [`PipeOp`].
 #' @section Internals:
-#' Uses `magick::image_read()`'to load the image.
+#' Uses [`magick::image_read()`]'to load the image.
 #'
-#' @family PipeOpTorch
+#' @family PipeOp
 #'
 #' @export
 #' @examples
-#' # TODO
+#' po_ingress = po("torch_ingress_img", channels = 3, height = 64, width = 64)
+#' task = tsk("tiny_imagenet")
+#' token = po_ingress$train(list(task))[[1L]]
+#' ingress = token$ingress[[1L]]
+#' ingress$batchgetter(task$data(1, ingress$features), "cpu")
 PipeOpTorchIngressImage = R6Class("PipeOpTorchIngressImage",
   inherit = PipeOpTorchIngress,
   public = list(
     initialize = function(id = "torch_ingress_img", param_vals = list(), param_set = param_set) {
       param_set = ps(
-        channels = p_int(1),
-        pixels_height = p_int(1),
-        pixels_width = p_int(1),
+        channels = p_int(1, tags = "required"),
+        height = p_int(1, tags = "required"),
+        width = p_int(1, tags = "required")
       )
-      super$initialize(id = id, param_vals = param_vals)
+      super$initialize(id = id, param_vals = param_vals, param_set = param_set, feature_types = "imageuri")
     }
   ),
   private = list(
-    .shape = function(task, param_vals) c(NA, param_vals$channels, param_vals$pixels_height, param_vals$pixels_width),
+    .shape = function(task, param_vals) c(NA, param_vals$channels, param_vals$height, param_vals$width),
     .get_batchgetter = function(task, param_vals) {
-      imgshape = c(param_vals$channels, param_vals$pixels_height, param_vals$pixels_width)
+      imgshape = c(param_vals$channels, param_vals$height, param_vals$width)
       crate(function(data, device) {
         tensors = lapply(data[[1]], function(uri) {
           tnsr = torchvision::transform_to_tensor(magick::image_read(uri))

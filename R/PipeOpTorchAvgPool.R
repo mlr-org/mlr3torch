@@ -8,9 +8,9 @@
 #' Base class for average pooling.
 #' Don't use this class directly.
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("AvgPool")`
-#' `r roxy_param_id()`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchAvgPool)`
+#' * `r roxy_param_id()`
+#' * `r roxy_param_param_vals()`
 #' * `d` :: `integer(1)`\cr
 #'   The dimension for the average pooling operation.
 #'
@@ -96,9 +96,9 @@ avg_output_shape = function(shape_in, conv_dim, padding, stride, kernel_size, ce
 #'
 #' @inherit torch::nnf_adaptive_avg_pool1d description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("AvgPool1D")`
-#' `r roxy_param_id("nn_avg_pool1d")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchAvgPool1D)`
+#' * `r roxy_param_id("nn_avg_pool1d")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -113,16 +113,10 @@ avg_output_shape = function(shape_in, conv_dim, padding, stride, kernel_size, ce
 #' @family PipeOpTorch
 #' @export
 #' @examples
-#' # po
 #' obj = po("nn_avg_pool1d", kernel_size = 3)
 #' obj$id
 #' obj$module_generator
 #' obj$shapes_out(c(16, 5, 100))
-#'
-#' # pot
-#' obj = pot("avg_pool1d")
-#' obj$id
-#'
 PipeOpTorchAvgPool1D = R6Class("PipeOpTorchAvgPool1D", inherit = PipeOpTorchAvgPool,
   public = list(
     initialize = function(id = "nn_avg_pool1d", param_vals = list()) {
@@ -140,9 +134,9 @@ PipeOpTorchAvgPool1D = R6Class("PipeOpTorchAvgPool1D", inherit = PipeOpTorchAvgP
 #'
 #' @inherit torch::nnf_adaptive_avg_pool2d description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("AvgPool2D")`
-#' `r roxy_param_id("nn_avg_pool2d")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchAvgPool2D)`
+#' * `r roxy_param_id("nn_avg_pool2d")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -157,17 +151,10 @@ PipeOpTorchAvgPool1D = R6Class("PipeOpTorchAvgPool1D", inherit = PipeOpTorchAvgP
 #' @family PipeOpTorch
 #' @export
 #' @examples
-#' # po
 #' obj = po("nn_avg_pool2d", kernel_size = 3)
 #' obj$id
 #' obj$module_generator
 #' obj$shapes_out(c(16, 5, 100))
-#'
-#' # pot
-#' obj = pot("avg_pool2d")
-#' obj$id
-#'
-#' @export
 PipeOpTorchAvgPool2D = R6Class("PipeOpTorchAvgPool2D", inherit = PipeOpTorchAvgPool,
   public = list(
     initialize = function(id = "nn_avg_pool2d", param_vals = list()) {
@@ -184,9 +171,9 @@ PipeOpTorchAvgPool2D = R6Class("PipeOpTorchAvgPool2D", inherit = PipeOpTorchAvgP
 #'
 #' @inherit torch::nnf_adaptive_avg_pool3d description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("AvgPool3D")`
-#' `r roxy_param_id("nn_avg_pool3d")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchAvgPool3D)`
+#' * `r roxy_param_id("nn_avg_pool3d")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -201,16 +188,10 @@ PipeOpTorchAvgPool2D = R6Class("PipeOpTorchAvgPool2D", inherit = PipeOpTorchAvgP
 #' @family PipeOpTorch
 #' @export
 #' @examples
-#' # po
 #' obj = po("nn_avg_pool3d", kernel_size = 3)
 #' obj$id
-
 #' obj$module_generator
 #' obj$shapes_out(c(16, 5, 100))
-#'
-#' # pot
-#' obj = pot("avg_pool3d")
-#' obj$id
 PipeOpTorchAvgPool3D = R6Class("PipeOpTorchAvgPool3D", inherit = PipeOpTorchAvgPool,
   public = list(
     initialize = function(id = "nn_avg_pool3d", param_vals = list()) {

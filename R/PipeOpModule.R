@@ -18,8 +18,7 @@
 #' @section Construction:
 #' `r roxy_construction(PipeOpModule)`
 #'
-#' `r roxy_param_id("module")`
-#'
+#' * `r roxy_param_id("module")`
 #' * `module` :: [`nn_module`]\cr
 #'   The torch module that is being wrapped.
 #' * `inname` :: `character()`\cr
@@ -28,9 +27,9 @@
 #'   The names of the output channels. If this parameter has length 1, the parameter [module][torch::nn_module] must
 #'   return a [tensor][torch::torch_tensor]. Otherwise it must return a `list()` of tensors of corresponding length.
 #'
-#' `r roxy_param_param_vals()`
+#' * `r roxy_param_param_vals()`
 #'
-#' `r roxy_param_packages()`
+#' * `r roxy_param_packages()`
 #'
 #' @section Input and Output Channels:
 #' The number and names of the input and output channels can be set during construction. They input and output
@@ -86,11 +85,11 @@
 #' str(out)
 #'
 #' # How a PipeOpModule is usually generated
-#' graph = pot("ingress_num") %>>% pot("linear", out_features = 10L)
+#' graph = po("torch_ingress_num") %>>% po("nn_linear", out_features = 10L)
 #' result = graph$train(tsk("iris"))
 #' # The PipeOpTorchLinear generates a PipeOpModule and adds it to a new graph that represents the architecture
 #' result[[1]]$graph
-#' linear_module = result[[1L]]$graph$pipeops$linear
+#' linear_module = result[[1L]]$graph$pipeops$nn_linear
 #' linear_module
 #' formalArgs(linear_module$module)
 #' linear_module$input$name
@@ -116,12 +115,6 @@ PipeOpModule = R6Class("PipeOpModule",
         packages = packages
       )
     }
-    # TODO: Maybe implement printer
-    # print = function(...) {
-    #   output = c(sprintf("<PipeOpModule:%s>", self$id), capture.output(print(self$module, ...)))
-    #   output[2] = sub("^An", "Wrapping an",  output[2])
-    #   walk(output, function(l) catn(l))
-    # }
   ),
   private = list(
     .train = function(inputs) {

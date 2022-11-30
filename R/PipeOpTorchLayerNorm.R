@@ -8,8 +8,8 @@
 #'
 #' @section Construction:
 #' `r roxy_construction(PipeOpTorchLayerNorm)`
-#' `r roxy_param_id("nn_layer_norm")`
-#' `r roxy_param_param_vals()`
+#' * `r roxy_param_id("nn_layer_norm")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels:
 #' `r roxy_pipeop_torch_channels_default()`
@@ -36,16 +36,10 @@
 #' @family PipeOpTorch
 #' @export
 #' @examples
-#' # po
 #' obj = po("nn_layer_norm", n_dim = 2)
 #' obj$id
 #' obj$module_generator
 #' obj$shapes_out(c(16, 5, 7))
-#'
-#' # pot
-#' obj = pot("layer_norm", n_dim = 2)
-#' obj$id
-#'
 PipeOpTorchLayerNorm = R6Class("PipeOpTorchLayerNorm",
   inherit = PipeOpTorch,
   public = list(

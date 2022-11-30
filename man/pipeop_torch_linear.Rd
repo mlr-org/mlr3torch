@@ -12,8 +12,8 @@ Applies a linear transformation to the incoming data: \eqn{y = xA^T + b}.
 }
 \section{Construction}{
 
-\code{PipeOpTorchLinear$new(id = "nn_linear", param_vals = list())}
 \itemize{
+\item \code{PipeOpTorchLinear$new(id = "nn_linear", param_vals = list())}
 \item \code{id} :: \code{character(1)}\cr The id for the object. The default is "nn_linear".
 \item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
 }
@@ -58,16 +58,10 @@ the package source.
 }
 
 \examples{
-# po
 obj = po("nn_linear", out_features = 10)
 obj$id
 obj$module_generator
 obj$shapes_out(c(16, 5, 7))
-
-# pot
-obj = pot("linear", out_features = 10)
-obj$id
-
 }
 \seealso{
 Other PipeOpTorch: 
@@ -94,7 +88,6 @@ Other PipeOpTorch:
 \code{\link{mlr_pipeops_torch_hardsigmoid}},
 \code{\link{mlr_pipeops_torch_hard}},
 \code{\link{mlr_pipeops_torch_head}},
-\code{\link{mlr_pipeops_torch_ingress_img}},
 \code{\link{mlr_pipeops_torch_layer_norm}},
 \code{\link{mlr_pipeops_torch_leaky_relu}},
 \code{\link{mlr_pipeops_torch_log_sigmoid}},

@@ -7,7 +7,7 @@
 batchgetter_num(data, device)
 }
 \arguments{
-\item{data}{(\code{data.table})\cr
+\item{data}{(\code{data.table()})\cr
 \code{data.table} to be converted to a \code{tensor}.}
 
 \item{device}{(\code{character(1)})\cr

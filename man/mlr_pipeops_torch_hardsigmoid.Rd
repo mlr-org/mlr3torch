@@ -11,7 +11,7 @@
 Applies the element-wise function \eqn{\mbox{Hardsigmoid}(x) = \frac{ReLU6(x + 3)}{6}}
 }
 \section{Construction}{
- \code{PipeOpTorchHardSigmoid$new(id, param_vals = list())}
+ \code{PipeOpTorchHardSigmoid$new(id = "nn_hardsigmoid", param_vals = list())}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object. The default is "nn_hardsigmoid".
 \item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
@@ -73,7 +73,6 @@ Other PipeOpTorch:
 \code{\link{mlr_pipeops_torch_hard_shrink}},
 \code{\link{mlr_pipeops_torch_hard}},
 \code{\link{mlr_pipeops_torch_head}},
-\code{\link{mlr_pipeops_torch_ingress_img}},
 \code{\link{mlr_pipeops_torch_layer_norm}},
 \code{\link{mlr_pipeops_torch_leaky_relu}},
 \code{\link{mlr_pipeops_torch_log_sigmoid}},

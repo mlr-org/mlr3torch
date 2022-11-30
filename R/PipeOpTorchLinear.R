@@ -7,9 +7,9 @@
 #' @inherit torch::nnf_linear description
 #'
 #' @section Construction:
-#' `r roxy_construction(PipeOpTorchLinear)`
-#' `r roxy_param_id("nn_linear")`
-#' `r roxy_param_param_vals()`
+#' * `r roxy_construction(PipeOpTorchLinear)`
+#' * `r roxy_param_id("nn_linear")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -29,16 +29,10 @@
 #' @family PipeOpTorch
 #' @export
 #' @examples
-#' # po
 #' obj = po("nn_linear", out_features = 10)
 #' obj$id
 #' obj$module_generator
 #' obj$shapes_out(c(16, 5, 7))
-#'
-#' # pot
-#' obj = pot("linear", out_features = 10)
-#' obj$id
-#'
 PipeOpTorchLinear = R6Class("PipeOpTorchLinear",
   inherit = PipeOpTorch,
   public = list(

@@ -11,7 +11,7 @@
 Applies a softmax function.
 }
 \section{Construction}{
- \code{PipeOpTorchSoftmax$new(id, param_vals = list())}
+ \code{PipeOpTorchSoftmax$new(id = "nn_softmax", param_vals = list())}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object. The default is "softmax".
 \item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
@@ -54,15 +54,10 @@ the package source.
 }
 
 \examples{
-# po
 obj = po("nn_softmax")
 obj$id
 obj$module_generator
 obj$shapes_out(c(16, 5, 7))
-
-# pot
-obj = pot("softmax")
-obj$id
 }
 \seealso{
 Other PipeOpTorch: 
@@ -89,7 +84,6 @@ Other PipeOpTorch:
 \code{\link{mlr_pipeops_torch_hardsigmoid}},
 \code{\link{mlr_pipeops_torch_hard}},
 \code{\link{mlr_pipeops_torch_head}},
-\code{\link{mlr_pipeops_torch_ingress_img}},
 \code{\link{mlr_pipeops_torch_layer_norm}},
 \code{\link{mlr_pipeops_torch_leaky_relu}},
 \code{\link{mlr_pipeops_torch_log_sigmoid}},

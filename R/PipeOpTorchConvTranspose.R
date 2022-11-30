@@ -8,10 +8,10 @@
 #' Base class for transpose convolution.
 #' Don't use this class directly.
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("ConvTranspose")`
-#' `r roxy_param_id()`
-#' `r roxy_param_param_vals()`
-#' `r roxy_param_module_generator()`
+#' @section Construction: `r roxy_construction(PipeOpTorchConvTranspose)`
+#' * `r roxy_param_id()`
+#' * `r roxy_param_param_vals()`
+#' * `r roxy_param_module_generator()`
 #' * `d` :: `integer(1)`\cr
 #'   The dimension of the transpose convolution.
 #'
@@ -100,9 +100,9 @@ PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",
 #'
 #' @inherit torch::nnf_conv_transpose1d description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("ConvTranspose1D")`
-#' `r roxy_param_id("nn_conv_transpose1d")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchConvTranspose1D)`
+#' * `r roxy_param_id("nn_conv_transpose1d")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #'
@@ -136,9 +136,9 @@ PipeOpTorchConvTranspose1D = R6Class("PipeOpTorchConvTranspose1D", inherit = Pip
 #'
 #' @inherit torch::nnf_conv_transpose2d description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("ConvTranspose2D")`
-#' `r roxy_param_id("nn_conv_transpose2d")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchConvTranspose2D)`
+#' * `r roxy_param_id("nn_conv_transpose2d")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #'
@@ -171,9 +171,9 @@ PipeOpTorchConvTranspose2D = R6Class("PipeOpTorchConvTranspose2D", inherit = Pip
 #'
 #' @inherit torch::nnf_conv_transpose3d description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("ConvTranspose3D")`
-#' `r roxy_param_id("nn_conv_transpose3d")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchConvTranspose3D)`
+#' * `r roxy_param_id("nn_conv_transpose3d")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #'

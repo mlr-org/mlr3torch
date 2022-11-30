@@ -8,10 +8,10 @@
 #' Base class for batch normalization.
 #' Don't use this class directly.
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("BatchNorm")`
-#' `r roxy_param_id()`
-#' `r roxy_param_param_vals()`
-#' `r roxy_param_module_generator()`
+#' @section Construction: `r roxy_construction(PipeOpTorchBatchNorm)`
+#' * `r roxy_param_id()`
+#' * `r roxy_param_param_vals()`
+#' * `r roxy_param_module_generator()`
 #' * `min_dim` :: `integer(1)`\cr
 #'   The minimum number of dimension for the input tensor.
 #' * `max_dim` :: `integer(1)`\cr
@@ -81,9 +81,9 @@ PipeOpTorchBatchNorm = R6Class("PipeOpTorchBatchNorm",
 #' Base class for batch normalization.
 #' Don't use this class directly.
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("BatchNorm1D")`
-#' `r roxy_param_id("nn_batch_norm_1d")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchBatchNorm1D)`
+#' * `r roxy_param_id("nn_batch_norm_1d")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -124,9 +124,9 @@ PipeOpTorchBatchNorm1D = R6Class("PipeOpTorchBatchNorm1D", inherit = PipeOpTorch
 #'
 #' @inherit torch::nnf_batch_norm2d description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("BatchNorm2D")`
-#' `r roxy_param_id("nn_batch_norm_2d")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchBatchNorm2D)`
+#' * `r roxy_param_id("nn_batch_norm_2d")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -167,9 +167,9 @@ PipeOpTorchBatchNorm2D = R6Class("PipeOpTorchBatchNorm2D", inherit = PipeOpTorch
 #'
 #' @inherit torch::nnf_batch_norm3d description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("BatchNorm3D")`
-#' `r roxy_param_id("nn_batch_norm_3d")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchBatchNorm3D)`
+#' * `r roxy_param_id("nn_batch_norm_3d")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`

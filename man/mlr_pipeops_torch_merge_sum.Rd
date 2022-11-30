@@ -12,9 +12,7 @@ Calculates the sum of all input tensors.
 }
 \section{Construction}{
 
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{PipeOpTorchMergeSum$new(id = "nn_merge_sum", innum = 0, param_vals = list())
-}\if{html}{\out{</div>}}
+\code{PipeOpTorchMergeSum$new(id = "nn_merge_sum", innum = 0, param_vals = list())}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object. The default is "nn_merge_sum".
 \item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
@@ -52,15 +50,10 @@ Calls \code{\link[=nn_merge_sum]{nn_merge_sum()}} when trained.
 }
 
 \examples{
-# po
 obj = po("nn_merge_sum")
 obj$id
 obj$module_generator
 obj$shapes_out(list(input1 = c(16, 5, 5), input2 = c(16, 5, 5)))
-
-# pot
-obj = pot("merge_sum")
-obj$id
 }
 \seealso{
 Other PipeOpTorch: 
@@ -87,7 +80,6 @@ Other PipeOpTorch:
 \code{\link{mlr_pipeops_torch_hardsigmoid}},
 \code{\link{mlr_pipeops_torch_hard}},
 \code{\link{mlr_pipeops_torch_head}},
-\code{\link{mlr_pipeops_torch_ingress_img}},
 \code{\link{mlr_pipeops_torch_layer_norm}},
 \code{\link{mlr_pipeops_torch_leaky_relu}},
 \code{\link{mlr_pipeops_torch_log_sigmoid}},

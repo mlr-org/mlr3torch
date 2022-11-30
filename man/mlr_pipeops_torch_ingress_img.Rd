@@ -14,7 +14,7 @@ also no data augmentation etc.
 }
 \section{Construction}{
 
-\code{PipeOpTorchIngressImage$new(id = "torch_ingress_img", param_vals = list())}
+\code{PipeOpTorchIngressImage$new(id = "torch_ingress_img", param_vals = list(), param_set = param_set)}
 }
 
 \section{Input and Output Channels}{
@@ -30,10 +30,15 @@ The state is the value calculated by the public method \code{shapes_out()}.
 \section{Parameters}{
 
 \itemize{
+\item \code{select} :: \code{logical(1)}\cr
+Whether \code{PipeOp} should selected the supported feature types. Otherwise it will err, when receiving tasks
+with unsupported feature types.
 \item \code{channels} :: \code{integer(1)}\cr
 The number of input channels.
-\item \code{pixels_height} :: \code{integer(1)}\cr
+\item \code{height} :: \code{integer(1)}\cr
 The height of the pixels.
+\item \code{width} :: \code{integer(1)}\cr
+The width of the pixels.
 }
 }
 
@@ -49,66 +54,18 @@ Only methods inherited from \code{\link{PipeOpTorchIngress}} / \code{\link{PipeO
 
 \section{Internals}{
 
-Uses \code{magick::image_read()}'to load the image.
+Uses \code{\link[magick:editing]{magick::image_read()}}'to load the image.
 }
 
 \examples{
-# TODO
+po_ingress = po("torch_ingress_img", channels = 3, height = 64, width = 64)
+task = tsk("tiny_imagenet")
+token = po_ingress$train(list(task))[[1L]]
+ingress = token$ingress[[1L]]
+ingress$batchgetter(task$data(1, ingress$features), "cpu")
 }
 \seealso{
-Other PipeOpTorch: 
-\code{\link{mlr_pipeops_torch_avg_pool1d}},
-\code{\link{mlr_pipeops_torch_avg_pool2d}},
-\code{\link{mlr_pipeops_torch_avg_pool3d}},
-\code{\link{mlr_pipeops_torch_avg_pool}},
-\code{\link{mlr_pipeops_torch_batch_norm}},
-\code{\link{mlr_pipeops_torch_celu}},
-\code{\link{mlr_pipeops_torch_conv1d}},
-\code{\link{mlr_pipeops_torch_conv2d}},
-\code{\link{mlr_pipeops_torch_conv3d}},
-\code{\link{mlr_pipeops_torch_conv_transpose1d}},
-\code{\link{mlr_pipeops_torch_conv_transpose2d}},
-\code{\link{mlr_pipeops_torch_conv_transpose3d}},
-\code{\link{mlr_pipeops_torch_conv_transpose}},
-\code{\link{mlr_pipeops_torch_conv}},
-\code{\link{mlr_pipeops_torch_dropout}},
-\code{\link{mlr_pipeops_torch_elu}},
-\code{\link{mlr_pipeops_torch_flatten}},
-\code{\link{mlr_pipeops_torch_gelu}},
-\code{\link{mlr_pipeops_torch_glu}},
-\code{\link{mlr_pipeops_torch_hard_shrink}},
-\code{\link{mlr_pipeops_torch_hardsigmoid}},
-\code{\link{mlr_pipeops_torch_hard}},
-\code{\link{mlr_pipeops_torch_head}},
-\code{\link{mlr_pipeops_torch_layer_norm}},
-\code{\link{mlr_pipeops_torch_leaky_relu}},
-\code{\link{mlr_pipeops_torch_log_sigmoid}},
-\code{\link{mlr_pipeops_torch_max_pool1d}},
-\code{\link{mlr_pipeops_torch_max_pool2d}},
-\code{\link{mlr_pipeops_torch_max_pool3d}},
-\code{\link{mlr_pipeops_torch_max_pool}},
-\code{\link{mlr_pipeops_torch_merge_cat}},
-\code{\link{mlr_pipeops_torch_merge_prod}},
-\code{\link{mlr_pipeops_torch_merge_sum}},
-\code{\link{mlr_pipeops_torch_merge}},
-\code{\link{mlr_pipeops_torch_model_classif}},
-\code{\link{mlr_pipeops_torch_model_regr}},
-\code{\link{mlr_pipeops_torch_model}},
-\code{\link{mlr_pipeops_torch_prelu}},
-\code{\link{mlr_pipeops_torch_relu6}},
-\code{\link{mlr_pipeops_torch_relu}},
-\code{\link{mlr_pipeops_torch_reshape}},
-\code{\link{mlr_pipeops_torch_rrelu}},
-\code{\link{mlr_pipeops_torch_selu}},
-\code{\link{mlr_pipeops_torch_sigmoid}},
-\code{\link{mlr_pipeops_torch_softmax}},
-\code{\link{mlr_pipeops_torch_softplus}},
-\code{\link{mlr_pipeops_torch_softshrink}},
-\code{\link{mlr_pipeops_torch_softsign}},
-\code{\link{mlr_pipeops_torch_squeeze}},
-\code{\link{mlr_pipeops_torch_tanhshrink}},
-\code{\link{mlr_pipeops_torch_tanh}},
-\code{\link{mlr_pipeops_torch_threshold}},
-\code{\link{pipeop_torch_linear}}
+Other PipeOp: 
+\code{\link{mlr_pipeops_torch_ingress}}
 }
-\concept{PipeOpTorch}
+\concept{PipeOp}

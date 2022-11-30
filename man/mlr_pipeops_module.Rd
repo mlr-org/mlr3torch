@@ -100,11 +100,11 @@ out = po_module$train(list(x = x, z = z))
 str(out)
 
 # How a PipeOpModule is usually generated
-graph = pot("ingress_num") \%>>\% pot("linear", out_features = 10L)
+graph = po("torch_ingress_num") \%>>\% po("nn_linear", out_features = 10L)
 result = graph$train(tsk("iris"))
 # The PipeOpTorchLinear generates a PipeOpModule and adds it to a new graph that represents the architecture
 result[[1]]$graph
-linear_module = result[[1L]]$graph$pipeops$linear
+linear_module = result[[1L]]$graph$pipeops$nn_linear
 linear_module
 formalArgs(linear_module$module)
 linear_module$input$name

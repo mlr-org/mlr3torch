@@ -26,7 +26,11 @@ One input channel called \code{"input"} and one output channel called‘"output"
 
 \section{Parameters}{
 
-No parameters.
+\itemize{
+\item \code{select} :: \code{logical(1)}\cr
+Whether \code{PipeOp} should selected the supported feature types. Otherwise it will err, when receiving tasks
+with unsupported feature types.
+}
 }
 
 \section{Fields}{
@@ -49,3 +53,17 @@ Uses \code{\link[=batchgetter_num]{batchgetter_num()}}.
 The state is set to the input shape.
 }
 
+\examples{
+# We set select to TRUE because the data contains factors as well
+po_ingress = po("torch_ingress_num", select = TRUE)
+task = tsk("mtcars")
+# The output is a TorchIngressToken
+token = po_ingress$train(list(task))[[1L]]
+ingress = token$ingress[[1L]]
+ingress$batchgetter(task$data(1:5, ingress$features), "cpu")
+}
+\seealso{
+Other PipeOps: 
+\code{\link{mlr_pipeops_torch_ingress_cat}}
+}
+\concept{PipeOps}

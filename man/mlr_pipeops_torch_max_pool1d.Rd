@@ -72,16 +72,10 @@ When True, will use ceil instead of floor to compute the output shape. Default: 
 }
 
 \examples{
-# po
 obj = po("nn_max_pool1d", kernel_size = 3)
 obj$id
 obj$module_generator
 obj$shapes_out(c(16, 5, 100))
-
-# pot
-obj = pot("max_pool1d")
-obj$id
-
 }
 \seealso{
 Other PipeOpTorch: 
@@ -108,7 +102,6 @@ Other PipeOpTorch:
 \code{\link{mlr_pipeops_torch_hardsigmoid}},
 \code{\link{mlr_pipeops_torch_hard}},
 \code{\link{mlr_pipeops_torch_head}},
-\code{\link{mlr_pipeops_torch_ingress_img}},
 \code{\link{mlr_pipeops_torch_layer_norm}},
 \code{\link{mlr_pipeops_torch_leaky_relu}},
 \code{\link{mlr_pipeops_torch_log_sigmoid}},

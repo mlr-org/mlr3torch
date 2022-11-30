@@ -7,15 +7,11 @@
 #' @description
 #' Base class for merge operations.
 #'
-#' @section Construction:
-#' ```
-#' PipeOpTorchMergeProd$new(id, module_generator, param_set = ps(), innum = 0, param_vals = list())
-#' ```
-#' @section Construction: `r roxy_pipeop_torch_construction("Merge")`
-#' `r roxy_param_id("module")`
-#' `r roxy_param_param_vals()`
-#' `r roxy_param_param_set()`
-#' `r roxy_param_module_generator()`
+#' @section Construction: `r roxy_construction(PipeOpTorchMerge)`
+#' * `r roxy_param_id("module")`
+#' * `r roxy_param_param_vals()`
+#' * `r roxy_param_param_set()`
+#' * `r roxy_param_module_generator()`
 #' * `innum` :: `integer(1)`\cr
 #'   The number of inputs. Default is 0 which means there is one *vararg* input channel.
 #'
@@ -71,11 +67,10 @@ PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
 #' @inherit nn_merge_sum description
 #'
 #' @section Construction:
-#' ```
-#' PipeOpTorchMergeSum$new(id = "nn_merge_sum", innum = 0, param_vals = list())
-#' ```
-#' `r roxy_param_id("nn_merge_sum")`
-#' `r roxy_param_param_vals()`
+#' `r roxy_construction(PipeOpTorchMergeSum)`
+#'
+#' * `r roxy_param_id("nn_merge_sum")`
+#' * `r roxy_param_param_vals()`
 #' * `innum` :: `integer(1)`\cr
 #'   The number of inputs. Default is 0 which means there is one *vararg* input channel.
 #'
@@ -95,15 +90,10 @@ PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
 #' @family PipeOpTorch
 #' @export
 #' @examples
-#' # po
 #' obj = po("nn_merge_sum")
 #' obj$id
 #' obj$module_generator
 #' obj$shapes_out(list(input1 = c(16, 5, 5), input2 = c(16, 5, 5)))
-#'
-#' # pot
-#' obj = pot("merge_sum")
-#' obj$id
 PipeOpTorchMergeSum = R6Class("PipeOpTorchMergeSum", inherit = PipeOpTorchMerge,
   public = list(
     initialize = function(id = "nn_merge_sum", innum = 0, param_vals = list()) {
@@ -127,11 +117,9 @@ PipeOpTorchMergeSum = R6Class("PipeOpTorchMergeSum", inherit = PipeOpTorchMerge,
 #' @inherit nn_merge_prod description
 #'
 #' @section Construction:
-#' ```
-#' PipeOpTorchMergeProd$new(id = "nn_merge_prod", innum = 0, param_vals = list())
-#' ```
-#' `r roxy_param_id("nn_merge_prod")`
-#' `r roxy_param_param_vals()`
+#' `r roxy_construction(PipeOpTorchMergeProd)`
+#' * `r roxy_param_id("nn_merge_prod")`
+#' * `r roxy_param_param_vals()`
 #' * `innum` :: `integer(1)`\cr
 #'   The number of inputs. Default is 0 which means there is one *vararg* input channel.
 #'
@@ -149,16 +137,10 @@ PipeOpTorchMergeSum = R6Class("PipeOpTorchMergeSum", inherit = PipeOpTorchMerge,
 #' @family PipeOpTorch
 #' @export
 #' @examples
-#' # po
 #' obj = po("nn_merge_prod")
 #' obj$id
 #' obj$module_generator
 #' obj$shapes_out(list(input1 = c(16, 5, 5), input2 = c(16, 5, 5)))
-#'
-#' # pot
-#' obj = pot("merge_prod")
-#' obj$id
-#'
 PipeOpTorchMergeProd = R6Class("PipeOpTorchMergeProd", inherit = PipeOpTorchMerge,
   public = list(
     initialize = function(id = "nn_merge_prod", innum = 0, param_vals = list()) {
@@ -184,8 +166,8 @@ PipeOpTorchMergeProd = R6Class("PipeOpTorchMergeProd", inherit = PipeOpTorchMerg
 #' ```
 #' PipeOpTorchMergeCat$new(id = "nn_merge_prod", innum = 0, param_vals = list())
 #' ```
-#' `r roxy_param_id("nn_merge_cat")`
-#' `r roxy_param_param_vals()`
+#' * `r roxy_param_id("nn_merge_cat")`
+#' * `r roxy_param_param_vals()`
 #' * `innum` :: `integer(1)`\cr
 #'   The number of inputs. Default is 0 which means there is one *vararg* input channel.
 #'
@@ -203,16 +185,10 @@ PipeOpTorchMergeProd = R6Class("PipeOpTorchMergeProd", inherit = PipeOpTorchMerg
 #' @family PipeOpTorch
 #' @export
 #' @examples
-#' # po
 #' obj = po("nn_merge_cat", dim = 2)
 #' obj$id
 #' obj$module_generator
 #' obj$shapes_out(list(input1 = c(16, 5, 7), input2 = c(16, 6, 7)))
-#'
-#' # pot
-#' obj = pot("merge_cat")
-#' obj$id
-#'
 PipeOpTorchMergeCat = R6Class("PipeOpTorchMergeCat", inherit = PipeOpTorchMerge,
   public = list(
     initialize = function(id = "nn_merge_cat", innum = 0, param_vals = list()) {

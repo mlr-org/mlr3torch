@@ -1,13 +1,8 @@
-Docu:
-
 **PipeOps**
-
-
-
+* [x] PipeOpModule
 * [x] PipeOpTorchIngress
 * [x] PipeOpTorchIngressNumeric
-* [ ] PipeOpTorchIngressImage
-* [ ] PipeOpModule
+* [x] PipeOpTorchIngressImage
 * [ ] PipeOpTorchUnsqueeze
 * [ ] PipeOpTorchBatchNorm1D
 * [ ] PipeOpTorchConvTranspose2D
@@ -100,7 +95,7 @@ Docu:
 * [ ] model_descriptor_to_module
 * [ ] model_descriptor_union
 * [x] print.TorchIngressToken
-* [ ] batchgetter_categ
+* [x] batchgetter_categ
 * [x] TorchIngressToken
 
 **Optimizer**
@@ -132,8 +127,8 @@ Docu:
 * [ ] avg_output_shape
 * [ ] po_register_env
 * [ ] Tiny Imagenet
-* [ ] pots
-* [ ] pot
+* [x] pots --> removed
+* [x] pot --> removed
 * [ ] inferps
 * [ ] register_po
 * [ ] check_measures
@@ -152,6 +147,7 @@ Docu:
 * [ ] measure_prediction
 * [ ] toytask
 * [ ] register_mlr3pipelines
+* [x] imageuri
 
 
 **NNs**
@@ -170,17 +166,17 @@ Docu:
 * [ ] roxy_param_module_generator
 * [ ] roxy_pipeop_torch_license
 
-* [] roxy_param_innum
-* [] roxy_param_packages
-* [] roxy_pipeop_torch_format
-* [] roxy_param_id
-* [] roxy_param_param_vals
-* [] roxy_pipeop_torch_channels_default
-* [] roxy_param_param_set
-* [] roxy_pipeop_torch_param_id
-* [] roxy_pipeop_torch_state_default
-* [] roxy_construction
-* [] roxy_pipeop_torch_methods_default
+* [ ] roxy_param_innum
+* [ ] roxy_param_packages
+* [ ] roxy_pipeop_torch_format
+* [ ] roxy_param_id
+* [ ] roxy_param_param_vals
+* [ ] roxy_pipeop_torch_channels_default
+* [ ] roxy_param_param_set
+* [ ] roxy_pipeop_torch_param_id
+* [ ] roxy_pipeop_torch_state_default
+* [ ] roxy_construction
+* [ ] roxy_pipeop_torch_methods_default
 
 
 
@@ -188,7 +184,9 @@ Docu:
 # Other
 
 * early_stopping -> test renaming
+* ensure that caching does what we want the caching to do (tiny imagenet)
 
-maybe:
-* '*' and roxy prettier: roxy should not include the '*'
+**Mit Martin**
+
+* Rename PipeOpTorch -> PipeOpNN: Names would better represent the class hierarchy.
 

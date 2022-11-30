@@ -12,7 +12,7 @@ Applies a 1D convolution over an input signal composed of several input
 planes.
 }
 \section{Construction}{
- \code{PipeOpTorchConv1D$new(id, param_vals = list())}
+ \code{PipeOpTorchConv1D$new(id = "nn_conv1d", param_vals = list())}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object. The default is "nn_conv1d".
 \item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
@@ -69,15 +69,10 @@ The padding mode. One of \code{"zeros"}, \code{"reflect"}, \code{"replicate"}, o
 }
 
 \examples{
-# po
 obj = po("nn_conv1d", out_channels = 4, kernel_size = 3)
 obj$id
 obj$module_generator
 obj$shapes_out(c(16, 3, 64))
-
-# pot
-obj = po("conv1d")
-obj$id
 }
 \seealso{
 Other PipeOpTorch: 
@@ -103,7 +98,6 @@ Other PipeOpTorch:
 \code{\link{mlr_pipeops_torch_hardsigmoid}},
 \code{\link{mlr_pipeops_torch_hard}},
 \code{\link{mlr_pipeops_torch_head}},
-\code{\link{mlr_pipeops_torch_ingress_img}},
 \code{\link{mlr_pipeops_torch_layer_norm}},
 \code{\link{mlr_pipeops_torch_leaky_relu}},
 \code{\link{mlr_pipeops_torch_log_sigmoid}},

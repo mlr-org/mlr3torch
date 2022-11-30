@@ -11,8 +11,8 @@
 #' ```
 #' PipeOpTorchHead$new(id = "nn_head", param_vals = list())
 #' ```
-#' `r roxy_param_id("Modulenn_head")`
-#' `r roxy_param_param_vals()`
+#' * `r roxy_param_id("Modulenn_head")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -29,16 +29,10 @@
 #' @family PipeOpTorch
 #' @export
 #' @examples
-#' # po
 #' obj = po("nn_head")
 #' obj$id
 #' obj$module_generator
 #' obj$shapes_out(c(16, 10))
-#'
-#' # pot
-#' obj = pot("head")
-#' obj$id
-#'
 PipeOpTorchHead = R6Class("PipeOpTorchHead",
   inherit = PipeOpTorch,
   public = list(

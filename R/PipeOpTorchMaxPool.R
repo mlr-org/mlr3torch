@@ -12,8 +12,8 @@
 #' ```
 #' PipeOpTorchMaxPool$new(id, d, return_indices = FALSE, param_vals = list())
 #' ```
-#' `r roxy_param_id()`
-#' `r roxy_param_param_vals()`
+#' * `r roxy_param_id()`
+#' * `r roxy_param_param_vals()`
 #' * `d` :: `integer(1)`\cr
 #'   The dimension of the max pooling operation.
 #' * `return_indices` :: `logical(1)`\cr
@@ -107,8 +107,8 @@ PipeOpTorchMaxPool = R6Class("PipeOpTorchMaxPool",
 #' ```
 #' PipeOpTorchMaxPool1D$new(id = "nn_max_pool1d", return_indices = FALSE, param_vals = list())
 #' ```
-#' `r roxy_param_id("nn_max_pool1d")`
-#' `r roxy_param_param_vals()`
+#' * `r roxy_param_id("nn_max_pool1d")`
+#' * `r roxy_param_param_vals()`
 #' * `return_indices` :: `logical(1)`\cr
 #'   Whether to return the indices as well, in which case there are two output channels `"output"` and `"indices"`.
 #'
@@ -125,16 +125,10 @@ PipeOpTorchMaxPool = R6Class("PipeOpTorchMaxPool",
 #' @family PipeOpTorch
 #' @export
 #' @examples
-#' # po
 #' obj = po("nn_max_pool1d", kernel_size = 3)
 #' obj$id
 #' obj$module_generator
 #' obj$shapes_out(c(16, 5, 100))
-#'
-#' # pot
-#' obj = pot("max_pool1d")
-#' obj$id
-#'
 PipeOpTorchMaxPool1D = R6Class("PipeOpTorchMaxPool1D", inherit = PipeOpTorchMaxPool,
   public = list(
     initialize = function(id = "nn_max_pool1d", return_indices = FALSE, param_vals = list()) {
@@ -155,8 +149,8 @@ PipeOpTorchMaxPool1D = R6Class("PipeOpTorchMaxPool1D", inherit = PipeOpTorchMaxP
 #' ```
 #' PipeOpTorchMaxPool2D$new(id = "nn_max_pool2d", return_indices = FALSE, param_vals = list())
 #' ```
-#' `r roxy_param_id("nn_max_pool2d")`
-#' `r roxy_param_param_vals()`
+#' * `r roxy_param_id("nn_max_pool2d")`
+#' * `r roxy_param_param_vals()`
 #' * `return_indices` :: `logical(1)`\cr
 #'   Whether to return the indices as well, in which case there are two output channels `"output"` and `"indices"`.
 #'
@@ -174,16 +168,10 @@ PipeOpTorchMaxPool1D = R6Class("PipeOpTorchMaxPool1D", inherit = PipeOpTorchMaxP
 #' @family PipeOpTorch
 #' @export
 #' @examples
-#' # po
 #' obj = po("nn_max_pool2d", kernel_size = 3)
 #' obj$id
 #' obj$module_generator
 #' obj$shapes_out(c(16, 5, 100, 100))
-#'
-#' # pot
-#' obj = pot("max_pool2d")
-#' obj$id
-#'
 PipeOpTorchMaxPool2D = R6Class("PipeOpTorchMaxPool2D", inherit = PipeOpTorchMaxPool,
   public = list(
     initialize = function(id = "nn_max_pool2d", return_indices = FALSE, param_vals = list()) {
@@ -205,8 +193,8 @@ PipeOpTorchMaxPool2D = R6Class("PipeOpTorchMaxPool2D", inherit = PipeOpTorchMaxP
 #' ```
 #' PipeOpTorchMaxPool3D$new(id = "nn_max_pool3d", return_indices = FALSE, param_vals = list())
 #' ```
-#' `r roxy_param_id("nn_max_pool3d")`
-#' `r roxy_param_param_vals()`
+#' * `r roxy_param_id("nn_max_pool3d")`
+#' * `r roxy_param_param_vals()`
 #' * `return_indices` :: `logical(1)`\cr
 #'   Whether to return the indices as well, in which case there are two output channels `"output"` and `"indices"`.
 #'
@@ -224,15 +212,10 @@ PipeOpTorchMaxPool2D = R6Class("PipeOpTorchMaxPool2D", inherit = PipeOpTorchMaxP
 #' @family PipeOpTorch
 #' @export
 #' @examples
-#' # po
 #' obj = po("nn_max_pool3d", kernel_size = 3)
 #' obj$id
 #' obj$module_generator
 #' obj$shapes_out(c(16, 5, 100, 100, 100))
-#'
-#' # pot
-#' obj = pot("max_pool3d")
-#' obj$id
 PipeOpTorchMaxPool3D = R6Class("PipeOpTorchMaxPool3D", inherit = PipeOpTorchMaxPool,
   public = list(
     initialize = function(id = "nn_max_pool3d", return_indices = FALSE, param_vals = list()) {

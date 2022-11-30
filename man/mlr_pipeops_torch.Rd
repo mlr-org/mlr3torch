@@ -33,10 +33,7 @@ The return is a named list, where the names are the names of the output channels
 }
 \section{Construction}{
 
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{PipeOpTorch$new(id, module_generator, param_set = ps(), param_vals = list(), inname = NULL, outname = "output",
-  packages = "torch", tags = NULL)
-}\if{html}{\out{</div>}}
+\code{PipeOpTorch$new(id, module_generator, param_set = ps(), param_vals = list(), inname = NULL, outname = "output", packages = "torch", tags = NULL)}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object.
 \item \code{param_set} :: \code{paradox::ParamSet}\cr The parameter set.
@@ -178,7 +175,7 @@ y = torch::with_no_grad(network(x))
 
 
 # In mlr3torch
-network_generator = pot("ingress_num") \%>>\% pot("linear", out_features = 50) \%>>\% pot("head")
+network_generator = po("torch_ingress_num") \%>>\% po("nn_linear", out_features = 50) \%>>\% po("nn_head")
 md = network_generator$train(task)[[1L]]
 network = model_descriptor_to_module(md)
 y = torch::with_no_grad(network(ingess_num.input = x))
@@ -240,7 +237,7 @@ PipeOpTorchCustom = R6Class("PipeOpTorchCustom",
 task = tsk("iris")
 task1 = task$clone()$select(paste0("Sepal.", c("Length", "Width")))
 task2 = task$clone()$select(paste0("Petal.", c("Length", "Width")))
-mds_in = gunion(list(pot("ingress_num_1"), pot("ingress_num_2")))$train(list(task1, task2), single_input = FALSE)
+mds_in = gunion(list(po("torch_ingress_num_1"), po("torch_ingress_num_2")))$train(list(task1, task2), single_input = FALSE)
 
 mds_in[[1L]][c("graph", "task", "ingress", ".pointer", ".pointer_shape")]
 mds_in[[2L]][c("graph", "task", "ingress", ".pointer", ".pointer_shape")]

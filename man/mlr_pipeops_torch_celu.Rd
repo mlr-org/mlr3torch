@@ -2,7 +2,7 @@
 % Please edit documentation in R/PipeOpTorchActivation.R
 \name{mlr_pipeops_torch_celu}
 \alias{mlr_pipeops_torch_celu}
-\alias{PipeOpTorchCelu}
+\alias{PipeOpTorchCELU}
 \title{CELU Activation Function}
 \format{
 \link{\code{R6Class}} inheriting from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
@@ -11,7 +11,7 @@
 Applies element-wise, \eqn{CELU(x) = max(0,x) + min(0, \alpha * (exp(x \alpha) - 1))}.
 }
 \section{Construction}{
- \code{PipeOpTorchCELU$new(id, param_vals = list())}
+ \code{PipeOpTorchCELU$new(id = "nn_celu", param_vals = list())}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object. The default is "nn_celu".
 \item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
@@ -78,7 +78,6 @@ Other PipeOpTorch:
 \code{\link{mlr_pipeops_torch_hardsigmoid}},
 \code{\link{mlr_pipeops_torch_hard}},
 \code{\link{mlr_pipeops_torch_head}},
-\code{\link{mlr_pipeops_torch_ingress_img}},
 \code{\link{mlr_pipeops_torch_layer_norm}},
 \code{\link{mlr_pipeops_torch_leaky_relu}},
 \code{\link{mlr_pipeops_torch_log_sigmoid}},

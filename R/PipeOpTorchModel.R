@@ -13,8 +13,8 @@
 #' ```
 #' PipeOpTorchModel$new(id, param_vals, task_type)
 #' ```
-#' `r roxy_param_id()`
-#' `r roxy_param_param_set()`
+#' * `r roxy_param_id()`
+#' * `r roxy_param_param_set()`
 #' * `task_type` :: `character(1)`\cr
 #'   The task type of the model. See `mlr_reflections$task_types` for available options.
 #'
@@ -131,8 +131,8 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
 #' ```
 #' PipeOpTorchModelClassif$new(id = "torch_model.classif", param_vals)
 #' ```
-#' `r roxy_param_id()`
-#' `r roxy_param_param_set()`
+#' * `r roxy_param_id()`
+#' * `r roxy_param_param_set()`
 #'
 #' @inheritSection mlr_pipeops_torch Input and Output Channels
 #'
@@ -177,8 +177,8 @@ PipeOpTorchModelClassif = R6Class("PipeOpTorchModelClassif",
 #' ```
 #' PipeOpTorchModelReg$new(id = "torch_model.regr", param_vals = list())
 #' ```
-#' `r roxy_param_id()`
-#' `r roxy_param_param_set()`
+#' * `r roxy_param_id()`
+#' * `r roxy_param_param_set()`
 #'
 #' @inheritSection mlr_pipeops_torch Input and Output Channels
 #'

@@ -8,10 +8,10 @@
 #' Base class for transpose convolution.
 #' Don't use this class directly.
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("Conv")`
-#' `r roxy_param_id()`
-#' `r roxy_param_param_vals()`
-#' `r roxy_param_module_generator()`
+#' @section Construction: `r roxy_construction(PipeOpTorchConv)`
+#' * `r roxy_param_id()`
+#' * `r roxy_param_param_vals()`
+#' * `r roxy_param_module_generator()`
 #' * `d` :: `integer(1)`\cr
 #'   The dimension of the transpose convolution.
 #'
@@ -99,9 +99,9 @@ PipeOpTorchConv = R6Class("PipeOpTorchConv",
 #'
 #' @inherit torch::nnf_conv1d description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("Conv1D")`
-#' `r roxy_param_id("nn_conv1d")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchConv1D)`
+#' * `r roxy_param_id("nn_conv1d")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -116,15 +116,10 @@ PipeOpTorchConv = R6Class("PipeOpTorchConv",
 #' @family PipeOpTorch
 #' @export
 #' @examples
-#' # po
 #' obj = po("nn_conv1d", out_channels = 4, kernel_size = 3)
 #' obj$id
 #' obj$module_generator
 #' obj$shapes_out(c(16, 3, 64))
-#'
-#' # pot
-#' obj = po("conv1d")
-#' obj$id
 PipeOpTorchConv1D = R6Class("PipeOpTorchConv1D", inherit = PipeOpTorchConv,
   public = list(
     initialize = function(id = "nn_conv1d", param_vals = list()) {
@@ -142,9 +137,9 @@ PipeOpTorchConv1D = R6Class("PipeOpTorchConv1D", inherit = PipeOpTorchConv,
 #'
 #' @inherit torch::nnf_conv2d description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("Conv2D")`
-#' `r roxy_param_id("nn_conv2d")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchConv2D)`
+#' * `r roxy_param_id("nn_conv2d")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -159,16 +154,10 @@ PipeOpTorchConv1D = R6Class("PipeOpTorchConv1D", inherit = PipeOpTorchConv,
 #' @family PipeOpTorch
 #' @export
 #' @examples
-#' # po
 #' obj = po("nn_conv2d", out_channels = 4, kernel_size = 3)
 #' obj$id
 #' obj$module_generator
 #' obj$shapes_out(c(16, 3, 64, 64))
-#'
-#' # pot
-#' obj = po("conv2d")
-#' obj$id
-#'
 PipeOpTorchConv2D = R6Class("PipeOpTorchConv2D", inherit = PipeOpTorchConv,
   public = list(
     initialize = function(id = "nn_conv2d", param_vals = list()) {
@@ -185,9 +174,9 @@ PipeOpTorchConv2D = R6Class("PipeOpTorchConv2D", inherit = PipeOpTorchConv,
 #'
 #' @inherit torch::nnf_conv3d description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("Conv3D")`
-#' `r roxy_param_id("nn_conv3d")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchConv3D)`
+#' * `r roxy_param_id("nn_conv3d")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -202,16 +191,10 @@ PipeOpTorchConv2D = R6Class("PipeOpTorchConv2D", inherit = PipeOpTorchConv,
 #' @family PipeOpTorch
 #' @export
 #' @examples
-#' # po
 #' obj = po("nn_conv3d", out_channels = 4, kernel_size = 3)
 #' obj$id
 #' obj$module_generator
 #' obj$shapes_out(c(16, 3, 64, 64, 100))
-#'
-#' # pot
-#' obj = po("conv3d")
-#' obj$id
-#'
 PipeOpTorchConv3D = R6Class("PipeOpTorchConv3D", inherit = PipeOpTorchConv,
   public = list(
     initialize = function(id = "nn_conv3d", param_vals = list()) {

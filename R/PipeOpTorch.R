@@ -21,13 +21,11 @@
 #' [`Task`][mlr3::Task] resulting from their [feature union][PipeOpFeatureUnion] in each channel.
 #'
 #' @section Construction:
-#' ```
-#' PipeOpTorch$new(id, module_generator, param_set = ps(), param_vals = list(), inname = NULL, outname = "output",
-#'   packages = "torch", tags = NULL)
-#' ```
-#' `r roxy_param_id()`
-#' `r roxy_param_param_set()`
-#' `r roxy_param_param_vals()`
+#' `r roxy_construction(PipeOpTorch)`
+#'
+#' * `r roxy_param_id()`
+#' * `r roxy_param_param_set()`
+#' * `r roxy_param_param_vals()`
 #' * `module_generator` :: `nn_module_generator` | `NULL`\cr
 #'   The module generator that is wrapped by this `PipeOpTorch`.
 #'   When this is `NULL`, then `private$.make_module()` must be overloaded.
@@ -145,7 +143,7 @@
 #'
 #'
 #' # In mlr3torch
-#' network_generator = pot("ingress_num") %>>% pot("linear", out_features = 50) %>>% pot("head")
+#' network_generator = po("torch_ingress_num") %>>% po("nn_linear", out_features = 50) %>>% po("nn_head")
 #' md = network_generator$train(task)[[1L]]
 #' network = model_descriptor_to_module(md)
 #' y = torch::with_no_grad(network(ingess_num.input = x))
@@ -207,7 +205,7 @@
 #' task = tsk("iris")
 #' task1 = task$clone()$select(paste0("Sepal.", c("Length", "Width")))
 #' task2 = task$clone()$select(paste0("Petal.", c("Length", "Width")))
-#' mds_in = gunion(list(pot("ingress_num_1"), pot("ingress_num_2")))$train(list(task1, task2), single_input = FALSE)
+#' mds_in = gunion(list(po("torch_ingress_num_1"), po("torch_ingress_num_2")))$train(list(task1, task2), single_input = FALSE)
 #'
 #' mds_in[[1L]][c("graph", "task", "ingress", ".pointer", ".pointer_shape")]
 #' mds_in[[2L]][c("graph", "task", "ingress", ".pointer", ".pointer_shape")]
@@ -255,6 +253,9 @@ PipeOpTorch = R6Class("PipeOpTorch",
       lockBinding("module_generator", self)
       assert_names(outname, type = "strict", .var.name = "output channel names")
       assert_character(tags, null.ok = TRUE)
+      # this enforces the following:
+      # Unless there is a vararg input channel, the argument names of the wrapped module must correspond to the names
+      # of the input channels. The exception is made because otherwise it is ugly with the merge operators
       if (is.null(module_generator)) {
         assert_names(inname, type = "strict", .var.name = "input channel names")
       } else {

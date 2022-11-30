@@ -63,7 +63,7 @@ ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, 
   assert_list(callbacks, any.missing = FALSE, types = "R6ClassGenerator")
 
   if (!is.null(.pointer)) {
-    assert_integerish(.pointer_shape, len = 2)
+    assert_integerish(.pointer_shape)
     assert_choice(.pointer[[1]], names(graph$pipeops))
     assert_choice(.pointer[[2]], graph$pipeops[[.pointer[[1]]]]$output$name)
   }

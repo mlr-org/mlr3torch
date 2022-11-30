@@ -2,7 +2,7 @@
 % Please edit documentation in R/PipeOpTorchActivation.R
 \name{mlr_pipeops_torch_softshrink}
 \alias{mlr_pipeops_torch_softshrink}
-\alias{PipeOpTorchtSoftShrink}
+\alias{PipeOpTorchSoftShrink}
 \title{Soft Shrink Activation Function}
 \format{
 \link{\code{R6Class}} inheriting from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
@@ -11,7 +11,7 @@
 Applies the soft shrinkage function elementwise
 }
 \section{Construction}{
- \code{PipeOpTorchSoftShrink$new(id, param_vals = list())}
+ \code{PipeOpTorchSoftShrink$new(id = "nn_softshrink", param_vals = list())}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object. The default is "nn_softshrink".
 \item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
@@ -77,7 +77,6 @@ Other PipeOpTorch:
 \code{\link{mlr_pipeops_torch_hardsigmoid}},
 \code{\link{mlr_pipeops_torch_hard}},
 \code{\link{mlr_pipeops_torch_head}},
-\code{\link{mlr_pipeops_torch_ingress_img}},
 \code{\link{mlr_pipeops_torch_layer_norm}},
 \code{\link{mlr_pipeops_torch_leaky_relu}},
 \code{\link{mlr_pipeops_torch_log_sigmoid}},

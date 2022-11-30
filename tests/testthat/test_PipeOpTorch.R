@@ -52,20 +52,20 @@ test_that("PipeOpTorch works", {
   # basic checks that output is checked correctly
   expect_error(
     PipeOpTorchDebug$new(id = "debug", inname = paste0("input", 1:2), outname = paste0("output", 1:2)),
-    regex = "grepl"
+    regexp = "grepl"
   )
   expect_error(
     PipeOpTorchDebug$new(id = "nn_debug", inname = "input", outname = paste0("output", 1:2)),
-    regex = "The names of the input channels must be a permutation of the arguments of the provided module_generator."
+    regexp = "The names of the input channels must be a permutation of the arguments of the provided module_generator."
   )
   expect_error(
     PipeOpTorchDebug$new(id = "nn_debug", inname = "input", outname = paste0("output", 1:2)),
-    regex = "The names of the input channels must be a permutation of the arguments of the provided module_generator."
+    regexp = "The names of the input channels must be a permutation of the arguments of the provided module_generator."
   )
 
   expect_error(
     PipeOpTorchDebug$new(id = "nn_debug", inname = "input", outname = paste0("output", 1:2)),
-    regex = "The names of the input channels must be a permutation of the arguments of the provided module_generator."
+    regexp = "The names of the input channels must be a permutation of the arguments of the provided module_generator."
   )
 
 
@@ -73,8 +73,8 @@ test_that("PipeOpTorch works", {
   obj = PipeOpTorchDebug$new(id = "nn_debug", inname = paste0("input", 1:2), outname = paste0("output", 1:2))
   obj$param_set$values = list(d_out1 = 2, d_out2 = 3, bias = TRUE)
 
-  mdin1 = pot("ingress_num")$train(list(task))[[1L]]
-  mdin2 = pot("ingress_cat")$train(list(task))[[1L]]
+  mdin1 = po("torch_ingress_num")$train(list(task))[[1L]]
+  mdin2 = po("torch_ingress_cat")$train(list(task))[[1L]]
 
   mdouts = obj$train(list(input1 = mdin1, input2 = mdin2))
   mdout1 = mdouts[["output1"]]
@@ -87,8 +87,6 @@ test_that("PipeOpTorch works", {
 
 
   expect_true(list)
-
-  exp
 
   expect_error(graph)
 

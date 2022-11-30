@@ -6,9 +6,9 @@
 #'
 #' @inherit torch::nnf_softmax description
 #'
-#' @section Construction: `r roxy_pipeop_torch_construction("Softmax")`
-#' `r roxy_param_id("softmax")`
-#' `r roxy_param_param_vals()`
+#' @section Construction: `r roxy_construction(PipeOpTorchSoftmax)`
+#' * `r roxy_param_id("softmax")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #'
@@ -26,15 +26,10 @@
 #' @family PipeOpTorch
 #' @export
 #' @examples
-#' # po
 #' obj = po("nn_softmax")
 #' obj$id
 #' obj$module_generator
 #' obj$shapes_out(c(16, 5, 7))
-#'
-#' # pot
-#' obj = pot("softmax")
-#' obj$id
 PipeOpTorchSoftmax = R6::R6Class("PipeOpTorchSoftmax",
   inherit = PipeOpTorch,
   public = list(

@@ -30,12 +30,40 @@ expect_torchop = function(op, inputs, task, class, exclude = character(0L), expe
 }
 
 
-autotest_torchop = function(graph, id, task, module_class = NULL) {
+#' @title Autotest for PipeOpTorch
+#' @description
+#' This tests a [`PipeOpTorch`] that is embedded in a [`Graph`].
+#' It tests whether:
+#' * the output tensor(s) have the correct shape(s)
+#' * the generated module has the intended class
+#' * the parameters are correctly implemented
+#' * Some other basic checks
+#' @param graph ([`Graph`])\cr
+#'   The graph that contains the [`PipeOpTorch`] to be tested.
+#' @param id (`character(1)`)\cr
+#'   The id of the [`PipeOpTorch`] to be tested.
+#' @param task ([`Task`])\cr
+#'   The task with which the [`PipeOpTorch`] will be tested.
+#' @param module_class (`character(1)`)\cr
+#'   The module class that is expected from the generated module of the [`PipeOpTorch`].
+#' @param exclude (`character()`)\cr
+#'   The parameters to exlude from the parameter test.
+#' @return `TRUE` if the autotest passes, errs otherwise.
+#' @export
+autotest_pipeop_torch = function(graph, id, task, module_class = NULL, exclude = character(0)) {
+  po_test = modulegraph$pipeops[[id]]
+
+  expect
+
+
+
+
+
+
   result = graph$train(task)
   md = result[[1]]
 
   modulegraph = md$graph
-  testobj = modulegraph$pipeops$merge_sum
   testmodule = testobj$module
 
   # class of generated module is as expected
@@ -66,6 +94,5 @@ autotest_torchop = function(graph, id, task, module_class = NULL) {
   # Here we need to check that shapes out is working.
   expect_list(private$.shapes_out(shapes_in, pv), len = nrow(self$output), types = "numeric")
 
-
-
+  return(TRUE)
 }

@@ -29,8 +29,8 @@ test_that("TorchOpMerge works", {
 
 test_that("TorchOpMergeAdd works", {
   task = tsk("iris")
-  graph = gunion(list(pot("ingress_num_1"), pot("ingress_num_2"))) %>>%
-    pot("merge_sum", innum = 2L)
+  graph = gunion(list(po("torch_ingress_num_1"), po("torch_ingress_num_2"))) %>>%
+    po("nn_merge_sum", innum = 2L)
 
   graph = graph
   id = "merge_sum"

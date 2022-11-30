@@ -6,11 +6,10 @@
 #' Configures the `loss` of a [`ModelDescriptor`].
 #'
 #' @section Construction:
-#' ```
-#' PipeOpTorchLoss$new(loss, id = "torch_loss", param_vals = list())
-#' ```
-#' `r roxy_param_id("torch_loss")`
-#' `r roxy_param_param_vals()`
+#' `r roxy_construction(PipeOpTorchLoss)`
+#'
+#' * `r roxy_param_id("torch_loss")`
+#' * `r roxy_param_param_vals()`
 #' * `loss` :: [`TorchLoss`].
 #'   The loss function.
 #'

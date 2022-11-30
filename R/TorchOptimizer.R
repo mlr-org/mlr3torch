@@ -93,7 +93,7 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
       assert_r6(param_set, "ParamSet", null.ok = TRUE)
       self$label = assert_string(label)
       self$optimizer = assert_class(torch_optimizer, "torch_optimizer_generator")  # maybe too strict?
-      selc$packages = assert_names(packages, type = "strict")
+      self$packages = assert_names(packages, type = "strict")
       self$param_set = param_set %??% inferps(torch_optimizer, ignore = "params")
     },
     #' @description

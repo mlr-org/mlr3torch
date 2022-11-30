@@ -7,11 +7,10 @@
 #' @inherit torch::nnf_dropout description
 #'
 #' @section Construction:
-#' ```
-#' PipeOpTorchDropout$new()id = "nn_dropout", param_vals = list()
-#' ```
-#' `r roxy_param_id("nn_layer_norm")`
-#' `r roxy_param_param_vals()`
+#' `r roxy_construction(PipeOpTorchDropout)`
+#'
+#' * `r roxy_param_id("nn_layer_norm")`
+#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
@@ -30,16 +29,10 @@
 #' @family PipeOpTorch
 #' @export
 #' @examples
-#' # po
 #' obj = po("nn_dropout")
 #' obj$id
 #' obj$module_generator
 #' obj$shapes_out(c(16, 5, 7))
-#'
-#' # pot
-#' obj = pot("dropout")
-#' obj$id
-#'
 PipeOpTorchDropout = R6Class("PipeOpTorchDropout",
   inherit = PipeOpTorch,
   public = list(

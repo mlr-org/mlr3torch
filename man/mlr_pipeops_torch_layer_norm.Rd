@@ -62,16 +62,10 @@ the package source.
 }
 
 \examples{
-# po
 obj = po("nn_layer_norm", n_dim = 2)
 obj$id
 obj$module_generator
 obj$shapes_out(c(16, 5, 7))
-
-# pot
-obj = pot("layer_norm", n_dim = 2)
-obj$id
-
 }
 \seealso{
 Other PipeOpTorch: 
@@ -98,7 +92,6 @@ Other PipeOpTorch:
 \code{\link{mlr_pipeops_torch_hardsigmoid}},
 \code{\link{mlr_pipeops_torch_hard}},
 \code{\link{mlr_pipeops_torch_head}},
-\code{\link{mlr_pipeops_torch_ingress_img}},
 \code{\link{mlr_pipeops_torch_leaky_relu}},
 \code{\link{mlr_pipeops_torch_log_sigmoid}},
 \code{\link{mlr_pipeops_torch_max_pool1d}},

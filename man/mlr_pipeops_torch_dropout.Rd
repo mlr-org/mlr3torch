@@ -14,9 +14,7 @@ distribution.
 }
 \section{Construction}{
 
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{PipeOpTorchDropout$new()id = "nn_dropout", param_vals = list()
-}\if{html}{\out{</div>}}
+\code{PipeOpTorchDropout$new(id = "nn_dropout", param_vals = list())}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object. The default is "nn_layer_norm".
 \item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
@@ -61,16 +59,10 @@ the package source.
 }
 
 \examples{
-# po
 obj = po("nn_dropout")
 obj$id
 obj$module_generator
 obj$shapes_out(c(16, 5, 7))
-
-# pot
-obj = pot("dropout")
-obj$id
-
 }
 \seealso{
 Other PipeOpTorch: 
@@ -96,7 +88,6 @@ Other PipeOpTorch:
 \code{\link{mlr_pipeops_torch_hardsigmoid}},
 \code{\link{mlr_pipeops_torch_hard}},
 \code{\link{mlr_pipeops_torch_head}},
-\code{\link{mlr_pipeops_torch_ingress_img}},
 \code{\link{mlr_pipeops_torch_layer_norm}},
 \code{\link{mlr_pipeops_torch_leaky_relu}},
 \code{\link{mlr_pipeops_torch_log_sigmoid}},

@@ -155,7 +155,7 @@ This module gives us the convenience of torch `nn_module` objects, e.g.:
 graph_module$children
 #> $modules
 #> An `nn_module` containing 31 parameters.
-#> 
+#>
 #> ── Modules ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 #> • 0: <nn_linear> #16 parameters
 #> • 1: <nn_sigmoid> #0 parameters
@@ -169,7 +169,7 @@ graph_module$parameters
 #>  0.5319 -0.5228 -0.5649
 #> -0.3713 -0.5328 -0.4598
 #> [ CPUFloatType{4,3} ][ requires_grad = TRUE ]
-#> 
+#>
 #> $modules.0.bias
 #> torch_tensor
 #>  0.3812
@@ -177,14 +177,14 @@ graph_module$parameters
 #>  0.3695
 #> -0.3986
 #> [ CPUFloatType{4} ][ requires_grad = TRUE ]
-#> 
+#>
 #> $modules.2.weight
 #> torch_tensor
 #> -0.3044  0.2025  0.3502  0.2392
 #> -0.1705 -0.4839 -0.3929 -0.2611
 #>  0.4835  0.0918 -0.2528  0.4997
 #> [ CPUFloatType{3,4} ][ requires_grad = TRUE ]
-#> 
+#>
 #> $modules.2.bias
 #> torch_tensor
 #>  0.4211
@@ -212,7 +212,7 @@ The [`PipeOpModule`] represents anf `nn_module` that is fixed for a specific ten
 
 A complete `Graph` of matching [`PipeOpModule`]s can be constructed using operators that mostly inherit from [`PipeOpTorch`], making use of the [`ModelDescriptor`] class. The [`ModelDescriptor`] class contains a `Graph` of [`PipeOpModule`] and some more necessary meta-info. The [`PipeOpTorch`] transforms a [`ModelDescriptor`] and adds more [`PipeOpModule`]s to the `Graph`.
 
-[`ModelDescriptor`]s always build up a [`Graph`] for a specific [`Task`]. The easiest way to initialize a proper [`ModelDescriptor`] is to use the appropriate [`PipeOpTorchIngress`] `PipeOp` for a given datatype. 
+[`ModelDescriptor`]s always build up a [`Graph`] for a specific [`Task`]. The easiest way to initialize a proper [`ModelDescriptor`] is to use the appropriate [`PipeOpTorchIngress`] `PipeOp` for a given datatype.
 
 
 ```r
@@ -238,32 +238,32 @@ unclass(md)
 #> $graph
 #> Graph with 1 PipeOps:
 #>                 ID         State sccssors prdcssors
-#>  torch_ingress_num <<UNTRAINED>>                   
-#> 
+#>  torch_ingress_num <<UNTRAINED>>
+#>
 #> $ingress
 #> $ingress$torch_ingress_num.input
 #> Ingress: Task[Petal.Length,Sepal.Length,Sepal.Width] --> Tensor(NA, 3)
-#> 
-#> 
+#>
+#>
 #> $task
 #> <TaskClassif:iris> (150 x 4): Iris Flowers
 #> * Target: Species
 #> * Properties: multiclass
 #> * Features (3):
 #>   - dbl (3): Petal.Length, Sepal.Length, Sepal.Width
-#> 
+#>
 #> $optimizer
 #> NULL
-#> 
+#>
 #> $loss
 #> NULL
-#> 
+#>
 #> $callbacks
 #> list()
-#> 
+#>
 #> $.pointer
-#> [1] "torch_ingress_num" "output"           
-#> 
+#> [1] "torch_ingress_num" "output"
+#>
 #> $.pointer_shape
 #> [1] NA  3
 ```
@@ -278,7 +278,7 @@ md <- po_torch_linear$train(list(md))[[1]]
 md$graph
 #> Graph with 2 PipeOps:
 #>                 ID         State  sccssors         prdcssors
-#>  torch_ingress_num <<UNTRAINED>> nn_linear                  
+#>  torch_ingress_num <<UNTRAINED>> nn_linear
 #>          nn_linear <<UNTRAINED>>           torch_ingress_num
 ```
 
@@ -319,14 +319,14 @@ td <- task_dataset(
 td
 #> <dataset>
 #>   Public:
-#>     .getbatch: function (index) 
-#>     .getitem: function (index) 
-#>     .length: function () 
+#>     .getbatch: function (index)
+#>     .getitem: function (index)
+#>     .length: function ()
 #>     all_features: Petal.Length Sepal.Length Sepal.Width Species
-#>     clone: function (deep = FALSE) 
+#>     clone: function (deep = FALSE)
 #>     device: cpu
 #>     feature_ingress_tokens: list
-#>     initialize: function (task, feature_ingress_tokens, target_batchgetter = NULL, 
+#>     initialize: function (task, feature_ingress_tokens, target_batchgetter = NULL,
 #>     target_batchgetter: NULL
 #>     task: TaskClassif, TaskSupervised, Task, R6
 ```
@@ -343,11 +343,11 @@ batch
 #>  1.4000  4.9000  3.0000
 #>  1.3000  4.7000  3.2000
 #> [ CPUFloatType{3,3} ]
-#> 
-#> 
+#>
+#>
 #> $y
 #> NULL
-#> 
+#>
 #> $.index
 #> [1] 1 2 3
 
@@ -368,7 +368,7 @@ The sequential NN from above can easily be implemented as follows:
 graph_generator <- po("torch_ingress_num") %>>%
   po("nn_linear", out_features = 4, id = "linear1") %>>%
     po("nn_act_sigmoid") %>>%
-    po("nn_linear", out_features = 3, id = "linear2") %>>%	
+    po("nn_linear", out_features = 3, id = "linear2") %>>%
 	po("nn_softmax", dim = 2)
 ```
 
@@ -451,7 +451,7 @@ iris_mds
 #> loss: N/A
 #> 0 callbacks
 #> .pointer: lin_out.output [(NA,1)]
-#> 
+#>
 #> $nn_softmax.output
 #> ModelDescriptor (11 ops):
 #> [(NA,2);(NA,2)]
@@ -465,7 +465,7 @@ We make multiple observations here:
 
 1. We can observe how the [`ModelDescriptor`] grows as it is passed along the edges of `graph_iris`. Note that the `$graph` slot of that [`ModelDescriptor`] is often updated by-reference, so by the time we inspect intermediate results, they may contain the complete graph. However, see how the `$ingress`, `$.pointer` and `$.pointer_shape` of the [`ModelDescriptor`]s that take the `sepal.in`-path differ from the ones that take the `petal.in`-path:
 
-    
+
     ```r
     # sepal.in path
     graph_iris$pipeops$linear1$.result[[1]]$ingress
@@ -475,7 +475,7 @@ We make multiple observations here:
     #> [1] "linear1" "output"
     graph_iris$pipeops$linear1$.result[[1]]$.pointer_shape
     #> [1] NA  4
-    
+
     # petal.in path
     graph_iris$pipeops$linear3$.result[[1]]$ingress
     #> $petal.in.input
@@ -488,12 +488,12 @@ We make multiple observations here:
 
     `po("nn_merge_cat")` unites the two [`ModelDescriptor`]s and contains the common ingress. The `.pointer_shape` now reflects the output of the "cat"-operation: the 2nd dimension is added up:
 
-    
+
     ```r
     graph_iris$pipeops$nn_merge_cat$.result[[1]]$ingress
     #> $sepal.in.input
     #> Ingress: Task[Sepal.Length,Sepal.Width] --> Tensor(NA, 2)
-    #> 
+    #>
     #> $petal.in.input
     #> Ingress: Task[Petal.Length,Petal.Width] --> Tensor(NA, 2)
     graph_iris$pipeops$nn_merge_cat$.result[[1]]$.pointer_shape
@@ -503,29 +503,29 @@ We make multiple observations here:
 
     `list_output` must be set to `TRUE` since the module has multiple outputs.
 
-    
+
     ```r
     iris_mds_union = model_descriptor_union(iris_mds[[1]], iris_mds[[2]])
     output_pointers = list(iris_mds[[1]]$.pointer, iris_mds[[2]]$.pointer)
     output_pointers
     #> [[1]]
-    #> [1] "lin_out" "output" 
-    #> 
+    #> [1] "lin_out" "output"
+    #>
     #> [[2]]
     #> [1] "nn_softmax" "output"
     iris_module = model_descriptor_to_module(iris_mds_union, output_pointers, list_output = TRUE)
     ```
 1. The `PipeOpBranch` disappears in the resulting `Graph` of [`PipeOpModule`] in the `iris_module`. This is because only the [`PipeOpTorch`]s in the `graph_iris` add anything to the [`ModelDescriptor`]s. The branch is interpeted when `graph_iris` runs, and only the `nn_act_relu` path is followed. The `iris_module` therefore contains a `Graph` that does "relu" activation:
 
-    
+
     ```r
     iris_module$graph$plot()
     ```
-    
+
     ![plot of chunk unnamed-chunk-30](figure/unnamed-chunk-30-1.png)
 1. The [`ModelDescriptor`]'s `$task` slot contains a `Task` with all features that are used to create the input data for all NN inputs. It can be given to `task_dataset()`, along with the `$ingress`, to create a `torch` `dataset` that creates all batches. As above, any output of `graph_iris` can be used:
 
-    
+
     ```r
     iris_mds_union$task  # contains all features
     #> <TaskClassif:iris> (150 x 5): Iris Flowers
@@ -533,12 +533,12 @@ We make multiple observations here:
     #> * Properties: multiclass
     #> * Features (4):
     #>   - dbl (4): Petal.Length, Petal.Width, Sepal.Length, Sepal.Width
-    
+
     iris_td <- task_dataset(
       task = iris_mds_union$task,
       feature_ingress_tokens = iris_mds_union$ingress
     )
-    
+
     batch <- iris_td$.getbatch(1:2)
     batch
     #> $x
@@ -547,26 +547,26 @@ We make multiple observations here:
     #>  5.1000  3.5000
     #>  4.9000  3.0000
     #> [ CPUFloatType{2,2} ]
-    #> 
+    #>
     #> $x$petal.in.input
     #> torch_tensor
     #>  1.4000  0.2000
     #>  1.4000  0.2000
     #> [ CPUFloatType{2,2} ]
-    #> 
-    #> 
+    #>
+    #>
     #> $y
     #> NULL
-    #> 
+    #>
     #> $.index
     #> [1] 1 2
     ```
 1. The resulting module has multiple inputs and multiple outputs. We call it with the first two rows of iris, but set the debug `$keep_results` flag so we can inspect what is happening in the `nn_module`'s `$graph`:
 
-    
+
     ```r
     iris_module$graph$keep_results = TRUE
-    
+
     iris_module(
       sepal.in.input = batch$x$sepal.in.input,
       petal.in.input = batch$x$petal.in.input
@@ -576,7 +576,7 @@ We make multiple observations here:
     #> -0.9763
     #> -0.9231
     #> [ CPUFloatType{2,1} ][ grad_fn = <AddmmBackward0> ]
-    #> 
+    #>
     #> $nn_softmax.output
     #> torch_tensor
     #>  0.6215  0.2313  0.1472
@@ -585,7 +585,7 @@ We make multiple observations here:
     ```
     The first linear layer that takes "Sepal" input (`"linear1"`) creates a 2x4 tensor (batch size 2, 4 units), while the `"linear3"` layer has 2x5 output:
 
-    
+
     ```r
     iris_module$graph$pipeops$linear1$.result
     #> $output
@@ -602,7 +602,7 @@ We make multiple observations here:
     ```
     We observe that the `po("nn_merge_cat")` concatenates these, as expected:
 
-    
+
     ```r
     iris_module$graph$pipeops$nn_merge_cat$.result
     #> $output
@@ -626,19 +626,19 @@ adam <- t_opt("adam", lr = 0.02)
 adam
 #> <TorchOptimizer>
 #>   Public:
-#>     clone: function (deep = FALSE) 
-#>     get_optimizer: function (params) 
-#>     initialize: function (torch_optimizer, param_set = NULL, label = deparse(substitute(torch_optimizer))[[1]]) 
+#>     clone: function (deep = FALSE)
+#>     get_optimizer: function (params)
+#>     initialize: function (torch_optimizer, param_set = NULL, label = deparse(substitute(torch_optimizer))[[1]])
 #>     label: adam
-#>     optimizer: function (params, lr = 0.001, betas = c(0.9, 0.999), eps = 1e-08, 
+#>     optimizer: function (params, lr = 0.001, betas = c(0.9, 0.999), eps = 1e-08,
 #>     param_set: ParamSet, R6
 adam$param_set
 #> <ParamSet>
 #>              id    class lower upper nlevels     default value
 #> 1:           lr ParamDbl 0e+00   Inf     Inf       0.001  0.02
-#> 2:        betas ParamUty    NA    NA     Inf 0.900,0.999      
-#> 3:          eps ParamDbl 1e-16 1e-04     Inf       1e-08      
-#> 4: weight_decay ParamDbl 0e+00 1e+00     Inf           0      
+#> 2:        betas ParamUty    NA    NA     Inf 0.900,0.999
+#> 3:          eps ParamDbl 1e-16 1e-04     Inf       1e-08
+#> 4: weight_decay ParamDbl 0e+00 1e+00     Inf           0
 #> 5:      amsgrad ParamLgl    NA    NA       2       FALSE
 ```
 
@@ -650,11 +650,11 @@ xe <- t_loss("cross_entropy")
 xe
 #> <TorchLoss>
 #>   Public:
-#>     clone: function (deep = FALSE) 
-#>     get_loss: function () 
-#>     initialize: function (torch_loss, tasktypes = NULL, param_set = NULL, label = deparse(substitute(torch_loss))[[1]]) 
+#>     clone: function (deep = FALSE)
+#>     get_loss: function ()
+#>     initialize: function (torch_loss, tasktypes = NULL, param_set = NULL, label = deparse(substitute(torch_loss))[[1]])
 #>     label: cross_entropy
-#>     loss: function (weight = NULL, ignore_index = -100, reduction = "mean") 
+#>     loss: function (weight = NULL, ignore_index = -100, reduction = "mean")
 #>     param_set: ParamSet, R6
 #>     tasktypes: classif
 ```
@@ -696,7 +696,7 @@ lr_sequential$predict_type = "response"
 lr_sequential$train(md_sequential$task)
 #> Epoch 1
 #> Training [===================================================================]
-#> 
+#>
 #> [Summary epoch 1]
 #> ------------------
 #> Measures (Train):
@@ -705,287 +705,287 @@ lr_sequential$train(md_sequential$task)
 #> Epoch 2
 #> Training [============================================>----------------------]
 #> Training [===================================================================]
-#> 
+#>
 #> [Summary epoch 2]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 1.09
 #>  * classif.ce = 0.67
 #> Epoch 3
-#> 
+#>
 #> [Summary epoch 3]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 1.04
 #>  * classif.ce = 0.49
 #> Epoch 4
-#> 
+#>
 #> [Summary epoch 4]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.99
 #>  * classif.ce = 0.33
 #> Epoch 5
-#> 
+#>
 #> [Summary epoch 5]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.96
 #>  * classif.ce = 0.33
 #> Epoch 6
-#> 
+#>
 #> [Summary epoch 6]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.92
 #>  * classif.ce = 0.33
 #> Epoch 7
-#> 
+#>
 #> [Summary epoch 7]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.89
 #>  * classif.ce = 0.33
 #> Epoch 8
-#> 
+#>
 #> [Summary epoch 8]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.85
 #>  * classif.ce = 0.33
 #> Epoch 9
-#> 
+#>
 #> [Summary epoch 9]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.82
 #>  * classif.ce = 0.33
 #> Epoch 10
-#> 
+#>
 #> [Summary epoch 10]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.79
 #>  * classif.ce = 0.33
 #> Epoch 11
-#> 
+#>
 #> [Summary epoch 11]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.76
 #>  * classif.ce = 0.33
 #> Epoch 12
-#> 
+#>
 #> [Summary epoch 12]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.73
 #>  * classif.ce = 0.33
 #> Epoch 13
-#> 
+#>
 #> [Summary epoch 13]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.71
 #>  * classif.ce = 0.33
 #> Epoch 14
-#> 
+#>
 #> [Summary epoch 14]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.68
 #>  * classif.ce = 0.33
 #> Epoch 15
-#> 
+#>
 #> [Summary epoch 15]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.66
 #>  * classif.ce = 0.33
 #> Epoch 16
-#> 
+#>
 #> [Summary epoch 16]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.64
 #>  * classif.ce = 0.33
 #> Epoch 17
-#> 
+#>
 #> [Summary epoch 17]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.62
 #>  * classif.ce = 0.33
 #> Epoch 18
-#> 
+#>
 #> [Summary epoch 18]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.59
 #>  * classif.ce = 0.33
 #> Epoch 19
-#> 
+#>
 #> [Summary epoch 19]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.57
 #>  * classif.ce = 0.33
 #> Epoch 20
-#> 
+#>
 #> [Summary epoch 20]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.55
 #>  * classif.ce = 0.33
 #> Epoch 21
-#> 
+#>
 #> [Summary epoch 21]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.53
 #>  * classif.ce = 0.33
 #> Epoch 22
-#> 
+#>
 #> [Summary epoch 22]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.50
 #>  * classif.ce = 0.32
 #> Epoch 23
-#> 
+#>
 #> [Summary epoch 23]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.49
 #>  * classif.ce = 0.31
 #> Epoch 24
-#> 
+#>
 #> [Summary epoch 24]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.47
 #>  * classif.ce = 0.23
 #> Epoch 25
-#> 
+#>
 #> [Summary epoch 25]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.46
 #>  * classif.ce = 0.13
 #> Epoch 26
-#> 
+#>
 #> [Summary epoch 26]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.45
 #>  * classif.ce = 0.13
 #> Epoch 27
-#> 
+#>
 #> [Summary epoch 27]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.44
 #>  * classif.ce = 0.11
 #> Epoch 28
-#> 
+#>
 #> [Summary epoch 28]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.43
 #>  * classif.ce = 0.08
 #> Epoch 29
-#> 
+#>
 #> [Summary epoch 29]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.42
 #>  * classif.ce = 0.07
 #> Epoch 30
-#> 
+#>
 #> [Summary epoch 30]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.41
 #>  * classif.ce = 0.10
 #> Epoch 31
-#> 
+#>
 #> [Summary epoch 31]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.41
 #>  * classif.ce = 0.11
 #> Epoch 32
-#> 
+#>
 #> [Summary epoch 32]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.39
 #>  * classif.ce = 0.06
 #> Epoch 33
-#> 
+#>
 #> [Summary epoch 33]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.38
 #>  * classif.ce = 0.07
 #> Epoch 34
-#> 
+#>
 #> [Summary epoch 34]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.37
 #>  * classif.ce = 0.06
 #> Epoch 35
-#> 
+#>
 #> [Summary epoch 35]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.37
 #>  * classif.ce = 0.09
 #> Epoch 36
-#> 
+#>
 #> [Summary epoch 36]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.36
 #>  * classif.ce = 0.07
 #> Epoch 37
-#> 
+#>
 #> [Summary epoch 37]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.35
 #>  * classif.ce = 0.07
 #> Epoch 38
-#> 
+#>
 #> [Summary epoch 38]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.34
 #>  * classif.ce = 0.06
 #> Epoch 39
-#> 
+#>
 #> [Summary epoch 39]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.33
 #>  * classif.ce = 0.05
 #> Epoch 40
-#> 
+#>
 #> [Summary epoch 40]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.32
 #>  * classif.ce = 0.07
 #> Epoch 41
-#> 
+#>
 #> [Summary epoch 41]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.31
 #>  * classif.ce = 0.05
 #> Epoch 42
-#> 
+#>
 #> [Summary epoch 42]
 #> ------------------
 #> Measures (Train):
@@ -994,7 +994,7 @@ lr_sequential$train(md_sequential$task)
 #> Epoch 43
 #> Training [============================================>----------------------]
 #> Training [===================================================================]
-#> 
+#>
 #> [Summary epoch 43]
 #> ------------------
 #> Measures (Train):
@@ -1002,49 +1002,49 @@ lr_sequential$train(md_sequential$task)
 #>  * classif.ce = 0.06
 #> Epoch 44
 #> Training [===================================================================]
-#> 
+#>
 #> [Summary epoch 44]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.29
 #>  * classif.ce = 0.05
 #> Epoch 45
-#> 
+#>
 #> [Summary epoch 45]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.28
 #>  * classif.ce = 0.06
 #> Epoch 46
-#> 
+#>
 #> [Summary epoch 46]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.28
 #>  * classif.ce = 0.07
 #> Epoch 47
-#> 
+#>
 #> [Summary epoch 47]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.27
 #>  * classif.ce = 0.04
 #> Epoch 48
-#> 
+#>
 #> [Summary epoch 48]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.27
 #>  * classif.ce = 0.06
 #> Epoch 49
-#> 
+#>
 #> [Summary epoch 49]
 #> ------------------
 #> Measures (Train):
 #>  * classif.logloss = 0.27
 #>  * classif.ce = 0.07
 #> Epoch 50
-#> 
+#>
 #> [Summary epoch 50]
 #> ------------------
 #> Measures (Train):
@@ -1069,7 +1069,7 @@ library("ggplot2")
 plot_predictions <- function(predictions) {
   ggplot(cbind(newdata, Species = predictions$response),
       aes(x = Sepal.Length, y = Petal.Length, fill = Species)) +
-    geom_tile(alpha = .3) + 
+    geom_tile(alpha = .3) +
     geom_point(data = iris,
       aes(x = Sepal.Length, y = Petal.Length, fill = Species),
       color = "black", pch = 21, size = 3) +
@@ -1082,7 +1082,7 @@ plot_predictions(predictions)
 
 # Torch Learner Pipelines
 
-The model shown above is constructed using the [`ModelDescriptor`] that is generated from a `Graph` of [`PipeOpTorch`] operators. 
+The model shown above is constructed using the [`ModelDescriptor`] that is generated from a `Graph` of [`PipeOpTorch`] operators.
 The [`ModelDescriptor`] furthermore contains the `Task` to which it pertains. This makes it possible to use it to create a NN model that gets trained right away, using [`PipeOpTorchModelClassif`]. The only missing prerequisite now is to add the desired [`TorchOptimizer`] and [`TorchLoss`] information to the [`ModelDescriptor`].
 
 ## Adding Optimizer and Loss Meta-Info to [`ModelDescriptor`]
@@ -1104,11 +1104,11 @@ md_sequential <- po_adam$train(list(md_sequential))[[1]]
 md_sequential$optimizer
 #> <TorchOptimizer>
 #>   Public:
-#>     clone: function (deep = FALSE) 
-#>     get_optimizer: function (params) 
-#>     initialize: function (torch_optimizer, param_set = NULL, label = deparse(substitute(torch_optimizer))[[1]]) 
+#>     clone: function (deep = FALSE)
+#>     get_optimizer: function (params)
+#>     initialize: function (torch_optimizer, param_set = NULL, label = deparse(substitute(torch_optimizer))[[1]])
 #>     label: adam
-#>     optimizer: function (params, lr = 0.001, betas = c(0.9, 0.999), eps = 1e-08, 
+#>     optimizer: function (params, lr = 0.001, betas = c(0.9, 0.999), eps = 1e-08,
 #>     param_set: ParamSet, R6
 ```
 
@@ -1120,16 +1120,16 @@ md_sequential <- po_xe$train(list(md_sequential))[[1]]
 md_sequential$loss
 #> <TorchLoss>
 #>   Public:
-#>     clone: function (deep = FALSE) 
-#>     get_loss: function () 
-#>     initialize: function (torch_loss, tasktypes = NULL, param_set = NULL, label = deparse(substitute(torch_loss))[[1]]) 
+#>     clone: function (deep = FALSE)
+#>     get_loss: function ()
+#>     initialize: function (torch_loss, tasktypes = NULL, param_set = NULL, label = deparse(substitute(torch_loss))[[1]])
 #>     label: cross_entropy
-#>     loss: function (weight = NULL, ignore_index = -100, reduction = "mean") 
+#>     loss: function (weight = NULL, ignore_index = -100, reduction = "mean")
 #>     param_set: ParamSet, R6
 #>     tasktypes: classif
 ```
 
-## Combined Instantiation and Training of [`LearnerClassifTorchModel`] 
+## Combined Instantiation and Training of [`LearnerClassifTorchModel`]
 
 The [`ModelDescriptor`] can now be given to a `po("torch_model.classif")`.
 
@@ -1141,7 +1141,7 @@ po_model$train(list(md_sequential))
 #> NULL
 ```
 
-`po("torch_model.classif")` behaves similarly to a `PipeOpLearner`: It returns `NULL` during training, and the prediction on `$predict()`. 
+`po("torch_model.classif")` behaves similarly to a `PipeOpLearner`: It returns `NULL` during training, and the prediction on `$predict()`.
 
 
 ```r
@@ -1163,9 +1163,9 @@ Remember that `md_sequential` was created using a `Graph` that the initial `Task
 graph_sequential_full <- po("torch_ingress_num") %>>%
   po("nn_linear", out_features = 4, id = "linear1") %>>%
     po("nn_act_sigmoid") %>>%
-    po("nn_linear", out_features = 3, id = "linear2") %>>%	
+    po("nn_linear", out_features = 3, id = "linear2") %>>%
 	po("nn_softmax", dim = 2, id = "softmax") %>>%
-    po("nn_linear", out_features = 3, id = "linear3") %>>%	
+    po("nn_linear", out_features = 3, id = "linear3") %>>%
 	po("nn_softmax", dim = 2, id = "softmax2") %>>%
     po("torch_optimizer", optimizer = adam) %>>%
     po("torch_loss", loss = xe) %>>%

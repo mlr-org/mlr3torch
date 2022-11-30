@@ -50,16 +50,10 @@ Calls \code{\link[=nn_merge_cat]{nn_merge_cat()}} when trained.
 }
 
 \examples{
-# po
 obj = po("nn_merge_cat", dim = 2)
 obj$id
 obj$module_generator
 obj$shapes_out(list(input1 = c(16, 5, 7), input2 = c(16, 6, 7)))
-
-# pot
-obj = pot("merge_cat")
-obj$id
-
 }
 \seealso{
 Other PipeOpTorch: 
@@ -86,7 +80,6 @@ Other PipeOpTorch:
 \code{\link{mlr_pipeops_torch_hardsigmoid}},
 \code{\link{mlr_pipeops_torch_hard}},
 \code{\link{mlr_pipeops_torch_head}},
-\code{\link{mlr_pipeops_torch_ingress_img}},
 \code{\link{mlr_pipeops_torch_layer_norm}},
 \code{\link{mlr_pipeops_torch_leaky_relu}},
 \code{\link{mlr_pipeops_torch_log_sigmoid}},

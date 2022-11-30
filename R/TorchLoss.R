@@ -39,11 +39,9 @@ as_torch_loss.character = function(x, clone = FALSE) { # nolint
 #' For a list of available parameters, seen [`mlr3torch_losses`].
 #'
 #' @section Construction:
-#' ```
-#' TorchLoss$new(torch_loss, task_types, param_set = NULL, label = deparse(substitute(torch_loss))[[1]],
-#' packages = "torch")$new()
-#' ```
-#' `r roxy_param_param_set()`
+#' `r roxy_construction(PipeOpTorchLoss)`
+#'
+#' * `r roxy_param_param_set()`
 #' * `torch_loss` :: `nn_loss`\cr
 #'   The loss module.
 #' * `task_types` :: `character()`\cr
