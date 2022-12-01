@@ -1,3 +1,5 @@
+Stopped: PipeOpTorchLinear --> Need to understand model descriptor to module better.
+
 **PipeOps**
 * [x] PipeOpModule
 * [x] PipeOpTorchIngress
@@ -189,4 +191,6 @@
 **Mit Martin**
 
 * Rename PipeOpTorch -> PipeOpNN: Names would better represent the class hierarchy.
+* It must be documented how the output names are generated, when outputs of non-terminal nodes are used
+in "output_map" ("output_<id>_output.<channel>")
 

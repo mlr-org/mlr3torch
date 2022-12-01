@@ -43,6 +43,7 @@ model_descriptor_to_module = function(model_descriptor, output_pointers = NULL, 
       # The indicated channel is not terminal. May happen if output of operation1 gets routed
       # to operation2 and *also* to output: the graph doesn't know that operation1's result should
       # be an output as well --> we add a nop-pipeop to create a terminal channel
+      # note that op = c(id, channel)
       nopid = unique_id(paste(c("output", op), collapse = "_"), names(graph$pipeops))
 
       graph$add_pipeop(po("nop", id = nopid))

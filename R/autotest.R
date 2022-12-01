@@ -1,38 +1,7 @@
-expect_torchop = function(op, inputs, task, class, exclude = character(0L), expected_class) {
-  module =
-
-
-
-  result = expect_error(op$build(inputs, task), regexp = NA,
-    info = list(shapes = map(inputs, "shape"))
-  )
-  layer = result$layer
-  expect_class(layer, class)
-  output = result$output
-  expect_list(output, len = op$outnum)
-  expect_true(all(names(output) == op$output$name))
-  expect_true(all(map_lgl(output, function(o) inherits(o, "torch_tensor"))))
-  expect_set_equal(formalArgs(layer$forward), op$input$name)
-  expect_true(inherits(op, "TorchOp"))
-
-  # now we do a "param test"
-  # implemented =
-  init_args = setdiff(formalArgs(op$initialize), c("id", "param_vals"))
-  params = op$param_set$ids()
-
-  fn = try(getFromNamespace(class, ns = "torch"))
-  if (inherits(fn, "try-error")) {
-    fn = try(getFromNamespace(class, ns = "mlr3torch"))
-  }
-  observed = setdiff(c(init_args, params), exclude)
-  expected = setdiff(formalArgs(fn), exclude)
-  expect_set_equal(observed, expected)
-}
-
-
 #' @title Autotest for PipeOpTorch
 #' @description
 #' This tests a [`PipeOpTorch`] that is embedded in a [`Graph`].
+#' Note that the id of the [`PipeOp`] to test should be the default id.
 #' It tests whether:
 #' * the output tensor(s) have the correct shape(s)
 #' * the generated module has the intended class
@@ -46,53 +15,137 @@ expect_torchop = function(op, inputs, task, class, exclude = character(0L), expe
 #'   The task with which the [`PipeOpTorch`] will be tested.
 #' @param module_class (`character(1)`)\cr
 #'   The module class that is expected from the generated module of the [`PipeOpTorch`].
-#' @param exclude (`character()`)\cr
-#'   The parameters to exlude from the parameter test.
 #' @return `TRUE` if the autotest passes, errs otherwise.
 #' @export
-autotest_pipeop_torch = function(graph, id, task, module_class = NULL, exclude = character(0)) {
-  po_test = modulegraph$pipeops[[id]]
-
-  expect
-
-
-
-
-
-
+autotest_pipeop_torch = function(graph, id, task, module_class = NULL) {
+  po_test = graph$pipeops[[id]]
   result = graph$train(task)
   md = result[[1]]
 
   modulegraph = md$graph
-  testmodule = testobj$module
+  po_module = modulegraph$pipeops[[id]]
 
-  # class of generated module is as expected
-  expect_class(testmodule, c(module_class, "nn_module"), null.ok = TRUE)
+  # (1) class of generated module is as expected
+  expect_class(po_module, "PipeOpModule")
+  expect_class(po_module$module, c(module_class, "nn_module"))
 
-  # argument names of forward function match names of input channels
-  fargs = formalArgs(testmodule$forward)
-  innames = testobj$input$name
-  expect_true(all(sort(fargs) == sort(innames)))
+  # (2) argument names of forward function match names of input channels
 
-  op = pmap(graph$edges[dst_id == id, c("src_id", "src_channel")], function(src_id, src_channel) c(src_id, src_channel))
-  op[[length(op) + 1L]] = md$.pointer
+  expect_equal(po_module$input$name, po_test$input$name)
+  fargs = formalArgs(po_module$module$forward)
+  if ("..." %nin% fargs) {
+    expect_equal(fargs, po_test$input$name)
+  }
 
-  # To be able to test [PipeOpTorch]s with more than one output channel we go for the list_output = TRUE
-  net = model_descriptor_to_module(md, output_pointers = op, list_output = TRUE)
+  # Consistent default ids
+  x1 = paste0(tolower(gsub("^PipeOpTorch", "", class(po_test)[[1L]])))
+  x2 = gsub("_", "", gsub("^nn_", "", po_test$id))
+  expect_true(x1 == x2)
 
-  ds = task_dataset(task, md$ingress)
+  expect_true(po_test$id == class(po_module$module)[[1L]])
 
+  # (3) Forward call works and the shapes are correct
+  # (i)input (p)ointer and (o)utput (p)ointer for the tested PipeOp
+
+  # the code below is probably written reaaaally stupidly
+  # The problem is that the outputs of the network have modified ids, i.e. `"output_<id>"`
+  # When we want to pass a subset of the network outputs to $shapes_out() of po_test, we need to make sure that
+  # the names are correct
+  #
+  # Assume we have a graph A -> B.
+  # If we build a nn_graph from that, an additional A1 is introduced, so that we have A1 <- A -> B
+  # the connection between A and A1 is a nop, but the names are different.
+  # We need to match the names out the output A1 to the names of A and then get the input channels of B
+  # (which is the pipeop we are testing)
+
+
+  # input pointer (for po_test)
+  ip = pmap(graph$edges[get("dst_id") == id, .(x = get("src_id"), y = get("src_channel"))], function(x, y) c(x, y))
+
+  # output pointer (for po_test)
+  op = pmap(graph$output[, c("op.id", "channel.name")], function(op.id, channel.name) c(op.id, channel.name)) # nolint
+  pointers = append(ip, op)
+  net = model_descriptor_to_module(md, output_pointers = pointers, list_output = TRUE)$to(device = "cpu")
+
+
+  ds = task_dataset(task, md$ingress, device = "cpu")
   batch = ds$.getbatch(1)
+  out = with_no_grad(invoke(net$forward, .args = batch$x))
 
-  # this here contains the inputs that went into the module and the output.
-  # It let's us verify that our shape function is correct
-  out = invoke(net$forward, .args = batch$x)
+  # TODO: Make this better understandable
+  tmp = net$graph$output
+  # outnamein are the output nodes that contain the tensors that are the input to the pipeop we are testing
+  outnamein = tmp[get("op.id") != id, c("op.id", "channel.name")]
+  # outnameout are the actual output nodes
+  outnameout = tmp[get("op.id") == id, c("op.id", "channel.name")]
 
-  layerout = out[[md$.pointer]]
-  layerin = out[[head(ob, length(op) - 1L)]]
+  # appending `"output_"` before is necessary, because this is how it is implemented when non-terminal nodes
+  # are used in the output map, i.e. a new node `"output_<id>"` is added and a connection from `"<id>"` to `"output_<id>"`
 
-  # Here we need to check that shapes out is working.
-  expect_list(private$.shapes_out(shapes_in, pv), len = nrow(self$output), types = "numeric")
+  # layerin is the network's output which is as also the input to the pipeop we are testing
+  layerin = out[paste0(outnamein$op.id, ".", outnamein$channel.name)]
+  # layerout is the actual pipeop
+  layerout = out[paste0(outnameout$op.id, ".", outnameout$channel.name)]
+
+  # To verify the shapes, we need to map the names of the input channels of our po_test to the elements in layerin
+  # so we can pass layerin (with correct names) to $shapes_out() of po_test
+  # We cant pass layerin to po_test$shapes_out() because the names are wrong.
+
+  # we rebuild out model_descriptor_to_module builds the ids for the non-terminal output channels
+  # But buy doing so get get the information to which input channels of po_test they are mapped!
+  tmp1 = net$graph$edges[dst_id == id, ]
+  channels = tmp1[get("dst_id") == id, "dst_channel"][[1L]]
+  names(channels) = paste0("output", "_", tmp1$src_id, "_", tmp1$src_channel, ".", tmp1$src_channel)
+  names(layerin) = channels[names(channels)]
+
+  d_obs = map(layerout, dim)
+  d_exp = po_test$shapes_out(map(layerin, dim))
+  expect_true(all(pmap_lgl(list(x = d_obs, y = d_exp), function(x, y) all(x == y))))
 
   return(TRUE)
+}
+
+
+run_paramtest = function(learner, fun, exclude = character(), tag = NULL) {
+  par_learner = learner$param_set$ids(tags = tag)
+  if (checkmate::test_list(fun)) {
+    # for xgboost we pass a character vector with info scraped from the web
+    if (mlr3misc::some(fun, function(x) class(x) == "character")) {
+      which = which(mlr3misc::map_lgl(fun, function(x) class(x) == "character"))
+      par_package = fun[[which]]
+      fun[[which]] = NULL
+      other = unlist(lapply(fun, formalArgs))
+      par_package = append(par_package, other)
+    } else {
+      par_package = unlist(lapply(fun, formalArgs))
+    }
+  } else {
+    par_package = formalArgs(fun)
+  }
+
+  missing = setdiff(par_package, par_learner)
+  missing = setdiff(missing, c(exclude, "..."))
+
+  extra = setdiff(par_learner, par_package)
+  extra = setdiff(extra, c(exclude, "..."))
+
+  if (length(c(missing, extra)) == 0L) {
+    return(TRUE)
+  }
+
+  merror = eerror = character(0)
+
+  if (length(missing) > 0) {
+    merror = sprintf("Missing parameters for learner '%s': %s",
+      learner$id, paste0(missing, collapse = ", "))
+  }
+
+  if (length(extra) > 0) {
+    eerror = sprintf("Extra parameters for learner '%s': %s",
+      learner$id, paste0(extra, collapse = ", "))
+  }
+
+  error = paste(merror, eerror, sep = "\n")
+
+  list(ok = FALSE, error = error, missing = missing, extra = extra)
 }
