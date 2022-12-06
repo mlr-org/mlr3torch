@@ -83,7 +83,7 @@ PipeOpTorchConv = R6Class("PipeOpTorchConv",
       ))
     },
     .shape_dependent_params = function(shapes_in, param_vals) {
-      c(param_vals, in_channels = shapes_in[1])
+      c(param_vals, in_channels = unname(shapes_in[[1L]][2L]))
 
     },
     .d = NULL

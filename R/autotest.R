@@ -15,9 +15,10 @@
 #'   The task with which the [`PipeOpTorch`] will be tested.
 #' @param module_class (`character(1)`)\cr
 #'   The module class that is expected from the generated module of the [`PipeOpTorch`].
+#'   Default is the [`PipeOp`]s `id`.
 #' @return `TRUE` if the autotest passes, errs otherwise.
 #' @export
-autotest_pipeop_torch = function(graph, id, task, module_class = NULL) {
+autotest_pipeop_torch = function(graph, id, task, module_class = id) {
   po_test = graph$pipeops[[id]]
   result = graph$train(task)
   md = result[[1]]

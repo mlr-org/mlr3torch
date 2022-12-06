@@ -12,4 +12,6 @@ torch_test_helpers = list.files(system.file("testthat", package = "mlr3torch"), 
 torch_test_helpers = torch_test_helpers[!grepl("helper\\_debugging\\.[rR]", torch_test_helpers)]
 lapply(torch_test_helpers, source)
 
+mlr_tasks$add("test_imagenet", load_task_test_imagenet)
+
 rm(mlr_test_helpers)
