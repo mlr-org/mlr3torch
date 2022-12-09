@@ -39,7 +39,7 @@ Number of output channels produce by the convolution.
 Size of the convolving kernel.
 \item \code{stride} :: \code{integer()}\cr
 Stride of the convolution. Default: 1.
-\item \code{padding} :: \verb{ (}integer()`)\cr
+\item \code{padding} :: \verb{ }integer()`\cr
 ‘dilation * (kernel_size - 1) - padding’ zero-padding will be added to both sides of the input. Default: 0.
 \item \code{output_padding} ::\code{integer()}\cr
 Additional size added to one side of the output shape. Default: 0.
@@ -63,8 +63,7 @@ The padding mode. One of \code{"zeros"}, \code{"reflect"}, \code{"replicate"}, o
 }
 
 \section{Internals}{
-
-See the respective child class.
+ See the respective child class.
 }
 
 \section{Credit}{

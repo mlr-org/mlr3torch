@@ -161,13 +161,16 @@ Default: \code{TRUE}
 See the respective child class.
 
 
-See the respective child class.
+Calls \code{\link[torch:nn_batch_norm1d]{torch::nn_batch_norm1d()}}.
+The parameter \code{num_features} is inferred as the second dimension of the input shape.
 
 
-See the respective child class.
+Calls \code{\link[torch:nn_batch_norm2d]{torch::nn_batch_norm2d()}}.
+The parameter \code{num_features} is inferred as the second dimension of the input shape.
 
 
-See the respective child class.
+Calls \code{\link[torch:nn_batch_norm3d]{torch::nn_batch_norm3d()}}.
+The parameter \code{num_features} is inferred as the second dimension of the input shape.
 }
 
 \section{Credit}{

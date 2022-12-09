@@ -10,6 +10,10 @@
 \description{
 Creates a new instance of this \link[R6:R6Class]{R6} class.
 }
+\section{Construction}{
+ \code{PipeOpTorchReshape$new(id = "nn_reshape", param_vals = list())}
+}
+
 \section{Input and Output Channels}{
  One input channel called \code{"input"} and one output channel called‘"output"’. For an explanation see \link{\code{PipeOpTorch}}.
 }
@@ -22,7 +26,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 
 \itemize{
 \item \code{shape} :: \code{integer(1)}\cr
-The desired output shape.
+The desired output shape. Unknown dimension (one at most) can either be specified as \code{-1} or \code{NA}.
 }
 }
 

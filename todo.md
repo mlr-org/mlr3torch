@@ -1,71 +1,84 @@
-Stopped: PipeOpTorchLinear --> Need to understand model descriptor to module better.
-
 **PipeOps**
+
 * [x] PipeOpModule
+
 * [x] PipeOpTorchIngress
 * [x] PipeOpTorchIngressNumeric
 * [x] PipeOpTorchIngressImage
-* [ ] PipeOpTorchUnsqueeze
-* [ ] PipeOpTorchBatchNorm1D
-* [ ] PipeOpTorchConvTranspose2D
-* [ ] PipeOpTorch
-* [ ] PipeOpTorchAvgPool2D
-* [ ] PipeOpTorchSigmoid
+* [x] PipeOpTorchIngressCategorical
+
+* [x] PipeOpTorchConv
+* [x] PipeOpTorchConv1D
+* [x] PipeOpTorchConv2D
+* [x] PipeOpTorchConv3D
+
+* [x] PipeOpTorchConvTranspose1D
+* [x] PipeOpTorchConvTranspose2D
+* [x] PipeOpTorchConvTranspose3D
+* [x] PipeOpTorchConvTranspose
+
+* [x] PipeOpTorchUnsqueeze
+* [x] PipeOpTorchSqueeze
+* [x] PipeOpTorchFlatten
+* [x] PipeOpTorchReshape
+
+* [x] PipeOpTorchBatchNorm
+* [x] PipeOpTorchBatchNorm1D
+* [x] PipeOpTorchBatchNorm2D
+* [x] PipeOpTorchBatchNorm3D
+
+* [x] PipeOpTorchAvgPool
+* [x] PipeOpTorchAvgPool1D
+* [x] PipeOpTorchAvgPool2D
+* [x] PipeOpTorchAvgPool3D
+
+* [ ] PipeOpTorchMaxPool
 * [ ] PipeOpTorchMaxPool1D
+* [ ] PipeOpTorchMaxPool2D
+* [ ] PipeOpTorchMaxPool3D
+
 * [ ] PipeOpTorchLinear
-* [ ] PipeOpTorchBatchNorm2D
-* [ ] PipeOpTorchGELU
-* [ ] PipeOpTorchConvTranspose
-* [ ] PipeOpTorchAvgPool3D
+* [ ] PipeOpTorchHead
+
+* [ ] PipeOpTorchMerge
 * [ ] PipeOpTorchMergeSum
+* [ ] PipeOpTorchMergeProd
+* [ ] PipeOpTorchMergeCat
+
+* [ ] PipeOpTorchDropout
+* [ ] PipeOpTorchOptimizer
+
+* [ ] PipeOpTorchLoss
+
+* [ ] PipeOpTorchLogSigmoid
+* [ ] PipeOpTorchSigmoid
+* [ ] PipeOpTorchGELU
 * [ ] PipeOpTorchReLU
-* [ ] PipeOpTorchBatchNorm3D
 * [ ] PipeOpTorchActTanhShrink
-* [ ] PipeOpTorchAvgPool
 * [ ] PipeOpTorchGLU
 * [ ] PipeOpTorchCelu
-* [ ] PipeOpTorchHead
 * [ ] PipeOpTorchThreshold
 * [ ] PipeOpTorchRReLU
 * [ ] PipeOpTorchLayerNorm
 * [ ] PipeOpTorchHardSigmoid
 * [ ] PipeOpTorchPReLU
-* [ ] PipeOpTorchDropout
-* [ ] PipeOpTorchAvgPool1D
-* [ ] PipeOpTorchLoss
-* [ ] PipeOpTorchLogSigmoid
-* [ ] PipeOpTorchMergeProd
-* [ ] PipeOpTorchMaxPool
-* [ ] PipeOpTorchFlatten
-* [ ] PipeOpTorchMerge
 * [ ] PipeOpTorchActTanh
-* [ ] PipeOpTorchModelRegr
-* [ ] PipeOpTorchSqueeze
 * [ ] PipeOpTorchLeakyReLU
-* [ ] PipeOpTorchReshape
 * [ ] PipeOpTorchRelu6
-* [ ] PipeOpTorchConv3D
 * [ ] PipeOpTorchELU
-* [ ] PipeOpTorchConv
 * [ ] PipeOpTorchtSoftShrink
 * [ ] PipeOpTorchHardShrink
-* [ ] PipeOpTorchConv2D
-* [ ] PipeOpTorchModelClassif
-* [ ] PipeOpTorchConvTranspose1D
 * [ ] PipeOpTorchSoftPlus
-* [ ] PipeOpTorchMaxPool2D
-* [ ] PipeOpTorchIngressCategorical
 * [ ] PipeOpTorchSELU
 * [ ] PipeOpTorchSoftmax
-* [ ] PipeOpTorchModel
-* [ ] PipeOpTorchMergeCat
 * [ ] PipeOpTorchActSoftSign
-* [ ] PipeOpTorchConv1D
-* [ ] PipeOpTorchOptimizer
 * [ ] PipeOpTorchHardTanh
-* [ ] PipeOpTorchMaxPool3D
-* [ ] PipeOpTorchBatchNorm
-* [ ] PipeOpTorchConvTranspose3D
+
+* [ ] PipeOpTorchModel
+* [ ] PipeOpTorchModelRegr
+* [ ] PipeOpTorchModelClassif
+
+* [ ] PipeOpTorch
 
 **Learner**
 

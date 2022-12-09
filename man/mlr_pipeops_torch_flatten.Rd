@@ -10,9 +10,8 @@
 \description{
 For use with \link[torch]{nn_sequential}.
 }
-\section{Module}{
-
-Calls \code{\link[torch:nn_flatten]{torch::nn_flatten()}} when trained.
+\section{Construction \code{PipeOpTorchFlatten$new(id = "nn_flatten", param_vals = list())}}{
+NA
 }
 
 \section{Input and Output Channels}{
@@ -32,18 +31,20 @@ At wich dimension to stop flattening. Default is -1.
 }
 
 \section{Fields}{
-
-Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+ Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
 
 \section{Methods}{
+ Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+}
 
-Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+\section{Internals}{
+
+Calls \code{\link[torch:nn_flatten]{torch::nn_flatten()}} when trained.
 }
 
 \section{Credit}{
-
-Parts of this documentation have been copied or adapted from the R package \link{torch}, that comes under the
+ Parts of this documentation have been copied or adapted from the R package \link{torch}, that comes under the
 MIT license, which is included in the help page of \link{\code{mlr3torch}}, as well as in the top-level folder of
 the package source.
 }

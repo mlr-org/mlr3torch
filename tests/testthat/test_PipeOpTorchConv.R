@@ -1,100 +1,90 @@
-test_that("PipeOpTorchConv works", {
-  po_conv = po("nn_conv1d", kernel_size = 8, out_channels = 3)
+test_that("PipeOpTorchConv1 autotest", {
+  po_conv = po("nn_conv1d", kernel_size = 2, out_channels = 3)
+  task = tsk("iris")
+  graph = po("torch_ingress_num") %>>% po("nn_unsqueeze", dim = 2) %>>% po_conv
+
+  autotest_pipeop_torch(graph, "nn_conv1d", task)
+})
+
+test_that("PipeOpTorchConv1d paramtest", {
+  res = run_paramtest(po("nn_conv1d"), nn_conv1d, exclude = "in_channels")
+  expect_paramtest(res)
+})
+
+test_that("PipeOpTorchConv2 autotest", {
+  po_conv = po("nn_conv2d", kernel_size = 2, out_channels = 2)
   task = tsk("test_imagenet")
   graph = po("torch_ingress_img", channels = 3, height = 64, width = 64) %>>% po_conv
 
-  res = autotest_pipeop_torch(graph, "nn_conv1d", task)
-  expect_true(res)
+  autotest_pipeop_torch(graph, "nn_conv2d", task)
 })
 
-test_that("PipeOpTorchLinear paramtest", {
-  run_paramtest(po_linear, nn_linear, exclude = "in_features")
+test_that("PipeOpTorchConv2d paramtest", {
+  res = run_paramtest(po("nn_conv2d"), nn_conv2d, exclude = "in_channels")
+  expect_paramtest(res)
+})
+
+test_that("PipeOpTorchConv3 autotest", {
+  po_conv = po("nn_conv3d", kernel_size = 2, out_channels = 2)
+  task = tsk("test_imagenet")
+  graph = po("torch_ingress_img", channels = 3, height = 64, width = 64) %>>%
+    po("nn_unsqueeze", dim = 5) %>>%
+    po("nn_reshape", shape = c(-1, 3, 64, 8, 8)) %>>% po_conv
+
+  autotest_pipeop_torch(graph, "nn_conv3d", task)
+})
+
+test_that("PipeOpTorchConv3d paramtest", {
+  res = run_paramtest(po("nn_conv3d"), nn_conv3d, exclude = "in_channels")
+  expect_paramtest(res)
 })
 
 
-test_that("TorchOpConv1D", {
-  task = tsk("iris")
-  op = top("conv1d")
+sampler_conv = function(dim, batch = TRUE) {
+  list(
+    conv_dim = dim,
+    shape_in = sample(20:25, size = dim + 1 + as.integer(batch), replace = TRUE),
+    out_channels = sample(1:3, size = 1, replace = TRUE),
+    kernel_size = sample(5:6, size = dim, replace = TRUE),
+    stride = sample(1:3, size = dim, replace = TRUE),
+    padding = sample(1:2, size = dim, replace = TRUE),
+    dilation = sample(1:2, size = dim, replace = TRUE),
+    padding_mode = sample(c("zeros", "reflect", "replicate"), 1)
+    # there is something wrong with circular padding: https://github.com/mlverse/torch/issues/940
+  )
+}
 
-  for (i in seq_len(3)) {
-    param_vals = list(
-      out_channels = sample(1:3, 1),
-      kernel_size = sample(1:5, 1),
-      stride = sample(1:5, 1),
-      padding = sample(1:5, 1),
-      dilation = sample(1:5, 1),
-      padding_mode = sample(c("zeros", "reflect", "replicate", "circular"), 1)
+test_that("conv_output_shape works", {
+  for (dim in 1:3) {
+    testcase = sampler_conv(dim)
+    mg = switch(dim,
+      nn_conv1d,
+      nn_conv2d,
+      nn_conv3d,
     )
-
-    shape = c(sample(1:10, 1), sample(20:30, 2))
-
-    inputs = list(input = invoke(torch_randn, .args = shape))
-
-    op$param_set$values = insert_named(op$param_set$values, param_vals)
-    expect_torchop(
-      op = op,
-      inputs = inputs,
-      task = task,
-      class = "nn_conv1d",
-      exclude = "in_channels"
-    )
+    args = testcase[names(testcase) %in% formalArgs(mg)]
+    args$in_channels = testcase$shape_in[2L]
+    m = do.call(mg, args = args)
+    outshape = with_no_grad(m(do.call(torch_randn, args = list(unname(testcase$shape_in)))))$shape
+    args1 = testcase[names(testcase) %in% formalArgs(conv_output_shape)]
+    expect_true(all(outshape == do.call(conv_output_shape, args = args1)))
   }
 })
 
-test_that("TorchOpConv2D", {
-  task = tsk("iris")
-  op = top("conv2d")
-
-  for (i in seq_len(3)) {
-    param_vals = list(
-      out_channels = sample(1:3, 1),
-      kernel_size = sample(1:5, 1),
-      stride = sample(1:5, 1),
-      padding = sample(1:5, 1),
-      dilation = sample(1:5, 1),
-      padding_mode = sample(c("zeros", "reflect", "replicate", "circular"), 1)
+test_that("conv_output_shape works", {
+  for (dim in 1:3) {
+    testcase = sampler_conv(dim, batch = FALSE)
+    mg = switch(dim,
+      nn_conv1d,
+      nn_conv2d,
+      nn_conv3d,
     )
-
-    shape = c(sample(1:10, 1), sample(20:30, 3))
-
-    inputs = list(input = invoke(torch_randn, .args = shape))
-
-    op$param_set$values = insert_named(op$param_set$values, param_vals)
-    expect_torchop(
-      op = op,
-      inputs = inputs,
-      task = task,
-      class = "nn_conv2d",
-      exclude = "in_channels"
-    )
-  }
-})
-
-test_that("TorchOpConv3D", {
-  task = tsk("iris")
-  op = top("conv3d")
-
-  for (i in seq_len(3)) {
-    param_vals = list(
-      out_channels = sample(1:3, 1),
-      kernel_size = sample(1:5, 1),
-      stride = sample(1:5, 1),
-      padding = sample(1:5, 1),
-      dilation = sample(1:5, 1),
-      padding_mode = sample(c("zeros", "replicate", "circular"), 1)
-    )
-
-    shape = c(sample(1:10, 1), sample(20:30, 4))
-
-    inputs = list(input = invoke(torch_randn, .args = shape))
-
-    op$param_set$values = insert_named(op$param_set$values, param_vals)
-    expect_torchop(
-      op = op,
-      inputs = inputs,
-      task = task,
-      class = "nn_conv3d",
-      exclude = "in_channels"
-    )
+    args = testcase[names(testcase) %in% formalArgs(mg)]
+    args$in_channels = testcase$shape_in[1L]
+    m = do.call(mg, args = args)
+    outshape = with_no_grad(m(do.call(torch_randn, args = list(unname(testcase$shape_in)))))$shape
+    args1 = testcase[names(testcase) %in% formalArgs(conv_output_shape)]
+    expect_warning(shape <<- do.call(conv_output_shape, args = args1), regexp = "batch dimension")
+    expect_true(all(outshape == shape))
   }
 })

@@ -100,6 +100,7 @@ PipeOpModule = R6Class("PipeOpModule",
     initialize = function(id, module, inname, outname, param_vals = list(), packages = character(0)) {
       private$.multi_output = length(outname) > 1L
       self$module = assert_class(module, "nn_module")
+      self$f
       lockBinding("module", self)
       assert_names(outname, type = "strict")
       assert_character(packages, any.missing = FALSE)

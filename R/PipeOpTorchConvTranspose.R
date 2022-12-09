@@ -25,7 +25,7 @@
 #'   Size of the convolving kernel.
 #' * `stride` :: `integer()`\cr
 #'   Stride of the convolution. Default: 1.
-#' * `padding` :: ` (`integer()`)\cr
+#' * `padding` :: ` `integer()`\cr
 #'  ‘dilation * (kernel_size - 1) - padding’ zero-padding will be added to both sides of the input. Default: 0.
 #' * `output_padding` ::`integer()`\cr
 #'   Additional size added to one side of the output shape. Default: 0.
@@ -40,8 +40,7 @@
 #'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
-#' @section Internals:
-#' See the respective child class.
+#' @section Internals: See the respective child class.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -84,9 +83,13 @@ PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",
         dilation = param_vals$dilation %??% 1,
         stride = param_vals$stride %??% 1,
         kernel_size = param_vals$kernel_size,
-        output_padding = param_vals$output_padding,
+        output_padding = param_vals$output_padding %??% 0,
         out_channels = param_vals$out_channels
       ))
+    },
+    .shape_dependent_params = function(shapes_in, param_vals) {
+      c(param_vals, in_channels = unname(shapes_in[[1L]][2L]))
+
     },
     .d = NULL
   )
@@ -113,16 +116,20 @@ PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
-#' Calls [`torch::nn_conv_transpose1d()`]
+#' Calls [`nn_conv_transpose1d`].
+#' The parameter `in_channels` is inferred as the second dimension of the input tensor.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
 #' @examples
-#' TODO:
+#' obj = po("nn_conv_transpose1d", out_channels = 4, kernel_size = 2)
+#' obj$id
+#' obj$module_generator
+#' obj$shapes_out(c(16, 3, 64))
 PipeOpTorchConvTranspose1D = R6Class("PipeOpTorchConvTranspose1D", inherit = PipeOpTorchConvTranspose,
   public = list(
-    initialize = function(id = "conv_transpose1d", param_vals = list()) {
-      super$initialize(id = id, d = 1, module_generator = nn_conv1d, param_vals = param_vals)
+    initialize = function(id = "nn_conv_transpose1d", param_vals = list()) {
+      super$initialize(id = id, d = 1, module_generator = nn_conv_transpose1d, param_vals = param_vals)
     }
   )
 )
@@ -149,16 +156,20 @@ PipeOpTorchConvTranspose1D = R6Class("PipeOpTorchConvTranspose1D", inherit = Pip
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
-#' Calls [`torch::nn_conv_transpose2d()`]
+#' Calls [`nn_conv_transpose2d`].
+#' The parameter `in_channels` is inferred as the second dimension of the input tensor.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
 #' @examples
-#' TODO:
+#' obj = po("nn_conv_transpose2d", out_channels = 4, kernel_size = 2)
+#' obj$id
+#' obj$module_generator
+#' obj$shapes_out(c(16, 3, 64, 64))
 PipeOpTorchConvTranspose2D = R6Class("PipeOpTorchConvTranspose2D", inherit = PipeOpTorchConvTranspose,
   public = list(
-    initialize = function(id = "conv2d", param_vals = list()) {
-      super$initialize(id = id, d = 2, module_generator = nn_conv2d, param_vals = param_vals)
+    initialize = function(id = "nn_conv_transpose2d", param_vals = list()) {
+      super$initialize(id = id, d = 2, module_generator = nn_conv_transpose2d, param_vals = param_vals)
     }
   )
 )
@@ -184,16 +195,20 @@ PipeOpTorchConvTranspose2D = R6Class("PipeOpTorchConvTranspose2D", inherit = Pip
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
-#' Calls [`torch::nn_conv_transpose3d()`]
+#' Calls [`nn_conv_transpose3d`].
+#' The parameter `in_channels` is inferred as the second dimension of the input tensor.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
 #' @examples
-#' TODO:
+#' obj = po("nn_conv_transpose3d", out_channels = 4, kernel_size = 2)
+#' obj$id
+#' obj$module_generator
+#' obj$shapes_out(c(16, 3, 64, 64, 1000))
 PipeOpTorchConvTranspose3D = R6Class("PipeOpTorchConvTranspose3D", inherit = PipeOpTorchConvTranspose,
   public = list(
-    initialize = function(id = "conv3d", param_vals = list()) {
-      super$initialize(id = id, d = 3, module_generator = nn_conv3d, param_vals = param_vals)
+    initialize = function(id = "nn_conv_transpose3d", param_vals = list()) {
+      super$initialize(id = id, d = 3, module_generator = nn_conv_transpose3d, param_vals = param_vals)
     }
   )
 )
@@ -203,12 +218,25 @@ register_po("nn_conv_transpose1d", PipeOpTorchConvTranspose1D)
 register_po("nn_conv_transpose2d", PipeOpTorchConvTranspose2D)
 register_po("nn_conv_transpose3d", PipeOpTorchConvTranspose3D)
 
+conv_transpose_output_shape = function(shape_in, dim, padding, dilation, stride, kernel_size, output_padding,
+  out_channels) {
+  assert_integerish(shape_in, min.len = dim + 1L)
 
-conv_transpose_output_shape = function(shape_in, dim, padding, dilation, stride, kernel_size, output_padding, out_channels) {
-  assert_integer(shape_in, min.len = conv_dim)
-  shape_head = utils::head(shape_in, -(dim + 1))
+  if (length(shape_in) ==  dim + 1L) {
+    warningf("The input tensor has no batch dimension")
+    batch_dimension = integer(0)
+  } else {
+    batch_dimension = shape_in[1L]
+  }
+
+  if (length(padding) == 1) padding = rep(padding, dim)
+  if (length(dilation) == 1) dilation = rep(dilation, dim)
+  if (length(stride) == 1) stride = rep(stride, dim)
+  if (length(kernel_size) == 1) kernel_size = rep(kernel_size, dim)
+  if (length(output_padding) == 1) output_padding = rep(output_padding, dim)
+
   shape_tail = utils::tail(shape_in, dim)
-  c(shape_head, out_channels,
+  c(batch_dimension, out_channels,
     (shape_tail - 1) * stride - 2 * padding + dilation * (kernel_size - 1) + output_padding + 1
   )
 }

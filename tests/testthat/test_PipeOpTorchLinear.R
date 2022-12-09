@@ -3,8 +3,7 @@ test_that("PipeOpTorchLinear works", {
   graph = po("torch_ingress_num") %>>% po_linear
   task = tsk("iris")
 
-  res = autotest_pipeop_torch(graph, "nn_linear", task, "nn_linear")
-  expect_true(res)
+  autotest_pipeop_torch(graph, "nn_linear", task, "nn_linear")
 })
 
 test_that("PipeOpTorchLinear paramtest", {

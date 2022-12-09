@@ -36,10 +36,10 @@ The dimension of the transpose convolution.
 \item \code{out_channels} :: \code{integer(1)}\cr
 Number of channels produced by the convolution.
 \item \code{kernel_size} :: \code{integer()}\cr
-Size of the convolving kernel
+Size of the convolving kernel.
 \item \code{stride} :: \code{integer()}\cr
 Stride of the convolution. The default is 1.
-\item \code{padding} :: \verb{ (}integer()`)\cr
+\item \code{padding} :: \code{integer()}\cr
 ‘dilation * (kernel_size - 1) - padding’ zero-padding will be added to both sides of the input. Default: 0.
 \item \code{groups} :: \code{integer()}\cr
 Number of blocked connections from input channels to output channels. Default: 1
@@ -61,8 +61,7 @@ The padding mode. One of \code{"zeros"}, \code{"reflect"}, \code{"replicate"}, o
 }
 
 \section{Internals}{
-
-See the respective child class.
+ See the respective child class.
 }
 
 \section{Credit}{

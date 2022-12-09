@@ -45,7 +45,7 @@ PipeOpTorchBatchNorm = R6Class("PipeOpTorchBatchNorm",
   public = list(
     initialize = function(id, module_generator, min_dim, max_dim, param_vals = list()) {
       private$.min_dim = assert_int(min_dim, lower = 1)
-      private$.max_dim = assert_int(max_dim, min_dim = 1)
+      private$.max_dim = assert_int(max_dim, lower = 1)
       param_set = ps(
         eps = p_dbl(default = 1e-05, lower = 0, tags = "train"),
         momentum = p_dbl(default = 0.1, lower = 0, tags = "train"),
@@ -56,7 +56,8 @@ PipeOpTorchBatchNorm = R6Class("PipeOpTorchBatchNorm",
       super$initialize(
         id = id,
         param_set = param_set,
-        param_vals = param_vals
+        param_vals = param_vals,
+        module_generator = module_generator
       )
     }
   ),
@@ -65,6 +66,10 @@ PipeOpTorchBatchNorm = R6Class("PipeOpTorchBatchNorm",
     .max_dim = NULL,
     .shapes_out = function(shapes_in, param_vals) {
       list(assert_numeric(shapes_in[[1]], min.len = private$.min_dim, max.len = private$.max_dim))
+    },
+    .shape_dependent_params = function(shapes_in, param_vals) {
+      param_vals$num_features = shapes_in[[1L]][2L]
+      param_vals
     }
   )
 )
@@ -104,7 +109,8 @@ PipeOpTorchBatchNorm = R6Class("PipeOpTorchBatchNorm",
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
-#' See the respective child class.
+#' Calls [`torch::nn_batch_norm1d()`].
+#' The parameter `num_features` is inferred as the second dimension of the input shape.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -147,7 +153,8 @@ PipeOpTorchBatchNorm1D = R6Class("PipeOpTorchBatchNorm1D", inherit = PipeOpTorch
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
-#' See the respective child class.
+#' Calls [`torch::nn_batch_norm2d()`].
+#' The parameter `num_features` is inferred as the second dimension of the input shape.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -190,7 +197,8 @@ PipeOpTorchBatchNorm2D = R6Class("PipeOpTorchBatchNorm2D", inherit = PipeOpTorch
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
-#' See the respective child class.
+#' Calls [`torch::nn_batch_norm3d()`].
+#' The parameter `num_features` is inferred as the second dimension of the input shape.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -205,7 +213,7 @@ PipeOpTorchBatchNorm3D = R6Class("PipeOpTorchBatchNorm3D", inherit = PipeOpTorch
 
 #' @include zzz.R
 register_po("nn_batch_norm1d", PipeOpTorchBatchNorm1D)
-register_po("nn_batch_norm2d", PipeOpTorchBatchNorm1D)
-register_po("nn_batch_norm3d", PipeOpTorchBatchNorm1D)
+register_po("nn_batch_norm2d", PipeOpTorchBatchNorm2D)
+register_po("nn_batch_norm3d", PipeOpTorchBatchNorm3D)
 
 

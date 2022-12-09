@@ -54,7 +54,7 @@ Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE, r6 = FALSE)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.2
 Collate:
     'CallbackTorch.R'
     'CallbackTorchHistory.R'
@@ -84,6 +84,7 @@ Collate:
     'PipeOpTorchOptimizer.R'
     'PipeOpTorchReshape.R'
     'PipeOpTorchSoftmax.R'
+    'TaskClassif_test_imagenet.R'
     'TaskClassif_tiny_imagenet.R'
     'TaskClassif_toytask.R'
     'TorchLoss.R'

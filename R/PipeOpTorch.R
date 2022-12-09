@@ -248,7 +248,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
   public = list(
     module_generator = NULL,
     initialize = function(id, module_generator, param_set = ps(), param_vals = list(),
-      inname = NULL, outname = "output", packages = "torch", tags = NULL) {
+      inname = "input", outname = "output", packages = "torch", tags = NULL) {
       self$module_generator = assert_class(module_generator, "nn_module_generator", null.ok = TRUE)
       lockBinding("module_generator", self)
       assert_names(outname, type = "strict", .var.name = "output channel names")
@@ -256,18 +256,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
       # this enforces the following:
       # Unless there is a vararg input channel, the argument names of the wrapped module must correspond to the names
       # of the input channels. The exception is made because otherwise it is ugly with the merge operators
-      if (is.null(module_generator)) {
-        assert_names(inname, type = "strict", .var.name = "input channel names")
-      } else {
-        argnames = formalArgs(module_generator$public_methods$forward)
-        if (is.null(inname)) {
-          inname = argnames
-        } else if ("..." %nin% argnames) {
-          assert_true(all(inname) == argnames)
-        } else {
-          assert_names(inname, type =" strict", .var.name = "input channel names")
-        }
-      }
+      assert_names(inname, type = "strict", .var.name = "input channel names")
       assert_character(packages, any.missing = FALSE)
       input = data.table(name = inname, train = "ModelDescriptor", predict = "Task")
       output = data.table(name = outname, train = "ModelDescriptor", predict = "Task")
@@ -296,12 +285,13 @@ PipeOpTorch = R6Class("PipeOpTorch",
       } else {
         assert_true(sort(names(shapes_in)) == sort(self$input$name))
       }
-      if (identical(self$input$name, "...")) {
+      if (identical(self$input$name, "...")) {#'
+
         assert_list(shapes_in, min.len = 1, types = "numeric")
       } else {
         assert_list(shapes_in, len = nrow(self$input), types = "numeric")
       }
-      pv = self$param_set$get_values()
+      pv = self$param_set$get_values(tags = "train")
       shapes = private$.shapes_out(shapes_in, pv)
       shapes = set_names(shapes, self$output$name)
       shapes

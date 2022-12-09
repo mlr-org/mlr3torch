@@ -75,13 +75,13 @@ PipeOpTorchMaxPool = R6Class("PipeOpTorchMaxPool",
   ),
   private = list(
     .shapes_out = function(shapes_in, param_vals) {
-      res = list(conv_output_shape(
-        shape_in = shapes_in[[1]],
+      res = list(max_output_shape(
         conv_dim = private$.d,
+        shape_in = shapes_in[[1]],
+        kernel_size = param_vals$kernel_size,
+        stride = param_vals$stride %??% param_vals$kernel_size,
         padding = param_vals$padding %??% 0,
         dilation = param_vals$dilation %??% 1,
-        stride = param_vals$stride %??% param_vals$kernel_size,
-        kernel_size = param_vals$kernel_size,
         ceil_mode = param_vals$ceil_mode %??% FALSE
       ))
 
@@ -94,6 +94,8 @@ PipeOpTorchMaxPool = R6Class("PipeOpTorchMaxPool",
     .d = NULL
   )
 )
+
+max_output_shape = avg_output_shape
 
 #' @title 1D Max Pooling
 #'

@@ -12,7 +12,7 @@ Applies a 3D transposed convolution operator over an input image
 composed of several input planes, sometimes also called "deconvolution"
 }
 \section{Construction}{
- \code{PipeOpTorchConvTranspose3D$new(id = "conv3d", param_vals = list())}
+ \code{PipeOpTorchConvTranspose3D$new(id = "nn_conv_transpose3d", param_vals = list())}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object. The default is "nn_conv_transpose3d".
 \item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
@@ -37,7 +37,8 @@ composed of several input planes, sometimes also called "deconvolution"
 
 \section{Internals}{
 
-Calls \code{\link[torch:nn_conv_transpose3d]{torch::nn_conv_transpose3d()}}
+Calls \code{\link{nn_conv_transpose3d}}.
+The parameter \code{in_channels} is inferred as the second dimension of the input tensor.
 }
 
 \section{Credit}{
@@ -55,7 +56,7 @@ Number of output channels produce by the convolution.
 Size of the convolving kernel.
 \item \code{stride} :: \code{integer()}\cr
 Stride of the convolution. Default: 1.
-\item \code{padding} :: \verb{ (}integer()`)\cr
+\item \code{padding} :: \verb{ }integer()`\cr
 ‘dilation * (kernel_size - 1) - padding’ zero-padding will be added to both sides of the input. Default: 0.
 \item \code{output_padding} ::\code{integer()}\cr
 Additional size added to one side of the output shape. Default: 0.
@@ -71,7 +72,10 @@ The padding mode. One of \code{"zeros"}, \code{"reflect"}, \code{"replicate"}, o
 }
 
 \examples{
-TODO:
+obj = po("nn_conv_transpose3d", out_channels = 4, kernel_size = 2)
+obj$id
+obj$module_generator
+obj$shapes_out(c(16, 3, 64, 64, 1000))
 }
 \seealso{
 Other PipeOpTorch: 

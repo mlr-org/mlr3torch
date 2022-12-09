@@ -38,6 +38,7 @@ planes.
 \section{Internals}{
 
 Calls \code{\link[torch:nn_conv1d]{torch::nn_conv1d()}} when trained.
+The paramter \code{in_channels} is inferred from the second dimension of the input tensor.
 }
 
 \section{Credit}{
@@ -52,10 +53,10 @@ the package source.
 \item \code{out_channels} :: \code{integer(1)}\cr
 Number of channels produced by the convolution.
 \item \code{kernel_size} :: \code{integer()}\cr
-Size of the convolving kernel
+Size of the convolving kernel.
 \item \code{stride} :: \code{integer()}\cr
 Stride of the convolution. The default is 1.
-\item \code{padding} :: \verb{ (}integer()`)\cr
+\item \code{padding} :: \code{integer()}\cr
 ‘dilation * (kernel_size - 1) - padding’ zero-padding will be added to both sides of the input. Default: 0.
 \item \code{groups} :: \code{integer()}\cr
 Number of blocked connections from input channels to output channels. Default: 1

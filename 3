@@ -16,9 +16,6 @@
 #' @param module_class (`character(1)`)\cr
 #'   The module class that is expected from the generated module of the [`PipeOpTorch`].
 #'   Default is the [`PipeOp`]s `id`.
-#' @param exclude_args (`character()`)\cr
-#'   We check that the arguments of the module's forward function match the input channels except for those
-#'   values specified as `exclude_args`.
 #' @return `TRUE` if the autotest passes, errs otherwise.
 #' @export
 autotest_pipeop_torch = function(graph, id, task, module_class = id, exclude_args = character(0)) {
@@ -35,29 +32,25 @@ autotest_pipeop_torch = function(graph, id, task, module_class = id, exclude_arg
 
   # (2) argument names of forward function match names of input channels
 
-  testthat::expect_equal(po_module$input$name, po_test$input$name)
+  expect_equal(po_module$input$name, po_test$input$name)
   fargs = formalArgs(po_module$module$forward)
   if ("..." %nin% fargs) {
     # we omit the "..." case, because otherwise the merge_sum etc. would be trickier, i.e. we would
     # have to create a module with the specified number of input arguments on the fly.
-    # Might change in the future
-    inname = po_test$input$name
-    missing = setdiff(fargs, inname)
+    missing = setdiff(fargs, po_test$input$name)
     if (!length(missing)) {
-      testthat::expect_equal(fargs, inname)
+      expect_equal(fargs, po_test$input$name)
     } else {
-      x1 = fargs[names(fargs) %nin% missing]
-      x2 = inname[names(inname) %nin% missing]
-      testthat::expect_true(all(x1 == x2))
+
     }
   }
 
   # Consistent default ids
   x1 = paste0(tolower(gsub("^PipeOpTorch", "", class(po_test)[[1L]])))
   x2 = gsub("_", "", gsub("^nn_", "", po_test$id))
-  testthat::expect_true(x1 == x2)
+  expect_true(x1 == x2)
 
-  testthat::expect_true(po_test$id == class(po_module$module)[[1L]])
+  expect_true(inherits(po_module, po_test$id))
 
   # (3) Forward call works and the shapes are correct
   # (i)input (p)ointer and (o)utput (p)ointer for the tested PipeOp
@@ -108,103 +101,14 @@ autotest_pipeop_torch = function(graph, id, task, module_class = id, exclude_arg
 
   # we rebuild out model_descriptor_to_module builds the ids for the non-terminal output channels
   # But buy doing so get get the information to which input channels of po_test they are mapped!
-  tmp1 = net$graph$edges[get("dst_id") == id, ]
+  tmp1 = net$graph$edges[dst_id == id, ]
   channels = tmp1[get("dst_id") == id, "dst_channel"][[1L]]
   names(channels) = paste0("output", "_", tmp1$src_id, "_", tmp1$src_channel, ".", tmp1$src_channel)
   names(layerin) = channels[names(channels)]
 
-  predicted = po_test$shapes_out(map(layerin, dim))
-  observed = map(layerout, dim)
-  test_shapes(predicted, observed)
+  d_obs = map(layerout, dim)
+  d_exp = po_test$shapes_out(map(layerin, dim))
+  expect_true(all(pmap_lgl(list(x = d_obs, y = d_exp), function(x, y) all(x == y))))
 
   return(TRUE)
-}
-
-# Note that we don't simply compare the shapes for equality. The actually observed shape does not have NAs,
-# so wherevery the predicted dimension is NA, the observed dimension can be anything.
-test_shapes = function(predicted, observed) {
-  # they are both lists
-  if (length(predicted) != length(observed)){
-    stopf("This should have been impossible!")
-  }
-  fail = FALSE
-  for (i in seq_along(predicted)) {
-    p = predicted[[i]]
-    o = observed[[i]]
-    if (length(p) != length(o)) {
-      fail = TRUE
-      break
-    }
-    ii = is.na(p)
-    p[ii] = o[ii]
-    fail = !isTRUE(all.equal(p, o))
-  }
-
-  if (fail) {
-    stopf("Got outputs of shapes %s but $shapes_out() said %s.", collapse_char_list(observed),
-      collapse_char_list(predicted))
-  }
-}
-
-
-collapse_char_list = function(x) {
-  x = lapply(x, function(x) paste0("(", paste(x, collapse = ", "), ")"))
-  x = paste(x, collapse = ", ")
-  return(x)
-}
-
-run_paramtest = function(learner, fun, exclude = character(), tag = NULL) {
-  par_learner = learner$param_set$ids(tags = tag)
-  if (checkmate::test_list(fun)) {
-    # for xgboost we pass a character vector with info scraped from the web
-    if (mlr3misc::some(fun, function(x) class(x) == "character")) {
-      which = which(mlr3misc::map_lgl(fun, function(x) class(x) == "character"))
-      par_package = fun[[which]]
-      fun[[which]] = NULL
-      other = unlist(lapply(fun, formalArgs))
-      par_package = append(par_package, other)
-    } else {
-      par_package = unlist(lapply(fun, formalArgs))
-    }
-  } else {
-    par_package = formalArgs(fun)
-  }
-
-  missing = setdiff(par_package, par_learner)
-  missing = setdiff(missing, c(exclude, "..."))
-
-  extra = setdiff(par_learner, par_package)
-  extra = setdiff(extra, c(exclude, "..."))
-
-  if (length(c(missing, extra)) == 0L) {
-    return(TRUE)
-  }
-
-  merror = eerror = character(0)
-
-  if (length(missing) > 0) {
-    merror = sprintf("Missing parameters for learner '%s': %s",
-      learner$id, paste0(missing, collapse = ", "))
-  }
-
-  if (length(extra) > 0) {
-    eerror = sprintf("Extra parameters for learner '%s': %s",
-      learner$id, paste0(extra, collapse = ", "))
-  }
-
-  error = paste(merror, eerror, sep = "\n")
-
-  list(ok = FALSE, error = error, missing = missing, extra = extra)
-}
-
-# Helper function to convert a vector of probabilities to a matrix
-#
-# sometimes useful in tests, e.g., mlr3learners.partykit::LearnerClassifMob
-# uses this in its tests to set up its custom prediction function for a mob
-# version of a logit model
-prob_vector_to_matrix = function(p, levs) {
-  stopifnot(is.numeric(p))
-  y = matrix(c(1 - p, p), ncol = 2L, nrow = length(p))
-  colnames(y) = levs
-  y
 }

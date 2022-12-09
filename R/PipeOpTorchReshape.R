@@ -6,13 +6,13 @@
 #'
 #' @inherit nn_reshape description
 #'
+#' @section Construction: `r roxy_construction(PipeOpTorchReshape)`
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
 #'
 #' @section Parameters:
 #' * `shape` :: `integer(1)`\cr
-#'   The desired output shape.
-#'
+#'   The desired output shape. Unknown dimension (one at most) can either be specified as `-1` or `NA`.
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
@@ -32,6 +32,14 @@ PipeOpTorchReshape = R6Class("PipeOpTorchReshape",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id = "nn_reshape", param_vals = list()) {
+      check_shape = function(x) {
+        x[x == -1] = NA
+        assert_integerish(shape, lower = 1)
+        if (sum(is.na(shape)) > 1) {
+          return("Parameter 'shape' must only contain one -1 or NA.")
+        }
+        return(TRUE)
+      }
       param_set = ps(
         shape = p_uty(tags = c("train", "required"), custom_check = check_integerish)
       )
@@ -47,8 +55,6 @@ PipeOpTorchReshape = R6Class("PipeOpTorchReshape",
     .shapes_out = function(shapes_in, param_vals) {
       shape = param_vals$shape
       shape[shape == -1] = NA
-      assert_integerish(shape, lower = 1)
-      if (sum(is.na(shape)) > 1) stop("'shape' must only contain one -1 or NA.")
       inlen = prod(shapes_in[[1]])
       outlen = prod(shape)
       # the following is going to trigger rarely, since the 1st dimension is typically NA
@@ -70,19 +76,19 @@ PipeOpTorchReshape = R6Class("PipeOpTorchReshape",
 #'
 #' @inherit nn_squeeze description
 #'
-#' @section Module:
-#' Calls [`nn_squeeze()`] when trained.
-#' This internally calls [`torch::torch_squeeze()`].
-#'
+#' @section Construction: `r roxy_construction(PipeOpTorchSqueeze)`
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
-#'
 #' @section Parameters:
-#' No parameters.
-#'
-#' @section Credit:
-#' `r roxy_pipeop_torch_license()`
-#'
+#' * `dim` :: `integer(1)`\cr
+#'   The dimension to squeeze. If `NULL`, all dimensions of size 1 will be squeezed.
+#'   Negative values are interpreted downwards from the last dimension.
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' @section Internals:
+#' Calls [`nn_squeeze()`] when trained.
+#' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
 #' @examples
@@ -96,7 +102,8 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id = "nn_squeeze", param_vals = list()) {
-      param_set = ps(dim = p_int(tags = c("train", "required")))
+      param_set = ps(dim = p_uty(tags = "train", custom_check = check_integerish_or_null))
+
       super$initialize(
         id = id,
         param_set = param_set,
@@ -109,7 +116,15 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
     .shapes_out = function(shapes_in, param_vals) {
       shape = shapes_in[[1]]
       true_dim = param_vals$dim
-      if (true_dim < 0) {
+
+      if (is.null(true_dim)) {
+        # if dim is left unspecified we squeeze everything.
+        shape = shape[shape != 1]
+        if (length(shape) < 2) {
+          stopf("Output tensor would have less than (<) 2 dimensions.")
+        }
+        return(list(shape))
+      } else if (true_dim < 0) { # start counting downwards from the last dimension
         true_dim = 1 + length(shape) + true_dim
       }
       assert_int(true_dim, lower = 1, upper = length(shape))
@@ -130,25 +145,19 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
 #'
 #' @inherit nn_squeze description
 #'
-#' @section Module:
-#' Calls [`nn_squeeze()`] when trained.
-#' This internally calls [`torch::torch_unsqueeze()`].
+#' @section Construction: `r roxy_construction(PipeOpTorchUnsqueeze)`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
-#'
 #' @section Parameters:
-#' No parameters.
-#'
-#' @section Fields:
-#' `r roxy_pipeop_torch_fields_default()`
-#'
-#' @section Methods:
-#' `r roxy_pipeop_torch_methods_default()`
-#'
-#' @section Credit:
-#' `r roxy_pipeop_torch_license()`
-#'
+#' * `dim` :: `integer(1)`\cr
+#'   The dimension which to unsqueeze. Negative values are interpreted downwards from the last dimension.
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' Calls [`nn_unsqueeze()`] when trained.
+#' This internally calls [`torch::torch_unsqueeze()`].
+#' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
 #' @examples
@@ -156,7 +165,7 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
 #' obj$id
 #' obj$module_generator
 #' obj$shapes_out(c(16, 5, 5))
-PipeOpTorchUnsqueeze = R6Class("PipeOpTorchUnqueeze",
+PipeOpTorchUnsqueeze = R6Class("PipeOpTorchUnsqueeze",
   inherit = PipeOpTorch,
   public = list(
     #' @description
@@ -192,28 +201,19 @@ PipeOpTorchUnsqueeze = R6Class("PipeOpTorchUnqueeze",
 #' @format `r roxy_pipeop_torch_format()`
 #'
 #' @inherit torch::nn_flatten description
-#'
-#' @section Module:
-#' Calls [`torch::nn_flatten()`] when trained.
-#'
+#' @section Construction `r roxy_construction(PipeOpTorchFlatten)`
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
-#'
 #' @section Parameters:
 #' `start_dim` :: `integer(1)`\cr
 #'   At wich dimension to start flattening. Default is 2.
 #' `end_dim` :: `integer(1)`\cr
 #'   At wich dimension to stop flattening. Default is -1.
-#'
-#' @section Fields:
-#' `r roxy_pipeop_torch_fields_default()`
-#'
-#' @section Methods:
-#' `r roxy_pipeop_torch_methods_default()`
-#'
-#' @section Credit:
-#' `r roxy_pipeop_torch_license()`
-#'
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' Calls [`torch::nn_flatten()`] when trained.
+#' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
 #' @examples
@@ -221,7 +221,7 @@ PipeOpTorchUnsqueeze = R6Class("PipeOpTorchUnqueeze",
 #' obj$id
 #' obj$module_generator
 #' obj$shapes_out(c(16, 5, 5))
-PipeOpTorchFlatten = R6Class(
+PipeOpTorchFlatten = R6Class("PipeOpTorchFlatten",
   inherit = PipeOpTorch,
   public = list(
     initialize = function(id = "nn_flatten", param_vals = list()) {
@@ -241,7 +241,7 @@ PipeOpTorchFlatten = R6Class(
     .shapes_out = function(shapes_in, param_vals) {
       shape = shapes_in[[1]]
       start_dim = param_vals$start_dim %??% 2
-      end_dim = param_vals$end_dim %??% 2
+      end_dim = param_vals$end_dim %??% -1
 
       if (start_dim < 0) start_dim = 1 + length(shape) + start_dim
       if (end_dim < 0) end_dim = 1 + length(shape) + end_dim
@@ -260,11 +260,12 @@ PipeOpTorchFlatten = R6Class(
 #'   The desired output shape.
 #' @export
 nn_reshape = nn_module(
+  "nn_reshape",
   initialize = function(shape) {
     self$shape = shape
   },
   forward = function(input) {
-    input$reshape(c(self$shape))
+    input$reshape(self$shape)
   }
 )
 
@@ -275,6 +276,7 @@ nn_reshape = nn_module(
 #'   The dimension to squeeze.
 #' @export
 nn_squeeze = nn_module(
+  "nn_squeeze",
   initialize = function(dim) {
     self$dim = dim
   },
@@ -290,6 +292,7 @@ nn_squeeze = nn_module(
 #'   The dimension to unsqueeze.
 #' @export
 nn_unsqueeze = nn_module(
+  "nn_unsqueeze",
   initialize = function(dim) {
     self$dim = dim
   },

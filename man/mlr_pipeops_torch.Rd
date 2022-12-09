@@ -33,7 +33,7 @@ The return is a named list, where the names are the names of the output channels
 }
 \section{Construction}{
 
-\code{PipeOpTorch$new(id, module_generator, param_set = ps(), param_vals = list(), inname = NULL, outname = "output", packages = "torch", tags = NULL)}
+\code{PipeOpTorch$new(id, module_generator, param_set = ps(), param_vals = list(), inname = "input", outname = "output", packages = "torch", tags = NULL)}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object.
 \item \code{param_set} :: \code{paradox::ParamSet}\cr The parameter set.

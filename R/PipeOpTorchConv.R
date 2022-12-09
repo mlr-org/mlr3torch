@@ -22,10 +22,10 @@
 #' * `out_channels` :: `integer(1)`\cr
 #'   Number of channels produced by the convolution.
 #' * `kernel_size` :: `integer()`\cr
-#'   Size of the convolving kernel
+#'   Size of the convolving kernel.
 #' * `stride` :: `integer()`\cr
 #'   Stride of the convolution. The default is 1.
-#' * `padding` :: ` (`integer()`)\cr
+#' * `padding` :: `integer()`\cr
 #'  ‘dilation * (kernel_size - 1) - padding’ zero-padding will be added to both sides of the input. Default: 0.
 #' * `groups` :: `integer()`\cr
 #'   Number of blocked connections from input channels to output channels. Default: 1
@@ -38,8 +38,7 @@
 #'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
-#' @section Internals:
-#' See the respective child class.
+#' @section Internals: See the respective child class.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -112,6 +111,7 @@ PipeOpTorchConv = R6Class("PipeOpTorchConv",
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
 #' Calls [`torch::nn_conv1d()`] when trained.
+#' The paramter `in_channels` is inferred from the second dimension of the input tensor.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -146,10 +146,11 @@ PipeOpTorchConv1D = R6Class("PipeOpTorchConv1D", inherit = PipeOpTorchConv,
 #'
 #' @inheritSection mlr_pipeops_torch_conv Parameters
 #'
-#' @section Fields `r roxy_pipeop_torch_fields_default()`
-#' @section Methods `r roxy_pipeop_torch_methods_default()`
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
 #' Calls [`torch::nn_conv2d()`] when trained.
+#' The paramter `in_channels` is inferred from the second dimension of the input tensor.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -183,10 +184,11 @@ PipeOpTorchConv2D = R6Class("PipeOpTorchConv2D", inherit = PipeOpTorchConv,
 #'
 #' @inheritSection mlr_pipeops_torch_conv Parameters
 #'
-#' @section Fields `r roxy_pipeop_torch_fields_default()`
-#' @section Methods `r roxy_pipeop_torch_methods_default()`
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
 #' Calls [`torch::nn_conv3d()`] when trained.
+#' The paramter `in_channels` is inferred from the second dimension of the input tensor.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -211,8 +213,11 @@ register_po("nn_conv3d", PipeOpTorchConv3D)
 
 
 conv_output_shape = function(shape_in, conv_dim, padding, dilation, stride, kernel_size, out_channels = NULL, ceil_mode = FALSE) {
-  shape_in = assert_integerish(shape_in, min.len = conv_dim, coerce = TRUE)
-  shape_head = utils::head(shape_in, -(conv_dim + length(out_channels)))
+  shape_in = assert_integerish(shape_in, min.len = conv_dim + 1, coerce = TRUE)
+  shape_head = utils::head(shape_in, -(conv_dim + 1))
+  if (length(shape_head) == 0) {
+    warningf("Input tensor does not have hve batch dimension")
+  }
   shape_tail = utils::tail(shape_in, conv_dim)
   c(shape_head, out_channels,
     (if (ceil_mode) base::ceiling else base::floor)((shape_tail + 2 * padding - dilation * (kernel_size - 1) - 1) / stride + 1)

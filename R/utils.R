@@ -47,3 +47,5 @@ check_vector = function(d) function(x) {
 }
 
 check_function_or_null = function(x) check_function(x, null.ok = TRUE)
+
+check_integerish_or_null = function(x) check_integerish(x, null.ok = TRUE)

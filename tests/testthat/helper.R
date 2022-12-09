@@ -15,3 +15,20 @@ lapply(torch_test_helpers, source)
 mlr_tasks$add("test_imagenet", load_task_test_imagenet)
 
 rm(mlr_test_helpers)
+
+expect_paramtest = function(paramtest) {
+  if (!is.atomic(paramtest)) {
+    if (length(paramtest$missing)) {
+      info_missing = paste0("- '", paramtest$missing, "'", collapse = "\n")
+    } else {
+      info_missing = ""
+    }
+    if (length(paramtest$extra)) {
+      info_extra = paste0("- '", paramtest$extra, "'", collapse = "\n")
+    } else {
+      info_extra = ""
+    }
+    info = paste0("\nMissing parameters:\n", info_missing, "\nExtra parameters:\n", info_extra)
+  }
+  expect_true(paramtest, info = info)
+}

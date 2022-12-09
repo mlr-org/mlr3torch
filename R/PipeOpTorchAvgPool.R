@@ -16,7 +16,6 @@
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
-#'
 #' @section Parameters:
 #' * `kernel_size` :: (`integer()`)\cr
 #'   The size of the window. Can be a single number or a vector.
@@ -31,7 +30,6 @@
 #' * `divisor_override` :: `logical(1)`\cr
 #'   If specified, it will be used as divisor, otherwise size of the pooling region will be used. Default: NULL.
 #'   Only available for dimension greater than 1.
-#'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
@@ -60,7 +58,8 @@ PipeOpTorchAvgPool = R6Class("PipeOpTorchAvgPool",
       super$initialize(
         id = id,
         param_vals = param_vals,
-        param_set = param_set
+        param_set = param_set,
+        module_generator = module_generator
       )
     }
   ),
@@ -70,7 +69,7 @@ PipeOpTorchAvgPool = R6Class("PipeOpTorchAvgPool",
         shape_in = shapes_in[[1]],
         conv_dim = private$.d,
         padding = param_vals$padding %??% 0,
-        stride = param_vals$stride %??% 1,
+        stride = param_vals$stride %??% param_vals$kernel_size,
         kernel_size = param_vals$kernel_size,
         ceil_mode = param_vals$ceil_mode %??% FALSE
       ))
@@ -81,11 +80,16 @@ PipeOpTorchAvgPool = R6Class("PipeOpTorchAvgPool",
 
 avg_output_shape = function(shape_in, conv_dim, padding, stride, kernel_size, ceil_mode = FALSE) {
   shape_in = assert_integerish(shape_in, min.len = conv_dim, coerce = TRUE)
+
+  if (length(padding) == 1) padding = rep(padding, conv_dim)
+  if (length(stride) == 1) stride = rep(stride, conv_dim)
+  if (length(kernel_size) == 1) kernel_size = rep(kernel_size, conv_dim)
+
   shape_head = utils::head(shape_in, -conv_dim)
   shape_tail = utils::tail(shape_in, conv_dim)
-  c(shape_head,
-    (if (ceil_mode) base::ceiling else base::floor)((shape_tail + 2 * padding - kernel_size) / stride + 1)
-  )
+  if (length(shape_head) <= 1) warningf("Input tensor does not have batch dimension.")
+  shape_tail = (if (ceil_mode) base::ceiling else base::floor)((shape_tail + 2 * padding - kernel_size) / stride + 1)
+  c(shape_head, shape_tail)
 }
 
 #' @title 1D Average Pooling

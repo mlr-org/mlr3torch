@@ -15,14 +15,10 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 
 Creates a new instance of this \link[R6:R6Class]{R6} class.
 }
-\section{Module}{
+\section{Construction}{
+ \code{PipeOpTorchSqueeze$new(id = "nn_squeeze", param_vals = list())}
 
-Calls \code{\link[=nn_squeeze]{nn_squeeze()}} when trained.
-This internally calls \code{\link[torch:torch_squeeze]{torch::torch_squeeze()}}.
-
-
-Calls \code{\link[=nn_squeeze]{nn_squeeze()}} when trained.
-This internally calls \code{\link[torch:torch_unsqueeze]{torch::torch_unsqueeze()}}.
+ \code{PipeOpTorchUnsqueeze$new(id = "nn_unsqueeze", param_vals = list())}
 }
 
 \section{Input and Output Channels}{
@@ -39,32 +35,50 @@ This internally calls \code{\link[torch:torch_unsqueeze]{torch::torch_unsqueeze(
 
 \section{Parameters}{
 
-No parameters.
-
-
-No parameters.
+\itemize{
+\item \code{dim} :: \code{integer(1)}\cr
+The dimension to squeeze. If \code{NULL}, all dimensions of size 1 will be squeezed.
+Negative values are interpreted downwards from the last dimension.
 }
 
-\section{Credit}{
 
-Parts of this documentation have been copied or adapted from the R package \link{torch}, that comes under the
-MIT license, which is included in the help page of \link{\code{mlr3torch}}, as well as in the top-level folder of
-the package source.
-
-
-Parts of this documentation have been copied or adapted from the R package \link{torch}, that comes under the
-MIT license, which is included in the help page of \link{\code{mlr3torch}}, as well as in the top-level folder of
-the package source.
+\itemize{
+\item \code{dim} :: \code{integer(1)}\cr
+The dimension which to unsqueeze. Negative values are interpreted downwards from the last dimension.
+}
 }
 
 \section{Fields}{
+ Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 
-Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+ Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
 
 \section{Methods}{
+ Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 
-Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+ Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+}
+
+\section{Internals}{
+
+
+
+Calls \code{\link[=nn_squeeze]{nn_squeeze()}} when trained.
+
+
+Calls \code{\link[=nn_unsqueeze]{nn_unsqueeze()}} when trained.
+This internally calls \code{\link[torch:torch_unsqueeze]{torch::torch_unsqueeze()}}.
+}
+
+\section{Credit}{
+ Parts of this documentation have been copied or adapted from the R package \link{torch}, that comes under the
+MIT license, which is included in the help page of \link{\code{mlr3torch}}, as well as in the top-level folder of
+the package source.
+
+ Parts of this documentation have been copied or adapted from the R package \link{torch}, that comes under the
+MIT license, which is included in the help page of \link{\code{mlr3torch}}, as well as in the top-level folder of
+the package source.
 }
 
 \examples{
