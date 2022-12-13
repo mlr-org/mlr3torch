@@ -5,11 +5,16 @@
 \alias{PipeOpTorchMergeSum}
 \title{Merge by Summation}
 \format{
-\link{\code{R6Class}} inheriting from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+\code{\link{R6Class}} object inheriting from \code{\link{PipeOp}}/\code{\link{PipeOpTorch}}/\code{\link{PipeOpTorchMerge}}.
 }
 \description{
 Calculates the sum of all input tensors.
 }
+\section{Broadcasting}{
+
+Broadcasting here works slightly different than broadcasting
+}
+
 \section{Construction}{
 
 \code{PipeOpTorchMergeSum$new(id = "nn_merge_sum", innum = 0, param_vals = list())}
@@ -19,11 +24,6 @@ Calculates the sum of all input tensors.
 \item \code{innum} :: \code{integer(1)}\cr
 The number of inputs. Default is 0 which means there is one \emph{vararg} input channel.
 }
-}
-
-\section{Input and Output Channels}{
-
-One input channel called \code{"input"} and one output channel called‘"output"’. For an explanation see \link{\code{PipeOpTorch}}.
 }
 
 \section{State}{
@@ -47,6 +47,13 @@ No parameters.
 \section{Internals}{
 
 Calls \code{\link[=nn_merge_sum]{nn_merge_sum()}} when trained.
+}
+
+\section{Input and Output Channels}{
+
+\code{PipeOpTorchMerge}s has either a \emph{vararg} input channel if the constructor argument \code{innum} is not set, or
+input channels \code{"input1"}, ..., \code{"input<innum>"}. There is one output channel \code{"output"}.
+For an explanation see \code{\link{PipeOpTorch}}.
 }
 
 \examples{

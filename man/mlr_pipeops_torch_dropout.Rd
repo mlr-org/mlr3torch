@@ -16,7 +16,7 @@ distribution.
 
 \code{PipeOpTorchDropout$new(id = "nn_dropout", param_vals = list())}
 \itemize{
-\item \code{id} :: \code{character(1)}\cr The id for the object. The default is "nn_layer_norm".
+\item \code{id} :: \code{character(1)}\cr The id for the object. The default is "nn_dropout".
 \item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
 }
 }
@@ -35,7 +35,7 @@ distribution.
 \item \code{p} :: \code{numeric(1)}\cr
 Probability of an element to be zeroed. Default: 0.5 inplace
 \item \code{inplace} :: \code{logical(1)}\cr
-If set to \code{TRUE}, will do this operation in-place. Default: \code{FALSE.}
+If set to \code{TRUE}, will do this operation in-place. Default: \code{FALSE}.
 }
 }
 

@@ -5,16 +5,14 @@
 \alias{PipeOpTorchMergeCat}
 \title{Merge by Concatenation}
 \format{
-\link{\code{R6Class}} inheriting from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+\code{\link{R6Class}} object inheriting from \code{\link{PipeOp}}/\code{\link{PipeOpTorch}}/\code{\link{PipeOpTorchMerge}}.
 }
 \description{
 What does the cat say?
 }
 \section{Construction}{
 
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{PipeOpTorchMergeCat$new(id = "nn_merge_prod", innum = 0, param_vals = list())
-}\if{html}{\out{</div>}}
+\code{PipeOpTorchMergeCat$new(id = "nn_merge_cat", innum = 0, param_vals = list())}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object. The default is "nn_merge_cat".
 \item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
@@ -23,17 +21,16 @@ The number of inputs. Default is 0 which means there is one \emph{vararg} input 
 }
 }
 
-\section{Input and Output Channels}{
- One input channel called \code{"input"} and one output channel called‘"output"’. For an explanation see \link{\code{PipeOpTorch}}.
-}
-
 \section{State}{
  The state is the value calculated by the public method \code{shapes_out()}.
 }
 
 \section{Parameters}{
 
-No parameters.
+\itemize{
+\item \code{dim} :: \code{integer(1)}\cr
+The dimension along which to concatenate the tensors.
+}
 }
 
 \section{Fields}{
@@ -47,6 +44,13 @@ No parameters.
 \section{Internals}{
 
 Calls \code{\link[=nn_merge_cat]{nn_merge_cat()}} when trained.
+}
+
+\section{Input and Output Channels}{
+
+\code{PipeOpTorchMerge}s has either a \emph{vararg} input channel if the constructor argument \code{innum} is not set, or
+input channels \code{"input1"}, ..., \code{"input<innum>"}. There is one output channel \code{"output"}.
+For an explanation see \code{\link{PipeOpTorch}}.
 }
 
 \examples{

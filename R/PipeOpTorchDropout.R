@@ -8,8 +8,7 @@
 #'
 #' @section Construction:
 #' `r roxy_construction(PipeOpTorchDropout)`
-#'
-#' * `r roxy_param_id("nn_layer_norm")`
+#' * `r roxy_param_id("nn_dropout")`
 #' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
@@ -19,7 +18,7 @@
 #' * `p` :: `numeric(1)`\cr
 #'  Probability of an element to be zeroed. Default: 0.5 inplace
 #' * `inplace` :: `logical(1)`\cr
-#'   If set to `TRUE`, will do this operation in-place. Default: `FALSE.`
+#'   If set to `TRUE`, will do this operation in-place. Default: `FALSE`.
 #'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`

@@ -69,7 +69,7 @@ PipeOpTorchConv = R6Class("PipeOpTorchConv",
     }
   ),
   private = list(
-    .shapes_out = function(shapes_in, param_vals) {
+    .shapes_out = function(shapes_in, param_vals, task) {
       list(conv_output_shape(
         shape_in = shapes_in[[1]],
         conv_dim = private$.d,
@@ -81,7 +81,7 @@ PipeOpTorchConv = R6Class("PipeOpTorchConv",
         ceil_mode = FALSE
       ))
     },
-    .shape_dependent_params = function(shapes_in, param_vals) {
+    .shape_dependent_params = function(shapes_in, param_vals, task) {
       c(param_vals, in_channels = unname(shapes_in[[1L]][2L]))
 
     },

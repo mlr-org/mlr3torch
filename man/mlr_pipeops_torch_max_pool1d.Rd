@@ -38,7 +38,7 @@ Whether to return the indices as well, in which case there are two output channe
 
 \section{Internals}{
 
-Calls \code{\link[torch:nn_max_pool3d]{torch::nn_max_pool3d()}} during training.
+Calls \code{\link[torch:nn_max_pool1d]{torch::nn_max_pool1d()}} during training.
 }
 
 \section{Credit}{
@@ -52,7 +52,6 @@ the package source.
 There is one input channel \code{"input"}.
 Depending on the constructor argument \code{return_indices}, there is either one output channel \code{"output"} if
 \code{return_indices} is \code{FALSE}, or two channels \code{"output"} and \code{"indices"} if \code{return_indices} is \code{TRUE}.
-For an explanation see \code{\link{PipeOpTorch}}.
 }
 
 \section{Parameters}{

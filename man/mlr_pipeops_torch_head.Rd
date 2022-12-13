@@ -3,7 +3,7 @@
 \name{mlr_pipeops_torch_head}
 \alias{mlr_pipeops_torch_head}
 \alias{PipeOpTorchHead}
-\title{Head}
+\title{Output Head}
 \format{
 \link{\code{R6Class}} inheriting from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
@@ -12,11 +12,9 @@ Output head for classification and regresssion.
 }
 \section{Construction}{
 
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{PipeOpTorchHead$new(id = "nn_head", param_vals = list())
-}\if{html}{\out{</div>}}
+\code{PipeOpTorchHead$new(id = "nn_head", param_vals = list())}
 \itemize{
-\item \code{id} :: \code{character(1)}\cr The id for the object. The default is "Modulenn_head".
+\item \code{id} :: \code{character(1)}\cr The id for the object. The default is "nn_head".
 \item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
 }
 }
@@ -47,7 +45,7 @@ Whether to use a bias. Default is \code{TRUE}.
 
 \section{Internals}{
 
-Calls \code{\link[torch:nn_linear]{torch::nn_linear()}} with the output dimension inferred from the task.
+Calls \code{PipeOpTorchLinear}'s \verb{$train()} with the output dimension inferred from the task.
 }
 
 \section{Credit}{

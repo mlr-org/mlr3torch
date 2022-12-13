@@ -11,12 +11,8 @@
 #' * `r roxy_param_id("nn_layer_norm")`
 #' * `r roxy_param_param_vals()`
 #'
-#' @section Input and Output Channels:
-#' `r roxy_pipeop_torch_channels_default()`
-#'
-#' @section State:
-#' `r roxy_pipeop_torch_state_default()`
-#'
+#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
+#' @section State: `r roxy_pipeop_torch_state_default()`
 #' @section Parameters:
 #' * `dims` :: `integer(1)`\cr
 #'   The number of dimensions over which will be normalized (starting from the last dimension).
@@ -28,15 +24,14 @@
 #'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
-#'
 #' @section Internals:
 #' Calls [`torch::nn_layer_norm()`] when trained.
-#'
+#' The parameter `normalized_shape` is inferre as the dimensions of the last `dims` dimensions of the input shape.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
 #' @examples
-#' obj = po("nn_layer_norm", n_dim = 2)
+#' obj = po("nn_layer_norm", dims = 2)
 #' obj$id
 #' obj$module_generator
 #' obj$shapes_out(c(16, 5, 7))
@@ -45,7 +40,7 @@ PipeOpTorchLayerNorm = R6Class("PipeOpTorchLayerNorm",
   public = list(
     initialize = function(id = "nn_layer_norm", param_vals = list()) {
       param_set = ps(
-        n_dim = p_int(lower = 1L, tags = c("train", "required")),
+        dims = p_int(lower = 1L, tags = c("train", "required")),
         elementwise_affine = p_lgl(default = TRUE, tags = "train"),
         eps = p_dbl(default = 1e-5, lower = 0, tags = "train")
       )
@@ -53,10 +48,10 @@ PipeOpTorchLayerNorm = R6Class("PipeOpTorchLayerNorm",
     }
   ),
   private = list(
-    .shape_dependent_params = function(shapes_in, param_vals) {
-      assert_int(param_vals$n_dim, upper = length(shapes_in))
-      param_vals$normalized_shape = utils::tail(shapes_in, param_vals$n_dim)
-      param_vals$n_dim = NULL
+    .shape_dependent_params = function(shapes_in, param_vals, task) {
+      assert_int(param_vals$dims, upper = length(shapes_in))
+      param_vals$normalized_shape = utils::tail(shapes_in[[1L]], param_vals$dims)
+      param_vals$dims = NULL
       param_vals
     }
   )

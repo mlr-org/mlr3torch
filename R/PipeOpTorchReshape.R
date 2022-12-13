@@ -37,6 +37,8 @@ PipeOpTorchReshape = R6Class("PipeOpTorchReshape",
         assert_integerish(shape, lower = 1)
         if (sum(is.na(shape)) > 1) {
           return("Parameter 'shape' must only contain one -1 or NA.")
+        } else if (!is.na(x[1])) {
+          return("First dimension should be -1 or NA.")
         }
         return(TRUE)
       }
@@ -52,7 +54,7 @@ PipeOpTorchReshape = R6Class("PipeOpTorchReshape",
     }
   ),
   private = list(
-    .shapes_out = function(shapes_in, param_vals) {
+    .shapes_out = function(shapes_in, param_vals, task) {
       shape = param_vals$shape
       shape[shape == -1] = NA
       inlen = prod(shapes_in[[1]])
@@ -61,7 +63,7 @@ PipeOpTorchReshape = R6Class("PipeOpTorchReshape",
       if (!is.na(inlen) && !is.na(outlen) && inlen != outlen) stop("'shape' not compatible with input shape")
       list(shape)
     },
-    .shape_dependent_params = function(shapes_in, param_vals) {
+    .shape_dependent_params = function(shapes_in, param_vals, task) {
       param_vals$shape[is.na(param_vals$shape)] = -1
       param_vals
     }
@@ -113,7 +115,7 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
     }
   ),
   private = list(
-    .shapes_out = function(shapes_in, param_vals) {
+    .shapes_out = function(shapes_in, param_vals, task) {
       shape = shapes_in[[1]]
       true_dim = param_vals$dim
 
@@ -181,7 +183,7 @@ PipeOpTorchUnsqueeze = R6Class("PipeOpTorchUnsqueeze",
     }
   ),
   private = list(
-    .shapes_out = function(shapes_in, param_vals) {
+    .shapes_out = function(shapes_in, param_vals, task) {
       shape = shapes_in[[1]]
       true_dim = param_vals$dim
       if (true_dim < 0) {
@@ -238,7 +240,7 @@ PipeOpTorchFlatten = R6Class("PipeOpTorchFlatten",
     }
   ),
   private = list(
-    .shapes_out = function(shapes_in, param_vals) {
+    .shapes_out = function(shapes_in, param_vals, task) {
       shape = shapes_in[[1]]
       start_dim = param_vals$start_dim %??% 2
       end_dim = param_vals$end_dim %??% -1

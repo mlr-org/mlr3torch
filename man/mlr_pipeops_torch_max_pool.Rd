@@ -33,7 +33,6 @@ Whether to return the indices. See section 'Input and Output Channels' for more 
 There is one input channel \code{"input"}.
 Depending on the constructor argument \code{return_indices}, there is either one output channel \code{"output"} if
 \code{return_indices} is \code{FALSE}, or two channels \code{"output"} and \code{"indices"} if \code{return_indices} is \code{TRUE}.
-For an explanation see \code{\link{PipeOpTorch}}.
 }
 
 \section{State}{
@@ -65,8 +64,7 @@ When True, will use ceil instead of floor to compute the output shape. Default: 
 }
 
 \section{Internals}{
-
-See the respective child class.
+ See the respective child class.
 }
 
 \section{Credit}{

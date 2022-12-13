@@ -12,8 +12,8 @@ Applies a linear transformation to the incoming data: \eqn{y = xA^T + b}.
 }
 \section{Construction}{
 
+\code{PipeOpTorchLinear$new(id = "nn_linear", param_vals = list())}
 \itemize{
-\item \code{PipeOpTorchLinear$new(id = "nn_linear", param_vals = list())}
 \item \code{id} :: \code{character(1)}\cr The id for the object. The default is "nn_linear".
 \item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
 }
@@ -48,7 +48,8 @@ Default is \code{TRUE}.
 
 \section{Internals}{
 
-Calls \code{\link[torch:nn_linear]{torch::nn_linear()}} when trained.
+Calls \code{\link[torch:nn_linear]{torch::nn_linear()}} when trained where the parameter \code{in_features} is inferred as the second
+to last dimension of the input tensor.
 }
 
 \section{Credit}{

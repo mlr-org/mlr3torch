@@ -23,7 +23,6 @@
 #' There is one input channel `"input"`.
 #' Depending on the constructor argument `return_indices`, there is either one output channel `"output"` if
 #' `return_indices` is `FALSE`, or two channels `"output"` and `"indices"` if `return_indices` is `TRUE`.
-#' For an explanation see [`PipeOpTorch`].
 #'
 #' @section State: `r roxy_pipeop_torch_state_default()`
 #'
@@ -41,8 +40,7 @@
 #'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
-#' @section Internals:
-#' See the respective child class.
+#' @section Internals: See the respective child class.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -74,20 +72,19 @@ PipeOpTorchMaxPool = R6Class("PipeOpTorchMaxPool",
     }
   ),
   private = list(
-    .shapes_out = function(shapes_in, param_vals) {
+    .shapes_out = function(shapes_in, param_vals, task) {
       res = list(max_output_shape(
-        conv_dim = private$.d,
         shape_in = shapes_in[[1]],
-        kernel_size = param_vals$kernel_size,
-        stride = param_vals$stride %??% param_vals$kernel_size,
+        conv_dim = private$.d,
         padding = param_vals$padding %??% 0,
-        dilation = param_vals$dilation %??% 1,
+        stride = param_vals$stride %??% param_vals$kernel_size,
+        kernel_size = param_vals$kernel_size,
         ceil_mode = param_vals$ceil_mode %??% FALSE
       ))
 
       if (private$.return_indices) rep(res, 2) else res
     },
-    .shape_dependent_params = function(shapes_in, param_vals) {
+    .shape_dependent_params = function(shapes_in, param_vals, task) {
       c(param_vals, list(return_indices = private$.return_indices))
     },
     .return_indices = NULL,
@@ -122,7 +119,7 @@ max_output_shape = avg_output_shape
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
-#' Calls [`torch::nn_max_pool3d()`] during training.
+#' Calls [`torch::nn_max_pool1d()`] during training.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -158,14 +155,11 @@ PipeOpTorchMaxPool1D = R6Class("PipeOpTorchMaxPool1D", inherit = PipeOpTorchMaxP
 #'
 #' @inheritSection mlr_pipeops_torch_max_pool Input and Output Channels
 #' @section State: `r roxy_pipeop_torch_state_default()`
-#'
 #' @inheritSection mlr_pipeops_torch_max_pool Parameters
-#'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
 #' Calls [`torch::nn_max_pool2d()`] during training.
-#'
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export

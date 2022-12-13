@@ -74,12 +74,12 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
     .shape = function(task, param_vals) stop("private$.shape() must be implemented."),
     .train = function(inputs) {
       pv = self$param_set$get_values(tags = "train")
+      task = inputs[[1]]
       if (any(task$missings())) {
         # NAs are converted to their underlying machine representation when calling `torch_tensor()`
         # https://github.com/mlverse/torch/issues/933
         stopf("No missing values allowed in task '%s'.", task$id)
       }
-      task = inputs[[1]]
       param_vals = self$param_set$get_values()
       graph = as_graph(po("nop", id = self$id))
       batchgetter = private$.get_batchgetter(task, param_vals)

@@ -219,10 +219,10 @@ PipeOpTorchCustom = R6Class("PipeOpTorchCustom",
     }
   ),
   private = list(
-    .shape_dependent_params = function(shapes_in, param_vals) {
+    .shape_dependent_params = function(shapes_in, param_vals, task) {
       c(param_vals, list(d_in1 = tail(shapes_in[["input1"]], 1)), d_in2 = tail(shapes_in[["input2"]], 1))
     },
-    .shapes_out = function(shapes_in, param_vals) {
+    .shapes_out = function(shapes_in, param_vals, task) {
       list(
         input1 = c(head(shapes_in[["input1"]], -1), param_vals$d_out1),
         input2 = c(head(shapes_in[["input2"]], -1), param_vals$d_out2)

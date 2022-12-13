@@ -2,6 +2,11 @@
 
 * [x] PipeOpModule
 
+* [x] PipeOpTorchMerge
+* [x] PipeOpTorchMergeSum
+* [x] PipeOpTorchMergeProd
+* [x] PipeOpTorchMergeCat
+
 * [x] PipeOpTorchIngress
 * [x] PipeOpTorchIngressNumeric
 * [x] PipeOpTorchIngressImage
@@ -32,53 +37,48 @@
 * [x] PipeOpTorchAvgPool2D
 * [x] PipeOpTorchAvgPool3D
 
-* [ ] PipeOpTorchMaxPool
-* [ ] PipeOpTorchMaxPool1D
-* [ ] PipeOpTorchMaxPool2D
-* [ ] PipeOpTorchMaxPool3D
+* [x] PipeOpTorchMaxPool
+* [x] PipeOpTorchMaxPool1D
+* [x] PipeOpTorchMaxPool2D
+* [x] PipeOpTorchMaxPool3D
 
-* [ ] PipeOpTorchLinear
-* [ ] PipeOpTorchHead
+* [x] PipeOpTorchLinear
+* [x] PipeOpTorchHead
 
-* [ ] PipeOpTorchMerge
-* [ ] PipeOpTorchMergeSum
-* [ ] PipeOpTorchMergeProd
-* [ ] PipeOpTorchMergeCat
+* [x] PipeOpTorchDropout
 
-* [ ] PipeOpTorchDropout
+* [x] PipeOpTorchLogSigmoid
+* [x] PipeOpTorchSigmoid
+* [x] PipeOpTorchGELU
+* [x] PipeOpTorchReLU
+* [x] PipeOpTorchActTanhShrink
+* [x] PipeOpTorchGLU
+* [x] PipeOpTorchCelu
+* [x] PipeOpTorchThreshold
+* [x] PipeOpTorchRReLU
+* [x] PipeOpTorchHardSigmoid
+* [x] PipeOpTorchPReLU
+* [x] PipeOpTorchActTanh
+* [x] PipeOpTorchLeakyReLU
+* [x] PipeOpTorchRelu6
+* [x] PipeOpTorchELU
+* [x] PipeOpTorchtSoftShrink
+* [x] PipeOpTorchHardShrink
+* [x] PipeOpTorchSoftPlus
+* [x] PipeOpTorchSELU
+* [x] PipeOpTorchSoftmax
+* [x] PipeOpTorchActSoftSign
+* [x] PipeOpTorchHardTanh
+
+* [x] PipeOpTorchLayerNorm
+
 * [ ] PipeOpTorchOptimizer
-
 * [ ] PipeOpTorchLoss
-
-* [ ] PipeOpTorchLogSigmoid
-* [ ] PipeOpTorchSigmoid
-* [ ] PipeOpTorchGELU
-* [ ] PipeOpTorchReLU
-* [ ] PipeOpTorchActTanhShrink
-* [ ] PipeOpTorchGLU
-* [ ] PipeOpTorchCelu
-* [ ] PipeOpTorchThreshold
-* [ ] PipeOpTorchRReLU
-* [ ] PipeOpTorchLayerNorm
-* [ ] PipeOpTorchHardSigmoid
-* [ ] PipeOpTorchPReLU
-* [ ] PipeOpTorchActTanh
-* [ ] PipeOpTorchLeakyReLU
-* [ ] PipeOpTorchRelu6
-* [ ] PipeOpTorchELU
-* [ ] PipeOpTorchtSoftShrink
-* [ ] PipeOpTorchHardShrink
-* [ ] PipeOpTorchSoftPlus
-* [ ] PipeOpTorchSELU
-* [ ] PipeOpTorchSoftmax
-* [ ] PipeOpTorchActSoftSign
-* [ ] PipeOpTorchHardTanh
 
 * [ ] PipeOpTorchModel
 * [ ] PipeOpTorchModelRegr
 * [ ] PipeOpTorchModelClassif
 
-* [ ] PipeOpTorch
 
 **Learner**
 
@@ -104,6 +104,7 @@
 
 **Graph**
 
+* [ ] PipeOpTorch
 * [ ] nn_graph
 * [ ] ModelDescriptior
 * [ ] print.ModelDescriptor
@@ -199,11 +200,19 @@
 # Other
 
 * early_stopping -> test renaming
+* Use meta device in tests wherever possible to make tests run as fast as possible.
 * ensure that caching does what we want the caching to do (tiny imagenet)
+* ensure proper use of tags in e.g.  `param_set$get_values(tags = "train")`
 
 **Mit Martin**
+
+* `PipeOpTorchHead`: I think it is weird that we output the shape as `NA_integer_` despite it being known from the
+task.
+
+Why does `shapes_out` not get access to the task?
 
 * Rename PipeOpTorch -> PipeOpNN: Names would better represent the class hierarchy.
 * It must be documented how the output names are generated, when outputs of non-terminal nodes are used
 in "output_map" ("output_<id>_output.<channel>")
+
 

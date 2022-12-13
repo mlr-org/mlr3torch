@@ -652,8 +652,8 @@ PipeOpTorchTanhShrink = make_activation("tanhshrink", "TanhShrink", param_set = 
 #' @family PipeOpTorch
 #' @export
 PipeOpTorchThreshold = make_activation("threshold", "Threshold", param_set = ps(
-  threshold = p_dbl(tags = "train"),
-  value = p_dbl(tags = "train"),
+  threshold = p_dbl(tags = c("train", "required")),
+  value = p_dbl(tags = c("train", "required")),
   inplace = p_lgl(default = FALSE, tags = "train")
 ))
 
@@ -685,27 +685,35 @@ PipeOpTorchThreshold = make_activation("threshold", "Threshold", param_set = ps(
 PipeOpTorchGLU = R6Class("PipeOpTorchGLU",
   inherit = PipeOpTorch,
   public = list(
-    initialize = function(id = "glu", param_vals = list()) {
+    initialize = function(id = "nn_glu", param_vals = list()) {
       param_set = ps(
         dim = p_int(default = -1L, lower = 1L, tags = "train", special_vals = list(-1L))
       )
       super$initialize(
-      id = id,
-      param_set = param_set,
-      param_vals = param_vals,
-      module_generator = nn_glu,
-      tags = "activation"
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_glu,
+        tags = "activation"
       )
     }
   ),
   private = list(
-    .shapes_out = function(shapes_in, param_vals) {
-      dim = param_vals$dim
-      assert_true(dim %% 2 == 0)
-      if (dim == -1) {
-        shapes_in[[1L]][length(shapes_in[[1L]])] = shapes_in[[1L]][length(shapes_in[[1L]])] / 2
+    .shapes_out = function(shapes_in, param_vals, task) {
+      shape = shapes_in[[1L]]
+      true_dim = param_vals$dim %??% -1
+      if (true_dim < 0) {
+        true_dim = 1 + length(shape) + true_dim
       }
-      shapes_in
+      d_new = shape[true_dim] / 2
+      if (test_integerish(d_new)) {
+        shape[true_dim] = d_new
+      } else {
+        stopf("Dimension %i of input tensor must be divisible by 2.", true_dim)
+      }
+      list(shape)
     }
   )
 )
+
+register_po("nn_glu", PipeOpTorchGLU)

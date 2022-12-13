@@ -64,10 +64,10 @@ PipeOpTorchBatchNorm = R6Class("PipeOpTorchBatchNorm",
   private = list(
     .min_dim = NULL,
     .max_dim = NULL,
-    .shapes_out = function(shapes_in, param_vals) {
+    .shapes_out = function(shapes_in, param_vals, task) {
       list(assert_numeric(shapes_in[[1]], min.len = private$.min_dim, max.len = private$.max_dim))
     },
-    .shape_dependent_params = function(shapes_in, param_vals) {
+    .shape_dependent_params = function(shapes_in, param_vals, task) {
       param_vals$num_features = shapes_in[[1L]][2L]
       param_vals
     }

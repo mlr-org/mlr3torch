@@ -49,3 +49,34 @@ check_vector = function(d) function(x) {
 check_function_or_null = function(x) check_function(x, null.ok = TRUE)
 
 check_integerish_or_null = function(x) check_integerish(x, null.ok = TRUE)
+
+broadcast = function(shape1, shape2) {
+  assert_true(!anyNA(shape1) && !anyNA(shape2))
+  d = abs(length(shape1) - length(shape2))
+  if (d != 0) {
+    if (length(shape1) > length(shape2)) {
+      x = c(rep(1L, d), shape1)
+    } else {
+      y = c(rep(1L, d), shape2)
+    }
+  }
+  z = pmax(shape1, shape2)
+}
+
+broadcast_list = function(...) {
+  Reduce(broadcast, list(...))
+}
+
+
+assert_shape = function(shape, name) {
+  if (!(is.na(shape[[1L]]) && sum(is.na(shape)) == 1)) {
+    stopf("Input '%s' has shape (%s) but must have exactly one NA in the first dimension (batch size).",
+      name, paste0(shape, collapse = ", "))
+  }
+}
+
+assert_shapes = function(shapes_in) {
+  iwalk(shapes_in, function(shape, name) {
+    assert_shape(shape, name)
+  })
+}

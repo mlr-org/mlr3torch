@@ -20,7 +20,7 @@ The \code{predict} method does currently not serve a meaningful purpose.
 }
 \section{Construction}{
 
-\code{PipeOpModule$new(id, module, inname, outname, param_vals = list(), packages = character(0))}
+\code{PipeOpModule$new(id = "module", module = nn_identity(), inname = "input", outname = "output", param_vals = list(), packages = character(0))}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object. The default is "module".
 \item \code{module} :: \code{\link{nn_module}}\cr

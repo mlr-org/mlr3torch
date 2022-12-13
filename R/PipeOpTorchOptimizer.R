@@ -15,6 +15,7 @@ PipeOpTorchOptimizer = R6Class("PipeOpTorchOptimizer",
   ),
   private = list(
     .train = function(inputs) {
+      expect_true(is.null(inputs[[1L]]$optimizer))
       inputs[[1]]$optimizer = private$.optimizer$clone(deep = TRUE)
       inputs
     },

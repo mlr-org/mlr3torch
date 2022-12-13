@@ -8,12 +8,14 @@
 \link{\code{R6Class}} inheriting from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
 \description{
-Base class for merge operations.
+Base class for merge operations such as addition (\code{\link{PipeOpTorchMergeSum}}), multiplication
+(\code{\link{PipeOpTorchMergeProd}} or concatenation (\code{\link{PipeOpTorchMergeCat}}).
 }
 \section{Construction}{
- \code{PipeOpTorchMerge$new(id, module_generator, param_set = ps(), innum = 0, param_vals = list())}
+
+\code{PipeOpTorchMerge$new(id, module_generator, param_set = ps(), innum = 0, param_vals = list())}
 \itemize{
-\item \code{id} :: \code{character(1)}\cr The id for the object. The default is "module".
+\item \code{id} :: \code{character(1)}\cr The id for the object.
 \item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
 \item \code{param_set} :: \code{paradox::ParamSet}\cr The parameter set.
 \item \code{module_generator} :: \code{nn_module_generator}\cr The torch module generator.
@@ -47,7 +49,13 @@ For an explanation see \code{\link{PipeOpTorch}}.
 
 \section{Internals}{
 
-See the respective child class.
+Per default, the \code{private$.shapes_out()} method outputs the broadcasted tensors. There are two things to be aware:
+\enumerate{
+\item \code{NA}s are assumed to batch (this should almost always be the batch size in the first dimension).
+\item Tensors are expected to have the same number of dimensions, i.e. missing dimensions are not filled with 1s.
+The reason is that again that the first dimension should be the batch dimension.
+This private method can be overwritten by \code{\link{PipeOpTorch}}s inheriting from this class.
+}
 }
 
 \seealso{

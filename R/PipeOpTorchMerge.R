@@ -5,10 +5,12 @@
 #' @format `r roxy_pipeop_torch_format()`
 #'
 #' @description
-#' Base class for merge operations.
+#' Base class for merge operations such as addition ([`PipeOpTorchMergeSum`]), multiplication
+#' ([`PipeOpTorchMergeProd`] or concatenation ([`PipeOpTorchMergeCat`]).
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchMerge)`
-#' * `r roxy_param_id("module")`
+#' @section Construction:
+#' `r roxy_construction(PipeOpTorchMerge)`
+#' * `r roxy_param_id()`
 #' * `r roxy_param_param_vals()`
 #' * `r roxy_param_param_set()`
 #' * `r roxy_param_module_generator()`
@@ -26,7 +28,11 @@
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
-#' See the respective child class.
+#' Per default, the `private$.shapes_out()` method outputs the broadcasted tensors. There are two things to be aware:
+#' 1. `NA`s are assumed to batch (this should almost always be the batch size in the first dimension).
+#' 2. Tensors are expected to have the same number of dimensions, i.e. missing dimensions are not filled with 1s.
+#'    The reason is that again that the first dimension should be the batch dimension.
+#' This private method can be overwritten by [`PipeOpTorch`]s inheriting from this class.
 #' @family PipeOpTorch
 #' @export
 PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
@@ -40,15 +46,23 @@ PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
         module_generator = module_generator,
         param_set = param_set,
         param_vals = param_vals,
-        inname = inname
+        inname = inname,
+        tags = "abstract"
       )
     }
   ),
   private = list(
     .innum = NULL,
-    .shapes_out = function(shapes_in, param_vals) {
+    .shapes_out = function(shapes_in, param_vals, task) {
+      # note that this slightly deviates from the actual broadcasting rules implemented by torch, i.e. we don't fill
+      # up missing dimension with 1s because the first dimension is usually the batch dimension.
       assert_true(length(unique(map_int(shapes_in, length))) == 1)
       uniques = apply(as.data.frame(shapes_in), 1, function(row) {
+        if (all(is.na(row))) {
+          return(1)
+        }
+        max_dim = max(row, na.rm = TRUE)
+        row[row == 1] = max_dim
         row = unique(row)
         sum(!is.na(row))
       })
@@ -62,9 +76,12 @@ PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_merge_sum
-#' @format `r roxy_pipeop_torch_format()`
+#' @format [`R6Class`] object inheriting from [`PipeOp`]/[`PipeOpTorch`]/[`PipeOpTorchMerge`].
 #'
 #' @inherit nn_merge_sum description
+#'
+#' @section Broadcasting:
+#' Broadcasting here works slightly different than broadcasting
 #'
 #' @section Construction:
 #' `r roxy_construction(PipeOpTorchMergeSum)`
@@ -73,16 +90,11 @@ PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
 #' * `r roxy_param_param_vals()`
 #' * `innum` :: `integer(1)`\cr
 #'   The number of inputs. Default is 0 which means there is one *vararg* input channel.
-#'
-#' @section Input and Output Channels:
-#' `r roxy_pipeop_torch_channels_default()`
-#'
+#' @inheritSection mlr_pipeops_torch_merge Input and Output Channels
 #' @section State:
 #' `r roxy_pipeop_torch_state_default()`
-#'
 #' @section Parameters:
 #' No parameters.
-#'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
@@ -112,7 +124,7 @@ PipeOpTorchMergeSum = R6Class("PipeOpTorchMergeSum", inherit = PipeOpTorchMerge,
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_merge_prod
-#' @format `r roxy_pipeop_torch_format()`
+#' @format [`R6Class`] object inheriting from [`PipeOp`]/[`PipeOpTorch`]/[`PipeOpTorchMerge`].
 #'
 #' @inherit nn_merge_prod description
 #'
@@ -123,7 +135,7 @@ PipeOpTorchMergeSum = R6Class("PipeOpTorchMergeSum", inherit = PipeOpTorchMerge,
 #' * `innum` :: `integer(1)`\cr
 #'   The number of inputs. Default is 0 which means there is one *vararg* input channel.
 #'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
+#' @inheritSection mlr_pipeops_torch_merge Input and Output Channels
 #' @section State: `r roxy_pipeop_torch_state_default()`
 #'
 #' @section Parameters:
@@ -151,37 +163,36 @@ PipeOpTorchMergeProd = R6Class("PipeOpTorchMergeProd", inherit = PipeOpTorchMerg
         param_vals = param_vals
       )
     }
-  )
+  ),
+
+
+
 )
 
 #' @title Merge by Concatenation
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_merge_cat
-#' @format `r roxy_pipeop_torch_format()`
+#' @format [`R6Class`] object inheriting from [`PipeOp`]/[`PipeOpTorch`]/[`PipeOpTorchMerge`].
 #'
 #' @inherit nn_merge_cat description
 #'
 #' @section Construction:
-#' ```
-#' PipeOpTorchMergeCat$new(id = "nn_merge_prod", innum = 0, param_vals = list())
-#' ```
+#' `r roxy_construction(PipeOpTorchMergeCat)`
 #' * `r roxy_param_id("nn_merge_cat")`
 #' * `r roxy_param_param_vals()`
 #' * `innum` :: `integer(1)`\cr
 #'   The number of inputs. Default is 0 which means there is one *vararg* input channel.
 #'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
+#' @inheritSection mlr_pipeops_torch_merge Input and Output Channels
 #' @section State: `r roxy_pipeop_torch_state_default()`
-#'
 #' @section Parameters:
-#' No parameters.
-#'
+#' * `dim` :: `integer(1)`\cr
+#'   The dimension along which to concatenate the tensors.
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
 #' Calls [`nn_merge_cat()`] when trained.
-#'
 #' @family PipeOpTorch
 #' @export
 #' @examples
@@ -192,8 +203,7 @@ PipeOpTorchMergeProd = R6Class("PipeOpTorchMergeProd", inherit = PipeOpTorchMerg
 PipeOpTorchMergeCat = R6Class("PipeOpTorchMergeCat", inherit = PipeOpTorchMerge,
   public = list(
     initialize = function(id = "nn_merge_cat", innum = 0, param_vals = list()) {
-      param_set = ps(dim = p_int(tags = c("train", "required")))
-      param_set$values$dim = -1
+      param_set = ps(dim = p_int(default = -1, tags = c("train", "required")))
       super$initialize(
         id = id,
         module_generator = nn_merge_cat,
@@ -206,9 +216,10 @@ PipeOpTorchMergeCat = R6Class("PipeOpTorchMergeCat", inherit = PipeOpTorchMerge,
     speak = function() cat("I am the merge cat, meow! ^._.^\n")
   ),
   private = list(
-    .shapes_out = function(shapes_in, param_vals) {
+    .shapes_out = function(shapes_in, param_vals, task) {
       assert_true(length(unique(map_int(shapes_in, length))) == 1)
 
+      # dim can be negative (counting back from the last element which would be -1)
       true_dim = param_vals$dim
       if (true_dim < 0) {
         true_dim = 1 + length(shapes_in[[1]]) + true_dim
@@ -218,16 +229,22 @@ PipeOpTorchMergeCat = R6Class("PipeOpTorchMergeCat", inherit = PipeOpTorchMerge,
       shapes_matrix = as.matrix(as.data.frame(shapes_in))
 
       uniques = apply(shapes_matrix, 1, function(row) {
+        if (all(is.na(row))) { # this is usually the batch dimension.
+          return(1)
+        }
+        max_dim = max(row, na.rm = TRUE)
+        row[row == 1] = max_dim
         row = unique(row)
         sum(!is.na(row))
       })
 
+      # Dimensions don't have to match along the dimension along which we concatenate.
       assert_true(all(uniques[-true_dim] <= 1))
 
       returnshape = apply(shapes_matrix, 1, function(row) {
         row = unique(row)
         row = row[!is.na(row)]
-        if (length(row)) row[[1]] else NA
+        if (length(row)) max(row) else NA
       })
       returnshape[true_dim] = sum(shapes_matrix[true_dim, ])
       list(returnshape)
@@ -244,7 +261,7 @@ nn_merge_prod = nn_module(
   "nn_merge_prod",
   initialize = function() NULL,
   forward = function(...) {
-    torch_prod(torch_stack(list(...)), dim = 1L)
+    Reduce(torch_mul, list(...))
   }
 )
 
@@ -257,13 +274,14 @@ nn_merge_sum = nn_module(
   "nn_merge_sum",
   initialize = function() NULL,
   forward = function(...) {
-    torch_sum(torch_stack(list(...)), dim = 1L)
+    Reduce(torch_add, list(...))
   }
 )
 
 #' Concatenates multiple tensors
 #'
 #' Concatenates multiple tensors on a given dimension.
+#' No broadcasting rules are applied here, you must reshape the tensors before to have the same shape.
 #'
 #' @param dim (`integer(1)`)\cr
 #'   The dimension for the concatenation.
@@ -271,7 +289,7 @@ nn_merge_sum = nn_module(
 #' @export
 nn_merge_cat = nn_module(
   "nn_merge_cat",
-  initialize = function(dim) self$dim = dim,
+  initialize = function(dim = -1) self$dim = dim,
   forward = function(...) {
     torch_cat(list(...), dim = self$dim)
   }

@@ -48,7 +48,7 @@
 #' When inheriting from this class, one should overload either the `private$.shapes_out()` and the
 #' `private$.shape_dependent_params()` methods, or overload `private$.make_module()`.
 #'
-#' * `.make_module(shapes_in, param_vals)`\cr
+#' * `.make_module(shapes_in, param_vals, task)`\cr
 #'   (`list()`, `list()`) -> `nn_module`\cr
 #'   This private method is called to generated the `nn_module` that is passed as argument `module` to
 #'   [`PipeOpModule`]. It must be overwritten, when no `module_generator` is provided.
@@ -56,15 +56,16 @@
 #'   the private method `.shape_dependent_params()`.
 #'   If there is one output channel, the module returned by this method must return a [`torch_tensor`], otherwise
 #'   it must return a list of torch [tensors][torch_tensor].
-#' * `.shapes_out(shapes_in, param_vals)`\cr
+#' * `.shapes_out(shapes_in, param_vals, task)`\cr
 #'   (`list()`, `list()`) -> named `list()`\cr
-#'   This private method gets a list of `numeric` vectors (`shapes_in`) as well as the parameter values (`param_vals`).
-#'   Thi list of `numeric` vectors indicates the shape of input tensors that will be fed to the module's `$forward()`
+#'   This private method gets a list of `numeric` vectors (`shapes_in`) as well as the parameter values (`param_vals`),
+#'   as well as a [`Task`] (which is always never used, except for e.g. [`PipeOpTorchHead`]).
+#'   This list of `numeric` vectors indicates the shape of input tensors that will be fed to the module's `$forward()`
 #'   method. The list has one item per input tensor, typically only one.
 #'   The shape vectors may contain `NA` entries indicating arbitrary size (typically used for the batch dimension). The
 #'   function should return a list of shapes of tensors that are created by the module.
 #'   In case there is only one output channel it is also ok to return the output shapes as a `numeric` vector.
-#' * `.shape_dependent_params(shapes_in, param_vals)`\cr
+#' * `.shape_dependent_params(shapes_in, param_vals, task)`\cr
 #'   (`list()`, `list()`) -> named `list()`\cr
 #'   This private method has the same inputs as `.shapes_out`.
 #'   If `.make_module()` is not overwritten, it constructs the arguments passed to `module_generator`.
@@ -89,9 +90,11 @@
 #'    `private$.make_module(shapes_in, param_vals)` must be overwritte, see section 'Inheriting'.
 #'
 #' @section Methods:
-#' * `shapes_out(shapes_in)\cr
-#'  (`list()` of `integer()` or `integer()`) -> (`list()` of `integer()`)\cr
-#'  Calculates the output shapes for the given input shapes and parameters.
+#' * `shapes_out(shapes_in, task)\cr
+#'  (`list()` of `integer()` or `integer()`, task) -> (`list()` of `integer()`)\cr
+#'  Calculates the output shapes for the given input shapes, parameters and task. The task is rarely used and
+#'  usually does not have to be provided (default is `NULL`). A exception is [`PipeOpTorchHead`].
+#'  The return is a named list, where the names are the names of the output channels.
 #'
 #' @section Internals:
 #' During training, the `PipeOpTorch` creates a [`PipeOpModule`] for the given parameter specification and the
@@ -187,10 +190,10 @@
 #'     }
 #'   ),
 #'   private = list(
-#'     .shape_dependent_params = function(shapes_in, param_vals) {
+#'     .shape_dependent_params = function(shapes_in, param_vals, task) {
 #'       c(param_vals, list(d_in1 = tail(shapes_in[["input1"]], 1)), d_in2 = tail(shapes_in[["input2"]], 1))
 #'     },
-#'     .shapes_out = function(shapes_in, param_vals) {
+#'     .shapes_out = function(shapes_in, param_vals, task) {
 #'       list(
 #'         input1 = c(head(shapes_in[["input1"]], -1), param_vals$d_out1),
 #'         input2 = c(head(shapes_in[["input2"]], -1), param_vals$d_out2)
@@ -251,13 +254,12 @@ PipeOpTorch = R6Class("PipeOpTorch",
       inname = "input", outname = "output", packages = "torch", tags = NULL) {
       self$module_generator = assert_class(module_generator, "nn_module_generator", null.ok = TRUE)
       lockBinding("module_generator", self)
-      assert_names(outname, type = "strict", .var.name = "output channel names")
+
+      assert_character(inname, .var.name = "input channel names")
+      assert_character(outname, .var.name = "output channel names", min.len = 1L)
       assert_character(tags, null.ok = TRUE)
-      # this enforces the following:
-      # Unless there is a vararg input channel, the argument names of the wrapped module must correspond to the names
-      # of the input channels. The exception is made because otherwise it is ugly with the merge operators
-      assert_names(inname, type = "strict", .var.name = "input channel names")
       assert_character(packages, any.missing = FALSE)
+
       input = data.table(name = inname, train = "ModelDescriptor", predict = "Task")
       output = data.table(name = outname, train = "ModelDescriptor", predict = "Task")
 
@@ -271,51 +273,48 @@ PipeOpTorch = R6Class("PipeOpTorch",
         tags = unique(c("torch", tags))
       )
     },
-    #' @description
-    #' Calculates the output shapes for the given input shapes.
-    #' The return is a named list, where the names are the names of the output channels.
-    #' @param shapes_in (named `list() | `numeric()`)\cr
-    #'   The input shapes. If there is only one input channel, the input shapes of this tensor can be given as a
-    #'   numeric vector, otherwise a named list must be passed, where the names are the names of the input channels.
-    shapes_out = function(shapes_in) {
+    shapes_out = function(shapes_in, task = NULL) {
       if (is.numeric(shapes_in)) {
         assert_true(self$innum == 1)
         shapes_in = list(shapes_in)
         names(shapes_in) = self$input$name
+      }
+      if (identical(self$input$name, "...")) {
+        assert_list(shapes_in, min.len = 1, types = "numeric")
       } else {
         assert_true(sort(names(shapes_in)) == sort(self$input$name))
       }
-      if (identical(self$input$name, "...")) {#'
-
-        assert_list(shapes_in, min.len = 1, types = "numeric")
-      } else {
-        assert_list(shapes_in, len = nrow(self$input), types = "numeric")
-      }
       pv = self$param_set$get_values(tags = "train")
-      shapes = private$.shapes_out(shapes_in, pv)
+      shapes = private$.shapes_out(shapes_in, pv, task = task)
       shapes = set_names(shapes, self$output$name)
       shapes
     }
+
     # TODO: printer that calls the nn_module's printer
   ),
   private = list(
-    .shapes_out = function(shapes_in, param_vals) shapes_in,
-    .shape_dependent_params = function(shapes_in, param_vals) param_vals,
-    .make_module = function(shapes_in, param_vals) {
-      do.call(self$module_generator, private$.shape_dependent_params(shapes_in, param_vals))
+    .shapes_out = function(shapes_in, param_vals, task) shapes_in,
+    .shape_dependent_params = function(shapes_in, param_vals, task) param_vals,
+    .make_module = function(shapes_in, param_vals, task) {
+      do.call(self$module_generator, private$.shape_dependent_params(shapes_in, param_vals, task))
     },
     .train = function(inputs) {
       param_vals = self$param_set$get_values()
       input_pointers = map(inputs, ".pointer")
       input_shapes = map(inputs, ".pointer_shape")
 
-      # first user-supplied function: infer shapes that get created for modul
-      shapes_out = private$.shapes_out(input_shapes, param_vals)
+      assert_shapes(input_shapes)
+      # Now begin creating the result-object: it contains a merged version of all `inputs`' $graph slots etc.
+      # The only thing missing afterwards is (1) integrating module_op to the merged $graph, and adding `.pointer`s.
+      result_template = Reduce(model_descriptor_union, inputs)
+
+      # first user-supplied function: infer shapes that get created for module
+      shapes_out = self$shapes_out(input_shapes, task)
       shapes_out = assert_list(shapes_out, types = "numeric", any.missing = FALSE, len = nrow(self$output))
 
       # second possibly user-supplied function: create the concrete nn_module, given shape info.
       # If this is not user-supplied, then at least `.shape_dependent_params` is called.
-      module = private$.make_module(input_shapes, param_vals)
+      module = private$.make_module(input_shapes, param_vals, task)
 
       # create the PipeOp that contains the instantiated nn_module.
       module_op = PipeOpModule$new(
@@ -326,17 +325,16 @@ PipeOpTorch = R6Class("PipeOpTorch",
         packages = self$packages
       )
 
-      # Now begin creating the result-object: it contains a merged version of all `inputs`' $graph slots etc.
-      # The only thing missing afterwards is (1) integrating module_op to the merged $graph, and adding `.pointer`s.
-      result_template = Reduce(model_descriptor_union, inputs)
-
       # integrate the operation into the graph
       result_template$graph$add_pipeop(module_op)
       # All of the `inputs` contained possibly the same `graph`, but definitely had different `.pointer`s,
       # indicating the different channels from within the `graph` that should be connected to the new operation.
+      vararg = "..." == module_op$input$name[[1L]]
+      current_channel = "..."
+
       for (i in seq_along(inputs)) {
         ptr = input_pointers[[i]]
-        current_channel = module_op$input$name[[i]]
+        if (!vararg) current_channel = module_op$input$name[[i]]
         result_template$graph$add_edge(
           src_id = ptr[[1]], src_channel = ptr[[2]],
           dst_id = module_op$id, dst_channel = current_channel

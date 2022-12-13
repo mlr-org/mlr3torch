@@ -1,3 +1,5 @@
+
+
 test_that("Linear GraphNetwork works", {
   batch_size = 16L
   d_token = 3L

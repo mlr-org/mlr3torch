@@ -21,13 +21,16 @@
 #'   values specified as `exclude_args`.
 #' @return `TRUE` if the autotest passes, errs otherwise.
 #' @export
-autotest_pipeop_torch = function(graph, id, task, module_class = id, exclude_args = character(0)) {
+autotest_pipeop_torch = function(graph, id, task, module_class = id, exclude_args = character(0), test_id = TRUE) {
   po_test = graph$pipeops[[id]]
   result = graph$train(task)
   md = result[[1]]
 
   modulegraph = md$graph
   po_module = modulegraph$pipeops[[id]]
+  if (is.null(po_module$module)) {
+    stop("No pipeop with id '%s' found in the graph, did you mistype the id?", id)
+  }
 
   # (1) class of generated module is as expected
   expect_class(po_module, "PipeOpModule")
@@ -56,8 +59,6 @@ autotest_pipeop_torch = function(graph, id, task, module_class = id, exclude_arg
   x1 = paste0(tolower(gsub("^PipeOpTorch", "", class(po_test)[[1L]])))
   x2 = gsub("_", "", gsub("^nn_", "", po_test$id))
   testthat::expect_true(x1 == x2)
-
-  testthat::expect_true(po_test$id == class(po_module$module)[[1L]])
 
   # (3) Forward call works and the shapes are correct
   # (i)input (p)ointer and (o)utput (p)ointer for the tested PipeOp
@@ -113,7 +114,7 @@ autotest_pipeop_torch = function(graph, id, task, module_class = id, exclude_arg
   names(channels) = paste0("output", "_", tmp1$src_id, "_", tmp1$src_channel, ".", tmp1$src_channel)
   names(layerin) = channels[names(channels)]
 
-  predicted = po_test$shapes_out(map(layerin, dim))
+  predicted = po_test$shapes_out(map(layerin, dim), task)
   observed = map(layerout, dim)
   test_shapes(predicted, observed)
 

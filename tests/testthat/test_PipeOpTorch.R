@@ -34,10 +34,10 @@ PipeOpTorchDebug = R6Class("PipeOpTorchDebug",
     }
   ),
   private = list(
-    .shape_dependent_params = function(shapes_in, param_vals) {
+    .shape_dependent_params = function(shapes_in, param_vals, task) {
       c(param_vals, list(d_in1 = tail(shapes_in[["input1"]], 1)), d_in2 = tail(shapes_in[["input2"]], 1))
     },
-    .shapes_out = function(shapes_in, param_vals) {
+    .shapes_out = function(shapes_in, param_vals, task) {
       list(
         input1 = c(head(shapes_in[["input1"]][[1]], -1), param_vals$d_out1),
         input2 = c(head(shapes_in[["input2"]][[1]], -1), param_vals$d_out2)
@@ -50,6 +50,8 @@ test_that("PipeOpTorch works", {
   task = tsk("penguins")
 
   # basic checks that output is checked correctly
+    PipeOpTorchDebug$new(id = "debug", inname = paste0("input", 1:2), outname = paste0("output", 1:2))
+
   expect_error(
     PipeOpTorchDebug$new(id = "debug", inname = paste0("input", 1:2), outname = paste0("output", 1:2)),
     regexp = "grepl"
@@ -89,5 +91,19 @@ test_that("PipeOpTorch works", {
   expect_true(list)
 
   expect_error(graph)
+
+})
+
+test_that("PipeOpTorch errs when there are unexpected NAs in the shape", {
+  graph = as_graph(po("torch_ingress_num"))
+
+  task = tsk("iris")
+  md = graph$train(task)[[1L]]
+
+  md$.pointer_shape = c(4, NA)
+  expect_error(po("nn_relu")$train(list(md)), regexp = "but must have exactly one NA")
+
+  md$.pointer_shape = c(NA, NA, 4)
+  expect_error(po("nn_relu")$train(list(md)), regexp = "but must have exactly one NA")
 
 })

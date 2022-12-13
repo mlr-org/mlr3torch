@@ -75,6 +75,8 @@ register_mlr3 = function() {
   mlr_callbacks$add("torch.history", CallbackTorchHistory)
   mlr_callbacks$add("torch.progress", CallbackTorchProgress)
 
+  mlr_reflections$pipeops$valid_tags = c(mlr_reflections$pipeops$valid_tags, c("activation"))
+
   mlr_tasks$add("tiny_imagenet", load_task_tiny_imagenet)
 }
 

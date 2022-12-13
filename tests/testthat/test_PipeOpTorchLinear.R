@@ -7,5 +7,7 @@ test_that("PipeOpTorchLinear works", {
 })
 
 test_that("PipeOpTorchLinear paramtest", {
-  run_paramtest(po_linear, nn_linear, exclude = "in_features")
+  po_linear = po("nn_linear", out_features = 10)
+  res = run_paramtest(po_linear, nn_linear, exclude = "in_features")
+  expect_paramtest(res)
 })

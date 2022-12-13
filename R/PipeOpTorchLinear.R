@@ -7,7 +7,7 @@
 #' @inherit torch::nnf_linear description
 #'
 #' @section Construction:
-#' * `r roxy_construction(PipeOpTorchLinear)`
+#' `r roxy_construction(PipeOpTorchLinear)`
 #' * `r roxy_param_id("nn_linear")`
 #' * `r roxy_param_param_vals()`
 #'
@@ -24,7 +24,8 @@
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
-#' Calls [`torch::nn_linear()`] when trained.
+#' Calls [`torch::nn_linear()`] when trained where the parameter `in_features` is inferred as the second
+#' to last dimension of the input tensor.
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
@@ -50,10 +51,10 @@ PipeOpTorchLinear = R6Class("PipeOpTorchLinear",
     }
   ),
   private = list(
-    .shape_dependent_params = function(shapes_in, param_vals) {
+    .shape_dependent_params = function(shapes_in, param_vals, task) {
       c(param_vals, list(in_features = tail(shapes_in[[1]], 1)))
     },
-    .shapes_out = function(shapes_in, param_vals) list(c(head(shapes_in[[1]], -1), param_vals$out_features))
+    .shapes_out = function(shapes_in, param_vals, task) list(c(head(shapes_in[[1]], -1), param_vals$out_features))
   )
 )
 

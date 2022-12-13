@@ -97,7 +97,8 @@ PipeOpModule = R6Class("PipeOpModule",
   inherit = PipeOp,
   public = list(
     module = NULL,
-    initialize = function(id, module, inname, outname, param_vals = list(), packages = character(0)) {
+    initialize = function(id = "module", module = nn_identity(), inname = "input", outname = "output", param_vals = list(),
+      packages = character(0)) {
       private$.multi_output = length(outname) > 1L
       self$module = assert_class(module, "nn_module")
       self$f
@@ -136,4 +137,4 @@ PipeOpModule = R6Class("PipeOpModule",
 )
 
 #' @include zzz.R
-register_po("module", PipeOpModule)
+register_po("module", PipeOpModule ,list(id = "module", module = "module", inname = "N", outname = "N"))

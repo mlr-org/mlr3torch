@@ -26,7 +26,6 @@ model_descriptor_to_module = function(model_descriptor, output_pointers = NULL, 
   # an incomplete $ingress-slot. However, by the time we create an nn_graph,
   # the `graph` must be final, so $ingress must be complete.
   shapes_in = map(model_descriptor$ingress, "shape")
-  features = task$feature_types$id
 
   graph = model_descriptor$graph
 

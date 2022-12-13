@@ -12,4 +12,5 @@ The dimension for the concatenation.}
 }
 \description{
 Concatenates multiple tensors on a given dimension.
+No broadcasting rules are applied here, you must reshape the tensors before to have the same shape.
 }
