@@ -11,7 +11,7 @@
 The gated linear unit. Computes:
 }
 \section{Construction}{
- \code{PipeOpTorchGLU$new(id = "glu", param_vals = list())}
+ \code{PipeOpTorchGLU$new(id = "nn_glu", param_vals = list())}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object. The default is "nn_glu".
 \item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
@@ -79,6 +79,7 @@ Other PipeOpTorch:
 \code{\link{mlr_pipeops_torch_layer_norm}},
 \code{\link{mlr_pipeops_torch_leaky_relu}},
 \code{\link{mlr_pipeops_torch_log_sigmoid}},
+\code{\link{mlr_pipeops_torch_loss}},
 \code{\link{mlr_pipeops_torch_max_pool1d}},
 \code{\link{mlr_pipeops_torch_max_pool2d}},
 \code{\link{mlr_pipeops_torch_max_pool3d}},
@@ -90,6 +91,7 @@ Other PipeOpTorch:
 \code{\link{mlr_pipeops_torch_model_classif}},
 \code{\link{mlr_pipeops_torch_model_regr}},
 \code{\link{mlr_pipeops_torch_model}},
+\code{\link{mlr_pipeops_torch_optimizer}},
 \code{\link{mlr_pipeops_torch_prelu}},
 \code{\link{mlr_pipeops_torch_relu6}},
 \code{\link{mlr_pipeops_torch_relu}},

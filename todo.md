@@ -72,8 +72,8 @@
 
 * [x] PipeOpTorchLayerNorm
 
-* [ ] PipeOpTorchOptimizer
-* [ ] PipeOpTorchLoss
+* [x] PipeOpTorchOptimizer
+* [x] PipeOpTorchLoss
 
 * [ ] PipeOpTorchModel
 * [ ] PipeOpTorchModelRegr
@@ -203,15 +203,14 @@
 * Use meta device in tests wherever possible to make tests run as fast as possible.
 * ensure that caching does what we want the caching to do (tiny imagenet)
 * ensure proper use of tags in e.g.  `param_set$get_values(tags = "train")`
+* Rename PipeOpTorch -> PipeOpNN: Names would better represent the class hierarchy:
+   note that all the roxygen stuff has to be renamed too and adjusted.
+   Maybe PipeOpTorch -> PipeOpTorchNN because we still want to refer to all the PipeOpTorch's
+* Check that deep clones for callbacks work
+* what happens to the logs during hotstarting
 
 **Mit Martin**
 
-* `PipeOpTorchHead`: I think it is weird that we output the shape as `NA_integer_` despite it being known from the
-task.
-
-Why does `shapes_out` not get access to the task?
-
-* Rename PipeOpTorch -> PipeOpNN: Names would better represent the class hierarchy.
 * It must be documented how the output names are generated, when outputs of non-terminal nodes are used
 in "output_map" ("output_<id>_output.<channel>")
 

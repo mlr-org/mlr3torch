@@ -4,7 +4,7 @@
 \alias{nn_merge_cat}
 \title{Concatenates multiple tensors}
 \usage{
-nn_merge_cat(dim)
+nn_merge_cat(dim = -1)
 }
 \arguments{
 \item{dim}{(\code{integer(1)})\cr

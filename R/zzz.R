@@ -61,29 +61,23 @@ register_po = function(name, constructor, metainf = NULL) {
 }
 
 register_mlr3 = function() {
-  # Learners ----------------------------------------------------------------
-
   mlr_learners = utils::getFromNamespace("mlr_learners", ns = "mlr3")
-
-  # Reflections -------------------------------------------------------------
   mlr_reflections = utils::getFromNamespace("mlr_reflections", ns = "mlr3")
+  mlr_callbacks = utils::getFromNamespace("mlr_callbacks", ns = "mlr3misc")
+  mlr_tasks = utils::getFromNamespace("mlr_tasks", ns = "mlr3")
 
   # Image URI feature (e.g. file path to .jpg etc.) for image classif tasks
-  mlr_reflections$task_feature_types[["img"]] = "imageuri"
-
-  mlr_callbacks = utils::getFromNamespace("mlr_callbacks", ns = "mlr3misc")
-  mlr_callbacks$add("torch.history", CallbackTorchHistory)
-  mlr_callbacks$add("torch.progress", CallbackTorchProgress)
-
-  mlr_reflections$pipeops$valid_tags = c(mlr_reflections$pipeops$valid_tags, c("activation"))
-
+  iwalk(mlr3torch_feature_types, function(ft, nm) mlr_reflections$task_feature_types[[nm]] = ft)
+  iwalk(mlr3torch_callbacks, function(clbk, nm) mlr_callbacks$add(nm, clbk))
+  iwalk(mlr3torch_tasks, function(task, nm) mlr_tasks$add(nm, task))
   mlr_tasks$add("tiny_imagenet", load_task_tiny_imagenet)
 }
 
 register_mlr3pipelines = function() {
   mlr_pipeops = utils::getFromNamespace("mlr_pipeops", ns = "mlr3pipelines")
   imap(as.list(po_register_env), function(value, name) mlr_pipeops$add(name, value))
-  mlr_reflections$pipeops$valid_tags = unique(c(mlr_reflections$pipeops$valid_tags, "torch"))
+  mlr_reflections$pipeops$valid_tags = unique(c(mlr_reflections$pipeops$valid_tags, c("torch", "activation")))
+
   lapply(po_register_env, eval)
 }
 
@@ -99,4 +93,9 @@ register_mlr3pipelines = function() {
   if (Sys.getenv("IN_PKGDOWN") == "true") {
     lg$set_threshold("warn")
   }
+}
+
+.onUnload = function(libPaths) {
+
+
 }

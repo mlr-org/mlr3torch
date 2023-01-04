@@ -3,43 +3,21 @@
 \name{mlr_pipeops_torch_model_classif}
 \alias{mlr_pipeops_torch_model_classif}
 \alias{PipeOpTorchModelClassif}
-\title{Builds a mlr3 Torch Classification Learner from its Input}
+\title{Torch Classification Model}
 \format{
-\code{\link{R6Class}} inheriting from \code{\link{PipeOp}}.
+\code{\link{R6Class}} object inheriting from \code{\link{PipeOpTorchModel}} / \code{\link{PipeOp}}.
 }
 \description{
-Create and train \code{\link{LearnerClassifTorchModel}} specified by a \code{\link{ModelDescriptor}}.
+Builds a mlr3 Classification Torch Learner from its Input.
+During \verb{$train()} this TorchOp first builds the model (network, optimizer,
+loss, ...) and afterwards trains the network.
 }
 \section{Construction}{
-
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{PipeOpTorchModelClassif$new(id = "torch_model.classif", param_vals)
-}\if{html}{\out{</div>}}
+ \code{PipeOpTorchModelClassif$new(id = "torch_model_classif", param_vals = list())}
 \itemize{
-\item \code{id} :: \code{character(1)}\cr The id for the object.
-\item \code{param_set} :: \code{paradox::ParamSet}\cr The parameter set.
+\item \code{id} :: \code{character(1)}\cr The id for the object. The default is "torch_model_classif".
+\item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
 }
-}
-
-\section{State}{
-
-A trained \code{\link{LearnerClassifTorchModel}}.
-}
-
-\section{Fields}{
-
-Only fields inherited from \code{\link{PipeOp}}.
-}
-
-\section{Methods}{
-
-Only Methods inherited from \code{\link{PipeOp}}.
-}
-
-\section{Input and Output Channels}{
-
-During \emph{training}, all inputs and outputs are of class \code{\link{ModelDescriptor}}.
-During \emph{prediction}, all input and output channels are of class \code{\link{Task}}.
 }
 
 \section{Parameters}{
@@ -66,13 +44,29 @@ The number of threads (if \code{device} is \code{"cpu"}). Default is 1.
 \item \code{shuffle} :: \code{logical(1)}\cr
 Whether to shuffle the instances in the dataset. Default is \code{TRUE}.
 }
+
+Additionally there are the parameters for the optimizer and the loss function preceded by the prefix
+\code{"opt."} and \code{"loss."} respectively.
 }
 
-\section{Internals}{
+\section{Input and Output Channels}{
 
-First a \code{\link{nn_graph}} is created by calling \code{\link[=model_descriptor_to_module]{model_descriptor_to_module()}} and than a \code{LearnerClassifTorchModel}
-is created from the \code{module}, is initialized for the specification provided in the input \code{\link{ModelDescriptor}}.
-Then the parameters are set according to the parameters specified in \code{PipeOpTorchModel} and its '$train()\verb{ method is called on the [}Task\verb{] provided through the [}ModelDescriptor`].
+There is one input channel \code{"input"} that takes in \code{ModelDescriptor} during traing and a \code{Task} of the specified
+\code{task_type} during prediction.
+The output is \code{NULL} during training and a \code{Prediction} of given \code{task_type} during prediction.
+}
+
+\section{State}{
+
+A trained torch \code{\link{Learner}}.
+}
+
+\section{Fields}{
+ Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+}
+
+\section{Methods}{
+ Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
 
 \seealso{
@@ -103,6 +97,7 @@ Other PipeOpTorch:
 \code{\link{mlr_pipeops_torch_layer_norm}},
 \code{\link{mlr_pipeops_torch_leaky_relu}},
 \code{\link{mlr_pipeops_torch_log_sigmoid}},
+\code{\link{mlr_pipeops_torch_loss}},
 \code{\link{mlr_pipeops_torch_max_pool1d}},
 \code{\link{mlr_pipeops_torch_max_pool2d}},
 \code{\link{mlr_pipeops_torch_max_pool3d}},
@@ -113,6 +108,7 @@ Other PipeOpTorch:
 \code{\link{mlr_pipeops_torch_merge}},
 \code{\link{mlr_pipeops_torch_model_regr}},
 \code{\link{mlr_pipeops_torch_model}},
+\code{\link{mlr_pipeops_torch_optimizer}},
 \code{\link{mlr_pipeops_torch_prelu}},
 \code{\link{mlr_pipeops_torch_relu6}},
 \code{\link{mlr_pipeops_torch_relu}},

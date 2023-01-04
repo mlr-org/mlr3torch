@@ -7,11 +7,6 @@
 \format{
 \code{\link{R6Class}} object inheriting from \code{\link{PipeOp}}.
 }
-\arguments{
-\item{shapes_in}{(named \verb{list() | }numeric()`)\cr
-The input shapes. If there is only one input channel, the input shapes of this tensor can be given as a
-numeric vector, otherwise a named list must be passed, where the names are the names of the input channels.}
-}
 \description{
 \code{PipeOpTorch} is the base class for all \code{\link{PipeOp}}s that represent neural network layers in a \code{\link{Graph}}.
 During \strong{training}, it generates a \code{\link{PipeOpModule}} that wraps an \code{\link[torch:nn_module]{nn_module}} and attaches it
@@ -27,9 +22,6 @@ A crucial difference is that the \code{PipeOpTorch} infers auxiliary parameters 
 
 During \strong{prediction}, \code{PipeOpTorch} takes in a \code{\link[mlr3:Task]{Task}} in each channel and outputs the same new
 \code{\link[mlr3:Task]{Task}} resulting from their \link[=PipeOpFeatureUnion]{feature union} in each channel.
-
-Calculates the output shapes for the given input shapes.
-The return is a named list, where the names are the names of the output channels.
 }
 \section{Construction}{
 
@@ -63,7 +55,7 @@ names out the output channels. The default is \code{"output"}.
 When inheriting from this class, one should overload either the \code{private$.shapes_out()} and the
 \code{private$.shape_dependent_params()} methods, or overload \code{private$.make_module()}.
 \itemize{
-\item \code{.make_module(shapes_in, param_vals)}\cr
+\item \code{.make_module(shapes_in, param_vals, task)}\cr
 (\code{list()}, \code{list()}) -> \code{nn_module}\cr
 This private method is called to generated the \code{nn_module} that is passed as argument \code{module} to
 \code{\link{PipeOpModule}}. It must be overwritten, when no \code{module_generator} is provided.
@@ -71,15 +63,16 @@ If left as is, it calls the provided \code{module_generator} with the arguments 
 the private method \code{.shape_dependent_params()}.
 If there is one output channel, the module returned by this method must return a \code{\link{torch_tensor}}, otherwise
 it must return a list of torch \link[=torch_tensor]{tensors}.
-\item \code{.shapes_out(shapes_in, param_vals)}\cr
+\item \code{.shapes_out(shapes_in, param_vals, task)}\cr
 (\code{list()}, \code{list()}) -> named \code{list()}\cr
-This private method gets a list of \code{numeric} vectors (\code{shapes_in}) as well as the parameter values (\code{param_vals}).
-Thi list of \code{numeric} vectors indicates the shape of input tensors that will be fed to the module's \verb{$forward()}
+This private method gets a list of \code{numeric} vectors (\code{shapes_in}) as well as the parameter values (\code{param_vals}),
+as well as a \code{\link{Task}} (which is always never used, except for e.g. \code{\link{PipeOpTorchHead}}).
+This list of \code{numeric} vectors indicates the shape of input tensors that will be fed to the module's \verb{$forward()}
 method. The list has one item per input tensor, typically only one.
 The shape vectors may contain \code{NA} entries indicating arbitrary size (typically used for the batch dimension). The
 function should return a list of shapes of tensors that are created by the module.
 In case there is only one output channel it is also ok to return the output shapes as a \code{numeric} vector.
-\item \code{.shape_dependent_params(shapes_in, param_vals)}\cr
+\item \code{.shape_dependent_params(shapes_in, param_vals, task)}\cr
 (\code{list()}, \code{list()}) -> named \code{list()}\cr
 This private method has the same inputs as \code{.shapes_out}.
 If \code{.make_module()} is not overwritten, it constructs the arguments passed to \code{module_generator}.
@@ -118,8 +111,8 @@ The module generator wrapped by this \code{PipeOpTorch}. If \code{NULL}, the pri
 \section{Methods}{
 
 \itemize{
-\item \verb{shapes_out(shapes_in)\\cr  (}list()\code{of}integer()\code{or}integer()\verb{) -> (}list()\code{of}integer()`)\cr
-Calculates the output shapes for the given input shapes and parameters.
+\item \verb{shapes_out(shapes_in, task)\\cr  (}list()\code{of}integer()\code{or}integer()\verb{, task) -> (}list()\code{of}integer()\verb{)\\cr  Calculates the output shapes for the given input shapes, parameters and task. The task is rarely used and  usually does not have to be provided (default is }NULL\verb{). A exception is [}PipeOpTorchHead`].
+The return is a named list, where the names are the names of the output channels.
 }
 }
 

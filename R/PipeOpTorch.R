@@ -307,6 +307,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
       # Now begin creating the result-object: it contains a merged version of all `inputs`' $graph slots etc.
       # The only thing missing afterwards is (1) integrating module_op to the merged $graph, and adding `.pointer`s.
       result_template = Reduce(model_descriptor_union, inputs)
+      task = result_template$task
 
       # first user-supplied function: infer shapes that get created for module
       shapes_out = self$shapes_out(input_shapes, task)

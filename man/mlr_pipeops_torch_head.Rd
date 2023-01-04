@@ -9,6 +9,10 @@
 }
 \description{
 Output head for classification and regresssion.
+
+\strong{NOTE}
+Because the method \verb{$shapes_out()} does not have access to the task, it returns \code{c(NA, NA)}.
+When this \code{\link{PipeOp}} is trained however, the model descriptor has the correct output shape.
 }
 \section{Construction}{
 
@@ -45,7 +49,7 @@ Whether to use a bias. Default is \code{TRUE}.
 
 \section{Internals}{
 
-Calls \code{PipeOpTorchLinear}'s \verb{$train()} with the output dimension inferred from the task.
+Calls \code{\link[torch:nn_linear]{torch::nn_linear()}} with the input and output features inferred from the input shape / task.
 }
 
 \section{Credit}{
@@ -58,7 +62,8 @@ the package source.
 obj = po("nn_head")
 obj$id
 obj$module_generator
-obj$shapes_out(c(16, 10))
+obj$shapes_out(c(16, 10), tsk("iris"))
+obj$shapes_out(c(16, 10), tsk("mtcars"))
 }
 \seealso{
 Other PipeOpTorch: 
@@ -87,6 +92,7 @@ Other PipeOpTorch:
 \code{\link{mlr_pipeops_torch_layer_norm}},
 \code{\link{mlr_pipeops_torch_leaky_relu}},
 \code{\link{mlr_pipeops_torch_log_sigmoid}},
+\code{\link{mlr_pipeops_torch_loss}},
 \code{\link{mlr_pipeops_torch_max_pool1d}},
 \code{\link{mlr_pipeops_torch_max_pool2d}},
 \code{\link{mlr_pipeops_torch_max_pool3d}},
@@ -98,6 +104,7 @@ Other PipeOpTorch:
 \code{\link{mlr_pipeops_torch_model_classif}},
 \code{\link{mlr_pipeops_torch_model_regr}},
 \code{\link{mlr_pipeops_torch_model}},
+\code{\link{mlr_pipeops_torch_optimizer}},
 \code{\link{mlr_pipeops_torch_prelu}},
 \code{\link{mlr_pipeops_torch_relu6}},
 \code{\link{mlr_pipeops_torch_relu}},

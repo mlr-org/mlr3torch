@@ -1,43 +1,36 @@
-#' @title Loss Function
+#' @title PipeOp Loss
 #'
 #' @usage NULL
-#' @name mlr_pipeops_torch_losstorch loss
+#' @name mlr_pipeops_torch_loss
+#' @format `r roxy_pipeop_torch_format()`
+#'
 #' @description
-#' Configures the `loss` of a [`ModelDescriptor`].
+#' Configures the loss of a deep learning model.
 #'
-#' @section Construction:
-#' `r roxy_construction(PipeOpTorchLoss)`
-#'
+#' @section Construction: `r roxy_construction(PipeOpTorchLoss)`
+#' * `optimizer` :: [`TorchLoss`]\cr
+#'   The [loss][TorchLoss].
 #' * `r roxy_param_id("torch_loss")`
 #' * `r roxy_param_param_vals()`
-#' * `loss` :: [`TorchLoss`].
-#'   The loss function.
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
 #'
 #' @section Parameters:
-#' The parameters of the constructor argument `loss`.
-#'
-#' @section Fields:
-#' Only fields inherited from [`PipeOp`].
-#'
-#' @section Methods:
-#' Only ,methods inherited from [`PipeOp`].
-#'
-#' @section Internals:
-#' TODO:
-#'
-#' @seealso PipeOpTorch, PipeOpTorchOptimizer
+#' The `ParamSet` is set to the `ParamSet` of the provided loss.
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals: See the respective child class.
+#' @section Credit: `r roxy_pipeop_torch_license()`
+#' @family PipeOpTorch
 #' @export
 #' @examples
-#' g = top("input") %>>%
-#'   top("select", items = "num") %>>%
-#'   top("output") %>>%
-#'   top("loss", "mse")
-#'
-#' task = tsk("iris")
-#' g$train(task)
+#' po_opt = po("torch_optimizer", optimizer = t_opt("sgd"), lr = 0.01)
+#' po_opt$param_set
+#' md = (po("torch_ingress_num") %>>% po("nn_head"))$train(tsk("iris"))
+#' md[[1L]]$optimizer
+#' md = po_opt$train(md)
+#' md[[1L]]$optimizer
 PipeOpTorchLoss = R6Class("PipeOpTorchLoss",
   inherit = PipeOp,
   public = list(

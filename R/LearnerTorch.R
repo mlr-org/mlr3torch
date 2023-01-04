@@ -1,17 +1,13 @@
-#' @title LearnerTorchClassif
+#' @title Classification Torch Learner
 #'
 #' @usage  NULL
 #' @name mlr_learners_classif.torch
-#' @format [`R6Class`] inheriting from [`LearnerClassifTorchAbstract`].
+#' @format [`R6Class`] inheriting from [`LearnerClassifTorchAbstract`] / [`LearnerClassif`] / [`Learner`].
 #'
 #' @description
-#' This implements a custom neural network.
+#' Custom torch classification network.
 #'
-#' @section Construction:
-#' ```
-#' LearnerClassifTorch$new(module, param_set = NULL, optimizer = t_opt("adam"), loss = t_loss("cross_entropy"),
-#'   param_vals = list(), feature_types = NULL)
-#' ```
+#' @section Construction: `r roxy_construction(LearnerClassifTorch)`
 #' * `module` ::
 #'   An object of class `"nn_module"` as defined in `torch`.
 #' *  `param_set` ::
@@ -70,3 +66,6 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
     .module = NULL
   )
 )
+
+#' @include aaa
+mlr3torch_learners[["classif.torch"]] = LearnerClassifTorch

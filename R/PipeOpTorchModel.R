@@ -1,22 +1,21 @@
-#' @title Builds a mlr3 Torch Learner from its Input
+#' @title Torch Model
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_model
-#' @format [`R6Class`] inheriting from [`PipeOp`].
+#' @format [`R6Class`] object inheriting from [`PipeOp`].
 #'
-#' @description Use TorchOpModeLClassif or TorchOpModelRegr for the respective task type.
+#' @description
+#' Builds a mlr3 Torch Learner from its Input.
+#' Use [`TorchOpModelClassif`] or [`TorchOpModelRegr`] for the respective task type.
 #' During `$train()` this TorchOp first builds the model (network, optimizer,
 #' loss, ...) and afterwards trains the network.
-#' It's parameterset is identical to LearnerClassifTorch and LearnerRegrTorch respectively.
+#' It's parameterset is identical to [`LearnerClassifTorch`] and [`LearnerRegrTorch`] respectively.
 #'
-#' @section Construction:
-#' ```
-#' PipeOpTorchModel$new(id, param_vals, task_type)
-#' ```
-#' * `r roxy_param_id()`
-#' * `r roxy_param_param_set()`
+#' @section Construction: `r roxy_construction(PipeOpTorchModel)`
+#' * `r roxy_param_id("torch_model")`
+#' * `r roxy_param_param_vals()`
 #' * `task_type` :: `character(1)`\cr
-#'   The task type of the model. See `mlr_reflections$task_types` for available options.
+#'   The task type of the model. Currently `"regr"` and "`classif`" are supported.
 #'
 #' @section Input and Output Channels:
 #' There is one input channel `"input"` that takes in `ModelDescriptor` during traing and a `Task` of the specified
@@ -26,33 +25,9 @@
 #' @section State:
 #' A trained torch [`Learner`].
 #'
-#' @section Parameters:
-#' * `batch_size` :: (`integer(1)`)\cr
-#'   The batch size.
-#' * `epochs` :: `integer(1)`\cr
-#'   The number of epochs.
-#' * `device` :: `character(1)`\cr
-#'   The device. One of `"auto"`, `"cpu"`, or `"cuda"`.
-#' * `measures_train` :: `list()` of [`Measure`]s.
-#'   Measures to be evaluated during training.
-#' * `measures_valid` :: `list()` of [`Measure`]s.
-#'   Measures to be evaluated during validation.
-#' * `augmentation` :: ??
-#'  TODO:
-#' * `callbacks` :: (list of) `CallbackTorch`\cr
-#'   The callbacks to .
-#' * `drop_last` :: `logical(1)`\cr
-#'   Whether to drop the last batch in each epoch during training. Default is `FALSE`.
-#' * `num_threads` :: `integer(1)`\cr
-#'   The number of threads (if `device` is `"cpu"`). Default is 1.
-#' * `shuffle` :: `logical(1)`\cr
-#'   Whether to shuffle the instances in the dataset. Default is `TRUE`.
-#'
-#' @section Fields:
-#' Only fields inherited from [`PipeOp`].
-#'
-#' @section Methods:
-#' Only Methods inherited from [`PipeOp`].
+#' @template paramset_torchlearner
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #'
 #' @section Internals:
 #' First a [`nn_graph`] is created by calling [`model_descriptor_to_module()`] and than a `LearnerClassifTorchModel`
@@ -65,7 +40,7 @@
 PipeOpTorchModel = R6Class("PipeOpTorchModel",
   inherit = PipeOp,
   public = list(
-    initialize = function(id, param_vals, task_type) {
+    initialize = function(id = "torch_model", param_vals = list(), task_type) {
       private$.task_type = assert_choice(task_type, c("classif", "regr"))
       param_set = paramset_torchlearner()
       input = data.table(name = "input", train = "ModelDescriptor", predict = mlr_reflections$task_types["classif", task])
@@ -83,10 +58,10 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
   private = list(
     .train = function(inputs) {
       md = inputs[[1]]
-      param_vals = self$param_set$get_values()
+      param_vals = self$param_set$get_values(tags = "train")
 
       class = switch(private$.task_type,
-        regr = LearnerRegrTorchModel,
+        regr = LearnerRegrTorchAbstract,
         classif = LearnerClassifTorchModel
       )
 
@@ -106,7 +81,6 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
       learner$train(md$task)
 
       self$state = learner
-
       list(NULL)
     },
     .predict = function(inputs) {
@@ -118,43 +92,32 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
   )
 )
 
-#' @title Builds a mlr3 Torch Classification Learner from its Input
+#' @title Torch Classification Model
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_model_classif
-#' @format [`R6Class`] inheriting from [`PipeOp`].
+#' @format [`R6Class`] object inheriting from [`PipeOpTorchModel`] / [`PipeOp`].
 #'
 #' @description
-#' Create and train [`LearnerClassifTorchModel`] specified by a [`ModelDescriptor`].
+#' Builds a mlr3 Classification Torch Learner from its Input.
+#' During `$train()` this TorchOp first builds the model (network, optimizer,
+#' loss, ...) and afterwards trains the network.
 #'
-#' @section Construction:
-#' ```
-#' PipeOpTorchModelClassif$new(id = "torch_model.classif", param_vals)
-#' ```
-#' * `r roxy_param_id()`
-#' * `r roxy_param_param_set()`
+#' @section Construction: `r roxy_construction(PipeOpTorchModelClassif)`
+#' * `r roxy_param_id("torch_model_classif")`
+#' * `r roxy_param_param_vals()`
 #'
-#' @inheritSection mlr_pipeops_torch Input and Output Channels
-#'
-#' @section State:
-#' A trained [`LearnerClassifTorchModel`].
-#'
-#' @inheritSection mlr_pipeops_torch_model Parameters
-#'
-#' @inheritSection mlr_pipeops_torch_model Internals
-#'
-#' @section Fields:
-#' Only fields inherited from [`PipeOp`].
-#'
-#' @section Methods:
-#' Only Methods inherited from [`PipeOp`].
-#'
+#' @inheritSection mlr_pipeops_torch_model Input and Output Channels
+#' @inheritSection mlr_pipeops_torch_model State
+#' @template paramset_torchlearner
+#' @inheritSection mlr_pipeops_torch_model Fields
+#' @inheritSection mlr_pipeops_torch_model Methods
 #' @family PipeOpTorch
 #' @export
 PipeOpTorchModelClassif = R6Class("PipeOpTorchModelClassif",
   inherit = PipeOpTorchModel,
   public = list(
-    initialize = function(id = "torch_model.classif", param_vals = list()) {
+    initialize = function(id = "torch_model_classif", param_vals = list()) {
       super$initialize(
         id = id,
         param_vals = param_vals,
@@ -164,43 +127,32 @@ PipeOpTorchModelClassif = R6Class("PipeOpTorchModelClassif",
   )
 )
 
-#' @title Builds a mlr3 Torch Regression Learner from its Input
+#' @title Torch Regression Model
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_model_regr
-#' @format [`R6Class`] inheriting from [`PipeOp`].
+#' @format [`R6Class`] object inheriting from [`PipeOpTorchModel`] / [`PipeOp`].
 #'
 #' @description
-#' Create and train [`LearnerRegrTorchModel`] specified by a [`ModelDescriptor`].
+#' Builds a mlr3 Regrssion Torch Learner from its Input.
+#' During `$train()` this TorchOp first builds the model (network, optimizer,
+#' loss, ...) and afterwards trains the network.
 #'
-#' @section Construction:
-#' ```
-#' PipeOpTorchModelReg$new(id = "torch_model.regr", param_vals = list())
-#' ```
-#' * `r roxy_param_id()`
-#' * `r roxy_param_param_set()`
+#' @section Construction: `r roxy_construction(PipeOpTorchModelRegr)`
+#' * `r roxy_param_id("torch_model_regr")`
+#' * `r roxy_param_param_vals()`
 #'
-#' @inheritSection mlr_pipeops_torch Input and Output Channels
-#'
-#' @section State:
-#' A trained [`LearnerClassifTorchModel`].
-#'
-#' @inheritSection mlr_pipeops_torch_model Parameters
-#'
-#' @inheritSection mlr_pipeops_torch_model Internals
-#'
-#' @section Fields:
-#' Only fields inherited from [`PipeOp`].
-#'
-#' @section Methods:
-#' Only Methods inherited from [`PipeOp`].
-#'
+#' @inheritSection mlr_pipeops_torch_model Input and Output Channels
+#' @inheritSection mlr_pipeops_torch_model State
+#' @template paramset_torchlearner
+#' @inheritSection mlr_pipeops_torch_model Fields
+#' @inheritSection mlr_pipeops_torch_model Methods
 #' @family PipeOpTorch
 #' @export
 PipeOpTorchModelRegr = R6Class("PipeOpTorchModelRegr",
   inherit = PipeOpTorchModel,
   public = list(
-    initialize = function(id = "torch_model.regr", param_vals = list()) {
+    initialize = function(id = "torch_model_regr", param_vals = list()) {
       super$initialize(
         id = id,
         param_vals = param_vals,
@@ -211,5 +163,6 @@ PipeOpTorchModelRegr = R6Class("PipeOpTorchModelRegr",
 )
 
 #' @include zzz.R
-register_po("torch_model.regr", PipeOpTorchModelRegr)
-register_po("torch_model.classif", PipeOpTorchModelClassif)
+register_po("torch_model", PipeOpTorchModel)
+register_po("torch_model_regr", PipeOpTorchModelRegr)
+register_po("torch_model_classif", PipeOpTorchModelClassif)

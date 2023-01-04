@@ -1,4 +1,36 @@
+#' @title PipeOp Optimizer
+#'
+#' @usage NULL
+#' @name mlr_pipeops_torch_optimizer
+#' @format `r roxy_pipeop_torch_format()`
+#'
+#' @description
+#' Configures the optimizer of a deep learning model.
+#'
+#' @section Construction: `r roxy_construction(PipeOpTorchOptimizer)`
+#' * `optimizer` :: [`TorchOptimizer`]\cr
+#'   The [optimizer][TorchOptimizer].
+#' * `r roxy_param_id("torch_optimizer")`
+#' * `r roxy_param_param_vals()`
+#'
+#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
+#' @section State: `r roxy_pipeop_torch_state_default()`
+#'
+#' @section Parameters:
+#' The `ParamSet` is set to the `ParamSet` of the provided optimizer.
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals: See the respective child class.
+#' @section Credit: `r roxy_pipeop_torch_license()`
+#' @family PipeOpTorch
 #' @export
+#' @examples
+#' po_opt = po("torch_optimizer", optimizer = t_opt("sgd"), lr = 0.01)
+#' po_opt$param_set
+#' md = (po("torch_ingress_num") %>>% po("nn_head"))$train(tsk("iris"))
+#' md[[1L]]$optimizer
+#' md = po_opt$train(md)
+#' md[[1L]]$optimizer
 PipeOpTorchOptimizer = R6Class("PipeOpTorchOptimizer",
   inherit = PipeOpTorch,
   public = list(

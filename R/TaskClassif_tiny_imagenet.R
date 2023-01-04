@@ -38,5 +38,8 @@ load_task_tiny_imagenet = function(id = "tiny_imagenet") {
     image = images
   )
 
-  task = as_task_classif(d, target = "class", id = id)
+  as_task_classif(d, target = "class", id = id)
 }
+
+mlr3torch_tasks[["tiny_imagenet"]] = load_task_tiny_imagenet()
+

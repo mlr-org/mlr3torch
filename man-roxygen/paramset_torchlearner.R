@@ -19,3 +19,6 @@
 #'   The number of threads (if `device` is `"cpu"`). Default is 1.
 #' * `shuffle` :: `logical(1)`\cr
 #'   Whether to shuffle the instances in the dataset. Default is `TRUE`.
+#'
+#' Additionally there are the parameters for the optimizer and the loss function preceded by the prefix
+#' `"opt."` and `"loss."` respectively.

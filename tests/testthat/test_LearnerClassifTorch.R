@@ -35,3 +35,18 @@ test_that("LearnerClassifTorch works with nn_module as architecture", {
     fixed = TRUE
   )
 })
+
+test_that("cloning works", {
+  test_module = nn_module(
+    initialize = function(task) {
+      out = if (task$type == "classif") length(task$levels(task$target_names)) else 1
+      self$linear = nn_linear(length(task$feature_names), out)
+    },
+    forward = function(x) {
+      self$linear(x)
+    }
+  )
+
+  learner = lrn("classif.torch", test_module)
+
+})

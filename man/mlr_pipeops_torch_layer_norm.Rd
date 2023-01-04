@@ -20,13 +20,11 @@ Applies Layer Normalization for last certain number of dimensions.
 }
 
 \section{Input and Output Channels}{
-
-One input channel called \code{"input"} and one output channel called‘"output"’. For an explanation see \link{\code{PipeOpTorch}}.
+ One input channel called \code{"input"} and one output channel called‘"output"’. For an explanation see \link{\code{PipeOpTorch}}.
 }
 
 \section{State}{
-
-The state is the value calculated by the public method \code{shapes_out()}.
+ The state is the value calculated by the public method \code{shapes_out()}.
 }
 
 \section{Parameters}{
@@ -53,6 +51,7 @@ A value added to the denominator for numerical stability.
 \section{Internals}{
 
 Calls \code{\link[torch:nn_layer_norm]{torch::nn_layer_norm()}} when trained.
+The parameter \code{normalized_shape} is inferre as the dimensions of the last \code{dims} dimensions of the input shape.
 }
 
 \section{Credit}{
@@ -62,7 +61,7 @@ the package source.
 }
 
 \examples{
-obj = po("nn_layer_norm", n_dim = 2)
+obj = po("nn_layer_norm", dims = 2)
 obj$id
 obj$module_generator
 obj$shapes_out(c(16, 5, 7))
@@ -94,6 +93,7 @@ Other PipeOpTorch:
 \code{\link{mlr_pipeops_torch_head}},
 \code{\link{mlr_pipeops_torch_leaky_relu}},
 \code{\link{mlr_pipeops_torch_log_sigmoid}},
+\code{\link{mlr_pipeops_torch_loss}},
 \code{\link{mlr_pipeops_torch_max_pool1d}},
 \code{\link{mlr_pipeops_torch_max_pool2d}},
 \code{\link{mlr_pipeops_torch_max_pool3d}},
@@ -105,6 +105,7 @@ Other PipeOpTorch:
 \code{\link{mlr_pipeops_torch_model_classif}},
 \code{\link{mlr_pipeops_torch_model_regr}},
 \code{\link{mlr_pipeops_torch_model}},
+\code{\link{mlr_pipeops_torch_optimizer}},
 \code{\link{mlr_pipeops_torch_prelu}},
 \code{\link{mlr_pipeops_torch_relu6}},
 \code{\link{mlr_pipeops_torch_relu}},

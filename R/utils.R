@@ -1,6 +1,4 @@
-
-
-inferps = function(fn, ignore = character(0)) {
+  inferps = function(fn, ignore = character(0)) {
   assert_function(fn)
   assert_character(ignore, any.missing = FALSE)
   frm = formals(fn)

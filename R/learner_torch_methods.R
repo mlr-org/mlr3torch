@@ -1,14 +1,17 @@
+normalize_to_list = function(x) {
+  if (length(x) == 0) return(list())
+  if (!is.list(x)) return(structure(list(x), names = x$id))
+  if (is.null(names(x))) names(x) = map_chr(x, "id")
+  x
+}
+
 learner_torch_train = function(self, private, super, task) {
   param_vals = self$param_set$get_values(tags = "train")
+  learner_torch_train_worker(self, private, super, task, param_vals, FALSE)
+}
 
+learner_torch_train_worker = function(self, private, super, task, param_vals, hotstart = FALSE) {
   torch_set_num_threads(param_vals$num_threads %??% 1)
-
-  normalize_to_list = function(x) {
-    if (length(x) == 0) return(list())
-    if (!is.list(x)) return(structure(list(x), names = x$id))
-    if (is.null(names(x))) names(x) = map_chr(x, "id")
-    x
-  }
 
   loader_train = private$.dataloader(task, param_vals)
 
@@ -17,29 +20,44 @@ learner_torch_train = function(self, private, super, task) {
 
   loader_valid = if (task_valid$nrow) private$.dataloader(task_valid, insert_named(param_vals, list(shuffle = FALSE)))
 
-  network = private$.network(task)$to(device = param_vals$device %??% "auto")
+  if (hotstart) {
+    network = self$model$network
+    optimizer = self$model$optimizer
+    loss_fn = self$model$loss_fn
+    callbacks = self$model$callbacks
+  } else {
+    network = private$.network(task)$to(device = param_vals$device %??% "auto")
+    optimizer = private$.optimizer$get_optimizer(network$parameters)
+    loss_fn = private$.loss$get_loss()
+    callbacks = lapply(param_vals$callbacks, function(x) x$new(ctx))
+  }
 
   ctx = ContextTorch$new(
     learner = self,
     task_train = task,
-    task_valid = if (task_valid$nrow) valid_task,
+    task_valid = if (task_valid$nrow) task_valid,
     loader_train = loader_train,
     loader_valid = loader_valid,
     measures_train = normalize_to_list(param_vals$measures_train),
     measures_valid = if (task_valid$nrow) normalize_to_list(param_vals$measures_valid) else list(),
     network = network,
-    optimizer = private$.optimizer$get_optimizer(network$parameters),
-    loss_fn = private$.loss$get_loss(),
+    optimizer = optimizer,
+    loss_fn = loss_fn,
     total_epochs = param_vals$epochs
   )
 
-  cbs = lapply(param_vals$callbacks, function(x) x$new(ctx))
+  train_loop(ctx, callbacks)
+}
 
-  train_loop(ctx, cbs)
+
+learner_torch_hotstart = function(self, private, super, task) {
+  param_vals = self$param_set$get_values(tags = "train")
+  param_vals$epochs = assert_int(param_vals$epochs - self$state$param_vals$epochs, lower = 1)
+
+  learner_torch_train_worker(self, private, super, task, param_vals, TRUE)
 }
 
 train_loop = function(ctx, cbs) {
-
   call = function(step_name) {
     lapply(cbs, function(x) x[[step_name]](ctx))
   }
@@ -49,7 +67,7 @@ train_loop = function(ctx, cbs) {
     network = ctx$network,
     optimizer = ctx$optimizer,
     loss_fn = ctx$loss_fn,
-    callback_instances = cbs
+    callbacks = cbs
   )
 
   # note that task_valid may be present (callbacks could do their own validation)
@@ -112,7 +130,7 @@ train_loop = function(ctx, cbs) {
     network = ctx$network,
     optimizer = ctx$optimizer,
     loss_fn = ctx$loss_fn,
-    callback_instances = cbs
+    callbacks = cbs
   )
 }
 
@@ -185,4 +203,5 @@ learner_torch_predict = function(self, private, super, task) {
 
   encode_prediction(prediction, self$predict_type, task)
 }
+
 

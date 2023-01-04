@@ -3,26 +3,24 @@
 \name{mlr_pipeops_torch_model}
 \alias{mlr_pipeops_torch_model}
 \alias{PipeOpTorchModel}
-\title{Builds a mlr3 Torch Learner from its Input}
+\title{Torch Model}
 \format{
-\code{\link{R6Class}} inheriting from \code{\link{PipeOp}}.
+\code{\link{R6Class}} object inheriting from \code{\link{PipeOp}}.
 }
 \description{
-Use TorchOpModeLClassif or TorchOpModelRegr for the respective task type.
+Builds a mlr3 Torch Learner from its Input.
+Use \code{\link{TorchOpModelClassif}} or \code{\link{TorchOpModelRegr}} for the respective task type.
 During \verb{$train()} this TorchOp first builds the model (network, optimizer,
 loss, ...) and afterwards trains the network.
-It's parameterset is identical to LearnerClassifTorch and LearnerRegrTorch respectively.
+It's parameterset is identical to \code{\link{LearnerClassifTorch}} and \code{\link{LearnerRegrTorch}} respectively.
 }
 \section{Construction}{
-
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{PipeOpTorchModel$new(id, param_vals, task_type)
-}\if{html}{\out{</div>}}
+ \code{PipeOpTorchModel$new(id = "torch_model", param_vals = list(), task_type)}
 \itemize{
-\item \code{id} :: \code{character(1)}\cr The id for the object.
-\item \code{param_set} :: \code{paradox::ParamSet}\cr The parameter set.
+\item \code{id} :: \code{character(1)}\cr The id for the object. The default is "torch_model".
+\item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
 \item \code{task_type} :: \code{character(1)}\cr
-The task type of the model. See \code{mlr_reflections$task_types} for available options.
+The task type of the model. Currently \code{"regr"} and "\code{classif}" are supported.
 }
 }
 
@@ -62,16 +60,17 @@ The number of threads (if \code{device} is \code{"cpu"}). Default is 1.
 \item \code{shuffle} :: \code{logical(1)}\cr
 Whether to shuffle the instances in the dataset. Default is \code{TRUE}.
 }
+
+Additionally there are the parameters for the optimizer and the loss function preceded by the prefix
+\code{"opt."} and \code{"loss."} respectively.
 }
 
 \section{Fields}{
-
-Only fields inherited from \code{\link{PipeOp}}.
+ Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
 
 \section{Methods}{
-
-Only Methods inherited from \code{\link{PipeOp}}.
+ Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
 }
 
 \section{Internals}{
@@ -109,6 +108,7 @@ Other PipeOpTorch:
 \code{\link{mlr_pipeops_torch_layer_norm}},
 \code{\link{mlr_pipeops_torch_leaky_relu}},
 \code{\link{mlr_pipeops_torch_log_sigmoid}},
+\code{\link{mlr_pipeops_torch_loss}},
 \code{\link{mlr_pipeops_torch_max_pool1d}},
 \code{\link{mlr_pipeops_torch_max_pool2d}},
 \code{\link{mlr_pipeops_torch_max_pool3d}},
@@ -119,6 +119,7 @@ Other PipeOpTorch:
 \code{\link{mlr_pipeops_torch_merge}},
 \code{\link{mlr_pipeops_torch_model_classif}},
 \code{\link{mlr_pipeops_torch_model_regr}},
+\code{\link{mlr_pipeops_torch_optimizer}},
 \code{\link{mlr_pipeops_torch_prelu}},
 \code{\link{mlr_pipeops_torch_relu6}},
 \code{\link{mlr_pipeops_torch_relu}},
