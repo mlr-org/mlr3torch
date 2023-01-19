@@ -32,9 +32,6 @@
 #' model$fc$out_feature
 #' }
 reset_last_layer = function(model, num_classes, bias, freeze) {
-  if (freeze) {
-    freeze_params(model)
-  }
   UseMethod("reset_last_layer")
 }
 

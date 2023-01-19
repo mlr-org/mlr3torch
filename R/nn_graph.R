@@ -1,10 +1,8 @@
-
-
 #' @title Create nn_module from ModelDescriptor
 #'
 #' @description
-#' Creates the [`nn_graph`] from a [`ModelDescriptor`]. Mostly for internal use, since the [`ModelDescriptor`] is in most
-#' circumstances harder to use than just creating [`nn_graph`] directly.
+#' Creates the [`nn_graph`] from a [`ModelDescriptor`]. Mostly for internal use, since the [`ModelDescriptor`] is in 
+#' most circumstances harder to use than just creating [`nn_graph`] directly.
 #'
 #' @param model_descriptor ([`ModelDescriptor`])\cr
 #'   Model Descriptor. `.pointer` is ignored, instead `output_pointer` values are used. `$graph` member is

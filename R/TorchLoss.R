@@ -27,6 +27,10 @@ as_torch_loss.character = function(x, clone = FALSE) { # nolint
   t_loss(x)
 }
 
+as_torch_loss.default = function(x, clone) { # nolint 
+  stopf("Cannot convert object of type %s to loss.", class(x)[[1L]])
+}
+
 #' @title Torch Loss
 #'
 #' @usage NULL

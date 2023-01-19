@@ -15,11 +15,7 @@ test_that("PipeOpTorchModel works", {
     po("nn_head") %>>%
     po("torch_optimizer", t_opt("sgd"), lr = 0.01) %>>%
     po("torch_loss", t_loss("cross_entropy")) %>>%
-    po("torch_model", task_type = "regr",
-
-    )
-
-  tun
+    po("torch_model", task_type = "regr")
 })
 
 

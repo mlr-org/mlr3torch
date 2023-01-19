@@ -1,217 +1,286 @@
 **PipeOps**
 
-* [x] PipeOpModule
+*   \[x] PipeOpModule
 
-* [x] PipeOpTorchMerge
-* [x] PipeOpTorchMergeSum
-* [x] PipeOpTorchMergeProd
-* [x] PipeOpTorchMergeCat
+*   \[x] PipeOpTorchMerge
 
-* [x] PipeOpTorchIngress
-* [x] PipeOpTorchIngressNumeric
-* [x] PipeOpTorchIngressImage
-* [x] PipeOpTorchIngressCategorical
+*   \[x] PipeOpTorchMergeSum
 
-* [x] PipeOpTorchConv
-* [x] PipeOpTorchConv1D
-* [x] PipeOpTorchConv2D
-* [x] PipeOpTorchConv3D
+*   \[x] PipeOpTorchMergeProd
 
-* [x] PipeOpTorchConvTranspose1D
-* [x] PipeOpTorchConvTranspose2D
-* [x] PipeOpTorchConvTranspose3D
-* [x] PipeOpTorchConvTranspose
+*   \[x] PipeOpTorchMergeCat
 
-* [x] PipeOpTorchUnsqueeze
-* [x] PipeOpTorchSqueeze
-* [x] PipeOpTorchFlatten
-* [x] PipeOpTorchReshape
+*   \[x] PipeOpTorchIngress
 
-* [x] PipeOpTorchBatchNorm
-* [x] PipeOpTorchBatchNorm1D
-* [x] PipeOpTorchBatchNorm2D
-* [x] PipeOpTorchBatchNorm3D
+*   \[x] PipeOpTorchIngressNumeric
 
-* [x] PipeOpTorchAvgPool
-* [x] PipeOpTorchAvgPool1D
-* [x] PipeOpTorchAvgPool2D
-* [x] PipeOpTorchAvgPool3D
+*   \[x] PipeOpTorchIngressImage
 
-* [x] PipeOpTorchMaxPool
-* [x] PipeOpTorchMaxPool1D
-* [x] PipeOpTorchMaxPool2D
-* [x] PipeOpTorchMaxPool3D
+*   \[x] PipeOpTorchIngressCategorical
 
-* [x] PipeOpTorchLinear
-* [x] PipeOpTorchHead
+*   \[x] PipeOpTorchConv
 
-* [x] PipeOpTorchDropout
+*   \[x] PipeOpTorchConv1D
 
-* [x] PipeOpTorchLogSigmoid
-* [x] PipeOpTorchSigmoid
-* [x] PipeOpTorchGELU
-* [x] PipeOpTorchReLU
-* [x] PipeOpTorchActTanhShrink
-* [x] PipeOpTorchGLU
-* [x] PipeOpTorchCelu
-* [x] PipeOpTorchThreshold
-* [x] PipeOpTorchRReLU
-* [x] PipeOpTorchHardSigmoid
-* [x] PipeOpTorchPReLU
-* [x] PipeOpTorchActTanh
-* [x] PipeOpTorchLeakyReLU
-* [x] PipeOpTorchRelu6
-* [x] PipeOpTorchELU
-* [x] PipeOpTorchtSoftShrink
-* [x] PipeOpTorchHardShrink
-* [x] PipeOpTorchSoftPlus
-* [x] PipeOpTorchSELU
-* [x] PipeOpTorchSoftmax
-* [x] PipeOpTorchActSoftSign
-* [x] PipeOpTorchHardTanh
+*   \[x] PipeOpTorchConv2D
 
-* [x] PipeOpTorchLayerNorm
+*   \[x] PipeOpTorchConv3D
 
-* [x] PipeOpTorchOptimizer
-* [x] PipeOpTorchLoss
+*   \[x] PipeOpTorchConvTranspose1D
 
-* [ ] PipeOpTorchModel
-* [ ] PipeOpTorchModelRegr
-* [ ] PipeOpTorchModelClassif
+*   \[x] PipeOpTorchConvTranspose2D
 
+*   \[x] PipeOpTorchConvTranspose3D
+
+*   \[x] PipeOpTorchConvTranspose
+
+*   \[x] PipeOpTorchUnsqueeze
+
+*   \[x] PipeOpTorchSqueeze
+
+*   \[x] PipeOpTorchFlatten
+
+*   \[x] PipeOpTorchReshape
+
+*   \[x] PipeOpTorchBatchNorm
+
+*   \[x] PipeOpTorchBatchNorm1D
+
+*   \[x] PipeOpTorchBatchNorm2D
+
+*   \[x] PipeOpTorchBatchNorm3D
+
+*   \[x] PipeOpTorchAvgPool
+
+*   \[x] PipeOpTorchAvgPool1D
+
+*   \[x] PipeOpTorchAvgPool2D
+
+*   \[x] PipeOpTorchAvgPool3D
+
+*   \[x] PipeOpTorchMaxPool
+
+*   \[x] PipeOpTorchMaxPool1D
+
+*   \[x] PipeOpTorchMaxPool2D
+
+*   \[x] PipeOpTorchMaxPool3D
+
+*   \[x] PipeOpTorchLinear
+
+*   \[x] PipeOpTorchHead
+
+*   \[x] PipeOpTorchDropout
+
+*   \[x] PipeOpTorchLogSigmoid
+
+*   \[x] PipeOpTorchSigmoid
+
+*   \[x] PipeOpTorchGELU
+
+*   \[x] PipeOpTorchReLU
+
+*   \[x] PipeOpTorchActTanhShrink
+
+*   \[x] PipeOpTorchGLU
+
+*   \[x] PipeOpTorchCelu
+
+*   \[x] PipeOpTorchThreshold
+
+*   \[x] PipeOpTorchRReLU
+
+*   \[x] PipeOpTorchHardSigmoid
+
+*   \[x] PipeOpTorchPReLU
+
+*   \[x] PipeOpTorchActTanh
+
+*   \[x] PipeOpTorchLeakyReLU
+
+*   \[x] PipeOpTorchRelu6
+
+*   \[x] PipeOpTorchELU
+
+*   \[x] PipeOpTorchtSoftShrink
+
+*   \[x] PipeOpTorchHardShrink
+
+*   \[x] PipeOpTorchSoftPlus
+
+*   \[x] PipeOpTorchSELU
+
+*   \[x] PipeOpTorchSoftmax
+
+*   \[x] PipeOpTorchActSoftSign
+
+*   \[x] PipeOpTorchHardTanh
+
+*   \[x] PipeOpTorchLayerNorm
+
+*   \[x] PipeOpTorchOptimizer
+
+*   \[x] PipeOpTorchLoss
+
+*   \[ ] PipeOpTorchModel
+
+*   \[ ] PipeOpTorchModelRegr
+
+*   \[ ] PipeOpTorchModelClassif
 
 **Learner**
 
-* [ ] LearnerClassifTorchModel
-* [ ] LearnerClassifTorchAbstract
-* [ ] LearnerClassifTorch
-* [ ] paramset_torchlearner
-* [ ] train_loop
-* [ ] torch_network_predict
-* [ ] torch_network_train
-* [ ] encode_prediction
-* [ ] learner_torch_train
-* [ ] learner_torch_predict
+*   \[ ] LearnerClassifTorchModel
+*   \[ ] LearnerClassifTorchAbstract
+*   \[ ] LearnerClassifTorch
+*   \[ ] paramset\_torchlearner
+*   \[ ] train\_loop
+*   \[ ] torch\_network\_predict
+*   \[ ] torch\_network\_train
+*   \[ ] encode\_prediction
+*   \[ ] learner\_torch\_train
+*   \[ ] learner\_torch\_predict
 
 **Callbacks**
 
-* [ ] CallbackTorchProgress
-* [ ] CallbackTorchHistory
-* [ ] callback_torch
-* [ ] CallbackTorch
-* [ ] ContextTorch
-* [ ] t_clbk
+*   \[ ] CallbackTorchProgress
+*   \[ ] CallbackTorchHistory
+*   \[ ] callback\_torch
+*   \[ ] CallbackTorch
+*   \[ ] ContextTorch
+*   \[ ] t\_clbk
 
 **Graph**
 
-* [ ] PipeOpTorch
-* [ ] nn_graph
-* [ ] ModelDescriptior
-* [ ] print.ModelDescriptor
-* [ ] model_descriptor_to_module
-* [ ] model_descriptor_union
-* [x] print.TorchIngressToken
-* [x] batchgetter_categ
-* [x] TorchIngressToken
+*   \[ ] PipeOpTorch
+*   \[ ] nn\_graph
+*   \[ ] ModelDescriptior
+*   \[ ] print.ModelDescriptor
+*   \[ ] model\_descriptor\_to\_module
+*   \[ ] model\_descriptor\_union
+*   \[x] print.TorchIngressToken
+*   \[x] batchgetter\_categ
+*   \[x] TorchIngressToken
 
 **Optimizer**
 
-* [ ] TorchOptimizer
-* [ ] as_torch_optimizer
-* [ ] as_torch_optimizer.character
-* [ ] mlr3torch_optimizers
-* [ ] as_torch_optimizer.TorchOptimizer
-* [ ] as_torch_optimizer.torch_optimizer_generator
-* [ ] t_opt
+*   \[ ] TorchOptimizer
+*   \[ ] as\_torch\_optimizer
+*   \[ ] as\_torch\_optimizer.character
+*   \[ ] mlr3torch\_optimizers
+*   \[ ] as\_torch\_optimizer.TorchOptimizer
+*   \[ ] as\_torch\_optimizer.torch\_optimizer\_generator
+*   \[ ] t\_opt
 
 **Loss**
 
-* [ ] TorchLoss
-* [ ] as_torch_loss.TorchLoss
-* [ ] as_torch_loss.nn_loss
-* [ ] as_torch_loss
-* [ ] t_loss
-* [ ] mlr3torch_losses
-* [ ] as_torch_loss.character
-
+*   \[ ] TorchLoss
+*   \[ ] as\_torch\_loss.TorchLoss
+*   \[ ] as\_torch\_loss.nn\_loss
+*   \[ ] as\_torch\_loss
+*   \[ ] t\_loss
+*   \[ ] mlr3torch\_losses
+*   \[ ] as\_torch\_loss.character
 
 **Other**
 
-* [ ] argument_matcher
-* [ ] check_network
-* [ ] autotest_torchop
-* [ ] avg_output_shape
-* [ ] po_register_env
-* [ ] Tiny Imagenet
-* [x] pots --> removed
-* [x] pot --> removed
-* [ ] inferps
-* [ ] register_po
-* [ ] check_measures
-* [ ] make_activation
-* [ ] register_mlr3
-* [ ] check_vector
-* [ ] conv_transpose_output_shape
-* [ ] conv_output_shape
-* [ ] lg
-* [ ] expect_torchop
-* [ ] check_callbacks
-* [ ] load_task_tiny_imagenet
-* [ ] batchgetter_num
-* [ ] task_dataset
-* [ ] unique_id
-* [ ] measure_prediction
-* [ ] toytask
-* [ ] register_mlr3pipelines
-* [x] imageuri
-
+*   \[ ] argument\_matcher
+*   \[ ] check\_network
+*   \[ ] autotest\_torchop
+*   \[ ] avg\_output\_shape
+*   \[ ] po\_register\_env
+*   \[ ] Tiny Imagenet
+*   \[x] pots --> removed
+*   \[x] pot --> removed
+*   \[ ] inferps
+*   \[ ] register\_po
+*   \[ ] check\_measures
+*   \[ ] make\_activation
+*   \[ ] register\_mlr3
+*   \[ ] check\_vector
+*   \[ ] conv\_transpose\_output\_shape
+*   \[ ] conv\_output\_shape
+*   \[ ] lg
+*   \[ ] expect\_torchop
+*   \[ ] check\_callbacks
+*   \[ ] load\_task\_tiny\_imagenet
+*   \[ ] batchgetter\_num
+*   \[ ] task\_dataset
+*   \[ ] unique\_id
+*   \[ ] measure\_prediction
+*   \[ ] toytask
+*   \[ ] register\_mlr3pipelines
+*   \[x] imageuri
 
 **NNs**
 
-* [ ] nn_merge_prod
-* [ ] nn_unsqueeze
-* [ ] nn_merge_cat
-* [ ] nn_squeeze
-* [ ] nn_merge_sum
-* [ ] nn_reshape
+*   \[ ] nn\_merge\_prod
+*   \[ ] nn\_unsqueeze
+*   \[ ] nn\_merge\_cat
+*   \[ ] nn\_squeeze
+*   \[ ] nn\_merge\_sum
+*   \[ ] nn\_reshape
 
 **Roxy**
 
-* [ ] roxy_pipeop_torch_fields_default
-* [ ] roxy_pipeop_torch_construction
-* [ ] roxy_param_module_generator
-* [ ] roxy_pipeop_torch_license
+*   \[ ] roxy\_pipeop\_torch\_fields\_default
 
-* [ ] roxy_param_innum
-* [ ] roxy_param_packages
-* [ ] roxy_pipeop_torch_format
-* [ ] roxy_param_id
-* [ ] roxy_param_param_vals
-* [ ] roxy_pipeop_torch_channels_default
-* [ ] roxy_param_param_set
-* [ ] roxy_pipeop_torch_param_id
-* [ ] roxy_pipeop_torch_state_default
-* [ ] roxy_construction
-* [ ] roxy_pipeop_torch_methods_default
+*   \[ ] roxy\_pipeop\_torch\_construction
 
+*   \[ ] roxy\_param\_module\_generator
 
+*   \[ ] roxy\_pipeop\_torch\_license
 
+*   \[ ] roxy\_param\_innum
+
+*   \[ ] roxy\_param\_packages
+
+*   \[ ] roxy\_pipeop\_torch\_format
+
+*   \[ ] roxy\_param\_id
+
+*   \[ ] roxy\_param\_param\_vals
+
+*   \[ ] roxy\_pipeop\_torch\_channels\_default
+
+*   \[ ] roxy\_param\_param\_set
+
+*   \[ ] roxy\_pipeop\_torch\_param\_id
+
+*   \[ ] roxy\_pipeop\_torch\_state\_default
+
+*   \[ ] roxy\_construction
+
+*   \[ ] roxy\_pipeop\_torch\_methods\_default
 
 # Other
 
-* early_stopping -> test renaming
-* Use meta device in tests wherever possible to make tests run as fast as possible.
-* ensure that caching does what we want the caching to do (tiny imagenet)
-* ensure proper use of tags in e.g.  `param_set$get_values(tags = "train")`
-* Rename PipeOpTorch -> PipeOpNN: Names would better represent the class hierarchy:
-   note that all the roxygen stuff has to be renamed too and adjusted.
-   Maybe PipeOpTorch -> PipeOpTorchNN because we still want to refer to all the PipeOpTorch's
-* Check that deep clones for callbacks work
-* what happens to the logs during hotstarting
+*   early\_stopping -> test renaming
+
+*   Use meta device in tests wherever possible to make tests run as fast as possible.
+
+*   ensure that caching does what we want the caching to do (tiny imagenet)
+
+*   ensure proper use of tags in e.g.  `param_set$get_values(tags = "train")`
+
+*   Rename PipeOpTorch -> PipeOpNN: Names would better represent the class hierarchy:
+    note that all the roxygen stuff has to be renamed too and adjusted.
+    Maybe PipeOpTorch -> PipeOpTorchNN because we still want to refer to all the PipeOpTorch's
+
+*   Check that deep clones for callbacks work
+
+*   what happens to the logs during hotstarting
+
+*   Add hotstarting everywhere
+
+*   Autotest should check that all parameters are tagged with train and predict etc.
+
+*   Ensure that one cannot change parameters inbetween training and predictino and break stuff in weird ways
+    \--> properly tagging parameters and properly define learner methods.
+
+*   general method for freezing and unfreezing parameters.
 
 **Mit Martin**
 
-* It must be documented how the output names are generated, when outputs of non-terminal nodes are used
-in "output_map" ("output_<id>_output.<channel>")
-
-
+*   It must be documented how the output names are generated, when outputs of non-terminal nodes are used
+    in "output\_map" ("output\_<id>\_output.<channel>")

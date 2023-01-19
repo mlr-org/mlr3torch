@@ -4,8 +4,8 @@
 \alias{mlr_pipeops_torch_layer_norm}
 \alias{PipeOpTorchLayerNorm}
 \title{Layer Normalization}
-\format{
-\link{\code{R6Class}} inheriting from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+\usage{
+`r roxy_format(PipeOpTorchLayerNorm)`
 }
 \description{
 Applies Layer Normalization for last certain number of dimensions.

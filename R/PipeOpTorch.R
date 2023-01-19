@@ -284,7 +284,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
       } else {
         assert_true(sort(names(shapes_in)) == sort(self$input$name))
       }
-      pv = self$param_set$get_values(tags = "train")
+      pv = self$param_set$get_values()
       shapes = private$.shapes_out(shapes_in, pv, task = task)
       shapes = set_names(shapes, self$output$name)
       shapes

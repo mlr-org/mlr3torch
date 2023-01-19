@@ -43,8 +43,16 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
     initialize = function(id = "torch_model", param_vals = list(), task_type) {
       private$.task_type = assert_choice(task_type, c("classif", "regr"))
       param_set = paramset_torchlearner()
-      input = data.table(name = "input", train = "ModelDescriptor", predict = mlr_reflections$task_types["classif", task])
-      output = data.table(name = "output", train = "NULL", predict = mlr_reflections$task_types["classif", prediction])
+      input = data.table(
+        name = "input",
+        train = "ModelDescriptor",
+        predict = mlr_reflections$task_types["classif", task]
+      )
+      output = data.table(
+        name = "output",
+        train = "NULL",
+        predict = mlr_reflections$task_types["classif", prediction]
+      )
 
       super$initialize(
         id = id,
@@ -58,10 +66,10 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
   private = list(
     .train = function(inputs) {
       md = inputs[[1]]
-      param_vals = self$param_set$get_values(tags = "train")
+      param_vals = self$param_set$get_values()
 
       class = switch(private$.task_type,
-        regr = LearnerRegrTorchAbstract,
+        regr = LearnerRegrTorchModel,
         classif = LearnerClassifTorchModel
       )
 

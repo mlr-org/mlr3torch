@@ -70,7 +70,7 @@ register_mlr3 = function() {
   iwalk(mlr3torch_feature_types, function(ft, nm) mlr_reflections$task_feature_types[[nm]] = ft)
   iwalk(mlr3torch_callbacks, function(clbk, nm) mlr_callbacks$add(nm, clbk))
   iwalk(mlr3torch_tasks, function(task, nm) mlr_tasks$add(nm, task))
-  mlr_tasks$add("tiny_imagenet", load_task_tiny_imagenet)
+  # mlr_tasks$add("tiny_imagenet", load_task_tiny_imagenet)
 }
 
 register_mlr3pipelines = function() {

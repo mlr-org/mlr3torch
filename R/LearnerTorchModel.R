@@ -1,7 +1,3 @@
-#' @title LearnerClassifTorchModel
-#' @description
-#' Create
-#' @export
 LearnerClassifTorchModel = R6Class("LearnerClassifTorchModel",
   inherit = LearnerClassifTorchAbstract,
   public = list(
@@ -10,13 +6,13 @@ LearnerClassifTorchModel = R6Class("LearnerClassifTorchModel",
       private$.network_stored = assert_class(network, "nn_module")
       private$.ingress_tokens = assert_list(ingress_tokens, types = "TorchIngressToken")
       super$initialize(
-        id = "classif.torch",
+        id = sprintf("classif.torch_model", task_type),
         properties = c("weights", "twoclass", "multiclass", "hotstart_forward"),
-        label = "Torch Classification Network",
+        label = "Torch Classification Learner",
         optimizer = optimizer,
         loss = loss,
         packages = packages,
-        predict_types = c("response", "prob"),
+        predict_types = predict_types,
         feature_types = feature_types %??% mlr_reflections$task_feature_types,
         man = "mlr3torch::mlr_learners_classif.torch"
       )
@@ -46,4 +42,3 @@ LearnerClassifTorchModel = R6Class("LearnerClassifTorchModel",
     .ingress_tokens = NULL
   )
 )
-

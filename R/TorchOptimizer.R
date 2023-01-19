@@ -30,6 +30,10 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
   t_opt(x, ...)
 }
 
+as_torch_optimizer.default = function(x, clone, ...) { # nolint
+  stopf("Cannot convert object of type %s to optimizer.", class(x)[[1L]])
+}
+
 #' @title Torch Optimizer
 #'
 #' @usage NULL

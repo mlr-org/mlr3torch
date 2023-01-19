@@ -1,4 +1,4 @@
-  inferps = function(fn, ignore = character(0)) {
+inferps = function(fn, ignore = character(0)) {
   assert_function(fn)
   assert_character(ignore, any.missing = FALSE)
   frm = formals(fn)
@@ -8,6 +8,7 @@
 
   do.call(paradox::ps, frm_domains)
 }
+
 
 check_callbacks = function(x) {
   check_list(x, types = "R6ClassGenerator", any.missing = FALSE)
@@ -37,11 +38,13 @@ check_network = function(x) {
   }
 }
 
-check_vector = function(d) function(x) {
-  if (is.null(x) || test_integerish(x, any.missing = FALSE) && (length(x) %in% c(1, d))) {
-    return(TRUE)
+check_vector = function(d) {
+  function(x) {
+    if (is.null(x) || test_integerish(x, any.missing = FALSE) && (length(x) %in% c(1, d))) {
+      return(TRUE)
+    }
+    sprintf("Must be an integerish vector of length 1 or %s", d)
   }
-  sprintf("Must be an integerish vector of length 1 or %s", d)
 }
 
 check_function_or_null = function(x) check_function(x, null.ok = TRUE)
@@ -73,8 +76,36 @@ assert_shape = function(shape, name) {
   }
 }
 
-assert_shapes = function(shapes_in) {
-  iwalk(shapes_in, function(shape, name) {
-    assert_shape(shape, name)
+
+set_defaults = function(.pv, ...) {
+  dots = list(...)
+  assert_named(dots, "unique")
+
+  iwalk(dots, function(x, nm) {
+    if (is.null(.pv[[nm]])) .pv[[nm]] = x
   })
+
+  return(.pv)
+}
+
+set_defaults_train = function(pv) {
+  set_defaults(pv,
+    num_threads = 1L,
+    device = "auto",
+    drop_last = FALSE
+  )
+}
+
+set_defaults_predict = function(pv) {
+  set_defaults(pv,
+    num_threads = 1L,
+    device = "auto"
+  )
+
+
+  freeze_params = function(model) {
+    for (par in model$parameters) {
+      par$requires_grad_(FALSE)
+    }
+  }
 }

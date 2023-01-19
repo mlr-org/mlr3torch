@@ -1,5 +1,3 @@
-#' @title create dataset from task
-#' @export
 task_dataset = dataset(
   initialize = function(task, feature_ingress_tokens, target_batchgetter = NULL, device = "cpu") {
     self$task = assert_r6(task, "Task")
@@ -40,4 +38,18 @@ learner_torch_classif_dataloader = function(task, param_vals, feature_ingress_to
     drop_last = param_vals$drop_last,
     shuffle = param_vals$shuffle
   )
+}
+
+
+
+.get_batchgetter = function(task, param_vals) {
+  imgshape = c(param_vals$channels, param_vals$height, param_vals$width)
+  crate(function(data, device) {
+    tensors = lapply(data[[1]], function(uri) {
+      tnsr = torchvision::transform_to_tensor(magick::image_read(uri))
+      assert_true(identical(tnsr$shape, imgshape))
+      torch_reshape(tnsr, imgshape)$unsqueeze(1)
+    })
+    torch_cat(tensors, dim = 1)$to(device = device)
+  }, imgshape, .parent = topenv())
 }

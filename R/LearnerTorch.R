@@ -27,6 +27,7 @@
 #' TODO:
 #'
 #' @export
+#' @include LearnerTorchAbstract.R
 #' @examples
 #' # TODO:
 LearnerClassifTorch = R6Class("LearnerClassifTorch",
@@ -67,5 +68,5 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
   )
 )
 
-#' @include aaa
+#' @include aaa.R
 mlr3torch_learners[["classif.torch"]] = LearnerClassifTorch

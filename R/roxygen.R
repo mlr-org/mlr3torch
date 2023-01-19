@@ -17,7 +17,7 @@ roxy_pipeop_torch_construction = function(class, id = NULL) {
 roxy_pipeop_torch_param_id = function(id = NULL) {
   sprintf(
     "\\code{id} :: \\code{character(1)}\\cr Identifier of the resulting object.%s",
-    if (is.null(id))  "" else sprintf("Default is \"%s\"", id)
+    if (is.null(id)) "" else sprintf("Default is \"%s\"", id)
   )
 }
 
@@ -57,7 +57,7 @@ roxy_pipeop_torch_channels_default = function() { # nolint
 }
 
 roxy_pipeop_torch_state_default = function() { # nolint
- "The state is the value calculated by the public method \\code{shapes_out()}."
+  "The state is the value calculated by the public method \\code{shapes_out()}."
 }
 
 
@@ -69,6 +69,23 @@ roxy_pipeop_torch_format = function() {
 
 roxy_param_packages = function() {
   "\\code{packages}` :: named \\code{list()}\\cr List of packages settings. Default is  \\code{list()}."
+}
+
+roxy_format = function(class) {
+  classnames = character(0)
+  i = 1
+  class = class$get_inherit()
+  while (!is.null(class)) {
+    classnames[i] = class$classname
+    class = class$get_inherit()
+    i = i + 1
+  }
+
+  if (length(classnames)) {
+    sprintf("[`R6Class`] inheriting from %s.", paste0("[`", classnames, "`]", collapse = ", "))
+  } else {
+    "[`R6Class`]"
+  }
 }
 
 roxy_param_innum = function() {

@@ -1,26 +1,42 @@
 normalize_to_list = function(x) {
-  if (length(x) == 0) return(list())
-  if (!is.list(x)) return(structure(list(x), names = x$id))
+  if (length(x) == 0) {
+    return(list())
+  }
+  if (!is.list(x)) {
+    return(structure(list(x), names = x$id))
+  }
   if (is.null(names(x))) names(x) = map_chr(x, "id")
   x
 }
 
-learner_torch_train = function(self, private, super, task) {
-  param_vals = self$param_set$get_values(tags = "train")
+learner_torch_train = function(self, task) {
+  private = self$.__enclos_env__$private
+  super = self$.__enclos_env__$super
+  param_vals = self$param_set$get_values()
+  param_vals = set_defaults_train(param_vals)
   learner_torch_train_worker(self, private, super, task, param_vals, FALSE)
 }
 
-learner_torch_train_worker = function(self, private, super, task, param_vals, hotstart = FALSE) {
+
+learner_torch_continue = function(self, task) {
+  private = self$.__enclos_env__$private
+  super = self$.__enclos_env__$super
+  param_vals = self$param_set$get_values()
+  param_vals$epochs = assert_int(param_vals$epochs - self$state$param_vals$epochs, lower = 1)
+  learner_torch_train_worker(self, private, super, task, param_vals, TRUE)
+}
+
+
+learner_torch_train_worker = function(self, private, super, task, param_vals, continue = FALSE) {
   torch_set_num_threads(param_vals$num_threads %??% 1)
 
   loader_train = private$.dataloader(task, param_vals)
 
   task_valid = task$clone()$filter(integer(0))
   task_valid$set_row_roles(task$row_roles$early_stopping, "use")
-
   loader_valid = if (task_valid$nrow) private$.dataloader(task_valid, insert_named(param_vals, list(shuffle = FALSE)))
 
-  if (hotstart) {
+  if (!continue) {
     network = self$model$network
     optimizer = self$model$optimizer
     loss_fn = self$model$loss_fn
@@ -49,13 +65,6 @@ learner_torch_train_worker = function(self, private, super, task, param_vals, ho
   train_loop(ctx, callbacks)
 }
 
-
-learner_torch_hotstart = function(self, private, super, task) {
-  param_vals = self$param_set$get_values(tags = "train")
-  param_vals$epochs = assert_int(param_vals$epochs - self$state$param_vals$epochs, lower = 1)
-
-  learner_torch_train_worker(self, private, super, task, param_vals, TRUE)
-}
 
 train_loop = function(ctx, cbs) {
   call = function(step_name) {
@@ -114,13 +123,15 @@ train_loop = function(ctx, cbs) {
       call("on_batch_end")
     })
 
-    ctx$last_scores_train = measure_prediction(torch_cat(predictions, dim = 1L), ctx$measures_train, ctx$task_train, ctx$task_train$row_ids[unlist(indices)])
+    ctx$last_scores_train = measure_prediction(torch_cat(predictions, dim = 1L), ctx$measures_train, ctx$task_train,
+      ctx$task_train$row_ids[unlist(indices)])
 
     call("on_before_validation")
     if (does_validation) {
       ctx$network$eval()
       pred_tensor = torch_network_predict(ctx$network, ctx$loader_valid, call)
-      ctx$last_scores_valid = measure_prediction(pred_tensor, ctx$measures_valid, ctx$task_valid, ctx$task_valid$row_ids)
+      ctx$last_scores_valid = measure_prediction(pred_tensor, ctx$measures_valid, ctx$task_valid,
+        ctx$task_valid$row_ids)
       ctx$network$train()
     }
     call("on_epoch_end")
@@ -173,7 +184,9 @@ encode_prediction = function(predict_tensor, predict_type, task) {
 
 measure_prediction = function(pred_tensor, measures, task, row_ids) {
 
-  if (!length(measures)) return(structure(list(), names = character(0)))
+  if (!length(measures)) {
+    return(structure(list(), names = character(0)))
+  }
 
   prediction = encode_prediction(pred_tensor, "prob", task)
   prediction = as_prediction_data(prediction, task = task, check = TRUE, row_ids = row_ids)
@@ -188,12 +201,13 @@ measure_prediction = function(pred_tensor, measures, task, row_ids) {
 }
 
 # Here are the standard methods that are shared between all the TorchLearners
-learner_torch_predict = function(self, private, super, task) {
+learner_torch_predict = function(self, task) {
+  private = self$.__enclos_env__$private
   model = self$state$model
   network = model$network
   network$eval()
 
-  param_vals = self$param_set$get_values(tags = "predict")
+  param_vals = self$param_set$get_values()
 
   param_vals$shuffle = FALSE
 
@@ -204,4 +218,20 @@ learner_torch_predict = function(self, private, super, task) {
   encode_prediction(prediction, self$predict_type, task)
 }
 
+learner_torch_network = function(self, task, rhs) {
+  assert_ro_binding(rhs)
+  if (is.null(self$state)) {
+    stopf("Cannot access network before training.")
+  }
+  self$state$model$network
+}
 
+
+learner_torch_param_set = function(self, rhs) {
+  private = self$.__enclos_env__$private
+  if (is.null(private$.param_set)) {
+    private$.param_set = ParamSetCollection$new(
+      list(private$.param_set_base, private$.optimizer$param_set, private$.loss$param_set))
+  }
+  private$.param_set
+}

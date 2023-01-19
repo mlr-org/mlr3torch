@@ -73,7 +73,7 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
     .get_batchgetter = function(task, param_vals) stop("private$.get_batchgetter() must be implemented."),
     .shape = function(task, param_vals) stop("private$.shape() must be implemented."),
     .train = function(inputs) {
-      pv = self$param_set$get_values(tags = "train")
+      pv = self$param_set$get_values()
       task = inputs[[1]]
       if (any(task$missings())) {
         # NAs are converted to their underlying machine representation when calling `torch_tensor()`
