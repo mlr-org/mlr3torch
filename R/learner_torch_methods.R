@@ -5,47 +5,47 @@ normalize_to_list = function(x) {
   if (!is.list(x)) {
     return(structure(list(x), names = x$id))
   }
-  if (is.null(names(x))) names(x) = map_chr(x, "id")
+  if (anyNA(names2(x))) names(x) = map_chr(x, "id")
   x
 }
 
 learner_torch_train = function(self, task) {
   private = self$.__enclos_env__$private
   super = self$.__enclos_env__$super
-  param_vals = self$param_set$get_values()
-  param_vals = set_defaults_train(param_vals)
+  param_vals = self$param_set$get_values(tags = "train")
   learner_torch_train_worker(self, private, super, task, param_vals, FALSE)
 }
 
 
-learner_torch_continue = function(self, task) {
-  private = self$.__enclos_env__$private
-  super = self$.__enclos_env__$super
-  param_vals = self$param_set$get_values()
-  param_vals$epochs = assert_int(param_vals$epochs - self$state$param_vals$epochs, lower = 1)
-  learner_torch_train_worker(self, private, super, task, param_vals, TRUE)
-}
+# learner_torch_continue = function(self, task) {
+#   private = self$.__enclos_env__$private
+#   super = self$.__enclos_env__$super
+#   param_vals = self$param_set$get_values()
+#   param_vals = set_defaults()
+#   param_vals$epochs = assert_int(param_vals$epochs - self$state$param_vals$epochs, lower = 1)
+#   learner_torch_train_worker(self, private, super, task, param_vals, TRUE)
+# }
 
 
 learner_torch_train_worker = function(self, private, super, task, param_vals, continue = FALSE) {
-  torch_set_num_threads(param_vals$num_threads %??% 1)
+  torch_set_num_threads(param_vals$num_threads %??% 1L)
 
   loader_train = private$.dataloader(task, param_vals)
 
   task_valid = task$clone()$filter(integer(0))
-  task_valid$set_row_roles(task$row_roles$early_stopping, "use")
+  task_valid$set_row_roles(task$row_roles$test, "use")
   loader_valid = if (task_valid$nrow) private$.dataloader(task_valid, insert_named(param_vals, list(shuffle = FALSE)))
 
-  if (!continue) {
+  if (continue) {
     network = self$model$network
     optimizer = self$model$optimizer
     loss_fn = self$model$loss_fn
     callbacks = self$model$callbacks
   } else {
-    network = private$.network(task)$to(device = param_vals$device %??% "auto")
+    network = private$.network(task, param_vals)$to(device = param_vals$device)
     optimizer = private$.optimizer$get_optimizer(network$parameters)
     loss_fn = private$.loss$get_loss()
-    callbacks = lapply(param_vals$callbacks, function(x) x$new(ctx))
+    callbacks = normalize_to_list(c(list(CallbackTorchHistory$new()), param_vals$callbacks))
   }
 
   ctx = ContextTorch$new(
@@ -68,7 +68,7 @@ learner_torch_train_worker = function(self, private, super, task, param_vals, co
 
 train_loop = function(ctx, cbs) {
   call = function(step_name) {
-    lapply(cbs, function(x) x[[step_name]](ctx))
+    lapply(cbs, function(x) if (!is.null(x[[step_name]])) x[[step_name]](ctx))
   }
 
   ## we do this so if the learner should crash the intermediate progress is saved somewhere
@@ -82,13 +82,15 @@ train_loop = function(ctx, cbs) {
   # note that task_valid may be present (callbacks could do their own validation)
   does_validation = length(ctx$measures_valid)
 
-  call("on_begin")
+  walk(cbs, function(cb) cb$state = NULL)
 
   on.exit({
     # in case a callback wants to finalize things
     call("on_end")
   }, add = TRUE)
 
+
+  call("on_begin")
 
   ctx$network$train()
 
@@ -107,7 +109,13 @@ train_loop = function(ctx, cbs) {
 
       call("on_batch_begin")
 
-      y_hat = do.call(ctx$network, batch$x)
+      if (length(batch$x) == 1L) {
+        # No need to match the names of the forward function with the return of the dataloader as there is no
+        # ambiguity
+        y_hat = ctx$network(batch$x[[1L]])
+      } else {
+        y_hat = do.call(ctx$network, batch$x)
+      }
 
       loss = ctx$loss_fn(y_hat, batch$y)
 
@@ -148,10 +156,15 @@ train_loop = function(ctx, cbs) {
 torch_network_predict = function(network, loader, callback_receiver = function(step_name) NULL) {
   iter = 1L
   predictions = list()
+  one_arg = length(formalArgs(network)) == 1L
   loop(for (batch in loader) {
     callback_receiver("on_batch_valid_begin")
-    predictions[[iter]] = with_no_grad(do.call(network$forward, batch$x))
-    iter = iter + 1
+    if (one_arg) {
+      predictions[[iter]] = with_no_grad(network(batch$x[[1L]]))
+    } else {
+      predictions[[iter]] = with_no_grad(do.call(network, batch$x))
+    }
+    iter = iter + 1L
     callback_receiver("on_batch_valid_end")
   })
   torch_cat(predictions, dim = 1L)
@@ -163,8 +176,9 @@ encode_prediction = function(predict_tensor, predict_type, task) {
     if (predict_type == "response") {
       response = as.integer(predict_tensor$argmax(dim = 2L))
       class(response) = "factor"
-      levels(response) = task$levels(cols = task$target_names)[[1L]]
+      levels(response) = task$levels(task$target_names)[[1L]]
     } else if (predict_type == "prob") {
+      predict_tensor = nnf_softmax(predict_tensor, dim = 2L)
       prob = as.matrix(predict_tensor)
       colnames(prob) = task$class_names
     }
@@ -183,7 +197,6 @@ encode_prediction = function(predict_tensor, predict_type, task) {
 
 
 measure_prediction = function(pred_tensor, measures, task, row_ids) {
-
   if (!length(measures)) {
     return(structure(list(), names = character(0)))
   }
@@ -207,7 +220,7 @@ learner_torch_predict = function(self, task) {
   network = model$network
   network$eval()
 
-  param_vals = self$param_set$get_values()
+  param_vals = self$param_set$get_values(tags = "predict")
 
   param_vals$shuffle = FALSE
 
@@ -226,7 +239,6 @@ learner_torch_network = function(self, task, rhs) {
   self$state$model$network
 }
 
-
 learner_torch_param_set = function(self, rhs) {
   private = self$.__enclos_env__$private
   if (is.null(private$.param_set)) {
@@ -234,4 +246,20 @@ learner_torch_param_set = function(self, rhs) {
       list(private$.param_set_base, private$.optimizer$param_set, private$.loss$param_set))
   }
   private$.param_set
+}
+
+learner_torch_hist_valid = function(self, rhs) {
+  assert_ro_binding(rhs)
+  if (is.null(self$state)) {
+    stopf("Cannot access validation history before training.")
+  }
+  self$model$callbacks$history$state$hist_valid
+}
+
+learner_torch_hist_train = function(self, rhs) {
+  assert_ro_binding(rhs)
+  if (is.null(self$state)) {
+    stopf("Cannot access training history before training.")
+  }
+  self$model$callbacks$history$state$hist_train
 }

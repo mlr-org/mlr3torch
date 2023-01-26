@@ -8,23 +8,28 @@
 \code{\link{R6Class}}
 }
 \description{
-This wraps a \code{torch::nn_loss}.
-Can be used to configure the \code{loss} of a \code{\link{ModelDescriptor}}..
+This wraps a \code{torch::nn_loss} and is usually used to configure
+It is commonly used to configure the \code{loss} of a torch learner.
+
 For a list of available parameters, seen \code{\link{mlr3torch_losses}}.
 }
 \section{Construction}{
 
-\code{PipeOpTorchLoss$new(loss, id = "torch_loss", param_vals = list())}
+\code{TorchLoss$new(torch_loss, task_types = NULL, param_set = NULL, label = deparse(substitute(torch_loss))[[1]], packages = NULL)}
 \itemize{
-\item \code{param_set} :: \code{paradox::ParamSet}\cr The parameter set.
 \item \code{torch_loss} :: \code{nn_loss}\cr
 The loss module.
+\item \code{param_set} :: (\code{ParamSet})\cr
+The parameter set of the oss If this is \code{NULL} (default), the parameter set is inferred, leading to potentially
+less precise parameter descriptions.
 \item \code{task_types} :: \code{character()}\cr
 The task types supported by this loss.
+lf left \code{NULL} (default), this value is set to all available task types.
 \item \code{label} :: \code{character(1)}\cr
 The label for the \code{TorchLoss}.
 \item \code{packages} :: \code{character()}\cr
-The packages this loss depends on.
+The packages this loss depends on. The values \code{"torch"} and \code{"mlr3torch"} are always included.
+Default is \code{NULL}.
 }
 }
 
@@ -55,15 +60,20 @@ The packages this loss requires.
 \item \code{get_loss()}\cr
 () -> \code{nn_loss()}\cr
 Initializes the torch loss for the given parameter values.
+\item \code{help()}\cr
+Opens the help page for the wrapped loss.
 }
 }
 
 \examples{
 # Create a new Torch Loss
-loss = TorchLoss$new(torch_loss = torch::nn_mse_loss, task_types = "regr")
+torchloss = TorchLoss$new(torch_loss = nn_mse_loss, task_types = "regr")
 # If the param set is not specified, parameters are inferred but are of class ParamUty
+
+# Open help page
+# torchloss$help()
+
 loss$param_set
 # Construct the actual loss function
-l = loss$get_loss
+los = tchloss$get_loss()
 }
-\concept{TorchOptimizer}

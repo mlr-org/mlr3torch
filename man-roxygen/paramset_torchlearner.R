@@ -5,20 +5,20 @@
 #'   The number of epochs.
 #' * `device` :: `character(1)`\cr
 #'   The device. One of `"auto"`, `"cpu"`, or `"cuda"`.
-#' * `measures_train` :: `list()` of [`Measure`]s.
+#' * `measures_train` :: [`Measure`] or `list()` of [`Measure`]s.
 #'   Measures to be evaluated during training.
-#' * `measures_valid` :: `list()` of [`Measure`]s.
+#' * `measures_valid` :: [`Measure`] or `list()` of [`Measure`]s.
 #'   Measures to be evaluated during validation.
-#' * `augmentation` :: ??
-#'  TODO:
-#' * `callbacks` :: (list of) `CallbackTorch`\cr
-#'   The callbacks to .
+#' * `callbacks` :: [`CallbackTorch`] or `list()` of `CallbackTorch`\cr
+#'   A list of unique callbacks
 #' * `drop_last` :: `logical(1)`\cr
 #'   Whether to drop the last batch in each epoch during training. Default is `FALSE`.
 #' * `num_threads` :: `integer(1)`\cr
 #'   The number of threads (if `device` is `"cpu"`). Default is 1.
 #' * `shuffle` :: `logical(1)`\cr
 #'   Whether to shuffle the instances in the dataset. Default is `TRUE`.
+#' * `early_stopping_rounds` :: `integer(1)`\cr
+#'   How many rounds to wait for early stopping. The default is 0.
 #'
 #' Additionally there are the parameters for the optimizer and the loss function preceded by the prefix
 #' `"opt."` and `"loss."` respectively.

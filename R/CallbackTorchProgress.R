@@ -6,7 +6,7 @@
 CallbackTorchProgress = callback_torch(
   public = list(
     initialize = function() {
-      super$initialize(id = "progress", label = "Callack Torch Progress", man = "mlr_callbacks_torch.progress")
+      super$initialize(id = "progress", label = "Callback Torch Progress", man = "mlr_callbacks_torch.progress")
     }
   ),
   on_epoch_begin = function(ctx) {
@@ -47,6 +47,12 @@ CallbackTorchProgress = callback_torch(
         cat(paste(output, collapse = ""))
       }
     }
+  },
+  on_end = function(ctx) {
+    self$pb_train = NULL
+    self$pb_valid = NULL
   }
 )
 
+#' @include zzz.R
+register_callback("torch.progress", CallbackTorchProgress)

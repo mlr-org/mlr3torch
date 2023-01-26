@@ -6,6 +6,8 @@
 \usage{
 callback_torch(
   name = NULL,
+  initialize = NULL,
+  id,
   on_begin = NULL,
   on_end = NULL,
   on_epoch_begin = NULL,
@@ -40,7 +42,8 @@ Additional active fields to add to the callback.}
 The parent environment for the \code{\link{R6Class}}.}
 }
 \description{
-Convenience function to create a callback for torch.
+Convenience function to create a callback for torch. For more information on how to correctly implement a new
+callback, see \code{\link{CallbackTorch}}.
 }
 \section{Stages}{
 

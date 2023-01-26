@@ -38,7 +38,7 @@ LearnerClassifTabResNet = R6Class("LearnerClassifTabResNet",
         param_set = param_set,
         feature_types = c("numeric", "integer"),
         predict_types = c("response"),
-        properties = c("multiclass", "twoclass", "weights", "hotstart_forward"),
+        properties = c("multiclass", "twoclass", "hotstart_forward"),
         man = "mlr3torch::mlr_learners_classif.tab_resnet",
         optimizer = optimizer,
         loss = loss,
@@ -48,7 +48,7 @@ LearnerClassifTabResNet = R6Class("LearnerClassifTabResNet",
     }
   ),
   private = list(
-    .network = function(task) {
+    .network = function(task, param_vals) {
       pv = self$param_set$get_values(tags = "network")
       ii = startsWith(names(pv), "bn.")
       bn_args = pv[ii]

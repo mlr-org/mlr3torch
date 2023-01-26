@@ -2,7 +2,7 @@
 #'
 #' @usage  NULL
 #' @name mlr_learners_classif.torch
-#' @format [`R6Class`] inheriting from [`LearnerClassifTorchAbstract`] / [`LearnerClassif`] / [`Learner`].
+#' @format `r roxy_format(LearnerClassifTorch)`
 #'
 #' @description
 #' Custom torch classification network.
@@ -10,6 +10,7 @@
 #' @section Construction: `r roxy_construction(LearnerClassifTorch)`
 #' * `module` ::
 #'   An object of class `"nn_module"` as defined in `torch`.
+#'   The output is expected to be the scores, i.e. the output before the final softmax layer.
 #' *  `param_set` ::
 #' * `optimizer` ::
 #' * `loss` ::
@@ -17,14 +18,14 @@
 #' * `feature_types` ::
 #'   The feature types the learner supports. The default is all feature types.
 #'
-#' @section Parameters:
-#' The parameter set defined as argument `param_set` during construction.
-#' @section Fields:
-#' Only fields inherited from [`LearnerClassifTorch`], [`LearnerClassif`] or [`Learner`].
-#' @section Methods:
-#' Only methods inherited from [`LearnerClassifTorch`], [`LearnerClassif`] or [`Learner`].
+#' @section State: See [`LearnerClassifTorchAbstact`].
+#' @section Parameters: 
+#' The union of: 
+#' * The construction `param_set` (is inferred if it is not s)
+#' the construction `param_set` and those from [`LearnerClassifTorchAbstract`].
+#' @section Fields: `r roxy_fields(LearnerClassifTorch)`
+#' @section Methods: `r roxy_methods(LearnerClassifTorch)`
 #' @section Internals:
-#' TODO:
 #'
 #' @export
 #' @include LearnerTorchAbstract.R
@@ -36,17 +37,17 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
     initialize = function(module, param_set = NULL, optimizer = t_opt("adam"), loss = t_loss("cross_entropy"),
       param_vals = list(), feature_types = NULL) {
       private$.module = module
-      if (inherits(module, "nn_module_generator")) {
+      if (is.null(param_set)) {
         param_set = inferps(module)
         param_set$set_id = "net"
       } else {
-        stopf("Construction argument 'module' must either be NULL or a nn_module_generator.")
+        assert_true()
       }
 
       super$initialize(
         id = "classif.torch",
-        properties = c("weights", "twoclass", "multiclass", "hotstart_forward"),
-        label = "Classification Network",
+        properties = c("twoclass", "multiclass", "hotstart_forward"),
+        label = "Torch Module Classifier",
         feature_types = feature_types %??% mlr_reflections$task_feature_types,
         optimizer = optimizer,
         loss = loss,
@@ -56,17 +57,27 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
     }
   ),
   private = list(
-    .network = function(task) {
-      pv = self$param_set$get_values(tags = "network")
+    .network = function(task, param_vals) {
       invoke(
-        self$.module,
+        private$.module,
         task = task,
-        .args = pv
+        .args = param_vals
       )
     },
-    .module = NULL
+    .module = NULL,
+    .dataset = function(task, param_vals) {
+      ingress_token = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, length(task$feature_names)))
+      dataset = task_dataset(
+        task,
+        feature_ingress_tokens = list(num = ingress_token),
+        target_batchgetter = crate(function(data, device) {
+          torch_tensor(data = as.integer(data[[1]]), dtype = torch_long(), device = device)
+        }, .parent = topenv()),
+        device = param_vals$device %??% self$param_set$defaults$device
+      )
+    }
   )
 )
 
-#' @include aaa.R
+#' @include zzz.R
 mlr3torch_learners[["classif.torch"]] = LearnerClassifTorch

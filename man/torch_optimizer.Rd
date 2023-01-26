@@ -5,33 +5,38 @@
 \alias{TorchOptimizer}
 \title{Torch Optimizer}
 \format{
-\link[R6:R6Class]{R6::R6Class}
+\code{\link{R6Class}}
 }
-\arguments{
-\item{params}{(\code{list} of \code{\link[torch:nn_parameter]{torch::nn_parameter}})\cr
-The parameters that are trained by the optimizer.}
+\value{
+A \code{\link{TorchOptimizer}}.
 }
 \description{
 This wraps a \code{torch::torch_optimizer_generator}.
+It is commonly used to configure the \code{optimizer} of a torch learner.
 Can be used to configure the \code{optimizer} of a \code{\link{ModelDescriptor}}.
 
-For a list of available optimizersparameters, seen \code{\link{mlr3torch_optimizers}}.
-
-Constructs the optimizer for the given parameter values.
+For a list of available optimizers, see \code{\link{mlr3torch_optimizers}}.
 }
 \section{Construction}{
 
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{TorchOptimizer$new(torch_optimizer, param_set = NULL, label = deparse(substitute(torch_optimizer))[[1]],
-  packages = "torch")
-}\if{html}{\out{</div>}}
+\code{TorchOptimizer$new(torch_optimizer, param_set = NULL, label = deparse(substitute(torch_optimizer))[[1]], packages = NULL)}
 \itemize{
+\item \code{param_set} :: \code{paradox::ParamSet}\cr The parameter set.
 \item \code{torch_optimizer} :: (\code{torch_optimizer_generator})\cr
 A generator for an optimizer.
-\item \code{param_set}
-\item \code{param_label}
-\item \code{param_packages}
+\item \code{param_set} :: (\code{ParamSet})\cr
+The parameter set of the optimizer. If this is \code{NULL} default, the parameter set is inferred, leading to
+potentially less precise parameter descriptions.
+\item \code{label} :: (\code{character(1)})\cr
+The label for the optimizer, used e.g. when printing.
+\item \code{packages} :: (\code{character()})\cr`
+The packages the optimizer depends on.
 }
+}
+
+\section{Parameters}{
+
+Deined by the constructor argument \code{param_set}.
 }
 
 \section{Fields}{
@@ -41,7 +46,7 @@ A generator for an optimizer.
 The label for the object.
 \item \code{task_types} :: \code{character()}\cr
 The task types that are supported.
-\item \code{loss} :: `
+\item \code{optimizer} :: `
 The generator of the optimizer.
 \item \code{param_set} :: \code{paradox::ParamSet}\cr
 The parameter set.
@@ -56,17 +61,21 @@ The packages this optimizer requires.
 \item \code{get_optimizer(params)}\cr
 (\code{list} of \code{\link[torch:nn_parameter]{torch::nn_parameter}}) -> \code{torch_optimizer()}
 Initializes the torch loss for the provided params (network) for the fiven parameter values (\code{ParamSet}).
+\item \code{help()}\cr
+Opens the help page for the wrapped optimizer.
 }
 }
 
 \examples{
 # Create a new Torch Optimizer
-opt = TorchOptimizer$new(torch::optim_adam, label = "adam")
+opt = TorchOptimizer$new(optim_adam, label = "adam")
 # If the param set is not specified, parameters are inferred but are of class ParamUty
-opt$param_set
+tochopt$param_set
+
+# Open the help page for the wrapped optimizer
+# torchopt$help()
 
 # Create the optimizer for a network
 net = nn_linear(10, 1)
-o = opt$get_optimizer(net$parameters)
+opt = torchopt$get_optimizer(net$parameters)
 }
-\concept{TorchLoss}

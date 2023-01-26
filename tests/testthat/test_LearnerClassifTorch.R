@@ -1,45 +1,7 @@
-test_that("LearnerClassifTorch works with nn_module as architecture", {
-  task = tsk("iris")
-  task$row_roles$early_stopping = sample.int(task$nrow, 10)
-
+test_that("autotest: classification", {
   module = nn_module(
     initialize = function(task) {
-      self$net = nn_sequential(
-        nn_tab_tokenizer(4, cardinalities = integer(), d_token = 3, bias = TRUE, cls = FALSE),
-        nn_flatten(),
-        nn_linear(12, 10),
-        nn_relu(),
-        nn_linear(10, length(task$target_names))
-      )
-    },
-    forward = function(x) {
-      self$net(x)
-    }
-  )
-
-
-
-
-  l = lrn("classif.torch", optimizer = "adam", loss = "cross_entropy", module = module,
-    opt.lr = 0.1, device = "cpu", epochs = 2L, batch_size = 16L,
-    measures_valid = msr("classif.acc")
-  )
-  l$train(task)
-  expect_error(l$train(task), regexp = NA)
-  expect_error(l$predict(task), regexp = NA)
-
-  net = nn_sequential$new(nn_linear(4, 4))
-  expect_error(
-    lrn("classif.torch", network = net, optimizer = "adam", loss = "cross_entropy"),
-    regexp = "The network must be initialized by calling the function (and not with '$new()').",
-    fixed = TRUE
-  )
-})
-
-test_that("cloning works", {
-  test_module = nn_module(
-    initialize = function(task) {
-      out = if (task$type == "classif") length(task$levels(task$target_names)) else 1
+      out = if (task$task_type == "classif") length(task$class_names) else 1
       self$linear = nn_linear(length(task$feature_names), out)
     },
     forward = function(x) {
@@ -47,6 +9,17 @@ test_that("cloning works", {
     }
   )
 
-  learner = lrn("classif.torch", test_module)
+  learner = lrn("classif.torch", module, feature_types = c("numeric", "integer"), 
+    batch_size = 16, epochs = 5
+  )
+  # task = tsk("iris")
+  # learner$train(task)
+  # learner$predict_type = "prob"
+  # learner$predict(task)
+  #
+  expect_learner(learner)
 
+  result = run_autotest(learner, check_replicable = FALSE, exclude = "sanity")
+  expect_true(result, info = result$error)
 })
+

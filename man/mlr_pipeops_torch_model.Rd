@@ -5,14 +5,11 @@
 \alias{PipeOpTorchModel}
 \title{Torch Model}
 \format{
-\code{\link{R6Class}} object inheriting from \code{\link{PipeOp}}.
+\code{\link{R6Class}} inheriting from \code{\link{PipeOp}}.
 }
 \description{
-Builds a mlr3 Torch Learner from its Input.
-Use \code{\link{TorchOpModelClassif}} or \code{\link{TorchOpModelRegr}} for the respective task type.
-During \verb{$train()} this TorchOp first builds the model (network, optimizer,
-loss, ...) and afterwards trains the network.
-It's parameterset is identical to \code{\link{LearnerClassifTorch}} and \code{\link{LearnerRegrTorch}} respectively.
+Builds a Torch Learner from a \code{\link{ModelDescriptor}} and trains it with the given parameter specification.
+For a specific task type, use \code{\link{PipeOpTorchModelClassif}} or \code{\link{PipeOpTorchModelRegr}}.
 }
 \section{Construction}{
  \code{PipeOpTorchModel$new(id = "torch_model", param_vals = list(), task_type)}
@@ -33,7 +30,7 @@ The output is \code{NULL} during training and a \code{Prediction} of given \code
 
 \section{State}{
 
-A trained torch \code{\link{Learner}}.
+A trained \code{LearnerRegrTorchModel} \code{LearnerClassifTorchModel}.
 }
 
 \section{Parameters}{
@@ -45,20 +42,20 @@ The batch size.
 The number of epochs.
 \item \code{device} :: \code{character(1)}\cr
 The device. One of \code{"auto"}, \code{"cpu"}, or \code{"cuda"}.
-\item \code{measures_train} :: \code{list()} of \code{\link{Measure}}s.
+\item \code{measures_train} :: \code{\link{Measure}} or \code{list()} of \code{\link{Measure}}s.
 Measures to be evaluated during training.
-\item \code{measures_valid} :: \code{list()} of \code{\link{Measure}}s.
+\item \code{measures_valid} :: \code{\link{Measure}} or \code{list()} of \code{\link{Measure}}s.
 Measures to be evaluated during validation.
-\item \code{augmentation} :: ??
-TODO:
-\item \code{callbacks} :: (list of) \code{CallbackTorch}\cr
-The callbacks to .
+\item \code{callbacks} :: \code{\link{CallbackTorch}} or \code{list()} of \code{CallbackTorch}\cr
+A list of unique callbacks
 \item \code{drop_last} :: \code{logical(1)}\cr
 Whether to drop the last batch in each epoch during training. Default is \code{FALSE}.
 \item \code{num_threads} :: \code{integer(1)}\cr
 The number of threads (if \code{device} is \code{"cpu"}). Default is 1.
 \item \code{shuffle} :: \code{logical(1)}\cr
 Whether to shuffle the instances in the dataset. Default is \code{TRUE}.
+\item \code{early_stopping_rounds} :: \code{integer(1)}\cr
+How many rounds to wait for early stopping. The default is 0.
 }
 
 Additionally there are the parameters for the optimizer and the loss function preceded by the prefix
@@ -75,9 +72,10 @@ Additionally there are the parameters for the optimizer and the loss function pr
 
 \section{Internals}{
 
-First a \code{\link{nn_graph}} is created by calling \code{\link[=model_descriptor_to_module]{model_descriptor_to_module()}} and than a \code{LearnerClassifTorchModel}
-is created from the \code{module}, is initialized for the specification provided in the input \code{\link{ModelDescriptor}}.
-Then the parameters are set according to the parameters specified in \code{PipeOpTorchModel} and its '$train()\verb{ method is called on the [}Task\verb{] provided through the [}ModelDescriptor`].
+First a \code{\link{nn_graph}} is created by calling \code{\link[=model_descriptor_to_module]{model_descriptor_to_module()}} and than a
+\code{\link{LearnerClassifTorchModel}} or \code{\link{LearnerRegrTorchModel}} is created from the \code{nn_graph} in combination with the
+information stored in the \code{\link{ModelDescriptor}}.
+Then the parameters are set according to the parameters specified in \code{PipeOpTorchModel} and its '$train()\verb{ method is called on the [}Task\verb{] stored in the [}ModelDescriptor`].
 }
 
 \seealso{

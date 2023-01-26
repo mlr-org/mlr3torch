@@ -21,6 +21,10 @@ roxy_pipeop_torch_param_id = function(id = NULL) {
   )
 }
 
+roxy_fields = function(x) {
+  ""
+}
+
 roxy_pipeop_torch_fields_default = function() { # nolint
   "Only fields inherited from [\\code{PipeOpTorch}]/[\\code{PipeOp}]."
 }
@@ -71,18 +75,32 @@ roxy_param_packages = function() {
   "\\code{packages}` :: named \\code{list()}\\cr List of packages settings. Default is  \\code{list()}."
 }
 
-roxy_format = function(class) {
-  classnames = character(0)
+roxy_fields = function(class) {
+  parents = get_parents(class)
+  sprintf("Fields inherited from %s.", paste0("[`", parents, "`]", collapse = ", "))
+}
+
+roxy_methods = function(class) {
+  parents = get_parents(class)
+  sprintf("Methods inherited from %s.", paste0("[`", parents, "`]", collapse = ", "))
+}
+
+get_parents = function(class) {
+  parents = character(0)
   i = 1
   class = class$get_inherit()
   while (!is.null(class)) {
-    classnames[i] = class$classname
+    parents[i] = class$classname
     class = class$get_inherit()
     i = i + 1
   }
+  parents
+}
 
-  if (length(classnames)) {
-    sprintf("[`R6Class`] inheriting from %s.", paste0("[`", classnames, "`]", collapse = ", "))
+roxy_format = function(class) {
+  parents = get_parents(class)
+  if (length(parents)) {
+    sprintf("[`R6Class`] inheriting from %s.", paste0("[`", parents, "`]", collapse = ", "))
   } else {
     "[`R6Class`]"
   }

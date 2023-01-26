@@ -1,7 +1,17 @@
+test_that("Basic properties", {
+  expect_pipeop(po("nn_conv1d"))
+  expect_pipeop(po("nn_conv2d"))
+  expect_pipeop(po("nn_conv3d"))
+})
+
+
 test_that("PipeOpTorchConvTranspose1D autotest", {
   po_conv = po("nn_conv_transpose1d", kernel_size = 2, out_channels = 4)
   task = tsk("iris")
   graph = po("torch_ingress_num") %>>% po("nn_unsqueeze", dim = 2) %>>% po_conv
+
+  expect_pipeop(po_conv)
+
 
   autotest_pipeop_torch(graph, "nn_conv_transpose1d", task)
 })

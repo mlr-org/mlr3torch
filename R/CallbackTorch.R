@@ -17,6 +17,10 @@
 #' @section Inheriting:
 #' It is recommended to use the sugar function [`callback_torch()] to create custom callbacks.
 #'
+#' It is important to not overwrite the private variable `$.__trained__` which is used to communicate whether a 
+#' callback has already been used, as learners require unused callbacks.
+#'
+#'
 #' @section Stages:
 #' * `begin` :: Run before the training loop begins.
 #' * `epoch_begin` :: Run he beginning of each epoch.
@@ -44,14 +48,19 @@ CallbackTorch = R6Class("CallbackTorch",
     on_batch_end = function(ctx) NULL,
     on_after_backward = function(ctx) NULL,
     on_batch_valid_begin = function(ctx) NULL,
-    on_batch_valid_end = function(ctx) NULL,
-    on_end = function(ctx) NULL
+    on_batch_valid_end = function(state, ctx) NULL,
+    on_end = function(ctx) NULL,
+    state = NULL
+  ),
+  private = list(
+    .__trained__ = FALSE
   )
 )
 
 #' Create a CallbackTorch
 #'
-#' Convenience function to create a callback for torch.
+#' Convenience function to create a callback for torch. For more information on how to correctly implement a new
+#' callback, see [`CallbackTorch`].
 #'
 #' @param on_begin, on_end, on_epoch_begin, on_before_validation, on_epoch_end, on_batch_begin, on_batch_end,
 #' on_after_backward, on_batch_valid_begin, on_batch_valid_end (`function( )\cr
@@ -70,17 +79,19 @@ CallbackTorch = R6Class("CallbackTorch",
 #'
 #' @export
 callback_torch = function(name = NULL,
-    on_begin = NULL,
-    on_end = NULL,
-    on_epoch_begin = NULL,
-    on_before_validation = NULL,
-    on_epoch_end = NULL,
-    on_batch_begin = NULL,
-    on_batch_end = NULL,
-    on_after_backward = NULL,
-    on_batch_valid_begin = NULL,
-    on_batch_valid_end = NULL,
-    public = NULL, private = NULL, active = NULL, parent_env = parent.frame()) {
+  initialize = NULL,
+  id,
+  on_begin = NULL,
+  on_end = NULL,
+  on_epoch_begin = NULL,
+  on_before_validation = NULL,
+  on_epoch_end = NULL,
+  on_batch_begin = NULL,
+  on_batch_end = NULL,
+  on_after_backward = NULL,
+  on_batch_valid_begin = NULL,
+  on_batch_valid_end = NULL,
+  public = NULL, private = NULL, active = NULL, parent_env = parent.frame()) {
   more_public = list(
     on_begin = assert_function(on_begin, args = "ctx", null.ok = TRUE),
     on_end = assert_function(on_end, args = "ctx", null.ok = TRUE),
@@ -113,12 +124,14 @@ mlr3misc::clbk
 mlr3misc::mlr_callbacks
 
 
-#' Sugar Function to Retrieve Torch Callback
+#' Sugar Function to Retrieve Torch Callback(s)
 #'
-#' Retrieves a torch callback from the callback registry.
+#' Retrieves one or more torch callback from the callback registry.
 #'
-#' @param .key (`character(1)`)\cr
+#' @param .key, (`character(1)`)\cr
 #'   The key of the callback.
+#' @param .keys, (`character()`)\cr
+#'   The keys of the callbacks.
 #' @param ... (any)\cr
 #'   See description of [`dictionary_sugar_get`].
 #'
@@ -130,8 +143,12 @@ mlr3misc::mlr_callbacks
 #' # is the same as
 #' clbk("torch.progress")
 t_clbk = function(.key, ...) {
-  if (grepl("^torch\\.", .key)) {
-    stopf("You probably wanted clbk().")
-  }
-  dictionary_sugar_get(paste0("torch.", key), ...)
+  dictionary_sugar_get(mlr_callbacks, paste0("torch.", .key), ...)
+}
+
+
+#' @rdname t_clbk
+#' @export
+t_clbks = function(.keys, ...) {
+  dictionary_sugar_mget(mlr_callbacks, paste0("torch.", .keys), ...)
 }

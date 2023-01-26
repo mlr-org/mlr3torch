@@ -2,22 +2,28 @@
 % Please edit documentation in R/CallbackTorch.R
 \name{t_clbk}
 \alias{t_clbk}
-\title{Sugar Function to Retrieve Torch Callback}
+\alias{t_clbks}
+\title{Sugar Function to Retrieve Torch Callback(s)}
 \usage{
 t_clbk(.key, ...)
+
+t_clbks(.keys, ...)
 }
 \arguments{
-\item{.key}{(\code{character(1)})\cr
+\item{.key, }{(\code{character(1)})\cr
 The key of the callback.}
 
 \item{...}{(any)\cr
 See description of \code{\link{dictionary_sugar_get}}.}
+
+\item{.keys, }{(\code{character()})\cr
+The keys of the callbacks.}
 }
 \value{
 A \code{\link{CallbackTorch}}
 }
 \description{
-Retrieves a torch callback from the callback registry.
+Retrieves one or more torch callback from the callback registry.
 }
 \examples{
 t_clbk("progress")

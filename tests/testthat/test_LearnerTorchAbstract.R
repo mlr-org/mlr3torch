@@ -1,82 +1,159 @@
-LearnerClassifTest = R6Class("LearnerClassifTest",
-  inherit = LearnerClassifTorchAbstract,
-  public = list(
-    initialize = function(optimizer = t_opt("adam"), loss = t_loss("cross_entropy"), param_vals = list()) {
-      super$initialize(
-        id = "classif.test",
-        label = "Test Classifier",
-        feature_types = c("numeric", "integer"),
-        param_set = ps(),
-        properties = c("weights", "hotstart_forward", "multiclass", "twoclass"),
-        optimizer = optimizer,
-        loss = loss,
-        man = "mlr3torch::mlr_learners_classif.test"
-      )
-    }
-  ),
-  private = list(
-    .network = function(task) {
-      nn_linear(length(task$feature_names), length(task$target_names))
-    },
-    .dataloader = function(param_vals, task) {}
-  )
-)
-
-
-test_that("LearnerTorchAbstract manual", {
-  l = LearnerClassifTest$new()
-  l$param_set$values$epochs = 10L
-  expect_r6(l, "Learner")
-  expect_set_equal(l$properties, c("weights", "hotstart_forward", "multiclass", "twoclass"))
-
+test_that("Correct error when trying to create deep clone of trained network", {
+  learner = LearnerClassifTest1$new()
+  learner$param_set$set_values(epochs = 1, batch_size = 1)
   task = tsk("iris")
-  l$train(task)
-
-
-  run_autotest(l)
-})
-
-test_that("LearnerTorchAbstract autotest", {
-  l = LearnerClassifTest$new()
-  expect_r6(l$param_set, l$param_set)
-  expect_identical(l$param_)
-
-  res = run_autotest(l)
-})
-
-
-# test that cloning works!
-
-
-
-test_that("assemble and dissamble work.", {
-  task = tsk("iris")
-  f = function() {
-    devtools::load_all("~/mlr/mlr3torch")
-    learner = mlr3::lrn("classif.mlp",
-      layers = 2L,
-      p = 0.2,
-      batch_size = 16L,
-      epochs = 1L,
-      d_hidden = 10,
-      activation = "relu",
-      optimizer = "adam"
-    )
-    task = mlr3::tsk("iris")
-
-    learner$train(task)
-    learner$serialize()
-    saveRDS(learner, "~/.lol/loeerna.R")
-
-  }
-  callr::r(f)
-  learner = readRDS("~/.lol/loeerna.R")
-  learner$unserialize()
   learner$train(task)
-
-  dir = tempfile(fileext = ".rds")
-  saveRDS(learner, dir)
-  learner_ = readRDS(dir)
-
-  saveRDS(learner$s)
+  expect_error(learner$clone(deep = TRUE), regexp = "Deep clone of trained network is currently not supported")
 })
+
+test_that("Autotest", {
+  learner = LearnerClassifTest1$new()
+  learner$param_set$set_values(epochs = 1, batch_size = 1)
+  result = run_autotest(learner)
+  expect_true(result, info = result$info)
+})
+
+test_that("Basic tests", {
+  learner1 = LearnerClassifTest1$new()
+  expect_identical(learner1$id, "classif.test1")
+
+  expect_learner(learner1)
+
+  learner = LearnerClassifTest1$new()
+  expect_class(learner, c("LearnerClassifTest1", "LearnerClassifTorchAbstract", "LearnerClassif"))
+  expect_equal(learner$id, "classif.test1")
+  expect_equal(learner$label, "Test1 Classifier")
+  expect_set_equal(learner$feature_types, c("numeric", "integer"))
+  expect_equal(learner$param_set$default$bias, FALSE)
+  expect_set_equal(learner$properties, c("hotstart_forward", "multiclass", "twoclass"))
+
+  # default predict types are correct
+  expect_set_equal(learner$predict_types, "response")
+
+  expect_subset(c("torch", "mlr3torch"), learner$packages)
+
+  data = data.frame(x1 = 1:10, x2 = runif(10), y = 1:10)
+
+  task = as_task_classif(data, target = "y", id = "hallo")
+
+  learner$param_set$values$epochs = 0
+  learner$param_set$values$batch_size = 1
+
+  learner$train(task)
+  expect_class(learner$network, "nn_module")
+})
+
+test_that("Callbacks must not have a state", {
+  cb = t_clbk("progress")
+  get_private(cb, ".__trained__") = TRUE #nolint
+  learner = lrn("classif.torch_linear", batch_size = 1, epochs = 0)
+
+  expect_error(learner$param_set$set_values(callbacks = cb),
+    regexp = "Callbacks must not be trained.", fixed = TRUE
+  )
+
+  get_private(cb, ".__trained__") = FALSE #nolint
+  learner$param_set$set_values(callbacks = cb)
+  task = tsk("iris")
+  learner$train(task)
+  expect_true(get_private(learner$model$callbacks$progress)$.__trained__)
+})
+
+test_that("Param Set for optimizer and loss are correctly created", {
+  opt = t_opt("sgd")
+  loss = t_loss("cross_entropy")
+  loss$param_set$subset(c("weight", "ignore_index"))
+  learner = LearnerClassifTest1$new(optimizer = opt, loss = loss)
+  expect_subset(paste0("opt.", opt$param_set$ids()), learner$param_set$ids())
+  expect_subset(paste0("loss.", loss$param_set$ids()), learner$param_set$ids())
+})
+
+
+test_that("parameters cannot start with loss. or opt.", {
+  helper = function(param_set) {
+    R6Class("LearnerClassifTest1",
+      inherit = LearnerClassifTorchAbstract,
+      public = list(
+        initialize = function(optimizer = t_opt("adagrad"), loss = t_loss("cross_entropy")) {
+          super$initialize(
+            id = "classif.test1",
+            label = "Test1 Classifier",
+            feature_types = c("numeric", "integer"),
+            param_set = param_set,
+            properties = c("hotstart_forward", "multiclass", "twoclass"),
+            predict_types = "response",
+            optimizer = optimizer,
+            loss = loss,
+            man = "mlr3torch::mlr_learners_classif.test1"
+          )
+        }
+      )
+    )$new()
+  }
+
+  expect_error(helper(ps(loss.weight = p_dbl())))
+  expect_error(helper(ps(opt.weight = p_dbl())))
+})
+
+test_that("ParamSet reference identities are preserved after a deep clone", {
+  # Explanation: When we call $get_optimizer() or $get_loss(), the paramset of private$.optimizer and private$.loss
+  # are used. The paramsets in the ParamSetCollection must therefore point to these ParamSets so that values set
+  # by calling learner$param_set$set_values() also have an effect during training.
+  # This is solved by setting the private$.param_set to NULL in the deep clone, so that it is reconstructed correctly
+  # afterwards
+
+  learner = LearnerClassifTest1$new()
+  learner1 = learner$clone(deep = TRUE)
+
+  learner1$param_set$set_values(opt.lr = 9.99)
+  expect_true(get_private(learner1)$.optimizer$param_set$values$lr == 9.99)
+  learner1$param_set$set_values(loss.weight = 0.11)
+  expect_true(get_private(learner1)$.loss$param_set$values$weight == 0.11)
+})
+
+
+# test_that("Bundling works",{
+#   callr::r(function() {
+#     library(mlr3torch)
+#     module =
+#     learner = lrn()
+#   })
+# })
+#
+# test_that("assemble and dissamble work.", {
+#   callr::r(function() {
+#     library(mlr3torch)
+#     learner = lrn("")
+#
+#
+#   })
+#   f = function() {
+#     library(mlr3torch)
+#     devtools::load_all("~/mlr/mlr3torch")
+#     learner = mlr3::lrn("classif.mlp",
+#       layers = 2L,
+#       p = 0.2,
+#       batch_size = 16L,
+#       epochs = 1L,
+#       d_hidden = 10,
+#       activation = "relu",
+#       optimizer = "adam"
+#     )
+#     task = mlr3::tsk("iris")
+#
+#     learner$train(task)
+#     learner$serialize()
+#     saveRDS(learner, "~/.lol/loeerna.R")
+#
+#   }
+#   callr::r(f)
+#   learner = readRDS("~/.lol/loeerna.R")
+#   learner$unserialize()
+#   learner$train(task)
+#
+#   dir = tempfile(fileext = ".rds")
+#   saveRDS(learner, dir)
+#   learner_ = readRDS(dir)
+#
+#   saveRDS(learner$s)
+# })

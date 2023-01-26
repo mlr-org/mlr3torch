@@ -24,7 +24,6 @@
 #' @section Fields:
 #' See the description of the parameters.
 #'
-#'
 #' @param graph ([`Graph`][mlr3pipelines::Graph])\cr
 #'   `Graph` of [`PipeOpModule`] and [`PipeOpNOP`] operators.
 #' @param ingress (uniquely named `list` of `TorchIngressToken`)\cr

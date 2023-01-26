@@ -2,7 +2,7 @@
 % Please edit documentation in R/PipeOpTorchActivation.R
 \name{mlr_pipeops_torch_relu6}
 \alias{mlr_pipeops_torch_relu6}
-\alias{PipeOpTorchRelu6}
+\alias{PipeOpTorchReLU6}
 \title{Relu6 Activation Function}
 \format{
 \link{\code{R6Class}} inheriting from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.

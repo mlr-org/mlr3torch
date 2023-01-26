@@ -1,18 +1,14 @@
-inferps = function(fn, ignore = character(0)) {
+inferps = function(fn, ignore = character(0), tags = "train") {
   assert_function(fn)
   assert_character(ignore, any.missing = FALSE)
   frm = formals(fn)
   frm = frm[names(frm) %nin% ignore]
 
-  frm_domains = lapply(frm, function(formal) p_uty())
+  frm_domains = lapply(frm, function(formal) p_uty(tags = tags))
 
   do.call(paradox::ps, frm_domains)
 }
 
-
-check_callbacks = function(x) {
-  check_list(x, types = "R6ClassGenerator", any.missing = FALSE)
-}
 
 check_measures = function(x) {
   if (!is.list(x)) {
@@ -61,13 +57,12 @@ broadcast = function(shape1, shape2) {
       y = c(rep(1L, d), shape2)
     }
   }
-  z = pmax(shape1, shape2)
+  pmax(shape1, shape2)
 }
 
 broadcast_list = function(...) {
   Reduce(broadcast, list(...))
 }
-
 
 assert_shape = function(shape, name) {
   if (!(is.na(shape[[1L]]) && sum(is.na(shape)) == 1)) {
@@ -76,36 +71,14 @@ assert_shape = function(shape, name) {
   }
 }
 
-
-set_defaults = function(.pv, ...) {
-  dots = list(...)
-  assert_named(dots, "unique")
-
-  iwalk(dots, function(x, nm) {
-    if (is.null(.pv[[nm]])) .pv[[nm]] = x
-  })
-
-  return(.pv)
+assert_shapes = function(shapes) {
+  iwalk(shapes, function(shape, name) assert_shape(shape, name))
 }
 
-set_defaults_train = function(pv) {
-  set_defaults(pv,
-    num_threads = 1L,
-    device = "auto",
-    drop_last = FALSE
-  )
-}
-
-set_defaults_predict = function(pv) {
-  set_defaults(pv,
-    num_threads = 1L,
-    device = "auto"
-  )
-
-
-  freeze_params = function(model) {
-    for (par in model$parameters) {
-      par$requires_grad_(FALSE)
-    }
+check_nn_module_generator = function(x) {
+  if (inherits(x, "nn_module_generator")) {
+    return(TRUE)
   }
+
+  "Most be module generator."
 }

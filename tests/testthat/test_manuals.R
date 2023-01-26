@@ -1,4 +1,4 @@
-test_that("All PipeOpTorch have a consistent help page", {
+test_that("All PipeOps have a consistent help page", {
   tmp = list.files("man")
   tmp = tmp[grepl("^mlr_pipeops", tmp)]
   po_manuals = lapply(tmp, function(x) readLines(file.path("man", x)))
@@ -29,9 +29,37 @@ test_that("All PipeOpTorch have a consistent help page", {
     }
   )
   incomplete = Filter(function(x) !all(x), res)
-  expect_true(length(incomplete) == 0)
+  expect_true(length(incomplete) == 0, info = incomplete)
 })
 
 test_that("All Learners have a consistent help page", {
-  expect_true(FALSE)
+  tmp = list.files("man")
+  tmp = tmp[grepl("^mlr_learners", tmp)]
+  lrn_manuals = lapply(tmp, function(x) readLines(file.path("man", x)))
+  names(lrn_manuals) = tmp
+
+  xs = c(
+    "Construction",
+    "State",
+    "Parameters",
+    "Fields",
+    "Methods"
+  )
+
+  res = imap(lrn_manuals,
+    function(po_manual, nm) {
+      matches = map_lgl(xs,
+        function(x) {
+          x = grep(sprintf("\\\\section\\{%s\\}\\{", x), po_manual)
+          length(x) == 1
+        }
+      )
+      names(matches) = xs
+      return(matches)
+    }
+  )
+  incomplete = Filter(function(x) !all(x), res)
+  incomplete
+  expect_true(length(incomplete) == 0, info = incomplete)
 })
+

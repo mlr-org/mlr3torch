@@ -1,4 +1,5 @@
 #' @title Convert to TorchLoss
+#'
 #' @description
 #' Converts an object to a [`TorchLoss`].
 #'
@@ -6,8 +7,12 @@
 #'   Object to convert to a [`TorchLoss`].
 #' @param clone (`logical(1)`\cr
 #'   Whether to make a deep clone.
+#' @param ... (any)\cr
+#' Additional arguments. Currently unused.
+#'
+#' @return [`TorchLoss`].
 #' @export
-as_torch_loss = function(x, clone = FALSE) {
+as_torch_loss = function(x, clone = FALSE, ...) {
   assert_flag(clone)
   UseMethod("as_torch_loss")
 }
@@ -27,10 +32,6 @@ as_torch_loss.character = function(x, clone = FALSE) { # nolint
   t_loss(x)
 }
 
-as_torch_loss.default = function(x, clone) { # nolint 
-  stopf("Cannot convert object of type %s to loss.", class(x)[[1L]])
-}
-
 #' @title Torch Loss
 #'
 #' @usage NULL
@@ -38,22 +39,27 @@ as_torch_loss.default = function(x, clone) { # nolint
 #' @format [`R6Class`]
 #'
 #' @description
-#' This wraps a `torch::nn_loss`.
-#' Can be used to configure the `loss` of a [`ModelDescriptor`]..
+#' This wraps a `torch::nn_loss` and is usually used to configure
+#' It is commonly used to configure the `loss` of a torch learner.
+#'
 #' For a list of available parameters, seen [`mlr3torch_losses`].
 #'
 #' @section Construction:
-#' `r roxy_construction(PipeOpTorchLoss)`
+#' `r roxy_construction(TorchLoss)`
 #'
-#' * `r roxy_param_param_set()`
 #' * `torch_loss` :: `nn_loss`\cr
 #'   The loss module.
+#' * `param_set` :: (`ParamSet`)\cr
+#'   The parameter set of the oss If this is `NULL` (default), the parameter set is inferred, leading to potentially
+#'   less precise parameter descriptions.
 #' * `task_types` :: `character()`\cr
 #'   The task types supported by this loss.
+#'   lf left `NULL` (default), this value is set to all available task types.
 #' * `label` :: `character(1)`\cr
 #'   The label for the `TorchLoss`.
 #' * `packages` :: `character()`\cr
-#'   The packages this loss depends on.
+#'   The packages this loss depends on. The values `"torch"` and `"mlr3torch"` are always included. 
+#'   Default is `NULL`.
 #'
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
@@ -74,16 +80,21 @@ as_torch_loss.default = function(x, clone) { # nolint
 #' * `get_loss()`\cr
 #'   () -> `nn_loss()`\cr
 #'   Initializes the torch loss for the given parameter values.
+#' * `help()`\cr
+#'   Opens the help page for the wrapped loss.
 #'
-#' @family TorchOptimizer
 #' @export
 #' @examples
 #' # Create a new Torch Loss
-#' loss = TorchLoss$new(torch_loss = torch::nn_mse_loss, task_types = "regr")
+#' torchloss = TorchLoss$new(torch_loss = nn_mse_loss, task_types = "regr")
 #' # If the param set is not specified, parameters are inferred but are of class ParamUty
+#'
+#' # Open help page
+#' # torchloss$help()
+#'
 #' loss$param_set
 #' # Construct the actual loss function
-#' l = loss$get_loss
+#' los = tchloss$get_loss()
 TorchLoss = R6::R6Class("TorchLoss",
   public = list(
     label = NULL,
@@ -91,18 +102,24 @@ TorchLoss = R6::R6Class("TorchLoss",
     loss = NULL,
     param_set = NULL,
     packages = NULL,
-    initialize = function(torch_loss, task_types, param_set = NULL, label = deparse(substitute(torch_loss))[[1]],
-      packages = "torch") {
+    initialize = function(torch_loss, task_types = NULL, param_set = NULL, label = deparse(substitute(torch_loss))[[1]],
+      packages = NULL) {
       assert_r6(param_set, "ParamSet", null.ok = TRUE)
+      task_types = task_types %??% mlr_reflections$task_types$type
       self$task_types = assert_subset(task_types, mlr_reflections$task_types$type)
       self$label = assert_string(label)
-      self$loss = assert_class(torch_loss, "nn_loss")  # maybe too strict?
+      self$loss = assert_class(torch_loss, "nn_loss") # maybe too strict?
+      packages = union(packages, c("torch", "mlr3torch"))
       self$packages = assert_names(packages, type = "strict")
 
       self$param_set = param_set %??% inferps(torch_loss)
     },
     get_loss = function() {
+      require_namespaces(self$packages)
       invoke(self$loss, .args = self$param_set$get_values())
+    },
+    help = function() {
+      help(self$loss)
     }
   )
 )
@@ -140,25 +157,22 @@ t_loss = function(.key, ...) {
 }
 
 mlr3torch_losses$add("mse", function() {
-    p = ps(reduction = p_fct(levels = c("mean", "sum"), default = "mean", tags = "train"))
-    TorchLoss$new(torch::nn_mse_loss, "regr", p, "mse")
-  }
-)
+  p = ps(reduction = p_fct(levels = c("mean", "sum"), default = "mean", tags = "train"))
+  TorchLoss$new(torch::nn_mse_loss, "regr", p, "mse")
+})
 
 
 mlr3torch_losses$add("l1", function() {
-    p = ps()
-    TorchLoss$new(torch::nn_l1_loss, "regr", p, "l1")
-  }
-)
+  p = ps(reduction = p_fct(levels = c("mean", "sum"), default = "mean", tags = "train"))
+  TorchLoss$new(torch::nn_l1_loss, "regr", p, "l1")
+})
 
 
 mlr3torch_losses$add("cross_entropy", function() {
-    p = ps(
-      weight = p_uty(),
-      ignore_index = p_int(),
-      reduction = p_fct(levels = c("mean", "sum"), default = "mean")
-    )
-    TorchLoss$new(torch::nn_cross_entropy_loss, "classif", p, "cross_entropy")
-  }
-)
+  p = ps(
+    weight = p_uty(default = NULL, tags = "train"),
+    ignore_index = p_int(default = -100L, tags = "train"),
+    reduction = p_fct(levels = c("mean", "sum"), default = "mean", tags = "train")
+  )
+  TorchLoss$new(torch::nn_cross_entropy_loss, "classif", p, "cross_entropy")
+})

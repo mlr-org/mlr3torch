@@ -12,7 +12,7 @@ mlr3torch_optimizers
 }
 \description{
 Dictionary of torch optimizers.
-See \code{\link{t_opt}} for conveniently retrieving optimizers.
+Use \code{\link{t_opt}} for conveniently retrieving optimizers.
 }
 \section{Available Optimizers}{
 

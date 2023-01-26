@@ -203,7 +203,7 @@ PipeOpTorchUnsqueeze = R6Class("PipeOpTorchUnsqueeze",
 #' @format `r roxy_pipeop_torch_format()`
 #'
 #' @inherit torch::nn_flatten description
-#' @section Construction `r roxy_construction(PipeOpTorchFlatten)`
+#' @section Construction: `r roxy_construction(PipeOpTorchFlatten)`
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State: `r roxy_pipeop_torch_state_default()`
 #' @section Parameters:

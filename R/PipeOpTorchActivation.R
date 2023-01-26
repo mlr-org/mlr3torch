@@ -313,7 +313,7 @@ PipeOpTorchReLU = make_activation("relu", "ReLU", param_set = ps(
 #'
 #' @inherit torch::nnf_relu6 description
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchRelu6)`
+#' @section Construction: `r roxy_construction(PipeOpTorchReLU6)`
 #' * `r roxy_param_id("nn_relu6")`
 #' * `r roxy_param_param_vals()`
 #'
@@ -330,7 +330,7 @@ PipeOpTorchReLU = make_activation("relu", "ReLU", param_set = ps(
 #' @section Credit: `r roxy_pipeop_torch_license()`
 #' @family PipeOpTorch
 #' @export
-PipeOpTorchRelu6 = make_activation("relu6", "ReLU6", param_set = ps(
+PipeOpTorchReLU6 = make_activation("relu6", "ReLU6", param_set = ps(
   inplace = p_lgl(default = FALSE, tags = "train")
 ))
 

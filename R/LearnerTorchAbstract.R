@@ -1,13 +1,14 @@
 #' @title Abstract Base Class for a Torch Network
 #'
 #' @usage NULL
-#' @name mlr_learners.torch_abstract
+#' @name mlr_learners_classif.torch_abstract
 #'
-#' @format [`R6Class`] object inheriting from [`LearnerClassif`] or [`LearnerRegr`] / [`Learner`].
+#' @format [`R6Class`] object inheriting from [`LearnerClassif`] / [`Learner`].
 #'
 #' @description
 #' This base class provides the basic functionality for training and prediction of a neural network.
-#' All Torch earners should inherit from the respective subclass.
+#' All torch learners should inherit from the respective subclass.
+#' To create a torch learner from a [`nn_module`], use [`LearnerClassifTorch`] or [`LearnerRegrTorch`] instead.
 #'
 #' @section Construction:
 #' `r roxy_construction(LearnerClassifTorchAbstract)`
@@ -21,9 +22,11 @@
 #' * `properties` :: (`character()`)\cr
 #'   The properties for the learner, see `mlr_reflections$learner_properties`.
 #' * `packages` :: (`character()`)\cr
-#'   The additional packages on which the learner depends.
+#'   The additional packages on which the learner depends. The packages `"torch"` and `"mlr3torch"` are automatically
+#'   added so do not have to be passed explicitly.
 #' * `predict_types` :: (`character()`)\cr
 #'   The learner's predict types, see `mlr_reflections$learner_predict_types`.
+#'   The default is `"response"` and `"prob"`.
 #' * `feature_types` :: (`character()`)\cr
 #'   The feature types the learner can deal with, see `mlr_reflections$task_feature_types`.
 #' * `man` :: (`character(1)`)\cr
@@ -32,25 +35,49 @@
 #' * `label` :: (`character(1)`)\cr
 #'   The label for the learner.
 #'
+#'
+#' @section State:
+#' The state is a list with elements `network`, `optimizer`, `loss_fn` and `callbacks`.
+#'
 #' @template paramset_torchlearner
 #'
 #' @section Inheriting:
-#' When inheriting from this class, one should overload the `private$.network(task)` method which should construct
-#' a `nn_module()` object for the given task and parameter values. Note that the parameters must not start with
-#' `"loss."` or `"opt."`, as these prefixes are reserverd for the dynamically constructed parameters of the optimizer
-#' and the loss function.
+#' When inheriting from this class, one should overload two, methods, namely the
+#' `private$.network(task, param_vals)` and the `private$.dataset(task, param_vals)`.
+#' The former should construct [`torch::nn_module`] object for the given task and parameter values, while the latter
+#' is responsible for creating a [`torch::dataset`].
+#' Note that the output of this network are expected to be the scores before the application of the final softmax
+#' layer.
+#'
+#' It is also possible to overwrite the private `$.dataloader()` method, which otherwise calls `$.dataset()` and
+#' creates a dataloader from that dataset. When doing so, it is important to respect the parameter `shuffle`, because
+#' this method is used to ceate the dataloader for prediction as well.
+#'
+#' While it is possible to add parameters by specifying the `param_set` constructino argument, it is currently
+#' not possible to change these parameters.
+#' Note that none of the parameters provided in `param_set` can have an id that starts with `"loss."` or `"opt."`
+#' as these are preserved for the dynamically constructed parameters of the optimizer and the loss function.
+#'
+#' For a more general introduction on how to create a new learner, see the respective section in the
+#' [mlr3 book](https://mlr3book.mlr-org.com/extending.html#sec-extending-learners).
 #'
 #' @section Fields:
 #' Fields inherited from [`LearnerClassif`] or [`LearnerRegr`] and
 #'
 #' * `network` :: ([`nn_module()`][torch::nn_module])\cr
 #'   The network (only available after training).
-#' @section Methods: Only methods inherited from [`LearnerRegr`] / [`Learner`].
+#' * `hist_train` :: `data.table`\cr
+#'   The trainig history.
+#' * `hist_valid` :: `data.table`\cr
+#'   The validation history.
+#' @section Methods: `r roxy_methods(LearnerClassifTorchAbstract)`
 #' @section Internals:
 #' A [`ParamSetCollection`] is created that combines the `param_set` from the construction with the
 #' default parameters obtained by [`paramset_torchlearner()`], as well as the loss and optimizer parameter
-#' (prefixed with `"loss."` and `"opt."` respectively. Therefore
-#' TODO: write more here.
+#' (prefixed with `"loss."` and `"opt."` respectively.
+#'
+#' Note that a deep clone of trained networks is currently not supported, because having a edge-case covering solution
+#' for that requires to mess with torch internals that are currently not part of the torch API.
 #'
 #' @family Learners
 #' @export
@@ -58,18 +85,17 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
   inherit = LearnerClassif,
   public = list(
     initialize = function(id, optimizer, loss, param_set, properties = NULL, packages = character(0),
-      predict_types, feature_types, man, label) {
+      predict_types = c("response", "prob"), feature_types, man, label) {
       private$.optimizer = as_torch_optimizer(optimizer, clone = TRUE)
       private$.optimizer$param_set$set_id = "opt"
 
       private$.loss = as_torch_loss(loss, clone = TRUE)
       private$.loss$param_set$set_id = "loss"
+      properties = properties %??% c("twoclass", "multiclass", "weights")
 
-      assert_subset("classif", private$.loss$task_types)
       assert_subset(properties, mlr_reflections$learner_properties[["classif"]])
       assert_subset(predict_types, names(mlr_reflections$learner_predict_types[["classif"]]))
-      assert_true(!any(grepl("^(loss\\.|optimizer\\.)", param_set$ids())))
-
+      assert_true(!any(grepl("^(loss\\.|opt\\.)", param_set$ids())))
       packages = assert_character(packages, any.missing = FALSE, min.chars = 1L)
       packages = union(c("mlr3torch", "torch"), packages)
 
@@ -100,40 +126,48 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
     .predict = function(task) {
       learner_torch_predict(self, task)
     },
-    .network = function(task) stop(".network must be implemented."),
+    .network = function(task, param_vals) stop(".network must be implemented."),
     # the dataloader gets param_vals that may be different from self$param_set$values, e.g.
     # when the dataloader for validation data is loaded, `shuffle` is set to FALSE.
-    .dataloader = function(task, param_vals) stop(".dataloader must be implemented."),
+    .dataloader = function(task, param_vals) {
+      defaults = self$param_set$default
+      dataloader(
+        private$.dataset(task, param_vals),
+        batch_size = param_vals$batch_size %??% self$param_set$default$batch_size,
+        shuffle = param_vals$shuffle %??% self$param_set$default$shuffle
+      )
+    },
+    .dataset = function(task, param_vals) stop(".dataset must be implemented."),
     .optimizer = NULL,
     .loss = NULL,
     .param_set_base = NULL,
-    deep_clone = function(name, value) deep_clone(self, name, value)
+    deep_clone = function(name, value) deep_clone(self, private, super, name, value)
   ),
   active = list(
     network = function(rhs) learner_torch_network(self, rhs),
-    param_set = function(rhs) learner_torch_param_set(self, rhs)
+    param_set = function(rhs) learner_torch_param_set(self, rhs),
+    hist_train = function(rhs) learner_torch_hist_train(self, rhs),
+    hist_valid = function(rhs) learner_torch_hist_valid(self, rhs)
   )
 )
 
 
-deep_clone = function(self, name, value) {
-  super = self$.__enclos_env__$super
+deep_clone = function(self, private, super, name, value) {
+  private$.param_set = NULL # required to keep clone identical to original, otherwise tests get really ugly
 
   if (name == "state") {
-    state = super$deep_clone("state", value)
-    model = state$model
-    if (!is.null(model)) {
-      state$model = insert_named(state$model, list(
-        network = model$network$clone(deep = TRUE),
-        optimizer = model$optimizer$clone(deep = TRUE),
-        loss = model$loss$clone(deep = TRUE),
-        callbacks = map(model$callbacks, function(x) x$clone(deep = TRUE))
-      ))
+    # https://github.com/mlr-org/mlr3torch/issues/97
+    if (!is.null(value)) {
+      stopf("Deep clone of trained network is currently not supported.")
+    } else {
+      # Note that private methods are available in super.
+      super$deep_clone(name, value)
     }
-    return(state)
-  } else if (name == "param_set") {
-    # Otherwise references get lost, i.e. the paramset of the TorchLoss and TorchOptimizer
-    # are no longer identical to the parameter sets contained in the collection
-    return(NULL)
+  } else if (name == ".param_set") {
+    # Otherwise the value$clone() is called on NULL which errs
+    NULL
+  } else {
+    # Note that private methods are available in super.
+    super$deep_clone(name, value)
   }
 }

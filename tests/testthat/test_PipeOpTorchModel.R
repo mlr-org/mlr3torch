@@ -1,47 +1,44 @@
-test_that("PipeOpTorchModel works", {
-  graph = po("torch_ingress_num") %>>%
-    po("nn_head") %>>%
-    po("torch_optimizer", t_opt("sgd"), lr = 0.01) %>>%
-    po("torch_loss", t_loss("cross_entropy"))
+test_that("Basic properties", {
+  expect_pipeop_class(PipeOpTorchModel, constargs = list(task_type = "classif"))
 
-  graphc = graph$clone()
-  graphr = graph$clone()
+  po_regr = PipeOpTorchModel$new(task_type = "regr")
+  expect_pipeop(po_regr)
 
-  graph = graph %>>% po("torch_model", task_type = "regr", epochs = 0)
+  po_classif = PipeOpTorchModel$new(task_type = "classif")
+  expect_pipeop(po_classif)
 
-  graph$train(tsk("iris"))
-
-  graph = po("torch_ingress_num") %>>%
-    po("nn_head") %>>%
-    po("torch_optimizer", t_opt("sgd"), lr = 0.01) %>>%
-    po("torch_loss", t_loss("cross_entropy")) %>>%
-    po("torch_model", task_type = "regr")
+  expect_error(PipeOpTorchModel$new(task_type = "surv"))
 })
 
-
-test_that("TorchOpModel works", {
+test_that("Manual test", {
   task = tsk("iris")
-  graph = po("pca") %>>%
-    top("input") %>>%
-    top("tab_tokenizer", d_token = 1L) %>>%
-    top("flatten") %>>%
-    top("linear_1", out_features = 20L) %>>%
-    top("relu_1") %>>%
-    top("output") %>>%
-    top("loss", loss = "cross_entropy") %>>%
-    top("optimizer", optimizer = "adam") %>>%
-    top("model.classif",
-      batch_size = 16L,
-      device = "cpu",
-      epochs = 1L,
-      callbacks = list()
-    )
-  glrn = as_learner_torch(graph)
-  glrn$id = "net"
-  glrn$train(task)
-  expect_error(glrn$train(task), regexp = NA)
-  expect_error(glrn$predict(task), regexp = NA)
+  md = (po("torch_ingress_num") %>>% po("nn_head"))$train(task)
+  obj = po("torch_model_classif", epochs = 0, batch_size = 1)
+  expect_true(obj$id == "torch_model_classif")
 
-  resampling = rsmp("cv", folds = 2)
-  expect_error(resample(task, glrn, resampling), regexp = NA)
+  res = obj$train(md)
+  expect_equal(res, list(output = NULL))
+  expect_class(obj$state, "LearnerClassifTorchModel")
+  expect_class(obj$state$model$network, c("nn_graph", "nn_module"))
+  # Defaults are used
+  expect_class(obj$state$model$optimizer, "optim_adam")
+  expect_class(obj$state$model$loss_fn, "nn_crossentropy_loss")
+
+  # It is possible to change values
+  md[[1]]$optimizer = t_opt("adagrad", lr = 0.123)
+  obj = po("torch_model_classif", epochs = 0, batch_size = 2)
+  obj$train(md)
+  expect_class(obj$state$model$optimizer, "optim_adagrad")
+  expect_true(obj$state$state$param_vals$opt.lr == 0.123)
+  expect_true(obj$state$state$param_vals$batch_size == 2)
+  # TODO:  Add regr tests
 })
+
+test_that("Cloning gives correct error", {
+  task = tsk("iris")
+  graph = po("torch_ingress_num") %>>% po("nn_head") %>>% po("torch_model_classif", batch_size = 1, epochs = 0)
+  graph$train(task)
+
+  expect_error(graph$clone(deep = TRUE), regexp = "Deep clone of trained network is currently not supported.")
+})
+

@@ -5,21 +5,33 @@
 \alias{LearnerClassifTorchImage}
 \title{Image Classification Network}
 \format{
-\code{\link{R6Class}} inheriting from \code{\link{LearnerClassifTorch}}, \code{\link{LearnerClassifTorchAbstract}}, \code{\link{LearnerClassif}}, \code{\link{Learner}}.
+\code{\link{R6Class}} inheriting from \code{\link{LearnerClassifTorchAbstract}}, \code{\link{LearnerClassif}}, \code{\link{Learner}}.
 }
 \description{
 Base Class for Image Classification Learners.
 }
 \section{Construction}{
- \code{LearnerClassifTorchImage$new(id, param_set, label, optimizer = t_opt("adam"), loss = t_loss("cross_entropy"), packages, module)}
+ \code{LearnerClassifTorchImage$new(id, param_set, label, optimizer = t_opt("adam"), loss = t_loss("cross_entropy"), packages = c("torchvision", "magick"), man)}
 }
 
 \section{Inheriting}{
 
+To inherit from this class, one should overwrite the private \verb{$.network()} to return a \code{\link{nn_module}} that has
+one argument in its forward method.
 }
 
 \section{Parameters}{
 
+Parameters include those inherited from \code{\link{LearnerClassifTorchAbstract}}, the \code{param_set} construction argument, as
+well as:
+\itemize{
+\item \code{channels} :: \code{integer(1)} \cr
+The number of input channels.
+\item \code{height} :: \code{integer(1)} \cr
+The height of the input image.
+\item \code{width} :: \code{integer(1)} \cr
+The width of the input image.
+}
 }
 
 \section{Fields}{

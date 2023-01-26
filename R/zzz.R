@@ -51,34 +51,75 @@
 # to silence RCMD check
 utils::globalVariables(c("self", "private", "super"))
 
+mlr3torch_pipeops = new.env()
+mlr3torch_learners = new.env()
+mlr3torch_callbacks = new.env()
+mlr3torch_tasks = new.env()
+mlr3torch_tags = c("torch", "activation")
+mlr3torch_feature_types = list(img = "imageuri")
 
+mlr3torch_activations = c(
+  "celu",
+  "tanh",
+  "softpluts",
+  "rrelu",
+  "softsign",
+  "relu",
+  "sigmoid",
+  "gelu",
+  "hardtanh",
+  "linear",
+  "prelu",
+  "relu6",
+  "selu",
+  "hardshrink",
+  "softshrink",
+  "leaky_relu"
+)
 
-po_register_env = new.env()
 
 register_po = function(name, constructor, metainf = NULL) {
-  if (name %in% names(po_register_env)) stopf("pipeop %s registered twice", name)
-  po_register_env[[name]] = constructor
+  if (name %in% names(mlr3torch_pipeops)) stopf("pipeop %s registered twice", name)
+  mlr3torch_pipeops[[name]] = constructor
+}
+
+register_learner = function(name, constructor) {
+  if (name %in% names(mlr3torch_learners)) stopf("learner %s registered twice", name)
+  mlr3torch_learners[[name]] = constructor
+}
+
+register_task = function(name, constructor) {
+  if (name %in% names(mlr3torch_tasks)) stopf("task %s registered twice", name)
+  mlr3torch_tasks[[name]] = constructor
+}
+
+register_callback = function(name, constructor) {
+  if (name %in% names(mlr3torch_callbacks)) stopf("callback %s registered twice", name)
+  mlr3torch_callbacks[[name]] = constructor
 }
 
 register_mlr3 = function() {
   mlr_learners = utils::getFromNamespace("mlr_learners", ns = "mlr3")
-  mlr_reflections = utils::getFromNamespace("mlr_reflections", ns = "mlr3")
-  mlr_callbacks = utils::getFromNamespace("mlr_callbacks", ns = "mlr3misc")
-  mlr_tasks = utils::getFromNamespace("mlr_tasks", ns = "mlr3")
+  iwalk(as.list(mlr3torch_learners), function(l, nm) mlr_learners$add(nm, l)) # nolint
 
-  # Image URI feature (e.g. file path to .jpg etc.) for image classif tasks
-  iwalk(mlr3torch_feature_types, function(ft, nm) mlr_reflections$task_feature_types[[nm]] = ft)
-  iwalk(mlr3torch_callbacks, function(clbk, nm) mlr_callbacks$add(nm, clbk))
-  iwalk(mlr3torch_tasks, function(task, nm) mlr_tasks$add(nm, task))
-  # mlr_tasks$add("tiny_imagenet", load_task_tiny_imagenet)
+  mlr_tasks = utils::getFromNamespace("mlr_tasks", ns = "mlr3")
+  iwalk(as.list(mlr3torch_tasks), function(task, nm) mlr_tasks$add(nm, task)) # nolint
+
+  mlr_reflections = utils::getFromNamespace("mlr_reflections", ns = "mlr3") # nolint
+  iwalk(as.list(mlr3torch_feature_types), function(ft, nm) mlr_reflections$task_feature_types[[nm]] = ft) # nolint
+  mlr_reflections$learner_properties$regr = c(mlr_reflections$learner_properties$regr, "bundle")
+  mlr_reflections$learner_properties$classif = c(mlr_reflections$learner_properties$classif, "bundle")
+
+  mlr_callbacks = utils::getFromNamespace("mlr_callbacks", ns = "mlr3misc")
+  iwalk(as.list(mlr3torch_callbacks), function(clbk, nm) mlr_callbacks$add(nm, clbk)) # nolint
 }
 
 register_mlr3pipelines = function() {
   mlr_pipeops = utils::getFromNamespace("mlr_pipeops", ns = "mlr3pipelines")
-  imap(as.list(po_register_env), function(value, name) mlr_pipeops$add(name, value))
+  iwalk(as.list(mlr3torch_pipeops), function(value, name) mlr_pipeops$add(name, value))
   mlr_reflections$pipeops$valid_tags = unique(c(mlr_reflections$pipeops$valid_tags, c("torch", "activation")))
 
-  lapply(po_register_env, eval)
+  lapply(mlr3torch_pipeops, eval)
 }
 
 .onLoad = function(libname, pkgname) { # nolint
@@ -95,7 +136,15 @@ register_mlr3pipelines = function() {
   }
 }
 
-.onUnload = function(libPaths) {
+.onUnload = function(libPaths) { # nolint
+  mlr_learners = utils::getFromNamespace("mlr_learners", ns = "mlr3")
+  mlr_callbacks = utils::getFromNamespace("mlr_callbacks", ns = "mlr3misc")
+  mlr_tasks = utils::getFromNamespace("mlr_tasks", ns = "mlr3")
+  mlr_reflections = utils::getFromNamespace("mlr_reflections", ns = "mlr3") # nolint
 
-
+  walk(mlr3torch_learners, function(nm) mlr_learners$remove(nm))
+  walk(mlr3torch_callbacks, function(nm) mlr_callbacks$remove(nm))
+  walk(mlr3torch_tasks, function(nm) mlr_tasks$remove(nm))
+  walk(names(mlr3torch_feature_types), function(nm) mlr_reflections$task_feature_types[[nm]] = NULL)
+  walk(names(mlr3torch_learner_properties), function(nm) mlr_reflections$learner_properties[[nm]] = NULL)
 }

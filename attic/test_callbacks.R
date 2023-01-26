@@ -1,6 +1,7 @@
 test_that("Callbacks work", {
+  ca
   callbacks = list(
-    cllb("torch.progress")
+    clbk("torch.progress")
   )
   l = lrn("classif.tab_resnet",
     epochs = 1L,

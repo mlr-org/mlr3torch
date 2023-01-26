@@ -16,3 +16,7 @@ imageuri = function(x) {
 `[.imageuri` = function(obj, ...) {
   imageuri(unclass(obj)[...])
 }
+
+
+#' @include zzz.R
+mlr3torch_feature_types$img = "imageuri"

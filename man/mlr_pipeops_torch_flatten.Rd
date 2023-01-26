@@ -10,8 +10,8 @@
 \description{
 For use with \link[torch]{nn_sequential}.
 }
-\section{Construction \code{PipeOpTorchFlatten$new(id = "nn_flatten", param_vals = list())}}{
-NA
+\section{Construction}{
+ \code{PipeOpTorchFlatten$new(id = "nn_flatten", param_vals = list())}
 }
 
 \section{Input and Output Channels}{

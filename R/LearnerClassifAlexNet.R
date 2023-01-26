@@ -19,7 +19,7 @@ LearnerClassifAlexNet = R6Class("LearnerClassifAlexNet",
   public = list(
     initialize = function(optimizer = t_opt("adam"), loss = t_opt("cross_entropy")) {
       param_set = ps(
-        pretrained = p_lgl(default = TRUE, tags = "train"),
+        pretrained = p_lgl(default = TRUE, tags = "train")
       )
 
       super$initialize(
@@ -34,25 +34,22 @@ LearnerClassifAlexNet = R6Class("LearnerClassifAlexNet",
     }
   ),
   private = list(
-    .network = function(task) {
-      param_vals = self$param_set$get_values()
-      param_vals$pretrained = param_vals$pretrained %??% TRUE
-
+    .network = function(task, param_vals) {
       if (pretrained) {
         network = torchvision::model_alexnet(pretrained = param_vals$pretrained)
 
         network$classifier$`6` = torch::nn_linear(
           in_features = model$classifier$`6`$in_features,
-          out_features = length(task$target_names),
+          out_features = length(task$class_names),
           bias = param_values$bias
         )
         return(network)
       }
 
-      torchvision::model_alexnet(pretrained = FALSE, num_classes = length(task$target_names))
+      torchvision::model_alexnet(pretrained = FALSE, num_classes = length(task$class_names))
     }
   )
 )
 
-#' @include aaa.R
-mlr3torch_learners$classif.alexnet = LearnerClassifAlexNet
+#' @include zzz.R
+register_learner("classif.alexnet", LearnerClassifAlexNet)

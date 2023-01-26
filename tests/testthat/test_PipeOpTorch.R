@@ -50,7 +50,8 @@ test_that("PipeOpTorch works", {
   task = tsk("penguins")
 
   # basic checks that output is checked correctly
-    PipeOpTorchDebug$new(id = "debug", inname = paste0("input", 1:2), outname = paste0("output", 1:2))
+  obj = PipeOpTorchDebug$new(id = "debug", inname = paste0("input", 1:2), outname = paste0("output", 1:2))
+  expect_pipeop(obj)
 
   expect_error(
     PipeOpTorchDebug$new(id = "debug", inname = paste0("input", 1:2), outname = paste0("output", 1:2)),

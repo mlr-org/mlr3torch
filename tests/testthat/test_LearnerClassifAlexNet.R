@@ -7,7 +7,7 @@ test_that("LearnerClassifAlexnet runs", {
     optimizer = "adam",
     loss = "cross_entropy"
   )
-  task = toytask()
+ task = toytask()
   resampling = rsmp("holdout")
   task$row_roles$use = sample(task$nrow, size = 10)
   learner$train(task)

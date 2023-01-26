@@ -23,6 +23,9 @@ See \code{\link{Callback}} for the construction arguments.
 \section{Inheriting}{
 
 It is recommended to use the sugar function \code{\link[=`callback_torch]{`callback_torch()}} to create custom callbacks.
+
+It is important to not overwrite the private variable \verb{$.__trained__} which is used to communicate whether a
+callback has already been used, as learners require unused callbacks.
 }
 
 \section{Stages}{
