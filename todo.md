@@ -374,6 +374,8 @@ Also add tests or sth.
 
 * I think I might go to r6 = true again... it is so much trouble to do it without it and is much less organized.
 
+* remove torch linear - superseded by classif.mlp
+
 
 **Mit Martin**
 
