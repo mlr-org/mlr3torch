@@ -198,6 +198,66 @@ run_paramtest = function(learner, fun, exclude = character(), tag = NULL) {
   list(ok = FALSE, error = error, missing = missing, extra = extra)
 }
 
+#' @title Parameter Test
+#' @description 
+#' Tests that parameters are correctly implemented
+#'
+#' @param param_set ([`ParamSet`])\cr
+#'   The parameter set to check.
+#' @param fns (`list()` of `function`s)\cr
+#'   The functions whose arguments the parameter set implements.
+#' @param exclude (`character`)\cr
+#'   The parameter ids and arguments of the functions that are exluded from checking.
+#' @param exclude_defaults (`character()`)\cr 
+#'   For which parameters the defaults should not be checked.
+#'
+#' @export
+autotest_paramset = function(param_set, fns, exclude = character(0), exclude_defaults = character(0)) {
+  if (!is.list(fns)) fns = list(fns)
+
+  args = Reduce(c, lapply(fns, formalArgs))
+  ids = param_set$ids()
+
+  # The parameter ids
+
+  missing = setdiff(args, c(ids, exclude, "..."))
+  extra = setdiff(ids, c(args, exclude, "..."))
+
+  info = list()
+
+  if (length(missing) > 0) {
+    info$merror = sprintf("Missing parameters: %s", paste0(missing, collapse = ", "))
+  }
+
+  if (length(extra) > 0) {
+    info$eerror = sprintf("Extra parameters: %s", paste0(extra, collapse = ", "))
+  }
+
+
+  # The defaults
+  # Note that we ony check the defaults that are not language expressions.
+
+  ps_defaults = param_set$default
+  ps_defaults[setdiff(param_set$ids(), names(ps_defaults))] = list(NULL)
+  ps_defaults = ps_defaults[setdiff(names(ps_defaults), c(exclude, exclude_defaults))]
+
+  fn_defaults = Reduce(c, lapply(fns, formals)) %??% list()
+  fn_defaults[map_lgl(fn_defaults, function(x) as.character(x) == "")] = list(NULL)
+
+  wrong_defaults = imap(ps_defaults, function(default, id) {
+    if(!identical(fn_defaults[[id]], default)) id
+  })
+  wrong_defaults = unlist(Filter(function(x) !is.null(x), wrong_defaults))
+
+  if (length(wrong_defaults)) {
+    info$derror = sprintf("Wrong defaults: %s", paste0(wrong_defaults, collapse = ", "))
+  }
+
+  # unchecked_defaults = ps_defaults[setdiff(names(ps_defaults), names(fn_defaults))]
+
+  info
+}
+
 # Helper function to convert a vector of probabilities to a matrix
 #
 # sometimes useful in tests, e.g., mlr3learners.partykit::LearnerClassifMob
@@ -208,4 +268,23 @@ prob_vector_to_matrix = function(p, levs) {
   y = matrix(c(1 - p, p), ncol = 2L, nrow = length(p))
   colnames(y) = levs
   y
+}
+
+autotest_torch_callback = function(cb, init_args = list()) {
+  cbgen = cb$callback
+  expect_string(cb$id)
+  expect_class(cbgen, "R6ClassGenerator")
+  expect_class(cb$param_set, "ParamSet")
+  init_fn = get_init(cb$callback)
+  if (is.null(init_fn)) init_fn = function() NULL
+  paramtest = autotest_paramset(cb$param_set, init_fn)
+
+
+  # Check that the correct object comes out
+  cbt = do.call(cbgen$new, args = init_args)
+  expect_class(cbt, "CallbackTorch")
+
+  implemented_stages = names(cbgen$public_methods)[grepl("^on_", names(cbgen$public_methods))]
+
+  expect_subset(implemented_stages, mlr3torch_callback_stages)
 }

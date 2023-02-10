@@ -82,3 +82,20 @@ check_nn_module_generator = function(x) {
 
   "Most be module generator."
 }
+
+
+get_init = function(x) {
+  class_with_init(x)$public_methods$initialize
+}
+
+class_with_init = function(x) {
+  if (is.null(x)) {
+    # This is the case where no initialize method is found
+    return(NULL)
+  } else if (!is.null(x$public_methods$initialize)) {
+    return(x)
+  } else {
+    Recall(x$get_inherit())
+  }
+}
+

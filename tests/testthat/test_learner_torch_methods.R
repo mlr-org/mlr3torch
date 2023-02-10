@@ -103,6 +103,11 @@ test_that("Test roles are respected", {
   learner$hist_valid
 })
 
+test_that("train_loop works", {
+  learner = lrn("classif.mlp", )
+
+})
+
 test_that("learner_torch_predict works", {
 
 

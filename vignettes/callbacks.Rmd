@@ -1,0 +1,91 @@
+---
+title: "TOrch Callbacks"
+author: "Sebastian Fischer"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    keep_md: true
+vignette: >
+  %\VignetteIndexEntry{Devtools dependencies}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+# Torch in Callbacks
+
+The torch callback mechanism provides an option to customize the training, validation or prediction without having to write the whole training loop from scratch.
+This vignette will teach about the internal structure of callbacks, and why they are designed as they are.
+
+There are a couple of desiderata that should be fullfilled by the callback:
+
+1. They should allow to extend the parameter space of a learner, such that the parameters of a callback can be tuned.
+   This means that the callbacks should be - like the optimizer or the loss function - be a construction argument rather than a parameter.
+1. Learners that are configured with a custom callback should be cloneable without the user having to write a `deep_clone()` method.
+1. `lock_objects` should be `FALSE`, and arbitrary entries can be written into the callbacks.
+
+In the first callback implementation in `mlr3misc`, the `Tuner` took an instance of a `CallbackTorch`.
+The problem with that approach is that we should be able to ensure that the callback that was received was unused.
+
+A callback might write something into its fields. 
+The torch history callback for example saves the training and validation losses.
+The user might provide a callback that was already used.
+
+Consider for example the following pseudo code, where 
+
+```{r}
+# User wrote a custom callback
+callback = CallbackCustom$new()
+learner = lrn("classif.mlp", callback = callback)
+
+learner$clone(deep = TRUE)
+```
+
+In order for this to work, the CallbackCustom must e.g. not contain an environment. 
+It is of course even possible, that the user modifies the callback after initialization but before passing it to the learner.
+This can all be easily avoided, when the class of the callback is passed to the learner:
+
+
+```{r}
+learner = lrn("classif.mlp", callback = CallbackCustom)
+```
+
+Only during the `$train()` call of the learner, the `CallbackCustom$new()` is called.
+
+This however has the problem that a callback cannot be configured.
+An idea is to give the `CallbackCustom` a parameter set. However to access that parameter set, it must be initialized.
+This shows the need of a Wrapper class that contains the callback generator, i.e. `CallbackCustom` in the example above, as well as the configuration space which is implemented as a parameter set.
+
+In pseudo-code, this would be something like: 
+
+```{r}
+callback_wrapper = CallbackWrapper$new(
+  callback_generator = CallbackCustom, 
+  param_set = ps(...)
+)
+```
+
+The values in the `param_set`, will be passed to the `callback_generator$new()` call, so should be arguments of the `$initialize()` metod.
+
+In the `$initialize()` method of the learn, the param set is added to the `ParamSetCollection` of the learner, that already consists of the network parameters and the `TorchOptimizer`'s and `TorchLoss`'s parameters.
+
+To make the ids unique, the set_id of the callback is set to `"cb.<id>"`, which means that no parameter of the network must start with `"cb."`
+
+
+There are also other advantages to the approach. 
+
+During interactive use, the user might cancel the training / tuning.
+With the initial implementation, this means that the callback might be left in a weird state.
+If the learner is then trained again, the callback starts in a modified state, even if it was provided in a clean state initially.
+When the instance of the callback is created in the `$train()` call this problem does not arise.
+
+
+Of course, the question also arises with respect to the usability of this mechanism, as users should have have to be aware of all the listed details when they just want to modify the training loop.
+The natural solution to this problem is to hide all these details in the `torch_callback()` function.
+
+The final question is regarding the naming scheme, which is subotimal.
+
+The callback generators have the naming scheme `"CallbackTorch<Id>"`, while the wrapper class is named `"TorchCallback"`.
+While this might seem confusing, it is consistent with the other names for the wrappers classes `"TorchOptimizer"` and `"TorchLoss"`.
+
+

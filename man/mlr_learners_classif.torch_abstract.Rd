@@ -14,7 +14,7 @@ To create a torch learner from a \code{\link{nn_module}}, use \code{\link{Learne
 }
 \section{Construction}{
 
-\code{LearnerClassifTorchAbstract$new(id, optimizer, loss, param_set, properties = NULL, packages = character(0), predict_types = c("response", "prob"), feature_types, man, label)}
+\code{LearnerClassifTorchAbstract$new(id, optimizer, loss, param_set, properties = NULL, packages = character(0), predict_types = c("response", "prob"), feature_types, man, label, callbacks = list())}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object.
 \item \code{optimizer} :: (\code{\link{TorchOptimizer}})\cr
@@ -58,8 +58,6 @@ The device. One of \code{"auto"}, \code{"cpu"}, or \code{"cuda"}.
 Measures to be evaluated during training.
 \item \code{measures_valid} :: \code{\link{Measure}} or \code{list()} of \code{\link{Measure}}s.
 Measures to be evaluated during validation.
-\item \code{callbacks} :: \code{\link{CallbackTorch}} or \code{list()} of \code{CallbackTorch}\cr
-A list of unique callbacks
 \item \code{drop_last} :: \code{logical(1)}\cr
 Whether to drop the last batch in each epoch during training. Default is \code{FALSE}.
 \item \code{num_threads} :: \code{integer(1)}\cr
@@ -70,8 +68,8 @@ Whether to shuffle the instances in the dataset. Default is \code{TRUE}.
 How many rounds to wait for early stopping. The default is 0.
 }
 
-Additionally there are the parameters for the optimizer and the loss function preceded by the prefix
-\code{"opt."} and \code{"loss."} respectively.
+Additionally there are the parameters for the optimizer, the loss function and the callbacks.
+\code{"opt."}, \code{"loss."} and \code{"cb.<callback id>"} respectively.
 }
 
 \section{Inheriting}{

@@ -12,6 +12,7 @@ Classification Torch Learner that is used internally by \code{\link{PipeOpTorchM
 }
 \section{Construction}{
  \code{LearnerClassifTorchModel$new(network, ingress_tokens, optimizer = t_opt("adam"), loss = t_loss("cross_entropy"), packages = character(0))}
+TODO : The construction arguments
 }
 
 \section{State}{

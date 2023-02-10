@@ -53,7 +53,6 @@ utils::globalVariables(c("self", "private", "super"))
 
 mlr3torch_pipeops = new.env()
 mlr3torch_learners = new.env()
-mlr3torch_callbacks = new.env()
 mlr3torch_tasks = new.env()
 mlr3torch_tags = c("torch", "activation")
 mlr3torch_feature_types = list(img = "imageuri")
@@ -77,6 +76,19 @@ mlr3torch_activations = c(
   "leaky_relu"
 )
 
+mlr3torch_callback_stages = c(
+  "on_begin",
+  "on_end",
+  "on_epoch_begin",
+  "on_before_validation",
+  "on_epoch_end",
+  "on_batch_begin",
+  "on_batch_end",
+  "on_after_backward",
+  "on_batch_valid_begin",
+  "on_batch_valid_end"
+)
+
 
 register_po = function(name, constructor, metainf = NULL) {
   if (name %in% names(mlr3torch_pipeops)) stopf("pipeop %s registered twice", name)
@@ -93,11 +105,6 @@ register_task = function(name, constructor) {
   mlr3torch_tasks[[name]] = constructor
 }
 
-register_callback = function(name, constructor) {
-  if (name %in% names(mlr3torch_callbacks)) stopf("callback %s registered twice", name)
-  mlr3torch_callbacks[[name]] = constructor
-}
-
 register_mlr3 = function() {
   mlr_learners = utils::getFromNamespace("mlr_learners", ns = "mlr3")
   iwalk(as.list(mlr3torch_learners), function(l, nm) mlr_learners$add(nm, l)) # nolint
@@ -111,7 +118,6 @@ register_mlr3 = function() {
   mlr_reflections$learner_properties$classif = c(mlr_reflections$learner_properties$classif, "bundle")
 
   mlr_callbacks = utils::getFromNamespace("mlr_callbacks", ns = "mlr3misc")
-  iwalk(as.list(mlr3torch_callbacks), function(clbk, nm) mlr_callbacks$add(nm, clbk)) # nolint
 }
 
 register_mlr3pipelines = function() {

@@ -11,7 +11,7 @@
 Simple multi layer perceptron with dropout.
 }
 \section{Construction}{
-
+ \code{LearnerClassifMLP$new(optimizer = t_opt("adam"), loss = t_loss("cross_entropy"), callbacks = list())}
 }
 
 \section{State}{
@@ -22,13 +22,13 @@ Simple multi layer perceptron with dropout.
 
 Parameters from \code{\link{LearnerClassifTorchAbstract}}, as well as:
 \itemize{
-\item \code{act} :: \code{character(1)}\cr
+\item \code{activation} :: \code{character(1)}\cr
 Activation function.
-\item \code{act_args} :: named \code{list()}\cr
+\item \code{activation_args} :: named \code{list()}\cr
 A named list with initialization arguments for the activation function.
 \item \code{layers} :: \code{integer(1)}\cr
 The number of layers.
-\item \code{d} :: \code{numeric(1)}\cr
+\item \code{d_hidden} :: \code{numeric(1)}\cr
 The dimension of the hidden layers.
 \item \code{p} :: \code{numeric(1)}\cr
 The dropout probability.
@@ -48,3 +48,4 @@ The dropout probability.
 A \code{\link[=nn_sequential]{nn_sequential()}} is generated for the given parameter values.
 }
 
+\concept{Learner}

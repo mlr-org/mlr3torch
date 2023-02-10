@@ -14,7 +14,7 @@ Object to convert to a \code{\link{TorchLoss}}.}
 Whether to make a deep clone.}
 
 \item{...}{(any)\cr
-Additional arguments. Currently unused.}
+Additional arguments.}
 }
 \value{
 \code{\link{TorchLoss}}.

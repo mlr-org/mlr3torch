@@ -5,10 +5,12 @@
 \alias{CallbackTorch}
 \title{Base Class for Torch Callbacks}
 \format{
-\code{\link{R6Class}} inheriting from \code{\link[mlr3misc:Callback]{Callback}}.
+\code{\link{R6Class}}
 }
 \description{
 Base class for Torch Callbacks.
+To create custom callbacks,to use in a torch learner use \code{\link{torch_callback}}.
+
 Torch Callbacks can be used to gain more control over the training process of a neural network without
 having to write the whole training loop.
 At each stage (see section "Stages") of the training loop, the corresponding \verb{on_<stage>(ctx)} method is run
@@ -16,16 +18,28 @@ that takes as argument a \code{\link{ContextTorch}} which gives access to the re
 }
 \section{Construction}{
 
-\code{CallbackTorch$new(id, label = NA_character_, man = NA_character_)}
+\code{CallbackTorch$new()}
 See \code{\link{Callback}} for the construction arguments.
+}
+
+\section{Fields}{
+
+\itemize{
+\item \code{id} :: (\code{character(1)})\cr
+The id of the callback.
+\item \code{label} :: (\code{character(1)})\cr
+The label of the callback.
+}
+}
+
+\section{Methods}{
+
+See section \emph{Stages}.
 }
 
 \section{Inheriting}{
 
 It is recommended to use the sugar function \code{\link[=`callback_torch]{`callback_torch()}} to create custom callbacks.
-
-It is important to not overwrite the private variable \verb{$.__trained__} which is used to communicate whether a
-callback has already been used, as learners require unused callbacks.
 }
 
 \section{Stages}{
@@ -39,8 +53,8 @@ callback has already been used, as learners require unused callbacks.
 \item \code{batch_end} :: Run after the optimizer step.
 \item \code{batch_valid_begin} :: Run before the forward call in the validation loop.
 \item \code{batch_valid_end} :: Run after the forward call in the validation loop.
-\item \code{epoch_end} :: Run at the end of each epoch
-\item \code{end} :: Run at the end of the training loop.
+\item \code{epoch_end} :: Run at the end of each epoch.
+\item \code{end} :: Run at last, using \code{on.exit()}.
 }
 }
 

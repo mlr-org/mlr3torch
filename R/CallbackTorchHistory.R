@@ -1,34 +1,56 @@
-CallbackTorchHistory = callback_torch(
+#' @title Callback Torch History
+#'
+#' @usage NULL
+#' @name mlr3torch_callbacks.history
+#' @format `r roxy_format(CallbackTorchHistory)`
+#'
+#' @description
+#' Saves the history during training.
+#'
+#' @export
+CallbackTorchHistory = R6Class("CallbackTorchHistory",
+  inherit = CallbackTorch, lock_objects = FALSE,
   public = list(
-    initialize = function(ctx) {
-      super$initialize(id = "history", label = "Callback Torch History", man = "mlr_callbacks_torch.history")
+    id = "history",
+    man = "mlr_callbacks_torch.history",
+    label = "Torch History",
+    on_begin = function(ctx) {
+      self$train = list(list(epoch = numeric(0)))
+      self$valid = list(list(epoch = numeric(0)))
+    },
+    on_end = function(ctx) {
+      self$train = rbindlist(self$train, fill = TRUE)
+      self$valid = rbindlist(self$valid, fill = TRUE)
+    },
+    on_before_validation = function(ctx) {
+      if (length(ctx$last_scores_train)) {
+        self$train[[length(self$train) + 1]] = c(list(epoch = ctx$epoch), ctx$last_scores_train)
+      }
+    },
+    on_epoch_end = function(ctx) {
+      if (length(ctx$last_scores_valid)) {
+        self$valid[[length(self$valid) + 1]] = c(list(epoch = ctx$epoch), ctx$last_scores_valid)
+      }
     }
   ),
-  on_begin = function(ctx) {
-    self$state$hist_train = list(list(epoch = numeric(0)))
-    self$state$hist_valid = list(list(epoch = numeric(0)))
-  },
-  on_end = function(ctx) {
-    self$state$hist_train = rbindlist(self$state$hist_train, fill = TRUE)
-    self$state$hist_valid = rbindlist(self$state$hist_valid, fill = TRUE)
-  },
-  on_before_validation = function(ctx) {
-    if (length(ctx$last_scores_train)) {
-      self$state$hist_train[[length(self$state$hist_train) + 1]] = c(list(epoch = ctx$epoch), ctx$last_scores_train)
-    }
-  },
-  on_epoch_end = function(ctx) {
-    if (length(ctx$last_scores_valid)) {
-      self$state$hist_valid[[length(self$state$hist_valid) + 1]] = c(list(epoch = ctx$epoch), ctx$last_scores_valid)
-    }
-  },
   private = list(
     deep_clone = function(name, value) {
-      if (name == "state") {
-        map(value, data.table::copy)
+      if (name %in% c("train", "valid")) {
+        data.table::copy(value)
       } else {
         value
       }
     }
   )
 )
+
+
+
+#' @include CallbackTorch.R
+mlr3torch_callbacks$add("history", function() {
+  TorchCallback$new(
+    callback_generator = CallbackTorchHistory,
+    param_set = ps()
+  )
+})
+

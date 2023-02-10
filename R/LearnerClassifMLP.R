@@ -8,7 +8,6 @@
 #' Simple multi layer perceptron with dropout.
 #'
 #' @section Construction: `r roxy_construction(LearnerClassifMLP)`
-#' * `r roxy_param_loss`
 #'
 #' @section State: See [`LearnerClassifTorchAbstract`].
 #'
@@ -37,7 +36,7 @@
 LearnerClassifMLP = R6Class("LearnerClassifMLP",
   inherit = LearnerClassifTorchAbstract,
   public = list(
-    initialize = function(optimizer = t_opt("adam"), loss = t_loss("cross_entropy")) {
+    initialize = function(optimizer = t_opt("adam"), loss = t_loss("cross_entropy"), callbacks = list()) {
       param_set = ps(
         activation      = p_fct(default = "relu", tags = "train", levels = mlr3torch_activations),
         activation_args = p_uty(tags = "train", custom_check = check_list),
@@ -52,6 +51,7 @@ LearnerClassifMLP = R6Class("LearnerClassifMLP",
         label = "Multi Layer Perceptron",
         param_set = param_set,
         optimizer = optimizer,
+        callbacks = callbacks,
         loss = loss,
         man = "mlr3torch::mlr_learners_classif.mlp",
         feature_types = c("numeric", "integer")
@@ -61,7 +61,7 @@ LearnerClassifMLP = R6Class("LearnerClassifMLP",
   private = list(
     .network = function(task, param_vals) {
       act = getFromNamespace(paste0("nn_", param_vals$activation), ns = "torch")
-      
+
       d_hidden = param_vals$d_hidden
       layers = param_vals$layers
       if (layers == 0L) {
@@ -73,15 +73,15 @@ LearnerClassifMLP = R6Class("LearnerClassifMLP",
       dropout_args = if (is.null(param_vals$p)) list() else list(p = param_vals$p)
 
       modules = list(
-        nn_linear(length(task$feature_names), d_hidden), 
-        invoke(act, .args = param_vals$activation_args), 
+        nn_linear(length(task$feature_names), d_hidden),
+        invoke(act, .args = param_vals$activation_args),
         invoke(nn_dropout, .args = dropout_args)
       )
 
       for (i in seq_len(layers - 1L)) {
         modules = c(modules, list(
-          nn_linear(d_hidden, d_hidden), 
-          invoke(act, .args = param_vals$activation_args), 
+          nn_linear(d_hidden, d_hidden),
+          invoke(act, .args = param_vals$activation_args),
           invoke(nn_dropout, .args = dropout_args)
         ))
       }

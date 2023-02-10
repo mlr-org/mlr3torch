@@ -111,20 +111,10 @@ roxy_param_innum = function() {
 }
 
 roxy_construction = function(x) {
-  find_obj_with_init = function(x) {
-    if (is.null(x)) {
-      # This is the case where no initialize method is found
-      return(NULL)
-    } else if (!is.null(x$public_methods$initialize)) {
-      return(x)
-    } else {
-      find_obj_with_init(x$get_inherit())
-    }
-  }
-  obj_with_init = find_obj_with_init(x)
+  obj_with_init = class_with_init(x)
   if (is.null(obj_with_init)) {
     # None of the parents or the object itself has an initialize method
-    obj_with_init = function() NULL
+    init = function() NULL
   } else {
     init = obj_with_init$public_methods$initialize
 

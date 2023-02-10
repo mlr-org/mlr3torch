@@ -45,10 +45,12 @@ learner_torch_train_worker = function(self, private, super, task, param_vals, co
     network = private$.network(task, param_vals)$to(device = param_vals$device)
     optimizer = private$.optimizer$get_optimizer(network$parameters)
     loss_fn = private$.loss$get_loss()
-    callbacks = normalize_to_list(c(list(CallbackTorchHistory$new()), param_vals$callbacks))
+
+    callbacks = c(lapply(private$.callbacks, function(cb) cb$get_callback()))
+    callbacks = set_names(callbacks, map(callbacks, "id"))
   }
 
-  ctx = ContextTorch$new(
+  ctx = ContextTorchTrain$new(
     learner = self,
     task_train = task,
     task_valid = if (task_valid$nrow) task_valid,
@@ -82,7 +84,6 @@ train_loop = function(ctx, cbs) {
   # note that task_valid may be present (callbacks could do their own validation)
   does_validation = length(ctx$measures_valid)
 
-  walk(cbs, function(cb) cb$state = NULL)
 
   on.exit({
     # in case a callback wants to finalize things
@@ -131,13 +132,17 @@ train_loop = function(ctx, cbs) {
       call("on_batch_end")
     })
 
-    ctx$last_scores_train = measure_prediction(torch_cat(predictions, dim = 1L), ctx$measures_train, ctx$task_train,
-      ctx$task_train$row_ids[unlist(indices)])
+    ctx$last_scores_train = measure_prediction(
+      pred_tensor = torch_cat(predictions, dim = 1L), 
+      measures = ctx$measures_train,
+      task = ctx$task_train,
+      row_ids = ctx$task_train$row_ids[unlist(indices)]
+    )
 
     call("on_before_validation")
     if (does_validation) {
       ctx$network$eval()
-      pred_tensor = torch_network_predict(ctx$network, ctx$loader_valid, call)
+      pred_tensor = torch_network_predict_valid(ctx$network, ctx$loader_valid, call)
       ctx$last_scores_valid = measure_prediction(pred_tensor, ctx$measures_valid, ctx$task_valid,
         ctx$task_valid$row_ids)
       ctx$network$train()
@@ -153,9 +158,9 @@ train_loop = function(ctx, cbs) {
   )
 }
 
-torch_network_predict = function(network, loader, callback_receiver = function(step_name) NULL) {
+torch_network_predict_valid = function(network, loader,  callback_receiver = function(step_name) NULL) {
   iter = 1L
-  predictions = list()
+  predictions = vector("list", length = length(loader))
   one_arg = length(formalArgs(network)) == 1L
   loop(for (batch in loader) {
     callback_receiver("on_batch_valid_begin")
@@ -168,6 +173,22 @@ torch_network_predict = function(network, loader, callback_receiver = function(s
     callback_receiver("on_batch_valid_end")
   })
   torch_cat(predictions, dim = 1L)
+}
+
+torch_network_predict = function(network, loader) {
+  iter = 1L
+  predictions = vector("list", length = length(loader))
+  one_arg = length(formalArgs(network)) == 1L
+  loop(for (batch in loader) {
+    if (one_arg) {
+      predictions[[iter]] = with_no_grad(network(batch$x[[1L]]))
+    } else {
+      predictions[[iter]] = with_no_grad(do.call(network, batch$x))
+    }
+    iter = iter + 1L
+  })
+  torch_cat(predictions, dim = 1L)
+
 }
 
 encode_prediction = function(predict_tensor, predict_type, task) {
@@ -242,24 +263,18 @@ learner_torch_network = function(self, task, rhs) {
 learner_torch_param_set = function(self, rhs) {
   private = self$.__enclos_env__$private
   if (is.null(private$.param_set)) {
-    private$.param_set = ParamSetCollection$new(
-      list(private$.param_set_base, private$.optimizer$param_set, private$.loss$param_set))
+    private$.param_set = ParamSetCollection$new(c(
+      list(private$.param_set_base, private$.optimizer$param_set, private$.loss$param_set),
+      map(private$.callbacks, "param_set"))
+    )
   }
   private$.param_set
 }
 
-learner_torch_hist_valid = function(self, rhs) {
-  assert_ro_binding(rhs)
-  if (is.null(self$state)) {
-    stopf("Cannot access validation history before training.")
-  }
-  self$model$callbacks$history$state$hist_valid
-}
-
-learner_torch_hist_train = function(self, rhs) {
+learner_torch_history = function(self, rhs) {
   assert_ro_binding(rhs)
   if (is.null(self$state)) {
     stopf("Cannot access training history before training.")
   }
-  self$model$callbacks$history$state$hist_train
+  self$model$callbacks$history$state
 }

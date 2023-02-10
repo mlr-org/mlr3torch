@@ -7,9 +7,6 @@
 \format{
 \code{\link{R6Class}}
 }
-\value{
-A \code{\link{TorchOptimizer}}.
-}
 \description{
 This wraps a \code{torch::torch_optimizer_generator}.
 It is commonly used to configure the \code{optimizer} of a torch learner.
@@ -79,3 +76,9 @@ tochopt$param_set
 net = nn_linear(10, 1)
 opt = torchopt$get_optimizer(net$parameters)
 }
+\seealso{
+Other torch_wrapper: 
+\code{\link{torch_callback}()},
+\code{\link{torch_loss}}
+}
+\concept{torch_wrapper}

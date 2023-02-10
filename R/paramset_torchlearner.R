@@ -6,7 +6,6 @@ paramset_torchlearner = function() {
     measures_train        = p_uty(tags = "train", custom_check = check_measures),
     measures_valid        = p_uty(tags = "train", custom_check = check_measures),
     # augmentation          = p_uty(tags = "train"),
-    callbacks             = p_uty(tags = "train", custom_check = check_callbacks),
     drop_last             = p_lgl(default = FALSE, tags = "train"),
     num_threads           = p_int(default = 1L, lower = 1L, tags = c("train", "predict", "threads")),
     shuffle               = p_lgl(default = TRUE, tags = "train"),
@@ -25,7 +24,7 @@ check_callbacks = function(x) {
   if ("history" %in% ids || any(map_lgl(x, function(x) inherits(x, "TorchHistory")))) {
     return("CallbackTorchHistory with id 'history' is always added.")
   }
-  msg = check_list(x, types = "CallbackTorch", any.missing = FALSE)
+  msg = check_list(x, types = "TorchCallback", any.missing = FALSE)
   if (is.character(msg)) {
     return(msg)
   }

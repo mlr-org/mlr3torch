@@ -85,17 +85,31 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
   inherit = LearnerClassif,
   public = list(
     initialize = function(id, optimizer, loss, param_set, properties = NULL, packages = character(0),
-      predict_types = c("response", "prob"), feature_types, man, label) {
+      predict_types = c("response", "prob"), feature_types, man, label, callbacks = list()) {
       private$.optimizer = as_torch_optimizer(optimizer, clone = TRUE)
       private$.optimizer$param_set$set_id = "opt"
 
       private$.loss = as_torch_loss(loss, clone = TRUE)
       private$.loss$param_set$set_id = "loss"
-      properties = properties %??% c("twoclass", "multiclass", "weights")
+
+      private$.callbacks = as_torch_callbacks(callbacks, clone = TRUE)
+      cb_ids = map_chr(private$.callbacks, "id")
+      assert_true(!"history" %in% cb_ids)
+
+      private$.callbacks = c(t_clbk("history"), private$.callbacks)
+
+      assert_names(cb_ids, type = "unique")
+      private$.callbacks = set_names(private$.callbacks, cb_ids)
+      walk(private$.callbacks, function(cb) {
+        param_set = cb$param_set
+        param_set$set_id = paste0("cb.", cb$id)
+      })
+
+      properties = properties %??% c("twoclass", "multiclass")
 
       assert_subset(properties, mlr_reflections$learner_properties[["classif"]])
       assert_subset(predict_types, names(mlr_reflections$learner_predict_types[["classif"]]))
-      assert_true(!any(grepl("^(loss\\.|opt\\.)", param_set$ids())))
+      assert_true(!any(grepl("^(loss\\.|opt\\.|cb\\.)", param_set$ids())))
       packages = assert_character(packages, any.missing = FALSE, min.chars = 1L)
       packages = union(c("mlr3torch", "torch"), packages)
 
@@ -141,13 +155,13 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
     .optimizer = NULL,
     .loss = NULL,
     .param_set_base = NULL,
+    .callbacks = NULL,
     deep_clone = function(name, value) deep_clone(self, private, super, name, value)
   ),
   active = list(
     network = function(rhs) learner_torch_network(self, rhs),
     param_set = function(rhs) learner_torch_param_set(self, rhs),
-    hist_train = function(rhs) learner_torch_hist_train(self, rhs),
-    hist_valid = function(rhs) learner_torch_hist_valid(self, rhs)
+    history = function(rhs) learner_torch_history(self, rhs)
   )
 )
 

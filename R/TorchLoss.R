@@ -8,7 +8,7 @@
 #' @param clone (`logical(1)`\cr
 #'   Whether to make a deep clone.
 #' @param ... (any)\cr
-#' Additional arguments. Currently unused.
+#' Additional arguments.
 #'
 #' @return [`TorchLoss`].
 #' @export
@@ -28,8 +28,8 @@ as_torch_loss.TorchLoss = function(x, clone = FALSE) { # nolint
 }
 
 #' @export
-as_torch_loss.character = function(x, clone = FALSE) { # nolint
-  t_loss(x)
+as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
+  t_loss(x, ...)
 }
 
 #' @title Torch Loss
@@ -83,6 +83,7 @@ as_torch_loss.character = function(x, clone = FALSE) { # nolint
 #' * `help()`\cr
 #'   Opens the help page for the wrapped loss.
 #'
+#' @family torch_wrapper
 #' @export
 #' @examples
 #' # Create a new Torch Loss
@@ -117,9 +118,12 @@ TorchLoss = R6::R6Class("TorchLoss",
     get_loss = function() {
       require_namespaces(self$packages)
       invoke(self$loss, .args = self$param_set$get_values())
-    },
-    help = function() {
-      help(self$loss)
+    }, 
+    print = function(...) {
+      catn("<TorchLoss:>", self$label)
+      catn(str_indent("* Generator:", self$optimizer$classname))
+      catn(str_indent("* Parameters:", as_short_string(self$param_set$values, 1000L)))
+      catn(str_indent("* Task Types:", as_short_string(self$task_types, 1000L)))
     }
   )
 )

@@ -13,7 +13,7 @@ Object to convert to a \code{\link{TorchOptimizer}}.}
 \item{clone}{(\code{logical(1)}\cr
 Whether to make a deep clone. Default is \code{FALSE}.}
 
-\item{...}{Additional arguments. Currently unused.}
+\item{...}{Additional arguments.}
 }
 \value{
 \code{\link{TorchOptimizer}}

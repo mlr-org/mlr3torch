@@ -376,6 +376,11 @@ Also add tests or sth.
 
 * remove torch linear - superseded by classif.mlp
 
+* Callbacks for the prediction.
+
+* Refactor TorchLoss, TorchOptimizer and TorchCallback to inherit from TorchWrapper or something as the 
+structure is almost identical.
+
 
 **Mit Martin**
 

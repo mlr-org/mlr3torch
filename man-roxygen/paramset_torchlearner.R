@@ -9,8 +9,6 @@
 #'   Measures to be evaluated during training.
 #' * `measures_valid` :: [`Measure`] or `list()` of [`Measure`]s.
 #'   Measures to be evaluated during validation.
-#' * `callbacks` :: [`CallbackTorch`] or `list()` of `CallbackTorch`\cr
-#'   A list of unique callbacks
 #' * `drop_last` :: `logical(1)`\cr
 #'   Whether to drop the last batch in each epoch during training. Default is `FALSE`.
 #' * `num_threads` :: `integer(1)`\cr
@@ -20,5 +18,5 @@
 #' * `early_stopping_rounds` :: `integer(1)`\cr
 #'   How many rounds to wait for early stopping. The default is 0.
 #'
-#' Additionally there are the parameters for the optimizer and the loss function preceded by the prefix
-#' `"opt."` and `"loss."` respectively.
+#' Additionally there are the parameters for the optimizer, the loss function and the callbacks.
+#' `"opt."`, `"loss."` and `"cb.<callback id>"` respectively.

@@ -25,7 +25,7 @@
 #' * `batch` :: The current iteration of the batch.
 #'
 #' @export
-ContextTorch = R6Class("ContextTorch",
+ContextTorchTrain = R6Class("ContextTorchTrain",
   inherit = Context,
   lock_objects = FALSE,
   public = list(
@@ -66,3 +66,11 @@ ContextTorch = R6Class("ContextTorch",
     batch = NULL
   )
 )
+
+# ContextTorchPredict = R6Class("ContextTorchPredict", 
+#   inherit = Context,
+#   lock_objects = FALSE,
+#   public = list(
+#     initialize = function(learner, task_test)
+#   )
+# )
