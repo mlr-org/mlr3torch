@@ -1,3 +1,30 @@
+#' Sugar Function to Retrieve Torch Callback(s)
+#'
+#' Retrieves one or more torch callback from the callback registry.
+#'
+#' @param .key, (`character(1)`)\cr
+#'   The key of the callback.
+#' @param .keys, (`character()`)\cr
+#'   The keys of the callbacks.
+#' @param ... (any)\cr
+#'   See description of [`dictionary_sugar_get`].
+#'
+#' @return A [`CallbackTorch`]
+#'
+#' @export
+#' @examples
+#' t_clbk("progress")
+t_clbk = function(.key ...) {
+  dictionary_sugar_get(dict = mlr3torch_callbacks, .key = .key, ...)
+}
+
+
+#' @rdname t_clbk
+#' @export
+t_clbks = function(.keys, ...) {
+  dictionary_sugar_mget(dict = mlr3torch_callbacks, .keys = .keys, ...)
+}
+
 #' @title Convert to a [`TorchCallback`]
 #' @description
 #' Converts an object to a [`TorchCallback`].
@@ -66,19 +93,17 @@ as_torch_callbacks.default = function(x, clone = FALSE, ...) { # nolint
   list(as_torch_callback(x, clone = clone, ...))
 }
 
-
-
-
 #' @title Torch Callback
 #'
 #' @usage NULL
-#' @name torch_callback
+#' @name TorchCallback
 #' @format `r roxy_format(TorchCallback)`
 #'
 #' @description
-#' Leight-weight wrapper around Torch Callbacks: A [`TorchCallback`] wraps a [`CallbackTorch`].
+#' Leight-weight wrapper around callback for torch: A [`TorchCallback`] wraps a [`CallbackTorch`].
 #' To conveniently retrieve a [`TorchCallback`], use [`t_clbk`].
-#' It is an analogous construct to the classes [`TorchOptimizer`] or [`TorchLoss`].
+#' It is an analogous construct to the classes [`TorchOptimizer`] or [`TorchLoss`] which wrap torch optimizers and 
+#' losses.
 #'
 #' @section Construction: `r roxy_construction(TorchCallback)`
 #'
@@ -103,13 +128,13 @@ as_torch_callbacks.default = function(x, clone = FALSE, ...) { # nolint
 #' @section Methods:
 #' * `get_callback()`\cr
 #'    () -> `CallbackTorch`
-#'    Initializes an instance of the class of the wrapped callback with the given parameter specification.
 #'
 #' @family torch_wrapper
 #' @include utils.R
 #' @export
 TorchCallback = R6Class("TorchCallback",
   public = list(
+    param_set = NULL,
     initialize = function(callback_generator, param_set = NULL, packages = NULL) {
       private$.callback = assert_class(callback_generator, "R6ClassGenerator")
       private$.packages = assert_character(union(packages, "mlr3torch"), any.missing = FALSE)
@@ -124,12 +149,12 @@ TorchCallback = R6Class("TorchCallback",
       init_method = get_init(callback_generator)
       if (is.null(param_set)) {
         if (!is.null(init_method)) {
-          private$.param_set = inferps(init_method, tags = character(0))
+          self$param_set = inferps(init_method, tags = character(0))
         } else {
-          private$.param_set = ps()
+          self$param_set = ps()
         }
       } else {
-        private$.param_set = assert_param_set(param_set)
+        self$param_set = assert_param_set(param_set)
         if (is.null(init_method)) {
           assert_true(param_set$length == 0)
         } else {
@@ -157,10 +182,6 @@ TorchCallback = R6Class("TorchCallback",
       assert_ro_binding(rhs)
       private$.callback
     },
-    param_set = function(rhs) {
-      assert_ro_binding(rhs)
-      private$.param_set
-    },
     packages = function(rhs) {
       assert_ro_binding(rhs)
       private$.packages
@@ -168,8 +189,135 @@ TorchCallback = R6Class("TorchCallback",
   ),
   private = list(
     .callback = NULL,
-    .param_set = NULL,
     .id = NULL,
     .packages = NULL
   )
 )
+
+#' @title Create a Torch Callback
+#'
+#' @description
+#' Convenience function to create a custom callback for torch.
+#' For more information on how to correctly implement a new callback, see [`CallbackTorch`].
+#' To use callbacks, one should be familiar with [`R6Class`].
+#'
+#' @param id
+#'
+#' @param name (`character(1)`)\cr
+#'   The class name, e.g. `"CallbackTorchCustom"`.
+#'   Per default i
+#' @param on_begin, on_end, on_epoch_begin, on_before_valid, on_epoch_end, on_batch_begin, on_batch_end,
+#' on_after_backward, on_batch_valid_begin, on_batch_valid_end (`function( )\cr
+#' Function to execute at the given stage, see section *Stages*.
+#'
+#' @param id (`character(1)`)\cr`\cr
+#'   The id for the callbacks. Note that the ids of callbacks passted to a learner must be unique.
+#' @param param_set (`ParamSet`)\cr
+#'   The parameter set, if not present it is inferred from the initialize method.
+#' @param name (`character(1)`)\cr
+#'   The class name of the torch callback. Is set to `"CallbackTorch<Id>"` per default.
+#'   E.g. id `id` is `"custom"`, the name is set to `"CallbackTorchCustom"`.
+#' @param public (`list()`)\cr
+#'   Additional public fields to add to the callback.
+#' @param private (`list()`)\cr
+#'   Additional private fields to add to the callback.
+#' @param active (`list()`)\cr
+#'   Additional active fields to add to the callback.
+#' @param parent_env (`environment()`)\cr
+#'   The parent environment for the [`R6Class`].
+#'
+#' @inheritSection mlr_callbacks_torch Stages
+#'
+#'
+#' @section Internals:
+#' It first creates an [`R6ClassGenerator`] that generates a [`CallbackTorch`] and when wraps this generator in a
+#' [`TorchCallback`].
+#'
+#' @export
+#' @include zzz.R
+#' @examples
+#' custom_tcb = torch_callback(
+#'   "mycallback", 
+#'   public = list(
+#'     initialize = function(greeting) {
+#'       self$greeting = greeting
+#'     } 
+#'   ),
+#'   on_begin = function(ctx) {
+#'     cat(self$greeting, ctx$name, "\n")
+#'   }, 
+#'   on_end = function(ctx) {
+#'     cat("Bye", ctx$name, "\n")
+#'   }
+#' )
+#' 
+#' custom_tcb$param_set$set_values(greeting = "Wazzuuup")
+#' 
+#' cb = custom_tcb$get_callback()
+#' 
+#' ctx = new.env()
+#' ctx$name = "Julia"
+#' 
+#' f = function(ctx, cb) {
+#'   cb$on_begin(ctx)
+#'   catn("Doing heavy work ...")
+#'   cb$on_end(ctx)
+#' }
+#' 
+#' f(ctx, cb)
+torch_callback = function(
+  id,
+  param_set = NULL,
+  name = paste0("CallbackTorch", capitalize(id)),
+  # training
+  on_begin = NULL,
+  on_end = NULL,
+  on_epoch_begin = NULL,
+  on_before_valid = NULL,
+  on_epoch_end = NULL,
+  on_batch_begin = NULL,
+  on_batch_end = NULL,
+  on_after_backward = NULL,
+  # validation
+  on_batch_valid_begin = NULL,
+  on_batch_valid_end = NULL,
+  # predcition
+  public = NULL, private = NULL, active = NULL, parent_env = parent.frame()) {
+  assert_string(id, min.chars = 1L)
+  more_public = list(
+    on_begin = assert_function(on_begin, args = "ctx", null.ok = TRUE),
+    on_end = assert_function(on_end, args = "ctx", null.ok = TRUE),
+    on_epoch_begin = assert_function(on_epoch_begin, args = "ctx", null.ok = TRUE),
+    on_before_valid = assert_function(on_before_valid, args = "ctx", null.ok = TRUE),
+    on_epoch_end = assert_function(on_epoch_end, args = "ctx", null.ok = TRUE),
+    on_batch_begin = assert_function(on_batch_begin, args = "ctx", null.ok = TRUE),
+    on_batch_end = assert_function(on_batch_end, args = "ctx", null.ok = TRUE),
+    on_after_backward = assert_function(on_after_backward, args = "ctx", null.ok = TRUE),
+    on_batch_valid_begin = assert_function(on_batch_valid_begin, args = "ctx", null.ok = TRUE),
+    on_batch_valid_end = assert_function(on_batch_valid_end, args = "ctx", null.ok = TRUE),
+    id = id
+  )
+
+  assert_list(public, null.ok = TRUE, names = "unique")
+  if (length(public)) assert_names(names(public), disjunct.from = names(more_public))
+
+  stage_through_public = intersect(names(public), mlr3torch_callback_stages)
+
+  walk(stage_through_public, function(stage) {
+    assert_function(public[[stage]], args = "ctx")
+  })
+
+  assert_list(private, null.ok = TRUE, names = "unique")
+  assert_list(active, null.ok = TRUE, names = "unique")
+  assert_environment(parent_env)
+
+  more_public = Filter(function(x) !is.null(x), more_public)
+  parent_env_shim = new.env(parent = parent_env)
+  parent_env_shim$inherit = CallbackTorch
+  callback_generator = R6::R6Class(classname = name, inherit = CallbackTorch, public = c(more_public, public),
+    private = private, active = active, parent_env = parent_env_shim, lock_objects = FALSE)
+
+  TorchCallback$new(callback_generator = callback_generator, param_set = param_set)
+}
+
+

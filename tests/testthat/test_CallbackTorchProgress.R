@@ -7,7 +7,8 @@ test_that("manual test", {
   learner = lrn("classif.mlp", epochs = 1, batch_size = 1, d_hidden = 1, layers = 0,
     measures_train = msr("classif.acc"), measures_valid = msr("classif.ce"), callbacks = t_clbk("progress")
   )
-  task = tsk("iris")$set_row_roles(1, "use")$set_row_roles(2:3, "test")
+  task = tsk("iris")
+  task$row_roles = list(use = 1, test = 2, holdout = integer(0))
 
   # Because the validation is so short, it does not show in the example
   # We can make it longer by adding some sleep through callbacks

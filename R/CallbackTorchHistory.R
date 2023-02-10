@@ -22,7 +22,7 @@ CallbackTorchHistory = R6Class("CallbackTorchHistory",
       self$train = rbindlist(self$train, fill = TRUE)
       self$valid = rbindlist(self$valid, fill = TRUE)
     },
-    on_before_validation = function(ctx) {
+    on_before_valid = function(ctx) {
       if (length(ctx$last_scores_train)) {
         self$train[[length(self$train) + 1]] = c(list(epoch = ctx$epoch), ctx$last_scores_train)
       }

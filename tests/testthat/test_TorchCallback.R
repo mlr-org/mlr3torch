@@ -1,3 +1,12 @@
+test_that("Can retrieve predefined callback", {
+  x = t_clbk("checkpoint")
+  expect_class(x, "TorchCallback")
+
+  cb = t_clbk("checkpoint", freq = 2)
+  expect_class(cb, "TorchCallback")
+  expect_equal(cb$param_set$values$freq, 2)
+})
+
 test_that("TorchCallback basic checks", {
   Cbt1 = R6Class("CallbackTorchTest1")
   expect_error(TorchCallback$new(Cbt1),

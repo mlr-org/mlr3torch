@@ -79,7 +79,7 @@ los = tchloss$get_loss()
 }
 \seealso{
 Other torch_wrapper: 
-\code{\link{torch_callback}()},
+\code{\link{TorchCallback}},
 \code{\link{torch_optimizer}}
 }
 \concept{torch_wrapper}

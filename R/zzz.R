@@ -76,17 +76,18 @@ mlr3torch_activations = c(
   "leaky_relu"
 )
 
+# these are sorted in the order in which they are executed
 mlr3torch_callback_stages = c(
   "on_begin",
-  "on_end",
   "on_epoch_begin",
-  "on_before_validation",
-  "on_epoch_end",
   "on_batch_begin",
-  "on_batch_end",
   "on_after_backward",
+  "on_batch_end",
+  "on_before_valid",
   "on_batch_valid_begin",
-  "on_batch_valid_end"
+  "on_batch_valid_end",
+  "on_epoch_end",
+  "on_end"
 )
 
 

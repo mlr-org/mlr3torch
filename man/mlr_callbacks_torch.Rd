@@ -8,25 +8,24 @@
 \code{\link{R6Class}}
 }
 \description{
-Base class for Torch Callbacks.
-To create custom callbacks,to use in a torch learner use \code{\link{torch_callback}}.
+Base class from which Torch Callbacks should inherit.
+To create custom callbacks,to use in a torch learner use the convenience function \code{\link{torch_callback}}.
 
 Torch Callbacks can be used to gain more control over the training process of a neural network without
-having to write the whole training loop.
+having to write everything from scratch.
 At each stage (see section "Stages") of the training loop, the corresponding \verb{on_<stage>(ctx)} method is run
 that takes as argument a \code{\link{ContextTorch}} which gives access to the relevant objects.
 }
 \section{Construction}{
 
 \code{CallbackTorch$new()}
-See \code{\link{Callback}} for the construction arguments.
 }
 
 \section{Fields}{
 
 \itemize{
 \item \code{id} :: (\code{character(1)})\cr
-The id of the callback.
+The id of the callback. Must be a class attribute.
 \item \code{label} :: (\code{character(1)})\cr
 The label of the callback.
 }
@@ -39,7 +38,11 @@ See section \emph{Stages}.
 
 \section{Inheriting}{
 
-It is recommended to use the sugar function \code{\link[=`callback_torch]{`callback_torch()}} to create custom callbacks.
+It is recommended to use the sugar function [\verb{callback_torch()] to create custom callbacks, because there are some easy mistakes that can be made otherwise. It is e.g. important that the }"id"` of the callback is a class attribute and not an instance attribute.
+The reason for this is that during initialization of a learner, the id of the callback must be available to
+correctly construct the parameter space.
+During initialization of the learner, only the callback class is available however, as instantiation happens
+during training.
 }
 
 \section{Stages}{

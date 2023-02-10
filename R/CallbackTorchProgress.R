@@ -20,7 +20,7 @@ CallbackTorchProgress = R6Class("CallbackTorchProgress",
     on_batch_end = function(ctx) {
       self$pb_train$tick()
     },
-    on_before_validation = function(ctx) {
+    on_before_valid = function(ctx) {
       self$pb_valid = progress::progress_bar$new(
         total = length(ctx$loader_valid),
         format = "Validation: [:bar]"

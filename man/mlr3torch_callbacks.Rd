@@ -14,12 +14,4 @@ mlr3torch_callbacks
 Dictionary of torch callbacks.
 Use \code{\link{t_clbk}} for conveniently retrieving callbacks.
 }
-\section{Available Callbacks}{
-
-\itemize{
-\item history - \code{\link{CallbackTorchHistory}}
-\item progress - \code{\link{CallbackTorchProgress}}
-}
-}
-
 \keyword{datasets}

@@ -139,7 +139,7 @@ train_loop = function(ctx, cbs) {
       row_ids = ctx$task_train$row_ids[unlist(indices)]
     )
 
-    call("on_before_validation")
+    call("on_before_valid")
     if (does_validation) {
       ctx$network$eval()
       pred_tensor = torch_network_predict_valid(ctx$network, ctx$loader_valid, call)
@@ -276,5 +276,5 @@ learner_torch_history = function(self, rhs) {
   if (is.null(self$state)) {
     stopf("Cannot access training history before training.")
   }
-  self$model$callbacks$history$state
+  self$model$callbacks$history
 }

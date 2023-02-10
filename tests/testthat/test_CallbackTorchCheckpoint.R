@@ -6,8 +6,7 @@ test_that("Autotest", {
 test_that("CallbackTorchCheckpoint manual", {
   cb = t_clbk("checkpoint")
   task = tsk("iris")
-  task$set_row_roles(1, "use")
-
+  task$row_roles$use = 1
 
   pth0 = tempfile()
   learner = lrn("classif.mlp", epochs = 3, batch_size = 1, layers = 0, d_hidden = 1, callbacks = cb)
