@@ -212,7 +212,6 @@ PipeOpTorchMergeCat = R6Class("PipeOpTorchMergeCat", inherit = PipeOpTorchMerge,
         param_vals = param_vals
       )
     },
-    #' @description What does the cat say?
     speak = function() cat("I am the merge cat, meow! ^._.^\n")
   ),
   private = list(

@@ -57,5 +57,5 @@ PipeOpTorchLoss = R6Class("PipeOpTorchLoss",
   )
 )
 
-#' @include zzz.R
+#' @include zzz.R TorchLoss.R
 register_po("torch_loss", PipeOpTorchLoss)

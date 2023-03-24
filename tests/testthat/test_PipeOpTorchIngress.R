@@ -36,7 +36,7 @@ test_that("PipeOpTorchIngressNumeric", {
 })
 
 test_that("PipeOpTorchIngressCategorical", {
-  po_ingress = po("torch_ingress_cat")
+  po_ingress = po("torch_ingress_categ")
   dat = data.table(y = runif(10), x_cat = factor(letters[1:10]), x_lgl = TRUE, x_ord = ordered(letters[1:10]),
     x_num = runif(10), x_int = 1:10
   )

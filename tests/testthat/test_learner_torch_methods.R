@@ -1,6 +1,4 @@
 test_that("torch_network_predict works", {
-  learner = lrn("classif.torch_linear", epochs = 0, batch_size = 1)
-
   task = tsk("iris")
 
   net1 = nn_module(
@@ -82,33 +80,56 @@ test_that("Test roles are respected", {
   task$filter(1:20)
   task$set_row_roles(1:10, "test")
 
-  learner = lrn("classif.torch_linear", epochs = 2, batch_size = 1, measures_train = msrs(c("classif.acc")))
+  learner = lrn("classif.torch_featureless", epochs = 2, batch_size = 1, measures_train = msrs(c("classif.acc")))
   learner$train(task)
 
-  expect_data_table(learner$hist_train, nrows = 2)
-  expect_equal(colnames(learner$hist_train), c("epoch", "classif.acc"))
+  expect_data_table(learner$history$train, nrows = 2)
+  expect_equal(colnames(learner$history$train), c("epoch", "classif.acc"))
 
-  expect_true(nrow(learner$hist_valid) == 0)
-  expect_equal(colnames(learner$hist_valid), "epoch")
+  expect_true(nrow(learner$history$valid) == 0)
+  expect_equal(colnames(learner$history$valid), "epoch")
 
-  learner = lrn("classif.torch_linear", epochs = 2, batch_size = 1, measures_train = msrs(c("classif.acc")),
+  learner = lrn("classif.torch_featureless", epochs = 2, batch_size = 1, measures_train = msrs(c("classif.acc")),
     measures_valid = msr("classif.bacc")
   )
 
   learner$train(task)
 
-  expect_true(nrow(learner$hist_train) == 2)
-  expect_true(nrow(learner$hist_valid) == 2)
+  expect_true(nrow(learner$history$train) == 2)
+  expect_true(nrow(learner$history$valid) == 2)
 
   learner$hist_valid
 })
 
-test_that("train_loop works", {
-  learner = lrn("classif.mlp", )
+test_that("learner_torch_predict works", {
+  task = tsk("iris")
+  learner = lrn("classif.mlp", batch_size = 16, epochs = 1, layers = 0)
+  dl = get_private(learner)$.dataloader(task, learner$param_set$values)
+
+  network = get_private(learner)$.network(task, learner$param_set$values)
+
+  pred = torch_network_predict(network, dl)
+
+  expect_class(pred, "torch_tensor")
+  expect_true(ncol(pred) == length(task$class_names))
+  expect_true(nrow(pred) == task$nrow)
 
 })
 
-test_that("learner_torch_predict works", {
+test_that("encode_prediction works", {
+  task = tsk("iris")
 
+  # classif
+  pt = torch_rand(task$nrow, length(task$class_names))
+  pt = pt / torch_sum(pt, 2L)$reshape(c(150, 1))
 
+  p1 = encode_prediction(pt, "response", task)
+  p2 = encode_prediction(pt, "prob", task)
+
+  pd1 = as_prediction_data(p1, task)
+  pd2 = as_prediction_data(p2, task)
+
+  expect_identical(pd1$response, pd2$response)
+
+  expect_identical(p1$response, p2$response)
 })

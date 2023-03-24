@@ -5,13 +5,13 @@
 \alias{LearnerClassifTorchImage}
 \title{Image Classification Network}
 \format{
-\code{\link{R6Class}} inheriting from \code{\link{LearnerClassifTorchAbstract}}, \code{\link{LearnerClassif}}, \code{\link{Learner}}.
+\code{\link{R6Class}} inheriting from \code{\link{LearnerClassifTorch}}, \code{\link{LearnerClassif}}, \code{\link{Learner}}.
 }
 \description{
 Base Class for Image Classification Learners.
 }
 \section{Construction}{
- \code{LearnerClassifTorchImage$new(id, param_set, label, optimizer = t_opt("adam"), loss = t_loss("cross_entropy"), packages = c("torchvision", "magick"), man)}
+ \code{LearnerClassifTorchImage$new(id, param_set, label, optimizer = t_opt("adam"), loss = t_loss("cross_entropy"), callbacks = list(), packages = c("torchvision", "magick"), man)}
 }
 
 \section{Inheriting}{
@@ -22,7 +22,7 @@ one argument in its forward method.
 
 \section{Parameters}{
 
-Parameters include those inherited from \code{\link{LearnerClassifTorchAbstract}}, the \code{param_set} construction argument, as
+Parameters include those inherited from \code{\link{LearnerClassifTorch}}, the \code{param_set} construction argument, as
 well as:
 \itemize{
 \item \code{channels} :: \code{integer(1)} \cr
@@ -34,12 +34,8 @@ The width of the input image.
 }
 }
 
-\section{Fields}{
-
-}
-
 \section{Methods}{
-
+ Methods inherited from \code{\link{LearnerClassifTorch}}, \code{\link{LearnerClassif}}, \code{\link{Learner}}.
 }
 
 \section{Internals}{

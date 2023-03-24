@@ -97,11 +97,10 @@ PipeOpModule = R6Class("PipeOpModule",
   inherit = PipeOp,
   public = list(
     module = NULL,
-    initialize = function(id = "module", module = nn_identity(), inname = "input", outname = "output", param_vals = list(),
-      packages = character(0)) {
+    initialize = function(id = "module", module = nn_identity(), inname = "input", outname = "output",
+      param_vals = list(), packages = character(0)) {
       private$.multi_output = length(outname) > 1L
       self$module = assert_class(module, "nn_module")
-      self$f
       lockBinding("module", self)
       assert_names(outname, type = "strict")
       assert_character(packages, any.missing = FALSE)
@@ -137,4 +136,4 @@ PipeOpModule = R6Class("PipeOpModule",
 )
 
 #' @include zzz.R
-register_po("module", PipeOpModule ,list(id = "module", module = "module", inname = "N", outname = "N"))
+register_po("module", PipeOpModule)

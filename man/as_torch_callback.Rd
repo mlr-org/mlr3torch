@@ -2,13 +2,13 @@
 % Please edit documentation in R/TorchCallback.R
 \name{as_torch_callback}
 \alias{as_torch_callback}
-\title{Convert to a \code{\link{TorchCallback}}}
+\title{Convert to a TorchCallback}
 \usage{
 as_torch_callback(x, clone = FALSE, ...)
 }
 \arguments{
 \item{x}{(any)\cr
-Object to be converted/}
+Object to be converted.}
 
 \item{clone}{(\code{logical(1)}\cr
 Whether to make a deep clone.}
@@ -25,3 +25,13 @@ The parameter set.}
 \description{
 Converts an object to a \code{\link{TorchCallback}}.
 }
+\seealso{
+Other callback: 
+\code{\link{as_torch_callbacks}()},
+\code{\link{mlr3torch_callbacks}},
+\code{\link{mlr_callbacks_torch}},
+\code{\link{mlr_context_torch}},
+\code{\link{t_clbk}()},
+\code{\link{torch_callback}()}
+}
+\concept{callback}

@@ -120,7 +120,7 @@ TorchLoss = R6::R6Class("TorchLoss",
       invoke(self$loss, .args = self$param_set$get_values())
     }, 
     print = function(...) {
-      catn("<TorchLoss:>", self$label)
+      catn(sprintf("<TorchLoss:%s>", self$label))
       catn(str_indent("* Generator:", self$optimizer$classname))
       catn(str_indent("* Parameters:", as_short_string(self$param_set$values, 1000L)))
       catn(str_indent("* Task Types:", as_short_string(self$task_types, 1000L)))

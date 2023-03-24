@@ -21,10 +21,6 @@ roxy_pipeop_torch_param_id = function(id = NULL) {
   )
 }
 
-roxy_fields = function(x) {
-  ""
-}
-
 roxy_pipeop_torch_fields_default = function() { # nolint
   "Only fields inherited from [\\code{PipeOpTorch}]/[\\code{PipeOp}]."
 }
@@ -75,12 +71,12 @@ roxy_param_packages = function() {
   "\\code{packages}` :: named \\code{list()}\\cr List of packages settings. Default is  \\code{list()}."
 }
 
-roxy_fields = function(class) {
+roxy_fields_inherit = function(class) {
   parents = get_parents(class)
   sprintf("Fields inherited from %s.", paste0("[`", parents, "`]", collapse = ", "))
 }
 
-roxy_methods = function(class) {
+roxy_methods_inherit = function(class) {
   parents = get_parents(class)
   sprintf("Methods inherited from %s.", paste0("[`", parents, "`]", collapse = ", "))
 }
@@ -104,10 +100,6 @@ roxy_format = function(class) {
   } else {
     "[`R6Class`]"
   }
-}
-
-roxy_param_innum = function() {
-
 }
 
 roxy_construction = function(x) {

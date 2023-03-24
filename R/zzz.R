@@ -91,9 +91,11 @@ mlr3torch_callback_stages = c(
 )
 
 
-register_po = function(name, constructor, metainf = NULL) {
+# metainf must be manually added in the register_mlr3pipelines function
+# Because the value is substituted, we cannot pass it through this function
+register_po = function(name, constructor) {
   if (name %in% names(mlr3torch_pipeops)) stopf("pipeop %s registered twice", name)
-  mlr3torch_pipeops[[name]] = constructor
+  mlr3torch_pipeops[[name]] = list(constructor = constructor)
 }
 
 register_learner = function(name, constructor) {
@@ -123,7 +125,10 @@ register_mlr3 = function() {
 
 register_mlr3pipelines = function() {
   mlr_pipeops = utils::getFromNamespace("mlr_pipeops", ns = "mlr3pipelines")
-  iwalk(as.list(mlr3torch_pipeops), function(value, name) mlr_pipeops$add(name, value))
+  iwalk(as.list(mlr3torch_pipeops), function(value, name) {
+    mlr_pipeops$add(name, value$constructor, value$metainf)
+  })
+  mlr_pipeops$metainf$torch_loss = list(loss = t_loss("cross_entropy"))
   mlr_reflections$pipeops$valid_tags = unique(c(mlr_reflections$pipeops$valid_tags, c("torch", "activation")))
 
   lapply(mlr3torch_pipeops, eval)

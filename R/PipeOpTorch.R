@@ -2,7 +2,7 @@
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch
-#' @format [`R6Class`] object inheriting from [`PipeOp`].
+#' @format `r roxy_format(PipeOpTorch)`
 #'
 #' @description
 #' `PipeOpTorch` is the base class for all [`PipeOp`]s that represent neural network layers in a [`Graph`].

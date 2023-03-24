@@ -6,8 +6,9 @@
 \usage{
 torch_callback(
   id,
-  param_set = NULL,
   name = paste0("CallbackTorch", capitalize(id)),
+  param_set = NULL,
+  packages = NULL,
   on_begin = NULL,
   on_end = NULL,
   on_epoch_begin = NULL,
@@ -26,17 +27,20 @@ torch_callback(
 }
 \arguments{
 \item{id}{(\code{character(1)})\cr`\cr
-The id for the callbacks. Note that the ids of callbacks passted to a learner must be unique.}
-
-\item{param_set}{(\code{ParamSet})\cr
-The parameter set, if not present it is inferred from the initialize method.}
+The id for the callbacks.
+Note that the ids of callbacks passed to a learner must be unique.}
 
 \item{name}{(\code{character(1)})\cr
 The class name of the torch callback. Is set to \code{"CallbackTorch<Id>"} per default.
 E.g. id \code{id} is \code{"custom"}, the name is set to \code{"CallbackTorchCustom"}.}
 
+\item{param_set}{(\code{ParamSet})\cr
+The parameter set, if not present it is inferred from the initialize method passed through the public function.}
+
+\item{packages}{(\code{character()})\cr\verb{The packages the callback depends on. Default is}NULL`.}
+
 \item{on_begin, }{on_end, on_epoch_begin, on_before_valid, on_epoch_end, on_batch_begin, on_batch_end,
-on_after_backward, on_batch_valid_begin, on_batch_valid_end (`function( )\cr
+on_after_backward, on_batch_valid_begin, on_batch_valid_end (\code{function})\cr
 Function to execute at the given stage, see section \emph{Stages}.}
 
 \item{public}{(\code{list()})\cr
@@ -51,10 +55,13 @@ Additional active fields to add to the callback.}
 \item{parent_env}{(\code{environment()})\cr
 The parent environment for the \code{\link{R6Class}}.}
 }
+\value{
+\code{\link{TorchCallback}}
+}
 \description{
 Convenience function to create a custom callback for torch.
 For more information on how to correctly implement a new callback, see \code{\link{CallbackTorch}}.
-To use callbacks, one should be familiar with \code{\link{R6Class}}.
+It returns a \code{\link{TorchCallback}} that wrapping a \code{\link{CallbackTorch}}.
 }
 \section{Internals}{
 
@@ -80,15 +87,15 @@ It first creates an \code{\link{R6ClassGenerator}} that generates a \code{\link{
 
 \examples{
 custom_tcb = torch_callback(
-  "mycallback", 
+  "mycallback",
   public = list(
     initialize = function(greeting) {
       self$greeting = greeting
-    } 
+    }
   ),
   on_begin = function(ctx) {
     cat(self$greeting, ctx$name, "\n")
-  }, 
+  },
   on_end = function(ctx) {
     cat("Bye", ctx$name, "\n")
   }
@@ -109,3 +116,13 @@ f = function(ctx, cb) {
 
 f(ctx, cb)
 }
+\seealso{
+Other callback: 
+\code{\link{as_torch_callbacks}()},
+\code{\link{as_torch_callback}()},
+\code{\link{mlr3torch_callbacks}},
+\code{\link{mlr_callbacks_torch}},
+\code{\link{mlr_context_torch}},
+\code{\link{t_clbk}()}
+}
+\concept{callback}

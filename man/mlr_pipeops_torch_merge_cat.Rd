@@ -8,7 +8,8 @@
 \code{\link{R6Class}} object inheriting from \code{\link{PipeOp}}/\code{\link{PipeOpTorch}}/\code{\link{PipeOpTorchMerge}}.
 }
 \description{
-What does the cat say?
+Concatenates multiple tensors on a given dimension.
+No broadcasting rules are applied here, you must reshape the tensors before to have the same shape.
 }
 \section{Construction}{
 

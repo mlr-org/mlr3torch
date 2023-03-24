@@ -14,7 +14,7 @@
 #' one argument in its forward method.
 #'
 #' @section Parameters:
-#' Parameters include those inherited from [`LearnerClassifTorchAbstract`], the `param_set` construction argument, as
+#' Parameters include those inherited from [`LearnerClassifTorch`], the `param_set` construction argument, as
 #' well as:
 #'
 #' * `channels` :: `integer(1)` \cr
@@ -24,23 +24,21 @@
 #' * `width` :: `integer(1)` \cr
 #'   The width of the input image.
 #'
-#' @section Fields:
-#'
-#' @section Methods:
-#'
+#f @section Fields: `r roxy_fields_inherit(LearnerClassifTorchImage)`
+#' @section Methods: `r roxy_methods_inherit(LearnerClassifTorchImage)`
 #' @section Internals:
 #'
 #' @export
 LearnerClassifTorchImage = R6Class("LearnerClassifTorchImage",
-  inherit = LearnerClassifTorchAbstract,
+  inherit = LearnerClassifTorch,
   public = list(
     initialize = function(id, param_set, label, optimizer = t_opt("adam"), loss = t_loss("cross_entropy"),
-      packages = c("torchvision", "magick"), man) {
+      callbacks = list(), packages = c("torchvision", "magick"), man) {
       assert_param_set(param_set)
       predefined_set = ps(
-        channels   = p_int(1, tags = c("train", "required")),
-        height     = p_int(1, tags = c("train", "required")),
-        width      = p_int(1, tags = c("train", "required"))
+        channels   = p_int(1, tags = c("train", "predict", "required")),
+        height     = p_int(1, tags = c("train", "predict", "required")),
+        width      = p_int(1, tags = c("train", "predict", "required"))
       )
 
       if (param_set$length) {
@@ -53,10 +51,11 @@ LearnerClassifTorchImage = R6Class("LearnerClassifTorchImage",
         id = id,
         label = label,
         optimizer = optimizer,
-        properties = c("twoclass", "multiclass", "hotstart_forward"),
+        properties = c("twoclass", "multiclass"),
         loss = loss,
         param_set = param_set,
         packages = packages,
+        callbacks = callbacks,
         predict_types = c("response", "prob"),
         feature_types = "imageuri",
         man = "mlr3torch::mlr_learners_classif_image"
@@ -65,29 +64,7 @@ LearnerClassifTorchImage = R6Class("LearnerClassifTorchImage",
   ),
   private = list(
     .dataset = function(task, param_vals) {
-      assert_true(length(task$feature_names) == 1)
-      # TODO: Maybe we want to be more careful here to avoid changing parameters between train and predict
-      imgshape = c(param_vals$channels, param_vals$height, param_vals$width)
-
-      batchgetter = crate(function(data, device) {
-        tensors = lapply(data[[1]], function(uri) {
-          tnsr = torchvision::transform_to_tensor(magick::image_read(uri))
-          assert_true(identical(tnsr$shape, imgshape))
-          torch_reshape(tnsr, imgshape)$unsqueeze(1)
-        })
-        torch_cat(tensors, dim = 1)$to(device = device)
-      }, imgshape, .parent = topenv())
-
-      ingress_tokens = list(image = TorchIngressToken(task$feature_names, batchgetter, imgshape))
-
-      task_dataset(
-        task,
-        feature_ingress_tokens = ingress_tokens,
-        target_batchgetter = crate(function(data, device) {
-          torch_tensor(data = as.integer(data[[1]]), dtype = torch_long(), device = device)
-        }, .parent = topenv()),
-        device = param_vals$device
-      )
+      dataset_img(self, task, param_vals)
     }
   )
 )

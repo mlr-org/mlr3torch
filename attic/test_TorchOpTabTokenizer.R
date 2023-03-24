@@ -44,7 +44,7 @@ test_that("nn_tokenizer works", {
   input_num = torch_randn(n, n_features)
 
   tokenizer = nn_tab_tokenizer(n_features, cardinalities, d_token, bias, cls)
-  output = tokenizer(list(num = input_num, cat = input_cat))
+  output = tokenizer(list(num = input_num, cat = input_categ))
   expect_true(all(dim(output) == c(n, n_features + length(cardinalities), d_token)))
 })
 

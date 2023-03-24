@@ -12,9 +12,9 @@ Convolutional network for image classification.
 }
 \section{Parameters}{
 
-Parameters from \code{\link{LearnerClassifTorchImage}} and:
+Parameters from \code{\link{LearnerClassifTorchImage}} and
 \itemize{
-\item \code{pretrained} :: \code{logical(1)}/cd
+\item \code{pretrained} :: \code{logical(1)}\cr
 Whether to use the pretrained model.
 }
 }

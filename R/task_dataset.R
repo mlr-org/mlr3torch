@@ -25,19 +25,82 @@ task_dataset = dataset(
   }
 )
 
-learner_torch_classif_dataloader = function(task, param_vals, feature_ingress_tokens) {
-  dataset = task_dataset(
+dataset_img = function(self, task, param_vals) {
+  assert_true(length(task$feature_names) == 1)
+  # TODO: Maybe we want to be more careful here to avoid changing parameters between train and predict
+  imgshape = c(param_vals$channels, param_vals$height, param_vals$width)
+
+  batchgetter = get_batchgetter_img(imgshape)
+
+
+  ingress_tokens = list(image = TorchIngressToken(task$feature_names, batchgetter, imgshape))
+
+  task_dataset(
     task,
-    feature_ingress_tokens = feature_ingress_tokens,
+    feature_ingress_tokens = ingress_tokens,
     target_batchgetter = crate(function(data, device) {
       torch_tensor(data = as.integer(data[[1]]), dtype = torch_long(), device = device)
     }, .parent = topenv()),
     device = param_vals$device
   )
-  dataloader(
-    dataset = dataset,
-    batch_size = param_vals$batch_size,
-    drop_last = param_vals$drop_last,
-    shuffle = param_vals$shuffle
+}
+
+dataset_num = function(self, task, param_vals) {
+  num_features = task$feature_types[get("type") %in% c("numeric", "integer"), "id"][[1L]]
+  ingress = TorchIngressToken(num_features, batchgetter_num, c(NA, length(task$feature_names)))
+
+  task_dataset(
+    task,
+    feature_ingress_tokens = list(input = ingress),
+    target_batchgetter = get_target_batchgetter(task$task_type)
   )
+}
+
+dataset_num_categ = function(self, task, param_vals) {
+  features_num = task$feature_types[get("type") %in% c("numeric", "integer"), "id"][[1L]]
+  features_categ = task$feature_types[get("type") %in% c("factor", "ordered"), "id"][[1L]]
+
+  tokens = list()
+
+  if (length(features_num)) {
+    tokens$input_num = TorchIngressToken(features_num, batchgetter_num, c(NA, length(features_num)))
+  }
+  if (length(features_categ)) {
+    tokens$input_categ = TorchIngressToken(features_categ, batchgetter_categ, c(NA, length(features_categ)))
+  }
+
+  assert_true(length(tokens) >= 1)
+
+  task_dataset(
+    task,
+    feature_ingress_tokens = tokens,
+    target_batchgetter = get_target_batchgetter(task$task_type)
+  )
+}
+
+get_batchgetter_img = function(imgshape) {
+  crate(function(data, device) {
+    tensors = lapply(data[[1]], function(uri) {
+      tnsr = torchvision::transform_to_tensor(magick::image_read(uri))
+      assert_true(identical(tnsr$shape, imgshape))
+      torch_reshape(tnsr, imgshape)$unsqueeze(1)
+    })
+    torch_cat(tensors, dim = 1)$to(device = device)
+  }, imgshape, .parent = topenv())
+}
+
+get_target_batchgetter = function(task_type) {
+  if (task_type == "classif") {
+    target_batchgetter = (function(data, device) {
+      torch_tensor(data = as.integer(data[[1L]]), dtype = torch_long(), device)
+    })
+  } else if (task_type == "regr") {
+    target_batchgetter = crate(function(data, device) {
+      torch_tensor(data = data[[1L]], dtype = torch_float32(), device)
+    })
+  } else {
+    stopf("Unsupported task type %s", task_type)
+  }
+
+  return(target_batchgetter)
 }

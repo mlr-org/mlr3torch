@@ -22,31 +22,32 @@
 #' @section Parameters: 
 #' The union of: 
 #' * The construction `param_set` (is inferred if it is not s)
-#' the construction `param_set` and those from [`LearnerClassifTorchAbstract`].
-#' @section Fields: `r roxy_fields(LearnerClassifTorch)`
-#' @section Methods: `r roxy_methods(LearnerClassifTorch)`
+#' the construction `param_set` and those from [`LearnerClassifTorch`].
+#' @section Fields: `r roxy_fields_inherit(LearnerClassifTorch)`
+#' @section Methods: `r roxy_methods_inherit(LearnerClassifTorch)`
 #' @section Internals:
 #'
 #' @export
-#' @include LearnerTorchAbstract.R
+#' @include LearnerTorch.R
 #' @examples
 #' # TODO:
-LearnerClassifTorch = R6Class("LearnerClassifTorch",
-  inherit = LearnerClassifTorchAbstract,
+LearnerClassifTorchModule = R6Class("LearnerClassifTorchModule",
+  inherit = LearnerClassifTorch,
   public = list(
     initialize = function(module, param_set = NULL, optimizer = t_opt("adam"), loss = t_loss("cross_entropy"),
-      param_vals = list(), feature_types = NULL) {
+      param_vals = list(), feature_types = NULL, dataset) {
       private$.module = module
+      private$.dataset = assert_function(dataset, args = c("task", "param_vals"))
       if (is.null(param_set)) {
         param_set = inferps(module)
         param_set$set_id = "net"
       } else {
-        assert_true()
+        assert_true(TRUE)
       }
 
       super$initialize(
-        id = "classif.torch",
-        properties = c("twoclass", "multiclass", "hotstart_forward"),
+        id = "classif.torch_module",
+        properties = c("twoclass", "multiclass"),
         label = "Torch Module Classifier",
         feature_types = feature_types %??% mlr_reflections$task_feature_types,
         optimizer = optimizer,
@@ -65,19 +66,9 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
       )
     },
     .module = NULL,
-    .dataset = function(task, param_vals) {
-      ingress_token = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, length(task$feature_names)))
-      dataset = task_dataset(
-        task,
-        feature_ingress_tokens = list(num = ingress_token),
-        target_batchgetter = crate(function(data, device) {
-          torch_tensor(data = as.integer(data[[1]]), dtype = torch_long(), device = device)
-        }, .parent = topenv()),
-        device = param_vals$device %??% self$param_set$defaults$device
-      )
-    }
+    .dataset = NULL
   )
 )
 
 #' @include zzz.R
-mlr3torch_learners[["classif.torch"]] = LearnerClassifTorch
+register_learner("classif.torch_module", LearnerClassifTorchModule)

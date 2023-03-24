@@ -36,14 +36,15 @@ Imports:
     backports,
     bundle,
     checkmate,
+    coro,
     lgr,
     rlang,
     torch (>= 0.8.1),
     mlr3misc (>= 0.11.0),
     data.table,
-    coro,
     paradox (>= 0.11.0),
-    R6
+    R6, 
+    withr
 Suggests:
     callr,
     torchvision,
@@ -52,6 +53,7 @@ Suggests:
     testthat (>= 3.0.0)
 Remotes:
   mlverse/torchvision,
+  mlverse/torch,
   mlr-org/mlr3pipelines
 Config/testthat/edition: 3
 Encoding: UTF-8
@@ -68,7 +70,8 @@ Collate:
     'LearnerClassifTorchImage.R'
     'LearnerClassifAlexNet.R'
     'LearnerClassifMLP.R'
-    'LearnerTorchAbstract.R'
+    'LearnerTorch.R'
+    'LearnerTorchFeatureless.R'
     'LearnerTorchModel.R'
     'ModelDescriptor.R'
     'PipeOpModule.R'
@@ -83,6 +86,7 @@ Collate:
     'PipeOpTorchIngress.R'
     'PipeOpTorchLayerNorm.R'
     'PipeOpTorchLinear.R'
+    'TorchLoss.R'
     'PipeOpTorchLoss.R'
     'PipeOpTorchMaxPool.R'
     'PipeOpTorchMerge.R'
@@ -95,11 +99,11 @@ Collate:
     'TaskClassif_toytask.R'
     'utils.R'
     'TorchCallback.R'
-    'TorchLoss.R'
     'TorchOptimizer.R'
     'autotest.R'
     'autotest_learner.R'
     'dataloader.R'
+    'expectations.R'
     'image_dataset.R'
     'imageuri.R'
     'learner_torch_methods.R'

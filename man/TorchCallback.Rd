@@ -34,8 +34,12 @@ The class generator for the R6 callback.
 \item \code{param_set} :: \code{\link{ParamSet}}\cr
 The parameter set. Its values are passed to \verb{$get_callback()}.
 Note that the \code{param_set} is not cloned, so this has to be done before by the user.
-\item \code{id} :: \code{character(1)}/cr
+\item \code{id} :: \code{character(1)}\cr
 The identifier of the callback. This is equal to the identifier of the wrapped \code{\link{CallbackTorch}}.
+\itemize{
+\item \code{packages} :: \code{character()}\cr
+The packages the callback depends on.
+}
 }
 }
 
@@ -44,12 +48,10 @@ The identifier of the callback. This is equal to the identifier of the wrapped \
 \itemize{
 \item \code{get_callback()}\cr
 () -> \code{CallbackTorch}
+\item \code{print(...)}\cr
+() -> \code{CallbackTorch}
+Prints the object.
 }
 }
 
-\seealso{
-Other torch_wrapper: 
-\code{\link{torch_loss}},
-\code{\link{torch_optimizer}}
-}
-\concept{torch_wrapper}
+\concept{torch_wrapper, callback}

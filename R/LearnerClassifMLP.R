@@ -9,10 +9,10 @@
 #'
 #' @section Construction: `r roxy_construction(LearnerClassifMLP)`
 #'
-#' @section State: See [`LearnerClassifTorchAbstract`].
+#' @section State: See [`LearnerClassifTorch`].
 #'
 #' @section Parameters:
-#' Parameters from [`LearnerClassifTorchAbstract`], as well as:
+#' Parameters from [`LearnerClassifTorch`], as well as:
 #'
 #' * `activation` :: `character(1)`\cr
 #'   Activation function.
@@ -24,30 +24,28 @@
 #'   The dimension of the hidden layers.
 #' * `p` :: `numeric(1)`\cr
 #'   The dropout probability.
-#' @section Fields: `r roxy_fields(LearnerClassifMLP)`
-#' @section Methods: `r roxy_methods(LearnerClassifMLP)`
+#' @section Fields: `r roxy_fields_inherit(LearnerClassifMLP)`
+#' @section Methods: `r roxy_methods_inherit(LearnerClassifMLP)`
 #'
 #' @section Internals:
 #' A [`nn_sequential()`] is generated for the given parameter values.
 #'
-#'
 #' @family Learner
 #' @export
 LearnerClassifMLP = R6Class("LearnerClassifMLP",
-  inherit = LearnerClassifTorchAbstract,
+  inherit = LearnerClassifTorch,
   public = list(
     initialize = function(optimizer = t_opt("adam"), loss = t_loss("cross_entropy"), callbacks = list()) {
       param_set = ps(
         activation      = p_fct(default = "relu", tags = "train", levels = mlr3torch_activations),
         activation_args = p_uty(tags = "train", custom_check = check_list),
         layers          = p_int(lower = 0L, tags = c("train", "required")),
-        d_hidden        = p_int(lower = 1L, tags = c("train", "required")),
+        d_hidden        = p_int(lower = 1L, tags = "train"),
         p               = p_dbl(default = 0.5, lower = 0, upper = 1, tags = "train")
       )
-      param_set$values = list(activation = "relu")
       super$initialize(
         id = "classif.mlp",
-        properties = c("twoclass", "multiclass", "hotstart_forward"),
+        properties = c("twoclass", "multiclass"),
         label = "Multi Layer Perceptron",
         param_set = param_set,
         optimizer = optimizer,
@@ -60,17 +58,22 @@ LearnerClassifMLP = R6Class("LearnerClassifMLP",
   ),
   private = list(
     .network = function(task, param_vals) {
-      act = getFromNamespace(paste0("nn_", param_vals$activation), ns = "torch")
 
-      d_hidden = param_vals$d_hidden
+      activation = param_vals$activation %??% "relu"
+      act = getFromNamespace(paste0("nn_", activation), ns = "torch")
       layers = param_vals$layers
+      d_hidden = param_vals$d_hidden
+      if (layers > 0) assert_true(!is.null(d_hidden))
+
       if (layers == 0L) {
         network = nn_sequential(
           nn_linear(length(task$feature_names), length(task$class_names))
         )
         return(network)
       }
-      dropout_args = if (is.null(param_vals$p)) list() else list(p = param_vals$p)
+
+      dropout_args = list()
+      dropout_args$p = param_vals$p
 
       modules = list(
         nn_linear(length(task$feature_names), d_hidden),
@@ -91,15 +94,7 @@ LearnerClassifMLP = R6Class("LearnerClassifMLP",
       invoke(nn_sequential, .args = modules)
     },
     .dataset = function(task, param_vals) {
-      ingress = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, length(task$feature_names)))
-
-      task_dataset(
-        task,
-        feature_ingress_tokens = list(input = ingress),
-        target_batchgetter = crate(function(data, device) {
-          torch_tensor(data = as.integer(data[[1L]]), dtype = torch_long(), device)
-        })
-      )
+      dataset_num(self, task, param_vals)
     }
   )
 )

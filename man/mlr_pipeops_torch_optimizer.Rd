@@ -11,7 +11,7 @@
 Configures the optimizer of a deep learning model.
 }
 \section{Construction}{
- \code{PipeOpTorchOptimizer$new(optimizer, id = "torch_optimizer", param_vals = list())}
+ \code{PipeOpTorchOptimizer$new(optimizer = t_opt("adam"), id = "torch_optimizer", param_vals = list())}
 \itemize{
 \item \code{optimizer} :: \code{\link{TorchOptimizer}}\cr
 The \link[=TorchOptimizer]{optimizer}.

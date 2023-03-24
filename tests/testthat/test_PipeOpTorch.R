@@ -77,7 +77,7 @@ test_that("PipeOpTorch works", {
   obj$param_set$values = list(d_out1 = 2, d_out2 = 3, bias = TRUE)
 
   mdin1 = po("torch_ingress_num")$train(list(task))[[1L]]
-  mdin2 = po("torch_ingress_cat")$train(list(task))[[1L]]
+  mdin2 = po("torch_ingress_categ")$train(list(task))[[1L]]
 
   mdouts = obj$train(list(input1 = mdin1, input2 = mdin2))
   mdout1 = mdouts[["output1"]]

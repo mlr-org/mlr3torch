@@ -83,7 +83,7 @@ PipeOpTorchELU = make_activation("elu", "ELU", param_set = ps(
 #'
 #' @section Parameters:
 #' * `lambd` :: `numeric(1)`\cr
-#'   The $\lambda$ value for the Hardshrink formulation formulation. Default 0.5.
+#'   The lambda value for the Hardshrink formulation formulation. Default 0.5.
 #'
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`

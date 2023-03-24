@@ -1,31 +1,57 @@
-#' @title Context where torch Callbacks are evaluated.
+#' @title Context for Torch Learner
 #'
-#' @format [`R6Class`] object inheriting from [`mlr3misc::Context`][mlr3misc::Context].
+#' @usage NULL
+#' @name mlr_context_torch
+#' @format `r roxy_format(ContextTorch)`
 #'
 #' @description
-#' Context for training a TorchModel.
+#' Context for training a torch learner.
 #' This is the - mostly read-only - information callbacks have access to through the argument `ctx`.
 #' For more information on callbacks, see [`CallbackTorch`].
 #'
-#' The following objects are available:
-#' * `learner` :: The torch learner.
-#' * `task_train` :: The training task.
-#' * `task_valid` :: The validation task.
-#' * `loader_train` :: The data loader for training.
-#' * `loader_valid` :: The data loader for validation.
-#' * `measures_train` :: The measures for training.
-#' * `measures_valid` :: The measures for validation.
-#' * `network` :: The neural network, i.e. a torch module.
-#' * `optimizer` :: The optimizer.
-#' * `loss_fn` :: The loss function.
-#' * `total_epochs` :: The total number of epochs the learner is being trained for.
-#' * `last_scores_train` :: The scores from the last training batch.
-#' * `last_scores_valid` :: The scores from the last validation batch.
-#' * `epoch` :: The current epoch.
-#' * `batch` :: The current iteration of the batch.
+#' @section Construction:
+#' `r roxy_construction(ContextTorch)`
+#' * `learner` :: [`Learner`]\cr
+#'   The torch learner.
+#' * `task_train` :: [`Task`]\cr
+#'   The training task.
+#' * `task_valid` :: [`Task`]\cr
+#'   The validation task. Default is `NULL`.
+#' * `loader_train` :: [`torch::dataloader`]
+#'   The data loader for training.
+#' * `loader_valid` :: [`torch::dataloader`]
+#'   The data loader for validation.
+#' * `measures_train` :: `list()` of [`Measure`]s\cr
+#'   Measures used for training. Default is `NULL`.
+#' * `measures_valid` :: `list()` of [`Measure`]s\cr
+#'   Measures used for validation. Default is `NULL`.
+#' * `network` :: [`torch::nn_module`]\cr
+#'   The torch network.
+#' * `optimizer` :: [`torch::optimizer`]\cr
+#'   The optimizer.
+#' * `loss_fn` :: [`torch::nn_module`]\cr
+#'   The loss function.
+#' * `total_epochs` :: `integer(1)`\cr
+#'   The total number of epochs the learner is trained for.
+
+#' @section Fields:
+#' All objects configured in the initialization, as well as:
+#' * `last_scores_train` :: named `list()`\cr
+#'   The scores from the last training batch. Names are the ids of the training measures.
+#' * `last_scores_valid` :: named `list()`\cr
+#'   The scores from the last validation batch. Names are the ids of the validation measures.
+#' * `epoch` :: `integer(1)`\cr
+#'   The current epoch.
+#'   The current epoch.
+#' * `batch` :: `list()` of [`torch::torch_tensor`]\cr
+#'   The current iteration of the batch.
 #'
+#' @section Methods:
+#' There are no methods.
+#'
+#' @family callback
 #' @export
-ContextTorchTrain = R6Class("ContextTorchTrain",
+ContextTorch = R6Class("ContextTorch",
   inherit = Context,
   lock_objects = FALSE,
   public = list(
@@ -66,11 +92,3 @@ ContextTorchTrain = R6Class("ContextTorchTrain",
     batch = NULL
   )
 )
-
-# ContextTorchPredict = R6Class("ContextTorchPredict", 
-#   inherit = Context,
-#   lock_objects = FALSE,
-#   public = list(
-#     initialize = function(learner, task_test)
-#   )
-# )

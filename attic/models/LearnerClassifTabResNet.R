@@ -22,7 +22,7 @@
 #' @template seealso_learner
 #' @template example
 LearnerClassifTabResNet = R6Class("LearnerClassifTabResNet",
-  inherit = LearnerClassifTorchAbstract,
+  inherit = LearnerClassifTorch,
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
@@ -38,7 +38,7 @@ LearnerClassifTabResNet = R6Class("LearnerClassifTabResNet",
         param_set = param_set,
         feature_types = c("numeric", "integer"),
         predict_types = c("response"),
-        properties = c("multiclass", "twoclass", "hotstart_forward"),
+        properties = c("multiclass", "twoclass"),
         man = "mlr3torch::mlr_learners_classif.tab_resnet",
         optimizer = optimizer,
         loss = loss,

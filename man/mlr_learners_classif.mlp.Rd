@@ -5,7 +5,7 @@
 \alias{LearnerClassifMLP}
 \title{Multi Layer Perceptron}
 \format{
-\code{\link{R6Class}} inheriting from \code{\link{LearnerClassifTorchAbstract}}, \code{\link{LearnerClassif}}, \code{\link{Learner}}.
+\code{\link{R6Class}} inheriting from \code{\link{LearnerClassifTorch}}, \code{\link{LearnerClassif}}, \code{\link{Learner}}.
 }
 \description{
 Simple multi layer perceptron with dropout.
@@ -15,12 +15,12 @@ Simple multi layer perceptron with dropout.
 }
 
 \section{State}{
- See \code{\link{LearnerClassifTorchAbstract}}.
+ See \code{\link{LearnerClassifTorch}}.
 }
 
 \section{Parameters}{
 
-Parameters from \code{\link{LearnerClassifTorchAbstract}}, as well as:
+Parameters from \code{\link{LearnerClassifTorch}}, as well as:
 \itemize{
 \item \code{activation} :: \code{character(1)}\cr
 Activation function.
@@ -36,11 +36,11 @@ The dropout probability.
 }
 
 \section{Fields}{
- Fields inherited from \code{\link{LearnerClassifTorchAbstract}}, \code{\link{LearnerClassif}}, \code{\link{Learner}}.
+ Fields inherited from \code{\link{LearnerClassifTorch}}, \code{\link{LearnerClassif}}, \code{\link{Learner}}.
 }
 
 \section{Methods}{
- Methods inherited from \code{\link{LearnerClassifTorchAbstract}}, \code{\link{LearnerClassif}}, \code{\link{Learner}}.
+ Methods inherited from \code{\link{LearnerClassifTorch}}, \code{\link{LearnerClassif}}, \code{\link{Learner}}.
 }
 
 \section{Internals}{

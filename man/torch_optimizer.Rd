@@ -78,7 +78,6 @@ opt = torchopt$get_optimizer(net$parameters)
 }
 \seealso{
 Other torch_wrapper: 
-\code{\link{TorchCallback}},
 \code{\link{torch_loss}}
 }
 \concept{torch_wrapper}

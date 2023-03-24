@@ -8,7 +8,6 @@ CallbackTorchProgress = R6Class("CallbackTorchProgress",
   public = list(
     id = "progress",
     label = "Callback Torch Progress",
-    man = "mlr_callbacks_torch.progress",
     on_epoch_begin = function(ctx) {
       catf("Epoch %s", ctx$epoch)
       self$pb_train = progress::progress_bar$new(

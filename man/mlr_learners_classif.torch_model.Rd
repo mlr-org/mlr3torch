@@ -5,7 +5,7 @@
 \alias{LearnerClassifTorchModel}
 \title{Classification Torch Learner}
 \format{
-\code{\link{R6Class}} inheriting from \code{\link{LearnerClassifTorchAbstract}}, \code{\link{LearnerClassif}}, \code{\link{Learner}}.
+\code{\link{R6Class}} inheriting from \code{\link{LearnerClassifTorch}}, \code{\link{LearnerClassif}}, \code{\link{Learner}}.
 }
 \description{
 Classification Torch Learner that is used internally by \code{\link{PipeOpTorchModelClassif}}.
@@ -16,18 +16,18 @@ TODO : The construction arguments
 }
 
 \section{State}{
- See \code{\link{LearnerClassifTorchAbstract}}
+ See \code{\link{LearnerClassifTorch}}
 }
 
 \section{Parameters}{
- Only those from \code{\link{LearnerClassifTorchAbstract}}
+ Only those from \code{\link{LearnerClassifTorch}}
 }
 
 \section{Fields}{
- Fields inherited from \code{\link{LearnerClassifTorchAbstract}}, \code{\link{LearnerClassif}}, \code{\link{Learner}}.
+ Fields inherited from \code{\link{LearnerClassifTorch}}, \code{\link{LearnerClassif}}, \code{\link{Learner}}.
 }
 
 \section{Methods}{
- Methods inherited from \code{\link{LearnerClassifTorchAbstract}}, \code{\link{LearnerClassif}}, \code{\link{Learner}}.
+ Methods inherited from \code{\link{LearnerClassifTorch}}, \code{\link{LearnerClassif}}, \code{\link{Learner}}.
 }
 

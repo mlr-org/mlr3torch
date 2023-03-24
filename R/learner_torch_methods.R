@@ -13,7 +13,12 @@ learner_torch_train = function(self, task) {
   private = self$.__enclos_env__$private
   super = self$.__enclos_env__$super
   param_vals = self$param_set$get_values(tags = "train")
-  learner_torch_train_worker(self, private, super, task, param_vals, FALSE)
+
+  seed = param_vals$seed %??% sample.int(10000000L, 1L)
+  torch_manual_seed(seed)
+
+  withr::with_seed(seed = seed, code = {
+    learner_torch_train_worker(self, private, super, task, param_vals, FALSE, seed = seed) })
 }
 
 
@@ -27,7 +32,7 @@ learner_torch_train = function(self, task) {
 # }
 
 
-learner_torch_train_worker = function(self, private, super, task, param_vals, continue = FALSE) {
+learner_torch_train_worker = function(self, private, super, task, param_vals, continue = FALSE, seed = seed) {
   torch_set_num_threads(param_vals$num_threads %??% 1L)
 
   loader_train = private$.dataloader(task, param_vals)
@@ -50,7 +55,7 @@ learner_torch_train_worker = function(self, private, super, task, param_vals, co
     callbacks = set_names(callbacks, map(callbacks, "id"))
   }
 
-  ctx = ContextTorchTrain$new(
+  ctx = ContextTorch$new(
     learner = self,
     task_train = task,
     task_valid = if (task_valid$nrow) task_valid,
@@ -64,11 +69,11 @@ learner_torch_train_worker = function(self, private, super, task, param_vals, co
     total_epochs = param_vals$epochs
   )
 
-  train_loop(ctx, callbacks)
+  train_loop(ctx, callbacks, seed = seed)
 }
 
 
-train_loop = function(ctx, cbs) {
+train_loop = function(ctx, cbs, seed) {
   call = function(step_name) {
     lapply(cbs, function(x) if (!is.null(x[[step_name]])) x[[step_name]](ctx))
   }
@@ -78,12 +83,12 @@ train_loop = function(ctx, cbs) {
     network = ctx$network,
     optimizer = ctx$optimizer,
     loss_fn = ctx$loss_fn,
-    callbacks = cbs
+    callbacks = cbs, 
+    seed = seed
   )
 
   # note that task_valid may be present (callbacks could do their own validation)
   does_validation = length(ctx$measures_valid)
-
 
   on.exit({
     # in case a callback wants to finalize things
@@ -111,8 +116,7 @@ train_loop = function(ctx, cbs) {
       call("on_batch_begin")
 
       if (length(batch$x) == 1L) {
-        # No need to match the names of the forward function with the return of the dataloader as there is no
-        # ambiguity
+        # With one argument there is no ambiguity and we can be less strict 
         y_hat = ctx$network(batch$x[[1L]])
       } else {
         y_hat = do.call(ctx$network, batch$x)
@@ -133,7 +137,7 @@ train_loop = function(ctx, cbs) {
     })
 
     ctx$last_scores_train = measure_prediction(
-      pred_tensor = torch_cat(predictions, dim = 1L), 
+      pred_tensor = torch_cat(predictions, dim = 1L),
       measures = ctx$measures_train,
       task = ctx$task_train,
       row_ids = ctx$task_train$row_ids[unlist(indices)]
@@ -154,7 +158,8 @@ train_loop = function(ctx, cbs) {
     network = ctx$network,
     optimizer = ctx$optimizer,
     loss_fn = ctx$loss_fn,
-    callbacks = cbs
+    callbacks = cbs, 
+    seed = seed
   )
 }
 
@@ -178,12 +183,12 @@ torch_network_predict_valid = function(network, loader,  callback_receiver = fun
 torch_network_predict = function(network, loader) {
   iter = 1L
   predictions = vector("list", length = length(loader))
-  one_arg = length(formalArgs(network)) == 1L
+  one_arg = length(formalArgs(network$forward)) == 1L
   loop(for (batch in loader) {
     if (one_arg) {
-      predictions[[iter]] = with_no_grad(network(batch$x[[1L]]))
+      predictions[[iter]] = with_no_grad(network$forward(batch$x[[1L]]))
     } else {
-      predictions[[iter]] = with_no_grad(do.call(network, batch$x))
+      predictions[[iter]] = with_no_grad(invoke(network$forward, .args = batch$x))
     }
     iter = iter + 1L
   })
@@ -192,17 +197,24 @@ torch_network_predict = function(network, loader) {
 }
 
 encode_prediction = function(predict_tensor, predict_type, task) {
+
   response = prob = NULL
   if (task$task_type == "classif") {
-    if (predict_type == "response") {
-      response = as.integer(predict_tensor$argmax(dim = 2L))
-      class(response) = "factor"
-      levels(response) = task$levels(task$target_names)[[1L]]
-    } else if (predict_type == "prob") {
+    if (predict_type == "prob") {
       predict_tensor = nnf_softmax(predict_tensor, dim = 2L)
+    }
+    # We still execute the argmax on the device before converting to R
+    response = as.integer(predict_tensor$argmax(dim = 2L))
+
+    if (predict_type == "prob") {
       prob = as.matrix(predict_tensor)
       colnames(prob) = task$class_names
+    } else {
+      prob = NULL
     }
+
+    class(response) = "factor"
+    levels(response) = task$class_names
     return(list(response = response, prob = prob))
   } else if (task$task_type == "regr") {
     if (predict_type == "response") {
@@ -239,17 +251,17 @@ learner_torch_predict = function(self, task) {
   private = self$.__enclos_env__$private
   model = self$state$model
   network = model$network
-  network$eval()
-
   param_vals = self$param_set$get_values(tags = "predict")
-
   param_vals$shuffle = FALSE
 
-  data_loader = private$.dataloader(task, param_vals)
-
-  prediction = torch_network_predict(network, data_loader)
-
-  encode_prediction(prediction, self$predict_type, task)
+  seed = self$model$seed
+  torch_manual_seed(seed)
+  state = withr::with_seed(seed = seed, code = {
+    network$eval()
+    data_loader = private$.dataloader(task, param_vals)
+    prediction = torch_network_predict(network, data_loader)
+    encode_prediction(prediction, self$predict_type, task)
+  })
 }
 
 learner_torch_network = function(self, task, rhs) {
@@ -274,7 +286,7 @@ learner_torch_param_set = function(self, rhs) {
 learner_torch_history = function(self, rhs) {
   assert_ro_binding(rhs)
   if (is.null(self$state)) {
-    stopf("Cannot access training history before training.")
+    stopf("Cannot access history before training.")
   }
   self$model$callbacks$history
 }

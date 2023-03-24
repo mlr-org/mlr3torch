@@ -5,7 +5,7 @@
 \alias{PipeOpTorch}
 \title{Base Class for Torch Module Constructor Wrappers}
 \format{
-\code{\link{R6Class}} object inheriting from \code{\link{PipeOp}}.
+\code{\link{R6Class}} inheriting from \code{\link{PipeOp}}.
 }
 \description{
 \code{PipeOpTorch} is the base class for all \code{\link{PipeOp}}s that represent neural network layers in a \code{\link{Graph}}.

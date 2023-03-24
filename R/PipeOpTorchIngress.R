@@ -240,7 +240,7 @@ register_po("torch_ingress_num", PipeOpTorchIngressNumeric)
 
 #' @title Torch Entry Point for Categorical Features
 #' @usage NULL
-#' @name mlr_pipeops_torch_ingress_cat
+#' @name mlr_pipeops_torch_ingress_categ
 #' @format [`R6Class`] inheriting from [`PipeOpTorchIngress`]/[`PipeOpTorch`].
 #'
 #' @description
@@ -270,7 +270,7 @@ register_po("torch_ingress_num", PipeOpTorchIngressNumeric)
 #' @export
 #' @examples
 # We set select to TRUE because the data contains factors as well
-#' po_ingress = po("torch_ingress_cat", select = TRUE)
+#' po_ingress = po("torch_ingress_categ", select = TRUE)
 #' task = tsk("german_credit")
 #' # The output is a TorchIngressToken
 #' token = po_ingress$train(list(task))[[1L]]
@@ -279,7 +279,7 @@ register_po("torch_ingress_num", PipeOpTorchIngressNumeric)
 PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
   inherit = PipeOpTorchIngress,
   public = list(
-    initialize = function(id = "torch_ingress_cat", param_vals = list()) {
+    initialize = function(id = "torch_ingress_categ", param_vals = list()) {
       super$initialize(id = id, param_vals = param_vals, feature_types = c("factor", "ordered", "logical"))
     },
     speak = function() cat("I am the ingress cat, meow! ^._.^\n")
@@ -314,7 +314,7 @@ batchgetter_categ = function(data, device) {
   )
 }
 
-register_po("torch_ingress_cat", PipeOpTorchIngressCategorical)
+register_po("torch_ingress_categ", PipeOpTorchIngressCategorical)
 
 #' @title Torch Entry Point for Images
 #' @usage NULL

@@ -10,23 +10,32 @@ t_clbk(.key, ...)
 t_clbks(.keys, ...)
 }
 \arguments{
-\item{.key, }{(\code{character(1)})\cr
+\item{.key}{(\code{character(1)})\cr
 The key of the callback.}
 
 \item{...}{(any)\cr
 See description of \code{\link{dictionary_sugar_get}}.}
 
-\item{.keys, }{(\code{character()})\cr
+\item{.keys}{(\code{character()})\cr
 The keys of the callbacks.}
 }
 \value{
-A \code{\link{CallbackTorch}}
+\code{\link{CallbackTorch}}
 }
 \description{
-Retrieves one or more torch callback from the callback registry.
+Retrieves one or more torch callback from \code{\link{mlr3torch_callbacks}}.
+Works like \code{\link[mlr3:mlr_sugar]{mlr3::lrn()}} or \code{\link[mlr3:mlr_sugar]{mlr3::tsk()}}.
 }
 \examples{
 t_clbk("progress")
-# is the same as
-clbk("torch.progress")
 }
+\seealso{
+Other callback: 
+\code{\link{as_torch_callbacks}()},
+\code{\link{as_torch_callback}()},
+\code{\link{mlr3torch_callbacks}},
+\code{\link{mlr_callbacks_torch}},
+\code{\link{mlr_context_torch}},
+\code{\link{torch_callback}()}
+}
+\concept{callback}

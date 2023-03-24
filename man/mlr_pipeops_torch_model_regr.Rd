@@ -40,6 +40,9 @@ The number of threads (if \code{device} is \code{"cpu"}). Default is 1.
 Whether to shuffle the instances in the dataset. Default is \code{TRUE}.
 \item \code{early_stopping_rounds} :: \code{integer(1)}\cr
 How many rounds to wait for early stopping. The default is 0.
+\item \code{seed} :: \code{integer(1)}\cr
+The seed that is used during training. The value \code{seed + 1} is used during prediction.
+If this is missing (default), a random seed is generated.
 }
 
 Additionally there are the parameters for the optimizer, the loss function and the callbacks.

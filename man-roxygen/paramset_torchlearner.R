@@ -17,6 +17,9 @@
 #'   Whether to shuffle the instances in the dataset. Default is `TRUE`.
 #' * `early_stopping_rounds` :: `integer(1)`\cr
 #'   How many rounds to wait for early stopping. The default is 0.
+#' * `seed` :: `integer(1)`\cr
+#'   The seed that is used during training. The value `seed + 1` is used during prediction.
+#'   If this is missing (default), a random seed is generated.
 #'
 #' Additionally there are the parameters for the optimizer, the loss function and the callbacks.
 #' `"opt."`, `"loss."` and `"cb.<callback id>"` respectively.

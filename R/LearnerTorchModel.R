@@ -9,14 +9,15 @@
 #'
 #' @section Construction: `r roxy_construction(LearnerClassifTorchModel)`
 #' TODO : The construction arguments
-#' @section State: See [`LearnerClassifTorchAbstract`]
-#' @section Parameters: Only those from [`LearnerClassifTorchAbstract`]
-#' @section Fields: `r roxy_fields(LearnerClassifTorchModel)`
-#' @section Methods: `r roxy_methods(LearnerClassifTorchModel)`
+#'
+#' @section State: See [`LearnerClassifTorch`]
+#' @section Parameters: Only those from [`LearnerClassifTorch`]
+#' @section Fields: `r roxy_fields_inherit(LearnerClassifTorchModel)`
+#' @section Methods: `r roxy_methods_inherit(LearnerClassifTorchModel)`
 #'
 #' @export
 LearnerClassifTorchModel = R6Class("LearnerClassifTorchModel",
-  inherit = LearnerClassifTorchAbstract,
+  inherit = LearnerClassifTorch,
   public = list(
     initialize = function(network, ingress_tokens, optimizer = t_opt("adam"), loss = t_loss("cross_entropy"),
       packages = character(0)) {

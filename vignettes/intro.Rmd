@@ -98,7 +98,7 @@ The second way to define the network is to use [LearnerClassifTorch] or
 To know how to define this, it is important to know the structure of the data 
 that is output by the dataloader.
 For tasks that only contain tabular data, the output is a named list 
-`list(num = ..., cat = ...)`. Where the element `num` is a tensor of type float
+`list(num = ..., categ = ...)`. Where the element `num` is a tensor of type float
 containing all the numeric observations (`double` or `integer`), while the element `cat`
 is a tensor of type long, containing all the categorical observations encoded as intgegers.
 

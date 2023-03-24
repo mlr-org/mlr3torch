@@ -116,8 +116,8 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
       invoke(self$optimizer, .args = self$param_set$get_values(), params = params)
     },
     print = function(...) {
-      catn("<TorchOptimizer:>", self$label)
-      catn(str_indent("* Generator:", self$optimizer$classname))
+      catn(sprintf("<TorchOptimizer:%s>", self$label))
+      catn(str_indent("* Generator:", attr(self$optimizer, "Optimizer")$classname))
       catn(str_indent("* Parameters:", as_short_string(self$param_set$values, 1000L)))
     }
   )

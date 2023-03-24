@@ -3,7 +3,7 @@
 #' @usage NULL
 #' @name mlr_learners_classif.torch_abstract
 #'
-#' @format [`R6Class`] object inheriting from [`LearnerClassif`] / [`Learner`].
+#' @format `r roxy_format(LearnerClassifTorch)`
 #'
 #' @description
 #' This base class provides the basic functionality for training and prediction of a neural network.
@@ -11,7 +11,7 @@
 #' To create a torch learner from a [`nn_module`], use [`LearnerClassifTorch`] or [`LearnerRegrTorch`] instead.
 #'
 #' @section Construction:
-#' `r roxy_construction(LearnerClassifTorchAbstract)`
+#' `r roxy_construction(LearnerClassifTorch)`
 #'
 #' * `r roxy_param_id()`
 #' * `optimizer` :: ([`TorchOptimizer`])\cr
@@ -70,7 +70,7 @@
 #'   The trainig history.
 #' * `hist_valid` :: `data.table`\cr
 #'   The validation history.
-#' @section Methods: `r roxy_methods(LearnerClassifTorchAbstract)`
+#' @section Methods: `r roxy_methods_inherit(LearnerClassifTorch)`
 #' @section Internals:
 #' A [`ParamSetCollection`] is created that combines the `param_set` from the construction with the
 #' default parameters obtained by [`paramset_torchlearner()`], as well as the loss and optimizer parameter
@@ -81,7 +81,7 @@
 #'
 #' @family Learners
 #' @export
-LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
+LearnerClassifTorch = R6Class("LearnerClassifTorch",
   inherit = LearnerClassif,
   public = list(
     initialize = function(id, optimizer, loss, param_set, properties = NULL, packages = character(0),
@@ -95,6 +95,13 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
       private$.callbacks = as_torch_callbacks(callbacks, clone = TRUE)
       cb_ids = map_chr(private$.callbacks, "id")
       assert_true(!"history" %in% cb_ids)
+
+      packages = unique(c(
+        packages,
+        unlist(map(private$.callbacks, "packages")),
+        private$.loss$packages,
+        private$.optimizer$packages
+      ))
 
       private$.callbacks = c(t_clbk("history"), private$.callbacks)
 
@@ -144,7 +151,6 @@ LearnerClassifTorchAbstract = R6Class("LearnerClassifTorchAbstract",
     # the dataloader gets param_vals that may be different from self$param_set$values, e.g.
     # when the dataloader for validation data is loaded, `shuffle` is set to FALSE.
     .dataloader = function(task, param_vals) {
-      defaults = self$param_set$default
       dataloader(
         private$.dataset(task, param_vals),
         batch_size = param_vals$batch_size %??% self$param_set$default$batch_size,

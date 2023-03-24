@@ -1,5 +1,5 @@
 LearnerClassifTest1 = R6Class("LearnerClassifTest1",
-  inherit = LearnerClassifTorchAbstract,
+  inherit = LearnerClassifTorch,
   public = list(
     initialize = function(optimizer = t_opt("adagrad"), loss = t_loss("cross_entropy")) {
       super$initialize(
@@ -7,7 +7,7 @@ LearnerClassifTest1 = R6Class("LearnerClassifTest1",
         label = "Test1 Classifier",
         feature_types = c("numeric", "integer"),
         param_set = ps(bias = p_lgl(default = FALSE, tags = "train")),
-        properties = c("hotstart_forward", "multiclass", "twoclass"),
+        properties = c("multiclass", "twoclass"),
         predict_types = "response",
         optimizer = optimizer,
         loss = loss,
@@ -46,11 +46,14 @@ LearnerClassifTest1 = R6Class("LearnerClassifTest1",
 LearnerClassifTorchImageTest = R6Class("LearnerClassifTorchImageTest",
   inherit = LearnerClassifTorchImage,
   public = list(
-    initialize = function(loss = t_loss("cross_entropy"), optimizer = t_opt("adam")) {
+    initialize = function(loss = t_loss("cross_entropy"), optimizer = t_opt("adam"), callbacks = list()) {
       super$initialize(
-        id = "classif.test",
+        id = "classif.image_test",
         param_set = ps(bias = p_lgl(default = FALSE, tags = "train")),
         label = "Test Learner Image",
+        optimizer = optimizer,
+        loss = loss,
+        callbacks = callbacks,
         packages = "R6" # Just to check whether is is correctly passed
       )
     }

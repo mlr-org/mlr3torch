@@ -83,7 +83,7 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
       )
       args = discard(args, is.null)
 
-      # TODO: Maybe we wont the learner and the pipeop to actually share the paramset by reference
+      # TODO: Maybe we want the learner and the pipeop to actually share the paramset by reference
       learner = invoke(class$new, .args = args)
       learner$param_set$set_values(.values = self$param_set$values)
 
@@ -172,6 +172,5 @@ PipeOpTorchModelRegr = R6Class("PipeOpTorchModelRegr",
 )
 
 #' @include zzz.R
-register_po("torch_model", PipeOpTorchModel, list(task_type = "classif"))
 register_po("torch_model_regr", PipeOpTorchModelRegr)
 register_po("torch_model_classif", PipeOpTorchModelClassif)

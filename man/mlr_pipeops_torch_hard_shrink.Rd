@@ -30,7 +30,7 @@ Applies the hard shrinkage function element-wise
 
 \itemize{
 \item \code{lambd} :: \code{numeric(1)}\cr
-The $\lambda$ value for the Hardshrink formulation formulation. Default 0.5.
+The lambda value for the Hardshrink formulation formulation. Default 0.5.
 }
 }
 

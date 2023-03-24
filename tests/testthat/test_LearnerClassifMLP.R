@@ -51,10 +51,11 @@ test_that("autotest", {
     epochs = 10,
     d_hidden = 10,
     activation = "relu",
-    optimizer = "adam"
+    optimizer = "adam",
+    seed = 1
   )
 
-  result = run_autotest(learner, check_replicable = FALSE)
+  result = run_autotest(learner, check_replicable = TRUE)
 
   expect_true(result, info = result$error)
 })

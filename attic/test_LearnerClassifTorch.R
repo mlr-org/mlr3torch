@@ -9,7 +9,7 @@ test_that("autotest: classification", {
     }
   )
 
-  learner = lrn("classif.torch", module, feature_types = c("numeric", "integer"), 
+  learner = lrn("classif.torch_module", module, feature_types = c("numeric", "integer"), 
     batch_size = 16, epochs = 5
   )
   # task = tsk("iris")

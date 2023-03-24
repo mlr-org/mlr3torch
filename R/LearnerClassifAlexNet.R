@@ -1,4 +1,5 @@
 #' @title AlexNet Image Classifier
+#'
 #' @usage NULL
 #' @format [`R6Class`] inheriting from [`LearnerClassifTorchImage`].
 #' @name mlr_learners_classif.alexnet
@@ -7,9 +8,9 @@
 #' Convolutional network for image classification.
 #'
 #' @section Parameters:
-#' Parameters from [`LearnerClassifTorchImage`] and:
+#' Parameters from [`LearnerClassifTorchImage`] and
 #'
-#' * `pretrained` :: `logical(1)`/cd
+#' * `pretrained` :: `logical(1)`\cr
 #'   Whether to use the pretrained model.
 #'
 #' @include LearnerClassifTorchImage.R
@@ -17,31 +18,30 @@
 LearnerClassifAlexNet = R6Class("LearnerClassifAlexNet",
   inherit = LearnerClassifTorchImage,
   public = list(
-    initialize = function(optimizer = t_opt("adam"), loss = t_opt("cross_entropy")) {
+    initialize = function(optimizer = t_opt("adam"), loss = t_opt("cross_entropy"), callbacks = list()) {
       param_set = ps(
         pretrained = p_lgl(default = TRUE, tags = "train")
       )
-
       super$initialize(
         id = "classif.alexnet",
         param_set = param_set,
-        predict_types = "response",
         man = "mlr3torch::mlr_learners_classif.alexnet",
         optimizer = optimizer,
         loss = loss,
+        callbacks = callbacks,
         label = "AlexNet Image Classifier"
       )
     }
   ),
   private = list(
     .network = function(task, param_vals) {
-      if (pretrained) {
-        network = torchvision::model_alexnet(pretrained = param_vals$pretrained)
+      if (param_vals$pretrained %??% TRUE) {
+        network = torchvision::model_alexnet(pretrained = TRUE)
 
         network$classifier$`6` = torch::nn_linear(
-          in_features = model$classifier$`6`$in_features,
+          in_features = network$classifier$`6`$in_features,
           out_features = length(task$class_names),
-          bias = param_values$bias
+          bias = TRUE
         )
         return(network)
       }

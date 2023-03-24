@@ -1,5 +1,6 @@
 #' @title Base Class for Torch Callbacks
 #'
+#' @usage NULL
 #' @name mlr_callbacks_torch
 #' @format `r roxy_format(CallbackTorch)`
 #'
@@ -24,12 +25,12 @@
 #' Other methods can be added freely as well.
 #'
 #' @section Inheriting:
-#' It is recommended to use the sugar function [`callback_torch()] to create custom callbacks, because there are some
-#' easy mistakes that can be made otherwise.
+#' It is recommended to use the sugar function [`callback_torch()] to create custom callbacks.
+#' Otherwise, one has to pay attention to some details.
 #' It is e.g. important that the `"id"` of the callback is a class attribute and not an instance attribute.
-#' The reason for this is that during initialization of a learner, the id of the callback must be available to 
+#' The reason for this is that during initialization of a learner, the id of the callback must be available to
 #' correctly construct the parameter space.
-#' During initialization of the learner, only the callback class is available however, as instantiation happens 
+#' During initialization of the learner, only the callback class is available however, as instantiation happens
 #' during training.
 #'
 #' @section Stages:
@@ -43,7 +44,7 @@
 #' * `batch_valid_end` :: Run after the forward call in the validation loop.
 #' * `epoch_end` :: Run at the end of each epoch.
 #' * `end` :: Run at last, using `on.exit()`.
-#'
+#' @family callback
 #' @export
 CallbackTorch = R6Class("CallbackTorch",
   lock_objects = FALSE,
@@ -53,12 +54,25 @@ CallbackTorch = R6Class("CallbackTorch",
   )
 )
 
-#' @title Callbacks
-#' @description
-#' Dictionary of torch callbacks.
-#' Use [`t_clbk`] for conveniently retrieving callbacks.
+#' @title Dictionary of Torch Callbacks
 #'
+#' @usage NULL
+#' @format [R6::R6Class] object inheriting from [mlr3misc::Dictionary].
+#'
+#' @description
+#' A [`mlr3misc::Dictionary`] of torch callbacks.
+#' Use [`t_clbk`] to conveniently retrieve callbacks.
+#'
+#'
+#' @section Methods:
+#' See [mlr3misc::Dictionary].
+#'
+#' @family callback
 #' @export
+#' @examples
+#' as.data.table(mlr3torch_callbacks)
+#' mlr3torch_callbacks$get("checkpoint")
+#' t_clbk("checkpoint")
 mlr3torch_callbacks = R6Class("DictionaryMlr3torchCallbacks",
   inherit = Dictionary,
   cloneable = FALSE

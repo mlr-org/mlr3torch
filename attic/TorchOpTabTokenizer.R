@@ -61,7 +61,7 @@ nn_tab_tokenizer = nn_module(
       self$tokenizer_num = nn_tokenizer_numeric(n_features, d_token, bias)
     }
     if (length(cardinalities) > 0L) {
-      self$tokenizer_cat = nn_tokenizer_categorical(cardinalities, d_token, bias)
+      self$tokenizer_categ = nn_tokenizer_categorical(cardinalities, d_token, bias)
     }
     if (cls) {
       self$cls = nn_cls(d_token)
@@ -69,13 +69,13 @@ nn_tab_tokenizer = nn_module(
   },
   forward = function(input) {
     input_num = input$num
-    input_cat = input$cat
+    input_categ = input$categ
     tokens = list()
     if (!is.null(input_num)) {
       tokens[["x_num"]] = self$tokenizer_num(input_num)
     }
-    if (!is.null(input_cat)) {
-      tokens[["x_cat"]] = self$tokenizer_cat(input_cat)
+    if (!is.null(input_categ)) {
+      tokens[["x_categ"]] = self$tokenizer_cat(input_categ)
     }
     tokens = torch_cat(tokens, dim = 2L)
     if (!is.null(self$cls)) {

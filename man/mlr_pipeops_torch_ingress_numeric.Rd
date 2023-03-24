@@ -64,6 +64,6 @@ ingress$batchgetter(task$data(1:5, ingress$features), "cpu")
 }
 \seealso{
 Other PipeOps: 
-\code{\link{mlr_pipeops_torch_ingress_cat}}
+\code{\link{mlr_pipeops_torch_ingress_categ}}
 }
 \concept{PipeOps}

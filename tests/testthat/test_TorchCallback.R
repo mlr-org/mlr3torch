@@ -7,6 +7,40 @@ test_that("Can retrieve predefined callback", {
   expect_equal(cb$param_set$values$freq, 2)
 })
 
+test_that("torch_callback works", {
+  stages = formalArgs(torch_callback)
+  stages = stages[grepl("^on_", stages)]
+  expect_set_equal(stages, mlr3torch_callback_stages)
+
+  expect_warning(torch_callback(id = "Custom", public = list(
+    on_edn = function(ctx) NULL, on_nde = function(ctx) NULL)))
+
+  tcb = torch_callback("Custom",
+    on_end = function(ctx) NULL,
+    public = list(
+      a = 1
+    ),
+    private = list(
+      b = 2
+    ),
+    packages = "utils"
+  )
+
+
+  expect_class(tcb, "TorchCallback")
+  expect_class(tcb$callback, "R6ClassGenerator")
+  expect_true("utils" %in% tcb$packages)
+
+  cbt = tcb$get_callback()
+
+  expect_class(cbt, "CallbackTorchCustom")
+  expect_true(!is.null(cbt$on_end))
+  expect_true(cbt$a == 1)
+  expect_true(get_private(cbt)$b == 2)
+})
+
+
+
 test_that("TorchCallback basic checks", {
   Cbt1 = R6Class("CallbackTorchTest1")
   expect_error(TorchCallback$new(Cbt1),
