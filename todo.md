@@ -291,6 +291,8 @@ rest of the state.
 
 **Other**
 * [ ] Check that defaults and initial values are correctly used everywhere
+* [ ] Is withr important anyway? If yes, then remove the with_seed function, otherwise remove withr from imports
+* [ ] Reset the torch seed after ending the `$train()` call of the learner.
 
 * [ ] Implement the torch methods with explicit parameters in the function so that we can better check whether a parameter 
 from paramset_torchlearner is actually doing something
@@ -317,6 +319,7 @@ Also add tests or sth. (For learners that allow to set the activation function b
 * [ ] Test that the defaults of the activation functions are correctly implemented
 * [ ] Properly refactor the test helpers (classes and modules etc) in other files and dont keep them in the tests.
 * [ ] Use the tests from mlr3pipelines for all the pipeops
+* [ ] Test the updated versions of the TorchWrapper
 * [ ] Deep clones of torch modules: 
 -> the function that checks for deep clones needs to skip some torch-specific stuff, e.g. the attribute "module" 
 for nn modules, or "Optimizer" for optim_adam etc.

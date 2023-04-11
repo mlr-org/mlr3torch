@@ -1,13 +1,19 @@
 #' @title Shows Training Process in the Console
+#'
+#' @usage NULL
+#' @name mlr3torch_callbacks.progress
+#' @format `r roxy_format(CallbackTorchProgress)`
+#'
 #' @description
 #' Prints a progress bar and the metrics for training and validation.
+#'
+#' @section Construction: `r roxy_construction(CallbackTorchProgress)`
+#'
 #' @include CallbackTorch.R
 #' @export
 CallbackTorchProgress = R6Class("CallbackTorchProgress",
   inherit = CallbackTorch, lock_objects = FALSE,
   public = list(
-    id = "progress",
-    label = "Callback Torch Progress",
     on_epoch_begin = function(ctx) {
       catf("Epoch %s", ctx$epoch)
       self$pb_train = progress::progress_bar$new(
@@ -60,6 +66,9 @@ CallbackTorchProgress = R6Class("CallbackTorchProgress",
 mlr3torch_callbacks$add("progress", function() {
   TorchCallback$new(
     callback_generator = CallbackTorchProgress,
-    param_set = ps()
+    param_set = ps(),
+    id = "progress",
+    label = "Callback Torch Progress",
+    man = "mlr3torch::mlr3torch_callbacks.progress"
   )
 })

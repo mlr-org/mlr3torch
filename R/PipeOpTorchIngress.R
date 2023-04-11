@@ -2,7 +2,7 @@
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_ingress
-#' @format [`R6Class`] inheriting from [`PipeOp`].
+#' @format `r roxy_format(PipeOpTorchIngress)`
 #'
 #' @description
 #' Use this as entry-point to mlr3torch-networks.
@@ -19,15 +19,21 @@
 #'   The input channels for this `PipeOp`. See [`PipeOp`] for an explanation.
 #' * `output` :: `data.table()`\cr
 #'   The output channels for this `PipeOp`. See [`PipeOp`] for an explanation.
-#' * `packages` :: `character() cr
+#' * `packages` :: `character() \cr
 #'   The packages this `PipeOpTorchIngress` depends on.
+#' * `feature_types` :: `character()`\cr
+#'   The features types that can be consumed by this `PipeOpTorchIngress`.
+#'   Must be a subset of `mlr_reflections$task_feature_types`.
 #'
 #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
 #' @section State:
 #' The state is set to the input shape.
 #'
 #' @section Parameters:
-#' Defined by the construction argument `param_set`.
+#' Defined by the construction argument `param_set`, as well as:
+#' * `select` :: `logical(1)`\cr
+#'   Whether to select the features of the task that can be consumed by this `PipeOpTorchIngress`.
+#'   Default is `FALSE`, i.e. it errs during training if it receives a task with feature types that it cannot handle.
 #'
 #' @section Fields:
 #' * `feature_types` :: `character(1)`\cr
@@ -44,10 +50,8 @@
 PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
   inherit = PipeOp,
   public = list(
-    feature_types = NULL,
     initialize = function(id, param_set = ps(), param_vals = list(), packages = character(0), feature_types) {
-      self$feature_types = feature_types
-      lockBinding("feature_types", self)
+      private$.feature_types = assert_subset(feature_types, mlr_reflections$task_feature_types)
       ps_tmp = ps(
         select = p_lgl(default = FALSE, tags = "train")
       )
@@ -72,6 +76,7 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
   private = list(
     .get_batchgetter = function(task, param_vals) stop("private$.get_batchgetter() must be implemented."),
     .shape = function(task, param_vals) stop("private$.shape() must be implemented."),
+    .feature_types = NULL,
     .train = function(inputs) {
       pv = self$param_set$get_values()
       task = inputs[[1]]
@@ -100,7 +105,7 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
       } else {
         if (!all(task$feature_types$type %in% self$feature_types)) {
           stopf("Task contains features of type %s, but only %s are allowed. Use parameter `select` to avoid this.",
-            paste0(unique(task$feature_types$type[!(task$feature_types$type %in% self$feature_types)]), 
+            paste0(unique(task$feature_types$type[!(task$feature_types$type %in% self$feature_types)]),
               collapse = ", "),
             paste0(self$feature_types, collapse = ", ")
           )
@@ -123,6 +128,12 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
       ))
     },
     .predict = function(inputs) inputs
+  ),
+  active = list(
+    feature_types = function(rhs) {
+      assert_ro_binding(rhs)
+      private$.feature_types
+    }
   )
 )
 

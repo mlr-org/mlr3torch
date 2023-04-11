@@ -100,6 +100,7 @@ Collate:
     'utils.R'
     'TorchCallback.R'
     'TorchOptimizer.R'
+    'TorchWrapper.R'
     'autotest.R'
     'autotest_learner.R'
     'dataloader.R'

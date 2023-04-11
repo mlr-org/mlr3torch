@@ -35,8 +35,8 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 #' @title Torch Loss
 #'
 #' @usage NULL
-#' @name torch_loss
-#' @format [`R6Class`]
+#' @name TorchLoss
+#' @format `r roxy_format(TorchLoss)`
 #'
 #' @description
 #' This wraps a `torch::nn_loss` and is usually used to configure
@@ -47,43 +47,25 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 #' @section Construction:
 #' `r roxy_construction(TorchLoss)`
 #'
+#' Arguments from [`TorchWrapper`] (except for `generator`) as well as:
 #' * `torch_loss` :: `nn_loss`\cr
 #'   The loss module.
-#' * `param_set` :: (`ParamSet`)\cr
-#'   The parameter set of the oss If this is `NULL` (default), the parameter set is inferred, leading to potentially
-#'   less precise parameter descriptions.
 #' * `task_types` :: `character()`\cr
 #'   The task types supported by this loss.
 #'   lf left `NULL` (default), this value is set to all available task types.
-#' * `label` :: `character(1)`\cr
-#'   The label for the `TorchLoss`.
-#' * `packages` :: `character()`\cr
-#'   The packages this loss depends on. The values `"torch"` and `"mlr3torch"` are always included. 
-#'   Default is `NULL`.
 #'
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
 #'
 #' @section Fields:
-#' * `label` :: `character(1)`\cr
-#'  The label for the object.
+#' Fields inherited from [`TorchWrapper`] as well as:
 #' * `task_types` :: `character()`\cr
-#'  The task types that are supported.
-#' * `loss` :: `
-#'   The generator of the loss function.
-#' * `param_set` :: `paradox::ParamSet`\cr
-#'   The parameter set.
-#' * `packages` :: `character()`\cr
-#'   The packages this loss requires.
+#'  The task types that are supported by this loss.
 #'
 #' @section Methods:
-#' * `get_loss()`\cr
-#'   () -> `nn_loss()`\cr
-#'   Initializes the torch loss for the given parameter values.
-#' * `help()`\cr
-#'   Opens the help page for the wrapped loss.
+#' Only methods inherited from [`TorchWrapper`].
 #'
-#' @family torch_wrapper
+#' @family torch_wrappers
 #' @export
 #' @examples
 #' # Create a new Torch Loss
@@ -95,35 +77,31 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 #'
 #' loss$param_set
 #' # Construct the actual loss function
-#' los = tchloss$get_loss()
+#' los = tchloss$generate()
 TorchLoss = R6::R6Class("TorchLoss",
+  inherit = TorchWrapper,
   public = list(
-    label = NULL,
     task_types = NULL,
-    loss = NULL,
-    param_set = NULL,
-    packages = NULL,
-    initialize = function(torch_loss, task_types = NULL, param_set = NULL, label = deparse(substitute(torch_loss))[[1]],
-      packages = NULL) {
-      assert_r6(param_set, "ParamSet", null.ok = TRUE)
-      task_types = task_types %??% mlr_reflections$task_types$type
-      self$task_types = assert_subset(task_types, mlr_reflections$task_types$type)
-      self$label = assert_string(label)
-      self$loss = assert_class(torch_loss, "nn_loss") # maybe too strict?
-      packages = union(packages, c("torch", "mlr3torch"))
-      self$packages = assert_names(packages, type = "strict")
-
-      self$param_set = param_set %??% inferps(torch_loss)
+    initialize = function(torch_loss, task_types = NULL, param_set = NULL,
+      id = deparse(substitute(torch_loss))[[1]], label = id, packages = NULL) {
+      if (!is.null(task_types)) {
+        self$task_types = assert_subset(task_types, mlr_reflections$task_types$type)
+      } else {
+        self$task_types = mlr_reflections$task_types$type
+      }
+      torch_loss = assert_class(torch_loss, "nn_loss")
+      super$initialize(
+        generator = torch_loss,
+        id = id,
+        param_set = param_set,
+        packages = packages,
+        label = label
+      )
     },
-    get_loss = function() {
-      require_namespaces(self$packages)
-      invoke(self$loss, .args = self$param_set$get_values())
-    }, 
     print = function(...) {
-      catn(sprintf("<TorchLoss:%s>", self$label))
-      catn(str_indent("* Generator:", self$optimizer$classname))
-      catn(str_indent("* Parameters:", as_short_string(self$param_set$values, 1000L)))
+      super$print(...)
       catn(str_indent("* Task Types:", as_short_string(self$task_types, 1000L)))
+      invisible(self)
     }
   )
 )
@@ -138,6 +116,8 @@ TorchLoss = R6::R6Class("TorchLoss",
 #' * mse - [`torch::nn_mse_loss`]
 #' * l1 - [`torch::nn_l1_loss`]
 #' * cross_entropy - [`torch::nn_cross_entropy_loss`]
+#'
+#' @family torch_wrappers
 #' @export
 mlr3torch_losses = R6Class("DictionaryMlr3torchLosses",
   inherit = Dictionary,
@@ -162,13 +142,13 @@ t_loss = function(.key, ...) {
 
 mlr3torch_losses$add("mse", function() {
   p = ps(reduction = p_fct(levels = c("mean", "sum"), default = "mean", tags = "train"))
-  TorchLoss$new(torch::nn_mse_loss, "regr", p, "mse")
+  TorchLoss$new(torch::nn_mse_loss, "regr", p, "mse", "Mean Squared Error")
 })
 
 
 mlr3torch_losses$add("l1", function() {
   p = ps(reduction = p_fct(levels = c("mean", "sum"), default = "mean", tags = "train"))
-  TorchLoss$new(torch::nn_l1_loss, "regr", p, "l1")
+  TorchLoss$new(torch::nn_l1_loss, "regr", p, "l1", "Absolute Error")
 })
 
 
@@ -178,5 +158,5 @@ mlr3torch_losses$add("cross_entropy", function() {
     ignore_index = p_int(default = -100L, tags = "train"),
     reduction = p_fct(levels = c("mean", "sum"), default = "mean", tags = "train")
   )
-  TorchLoss$new(torch::nn_cross_entropy_loss, "classif", p, "cross_entropy")
+  TorchLoss$new(torch::nn_cross_entropy_loss, "classif", p, "cross_entropy", "Cross Entropy")
 })

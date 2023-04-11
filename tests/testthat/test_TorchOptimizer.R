@@ -12,7 +12,7 @@ test_that("TorchOptimizer is correctly initialized", {
   expect_set_equal(torchopt$param_set$ids(), setdiff(formalArgs(torch::optim_sgd), "params"))
 
 
-  expect_error(torchopt$get_optimizer(nn_linear(1, 1)$parameters),
+  expect_error(torchopt$generate(nn_linear(1, 1)$parameters),
     regexp = "The following packages could not be loaded: mypackage", fixed = TRUE
   )
 
@@ -24,7 +24,7 @@ test_that("TorchOptimizer is correctly initialized", {
   expect_set_equal(torchopt$packages, c("torch", "mlr3torch"))
   expect_equal(torchopt$label, "Stochastic Gradient Descent")
 
-  opt = torchopt$get_optimizer(nn_linear(1, 1)$parameters)
+  opt = torchopt$generate(nn_linear(1, 1)$parameters)
   expect_r6(opt, c("optim_sgd", "torch_optimizer"))
   expect_true(opt$param_groups[[1]]$lr == 0.123)
 
@@ -51,7 +51,7 @@ test_that("Converters are correctly implemented", {
   expect_r6(as_torch_optimizer(t_opt("sgd")), "TorchOptimizer")
 })
 
-test_that("Dictionary of Torch Optimizers is correctlu specified", {
+test_that("Dictionary of Torch Optimizers is correctly specified", {
   walk(mlr3torch_optimizers$keys(), function(key) {
     torchopt = t_opt(key)
     param_set = torchopt$param_set
@@ -61,7 +61,7 @@ test_that("Dictionary of Torch Optimizers is correctlu specified", {
     observed = torchopt$param_set$default[sort(names(torchopt$param_set$default))]
 
     # torch marks required parameters with `optim_required()`
-    expected = formals(torchopt$optimizer)
+    expected = formals(torchopt$generator)
     expected = expected[sort(setdiff(names(expected), "params"))]
     required_params = names(expected[map_lgl(expected, function(x) identical(x, str2lang("optim_required()")))])
 

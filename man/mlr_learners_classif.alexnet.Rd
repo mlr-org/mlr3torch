@@ -5,7 +5,7 @@
 \alias{LearnerClassifAlexNet}
 \title{AlexNet Image Classifier}
 \format{
-\code{\link{R6Class}} inheriting from \code{\link{LearnerClassifTorchImage}}.
+\code{\link{R6Class}} inheriting from \code{\link{LearnerClassifTorchImage}}, \code{\link{LearnerClassifTorch}}, \code{\link{LearnerClassif}}, \code{\link{Learner}}.
 }
 \description{
 Convolutional network for image classification.
@@ -17,5 +17,7 @@ Parameters from \code{\link{LearnerClassifTorchImage}} and
 \item \code{pretrained} :: \code{logical(1)}\cr
 Whether to use the pretrained model.
 }
+
+TODO: Finish description
 }
 

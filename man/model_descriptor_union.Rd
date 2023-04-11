@@ -14,7 +14,7 @@ The first \code{\link{ModelDescriptor}}.}
 The second \code{\link{ModelDescriptor}}.}
 }
 \value{
-a \code{ModelDescriptor}.
+\code{\link{ModelDescriptor}}
 }
 \description{
 This is a mostly internal function that is used in \code{\link{PipeOpTorch}}s with multiple input channels.

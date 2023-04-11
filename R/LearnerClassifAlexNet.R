@@ -1,8 +1,8 @@
 #' @title AlexNet Image Classifier
 #'
 #' @usage NULL
-#' @format [`R6Class`] inheriting from [`LearnerClassifTorchImage`].
 #' @name mlr_learners_classif.alexnet
+#' @format `r roxy_format(LearnerClassifAlexNet)`
 #'
 #' @description
 #' Convolutional network for image classification.
@@ -12,6 +12,8 @@
 #'
 #' * `pretrained` :: `logical(1)`\cr
 #'   Whether to use the pretrained model.
+#'
+#'  TODO: Finish description
 #'
 #' @include LearnerClassifTorchImage.R
 #' @export

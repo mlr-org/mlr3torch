@@ -21,14 +21,6 @@ that takes as argument a \code{\link{ContextTorch}} which gives access to the re
 \code{CallbackTorch$new()}
 }
 
-\section{Fields}{
-
-\itemize{
-\item \code{id} :: (\code{character(1)})\cr
-The id of the callback. Must be a class attribute.
-}
-}
-
 \section{Methods}{
 
 See section \emph{Stages}.
@@ -37,11 +29,7 @@ Other methods can be added freely as well.
 
 \section{Inheriting}{
 
-It is recommended to use the sugar function [\verb{callback_torch()] to create custom callbacks. Otherwise, one has to pay attention to some details. It is e.g. important that the }"id"` of the callback is a class attribute and not an instance attribute.
-The reason for this is that during initialization of a learner, the id of the callback must be available to
-correctly construct the parameter space.
-During initialization of the learner, only the callback class is available however, as instantiation happens
-during training.
+It is recommended to use the sugar function \code{\link[=callback_torch]{callback_torch()}} to create custom callbacks.
 }
 
 \section{Stages}{

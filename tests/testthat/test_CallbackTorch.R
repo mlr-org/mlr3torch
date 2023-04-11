@@ -6,12 +6,12 @@ test_that("The CallbackTorch class is correct", {
 })
 
 test_that("All stages are called correctly", {
-  # We test that: 
+  # We test that:
   # 1. The callbacks are executed in the right order with 1 epoch, 1 training and validation batch
-  # 2. Wenn we increase the epoch, training and validation iterations the counts how often the 
+  # 2. Wenn we increase the epoch, training and validation iterations the counts how often the
   # callbacks are executed is correct
   #
-  # To implement this, we use a custom callback, that appends its name to a file each time it is 
+  # To implement this, we use a custom callback, that appends its name to a file each time it is
   # executed
 
   task = tsk("iris")
@@ -22,7 +22,7 @@ test_that("All stages are called correctly", {
     on_stage
   }
 
-  cb = torch_callback(id = "test", 
+  cb = torch_callback(id = "test",
     public = list(
       initialize = function(path) {
         assert_path_for_output(path)
@@ -35,20 +35,20 @@ test_that("All stages are called correctly", {
     on_after_backward = write_stage("on_after_backward"),
     on_batch_begin = write_stage("on_batch_begin"),
     on_before_valid = write_stage("on_before_valid"),
-    on_batch_valid_begin = write_stage("on_batch_valid_begin"), 
+    on_batch_valid_begin = write_stage("on_batch_valid_begin"),
     on_batch_valid_end = write_stage("on_batch_valid_end"),
     on_batch_end = write_stage("on_batch_end"),
     on_epoch_end = write_stage("on_epoch_end"),
     on_end = write_stage("on_end")
   )
   path = tempfile()
-  learner = lrn("classif.mlp", batch_size = 1, epochs = 1, callbacks = cb, cb.test.path = path, 
+  learner = lrn("classif.mlp", batch_size = 1, epochs = 1, callbacks = cb, cb.test.path = path,
     layers = 0, d_hidden = 1, measures_valid = msr("classif.acc"))
   task$row_roles$use = 2
   task$row_roles$test = 3
 
   learner$train(task)
-  
+
   output = readLines(path)
   expect_identical(output, mlr3torch_callback_stages)
 
@@ -88,4 +88,3 @@ test_that("All stages are called correctly", {
 
   check_output(output3, 2, 2, 3)
 })
-

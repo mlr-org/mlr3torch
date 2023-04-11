@@ -9,6 +9,8 @@ torch_callback(
   name = paste0("CallbackTorch", capitalize(id)),
   param_set = NULL,
   packages = NULL,
+  label = id,
+  man = NULL,
   on_begin = NULL,
   on_end = NULL,
   on_epoch_begin = NULL,
@@ -38,6 +40,13 @@ E.g. id \code{id} is \code{"custom"}, the name is set to \code{"CallbackTorchCus
 The parameter set, if not present it is inferred from the initialize method passed through the public function.}
 
 \item{packages}{(\code{character()})\cr\verb{The packages the callback depends on. Default is}NULL`.}
+
+\item{label}{(\code{character(1)})\cr
+Label for the new instance.}
+
+\item{man}{(\code{character(1)})\cr
+String in the format \verb{[pkg]::[topic]} pointing to a manual page for this object.
+The referenced help package can be opened via method \verb{$help()}.}
 
 \item{on_begin, }{on_end, on_epoch_begin, on_before_valid, on_epoch_end, on_batch_begin, on_batch_end,
 on_after_backward, on_batch_valid_begin, on_batch_valid_end (\code{function})\cr

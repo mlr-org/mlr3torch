@@ -28,10 +28,10 @@ test_that("torch_callback works", {
 
 
   expect_class(tcb, "TorchCallback")
-  expect_class(tcb$callback, "R6ClassGenerator")
+  expect_class(tcb$generator, "R6ClassGenerator")
   expect_true("utils" %in% tcb$packages)
 
-  cbt = tcb$get_callback()
+  cbt = tcb$generate()
 
   expect_class(cbt, "CallbackTorchCustom")
   expect_true(!is.null(cbt$on_end))
@@ -43,12 +43,9 @@ test_that("torch_callback works", {
 
 test_that("TorchCallback basic checks", {
   Cbt1 = R6Class("CallbackTorchTest1")
-  expect_error(TorchCallback$new(Cbt1),
-    "Callback generator must have public field 'id'.")
-
   Cbt2 = R6Class("CallbackTorchTest2", public = list(id = "test2"))
   tcb2 = TorchCallback$new(Cbt2)
-  expect_identical(Cbt2, tcb2$callback)
+  expect_identical(Cbt2, tcb2$generator)
   expect_identical(tcb2$id, "test2")
   expect_identical(tcb2$packages, "mlr3torch")
   expect_identical(tcb2$id, tcb2$callback$public_fields$id)

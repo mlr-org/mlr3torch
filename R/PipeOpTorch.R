@@ -351,8 +351,8 @@ PipeOpTorch = R6Class("PipeOpTorch",
         r$.pointer_shape = shape
         r
       })
-
-      self$state = shapes_out  # PipeOp API requires us to only set this to some list. We set it to output shape to ease debugging.
+      # PipeOp API requires us to only set this to some list. We set it to output shape to ease debugging.
+      self$state = shapes_out
 
       results
     },
@@ -365,5 +365,3 @@ PipeOpTorch = R6Class("PipeOpTorch",
     }
   )
 )
-
-

@@ -110,97 +110,37 @@ as_torch_callbacks.default = function(x, clone = FALSE, ...) { # nolint
 #' losses.
 #'
 #' @section Construction: `r roxy_construction(TorchCallback)`
-#'
+#' Arguments from [`TorchWrapper`] (except for `generator`) as well as:
 #' * `callback_generator` :: [`R6ClassGenerator`]\cr
 #'   The class generator for the callback that is being wrapped.
-#' * `param_set` :: [`ParamSet`]\cr
-#'   The parameter set of the callback. These values are passed as construction arguments to the wrapped
-#'   [`CallbackTorch`]. The default is `NULL` in which case the parameter set is inferred from the construction
-#'   arguments of the wrapped callbacks.
-#' * `packages` :: `character()`\cr
-#'   The packages the callback depends on.
+#'
+#' @section Parameters:
+#' Defined by the constructor argument `param_set`.
 #'
 #' @section Fields:
-#' * `callback` :: [`R6ClassGenerator`]\cr
-#'   The class generator for the R6 callback.
-#' * `param_set` :: [`ParamSet`]\cr
-#'   The parameter set. Its values are passed to `$get_callback()`.
-#'   Note that the `param_set` is not cloned, so this has to be done before by the user.
-#' * `id` :: `character(1)`\cr
-#'   The identifier of the callback. This is equal to the identifier of the wrapped [`CallbackTorch`].
-#'   * `packages` :: `character()`\cr
-#'   The packages the callback depends on.
+#' Only fields inherited from [`TorchWrapper`] as well as:
 #'
 #' @section Methods:
-#' * `get_callback()`\cr
-#'    () -> `CallbackTorch`
-#' * `print(...)`\cr
-#'    () -> `CallbackTorch`
-#'    Prints the object.
+#' Only methods inherited from [`TorchWrapper`].
 #'
-#' @family torch_wrapper, callback
+#' @family torch_wrappers, callback
 #' @include utils.R
 #' @export
 TorchCallback = R6Class("TorchCallback",
+  inherit = TorchWrapper,
   public = list(
-    param_set = NULL,
-    initialize = function(callback_generator, param_set = NULL, packages = NULL) {
-      private$.callback = assert_class(callback_generator, "R6ClassGenerator")
-      private$.packages = assert_character(union(packages, "mlr3torch"), any.missing = FALSE)
-
-      id = callback_generator$public_fields$id
-      if (is.null(id)) {
-        stopf("Callback generator must have public field 'id'.")
-      } else {
-        private$.id = id
-      }
-
-      init_method = get_init(callback_generator)
-      if (is.null(param_set)) {
-        if (!is.null(init_method)) {
-          self$param_set = inferps(init_method, tags = character(0))
-        } else {
-          self$param_set = ps()
-        }
-      } else {
-        self$param_set = assert_param_set(param_set)
-        if (is.null(init_method)) {
-          assert_true(param_set$length == 0)
-        } else {
-          assert_set_equal(param_set$ids(), formalArgs(init_method))
-        }
-      }
-    },
-    print = function(...) {
-      catn(sprintf("<TorchCallback: %s>", self$callback$public_fields$id))
-      catn(str_indent("* Generator:", self$callback$classname))
-      catn(str_indent("* Parameters:", as_short_string(self$param_set$values, 1000L)))
-      catn(str_indent("* packages:", as_short_string(self$packages, 1000L)))
-
-    },
-    get_callback = function() {
-      require_namespaces(self$packages)
-      invoke(self$callback$new, .args = self$param_set$get_values())
+    man = NULL,
+    initialize = function(callback_generator, param_set = NULL, id = deparse(substitute(callback_generator))[[1]], 
+      label = id, packages = NULL, man = NULL) {
+      self$man = assert_string(man, min.chars = 1, null.ok = TRUE)
+      super$initialize(
+        generator = callback_generator,
+        id = id,
+        param_set = param_set,
+        packages = packages,
+        label = label
+      )
     }
-  ),
-  active = list(
-    id = function(rhs) {
-      assert_ro_binding(rhs)
-      private$.id
-    },
-    callback = function(rhs) {
-      assert_ro_binding(rhs)
-      private$.callback
-    },
-    packages = function(rhs) {
-      assert_ro_binding(rhs)
-      private$.packages
-    }
-  ),
-  private = list(
-    .callback = NULL,
-    .id = NULL,
-    .packages = NULL
   )
 )
 
@@ -221,6 +161,11 @@ TorchCallback = R6Class("TorchCallback",
 #'   The parameter set, if not present it is inferred from the initialize method passed through the public function.
 #' @param packages (`character()`)\cr`
 #'   The packages the callback depends on. Default is `NULL`.
+#' @param label (`character(1)`)\cr
+#'   Label for the new instance.
+#' @param man (`character(1)`)\cr
+#'   String in the format `[pkg]::[topic]` pointing to a manual page for this object.
+#'   The referenced help package can be opened via method `$help()`.
 #' @param on_begin, on_end, on_epoch_begin, on_before_valid, on_epoch_end, on_batch_begin, on_batch_end,
 #' on_after_backward, on_batch_valid_begin, on_batch_valid_end (`function`)\cr
 #' Function to execute at the given stage, see section *Stages*.
@@ -279,6 +224,8 @@ torch_callback = function(
   name = paste0("CallbackTorch", capitalize(id)),
   param_set = NULL,
   packages = NULL,
+  label = id,
+  man = NULL,
   # training
   on_begin = NULL,
   on_end = NULL,
@@ -291,7 +238,7 @@ torch_callback = function(
   # validation
   on_batch_valid_begin = NULL,
   on_batch_valid_end = NULL,
-  # predcition
+  # prediction
   public = NULL, private = NULL, active = NULL, parent_env = parent.frame()) {
   assert_string(id, min.chars = 1L)
   more_public = list(
@@ -311,7 +258,6 @@ torch_callback = function(
   assert_list(public, null.ok = TRUE, names = "unique")
   if (length(public)) assert_names(names(public), disjunct.from = names(more_public))
 
-
   invalid_stages = names(public)[grepl("^on_", names(public))]
 
   if (length(invalid_stages)) {
@@ -329,5 +275,13 @@ torch_callback = function(
   callback_generator = R6::R6Class(classname = name, inherit = CallbackTorch, public = c(more_public, public),
     private = private, active = active, parent_env = parent_env_shim, lock_objects = FALSE)
 
-  TorchCallback$new(callback_generator = callback_generator, param_set = param_set, packages = packages)
+  TorchCallback$new(
+    callback_generator = callback_generator,
+    param_set = param_set,
+    packages = packages,
+    id = id,
+    man = man,
+    label = label
+    
+  )
 }

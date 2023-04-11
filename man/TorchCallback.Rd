@@ -4,7 +4,7 @@
 \alias{TorchCallback}
 \title{Torch Callback}
 \format{
-\code{\link{R6Class}}
+\code{\link{R6Class}} inheriting from \code{\link{TorchWrapper}}.
 }
 \description{
 Leight-weight wrapper around callback for torch: A \code{\link{TorchCallback}} wraps a \code{\link{CallbackTorch}}.
@@ -13,45 +13,27 @@ It is an analogous construct to the classes \code{\link{TorchOptimizer}} or \cod
 losses.
 }
 \section{Construction}{
- \code{TorchCallback$new(callback_generator, param_set = NULL, packages = NULL)}
+ \code{TorchCallback$new(callback_generator, param_set = NULL, id = deparse(substitute(callback_generator))[[1]], label = id, packages = NULL, man = NULL)}
+Arguments from \code{\link{TorchWrapper}} (except for \code{generator}) as well as:
 \itemize{
 \item \code{callback_generator} :: \code{\link{R6ClassGenerator}}\cr
 The class generator for the callback that is being wrapped.
-\item \code{param_set} :: \code{\link{ParamSet}}\cr
-The parameter set of the callback. These values are passed as construction arguments to the wrapped
-\code{\link{CallbackTorch}}. The default is \code{NULL} in which case the parameter set is inferred from the construction
-arguments of the wrapped callbacks.
-\item \code{packages} :: \code{character()}\cr
-The packages the callback depends on.
 }
+}
+
+\section{Parameters}{
+
+Defined by the constructor argument \code{param_set}.
 }
 
 \section{Fields}{
 
-\itemize{
-\item \code{callback} :: \code{\link{R6ClassGenerator}}\cr
-The class generator for the R6 callback.
-\item \code{param_set} :: \code{\link{ParamSet}}\cr
-The parameter set. Its values are passed to \verb{$get_callback()}.
-Note that the \code{param_set} is not cloned, so this has to be done before by the user.
-\item \code{id} :: \code{character(1)}\cr
-The identifier of the callback. This is equal to the identifier of the wrapped \code{\link{CallbackTorch}}.
-\itemize{
-\item \code{packages} :: \code{character()}\cr
-The packages the callback depends on.
-}
-}
+Only fields inherited from \code{\link{TorchWrapper}} as well as:
 }
 
 \section{Methods}{
 
-\itemize{
-\item \code{get_callback()}\cr
-() -> \code{CallbackTorch}
-\item \code{print(...)}\cr
-() -> \code{CallbackTorch}
-Prints the object.
-}
+Only methods inherited from \code{\link{TorchWrapper}}.
 }
 
-\concept{torch_wrapper, callback}
+\concept{torch_wrappers, callback}

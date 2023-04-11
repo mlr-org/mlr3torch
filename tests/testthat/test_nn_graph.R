@@ -1,16 +1,50 @@
+input_from_shapes = function(shapes, n = 1L) {
+  imap(shapes, function(shape, nm) {
+    shape[1] = n
+    invoke(torch_randn, .args = as.list(shape))
+  })
+}
 
+test_that("model_descriptor_to_module works", {
+  graph1 = po("torch_ingress_num") %>>%
+    po("nn_linear", out_features = 10) %>>%
+    po("nn_relu") %>>%
+    po("nn_head")
 
-test_that("Linear GraphNetwork works", {
+  md = graph1$train(task)[[1L]]
+
+  net = model_descriptor_to_module(md, list(c("nn_head", "output")))
+  batch = input_from_shapes(network$shapes_in)
+  invoke(net, .args = batch)
+  result1 = net(torch_ingress_num.input = batch[[1L]])
+
+  expect_equal(result1$shape, c(1, 3))
+
+  in_sepal = po("select_1", selector = selector_grep("Sepal")) %>>% po("torch_ingress_num_1"
+  in_petal = po("select_2", selector = selector_grep("Petal")) %>>% po("torch_ingress_num:2")
+
+  graph2 = list(in_sepal, in_petal) %>>%
+    po("nn_merge_sum")
+
+})
+
+test_that("Linear graph", {
   batch_size = 16L
   d_token = 3L
   task = tsk("iris")
-  batch = get_batch(task, batch_size = batch_size, device = "cpu")
-  graph = top("input") %>>%
-    top("tab_tokenizer", d_token = d_token) %>>%
-    top("flatten") %>>%
-    top("linear_1", out_features = 10L) %>>%
-    top("relu_1") %>>%
-    top("linear_2", out_features = 1L)
+
+  graph = po("torch_ingress_num") %>>%
+    po("nn_linear", out_features = 10) %>>%
+    po("nn_relu") %>>%
+    po("nn_head")
+
+  md = graph$train(task)[[1L]]
+  network = mod
+  expect_class(md, "ModelDescriptor")
+
+  network = md$graph
+  expect_class(network, "nn_graph")
+
   network = graph$train(task)[[1L]][[2L]]
   expect_function(network)
   expect_true(inherits(network, "nn_graph"))

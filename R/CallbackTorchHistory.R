@@ -11,9 +11,6 @@
 CallbackTorchHistory = R6Class("CallbackTorchHistory",
   inherit = CallbackTorch, lock_objects = FALSE,
   public = list(
-    id = "history",
-    man = "mlr_callbacks_torch.history",
-    label = "Torch History",
     on_begin = function(ctx) {
       self$train = list(list(epoch = numeric(0)))
       self$valid = list(list(epoch = numeric(0)))
@@ -50,7 +47,9 @@ CallbackTorchHistory = R6Class("CallbackTorchHistory",
 mlr3torch_callbacks$add("history", function() {
   TorchCallback$new(
     callback_generator = CallbackTorchHistory,
-    param_set = ps()
+    param_set = ps(),
+    id = "history",
+    label = "History",
+    man = "mlr3torch::mlr3torch_callbacks.history"
   )
 })
-

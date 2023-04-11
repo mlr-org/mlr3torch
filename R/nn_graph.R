@@ -56,7 +56,7 @@ model_descriptor_to_module = function(model_descriptor, output_pointers = NULL, 
 #' @title Graph Network
 #'
 #' @description
-#' Represents a NN using a [`Graph`] that contains [`PipeOpModule`]s.
+#' Represents a neural network using a [`Graph`] that usually costains mostly [`PipeOpModule`]s.
 #'
 #' @param graph ([`Graph`][mlr3pipelines::Graph])\cr
 #'   The [`Graph`][mlr3pipelines::Graph] to wrap.
@@ -71,16 +71,18 @@ model_descriptor_to_module = function(model_descriptor, output_pointers = NULL, 
 nn_graph = nn_module(
   "nn_graph",
   initialize = function(graph, shapes_in, output_map = graph$output$name, list_output = FALSE) {
-
-    self$list_output = assert_flag(list_output)
-    self$graph = graph
-
+    self$graph = assert_r6(graph, "Graph")
     self$graph_input_name = graph$input$name  # cache this, it is expensive
 
-    self$shapes_in = assert_list(shapes_in, types = "integerish")
+    self$list_output = assert_flag(list_output)
     assert_names(names(shapes_in), permutation.of = self$graph_input_name)
-
+    self$shapes_in = assert_list(shapes_in, types = "integerish")
     self$output_map = assert_subset(output_map, self$graph$output$name)
+    if (list_output && length(output_map) != 1) {
+      stopf("If list_output is TRUE, output_map must have length 1.")
+    }
+
+    self$argument_matcher = argument_matcher(names(self$shapes_in))
 
     # the following is necessary to make torch aware of all the included parameters
     # (some operators in the graph could be different from PipeOpModule, e.g. PipeOpBranch or PipeOpNOP
@@ -88,7 +90,8 @@ nn_graph = nn_module(
     self$modules = nn_module_list(map(mops, "module"))
   },
   forward = function(...) {
-    inputs = argument_matcher(names(self$shapes_in))(...)
+    # this ensures that the arguments are passed in the correct order
+    inputs = self$argument_matcher(...)
 
     outputs = self$graph$train(unname(inputs), single_input = FALSE)
 

@@ -34,7 +34,7 @@
 #'   Additional info: what optimizer to use.
 #' @param loss ([`TorchLoss`] | `NULL`)\cr
 #'   Additional info: what loss to use.
-#' @param callbacks (A `list` of [`CallbackTorch`])\cr
+#' @param callbacks (A `list` of [`CallbackTorch`] \ `NULL`)\cr
 #'   Additional info: what callbacks to use.
 #' @param .pointer (`character(2)` | `NULL`)\cr
 #'   Indicating an element on which a model is. Points to an output channel within `graph`:
@@ -45,7 +45,7 @@
 #' @seealso model_descriptor_to_module, model_descriptor_union, PipeOpTorch, PipeOpModule, PipeOpTorchIngress,
 #' TorchIngressToken
 #' @return (`ModelDescriptor`)
-ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, callbacks = list(), .pointer = NULL,
+ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, callbacks = NULL, .pointer = NULL,
   .pointer_shape = NULL) {
   assert_r6(graph, "Graph")
   innames = graph$input$name  # graph$input$name access is slow
@@ -59,7 +59,11 @@ ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, 
 
   assert_r6(optimizer, "TorchOptimizer", null.ok = TRUE)
   assert_r6(loss, "TorchLoss", null.ok = TRUE)
-  assert_list(callbacks, any.missing = FALSE, types = "R6ClassGenerator")
+  if (!is.null(loss)) {
+    assert_choice(task$task_type, loss$task_types)
+  }
+  assert_list(callbacks, types = "TorchCallback", null.ok = TRUE)
+  assert_names(map_chr(callbacks, "id"), type = "unique")
 
   if (!is.null(.pointer)) {
     assert_integerish(.pointer_shape)
@@ -83,22 +87,36 @@ ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, 
 print.ModelDescriptor = function(x, ...) {
   shape_to_str = function(x) {
     shapedescs = map_chr(x, function(y) paste0("(", paste(y, collapse = ",", recycle0 = TRUE), ")"))
-    paste0("[", paste(shapedescs, collapse = ";", recycle0 = TRUE), "]")
+    paste0("[",  paste(shapedescs, collapse = ";", recycle0 = TRUE), "]")
   }
-  cat(sprintf("ModelDescriptor (%s ops):\n%s\noptimizer: %s\nloss: %s\n%s callbacks%s\n",
-    length(x$graph$pipeops),
-    shape_to_str(map(x$ingress, "shape")),
-    if (is.null(x$optimizer)) "N/A" else if (is.null(x$optimizer$label)) "unknown" else x$optimizer$label,
-    if (is.null(x$loss)) "N/A" else if (is.null(x$loss$label)) "unknown" else x$loss$label,
-    length(x$callbacks),
-    if (is.null(x$.pointer)) {
-      ""
-    } else {
-      sprintf("\n.pointer: %s %s", paste(x$.pointer, collapse = "."), shape_to_str(list(x$.pointer_shape)))
-    }
-  ))
-}
 
+  ingress_shapes = imap(x$ingress, function(x, nm) {
+    paste0(nm, ": ", shape_to_str(list(x$shape)))
+  })
+
+  # ingress_shape_str = shape_to_str(map(x$ingress, "shape"))
+  catn(sprintf("<ModelDesciptor: %d ops>", length(x$graph$pipeops)))
+  catn(str_indent("* Ingress: ", ingress_shapes))
+  catn(str_indent("* Callbacks: ", if (!is.null(x$callbacks)) as_short_string(map_chr(x$callbacks, "label")) else "N/A"))
+  catn(str_indent("* Optimizeer: ", if (!is.null(x$optimizer)) as_short_string(x$optimizer$label) else "N/A"))
+  catn(str_indent("* Loss: ", if (!is.null(x$loss)) as_short_string(x$loss$label) else "N/A"))
+  catn(str_indent("* .pointer: ", if (is.null(x$.pointer)) "" else {
+    sprintf("\n%s %s", paste(x$.pointer, collapse = "."), shape_to_str(list(x$.pointer_shape)))
+  }))
+  #
+  # cat(sprintf("ModelDescriptor (%s ops):\n%s\noptimizer: %s\nloss: %s\n%s callbacks%s\n",
+  #   length(x$graph$pipeops),
+  #   shape_to_str(map(x$ingress, "shape")),
+  #   if (is.null(x$optimizer)) "N/A" else if (is.null(x$optimizer$label)) "unknown" else x$optimizer$label,
+  #   if (is.null(x$loss)) "N/A" else if (is.null(x$loss$label)) "unknown" else x$loss$label,
+  #   map(x$callbacks, ),
+  #   if (is.null(x$.pointer)) {
+  #     ""
+  #   } else {
+  #     sprintf("\n.pointer: %s %s", paste(x$.pointer, collapse = "."), shape_to_str(list(x$.pointer_shape)))
+  #   }
+  # ))
+}
 
 #' @title Union of ModelDescriptors
 #'
@@ -114,7 +132,6 @@ print.ModelDescriptor = function(x, ...) {
 #' * The new task is the [feature union][PipeOpFeatureUnion] of the two incoming tasks.
 #' * The `optimizer` and `loss` of both [`ModelDescriptor`]s must be identical.
 #' * Ingress tokens and and callbacks are merged, where objects with the same `"id"` must be identical.
-#
 #'
 #' @details
 #' The requirement that no new input edgedes may be added to `PipeOp`s  is not theoretically necessary, but since
@@ -126,7 +143,7 @@ print.ModelDescriptor = function(x, ...) {
 #'   The first [`ModelDescriptor`].
 #' @param md2 (`ModelDescriptor`)
 #'   The second [`ModelDescriptor`].
-#' @return a `ModelDescriptor`.
+#' @return [`ModelDescriptor`]
 #' @seealso ModelDescriptor, PipeOpTorch, PipeOpTorchMerge
 #' @export
 model_descriptor_union = function(md1, md2) {
@@ -152,9 +169,10 @@ model_descriptor_union = function(md1, md2) {
     # IDs and channel names that get new input edges. These channels must not already have incoming edges in md1.
     new_input_edges = unique(new_edges[, c("dst_id", "dst_channel"), with = FALSE])
 
-     forbidden_edges = graph$edges[new_input_edges, on = c("dst_id", "dst_channel"), nomatch = NULL]
+   forbidden_edges = graph$edges[new_input_edges, on = c("dst_id", "dst_channel"), nomatch = NULL]
+
     if (nrow(forbidden_edges)) {
-      stopf("PipeOp(s) %s have differing incoming edges in mds1 and md2.",
+      stopf("PipeOp(s) %s have differing incoming edges in md1 and md2.",
         paste(forbidden_edges$dst_id, collapse = ", "))
 
     }
@@ -192,4 +210,3 @@ model_descriptor_union = function(md1, md2) {
     callbacks = merge_assert_unique(md1$callbacks, md2$callbacks, .var.name = "callbacks")
   )
 }
-

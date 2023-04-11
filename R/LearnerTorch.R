@@ -92,9 +92,13 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
       private$.loss = as_torch_loss(loss, clone = TRUE)
       private$.loss$param_set$set_id = "loss"
 
-      private$.callbacks = as_torch_callbacks(callbacks, clone = TRUE)
-      cb_ids = map_chr(private$.callbacks, "id")
-      assert_true(!"history" %in% cb_ids)
+      callbacks = as_torch_callbacks(callbacks, clone = TRUE)
+      assert_true(!"history" %in% ids(callbacks))
+      callbacks = c(t_clbk("history"), callbacks)
+      private$.callbacks = set_names(callbacks, ids(callbacks))
+      walk(private$.callbacks, function(cb) {
+        cb$param_set$set_id = paste0("cb.", cb$id)
+      })
 
       packages = unique(c(
         packages,
@@ -102,15 +106,6 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
         private$.loss$packages,
         private$.optimizer$packages
       ))
-
-      private$.callbacks = c(t_clbk("history"), private$.callbacks)
-
-      assert_names(cb_ids, type = "unique")
-      private$.callbacks = set_names(private$.callbacks, cb_ids)
-      walk(private$.callbacks, function(cb) {
-        param_set = cb$param_set
-        param_set$set_id = paste0("cb.", cb$id)
-      })
 
       properties = properties %??% c("twoclass", "multiclass")
 

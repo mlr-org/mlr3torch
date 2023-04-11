@@ -23,4 +23,11 @@ See \code{\link{t_loss}} for conveniently retrieving a loss function.
 }
 }
 
+\seealso{
+Other torch_wrappers: 
+\code{\link{TorchLoss}},
+\code{\link{TorchOptimizer}},
+\code{\link{torch_wrapper}}
+}
+\concept{torch_wrappers}
 \keyword{datasets}

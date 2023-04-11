@@ -271,7 +271,8 @@ prob_vector_to_matrix = function(p, levs) {
 }
 
 autotest_torch_callback = function(cb, init_args = list()) {
-  cbgen = cb$callback
+  # TODO: Check that man page exists
+  cbgen = cb$generator
   expect_string(cb$id)
   expect_class(cbgen, "R6ClassGenerator")
   expect_class(cb$param_set, "ParamSet")

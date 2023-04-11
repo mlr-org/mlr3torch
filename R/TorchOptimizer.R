@@ -36,7 +36,7 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #' @title Torch Optimizer
 #'
 #' @usage NULL
-#' @name torch_optimizer
+#' @name TorchOptimizer
 #' @format `r roxy_format(TorchOptimizer)`
 #'
 #' @description
@@ -49,40 +49,23 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #' @section Construction:
 #' `r roxy_construction(TorchOptimizer)`
 #'
-#' * `r roxy_param_param_set()`
-#' * `torch_optimizer` :: (`torch_optimizer_generator`)\cr
-#'   A generator for an optimizer.
-#' * `param_set` :: (`ParamSet`)\cr
-#'   The parameter set of the optimizer. If this is `NULL` default, the parameter set is inferred, leading to
-#'   potentially less precise parameter descriptions.
-#' * `label` :: (`character(1)`)\cr
-#'   The label for the optimizer, used e.g. when printing.
-#' * `packages` :: (`character()`)\cr`
-#'   The packages the optimizer depends on.
+#' Arguments from [`TorchWrapper`] (except for `generator`) as well as:
+#' * `torch_optimizer` :: `torch_optimizer_generator`\cr
+#'   The torch optimizer.
 #'
 #' @section Parameters:
-#' Deined by the constructor argument `param_set`.
+#' Defined by the constructor argument `param_set`.
 #'
 #' @section Fields:
-#' * `label` :: `character(1)`\cr
-#'  The label for the object.
-#' * `task_types` :: `character()`\cr
-#'  The task types that are supported.
-#' * `optimizer` :: `
-#'   The generator of the optimizer.
-#' * `param_set` :: `paradox::ParamSet`\cr
-#'   The parameter set.
-#' * `packages` :: `character()`\cr
-#'   The packages this optimizer requires.
+#' Only fields inherited from [`TorchWrapper`] as well as:
 #'
 #' @section Methods:
-#' * `get_optimizer(params)`\cr
-#'   (`list` of [`torch::nn_parameter`]) -> `torch_optimizer()`
-#'   Initializes the torch loss for the provided params (network) for the fiven parameter values (`ParamSet`).
-#' * `help()`\cr
-#'   Opens the help page for the wrapped optimizer.
+#' Methods inherited from [`TorchWrapper`] as well as:
+#' * `generate(params)`\cr
+#' (named `list()` of [`nn_parameter`]) -> (`torch_optimizer`)\cr
+#' Creates the optimizer for the given parameters.
 #'
-#' @family torch_wrapper
+#' @family torch_wrappers
 #' @export
 #' @examples
 #' # Create a new Torch Optimizer
@@ -90,35 +73,29 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #' # If the param set is not specified, parameters are inferred but are of class ParamUty
 #' tochopt$param_set
 #'
-#' # Open the help page for the wrapped optimizer
-#' # torchopt$help()
-#'
 #' # Create the optimizer for a network
 #' net = nn_linear(10, 1)
-#' opt = torchopt$get_optimizer(net$parameters)
+#' opt = torchopt$generate(net$parameters)
 TorchOptimizer = R6::R6Class("TorchOptimizer",
+  inherit = TorchWrapper,
   public = list(
     label = NULL,
     optimizer = NULL,
     param_set = NULL,
     packages = NULL,
-    initialize = function(torch_optimizer, param_set = NULL, label = deparse(substitute(torch_optimizer))[[1]],
-      packages = NULL) {
-      assert_r6(param_set, "ParamSet", null.ok = TRUE)
-      self$label = assert_string(label)
-      self$optimizer = assert_class(torch_optimizer, "torch_optimizer_generator") # maybe too strict?
-      packages = union(packages, c("torch", "mlr3torch"))
-      self$packages = assert_names(packages, type = "strict")
-      self$param_set = param_set %??% inferps(torch_optimizer, ignore = "params")
+    initialize = function(torch_optimizer, param_set = NULL,
+      id = deparse(substitute(torch_optimizer))[[1]], label = id, packages = NULL) {
+     torch_optimizer = assert_class(torch_optimizer, "torch_optimizer_generator") # maybe too strict?
+      super$initialize(
+        generator = torch_optimizer,
+        id = id,
+        param_set = param_set,
+        packages = packages,
+        label = label
+      )
     },
-    get_optimizer = function(params) {
-      require_namespaces(self$packages)
-      invoke(self$optimizer, .args = self$param_set$get_values(), params = params)
-    },
-    print = function(...) {
-      catn(sprintf("<TorchOptimizer:%s>", self$label))
-      catn(str_indent("* Generator:", attr(self$optimizer, "Optimizer")$classname))
-      catn(str_indent("* Parameters:", as_short_string(self$param_set$values, 1000L)))
+    generate = function(params) {
+      invoke(self$generator, .args = self$param_set$get_values(), params = params)
     }
   )
 )

@@ -1,6 +1,13 @@
 inferps = function(fn, ignore = character(0), tags = "train") {
+  if (inherits(fn, "R6ClassGenerator")) {
+    fn = get_init(fn)
+    if (is.null(fn)) {
+      return(ps())
+    }
+  }
   assert_function(fn)
   assert_character(ignore, any.missing = FALSE)
+  ignore = union(ignore, "...")
   frm = formals(fn)
   frm = frm[names(frm) %nin% ignore]
 
@@ -85,7 +92,9 @@ check_nn_module_generator = function(x) {
 
 
 get_init = function(x) {
-  class_with_init(x)$public_methods$initialize
+  cls = class_with_init(x)
+  if (is.null(cls)) return(NULL)
+  cls$public_methods$initialize
 }
 
 class_with_init = function(x) {
@@ -99,3 +108,20 @@ class_with_init = function(x) {
   }
 }
 
+
+
+with_seed = function(seed, expr) {
+  old_seed = get0(".Random.seed", globalenv(), mode = "integer", inherits = FALSE)
+  if (is.null(old_seed)) {
+    runif(1L)
+    old_seed = get0(".Random.seed", globalenv(), mode = "integer", inherits = FALSE)
+  }
+
+  on.exit(assign(".Random.seed", old_seed, globalenv()), add = TRUE)
+  set.seed(seed)
+  force(expr)
+}
+
+batch_from_task = function(task, batch_size, device, learner, param_vals = NULL) {
+  get_private(learner)$.dataloader(task, param_vals %??% learner$param_set$values)
+}

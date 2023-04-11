@@ -23,7 +23,10 @@ Unless you are an advanced user, you should not need to use this directly but \c
 The input channels for this \code{PipeOp}. See \code{\link{PipeOp}} for an explanation.
 \item \code{output} :: \code{data.table()}\cr
 The output channels for this \code{PipeOp}. See \code{\link{PipeOp}} for an explanation.
-\item \code{packages} :: \verb{character() cr The packages this }PipeOpTorchIngress` depends on.
+\item \code{packages} :: \verb{character() \\cr The packages this }PipeOpTorchIngress` depends on.
+\item \code{feature_types} :: \code{character()}\cr
+The features types that can be consumed by this \code{PipeOpTorchIngress}.
+Must be a subset of \code{mlr_reflections$task_feature_types}.
 }
 }
 
@@ -38,7 +41,12 @@ The state is set to the input shape.
 
 \section{Parameters}{
 
-Defined by the construction argument \code{param_set}.
+Defined by the construction argument \code{param_set}, as well as:
+\itemize{
+\item \code{select} :: \code{logical(1)}\cr
+Whether to select the features of the task that can be consumed by this \code{PipeOpTorchIngress}.
+Default is \code{FALSE}, i.e. it errs during training if it receives a task with feature types that it cannot handle.
+}
 }
 
 \section{Fields}{

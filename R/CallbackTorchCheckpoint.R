@@ -19,7 +19,6 @@
 CallbackTorchCheckpoint = R6Class("CallbackTorchCheckpoint",
   inherit = CallbackTorch, lock_objects = FALSE,
   public = list(
-    id = "checkpoint",
     initialize = function(path, freq = 1L, save_last = TRUE) {
       assert_path_for_output(path)
       dir.create(path, recursive = TRUE)
@@ -51,6 +50,9 @@ mlr3torch_callbacks$add("checkpoint", function() {
       path = p_uty(),
       freq = p_int(default = 1L, lower = 1L),
       save_last = p_lgl(default = TRUE)
-    )
+    ), 
+    id = "checkpoint",
+    label = "Checkpoint",
+    man = "mlr3torch_callbacks.checkpoint"
   )
 })
