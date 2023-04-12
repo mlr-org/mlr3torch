@@ -31,6 +31,7 @@ License: LGPL (>= 3)
 Depends:
     mlr3 (>= 0.13.1),
     mlr3pipelines,
+    mlr3misc,
     R (>= 3.1.0)
 Imports:
     backports,
@@ -54,7 +55,8 @@ Suggests:
 Remotes:
   mlverse/torchvision,
   mlverse/torch,
-  mlr-org/mlr3pipelines
+  mlr-org/mlr3pipelines,
+  mlr-org/mlr3misc
 Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
@@ -79,6 +81,7 @@ Collate:
     'PipeOpTorchActivation.R'
     'PipeOpTorchAvgPool.R'
     'PipeOpTorchBatchNorm.R'
+    'PipeOpTorchCallbacks.R'
     'PipeOpTorchConv.R'
     'PipeOpTorchConvTranspose.R'
     'PipeOpTorchDropout.R'
@@ -101,6 +104,7 @@ Collate:
     'TorchCallback.R'
     'TorchOptimizer.R'
     'TorchWrapper.R'
+    'assertions.R'
     'autotest.R'
     'autotest_learner.R'
     'dataloader.R'

@@ -108,6 +108,15 @@ class_with_init = function(x) {
   }
 }
 
+sample_input_from_shapes = function(shapes, n = 1L) {
+  expect_list(shapes, types = "numeric", min.len = 1)
+  assert_int(n)
+  imap(shapes, function(shape, nm) {
+    shape[1] = n
+    invoke(torch_randn, .args = as.list(shape))
+  })
+}
+
 
 
 with_seed = function(seed, expr) {

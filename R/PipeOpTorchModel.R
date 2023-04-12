@@ -66,29 +66,16 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
       md = inputs[[1]]
       param_vals = self$param_set$get_values()
 
-      expect_r6(md$optimizer, "TorchOptimizer", null.ok = TRUE)
-      expect_r6(md$loss, "TorchLoss", null.ok = TRUE)
+      learner = model_descriptor_to_learner(md, private$.task_type)
 
-      class = switch(private$.task_type,
-        regr = LearnerRegrTorchModel,
-        classif = LearnerClassifTorchModel,
-        stopf("Unsupported task type: %s", private$.task_type)
-      )
-
-      network = model_descriptor_to_module(md, list(md$.pointer))
-      network$reset_parameters()
-
-      args = list(network = network, ingress_tokens = md$ingress, optimizer = md$optimizer, loss = md$loss,
-        packages = md$graph$packages
-      )
-      args = discard(args, is.null)
-
-      # TODO: Maybe we want the learner and the pipeop to actually share the paramset by reference
+      # TODO: Maybe we want the learner and the pipeop to actually share the paramset by reference.
+      # If we do this we need to write a custom clone function.
+      # While it is not efficient, the current solution works.
       learner = invoke(class$new, .args = args)
-      learner$param_set$set_values(.values = self$param_set$values)
-
+      learner$param_set$set_values(.values = param_vals)
+      # in case something goes wrong during training we still set the state.
+      on.exit({self$state = learner}, add = TRUE)
       learner$train(md$task)
-
       self$state = learner
       list(NULL)
     },

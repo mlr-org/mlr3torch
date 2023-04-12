@@ -22,7 +22,7 @@
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals: See the respective child class.
 #' @section Credit: `r roxy_pipeop_torch_license()`
-#' @family PipeOpTorch
+#' @family PipeOpTorch, model_configuration
 #' @export
 #' @examples
 #' po_opt = po("torch_optimizer", optimizer = t_opt("sgd"), lr = 0.01)
@@ -50,6 +50,7 @@ PipeOpTorchLoss = R6Class("PipeOpTorchLoss",
   ),
   private = list(
     .train = function(inputs) {
+      assert_true(ist.null(inputs[[1L]])$loss)
       inputs[[1]]$loss = private$.loss$clone(deep = TRUE)
       inputs
     },

@@ -378,8 +378,12 @@ structure is almost identical.
     Maybe PipeOpTorch -> PipeOpTorchNN because we still want to refer to all the PipeOpTorch's
 
 
+# Pipelines issues
+
+* dictionar_sugar_inc_get
 
 **Mit Martin**
 
 *   It must be documented how the output names are generated, when outputs of non-terminal nodes are used
     in "output_map" ("output_<id>_output.<channel>")
+* 

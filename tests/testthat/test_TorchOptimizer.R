@@ -1,3 +1,15 @@
+test_that("printer works correct", {
+  obj = t_opt("sgd", lr = 0.1)
+  repr = capture.output(obj)
+  expected = c(
+    "<TorchOptimizer:sgd> Stochastic Gradient Descent",
+    "* Generator: optim_sgd",
+    "* Parameters: lr=0.1",
+    "* Packages: torch,mlr3torch"
+  )
+  expect_identical(repr, expected)
+})
+
 test_that("TorchOptimizer is correctly initialized", {
   torchopt = TorchOptimizer$new(
     torch_optimizer = torch::optim_sgd,

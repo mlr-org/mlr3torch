@@ -1,8 +1,8 @@
-#' @title PipeOp Optimizer
+#' @title PipeOp Torch Optimizer
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_optimizer
-#' @format `r roxy_pipeop_torch_format()`
+#' @format `r roxy_pipeop_torch_format(PipeOpTorchOptimizer)`
 #'
 #' @description
 #' Configures the optimizer of a deep learning model.
@@ -22,7 +22,7 @@
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals: See the respective child class.
 #' @section Credit: `r roxy_pipeop_torch_license()`
-#' @family PipeOpTorch
+#' @family PipeOpTorch, model_configuration
 #' @export
 #' @examples
 #' po_opt = po("torch_optimizer", optimizer = t_opt("sgd"), lr = 0.01)
@@ -32,22 +32,26 @@
 #' md = po_opt$train(md)
 #' md[[1L]]$optimizer
 PipeOpTorchOptimizer = R6Class("PipeOpTorchOptimizer",
-  inherit = PipeOpTorch,
+  inherit = PipeOp,
   public = list(
     initialize = function(optimizer = t_opt("adam"), id = "torch_optimizer", param_vals = list()) {
-      private$.optimizer = assert_r6(as_torch_optimizer(optimizer), "TorchOptimizer")
+      private$.optimizer = assert_torch_optimizer(as_torch_optimizer(optimizer), "TorchOptimizer")
+      input = data.table(name = "input", train = "ModelDescriptor", predict = "Task")
+      output = data.table(name = "output", train = "ModelDescriptor", predict = "Task")
       super$initialize(
         id = id,
         param_set = alist(private$.optimizer$param_set),
         param_vals = param_vals,
-        module_generator = NULL,
-        inname = "input"
+        input = input,
+        output = output,
+        packages = optimizer$packages
       )
     }
   ),
   private = list(
     .train = function(inputs) {
       expect_true(is.null(inputs[[1L]]$optimizer))
+
       inputs[[1]]$optimizer = private$.optimizer$clone(deep = TRUE)
       inputs
     },

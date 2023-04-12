@@ -1,7 +1,7 @@
-#' @title Create nn_module from ModelDescriptor
+#' @title Create a nn_graph from ModelDescriptor
 #'
 #' @description
-#' Creates the [`nn_graph`] from a [`ModelDescriptor`]. Mostly for internal use, since the [`ModelDescriptor`] is in 
+#' Creates the [`nn_graph`] from a [`ModelDescriptor`]. Mostly for internal use, since the [`ModelDescriptor`] is in
 #' most circumstances harder to use than just creating [`nn_graph`] directly.
 #'
 #' @param model_descriptor ([`ModelDescriptor`])\cr
@@ -51,6 +51,49 @@ model_descriptor_to_module = function(model_descriptor, output_pointers = NULL, 
   })
 
   nn_graph(graph, shapes_in, output_map, list_output = list_output)
+}
+
+#' @title Create a Torch Learner from a ModelDescriptor
+#' @description
+#' First a [`nn_graph`] is created using [`model_descriptor_to_module`] and then a learner is created from this
+#' module and the remaining information from the model descriptor, which must include the optimizer and loss function
+#' and optionally callbacks.
+#'
+#' @param model_descriptor ([`ModelDescriptor`])\cr
+#'   The model descriptor.
+#' @param task_type (`character(1)`)\cr
+#'   The task type.
+#' @return ([`Learner`])
+#' @export
+model_descriptor_to_learner = function(model_descriptor, task_type) {
+  optimizer = assert_torch_optimizer(as_torch_optimizer(model_descriptor$optimizer))
+  loss = assert_torch_loss(as_torch_loss(model_descriptor$loss))
+  callbacks = assert_torch_callbacks(as_torch_callbacks(model_descriptor$callbacks))
+  packages = assert_character(model_descriptor$packages, any.missing = FALSE)
+  ingress_tokens = model_descriptor$ingress
+
+  network = model_descriptor_to_module(
+    model_descriptor = model_descriptor,
+    output_pointers = output_pointers,
+    list_output = FALSE
+  )
+  network$reset_parameters()
+
+  class = switch(task_type,
+    regr = LearnerRegrTorchModel,
+    classif = LearnerClassifTorchModel,
+    stopf("Unsupported task type: %s.", task_type)
+  )
+
+  learner = class$new(
+    network = network,
+    ingress_tokens = ingress,
+    optimizer = optimizer,
+    loss = loss,
+    callbacks = callbacks
+  )
+
+  return(learner)
 }
 
 #' @title Graph Network

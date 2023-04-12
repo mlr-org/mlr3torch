@@ -20,5 +20,5 @@ Which of \code{graph}'s outputs to use. Must be a subset of \code{graph$output$n
 Whether output should be a list of tensors. If \code{FALSE}, then \code{length(output_map)} must be 1.}
 }
 \description{
-Represents a NN using a \code{\link{Graph}} that contains \code{\link{PipeOpModule}}s.
+Represents a neural network using a \code{\link{Graph}} that usually costains mostly \code{\link{PipeOpModule}}s.
 }

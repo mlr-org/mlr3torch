@@ -130,7 +130,6 @@ register_mlr3pipelines = function() {
   })
   mlr_pipeops$metainf$torch_loss = list(loss = t_loss("cross_entropy"))
   mlr_reflections$pipeops$valid_tags = unique(c(mlr_reflections$pipeops$valid_tags, c("torch", "activation")))
-
   lapply(mlr3torch_pipeops, eval)
 }
 

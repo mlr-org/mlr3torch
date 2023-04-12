@@ -98,7 +98,7 @@ print.ModelDescriptor = function(x, ...) {
   catn(sprintf("<ModelDesciptor: %d ops>", length(x$graph$pipeops)))
   catn(str_indent("* Ingress: ", ingress_shapes))
   catn(str_indent("* Callbacks: ", if (!is.null(x$callbacks)) as_short_string(map_chr(x$callbacks, "label")) else "N/A"))
-  catn(str_indent("* Optimizeer: ", if (!is.null(x$optimizer)) as_short_string(x$optimizer$label) else "N/A"))
+  catn(str_indent("* Optimizer: ", if (!is.null(x$optimizer)) as_short_string(x$optimizer$label) else "N/A"))
   catn(str_indent("* Loss: ", if (!is.null(x$loss)) as_short_string(x$loss$label) else "N/A"))
   catn(str_indent("* .pointer: ", if (is.null(x$.pointer)) "" else {
     sprintf("\n%s %s", paste(x$.pointer, collapse = "."), shape_to_str(list(x$.pointer_shape)))

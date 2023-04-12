@@ -84,10 +84,16 @@ TorchWrapper = R6Class("TorchWrapper",
       self$id = assert_string(id, min.chars = 1L)
       self$label = assert_string(label, min.chars = 1L)
       self$packages = assert_names(unique(union(packages, c("torch", "mlr3torch"))), type = "strict")
+
+      private$.repr = if (test_class(self$generator, "R6ClassGenerator")) {
+        self$generator$classname
+      } else {
+        class(self$generator)[[1L]]
+      }
     },
     print = function()  {
       catn(sprintf("<%s:%s> %s", class(self)[[1L]], self$id, self$label))
-      catn(str_indent("* Generator:", self$generator$classname))
+      catn(str_indent("* Generator:", private$.repr))
       catn(str_indent("* Parameters:", as_short_string(self$param_set$values, 1000L)))
       catn(str_indent("* Packages:", as_short_string(self$packages, 1000L)))
       invisible(self)
@@ -105,5 +111,8 @@ TorchWrapper = R6Class("TorchWrapper",
     help = function() {
       open_help(self$man)
     }
+  ), 
+  private = list(
+    .repr = NULL
   )
 )

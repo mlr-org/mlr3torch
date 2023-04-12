@@ -20,7 +20,7 @@
 LearnerClassifAlexNet = R6Class("LearnerClassifAlexNet",
   inherit = LearnerClassifTorchImage,
   public = list(
-    initialize = function(optimizer = t_opt("adam"), loss = t_opt("cross_entropy"), callbacks = list()) {
+    initialize = function(optimizer = t_opt("adam"), loss = t_loss("cross_entropy"), callbacks = list()) {
       param_set = ps(
         pretrained = p_lgl(default = TRUE, tags = "train")
       )

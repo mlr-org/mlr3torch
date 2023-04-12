@@ -154,7 +154,7 @@ mlr3torch_optimizers$add("adam",
       weight_decay = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
       amsgrad      = p_lgl(default = FALSE, tags = "train")
     )
-    TorchOptimizer$new(torch::optim_adam, p, "adam")
+    TorchOptimizer$new(torch::optim_adam, p, "adam", "Adaptive Moment Estimation")
   }
 )
 
@@ -168,7 +168,7 @@ mlr3torch_optimizers$add("sgd",
       weight_decay = p_dbl(0, 1, default = 0, tags = "train"),
       nesterov     = p_lgl(default = FALSE, tags = "train")
     )
-    TorchOptimizer$new(torch::optim_sgd, p, "sgd")
+    TorchOptimizer$new(torch::optim_sgd, p, "sgd", "Stochastic Gradient Descent")
   }
 )
 
@@ -182,7 +182,7 @@ mlr3torch_optimizers$add("asgd",
       t0           = p_int(lower = 1L, upper = Inf, default = 1e6, tags = "train"),
       weight_decay = p_dbl(default = 0, lower = 0, upper = 1, tags = "train")
     )
-    TorchOptimizer$new(torch::optim_asgd, p, "asgd")
+    TorchOptimizer$new(torch::optim_asgd, p, "asgd", "SGD with Adaptive Batch Size for Every Parameter")
   }
 )
 
@@ -202,7 +202,7 @@ mlr3torch_optimizers$add("rprop",
       etas       = p_uty(default = c(0.5, 1.2), tags = "train"),
       step_sizes = p_uty(c(1e-06, 50), tags = "train")
     )
-    TorchOptimizer$new(torch::optim_rprop, p, "rprop")
+    TorchOptimizer$new(torch::optim_rprop, p, "rprop", "Resilient backpropagation")
   }
 )
 
@@ -217,7 +217,7 @@ mlr3torch_optimizers$add("rmsprop",
       momentum     = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
       centered     = p_lgl(default = FALSE, tags = "train")
     )
-    TorchOptimizer$new(torch::optim_rmsprop, p, "rmsprop")
+    TorchOptimizer$new(torch::optim_rmsprop, p, "rmsprop", "Root Mean Square Propagation")
   }
 )
 
@@ -231,7 +231,7 @@ mlr3torch_optimizers$add("adagrad",
       initial_accumulator_value = p_dbl(default = 0, lower = 0, tags = "train"),
       eps                       = p_dbl(default = 1e-10, lower = 1e-16, upper = 1e-4, tags = "train")
     )
-    TorchOptimizer$new(torch::optim_adagrad, p, "adagrad")
+    TorchOptimizer$new(torch::optim_adagrad, p, "adagrad", "Adaptive Gradient algorithm")
   }
 )
 
@@ -244,7 +244,7 @@ mlr3torch_optimizers$add("adadelta",
       eps          = p_dbl(default = 1e-06, lower = 1e-16, upper = 1e-4, tags = "train"),
       weight_decay = p_dbl(default = 0, lower = 0, upper = 1, tags = "train")
     )
-    TorchOptimizer$new(torch::optim_adadelta, p, "adadelta")
+    TorchOptimizer$new(torch::optim_adadelta, p, "adadelta", "An Adaptive Learning Rate Method``")
   }
 )
 
@@ -260,6 +260,6 @@ mlr3torch_optimizers$add("lbfgs",
       history_size     = p_int(default = 100L, lower = 1L, tags = "train"),
       line_search_fn   = p_fct(default = NULL, levels = "strong_wolfe", tags = "train", special_vals = list(NULL))
     )
-    TorchOptimizer$new(torch::optim_lbfgs, p, "lbfgs")
+    TorchOptimizer$new(torch::optim_lbfgs, p, "lbfgs", "Limited-memory BFGS")
   }
 )

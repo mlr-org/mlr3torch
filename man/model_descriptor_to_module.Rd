@@ -2,7 +2,7 @@
 % Please edit documentation in R/nn_graph.R
 \name{model_descriptor_to_module}
 \alias{model_descriptor_to_module}
-\title{Create nn_module from ModelDescriptor}
+\title{Create a nn_graph from ModelDescriptor}
 \usage{
 model_descriptor_to_module(
   model_descriptor,

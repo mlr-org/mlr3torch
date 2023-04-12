@@ -1,11 +1,6 @@
-input_from_shapes = function(shapes, n = 1L) {
-  imap(shapes, function(shape, nm) {
-    shape[1] = n
-    invoke(torch_randn, .args = as.list(shape))
-  })
-}
-
 test_that("model_descriptor_to_module works", {
+  task = tsk("iris")
+
   graph1 = po("torch_ingress_num") %>>%
     po("nn_linear", out_features = 10) %>>%
     po("nn_relu") %>>%
@@ -14,18 +9,38 @@ test_that("model_descriptor_to_module works", {
   md = graph1$train(task)[[1L]]
 
   net = model_descriptor_to_module(md, list(c("nn_head", "output")))
-  batch = input_from_shapes(network$shapes_in)
+  batch = sample_input_from_shapes(net$shapes_in)
   invoke(net, .args = batch)
   result1 = net(torch_ingress_num.input = batch[[1L]])
 
   expect_equal(result1$shape, c(1, 3))
 
-  in_sepal = po("select_1", selector = selector_grep("Sepal")) %>>% po("torch_ingress_num_1"
-  in_petal = po("select_2", selector = selector_grep("Petal")) %>>% po("torch_ingress_num:2")
+  in_sepal = po("select_1", selector = selector_grep("Sepal")) %>>% po("torch_ingress_num_1")
+  in_petal = po("select_2", selector = selector_grep("Petal")) %>>% po("torch_ingress_num_2")
 
   graph2 = list(in_sepal, in_petal) %>>%
-    po("nn_merge_sum")
+    po("nn_merge_sum") %>>%
+    po("nn_head")
 
+  md = graph2$train(task)[[1L]]
+
+  net = model_descriptor_to_module(md, list(c("nn_head", "output")))
+
+  input = sample_input_from_shapes(net$shapes_in)
+})
+
+test_that("model_descriptor_to_learner works" {
+  task = tsk("iris")
+
+  graph1 = po("torch_ingress_num") %>>%
+    po("nn_linear", out_features = 10) %>>%
+    po("nn_relu") %>>%
+    po("nn_head") %>>%
+    po("torch_optimizer") %>>%
+    po("torch_loss", loss = "mse") %>>%
+    po("torch_ca")
+
+  md = graph1$train(task)[[1L]]
 })
 
 test_that("Linear graph", {
