@@ -2,7 +2,7 @@
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_max_pool
-#' @format `r roxy_pipeop_torch_format()`
+#' @format `r roxy_format(PipeOpTorchMaxPool)`
 #'
 #' @description
 #' Base class for max pooling.
@@ -41,7 +41,7 @@
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals: See the respective child class.
-#' @section Credit: `r roxy_pipeop_torch_license()`
+#' @section Credit: `r roxy_torch_license()`
 #' @family PipeOpTorch
 #' @export
 PipeOpTorchMaxPool = R6Class("PipeOpTorchMaxPool",
@@ -98,7 +98,7 @@ max_output_shape = avg_output_shape
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_max_pool1d
-#' @format `r roxy_pipeop_torch_format()`
+#' @format `r roxy_format(PipeOpTorchMaxPool1D)`
 #'
 #' @inherit torch::nnf_max_pool1d description
 #'
@@ -120,7 +120,7 @@ max_output_shape = avg_output_shape
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
 #' Calls [`torch::nn_max_pool1d()`] during training.
-#' @section Credit: `r roxy_pipeop_torch_license()`
+#' @section Credit: `r roxy_torch_license()`
 #' @family PipeOpTorch
 #' @export
 #' @examples
@@ -140,7 +140,7 @@ PipeOpTorchMaxPool1D = R6Class("PipeOpTorchMaxPool1D", inherit = PipeOpTorchMaxP
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_max_pool2d
-#' @format `r roxy_pipeop_torch_format()`
+#' @format `r roxy_format(PipeOpTorchMaxPool2D)`
 #'
 #' @inherit torch::nnf_max_pool2d description
 #'
@@ -160,7 +160,7 @@ PipeOpTorchMaxPool1D = R6Class("PipeOpTorchMaxPool1D", inherit = PipeOpTorchMaxP
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
 #' Calls [`torch::nn_max_pool2d()`] during training.
-#' @section Credit: `r roxy_pipeop_torch_license()`
+#' @section Credit: `r roxy_torch_license()`
 #' @family PipeOpTorch
 #' @export
 #' @examples
@@ -181,7 +181,7 @@ PipeOpTorchMaxPool2D = R6Class("PipeOpTorchMaxPool2D", inherit = PipeOpTorchMaxP
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_max_pool3d
-#' @format `r roxy_pipeop_torch_format()`
+#' @format `r roxy_format(PipeOpTorchMaxPool3D)`
 #'
 #' @inherit torch::nnf_max_pool3d description
 #'
@@ -204,7 +204,7 @@ PipeOpTorchMaxPool2D = R6Class("PipeOpTorchMaxPool2D", inherit = PipeOpTorchMaxP
 #' @section Internals:
 #' Calls [`torch::nn_max_pool3d()`] during training.
 #'
-#' @section Credit: `r roxy_pipeop_torch_license()`
+#' @section Credit: `r roxy_torch_license()`
 #' @family PipeOpTorch
 #' @export
 #' @examples

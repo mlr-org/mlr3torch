@@ -1,5 +1,5 @@
 #' @title Sugar Function to Retrieve Torch Callback(s)
-#' 
+#'
 #' @description
 #' Retrieves one or more torch callback from [`mlr3torch_callbacks`].
 #' Works like [`mlr3::lrn()`] or [`mlr3::tsk()`].
@@ -9,14 +9,25 @@
 #' @param ... (any)\cr
 #'   See description of [`dictionary_sugar_get`].
 #'
-#' @return [`CallbackTorch`]
+#' @return [`TorchCallback`]
 #'
 #' @export
-#' @family callback
+#' @family callback, torch_wrapper
 #' @examples
 #' t_clbk("progress")
 t_clbk = function(.key, ...) {
-  dictionary_sugar_get(dict = mlr3torch_callbacks, .key = .key, ...)
+  UseMethod("t_clbk")
+}
+
+#' @export
+t_clbk.character = function(.key, ...) { # nolint
+  dictionary_sugar_inc_get(dict = mlr3torch_callbacks, .key = .key, ...)
+}
+
+#' @export
+t_clbk.NULL = function(.key, ...) { # nolint
+  # class is NULL if .key is missing
+  dictionary_sugar_get(dict = mlr3torch_callbacks)
 }
 
 
@@ -24,8 +35,19 @@ t_clbk = function(.key, ...) {
 #' @param .keys (`character()`)\cr
 #'   The keys of the callbacks.
 #' @export
-t_clbks = function(.keys, ...) {
-  dictionary_sugar_mget(dict = mlr3torch_callbacks, .keys = .keys, ...)
+t_clbks = function(.keys) { # nolint
+  UseMethod("t_clbks")
+}
+
+#' @export
+t_clbks.character = function(.keys, ...) { # nolint
+  dictionary_sugar_inc_mget(dict = mlr3torch_callbacks, .keys = .keys, ...)
+}
+
+#' @export
+t_clbks.NULL = function(.keys, ...) { # nolint
+  # class is NULL if .keys is missing
+  dictionary_sugar_get(dict = mlr3torch_callbacks)
 }
 
 #' @title Convert to a TorchCallback
@@ -43,6 +65,7 @@ t_clbks = function(.keys, ...) {
 #'
 #' @return [`TorchCallback`].
 #' @family callback
+
 #' @export
 as_torch_callback = function(x, clone = FALSE, ...) {
   assert_flag(clone)
@@ -55,14 +78,8 @@ as_torch_callback.TorchCallback = function(x, clone = FALSE) { # nolint
 }
 
 #' @export
-as_torch_callback.R6ClassGenerator = function(x, clone = FALSE, param_set = NULL, ...) { # nolint
-  # no need to clone because we have a class generator
-  # TorchCallback$new(callback_generator = x, param_set = param_set$clone(deep = TRUE), ...)
-  if (!is.null(param_set)) {
-    assert_param_set(param_set)
-    param_set = if (clone) param_set$clone(deep = TRUE) else param_set
-  }
-  TorchCallback$new(callback_generator = x, param_set = param_set)
+as_torch_callback.R6ClassGenerator = function(x, clone = FALSE, id = deparse(substitute(x))[[1L]], ...) { # nolint
+  TorchCallback$new(callback_generator = x, id = id, ...)
 }
 
 #' @export
@@ -93,8 +110,17 @@ as_torch_callbacks.list = function(x, clone = FALSE, ...) { # nolint
 }
 
 #' @export
+as_torch_callbacks.NULL = function(x, clone = FALSE, ...) { # nolint
+  list()
+}
+
+#' @export
 as_torch_callbacks.default = function(x, clone = FALSE, ...) { # nolint
   list(as_torch_callback(x, clone = clone, ...))
+}
+
+as_torch_callbacks.character = function(x, clone = FALSE, ...) { # nolint
+  t_clbks(x, ...)
 }
 
 #' @title Torch Callback
@@ -123,22 +149,22 @@ as_torch_callbacks.default = function(x, clone = FALSE, ...) { # nolint
 #' @section Methods:
 #' Only methods inherited from [`TorchWrapper`].
 #'
-#' @family torch_wrappers, callback
+#' @family callback, model_configuration, torch_wrapper
 #' @include utils.R
 #' @export
 TorchCallback = R6Class("TorchCallback",
   inherit = TorchWrapper,
   public = list(
     man = NULL,
-    initialize = function(callback_generator, param_set = NULL, id = deparse(substitute(callback_generator))[[1]], 
-      label = id, packages = NULL, man = NULL) {
-      self$man = assert_string(man, min.chars = 1, null.ok = TRUE)
+    initialize = function(callback_generator, param_set = NULL, id = deparse(substitute(id))[[1L]],
+      label = capitalize(id), packages = NULL, man = NULL) {
       super$initialize(
         generator = callback_generator,
         id = id,
         param_set = param_set,
         packages = packages,
-        label = label
+        label = label,
+        man = man
       )
     }
   )
@@ -151,12 +177,11 @@ TorchCallback = R6Class("TorchCallback",
 #' For more information on how to correctly implement a new callback, see [`CallbackTorch`].
 #' It returns a [`TorchCallback`] that wrapping a [`CallbackTorch`].
 #'
+#'
+#' @inheritParams callback_torch
 #' @param id (`character(1)`)\cr`\cr
 #'   The id for the callbacks.
 #'   Note that the ids of callbacks passed to a learner must be unique.
-#' @param name (`character(1)`)\cr
-#'   The class name of the torch callback. Is set to `"CallbackTorch<Id>"` per default.
-#'   E.g. id `id` is `"custom"`, the name is set to `"CallbackTorchCustom"`.
 #' @param param_set (`ParamSet`)\cr
 #'   The parameter set, if not present it is inferred from the initialize method passed through the public function.
 #' @param packages (`character()`)\cr`
@@ -166,28 +191,17 @@ TorchCallback = R6Class("TorchCallback",
 #' @param man (`character(1)`)\cr
 #'   String in the format `[pkg]::[topic]` pointing to a manual page for this object.
 #'   The referenced help package can be opened via method `$help()`.
-#' @param on_begin, on_end, on_epoch_begin, on_before_valid, on_epoch_end, on_batch_begin, on_batch_end,
-#' on_after_backward, on_batch_valid_begin, on_batch_valid_end (`function`)\cr
-#' Function to execute at the given stage, see section *Stages*.
-#' @param public (`list()`)\cr
-#'   Additional public fields to add to the callback.
-#' @param private (`list()`)\cr
-#'   Additional private fields to add to the callback.
-#' @param active (`list()`)\cr
-#'   Additional active fields to add to the callback.
-#' @param parent_env (`environment()`)\cr
-#'   The parent environment for the [`R6Class`].
 #'
 #' @inheritSection mlr_callbacks_torch Stages
 #'
 #'
 #' @section Internals:
-#' It first creates an [`R6ClassGenerator`] that generates a [`CallbackTorch`] and when wraps this generator in a
+#' It first creates an [`R6ClassGenerator`] using [`torch_callback`]and when wraps this generator in a
 #' [`TorchCallback`].
 #'
 #' @export
 #' @return [`TorchCallback`]
-#' @include zzz.R
+#' @include zzz.R CallbackTorch.R
 #' @family callback
 #' @examples
 #' custom_tcb = torch_callback(
@@ -210,7 +224,7 @@ TorchCallback = R6Class("TorchCallback",
 #' cb = custom_tcb$get_callback()
 #'
 #' ctx = new.env()
-#' ctx$name = "Julia"
+#' ctx$name = "Albert"
 #'
 #' f = function(ctx, cb) {
 #'   cb$on_begin(ctx)
@@ -221,10 +235,10 @@ TorchCallback = R6Class("TorchCallback",
 #' f(ctx, cb)
 torch_callback = function(
   id,
-  name = paste0("CallbackTorch", capitalize(id)),
+  classname = paste0("CallbackTorch", capitalize(id)),
   param_set = NULL,
   packages = NULL,
-  label = id,
+  label = capitalize(id),
   man = NULL,
   # training
   on_begin = NULL,
@@ -238,42 +252,26 @@ torch_callback = function(
   # validation
   on_batch_valid_begin = NULL,
   on_batch_valid_end = NULL,
-  # prediction
+  # other arguments
   public = NULL, private = NULL, active = NULL, parent_env = parent.frame()) {
-  assert_string(id, min.chars = 1L)
-  more_public = list(
-    on_begin = assert_function(on_begin, args = "ctx", null.ok = TRUE),
-    on_end = assert_function(on_end, args = "ctx", null.ok = TRUE),
-    on_epoch_begin = assert_function(on_epoch_begin, args = "ctx", null.ok = TRUE),
-    on_before_valid = assert_function(on_before_valid, args = "ctx", null.ok = TRUE),
-    on_epoch_end = assert_function(on_epoch_end, args = "ctx", null.ok = TRUE),
-    on_batch_begin = assert_function(on_batch_begin, args = "ctx", null.ok = TRUE),
-    on_batch_end = assert_function(on_batch_end, args = "ctx", null.ok = TRUE),
-    on_after_backward = assert_function(on_after_backward, args = "ctx", null.ok = TRUE),
-    on_batch_valid_begin = assert_function(on_batch_valid_begin, args = "ctx", null.ok = TRUE),
-    on_batch_valid_end = assert_function(on_batch_valid_end, args = "ctx", null.ok = TRUE),
-    id = id
+
+  callback_generator = callback_torch(
+    classname = classname,
+    # training
+    on_begin = on_begin,
+    on_end = on_end,
+    on_epoch_begin = on_epoch_begin,
+    on_before_valid = on_before_valid,
+    on_epoch_end = on_epoch_end,
+    on_batch_begin = on_batch_begin,
+    on_batch_end = on_batch_end,
+    on_after_backward = on_after_backward,
+    # validation
+    on_batch_valid_begin = on_batch_valid_begin,
+    on_batch_valid_end = on_batch_valid_end,
+    # other arguments
+    public = public, private = private, active = active, parent_env = parent_env
   )
-
-  assert_list(public, null.ok = TRUE, names = "unique")
-  if (length(public)) assert_names(names(public), disjunct.from = names(more_public))
-
-  invalid_stages = names(public)[grepl("^on_", names(public))]
-
-  if (length(invalid_stages)) {
-    warningf("There are public method(s) with name(s) %s, which are not valid stages.",
-      paste(paste0("'", invalid_stages, "'"), collapse = ", ")
-    )
-  }
-  assert_list(private, null.ok = TRUE, names = "unique")
-  assert_list(active, null.ok = TRUE, names = "unique")
-  assert_environment(parent_env)
-
-  more_public = Filter(function(x) !is.null(x), more_public)
-  parent_env_shim = new.env(parent = parent_env)
-  parent_env_shim$inherit = CallbackTorch
-  callback_generator = R6::R6Class(classname = name, inherit = CallbackTorch, public = c(more_public, public),
-    private = private, active = active, parent_env = parent_env_shim, lock_objects = FALSE)
 
   TorchCallback$new(
     callback_generator = callback_generator,
@@ -282,6 +280,45 @@ torch_callback = function(
     id = id,
     man = man,
     label = label
-    
   )
+}
+
+#' @title Dictionary of Torch Callbacks
+#'
+#' @usage NULL
+#' @format [`R6Class`] inheriting from [`Dictionary`].
+#'
+#' @description
+#' A [`mlr3misc::Dictionary`] of torch callbacks.
+#' Use [`t_clbk`] to conveniently retrieve callbacks.
+#' Can be converted to a [`data.table`] using `as.data.table`.
+#'
+#' @section Methods:
+#' See [mlr3misc::Dictionary].
+#'
+#' @family callback
+#' @family Dictionary
+#' @export
+#' @examples
+#' mlr3torch_callbacks$get("checkpoint")
+#' # is the same as
+#' t_clbk("checkpoint")
+#' # convert to a data.table
+#' as.data.table(mlr3torch_callbacks)
+mlr3torch_callbacks = R6Class("DictionaryMlr3torchCallbacks",
+  inherit = Dictionary,
+  cloneable = FALSE
+)$new()
+
+
+#' @export
+as.data.table.DictionaryMlr3torchCallbacks = function(x, ...) { # nolint
+  setkeyv(map_dtr(x$keys(), function(key) {
+    cb = x$get(key)
+    list(
+      key = key,
+      label = cb$label,
+      packages = paste0(cb$packages, collapse = ",")
+    )
+  }), "key")[]
 }

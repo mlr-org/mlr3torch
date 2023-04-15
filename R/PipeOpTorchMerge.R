@@ -2,7 +2,7 @@
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_merge
-#' @format `r roxy_pipeop_torch_format()`
+#' @format `r roxy_format(PipeOpTorchMerge)`
 #'
 #' @description
 #' Base class for merge operations such as addition ([`PipeOpTorchMergeSum`]), multiplication

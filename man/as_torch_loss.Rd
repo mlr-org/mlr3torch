@@ -14,7 +14,8 @@ Object to convert to a \code{\link{TorchLoss}}.}
 Whether to make a deep clone.}
 
 \item{...}{(any)\cr
-Additional arguments.}
+Additional arguments.
+Currently used to pass additional constructor arguments to \code{\link{TorchLoss}} for objects of type \code{nn_loss}.}
 }
 \value{
 \code{\link{TorchLoss}}.
@@ -22,3 +23,9 @@ Additional arguments.}
 \description{
 Converts an object to a \code{\link{TorchLoss}}.
 }
+\seealso{
+Other torch_wrapper: 
+\code{\link{as_torch_optimizer}()},
+\code{\link{mlr3torch_optimizers}}
+}
+\concept{torch_wrapper}

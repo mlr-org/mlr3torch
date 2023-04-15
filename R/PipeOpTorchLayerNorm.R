@@ -28,7 +28,7 @@
 #' @section Internals:
 #' Calls [`torch::nn_layer_norm()`] when trained.
 #' The parameter `normalized_shape` is inferre as the dimensions of the last `dims` dimensions of the input shape.
-#' @section Credit: `r roxy_pipeop_torch_license()`
+#' @section Credit: `r roxy_torch_license()`
 #' @family PipeOpTorch
 #' @export
 #' @examples

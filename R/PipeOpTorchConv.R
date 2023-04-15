@@ -2,7 +2,7 @@
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_conv
-#' @format `r roxy_pipeop_torch_format()`
+#' @format `r roxy_format(PipeOpTorchConv)`
 #'
 #' @description
 #' Base class for transpose convolution.
@@ -39,7 +39,7 @@
 #' @section Fields: `r roxy_pipeop_torch_fields_default()`
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals: See the respective child class.
-#' @section Credit: `r roxy_pipeop_torch_license()`
+#' @section Credit: `r roxy_torch_license()`
 #' @family PipeOpTorch
 #' @export
 PipeOpTorchConv = R6Class("PipeOpTorchConv",
@@ -94,7 +94,7 @@ PipeOpTorchConv = R6Class("PipeOpTorchConv",
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_conv1d
-#' @format `r roxy_pipeop_torch_format()`
+#' @format `r roxy_format(PipeOpTorchConv1D)`
 #'
 #' @inherit torch::nnf_conv1d description
 #'
@@ -112,7 +112,7 @@ PipeOpTorchConv = R6Class("PipeOpTorchConv",
 #' @section Internals:
 #' Calls [`torch::nn_conv1d()`] when trained.
 #' The paramter `in_channels` is inferred from the second dimension of the input tensor.
-#' @section Credit: `r roxy_pipeop_torch_license()`
+#' @section Credit: `r roxy_torch_license()`
 #' @family PipeOpTorch
 #' @export
 #' @examples
@@ -133,7 +133,7 @@ PipeOpTorchConv1D = R6Class("PipeOpTorchConv1D", inherit = PipeOpTorchConv,
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_conv2d
-#' @format `r roxy_pipeop_torch_format()`
+#' @format `r roxy_format(PipeOpTorchConv2D)`
 #'
 #' @inherit torch::nnf_conv2d description
 #'
@@ -151,7 +151,7 @@ PipeOpTorchConv1D = R6Class("PipeOpTorchConv1D", inherit = PipeOpTorchConv,
 #' @section Internals:
 #' Calls [`torch::nn_conv2d()`] when trained.
 #' The paramter `in_channels` is inferred from the second dimension of the input tensor.
-#' @section Credit: `r roxy_pipeop_torch_license()`
+#' @section Credit: `r roxy_torch_license()`
 #' @family PipeOpTorch
 #' @export
 #' @examples
@@ -171,7 +171,7 @@ PipeOpTorchConv2D = R6Class("PipeOpTorchConv2D", inherit = PipeOpTorchConv,
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_conv3d
-#' @format `r roxy_pipeop_torch_format()`
+#' @format `r roxy_format(PipeOpTorchConv2D)`
 #'
 #' @inherit torch::nnf_conv3d description
 #'
@@ -189,7 +189,7 @@ PipeOpTorchConv2D = R6Class("PipeOpTorchConv2D", inherit = PipeOpTorchConv,
 #' @section Internals:
 #' Calls [`torch::nn_conv3d()`] when trained.
 #' The paramter `in_channels` is inferred from the second dimension of the input tensor.
-#' @section Credit: `r roxy_pipeop_torch_license()`
+#' @section Credit: `r roxy_torch_license()`
 #' @family PipeOpTorch
 #' @export
 #' @examples

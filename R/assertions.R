@@ -1,5 +1,3 @@
-
-
 assert_torch_optimizer = function(x) {
   expect_r6(x, "TorchOptimizer")
 }

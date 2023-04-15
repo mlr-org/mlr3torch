@@ -16,8 +16,7 @@
 #'   Whether to always save the last model. Default is `TRUE`.
 #'
 #' @export
-CallbackTorchCheckpoint = R6Class("CallbackTorchCheckpoint",
-  inherit = CallbackTorch, lock_objects = FALSE,
+CallbackTorchCheckpoint = callback_torch("CallbackTorchCheckpoint",
   public = list(
     initialize = function(path, freq = 1L, save_last = TRUE) {
       assert_path_for_output(path)
@@ -25,24 +24,24 @@ CallbackTorchCheckpoint = R6Class("CallbackTorchCheckpoint",
       self$path = path
       self$freq = assert_int(freq, lower = 1L)
       self$save_last = assert_flag(save_last)
-    },
-    on_epoch_end = function(ctx) {
-      if ((ctx$epoch %% self$freq) == 0) {
-        torch::torch_save(ctx$network, file.path(self$path, paste0("network", ctx$epoch, ".rds")))
-      }
-    },
-    on_end = function(ctx) {
-      if (self$save_last) {
-        path = file.path(self$path, paste0("network", ctx$epoch, ".rds"))
-        if (!file.exists(path)) { # no need to save the last network twice if it was already saved.
-          torch::torch_save(ctx$network, path)
-        }
+    }
+  ),
+  on_epoch_end = function(ctx) {
+    if ((ctx$epoch %% self$freq) == 0) {
+      torch::torch_save(ctx$network, file.path(self$path, paste0("network", ctx$epoch, ".rds")))
+    }
+  },
+  on_end = function(ctx) {
+    if (self$save_last) {
+      path = file.path(self$path, paste0("network", ctx$epoch, ".rds"))
+      if (!file.exists(path)) { # no need to save the last network twice if it was already saved.
+        torch::torch_save(ctx$network, path)
       }
     }
-  )
+  }
 )
 
-#' @include CallbackTorch.R
+#' @include TorchCallback.R CallbackTorch.R
 mlr3torch_callbacks$add("checkpoint", function() {
   TorchCallback$new(
     callback_generator = CallbackTorchCheckpoint,
@@ -50,9 +49,9 @@ mlr3torch_callbacks$add("checkpoint", function() {
       path = p_uty(),
       freq = p_int(default = 1L, lower = 1L),
       save_last = p_lgl(default = TRUE)
-    ), 
+    ),
     id = "checkpoint",
     label = "Checkpoint",
-    man = "mlr3torch_callbacks.checkpoint"
+    man = "mlr3torch::mlr3torch_callbacks.checkpoint"
   )
 })

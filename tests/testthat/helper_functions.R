@@ -1,3 +1,12 @@
+expect_man_exists = function(man) {
+  checkmate::expect_string(man, na.ok = TRUE, fixed = "::", label = man)
+  if (!is.na(man)) {
+    parts = strsplit(man, "::", fixed = TRUE)[[1L]]
+    matches = help.search(parts[2L], package = parts[1L], ignore.case = FALSE)
+    checkmate::expect_data_frame(matches$matches, min.rows = 1L, info = "man page lookup", label = man)
+  }
+}
+
 # expect that 'one' is a deep clone of 'two'
 expect_deep_clone = function(one, two) {
   # is equal
@@ -19,6 +28,12 @@ expect_deep_clone = function(one, two) {
     }
     visited[[addr_a]] = path
     visited_b[[addr_b]] = path
+
+
+    if (inherits(a, "nn_module_generator") || inherits(a, "torch_optimizer_generator") ||
+      inherits(a, "R6ClassGenerator")) {
+      return(invisible(NULL))
+    }
 
     # follow attributes, even for non-recursive objects
     if (utils::tail(path, 1) != "[attributes]" && !is.null(base::attributes(a))) {

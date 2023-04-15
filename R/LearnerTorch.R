@@ -93,7 +93,10 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
       private$.loss$param_set$set_id = "loss"
 
       callbacks = as_torch_callbacks(callbacks, clone = TRUE)
-      assert_true(!"history" %in% ids(callbacks))
+      callback_ids = ids(callbacks)
+      assert_names(callback_ids, type = "unique")
+      assert_true(!"history" %in% callback_ids)
+
       callbacks = c(t_clbk("history"), callbacks)
       private$.callbacks = set_names(callbacks, ids(callbacks))
       walk(private$.callbacks, function(cb) {
@@ -113,7 +116,7 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
       assert_subset(predict_types, names(mlr_reflections$learner_predict_types[["classif"]]))
       assert_true(!any(grepl("^(loss\\.|opt\\.|cb\\.)", param_set$ids())))
       packages = assert_character(packages, any.missing = FALSE, min.chars = 1L)
-      packages = union(c("mlr3torch", "torch"), packages)
+      packages = union(c("mlr3", "mlr3torch", "torch"), packages)
 
       paramset_torch = paramset_torchlearner()
       if (param_set$length > 0) {

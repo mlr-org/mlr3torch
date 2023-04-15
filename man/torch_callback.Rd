@@ -6,10 +6,10 @@
 \usage{
 torch_callback(
   id,
-  name = paste0("CallbackTorch", capitalize(id)),
+  classname = paste0("CallbackTorch", capitalize(id)),
   param_set = NULL,
   packages = NULL,
-  label = id,
+  label = capitalize(id),
   man = NULL,
   on_begin = NULL,
   on_end = NULL,
@@ -32,9 +32,8 @@ torch_callback(
 The id for the callbacks.
 Note that the ids of callbacks passed to a learner must be unique.}
 
-\item{name}{(\code{character(1)})\cr
-The class name of the torch callback. Is set to \code{"CallbackTorch<Id>"} per default.
-E.g. id \code{id} is \code{"custom"}, the name is set to \code{"CallbackTorchCustom"}.}
+\item{classname}{(\code{character(1)})\cr
+The class name.}
 
 \item{param_set}{(\code{ParamSet})\cr
 The parameter set, if not present it is inferred from the initialize method passed through the public function.}
@@ -48,7 +47,7 @@ Label for the new instance.}
 String in the format \verb{[pkg]::[topic]} pointing to a manual page for this object.
 The referenced help package can be opened via method \verb{$help()}.}
 
-\item{on_begin, }{on_end, on_epoch_begin, on_before_valid, on_epoch_end, on_batch_begin, on_batch_end,
+\item{on_begin}{on_end, on_epoch_begin, on_before_valid, on_epoch_end, on_batch_begin, on_batch_end,
 on_after_backward, on_batch_valid_begin, on_batch_valid_end (\code{function})\cr
 Function to execute at the given stage, see section \emph{Stages}.}
 
@@ -74,7 +73,7 @@ It returns a \code{\link{TorchCallback}} that wrapping a \code{\link{CallbackTor
 }
 \section{Internals}{
 
-It first creates an \code{\link{R6ClassGenerator}} that generates a \code{\link{CallbackTorch}} and when wraps this generator in a
+It first creates an \code{\link{R6ClassGenerator}} using \code{\link{torch_callback}}and when wraps this generator in a
 \code{\link{TorchCallback}}.
 }
 
@@ -115,7 +114,7 @@ custom_tcb$param_set$set_values(greeting = "Wazzuuup")
 cb = custom_tcb$get_callback()
 
 ctx = new.env()
-ctx$name = "Julia"
+ctx$name = "Albert"
 
 f = function(ctx, cb) {
   cb$on_begin(ctx)
@@ -129,9 +128,10 @@ f(ctx, cb)
 Other callback: 
 \code{\link{as_torch_callbacks}()},
 \code{\link{as_torch_callback}()},
+\code{\link{callback_torch}()},
+\code{\link{mlr3torch_callbacks.progress}},
 \code{\link{mlr3torch_callbacks}},
 \code{\link{mlr_callbacks_torch}},
-\code{\link{mlr_context_torch}},
-\code{\link{t_clbk}()}
+\code{\link{mlr_context_torch}}
 }
 \concept{callback}

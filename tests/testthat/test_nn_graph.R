@@ -29,7 +29,7 @@ test_that("model_descriptor_to_module works", {
   input = sample_input_from_shapes(net$shapes_in)
 })
 
-test_that("model_descriptor_to_learner works" {
+test_that("model_descriptor_to_learner works", {
   task = tsk("iris")
 
   graph1 = po("torch_ingress_num") %>>%
@@ -38,7 +38,7 @@ test_that("model_descriptor_to_learner works" {
     po("nn_head") %>>%
     po("torch_optimizer") %>>%
     po("torch_loss", loss = "mse") %>>%
-    po("torch_ca")
+    po("torch_callbacks")
 
   md = graph1$train(task)[[1L]]
 })

@@ -42,8 +42,8 @@ LearnerClassifTorchModule = R6Class("LearnerClassifTorchModule",
         param_set = inferps(module)
         param_set$set_id = "net"
       } else {
-        assert_true(TRUE)
       }
+      assert_true(FALSE)
 
       super$initialize(
         id = "classif.torch_module",

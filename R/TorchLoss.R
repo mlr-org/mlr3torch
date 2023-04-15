@@ -8,7 +8,11 @@
 #' @param clone (`logical(1)`\cr
 #'   Whether to make a deep clone.
 #' @param ... (any)\cr
-#' Additional arguments.
+#'   Additional arguments.
+#'   Currently used to pass additional constructor arguments to [`TorchLoss`] for objects of type `nn_loss`.
+#'
+#'
+#' @family torch_wrapper
 #'
 #' @return [`TorchLoss`].
 #' @export
@@ -18,8 +22,9 @@ as_torch_loss = function(x, clone = FALSE, ...) {
 }
 
 #' @export
-as_torch_loss.nn_loss = function(x, clone = FALSE) { # nolint
-  TorchLoss$new(x, label = deparse(substitute(x))[[1]])
+as_torch_loss.nn_loss = function(x, clone = FALSE, id = deparse(substitute(x))[[1L]], ...) { # nolint
+  # clone argument is irrelevant
+  TorchLoss$new(x, id = id, ...)
 }
 
 #' @export
@@ -39,10 +44,8 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 #' @format `r roxy_format(TorchLoss)`
 #'
 #' @description
-#' This wraps a `torch::nn_loss` and is usually used to configure
-#' It is commonly used to configure the `loss` of a torch learner.
-#'
-#' For a list of available parameters, seen [`mlr3torch_losses`].
+#' This wraps a `torch::nn_loss` and is usually used to configure the loss function of a torch learner.
+#' For a list of available losses, see [`mlr3torch_losses`].
 #'
 #' @section Construction:
 #' `r roxy_construction(TorchLoss)`
@@ -52,7 +55,7 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 #'   The loss module.
 #' * `task_types` :: `character()`\cr
 #'   The task types supported by this loss.
-#'   lf left `NULL` (default), this value is set to all available task types.
+#'   If left as `NULL` (default), this value is set to all available task types.
 #'
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
@@ -60,30 +63,25 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 #' @section Fields:
 #' Fields inherited from [`TorchWrapper`] as well as:
 #' * `task_types` :: `character()`\cr
-#'  The task types that are supported by this loss.
+#'  The task types this loss supports.
 #'
 #' @section Methods:
 #' Only methods inherited from [`TorchWrapper`].
 #'
-#' @family torch_wrappers
+#' @family model_configuration, torch_wrapper
 #' @export
 #' @examples
 #' # Create a new Torch Loss
 #' torchloss = TorchLoss$new(torch_loss = nn_mse_loss, task_types = "regr")
-#' # If the param set is not specified, parameters are inferred but are of class ParamUty
-#'
-#' # Open help page
-#' # torchloss$help()
-#'
-#' loss$param_set
-#' # Construct the actual loss function
-#' los = tchloss$generate()
+#' torchloss$param_set
+#' loss = torchloss$generate()
 TorchLoss = R6::R6Class("TorchLoss",
   inherit = TorchWrapper,
   public = list(
     task_types = NULL,
     initialize = function(torch_loss, task_types = NULL, param_set = NULL,
-      id = deparse(substitute(torch_loss))[[1]], label = id, packages = NULL) {
+      id = deparse(substitute(torch_loss))[[1L]], label = capitalize(id), packages = NULL, man = NULL) {
+      force(id)
       if (!is.null(task_types)) {
         self$task_types = assert_subset(task_types, mlr_reflections$task_types$type)
       } else {
@@ -95,7 +93,8 @@ TorchLoss = R6::R6Class("TorchLoss",
         id = id,
         param_set = param_set,
         packages = packages,
-        label = label
+        label = label,
+        man = man
       )
     },
     print = function(...) {
@@ -107,22 +106,49 @@ TorchLoss = R6::R6Class("TorchLoss",
 )
 
 #' @title Loss Functions
+#' @usage NULL
+#' @format [`R6Class`] inheriting from [`Dictionary`].
+#'
 #' @description
-#' Dictionary of torch loss functions
+#' Dictionary of torch loss functions.
 #' See [`t_loss`] for conveniently retrieving a loss function.
+#' Can be converted to a [`data.table`] using `as.data.table`.
 #'
 #' @section Available Loss Functions:
+#' `r paste0(mlr3torch_losses$keys(), collapse = ", ")`
 #'
-#' * mse - [`torch::nn_mse_loss`]
-#' * l1 - [`torch::nn_l1_loss`]
-#' * cross_entropy - [`torch::nn_cross_entropy_loss`]
+#' @section Fields:
+#' Only fields inherited from [`DictionaryMlr3torchLosses`].
+#'
+#' @section Methods:
+#' Only methods inherited from [`DictionaryMlr3torchLosses`].
 #'
 #' @family torch_wrappers
+#' @family Dictionary
 #' @export
+#' @examples
+#' mlr3torch_losses$get("mse")
+#' # is equivalent to
+#' t_loss("mse")
+#' # convert to a data.table
+#' as.data.table(mrl3torch_losses)
 mlr3torch_losses = R6Class("DictionaryMlr3torchLosses",
   inherit = Dictionary,
   cloneable = FALSE
 )$new()
+
+#' @export
+as.data.table.DictionaryMlr3torchLosses = function(x, ...) {
+  setkeyv(map_dtr(x$keys(), function(key) {
+    loss = x$get(key)
+    list(
+      key = key,
+      label = loss$label,
+      task_types = loss$task_types,
+      packages = paste0(loss$packages, collapse = ",")
+    )}), "key")[]
+}
+
 
 
 #' @title Loss Function Quick Access
@@ -131,26 +157,75 @@ mlr3torch_losses = R6Class("DictionaryMlr3torchLosses",
 #' @param ... (any)\cr
 #'   See description of [`dictionary_sugar_get`].
 #' @return A [`TorchLoss`]
-#' @examples
-#' torch_loss = t_loss("mse")
-#' torch_loss$param_set
-#' torch_loss$loss
 #' @export
+#' @family torch_wrapper, model_configuration
+#' @examples
+#' t_loss("mse", reduction = "mean")
+#' # get the dictionary
+#' t_loss()
 t_loss = function(.key, ...) {
-  dictionary_sugar_get(mlr3torch_losses, .key, ...)
+  UseMethod("t_loss")
+}
+
+#' @export
+t_loss.character = function(.key, ...) { # nolint
+  dictionary_sugar_inc_get(mlr3torch_losses, .key, ...)
+}
+
+#' @export
+t_loss.NULL = function(.key, ...) { # nolint
+  # class is NULL if .key is missing
+  dictionary_sugar_get(mlr3torch_losses)
+}
+
+#' @rdname t_loss
+#' @param .keys (`character()`)\cr
+#'   The keys of the losses.
+#' @export
+#' @examples
+#' t_losses(c("mse", "l1"))
+#' # get the dictionary
+#' t_losses()
+t_losses = function(.keys, ...) {
+  UseMethod("t_losses")
+}
+
+#' @export
+t_losses.character = function(.keys, ...) { # nolint
+  dictionary_sugar_inc_mget(mlr3torch_losses, .keys, ...)
+}
+
+#' @export
+t_losses.NULL = function(.keys, ...) { # nolint
+  # class is NULL if .keys is missing
+  dictionary_sugar_get(mlr3torch_losses)
+
 }
 
 mlr3torch_losses$add("mse", function() {
   p = ps(reduction = p_fct(levels = c("mean", "sum"), default = "mean", tags = "train"))
-  TorchLoss$new(torch::nn_mse_loss, "regr", p, "mse", "Mean Squared Error")
+  TorchLoss$new(
+    torch_loss = torch::nn_mse_loss,
+    task_types = "regr",
+    param_set = p,
+    id = "mse",
+    label = "Mean Squared Error",
+    man = "torch::nn_mse_loss"
+  )
 })
 
 
 mlr3torch_losses$add("l1", function() {
   p = ps(reduction = p_fct(levels = c("mean", "sum"), default = "mean", tags = "train"))
-  TorchLoss$new(torch::nn_l1_loss, "regr", p, "l1", "Absolute Error")
+  TorchLoss$new(
+    torch_loss = torch::nn_l1_loss,
+    task_types = "regr",
+    param_set = p,
+    id = "l1",
+    label = "Absolute Error",
+    man = "torch::nn_l1_loss"
+  )
 })
-
 
 mlr3torch_losses$add("cross_entropy", function() {
   p = ps(
@@ -158,5 +233,12 @@ mlr3torch_losses$add("cross_entropy", function() {
     ignore_index = p_int(default = -100L, tags = "train"),
     reduction = p_fct(levels = c("mean", "sum"), default = "mean", tags = "train")
   )
-  TorchLoss$new(torch::nn_cross_entropy_loss, "classif", p, "cross_entropy", "Cross Entropy")
+  TorchLoss$new(
+    torch_loss = torch::nn_cross_entropy_loss,
+    task_types = "classif",
+    param_set = p,
+    id = "cross_entropy",
+    label = "Cross Entropy",
+    man = "torch::nn_cross_entropy_loss"
+  )
 })

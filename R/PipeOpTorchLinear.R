@@ -2,7 +2,7 @@
 #'
 #' @usage NULL
 #' @name pipeop_torch_linear
-#' @format `r roxy_pipeop_torch_format()`
+#' @format `r roxy_format(PipeOpTorchLinear)`
 #'
 #' @inherit torch::nnf_linear description
 #'
@@ -26,7 +26,7 @@
 #' @section Internals:
 #' Calls [`torch::nn_linear()`] when trained where the parameter `in_features` is inferred as the second
 #' to last dimension of the input tensor.
-#' @section Credit: `r roxy_pipeop_torch_license()`
+#' @section Credit: `r roxy_torch_license()`
 #' @family PipeOpTorch
 #' @export
 #' @examples

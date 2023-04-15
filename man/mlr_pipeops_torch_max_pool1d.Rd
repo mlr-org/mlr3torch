@@ -5,7 +5,7 @@
 \alias{PipeOpTorchMaxPool1D}
 \title{1D Max Pooling}
 \format{
-\link{\code{R6Class}} inheriting from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+\code{\link{R6Class}} inheriting from \code{\link{PipeOpTorchMaxPool}}, \code{\link{PipeOpTorch}}, \code{\link{PipeOp}}.
 }
 \description{
 Applies a 1D max pooling over an input signal composed of several input

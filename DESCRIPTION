@@ -64,11 +64,13 @@ Roxygen: list(markdown = TRUE, r6 = FALSE)
 RoxygenNote: 7.2.2
 Collate:
     'CallbackTorch.R'
+    'zzz.R'
+    'utils.R'
+    'TorchCallback.R'
     'CallbackTorchCheckpoint.R'
     'CallbackTorchHistory.R'
     'CallbackTorchProgress.R'
     'ContextTorch.R'
-    'zzz.R'
     'LearnerClassifTorchImage.R'
     'LearnerClassifAlexNet.R'
     'LearnerClassifMLP.R'
@@ -100,8 +102,6 @@ Collate:
     'TaskClassif_test_imagenet.R'
     'TaskClassif_tiny_imagenet.R'
     'TaskClassif_toytask.R'
-    'utils.R'
-    'TorchCallback.R'
     'TorchOptimizer.R'
     'TorchWrapper.R'
     'assertions.R'

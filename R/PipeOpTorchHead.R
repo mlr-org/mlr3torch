@@ -2,7 +2,7 @@
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_head
-#' @format `r roxy_pipeop_torch_format()`
+#' @format `r roxy_format(PipeOpTorchHead)`
 #'
 #' @description
 #' Output head for classification and regresssion.
@@ -27,7 +27,7 @@
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
 #' Calls [`torch::nn_linear()`] with the input and output features inferred from the input shape / task.
-#' @section Credit: `r roxy_pipeop_torch_license()`
+#' @section Credit: `r roxy_torch_license()`
 #' @family PipeOpTorch
 #' @export
 #' @examples

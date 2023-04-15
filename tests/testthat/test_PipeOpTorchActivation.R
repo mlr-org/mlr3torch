@@ -349,10 +349,3 @@ test_that("PipeOpTorchHardTanh paramtest", {
   res = run_paramtest(po("nn_hardtanh"), nn_hardtanh)
   expect_paramtest(res)
 })
-
-
-
-
-
-
-

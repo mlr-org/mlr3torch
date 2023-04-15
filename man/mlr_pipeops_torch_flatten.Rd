@@ -5,7 +5,7 @@
 \alias{PipeOpTorchFlatten}
 \title{Flattens a Tensor}
 \format{
-\link{\code{R6Class}} inheriting from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+\code{\link{R6Class}} inheriting from \code{\link{PipeOpTorch}}, \code{\link{PipeOp}}.
 }
 \description{
 For use with \link[torch]{nn_sequential}.

@@ -166,9 +166,8 @@ Docu:
 **Roxy**
 
 * [ ] roxy_pipeop_torch_fields_default
-* [ ] roxy_pipeop_torch_construction
 * [ ] roxy_param_module_generator
-* [ ] roxy_pipeop_torch_license
+* [ ] roxy_torch_license
 
 * [] roxy_param_innum
 * [] roxy_param_packages

@@ -1,46 +1,69 @@
-#' @title PipeOp Torch Callbacks
+#' @title Callback Configuration
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_callbacks
-#' @format `r roxy_pipeop_torch_format(PipeOpTorchCallbacks)`
+#' @format `r roxy_format(PipeOpTorchCallbacks)`
 #'
 #' @description
 #' Configures the callbacks of a deep learning model.
 #'
 #' @section Construction: `r roxy_construction(PipeOpTorchCallbacks)`
-#' * `callbacks` :: `list` of [`TorchCallback`]s\cr
-#'   The callbacks. Must have unique ids. Default is `list()`.
+#' * `callbacks` :: `list` of [`TorchCallback`]s or `character()` or \cr
+#'   The callbacks (or something convertible via [`as_torch_callbacks()`]).
+#'   Must have unique ids. Default is `list()`.
+#'   All callbacks are cloned during construction.
 #' * `r roxy_param_id("torch_callbacks")`
 #' * `r roxy_param_param_vals()`
 #'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-#' @section State: `r roxy_pipeop_torch_state_default()`
+#' @section Input and Output Channels:
+#' There is one input channel `"input"` and one output channel `"output"`.
+#' During *training*, the channels are of class [`ModelDescriptor`].
+#' During *prediction*, the channels are of class [`Task`].
+#'
+#' @section State:
+#' The state is set to an empty `list()`.
 #'
 #' @section Parameters:
 #' The parameters are defined dynamically from the callbacks, where the id of the respective callbacks is the
 #' respective set id.
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
-#' @section Internals: See the respective child class.
-#' @section Credit: `r roxy_pipeop_torch_license()`
-#' @family PipeOpTorch, model_configuration
+#' @section Fields:
+#' Only fields inherited from [`PipeOp`].
+#' @section Methods:
+#' Only methods inherited from [`PipeOp`].
+#' @section Internals:
+#' During training the callbacks are cloned and added to the [`ModelDesciptor`].
+#' @family model_configuration
 #' @export
 #' @examples
-# TODO:
-PipeOpTorchCallbacks = R6Class("PipeOpTorchCallbacks", 
+#' po_cb = po("torch_callbacks", "checkpoint")
+#' po_cb$param_set
+#' mdin = po("torch_ingress_num")$train(list(tsk("iris")))
+#' mdin[[1L]]$callbacks
+#' mdout = po_cb$train(mdin)[[1L]]
+#' mdout$callbacks
+#' # Can be called again
+#' po_cb1 = po("torch_callbacks", t_clbk("progress"))
+#' mdout1 = po_cb1$train(list(mdout))[[1L]]
+#' mdout1$callbacks
+PipeOpTorchCallbacks = R6Class("PipeOpTorchCallbacks",
   inherit = PipeOp,
   public = list(
     initialize = function(callbacks = list(), id = "torch_callbacks", param_vals = list()) {
-      private$.callbacks = assert_torch_callbacks(as_torch_callbacks(callbacks))
-      assert_names(ids(private$.callbacks), type = "unique")
+      private$.callbacks = as_torch_callbacks(callbacks, clone = TRUE)
+      cbids = ids(private$.callbacks)
+      assert_names(cbids, type = "unique")
       walk(private$.callbacks, function(cb) {
         cb$param_set$set_id = cb$id
+        walk(cb$param_set$params, function(p) {
+          p$tags = union(p$tags, "train")
+        })
       })
+      private$.callbacks = set_names(private$.callbacks, cbids)
       input = data.table(name = "input", train = "ModelDescriptor", predict = "Task")
       output = data.table(name = "output", train = "ModelDescriptor", predict = "Task")
       super$initialize(
         id = id,
-        param_set = invoke(ParamSetCollection$new, sets = map(private$.callbacks, "param_set")),
+        param_set = alist(invoke(ParamSetCollection$new, sets = map(private$.callbacks, "param_set"))),
         param_vals = param_vals,
         input = input,
         output = output,
@@ -50,23 +73,28 @@ PipeOpTorchCallbacks = R6Class("PipeOpTorchCallbacks",
   ),
   private = list(
     .train = function(inputs) {
-      new_callbacks = map(private$.callbacks, function(cb) cb$clone(deep = TRUE))
-      previous_callbacks = inputs[[1L]]$callbacks
-      # Attention: What happens if both lists have length 1?
-      assert_names(c(ids(new_callbacks), ids(previous)))
-      if (is.null(previous_callbacks)) {
-        callbacks = new_callbacks
-      } else {
-        callbacks = c(prvi)
+      callbacks = c(
+        map(private$.callbacks, function(cb) cb$clone(deep = TRUE)),
+        as_torch_callbacks(inputs[[1L]]$callbacks)
+      )
+      cbids = ids(callbacks)
+      if (!test_names(cbids, type = "unique")) {
+        dups = cbids[duplicated(cbids)]
+        stopf("Callbacks with IDs %s are already present.", paste0("'", dups, "'", collapse = ", "))
       }
-
-      callbacks = c(previous_)
-      assert_names(c())
-      assert_true(is.null(inputs[[1L]]#ca``))
-      inputs[[1]]$ca
+      inputs[[1]]$callbacks = callbacks
+      self$state = list()
       return(inputs)
+    },
+    .predict = function(inputs) inputs,
+    .callbacks = NULL,
+    deep_clone = function(name, value) {
+      if (name == ".callbacks") {
+        callbacks = map(private$.callbacks, function(cb) cb$clone(deep = TRUE))
+        return(callbacks)
+      }
+      super$deep_clone(name, value)
     }
-    .callbacks = NULL, 
   )
 )
 

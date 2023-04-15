@@ -2,7 +2,7 @@
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_reshape
-#' @format `r roxy_pipeop_torch_format()`
+#' @format `r roxy_format(PipeOpTorchReshape)`
 #'
 #' @inherit nn_reshape description
 #'
@@ -18,7 +18,7 @@
 #' @section Internals:
 #' Calls [`nn_reshape()`] when trained.
 #' This internally calls [`torch::torch_reshape()`] with the given `shape`.
-#' @section Credit: `r roxy_pipeop_torch_license()`
+#' @section Credit: `r roxy_torch_license()`
 #' @family PipeOpTorch
 #' @export
 #' @examples
@@ -74,7 +74,7 @@ PipeOpTorchReshape = R6Class("PipeOpTorchReshape",
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_squeeze
-#' @format `r roxy_pipeop_torch_format()`
+#' @format `r roxy_format(PipeOpTorchSqueeze)`
 #'
 #' @inherit nn_squeeze description
 #'
@@ -90,7 +90,7 @@ PipeOpTorchReshape = R6Class("PipeOpTorchReshape",
 #' @section Internals:
 #' @section Internals:
 #' Calls [`nn_squeeze()`] when trained.
-#' @section Credit: `r roxy_pipeop_torch_license()`
+#' @section Credit: `r roxy_torch_license()`
 #' @family PipeOpTorch
 #' @export
 #' @examples
@@ -143,7 +143,7 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_squeeze
-#' @format `r roxy_pipeop_torch_format()`
+#' @format `r roxy_format(PipeOpTorchUnsqueeze)`
 #'
 #' @inherit nn_squeze description
 #'
@@ -159,7 +159,7 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
 #' @section Internals:
 #' Calls [`nn_unsqueeze()`] when trained.
 #' This internally calls [`torch::torch_unsqueeze()`].
-#' @section Credit: `r roxy_pipeop_torch_license()`
+#' @section Credit: `r roxy_torch_license()`
 #' @family PipeOpTorch
 #' @export
 #' @examples
@@ -200,7 +200,7 @@ PipeOpTorchUnsqueeze = R6Class("PipeOpTorchUnsqueeze",
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_flatten
-#' @format `r roxy_pipeop_torch_format()`
+#' @format `r roxy_format(PipeOpTorchFlatten)`
 #'
 #' @inherit torch::nn_flatten description
 #' @section Construction: `r roxy_construction(PipeOpTorchFlatten)`
@@ -215,7 +215,7 @@ PipeOpTorchUnsqueeze = R6Class("PipeOpTorchUnsqueeze",
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
 #' Calls [`torch::nn_flatten()`] when trained.
-#' @section Credit: `r roxy_pipeop_torch_license()`
+#' @section Credit: `r roxy_torch_license()`
 #' @family PipeOpTorch
 #' @export
 #' @examples

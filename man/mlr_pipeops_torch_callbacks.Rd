@@ -3,9 +3,9 @@
 \name{mlr_pipeops_torch_callbacks}
 \alias{mlr_pipeops_torch_callbacks}
 \alias{PipeOpTorchCallbacks}
-\title{PipeOp Torch Callbacks}
+\title{Callback Configuration}
 \format{
-\verb{r roxy_pipeop_torch_format(PipeOpTorchCallbacks)}
+\code{\link{R6Class}} inheriting from \code{\link{PipeOp}}.
 }
 \description{
 Configures the callbacks of a deep learning model.
@@ -13,19 +13,25 @@ Configures the callbacks of a deep learning model.
 \section{Construction}{
  \code{PipeOpTorchCallbacks$new(callbacks = list(), id = "torch_callbacks", param_vals = list())}
 \itemize{
-\item \code{callbacks} :: \code{list} of \code{\link{TorchCallback}}s\cr
-The callbacks. Must have unique ids. Default is \code{list()}.
+\item \code{callbacks} :: \code{list} of \code{\link{TorchCallback}}s or \code{character()} or \cr
+The callbacks (or something convertible via \code{\link[=as_torch_callbacks]{as_torch_callbacks()}}).
+Must have unique ids. Default is \code{list()}.
+All callbacks are cloned during construction.
 \item \code{id} :: \code{character(1)}\cr The id for the object. The default is "torch_callbacks".
 \item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
 }
 }
 
 \section{Input and Output Channels}{
- One input channel called \code{"input"} and one output channel called‘"output"’. For an explanation see \link{\code{PipeOpTorch}}.
+
+There is one input channel \code{"input"} and one output channel \code{"output"}.
+During \emph{training}, the channels are of class \code{\link{ModelDescriptor}}.
+During \emph{prediction}, the channels are of class \code{\link{Task}}.
 }
 
 \section{State}{
- The state is the value calculated by the public method \code{shapes_out()}.
+
+The state is set to an empty \code{list()}.
 }
 
 \section{Parameters}{
@@ -35,26 +41,35 @@ respective set id.
 }
 
 \section{Fields}{
- Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+
+Only fields inherited from \code{\link{PipeOp}}.
 }
 
 \section{Methods}{
- Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+
+Only methods inherited from \code{\link{PipeOp}}.
 }
 
 \section{Internals}{
- See the respective child class.
+
+During training the callbacks are cloned and added to the \code{\link{ModelDesciptor}}.
 }
 
-\section{Credit}{
- Parts of this documentation have been copied or adapted from the R package \link{torch}, that comes under the
-MIT license, which is included in the help page of \link{\code{mlr3torch}}, as well as in the top-level folder of
-the package source.
+\examples{
+po_cb = po("torch_callbacks", "checkpoint")
+po_cb$param_set
+mdin = po("torch_ingress_num")$train(list(tsk("iris")))
+mdin[[1L]]$callbacks
+mdout = po_cb$train(mdin)[[1L]]
+mdout$callbacks
+# Can be called again
+po_cb1 = po("torch_callbacks", t_clbk("progress"))
+mdout1 = po_cb1$train(list(mdout))[[1L]]
+mdout1$callbacks
 }
-
 \seealso{
-Other PipeOpTorch, model_configuration: 
+Other model_configuration: 
 \code{\link{mlr_pipeops_torch_loss}},
 \code{\link{mlr_pipeops_torch_optimizer}}
 }
-\concept{PipeOpTorch, model_configuration}
+\concept{model_configuration}

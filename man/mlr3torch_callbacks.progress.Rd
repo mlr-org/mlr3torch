@@ -14,3 +14,14 @@ Prints a progress bar and the metrics for training and validation.
  \code{CallbackTorchProgress$new()}
 }
 
+\seealso{
+Other callback: 
+\code{\link{as_torch_callbacks}()},
+\code{\link{as_torch_callback}()},
+\code{\link{callback_torch}()},
+\code{\link{mlr3torch_callbacks}},
+\code{\link{mlr_callbacks_torch}},
+\code{\link{mlr_context_torch}},
+\code{\link{torch_callback}()}
+}
+\concept{callback}

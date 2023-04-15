@@ -5,7 +5,7 @@
 \alias{PipeOpTorchHardShrink}
 \title{Hard Shrink Activation Function}
 \format{
-\link{\code{R6Class}} inheriting from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+\code{\link{R6Class}} inheriting from \code{\link{PipeOpTorch}}, \code{\link{PipeOp}}.
 }
 \description{
 Applies the hard shrinkage function element-wise

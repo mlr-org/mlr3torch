@@ -7,7 +7,12 @@
 #'   Object to convert to a [`TorchOptimizer`].
 #' @param clone (`logical(1)`\cr
 #'   Whether to make a deep clone. Default is `FALSE`.
-#' @param ... Additional arguments.
+#' @param ... (any)\cr
+#'   Additional arguments.
+#'   Currently used to pass additional constructor arguments to [`TorchOptimizer`] for objects of type
+#'   `torch_optimizer_generator`.
+#'
+#' @family torch_wrapper
 #'
 #' @return [`TorchOptimizer`]
 #' @export
@@ -17,9 +22,9 @@ as_torch_optimizer = function(x, clone = FALSE, ...) {
 }
 
 #' @export
-as_torch_optimizer.torch_optimizer_generator = function(x, clone = FALSE) { # nolint
+as_torch_optimizer.torch_optimizer_generator = function(x, clone = FALSE, id = deparse(substitute(x))[[1L]], ...) { # nolint
   # clone argument is irrelevant
-  TorchOptimizer$new(x, label = deparse(substitute(x))[[1]])
+  TorchOptimizer$new(x, id = id, ...)
 }
 
 #' @export
@@ -65,7 +70,7 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #' (named `list()` of [`nn_parameter`]) -> (`torch_optimizer`)\cr
 #' Creates the optimizer for the given parameters.
 #'
-#' @family torch_wrappers
+#' @family model_configuration, torch_wrapper
 #' @export
 #' @examples
 #' # Create a new Torch Optimizer
@@ -83,45 +88,71 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
     optimizer = NULL,
     param_set = NULL,
     packages = NULL,
-    initialize = function(torch_optimizer, param_set = NULL,
-      id = deparse(substitute(torch_optimizer))[[1]], label = id, packages = NULL) {
-     torch_optimizer = assert_class(torch_optimizer, "torch_optimizer_generator") # maybe too strict?
+    initialize = function(torch_optimizer, param_set = NULL, id = deparse(substitute(torch_optimizer))[[1L]],
+      label = capitalize(id), packages = NULL, man = NULL) {
+      torch_optimizer = assert_class(torch_optimizer, "torch_optimizer_generator") # maybe too strict?
+      if (test_r6(param_set, "ParamSet")) {
+        if ("params" %in% param_set$ids()) {
+          stopf("The name 'params' is reserved for the network parameters.")
+        }
+      } else {
+        param_set = inferps(torch_optimizer, ignore = "params")
+      }
       super$initialize(
         generator = torch_optimizer,
         id = id,
         param_set = param_set,
         packages = packages,
-        label = label
+        label = label,
+        man = man
       )
     },
     generate = function(params) {
+      require_namespaces(self$packages)
       invoke(self$generator, .args = self$param_set$get_values(), params = params)
     }
   )
 )
 
 #' @title Optimizers
+#' @usage NULL
+#' @format [`R6Class`] inheriting from [`Dictionary`].
+#'
 #' @description
 #' Dictionary of torch optimizers.
 #' Use [`t_opt`] for conveniently retrieving optimizers.
+#' Can be converted to a [`data.table`] using `as.data.table`.
 #'
 #' @section Available Optimizers:
+#' `r paste0(mlr3torch_optimizers$keys(), collapse = ", ")`
 #'
-#' * adadelta - [`torch::optim_adadelta`]
-#' * adagrad - [`torch::optim_adagrad`]
-#' * adam - [`torch::optim_adam`]
-#' * asgd - [`torch::optim_asgd`]
-#' * lbfgs - [`torch::optim_lbfgs`]
-#' * rmsprop - [`torch::optim_rmsprop`]
-#' * rprop - [`torch::optim_rprop`]
-#' * sgd - [`torch::optim_sgd`]
+#' @section Fields:
+#' Only fields inherited from [`Dictionary`].
 #'
+#' @family torch_wrapper
+#' @family Dictionary
 #' @export
+#' @examples
+#' mlr3torch_optimizers$get("adam")
+#' # is equivalent to
+#' t_opt("adam")
+#' # convert to a data.table
+#' as.data.table(mlr3torch_optimizers)
 mlr3torch_optimizers = R6Class("DictionaryMlr3torchOptimizers",
   inherit = Dictionary,
   cloneable = FALSE
 )$new()
 
+#' @export
+as.data.table.DictionaryMlr3torchOptimizers = function(x, ...) {
+  setkey(map_dtr(x$keys(), function(key) {
+    opt = x$get(key)
+    list(
+      key = key,
+      label = opt$label,
+      packages = paste0(opt$packages, collapse = ",")
+    )}), "key")[]
+}
 
 #' @title Optimizers Quick Access
 #' @param .key (`character(1)`)\cr
@@ -129,14 +160,52 @@ mlr3torch_optimizers = R6Class("DictionaryMlr3torchOptimizers",
 #' @param ... (any)\cr
 #'   See description of [`dictionary_sugar_get`].
 #' @return A [`TorchOptimizer`]
-#' @examples
-#' torch_opt = t_opt("adam", lr = 0.1)
-#' torch_opt$param_set
-#' torch_opt$optimizer
 #' @export
+#' @family model_configuration, torch_wrapper
+#' @family Dictionary
+#' @examples
+#' t_opt("adam", lr = 0.1)
+#' # get the dictionary
+#' t_opt()
 t_opt = function(.key, ...) {
-  dictionary_sugar_get(mlr3torch_optimizers, .key, ...)
+  UseMethod("t_opt")
 }
+
+#' @export
+t_opt.character = function(.key, ...) { #nolint
+  dictionary_sugar_inc_get(mlr3torch_optimizers, .key, ...)
+}
+
+#' @export
+t_opt.NULL = function(.key, ...) { # nolint
+  # class is NULL if .key is missing
+  dictionary_sugar_get(mlr3torch_optimizers)
+}
+
+#' @rdname t_opt
+#' @param .keys (`character()`)\cr
+#'   The keys of the optimizers.
+#' @export
+#' @examples
+#' t_opts(c("adam", "sgd"))
+#' # get the dictionary
+#' t_opts()
+t_opts = function(.keys, ...) {
+  UseMethod("t_opts")
+}
+
+
+#' @export
+t_opts.character = function(.keys, ...) { # nolint
+  dictionary_sugar_inc_mget(mlr3torch_optimizers, .keys, ...)
+}
+
+#' @export
+t_opts.NULL = function(.keys, ...) { # nolint
+  # class is NULL if .keys is missing
+  dictionary_sugar_mget(mlr3torch_optimizers)
+}
+
 
 mlr3torch_optimizers$add("adam",
   function() {
@@ -154,7 +223,13 @@ mlr3torch_optimizers$add("adam",
       weight_decay = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
       amsgrad      = p_lgl(default = FALSE, tags = "train")
     )
-    TorchOptimizer$new(torch::optim_adam, p, "adam", "Adaptive Moment Estimation")
+    TorchOptimizer$new(
+      torch_optimizer = torch::optim_adam,
+      param_set = p,
+      id = "adam",
+      label = "Adaptive Moment Estimation",
+      man = "torch::optim_adam"
+    )
   }
 )
 
@@ -168,7 +243,13 @@ mlr3torch_optimizers$add("sgd",
       weight_decay = p_dbl(0, 1, default = 0, tags = "train"),
       nesterov     = p_lgl(default = FALSE, tags = "train")
     )
-    TorchOptimizer$new(torch::optim_sgd, p, "sgd", "Stochastic Gradient Descent")
+    TorchOptimizer$new(
+      torch_optimizer = torch::optim_sgd,
+      param_set = p,
+      id = "sgd",
+      label = "Stochastic Gradient Descent",
+      man = "torch::optim_sgd"
+    )
   }
 )
 
@@ -182,7 +263,13 @@ mlr3torch_optimizers$add("asgd",
       t0           = p_int(lower = 1L, upper = Inf, default = 1e6, tags = "train"),
       weight_decay = p_dbl(default = 0, lower = 0, upper = 1, tags = "train")
     )
-    TorchOptimizer$new(torch::optim_asgd, p, "asgd", "SGD with Adaptive Batch Size for Every Parameter")
+    TorchOptimizer$new(
+      torch_optimizer = torch::optim_asgd,
+      param_set = p,
+      id = "asgd",
+      label = "SGD with Adaptive Batch Size",
+      man = "torch::optim_asgd"
+    )
   }
 )
 
@@ -202,7 +289,13 @@ mlr3torch_optimizers$add("rprop",
       etas       = p_uty(default = c(0.5, 1.2), tags = "train"),
       step_sizes = p_uty(c(1e-06, 50), tags = "train")
     )
-    TorchOptimizer$new(torch::optim_rprop, p, "rprop", "Resilient backpropagation")
+    TorchOptimizer$new(
+      torch_optimizer = torch::optim_rprop,
+      param_set = p,
+      id = "rprop",
+      label = "Resilient Backpropagation",
+      man = "torch::optim_rprop"
+    )
   }
 )
 
@@ -217,7 +310,13 @@ mlr3torch_optimizers$add("rmsprop",
       momentum     = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
       centered     = p_lgl(default = FALSE, tags = "train")
     )
-    TorchOptimizer$new(torch::optim_rmsprop, p, "rmsprop", "Root Mean Square Propagation")
+    TorchOptimizer$new(
+      torch_optimizer = torch::optim_rmsprop,
+      param_set = p,
+      id = "rmsprop",
+      label = "Root Mean Square Propagation",
+      man = "torch::optim_rmsprop"
+    )
   }
 )
 
@@ -231,7 +330,13 @@ mlr3torch_optimizers$add("adagrad",
       initial_accumulator_value = p_dbl(default = 0, lower = 0, tags = "train"),
       eps                       = p_dbl(default = 1e-10, lower = 1e-16, upper = 1e-4, tags = "train")
     )
-    TorchOptimizer$new(torch::optim_adagrad, p, "adagrad", "Adaptive Gradient algorithm")
+    TorchOptimizer$new(
+      torch_optimizer = torch::optim_adagrad,
+      param_set = p,
+      id = "adagrad",
+      label = "Adaptive Gradient algorithm",
+      man = "torch::optim_adagrad"
+    )
   }
 )
 
@@ -244,7 +349,12 @@ mlr3torch_optimizers$add("adadelta",
       eps          = p_dbl(default = 1e-06, lower = 1e-16, upper = 1e-4, tags = "train"),
       weight_decay = p_dbl(default = 0, lower = 0, upper = 1, tags = "train")
     )
-    TorchOptimizer$new(torch::optim_adadelta, p, "adadelta", "An Adaptive Learning Rate Method``")
+    TorchOptimizer$new(torch_optimizer = torch::optim_adadelta,
+      param_set = p,
+      id = "adadelta",
+      label = "Adaptive Learning Rate Method``",
+      man = "torch::optim_adadelta"
+    )
   }
 )
 
@@ -260,6 +370,12 @@ mlr3torch_optimizers$add("lbfgs",
       history_size     = p_int(default = 100L, lower = 1L, tags = "train"),
       line_search_fn   = p_fct(default = NULL, levels = "strong_wolfe", tags = "train", special_vals = list(NULL))
     )
-    TorchOptimizer$new(torch::optim_lbfgs, p, "lbfgs", "Limited-memory BFGS")
+    TorchOptimizer$new(
+      torch_optimizer = torch::optim_lbfgs,
+      param_set = p,
+      id = "lbfgs",
+      label = "Limited-memory BFGS",
+      man = "torch::optim_lbfgs"
+    )
   }
 )

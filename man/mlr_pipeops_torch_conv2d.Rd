@@ -5,7 +5,7 @@
 \alias{PipeOpTorchConv2D}
 \title{2D Convolution}
 \format{
-\link{\code{R6Class}} inheriting from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+\code{\link{R6Class}} inheriting from \code{\link{PipeOpTorchConv}}, \code{\link{PipeOpTorch}}, \code{\link{PipeOp}}.
 }
 \description{
 Applies a 2D convolution over an input image composed of several input

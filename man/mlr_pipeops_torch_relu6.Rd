@@ -3,9 +3,9 @@
 \name{mlr_pipeops_torch_relu6}
 \alias{mlr_pipeops_torch_relu6}
 \alias{PipeOpTorchReLU6}
-\title{Relu6 Activation Function}
+\title{ReLU6 Activation Function}
 \format{
-\link{\code{R6Class}} inheriting from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+\code{\link{R6Class}} inheriting from \code{\link{PipeOpTorch}}, \code{\link{PipeOp}}.
 }
 \description{
 Applies the element-wise function \eqn{ReLU6(x) = min(max(0,x), 6)}.

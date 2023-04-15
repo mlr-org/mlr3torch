@@ -51,7 +51,9 @@
 #'    Prints the object.
 #' * `help()`\cr
 #'    () -> help file\cr
-#'    Displays the help file.
+#'    Displays the help file of the wrapped object.
+#' @section Internals:
+#' When a deep clone is created, the wrapped generator is not cloned.
 #' @family torch_wrappers
 #' @export
 TorchWrapper = R6Class("TorchWrapper",
@@ -111,7 +113,7 @@ TorchWrapper = R6Class("TorchWrapper",
     help = function() {
       open_help(self$man)
     }
-  ), 
+  ),
   private = list(
     .repr = NULL
   )

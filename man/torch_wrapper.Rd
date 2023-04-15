@@ -70,14 +70,17 @@ Calls the generator with the given parameter values.
 Prints the object.
 \item \code{help()}\cr
 () -> help file\cr
-Displays the help file.
+Displays the help file of the wrapped object.
 }
+}
+
+\section{Internals}{
+
+When a deep clone is created, the wrapped generator is not cloned.
 }
 
 \seealso{
 Other torch_wrappers: 
-\code{\link{TorchLoss}},
-\code{\link{TorchOptimizer}},
 \code{\link{mlr3torch_losses}}
 }
 \concept{torch_wrappers}

@@ -5,7 +5,7 @@
 \alias{PipeOpTorchMerge}
 \title{Merge Operation}
 \format{
-\link{\code{R6Class}} inheriting from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+\code{\link{R6Class}} inheriting from \code{\link{PipeOpTorch}}, \code{\link{PipeOp}}.
 }
 \description{
 Base class for merge operations such as addition (\code{\link{PipeOpTorchMergeSum}}), multiplication

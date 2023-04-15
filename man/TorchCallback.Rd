@@ -13,7 +13,7 @@ It is an analogous construct to the classes \code{\link{TorchOptimizer}} or \cod
 losses.
 }
 \section{Construction}{
- \code{TorchCallback$new(callback_generator, param_set = NULL, id = deparse(substitute(callback_generator))[[1]], label = id, packages = NULL, man = NULL)}
+ \code{TorchCallback$new(callback_generator, param_set = NULL, id = deparse(substitute(id))[[1L]], label = capitalize(id), packages = NULL, man = NULL)}
 Arguments from \code{\link{TorchWrapper}} (except for \code{generator}) as well as:
 \itemize{
 \item \code{callback_generator} :: \code{\link{R6ClassGenerator}}\cr
@@ -36,4 +36,4 @@ Only fields inherited from \code{\link{TorchWrapper}} as well as:
 Only methods inherited from \code{\link{TorchWrapper}}.
 }
 
-\concept{torch_wrappers, callback}
+\concept{callback, model_configuration, torch_wrapper}

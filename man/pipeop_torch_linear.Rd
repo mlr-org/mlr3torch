@@ -5,7 +5,7 @@
 \alias{PipeOpTorchLinear}
 \title{Linear Layer}
 \format{
-\link{\code{R6Class}} inheriting from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+\code{\link{R6Class}} inheriting from \code{\link{PipeOpTorch}}, \code{\link{PipeOp}}.
 }
 \description{
 Applies a linear transformation to the incoming data: \eqn{y = xA^T + b}.

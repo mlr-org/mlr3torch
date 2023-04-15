@@ -7,14 +7,12 @@
 \code{\link{R6Class}} inheriting from \code{\link{TorchWrapper}}.
 }
 \description{
-This wraps a \code{torch::nn_loss} and is usually used to configure
-It is commonly used to configure the \code{loss} of a torch learner.
-
-For a list of available parameters, seen \code{\link{mlr3torch_losses}}.
+This wraps a \code{torch::nn_loss} and is usually used to configure the loss function of a torch learner.
+For a list of available losses, see \code{\link{mlr3torch_losses}}.
 }
 \section{Construction}{
 
-\code{TorchLoss$new(torch_loss, task_types = NULL, param_set = NULL, id = deparse(substitute(torch_loss))[[1]], label = id, packages = NULL)}
+\code{TorchLoss$new(torch_loss, task_types = NULL, param_set = NULL, id = deparse(substitute(torch_loss))[[1L]], label = capitalize(id), packages = NULL, man = NULL)}
 
 Arguments from \code{\link{TorchWrapper}} (except for \code{generator}) as well as:
 \itemize{
@@ -22,7 +20,7 @@ Arguments from \code{\link{TorchWrapper}} (except for \code{generator}) as well 
 The loss module.
 \item \code{task_types} :: \code{character()}\cr
 The task types supported by this loss.
-lf left \code{NULL} (default), this value is set to all available task types.
+If left as \code{NULL} (default), this value is set to all available task types.
 }
 }
 
@@ -36,7 +34,7 @@ Defined by the constructor argument \code{param_set}.
 Fields inherited from \code{\link{TorchWrapper}} as well as:
 \itemize{
 \item \code{task_types} :: \code{character()}\cr
-The task types that are supported by this loss.
+The task types this loss supports.
 }
 }
 
@@ -48,19 +46,12 @@ Only methods inherited from \code{\link{TorchWrapper}}.
 \examples{
 # Create a new Torch Loss
 torchloss = TorchLoss$new(torch_loss = nn_mse_loss, task_types = "regr")
-# If the param set is not specified, parameters are inferred but are of class ParamUty
-
-# Open help page
-# torchloss$help()
-
-loss$param_set
-# Construct the actual loss function
-los = tchloss$generate()
+torchloss$param_set
+loss = torchloss$generate()
 }
 \seealso{
-Other torch_wrappers: 
+Other model_configuration, torch_wrapper: 
 \code{\link{TorchOptimizer}},
-\code{\link{mlr3torch_losses}},
-\code{\link{torch_wrapper}}
+\code{\link{t_opt}()}
 }
-\concept{torch_wrappers}
+\concept{model_configuration, torch_wrapper}

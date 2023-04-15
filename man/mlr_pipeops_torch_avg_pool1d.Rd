@@ -5,7 +5,7 @@
 \alias{PipeOpTorchAvgPool1D}
 \title{1D Average Pooling}
 \format{
-\link{\code{R6Class}} inheriting from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+\code{\link{R6Class}} inheriting from \code{\link{PipeOpTorchAvgPool}}, \code{\link{PipeOpTorch}}, \code{\link{PipeOp}}.
 }
 \description{
 Applies a 1D adaptive average pooling over an input signal composed of

@@ -2,9 +2,12 @@
 % Please edit documentation in R/TorchOptimizer.R
 \name{t_opt}
 \alias{t_opt}
+\alias{t_opts}
 \title{Optimizers Quick Access}
 \usage{
 t_opt(.key, ...)
+
+t_opts(.keys, ...)
 }
 \arguments{
 \item{.key}{(\code{character(1)})\cr
@@ -12,6 +15,9 @@ Key of the object to retrieve.}
 
 \item{...}{(any)\cr
 See description of \code{\link{dictionary_sugar_get}}.}
+
+\item{.keys}{(\code{character()})\cr
+The keys of the optimizers.}
 }
 \value{
 A \code{\link{TorchOptimizer}}
@@ -20,7 +26,22 @@ A \code{\link{TorchOptimizer}}
 Optimizers Quick Access
 }
 \examples{
-torch_opt = t_opt("adam", lr = 0.1)
-torch_opt$param_set
-torch_opt$optimizer
+t_opt("adam", lr = 0.1)
+# get the dictionary
+t_opt()
+t_opts(c("adam", "sgd"))
+# get the dictionary
+t_opts()
 }
+\seealso{
+Other model_configuration, torch_wrapper: 
+\code{\link{TorchLoss}},
+\code{\link{TorchOptimizer}}
+
+Other Dictionary: 
+\code{\link{mlr3torch_callbacks}},
+\code{\link{mlr3torch_losses}},
+\code{\link{mlr3torch_optimizers}}
+}
+\concept{Dictionary}
+\concept{model_configuration, torch_wrapper}

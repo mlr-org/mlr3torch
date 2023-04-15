@@ -2,7 +2,7 @@
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_softmax
-#' @format `r roxy_pipeop_torch_format()`
+#' @format `r roxy_format(PipeOpTorchSoftmax)`
 #'
 #' @inherit torch::nnf_softmax description
 #'
@@ -22,7 +22,7 @@
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
 #' Calls [`torch::nn_softmax()`] when trained.
-#' @section Credit: `r roxy_pipeop_torch_license()`
+#' @section Credit: `r roxy_torch_license()`
 #' @family PipeOpTorch
 #' @export
 #' @examples

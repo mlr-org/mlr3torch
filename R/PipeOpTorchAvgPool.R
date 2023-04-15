@@ -2,7 +2,7 @@
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_avg_pool
-#' @format `r roxy_pipeop_torch_format()`
+#' @format `r roxy_format(PipeOpTorchAvgPool)`
 #'
 #' @description
 #' Base class for average pooling.
@@ -34,7 +34,7 @@
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
 #' See the respective child class.
-#' @section Credit: `r roxy_pipeop_torch_license()`
+#' @section Credit: `r roxy_torch_license()`
 #' @family PipeOpTorch
 #' @export
 PipeOpTorchAvgPool = R6Class("PipeOpTorchAvgPool",
@@ -96,7 +96,7 @@ avg_output_shape = function(shape_in, conv_dim, padding, stride, kernel_size, ce
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_avg_pool1d
-#' @format `r roxy_pipeop_torch_format()`
+#' @format `r roxy_format(PipeOpTorchAvgPool1D)`
 #'
 #' @inherit torch::nnf_adaptive_avg_pool1d description
 #'
@@ -113,7 +113,7 @@ avg_output_shape = function(shape_in, conv_dim, padding, stride, kernel_size, ce
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
 #' Calls [`nn_avg_pool1d()`] during training.
-#' @section Credit: `r roxy_pipeop_torch_license()`
+#' @section Credit: `r roxy_torch_license()`
 #' @family PipeOpTorch
 #' @export
 #' @examples
@@ -134,7 +134,7 @@ PipeOpTorchAvgPool1D = R6Class("PipeOpTorchAvgPool1D", inherit = PipeOpTorchAvgP
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_avg_pool2d
-#' @format `r roxy_pipeop_torch_format()`
+#' @format `r roxy_format(PipeOpTorchAvgPool2D)`
 #'
 #' @inherit torch::nnf_adaptive_avg_pool2d description
 #'
@@ -151,7 +151,7 @@ PipeOpTorchAvgPool1D = R6Class("PipeOpTorchAvgPool1D", inherit = PipeOpTorchAvgP
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
 #' Calls [`nn_avg_pool2d()`] during training.
-#' @section Credit: `r roxy_pipeop_torch_license()`
+#' @section Credit: `r roxy_torch_license()`
 #' @family PipeOpTorch
 #' @export
 #' @examples
@@ -171,7 +171,7 @@ PipeOpTorchAvgPool2D = R6Class("PipeOpTorchAvgPool2D", inherit = PipeOpTorchAvgP
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_avg_pool3d
-#' @format `r roxy_pipeop_torch_format()`
+#' @format `r roxy_format(PipeOpTorchAvgPool3D)`
 #'
 #' @inherit torch::nnf_adaptive_avg_pool3d description
 #'
@@ -188,7 +188,7 @@ PipeOpTorchAvgPool2D = R6Class("PipeOpTorchAvgPool2D", inherit = PipeOpTorchAvgP
 #' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
 #' Calls [`nn_avg_pool3d()`] during training.
-#' @section Credit: `r roxy_pipeop_torch_license()`
+#' @section Credit: `r roxy_torch_license()`
 #' @family PipeOpTorch
 #' @export
 #' @examples

@@ -206,7 +206,7 @@
 *   [ ] task_dataset
 *   [ ] unique_id
 *   [ ] measure_prediction
-*   [ ] toytask
+*   [ ] toytask -> this name sucks
 *   [ ] register_mlr3pipelines
 *   [x] imageuri
 
@@ -221,13 +221,14 @@
 
 **Roxy**
 
+TODO: This list is not up to date anymore
+
 *   [ ] roxy_pipeop_torch_fields_default
 
-*   [ ] roxy_pipeop_torch_construction
 
 *   [ ] roxy_param_module_generator
 
-*   [ ] roxy_pipeop_torch_license
+*   [ ] roxy_torch_license
 
 *   [ ] roxy_param_innum
 
@@ -262,7 +263,7 @@ All the learner implementations:
 
 **Important**
 
-* [ ] Cloning of trained networks (required new torch version)
+* [ ] Cloning of trained networks (requires new torch version)
 * [ ] Reproducibility: Does the seed work?
 * [ ] Implement bundling
 * [ ] The seeding mechanism should be properly implemented in mlr3, seed should not be part of the model but of the 
@@ -286,7 +287,7 @@ rest of the state.
 * [ ] ensure proper use of tags in e.g.  `param_set$get_values(tags = "train")`
 * [ ] Autotest should check that all parameters are tagged with train and predict etc. Generally determine usage of tags
 * [ ] Run some tests on gpu
-* [ ] Rename Debug Torch Learner to featureless and export
+* [x] Rename Debug Torch Learner to featureless and export
 
 
 **Other**
@@ -327,15 +328,20 @@ for nn modules, or "Optimizer" for optim_adam etc.
 * Write expect_learner_torch that checks all the properties a torch learner has to satisfy
 
 **Cosmetic**
-* [ ] Better printer for ModelDescriptor (see whether loss is configured e.g.)
-* [ ] Rename LearnerClassifTorchAbstract to LearnerClassifTorch and LearnerClassifTorch to LearnerClassifTorchModule
+* [x] Better printer for ModelDescriptor (see whether loss is configured e.g.)
+* [x] Rename LearnerClassifTorchAbstract to LearnerClassifTorch and LearnerClassifTorch to LearnerClassifTorchModule
 
 **Documentation**
 
-* Check that objects have the correct families in the documentation.
+* [ ] Use the `tags` constrctor argument from PipeOps
+* [ ] Check that objects have the correct families in the documentation.
 * [ ] Add tests for documentation, i.e. that all the required sections are present
 * [ ] Write test that all construction arguments are documented.
 * [ ] Properly document that the classifiers must return the scores and no the probabilities
+* Add examples for all PipeOps (maybe a template for PipeOpTorch?)
+*   It must be documented how the output names are generated, when outputs of non-terminal nodes are used
+    in "output_map" ("output_<id>_output.<channel>")
+* [ ] Make the paramset torch leaner template a roxygen function, it should be directly seen for every learner (?).
 
 
 
@@ -347,6 +353,7 @@ for nn modules, or "Optimizer" for optim_adam etc.
 
 In the future (soon): 
 
+* [ ] Check which versions of the packages we actually require
 * [ ] Create learner_torch_{classif, regr} to create custom torch learners (classif.torch did not really work because of the dataloader)
 * [ ] Maybe it should be possible to easily overwrite the dataloader for a learner (?) 
 
@@ -355,35 +362,18 @@ In the future (soon):
 
 * [ ] general method for freezing and unfreezing parameters.
 
-Optimization: 
+
+
+
+**In the future**
+
+* [ ] support the `weights` property for the learners.
+* [ ] Calling `benchmark()` and evaluate the jobs on different GPUs?
+
+* 
+
+
+**Optimization**
 
 * [ ] Minimize the time the tests run!
   (utilize the fetureless torch learner as much as possible, should probbably extend it to all feature types)
-
-In the future (maybe): 
-
-* [ ] Make the paramset torch leaner template a roxygen function, it should be directly seen for every learner (?).
-* [ ] Support hotstarting
-
-* [ ] Refactor TorchLoss, TorchOptimizer and TorchCallback to inherit from TorchWrapper or something as the 
-structure is almost identical.
-
-* [ ] support the `weights` property for the learners.
-
-* [ ] I think I might go to r6 = true again... it is so much trouble to do it without it and is much less organized.
-
-
-*   Rename PipeOpTorch -> PipeOpNN: Names would better represent the class hierarchy:
-    note that all the roxygen stuff has to be renamed too and adjusted.
-    Maybe PipeOpTorch -> PipeOpTorchNN because we still want to refer to all the PipeOpTorch's
-
-
-# Pipelines issues
-
-* dictionar_sugar_inc_get
-
-**Mit Martin**
-
-*   It must be documented how the output names are generated, when outputs of non-terminal nodes are used
-    in "output_map" ("output_<id>_output.<channel>")
-* 

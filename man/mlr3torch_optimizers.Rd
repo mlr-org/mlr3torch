@@ -5,27 +5,40 @@
 \alias{mlr3torch_optimizers}
 \title{Optimizers}
 \format{
-An object of class \code{DictionaryMlr3torchOptimizers} (inherits from \code{Dictionary}, \code{R6}) of length 13.
-}
-\usage{
-mlr3torch_optimizers
+\code{\link{R6Class}} inheriting from \code{\link{Dictionary}}.
 }
 \description{
 Dictionary of torch optimizers.
 Use \code{\link{t_opt}} for conveniently retrieving optimizers.
+Can be converted to a \code{\link{data.table}} using \code{as.data.table}.
 }
 \section{Available Optimizers}{
 
-\itemize{
-\item adadelta - \code{\link[torch:optim_adadelta]{torch::optim_adadelta}}
-\item adagrad - \code{\link[torch:optim_adagrad]{torch::optim_adagrad}}
-\item adam - \code{\link[torch:optim_adam]{torch::optim_adam}}
-\item asgd - \code{\link[torch:optim_asgd]{torch::optim_asgd}}
-\item lbfgs - \code{\link[torch:optim_lbfgs]{torch::optim_lbfgs}}
-\item rmsprop - \code{\link[torch:optim_rmsprop]{torch::optim_rmsprop}}
-\item rprop - \code{\link[torch:optim_rprop]{torch::optim_rprop}}
-\item sgd - \code{\link[torch:optim_sgd]{torch::optim_sgd}}
-}
+adadelta, adagrad, adam, asgd, lbfgs, rmsprop, rprop, sgd
 }
 
+\section{Fields}{
+
+Only fields inherited from \code{\link{Dictionary}}.
+}
+
+\examples{
+mlr3torch_optimizers$get("adam")
+# is equivalent to
+t_opt("adam")
+# convert to a data.table
+as.data.table(mlr3torch_optimizers)
+}
+\seealso{
+Other torch_wrapper: 
+\code{\link{as_torch_loss}()},
+\code{\link{as_torch_optimizer}()}
+
+Other Dictionary: 
+\code{\link{mlr3torch_callbacks}},
+\code{\link{mlr3torch_losses}},
+\code{\link{t_opt}()}
+}
+\concept{Dictionary}
+\concept{torch_wrapper}
 \keyword{datasets}

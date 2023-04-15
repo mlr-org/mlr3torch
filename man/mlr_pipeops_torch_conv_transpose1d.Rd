@@ -5,7 +5,7 @@
 \alias{PipeOpTorchConvTranspose1D}
 \title{Transpose 1D Convolution}
 \format{
-\link{\code{R6Class}} inheriting from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+\code{\link{R6Class}} inheriting from \code{\link{PipeOpTorchConvTranspose}}, \code{\link{PipeOpTorch}}, \code{\link{PipeOp}}.
 }
 \description{
 Applies a 1D transposed convolution operator over an input signal

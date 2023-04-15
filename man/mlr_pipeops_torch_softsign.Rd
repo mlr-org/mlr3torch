@@ -5,7 +5,7 @@
 \alias{PipeOpTorchSoftSign}
 \title{SoftSign Activation Function}
 \format{
-\link{\code{R6Class}} inheriting from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+\code{\link{R6Class}} inheriting from \code{\link{PipeOpTorch}}, \code{\link{PipeOp}}.
 }
 \description{
 Applies element-wise, the function \eqn{SoftSign(x) = x/(1 + |x|}

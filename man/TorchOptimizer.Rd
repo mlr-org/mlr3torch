@@ -15,7 +15,7 @@ For a list of available optimizers, see \code{\link{mlr3torch_optimizers}}.
 }
 \section{Construction}{
 
-\code{TorchOptimizer$new(torch_optimizer, param_set = NULL, id = deparse(substitute(torch_optimizer))[[1]], label = id, packages = NULL)}
+\code{TorchOptimizer$new(torch_optimizer, param_set = NULL, id = deparse(substitute(torch_optimizer))[[1L]], label = capitalize(id), packages = NULL, man = NULL)}
 
 Arguments from \code{\link{TorchWrapper}} (except for \code{generator}) as well as:
 \itemize{
@@ -55,9 +55,8 @@ net = nn_linear(10, 1)
 opt = torchopt$generate(net$parameters)
 }
 \seealso{
-Other torch_wrappers: 
+Other model_configuration, torch_wrapper: 
 \code{\link{TorchLoss}},
-\code{\link{mlr3torch_losses}},
-\code{\link{torch_wrapper}}
+\code{\link{t_opt}()}
 }
-\concept{torch_wrappers}
+\concept{model_configuration, torch_wrapper}

@@ -5,7 +5,7 @@
 \alias{PipeOpTorchConv1D}
 \title{1D Convolution}
 \format{
-\link{\code{R6Class}} inheriting from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+\code{\link{R6Class}} inheriting from \code{\link{PipeOpTorchConv}}, \code{\link{PipeOpTorch}}, \code{\link{PipeOp}}.
 }
 \description{
 Applies a 1D convolution over an input signal composed of several input

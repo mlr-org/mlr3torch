@@ -37,5 +37,4 @@ test_that("TorchWrapper basic checks", {
     regexp = "Parameter values with ids 'x' are missing in generator.",
     fixed = TRUE
     )
-
 })

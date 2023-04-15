@@ -41,26 +41,74 @@ CallbackTorch = R6Class("CallbackTorch",
   cloneable = FALSE,
 )
 
-#' @title Dictionary of Torch Callbacks
-#'
-#' @usage NULL
-#' @format [R6::R6Class] object inheriting from [mlr3misc::Dictionary].
-#'
+#' @title Create a Callback Torch
 #' @description
-#' A [`mlr3misc::Dictionary`] of torch callbacks.
-#' Use [`t_clbk`] to conveniently retrieve callbacks.
+#' Creates an [`R6ClassGenerator`] inheriting from [`CallbackTorch`].
+#' Additionally performs checks such as that the stages are not accidentally misspelled.
+#' @param classname (`character(1)`)\cr
+#'   The class name.
+#' @param on_begin, on_end, on_epoch_begin, on_before_valid, on_epoch_end, on_batch_begin, on_batch_end,
+#' on_after_backward, on_batch_valid_begin, on_batch_valid_end (`function`)\cr
+#' Function to execute at the given stage, see section *Stages*.
+#' @param public (`list()`)\cr
+#'   Additional public fields to add to the callback.
+#' @param private (`list()`)\cr
+#'   Additional private fields to add to the callback.
+#' @param active (`list()`)\cr
+#'   Additional active fields to add to the callback.
+#' @param parent_env (`environment()`)\cr
+#'   The parent environment for the [`R6Class`].
 #'
-#'
-#' @section Methods:
-#' See [mlr3misc::Dictionary].
 #'
 #' @family callback
+#'
 #' @export
-#' @examples
-#' as.data.table(mlr3torch_callbacks)
-#' mlr3torch_callbacks$get("checkpoint")
-#' t_clbk("checkpoint")
-mlr3torch_callbacks = R6Class("DictionaryMlr3torchCallbacks",
-  inherit = Dictionary,
-  cloneable = FALSE
-)$new()
+callback_torch = function(
+  classname,
+  # training
+  on_begin = NULL,
+  on_end = NULL,
+  on_epoch_begin = NULL,
+  on_before_valid = NULL,
+  on_epoch_end = NULL,
+  on_batch_begin = NULL,
+  on_batch_end = NULL,
+  on_after_backward = NULL,
+  # validation
+  on_batch_valid_begin = NULL,
+  on_batch_valid_end = NULL,
+  public = NULL, private = NULL, active = NULL, parent_env = parent.frame()) {
+  more_public = list(
+    on_begin = assert_function(on_begin, args = "ctx", null.ok = TRUE),
+    on_end = assert_function(on_end, args = "ctx", null.ok = TRUE),
+    on_epoch_begin = assert_function(on_epoch_begin, args = "ctx", null.ok = TRUE),
+    on_before_valid = assert_function(on_before_valid, args = "ctx", null.ok = TRUE),
+    on_epoch_end = assert_function(on_epoch_end, args = "ctx", null.ok = TRUE),
+    on_batch_begin = assert_function(on_batch_begin, args = "ctx", null.ok = TRUE),
+    on_batch_end = assert_function(on_batch_end, args = "ctx", null.ok = TRUE),
+    on_after_backward = assert_function(on_after_backward, args = "ctx", null.ok = TRUE),
+    on_batch_valid_begin = assert_function(on_batch_valid_begin, args = "ctx", null.ok = TRUE),
+    on_batch_valid_end = assert_function(on_batch_valid_end, args = "ctx", null.ok = TRUE)
+  )
+
+  assert_list(public, null.ok = TRUE, names = "unique")
+  if (length(public)) assert_names(names(public), disjunct.from = names(more_public))
+
+  invalid_stages = names(public)[grepl("^on_", names(public))]
+
+  if (length(invalid_stages)) {
+    warningf("There are public method(s) with name(s) %s, which are not valid stages.",
+      paste(paste0("'", invalid_stages, "'"), collapse = ", ")
+    )
+  }
+  assert_list(private, null.ok = TRUE, names = "unique")
+  assert_list(active, null.ok = TRUE, names = "unique")
+  assert_environment(parent_env)
+
+  more_public = Filter(function(x) !is.null(x), more_public)
+  parent_env_shim = new.env(parent = parent_env)
+  parent_env_shim$inherit = CallbackTorch
+  R6::R6Class(classname = classname, inherit = CallbackTorch, public = c(more_public, public),
+    private = private, active = active, parent_env = parent_env_shim, lock_objects = FALSE)
+
+}

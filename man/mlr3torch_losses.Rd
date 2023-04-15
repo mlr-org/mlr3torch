@@ -5,29 +5,44 @@
 \alias{mlr3torch_losses}
 \title{Loss Functions}
 \format{
-An object of class \code{DictionaryMlr3torchLosses} (inherits from \code{Dictionary}, \code{R6}) of length 13.
-}
-\usage{
-mlr3torch_losses
+\code{\link{R6Class}} inheriting from \code{\link{Dictionary}}.
 }
 \description{
-Dictionary of torch loss functions
+Dictionary of torch loss functions.
 See \code{\link{t_loss}} for conveniently retrieving a loss function.
+Can be converted to a \code{\link{data.table}} using \code{as.data.table}.
 }
 \section{Available Loss Functions}{
 
-\itemize{
-\item mse - \code{\link[torch:nn_mse_loss]{torch::nn_mse_loss}}
-\item l1 - \code{\link[torch:nn_l1_loss]{torch::nn_l1_loss}}
-\item cross_entropy - \code{\link[torch:nn_cross_entropy_loss]{torch::nn_cross_entropy_loss}}
-}
+cross_entropy, l1, mse
 }
 
+\section{Fields}{
+
+Only fields inherited from \code{\link{DictionaryMlr3torchLosses}}.
+}
+
+\section{Methods}{
+
+Only methods inherited from \code{\link{DictionaryMlr3torchLosses}}.
+}
+
+\examples{
+mlr3torch_losses$get("mse")
+# is equivalent to
+t_loss("mse")
+# convert to a data.table
+as.data.table(mrl3torch_losses)
+}
 \seealso{
 Other torch_wrappers: 
-\code{\link{TorchLoss}},
-\code{\link{TorchOptimizer}},
 \code{\link{torch_wrapper}}
+
+Other Dictionary: 
+\code{\link{mlr3torch_callbacks}},
+\code{\link{mlr3torch_optimizers}},
+\code{\link{t_opt}()}
 }
+\concept{Dictionary}
 \concept{torch_wrappers}
 \keyword{datasets}

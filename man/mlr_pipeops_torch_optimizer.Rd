@@ -3,9 +3,9 @@
 \name{mlr_pipeops_torch_optimizer}
 \alias{mlr_pipeops_torch_optimizer}
 \alias{PipeOpTorchOptimizer}
-\title{PipeOp Torch Optimizer}
+\title{Optimizer Configuration}
 \format{
-\verb{r roxy_pipeop_torch_format(PipeOpTorchOptimizer)}
+\code{\link{R6Class}} inheriting from \code{\link{PipeOp}}.
 }
 \description{
 Configures the optimizer of a deep learning model.
@@ -13,55 +13,59 @@ Configures the optimizer of a deep learning model.
 \section{Construction}{
  \code{PipeOpTorchOptimizer$new(optimizer = t_opt("adam"), id = "torch_optimizer", param_vals = list())}
 \itemize{
-\item \code{optimizer} :: \code{\link{TorchOptimizer}}\cr
-The \link[=TorchOptimizer]{optimizer}.
+\item \code{optimizer} :: \code{\link{TorchOptimizer}} or \code{character(1)} or \code{torch_optimizer_generator}\cr
+The optimizer (or something convertible via \code{\link[=as_torch_optimizer]{as_torch_optimizer()}}).
+This object is cloned during construction.
 \item \code{id} :: \code{character(1)}\cr The id for the object. The default is "torch_optimizer".
 \item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
 }
 }
 
 \section{Input and Output Channels}{
- One input channel called \code{"input"} and one output channel called‘"output"’. For an explanation see \link{\code{PipeOpTorch}}.
+
+There is one input channel \code{"input"} and one output channel \code{"output"}.
+During \emph{training}, the channels are of class \code{\link{ModelDescriptor}}.
+During \emph{prediction}, the channels are of class \code{\link{Task}}.
 }
 
 \section{State}{
- The state is the value calculated by the public method \code{shapes_out()}.
+
+The state is set to an empty \code{list()}.
 }
 
 \section{Parameters}{
 
-The \code{ParamSet} is set to the \code{ParamSet} of the provided optimizer.
+The parameters are defined dynamically from the optimizer that is set during construction.
 }
 
 \section{Fields}{
- Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+
+Only fields inherited from \code{\link{PipeOp}}.
 }
 
 \section{Methods}{
- Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+
+Only methods inherited from \code{\link{PipeOp}}.
 }
 
 \section{Internals}{
- See the respective child class.
-}
 
-\section{Credit}{
- Parts of this documentation have been copied or adapted from the R package \link{torch}, that comes under the
-MIT license, which is included in the help page of \link{\code{mlr3torch}}, as well as in the top-level folder of
-the package source.
+During training, the optimizer is cloned and added to the \code{\link{ModelDescriptor}}.
+Note that the parameter set of the stored \code{\link{TorchOptimizer}} is reference-identical to the parameter set of the
+pipeop itself.
 }
 
 \examples{
-po_opt = po("torch_optimizer", optimizer = t_opt("sgd"), lr = 0.01)
+po_opt = po("torch_optimizer", "sgd", lr = 0.01)
 po_opt$param_set
-md = (po("torch_ingress_num") \%>>\% po("nn_head"))$train(tsk("iris"))
-md[[1L]]$optimizer
-md = po_opt$train(md)
-md[[1L]]$optimizer
+mdin = po("torch_ingress_num")$train(list(tsk("iris")))
+mdin[[1L]]$optimizer
+mdout = po_opt$train(mdin)
+mdout[[1L]]$optimizer
 }
 \seealso{
-Other PipeOpTorch, model_configuration: 
+Other model_configuration: 
 \code{\link{mlr_pipeops_torch_callbacks}},
 \code{\link{mlr_pipeops_torch_loss}}
 }
-\concept{PipeOpTorch, model_configuration}
+\concept{model_configuration}

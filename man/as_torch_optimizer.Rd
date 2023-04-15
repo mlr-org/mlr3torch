@@ -13,7 +13,10 @@ Object to convert to a \code{\link{TorchOptimizer}}.}
 \item{clone}{(\code{logical(1)}\cr
 Whether to make a deep clone. Default is \code{FALSE}.}
 
-\item{...}{Additional arguments.}
+\item{...}{(any)\cr
+Additional arguments.
+Currently used to pass additional constructor arguments to \code{\link{TorchOptimizer}} for objects of type
+\code{torch_optimizer_generator}.}
 }
 \value{
 \code{\link{TorchOptimizer}}
@@ -21,3 +24,9 @@ Whether to make a deep clone. Default is \code{FALSE}.}
 \description{
 Converts an object to a \code{\link{TorchOptimizer}}.
 }
+\seealso{
+Other torch_wrapper: 
+\code{\link{as_torch_loss}()},
+\code{\link{mlr3torch_optimizers}}
+}
+\concept{torch_wrapper}

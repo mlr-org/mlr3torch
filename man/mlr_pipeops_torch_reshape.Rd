@@ -5,7 +5,7 @@
 \alias{PipeOpTorchReshape}
 \title{Reshape a Tensor}
 \format{
-\link{\code{R6Class}} inheriting from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+\code{\link{R6Class}} inheriting from \code{\link{PipeOpTorch}}, \code{\link{PipeOp}}.
 }
 \description{
 Creates a new instance of this \link[R6:R6Class]{R6} class.
