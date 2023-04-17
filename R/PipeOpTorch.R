@@ -263,6 +263,10 @@ PipeOpTorch = R6Class("PipeOpTorch",
       input = data.table(name = inname, train = "ModelDescriptor", predict = "Task")
       output = data.table(name = outname, train = "ModelDescriptor", predict = "Task")
 
+      for (param in param_set$parameters) {
+        param$tags = union(param$tags, "train")
+      }
+
       super$initialize(
         id = id,
         param_set = param_set,
@@ -282,7 +286,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
       if (identical(self$input$name, "...")) {
         assert_list(shapes_in, min.len = 1, types = "numeric")
       } else {
-        assert_true(sort(names(shapes_in)) == sort(self$input$name))
+        assert_true(all(sort(names(shapes_in)) == sort(self$input$name)))
       }
       pv = self$param_set$get_values()
       shapes = private$.shapes_out(shapes_in, pv, task = task)

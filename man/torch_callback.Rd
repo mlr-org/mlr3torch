@@ -51,14 +51,8 @@ The referenced help package can be opened via method \verb{$help()}.}
 on_after_backward, on_batch_valid_begin, on_batch_valid_end (\code{function})\cr
 Function to execute at the given stage, see section \emph{Stages}.}
 
-\item{public}{(\code{list()})\cr
-Additional public fields to add to the callback.}
-
-\item{private}{(\code{list()})\cr
-Additional private fields to add to the callback.}
-
-\item{active}{(\code{list()})\cr
-Additional active fields to add to the callback.}
+\item{public}{private, active (\code{list()})\cr
+Additional public, private, and active fields to add to the callback.}
 
 \item{parent_env}{(\code{environment()})\cr
 The parent environment for the \code{\link{R6Class}}.}

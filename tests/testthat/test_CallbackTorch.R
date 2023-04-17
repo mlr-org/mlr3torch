@@ -88,3 +88,37 @@ test_that("All stages are called correctly", {
 
   check_output(output3, 2, 2, 3)
 })
+
+test_that("callback_torch is working", {
+  expect_subset(mlr3torch_callback_stages, formalArgs(callback_torch))
+  expect_subset(formalArgs(callback_torch), formalArgs(torch_callback))
+
+  expect_error(callback_torch("A"), regexp = "startsWith")
+  tcb = callback_torch("CallbackTorchA")
+  expect_class(tcb, "R6ClassGenerator")
+  expect_warning(callback_torch("CallbackTorchA", public = list(on_edn = function(ctx) 1)), regexp = "on_edn")
+  expect_error(callback_torch("CallbackTorchA", on_end = function(a) NULL), "ctx")
+
+  e = new.env()
+  e$aaaabbb = 1441
+  CallbackTorchB = callback_torch("CallbackTorchB",
+    public = list(
+      a = 1
+    ),
+    private = list(
+      b = 2
+    ),
+    active = list(
+      c = function() 3
+    ),
+    parent_env = e
+  )
+  expect_class(CallbackTorchB, "R6ClassGenerator")
+
+  expect_identical(parent.env(CallbackTorchB$parent_env), e)
+  cb = CallbackTorchB$new()
+  expect_class(cb, "CallbackTorchB")
+  expect_identical(cb$a, 1)
+  expect_identical(get_private(cb)$b, 2)
+  expect_identical(cb$c, 3)
+})

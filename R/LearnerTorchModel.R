@@ -8,10 +8,13 @@
 #' Classification Torch Learner that is used internally by [`PipeOpTorchModelClassif`].
 #'
 #' @section Construction: `r roxy_construction(LearnerClassifTorchModel)`
-#' TODO : The construction arguments
+#' * `network` :: [`nn_module`]\cr
+#' * `ingress_tokens` :: `list`\cr
+#' 
 #'
 #' @section State: See [`LearnerClassifTorch`]
-#' @section Parameters: Only those from [`LearnerClassifTorch`]
+#' @section Parameters: See [`LearnerClassifTorch`]
+#' Only those from [`LearnerClassifTorch`]
 #' @section Fields: `r roxy_fields_inherit(LearnerClassifTorchModel)`
 #' @section Methods: `r roxy_methods_inherit(LearnerClassifTorchModel)`
 #'
@@ -20,17 +23,22 @@ LearnerClassifTorchModel = R6Class("LearnerClassifTorchModel",
   inherit = LearnerClassifTorch,
   public = list(
     initialize = function(network, ingress_tokens, optimizer = t_opt("adam"), loss = t_loss("cross_entropy"),
-      packages = character(0)) {
+      callbacks = list(), packages = character(0), feature_types = NULL) {
       private$.network_stored = assert_class(network, "nn_module")
       private$.ingress_tokens = assert_list(ingress_tokens, types = "TorchIngressToken")
+      if (is.null(feature_types)) {
+        feature_types = mlr_reflections$task_feature_types
+      } else {
+        assert_subset(feature_types, mlr_reflections$task_feature_types)
+      }
       super$initialize(
         id = "classif.torch_model",
-        label = "Torch Classification Learner",
+        label = "Torch Classification Model",
         optimizer = optimizer,
         loss = loss,
         packages = packages,
         param_set = ps(),
-        feature_types = mlr_reflections$task_feature_types,
+        feature_types = feature_types,
         man = "mlr3torch::mlr_learners_classif.torch_model"
       )
     }
@@ -43,9 +51,8 @@ LearnerClassifTorchModel = R6Class("LearnerClassifTorchModel",
       dataset = task_dataset(
         task,
         feature_ingress_tokens = private$.ingress_tokens,
-        target_batchgetter = crate(function(data, device) {
-          torch_tensor(data = as.integer(data[[1]]), dtype = torch_long(), device = device)
-        }, .parent = topenv()),
+        # TODO: Maybe users should be able to specify the target batchgetter?
+        target_batchgetter = target_batchgetter("classif"),
         device = param_vals$device %??% self$param_set$default$device
       )
     },

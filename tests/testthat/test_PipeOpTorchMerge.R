@@ -6,7 +6,15 @@ test_that("PipeOpTorchMergeSum autotest", {
     po_test
 
   autotest_pipeop_torch(graph, "nn_merge_sum", task)
+})
 
+test_that("basic test", {
+  # FIXME: this failed earlier because of a PipeOpTorch bug probably remove this test later
+  task = tsk("iris")
+  graph = pos(c("torch_ingress_num_1", "torch_ingress_num_2")) %>>% po("nn_merge_sum", innum = 2)
+
+  md = graph$train(task)
+  expect_class(md, "ModelDescriptor")
 })
 
 test_that("PipeOpTorchMergeSum paramtest", {

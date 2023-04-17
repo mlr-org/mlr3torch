@@ -62,8 +62,8 @@ ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, 
   if (!is.null(loss)) {
     assert_choice(task$task_type, loss$task_types)
   }
-  assert_list(callbacks, types = "TorchCallback", null.ok = TRUE)
-  assert_names(map_chr(callbacks, "id"), type = "unique")
+  callbacks = as_torch_callbacks(callbacks)
+  callbacks = set_names(callbacks, assert_names(ids(callbacks), type = "unique"))
 
   if (!is.null(.pointer)) {
     assert_integerish(.pointer_shape)
@@ -94,28 +94,15 @@ print.ModelDescriptor = function(x, ...) {
     paste0(nm, ": ", shape_to_str(list(x$shape)))
   })
 
-  # ingress_shape_str = shape_to_str(map(x$ingress, "shape"))
   catn(sprintf("<ModelDesciptor: %d ops>", length(x$graph$pipeops)))
   catn(str_indent("* Ingress: ", ingress_shapes))
+  catn(str_indent("* Task: ", paste0(x$task$id, " [", x$task$task_type, "]")))
   catn(str_indent("* Callbacks: ", if (!is.null(x$callbacks)) as_short_string(map_chr(x$callbacks, "label"), 100L) else "N/A")) # nolint
   catn(str_indent("* Optimizer: ", if (!is.null(x$optimizer)) as_short_string(x$optimizer$label) else "N/A"))
   catn(str_indent("* Loss: ", if (!is.null(x$loss)) as_short_string(x$loss$label) else "N/A"))
   catn(str_indent("* .pointer: ", if (is.null(x$.pointer)) "" else { # nolint
     sprintf("\n%s %s", paste(x$.pointer, collapse = "."), shape_to_str(list(x$.pointer_shape)))
   }))
-  #
-  # cat(sprintf("ModelDescriptor (%s ops):\n%s\noptimizer: %s\nloss: %s\n%s callbacks%s\n",
-  #   length(x$graph$pipeops),
-  #   shape_to_str(map(x$ingress, "shape")),
-  #   if (is.null(x$optimizer)) "N/A" else if (is.null(x$optimizer$label)) "unknown" else x$optimizer$label,
-  #   if (is.null(x$loss)) "N/A" else if (is.null(x$loss$label)) "unknown" else x$loss$label,
-  #   map(x$callbacks, ),
-  #   if (is.null(x$.pointer)) {
-  #     ""
-  #   } else {
-  #     sprintf("\n.pointer: %s %s", paste(x$.pointer, collapse = "."), shape_to_str(list(x$.pointer_shape)))
-  #   }
-  # ))
 }
 
 #' @title Union of ModelDescriptors
@@ -155,7 +142,14 @@ model_descriptor_union = function(md1, md2) {
   if (!identical(md1$graph, md2$graph)) {
     # PipeOps that have the same ID that occur in both graphs must be identical.
     common_names = intersect(names(graph$pipeops), names(md2$graph$pipeops))
-    assert_true(identical(graph$pipeops[common_names], md2$graph$pipeops[common_names]))
+    if (!identical(graph$pipeops[common_names], md2$graph$pipeops[common_names])) {
+      not_identical = map_lgl(common_names, function(name) {
+        !identical(graph$pipeops[[name]], md2$graph$pipeops[[name]])
+      })
+      stopf("Both graphs have PipeOps with ID(s) %s but they are not identical.",
+        paste0("'", common_names[not_identical], "'", collapse = ", ")
+      )
+    }
 
     # copy all PipeOps that are in md2 but not in md1
     graph$pipeops = c(graph$pipeops, md2$graph$pipeops[setdiff(names(md2$graph$pipeops), common_names)])
@@ -169,7 +163,7 @@ model_descriptor_union = function(md1, md2) {
     # IDs and channel names that get new input edges. These channels must not already have incoming edges in md1.
     new_input_edges = unique(new_edges[, c("dst_id", "dst_channel"), with = FALSE])
 
-   forbidden_edges = graph$edges[new_input_edges, on = c("dst_id", "dst_channel"), nomatch = NULL]
+    forbidden_edges = graph$edges[new_input_edges, on = c("dst_id", "dst_channel"), nomatch = NULL]
 
     if (nrow(forbidden_edges)) {
       stopf("PipeOp(s) %s have differing incoming edges in md1 and md2.",
@@ -177,21 +171,6 @@ model_descriptor_union = function(md1, md2) {
 
     }
     graph$edges = rbind(graph$edges, new_edges)
-  }
-
-  merge_assert_unique = function(a, b, .var.name) { # nolint
-    common_names = intersect(names(a), names(b))
-    assert_true(identical(a[common_names], b[common_names]),
-      .var.name = sprintf("common entries of %s of ModelDescriptors being merged are identical"))
-    a[names(b)] = b
-    a
-  }
-
-  coalesce_assert_id = function(a, b, .var.name) { # nolint
-    if (!is.null(a) && !is.null(b) && !identical(a, b)) {
-      stop(sprintf("%s of two ModelDescriptors being merged disagree."))
-    }
-    a %??% b
   }
 
   # merge tasks: this is pretty much exactly what POFU does, so we use it in the non-trivial case.
@@ -203,10 +182,26 @@ model_descriptor_union = function(md1, md2) {
 
   ModelDescriptor(
     graph = graph,
-    ingress = merge_assert_unique(md1$ingress, md2$ingress, .var.name = "ingress"),
+    ingress = merge_assert_unique(md1$ingress, md2$ingress, .var.name = "ingress tokens"),
     task = task,
     optimizer = coalesce_assert_id(md1$optimizer, md2$optimizer, .var.name = "optimizer"),
     loss = coalesce_assert_id(md1$loss, md2$loss, .var.name = "loss"),
     callbacks = merge_assert_unique(md1$callbacks, md2$callbacks, .var.name = "callbacks")
   )
+}
+
+
+merge_assert_unique = function(a, b, .var.name) { # nolint
+  common_names = intersect(names(a), names(b))
+  assert_true(identical(a[common_names], b[common_names]),
+    .var.name = sprintf("%s with ID(s) %s are identical.", .var.name, paste0(common_names, collapse = ", ")))
+  a[names(b)] = b
+  a
+}
+
+coalesce_assert_id = function(a, b, .var.name) { # nolint
+  if (!is.null(a) && !is.null(b) && !identical(a, b)) {
+    stop(sprintf("%s of two ModelDescriptors being merged disagree.", .var.name))
+  }
+  a %??% b
 }

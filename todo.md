@@ -155,6 +155,7 @@
 *   [ ] ModelDescriptior
 *   [ ] print.ModelDescriptor
 *   [ ] model_descriptor_to_module
+*   [ ] model_descriptor_to_learner
 *   [ ] model_descriptor_union
 *   [x] print.TorchIngressToken
 *   [x] batchgetter_categ
@@ -369,8 +370,7 @@ In the future (soon):
 
 * [ ] support the `weights` property for the learners.
 * [ ] Calling `benchmark()` and evaluate the jobs on different GPUs?
-
-* 
+* [ ] Check overhead on cpu and small batch sizes
 
 
 **Optimization**

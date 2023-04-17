@@ -1,3 +1,68 @@
+#' @title Graph Network
+#'
+#' @description
+#' Represents a neural network using a [`Graph`] that usually costains mostly [`PipeOpModule`]s.
+#'
+#' @param graph ([`Graph`][mlr3pipelines::Graph])\cr
+#'   The [`Graph`][mlr3pipelines::Graph] to wrap.
+#' @param shapes_in (named `integer`)\cr
+#'   Shape info of tensors that go into `graph`. Names must be `graph$input$name`, possibly in different order.
+#' @param output_map (`character`)\cr
+#'   Which of `graph`'s outputs to use. Must be a subset of `graph$output$name`.
+#' @param list_output (`logical(1)`)\cr
+#'   Whether output should be a list of tensors. If `FALSE`, then `length(output_map)` must be 1.
+#'
+#' @export
+nn_graph = nn_module(
+  "nn_graph",
+  initialize = function(graph, shapes_in, output_map = graph$output$name, list_output = FALSE) {
+    self$graph = as_graph(graph)
+    self$graph_input_name = graph$input$name  # cache this, it is expensive
+
+    self$list_output = assert_flag(list_output)
+    assert_names(names(shapes_in), permutation.of = self$graph_input_name)
+    self$shapes_in = assert_list(shapes_in, types = "integerish")
+    self$output_map = assert_subset(output_map, self$graph$output$name)
+    if (!list_output && length(output_map) != 1) {
+      stopf("If list_output is FALSE, output_map must have length 1.")
+    }
+
+    self$argument_matcher = argument_matcher(names(self$shapes_in))
+
+    # the following is necessary to make torch aware of all the included parameters
+    # (some operators in the graph could be different from PipeOpModule, e.g. PipeOpBranch or PipeOpNOP
+    mops = Filter(function(x) inherits(x, "PipeOpModule"), graph$pipeops)
+    self$modules = nn_module_list(map(mops, "module"))
+  },
+  forward = function(...) {
+    # this ensures that the arguments are passed in the correct order
+    inputs = self$argument_matcher(...)
+
+    outputs = self$graph$train(unname(inputs), single_input = FALSE)
+
+    outputs = outputs[self$output_map]
+
+    if (!self$list_output) outputs = outputs[[1]]
+
+    outputs
+  },
+  reset_parameters = function() {
+    # recursively call $reset_parameters()
+    recursive_reset = function(network) {
+      for (child in network$children) {
+        if (is.function(child$reset_parameters)) {
+          child$reset_parameters()
+          next
+        }
+        Recall(child)
+      }
+    }
+
+    recursive_reset(self)
+  }
+)
+
+
 #' @title Create a nn_graph from ModelDescriptor
 #'
 #' @description
@@ -12,6 +77,8 @@
 #'   Entries have the format of `ModelDescriptor$.pointer`.
 #' @param list_output (`logical(1)`)\cr
 #'   Whether output should be a list of tensors. If `FALSE`, then `length(output_pointers)` must be 1.
+#'
+#' @return [`nn_graph`]
 #' @export
 model_descriptor_to_module = function(model_descriptor, output_pointers = NULL, list_output = FALSE) {
   assert_class(model_descriptor, "ModelDescriptor")
@@ -54,6 +121,7 @@ model_descriptor_to_module = function(model_descriptor, output_pointers = NULL, 
 }
 
 #' @title Create a Torch Learner from a ModelDescriptor
+#'
 #' @description
 #' First a [`nn_graph`] is created using [`model_descriptor_to_module`] and then a learner is created from this
 #' module and the remaining information from the model descriptor, which must include the optimizer and loss function
@@ -61,104 +129,41 @@ model_descriptor_to_module = function(model_descriptor, output_pointers = NULL, 
 #'
 #' @param model_descriptor ([`ModelDescriptor`])\cr
 #'   The model descriptor.
-#' @param task_type (`character(1)`)\cr
-#'   The task type.
-#' @return ([`Learner`])
+#' @return [`Learner`]
 #' @export
-model_descriptor_to_learner = function(model_descriptor, task_type) {
-  optimizer = assert_torch_optimizer(as_torch_optimizer(model_descriptor$optimizer))
-  loss = assert_torch_loss(as_torch_loss(model_descriptor$loss))
+model_descriptor_to_learner = function(model_descriptor) {
+  optimizer = as_torch_optimizer(model_descriptor$optimizer)
+  loss = as_torch_loss(model_descriptor$loss)
   callbacks = assert_torch_callbacks(as_torch_callbacks(model_descriptor$callbacks))
-  packages = assert_character(model_descriptor$packages, any.missing = FALSE)
+  task_type = model_descriptor$task$task_type
+
   ingress_tokens = model_descriptor$ingress
 
   network = model_descriptor_to_module(
     model_descriptor = model_descriptor,
-    output_pointers = output_pointers,
+    output_pointers = model_descriptor$.output_pointers,
     list_output = FALSE
   )
   network$reset_parameters()
 
   class = switch(task_type,
-    regr = LearnerRegrTorchModel,
+    # FIXME: regr = LearnerRegrTorchModel,
     classif = LearnerClassifTorchModel,
     stopf("Unsupported task type: %s.", task_type)
   )
 
   learner = class$new(
     network = network,
-    ingress_tokens = ingress,
+    ingress_tokens = ingress_tokens,
     optimizer = optimizer,
     loss = loss,
-    callbacks = callbacks
+    callbacks = callbacks,
+    # The packages of the loss, optimizer and callbacks are added anyway (?)
+    packages = model_descriptor$graph$package
   )
 
   return(learner)
 }
-
-#' @title Graph Network
-#'
-#' @description
-#' Represents a neural network using a [`Graph`] that usually costains mostly [`PipeOpModule`]s.
-#'
-#' @param graph ([`Graph`][mlr3pipelines::Graph])\cr
-#'   The [`Graph`][mlr3pipelines::Graph] to wrap.
-#' @param shapes_in (named `integer`)\cr
-#'   Shape info of tensors that go into `graph`. Names must be `graph$input$name`, possibly in different order.
-#' @param output_map (`character`)\cr
-#'   Which of `graph`'s outputs to use. Must be a subset of `graph$output$name`.
-#' @param list_output (`logical(1)`)\cr
-#'   Whether output should be a list of tensors. If `FALSE`, then `length(output_map)` must be 1.
-#'
-#' @export
-nn_graph = nn_module(
-  "nn_graph",
-  initialize = function(graph, shapes_in, output_map = graph$output$name, list_output = FALSE) {
-    self$graph = assert_r6(graph, "Graph")
-    self$graph_input_name = graph$input$name  # cache this, it is expensive
-
-    self$list_output = assert_flag(list_output)
-    assert_names(names(shapes_in), permutation.of = self$graph_input_name)
-    self$shapes_in = assert_list(shapes_in, types = "integerish")
-    self$output_map = assert_subset(output_map, self$graph$output$name)
-    if (list_output && length(output_map) != 1) {
-      stopf("If list_output is TRUE, output_map must have length 1.")
-    }
-
-    self$argument_matcher = argument_matcher(names(self$shapes_in))
-
-    # the following is necessary to make torch aware of all the included parameters
-    # (some operators in the graph could be different from PipeOpModule, e.g. PipeOpBranch or PipeOpNOP
-    mops = Filter(function(x) inherits(x, "PipeOpModule"), graph$pipeops)
-    self$modules = nn_module_list(map(mops, "module"))
-  },
-  forward = function(...) {
-    # this ensures that the arguments are passed in the correct order
-    inputs = self$argument_matcher(...)
-
-    outputs = self$graph$train(unname(inputs), single_input = FALSE)
-
-    outputs = outputs[self$output_map]
-
-    if (!self$list_output) outputs = outputs[[1]]
-
-    outputs
-  },
-  reset_parameters = function() {
-    # recursively call $reset_parameters()
-    recursive_reset = function(network) {
-      for (child in network$children) {
-        if (is.function(child$reset_parameters)) {
-          child$reset_parameters()
-          next
-        }
-        Recall(child)
-      }
-    }
-
-    recursive_reset(self)
-  }
-)
 
 # a function that has argument names 'names' and returns its arguments as a named list.
 # used to simulate argument matching for `...`-functions.

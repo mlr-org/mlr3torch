@@ -66,7 +66,7 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
       md = inputs[[1]]
       param_vals = self$param_set$get_values()
 
-      learner = model_descriptor_to_learner(md, private$.task_type)
+      learner = model_descriptor_to_learner(md)
 
       # TODO: Maybe we want the learner and the pipeop to actually share the paramset by reference.
       # If we do this we need to write a custom clone function.

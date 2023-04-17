@@ -30,7 +30,7 @@ dataset_img = function(self, task, param_vals) {
   # TODO: Maybe we want to be more careful here to avoid changing parameters between train and predict
   imgshape = c(param_vals$channels, param_vals$height, param_vals$width)
 
-  batchgetter = get_batchgetter_img(imgshape)
+  batchgetter = batchgetter_img(imgshape)
 
 
   ingress_tokens = list(image = TorchIngressToken(task$feature_names, batchgetter, imgshape))
@@ -52,7 +52,7 @@ dataset_num = function(self, task, param_vals) {
   task_dataset(
     task,
     feature_ingress_tokens = list(input = ingress),
-    target_batchgetter = get_target_batchgetter(task$task_type)
+    target_batchgetter = target_batchgetter(task$task_type)
   )
 }
 
@@ -74,11 +74,11 @@ dataset_num_categ = function(self, task, param_vals) {
   task_dataset(
     task,
     feature_ingress_tokens = tokens,
-    target_batchgetter = get_target_batchgetter(task$task_type)
+    target_batchgetter = target_batchgetter(task$task_type)
   )
 }
 
-get_batchgetter_img = function(imgshape) {
+batchgetter_img = function(imgshape) {
   crate(function(data, device) {
     tensors = lapply(data[[1]], function(uri) {
       tnsr = torchvision::transform_to_tensor(magick::image_read(uri))
@@ -89,7 +89,7 @@ get_batchgetter_img = function(imgshape) {
   }, imgshape, .parent = topenv())
 }
 
-get_target_batchgetter = function(task_type) {
+target_batchgetter = function(task_type) {
   if (task_type == "classif") {
     target_batchgetter = (function(data, device) {
       torch_tensor(data = as.integer(data[[1L]]), dtype = torch_long(), device)

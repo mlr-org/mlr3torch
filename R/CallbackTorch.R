@@ -42,23 +42,21 @@ CallbackTorch = R6Class("CallbackTorch",
 )
 
 #' @title Create a Callback Torch
+#'
 #' @description
 #' Creates an [`R6ClassGenerator`] inheriting from [`CallbackTorch`].
 #' Additionally performs checks such as that the stages are not accidentally misspelled.
+#' To create a [`TorchCallback`] use [`torch_callback()`].
+#'
 #' @param classname (`character(1)`)\cr
 #'   The class name.
 #' @param on_begin, on_end, on_epoch_begin, on_before_valid, on_epoch_end, on_batch_begin, on_batch_end,
 #' on_after_backward, on_batch_valid_begin, on_batch_valid_end (`function`)\cr
 #' Function to execute at the given stage, see section *Stages*.
-#' @param public (`list()`)\cr
-#'   Additional public fields to add to the callback.
-#' @param private (`list()`)\cr
-#'   Additional private fields to add to the callback.
-#' @param active (`list()`)\cr
-#'   Additional active fields to add to the callback.
+#' @param public, private, active (`list()`)\cr
+#'   Additional public, private, and active fields to add to the callback.
 #' @param parent_env (`environment()`)\cr
 #'   The parent environment for the [`R6Class`].
-#'
 #'
 #' @family callback
 #'
@@ -77,7 +75,9 @@ callback_torch = function(
   # validation
   on_batch_valid_begin = NULL,
   on_batch_valid_end = NULL,
-  public = NULL, private = NULL, active = NULL, parent_env = parent.frame()) {
+  public = NULL, private = NULL, active = NULL, parent_env = parent.frame()
+  ) {
+  assert_true(startsWith(classname, "CallbackTorch"))
   more_public = list(
     on_begin = assert_function(on_begin, args = "ctx", null.ok = TRUE),
     on_end = assert_function(on_end, args = "ctx", null.ok = TRUE),
