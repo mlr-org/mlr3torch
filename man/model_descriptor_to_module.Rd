@@ -22,7 +22,19 @@ Entries have the format of \code{ModelDescriptor$.pointer}.}
 \item{list_output}{(\code{logical(1)})\cr
 Whether output should be a list of tensors. If \code{FALSE}, then \code{length(output_pointers)} must be 1.}
 }
+\value{
+\code{\link{nn_graph}}
+}
 \description{
 Creates the \code{\link{nn_graph}} from a \code{\link{ModelDescriptor}}. Mostly for internal use, since the \code{\link{ModelDescriptor}} is in
 most circumstances harder to use than just creating \code{\link{nn_graph}} directly.
 }
+\seealso{
+Other graph_network: 
+\code{\link{mlr_pipeops_module}},
+\code{\link{mlr_pipeops_torch}},
+\code{\link{model_descriptor_to_learner}()},
+\code{\link{model_descriptor_union}()},
+\code{\link{nn_graph}()}
+}
+\concept{graph_network}

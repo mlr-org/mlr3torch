@@ -11,9 +11,7 @@
 \code{\link{R6Class}} inheriting from \code{\link{PipeOpTorch}}, \code{\link{PipeOp}}.
 }
 \description{
-Creates a new instance of this \link[R6:R6Class]{R6} class.
-
-Creates a new instance of this \link[R6:R6Class]{R6} class.
+Squeezes a tensor by calling \code{\link[torch:torch_squeeze]{torch::torch_squeeze()}} with the given dimension \code{dim}.
 }
 \section{Construction}{
  \code{PipeOpTorchSqueeze$new(id = "nn_squeeze", param_vals = list())}

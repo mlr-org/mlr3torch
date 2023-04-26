@@ -7,6 +7,8 @@
 #' * the generated module has the intended class
 #' * the parameters are correctly implemented
 #' * Some other basic checks
+#' @details
+#' TODO
 #' @param graph ([`Graph`])\cr
 #'   The graph that contains the [`PipeOpTorch`] to be tested.
 #' @param id (`character(1)`)\cr

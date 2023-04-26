@@ -55,6 +55,7 @@
 #'
 #'
 #' @seealso nn_module, mlr_pipeops_torch, nn_graph, model_descriptor_to_module, PipeOp, Graph
+#' @family graph_network
 #' @export
 #' @examples
 #' ## creating an PipeOpModule manually
@@ -101,7 +102,6 @@ PipeOpModule = R6Class("PipeOpModule",
       param_vals = list(), packages = character(0)) {
       private$.multi_output = length(outname) > 1L
       self$module = assert_class(module, "nn_module")
-      lockBinding("module", self)
       assert_names(outname, type = "strict")
       assert_character(packages, any.missing = FALSE)
 

@@ -4,20 +4,26 @@
 \alias{model_descriptor_to_learner}
 \title{Create a Torch Learner from a ModelDescriptor}
 \usage{
-model_descriptor_to_learner(model_descriptor, task_type)
+model_descriptor_to_learner(model_descriptor)
 }
 \arguments{
 \item{model_descriptor}{(\code{\link{ModelDescriptor}})\cr
 The model descriptor.}
-
-\item{task_type}{(\code{character(1)})\cr
-The task type.}
 }
 \value{
-(\code{\link{Learner}})
+\code{\link{Learner}}
 }
 \description{
 First a \code{\link{nn_graph}} is created using \code{\link{model_descriptor_to_module}} and then a learner is created from this
 module and the remaining information from the model descriptor, which must include the optimizer and loss function
 and optionally callbacks.
 }
+\seealso{
+Other graph_network: 
+\code{\link{mlr_pipeops_module}},
+\code{\link{mlr_pipeops_torch}},
+\code{\link{model_descriptor_to_module}()},
+\code{\link{model_descriptor_union}()},
+\code{\link{nn_graph}()}
+}
+\concept{graph_network}

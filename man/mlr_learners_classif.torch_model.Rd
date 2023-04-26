@@ -11,8 +11,11 @@
 Classification Torch Learner that is used internally by \code{\link{PipeOpTorchModelClassif}}.
 }
 \section{Construction}{
- \code{LearnerClassifTorchModel$new(network, ingress_tokens, optimizer = t_opt("adam"), loss = t_loss("cross_entropy"), packages = character(0))}
-TODO : The construction arguments
+ \code{LearnerClassifTorchModel$new(network, ingress_tokens, optimizer = t_opt("adam"), loss = t_loss("cross_entropy"), callbacks = list(), packages = character(0), feature_types = NULL)}
+\itemize{
+\item \code{network} :: \code{\link{nn_module}}\cr
+\item \code{ingress_tokens} :: \code{list}\cr
+}
 }
 
 \section{State}{
@@ -20,7 +23,8 @@ TODO : The construction arguments
 }
 
 \section{Parameters}{
- Only those from \code{\link{LearnerClassifTorch}}
+ See \code{\link{LearnerClassifTorch}}
+Only those from \code{\link{LearnerClassifTorch}}
 }
 
 \section{Fields}{

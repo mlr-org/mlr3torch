@@ -77,13 +77,10 @@ test_that("PipeOpTorchTanhShrink paramtest", {
 # PipeOpTorchGLU
 
 test_that("PipeOpTorchGLU autotest", {
-  po_test = po("nn_glu", id = "nn_glue")
+  po_test = po("nn_glu")
   graph = po("torch_ingress_num") %>>% po_test
   task = tsk("iris")
-
-  # FIXME: Uncomment this when it is fixed in torch:
-  # https://github.com/mlverse/torch/pull/943
-  # autotest_pipeop_torch(graph, "nn_glu", task, test_id = FALSE)
+  autotest_pipeop_torch(graph, "nn_glu", task, test_id = FALSE)
 })
 
 test_that("PipeOpTorchGLU paramtest", {

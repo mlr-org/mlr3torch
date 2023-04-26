@@ -14,12 +14,12 @@ nn_debug = nn_module(
 PipeOpTorchDebug = R6Class("PipeOpTorchDebug",
   inherit = PipeOpTorch,
   public = list(
-    initialize = function(id = "nn_debug", param_vals = list(), inname = c("input1", "input2"), 
+    initialize = function(id = "nn_debug", param_vals = list(), inname = c("input1", "input2"),
       outname = c("output1", "output2")) {
       param_set = ps(
-        d_out1 = p_int(lower = 1, tags = "required"),
-        d_out2 = p_int(lower = 1, tags = "required"),
-        bias = p_lgl(default = TRUE)
+        d_out1 = p_int(lower = 1, tags = c("required", "train")),
+        d_out2 = p_int(lower = 1, tags = c("required", "train")),
+        bias = p_lgl(default = TRUE, tags = "train")
       )
 
       super$initialize(
@@ -38,8 +38,8 @@ PipeOpTorchDebug = R6Class("PipeOpTorchDebug",
     },
     .shapes_out = function(shapes_in, param_vals, task) {
       list(
-        input1 = c(head(shapes_in[["input1"]][[1]], -1), param_vals$d_out1),
-        input2 = c(head(shapes_in[["input2"]][[1]], -1), param_vals$d_out2)
+        input1 = c(head(shapes_in[[1]], -1), param_vals$d_out1),
+        input2 = c(head(shapes_in[[2]], -1), param_vals$d_out2)
       )
     }
   )

@@ -33,7 +33,6 @@ test_that("PipeOpTorchSqueeze autotest", {
   graph = po("torch_ingress_num") %>>% po("nn_unsqueeze", dim = 3) %>>%  obj
 
   x = po("nn_squeeze")
-  po("nn_squeeze")$shapes_out(list(input = c(1, 4, 1)))
 
   autotest_pipeop_torch(graph, "nn_squeeze", task)
 })

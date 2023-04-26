@@ -5,8 +5,15 @@
 # #' @include mlr_tasks.R
 # #'
 # NULL
-
-# load_task_tiny_imagenet = function(id = "tiny_imagenet") {
+#
+# load_task_tiny_imagenet = function() {
+#   rlang::local_options(timeout = 300L) # download takes long
+#   cache_dir = tools::R_user_dir("mlr3torch", "cache")
+#   superdir = file.path(cache_dir, "tiny-imagenet-200")
+#   torchvision::tiny_imagenet_dataset(root = superdir, download = TRUE)
+#
+# }
+#
 #   rlang::local_options(timeout = 300L) # download takes long
 #   cache_dir = tools::R_user_dir("mlr3torch", "cache")
 #   superdir = sprintf("%s/data", cache_dir)

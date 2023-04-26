@@ -13,7 +13,7 @@ test_that("basic test", {
   task = tsk("iris")
   graph = pos(c("torch_ingress_num_1", "torch_ingress_num_2")) %>>% po("nn_merge_sum", innum = 2)
 
-  md = graph$train(task)
+  md = graph$train(task)[[1L]]
   expect_class(md, "ModelDescriptor")
 })
 
@@ -41,7 +41,7 @@ test_that("PipeOpTorchMergeProd paramtest", {
 
 
 test_that("PipeOpTorchMergeCat autotest", {
-  po_test = po("nn_merge_cat")
+  po_test = po("nn_merge_cat", dim = 2)
   task = tsk("iris")
   graph = po("torch_ingress_num") %>>%
     list(po("nn_linear_1", out_features = 10), po("nn_linear_2", out_features = 10)) %>>%
@@ -98,11 +98,14 @@ test_that("Broadcasting is implemented correctly for prod and sum", {
     out2 = net_prod(tensor1, tensor2)
 
     # now we check that the shapes agree
-    out = po_test$shapes_out(list(input1 = shape1, input2 = shape2))[[1L]]
-    out[1] = batch_size
+    observed1 = po_sum$shapes_out(list(input1 = shape1, input2 = shape2))[[1L]]
+    observed1[1] = batch_size
 
-    expect_true(all(out1$shape == out))
-    expect_true(all(out2$shape == out))
+    observed2 = po_prod$shapes_out(list(input1 = shape1, input2 = shape2))[[1L]]
+    observed2[1] = batch_size
+
+    expect_true(all(out1$shape == observed1))
+    expect_true(all(out2$shape == observed2))
 
     # Here we check that an error is thrown if there is a dimension (i.e. the second dimension) that does not match
     shape1[2] = 100

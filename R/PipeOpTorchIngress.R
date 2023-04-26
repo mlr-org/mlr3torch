@@ -104,7 +104,7 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
         task = po("select", selector = selector_type(self$feature_types))$train(list(task))[[1L]]
       } else {
         if (!all(task$feature_types$type %in% self$feature_types)) {
-          stopf("Task contains features of type %s, but only %s are allowed. Use parameter `select` to avoid this.",
+          stopf("Task contains features of type %s, but only %s are allowed. Set `select` to `TRUE` to avoid this.",
             paste0(unique(task$feature_types$type[!(task$feature_types$type %in% self$feature_types)]),
               collapse = ", "),
             paste0(self$feature_types, collapse = ", ")

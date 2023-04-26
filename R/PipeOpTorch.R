@@ -12,7 +12,7 @@
 #'
 #' The relationship between a `PipeOpTorch` and a [`PipeOpModule`] is similar to the
 #' relationshop between a `nn_module_generator` (like [`nn_linear`][torch::nn_linear]) and a
-#' [`nn_module`][torch::nn_module] (like the output of `nn_linear(10, 2)`).
+#' [`nn_module`][torch::nn_module] (like the output of `nn_linear(...)`).
 #' A crucial difference is that the `PipeOpTorch` infers auxiliary parameters (like `in_features` for
 #' `nn_linear`) automatically from the intermediate tensor shapes that are being communicated through the
 #' [`ModelDescriptor`].
@@ -24,11 +24,11 @@
 #' `r roxy_construction(PipeOpTorch)`
 #'
 #' * `r roxy_param_id()`
-#' * `r roxy_param_param_set()`
-#' * `r roxy_param_param_vals()`
 #' * `module_generator` :: `nn_module_generator` | `NULL`\cr
 #'   The module generator that is wrapped by this `PipeOpTorch`.
 #'   When this is `NULL`, then `private$.make_module()` must be overloaded.
+#' * `r roxy_param_param_set()`
+#' * `r roxy_param_param_vals()`
 #' * `inname` :: `character()`\cr
 #'   The names of the [`PipeOp`]'s input channels. These will be the input channels of the generated [`PipeOpModule`].
 #'   Unless the wrapped `module_generator`'s forward method (if present) has the argument `...`, `inname` must be
@@ -43,6 +43,10 @@
 #'   In case there is more than one output channel, the `nn_module` that is constructed by this
 #'   [`PipeOp`] during training must return a named `list()`, where the names of the list are the
 #'   names out the output channels. The default is `"output"`.
+#' * `packages` :: `character()`\cr
+#'   The packages the `PipeOp` depends on.
+#' * `tags` :: `character()`\cr
+#'   The tags of the `PipeOp`. The tags `"torch"` is always added.
 #'
 #' @section Inheriting:
 #' When inheriting from this class, one should overload either the `private$.shapes_out()` and the
@@ -54,17 +58,17 @@
 #'   [`PipeOpModule`]. It must be overwritten, when no `module_generator` is provided.
 #'   If left as is, it calls the provided `module_generator` with the arguments obtained by
 #'   the private method `.shape_dependent_params()`.
-#'   If there is one output channel, the module returned by this method must return a [`torch_tensor`], otherwise
-#'   it must return a list of torch [tensors][torch_tensor].
 #' * `.shapes_out(shapes_in, param_vals, task)`\cr
 #'   (`list()`, `list()`) -> named `list()`\cr
-#'   This private method gets a list of `numeric` vectors (`shapes_in`) as well as the parameter values (`param_vals`),
-#'   as well as a [`Task`] (which is always never used, except for e.g. [`PipeOpTorchHead`]).
-#'   This list of `numeric` vectors indicates the shape of input tensors that will be fed to the module's `$forward()`
-#'   method. The list has one item per input tensor, typically only one.
-#'   The shape vectors may contain `NA` entries indicating arbitrary size (typically used for the batch dimension). The
-#'   function should return a list of shapes of tensors that are created by the module.
-#'   In case there is only one output channel it is also ok to return the output shapes as a `numeric` vector.
+#'   This private method gets a list of `numeric` vectors (`shapes_in`), the parameter values (`param_vals`),
+#'   as well as an (optional) [`Task`].
+#    The `shapes_in` list indicates the shape of input tensors that will be fed to the module's `$forward()` function.
+#    The list has one item per input tensor, typically only one.
+#    The function should return a list of shapes of tensors that are created by the module.
+#'   The `shapes_in` can be assumed to be in the same order as the input names of the `PipeOp`.
+#'   The output shapes must be in the same order as the output names of the `PipeOp`.
+#'   In case the output shapes depends on the task (as is the case for [`PipeOpTorchHead`]), the function should return
+#'   valid output shapes (possibly containing `NA`s) if the `task` argument is provided or not.
 #' * `.shape_dependent_params(shapes_in, param_vals, task)`\cr
 #'   (`list()`, `list()`) -> named `list()`\cr
 #'   This private method has the same inputs as `.shapes_out`.
@@ -77,7 +81,7 @@
 #' During *prediction*, all input and output channels are of class [`Task`].
 #'
 #' @section State:
-#' The state is the value calculated by the public method `shapes_out()`.
+#' The state is the value calculated by the public method `$shapes_out()`.
 #'
 #' @section Parameters:
 #' The [`ParamSet`][paradox::ParamSet] is specified by the child class inheriting from [`PipeOpTorch`].
@@ -88,13 +92,17 @@
 #' * `module_generator` :: `nn_module_generator` | `NULL`\cr
 #'    The module generator wrapped by this `PipeOpTorch`. If `NULL`, the private method
 #'    `private$.make_module(shapes_in, param_vals)` must be overwritte, see section 'Inheriting'.
+#'    Do not change this after construction.
 #'
 #' @section Methods:
 #' * `shapes_out(shapes_in, task)\cr
 #'  (`list()` of `integer()` or `integer()`, task) -> (`list()` of `integer()`)\cr
-#'  Calculates the output shapes for the given input shapes, parameters and task. The task is rarely used and
-#'  usually does not have to be provided (default is `NULL`). A exception is [`PipeOpTorchHead`].
-#'  The return is a named list, where the names are the names of the output channels.
+#'  Calculates the output shapes for the given input shapes, parameters and task.
+#'  The `shapes_in` must be in the same orer as the input channel names of the `PipeOp`.
+#'  If there is only one input channel, `shapes_in` can also contain the shapes for this input channel.
+#'  The task is very rarely used (default is `NULL`). An exception is [`PipeOpTorchHead`].
+#'  It returns a named `list()` containing the output shapes. The names are the names of the output channels of
+#'  the `PipeOp`.
 #'
 #' @section Internals:
 #' During training, the `PipeOpTorch` creates a [`PipeOpModule`] for the given parameter specification and the
@@ -117,6 +125,7 @@
 #' `.pointer_shape` are updated accordingly. The shallow copy means that all [`ModelDescriptor`]s point to the same
 #' [`Graph`] which allows the graph to be modified by-reference in different parts of the code.
 #' @export
+#' @family graph_network
 #' @examples
 #' ## Creating a neural network
 #' # In torch
@@ -175,9 +184,9 @@
 #'   public = list(
 #'     initialize = function(id = "nn_custom", param_vals = list()) {
 #'       param_set = ps(
-#'         d_out1 = p_int(lower = 1, tags = "required"),
-#'         d_out2 = p_int(lower = 1, tags = "required"),
-#'         bias = p_lgl(default = TRUE)
+#'         d_out1 = p_int(lower = 1, tags = c("required", "train")),
+#'         d_out2 = p_int(lower = 1, tags = c("required", "train")),
+#'         bias = p_lgl(default = TRUE, tags = "train")
 #'       )
 #'       super$initialize(
 #'         id = id,
@@ -253,8 +262,6 @@ PipeOpTorch = R6Class("PipeOpTorch",
     initialize = function(id, module_generator, param_set = ps(), param_vals = list(),
       inname = "input", outname = "output", packages = "torch", tags = NULL) {
       self$module_generator = assert_class(module_generator, "nn_module_generator", null.ok = TRUE)
-      lockBinding("module_generator", self)
-
       assert_character(inname, .var.name = "input channel names")
       assert_character(outname, .var.name = "output channel names", min.len = 1L)
       assert_character(tags, null.ok = TRUE)
@@ -263,9 +270,12 @@ PipeOpTorch = R6Class("PipeOpTorch",
       input = data.table(name = inname, train = "ModelDescriptor", predict = "Task")
       output = data.table(name = outname, train = "ModelDescriptor", predict = "Task")
 
-      for (param in param_set$parameters) {
-        param$tags = union(param$tags, "train")
-      }
+      assert_r6(param_set, "ParamSet")
+      walk(param_set$params, function(p) {
+        if (!(("train" %in% p$tags) && !("predict" %in% p$tags))) {
+          stopf("Parameters of PipeOps inheriting from PipeOpTorch must only be active during training.")
+        }
+      })
 
       super$initialize(
         id = id,
@@ -278,20 +288,16 @@ PipeOpTorch = R6Class("PipeOpTorch",
       )
     },
     shapes_out = function(shapes_in, task = NULL) {
-      if (is.numeric(shapes_in)) {
-        assert_true(self$innum == 1)
-        shapes_in = list(shapes_in)
-        names(shapes_in) = self$input$name
-      }
+      assert_r6(task, "Task", null.ok = TRUE)
+      if (is.numeric(shapes_in)) shapes_in = list(shapes_in)
       if (identical(self$input$name, "...")) {
         assert_list(shapes_in, min.len = 1, types = "numeric")
       } else {
-        assert_true(all(sort(names(shapes_in)) == sort(self$input$name)))
+        assert_list(shapes_in, len = nrow(self$input), types = "numeric")
       }
       pv = self$param_set$get_values()
-      shapes = private$.shapes_out(shapes_in, pv, task = task)
-      shapes = set_names(shapes, self$output$name)
-      shapes
+
+      set_names(private$.shapes_out(shapes_in, pv, task = task), self$output$name)
     }
 
     # TODO: printer that calls the nn_module's printer

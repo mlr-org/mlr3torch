@@ -8,7 +8,7 @@
 \code{\link{R6Class}} inheriting from \code{\link{PipeOpTorch}}, \code{\link{PipeOp}}.
 }
 \description{
-Creates a new instance of this \link[R6:R6Class]{R6} class.
+Reshape a tensor to the given shape.
 }
 \section{Construction}{
  \code{PipeOpTorchReshape$new(id = "nn_reshape", param_vals = list())}

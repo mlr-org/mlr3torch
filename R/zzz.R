@@ -7,6 +7,7 @@
 #' @import mlr3pipelines
 #' @import mlr3
 #'
+#'
 #' @description
 #'   mlr3torch Connects the R `torch` package to mlr3.
 #'   Neural Networks can be implemented on three different levels of control:
@@ -117,10 +118,6 @@ register_mlr3 = function() {
 
   mlr_reflections = utils::getFromNamespace("mlr_reflections", ns = "mlr3") # nolint
   iwalk(as.list(mlr3torch_feature_types), function(ft, nm) mlr_reflections$task_feature_types[[nm]] = ft) # nolint
-  mlr_reflections$learner_properties$regr = c(mlr_reflections$learner_properties$regr, "bundle")
-  mlr_reflections$learner_properties$classif = c(mlr_reflections$learner_properties$classif, "bundle")
-
-  mlr_callbacks = utils::getFromNamespace("mlr_callbacks", ns = "mlr3misc")
 }
 
 register_mlr3pipelines = function() {
@@ -147,6 +144,8 @@ register_mlr3pipelines = function() {
   }
 }
 
+# TODO: The removal of properties fails when the property has been alrady present before it was added in torch
+# --> Take care that we don't add properties that are present
 .onUnload = function(libPaths) { # nolint
   mlr_learners = utils::getFromNamespace("mlr_learners", ns = "mlr3")
   mlr_callbacks = utils::getFromNamespace("mlr_callbacks", ns = "mlr3misc")
@@ -157,5 +156,5 @@ register_mlr3pipelines = function() {
   walk(mlr3torch_callbacks, function(nm) mlr_callbacks$remove(nm))
   walk(mlr3torch_tasks, function(nm) mlr_tasks$remove(nm))
   walk(names(mlr3torch_feature_types), function(nm) mlr_reflections$task_feature_types[[nm]] = NULL)
-  walk(names(mlr3torch_learner_properties), function(nm) mlr_reflections$learner_properties[[nm]] = NULL)
+  # walk(names(mlr3torch_learner_properties), function(nm) mlr_reflections$learner_properties[[nm]] = NULL)
 }

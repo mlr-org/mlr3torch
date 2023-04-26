@@ -37,4 +37,12 @@ can make this assumption and simplify things. Otherwise we'd need to treat "..."
 }
 \seealso{
 ModelDescriptor, PipeOpTorch, PipeOpTorchMerge
+
+Other graph_network: 
+\code{\link{mlr_pipeops_module}},
+\code{\link{mlr_pipeops_torch}},
+\code{\link{model_descriptor_to_learner}()},
+\code{\link{model_descriptor_to_module}()},
+\code{\link{nn_graph}()}
 }
+\concept{graph_network}

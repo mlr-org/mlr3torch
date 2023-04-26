@@ -15,7 +15,7 @@ While the former \code{\link{Graph}} operates on \code{\link{ModelDescriptor}}s,
 
 The relationship between a \code{PipeOpTorch} and a \code{\link{PipeOpModule}} is similar to the
 relationshop between a \code{nn_module_generator} (like \code{\link[torch:nn_linear]{nn_linear}}) and a
-\code{\link[torch:nn_module]{nn_module}} (like the output of \code{nn_linear(10, 2)}).
+\code{\link[torch:nn_module]{nn_module}} (like the output of \code{nn_linear(...)}).
 A crucial difference is that the \code{PipeOpTorch} infers auxiliary parameters (like \code{in_features} for
 \code{nn_linear}) automatically from the intermediate tensor shapes that are being communicated through the
 \code{\link{ModelDescriptor}}.
@@ -28,11 +28,11 @@ During \strong{prediction}, \code{PipeOpTorch} takes in a \code{\link[mlr3:Task]
 \code{PipeOpTorch$new(id, module_generator, param_set = ps(), param_vals = list(), inname = "input", outname = "output", packages = "torch", tags = NULL)}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object.
-\item \code{param_set} :: \code{paradox::ParamSet}\cr The parameter set.
-\item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
 \item \code{module_generator} :: \code{nn_module_generator} | \code{NULL}\cr
 The module generator that is wrapped by this \code{PipeOpTorch}.
 When this is \code{NULL}, then \code{private$.make_module()} must be overloaded.
+\item \code{param_set} :: \code{paradox::ParamSet}\cr The parameter set.
+\item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
 \item \code{inname} :: \code{character()}\cr
 The names of the \code{\link{PipeOp}}'s input channels. These will be the input channels of the generated \code{\link{PipeOpModule}}.
 Unless the wrapped \code{module_generator}'s forward method (if present) has the argument \code{...}, \code{inname} must be
@@ -47,6 +47,10 @@ and therefore also the names of the list returned by its \verb{$train()}.
 In case there is more than one output channel, the \code{nn_module} that is constructed by this
 \code{\link{PipeOp}} during training must return a named \code{list()}, where the names of the list are the
 names out the output channels. The default is \code{"output"}.
+\item \code{packages} :: \code{character()}\cr
+The packages the \code{PipeOp} depends on.
+\item \code{tags} :: \code{character()}\cr
+The tags of the \code{PipeOp}. The tags \code{"torch"} is always added.
 }
 }
 
@@ -61,17 +65,14 @@ This private method is called to generated the \code{nn_module} that is passed a
 \code{\link{PipeOpModule}}. It must be overwritten, when no \code{module_generator} is provided.
 If left as is, it calls the provided \code{module_generator} with the arguments obtained by
 the private method \code{.shape_dependent_params()}.
-If there is one output channel, the module returned by this method must return a \code{\link{torch_tensor}}, otherwise
-it must return a list of torch \link[=torch_tensor]{tensors}.
 \item \code{.shapes_out(shapes_in, param_vals, task)}\cr
 (\code{list()}, \code{list()}) -> named \code{list()}\cr
-This private method gets a list of \code{numeric} vectors (\code{shapes_in}) as well as the parameter values (\code{param_vals}),
-as well as a \code{\link{Task}} (which is always never used, except for e.g. \code{\link{PipeOpTorchHead}}).
-This list of \code{numeric} vectors indicates the shape of input tensors that will be fed to the module's \verb{$forward()}
-method. The list has one item per input tensor, typically only one.
-The shape vectors may contain \code{NA} entries indicating arbitrary size (typically used for the batch dimension). The
-function should return a list of shapes of tensors that are created by the module.
-In case there is only one output channel it is also ok to return the output shapes as a \code{numeric} vector.
+This private method gets a list of \code{numeric} vectors (\code{shapes_in}), the parameter values (\code{param_vals}),
+as well as an (optional) \code{\link{Task}}.
+The \code{shapes_in} can be assumed to be in the same order as the input names of the \code{PipeOp}.
+The output shapes must be in the same order as the output names of the \code{PipeOp}.
+In case the output shapes depends on the task (as is the case for \code{\link{PipeOpTorchHead}}), the function should return
+valid output shapes (possibly containing \code{NA}s) if the \code{task} argument is provided or not.
 \item \code{.shape_dependent_params(shapes_in, param_vals, task)}\cr
 (\code{list()}, \code{list()}) -> named \code{list()}\cr
 This private method has the same inputs as \code{.shapes_out}.
@@ -89,7 +90,7 @@ During \emph{prediction}, all input and output channels are of class \code{\link
 
 \section{State}{
 
-The state is the value calculated by the public method \code{shapes_out()}.
+The state is the value calculated by the public method \verb{$shapes_out()}.
 }
 
 \section{Parameters}{
@@ -105,14 +106,14 @@ be automatically inferred from the shapes of the input tensors.
 \item \code{module_generator} :: \code{nn_module_generator} | \code{NULL}\cr
 The module generator wrapped by this \code{PipeOpTorch}. If \code{NULL}, the private method
 \code{private$.make_module(shapes_in, param_vals)} must be overwritte, see section 'Inheriting'.
+Do not change this after construction.
 }
 }
 
 \section{Methods}{
 
 \itemize{
-\item \verb{shapes_out(shapes_in, task)\\cr  (}list()\code{of}integer()\code{or}integer()\verb{, task) -> (}list()\code{of}integer()\verb{)\\cr  Calculates the output shapes for the given input shapes, parameters and task. The task is rarely used and  usually does not have to be provided (default is }NULL\verb{). A exception is [}PipeOpTorchHead`].
-The return is a named list, where the names are the names of the output channels.
+\item \verb{shapes_out(shapes_in, task)\\cr  (}list()\code{of}integer()\code{or}integer()\verb{, task) -> (}list()\code{of}integer()\verb{)\\cr  Calculates the output shapes for the given input shapes, parameters and task.  The }shapes_in\verb{must be in the same orer as the input channel names of the}PipeOp\verb{.  If there is only one input channel, }shapes_in\verb{can also contain the shapes for this input channel.  The task is very rarely used (default is}NULL\verb{). An exception is [}PipeOpTorchHead\verb{].  It returns a named }list()\verb{containing the output shapes. The names are the names of the output channels of  the}PipeOp`.
 }
 }
 
@@ -197,9 +198,9 @@ PipeOpTorchCustom = R6Class("PipeOpTorchCustom",
   public = list(
     initialize = function(id = "nn_custom", param_vals = list()) {
       param_set = ps(
-        d_out1 = p_int(lower = 1, tags = "required"),
-        d_out2 = p_int(lower = 1, tags = "required"),
-        bias = p_lgl(default = TRUE)
+        d_out1 = p_int(lower = 1, tags = c("required", "train")),
+        d_out2 = p_int(lower = 1, tags = c("required", "train")),
+        bias = p_lgl(default = TRUE, tags = "train")
       )
       super$initialize(
         id = id,
@@ -269,3 +270,12 @@ predict_input = list(input1 = task1, input2 = task2)
 tasks_out = do.call(po_torch$predict, args = list(input = predict_input))
 identical(tasks_out[[1L]], tasks_out[[2L]])
 }
+\seealso{
+Other graph_network: 
+\code{\link{mlr_pipeops_module}},
+\code{\link{model_descriptor_to_learner}()},
+\code{\link{model_descriptor_to_module}()},
+\code{\link{model_descriptor_union}()},
+\code{\link{nn_graph}()}
+}
+\concept{graph_network}

@@ -111,4 +111,12 @@ linear_module$input$name
 }
 \seealso{
 nn_module, mlr_pipeops_torch, nn_graph, model_descriptor_to_module, PipeOp, Graph
+
+Other graph_network: 
+\code{\link{mlr_pipeops_torch}},
+\code{\link{model_descriptor_to_learner}()},
+\code{\link{model_descriptor_to_module}()},
+\code{\link{model_descriptor_union}()},
+\code{\link{nn_graph}()}
 }
+\concept{graph_network}

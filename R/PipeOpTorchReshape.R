@@ -29,8 +29,6 @@
 PipeOpTorchReshape = R6Class("PipeOpTorchReshape",
   inherit = PipeOpTorch,
   public = list(
-    #' @description
-    #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id = "nn_reshape", param_vals = list()) {
       check_shape = function(x) {
         x[x == -1] = NA
@@ -101,8 +99,6 @@ PipeOpTorchReshape = R6Class("PipeOpTorchReshape",
 PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
   inherit = PipeOpTorch,
   public = list(
-    #' @description
-    #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id = "nn_squeeze", param_vals = list()) {
       param_set = ps(dim = p_uty(tags = "train", custom_check = check_integerish_or_null))
 
@@ -170,8 +166,6 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
 PipeOpTorchUnsqueeze = R6Class("PipeOpTorchUnsqueeze",
   inherit = PipeOpTorch,
   public = list(
-    #' @description
-    #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id = "nn_unsqueeze", param_vals = list()) {
       param_set = ps(dim = p_int(tags = c("train", "required")))
       super$initialize(

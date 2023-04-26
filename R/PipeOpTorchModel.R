@@ -64,6 +64,14 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
   private = list(
     .train = function(inputs) {
       md = inputs[[1]]
+
+      if (is.null(md$loss)) {
+        stopf("No loss configured in ModelDescriptor. Use po(\"torch_loss\").")
+      }
+      if (is.null(md$optimizer)) {
+        stopf("No optimizer configured in ModelDescriptor. Use po(\"torch_optimizer\").")
+      }
+
       param_vals = self$param_set$get_values()
 
       learner = model_descriptor_to_learner(md)
@@ -71,7 +79,6 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
       # TODO: Maybe we want the learner and the pipeop to actually share the paramset by reference.
       # If we do this we need to write a custom clone function.
       # While it is not efficient, the current solution works.
-      learner = invoke(class$new, .args = args)
       learner$param_set$set_values(.values = param_vals)
       # in case something goes wrong during training we still set the state.
       on.exit({self$state = learner}, add = TRUE)

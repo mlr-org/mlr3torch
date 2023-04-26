@@ -151,12 +151,12 @@
 **Graph**
 
 *   [ ] PipeOpTorch
-*   [ ] nn_graph
-*   [ ] ModelDescriptior
-*   [ ] print.ModelDescriptor
-*   [ ] model_descriptor_to_module
-*   [ ] model_descriptor_to_learner
-*   [ ] model_descriptor_union
+*   [x] nn_graph
+*   [x] ModelDescriptior
+*   [x] print.ModelDescriptor
+*   [x] model_descriptor_to_module
+*   [x] model_descriptor_to_learner
+*   [x] model_descriptor_union
 *   [x] print.TorchIngressToken
 *   [x] batchgetter_categ
 *   [x] TorchIngressToken
@@ -183,14 +183,12 @@
 
 **Other**
 
-*   [ ] argument_matcher
+*   [x] argument_matcher
 *   [ ] check_network
-*   [ ] autotest_torchop
+*   [ ] autotest_pipeop_torch
 *   [ ] avg_output_shape
 *   [ ] po_register_env
 *   [ ] Tiny Imagenet
-*   [x] pots --> removed
-*   [x] pot --> removed
 *   [ ] inferps
 *   [ ] register_po
 *   [ ] check_measures
@@ -205,7 +203,7 @@
 *   [ ] load_task_tiny_imagenet
 *   [ ] batchgetter_num
 *   [ ] task_dataset
-*   [ ] unique_id
+*   [x] unique_id
 *   [ ] measure_prediction
 *   [ ] toytask -> this name sucks
 *   [ ] register_mlr3pipelines
@@ -265,10 +263,9 @@ All the learner implementations:
 **Important**
 
 * [ ] Cloning of trained networks (requires new torch version)
-* [ ] Reproducibility: Does the seed work?
+* [ ] Reproducibility: Add the cuda seed resetting
 * [ ] Implement bundling
-* [ ] The seeding mechanism should be properly implemented in mlr3, seed should not be part of the model but of the 
-rest of the state.
+* [ ] Add the learners etc. for regression
 
 **Missing stuff**
 
@@ -279,10 +276,7 @@ rest of the state.
 **Refactors**
 
 * [ ] We should structure the parameters better with tags to define which function gets what 
-* [ ] DRY with respect to the dataloader
-* [ ] Add the learners etc. for regression
 * [ ] Add the learners from the attic and all image learners
-* [ ] early_stopping -> test renaming
 * [ ] Use meta device in tests wherever possible to make tests run as fast as possible.
 * [ ] ensure that caching does what we want the caching to do (tiny imagenet)
 * [ ] ensure proper use of tags in e.g.  `param_set$get_values(tags = "train")`
@@ -300,12 +294,6 @@ rest of the state.
 from paramset_torchlearner is actually doing something
 
 **Consistency**
-
-* [ ] Decide between cat and categ
-
-
-
-
 * [ ] Check that all the mlr3torch_activations are simple and maybe rename to activations_simple. 
 Also add tests or sth. (For learners that allow to set the activation function but expect it to be a scalar). 
 
@@ -327,6 +315,7 @@ Also add tests or sth. (For learners that allow to set the activation function b
 for nn modules, or "Optimizer" for optim_adam etc.
 * [ ] Test that the default values of the pipeops are correctly documented
 * Write expect_learner_torch that checks all the properties a torch learner has to satisfy
+* [ ] Meta tests for the functions / objects created for the tests (like PipeOpTorchDebug)
 
 **Cosmetic**
 * [x] Better printer for ModelDescriptor (see whether loss is configured e.g.)
@@ -334,6 +323,7 @@ for nn modules, or "Optimizer" for optim_adam etc.
 
 **Documentation**
 
+* [ ] Define the @family tags somewhere and then annotate everything correctly
 * [ ] Use the `tags` constrctor argument from PipeOps
 * [ ] Check that objects have the correct families in the documentation.
 * [ ] Add tests for documentation, i.e. that all the required sections are present
@@ -357,17 +347,15 @@ In the future (soon):
 * [ ] Check which versions of the packages we actually require
 * [ ] Create learner_torch_{classif, regr} to create custom torch learners (classif.torch did not really work because of the dataloader)
 * [ ] Maybe it should be possible to easily overwrite the dataloader for a learner (?) 
-
 * [ ] Implement early stopping and all other parameters from paramset torchlearner. 
 
-
-* [ ] general method for freezing and unfreezing parameters.
 
 
 
 
 **In the future**
 
+* [ ] general method for freezing and unfreezing parameters.
 * [ ] support the `weights` property for the learners.
 * [ ] Calling `benchmark()` and evaluate the jobs on different GPUs?
 * [ ] Check overhead on cpu and small batch sizes
