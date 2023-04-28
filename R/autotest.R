@@ -25,6 +25,7 @@
 #' @return `TRUE` if the autotest passes, errs otherwise.
 #' @export
 autotest_pipeop_torch = function(graph, id, task, module_class = id, exclude_args = character(0)) {
+  require_namespaces(c("testthat"))
   po_test = graph$pipeops[[id]]
   result = graph$train(task)
   md = result[[1]]
@@ -79,7 +80,7 @@ autotest_pipeop_torch = function(graph, id, task, module_class = id, exclude_arg
 
 
   # input pointer (for po_test)
-  ip = pmap(graph$edges[get("dst_id") == id, .(x = get("src_id"), y = get("src_channel"))], function(x, y) c(x, y))
+  ip = pmap(graph$edges[get("dst_id") == id, list(x = get("src_id"), y = get("src_channel"))], function(x, y) c(x, y))
 
   # output pointer (for po_test)
   op = pmap(graph$output[, c("op.id", "channel.name")], function(op.id, channel.name) c(op.id, channel.name)) # nolint

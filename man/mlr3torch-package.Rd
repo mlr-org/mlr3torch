@@ -24,7 +24,7 @@ additional attributes.
 
 
 Some parts of this R package - especially the documentation - have been copied or adapted from the R package
-\link{torch} that comes under the MIT License:
+\CRANpkg{torch} that comes under the MIT License:
 
 MIT License
 

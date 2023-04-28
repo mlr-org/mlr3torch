@@ -22,7 +22,7 @@ with \eqn{\alpha=1.6732632423543772848170429916717} and
 }
 
 \section{Input and Output Channels}{
- One input channel called \code{"input"} and one output channel called"output". For an explanation see \link{\code{PipeOpTorch}}.
+ One input channel called \code{"input"} and one output channel called"output". For an explanation see \code{\link{PipeOpTorch}}.
 }
 
 \section{State}{

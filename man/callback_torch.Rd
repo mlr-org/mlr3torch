@@ -29,14 +29,14 @@ The class name.}
 \item{on_begin, on_end, on_epoch_begin, on_before_valid, on_epoch_end, on_batch_begin, on_batch_end, }{on_after_backward,on_batch_valid_begin,on_batch_valid_end (\code{function})\cr
 Function to execute at the given stage, see section \emph{Stages}.}
 
-\item{public, private, active}{(\code{list()})\cr
+\item{public, }{private, active (\code{list()})\cr
 Additional public, private, and active fields to add to the callback.}
 
 \item{parent_env}{(\code{environment()})\cr
 The parent environment for the \code{\link{R6Class}}.}
 }
 \description{
-Creates an \code{\link{R6ClassGenerator}} inheriting from \code{\link{CallbackTorch}}.
+Creates an \code{R6ClassGenerator} inheriting from \code{\link{CallbackTorch}}.
 Additionally performs checks such as that the stages are not accidentally misspelled.
 To create a \code{\link{TorchCallback}} use \code{\link[=torch_callback]{torch_callback()}}.
 }

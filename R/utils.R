@@ -119,17 +119,18 @@ sample_input_from_shapes = function(shapes, n = 1L) {
 
 
 
-with_seed = function(seed, expr) {
-  old_seed = get0(".Random.seed", globalenv(), mode = "integer", inherits = FALSE)
-  if (is.null(old_seed)) {
-    runif(1L)
-    old_seed = get0(".Random.seed", globalenv(), mode = "integer", inherits = FALSE)
-  }
-
-  on.exit(assign(".Random.seed", old_seed, globalenv()), add = TRUE)
-  set.seed(seed)
-  force(expr)
-}
+# FIXME: This one or the one from withr? We also want to set and unset the cuda seed
+# with_seed = function(seed, expr) {
+#   old_seed = get0(".Random.seed", globalenv(), mode = "integer", inherits = FALSE)
+#   if (is.null(old_seed)) {
+#     runif(1L)
+#     old_seed = get0(".Random.seed", globalenv(), mode = "integer", inherits = FALSE)
+#   }
+#
+#   on.exit(assign(".Random.seed", old_seed, globalenv()), add = TRUE)
+#   set.seed(seed)
+#   force(expr)
+# }
 
 batch_from_task = function(task, batch_size, device, learner, param_vals = NULL) {
   get_private(learner)$.dataloader(task, param_vals %??% learner$param_set$values)

@@ -28,7 +28,7 @@ as_torch_loss.nn_loss = function(x, clone = FALSE, id = deparse(substitute(x))[[
 }
 
 #' @export
-as_torch_loss.TorchLoss = function(x, clone = FALSE) { # nolint
+as_torch_loss.TorchLoss = function(x, clone = FALSE, ...) { # nolint
   if (clone) x$clone(deep = TRUE) else x
 }
 
@@ -118,10 +118,10 @@ TorchLoss = R6::R6Class("TorchLoss",
 #' `r paste0(mlr3torch_losses$keys(), collapse = ", ")`
 #'
 #' @section Fields:
-#' Only fields inherited from [`DictionaryMlr3torchLosses`].
+#' Only fields inherited from [`Dictionary`].
 #'
 #' @section Methods:
-#' Only methods inherited from [`DictionaryMlr3torchLosses`].
+#' Only methods inherited from [`Dictionary`].
 #'
 #' @family torch_wrappers
 #' @family Dictionary

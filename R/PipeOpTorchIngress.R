@@ -43,7 +43,7 @@
 #' @section Internals:
 #' Creates an object of class [`TorchIngressToken`] for the given task.
 #' The purpuse of this is to store the information on how to construct the torch dataloader from the task for this
-#' entry point of the network. This is done in the function [`task_dataset()`].
+#' entry point of the network.
 #'
 #' @family PipeOp
 #' @export

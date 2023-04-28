@@ -19,7 +19,7 @@ Applies the element-wise function \eqn{\mbox{Hardsigmoid}(x) = \frac{ReLU6(x + 3
 }
 
 \section{Input and Output Channels}{
- One input channel called \code{"input"} and one output channel called"output". For an explanation see \link{\code{PipeOpTorch}}.
+ One input channel called \code{"input"} and one output channel called"output". For an explanation see \code{\link{PipeOpTorch}}.
 }
 
 \section{State}{

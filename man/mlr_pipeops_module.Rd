@@ -9,8 +9,9 @@
 }
 \description{
 \code{PipeOpModule} wraps an \code{\link{nn_module}} that is being called during the \code{train} phase of this \code{\link{PipeOp}}.
-By doing so, this allows to assemble \code{PipeOpModule}s in a computational \link[=`Graph`]{graph} that represents a neural
-network architecture. Such a graph can also be used to create a \code{\link{nn_graph}} which inherits from \code{\link{nn_module}}.
+By doing so, this allows to assemble \code{PipeOpModule}s in a computational \code{\link[mlr3pipelines:Graph]{mlr3pipelines::Graph}} that
+represents a neural network architecture. Such a graph can also be used to create a \code{\link{nn_graph}} which inherits
+from \code{\link{nn_module}}.
 
 In most cases it is easier to create such a network by creating a isomorphic graph consisting
 of nodes of class \code{\link{PipeOpTorchIngress}} and \code{\link{PipeOpTorch}}. This graph will then generate the graph consisting
@@ -62,7 +63,7 @@ The torch module that is called during the training phase of the PipeOpModule.
 
 \section{Methods}{
 
-Only methods inherited from \code{\link{PipeOp}}.
+Only methods inherited from \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}}.
 }
 
 \section{Internals}{
@@ -93,7 +94,12 @@ nn_custom = torch::nn_module("nn_custom",
 )
 
 module = nn_custom(3, 2)
-po_module = PipeOpModule$new("custom", module, inname = c("x", "z"), outname = c("out1", "out2"))
+po_module = PipeOpModule$new(
+  "custom",
+  module,
+  inname = c("x", "z"),
+  outname = c("out1", "out2")
+)
 x = torch::torch_randn(1, 3)
 z = torch::torch_randn(1, 3)
 out = po_module$train(list(x = x, z = z))

@@ -2,8 +2,7 @@
 #'
 #' @usage NULL
 #' @name mlr_pipeops_torch_layer_norm
-#'
-#' @usage `r roxy_format(PipeOpTorchLayerNorm)`
+#' @format `r roxy_format(PipeOpTorchLayerNorm)`
 #'
 #' @inherit torch::nnf_layer_norm description
 #'

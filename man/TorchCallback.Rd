@@ -16,7 +16,7 @@ losses.
  \code{TorchCallback$new(callback_generator, param_set = NULL, id = deparse(substitute(id))[[1L]], label = capitalize(id), packages = NULL, man = NULL)}
 Arguments from \code{\link{TorchWrapper}} (except for \code{generator}) as well as:
 \itemize{
-\item \code{callback_generator} :: \code{\link{R6ClassGenerator}}\cr
+\item \code{callback_generator} :: \code{R6ClassGenerator}\cr
 The class generator for the callback that is being wrapped.
 }
 }

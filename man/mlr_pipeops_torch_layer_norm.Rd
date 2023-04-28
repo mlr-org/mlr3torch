@@ -4,8 +4,8 @@
 \alias{mlr_pipeops_torch_layer_norm}
 \alias{PipeOpTorchLayerNorm}
 \title{Layer Normalization}
-\usage{
-`r roxy_format(PipeOpTorchLayerNorm)`
+\format{
+\code{\link{R6Class}} inheriting from \code{\link{PipeOpTorch}}, \code{\link{PipeOp}}.
 }
 \description{
 Applies Layer Normalization for last certain number of dimensions.
@@ -20,7 +20,7 @@ Applies Layer Normalization for last certain number of dimensions.
 }
 
 \section{Input and Output Channels}{
- One input channel called \code{"input"} and one output channel called"output". For an explanation see \link{\code{PipeOpTorch}}.
+ One input channel called \code{"input"} and one output channel called"output". For an explanation see \code{\link{PipeOpTorch}}.
 }
 
 \section{State}{

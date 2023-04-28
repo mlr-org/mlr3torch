@@ -47,7 +47,7 @@ roxy_torch_license = function() {
 roxy_pipeop_torch_channels_default = function() { # nolint
   paste0(
     "One input channel called \\code{\"input\"} and one output channel called",
-    "\"output\". For an explanation see [\\code{PipeOpTorch}]."
+    "\"output\". For an explanation see \\code{\\link{PipeOpTorch}}."
   )
 }
 

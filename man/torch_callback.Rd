@@ -50,7 +50,7 @@ The referenced help package can be opened via method \verb{$help()}.}
 \item{on_begin, on_end, on_epoch_begin, on_before_valid, on_epoch_end, on_batch_begin, on_batch_end}{on_after_backward,on_batch_valid_begin,on_batch_valid_end (\code{function})\cr
 Function to execute at the given stage, see section \emph{Stages}.}
 
-\item{public, private, active}{(\code{list()})\cr
+\item{public}{private, active (\code{list()})\cr
 Additional public, private, and active fields to add to the callback.}
 
 \item{parent_env}{(\code{environment()})\cr
@@ -66,7 +66,7 @@ It returns a \code{\link{TorchCallback}} that wrapping a \code{\link{CallbackTor
 }
 \section{Internals}{
 
-It first creates an \code{\link{R6ClassGenerator}} using \code{\link{torch_callback}}and when wraps this generator in a
+It first creates an \code{R6ClassGenerator} using \code{\link{torch_callback}}and when wraps this generator in a
 \code{\link{TorchCallback}}.
 }
 

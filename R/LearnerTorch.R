@@ -1,7 +1,7 @@
 #' @title Abstract Base Class for a Torch Network
 #'
 #' @usage NULL
-#' @name mlr_learners_classif.torch_abstract
+#' @name mlr_learners_classif.torch
 #'
 #' @format `r roxy_format(LearnerClassifTorch)`
 #'
@@ -73,11 +73,8 @@
 #' @section Methods: `r roxy_methods_inherit(LearnerClassifTorch)`
 #' @section Internals:
 #' A [`ParamSetCollection`] is created that combines the `param_set` from the construction with the
-#' default parameters obtained by [`paramset_torchlearner()`], as well as the loss and optimizer parameter
-#' (prefixed with `"loss."` and `"opt."` respectively.
-#'
-#' Note that a deep clone of trained networks is currently not supported, because having a edge-case covering solution
-#' for that requires to mess with torch internals that are currently not part of the torch API.
+#' default torch parameters, as well as the loss, optimizer and callback parameters
+#' (prefixed with `"loss."`, `"opt."`, and `"cb."` respectively.
 #'
 #' @family Learners
 #' @export

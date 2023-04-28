@@ -24,7 +24,7 @@
 #' @section torch License:
 #'
 #' Some parts of this R package - especially the documentation - have been copied or adapted from the R package
-#' [torch] that comes under the MIT License:
+#' \CRANpkg{torch} that comes under the MIT License:
 #'
 #' MIT License
 #'
@@ -149,12 +149,10 @@ register_mlr3pipelines = function() {
 # --> Take care that we don't add properties that are present
 .onUnload = function(libPaths) { # nolint
   mlr_learners = utils::getFromNamespace("mlr_learners", ns = "mlr3")
-  mlr_callbacks = utils::getFromNamespace("mlr_callbacks", ns = "mlr3misc")
   mlr_tasks = utils::getFromNamespace("mlr_tasks", ns = "mlr3")
   mlr_reflections = utils::getFromNamespace("mlr_reflections", ns = "mlr3") # nolint
 
   walk(mlr3torch_learners, function(nm) mlr_learners$remove(nm))
-  walk(mlr3torch_callbacks, function(nm) mlr_callbacks$remove(nm))
   walk(mlr3torch_tasks, function(nm) mlr_tasks$remove(nm))
   walk(names(mlr3torch_feature_types), function(nm) mlr_reflections$task_feature_types[[nm]] = NULL)
   # walk(names(mlr3torch_learner_properties), function(nm) mlr_reflections$learner_properties[[nm]] = NULL)

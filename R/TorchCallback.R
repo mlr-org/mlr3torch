@@ -71,7 +71,7 @@ as_torch_callback = function(x, clone = FALSE, ...) {
 }
 
 #' @export
-as_torch_callback.TorchCallback = function(x, clone = FALSE) { # nolint
+as_torch_callback.TorchCallback = function(x, clone = FALSE, ...) { # nolint
   if (clone) x$clone(deep = TRUE) else x
 }
 
@@ -135,7 +135,7 @@ as_torch_callbacks.character = function(x, clone = FALSE, ...) { # nolint
 #'
 #' @section Construction: `r roxy_construction(TorchCallback)`
 #' Arguments from [`TorchWrapper`] (except for `generator`) as well as:
-#' * `callback_generator` :: [`R6ClassGenerator`]\cr
+#' * `callback_generator` :: `R6ClassGenerator`\cr
 #'   The class generator for the callback that is being wrapped.
 #'
 #' @section Parameters:
@@ -194,7 +194,7 @@ TorchCallback = R6Class("TorchCallback",
 #'
 #'
 #' @section Internals:
-#' It first creates an [`R6ClassGenerator`] using [`torch_callback`]and when wraps this generator in a
+#' It first creates an `R6ClassGenerator` using [`torch_callback`]and when wraps this generator in a
 #' [`TorchCallback`].
 #'
 #' @export

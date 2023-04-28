@@ -31,7 +31,7 @@ Must be a subset of \code{mlr_reflections$task_feature_types}.
 }
 
 \section{Input and Output Channels}{
- One input channel called \code{"input"} and one output channel called"output". For an explanation see \link{\code{PipeOpTorch}}.
+ One input channel called \code{"input"} and one output channel called"output". For an explanation see \code{\link{PipeOpTorch}}.
 }
 
 \section{State}{
@@ -65,7 +65,7 @@ The features types that can be consumed by this \code{PipeOpTorchIngress}.
 
 Creates an object of class \code{\link{TorchIngressToken}} for the given task.
 The purpuse of this is to store the information on how to construct the torch dataloader from the task for this
-entry point of the network. This is done in the function \code{\link[=task_dataset]{task_dataset()}}.
+entry point of the network.
 }
 
 \seealso{

@@ -20,7 +20,7 @@ This class wraps a generator (R6Class Generator or the torch version of such a g
 
 \code{TorchWrapper$new(generator, id, param_set = NULL, packages = NULL, label = id, man = NULL)}
 \itemize{
-\item \code{generator} :: \code{function} or \code{\link{R6ClassGenerator}}\cr
+\item \code{generator} :: \code{function} or \code{R6ClassGenerator}\cr
 The wrapped generator that is described.
 \item \code{id} :: \code{character(1)}\cr
 The identifier of the object. Used to e.g. retrieve it from a dictionary.
@@ -43,7 +43,7 @@ Defined by the constructor argument \code{param_set}.
 \section{Fields}{
 
 \itemize{
-\item \code{generator} :: \code{function} or \code{\link{R6ClassGenerator}}\cr
+\item \code{generator} :: \code{function} or \code{R6ClassGenerator}\cr
 The wrapped generator that is described.
 \item \code{id} :: \code{character(1)}\cr
 The identifier of the object. Used to e.g. retrieve it from a dictionary.

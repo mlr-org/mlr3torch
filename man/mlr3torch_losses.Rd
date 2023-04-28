@@ -19,12 +19,12 @@ cross_entropy, l1, mse
 
 \section{Fields}{
 
-Only fields inherited from \code{\link{DictionaryMlr3torchLosses}}.
+Only fields inherited from \code{\link{Dictionary}}.
 }
 
 \section{Methods}{
 
-Only methods inherited from \code{\link{DictionaryMlr3torchLosses}}.
+Only methods inherited from \code{\link{Dictionary}}.
 }
 
 \examples{

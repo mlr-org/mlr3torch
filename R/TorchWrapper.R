@@ -9,7 +9,7 @@
 #'
 #' @section Construction:
 #' `r roxy_construction(TorchWrapper)`
-#' * `generator` :: `function` or [`R6ClassGenerator`]\cr
+#' * `generator` :: `function` or `R6ClassGenerator`\cr
 #'   The wrapped generator that is described.
 #' * `id` :: `character(1)`\cr
 #'   The identifier of the object. Used to e.g. retrieve it from a dictionary.
@@ -29,7 +29,7 @@
 #' Defined by the constructor argument `param_set`.
 #'
 #' @section Fields:
-#' * `generator` :: `function` or [`R6ClassGenerator`]\cr
+#' * `generator` :: `function` or `R6ClassGenerator`\cr
 #'   The wrapped generator that is described.
 #' * `id` :: `character(1)`\cr
 #'   The identifier of the object. Used to e.g. retrieve it from a dictionary.

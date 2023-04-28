@@ -155,7 +155,9 @@
 #'
 #'
 #' # In mlr3torch
-#' network_generator = po("torch_ingress_num") %>>% po("nn_linear", out_features = 50) %>>% po("nn_head")
+#' network_generator = po("torch_ingress_num") %>>%
+#'   po("nn_linear", out_features = 50) %>>%
+#'   po("nn_head")
 #' md = network_generator$train(task)[[1L]]
 #' network = model_descriptor_to_module(md)
 #' y = torch::with_no_grad(network(ingess_num.input = x))
@@ -217,7 +219,8 @@
 #' task = tsk("iris")
 #' task1 = task$clone()$select(paste0("Sepal.", c("Length", "Width")))
 #' task2 = task$clone()$select(paste0("Petal.", c("Length", "Width")))
-#' mds_in = gunion(list(po("torch_ingress_num_1"), po("torch_ingress_num_2")))$train(list(task1, task2), single_input = FALSE)
+#' mds_in = gunion(list(po("torch_ingress_num_1"), po("torch_ingress_num_2")))$train(list(task1, task2),
+#' single_input = FALSE)
 #'
 #' mds_in[[1L]][c("graph", "task", "ingress", ".pointer", ".pointer_shape")]
 #' mds_in[[2L]][c("graph", "task", "ingress", ".pointer", ".pointer_shape")]

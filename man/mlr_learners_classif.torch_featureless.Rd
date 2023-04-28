@@ -39,6 +39,6 @@ For regression, it should result in the median, for L1-loss and in the mean for 
 
 \seealso{
 Other Learners: 
-\code{\link{mlr_learners_classif.torch_abstract}}
+\code{\link{mlr_learners_classif.torch}}
 }
 \concept{Learners}

@@ -289,6 +289,7 @@ All the learner implementations:
 * [ ] Is withr important anyway? If yes, then remove the with_seed function, otherwise remove withr from imports
 * [ ] Reset the torch seed after ending the `$train()` call of the learner.
 * [ ] Check which versions of the packages we actually require
+* [ ] Check which man files are actually used and remove the rest
 
 * [ ] Implement the torch methods with explicit parameters in the function so that we can better check whether a parameter 
 from paramset_torchlearner is actually doing something

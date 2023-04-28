@@ -11,12 +11,12 @@
 Saves the model during training.
 }
 \section{Construction}{
- \code{CallbackTorchCheckpoint$new(path, freq = 1L, save_last = TRUE)}
+ \code{CallbackTorchCheckpoint$new(path, freq, save_last = TRUE)}
 \itemize{
 \item \code{path} :: \code{character(1)}\cr
 The path to a folder where the models are saved. This path must not exist before.
 \item \code{freq} :: \code{integer(1)}\cr
-The frequency how often the model is saved. Default is 1.
+The frequency how often the model is saved.
 \item \code{save_last} :: \code{logical(1)}\cr
 Whether to always save the last model. Default is \code{TRUE}.
 }

@@ -46,7 +46,7 @@ Creates the optimizer for the given parameters.
 
 \examples{
 # Create a new Torch Optimizer
-opt = TorchOptimizer$new(optim_adam, label = "adam")
+torchopt = TorchOptimizer$new(optim_adam, label = "adam")
 # If the param set is not specified, parameters are inferred but are of class ParamUty
 tochopt$param_set
 
