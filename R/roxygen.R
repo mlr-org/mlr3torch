@@ -55,8 +55,6 @@ roxy_pipeop_torch_state_default = function() { # nolint
   "The state is the value calculated by the public method \\code{shapes_out()}."
 }
 
-
-
 roxy_param_packages = function() {
   "\\code{packages}` :: named \\code{list()}\\cr List of packages settings. Default is  \\code{list()}."
 }

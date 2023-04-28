@@ -11,14 +11,14 @@
 #' * `path` :: `character(1)`\cr
 #'   The path to a folder where the models are saved. This path must not exist before.
 #' * `freq` :: `integer(1)`\cr
-#'   The frequency how often the model is saved. Default is 1.
+#'   The frequency how often the model is saved.
 #' * `save_last` :: `logical(1)`\cr
 #'   Whether to always save the last model. Default is `TRUE`.
 #'
 #' @export
 CallbackTorchCheckpoint = callback_torch("CallbackTorchCheckpoint",
   public = list(
-    initialize = function(path, freq = 1L, save_last = TRUE) {
+    initialize = function(path, freq, save_last = TRUE) {
       assert_path_for_output(path)
       dir.create(path, recursive = TRUE)
       self$path = path
@@ -28,12 +28,12 @@ CallbackTorchCheckpoint = callback_torch("CallbackTorchCheckpoint",
   ),
   on_epoch_end = function(ctx) {
     if ((ctx$epoch %% self$freq) == 0) {
-      torch::torch_save(ctx$network, file.path(self$path, paste0("network", ctx$epoch, ".rds")))
+      torch::torch_save(ctx$network, file.path(self$path, paste0("network", ctx$epoch, ".pt")))
     }
   },
   on_end = function(ctx) {
     if (self$save_last) {
-      path = file.path(self$path, paste0("network", ctx$epoch, ".rds"))
+      path = file.path(self$path, paste0("network", ctx$epoch, ".pt"))
       if (!file.exists(path)) { # no need to save the last network twice if it was already saved.
         torch::torch_save(ctx$network, path)
       }
@@ -47,7 +47,7 @@ mlr3torch_callbacks$add("checkpoint", function() {
     callback_generator = CallbackTorchCheckpoint,
     param_set = ps(
       path = p_uty(),
-      freq = p_int(default = 1L, lower = 1L),
+      freq = p_int(lower = 1L),
       save_last = p_lgl(default = TRUE)
     ),
     id = "checkpoint",

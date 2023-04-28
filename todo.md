@@ -280,15 +280,15 @@ All the learner implementations:
 * [ ] Use meta device in tests wherever possible to make tests run as fast as possible.
 * [ ] ensure that caching does what we want the caching to do (tiny imagenet)
 * [ ] ensure proper use of tags in e.g.  `param_set$get_values(tags = "train")`
-* [ ] Autotest should check that all parameters are tagged with train and predict etc. Generally determine usage of tags
+* [ ] Autotest should check that all parameters are tagged with train and predict etc. Generally determine usage of tags.
 * [ ] Run some tests on gpu
 * [x] Rename Debug Torch Learner to featureless and export
-
 
 **Other**
 * [ ] Check that defaults and initial values are correctly used everywhere
 * [ ] Is withr important anyway? If yes, then remove the with_seed function, otherwise remove withr from imports
 * [ ] Reset the torch seed after ending the `$train()` call of the learner.
+* [ ] Check which versions of the packages we actually require
 
 * [ ] Implement the torch methods with explicit parameters in the function so that we can better check whether a parameter 
 from paramset_torchlearner is actually doing something
@@ -316,6 +316,7 @@ for nn modules, or "Optimizer" for optim_adam etc.
 * [ ] Test that the default values of the pipeops are correctly documented
 * Write expect_learner_torch that checks all the properties a torch learner has to satisfy
 * [ ] Meta tests for the functions / objects created for the tests (like PipeOpTorchDebug)
+* [ ] Parameter tests for callbacks
 
 **Cosmetic**
 * [x] Better printer for ModelDescriptor (see whether loss is configured e.g.)
@@ -334,24 +335,11 @@ for nn modules, or "Optimizer" for optim_adam etc.
     in "output_map" ("output_<id>_output.<channel>")
 * [ ] Make the paramset torch leaner template a roxygen function, it should be directly seen for every learner (?).
 
-
-
-
-
-
-
-
-
 In the future (soon): 
 
-* [ ] Check which versions of the packages we actually require
-* [ ] Create learner_torch_{classif, regr} to create custom torch learners (classif.torch did not really work because of the dataloader)
+* [ ] Create {classif, regr}.torch_module learner to create custom torch learners (classif.torch did not really work because of the dataloader)
 * [ ] Maybe it should be possible to easily overwrite the dataloader for a learner (?) 
 * [ ] Implement early stopping and all other parameters from paramset torchlearner. 
-
-
-
-
 
 **In the future**
 
