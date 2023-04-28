@@ -60,8 +60,6 @@ t_clbks.NULL = function(.keys, ...) { # nolint
 #'   Whether to make a deep clone.
 #' @param ... (any)\cr
 #'   Additional arguments
-#' @param param_set ([`ParamSet`])\cr
-#'   The parameter set.
 #'
 #' @return [`TorchCallback`].
 #' @family callback

@@ -21,9 +21,10 @@
 #' @param exclude_args (`character()`)\cr
 #'   We check that the arguments of the module's forward function match the input channels except for those
 #'   values specified as `exclude_args`.
+#'
 #' @return `TRUE` if the autotest passes, errs otherwise.
 #' @export
-autotest_pipeop_torch = function(graph, id, task, module_class = id, exclude_args = character(0), test_id = TRUE) {
+autotest_pipeop_torch = function(graph, id, task, module_class = id, exclude_args = character(0)) {
   po_test = graph$pipeops[[id]]
   result = graph$train(task)
   md = result[[1]]

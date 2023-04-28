@@ -31,7 +31,8 @@ License: LGPL (>= 3)
 Depends:
     mlr3 (>= 0.13.1),
     mlr3pipelines,
-    mlr3misc,
+    mlr3misc (>= 0.11.0),
+    torch (>= 0.8.1),
     R (>= 3.1.0)
 Imports:
     backports,
@@ -40,14 +41,14 @@ Imports:
     coro,
     lgr,
     rlang,
-    torch (>= 0.8.1),
-    mlr3misc (>= 0.11.0),
     data.table,
     paradox (>= 0.11.0),
-    R6, 
+    R6,
     withr
 Suggests:
     callr,
+    future,
+    rpart,
     torchvision,
     magick,
     progress,

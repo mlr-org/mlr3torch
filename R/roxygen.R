@@ -38,8 +38,8 @@ roxy_param_param_set = function() {
 
 roxy_torch_license = function() {
   paste(
-    "Parts of this documentation have been copied or adapted from the R package [torch], that comes under the",
-    " MIT license, which is included in the help page of [\\code{mlr3torch}], as well as in the top-level folder of",
+    "Parts of this documentation have been copied or adapted from the R package \\CRANpkg{torch}, that comes under the",
+    " MIT license, which is included in the help page of \\CRANpkg{mlr3torch}, as well as in the top-level folder of",
     " the package source.", sep = "\n"
   )
 }
@@ -47,7 +47,7 @@ roxy_torch_license = function() {
 roxy_pipeop_torch_channels_default = function() { # nolint
   paste0(
     "One input channel called \\code{\"input\"} and one output channel called",
-    "‘\"output\"’. For an explanation see [\\code{PipeOpTorch}]."
+    "\"output\". For an explanation see [\\code{PipeOpTorch}]."
   )
 }
 

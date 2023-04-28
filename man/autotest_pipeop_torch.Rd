@@ -9,8 +9,7 @@ autotest_pipeop_torch(
   id,
   task,
   module_class = id,
-  exclude_args = character(0),
-  test_id = TRUE
+  exclude_args = character(0)
 )
 }
 \arguments{

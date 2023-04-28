@@ -19,7 +19,7 @@ Applies a softmax function.
 }
 
 \section{Input and Output Channels}{
- One input channel called \code{"input"} and one output channel called‘"output"’. For an explanation see \link{\code{PipeOpTorch}}.
+ One input channel called \code{"input"} and one output channel called"output". For an explanation see \link{\code{PipeOpTorch}}.
 }
 
 \section{State}{
@@ -48,8 +48,8 @@ Calls \code{\link[torch:nn_softmax]{torch::nn_softmax()}} when trained.
 }
 
 \section{Credit}{
- Parts of this documentation have been copied or adapted from the R package \link{torch}, that comes under the
-MIT license, which is included in the help page of \link{\code{mlr3torch}}, as well as in the top-level folder of
+ Parts of this documentation have been copied or adapted from the R package \CRANpkg{torch}, that comes under the
+MIT license, which is included in the help page of \CRANpkg{mlr3torch}, as well as in the top-level folder of
 the package source.
 }
 

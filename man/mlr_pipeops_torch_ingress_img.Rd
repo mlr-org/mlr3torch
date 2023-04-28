@@ -19,7 +19,7 @@ also no data augmentation etc.
 
 \section{Input and Output Channels}{
 
-One input channel called \code{"input"} and one output channel called‘"output"’. For an explanation see \link{\code{PipeOpTorch}}.
+One input channel called \code{"input"} and one output channel called"output". For an explanation see \link{\code{PipeOpTorch}}.
 }
 
 \section{State}{

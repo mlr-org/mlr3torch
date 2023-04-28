@@ -3,6 +3,7 @@
 #' @import data.table
 #' @import mlr3misc
 #' @importFrom R6 R6Class is.R6
+#' @importFrom methods formalArgs
 #' @import torch
 #' @import mlr3pipelines
 #' @import mlr3

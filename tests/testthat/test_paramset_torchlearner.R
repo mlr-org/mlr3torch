@@ -1,4 +1,4 @@
-test_that("paramset_torchlearner works", {
+test_that("paramset_torchlearner has parameters properly documented", {
   param_set = paramset_torchlearner()
 
   template = readLines(system.file("./man-roxygen/paramset_torchlearner.R", package = "mlr3torch"))

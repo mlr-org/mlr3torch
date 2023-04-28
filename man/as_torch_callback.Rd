@@ -15,9 +15,6 @@ Whether to make a deep clone.}
 
 \item{...}{(any)\cr
 Additional arguments}
-
-\item{param_set}{(\code{\link{ParamSet}})\cr
-The parameter set.}
 }
 \value{
 \code{\link{TorchCallback}}.

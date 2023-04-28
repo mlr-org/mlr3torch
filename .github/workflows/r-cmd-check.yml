@@ -47,6 +47,10 @@ jobs:
           extra-packages: any::rcmdcheck
           needs: check
 
+      - name: Install torch
+        run: torch::install_torch()
+        shell: Rscript {0}
+
       - uses: r-lib/actions/check-r-package@v2
 
       - uses: mxschmitt/action-tmate@v3
