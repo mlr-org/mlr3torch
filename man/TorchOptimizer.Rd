@@ -48,7 +48,7 @@ Creates the optimizer for the given parameters.
 # Create a new Torch Optimizer
 torchopt = TorchOptimizer$new(optim_adam, label = "adam")
 # If the param set is not specified, parameters are inferred but are of class ParamUty
-tochopt$param_set
+torchopt$param_set
 
 # Create the optimizer for a network
 net = nn_linear(10, 1)

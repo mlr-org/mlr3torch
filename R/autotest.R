@@ -203,7 +203,7 @@ run_paramtest = function(learner, fun, exclude = character(), tag = NULL) {
 }
 
 #' @title Parameter Test
-#' @description 
+#' @description
 #' Tests that parameters are correctly implemented
 #'
 #' @param param_set ([`ParamSet`])\cr
@@ -212,7 +212,7 @@ run_paramtest = function(learner, fun, exclude = character(), tag = NULL) {
 #'   The functions whose arguments the parameter set implements.
 #' @param exclude (`character`)\cr
 #'   The parameter ids and arguments of the functions that are exluded from checking.
-#' @param exclude_defaults (`character()`)\cr 
+#' @param exclude_defaults (`character()`)\cr
 #'   For which parameters the defaults should not be checked.
 #'
 #' @export
@@ -275,6 +275,7 @@ prob_vector_to_matrix = function(p, levs) {
 }
 
 autotest_torch_callback = function(cb, init_args = list()) {
+  # TODO: This is half ready
   # TODO: Check that man page exists
   cbgen = cb$generator
   expect_string(cb$id)
@@ -283,6 +284,7 @@ autotest_torch_callback = function(cb, init_args = list()) {
   init_fn = get_init(cb$callback)
   if (is.null(init_fn)) init_fn = function() NULL
   paramtest = autotest_paramset(cb$param_set, init_fn)
+  # TODO: Finish parameter est
 
 
   # Check that the correct object comes out

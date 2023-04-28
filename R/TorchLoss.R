@@ -131,7 +131,7 @@ TorchLoss = R6::R6Class("TorchLoss",
 #' # is equivalent to
 #' t_loss("mse")
 #' # convert to a data.table
-#' as.data.table(mrl3torch_losses)
+#' as.data.table(mlr3torch_losses)
 mlr3torch_losses = R6Class("DictionaryMlr3torchLosses",
   inherit = Dictionary,
   cloneable = FALSE

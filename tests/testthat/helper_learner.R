@@ -54,7 +54,8 @@ LearnerClassifTorchImageTest = R6Class("LearnerClassifTorchImageTest",
         optimizer = optimizer,
         loss = loss,
         callbacks = callbacks,
-        packages = "R6" # Just to check whether is is correctly passed
+        packages = "R6", # Just to check whether is is correctly passed
+        man = "mlr3torch::mlr_learners_classif.test"
       )
     }
   ),

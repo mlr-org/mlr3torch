@@ -50,7 +50,7 @@ Only methods inherited from \code{\link{PipeOp}}.
 
 \section{Internals}{
 
-During training the loss is cloned and added to the \code{\link{ModelDesciptor}}.
+During training the loss is cloned and added to the \code{\link{ModelDescriptor}}.
 }
 
 \examples{

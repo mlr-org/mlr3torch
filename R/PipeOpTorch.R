@@ -7,7 +7,7 @@
 #' @description
 #' `PipeOpTorch` is the base class for all [`PipeOp`]s that represent neural network layers in a [`Graph`].
 #' During **training**, it generates a [`PipeOpModule`] that wraps an [`nn_module`][torch::nn_module] and attaches it
-#' to the isomorphic architecture, which is also represented as a [`Graph`] consisting of [`PipOpModule`]s.
+#' to the isomorphic architecture, which is also represented as a [`Graph`] consisting of [`PipeOpModule`]s.
 #' While the former [`Graph`] operates on [`ModelDescriptor`]s, the latter operates on [tensors][torch_tensor].
 #'
 #' The relationship between a `PipeOpTorch` and a [`PipeOpModule`] is similar to the

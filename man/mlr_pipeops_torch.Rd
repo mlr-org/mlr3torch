@@ -10,7 +10,7 @@
 \description{
 \code{PipeOpTorch} is the base class for all \code{\link{PipeOp}}s that represent neural network layers in a \code{\link{Graph}}.
 During \strong{training}, it generates a \code{\link{PipeOpModule}} that wraps an \code{\link[torch:nn_module]{nn_module}} and attaches it
-to the isomorphic architecture, which is also represented as a \code{\link{Graph}} consisting of \code{\link{PipOpModule}}s.
+to the isomorphic architecture, which is also represented as a \code{\link{Graph}} consisting of \code{\link{PipeOpModule}}s.
 While the former \code{\link{Graph}} operates on \code{\link{ModelDescriptor}}s, the latter operates on \link[=torch_tensor]{tensors}.
 
 The relationship between a \code{PipeOpTorch} and a \code{\link{PipeOpModule}} is similar to the

@@ -38,7 +38,7 @@
 #' @export
 CallbackTorch = R6Class("CallbackTorch",
   lock_objects = FALSE,
-  cloneable = FALSE,
+  cloneable = FALSE
 )
 
 #' @title Create a Callback Torch
@@ -50,9 +50,9 @@ CallbackTorch = R6Class("CallbackTorch",
 #'
 #' @param classname (`character(1)`)\cr
 #'   The class name.
-#' @param on_begin,on_end,on_epoch_begin,on_before_valid,on_epoch_end,on_batch_begin,on_batch_end, on_after_backward,on_batch_valid_begin,on_batch_valid_end (`function`)\cr
+#' @param on_begin,on_end,on_epoch_begin,on_before_valid,on_epoch_end,on_batch_begin,on_batch_end,on_after_backward,on_batch_valid_begin,on_batch_valid_end (`function`)\cr
 #'   Function to execute at the given stage, see section *Stages*.
-#' @param public, private, active (`list()`)\cr
+#' @param public,private,active (`list()`)\cr
 #'   Additional public, private, and active fields to add to the callback.
 #' @param parent_env (`environment()`)\cr
 #'   The parent environment for the [`R6Class`].

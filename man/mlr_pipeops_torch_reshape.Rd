@@ -31,7 +31,7 @@ The desired output shape. Unknown dimension (one at most) can either be specifie
 }
 
 \section{Fields}{
- Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+ Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{mlr3pipelines::PipeOp}}.
 }
 
 \section{Methods}{

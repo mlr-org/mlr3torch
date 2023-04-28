@@ -8,19 +8,6 @@
 #' @import mlr3pipelines
 #' @import mlr3
 #'
-#'
-#' @description
-#'   mlr3torch Connects the R `torch` package to mlr3.
-#'   Neural Networks can be implemented on three different levels of control:
-#'
-#'   * Custom `nn_module`
-#'   * Using `TorchOp`s
-#'   * Predefined architectures via `Learner`s
-#'
-#' @section Feature Types:
-#'   It adds the feature type "imageuri", which is a S3 class based on a character vector with
-#'   additional attributes.
-#'
 #' @section torch License:
 #'
 #' Some parts of this R package - especially the documentation - have been copied or adapted from the R package
@@ -147,13 +134,14 @@ register_mlr3pipelines = function() {
 
 # TODO: The removal of properties fails when the property has been alrady present before it was added in torch
 # --> Take care that we don't add properties that are present
+# TODO: Add missing unloadings
 .onUnload = function(libPaths) { # nolint
   mlr_learners = utils::getFromNamespace("mlr_learners", ns = "mlr3")
   mlr_tasks = utils::getFromNamespace("mlr_tasks", ns = "mlr3")
   mlr_reflections = utils::getFromNamespace("mlr_reflections", ns = "mlr3") # nolint
 
-  walk(mlr3torch_learners, function(nm) mlr_learners$remove(nm))
-  walk(mlr3torch_tasks, function(nm) mlr_tasks$remove(nm))
-  walk(names(mlr3torch_feature_types), function(nm) mlr_reflections$task_feature_types[[nm]] = NULL)
+  walk(names(mlr3torch_learners), function(nm) mlr_learners$remove(nm))
+  walk(names(mlr3torch_tasks), function(nm) mlr_tasks$remove(nm))
+  # walk(names(mlr3torch_feature_types), function(nm) mlr_reflections$task_feature_types[[nm]] = NULL)
   # walk(names(mlr3torch_learner_properties), function(nm) mlr_reflections$learner_properties[[nm]] = NULL)
 }

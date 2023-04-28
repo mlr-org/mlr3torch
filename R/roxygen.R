@@ -1,3 +1,6 @@
+# TODO: Fix Rd syntax here:
+# https://stackoverflow.com/questions/25489042/linking-to-other-packages-in-documentation-in-roxygen2-in-r
+
 roxy_param_id = function(id = NULL) {
   paste0(
     "`id` :: `character(1)`\\cr The id for the object.",
@@ -47,7 +50,7 @@ roxy_torch_license = function() {
 roxy_pipeop_torch_channels_default = function() { # nolint
   paste0(
     "One input channel called \\code{\"input\"} and one output channel called",
-    "\"output\". For an explanation see \\code{\\link{PipeOpTorch}}."
+    "\"output\". For an explanation see \\code{PipeOpTorch}]."
   )
 }
 

@@ -40,7 +40,7 @@ For an explanation see \code{\link{PipeOpTorch}}.
 }
 
 \section{Fields}{
- Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+ Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{mlr3pipelines::PipeOp}}.
 }
 
 \section{Methods}{

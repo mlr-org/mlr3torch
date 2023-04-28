@@ -35,7 +35,7 @@ A dimension along which Softmax will be computed (so every slice along dim will 
 }
 
 \section{Fields}{
- Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+ Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{mlr3pipelines::PipeOp}}.
 }
 
 \section{Methods}{

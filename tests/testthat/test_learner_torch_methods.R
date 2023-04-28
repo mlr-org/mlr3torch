@@ -97,8 +97,6 @@ test_that("Test roles are respected", {
 
   expect_true(nrow(learner$history$train) == 2)
   expect_true(nrow(learner$history$valid) == 2)
-
-  learner$hist_valid
 })
 
 test_that("learner_torch_predict works", {

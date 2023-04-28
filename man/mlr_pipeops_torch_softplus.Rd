@@ -37,7 +37,7 @@ Values above this revert to a linear function. Default: 20
 }
 
 \section{Fields}{
- Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+ Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{mlr3pipelines::PipeOp}}.
 }
 
 \section{Methods}{

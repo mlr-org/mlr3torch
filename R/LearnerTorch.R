@@ -66,10 +66,8 @@
 #'
 #' * `network` :: ([`nn_module()`][torch::nn_module])\cr
 #'   The network (only available after training).
-#' * `hist_train` :: `data.table`\cr
-#'   The trainig history.
-#' * `hist_valid` :: `data.table`\cr
-#'   The validation history.
+#' * `history` :: [`CallbackTorchHistory`]\cr
+#'   The training history.
 #' @section Methods: `r roxy_methods_inherit(LearnerClassifTorch)`
 #' @section Internals:
 #' A [`ParamSetCollection`] is created that combines the `param_set` from the construction with the

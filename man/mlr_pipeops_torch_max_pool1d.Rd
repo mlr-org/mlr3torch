@@ -29,7 +29,7 @@ Whether to return the indices as well, in which case there are two output channe
 }
 
 \section{Fields}{
- Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+ Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{mlr3pipelines::PipeOp}}.
 }
 
 \section{Methods}{

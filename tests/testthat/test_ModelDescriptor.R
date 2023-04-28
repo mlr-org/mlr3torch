@@ -37,7 +37,7 @@ test_that("ModelDescriptor basic checks", {
 
   repr = capture.output(md)
   expected = c(
-    "<ModelDesciptor: 2 ops>",
+    "<ModelDescriptor: 2 ops>",
     "* Ingress:  torch_ingress_num.input: [(NA,4)]",
     "* Task:  iris [classif]",
     "* Callbacks:  Checkpoint",

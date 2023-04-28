@@ -94,7 +94,7 @@ print.ModelDescriptor = function(x, ...) {
     paste0(nm, ": ", shape_to_str(list(x$shape)))
   })
 
-  catn(sprintf("<ModelDesciptor: %d ops>", length(x$graph$pipeops)))
+  catn(sprintf("<ModelDescriptor: %d ops>", length(x$graph$pipeops)))
   catn(str_indent("* Ingress: ", ingress_shapes))
   catn(str_indent("* Task: ", paste0(x$task$id, " [", x$task$task_type, "]")))
   catn(str_indent("* Callbacks: ", if (!is.null(x$callbacks)) as_short_string(map_chr(x$callbacks, "label"), 100L) else "N/A")) # nolint

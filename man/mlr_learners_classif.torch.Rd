@@ -103,10 +103,8 @@ Fields inherited from \code{\link{LearnerClassif}} or \code{\link{LearnerRegr}} 
 \itemize{
 \item \code{network} :: (\code{\link[torch:nn_module]{nn_module()}})\cr
 The network (only available after training).
-\item \code{hist_train} :: \code{data.table}\cr
-The trainig history.
-\item \code{hist_valid} :: \code{data.table}\cr
-The validation history.
+\item \code{history} :: \code{\link{CallbackTorchHistory}}\cr
+The training history.
 }
 }
 

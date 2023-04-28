@@ -31,7 +31,7 @@
 #' @section Methods:
 #' Only methods inherited from [`PipeOp`].
 #' @section Internals:
-#' During training the callbacks are cloned and added to the [`ModelDesciptor`].
+#' During training the callbacks are cloned and added to the [`ModelDescriptor`].
 #' @family model_configuration
 #' @export
 #' @examples

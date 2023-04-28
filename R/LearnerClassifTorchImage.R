@@ -27,6 +27,7 @@
 #f @section Fields: `r roxy_fields_inherit(LearnerClassifTorchImage)`
 #' @section Methods: `r roxy_methods_inherit(LearnerClassifTorchImage)`
 #' @section Internals:
+#' TODO
 #'
 #' @export
 LearnerClassifTorchImage = R6Class("LearnerClassifTorchImage",
@@ -58,7 +59,7 @@ LearnerClassifTorchImage = R6Class("LearnerClassifTorchImage",
         callbacks = callbacks,
         predict_types = c("response", "prob"),
         feature_types = "imageuri",
-        man = "mlr3torch::mlr_learners_classif_image"
+        man = man
       )
     }
   ),

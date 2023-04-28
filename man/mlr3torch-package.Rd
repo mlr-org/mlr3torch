@@ -6,20 +6,8 @@
 \alias{mlr3torch-package}
 \title{mlr3torch: Torch Models for 'mlr3'}
 \description{
-mlr3torch Connects the R \code{torch} package to mlr3.
-Neural Networks can be implemented on three different levels of control:
-\itemize{
-\item Custom \code{nn_module}
-\item Using \code{TorchOp}s
-\item Predefined architectures via \code{Learner}s
+Provides torch models as learners for the mlr3 ecosystem.
 }
-}
-\section{Feature Types}{
-
-It adds the feature type "imageuri", which is a S3 class based on a character vector with
-additional attributes.
-}
-
 \section{torch License}{
 
 

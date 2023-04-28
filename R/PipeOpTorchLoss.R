@@ -29,7 +29,7 @@
 #' @section Methods:
 #' Only methods inherited from [`PipeOp`].
 #' @section Internals:
-#' During training the loss is cloned and added to the [`ModelDesciptor`].
+#' During training the loss is cloned and added to the [`ModelDescriptor`].
 #' @family model_configuration
 #' @export
 #' @examples

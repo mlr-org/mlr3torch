@@ -1,6 +1,6 @@
 test_that("LearnerClassifTorchImage works", {
   learner = LearnerClassifTorchImageTest$new()
-  learner$param_set$set_values(
+  learner$param_set$values = list(
     height = 64,
     width = 64,
     channels = 3,
@@ -9,6 +9,7 @@ test_that("LearnerClassifTorchImage works", {
   )
   task = tsk("test_imagenet")$filter(1)
 
+  expect_equal(learner$man, "mlr3torch::mlr_learners_classif.test")
   expect_r6(learner, c("LearnerClassif", "LearnerClassifTorchImage", "LearnerClassifTorch"))
   expect_true(learner$label == "Test Learner Image")
   expect_identical(learner$feature_types, "imageuri")
