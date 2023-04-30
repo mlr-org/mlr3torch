@@ -121,4 +121,9 @@ test_that("callback_torch is working", {
   expect_identical(cb$a, 1)
   expect_identical(get_private(cb)$b, 2)
   expect_identical(cb$c, 3)
+
+  A = R6Class("A")
+  expect_error(callback_torch("CallbackTorchA", inherit = A), regexp = "does not generate object")
+  B = R6Class("B", inherit = CallbackTorch)
+  expect_error(callback_torch("CallbackTorchA", inherit = B), regexp = NA)
 })

@@ -46,8 +46,8 @@ mlr3torch_callbacks$add("checkpoint", function() {
   TorchCallback$new(
     callback_generator = CallbackTorchCheckpoint,
     param_set = ps(
-      path = p_uty(),
-      freq = p_int(lower = 1L),
+      path      = p_uty(),
+      freq      = p_int(lower = 1L),
       save_last = p_lgl(default = TRUE)
     ),
     id = "checkpoint",

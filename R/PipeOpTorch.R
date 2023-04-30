@@ -117,7 +117,7 @@
 #' This is possible because every incoming [`ModelDescriptor`] contains the information about the
 #' `id` and the `channel` name of the sending `PipeOp` in the slot `.pointer`.
 #'
-#' The new graph in the [model descriptor union][`ModelDescriptor`] represents the current state of the neural network
+#' The new graph in the [`model_descriptor_union`] represents the current state of the neural network
 #' architecture. It is isomorphic to the subgraph that consists of all pipeops of class `PipeOpTorch` and
 #' [`PipeOpTorchIngress`] that are ancestors of this `PipeOpTorch`.
 #'
@@ -160,7 +160,7 @@
 #'   po("nn_head")
 #' md = network_generator$train(task)[[1L]]
 #' network = model_descriptor_to_module(md)
-#' y = torch::with_no_grad(network(ingess_num.input = x))
+#' y = torch::with_no_grad(network(torch_ingress_num.input = x))
 #'
 #'
 #'
@@ -181,7 +181,10 @@
 #' )
 #'
 #' # wrapping the module into a custom PipeOpTorch
-#' PipeOpTorchCustom = R6Class("PipeOpTorchCustom",
+#'
+#' library(paradox)
+#'
+#' PipeOpTorchCustom = R6::R6Class("PipeOpTorchCustom",
 #'   inherit = PipeOpTorch,
 #'   public = list(
 #'     initialize = function(id = "nn_custom", param_vals = list()) {
@@ -202,7 +205,9 @@
 #'   ),
 #'   private = list(
 #'     .shape_dependent_params = function(shapes_in, param_vals, task) {
-#'       c(param_vals, list(d_in1 = tail(shapes_in[["input1"]], 1)), d_in2 = tail(shapes_in[["input2"]], 1))
+#'       c(param_vals,
+#'         list(d_in1 = tail(shapes_in[["input1"]], 1)), d_in2 = tail(shapes_in[["input2"]], 1)
+#'       )
 #'     },
 #'     .shapes_out = function(shapes_in, param_vals, task) {
 #'       list(
@@ -219,8 +224,8 @@
 #' task = tsk("iris")
 #' task1 = task$clone()$select(paste0("Sepal.", c("Length", "Width")))
 #' task2 = task$clone()$select(paste0("Petal.", c("Length", "Width")))
-#' mds_in = gunion(list(po("torch_ingress_num_1"), po("torch_ingress_num_2")))$train(list(task1, task2),
-#' single_input = FALSE)
+#' graph = gunion(list(po("torch_ingress_num_1"), po("torch_ingress_num_2")))
+#' mds_in = graph$train( list(task1, task2), single_input = FALSE)
 #'
 #' mds_in[[1L]][c("graph", "task", "ingress", ".pointer", ".pointer_shape")]
 #' mds_in[[2L]][c("graph", "task", "ingress", ".pointer", ".pointer_shape")]

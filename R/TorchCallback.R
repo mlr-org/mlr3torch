@@ -219,7 +219,7 @@ TorchCallback = R6Class("TorchCallback",
 #'
 #' custom_tcb$param_set$set_values(greeting = "Wazzuuup")
 #'
-#' cb = custom_tcb$get_callback()
+#' cb = custom_tcb$generate()
 #'
 #' ctx = new.env()
 #' ctx$name = "Albert"
@@ -251,7 +251,8 @@ torch_callback = function(
   on_batch_valid_begin = NULL,
   on_batch_valid_end = NULL,
   # other arguments
-  public = NULL, private = NULL, active = NULL, parent_env = parent.frame()) {
+  public = NULL, private = NULL, active = NULL, parent_env = parent.frame(), inherit = CallbackTorch
+  ) {
 
   callback_generator = callback_torch(
     classname = classname,
@@ -268,7 +269,7 @@ torch_callback = function(
     on_batch_valid_begin = on_batch_valid_begin,
     on_batch_valid_end = on_batch_valid_end,
     # other arguments
-    public = public, private = private, active = active, parent_env = parent_env
+    public = public, private = private, active = active, parent_env = parent_env, inherit = inherit
   )
 
   TorchCallback$new(
@@ -288,7 +289,7 @@ torch_callback = function(
 #'
 #' @description
 #' A [`mlr3misc::Dictionary`] of torch callbacks.
-#' Use [`t_clbk`] to conveniently retrieve callbacks.
+#' Use [`t_clbk()`] to conveniently retrieve callbacks.
 #' Can be converted to a [`data.table`] using `as.data.table`.
 #'
 #' @section Methods:

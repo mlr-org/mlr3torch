@@ -47,15 +47,15 @@ The dimension which to unsqueeze. Negative values are interpreted downwards from
 }
 
 \section{Fields}{
- Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{mlr3pipelines::PipeOp}}.
+ Only fields inherited from \code{PipeOpTorch}/\code{\link{PipeOp}{mlr3pipelines}}].
 
- Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{mlr3pipelines::PipeOp}}.
+ Only fields inherited from \code{PipeOpTorch}/\code{\link{PipeOp}{mlr3pipelines}}].
 }
 
 \section{Methods}{
- Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+ Only methods inherited from \code{PipeOpTorch}/\code{\link{PipeOp}{mlr3pipelines}}].
 
- Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+ Only methods inherited from \code{PipeOpTorch}/\code{\link{PipeOp}{mlr3pipelines}}].
 }
 
 \section{Internals}{
@@ -70,13 +70,9 @@ This internally calls \code{\link[torch:torch_unsqueeze]{torch::torch_unsqueeze(
 }
 
 \section{Credit}{
- Parts of this documentation have been copied or adapted from the R package \CRANpkg{torch}, that comes under the
-MIT license, which is included in the help page of \CRANpkg{mlr3torch}, as well as in the top-level folder of
-the package source.
+ Parts of this documentation have been copied or adapted from the R package \CRANpkg{torch}, that comes under the  MIT license, which is included in the COPYRIGHTS file of the source package.
 
- Parts of this documentation have been copied or adapted from the R package \CRANpkg{torch}, that comes under the
-MIT license, which is included in the help page of \CRANpkg{mlr3torch}, as well as in the top-level folder of
-the package source.
+ Parts of this documentation have been copied or adapted from the R package \CRANpkg{torch}, that comes under the  MIT license, which is included in the COPYRIGHTS file of the source package.
 }
 
 \examples{
@@ -84,7 +80,7 @@ obj = po("nn_squeeze")
 obj$id
 obj$module_generator
 obj$shapes_out(c(16, 5, 5))
-obj = po("nn_unsqueeze")
+obj = po("nn_unsqueeze", dim = 4)
 obj$id
 obj$module_generator
 obj$shapes_out(c(16, 5, 5))

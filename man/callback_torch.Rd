@@ -19,7 +19,8 @@ callback_torch(
   public = NULL,
   private = NULL,
   active = NULL,
-  parent_env = parent.frame()
+  parent_env = parent.frame(),
+  inherit = CallbackTorch
 )
 }
 \arguments{
@@ -34,6 +35,10 @@ Additional public, private, and active fields to add to the callback.}
 
 \item{parent_env}{(\code{environment()})\cr
 The parent environment for the \code{\link{R6Class}}.}
+
+\item{inherit}{(\code{R6ClassGenerator})\cr
+From which class to inherit.
+This class must either be \code{\link{CallbackTorch}} (default) or inherit from it.}
 }
 \description{
 Creates an \code{R6ClassGenerator} inheriting from \code{\link{CallbackTorch}}.

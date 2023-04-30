@@ -5,10 +5,10 @@
 \alias{PipeOpModule}
 \title{Class for Torch Module Wrappers}
 \format{
-\code{\link{R6Class}} object inheriting from \link{PipeOp`}.
+\code{\link{R6Class}} object inheriting from \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}}.
 }
 \description{
-\code{PipeOpModule} wraps an \code{\link{nn_module}} that is being called during the \code{train} phase of this \code{\link{PipeOp}}.
+\code{PipeOpModule} wraps an \code{\link{nn_module}} that is being called during the \code{train} phase of this \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}}.
 By doing so, this allows to assemble \code{PipeOpModule}s in a computational \code{\link[mlr3pipelines:Graph]{mlr3pipelines::Graph}} that
 represents a neural network architecture. Such a graph can also be used to create a \code{\link{nn_graph}} which inherits
 from \code{\link{nn_module}}.
@@ -27,7 +27,12 @@ The \code{predict} method does currently not serve a meaningful purpose.
 \item \code{module} :: \code{\link{nn_module}}\cr
 The torch module that is being wrapped.
 \item \code{inname} :: \code{character()}\cr
+}
+
+For a more general introduction on how to create a new learner, see the respective section in the
+\href{https://mlr3book.mlr-org.com/extending.html#sec-extending-learners}{mlr3 book}.
 The names of the input channels.
+\itemize{
 \item \code{outname} :: \code{character()}\cr
 The names of the output channels. If this parameter has length 1, the parameter \link[torch:nn_module]{module} must
 return a \link[torch:torch_tensor]{tensor}. Otherwise it must return a \code{list()} of tensors of corresponding length.
@@ -76,7 +81,11 @@ are defined. Arguments are \strong{not} matched by name.
 ## creating an PipeOpModule manually
 
 # one input and output channel
-po_module = PipeOpModule$new("linear", torch::nn_linear(10, 20), inname = "input", outname = "output")
+po_module = PipeOpModule$new("linear",
+  torch::nn_linear(10, 20),
+  inname = "input",
+  outname = "output"
+)
 x = torch::torch_randn(16, 10)
 # This calls the forward function of the wrapped module.
 y = po_module$train(list(input = x))
@@ -108,7 +117,7 @@ str(out)
 # How a PipeOpModule is usually generated
 graph = po("torch_ingress_num") \%>>\% po("nn_linear", out_features = 10L)
 result = graph$train(tsk("iris"))
-# The PipeOpTorchLinear generates a PipeOpModule and adds it to a new graph that represents the architecture
+# The PipeOpTorchLinear generates a PipeOpModule and adds it to a new (module) graph
 result[[1]]$graph
 linear_module = result[[1L]]$graph$pipeops$nn_linear
 linear_module

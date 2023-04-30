@@ -9,7 +9,7 @@
 }
 \description{
 Base class from which Torch Callbacks should inherit.
-To create custom callbacks,to use in a torch learner use the convenience function \code{\link{torch_callback}}.
+To create custom callbacks to use in a torch learner use the convenience function \code{\link{torch_callback}}.
 
 Torch Callbacks can be used to gain more control over the training process of a neural network without
 having to write everything from scratch.

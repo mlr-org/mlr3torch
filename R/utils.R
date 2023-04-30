@@ -90,6 +90,16 @@ check_nn_module_generator = function(x) {
   "Most be module generator."
 }
 
+assert_inherits_classname = function(class_generator, classname) {
+  assert_class(class_generator, "R6ClassGenerator")
+  while (!is.null(class_generator)) {
+    if (class_generator$classname == classname) {
+      return(TRUE)
+    }
+    class_generator = class_generator$get_inherit()
+  }
+  stopf("R6ClassGenerator does not generate object that inherits from %s.", classname)
+}
 
 get_init = function(x) {
   cls = class_with_init(x)

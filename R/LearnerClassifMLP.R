@@ -72,7 +72,8 @@ LearnerClassifMLP = R6Class("LearnerClassifMLP",
         return(network)
       }
 
-      dropout_args = list()
+      # This way, dropout_args will have length 0 if p is `NULL`
+      dropout_args = list(p = param_vals$p)
       dropout_args$p = param_vals$p
 
       modules = list(

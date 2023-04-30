@@ -32,7 +32,7 @@ mlr3torch_losses$get("mse")
 # is equivalent to
 t_loss("mse")
 # convert to a data.table
-as.data.table(mrl3torch_losses)
+as.data.table(mlr3torch_losses)
 }
 \seealso{
 Other torch_wrappers: 

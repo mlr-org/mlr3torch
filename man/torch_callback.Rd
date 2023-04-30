@@ -24,7 +24,8 @@ torch_callback(
   public = NULL,
   private = NULL,
   active = NULL,
-  parent_env = parent.frame()
+  parent_env = parent.frame(),
+  inherit = CallbackTorch
 )
 }
 \arguments{
@@ -55,6 +56,10 @@ Additional public, private, and active fields to add to the callback.}
 
 \item{parent_env}{(\code{environment()})\cr
 The parent environment for the \code{\link{R6Class}}.}
+
+\item{inherit}{(\code{R6ClassGenerator})\cr
+From which class to inherit.
+This class must either be \code{\link{CallbackTorch}} (default) or inherit from it.}
 }
 \value{
 \code{\link{TorchCallback}}
@@ -104,7 +109,7 @@ custom_tcb = torch_callback(
 
 custom_tcb$param_set$set_values(greeting = "Wazzuuup")
 
-cb = custom_tcb$get_callback()
+cb = custom_tcb$generate()
 
 ctx = new.env()
 ctx$name = "Albert"

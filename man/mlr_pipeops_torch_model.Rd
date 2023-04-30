@@ -64,11 +64,11 @@ Additionally there are the parameters for the optimizer, the loss function and t
 }
 
 \section{Fields}{
- Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{mlr3pipelines::PipeOp}}.
+ Only fields inherited from \code{PipeOpTorch}/\code{\link{PipeOp}{mlr3pipelines}}].
 }
 
 \section{Methods}{
- Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+ Only methods inherited from \code{PipeOpTorch}/\code{\link{PipeOp}{mlr3pipelines}}].
 }
 
 \section{Internals}{

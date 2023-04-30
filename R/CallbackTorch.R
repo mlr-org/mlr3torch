@@ -6,7 +6,7 @@
 #'
 #' @description
 #' Base class from which Torch Callbacks should inherit.
-#' To create custom callbacks,to use in a torch learner use the convenience function [`torch_callback`].
+#' To create custom callbacks to use in a torch learner use the convenience function [`torch_callback`].
 #'
 #' Torch Callbacks can be used to gain more control over the training process of a neural network without
 #' having to write everything from scratch.
@@ -56,6 +56,9 @@ CallbackTorch = R6Class("CallbackTorch",
 #'   Additional public, private, and active fields to add to the callback.
 #' @param parent_env (`environment()`)\cr
 #'   The parent environment for the [`R6Class`].
+#' @param inherit (`R6ClassGenerator`)\cr
+#'   From which class to inherit.
+#'   This class must either be [`CallbackTorch`] (default) or inherit from it.
 #'
 #' @family callback
 #'
@@ -74,7 +77,7 @@ callback_torch = function(
   # validation
   on_batch_valid_begin = NULL,
   on_batch_valid_end = NULL,
-  public = NULL, private = NULL, active = NULL, parent_env = parent.frame()
+  public = NULL, private = NULL, active = NULL, parent_env = parent.frame(), inherit = CallbackTorch
   ) {
   assert_true(startsWith(classname, "CallbackTorch"))
   more_public = list(
@@ -103,11 +106,11 @@ callback_torch = function(
   assert_list(private, null.ok = TRUE, names = "unique")
   assert_list(active, null.ok = TRUE, names = "unique")
   assert_environment(parent_env)
+  assert_inherits_classname(inherit, "CallbackTorch")
 
   more_public = Filter(function(x) !is.null(x), more_public)
   parent_env_shim = new.env(parent = parent_env)
-  parent_env_shim$inherit = CallbackTorch
-  R6::R6Class(classname = classname, inherit = CallbackTorch, public = c(more_public, public),
+  parent_env_shim$inherit = inherit
+  R6::R6Class(classname = classname, inherit = inherit, public = c(more_public, public),
     private = private, active = active, parent_env = parent_env_shim, lock_objects = FALSE)
-
 }

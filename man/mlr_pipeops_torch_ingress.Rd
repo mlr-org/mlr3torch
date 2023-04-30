@@ -17,7 +17,7 @@ Unless you are an advanced user, you should not need to use this directly but \c
 \code{PipeOpTorchIngress$new(id, param_set = ps(), param_vals = list(), packages = character(0), feature_types)}
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object.
-\item \code{param_set} :: \code{paradox::ParamSet}\cr The parameter set.
+\item \code{param_set} :: \code{link{ParamSet}{paradox}}\cr The parameter set.
 \item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
 \item \code{input} :: \code{data.table()}\cr
 The input channels for this \code{PipeOp}. See \code{\link{PipeOp}} for an explanation.
@@ -58,7 +58,7 @@ The features types that can be consumed by this \code{PipeOpTorchIngress}.
 }
 
 \section{Methods}{
- Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+ Only methods inherited from \code{PipeOpTorch}/\code{\link{PipeOp}{mlr3pipelines}}].
 }
 
 \section{Internals}{

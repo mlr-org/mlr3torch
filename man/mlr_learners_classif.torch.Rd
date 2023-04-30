@@ -21,7 +21,7 @@ To create a torch learner from a \code{\link{nn_module}}, use \code{\link{Learne
 The optimizer for the model.
 \item \code{loss} :: (\code{\link{TorchLoss}})\cr
 The loss for the model.
-\item \code{param_set} :: \code{paradox::ParamSet}\cr The parameter set.
+\item \code{param_set} :: \code{link{ParamSet}{paradox}}\cr The parameter set.
 \item \code{properties} :: (\code{character()})\cr
 The properties for the learner, see \code{mlr_reflections$learner_properties}.
 \item \code{packages} :: (\code{character()})\cr
@@ -88,13 +88,10 @@ It is also possible to overwrite the private \verb{$.dataloader()} method, which
 creates a dataloader from that dataset. When doing so, it is important to respect the parameter \code{shuffle}, because
 this method is used to ceate the dataloader for prediction as well.
 
-While it is possible to add parameters by specifying the \code{param_set} constructino argument, it is currently
+While it is possible to add parameters by specifying the \code{param_set} construction argument, it is currently
 not possible to change these parameters.
-Note that none of the parameters provided in \code{param_set} can have an id that starts with \code{"loss."} or \code{"opt."}
-as these are preserved for the dynamically constructed parameters of the optimizer and the loss function.
-
-For a more general introduction on how to create a new learner, see the respective section in the
-\href{https://mlr3book.mlr-org.com/extending.html#sec-extending-learners}{mlr3 book}.
+Note that none of the parameters provided in \code{param_set} can have an id that starts with \code{"loss."}, \verb{"opt.", or }"cb."`, as these are preserved for the dynamically constructed parameters of the optimizer and the loss
+function.
 }
 
 \section{Fields}{

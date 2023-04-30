@@ -31,7 +31,7 @@ During \strong{prediction}, \code{PipeOpTorch} takes in a \code{\link[mlr3:Task]
 \item \code{module_generator} :: \code{nn_module_generator} | \code{NULL}\cr
 The module generator that is wrapped by this \code{PipeOpTorch}.
 When this is \code{NULL}, then \code{private$.make_module()} must be overloaded.
-\item \code{param_set} :: \code{paradox::ParamSet}\cr The parameter set.
+\item \code{param_set} :: \code{link{ParamSet}{paradox}}\cr The parameter set.
 \item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
 \item \code{inname} :: \code{character()}\cr
 The names of the \code{\link{PipeOp}}'s input channels. These will be the input channels of the generated \code{\link{PipeOpModule}}.
@@ -131,7 +131,7 @@ sending \code{PipeOpModule}s to the input channel of this \code{PipeOpModule} ar
 This is possible because every incoming \code{\link{ModelDescriptor}} contains the information about the
 \code{id} and the \code{channel} name of the sending \code{PipeOp} in the slot \code{.pointer}.
 
-The new graph in the \link[=`ModelDescriptor`]{model descriptor union} represents the current state of the neural network
+The new graph in the \code{\link{model_descriptor_union}} represents the current state of the neural network
 architecture. It is isomorphic to the subgraph that consists of all pipeops of class \code{PipeOpTorch} and
 \code{\link{PipeOpTorchIngress}} that are ancestors of this \code{PipeOpTorch}.
 
@@ -174,7 +174,7 @@ network_generator = po("torch_ingress_num") \%>>\%
   po("nn_head")
 md = network_generator$train(task)[[1L]]
 network = model_descriptor_to_module(md)
-y = torch::with_no_grad(network(ingess_num.input = x))
+y = torch::with_no_grad(network(torch_ingress_num.input = x))
 
 
 
@@ -195,7 +195,10 @@ nn_custom = nn_module("nn_custom",
 )
 
 # wrapping the module into a custom PipeOpTorch
-PipeOpTorchCustom = R6Class("PipeOpTorchCustom",
+
+library(paradox)
+
+PipeOpTorchCustom = R6::R6Class("PipeOpTorchCustom",
   inherit = PipeOpTorch,
   public = list(
     initialize = function(id = "nn_custom", param_vals = list()) {
@@ -216,7 +219,9 @@ PipeOpTorchCustom = R6Class("PipeOpTorchCustom",
   ),
   private = list(
     .shape_dependent_params = function(shapes_in, param_vals, task) {
-      c(param_vals, list(d_in1 = tail(shapes_in[["input1"]], 1)), d_in2 = tail(shapes_in[["input2"]], 1))
+      c(param_vals,
+        list(d_in1 = tail(shapes_in[["input1"]], 1)), d_in2 = tail(shapes_in[["input2"]], 1)
+      )
     },
     .shapes_out = function(shapes_in, param_vals, task) {
       list(
@@ -233,8 +238,8 @@ PipeOpTorchCustom = R6Class("PipeOpTorchCustom",
 task = tsk("iris")
 task1 = task$clone()$select(paste0("Sepal.", c("Length", "Width")))
 task2 = task$clone()$select(paste0("Petal.", c("Length", "Width")))
-mds_in = gunion(list(po("torch_ingress_num_1"), po("torch_ingress_num_2")))$train(list(task1, task2),
-single_input = FALSE)
+graph = gunion(list(po("torch_ingress_num_1"), po("torch_ingress_num_2")))
+mds_in = graph$train( list(task1, task2), single_input = FALSE)
 
 mds_in[[1L]][c("graph", "task", "ingress", ".pointer", ".pointer_shape")]
 mds_in[[2L]][c("graph", "task", "ingress", ".pointer", ".pointer_shape")]

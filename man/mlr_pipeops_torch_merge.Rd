@@ -17,7 +17,7 @@ Base class for merge operations such as addition (\code{\link{PipeOpTorchMergeSu
 \itemize{
 \item \code{id} :: \code{character(1)}\cr The id for the object.
 \item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
-\item \code{param_set} :: \code{paradox::ParamSet}\cr The parameter set.
+\item \code{param_set} :: \code{link{ParamSet}{paradox}}\cr The parameter set.
 \item \code{module_generator} :: \code{nn_module_generator}\cr The torch module generator.
 \item \code{innum} :: \code{integer(1)}\cr
 The number of inputs. Default is 0 which means there is one \emph{vararg} input channel.
@@ -40,11 +40,11 @@ For an explanation see \code{\link{PipeOpTorch}}.
 }
 
 \section{Fields}{
- Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{mlr3pipelines::PipeOp}}.
+ Only fields inherited from \code{PipeOpTorch}/\code{\link{PipeOp}{mlr3pipelines}}].
 }
 
 \section{Methods}{
- Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+ Only methods inherited from \code{PipeOpTorch}/\code{\link{PipeOp}{mlr3pipelines}}].
 }
 
 \section{Internals}{

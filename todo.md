@@ -291,6 +291,9 @@ All the learner implementations:
 * [ ] Check which versions of the packages we actually require
 * [ ] Check which man files are actually used and remove the rest
 
+
+
+
 * [ ] Implement the torch methods with explicit parameters in the function so that we can better check whether a parameter 
 from paramset_torchlearner is actually doing something
 

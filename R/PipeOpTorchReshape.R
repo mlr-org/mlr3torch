@@ -159,7 +159,7 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
 #' @family PipeOpTorch
 #' @export
 #' @examples
-#' obj = po("nn_unsqueeze")
+#' obj = po("nn_unsqueeze", dim = 4)
 #' obj$id
 #' obj$module_generator
 #' obj$shapes_out(c(16, 5, 5))
@@ -258,6 +258,7 @@ PipeOpTorchFlatten = R6Class("PipeOpTorchFlatten",
 nn_reshape = nn_module(
   "nn_reshape",
   initialize = function(shape) {
+    assert_integerish(shape)
     self$shape = shape
   },
   forward = function(input) {
@@ -274,6 +275,7 @@ nn_reshape = nn_module(
 nn_squeeze = nn_module(
   "nn_squeeze",
   initialize = function(dim) {
+    assert_int(dim)
     self$dim = dim
   },
   forward = function(input) {
@@ -290,6 +292,7 @@ nn_squeeze = nn_module(
 nn_unsqueeze = nn_module(
   "nn_unsqueeze",
   initialize = function(dim) {
+    assert_int(dim)
     self$dim = dim
   },
   forward = function(input) {

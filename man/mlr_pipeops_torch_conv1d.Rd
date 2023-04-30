@@ -28,11 +28,11 @@ planes.
 }
 
 \section{Fields}{
- Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{mlr3pipelines::PipeOp}}.
+ Only fields inherited from \code{PipeOpTorch}/\code{\link{PipeOp}{mlr3pipelines}}].
 }
 
 \section{Methods}{
- Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+ Only methods inherited from \code{PipeOpTorch}/\code{\link{PipeOp}{mlr3pipelines}}].
 }
 
 \section{Internals}{
@@ -42,9 +42,7 @@ The paramter \code{in_channels} is inferred from the second dimension of the inp
 }
 
 \section{Credit}{
- Parts of this documentation have been copied or adapted from the R package \CRANpkg{torch}, that comes under the
-MIT license, which is included in the help page of \CRANpkg{mlr3torch}, as well as in the top-level folder of
-the package source.
+ Parts of this documentation have been copied or adapted from the R package \CRANpkg{torch}, that comes under the  MIT license, which is included in the COPYRIGHTS file of the source package.
 }
 
 \section{Parameters}{

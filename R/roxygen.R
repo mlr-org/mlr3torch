@@ -16,15 +16,11 @@ roxy_pipeop_torch_param_id = function(id = NULL) {
 }
 
 roxy_pipeop_torch_fields_default = function() { # nolint
-  "Only fields inherited from [\\code{PipeOpTorch}]/[\\code{PipeOp}]."
-}
-
-roxy_pipeop_methods_default = function() { # nolint
-  "Only methods inherited from [\\code{PipeOp}]."
+  "Only fields inherited from \\code{PipeOpTorch}/\\code{\\link{PipeOp}{mlr3pipelines}}]."
 }
 
 roxy_pipeop_torch_methods_default = function() { # nolint
-  "Only methods inherited from [\\code{PipeOpTorch}]/[\\code{PipeOp}]."
+  "Only methods inherited from \\code{PipeOpTorch}/\\code{\\link{PipeOp}{mlr3pipelines}}]."
 }
 
 roxy_param_param_vals = function() {
@@ -36,21 +32,20 @@ roxy_param_module_generator = function() {
 }
 
 roxy_param_param_set = function() {
-  "\\code{param_set} :: \\code{paradox::ParamSet}\\cr The parameter set."
+  "\\code{param_set} :: \\code{link{ParamSet}{paradox}}\\cr The parameter set."
 }
 
 roxy_torch_license = function() {
   paste(
     "Parts of this documentation have been copied or adapted from the R package \\CRANpkg{torch}, that comes under the",
-    " MIT license, which is included in the help page of \\CRANpkg{mlr3torch}, as well as in the top-level folder of",
-    " the package source.", sep = "\n"
+    " MIT license, which is included in the COPYRIGHTS file of the source package."
   )
 }
 
 roxy_pipeop_torch_channels_default = function() { # nolint
   paste0(
     "One input channel called \\code{\"input\"} and one output channel called",
-    "\"output\". For an explanation see \\code{PipeOpTorch}]."
+    "\"output\". For an explanation see \\code{\\link{PipeOpTorch}}."
   )
 }
 

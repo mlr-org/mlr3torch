@@ -26,7 +26,7 @@
 #' @family PipeOpTorch
 #' @export
 #' @examples
-#' obj = po("nn_softmax")
+#' obj = po("nn_softmax", dim = 2)
 #' obj$id
 #' obj$module_generator
 #' obj$shapes_out(c(16, 5, 7))

@@ -59,10 +59,7 @@ Uses \code{\link[magick:editing]{magick::image_read()}}'to load the image.
 
 \examples{
 po_ingress = po("torch_ingress_img", channels = 3, height = 64, width = 64)
-task = tsk("tiny_imagenet")
-token = po_ingress$train(list(task))[[1L]]
-ingress = token$ingress[[1L]]
-ingress$batchgetter(task$data(1, ingress$features), "cpu")
+po_ingress
 }
 \seealso{
 Other PipeOp: 

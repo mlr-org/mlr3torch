@@ -31,11 +31,11 @@ The desired output shape. Unknown dimension (one at most) can either be specifie
 }
 
 \section{Fields}{
- Only fields inherited from \link{\code{PipeOpTorch}}/\link{\code{mlr3pipelines::PipeOp}}.
+ Only fields inherited from \code{PipeOpTorch}/\code{\link{PipeOp}{mlr3pipelines}}].
 }
 
 \section{Methods}{
- Only methods inherited from \link{\code{PipeOpTorch}}/\link{\code{PipeOp}}.
+ Only methods inherited from \code{PipeOpTorch}/\code{\link{PipeOp}{mlr3pipelines}}].
 }
 
 \section{Internals}{
@@ -45,9 +45,7 @@ This internally calls \code{\link[torch:torch_reshape]{torch::torch_reshape()}} 
 }
 
 \section{Credit}{
- Parts of this documentation have been copied or adapted from the R package \CRANpkg{torch}, that comes under the
-MIT license, which is included in the help page of \CRANpkg{mlr3torch}, as well as in the top-level folder of
-the package source.
+ Parts of this documentation have been copied or adapted from the R package \CRANpkg{torch}, that comes under the  MIT license, which is included in the COPYRIGHTS file of the source package.
 }
 
 \examples{

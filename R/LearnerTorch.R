@@ -53,13 +53,11 @@
 #' creates a dataloader from that dataset. When doing so, it is important to respect the parameter `shuffle`, because
 #' this method is used to ceate the dataloader for prediction as well.
 #'
-#' While it is possible to add parameters by specifying the `param_set` constructino argument, it is currently
+#' While it is possible to add parameters by specifying the `param_set` construction argument, it is currently
 #' not possible to change these parameters.
-#' Note that none of the parameters provided in `param_set` can have an id that starts with `"loss."` or `"opt."`
-#' as these are preserved for the dynamically constructed parameters of the optimizer and the loss function.
-#'
-#' For a more general introduction on how to create a new learner, see the respective section in the
-#' [mlr3 book](https://mlr3book.mlr-org.com/extending.html#sec-extending-learners).
+#' Note that none of the parameters provided in `param_set` can have an id that starts with `"loss."`, `"opt.",
+#' or `"cb."`, as these are preserved for the dynamically constructed parameters of the optimizer and the loss
+#' function.
 #'
 #' @section Fields:
 #' Fields inherited from [`LearnerClassif`] or [`LearnerRegr`] and
@@ -90,13 +88,17 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
       callbacks = as_torch_callbacks(callbacks, clone = TRUE)
       callback_ids = ids(callbacks)
       assert_names(callback_ids, type = "unique")
-      assert_true(!"history" %in% callback_ids)
+      if ("history" %in% callback_ids) {
+        stopf("Callback with id 'history' is reserved for CallbackTorchHistory, which is always added.")
+      }
 
       callbacks = c(t_clbk("history"), callbacks)
       private$.callbacks = set_names(callbacks, ids(callbacks))
       walk(private$.callbacks, function(cb) {
         cb$param_set$set_id = paste0("cb.", cb$id)
       })
+
+      # TODO: Here we should tag all the parameters of the callbacks and optimizer and loss with `"train"` (?)
 
       packages = unique(c(
         packages,
