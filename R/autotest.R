@@ -281,7 +281,7 @@ autotest_torch_callback = function(cb, init_args = list()) {
   expect_string(cb$id)
   expect_class(cbgen, "R6ClassGenerator")
   expect_class(cb$param_set, "ParamSet")
-  init_fn = get_init(cb$callback)
+  init_fn = get_init(cb$generator)
   if (is.null(init_fn)) init_fn = function() NULL
   paramtest = autotest_paramset(cb$param_set, init_fn)
   # TODO: Finish parameter est

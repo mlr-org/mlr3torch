@@ -95,7 +95,9 @@ roxy_construction = function(x) {
     init = function() NULL
   } else {
     init = obj_with_init$public_methods$initialize
-
+  }
+  if (!is.function(init)) {
+    init = function() NULL
   }
   fs = formals(init)
   args = names(fs)

@@ -66,6 +66,9 @@ PipeOpTorchLoss = R6Class("PipeOpTorchLoss",
       self$state = list()
       inputs
     },
+    .predict = function (inputs) {
+      inputs
+    },
     .loss = NULL
   )
 )

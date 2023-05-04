@@ -262,10 +262,13 @@ All the learner implementations:
 
 **Important**
 
+* [ ] Add the learners etc. for regression
 * [ ] Cloning of trained networks (requires new torch version)
 * [ ] Reproducibility: Add the cuda seed resetting
+* [ ] param_set$get_values(tags = "train") expects all parameters to be tagged with "train" --> maybe this is currently a bug
+* [ ] tiny_imagenet --> We can create construction argument download and then as.data.table.DictionaryTasks works (look at its code for information)
 * [ ] Implement bundling
-* [ ] Add the learners etc. for regression
+* [ ] Utility functions for save_torch_learner and load_torch_learner, this should also be called in callback checkpoint
 
 **Missing stuff**
 

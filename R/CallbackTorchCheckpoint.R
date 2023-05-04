@@ -17,6 +17,7 @@
 #'
 #' @export
 CallbackTorchCheckpoint = callback_torch("CallbackTorchCheckpoint",
+  # TODO: This should also save the learner itself
   public = list(
     initialize = function(path, freq, save_last = TRUE) {
       assert_path_for_output(path)

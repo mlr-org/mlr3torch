@@ -34,7 +34,7 @@
 #'   Additional info: what optimizer to use.
 #' @param loss ([`TorchLoss`] | `NULL`)\cr
 #'   Additional info: what loss to use.
-#' @param callbacks (A `list` of [`CallbackTorch`] \ `NULL`)\cr
+#' @param callbacks (A `list` of [`CallbackTorch`] or `NULL`)\cr
 #'   Additional info: what callbacks to use.
 #' @param .pointer (`character(2)` | `NULL`)\cr
 #'   Indicating an element on which a model is. Points to an output channel within `graph`:

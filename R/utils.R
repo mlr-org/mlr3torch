@@ -111,7 +111,7 @@ class_with_init = function(x) {
   if (is.null(x)) {
     # This is the case where no initialize method is found
     return(NULL)
-  } else if (!is.null(x$public_methods$initialize)) {
+  } else if (is.null(x$public_methods) || exists("initialize", x$public_methods, inherits = FALSE)) {
     return(x)
   } else {
     Recall(x$get_inherit())

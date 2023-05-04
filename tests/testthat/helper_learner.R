@@ -1,10 +1,10 @@
-LearnerClassifTest1 = R6Class("LearnerClassifTest1",
+LearnerClassifTorch1 = R6Class("LearnerClassifTorch1",
   inherit = LearnerClassifTorch,
   public = list(
     initialize = function(optimizer = t_opt("adagrad"), loss = t_loss("cross_entropy")) {
       super$initialize(
         id = "classif.test1",
-        label = "Test1 Classifier",
+        label = "Torch1 Classifier",
         feature_types = c("numeric", "integer"),
         param_set = ps(bias = p_lgl(default = FALSE, tags = "train")),
         properties = c("multiclass", "twoclass"),
@@ -37,6 +37,45 @@ LearnerClassifTest1 = R6Class("LearnerClassifTest1",
       )
       return(dl)
 
+    }
+  )
+)
+
+LearnerRegrTorch1 = R6Class("LearnerRegrTorch1",
+  inherit = LearnerRegrTorch,
+  public = list(
+    initialize = function(optimizer = t_opt("adagrad"), loss = t_loss("mse")) {
+      super$initialize(
+        id = "regr.test1",
+        label = "Test1 Regressor",
+        feature_types = c("numeric", "integer"),
+        param_set = ps(bias = p_lgl(default = FALSE, tags = "train")),
+        predict_types = "response",
+        optimizer = optimizer,
+        loss = loss,
+        man = "mlr3torch::mlr_learners_regr.test1"
+      )
+    }
+  ),
+  private = list(
+    .network = function(task, param_vals, defaults) {
+      nn_linear(length(task$feature_names), 1, bias = param_vals$bias %??% FALSE)
+    },
+    .dataloader = function(task, param_vals, defaults) {
+      ingress_token = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, length(task$feature_names)))
+      dataset = task_dataset(
+        task,
+        feature_ingress_tokens = list(num = ingress_token),
+        target_batchgetter = target_batchgetter("regr"),
+        device = param_vals$device %??% self$param_set$default$device
+      )
+      dl = dataloader(
+        dataset = dataset,
+        batch_size = param_vals$batch_size,
+        drop_last = param_vals$drop_last %??% self$param_set$default$drop_last,
+        shuffle = param_vals$shuffle %??% self$param_set$default$shuffle
+      )
+      return(dl)
     }
   )
 )

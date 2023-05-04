@@ -31,6 +31,78 @@ learner_torch_train = function(self, task) {
 #   learner_torch_train_worker(self, private, super, task, param_vals, TRUE)
 # }
 
+learner_torch_initialize = function(
+  self,
+  private,
+  super,
+  task_type,
+  id,
+  optimizer,
+  loss,
+  param_set,
+  properties,
+  packages,
+  predict_types,
+  feature_types,
+  man,
+  label,
+  callbacks
+  ) {
+  private$.optimizer = as_torch_optimizer(optimizer, clone = TRUE)
+  private$.optimizer$param_set$set_id = "opt"
+
+  private$.loss = as_torch_loss(loss, clone = TRUE)
+  private$.loss$param_set$set_id = "loss"
+
+  callbacks = as_torch_callbacks(callbacks, clone = TRUE)
+  callback_ids = ids(callbacks)
+  assert_names(callback_ids, type = "unique")
+  if ("history" %in% callback_ids) {
+    stopf("Callback with id 'history' is reserved for CallbackTorchHistory, which is always added.")
+  }
+
+  callbacks = c(t_clbk("history"), callbacks)
+  private$.callbacks = set_names(callbacks, ids(callbacks))
+  walk(private$.callbacks, function(cb) {
+    cb$param_set$set_id = paste0("cb.", cb$id)
+  })
+
+  # TODO: Here we should tag all the parameters of the callbacks and optimizer and loss with `"train"` (?)
+
+  packages = unique(c(
+    packages,
+    unlist(map(private$.callbacks, "packages")),
+    private$.loss$packages,
+    private$.optimizer$packages
+  ))
+
+  assert_subset(properties, mlr_reflections$learner_properties[[task_type]])
+  assert_subset(predict_types, names(mlr_reflections$learner_predict_types[[task_type]]))
+  assert_true(!any(grepl("^(loss\\.|opt\\.|cb\\.)", param_set$ids())))
+  packages = assert_character(packages, any.missing = FALSE, min.chars = 1L)
+  packages = union(c("mlr3", "mlr3torch", "torch"), packages)
+
+  paramset_torch = paramset_torchlearner()
+  if (param_set$length > 0) {
+    private$.param_set_base = ParamSetCollection$new(list(param_set, paramset_torch))
+  } else {
+    private$.param_set_base = paramset_torch
+  }
+
+  super$initialize(
+    id = id,
+    packages = packages,
+    param_set = self$param_set,
+    predict_types = predict_types,
+    properties = properties,
+    data_formats = "data.table",
+    label = label,
+    feature_types = feature_types,
+    man = man
+  )
+
+}
+
 
 learner_torch_train_worker = function(self, private, super, task, param_vals, continue = FALSE, seed = seed) {
   torch_set_num_threads(param_vals$num_threads %??% 1L)
@@ -75,7 +147,7 @@ learner_torch_train_worker = function(self, private, super, task, param_vals, co
 
 train_loop = function(ctx, cbs, seed) {
   call = function(step_name) {
-    lapply(cbs, function(x) if (!is.null(x[[step_name]])) x[[step_name]](ctx))
+    lapply(cbs, function(x) if (exists(step_name, x, inherits = FALSE)) x[[step_name]](ctx))
   }
 
   ## we do this so if the learner should crash the intermediate progress is saved somewhere
@@ -83,7 +155,7 @@ train_loop = function(ctx, cbs, seed) {
     network = ctx$network,
     optimizer = ctx$optimizer,
     loss_fn = ctx$loss_fn,
-    callbacks = cbs, 
+    callbacks = cbs,
     seed = seed
   )
 
@@ -116,7 +188,7 @@ train_loop = function(ctx, cbs, seed) {
       call("on_batch_begin")
 
       if (length(batch$x) == 1L) {
-        # With one argument there is no ambiguity and we can be less strict 
+        # With one argument there is no ambiguity and we can be less strict
         y_hat = ctx$network(batch$x[[1L]])
       } else {
         y_hat = do.call(ctx$network, batch$x)

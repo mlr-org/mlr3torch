@@ -60,7 +60,7 @@ Remotes:
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, r6 = FALSE)
-RoxygenNote: 7.2.2
+RoxygenNote: 7.2.3
 Collate:
     'CallbackTorch.R'
     'zzz.R'

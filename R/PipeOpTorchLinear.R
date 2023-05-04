@@ -60,4 +60,3 @@ PipeOpTorchLinear = R6Class("PipeOpTorchLinear",
 
 #' @include zzz.R
 register_po("nn_linear", PipeOpTorchLinear)
-

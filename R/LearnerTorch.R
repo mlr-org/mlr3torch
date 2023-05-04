@@ -1,40 +1,45 @@
-#' @title Abstract Base Class for a Torch Network
+#' @title Abstract Base Class for a Torch Classification Learner
 #'
 #' @usage NULL
 #' @name mlr_learners_classif.torch
-#'
 #' @format `r roxy_format(LearnerClassifTorch)`
 #'
 #' @description
 #' This base class provides the basic functionality for training and prediction of a neural network.
-#' All torch learners should inherit from the respective subclass.
-#' To create a torch learner from a [`nn_module`], use [`LearnerClassifTorch`] or [`LearnerRegrTorch`] instead.
+#' All torch classifiction learners should inherit from the respective subclass.
 #'
 #' @section Construction:
+#' Classification:
+#'
 #' `r roxy_construction(LearnerClassifTorch)`
 #'
+#' Regression:
+#'
+#' `r roxy_construction(LearnerRegrTorch)`
+#'
 #' * `r roxy_param_id()`
-#' * `optimizer` :: ([`TorchOptimizer`])\cr
+#' * `optimizer` :: [`TorchOptimizer`]\cr
 #'   The optimizer for the model.
-#' * `loss` :: ([`TorchLoss`])\cr
+#' * `loss` :: [`TorchLoss`]\cr
 #'   The loss for the model.
+#' * `callbacks`:: `list()` of [`TorchCallback`] objects\cr
+#'   The callbacks used for training. Must have unique IDs.
 #' * `r roxy_param_param_set()`
-#' * `properties` :: (`character()`)\cr
+#' * `properties` :: `character()`\cr
 #'   The properties for the learner, see `mlr_reflections$learner_properties`.
-#' * `packages` :: (`character()`)\cr
+#' * `packages` :: `character()`\cr
 #'   The additional packages on which the learner depends. The packages `"torch"` and `"mlr3torch"` are automatically
 #'   added so do not have to be passed explicitly.
-#' * `predict_types` :: (`character()`)\cr
+#' * `predict_types` :: `character()`\cr
 #'   The learner's predict types, see `mlr_reflections$learner_predict_types`.
 #'   The default is `"response"` and `"prob"`.
-#' * `feature_types` :: (`character()`)\cr
+#' * `feature_types` :: `character()`\cr
 #'   The feature types the learner can deal with, see `mlr_reflections$task_feature_types`.
-#' * `man` :: (`character(1)`)\cr
+#' * `man` :: `character(1)`\cr
 #'   String in the format `[pkg]::[topic]` pointing to a manual page for this object.
 #'   The referenced help package can be opened via method `$help()`.
-#' * `label` :: (`character(1)`)\cr
+#' * `label` :: `character(1)`\cr
 #'   The label for the learner.
-#'
 #'
 #' @section State:
 #' The state is a list with elements `network`, `optimizer`, `loss_fn` and `callbacks`.
@@ -77,61 +82,96 @@
 LearnerClassifTorch = R6Class("LearnerClassifTorch",
   inherit = LearnerClassif,
   public = list(
-    initialize = function(id, optimizer, loss, param_set, properties = NULL, packages = character(0),
+    initialize = function(id, optimizer, loss, param_set, properties = c("twoclass", "multiclass"), packages = character(0),
       predict_types = c("response", "prob"), feature_types, man, label, callbacks = list()) {
-      private$.optimizer = as_torch_optimizer(optimizer, clone = TRUE)
-      private$.optimizer$param_set$set_id = "opt"
 
-      private$.loss = as_torch_loss(loss, clone = TRUE)
-      private$.loss$param_set$set_id = "loss"
-
-      callbacks = as_torch_callbacks(callbacks, clone = TRUE)
-      callback_ids = ids(callbacks)
-      assert_names(callback_ids, type = "unique")
-      if ("history" %in% callback_ids) {
-        stopf("Callback with id 'history' is reserved for CallbackTorchHistory, which is always added.")
-      }
-
-      callbacks = c(t_clbk("history"), callbacks)
-      private$.callbacks = set_names(callbacks, ids(callbacks))
-      walk(private$.callbacks, function(cb) {
-        cb$param_set$set_id = paste0("cb.", cb$id)
-      })
-
-      # TODO: Here we should tag all the parameters of the callbacks and optimizer and loss with `"train"` (?)
-
-      packages = unique(c(
-        packages,
-        unlist(map(private$.callbacks, "packages")),
-        private$.loss$packages,
-        private$.optimizer$packages
-      ))
-
-      properties = properties %??% c("twoclass", "multiclass")
-
-      assert_subset(properties, mlr_reflections$learner_properties[["classif"]])
-      assert_subset(predict_types, names(mlr_reflections$learner_predict_types[["classif"]]))
-      assert_true(!any(grepl("^(loss\\.|opt\\.|cb\\.)", param_set$ids())))
-      packages = assert_character(packages, any.missing = FALSE, min.chars = 1L)
-      packages = union(c("mlr3", "mlr3torch", "torch"), packages)
-
-      paramset_torch = paramset_torchlearner()
-      if (param_set$length > 0) {
-        private$.param_set_base = ParamSetCollection$new(list(param_set, paramset_torch))
-      } else {
-        private$.param_set_base = paramset_torch
-      }
-
-      super$initialize(
+      learner_torch_initialize(self = self, private = private, super = super,
+        task_type = "classif",
         id = id,
-        packages = packages,
-        param_set = self$param_set,
-        predict_types = predict_types,
+        optimizer = optimizer,
+        loss = loss,
+        param_set = param_set,
         properties = properties,
-        data_formats = "data.table",
-        label = label,
+        packages = packages,
+        predict_types = predict_types,
         feature_types = feature_types,
-        man = man
+        man = man,
+        label = label,
+        callbacks = callbacks
+      )
+    }
+  ),
+  private = list(
+    .train = function(task) {
+      learner_torch_train(self, task)
+    },
+    .predict = function(task) {
+      learner_torch_predict(self, task)
+    },
+    .network = function(task, param_vals) stop(".network must be implemented."),
+    # the dataloader gets param_vals that may be different from self$param_set$values, e.g.
+    # when the dataloader for validation data is loaded, `shuffle` is set to FALSE.
+    .dataloader = function(task, param_vals) {
+      dataloader(
+        private$.dataset(task, param_vals),
+        batch_size = param_vals$batch_size %??% self$param_set$default$batch_size,
+        shuffle = param_vals$shuffle %??% self$param_set$default$shuffle
+      )
+    },
+    .dataset = function(task, param_vals) stop(".dataset must be implemented."),
+    .optimizer = NULL,
+    .loss = NULL,
+    .param_set_base = NULL,
+    .callbacks = NULL,
+    deep_clone = function(name, value) deep_clone(self, private, super, name, value)
+  ),
+  active = list(
+    network = function(rhs) learner_torch_network(self, rhs),
+    param_set = function(rhs) learner_torch_param_set(self, rhs),
+    history = function(rhs) learner_torch_history(self, rhs)
+  )
+)
+
+
+#' @title Abstract Base Class for a Torch Learner
+#'
+#' @usage NULL
+#' @name mlr_learners_regr.torch
+#' @format `r roxy_format(LearnerRegrTorch)`
+#'
+#' @description
+#' This base class provides the basic functionality for training and prediction of a neural network.
+#' All torch regression learners should inherit from the respective subclass.
+#'
+#' @inheritSection mlr_learners_classif.torch Construction
+#' @inheritSection mlr_learners_classif.torch State
+#' @inheritSection mlr_learners_classif.torch Parameters
+#' @inheritSection mlr_learners_classif.torch Fields
+#' @section Methods: `r roxy_methods_inherit(LearnerRegrTorch)`
+#' @inheritSection mlr_learners_classif.torch Internals
+#' @inheritSection mlr_learners_classif.torch Inheriting
+#'
+#' @family Learners
+#' @export
+LearnerRegrTorch = R6Class("LearnerRegrTorch",
+  inherit = LearnerRegr,
+  public = list(
+    initialize = function(id, optimizer, loss, param_set, properties = character(0), packages = character(0),
+      predict_types = "response", feature_types, man, label, callbacks = list()) {
+
+      learner_torch_initialize(self = self, private = private, super = super,
+        task_type = "regr",
+        id = id,
+        optimizer = optimizer,
+        loss = loss,
+        param_set = param_set,
+        properties = properties,
+        packages = packages,
+        predict_types = predict_types,
+        feature_types = feature_types,
+        man = man,
+        label = label,
+        callbacks = callbacks
       )
     }
   ),

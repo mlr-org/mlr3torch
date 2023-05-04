@@ -31,7 +31,7 @@ Additional info: what optimizer to use.}
 \item{loss}{(\code{\link{TorchLoss}} | \code{NULL})\cr
 Additional info: what loss to use.}
 
-\item{callbacks}{(A \code{list} of \code{\link{CallbackTorch}} \ \code{NULL})\cr
+\item{callbacks}{(A \code{list} of \code{\link{CallbackTorch}} or \code{NULL})\cr
 Additional info: what callbacks to use.}
 
 \item{.pointer}{(\code{character(2)} | \code{NULL})\cr

@@ -9,7 +9,7 @@
 }
 \description{
 A \code{\link[mlr3misc:Dictionary]{mlr3misc::Dictionary}} of torch callbacks.
-Use \code{\link{t_clbk}} to conveniently retrieve callbacks.
+Use \code{\link[=t_clbk]{t_clbk()}} to conveniently retrieve callbacks.
 Can be converted to a \code{\link{data.table}} using \code{as.data.table}.
 }
 \section{Methods}{

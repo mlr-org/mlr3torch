@@ -161,7 +161,7 @@ model_descriptor_to_learner = function(model_descriptor) {
   network$reset_parameters()
 
   class = switch(task_type,
-    # FIXME: regr = LearnerRegrTorchModel,
+    regr = LearnerRegrTorchModel,
     classif = LearnerClassifTorchModel,
     stopf("Unsupported task type: %s.", task_type)
   )

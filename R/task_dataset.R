@@ -95,7 +95,7 @@ target_batchgetter = function(task_type) {
     })
   } else if (task_type == "regr") {
     target_batchgetter = crate(function(data, device) {
-      torch_tensor(data = data[[1L]], dtype = torch_float32(), device)
+      torch_tensor(data = data[[1L]], dtype = torch_float32(), device)$unsqueeze(2)
     })
   } else {
     stopf("Unsupported task type %s", task_type)

@@ -1,16 +1,25 @@
-test_that("Correct error when trying to create deep clone of trained network", {
-  learner = LearnerClassifTest1$new()
+test_that("Correct error when trying to create deep clone of trained network: Classification", {
+  learner = LearnerClassifTorch1$new()
   learner$param_set$set_values(epochs = 1, batch_size = 1)
   task = tsk("iris")
   learner$train(task)
   expect_error(learner$clone(deep = TRUE), regexp = "Deep clone of trained network is currently not supported")
 })
 
-test_that("Basic tests", {
-  learner = LearnerClassifTest1$new()
-  expect_class(learner, c("LearnerClassifTest1", "LearnerClassifTorch", "LearnerClassif"))
+
+test_that("Correct error when trying to create deep clone of trained network: Regression", {
+  learner = LearnerRegrTorch1$new()
+  learner$param_set$set_values(epochs = 1, batch_size = 1)
+  task = tsk("mtcars")
+  learner$train(task)
+  expect_error(learner$clone(deep = TRUE), regexp = "Deep clone of trained network is currently not supported")
+})
+
+test_that("Basic tests: Classification", {
+  learner = LearnerClassifTorch1$new()
+  expect_class(learner, c("LearnerClassifTorch1", "LearnerClassifTorch", "LearnerClassif"))
   expect_equal(learner$id, "classif.test1")
-  expect_equal(learner$label, "Test1 Classifier")
+  expect_equal(learner$label, "Torch1 Classifier")
   expect_set_equal(learner$feature_types, c("numeric", "integer"))
   expect_equal(learner$param_set$default$bias, FALSE)
   expect_set_equal(learner$properties, c("multiclass", "twoclass"))
@@ -31,11 +40,37 @@ test_that("Basic tests", {
   expect_class(learner$network, "nn_module")
 })
 
+test_that("Basic tests: Regression", {
+  learner = LearnerRegrTorch1$new()
+  expect_class(learner, c("LearnerRegrTorch1", "LearnerRegrTorch", "LearnerRegr"))
+  expect_equal(learner$id, "regr.test1")
+  expect_equal(learner$label, "Test1 Regressor")
+  expect_set_equal(learner$feature_types, c("numeric", "integer"))
+  expect_equal(learner$param_set$default$bias, FALSE)
+  expect_set_equal(learner$properties, c())
+
+  # default predict types are correct
+  expect_set_equal(learner$predict_types, "response")
+
+  expect_subset(c("torch", "mlr3torch"), learner$packages)
+
+  data = data.frame(x1 = 1:10, x2 = runif(10), y = 1:10)
+
+  task = as_task_regr(data, target = "y", id = "hallo")
+
+  learner$param_set$values$epochs = 0
+  learner$param_set$values$batch_size = 1
+
+  learner$train(task)
+  expect_class(learner$network, "nn_module")
+})
+
+
 test_that("Param Set for optimizer and loss are correctly created", {
   opt = t_opt("sgd")
   loss = t_loss("cross_entropy")
   loss$param_set$subset(c("weight", "ignore_index"))
-  learner = LearnerClassifTest1$new(optimizer = opt, loss = loss)
+  learner = LearnerClassifTorch1$new(optimizer = opt, loss = loss)
   expect_subset(paste0("opt.", opt$param_set$ids()), learner$param_set$ids())
   expect_subset(paste0("loss.", loss$param_set$ids()), learner$param_set$ids())
 })
@@ -43,7 +78,7 @@ test_that("Param Set for optimizer and loss are correctly created", {
 
 test_that("Parameters cannot start with {loss, opt, cb}.", {
   helper = function(param_set) {
-    R6Class("LearnerClassifTest1",
+    R6Class("LearnerClassifTorch1",
       inherit = LearnerClassifTorch,
       public = list(
         initialize = function(optimizer = t_opt("adagrad"), loss = t_loss("cross_entropy")) {
@@ -75,7 +110,7 @@ test_that("ParamSet reference identities are preserved after a deep clone", {
   # This is solved by setting the private$.param_set to NULL in the deep clone, so that it is reconstructed correctly
   # afterwards
 
-  learner = LearnerClassifTest1$new()
+  learner = LearnerClassifTorch1$new()
   learner1 = learner$clone(deep = TRUE)
 
   learner1$param_set$set_values(opt.lr = 9.99)

@@ -44,12 +44,12 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
       input = data.table(
         name = "input",
         train = "ModelDescriptor",
-        predict = mlr_reflections$task_types["classif", task]
+        predict = mlr_reflections$task_types[private$.task_type, task]
       )
       output = data.table(
         name = "output",
         train = "NULL",
-        predict = mlr_reflections$task_types["classif", prediction]
+        predict = mlr_reflections$task_types[private$.task_type, prediction]
       )
 
       super$initialize(
