@@ -1,5 +1,5 @@
 Package: mlr3torch
-Title: Torch Models for 'mlr3'
+Title: Deep Learning for 'mlr3'
 Version: 0.0.0.9000
 Authors@R:
     c(person(given = "Sebastian",
@@ -72,7 +72,7 @@ Collate:
     'ContextTorch.R'
     'LearnerClassifTorchImage.R'
     'LearnerClassifAlexNet.R'
-    'LearnerClassifMLP.R'
+    'LearnerMLP.R'
     'LearnerTorch.R'
     'LearnerTorchFeatureless.R'
     'LearnerTorchModel.R'
@@ -106,8 +106,10 @@ Collate:
     'assertions.R'
     'autotest.R'
     'autotest_learner.R'
+    'converter.R'
     'dataloader.R'
     'expectations.R'
+    'helper.R'
     'image_dataset.R'
     'imageuri.R'
     'learner_torch_methods.R'

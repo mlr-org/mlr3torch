@@ -158,7 +158,6 @@ LearnerRegrTorch = R6Class("LearnerRegrTorch",
   public = list(
     initialize = function(id, optimizer, loss, param_set, properties = character(0), packages = character(0),
       predict_types = "response", feature_types, man, label, callbacks = list()) {
-
       learner_torch_initialize(self = self, private = private, super = super,
         task_type = "regr",
         id = id,

@@ -2,7 +2,6 @@
 # #' It only containst the training data of the task.
 # #' @format [R6::R6Class] inheriting from [TaskClassif].
 # #' @name mlr_tasks_iris
-# #' @include mlr_tasks.R
 # #'
 # NULL
 

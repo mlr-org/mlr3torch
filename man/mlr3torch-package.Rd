@@ -4,7 +4,7 @@
 \name{mlr3torch-package}
 \alias{mlr3torch}
 \alias{mlr3torch-package}
-\title{mlr3torch: Torch Models for 'mlr3'}
+\title{mlr3torch: Deep Learning for 'mlr3'}
 \description{
 Provides torch models as learners for the mlr3 ecosystem.
 }

@@ -4,6 +4,7 @@
 #' @import mlr3misc
 #' @importFrom R6 R6Class is.R6
 #' @importFrom methods formalArgs
+#' @importFrom utils getFromNamespace
 #' @import torch
 #' @import mlr3pipelines
 #' @import mlr3
@@ -16,7 +17,8 @@ mlr3torch_pipeops = new.env()
 mlr3torch_learners = new.env()
 mlr3torch_tasks = new.env()
 mlr3torch_tags = c("torch", "activation")
-mlr3torch_feature_types = list(img = "imageuri")
+mlr3torch_feature_types = c(img = "imageuri")
+mlr3torch_image_tasks = new.env()
 
 mlr3torch_activations = c(
   "celu",
@@ -75,6 +77,7 @@ register_mlr3 = function() {
 
   mlr_tasks = utils::getFromNamespace("mlr_tasks", ns = "mlr3")
   iwalk(as.list(mlr3torch_tasks), function(task, nm) mlr_tasks$add(nm, task)) # nolint
+  iwalk(as.list(mlr3torch_image_tasks), function(task, nm) mlr_tasks$add(nm, task)) # nolint
 
   mlr_reflections = utils::getFromNamespace("mlr_reflections", ns = "mlr3") # nolint
   iwalk(as.list(mlr3torch_feature_types), function(ft, nm) mlr_reflections$task_feature_types[[nm]] = ft) # nolint
@@ -104,16 +107,11 @@ register_mlr3pipelines = function() {
   }
 }
 
-# TODO: The removal of properties fails when the property has been alrady present before it was added in torch
-# --> Take care that we don't add properties that are present
-# TODO: Add missing unloadings
 .onUnload = function(libPaths) { # nolint
-  mlr_learners = utils::getFromNamespace("mlr_learners", ns = "mlr3")
-  mlr_tasks = utils::getFromNamespace("mlr_tasks", ns = "mlr3")
-  mlr_reflections = utils::getFromNamespace("mlr_reflections", ns = "mlr3") # nolint
-
   walk(names(mlr3torch_learners), function(nm) mlr_learners$remove(nm))
   walk(names(mlr3torch_tasks), function(nm) mlr_tasks$remove(nm))
-  # walk(names(mlr3torch_feature_types), function(nm) mlr_reflections$task_feature_types[[nm]] = NULL)
-  # walk(names(mlr3torch_learner_properties), function(nm) mlr_reflections$learner_properties[[nm]] = NULL)
+  walk(names(mlr3torch_pipeops), function(nm) mlr_pipeops$remove(nm))
+  walk(names(mlr3torch_tasks), function(nm) mlr_tasks$remove(nm))
+  mlr_reflections$pipeops$valid_tags = setdiff(mlr_reflections$pipeops$valid_tags, mlr3torch_tags)
+  mlr_reflections$learner_feature_types = setdiff(mlr_reflections$learner_feature_types, mlr3torch_feature_types)
 }
