@@ -1,3 +1,21 @@
+Do
+
+
+* [ ] Finish callbacks
+* [ ] Finish documentation of all objects.
+* [ ] Autotest TorchOp
+
+
+
+
+
+
+
+
+
+
+
+
 4. Help pages with dynamic parameters need special care
 
 ## Questions:

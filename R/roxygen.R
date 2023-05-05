@@ -1,0 +1,110 @@
+# TODO: Fix Rd syntax here:
+# https://stackoverflow.com/questions/25489042/linking-to-other-packages-in-documentation-in-roxygen2-in-r
+
+roxy_param_id = function(id = NULL) {
+  paste0(
+    "`id` :: `character(1)`\\cr The id for the object.",
+    if (!is.null(id)) sprintf(" The default is \"%s\".", id)
+  )
+}
+
+roxy_pipeop_torch_param_id = function(id = NULL) {
+  sprintf(
+    "\\code{id} :: \\code{character(1)}\\cr Identifier of the resulting object.%s",
+    if (is.null(id)) "" else sprintf("Default is \"%s\"", id)
+  )
+}
+
+roxy_pipeop_torch_fields_default = function() { # nolint
+  "Only fields inherited from \\code{PipeOpTorch}/\\code{\\link{PipeOp}{mlr3pipelines}}]."
+}
+
+roxy_pipeop_torch_methods_default = function() { # nolint
+  "Only methods inherited from \\code{PipeOpTorch}/\\code{\\link{PipeOp}{mlr3pipelines}}]."
+}
+
+roxy_param_param_vals = function() {
+  "\\code{param_vals} :: named \\code{list()}\\cr List of hyperparameter settings to overwrite the initial values. Default is  \\code{list()}." # nolint
+}
+
+roxy_param_module_generator = function() {
+  "\\code{module_generator} :: \\code{nn_module_generator}\\cr The torch module generator."
+}
+
+roxy_param_param_set = function() {
+  "\\code{param_set} :: \\code{link{ParamSet}{paradox}}\\cr The parameter set."
+}
+
+roxy_torch_license = function() {
+  paste(
+    "Parts of this documentation have been copied or adapted from the R package \\CRANpkg{torch}, that comes under the",
+    " MIT license, which is included in the COPYRIGHTS file of the source package."
+  )
+}
+
+roxy_pipeop_torch_channels_default = function() { # nolint
+  paste0(
+    "One input channel called \\code{\"input\"} and one output channel called",
+    "\"output\". For an explanation see \\code{\\link{PipeOpTorch}}."
+  )
+}
+
+roxy_pipeop_torch_state_default = function() { # nolint
+  "The state is the value calculated by the public method \\code{shapes_out()}."
+}
+
+roxy_param_packages = function() {
+  "\\code{packages}` :: named \\code{list()}\\cr List of packages settings. Default is  \\code{list()}."
+}
+
+roxy_fields_inherit = function(class) {
+  parents = get_parents(class)
+  sprintf("Fields inherited from %s.", paste0("[`", parents, "`]", collapse = ", "))
+}
+
+roxy_methods_inherit = function(class) {
+  parents = get_parents(class)
+  sprintf("Methods inherited from %s.", paste0("[`", parents, "`]", collapse = ", "))
+}
+
+get_parents = function(class) {
+  parents = character(0)
+  i = 1
+  class = class$get_inherit()
+  while (!is.null(class)) {
+    parents[i] = class$classname
+    class = class$get_inherit()
+    i = i + 1
+  }
+  parents
+}
+
+roxy_format = function(class) {
+  parents = get_parents(class)
+  if (length(parents)) {
+    sprintf("[`R6Class`] inheriting from %s.", paste0("[`", parents, "`]", collapse = ", "))
+  } else {
+    "[`R6Class`]"
+  }
+}
+
+roxy_construction = function(x) {
+  obj_with_init = class_with_init(x)
+  if (is.null(obj_with_init)) {
+    # None of the parents or the object itself has an initialize method
+    init = function() NULL
+  } else {
+    init = obj_with_init$public_methods$initialize
+  }
+  if (!is.function(init)) {
+    init = function() NULL
+  }
+  fs = formals(init)
+  args = names(fs)
+  defaults = unname(fs)
+  defaults = map_chr(defaults, function(x) deparse(x))
+
+  inner = paste0(paste0(args, ifelse(defaults == "", "", " = "), defaults), collapse = ", ")
+
+  sprintf("\\code{%s$new(%s)}", x$classname, inner)
+}

@@ -7,9 +7,11 @@
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![R-CMD-check](https://github.com/mlr-org/mlr3torch/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mlr-org/mlr3torch/actions/workflows/R-CMD-check.yaml)
+[![r-cmd-check](https://github.com/mlr-org/mlr3torch/actions/workflows/r-cmd-check.yml/badge.svg)](https://github.com/mlr-org/mlr3torch/actions/workflows/r-cmd-check.yml)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/mlr3torch)](https://CRAN.R-project.org/package=mlr3torch)
+[![StackOverflow](https://img.shields.io/badge/stackoverflow-mlr3-orange.svg)](https://stackoverflow.com/questions/tagged/mlr3)
+[![Mattermost](https://img.shields.io/badge/chat-mattermost-orange.svg)](https://lmmisld-lmu-stats-slds.srv.mwn.de/mlr_invite/)
 <!-- badges: end -->
 
 The goal of {mlr3torch} is to connect
@@ -70,7 +72,7 @@ graph = top("input") %>>%
   top("relu_1") %>>%
   top("linear_1", out_features = 10) %>>%
   top("relu_2") %>>%
-  top("output") %>>%
+  top("head") %>>%
   top("model.classif", epochs = 10L, batch_size = 16L, .loss = "cross_entropy", .optimizer = "adam")
 
 glrn = as_learner_torch(graph)

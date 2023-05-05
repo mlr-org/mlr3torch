@@ -3,7 +3,7 @@ devtools::load_all()
 
 # nn_graph
 
-# LearnerClassifTorchAbstract <-- LearnerClassif
+# LearnerClassifTorch <-- LearnerClassif
 # |  --> learner_torch_train
 # |      --> ContextTorch
 # |      --> History "training history for a torch learner" -- why is this not a list?

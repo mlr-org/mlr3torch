@@ -17,8 +17,25 @@ Shape info of tensors that go into \code{graph}. Names must be \code{graph$input
 Which of \code{graph}'s outputs to use. Must be a subset of \code{graph$output$name}.}
 
 \item{list_output}{(\code{logical(1)})\cr
-Whether output should be a list of tensors. If \code{FALSE}, then \code{length(output_map)} must be 1.}
+Whether output should be a list of tensors. If \code{FALSE} (default), then \code{length(output_map)} must be 1.}
+}
+\value{
+\code{\link{nn_graph}}
 }
 \description{
-Represents a NN using a \code{\link{Graph}} that contains \code{\link{PipeOpModule}}s.
+Represents a neural network using a \code{\link{Graph}} that usually costains mostly \code{\link{PipeOpModule}}s.
 }
+\examples{
+graph = as_graph(po("module", module = nn_linear(10, 1)))
+network = nn_graph(graph, list(module.input = c(NA, 1)))
+network
+}
+\seealso{
+Other graph_network: 
+\code{\link{mlr_pipeops_module}},
+\code{\link{mlr_pipeops_torch}},
+\code{\link{model_descriptor_to_learner}()},
+\code{\link{model_descriptor_to_module}()},
+\code{\link{model_descriptor_union}()}
+}
+\concept{graph_network}

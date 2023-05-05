@@ -1,30 +1,123 @@
-#' @title Base Class for Torch Module Wrappers
+#' @title Class for Torch Module Wrappers
+#'
+#' @usage NULL
+#' @name mlr_pipeops_module
+#' @format [`R6Class`] object inheriting from [`mlr3pipelines::PipeOp`].
 #'
 #' @description
-#' `PipeOpModule` wraps a `torch::nn_module`. Graphs of `PipeOpModule`s are combined in a [`GraphModule`].
+#' `PipeOpModule` wraps an [`nn_module`] that is being called during the `train` phase of this [`mlr3pipelines::PipeOp`].
+#' By doing so, this allows to assemble `PipeOpModule`s in a computational [`mlr3pipelines::Graph`] that
+#' represents a neural network architecture. Such a graph can also be used to create a [`nn_graph`] which inherits
+#' from [`nn_module`].
 #'
-#' @examples
+#' In most cases it is easier to create such a network by creating a isomorphic graph consisting
+#' of nodes of class [`PipeOpTorchIngress`] and [`PipeOpTorch`]. This graph will then generate the graph consisting
+#' of `PipeOpModule`s during its training phase.
+#'
+#' The `predict` method does currently not serve a meaningful purpose.
+#'
+#' @section Construction:
+#' `r roxy_construction(PipeOpModule)`
+#'
+#' * `r roxy_param_id("module")`
+#' * `module` :: [`nn_module`]\cr
+#'   The torch module that is being wrapped.
+#' * `inname` :: `character()`\cr
+#'
+#' For a more general introduction on how to create a new learner, see the respective section in the
+#' [mlr3 book](https://mlr3book.mlr-org.com/extending.html#sec-extending-learners).
+#'   The names of the input channels.
+#' * `outname` :: `character()`\cr
+#'   The names of the output channels. If this parameter has length 1, the parameter [module][torch::nn_module] must
+#'   return a [tensor][torch::torch_tensor]. Otherwise it must return a `list()` of tensors of corresponding length.
+#'
+#' * `r roxy_param_param_vals()`
+#'
+#' * `r roxy_param_packages()`
+#'
+#' @section Input and Output Channels:
+#' The number and names of the input and output channels can be set during construction. They input and output
+#' `"torch_tensor"` during training, and `NULL` during prediction as the prediction phase currently serves no
+#' meaningful purpose.
+#'
+#' @section State:
+#' The `$state` is an empty `list()`.
+#'
+#' @section Parameters:
+#' No parameters.
+#'
+#' @section Fields:
+#' * `module` :: `nn_module`\cr
+#'   The torch module that is called during the training phase of the PipeOpModule.
+#'
+#' @section Methods:
+#' Only methods inherited from [`mlr3pipelines::PipeOp`].
+#'
+#' @section Internals:
+#' During training, the wrapped [`nn_module`] is called with the provided inputs in the order in which the channels
+#' are defined. Arguments are **not** matched by name.
+#'
+#'
+#' @seealso nn_module, mlr_pipeops_torch, nn_graph, model_descriptor_to_module, PipeOp, Graph
+#' @family graph_network
 #' @export
+#' @examples
+#' ## creating an PipeOpModule manually
+#'
+#' # one input and output channel
+#' po_module = PipeOpModule$new("linear",
+#'   torch::nn_linear(10, 20),
+#'   inname = "input",
+#'   outname = "output"
+#' )
+#' x = torch::torch_randn(16, 10)
+#' # This calls the forward function of the wrapped module.
+#' y = po_module$train(list(input = x))
+#' str(y)
+#'
+#' # multiple input and output channels
+#' nn_custom = torch::nn_module("nn_custom",
+#'   initialize = function(in_features, out_features) {
+#'     self$lin1 = torch::nn_linear(in_features, out_features)
+#'     self$lin2 = torch::nn_linear(in_features, out_features)
+#'   },
+#'   forward = function(x, z) {
+#'     list(out1 = self$lin1(x), out2 = torch::nnf_relu(self$lin2(z)))
+#'   }
+#' )
+#'
+#' module = nn_custom(3, 2)
+#' po_module = PipeOpModule$new(
+#'   "custom",
+#'   module,
+#'   inname = c("x", "z"),
+#'   outname = c("out1", "out2")
+#' )
+#' x = torch::torch_randn(1, 3)
+#' z = torch::torch_randn(1, 3)
+#' out = po_module$train(list(x = x, z = z))
+#' str(out)
+#'
+#' # How a PipeOpModule is usually generated
+#' graph = po("torch_ingress_num") %>>% po("nn_linear", out_features = 10L)
+#' result = graph$train(tsk("iris"))
+#' # The PipeOpTorchLinear generates a PipeOpModule and adds it to a new (module) graph
+#' result[[1]]$graph
+#' linear_module = result[[1L]]$graph$pipeops$nn_linear
+#' linear_module
+#' formalArgs(linear_module$module)
+#' linear_module$input$name
 PipeOpModule = R6Class("PipeOpModule",
   inherit = PipeOp,
   public = list(
     module = NULL,
-    #' @description Initializes a new instance of this [R6 Class][R6::R6Class].
-    #' @param multi_input (`NULL` | `integer(1)`)\cr
-    #'   `0`: `...`-input. Otherwise: `multi_input` times input channel named `input1:`...`input#`.\cr
-    #'   `module`'s `$forward` function must take `...`-input if `multi_input` is 0, and must have `multi_input` arguments otherwise.
-    #' @param multi_output (`NULL` | `integer(1)`)\cr
-    #'   `NULL`: single output. Otherwise: `multi_output` times output channel named `output1:`...`input#`.\cr
-    #'   `module`'s `$forward` function must return a `list` of `torch_tensor` if `multi_output` is not `NULL`.
-    initialize = function(id, module, multi_input = 1, multi_output = NULL, param_vals = list(), packages = character(0)) {
-      # default input and output channels, packages
-      assert_int(multi_input, null.ok = FALSE, lower = 0)
-      assert_int(multi_output, null.ok = TRUE, lower = 1)
+    initialize = function(id = "module", module = nn_identity(), inname = "input", outname = "output",
+      param_vals = list(), packages = character(0)) {
+      private$.multi_output = length(outname) > 1L
       self$module = assert_class(module, "nn_module")
+      assert_names(outname, type = "strict")
       assert_character(packages, any.missing = FALSE)
 
-      inname = if (multi_input == 0) "..." else sprintf("input%s", seq_len(multi_input))
-      outname = if (is.null(multi_output)) "output" else sprintf("output%s", seq_len(multi_output))
       input = data.table(name = inname, train = "torch_tensor", predict = "NULL")
       output = data.table(name = outname, train = "torch_tensor", predict = "NULL")
 
@@ -36,21 +129,24 @@ PipeOpModule = R6Class("PipeOpModule",
         packages = packages
       )
     }
-    # TODO: printer that calls the nn_module's printer
-    # TODO: maybe call input just 'input' and not 'input1' if only one input present
-    # TODO: make module a read-only active binding
   ),
   private = list(
     .train = function(inputs) {
       self$state = list()  # PipeOp API requires this.
+      # the inputs are passed in the order in which they appear in `graph$input`
+      # Note that PipeOpTorch ensures that (unless the forward method has a ... argument) the input channels are
+      # identical to the arguments of the forward method.
       outputs = do.call(self$module, unname(inputs))
       outname = self$output$name
-      if (identical(outname, "output")) outputs = list(outputs)  # the only case where module does not produce a list
+      if (!private$.multi_output) outputs = list(outputs)
       outputs
     },
     .predict = function(inputs) {
       rep(list(NULL), nrow(self$output))
-    }
+    },
+    .multi_output = FALSE
   )
 )
 
+#' @include zzz.R
+register_po("module", PipeOpModule)

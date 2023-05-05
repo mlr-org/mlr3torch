@@ -1,21 +1,48 @@
-#' @title Average Pooling
-#' @description
-#' 1D, 2D and 3D Average Pooling.
-#' @section Calls:
-#' * `nn_avg_pool1d`
-#' * `nn_avg_pool2d`
-#' * `nn_avg_pool3d`
+#' @title Base Class for Average Pooling
 #'
-#' @name avg_pool
-NULL
-
+#' @usage NULL
+#' @name mlr_pipeops_torch_avg_pool
+#' @format `r roxy_format(PipeOpTorchAvgPool)`
+#'
+#' @description
+#' Base class for average pooling.
+#' Don't use this class directly.
+#'
+#' @section Construction: `r roxy_construction(PipeOpTorchAvgPool)`
+#' * `r roxy_param_id()`
+#' * `r roxy_param_param_vals()`
+#' * `d` :: `integer(1)`\cr
+#'   The dimension for the average pooling operation.
+#'
+#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
+#' @section State: `r roxy_pipeop_torch_state_default()`
+#' @section Parameters:
+#' * `kernel_size` :: (`integer()`)\cr
+#'   The size of the window. Can be a single number or a vector.
+#' * `stride` :: `integer()`\cr
+#'   The stride of the window. Can be a single number or a vector. Default: `kernel_size`.
+#' * `padding` :: `integer()`\cr
+#'   Implicit zero paddings on both sides of the input. Can be a single number or a vector. Default: 0.
+#' * `ceil_mode` :: `integer()`\cr
+#'   When `TRUE`, will use ceil instead of floor to compute the output shape. Default: `FALSE`.
+#' * `count_include_pad` :: `logical(1)`\cr
+#'   When `TRUE`, will include the zero-padding in the averaging calculation. Default: `TRUE`.
+#' * `divisor_override` :: `logical(1)`\cr
+#'   If specified, it will be used as divisor, otherwise size of the pooling region will be used. Default: NULL.
+#'   Only available for dimension greater than 1.
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' See the respective child class.
+#' @section Credit: `r roxy_torch_license()`
+#' @family PipeOpTorch
+#' @export
 PipeOpTorchAvgPool = R6Class("PipeOpTorchAvgPool",
   inherit = PipeOpTorch,
   public = list(
-    #' @description
-    #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(id, d, module_generator, param_vals = list()) {
-      private$.d = assert_int(d)
+    initialize = function(id, d, param_vals = list()) {
+      private$.d = assert_int(d, lower = 1, upper = 3)
+      module_generator = switch(d, nn_avg_pool1d, nn_avg_pool2d, nn_avg_pool3d)
 
       param_set = ps(
         kernel_size = p_uty(custom_check = check_vector(d), tags = c("required", "train")),
@@ -30,19 +57,19 @@ PipeOpTorchAvgPool = R6Class("PipeOpTorchAvgPool",
 
       super$initialize(
         id = id,
-        module_generator = module_generator,
         param_vals = param_vals,
-        param_set = param_set
+        param_set = param_set,
+        module_generator = module_generator
       )
     }
   ),
   private = list(
-    .shapes_out = function(shapes_in, param_vals) {
+    .shapes_out = function(shapes_in, param_vals, task) {
       list(avg_output_shape(
         shape_in = shapes_in[[1]],
         conv_dim = private$.d,
         padding = param_vals$padding %??% 0,
-        stride = param_vals$stride %??% 1,
+        stride = param_vals$stride %??% param_vals$kernel_size,
         kernel_size = param_vals$kernel_size,
         ceil_mode = param_vals$ceil_mode %??% FALSE
       ))
@@ -52,47 +79,127 @@ PipeOpTorchAvgPool = R6Class("PipeOpTorchAvgPool",
 )
 
 avg_output_shape = function(shape_in, conv_dim, padding, stride, kernel_size, ceil_mode = FALSE) {
-  assert_int(shape_in, min.len = conv_dim)
+  shape_in = assert_integerish(shape_in, min.len = conv_dim, coerce = TRUE)
+
+  if (length(padding) == 1) padding = rep(padding, conv_dim)
+  if (length(stride) == 1) stride = rep(stride, conv_dim)
+  if (length(kernel_size) == 1) kernel_size = rep(kernel_size, conv_dim)
+
   shape_head = utils::head(shape_in, -conv_dim)
   shape_tail = utils::tail(shape_in, conv_dim)
-  c(shape_head,
-    (if (ceil_mode) base::ceiling else base::floor)((shape_tail + 2 * padding - kernel_size) / stride + 1)
-  )
+  if (length(shape_head) <= 1) warningf("Input tensor does not have batch dimension.")
+  shape_tail = (if (ceil_mode) base::ceiling else base::floor)((shape_tail + 2 * padding - kernel_size) / stride + 1)
+  c(shape_head, shape_tail)
 }
 
-#' @template param_id
-#' @template param_param_vals
-#' @rdname avg_pool
+#' @title 1D Average Pooling
+#'
+#' @usage NULL
+#' @name mlr_pipeops_torch_avg_pool1d
+#' @format `r roxy_format(PipeOpTorchAvgPool1D)`
+#'
+#' @inherit torch::nnf_adaptive_avg_pool1d description
+#'
+#' @section Construction: `r roxy_construction(PipeOpTorchAvgPool1D)`
+#' * `r roxy_param_id("nn_avg_pool1d")`
+#' * `r roxy_param_param_vals()`
+#'
+#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
+#' @section State: `r roxy_pipeop_torch_state_default()`
+#'
+#' @inheritSection mlr_pipeops_torch_avg_pool Parameters
+#'
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' Calls [`nn_avg_pool1d()`] during training.
+#' @section Credit: `r roxy_torch_license()`
+#' @family PipeOpTorch
 #' @export
+#' @examples
+#' obj = po("nn_avg_pool1d", kernel_size = 3)
+#' obj$id
+#' obj$module_generator
+#' obj$shapes_out(c(16, 5, 100))
 PipeOpTorchAvgPool1D = R6Class("PipeOpTorchAvgPool1D", inherit = PipeOpTorchAvgPool,
   public = list(
     initialize = function(id = "nn_avg_pool1d", param_vals = list()) {
-      super$initialize(id = id, d = 1, module_generator = nn_avg_pool1d, param_vals = param_vals)
+      super$initialize(id = id, d = 1, param_vals = param_vals)
     }
   )
 )
 
 
-#' @template param_id
-#' @template param_param_vals
-#' @rdname avg_pool
+#' @title 2D Average Pooling
+#'
+#' @usage NULL
+#' @name mlr_pipeops_torch_avg_pool2d
+#' @format `r roxy_format(PipeOpTorchAvgPool2D)`
+#'
+#' @inherit torch::nnf_adaptive_avg_pool2d description
+#'
+#' @section Construction: `r roxy_construction(PipeOpTorchAvgPool2D)`
+#' * `r roxy_param_id("nn_avg_pool2d")`
+#' * `r roxy_param_param_vals()`
+#'
+#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
+#' @section State: `r roxy_pipeop_torch_state_default()`
+#'
+#' @inheritSection mlr_pipeops_torch_avg_pool Parameters
+#'
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' Calls [`nn_avg_pool2d()`] during training.
+#' @section Credit: `r roxy_torch_license()`
+#' @family PipeOpTorch
 #' @export
+#' @examples
+#' obj = po("nn_avg_pool2d", kernel_size = 3)
+#' obj$id
+#' obj$module_generator
+#' obj$shapes_out(c(16, 5, 100))
 PipeOpTorchAvgPool2D = R6Class("PipeOpTorchAvgPool2D", inherit = PipeOpTorchAvgPool,
   public = list(
     initialize = function(id = "nn_avg_pool2d", param_vals = list()) {
-      super$initialize(id = id, d = 2, module_generator = nn_avg_pool2d, param_vals = param_vals)
+      super$initialize(id = id, d = 2, param_vals = param_vals)
     }
   )
 )
 
-#' @template param_id
-#' @template param_param_vals
-#' @rdname avg_pool
+#' @title 3D Average Pooling
+#'
+#' @usage NULL
+#' @name mlr_pipeops_torch_avg_pool3d
+#' @format `r roxy_format(PipeOpTorchAvgPool3D)`
+#'
+#' @inherit torch::nnf_adaptive_avg_pool3d description
+#'
+#' @section Construction: `r roxy_construction(PipeOpTorchAvgPool3D)`
+#' * `r roxy_param_id("nn_avg_pool3d")`
+#' * `r roxy_param_param_vals()`
+#'
+#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
+#' @section State: `r roxy_pipeop_torch_state_default()`
+#'
+#' @inheritSection mlr_pipeops_torch_avg_pool Parameters
+#'
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' Calls [`nn_avg_pool3d()`] during training.
+#' @section Credit: `r roxy_torch_license()`
+#' @family PipeOpTorch
 #' @export
+#' @examples
+#' obj = po("nn_avg_pool3d", kernel_size = 3)
+#' obj$id
+#' obj$module_generator
+#' obj$shapes_out(c(16, 5, 100))
 PipeOpTorchAvgPool3D = R6Class("PipeOpTorchAvgPool3D", inherit = PipeOpTorchAvgPool,
   public = list(
     initialize = function(id = "nn_avg_pool3d", param_vals = list()) {
-      super$initialize(id = id, d = 3, module_generator = nn_avg_pool3d, param_vals = param_vals)
+      super$initialize(id = id, d = 3, param_vals = param_vals)
     }
   )
 )

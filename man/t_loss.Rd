@@ -2,10 +2,35 @@
 % Please edit documentation in R/TorchLoss.R
 \name{t_loss}
 \alias{t_loss}
-\title{Losses Quick Access}
+\alias{t_losses}
+\title{Loss Function Quick Access}
 \usage{
 t_loss(.key, ...)
+
+t_losses(.keys, ...)
+}
+\arguments{
+\item{.key}{(\code{character(1)})\cr
+Key of the object to retrieve.}
+
+\item{...}{(any)\cr
+See description of \code{\link{dictionary_sugar_get}}.}
+
+\item{.keys}{(\code{character()})\cr
+The keys of the losses.}
+}
+\value{
+A \code{\link{TorchLoss}}
 }
 \description{
-Losses Quick Access
+Loss Function Quick Access
 }
+\examples{
+t_loss("mse", reduction = "mean")
+# get the dictionary
+t_loss()
+t_losses(c("mse", "l1"))
+# get the dictionary
+t_losses()
+}
+\concept{torch_wrapper, model_configuration}

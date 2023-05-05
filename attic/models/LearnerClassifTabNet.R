@@ -36,7 +36,7 @@ LearnerClassifTabNet = R6Class("LearnerClassifTabNet",
         feature_types = c("logical", "integer", "numeric", "factor", "ordered"),
         predict_types = c("response", "prob"),
         param_set = ps,
-        properties = c("importance", "multiclass", "twoclass", "weights"),
+        properties = c("importance", "multiclass", "twoclass"),
         man = "mlr3torch::mlr_learners_classif.tabnet",
         label = "Attentive Interpretable Tabular Network"
       )

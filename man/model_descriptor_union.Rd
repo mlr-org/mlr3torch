@@ -2,29 +2,47 @@
 % Please edit documentation in R/ModelDescriptor.R
 \name{model_descriptor_union}
 \alias{model_descriptor_union}
-\title{Union of ModelDescriptor}
+\title{Union of ModelDescriptors}
 \usage{
-model_descriptor_union(mds1, mds2)
+model_descriptor_union(md1, md2)
 }
 \arguments{
-\item{mds1}{(\code{list} of \code{ModelDescriptor})
+\item{md1}{(\code{ModelDescriptor})
 The first \code{\link{ModelDescriptor}}.}
 
-\item{mds2}{(\code{list} of \code{ModelDescriptor})
+\item{md2}{(\code{ModelDescriptor})
 The second \code{\link{ModelDescriptor}}.}
 }
 \value{
-a \code{ModelDescriptor}.
+\code{\link{ModelDescriptor}}
 }
 \description{
-Creates the union of multiple \code{\link{ModelDescriptor}}s.
+This is a mostly internal function that is used in \code{\link{PipeOpTorch}}s with multiple input channels.
 
-\code{graph}s are combinded (if they are not identical to begin with). \code{PipeOp}s with the same ID must be identical.
-No new input edgees may be added to \code{PipeOp}s. (This last requirement is not theoretically necessary, but since
+It creates the union of multiple \code{\link{ModelDescriptor}}s:
+\itemize{
+\item \code{graph}s are combinded (if they are not identical to begin with). The first entry's \code{graph} is modified by
+reference.
+\item \code{PipeOp}s with the same ID must be identical. No new input edges may be added to \code{PipeOp}s.
+\item Drops \code{.pointer} / \code{.pointer_shape} entries.
+\item The new task is the \link[=PipeOpFeatureUnion]{feature union} of the two incoming tasks.
+\item The \code{optimizer} and \code{loss} of both \code{\link{ModelDescriptor}}s must be identical.
+\item Ingress tokens and and callbacks are merged, where objects with the same \code{"id"} must be identical.
+}
+}
+\details{
+The requirement that no new input edgedes may be added to \code{PipeOp}s  is not theoretically necessary, but since
 we assume that ModelDescriptor is being built from beginning to end (i.e. \code{PipeOp}s never get new ancestors) we
 can make this assumption and simplify things. Otherwise we'd need to treat "..."-inputs special.)
-
-Modifies the first entry's \code{graph} by reference.
-
-Drops \code{.pointer} / \code{.pointer_shape} entries.
 }
+\seealso{
+ModelDescriptor, PipeOpTorch, PipeOpTorchMerge
+
+Other graph_network: 
+\code{\link{mlr_pipeops_module}},
+\code{\link{mlr_pipeops_torch}},
+\code{\link{model_descriptor_to_learner}()},
+\code{\link{model_descriptor_to_module}()},
+\code{\link{nn_graph}()}
+}
+\concept{graph_network}

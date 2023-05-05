@@ -1,39 +1,50 @@
 #' @title Shows Training Process in the Console
+#'
+#' @usage NULL
+#' @name mlr3torch_callbacks.progress
+#' @format `r roxy_format(CallbackTorchProgress)`
+#'
 #' @description
 #' Prints a progress bar and the metrics for training and validation.
+#'
+#' @section Construction: `r roxy_construction(CallbackTorchProgress)`
+#'
+#' @family callback
 #' @include CallbackTorch.R
 #' @export
-CallbackTorchProgress = callback_torch(
-  on_epoch_begin = function() {
-    catf("Epoch %s", self$state$epoch)
+CallbackTorchProgress = callback_torch("CallbackTorchProgress",
+  on_epoch_begin = function(ctx) {
+    catf("Epoch %s", ctx$epoch)
     self$pb_train = progress::progress_bar$new(
-      total = length(self$state$loader_train),
+      total = length(ctx$loader_train),
       format = "Training [:bar]"
     )
+    self$pb_train$tick(0)
   },
-  on_batch_end = function() {
-    self$pb_train$tick(tokens = list(loss = self$state$last_loss))
+  on_batch_end = function(ctx) {
+    self$pb_train$tick()
   },
-  on_before_validation = function() {
+  on_before_valid = function(ctx) {
     self$pb_valid = progress::progress_bar$new(
-      total = length(self$state$loader_valid),
+      total = length(ctx$loader_valid),
       format = "Validation: [:bar]"
     )
+    self$pb_valid$tick(0)
   },
-  on_batch_valid_end = function() {
-    self$pb_valid$tick(tokens = list(loss = last_loss))
+  on_batch_valid_end = function(ctx) {
+    self$pb_valid$tick()
   },
-  on_epoch_end = function() {
+  on_epoch_end = function(ctx) {
     scores = list()
-    scores$train = self$state$last_scores_train
-    scores$valid = self$state$last_scores_valid
+    scores$train = ctx$last_scores_train
+    scores$valid = ctx$last_scores_valid
 
     scores = Filter(function(x) length(x) > 0, scores)
 
     if (!length(scores)) {
-      catf("[End of epoch %s]", self$state$epoch)
+      catf("[End of epoch %s]", ctx$epoch)
     } else {
-      catf("\n[Summary epoch %s]", self$state$epoch)
+      catf("\n[Summary epoch %s]", ctx$epoch)
       cat("------------------\n")
       for (phase in names(scores)) {
         catf("Measures (%s):", capitalize(phase))
@@ -42,6 +53,21 @@ CallbackTorchProgress = callback_torch(
         cat(paste(output, collapse = ""))
       }
     }
+  },
+  on_end = function(ctx) {
+    self$pb_train = NULL
+    self$pb_valid = NULL
   }
 )
 
+#' @include TorchCallback.R CallbackTorch.R
+mlr3torch_callbacks$add("progress", function() {
+  TorchCallback$new(
+    callback_generator = CallbackTorchProgress,
+    param_set = ps(),
+    id = "progress",
+    label = "Progress",
+    man = "mlr3torch::mlr3torch_callbacks.progress",
+    packages = "progress"
+  )
+})

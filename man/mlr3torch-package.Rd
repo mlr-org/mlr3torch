@@ -4,23 +4,23 @@
 \name{mlr3torch-package}
 \alias{mlr3torch}
 \alias{mlr3torch-package}
-\title{mlr3torch: Torch Models for 'mlr3'}
+\title{mlr3torch: Deep Learning for 'mlr3'}
 \description{
-mlr3torch Connects the R \code{torch} package to mlr3.
-Neural Networks can be implemented on three different levels of control:
-\itemize{
-\item Custom \code{nn_module}
-\item Using \code{TorchOp}s
-\item Predefined architectures via \code{Learner}s
+Provides torch models as learners for the mlr3 ecosystem.
 }
-}
-\section{Feature Types}{
-
-It adds the feature type "imageuri", which is a S3 class based on a character vector with
-additional attributes.
-}
-
 \author{
-\strong{Maintainer}: Lukas Burk \email{github@quantenbrot.de} (\href{https://orcid.org/0000-0001-7528-3795}{ORCID})
+\strong{Maintainer}: Sebastian Fischer \email{sebf.fischer@gmail.com} (\href{https://orcid.org/0000-0002-9609-3197}{ORCID})
+
+Authors:
+\itemize{
+  \item Lukas Burk \email{github@quantenbrot.de} (\href{https://orcid.org/0000-0001-7528-3795}{ORCID})
+  \item Martin Binder \email{mlr.developer@mb706.com}
+}
+
+Other contributors:
+\itemize{
+  \item Bernd Bischl \email{bernd_bischl@gmx.net} (\href{https://orcid.org/0000-0001-6002-6980}{ORCID}) [contributor]
+  \item Florian Pfisterer \email{pfistererf@googlemail.com} (\href{https://orcid.org/0000-0001-8867-762X}{ORCID}) [contributor]
+}
 
 }

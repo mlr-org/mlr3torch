@@ -1,22 +1,52 @@
-
+#' @title Callback Torch History
+#'
+#' @usage NULL
+#' @name mlr3torch_callbacks.history
+#' @format `r roxy_format(CallbackTorchHistory)`
+#'
+#' @description
+#' Saves the history during training.
+#'
 #' @export
-CallbackTorchHistory = callback_torch(
-  on_begin = function() {
-    self$hist_train = list(list(epoch = numeric(0)))
-    self$valid_hist = list(list(epoch = numeric(0)))
+CallbackTorchHistory = callback_torch("CallbackTorchHistory",
+  on_begin = function(ctx) {
+    self$train = list(list(epoch = numeric(0)))
+    self$valid = list(list(epoch = numeric(0)))
   },
-  on_end = function() {
-    self$hist_train = rbindlist(self$hist_train, fill = TRUE)
-    self$valid_hist = rbindlist(self$valid_hist, fill = TRUE)
+  on_end = function(ctx) {
+    self$train = rbindlist(self$train, fill = TRUE)
+    self$valid = rbindlist(self$valid, fill = TRUE)
   },
-  on_before_validation = function() {
-    if (length(self$state$last_scores_train)) {
-      self$hist_train[[length(self$hist_train) + 1]] = c(list(epoch = self$state$epoch), self$state$last_scores_train)
+  on_before_valid = function(ctx) {
+    if (length(ctx$last_scores_train)) {
+      self$train[[length(self$train) + 1]] = c(list(epoch = ctx$epoch), ctx$last_scores_train)
     }
   },
-  on_epoch_end = function() {
-    if (length(self$state$last_scores_valid)) {
-      self$hist_valid[[length(self$hist_valid) + 1]] = c(list(epoch = self$state$epoch), self$state$last_scores_valid)
+  on_epoch_end = function(ctx) {
+    if (length(ctx$last_scores_valid)) {
+      self$valid[[length(self$valid) + 1]] = c(list(epoch = ctx$epoch), ctx$last_scores_valid)
     }
-  }
+  },
+  private = list(
+    deep_clone = function(name, value) {
+      if (name %in% c("train", "valid")) {
+        data.table::copy(value)
+      } else {
+        value
+      }
+    }
+  )
 )
+
+
+
+#' @include TorchCallback.R CallbackTorch.R
+mlr3torch_callbacks$add("history", function() {
+  TorchCallback$new(
+    callback_generator = CallbackTorchHistory,
+    param_set = ps(),
+    id = "history",
+    label = "History",
+    man = "mlr3torch::mlr3torch_callbacks.history"
+  )
+})

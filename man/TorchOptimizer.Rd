@@ -2,57 +2,61 @@
 % Please edit documentation in R/TorchOptimizer.R
 \name{TorchOptimizer}
 \alias{TorchOptimizer}
-\title{TorchOptimizer}
+\title{Torch Optimizer}
+\format{
+\code{\link{R6Class}} inheriting from \code{\link{TorchWrapper}}.
+}
 \description{
-TorchOptimizer
+This wraps a \code{torch::torch_optimizer_generator}.
+It is commonly used to configure the \code{optimizer} of a torch learner.
+Can be used to configure the \code{optimizer} of a \code{\link{ModelDescriptor}}.
 
-TorchOptimizer
+For a list of available optimizers, see \code{\link{mlr3torch_optimizers}}.
 }
-\section{Methods}{
-\subsection{Public methods}{
+\section{Construction}{
+
+\code{TorchOptimizer$new(torch_optimizer, param_set = NULL, id = deparse(substitute(torch_optimizer))[[1L]], label = capitalize(id), packages = NULL, man = NULL)}
+
+Arguments from \code{\link{TorchWrapper}} (except for \code{generator}) as well as:
 \itemize{
-\item \href{#method-TorchOptimizer-new}{\code{TorchOptimizer$new()}}
-\item \href{#method-TorchOptimizer-get_optimizer}{\code{TorchOptimizer$get_optimizer()}}
-\item \href{#method-TorchOptimizer-clone}{\code{TorchOptimizer$clone()}}
+\item \code{torch_optimizer} :: \code{torch_optimizer_generator}\cr
+The torch optimizer.
 }
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TorchOptimizer-new"></a>}}
-\if{latex}{\out{\hypertarget{method-TorchOptimizer-new}{}}}
-\subsection{Method \code{new()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchOptimizer$new(
-  torch_optimizer,
-  param_set = NULL,
-  label = deparse(substitute(torch_optimizer))[[1]]
-)}\if{html}{\out{</div>}}
 }
 
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TorchOptimizer-get_optimizer"></a>}}
-\if{latex}{\out{\hypertarget{method-TorchOptimizer-get_optimizer}{}}}
-\subsection{Method \code{get_optimizer()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchOptimizer$get_optimizer(params)}\if{html}{\out{</div>}}
+\section{Parameters}{
+
+Defined by the constructor argument \code{param_set}.
 }
 
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TorchOptimizer-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-TorchOptimizer-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchOptimizer$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\section{Fields}{
+
+Only fields inherited from \code{\link{TorchWrapper}} as well as:
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
+\section{Methods}{
+
+Methods inherited from \code{\link{TorchWrapper}} as well as:
+\itemize{
+\item \code{generate(params)}\cr
+(named \code{list()} of \code{\link{nn_parameter}}) -> (\code{torch_optimizer})\cr
+Creates the optimizer for the given parameters.
 }
-\if{html}{\out{</div>}}
 }
+
+\examples{
+# Create a new Torch Optimizer
+torchopt = TorchOptimizer$new(optim_adam, label = "adam")
+# If the param set is not specified, parameters are inferred but are of class ParamUty
+torchopt$param_set
+
+# Create the optimizer for a network
+net = nn_linear(10, 1)
+opt = torchopt$generate(net$parameters)
 }
+\seealso{
+Other model_configuration, torch_wrapper: 
+\code{\link{TorchLoss}},
+\code{\link{t_opt}()}
 }
+\concept{model_configuration, torch_wrapper}

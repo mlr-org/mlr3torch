@@ -4,8 +4,28 @@
 \alias{as_torch_loss}
 \title{Convert to TorchLoss}
 \usage{
-as_torch_loss(x, clone = FALSE)
+as_torch_loss(x, clone = FALSE, ...)
+}
+\arguments{
+\item{x}{(any)\cr
+Object to convert to a \code{\link{TorchLoss}}.}
+
+\item{clone}{(\code{logical(1)}\cr
+Whether to make a deep clone.}
+
+\item{...}{(any)\cr
+Additional arguments.
+Currently used to pass additional constructor arguments to \code{\link{TorchLoss}} for objects of type \code{nn_loss}.}
+}
+\value{
+\code{\link{TorchLoss}}.
 }
 \description{
-Convert to TorchLoss
+Converts an object to a \code{\link{TorchLoss}}.
 }
+\seealso{
+Other torch_wrapper: 
+\code{\link{as_torch_optimizer}()},
+\code{\link{mlr3torch_optimizers}}
+}
+\concept{torch_wrapper}

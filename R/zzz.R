@@ -3,49 +3,94 @@
 #' @import data.table
 #' @import mlr3misc
 #' @importFrom R6 R6Class is.R6
+#' @importFrom methods formalArgs
+#' @importFrom utils getFromNamespace
 #' @import torch
 #' @import mlr3pipelines
 #' @import mlr3
-#'
-#' @description
-#'   mlr3torch Connects the R `torch` package to mlr3.
-#'   Neural Networks can be implemented on three different levels of control:
-#'
-#'   * Custom `nn_module`
-#'   * Using `TorchOp`s
-#'   * Predefined architectures via `Learner`s
-#'
-#' @section Feature Types:
-#'   It adds the feature type "imageuri", which is a S3 class based on a character vector with
-#'   additional attributes.
-#'
 "_PACKAGE"
 
 # to silence RCMD check
 utils::globalVariables(c("self", "private", "super"))
 
-po_register_env = new.env()
-register_po = function(name, constructor, metainf = NULL) {
-  if (name %in% names(po_register_env)) stopf("pipeop %s registered twice", name)
-  po_register_env[[name]] = constructor
+mlr3torch_pipeops = new.env()
+mlr3torch_learners = new.env()
+mlr3torch_tasks = new.env()
+mlr3torch_tags = c("torch", "activation")
+mlr3torch_feature_types = c(img = "imageuri")
+mlr3torch_image_tasks = new.env()
+
+mlr3torch_activations = c(
+  "celu",
+  "tanh",
+  "softpluts",
+  "rrelu",
+  "softsign",
+  "relu",
+  "sigmoid",
+  "gelu",
+  "hardtanh",
+  "linear",
+  "prelu",
+  "relu6",
+  "selu",
+  "hardshrink",
+  "softshrink",
+  "leaky_relu"
+)
+
+# these are sorted in the order in which they are executed
+mlr3torch_callback_stages = c(
+  "on_begin",
+  "on_epoch_begin",
+  "on_batch_begin",
+  "on_after_backward",
+  "on_batch_end",
+  "on_before_valid",
+  "on_batch_valid_begin",
+  "on_batch_valid_end",
+  "on_epoch_end",
+  "on_end"
+)
+
+
+# metainf must be manually added in the register_mlr3pipelines function
+# Because the value is substituted, we cannot pass it through this function
+register_po = function(name, constructor) {
+  if (name %in% names(mlr3torch_pipeops)) stopf("pipeop %s registered twice", name)
+  mlr3torch_pipeops[[name]] = list(constructor = constructor)
+}
+
+register_learner = function(name, constructor) {
+  if (name %in% names(mlr3torch_learners)) stopf("learner %s registered twice", name)
+  mlr3torch_learners[[name]] = constructor
+}
+
+register_task = function(name, constructor) {
+  if (name %in% names(mlr3torch_tasks)) stopf("task %s registered twice", name)
+  mlr3torch_tasks[[name]] = constructor
 }
 
 register_mlr3 = function() {
-  # Learners ----------------------------------------------------------------
-
   mlr_learners = utils::getFromNamespace("mlr_learners", ns = "mlr3")
+  iwalk(as.list(mlr3torch_learners), function(l, nm) mlr_learners$add(nm, l)) # nolint
 
-  # Reflections -------------------------------------------------------------
-  mlr_reflections = utils::getFromNamespace("mlr_reflections", ns = "mlr3")
+  mlr_tasks = utils::getFromNamespace("mlr_tasks", ns = "mlr3")
+  iwalk(as.list(mlr3torch_tasks), function(task, nm) mlr_tasks$add(nm, task)) # nolint
+  iwalk(as.list(mlr3torch_image_tasks), function(task, nm) mlr_tasks$add(nm, task)) # nolint
 
-  # Image URI feature (e.g. file path to .jpg etc.) for image classif tasks
-  mlr_reflections$task_feature_types[["img"]] = "imageuri"
+  mlr_reflections = utils::getFromNamespace("mlr_reflections", ns = "mlr3") # nolint
+  iwalk(as.list(mlr3torch_feature_types), function(ft, nm) mlr_reflections$task_feature_types[[nm]] = ft) # nolint
 }
 
 register_mlr3pipelines = function() {
   mlr_pipeops = utils::getFromNamespace("mlr_pipeops", ns = "mlr3pipelines")
-  imap(as.list(po_register_env), function(value, name) mlr_pipeops$add(name, value))
-  lapply(po_register_env, eval)
+  iwalk(as.list(mlr3torch_pipeops), function(value, name) {
+    mlr_pipeops$add(name, value$constructor, value$metainf)
+  })
+  mlr_pipeops$metainf$torch_loss = list(loss = t_loss("cross_entropy"))
+  mlr_reflections$pipeops$valid_tags = unique(c(mlr_reflections$pipeops$valid_tags, c("torch", "activation")))
+  lapply(mlr3torch_pipeops, eval)
 }
 
 .onLoad = function(libname, pkgname) { # nolint
@@ -60,4 +105,13 @@ register_mlr3pipelines = function() {
   if (Sys.getenv("IN_PKGDOWN") == "true") {
     lg$set_threshold("warn")
   }
+}
+
+.onUnload = function(libPaths) { # nolint
+  walk(names(mlr3torch_learners), function(nm) mlr_learners$remove(nm))
+  walk(names(mlr3torch_tasks), function(nm) mlr_tasks$remove(nm))
+  walk(names(mlr3torch_pipeops), function(nm) mlr_pipeops$remove(nm))
+  walk(names(mlr3torch_tasks), function(nm) mlr_tasks$remove(nm))
+  mlr_reflections$pipeops$valid_tags = setdiff(mlr_reflections$pipeops$valid_tags, mlr3torch_tags)
+  mlr_reflections$learner_feature_types = setdiff(mlr_reflections$learner_feature_types, mlr3torch_feature_types)
 }

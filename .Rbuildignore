@@ -13,3 +13,5 @@
 TODO.md
 bugs.md
 ^\.vscode$
+^benchmarks$
+^info$

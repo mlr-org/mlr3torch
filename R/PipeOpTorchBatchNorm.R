@@ -1,35 +1,51 @@
-#' @title Batch Normalization
+#' @title Base Class for Batch Normalization
+#'
+#' @usage NULL
+#' @name mlr_pipeops_torch_batch_norm
+#' @format `r roxy_format(PipeOpTorchBatchNorm)`
+#'
 #' @description
-#' Batch normalization.
-#' @section Inferred Parameters:
-#' Depending on the shape of the input, the corresponding batch-norm is chosen.
+#' Base class for batch normalization.
+#' Don't use this class directly.
 #'
-#'  * 2d input: 1d
-#'  * 3d input: 1d
-#'  * 4d input: 2d
-#'  * 5d input: 3d
+#' @section Construction: `r roxy_construction(PipeOpTorchBatchNorm)`
+#' * `r roxy_param_id()`
+#' * `r roxy_param_param_vals()`
+#' * `r roxy_param_module_generator()`
+#' * `min_dim` :: `integer(1)`\cr
+#'   The minimum number of dimension for the input tensor.
+#' * `max_dim` :: `integer(1)`\cr
+#'   The maximum number of dimension for the input tensor.
 #'
-#' * The parameter `num_features` is automatically inferred from the input as the size of the
-#' second dimension.
+#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
+#' @section State: `r roxy_pipeop_torch_state_default()`
 #'
-#' @section Calls:
-#' `nn_batch_norm1d()`, `nn_batch_norm2d()` or `nn_batch_norm3d()` depending on the input.
+#' @section Parameters:
+#' * `eps` :: `numeric(1)`\cr
+#'   A value added to the denominator for numerical stability. Default: `1e-5`.
+#' * `momentum` :: `numeric(1)`\cr
+#'   The value used for the running_mean and running_var computation. Can be set to `NULL` for cumulative moving average
+#'   (i.e. simple average). Default: 0.1
+#' * `affine` :: `logical(1)`\cr
+#'   a boolean value that when set to `TRUE`, this module has learnable affine parameters. Default: `TRUE`
+#' * `track_running_stats` :: `logical(1)`\cr
+#'   a boolean value that when set to `TRUE`, this module tracks the running mean and variance, and when set to `FALSE`,
+#'   this module does not track such statistics and always uses batch statistics in both training and eval modes.
+#'   Default: `TRUE`
 #'
-#' @section References:
-#' * r format_bib("ioffe2015batch")`
-#'
-#' @template param_id
-#' @template param_param_vals
-#'
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' See the respective child class.
+#' @section Credit: `r roxy_torch_license()`
+#' @family PipeOpTorch
 #' @export
 PipeOpTorchBatchNorm = R6Class("PipeOpTorchBatchNorm",
   inherit = PipeOpTorch,
   public = list(
-    #' @description
-    #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id, module_generator, min_dim, max_dim, param_vals = list()) {
       private$.min_dim = assert_int(min_dim, lower = 1)
-      private$.max_dim = assert_int(max_dim, min_dim = 1)
+      private$.max_dim = assert_int(max_dim, lower = 1)
       param_set = ps(
         eps = p_dbl(default = 1e-05, lower = 0, tags = "train"),
         momentum = p_dbl(default = 0.1, lower = 0, tags = "train"),
@@ -40,20 +56,64 @@ PipeOpTorchBatchNorm = R6Class("PipeOpTorchBatchNorm",
       super$initialize(
         id = id,
         param_set = param_set,
-        param_vals = param_vals
+        param_vals = param_vals,
+        module_generator = module_generator
       )
     }
   ),
   private = list(
     .min_dim = NULL,
     .max_dim = NULL,
-    .shapes_out = function(shapes_in, param_vals) {
+    .shapes_out = function(shapes_in, param_vals, task) {
       list(assert_numeric(shapes_in[[1]], min.len = private$.min_dim, max.len = private$.max_dim))
+    },
+    .shape_dependent_params = function(shapes_in, param_vals, task) {
+      param_vals$num_features = shapes_in[[1L]][2L]
+      param_vals
     }
   )
 )
 
-
+#' @title 1D Batch Normalization
+#'
+#' @usage NULL
+#' @name mlr_pipeops_torch_batch_norm
+#' @format `r roxy_format(PipeOpTorchBatchNorm1D)`
+#'
+#' @inherit torch::nnf_batch_norm1d description
+#'
+#' @description
+#' Base class for batch normalization.
+#' Don't use this class directly.
+#'
+#' @section Construction: `r roxy_construction(PipeOpTorchBatchNorm1D)`
+#' * `r roxy_param_id("nn_batch_norm_1d")`
+#' * `r roxy_param_param_vals()`
+#'
+#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
+#' @section State: `r roxy_pipeop_torch_state_default()`
+#'
+#' @section Parameters:
+#' * `eps` :: `numeric(1)`\cr
+#'   A value added to the denominator for numerical stability. Default: `1e-5`.
+#' * `momentum` :: `numeric(1)`\cr
+#'   The value used for the running_mean and running_var computation. Can be set to `NULL` for cumulative moving average
+#'   (i.e. simple average). Default: 0.1
+#' * `affine` :: `logical(1)`\cr
+#'   a boolean value that when set to `TRUE`, this module has learnable affine parameters. Default: `TRUE`
+#' * `track_running_stats` :: `logical(1)`\cr
+#'   a boolean value that when set to `TRUE`, this module tracks the running mean and variance, and when set to `FALSE`,
+#'   this module does not track such statistics and always uses batch statistics in both training and eval modes.
+#'   Default: `TRUE`
+#'
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' Calls [`torch::nn_batch_norm1d()`].
+#' The parameter `num_features` is inferred as the second dimension of the input shape.
+#' @section Credit: `r roxy_torch_license()`
+#' @family PipeOpTorch
+#' @export
 PipeOpTorchBatchNorm1D = R6Class("PipeOpTorchBatchNorm1D", inherit = PipeOpTorchBatchNorm,
   public = list(
     initialize = function(id = "nn_batch_norm1d", param_vals = list()) {
@@ -62,6 +122,42 @@ PipeOpTorchBatchNorm1D = R6Class("PipeOpTorchBatchNorm1D", inherit = PipeOpTorch
   )
 )
 
+#' @title 2D Batch Normalization
+#'
+#' @usage NULL
+#' @name mlr_pipeops_torch_batch_norm
+#' @format `r roxy_format(PipeOpTorchBatchNorm2D)`
+#'
+#' @inherit torch::nnf_batch_norm2d description
+#'
+#' @section Construction: `r roxy_construction(PipeOpTorchBatchNorm2D)`
+#' * `r roxy_param_id("nn_batch_norm_2d")`
+#' * `r roxy_param_param_vals()`
+#'
+#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
+#' @section State: `r roxy_pipeop_torch_state_default()`
+#'
+#' @section Parameters:
+#' * `eps` :: `numeric(1)`\cr
+#'   A value added to the denominator for numerical stability. Default: `1e-5`.
+#' * `momentum` :: `numeric(1)`\cr
+#'   The value used for the running_mean and running_var computation. Can be set to `NULL` for cumulative moving average
+#'   (i.e. simple average). Default: 0.1
+#' * `affine` :: `logical(1)`\cr
+#'   a boolean value that when set to `TRUE`, this module has learnable affine parameters. Default: `TRUE`
+#' * `track_running_stats` :: `logical(1)`\cr
+#'   a boolean value that when set to `TRUE`, this module tracks the running mean and variance, and when set to `FALSE`,
+#'   this module does not track such statistics and always uses batch statistics in both training and eval modes.
+#'   Default: `TRUE`
+#'
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' Calls [`torch::nn_batch_norm2d()`].
+#' The parameter `num_features` is inferred as the second dimension of the input shape.
+#' @section Credit: `r roxy_torch_license()`
+#' @family PipeOpTorch
+#' @export
 PipeOpTorchBatchNorm2D = R6Class("PipeOpTorchBatchNorm2D", inherit = PipeOpTorchBatchNorm,
   public = list(
     initialize = function(id = "nn_batch_norm2d", param_vals = list()) {
@@ -70,6 +166,42 @@ PipeOpTorchBatchNorm2D = R6Class("PipeOpTorchBatchNorm2D", inherit = PipeOpTorch
   )
 )
 
+#' @title 3D Batch Normalization
+#'
+#' @usage NULL
+#' @name mlr_pipeops_torch_batch_norm
+#' @format `r roxy_format(PipeOpTorchBatchNorm3D)`
+#'
+#' @inherit torch::nnf_batch_norm3d description
+#'
+#' @section Construction: `r roxy_construction(PipeOpTorchBatchNorm3D)`
+#' * `r roxy_param_id("nn_batch_norm_3d")`
+#' * `r roxy_param_param_vals()`
+#'
+#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
+#' @section State: `r roxy_pipeop_torch_state_default()`
+#'
+#' @section Parameters:
+#' * `eps` :: `numeric(1)`\cr
+#'   A value added to the denominator for numerical stability. Default: `1e-5`.
+#' * `momentum` :: `numeric(1)`\cr
+#'   The value used for the running_mean and running_var computation. Can be set to `NULL` for cumulative moving average
+#'   (i.e. simple average). Default: 0.1
+#' * `affine` :: `logical(1)`\cr
+#'   a boolean value that when set to `TRUE`, this module has learnable affine parameters. Default: `TRUE`
+#' * `track_running_stats` :: `logical(1)`\cr
+#'   a boolean value that when set to `TRUE`, this module tracks the running mean and variance, and when set to `FALSE`,
+#'   this module does not track such statistics and always uses batch statistics in both training and eval modes.
+#'   Default: `TRUE`
+#'
+#' @section Fields: `r roxy_pipeop_torch_fields_default()`
+#' @section Methods: `r roxy_pipeop_torch_methods_default()`
+#' @section Internals:
+#' Calls [`torch::nn_batch_norm3d()`].
+#' The parameter `num_features` is inferred as the second dimension of the input shape.
+#' @section Credit: `r roxy_torch_license()`
+#' @family PipeOpTorch
+#' @export
 PipeOpTorchBatchNorm3D = R6Class("PipeOpTorchBatchNorm3D", inherit = PipeOpTorchBatchNorm,
   public = list(
     initialize = function(id = "nn_batch_norm3d", param_vals = list()) {
@@ -81,7 +213,7 @@ PipeOpTorchBatchNorm3D = R6Class("PipeOpTorchBatchNorm3D", inherit = PipeOpTorch
 
 #' @include zzz.R
 register_po("nn_batch_norm1d", PipeOpTorchBatchNorm1D)
-register_po("nn_batch_norm2d", PipeOpTorchBatchNorm1D)
-register_po("nn_batch_norm3d", PipeOpTorchBatchNorm1D)
+register_po("nn_batch_norm2d", PipeOpTorchBatchNorm2D)
+register_po("nn_batch_norm3d", PipeOpTorchBatchNorm3D)
 
 

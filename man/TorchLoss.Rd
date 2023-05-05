@@ -2,58 +2,56 @@
 % Please edit documentation in R/TorchLoss.R
 \name{TorchLoss}
 \alias{TorchLoss}
-\title{TorchLoss}
+\title{Torch Loss}
+\format{
+\code{\link{R6Class}} inheriting from \code{\link{TorchWrapper}}.
+}
 \description{
-TorchLoss
-
-TorchLoss
+This wraps a \code{torch::nn_loss} and is usually used to configure the loss function of a torch learner.
+For a list of available losses, see \code{\link{mlr3torch_losses}}.
 }
-\section{Methods}{
-\subsection{Public methods}{
+\section{Construction}{
+
+\code{TorchLoss$new(torch_loss, task_types = NULL, param_set = NULL, id = deparse(substitute(torch_loss))[[1L]], label = capitalize(id), packages = NULL, man = NULL)}
+
+Arguments from \code{\link{TorchWrapper}} (except for \code{generator}) as well as:
 \itemize{
-\item \href{#method-TorchLoss-new}{\code{TorchLoss$new()}}
-\item \href{#method-TorchLoss-get_loss}{\code{TorchLoss$get_loss()}}
-\item \href{#method-TorchLoss-clone}{\code{TorchLoss$clone()}}
+\item \code{torch_loss} :: \code{nn_loss}\cr
+The loss module.
+\item \code{task_types} :: \code{character()}\cr
+The task types supported by this loss.
+If left as \code{NULL} (default), this value is set to all available task types.
 }
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TorchLoss-new"></a>}}
-\if{latex}{\out{\hypertarget{method-TorchLoss-new}{}}}
-\subsection{Method \code{new()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchLoss$new(
-  torch_loss,
-  tasktypes = NULL,
-  param_set = NULL,
-  label = deparse(substitute(torch_loss))[[1]]
-)}\if{html}{\out{</div>}}
 }
 
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TorchLoss-get_loss"></a>}}
-\if{latex}{\out{\hypertarget{method-TorchLoss-get_loss}{}}}
-\subsection{Method \code{get_loss()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchLoss$get_loss()}\if{html}{\out{</div>}}
+\section{Parameters}{
+
+Defined by the constructor argument \code{param_set}.
 }
 
+\section{Fields}{
+
+Fields inherited from \code{\link{TorchWrapper}} as well as:
+\itemize{
+\item \code{task_types} :: \code{character()}\cr
+The task types this loss supports.
 }
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TorchLoss-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-TorchLoss-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchLoss$clone(deep = FALSE)}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
+\section{Methods}{
+
+Only methods inherited from \code{\link{TorchWrapper}}.
 }
-\if{html}{\out{</div>}}
+
+\examples{
+# Create a new Torch Loss
+torchloss = TorchLoss$new(torch_loss = nn_mse_loss, task_types = "regr")
+torchloss$param_set
+loss = torchloss$generate()
 }
+\seealso{
+Other model_configuration, torch_wrapper: 
+\code{\link{TorchOptimizer}},
+\code{\link{t_opt}()}
 }
-}
+\concept{model_configuration, torch_wrapper}

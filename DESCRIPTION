@@ -1,73 +1,120 @@
 Package: mlr3torch
-Title: Torch Models for 'mlr3'
+Title: Deep Learning for 'mlr3'
 Version: 0.0.0.9000
 Authors@R:
-    person("Lukas", "Burk", , "github@quantenbrot.de", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0001-7528-3795"))
+    c(person(given = "Sebastian",
+             family = "Fischer",
+             role = c("cre", "aut"),
+             email = "sebf.fischer@gmail.com",
+             comment = c(ORCID = "0000-0002-9609-3197")),
+      person(given = "Bernd",
+             family = "Bischl",
+             role = "ctb",
+             email = "bernd_bischl@gmx.net",
+             comment = c(ORCID = "0000-0001-6002-6980")),
+      person(given = "Lukas",
+             family = "Burk",
+             role = "aut",
+             email = "github@quantenbrot.de",
+             comment = c(ORCID = "0000-0001-7528-3795")),
+      person(given = "Martin",
+             family = "Binder",
+             role = "aut",
+             email = "mlr.developer@mb706.com"),
+      person(given = "Florian",
+             family = "Pfisterer",
+             role = "ctb",
+             email = "pfistererf@googlemail.com",
+             comment = c(ORCID = "0000-0001-8867-762X")))
 Description: Provides torch models as learners for the mlr3 ecosystem.
 License: LGPL (>= 3)
 Depends:
     mlr3 (>= 0.13.1),
     mlr3pipelines,
-    R (>= 3.1.0)
+    mlr3misc (>= 0.11.0),
+    torch (>= 0.8.1),
+    R (>= 3.5.0)
 Imports:
     backports,
     checkmate,
-    lgr,
-    torch,
-    mlr3misc,
-    data.table,
     coro,
-    paradox,
-    R6
+    lgr,
+    methods,
+    data.table,
+    paradox (>= 0.11.0),
+    R6,
+    withr
 Suggests:
+    callr,
+    future,
+    rpart,
     torchvision,
     magick,
     progress,
     testthat (>= 3.0.0)
 Remotes:
-  mlverse/torchvision
+  mlverse/torchvision,
+  mlverse/torch,
+  mlr-org/mlr3pipelines,
+  mlr-org/mlr3misc
 Config/testthat/edition: 3
 Encoding: UTF-8
-LazyData: true
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+Roxygen: list(markdown = TRUE, r6 = FALSE)
+RoxygenNote: 7.2.3
 Collate:
     'CallbackTorch.R'
+    'zzz.R'
+    'utils.R'
+    'TorchCallback.R'
+    'CallbackTorchCheckpoint.R'
     'CallbackTorchHistory.R'
     'CallbackTorchProgress.R'
-    'LearnerClassifTorch.R'
-    'LearnerClassifTorchAbstract.R'
+    'ContextTorch.R'
+    'LearnerClassifTorchImage.R'
+    'LearnerClassifAlexNet.R'
+    'LearnerMLP.R'
+    'LearnerTorch.R'
+    'LearnerTorchFeatureless.R'
     'LearnerTorchModel.R'
     'ModelDescriptor.R'
     'PipeOpModule.R'
     'PipeOpTorch.R'
-    'zzz.R'
     'PipeOpTorchActivation.R'
     'PipeOpTorchAvgPool.R'
     'PipeOpTorchBatchNorm.R'
+    'PipeOpTorchCallbacks.R'
     'PipeOpTorchConv.R'
     'PipeOpTorchConvTranspose.R'
     'PipeOpTorchDropout.R'
-    'PipeOpTorchFlatten.R'
+    'PipeOpTorchHead.R'
     'PipeOpTorchIngress.R'
     'PipeOpTorchLayerNorm.R'
     'PipeOpTorchLinear.R'
+    'TorchLoss.R'
     'PipeOpTorchLoss.R'
     'PipeOpTorchMaxPool.R'
     'PipeOpTorchMerge.R'
     'PipeOpTorchModel.R'
     'PipeOpTorchOptimizer.R'
-    'PipeOpTorchOutput.R'
     'PipeOpTorchReshape.R'
     'PipeOpTorchSoftmax.R'
+    'TaskClassif_test_imagenet.R'
     'TaskClassif_tiny_imagenet.R'
     'TaskClassif_toytask.R'
-    'TorchLoss.R'
     'TorchOptimizer.R'
-    'TorchState.R'
+    'TorchWrapper.R'
+    'assertions.R'
+    'autotest.R'
     'autotest_learner.R'
+    'converter.R'
+    'dataloader.R'
+    'expectations.R'
+    'helper.R'
+    'image_dataset.R'
+    'imageuri.R'
     'learner_torch_methods.R'
     'nn_graph.R'
+    'paramset_torchlearner.R'
+    'reset_last_layer.R'
+    'roxygen.R'
     'task_dataset.R'
-    'utils.R'

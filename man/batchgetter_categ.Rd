@@ -9,7 +9,10 @@ batchgetter_categ(data, device)
 \arguments{
 \item{data}{(\code{data.table})\cr
 \code{data.table} to be converted to a \code{tensor}.}
+
+\item{device}{(\code{character(1)})\cr
+The device.}
 }
 \description{
-Batchgetter for categorical data
+Converts a data frame of categorical data into a long tensor.
 }
