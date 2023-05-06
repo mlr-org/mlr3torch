@@ -4,64 +4,11 @@
 \alias{mlr_context_torch}
 \alias{ContextTorch}
 \title{Context for Torch Learner}
-\format{
-\code{\link{R6Class}} inheriting from \code{\link{Context}}.
-}
 \description{
 Context for training a torch learner.
 This is the - mostly read-only - information callbacks have access to through the argument \code{ctx}.
 For more information on callbacks, see \code{\link{CallbackTorch}}.
 }
-\section{Construction}{
-
-\code{ContextTorch$new(learner, task_train, task_valid = NULL, loader_train, loader_valid = NULL, measures_train = NULL, measures_valid = NULL, network, optimizer, loss_fn, total_epochs)}
-\itemize{
-\item \code{learner} :: \code{\link{Learner}}\cr
-The torch learner.
-\item \code{task_train} :: \code{\link{Task}}\cr
-The training task.
-\item \code{task_valid} :: \code{\link{Task}}\cr
-The validation task. Default is \code{NULL}.
-\item \code{loader_train} :: \code{\link[torch:dataloader]{torch::dataloader}}
-The data loader for training.
-\item \code{loader_valid} :: \code{\link[torch:dataloader]{torch::dataloader}}
-The data loader for validation.
-\item \code{measures_train} :: \code{list()} of \code{\link{Measure}}s\cr
-Measures used for training. Default is \code{NULL}.
-\item \code{measures_valid} :: \code{list()} of \code{\link{Measure}}s\cr
-Measures used for validation. Default is \code{NULL}.
-\item \code{network} :: \code{\link[torch:nn_module]{torch::nn_module}}\cr
-The torch network.
-\item \code{optimizer} :: \code{\link[torch:optimizer]{torch::optimizer}}\cr
-The optimizer.
-\item \code{loss_fn} :: \code{\link[torch:nn_module]{torch::nn_module}}\cr
-The loss function.
-\item \code{total_epochs} :: \code{integer(1)}\cr
-The total number of epochs the learner is trained for.
-}
-}
-
-\section{Fields}{
-
-All objects configured in the initialization, as well as:
-\itemize{
-\item \code{last_scores_train} :: named \code{list()}\cr
-The scores from the last training batch. Names are the ids of the training measures.
-\item \code{last_scores_valid} :: named \code{list()}\cr
-The scores from the last validation batch. Names are the ids of the validation measures.
-\item \code{epoch} :: \code{integer(1)}\cr
-The current epoch.
-The current epoch.
-\item \code{batch} :: \code{list()} of \code{\link[torch:torch_tensor]{torch::torch_tensor}}\cr
-The current iteration of the batch.
-}
-}
-
-\section{Methods}{
-
-There are no methods.
-}
-
 \seealso{
 Other callback: 
 \code{\link{as_torch_callbacks}()},
@@ -73,3 +20,149 @@ Other callback:
 \code{\link{torch_callback}()}
 }
 \concept{callback}
+\section{Super class}{
+\code{\link[mlr3misc:Context]{mlr3misc::Context}} -> \code{ContextTorch}
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{learner}}{(\code{\link{Learner}})\cr
+The torch learner.}
+
+\item{\code{task_train}}{(\code{\link{Task}})\cr
+The training task.}
+
+\item{\code{task_valid}}{(\code{\link{Task}})\cr
+The validation task. Default is \code{NULL}.}
+
+\item{\code{loader_train}}{(\code{\link[torch:dataloader]{torch::dataloader}})\cr
+The data loader for training.}
+
+\item{\code{loader_valid}}{(\code{\link[torch:dataloader]{torch::dataloader}})\cr
+The data loader for validation.}
+
+\item{\code{measures_train}}{\code{list()} of \code{\link{Measure}}s\cr
+Measures used for training. Default is \code{NULL}.}
+
+\item{\code{measures_valid}}{\code{list()} of \code{\link{Measure}}s\cr
+Measures used for validation. Default is \code{NULL}.}
+
+\item{\code{network}}{(\code{\link[torch:nn_module]{torch::nn_module}})\cr
+The torch network.}
+
+\item{\code{optimizer}}{(\code{\link[torch:optimizer]{torch::optimizer}})\cr
+The optimizer.}
+
+\item{\code{loss_fn}}{(\code{\link[torch:nn_module]{torch::nn_module}})\cr
+The loss function.}
+
+\item{\code{total_epochs}}{\code{integer(1)}\cr
+The total number of epochs the learner is trained for.}
+
+\item{\code{last_scores_train}}{(named \code{list()})\cr
+The scores from the last training batch. Names are the ids of the training measures.}
+
+\item{\code{last_scores_valid}}{(\code{list()})\cr
+The scores from the last validation batch. Names are the ids of the validation measures.}
+
+\item{\code{epoch}}{(\code{integer(1)})\cr
+The current epoch.}
+
+\item{\code{batch}}{(\code{integer(1)})\cr
+The current iteration of the batch.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-ContextTorch-new}{\code{ContextTorch$new()}}
+\item \href{#method-ContextTorch-clone}{\code{ContextTorch$clone()}}
+}
+}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="mlr3misc" data-topic="Context" data-id="format"><a href='../../mlr3misc/html/Context.html#method-Context-format'><code>mlr3misc::Context$format()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3misc" data-topic="Context" data-id="print"><a href='../../mlr3misc/html/Context.html#method-Context-print'><code>mlr3misc::Context$print()</code></a></span></li>
+</ul>
+</details>
+}}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ContextTorch-new"></a>}}
+\if{latex}{\out{\hypertarget{method-ContextTorch-new}{}}}
+\subsection{Method \code{new()}}{
+Creates a new instance of this \link[R6:R6Class]{R6} class.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ContextTorch$new(
+  learner,
+  task_train,
+  task_valid = NULL,
+  loader_train,
+  loader_valid = NULL,
+  measures_train = NULL,
+  measures_valid = NULL,
+  network,
+  optimizer,
+  loss_fn,
+  total_epochs
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{learner}}{(\code{\link{Learner}})\cr
+The learner.}
+
+\item{\code{task_train}}{(\code{\link{Task}})\cr
+The training task.}
+
+\item{\code{task_valid}}{(\code{\link{Task}})\cr
+The validation task. Default is \code{NULL}.}
+
+\item{\code{loader_train}}{(\code{\link[torch:dataloader]{torch::dataloader}})\cr
+The data loader for training.}
+
+\item{\code{loader_valid}}{(\code{\link[torch:dataloader]{torch::dataloader}})\cr
+The data loader for validation.}
+
+\item{\code{measures_train}}{\code{list()} of \code{\link{Measure}}s\cr
+Measures used for training. Default is \code{NULL}.}
+
+\item{\code{measures_valid}}{\code{list()} of \code{\link{Measure}}s\cr
+Measures used for validation. Default is \code{NULL}.}
+
+\item{\code{network}}{(\code{\link[torch:nn_module]{torch::nn_module}})\cr
+The torch network.}
+
+\item{\code{optimizer}}{(\code{\link[torch:optimizer]{torch::optimizer}})\cr
+The optimizer.}
+
+\item{\code{loss_fn}}{(\code{\link[torch:nn_module]{torch::nn_module}})\cr
+The loss function.}
+
+\item{\code{total_epochs}}{(integer(1))\cr
+The total number of epochs the learner is trained for.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ContextTorch-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-ContextTorch-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ContextTorch$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

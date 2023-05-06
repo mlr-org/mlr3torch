@@ -5,18 +5,16 @@
 \alias{mlr3torch_callbacks}
 \title{Dictionary of Torch Callbacks}
 \format{
-\code{\link{R6Class}} inheriting from \code{\link{Dictionary}}.
+An object of class \code{DictionaryMlr3torchCallbacks} (inherits from \code{Dictionary}, \code{R6}) of length 13.
+}
+\usage{
+mlr3torch_callbacks
 }
 \description{
 A \code{\link[mlr3misc:Dictionary]{mlr3misc::Dictionary}} of torch callbacks.
 Use \code{\link[=t_clbk]{t_clbk()}} to conveniently retrieve callbacks.
 Can be converted to a \code{\link{data.table}} using \code{as.data.table}.
 }
-\section{Methods}{
-
-See \link[mlr3misc:Dictionary]{mlr3misc::Dictionary}.
-}
-
 \examples{
 mlr3torch_callbacks$get("checkpoint")
 # is the same as

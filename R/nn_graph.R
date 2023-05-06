@@ -13,7 +13,7 @@
 #'   Whether output should be a list of tensors. If `FALSE` (default), then `length(output_map)` must be 1.
 #'
 #' @return [`nn_graph`]
-#' @family graph_network
+#' @family Graph Network
 #' @export
 #' @examples
 #' graph = as_graph(po("module", module = nn_linear(10, 1)))
@@ -91,7 +91,7 @@ nn_graph = nn_module(
 #'   Whether output should be a list of tensors. If `FALSE`, then `length(output_pointers)` must be 1.
 #'
 #' @return [`nn_graph`]
-#' @family graph_network
+#' @family Graph Network
 #' @export
 model_descriptor_to_module = function(model_descriptor, output_pointers = NULL, list_output = FALSE) {
   assert_class(model_descriptor, "ModelDescriptor")
@@ -143,7 +143,7 @@ model_descriptor_to_module = function(model_descriptor, output_pointers = NULL, 
 #' @param model_descriptor ([`ModelDescriptor`])\cr
 #'   The model descriptor.
 #' @return [`Learner`]
-#' @family graph_network
+#' @family Graph Network
 #' @export
 model_descriptor_to_learner = function(model_descriptor) {
   optimizer = as_torch_optimizer(model_descriptor$optimizer)

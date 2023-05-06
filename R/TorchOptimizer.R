@@ -40,9 +40,7 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 
 #' @title Torch Optimizer
 #'
-#' @usage NULL
 #' @name TorchOptimizer
-#' @format `r roxy_format(TorchOptimizer)`
 #'
 #' @description
 #' This wraps a `torch::torch_optimizer_generator`.
@@ -51,25 +49,8 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #'
 #' For a list of available optimizers, see [`mlr3torch_optimizers`].
 #'
-#' @section Construction:
-#' `r roxy_construction(TorchOptimizer)`
-#'
-#' Arguments from [`TorchWrapper`] (except for `generator`) as well as:
-#' * `torch_optimizer` :: `torch_optimizer_generator`\cr
-#'   The torch optimizer.
-#'
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
-#'
-#' @section Fields:
-#' Only fields inherited from [`TorchWrapper`] as well as:
-#'
-#' @section Methods:
-#' Methods inherited from [`TorchWrapper`] as well as:
-#' * `generate(params)`\cr
-#' (named `list()` of [`nn_parameter`]) -> (`torch_optimizer`)\cr
-#' Creates the optimizer for the given parameters.
-#'
 #' @family model_configuration, torch_wrapper
 #' @export
 #' @examples
@@ -84,10 +65,15 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 TorchOptimizer = R6::R6Class("TorchOptimizer",
   inherit = TorchWrapper,
   public = list(
-    label = NULL,
-    optimizer = NULL,
-    param_set = NULL,
-    packages = NULL,
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @param torch_optimizer (`torch_optimizer_generator`)\cr
+    #'   The torch optimizer.
+    #' @template param_param_set
+    #' @template param_id
+    #' @template param_label
+    #' @template param_packages
+    #' @template param_man
     initialize = function(torch_optimizer, param_set = NULL, id = deparse(substitute(torch_optimizer))[[1L]],
       label = capitalize(id), packages = NULL, man = NULL) {
       torch_optimizer = assert_class(torch_optimizer, "torch_optimizer_generator") # maybe too strict?
@@ -107,6 +93,9 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
         man = man
       )
     },
+    #' @description
+    #' Instantiates the optimizer.
+    #' @param params The `$parameters` of the network.
     generate = function(params) {
       require_namespaces(self$packages)
       invoke(self$generator, .args = self$param_set$get_values(), params = params)
@@ -115,8 +104,6 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
 )
 
 #' @title Optimizers
-#' @usage NULL
-#' @format [`R6Class`] inheriting from [`Dictionary`].
 #'
 #' @description
 #' Dictionary of torch optimizers.
@@ -125,9 +112,6 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
 #'
 #' @section Available Optimizers:
 #' `r paste0(mlr3torch_optimizers$keys(), collapse = ", ")`
-#'
-#' @section Fields:
-#' Only fields inherited from [`Dictionary`].
 #'
 #' @family torch_wrapper
 #' @family Dictionary

@@ -1,33 +1,19 @@
 #' @title Optimizer Configuration
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch_optimizer
-#' @format `r roxy_format(PipeOpTorchOptimizer)`
 #'
 #' @description
 #' Configures the optimizer of a deep learning model.
-#'
-#' @section Construction: `r roxy_construction(PipeOpTorchOptimizer)`
-#' * `optimizer` :: [`TorchOptimizer`] or `character(1)` or `torch_optimizer_generator`\cr
-#'   The optimizer (or something convertible via [`as_torch_optimizer()`]).
-#'   This object is cloned during construction.
-#' * `r roxy_param_id("torch_optimizer")`
-#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels:
 #' There is one input channel `"input"` and one output channel `"output"`.
 #' During *training*, the channels are of class [`ModelDescriptor`].
 #' During *prediction*, the channels are of class [`Task`].
 #'
-#' @section State:
-#' The state is set to an empty `list()`.
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' The parameters are defined dynamically from the optimizer that is set during construction.
-#' @section Fields:
-#' Only fields inherited from [`PipeOp`].
-#' @section Methods:
-#' Only methods inherited from [`PipeOp`].
 #' @section Internals:
 #' During training, the optimizer is cloned and added to the [`ModelDescriptor`].
 #' Note that the parameter set of the stored [`TorchOptimizer`] is reference-identical to the parameter set of the
@@ -44,6 +30,10 @@
 PipeOpTorchOptimizer = R6Class("PipeOpTorchOptimizer",
   inherit = PipeOp,
   public = list(
+    #' @description Creates a new instance of this [R6][R6::R6Class] class.
+    #' @param optimizer ([`TorchOptimizer`] or `character(1)` or `torch_optimizer_generator`)\cr
+    #'   The optimizer (or something convertible via [`as_torch_optimizer()`]).
+    #' @template params_pipelines
     initialize = function(optimizer = t_opt("adam"), id = "torch_optimizer", param_vals = list()) {
       private$.optimizer = as_torch_optimizer(optimizer, clone = TRUE)
       input = data.table(name = "input", train = "ModelDescriptor", predict = "Task")

@@ -1,8 +1,6 @@
 #' @title Class for Torch Module Wrappers
 #'
-#' @usage NULL
 #' @name mlr_pipeops_module
-#' @format [`R6Class`] object inheriting from [`mlr3pipelines::PipeOp`].
 #'
 #' @description
 #' `PipeOpModule` wraps an [`nn_module`] that is being called during the `train` phase of this [`mlr3pipelines::PipeOp`].
@@ -16,42 +14,14 @@
 #'
 #' The `predict` method does currently not serve a meaningful purpose.
 #'
-#' @section Construction:
-#' `r roxy_construction(PipeOpModule)`
-#'
-#' * `r roxy_param_id("module")`
-#' * `module` :: [`nn_module`]\cr
-#'   The torch module that is being wrapped.
-#' * `inname` :: `character()`\cr
-#'
-#' For a more general introduction on how to create a new learner, see the respective section in the
-#' [mlr3 book](https://mlr3book.mlr-org.com/extending.html#sec-extending-learners).
-#'   The names of the input channels.
-#' * `outname` :: `character()`\cr
-#'   The names of the output channels. If this parameter has length 1, the parameter [module][torch::nn_module] must
-#'   return a [tensor][torch::torch_tensor]. Otherwise it must return a `list()` of tensors of corresponding length.
-#'
-#' * `r roxy_param_param_vals()`
-#'
-#' * `r roxy_param_packages()`
-#'
 #' @section Input and Output Channels:
 #' The number and names of the input and output channels can be set during construction. They input and output
 #' `"torch_tensor"` during training, and `NULL` during prediction as the prediction phase currently serves no
 #' meaningful purpose.
 #'
-#' @section State:
-#' The `$state` is an empty `list()`.
-#'
+#' @template pipeop_torch_state_default
 #' @section Parameters:
 #' No parameters.
-#'
-#' @section Fields:
-#' * `module` :: `nn_module`\cr
-#'   The torch module that is called during the training phase of the PipeOpModule.
-#'
-#' @section Methods:
-#' Only methods inherited from [`mlr3pipelines::PipeOp`].
 #'
 #' @section Internals:
 #' During training, the wrapped [`nn_module`] is called with the provided inputs in the order in which the channels
@@ -59,7 +29,7 @@
 #'
 #'
 #' @seealso nn_module, mlr_pipeops_torch, nn_graph, model_descriptor_to_module, PipeOp, Graph
-#' @family graph_network
+#' @family Graph Network
 #' @export
 #' @examples
 #' ## creating an PipeOpModule manually
@@ -110,7 +80,22 @@
 PipeOpModule = R6Class("PipeOpModule",
   inherit = PipeOp,
   public = list(
+    #' @field module ([`nn_module`])\cr
+    #'   The torch module that is called during the training phase.
+    #'
     module = NULL,
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template param_id
+    #' @param module ([`nn_module`])\cr
+    #'   The torch module that is being wrapped.
+    #' @param inname (`character()`)\cr
+    #'   The names of the input channels.
+    #' @param outname (`character()`)\cr
+    #'   The names of the output channels. If this parameter has length 1, the parameter [module][torch::nn_module] must
+    #'   return a [tensor][torch::torch_tensor]. Otherwise it must return a `list()` of tensors of corresponding length.
+    #' @template param_param_vals
+    #' @template param_packages
     initialize = function(id = "module", module = nn_identity(), inname = "input", outname = "output",
       param_vals = list(), packages = character(0)) {
       private$.multi_output = length(outname) > 1L

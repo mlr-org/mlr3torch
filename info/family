@@ -1,1 +1,1 @@
-* graph_network: For all the objects related to creating the nn_graph (without optimizer etc.) 
+* Graph Network: For all the objects related to creating the nn_graph (without optimizer etc.) 

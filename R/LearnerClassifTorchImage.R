@@ -1,13 +1,19 @@
 #' @title Image Classification Network
 #'
-#' @usage  NULL
 #' @name mlr_learners_classif_torch_image
-#' @format `r roxy_format(LearnerClassifTorchImage)`
 #'
 #' @description
 #' Base Class for Image Classification Learners.
 #'
-#' @section Construction: `r roxy_construction(LearnerClassifTorchImage)`
+#' @template param_id
+#' @template param_param_set
+#' @template param_optimizer
+#' @template param_callbacks
+#' @template param_loss
+#' @template param_packages
+#' @template param_man
+#' @template param_properties
+#' @template param_label
 #'
 #' @section Inheriting:
 #' To inherit from this class, one should overwrite the private `$.network()` to return a [`nn_module`] that has
@@ -24,17 +30,17 @@
 #' * `width` :: `integer(1)` \cr
 #'   The width of the input image.
 #'
-#f @section Fields: `r roxy_fields_inherit(LearnerClassifTorchImage)`
-#' @section Methods: `r roxy_methods_inherit(LearnerClassifTorchImage)`
-#' @section Internals:
-#' TODO
+#' @family Learner
+#' @include LearnerTorch.R
 #'
 #' @export
 LearnerClassifTorchImage = R6Class("LearnerClassifTorchImage",
   inherit = LearnerClassifTorch,
   public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id, param_set, label, optimizer = t_opt("adam"), loss = t_loss("cross_entropy"),
-      callbacks = list(), packages = c("torchvision", "magick"), man) {
+      callbacks = list(), packages = c("torchvision", "magick"), man, properties = c("twoclass", "multiclass")) {
       assert_param_set(param_set)
       predefined_set = ps(
         channels   = p_int(1, tags = c("train", "predict", "required")),
@@ -52,7 +58,7 @@ LearnerClassifTorchImage = R6Class("LearnerClassifTorchImage",
         id = id,
         label = label,
         optimizer = optimizer,
-        properties = c("twoclass", "multiclass"),
+        properties = properties,
         loss = loss,
         param_set = param_set,
         packages = packages,

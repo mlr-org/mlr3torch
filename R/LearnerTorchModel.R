@@ -1,48 +1,35 @@
+# TODO: Template
 #' @title Classification Torch Learner
 #'
-#' @usage NULL
 #' @name mlr_learners_classif.torch_model
-#' @format `r roxy_format(LearnerClassifTorchModel)`
 #'
 #' @description
 #' Classification Torch Learner that is used internally by [`PipeOpTorchModelClassif`].
 #'
-#' @section Construction:
-#'
-#' Classification:
-#'
-#' `r roxy_construction(LearnerClassifTorchModel)`
-#'
-#' Regression:
-#'
-#' `r roxy_construction(LearnerRegrTorchModel)`
-#'
-#' * `network` :: [`nn_module`]\cr
-#'   An instantiatded [`nn_module`].
-#' * `ingress_tokens` :: `list` of [`TorchIngressToken()`]\cr
+#' @param network ([`nn_module`])\cr
+#'   An instantiated [`nn_module`].
+#'   Outputs must be the scores (before the softmax).
+#' @param ingress_tokens (`list` of [`TorchIngressToken()`])\cr
 #'   A list with ingress tokens that defines how the dataloader will be defined.
-#' * `optimizer` :: ([`TorchOptimizer`])\cr
+#' @param optimizer (([`TorchOptimizer`]))\cr
 #'   The optimizer for the model. Defaults is adam.
-#' * `loss` :: ([`TorchLoss`])\cr
+#' @param loss (([`TorchLoss`]))\cr
 #'   The loss for the model. Default is cross entropy.
-#' * `callbacks`:: `list()` of [`TorchCallback`] objects\cr
+#' @param callbacks (`list()` of [`TorchCallback`]s)\cr
 #'   The callbacks used for training. Must have unique IDs.
-#' * `packages` :: (`character()`)\cr
+#' @param packages (`character()`)\cr
 #'   The additional packages on which the learner depends.
 #'   added so do not have to be passed explicitly.
-#' * `feature_types` :: (`character()`)\cr
+#' @param feature_types (`character()`)\cr
 #'   The feature types the learner can deal with, see `mlr_reflections$task_feature_types`.
 #'
-#'
-#' @section State: See [`LearnerClassif`]
 #' @section Parameters: See [`LearnerClassifTorch`]
-#' @section Fields: `r roxy_fields_inherit(LearnerClassifTorchModel)`
-#' @section Methods: `r roxy_methods_inherit(LearnerClassifTorchModel)`
-#'
 #' @export
 LearnerClassifTorchModel = R6Class("LearnerClassifTorchModel",
   inherit = LearnerClassifTorch,
   public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(network, ingress_tokens, optimizer = t_opt("adam"), loss = t_loss("cross_entropy"),
       callbacks = list(), packages = character(0), feature_types = NULL) {
       private$.network_stored = assert_class(network, "nn_module")
@@ -82,26 +69,38 @@ LearnerClassifTorchModel = R6Class("LearnerClassifTorchModel",
 )
 
 
+# TODO: Template
+#'
 #' @title Regression Torch Learner
 #'
-#' @usage NULL
 #' @name mlr_learners_regr.torch_model
-#' @format `r roxy_format(LearnerRegrTorchModel)`
 #'
 #' @description
 #' Regression Torch Learner that is used internally by [`PipeOpTorchModelRegr`].
 #'
-#' @inheritSection mlr_learners_classif.torch_model Construction
+#' @param network ([`nn_module`])\cr
+#'   An instantiated [`nn_module`]. This is **not** cloned.
+#' @param ingress_tokens (`list` of [`TorchIngressToken()`])\cr
+#'   A list with ingress tokens that defines how the dataloader will be defined.
+#' @param optimizer (([`TorchOptimizer`]))\cr
+#'   The optimizer for the model. Defaults is adam.
+#' @param loss (([`TorchLoss`]))\cr
+#'   The loss for the model. Default is cross entropy.
+#' @param callbacks (`list()` of [`TorchCallback`]s)\cr
+#'   The callbacks used for training. Must have unique IDs.
+#' @param packages (`character()`)\cr
+#'   The additional packages on which the learner depends.
+#'   added so do not have to be passed explicitly.
+#' @param feature_types (`character()`)\cr
+#'   The feature types the learner can deal with, see `mlr_reflections$task_feature_types`.
 #'
-#' @section State: See [`LearnerRegrTorch`]
 #' @section Parameters: See [`LearnerRegrTorch`]
-#' @section Fields: `r roxy_fields_inherit(LearnerRegrTorchModel)`
-#' @section Methods: `r roxy_methods_inherit(LearnerRegrTorchModel)`
-#'
 #' @export
 LearnerRegrTorchModel = R6Class("LearnerRegrTorchModel",
   inherit = LearnerRegrTorch,
   public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(network, ingress_tokens, optimizer = t_opt("adam"), loss = t_loss("mse"),
       callbacks = list(), packages = character(0), feature_types = NULL) {
       private$.network_stored = assert_class(network, "nn_module")

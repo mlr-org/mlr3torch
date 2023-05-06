@@ -19,11 +19,11 @@ module and the remaining information from the model descriptor, which must inclu
 and optionally callbacks.
 }
 \seealso{
-Other graph_network: 
+Other Graph Network: 
 \code{\link{mlr_pipeops_module}},
 \code{\link{mlr_pipeops_torch}},
 \code{\link{model_descriptor_to_module}()},
 \code{\link{model_descriptor_union}()},
 \code{\link{nn_graph}()}
 }
-\concept{graph_network}
+\concept{Graph Network}

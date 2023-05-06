@@ -30,11 +30,11 @@ Creates the \code{\link{nn_graph}} from a \code{\link{ModelDescriptor}}. Mostly 
 most circumstances harder to use than just creating \code{\link{nn_graph}} directly.
 }
 \seealso{
-Other graph_network: 
+Other Graph Network: 
 \code{\link{mlr_pipeops_module}},
 \code{\link{mlr_pipeops_torch}},
 \code{\link{model_descriptor_to_learner}()},
 \code{\link{model_descriptor_union}()},
 \code{\link{nn_graph}()}
 }
-\concept{graph_network}
+\concept{Graph Network}

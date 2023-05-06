@@ -5,7 +5,10 @@
 \alias{mlr3torch_losses}
 \title{Loss Functions}
 \format{
-\code{\link{R6Class}} inheriting from \code{\link{Dictionary}}.
+An object of class \code{DictionaryMlr3torchLosses} (inherits from \code{Dictionary}, \code{R6}) of length 13.
+}
+\usage{
+mlr3torch_losses
 }
 \description{
 Dictionary of torch loss functions.
@@ -15,16 +18,6 @@ Can be converted to a \code{\link{data.table}} using \code{as.data.table}.
 \section{Available Loss Functions}{
 
 cross_entropy, l1, mse
-}
-
-\section{Fields}{
-
-Only fields inherited from \code{\link{Dictionary}}.
-}
-
-\section{Methods}{
-
-Only methods inherited from \code{\link{Dictionary}}.
 }
 
 \examples{

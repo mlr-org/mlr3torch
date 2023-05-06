@@ -1,36 +1,18 @@
 #' @title Loss Configuration
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch_loss
-#' @format `r roxy_format(PipeOpTorchLoss)`
 #'
 #' @description
 #' Configures the loss of a deep learning model.
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchLoss)`
-#' * `loss` :: [`TorchLoss`] or `character(1)` or `nn_loss`\cr
-#'   The loss (or something convertible via [`as_torch_loss()`]).
-#'   This object is cloned during construction.
-#' * `r roxy_param_id("torch_loss")`
-#' * `r roxy_param_param_vals()`
-#'
-#' @section Input and Output Channels:
-#' There is one input channel `"input"` and one output channel `"output"`.
-#' During *training*, the channels are of class [`ModelDescriptor`].
-#' During *prediction*, the channels are of class [`Task`].
-#'
-#' @section State:
-#' The state is set to an empty `list()`.
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' The parameters are defined dynamically from the loss set during construction.
-#' @section Fields:
-#' Only fields inherited from [`PipeOp`].
-#' @section Methods:
-#' Only methods inherited from [`PipeOp`].
 #' @section Internals:
 #' During training the loss is cloned and added to the [`ModelDescriptor`].
-#' @family model_configuration
+#' @family PipeOps, Model Configuration
 #' @export
 #' @examples
 #' po_loss = po("torch_loss", "cross_entropy")
@@ -42,6 +24,11 @@
 PipeOpTorchLoss = R6Class("PipeOpTorchLoss",
   inherit = PipeOp,
   public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @param loss ([`TorchLoss`]) or `character(1)` or `nn_loss`\cr
+    #'   The loss (or something convertible via [`as_torch_loss()`]).
+    #' @template params_pipelines
     initialize = function(loss, id = "torch_loss", param_vals = list()) {
       private$.loss = as_torch_loss(loss, clone = TRUE)
       input = data.table(name = "input", train = "ModelDescriptor", predict = "Task")

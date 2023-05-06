@@ -1,4 +1,4 @@
-test_that("The CallbackTorch class is correct", {
+test_that("Basic checks", {
   expect_class(CallbackTorch, "R6ClassGenerator")
   instance = CallbackTorch$new()
   expect_true(is.null(CallbackTorch$inherit))
@@ -96,7 +96,7 @@ test_that("callback_torch is working", {
   expect_error(callback_torch("A"), regexp = "startsWith")
   tcb = callback_torch("CallbackTorchA")
   expect_class(tcb, "R6ClassGenerator")
-  expect_warning(callback_torch("CallbackTorchA", public = list(on_edn = function(ctx) 1)), regexp = "on_edn")
+  expect_warning(callback_torch("CallbackTorchA", private = list(on_edn = function(ctx) 1)), regexp = "on_edn")
   expect_error(callback_torch("CallbackTorchA", on_end = function(a) NULL), "ctx")
 
   e = new.env()
@@ -126,4 +126,30 @@ test_that("callback_torch is working", {
   expect_error(callback_torch("CallbackTorchA", inherit = A), regexp = "does not generate object")
   B = R6Class("B", inherit = CallbackTorch)
   expect_error(callback_torch("CallbackTorchA", inherit = B), regexp = NA)
+
+
+  CallbackTorchC = callback_torch("CallbackTorchC",
+    initialize = function(x) {
+      self$x = x
+    }
+  )
+
+  cb = CallbackTorchC$new(1)
+  expect_equal(cb$x, 1)
+
+  CallbackTorchD = callback_torch("CallbackTorchD",
+    public = list(
+      initialize = function(x) {
+        self$x = x
+      }
+    )
+  )
+  cb = CallbackTorchC$new(1)
+  expect_equal(cb$x, 1)
+
+  expect_error(
+    callback_torch("CallbackTorchE", public = list(initialize = function() NULL), initialize = function() NULL),
+    "initialize"
+
+  )
 })

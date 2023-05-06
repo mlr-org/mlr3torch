@@ -4,32 +4,22 @@
 \alias{mlr_callbacks_torch}
 \alias{CallbackTorch}
 \title{Base Class for Torch Callbacks}
-\format{
-\code{\link{R6Class}}
-}
 \description{
 Base class from which Torch Callbacks should inherit.
-To create custom callbacks to use in a torch learner use the convenience function \code{\link{torch_callback}}.
+To create custom callbacks to use in a torch learner it is recommended to use the convenience function
+\code{\link{torch_callback}}.
+TODO: This documentation sucks, better docu of the api and internals
 
 Torch Callbacks can be used to gain more control over the training process of a neural network without
 having to write everything from scratch.
 At each stage (see section "Stages") of the training loop, the corresponding \verb{on_<stage>(ctx)} method is run
 that takes as argument a \code{\link{ContextTorch}} which gives access to the relevant objects.
 }
-\section{Construction}{
-
-\code{CallbackTorch$new()}
-}
-
-\section{Methods}{
-
-See section \emph{Stages}.
-Other methods can be added freely as well.
-}
-
 \section{Inheriting}{
 
 It is recommended to use the sugar function \code{\link[=callback_torch]{callback_torch()}} to create custom callbacks.
+The callback stages have to be implemented as private methods with argument \code{ctx}, which is a \code{\link{ContextTorch}}.
+For available methods see section "Stages".
 }
 
 \section{Stages}{
@@ -59,3 +49,4 @@ Other callback:
 \code{\link{torch_callback}()}
 }
 \concept{callback}
+

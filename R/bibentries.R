@@ -41,5 +41,16 @@ bibentries = c( # nolint start
     pages = "448--456",
     year = "2015",
     organization = "PMLR"
+  ),
+  krizhevsky2017imagenet = bibentry(
+    "article",
+    title = "Imagenet classification with deep convolutional neural networks",
+    author = c("Krizhevsky, Alex", "Sutskever, Ilya", "Hinton, Geoffrey E."),
+    journal = "Communications of the ACM",
+    volume = "60",
+    number = "6",
+    pages = "84--90",
+    year = "2017",
+    publisher = "Association for Computing Machinery (ACM)"
   )
 ) # nolint end

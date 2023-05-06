@@ -5,7 +5,10 @@
 \alias{mlr3torch_optimizers}
 \title{Optimizers}
 \format{
-\code{\link{R6Class}} inheriting from \code{\link{Dictionary}}.
+An object of class \code{DictionaryMlr3torchOptimizers} (inherits from \code{Dictionary}, \code{R6}) of length 13.
+}
+\usage{
+mlr3torch_optimizers
 }
 \description{
 Dictionary of torch optimizers.
@@ -15,11 +18,6 @@ Can be converted to a \code{\link{data.table}} using \code{as.data.table}.
 \section{Available Optimizers}{
 
 adadelta, adagrad, adam, asgd, lbfgs, rmsprop, rprop, sgd
-}
-
-\section{Fields}{
-
-Only fields inherited from \code{\link{Dictionary}}.
 }
 
 \examples{

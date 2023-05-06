@@ -16,6 +16,7 @@ callback_torch(
   on_after_backward = NULL,
   on_batch_valid_begin = NULL,
   on_batch_valid_end = NULL,
+  initialize = NULL,
   public = NULL,
   private = NULL,
   active = NULL,
@@ -29,6 +30,9 @@ The class name.}
 
 \item{on_begin, on_end, on_epoch_begin, on_before_valid, on_epoch_end, on_batch_begin, on_batch_end, on_after_backward, on_batch_valid_begin, on_batch_valid_end}{(\code{function})\cr
 Function to execute at the given stage, see section \emph{Stages}.}
+
+\item{initialize}{(\verb{function()})\cr
+The initialization method of the callback.}
 
 \item{public, private, active}{(\code{list()})\cr
 Additional public, private, and active fields to add to the callback.}

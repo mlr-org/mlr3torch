@@ -39,34 +39,12 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 
 #' @title Torch Loss
 #'
-#' @usage NULL
-#' @name TorchLoss
-#' @format `r roxy_format(TorchLoss)`
-#'
 #' @description
 #' This wraps a `torch::nn_loss` and is usually used to configure the loss function of a torch learner.
 #' For a list of available losses, see [`mlr3torch_losses`].
 #'
-#' @section Construction:
-#' `r roxy_construction(TorchLoss)`
-#'
-#' Arguments from [`TorchWrapper`] (except for `generator`) as well as:
-#' * `torch_loss` :: `nn_loss`\cr
-#'   The loss module.
-#' * `task_types` :: `character()`\cr
-#'   The task types supported by this loss.
-#'   If left as `NULL` (default), this value is set to all available task types.
-#'
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
-#'
-#' @section Fields:
-#' Fields inherited from [`TorchWrapper`] as well as:
-#' * `task_types` :: `character()`\cr
-#'  The task types this loss supports.
-#'
-#' @section Methods:
-#' Only methods inherited from [`TorchWrapper`].
 #'
 #' @family model_configuration, torch_wrapper
 #' @export
@@ -78,7 +56,21 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 TorchLoss = R6::R6Class("TorchLoss",
   inherit = TorchWrapper,
   public = list(
+    #' @field task_types (`character()`)\cr
+    #'  The task types this loss supports.
     task_types = NULL,
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @param torch_loss (`nn_loss`)\cr
+    #'   The loss module.
+    #' @param task_types (`character()`)\cr
+    #'   The task types supported by this loss.
+    #'   If left as `NULL` (default), this value is set to all available task types.
+    #' @template param_param_set
+    #' @template param_id
+    #' @template param_label
+    #' @template param_packages
+    #' @template param_man
     initialize = function(torch_loss, task_types = NULL, param_set = NULL,
       id = deparse(substitute(torch_loss))[[1L]], label = capitalize(id), packages = NULL, man = NULL) {
       force(id)
@@ -97,6 +89,9 @@ TorchLoss = R6::R6Class("TorchLoss",
         man = man
       )
     },
+    #' @description
+    #' Prints the object
+    #' @param ... any
     print = function(...) {
       super$print(...)
       catn(str_indent("* Task Types:", as_short_string(self$task_types, 1000L)))
@@ -106,8 +101,6 @@ TorchLoss = R6::R6Class("TorchLoss",
 )
 
 #' @title Loss Functions
-#' @usage NULL
-#' @format [`R6Class`] inheriting from [`Dictionary`].
 #'
 #' @description
 #' Dictionary of torch loss functions.
@@ -116,12 +109,6 @@ TorchLoss = R6::R6Class("TorchLoss",
 #'
 #' @section Available Loss Functions:
 #' `r paste0(mlr3torch_losses$keys(), collapse = ", ")`
-#'
-#' @section Fields:
-#' Only fields inherited from [`Dictionary`].
-#'
-#' @section Methods:
-#' Only methods inherited from [`Dictionary`].
 #'
 #' @family torch_wrappers
 #' @family Dictionary

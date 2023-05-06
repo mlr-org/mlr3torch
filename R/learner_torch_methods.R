@@ -80,7 +80,7 @@ learner_torch_initialize = function(
   assert_subset(predict_types, names(mlr_reflections$learner_predict_types[[task_type]]))
   assert_true(!any(grepl("^(loss\\.|opt\\.|cb\\.)", param_set$ids())))
   packages = assert_character(packages, any.missing = FALSE, min.chars = 1L)
-  packages = union(c("mlr3", "mlr3torch", "torch"), packages)
+  packages = union(c("mlr3", "mlr3torch"), packages)
 
   paramset_torch = paramset_torchlearner()
   if (param_set$length > 0) {
@@ -147,7 +147,11 @@ learner_torch_train_worker = function(self, private, super, task, param_vals, co
 
 train_loop = function(ctx, cbs, seed) {
   call = function(step_name) {
-    lapply(cbs, function(x) if (exists(step_name, x, inherits = FALSE)) x[[step_name]](ctx))
+    lapply(cbs, function(x) {
+      if (exists(step_name, x$.__enclos_env__$private, inherits = FALSE)) {
+        x$.__enclos_env__$private[[step_name]](ctx)
+      }
+    })
   }
 
   ## we do this so if the learner should crash the intermediate progress is saved somewhere

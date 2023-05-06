@@ -4,16 +4,9 @@
 \alias{mlr3torch_callbacks.progress}
 \alias{CallbackTorchProgress}
 \title{Shows Training Process in the Console}
-\format{
-\code{\link{R6Class}} inheriting from \code{\link{CallbackTorch}}.
-}
 \description{
 Prints a progress bar and the metrics for training and validation.
 }
-\section{Construction}{
- \code{CallbackTorchProgress$new()}
-}
-
 \seealso{
 Other callback: 
 \code{\link{as_torch_callbacks}()},
@@ -25,3 +18,30 @@ Other callback:
 \code{\link{torch_callback}()}
 }
 \concept{callback}
+\section{Super class}{
+\code{\link[mlr3torch:CallbackTorch]{mlr3torch::CallbackTorch}} -> \code{CallbackTorchProgress}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-CallbackTorchProgress-clone}{\code{CallbackTorchProgress$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackTorchProgress-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackTorchProgress-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

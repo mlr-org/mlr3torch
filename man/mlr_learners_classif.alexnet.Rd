@@ -4,12 +4,28 @@
 \alias{mlr_learners_classif.alexnet}
 \alias{LearnerClassifAlexNet}
 \title{AlexNet Image Classifier}
-\format{
-\code{\link{R6Class}} inheriting from \code{\link{LearnerClassifTorchImage}}, \code{\link{LearnerClassifTorch}}, \code{\link{LearnerClassif}}, \code{\link{Learner}}.
-}
 \description{
-Convolutional network for image classification.
+Historic convolutional network for image classification.
 }
+\section{Dictionary}{
+
+This \link{Learner} can be instantiated via the \link[mlr3misc:Dictionary]{dictionary} \link{mlr_learners} or with the associated sugar function \code{\link[=lrn]{lrn()}}:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{mlr_learners$get("classif.alexnet")
+lrn("classif.alexnet")
+}\if{html}{\out{</div>}}
+}
+
+\section{Meta Information}{
+
+\itemize{
+\item Task type: \dQuote{classif}
+\item Predict Types: \dQuote{response}, \dQuote{prob}
+\item Feature Types: \dQuote{imageuri}
+\item Required Packages: \CRANpkg{mlr3}, \CRANpkg{mlr3torch}, \CRANpkg{torchvision}, \CRANpkg{magick}, \CRANpkg{torch}
+}
+}
+
 \section{Parameters}{
 
 Parameters from \code{\link{LearnerClassifTorchImage}} and
@@ -17,7 +33,84 @@ Parameters from \code{\link{LearnerClassifTorchImage}} and
 \item \code{pretrained} :: \code{logical(1)}\cr
 Whether to use the pretrained model.
 }
-
-TODO: Finish description
 }
 
+\examples{
+learner = lrn("classif.alexnet")
+learner$param_set
+}
+\references{
+Krizhevsky, Alex, Sutskever, Ilya, Hinton, E. G (2017).
+\dQuote{Imagenet classification with deep convolutional neural networks.}
+\emph{Communications of the ACM}, \bold{60}(6), 84--90.
+}
+\section{Super classes}{
+\code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3:LearnerClassif]{mlr3::LearnerClassif}} -> \code{\link[mlr3torch:LearnerClassifTorch]{mlr3torch::LearnerClassifTorch}} -> \code{\link[mlr3torch:LearnerClassifTorchImage]{mlr3torch::LearnerClassifTorchImage}} -> \code{LearnerClassifAlexNet}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-LearnerClassifAlexNet-new}{\code{LearnerClassifAlexNet$new()}}
+\item \href{#method-LearnerClassifAlexNet-clone}{\code{LearnerClassifAlexNet$clone()}}
+}
+}
+\if{html}{\out{
+<details><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner"><a href='../../mlr3/html/Learner.html#method-Learner-base_learner'><code>mlr3::Learner$base_learner()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="format"><a href='../../mlr3/html/Learner.html#method-Learner-format'><code>mlr3::Learner$format()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help"><a href='../../mlr3/html/Learner.html#method-Learner-help'><code>mlr3::Learner$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict"><a href='../../mlr3/html/Learner.html#method-Learner-predict'><code>mlr3::Learner$predict()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata"><a href='../../mlr3/html/Learner.html#method-Learner-predict_newdata'><code>mlr3::Learner$predict_newdata()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="print"><a href='../../mlr3/html/Learner.html#method-Learner-print'><code>mlr3::Learner$print()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset"><a href='../../mlr3/html/Learner.html#method-Learner-reset'><code>mlr3::Learner$reset()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train"><a href='../../mlr3/html/Learner.html#method-Learner-train'><code>mlr3::Learner$train()</code></a></span></li>
+</ul>
+</details>
+}}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LearnerClassifAlexNet-new"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerClassifAlexNet-new}{}}}
+\subsection{Method \code{new()}}{
+Creates a new instance of this \link[R6:R6Class]{R6} class.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LearnerClassifAlexNet$new(
+  optimizer = t_opt("adam"),
+  loss = t_loss("cross_entropy"),
+  callbacks = list()
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{optimizer}}{(\code{\link{TorchOptimizer}})\cr
+The optimizer used to train the network.}
+
+\item{\code{loss}}{(\code{\link{TorchLoss}})\cr
+The loss used to train the network.}
+
+\item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
+The callbacks. Must have unique ids distinct from "history".}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LearnerClassifAlexNet-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerClassifAlexNet-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LearnerClassifAlexNet$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

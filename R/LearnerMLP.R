@@ -1,15 +1,13 @@
-#' @title Multi Layer Perceptron
+#' @title Multi Layer Perceptron Classification
 #'
-#' @usage NULL
-#' @name mlr_learners_classif.mlp
-#' @format `r roxy_format(LearnerClassifMLP)`
+#' @templateVar id classif.mlp
+#' @templateVar param_vals layers = 1, d_hidden = 10
+#' @template params_learner
+#' @template learner
+#' @template learner_example
 #'
 #' @description
-#' Simple multi layer perceptron with dropout.
-#'
-#' @section Construction: `r roxy_construction(LearnerClassifMLP)`
-#'
-#' @section State: See [`LearnerClassifTorch`].
+#' Fully connected feed forward network with dropout after each activation function.
 #'
 #' @section Parameters:
 #' Parameters from [`LearnerClassifTorch`], as well as:
@@ -24,17 +22,13 @@
 #'   The dimension of the hidden layers.
 #' * `p` :: `numeric(1)`\cr
 #'   The dropout probability.
-#' @section Fields: `r roxy_fields_inherit(LearnerClassifMLP)`
-#' @section Methods: `r roxy_methods_inherit(LearnerClassifMLP)`
 #'
-#' @section Internals:
-#' A [`nn_sequential()`] is generated for the given parameter values.
-#'
-#' @family Learner
 #' @export
 LearnerClassifMLP = R6Class("LearnerClassifMLP",
   inherit = LearnerClassifTorch,
   public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(optimizer = t_opt("adam"), loss = t_loss("cross_entropy"), callbacks = list()) {
       param_set = ps(
         activation      = p_fct(default = "relu", tags = "train", levels = mlr3torch_activations),
@@ -67,18 +61,15 @@ LearnerClassifMLP = R6Class("LearnerClassifMLP",
 )
 
 
-#' @title Multi Layer Perceptron
+#' @title Multi Layer Perceptron Regression
 #'
-#' @usage NULL
-#' @name mlr_learners_regr.mlp
-#' @format `r roxy_format(LearnerRegrMLP)`
+#' @templateVar id regr.mlp
+#' @templateVar param_vals layers = 1, d_hidden = 10
+#' @template params_learner
+#' @template learner
+#' @template learner_example
 #'
-#' @description
-#' Simple multi layer perceptron with dropout.
-#'
-#' @section Construction: `r roxy_construction(LearnerRegrMLP)`
-#'
-#' @section State: See [`LearnerRegrTorch`].
+#' @inherit mlr_learners_classif.mlp description
 #'
 #' @section Parameters:
 #' Parameters from [`LearnerRegrTorch`], as well as:
@@ -94,17 +85,12 @@ LearnerClassifMLP = R6Class("LearnerClassifMLP",
 #' * `p` :: `numeric(1)`\cr
 #'   The dropout probability.
 #'
-#' @section Fields: `r roxy_fields_inherit(LearnerRegrMLP)`
-#' @section Methods: `r roxy_methods_inherit(LearnerRegrMLP)`
-#'
-#' @section Internals:
-#' A [`nn_sequential()`] is generated for the given parameter values.
-#'
-#' @family Learner
 #' @export
 LearnerRegrMLP = R6Class("LearnerRegrMLP",
   inherit = LearnerRegrTorch,
   public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(optimizer = t_opt("adam"), loss = t_loss("mse"), callbacks = list()) {
       param_set = ps(
         activation      = p_fct(default = "relu", tags = "train", levels = mlr3torch_activations),
@@ -136,6 +122,7 @@ LearnerRegrMLP = R6Class("LearnerRegrMLP",
   )
 )
 
+# TODO: This code is quite ugly
 make_mlp = function(task, param_vals, task_type) {
   activation = param_vals$activation %??% "relu"
   act = getFromNamespace(paste0("nn_", activation), ns = "torch")
@@ -175,9 +162,7 @@ make_mlp = function(task, param_vals, task_type) {
   modules = c(modules, list(nn_linear(d_hidden, out_dim)))
 
   invoke(nn_sequential, .args = modules)
-
 }
-
 
 register_learner("regr.mlp", LearnerRegrMLP)
 register_learner("classif.mlp", LearnerClassifMLP)

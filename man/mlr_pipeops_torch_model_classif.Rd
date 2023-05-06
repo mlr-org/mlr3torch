@@ -4,21 +4,10 @@
 \alias{mlr_pipeops_torch_model_classif}
 \alias{PipeOpTorchModelClassif}
 \title{Torch Classification Model}
-\format{
-\code{\link{R6Class}} object inheriting from \code{\link{PipeOpTorchModel}} / \code{\link{PipeOp}}.
-}
 \description{
 Builds a mlr3 Classification Torch Learner from its Input.
 The default optimizer is adam an the default loss is cross entropy.
 }
-\section{Construction}{
- \code{PipeOpTorchModelClassif$new(id = "torch_model_classif", param_vals = list())}
-\itemize{
-\item \code{id} :: \code{character(1)}\cr The id for the object. The default is "torch_model_classif".
-\item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
-}
-}
-
 \section{Parameters}{
 
 \itemize{
@@ -46,7 +35,7 @@ If this is missing (default), a random seed is generated.
 }
 
 Additionally there are the parameters for the optimizer, the loss function and the callbacks.
-\code{"opt."}, \code{"loss."} and \code{"cb.<callback id>"} respectively.
+They are prefixed with \code{"opt."}, \code{"loss."} and \code{"cb.<callback id>"} respectively.
 }
 
 \section{Input and Output Channels}{
@@ -61,14 +50,6 @@ The output is \code{NULL} during training and a \code{Prediction} of given \code
 A trained \code{LearnerRegrTorchModel} \code{LearnerClassifTorchModel}.
 }
 
-\section{Fields}{
- Only fields inherited from \code{PipeOpTorch}/\code{\link{PipeOp}{mlr3pipelines}}].
-}
-
-\section{Methods}{
- Only methods inherited from \code{PipeOpTorch}/\code{\link{PipeOp}{mlr3pipelines}}].
-}
-
 \section{Internals}{
 
 First a \code{\link{nn_graph}} is created by calling \code{\link[=model_descriptor_to_module]{model_descriptor_to_module()}} and than a
@@ -78,14 +59,13 @@ Then the parameters are set according to the parameters specified in \code{PipeO
 }
 
 \seealso{
-Other PipeOpTorch: 
+Other PipeOps: 
 \code{\link{mlr_pipeops_torch_avg_pool1d}},
 \code{\link{mlr_pipeops_torch_avg_pool2d}},
 \code{\link{mlr_pipeops_torch_avg_pool3d}},
 \code{\link{mlr_pipeops_torch_avg_pool}},
 \code{\link{mlr_pipeops_torch_batch_norm}},
 \code{\link{mlr_pipeops_torch_celu}},
-\code{\link{mlr_pipeops_torch_conv1d}},
 \code{\link{mlr_pipeops_torch_conv2d}},
 \code{\link{mlr_pipeops_torch_conv3d}},
 \code{\link{mlr_pipeops_torch_conv_transpose1d}},
@@ -102,6 +82,9 @@ Other PipeOpTorch:
 \code{\link{mlr_pipeops_torch_hardsigmoid}},
 \code{\link{mlr_pipeops_torch_hard}},
 \code{\link{mlr_pipeops_torch_head}},
+\code{\link{mlr_pipeops_torch_ingress_categ}},
+\code{\link{mlr_pipeops_torch_ingress_num}},
+\code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_layer_norm}},
 \code{\link{mlr_pipeops_torch_leaky_relu}},
 \code{\link{mlr_pipeops_torch_log_sigmoid}},
@@ -132,4 +115,64 @@ Other PipeOpTorch:
 \code{\link{mlr_pipeops_torch_threshold}},
 \code{\link{pipeop_torch_linear}}
 }
-\concept{PipeOpTorch}
+\concept{PipeOps}
+\section{Super classes}{
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorchModel]{mlr3torch::PipeOpTorchModel}} -> \code{PipeOpTorchModelClassif}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-PipeOpTorchModelClassif-new}{\code{PipeOpTorchModelClassif$new()}}
+\item \href{#method-PipeOpTorchModelClassif-clone}{\code{PipeOpTorchModelClassif$clone()}}
+}
+}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-print'><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
+</ul>
+</details>
+}}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipeOpTorchModelClassif-new"></a>}}
+\if{latex}{\out{\hypertarget{method-PipeOpTorchModelClassif-new}{}}}
+\subsection{Method \code{new()}}{
+Creates a new instance of this \link[R6:R6Class]{R6} class.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchModelClassif$new(id = "torch_model_classif", param_vals = list())}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{id}}{(\code{character(1)})\cr
+Identifier of the resulting  object.}
+
+\item{\code{param_vals}}{(\code{list()})\cr
+List of hyperparameter settings, overwriting the hyperparameter settings that would
+otherwise be set during construction.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipeOpTorchModelClassif-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-PipeOpTorchModelClassif-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchModelClassif$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

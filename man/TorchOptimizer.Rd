@@ -3,9 +3,6 @@
 \name{TorchOptimizer}
 \alias{TorchOptimizer}
 \title{Torch Optimizer}
-\format{
-\code{\link{R6Class}} inheriting from \code{\link{TorchWrapper}}.
-}
 \description{
 This wraps a \code{torch::torch_optimizer_generator}.
 It is commonly used to configure the \code{optimizer} of a torch learner.
@@ -13,35 +10,9 @@ Can be used to configure the \code{optimizer} of a \code{\link{ModelDescriptor}}
 
 For a list of available optimizers, see \code{\link{mlr3torch_optimizers}}.
 }
-\section{Construction}{
-
-\code{TorchOptimizer$new(torch_optimizer, param_set = NULL, id = deparse(substitute(torch_optimizer))[[1L]], label = capitalize(id), packages = NULL, man = NULL)}
-
-Arguments from \code{\link{TorchWrapper}} (except for \code{generator}) as well as:
-\itemize{
-\item \code{torch_optimizer} :: \code{torch_optimizer_generator}\cr
-The torch optimizer.
-}
-}
-
 \section{Parameters}{
 
 Defined by the constructor argument \code{param_set}.
-}
-
-\section{Fields}{
-
-Only fields inherited from \code{\link{TorchWrapper}} as well as:
-}
-
-\section{Methods}{
-
-Methods inherited from \code{\link{TorchWrapper}} as well as:
-\itemize{
-\item \code{generate(params)}\cr
-(named \code{list()} of \code{\link{nn_parameter}}) -> (\code{torch_optimizer})\cr
-Creates the optimizer for the given parameters.
-}
 }
 
 \examples{
@@ -60,3 +31,98 @@ Other model_configuration, torch_wrapper:
 \code{\link{t_opt}()}
 }
 \concept{model_configuration, torch_wrapper}
+\section{Super class}{
+\code{\link[mlr3torch:TorchWrapper]{mlr3torch::TorchWrapper}} -> \code{TorchOptimizer}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-TorchOptimizer-new}{\code{TorchOptimizer$new()}}
+\item \href{#method-TorchOptimizer-generate}{\code{TorchOptimizer$generate()}}
+\item \href{#method-TorchOptimizer-clone}{\code{TorchOptimizer$clone()}}
+}
+}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchWrapper" data-id="help"><a href='../../mlr3torch/html/TorchWrapper.html#method-TorchWrapper-help'><code>mlr3torch::TorchWrapper$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchWrapper" data-id="print"><a href='../../mlr3torch/html/TorchWrapper.html#method-TorchWrapper-print'><code>mlr3torch::TorchWrapper$print()</code></a></span></li>
+</ul>
+</details>
+}}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TorchOptimizer-new"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchOptimizer-new}{}}}
+\subsection{Method \code{new()}}{
+Creates a new instance of this \link[R6:R6Class]{R6} class.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TorchOptimizer$new(
+  torch_optimizer,
+  param_set = NULL,
+  id = deparse(substitute(torch_optimizer))[[1L]],
+  label = capitalize(id),
+  packages = NULL,
+  man = NULL
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{torch_optimizer}}{(\code{torch_optimizer_generator})\cr
+The torch optimizer.}
+
+\item{\code{param_set}}{(\code{paradox::ParamSet})\cr
+The parameter set.}
+
+\item{\code{id}}{(\code{character(1)})\cr
+The id for of the new object.}
+
+\item{\code{label}}{(\code{character(1)})\cr
+Label for the new instance.}
+
+\item{\code{packages}}{(\code{character()})\cr
+The R packages this object depends on.}
+
+\item{\code{man}}{(\code{character(1)})\cr
+String in the format \verb{[pkg]::[topic]} pointing to a manual page for this object.
+The referenced help package can be opened via method \verb{$help()}.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TorchOptimizer-generate"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchOptimizer-generate}{}}}
+\subsection{Method \code{generate()}}{
+Instantiates the optimizer.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TorchOptimizer$generate(params)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{params}}{The \verb{$parameters} of the network.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TorchOptimizer-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchOptimizer-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TorchOptimizer$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

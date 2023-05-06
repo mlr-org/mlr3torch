@@ -4,45 +4,18 @@
 \alias{mlr_pipeops_torch_max_pool1d}
 \alias{PipeOpTorchMaxPool1D}
 \title{1D Max Pooling}
-\format{
-\code{\link{R6Class}} inheriting from \code{\link{PipeOpTorchMaxPool}}, \code{\link{PipeOpTorch}}, \code{\link{PipeOp}}.
-}
 \description{
 Applies a 1D max pooling over an input signal composed of several input
 planes.
 }
-\section{Construction}{
-
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{PipeOpTorchMaxPool1D$new(id = "nn_max_pool1d", return_indices = FALSE, param_vals = list())
-}\if{html}{\out{</div>}}
-\itemize{
-\item \code{id} :: \code{character(1)}\cr The id for the object. The default is "nn_max_pool1d".
-\item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
-\item \code{return_indices} :: \code{logical(1)}\cr
-Whether to return the indices as well, in which case there are two output channels \code{"output"} and \code{"indices"}.
-}
-}
-
 \section{State}{
- The state is the value calculated by the public method \code{shapes_out()}.
-}
 
-\section{Fields}{
- Only fields inherited from \code{PipeOpTorch}/\code{\link{PipeOp}{mlr3pipelines}}].
-}
-
-\section{Methods}{
- Only methods inherited from \code{PipeOpTorch}/\code{\link{PipeOp}{mlr3pipelines}}].
+The state is the value calculated by the public method \code{shapes_out()}.
 }
 
 \section{Internals}{
 
 Calls \code{\link[torch:nn_max_pool1d]{torch::nn_max_pool1d()}} during training.
-}
-
-\section{Credit}{
- Parts of this documentation have been copied or adapted from the R package \CRANpkg{torch}, that comes under the  MIT license, which is included in the COPYRIGHTS file of the source package.
 }
 
 \section{Input and Output Channels}{
@@ -75,14 +48,13 @@ obj$module_generator
 obj$shapes_out(c(16, 5, 100))
 }
 \seealso{
-Other PipeOpTorch: 
+Other PipeOps: 
 \code{\link{mlr_pipeops_torch_avg_pool1d}},
 \code{\link{mlr_pipeops_torch_avg_pool2d}},
 \code{\link{mlr_pipeops_torch_avg_pool3d}},
 \code{\link{mlr_pipeops_torch_avg_pool}},
 \code{\link{mlr_pipeops_torch_batch_norm}},
 \code{\link{mlr_pipeops_torch_celu}},
-\code{\link{mlr_pipeops_torch_conv1d}},
 \code{\link{mlr_pipeops_torch_conv2d}},
 \code{\link{mlr_pipeops_torch_conv3d}},
 \code{\link{mlr_pipeops_torch_conv_transpose1d}},
@@ -99,6 +71,9 @@ Other PipeOpTorch:
 \code{\link{mlr_pipeops_torch_hardsigmoid}},
 \code{\link{mlr_pipeops_torch_hard}},
 \code{\link{mlr_pipeops_torch_head}},
+\code{\link{mlr_pipeops_torch_ingress_categ}},
+\code{\link{mlr_pipeops_torch_ingress_num}},
+\code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_layer_norm}},
 \code{\link{mlr_pipeops_torch_leaky_relu}},
 \code{\link{mlr_pipeops_torch_log_sigmoid}},
@@ -129,4 +104,75 @@ Other PipeOpTorch:
 \code{\link{mlr_pipeops_torch_threshold}},
 \code{\link{pipeop_torch_linear}}
 }
-\concept{PipeOpTorch}
+\concept{PipeOps}
+\section{Super classes}{
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{mlr3torch::PipeOpTorch}} -> \code{\link[mlr3torch:PipeOpTorchMaxPool]{mlr3torch::PipeOpTorchMaxPool}} -> \code{PipeOpTorchMaxPool1D}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-PipeOpTorchMaxPool1D-new}{\code{PipeOpTorchMaxPool1D$new()}}
+\item \href{#method-PipeOpTorchMaxPool1D-clone}{\code{PipeOpTorchMaxPool1D$clone()}}
+}
+}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-print'><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="PipeOpTorch" data-id="shapes_out"><a href='../../mlr3torch/html/PipeOpTorch.html#method-PipeOpTorch-shapes_out'><code>mlr3torch::PipeOpTorch$shapes_out()</code></a></span></li>
+</ul>
+</details>
+}}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipeOpTorchMaxPool1D-new"></a>}}
+\if{latex}{\out{\hypertarget{method-PipeOpTorchMaxPool1D-new}{}}}
+\subsection{Method \code{new()}}{
+Creates a new instance of this \link[R6:R6Class]{R6} class.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchMaxPool1D$new(
+  id = "nn_max_pool1d",
+  return_indices = FALSE,
+  param_vals = list()
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{id}}{(\code{character(1)})\cr
+Identifier of the resulting  object.}
+
+\item{\code{return_indices}}{(\code{logical(1)})\cr
+Whether to return the indices. See section 'Input and Output Channels' for more information.}
+
+\item{\code{param_vals}}{(\code{list()})\cr
+List of hyperparameter settings, overwriting the hyperparameter settings that would
+otherwise be set during construction.}
+
+\item{\code{d}}{(\code{integer(1)})\cr
+The dimension of the max pooling operation.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipeOpTorchMaxPool1D-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-PipeOpTorchMaxPool1D-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchMaxPool1D$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

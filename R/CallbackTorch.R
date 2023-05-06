@@ -1,27 +1,22 @@
 #' @title Base Class for Torch Callbacks
 #'
-#' @usage NULL
 #' @name mlr_callbacks_torch
-#' @format `r roxy_format(CallbackTorch)`
 #'
 #' @description
 #' Base class from which Torch Callbacks should inherit.
-#' To create custom callbacks to use in a torch learner use the convenience function [`torch_callback`].
+#' To create custom callbacks to use in a torch learner it is recommended to use the convenience function 
+#' [`torch_callback`].
+#' TODO: This documentation sucks, better docu of the api and internals
 #'
 #' Torch Callbacks can be used to gain more control over the training process of a neural network without
 #' having to write everything from scratch.
 #' At each stage (see section "Stages") of the training loop, the corresponding `on_<stage>(ctx)` method is run
 #' that takes as argument a [`ContextTorch`] which gives access to the relevant objects.
 #'
-#' @section Construction:
-#' `r roxy_construction(CallbackTorch)`
-#'
-#' @section Methods:
-#' See section *Stages*.
-#' Other methods can be added freely as well.
-#'
 #' @section Inheriting:
 #' It is recommended to use the sugar function [`callback_torch()`] to create custom callbacks.
+#' The callback stages have to be implemented as private methods with argument `ctx`, which is a [`ContextTorch`].
+#' For available methods see section "Stages".
 #'
 #' @section Stages:
 #' * `begin` :: Run before the training loop begins.
@@ -52,6 +47,8 @@ CallbackTorch = R6Class("CallbackTorch",
 #'   The class name.
 #' @param on_begin,on_end,on_epoch_begin,on_before_valid,on_epoch_end,on_batch_begin,on_batch_end,on_after_backward,on_batch_valid_begin,on_batch_valid_end (`function`)\cr
 #'   Function to execute at the given stage, see section *Stages*.
+#' @param initialize (`function()`)\cr
+#'   The initialization method of the callback.
 #' @param public,private,active (`list()`)\cr
 #'   Additional public, private, and active fields to add to the callback.
 #' @param parent_env (`environment()`)\cr
@@ -64,6 +61,7 @@ CallbackTorch = R6Class("CallbackTorch",
 #'
 #' @export
 callback_torch = function(
+  # FIXME: Add initialization method as dedicated argument
   classname,
   # training
   on_begin = NULL,
@@ -77,10 +75,12 @@ callback_torch = function(
   # validation
   on_batch_valid_begin = NULL,
   on_batch_valid_end = NULL,
+  # other methods
+  initialize = NULL,
   public = NULL, private = NULL, active = NULL, parent_env = parent.frame(), inherit = CallbackTorch
   ) {
   assert_true(startsWith(classname, "CallbackTorch"))
-  more_public = list(
+  more_private = list(
     on_begin = assert_function(on_begin, args = "ctx", null.ok = TRUE),
     on_end = assert_function(on_end, args = "ctx", null.ok = TRUE),
     on_epoch_begin = assert_function(on_epoch_begin, args = "ctx", null.ok = TRUE),
@@ -93,24 +93,31 @@ callback_torch = function(
     on_batch_valid_end = assert_function(on_batch_valid_end, args = "ctx", null.ok = TRUE)
   )
 
-  assert_list(public, null.ok = TRUE, names = "unique")
-  if (length(public)) assert_names(names(public), disjunct.from = names(more_public))
+  assert_function(initialize, null.ok = TRUE)
 
-  invalid_stages = names(public)[grepl("^on_", names(public))]
+  if (!is.null(initialize)) {
+    assert_true("initialize" %nin% names(public))
+    public$initialize = initialize
+  }
+
+  assert_list(private, null.ok = TRUE, names = "unique")
+  if (length(private)) assert_names(names(private), disjunct.from = names(more_private))
+
+  invalid_stages = names(private)[grepl("^on_", names(private))]
 
   if (length(invalid_stages)) {
-    warningf("There are public method(s) with name(s) %s, which are not valid stages.",
+    warningf("There are private method(s) with name(s) %s, which are not valid stages.",
       paste(paste0("'", invalid_stages, "'"), collapse = ", ")
     )
   }
-  assert_list(private, null.ok = TRUE, names = "unique")
+  assert_list(public, null.ok = TRUE, names = "unique")
   assert_list(active, null.ok = TRUE, names = "unique")
   assert_environment(parent_env)
   assert_inherits_classname(inherit, "CallbackTorch")
 
-  more_public = Filter(function(x) !is.null(x), more_public)
+  more_private = Filter(function(x) !is.null(x), more_private)
   parent_env_shim = new.env(parent = parent_env)
   parent_env_shim$inherit = inherit
-  R6::R6Class(classname = classname, inherit = inherit, public = c(more_public, public),
-    private = private, active = active, parent_env = parent_env_shim, lock_objects = FALSE)
+  R6::R6Class(classname = classname, inherit = inherit, public = public,
+    private = c(private, more_private), active = active, parent_env = parent_env_shim, lock_objects = FALSE)
 }

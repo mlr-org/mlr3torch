@@ -1,3 +1,7 @@
+#' @name <%=paste0("mlr_learners_", id)%>
+#'
+#' @include LearnerTorch.R
+#'
 #' @section Dictionary:
 #' This [Learner] can be instantiated via the [dictionary][mlr3misc::Dictionary] [mlr_learners] or with the associated sugar function [lrn()]:
 #' ```

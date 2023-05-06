@@ -4,9 +4,33 @@
 \alias{mlr3torch_callbacks.history}
 \alias{CallbackTorchHistory}
 \title{Callback Torch History}
-\format{
-\code{\link{R6Class}} inheriting from \code{\link{CallbackTorch}}.
-}
 \description{
 Saves the history during training.
+}
+\section{Super class}{
+\code{\link[mlr3torch:CallbackTorch]{mlr3torch::CallbackTorch}} -> \code{CallbackTorchHistory}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-CallbackTorchHistory-clone}{\code{CallbackTorchHistory$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackTorchHistory-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackTorchHistory-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchHistory$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
 }

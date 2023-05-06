@@ -59,7 +59,7 @@ Remotes:
   mlr-org/mlr3misc
 Config/testthat/edition: 3
 Encoding: UTF-8
-Roxygen: list(markdown = TRUE, r6 = FALSE)
+Roxygen: list(markdown = TRUE, r6 = TRUE)
 RoxygenNote: 7.2.3
 Collate:
     'CallbackTorch.R'
@@ -70,10 +70,10 @@ Collate:
     'CallbackTorchHistory.R'
     'CallbackTorchProgress.R'
     'ContextTorch.R'
+    'LearnerTorch.R'
     'LearnerClassifTorchImage.R'
     'LearnerClassifAlexNet.R'
     'LearnerMLP.R'
-    'LearnerTorch.R'
     'LearnerTorchFeatureless.R'
     'LearnerTorchModel.R'
     'ModelDescriptor.R'
@@ -98,7 +98,7 @@ Collate:
     'PipeOpTorchOptimizer.R'
     'PipeOpTorchReshape.R'
     'PipeOpTorchSoftmax.R'
-    'TaskClassif_test_imagenet.R'
+    'TaskClassif_nano_imagenet.R'
     'TaskClassif_tiny_imagenet.R'
     'TaskClassif_toytask.R'
     'TorchOptimizer.R'
@@ -106,6 +106,7 @@ Collate:
     'assertions.R'
     'autotest.R'
     'autotest_learner.R'
+    'bibentries.R'
     'converter.R'
     'dataloader.R'
     'expectations.R'
@@ -116,5 +117,4 @@ Collate:
     'nn_graph.R'
     'paramset_torchlearner.R'
     'reset_last_layer.R'
-    'roxygen.R'
     'task_dataset.R'

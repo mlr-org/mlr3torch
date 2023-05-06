@@ -3,37 +3,96 @@
 \name{TorchCallback}
 \alias{TorchCallback}
 \title{Torch Callback}
-\format{
-\code{\link{R6Class}} inheriting from \code{\link{TorchWrapper}}.
-}
 \description{
 Leight-weight wrapper around callback for torch: A \code{\link{TorchCallback}} wraps a \code{\link{CallbackTorch}}.
 To conveniently retrieve a \code{\link{TorchCallback}}, use \code{\link{t_clbk}}.
 It is an analogous construct to the classes \code{\link{TorchOptimizer}} or \code{\link{TorchLoss}} which wrap torch optimizers and
 losses.
 }
-\section{Construction}{
- \code{TorchCallback$new(callback_generator, param_set = NULL, id = deparse(substitute(id))[[1L]], label = capitalize(id), packages = NULL, man = NULL)}
-Arguments from \code{\link{TorchWrapper}} (except for \code{generator}) as well as:
-\itemize{
-\item \code{callback_generator} :: \code{R6ClassGenerator}\cr
-The class generator for the callback that is being wrapped.
-}
-}
-
 \section{Parameters}{
 
 Defined by the constructor argument \code{param_set}.
 }
 
-\section{Fields}{
-
-Only fields inherited from \code{\link{TorchWrapper}} as well as:
+\examples{
+TorchCallback$new(CallbackTorchHistory)
 }
-
-\section{Methods}{
-
-Only methods inherited from \code{\link{TorchWrapper}}.
-}
-
 \concept{callback, model_configuration, torch_wrapper}
+\section{Super class}{
+\code{\link[mlr3torch:TorchWrapper]{mlr3torch::TorchWrapper}} -> \code{TorchCallback}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-TorchCallback-new}{\code{TorchCallback$new()}}
+\item \href{#method-TorchCallback-clone}{\code{TorchCallback$clone()}}
+}
+}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchWrapper" data-id="generate"><a href='../../mlr3torch/html/TorchWrapper.html#method-TorchWrapper-generate'><code>mlr3torch::TorchWrapper$generate()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchWrapper" data-id="help"><a href='../../mlr3torch/html/TorchWrapper.html#method-TorchWrapper-help'><code>mlr3torch::TorchWrapper$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchWrapper" data-id="print"><a href='../../mlr3torch/html/TorchWrapper.html#method-TorchWrapper-print'><code>mlr3torch::TorchWrapper$print()</code></a></span></li>
+</ul>
+</details>
+}}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TorchCallback-new"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchCallback-new}{}}}
+\subsection{Method \code{new()}}{
+Creates a new instance of this \link[R6:R6Class]{R6} class.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TorchCallback$new(
+  callback_generator,
+  param_set = NULL,
+  id = deparse(substitute(id))[[1L]],
+  label = capitalize(id),
+  packages = NULL,
+  man = NULL
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{callback_generator}}{(\code{R6ClassGenerator})\cr
+The class generator for the callback that is being wrapped.}
+
+\item{\code{param_set}}{(\code{paradox::ParamSet})\cr
+The parameter set.}
+
+\item{\code{id}}{(\code{character(1)})\cr
+The id for of the new object.}
+
+\item{\code{label}}{(\code{character(1)})\cr
+Label for the new instance.}
+
+\item{\code{packages}}{(\code{character()})\cr
+The R packages this object depends on.}
+
+\item{\code{man}}{(\code{character(1)})\cr
+String in the format \verb{[pkg]::[topic]} pointing to a manual page for this object.
+The referenced help package can be opened via method \verb{$help()}.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TorchCallback-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchCallback-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TorchCallback$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

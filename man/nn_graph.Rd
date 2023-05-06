@@ -31,11 +31,11 @@ network = nn_graph(graph, list(module.input = c(NA, 1)))
 network
 }
 \seealso{
-Other graph_network: 
+Other Graph Network: 
 \code{\link{mlr_pipeops_module}},
 \code{\link{mlr_pipeops_torch}},
 \code{\link{model_descriptor_to_learner}()},
 \code{\link{model_descriptor_to_module}()},
 \code{\link{model_descriptor_union}()}
 }
-\concept{graph_network}
+\concept{Graph Network}

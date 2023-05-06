@@ -4,24 +4,9 @@
 \alias{mlr_pipeops_torch_callbacks}
 \alias{PipeOpTorchCallbacks}
 \title{Callback Configuration}
-\format{
-\code{\link{R6Class}} inheriting from \code{\link{PipeOp}}.
-}
 \description{
 Configures the callbacks of a deep learning model.
 }
-\section{Construction}{
- \code{PipeOpTorchCallbacks$new(callbacks = list(), id = "torch_callbacks", param_vals = list())}
-\itemize{
-\item \code{callbacks} :: \code{list} of \code{\link{TorchCallback}}s or \code{character()} or \cr
-The callbacks (or something convertible via \code{\link[=as_torch_callbacks]{as_torch_callbacks()}}).
-Must have unique ids. Default is \code{list()}.
-All callbacks are cloned during construction.
-\item \code{id} :: \code{character(1)}\cr The id for the object. The default is "torch_callbacks".
-\item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
-}
-}
-
 \section{Input and Output Channels}{
 
 There is one input channel \code{"input"} and one output channel \code{"output"}.
@@ -31,23 +16,13 @@ During \emph{prediction}, the channels are of class \code{\link{Task}}.
 
 \section{State}{
 
-The state is set to an empty \code{list()}.
+The state is the value calculated by the public method \code{shapes_out()}.
 }
 
 \section{Parameters}{
 
 The parameters are defined dynamically from the callbacks, where the id of the respective callbacks is the
 respective set id.
-}
-
-\section{Fields}{
-
-Only fields inherited from \code{\link{PipeOp}}.
-}
-
-\section{Methods}{
-
-Only methods inherited from \code{\link{PipeOp}}.
 }
 
 \section{Internals}{
@@ -69,7 +44,75 @@ mdout1$callbacks
 }
 \seealso{
 Other model_configuration: 
-\code{\link{mlr_pipeops_torch_loss}},
 \code{\link{mlr_pipeops_torch_optimizer}}
 }
 \concept{model_configuration}
+\section{Super class}{
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{PipeOpTorchCallbacks}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-PipeOpTorchCallbacks-new}{\code{PipeOpTorchCallbacks$new()}}
+\item \href{#method-PipeOpTorchCallbacks-clone}{\code{PipeOpTorchCallbacks$clone()}}
+}
+}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-print'><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
+</ul>
+</details>
+}}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipeOpTorchCallbacks-new"></a>}}
+\if{latex}{\out{\hypertarget{method-PipeOpTorchCallbacks-new}{}}}
+\subsection{Method \code{new()}}{
+Creates a new instance of this \link[R6:R6Class]{R6} class.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchCallbacks$new(
+  callbacks = list(),
+  id = "torch_callbacks",
+  param_vals = list()
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{callbacks}}{(\code{list} of \code{\link{TorchCallback}}s) \cr
+The callbacks (or something convertible via \code{\link[=as_torch_callbacks]{as_torch_callbacks()}}).
+Must have unique ids. Default is \code{list()}.
+All callbacks are cloned during construction.}
+
+\item{\code{id}}{(\code{character(1)})\cr
+Identifier of the resulting  object.}
+
+\item{\code{param_vals}}{(\code{list()})\cr
+List of hyperparameter settings, overwriting the hyperparameter settings that would
+otherwise be set during construction.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipeOpTorchCallbacks-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-PipeOpTorchCallbacks-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchCallbacks$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

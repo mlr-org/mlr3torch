@@ -4,74 +4,13 @@
 \alias{torch_wrapper}
 \alias{TorchWrapper}
 \title{Base Class for Torch Wrappers}
-\format{
-\code{\link{R6Class}}
-}
-\arguments{
-\item{man}{(\code{character(1)})\cr
-String in the format \verb{[pkg]::[topic]} pointing to a manual page for this object.
-The referenced help package can be opened via method \verb{$help()}.}
-}
 \description{
 Abstract Base Class from which \code{\link{TorchLoss}}, \code{\link{TorchOptimizer}}, and \code{\link{TorchCallback}} inherit.
 This class wraps a generator (R6Class Generator or the torch version of such a generator) and annotates it.
 }
-\section{Construction}{
-
-\code{TorchWrapper$new(generator, id, param_set = NULL, packages = NULL, label = id, man = NULL)}
-\itemize{
-\item \code{generator} :: \code{function} or \code{R6ClassGenerator}\cr
-The wrapped generator that is described.
-\item \code{id} :: \code{character(1)}\cr
-The identifier of the object. Used to e.g. retrieve it from a dictionary.
-\item \code{param_set} :: \code{\link[paradox:ParamSet]{paradox::ParamSet}}\cr
-The parameter set that describes the arguments of the generator.
-\item \code{packages} :: \code{character()}\cr
-The packages the generator depends on.
-\item \code{label} :: \code{character(1)}\cr
-The label, which is used for printing. Defaults to \code{id}.
-\item \code{man} :: (\code{character(1)})\cr
-String in the format \verb{[pkg]::[topic]} pointing to a manual page for this object.
-}
-}
-
 \section{Parameters}{
 
 Defined by the constructor argument \code{param_set}.
-}
-
-\section{Fields}{
-
-\itemize{
-\item \code{generator} :: \code{function} or \code{R6ClassGenerator}\cr
-The wrapped generator that is described.
-\item \code{id} :: \code{character(1)}\cr
-The identifier of the object. Used to e.g. retrieve it from a dictionary.
-\item \code{param_set} :: \code{\link[paradox:ParamSet]{paradox::ParamSet}}\cr
-The parameter set that describes the arguments of the generator.
-\item \code{packages} :: \code{character()}\cr
-The packages the generator depends on.
-\item \code{label} :: \code{character(1)}\cr
-The label, which is used for printing. Defaults to \code{id}.
-\item \code{man} :: (\code{character(1)})\cr
-String in the format \verb{[pkg]::[topic]} pointing to a manual page for this object.
-The referenced help package can be opened via method \verb{$help()}.
-}
-}
-
-\section{Methods}{
-
-\itemize{
-\item \code{generate()}\cr
-() -> any
-Calls the generator with the given parameter values.
-\item \code{print(...)}\cr
-() -> \code{CallbackTorch}
-Prints the object.
-\item \code{help()}\cr
-() -> help file\cr
-Displays the help file of the wrapped object.
-}
 }
 
 \section{Internals}{
@@ -84,3 +23,134 @@ Other torch_wrappers:
 \code{\link{mlr3torch_losses}}
 }
 \concept{torch_wrappers}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{label}}{(\code{character(1)})\cr
+Label for this object.
+Can be used in tables, plot and text output instead of the ID.}
+
+\item{\code{param_set}}{(\link[paradox:ParamSet]{paradox::ParamSet})\cr
+Set of hyperparameters.}
+
+\item{\code{packages}}{(\code{character(1)})\cr
+Set of required packages.
+These packages are loaded, but not attached.}
+
+\item{\code{id}}{(\code{character(1)})\cr
+Identifier of the object.
+Used in tables, plot and text output.}
+
+\item{\code{generator}}{The wrapped generator that is described.}
+
+\item{\code{man}}{(\code{character(1)})\cr
+String in the format \verb{[pkg]::[topic]} pointing to a manual page for this object.
+Defaults to \code{NA}, but can be set by child classes.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-TorchWrapper-new}{\code{TorchWrapper$new()}}
+\item \href{#method-TorchWrapper-print}{\code{TorchWrapper$print()}}
+\item \href{#method-TorchWrapper-generate}{\code{TorchWrapper$generate()}}
+\item \href{#method-TorchWrapper-help}{\code{TorchWrapper$help()}}
+\item \href{#method-TorchWrapper-clone}{\code{TorchWrapper$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TorchWrapper-new"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchWrapper-new}{}}}
+\subsection{Method \code{new()}}{
+Creates a new instance of this \link[R6:R6Class]{R6} class.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TorchWrapper$new(
+  generator,
+  id,
+  param_set = NULL,
+  packages = NULL,
+  label = id,
+  man = NULL
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{generator}}{The wrapped generator that is described.}
+
+\item{\code{id}}{(\code{character(1)})\cr
+The id for of the new object.}
+
+\item{\code{param_set}}{(\code{paradox::ParamSet})\cr
+The parameter set.}
+
+\item{\code{packages}}{(\code{character()})\cr
+The R packages this object depends on.}
+
+\item{\code{label}}{(\code{character(1)})\cr
+Label for the new instance.}
+
+\item{\code{man}}{(\code{character(1)})\cr
+String in the format \verb{[pkg]::[topic]} pointing to a manual page for this object.
+The referenced help package can be opened via method \verb{$help()}.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TorchWrapper-print"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchWrapper-print}{}}}
+\subsection{Method \code{print()}}{
+Prints the object
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TorchWrapper$print(...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{any}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TorchWrapper-generate"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchWrapper-generate}{}}}
+\subsection{Method \code{generate()}}{
+Calls the generator with the given parameter values.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TorchWrapper$generate()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TorchWrapper-help"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchWrapper-help}{}}}
+\subsection{Method \code{help()}}{
+Displays the help file of the wrapped object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TorchWrapper$help()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TorchWrapper-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchWrapper-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TorchWrapper$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

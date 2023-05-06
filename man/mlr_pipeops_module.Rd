@@ -4,9 +4,6 @@
 \alias{mlr_pipeops_module}
 \alias{PipeOpModule}
 \title{Class for Torch Module Wrappers}
-\format{
-\code{\link{R6Class}} object inheriting from \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}}.
-}
 \description{
 \code{PipeOpModule} wraps an \code{\link{nn_module}} that is being called during the \code{train} phase of this \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}}.
 By doing so, this allows to assemble \code{PipeOpModule}s in a computational \code{\link[mlr3pipelines:Graph]{mlr3pipelines::Graph}} that
@@ -19,28 +16,6 @@ of \code{PipeOpModule}s during its training phase.
 
 The \code{predict} method does currently not serve a meaningful purpose.
 }
-\section{Construction}{
-
-\code{PipeOpModule$new(id = "module", module = nn_identity(), inname = "input", outname = "output", param_vals = list(), packages = character(0))}
-\itemize{
-\item \code{id} :: \code{character(1)}\cr The id for the object. The default is "module".
-\item \code{module} :: \code{\link{nn_module}}\cr
-The torch module that is being wrapped.
-\item \code{inname} :: \code{character()}\cr
-}
-
-For a more general introduction on how to create a new learner, see the respective section in the
-\href{https://mlr3book.mlr-org.com/extending.html#sec-extending-learners}{mlr3 book}.
-The names of the input channels.
-\itemize{
-\item \code{outname} :: \code{character()}\cr
-The names of the output channels. If this parameter has length 1, the parameter \link[torch:nn_module]{module} must
-return a \link[torch:torch_tensor]{tensor}. Otherwise it must return a \code{list()} of tensors of corresponding length.
-\item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
-\item \code{packages}` :: named \code{list()}\cr List of packages settings. Default is  \code{list()}.
-}
-}
-
 \section{Input and Output Channels}{
 
 The number and names of the input and output channels can be set during construction. They input and output
@@ -50,25 +25,12 @@ meaningful purpose.
 
 \section{State}{
 
-The \verb{$state} is an empty \code{list()}.
+The state is the value calculated by the public method \code{shapes_out()}.
 }
 
 \section{Parameters}{
 
 No parameters.
-}
-
-\section{Fields}{
-
-\itemize{
-\item \code{module} :: \code{nn_module}\cr
-The torch module that is called during the training phase of the PipeOpModule.
-}
-}
-
-\section{Methods}{
-
-Only methods inherited from \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}}.
 }
 
 \section{Internals}{
@@ -127,11 +89,98 @@ linear_module$input$name
 \seealso{
 nn_module, mlr_pipeops_torch, nn_graph, model_descriptor_to_module, PipeOp, Graph
 
-Other graph_network: 
+Other Graph Network: 
 \code{\link{mlr_pipeops_torch}},
 \code{\link{model_descriptor_to_learner}()},
 \code{\link{model_descriptor_to_module}()},
 \code{\link{model_descriptor_union}()},
 \code{\link{nn_graph}()}
 }
-\concept{graph_network}
+\concept{Graph Network}
+\section{Super class}{
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{PipeOpModule}
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{module}}{(\code{\link{nn_module}})\cr
+The torch module that is called during the training phase.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-PipeOpModule-new}{\code{PipeOpModule$new()}}
+\item \href{#method-PipeOpModule-clone}{\code{PipeOpModule$clone()}}
+}
+}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-print'><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
+</ul>
+</details>
+}}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipeOpModule-new"></a>}}
+\if{latex}{\out{\hypertarget{method-PipeOpModule-new}{}}}
+\subsection{Method \code{new()}}{
+Creates a new instance of this \link[R6:R6Class]{R6} class.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PipeOpModule$new(
+  id = "module",
+  module = nn_identity(),
+  inname = "input",
+  outname = "output",
+  param_vals = list(),
+  packages = character(0)
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{id}}{(\code{character(1)})\cr
+The id for of the new object.}
+
+\item{\code{module}}{(\code{\link{nn_module}})\cr
+The torch module that is being wrapped.}
+
+\item{\code{inname}}{(\code{character()})\cr
+The names of the input channels.}
+
+\item{\code{outname}}{(\code{character()})\cr
+The names of the output channels. If this parameter has length 1, the parameter \link[torch:nn_module]{module} must
+return a \link[torch:torch_tensor]{tensor}. Otherwise it must return a \code{list()} of tensors of corresponding length.}
+
+\item{\code{param_vals}}{(named \code{list()})\cr
+Parameter values to be set after construction.}
+
+\item{\code{packages}}{(\code{character()})\cr
+The R packages this object depends on.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipeOpModule-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-PipeOpModule-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PipeOpModule$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

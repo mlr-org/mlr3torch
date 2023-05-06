@@ -1,8 +1,6 @@
 #' @title Base Class for Torch Module Constructor Wrappers
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch
-#' @format `r roxy_format(PipeOpTorch)`
 #'
 #' @description
 #' `PipeOpTorch` is the base class for all [`PipeOp`]s that represent neural network layers in a [`Graph`].
@@ -19,34 +17,6 @@
 #'
 #' During **prediction**, `PipeOpTorch` takes in a [`Task`][mlr3::Task] in each channel and outputs the same new
 #' [`Task`][mlr3::Task] resulting from their [feature union][PipeOpFeatureUnion] in each channel.
-#'
-#' @section Construction:
-#' `r roxy_construction(PipeOpTorch)`
-#'
-#' * `r roxy_param_id()`
-#' * `module_generator` :: `nn_module_generator` | `NULL`\cr
-#'   The module generator that is wrapped by this `PipeOpTorch`.
-#'   When this is `NULL`, then `private$.make_module()` must be overloaded.
-#' * `r roxy_param_param_set()`
-#' * `r roxy_param_param_vals()`
-#' * `inname` :: `character()`\cr
-#'   The names of the [`PipeOp`]'s input channels. These will be the input channels of the generated [`PipeOpModule`].
-#'   Unless the wrapped `module_generator`'s forward method (if present) has the argument `...`, `inname` must be
-#'   identical to those argument names in order to avoid any ambiguity.\cr
-#'   If the forward method has the argument `...`, the order of the input channels determines how the tensors
-#'   will be passed to the wrapped `nn_module`.\cr
-#'   If left as `NULL` (default), the argument `module_generator` must be given and the argument names of the
-#'   `modue_generator`'s forward function are set as `inname`.
-#' * `outname` :: `character()` \cr
-#'   The names of the output channels channels. These will be the ouput channels of the generated [`PipeOpModule`]
-#'   and therefore also the names of the list returned by its `$train()`.
-#'   In case there is more than one output channel, the `nn_module` that is constructed by this
-#'   [`PipeOp`] during training must return a named `list()`, where the names of the list are the
-#'   names out the output channels. The default is `"output"`.
-#' * `packages` :: `character()`\cr
-#'   The packages the `PipeOp` depends on.
-#' * `tags` :: `character()`\cr
-#'   The tags of the `PipeOp`. The tags `"torch"` is always added.
 #'
 #' @section Inheriting:
 #' When inheriting from this class, one should overload either the `private$.shapes_out()` and the
@@ -80,29 +50,12 @@
 #' During *training*, all inputs and outputs are of class [`ModelDescriptor`].
 #' During *prediction*, all input and output channels are of class [`Task`].
 #'
-#' @section State:
-#' The state is the value calculated by the public method `$shapes_out()`.
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' The [`ParamSet`][paradox::ParamSet] is specified by the child class inheriting from [`PipeOpTorch`].
 #' Usually the parameters are the arguments of the wrapped [`nn_module`] minus the auxiliary parameter that can
 #' be automatically inferred from the shapes of the input tensors.
-#'
-#' @section Fields:
-#' * `module_generator` :: `nn_module_generator` | `NULL`\cr
-#'    The module generator wrapped by this `PipeOpTorch`. If `NULL`, the private method
-#'    `private$.make_module(shapes_in, param_vals)` must be overwritte, see section 'Inheriting'.
-#'    Do not change this after construction.
-#'
-#' @section Methods:
-#' * `shapes_out(shapes_in, task)\cr
-#'  (`list()` of `integer()` or `integer()`, task) -> (`list()` of `integer()`)\cr
-#'  Calculates the output shapes for the given input shapes, parameters and task.
-#'  The `shapes_in` must be in the same orer as the input channel names of the `PipeOp`.
-#'  If there is only one input channel, `shapes_in` can also contain the shapes for this input channel.
-#'  The task is very rarely used (default is `NULL`). An exception is [`PipeOpTorchHead`].
-#'  It returns a named `list()` containing the output shapes. The names are the names of the output channels of
-#'  the `PipeOp`.
 #'
 #' @section Internals:
 #' During training, the `PipeOpTorch` creates a [`PipeOpModule`] for the given parameter specification and the
@@ -125,7 +78,7 @@
 #' `.pointer_shape` are updated accordingly. The shallow copy means that all [`ModelDescriptor`]s point to the same
 #' [`Graph`] which allows the graph to be modified by-reference in different parts of the code.
 #' @export
-#' @family graph_network
+#' @family Graph Network
 #' @examples
 #' ## Creating a neural network
 #' # In torch
@@ -266,7 +219,32 @@
 PipeOpTorch = R6Class("PipeOpTorch",
   inherit = PipeOp,
   public = list(
+    #' @field module_generator (`nn_module_generator` or `NULL`)\cr
+    #'    The module generator wrapped by this `PipeOpTorch`. If `NULL`, the private method
+    #'    `private$.make_module(shapes_in, param_vals)` must be overwritte, see section 'Inheriting'.
+    #'    Do not change this after construction.
     module_generator = NULL,
+    #' @description Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    #' @template param_module_generator
+    #' @template param_param_set
+    #' @template param_packages
+    #' @param tags (`character()`)\cr
+    #'   The tags of the [`PipeOp`]. The tags `"torch"` is always added.
+    #' @param inname (`character()`)\cr
+    #'   The names of the [`PipeOp`]'s input channels. These will be the input channels of the generated [`PipeOpModule`].
+    #'   Unless the wrapped `module_generator`'s forward method (if present) has the argument `...`, `inname` must be
+    #'   identical to those argument names in order to avoid any ambiguity.\cr
+    #'   If the forward method has the argument `...`, the order of the input channels determines how the tensors
+    #'   will be passed to the wrapped `nn_module`.\cr
+    #'   If left as `NULL` (default), the argument `module_generator` must be given and the argument names of the
+    #'   `modue_generator`'s forward function are set as `inname`.
+    #' @param outname (`character()`) \cr
+    #'   The names of the output channels channels. These will be the ouput channels of the generated [`PipeOpModule`]
+    #'   and therefore also the names of the list returned by its `$train()`.
+    #'   In case there is more than one output channel, the `nn_module` that is constructed by this
+    #'   [`PipeOp`] during training must return a named `list()`, where the names of the list are the
+    #'   names out the output channels. The default is `"output"`.
     initialize = function(id, module_generator, param_set = ps(), param_vals = list(),
       inname = "input", outname = "output", packages = "torch", tags = NULL) {
       self$module_generator = assert_class(module_generator, "nn_module_generator", null.ok = TRUE)
@@ -295,6 +273,16 @@ PipeOpTorch = R6Class("PipeOpTorch",
         tags = unique(c("torch", tags))
       )
     },
+    #' @description
+    #'  Calculates the output shapes for the given input shapes, parameters and task.
+    #' @param shapes_in (`list()` of `integer()` or `integer()`, task)\cr
+    #'   The input input shapes, which must be in the same order as the input channel names of the `PipeOp`.
+    #'  If there is only one input channel, `shapes_in` can also contain the shapes for this input channel.
+    #' @param task ([`Task`] or `NULL`)\cr
+    #'  The task, which is very rarely used (default is `NULL`). An exception is [`PipeOpTorchHead`].
+    #' @return
+    #'  A named `list()` containing the output shapes. The names are the names of the output channels of
+    #'  the `PipeOp`.
     shapes_out = function(shapes_in, task = NULL) {
       assert_r6(task, "Task", null.ok = TRUE)
       if (is.numeric(shapes_in)) shapes_in = list(shapes_in)

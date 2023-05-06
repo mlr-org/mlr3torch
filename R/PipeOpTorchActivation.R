@@ -1,53 +1,11 @@
-#' @include zzz.R
-make_activation = function(name, class, param_set, parent_env = parent.frame()) {
-  classname = paste0("PipeOpTorch", class)
-  idname = paste0("nn_", name)
-
-  ps = substitute(param_set)
-  module = as.symbol(paste0("nn_", name))
-
-  init_fun_proto = function(id = idname, param_vals = list()) {
-    param_set = ps
-    super$initialize(
-      id = id,
-      param_set = param_set,
-      param_vals = param_vals,
-      module_generator = module,
-      tags = "activation"
-    )
-  }
-
-  # uber-hacky, but document() won't work otherwise
-  init_fun = init_fun_proto
-  formals(init_fun) = pairlist(id = idname, param_vals = list())
-  body(init_fun)[[2]][[3]] = ps
-  body(init_fun)[[3]][[5]] = module
-  attributes(init_fun) = attributes(init_fun_proto)
-
-  result <- R6Class(classname,
-    inherit = PipeOpTorch,
-    public = list(initialize = init_fun),
-    parent_env = parent_env
-  )
-#  eval(substitute(register_po(idname, constructor = result), list(idname = idname, result = as.symbol(classname))))
-  register_po(idname, result)
-  result
-}
-
 #' @title ELU Activation Function
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch_elu
-#' @format `r roxy_format(PipeOpTorchELU)`
 #'
 #' @inherit torch::nnf_elu description
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchELU)`
-#' * `r roxy_param_id("nn_elu")`
-#' * `r roxy_param_param_vals()`
-#'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-#' @section State: `r roxy_pipeop_torch_state_default()`
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' * `alpha` :: `numeric(1)`\cr
@@ -55,86 +13,116 @@ make_activation = function(name, class, param_set, parent_env = parent.frame()) 
 #' * `inplace` :: `logical(1)`\cr
 #'   Whether to do the operation in-place. Default: `FALSE`.
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals: Calls [`torch::nn_elu()`] when trained.
-#' @section Credit: `r roxy_torch_license()`
-#' @family PipeOpTorch
+#' @family PipeOps
 #' @export
-PipeOpTorchELU = make_activation("elu", "ELU", param_set = ps(
-  alpha = p_dbl(default = 1, tags = "train"),
-  inplace = p_lgl(default = FALSE, tags = "train")
-))
+PipeOpTorchELU = R6Class("PipeOpTorchELU",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_elu", param_vals = list()) {
+      param_set = ps(
+        alpha   = p_dbl(default = 1, tags = "train"),
+        inplace = p_lgl(default = FALSE, tags = "train")
+      )
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_elu,
+        tags = "activation"
+      )
+    }
+  )
+)
+
+register_po("nn_elu", PipeOpTorchELU)
 
 #' @title Hard Shrink Activation Function
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch_hard_shrink
-#' @format `r roxy_format(PipeOpTorchHardShrink)`
 #'
 #' @inherit torch::nnf_hardshrink description
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchHardShrink)`
-#' * `r roxy_param_id("nn_hardshrink")`
-#' * `r roxy_param_param_vals()`
-#'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-#' @section State: `r roxy_pipeop_torch_state_default()`
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' * `lambd` :: `numeric(1)`\cr
 #'   The lambda value for the Hardshrink formulation formulation. Default 0.5.
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals: Calls [`torch::nn_hardshrink()`] when trained.
-#' @section Credit: `r roxy_torch_license()`
-#' @family PipeOpTorch
+#' @family PipeOps
 #' @export
-PipeOpTorchHardShrink = make_activation("hardshrink", "HardShrink", param_set = ps(
-  lambd = p_dbl(default = 0.5, tags = "train")
-))
+PipeOpTorchHardShrink = R6Class("PipeOpTorchHardShrink",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_hardshrink", param_vals = list()) {
+      param_set = ps(
+        lambd = p_dbl(default = 0.5, tags = "train")
+      )
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_hardshrink,
+        tags = "activation"
+      )
+    }
+  )
+)
+
+register_po("nn_hardshrink", PipeOpTorchHardShrink)
 
 #' @title Hard Sigmoid Activation Function
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch_hardsigmoid
-#' @format `r roxy_format(PipeOpTorchHardSigmoid)`
 #'
 #' @inherit torch::nnf_hardsigmoid description
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchHardSigmoid)`
-#' * `r roxy_param_id("nn_hardsigmoid")`
-#' * `r roxy_param_param_vals()`
-#'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-#' @section State: `r roxy_pipeop_torch_state_default()`
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' No parameters.
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals: Calls [`torch::nn_hardsigmoid()`] when trained.
-#' @section Credit: `r roxy_torch_license()`
-#' @family PipeOpTorch
+#' @family PipeOps
 #' @export
-PipeOpTorchHardSigmoid = make_activation("hardsigmoid", "HardSigmoid", param_set = ps())
+PipeOpTorchHardSigmoid = R6Class("PipeOpTorchHardSigmoid",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_hardsigmoid", param_vals = list()) {
+      param_set = ps()
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_hardsigmoid,
+        tags = "activation"
+      )
+    }
+  )
+)
+
+register_po("nn_hardsigmoid", PipeOpTorchHardSigmoid)
 
 #' @title Hard Tanh Activation Function
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch_hard
-#' @format `r roxy_format(PipeOpTorchHardTanh)`
 #'
 #' @inherit torch::nnf_hardtanh description
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchHardTanh)`
-#' * `r roxy_param_id("nn_hardtanh")`
-#' * `r roxy_param_param_vals()`
-#'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-#' @section State: `r roxy_pipeop_torch_state_default()`
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' * `min_val` :: `numeric(1)`\cr
@@ -144,61 +132,44 @@ PipeOpTorchHardSigmoid = make_activation("hardsigmoid", "HardSigmoid", param_set
 #' * `inplace` :: `logical(1)`\cr
 #'   Can optionally do the operation in-place. Default: `FALSE`.
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals: Calls [`torch::nn_hardtanh()`] when trained.
-#' @section Credit:
-#' `r roxy_torch_license()`
 #'
-#' @family PipeOpTorch
+#' @family PipeOps
 #' @export
-PipeOpTorchHardTanh = make_activation("hardtanh", "HardTanh", param_set = ps(
-  min_val = p_dbl(default = -1, tags = "train"),
-  max_val = p_dbl(default = 1, tags = "train"),
-  inplace = p_lgl(default = FALSE, tags = "train")
-))
+PipeOpTorchHardTanh = R6Class("PipeOpTorchHardTanh",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_hardtanh", param_vals = list()) {
+      param_set = ps(
+        min_val = p_dbl(default = -1, tags = "train"),
+        max_val = p_dbl(default = 1, tags = "train"),
+        inplace = p_lgl(default = FALSE, tags = "train")
+      )
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_hardtanh,
+        tags = "activation"
+      )
+    }
+  )
+)
 
-# #' @title Hard Swish Activation Function
-# #'
-# #' @usage NULL
-# #' @name mlr_pipeops_torch_hardswishardswish
-# #' @format `r roxy_format(PipeOpTorchHardSwish)`
-# #'
-# #' @inherit torch::nnf_hardwish description
-# #'
-# #' @section Construction: `r roxy_construction(PipeOpTorchHardSwish)`
-# #' * `r roxy_param_id("nn_hardswish")`
-# #' * `r roxy_param_param_vals()`
-# #'
-# #' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-# #'
-# #' @section State: `r roxy_pipeop_torch_state_default()`
-# #'
-# #' @section Parameters:
-# #' No parameters.
-# #'
-# #' @section Fields: `r roxy_pipeop_torch_fields_default()`
-# #' @section Methods: `r roxy_pipeop_torch_methods_default()`
-# #' @section Internals: Calls [`torch::nn_hardswish()`] when trained.
-# #' @section Credit: `r roxy_torch_license()`
-# #' @family PipeOpTorch
-# #' @export
-# PipeOpTorchHardSwish = make_activation("hardswish", "HardSwish", param_set = ps())
+register_po("nn_hardtanh", PipeOpTorchHardTanh)
+
 
 #' @title Leaky ReLU Activation Function
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch_leaky_relu
-#' @format `r roxy_format(PipeOpTorchLeakyReLU)`
 #'
 #' @inherit torch::nnf_leaky_relu description
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchLeakyReLU)`
-#' * `r roxy_param_id("nn_leaky_relu")`
-#' * `r roxy_param_param_vals()`
-#'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-#' @section State: `r roxy_pipeop_torch_state_default()`
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' * `negative_slope` :: `numeric(1)`\cr
@@ -206,57 +177,77 @@ PipeOpTorchHardTanh = make_activation("hardtanh", "HardTanh", param_set = ps(
 #' * `inplace` :: `logical(1)`\cr
 #'   Can optionally do the operation in-place. Default: ‘FALSE’.
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals: Calls [`torch::nn_hardswish()`] when trained.
-#' @section Credit: `r roxy_torch_license()`
-#' @family PipeOpTorch
+#' @family PipeOps
 #' @export
-PipeOpTorchLeakyReLU = make_activation("leaky_relu", "LeakyReLU", param_set = ps(
-  negative_slope = p_dbl(default = 0.01, tags = "train"),
-  inplace = p_lgl(default = FALSE, tags = "train")
-))
+PipeOpTorchLeakyReLU = R6Class("PipeOpTorchLeakyReLU",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_leaky_relu", param_vals = list()) {
+      param_set = ps(
+        negative_slope = p_dbl(default = 0.01, tags = "train"),
+        inplace        = p_lgl(default = FALSE, tags = "train")
+      )
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_leaky_relu,
+        tags = "activation"
+      )
+    }
+  )
+)
+
+register_po("nn_leaky_relu", PipeOpTorchLeakyReLU)
 
 #' @title Log Sigmoid Activation Function
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch_log_sigmoid
-#' @format `r roxy_format(PipeOpTorchLogSigmoid)`
 #'
 #' @inherit torch::nnf_logsigmoid description
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchLogSigmoid)`
-#' * `r roxy_param_id("nn_log_sigmoid")`
-#' * `r roxy_param_param_vals()`
-#'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-#' @section State: `r roxy_pipeop_torch_state_default()`
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' No parameters.
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals: Calls [`torch::nn_log_sigmoid()`] when trained.
-#' @section Credit: `r roxy_torch_license()`
-#' @family PipeOpTorch
+#' @family PipeOps
 #' @export
-PipeOpTorchLogSigmoid = make_activation("log_sigmoid", "LogSigmoid", param_set = ps())
+PipeOpTorchLogSigmoid = R6Class("PipeOpTorchLogSigmoid",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_log_sigmoid", param_vals = list()) {
+      param_set = ps()
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_log_sigmoid,
+        tags = "activation"
+      )
+    }
+  )
+)
+
+register_po("nn_log_sigmoid", PipeOpTorchLogSigmoid)
 
 #' @title PReLU Activation Function
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch_prelu
-#' @format `r roxy_format(PipeOpTorchPReLU)`
 #'
 #' @inherit torch::nnf_prelu description
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchPReLU)`
-#' * `r roxy_param_id("nn_prelu")`
-#' * `r roxy_param_param_vals()`
-#'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-#' @section State: `r roxy_pipeop_torch_state_default()`
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' * `num_parameters` :: `integer(1)`:
@@ -265,88 +256,118 @@ PipeOpTorchLogSigmoid = make_activation("log_sigmoid", "LogSigmoid", param_set =
 #' * `init` :: `numeric(1)`\cr T
 #'   The initial value of a. Default: 0.25.
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals: Calls [`torch::nn_prelu()`] when trained.
-#' @section Credit: `r roxy_torch_license()`
-#' @family PipeOpTorch
+#' @family PipeOps
 #' @export
-PipeOpTorchPReLU = make_activation("prelu", "PReLU", param_set = ps(
-  num_parameters = p_int(1, tags = "train"),
-  init = p_dbl(default = 0.25, tags = "train")
-))
+PipeOpTorchPReLU = R6Class("PipeOpTorchPReLU",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_prelu", param_vals = list()) {
+      param_set = ps(
+        num_parameters = p_int(1, tags = "train"),
+        init           = p_dbl(default = 0.25, tags = "train")
+      )
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_prelu,
+        tags = "activation"
+      )
+    }
+  )
+)
+
+register_po("nn_prelu", PipeOpTorchPReLU)
 
 #' @title ReLU Activation Function
-#' @usage NULL
 #' @name mlr_pipeops_torch_relu
-#' @format `r roxy_format(PipeOpTorchReLU)`
 #'
 #' @inherit torch::nnf_relu description
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchReLU)`
-#' * `r roxy_param_id("nn_relu")`
-#' * `r roxy_param_param_vals()`
-#'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-#' @section State: `r roxy_pipeop_torch_state_default()`
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' * `inplace` :: `logical(1)`\cr
 #'   Whether to do the operation in-place. Default: `FALSE`.
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals: Calls [`torch::nn_relu()`] when trained.
-#' @section Credit: `r roxy_torch_license()`
-#' @family PipeOpTorch
+#' @family PipeOps
 #' @export
-PipeOpTorchReLU = make_activation("relu", "ReLU", param_set = ps(
-  inplace = p_lgl(default = FALSE, tags = "train")
-))
+PipeOpTorchReLU = R6Class("PipeOpTorchReLU",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_relu", param_vals = list()) {
+      param_set = ps(
+        inplace = p_lgl(default = FALSE, tags = "train")
+      )
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_relu,
+        tags = "activation"
+      )
+    }
+  )
+)
+
+register_po("nn_relu", PipeOpTorchReLU)
 
 #' @title ReLU6 Activation Function
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch_relu6
-#' @format `r roxy_format(PipeOpTorchReLU6)`
 #'
 #' @inherit torch::nnf_relu6 description
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchReLU6)`
-#' * `r roxy_param_id("nn_relu6")`
-#' * `r roxy_param_param_vals()`
-#'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-#' @section State: `r roxy_pipeop_torch_state_default()`
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' * `inplace` :: `logical(1)`\cr
 #'   Whether to do the operation in-place. Default: `FALSE`.
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals: Calls [`torch::nn_relu6()`] when trained.
-#' @section Credit: `r roxy_torch_license()`
-#' @family PipeOpTorch
+#' @family PipeOps
 #' @export
-PipeOpTorchReLU6 = make_activation("relu6", "ReLU6", param_set = ps(
-  inplace = p_lgl(default = FALSE, tags = "train")
-))
+PipeOpTorchReLU6 = R6Class("PipeOpTorchReLU6",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_relu6", param_vals = list()) {
+      param_set = ps(
+        inplace = p_lgl(default = FALSE, tags = "train")
+      )
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_relu6,
+        tags = "activation"
+      )
+    }
+  )
+)
+
+register_po("nn_relu6", PipeOpTorchReLU6)
 
 #' @title RReLU Activation Function
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch_rrelu
-#' @format `r roxy_format(PipeOpTorchRReLU)`
 #'
 #' @inherit torch::nnf_rrelu description
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchRReLU)`
-#' * `r roxy_param_id("nn_rrelu")`
-#' * `r roxy_param_param_vals()`
-#'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-#' @section State: `r roxy_pipeop_torch_state_default()`
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' * `lower`:: `numeric(1)`\cr
@@ -356,61 +377,81 @@ PipeOpTorchReLU6 = make_activation("relu6", "ReLU6", param_set = ps(
 #' * `inplace` :: `logical(1)`\cr
 #'   Whether to do the operation in-place. Default: `FALSE`.
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals: Calls [`torch::nn_rrelu()`] when trained.
-#' @section Credit: `r roxy_torch_license()`
-#' @family PipeOpTorch
+#' @family PipeOps
 #' @export
-PipeOpTorchRReLU = make_activation("rrelu", "RReLU", param_set = ps(
-  lower = p_dbl(default = 1 / 8, tags = "train"),
-  upper = p_dbl(default = 1 / 3, tags = "train"),
-  inplace = p_lgl(default = FALSE, tags = "train")
-))
+PipeOpTorchRReLU = R6Class("PipeOpTorchRReLU",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_rrelu", param_vals = list()) {
+      param_set = ps(
+        lower = p_dbl(default = 1 / 8, tags = "train"),
+        upper = p_dbl(default = 1 / 3, tags = "train"),
+        inplace = p_lgl(default = FALSE, tags = "train")
+      )
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_rrelu,
+        tags = "activation"
+      )
+    }
+  )
+)
+
+register_po("nn_rrelu", PipeOpTorchRReLU)
 
 #' @title SELU Activation Function
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch_selu
-#' @format `r roxy_format(PipeOpTorchSELU)`
 #'
 #' @inherit torch::nnf_selu description
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchSELU)`
-#' * `r roxy_param_id("nn_selu")`
-#' * `r roxy_param_param_vals()`
-#'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-#' @section State: `r roxy_pipeop_torch_state_default()`
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' * `inplace` :: `logical(1)`\cr
 #'   Whether to do the operation in-place. Default: `FALSE`.
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals: Calls [`torch::nn_selu()`] when trained.
-#' @section Credit: `r roxy_torch_license()`
-#' @family PipeOpTorch
+#' @family PipeOps
 #' @export
-PipeOpTorchSELU = make_activation("selu", "SELU", param_set = ps(
-  inplace = p_lgl(tags = "train")
-))
+PipeOpTorchSELU = R6Class("PipeOpTorchSELU",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_selu", param_vals = list()) {
+      param_set = ps(
+        inplace = p_lgl(tags = "train")
+      )
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_selu,
+        tags = "activation"
+      )
+    }
+  )
+)
+
+register_po("nn_selu", PipeOpTorchSELU)
 
 #' @title CELU Activation Function
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch_celu
-#' @format `r roxy_format(PipeOpTorchCELU)`
 #'
 #' @inherit torch::nnf_celu description
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchCELU)`
-#' * `r roxy_param_id("nn_celu")`
-#' * `r roxy_param_param_vals()`
-#'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-#' @section State: `r roxy_pipeop_torch_state_default()`
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' * `alpha` :: `numeric(1)`\cr
@@ -418,83 +459,113 @@ PipeOpTorchSELU = make_activation("selu", "SELU", param_set = ps(
 #' * `inplace` :: `logical(1)`\cr
 #'   Whether to do the operation in-place. Default: `FALSE`.
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals: Calls [`torch::nn_celu()`] when trained.
-#' @section Credit: `r roxy_torch_license()`
-#' @family PipeOpTorch
+#' @family PipeOps
 #' @export
-PipeOpTorchCELU = make_activation("celu", "CELU", param_set = ps(
-  alpha = p_dbl(default = 1.0, tags = "train"),
-  inplace = p_lgl(default = FALSE, tags = "train")
-))
+PipeOpTorchCELU = R6Class("PipeOpTorchCELU",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_celu", param_vals = list()) {
+      param_set = ps(
+        alpha = p_dbl(default = 1.0, tags = "train"),
+        inplace = p_lgl(default = FALSE, tags = "train")
+      )
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_celu,
+        tags = "activation"
+      )
+    }
+  )
+)
+
+register_po("nn_celu", PipeOpTorchCELU)
 
 #' @title GELU Activation Function
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch_gelu
-#' @format `r roxy_format(PipeOpTorchGELU)`
 #'
 #' @inherit torch::nnf_gelu description
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchGELU)`
-#' * `r roxy_param_id("nn_gelu")`
-#' * `r roxy_param_param_vals()`
-#'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-#' @section State: `r roxy_pipeop_torch_state_default()`
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' No parameters.
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals: Calls [`torch::nn_gelu()`] when trained.
-#' @section Credit: `r roxy_torch_license()`
-#' @family PipeOpTorch
+#' @family PipeOps
 #' @export
-PipeOpTorchGELU = make_activation("gelu", "GELU", param_set = ps())
+PipeOpTorchGELU = R6Class("PipeOpTorchGELU",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_gelu", param_vals = list()) {
+      param_set = ps()
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_gelu,
+        tags = "activation"
+      )
+    }
+  )
+)
+
+register_po("nn_gelu", PipeOpTorchGELU)
 
 #' @title Sigmoid Activation Function
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch_sigmoid
-#' @format `r roxy_format(PipeOpTorchSigmoid)`
 #'
 #' @inherit torch::nnf_sigmoid description
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchSigmoid)`
-#' * `r roxy_param_id("nn_sigmoid")`
-#' * `r roxy_param_param_vals()`
-#'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-#' @section State: `r roxy_pipeop_torch_state_default()`
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' No parameters.
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals: Calls [`torch::nn_sigmoid()`] when trained.
-#' @section Credit: `r roxy_torch_license()`
-#' @family PipeOpTorch
+#' @family PipeOps
 #' @export
-PipeOpTorchSigmoid = make_activation("sigmoid", "Sigmoid", param_set = ps())
+PipeOpTorchSigmoid = R6Class("PipeOpTorchSigmoid",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_sigmoid", param_vals = list()) {
+      param_set = ps()
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_sigmoid,
+        tags = "activation"
+      )
+    }
+  )
+)
+
+register_po("nn_sigmoid", PipeOpTorchSigmoid)
 
 #' @title SoftPlus Activation Function
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch_softplus
-#' @format `r roxy_format(PipeOpTorchSoftPlus)`
 #'
 #' @inherit torch::nnf_softplus description
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchSoftPlus)`
-#' * `r roxy_param_id("nn_softplus")`
-#' * `r roxy_param_param_vals()`
-#'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-#' @section State: `r roxy_pipeop_torch_state_default()`
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' * `beta` :: `numeric(1)`\cr
@@ -502,139 +573,190 @@ PipeOpTorchSigmoid = make_activation("sigmoid", "Sigmoid", param_set = ps())
 #' * `threshold` :: `numeric(1)`\cr
 #'   Values above this revert to a linear function. Default: 20
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals: Calls [`torch::nn_softplus()`] when trained.
-#' @section Credit: `r roxy_torch_license()`
-#' @family PipeOpTorch
+#' @family PipeOps
 #' @export
-PipeOpTorchSoftPlus = make_activation("softplus", "SoftPlus",
-  param_set = ps(
-  beta = p_dbl(default = 1, tags = "train"),
-  threshold = p_dbl(default = 20, tags = "train")
-))
+PipeOpTorchSoftPlus = R6Class("PipeOpTorchSoftPlus",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_softplus", param_vals = list()) {
+      param_set = ps(
+        beta = p_dbl(default = 1, tags = "train"),
+        threshold = p_dbl(default = 20, tags = "train")
+      )
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_softplus,
+        tags = "activation"
+      )
+    }
+  )
+)
+
+
+register_po("nn_softplus", PipeOpTorchSoftPlus)
 
 #' @title Soft Shrink Activation Function
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch_softshrink
-#' @format `r roxy_format(PipeOpTorchSoftShrink)`
 #'
 #' @inherit torch::nnf_softshrink description
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchSoftShrink)`
-#' * `r roxy_param_id("nn_softshrink")`
-#' * `r roxy_param_param_vals()`
-#'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-#' @section State: `r roxy_pipeop_torch_state_default()`
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' * `lamd` :: `numeric(1)`\cr
 #'   The lambda (must be no less than zero) value for the Softshrink formulation. Default: 0.5
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals: Calls [`torch::nn_softshrink()`] when trained.
-#' @section Credit: `r roxy_torch_license()`
-#' @family PipeOpTorch
+#' @family PipeOps
 #' @export
-PipeOpTorchSoftShrink = make_activation("softshrink", "SoftShrink", param_set = ps(
-  lambd = p_dbl(default = 0.5, upper = 1, tags = "train")
-))
+PipeOpTorchSoftShrink = R6Class("PipeOpTorchSoftShrink",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_softshrink", param_vals = list()) {
+      param_set = ps(
+        lambd = p_dbl(default = 0.5, upper = 1, tags = "train")
+      )
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_softshrink,
+        tags = "activation"
+      )
+    }
+  )
+)
+
+register_po("nn_softshrink", PipeOpTorchSoftShrink)
 
 #' @title SoftSign Activation Function
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch_softsign
-#' @format `r roxy_format(PipeOpTorchSoftSign)`
 #'
 #' @inherit torch::nnf_softsign description
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchSoftSign)`
-#' * `r roxy_param_id("nn_softsign")`
-#' * `r roxy_param_param_vals()`
-#'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-#' @section State: `r roxy_pipeop_torch_state_default()`
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' No parameters.
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals: Calls [`torch::nn_softsign()`] when trained.
-#' @section Credit: `r roxy_torch_license()`
-#' @family PipeOpTorch
+#' @family PipeOps
 #' @export
-PipeOpTorchSoftSign = make_activation("softsign", "SoftSign", param_set = ps())
+PipeOpTorchSoftSign = R6Class("PipeOpTorchSoftSign",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_softsign", param_vals = list()) {
+      param_set = ps()
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_softsign,
+        tags = "activation"
+      )
+    }
+  )
+)
+
+register_po("nn_softsign", PipeOpTorchSoftSign)
 
 #' @title Tanh Activation Function
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch_tanh
-#' @format `r roxy_format(PipeOpTorchTanh)`
 #'
 #' @inherit torch::nn_tanh description
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchTanh)`
-#' * `r roxy_param_id("nn_tanh")`
-#' * `r roxy_param_param_vals()`
-#'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-#' @section State: `r roxy_pipeop_torch_state_default()`
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' No parameters.
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals: Calls [`torch::nn_tanh()`] when trained.
-#' @section Credit: `r roxy_torch_license()`
-#' @family PipeOpTorch
+#' @family PipeOps
 #' @export
-PipeOpTorchTanh = make_activation("tanh", "Tanh", param_set = ps())
+PipeOpTorchTanh = R6Class("PipeOpTorchTanh",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_tanh", param_vals = list()) {
+      param_set = ps()
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_tanh,
+        tags = "activation"
+      )
+    }
+  )
+)
+
+register_po("nn_tanh", PipeOpTorchTanh)
 
 #' @title Tanh Shrink Activation Function
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch_tanhshrink
-#' @format `r roxy_format(PipeOpTorchTanhShrink)`
 #'
 #' @inherit torch::nnf_tanhshrink description
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchTanhShrink)`
-#' * `r roxy_param_id("nn_tanhshrink")`
-#' * `r roxy_param_param_vals()`
-#'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-#' @section State: `r roxy_pipeop_torch_state_default()`
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' No parameters.
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals: Calls [`torch::nn_tanhshrink()`] when trained.
-#' @section Credit: `r roxy_torch_license()`
-#' @family PipeOpTorch
+#' @family PipeOps
 #' @export
-PipeOpTorchTanhShrink = make_activation("tanhshrink", "TanhShrink", param_set = ps())
+PipeOpTorchTanhShrink = R6Class("PipeOpTorchTanhShrink",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_tanhshrink", param_vals = list()) {
+      param_set = ps()
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_tanhshrink,
+        tags = "activation"
+      )
+    }
+  )
+)
+
+register_po("nn_tanhshrink", PipeOpTorchTanhShrink)
 
 #' @title Treshold Activation Function
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch_threshold
-#' @format `r roxy_format(PipeOpTorchThreshold)`
+#'
 #'
 #' @inherit torch::nnf_threshold description
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchThreshold)`
-#' * `r roxy_param_id("nn_threshold")`
-#' * `r roxy_param_param_vals()`
-#'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-#' @section State: `r roxy_pipeop_torch_state_default()`
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' * `threshold` :: `numeric(1)`\cr
@@ -644,46 +766,55 @@ PipeOpTorchTanhShrink = make_activation("tanhshrink", "TanhShrink", param_set = 
 #' * `inplace` :: `logical(1)`\cr
 #'   Can optionally do the operation in-place. Default: ‘FALSE’.
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals: Calls [`torch::nn_threshold()`] when trained.
-#' @section Credit: `r roxy_torch_license()`
-#' @family PipeOpTorch
+#' @family PipeOps
 #' @export
-PipeOpTorchThreshold = make_activation("threshold", "Threshold", param_set = ps(
-  threshold = p_dbl(tags = c("train", "required")),
-  value = p_dbl(tags = c("train", "required")),
-  inplace = p_lgl(default = FALSE, tags = "train")
-))
+PipeOpTorchThreshold = R6Class("PipeOpTorchThreshold",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_threshold", param_vals = list()) {
+      param_set = ps(
+        threshold = p_dbl(tags = c("train", "required")),
+        value     = p_dbl(tags = c("train", "required")),
+        inplace   = p_lgl(default = FALSE, tags = "train")
+      )
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_threshold,
+        tags = "activation"
+      )
+    }
+  )
+)
+
+register_po("nn_threshold", PipeOpTorchThreshold)
 
 #' @title GLU Activation Function
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch_glu
-#' @format `r roxy_format(PipeOpTorchGLU)`
 #'
 #' @inherit torch::nnf_glu description
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchGLU)`
-#' * `r roxy_param_id("nn_glu")`
-#' * `r roxy_param_param_vals()`
-#'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-#' @section State: `r roxy_pipeop_torch_state_default()`
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' * `dim` :: `integer(1)`\cr
 #'   Dimension on which to split the input. Default: -1
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals: Calls [`torch::nn_glu()`] when trained.
-#' @section Credit: `r roxy_torch_license()`
-#' @family PipeOpTorch
+#' @family PipeOps
 #' @export
 PipeOpTorchGLU = R6Class("PipeOpTorchGLU",
   inherit = PipeOpTorch,
   public = list(
+    #' @description Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
     initialize = function(id = "nn_glu", param_vals = list()) {
       param_set = ps(
         dim = p_int(default = -1L, lower = 1L, tags = "train", special_vals = list(-1L))

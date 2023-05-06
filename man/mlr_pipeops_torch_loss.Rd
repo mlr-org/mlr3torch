@@ -4,48 +4,23 @@
 \alias{mlr_pipeops_torch_loss}
 \alias{PipeOpTorchLoss}
 \title{Loss Configuration}
-\format{
-\code{\link{R6Class}} inheriting from \code{\link{PipeOp}}.
-}
 \description{
 Configures the loss of a deep learning model.
 }
-\section{Construction}{
- \code{PipeOpTorchLoss$new(loss, id = "torch_loss", param_vals = list())}
-\itemize{
-\item \code{loss} :: \code{\link{TorchLoss}} or \code{character(1)} or \code{nn_loss}\cr
-The loss (or something convertible via \code{\link[=as_torch_loss]{as_torch_loss()}}).
-This object is cloned during construction.
-\item \code{id} :: \code{character(1)}\cr The id for the object. The default is "torch_loss".
-\item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
-}
-}
-
 \section{Input and Output Channels}{
 
-There is one input channel \code{"input"} and one output channel \code{"output"}.
-During \emph{training}, the channels are of class \code{\link{ModelDescriptor}}.
-During \emph{prediction}, the channels are of class \code{\link{Task}}.
+One input channel called \code{"input"} and one output channel called \code{"output"}.
+For an explanation see \code{\link{PipeOpTorch}}.
 }
 
 \section{State}{
 
-The state is set to an empty \code{list()}.
+The state is the value calculated by the public method \code{shapes_out()}.
 }
 
 \section{Parameters}{
 
 The parameters are defined dynamically from the loss set during construction.
-}
-
-\section{Fields}{
-
-Only fields inherited from \code{\link{PipeOp}}.
-}
-
-\section{Methods}{
-
-Only methods inherited from \code{\link{PipeOp}}.
 }
 
 \section{Internals}{
@@ -61,9 +36,67 @@ mdin[[1L]]$loss
 mdout = po_loss$train(mdin)[[1L]]
 mdout$loss
 }
-\seealso{
-Other model_configuration: 
-\code{\link{mlr_pipeops_torch_callbacks}},
-\code{\link{mlr_pipeops_torch_optimizer}}
+\concept{PipeOps, Model Configuration}
+\section{Super class}{
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{PipeOpTorchLoss}
 }
-\concept{model_configuration}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-PipeOpTorchLoss-new}{\code{PipeOpTorchLoss$new()}}
+\item \href{#method-PipeOpTorchLoss-clone}{\code{PipeOpTorchLoss$clone()}}
+}
+}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-print'><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
+</ul>
+</details>
+}}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipeOpTorchLoss-new"></a>}}
+\if{latex}{\out{\hypertarget{method-PipeOpTorchLoss-new}{}}}
+\subsection{Method \code{new()}}{
+Creates a new instance of this \link[R6:R6Class]{R6} class.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchLoss$new(loss, id = "torch_loss", param_vals = list())}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{loss}}{(\code{\link{TorchLoss}}) or \code{character(1)} or \code{nn_loss}\cr
+The loss (or something convertible via \code{\link[=as_torch_loss]{as_torch_loss()}}).}
+
+\item{\code{id}}{(\code{character(1)})\cr
+Identifier of the resulting  object.}
+
+\item{\code{param_vals}}{(\code{list()})\cr
+List of hyperparameter settings, overwriting the hyperparameter settings that would
+otherwise be set during construction.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipeOpTorchLoss-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-PipeOpTorchLoss-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchLoss$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

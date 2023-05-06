@@ -1,18 +1,10 @@
 #' @title Torch Model
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch_model
-#' @format `r roxy_format(PipeOpTorchModel)`
 #'
 #' @description
 #' Builds a Torch Learner from a [`ModelDescriptor`] and trains it with the given parameter specification.
 #' For a specific task type, use [`PipeOpTorchModelClassif`] or [`PipeOpTorchModelRegr`].
-#'
-#' @section Construction: `r roxy_construction(PipeOpTorchModel)`
-#' * `r roxy_param_id("torch_model")`
-#' * `r roxy_param_param_vals()`
-#' * `task_type` :: `character(1)`\cr
-#'   The task type of the model. Currently `"regr"` and "`classif`" are supported.
 #'
 #' @section Input and Output Channels:
 #' There is one input channel `"input"` that takes in `ModelDescriptor` during traing and a `Task` of the specified
@@ -23,8 +15,6 @@
 #' A trained `LearnerRegrTorchModel` `LearnerClassifTorchModel`.
 #'
 #' @template paramset_torchlearner
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #'
 #' @section Internals:
 #' First a [`nn_graph`] is created by calling [`model_descriptor_to_module()`] and than a
@@ -33,11 +23,15 @@
 #' Then the parameters are set according to the parameters specified in `PipeOpTorchModel` and its '$train()` method
 #' is called on the [`Task`] stored in the [`ModelDescriptor`].
 #'
-#' @family PipeOpTorch
+#' @family PipeOps
 #' @export
 PipeOpTorchModel = R6Class("PipeOpTorchModel",
   inherit = PipeOp,
   public = list(
+    #' @description Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    #' @param task_type `character(1)`\cr
+    #'   The task type of the model.
     initialize = function(id = "torch_model", param_vals = list(), task_type) {
       private$.task_type = assert_choice(task_type, c("classif", "regr"))
       param_set = paramset_torchlearner()
@@ -97,29 +91,23 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
 
 #' @title Torch Classification Model
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch_model_classif
-#' @format [`R6Class`] object inheriting from [`PipeOpTorchModel`] / [`PipeOp`].
 #'
 #' @description
 #' Builds a mlr3 Classification Torch Learner from its Input.
 #' The default optimizer is adam an the default loss is cross entropy.
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchModelClassif)`
-#' * `r roxy_param_id("torch_model_classif")`
-#' * `r roxy_param_param_vals()`
-#'
 #' @inheritSection mlr_pipeops_torch_model Input and Output Channels
 #' @inheritSection mlr_pipeops_torch_model State
 #' @template paramset_torchlearner
-#' @inheritSection mlr_pipeops_torch_model Fields
-#' @inheritSection mlr_pipeops_torch_model Methods
 #' @inheritSection mlr_pipeops_torch_model Internals
-#' @family PipeOpTorch
+#' @family PipeOps
 #' @export
 PipeOpTorchModelClassif = R6Class("PipeOpTorchModelClassif",
   inherit = PipeOpTorchModel,
   public = list(
+    #' @description Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
     initialize = function(id = "torch_model_classif", param_vals = list()) {
       super$initialize(
         id = id,
@@ -132,29 +120,25 @@ PipeOpTorchModelClassif = R6Class("PipeOpTorchModelClassif",
 
 #' @title Torch Regression Model
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch_model_regr
-#' @format `r roxy_format(PipeOpTorchModelRegr)`
 #'
 #' @description
 #' Builds a Regression Torch Learner from its Input.
 #' The default optimizer is adam an the default loss is mean-square error.
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchModelRegr)`
-#' * `r roxy_param_id("torch_model_regr")`
-#' * `r roxy_param_param_vals()`
 #'
 #' @inheritSection mlr_pipeops_torch_model Input and Output Channels
 #' @inheritSection mlr_pipeops_torch_model State
 #' @template paramset_torchlearner
-#' @inheritSection mlr_pipeops_torch_model Fields
-#' @inheritSection mlr_pipeops_torch_model Methods
 #' @inheritSection mlr_pipeops_torch_model Internals
-#' @family PipeOpTorch
+#' @family PipeOps
 #' @export
 PipeOpTorchModelRegr = R6Class("PipeOpTorchModelRegr",
   inherit = PipeOpTorchModel,
   public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
     initialize = function(id = "torch_model_regr", param_vals = list()) {
       super$initialize(
         id = id,

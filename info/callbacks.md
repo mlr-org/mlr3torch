@@ -106,3 +106,5 @@ learner = lrn("classif.mlp",
 
 t_clbks(progress = list(), saver = list(path = tempfile()))
 ```
+
+We implement callback stages as private methods so we don't have to document them all explicitely but can still use the R6 class documentation.

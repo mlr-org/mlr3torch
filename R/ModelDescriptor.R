@@ -131,7 +131,7 @@ print.ModelDescriptor = function(x, ...) {
 #' @param md2 (`ModelDescriptor`)
 #'   The second [`ModelDescriptor`].
 #' @return [`ModelDescriptor`]
-#' @family graph_network
+#' @family Graph Network
 #' @seealso ModelDescriptor, PipeOpTorch, PipeOpTorchMerge
 #' @export
 model_descriptor_union = function(md1, md2) {

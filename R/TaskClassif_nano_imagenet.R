@@ -5,7 +5,7 @@
 # #'
 # NULL
 
-load_task_test_imagenet = function(id = "test_imagenet") {
+load_task_nano_imagenet = function(id = "nano_imagenet") {
   path = system.file("toytask", package = "mlr3torch")
   images = list.files(sprintf("%s/images", path))
   images = imageuri(paste0(path, "/images/", images))
@@ -17,3 +17,6 @@ load_task_test_imagenet = function(id = "test_imagenet") {
 
   as_task_classif(d, target = "class", id = id)
 }
+
+#' @include zzz.R
+register_task("nano_imagenet", load_task_nano_imagenet)

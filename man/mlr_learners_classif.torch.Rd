@@ -4,49 +4,10 @@
 \alias{mlr_learners_classif.torch}
 \alias{LearnerClassifTorch}
 \title{Abstract Base Class for a Torch Classification Learner}
-\format{
-\code{\link{R6Class}} inheriting from \code{\link{LearnerClassif}}, \code{\link{Learner}}.
-}
 \description{
 This base class provides the basic functionality for training and prediction of a neural network.
 All torch classifiction learners should inherit from the respective subclass.
 }
-\section{Construction}{
-
-Classification:
-
-\code{LearnerClassifTorch$new(id, optimizer, loss, param_set, properties = c("twoclass", "multiclass"), packages = character(0), predict_types = c("response", "prob"), feature_types, man, label, callbacks = list())}
-
-Regression:
-
-\code{LearnerRegrTorch$new(id, optimizer, loss, param_set, properties = character(0), packages = character(0), predict_types = "response", feature_types, man, label, callbacks = list())}
-\itemize{
-\item \code{id} :: \code{character(1)}\cr The id for the object.
-\item \code{optimizer} :: \code{\link{TorchOptimizer}}\cr
-The optimizer for the model.
-\item \code{loss} :: \code{\link{TorchLoss}}\cr
-The loss for the model.
-\item \code{callbacks}:: \code{list()} of \code{\link{TorchCallback}} objects\cr
-The callbacks used for training. Must have unique IDs.
-\item \code{param_set} :: \code{link{ParamSet}{paradox}}\cr The parameter set.
-\item \code{properties} :: \code{character()}\cr
-The properties for the learner, see \code{mlr_reflections$learner_properties}.
-\item \code{packages} :: \code{character()}\cr
-The additional packages on which the learner depends. The packages \code{"torch"} and \code{"mlr3torch"} are automatically
-added so do not have to be passed explicitly.
-\item \code{predict_types} :: \code{character()}\cr
-The learner's predict types, see \code{mlr_reflections$learner_predict_types}.
-The default is \code{"response"} and \code{"prob"}.
-\item \code{feature_types} :: \code{character()}\cr
-The feature types the learner can deal with, see \code{mlr_reflections$task_feature_types}.
-\item \code{man} :: \code{character(1)}\cr
-String in the format \verb{[pkg]::[topic]} pointing to a manual page for this object.
-The referenced help package can be opened via method \verb{$help()}.
-\item \code{label} :: \code{character(1)}\cr
-The label for the learner.
-}
-}
-
 \section{State}{
 
 The state is a list with elements \code{network}, \code{optimizer}, \code{loss_fn} and \code{callbacks}.
@@ -79,7 +40,7 @@ If this is missing (default), a random seed is generated.
 }
 
 Additionally there are the parameters for the optimizer, the loss function and the callbacks.
-\code{"opt."}, \code{"loss."} and \code{"cb.<callback id>"} respectively.
+They are prefixed with \code{"opt."}, \code{"loss."} and \code{"cb.<callback id>"} respectively.
 }
 
 \section{Inheriting}{
@@ -88,7 +49,9 @@ When inheriting from this class, one should overload two, methods, namely the
 \code{private$.network(task, param_vals)} and the \code{private$.dataset(task, param_vals)}.
 The former should construct \code{\link[torch:nn_module]{torch::nn_module}} object for the given task and parameter values, while the latter
 is responsible for creating a \code{\link[torch:dataset]{torch::dataset}}.
-Note that the output of this network are expected to be the scores before the application of the final softmax
+
+\strong{Important}
+The output of this network are expected to be the scores before the application of the final softmax
 layer.
 
 It is also possible to overwrite the private \verb{$.dataloader()} method, which otherwise calls \verb{$.dataset()} and
@@ -101,21 +64,6 @@ Note that none of the parameters provided in \code{param_set} can have an id tha
 function.
 }
 
-\section{Fields}{
-
-Fields inherited from \code{\link{LearnerClassif}} or \code{\link{LearnerRegr}} and
-\itemize{
-\item \code{network} :: (\code{\link[torch:nn_module]{nn_module()}})\cr
-The network (only available after training).
-\item \code{history} :: \code{\link{CallbackTorchHistory}}\cr
-The training history.
-}
-}
-
-\section{Methods}{
- Methods inherited from \code{\link{LearnerClassif}}, \code{\link{Learner}}.
-}
-
 \section{Internals}{
 
 A \code{\link{ParamSetCollection}} is created that combines the \code{param_set} from the construction with the
@@ -125,7 +73,123 @@ default torch parameters, as well as the loss, optimizer and callback parameters
 
 \seealso{
 Other Learners: 
-\code{\link{mlr_learners_classif.torch_featureless}},
 \code{\link{mlr_learners_regr.torch}}
 }
 \concept{Learners}
+\section{Super classes}{
+\code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3:LearnerClassif]{mlr3::LearnerClassif}} -> \code{LearnerClassifTorch}
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{network}}{(\code{\link[torch:nn_module]{nn_module()}})\cr
+The network (only available after training).}
+
+\item{\code{param_set}}{(\code{\link{ParamSet}})\cr
+The parameter set}
+
+\item{\code{history}}{(\code{\link{CallbackTorchHistory}})\cr
+The training history.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-LearnerClassifTorch-new}{\code{LearnerClassifTorch$new()}}
+\item \href{#method-LearnerClassifTorch-clone}{\code{LearnerClassifTorch$clone()}}
+}
+}
+\if{html}{\out{
+<details><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner"><a href='../../mlr3/html/Learner.html#method-Learner-base_learner'><code>mlr3::Learner$base_learner()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="format"><a href='../../mlr3/html/Learner.html#method-Learner-format'><code>mlr3::Learner$format()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help"><a href='../../mlr3/html/Learner.html#method-Learner-help'><code>mlr3::Learner$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict"><a href='../../mlr3/html/Learner.html#method-Learner-predict'><code>mlr3::Learner$predict()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata"><a href='../../mlr3/html/Learner.html#method-Learner-predict_newdata'><code>mlr3::Learner$predict_newdata()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="print"><a href='../../mlr3/html/Learner.html#method-Learner-print'><code>mlr3::Learner$print()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset"><a href='../../mlr3/html/Learner.html#method-Learner-reset'><code>mlr3::Learner$reset()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train"><a href='../../mlr3/html/Learner.html#method-Learner-train'><code>mlr3::Learner$train()</code></a></span></li>
+</ul>
+</details>
+}}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LearnerClassifTorch-new"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerClassifTorch-new}{}}}
+\subsection{Method \code{new()}}{
+Creates a new instance of this \link[R6:R6Class]{R6} class.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LearnerClassifTorch$new(
+  id,
+  optimizer,
+  loss,
+  param_set,
+  properties = c("twoclass", "multiclass"),
+  packages = character(0),
+  predict_types = c("response", "prob"),
+  feature_types,
+  man,
+  label,
+  callbacks = list()
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{id}}{(\code{character(1)})\cr
+The id for of the new object.}
+
+\item{\code{optimizer}}{(\code{\link{TorchOptimizer}})\cr
+The torch optimizer.}
+
+\item{\code{loss}}{(\code{\link{TorchLoss}})\cr
+The loss used to train the network.}
+
+\item{\code{param_set}}{(\code{paradox::ParamSet})\cr
+The parameter set.}
+
+\item{\code{properties}}{(\code{character()})\cr
+The properties.}
+
+\item{\code{packages}}{(\code{character()})\cr
+The R packages this object depends on.}
+
+\item{\code{predict_types}}{(\code{character()})\cr
+The predict_types.}
+
+\item{\code{feature_types}}{(\code{character()})\cr
+The feature_types.}
+
+\item{\code{man}}{(\code{character(1)})\cr
+String in the format \verb{[pkg]::[topic]} pointing to a manual page for this object.
+The referenced help package can be opened via method \verb{$help()}.}
+
+\item{\code{label}}{(\code{character(1)})\cr
+Label for the new instance.}
+
+\item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
+The callbacks used during training. Must have unique ids.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LearnerClassifTorch-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerClassifTorch-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LearnerClassifTorch$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

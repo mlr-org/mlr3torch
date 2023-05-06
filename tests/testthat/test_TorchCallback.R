@@ -56,7 +56,7 @@ test_that("torch_callback helper function works", {
   stages = stages[grepl("^on_", stages)]
   expect_set_equal(stages, mlr3torch_callback_stages)
 
-  expect_warning(torch_callback(id = "Custom", public = list(
+  expect_warning(torch_callback(id = "Custom", private = list(
     on_edn = function(ctx) NULL, on_nde = function(ctx) NULL)))
 
   tcb = torch_callback("Custom",
@@ -78,7 +78,7 @@ test_that("torch_callback helper function works", {
   cbt = tcb$generate()
 
   expect_class(cbt, "CallbackTorchCustom")
-  expect_true(!is.null(cbt$on_end))
+  expect_true(!is.null(get_private(cbt)$on_end))
   expect_true(cbt$a == 1)
   expect_true(get_private(cbt)$b == 2)
 })

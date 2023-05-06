@@ -1,45 +1,10 @@
 #' @title Abstract Base Class for a Torch Classification Learner
 #'
-#' @usage NULL
 #' @name mlr_learners_classif.torch
-#' @format `r roxy_format(LearnerClassifTorch)`
 #'
 #' @description
 #' This base class provides the basic functionality for training and prediction of a neural network.
 #' All torch classifiction learners should inherit from the respective subclass.
-#'
-#' @section Construction:
-#' Classification:
-#'
-#' `r roxy_construction(LearnerClassifTorch)`
-#'
-#' Regression:
-#'
-#' `r roxy_construction(LearnerRegrTorch)`
-#'
-#' * `r roxy_param_id()`
-#' * `optimizer` :: [`TorchOptimizer`]\cr
-#'   The optimizer for the model.
-#' * `loss` :: [`TorchLoss`]\cr
-#'   The loss for the model.
-#' * `callbacks`:: `list()` of [`TorchCallback`] objects\cr
-#'   The callbacks used for training. Must have unique IDs.
-#' * `r roxy_param_param_set()`
-#' * `properties` :: `character()`\cr
-#'   The properties for the learner, see `mlr_reflections$learner_properties`.
-#' * `packages` :: `character()`\cr
-#'   The additional packages on which the learner depends. The packages `"torch"` and `"mlr3torch"` are automatically
-#'   added so do not have to be passed explicitly.
-#' * `predict_types` :: `character()`\cr
-#'   The learner's predict types, see `mlr_reflections$learner_predict_types`.
-#'   The default is `"response"` and `"prob"`.
-#' * `feature_types` :: `character()`\cr
-#'   The feature types the learner can deal with, see `mlr_reflections$task_feature_types`.
-#' * `man` :: `character(1)`\cr
-#'   String in the format `[pkg]::[topic]` pointing to a manual page for this object.
-#'   The referenced help package can be opened via method `$help()`.
-#' * `label` :: `character(1)`\cr
-#'   The label for the learner.
 #'
 #' @section State:
 #' The state is a list with elements `network`, `optimizer`, `loss_fn` and `callbacks`.
@@ -51,7 +16,9 @@
 #' `private$.network(task, param_vals)` and the `private$.dataset(task, param_vals)`.
 #' The former should construct [`torch::nn_module`] object for the given task and parameter values, while the latter
 #' is responsible for creating a [`torch::dataset`].
-#' Note that the output of this network are expected to be the scores before the application of the final softmax
+#'
+#' **Important**
+#' The output of this network are expected to be the scores before the application of the final softmax
 #' layer.
 #'
 #' It is also possible to overwrite the private `$.dataloader()` method, which otherwise calls `$.dataset()` and
@@ -64,14 +31,6 @@
 #' or `"cb."`, as these are preserved for the dynamically constructed parameters of the optimizer and the loss
 #' function.
 #'
-#' @section Fields:
-#' Fields inherited from [`LearnerClassif`] or [`LearnerRegr`] and
-#'
-#' * `network` :: ([`nn_module()`][torch::nn_module])\cr
-#'   The network (only available after training).
-#' * `history` :: [`CallbackTorchHistory`]\cr
-#'   The training history.
-#' @section Methods: `r roxy_methods_inherit(LearnerClassifTorch)`
 #' @section Internals:
 #' A [`ParamSetCollection`] is created that combines the `param_set` from the construction with the
 #' default torch parameters, as well as the loss, optimizer and callback parameters
@@ -82,6 +41,19 @@
 LearnerClassifTorch = R6Class("LearnerClassifTorch",
   inherit = LearnerClassif,
   public = list(
+    #' @description Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template param_id
+    #' @template param_param_vals
+    #' @template param_optimizer
+    #' @template param_loss
+    #' @template param_param_set
+    #' @template param_properties
+    #' @template param_packages
+    #' @template param_predict_types
+    #' @template param_feature_types
+    #' @template param_man
+    #' @template param_label
+    #' @template param_callbacks
     initialize = function(id, optimizer, loss, param_set, properties = c("twoclass", "multiclass"), packages = character(0),
       predict_types = c("response", "prob"), feature_types, man, label, callbacks = list()) {
 
@@ -126,8 +98,14 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
     deep_clone = function(name, value) deep_clone(self, private, super, name, value)
   ),
   active = list(
+    #' @field network ([`nn_module()`][torch::nn_module])\cr
+    #'   The network (only available after training).
     network = function(rhs) learner_torch_network(self, rhs),
+    #' @field param_set ([`ParamSet`])\cr
+    #'   The parameter set
     param_set = function(rhs) learner_torch_param_set(self, rhs),
+    #' @field history ([`CallbackTorchHistory`])\cr
+    #'   The training history.
     history = function(rhs) learner_torch_history(self, rhs)
   )
 )
@@ -135,19 +113,14 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
 
 #' @title Abstract Base Class for a Torch Learner
 #'
-#' @usage NULL
 #' @name mlr_learners_regr.torch
-#' @format `r roxy_format(LearnerRegrTorch)`
 #'
 #' @description
 #' This base class provides the basic functionality for training and prediction of a neural network.
 #' All torch regression learners should inherit from the respective subclass.
 #'
-#' @inheritSection mlr_learners_classif.torch Construction
 #' @inheritSection mlr_learners_classif.torch State
 #' @inheritSection mlr_learners_classif.torch Parameters
-#' @inheritSection mlr_learners_classif.torch Fields
-#' @section Methods: `r roxy_methods_inherit(LearnerRegrTorch)`
 #' @inheritSection mlr_learners_classif.torch Internals
 #' @inheritSection mlr_learners_classif.torch Inheriting
 #'
@@ -156,6 +129,19 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
 LearnerRegrTorch = R6Class("LearnerRegrTorch",
   inherit = LearnerRegr,
   public = list(
+    #' @description Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template param_id
+    #' @template param_param_vals
+    #' @template param_optimizer
+    #' @template param_loss
+    #' @template param_param_set
+    #' @template param_properties
+    #' @template param_packages
+    #' @template param_predict_types
+    #' @template param_feature_types
+    #' @template param_man
+    #' @template param_label
+    #' @template param_callbacks
     initialize = function(id, optimizer, loss, param_set, properties = character(0), packages = character(0),
       predict_types = "response", feature_types, man, label, callbacks = list()) {
       learner_torch_initialize(self = self, private = private, super = super,
@@ -199,8 +185,14 @@ LearnerRegrTorch = R6Class("LearnerRegrTorch",
     deep_clone = function(name, value) deep_clone(self, private, super, name, value)
   ),
   active = list(
+    #' @field network ([`nn_module()`][torch::nn_module])\cr
+    #'   The network (only available after training).
     network = function(rhs) learner_torch_network(self, rhs),
+    #' @field param_set ([`ParamSet`])\cr
+    #'   The parameter set
     param_set = function(rhs) learner_torch_param_set(self, rhs),
+    #' @field history ([`CallbackTorchHistory`])\cr
+    #'   The training history.
     history = function(rhs) learner_torch_history(self, rhs)
   )
 )

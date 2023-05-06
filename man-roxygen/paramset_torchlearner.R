@@ -1,4 +1,5 @@
 #' @section Parameters:
+#'
 #' * `batch_size` :: (`integer(1)`)\cr
 #'   The batch size.
 #' * `epochs` :: `integer(1)`\cr
@@ -22,4 +23,4 @@
 #'   If this is missing (default), a random seed is generated.
 #'
 #' Additionally there are the parameters for the optimizer, the loss function and the callbacks.
-#' `"opt."`, `"loss."` and `"cb.<callback id>"` respectively.
+#' They are prefixed with `"opt."`, `"loss."` and `"cb.<callback id>"` respectively.

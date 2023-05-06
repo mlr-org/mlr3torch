@@ -107,6 +107,22 @@ get_init = function(x) {
   cls$public_methods$initialize
 }
 
+default_task_id = function(learner) {
+  task_id = get0("task_id", envir = parent.frame(), inherits = FALSE)
+  if (!is.null(task_id)) {
+    return(task_id)
+  }
+  if (inherits(learner, "LearnerClassifTorchImage")) {
+    return("nano_imagenet")
+  }
+  switch(learner$task_type,
+    classif = "iris",
+    regr = "mtcars",
+    stopf("No default task type.")
+  )
+  
+}
+
 class_with_init = function(x) {
   if (is.null(x)) {
     # This is the case where no initialize method is found
