@@ -5,6 +5,7 @@
 #' @description
 #' Saves the model during training.
 #'
+#' @family Callback
 #' @export
 CallbackTorchCheckpoint = R6Class("CallbackTorchCheckpoint",
   inherit = CallbackTorch,

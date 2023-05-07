@@ -12,7 +12,8 @@
 #' @return [`TorchCallback`]
 #'
 #' @export
-#' @family callback, torch_wrapper
+#' @family Callback
+#' @family Torch Wrapper
 #' @examples
 #' t_clbk("progress")
 t_clbk = function(.key, ...) {
@@ -62,7 +63,8 @@ t_clbks.NULL = function(.keys, ...) { # nolint
 #'   Additional arguments
 #'
 #' @return [`TorchCallback`].
-#' @family callback
+#' @family Callback
+#' @family Callback
 
 #' @export
 as_torch_callback = function(x, clone = FALSE, ...) {
@@ -96,7 +98,8 @@ as_torch_callback.character = function(x, clone = FALSE, ...) { # nolint
 #' @param ... (any)\cr
 #'   Additional arguments.
 #'
-#' @family callback
+#' @family Callback
+#' @family Torch Wrapper
 #' @export
 as_torch_callbacks = function(x, clone, ...) {
   UseMethod("as_torch_callbacks")
@@ -133,7 +136,8 @@ as_torch_callbacks.character = function(x, clone = FALSE, ...) { # nolint
 #'
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
-#' @family callback, model_configuration, torch_wrapper
+#' @family Callback
+#' @family Torch Wrapper
 #' @include utils.R
 #' @export
 #' @examples
@@ -197,7 +201,7 @@ TorchCallback = R6Class("TorchCallback",
 #' @export
 #' @return [`TorchCallback`]
 #' @include zzz.R CallbackTorch.R
-#' @family callback
+#' @family Callback
 #' @examples
 #' custom_tcb = torch_callback("custom",
 #'   initialize = function(name) {
@@ -279,7 +283,7 @@ torch_callback = function(
 #' Use [`t_clbk()`] to conveniently retrieve callbacks.
 #' Can be converted to a [`data.table`] using `as.data.table`.
 #'
-#' @family callback
+#' @family Callback
 #' @family Dictionary
 #' @export
 #' @examples

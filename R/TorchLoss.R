@@ -11,8 +11,7 @@
 #'   Additional arguments.
 #'   Currently used to pass additional constructor arguments to [`TorchLoss`] for objects of type `nn_loss`.
 #'
-#'
-#' @family torch_wrapper
+#' @family Torch Wrapper
 #'
 #' @return [`TorchLoss`].
 #' @export
@@ -46,7 +45,7 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
 #'
-#' @family model_configuration, torch_wrapper
+#' @family Torch Wrapper
 #' @export
 #' @examples
 #' # Create a new Torch Loss
@@ -110,7 +109,7 @@ TorchLoss = R6::R6Class("TorchLoss",
 #' @section Available Loss Functions:
 #' `r paste0(mlr3torch_losses$keys(), collapse = ", ")`
 #'
-#' @family torch_wrappers
+#' @family Torch Wrapper
 #' @family Dictionary
 #' @export
 #' @examples
@@ -145,7 +144,7 @@ as.data.table.DictionaryMlr3torchLosses = function(x, ...) {
 #'   See description of [`dictionary_sugar_get`].
 #' @return A [`TorchLoss`]
 #' @export
-#' @family torch_wrapper, model_configuration
+#' @family Torch Wrapper
 #' @examples
 #' t_loss("mse", reduction = "mean")
 #' # get the dictionary

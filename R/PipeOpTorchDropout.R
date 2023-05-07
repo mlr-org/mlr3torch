@@ -1,11 +1,11 @@
 #' @title Dropout
 #'
-#' @name mlr_pipeops_torch_dropout
+#' @templateVar id nn_dropout
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
 #'
 #' @inherit torch::nnf_dropout description
-#'
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' * `p` :: `numeric(1)`\cr
@@ -15,13 +15,7 @@
 #'
 #' @section Internals:
 #' Calls [`torch::nn_dropout()`] when trained.
-#' @family PipeOps
 #' @export
-#' @examples
-#' obj = po("nn_dropout")
-#' obj$id
-#' obj$module_generator
-#' obj$shapes_out(c(16, 5, 7))
 PipeOpTorchDropout = R6Class("PipeOpTorchDropout",
   inherit = PipeOpTorch,
   public = list(

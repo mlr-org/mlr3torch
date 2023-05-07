@@ -1,12 +1,12 @@
 #' @title Linear Layer
 #'
-#' @name pipeop_torch_linear
+#' @templateVar id nn_linear
+#' @template pipeop_torch_channels_default
+#' @templateVar param_vals out_features = 10
+#' @template pipeop_torch
+#' @template pipeop_torch_example
 #'
 #' @inherit torch::nnf_linear description
-#'
-#'
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' * `out_features` :: `integer(1)`\cr
@@ -18,13 +18,7 @@
 #' @section Internals:
 #' Calls [`torch::nn_linear()`] when trained where the parameter `in_features` is inferred as the second
 #' to last dimension of the input tensor.
-#' @family PipeOps
 #' @export
-#' @examples
-#' obj = po("nn_linear", out_features = 10)
-#' obj$id
-#' obj$module_generator
-#' obj$shapes_out(c(16, 5, 7))
 PipeOpTorchLinear = R6Class("PipeOpTorchLinear",
   inherit = PipeOpTorch,
   public = list(

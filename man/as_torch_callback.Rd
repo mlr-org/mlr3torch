@@ -23,13 +23,28 @@ Additional arguments}
 Converts an object to a \code{\link{TorchCallback}}.
 }
 \seealso{
-Other callback: 
+Other Callback: 
+\code{\link{TorchCallback}},
 \code{\link{as_torch_callbacks}()},
 \code{\link{callback_torch}()},
+\code{\link{mlr3torch_callbacks.checkpoint}},
 \code{\link{mlr3torch_callbacks.progress}},
 \code{\link{mlr3torch_callbacks}},
 \code{\link{mlr_callbacks_torch}},
 \code{\link{mlr_context_torch}},
+\code{\link{t_clbk}()},
+\code{\link{torch_callback}()}
+
+Other Callback: 
+\code{\link{TorchCallback}},
+\code{\link{as_torch_callbacks}()},
+\code{\link{callback_torch}()},
+\code{\link{mlr3torch_callbacks.checkpoint}},
+\code{\link{mlr3torch_callbacks.progress}},
+\code{\link{mlr3torch_callbacks}},
+\code{\link{mlr_callbacks_torch}},
+\code{\link{mlr_context_torch}},
+\code{\link{t_clbk}()},
 \code{\link{torch_callback}()}
 }
-\concept{callback}
+\concept{Callback}

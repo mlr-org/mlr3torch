@@ -28,9 +28,18 @@ t_opt("adam")
 as.data.table(mlr3torch_optimizers)
 }
 \seealso{
-Other torch_wrapper: 
+Other Torch Wrapper: 
+\code{\link{TorchCallback}},
+\code{\link{TorchLoss}},
+\code{\link{TorchOptimizer}},
+\code{\link{as_torch_callbacks}()},
 \code{\link{as_torch_loss}()},
-\code{\link{as_torch_optimizer}()}
+\code{\link{as_torch_optimizer}()},
+\code{\link{mlr3torch_losses}},
+\code{\link{t_clbk}()},
+\code{\link{t_loss}()},
+\code{\link{t_opt}()},
+\code{\link{torch_wrapper}}
 
 Other Dictionary: 
 \code{\link{mlr3torch_callbacks}},
@@ -38,5 +47,5 @@ Other Dictionary:
 \code{\link{t_opt}()}
 }
 \concept{Dictionary}
-\concept{torch_wrapper}
+\concept{Torch Wrapper}
 \keyword{datasets}

@@ -1,6 +1,9 @@
 #' @title Output Head
 #'
-#' @name mlr_pipeops_torch_head
+#' @templateVar id nn_head
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
 #'
 #' @description
 #' Output head for classification and regresssion.
@@ -9,23 +12,13 @@
 #' Because the method `$shapes_out()` does not have access to the task, it returns `c(NA, NA)`.
 #' When this [`PipeOp`] is trained however, the model descriptor has the correct output shape.
 #'
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch_state_default
-#'
 #' @section Parameters:
 #' * `bias` :: `logical(1)`\cr
 #'   Whether to use a bias. Default is `TRUE`.
 #'
 #' @section Internals:
 #' Calls [`torch::nn_linear()`] with the input and output features inferred from the input shape / task.
-#' @family PipeOps
 #' @export
-#' @examples
-#'obj = po("nn_head")
-#'obj$id
-#'obj$module_generator
-#'obj$shapes_out(c(16, 10), tsk("iris"))
-#'obj$shapes_out(c(16, 10), tsk("mtcars"))
 PipeOpTorchHead = R6Class("PipeOpTorchHead",
   inherit = PipeOpTorch,
   public = list(

@@ -1,25 +1,20 @@
 #' @title Reshape a Tensor
 #'
-#' @name mlr_pipeops_torch_reshape
+#' @templateVar id nn_reshape
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
 #'
 #' @inherit nn_reshape description
-#'
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' * `shape` :: `integer(1)`\cr
 #'   The desired output shape. Unknown dimension (one at most) can either be specified as `-1` or `NA`.
+#'
 #' @section Internals:
 #' Calls [`nn_reshape()`] when trained.
 #' This internally calls [`torch::torch_reshape()`] with the given `shape`.
-#' @family PipeOps
 #' @export
-#' @examples
-#' obj = po("nn_reshape", shape = c(-1, 25))
-#' obj$id
-#' obj$module_generator
-#' obj$shapes_out(c(16, 5, 5))
 PipeOpTorchReshape = R6Class("PipeOpTorchReshape",
   inherit = PipeOpTorch,
   public = list(
@@ -66,26 +61,20 @@ PipeOpTorchReshape = R6Class("PipeOpTorchReshape",
 
 #' @title Squeeze a Tensor
 #'
-#' @name mlr_pipeops_torch_squeeze
+#' @templateVar id nn_squeeze
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
 #'
 #' @inherit nn_squeeze description
 #'
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch_state_default
 #' @section Parameters:
 #' * `dim` :: `integer(1)`\cr
 #'   The dimension to squeeze. If `NULL`, all dimensions of size 1 will be squeezed.
 #'   Negative values are interpreted downwards from the last dimension.
 #' @section Internals:
-#' @section Internals:
 #' Calls [`nn_squeeze()`] when trained.
-#' @family PipeOps
 #' @export
-#' @examples
-#' obj = po("nn_squeeze")
-#' obj$id
-#' obj$module_generator
-#' obj$shapes_out(c(16, 5, 5))
 PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
   inherit = PipeOpTorch,
   public = list(
@@ -129,26 +118,19 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
 
 #' @title Unqueeze a Tensor
 #'
-#' @name mlr_pipeops_torch_squeeze
-#'
-#' @inherit nn_squeze description
-#'
-#'
+#' @templateVar id nn_squeeze
 #' @template pipeop_torch_channels_default
-#' @template pipeop_torch_state_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
+#'
 #' @section Parameters:
 #' * `dim` :: `integer(1)`\cr
 #'   The dimension which to unsqueeze. Negative values are interpreted downwards from the last dimension.
+#'
 #' @section Internals:
 #' Calls [`nn_unsqueeze()`] when trained.
 #' This internally calls [`torch::torch_unsqueeze()`].
-#' @family PipeOps
 #' @export
-#' @examples
-#' obj = po("nn_unsqueeze", dim = 4)
-#' obj$id
-#' obj$module_generator
-#' obj$shapes_out(c(16, 5, 5))
 PipeOpTorchUnsqueeze = R6Class("PipeOpTorchUnsqueeze",
   inherit = PipeOpTorch,
   public = list(
@@ -180,11 +162,13 @@ PipeOpTorchUnsqueeze = R6Class("PipeOpTorchUnsqueeze",
 
 #' @title Flattens a Tensor
 #'
-#' @name mlr_pipeops_torch_flatten
+#' @templateVar id nn_flatten
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
 #'
 #' @inherit torch::nn_flatten description
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch_state_default
+#'
 #' @section Parameters:
 #' `start_dim` :: `integer(1)`\cr
 #'   At wich dimension to start flattening. Default is 2.
@@ -192,13 +176,7 @@ PipeOpTorchUnsqueeze = R6Class("PipeOpTorchUnsqueeze",
 #'   At wich dimension to stop flattening. Default is -1.
 #' @section Internals:
 #' Calls [`torch::nn_flatten()`] when trained.
-#' @family PipeOps
 #' @export
-#' @examples
-#' obj = po("nn_flatten", start_dim = 2, end_dim = 3)
-#' obj$id
-#' obj$module_generator
-#' obj$shapes_out(c(16, 5, 5))
 PipeOpTorchFlatten = R6Class("PipeOpTorchFlatten",
   inherit = PipeOpTorch,
   public = list(

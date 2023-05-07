@@ -33,6 +33,7 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
     #' @param task_type `character(1)`\cr
     #'   The task type of the model.
     initialize = function(id = "torch_model", param_vals = list(), task_type) {
+      # TODO: Add properties argument
       private$.task_type = assert_choice(task_type, c("classif", "regr"))
       param_set = paramset_torchlearner()
       input = data.table(
@@ -99,7 +100,7 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
 #'
 #' @inheritSection mlr_pipeops_torch_model Input and Output Channels
 #' @inheritSection mlr_pipeops_torch_model State
-#' @template paramset_torchlearner
+#' @section Parameters: See [`LearnerClassifTorch`]
 #' @inheritSection mlr_pipeops_torch_model Internals
 #' @family PipeOps
 #' @export
@@ -109,6 +110,7 @@ PipeOpTorchModelClassif = R6Class("PipeOpTorchModelClassif",
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
     initialize = function(id = "torch_model_classif", param_vals = list()) {
+      # TODO: Add properties argument
       super$initialize(
         id = id,
         param_vals = param_vals,
@@ -126,10 +128,9 @@ PipeOpTorchModelClassif = R6Class("PipeOpTorchModelClassif",
 #' Builds a Regression Torch Learner from its Input.
 #' The default optimizer is adam an the default loss is mean-square error.
 #'
-#'
 #' @inheritSection mlr_pipeops_torch_model Input and Output Channels
 #' @inheritSection mlr_pipeops_torch_model State
-#' @template paramset_torchlearner
+#' @section Parameters: See [`LearnerRegrTorch`]
 #' @inheritSection mlr_pipeops_torch_model Internals
 #' @family PipeOps
 #' @export
@@ -140,6 +141,7 @@ PipeOpTorchModelRegr = R6Class("PipeOpTorchModelRegr",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
     initialize = function(id = "torch_model_regr", param_vals = list()) {
+      # TODO: Add properties argument
       super$initialize(
         id = id,
         param_vals = param_vals,

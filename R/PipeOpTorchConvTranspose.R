@@ -1,46 +1,12 @@
-#' @title Base Class Transpose Convolution
-#'
-#' @name mlr_pipeops_torch_conv_transpose
-#'
-#' @description
-#' Base class for transpose convolution.
-#' Don't use this class directly.
-#'
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch_state_default
-#'
-#' @section Parameters:
-#' * `out_channels` :: `integer(1)`\cr
-#'   Number of output channels produce by the convolution.
-#' * `kernel_size` :: `integer()`\cr
-#'   Size of the convolving kernel.
-#' * `stride` :: `integer()`\cr
-#'   Stride of the convolution. Default: 1.
-#' * `padding` :: ` `integer()`\cr
-#'  ‘dilation * (kernel_size - 1) - padding’ zero-padding will be added to both sides of the input. Default: 0.
-#' * `output_padding` ::`integer()`\cr
-#'   Additional size added to one side of the output shape. Default: 0.
-#' * `groups` :: `integer()`\cr
-#'   Number of blocked connections from input channels to output channels. Default: 1
-#' * `bias` :: `logical(1)`\cr
-#'   If ‘True’, adds a learnable bias to the output. Default: ‘TRUE’.
-#' * `dilation` :: `integer()`\cr
-#'   Spacing between kernel elements. Default: 1.
-#' * `padding_mode` :: `character(1)`\cr
-#'   The padding mode. One of `"zeros"`, `"reflect"`, `"replicate"`, or `"circular"`. Default is `"zeros"`.
-#'
-#' @section Internals: See the respective child class.
-#' @family PipeOps
-#' @export
 PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",
   inherit = PipeOpTorch,
   public = list(
-    #' @description
-    #' Creates a new instance of this [R6][R6::R6Class] class.
-    #' @template params_pipelines
-    #' @template param_module_generator
-    #' @param d (`integer(1)`)\cr
-    #'   The dimension of the transpose convolution.
+    # @description
+    # Creates a new instance of this [R6][R6::R6Class] class.
+    # @template params_pipelines
+    # @template param_module_generator
+    # @param d (`integer(1)`)\cr
+    #   The dimension of the transpose convolution.
     initialize = function(id, d, module_generator, param_vals = list()) {
       private$.d = assert_int(d)
       param_set = ps(
@@ -90,25 +56,36 @@ PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",
 
 #' @title Transpose 1D Convolution
 #'
-#' @name mlr_pipeops_torch_conv_transpose1d
-#'
-#' @inherit torch::nnf_conv_transpose1d description
-#'
-#' @template pipeop_torch_state_default
+#' @templateVar id nn_conv_transpose1d
+#' @templateVar param_vals kernel_size = 3, out_channels = 2
+#' @template pipeop_torch
 #' @template pipeop_torch_channels_default
+#' @template pipeop_torch_example
 #'
-#' @inheritSection mlr_pipeops_torch_conv_transpose Parameters
+#' @section Parameters:
+#' * `out_channels` :: `integer(1)`\cr
+#'   Number of output channels produce by the convolution.
+#' * `kernel_size` :: `integer()`\cr
+#'   Size of the convolving kernel.
+#' * `stride` :: `integer()`\cr
+#'   Stride of the convolution. Default: 1.
+#' * `padding` :: ` `integer()`\cr
+#'  ‘dilation * (kernel_size - 1) - padding’ zero-padding will be added to both sides of the input. Default: 0.
+#' * `output_padding` ::`integer()`\cr
+#'   Additional size added to one side of the output shape. Default: 0.
+#' * `groups` :: `integer()`\cr
+#'   Number of blocked connections from input channels to output channels. Default: 1
+#' * `bias` :: `logical(1)`\cr
+#'   If ‘True’, adds a learnable bias to the output. Default: ‘TRUE’.
+#' * `dilation` :: `integer()`\cr
+#'   Spacing between kernel elements. Default: 1.
+#' * `padding_mode` :: `character(1)`\cr
+#'   The padding mode. One of `"zeros"`, `"reflect"`, `"replicate"`, or `"circular"`. Default is `"zeros"`.
 #'
 #' @section Internals:
 #' Calls [`nn_conv_transpose1d`].
 #' The parameter `in_channels` is inferred as the second dimension of the input tensor.
-#' @family PipeOps
 #' @export
-#' @examples
-#' obj = po("nn_conv_transpose1d", out_channels = 4, kernel_size = 2)
-#' obj$id
-#' obj$module_generator
-#' obj$shapes_out(c(16, 3, 64))
 PipeOpTorchConvTranspose1D = R6Class("PipeOpTorchConvTranspose1D", inherit = PipeOpTorchConvTranspose,
   public = list(
     #' @description
@@ -123,25 +100,20 @@ PipeOpTorchConvTranspose1D = R6Class("PipeOpTorchConvTranspose1D", inherit = Pip
 
 #' @title Transpose 2D Convolution
 #'
-#' @name mlr_pipeops_torch_conv_transpose2d
+#' @template pipeop_torch_channels_default
+#' @templateVar param_vals kernel_size = 3, out_channels = 2
+#' @templateVar id nn_conv_transpose2d
+#' @template pipeop_torch
+#' @template pipeop_torch_example
 #'
 #' @inherit torch::nnf_conv_transpose2d description
 #'
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch_state_default
-#'
-#' @inheritSection mlr_pipeops_torch_conv_transpose Parameters
+#' @inheritSection mlr_pipeops_nn_conv_transpose1d Parameters
 #'
 #' @section Internals:
 #' Calls [`nn_conv_transpose2d`].
 #' The parameter `in_channels` is inferred as the second dimension of the input tensor.
-#' @family PipeOps
 #' @export
-#' @examples
-#' obj = po("nn_conv_transpose2d", out_channels = 4, kernel_size = 2)
-#' obj$id
-#' obj$module_generator
-#' obj$shapes_out(c(16, 3, 64, 64))
 PipeOpTorchConvTranspose2D = R6Class("PipeOpTorchConvTranspose2D", inherit = PipeOpTorchConvTranspose,
   public = list(
     #' @description
@@ -155,24 +127,20 @@ PipeOpTorchConvTranspose2D = R6Class("PipeOpTorchConvTranspose2D", inherit = Pip
 
 #' @title Transpose 3D Convolution
 #'
-#' @name mlr_pipeops_torch_conv_transpose3d
+#' @template pipeop_torch_channels_default
+#' @templateVar param_vals kernel_size = 3, out_channels = 2
+#' @templateVar id nn_conv_transpose3d
+#' @template pipeop_torch
+#' @template pipeop_torch_example
 #'
 #' @inherit torch::nnf_conv_transpose3d description
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch_state_default
 #'
-#' @inheritSection mlr_pipeops_torch_conv_transpose Parameters
+#' @inheritSection mlr_pipeops_nn_conv_transpose1d Parameters
 #'
 #' @section Internals:
 #' Calls [`nn_conv_transpose3d`].
 #' The parameter `in_channels` is inferred as the second dimension of the input tensor.
-#' @family PipeOps
 #' @export
-#' @examples
-#' obj = po("nn_conv_transpose3d", out_channels = 4, kernel_size = 2)
-#' obj$id
-#' obj$module_generator
-#' obj$shapes_out(c(16, 3, 64, 64, 1000))
 PipeOpTorchConvTranspose3D = R6Class("PipeOpTorchConvTranspose3D", inherit = PipeOpTorchConvTranspose,
   public = list(
     #' @description
@@ -211,4 +179,3 @@ conv_transpose_output_shape = function(shape_in, dim, padding, dilation, stride,
     (shape_tail - 1) * stride - 2 * padding + dilation * (kernel_size - 1) + output_padding + 1
   )
 }
-

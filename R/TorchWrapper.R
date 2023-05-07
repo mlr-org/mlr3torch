@@ -10,7 +10,7 @@
 #'
 #' @section Internals:
 #' When a deep clone is created, the wrapped generator is not cloned.
-#' @family torch_wrappers
+#' @family Torch Wrapper
 #' @export
 TorchWrapper = R6Class("TorchWrapper",
   public = list(

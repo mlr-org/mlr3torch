@@ -26,6 +26,11 @@ lrn("classif.alexnet")
 }
 }
 
+\section{State}{
+
+The state is a list with elements \code{network}, \code{optimizer}, \code{loss_fn} and \code{callbacks}.
+}
+
 \section{Parameters}{
 
 Parameters from \code{\link{LearnerClassifTorchImage}} and
@@ -44,6 +49,18 @@ Krizhevsky, Alex, Sutskever, Ilya, Hinton, E. G (2017).
 \dQuote{Imagenet classification with deep convolutional neural networks.}
 \emph{Communications of the ACM}, \bold{60}(6), 84--90.
 }
+\seealso{
+Other Learner: 
+\code{\link{mlr_learners_classif.mlp}},
+\code{\link{mlr_learners_classif.torch_featureless}},
+\code{\link{mlr_learners_classif.torch_model}},
+\code{\link{mlr_learners_classif.torch}},
+\code{\link{mlr_learners_classif_torch_image}},
+\code{\link{mlr_learners_regr.mlp}},
+\code{\link{mlr_learners_regr.torch_model}},
+\code{\link{mlr_learners_regr.torch}}
+}
+\concept{Learner}
 \section{Super classes}{
 \code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3:LearnerClassif]{mlr3::LearnerClassif}} -> \code{\link[mlr3torch:LearnerClassifTorch]{mlr3torch::LearnerClassifTorch}} -> \code{\link[mlr3torch:LearnerClassifTorchImage]{mlr3torch::LearnerClassifTorchImage}} -> \code{LearnerClassifAlexNet}
 }

@@ -72,10 +72,17 @@ function.
 }
 
 \seealso{
-Other Learners: 
-\code{\link{mlr_learners_classif.torch}}
+Other Learner: 
+\code{\link{mlr_learners_classif.alexnet}},
+\code{\link{mlr_learners_classif.mlp}},
+\code{\link{mlr_learners_classif.torch_featureless}},
+\code{\link{mlr_learners_classif.torch_model}},
+\code{\link{mlr_learners_classif.torch}},
+\code{\link{mlr_learners_classif_torch_image}},
+\code{\link{mlr_learners_regr.mlp}},
+\code{\link{mlr_learners_regr.torch_model}}
 }
-\concept{Learners}
+\concept{Learner}
 \section{Super classes}{
 \code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3:LearnerRegr]{mlr3::LearnerRegr}} -> \code{LearnerRegrTorch}
 }

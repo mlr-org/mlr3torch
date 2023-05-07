@@ -20,13 +20,30 @@ Additional arguments.}
 Converts an object to a list of \code{\link{TorchCallback}}.
 }
 \seealso{
-Other callback: 
+Other Callback: 
+\code{\link{TorchCallback}},
 \code{\link{as_torch_callback}()},
 \code{\link{callback_torch}()},
+\code{\link{mlr3torch_callbacks.checkpoint}},
 \code{\link{mlr3torch_callbacks.progress}},
 \code{\link{mlr3torch_callbacks}},
 \code{\link{mlr_callbacks_torch}},
 \code{\link{mlr_context_torch}},
+\code{\link{t_clbk}()},
 \code{\link{torch_callback}()}
+
+Other Torch Wrapper: 
+\code{\link{TorchCallback}},
+\code{\link{TorchLoss}},
+\code{\link{TorchOptimizer}},
+\code{\link{as_torch_loss}()},
+\code{\link{as_torch_optimizer}()},
+\code{\link{mlr3torch_losses}},
+\code{\link{mlr3torch_optimizers}},
+\code{\link{t_clbk}()},
+\code{\link{t_loss}()},
+\code{\link{t_opt}()},
+\code{\link{torch_wrapper}}
 }
-\concept{callback}
+\concept{Callback}
+\concept{Torch Wrapper}

@@ -50,13 +50,16 @@ Additionally performs checks such as that the stages are not accidentally misspe
 To create a \code{\link{TorchCallback}} use \code{\link[=torch_callback]{torch_callback()}}.
 }
 \seealso{
-Other callback: 
+Other Callback: 
+\code{\link{TorchCallback}},
 \code{\link{as_torch_callbacks}()},
 \code{\link{as_torch_callback}()},
+\code{\link{mlr3torch_callbacks.checkpoint}},
 \code{\link{mlr3torch_callbacks.progress}},
 \code{\link{mlr3torch_callbacks}},
 \code{\link{mlr_callbacks_torch}},
 \code{\link{mlr_context_torch}},
+\code{\link{t_clbk}()},
 \code{\link{torch_callback}()}
 }
-\concept{callback}
+\concept{Callback}

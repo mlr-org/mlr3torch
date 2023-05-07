@@ -11,6 +11,56 @@ Classification Torch Learner that is used internally by \code{\link{PipeOpTorchM
  See \code{\link{LearnerClassifTorch}}
 }
 
+\examples{
+
+# The iris task has 4 features and 3 classes
+network = nn_linear(4, 3)
+task = tsk("iris")
+
+# This defines the dataloader.
+# It loads all 4 features, which are also numeric.
+# The shape is (NA, 4) because the batch dimension is generally NA
+ingress_tokens = list(
+  input = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, 4))
+)
+
+# Creating the learner and setting required parameters
+learner = LearnerClassifTorchModel$new(network, ingress_tokens)
+learner$param_set$set_values(batch_size = 16, epochs = 1)
+
+# A simple train-predict
+ids = partition(task)
+learner$train(task, ids$train)
+learner$predict(task, ids$test)
+}
+\seealso{
+Other Learner: 
+\code{\link{mlr_learners_classif.alexnet}},
+\code{\link{mlr_learners_classif.mlp}},
+\code{\link{mlr_learners_classif.torch_featureless}},
+\code{\link{mlr_learners_classif.torch}},
+\code{\link{mlr_learners_classif_torch_image}},
+\code{\link{mlr_learners_regr.mlp}},
+\code{\link{mlr_learners_regr.torch_model}},
+\code{\link{mlr_learners_regr.torch}}
+
+Other Graph Network: 
+\code{\link{ModelDescriptor}()},
+\code{\link{TorchIngressToken}()},
+\code{\link{mlr_learners_regr.torch_model}},
+\code{\link{mlr_pipeops_module}},
+\code{\link{mlr_pipeops_torch_ingress_categ}},
+\code{\link{mlr_pipeops_torch_ingress_img}},
+\code{\link{mlr_pipeops_torch_ingress_num}},
+\code{\link{mlr_pipeops_torch_ingress}},
+\code{\link{mlr_pipeops_torch}},
+\code{\link{model_descriptor_to_learner}()},
+\code{\link{model_descriptor_to_module}()},
+\code{\link{model_descriptor_union}()},
+\code{\link{nn_graph}()}
+}
+\concept{Graph Network}
+\concept{Learner}
 \section{Super classes}{
 \code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3:LearnerClassif]{mlr3::LearnerClassif}} -> \code{\link[mlr3torch:LearnerClassifTorch]{mlr3torch::LearnerClassifTorch}} -> \code{LearnerClassifTorchModel}
 }
@@ -62,21 +112,20 @@ Outputs must be the scores (before the softmax).}
 \item{\code{ingress_tokens}}{(\code{list} of \code{\link[=TorchIngressToken]{TorchIngressToken()}})\cr
 A list with ingress tokens that defines how the dataloader will be defined.}
 
-\item{\code{optimizer}}{((\code{\link{TorchOptimizer}}))\cr
-The optimizer for the model. Defaults is adam.}
+\item{\code{optimizer}}{(\code{\link{TorchOptimizer}})\cr
+The torch optimizer.}
 
-\item{\code{loss}}{((\code{\link{TorchLoss}}))\cr
-The loss for the model. Default is cross entropy.}
+\item{\code{loss}}{(\code{\link{TorchLoss}})\cr
+The loss used to train the network.}
 
 \item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
-The callbacks used for training. Must have unique IDs.}
+The callbacks used during training. Must have unique ids.}
 
 \item{\code{packages}}{(\code{character()})\cr
-The additional packages on which the learner depends.
-added so do not have to be passed explicitly.}
+The R packages this object depends on.}
 
 \item{\code{feature_types}}{(\code{character()})\cr
-The feature types the learner can deal with, see \code{mlr_reflections$task_feature_types}.}
+The feature types. Defaults to all available feature types.}
 }
 \if{html}{\out{</div>}}
 }

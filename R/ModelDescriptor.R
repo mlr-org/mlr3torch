@@ -42,8 +42,8 @@
 #' @param .pointer_shape (`integer` | `NULL`)\cr
 #'   Shape of the output indicated by `.pointer`.
 #'
-#' @seealso model_descriptor_to_module, model_descriptor_union, PipeOpTorch, PipeOpModule, PipeOpTorchIngress,
-#' TorchIngressToken
+#' @family Model Configuration
+#' @family Graph Network
 #' @return (`ModelDescriptor`)
 ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, callbacks = NULL, .pointer = NULL,
   .pointer_shape = NULL) {
@@ -132,7 +132,7 @@ print.ModelDescriptor = function(x, ...) {
 #'   The second [`ModelDescriptor`].
 #' @return [`ModelDescriptor`]
 #' @family Graph Network
-#' @seealso ModelDescriptor, PipeOpTorch, PipeOpTorchMerge
+#' @family Model Configuration
 #' @export
 model_descriptor_union = function(md1, md2) {
   assert_class(md1, "ModelDescriptor")

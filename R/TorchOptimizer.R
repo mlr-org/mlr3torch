@@ -12,7 +12,7 @@
 #'   Currently used to pass additional constructor arguments to [`TorchOptimizer`] for objects of type
 #'   `torch_optimizer_generator`.
 #'
-#' @family torch_wrapper
+#' @family Torch Wrapper
 #'
 #' @return [`TorchOptimizer`]
 #' @export
@@ -51,7 +51,7 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #'
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
-#' @family model_configuration, torch_wrapper
+#' @family Torch Wrapper
 #' @export
 #' @examples
 #' # Create a new Torch Optimizer
@@ -113,7 +113,7 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
 #' @section Available Optimizers:
 #' `r paste0(mlr3torch_optimizers$keys(), collapse = ", ")`
 #'
-#' @family torch_wrapper
+#' @family Torch Wrapper
 #' @family Dictionary
 #' @export
 #' @examples
@@ -145,7 +145,7 @@ as.data.table.DictionaryMlr3torchOptimizers = function(x, ...) {
 #'   See description of [`dictionary_sugar_get`].
 #' @return A [`TorchOptimizer`]
 #' @export
-#' @family model_configuration, torch_wrapper
+#' @family Torch Wrapper
 #' @family Dictionary
 #' @examples
 #' t_opt("adam", lr = 0.1)

@@ -1,11 +1,12 @@
 #' @title Layer Normalization
 #'
-#' @name mlr_pipeops_torch_layer_norm
+#' @templateVar id nn_layer_norm
+#' @templateVar param_vals dims = 1
+#' @template pipeop_torch
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_example
 #'
 #' @inherit torch::nnf_layer_norm description
-#'
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch_state_default
 #' @section Parameters:
 #' * `dims` :: `integer(1)`\cr
 #'   The number of dimensions over which will be normalized (starting from the last dimension).
@@ -17,13 +18,7 @@
 #' @section Internals:
 #' Calls [`torch::nn_layer_norm()`] when trained.
 #' The parameter `normalized_shape` is inferred as the dimensions of the last `dims` dimensions of the input shape.
-#' @family PipeOps
 #' @export
-#' @examples
-#' obj = po("nn_layer_norm", dims = 2)
-#' obj$id
-#' obj$module_generator
-#' obj$shapes_out(c(16, 5, 7))
 PipeOpTorchLayerNorm = R6Class("PipeOpTorchLayerNorm",
   inherit = PipeOpTorch,
   public = list(

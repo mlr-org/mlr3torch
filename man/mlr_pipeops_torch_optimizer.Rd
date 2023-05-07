@@ -40,10 +40,16 @@ mdout = po_opt$train(mdin)
 mdout[[1L]]$optimizer
 }
 \seealso{
-Other model_configuration: 
-\code{\link{mlr_pipeops_torch_callbacks}}
+Other PipeOp: 
+\code{\link{mlr_pipeops_torch_ingress_img}}
+
+Other Model Configuration: 
+\code{\link{ModelDescriptor}()},
+\code{\link{mlr_pipeops_torch_loss}},
+\code{\link{model_descriptor_union}()}
 }
-\concept{model_configuration}
+\concept{Model Configuration}
+\concept{PipeOp}
 \section{Super class}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{PipeOpTorchOptimizer}
 }

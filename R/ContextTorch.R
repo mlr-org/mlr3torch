@@ -7,7 +7,7 @@
 #' This is the - mostly read-only - information callbacks have access to through the argument `ctx`.
 #' For more information on callbacks, see [`CallbackTorch`].
 #'
-#' @family callback
+#' @family Callback
 #' @export
 ContextTorch = R6Class("ContextTorch",
   inherit = Context,

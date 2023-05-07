@@ -1,18 +1,18 @@
 #' @title Merge Operation
 #'
-#' @name mlr_pipeops_torch_merge
+#' @name mlr_pipeops_nn_merge
+#' @templateVar id nn_conv1d
+#' @template pipeop_torch_state_default
 #'
 #' @description
 #' Base class for merge operations such as addition ([`PipeOpTorchMergeSum`]), multiplication
 #' ([`PipeOpTorchMergeProd`] or concatenation ([`PipeOpTorchMergeCat`]).
-#'
 #'
 #' @section Input and Output Channels:
 #' `PipeOpTorchMerge`s has either a *vararg* input channel if the constructor argument `innum` is not set, or
 #' input channels `"input1"`, ..., `"input<innum>"`. There is one output channel `"output"`.
 #' For an explanation see [`PipeOpTorch`].
 #'
-#' @template pipeop_torch_state_default
 #' @section Parameters: See the respective child class.
 #' @section Internals:
 #' Per default, the `private$.shapes_out()` method outputs the broadcasted tensors. There are two things to be aware:
@@ -20,7 +20,9 @@
 #' 2. Tensors are expected to have the same number of dimensions, i.e. missing dimensions are not filled with 1s.
 #'    The reason is that again that the first dimension should be the batch dimension.
 #' This private method can be overwritten by [`PipeOpTorch`]s inheriting from this class.
+#'
 #' @family PipeOps
+#' @include PipeOpTorch.R
 #' @export
 PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
   inherit = PipeOpTorch,
@@ -67,26 +69,20 @@ PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
 
 #' @title Merge by Summation
 #'
-#' @name mlr_pipeops_torch_merge_sum
+#' @templateVar id nn_merge_sum
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
 #'
 #' @inherit nn_merge_sum description
 #'
-#' @section Broadcasting:
-#' Broadcasting here works slightly different than broadcasting
-#'
-#' @inheritSection mlr_pipeops_torch_merge Input and Output Channels
-#' @template pipeop_torch_state_default
+#' @inheritSection mlr_pipeops_nn_merge Input and Output Channels
 #' @section Parameters:
 #' No parameters.
 #' @section Internals:
 #' Calls [`nn_merge_sum()`] when trained.
 #' @family PipeOps
 #' @export
-#' @examples
-#' obj = po("nn_merge_sum")
-#' obj$id
-#' obj$module_generator
-#' obj$shapes_out(list(input1 = c(16, 5, 5), input2 = c(16, 5, 5)))
 PipeOpTorchMergeSum = R6Class("PipeOpTorchMergeSum", inherit = PipeOpTorchMerge,
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
@@ -107,12 +103,14 @@ PipeOpTorchMergeSum = R6Class("PipeOpTorchMergeSum", inherit = PipeOpTorchMerge,
 
 #' @title Merge by Product
 #'
-#' @name mlr_pipeops_torch_merge_prod
+#' @templateVar id nn_merge_sum
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
 #'
 #' @inherit nn_merge_prod description
 #'
-#' @inheritSection mlr_pipeops_torch_merge Input and Output Channels
-#' @template pipeop_torch_state_default
+#' @inheritSection mlr_pipeops_nn_merge Input and Output Channels
 #'
 #' @section Parameters:
 #' No parameters.
@@ -120,13 +118,7 @@ PipeOpTorchMergeSum = R6Class("PipeOpTorchMergeSum", inherit = PipeOpTorchMerge,
 #' @section Internals:
 #' Calls [`nn_merge_prod()`] when trained.
 #'
-#' @family PipeOps
 #' @export
-#' @examples
-#' obj = po("nn_merge_prod")
-#' obj$id
-#' obj$module_generator
-#' obj$shapes_out(list(input1 = c(16, 5, 5), input2 = c(16, 5, 5)))
 PipeOpTorchMergeProd = R6Class("PipeOpTorchMergeProd", inherit = PipeOpTorchMerge,
   public = list(
     #' @description
@@ -142,32 +134,25 @@ PipeOpTorchMergeProd = R6Class("PipeOpTorchMergeProd", inherit = PipeOpTorchMerg
         param_vals = param_vals
       )
     }
-  ),
-
-
-
+  )
 )
 
 #' @title Merge by Concatenation
 #'
-#' @name mlr_pipeops_torch_merge_cat
+#' @templateVar id nn_merge_cat
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
 #'
 #' @inherit nn_merge_cat description
 #'
-#' @inheritSection mlr_pipeops_torch_merge Input and Output Channels
-#' @template pipeop_torch_state_default
+#' @inheritSection mlr_pipeops_nn_merge Input and Output Channels
 #' @section Parameters:
 #' * `dim` :: `integer(1)`\cr
 #'   The dimension along which to concatenate the tensors.
 #' @section Internals:
 #' Calls [`nn_merge_cat()`] when trained.
-#' @family PipeOps
 #' @export
-#' @examples
-#' obj = po("nn_merge_cat", dim = 2)
-#' obj$id
-#' obj$module_generator
-#' obj$shapes_out(list(input1 = c(16, 5, 7), input2 = c(16, 6, 7)))
 PipeOpTorchMergeCat = R6Class("PipeOpTorchMergeCat", inherit = PipeOpTorchMerge,
   public = list(
     #' @description

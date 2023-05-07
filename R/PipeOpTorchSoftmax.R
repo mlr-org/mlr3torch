@@ -1,12 +1,11 @@
 #' @title Softmax
 #'
-#' @name mlr_pipeops_torch_softmax
+#' @templateVar id nn_softmax
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
 #'
 #' @inherit torch::nnf_softmax description
-#'
-#' @template pipeop_torch_channels_default
-#'
-#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' * `dim` :: `integer(1)`\cr
@@ -14,13 +13,7 @@
 #'
 #' @section Internals:
 #' Calls [`torch::nn_softmax()`] when trained.
-#' @family PipeOps
 #' @export
-#' @examples
-#' obj = po("nn_softmax", dim = 2)
-#' obj$id
-#' obj$module_generator
-#' obj$shapes_out(c(16, 5, 7))
 PipeOpTorchSoftmax = R6::R6Class("PipeOpTorchSoftmax",
   inherit = PipeOpTorch,
   public = list(

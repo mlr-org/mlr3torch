@@ -18,7 +18,8 @@
 #' During training, the optimizer is cloned and added to the [`ModelDescriptor`].
 #' Note that the parameter set of the stored [`TorchOptimizer`] is reference-identical to the parameter set of the
 #' pipeop itself.
-#' @family model_configuration
+#' @family PipeOp
+#' @family Model Configuration
 #' @export
 #' @examples
 #' po_opt = po("torch_optimizer", "sgd", lr = 0.01)

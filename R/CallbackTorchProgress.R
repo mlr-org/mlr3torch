@@ -5,7 +5,7 @@
 #' @description
 #' Prints a progress bar and the metrics for training and validation.
 #'
-#' @family callback
+#' @family Callback
 #' @include CallbackTorch.R
 #' @export
 CallbackTorchProgress = R6Class("CallbackTorchProgress",

@@ -10,16 +10,19 @@ This is the - mostly read-only - information callbacks have access to through th
 For more information on callbacks, see \code{\link{CallbackTorch}}.
 }
 \seealso{
-Other callback: 
+Other Callback: 
+\code{\link{TorchCallback}},
 \code{\link{as_torch_callbacks}()},
 \code{\link{as_torch_callback}()},
 \code{\link{callback_torch}()},
+\code{\link{mlr3torch_callbacks.checkpoint}},
 \code{\link{mlr3torch_callbacks.progress}},
 \code{\link{mlr3torch_callbacks}},
 \code{\link{mlr_callbacks_torch}},
+\code{\link{t_clbk}()},
 \code{\link{torch_callback}()}
 }
-\concept{callback}
+\concept{Callback}
 \section{Super class}{
 \code{\link[mlr3misc:Context]{mlr3misc::Context}} -> \code{ContextTorch}
 }

@@ -26,6 +26,11 @@ lrn("classif.mlp")
 }
 }
 
+\section{State}{
+
+The state is a list with elements \code{network}, \code{optimizer}, \code{loss_fn} and \code{callbacks}.
+}
+
 \section{Parameters}{
 
 Parameters from \code{\link{LearnerClassifTorch}}, as well as:
@@ -65,6 +70,18 @@ predictions = learner$predict(task, ids$test)
 # Score the predictions
 predictions$score()
 }
+\seealso{
+Other Learner: 
+\code{\link{mlr_learners_classif.alexnet}},
+\code{\link{mlr_learners_classif.torch_featureless}},
+\code{\link{mlr_learners_classif.torch_model}},
+\code{\link{mlr_learners_classif.torch}},
+\code{\link{mlr_learners_classif_torch_image}},
+\code{\link{mlr_learners_regr.mlp}},
+\code{\link{mlr_learners_regr.torch_model}},
+\code{\link{mlr_learners_regr.torch}}
+}
+\concept{Learner}
 \section{Super classes}{
 \code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3:LearnerClassif]{mlr3::LearnerClassif}} -> \code{\link[mlr3torch:LearnerClassifTorch]{mlr3torch::LearnerClassifTorch}} -> \code{LearnerClassifMLP}
 }

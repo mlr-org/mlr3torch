@@ -12,3 +12,8 @@
 #' @section Meta Information:
 #' `r mlr3misc::rd_info(mlr3::lrn("<%= id %>"))`
 #' @md
+#'
+#'
+#' @section State:
+#' The state is a list with elements `network`, `optimizer`, `loss_fn` and `callbacks`.
+#' @family Learner

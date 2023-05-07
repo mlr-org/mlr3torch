@@ -106,6 +106,7 @@ All the learner implementations:
 * [ ] tiny_imagenet --> We can create construction argument download and then as.data.table.DictionaryTasks works (look at its code for information)
 * [ ] Implement bundling
 * [ ] Utility functions for save_torch_learner and load_torch_learner, this should also be called in callback checkpoint
+* [ ] Fix the dictionary issue and then add those objects to dictionary that we could not add because it prohibits the as.data.table conversion
 
 **Missing stuff**
 
@@ -130,6 +131,9 @@ All the learner implementations:
 * [ ] Check which versions of the packages we actually require
 * [ ] Check which man files are actually used and remove the rest
 * [ ] Exclude the sanity tests in the learner autotest
+* Incorrect use of row roles (pipelines issue)
+*   Check how the output names are generated, when outputs of non-terminal nodes are used
+    in "output_map" ("output_<id>_output.<channel>")
 
 * [ ] Implement the torch methods with explicit parameters in the function so that we can better check whether a parameter 
 from paramset_torchlearner is actually doing something
@@ -139,7 +143,6 @@ from paramset_torchlearner is actually doing something
 Also add tests or sth. (For learners that allow to set the activation function but expect it to be a scalar). 
 
 **Performance**
-
 
 * [ ] Setup benchmark scripts that also run on GPU and run them at least once
 
@@ -160,22 +163,25 @@ for nn modules, or "Optimizer" for optim_adam etc.
 * [ ] Meta tests for the functions / objects created for the tests (like PipeOpTorchDebug)
 * [ ] Parameter tests for callbacks
 * [ ] Test that all optimizers are working (closure issue for lbfgs)
-
-**Cosmetic**
-* [x] Better printer for ModelDescriptor (see whether loss is configured e.g.)
-* [x] Rename LearnerClassifTorchAbstract to LearnerClassifTorch and LearnerClassifTorch to LearnerClassifTorchModule
+* [ ] Test that all losses are working
+* [ ] regr learners have mse and classif ce as default loss
 
 **Documentation**
 
-* [ ] Currently we construct the learner twice for each doc page. Avoid this!
-* [ ] More concise templates for the PipeOpTorch operators
-* [ ] Define the @family tags somewhere and then annotate everything correctly
-* [ ] Properly document that the classifiers must return the scores and no the probabilities
-* Add examples for all PipeOps (maybe a template for PipeOpTorch?)
-*   It must be documented how the output names are generated, when outputs of non-terminal nodes are used
-    in "output_map" ("output_<id>_output.<channel>")
-* [ ] Also document learner state (?)
-* Incorrect use of row roles (pipelines issue)
+* README (probably want to have the tabnet learner for that)
+* Vignette
+
+* Go over the core methods and verify that no old docu is left:
+  * PipeOpModule
+  * PipeOpTorch
+  * LearnerClassifTorch
+  * LearnerRegrTorch
+  * LearnerRegrTorchModel
+  * LearnerClassifTorchModel
+  * nn_graph
+  * ModelDescriptor
+  * TorchWrapper and all the subclasses
+
 
 In the future (soon): 
 
@@ -197,3 +203,8 @@ Advertisement:
 * [ ] Check overhead on cpu and small batch sizes
 * [ ] Minimize the time the tests run!
   (utilize the fetureless torch learner as much as possible, should probbably extend it to all feature types)
+* [ ] Simplify the documentation templates for PipeOpTorch
+
+
+Fragen an Martin: 
+* Wieso wird der batchgetter gecrated?

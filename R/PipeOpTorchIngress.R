@@ -23,6 +23,7 @@
 #' entry point of the network.
 #'
 #' @family PipeOps
+#' @family Graph Network
 #' @export
 PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
   inherit = PipeOp,
@@ -140,6 +141,7 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
 #' @param shape (`integer`)\cr
 #'   Shape that `batchgetter` will produce. Batch-dimension should be included as `NA`.
 #' @return `TorchIngressToken` object.
+#' @family Graph Network
 #' @export
 TorchIngressToken = function(features, batchgetter, shape) {
   assert_character(features, any.missing = FALSE)
@@ -174,6 +176,7 @@ print.TorchIngressToken = function(x, ...) {
 #' Uses [batchgetter_num()].
 #'
 #' @export
+#' @family Graph Network
 #' @family PipeOps
 #' @examples
 #' # We set select to TRUE because the data contains factors as well
@@ -242,6 +245,7 @@ register_po("torch_ingress_num", PipeOpTorchIngressNumeric)
 #' @section Internals:
 #' Uses [`batchgetter_categ()`].
 #' @family PipeOps
+#' @family Graph Network
 #' @export
 #' @examples
 # We set select to TRUE because the data contains factors as well
@@ -314,9 +318,10 @@ register_po("torch_ingress_categ", PipeOpTorchIngressCategorical)
 #' * `width` :: `integer(1)`\cr
 #'   The width of the pixels.
 #' @section Internals:
-#' Uses [`magick::image_read()`]'to load the image.
+#' Uses [`magick::image_read()`] to load the image.
 #'
 #' @family PipeOp
+#' @family Graph Network
 #'
 #' @export
 #' @examples

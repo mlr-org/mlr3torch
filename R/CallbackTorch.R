@@ -29,7 +29,7 @@
 #' * `batch_valid_end` :: Run after the forward call in the validation loop.
 #' * `epoch_end` :: Run at the end of each epoch.
 #' * `end` :: Run at last, using `on.exit()`.
-#' @family callback
+#' @family Callback
 #' @export
 CallbackTorch = R6Class("CallbackTorch",
   lock_objects = FALSE,
@@ -57,7 +57,7 @@ CallbackTorch = R6Class("CallbackTorch",
 #'   From which class to inherit.
 #'   This class must either be [`CallbackTorch`] (default) or inherit from it.
 #'
-#' @family callback
+#' @family Callback
 #'
 #' @export
 callback_torch = function(

@@ -27,6 +27,17 @@ The width of the input image.
 }
 }
 
+\seealso{
+Other Learner: 
+\code{\link{mlr_learners_classif.alexnet}},
+\code{\link{mlr_learners_classif.mlp}},
+\code{\link{mlr_learners_classif.torch_featureless}},
+\code{\link{mlr_learners_classif.torch_model}},
+\code{\link{mlr_learners_classif.torch}},
+\code{\link{mlr_learners_regr.mlp}},
+\code{\link{mlr_learners_regr.torch_model}},
+\code{\link{mlr_learners_regr.torch}}
+}
 \concept{Learner}
 \section{Super classes}{
 \code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3:LearnerClassif]{mlr3::LearnerClassif}} -> \code{\link[mlr3torch:LearnerClassifTorch]{mlr3torch::LearnerClassifTorch}} -> \code{LearnerClassifTorchImage}

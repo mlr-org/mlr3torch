@@ -19,10 +19,20 @@ When a deep clone is created, the wrapped generator is not cloned.
 }
 
 \seealso{
-Other torch_wrappers: 
-\code{\link{mlr3torch_losses}}
+Other Torch Wrapper: 
+\code{\link{TorchCallback}},
+\code{\link{TorchLoss}},
+\code{\link{TorchOptimizer}},
+\code{\link{as_torch_callbacks}()},
+\code{\link{as_torch_loss}()},
+\code{\link{as_torch_optimizer}()},
+\code{\link{mlr3torch_losses}},
+\code{\link{mlr3torch_optimizers}},
+\code{\link{t_clbk}()},
+\code{\link{t_loss}()},
+\code{\link{t_opt}()}
 }
-\concept{torch_wrappers}
+\concept{Torch Wrapper}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{

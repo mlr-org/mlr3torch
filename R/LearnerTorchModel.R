@@ -1,4 +1,3 @@
-# TODO: Template
 #' @title Classification Torch Learner
 #'
 #' @name mlr_learners_classif.torch_model
@@ -11,20 +10,39 @@
 #'   Outputs must be the scores (before the softmax).
 #' @param ingress_tokens (`list` of [`TorchIngressToken()`])\cr
 #'   A list with ingress tokens that defines how the dataloader will be defined.
-#' @param optimizer (([`TorchOptimizer`]))\cr
-#'   The optimizer for the model. Defaults is adam.
-#' @param loss (([`TorchLoss`]))\cr
-#'   The loss for the model. Default is cross entropy.
-#' @param callbacks (`list()` of [`TorchCallback`]s)\cr
-#'   The callbacks used for training. Must have unique IDs.
-#' @param packages (`character()`)\cr
-#'   The additional packages on which the learner depends.
-#'   added so do not have to be passed explicitly.
+#' @template param_optimizer
+#' @template param_loss
+#' @template param_callbacks
+#' @template param_packages
 #' @param feature_types (`character()`)\cr
-#'   The feature types the learner can deal with, see `mlr_reflections$task_feature_types`.
+#'   The feature types. Defaults to all available feature types.
 #'
 #' @section Parameters: See [`LearnerClassifTorch`]
+#' @family Learner
+#' @family Graph Network
+#' @include LearnerTorch.R
 #' @export
+#' @examples
+#'
+#' # The iris task has 4 features and 3 classes
+#' network = nn_linear(4, 3)
+#' task = tsk("iris")
+#'
+#' # This defines the dataloader.
+#' # It loads all 4 features, which are also numeric.
+#' # The shape is (NA, 4) because the batch dimension is generally NA
+#' ingress_tokens = list(
+#'   input = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, 4))
+#' )
+#'
+#' # Creating the learner and setting required parameters
+#' learner = LearnerClassifTorchModel$new(network, ingress_tokens)
+#' learner$param_set$set_values(batch_size = 16, epochs = 1)
+#'
+#' # A simple train-predict
+#' ids = partition(task)
+#' learner$train(task, ids$train)
+#' learner$predict(task, ids$test)
 LearnerClassifTorchModel = R6Class("LearnerClassifTorchModel",
   inherit = LearnerClassifTorch,
   public = list(
@@ -32,6 +50,7 @@ LearnerClassifTorchModel = R6Class("LearnerClassifTorchModel",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(network, ingress_tokens, optimizer = t_opt("adam"), loss = t_loss("cross_entropy"),
       callbacks = list(), packages = character(0), feature_types = NULL) {
+      # TODO: What about the learner properties?
       private$.network_stored = assert_class(network, "nn_module")
       private$.ingress_tokens = assert_list(ingress_tokens, types = "TorchIngressToken")
       if (is.null(feature_types)) {
@@ -68,9 +87,6 @@ LearnerClassifTorchModel = R6Class("LearnerClassifTorchModel",
   )
 )
 
-
-# TODO: Template
-#'
 #' @title Regression Torch Learner
 #'
 #' @name mlr_learners_regr.torch_model
@@ -79,23 +95,44 @@ LearnerClassifTorchModel = R6Class("LearnerClassifTorchModel",
 #' Regression Torch Learner that is used internally by [`PipeOpTorchModelRegr`].
 #'
 #' @param network ([`nn_module`])\cr
-#'   An instantiated [`nn_module`]. This is **not** cloned.
+#'   An instantiated [`nn_module`].
+#'   Outputs must be the scores (before the softmax).
 #' @param ingress_tokens (`list` of [`TorchIngressToken()`])\cr
 #'   A list with ingress tokens that defines how the dataloader will be defined.
-#' @param optimizer (([`TorchOptimizer`]))\cr
-#'   The optimizer for the model. Defaults is adam.
-#' @param loss (([`TorchLoss`]))\cr
-#'   The loss for the model. Default is cross entropy.
-#' @param callbacks (`list()` of [`TorchCallback`]s)\cr
-#'   The callbacks used for training. Must have unique IDs.
-#' @param packages (`character()`)\cr
-#'   The additional packages on which the learner depends.
-#'   added so do not have to be passed explicitly.
+#' @template param_optimizer
+#' @template param_loss
+#' @template param_callbacks
+#' @template param_packages
 #' @param feature_types (`character()`)\cr
-#'   The feature types the learner can deal with, see `mlr_reflections$task_feature_types`.
+#'   The feature types. Defaults to all available feature types.
 #'
 #' @section Parameters: See [`LearnerRegrTorch`]
+#' @family Learner
+#' @family Graph Network
+#' @include LearnerTorch.R
 #' @export
+#' @examples
+#'
+#' # The mtcars task has 10 features
+#' # The output of the network is 1, as it is a regression problem
+#' network = nn_linear(10, 1)
+#' task = tsk("mtcars")
+#'
+#' # This defines the dataloader.
+#' # It loads all 10 features, which are also numeric.
+#' # The shape is (NA, 10) because the batch dimension is generally NA
+#' ingress_tokens = list(
+#'   input = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, 10))
+#' )
+#'
+#' # Creating the learner and setting required parameters
+#' learner = LearnerRegrTorchModel$new(network, ingress_tokens)
+#' learner$param_set$set_values(batch_size = 16, epochs = 1)
+#'
+#' # A simple train-predict
+#' ids = partition(task)
+#' learner$train(task, ids$train)
+#' learner$predict(task, ids$test)
 LearnerRegrTorchModel = R6Class("LearnerRegrTorchModel",
   inherit = LearnerRegrTorch,
   public = list(
@@ -112,7 +149,7 @@ LearnerRegrTorchModel = R6Class("LearnerRegrTorchModel",
       }
       super$initialize(
         id = "regr.torch_model",
-        label = "Torch Degression Model",
+        label = "Torch Regression Model",
         optimizer = optimizer,
         loss = loss,
         packages = packages,

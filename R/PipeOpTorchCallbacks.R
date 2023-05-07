@@ -17,7 +17,8 @@
 #' respective set id.
 #' @section Internals:
 #' During training the callbacks are cloned and added to the [`ModelDescriptor`].
-#' @family model_configuration
+#' @family Configuration
+#' @family Model PipeOp
 #' @export
 #' @examples
 #' po_cb = po("torch_callbacks", "checkpoint")

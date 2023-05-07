@@ -7,6 +7,20 @@
 \description{
 Saves the model during training.
 }
+\seealso{
+Other Callback: 
+\code{\link{TorchCallback}},
+\code{\link{as_torch_callbacks}()},
+\code{\link{as_torch_callback}()},
+\code{\link{callback_torch}()},
+\code{\link{mlr3torch_callbacks.progress}},
+\code{\link{mlr3torch_callbacks}},
+\code{\link{mlr_callbacks_torch}},
+\code{\link{mlr_context_torch}},
+\code{\link{t_clbk}()},
+\code{\link{torch_callback}()}
+}
+\concept{Callback}
 \section{Super class}{
 \code{\link[mlr3torch:CallbackTorch]{mlr3torch::CallbackTorch}} -> \code{CallbackTorchCheckpoint}
 }

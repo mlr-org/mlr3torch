@@ -26,7 +26,7 @@ The width of the pixels.
 
 \section{Internals}{
 
-Uses \code{\link[magick:editing]{magick::image_read()}}'to load the image.
+Uses \code{\link[magick:editing]{magick::image_read()}} to load the image.
 }
 
 \section{Input and Output Channels}{
@@ -44,6 +44,26 @@ The state is set to the input shape.
 po_ingress = po("torch_ingress_img", channels = 3, height = 64, width = 64)
 po_ingress
 }
+\seealso{
+Other PipeOp: 
+\code{\link{mlr_pipeops_torch_optimizer}}
+
+Other Graph Network: 
+\code{\link{ModelDescriptor}()},
+\code{\link{TorchIngressToken}()},
+\code{\link{mlr_learners_classif.torch_model}},
+\code{\link{mlr_learners_regr.torch_model}},
+\code{\link{mlr_pipeops_module}},
+\code{\link{mlr_pipeops_torch_ingress_categ}},
+\code{\link{mlr_pipeops_torch_ingress_num}},
+\code{\link{mlr_pipeops_torch_ingress}},
+\code{\link{mlr_pipeops_torch}},
+\code{\link{model_descriptor_to_learner}()},
+\code{\link{model_descriptor_to_module}()},
+\code{\link{model_descriptor_union}()},
+\code{\link{nn_graph}()}
+}
+\concept{Graph Network}
 \concept{PipeOp}
 \section{Super classes}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorchIngress]{mlr3torch::PipeOpTorchIngress}} -> \code{PipeOpTorchIngressImage}

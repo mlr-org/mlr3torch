@@ -36,7 +36,69 @@ mdin[[1L]]$loss
 mdout = po_loss$train(mdin)[[1L]]
 mdout$loss
 }
-\concept{PipeOps, Model Configuration}
+\seealso{
+Other PipeOps: 
+\code{\link{mlr_pipeops_nn_avg_pool1d}},
+\code{\link{mlr_pipeops_nn_avg_pool2d}},
+\code{\link{mlr_pipeops_nn_avg_pool3d}},
+\code{\link{mlr_pipeops_nn_batch_norm1d}},
+\code{\link{mlr_pipeops_nn_batch_norm2d}},
+\code{\link{mlr_pipeops_nn_batch_norm3d}},
+\code{\link{mlr_pipeops_nn_celu}},
+\code{\link{mlr_pipeops_nn_conv1d}},
+\code{\link{mlr_pipeops_nn_conv2d}},
+\code{\link{mlr_pipeops_nn_conv3d}},
+\code{\link{mlr_pipeops_nn_conv_transpose1d}},
+\code{\link{mlr_pipeops_nn_conv_transpose2d}},
+\code{\link{mlr_pipeops_nn_conv_transpose3d}},
+\code{\link{mlr_pipeops_nn_dropout}},
+\code{\link{mlr_pipeops_nn_elu}},
+\code{\link{mlr_pipeops_nn_flatten}},
+\code{\link{mlr_pipeops_nn_gelu}},
+\code{\link{mlr_pipeops_nn_glu}},
+\code{\link{mlr_pipeops_nn_hardshrink}},
+\code{\link{mlr_pipeops_nn_hardsigmoid}},
+\code{\link{mlr_pipeops_nn_hardtanh}},
+\code{\link{mlr_pipeops_nn_head}},
+\code{\link{mlr_pipeops_nn_layer_norm}},
+\code{\link{mlr_pipeops_nn_leaky_relu}},
+\code{\link{mlr_pipeops_nn_linear}},
+\code{\link{mlr_pipeops_nn_log_sigmoid}},
+\code{\link{mlr_pipeops_nn_max_pool1d}},
+\code{\link{mlr_pipeops_nn_max_pool2d}},
+\code{\link{mlr_pipeops_nn_max_pool3d}},
+\code{\link{mlr_pipeops_nn_merge_cat}},
+\code{\link{mlr_pipeops_nn_merge_sum}},
+\code{\link{mlr_pipeops_nn_merge}},
+\code{\link{mlr_pipeops_nn_prelu}},
+\code{\link{mlr_pipeops_nn_relu6}},
+\code{\link{mlr_pipeops_nn_relu}},
+\code{\link{mlr_pipeops_nn_reshape}},
+\code{\link{mlr_pipeops_nn_rrelu}},
+\code{\link{mlr_pipeops_nn_selu}},
+\code{\link{mlr_pipeops_nn_sigmoid}},
+\code{\link{mlr_pipeops_nn_softmax}},
+\code{\link{mlr_pipeops_nn_softplus}},
+\code{\link{mlr_pipeops_nn_softshrink}},
+\code{\link{mlr_pipeops_nn_softsign}},
+\code{\link{mlr_pipeops_nn_squeeze}},
+\code{\link{mlr_pipeops_nn_tanhshrink}},
+\code{\link{mlr_pipeops_nn_tanh}},
+\code{\link{mlr_pipeops_nn_threshold}},
+\code{\link{mlr_pipeops_torch_ingress_categ}},
+\code{\link{mlr_pipeops_torch_ingress_num}},
+\code{\link{mlr_pipeops_torch_ingress}},
+\code{\link{mlr_pipeops_torch_model_classif}},
+\code{\link{mlr_pipeops_torch_model_regr}},
+\code{\link{mlr_pipeops_torch_model}}
+
+Other Model Configuration: 
+\code{\link{ModelDescriptor}()},
+\code{\link{mlr_pipeops_torch_optimizer}},
+\code{\link{model_descriptor_union}()}
+}
+\concept{Model Configuration}
+\concept{PipeOps}
 \section{Super class}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{PipeOpTorchLoss}
 }

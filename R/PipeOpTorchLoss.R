@@ -12,7 +12,10 @@
 #' The parameters are defined dynamically from the loss set during construction.
 #' @section Internals:
 #' During training the loss is cloned and added to the [`ModelDescriptor`].
-#' @family PipeOps, Model Configuration
+#'
+#' @family PipeOps
+#' @family Model Configuration
+#'
 #' @export
 #' @examples
 #' po_loss = po("torch_loss", "cross_entropy")

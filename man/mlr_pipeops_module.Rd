@@ -90,6 +90,14 @@ linear_module$input$name
 nn_module, mlr_pipeops_torch, nn_graph, model_descriptor_to_module, PipeOp, Graph
 
 Other Graph Network: 
+\code{\link{ModelDescriptor}()},
+\code{\link{TorchIngressToken}()},
+\code{\link{mlr_learners_classif.torch_model}},
+\code{\link{mlr_learners_regr.torch_model}},
+\code{\link{mlr_pipeops_torch_ingress_categ}},
+\code{\link{mlr_pipeops_torch_ingress_img}},
+\code{\link{mlr_pipeops_torch_ingress_num}},
+\code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch}},
 \code{\link{model_descriptor_to_learner}()},
 \code{\link{model_descriptor_to_module}()},

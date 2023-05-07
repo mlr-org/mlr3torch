@@ -17,7 +17,34 @@ Defined by the constructor argument \code{param_set}.
 \examples{
 TorchCallback$new(CallbackTorchHistory)
 }
-\concept{callback, model_configuration, torch_wrapper}
+\seealso{
+Other Callback: 
+\code{\link{as_torch_callbacks}()},
+\code{\link{as_torch_callback}()},
+\code{\link{callback_torch}()},
+\code{\link{mlr3torch_callbacks.checkpoint}},
+\code{\link{mlr3torch_callbacks.progress}},
+\code{\link{mlr3torch_callbacks}},
+\code{\link{mlr_callbacks_torch}},
+\code{\link{mlr_context_torch}},
+\code{\link{t_clbk}()},
+\code{\link{torch_callback}()}
+
+Other Torch Wrapper: 
+\code{\link{TorchLoss}},
+\code{\link{TorchOptimizer}},
+\code{\link{as_torch_callbacks}()},
+\code{\link{as_torch_loss}()},
+\code{\link{as_torch_optimizer}()},
+\code{\link{mlr3torch_losses}},
+\code{\link{mlr3torch_optimizers}},
+\code{\link{t_clbk}()},
+\code{\link{t_loss}()},
+\code{\link{t_opt}()},
+\code{\link{torch_wrapper}}
+}
+\concept{Callback}
+\concept{Torch Wrapper}
 \section{Super class}{
 \code{\link[mlr3torch:TorchWrapper]{mlr3torch::TorchWrapper}} -> \code{TorchCallback}
 }

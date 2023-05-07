@@ -36,13 +36,25 @@ we assume that ModelDescriptor is being built from beginning to end (i.e. \code{
 can make this assumption and simplify things. Otherwise we'd need to treat "..."-inputs special.)
 }
 \seealso{
-ModelDescriptor, PipeOpTorch, PipeOpTorchMerge
-
 Other Graph Network: 
+\code{\link{ModelDescriptor}()},
+\code{\link{TorchIngressToken}()},
+\code{\link{mlr_learners_classif.torch_model}},
+\code{\link{mlr_learners_regr.torch_model}},
 \code{\link{mlr_pipeops_module}},
+\code{\link{mlr_pipeops_torch_ingress_categ}},
+\code{\link{mlr_pipeops_torch_ingress_img}},
+\code{\link{mlr_pipeops_torch_ingress_num}},
+\code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch}},
 \code{\link{model_descriptor_to_learner}()},
 \code{\link{model_descriptor_to_module}()},
 \code{\link{nn_graph}()}
+
+Other Model Configuration: 
+\code{\link{ModelDescriptor}()},
+\code{\link{mlr_pipeops_torch_loss}},
+\code{\link{mlr_pipeops_torch_optimizer}}
 }
 \concept{Graph Network}
+\concept{Model Configuration}

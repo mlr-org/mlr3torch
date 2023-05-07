@@ -19,11 +19,20 @@ torchloss$param_set
 loss = torchloss$generate()
 }
 \seealso{
-Other model_configuration, torch_wrapper: 
+Other Torch Wrapper: 
+\code{\link{TorchCallback}},
 \code{\link{TorchOptimizer}},
-\code{\link{t_opt}()}
+\code{\link{as_torch_callbacks}()},
+\code{\link{as_torch_loss}()},
+\code{\link{as_torch_optimizer}()},
+\code{\link{mlr3torch_losses}},
+\code{\link{mlr3torch_optimizers}},
+\code{\link{t_clbk}()},
+\code{\link{t_loss}()},
+\code{\link{t_opt}()},
+\code{\link{torch_wrapper}}
 }
-\concept{model_configuration, torch_wrapper}
+\concept{Torch Wrapper}
 \section{Super class}{
 \code{\link[mlr3torch:TorchWrapper]{mlr3torch::TorchWrapper}} -> \code{TorchLoss}
 }

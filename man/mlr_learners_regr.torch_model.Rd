@@ -11,6 +11,57 @@ Regression Torch Learner that is used internally by \code{\link{PipeOpTorchModel
  See \code{\link{LearnerRegrTorch}}
 }
 
+\examples{
+
+# The mtcars task has 10 features
+# The output of the network is 1, as it is a regression problem
+network = nn_linear(10, 1)
+task = tsk("mtcars")
+
+# This defines the dataloader.
+# It loads all 10 features, which are also numeric.
+# The shape is (NA, 10) because the batch dimension is generally NA
+ingress_tokens = list(
+  input = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, 10))
+)
+
+# Creating the learner and setting required parameters
+learner = LearnerRegrTorchModel$new(network, ingress_tokens)
+learner$param_set$set_values(batch_size = 16, epochs = 1)
+
+# A simple train-predict
+ids = partition(task)
+learner$train(task, ids$train)
+learner$predict(task, ids$test)
+}
+\seealso{
+Other Learner: 
+\code{\link{mlr_learners_classif.alexnet}},
+\code{\link{mlr_learners_classif.mlp}},
+\code{\link{mlr_learners_classif.torch_featureless}},
+\code{\link{mlr_learners_classif.torch_model}},
+\code{\link{mlr_learners_classif.torch}},
+\code{\link{mlr_learners_classif_torch_image}},
+\code{\link{mlr_learners_regr.mlp}},
+\code{\link{mlr_learners_regr.torch}}
+
+Other Graph Network: 
+\code{\link{ModelDescriptor}()},
+\code{\link{TorchIngressToken}()},
+\code{\link{mlr_learners_classif.torch_model}},
+\code{\link{mlr_pipeops_module}},
+\code{\link{mlr_pipeops_torch_ingress_categ}},
+\code{\link{mlr_pipeops_torch_ingress_img}},
+\code{\link{mlr_pipeops_torch_ingress_num}},
+\code{\link{mlr_pipeops_torch_ingress}},
+\code{\link{mlr_pipeops_torch}},
+\code{\link{model_descriptor_to_learner}()},
+\code{\link{model_descriptor_to_module}()},
+\code{\link{model_descriptor_union}()},
+\code{\link{nn_graph}()}
+}
+\concept{Graph Network}
+\concept{Learner}
 \section{Super classes}{
 \code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3:LearnerRegr]{mlr3::LearnerRegr}} -> \code{\link[mlr3torch:LearnerRegrTorch]{mlr3torch::LearnerRegrTorch}} -> \code{LearnerRegrTorchModel}
 }
@@ -56,26 +107,26 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{network}}{(\code{\link{nn_module}})\cr
-An instantiated \code{\link{nn_module}}. This is \strong{not} cloned.}
+An instantiated \code{\link{nn_module}}.
+Outputs must be the scores (before the softmax).}
 
 \item{\code{ingress_tokens}}{(\code{list} of \code{\link[=TorchIngressToken]{TorchIngressToken()}})\cr
 A list with ingress tokens that defines how the dataloader will be defined.}
 
-\item{\code{optimizer}}{((\code{\link{TorchOptimizer}}))\cr
-The optimizer for the model. Defaults is adam.}
+\item{\code{optimizer}}{(\code{\link{TorchOptimizer}})\cr
+The torch optimizer.}
 
-\item{\code{loss}}{((\code{\link{TorchLoss}}))\cr
-The loss for the model. Default is cross entropy.}
+\item{\code{loss}}{(\code{\link{TorchLoss}})\cr
+The loss used to train the network.}
 
 \item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
-The callbacks used for training. Must have unique IDs.}
+The callbacks used during training. Must have unique ids.}
 
 \item{\code{packages}}{(\code{character()})\cr
-The additional packages on which the learner depends.
-added so do not have to be passed explicitly.}
+The R packages this object depends on.}
 
 \item{\code{feature_types}}{(\code{character()})\cr
-The feature types the learner can deal with, see \code{mlr_reflections$task_feature_types}.}
+The feature types. Defaults to all available feature types.}
 }
 \if{html}{\out{</div>}}
 }

@@ -31,7 +31,15 @@ most circumstances harder to use than just creating \code{\link{nn_graph}} direc
 }
 \seealso{
 Other Graph Network: 
+\code{\link{ModelDescriptor}()},
+\code{\link{TorchIngressToken}()},
+\code{\link{mlr_learners_classif.torch_model}},
+\code{\link{mlr_learners_regr.torch_model}},
 \code{\link{mlr_pipeops_module}},
+\code{\link{mlr_pipeops_torch_ingress_categ}},
+\code{\link{mlr_pipeops_torch_ingress_img}},
+\code{\link{mlr_pipeops_torch_ingress_num}},
+\code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch}},
 \code{\link{model_descriptor_to_learner}()},
 \code{\link{model_descriptor_union}()},

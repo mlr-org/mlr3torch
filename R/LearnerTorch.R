@@ -36,7 +36,7 @@
 #' default torch parameters, as well as the loss, optimizer and callback parameters
 #' (prefixed with `"loss."`, `"opt."`, and `"cb."` respectively.
 #'
-#' @family Learners
+#' @family Learner
 #' @export
 LearnerClassifTorch = R6Class("LearnerClassifTorch",
   inherit = LearnerClassif,
@@ -124,7 +124,7 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
 #' @inheritSection mlr_learners_classif.torch Internals
 #' @inheritSection mlr_learners_classif.torch Inheriting
 #'
-#' @family Learners
+#' @family Learner
 #' @export
 LearnerRegrTorch = R6Class("LearnerRegrTorch",
   inherit = LearnerRegr,

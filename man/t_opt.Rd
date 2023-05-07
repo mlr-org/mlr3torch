@@ -34,9 +34,18 @@ t_opts(c("adam", "sgd"))
 t_opts()
 }
 \seealso{
-Other model_configuration, torch_wrapper: 
+Other Torch Wrapper: 
+\code{\link{TorchCallback}},
 \code{\link{TorchLoss}},
-\code{\link{TorchOptimizer}}
+\code{\link{TorchOptimizer}},
+\code{\link{as_torch_callbacks}()},
+\code{\link{as_torch_loss}()},
+\code{\link{as_torch_optimizer}()},
+\code{\link{mlr3torch_losses}},
+\code{\link{mlr3torch_optimizers}},
+\code{\link{t_clbk}()},
+\code{\link{t_loss}()},
+\code{\link{torch_wrapper}}
 
 Other Dictionary: 
 \code{\link{mlr3torch_callbacks}},
@@ -44,4 +53,4 @@ Other Dictionary:
 \code{\link{mlr3torch_optimizers}}
 }
 \concept{Dictionary}
-\concept{model_configuration, torch_wrapper}
+\concept{Torch Wrapper}
