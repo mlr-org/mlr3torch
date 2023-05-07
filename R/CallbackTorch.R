@@ -61,7 +61,6 @@ CallbackTorch = R6Class("CallbackTorch",
 #'
 #' @export
 callback_torch = function(
-  # FIXME: Add initialization method as dedicated argument
   classname,
   # training
   on_begin = NULL,

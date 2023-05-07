@@ -9,7 +9,3 @@ Especially the @examples and @params tags created problems, such as
 There are different issues in GitHub:
 * https://github.com/r-lib/roxygen2/issues/1435
 * https://github.com/r-lib/roxygen2/issues/1345 (mine)
-
-
-
-

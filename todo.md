@@ -159,6 +159,7 @@ for nn modules, or "Optimizer" for optim_adam etc.
 * Write expect_learner_torch that checks all the properties a torch learner has to satisfy
 * [ ] Meta tests for the functions / objects created for the tests (like PipeOpTorchDebug)
 * [ ] Parameter tests for callbacks
+* [ ] Test that all optimizers are working (closure issue for lbfgs)
 
 **Cosmetic**
 * [x] Better printer for ModelDescriptor (see whether loss is configured e.g.)
@@ -181,6 +182,12 @@ In the future (soon):
 * [ ] Create {classif, regr}.torch_module learner to create custom torch learners (classif.torch did not really work because of the dataloader)
 * [ ] Maybe it should be possible to easily overwrite the dataloader for a learner (?) 
 * [ ] Implement early stopping and all other parameters from paramset torchlearner. 
+
+
+Advertisement:
+
+* [ ] The torch website features packages that build on top of torch
+* [ ] Maybe we can write a blogpost for the RStudio AI blog?
 
 **In the future**
 
