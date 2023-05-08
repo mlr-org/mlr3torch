@@ -113,6 +113,8 @@ In the future (soon):
 * Custom Backend for torch datases with hardcoded metadata, torchdatasets in suggests and not depends
 * Add check that excludes use of validation rows (row roles)
 * assignment for imageuri
+* nano imagenet is pointless task, only one image per class.
+  Rather use only two classes and distinguish between them in tests.
 
 **Missing stuff**
 
