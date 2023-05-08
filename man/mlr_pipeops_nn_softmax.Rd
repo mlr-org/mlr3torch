@@ -39,6 +39,8 @@ Calls \code{\link[torch:nn_softmax]{torch::nn_softmax()}} when trained.
 \examples{
 # Construct the PipeOp
 pipeop = po("nn_softmax")
+pipeop
+# The available parameters
 pipeop$param_set
 }
 \seealso{

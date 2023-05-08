@@ -49,6 +49,8 @@ Default: \code{TRUE}
 \examples{
 # Construct the PipeOp
 pipeop = po("nn_batch_norm3d")
+pipeop
+# The available parameters
 pipeop$param_set
 }
 \seealso{

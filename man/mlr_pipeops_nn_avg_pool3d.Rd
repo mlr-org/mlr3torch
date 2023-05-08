@@ -51,6 +51,8 @@ Only available for dimension greater than 1.
 \examples{
 # Construct the PipeOp
 pipeop = po("nn_avg_pool3d")
+pipeop
+# The available parameters
 pipeop$param_set
 }
 \seealso{

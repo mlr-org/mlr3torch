@@ -40,14 +40,7 @@ If this is missing (default), a random seed is generated.
 }
 
 Additionally there are the parameters for the optimizer, the loss function and the callbacks.
-They are prefixed with \code{"opt."}, \code{"loss."} and \code{"cb.<callback id>"} respectively.
-}
-
-\section{Internals}{
-
-A \code{\link{ParamSetCollection}} is created that combines the \code{param_set} passed during construction with the
-default torch parameters, as well as the loss, optimizer and callback parameters
-(prefixed with \code{"loss."}, \code{"opt."}, and \code{"cb.<callback id>."} respectively.
+They are prefixed with \code{"opt."}, \code{"loss."} and \code{"cb.<callback id>."} respectively.
 }
 
 \section{Inheriting}{
@@ -56,26 +49,27 @@ When inheriting from this class, one should overload two private methods:
 \itemize{
 \item \code{.network(task, param_vals)}\cr
 (\code{\link{Task}}, \code{list()}) -> \code{\link{nn_module}}\cr
-Construct a \code{\link[torch:nn_module]{torch::nn_module}} object for the given task and parameter values, i.e. the neural network.
-The output of this network are expected to be the scores before the application of the final softmax layer.
+Construct a \code{\link[torch:nn_module]{torch::nn_module}} object for the given task and parameter values, i.e. the neural network that
+is trained by the learner.
+For classification, the output of this network are expected to be the scores before the application of the
+final softmax layer.
 \item \code{.dataset(task, param_vals)}\cr
 (\code{\link{Task}}, \code{list()}) -> \code{\link[torch:dataset]{torch::dataset}}\cr
-Create the dataset for the task.
+Create the dataset for the task.  Must at least respect parameters \code{batch_size} and \code{shuffle}.
 }
 
 It is also possible to overwrite the private \code{.dataloader()} method instead of the \code{.dataset()} method.
-Per default, a datlaoader is constructed using the output from the \code{.dataset()} method.
+Per default, a dataloader is constructed using the output from the \code{.dataset()} method.
 \itemize{
 \item \code{.dataloader(task, param_vals)}\cr
 (\code{\link{Task}}, \code{list()}) -> \code{\link[torch:dataloader]{torch::dataloader}}\cr
 Create a dataloader from the task.
-When doing so, it is important to respect the parameter \code{shuffle}, because this method is also used to ceate the
-dataloader for prediction, as well as the \code{batch_size}.
+Needs to respect at least \code{batch_size} and \code{shuffle} (otherwise predictions are permuted).
 }
 
 While it is possible to add parameters by specifying the \code{param_set} construction argument, it is currently
 not possible to remove existing parameters, i.e. those listed in section \emph{Parameters}.
-Note that none of the parameters provided in \code{param_set} can have an id that starts with \code{"loss."}, \verb{"opt.", or }"cb."`, as these are preserved for the dynamically constructed parameters of the optimizer, the loss function,
+None of the parameters provided in \code{param_set} can have an id that starts with \code{"loss."}, \verb{"opt.", or }"cb."`, as these are preserved for the dynamically constructed parameters of the optimizer, the loss function,
 and the callbacks.
 }
 
@@ -166,16 +160,19 @@ The loss used to train the network.}
 The parameter set.}
 
 \item{\code{properties}}{(\code{character()})\cr
-The properties.}
+The properties of the object.
+See \code{\link[=mlr_reflections]{mlr_reflections$learner_properties}} for available values.}
 
 \item{\code{packages}}{(\code{character()})\cr
 The R packages this object depends on.}
 
 \item{\code{predict_types}}{(\code{character()})\cr
-The predict_types.}
+The predict types.
+See \code{\link[=mlr_reflections]{mlr_reflections$learner_predict_types}} for available values.}
 
 \item{\code{feature_types}}{(\code{character()})\cr
-The feature_types.}
+The feature types.
+See \code{\link[=mlr_reflections]{mlr_reflections$task_feature_types}} for available values.}
 
 \item{\code{man}}{(\code{character(1)})\cr
 String in the format \verb{[pkg]::[topic]} pointing to a manual page for this object.
@@ -185,7 +182,9 @@ The referenced help package can be opened via method \verb{$help()}.}
 Label for the new instance.}
 
 \item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
-The callbacks used during training. Must have unique ids.}
+The callbacks used during training.
+Must have unique ids.
+They are executed in the order in which they are provided}
 }
 \if{html}{\out{</div>}}
 }

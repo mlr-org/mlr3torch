@@ -27,7 +27,115 @@ Other Callback:
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
+\item \href{#method-CallbackTorchProgress-on_epoch_begin}{\code{CallbackTorchProgress$on_epoch_begin()}}
+\item \href{#method-CallbackTorchProgress-on_batch_end}{\code{CallbackTorchProgress$on_batch_end()}}
+\item \href{#method-CallbackTorchProgress-on_before_valid}{\code{CallbackTorchProgress$on_before_valid()}}
+\item \href{#method-CallbackTorchProgress-on_batch_valid_end}{\code{CallbackTorchProgress$on_batch_valid_end()}}
+\item \href{#method-CallbackTorchProgress-on_epoch_end}{\code{CallbackTorchProgress$on_epoch_end()}}
+\item \href{#method-CallbackTorchProgress-on_end}{\code{CallbackTorchProgress$on_end()}}
 \item \href{#method-CallbackTorchProgress-clone}{\code{CallbackTorchProgress$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackTorchProgress-on_epoch_begin"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackTorchProgress-on_epoch_begin}{}}}
+\subsection{Method \code{on_epoch_begin()}}{
+Initializes the progress bar for training.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_epoch_begin(ctx)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{ctx}}{\link{ContextTorch}}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackTorchProgress-on_batch_end"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackTorchProgress-on_batch_end}{}}}
+\subsection{Method \code{on_batch_end()}}{
+Increments the training progress bar.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_batch_end(ctx)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{ctx}}{\link{ContextTorch}}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackTorchProgress-on_before_valid"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackTorchProgress-on_before_valid}{}}}
+\subsection{Method \code{on_before_valid()}}{
+Creates the progress bar for validation.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_before_valid(ctx)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{ctx}}{\link{ContextTorch}}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackTorchProgress-on_batch_valid_end"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackTorchProgress-on_batch_valid_end}{}}}
+\subsection{Method \code{on_batch_valid_end()}}{
+Increments the validation progress bar.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_batch_valid_end(ctx)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{ctx}}{\link{ContextTorch}}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackTorchProgress-on_epoch_end"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackTorchProgress-on_epoch_end}{}}}
+\subsection{Method \code{on_epoch_end()}}{
+prints a summary of the training and validation results.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_epoch_end(ctx)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{ctx}}{\link{ContextTorch}}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackTorchProgress-on_end"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackTorchProgress-on_end}{}}}
+\subsection{Method \code{on_end()}}{
+Deletes the progess bar objects.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_end(ctx)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{ctx}}{\link{ContextTorch}}
+}
+\if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}

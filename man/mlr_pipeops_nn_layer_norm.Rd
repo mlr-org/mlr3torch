@@ -45,6 +45,8 @@ The parameter \code{normalized_shape} is inferred as the dimensions of the last 
 \examples{
 # Construct the PipeOp
 pipeop = po("nn_layer_norm", dims = 1)
+pipeop
+# The available parameters
 pipeop$param_set
 }
 \seealso{

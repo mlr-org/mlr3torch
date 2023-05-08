@@ -49,6 +49,8 @@ The parameter \code{num_features} is inferred as the second dimension of the inp
 \examples{
 # Construct the PipeOp
 pipeop = po("nn_batch_norm1d")
+pipeop
+# The available parameters
 pipeop$param_set
 }
 \seealso{

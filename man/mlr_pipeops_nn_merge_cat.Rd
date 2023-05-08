@@ -45,6 +45,8 @@ Calls \code{\link[=nn_merge_cat]{nn_merge_cat()}} when trained.
 \examples{
 # Construct the PipeOp
 pipeop = po("nn_merge_cat")
+pipeop
+# The available parameters
 pipeop$param_set
 }
 \seealso{

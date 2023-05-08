@@ -40,6 +40,8 @@ Whether to do the operation in-place. Default: \code{FALSE}.
 \examples{
 # Construct the PipeOp
 pipeop = po("nn_celu")
+pipeop
+# The available parameters
 pipeop$param_set
 }
 \seealso{

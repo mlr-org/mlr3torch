@@ -23,13 +23,11 @@ test_that("All stages are called correctly", {
   }
 
   cb = torch_callback(id = "test",
-    public = list(
-      initialize = function(path) {
-        assert_path_for_output(path)
-        file.create(path)
-        self$path = path
-      }
-    ),
+    initialize = function(path) {
+      assert_path_for_output(path)
+      file.create(path)
+      self$path = path
+    },
     on_begin = write_stage("on_begin"),
     on_epoch_begin = write_stage("on_epoch_begin"),
     on_after_backward = write_stage("on_after_backward"),
@@ -96,7 +94,7 @@ test_that("callback_torch is working", {
   expect_error(callback_torch("A"), regexp = "startsWith")
   tcb = callback_torch("CallbackTorchA")
   expect_class(tcb, "R6ClassGenerator")
-  expect_warning(callback_torch("CallbackTorchA", private = list(on_edn = function(ctx) 1)), regexp = "on_edn")
+  expect_warning(callback_torch("CallbackTorchA", public = list(on_edn = function(ctx) 1)), regexp = "on_edn")
   expect_error(callback_torch("CallbackTorchA", on_end = function(a) NULL), "ctx")
 
   e = new.env()

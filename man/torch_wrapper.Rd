@@ -53,8 +53,7 @@ Used in tables, plot and text output.}
 \item{\code{generator}}{The wrapped generator that is described.}
 
 \item{\code{man}}{(\code{character(1)})\cr
-String in the format \verb{[pkg]::[topic]} pointing to a manual page for this object.
-Defaults to \code{NA}, but can be set by child classes.}
+String in the format \verb{[pkg]::[topic]} pointing to a manual page for this object.}
 }
 \if{html}{\out{</div>}}
 }

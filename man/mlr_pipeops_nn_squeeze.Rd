@@ -61,9 +61,13 @@ This internally calls \code{\link[torch:torch_unsqueeze]{torch::torch_unsqueeze(
 \examples{
 # Construct the PipeOp
 pipeop = po("nn_squeeze")
+pipeop
+# The available parameters
 pipeop$param_set
 # Construct the PipeOp
 pipeop = po("nn_squeeze")
+pipeop
+# The available parameters
 pipeop$param_set
 }
 \seealso{

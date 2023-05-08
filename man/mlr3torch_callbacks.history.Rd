@@ -13,7 +13,79 @@ Saves the history during training.
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
+\item \href{#method-CallbackTorchHistory-on_begin}{\code{CallbackTorchHistory$on_begin()}}
+\item \href{#method-CallbackTorchHistory-on_end}{\code{CallbackTorchHistory$on_end()}}
+\item \href{#method-CallbackTorchHistory-on_before_valid}{\code{CallbackTorchHistory$on_before_valid()}}
+\item \href{#method-CallbackTorchHistory-on_epoch_end}{\code{CallbackTorchHistory$on_epoch_end()}}
 \item \href{#method-CallbackTorchHistory-clone}{\code{CallbackTorchHistory$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackTorchHistory-on_begin"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackTorchHistory-on_begin}{}}}
+\subsection{Method \code{on_begin()}}{
+Initializes lists where the train and validation metrics are stored.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchHistory$on_begin(ctx)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{ctx}}{\link{ContextTorch}}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackTorchHistory-on_end"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackTorchHistory-on_end}{}}}
+\subsection{Method \code{on_end()}}{
+Converts the lists to data.tables.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchHistory$on_end(ctx)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{ctx}}{\link{ContextTorch}}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackTorchHistory-on_before_valid"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackTorchHistory-on_before_valid}{}}}
+\subsection{Method \code{on_before_valid()}}{
+Add the last training scores to the history.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchHistory$on_before_valid(ctx)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{ctx}}{\link{ContextTorch}}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackTorchHistory-on_epoch_end"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackTorchHistory-on_epoch_end}{}}}
+\subsection{Method \code{on_epoch_end()}}{
+Add the last validation scores to the history.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchHistory$on_epoch_end(ctx)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{ctx}}{\link{ContextTorch}}
+}
+\if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}

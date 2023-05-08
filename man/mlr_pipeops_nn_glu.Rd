@@ -38,6 +38,8 @@ Dimension on which to split the input. Default: -1
 \examples{
 # Construct the PipeOp
 pipeop = po("nn_glu")
+pipeop
+# The available parameters
 pipeop$param_set
 }
 \seealso{

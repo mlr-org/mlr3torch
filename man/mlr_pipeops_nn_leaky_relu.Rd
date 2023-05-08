@@ -41,6 +41,8 @@ Can optionally do the operation in-place. Default: ‘FALSE’.
 \examples{
 # Construct the PipeOp
 pipeop = po("nn_leaky_relu")
+pipeop
+# The available parameters
 pipeop$param_set
 }
 \seealso{

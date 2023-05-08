@@ -40,6 +40,8 @@ This internally calls \code{\link[torch:torch_reshape]{torch::torch_reshape()}} 
 \examples{
 # Construct the PipeOp
 pipeop = po("nn_reshape")
+pipeop
+# The available parameters
 pipeop$param_set
 }
 \seealso{

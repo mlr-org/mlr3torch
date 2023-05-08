@@ -11,7 +11,10 @@
 CallbackTorchProgress = R6Class("CallbackTorchProgress",
   inherit = CallbackTorch,
   lock_objects = FALSE,
-  private = list(
+  public = list(
+    #' @description
+    #' Initializes the progress bar for training.
+    #' @param ctx [ContextTorch]
     on_epoch_begin = function(ctx) {
       catf("Epoch %s", ctx$epoch)
       self$pb_train = progress::progress_bar$new(
@@ -20,9 +23,15 @@ CallbackTorchProgress = R6Class("CallbackTorchProgress",
       )
       self$pb_train$tick(0)
     },
+    #' @description
+    #' Increments the training progress bar.
+    #' @param ctx [ContextTorch]
     on_batch_end = function(ctx) {
       self$pb_train$tick()
     },
+    #' @description
+    #' Creates the progress bar for validation.
+    #' @param ctx [ContextTorch]
     on_before_valid = function(ctx) {
       self$pb_valid = progress::progress_bar$new(
         total = length(ctx$loader_valid),
@@ -30,9 +39,15 @@ CallbackTorchProgress = R6Class("CallbackTorchProgress",
       )
       self$pb_valid$tick(0)
     },
+    #' @description
+    #' Increments the validation progress bar.
+    #' @param ctx [ContextTorch]
     on_batch_valid_end = function(ctx) {
       self$pb_valid$tick()
     },
+    #' @description
+    #' prints a summary of the training and validation results.
+    #' @param ctx [ContextTorch]
     on_epoch_end = function(ctx) {
       scores = list()
       scores$train = ctx$last_scores_train
@@ -53,6 +68,9 @@ CallbackTorchProgress = R6Class("CallbackTorchProgress",
         }
       }
     },
+    #' @description
+    #' Deletes the progess bar objects.
+    #' @param ctx [ContextTorch]
     on_end = function(ctx) {
       self$pb_train = NULL
       self$pb_valid = NULL

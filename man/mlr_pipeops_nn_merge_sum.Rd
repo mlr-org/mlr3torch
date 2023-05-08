@@ -63,9 +63,13 @@ Calls \code{\link[=nn_merge_prod]{nn_merge_prod()}} when trained.
 \examples{
 # Construct the PipeOp
 pipeop = po("nn_merge_sum")
+pipeop
+# The available parameters
 pipeop$param_set
 # Construct the PipeOp
 pipeop = po("nn_merge_sum")
+pipeop
+# The available parameters
 pipeop$param_set
 }
 \seealso{

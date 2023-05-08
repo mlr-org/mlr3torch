@@ -18,8 +18,6 @@ mlr3torch_learners = new.env()
 mlr3torch_tasks = new.env()
 mlr3torch_tags = c("torch", "activation")
 mlr3torch_feature_types = c(img = "imageuri")
-# TODO: This should probably be solved differently
-mlr3torch_image_tasks = new.env()
 
 mlr3torch_activations = c(
   "celu",
@@ -78,7 +76,6 @@ register_mlr3 = function() {
 
   mlr_tasks = mlr3::mlr_tasks
   iwalk(as.list(mlr3torch_tasks), function(task, nm) mlr_tasks$add(nm, task)) # nolint
-  iwalk(as.list(mlr3torch_image_tasks), function(task, nm) mlr_tasks$add(nm, task)) # nolint
 
   mlr_reflections = utils::getFromNamespace("mlr_reflections", ns = "mlr3") # nolint
   iwalk(as.list(mlr3torch_feature_types), function(ft, nm) mlr_reflections$task_feature_types[[nm]] = ft) # nolint

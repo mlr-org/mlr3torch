@@ -11,7 +11,7 @@ having to write everything from scratch.
 To create custom callbacks to use in a torch learner it is recommended to use the convenience function
 \code{\link{torch_callback}}.
 
-For each available stage (see section \emph{Stages}) a private method \verb{$on_<stage>(xtx)} can be defined.
+For each available stage (see section \emph{Stages}) a public method \verb{$on_<stage>(xtx)} can be defined.
 This must be an function with argument \code{ctx}, which is a \code{\link{ContextTorch}}.
 
 When a learner is trained, at a specific \verb{<stage>}, the \verb{$on_<stage>(ctx)} method of the callback is
@@ -19,11 +19,9 @@ executed, where the \code{ctx} represents the current state of the training loop
 
 Different stages of a callback can communicate with each other by assigning values to \verb{$self}.
 It is recommended to use the sugar function \code{\link[=callback_torch]{callback_torch()}} to create custom callbacks.
-The callback stages have to be implemented as private methods with argument \code{ctx}, which is a \code{\link{ContextTorch}}.
-For available methods see section "Stages".
 
 When used in torch learner, the \code{CallbackTorch} is wrapped in a \code{\link{TorchCallback}}.
-The latters parameter set represent the argument of the \code{\link{CallbackTorch}}'s  \verb{$initialize()} method and can
+The latters parameter set represents the argument of the \code{\link{CallbackTorch}}'s \verb{$initialize()} method and can
 be specified in the learner.
 }
 \section{Stages}{

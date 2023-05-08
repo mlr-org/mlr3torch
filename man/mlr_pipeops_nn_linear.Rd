@@ -43,6 +43,8 @@ to last dimension of the input tensor.
 \examples{
 # Construct the PipeOp
 pipeop = po("nn_linear", out_features = 10)
+pipeop
+# The available parameters
 pipeop$param_set
 }
 \seealso{

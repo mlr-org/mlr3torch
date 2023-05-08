@@ -39,6 +39,8 @@ Calls \code{\link[torch:nn_flatten]{torch::nn_flatten()}} when trained.
 \examples{
 # Construct the PipeOp
 pipeop = po("nn_flatten")
+pipeop
+# The available parameters
 pipeop$param_set
 }
 \seealso{

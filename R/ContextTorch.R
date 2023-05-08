@@ -16,19 +16,19 @@ ContextTorch = R6Class("ContextTorch",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #' @param learner ([`Learner`])\cr
-    #'   The learner.
+    #'   The torch learner.
     #' @param task_train ([`Task`])\cr
     #'   The training task.
-    #' @param task_valid ([`Task`])\cr
-    #'   The validation task. Default is `NULL`.
+    #' @param task_valid ([`Task`] or `NULL`)\cr
+    #'   The validation task.
     #' @param loader_train ([`torch::dataloader`])\cr
     #'   The data loader for training.
-    #' @param loader_valid ([`torch::dataloader`])\cr
+    #' @param loader_valid ([`torch::dataloader`] or `NULL`)\cr
     #'   The data loader for validation.
-    #' @param measures_train `list()` of [`Measure`]s\cr
+    #' @param measures_train (`list()` of [`Measure`]s or `NULL`)\cr
     #'   Measures used for training. Default is `NULL`.
-    #' @param measures_valid `list()` of [`Measure`]s\cr
-    #'   Measures used for validation. Default is `NULL`.
+    #' @param measures_valid (`list()` of [`Measure`]s or `NULL`)\cr
+    #'   Measures used for validation.
     #' @param network ([`torch::nn_module`])\cr
     #'   The torch network.
     #' @param optimizer ([`torch::optimizer`])\cr
@@ -63,8 +63,8 @@ ContextTorch = R6Class("ContextTorch",
     #' @field task_train ([`Task`])\cr
     #'   The training task.
     task_train = NULL,
-    #' @field task_valid ([`Task`])\cr
-    #'   The validation task. Default is `NULL`.
+    #' @field task_valid ([`Task`] or `NULL`)\cr
+    #'   The validation task.
     task_valid = NULL,
     #' @field loader_train ([`torch::dataloader`])\cr
     #'   The data loader for training.
@@ -72,11 +72,11 @@ ContextTorch = R6Class("ContextTorch",
     #' @field loader_valid ([`torch::dataloader`])\cr
     #'   The data loader for validation.
     loader_valid = NULL,
-    #' @field measures_train `list()` of [`Measure`]s\cr
-    #'   Measures used for training. Default is `NULL`.
+    #' @field measures_train (`list()` of [`Measure`]s or `NULL`)\cr
+    #'   Measures used for training.
     measures_train = NULL,
-    #' @field measures_valid `list()` of [`Measure`]s\cr
-    #'   Measures used for validation. Default is `NULL`.
+    #' @field measures_valid (`list()` of [`Measure`]s or `NULL`)\cr
+    #'   Measures used for validation.
     measures_valid = NULL,
     #' @field network ([`torch::nn_module`])\cr
     #'   The torch network.

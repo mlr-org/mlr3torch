@@ -43,6 +43,8 @@ Calls \code{\link[torch:nn_dropout]{torch::nn_dropout()}} when trained.
 \examples{
 # Construct the PipeOp
 pipeop = po("nn_dropout")
+pipeop
+# The available parameters
 pipeop$param_set
 }
 \seealso{

@@ -35,8 +35,8 @@ The torch learner.}
 \item{\code{task_train}}{(\code{\link{Task}})\cr
 The training task.}
 
-\item{\code{task_valid}}{(\code{\link{Task}})\cr
-The validation task. Default is \code{NULL}.}
+\item{\code{task_valid}}{(\code{\link{Task}} or \code{NULL})\cr
+The validation task.}
 
 \item{\code{loader_train}}{(\code{\link[torch:dataloader]{torch::dataloader}})\cr
 The data loader for training.}
@@ -44,11 +44,11 @@ The data loader for training.}
 \item{\code{loader_valid}}{(\code{\link[torch:dataloader]{torch::dataloader}})\cr
 The data loader for validation.}
 
-\item{\code{measures_train}}{\code{list()} of \code{\link{Measure}}s\cr
-Measures used for training. Default is \code{NULL}.}
+\item{\code{measures_train}}{(\code{list()} of \code{\link{Measure}}s or \code{NULL})\cr
+Measures used for training.}
 
-\item{\code{measures_valid}}{\code{list()} of \code{\link{Measure}}s\cr
-Measures used for validation. Default is \code{NULL}.}
+\item{\code{measures_valid}}{(\code{list()} of \code{\link{Measure}}s or \code{NULL})\cr
+Measures used for validation.}
 
 \item{\code{network}}{(\code{\link[torch:nn_module]{torch::nn_module}})\cr
 The torch network.}
@@ -116,25 +116,25 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{learner}}{(\code{\link{Learner}})\cr
-The learner.}
+The torch learner.}
 
 \item{\code{task_train}}{(\code{\link{Task}})\cr
 The training task.}
 
-\item{\code{task_valid}}{(\code{\link{Task}})\cr
-The validation task. Default is \code{NULL}.}
+\item{\code{task_valid}}{(\code{\link{Task}} or \code{NULL})\cr
+The validation task.}
 
 \item{\code{loader_train}}{(\code{\link[torch:dataloader]{torch::dataloader}})\cr
 The data loader for training.}
 
-\item{\code{loader_valid}}{(\code{\link[torch:dataloader]{torch::dataloader}})\cr
+\item{\code{loader_valid}}{(\code{\link[torch:dataloader]{torch::dataloader}} or \code{NULL})\cr
 The data loader for validation.}
 
-\item{\code{measures_train}}{\code{list()} of \code{\link{Measure}}s\cr
+\item{\code{measures_train}}{(\code{list()} of \code{\link{Measure}}s or \code{NULL})\cr
 Measures used for training. Default is \code{NULL}.}
 
-\item{\code{measures_valid}}{\code{list()} of \code{\link{Measure}}s\cr
-Measures used for validation. Default is \code{NULL}.}
+\item{\code{measures_valid}}{(\code{list()} of \code{\link{Measure}}s or \code{NULL})\cr
+Measures used for validation.}
 
 \item{\code{network}}{(\code{\link[torch:nn_module]{torch::nn_module}})\cr
 The torch network.}

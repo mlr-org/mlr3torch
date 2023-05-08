@@ -28,6 +28,8 @@ Other Callback:
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-CallbackTorchCheckpoint-new}{\code{CallbackTorchCheckpoint$new()}}
+\item \href{#method-CallbackTorchCheckpoint-on_epoch_end}{\code{CallbackTorchCheckpoint$on_epoch_end()}}
+\item \href{#method-CallbackTorchCheckpoint-on_end}{\code{CallbackTorchCheckpoint$on_end()}}
 \item \href{#method-CallbackTorchCheckpoint-clone}{\code{CallbackTorchCheckpoint$clone()}}
 }
 }
@@ -51,6 +53,40 @@ The frequency how often the model is saved (epoch frequency).}
 
 \item{\code{save_last}}{(\code{logical(1)})\cr
 Whether to always save the last model.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackTorchCheckpoint-on_epoch_end"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackTorchCheckpoint-on_epoch_end}{}}}
+\subsection{Method \code{on_epoch_end()}}{
+Saves the network state dict.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchCheckpoint$on_epoch_end(ctx)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{ctx}}{\link{ContextTorch}}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackTorchCheckpoint-on_end"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackTorchCheckpoint-on_end}{}}}
+\subsection{Method \code{on_end()}}{
+Saves Saves the final network.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchCheckpoint$on_end(ctx)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{ctx}}{\link{ContextTorch}}
 }
 \if{html}{\out{</div>}}
 }

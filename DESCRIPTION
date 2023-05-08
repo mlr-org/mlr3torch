@@ -105,7 +105,6 @@ Collate:
     'assertions.R'
     'autotest.R'
     'bibentries.R'
-    'converter.R'
     'expectations.R'
     'helper.R'
     'image_dataset.R'

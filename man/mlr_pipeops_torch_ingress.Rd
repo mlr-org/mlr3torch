@@ -171,7 +171,7 @@ The R packages this object depends on.}
 
 \item{\code{feature_types}}{:: \code{character()}\cr
 The features types that can be consumed by this \code{PipeOpTorchIngress}.
-Must be a subset of \code{mlr_reflections$task_feature_types}.}
+Must be a subset of \code{\link[mlr3:mlr_reflections]{mlr_reflections$task_feature_types}}.}
 }
 \if{html}{\out{</div>}}
 }

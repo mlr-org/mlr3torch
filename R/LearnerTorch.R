@@ -8,7 +8,6 @@
 #' [`LearnerClassifTorch`] for classification and [`LearnerRegrTorch`] for regression.
 #'
 #' It also allows to hook into the training loop via a callback mechanism.
-#' They are executed in the order in which they were provided.
 #'
 #' @section State:
 #' The state is a list with elements `network`, `optimizer`, `loss_fn` and `callbacks`.
@@ -20,31 +19,27 @@
 #'
 #' * `.network(task, param_vals)`\cr
 #'   ([`Task`], `list()`) -> [`nn_module`]\cr
-#'   Construct a [`torch::nn_module`] object for the given task and parameter values, i.e. the neural network.
-#'   The output of this network are expected to be the scores before the application of the final softmax layer.
+#'   Construct a [`torch::nn_module`] object for the given task and parameter values, i.e. the neural network that
+#'   is trained by the learner.
+#'   For classification, the output of this network are expected to be the scores before the application of the
+#'   final softmax layer.
 #' * `.dataset(task, param_vals)`\cr
 #'   ([`Task`], `list()`) -> [`torch::dataset`]\cr
-#'   Create the dataset for the task.
+#'   Create the dataset for the task.  Must at least respect parameters `batch_size` and `shuffle`.
 #'
 #' It is also possible to overwrite the private `.dataloader()` method instead of the `.dataset()` method.
-#' Per default, a datlaoader is constructed using the output from the `.dataset()` method.
+#' Per default, a dataloader is constructed using the output from the `.dataset()` method.
 #'
 #' * `.dataloader(task, param_vals)`\cr
 #'   ([`Task`], `list()`) -> [`torch::dataloader`]\cr
 #'   Create a dataloader from the task.
-#'   When doing so, it is important to respect the parameter `shuffle`, because this method is also used to ceate the
-#'   dataloader for prediction, as well as the `batch_size`.
+#'   Needs to respect at least `batch_size` and `shuffle` (otherwise predictions are permuted).
 #'
 #' While it is possible to add parameters by specifying the `param_set` construction argument, it is currently
 #' not possible to remove existing parameters, i.e. those listed in section *Parameters*.
-#' Note that none of the parameters provided in `param_set` can have an id that starts with `"loss."`, `"opt.",
+#' None of the parameters provided in `param_set` can have an id that starts with `"loss."`, `"opt.",
 #' or `"cb."`, as these are preserved for the dynamically constructed parameters of the optimizer, the loss function,
 #' and the callbacks.
-#'
-#' @section Internals:
-#' A [`ParamSetCollection`] is created that combines the `param_set` passed during construction with the
-#' default torch parameters, as well as the loss, optimizer and callback parameters
-#' (prefixed with `"loss."`, `"opt."`, and `"cb.<callback id>."` respectively.
 #'
 #' @family Learner
 #' @export
@@ -131,7 +126,6 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
 #'
 #' @inheritSection mlr_learners_classif.torch State
 #' @inheritSection mlr_learners_classif.torch Parameters
-#' @inheritSection mlr_learners_classif.torch Internals
 #' @inheritSection mlr_learners_classif.torch Inheriting
 #'
 #' @family Learner

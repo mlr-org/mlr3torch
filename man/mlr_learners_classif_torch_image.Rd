@@ -101,7 +101,9 @@ The torch optimizer.}
 The loss used to train the network.}
 
 \item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
-The callbacks used during training. Must have unique ids.}
+The callbacks used during training.
+Must have unique ids.
+They are executed in the order in which they are provided}
 
 \item{\code{packages}}{(\code{character()})\cr
 The R packages this object depends on.}
@@ -111,7 +113,8 @@ String in the format \verb{[pkg]::[topic]} pointing to a manual page for this ob
 The referenced help package can be opened via method \verb{$help()}.}
 
 \item{\code{properties}}{(\code{character()})\cr
-The properties.}
+The properties of the object.
+See \code{\link[=mlr_reflections]{mlr_reflections$learner_properties}} for available values.}
 }
 \if{html}{\out{</div>}}
 }

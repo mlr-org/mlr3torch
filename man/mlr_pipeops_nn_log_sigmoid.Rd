@@ -35,6 +35,8 @@ No parameters.
 \examples{
 # Construct the PipeOp
 pipeop = po("nn_log_sigmoid")
+pipeop
+# The available parameters
 pipeop$param_set
 }
 \seealso{

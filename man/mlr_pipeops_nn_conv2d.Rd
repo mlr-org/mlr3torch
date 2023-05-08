@@ -55,6 +55,8 @@ The padding mode. One of \code{"zeros"}, \code{"reflect"}, \code{"replicate"}, o
 \examples{
 # Construct the PipeOp
 pipeop = po("nn_conv2d", kernel_size = 10, out_channels = 1)
+pipeop
+# The available parameters
 pipeop$param_set
 }
 \seealso{

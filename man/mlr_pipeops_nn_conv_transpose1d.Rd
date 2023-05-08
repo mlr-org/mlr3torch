@@ -58,6 +58,8 @@ The parameter \code{in_channels} is inferred as the second dimension of the inpu
 \examples{
 # Construct the PipeOp
 pipeop = po("nn_conv_transpose1d", kernel_size = 3, out_channels = 2)
+pipeop
+# The available parameters
 pipeop$param_set
 }
 \seealso{

@@ -43,6 +43,8 @@ Calls \code{\link[torch:nn_linear]{torch::nn_linear()}} with the input and outpu
 \examples{
 # Construct the PipeOp
 pipeop = po("nn_head")
+pipeop
+# The available parameters
 pipeop$param_set
 }
 \seealso{

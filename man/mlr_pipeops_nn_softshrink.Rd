@@ -38,6 +38,8 @@ The lambda (must be no less than zero) value for the Softshrink formulation. Def
 \examples{
 # Construct the PipeOp
 pipeop = po("nn_softshrink")
+pipeop
+# The available parameters
 pipeop$param_set
 }
 \seealso{

@@ -9,7 +9,7 @@
 #' To create custom callbacks to use in a torch learner it is recommended to use the convenience function
 #' [`torch_callback`].
 #'
-#' For each available stage (see section *Stages*) a private method `$on_<stage>(xtx)` can be defined.
+#' For each available stage (see section *Stages*) a public method `$on_<stage>(xtx)` can be defined.
 #' This must be an function with argument `ctx`, which is a [`ContextTorch`].
 #'
 #' When a learner is trained, at a specific `<stage>`, the `$on_<stage>(ctx)` method of the callback is
@@ -17,11 +17,9 @@
 #'
 #' Different stages of a callback can communicate with each other by assigning values to `$self`.
 #' It is recommended to use the sugar function [`callback_torch()`] to create custom callbacks.
-#' The callback stages have to be implemented as private methods with argument `ctx`, which is a [`ContextTorch`].
-#' For available methods see section "Stages".
 #'
 #' When used in torch learner, the `CallbackTorch` is wrapped in a [`TorchCallback`].
-#' The latters parameter set represent the argument of the [`CallbackTorch`]'s  `$initialize()` method and can
+#' The latters parameter set represents the argument of the [`CallbackTorch`]'s `$initialize()` method and can
 #' be specified in the learner.
 #'
 #' @section Stages:
@@ -85,7 +83,7 @@ callback_torch = function(
   public = NULL, private = NULL, active = NULL, parent_env = parent.frame(), inherit = CallbackTorch
   ) {
   assert_true(startsWith(classname, "CallbackTorch"))
-  more_private = list(
+  more_public = list(
     on_begin = assert_function(on_begin, args = "ctx", null.ok = TRUE),
     on_end = assert_function(on_end, args = "ctx", null.ok = TRUE),
     on_epoch_begin = assert_function(on_epoch_begin, args = "ctx", null.ok = TRUE),
@@ -105,24 +103,24 @@ callback_torch = function(
     public$initialize = initialize
   }
 
-  assert_list(private, null.ok = TRUE, names = "unique")
-  if (length(private)) assert_names(names(private), disjunct.from = names(more_private))
+  assert_list(public, null.ok = TRUE, names = "unique")
+  if (length(public)) assert_names(names(public), disjunct.from = names(more_public))
 
-  invalid_stages = names(private)[grepl("^on_", names(private))]
+  invalid_stages = names(public)[grepl("^on_", names(public))]
 
   if (length(invalid_stages)) {
-    warningf("There are private method(s) with name(s) %s, which are not valid stages.",
+    warningf("There are public method(s) with name(s) %s, which are not valid stages.",
       paste(paste0("'", invalid_stages, "'"), collapse = ", ")
     )
   }
-  assert_list(public, null.ok = TRUE, names = "unique")
+  assert_list(private, null.ok = TRUE, names = "unique")
   assert_list(active, null.ok = TRUE, names = "unique")
   assert_environment(parent_env)
   assert_inherits_classname(inherit, "CallbackTorch")
 
-  more_private = Filter(function(x) !is.null(x), more_private)
+  more_public = Filter(function(x) !is.null(x), more_public)
   parent_env_shim = new.env(parent = parent_env)
   parent_env_shim$inherit = inherit
-  R6::R6Class(classname = classname, inherit = inherit, public = public,
-    private = c(private, more_private), active = active, parent_env = parent_env_shim, lock_objects = FALSE)
+  R6::R6Class(classname = classname, inherit = inherit, public = c(public, more_public),
+    private = private, active = active, parent_env = parent_env_shim, lock_objects = FALSE)
 }

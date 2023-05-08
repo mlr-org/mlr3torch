@@ -49,6 +49,8 @@ When True, will use ceil instead of floor to compute the output shape. Default: 
 \examples{
 # Construct the PipeOp
 pipeop = po("nn_max_pool3d")
+pipeop
+# The available parameters
 pipeop$param_set
 }
 \seealso{

@@ -42,6 +42,8 @@ Can optionally do the operation in-place. Default: ‘FALSE’.
 \examples{
 # Construct the PipeOp
 pipeop = po("nn_threshold", threshold = 1, value = 2)
+pipeop
+# The available parameters
 pipeop$param_set
 }
 \seealso{

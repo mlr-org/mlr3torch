@@ -146,8 +146,8 @@ learner_torch_train_worker = function(self, private, super, task, param_vals, co
 train_loop = function(ctx, cbs, seed) {
   call = function(step_name) {
     lapply(cbs, function(x) {
-      if (exists(step_name, x$.__enclos_env__$private, inherits = FALSE)) {
-        x$.__enclos_env__$private[[step_name]](ctx)
+      if (exists(step_name, x, inherits = FALSE)) {
+        x[[step_name]](ctx)
       }
     })
   }

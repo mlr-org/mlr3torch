@@ -49,6 +49,8 @@ Calls \code{\link[torch:nn_max_pool1d]{torch::nn_max_pool1d()}} during training.
 \examples{
 # Construct the PipeOp
 pipeop = po("nn_max_pool1d")
+pipeop
+# The available parameters
 pipeop$param_set
 }
 \seealso{

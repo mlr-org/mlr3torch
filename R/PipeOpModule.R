@@ -10,10 +10,7 @@
 #'
 #' In most cases it is easier to create such a network by creating a isomorphic graph consisting
 #' of nodes of class [`PipeOpTorchIngress`] and [`PipeOpTorch`]. This graph will then generate the graph consisting
-#' of `PipeOpModule`s during its training phase.
-#'
-#' In general, this class is a slight abuse of the spirit of [`PipeOp`]s, as the `$train()` phase represents the
-#' forward pass of the network and the `$predict()` phase serves (currently) no meaningful purpose.
+#' of `PipeOpModule`s during its training phase in its [`ModelDescriptor`] it produces.
 #'
 #' @section Input and Output Channels:
 #' The number and names of the input and output channels can be set during construction. They input and output
@@ -82,7 +79,6 @@ PipeOpModule = R6Class("PipeOpModule",
   public = list(
     #' @field module ([`nn_module`])\cr
     #'   The torch module that is called during the training phase.
-    #'
     module = NULL,
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.

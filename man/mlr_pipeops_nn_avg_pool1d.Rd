@@ -51,6 +51,8 @@ Calls \code{\link[=nn_avg_pool1d]{nn_avg_pool1d()}} during training.
 \examples{
 # Construct the PipeOp
 pipeop = po("nn_avg_pool1d")
+pipeop
+# The available parameters
 pipeop$param_set
 }
 \seealso{

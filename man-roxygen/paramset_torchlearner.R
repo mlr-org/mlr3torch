@@ -23,4 +23,4 @@
 #'   If this is missing (default), a random seed is generated.
 #'
 #' Additionally there are the parameters for the optimizer, the loss function and the callbacks.
-#' They are prefixed with `"opt."`, `"loss."` and `"cb.<callback id>"` respectively.
+#' They are prefixed with `"opt."`, `"loss."` and `"cb.<callback id>."` respectively.

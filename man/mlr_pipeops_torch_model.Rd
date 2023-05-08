@@ -47,7 +47,7 @@ If this is missing (default), a random seed is generated.
 }
 
 Additionally there are the parameters for the optimizer, the loss function and the callbacks.
-They are prefixed with \code{"opt."}, \code{"loss."} and \code{"cb.<callback id>"} respectively.
+They are prefixed with \code{"opt."}, \code{"loss."} and \code{"cb.<callback id>."} respectively.
 }
 
 \section{Internals}{

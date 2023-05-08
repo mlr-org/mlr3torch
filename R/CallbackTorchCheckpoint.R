@@ -27,14 +27,18 @@ CallbackTorchCheckpoint = R6Class("CallbackTorchCheckpoint",
       self$path = path
       self$freq = assert_int(freq, lower = 1L)
       self$save_last = assert_flag(save_last)
-    }
-  ),
-  private = list(
+    },
+    #' @description
+    #' Saves the network state dict.
+    #' @param ctx [ContextTorch]
     on_epoch_end = function(ctx) {
       if ((ctx$epoch %% self$freq) == 0) {
         torch::torch_save(ctx$network, file.path(self$path, paste0("network", ctx$epoch, ".pt")))
       }
     },
+    #' @description
+    #' Saves Saves the final network.
+    #' @param ctx [ContextTorch]
     on_end = function(ctx) {
       if (self$save_last) {
         path = file.path(self$path, paste0("network", ctx$epoch, ".pt"))

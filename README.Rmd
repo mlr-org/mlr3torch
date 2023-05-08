@@ -25,10 +25,6 @@ knitr::opts_chunk$set(
 
 The goal of {mlr3torch} is to connect [{mlr3}](https://github.com/mlr-org/mlr3) with [{torch}](https://github.com/mlverse/torch).
 
-The features are:
-
-1. 
-
 ## Installation
 
 ```r
@@ -48,7 +44,7 @@ library(mlr3torch)
 task = tsk("german_credit")
 
 # Set up the learner
-lrn_tabnet = lrn("classif.mlp", d_hidden = 10, layers = 2, epochs = 5)
+lrn_tabnet = lrn("classif.tabnet", epochs = 5)
 
 # Train and Predict
 lrn_tabnet$train(task, row_ids = 1:900)

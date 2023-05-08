@@ -43,6 +43,8 @@ The initial value of a. Default: 0.25.
 \examples{
 # Construct the PipeOp
 pipeop = po("nn_prelu")
+pipeop
+# The available parameters
 pipeop$param_set
 }
 \seealso{

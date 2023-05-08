@@ -3,6 +3,8 @@
 #' @examples
 #' # Construct the PipeOp
 #' pipeop = po("<%=id %>"<%=param_vals%>)
+#' pipeop
+#' # The available parameters
 #' pipeop$param_set
 
 

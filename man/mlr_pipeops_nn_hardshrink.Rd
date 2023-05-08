@@ -38,6 +38,8 @@ The lambda value for the Hardshrink formulation formulation. Default 0.5.
 \examples{
 # Construct the PipeOp
 pipeop = po("nn_hardshrink")
+pipeop
+# The available parameters
 pipeop$param_set
 }
 \seealso{
