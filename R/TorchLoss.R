@@ -39,8 +39,19 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 #' @title Torch Loss
 #'
 #' @description
-#' This wraps a `torch::nn_loss` and is usually used to configure the loss function of a torch learner.
+#' This wraps a `torch::nn_loss` and annotates it with metadata, most importantly a [`ParamSet`].
+#' The loss function is created for the given parameter values by calling the `$generate()` method inherited from
+#' [`TorchWrapper`].
+#'
+#' This class is usually used to configure the loss function of a torch learner, e.g.
+#' when construcing a learner or in a [`ModelDescriptor`].
+#'
 #' For a list of available losses, see [`mlr3torch_losses`].
+#' Items from this dictionary can be retrieved using [`t_loss()`].
+#'
+#' @section Internals:
+#' If this is not provided during construction, the parameter set is constructed by creating a parameter for each
+#' argument of the wrapped loss function, where the parametes are then of type [`ParamUty`].
 #'
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
@@ -50,8 +61,32 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 #' @examples
 #' # Create a new Torch Loss
 #' torchloss = TorchLoss$new(torch_loss = nn_mse_loss, task_types = "regr")
+#' torchloss
+#' # the parameters are inferred
 #' torchloss$param_set
-#' loss = torchloss$generate()
+#'
+#' # Retrieve a loss from the dictionary:
+#' torchloss = t_loss("mse", reduction = "mean")
+#' # is the same as
+#' torchloss
+#' torchloss$param_set
+#' torchloss$label
+#' torchloss$task_types
+#' torchloss$id
+#'
+#' # Create the loss function
+#' loss_fn = torchloss$generate()
+#' loss_fn
+#' # Is the same as
+#' nn_mse_loss(reduction = "mean")
+#'
+#' # open the help page of the wrapper loss function
+#' torchloss$help()
+#'
+#' # Use in a learner
+#' learner = lrn("regr.mlp", loss = t_loss("mse"))
+#' # The parameters of the loss are added to the learner's parameter set
+#' learner$param_set
 TorchLoss = R6::R6Class("TorchLoss",
   inherit = TorchWrapper,
   public = list(

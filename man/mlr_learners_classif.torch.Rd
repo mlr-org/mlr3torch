@@ -6,7 +6,11 @@
 \title{Abstract Base Class for a Torch Classification Learner}
 \description{
 This base class provides the basic functionality for training and prediction of a neural network.
-All torch classifiction learners should inherit from the respective subclass.
+All torch classifiction learners should inherit from the respective class, i.e.
+\code{\link{LearnerClassifTorch}} for classification and \code{\link{LearnerRegrTorch}} for regression.
+
+It also allows to hook into the training loop via a callback mechanism.
+They are executed in the order in which they were provided.
 }
 \section{State}{
 
@@ -45,30 +49,38 @@ They are prefixed with \code{"opt."}, \code{"loss."} and \code{"cb.<callback id>
 
 \section{Inheriting}{
 
-When inheriting from this class, one should overload two, methods, namely the
-\code{private$.network(task, param_vals)} and the \code{private$.dataset(task, param_vals)}.
-The former should construct \code{\link[torch:nn_module]{torch::nn_module}} object for the given task and parameter values, while the latter
-is responsible for creating a \code{\link[torch:dataset]{torch::dataset}}.
+When inheriting from this class, one should overload two private methods:
+\itemize{
+\item \code{.network(task, param_vals)}\cr
+(\code{\link{Task}}, \code{list()}) -> \code{\link{nn_module}}\cr
+Construct a \code{\link[torch:nn_module]{torch::nn_module}} object for the given task and parameter values, i.e. the neural network.
+The output of this network are expected to be the scores before the application of the final softmax layer.
+\item \code{.dataset(task, param_vals)}\cr
+(\code{\link{Task}}, \code{list()}) -> \code{\link[torch:dataset]{torch::dataset}}\cr
+Create the dataset for the task.
+}
 
-\strong{Important}
-The output of this network are expected to be the scores before the application of the final softmax
-layer.
-
-It is also possible to overwrite the private \verb{$.dataloader()} method, which otherwise calls \verb{$.dataset()} and
-creates a dataloader from that dataset. When doing so, it is important to respect the parameter \code{shuffle}, because
-this method is used to ceate the dataloader for prediction as well.
+It is also possible to overwrite the private \code{.dataloader()} method instead of the \code{.dataset()} method.
+Per default, a datlaoader is constructed using the output from the \code{.dataset()} method.
+\itemize{
+\item \code{.dataloader(task, param_vals)}\cr
+(\code{\link{Task}}, \code{list()}) -> \code{\link[torch:dataloader]{torch::dataloader}}\cr
+Create a dataloader from the task.
+When doing so, it is important to respect the parameter \code{shuffle}, because this method is also used to ceate the
+dataloader for prediction, as well as the \code{batch_size}.
+}
 
 While it is possible to add parameters by specifying the \code{param_set} construction argument, it is currently
-not possible to change these parameters.
-Note that none of the parameters provided in \code{param_set} can have an id that starts with \code{"loss."}, \verb{"opt.", or }"cb."`, as these are preserved for the dynamically constructed parameters of the optimizer and the loss
-function.
+not possible to remove existing parameters, i.e. those listed in section \emph{Parameters}.
+Note that none of the parameters provided in \code{param_set} can have an id that starts with \code{"loss."}, \verb{"opt.", or }"cb."`, as these are preserved for the dynamically constructed parameters of the optimizer, the loss function,
+and the callbacks.
 }
 
 \section{Internals}{
 
-A \code{\link{ParamSetCollection}} is created that combines the \code{param_set} from the construction with the
+A \code{\link{ParamSetCollection}} is created that combines the \code{param_set} passed during construction with the
 default torch parameters, as well as the loss, optimizer and callback parameters
-(prefixed with \code{"loss."}, \code{"opt."}, and \code{"cb."} respectively.
+(prefixed with \code{"loss."}, \code{"opt."}, and \code{"cb.<callback id>."} respectively.
 }
 
 \seealso{
@@ -96,7 +108,7 @@ The network (only available after training).}
 The parameter set}
 
 \item{\code{history}}{(\code{\link{CallbackTorchHistory}})\cr
-The training history.}
+Shortcut for \code{learner$model$callbacks$history}.}
 }
 \if{html}{\out{</div>}}
 }

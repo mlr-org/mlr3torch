@@ -336,8 +336,8 @@ PipeOpTorchIngressImage = R6Class("PipeOpTorchIngressImage",
     initialize = function(id = "torch_ingress_img", param_vals = list()) {
       param_set = ps(
         channels = p_int(1, tags = "required"),
-        height = p_int(1, tags = "required"),
-        width = p_int(1, tags = "required")
+        height   = p_int(1, tags = "required"),
+        width    = p_int(1, tags = "required")
       )
       super$initialize(id = id, param_vals = param_vals, param_set = param_set, feature_types = "imageuri")
     }

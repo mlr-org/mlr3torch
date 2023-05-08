@@ -38,7 +38,7 @@ Note that the ids of callbacks passed to a learner must be unique.}
 The class name.}
 
 \item{param_set}{(\code{ParamSet})\cr
-The parameter set, if not present it is inferred from the initialize method passed through the public function.}
+The parameter set, if not present it is inferred from the initialize method.}
 
 \item{packages}{(\code{character()})\cr\verb{The packages the callback depends on. Default is}NULL`.}
 
@@ -71,9 +71,7 @@ This class must either be \code{\link{CallbackTorch}} (default) or inherit from 
 \description{
 Convenience function to create a custom callback for torch.
 For more information on how to correctly implement a new callback, see \code{\link{CallbackTorch}}.
-It returns a \code{\link{TorchCallback}} that wrapping a \code{\link{CallbackTorch}}.
-
-Note that the callback stages are public methods and not private methods.
+It returns a \code{\link{TorchCallback}} wrapping a \code{\link{CallbackTorch}}.
 }
 \section{Internals}{
 

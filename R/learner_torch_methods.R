@@ -57,11 +57,7 @@ learner_torch_initialize = function(
   callbacks = as_torch_callbacks(callbacks, clone = TRUE)
   callback_ids = ids(callbacks)
   assert_names(callback_ids, type = "unique")
-  if ("history" %in% callback_ids) {
-    stopf("Callback with id 'history' is reserved for CallbackTorchHistory, which is always added.")
-  }
 
-  callbacks = c(t_clbk("history"), callbacks)
   private$.callbacks = set_names(callbacks, ids(callbacks))
   walk(private$.callbacks, function(cb) {
     cb$param_set$set_id = paste0("cb.", cb$id)
@@ -78,7 +74,9 @@ learner_torch_initialize = function(
 
   assert_subset(properties, mlr_reflections$learner_properties[[task_type]])
   assert_subset(predict_types, names(mlr_reflections$learner_predict_types[[task_type]]))
-  assert_true(!any(grepl("^(loss\\.|opt\\.|cb\\.)", param_set$ids())))
+  if (any(grepl("^(loss\\.|opt\\.|cb\\.)", param_set$ids()))) {
+    stopf("Prefixes 'loss.', 'opt.', and 'cb.' are reserved for dynamically constructed parameters.")
+  }
   packages = assert_character(packages, any.missing = FALSE, min.chars = 1L)
   packages = union(c("mlr3", "mlr3torch"), packages)
 
@@ -234,7 +232,7 @@ train_loop = function(ctx, cbs, seed) {
     network = ctx$network,
     optimizer = ctx$optimizer,
     loss_fn = ctx$loss_fn,
-    callbacks = cbs, 
+    callbacks = cbs,
     seed = seed
   )
 }
@@ -338,6 +336,7 @@ learner_torch_predict = function(self, task) {
     prediction = torch_network_predict(network, data_loader)
     encode_prediction(prediction, self$predict_type, task)
   })
+  # TODO: Set torch seed back as well
 }
 
 learner_torch_network = function(self, task, rhs) {
@@ -364,5 +363,10 @@ learner_torch_history = function(self, rhs) {
   if (is.null(self$state)) {
     stopf("Cannot access history before training.")
   }
+  if (is.null(self$model$callbacks$history)) {
+    warningf("No history found. Did you specify t_clbk(\"history\") during construction?")
+    return(NULL)
+  }
+
   self$model$callbacks$history
 }

@@ -3,10 +3,13 @@
 #' @name mlr_learners_classif.torch_model
 #'
 #' @description
-#' Classification Torch Learner that is used internally by [`PipeOpTorchModelClassif`].
+#' Create a classification learner from an instantiated [`nn_module()`].
+#' This is learner is used internally by [`PipeOpTorchModelClassif`].
+#'
+#' The output of the network must be the scores (before the softmax).
 #'
 #' @param network ([`nn_module`])\cr
-#'   An instantiated [`nn_module`].
+#'   An instantiated [`nn_module`]. Is not cloned during construction.
 #'   Outputs must be the scores (before the softmax).
 #' @param ingress_tokens (`list` of [`TorchIngressToken()`])\cr
 #'   A list with ingress tokens that defines how the dataloader will be defined.
@@ -92,10 +95,11 @@ LearnerClassifTorchModel = R6Class("LearnerClassifTorchModel",
 #' @name mlr_learners_regr.torch_model
 #'
 #' @description
-#' Regression Torch Learner that is used internally by [`PipeOpTorchModelRegr`].
+#' Create a regression learner from an instantiated [`nn_module()`].
+#' This is learner is used internally by [`PipeOpTorchModelRegr`].
 #'
 #' @param network ([`nn_module`])\cr
-#'   An instantiated [`nn_module`].
+#'   An instantiated [`nn_module`]. This is not cloned during construction.
 #'   Outputs must be the scores (before the softmax).
 #' @param ingress_tokens (`list` of [`TorchIngressToken()`])\cr
 #'   A list with ingress tokens that defines how the dataloader will be defined.

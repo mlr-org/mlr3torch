@@ -87,17 +87,16 @@
 *   [ ] nn_squeeze
 *   [ ] nn_merge_sum
 *   [ ] nn_reshape
-
-
-All the learner implementations: 
-
-* [ ] LearnerClassifMLP
-* [ ] Image Learners: They are so similar, we might create them all programmatically with one help page.
-
 # Other
 
 
 **Important**
+
+In the future (soon): 
+
+* [ ] Create {classif, regr}.torch_module learner to create custom torch learners (classif.torch did not really work because of the dataloader)
+* [ ] Maybe it should be possible to easily overwrite the dataloader for a learner (?) 
+* [ ] Implement early stopping and all other parameters from paramset torchlearner. 
 
 * [ ] Add the learners etc. for regression
 * [ ] Cloning of trained networks (requires new torch version)
@@ -107,6 +106,13 @@ All the learner implementations:
 * [ ] Implement bundling
 * [ ] Utility functions for save_torch_learner and load_torch_learner, this should also be called in callback checkpoint
 * [ ] Fix the dictionary issue and then add those objects to dictionary that we could not add because it prohibits the as.data.table conversion
+* ctx in intitiaalize self zuweisen: Dann ist klar dass das immer das gleiche Objekt ist
+* make callback methods public again
+* rename TorchLoss, TorchOptimizer, TorchCallback to e.g. TorchDescriptorLoss
+* images like in torchvision (not in inst but in tests)
+* Custom Backend for torch datases with hardcoded metadata, torchdatasets in suggests and not depends
+* Add check that excludes use of validation rows (row roles)
+* assignment for imageuri
 
 **Missing stuff**
 
@@ -123,7 +129,6 @@ All the learner implementations:
 * [ ] ensure proper use of tags in e.g.  `param_set$get_values(tags = "train")`
 * [ ] Autotest should check that all parameters are tagged with train and predict etc. Generally determine usage of tags.
 * [ ] Run some tests on gpu
-* [x] Rename Debug Torch Learner to featureless and export
 
 **Other**
 * [ ] Check that defaults and initial values are correctly used everywhere
@@ -171,29 +176,7 @@ for nn modules, or "Optimizer" for optim_adam etc.
 * README (probably want to have the tabnet learner for that)
 * Vignette
 
-* Go over the core methods and verify that no old docu is left:
-  * PipeOpModule
-  * PipeOpTorch
-  * LearnerClassifTorch
-  * LearnerRegrTorch
-  * LearnerRegrTorchModel
-  * LearnerClassifTorchModel
-  * nn_graph
-  * ModelDescriptor
-  * TorchWrapper and all the subclasses
 
-
-In the future (soon): 
-
-* [ ] Create {classif, regr}.torch_module learner to create custom torch learners (classif.torch did not really work because of the dataloader)
-* [ ] Maybe it should be possible to easily overwrite the dataloader for a learner (?) 
-* [ ] Implement early stopping and all other parameters from paramset torchlearner. 
-
-
-Advertisement:
-
-* [ ] The torch website features packages that build on top of torch
-* [ ] Maybe we can write a blogpost for the RStudio AI blog?
 
 **In the future**
 
@@ -202,9 +185,7 @@ Advertisement:
 * [ ] Calling `benchmark()` and evaluate the jobs on different GPUs?
 * [ ] Check overhead on cpu and small batch sizes
 * [ ] Minimize the time the tests run!
-  (utilize the fetureless torch learner as much as possible, should probbably extend it to all feature types)
-* [ ] Simplify the documentation templates for PipeOpTorch
+Advertisement:
 
-
-Fragen an Martin: 
-* Wieso wird der batchgetter gecrated?
+* [ ] The torch website features packages that build on top of torch
+* [ ] Maybe we can write a blogpost for the RStudio AI blog?

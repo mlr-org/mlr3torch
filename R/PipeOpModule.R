@@ -12,7 +12,8 @@
 #' of nodes of class [`PipeOpTorchIngress`] and [`PipeOpTorch`]. This graph will then generate the graph consisting
 #' of `PipeOpModule`s during its training phase.
 #'
-#' The `predict` method does currently not serve a meaningful purpose.
+#' In general, this class is a slight abuse of the spirit of [`PipeOp`]s, as the `$train()` phase represents the
+#' forward pass of the network and the `$predict()` phase serves (currently) no meaningful purpose.
 #'
 #' @section Input and Output Channels:
 #' The number and names of the input and output channels can be set during construction. They input and output
@@ -27,9 +28,8 @@
 #' During training, the wrapped [`nn_module`] is called with the provided inputs in the order in which the channels
 #' are defined. Arguments are **not** matched by name.
 #'
-#'
-#' @seealso nn_module, mlr_pipeops_torch, nn_graph, model_descriptor_to_module, PipeOp, Graph
 #' @family Graph Network
+#' @family PipeOp
 #' @export
 #' @examples
 #' ## creating an PipeOpModule manually

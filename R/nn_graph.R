@@ -16,16 +16,18 @@
 #' @family Graph Network
 #' @export
 #' @examples
-#' graph = as_graph(po("module", module = nn_linear(10, 1)))
-#' network = nn_graph(graph, list(module.input = c(NA, 1)))
+#' graph = po("module_1", module = nn_linear(10, 20)) %>>%
+#'   po("module_2", module = nn_relu()) %>>%
+#'   po("module_3", module = nn_linear(20, 1))
+#' network = nn_graph(graph, shapes_in = list(module_1.input = c(NA, 10)))
 #' network
+#' x = torch_randn(16, 10)
+#' network(module_1.input = x)
 nn_graph = nn_module(
   "nn_graph",
   initialize = function(graph, shapes_in, output_map = graph$output$name, list_output = FALSE) {
     self$graph = as_graph(graph)
     self$graph_input_name = graph$input$name  # cache this, it is expensive
-    # FIXME: We don't really need the `shapes_in` (they are unused)
-    # Maybe instead just have argument `input_map`
 
     # we do NOT verify the input and type of the graph to be `"torch_tensor"`.
     # The reason for this is that the graph, when constructed with the PipeOpTorch Machinery, contains PipeOpNOPs,

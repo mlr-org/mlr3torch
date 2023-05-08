@@ -52,6 +52,7 @@ t_clbks.NULL = function(.keys, ...) { # nolint
 }
 
 #' @title Convert to a TorchCallback
+#'
 #' @description
 #' Converts an object to a [`TorchCallback`].
 #'
@@ -63,7 +64,6 @@ t_clbks.NULL = function(.keys, ...) { # nolint
 #'   Additional arguments
 #'
 #' @return [`TorchCallback`].
-#' @family Callback
 #' @family Callback
 
 #' @export
@@ -120,28 +120,61 @@ as_torch_callbacks.default = function(x, clone = FALSE, ...) { # nolint
   list(as_torch_callback(x, clone = clone, ...))
 }
 
+#' @export
 as_torch_callbacks.character = function(x, clone = FALSE, ...) { # nolint
   t_clbks(x, ...)
 }
 
 #' @title Torch Callback
 #'
-#' @name TorchCallback
-#'
 #' @description
-#' Leight-weight wrapper around callback for torch: A [`TorchCallback`] wraps a [`CallbackTorch`].
+#' This wraps a [`CallbackTorch`] and annotates it with metadata, most importantly a [`ParamSet`].
+#' The callback is created for the given parameter values by calling the `$generate()` method.
+#'
+#' This class is usually used to configure the callback of a torch learner, e.g. when constructing
+#' a learner of in a [`ModelDescriptor`].
+#'
+#' For a list of available callbacks, see mlr3torch_callbacks
 #' To conveniently retrieve a [`TorchCallback`], use [`t_clbk`].
-#' It is an analogous construct to the classes [`TorchOptimizer`] or [`TorchLoss`] which wrap torch optimizers and
-#' losses.
 #'
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
+#'
 #' @family Callback
 #' @family Torch Wrapper
-#' @include utils.R
+#'
 #' @export
 #' @examples
-#' TorchCallback$new(CallbackTorchHistory)
+#' # Create a new Torch Callback from an existing callback
+#' torchcallback = TorchCallback$new(CallbackTorchCheckpoint)
+#' # The parameters are inferred
+#' torchcallback$param_set
+#'
+#' # Retrieve a torch callbac from the dictionary
+#' torchcallback = t_clbk("checkpoint",
+#'   path = tempfile(), freq = 1
+#' )
+#' torchcallback
+#' torchcallback$label
+#' torchcallback$id
+#'
+#' # Create the callback
+#' callback = torchcallback$generate()
+#' callback
+#' # is the same as
+#' CallbackTorchCheckpoint$new(
+#'   path = tempfile(), freq = 1
+#' )
+#'
+#' # open the help page of the wrapped callback
+#'
+#' torchcallback$help()
+#'
+#' # Use in a learner
+#' learner = lrn("regr.mlp", callbacks = t_clbk("checkpoint"))
+#' # the parameters of the callback are added to the learner's parameter set
+#' learner$param_set
+#'
 TorchCallback = R6Class("TorchCallback",
   inherit = TorchWrapper,
   public = list(
@@ -173,17 +206,14 @@ TorchCallback = R6Class("TorchCallback",
 #' @description
 #' Convenience function to create a custom callback for torch.
 #' For more information on how to correctly implement a new callback, see [`CallbackTorch`].
-#' It returns a [`TorchCallback`] that wrapping a [`CallbackTorch`].
-#'
-#' Note that the callback stages are public methods and not private methods.
-#'
+#' It returns a [`TorchCallback`] wrapping a [`CallbackTorch`].
 #'
 #' @inheritParams callback_torch
 #' @param id (`character(1)`)\cr`\cr
 #'   The id for the callbacks.
 #'   Note that the ids of callbacks passed to a learner must be unique.
 #' @param param_set (`ParamSet`)\cr
-#'   The parameter set, if not present it is inferred from the initialize method passed through the public function.
+#'   The parameter set, if not present it is inferred from the initialize method.
 #' @param packages (`character()`)\cr`
 #'   The packages the callback depends on. Default is `NULL`.
 #' @param label (`character(1)`)\cr

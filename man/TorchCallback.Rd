@@ -4,10 +4,14 @@
 \alias{TorchCallback}
 \title{Torch Callback}
 \description{
-Leight-weight wrapper around callback for torch: A \code{\link{TorchCallback}} wraps a \code{\link{CallbackTorch}}.
+This wraps a \code{\link{CallbackTorch}} and annotates it with metadata, most importantly a \code{\link{ParamSet}}.
+The callback is created for the given parameter values by calling the \verb{$generate()} method.
+
+This class is usually used to configure the callback of a torch learner, e.g. when constructing
+a learner of in a \code{\link{ModelDescriptor}}.
+
+For a list of available callbacks, see mlr3torch_callbacks
 To conveniently retrieve a \code{\link{TorchCallback}}, use \code{\link{t_clbk}}.
-It is an analogous construct to the classes \code{\link{TorchOptimizer}} or \code{\link{TorchLoss}} which wrap torch optimizers and
-losses.
 }
 \section{Parameters}{
 
@@ -15,7 +19,36 @@ Defined by the constructor argument \code{param_set}.
 }
 
 \examples{
-TorchCallback$new(CallbackTorchHistory)
+# Create a new Torch Callback from an existing callback
+torchcallback = TorchCallback$new(CallbackTorchCheckpoint)
+# The parameters are inferred
+torchcallback$param_set
+
+# Retrieve a torch callbac from the dictionary
+torchcallback = t_clbk("checkpoint",
+  path = tempfile(), freq = 1
+)
+torchcallback
+torchcallback$label
+torchcallback$id
+
+# Create the callback
+callback = torchcallback$generate()
+callback
+# is the same as
+CallbackTorchCheckpoint$new(
+  path = tempfile(), freq = 1
+)
+
+# open the help page of the wrapped callback
+
+torchcallback$help()
+
+# Use in a learner
+learner = lrn("regr.mlp", callbacks = t_clbk("checkpoint"))
+# the parameters of the callback are added to the learner's parameter set
+learner$param_set
+
 }
 \seealso{
 Other Callback: 

@@ -4,8 +4,6 @@
 #' # Construct the PipeOp
 #' pipeop = po("<%=id %>"<%=param_vals%>)
 #' pipeop$param_set
-# <%=if (!is.null(pipeop$module_generator)) "# The wrapped module"%>
-# <%=if (!is.null(pipeop$module_generator)) "pipeop$module_generator"%>
 
 
 

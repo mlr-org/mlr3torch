@@ -149,8 +149,14 @@ test_that("model_descriptor_to_module works", {
   md = graph2$train(task)[[1L]]
 
   net = model_descriptor_to_module(md, list(c("nn_head", "output")))
+  expect_class(net, "nn_graph")
 
   input = sample_input_from_shapes(net$shapes_in)
+
+  batch = sample_input_from_shapes(net$shapes_in)
+  result2 = net(torch_ingress_num_1.input = batch[[1L]], torch_ingress_num_2.input = batch[[2L]])
+
+  expect_equal(result2$shape, c(1, 3))
 })
 
 test_that("model_descriptor_to_learner works", {
@@ -180,4 +186,3 @@ test_that("model_descriptor_to_learner works", {
   pred = learner$predict(task, row_ids = ids$test)
   expect_class(pred, "PredictionClassif")
 })
-

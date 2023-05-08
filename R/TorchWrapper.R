@@ -3,13 +3,15 @@
 #'
 #' @description
 #' Abstract Base Class from which [`TorchLoss`], [`TorchOptimizer`], and [`TorchCallback`] inherit.
-#' This class wraps a generator (R6Class Generator or the torch version of such a generator) and annotates it.
+#' This class wraps a generator (R6Class Generator or the torch version of such a generator) and annotates it
+#' with metadata such as a [`ParamSet`], a label, and an ID.
+#'
+#' The parameters are the construction arguments of the wrapped generator and the parameter `$values` are passed
+#' to the generator when calling the public method `$generate()`.
 #'
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
 #'
-#' @section Internals:
-#' When a deep clone is created, the wrapped generator is not cloned.
 #' @family Torch Wrapper
 #' @export
 TorchWrapper = R6Class("TorchWrapper",

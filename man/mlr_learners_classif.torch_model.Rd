@@ -5,7 +5,10 @@
 \alias{LearnerClassifTorchModel}
 \title{Classification Torch Learner}
 \description{
-Classification Torch Learner that is used internally by \code{\link{PipeOpTorchModelClassif}}.
+Create a classification learner from an instantiated \code{\link[=nn_module]{nn_module()}}.
+This is learner is used internally by \code{\link{PipeOpTorchModelClassif}}.
+
+The output of the network must be the scores (before the softmax).
 }
 \section{Parameters}{
  See \code{\link{LearnerClassifTorch}}
@@ -106,7 +109,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{network}}{(\code{\link{nn_module}})\cr
-An instantiated \code{\link{nn_module}}.
+An instantiated \code{\link{nn_module}}. Is not cloned during construction.
 Outputs must be the scores (before the softmax).}
 
 \item{\code{ingress_tokens}}{(\code{list} of \code{\link[=TorchIngressToken]{TorchIngressToken()}})\cr

@@ -7,7 +7,9 @@
 \description{
 \code{PipeOpTorch} is the base class for all \code{\link{PipeOp}}s that represent neural network layers in a \code{\link{Graph}}.
 During \strong{training}, it generates a \code{\link{PipeOpModule}} that wraps an \code{\link[torch:nn_module]{nn_module}} and attaches it
-to the isomorphic architecture, which is also represented as a \code{\link{Graph}} consisting of \code{\link{PipeOpModule}}s.
+to the isomorphic architecture, which is also represented as a \code{\link{Graph}} consisting mostly of \code{\link{PipeOpModule}}s
+an \code{\link{PipeOpNOP}}s.
+
 While the former \code{\link{Graph}} operates on \code{\link{ModelDescriptor}}s, the latter operates on \link[=torch_tensor]{tensors}.
 
 The relationship between a \code{PipeOpTorch} and a \code{\link{PipeOpModule}} is similar to the
@@ -19,6 +21,7 @@ A crucial difference is that the \code{PipeOpTorch} infers auxiliary parameters 
 
 During \strong{prediction}, \code{PipeOpTorch} takes in a \code{\link[mlr3:Task]{Task}} in each channel and outputs the same new
 \code{\link[mlr3:Task]{Task}} resulting from their \link[=PipeOpFeatureUnion]{feature union} in each channel.
+If there is only one input and output channel, the task is simply piped through.
 }
 \section{Inheriting}{
 

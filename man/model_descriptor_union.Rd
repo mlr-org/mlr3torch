@@ -27,7 +27,7 @@ reference.
 \item Drops \code{.pointer} / \code{.pointer_shape} entries.
 \item The new task is the \link[=PipeOpFeatureUnion]{feature union} of the two incoming tasks.
 \item The \code{optimizer} and \code{loss} of both \code{\link{ModelDescriptor}}s must be identical.
-\item Ingress tokens and and callbacks are merged, where objects with the same \code{"id"} must be identical.
+\item Ingress tokens and callbacks are merged, where objects with the same \code{"id"} must be identical.
 }
 }
 \details{
@@ -53,6 +53,7 @@ Other Graph Network:
 
 Other Model Configuration: 
 \code{\link{ModelDescriptor}()},
+\code{\link{mlr_pipeops_torch_callbacks}},
 \code{\link{mlr_pipeops_torch_loss}},
 \code{\link{mlr_pipeops_torch_optimizer}}
 }

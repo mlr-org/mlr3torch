@@ -64,7 +64,6 @@ RoxygenNote: 7.2.3
 Collate:
     'CallbackTorch.R'
     'zzz.R'
-    'utils.R'
     'TorchCallback.R'
     'CallbackTorchCheckpoint.R'
     'CallbackTorchHistory.R'
@@ -116,3 +115,4 @@ Collate:
     'paramset_torchlearner.R'
     'reset_last_layer.R'
     'task_dataset.R'
+    'utils.R'

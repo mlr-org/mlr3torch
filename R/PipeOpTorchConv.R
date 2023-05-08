@@ -54,6 +54,8 @@ PipeOpTorchConv = R6Class("PipeOpTorchConv",
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
+#' @inherit torch::nnf_conv1d description
+#'
 #' @section Parameters:
 #' * `out_channels` :: `integer(1)`\cr
 #'   Number of channels produced by the convolution.

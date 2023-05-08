@@ -22,9 +22,6 @@ check_callbacks = function(x) {
   if (anyDuplicated(ids)) {
     return("The ids of callbacks must be unique.")
   }
-  if ("history" %in% ids || any(map_lgl(x, function(x) inherits(x, "TorchHistory")))) {
-    return("CallbackTorchHistory with id 'history' is always added.")
-  }
   msg = check_list(x, types = "TorchCallback", any.missing = FALSE)
   if (is.character(msg)) {
     return(msg)

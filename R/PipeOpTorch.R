@@ -5,7 +5,9 @@
 #' @description
 #' `PipeOpTorch` is the base class for all [`PipeOp`]s that represent neural network layers in a [`Graph`].
 #' During **training**, it generates a [`PipeOpModule`] that wraps an [`nn_module`][torch::nn_module] and attaches it
-#' to the isomorphic architecture, which is also represented as a [`Graph`] consisting of [`PipeOpModule`]s.
+#' to the isomorphic architecture, which is also represented as a [`Graph`] consisting mostly of [`PipeOpModule`]s
+#' an [`PipeOpNOP`]s.
+#'
 #' While the former [`Graph`] operates on [`ModelDescriptor`]s, the latter operates on [tensors][torch_tensor].
 #'
 #' The relationship between a `PipeOpTorch` and a [`PipeOpModule`] is similar to the
@@ -17,6 +19,7 @@
 #'
 #' During **prediction**, `PipeOpTorch` takes in a [`Task`][mlr3::Task] in each channel and outputs the same new
 #' [`Task`][mlr3::Task] resulting from their [feature union][PipeOpFeatureUnion] in each channel.
+#' If there is only one input and output channel, the task is simply piped through.
 #'
 #' @section Inheriting:
 #' When inheriting from this class, one should overload either the `private$.shapes_out()` and the

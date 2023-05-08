@@ -61,17 +61,14 @@ element of \code{graph$input} may be removed by reference, e.g. by adding an edg
 channel of a \code{PipeOp} that was previously without parent as its destination.
 
 In most cases it is better to create a specific \code{ModelDescriptor} by training a \code{\link{Graph}} consisting (mostly) of
-operators \code{\link{PipeOpTorchIngress}} and \code{\link{PipeOpTorch}}.
+operators \code{\link{PipeOpTorchIngress}}, \code{\link{PipeOpTorch}}, \code{\link{PipeOpTorchLoss}}, \code{\link{PipeOpTorchOptimizer}}, and
+\code{\link{PipeOpTorchCallbacks}}.
 
 A \code{ModelDescriptor} can be converted to a \code{\link{nn_graph}} via \code{\link{model_descriptor_to_module}}.
 }
-\section{Fields}{
-
-See the description of the parameters.
-}
-
 \seealso{
 Other Model Configuration: 
+\code{\link{mlr_pipeops_torch_callbacks}},
 \code{\link{mlr_pipeops_torch_loss}},
 \code{\link{mlr_pipeops_torch_optimizer}},
 \code{\link{model_descriptor_union}()}

@@ -80,7 +80,9 @@ test_that("Test roles are respected", {
   task$filter(1:20)
   task$set_row_roles(1:10, "test")
 
-  learner = lrn("classif.torch_featureless", epochs = 2, batch_size = 1, measures_train = msrs(c("classif.acc")))
+  learner = lrn("classif.torch_featureless", epochs = 2, batch_size = 1, measures_train = msrs(c("classif.acc")),
+    callbacks = t_clbk("history")
+  )
   learner$train(task)
 
   expect_data_table(learner$history$train, nrows = 2)
@@ -90,7 +92,7 @@ test_that("Test roles are respected", {
   expect_equal(colnames(learner$history$valid), "epoch")
 
   learner = lrn("classif.torch_featureless", epochs = 2, batch_size = 1, measures_train = msrs(c("classif.acc")),
-    measures_valid = msr("classif.bacc")
+    measures_valid = msr("classif.bacc"), callbacks = t_clbk("history")
   )
 
   learner$train(task)

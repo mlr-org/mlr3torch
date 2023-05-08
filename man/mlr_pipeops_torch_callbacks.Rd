@@ -42,8 +42,20 @@ po_cb1 = po("torch_callbacks", t_clbk("progress"))
 mdout1 = po_cb1$train(list(mdout))[[1L]]
 mdout1$callbacks
 }
-\concept{Configuration}
-\concept{Model PipeOp}
+\seealso{
+Other Model Configuration: 
+\code{\link{ModelDescriptor}()},
+\code{\link{mlr_pipeops_torch_loss}},
+\code{\link{mlr_pipeops_torch_optimizer}},
+\code{\link{model_descriptor_union}()}
+
+Other PipeOp: 
+\code{\link{mlr_pipeops_module}},
+\code{\link{mlr_pipeops_torch_ingress_img}},
+\code{\link{mlr_pipeops_torch_optimizer}}
+}
+\concept{Model Configuration}
+\concept{PipeOp}
 \section{Super class}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{PipeOpTorchCallbacks}
 }

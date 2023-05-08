@@ -108,7 +108,7 @@ The optimizer used to train the network.}
 The loss used to train the network.}
 
 \item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
-The callbacks. Must have unique ids distinct from "history".}
+The callbacks. Must have unique ids.}
 }
 \if{html}{\out{</div>}}
 }

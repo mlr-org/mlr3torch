@@ -14,7 +14,8 @@ In most cases it is easier to create such a network by creating a isomorphic gra
 of nodes of class \code{\link{PipeOpTorchIngress}} and \code{\link{PipeOpTorch}}. This graph will then generate the graph consisting
 of \code{PipeOpModule}s during its training phase.
 
-The \code{predict} method does currently not serve a meaningful purpose.
+In general, this class is a slight abuse of the spirit of \code{\link{PipeOp}}s, as the \verb{$train()} phase represents the
+forward pass of the network and the \verb{$predict()} phase serves (currently) no meaningful purpose.
 }
 \section{Input and Output Channels}{
 
@@ -87,8 +88,6 @@ formalArgs(linear_module$module)
 linear_module$input$name
 }
 \seealso{
-nn_module, mlr_pipeops_torch, nn_graph, model_descriptor_to_module, PipeOp, Graph
-
 Other Graph Network: 
 \code{\link{ModelDescriptor}()},
 \code{\link{TorchIngressToken}()},
@@ -103,8 +102,14 @@ Other Graph Network:
 \code{\link{model_descriptor_to_module}()},
 \code{\link{model_descriptor_union}()},
 \code{\link{nn_graph}()}
+
+Other PipeOp: 
+\code{\link{mlr_pipeops_torch_callbacks}},
+\code{\link{mlr_pipeops_torch_ingress_img}},
+\code{\link{mlr_pipeops_torch_optimizer}}
 }
 \concept{Graph Network}
+\concept{PipeOp}
 \section{Super class}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{PipeOpModule}
 }

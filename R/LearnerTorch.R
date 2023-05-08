@@ -4,7 +4,11 @@
 #'
 #' @description
 #' This base class provides the basic functionality for training and prediction of a neural network.
-#' All torch classifiction learners should inherit from the respective subclass.
+#' All torch classifiction learners should inherit from the respective class, i.e.
+#' [`LearnerClassifTorch`] for classification and [`LearnerRegrTorch`] for regression.
+#'
+#' It also allows to hook into the training loop via a callback mechanism.
+#' They are executed in the order in which they were provided.
 #'
 #' @section State:
 #' The state is a list with elements `network`, `optimizer`, `loss_fn` and `callbacks`.
@@ -12,29 +16,35 @@
 #' @template paramset_torchlearner
 #'
 #' @section Inheriting:
-#' When inheriting from this class, one should overload two, methods, namely the
-#' `private$.network(task, param_vals)` and the `private$.dataset(task, param_vals)`.
-#' The former should construct [`torch::nn_module`] object for the given task and parameter values, while the latter
-#' is responsible for creating a [`torch::dataset`].
+#' When inheriting from this class, one should overload two private methods:
 #'
-#' **Important**
-#' The output of this network are expected to be the scores before the application of the final softmax
-#' layer.
+#' * `.network(task, param_vals)`\cr
+#'   ([`Task`], `list()`) -> [`nn_module`]\cr
+#'   Construct a [`torch::nn_module`] object for the given task and parameter values, i.e. the neural network.
+#'   The output of this network are expected to be the scores before the application of the final softmax layer.
+#' * `.dataset(task, param_vals)`\cr
+#'   ([`Task`], `list()`) -> [`torch::dataset`]\cr
+#'   Create the dataset for the task.
 #'
-#' It is also possible to overwrite the private `$.dataloader()` method, which otherwise calls `$.dataset()` and
-#' creates a dataloader from that dataset. When doing so, it is important to respect the parameter `shuffle`, because
-#' this method is used to ceate the dataloader for prediction as well.
+#' It is also possible to overwrite the private `.dataloader()` method instead of the `.dataset()` method.
+#' Per default, a datlaoader is constructed using the output from the `.dataset()` method.
+#'
+#' * `.dataloader(task, param_vals)`\cr
+#'   ([`Task`], `list()`) -> [`torch::dataloader`]\cr
+#'   Create a dataloader from the task.
+#'   When doing so, it is important to respect the parameter `shuffle`, because this method is also used to ceate the
+#'   dataloader for prediction, as well as the `batch_size`.
 #'
 #' While it is possible to add parameters by specifying the `param_set` construction argument, it is currently
-#' not possible to change these parameters.
+#' not possible to remove existing parameters, i.e. those listed in section *Parameters*.
 #' Note that none of the parameters provided in `param_set` can have an id that starts with `"loss."`, `"opt.",
-#' or `"cb."`, as these are preserved for the dynamically constructed parameters of the optimizer and the loss
-#' function.
+#' or `"cb."`, as these are preserved for the dynamically constructed parameters of the optimizer, the loss function,
+#' and the callbacks.
 #'
 #' @section Internals:
-#' A [`ParamSetCollection`] is created that combines the `param_set` from the construction with the
+#' A [`ParamSetCollection`] is created that combines the `param_set` passed during construction with the
 #' default torch parameters, as well as the loss, optimizer and callback parameters
-#' (prefixed with `"loss."`, `"opt."`, and `"cb."` respectively.
+#' (prefixed with `"loss."`, `"opt."`, and `"cb.<callback id>."` respectively.
 #'
 #' @family Learner
 #' @export
@@ -105,13 +115,13 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
     #'   The parameter set
     param_set = function(rhs) learner_torch_param_set(self, rhs),
     #' @field history ([`CallbackTorchHistory`])\cr
-    #'   The training history.
+    #' Shortcut for `learner$model$callbacks$history`.
     history = function(rhs) learner_torch_history(self, rhs)
   )
 )
 
 
-#' @title Abstract Base Class for a Torch Learner
+#' @title Abstract Base Class for a Torch Regression Learner
 #'
 #' @name mlr_learners_regr.torch
 #'
@@ -192,7 +202,7 @@ LearnerRegrTorch = R6Class("LearnerRegrTorch",
     #'   The parameter set
     param_set = function(rhs) learner_torch_param_set(self, rhs),
     #' @field history ([`CallbackTorchHistory`])\cr
-    #'   The training history.
+    #'   Shortcut for `learner$model$callbacks$history`.
     history = function(rhs) learner_torch_history(self, rhs)
   )
 )

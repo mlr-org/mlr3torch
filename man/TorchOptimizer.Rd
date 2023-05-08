@@ -4,11 +4,14 @@
 \alias{TorchOptimizer}
 \title{Torch Optimizer}
 \description{
-This wraps a \code{torch::torch_optimizer_generator}.
-It is commonly used to configure the \code{optimizer} of a torch learner.
-Can be used to configure the \code{optimizer} of a \code{\link{ModelDescriptor}}.
+This wraps a \code{torch::torch_optimizer_generator}a and annotates it with metadata, most importantly a \code{\link{ParamSet}}.
+The optimizer is created for the given parameter values by calling the \verb{$generate()} method.
+
+This class is usually used to configure the optimizer of a torch learner, e.g.
+when construcing a learner or in a \code{\link{ModelDescriptor}}.
 
 For a list of available optimizers, see \code{\link{mlr3torch_optimizers}}.
+Items from this dictionary can be r \code{\link[=t_opt]{t_opt()}}.
 }
 \section{Parameters}{
 
@@ -21,9 +24,27 @@ torchopt = TorchOptimizer$new(optim_adam, label = "adam")
 # If the param set is not specified, parameters are inferred but are of class ParamUty
 torchopt$param_set
 
+# Retrieve an optimizer from the dictionary
+torchopt = t_opt("sgd", lr = 0.1)
+torchopt
+torchopt$param_set
+torchopt$label
+torchopt$id
+
 # Create the optimizer for a network
 net = nn_linear(10, 1)
 opt = torchopt$generate(net$parameters)
+
+# is the same as
+optim_sgd(net$parameters, lr = 0.1)
+
+# open the help page of the wrapped optimizer
+torchopt$help()
+
+# Use in a learner
+learner = lrn("regr.mlp", optimizer = t_opt("sgd"))
+# The parameters of the optimizer are added to the learner's parameter set
+learner$param_set
 }
 \seealso{
 Other Torch Wrapper: 

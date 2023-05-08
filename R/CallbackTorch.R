@@ -3,20 +3,26 @@
 #' @name mlr_callbacks_torch
 #'
 #' @description
-#' Base class from which Torch Callbacks should inherit.
-#' To create custom callbacks to use in a torch learner it is recommended to use the convenience function 
-#' [`torch_callback`].
-#' TODO: This documentation sucks, better docu of the api and internals
-#'
-#' Torch Callbacks can be used to gain more control over the training process of a neural network without
+#' Base class from which Callbacks should inherit.
+#' They can be used to gain more control over the training process of a neural network without
 #' having to write everything from scratch.
-#' At each stage (see section "Stages") of the training loop, the corresponding `on_<stage>(ctx)` method is run
-#' that takes as argument a [`ContextTorch`] which gives access to the relevant objects.
+#' To create custom callbacks to use in a torch learner it is recommended to use the convenience function
+#' [`torch_callback`].
 #'
-#' @section Inheriting:
+#' For each available stage (see section *Stages*) a private method `$on_<stage>(xtx)` can be defined.
+#' This must be an function with argument `ctx`, which is a [`ContextTorch`].
+#'
+#' When a learner is trained, at a specific `<stage>`, the `$on_<stage>(ctx)` method of the callback is
+#' executed, where the `ctx` represents the current state of the training loop.
+#'
+#' Different stages of a callback can communicate with each other by assigning values to `$self`.
 #' It is recommended to use the sugar function [`callback_torch()`] to create custom callbacks.
 #' The callback stages have to be implemented as private methods with argument `ctx`, which is a [`ContextTorch`].
 #' For available methods see section "Stages".
+#'
+#' When used in torch learner, the `CallbackTorch` is wrapped in a [`TorchCallback`].
+#' The latters parameter set represent the argument of the [`CallbackTorch`]'s  `$initialize()` method and can
+#' be specified in the learner.
 #'
 #' @section Stages:
 #' * `begin` :: Run before the training loop begins.

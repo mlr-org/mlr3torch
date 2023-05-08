@@ -17,7 +17,7 @@ Can be converted to a \code{\link{data.table}} using \code{as.data.table}.
 }
 \section{Available Optimizers}{
 
-adadelta, adagrad, adam, asgd, lbfgs, rmsprop, rprop, sgd
+adadelta, adagrad, adam, asgd, rmsprop, rprop, sgd
 }
 
 \examples{

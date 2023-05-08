@@ -46,6 +46,8 @@ po_ingress
 }
 \seealso{
 Other PipeOp: 
+\code{\link{mlr_pipeops_module}},
+\code{\link{mlr_pipeops_torch_callbacks}},
 \code{\link{mlr_pipeops_torch_optimizer}}
 
 Other Graph Network: 
