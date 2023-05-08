@@ -69,6 +69,7 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_max_pool2d}},
 \code{\link{mlr_pipeops_nn_max_pool3d}},
 \code{\link{mlr_pipeops_nn_merge_cat}},
+\code{\link{mlr_pipeops_nn_merge_prod}},
 \code{\link{mlr_pipeops_nn_merge_sum}},
 \code{\link{mlr_pipeops_nn_merge}},
 \code{\link{mlr_pipeops_nn_prelu}},
@@ -169,9 +170,9 @@ otherwise be set during construction.}
 \item{\code{packages}}{(\code{character()})\cr
 The R packages this object depends on.}
 
-\item{\code{feature_types}}{:: \code{character()}\cr
-The features types that can be consumed by this \code{PipeOpTorchIngress}.
-Must be a subset of \code{\link[mlr3:mlr_reflections]{mlr_reflections$task_feature_types}}.}
+\item{\code{feature_types}}{(\code{character()})\cr
+The feature types.
+See \code{\link[=mlr_reflections]{mlr_reflections$task_feature_types}} for available values.}
 }
 \if{html}{\out{</div>}}
 }

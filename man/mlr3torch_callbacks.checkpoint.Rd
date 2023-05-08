@@ -39,7 +39,7 @@ Other Callback:
 \subsection{Method \code{new()}}{
 Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchCheckpoint$new(path, freq, save_last = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchCheckpoint$new(path, freq)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -50,9 +50,6 @@ The path to a folder where the models are saved. This path must not exist before
 
 \item{\code{freq}}{(\code{integer(1)})\cr
 The frequency how often the model is saved (epoch frequency).}
-
-\item{\code{save_last}}{(\code{logical(1)})\cr
-Whether to always save the last model.}
 }
 \if{html}{\out{</div>}}
 }
@@ -78,7 +75,7 @@ Saves the network state dict.
 \if{html}{\out{<a id="method-CallbackTorchCheckpoint-on_end"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackTorchCheckpoint-on_end}{}}}
 \subsection{Method \code{on_end()}}{
-Saves Saves the final network.
+Saves the final network.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CallbackTorchCheckpoint$on_end(ctx)}\if{html}{\out{</div>}}
 }

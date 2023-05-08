@@ -39,7 +39,7 @@ PipeOpTorchCallbacks = R6Class("PipeOpTorchCallbacks",
     #' @template params_pipelines
     #' @param callbacks (`list` of [`TorchCallback`]s) \cr
     #'   The callbacks (or something convertible via [`as_torch_callbacks()`]).
-    #'   Must have unique ids. Default is `list()`.
+    #'   Must have unique ids.
     #'   All callbacks are cloned during construction.
     initialize = function(callbacks = list(), id = "torch_callbacks", param_vals = list()) {
       private$.callbacks = as_torch_callbacks(callbacks, clone = TRUE)

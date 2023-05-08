@@ -46,7 +46,7 @@ CallbackTorchProgress = R6Class("CallbackTorchProgress",
       self$pb_valid$tick()
     },
     #' @description
-    #' prints a summary of the training and validation results.
+    #' Prints a summary of the training and validation process.
     #' @param ctx [ContextTorch]
     on_epoch_end = function(ctx) {
       scores = list()

@@ -11,11 +11,13 @@ This class is usually used to configure the optimizer of a torch learner, e.g.
 when construcing a learner or in a \code{\link{ModelDescriptor}}.
 
 For a list of available optimizers, see \code{\link{mlr3torch_optimizers}}.
-Items from this dictionary can be r \code{\link[=t_opt]{t_opt()}}.
+Items from this dictionary can be retrieved using \code{\link[=t_opt]{t_opt()}}.
 }
 \section{Parameters}{
 
 Defined by the constructor argument \code{param_set}.
+If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
+for each argument of the wrapped loss function, where the parametes are then of type \code{\link{ParamUty}}.
 }
 
 \examples{
@@ -102,8 +104,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \item{\code{torch_optimizer}}{(\code{torch_optimizer_generator})\cr
 The torch optimizer.}
 
-\item{\code{param_set}}{(\code{paradox::ParamSet})\cr
-The parameter set.}
+\item{\code{param_set}}{(\code{ParamSet} or \code{NULL})\cr
+The parameter set. If \code{NULL} (default) it is inferred from \code{torch_optimizer}.}
 
 \item{\code{id}}{(\code{character(1)})\cr
 The id for of the new object.}

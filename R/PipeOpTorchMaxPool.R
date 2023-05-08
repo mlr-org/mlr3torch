@@ -56,7 +56,7 @@ max_output_shape = avg_output_shape
 #'
 #' @templateVar id nn_max_pool1d
 #' @section Input and Output Channels:
-#' If `return_indices` is `FALSE` during construction, there is one input channel and one output channel.
+#' If `return_indices` is `FALSE` during construction, there is one input channel 'input' and one output channel 'output'.
 #' If `return_indices` is `TRUE`, there are two output channels 'output' and 'indices'.
 #' For an explanation see [`PipeOpTorch`].
 #' @template pipeop_torch
@@ -83,8 +83,6 @@ PipeOpTorchMaxPool1D = R6Class("PipeOpTorchMaxPool1D", inherit = PipeOpTorchMaxP
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
-    #' @param d (`integer(1)`)\cr
-    #'   The dimension of the max pooling operation.
     #' @param return_indices (`logical(1)`)\cr
     #'  Whether to return the indices.
     #'  If this is `TRUE`, there are two output channels `"output"` and `"indices"`.
@@ -111,8 +109,6 @@ PipeOpTorchMaxPool2D = R6Class("PipeOpTorchMaxPool2D", inherit = PipeOpTorchMaxP
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
-    #' @param d (`integer(1)`)\cr
-    #'   The dimension of the max pooling operation.
     #' @param return_indices (`logical(1)`)\cr
     #'  Whether to return the indices.
     #'  If this is `TRUE`, there are two output channels `"output"` and `"indices"`.
@@ -142,8 +138,6 @@ PipeOpTorchMaxPool3D = R6Class("PipeOpTorchMaxPool3D", inherit = PipeOpTorchMaxP
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
-    #' @param d (`integer(1)`)\cr
-    #'   The dimension of the max pooling operation.
     #' @param return_indices (`logical(1)`)\cr
     #'  Whether to return the indices.
     #'  If this is `TRUE`, there are two output channels `"output"` and `"indices"`.

@@ -1,7 +1,6 @@
 #' @title Merge Operation
 #'
 #' @name mlr_pipeops_nn_merge
-#' @templateVar id nn_conv1d
 #' @template pipeop_torch_state_default
 #'
 #' @description
@@ -103,7 +102,7 @@ PipeOpTorchMergeSum = R6Class("PipeOpTorchMergeSum", inherit = PipeOpTorchMerge,
 
 #' @title Merge by Product
 #'
-#' @templateVar id nn_merge_sum
+#' @templateVar id nn_merge_prod
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
 #' @template pipeop_torch_example

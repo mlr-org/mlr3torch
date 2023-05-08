@@ -14,15 +14,11 @@ when construcing a learner or in a \code{\link{ModelDescriptor}}.
 For a list of available losses, see \code{\link{mlr3torch_losses}}.
 Items from this dictionary can be retrieved using \code{\link[=t_loss]{t_loss()}}.
 }
-\section{Internals}{
-
-If this is not provided during construction, the parameter set is constructed by creating a parameter for each
-argument of the wrapped loss function, where the parametes are then of type \code{\link{ParamUty}}.
-}
-
 \section{Parameters}{
 
 Defined by the constructor argument \code{param_set}.
+If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
+for each argument of the wrapped loss function, where the parametes are then of type \code{\link{ParamUty}}.
 }
 
 \examples{
@@ -124,8 +120,8 @@ The loss module.}
 The task types supported by this loss.
 If left as \code{NULL} (default), this value is set to all available task types.}
 
-\item{\code{param_set}}{(\code{paradox::ParamSet})\cr
-The parameter set.}
+\item{\code{param_set}}{(\code{\link{ParamSet}} or \code{NULL})\cr
+The parameter set. If \code{NULL} (default) it is inferred from \code{torch_loss}.}
 
 \item{\code{id}}{(\code{character(1)})\cr
 The id for of the new object.}

@@ -94,7 +94,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \describe{
 \item{\code{callbacks}}{(\code{list} of \code{\link{TorchCallback}}s) \cr
 The callbacks (or something convertible via \code{\link[=as_torch_callbacks]{as_torch_callbacks()}}).
-Must have unique ids. Default is \code{list()}.
+Must have unique ids.
 All callbacks are cloned during construction.}
 
 \item{\code{id}}{(\code{character(1)})\cr

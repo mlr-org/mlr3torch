@@ -25,7 +25,7 @@ Calls \code{\link[torch:nn_max_pool2d]{torch::nn_max_pool2d()}} during training.
 
 \section{Input and Output Channels}{
 
-If \code{return_indices} is \code{FALSE} during construction, there is one input channel and one output channel.
+If \code{return_indices} is \code{FALSE} during construction, there is one input channel 'input' and one output channel 'output'.
 If \code{return_indices} is \code{TRUE}, there are two output channels 'output' and 'indices'.
 For an explanation see \code{\link{PipeOpTorch}}.
 }
@@ -84,6 +84,7 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_max_pool1d}},
 \code{\link{mlr_pipeops_nn_max_pool3d}},
 \code{\link{mlr_pipeops_nn_merge_cat}},
+\code{\link{mlr_pipeops_nn_merge_prod}},
 \code{\link{mlr_pipeops_nn_merge_sum}},
 \code{\link{mlr_pipeops_nn_merge}},
 \code{\link{mlr_pipeops_nn_prelu}},
@@ -157,9 +158,6 @@ If this is \code{TRUE}, there are two output channels \code{"output"} and \code{
 \item{\code{param_vals}}{(\code{list()})\cr
 List of hyperparameter settings, overwriting the hyperparameter settings that would
 otherwise be set during construction.}
-
-\item{\code{d}}{(\code{integer(1)})\cr
-The dimension of the max pooling operation.}
 }
 \if{html}{\out{</div>}}
 }

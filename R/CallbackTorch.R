@@ -6,8 +6,6 @@
 #' Base class from which Callbacks should inherit.
 #' They can be used to gain more control over the training process of a neural network without
 #' having to write everything from scratch.
-#' To create custom callbacks to use in a torch learner it is recommended to use the convenience function
-#' [`torch_callback`].
 #'
 #' For each available stage (see section *Stages*) a public method `$on_<stage>(xtx)` can be defined.
 #' This must be an function with argument `ctx`, which is a [`ContextTorch`].
@@ -16,11 +14,12 @@
 #' executed, where the `ctx` represents the current state of the training loop.
 #'
 #' Different stages of a callback can communicate with each other by assigning values to `$self`.
-#' It is recommended to use the sugar function [`callback_torch()`] to create custom callbacks.
 #'
 #' When used in torch learner, the `CallbackTorch` is wrapped in a [`TorchCallback`].
 #' The latters parameter set represents the argument of the [`CallbackTorch`]'s `$initialize()` method and can
 #' be specified in the learner.
+#' For creating custom callbacks, the function [`torch_callback()`] is recommended, which creates a
+#' [`CallbackTorch`] and then wraps it in a [`TorchCallback`].
 #'
 #' @section Stages:
 #' * `begin` :: Run before the training loop begins.

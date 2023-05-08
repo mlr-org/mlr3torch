@@ -10,7 +10,7 @@
 #'
 #' In most cases it is easier to create such a network by creating a isomorphic graph consisting
 #' of nodes of class [`PipeOpTorchIngress`] and [`PipeOpTorch`]. This graph will then generate the graph consisting
-#' of `PipeOpModule`s during its training phase in its [`ModelDescriptor`] it produces.
+#' of `PipeOpModule`s as part of the [`ModelDescriptor`].
 #'
 #' @section Input and Output Channels:
 #' The number and names of the input and output channels can be set during construction. They input and output

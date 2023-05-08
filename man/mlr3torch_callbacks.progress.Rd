@@ -108,7 +108,7 @@ Increments the validation progress bar.
 \if{html}{\out{<a id="method-CallbackTorchProgress-on_epoch_end"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackTorchProgress-on_epoch_end}{}}}
 \subsection{Method \code{on_epoch_end()}}{
-prints a summary of the training and validation results.
+Prints a summary of the training and validation process.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_epoch_end(ctx)}\if{html}{\out{</div>}}
 }

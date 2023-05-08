@@ -58,7 +58,7 @@ Converts the lists to data.tables.
 \if{html}{\out{<a id="method-CallbackTorchHistory-on_before_valid"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackTorchHistory-on_before_valid}{}}}
 \subsection{Method \code{on_before_valid()}}{
-Add the last training scores to the history.
+Add the latest training scores to the history.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CallbackTorchHistory$on_before_valid(ctx)}\if{html}{\out{</div>}}
 }
@@ -75,7 +75,7 @@ Add the last training scores to the history.
 \if{html}{\out{<a id="method-CallbackTorchHistory-on_epoch_end"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackTorchHistory-on_epoch_end}{}}}
 \subsection{Method \code{on_epoch_end()}}{
-Add the last validation scores to the history.
+Add the latest validation scores to the history.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CallbackTorchHistory$on_epoch_end(ctx)}\if{html}{\out{</div>}}
 }

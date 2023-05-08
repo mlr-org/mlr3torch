@@ -48,10 +48,12 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #' when construcing a learner or in a [`ModelDescriptor`].
 #'
 #' For a list of available optimizers, see [`mlr3torch_optimizers`].
-#' Items from this dictionary can be r [`t_opt()`].
+#' Items from this dictionary can be retrieved using [`t_opt()`].
 #'
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
+#' If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
+#' for each argument of the wrapped loss function, where the parametes are then of type [`ParamUty`].
 #'
 #' @family Torch Wrapper
 #' @export
@@ -89,7 +91,8 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #' @param torch_optimizer (`torch_optimizer_generator`)\cr
     #'   The torch optimizer.
-    #' @template param_param_set
+    #' @param param_set (`ParamSet` or `NULL`)\cr
+    #'   The parameter set. If `NULL` (default) it is inferred from `torch_optimizer`.
     #' @template param_id
     #' @template param_label
     #' @template param_packages

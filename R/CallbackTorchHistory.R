@@ -25,7 +25,7 @@ CallbackTorchHistory = R6Class("CallbackTorchHistory",
       self$valid = rbindlist(self$valid, fill = TRUE)
     },
     #' @description
-    #' Add the last training scores to the history.
+    #' Add the latest training scores to the history.
     #' @param ctx [ContextTorch]
     on_before_valid = function(ctx) {
       if (length(ctx$last_scores_train)) {
@@ -33,7 +33,7 @@ CallbackTorchHistory = R6Class("CallbackTorchHistory",
       }
     },
     #' @description
-    #' Add the last validation scores to the history.
+    #' Add the latest validation scores to the history.
     #' @param ctx [ContextTorch]
     on_epoch_end = function(ctx) {
       if (length(ctx$last_scores_valid)) {

@@ -12,7 +12,7 @@ from \code{\link{nn_module}}.
 
 In most cases it is easier to create such a network by creating a isomorphic graph consisting
 of nodes of class \code{\link{PipeOpTorchIngress}} and \code{\link{PipeOpTorch}}. This graph will then generate the graph consisting
-of \code{PipeOpModule}s during its training phase in its \code{\link{ModelDescriptor}} it produces.
+of \code{PipeOpModule}s as part of the \code{\link{ModelDescriptor}}.
 }
 \section{Input and Output Channels}{
 

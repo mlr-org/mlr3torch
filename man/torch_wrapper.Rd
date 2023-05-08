@@ -7,7 +7,7 @@
 \description{
 Abstract Base Class from which \code{\link{TorchLoss}}, \code{\link{TorchOptimizer}}, and \code{\link{TorchCallback}} inherit.
 This class wraps a generator (R6Class Generator or the torch version of such a generator) and annotates it
-with metadata such as a \code{\link{ParamSet}}, a label, and an ID.
+with metadata such as a \code{\link{ParamSet}}, a label, an ID, packages, or a manual page.
 
 The parameters are the construction arguments of the wrapped generator and the parameter \verb{$values} are passed
 to the generator when calling the public method \verb{$generate()}.

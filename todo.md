@@ -152,6 +152,7 @@ Also add tests or sth. (For learners that allow to set the activation function b
 * [ ] Setup benchmark scripts that also run on GPU and run them at least once
 
 **Test Coverage**
+* [ ] properly test the shapes_out() method of the pipeoptorch
 * [ ] Reset layer things
 * [ ] Parameters must have default or tag required (?)
 * [ ] Check that mlr_pipeops can still be converted to dict

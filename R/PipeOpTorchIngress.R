@@ -33,9 +33,7 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
     #' @template params_pipelines
     #' @template param_param_set
     #' @template param_packages
-    #' @param feature_types :: `character()`\cr
-    #'   The features types that can be consumed by this `PipeOpTorchIngress`.
-    #'   Must be a subset of [`mlr_reflections$task_feature_types`][mlr3::mlr_reflections].
+    #' @template param_feature_types
     initialize = function(id, param_set = ps(), param_vals = list(), packages = character(0), feature_types) {
       private$.feature_types = assert_subset(feature_types, mlr_reflections$task_feature_types)
       ps_tmp = ps(

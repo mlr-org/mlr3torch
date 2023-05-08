@@ -11,11 +11,13 @@ This class is usually used to configure the callback of a torch learner, e.g. wh
 a learner of in a \code{\link{ModelDescriptor}}.
 
 For a list of available callbacks, see mlr3torch_callbacks
-To conveniently retrieve a \code{\link{TorchCallback}}, use \code{\link{t_clbk}}.
+To conveniently retrieve a \code{\link{TorchCallback}}, use \code{\link[=t_clbk]{t_clbk()}}.
 }
 \section{Parameters}{
 
 Defined by the constructor argument \code{param_set}.
+If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
+for each argument of the wrapped loss function, where the parametes are then of type \code{\link{ParamUty}}.
 }
 
 \examples{
@@ -119,8 +121,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \item{\code{callback_generator}}{(\code{R6ClassGenerator})\cr
 The class generator for the callback that is being wrapped.}
 
-\item{\code{param_set}}{(\code{paradox::ParamSet})\cr
-The parameter set.}
+\item{\code{param_set}}{(\code{ParamSet} or \code{NULL})\cr
+The parameter set. If \code{NULL} (default) it is inferred from \code{callback_generator}.}
 
 \item{\code{id}}{(\code{character(1)})\cr
 The id for of the new object.}

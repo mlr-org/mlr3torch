@@ -135,10 +135,12 @@ as_torch_callbacks.character = function(x, clone = FALSE, ...) { # nolint
 #' a learner of in a [`ModelDescriptor`].
 #'
 #' For a list of available callbacks, see mlr3torch_callbacks
-#' To conveniently retrieve a [`TorchCallback`], use [`t_clbk`].
+#' To conveniently retrieve a [`TorchCallback`], use [`t_clbk()`].
 #'
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
+#' If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
+#' for each argument of the wrapped loss function, where the parametes are then of type [`ParamUty`].
 #'
 #' @family Callback
 #' @family Torch Wrapper
@@ -183,7 +185,8 @@ TorchCallback = R6Class("TorchCallback",
     #' @param callback_generator (`R6ClassGenerator`)\cr
     #'   The class generator for the callback that is being wrapped.
     #' @template param_id
-    #' @template param_param_set
+    #' @param param_set (`ParamSet` or `NULL`)\cr
+    #'   The parameter set. If `NULL` (default) it is inferred from `callback_generator`.
     #' @template param_label
     #' @template param_packages
     #' @template param_man

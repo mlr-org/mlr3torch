@@ -49,12 +49,10 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 #' For a list of available losses, see [`mlr3torch_losses`].
 #' Items from this dictionary can be retrieved using [`t_loss()`].
 #'
-#' @section Internals:
-#' If this is not provided during construction, the parameter set is constructed by creating a parameter for each
-#' argument of the wrapped loss function, where the parametes are then of type [`ParamUty`].
-#'
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
+#' If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
+#' for each argument of the wrapped loss function, where the parametes are then of type [`ParamUty`].
 #'
 #' @family Torch Wrapper
 #' @export
@@ -100,7 +98,8 @@ TorchLoss = R6::R6Class("TorchLoss",
     #' @param task_types (`character()`)\cr
     #'   The task types supported by this loss.
     #'   If left as `NULL` (default), this value is set to all available task types.
-    #' @template param_param_set
+    #' @param param_set ([`ParamSet`] or `NULL`)\cr
+    #'   The parameter set. If `NULL` (default) it is inferred from `torch_loss`.
     #' @template param_id
     #' @template param_label
     #' @template param_packages
