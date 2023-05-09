@@ -1,12 +1,17 @@
 ---
-title: "TorchOps Neo"
+title: "Building a Neural Network using PipeOps"
 author: "mb706"
-date: '2022-08-13'
-output: html_document
+date: '2023-05-09'
+output:
+  html_document:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{batchtools}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, message = FALSE}
-library("torch")
 library("mlr3torch")
 ```
 ```{r, include = FALSE}
@@ -114,7 +119,7 @@ module_graph$input
 
 graph_module <- nn_graph(
   module_graph,
-  shapes_in = list(module_1.input1 = c(NA, 3))
+  shapes_in = list(module_1.input = c(NA, 3))
 )
 ```
 
@@ -208,7 +213,7 @@ The sequential NN from above can easily be implemented as follows:
 ```{r}
 graph_generator <- po("torch_ingress_num") %>>%
   po("nn_linear", out_features = 4, id = "linear1") %>>%
-    po("nn_act_sigmoid") %>>%
+    po("nn_sigmoid") %>>%
     po("nn_linear", out_features = 3, id = "linear2") %>>%	
 	po("nn_softmax", dim = 2)
 ```
@@ -241,12 +246,12 @@ graph_sepal <- po("torch_ingress_num", id = "sepal.in") %>>%
 
 graph_petal <- po("torch_ingress_num", id = "petal.in") %>>%
   po("nn_linear", out_features = 3, id = "linear2") %>>%
-  po("nn_act_tanh") %>>%
+  po("nn_tanh") %>>%
   po("nn_linear", out_features = 5, id = "linear3")
 
 graph_common <- ppl("branch", graphs = list(
-    sigmoid = po("nn_act_sigmoid"),
-    relu = po("nn_act_relu")
+    sigmoid = po("nn_sigmoid"),
+    relu = po("nn_relu")
   )) %>>%
   gunion(list(
     po("nn_linear", out_features = 1, id = "lin_out"),
@@ -309,7 +314,7 @@ We make multiple observations here:
     output_pointers
     iris_module = model_descriptor_to_module(iris_mds_union, output_pointers, list_output = TRUE)
     ```
-1. The `PipeOpBranch` disappears in the resulting `Graph` of [`PipeOpModule`] in the `iris_module`. This is because only the [`PipeOpTorch`]s in the `graph_iris` add anything to the [`ModelDescriptor`]s. The branch is interpeted when `graph_iris` runs, and only the `nn_act_relu` path is followed. The `iris_module` therefore contains a `Graph` that does "relu" activation:
+1. The `PipeOpBranch` disappears in the resulting `Graph` of [`PipeOpModule`] in the `iris_module`. This is because only the [`PipeOpTorch`]s in the `graph_iris` add anything to the [`ModelDescriptor`]s. The branch is interpeted when `graph_iris` runs, and only the `nn_relu` path is followed. The `iris_module` therefore contains a `Graph` that does "relu" activation:
 
     ```{r}
     iris_module$graph$plot()
@@ -379,6 +384,7 @@ lr_sequential <- LearnerClassifTorchModel$new(
   network = model_descriptor_to_module(md_sequential, list(md_sequential$.pointer)),
   ingress_tokens = md_sequential$ingress,
   optimizer = adam,
+  callbacks = t_clbk("progress"),
   loss = xe
 )
 
@@ -388,10 +394,11 @@ lr_sequential
 Before training the model, we set some more hyperparameters. Among others, we use a [`CallbackTorch`] that prints progress and validation losses that we request.
 
 ```{r}
-lr_sequential$param_set$values$batch_size = 50
-lr_sequential$param_set$values$epochs = 50
-lr_sequential$param_set$values$callbacks = list(CallbackTorchProgress)
-lr_sequential$param_set$values$measures_train = msrs(c("classif.logloss", "classif.ce"))
+lr_sequential$param_set$set_values(
+  batch_size = 50,
+  epochs = 50,
+  measures_train = msrs(c("classif.logloss", "classif.ce"))
+)
 lr_sequential$predict_type = "response"
 
 lr_sequential$train(md_sequential$task)
@@ -452,14 +459,14 @@ md_sequential$loss
 
 ## Combined Instantiation and Training of [`LearnerClassifTorchModel`] 
 
-The [`ModelDescriptor`] can now be given to a `po("torch_model.classif")`.
+The [`ModelDescriptor`] can now be given to a `po("torch_model_classif")`.
 ```{r}
-po_model = po("torch_model.classif", batch_size = 50, epochs = 50)
+po_model = po("torch_model_classif", batch_size = 50, epochs = 50)
 
 po_model$train(list(md_sequential))
 ```
 
-`po("torch_model.classif")` behaves similarly to a `PipeOpLearner`: It returns `NULL` during training, and the prediction on `$predict()`. 
+`po("torch_model_classif")` behaves similarly to a `PipeOpLearner`: It returns `NULL` during training, and the prediction on `$predict()`. 
 
 ```{r}
 newtask = TaskClassif$new("newdata", cbind(newdata, Species = factor(NA, levels = levels(iris$Species))), target = "Species")
@@ -476,14 +483,14 @@ Remember that `md_sequential` was created using a `Graph` that the initial `Task
 ```{r}
 graph_sequential_full <- po("torch_ingress_num") %>>%
   po("nn_linear", out_features = 4, id = "linear1") %>>%
-    po("nn_act_sigmoid") %>>%
+    po("nn_sigmoid") %>>%
     po("nn_linear", out_features = 3, id = "linear2") %>>%	
 	po("nn_softmax", dim = 2, id = "softmax") %>>%
     po("nn_linear", out_features = 3, id = "linear3") %>>%	
 	po("nn_softmax", dim = 2, id = "softmax2") %>>%
     po("torch_optimizer", optimizer = adam) %>>%
     po("torch_loss", loss = xe) %>>%
-    po("torch_model.classif", batch_size = 50, epochs = 100)
+    po("torch_model_classif", batch_size = 50, epochs = 100)
 lr_sequential_full = as_learner(graph_sequential_full)
 
 lr_sequential_full$train(task)
@@ -496,7 +503,7 @@ graph_sequential_full$plot()
 
 With the `Graph` of the trained model:
 ```{r}
-model <- lr_sequential_full$graph_model$state$torch_model.classif$model
+model <- lr_sequential_full$graph_model$state$torch_model_classif$model
 model$network$graph$plot()
 ```
 
@@ -513,14 +520,14 @@ We are not just limited to [`PipeOpTorch`] in these kinds of `Graph`s, and we ar
 
 ```{r}
 gr <- po("select", selector = selector_name("Petal.Length")) %>>%
-    po("torch_ingress_num") %>>%
-    po("nn_linear", out_features = 5, id = "linear1") %>>%
-    po("nn_act_relu") %>>%
-    po("nn_linear", out_features = 3, id = "linear2") %>>%
-	po("nn_softmax", dim = 2) %>>%
-    po("torch_optimizer", optimizer = adam) %>>%
-    po("torch_loss", loss = xe) %>>%
-    po("torch_model.classif", batch_size = 50, epochs = 50)
+  po("torch_ingress_num") %>>%
+  po("nn_linear", out_features = 5, id = "linear1") %>>%
+  po("nn_relu") %>>%
+  po("nn_linear", out_features = 3, id = "linear2") %>>%
+  po("nn_softmax", dim = 2) %>>%
+  po("torch_optimizer", optimizer = adam) %>>%
+  po("torch_loss", loss = xe) %>>%
+  po("torch_model_classif", batch_size = 50, epochs = 50)
 gr$plot()
 ```
 ```{r}
@@ -543,14 +550,16 @@ gr <- gunion(list(
         po("nn_linear", out_features = 3, id = "linear2")
     )) %>>%
     po("nn_merge_cat")  %>>%
-    po("nn_act_relu", id = "act1")%>>%
+    po("nn_relu", id = "act1") %>>%
     po("nn_linear", out_features = 3, id = "linear3") %>>%
 	po("nn_softmax", dim = 2, id = "act3") %>>%
     po("torch_optimizer", optimizer = adam, lr = 0.1) %>>%
     po("torch_loss", loss = xe) %>>%
-    po("torch_model.classif", batch_size = 50, epochs = 50)
+    po("torch_model_classif", batch_size = 50, epochs = 0)
+
 gr$plot()
 ```
+
 ```{r}
 lr <- as_learner(gr)
 lr$train(task)

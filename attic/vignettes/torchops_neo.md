@@ -1131,17 +1131,17 @@ md_sequential$loss
 
 ## Combined Instantiation and Training of [`LearnerClassifTorchModel`]
 
-The [`ModelDescriptor`] can now be given to a `po("torch_model.classif")`.
+The [`ModelDescriptor`] can now be given to a `po("torch_model_classif")`.
 
 ```r
-po_model = po("torch_model.classif", batch_size = 50, epochs = 50)
+po_model = po("torch_model_classif", batch_size = 50, epochs = 50)
 
 po_model$train(list(md_sequential))
 #> $output
 #> NULL
 ```
 
-`po("torch_model.classif")` behaves similarly to a `PipeOpLearner`: It returns `NULL` during training, and the prediction on `$predict()`.
+`po("torch_model_classif")` behaves similarly to a `PipeOpLearner`: It returns `NULL` during training, and the prediction on `$predict()`.
 
 
 ```r
@@ -1169,7 +1169,7 @@ graph_sequential_full <- po("torch_ingress_num") %>>%
 	po("nn_softmax", dim = 2, id = "softmax2") %>>%
     po("torch_optimizer", optimizer = adam) %>>%
     po("torch_loss", loss = xe) %>>%
-    po("torch_model.classif", batch_size = 50, epochs = 100)
+    po("torch_model_classif", batch_size = 50, epochs = 100)
 lr_sequential_full = as_learner(graph_sequential_full)
 
 lr_sequential_full$train(task)
@@ -1186,7 +1186,7 @@ graph_sequential_full$plot()
 With the `Graph` of the trained model:
 
 ```r
-model <- lr_sequential_full$graph_model$state$torch_model.classif$model
+model <- lr_sequential_full$graph_model$state$torch_model_classif$model
 model$network$graph$plot()
 ```
 
@@ -1216,7 +1216,7 @@ gr <- po("select", selector = selector_name("Petal.Length")) %>>%
 	po("nn_softmax", dim = 2) %>>%
     po("torch_optimizer", optimizer = adam) %>>%
     po("torch_loss", loss = xe) %>>%
-    po("torch_model.classif", batch_size = 50, epochs = 50)
+    po("torch_model_classif", batch_size = 50, epochs = 50)
 gr$plot()
 ```
 
@@ -1250,7 +1250,7 @@ gr <- gunion(list(
 	po("nn_softmax", dim = 2, id = "act3") %>>%
     po("torch_optimizer", optimizer = adam, lr = 0.1) %>>%
     po("torch_loss", loss = xe) %>>%
-    po("torch_model.classif", batch_size = 50, epochs = 50)
+    po("torch_model_classif", batch_size = 50, epochs = 50)
 gr$plot()
 ```
 

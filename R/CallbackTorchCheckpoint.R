@@ -1,6 +1,6 @@
 #' @title Callback Torch Checkpoint
 #'
-#' @name mlr3torch_callbacks.checkpoint
+#' @name mlr_callbacks_torch.checkpoint
 #'
 #' @description
 #' Saves the model during training.
@@ -55,6 +55,6 @@ mlr3torch_callbacks$add("checkpoint", function() {
     ),
     id = "checkpoint",
     label = "Checkpoint",
-    man = "mlr3torch::mlr3torch_callbacks.checkpoint"
+    man = "mlr3torch::mlr_callbacks_torch.checkpoint"
   )
 })

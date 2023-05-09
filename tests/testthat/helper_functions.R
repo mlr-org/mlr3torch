@@ -1,12 +1,8 @@
 expect_po_ingress = function(po_ingress, task) {
   testthat::expect_error(po_ingress$train(list(task))[[1]], regexp = "Task contains features of type")
 
-  # selecting the feature types first is the same as setting select to TRUE
-  tmp = po("select", selector = selector_type(c(po_ingress$feature_types)))$train(list(task))
-  token_presel = po_ingress$train(tmp)[[1L]]
-  po_ingress$param_set$values$select = TRUE
-  token = po_ingress$train(list(task))[[1]]
-  testthat::expect_equal(token, token_presel)
+  task = po("select", selector = selector_type(c(po_ingress$feature_types)))$train(list(task))[[1L]]
+  token = po_ingress$train(list(task))[[1L]]
 
   testthat::expect_true(token$graph$ids() == po_ingress$id)
   testthat::expect_true(all(token$task$feature_types$type %in% po_ingress$feature_types))

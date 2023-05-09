@@ -113,7 +113,7 @@ default_task_id = function(learner) {
     return(task_id)
   }
   if (inherits(learner, "LearnerClassifTorchImage")) {
-    return("nano_imagenet")
+    stopf("Currently not available!")
   }
   switch(learner$task_type,
     classif = "iris",

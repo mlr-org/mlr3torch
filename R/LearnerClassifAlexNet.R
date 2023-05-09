@@ -27,6 +27,7 @@ LearnerClassifAlexNet = R6Class("LearnerClassifAlexNet",
       param_set = ps(
         pretrained = p_lgl(default = TRUE, tags = "train")
       )
+      # TODO: Freezing --> maybe as a callback?
       super$initialize(
         id = "classif.alexnet",
         param_set = param_set,

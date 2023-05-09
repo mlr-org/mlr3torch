@@ -3,7 +3,7 @@ test_that("LearnerTorchModel works", {
   task = tsk("iris")
   learner = LearnerClassifTorchModel$new(
     network = testmodule_linear(task),
-    ingress_tokens = list(input = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, 4L))),
+    ingress_tokens = list(x = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, 4L))),
     packages = "data.table"
   )
 

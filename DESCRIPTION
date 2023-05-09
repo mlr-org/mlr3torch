@@ -47,10 +47,13 @@ Imports:
 Suggests:
     callr,
     future,
-    rpart,
-    torchvision,
+    ggplot2,
+    igraph,
+    knitr,
     magick,
     progress,
+    rmarkdown,
+    torchvision,
     testthat (>= 3.0.0)
 Remotes:
   mlverse/torchvision,
@@ -58,6 +61,9 @@ Remotes:
   mlr-org/mlr3pipelines,
   mlr-org/mlr3misc
 Config/testthat/edition: 3
+NeedsCompilation: no
+ByteCompile: no
+VignetteBuilder: knitr
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, r6 = TRUE)
 RoxygenNote: 7.2.3
@@ -97,13 +103,10 @@ Collate:
     'PipeOpTorchOptimizer.R'
     'PipeOpTorchReshape.R'
     'PipeOpTorchSoftmax.R'
-    'TaskClassif_nano_imagenet.R'
     'TaskClassif_tiny_imagenet.R'
-    'TaskClassif_toytask.R'
     'TorchOptimizer.R'
     'TorchWrapper.R'
     'assertions.R'
-    'autotest.R'
     'bibentries.R'
     'expectations.R'
     'helper.R'

@@ -87,12 +87,9 @@
 *   [ ] nn_squeeze
 *   [ ] nn_merge_sum
 *   [ ] nn_reshape
-# Other
 
 
-**Important**
-
-In the future (soon): 
+Some notes:
 
 * [ ] Create {classif, regr}.torch_module learner to create custom torch learners (classif.torch did not really work because of the dataloader)
 * [ ] Maybe it should be possible to easily overwrite the dataloader for a learner (?) 
@@ -115,10 +112,29 @@ In the future (soon):
 * assignment for imageuri
 * nano imagenet is pointless task, only one image per class.
   Rather use only two classes and distinguish between them in tests.
+* Name deep learning block "paragraph"
+* Conflict between lgr and progress
+* investigate caching of networks and datasets
+* When a dataloader returns only one tensor / a list with one tensor
+When a network has only one argument and there is only one ingress token, probably we don't care about the name
+  of the ingress token (?). currently the image dataloader returns list(image = tensor) but the alexnet has forward
+  argument `x`.
+  Alternatively we need a better check in the learner to tell the user what is happening. 
+  Beware ... inputs!
+* What happens if there are two ingress tokens but one of them returns an empty tensor?
+* Ensure that the names of the output of the dataloader correspond to the names of the network's forward function
+* I.e. the dataset_num, dataset_img etc. need to have an argument "argname" or something
+* For tasks: Get a better task than nano_imagenet. Ideally one with images of different shape.
+  Then remove it from the 
+We should probably also provide a way to 
+
+
 
 **Missing stuff**
 
 * [ ] The image learners
+* lr scheduler as callback
+* tensorboard callback
 * [ ] Some image tasks
 * [ ] The tabnet learner (we then only have the mlp learner and tabnet but should be enough for the beginning)
 
@@ -154,6 +170,10 @@ Also add tests or sth. (For learners that allow to set the activation function b
 * [ ] Setup benchmark scripts that also run on GPU and run them at least once
 
 **Test Coverage**
+* What happens if a pipeoptorch ingress gets 0 features?
+* test: Manual test: Classification and Regression, test that it works with selecting only one features ("mpg") (is currently a bug)
+* add test for predict_newdata
+* name variables and test better
 * [ ] properly test the shapes_out() method of the pipeoptorch
 * [ ] Reset layer things
 * [ ] Parameters must have default or tag required (?)
@@ -173,6 +193,8 @@ for nn modules, or "Optimizer" for optim_adam etc.
 * [ ] Test that all optimizers are working (closure issue for lbfgs)
 * [ ] Test that all losses are working
 * [ ] regr learners have mse and classif ce as default loss
+* [ ] remove unneeded test helper functions from mlr3pipelines
+* Possibility to keep the last validation prediction when doing train-predict to avoid doing this twice
 
 **Documentation**
 
@@ -192,3 +214,7 @@ Advertisement:
 
 * [ ] The torch website features packages that build on top of torch
 * [ ] Maybe we can write a blogpost for the RStudio AI blog?
+
+
+Martin:
+* Names of network and ingress token in the case where there the `x` element of the dataloader has length 1?

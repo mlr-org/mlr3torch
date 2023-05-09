@@ -33,10 +33,11 @@ The state is set to the input shape.
 }
 
 \examples{
-po_ingress = po("torch_ingress_categ", select = TRUE)
+graph = po("select", selector = selector_type("factor")) \%>>\%
+  po("torch_ingress_categ")
 task = tsk("german_credit")
 # The output is a TorchIngressToken
-token = po_ingress$train(list(task))[[1L]]
+token = graph$train(task)[[1L]]
 ingress = token$ingress[[1L]]
 ingress$batchgetter(task$data(1, ingress$features), "cpu")
 }

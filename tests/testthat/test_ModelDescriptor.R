@@ -218,12 +218,10 @@ test_that("model_desriptor_union verifies input correctly", {
   md2$graph$pipeops["nn_linear"] = tmp
 
   md3 = po("torch_ingress_num")$train(list(task))[[1L]]
-  md4 = po("torch_ingress_categ", select = TRUE)$train(list(task))[[1L]]
-  names(md4$ingress) = names(md3$ingress)
-  expect_error(model_descriptor_union(md3, md4), regexp = "ingress tokens with")
 
   task1 = tsk("german_credit")
-  md5 = po("torch_ingress_num", select = TRUE)$train(list(task1))[[1L]]
+  md5 = (po("select", selector = selector_type("integer")) %>>%
+    po("torch_ingress_num"))$train(task1)[[1]]
 
   po_ce = po("torch_loss", "cross_entropy")
 

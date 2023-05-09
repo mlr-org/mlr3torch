@@ -1,4 +1,4 @@
-#' @title Multi Layer Perceptron Classification
+#' @title My Little Pony Classification
 #'
 #' @templateVar id classif.mlp
 #' @templateVar param_vals layers = 1, d_hidden = 10
@@ -61,7 +61,7 @@ LearnerClassifMLP = R6Class("LearnerClassifMLP",
 )
 
 
-#' @title Multi Layer Perceptron Regression
+#' @title My Little Pony Regression
 #'
 #' @templateVar id regr.mlp
 #' @templateVar param_vals layers = 1, d_hidden = 10

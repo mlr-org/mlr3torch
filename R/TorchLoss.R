@@ -79,7 +79,7 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 #' nn_mse_loss(reduction = "mean")
 #'
 #' # open the help page of the wrapper loss function
-#' torchloss$help()
+#' # torchloss$help()
 #'
 #' # Use in a learner
 #' learner = lrn("regr.mlp", loss = t_loss("mse"))

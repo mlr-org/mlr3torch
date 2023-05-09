@@ -3,7 +3,7 @@
 \name{mlr_learners_regr.mlp}
 \alias{mlr_learners_regr.mlp}
 \alias{LearnerRegrMLP}
-\title{Multi Layer Perceptron Regression}
+\title{My Little Pony Regression}
 \description{
 Fully connected feed forward network with dropout after each activation function.
 }

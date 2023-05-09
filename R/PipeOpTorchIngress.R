@@ -36,16 +36,6 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
     #' @template param_feature_types
     initialize = function(id, param_set = ps(), param_vals = list(), packages = character(0), feature_types) {
       private$.feature_types = assert_subset(feature_types, mlr_reflections$task_feature_types)
-      ps_tmp = ps(
-        select = p_lgl(default = FALSE, tags = "train")
-      )
-
-      if (param_set$length > 0) {
-        param_set = ParamSetCollection$new(list(param_set, ps_tmp))
-      } else {
-        param_set = ps_tmp
-      }
-      param_set$values$select = FALSE
 
       super$initialize(
         id = id,
@@ -84,16 +74,11 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
         test_env = parent.env(test_env)
       }
 
-      if (pv$select) {
-        task = po("select", selector = selector_type(self$feature_types))$train(list(task))[[1L]]
-      } else {
-        if (!all(task$feature_types$type %in% self$feature_types)) {
-          stopf("Task contains features of type %s, but only %s are allowed. Set `select` to `TRUE` to avoid this.",
-            paste0(unique(task$feature_types$type[!(task$feature_types$type %in% self$feature_types)]),
-              collapse = ", "),
-            paste0(self$feature_types, collapse = ", ")
-          )
-        }
+      if (!all(task$feature_types$type %in% self$feature_types)) {
+        stopf("Task contains features of type %s, but only %s are allowed; Consider using po(\"select\").",
+          paste0(unique(task$feature_types$type[!(task$feature_types$type %in% self$feature_types)]), collapse = ", "),
+          paste0(self$feature_types, collapse = ", ")
+        )
       }
 
       ingress = TorchIngressToken(
@@ -141,6 +126,29 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
 #' @return `TorchIngressToken` object.
 #' @family Graph Network
 #' @export
+#' @examples
+#' # Define a task for which we want to define an ingress token
+#' task = tsk("iris")
+#'
+#' # We create an ingress token for two feature Sepal.Length and Petal.Length:
+#' # We have to specify the features, the batchgetter and the shape
+#' features = c("Sepal.Length", "Petal.Length")
+#' # As a batchgetter we use batchgetter_num
+#'
+#' batch_dt = task$data(rows = 1:10, cols =features)
+#' batch_dt
+#' batch_tensor = batchgetter_num(batch_dt, "cpu")
+#' batch_tensor
+#'
+#' # The shape is unknown in the first dimension (batch dimension)
+#'
+#' ingress_token = TorchIngressToken(
+#'   features = features,
+#'   batchgetter = batchgetter_num,
+#'   shape = c(NA, 2)
+#' )
+#' ingress_token
+#'
 TorchIngressToken = function(features, batchgetter, shape) {
   assert_character(features, any.missing = FALSE)
   assert_function(batchgetter, args = c("data", "device"))
@@ -166,10 +174,6 @@ print.TorchIngressToken = function(x, ...) {
 #'
 #' @inheritSection mlr_pipeops_torch_ingress Input and Output Channels
 #' @inheritSection mlr_pipeops_torch_ingress State
-#' @section Parameters:
-#' * `select` :: `logical(1)`\cr
-#'   Whether `PipeOp` should selected the supported feature types. Otherwise it will err, when receiving tasks
-#'   with unsupported feature types.
 #' @section Internals:
 #' Uses [batchgetter_num()].
 #'
@@ -177,11 +181,12 @@ print.TorchIngressToken = function(x, ...) {
 #' @family Graph Network
 #' @family PipeOps
 #' @examples
-#' # We set select to TRUE because the data contains factors as well
-#' po_ingress = po("torch_ingress_num", select = TRUE)
-#' task = tsk("mtcars")
+# We select the numeric features first
+#' graph = po("select", selector = selector_type(c("numeric", "integer"))) %>>%
+#'   po("torch_ingress_num")
+#' task = tsk("german_credit")
 #' # The output is a TorchIngressToken
-#' token = po_ingress$train(list(task))[[1L]]
+#' token = graph$train(task)[[1L]]
 #' ingress = token$ingress[[1L]]
 #' ingress$batchgetter(task$data(1:5, ingress$features), "cpu")
 PipeOpTorchIngressNumeric = R6Class("PipeOpTorchIngressNumeric",
@@ -196,9 +201,8 @@ PipeOpTorchIngressNumeric = R6Class("PipeOpTorchIngressNumeric",
   ),
   private = list(
     .shape = function(task, param_vals) {
-      # Note that this function can only be called successfully if either select is TRUE or the task contains
-      # only integers and numerics. In both cases the formula below is correct
-      c(NA, sum(task$feature_types$type %in% self$feature_types))
+      # TODO: check that task is legit
+      c(NA, length(task$feature_types$type))
     },
 
     .get_batchgetter = function(task, param_vals) {
@@ -246,11 +250,12 @@ register_po("torch_ingress_num", PipeOpTorchIngressNumeric)
 #' @family Graph Network
 #' @export
 #' @examples
-# We set select to TRUE because the data contains factors as well
-#' po_ingress = po("torch_ingress_categ", select = TRUE)
+# We first select the categorical features
+#' graph = po("select", selector = selector_type("factor")) %>>%
+#'   po("torch_ingress_categ")
 #' task = tsk("german_credit")
 #' # The output is a TorchIngressToken
-#' token = po_ingress$train(list(task))[[1L]]
+#' token = graph$train(task)[[1L]]
 #' ingress = token$ingress[[1L]]
 #' ingress$batchgetter(task$data(1, ingress$features), "cpu")
 PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
@@ -264,7 +269,8 @@ PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
   ),
   private = list(
     .shape = function(task, param_vals) {
-      c(NA, sum(task$feature_types$type %in% self$feature_types))
+      # TODO: check that task is legit
+      c(NA, length(task$feature_names))
     },
     .get_batchgetter = function(task, param_vals) {
       # Note that this function can only be called successfully if either select is TRUE or the task contains
