@@ -91,7 +91,6 @@ graph_mlp = architecture %>>%
   po("torch_model_classif", batch_size = 16, epochs = 50, device = "cpu")
 
 learner_graph_mlp = as_learner(graph_mlp)
-learner_graph_mlp$id = "graph_mlp"
 ```
 
 ## Feature Overview
