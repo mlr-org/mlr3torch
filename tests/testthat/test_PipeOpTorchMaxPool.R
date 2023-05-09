@@ -15,7 +15,7 @@ test_that("PipeOpTorchMaxPool1D paramtest", {
 
 test_that("PipeOpTorchMaxPool2D autotest", {
   po_test = po("nn_max_pool2d", kernel_size = 3)
-  task = tsk("nano_imagenet")
+  task = nano_imagenet()
   graph = po("torch_ingress_img", channels = 3, width = 64, height = 64) %>>% po_test
 
   autotest_pipeop_torch(graph, "nn_max_pool2d", task)
@@ -29,7 +29,7 @@ test_that("PipeOpTorchMaxPool2D paramtest", {
 
 test_that("PipeOpTorchMaxPool3D autotest", {
   po_test = po("nn_max_pool3d", kernel_size = c(2, 3, 4))
-  task = tsk("nano_imagenet")
+  task = nano_imagenet()
   graph = po("torch_ingress_img", channels = 3, width = 64, height = 64) %>>%
     po("nn_reshape", shape = c(NA, 3, 64, 8, 8)) %>>%
     po_test

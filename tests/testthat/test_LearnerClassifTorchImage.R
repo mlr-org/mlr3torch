@@ -7,7 +7,7 @@ test_that("LearnerClassifTorchImage works", {
     epochs = 1,
     batch_size = 1
   )
-  task = tsk("nano_imagenet")$filter(1)
+  task = nano_imagenet()$filter(1)
 
   expect_equal(learner$man, "mlr3torch::mlr_learners_classif.test")
   expect_r6(learner, c("LearnerClassif", "LearnerClassifTorchImage", "LearnerClassifTorch"))

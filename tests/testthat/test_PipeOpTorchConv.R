@@ -13,7 +13,7 @@ test_that("PipeOpTorchConv1d paramtest", {
 
 test_that("PipeOpTorchConv2 autotest", {
   po_conv = po("nn_conv2d", kernel_size = 2, out_channels = 2)
-  task = tsk("nano_imagenet")
+  task = nano_imagenet()
   graph = po("torch_ingress_img", channels = 3, height = 64, width = 64) %>>% po_conv
 
   autotest_pipeop_torch(graph, "nn_conv2d", task)
@@ -26,7 +26,7 @@ test_that("PipeOpTorchConv2d paramtest", {
 
 test_that("PipeOpTorchConv3 autotest", {
   po_conv = po("nn_conv3d", kernel_size = 2, out_channels = 2)
-  task = tsk("nano_imagenet")
+  task = nano_imagenet()
   graph = po("torch_ingress_img", channels = 3, height = 64, width = 64) %>>%
     po("nn_unsqueeze", dim = 5) %>>%
     po("nn_reshape", shape = c(-1, 3, 64, 8, 8)) %>>% po_conv

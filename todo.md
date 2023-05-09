@@ -194,6 +194,7 @@ for nn modules, or "Optimizer" for optim_adam etc.
 * [ ] Test that all losses are working
 * [ ] regr learners have mse and classif ce as default loss
 * [ ] remove unneeded test helper functions from mlr3pipelines
+* Possibility to keep the last validation prediction when doing train-predict to avoid doing this twice
 
 **Documentation**
 
