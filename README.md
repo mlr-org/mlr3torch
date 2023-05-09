@@ -100,7 +100,7 @@ learner_graph_mlp$id = "graph_mlp"
   - Off-the-shelf architectures are readily available as mlr3
     `Learner`s.
   - Custom learners can be defined using the `Graph` language from
-    `mlr3pipelines`, i.e. via `PipeOp`s or using `nn_module`s.
+    `mlr3pipelines` or using `nn_module`s.
   - The package supports tabular and image data.
   - It is possible to customize the training process via (predefined or
     custom) callbacks.
