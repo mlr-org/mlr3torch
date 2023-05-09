@@ -127,6 +127,9 @@ When a network has only one argument and there is only one ingress token, probab
 * For tasks: Get a better task than nano_imagenet. Ideally one with images of different shape.
   Then remove it from the 
 We should probably also provide a way to 
+* add references to github page
+* create logo for package
+* cloning of pipeopmodule
 
 
 

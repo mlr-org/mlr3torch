@@ -33,7 +33,7 @@ readily available, but custom architectures can be defined by connection
 `PipeOpTorch` operators in an `mlr3pipelines::Graph`.
 
 Using predefined learners such as a simple multi layer perceptron (MLP)
-works just like other mlr3 `Learner`s.
+works just like any other mlr3 `Learner`.
 
 ``` r
 learner_mlp = lrn("classif.mlp",

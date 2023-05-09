@@ -1,7 +1,5 @@
 ---
 title: "Building a Neural Network using PipeOps"
-author: "mb706"
-date: '2023-05-09'
 output:
   html_document:
     toc: true
@@ -555,7 +553,7 @@ gr <- gunion(list(
 	po("nn_softmax", dim = 2, id = "act3") %>>%
     po("torch_optimizer", optimizer = adam, lr = 0.1) %>>%
     po("torch_loss", loss = xe) %>>%
-    po("torch_model_classif", batch_size = 50, epochs = 0)
+    po("torch_model_classif", batch_size = 50, epochs = 50)
 
 gr$plot()
 ```

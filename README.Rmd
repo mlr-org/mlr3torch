@@ -45,7 +45,7 @@ remotes::install_github("mlr-org/mlr3torch")
 It allows to easily build, train and evaluate deep learning models in a few lines of codes, without needing to worry about low-level details.
 Off-the-shelf learners are readily available, but custom architectures can be defined by connection `PipeOpTorch` operators in an `mlr3pipelines::Graph`.
 
-Using predefined learners such as a simple multi layer perceptron (MLP) works just like other mlr3 `Learner`s.
+Using predefined learners such as a simple multi layer perceptron (MLP) works just like any other mlr3 `Learner`.
 
 ```{r}
 learner_mlp = lrn("classif.mlp",
