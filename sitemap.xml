@@ -1,363 +1,354 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>/404.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/404.html</loc>
   </url>
   <url>
-    <loc>/LICENSE.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/LICENSE.html</loc>
   </url>
   <url>
-    <loc>/TODO.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/articles/index.html</loc>
   </url>
   <url>
-    <loc>/authors.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/articles/pipeop_torch.html</loc>
   </url>
   <url>
-    <loc>/bugs.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/authors.html</loc>
   </url>
   <url>
-    <loc>/index.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/index.html</loc>
   </url>
   <url>
-    <loc>/news/index.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/news/index.html</loc>
   </url>
   <url>
-    <loc>/reference/ModelDescriptor.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/ModelDescriptor.html</loc>
   </url>
   <url>
-    <loc>/reference/TorchCallback.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/TorchCallback.html</loc>
   </url>
   <url>
-    <loc>/reference/TorchIngressToken.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/TorchIngressToken.html</loc>
   </url>
   <url>
-    <loc>/reference/TorchLoss.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/TorchLoss.html</loc>
   </url>
   <url>
-    <loc>/reference/TorchOptimizer.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/TorchOptimizer.html</loc>
   </url>
   <url>
-    <loc>/reference/as_torch_callback.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/as_torch_callback.html</loc>
   </url>
   <url>
-    <loc>/reference/as_torch_callbacks.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/as_torch_callbacks.html</loc>
   </url>
   <url>
-    <loc>/reference/as_torch_loss.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/as_torch_loss.html</loc>
   </url>
   <url>
-    <loc>/reference/as_torch_optimizer.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/as_torch_optimizer.html</loc>
   </url>
   <url>
-    <loc>/reference/autotest_paramset.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/batchgetter_categ.html</loc>
   </url>
   <url>
-    <loc>/reference/autotest_pipeop_torch.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/batchgetter_num.html</loc>
   </url>
   <url>
-    <loc>/reference/batchgetter_categ.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/callback_torch.html</loc>
   </url>
   <url>
-    <loc>/reference/batchgetter_num.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/imageuri.html</loc>
   </url>
   <url>
-    <loc>/reference/callback_torch.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/index.html</loc>
   </url>
   <url>
-    <loc>/reference/imageuri.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr3torch-package.html</loc>
   </url>
   <url>
-    <loc>/reference/index.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr3torch_callbacks.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr3torch-package.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr3torch_losses.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr3torch_callbacks.checkpoint.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr3torch_optimizers.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr3torch_callbacks.history.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_callbacks_torch.checkpoint.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr3torch_callbacks.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_callbacks_torch.history.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr3torch_callbacks.progress.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_callbacks_torch.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr3torch_losses.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_callbacks_torch.progress.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr3torch_optimizers.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_context_torch.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_callbacks_torch.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_learners_classif.alexnet.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_context_torch.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_learners_classif.mlp.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_learners_classif.alexnet.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_learners_classif.torch.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_learners_classif.mlp.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_learners_classif.torch_featureless.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_learners_classif.torch.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_learners_classif.torch_model.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_learners_classif.torch_featureless.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_learners_classif_torch_image.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_learners_classif.torch_model.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_learners_regr.mlp.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_learners_classif_torch_image.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_learners_regr.torch.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_learners_regr.mlp.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_learners_regr.torch_model.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_learners_regr.torch.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_module.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_learners_regr.torch_model.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_avg_pool1d.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_module.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_avg_pool2d.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_avg_pool3d.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_avg_pool.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_batch_norm1d.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_avg_pool1d.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_batch_norm2d.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_avg_pool2d.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_batch_norm3d.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_avg_pool3d.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_celu.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_batch_norm.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_conv1d.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_callbacks.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_conv2d.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_celu.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_conv3d.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_conv.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_conv_transpose1d.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_conv1d.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_conv_transpose2d.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_conv2d.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_conv_transpose3d.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_conv3d.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_dropout.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_conv_transpose.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_elu.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_conv_transpose1d.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_flatten.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_conv_transpose2d.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_gelu.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_conv_transpose3d.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_glu.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_dropout.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_hardshrink.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_elu.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_hardsigmoid.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_flatten.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_hardtanh.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_gelu.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_head.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_glu.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_layer_norm.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_hard.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_leaky_relu.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_hard_shrink.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_linear.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_hardsigmoid.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_log_sigmoid.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_head.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_max_pool1d.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_ingress.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_max_pool2d.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_ingress_categ.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_max_pool3d.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_ingress_img.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_merge.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_ingress_numeric.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_merge_cat.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_layer_norm.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_merge_prod.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_leaky_relu.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_merge_sum.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_log_sigmoid.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_prelu.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_loss.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_relu.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_max_pool.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_relu6.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_max_pool1d.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_reshape.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_max_pool2d.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_rrelu.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_max_pool3d.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_selu.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_merge.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_sigmoid.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_merge_cat.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softmax.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_merge_prod.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softplus.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_merge_sum.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softshrink.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_model.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_softsign.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_model_classif.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_squeeze.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_model_regr.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_tanh.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_optimizer.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_tanhshrink.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_prelu.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_threshold.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_relu.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_relu6.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_callbacks.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_reshape.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_rrelu.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress_categ.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_selu.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress_img.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_sigmoid.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress_num.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_softmax.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_loss.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_softplus.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_model.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_softshrink.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_model_classif.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_softsign.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_model_regr.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_squeeze.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_optimizer.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_tanh.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/model_descriptor_to_learner.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_tanhshrink.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/model_descriptor_to_module.html</loc>
   </url>
   <url>
-    <loc>/reference/mlr_pipeops_torch_threshold.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/model_descriptor_union.html</loc>
   </url>
   <url>
-    <loc>/reference/model_descriptor_to_learner.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/nn_graph.html</loc>
   </url>
   <url>
-    <loc>/reference/model_descriptor_to_module.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/nn_merge_cat.html</loc>
   </url>
   <url>
-    <loc>/reference/model_descriptor_union.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/nn_merge_prod.html</loc>
   </url>
   <url>
-    <loc>/reference/nn_graph.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/nn_merge_sum.html</loc>
   </url>
   <url>
-    <loc>/reference/nn_merge_cat.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/nn_reshape.html</loc>
   </url>
   <url>
-    <loc>/reference/nn_merge_prod.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/nn_squeeze.html</loc>
   </url>
   <url>
-    <loc>/reference/nn_merge_sum.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/nn_unsqueeze.html</loc>
   </url>
   <url>
-    <loc>/reference/nn_reshape.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/reset_layer.html</loc>
   </url>
   <url>
-    <loc>/reference/nn_squeeze.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/t_clbk.html</loc>
   </url>
   <url>
-    <loc>/reference/nn_unsqueeze.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/t_loss.html</loc>
   </url>
   <url>
-    <loc>/reference/pipeop_torch_linear.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/t_opt.html</loc>
   </url>
   <url>
-    <loc>/reference/reset_layer.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/task_dataset.html</loc>
   </url>
   <url>
-    <loc>/reference/t_clbk.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/torch_callback.html</loc>
   </url>
   <url>
-    <loc>/reference/t_loss.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/torch_wrapper.html</loc>
   </url>
   <url>
-    <loc>/reference/t_opt.html</loc>
-  </url>
-  <url>
-    <loc>/reference/torch_callback.html</loc>
-  </url>
-  <url>
-    <loc>/reference/torch_wrapper.html</loc>
-  </url>
-  <url>
-    <loc>/todo.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/todo.html</loc>
   </url>
 </urlset>
