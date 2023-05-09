@@ -102,7 +102,7 @@
 <h2 id="what-is-mlr3torch">What is mlr3torch?<a class="anchor" aria-label="anchor" href="#what-is-mlr3torch"></a>
 </h2>
 <p><code>mlr3torch</code> is a deep learning framework for the <a href="https://mlr-org.com" class="external-link"><code>mlr3</code></a> ecosystem built on top of <a href="https://torch.mlverse.org/" class="external-link"><code>torch</code></a>. It allows to easily build, train and evaluate deep learning models in a few lines of codes, without needing to worry about low-level details. Off-the-shelf learners are readily available, but custom architectures can be defined by connection <code>PipeOpTorch</code> operators in an <code><a href="https://mlr3pipelines.mlr-org.com/reference/Graph.html" class="external-link">mlr3pipelines::Graph</a></code>.</p>
-<p>Using predefined learners such as a simple multi layer perceptron (MLP) works just like other mlr3 <code>Learner</code>s.</p>
+<p>Using predefined learners such as a simple multi layer perceptron (MLP) works just like any other mlr3 <code>Learner</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">learner_mlp</span> <span class="op">=</span> <span class="fu">lrn</span><span class="op">(</span><span class="st">"classif.mlp"</span>,</span>
 <span>  <span class="co"># defining network parameters</span></span>
@@ -144,7 +144,6 @@
 <span>  <span class="fu">po</span><span class="op">(</span><span class="st">"torch_optimizer"</span>, optimizer <span class="op">=</span> <span class="fu"><a href="reference/t_opt.html">t_opt</a></span><span class="op">(</span><span class="st">"adam"</span>, lr <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;&gt;%</span></span>
 <span>  <span class="fu">po</span><span class="op">(</span><span class="st">"torch_callbacks"</span>, callbacks <span class="op">=</span> <span class="fu"><a href="reference/t_clbk.html">t_clbk</a></span><span class="op">(</span><span class="st">"history"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;&gt;%</span></span>
 <span>  <span class="fu">po</span><span class="op">(</span><span class="st">"torch_model_classif"</span>, batch_size <span class="op">=</span> <span class="fl">16</span>, epochs <span class="op">=</span> <span class="fl">50</span>, device <span class="op">=</span> <span class="st">"cpu"</span><span class="op">)</span></span>
-<span></span>
 <span></span>
 <span><span class="va">learner_graph_mlp</span> <span class="op">=</span> <span class="fu">as_learner</span><span class="op">(</span><span class="va">graph_mlp</span><span class="op">)</span></span>
 <span><span class="va">learner_graph_mlp</span><span class="op">$</span><span class="va">id</span> <span class="op">=</span> <span class="st">"graph_mlp"</span></span></code></pre></div>
