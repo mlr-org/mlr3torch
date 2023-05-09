@@ -9,17 +9,16 @@ Base class from which Callbacks should inherit.
 They can be used to gain more control over the training process of a neural network without
 having to write everything from scratch.
 
-For each available stage (see section \emph{Stages}) a public method \verb{$on_<stage>(xtx)} can be defined.
+For each available stage (see section \emph{Stages}) a public method \verb{$on_<stage>(ctx)} can be defined.
 This must be an function with argument \code{ctx}, which is a \code{\link{ContextTorch}}.
-
 When a learner is trained, at a specific \verb{<stage>}, the \verb{$on_<stage>(ctx)} method of the callback is
 executed, where the \code{ctx} represents the current state of the training loop.
-
 Different stages of a callback can communicate with each other by assigning values to \verb{$self}.
 
-When used in torch learner, the \code{CallbackTorch} is wrapped in a \code{\link{TorchCallback}}.
-The latters parameter set represents the argument of the \code{\link{CallbackTorch}}'s \verb{$initialize()} method and can
-be specified in the learner.
+When used a in torch learner, the \code{CallbackTorch} is wrapped in a \code{\link{TorchCallback}}.
+The latters parameter set represents the arguments of the \code{\link{CallbackTorch}}'s \verb{$initialize()} method and can
+be specified in the learner. The callback is then initialized in the beginning of the training loop.
+
 For creating custom callbacks, the function \code{\link[=torch_callback]{torch_callback()}} is recommended, which creates a
 \code{\link{CallbackTorch}} and then wraps it in a \code{\link{TorchCallback}}.
 }

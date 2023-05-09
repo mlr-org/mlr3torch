@@ -7,17 +7,16 @@
 #' They can be used to gain more control over the training process of a neural network without
 #' having to write everything from scratch.
 #'
-#' For each available stage (see section *Stages*) a public method `$on_<stage>(xtx)` can be defined.
+#' For each available stage (see section *Stages*) a public method `$on_<stage>(ctx)` can be defined.
 #' This must be an function with argument `ctx`, which is a [`ContextTorch`].
-#'
 #' When a learner is trained, at a specific `<stage>`, the `$on_<stage>(ctx)` method of the callback is
 #' executed, where the `ctx` represents the current state of the training loop.
-#'
 #' Different stages of a callback can communicate with each other by assigning values to `$self`.
 #'
-#' When used in torch learner, the `CallbackTorch` is wrapped in a [`TorchCallback`].
-#' The latters parameter set represents the argument of the [`CallbackTorch`]'s `$initialize()` method and can
-#' be specified in the learner.
+#' When used a in torch learner, the `CallbackTorch` is wrapped in a [`TorchCallback`].
+#' The latters parameter set represents the arguments of the [`CallbackTorch`]'s `$initialize()` method and can
+#' be specified in the learner. The callback is then initialized in the beginning of the training loop.
+#'
 #' For creating custom callbacks, the function [`torch_callback()`] is recommended, which creates a
 #' [`CallbackTorch`] and then wraps it in a [`TorchCallback`].
 #'
