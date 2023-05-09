@@ -48,6 +48,7 @@ Suggests:
     callr,
     future,
     ggplot2,
+    igraph,
     knitr,
     magick,
     progress,
