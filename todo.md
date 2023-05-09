@@ -193,6 +193,7 @@ for nn modules, or "Optimizer" for optim_adam etc.
 * [ ] Test that all optimizers are working (closure issue for lbfgs)
 * [ ] Test that all losses are working
 * [ ] regr learners have mse and classif ce as default loss
+* [ ] remove unneeded test helper functions from mlr3pipelines
 
 **Documentation**
 
@@ -212,3 +213,7 @@ Advertisement:
 
 * [ ] The torch website features packages that build on top of torch
 * [ ] Maybe we can write a blogpost for the RStudio AI blog?
+
+
+Martin:
+* Names of network and ingress token in the case where there the `x` element of the dataloader has length 1?

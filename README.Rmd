@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 set.seed(123)
 library("mlr3torch")
 lgr::get_logger("mlr3")$set_threshold("warn")
+```
 
 
 
@@ -33,7 +34,7 @@ Deep Learning with torch and mlr3.
 
 ## Installation
 
-```r
+```{r eval = FALSE}
 remotes::install_github("mlr-org/mlr3torch")
 ```
 
@@ -89,14 +90,15 @@ architecture = po("torch_ingress_num") %>>%
 To turn this into a learner, we configure the loss, optimizer, callbacks and the training arguments.
 
 ```{r}
-graph_mlp = architecture %>>% po("torch_loss", loss = t_loss("cross_entropy")) %>>%
+graph_mlp = architecture %>>%
+  po("torch_loss", loss = t_loss("cross_entropy")) %>>%
   po("torch_optimizer", optimizer = t_opt("adam", lr = 0.1)) %>>%
   po("torch_callbacks", callbacks = t_clbk("history")) %>>%
   po("torch_model_classif", batch_size = 16, epochs = 50, device = "cpu")
 
 
 learner_graph_mlp = as_learner(graph_mlp)
-learner$id = "graph_mlp"
+learner_graph_mlp$id = "graph_mlp"
 ```
 
 ## Feature Overview

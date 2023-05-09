@@ -14,12 +14,7 @@ status](https://www.r-pkg.org/badges/version/mlr3torch)](https://CRAN.R-project.
 [![Mattermost](https://img.shields.io/badge/chat-mattermost-orange.svg)](https://lmmisld-lmu-stats-slds.srv.mwn.de/mlr_invite/)
 <!-- badges: end -->
 
-The goal of {mlr3torch} is to connect
-[{mlr3}](https://github.com/mlr-org/mlr3) with
-[{torch}](https://github.com/mlverse/torch).
-
-It is in the very early stages of development and it’s future and scope
-are yet to be determined.
+Deep Learning with torch and mlr3.
 
 ## Installation
 
@@ -27,64 +22,116 @@ are yet to be determined.
 remotes::install_github("mlr-org/mlr3torch")
 ```
 
-## `tabnet` Example
+## What is mlr3torch?
 
-Using the [{tabnet}](https://github.com/mlverse/tabnet) learner for
-classification:
+`mlr3torch` is a deep learning framework for the
+[`mlr3`](https://mlr-org.com) ecosystem built on top of
+[`torch`](https://torch.mlverse.org/). It allows to easily build, train
+and evaluate deep learning models in a few lines of codes, without
+needing to worry about low-level details. Off-the-shelf learners are
+readily available, but custom architectures can be defined by connection
+`PipeOpTorch` operators in a `mlr3pipelines::Graph` object.
 
-``` r
-library(mlr3)
-library(mlr3viz)
-library(mlr3torch)
-
-task = tsk("german_credit")
-
-# Set up the learner
-lrn_tabnet = lrn("classif.tabnet", epochs = 5)
-
-# Train and Predict
-lrn_tabnet$train(task, row_ids = 1:900)
-
-preds = lrn_tabnet$predict(task, row_ids = 901:1000)
-
-# Investigate predictions
-preds$confusion
-preds$score(msr("classif.acc"))
-
-# Predict probabilities instead
-lrn_tabnet$predict_type = "prob"
-preds_prob = lrn_tabnet$predict(task)
-
-autoplot(preds_prob, type = "roc")
-
-# Examine variable importance scores
-lrn_tabnet$importance()
-```
-
-## Using `TorchOp`s
+Using predefined learners such as `lrn("classif.mlp")` works just like
+other mlr3 `Learner`s.
 
 ``` r
-task = tsk("iris")
-
-graph = top("input") %>>%
-  top("tokenizer_tabular", d_token = 1) %>>%
-  top("flatten") %>>%
-  top("relu_1") %>>%
-  top("linear_1", out_features = 10) %>>%
-  top("relu_2") %>>%
-  top("head") %>>%
-  top("model.classif", epochs = 10L, batch_size = 16L, .loss = "cross_entropy", .optimizer = "adam")
-
-glrn = as_learner_torch(graph)
-glrn$train(task)
+learner_mlp = lrn("classif.mlp",
+  # defining network parameters
+  activation     = "relu",
+  layers         = 2,
+  d_hidden       = 20,
+  # training parameters
+  batch_size     = 50,
+  epochs         = 50,
+  device         = "cpu",
+  # Defining the optimizer, loss, and callbacks
+  optimizer      = t_opt("adam", lr = 0.1),
+  loss           = t_loss("cross_entropy"),
+  callbacks      = t_clbk("history"), # this saves the history in the learner
+  # Measures to track
+  measures_valid = msrs(c("classif.logloss", "classif.ce")),
+  measures_train = msrs(c("classif.logloss", "classif.ce"))
+)
 ```
 
-## Credit
+This learner can for example be used for resampling, benchmarking, but
+can e.g. also be tuned using
+[mlr3tuning](https://mlr3tuning.mlr-org.com/).
 
-Some parts of the implementation are inspired by other deep learning
-libraries:
+``` r
+resample(
+  learner    = learner_mlp,
+  task       = tsk("iris"),
+  resampling = rsmp("holdout")
+)
+#> <ResampleResult> with 1 resampling iterations
+#>  task_id  learner_id resampling_id iteration warnings errors
+#>     iris classif.mlp       holdout         1        0      0
+```
 
-  - [Keras](https://keras.io/) - Building networks using `TorchOp`’s
-    feels similar to using `keras`.
-  - [Luz](https://github.com/mlverse/luz) - Our implementation of
-    callbacks is inspired by the R package `luz`
+Below, we construct the same architecture using `PipeOpTorch` objects,
+the subsequent pipeops define the network layers.
+
+``` r
+architecture = po("torch_ingress_num") %>>%
+  po("nn_linear", out_features = 10) %>>%
+  po("nn_relu") %>>%
+  po("nn_head")
+```
+
+To turn this into a learner, we configure the loss, optimizer, callbacks
+and the training arguments.
+
+``` r
+graph_mlp = architecture %>>%
+  po("torch_loss", loss = t_loss("cross_entropy")) %>>%
+  po("torch_optimizer", optimizer = t_opt("adam", lr = 0.1)) %>>%
+  po("torch_callbacks", callbacks = t_clbk("history")) %>>%
+  po("torch_model_classif", batch_size = 16, epochs = 50, device = "cpu")
+
+
+learner_graph_mlp = as_learner(graph_mlp)
+learner_graph_mlp$id = "graph_mlp"
+```
+
+## Feature Overview
+
+  - Off-the-shelf architectures are readily available as mlr3 `Learner`s
+  - Custom learners can be defined using the `Graph` language from
+    `mlr3pipelines`, i.e. via `PipeOp`s or using `nn_module`s
+  - Support for image and tabular data
+  - It is possible to customize the training process via a callback
+    mechanism
+  - Full integration into the `mlr3` ecosystem
+
+## Documentation
+
+The easiest way to learn about `mlr3torch` is to read one of the
+vignettes.
+
+## Acknowledgements
+
+  - Without the great R package `torch` none of this would have been
+    possible.
+  - The names for the callback stages are taken from
+    [luz](https://mlverse.github.io/luz/), another high-level deep
+    learning framework for R `torch`.
+  - Building neural networks using `PipeOpTorch` operators is inspired
+    by [keras](https://keras.io/).
+
+## Bugs, Questions, Feedback
+
+*mlr3torch* is a free and open source software project that encourages
+participation and feedback. If you have any issues, questions,
+suggestions or feedback, please do not hesitate to open an “issue” about
+it on the GitHub page\!
+
+In case of problems / bugs, it is often helpful if you provide a
+“minimum working example” that showcases the behaviour (but don’t
+worry about this if the bug is obvious).
+
+Please understand that the resources of the project are limited:
+response may sometimes be delayed by a few days, and some feature
+suggestions may be rejected if they are deemed too tangential to the
+vision behind the project.
