@@ -113,7 +113,7 @@ default_task_id = function(learner) {
     return(task_id)
   }
   if (inherits(learner, "LearnerClassifTorchImage")) {
-    stopf("Currently not availblej")
+    stopf("Currently not availble")
   }
   switch(learner$task_type,
     classif = "iris",
