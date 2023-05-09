@@ -54,7 +54,8 @@ test_that("Manual test: Classification and Regression", {
 
   task = tsk("mtcars")
 
-  graph = po("torch_ingress_num") %>>%
+  graph = po("select", selector = selector_name(c("mpg", "cyl"))) %>>%
+    po("torch_ingress_num") %>>%
     po("nn_head") %>>%
     po("torch_loss", "cross_entropy") %>>%
     po("torch_optimizer", "adam") %>>%

@@ -1,4 +1,45 @@
-# FIXME: maybe export?
+#' @title Create a Dataset from a Task
+#'
+#' @description
+#' Creates a torch [dataset][torch::dataset] from an mlr3 [`Task`].
+#' The resulting dataset's `$.get_batch()` method returns a list with elements `x`, `y` and `index`:
+#' * `x` is a list with tensors, whose content is defined by the parameter `feature_ingress_tokens`.
+#' * `y` is the target variable and its content is defined by the parameter `target_batchgetter`.
+#' * `.indes` is the index of the batch in the task's data.
+#'
+#' The data is returned on the device specified by the parameter `device`.
+#'
+#' @param task ([`Task`])\cr
+#'   The task for which to build the [dataset][torch::dataset].
+#' @param feature_ingress_tokens (named `list()` of [`TorchIngressToken`])\cr
+#'   Each ingress token defines one item in the `$x` value of a batch.
+#' @param target_batchgetter (`function(data, device)`)\cr
+#'   A function taking in arguments `data`, which is a `data.table` containing only the target variable, and `device`.
+#'   It must return the target as a torch [tensor][torch::torch_tensor].
+#' @param device (`character()`)\cr
+#'   The device, e.g. `"cuda"` or `"cpu"`.
+#' @export
+#' @return [`torch::dataset`]
+#' @examples
+#' task = tsk("iris")
+#' sepal_ingress = TorchIngressToken(
+#'   features = c("Sepal.Length", "Sepal.Width"),
+#'   batchgetter = batchgetter_num,
+#'   shape = c(NA, 2)
+#' )
+#' petal_ingress = TorchIngressToken(
+#'   features = c("Petal.Length", "Petal.Width"),
+#'   batchgetter = batchgetter_num,
+#'   shape = c(NA, 2)
+#' )
+#' ingress_tokens = list(sepal = sepal_ingress, petal = petal_ingress)
+#'
+#' target_batchgetter = function(data, device) {
+#'   torch_tensor(data = data[[1L]], dtype = torch_float32(), device)$unsqueeze(2)
+#' }
+#' dataset = task_dataset(task, ingress_tokens, target_batchgetter, "cpu")
+#' batch = dataset$.getbatch(1:10)
+#' batch
 task_dataset = dataset(
   initialize = function(task, feature_ingress_tokens, target_batchgetter = NULL, device = "cpu") {
     self$task = assert_r6(task, "Task")
@@ -90,7 +131,7 @@ batchgetter_img = function(imgshape) {
 
 target_batchgetter = function(task_type) {
   if (task_type == "classif") {
-    target_batchgetter = (function(data, device) {
+    target_batchgetter = crate(function(data, device) {
       torch_tensor(data = as.integer(data[[1L]]), dtype = torch_long(), device)
     })
   } else if (task_type == "regr") {

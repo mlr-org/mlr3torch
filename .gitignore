@@ -7,3 +7,4 @@ mlr3torch*.tgz
 .vscode/tasks.json
 ^README\.html$:w
 *~
+docs

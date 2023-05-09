@@ -1,10 +1,3 @@
-# #' @title Mini Imagenet Classification Task
-# #' It only containst the training data of the task.
-# #' @format [R6::R6Class] inheriting from [TaskClassif].
-# #' @name mlr_tasks_iris
-# #'
-# NULL
-
 load_task_nano_imagenet = function(id = "nano_imagenet") {
   path = system.file("toytask", package = "mlr3torch")
   images = list.files(sprintf("%s/images", path))
@@ -18,5 +11,4 @@ load_task_nano_imagenet = function(id = "nano_imagenet") {
   as_task_classif(d, target = "class", id = id)
 }
 
-#' @include zzz.R
 register_task("nano_imagenet", load_task_nano_imagenet)

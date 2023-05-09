@@ -1,6 +1,6 @@
 #' @title Callback Torch History
 #'
-#' @name mlr3torch_callbacks.history
+#' @name mlr_callbacks_torch.history
 #'
 #' @description
 #' Saves the history during training.
@@ -61,6 +61,6 @@ mlr3torch_callbacks$add("history", function() {
     param_set = ps(),
     id = "history",
     label = "History",
-    man = "mlr3torch::mlr3torch_callbacks.history"
+    man = "mlr3torch::mlr_callbacks_torch.history"
   )
 })

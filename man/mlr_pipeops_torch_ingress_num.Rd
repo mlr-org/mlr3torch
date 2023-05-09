@@ -7,15 +7,6 @@
 \description{
 Ingress PipeOp that represents a numeric (\code{integer()} and \code{numeric()}) entry point to a torch network.
 }
-\section{Parameters}{
-
-\itemize{
-\item \code{select} :: \code{logical(1)}\cr
-Whether \code{PipeOp} should selected the supported feature types. Otherwise it will err, when receiving tasks
-with unsupported feature types.
-}
-}
-
 \section{Internals}{
 
 Uses \code{\link[=batchgetter_num]{batchgetter_num()}}.
@@ -33,11 +24,11 @@ The state is set to the input shape.
 }
 
 \examples{
-# We set select to TRUE because the data contains factors as well
-po_ingress = po("torch_ingress_num", select = TRUE)
-task = tsk("mtcars")
+graph = po("select", selector = selector_type(c("numeric", "integer"))) \%>>\%
+  po("torch_ingress_num")
+task = tsk("german_credit")
 # The output is a TorchIngressToken
-token = po_ingress$train(list(task))[[1L]]
+token = graph$train(task)[[1L]]
 ingress = token$ingress[[1L]]
 ingress$batchgetter(task$data(1:5, ingress$features), "cpu")
 }

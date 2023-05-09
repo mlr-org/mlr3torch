@@ -78,7 +78,7 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #' optim_sgd(net$parameters, lr = 0.1)
 #'
 #' # open the help page of the wrapped optimizer
-#' torchopt$help()
+#' # torchopt$help()
 #'
 #' # Use in a learner
 #' learner = lrn("regr.mlp", optimizer = t_opt("sgd"))

@@ -26,6 +26,30 @@ This function creates an S3 class of class \code{"TorchIngressToken"}, which is 
 It contains the (meta-)information of how a batch is generated from a \code{\link{Task}} and fed into an entry point
 of the neural network. It is stored as the \code{ingress} field in a \code{\link{ModelDescriptor}}.
 }
+\examples{
+# Define a task for which we want to define an ingress token
+task = tsk("iris")
+
+# We create an ingress token for two feature Sepal.Length and Petal.Length:
+# We have to specify the features, the batchgetter and the shape
+features = c("Sepal.Length", "Petal.Length")
+# As a batchgetter we use batchgetter_num
+
+batch_dt = task$data(rows = 1:10, cols =features)
+batch_dt
+batch_tensor = batchgetter_num(batch_dt, "cpu")
+batch_tensor
+
+# The shape is unknown in the first dimension (batch dimension)
+
+ingress_token = TorchIngressToken(
+  features = features,
+  batchgetter = batchgetter_num,
+  shape = c(NA, 2)
+)
+ingress_token
+
+}
 \seealso{
 Other Graph Network: 
 \code{\link{ModelDescriptor}()},

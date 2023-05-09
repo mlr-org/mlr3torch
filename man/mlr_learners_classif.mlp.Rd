@@ -3,7 +3,7 @@
 \name{mlr_learners_classif.mlp}
 \alias{mlr_learners_classif.mlp}
 \alias{LearnerClassifMLP}
-\title{Multi Layer Perceptron Classification}
+\title{My Little Pony Classification}
 \description{
 Fully connected feed forward network with dropout after each activation function.
 }

@@ -1,6 +1,6 @@
 #' @title Shows Training Process in the Console
 #'
-#' @name mlr3torch_callbacks.progress
+#' @name mlr_callbacks_torch.progress
 #'
 #' @description
 #' Prints a progress bar and the metrics for training and validation.
@@ -85,7 +85,7 @@ mlr3torch_callbacks$add("progress", function() {
     param_set = ps(),
     id = "progress",
     label = "Progress",
-    man = "mlr3torch::mlr3torch_callbacks.progress",
+    man = "mlr3torch::mlr_callbacks_torch.progress",
     packages = "progress"
   )
 })

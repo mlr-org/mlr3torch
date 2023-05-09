@@ -239,15 +239,17 @@ train_loop = function(ctx, cbs, seed) {
 
 torch_network_predict_valid = function(network, loader,  callback_receiver = function(step_name) NULL) {
   iter = 1L
+  fargs = formalArgs(network)
+  one_arg = length(fargs) == 1L && !fargs == "..."
   predictions = vector("list", length = length(loader))
-  one_arg = length(formalArgs(network)) == 1L
   loop(for (batch in loader) {
     callback_receiver("on_batch_valid_begin")
-    if (one_arg) {
-      predictions[[iter]] = with_no_grad(network(batch$x[[1L]]))
+    predictions[[iter]] = if (one_arg) {
+      with_no_grad(network$forward(batch$x[[1L]]))
     } else {
-      predictions[[iter]] = with_no_grad(do.call(network, batch$x))
+      with_no_grad(invoke(network$forward, .args = batch$x))
     }
+
     iter = iter + 1L
     callback_receiver("on_batch_valid_end")
   })
@@ -256,14 +258,22 @@ torch_network_predict_valid = function(network, loader,  callback_receiver = fun
 
 torch_network_predict = function(network, loader) {
   iter = 1L
+
+  # If there is one arg, we don't care about the name of the ingress token and we just pass it as
+  # an unnamed argument
+  # TODO: Maybe we should be stricter, but then we need to ensure that the .getbatch() method of the dataset
+  # returns a list where the names of x correspond to the argument names of the network
+  fargs = formalArgs(network$forward)
+  one_arg = length(fargs) == 1L && !fargs == "..."
+
   predictions = vector("list", length = length(loader))
-  one_arg = length(formalArgs(network$forward)) == 1L
   loop(for (batch in loader) {
-    if (one_arg) {
-      predictions[[iter]] = with_no_grad(network$forward(batch$x[[1L]]))
+    predictions[[iter]] = if (one_arg) {
+      with_no_grad(network$forward(batch$x[[1L]]))
     } else {
-      predictions[[iter]] = with_no_grad(invoke(network$forward, .args = batch$x))
+      with_no_grad(invoke(network$forward, .args = batch$x))
     }
+
     iter = iter + 1L
   })
   torch_cat(predictions, dim = 1L)
@@ -330,6 +340,7 @@ learner_torch_predict = function(self, task) {
 
   seed = self$model$seed
   torch_manual_seed(seed)
+  # TODO: Do we already depend on withr? otherwise we can write our own with_seed / adapt the one from mlr3
   state = withr::with_seed(seed = seed, code = {
     network$eval()
     data_loader = private$.dataloader(task, param_vals)

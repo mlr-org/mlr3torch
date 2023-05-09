@@ -160,7 +160,7 @@ PipeOpTorchMergeCat = R6Class("PipeOpTorchMergeCat", inherit = PipeOpTorchMerge,
     #' @param innum (`integer(1)`)\cr
     #'   The number of inputs. Default is 0 which means there is one *vararg* input channel.
     initialize = function(id = "nn_merge_cat", innum = 0, param_vals = list()) {
-      param_set = ps(dim = p_int(default = -1, tags = c("train", "required")))
+      param_set = ps(dim = p_int(default = -1, tags = "train"))
       super$initialize(
         id = id,
         module_generator = nn_merge_cat,
@@ -177,7 +177,7 @@ PipeOpTorchMergeCat = R6Class("PipeOpTorchMergeCat", inherit = PipeOpTorchMerge,
       assert_true(length(unique(map_int(shapes_in, length))) == 1)
 
       # dim can be negative (counting back from the last element which would be -1)
-      true_dim = param_vals$dim
+      true_dim = param_vals$dim %??% -1
       if (true_dim < 0) {
         true_dim = 1 + length(shapes_in[[1]]) + true_dim
       }

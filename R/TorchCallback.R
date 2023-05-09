@@ -169,8 +169,7 @@ as_torch_callbacks.character = function(x, clone = FALSE, ...) { # nolint
 #' )
 #'
 #' # open the help page of the wrapped callback
-#'
-#' torchcallback$help()
+#' # torchcallback$help()
 #'
 #' # Use in a learner
 #' learner = lrn("regr.mlp", callbacks = t_clbk("checkpoint"))

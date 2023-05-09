@@ -1,4 +1,3 @@
-#' @title Autotest for PipeOpTorch
 #' @description
 #' This tests a [`PipeOpTorch`] that is embedded in a [`Graph`].
 #' Note that the id of the [`PipeOp`] to test should be the default id.

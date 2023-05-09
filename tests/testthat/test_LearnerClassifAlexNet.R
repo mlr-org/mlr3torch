@@ -16,6 +16,5 @@ test_that("LearnerClassifAlexnet runs", {
   learner$train(task)
 
   pred = learner$predict(task)
-  
   expect_class(pred, "PredictionClassif")
 })
