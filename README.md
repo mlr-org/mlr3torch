@@ -30,19 +30,19 @@ remotes::install_github("mlr-org/mlr3torch")
 and evaluate deep learning models in a few lines of codes, without
 needing to worry about low-level details. Off-the-shelf learners are
 readily available, but custom architectures can be defined by connection
-`PipeOpTorch` operators in a `mlr3pipelines::Graph` object.
+`PipeOpTorch` operators in an `mlr3pipelines::Graph`.
 
-Using predefined learners such as `lrn("classif.mlp")` works just like
-other mlr3 `Learner`s.
+Using predefined learners such as a simple multi layer perceptron (MLP)
+works just like other mlr3 `Learner`s.
 
 ``` r
 learner_mlp = lrn("classif.mlp",
   # defining network parameters
   activation     = "relu",
-  layers         = 2,
+  layers         = 1,
   d_hidden       = 20,
   # training parameters
-  batch_size     = 50,
+  batch_size     = 16,
   epochs         = 50,
   device         = "cpu",
   # Defining the optimizer, loss, and callbacks
@@ -55,9 +55,8 @@ learner_mlp = lrn("classif.mlp",
 )
 ```
 
-This learner can for example be used for resampling, benchmarking, but
-can e.g. also be tuned using
-[mlr3tuning](https://mlr3tuning.mlr-org.com/).
+This learner can for example be used for resampling or benchmarking. It
+can also be tuned using [mlr3tuning](https://mlr3tuning.mlr-org.com/).
 
 ``` r
 resample(
@@ -70,12 +69,13 @@ resample(
 #>     iris classif.mlp       holdout         1        0      0
 ```
 
-Below, we construct the same architecture using `PipeOpTorch` objects,
-the subsequent pipeops define the network layers.
+Below, we construct the same architecture using `PipeOpTorch` objects.
+The first pipeop – a `PipeOpTorchIngress` – defines the entrypoint of
+the network. All subsequent pipeops define the neural network layers.
 
 ``` r
 architecture = po("torch_ingress_num") %>>%
-  po("nn_linear", out_features = 10) %>>%
+  po("nn_linear", out_features = 20) %>>%
   po("nn_relu") %>>%
   po("nn_head")
 ```
@@ -97,13 +97,14 @@ learner_graph_mlp$id = "graph_mlp"
 
 ## Feature Overview
 
-  - Off-the-shelf architectures are readily available as mlr3 `Learner`s
+  - Off-the-shelf architectures are readily available as mlr3
+    `Learner`s.
   - Custom learners can be defined using the `Graph` language from
-    `mlr3pipelines`, i.e. via `PipeOp`s or using `nn_module`s
-  - Support for image and tabular data
-  - It is possible to customize the training process via a callback
-    mechanism
-  - Full integration into the `mlr3` ecosystem
+    `mlr3pipelines`, i.e. via `PipeOp`s or using `nn_module`s.
+  - The package supports tabular and image data.
+  - It is possible to customize the training process via (predefined or
+    custom) callbacks.
+  - The package is fully integrated into the `mlr3` ecosystem.
 
 ## Documentation
 

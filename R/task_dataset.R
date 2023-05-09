@@ -5,17 +5,17 @@
 #' The resulting dataset's `$.get_batch()` method returns a list with elements `x`, `y` and `index`:
 #' * `x` is a list with tensors, whose content is defined by the parameter `feature_ingress_tokens`.
 #' * `y` is the target variable and its content is defined by the parameter `target_batchgetter`.
-#' * `.indes` is the index of the batch in the task's data.
+#' * `.index` is the index of the batch in the task's data.
 #'
 #' The data is returned on the device specified by the parameter `device`.
 #'
 #' @param task ([`Task`])\cr
 #'   The task for which to build the [dataset][torch::dataset].
 #' @param feature_ingress_tokens (named `list()` of [`TorchIngressToken`])\cr
-#'   Each ingress token defines one item in the `$x` value of a batch.
+#'   Each ingress token defines one item in the `$x` value of a batch with corresponding names.
 #' @param target_batchgetter (`function(data, device)`)\cr
 #'   A function taking in arguments `data`, which is a `data.table` containing only the target variable, and `device`.
-#'   It must return the target as a torch [tensor][torch::torch_tensor].
+#'   It must return the target as a torch [tensor][torch::torch_tensor] on the selected device.
 #' @param device (`character()`)\cr
 #'   The device, e.g. `"cuda"` or `"cpu"`.
 #' @export
@@ -68,6 +68,7 @@ task_dataset = dataset(
 dataset_img = function(self, task, param_vals) {
   assert_true(length(task$feature_names) == 1)
   # TODO: Maybe we want to be more careful here to avoid changing parameters between train and predict
+  # Instead use the param vals stored in the state?
   imgshape = c(param_vals$channels, param_vals$height, param_vals$width)
 
   batchgetter = batchgetter_img(imgshape)

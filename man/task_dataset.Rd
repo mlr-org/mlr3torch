@@ -16,11 +16,11 @@ task_dataset(
 The task for which to build the \link[torch:dataset]{dataset}.}
 
 \item{feature_ingress_tokens}{(named \code{list()} of \code{\link{TorchIngressToken}})\cr
-Each ingress token defines one item in the \verb{$x} value of a batch.}
+Each ingress token defines one item in the \verb{$x} value of a batch with corresponding names.}
 
 \item{target_batchgetter}{(\verb{function(data, device)})\cr
 A function taking in arguments \code{data}, which is a \code{data.table} containing only the target variable, and \code{device}.
-It must return the target as a torch \link[torch:torch_tensor]{tensor}.}
+It must return the target as a torch \link[torch:torch_tensor]{tensor} on the selected device.}
 
 \item{device}{(\code{character()})\cr
 The device, e.g. \code{"cuda"} or \code{"cpu"}.}
@@ -34,7 +34,7 @@ The resulting dataset's \verb{$.get_batch()} method returns a list with elements
 \itemize{
 \item \code{x} is a list with tensors, whose content is defined by the parameter \code{feature_ingress_tokens}.
 \item \code{y} is the target variable and its content is defined by the parameter \code{target_batchgetter}.
-\item \code{.indes} is the index of the batch in the task's data.
+\item \code{.index} is the index of the batch in the task's data.
 }
 
 The data is returned on the device specified by the parameter \code{device}.
