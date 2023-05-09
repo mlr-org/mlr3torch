@@ -52,6 +52,7 @@ Suggests:
     knitr,
     magick,
     progress,
+    rmarkdown,
     rpart,
     torchvision,
     testthat (>= 3.0.0)
