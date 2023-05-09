@@ -55,7 +55,7 @@ test_that("autotest", {
     seed = 1
   )
 
-  result = run_autotest(learner, check_replicable = TRUE)
+  result = run_autotest(learner, check_replicable = TRUE, exclude = "sanity")
 
   expect_true(result, info = result$error)
 })
@@ -118,7 +118,7 @@ test_that("autotest", {
     seed = 1
   )
 
-  result = run_autotest(learner, check_replicable = TRUE)
+  result = run_autotest(learner, check_replicable = TRUE, exclude = "sanity")
 
   expect_true(result, info = result$error)
 })

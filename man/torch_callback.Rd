@@ -21,6 +21,7 @@ torch_callback(
   on_after_backward = NULL,
   on_batch_valid_begin = NULL,
   on_batch_valid_end = NULL,
+  initialize = NULL,
   public = NULL,
   private = NULL,
   active = NULL,
@@ -37,7 +38,7 @@ Note that the ids of callbacks passed to a learner must be unique.}
 The class name.}
 
 \item{param_set}{(\code{ParamSet})\cr
-The parameter set, if not present it is inferred from the initialize method passed through the public function.}
+The parameter set, if not present it is inferred from the initialize method.}
 
 \item{packages}{(\code{character()})\cr\verb{The packages the callback depends on. Default is}NULL`.}
 
@@ -50,6 +51,9 @@ The referenced help package can be opened via method \verb{$help()}.}
 
 \item{on_begin, on_end, on_epoch_begin, on_before_valid, on_epoch_end, on_batch_begin, on_batch_end, on_after_backward, on_batch_valid_begin, on_batch_valid_end}{(\code{function})\cr
 Function to execute at the given stage, see section \emph{Stages}.}
+
+\item{initialize}{(\verb{function()})\cr
+The initialization method of the callback.}
 
 \item{public, private, active}{(\code{list()})\cr
 Additional public, private, and active fields to add to the callback.}
@@ -67,11 +71,11 @@ This class must either be \code{\link{CallbackTorch}} (default) or inherit from 
 \description{
 Convenience function to create a custom callback for torch.
 For more information on how to correctly implement a new callback, see \code{\link{CallbackTorch}}.
-It returns a \code{\link{TorchCallback}} that wrapping a \code{\link{CallbackTorch}}.
+It returns a \code{\link{TorchCallback}} wrapping a \code{\link{CallbackTorch}}.
 }
 \section{Internals}{
 
-It first creates an \code{R6ClassGenerator} using \code{\link{torch_callback}}and when wraps this generator in a
+It first creates an \code{R6ClassGenerator} using \code{\link{torch_callback}} and when wraps this generator in a
 \code{\link{TorchCallback}}.
 }
 
@@ -92,44 +96,38 @@ It first creates an \code{R6ClassGenerator} using \code{\link{torch_callback}}an
 }
 
 \examples{
-custom_tcb = torch_callback(
-  "mycallback",
-  public = list(
-    initialize = function(greeting) {
-      self$greeting = greeting
-    }
-  ),
+custom_tcb = torch_callback("custom",
+  initialize = function(name) {
+    self$name = name
+  },
   on_begin = function(ctx) {
-    cat(self$greeting, ctx$name, "\n")
+    cat("Hello", self$name, ", we will train for ", ctx$total_epochs, "epochs.\n")
   },
   on_end = function(ctx) {
-    cat("Bye", ctx$name, "\n")
+    cat("Training is done.")
   }
 )
 
-custom_tcb$param_set$set_values(greeting = "Wazzuuup")
-
-cb = custom_tcb$generate()
-
-ctx = new.env()
-ctx$name = "Albert"
-
-f = function(ctx, cb) {
-  cb$on_begin(ctx)
-  catn("Doing heavy work ...")
-  cb$on_end(ctx)
-}
-
-f(ctx, cb)
+learner = lrn("classif.torch_featureless",
+  batch_size = 16,
+  epochs = 1,
+  callbacks = custom_tcb,
+  cb.custom.name = "Marie"
+)
+task = tsk("iris")
+learner$train(task)
 }
 \seealso{
-Other callback: 
+Other Callback: 
+\code{\link{TorchCallback}},
 \code{\link{as_torch_callbacks}()},
 \code{\link{as_torch_callback}()},
 \code{\link{callback_torch}()},
+\code{\link{mlr3torch_callbacks.checkpoint}},
 \code{\link{mlr3torch_callbacks.progress}},
 \code{\link{mlr3torch_callbacks}},
 \code{\link{mlr_callbacks_torch}},
-\code{\link{mlr_context_torch}}
+\code{\link{mlr_context_torch}},
+\code{\link{t_clbk}()}
 }
-\concept{callback}
+\concept{Callback}

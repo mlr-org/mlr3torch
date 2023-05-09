@@ -12,7 +12,7 @@
 #'   Currently used to pass additional constructor arguments to [`TorchOptimizer`] for objects of type
 #'   `torch_optimizer_generator`.
 #'
-#' @family torch_wrapper
+#' @family Torch Wrapper
 #'
 #' @return [`TorchOptimizer`]
 #' @export
@@ -40,37 +40,22 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 
 #' @title Torch Optimizer
 #'
-#' @usage NULL
-#' @name TorchOptimizer
-#' @format `r roxy_format(TorchOptimizer)`
-#'
 #' @description
-#' This wraps a `torch::torch_optimizer_generator`.
-#' It is commonly used to configure the `optimizer` of a torch learner.
-#' Can be used to configure the `optimizer` of a [`ModelDescriptor`].
+#' This wraps a `torch::torch_optimizer_generator`a and annotates it with metadata, most importantly a [`ParamSet`].
+#' The optimizer is created for the given parameter values by calling the `$generate()` method.
+#'
+#' This class is usually used to configure the optimizer of a torch learner, e.g.
+#' when construcing a learner or in a [`ModelDescriptor`].
 #'
 #' For a list of available optimizers, see [`mlr3torch_optimizers`].
-#'
-#' @section Construction:
-#' `r roxy_construction(TorchOptimizer)`
-#'
-#' Arguments from [`TorchWrapper`] (except for `generator`) as well as:
-#' * `torch_optimizer` :: `torch_optimizer_generator`\cr
-#'   The torch optimizer.
+#' Items from this dictionary can be retrieved using [`t_opt()`].
 #'
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
+#' If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
+#' for each argument of the wrapped loss function, where the parametes are then of type [`ParamUty`].
 #'
-#' @section Fields:
-#' Only fields inherited from [`TorchWrapper`] as well as:
-#'
-#' @section Methods:
-#' Methods inherited from [`TorchWrapper`] as well as:
-#' * `generate(params)`\cr
-#' (named `list()` of [`nn_parameter`]) -> (`torch_optimizer`)\cr
-#' Creates the optimizer for the given parameters.
-#'
-#' @family model_configuration, torch_wrapper
+#' @family Torch Wrapper
 #' @export
 #' @examples
 #' # Create a new Torch Optimizer
@@ -78,16 +63,40 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #' # If the param set is not specified, parameters are inferred but are of class ParamUty
 #' torchopt$param_set
 #'
+#' # Retrieve an optimizer from the dictionary
+#' torchopt = t_opt("sgd", lr = 0.1)
+#' torchopt
+#' torchopt$param_set
+#' torchopt$label
+#' torchopt$id
+#'
 #' # Create the optimizer for a network
 #' net = nn_linear(10, 1)
 #' opt = torchopt$generate(net$parameters)
+#'
+#' # is the same as
+#' optim_sgd(net$parameters, lr = 0.1)
+#'
+#' # open the help page of the wrapped optimizer
+#' torchopt$help()
+#'
+#' # Use in a learner
+#' learner = lrn("regr.mlp", optimizer = t_opt("sgd"))
+#' # The parameters of the optimizer are added to the learner's parameter set
+#' learner$param_set
 TorchOptimizer = R6::R6Class("TorchOptimizer",
   inherit = TorchWrapper,
   public = list(
-    label = NULL,
-    optimizer = NULL,
-    param_set = NULL,
-    packages = NULL,
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @param torch_optimizer (`torch_optimizer_generator`)\cr
+    #'   The torch optimizer.
+    #' @param param_set (`ParamSet` or `NULL`)\cr
+    #'   The parameter set. If `NULL` (default) it is inferred from `torch_optimizer`.
+    #' @template param_id
+    #' @template param_label
+    #' @template param_packages
+    #' @template param_man
     initialize = function(torch_optimizer, param_set = NULL, id = deparse(substitute(torch_optimizer))[[1L]],
       label = capitalize(id), packages = NULL, man = NULL) {
       torch_optimizer = assert_class(torch_optimizer, "torch_optimizer_generator") # maybe too strict?
@@ -107,6 +116,9 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
         man = man
       )
     },
+    #' @description
+    #' Instantiates the optimizer.
+    #' @param params The `$parameters` of the network.
     generate = function(params) {
       require_namespaces(self$packages)
       invoke(self$generator, .args = self$param_set$get_values(), params = params)
@@ -115,8 +127,6 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
 )
 
 #' @title Optimizers
-#' @usage NULL
-#' @format [`R6Class`] inheriting from [`Dictionary`].
 #'
 #' @description
 #' Dictionary of torch optimizers.
@@ -126,10 +136,7 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
 #' @section Available Optimizers:
 #' `r paste0(mlr3torch_optimizers$keys(), collapse = ", ")`
 #'
-#' @section Fields:
-#' Only fields inherited from [`Dictionary`].
-#'
-#' @family torch_wrapper
+#' @family Torch Wrapper
 #' @family Dictionary
 #' @export
 #' @examples
@@ -161,7 +168,7 @@ as.data.table.DictionaryMlr3torchOptimizers = function(x, ...) {
 #'   See description of [`dictionary_sugar_get`].
 #' @return A [`TorchOptimizer`]
 #' @export
-#' @family model_configuration, torch_wrapper
+#' @family Torch Wrapper
 #' @family Dictionary
 #' @examples
 #' t_opt("adam", lr = 0.1)
@@ -340,7 +347,6 @@ mlr3torch_optimizers$add("adagrad",
   }
 )
 
-
 mlr3torch_optimizers$add("adadelta",
   function() {
     p = ps(
@@ -354,28 +360,6 @@ mlr3torch_optimizers$add("adadelta",
       id = "adadelta",
       label = "Adaptive Learning Rate Method``",
       man = "torch::optim_adadelta"
-    )
-  }
-)
-
-
-mlr3torch_optimizers$add("lbfgs",
-  function() {
-    p = ps(
-      lr               = p_dbl(default = 1, lower = 0, tags = "train"),
-      max_iter         = p_int(default = 20, lower = 1, tags = "train"),
-      max_eval         = p_dbl(default = NULL, lower = 1L, tags = "train", special_vals = list(NULL)),
-      tolerance_grad   = p_dbl(default = 1e-07, lower = 0, tags = "train"),
-      tolerance_change = p_dbl(default = 1e-09, lower = 0, tags = "train"),
-      history_size     = p_int(default = 100L, lower = 1L, tags = "train"),
-      line_search_fn   = p_fct(default = NULL, levels = "strong_wolfe", tags = "train", special_vals = list(NULL))
-    )
-    TorchOptimizer$new(
-      torch_optimizer = torch::optim_lbfgs,
-      param_set = p,
-      id = "lbfgs",
-      label = "Limited-memory BFGS",
-      man = "torch::optim_lbfgs"
     )
   }
 )

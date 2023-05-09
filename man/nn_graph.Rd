@@ -26,16 +26,28 @@ Whether output should be a list of tensors. If \code{FALSE} (default), then \cod
 Represents a neural network using a \code{\link{Graph}} that usually costains mostly \code{\link{PipeOpModule}}s.
 }
 \examples{
-graph = as_graph(po("module", module = nn_linear(10, 1)))
-network = nn_graph(graph, list(module.input = c(NA, 1)))
+graph = po("module_1", module = nn_linear(10, 20)) \%>>\%
+  po("module_2", module = nn_relu()) \%>>\%
+  po("module_3", module = nn_linear(20, 1))
+network = nn_graph(graph, shapes_in = list(module_1.input = c(NA, 10)))
 network
+x = torch_randn(16, 10)
+network(module_1.input = x)
 }
 \seealso{
-Other graph_network: 
+Other Graph Network: 
+\code{\link{ModelDescriptor}()},
+\code{\link{TorchIngressToken}()},
+\code{\link{mlr_learners_classif.torch_model}},
+\code{\link{mlr_learners_regr.torch_model}},
 \code{\link{mlr_pipeops_module}},
+\code{\link{mlr_pipeops_torch_ingress_categ}},
+\code{\link{mlr_pipeops_torch_ingress_img}},
+\code{\link{mlr_pipeops_torch_ingress_num}},
+\code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch}},
 \code{\link{model_descriptor_to_learner}()},
 \code{\link{model_descriptor_to_module}()},
 \code{\link{model_descriptor_union}()}
 }
-\concept{graph_network}
+\concept{Graph Network}

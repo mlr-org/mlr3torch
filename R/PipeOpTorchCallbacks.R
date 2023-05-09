@@ -1,38 +1,24 @@
 #' @title Callback Configuration
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch_callbacks
-#' @format `r roxy_format(PipeOpTorchCallbacks)`
 #'
 #' @description
 #' Configures the callbacks of a deep learning model.
-#'
-#' @section Construction: `r roxy_construction(PipeOpTorchCallbacks)`
-#' * `callbacks` :: `list` of [`TorchCallback`]s or `character()` or \cr
-#'   The callbacks (or something convertible via [`as_torch_callbacks()`]).
-#'   Must have unique ids. Default is `list()`.
-#'   All callbacks are cloned during construction.
-#' * `r roxy_param_id("torch_callbacks")`
-#' * `r roxy_param_param_vals()`
 #'
 #' @section Input and Output Channels:
 #' There is one input channel `"input"` and one output channel `"output"`.
 #' During *training*, the channels are of class [`ModelDescriptor`].
 #' During *prediction*, the channels are of class [`Task`].
 #'
-#' @section State:
-#' The state is set to an empty `list()`.
+#' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' The parameters are defined dynamically from the callbacks, where the id of the respective callbacks is the
 #' respective set id.
-#' @section Fields:
-#' Only fields inherited from [`PipeOp`].
-#' @section Methods:
-#' Only methods inherited from [`PipeOp`].
 #' @section Internals:
 #' During training the callbacks are cloned and added to the [`ModelDescriptor`].
-#' @family model_configuration
+#' @family Model Configuration
+#' @family PipeOp
 #' @export
 #' @examples
 #' po_cb = po("torch_callbacks", "checkpoint")
@@ -48,6 +34,13 @@
 PipeOpTorchCallbacks = R6Class("PipeOpTorchCallbacks",
   inherit = PipeOp,
   public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    #' @param callbacks (`list` of [`TorchCallback`]s) \cr
+    #'   The callbacks (or something convertible via [`as_torch_callbacks()`]).
+    #'   Must have unique ids.
+    #'   All callbacks are cloned during construction.
     initialize = function(callbacks = list(), id = "torch_callbacks", param_vals = list()) {
       private$.callbacks = as_torch_callbacks(callbacks, clone = TRUE)
       cbids = ids(private$.callbacks)

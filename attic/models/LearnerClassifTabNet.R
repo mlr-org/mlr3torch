@@ -23,13 +23,11 @@
 #' }
 LearnerClassifTabNet = R6Class("LearnerClassifTabNet",
   inherit = LearnerClassif,
-
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function() {
       ps = params_tabnet()
-
       super$initialize(
         id = "classif.tabnet",
         packages = "tabnet",

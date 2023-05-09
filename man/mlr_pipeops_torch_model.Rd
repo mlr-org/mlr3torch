@@ -4,23 +4,10 @@
 \alias{mlr_pipeops_torch_model}
 \alias{PipeOpTorchModel}
 \title{Torch Model}
-\format{
-\code{\link{R6Class}} inheriting from \code{\link{PipeOp}}.
-}
 \description{
 Builds a Torch Learner from a \code{\link{ModelDescriptor}} and trains it with the given parameter specification.
 For a specific task type, use \code{\link{PipeOpTorchModelClassif}} or \code{\link{PipeOpTorchModelRegr}}.
 }
-\section{Construction}{
- \code{PipeOpTorchModel$new(id = "torch_model", param_vals = list(), task_type)}
-\itemize{
-\item \code{id} :: \code{character(1)}\cr The id for the object. The default is "torch_model".
-\item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
-\item \code{task_type} :: \code{character(1)}\cr
-The task type of the model. Currently \code{"regr"} and "\code{classif}" are supported.
-}
-}
-
 \section{Input and Output Channels}{
 
 There is one input channel \code{"input"} that takes in \code{ModelDescriptor} during traing and a \code{Task} of the specified
@@ -60,15 +47,7 @@ If this is missing (default), a random seed is generated.
 }
 
 Additionally there are the parameters for the optimizer, the loss function and the callbacks.
-\code{"opt."}, \code{"loss."} and \code{"cb.<callback id>"} respectively.
-}
-
-\section{Fields}{
- Only fields inherited from \code{PipeOpTorch}/\code{\link{PipeOp}{mlr3pipelines}}].
-}
-
-\section{Methods}{
- Only methods inherited from \code{PipeOpTorch}/\code{\link{PipeOp}{mlr3pipelines}}].
+They are prefixed with \code{"opt."}, \code{"loss."} and \code{"cb.<callback id>."} respectively.
 }
 
 \section{Internals}{
@@ -80,58 +59,123 @@ Then the parameters are set according to the parameters specified in \code{PipeO
 }
 
 \seealso{
-Other PipeOpTorch: 
-\code{\link{mlr_pipeops_torch_avg_pool1d}},
-\code{\link{mlr_pipeops_torch_avg_pool2d}},
-\code{\link{mlr_pipeops_torch_avg_pool3d}},
-\code{\link{mlr_pipeops_torch_avg_pool}},
-\code{\link{mlr_pipeops_torch_batch_norm}},
-\code{\link{mlr_pipeops_torch_celu}},
-\code{\link{mlr_pipeops_torch_conv1d}},
-\code{\link{mlr_pipeops_torch_conv2d}},
-\code{\link{mlr_pipeops_torch_conv3d}},
-\code{\link{mlr_pipeops_torch_conv_transpose1d}},
-\code{\link{mlr_pipeops_torch_conv_transpose2d}},
-\code{\link{mlr_pipeops_torch_conv_transpose3d}},
-\code{\link{mlr_pipeops_torch_conv_transpose}},
-\code{\link{mlr_pipeops_torch_conv}},
-\code{\link{mlr_pipeops_torch_dropout}},
-\code{\link{mlr_pipeops_torch_elu}},
-\code{\link{mlr_pipeops_torch_flatten}},
-\code{\link{mlr_pipeops_torch_gelu}},
-\code{\link{mlr_pipeops_torch_glu}},
-\code{\link{mlr_pipeops_torch_hard_shrink}},
-\code{\link{mlr_pipeops_torch_hardsigmoid}},
-\code{\link{mlr_pipeops_torch_hard}},
-\code{\link{mlr_pipeops_torch_head}},
-\code{\link{mlr_pipeops_torch_layer_norm}},
-\code{\link{mlr_pipeops_torch_leaky_relu}},
-\code{\link{mlr_pipeops_torch_log_sigmoid}},
-\code{\link{mlr_pipeops_torch_max_pool1d}},
-\code{\link{mlr_pipeops_torch_max_pool2d}},
-\code{\link{mlr_pipeops_torch_max_pool3d}},
-\code{\link{mlr_pipeops_torch_max_pool}},
-\code{\link{mlr_pipeops_torch_merge_cat}},
-\code{\link{mlr_pipeops_torch_merge_prod}},
-\code{\link{mlr_pipeops_torch_merge_sum}},
-\code{\link{mlr_pipeops_torch_merge}},
+Other PipeOps: 
+\code{\link{mlr_pipeops_nn_avg_pool1d}},
+\code{\link{mlr_pipeops_nn_avg_pool2d}},
+\code{\link{mlr_pipeops_nn_avg_pool3d}},
+\code{\link{mlr_pipeops_nn_batch_norm1d}},
+\code{\link{mlr_pipeops_nn_batch_norm2d}},
+\code{\link{mlr_pipeops_nn_batch_norm3d}},
+\code{\link{mlr_pipeops_nn_celu}},
+\code{\link{mlr_pipeops_nn_conv1d}},
+\code{\link{mlr_pipeops_nn_conv2d}},
+\code{\link{mlr_pipeops_nn_conv3d}},
+\code{\link{mlr_pipeops_nn_conv_transpose1d}},
+\code{\link{mlr_pipeops_nn_conv_transpose2d}},
+\code{\link{mlr_pipeops_nn_conv_transpose3d}},
+\code{\link{mlr_pipeops_nn_dropout}},
+\code{\link{mlr_pipeops_nn_elu}},
+\code{\link{mlr_pipeops_nn_flatten}},
+\code{\link{mlr_pipeops_nn_gelu}},
+\code{\link{mlr_pipeops_nn_glu}},
+\code{\link{mlr_pipeops_nn_hardshrink}},
+\code{\link{mlr_pipeops_nn_hardsigmoid}},
+\code{\link{mlr_pipeops_nn_hardtanh}},
+\code{\link{mlr_pipeops_nn_head}},
+\code{\link{mlr_pipeops_nn_layer_norm}},
+\code{\link{mlr_pipeops_nn_leaky_relu}},
+\code{\link{mlr_pipeops_nn_linear}},
+\code{\link{mlr_pipeops_nn_log_sigmoid}},
+\code{\link{mlr_pipeops_nn_max_pool1d}},
+\code{\link{mlr_pipeops_nn_max_pool2d}},
+\code{\link{mlr_pipeops_nn_max_pool3d}},
+\code{\link{mlr_pipeops_nn_merge_cat}},
+\code{\link{mlr_pipeops_nn_merge_prod}},
+\code{\link{mlr_pipeops_nn_merge_sum}},
+\code{\link{mlr_pipeops_nn_merge}},
+\code{\link{mlr_pipeops_nn_prelu}},
+\code{\link{mlr_pipeops_nn_relu6}},
+\code{\link{mlr_pipeops_nn_relu}},
+\code{\link{mlr_pipeops_nn_reshape}},
+\code{\link{mlr_pipeops_nn_rrelu}},
+\code{\link{mlr_pipeops_nn_selu}},
+\code{\link{mlr_pipeops_nn_sigmoid}},
+\code{\link{mlr_pipeops_nn_softmax}},
+\code{\link{mlr_pipeops_nn_softplus}},
+\code{\link{mlr_pipeops_nn_softshrink}},
+\code{\link{mlr_pipeops_nn_softsign}},
+\code{\link{mlr_pipeops_nn_squeeze}},
+\code{\link{mlr_pipeops_nn_tanhshrink}},
+\code{\link{mlr_pipeops_nn_tanh}},
+\code{\link{mlr_pipeops_nn_threshold}},
+\code{\link{mlr_pipeops_torch_ingress_categ}},
+\code{\link{mlr_pipeops_torch_ingress_num}},
+\code{\link{mlr_pipeops_torch_ingress}},
+\code{\link{mlr_pipeops_torch_loss}},
 \code{\link{mlr_pipeops_torch_model_classif}},
-\code{\link{mlr_pipeops_torch_model_regr}},
-\code{\link{mlr_pipeops_torch_prelu}},
-\code{\link{mlr_pipeops_torch_relu6}},
-\code{\link{mlr_pipeops_torch_relu}},
-\code{\link{mlr_pipeops_torch_reshape}},
-\code{\link{mlr_pipeops_torch_rrelu}},
-\code{\link{mlr_pipeops_torch_selu}},
-\code{\link{mlr_pipeops_torch_sigmoid}},
-\code{\link{mlr_pipeops_torch_softmax}},
-\code{\link{mlr_pipeops_torch_softplus}},
-\code{\link{mlr_pipeops_torch_softshrink}},
-\code{\link{mlr_pipeops_torch_softsign}},
-\code{\link{mlr_pipeops_torch_squeeze}},
-\code{\link{mlr_pipeops_torch_tanhshrink}},
-\code{\link{mlr_pipeops_torch_tanh}},
-\code{\link{mlr_pipeops_torch_threshold}},
-\code{\link{pipeop_torch_linear}}
+\code{\link{mlr_pipeops_torch_model_regr}}
 }
-\concept{PipeOpTorch}
+\concept{PipeOps}
+\section{Super class}{
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{PipeOpTorchModel}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-PipeOpTorchModel-new}{\code{PipeOpTorchModel$new()}}
+\item \href{#method-PipeOpTorchModel-clone}{\code{PipeOpTorchModel$clone()}}
+}
+}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-print'><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
+</ul>
+</details>
+}}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipeOpTorchModel-new"></a>}}
+\if{latex}{\out{\hypertarget{method-PipeOpTorchModel-new}{}}}
+\subsection{Method \code{new()}}{
+Creates a new instance of this \link[R6:R6Class]{R6} class.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchModel$new(id = "torch_model", param_vals = list(), task_type)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{id}}{(\code{character(1)})\cr
+Identifier of the resulting  object.}
+
+\item{\code{param_vals}}{(\code{list()})\cr
+List of hyperparameter settings, overwriting the hyperparameter settings that would
+otherwise be set during construction.}
+
+\item{\code{task_type}}{\code{character(1)}\cr
+The task type of the model.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipeOpTorchModel-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-PipeOpTorchModel-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchModel$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

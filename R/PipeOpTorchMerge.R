@@ -1,43 +1,37 @@
 #' @title Merge Operation
 #'
-#' @usage NULL
-#' @name mlr_pipeops_torch_merge
-#' @format `r roxy_format(PipeOpTorchMerge)`
+#' @name mlr_pipeops_nn_merge
+#' @template pipeop_torch_state_default
 #'
 #' @description
 #' Base class for merge operations such as addition ([`PipeOpTorchMergeSum`]), multiplication
 #' ([`PipeOpTorchMergeProd`] or concatenation ([`PipeOpTorchMergeCat`]).
-#'
-#' @section Construction:
-#' `r roxy_construction(PipeOpTorchMerge)`
-#' * `r roxy_param_id()`
-#' * `r roxy_param_param_vals()`
-#' * `r roxy_param_param_set()`
-#' * `r roxy_param_module_generator()`
-#' * `innum` :: `integer(1)`\cr
-#'   The number of inputs. Default is 0 which means there is one *vararg* input channel.
 #'
 #' @section Input and Output Channels:
 #' `PipeOpTorchMerge`s has either a *vararg* input channel if the constructor argument `innum` is not set, or
 #' input channels `"input1"`, ..., `"input<innum>"`. There is one output channel `"output"`.
 #' For an explanation see [`PipeOpTorch`].
 #'
-#' @section State: `r roxy_pipeop_torch_state_default()`
 #' @section Parameters: See the respective child class.
-#'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
 #' Per default, the `private$.shapes_out()` method outputs the broadcasted tensors. There are two things to be aware:
 #' 1. `NA`s are assumed to batch (this should almost always be the batch size in the first dimension).
 #' 2. Tensors are expected to have the same number of dimensions, i.e. missing dimensions are not filled with 1s.
 #'    The reason is that again that the first dimension should be the batch dimension.
 #' This private method can be overwritten by [`PipeOpTorch`]s inheriting from this class.
-#' @family PipeOpTorch
+#'
+#' @family PipeOps
+#' @include PipeOpTorch.R
 #' @export
 PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
   inherit = PipeOpTorch,
   public = list(
+    #' @description Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    #' @template param_module_generator
+    #' @template param_param_set
+    #' @param innum (`integer(1)`)\cr
+    #'   The number of inputs. Default is 0 which means there is one *vararg* input channel.
     initialize = function(id, module_generator, param_set = ps(), innum = 0, param_vals = list()) {
       private$.innum = assert_int(innum, lower = 0)
       inname = if (innum == 0) "..." else paste0("input", seq_len(innum))
@@ -74,40 +68,26 @@ PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
 
 #' @title Merge by Summation
 #'
-#' @usage NULL
-#' @name mlr_pipeops_torch_merge_sum
-#' @format [`R6Class`] object inheriting from [`PipeOp`]/[`PipeOpTorch`]/[`PipeOpTorchMerge`].
+#' @templateVar id nn_merge_sum
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
 #'
 #' @inherit nn_merge_sum description
 #'
-#' @section Broadcasting:
-#' Broadcasting here works slightly different than broadcasting
-#'
-#' @section Construction:
-#' `r roxy_construction(PipeOpTorchMergeSum)`
-#'
-#' * `r roxy_param_id("nn_merge_sum")`
-#' * `r roxy_param_param_vals()`
-#' * `innum` :: `integer(1)`\cr
-#'   The number of inputs. Default is 0 which means there is one *vararg* input channel.
-#' @inheritSection mlr_pipeops_torch_merge Input and Output Channels
-#' @section State:
-#' `r roxy_pipeop_torch_state_default()`
+#' @inheritSection mlr_pipeops_nn_merge Input and Output Channels
 #' @section Parameters:
 #' No parameters.
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
 #' Calls [`nn_merge_sum()`] when trained.
-#' @family PipeOpTorch
+#' @family PipeOps
 #' @export
-#' @examples
-#' obj = po("nn_merge_sum")
-#' obj$id
-#' obj$module_generator
-#' obj$shapes_out(list(input1 = c(16, 5, 5), input2 = c(16, 5, 5)))
 PipeOpTorchMergeSum = R6Class("PipeOpTorchMergeSum", inherit = PipeOpTorchMerge,
   public = list(
+    #' @description Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    #' @param innum (`integer(1)`)\cr
+    #'   The number of inputs. Default is 0 which means there is one *vararg* input channel.
     initialize = function(id = "nn_merge_sum", innum = 0, param_vals = list()) {
       super$initialize(
         id = id,
@@ -122,39 +102,29 @@ PipeOpTorchMergeSum = R6Class("PipeOpTorchMergeSum", inherit = PipeOpTorchMerge,
 
 #' @title Merge by Product
 #'
-#' @usage NULL
-#' @name mlr_pipeops_torch_merge_prod
-#' @format [`R6Class`] object inheriting from [`PipeOp`]/[`PipeOpTorch`]/[`PipeOpTorchMerge`].
+#' @templateVar id nn_merge_prod
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
 #'
 #' @inherit nn_merge_prod description
 #'
-#' @section Construction:
-#' `r roxy_construction(PipeOpTorchMergeProd)`
-#' * `r roxy_param_id("nn_merge_prod")`
-#' * `r roxy_param_param_vals()`
-#' * `innum` :: `integer(1)`\cr
-#'   The number of inputs. Default is 0 which means there is one *vararg* input channel.
-#'
-#' @inheritSection mlr_pipeops_torch_merge Input and Output Channels
-#' @section State: `r roxy_pipeop_torch_state_default()`
+#' @inheritSection mlr_pipeops_nn_merge Input and Output Channels
 #'
 #' @section Parameters:
 #' No parameters.
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
 #' Calls [`nn_merge_prod()`] when trained.
 #'
-#' @family PipeOpTorch
 #' @export
-#' @examples
-#' obj = po("nn_merge_prod")
-#' obj$id
-#' obj$module_generator
-#' obj$shapes_out(list(input1 = c(16, 5, 5), input2 = c(16, 5, 5)))
 PipeOpTorchMergeProd = R6Class("PipeOpTorchMergeProd", inherit = PipeOpTorchMerge,
   public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    #' @param innum (`integer(1)`)\cr
+    #'   The number of inputs. Default is 0 which means there is one *vararg* input channel.
     initialize = function(id = "nn_merge_prod", innum = 0, param_vals = list()) {
       super$initialize(
         id = id,
@@ -163,45 +133,32 @@ PipeOpTorchMergeProd = R6Class("PipeOpTorchMergeProd", inherit = PipeOpTorchMerg
         param_vals = param_vals
       )
     }
-  ),
-
-
-
+  )
 )
 
 #' @title Merge by Concatenation
 #'
-#' @usage NULL
-#' @name mlr_pipeops_torch_merge_cat
-#' @format [`R6Class`] object inheriting from [`PipeOp`]/[`PipeOpTorch`]/[`PipeOpTorchMerge`].
+#' @templateVar id nn_merge_cat
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
 #'
 #' @inherit nn_merge_cat description
 #'
-#' @section Construction:
-#' `r roxy_construction(PipeOpTorchMergeCat)`
-#' * `r roxy_param_id("nn_merge_cat")`
-#' * `r roxy_param_param_vals()`
-#' * `innum` :: `integer(1)`\cr
-#'   The number of inputs. Default is 0 which means there is one *vararg* input channel.
-#'
-#' @inheritSection mlr_pipeops_torch_merge Input and Output Channels
-#' @section State: `r roxy_pipeop_torch_state_default()`
+#' @inheritSection mlr_pipeops_nn_merge Input and Output Channels
 #' @section Parameters:
 #' * `dim` :: `integer(1)`\cr
 #'   The dimension along which to concatenate the tensors.
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
 #' Calls [`nn_merge_cat()`] when trained.
-#' @family PipeOpTorch
 #' @export
-#' @examples
-#' obj = po("nn_merge_cat", dim = 2)
-#' obj$id
-#' obj$module_generator
-#' obj$shapes_out(list(input1 = c(16, 5, 7), input2 = c(16, 6, 7)))
 PipeOpTorchMergeCat = R6Class("PipeOpTorchMergeCat", inherit = PipeOpTorchMerge,
   public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    #' @param innum (`integer(1)`)\cr
+    #'   The number of inputs. Default is 0 which means there is one *vararg* input channel.
     initialize = function(id = "nn_merge_cat", innum = 0, param_vals = list()) {
       param_set = ps(dim = p_int(default = -1, tags = c("train", "required")))
       super$initialize(
@@ -212,6 +169,7 @@ PipeOpTorchMergeCat = R6Class("PipeOpTorchMergeCat", inherit = PipeOpTorchMerge,
         param_vals = param_vals
       )
     },
+    #' @description What does the cat say?
     speak = function() cat("I am the merge cat, meow! ^._.^\n")
   ),
   private = list(

@@ -1,3 +1,5 @@
+# Code that was used to generate the toytask
+
 library(mlr3torch)
 task = tsk("tiny_imagenet")
 dat = task$data()

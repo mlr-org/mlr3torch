@@ -11,8 +11,7 @@
 #'   Additional arguments.
 #'   Currently used to pass additional constructor arguments to [`TorchLoss`] for objects of type `nn_loss`.
 #'
-#'
-#' @family torch_wrapper
+#' @family Torch Wrapper
 #'
 #' @return [`TorchLoss`].
 #' @export
@@ -39,46 +38,72 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 
 #' @title Torch Loss
 #'
-#' @usage NULL
-#' @name TorchLoss
-#' @format `r roxy_format(TorchLoss)`
-#'
 #' @description
-#' This wraps a `torch::nn_loss` and is usually used to configure the loss function of a torch learner.
+#' This wraps a `torch::nn_loss` and annotates it with metadata, most importantly a [`ParamSet`].
+#' The loss function is created for the given parameter values by calling the `$generate()` method inherited from
+#' [`TorchWrapper`].
+#'
+#' This class is usually used to configure the loss function of a torch learner, e.g.
+#' when construcing a learner or in a [`ModelDescriptor`].
+#'
 #' For a list of available losses, see [`mlr3torch_losses`].
-#'
-#' @section Construction:
-#' `r roxy_construction(TorchLoss)`
-#'
-#' Arguments from [`TorchWrapper`] (except for `generator`) as well as:
-#' * `torch_loss` :: `nn_loss`\cr
-#'   The loss module.
-#' * `task_types` :: `character()`\cr
-#'   The task types supported by this loss.
-#'   If left as `NULL` (default), this value is set to all available task types.
+#' Items from this dictionary can be retrieved using [`t_loss()`].
 #'
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
+#' If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
+#' for each argument of the wrapped loss function, where the parametes are then of type [`ParamUty`].
 #'
-#' @section Fields:
-#' Fields inherited from [`TorchWrapper`] as well as:
-#' * `task_types` :: `character()`\cr
-#'  The task types this loss supports.
-#'
-#' @section Methods:
-#' Only methods inherited from [`TorchWrapper`].
-#'
-#' @family model_configuration, torch_wrapper
+#' @family Torch Wrapper
 #' @export
 #' @examples
 #' # Create a new Torch Loss
 #' torchloss = TorchLoss$new(torch_loss = nn_mse_loss, task_types = "regr")
+#' torchloss
+#' # the parameters are inferred
 #' torchloss$param_set
-#' loss = torchloss$generate()
+#'
+#' # Retrieve a loss from the dictionary:
+#' torchloss = t_loss("mse", reduction = "mean")
+#' # is the same as
+#' torchloss
+#' torchloss$param_set
+#' torchloss$label
+#' torchloss$task_types
+#' torchloss$id
+#'
+#' # Create the loss function
+#' loss_fn = torchloss$generate()
+#' loss_fn
+#' # Is the same as
+#' nn_mse_loss(reduction = "mean")
+#'
+#' # open the help page of the wrapper loss function
+#' torchloss$help()
+#'
+#' # Use in a learner
+#' learner = lrn("regr.mlp", loss = t_loss("mse"))
+#' # The parameters of the loss are added to the learner's parameter set
+#' learner$param_set
 TorchLoss = R6::R6Class("TorchLoss",
   inherit = TorchWrapper,
   public = list(
+    #' @field task_types (`character()`)\cr
+    #'  The task types this loss supports.
     task_types = NULL,
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @param torch_loss (`nn_loss`)\cr
+    #'   The loss module.
+    #' @param task_types (`character()`)\cr
+    #'   The task types supported by this loss.
+    #'   If left as `NULL` (default), this value is set to all available task types.
+    #' @param param_set ([`ParamSet`] or `NULL`)\cr
+    #'   The parameter set. If `NULL` (default) it is inferred from `torch_loss`.
+    #' @template param_id
+    #' @template param_label
+    #' @template param_packages
+    #' @template param_man
     initialize = function(torch_loss, task_types = NULL, param_set = NULL,
       id = deparse(substitute(torch_loss))[[1L]], label = capitalize(id), packages = NULL, man = NULL) {
       force(id)
@@ -97,6 +122,9 @@ TorchLoss = R6::R6Class("TorchLoss",
         man = man
       )
     },
+    #' @description
+    #' Prints the object
+    #' @param ... any
     print = function(...) {
       super$print(...)
       catn(str_indent("* Task Types:", as_short_string(self$task_types, 1000L)))
@@ -106,8 +134,6 @@ TorchLoss = R6::R6Class("TorchLoss",
 )
 
 #' @title Loss Functions
-#' @usage NULL
-#' @format [`R6Class`] inheriting from [`Dictionary`].
 #'
 #' @description
 #' Dictionary of torch loss functions.
@@ -117,13 +143,7 @@ TorchLoss = R6::R6Class("TorchLoss",
 #' @section Available Loss Functions:
 #' `r paste0(mlr3torch_losses$keys(), collapse = ", ")`
 #'
-#' @section Fields:
-#' Only fields inherited from [`Dictionary`].
-#'
-#' @section Methods:
-#' Only methods inherited from [`Dictionary`].
-#'
-#' @family torch_wrappers
+#' @family Torch Wrapper
 #' @family Dictionary
 #' @export
 #' @examples
@@ -158,7 +178,7 @@ as.data.table.DictionaryMlr3torchLosses = function(x, ...) {
 #'   See description of [`dictionary_sugar_get`].
 #' @return A [`TorchLoss`]
 #' @export
-#' @family torch_wrapper, model_configuration
+#' @family Torch Wrapper
 #' @examples
 #' t_loss("mse", reduction = "mean")
 #' # get the dictionary

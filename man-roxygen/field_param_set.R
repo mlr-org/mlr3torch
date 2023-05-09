@@ -1,2 +1,2 @@
-#' @field param_set ([`ParamSet`][paradox::ParamSet])\cr
-#'   The parameter set.
+#' @field param_set ([paradox::ParamSet])\cr
+#'   Set of hyperparameters.

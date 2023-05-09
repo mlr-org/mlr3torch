@@ -5,7 +5,6 @@
 #' @description
 #' Tabular resnet.
 #'
-#' @templateVar id classif.alexnet
 #' @templateVar pkg torchvision
 #' @templateVar model model_alexnet
 #'

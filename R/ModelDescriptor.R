@@ -17,12 +17,10 @@
 #' channel of a `PipeOp` that was previously without parent as its destination.
 #'
 #' In most cases it is better to create a specific `ModelDescriptor` by training a [`Graph`] consisting (mostly) of
-#' operators [`PipeOpTorchIngress`] and [`PipeOpTorch`].
+#' operators [`PipeOpTorchIngress`], [`PipeOpTorch`], [`PipeOpTorchLoss`], [`PipeOpTorchOptimizer`], and
+#' [`PipeOpTorchCallbacks`].
 #'
 #' A `ModelDescriptor` can be converted to a [`nn_graph`] via [`model_descriptor_to_module`].
-#'
-#' @section Fields:
-#' See the description of the parameters.
 #'
 #' @param graph ([`Graph`][mlr3pipelines::Graph])\cr
 #'   `Graph` of [`PipeOpModule`] and [`PipeOpNOP`] operators.
@@ -42,8 +40,8 @@
 #' @param .pointer_shape (`integer` | `NULL`)\cr
 #'   Shape of the output indicated by `.pointer`.
 #'
-#' @seealso model_descriptor_to_module, model_descriptor_union, PipeOpTorch, PipeOpModule, PipeOpTorchIngress,
-#' TorchIngressToken
+#' @family Model Configuration
+#' @family Graph Network
 #' @return (`ModelDescriptor`)
 ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, callbacks = NULL, .pointer = NULL,
   .pointer_shape = NULL) {
@@ -118,21 +116,20 @@ print.ModelDescriptor = function(x, ...) {
 #' * Drops `.pointer` / `.pointer_shape` entries.
 #' * The new task is the [feature union][PipeOpFeatureUnion] of the two incoming tasks.
 #' * The `optimizer` and `loss` of both [`ModelDescriptor`]s must be identical.
-#' * Ingress tokens and and callbacks are merged, where objects with the same `"id"` must be identical.
+#' * Ingress tokens and callbacks are merged, where objects with the same `"id"` must be identical.
 #'
 #' @details
 #' The requirement that no new input edgedes may be added to `PipeOp`s  is not theoretically necessary, but since
 #' we assume that ModelDescriptor is being built from beginning to end (i.e. `PipeOp`s never get new ancestors) we
 #' can make this assumption and simplify things. Otherwise we'd need to treat "..."-inputs special.)
 #'
-#'
 #' @param md1 (`ModelDescriptor`)
 #'   The first [`ModelDescriptor`].
 #' @param md2 (`ModelDescriptor`)
 #'   The second [`ModelDescriptor`].
 #' @return [`ModelDescriptor`]
-#' @family graph_network
-#' @seealso ModelDescriptor, PipeOpTorch, PipeOpTorchMerge
+#' @family Graph Network
+#' @family Model Configuration
 #' @export
 model_descriptor_union = function(md1, md2) {
   assert_class(md1, "ModelDescriptor")

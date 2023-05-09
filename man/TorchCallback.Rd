@@ -3,37 +3,158 @@
 \name{TorchCallback}
 \alias{TorchCallback}
 \title{Torch Callback}
-\format{
-\code{\link{R6Class}} inheriting from \code{\link{TorchWrapper}}.
-}
 \description{
-Leight-weight wrapper around callback for torch: A \code{\link{TorchCallback}} wraps a \code{\link{CallbackTorch}}.
-To conveniently retrieve a \code{\link{TorchCallback}}, use \code{\link{t_clbk}}.
-It is an analogous construct to the classes \code{\link{TorchOptimizer}} or \code{\link{TorchLoss}} which wrap torch optimizers and
-losses.
-}
-\section{Construction}{
- \code{TorchCallback$new(callback_generator, param_set = NULL, id = deparse(substitute(id))[[1L]], label = capitalize(id), packages = NULL, man = NULL)}
-Arguments from \code{\link{TorchWrapper}} (except for \code{generator}) as well as:
-\itemize{
-\item \code{callback_generator} :: \code{R6ClassGenerator}\cr
-The class generator for the callback that is being wrapped.
-}
-}
+This wraps a \code{\link{CallbackTorch}} and annotates it with metadata, most importantly a \code{\link{ParamSet}}.
+The callback is created for the given parameter values by calling the \verb{$generate()} method.
 
+This class is usually used to configure the callback of a torch learner, e.g. when constructing
+a learner of in a \code{\link{ModelDescriptor}}.
+
+For a list of available callbacks, see mlr3torch_callbacks
+To conveniently retrieve a \code{\link{TorchCallback}}, use \code{\link[=t_clbk]{t_clbk()}}.
+}
 \section{Parameters}{
 
 Defined by the constructor argument \code{param_set}.
+If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
+for each argument of the wrapped loss function, where the parametes are then of type \code{\link{ParamUty}}.
 }
 
-\section{Fields}{
+\examples{
+# Create a new Torch Callback from an existing callback
+torchcallback = TorchCallback$new(CallbackTorchCheckpoint)
+# The parameters are inferred
+torchcallback$param_set
 
-Only fields inherited from \code{\link{TorchWrapper}} as well as:
+# Retrieve a torch callbac from the dictionary
+torchcallback = t_clbk("checkpoint",
+  path = tempfile(), freq = 1
+)
+torchcallback
+torchcallback$label
+torchcallback$id
+
+# Create the callback
+callback = torchcallback$generate()
+callback
+# is the same as
+CallbackTorchCheckpoint$new(
+  path = tempfile(), freq = 1
+)
+
+# open the help page of the wrapped callback
+
+torchcallback$help()
+
+# Use in a learner
+learner = lrn("regr.mlp", callbacks = t_clbk("checkpoint"))
+# the parameters of the callback are added to the learner's parameter set
+learner$param_set
+
 }
+\seealso{
+Other Callback: 
+\code{\link{as_torch_callbacks}()},
+\code{\link{as_torch_callback}()},
+\code{\link{callback_torch}()},
+\code{\link{mlr3torch_callbacks.checkpoint}},
+\code{\link{mlr3torch_callbacks.progress}},
+\code{\link{mlr3torch_callbacks}},
+\code{\link{mlr_callbacks_torch}},
+\code{\link{mlr_context_torch}},
+\code{\link{t_clbk}()},
+\code{\link{torch_callback}()}
 
+Other Torch Wrapper: 
+\code{\link{TorchLoss}},
+\code{\link{TorchOptimizer}},
+\code{\link{as_torch_callbacks}()},
+\code{\link{as_torch_loss}()},
+\code{\link{as_torch_optimizer}()},
+\code{\link{mlr3torch_losses}},
+\code{\link{mlr3torch_optimizers}},
+\code{\link{t_clbk}()},
+\code{\link{t_loss}()},
+\code{\link{t_opt}()},
+\code{\link{torch_wrapper}}
+}
+\concept{Callback}
+\concept{Torch Wrapper}
+\section{Super class}{
+\code{\link[mlr3torch:TorchWrapper]{mlr3torch::TorchWrapper}} -> \code{TorchCallback}
+}
 \section{Methods}{
-
-Only methods inherited from \code{\link{TorchWrapper}}.
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-TorchCallback-new}{\code{TorchCallback$new()}}
+\item \href{#method-TorchCallback-clone}{\code{TorchCallback$clone()}}
+}
+}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchWrapper" data-id="generate"><a href='../../mlr3torch/html/TorchWrapper.html#method-TorchWrapper-generate'><code>mlr3torch::TorchWrapper$generate()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchWrapper" data-id="help"><a href='../../mlr3torch/html/TorchWrapper.html#method-TorchWrapper-help'><code>mlr3torch::TorchWrapper$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchWrapper" data-id="print"><a href='../../mlr3torch/html/TorchWrapper.html#method-TorchWrapper-print'><code>mlr3torch::TorchWrapper$print()</code></a></span></li>
+</ul>
+</details>
+}}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TorchCallback-new"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchCallback-new}{}}}
+\subsection{Method \code{new()}}{
+Creates a new instance of this \link[R6:R6Class]{R6} class.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TorchCallback$new(
+  callback_generator,
+  param_set = NULL,
+  id = deparse(substitute(id))[[1L]],
+  label = capitalize(id),
+  packages = NULL,
+  man = NULL
+)}\if{html}{\out{</div>}}
 }
 
-\concept{callback, model_configuration, torch_wrapper}
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{callback_generator}}{(\code{R6ClassGenerator})\cr
+The class generator for the callback that is being wrapped.}
+
+\item{\code{param_set}}{(\code{ParamSet} or \code{NULL})\cr
+The parameter set. If \code{NULL} (default) it is inferred from \code{callback_generator}.}
+
+\item{\code{id}}{(\code{character(1)})\cr
+The id for of the new object.}
+
+\item{\code{label}}{(\code{character(1)})\cr
+Label for the new instance.}
+
+\item{\code{packages}}{(\code{character()})\cr
+The R packages this object depends on.}
+
+\item{\code{man}}{(\code{character(1)})\cr
+String in the format \verb{[pkg]::[topic]} pointing to a manual page for this object.
+The referenced help package can be opened via method \verb{$help()}.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TorchCallback-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchCallback-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TorchCallback$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

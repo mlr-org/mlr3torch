@@ -1,18 +1,12 @@
 #' @title Linear Layer
 #'
-#' @usage NULL
-#' @name pipeop_torch_linear
-#' @format `r roxy_format(PipeOpTorchLinear)`
+#' @templateVar id nn_linear
+#' @template pipeop_torch_channels_default
+#' @templateVar param_vals out_features = 10
+#' @template pipeop_torch
+#' @template pipeop_torch_example
 #'
 #' @inherit torch::nnf_linear description
-#'
-#' @section Construction:
-#' `r roxy_construction(PipeOpTorchLinear)`
-#' * `r roxy_param_id("nn_linear")`
-#' * `r roxy_param_param_vals()`
-#'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-#' @section State: `r roxy_pipeop_torch_state_default()`
 #'
 #' @section Parameters:
 #' * `out_features` :: `integer(1)`\cr
@@ -21,22 +15,15 @@
 #'   Whether to use a bias.
 #'   Default is `TRUE`.
 #'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
 #' Calls [`torch::nn_linear()`] when trained where the parameter `in_features` is inferred as the second
 #' to last dimension of the input tensor.
-#' @section Credit: `r roxy_torch_license()`
-#' @family PipeOpTorch
 #' @export
-#' @examples
-#' obj = po("nn_linear", out_features = 10)
-#' obj$id
-#' obj$module_generator
-#' obj$shapes_out(c(16, 5, 7))
 PipeOpTorchLinear = R6Class("PipeOpTorchLinear",
   inherit = PipeOpTorch,
   public = list(
+    #' @description Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
     initialize = function(id = "nn_linear", param_vals = list()) {
       param_set = ps(
         out_features = p_int(1L, Inf, tags = c("train", "required")),

@@ -57,7 +57,7 @@ dataset_num = function(self, task, param_vals) {
 
 dataset_num_categ = function(self, task, param_vals) {
   features_num = task$feature_types[get("type") %in% c("numeric", "integer"), "id"][[1L]]
-  features_categ = task$feature_types[get("type") %in% c("factor", "ordered"), "id"][[1L]]
+  features_categ = task$feature_types[get("type") %in% c("factor", "ordered", "logical"), "id"][[1L]]
 
   tokens = list()
 

@@ -61,16 +61,32 @@ element of \code{graph$input} may be removed by reference, e.g. by adding an edg
 channel of a \code{PipeOp} that was previously without parent as its destination.
 
 In most cases it is better to create a specific \code{ModelDescriptor} by training a \code{\link{Graph}} consisting (mostly) of
-operators \code{\link{PipeOpTorchIngress}} and \code{\link{PipeOpTorch}}.
+operators \code{\link{PipeOpTorchIngress}}, \code{\link{PipeOpTorch}}, \code{\link{PipeOpTorchLoss}}, \code{\link{PipeOpTorchOptimizer}}, and
+\code{\link{PipeOpTorchCallbacks}}.
 
 A \code{ModelDescriptor} can be converted to a \code{\link{nn_graph}} via \code{\link{model_descriptor_to_module}}.
 }
-\section{Fields}{
-
-See the description of the parameters.
-}
-
 \seealso{
-model_descriptor_to_module, model_descriptor_union, PipeOpTorch, PipeOpModule, PipeOpTorchIngress,
-TorchIngressToken
+Other Model Configuration: 
+\code{\link{mlr_pipeops_torch_callbacks}},
+\code{\link{mlr_pipeops_torch_loss}},
+\code{\link{mlr_pipeops_torch_optimizer}},
+\code{\link{model_descriptor_union}()}
+
+Other Graph Network: 
+\code{\link{TorchIngressToken}()},
+\code{\link{mlr_learners_classif.torch_model}},
+\code{\link{mlr_learners_regr.torch_model}},
+\code{\link{mlr_pipeops_module}},
+\code{\link{mlr_pipeops_torch_ingress_categ}},
+\code{\link{mlr_pipeops_torch_ingress_img}},
+\code{\link{mlr_pipeops_torch_ingress_num}},
+\code{\link{mlr_pipeops_torch_ingress}},
+\code{\link{mlr_pipeops_torch}},
+\code{\link{model_descriptor_to_learner}()},
+\code{\link{model_descriptor_to_module}()},
+\code{\link{model_descriptor_union}()},
+\code{\link{nn_graph}()}
 }
+\concept{Graph Network}
+\concept{Model Configuration}

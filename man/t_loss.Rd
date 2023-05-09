@@ -33,4 +33,18 @@ t_losses(c("mse", "l1"))
 # get the dictionary
 t_losses()
 }
-\concept{torch_wrapper, model_configuration}
+\seealso{
+Other Torch Wrapper: 
+\code{\link{TorchCallback}},
+\code{\link{TorchLoss}},
+\code{\link{TorchOptimizer}},
+\code{\link{as_torch_callbacks}()},
+\code{\link{as_torch_loss}()},
+\code{\link{as_torch_optimizer}()},
+\code{\link{mlr3torch_losses}},
+\code{\link{mlr3torch_optimizers}},
+\code{\link{t_clbk}()},
+\code{\link{t_opt}()},
+\code{\link{torch_wrapper}}
+}
+\concept{Torch Wrapper}

@@ -4,34 +4,24 @@
 \alias{mlr_callbacks_torch}
 \alias{CallbackTorch}
 \title{Base Class for Torch Callbacks}
-\format{
-\code{\link{R6Class}}
-}
 \description{
-Base class from which Torch Callbacks should inherit.
-To create custom callbacks to use in a torch learner use the convenience function \code{\link{torch_callback}}.
-
-Torch Callbacks can be used to gain more control over the training process of a neural network without
+Base class from which Callbacks should inherit.
+They can be used to gain more control over the training process of a neural network without
 having to write everything from scratch.
-At each stage (see section "Stages") of the training loop, the corresponding \verb{on_<stage>(ctx)} method is run
-that takes as argument a \code{\link{ContextTorch}} which gives access to the relevant objects.
+
+For each available stage (see section \emph{Stages}) a public method \verb{$on_<stage>(ctx)} can be defined.
+This must be an function with argument \code{ctx}, which is a \code{\link{ContextTorch}}.
+When a learner is trained, at a specific \verb{<stage>}, the \verb{$on_<stage>(ctx)} method of the callback is
+executed, where the \code{ctx} represents the current state of the training loop.
+Different stages of a callback can communicate with each other by assigning values to \verb{$self}.
+
+When used a in torch learner, the \code{CallbackTorch} is wrapped in a \code{\link{TorchCallback}}.
+The latters parameter set represents the arguments of the \code{\link{CallbackTorch}}'s \verb{$initialize()} method and can
+be specified in the learner. The callback is then initialized in the beginning of the training loop.
+
+For creating custom callbacks, the function \code{\link[=torch_callback]{torch_callback()}} is recommended, which creates a
+\code{\link{CallbackTorch}} and then wraps it in a \code{\link{TorchCallback}}.
 }
-\section{Construction}{
-
-\code{CallbackTorch$new()}
-}
-
-\section{Methods}{
-
-See section \emph{Stages}.
-Other methods can be added freely as well.
-}
-
-\section{Inheriting}{
-
-It is recommended to use the sugar function \code{\link[=callback_torch]{callback_torch()}} to create custom callbacks.
-}
-
 \section{Stages}{
 
 \itemize{
@@ -49,13 +39,17 @@ It is recommended to use the sugar function \code{\link[=callback_torch]{callbac
 }
 
 \seealso{
-Other callback: 
+Other Callback: 
+\code{\link{TorchCallback}},
 \code{\link{as_torch_callbacks}()},
 \code{\link{as_torch_callback}()},
 \code{\link{callback_torch}()},
+\code{\link{mlr3torch_callbacks.checkpoint}},
 \code{\link{mlr3torch_callbacks.progress}},
 \code{\link{mlr3torch_callbacks}},
 \code{\link{mlr_context_torch}},
+\code{\link{t_clbk}()},
 \code{\link{torch_callback}()}
 }
-\concept{callback}
+\concept{Callback}
+

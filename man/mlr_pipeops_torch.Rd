@@ -4,13 +4,12 @@
 \alias{mlr_pipeops_torch}
 \alias{PipeOpTorch}
 \title{Base Class for Torch Module Constructor Wrappers}
-\format{
-\code{\link{R6Class}} inheriting from \code{\link{PipeOp}}.
-}
 \description{
 \code{PipeOpTorch} is the base class for all \code{\link{PipeOp}}s that represent neural network layers in a \code{\link{Graph}}.
 During \strong{training}, it generates a \code{\link{PipeOpModule}} that wraps an \code{\link[torch:nn_module]{nn_module}} and attaches it
-to the isomorphic architecture, which is also represented as a \code{\link{Graph}} consisting of \code{\link{PipeOpModule}}s.
+to the isomorphic architecture, which is also represented as a \code{\link{Graph}} consisting mostly of \code{\link{PipeOpModule}}s
+an \code{\link{PipeOpNOP}}s.
+
 While the former \code{\link{Graph}} operates on \code{\link{ModelDescriptor}}s, the latter operates on \link[=torch_tensor]{tensors}.
 
 The relationship between a \code{PipeOpTorch} and a \code{\link{PipeOpModule}} is similar to the
@@ -22,38 +21,8 @@ A crucial difference is that the \code{PipeOpTorch} infers auxiliary parameters 
 
 During \strong{prediction}, \code{PipeOpTorch} takes in a \code{\link[mlr3:Task]{Task}} in each channel and outputs the same new
 \code{\link[mlr3:Task]{Task}} resulting from their \link[=PipeOpFeatureUnion]{feature union} in each channel.
+If there is only one input and output channel, the task is simply piped through.
 }
-\section{Construction}{
-
-\code{PipeOpTorch$new(id, module_generator, param_set = ps(), param_vals = list(), inname = "input", outname = "output", packages = "torch", tags = NULL)}
-\itemize{
-\item \code{id} :: \code{character(1)}\cr The id for the object.
-\item \code{module_generator} :: \code{nn_module_generator} | \code{NULL}\cr
-The module generator that is wrapped by this \code{PipeOpTorch}.
-When this is \code{NULL}, then \code{private$.make_module()} must be overloaded.
-\item \code{param_set} :: \code{link{ParamSet}{paradox}}\cr The parameter set.
-\item \code{param_vals} :: named \code{list()}\cr List of hyperparameter settings to overwrite the initial values. Default is  \code{list()}.
-\item \code{inname} :: \code{character()}\cr
-The names of the \code{\link{PipeOp}}'s input channels. These will be the input channels of the generated \code{\link{PipeOpModule}}.
-Unless the wrapped \code{module_generator}'s forward method (if present) has the argument \code{...}, \code{inname} must be
-identical to those argument names in order to avoid any ambiguity.\cr
-If the forward method has the argument \code{...}, the order of the input channels determines how the tensors
-will be passed to the wrapped \code{nn_module}.\cr
-If left as \code{NULL} (default), the argument \code{module_generator} must be given and the argument names of the
-\code{modue_generator}'s forward function are set as \code{inname}.
-\item \code{outname} :: \code{character()} \cr
-The names of the output channels channels. These will be the ouput channels of the generated \code{\link{PipeOpModule}}
-and therefore also the names of the list returned by its \verb{$train()}.
-In case there is more than one output channel, the \code{nn_module} that is constructed by this
-\code{\link{PipeOp}} during training must return a named \code{list()}, where the names of the list are the
-names out the output channels. The default is \code{"output"}.
-\item \code{packages} :: \code{character()}\cr
-The packages the \code{PipeOp} depends on.
-\item \code{tags} :: \code{character()}\cr
-The tags of the \code{PipeOp}. The tags \code{"torch"} is always added.
-}
-}
-
 \section{Inheriting}{
 
 When inheriting from this class, one should overload either the \code{private$.shapes_out()} and the
@@ -90,7 +59,7 @@ During \emph{prediction}, all input and output channels are of class \code{\link
 
 \section{State}{
 
-The state is the value calculated by the public method \verb{$shapes_out()}.
+The state is the value calculated by the public method \code{shapes_out()}.
 }
 
 \section{Parameters}{
@@ -98,23 +67,6 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 The \code{\link[paradox:ParamSet]{ParamSet}} is specified by the child class inheriting from \code{\link{PipeOpTorch}}.
 Usually the parameters are the arguments of the wrapped \code{\link{nn_module}} minus the auxiliary parameter that can
 be automatically inferred from the shapes of the input tensors.
-}
-
-\section{Fields}{
-
-\itemize{
-\item \code{module_generator} :: \code{nn_module_generator} | \code{NULL}\cr
-The module generator wrapped by this \code{PipeOpTorch}. If \code{NULL}, the private method
-\code{private$.make_module(shapes_in, param_vals)} must be overwritte, see section 'Inheriting'.
-Do not change this after construction.
-}
-}
-
-\section{Methods}{
-
-\itemize{
-\item \verb{shapes_out(shapes_in, task)\\cr  (}list()\code{of}integer()\code{or}integer()\verb{, task) -> (}list()\code{of}integer()\verb{)\\cr  Calculates the output shapes for the given input shapes, parameters and task.  The }shapes_in\verb{must be in the same orer as the input channel names of the}PipeOp\verb{.  If there is only one input channel, }shapes_in\verb{can also contain the shapes for this input channel.  The task is very rarely used (default is}NULL\verb{). An exception is [}PipeOpTorchHead\verb{].  It returns a named }list()\verb{containing the output shapes. The names are the names of the output channels of  the}PipeOp`.
-}
 }
 
 \section{Internals}{
@@ -279,11 +231,153 @@ tasks_out = do.call(po_torch$predict, args = list(input = predict_input))
 identical(tasks_out[[1L]], tasks_out[[2L]])
 }
 \seealso{
-Other graph_network: 
+Other Graph Network: 
+\code{\link{ModelDescriptor}()},
+\code{\link{TorchIngressToken}()},
+\code{\link{mlr_learners_classif.torch_model}},
+\code{\link{mlr_learners_regr.torch_model}},
 \code{\link{mlr_pipeops_module}},
+\code{\link{mlr_pipeops_torch_ingress_categ}},
+\code{\link{mlr_pipeops_torch_ingress_img}},
+\code{\link{mlr_pipeops_torch_ingress_num}},
+\code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{model_descriptor_to_learner}()},
 \code{\link{model_descriptor_to_module}()},
 \code{\link{model_descriptor_union}()},
 \code{\link{nn_graph}()}
 }
-\concept{graph_network}
+\concept{Graph Network}
+\section{Super class}{
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{PipeOpTorch}
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{module_generator}}{(\code{nn_module_generator} or \code{NULL})\cr
+The module generator wrapped by this \code{PipeOpTorch}. If \code{NULL}, the private method
+\code{private$.make_module(shapes_in, param_vals)} must be overwritte, see section 'Inheriting'.
+Do not change this after construction.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-PipeOpTorch-new}{\code{PipeOpTorch$new()}}
+\item \href{#method-PipeOpTorch-shapes_out}{\code{PipeOpTorch$shapes_out()}}
+\item \href{#method-PipeOpTorch-clone}{\code{PipeOpTorch$clone()}}
+}
+}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-print'><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
+</ul>
+</details>
+}}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipeOpTorch-new"></a>}}
+\if{latex}{\out{\hypertarget{method-PipeOpTorch-new}{}}}
+\subsection{Method \code{new()}}{
+Creates a new instance of this \link[R6:R6Class]{R6} class.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorch$new(
+  id,
+  module_generator,
+  param_set = ps(),
+  param_vals = list(),
+  inname = "input",
+  outname = "output",
+  packages = "torch",
+  tags = NULL
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{id}}{(\code{character(1)})\cr
+Identifier of the resulting  object.}
+
+\item{\code{module_generator}}{(\code{nn_module_generator})\cr
+The torch module generator.}
+
+\item{\code{param_set}}{(\code{paradox::ParamSet})\cr
+The parameter set.}
+
+\item{\code{param_vals}}{(\code{list()})\cr
+List of hyperparameter settings, overwriting the hyperparameter settings that would
+otherwise be set during construction.}
+
+\item{\code{inname}}{(\code{character()})\cr
+The names of the \code{\link{PipeOp}}'s input channels. These will be the input channels of the generated \code{\link{PipeOpModule}}.
+Unless the wrapped \code{module_generator}'s forward method (if present) has the argument \code{...}, \code{inname} must be
+identical to those argument names in order to avoid any ambiguity.\cr
+If the forward method has the argument \code{...}, the order of the input channels determines how the tensors
+will be passed to the wrapped \code{nn_module}.\cr
+If left as \code{NULL} (default), the argument \code{module_generator} must be given and the argument names of the
+\code{modue_generator}'s forward function are set as \code{inname}.}
+
+\item{\code{outname}}{(\code{character()}) \cr
+The names of the output channels channels. These will be the ouput channels of the generated \code{\link{PipeOpModule}}
+and therefore also the names of the list returned by its \verb{$train()}.
+In case there is more than one output channel, the \code{nn_module} that is constructed by this
+\code{\link{PipeOp}} during training must return a named \code{list()}, where the names of the list are the
+names out the output channels. The default is \code{"output"}.}
+
+\item{\code{packages}}{(\code{character()})\cr
+The R packages this object depends on.}
+
+\item{\code{tags}}{(\code{character()})\cr
+The tags of the \code{\link{PipeOp}}. The tags \code{"torch"} is always added.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipeOpTorch-shapes_out"></a>}}
+\if{latex}{\out{\hypertarget{method-PipeOpTorch-shapes_out}{}}}
+\subsection{Method \code{shapes_out()}}{
+Calculates the output shapes for the given input shapes, parameters and task.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorch$shapes_out(shapes_in, task = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{shapes_in}}{(\code{list()} of \code{integer()} or \code{integer()}, task)\cr
+The input input shapes, which must be in the same order as the input channel names of the \code{PipeOp}.
+If there is only one input channel, \code{shapes_in} can also contain the shapes for this input channel.}
+
+\item{\code{task}}{(\code{\link{Task}} or \code{NULL})\cr
+The task, which is very rarely used (default is \code{NULL}). An exception is \code{\link{PipeOpTorchHead}}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A named \code{list()} containing the output shapes. The names are the names of the output channels of
+the \code{PipeOp}.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipeOpTorch-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-PipeOpTorch-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorch$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

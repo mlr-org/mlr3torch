@@ -1,27 +1,24 @@
 #' @title Base Class for Torch Callbacks
 #'
-#' @usage NULL
 #' @name mlr_callbacks_torch
-#' @format `r roxy_format(CallbackTorch)`
 #'
 #' @description
-#' Base class from which Torch Callbacks should inherit.
-#' To create custom callbacks to use in a torch learner use the convenience function [`torch_callback`].
-#'
-#' Torch Callbacks can be used to gain more control over the training process of a neural network without
+#' Base class from which Callbacks should inherit.
+#' They can be used to gain more control over the training process of a neural network without
 #' having to write everything from scratch.
-#' At each stage (see section "Stages") of the training loop, the corresponding `on_<stage>(ctx)` method is run
-#' that takes as argument a [`ContextTorch`] which gives access to the relevant objects.
 #'
-#' @section Construction:
-#' `r roxy_construction(CallbackTorch)`
+#' For each available stage (see section *Stages*) a public method `$on_<stage>(ctx)` can be defined.
+#' This must be an function with argument `ctx`, which is a [`ContextTorch`].
+#' When a learner is trained, at a specific `<stage>`, the `$on_<stage>(ctx)` method of the callback is
+#' executed, where the `ctx` represents the current state of the training loop.
+#' Different stages of a callback can communicate with each other by assigning values to `$self`.
 #'
-#' @section Methods:
-#' See section *Stages*.
-#' Other methods can be added freely as well.
+#' When used a in torch learner, the `CallbackTorch` is wrapped in a [`TorchCallback`].
+#' The latters parameter set represents the arguments of the [`CallbackTorch`]'s `$initialize()` method and can
+#' be specified in the learner. The callback is then initialized in the beginning of the training loop.
 #'
-#' @section Inheriting:
-#' It is recommended to use the sugar function [`callback_torch()`] to create custom callbacks.
+#' For creating custom callbacks, the function [`torch_callback()`] is recommended, which creates a
+#' [`CallbackTorch`] and then wraps it in a [`TorchCallback`].
 #'
 #' @section Stages:
 #' * `begin` :: Run before the training loop begins.
@@ -34,7 +31,7 @@
 #' * `batch_valid_end` :: Run after the forward call in the validation loop.
 #' * `epoch_end` :: Run at the end of each epoch.
 #' * `end` :: Run at last, using `on.exit()`.
-#' @family callback
+#' @family Callback
 #' @export
 CallbackTorch = R6Class("CallbackTorch",
   lock_objects = FALSE,
@@ -52,6 +49,8 @@ CallbackTorch = R6Class("CallbackTorch",
 #'   The class name.
 #' @param on_begin,on_end,on_epoch_begin,on_before_valid,on_epoch_end,on_batch_begin,on_batch_end,on_after_backward,on_batch_valid_begin,on_batch_valid_end (`function`)\cr
 #'   Function to execute at the given stage, see section *Stages*.
+#' @param initialize (`function()`)\cr
+#'   The initialization method of the callback.
 #' @param public,private,active (`list()`)\cr
 #'   Additional public, private, and active fields to add to the callback.
 #' @param parent_env (`environment()`)\cr
@@ -60,7 +59,7 @@ CallbackTorch = R6Class("CallbackTorch",
 #'   From which class to inherit.
 #'   This class must either be [`CallbackTorch`] (default) or inherit from it.
 #'
-#' @family callback
+#' @family Callback
 #'
 #' @export
 callback_torch = function(
@@ -77,6 +76,8 @@ callback_torch = function(
   # validation
   on_batch_valid_begin = NULL,
   on_batch_valid_end = NULL,
+  # other methods
+  initialize = NULL,
   public = NULL, private = NULL, active = NULL, parent_env = parent.frame(), inherit = CallbackTorch
   ) {
   assert_true(startsWith(classname, "CallbackTorch"))
@@ -92,6 +93,13 @@ callback_torch = function(
     on_batch_valid_begin = assert_function(on_batch_valid_begin, args = "ctx", null.ok = TRUE),
     on_batch_valid_end = assert_function(on_batch_valid_end, args = "ctx", null.ok = TRUE)
   )
+
+  assert_function(initialize, null.ok = TRUE)
+
+  if (!is.null(initialize)) {
+    assert_true("initialize" %nin% names(public))
+    public$initialize = initialize
+  }
 
   assert_list(public, null.ok = TRUE, names = "unique")
   if (length(public)) assert_names(names(public), disjunct.from = names(more_public))
@@ -111,6 +119,6 @@ callback_torch = function(
   more_public = Filter(function(x) !is.null(x), more_public)
   parent_env_shim = new.env(parent = parent_env)
   parent_env_shim$inherit = inherit
-  R6::R6Class(classname = classname, inherit = inherit, public = c(more_public, public),
+  R6::R6Class(classname = classname, inherit = inherit, public = c(public, more_public),
     private = private, active = active, parent_env = parent_env_shim, lock_objects = FALSE)
 }

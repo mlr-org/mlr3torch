@@ -12,7 +12,8 @@
 #' @return [`TorchCallback`]
 #'
 #' @export
-#' @family callback, torch_wrapper
+#' @family Callback
+#' @family Torch Wrapper
 #' @examples
 #' t_clbk("progress")
 t_clbk = function(.key, ...) {
@@ -51,6 +52,7 @@ t_clbks.NULL = function(.keys, ...) { # nolint
 }
 
 #' @title Convert to a TorchCallback
+#'
 #' @description
 #' Converts an object to a [`TorchCallback`].
 #'
@@ -62,7 +64,7 @@ t_clbks.NULL = function(.keys, ...) { # nolint
 #'   Additional arguments
 #'
 #' @return [`TorchCallback`].
-#' @family callback
+#' @family Callback
 
 #' @export
 as_torch_callback = function(x, clone = FALSE, ...) {
@@ -96,7 +98,8 @@ as_torch_callback.character = function(x, clone = FALSE, ...) { # nolint
 #' @param ... (any)\cr
 #'   Additional arguments.
 #'
-#' @family callback
+#' @family Callback
+#' @family Torch Wrapper
 #' @export
 as_torch_callbacks = function(x, clone, ...) {
   UseMethod("as_torch_callbacks")
@@ -117,43 +120,76 @@ as_torch_callbacks.default = function(x, clone = FALSE, ...) { # nolint
   list(as_torch_callback(x, clone = clone, ...))
 }
 
+#' @export
 as_torch_callbacks.character = function(x, clone = FALSE, ...) { # nolint
   t_clbks(x, ...)
 }
 
 #' @title Torch Callback
 #'
-#' @usage NULL
-#' @name TorchCallback
-#' @format `r roxy_format(TorchCallback)`
-#'
 #' @description
-#' Leight-weight wrapper around callback for torch: A [`TorchCallback`] wraps a [`CallbackTorch`].
-#' To conveniently retrieve a [`TorchCallback`], use [`t_clbk`].
-#' It is an analogous construct to the classes [`TorchOptimizer`] or [`TorchLoss`] which wrap torch optimizers and
-#' losses.
+#' This wraps a [`CallbackTorch`] and annotates it with metadata, most importantly a [`ParamSet`].
+#' The callback is created for the given parameter values by calling the `$generate()` method.
 #'
-#' @section Construction: `r roxy_construction(TorchCallback)`
-#' Arguments from [`TorchWrapper`] (except for `generator`) as well as:
-#' * `callback_generator` :: `R6ClassGenerator`\cr
-#'   The class generator for the callback that is being wrapped.
+#' This class is usually used to configure the callback of a torch learner, e.g. when constructing
+#' a learner of in a [`ModelDescriptor`].
+#'
+#' For a list of available callbacks, see mlr3torch_callbacks
+#' To conveniently retrieve a [`TorchCallback`], use [`t_clbk()`].
 #'
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
+#' If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
+#' for each argument of the wrapped loss function, where the parametes are then of type [`ParamUty`].
 #'
-#' @section Fields:
-#' Only fields inherited from [`TorchWrapper`] as well as:
+#' @family Callback
+#' @family Torch Wrapper
 #'
-#' @section Methods:
-#' Only methods inherited from [`TorchWrapper`].
-#'
-#' @family callback, model_configuration, torch_wrapper
-#' @include utils.R
 #' @export
+#' @examples
+#' # Create a new Torch Callback from an existing callback
+#' torchcallback = TorchCallback$new(CallbackTorchCheckpoint)
+#' # The parameters are inferred
+#' torchcallback$param_set
+#'
+#' # Retrieve a torch callbac from the dictionary
+#' torchcallback = t_clbk("checkpoint",
+#'   path = tempfile(), freq = 1
+#' )
+#' torchcallback
+#' torchcallback$label
+#' torchcallback$id
+#'
+#' # Create the callback
+#' callback = torchcallback$generate()
+#' callback
+#' # is the same as
+#' CallbackTorchCheckpoint$new(
+#'   path = tempfile(), freq = 1
+#' )
+#'
+#' # open the help page of the wrapped callback
+#'
+#' torchcallback$help()
+#'
+#' # Use in a learner
+#' learner = lrn("regr.mlp", callbacks = t_clbk("checkpoint"))
+#' # the parameters of the callback are added to the learner's parameter set
+#' learner$param_set
+#'
 TorchCallback = R6Class("TorchCallback",
   inherit = TorchWrapper,
   public = list(
-    man = NULL,
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @param callback_generator (`R6ClassGenerator`)\cr
+    #'   The class generator for the callback that is being wrapped.
+    #' @template param_id
+    #' @param param_set (`ParamSet` or `NULL`)\cr
+    #'   The parameter set. If `NULL` (default) it is inferred from `callback_generator`.
+    #' @template param_label
+    #' @template param_packages
+    #' @template param_man
     initialize = function(callback_generator, param_set = NULL, id = deparse(substitute(id))[[1L]],
       label = capitalize(id), packages = NULL, man = NULL) {
       super$initialize(
@@ -173,15 +209,14 @@ TorchCallback = R6Class("TorchCallback",
 #' @description
 #' Convenience function to create a custom callback for torch.
 #' For more information on how to correctly implement a new callback, see [`CallbackTorch`].
-#' It returns a [`TorchCallback`] that wrapping a [`CallbackTorch`].
-#'
+#' It returns a [`TorchCallback`] wrapping a [`CallbackTorch`].
 #'
 #' @inheritParams callback_torch
 #' @param id (`character(1)`)\cr`\cr
 #'   The id for the callbacks.
 #'   Note that the ids of callbacks passed to a learner must be unique.
 #' @param param_set (`ParamSet`)\cr
-#'   The parameter set, if not present it is inferred from the initialize method passed through the public function.
+#'   The parameter set, if not present it is inferred from the initialize method.
 #' @param packages (`character()`)\cr`
 #'   The packages the callback depends on. Default is `NULL`.
 #' @param label (`character(1)`)\cr
@@ -192,45 +227,35 @@ TorchCallback = R6Class("TorchCallback",
 #'
 #' @inheritSection mlr_callbacks_torch Stages
 #'
-#'
 #' @section Internals:
-#' It first creates an `R6ClassGenerator` using [`torch_callback`]and when wraps this generator in a
+#' It first creates an `R6ClassGenerator` using [`torch_callback`] and when wraps this generator in a
 #' [`TorchCallback`].
 #'
 #' @export
 #' @return [`TorchCallback`]
 #' @include zzz.R CallbackTorch.R
-#' @family callback
+#' @family Callback
 #' @examples
-#' custom_tcb = torch_callback(
-#'   "mycallback",
-#'   public = list(
-#'     initialize = function(greeting) {
-#'       self$greeting = greeting
-#'     }
-#'   ),
+#' custom_tcb = torch_callback("custom",
+#'   initialize = function(name) {
+#'     self$name = name
+#'   },
 #'   on_begin = function(ctx) {
-#'     cat(self$greeting, ctx$name, "\n")
+#'     cat("Hello", self$name, ", we will train for ", ctx$total_epochs, "epochs.\n")
 #'   },
 #'   on_end = function(ctx) {
-#'     cat("Bye", ctx$name, "\n")
+#'     cat("Training is done.")
 #'   }
 #' )
 #'
-#' custom_tcb$param_set$set_values(greeting = "Wazzuuup")
-#'
-#' cb = custom_tcb$generate()
-#'
-#' ctx = new.env()
-#' ctx$name = "Albert"
-#'
-#' f = function(ctx, cb) {
-#'   cb$on_begin(ctx)
-#'   catn("Doing heavy work ...")
-#'   cb$on_end(ctx)
-#' }
-#'
-#' f(ctx, cb)
+#' learner = lrn("classif.torch_featureless",
+#'   batch_size = 16,
+#'   epochs = 1,
+#'   callbacks = custom_tcb,
+#'   cb.custom.name = "Marie"
+#' )
+#' task = tsk("iris")
+#' learner$train(task)
 torch_callback = function(
   id,
   classname = paste0("CallbackTorch", capitalize(id)),
@@ -251,6 +276,7 @@ torch_callback = function(
   on_batch_valid_begin = NULL,
   on_batch_valid_end = NULL,
   # other arguments
+  initialize = NULL,
   public = NULL, private = NULL, active = NULL, parent_env = parent.frame(), inherit = CallbackTorch
   ) {
 
@@ -269,6 +295,7 @@ torch_callback = function(
     on_batch_valid_begin = on_batch_valid_begin,
     on_batch_valid_end = on_batch_valid_end,
     # other arguments
+    initialize = initialize,
     public = public, private = private, active = active, parent_env = parent_env, inherit = inherit
   )
 
@@ -284,18 +311,12 @@ torch_callback = function(
 
 #' @title Dictionary of Torch Callbacks
 #'
-#' @usage NULL
-#' @format [`R6Class`] inheriting from [`Dictionary`].
-#'
 #' @description
 #' A [`mlr3misc::Dictionary`] of torch callbacks.
 #' Use [`t_clbk()`] to conveniently retrieve callbacks.
 #' Can be converted to a [`data.table`] using `as.data.table`.
 #'
-#' @section Methods:
-#' See [mlr3misc::Dictionary].
-#'
-#' @family callback
+#' @family Callback
 #' @family Dictionary
 #' @export
 #' @examples

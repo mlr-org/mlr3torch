@@ -3,55 +3,174 @@
 \name{TorchLoss}
 \alias{TorchLoss}
 \title{Torch Loss}
-\format{
-\code{\link{R6Class}} inheriting from \code{\link{TorchWrapper}}.
-}
 \description{
-This wraps a \code{torch::nn_loss} and is usually used to configure the loss function of a torch learner.
+This wraps a \code{torch::nn_loss} and annotates it with metadata, most importantly a \code{\link{ParamSet}}.
+The loss function is created for the given parameter values by calling the \verb{$generate()} method inherited from
+\code{\link{TorchWrapper}}.
+
+This class is usually used to configure the loss function of a torch learner, e.g.
+when construcing a learner or in a \code{\link{ModelDescriptor}}.
+
 For a list of available losses, see \code{\link{mlr3torch_losses}}.
+Items from this dictionary can be retrieved using \code{\link[=t_loss]{t_loss()}}.
 }
-\section{Construction}{
-
-\code{TorchLoss$new(torch_loss, task_types = NULL, param_set = NULL, id = deparse(substitute(torch_loss))[[1L]], label = capitalize(id), packages = NULL, man = NULL)}
-
-Arguments from \code{\link{TorchWrapper}} (except for \code{generator}) as well as:
-\itemize{
-\item \code{torch_loss} :: \code{nn_loss}\cr
-The loss module.
-\item \code{task_types} :: \code{character()}\cr
-The task types supported by this loss.
-If left as \code{NULL} (default), this value is set to all available task types.
-}
-}
-
 \section{Parameters}{
 
 Defined by the constructor argument \code{param_set}.
-}
-
-\section{Fields}{
-
-Fields inherited from \code{\link{TorchWrapper}} as well as:
-\itemize{
-\item \code{task_types} :: \code{character()}\cr
-The task types this loss supports.
-}
-}
-
-\section{Methods}{
-
-Only methods inherited from \code{\link{TorchWrapper}}.
+If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
+for each argument of the wrapped loss function, where the parametes are then of type \code{\link{ParamUty}}.
 }
 
 \examples{
 # Create a new Torch Loss
 torchloss = TorchLoss$new(torch_loss = nn_mse_loss, task_types = "regr")
+torchloss
+# the parameters are inferred
 torchloss$param_set
-loss = torchloss$generate()
+
+# Retrieve a loss from the dictionary:
+torchloss = t_loss("mse", reduction = "mean")
+# is the same as
+torchloss
+torchloss$param_set
+torchloss$label
+torchloss$task_types
+torchloss$id
+
+# Create the loss function
+loss_fn = torchloss$generate()
+loss_fn
+# Is the same as
+nn_mse_loss(reduction = "mean")
+
+# open the help page of the wrapper loss function
+torchloss$help()
+
+# Use in a learner
+learner = lrn("regr.mlp", loss = t_loss("mse"))
+# The parameters of the loss are added to the learner's parameter set
+learner$param_set
 }
 \seealso{
-Other model_configuration, torch_wrapper: 
+Other Torch Wrapper: 
+\code{\link{TorchCallback}},
 \code{\link{TorchOptimizer}},
-\code{\link{t_opt}()}
+\code{\link{as_torch_callbacks}()},
+\code{\link{as_torch_loss}()},
+\code{\link{as_torch_optimizer}()},
+\code{\link{mlr3torch_losses}},
+\code{\link{mlr3torch_optimizers}},
+\code{\link{t_clbk}()},
+\code{\link{t_loss}()},
+\code{\link{t_opt}()},
+\code{\link{torch_wrapper}}
 }
-\concept{model_configuration, torch_wrapper}
+\concept{Torch Wrapper}
+\section{Super class}{
+\code{\link[mlr3torch:TorchWrapper]{mlr3torch::TorchWrapper}} -> \code{TorchLoss}
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{task_types}}{(\code{character()})\cr
+The task types this loss supports.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-TorchLoss-new}{\code{TorchLoss$new()}}
+\item \href{#method-TorchLoss-print}{\code{TorchLoss$print()}}
+\item \href{#method-TorchLoss-clone}{\code{TorchLoss$clone()}}
+}
+}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchWrapper" data-id="generate"><a href='../../mlr3torch/html/TorchWrapper.html#method-TorchWrapper-generate'><code>mlr3torch::TorchWrapper$generate()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchWrapper" data-id="help"><a href='../../mlr3torch/html/TorchWrapper.html#method-TorchWrapper-help'><code>mlr3torch::TorchWrapper$help()</code></a></span></li>
+</ul>
+</details>
+}}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TorchLoss-new"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchLoss-new}{}}}
+\subsection{Method \code{new()}}{
+Creates a new instance of this \link[R6:R6Class]{R6} class.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TorchLoss$new(
+  torch_loss,
+  task_types = NULL,
+  param_set = NULL,
+  id = deparse(substitute(torch_loss))[[1L]],
+  label = capitalize(id),
+  packages = NULL,
+  man = NULL
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{torch_loss}}{(\code{nn_loss})\cr
+The loss module.}
+
+\item{\code{task_types}}{(\code{character()})\cr
+The task types supported by this loss.
+If left as \code{NULL} (default), this value is set to all available task types.}
+
+\item{\code{param_set}}{(\code{\link{ParamSet}} or \code{NULL})\cr
+The parameter set. If \code{NULL} (default) it is inferred from \code{torch_loss}.}
+
+\item{\code{id}}{(\code{character(1)})\cr
+The id for of the new object.}
+
+\item{\code{label}}{(\code{character(1)})\cr
+Label for the new instance.}
+
+\item{\code{packages}}{(\code{character()})\cr
+The R packages this object depends on.}
+
+\item{\code{man}}{(\code{character(1)})\cr
+String in the format \verb{[pkg]::[topic]} pointing to a manual page for this object.
+The referenced help package can be opened via method \verb{$help()}.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TorchLoss-print"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchLoss-print}{}}}
+\subsection{Method \code{print()}}{
+Prints the object
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TorchLoss$print(...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{any}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-TorchLoss-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchLoss-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TorchLoss$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

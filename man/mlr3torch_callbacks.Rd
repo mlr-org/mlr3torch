@@ -5,18 +5,16 @@
 \alias{mlr3torch_callbacks}
 \title{Dictionary of Torch Callbacks}
 \format{
-\code{\link{R6Class}} inheriting from \code{\link{Dictionary}}.
+An object of class \code{DictionaryMlr3torchCallbacks} (inherits from \code{Dictionary}, \code{R6}) of length 13.
+}
+\usage{
+mlr3torch_callbacks
 }
 \description{
 A \code{\link[mlr3misc:Dictionary]{mlr3misc::Dictionary}} of torch callbacks.
 Use \code{\link[=t_clbk]{t_clbk()}} to conveniently retrieve callbacks.
 Can be converted to a \code{\link{data.table}} using \code{as.data.table}.
 }
-\section{Methods}{
-
-See \link[mlr3misc:Dictionary]{mlr3misc::Dictionary}.
-}
-
 \examples{
 mlr3torch_callbacks$get("checkpoint")
 # is the same as
@@ -25,13 +23,16 @@ t_clbk("checkpoint")
 as.data.table(mlr3torch_callbacks)
 }
 \seealso{
-Other callback: 
+Other Callback: 
+\code{\link{TorchCallback}},
 \code{\link{as_torch_callbacks}()},
 \code{\link{as_torch_callback}()},
 \code{\link{callback_torch}()},
+\code{\link{mlr3torch_callbacks.checkpoint}},
 \code{\link{mlr3torch_callbacks.progress}},
 \code{\link{mlr_callbacks_torch}},
 \code{\link{mlr_context_torch}},
+\code{\link{t_clbk}()},
 \code{\link{torch_callback}()}
 
 Other Dictionary: 
@@ -39,6 +40,6 @@ Other Dictionary:
 \code{\link{mlr3torch_optimizers}},
 \code{\link{t_opt}()}
 }
+\concept{Callback}
 \concept{Dictionary}
-\concept{callback}
 \keyword{datasets}

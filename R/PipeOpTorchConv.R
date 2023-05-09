@@ -1,47 +1,3 @@
-#' @title Base Class for Convolution
-#'
-#' @usage NULL
-#' @name mlr_pipeops_torch_conv
-#' @format `r roxy_format(PipeOpTorchConv)`
-#'
-#' @description
-#' Base class for transpose convolution.
-#' Don't use this class directly.
-#'
-#' @section Construction: `r roxy_construction(PipeOpTorchConv)`
-#' * `r roxy_param_id()`
-#' * `r roxy_param_param_vals()`
-#' * `r roxy_param_module_generator()`
-#' * `d` :: `integer(1)`\cr
-#'   The dimension of the transpose convolution.
-#'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-#' @section State: `r roxy_pipeop_torch_state_default()`
-#'
-#' @section Parameters:
-#' * `out_channels` :: `integer(1)`\cr
-#'   Number of channels produced by the convolution.
-#' * `kernel_size` :: `integer()`\cr
-#'   Size of the convolving kernel.
-#' * `stride` :: `integer()`\cr
-#'   Stride of the convolution. The default is 1.
-#' * `padding` :: `integer()`\cr
-#'  ‘dilation * (kernel_size - 1) - padding’ zero-padding will be added to both sides of the input. Default: 0.
-#' * `groups` :: `integer()`\cr
-#'   Number of blocked connections from input channels to output channels. Default: 1
-#' * `bias` :: `logical(1)`\cr
-#'   If ‘TRUE’, adds a learnable bias to the output. Default: ‘TRUE’.
-#' * `dilation` :: `integer()`\cr
-#'   Spacing between kernel elements. Default: 1.
-#' * `padding_mode` :: `character(1)`\cr
-#'   The padding mode. One of `"zeros"`, `"reflect"`, `"replicate"`, or `"circular"`. Default is `"zeros"`.
-#'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
-#' @section Internals: See the respective child class.
-#' @section Credit: `r roxy_torch_license()`
-#' @family PipeOpTorch
-#' @export
 PipeOpTorchConv = R6Class("PipeOpTorchConv",
   inherit = PipeOpTorch,
   public = list(
@@ -92,36 +48,42 @@ PipeOpTorchConv = R6Class("PipeOpTorchConv",
 
 #' @title 1D Convolution
 #'
-#' @usage NULL
-#' @name mlr_pipeops_torch_conv1d
-#' @format `r roxy_format(PipeOpTorchConv1D)`
+#' @templateVar id nn_conv1d
+#' @template pipeop_torch_channels_default
+#' @templateVar param_vals kernel_size = 10, out_channels = 1
+#' @template pipeop_torch
+#' @template pipeop_torch_example
 #'
 #' @inherit torch::nnf_conv1d description
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchConv1D)`
-#' * `r roxy_param_id("nn_conv1d")`
-#' * `r roxy_param_param_vals()`
+#' @section Parameters:
+#' * `out_channels` :: `integer(1)`\cr
+#'   Number of channels produced by the convolution.
+#' * `kernel_size` :: `integer()`\cr
+#'   Size of the convolving kernel.
+#' * `stride` :: `integer()`\cr
+#'   Stride of the convolution. The default is 1.
+#' * `padding` :: `integer()`\cr
+#'  ‘dilation * (kernel_size - 1) - padding’ zero-padding will be added to both sides of the input. Default: 0.
+#' * `groups` :: `integer()`\cr
+#'   Number of blocked connections from input channels to output channels. Default: 1
+#' * `bias` :: `logical(1)`\cr
+#'   If ‘TRUE’, adds a learnable bias to the output. Default: ‘TRUE’.
+#' * `dilation` :: `integer()`\cr
+#'   Spacing between kernel elements. Default: 1.
+#' * `padding_mode` :: `character(1)`\cr
+#'   The padding mode. One of `"zeros"`, `"reflect"`, `"replicate"`, or `"circular"`. Default is `"zeros"`.
 #'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-#' @section State: `r roxy_pipeop_torch_state_default()`
 #'
-#' @inheritSection mlr_pipeops_torch_conv Parameters
-#'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
 #' Calls [`torch::nn_conv1d()`] when trained.
 #' The paramter `in_channels` is inferred from the second dimension of the input tensor.
-#' @section Credit: `r roxy_torch_license()`
-#' @family PipeOpTorch
 #' @export
-#' @examples
-#' obj = po("nn_conv1d", out_channels = 4, kernel_size = 3)
-#' obj$id
-#' obj$module_generator
-#' obj$shapes_out(c(16, 3, 64))
 PipeOpTorchConv1D = R6Class("PipeOpTorchConv1D", inherit = PipeOpTorchConv,
   public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
     initialize = function(id = "nn_conv1d", param_vals = list()) {
       super$initialize(id = id, d = 1, module_generator = nn_conv1d, param_vals = param_vals)
     }
@@ -131,36 +93,25 @@ PipeOpTorchConv1D = R6Class("PipeOpTorchConv1D", inherit = PipeOpTorchConv,
 
 #' @title 2D Convolution
 #'
-#' @usage NULL
-#' @name mlr_pipeops_torch_conv2d
-#' @format `r roxy_format(PipeOpTorchConv2D)`
+#' @templateVar id nn_conv2d
+#' @template pipeop_torch_channels_default
+#' @templateVar param_vals kernel_size = 10, out_channels = 1
+#' @template pipeop_torch
+#' @template pipeop_torch_example
 #'
 #' @inherit torch::nnf_conv2d description
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchConv2D)`
-#' * `r roxy_param_id("nn_conv2d")`
-#' * `r roxy_param_param_vals()`
+#' @inheritSection mlr_pipeops_nn_conv1d Parameters
 #'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-#' @section State: `r roxy_pipeop_torch_state_default()`
-#'
-#' @inheritSection mlr_pipeops_torch_conv Parameters
-#'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
 #' Calls [`torch::nn_conv2d()`] when trained.
 #' The paramter `in_channels` is inferred from the second dimension of the input tensor.
-#' @section Credit: `r roxy_torch_license()`
-#' @family PipeOpTorch
 #' @export
-#' @examples
-#' obj = po("nn_conv2d", out_channels = 4, kernel_size = 3)
-#' obj$id
-#' obj$module_generator
-#' obj$shapes_out(c(16, 3, 64, 64))
 PipeOpTorchConv2D = R6Class("PipeOpTorchConv2D", inherit = PipeOpTorchConv,
   public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
     initialize = function(id = "nn_conv2d", param_vals = list()) {
       super$initialize(id = id, d = 2, module_generator = nn_conv2d, param_vals = param_vals)
     }
@@ -169,36 +120,25 @@ PipeOpTorchConv2D = R6Class("PipeOpTorchConv2D", inherit = PipeOpTorchConv,
 
 #' @title 3D Convolution
 #'
-#' @usage NULL
-#' @name mlr_pipeops_torch_conv3d
-#' @format `r roxy_format(PipeOpTorchConv2D)`
+#' @templateVar id nn_conv3d
+#' @template pipeop_torch_channels_default
+#' @templateVar param_vals kernel_size = 10, out_channels = 1
+#' @template pipeop_torch
+#' @template pipeop_torch_example
 #'
 #' @inherit torch::nnf_conv3d description
 #'
-#' @section Construction: `r roxy_construction(PipeOpTorchConv3D)`
-#' * `r roxy_param_id("nn_conv3d")`
-#' * `r roxy_param_param_vals()`
+#' @inheritSection mlr_pipeops_nn_conv1d Parameters
 #'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
-#' @section State: `r roxy_pipeop_torch_state_default()`
-#'
-#' @inheritSection mlr_pipeops_torch_conv Parameters
-#'
-#' @section Fields: `r roxy_pipeop_torch_fields_default()`
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
 #' @section Internals:
 #' Calls [`torch::nn_conv3d()`] when trained.
 #' The paramter `in_channels` is inferred from the second dimension of the input tensor.
-#' @section Credit: `r roxy_torch_license()`
-#' @family PipeOpTorch
 #' @export
-#' @examples
-#' obj = po("nn_conv3d", out_channels = 4, kernel_size = 3)
-#' obj$id
-#' obj$module_generator
-#' obj$shapes_out(c(16, 3, 64, 64, 100))
 PipeOpTorchConv3D = R6Class("PipeOpTorchConv3D", inherit = PipeOpTorchConv,
   public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
     initialize = function(id = "nn_conv3d", param_vals = list()) {
       super$initialize(id = id, d = 3, module_generator = nn_conv3d, param_vals = param_vals)
     }

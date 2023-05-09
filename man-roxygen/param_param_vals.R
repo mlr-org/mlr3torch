@@ -1,2 +1,2 @@
 #' @param param_vals (named `list()`)\cr
-#'   The initial parameters for the object.
+#'   Parameter values to be set after construction.

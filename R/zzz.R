@@ -18,7 +18,6 @@ mlr3torch_learners = new.env()
 mlr3torch_tasks = new.env()
 mlr3torch_tags = c("torch", "activation")
 mlr3torch_feature_types = c(img = "imageuri")
-mlr3torch_image_tasks = new.env()
 
 mlr3torch_activations = c(
   "celu",
@@ -75,9 +74,8 @@ register_mlr3 = function() {
   mlr_learners = utils::getFromNamespace("mlr_learners", ns = "mlr3")
   iwalk(as.list(mlr3torch_learners), function(l, nm) mlr_learners$add(nm, l)) # nolint
 
-  mlr_tasks = utils::getFromNamespace("mlr_tasks", ns = "mlr3")
+  mlr_tasks = mlr3::mlr_tasks
   iwalk(as.list(mlr3torch_tasks), function(task, nm) mlr_tasks$add(nm, task)) # nolint
-  iwalk(as.list(mlr3torch_image_tasks), function(task, nm) mlr_tasks$add(nm, task)) # nolint
 
   mlr_reflections = utils::getFromNamespace("mlr_reflections", ns = "mlr3") # nolint
   iwalk(as.list(mlr3torch_feature_types), function(ft, nm) mlr_reflections$task_feature_types[[nm]] = ft) # nolint
@@ -111,7 +109,6 @@ register_mlr3pipelines = function() {
   walk(names(mlr3torch_learners), function(nm) mlr_learners$remove(nm))
   walk(names(mlr3torch_tasks), function(nm) mlr_tasks$remove(nm))
   walk(names(mlr3torch_pipeops), function(nm) mlr_pipeops$remove(nm))
-  walk(names(mlr3torch_tasks), function(nm) mlr_tasks$remove(nm))
   mlr_reflections$pipeops$valid_tags = setdiff(mlr_reflections$pipeops$valid_tags, mlr3torch_tags)
   mlr_reflections$learner_feature_types = setdiff(mlr_reflections$learner_feature_types, mlr3torch_feature_types)
 }

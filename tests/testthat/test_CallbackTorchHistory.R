@@ -10,7 +10,7 @@ test_that("CallbackTorchHistory works", {
   task$row_roles$use = 1
   task$row_roles$test = 2
 
-  learner = lrn("classif.mlp", epochs = 3, batch_size = 1, layers = 0, d_hidden = 1)
+  learner = lrn("classif.mlp", epochs = 3, batch_size = 1, layers = 0, d_hidden = 1, callbacks = t_clbk("history"))
 
   learner$train(task)
 

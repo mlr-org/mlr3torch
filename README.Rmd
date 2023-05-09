@@ -25,12 +25,11 @@ knitr::opts_chunk$set(
 
 The goal of {mlr3torch} is to connect [{mlr3}](https://github.com/mlr-org/mlr3) with [{torch}](https://github.com/mlverse/torch).
 
-It is in the very early stages of development and it's future and scope are yet to be determined.
-
 ## Installation
 
 ```r
 remotes::install_github("mlr-org/mlr3torch")
+torch::install_torch()
 ```
 
 ## `tabnet` Example

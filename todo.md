@@ -1,132 +1,3 @@
-**PipeOps**
-
-*   [x] PipeOpModule
-
-*   [x] PipeOpTorchMerge
-
-*   [x] PipeOpTorchMergeSum
-
-*   [x] PipeOpTorchMergeProd
-
-*   [x] PipeOpTorchMergeCat
-
-*   [x] PipeOpTorchIngress
-
-*   [x] PipeOpTorchIngressNumeric
-
-*   [x] PipeOpTorchIngressImage
-
-*   [x] PipeOpTorchIngressCategorical
-
-*   [x] PipeOpTorchConv
-
-*   [x] PipeOpTorchConv1D
-
-*   [x] PipeOpTorchConv2D
-
-*   [x] PipeOpTorchConv3D
-
-*   [x] PipeOpTorchConvTranspose1D
-
-*   [x] PipeOpTorchConvTranspose2D
-
-*   [x] PipeOpTorchConvTranspose3D
-
-*   [x] PipeOpTorchConvTranspose
-
-*   [x] PipeOpTorchUnsqueeze
-
-*   [x] PipeOpTorchSqueeze
-
-*   [x] PipeOpTorchFlatten
-
-*   [x] PipeOpTorchReshape
-
-*   [x] PipeOpTorchBatchNorm
-
-*   [x] PipeOpTorchBatchNorm1D
-
-*   [x] PipeOpTorchBatchNorm2D
-
-*   [x] PipeOpTorchBatchNorm3D
-
-*   [x] PipeOpTorchAvgPool
-
-*   [x] PipeOpTorchAvgPool1D
-
-*   [x] PipeOpTorchAvgPool2D
-
-*   [x] PipeOpTorchAvgPool3D
-
-*   [x] PipeOpTorchMaxPool
-
-*   [x] PipeOpTorchMaxPool1D
-
-*   [x] PipeOpTorchMaxPool2D
-
-*   [x] PipeOpTorchMaxPool3D
-
-*   [x] PipeOpTorchLinear
-
-*   [x] PipeOpTorchHead
-
-*   [x] PipeOpTorchDropout
-
-*   [x] PipeOpTorchLogSigmoid
-
-*   [x] PipeOpTorchSigmoid
-
-*   [x] PipeOpTorchGELU
-
-*   [x] PipeOpTorchReLU
-
-*   [x] PipeOpTorchActTanhShrink
-
-*   [x] PipeOpTorchGLU
-
-*   [x] PipeOpTorchCelu
-
-*   [x] PipeOpTorchThreshold
-
-*   [x] PipeOpTorchRReLU
-
-*   [x] PipeOpTorchHardSigmoid
-
-*   [x] PipeOpTorchPReLU
-
-*   [x] PipeOpTorchActTanh
-
-*   [x] PipeOpTorchLeakyReLU
-
-*   [x] PipeOpTorchRelu6
-
-*   [x] PipeOpTorchELU
-
-*   [x] PipeOpTorchtSoftShrink
-
-*   [x] PipeOpTorchHardShrink
-
-*   [x] PipeOpTorchSoftPlus
-
-*   [x] PipeOpTorchSELU
-
-*   [x] PipeOpTorchSoftmax
-
-*   [x] PipeOpTorchActSoftSign
-
-*   [x] PipeOpTorchHardTanh
-
-*   [x] PipeOpTorchLayerNorm
-
-*   [x] PipeOpTorchOptimizer
-
-*   [x] PipeOpTorchLoss
-
-*   [x] PipeOpTorchModel
-
-*   [x] PipeOpTorchModelRegr
-
-*   [x] PipeOpTorchModelClassif
 
 **Learner**
 
@@ -198,7 +69,6 @@
 *   [ ] conv_transpose_output_shape
 *   [ ] conv_output_shape
 *   [ ] lg
-*   [ ] expect_torchop
 *   [ ] check_callbacks
 *   [ ] load_task_tiny_imagenet
 *   [ ] batchgetter_num
@@ -217,50 +87,16 @@
 *   [ ] nn_squeeze
 *   [ ] nn_merge_sum
 *   [ ] nn_reshape
-
-**Roxy**
-
-TODO: This list is not up to date anymore
-
-*   [ ] roxy_pipeop_torch_fields_default
-
-
-*   [ ] roxy_param_module_generator
-
-*   [ ] roxy_torch_license
-
-*   [ ] roxy_param_innum
-
-*   [ ] roxy_param_packages
-
-*   [ ] roxy_pipeop_torch_format
-
-*   [ ] roxy_param_id
-
-*   [ ] roxy_param_param_vals
-
-*   [ ] roxy_pipeop_torch_channels_default
-
-*   [ ] roxy_param_param_set
-
-*   [ ] roxy_pipeop_torch_param_id
-
-*   [ ] roxy_pipeop_torch_state_default
-
-*   [ ] roxy_construction
-
-*   [ ] roxy_pipeop_torch_methods_default
-
-
-All the learner implementations: 
-
-* [ ] LearnerClassifMLP
-* [ ] Image Learners: They are so similar, we might create them all programmatically with one help page.
-
 # Other
 
 
 **Important**
+
+In the future (soon): 
+
+* [ ] Create {classif, regr}.torch_module learner to create custom torch learners (classif.torch did not really work because of the dataloader)
+* [ ] Maybe it should be possible to easily overwrite the dataloader for a learner (?) 
+* [ ] Implement early stopping and all other parameters from paramset torchlearner. 
 
 * [ ] Add the learners etc. for regression
 * [ ] Cloning of trained networks (requires new torch version)
@@ -269,6 +105,16 @@ All the learner implementations:
 * [ ] tiny_imagenet --> We can create construction argument download and then as.data.table.DictionaryTasks works (look at its code for information)
 * [ ] Implement bundling
 * [ ] Utility functions for save_torch_learner and load_torch_learner, this should also be called in callback checkpoint
+* [ ] Fix the dictionary issue and then add those objects to dictionary that we could not add because it prohibits the as.data.table conversion
+* ctx in intitiaalize self zuweisen: Dann ist klar dass das immer das gleiche Objekt ist
+* make callback methods public again
+* rename TorchLoss, TorchOptimizer, TorchCallback to e.g. TorchDescriptorLoss
+* images like in torchvision (not in inst but in tests)
+* Custom Backend for torch datases with hardcoded metadata, torchdatasets in suggests and not depends
+* Add check that excludes use of validation rows (row roles)
+* assignment for imageuri
+* nano imagenet is pointless task, only one image per class.
+  Rather use only two classes and distinguish between them in tests.
 
 **Missing stuff**
 
@@ -285,17 +131,16 @@ All the learner implementations:
 * [ ] ensure proper use of tags in e.g.  `param_set$get_values(tags = "train")`
 * [ ] Autotest should check that all parameters are tagged with train and predict etc. Generally determine usage of tags.
 * [ ] Run some tests on gpu
-* [x] Rename Debug Torch Learner to featureless and export
 
 **Other**
 * [ ] Check that defaults and initial values are correctly used everywhere
 * [ ] Is withr important anyway? If yes, then remove the with_seed function, otherwise remove withr from imports
-* [ ] Reset the torch seed after ending the `$train()` call of the learner.
 * [ ] Check which versions of the packages we actually require
 * [ ] Check which man files are actually used and remove the rest
-
-
-
+* [ ] Exclude the sanity tests in the learner autotest
+* Incorrect use of row roles (pipelines issue)
+*   Check how the output names are generated, when outputs of non-terminal nodes are used
+    in "output_map" ("output_<id>_output.<channel>")
 
 * [ ] Implement the torch methods with explicit parameters in the function so that we can better check whether a parameter 
 from paramset_torchlearner is actually doing something
@@ -306,11 +151,12 @@ Also add tests or sth. (For learners that allow to set the activation function b
 
 **Performance**
 
-
 * [ ] Setup benchmark scripts that also run on GPU and run them at least once
 
 **Test Coverage**
-* Parameters must have default or tag required (?)
+* [ ] properly test the shapes_out() method of the pipeoptorch
+* [ ] Reset layer things
+* [ ] Parameters must have default or tag required (?)
 * [ ] Check that mlr_pipeops can still be converted to dict
 * [ ] autotest for torch learner should ensure that optimizer and loss can be set in construction
 * [ ] Test that the defaults of the activation functions are correctly implemented
@@ -324,29 +170,16 @@ for nn modules, or "Optimizer" for optim_adam etc.
 * Write expect_learner_torch that checks all the properties a torch learner has to satisfy
 * [ ] Meta tests for the functions / objects created for the tests (like PipeOpTorchDebug)
 * [ ] Parameter tests for callbacks
-
-**Cosmetic**
-* [x] Better printer for ModelDescriptor (see whether loss is configured e.g.)
-* [x] Rename LearnerClassifTorchAbstract to LearnerClassifTorch and LearnerClassifTorch to LearnerClassifTorchModule
+* [ ] Test that all optimizers are working (closure issue for lbfgs)
+* [ ] Test that all losses are working
+* [ ] regr learners have mse and classif ce as default loss
 
 **Documentation**
 
-* [ ] Define the @family tags somewhere and then annotate everything correctly
-* [ ] Use the `tags` constrctor argument from PipeOps
-* [ ] Check that objects have the correct families in the documentation.
-* [ ] Add tests for documentation, i.e. that all the required sections are present
-* [ ] Write test that all construction arguments are documented.
-* [ ] Properly document that the classifiers must return the scores and no the probabilities
-* Add examples for all PipeOps (maybe a template for PipeOpTorch?)
-*   It must be documented how the output names are generated, when outputs of non-terminal nodes are used
-    in "output_map" ("output_<id>_output.<channel>")
-* [ ] Make the paramset torch leaner template a roxygen function, it should be directly seen for every learner (?).
+* README (probably want to have the tabnet learner for that)
+* Vignette
 
-In the future (soon): 
 
-* [ ] Create {classif, regr}.torch_module learner to create custom torch learners (classif.torch did not really work because of the dataloader)
-* [ ] Maybe it should be possible to easily overwrite the dataloader for a learner (?) 
-* [ ] Implement early stopping and all other parameters from paramset torchlearner. 
 
 **In the future**
 
@@ -354,9 +187,8 @@ In the future (soon):
 * [ ] support the `weights` property for the learners.
 * [ ] Calling `benchmark()` and evaluate the jobs on different GPUs?
 * [ ] Check overhead on cpu and small batch sizes
-
-
-**Optimization**
-
 * [ ] Minimize the time the tests run!
-  (utilize the fetureless torch learner as much as possible, should probbably extend it to all feature types)
+Advertisement:
+
+* [ ] The torch website features packages that build on top of torch
+* [ ] Maybe we can write a blogpost for the RStudio AI blog?

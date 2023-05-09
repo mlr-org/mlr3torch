@@ -1,72 +1,46 @@
 #' @title Base Class for Torch Wrappers
-#' @usage NULL
 #' @name torch_wrapper
-#' @format `r roxy_format(TorchWrapper)`
 #'
 #' @description
 #' Abstract Base Class from which [`TorchLoss`], [`TorchOptimizer`], and [`TorchCallback`] inherit.
-#' This class wraps a generator (R6Class Generator or the torch version of such a generator) and annotates it.
+#' This class wraps a generator (R6Class Generator or the torch version of such a generator) and annotates it
+#' with metadata such as a [`ParamSet`], a label, an ID, packages, or a manual page.
 #'
-#' @section Construction:
-#' `r roxy_construction(TorchWrapper)`
-#' * `generator` :: `function` or `R6ClassGenerator`\cr
-#'   The wrapped generator that is described.
-#' * `id` :: `character(1)`\cr
-#'   The identifier of the object. Used to e.g. retrieve it from a dictionary.
-#' * `param_set` :: [`paradox::ParamSet`]\cr
-#'   The parameter set that describes the arguments of the generator.
-#' * `packages` :: `character()`\cr
-#'   The packages the generator depends on.
-#' * `label` :: `character(1)`\cr
-#'   The label, which is used for printing. Defaults to `id`.
-#' * `man` :: (`character(1)`)\cr
-#'   String in the format `[pkg]::[topic]` pointing to a manual page for this object.
-#' @param man (`character(1)`)\cr
-#'   String in the format `[pkg]::[topic]` pointing to a manual page for this object.
-#'   The referenced help package can be opened via method `$help()`.
+#' The parameters are the construction arguments of the wrapped generator and the parameter `$values` are passed
+#' to the generator when calling the public method `$generate()`.
 #'
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
 #'
-#' @section Fields:
-#' * `generator` :: `function` or `R6ClassGenerator`\cr
-#'   The wrapped generator that is described.
-#' * `id` :: `character(1)`\cr
-#'   The identifier of the object. Used to e.g. retrieve it from a dictionary.
-#' * `param_set` :: [`paradox::ParamSet`]\cr
-#'   The parameter set that describes the arguments of the generator.
-#' * `packages` :: `character()`\cr
-#'   The packages the generator depends on.
-#' * `label` :: `character(1)`\cr
-#'   The label, which is used for printing. Defaults to `id`.
-#' * `man` :: (`character(1)`)\cr
-#'   String in the format `[pkg]::[topic]` pointing to a manual page for this object.
-#'   The referenced help package can be opened via method `$help()`.
-#' @section Methods:
-#' * `generate()`\cr
-#'    () -> any
-#'    Calls the generator with the given parameter values.
-#' * `print(...)`\cr
-#'    () -> `CallbackTorch`
-#'    Prints the object.
-#' * `help()`\cr
-#'    () -> help file\cr
-#'    Displays the help file of the wrapped object.
-#' @section Internals:
-#' When a deep clone is created, the wrapped generator is not cloned.
-#' @family torch_wrappers
+#' @family Torch Wrapper
 #' @export
 TorchWrapper = R6Class("TorchWrapper",
   public = list(
+    #' @template field_label
     label = NULL,
+    #' @template field_param_set
     param_set = NULL,
+    #' @template field_packages
     packages = NULL,
+    #' @template field_id
     id = NULL,
+    #' @field generator
+    #'   The wrapped generator that is described.
     generator = NULL,
+    #' @template field_man
     man = NULL,
+    #' @description Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template param_id
+    #' @template param_param_set
+    #' @param generator
+    #'   The wrapped generator that is described.
+    #' @template param_packages
+    #' @template param_label
+    #' @template param_man
     initialize = function(generator, id, param_set = NULL, packages = NULL, label = id, man = NULL) {
       assert_true(is.function(generator) || inherits(generator, "R6ClassGenerator"))
       self$generator = generator
+      # TODO: Assert that all parameters are tagged with "train"
       self$param_set = assert_r6(param_set, "ParamSet", null.ok = TRUE) %??% inferps(generator)
       if (is.function(generator)) {
         args = formalArgs(generator)
@@ -93,13 +67,18 @@ TorchWrapper = R6Class("TorchWrapper",
         class(self$generator)[[1L]]
       }
     },
-    print = function()  {
+    #' @description
+    #' Prints the object
+    #' @param ... any
+    print = function(...)  {
       catn(sprintf("<%s:%s> %s", class(self)[[1L]], self$id, self$label))
       catn(str_indent("* Generator:", private$.repr))
       catn(str_indent("* Parameters:", as_short_string(self$param_set$values, 1000L)))
       catn(str_indent("* Packages:", as_short_string(self$packages, 1000L)))
       invisible(self)
     },
+    #' @description
+    #' Calls the generator with the given parameter values.
     generate = function() {
       require_namespaces(self$packages)
       # The torch generators could also be constructed with the $new() method, but then the return value
@@ -110,6 +89,8 @@ TorchWrapper = R6Class("TorchWrapper",
         invoke(self$generator$new, .args = self$param_set$get_values())
       }
     },
+    #' @description
+    #'    Displays the help file of the wrapped object.
     help = function() {
       open_help(self$man)
     }

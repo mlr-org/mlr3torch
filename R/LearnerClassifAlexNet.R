@@ -1,11 +1,11 @@
 #' @title AlexNet Image Classifier
 #'
-#' @usage NULL
-#' @name mlr_learners_classif.alexnet
-#' @format `r roxy_format(LearnerClassifAlexNet)`
+#' @templateVar id classif.alexnet
+#' @template params_learner
+#' @template learner
 #'
 #' @description
-#' Convolutional network for image classification.
+#' Historic convolutional network for image classification.
 #'
 #' @section Parameters:
 #' Parameters from [`LearnerClassifTorchImage`] and
@@ -13,13 +13,16 @@
 #' * `pretrained` :: `logical(1)`\cr
 #'   Whether to use the pretrained model.
 #'
-#'  TODO: Finish description
-#'
+#' @references `r format_bib("krizhevsky2017imagenet")`
 #' @include LearnerClassifTorchImage.R
 #' @export
+#' @examples
+#' learner = lrn("classif.alexnet")
+#' learner$param_set
 LearnerClassifAlexNet = R6Class("LearnerClassifAlexNet",
   inherit = LearnerClassifTorchImage,
   public = list(
+    #' @description Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(optimizer = t_opt("adam"), loss = t_loss("cross_entropy"), callbacks = list()) {
       param_set = ps(
         pretrained = p_lgl(default = TRUE, tags = "train")

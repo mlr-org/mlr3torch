@@ -1,31 +1,13 @@
 #' @title Entrypoint to Torch Network
 #'
-#' @usage NULL
 #' @name mlr_pipeops_torch_ingress
-#' @format `r roxy_format(PipeOpTorchIngress)`
 #'
 #' @description
 #' Use this as entry-point to mlr3torch-networks.
 #' Unless you are an advanced user, you should not need to use this directly but [`PipeOpTorchIngressNumeric`],
 #' [`PipeOpTorchIngressCategorical`] or [`PipeOpTorchIngressImage`].
 #'
-#' @section Construction:
-#' `r roxy_construction(PipeOpTorchIngress)`
-#'
-#' * `r roxy_param_id()`
-#' * `r roxy_param_param_set()`
-#' * `r roxy_param_param_vals()`
-#' * `input` :: `data.table()`\cr
-#'   The input channels for this `PipeOp`. See [`PipeOp`] for an explanation.
-#' * `output` :: `data.table()`\cr
-#'   The output channels for this `PipeOp`. See [`PipeOp`] for an explanation.
-#' * `packages` :: `character() \cr
-#'   The packages this `PipeOpTorchIngress` depends on.
-#' * `feature_types` :: `character()`\cr
-#'   The features types that can be consumed by this `PipeOpTorchIngress`.
-#'   Must be a subset of `mlr_reflections$task_feature_types`.
-#'
-#' @section Input and Output Channels: `r roxy_pipeop_torch_channels_default()`
+#' @template pipeop_torch_channels_default
 #' @section State:
 #' The state is set to the input shape.
 #'
@@ -35,21 +17,23 @@
 #'   Whether to select the features of the task that can be consumed by this `PipeOpTorchIngress`.
 #'   Default is `FALSE`, i.e. it errs during training if it receives a task with feature types that it cannot handle.
 #'
-#' @section Fields:
-#' * `feature_types` :: `character(1)`\cr
-#'   The features types that can be consumed by this `PipeOpTorchIngress`.
-#' @section Methods: `r roxy_pipeop_torch_methods_default()`
-#'
 #' @section Internals:
 #' Creates an object of class [`TorchIngressToken`] for the given task.
 #' The purpuse of this is to store the information on how to construct the torch dataloader from the task for this
 #' entry point of the network.
 #'
-#' @family PipeOp
+#' @family PipeOps
+#' @family Graph Network
 #' @export
 PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
   inherit = PipeOp,
   public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    #' @template param_param_set
+    #' @template param_packages
+    #' @template param_feature_types
     initialize = function(id, param_set = ps(), param_vals = list(), packages = character(0), feature_types) {
       private$.feature_types = assert_subset(feature_types, mlr_reflections$task_feature_types)
       ps_tmp = ps(
@@ -130,6 +114,8 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
     .predict = function(inputs) inputs
   ),
   active = list(
+    #' @field feature_types (`character(1)`)\cr
+    #'   The features types that can be consumed by this `PipeOpTorchIngress`.
     feature_types = function(rhs) {
       assert_ro_binding(rhs)
       private$.feature_types
@@ -153,6 +139,7 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
 #' @param shape (`integer`)\cr
 #'   Shape that `batchgetter` will produce. Batch-dimension should be included as `NA`.
 #' @return `TorchIngressToken` object.
+#' @family Graph Network
 #' @export
 TorchIngressToken = function(features, batchgetter, shape) {
   assert_character(features, any.missing = FALSE)
@@ -172,34 +159,22 @@ print.TorchIngressToken = function(x, ...) {
 
 
 #' @title Torch Entry Point for Numeric Features
-#' @usage NULL
-#' @name mlr_pipeops_torch_ingress_numeric
-#' @format [`R6Class`] object inheriting from [`PipeOpTorchIngress`] / [`PipeOp`].
+#' @name mlr_pipeops_torch_ingress_num
 #'
 #' @description
 #' Ingress PipeOp that represents a numeric (`integer()` and `numeric()`) entry point to a torch network.
 #'
-#' @section Construction:
-#' `r roxy_construction(PipeOpTorchIngressNumeric)`
-#'
-#' * `r roxy_param_id()`
-#' * `r roxy_param_param_vals()`
-#'
-#' @section Input and Output Channels:
-#' `r roxy_pipeop_torch_channels_default()`
+#' @inheritSection mlr_pipeops_torch_ingress Input and Output Channels
 #' @inheritSection mlr_pipeops_torch_ingress State
 #' @section Parameters:
 #' * `select` :: `logical(1)`\cr
 #'   Whether `PipeOp` should selected the supported feature types. Otherwise it will err, when receiving tasks
 #'   with unsupported feature types.
-#' @section Fields:
-#' Only fields inherited from [`PipeOpTorchIngress`] / [`PipeOp`].
-#' @section Methods:
-#' Only methods inherited from [`PipeOpTorchIngress`] / [`PipeOp`].
 #' @section Internals:
 #' Uses [batchgetter_num()].
 #'
 #' @export
+#' @family Graph Network
 #' @family PipeOps
 #' @examples
 #' # We set select to TRUE because the data contains factors as well
@@ -212,6 +187,9 @@ print.TorchIngressToken = function(x, ...) {
 PipeOpTorchIngressNumeric = R6Class("PipeOpTorchIngressNumeric",
   inherit = PipeOpTorchIngress,
   public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
     initialize = function(id = "torch_ingress_num", param_vals = list()) {
       super$initialize(id = id, param_vals = param_vals, feature_types = c("numeric", "integer"))
     }
@@ -222,6 +200,7 @@ PipeOpTorchIngressNumeric = R6Class("PipeOpTorchIngressNumeric",
       # only integers and numerics. In both cases the formula below is correct
       c(NA, sum(task$feature_types$type %in% self$feature_types))
     },
+
     .get_batchgetter = function(task, param_vals) {
       batchgetter_num
     }
@@ -250,34 +229,21 @@ batchgetter_num = function(data, device) {
 register_po("torch_ingress_num", PipeOpTorchIngressNumeric)
 
 #' @title Torch Entry Point for Categorical Features
-#' @usage NULL
 #' @name mlr_pipeops_torch_ingress_categ
-#' @format [`R6Class`] inheriting from [`PipeOpTorchIngress`]/[`PipeOpTorch`].
 #'
 #' @description
 #' Ingress PipeOp that represents a categorical (`factor()`, `ordered()` and `logical()`) entry point to a torch network.
 #'
-#' @section Construction:
-#' `r roxy_construction(PipeOpTorchIngressCategorical)`
-#'
-#' * `r roxy_param_id()`
-#' * `r roxy_param_param_vals()`
-#'
-#' @section Input and Output Channels:
-#' `r roxy_pipeop_torch_channels_default()`
-#' @section State:
-#' `r roxy_pipeop_torch_state_default()`
+#' @inheritSection mlr_pipeops_torch_ingress Input and Output Channels
+#' @inheritSection mlr_pipeops_torch_ingress State
 #' @section Parameters:
 #' * `select` :: `logical(1)`\cr
 #'   Whether `PipeOp` should selected the supported feature types. Otherwise it will err on receiving tasks
 #'   with unsupported feature types.
-#' @section Fields:
-#' Only fields inherited from [`PipeOpTorchIngress`] / [`PipeOp`].
-#' @section Methods:
-#' Only methods inherited from [`PipeOpTorchIngress`] / [`PipeOp`].
 #' @section Internals:
 #' Uses [`batchgetter_categ()`].
 #' @family PipeOps
+#' @family Graph Network
 #' @export
 #' @examples
 # We set select to TRUE because the data contains factors as well
@@ -290,10 +256,11 @@ register_po("torch_ingress_num", PipeOpTorchIngressNumeric)
 PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
   inherit = PipeOpTorchIngress,
   public = list(
+    #' @description Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
     initialize = function(id = "torch_ingress_categ", param_vals = list()) {
       super$initialize(id = id, param_vals = param_vals, feature_types = c("factor", "ordered", "logical"))
-    },
-    speak = function() cat("I am the ingress cat, meow! ^._.^\n")
+    }
   ),
   private = list(
     .shape = function(task, param_vals) {
@@ -328,22 +295,16 @@ batchgetter_categ = function(data, device) {
 register_po("torch_ingress_categ", PipeOpTorchIngressCategorical)
 
 #' @title Torch Entry Point for Images
-#' @usage NULL
 #' @name mlr_pipeops_torch_ingress_img
-#' @format [`R6Class`] inheriting from [`PipeOpTorchIngress`] and [`PipeOp`].
 #'
 #' @description
 #' uses task with "imageuri" column and loads this as images.
 #' doesn't do any preprocessing or so (image resizing) and instead just errors if images don't fit.
 #' also no data augmentation etc.
 #'
-#' @section Construction:
-#' `r roxy_construction(PipeOpTorchIngressImage)`
+#' @inheritSection mlr_pipeops_torch_ingress Input and Output Channels
+#' @inheritSection mlr_pipeops_torch_ingress State
 #'
-#' @section Input and Output Channels:
-#' `r roxy_pipeop_torch_channels_default()`
-#' @section State:
-#' `r roxy_pipeop_torch_state_default()`
 #' @section Parameters:
 #' * `select` :: `logical(1)`\cr
 #'   Whether `PipeOp` should selected the supported feature types. Otherwise it will err, when receiving tasks
@@ -354,14 +315,11 @@ register_po("torch_ingress_categ", PipeOpTorchIngressCategorical)
 #'   The height of the pixels.
 #' * `width` :: `integer(1)`\cr
 #'   The width of the pixels.
-#' @section Fields:
-#' Only fields inherited from [`PipeOpTorchIngress`] / [`PipeOp`].
-#' @section Methods:
-#' Only methods inherited from [`PipeOpTorchIngress`] / [`PipeOp`].
 #' @section Internals:
-#' Uses [`magick::image_read()`]'to load the image.
+#' Uses [`magick::image_read()`] to load the image.
 #'
 #' @family PipeOp
+#' @family Graph Network
 #'
 #' @export
 #' @examples
@@ -370,11 +328,14 @@ register_po("torch_ingress_categ", PipeOpTorchIngressCategorical)
 PipeOpTorchIngressImage = R6Class("PipeOpTorchIngressImage",
   inherit = PipeOpTorchIngress,
   public = list(
-    initialize = function(id = "torch_ingress_img", param_vals = list(), param_set = param_set) {
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "torch_ingress_img", param_vals = list()) {
       param_set = ps(
         channels = p_int(1, tags = "required"),
-        height = p_int(1, tags = "required"),
-        width = p_int(1, tags = "required")
+        height   = p_int(1, tags = "required"),
+        width    = p_int(1, tags = "required")
       )
       super$initialize(id = id, param_vals = param_vals, param_set = param_set, feature_types = "imageuri")
     }

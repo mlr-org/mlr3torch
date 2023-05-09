@@ -4,54 +4,151 @@
 \alias{mlr_learners_regr.torch_model}
 \alias{LearnerRegrTorchModel}
 \title{Regression Torch Learner}
-\format{
-\code{\link{R6Class}} inheriting from \code{\link{LearnerRegrTorch}}, \code{\link{LearnerRegr}}, \code{\link{Learner}}.
-}
 \description{
-Regression Torch Learner that is used internally by \code{\link{PipeOpTorchModelRegr}}.
+Create a regression learner from an instantiated \code{\link[=nn_module]{nn_module()}}.
+This is learner is used internally by \code{\link{PipeOpTorchModelRegr}}.
 }
-\section{State}{
- See \code{\link{LearnerRegrTorch}}
-}
-
 \section{Parameters}{
  See \code{\link{LearnerRegrTorch}}
 }
 
-\section{Fields}{
- Fields inherited from \code{\link{LearnerRegrTorch}}, \code{\link{LearnerRegr}}, \code{\link{Learner}}.
-}
+\examples{
 
+# The mtcars task has 10 features
+# The output of the network is 1, as it is a regression problem
+network = nn_linear(10, 1)
+task = tsk("mtcars")
+
+# This defines the dataloader.
+# It loads all 10 features, which are also numeric.
+# The shape is (NA, 10) because the batch dimension is generally NA
+ingress_tokens = list(
+  input = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, 10))
+)
+
+# Creating the learner and setting required parameters
+learner = LearnerRegrTorchModel$new(network, ingress_tokens)
+learner$param_set$set_values(batch_size = 16, epochs = 1)
+
+# A simple train-predict
+ids = partition(task)
+learner$train(task, ids$train)
+learner$predict(task, ids$test)
+}
+\seealso{
+Other Learner: 
+\code{\link{mlr_learners_classif.alexnet}},
+\code{\link{mlr_learners_classif.mlp}},
+\code{\link{mlr_learners_classif.torch_featureless}},
+\code{\link{mlr_learners_classif.torch_model}},
+\code{\link{mlr_learners_classif.torch}},
+\code{\link{mlr_learners_classif_torch_image}},
+\code{\link{mlr_learners_regr.mlp}},
+\code{\link{mlr_learners_regr.torch}}
+
+Other Graph Network: 
+\code{\link{ModelDescriptor}()},
+\code{\link{TorchIngressToken}()},
+\code{\link{mlr_learners_classif.torch_model}},
+\code{\link{mlr_pipeops_module}},
+\code{\link{mlr_pipeops_torch_ingress_categ}},
+\code{\link{mlr_pipeops_torch_ingress_img}},
+\code{\link{mlr_pipeops_torch_ingress_num}},
+\code{\link{mlr_pipeops_torch_ingress}},
+\code{\link{mlr_pipeops_torch}},
+\code{\link{model_descriptor_to_learner}()},
+\code{\link{model_descriptor_to_module}()},
+\code{\link{model_descriptor_union}()},
+\code{\link{nn_graph}()}
+}
+\concept{Graph Network}
+\concept{Learner}
+\section{Super classes}{
+\code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3:LearnerRegr]{mlr3::LearnerRegr}} -> \code{\link[mlr3torch:LearnerRegrTorch]{mlr3torch::LearnerRegrTorch}} -> \code{LearnerRegrTorchModel}
+}
 \section{Methods}{
- Methods inherited from \code{\link{LearnerRegrTorch}}, \code{\link{LearnerRegr}}, \code{\link{Learner}}.
-}
-
-\section{Construction}{
-
-
-Classification:
-
-\code{LearnerClassifTorchModel$new(network, ingress_tokens, optimizer = t_opt("adam"), loss = t_loss("cross_entropy"), callbacks = list(), packages = character(0), feature_types = NULL)}
-
-Regression:
-
-\code{LearnerRegrTorchModel$new(network, ingress_tokens, optimizer = t_opt("adam"), loss = t_loss("mse"), callbacks = list(), packages = character(0), feature_types = NULL)}
+\subsection{Public methods}{
 \itemize{
-\item \code{network} :: \code{\link{nn_module}}\cr
-An instantiatded \code{\link{nn_module}}.
-\item \code{ingress_tokens} :: \code{list} of \code{\link[=TorchIngressToken]{TorchIngressToken()}}\cr
-A list with ingress tokens that defines how the dataloader will be defined.
-\item \code{optimizer} :: (\code{\link{TorchOptimizer}})\cr
-The optimizer for the model. Defaults is adam.
-\item \code{loss} :: (\code{\link{TorchLoss}})\cr
-The loss for the model. Default is cross entropy.
-\item \code{callbacks}:: \code{list()} of \code{\link{TorchCallback}} objects\cr
-The callbacks used for training. Must have unique IDs.
-\item \code{packages} :: (\code{character()})\cr
-The additional packages on which the learner depends.
-added so do not have to be passed explicitly.
-\item \code{feature_types} :: (\code{character()})\cr
-The feature types the learner can deal with, see \code{mlr_reflections$task_feature_types}.
+\item \href{#method-LearnerRegrTorchModel-new}{\code{LearnerRegrTorchModel$new()}}
+\item \href{#method-LearnerRegrTorchModel-clone}{\code{LearnerRegrTorchModel$clone()}}
 }
+}
+\if{html}{\out{
+<details><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner"><a href='../../mlr3/html/Learner.html#method-Learner-base_learner'><code>mlr3::Learner$base_learner()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="format"><a href='../../mlr3/html/Learner.html#method-Learner-format'><code>mlr3::Learner$format()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help"><a href='../../mlr3/html/Learner.html#method-Learner-help'><code>mlr3::Learner$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict"><a href='../../mlr3/html/Learner.html#method-Learner-predict'><code>mlr3::Learner$predict()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata"><a href='../../mlr3/html/Learner.html#method-Learner-predict_newdata'><code>mlr3::Learner$predict_newdata()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="print"><a href='../../mlr3/html/Learner.html#method-Learner-print'><code>mlr3::Learner$print()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset"><a href='../../mlr3/html/Learner.html#method-Learner-reset'><code>mlr3::Learner$reset()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train"><a href='../../mlr3/html/Learner.html#method-Learner-train'><code>mlr3::Learner$train()</code></a></span></li>
+</ul>
+</details>
+}}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LearnerRegrTorchModel-new"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerRegrTorchModel-new}{}}}
+\subsection{Method \code{new()}}{
+Creates a new instance of this \link[R6:R6Class]{R6} class.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LearnerRegrTorchModel$new(
+  network,
+  ingress_tokens,
+  optimizer = t_opt("adam"),
+  loss = t_loss("mse"),
+  callbacks = list(),
+  packages = character(0),
+  feature_types = NULL
+)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{network}}{(\code{\link{nn_module}})\cr
+An instantiated \code{\link{nn_module}}. This is not cloned during construction.
+Outputs must be the scores (before the softmax).}
+
+\item{\code{ingress_tokens}}{(\code{list} of \code{\link[=TorchIngressToken]{TorchIngressToken()}})\cr
+A list with ingress tokens that defines how the dataloader will be defined.}
+
+\item{\code{optimizer}}{(\code{\link{TorchOptimizer}})\cr
+The torch optimizer.}
+
+\item{\code{loss}}{(\code{\link{TorchLoss}})\cr
+The loss used to train the network.}
+
+\item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
+The callbacks used during training.
+Must have unique ids.
+They are executed in the order in which they are provided}
+
+\item{\code{packages}}{(\code{character()})\cr
+The R packages this object depends on.}
+
+\item{\code{feature_types}}{(\code{character()})\cr
+The feature types. Defaults to all available feature types.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LearnerRegrTorchModel-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerRegrTorchModel-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LearnerRegrTorchModel$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

@@ -1,4 +1,4 @@
-test_that("The CallbackTorch class is correct", {
+test_that("Basic checks", {
   expect_class(CallbackTorch, "R6ClassGenerator")
   instance = CallbackTorch$new()
   expect_true(is.null(CallbackTorch$inherit))
@@ -23,13 +23,11 @@ test_that("All stages are called correctly", {
   }
 
   cb = torch_callback(id = "test",
-    public = list(
-      initialize = function(path) {
-        assert_path_for_output(path)
-        file.create(path)
-        self$path = path
-      }
-    ),
+    initialize = function(path) {
+      assert_path_for_output(path)
+      file.create(path)
+      self$path = path
+    },
     on_begin = write_stage("on_begin"),
     on_epoch_begin = write_stage("on_epoch_begin"),
     on_after_backward = write_stage("on_after_backward"),
@@ -126,4 +124,30 @@ test_that("callback_torch is working", {
   expect_error(callback_torch("CallbackTorchA", inherit = A), regexp = "does not generate object")
   B = R6Class("B", inherit = CallbackTorch)
   expect_error(callback_torch("CallbackTorchA", inherit = B), regexp = NA)
+
+
+  CallbackTorchC = callback_torch("CallbackTorchC",
+    initialize = function(x) {
+      self$x = x
+    }
+  )
+
+  cb = CallbackTorchC$new(1)
+  expect_equal(cb$x, 1)
+
+  CallbackTorchD = callback_torch("CallbackTorchD",
+    public = list(
+      initialize = function(x) {
+        self$x = x
+      }
+    )
+  )
+  cb = CallbackTorchC$new(1)
+  expect_equal(cb$x, 1)
+
+  expect_error(
+    callback_torch("CallbackTorchE", public = list(initialize = function() NULL), initialize = function() NULL),
+    "initialize"
+
+  )
 })
