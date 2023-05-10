@@ -129,8 +129,8 @@ When a network has only one argument and there is only one ingress token, probab
 We should probably also provide a way to 
 * add references to github page
 * create logo for package
-* cloning of pipeopmodule
-
+* cloning of pipeopmodule --> adapt expect_deep_clone for torch
+* warn when cloning custom callbacks
 
 
 **Missing stuff**
