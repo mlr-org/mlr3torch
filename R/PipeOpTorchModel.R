@@ -35,7 +35,7 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
     initialize = function(id = "torch_model", param_vals = list(), task_type) {
       # TODO: Add properties argument
       private$.task_type = assert_choice(task_type, c("classif", "regr"))
-      param_set = paramset_torchlearner()
+      param_set = paramset_torchlearner(task_type)
       input = data.table(
         name = "input",
         train = "ModelDescriptor",

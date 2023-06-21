@@ -41,13 +41,13 @@
 #' batch = dataset$.getbatch(1:10)
 #' batch
 task_dataset = dataset(
-  initialize = function(task, feature_ingress_tokens, target_batchgetter = NULL, device = "cpu") {
+  initialize = function(task, feature_ingress_tokens, target_batchgetter = NULL, device) {
     self$task = assert_r6(task, "Task")
     self$feature_ingress_tokens = assert_list(feature_ingress_tokens, types = "TorchIngressToken", names = "unique")
     self$all_features = unique(c(unlist(map(feature_ingress_tokens, "features")), task$target_names))
     assert_subset(self$all_features, c(task$target_names, task$feature_names))
     self$target_batchgetter = assert_function(target_batchgetter, args = c("data", "device"), null.ok = TRUE)
-    self$device = device
+    self$device = assert_choice(device, mlr_reflections$torch$devices)
   },
   .getbatch = function(index) {
     datapool = self$task$data(rows = self$task$row_ids[index], cols = self$all_features)
@@ -65,7 +65,7 @@ task_dataset = dataset(
   }
 )
 
-dataset_img = function(self, task, param_vals) {
+dataset_img = function(task, param_vals) {
   assert_true(length(task$feature_names) == 1)
   # TODO: Maybe we want to be more careful here to avoid changing parameters between train and predict
   # Instead use the param vals stored in the state?
@@ -86,18 +86,22 @@ dataset_img = function(self, task, param_vals) {
   )
 }
 
-dataset_num = function(self, task, param_vals) {
+dataset_num = function(task, param_vals) {
   num_features = task$feature_types[get("type") %in% c("numeric", "integer"), "id"][[1L]]
   ingress = TorchIngressToken(num_features, batchgetter_num, c(NA, length(task$feature_names)))
 
   task_dataset(
     task,
     feature_ingress_tokens = list(input = ingress),
-    target_batchgetter = target_batchgetter(task$task_type)
+    target_batchgetter = target_batchgetter(task$task_type),
+    device = param_vals$device
   )
 }
 
-dataset_num_categ = function(self, task, param_vals) {
+dataset_num_categ = function(task, param_vals) {
+  assert_task(task)
+  assert_list(param_vals, names = "unique")
+  assert_choice(param_vals$device , c("cpu", "cuda"))
   features_num = task$feature_types[get("type") %in% c("numeric", "integer"), "id"][[1L]]
   features_categ = task$feature_types[get("type") %in% c("factor", "ordered", "logical"), "id"][[1L]]
 
@@ -115,7 +119,8 @@ dataset_num_categ = function(self, task, param_vals) {
   task_dataset(
     task,
     feature_ingress_tokens = tokens,
-    target_batchgetter = target_batchgetter(task$task_type)
+    target_batchgetter = target_batchgetter(task$task_type),
+    device = param_vals$device
   )
 }
 

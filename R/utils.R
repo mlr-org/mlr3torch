@@ -1,3 +1,15 @@
+auto_device = function(device = NULL) {
+  if (device == "auto") {
+    device = if (cuda_is_available()) "cuda" else "cpu"
+    lg$debug("Auto-detected device '%s'.", device)
+  }
+  return(device)
+}
+
+running_on_mac = function() {
+  Sys.info()["sysname"] == "Darwin"
+}
+
 inferps = function(fn, ignore = character(0), tags = "train") {
   if (inherits(fn, "R6ClassGenerator")) {
     fn = get_init(fn)
@@ -17,37 +29,13 @@ inferps = function(fn, ignore = character(0), tags = "train") {
 }
 
 
-check_measures = function(x) {
-  if (!is.list(x)) {
-    x = list(x)
-  }
-  if (test_list(x, types = "Measure")) {
-    ids = map_chr(x, "id")
-    if (test_names(ids, type = "unique")) {
-      return(TRUE)
-    }
-  }
-
-  "Parameter must be a Measure or list of Measures with valid ids."
-}
-
-check_network = function(x) {
-  if (inherits(x, "nn_Module")) {
-    "The network must be initialized by calling the function (and not with '$new()')."
-  } else if (!test_class(x, "nn_module")) {
-    "Must be a 'nn_module()'."
-  } else {
-    TRUE
-  }
-}
-
-check_vector = function(d) {
-  function(x) {
+make_check_vector = function(d) {
+  crate(function(x) {
     if (is.null(x) || test_integerish(x, any.missing = FALSE) && (length(x) %in% c(1, d))) {
       return(TRUE)
     }
     sprintf("Must be an integerish vector of length 1 or %s", d)
-  }
+    }, d = d)
 }
 
 check_function_or_null = function(x) check_function(x, null.ok = TRUE)
@@ -120,7 +108,7 @@ default_task_id = function(learner) {
     regr = "mtcars",
     stopf("No default task type.")
   )
-  
+
 }
 
 class_with_init = function(x) {
@@ -141,23 +129,4 @@ sample_input_from_shapes = function(shapes, n = 1L) {
     shape[1] = n
     invoke(torch_randn, .args = as.list(shape))
   })
-}
-
-
-
-# FIXME: This one or the one from withr? We also want to set and unset the cuda seed
-# with_seed = function(seed, expr) {
-#   old_seed = get0(".Random.seed", globalenv(), mode = "integer", inherits = FALSE)
-#   if (is.null(old_seed)) {
-#     runif(1L)
-#     old_seed = get0(".Random.seed", globalenv(), mode = "integer", inherits = FALSE)
-#   }
-#
-#   on.exit(assign(".Random.seed", old_seed, globalenv()), add = TRUE)
-#   set.seed(seed)
-#   force(expr)
-# }
-
-batch_from_task = function(task, batch_size, device, learner, param_vals = NULL) {
-  get_private(learner)$.dataloader(task, param_vals %??% learner$param_set$values)
 }

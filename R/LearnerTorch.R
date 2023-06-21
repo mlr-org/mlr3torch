@@ -25,7 +25,9 @@
 #'   final softmax layer.
 #' * `.dataset(task, param_vals)`\cr
 #'   ([`Task`], `list()`) -> [`torch::dataset`]\cr
-#'   Create the dataset for the task.  Must at least respect parameters `batch_size` and `shuffle`.
+#'   Create the dataset for the task.
+#'   Must respect the parameter value of the device.
+#'   Moreover one needs to pay attention if non-standard row ids are set in the task.
 #'
 #' It is also possible to overwrite the private `.dataloader()` method instead of the `.dataset()` method.
 #' Per default, a dataloader is constructed using the output from the `.dataset()` method.
@@ -60,7 +62,7 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
     #' @template param_label
     #' @template param_callbacks
     initialize = function(id, optimizer, loss, param_set, properties = c("twoclass", "multiclass"), packages = character(0),
-      predict_types = c("response", "prob"), feature_types, man, label, callbacks = list()) {
+      predict_types = c("response", "prob"), feature_types, man, label, callbacks) {
 
       learner_torch_initialize(self = self, private = private, super = super,
         task_type = "classif",
@@ -89,11 +91,10 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
     # the dataloader gets param_vals that may be different from self$param_set$values, e.g.
     # when the dataloader for validation data is loaded, `shuffle` is set to FALSE.
     .dataloader = function(task, param_vals) {
-      dataloader(
-        private$.dataset(task, param_vals),
-        batch_size = param_vals$batch_size %??% self$param_set$default$batch_size,
-        shuffle = param_vals$shuffle %??% self$param_set$default$shuffle
-      )
+      learner_torch_dataloader(self, task, param_vals)
+    },
+    .dataloader_predict = function(task, param_vals) {
+      learner_torch_dataloader_predict(self, task, param_vals)
     },
     .dataset = function(task, param_vals) stop(".dataset must be implemented."),
     .optimizer = NULL,
@@ -175,11 +176,10 @@ LearnerRegrTorch = R6Class("LearnerRegrTorch",
     # the dataloader gets param_vals that may be different from self$param_set$values, e.g.
     # when the dataloader for validation data is loaded, `shuffle` is set to FALSE.
     .dataloader = function(task, param_vals) {
-      dataloader(
-        private$.dataset(task, param_vals),
-        batch_size = param_vals$batch_size %??% self$param_set$default$batch_size,
-        shuffle = param_vals$shuffle %??% self$param_set$default$shuffle
-      )
+      learner_torch_dataloader(self, task, param_vals)
+    },
+    .dataloader_predict = function(task, param_vals) {
+      learner_torch_dataloader_predict(self, task, param_vals)
     },
     .dataset = function(task, param_vals) stop(".dataset must be implemented."),
     .optimizer = NULL,

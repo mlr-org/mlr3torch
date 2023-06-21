@@ -55,7 +55,6 @@
 **Other**
 
 *   [x] argument_matcher
-*   [ ] check_network
 *   [ ] autotest_pipeop_torch
 *   [ ] avg_output_shape
 *   [ ] po_register_env
@@ -91,94 +90,72 @@
 
 Some notes:
 
-* [ ] Create {classif, regr}.torch_module learner to create custom torch learners (classif.torch did not really work because of the dataloader)
-* [ ] Maybe it should be possible to easily overwrite the dataloader for a learner (?) 
-* [ ] Implement early stopping and all other parameters from paramset torchlearner. 
-
-* [ ] Add the learners etc. for regression
-* [ ] Cloning of trained networks (requires new torch version)
-* [ ] Reproducibility: Add the cuda seed resetting
-* [ ] param_set$get_values(tags = "train") expects all parameters to be tagged with "train" --> maybe this is currently a bug
-* [ ] tiny_imagenet --> We can create construction argument download and then as.data.table.DictionaryTasks works (look at its code for information)
-* [ ] Implement bundling
+* [ ] in learner construction ensure usage of "train" and "predict" parameters
 * [ ] Utility functions for save_torch_learner and load_torch_learner, this should also be called in callback checkpoint
-* [ ] Fix the dictionary issue and then add those objects to dictionary that we could not add because it prohibits the as.data.table conversion
+* Custom Backend for torch datases with hardcoded metadata, torchdatasets in suggests and not depends
+* [ ] Fix the dictionary issue for the learners and the tasks
 * ctx in intitiaalize self zuweisen: Dann ist klar dass das immer das gleiche Objekt ist
 * make callback methods public again
 * rename TorchLoss, TorchOptimizer, TorchCallback to e.g. TorchDescriptorLoss
 * images like in torchvision (not in inst but in tests)
-* Custom Backend for torch datases with hardcoded metadata, torchdatasets in suggests and not depends
-* Add check that excludes use of validation rows (row roles)
 * assignment for imageuri
 * nano imagenet is pointless task, only one image per class.
   Rather use only two classes and distinguish between them in tests.
-* Name deep learning block "paragraph"
 * Conflict between lgr and progress
 * investigate caching of networks and datasets
-* When a dataloader returns only one tensor / a list with one tensor
-When a network has only one argument and there is only one ingress token, probably we don't care about the name
-  of the ingress token (?). currently the image dataloader returns list(image = tensor) but the alexnet has forward
-  argument `x`.
-  Alternatively we need a better check in the learner to tell the user what is happening. 
-  Beware ... inputs!
-* What happens if there are two ingress tokens but one of them returns an empty tensor?
 * Ensure that the names of the output of the dataloader correspond to the names of the network's forward function
+  Beware ... inputs!
+  Needs renaming some existing dataloaders and an informative error message
+* What happens if there are two ingress tokens but one of them returns an empty tensor?
+* add saving to callback checkpoint
 * I.e. the dataset_num, dataset_img etc. need to have an argument "argname" or something
 * For tasks: Get a better task than nano_imagenet. Ideally one with images of different shape.
   Then remove it from the 
 We should probably also provide a way to 
-* add references to github page
-* create logo for package
 * cloning of pipeopmodule --> adapt expect_deep_clone for torch
 * warn when cloning custom callbacks
-
-
-**Missing stuff**
-
-* [ ] The image learners
-* lr scheduler as callback
-* tensorboard callback
+* tests with non-standard row ids
+* test all parameters from paramset_torchlearner (in the learner)
+* What exactly does torch_num_set_threads do? What exactly does it influence?
+  Also note that the documentation says that it cannot be set on Mac
+* Maybe with deep learning code we should not only test on ubuntu, but also on windows and mac?
+* Create a with_xxx function that sets the torch seed, the normal seed and torch threads and unsets them afterwards
 * [ ] Some image tasks
-* [ ] The tabnet learner (we then only have the mlp learner and tabnet but should be enough for the beginning)
+* Why did the initialize method with param_set = self$param_set work???
+* Use with_torch_manual_seed when available
+* save_ctx as callback for testing
+* How to clone LearnerTorchModel (When .network is the trained network (?), what happens when calling train twice ???)
+  --> Probably this learner should NOT be exported or it must be clearly documented how this learner behaves.
+  We could address this by cloning but this would cost a lot of performance in every train call of a torch graph learner.
 
-**Refactors**
-
-* [ ] We should structure the parameters better with tags to define which function gets what 
-* [ ] Add the learners from the attic and all image learners
-* [ ] Use meta device in tests wherever possible to make tests run as fast as possible.
-* [ ] ensure that caching does what we want the caching to do (tiny imagenet)
-* [ ] ensure proper use of tags in e.g.  `param_set$get_values(tags = "train")`
-* [ ] Autotest should check that all parameters are tagged with train and predict etc. Generally determine usage of tags.
-* [ ] Run some tests on gpu
 
 **Other**
-* [ ] Check that defaults and initial values are correctly used everywhere
-* [ ] Is withr important anyway? If yes, then remove the with_seed function, otherwise remove withr from imports
-* [ ] Check which versions of the packages we actually require
-* [ ] Check which man files are actually used and remove the rest
-* [ ] Exclude the sanity tests in the learner autotest
-* Incorrect use of row roles (pipelines issue)
 *   Check how the output names are generated, when outputs of non-terminal nodes are used
     in "output_map" ("output_<id>_output.<channel>")
 
 * [ ] Implement the torch methods with explicit parameters in the function so that we can better check whether a parameter 
 from paramset_torchlearner is actually doing something
 
-**Consistency**
-* [ ] Check that all the mlr3torch_activations are simple and maybe rename to activations_simple. 
-Also add tests or sth. (For learners that allow to set the activation function but expect it to be a scalar). 
-
-**Performance**
-
-* [ ] Setup benchmark scripts that also run on GPU and run them at least once
-
 **Test Coverage**
+* [ ] Proper testing for torch learners:
+      * don't need the autotest as we don't really test the learners.
+      * Instead we need to that:
+        * network is generated correctly from the parameters
+        * deep cloning works
+        * The callbacks, optimizer, and loss are correctly set 
+        * the dataloader generates the data correctly and matches the network structure.
+          This includes checking that the parameters (device, batch_size and shuffle are used correctly).
+          Need to be extendinble to future parameters like num_workers
+* [ ] Check that defaults and initial values are correctly used everywhere
+* [ ] Autotest should check that all parameters are tagged with train and predict etc. Generally determine usage of tags.
+* [ ] Run some tests on gpu
+* [ ] ensure proper use of tags in e.g.  `param_set$get_values(tags = "train")` in expect_learner_torch
+* use meta device to test device placement
 * What happens if a pipeoptorch ingress gets 0 features?
 * test: Manual test: Classification and Regression, test that it works with selecting only one features ("mpg") (is currently a bug)
 * add test for predict_newdata
 * name variables and test better
 * [ ] properly test the shapes_out() method of the pipeoptorch
-* [ ] Reset layer things
 * [ ] Parameters must have default or tag required (?)
 * [ ] Check that mlr_pipeops can still be converted to dict
 * [ ] autotest for torch learner should ensure that optimizer and loss can be set in construction
@@ -197,27 +174,64 @@ for nn modules, or "Optimizer" for optim_adam etc.
 * [ ] Test that all losses are working
 * [ ] regr learners have mse and classif ce as default loss
 * [ ] remove unneeded test helper functions from mlr3pipelines
-* Possibility to keep the last validation prediction when doing train-predict to avoid doing this twice
+* Rename the TorchLoss, TorchOptimizer, TorchCallback to DescriptorTorchCallback, DescriptorTorchOptimizer, DescriptorTorchLoss.
+* mention that .dataset() must take row ids into account and add tests with reverse row ids for iris, mtcars, nano_imagenet, ...
+* expect_learner_torch should test all private methods (like .network, .dataloader).
+  Because all the learners are essentially the same (except for these methods) autotests don't make sense.
+  Instead we test the general training funtions once and then the .network and .dataloader for each object (and that they match each other, e.g. with respect to argument names of the network's forward function)
+* Must be possible to randomly initialize a seed. This is desireable when resampling a nn as one might want to take
+  the variance of the initialization into account (currently all resamplings would be run with the same initialization)
+* LearnerTorchModel:
+  * Deep cloning of learner torch model is problematic.
+  * calling `$train()` twice keeps training the network which we probably don't want.
+* document somewhere that MPS device is not reprodicle with with_torch_manual_seed
+* Use lgr instead of cat etc., in general do a lot more logging
+
+
+**Maybe**
 
 **Documentation**
 
-* README (probably want to have the tabnet learner for that)
 * Vignette
 
 
 
-**In the future**
+**Once everything above is stable**
 
+* How large are the resulting objects? We potentially store a whole lot of R6 classes in one learner.
+  This might slow down stuff like batchtools CONSIDERABLY
+* use logging properly
+* [ ] Cloning of trained networks (requires new torch version)
+* [ ] Implement bundling
+* Possibility to keep the last validation prediction when doing train-predict to avoid doing this twice
+* create logo for package
+* [ ] Setup benchmark scripts that also run on GPU and run them at least once
+* [ ] Check which versions of the dependencies we require
+* create deep learning pipeop block called "paragraph"
+* add references to pkgdown website
+* Implement parameters "" and "early_stopping_rounds" and other parameters
 * [ ] general method for freezing and unfreezing parameters.
 * [ ] support the `weights` property for the learners.
 * [ ] Calling `benchmark()` and evaluate the jobs on different GPUs?
 * [ ] Check overhead on cpu and small batch sizes
 * [ ] Minimize the time the tests run!
+
+* [ ] Reset layer things
+* freezing as a callback
+* maybe integrate reset_last_layer into image learner, add property of learner that is something like "pretrained"
+* [ ] The tabnet learner (we then only have the mlp learner and tabnet but should be enough for the beginning)
+* [ ] The image learners
+* lr scheduler as callback
+* tensorboard callback
+* [ ] Add the learners from the attic and all image learners
+* [ ] Create {classif, regr}.torch_module learner to create custom torch learners (classif.torch did not really work because of the dataloader)
+* [ ] Implement early stopping
+
 Advertisement:
 
 * [ ] The torch website features packages that build on top of torch
 * [ ] Maybe we can write a blogpost for the RStudio AI blog?
 
-
 Martin:
 * Names of network and ingress token in the case where there the `x` element of the dataloader has length 1?
+

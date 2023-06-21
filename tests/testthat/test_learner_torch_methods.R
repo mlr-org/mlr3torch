@@ -61,7 +61,6 @@ test_that("torch_network_predict works", {
   dataloader2 = dataloader(
     dataset = dataset2,
     batch_size = 3L,
-    drop_last = FALSE,
     shuffle = TRUE
   )
 
@@ -103,7 +102,7 @@ test_that("Test roles are respected", {
 
 test_that("learner_torch_predict works", {
   task = tsk("iris")
-  learner = lrn("classif.mlp", batch_size = 16, epochs = 1, layers = 0)
+  learner = lrn("classif.mlp", batch_size = 16, epochs = 1, layers = 0, device = "cpu")
   dl = get_private(learner)$.dataloader(task, learner$param_set$values)
 
   network = get_private(learner)$.network(task, learner$param_set$values)
@@ -133,3 +132,79 @@ test_that("encode_prediction works", {
 
   expect_identical(p1$response, p2$response)
 })
+
+test_that("Train and predict are reproducible and seeds work as expected", {
+  # These tests should mostly be covered by with_torch_settings()
+  # But we add them here
+  task = tsk("iris")
+
+  # First we ciheck that seed = "random" (the default) works
+  learner = lrn("classif.torch_featureless", batch_size = 150, epochs = 2, predict_type = "prob")
+  learner$train(task)
+  p1 = learner$predict(task, row_ids = 1)
+  expect_integer(learner$state$model$seed)
+  learner$param_set$set_values(seed = learner$state$model$seed)
+  learner$train(task)
+  p2 = learner$predict(task, row_ids = 1)
+  expect_equal(p1$prob, p2$prob)
+
+  # Now we check that the seed we set is also used
+  learner$param_set$set_values(seed = 1)
+  learner$train(task)
+  expect_equal(learner$model$seed, 1)
+  p3 = learner$predict(task, row_ids = 1)
+  learner$train(task)
+  p4 = learner$predict(task, row_ids = 1)
+  expect_equal(p1$prob, p2$prob)
+
+  # This is just a sanity check that not simply everything is always the same
+  expect_true(grepl(all.equal(p1$prob, p3$prob), pattern = "Mean relative"))
+})
+
+test_that("No determinism after train / predict", {
+  learner = lrn("regr.torch_featureless", batch_size = 16, epochs = 1, seed = 1)
+  task = tsk("mtcars")
+
+  # First we only call $train() with different seeds and check that the randomly
+  # generated numbers afterwards differ
+  learner$train(task)
+  a = runif(1)
+  at = torch_randn(1)
+  learner$param_set$set_values(seed = 2)
+  learner$train(task)
+  b = runif(1)
+  bt = torch_randn(1)
+  expect_false(a == b)
+  expect_false(torch_equal(at, bt))
+
+  # Now with the same with $train() AND $predict()
+  learner$train(task)
+  learner$predict(task)
+  c = runif(1)
+  ct = torch_randn(1)
+  learner$param_set$set_values(seed = 2)
+  learner$train(task)
+  learner$predict(task)
+  d = runif(1)
+  dt = torch_randn(1)
+  expect_false(c == d)
+  expect_false(torch_equal(ct, dt))
+})
+
+test_that("num_threads are reset accordingly", {
+  torch_set_num_threads(2)
+  learner = lrn("regr.torch_featureless", num_threads = 1, epochs = 0, batch_size = 1)
+  learner$train(tsk("mtcars"))
+  expect_equal(torch_get_num_threads(), 2)
+})
+
+test_that("learner_torch_dataloader_predict works", {
+  learner = lrn("regr.torch_featureless", batch_size = 15, drop_last = TRUE, device = "cpu",
+    epochs = 1, shuffle = TRUE
+  )
+  task = tsk("iris")
+  dl = get_private(learner)$.dataloader_predict(task, learner$param_set$values)
+  expect_false(dl$drop_last)
+})
+
+# FIXME: More tests when save_ctx callback is available!
