@@ -63,8 +63,8 @@ LearnerRegrTorchFeatureless = R6Class("LearnerRegrTorchFeatureless",
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(optimizer = t_opt("adam"), loss = t_loss("mse"), callbacks = list()) {
       super$initialize(
-        id = "classif.torch_featureless",
-        label = "Featureless Torch Classifier",
+        id = "regr.torch_featureless",
+        label = "Featureless Torch Regression",
         param_set = ps(),
         feature_types = unname(mlr_reflections$task_feature_types),
         properties = c("missings", "featureless"),
@@ -113,8 +113,6 @@ nn_featureless = nn_module(
     self$weights = nn_parameter(torch_randn(nout))
   },
   forward = function(n) {
-    # The return from the dataloader is a torch_long tensor of shape 1.
-    # Apparently the dataloader does some conversions as we put in an intger
     self$weights$expand(c(n$item(), -1L))
   }
 )

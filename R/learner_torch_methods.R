@@ -352,7 +352,7 @@ learner_torch_predict = function(self, task) {
 
   param_vals$device = auto_device(param_vals$device)
 
-  with_torch_settings(self$model$seed, param_vals$num_threads, {
+  with_torch_settings(seed = self$model$seed, num_threads = param_vals$num_threads, {
     network$eval()
     data_loader = private$.dataloader_predict(task, param_vals)
     prediction = torch_network_predict(network, data_loader)

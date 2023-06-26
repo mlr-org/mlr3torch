@@ -34,13 +34,13 @@ test_that("with_torch_settings leaves global state (mostly) untouched", {
   # (This would happen if we did not set the seed afterwards back to the previous value)
 
   withr::with_seed(10, {
-    with_torch_settings(1, 1, NULL)
+    with_torch_settings(seed = 1, num_threads = 1, NULL)
     a = runif(1)
     at = torch_randn(1)
   })
 
   withr::with_seed(20, {
-    with_torch_settings(1, 1, NULL)
+    with_torch_settings(seed = 1, num_threads = 1, NULL)
     b = runif(1)
     bt = torch_randn(1)
   })
