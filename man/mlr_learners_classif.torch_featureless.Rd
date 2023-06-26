@@ -7,7 +7,7 @@
 \description{
 Featureless torch learner.
 Output is a constant weight that is learned during training.
-For classification, this should (asymptoptically) result in a majority class prediction with the standard cross-entropy loss.
+For classification, this should (asymptoptically) result in a majority class prediction when using the standard cross-entropy loss.
 For regression, this should result in the median for L1 loss and in the mean for L2 loss.
 }
 \section{Dictionary}{
