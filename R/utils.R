@@ -34,11 +34,8 @@ make_check_vector = function(d) {
     if (is.null(x) || test_integerish(x, any.missing = FALSE) && (length(x) %in% c(1, d))) {
       return(TRUE)
     }
-    if (d > 1) {
-      sprintf("Must be an integerish vector of length 1 or %s", if ())
-    } else {
-      sprintf("Must be an integerish vector of length 1.")
-    }
+    tmp = if (d == 1) "." else sprintf(" or %s.", d)
+    sprintf("Must be an integerish vector of length 1%s", tmp)
     }, d = d)
 }
 
