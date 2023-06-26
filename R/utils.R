@@ -30,13 +30,14 @@ inferps = function(fn, ignore = character(0), tags = "train") {
 
 
 make_check_vector = function(d) {
+  env = parent.env(environment())
   crate(function(x) {
     if (is.null(x) || test_integerish(x, any.missing = FALSE) && (length(x) %in% c(1, d))) {
       return(TRUE)
     }
     tmp = if (d == 1) "." else sprintf(" or %s.", d)
     sprintf("Must be an integerish vector of length 1%s", tmp)
-    }, d = d)
+    }, d = d, .parent = env)
 }
 
 check_function_or_null = function(x) check_function(x, null.ok = TRUE)
