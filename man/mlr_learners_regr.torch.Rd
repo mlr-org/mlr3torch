@@ -59,7 +59,7 @@ final softmax layer.
 (\code{\link{Task}}, \code{list()}) -> \code{\link[torch:dataset]{torch::dataset}}\cr
 Create the dataset for the task.
 Must respect the parameter value of the device.
-Moreover one needs to pay attention if non-standard row ids are set in the task.
+Moreover, one needs to pay attention use the row id of the provided task.
 }
 
 It is also possible to overwrite the private \code{.dataloader()} method instead of the \code{.dataset()} method.
