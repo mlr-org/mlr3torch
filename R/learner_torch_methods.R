@@ -89,7 +89,7 @@ learner_torch_initialize = function(
   # As of now, private$.param_set is NULL, this will cause the ParamSetCollection to be constructed
   # (as self$param_set) is an active binding.
   # However we then pass this constructed paramset to the learner parent class, which will assign it to self$param_set
-  # However this behind the scene will once again set it to private$.param_set as it causes the function in 
+  # However this behind the scene will once again set it to private$.param_set as it causes the function in
   # self$param_set with an rhs to be called, which in turn assigns it (again) to private$.param_set
   super$initialize(
     id = id,
@@ -115,7 +115,7 @@ learner_torch_dataloader = function(self, task, param_vals) {
 
 learner_torch_dataloader_predict = function(self, task, param_vals) {
   param_vals_test = insert_named(param_vals, list(shuffle = FALSE, drop_last = FALSE))
-  get_private(self)$.dataloader(self, param_vals_test)
+  get_private(self)$.dataloader(task, param_vals_test)
 }
 
 learner_torch_train_worker = function(self, private, super, task, param_vals) {

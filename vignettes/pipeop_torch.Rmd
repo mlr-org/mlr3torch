@@ -142,7 +142,7 @@ The [`PipeOpModule`] represents anf `nn_module` that is fixed for a specific ten
 
 A complete `Graph` of matching [`PipeOpModule`]s can be constructed using operators that mostly inherit from [`PipeOpTorch`], making use of the [`ModelDescriptor`] class. The [`ModelDescriptor`] class contains a `Graph` of [`PipeOpModule`] and some more necessary meta-info. The [`PipeOpTorch`] transforms a [`ModelDescriptor`] and adds more [`PipeOpModule`]s to the `Graph`.
 
-[`ModelDescriptor`]s always build up a [`Graph`] for a specific [`Task`]. The easiest way to initialize a proper [`ModelDescriptor`] is to use the appropriate [`PipeOpTorchIngress`] `PipeOp` for a given datatype. 
+[`ModelDescriptor`]s always build up a [`Graph`] for a specific [`Task`]. The easiest way to initialize a proper [`ModelDescriptor`] is to use the appropriate [`PipeOpTorchIngress`] `PipeOp` for a given datatype.
 
 ```{r}
 task <- tsk("iris")$select(colnames(iris)[1:3])
@@ -190,7 +190,8 @@ The [`ModelDescriptor`] does not only represent the `Graph` from which a `nn_mod
 ```{r}
 td <- task_dataset(
   task = md$task,
-  feature_ingress_tokens = md$ingress
+  feature_ingress_tokens = md$ingress,
+  device = "cpu"
 )
 
 td
@@ -212,7 +213,7 @@ The sequential NN from above can easily be implemented as follows:
 graph_generator <- po("torch_ingress_num") %>>%
   po("nn_linear", out_features = 4, id = "linear1") %>>%
     po("nn_sigmoid") %>>%
-    po("nn_linear", out_features = 3, id = "linear2") %>>%	
+    po("nn_linear", out_features = 3, id = "linear2") %>>%
 	po("nn_softmax", dim = 2)
 ```
 
@@ -324,7 +325,8 @@ We make multiple observations here:
 
     iris_td <- task_dataset(
       task = iris_mds_union$task,
-      feature_ingress_tokens = iris_mds_union$ingress
+      feature_ingress_tokens = iris_mds_union$ingress,
+      device = "cpu"
     )
 
     batch <- iris_td$.getbatch(1:2)
@@ -418,7 +420,7 @@ library("ggplot2")
 plot_predictions <- function(predictions) {
   ggplot(cbind(newdata, Species = predictions$response),
       aes(x = Sepal.Length, y = Petal.Length, fill = Species)) +
-    geom_tile(alpha = .3) + 
+    geom_tile(alpha = .3) +
     geom_point(data = iris,
       aes(x = Sepal.Length, y = Petal.Length, fill = Species),
       color = "black", pch = 21, size = 3) +
@@ -429,7 +431,7 @@ plot_predictions(predictions)
 
 # Torch Learner Pipelines
 
-The model shown above is constructed using the [`ModelDescriptor`] that is generated from a `Graph` of [`PipeOpTorch`] operators. 
+The model shown above is constructed using the [`ModelDescriptor`] that is generated from a `Graph` of [`PipeOpTorch`] operators.
 The [`ModelDescriptor`] furthermore contains the `Task` to which it pertains. This makes it possible to use it to create a NN model that gets trained right away, using [`PipeOpTorchModelClassif`]. The only missing prerequisite now is to add the desired [`TorchOptimizer`] and [`TorchLoss`] information to the [`ModelDescriptor`].
 
 ## Adding Optimizer and Loss Meta-Info to [`ModelDescriptor`]
@@ -455,7 +457,7 @@ md_sequential <- po_xe$train(list(md_sequential))[[1]]
 md_sequential$loss
 ```
 
-## Combined Instantiation and Training of [`LearnerClassifTorchModel`] 
+## Combined Instantiation and Training of [`LearnerClassifTorchModel`]
 
 The [`ModelDescriptor`] can now be given to a `po("torch_model_classif")`.
 ```{r}
@@ -464,7 +466,7 @@ po_model = po("torch_model_classif", batch_size = 50, epochs = 50)
 po_model$train(list(md_sequential))
 ```
 
-`po("torch_model_classif")` behaves similarly to a `PipeOpLearner`: It returns `NULL` during training, and the prediction on `$predict()`. 
+`po("torch_model_classif")` behaves similarly to a `PipeOpLearner`: It returns `NULL` during training, and the prediction on `$predict()`.
 
 ```{r}
 newtask = TaskClassif$new("newdata", cbind(newdata, Species = factor(NA, levels = levels(iris$Species))), target = "Species")
@@ -482,9 +484,9 @@ Remember that `md_sequential` was created using a `Graph` that the initial `Task
 graph_sequential_full <- po("torch_ingress_num") %>>%
   po("nn_linear", out_features = 4, id = "linear1") %>>%
     po("nn_sigmoid") %>>%
-    po("nn_linear", out_features = 3, id = "linear2") %>>%	
+    po("nn_linear", out_features = 3, id = "linear2") %>>%
 	po("nn_softmax", dim = 2, id = "softmax") %>>%
-    po("nn_linear", out_features = 3, id = "linear3") %>>%	
+    po("nn_linear", out_features = 3, id = "linear3") %>>%
 	po("nn_softmax", dim = 2, id = "softmax2") %>>%
     po("torch_optimizer", optimizer = adam) %>>%
     po("torch_loss", loss = xe) %>>%
