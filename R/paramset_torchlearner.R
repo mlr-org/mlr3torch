@@ -1,5 +1,5 @@
 make_check_measures = function(task_type) {
-  function(x) {
+  crate(function(x) {
     if (is.null(x)) {
       return(TRUE)
     }
@@ -21,7 +21,8 @@ make_check_measures = function(task_type) {
       return("Measures must not require a learner or model.")
     }
     return(TRUE)
-  }
+  }, task_type = task_type)
+
 }
 
 

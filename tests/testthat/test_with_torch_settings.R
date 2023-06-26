@@ -1,7 +1,7 @@
 skip_if(running_on_mac())
 # Threads must be 1 on macOS per ?torch_set_num_threads
 
-test_that("with_torch_settings leaves global state (mostly) untouched", {
+test_that("with_torch_settings leaves global state untouched", {
   # Function to reset the torch manual seed cannot yet be used (wait for release after 0.10.0)
   runif(1)
 

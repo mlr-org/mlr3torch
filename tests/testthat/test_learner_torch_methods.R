@@ -134,11 +134,10 @@ test_that("encode_prediction works", {
 })
 
 test_that("Train and predict are reproducible and seeds work as expected", {
-  # These tests should mostly be covered by with_torch_settings()
-  # But we add them here
+  # the with_torch_settings() functions is separately tested as well
   task = tsk("iris")
 
-  # First we ciheck that seed = "random" (the default) works
+  # First we check that seed = "random" (the default) works
   learner = lrn("classif.torch_featureless", batch_size = 150, epochs = 2, predict_type = "prob")
   learner$train(task)
   p1 = learner$predict(task, row_ids = 1)
@@ -161,43 +160,6 @@ test_that("Train and predict are reproducible and seeds work as expected", {
   expect_true(grepl(all.equal(p1$prob, p3$prob), pattern = "Mean relative"))
 })
 
-test_that("No determinism after train / predict", {
-  learner = lrn("regr.torch_featureless", batch_size = 16, epochs = 1, seed = 1)
-  task = tsk("mtcars")
-
-  # First we only call $train() with different seeds and check that the randomly
-  # generated numbers afterwards differ
-  learner$train(task)
-  a = runif(1)
-  at = torch_randn(1)
-  learner$param_set$set_values(seed = 2)
-  learner$train(task)
-  b = runif(1)
-  bt = torch_randn(1)
-  expect_false(a == b)
-  expect_false(torch_equal(at, bt))
-
-  # Now with the same with $train() AND $predict()
-  learner$train(task)
-  learner$predict(task)
-  c = runif(1)
-  ct = torch_randn(1)
-  learner$param_set$set_values(seed = 2)
-  learner$train(task)
-  learner$predict(task)
-  d = runif(1)
-  dt = torch_randn(1)
-  expect_false(c == d)
-  expect_false(torch_equal(ct, dt))
-})
-
-test_that("num_threads are reset accordingly", {
-  torch_set_num_threads(2)
-  learner = lrn("regr.torch_featureless", num_threads = 1, epochs = 0, batch_size = 1)
-  learner$train(tsk("mtcars"))
-  expect_equal(torch_get_num_threads(), 2)
-})
-
 test_that("learner_torch_dataloader_predict works", {
   learner = lrn("regr.torch_featureless", batch_size = 15, drop_last = TRUE, device = "cpu",
     epochs = 1, shuffle = TRUE
@@ -205,6 +167,7 @@ test_that("learner_torch_dataloader_predict works", {
   task = tsk("iris")
   dl = get_private(learner)$.dataloader_predict(task, learner$param_set$values)
   expect_false(dl$drop_last)
+  expect_class(dl$batch_sampler$sampler, "utils_sampler_sequential")
 })
 
 # FIXME: More tests when save_ctx callback is available!

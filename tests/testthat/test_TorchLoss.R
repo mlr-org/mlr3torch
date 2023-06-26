@@ -27,7 +27,7 @@ test_that("Basic Checks", {
   expect_equal(torchloss1$label, "Cross Entropy Loss")
 
   loss = torchloss1$generate()
-  expect_class(loss, c("nn_crossentropy_loss", "nn_module"))
+  expect_class(loss, c("nn_cross_entropy_loss", "nn_module"))
   expect_true(loss$ignore_index == 123)
 
   expect_error(TorchLoss$new(torch::nn_mse_loss, id = "mse", task_types = "regr", param_set = ps(par = p_uty())),
