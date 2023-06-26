@@ -25,7 +25,10 @@ Part of this documentation have been copied or adapted from the documentation of
 
 \section{Parameters}{
 
-No parameters.
+\itemize{
+\item \code{approximate} :: \code{character(1)}\cr
+Whether to use an approximation algorithm. Default is \code{"none"}.
+}
 }
 
 \section{Internals}{

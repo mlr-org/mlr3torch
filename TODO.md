@@ -110,8 +110,8 @@ Some notes:
 * add saving to callback checkpoint
 * I.e. the dataset_num, dataset_img etc. need to have an argument "argname" or something
 * For tasks: Get a better task than nano_imagenet. Ideally one with images of different shape.
-  Then remove it from the 
-We should probably also provide a way to 
+  Then remove it from the
+We should probably also provide a way to
 * cloning of pipeopmodule --> adapt expect_deep_clone for torch
 * warn when cloning custom callbacks
 * tests with non-standard row ids
@@ -133,7 +133,7 @@ We should probably also provide a way to
 *   Check how the output names are generated, when outputs of non-terminal nodes are used
     in "output_map" ("output_<id>_output.<channel>")
 
-* [ ] Implement the torch methods with explicit parameters in the function so that we can better check whether a parameter 
+* [ ] Implement the torch methods with explicit parameters in the function so that we can better check whether a parameter
 from paramset_torchlearner is actually doing something
 
 **Test Coverage**
@@ -142,7 +142,7 @@ from paramset_torchlearner is actually doing something
       * Instead we need to that:
         * network is generated correctly from the parameters
         * deep cloning works
-        * The callbacks, optimizer, and loss are correctly set 
+        * The callbacks, optimizer, and loss are correctly set
         * the dataloader generates the data correctly and matches the network structure.
           This includes checking that the parameters (device, batch_size and shuffle are used correctly).
           Need to be extendinble to future parameters like num_workers
@@ -163,8 +163,8 @@ from paramset_torchlearner is actually doing something
 * [ ] Properly refactor the test helpers (classes and modules etc) in other files and dont keep them in the tests.
 * [ ] Use the tests from mlr3pipelines for all the pipeops
 * [ ] Test the updated versions of the TorchWrapper
-* [ ] Deep clones of torch modules: 
--> the function that checks for deep clones needs to skip some torch-specific stuff, e.g. the attribute "module" 
+* [ ] Deep clones of torch modules:
+-> the function that checks for deep clones needs to skip some torch-specific stuff, e.g. the attribute "module"
 for nn modules, or "Optimizer" for optim_adam etc.
 * [ ] Test that the default values of the pipeops are correctly documented
 * Write expect_learner_torch that checks all the properties a torch learner has to satisfy

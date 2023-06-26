@@ -26,7 +26,7 @@ The width of the pixels.
 
 \section{Internals}{
 
-Uses \code{\link[magick:editing]{magick::image_read()}} to load the image.
+Uses \code{\link[magick:image_read]{magick::image_read()}} to load the image.
 }
 
 \section{Input and Output Channels}{

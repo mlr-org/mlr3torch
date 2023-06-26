@@ -539,7 +539,7 @@ make_prediction_obj_classif = function(n = 100, noise = TRUE, predict_types = "r
     response = factor(response, levels = lvls), prob = prob)
 }
 
-PipeOpLrnRP = PipeOpLearner$new(mlr_learners$get("classif.rpart"))
+# PipeOpLrnRP = PipeOpLearner$new(mlr_learners$get("classif.rpart"))
 PipeOpLrnFL = PipeOpLearner$new(mlr_learners$get("classif.featureless"))
 
 # turn data.table of character into comma-separated rows, so they can

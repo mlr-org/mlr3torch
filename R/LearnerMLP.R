@@ -13,15 +13,16 @@
 #' Parameters from [`LearnerClassifTorch`], as well as:
 #'
 #' * `activation` :: `character(1)`\cr
-#'   Activation function.
+#'   Activation function. Is initialized to `"relu"`.
 #' * `activation_args` :: named `list()`\cr
 #'   A named list with initialization arguments for the activation function.
+#'   Is initialized to `list()`.
 #' * `layers` :: `integer(1)`\cr
 #'   The number of layers.
 #' * `d_hidden` :: `numeric(1)`\cr
 #'   The dimension of the hidden layers.
 #' * `p` :: `numeric(1)`\cr
-#'   The dropout probability.
+#'   The dropout probability. Is initialized to `0.5`.
 #'
 #' @export
 LearnerClassifMLP = R6Class("LearnerClassifMLP",
@@ -31,11 +32,16 @@ LearnerClassifMLP = R6Class("LearnerClassifMLP",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(optimizer = t_opt("adam"), loss = t_loss("cross_entropy"), callbacks = list()) {
       param_set = ps(
-        activation      = p_fct(default = "relu", tags = "train", levels = mlr_reflections$torch$activations),
-        activation_args = p_uty(tags = "train", custom_check = check_list),
+        activation      = p_fct(tags = c("train", "required"), levels = mlr_reflections$torch$activations),
+        activation_args = p_uty(tags = c("train", "required"), custom_check = check_list),
         layers          = p_int(lower = 0L, tags = c("train", "required")),
-        d_hidden        = p_int(lower = 1L, tags = "train"),
-        p               = p_dbl(default = 0.5, lower = 0, upper = 1, tags = "train")
+        d_hidden        = p_int(lower = 1L, tags = c("train", "required")),
+        p               = p_dbl(lower = 0, upper = 1, tags = c("required", "train"))
+      )
+      param_set$set_values(
+        activation = "relu",
+        activation_args = list(),
+        p = 0.5
       )
       super$initialize(
         id = "classif.mlp",
@@ -82,15 +88,16 @@ LearnerClassifMLP = R6Class("LearnerClassifMLP",
 #' Parameters from [`LearnerRegrTorch`], as well as:
 #'
 #' * `activation` :: `character(1)`\cr
-#'   Activation function.
+#'   Activation function. Is initialized to `"relu"`.
 #' * `activation_args` :: named `list()`\cr
 #'   A named list with initialization arguments for the activation function.
+#'   Is initialized to `list()`.
 #' * `layers` :: `integer(1)`\cr
 #'   The number of layers.
 #' * `d_hidden` :: `numeric(1)`\cr
 #'   The dimension of the hidden layers.
 #' * `p` :: `numeric(1)`\cr
-#'   The dropout probability.
+#'   The dropout probability. Is initialized to `0.5`.
 #'
 #' @export
 LearnerRegrMLP = R6Class("LearnerRegrMLP",
