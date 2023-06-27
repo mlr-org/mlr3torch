@@ -12,7 +12,7 @@
 #'   Currently used to pass additional constructor arguments to [`TorchOptimizer`] for objects of type
 #'   `torch_optimizer_generator`.
 #'
-#' @family Torch Wrapper
+#' @family Descriptor
 #'
 #' @return [`TorchOptimizer`]
 #' @export
@@ -55,7 +55,7 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #' If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
 #' for each argument of the wrapped loss function, where the parametes are then of type [`ParamUty`].
 #'
-#' @family Torch Wrapper
+#' @family Descriptor
 #' @export
 #' @examples
 #' # Create a new Torch Optimizer
@@ -85,7 +85,7 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #' # The parameters of the optimizer are added to the learner's parameter set
 #' learner$param_set
 TorchOptimizer = R6::R6Class("TorchOptimizer",
-  inherit = TorchWrapper,
+  inherit = Descriptor,
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
@@ -136,7 +136,7 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
 #' @section Available Optimizers:
 #' `r paste0(mlr3torch_optimizers$keys(), collapse = ", ")`
 #'
-#' @family Torch Wrapper
+#' @family Descriptor
 #' @family Dictionary
 #' @export
 #' @examples
@@ -168,7 +168,7 @@ as.data.table.DictionaryMlr3torchOptimizers = function(x, ...) {
 #'   See description of [`dictionary_sugar_get`].
 #' @return A [`TorchOptimizer`]
 #' @export
-#' @family Torch Wrapper
+#' @family Descriptor
 #' @family Dictionary
 #' @examples
 #' t_opt("adam", lr = 0.1)

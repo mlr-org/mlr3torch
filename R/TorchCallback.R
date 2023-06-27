@@ -13,7 +13,7 @@
 #'
 #' @export
 #' @family Callback
-#' @family Torch Wrapper
+#' @family Descriptor
 #' @examples
 #' t_clbk("progress")
 t_clbk = function(.key, ...) {
@@ -99,7 +99,7 @@ as_torch_callback.character = function(x, clone = FALSE, ...) { # nolint
 #'   Additional arguments.
 #'
 #' @family Callback
-#' @family Torch Wrapper
+#' @family Descriptor
 #' @export
 as_torch_callbacks = function(x, clone, ...) {
   UseMethod("as_torch_callbacks")
@@ -143,7 +143,7 @@ as_torch_callbacks.character = function(x, clone = FALSE, ...) { # nolint
 #' for each argument of the wrapped loss function, where the parametes are then of type [`ParamUty`].
 #'
 #' @family Callback
-#' @family Torch Wrapper
+#' @family Descriptor
 #'
 #' @export
 #' @examples
@@ -177,7 +177,7 @@ as_torch_callbacks.character = function(x, clone = FALSE, ...) { # nolint
 #' learner$param_set
 #'
 TorchCallback = R6Class("TorchCallback",
-  inherit = TorchWrapper,
+  inherit = Descriptor,
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.

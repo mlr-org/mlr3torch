@@ -11,7 +11,7 @@
 #'   Additional arguments.
 #'   Currently used to pass additional constructor arguments to [`TorchLoss`] for objects of type `nn_loss`.
 #'
-#' @family Torch Wrapper
+#' @family Descriptor
 #'
 #' @return [`TorchLoss`].
 #' @export
@@ -41,7 +41,7 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 #' @description
 #' This wraps a `torch::nn_loss` and annotates it with metadata, most importantly a [`ParamSet`].
 #' The loss function is created for the given parameter values by calling the `$generate()` method inherited from
-#' [`TorchWrapper`].
+#' [`DescriptorLoss`].
 #'
 #' This class is usually used to configure the loss function of a torch learner, e.g.
 #' when construcing a learner or in a [`ModelDescriptor`].
@@ -54,7 +54,7 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 #' If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
 #' for each argument of the wrapped loss function, where the parametes are then of type [`ParamUty`].
 #'
-#' @family Torch Wrapper
+#' @family Descriptor
 #' @export
 #' @examples
 #' # Create a new Torch Loss
@@ -78,7 +78,7 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 #' # Is the same as
 #' nn_mse_loss(reduction = "mean")
 #'
-#' # open the help page of the wrapper loss function
+#' # open the help page of the wrapped loss function
 #' # torchloss$help()
 #'
 #' # Use in a learner
@@ -86,7 +86,7 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 #' # The parameters of the loss are added to the learner's parameter set
 #' learner$param_set
 TorchLoss = R6::R6Class("TorchLoss",
-  inherit = TorchWrapper,
+  inherit = Descriptor,
   public = list(
     #' @field task_types (`character()`)\cr
     #'  The task types this loss supports.
@@ -139,7 +139,7 @@ TorchLoss = R6::R6Class("TorchLoss",
 #' @section Available Loss Functions:
 #' `r paste0(mlr3torch_losses$keys(), collapse = ", ")`
 #'
-#' @family Torch Wrapper
+#' @family Descriptor
 #' @family Dictionary
 #' @export
 #' @examples
@@ -174,7 +174,7 @@ as.data.table.DictionaryMlr3torchLosses = function(x, ...) {
 #'   See description of [`dictionary_sugar_get`].
 #' @return A [`TorchLoss`]
 #' @export
-#' @family Torch Wrapper
+#' @family Descriptor
 #' @examples
 #' t_loss("mse", reduction = "mean")
 #' # get the dictionary
