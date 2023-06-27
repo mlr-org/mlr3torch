@@ -42,18 +42,18 @@ Other Callback:
 \code{\link{mlr_context_torch}},
 \code{\link{torch_callback}()}
 
-Other Torch Wrapper: 
+Other Descriptor: 
 \code{\link{TorchCallback}},
 \code{\link{TorchLoss}},
 \code{\link{TorchOptimizer}},
 \code{\link{as_torch_callbacks}()},
 \code{\link{as_torch_loss}()},
 \code{\link{as_torch_optimizer}()},
+\code{\link{descriptor_torch}},
 \code{\link{mlr3torch_losses}},
 \code{\link{mlr3torch_optimizers}},
 \code{\link{t_loss}()},
-\code{\link{t_opt}()},
-\code{\link{torch_wrapper}}
+\code{\link{t_opt}()}
 }
 \concept{Callback}
-\concept{Torch Wrapper}
+\concept{Descriptor}

@@ -28,24 +28,24 @@ t_loss("mse")
 as.data.table(mlr3torch_losses)
 }
 \seealso{
-Other Torch Wrapper: 
+Other Descriptor: 
 \code{\link{TorchCallback}},
 \code{\link{TorchLoss}},
 \code{\link{TorchOptimizer}},
 \code{\link{as_torch_callbacks}()},
 \code{\link{as_torch_loss}()},
 \code{\link{as_torch_optimizer}()},
+\code{\link{descriptor_torch}},
 \code{\link{mlr3torch_optimizers}},
 \code{\link{t_clbk}()},
 \code{\link{t_loss}()},
-\code{\link{t_opt}()},
-\code{\link{torch_wrapper}}
+\code{\link{t_opt}()}
 
 Other Dictionary: 
 \code{\link{mlr3torch_callbacks}},
 \code{\link{mlr3torch_optimizers}},
 \code{\link{t_opt}()}
 }
+\concept{Descriptor}
 \concept{Dictionary}
-\concept{Torch Wrapper}
 \keyword{datasets}

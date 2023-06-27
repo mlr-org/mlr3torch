@@ -49,22 +49,22 @@ learner = lrn("regr.mlp", optimizer = t_opt("sgd"))
 learner$param_set
 }
 \seealso{
-Other Torch Wrapper: 
+Other Descriptor: 
 \code{\link{TorchCallback}},
 \code{\link{TorchLoss}},
 \code{\link{as_torch_callbacks}()},
 \code{\link{as_torch_loss}()},
 \code{\link{as_torch_optimizer}()},
+\code{\link{descriptor_torch}},
 \code{\link{mlr3torch_losses}},
 \code{\link{mlr3torch_optimizers}},
 \code{\link{t_clbk}()},
 \code{\link{t_loss}()},
-\code{\link{t_opt}()},
-\code{\link{torch_wrapper}}
+\code{\link{t_opt}()}
 }
-\concept{Torch Wrapper}
+\concept{Descriptor}
 \section{Super class}{
-\code{\link[mlr3torch:TorchWrapper]{mlr3torch::TorchWrapper}} -> \code{TorchOptimizer}
+\code{\link[mlr3torch:DescriptorTorch]{mlr3torch::DescriptorTorch}} -> \code{TorchOptimizer}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -77,8 +77,8 @@ Other Torch Wrapper:
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchWrapper" data-id="help"><a href='../../mlr3torch/html/TorchWrapper.html#method-TorchWrapper-help'><code>mlr3torch::TorchWrapper$help()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchWrapper" data-id="print"><a href='../../mlr3torch/html/TorchWrapper.html#method-TorchWrapper-print'><code>mlr3torch::TorchWrapper$print()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="DescriptorTorch" data-id="help"><a href='../../mlr3torch/html/DescriptorTorch.html#method-DescriptorTorch-help'><code>mlr3torch::DescriptorTorch$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="DescriptorTorch" data-id="print"><a href='../../mlr3torch/html/DescriptorTorch.html#method-DescriptorTorch-print'><code>mlr3torch::DescriptorTorch$print()</code></a></span></li>
 </ul>
 </details>
 }}

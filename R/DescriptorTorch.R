@@ -1,8 +1,8 @@
 #' @title Base Class for Torch Descriptors
-#' @name descriptor
+#' @name descriptor_torch
 #'
 #' @description
-#' Abstract Base Class from which [`DescriptorLoss`], [`DescriptorOptimizer`], and [`DescriptorCallback`] inherit.
+#' Abstract Base Class from which [`TorchLoss`], [`TorchOptimizer`], and [`TorchCallback`] inherit.
 #' This class wraps a generator (R6Class Generator or the torch version of such a generator) and annotates it
 #' with metadata such as a [`ParamSet`], a label, an ID, packages, or a manual page.
 #'
@@ -12,9 +12,9 @@
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
 #'
-#' @family Descriptor
+#' @family Descriptor Torch
 #' @export
-Descriptor = R6Class("Descriptor",
+DescriptorTorch = R6Class("DescriptorTorch",
   public = list(
     #' @template field_label
     label = NULL,

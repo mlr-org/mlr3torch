@@ -6,7 +6,7 @@
 \description{
 This wraps a \code{torch::nn_loss} and annotates it with metadata, most importantly a \code{\link{ParamSet}}.
 The loss function is created for the given parameter values by calling the \verb{$generate()} method inherited from
-\code{\link{TorchWrapper}}.
+\code{\link{DescriptorLoss}}.
 
 This class is usually used to configure the loss function of a torch learner, e.g.
 when construcing a learner or in a \code{\link{ModelDescriptor}}.
@@ -43,7 +43,7 @@ loss_fn
 # Is the same as
 nn_mse_loss(reduction = "mean")
 
-# open the help page of the wrapper loss function
+# open the help page of the wrapped loss function
 # torchloss$help()
 
 # Use in a learner
@@ -52,22 +52,22 @@ learner = lrn("regr.mlp", loss = t_loss("mse"))
 learner$param_set
 }
 \seealso{
-Other Torch Wrapper: 
+Other Descriptor: 
 \code{\link{TorchCallback}},
 \code{\link{TorchOptimizer}},
 \code{\link{as_torch_callbacks}()},
 \code{\link{as_torch_loss}()},
 \code{\link{as_torch_optimizer}()},
+\code{\link{descriptor_torch}},
 \code{\link{mlr3torch_losses}},
 \code{\link{mlr3torch_optimizers}},
 \code{\link{t_clbk}()},
 \code{\link{t_loss}()},
-\code{\link{t_opt}()},
-\code{\link{torch_wrapper}}
+\code{\link{t_opt}()}
 }
-\concept{Torch Wrapper}
+\concept{Descriptor}
 \section{Super class}{
-\code{\link[mlr3torch:TorchWrapper]{mlr3torch::TorchWrapper}} -> \code{TorchLoss}
+\code{\link[mlr3torch:DescriptorTorch]{mlr3torch::DescriptorTorch}} -> \code{TorchLoss}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -88,8 +88,8 @@ The task types this loss supports.}
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchWrapper" data-id="generate"><a href='../../mlr3torch/html/TorchWrapper.html#method-TorchWrapper-generate'><code>mlr3torch::TorchWrapper$generate()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchWrapper" data-id="help"><a href='../../mlr3torch/html/TorchWrapper.html#method-TorchWrapper-help'><code>mlr3torch::TorchWrapper$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="DescriptorTorch" data-id="generate"><a href='../../mlr3torch/html/DescriptorTorch.html#method-DescriptorTorch-generate'><code>mlr3torch::DescriptorTorch$generate()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="DescriptorTorch" data-id="help"><a href='../../mlr3torch/html/DescriptorTorch.html#method-DescriptorTorch-help'><code>mlr3torch::DescriptorTorch$help()</code></a></span></li>
 </ul>
 </details>
 }}
