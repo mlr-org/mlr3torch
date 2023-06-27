@@ -42,16 +42,9 @@ Other Callback:
 \subsection{Method \code{on_epoch_begin()}}{
 Initializes the progress bar for training.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_epoch_begin(ctx)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_epoch_begin()}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{ctx}}{\link{ContextTorch}}
-}
-\if{html}{\out{</div>}}
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackTorchProgress-on_batch_end"></a>}}
@@ -59,16 +52,9 @@ Initializes the progress bar for training.
 \subsection{Method \code{on_batch_end()}}{
 Increments the training progress bar.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_batch_end(ctx)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_batch_end()}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{ctx}}{\link{ContextTorch}}
-}
-\if{html}{\out{</div>}}
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackTorchProgress-on_before_valid"></a>}}
@@ -76,16 +62,9 @@ Increments the training progress bar.
 \subsection{Method \code{on_before_valid()}}{
 Creates the progress bar for validation.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_before_valid(ctx)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_before_valid()}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{ctx}}{\link{ContextTorch}}
-}
-\if{html}{\out{</div>}}
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackTorchProgress-on_batch_valid_end"></a>}}
@@ -93,16 +72,9 @@ Creates the progress bar for validation.
 \subsection{Method \code{on_batch_valid_end()}}{
 Increments the validation progress bar.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_batch_valid_end(ctx)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_batch_valid_end()}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{ctx}}{\link{ContextTorch}}
-}
-\if{html}{\out{</div>}}
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackTorchProgress-on_epoch_end"></a>}}
@@ -110,16 +82,9 @@ Increments the validation progress bar.
 \subsection{Method \code{on_epoch_end()}}{
 Prints a summary of the training and validation process.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_epoch_end(ctx)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_epoch_end()}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{ctx}}{\link{ContextTorch}}
-}
-\if{html}{\out{</div>}}
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackTorchProgress-on_end"></a>}}
@@ -127,16 +92,9 @@ Prints a summary of the training and validation process.
 \subsection{Method \code{on_end()}}{
 Deletes the progess bar objects.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_end(ctx)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchProgress$on_end()}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{ctx}}{\link{ContextTorch}}
-}
-\if{html}{\out{</div>}}
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackTorchProgress-clone"></a>}}

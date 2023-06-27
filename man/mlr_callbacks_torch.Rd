@@ -9,19 +9,28 @@ Base class from which Callbacks should inherit.
 They can be used to gain more control over the training process of a neural network without
 having to write everything from scratch.
 
-For each available stage (see section \emph{Stages}) a public method \verb{$on_<stage>(ctx)} can be defined.
-This must be an function with argument \code{ctx}, which is a \code{\link{ContextTorch}}.
-When a learner is trained, at a specific \verb{<stage>}, the \verb{$on_<stage>(ctx)} method of the callback is
-executed, where the \code{ctx} represents the current state of the training loop.
+For each available stage (see section \emph{Stages}) a public method \verb{$on_<stage>()} can be defined.
+The evaluation context (a \code{\link{ContextTorch}}) can be accessed via \code{self$ctx}, which contains
+the current state of the training loop.
+This context is assigned at the beginning of the training loop and removed afterwards.
 Different stages of a callback can communicate with each other by assigning values to \verb{$self}.
 
 When used a in torch learner, the \code{CallbackTorch} is wrapped in a \code{\link{TorchCallback}}.
 The latters parameter set represents the arguments of the \code{\link{CallbackTorch}}'s \verb{$initialize()} method and can
-be specified in the learner. The callback is then initialized in the beginning of the training loop.
+be specified in the learner. The callback is then initialized at the beginning of the training loop.
 
 For creating custom callbacks, the function \code{\link[=torch_callback]{torch_callback()}} is recommended, which creates a
 \code{\link{CallbackTorch}} and then wraps it in a \code{\link{TorchCallback}}.
 }
+\section{Inheriting}{
+
+When one inherits from this class and overwrites the private \verb{$deep_clone()} method, it is
+important to ensure that a deep clone can only be created if the \code{ctx} field is \code{NULL},
+as this should never be cloned.
+Furthermore, it is convenient to set \code{lock_objects} to \code{FALSE} to be able to freely assign variables
+to \code{self}.
+}
+
 \section{Stages}{
 
 \itemize{
@@ -52,4 +61,12 @@ Other Callback:
 \code{\link{torch_callback}()}
 }
 \concept{Callback}
-
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{ctx}}{(\code{\link{TorchContext}} or \code{NULL})\cr
+The evaluation context for the callback.
+This field should always be \code{NULL} except during the \verb{$train()} call of the torch learner.}
+}
+\if{html}{\out{</div>}}
+}

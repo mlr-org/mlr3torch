@@ -135,7 +135,7 @@ Instantiates the optimizer.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{params}}{The \verb{$parameters} of the network.}
+\item{\code{params}}{The parameters of the network.}
 }
 \if{html}{\out{</div>}}
 }

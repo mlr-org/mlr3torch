@@ -21,9 +21,9 @@ as_torch_loss = function(x, clone = FALSE, ...) {
 }
 
 #' @export
-as_torch_loss.nn_loss = function(x, clone = FALSE, id = deparse(substitute(x))[[1L]], ...) { # nolint
+as_torch_loss.nn_loss = function(x, task_types, clone = FALSE, id = deparse(substitute(x))[[1L]], ...) { # nolint
   # clone argument is irrelevant
-  TorchLoss$new(x, id = id, ...)
+  TorchLoss$new(x, id = id, task_types = task_types, ...)
 }
 
 #' @export
@@ -97,22 +97,18 @@ TorchLoss = R6::R6Class("TorchLoss",
     #'   The loss module.
     #' @param task_types (`character()`)\cr
     #'   The task types supported by this loss.
-    #'   If left as `NULL` (default), this value is set to all available task types.
     #' @param param_set ([`ParamSet`] or `NULL`)\cr
     #'   The parameter set. If `NULL` (default) it is inferred from `torch_loss`.
     #' @template param_id
     #' @template param_label
     #' @template param_packages
     #' @template param_man
-    initialize = function(torch_loss, task_types = NULL, param_set = NULL,
+    initialize = function(torch_loss, task_types, param_set = NULL,
       id = deparse(substitute(torch_loss))[[1L]], label = capitalize(id), packages = NULL, man = NULL) {
       force(id)
-      if (!is.null(task_types)) {
-        self$task_types = assert_subset(task_types, mlr_reflections$task_types$type)
-      } else {
-        self$task_types = mlr_reflections$task_types$type
-      }
+      self$task_types = assert_subset(task_types, mlr_reflections$task_types$type)
       torch_loss = assert_class(torch_loss, "nn_loss")
+
       super$initialize(
         generator = torch_loss,
         id = id,
@@ -250,7 +246,7 @@ mlr3torch_losses$add("l1", function() {
 mlr3torch_losses$add("cross_entropy", function() {
   p = ps(
     weight = p_uty(default = NULL, tags = "train"),
-    ignore_index = p_int(default = -100L, tags = "train"),
+    ignore_index = p_int(default = -100, tags = "train"),
     reduction = p_fct(levels = c("mean", "sum"), default = "mean", tags = "train")
   )
   TorchLoss$new(

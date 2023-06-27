@@ -191,6 +191,12 @@ TorchCallback = R6Class("TorchCallback",
     #' @template param_man
     initialize = function(callback_generator, param_set = NULL, id = deparse(substitute(id))[[1L]],
       label = capitalize(id), packages = NULL, man = NULL) {
+      assert_class(callback_generator, "R6ClassGenerator")
+
+      param_set = assert_param_set(param_set %??% inferps(callback_generator))
+      if ("ctx" %in% param_set$ids()) {
+        stopf("The name 'ctx' is reserved for the ContextTorch and cannot be a construction argument.")
+      }
       super$initialize(
         generator = callback_generator,
         id = id,
@@ -239,10 +245,10 @@ TorchCallback = R6Class("TorchCallback",
 #'   initialize = function(name) {
 #'     self$name = name
 #'   },
-#'   on_begin = function(ctx) {
-#'     cat("Hello", self$name, ", we will train for ", ctx$total_epochs, "epochs.\n")
+#'   on_begin = function {
+#'     cat("Hello", self$name, ", we will train for ", self$ctx$total_epochs, "epochs.\n")
 #'   },
-#'   on_end = function(ctx) {
+#'   on_end = function {
 #'     cat("Training is done.")
 #'   }
 #' )

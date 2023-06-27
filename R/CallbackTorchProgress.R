@@ -14,51 +14,46 @@ CallbackTorchProgress = R6Class("CallbackTorchProgress",
   public = list(
     #' @description
     #' Initializes the progress bar for training.
-    #' @param ctx [ContextTorch]
-    on_epoch_begin = function(ctx) {
-      catf("Epoch %s", ctx$epoch)
+    on_epoch_begin = function() {
+      catf("Epoch %s", self$ctx$epoch)
       self$pb_train = progress::progress_bar$new(
-        total = length(ctx$loader_train),
+        total = length(self$ctx$loader_train),
         format = "Training [:bar]"
       )
       self$pb_train$tick(0)
     },
     #' @description
     #' Increments the training progress bar.
-    #' @param ctx [ContextTorch]
-    on_batch_end = function(ctx) {
+    on_batch_end = function() {
       self$pb_train$tick()
     },
     #' @description
     #' Creates the progress bar for validation.
-    #' @param ctx [ContextTorch]
-    on_before_valid = function(ctx) {
+    on_before_valid = function() {
       self$pb_valid = progress::progress_bar$new(
-        total = length(ctx$loader_valid),
+        total = length(self$ctx$loader_valid),
         format = "Validation: [:bar]"
       )
       self$pb_valid$tick(0)
     },
     #' @description
     #' Increments the validation progress bar.
-    #' @param ctx [ContextTorch]
-    on_batch_valid_end = function(ctx) {
+    on_batch_valid_end = function() {
       self$pb_valid$tick()
     },
     #' @description
     #' Prints a summary of the training and validation process.
-    #' @param ctx [ContextTorch]
-    on_epoch_end = function(ctx) {
+    on_epoch_end = function() {
       scores = list()
-      scores$train = ctx$last_scores_train
-      scores$valid = ctx$last_scores_valid
+      scores$train = self$ctx$last_scores_train
+      scores$valid = self$ctx$last_scores_valid
 
       scores = Filter(function(x) length(x) > 0, scores)
 
       if (!length(scores)) {
-        catf("[End of epoch %s]", ctx$epoch)
+        catf("[End of epoch %s]", self$ctx$epoch)
       } else {
-        catf("\n[Summary epoch %s]", ctx$epoch)
+        catf("\n[Summary epoch %s]", self$ctx$epoch)
         cat("------------------\n")
         for (phase in names(scores)) {
           catf("Measures (%s):", capitalize(phase))
@@ -70,8 +65,7 @@ CallbackTorchProgress = R6Class("CallbackTorchProgress",
     },
     #' @description
     #' Deletes the progess bar objects.
-    #' @param ctx [ContextTorch]
-    on_end = function(ctx) {
+    on_end = function() {
       self$pb_train = NULL
       self$pb_valid = NULL
     }

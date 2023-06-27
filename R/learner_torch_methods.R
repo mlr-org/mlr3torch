@@ -111,19 +111,9 @@ learner_torch_train_worker = function(self, private, super, task, param_vals, co
   task_valid$set_row_roles(task$row_roles$test, "use")
   loader_valid = if (task_valid$nrow) private$.dataloader(task_valid, insert_named(param_vals, list(shuffle = FALSE)))
 
-  if (continue) {
-    network = self$model$network
-    optimizer = self$model$optimizer
-    loss_fn = self$model$loss_fn
-    callbacks = self$model$callbacks
-  } else {
-    network = private$.network(task, param_vals)$to(device = param_vals$device)
-    optimizer = private$.optimizer$generate(network$parameters)
-    loss_fn = private$.loss$generate()
-
-    callbacks = c(lapply(private$.callbacks, function(cb) cb$generate()))
-    callbacks = set_names(callbacks, ids(private$.callbacks))
-  }
+  network = private$.network(task, param_vals)$to(device = param_vals$device)
+  optimizer = private$.optimizer$generate(network$parameters)
+  loss_fn = private$.loss$generate()
 
   ctx = ContextTorch$new(
     learner = self,
@@ -139,6 +129,12 @@ learner_torch_train_worker = function(self, private, super, task, param_vals, co
     total_epochs = param_vals$epochs
   )
 
+  callbacks = lapply(private$.callbacks, function(torch_callback) {
+    cb = torch_callback$generate()
+    cb$ctx = ctx
+    cb
+  })
+
   train_loop(ctx, callbacks, seed = seed)
 }
 
@@ -147,7 +143,7 @@ train_loop = function(ctx, cbs, seed) {
   call = function(step_name) {
     lapply(cbs, function(x) {
       if (exists(step_name, x, inherits = FALSE)) {
-        x[[step_name]](ctx)
+        x[[step_name]]()
       }
     })
   }
@@ -167,6 +163,7 @@ train_loop = function(ctx, cbs, seed) {
   on.exit({
     # in case a callback wants to finalize things
     call("on_end")
+    walk(cbs, function(cb) cb$ctx = NULL)
   }, add = TRUE)
 
 

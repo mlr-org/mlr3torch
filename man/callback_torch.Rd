@@ -48,6 +48,9 @@ This class must either be \code{\link{CallbackTorch}} (default) or inherit from 
 Creates an \code{R6ClassGenerator} inheriting from \code{\link{CallbackTorch}}.
 Additionally performs checks such as that the stages are not accidentally misspelled.
 To create a \code{\link{TorchCallback}} use \code{\link[=torch_callback]{torch_callback()}}.
+
+In order for the resulting class to be cloneable, the private method \verb{$deep_clone()} must be
+provided.
 }
 \seealso{
 Other Callback: 

@@ -100,7 +100,7 @@ The torch optimizer.}
 \item{\code{loss}}{(\code{\link{TorchLoss}})\cr
 The loss used to train the network.}
 
-\item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
+\item{\code{callbacks}}{(\code{list()} of \code{\link{DescriptorTorchCallback}}s)\cr
 The callbacks used during training.
 Must have unique ids.
 They are executed in the order in which they are provided}

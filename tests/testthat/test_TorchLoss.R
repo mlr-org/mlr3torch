@@ -94,43 +94,48 @@ test_that("dictionary can be converted to a table", {
 
 test_that("Converters are correctly implemented", {
   expect_r6(as_torch_loss("l1"), "TorchLoss")
-  loss = as_torch_loss(torch::nn_l1_loss)
-  expect_set_equal(loss$task_types, mlr_reflections$task_types$type)
+  loss = as_torch_loss(torch::nn_l1_loss, task_types = "regr")
+  expect_equal(loss$task_types, "regr")
   expect_r6(loss, "TorchLoss")
   expect_r6(as_torch_loss(t_loss("l1")), "TorchLoss")
+
+  expect_error(as_torch_loss(nn_l1_loss), "task_types")
 
   loss1 = as_torch_loss(loss, clone = TRUE)
   expect_deep_clone(loss, loss1)
 
   loss2 = as_torch_loss(torch::nn_mse_loss, id = "ce", label = "CE", man = "nn_cross_entropy_loss",
-    param_set = ps(reduction = p_uty())
+    param_set = ps(reduction = p_uty()), task_types = "regr"
   )
+  expect_r6(loss2, "TorchLoss")
+  expect_equal(loss2$id, "ce")
+  expect_equal(loss2$label, "CE")
+  expect_equal(loss2$task_types, "regr")
+  expect_equal(loss2$man, "nn_cross_entropy_loss")
+  expect_equal(loss2$param_set$ids(), "reduction")
 })
 
-for (key in mlr3torch_losses$keys()) {
-  test_that(sprintf("mlr3torch_losses: '%s'", key), {
-    torchloss = t_loss(key)
-    param_set = torchloss$param_set
-    observed = torchloss$param_set$default[sort(names(torchloss$param_set$default))]
+test_that("Parameter test: mse", {
+  loss_mse = t_loss("mse")
+  param_set = loss_mse$param_set
+  fn = loss_mse$generator
+  res = autotest_paramset(param_set, fn)
+  expect_equal(res, list())
+})
 
-    expect_true(all(map_lgl(param_set$params$tags, function(tags) tag == "train")))
+test_that("Parameter test: l1", {
+  loss = t_loss("l1")
+  param_set = loss$param_set
+  fn = loss$generator
+  res = autotest_paramset(param_set, fn)
+  expect_equal(res, list())
+})
 
-    # torch marks required parameters with `loss_required()`
-    expected = formals(torchloss$generator)
-    expected = expected[sort(names(expected))]
-    required_params = names(expected[map_lgl(expected, function(x) identical(x, str2lang("loss_required()")))])
-
-    for (required_param in required_params) {
-      expect_true("required" %in% param_set$params[[required_param]]$tags)
-      # required params should not have a default
-      expect_true(required_param %nin% observed)
-    }
-
-    # required params were already checked
-    expected[required_params] = NULL
-
-    # formals stored the expressions
-    expected = map(expected, eval)
-    # expect_true(all.equal(observed, expected))
-  })
-}
+test_that("Parameter test: cross_entropy", {
+  loss = t_loss("cross_entropy")
+  param_set = loss$param_set
+  fn = loss$generator
+  # ignore_index has param
+  res = autotest_paramset(param_set, fn)
+  expect_equal(res, list())
+})

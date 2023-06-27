@@ -109,7 +109,6 @@ Collate:
     'assertions.R'
     'bibentries.R'
     'expectations.R'
-    'helper.R'
     'image_dataset.R'
     'imageuri.R'
     'learner_torch_methods.R'

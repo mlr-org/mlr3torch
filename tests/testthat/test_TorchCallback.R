@@ -57,10 +57,10 @@ test_that("torch_callback helper function works", {
   expect_set_equal(stages, mlr3torch_callback_stages)
 
   expect_warning(torch_callback(id = "Custom", public = list(
-    on_edn = function(ctx) NULL, on_nde = function(ctx) NULL)))
+    on_edn = function() NULL, on_nde = function() NULL)))
 
   tcb = torch_callback("Custom",
-    on_end = function(ctx) NULL,
+    on_end = function() NULL,
     public = list(
       a = 1
     ),
@@ -113,14 +113,3 @@ test_that("Cloning works", {
   tcb2 = tcb1$clone(deep = TRUE)
   expect_deep_clone(tcb1, tcb2)
 })
-
-for (key in mlr3torch_callbacks$keys()) {
-  test_that(sprintf("mlr3torch_callbacks: '%s'", key), {
-    tcb = t_clbk(key)
-    expect_class(tcb, "TorchCallback")
-    expect_r6(tcb$param_set, "ParamSet")
-    expect_string(tcb$id)
-    expect_string(tcb$label)
-    expect_man_exists(tcb$man)
-  })
-}

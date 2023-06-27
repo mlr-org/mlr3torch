@@ -101,7 +101,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{TorchLoss$new(
   torch_loss,
-  task_types = NULL,
+  task_types,
   param_set = NULL,
   id = deparse(substitute(torch_loss))[[1L]],
   label = capitalize(id),
@@ -117,8 +117,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 The loss module.}
 
 \item{\code{task_types}}{(\code{character()})\cr
-The task types supported by this loss.
-If left as \code{NULL} (default), this value is set to all available task types.}
+The task types supported by this loss.}
 
 \item{\code{param_set}}{(\code{\link{ParamSet}} or \code{NULL})\cr
 The parameter set. If \code{NULL} (default) it is inferred from \code{torch_loss}.}

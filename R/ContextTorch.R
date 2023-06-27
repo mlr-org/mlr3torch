@@ -10,7 +10,6 @@
 #' @family Callback
 #' @export
 ContextTorch = R6Class("ContextTorch",
-  inherit = Context,
   lock_objects = FALSE,
   public = list(
     #' @description

@@ -17,7 +17,7 @@ test_that("auto paramtest works", {
   ps3 = ps(x = p_int(default = 2), y = p_uty(), z = p_uty(default = 3))
 
   res3 = autotest_paramset(ps3, f3)
-  expect_equal(res3, list(derror = "Wrong defaults: x, z, y"))
+  expect_equal(res3, list(derror = "Wrong defaults: x, y, z"))
 
   # Excluding stuff works
 
@@ -63,4 +63,31 @@ test_that("auto paramtest works", {
   expect_equal(res9, list(merror = "Missing parameters: y", eerror = "Extra parameters: z",
     derror = "Wrong defaults: x"))
 
+  # Works for argument NULL
+  f10 = function(x = NULL) NULL
+  ps10 = ps(x = p_uty(default = NULL))
+
+  res10 = autotest_paramset(ps10, f10)
+  expect_equal(res10, list())
+
+  f11 = f10
+  ps11 = ps(x = p_uty())
+  res11 = autotest_paramset(ps11, f11)
+
+  # negative values work (evaluation problem, see comments in autotest_paramset)
+  f12 = function(x = -1, y = c("a", "b")) NULL
+  ps12 = ps(x = p_int(default = -1), y = p_uty(default = c("a", "b")))
+  res12 = autotest_paramset(ps12, f12)
+  expect_equal(res12, list())
+
+  f13 = f12
+  ps13 = ps(x = p_int(), y = p_uty())
+  res13 = autotest_paramset(ps13, f13)
+  expect_equal(res13, list(derror = "Wrong defaults: x, y"))
+
+  # works if expression cannot be evaluated
+  f14 = function(x = z, z = 1) NULL
+  ps14 = ps(x = p_uty(), z = p_int(default = 1))
+  res14 = autotest_paramset(ps14, f14)
+  expect_equal(res14, list(derror = "Wrong defaults: x"))
 })

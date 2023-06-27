@@ -60,16 +60,9 @@ The frequency how often the model is saved (epoch frequency).}
 \subsection{Method \code{on_epoch_end()}}{
 Saves the network state dict.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchCheckpoint$on_epoch_end(ctx)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchCheckpoint$on_epoch_end()}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{ctx}}{\link{ContextTorch}}
-}
-\if{html}{\out{</div>}}
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackTorchCheckpoint-on_end"></a>}}
@@ -77,16 +70,9 @@ Saves the network state dict.
 \subsection{Method \code{on_end()}}{
 Saves the final network.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchCheckpoint$on_end(ctx)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorchCheckpoint$on_end()}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{ctx}}{\link{ContextTorch}}
-}
-\if{html}{\out{</div>}}
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackTorchCheckpoint-clone"></a>}}

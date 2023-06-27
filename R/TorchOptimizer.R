@@ -118,7 +118,7 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
     },
     #' @description
     #' Instantiates the optimizer.
-    #' @param params The `$parameters` of the network.
+    #' @param params The parameters of the network.
     generate = function(params) {
       require_namespaces(self$packages)
       invoke(self$generator, .args = self$param_set$get_values(), params = params)

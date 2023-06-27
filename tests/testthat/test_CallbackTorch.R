@@ -17,7 +17,7 @@ test_that("All stages are called correctly", {
   task = tsk("iris")
 
   write_stage = function(stage) {
-    on_stage = function(ctx) {} # nolint
+    on_stage = function() {} # nolint
     body(on_stage)[[2L]] = str2lang(sprintf("write(\"%s\", self$path, append = TRUE)", stage))
     on_stage
   }
@@ -54,6 +54,7 @@ test_that("All stages are called correctly", {
   task$row_roles$test = 4:6
 
   path2 = tempfile()
+
   learner$param_set$set_values(cb.test.path = path2)
   learner$train(task)
   output2 = readLines(path2)
@@ -94,8 +95,7 @@ test_that("callback_torch is working", {
   expect_error(callback_torch("A"), regexp = "startsWith")
   tcb = callback_torch("CallbackTorchA")
   expect_class(tcb, "R6ClassGenerator")
-  expect_warning(callback_torch("CallbackTorchA", public = list(on_edn = function(ctx) 1)), regexp = "on_edn")
-  expect_error(callback_torch("CallbackTorchA", on_end = function(a) NULL), "ctx")
+  expect_warning(callback_torch("CallbackTorchA", public = list(on_edn = function() NULL)), regexp = "on_edn")
 
   e = new.env()
   e$aaaabbb = 1441
@@ -148,6 +148,18 @@ test_that("callback_torch is working", {
   expect_error(
     callback_torch("CallbackTorchE", public = list(initialize = function() NULL), initialize = function() NULL),
     "initialize"
-
   )
+
+  CallbackTorchF = callback_torch("CallbackTorchF",
+    private = list(deep_clone = function(name, value) "cloning works")
+  )
+  expect_true(CallbackTorchF$cloneable)
+  cbf = CallbackTorchF$new()
+  expect_equal(get_private(cbf)$deep_clone("a", 1), "cloning works")
+
+  CallbackTorchG = callback_torch("CallbackTorchG")
+  expect_false(CallbackTorchG$cloneable)
+
+  CallbackTorchH = callback_torch("CallbackTorchTestH", initialize = function(ctx) NULL)
+  expect_error(TorchCallback$new(CallbackTorchH), "is reserved for the ContextTorch")
 })
