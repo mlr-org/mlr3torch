@@ -23,7 +23,8 @@ The keys of the optimizers.}
 A \code{\link{TorchOptimizer}}
 }
 \description{
-Optimizers Quick Access
+Retrieves one or more \code{\link{DescriptorTorchOptimizer}} from \code{\link{mlr3torch_optimizers}}.
+Works like \code{\link[mlr3:mlr_sugar]{mlr3::lrn()}} or \code{\link[mlr3:mlr_sugar]{mlr3::tsk()}}.
 }
 \examples{
 t_opt("adam", lr = 0.1)
@@ -36,10 +37,10 @@ t_opts()
 \seealso{
 Other Descriptor Torch: 
 \code{\link{DescriptorTorchCallback}},
-\code{\link{TorchLoss}},
+\code{\link{DescriptorTorchLoss}},
 \code{\link{TorchOptimizer}},
 \code{\link{as_descriptor_torch_callbacks}()},
-\code{\link{as_torch_loss}()},
+\code{\link{as_descriptor_torch_loss}()},
 \code{\link{as_torch_optimizer}()},
 \code{\link{descriptor_torch}},
 \code{\link{mlr3torch_losses}},

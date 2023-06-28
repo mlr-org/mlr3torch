@@ -51,7 +51,7 @@ learner_torch_initialize = function(
   private$.optimizer = as_torch_optimizer(optimizer, clone = TRUE)
   private$.optimizer$param_set$set_id = "opt"
 
-  private$.loss = as_torch_loss(loss, clone = TRUE)
+  private$.loss = as_descriptor_torch_loss(loss, clone = TRUE)
   private$.loss$param_set$set_id = "loss"
 
   callbacks = as_descriptor_torch_callbacks(callbacks, clone = TRUE)

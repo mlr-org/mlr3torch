@@ -30,7 +30,7 @@
 #'   (Training)-Task for which the model is being built. May be necessary for for some aspects of what loss to use etc.
 #' @param optimizer ([`TorchOptimizer`] | `NULL`)\cr
 #'   Additional info: what optimizer to use.
-#' @param loss ([`TorchLoss`] | `NULL`)\cr
+#' @param loss ([`DescriptorTorchLoss`] | `NULL`)\cr
 #'   Additional info: what loss to use.
 #' @param callbacks (A `list` of [`CallbackTorch`] or `NULL`)\cr
 #'   Additional info: what callbacks to use.
@@ -56,7 +56,7 @@ ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, 
   assert_r6(task, "Task")
 
   assert_r6(optimizer, "TorchOptimizer", null.ok = TRUE)
-  assert_r6(loss, "TorchLoss", null.ok = TRUE)
+  assert_r6(loss, "DescriptorTorchLoss", null.ok = TRUE)
   if (!is.null(loss)) {
     assert_choice(task$task_type, loss$task_types)
   }

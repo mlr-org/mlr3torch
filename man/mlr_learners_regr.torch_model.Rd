@@ -117,7 +117,7 @@ A list with ingress tokens that defines how the dataloader will be defined.}
 \item{\code{optimizer}}{(\code{\link{TorchOptimizer}})\cr
 The torch optimizer.}
 
-\item{\code{loss}}{(\code{\link{TorchLoss}})\cr
+\item{\code{loss}}{(\code{\link{DescriptorTorchLoss}})\cr
 The loss used to train the network.}
 
 \item{\code{callbacks}}{(\code{list()} of \code{\link{DescriptorTorchCallback}}s)\cr

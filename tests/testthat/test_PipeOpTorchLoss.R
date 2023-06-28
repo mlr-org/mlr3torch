@@ -14,7 +14,7 @@ test_that("Basic checks", {
   expect_true(obj$is_trained)
   expect_identical(obj$state, list())
   expect_pipeop(obj)
-  expect_class(mdout$loss, "TorchLoss")
+  expect_class(mdout$loss, "DescriptorTorchLoss")
   expect_class(mdout$loss$generator, "nn_mse_loss")
   expect_equal(mdout$loss$param_set$values$reduction, "sum")
 

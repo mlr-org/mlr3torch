@@ -44,8 +44,8 @@
 
 **Loss**
 
-*   [x] TorchLoss
-*   [x] as_descriptor_torch_optimizer.TorchLoss
+*   [x] DescriptorTorchLoss
+*   [x] as_descriptor_torch_optimizer.DescriptorTorchLoss
 *   [x] as_descriptor_torch_optimizer.nn_loss
 *   [x] as_descriptor_torch_optimizer
 *   [x] t_loss

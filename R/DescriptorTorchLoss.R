@@ -1,46 +1,46 @@
-#' @title Convert to TorchLoss
+#' @title Convert to DescriptorTorchLoss
 #'
 #' @description
-#' Converts an object to a [`TorchLoss`].
+#' Converts an object to a [`DescriptorTorchLoss`].
 #'
 #' @param x (any)\cr
-#'   Object to convert to a [`TorchLoss`].
+#'   Object to convert to a [`DescriptorTorchLoss`].
 #' @param clone (`logical(1)`\cr
 #'   Whether to make a deep clone.
 #' @param ... (any)\cr
 #'   Additional arguments.
-#'   Currently used to pass additional constructor arguments to [`TorchLoss`] for objects of type `nn_loss`.
+#'   Currently used to pass additional constructor arguments to [`DescriptorTorchLoss`] for objects of type `nn_loss`.
 #'
 #' @family Descriptor Torch
 #'
-#' @return [`TorchLoss`].
+#' @return [`DescriptorTorchLoss`].
 #' @export
-as_torch_loss = function(x, clone = FALSE, ...) {
+as_descriptor_torch_loss = function(x, clone = FALSE, ...) {
   assert_flag(clone)
-  UseMethod("as_torch_loss")
+  UseMethod("as_descriptor_torch_loss")
 }
 
 #' @export
-as_torch_loss.nn_loss = function(x, task_types, clone = FALSE, id = deparse(substitute(x))[[1L]], ...) { # nolint
+as_descriptor_torch_loss.nn_loss = function(x, task_types, clone = FALSE, id = deparse(substitute(x))[[1L]], ...) { # nolint
   # clone argument is irrelevant
-  TorchLoss$new(x, id = id, task_types = task_types, ...)
+  DescriptorTorchLoss$new(x, id = id, task_types = task_types, ...)
 }
 
 #' @export
-as_torch_loss.TorchLoss = function(x, clone = FALSE, ...) { # nolint
+as_descriptor_torch_loss.DescriptorTorchLoss = function(x, clone = FALSE, ...) { # nolint
   if (clone) x$clone(deep = TRUE) else x
 }
 
 #' @export
-as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
+as_descriptor_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
   t_loss(x, ...)
 }
 
-#' @title Torch Loss
+#' @title Descriptor of Torch Loss
 #'
 #' @description
 #' This wraps a `torch::nn_loss` and annotates it with metadata, most importantly a [`ParamSet`].
-#' The loss function is created for the given parameter values by calling the `$generate()` method inherited from
+#' The loss function is created for the given parameter values by calling the `$generate()` method.
 #' [`DescriptorTorch`].
 #'
 #' This class is usually used to configure the loss function of a torch learner, e.g.
@@ -57,35 +57,35 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 #' @family Descriptor Torch
 #' @export
 #' @examples
-#' # Create a new Torch Loss
-#' torchloss = TorchLoss$new(torch_loss = nn_mse_loss, task_types = "regr")
-#' torchloss
+#' # Create a new loss descriptor
+#' descriptor = DescriptorTorchLoss$new(torch_loss = nn_mse_loss, task_types = "regr")
+#' descriptor
 #' # the parameters are inferred
-#' torchloss$param_set
+#' descriptor$param_set
 #'
 #' # Retrieve a loss from the dictionary:
-#' torchloss = t_loss("mse", reduction = "mean")
+#' descriptor = t_loss("mse", reduction = "mean")
 #' # is the same as
-#' torchloss
-#' torchloss$param_set
-#' torchloss$label
-#' torchloss$task_types
-#' torchloss$id
+#' descriptor
+#' descriptor$param_set
+#' descriptor$label
+#' descriptor$task_types
+#' descriptor$id
 #'
 #' # Create the loss function
-#' loss_fn = torchloss$generate()
+#' loss_fn = descriptor$generate()
 #' loss_fn
 #' # Is the same as
 #' nn_mse_loss(reduction = "mean")
 #'
 #' # open the help page of the wrapped loss function
-#' # torchloss$help()
+#' # descriptor$help()
 #'
 #' # Use in a learner
 #' learner = lrn("regr.mlp", loss = t_loss("mse"))
 #' # The parameters of the loss are added to the learner's parameter set
 #' learner$param_set
-TorchLoss = R6::R6Class("TorchLoss",
+DescriptorTorchLoss = R6::R6Class("DescriptorTorchLoss",
   inherit = DescriptorTorch,
   public = list(
     #' @field task_types (`character()`)\cr
@@ -132,9 +132,9 @@ TorchLoss = R6::R6Class("TorchLoss",
 #' @title Loss Functions
 #'
 #' @description
-#' Dictionary of torch loss functions.
-#' See [`t_loss`] for conveniently retrieving a loss function.
-#' Can be converted to a [`data.table`] using `as.data.table`.
+#' Dictionary of torch loss descriptors.
+#' See [`t_loss()`] for conveniently retrieving a loss function.
+#' Can be converted to a [`data.table`] using [`as.data.table()`].
 #'
 #' @section Available Loss Functions:
 #' `r paste0(mlr3torch_losses$keys(), collapse = ", ")`
@@ -168,6 +168,11 @@ as.data.table.DictionaryMlr3torchLosses = function(x, ...) {
 
 
 #' @title Loss Function Quick Access
+#'
+#' @description
+#' Retrieves one or more [`DescriptorTorchLoss`] from [`mlr3torch_losses`].
+#' Works like [`mlr3::lrn()`] or [`mlr3::tsk()`].
+#'
 #' @param .key (`character(1)`)\cr
 #'   Key of the object to retrieve.
 #' @param ... (any)\cr
@@ -220,7 +225,7 @@ t_losses.NULL = function(.keys, ...) { # nolint
 
 mlr3torch_losses$add("mse", function() {
   p = ps(reduction = p_fct(levels = c("mean", "sum"), default = "mean", tags = "train"))
-  TorchLoss$new(
+  DescriptorTorchLoss$new(
     torch_loss = torch::nn_mse_loss,
     task_types = "regr",
     param_set = p,
@@ -233,7 +238,7 @@ mlr3torch_losses$add("mse", function() {
 
 mlr3torch_losses$add("l1", function() {
   p = ps(reduction = p_fct(levels = c("mean", "sum"), default = "mean", tags = "train"))
-  TorchLoss$new(
+  DescriptorTorchLoss$new(
     torch_loss = torch::nn_l1_loss,
     task_types = "regr",
     param_set = p,
@@ -249,7 +254,7 @@ mlr3torch_losses$add("cross_entropy", function() {
     ignore_index = p_int(default = -100, tags = "train"),
     reduction = p_fct(levels = c("mean", "sum"), default = "mean", tags = "train")
   )
-  TorchLoss$new(
+  DescriptorTorchLoss$new(
     torch_loss = torch::nn_cross_entropy_loss,
     task_types = "classif",
     param_set = p,

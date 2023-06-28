@@ -18,7 +18,7 @@
 #'
 #' @export
 #' @examples
-#' po_loss = po("torch_loss", "cross_entropy")
+#' po_loss = po("torch_loss", loss = t_loss("cross_entropy"))
 #' po_loss$param_set
 #' mdin = po("torch_ingress_num")$train(list(tsk("iris")))
 #' mdin[[1L]]$loss
@@ -29,11 +29,11 @@ PipeOpTorchLoss = R6Class("PipeOpTorchLoss",
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    #' @param loss ([`TorchLoss`]) or `character(1)` or `nn_loss`\cr
-    #'   The loss (or something convertible via [`as_torch_loss()`]).
+    #' @param loss ([`DescriptorTorchLoss`]) or `character(1)` or `nn_loss`\cr
+    #'   The loss (or something convertible via [`as_descriptor_torch_loss()`]).
     #' @template params_pipelines
     initialize = function(loss, id = "torch_loss", param_vals = list()) {
-      private$.loss = as_torch_loss(loss, clone = TRUE)
+      private$.loss = as_descriptor_torch_loss(loss, clone = TRUE)
       input = data.table(name = "input", train = "ModelDescriptor", predict = "Task")
       output = data.table(name = "output", train = "ModelDescriptor", predict = "Task")
       super$initialize(
@@ -56,12 +56,12 @@ PipeOpTorchLoss = R6Class("PipeOpTorchLoss",
       self$state = list()
       inputs
     },
-    .predict = function (inputs) {
+    .predict = function(inputs) {
       inputs
     },
     .loss = NULL
   )
 )
 
-#' @include zzz.R TorchLoss.R
+#' @include zzz.R DescriptorTorchLoss.R
 register_po("torch_loss", PipeOpTorchLoss)
