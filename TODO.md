@@ -127,6 +127,9 @@ Some notes:
 * How to clone LearnerTorchModel (When .network is the trained network (?), what happens when calling train twice ???)
   --> Probably this learner should NOT be exported or it must be clearly documented how this learner behaves.
   We could address this by cloning but this would cost a lot of performance in every train call of a torch graph learner.
+  Alternatively, the PipeOpTorchXXX objects could store the call to create the nn_module() instead of creating the nn_module()
+  immediately.
+* What about the learner that takes in a module?
 
 
 **Other**
