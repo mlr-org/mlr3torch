@@ -28,7 +28,7 @@
 #'   List of inputs that go into `graph`. Names of this must be a subset of `graph$input$name`.
 #' @param task ([`Task`][mlr3::Task])\cr
 #'   (Training)-Task for which the model is being built. May be necessary for for some aspects of what loss to use etc.
-#' @param optimizer ([`TorchOptimizer`] | `NULL`)\cr
+#' @param optimizer ([`DescriptorTorchOptimizer`] | `NULL`)\cr
 #'   Additional info: what optimizer to use.
 #' @param loss ([`DescriptorTorchLoss`] | `NULL`)\cr
 #'   Additional info: what loss to use.
@@ -55,7 +55,7 @@ ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, 
 
   assert_r6(task, "Task")
 
-  assert_r6(optimizer, "TorchOptimizer", null.ok = TRUE)
+  assert_r6(optimizer, "DescriptorTorchOptimizer", null.ok = TRUE)
   assert_r6(loss, "DescriptorTorchLoss", null.ok = TRUE)
   if (!is.null(loss)) {
     assert_choice(task$task_type, loss$task_types)

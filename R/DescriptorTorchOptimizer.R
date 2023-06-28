@@ -1,4 +1,4 @@
-#' @title Convert to TorchOptimizer
+#' @title Convert to DescriptorTorchOptimizer
 #'
 #' @description
 #' Converts an object to a [`TorchOptimizer`].
@@ -16,29 +16,29 @@
 #'
 #' @return [`TorchOptimizer`]
 #' @export
-as_torch_optimizer = function(x, clone = FALSE, ...) {
+as_descriptor_torch_optimizer = function(x, clone = FALSE, ...) {
   assert_flag(clone)
-  UseMethod("as_torch_optimizer")
+  UseMethod("as_descriptor_torch_optimizer")
 }
 
 #' @export
-as_torch_optimizer.torch_optimizer_generator = function(x, clone = FALSE, id = deparse(substitute(x))[[1L]], ...) { # nolint
+as_descriptor_torch_optimizer.torch_optimizer_generator = function(x, clone = FALSE, id = deparse(substitute(x))[[1L]], ...) { # nolint
   # clone argument is irrelevant
-  TorchOptimizer$new(x, id = id, ...)
+  DescriptorTorchOptimizer$new(x, id = id, ...)
 }
 
 #' @export
-as_torch_optimizer.TorchOptimizer = function(x, clone = FALSE, ...) { # nolint
+as_descriptor_torch_optimizer.DescriptorTorchOptimizer = function(x, clone = FALSE, ...) { # nolint
   if (clone) x$clone(deep = TRUE) else x
 }
 
 #' @export
-as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
+as_descriptor_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
   # clone argument is irrelevant
   t_opt(x, ...)
 }
 
-#' @title Torch Optimizer
+#' @title Descriptor Torch Optimizer
 #'
 #' @description
 #' This wraps a `torch::torch_optimizer_generator`a and annotates it with metadata, most importantly a [`ParamSet`].
@@ -58,33 +58,33 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #' @family Descriptor Torch
 #' @export
 #' @examples
-#' # Create a new Torch Optimizer
-#' torchopt = TorchOptimizer$new(optim_adam, label = "adam")
+#' # Create a new optimizer descriptor
+#' descriptor = TorchOptimizer$new(optim_adam, label = "adam")
 #' # If the param set is not specified, parameters are inferred but are of class ParamUty
-#' torchopt$param_set
+#' descriptor$param_set
 #'
 #' # Retrieve an optimizer from the dictionary
-#' torchopt = t_opt("sgd", lr = 0.1)
-#' torchopt
-#' torchopt$param_set
-#' torchopt$label
-#' torchopt$id
+#' descriptor = t_opt("sgd", lr = 0.1)
+#' descriptor
+#' descriptor$param_set
+#' descriptor$label
+#' descriptor$id
 #'
 #' # Create the optimizer for a network
 #' net = nn_linear(10, 1)
-#' opt = torchopt$generate(net$parameters)
+#' opt = descriptor$generate(net$parameters)
 #'
 #' # is the same as
 #' optim_sgd(net$parameters, lr = 0.1)
 #'
 #' # open the help page of the wrapped optimizer
-#' # torchopt$help()
+#' # descriptor$help()
 #'
 #' # Use in a learner
 #' learner = lrn("regr.mlp", optimizer = t_opt("sgd"))
 #' # The parameters of the optimizer are added to the learner's parameter set
 #' learner$param_set
-TorchOptimizer = R6::R6Class("TorchOptimizer",
+DescriptorTorchOptimizer = R6::R6Class("DescriptorTorchOptimizer",
   inherit = DescriptorTorch,
   public = list(
     #' @description
@@ -99,6 +99,7 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
     #' @template param_man
     initialize = function(torch_optimizer, param_set = NULL, id = deparse(substitute(torch_optimizer))[[1L]],
       label = capitalize(id), packages = NULL, man = NULL) {
+      force(id)
       torch_optimizer = assert_class(torch_optimizer, "torch_optimizer_generator") # maybe too strict?
       if (test_r6(param_set, "ParamSet")) {
         if ("params" %in% param_set$ids()) {
@@ -164,7 +165,7 @@ as.data.table.DictionaryMlr3torchOptimizers = function(x, ...) {
 #' @title Optimizers Quick Access
 #'
 #' @description
-#' Retrieves one or more [`TorchOptimizer`] from [`mlr3torch_optimizers`].
+#' Retrieves one or more [`DescriptorTorchOptimier`] from [`mlr3torch_optimizers`].
 #' Works like [`mlr3::lrn()`] or [`mlr3::tsk()`].
 #'
 #' @param .key (`character(1)`)\cr
@@ -235,7 +236,7 @@ mlr3torch_optimizers$add("adam",
       weight_decay = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
       amsgrad      = p_lgl(default = FALSE, tags = "train")
     )
-    TorchOptimizer$new(
+    DescriptorTorchOptimizer$new(
       torch_optimizer = torch::optim_adam,
       param_set = p,
       id = "adam",
@@ -255,7 +256,7 @@ mlr3torch_optimizers$add("sgd",
       weight_decay = p_dbl(0, 1, default = 0, tags = "train"),
       nesterov     = p_lgl(default = FALSE, tags = "train")
     )
-    TorchOptimizer$new(
+    DescriptorTorchOptimizer$new(
       torch_optimizer = torch::optim_sgd,
       param_set = p,
       id = "sgd",
@@ -275,7 +276,7 @@ mlr3torch_optimizers$add("asgd",
       t0           = p_int(lower = 1L, upper = Inf, default = 1e6, tags = "train"),
       weight_decay = p_dbl(default = 0, lower = 0, upper = 1, tags = "train")
     )
-    TorchOptimizer$new(
+    DescriptorTorchOptimizer$new(
       torch_optimizer = torch::optim_asgd,
       param_set = p,
       id = "asgd",
@@ -301,7 +302,7 @@ mlr3torch_optimizers$add("rprop",
       etas       = p_uty(default = c(0.5, 1.2), tags = "train"),
       step_sizes = p_uty(c(1e-06, 50), tags = "train")
     )
-    TorchOptimizer$new(
+    DescriptorTorchOptimizer$new(
       torch_optimizer = torch::optim_rprop,
       param_set = p,
       id = "rprop",
@@ -322,7 +323,7 @@ mlr3torch_optimizers$add("rmsprop",
       momentum     = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
       centered     = p_lgl(default = FALSE, tags = "train")
     )
-    TorchOptimizer$new(
+    DescriptorTorchOptimizer$new(
       torch_optimizer = torch::optim_rmsprop,
       param_set = p,
       id = "rmsprop",
@@ -342,7 +343,7 @@ mlr3torch_optimizers$add("adagrad",
       initial_accumulator_value = p_dbl(default = 0, lower = 0, tags = "train"),
       eps                       = p_dbl(default = 1e-10, lower = 1e-16, upper = 1e-4, tags = "train")
     )
-    TorchOptimizer$new(
+    DescriptorTorchOptimizer$new(
       torch_optimizer = torch::optim_adagrad,
       param_set = p,
       id = "adagrad",
@@ -360,10 +361,10 @@ mlr3torch_optimizers$add("adadelta",
       eps          = p_dbl(default = 1e-06, lower = 1e-16, upper = 1e-4, tags = "train"),
       weight_decay = p_dbl(default = 0, lower = 0, upper = 1, tags = "train")
     )
-    TorchOptimizer$new(torch_optimizer = torch::optim_adadelta,
+    DescriptorTorchOptimizer$new(torch_optimizer = torch::optim_adadelta,
       param_set = p,
       id = "adadelta",
-      label = "Adaptive Learning Rate Method``",
+      label = "Adaptive Learning Rate Method",
       man = "torch::optim_adadelta"
     )
   }

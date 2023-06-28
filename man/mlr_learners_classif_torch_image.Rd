@@ -94,7 +94,7 @@ The parameter set.}
 \item{\code{label}}{(\code{character(1)})\cr
 Label for the new instance.}
 
-\item{\code{optimizer}}{(\code{\link{TorchOptimizer}})\cr
+\item{\code{optimizer}}{(\code{\link{DescriptorTorchOptimizer}})\cr
 The torch optimizer.}
 
 \item{\code{loss}}{(\code{\link{DescriptorTorchLoss}})\cr

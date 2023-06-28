@@ -25,7 +25,7 @@ List of inputs that go into \code{graph}. Names of this must be a subset of \cod
 \item{task}{(\code{\link[mlr3:Task]{Task}})\cr
 (Training)-Task for which the model is being built. May be necessary for for some aspects of what loss to use etc.}
 
-\item{optimizer}{(\code{\link{TorchOptimizer}} | \code{NULL})\cr
+\item{optimizer}{(\code{\link{DescriptorTorchOptimizer}} | \code{NULL})\cr
 Additional info: what optimizer to use.}
 
 \item{loss}{(\code{\link{DescriptorTorchLoss}} | \code{NULL})\cr
@@ -61,7 +61,7 @@ element of \code{graph$input} may be removed by reference, e.g. by adding an edg
 channel of a \code{PipeOp} that was previously without parent as its destination.
 
 In most cases it is better to create a specific \code{ModelDescriptor} by training a \code{\link{Graph}} consisting (mostly) of
-operators \code{\link{PipeOpTorchIngress}}, \code{\link{PipeOpTorch}}, \code{\link{PipeOpDescriptorTorchLoss}}, \code{\link{PipeOpTorchOptimizer}}, and
+operators \code{\link{PipeOpTorchIngress}}, \code{\link{PipeOpTorch}}, \code{\link{PipeOpTorchLoss}}, \code{\link{PipeOpTorchOptimizer}}, and
 \code{\link{PipeOpTorchCallbacks}}.
 
 A \code{ModelDescriptor} can be converted to a \code{\link{nn_graph}} via \code{\link{model_descriptor_to_module}}.

@@ -150,7 +150,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \item{\code{id}}{(\code{character(1)})\cr
 The id for of the new object.}
 
-\item{\code{optimizer}}{(\code{\link{TorchOptimizer}})\cr
+\item{\code{optimizer}}{(\code{\link{DescriptorTorchOptimizer}})\cr
 The torch optimizer.}
 
 \item{\code{loss}}{(\code{\link{DescriptorTorchLoss}})\cr

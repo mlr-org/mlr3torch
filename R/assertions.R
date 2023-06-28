@@ -1,5 +1,5 @@
-assert_torch_optimizer = function(x) {
-  assert_r6(x, "TorchOptimizer")
+assert_descriptor_torch_optimizer = function(x) {
+  assert_r6(x, "DescriptorTorchOptimizer")
 }
 
 assert_descriptor_torch_loss = function(x) {

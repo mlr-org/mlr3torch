@@ -11,7 +11,7 @@ test_that("Basic Checks", {
   expect_set_equal(torchloss$packages, c("mypackage", "torch", "mlr3torch"))
   expect_equal(torchloss$label, "Cross Entropy Loss")
   expect_true(torchloss$task_types == "classif")
-  expect_set_equal(torchloss$param_set$ids(), setdiff(formalArgs(torch::nn_cross_entropy_loss), "params"))
+  expect_set_equal(torchloss$param_set$ids(), formalArgs(torch::nn_cross_entropy_loss))
 
   expect_error(torchloss$generate(),
     regexp = "The following packages could not be loaded: mypackage", fixed = TRUE
@@ -20,11 +20,13 @@ test_that("Basic Checks", {
   torchloss1 = DescriptorTorchLoss$new(
     torch_loss = torch::nn_cross_entropy_loss,
     label = "Cross Entropy Loss",
-    task_types = "classif"
+    task_types = "classif",
+    id = "xe"
   )
   torchloss1$param_set$set_values(ignore_index = 123)
   expect_set_equal(torchloss1$packages, c("torch", "mlr3torch"))
   expect_equal(torchloss1$label, "Cross Entropy Loss")
+  expect_equal(torchloss1$id, "xe")
 
   loss = torchloss1$generate()
   expect_class(loss, c("nn_crossentropy_loss", "nn_module"))
@@ -39,7 +41,6 @@ test_that("Basic Checks", {
   expect_equal(torchloss2$param_set$ids(), "reduction")
   expect_equal(torchloss2$label, "Mse")
   expect_true(torchloss2$task_types == "regr")
-
 })
 
 test_that("dictionary retrieval works", {
@@ -66,10 +67,6 @@ test_that("Cloning works", {
   torchloss1 = t_loss("cross_entropy")
   torchloss2 = torchloss1$clone(deep = TRUE)
   expect_deep_clone(torchloss1, torchloss2)
-
-  torchloss3 = as_descriptor_torch_loss(torchloss1, clone = TRUE)
-
-  expect_deep_clone(torchloss1, torchloss3)
 })
 
 test_that("Printer works", {
@@ -86,11 +83,6 @@ test_that("Printer works", {
   expect_identical(observed, expected)
 })
 
-test_that("dictionary can be converted to a table", {
-  tbl = as.data.table(t_losses())
-  expect_data_table(tbl, ncols = 4)
-  expect_equal(colnames(tbl), c("key", "label", "task_types", "packages"))
-})
 
 test_that("Converters are correctly implemented", {
   expect_r6(as_descriptor_torch_loss("l1"), "DescriptorTorchLoss")

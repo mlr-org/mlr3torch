@@ -16,7 +16,7 @@
 #' The parameters are defined dynamically from the optimizer that is set during construction.
 #' @section Internals:
 #' During training, the optimizer is cloned and added to the [`ModelDescriptor`].
-#' Note that the parameter set of the stored [`TorchOptimizer`] is reference-identical to the parameter set of the
+#' Note that the parameter set of the stored [`DescriptorTorchOptimizer`] is reference-identical to the parameter set of the
 #' pipeop itself.
 #' @family PipeOp
 #' @family Model Configuration
@@ -32,11 +32,11 @@ PipeOpTorchOptimizer = R6Class("PipeOpTorchOptimizer",
   inherit = PipeOp,
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
-    #' @param optimizer ([`TorchOptimizer`] or `character(1)` or `torch_optimizer_generator`)\cr
-    #'   The optimizer (or something convertible via [`as_torch_optimizer()`]).
+    #' @param optimizer ([`DescriptorTorchOptimizer`] or `character(1)` or `torch_optimizer_generator`)\cr
+    #'   The optimizer (or something convertible via [`as_descriptor_torch_optimizer()`]).
     #' @template params_pipelines
     initialize = function(optimizer = t_opt("adam"), id = "torch_optimizer", param_vals = list()) {
-      private$.optimizer = as_torch_optimizer(optimizer, clone = TRUE)
+      private$.optimizer = as_descriptor_torch_optimizer(optimizer, clone = TRUE)
       input = data.table(name = "input", train = "ModelDescriptor", predict = "Task")
       output = data.table(name = "output", train = "ModelDescriptor", predict = "Task")
       super$initialize(

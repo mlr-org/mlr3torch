@@ -27,7 +27,7 @@ The parameters are defined dynamically from the optimizer that is set during con
 \section{Internals}{
 
 During training, the optimizer is cloned and added to the \code{\link{ModelDescriptor}}.
-Note that the parameter set of the stored \code{\link{TorchOptimizer}} is reference-identical to the parameter set of the
+Note that the parameter set of the stored \code{\link{DescriptorTorchOptimizer}} is reference-identical to the parameter set of the
 pipeop itself.
 }
 
@@ -89,8 +89,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{optimizer}}{(\code{\link{TorchOptimizer}} or \code{character(1)} or \code{torch_optimizer_generator})\cr
-The optimizer (or something convertible via \code{\link[=as_torch_optimizer]{as_torch_optimizer()}}).}
+\item{\code{optimizer}}{(\code{\link{DescriptorTorchOptimizer}} or \code{character(1)} or \code{torch_optimizer_generator})\cr
+The optimizer (or something convertible via \code{\link[=as_descriptor_torch_optimizer]{as_descriptor_torch_optimizer()}}).}
 
 \item{\code{id}}{(\code{character(1)})\cr
 Identifier of the resulting  object.}

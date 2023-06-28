@@ -358,7 +358,7 @@ We make multiple observations here:
 
 We have now seen how NN `Graph`s of [`PipeOpModule`] are created and turned into `nn_module`s. Using [`PipeOpTorch`] even creates [`ModelDescriptor`] objects that contain additional info about how batch tensors are extracted from `Task`s. For a complete `Learner`, it is still necessary to define the loss-function used for optimization, and the optimizer itself.
 
-Optimizers are represented as [`TorchOptimizer`] objects -- they wrap a `torch` `torch_optimizer_generator` object but also provide a `ParamSet`. They can be obtained from a `Dictionary` using the `t_opt` quick-access function.
+Optimizers are represented as [`DescriptorTorchOptimizer`] objects -- they wrap a `torch` `torch_optimizer_generator` object but also provide a `ParamSet`. They can be obtained from a `Dictionary` using the `t_opt` quick-access function.
 
 ```{r}
 adam <- t_opt("adam", lr = 0.02)
@@ -430,13 +430,13 @@ plot_predictions(predictions)
 # Torch Learner Pipelines
 
 The model shown above is constructed using the [`ModelDescriptor`] that is generated from a `Graph` of [`PipeOpTorch`] operators.
-The [`ModelDescriptor`] furthermore contains the `Task` to which it pertains. This makes it possible to use it to create a NN model that gets trained right away, using [`PipeOpTorchModelClassif`]. The only missing prerequisite now is to add the desired [`TorchOptimizer`] and [`DescriptorTorchLoss`] information to the [`ModelDescriptor`].
+The [`ModelDescriptor`] furthermore contains the `Task` to which it pertains. This makes it possible to use it to create a NN model that gets trained right away, using [`PipeOpTorchModelClassif`]. The only missing prerequisite now is to add the desired [`DescriptorTorchOptimizer`] and [`DescriptorTorchLoss`] information to the [`ModelDescriptor`].
 
 ## Adding Optimizer and Loss Meta-Info to [`ModelDescriptor`]
 
 Remember that [`ModelDescriptor`] has the `$optimizer` and `$loss` slots that are necessary to build a complete `Learner` from an NN. They can be set by corresponding [`PipeOpTorch`] operators.
 
-`po("torch_optimizer")` is used to set the `$optimizer` slot of a [`ModelDescriptor`]; it takes the desired `TorchOptimizer` object on construction and exports its `ParamSet`.
+`po("torch_optimizer")` is used to set the `$optimizer` slot of a [`ModelDescriptor`]; it takes the desired `DescriptorTorchOptimizer` object on construction and exports its `ParamSet`.
 ```{r}
 po_adam = po("torch_optimizer", optimizer = adam)
 

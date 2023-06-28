@@ -35,9 +35,9 @@ Other Callback:
 Other Descriptor Torch: 
 \code{\link{DescriptorTorchCallback}},
 \code{\link{DescriptorTorchLoss}},
-\code{\link{TorchOptimizer}},
+\code{\link{DescriptorTorchOptimizer}},
 \code{\link{as_descriptor_torch_loss}()},
-\code{\link{as_torch_optimizer}()},
+\code{\link{as_descriptor_torch_optimizer}()},
 \code{\link{descriptor_torch}},
 \code{\link{mlr3torch_losses}},
 \code{\link{mlr3torch_optimizers}},

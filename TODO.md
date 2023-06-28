@@ -34,11 +34,11 @@
 
 **Optimizer**
 
-*   [x] TorchOptimizer
+*   [x] DescriptorTorchOptimizer
 *   [x] as_descriptor_torch_optimizer
 *   [x] as_descriptor_torch_optimizer.character
 *   [x] mlr3torch_optimizers
-*   [x] as_descriptor_torch_optimizer.TorchOptimizer
+*   [x] as_descriptor_torch_optimizer.DescriptorTorchOptimizer
 *   [x] as_descriptor_torch_optimizer.torch_optimizer_generator
 *   [x] t_opt
 
@@ -90,6 +90,8 @@
 
 Some notes:
 
+* Should we enforce the "train" tag for DescriptorTorch{Optimizer, Loss, Callback}, i.e.
+  set it in the initialize method of LearnerTorch?
 * [ ] in learner construction ensure usage of "train" and "predict" parameters
 * [ ] Utility functions for save_torch_learner and load_torch_learner, this should also be called in callback checkpoint
 * Custom Backend for torch datases with hardcoded metadata, torchdatasets in suggests and not depends

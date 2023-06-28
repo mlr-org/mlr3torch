@@ -102,7 +102,7 @@ test_that("ModelDescriptor basic checks", {
     task = task,
     optimizer = a
   ),
-    regexp = "Must inherit from class 'TorchOptimizer'",
+    regexp = "Must inherit from class 'DescriptorTorchOptimizer'",
     fixed = TRUE
   )
 

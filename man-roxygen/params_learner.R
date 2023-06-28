@@ -1,4 +1,4 @@
-#' @param optimizer ([`TorchOptimizer`])\cr
+#' @param optimizer ([`DescriptorTorchOptimizer`])\cr
 #'   The optimizer used to train the network.
 #' @param loss ([`DescriptorTorchLoss`])\cr
 #'   The loss used to train the network.

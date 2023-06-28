@@ -114,7 +114,7 @@ Outputs must be the scores (before the softmax).}
 \item{\code{ingress_tokens}}{(\code{list} of \code{\link[=TorchIngressToken]{TorchIngressToken()}})\cr
 A list with ingress tokens that defines how the dataloader will be defined.}
 
-\item{\code{optimizer}}{(\code{\link{TorchOptimizer}})\cr
+\item{\code{optimizer}}{(\code{\link{DescriptorTorchOptimizer}})\cr
 The torch optimizer.}
 
 \item{\code{loss}}{(\code{\link{DescriptorTorchLoss}})\cr

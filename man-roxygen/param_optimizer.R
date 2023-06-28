@@ -1,2 +1,2 @@
-#' @param optimizer ([`TorchOptimizer`])\cr
+#' @param optimizer ([`DescriptorTorchOptimizer`])\cr
 #'   The torch optimizer.

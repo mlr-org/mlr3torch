@@ -5,7 +5,7 @@
 \alias{DescriptorTorch}
 \title{Base Class for Torch Descriptors}
 \description{
-Abstract Base Class from which \code{\link{DescriptorTorchLoss}}, \code{\link{TorchOptimizer}}, and \code{\link{DescriptorTorchCallback}} inherit.
+Abstract Base Class from which \code{\link{DescriptorTorchLoss}}, \code{\link{DescriptorTorchOptimizer}}, and \code{\link{DescriptorTorchCallback}} inherit.
 This class wraps a generator (R6Class Generator or the torch version of such a generator) and annotates it
 with metadata such as a \code{\link{ParamSet}}, a label, an ID, packages, or a manual page.
 
@@ -21,10 +21,10 @@ Defined by the constructor argument \code{param_set}.
 Other Descriptor Torch: 
 \code{\link{DescriptorTorchCallback}},
 \code{\link{DescriptorTorchLoss}},
-\code{\link{TorchOptimizer}},
+\code{\link{DescriptorTorchOptimizer}},
 \code{\link{as_descriptor_torch_callbacks}()},
 \code{\link{as_descriptor_torch_loss}()},
-\code{\link{as_torch_optimizer}()},
+\code{\link{as_descriptor_torch_optimizer}()},
 \code{\link{mlr3torch_losses}},
 \code{\link{mlr3torch_optimizers}},
 \code{\link{t_clbk}()},
