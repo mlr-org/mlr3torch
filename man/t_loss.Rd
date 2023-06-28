@@ -34,11 +34,11 @@ t_losses(c("mse", "l1"))
 t_losses()
 }
 \seealso{
-Other Descriptor: 
-\code{\link{TorchCallback}},
+Other Descriptor Torch: 
+\code{\link{DescriptorTorchCallback}},
 \code{\link{TorchLoss}},
 \code{\link{TorchOptimizer}},
-\code{\link{as_torch_callbacks}()},
+\code{\link{as_descriptor_torch_callbacks}()},
 \code{\link{as_torch_loss}()},
 \code{\link{as_torch_optimizer}()},
 \code{\link{descriptor_torch}},
@@ -47,4 +47,4 @@ Other Descriptor:
 \code{\link{t_clbk}()},
 \code{\link{t_opt}()}
 }
-\concept{Descriptor}
+\concept{Descriptor Torch}

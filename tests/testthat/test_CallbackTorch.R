@@ -22,7 +22,7 @@ test_that("All stages are called correctly", {
     on_stage
   }
 
-  cb = torch_callback(id = "test",
+  cb = callback_descriptor(id = "test",
     initialize = function(path) {
       assert_path_for_output(path)
       file.create(path)
@@ -90,7 +90,7 @@ test_that("All stages are called correctly", {
 
 test_that("callback_torch is working", {
   expect_subset(mlr3torch_callback_stages, formalArgs(callback_torch))
-  expect_subset(formalArgs(callback_torch), formalArgs(torch_callback))
+  expect_subset(formalArgs(callback_torch), formalArgs(callback_descriptor))
 
   expect_error(callback_torch("A"), regexp = "startsWith")
   tcb = callback_torch("CallbackTorchA")
@@ -161,5 +161,5 @@ test_that("callback_torch is working", {
   expect_false(CallbackTorchG$cloneable)
 
   CallbackTorchH = callback_torch("CallbackTorchTestH", initialize = function(ctx) NULL)
-  expect_error(TorchCallback$new(CallbackTorchH), "is reserved for the ContextTorch")
+  expect_error(DescriptorTorchCallback$new(CallbackTorchH), "is reserved for the ContextTorch")
 })

@@ -47,22 +47,22 @@ This class must either be \code{\link{CallbackTorch}} (default) or inherit from 
 \description{
 Creates an \code{R6ClassGenerator} inheriting from \code{\link{CallbackTorch}}.
 Additionally performs checks such as that the stages are not accidentally misspelled.
-To create a \code{\link{TorchCallback}} use \code{\link[=torch_callback]{torch_callback()}}.
+To create a \code{\link{DescriptorTorchCallback}} use \code{\link[=callback_descriptor]{callback_descriptor()}}.
 
 In order for the resulting class to be cloneable, the private method \verb{$deep_clone()} must be
 provided.
 }
 \seealso{
 Other Callback: 
-\code{\link{TorchCallback}},
-\code{\link{as_torch_callbacks}()},
-\code{\link{as_torch_callback}()},
+\code{\link{DescriptorTorchCallback}},
+\code{\link{as_descriptor_torch_callbacks}()},
+\code{\link{as_descriptor_torch_callback}()},
+\code{\link{callback_descriptor}()},
 \code{\link{mlr3torch_callbacks}},
 \code{\link{mlr_callbacks_torch.checkpoint}},
 \code{\link{mlr_callbacks_torch.progress}},
 \code{\link{mlr_callbacks_torch}},
 \code{\link{mlr_context_torch}},
-\code{\link{t_clbk}()},
-\code{\link{torch_callback}()}
+\code{\link{t_clbk}()}
 }
 \concept{Callback}

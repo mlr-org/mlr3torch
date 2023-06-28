@@ -54,9 +54,9 @@ CallbackTorchHistory = R6Class("CallbackTorchHistory",
 
 
 
-#' @include TorchCallback.R CallbackTorchHistory.R
+#' @include DescriptorTorchCallback.R CallbackTorchHistory.R
 mlr3torch_callbacks$add("history", function() {
-  TorchCallback$new(
+  DescriptorTorchCallback$new(
     callback_generator = CallbackTorchHistory,
     param_set = ps(),
     id = "history",

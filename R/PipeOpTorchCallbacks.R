@@ -37,12 +37,12 @@ PipeOpTorchCallbacks = R6Class("PipeOpTorchCallbacks",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
-    #' @param callbacks (`list` of [`TorchCallback`]s) \cr
-    #'   The callbacks (or something convertible via [`as_torch_callbacks()`]).
+    #' @param callbacks (`list` of [`DescriptorTorchCallback`]s) \cr
+    #'   The callbacks (or something convertible via [`as_descriptor_torch_callbacks()`]).
     #'   Must have unique ids.
     #'   All callbacks are cloned during construction.
     initialize = function(callbacks = list(), id = "torch_callbacks", param_vals = list()) {
-      private$.callbacks = as_torch_callbacks(callbacks, clone = TRUE)
+      private$.callbacks = as_descriptor_torch_callbacks(callbacks, clone = TRUE)
       cbids = ids(private$.callbacks)
       assert_names(cbids, type = "unique")
       walk(private$.callbacks, function(cb) {
@@ -68,7 +68,7 @@ PipeOpTorchCallbacks = R6Class("PipeOpTorchCallbacks",
     .train = function(inputs) {
       callbacks = c(
         map(private$.callbacks, function(cb) cb$clone(deep = TRUE)),
-        as_torch_callbacks(inputs[[1L]]$callbacks)
+        as_descriptor_torch_callbacks(inputs[[1L]]$callbacks)
       )
       cbids = ids(callbacks)
       if (!test_names(cbids, type = "unique")) {

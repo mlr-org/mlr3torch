@@ -13,7 +13,7 @@ test_that("Basic checks", {
   expect_true(obj$is_trained)
   expect_identical(obj$state, list())
   expect_pipeop(obj)
-  expect_list(mdout$callbacks, types = "TorchCallback")
+  expect_list(mdout$callbacks, types = "DescriptorTorchCallback")
   expect_equal(ids(mdout$callbacks), c("checkpoint", "progress"))
   expect_equal(mdout$callbacks$checkpoint$param_set$values$path, "abc")
 

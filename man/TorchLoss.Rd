@@ -6,7 +6,7 @@
 \description{
 This wraps a \code{torch::nn_loss} and annotates it with metadata, most importantly a \code{\link{ParamSet}}.
 The loss function is created for the given parameter values by calling the \verb{$generate()} method inherited from
-\code{\link{DescriptorLoss}}.
+\code{\link{DescriptorTorch}}.
 
 This class is usually used to configure the loss function of a torch learner, e.g.
 when construcing a learner or in a \code{\link{ModelDescriptor}}.
@@ -52,10 +52,10 @@ learner = lrn("regr.mlp", loss = t_loss("mse"))
 learner$param_set
 }
 \seealso{
-Other Descriptor: 
-\code{\link{TorchCallback}},
+Other Descriptor Torch: 
+\code{\link{DescriptorTorchCallback}},
 \code{\link{TorchOptimizer}},
-\code{\link{as_torch_callbacks}()},
+\code{\link{as_descriptor_torch_callbacks}()},
 \code{\link{as_torch_loss}()},
 \code{\link{as_torch_optimizer}()},
 \code{\link{descriptor_torch}},
@@ -65,7 +65,7 @@ Other Descriptor:
 \code{\link{t_loss}()},
 \code{\link{t_opt}()}
 }
-\concept{Descriptor}
+\concept{Descriptor Torch}
 \section{Super class}{
 \code{\link[mlr3torch:DescriptorTorch]{mlr3torch::DescriptorTorch}} -> \code{TorchLoss}
 }

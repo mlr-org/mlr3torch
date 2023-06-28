@@ -34,11 +34,11 @@ t_opts(c("adam", "sgd"))
 t_opts()
 }
 \seealso{
-Other Descriptor: 
-\code{\link{TorchCallback}},
+Other Descriptor Torch: 
+\code{\link{DescriptorTorchCallback}},
 \code{\link{TorchLoss}},
 \code{\link{TorchOptimizer}},
-\code{\link{as_torch_callbacks}()},
+\code{\link{as_descriptor_torch_callbacks}()},
 \code{\link{as_torch_loss}()},
 \code{\link{as_torch_optimizer}()},
 \code{\link{descriptor_torch}},
@@ -52,5 +52,5 @@ Other Dictionary:
 \code{\link{mlr3torch_losses}},
 \code{\link{mlr3torch_optimizers}}
 }
-\concept{Descriptor}
+\concept{Descriptor Torch}
 \concept{Dictionary}

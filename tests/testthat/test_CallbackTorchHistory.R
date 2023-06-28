@@ -1,7 +1,7 @@
 test_that("Autotest", {
   cb = t_clbk("history")
 
-  autotest_torch_callback(cb)
+  autotest_callback(cb)
 })
 
 test_that("CallbackTorchHistory works", {

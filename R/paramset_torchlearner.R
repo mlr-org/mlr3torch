@@ -22,7 +22,7 @@ check_callbacks = function(x) {
   if (anyDuplicated(ids)) {
     return("The ids of callbacks must be unique.")
   }
-  msg = check_list(x, types = "TorchCallback", any.missing = FALSE)
+  msg = check_list(x, types = "DescriptorTorchCallback", any.missing = FALSE)
   if (is.character(msg)) {
     return(msg)
   }

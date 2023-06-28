@@ -54,7 +54,7 @@ learner_torch_initialize = function(
   private$.loss = as_torch_loss(loss, clone = TRUE)
   private$.loss$param_set$set_id = "loss"
 
-  callbacks = as_torch_callbacks(callbacks, clone = TRUE)
+  callbacks = as_descriptor_torch_callbacks(callbacks, clone = TRUE)
   callback_ids = ids(callbacks)
   assert_names(callback_ids, type = "unique")
 
@@ -129,8 +129,8 @@ learner_torch_train_worker = function(self, private, super, task, param_vals, co
     total_epochs = param_vals$epochs
   )
 
-  callbacks = lapply(private$.callbacks, function(torch_callback) {
-    cb = torch_callback$generate()
+  callbacks = lapply(private$.callbacks, function(descriptor) {
+    cb = descriptor$generate()
     cb$ctx = ctx
     cb
   })

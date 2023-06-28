@@ -13,12 +13,12 @@
 #' This context is assigned at the beginning of the training loop and removed afterwards.
 #' Different stages of a callback can communicate with each other by assigning values to `$self`.
 #'
-#' When used a in torch learner, the `CallbackTorch` is wrapped in a [`TorchCallback`].
+#' When used a in torch learner, the `CallbackTorch` is wrapped in a [`DescriptorTorchCallback`].
 #' The latters parameter set represents the arguments of the [`CallbackTorch`]'s `$initialize()` method and can
 #' be specified in the learner. The callback is then initialized at the beginning of the training loop.
 #'
-#' For creating custom callbacks, the function [`torch_callback()`] is recommended, which creates a
-#' [`CallbackTorch`] and then wraps it in a [`TorchCallback`].
+#' For creating custom callbacks, the function [`callback_descriptor()`] is recommended, which creates a
+#' [`CallbackTorch`] and then wraps it in a [`DescriptorTorchCallback`].
 #'
 #' @section Inheriting:
 #' When one inherits from this class and overwrites the private `$deep_clone()` method, it is
@@ -65,7 +65,7 @@ CallbackTorch = R6Class("CallbackTorch",
 #' @description
 #' Creates an `R6ClassGenerator` inheriting from [`CallbackTorch`].
 #' Additionally performs checks such as that the stages are not accidentally misspelled.
-#' To create a [`TorchCallback`] use [`torch_callback()`].
+#' To create a [`DescriptorTorchCallback`] use [`callback_descriptor()`].
 #'
 #' In order for the resulting class to be cloneable, the private method `$deep_clone()` must be
 #' provided.

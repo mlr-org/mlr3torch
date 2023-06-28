@@ -70,7 +70,7 @@ RoxygenNote: 7.2.3
 Collate:
     'CallbackTorch.R'
     'zzz.R'
-    'TorchCallback.R'
+    'DescriptorTorchCallback.R'
     'CallbackTorchCheckpoint.R'
     'CallbackTorchHistory.R'
     'CallbackTorchProgress.R'

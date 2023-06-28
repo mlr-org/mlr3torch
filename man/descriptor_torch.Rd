@@ -5,7 +5,7 @@
 \alias{DescriptorTorch}
 \title{Base Class for Torch Descriptors}
 \description{
-Abstract Base Class from which \code{\link{TorchLoss}}, \code{\link{TorchOptimizer}}, and \code{\link{TorchCallback}} inherit.
+Abstract Base Class from which \code{\link{TorchLoss}}, \code{\link{TorchOptimizer}}, and \code{\link{DescriptorTorchCallback}} inherit.
 This class wraps a generator (R6Class Generator or the torch version of such a generator) and annotates it
 with metadata such as a \code{\link{ParamSet}}, a label, an ID, packages, or a manual page.
 
@@ -18,11 +18,11 @@ Defined by the constructor argument \code{param_set}.
 }
 
 \seealso{
-Other Descriptor: 
-\code{\link{TorchCallback}},
+Other Descriptor Torch: 
+\code{\link{DescriptorTorchCallback}},
 \code{\link{TorchLoss}},
 \code{\link{TorchOptimizer}},
-\code{\link{as_torch_callbacks}()},
+\code{\link{as_descriptor_torch_callbacks}()},
 \code{\link{as_torch_loss}()},
 \code{\link{as_torch_optimizer}()},
 \code{\link{mlr3torch_losses}},
@@ -31,7 +31,7 @@ Other Descriptor:
 \code{\link{t_loss}()},
 \code{\link{t_opt}()}
 }
-\concept{Descriptor}
+\concept{Descriptor Torch}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{

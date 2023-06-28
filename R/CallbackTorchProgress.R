@@ -72,9 +72,9 @@ CallbackTorchProgress = R6Class("CallbackTorchProgress",
   )
 )
 
-#' @include TorchCallback.R CallbackTorch.R
+#' @include DescriptorTorchCallback.R CallbackTorch.R
 mlr3torch_callbacks$add("progress", function() {
-  TorchCallback$new(
+  DescriptorTorchCallback$new(
     callback_generator = CallbackTorchProgress,
     param_set = ps(),
     id = "progress",

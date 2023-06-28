@@ -43,9 +43,9 @@ CallbackTorchCheckpoint = R6Class("CallbackTorchCheckpoint",
   )
 )
 
-#' @include TorchCallback.R CallbackTorch.R
+#' @include DescriptorTorchCallback.R CallbackTorch.R
 mlr3torch_callbacks$add("checkpoint", function() {
-  TorchCallback$new(
+  DescriptorTorchCallback$new(
     callback_generator = CallbackTorchCheckpoint,
     param_set = ps(
       path      = p_uty(),

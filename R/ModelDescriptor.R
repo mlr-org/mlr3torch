@@ -60,7 +60,7 @@ ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, 
   if (!is.null(loss)) {
     assert_choice(task$task_type, loss$task_types)
   }
-  callbacks = as_torch_callbacks(callbacks)
+  callbacks = as_descriptor_torch_callbacks(callbacks)
   callbacks = set_names(callbacks, assert_names(ids(callbacks), type = "unique"))
 
   if (!is.null(.pointer)) {

@@ -24,11 +24,11 @@ Currently used to pass additional constructor arguments to \code{\link{TorchLoss
 Converts an object to a \code{\link{TorchLoss}}.
 }
 \seealso{
-Other Descriptor: 
-\code{\link{TorchCallback}},
+Other Descriptor Torch: 
+\code{\link{DescriptorTorchCallback}},
 \code{\link{TorchLoss}},
 \code{\link{TorchOptimizer}},
-\code{\link{as_torch_callbacks}()},
+\code{\link{as_descriptor_torch_callbacks}()},
 \code{\link{as_torch_optimizer}()},
 \code{\link{descriptor_torch}},
 \code{\link{mlr3torch_losses}},
@@ -37,4 +37,4 @@ Other Descriptor:
 \code{\link{t_loss}()},
 \code{\link{t_opt}()}
 }
-\concept{Descriptor}
+\concept{Descriptor Torch}

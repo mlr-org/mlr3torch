@@ -291,9 +291,9 @@ autotest_paramset = function(param_set, fns, exclude = character(0), exclude_def
 }
 
 #
-autotest_torch_callback = function(cb, init_args = list(), check_man = TRUE) {
+autotest_callback = function(cb, init_args = list(), check_man = TRUE) {
   # TODO: This is half ready
-  expect_class(cb, "TorchCallback")
+  expect_class(cb, "DescriptorTorchCallback")
   cbgen = cb$generator
   expect_string(cb$id)
   expect_string(cb$label, null.ok = TRUE)

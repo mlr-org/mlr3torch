@@ -107,7 +107,7 @@ The optimizer used to train the network.}
 \item{\code{loss}}{(\code{\link{TorchLoss}})\cr
 The loss used to train the network.}
 
-\item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
+\item{\code{callbacks}}{(\code{list()} of \code{\link{DescriptorTorchCallback}}s)\cr
 The callbacks. Must have unique ids.}
 }
 \if{html}{\out{</div>}}

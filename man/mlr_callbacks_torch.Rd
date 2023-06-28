@@ -15,12 +15,12 @@ the current state of the training loop.
 This context is assigned at the beginning of the training loop and removed afterwards.
 Different stages of a callback can communicate with each other by assigning values to \verb{$self}.
 
-When used a in torch learner, the \code{CallbackTorch} is wrapped in a \code{\link{TorchCallback}}.
+When used a in torch learner, the \code{CallbackTorch} is wrapped in a \code{\link{DescriptorTorchCallback}}.
 The latters parameter set represents the arguments of the \code{\link{CallbackTorch}}'s \verb{$initialize()} method and can
 be specified in the learner. The callback is then initialized at the beginning of the training loop.
 
-For creating custom callbacks, the function \code{\link[=torch_callback]{torch_callback()}} is recommended, which creates a
-\code{\link{CallbackTorch}} and then wraps it in a \code{\link{TorchCallback}}.
+For creating custom callbacks, the function \code{\link[=callback_descriptor]{callback_descriptor()}} is recommended, which creates a
+\code{\link{CallbackTorch}} and then wraps it in a \code{\link{DescriptorTorchCallback}}.
 }
 \section{Inheriting}{
 
@@ -49,16 +49,16 @@ to \code{self}.
 
 \seealso{
 Other Callback: 
-\code{\link{TorchCallback}},
-\code{\link{as_torch_callbacks}()},
-\code{\link{as_torch_callback}()},
+\code{\link{DescriptorTorchCallback}},
+\code{\link{as_descriptor_torch_callbacks}()},
+\code{\link{as_descriptor_torch_callback}()},
+\code{\link{callback_descriptor}()},
 \code{\link{callback_torch}()},
 \code{\link{mlr3torch_callbacks}},
 \code{\link{mlr_callbacks_torch.checkpoint}},
 \code{\link{mlr_callbacks_torch.progress}},
 \code{\link{mlr_context_torch}},
-\code{\link{t_clbk}()},
-\code{\link{torch_callback}()}
+\code{\link{t_clbk}()}
 }
 \concept{Callback}
 \section{Public fields}{

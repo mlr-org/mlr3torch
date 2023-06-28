@@ -9,16 +9,16 @@ Saves the model during training.
 }
 \seealso{
 Other Callback: 
-\code{\link{TorchCallback}},
-\code{\link{as_torch_callbacks}()},
-\code{\link{as_torch_callback}()},
+\code{\link{DescriptorTorchCallback}},
+\code{\link{as_descriptor_torch_callbacks}()},
+\code{\link{as_descriptor_torch_callback}()},
+\code{\link{callback_descriptor}()},
 \code{\link{callback_torch}()},
 \code{\link{mlr3torch_callbacks}},
 \code{\link{mlr_callbacks_torch.progress}},
 \code{\link{mlr_callbacks_torch}},
 \code{\link{mlr_context_torch}},
-\code{\link{t_clbk}()},
-\code{\link{torch_callback}()}
+\code{\link{t_clbk}()}
 }
 \concept{Callback}
 \section{Super class}{

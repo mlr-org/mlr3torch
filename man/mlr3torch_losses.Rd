@@ -28,11 +28,11 @@ t_loss("mse")
 as.data.table(mlr3torch_losses)
 }
 \seealso{
-Other Descriptor: 
-\code{\link{TorchCallback}},
+Other Descriptor Torch: 
+\code{\link{DescriptorTorchCallback}},
 \code{\link{TorchLoss}},
 \code{\link{TorchOptimizer}},
-\code{\link{as_torch_callbacks}()},
+\code{\link{as_descriptor_torch_callbacks}()},
 \code{\link{as_torch_loss}()},
 \code{\link{as_torch_optimizer}()},
 \code{\link{descriptor_torch}},
@@ -46,6 +46,6 @@ Other Dictionary:
 \code{\link{mlr3torch_optimizers}},
 \code{\link{t_opt}()}
 }
-\concept{Descriptor}
+\concept{Descriptor Torch}
 \concept{Dictionary}
 \keyword{datasets}
