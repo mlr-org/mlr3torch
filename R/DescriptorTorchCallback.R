@@ -206,6 +206,9 @@ DescriptorTorchCallback = R6Class("DescriptorTorchCallback",
         man = man
       )
     }
+  ),
+  private = list(
+    .additional_phash_input = function() NULL
   )
 )
 

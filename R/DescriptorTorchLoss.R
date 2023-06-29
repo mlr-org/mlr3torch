@@ -126,6 +126,11 @@ DescriptorTorchLoss = R6::R6Class("DescriptorTorchLoss",
       catn(str_indent("* Task Types:", as_short_string(self$task_types, 1000L)))
       invisible(self)
     }
+  ),
+  private = list(
+    .additional_phash_input = function() {
+      self$task_types
+    }
   )
 )
 

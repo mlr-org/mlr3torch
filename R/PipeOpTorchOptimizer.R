@@ -59,7 +59,8 @@ PipeOpTorchOptimizer = R6Class("PipeOpTorchOptimizer",
       inputs
     },
     .predict = function(inputs) inputs,
-    .optimizer = NULL
+    .optimizer = NULL,
+    .additional_phash_input = function() private$.optimizer$phash
   )
 )
 

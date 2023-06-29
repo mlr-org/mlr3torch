@@ -95,7 +95,23 @@ DescriptorTorch = R6Class("DescriptorTorch",
       open_help(self$man)
     }
   ),
+  active = list(
+    #' @template field_phash
+    phash = function() {
+      # FIXME: Unfortunately this phash is only heuristic (only ids and classes of ParamSet are considered).
+      # There is no phash method for the ParamSet, so in principle it is possible that
+      # there are hash collisions of objects that have a (slightly) different parameter set.
+      # However, this is highly unlikely
+      calculate_hash(class(self), self$id, self$packages, self$label, self$man, self$param_set$ids(),
+        self$param_set$class, private$.additional_phash_input()
+      )
+    }
+  ),
   private = list(
-    .repr = NULL
+    .repr = NULL,
+    .additional_phash_input = function() {
+      stopf("Classes inheriting from DescriptorTorch must implement the .additional_phash_input() method.")
+    }
+
   )
 )

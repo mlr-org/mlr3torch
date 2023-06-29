@@ -131,3 +131,11 @@ test_that("Parameter test: cross_entropy", {
   res = autotest_paramset(param_set, fn)
   expect_paramtest(res)
 })
+
+test_that("phash works", {
+  expect_equal(t_loss("mse", reduction = "mean")$phash, t_loss("mse", reduction = "sum")$phash)
+  expect_false(t_loss("mse")$phash == t_loss("l1")$phash)
+  expect_false(t_loss("mse", id = "a")$phash == t_loss("mse", id = "b")$phash)
+  expect_false(t_loss("mse", label = "a")$phash == t_loss("mse", label = "b")$phash)
+  expect_false(t_loss("mse", task_types = "regr")$phash == t_loss("mse", task_types = "classif")$phash)
+})

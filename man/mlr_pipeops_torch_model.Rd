@@ -142,21 +142,21 @@ Other PipeOps:
 \subsection{Method \code{new()}}{
 Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchModel$new(id = "torch_model", param_vals = list(), task_type)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchModel$new(task_type, id = "torch_model", param_vals = list())}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
+\item{\code{task_type}}{\code{character(1)}\cr
+The task type of the model.}
+
 \item{\code{id}}{(\code{character(1)})\cr
 Identifier of the resulting  object.}
 
 \item{\code{param_vals}}{(\code{list()})\cr
 List of hyperparameter settings, overwriting the hyperparameter settings that would
 otherwise be set during construction.}
-
-\item{\code{task_type}}{\code{character(1)}\cr
-The task type of the model.}
 }
 \if{html}{\out{</div>}}
 }

@@ -124,6 +124,9 @@ DescriptorTorchOptimizer = R6::R6Class("DescriptorTorchOptimizer",
       require_namespaces(self$packages)
       invoke(self$generator, .args = self$param_set$get_values(), params = params)
     }
+  ),
+  private = list(
+    .additional_phash_input = function() NULL
   )
 )
 

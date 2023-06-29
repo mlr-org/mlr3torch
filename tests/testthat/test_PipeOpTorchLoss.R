@@ -49,3 +49,13 @@ test_that("Cloning works", {
   expect_equal(address(obj2$param_set), address(get_private(obj2)$.loss$param_set))
 
 })
+
+test_that("phash works", {
+  expect_equal(
+    po("torch_callbacks", list(t_clbk("history"), t_clbk("checkpoint", freq = 1)))$phash,
+    po("torch_callbacks", list(t_clbk("history"), t_clbk("checkpoint", freq = 2)))$phash
+  )
+  expect_false(
+    po("torch_callbacks", "history")$phash == po("torch_callbacks", "progress")$phash
+  )
+})

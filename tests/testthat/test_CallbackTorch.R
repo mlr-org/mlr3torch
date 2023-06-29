@@ -163,3 +163,11 @@ test_that("callback_torch is working", {
   CallbackTorchH = callback_torch("CallbackTorchTestH", initialize = function(ctx) NULL)
   expect_error(DescriptorTorchCallback$new(CallbackTorchH), "is reserved for the ContextTorch")
 })
+
+
+test_that("phash works", {
+  expect_equal(t_clbk("checkpoint", freq = 1)$phash, t_clbk("checkpoint", freq = 2)$phash)
+  expect_false(t_clbk("history")$phash == t_clbk("progress")$phash)
+  expect_false(t_clbk("history", id = "a")$phash == t_clbk("history", id = "b")$phash)
+  expect_false(t_clbk("history", label = "a")$phash == t_clbk("history", label = "b")$phash)
+})

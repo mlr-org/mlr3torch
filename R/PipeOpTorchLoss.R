@@ -59,7 +59,8 @@ PipeOpTorchLoss = R6Class("PipeOpTorchLoss",
     .predict = function(inputs) {
       inputs
     },
-    .loss = NULL
+    .loss = NULL,
+    .additional_phash_input = function() self$loss$phash
   )
 )
 

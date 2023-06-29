@@ -46,3 +46,13 @@ test_that("PipeOpTorchOptimizer can be cloned", {
   # parameter set references are preserved
   expect_equal(address(obj2$param_set), address(get_private(obj2)$.optimizer$param_set))
 })
+
+test_that("phash works", {
+  expect_equal(
+    po("torch_optimizer", optimizer = "adam", lr = 1)$phash,
+    po("torch_optimizer", optimizer = "adam", lr = 2)$phash
+  )
+  expect_false(
+    po("torch_optimizer", "adam")$phash == po("torch_optimizer", "sgd")$phash
+  )
+})

@@ -164,3 +164,11 @@ test_that("Parameter test: adadelta", {
   res = autotest_paramset(param_set, fn, exclude = "params")
   expect_paramtest(res)
 })
+
+
+test_that("phash works", {
+  expect_equal(t_opt("adam", lr = 2)$phash, t_opt("adam", lr = 1)$phash)
+  expect_false(t_opt("sgd")$phash == t_opt("adam")$phash)
+  expect_false(t_opt("sgd", id = "a")$phash == t_opt("adam", id = "b")$phash)
+  expect_false(t_opt("sgd", label = "a")$phash == t_opt("adam", label = "b")$phash)
+})
