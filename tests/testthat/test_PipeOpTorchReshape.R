@@ -10,7 +10,7 @@ test_that("PipeOpTorchReshape autotest", {
 })
 
 test_that("PipeOpTorchReshape paramtest", {
-  res = run_paramtest(po("nn_reshape"), nn_reshape)
+  res = autotest_paramset(po("nn_reshape"), nn_reshape)
   expect_paramtest(res)
 })
 
@@ -23,7 +23,7 @@ test_that("PipeOpTorchUnsqueeze autotest", {
 })
 
 test_that("PipeOpTorchUnsqueeze paramtest", {
-  res = run_paramtest(po("nn_unsqueeze"), nn_unsqueeze)
+  res = autotest_paramset(po("nn_unsqueeze"), nn_unsqueeze)
   expect_paramtest(res)
 })
 
@@ -38,7 +38,7 @@ test_that("PipeOpTorchSqueeze autotest", {
 })
 
 test_that("PipeOpTorchSqueeze paramtest", {
-  res = run_paramtest(po("nn_unsqueeze"), nn_unsqueeze)
+  res = autotest_paramset(po("nn_unsqueeze"), nn_unsqueeze)
   expect_paramtest(res)
 })
 
@@ -51,6 +51,6 @@ test_that("PipeOpTorchFlatten autotest", {
 })
 
 test_that("PipeOpTorchFlatten", {
-  res = run_paramtest(po("nn_flatten"), nn_flatten)
+  res = autotest_paramset(po("nn_flatten"), nn_flatten)
   expect_paramtest(res)
 })

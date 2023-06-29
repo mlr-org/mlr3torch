@@ -9,7 +9,7 @@ test_that("PipeOpTorchBatchNorm1D autotest", {
 })
 
 test_that("PipeOpTorchBatchNorm1D paramtest", {
-  res = run_paramtest(po("nn_batch_norm1d"), nn_batch_norm1d, exclude = "num_features")
+  res = autotest_paramset(po("nn_batch_norm1d"), nn_batch_norm1d, exclude = "num_features")
   expect_paramtest(res)
 })
 
@@ -22,7 +22,7 @@ test_that("PipeOpTorchBatchNorm2D autotest", {
 })
 
 test_that("PipeOpTorchBatchNorm2D paramtest", {
-  res = run_paramtest(po("nn_batch_norm2d"), nn_batch_norm2d, exclude = "num_features")
+  res = autotest_paramset(po("nn_batch_norm2d"), nn_batch_norm2d, exclude = "num_features")
   expect_paramtest(res)
 })
 
@@ -37,6 +37,6 @@ test_that("PipeOpTorchBatchNorm3D autotest", {
 })
 
 test_that("PipeOpTorchBatchNorm3D paramtest", {
-  res = run_paramtest(po("nn_batch_norm3d"), nn_batch_norm3d, exclude = "num_features")
+  res = autotest_paramset(po("nn_batch_norm3d"), nn_batch_norm3d, exclude = "num_features")
   expect_paramtest(res)
 })

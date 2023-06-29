@@ -112,7 +112,7 @@ test_that("Parameter test: mse", {
   param_set = loss_mse$param_set
   fn = loss_mse$generator
   res = autotest_paramset(param_set, fn)
-  expect_equal(res, list())
+  expect_paramtest(res)
 })
 
 test_that("Parameter test: l1", {
@@ -120,7 +120,7 @@ test_that("Parameter test: l1", {
   param_set = loss$param_set
   fn = loss$generator
   res = autotest_paramset(param_set, fn)
-  expect_equal(res, list())
+  expect_paramtest(res)
 })
 
 test_that("Parameter test: cross_entropy", {
@@ -129,5 +129,5 @@ test_that("Parameter test: cross_entropy", {
   fn = loss$generator
   # ignore_index has param
   res = autotest_paramset(param_set, fn)
-  expect_equal(res, list())
+  expect_paramtest(res)
 })

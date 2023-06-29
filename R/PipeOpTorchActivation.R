@@ -260,7 +260,7 @@ PipeOpTorchPReLU = R6Class("PipeOpTorchPReLU",
     #' @template params_pipelines
     initialize = function(id = "nn_prelu", param_vals = list()) {
       param_set = ps(
-        num_parameters = p_int(1, tags = "train"),
+        num_parameters = p_int(default = 1, lower = 1, tags = "train"),
         init           = p_dbl(default = 0.25, tags = "train")
       )
       super$initialize(
@@ -420,7 +420,7 @@ PipeOpTorchSELU = R6Class("PipeOpTorchSELU",
     #' @template params_pipelines
     initialize = function(id = "nn_selu", param_vals = list()) {
       param_set = ps(
-        inplace = p_lgl(tags = "train")
+        inplace = p_lgl(default = FALSE, tags = "train")
       )
       super$initialize(
         id = id,

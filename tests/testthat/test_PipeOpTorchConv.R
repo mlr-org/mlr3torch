@@ -7,7 +7,7 @@ test_that("PipeOpTorchConv1 autotest", {
 })
 
 test_that("PipeOpTorchConv1d paramtest", {
-  res = run_paramtest(po("nn_conv1d"), nn_conv1d, exclude = "in_channels")
+  res = autotest_paramset(po("nn_conv1d"), nn_conv1d, exclude = "in_channels")
   expect_paramtest(res)
 })
 
@@ -20,7 +20,7 @@ test_that("PipeOpTorchConv2 autotest", {
 })
 
 test_that("PipeOpTorchConv2d paramtest", {
-  res = run_paramtest(po("nn_conv2d"), nn_conv2d, exclude = "in_channels")
+  res = autotest_paramset(po("nn_conv2d"), nn_conv2d, exclude = "in_channels")
   expect_paramtest(res)
 })
 
@@ -35,7 +35,7 @@ test_that("PipeOpTorchConv3 autotest", {
 })
 
 test_that("PipeOpTorchConv3d paramtest", {
-  res = run_paramtest(po("nn_conv3d"), nn_conv3d, exclude = "in_channels")
+  res = autotest_paramset(po("nn_conv3d"), nn_conv3d, exclude = "in_channels")
   expect_paramtest(res)
 })
 

@@ -19,7 +19,7 @@ test_that("basic test", {
 
 test_that("PipeOpTorchMergeSum paramtest", {
   po_test = po("nn_merge_sum")
-  res = run_paramtest(po_test, nn_merge_sum)
+  res = autotest_paramset(po_test, nn_merge_sum)
   expect_paramtest(res)
 })
 
@@ -35,7 +35,7 @@ test_that("PipeOpTorchMergeProd autotest", {
 
 test_that("PipeOpTorchMergeProd paramtest", {
   po_test = po("nn_merge_prod")
-  res = run_paramtest(po_test, nn_merge_prod)
+  res = autotest_paramset(po_test, nn_merge_prod)
   expect_paramtest(res)
 })
 
@@ -54,7 +54,7 @@ test_that("PipeOpTorchMergeCat autotest", {
 
 test_that("PipeOpTorchMergeCat paramtest", {
   po_test = po("nn_merge_cat")
-  res = run_paramtest(po_test, nn_merge_cat)
+  res = autotest_paramset(po_test, nn_merge_cat)
   expect_paramtest(res)
 })
 

@@ -6,6 +6,6 @@ test_that("PipeOpTorch autotest", {
 })
 
 test_that("PipeOpTorch paramtest", {
-  res = run_paramtest(po("nn_layer_norm", dims = 1), nn_layer_norm, exclude = c("normalized_shape", "dims"))
+  res = autotest_paramset(po("nn_layer_norm", dims = 1), nn_layer_norm, exclude = c("normalized_shape", "dims"))
   expect_paramtest(res)
 })

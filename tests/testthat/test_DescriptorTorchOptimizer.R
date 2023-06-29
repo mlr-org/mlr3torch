@@ -113,7 +113,7 @@ test_that("Parameter test: adam", {
   param_set = descriptor$param_set
   fn = descriptor$generator
   res = autotest_paramset(param_set, fn, exclude = "params")
-  expect_equal(res, list())
+  expect_paramtest(res)
 })
 
 test_that("Parameter test: sgd", {
@@ -122,7 +122,7 @@ test_that("Parameter test: sgd", {
   # lr is set to `optim_required()`
   fn = descriptor$generator
   res = autotest_paramset(param_set, fn, exclude = c("params", "lr"))
-  expect_equal(res, list())
+  expect_paramtest(res)
 })
 
 test_that("Parameter test: asgd", {
@@ -130,7 +130,7 @@ test_that("Parameter test: asgd", {
   param_set = descriptor$param_set
   fn = descriptor$generator
   res = autotest_paramset(param_set, fn, exclude = "params")
-  expect_equal(res, list())
+  expect_paramtest(res)
 })
 
 test_that("Parameter test: rprop", {
@@ -138,7 +138,7 @@ test_that("Parameter test: rprop", {
   param_set = descriptor$param_set
   fn = descriptor$generator
   res = autotest_paramset(param_set, fn, exclude = "params")
-  expect_equal(res, list())
+  expect_paramtest(res)
 })
 
 test_that("Parameter test: rmsprop", {
@@ -146,7 +146,7 @@ test_that("Parameter test: rmsprop", {
   param_set = descriptor$param_set
   fn = descriptor$generator
   res = autotest_paramset(param_set, fn, exclude = "params")
-  expect_equal(res, list())
+  expect_paramtest(res)
 })
 
 test_that("Parameter test: adagrad", {
@@ -154,7 +154,7 @@ test_that("Parameter test: adagrad", {
   param_set = descriptor$param_set
   fn = descriptor$generator
   res = autotest_paramset(param_set, fn, exclude = "params")
-  expect_equal(res, list())
+  expect_paramtest(res)
 })
 
 test_that("Parameter test: adadelta", {
@@ -162,5 +162,5 @@ test_that("Parameter test: adadelta", {
   param_set = descriptor$param_set
   fn = descriptor$generator
   res = autotest_paramset(param_set, fn, exclude = "params")
-  expect_equal(res, list())
+  expect_paramtest(res)
 })
