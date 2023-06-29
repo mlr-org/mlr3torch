@@ -28,15 +28,3 @@ test_that("CallbackTorchHistory works", {
   expect_data_table(learner$history$train, nrows = 3)
   expect_data_table(learner$history$valid, nrows = 3)
 })
-
-test_that("Cloning works", {
-  task = tsk("iris")
-  tcb = t_clbk("history")
-  learner = lrn("classif.torch_featureless", epochs = 1, batch_size = 1, callbacks = tcb)
-  learner$train(task)
-
-  cb = learner$model$callbacks$history
-
-  cb2 = cb$clone(deep = TRUE)
-  expect_deep_clone(cb, cb2)
-})

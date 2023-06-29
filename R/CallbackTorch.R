@@ -42,7 +42,6 @@
 #' @export
 CallbackTorch = R6Class("CallbackTorch",
   lock_objects = FALSE,
-  cloneable = FALSE,
   public = list(
     #' @field ctx ([`TorchContext`] or `NULL`)\cr
     #'   The evaluation context for the callback.

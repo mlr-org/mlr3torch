@@ -258,30 +258,48 @@ expect_paramtest = function(paramtest) {
 }
 
 
-#
-autotest_callback = function(cb, init_args = list(), check_man = TRUE) {
-  # TODO: This is half ready
-  expect_class(cb, "DescriptorTorchCallback")
-  cbgen = cb$generator
-  expect_string(cb$id)
-  expect_string(cb$label, null.ok = TRUE)
+#' @title Autotest for Callback Descriptors
+#' @description
+#' Performs various sanity checks on a callback descriptor.
+#'
+#' @param descriptor ([`DescriptorTorchCallback`])\cr
+#'   The object to test.
+#' @param check_man (`logical(1)`)\cr
+#'   Whether to check that the manual page exists. Default is `TRUE`.
+autotest_callback = function(descriptor, check_man = TRUE) {
+  # Checks on descriptor
+  expect_class(descriptor, "DescriptorTorchCallback")
+  expect_string(descriptor$id)
+  expect_string(descriptor$label, null.ok = TRUE)
+  expect_r6(descriptor$param_set, "ParamSet")
+  if (check_man) {
+    expect_man_exists(descriptor$man)
+    expect_true(startsWith(descriptor$man, "mlr3torch::mlr_callbacks"))
+  }
+
+  # Checks on generator
+  cbgen = descriptor$generator
   expect_class(cbgen, "R6ClassGenerator")
-  expect_r6(cb$param_set, "ParamSet")
-  if (check_man) expect_man_exists(cb$man)
-  init_fn = get_init(cb$generator)
+  expect_true(grepl("^CallbackTorch", cbgen$classname))
+  expect_true(cbgen$cloneable)
+  init_fn = get_init(descriptor$generator)
   if (is.null(init_fn)) init_fn = function() NULL
-  paramtest = autotest_paramset(cb$param_set, init_fn, exclude = "ctx")
+  paramtest = autotest_paramset(descriptor$param_set, init_fn)
   expect_paramtest(paramtest)
-  # TODO: Finish parameter est
-
-
-  # Check that the correct object comes out
-  cbt = do.call(cbgen$new, args = init_args)
-  expect_class(cbt, "CallbackTorch")
-
   implemented_stages = names(cbgen$public_methods)[grepl("^on_", names(cbgen$public_methods))]
-
   expect_subset(implemented_stages, mlr3torch_callback_stages)
+  walk(implemented_stages, function(stage) test_function(cbgen$public_methods[[stage]], nargs = 0))
+
+  # Cloning works
+  task = tsk("iris")
+  learner = lrn("classif.torch_featureless", epochs = 1, batch_size = 50, callbacks = descriptor)
+  # e.g. the progress callback otherwise prints to the console
+  invisible(capture.output(learner$train(task)))
+  cb_trained = learner$model$callbacks[[descriptor$id]]
+  expect_class(cb_trained, "CallbackTorch")
+  expect_deep_clone(cb_trained, cb_trained$clone(deep = TRUE))
+  cb_trained$ctx = "placeholder"
+  expect_error(cb_trained$clone(deep = TRUE), "must never be cloned unless")
 }
 
 autotest_learner_torch = function() {

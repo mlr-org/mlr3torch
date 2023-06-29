@@ -70,3 +70,27 @@ This field should always be \code{NULL} except during the \verb{$train()} call o
 }
 \if{html}{\out{</div>}}
 }
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-CallbackTorch-clone}{\code{CallbackTorch$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackTorch-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackTorch-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackTorch$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}
