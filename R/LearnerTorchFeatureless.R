@@ -1,6 +1,7 @@
-#' @title Featureless Torch Classifier
+#' @title Featureless Torch Learner
 #'
-#' @templateVar id classif.torch_featureless
+#' @templateVar name torch_featureless
+#' @templateVar task_types classif, regr
 #' @template params_learner
 #' @template learner
 #' @template learner_example
@@ -12,22 +13,27 @@
 #' For regression, this should result in the median for L1 loss and in the mean for L2 loss.
 #'
 #' @section Parameters:
-#' Only those from [`LearnerClassifTorch`].
+#' Only those from [`LearnerTorch`].
 #'
 #' @export
-LearnerClassifTorchFeatureless = R6Class("LearnerClassifTorchFeatureless",
-  inherit = LearnerClassifTorch,
+LearnerTorchFeatureless = R6Class("LearnerTorchFeatureless",
+  inherit = LearnerTorch,
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(optimizer = t_opt("adam"), loss = t_loss("cross_entropy"), callbacks = list()) {
+    initialize = function(task_type, optimizer = NULL, loss = NULL, callbacks = list()) {
+      properties = switch(task_type,
+        classif = c("twoclass", "multiclass", "missings", "featureless"),
+        regr = c("missings", "featureless")
+      )
       super$initialize(
-        id = "classif.torch_featureless",
-        label = "Featureless Torch Classifier",
+        id = paste0(task_type, ".torch_featureless"),
+        task_type = task_type,
+        label = "Featureless Torch Learner",
         param_set = ps(),
+        properties = properties,
         # TODO: This should have all feature types, and have properties missing
         feature_types = c("integer", "numeric", "factor", "ordered"),
-        predict_types = c("response", "prob"),
-        man = "mlr3torch::mlr_learners_classif.torch_featureless",
+        man = "mlr3torch::mlr_learners.torch_featureless",
         optimizer = optimizer,
         loss = loss,
         callbacks = callbacks
@@ -67,4 +73,5 @@ nn_featureless = nn_module(
   }
 )
 
-register_learner("classif.torch_featureless", LearnerClassifTorchFeatureless)
+register_learner("classif.torch_featureless", LearnerTorchFeatureless)
+register_learner("regr.torch_featureless", LearnerTorchFeatureless)

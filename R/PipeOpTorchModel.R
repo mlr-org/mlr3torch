@@ -1,10 +1,10 @@
-#' @title Torch Model
+#' @title PipeOp Torch Model
 #'
 #' @name mlr_pipeops_torch_model
 #'
 #' @description
 #' Builds a Torch Learner from a [`ModelDescriptor`] and trains it with the given parameter specification.
-#' For a specific task type, use [`PipeOpTorchModelClassif`] or [`PipeOpTorchModelRegr`].
+#' The task type must be specified during construction.
 #'
 #' @section Input and Output Channels:
 #' There is one input channel `"input"` that takes in `ModelDescriptor` during traing and a `Task` of the specified
@@ -12,16 +12,14 @@
 #' The output is `NULL` during training and a `Prediction` of given `task_type` during prediction.
 #'
 #' @section State:
-#' A trained `LearnerRegrTorchModel` `LearnerClassifTorchModel`.
+#' A trained [`LearnerTorchModel`].
 #'
 #' @template paramset_torchlearner
 #'
 #' @section Internals:
-#' First a [`nn_graph`] is created by calling [`model_descriptor_to_module()`] and than a
-#' [`LearnerClassifTorchModel`] or [`LearnerRegrTorchModel`] is created from the `nn_graph` in combination with the
-#' information stored in the [`ModelDescriptor`].
-#' Then the parameters are set according to the parameters specified in `PipeOpTorchModel` and its '$train()` method
-#' is called on the [`Task`] stored in the [`ModelDescriptor`].
+#' A [`LearnerTorchModel`] is created by calling [`model_descriptor_to_learner()`].
+#' Then the parameters are set according to the parameters specified in `PipeOpTorchModel` and
+#' its '$train()` method is called on the [`Task`] stored in the [`ModelDescriptor`].
 #'
 #' @family PipeOps
 #' @export
@@ -33,7 +31,7 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
     #' @param task_type `character(1)`\cr
     #'   The task type of the model.
     initialize = function(id = "torch_model", param_vals = list(), task_type) {
-      # TODO: Add properties argument
+      # TODO: Add properties argumentand feature types (?)
       private$.task_type = assert_choice(task_type, c("classif", "regr"))
       param_set = paramset_torchlearner()
       input = data.table(
@@ -90,20 +88,35 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
   )
 )
 
-#' @title Torch Classification Model
+
+#' @title PipeOp Torch Classifier
 #'
 #' @name mlr_pipeops_torch_model_classif
 #'
 #' @description
-#' Builds a mlr3 Classification Torch Learner from its Input.
-#' The default optimizer is adam an the default loss is cross entropy.
+#' Builds a torch classifier and trains it.
 #'
 #' @inheritSection mlr_pipeops_torch_model Input and Output Channels
 #' @inheritSection mlr_pipeops_torch_model State
-#' @section Parameters: See [`LearnerClassifTorch`]
+#' @section Parameters: See [`LearnerTorch`]
 #' @inheritSection mlr_pipeops_torch_model Internals
 #' @family PipeOps
 #' @export
+#' @examples
+#' # simple logistic regression
+#'
+#' # configure the model descriptor
+#' md = as_graph(po("torch_ingress_num") %>>%
+#'   po("nn_head") %>>%
+#'   po("torch_loss", "cross_entropy") %>>%
+#'   po("torch_optimizer", "adam"))$train(tsk("iris"))[[1L]]
+#'
+#' print(md)
+#'
+#' # build the learner from the model descriptor and train it
+#' po_model = po("torch_model_classif", batch_size = 50, epochs = 1)
+#' po_model$train(list(md))
+#' po_model$state
 PipeOpTorchModelClassif = R6Class("PipeOpTorchModelClassif",
   inherit = PipeOpTorchModel,
   public = list(
@@ -125,15 +138,29 @@ PipeOpTorchModelClassif = R6Class("PipeOpTorchModelClassif",
 #' @name mlr_pipeops_torch_model_regr
 #'
 #' @description
-#' Builds a Regression Torch Learner from its Input.
-#' The default optimizer is adam an the default loss is mean-square error.
+#' Builds a torch regression model and trains it.
 #'
 #' @inheritSection mlr_pipeops_torch_model Input and Output Channels
 #' @inheritSection mlr_pipeops_torch_model State
-#' @section Parameters: See [`LearnerRegrTorch`]
+#' @section Parameters: See [`LearnerTorch`]
 #' @inheritSection mlr_pipeops_torch_model Internals
 #' @family PipeOps
 #' @export
+#' @examples
+#' # simple linear regression
+#'
+#' # build the model descriptor
+#' md = as_graph(po("torch_ingress_num") %>>%
+#'   po("nn_head") %>>%
+#'   po("torch_loss", "mse") %>>%
+#'   po("torch_optimizer", "adam"))$train(tsk("mtcars"))[[1L]]
+#'
+#' print(md)
+#'
+#' # build the learner from the model descriptor and train it
+#' po_model = po("torch_model_regr", batch_size = 20, epochs = 1)
+#' po_model$train(list(md))
+#' po_model$state
 PipeOpTorchModelRegr = R6Class("PipeOpTorchModelRegr",
   inherit = PipeOpTorchModel,
   public = list(

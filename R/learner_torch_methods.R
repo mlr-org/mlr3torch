@@ -89,6 +89,7 @@ learner_torch_initialize = function(
 
   super$initialize(
     id = id,
+    task_type = task_type,
     packages = packages,
     param_set = self$param_set,
     predict_types = predict_types,
@@ -348,36 +349,4 @@ learner_torch_predict = function(self, task) {
     encode_prediction(prediction, self$predict_type, task)
   })
   # TODO: Set torch seed back as well
-}
-
-learner_torch_network = function(self, task, rhs) {
-  assert_ro_binding(rhs)
-  if (is.null(self$state)) {
-    stopf("Cannot access network before training.")
-  }
-  self$state$model$network
-}
-
-learner_torch_param_set = function(self, rhs) {
-  private = self$.__enclos_env__$private
-  if (is.null(private$.param_set)) {
-    private$.param_set = ParamSetCollection$new(c(
-      list(private$.param_set_base, private$.optimizer$param_set, private$.loss$param_set),
-      map(private$.callbacks, "param_set"))
-    )
-  }
-  private$.param_set
-}
-
-learner_torch_history = function(self, rhs) {
-  assert_ro_binding(rhs)
-  if (is.null(self$state)) {
-    stopf("Cannot access history before training.")
-  }
-  if (is.null(self$model$callbacks$history)) {
-    warningf("No history found. Did you specify t_clbk(\"history\") during construction?")
-    return(NULL)
-  }
-
-  self$model$callbacks$history
 }

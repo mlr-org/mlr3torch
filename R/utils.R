@@ -112,7 +112,7 @@ default_task_id = function(learner) {
   if (!is.null(task_id)) {
     return(task_id)
   }
-  if (inherits(learner, "LearnerClassifTorchImage")) {
+  if (inherits(learner, "LearnerTorchImage")) {
     stopf("Currently not available!")
   }
   switch(learner$task_type,
@@ -120,7 +120,7 @@ default_task_id = function(learner) {
     regr = "mtcars",
     stopf("No default task type.")
   )
-  
+
 }
 
 class_with_init = function(x) {

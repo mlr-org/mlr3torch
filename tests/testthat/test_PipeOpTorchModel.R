@@ -1,11 +1,15 @@
 test_that("Basic properties: Classification", {
   expect_pipeop_class(PipeOpTorchModel, constargs = list(task_type = "classif"))
 
-  po_regr = PipeOpTorchModel$new(task_type = "regr")
-  expect_pipeop(po_regr)
-
   po_classif = PipeOpTorchModel$new(task_type = "classif")
   expect_pipeop(po_classif)
+})
+
+test_that("Basic properties: Regression", {
+  expect_pipeop_class(PipeOpTorchModel, constargs = list(task_type = "regr"))
+
+  po_regr = PipeOpTorchModel$new(task_type = "regr")
+  expect_pipeop(po_regr)
 })
 
 test_that("Missing configuration gives correct error messages", {
@@ -37,7 +41,7 @@ test_that("Manual test: Classification and Regression", {
 
   res = obj$train(list(md))
   expect_equal(res, list(output = NULL))
-  expect_class(obj$state, "LearnerClassifTorchModel")
+  expect_class(obj$state, "LearnerTorchModel")
   expect_class(obj$state$model$network, c("nn_graph", "nn_module"))
   # Defaults are used
   expect_class(obj$state$model$optimizer, "optim_adam")
@@ -50,14 +54,13 @@ test_that("Manual test: Classification and Regression", {
   expect_class(obj$state$model$optimizer, "optim_adagrad")
   expect_true(obj$state$state$param_vals$opt.lr == 0.123)
   expect_true(obj$state$state$param_vals$batch_size == 2)
-  # TODO:  Add regr tests
 
   task = tsk("mtcars")
 
   graph = po("select", selector = selector_name(c("mpg", "cyl"))) %>>%
     po("torch_ingress_num") %>>%
     po("nn_head") %>>%
-    po("torch_loss", "cross_entropy") %>>%
+    po("torch_loss", "mse") %>>%
     po("torch_optimizer", "adam") %>>%
     po("torch_model_regr",
       batch_size = 10,
@@ -69,5 +72,5 @@ test_that("Manual test: Classification and Regression", {
   pred = graph$predict(task)
   expect_class(pred[[1]], "PredictionRegr")
   learner = graph$pipeops$torch_model_regr$state
-  expect_class(learner, "LearnerRegrTorchModel")
+  expect_class(learner, "LearnerTorchModel")
 })

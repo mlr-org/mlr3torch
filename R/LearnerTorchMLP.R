@@ -1,6 +1,7 @@
-#' @title My Little Pony Classification
+#' @title My Little Pony
 #'
-#' @templateVar id classif.mlp
+#' @templateVar name mlp
+#' @templateVar task_types classif, regr
 #' @templateVar param_vals layers = 1, d_hidden = 10
 #' @template params_learner
 #' @template learner
@@ -10,7 +11,7 @@
 #' Fully connected feed forward network with dropout after each activation function.
 #'
 #' @section Parameters:
-#' Parameters from [`LearnerClassifTorch`], as well as:
+#' Parameters from [`LearnerTorch`], as well as:
 #'
 #' * `activation` :: `character(1)`\cr
 #'   Activation function.
@@ -24,12 +25,12 @@
 #'   The dropout probability.
 #'
 #' @export
-LearnerClassifMLP = R6Class("LearnerClassifMLP",
-  inherit = LearnerClassifTorch,
+LearnerTorchMLP = R6Class("LearnerTorchMLP",
+  inherit = LearnerTorch,
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(optimizer = t_opt("adam"), loss = t_loss("cross_entropy"), callbacks = list()) {
+    initialize = function(task_type, optimizer = NULL, loss = NULL, callbacks = list()) {
       param_set = ps(
         activation      = p_fct(default = "relu", tags = "train", levels = mlr3torch_activations),
         activation_args = p_uty(tags = "train", custom_check = check_list),
@@ -37,22 +38,28 @@ LearnerClassifMLP = R6Class("LearnerClassifMLP",
         d_hidden        = p_int(lower = 1L, tags = "train"),
         p               = p_dbl(default = 0.5, lower = 0, upper = 1, tags = "train")
       )
+      properties = switch(task_type,
+        regr = character(0),
+        classif = c("twoclass", "multiclass")
+      )
+
       super$initialize(
-        id = "classif.mlp",
-        properties = c("twoclass", "multiclass"),
-        label = "Multi Layer Perceptron",
+        task_type = task_type,
+        id = paste0(task_type, ".mlp"),
+        properties = properties,
+        label = "My Little Powny",
         param_set = param_set,
         optimizer = optimizer,
         callbacks = callbacks,
         loss = loss,
-        man = "mlr3torch::mlr_learners_classif.mlp",
+        man = "mlr3torch::mlr_learners.mlp",
         feature_types = c("numeric", "integer")
       )
     }
   ),
   private = list(
     .network = function(task, param_vals) {
-      make_mlp(task, param_vals, "classif")
+      make_mlp(task, param_vals, self$task_type)
     },
     .dataset = function(task, param_vals) {
       dataset_num(self, task, param_vals)
@@ -61,68 +68,6 @@ LearnerClassifMLP = R6Class("LearnerClassifMLP",
 )
 
 
-#' @title My Little Pony Regression
-#'
-#' @templateVar id regr.mlp
-#' @templateVar param_vals layers = 1, d_hidden = 10
-#' @template params_learner
-#' @template learner
-#' @template learner_example
-#'
-#' @inherit mlr_learners_classif.mlp description
-#'
-#' @section Parameters:
-#' Parameters from [`LearnerRegrTorch`], as well as:
-#'
-#' * `activation` :: `character(1)`\cr
-#'   Activation function.
-#' * `activation_args` :: named `list()`\cr
-#'   A named list with initialization arguments for the activation function.
-#' * `layers` :: `integer(1)`\cr
-#'   The number of layers.
-#' * `d_hidden` :: `numeric(1)`\cr
-#'   The dimension of the hidden layers.
-#' * `p` :: `numeric(1)`\cr
-#'   The dropout probability.
-#'
-#' @export
-LearnerRegrMLP = R6Class("LearnerRegrMLP",
-  inherit = LearnerRegrTorch,
-  public = list(
-    #' @description
-    #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(optimizer = t_opt("adam"), loss = t_loss("mse"), callbacks = list()) {
-      param_set = ps(
-        activation      = p_fct(default = "relu", tags = "train", levels = mlr3torch_activations),
-        activation_args = p_uty(tags = "train", custom_check = check_list),
-        layers          = p_int(lower = 0L, tags = c("train", "required")),
-        d_hidden        = p_int(lower = 1L, tags = "train"),
-        p               = p_dbl(default = 0.5, lower = 0, upper = 1, tags = "train")
-      )
-      super$initialize(
-        id = "regr.mlp",
-        properties = character(),
-        label = "Multi Layer Perceptron",
-        param_set = param_set,
-        optimizer = optimizer,
-        callbacks = callbacks,
-        loss = loss,
-        man = "mlr3torch::mlr_learners_regr.mlp",
-        feature_types = c("numeric", "integer")
-      )
-    }
-  ),
-  private = list(
-    .network = function(task, param_vals) {
-      make_mlp(task, param_vals, "regr")
-    },
-    .dataset = function(task, param_vals) {
-      dataset_num(self, task, param_vals)
-    }
-  )
-)
-
-# TODO: This code is quite ugly
 make_mlp = function(task, param_vals, task_type) {
   activation = param_vals$activation %??% "relu"
   act = getFromNamespace(paste0("nn_", activation), ns = "torch")
@@ -164,5 +109,5 @@ make_mlp = function(task, param_vals, task_type) {
   invoke(nn_sequential, .args = modules)
 }
 
-register_learner("regr.mlp", LearnerRegrMLP)
-register_learner("classif.mlp", LearnerClassifMLP)
+register_learner("regr.mlp", LearnerTorchMLP)
+register_learner("classif.mlp", LearnerTorchMLP)

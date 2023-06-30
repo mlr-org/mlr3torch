@@ -3,13 +3,12 @@
 \name{mlr_pipeops_torch_model_classif}
 \alias{mlr_pipeops_torch_model_classif}
 \alias{PipeOpTorchModelClassif}
-\title{Torch Classification Model}
+\title{PipeOp Torch Classifier}
 \description{
-Builds a mlr3 Classification Torch Learner from its Input.
-The default optimizer is adam an the default loss is cross entropy.
+Builds a torch classifier and trains it.
 }
 \section{Parameters}{
- See \code{\link{LearnerClassifTorch}}
+ See \code{\link{LearnerTorch}}
 }
 
 \section{Input and Output Channels}{
@@ -21,15 +20,14 @@ The output is \code{NULL} during training and a \code{Prediction} of given \code
 
 \section{State}{
 
-A trained \code{LearnerRegrTorchModel} \code{LearnerClassifTorchModel}.
+A trained \code{\link{LearnerTorchModel}}.
 }
 
 \section{Internals}{
 
-First a \code{\link{nn_graph}} is created by calling \code{\link[=model_descriptor_to_module]{model_descriptor_to_module()}} and than a
-\code{\link{LearnerClassifTorchModel}} or \code{\link{LearnerRegrTorchModel}} is created from the \code{nn_graph} in combination with the
-information stored in the \code{\link{ModelDescriptor}}.
-Then the parameters are set according to the parameters specified in \code{PipeOpTorchModel} and its '$train()\verb{ method is called on the [}Task\verb{] stored in the [}ModelDescriptor`].
+A \code{\link{LearnerTorchModel}} is created by calling \code{\link[=model_descriptor_to_learner]{model_descriptor_to_learner()}}.
+Then the parameters are set according to the parameters specified in \code{PipeOpTorchModel} and
+its '$train()\verb{ method is called on the [}Task\verb{] stored in the [}ModelDescriptor`].
 }
 
 \seealso{

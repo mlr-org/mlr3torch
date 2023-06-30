@@ -1,37 +1,37 @@
+# TODO
 #' @title AlexNet Image Classifier
 #'
-#' @templateVar id classif.alexnet
-#' @template params_learner
+#' @templateVar name alexnet
+#' @templateVar task_types classif
 #' @template learner
+#' @template params_learner
 #'
 #' @description
-#' Historic convolutional network for image classification.
+#' Historic convolutional neural network for image classification.
 #'
 #' @section Parameters:
-#' Parameters from [`LearnerClassifTorchImage`] and
+#' Parameters from [`LearnerTorchImage`] and
 #'
 #' * `pretrained` :: `logical(1)`\cr
 #'   Whether to use the pretrained model.
 #'
 #' @references `r format_bib("krizhevsky2017imagenet")`
-#' @include LearnerClassifTorchImage.R
+#' @include LearnerTorchImage.R
 #' @export
-#' @examples
-#' learner = lrn("classif.alexnet")
-#' learner$param_set
-LearnerClassifAlexNet = R6Class("LearnerClassifAlexNet",
-  inherit = LearnerClassifTorchImage,
+LearnerTorchAlexNet = R6Class("LearnerTorchAlexNet",
+  inherit = LearnerTorchImage,
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(optimizer = t_opt("adam"), loss = t_loss("cross_entropy"), callbacks = list()) {
+    initialize = function(task_type, optimizer = NULL, loss = NULL, callbacks = list()) {
       param_set = ps(
         pretrained = p_lgl(default = TRUE, tags = "train")
       )
       # TODO: Freezing --> maybe as a callback?
       super$initialize(
-        id = "classif.alexnet",
+        task_type = task_type,
+        id = paste0(task_type, ".alexnet"),
         param_set = param_set,
-        man = "mlr3torch::mlr_learners_classif.alexnet",
+        man = "mlr3torch::mlr_learners.alexnet",
         optimizer = optimizer,
         loss = loss,
         callbacks = callbacks,
@@ -41,21 +41,22 @@ LearnerClassifAlexNet = R6Class("LearnerClassifAlexNet",
   ),
   private = list(
     .network = function(task, param_vals) {
+      nout = if (self$task_type == "regr") 1 else length(task$class_names)
       if (param_vals$pretrained %??% TRUE) {
         network = torchvision::model_alexnet(pretrained = TRUE)
 
         network$classifier$`6` = torch::nn_linear(
           in_features = network$classifier$`6`$in_features,
-          out_features = length(task$class_names),
+          out_features = nout,
           bias = TRUE
         )
         return(network)
       }
 
-      torchvision::model_alexnet(pretrained = FALSE, num_classes = length(task$class_names))
+      torchvision::model_alexnet(pretrained = FALSE, num_classes = nout)
     }
   )
 )
 
 #' @include zzz.R
-register_learner("classif.alexnet", LearnerClassifAlexNet)
+register_learner("classif.alexnet", LearnerTorchAlexNet)

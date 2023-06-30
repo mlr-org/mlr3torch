@@ -88,8 +88,8 @@ expect_deep_clone = function(one, two) {
       expect_true(addr_a != addr_b, label = label)
       expect_null(visited_b[[addr_a]], label = label)
     } else {
-      a <- unclass(a)
-      b <- unclass(b)
+      a = unclass(a)
+      b = unclass(b)
     }
 
     # recurse

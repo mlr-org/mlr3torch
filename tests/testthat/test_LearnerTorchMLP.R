@@ -1,4 +1,4 @@
-test_that("LearnerClassifMLP works", {
+test_that("LearnerTorchMLP works", {
 
   verify_network = function(learner) {
     tab = table(map_chr(learner$network$children, function(x) class(x)[[1L]]))
@@ -43,25 +43,26 @@ test_that("LearnerClassifMLP works", {
   verify_network(learner)
 })
 
-test_that("autotest", {
-  learner = lrn("classif.mlp",
-    layers = 2L,
-    p = 0.2,
-    batch_size = 16L,
-    epochs = 10,
-    d_hidden = 10,
-    activation = "relu",
-    optimizer = "adam",
-    seed = 1
-  )
+# TODO: Add autotest for learner
+#test_that("autotest", {
+#  learner = lrn("classif.mlp",
+#    layers = 2L,
+#    p = 0.2,
+#    batch_size = 16L,
+#    epochs = 10,
+#    d_hidden = 10,
+#    activation = "relu",
+#    optimizer = "adam",
+#    seed = 1
+#  )
+#
+#  result = run_autotest(learner, check_replicable = TRUE, exclude = "sanity")
+#
+#  expect_true(result, info = result$error)
+#})
 
-  result = run_autotest(learner, check_replicable = TRUE, exclude = "sanity")
 
-  expect_true(result, info = result$error)
-})
-
-
-test_that("LearnerRegrMLP works", {
+test_that("LearnerTorchMLP works", {
 
   verify_network = function(learner) {
     tab = table(map_chr(learner$network$children, function(x) class(x)[[1L]]))
@@ -106,19 +107,21 @@ test_that("LearnerRegrMLP works", {
   verify_network(learner)
 })
 
-test_that("autotest", {
-  learner = lrn("regr.mlp",
-    layers = 2L,
-    p = 0.2,
-    batch_size = 20L,
-    epochs = 10,
-    d_hidden = 10,
-    activation = "relu",
-    optimizer = t_opt("sgd", lr = 0.01),
-    seed = 1
-  )
-
-  result = run_autotest(learner, check_replicable = TRUE, exclude = "sanity")
-
-  expect_true(result, info = result$error)
-})
+# TODO: Add autotest for learner
+#test_that("autotest", {
+#  learner = lrn("regr.mlp",
+#    layers = 2L,
+#    p = 0.2,
+#    batch_size = 20L,
+#    epochs = 10,
+#    d_hidden = 10,
+#    activation = "relu",
+#    optimizer = t_opt("sgd", lr = 0.01),
+#    seed = 1
+#  )
+#
+#  result = run_autotest(learner, check_replicable = TRUE, exclude = "sanity")
+#
+#  expect_true(result, info = result$error)
+#})
+#

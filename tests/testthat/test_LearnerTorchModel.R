@@ -1,7 +1,8 @@
 test_that("LearnerTorchModel works", {
   # autotest not possible because network is bound to task
   task = tsk("iris")
-  learner = LearnerClassifTorchModel$new(
+  learner = LearnerTorchModel$new(
+    task_type = "classif",
     network = testmodule_linear(task),
     ingress_tokens = list(x = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, 4L))),
     packages = "data.table"
