@@ -94,7 +94,7 @@ test_that("train handles multiple input channels correctly", {
 
 
   obj = PipeOpTorchDebug$new(id = "nn_debug", inname = paste0("input", 1:2), outname = paste0("output", 1:2))
-  obj$param_set$values = list(d_out1 = 2, d_out2 = 3, bias = TRUE)
+  obj$param_set$set_values(d_out1 = 2, d_out2 = 3, bias = TRUE)
 
   mdin1 = (po("select", selector = selector_grep("Petal")) %>>% po("torch_ingress_num_1"))$train(task)[[1L]]
   mdin2 = (po("select", selector = selector_grep("Sepal")) %>>% po("torch_ingress_num_2"))$train(task)[[1L]]

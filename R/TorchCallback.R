@@ -60,7 +60,7 @@ t_clbks.NULL = function(.keys, ...) { # nolint
 #'
 #' @param x (any)\cr
 #'   Object to be converted.
-#' @param clone (`logical(1)`\cr
+#' @param clone (`logical(1)`)\cr
 #'   Whether to make a deep clone.
 #' @param ... (any)\cr
 #'   Additional arguments
@@ -155,8 +155,8 @@ as_torch_callbacks.character = function(x, clone = FALSE, ...) { # nolint
 #' # The parameters are inferred
 #' descriptor$param_set
 #'
-#' # Retrieve a callback descriptor from the dictionary
-#' descriptor = t_clbk("checkpoint",
+#' # Retrieve a torch callback from the dictionary
+#' torchcallback = t_clbk("checkpoint",
 #'   path = tempfile(), freq = 1
 #' )
 #' descriptor

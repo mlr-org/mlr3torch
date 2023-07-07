@@ -190,7 +190,8 @@ The [`ModelDescriptor`] does not only represent the `Graph` from which a `nn_mod
 ```{r}
 td <- task_dataset(
   task = md$task,
-  feature_ingress_tokens = md$ingress
+  feature_ingress_tokens = md$ingress,
+  device = "cpu"
 )
 
 td
@@ -324,7 +325,8 @@ We make multiple observations here:
 
     iris_td <- task_dataset(
       task = iris_mds_union$task,
-      feature_ingress_tokens = iris_mds_union$ingress
+      feature_ingress_tokens = iris_mds_union$ingress,
+      device = "cpu"
     )
 
     batch <- iris_td$.getbatch(1:2)

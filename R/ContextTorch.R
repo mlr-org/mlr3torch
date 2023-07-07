@@ -86,7 +86,7 @@ ContextTorch = R6Class("ContextTorch",
     #' @field loss_fn ([`torch::nn_module`])\cr
     #'   The loss function.
     loss_fn = NULL,
-    #' @field total_epochs `integer(1)`\cr
+    #' @field total_epochs (`integer(1)`)\cr
     #'   The total number of epochs the learner is trained for.
     total_epochs = NULL,
     #' @field last_scores_train (named `list()`)\cr

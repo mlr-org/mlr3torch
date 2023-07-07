@@ -5,7 +5,7 @@
 #'
 #' @param x (any)\cr
 #'   Object to convert to a [`TorchLoss`].
-#' @param clone (`logical(1)`\cr
+#' @param clone (`logical(1)`)\cr
 #'   Whether to make a deep clone.
 #' @param ... (any)\cr
 #'   Additional arguments.
@@ -195,7 +195,7 @@ t_loss = function(.key, ...) {
 
 #' @export
 t_loss.character = function(.key, ...) { # nolint
-  dictionary_sugar_inc_get(mlr3torch_losses, .key, ...)
+  dictionary_sugar_inc_get(dict = mlr3torch_losses, .key, ...)
 }
 
 #' @export
@@ -218,7 +218,7 @@ t_losses = function(.keys, ...) {
 
 #' @export
 t_losses.character = function(.keys, ...) { # nolint
-  dictionary_sugar_inc_mget(mlr3torch_losses, .keys, ...)
+  dictionary_sugar_inc_mget(dict = mlr3torch_losses, .keys, ...)
 }
 
 #' @export

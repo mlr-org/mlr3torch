@@ -44,6 +44,7 @@ Other Learner:
 \code{\link{mlr_learners_classif.torch}},
 \code{\link{mlr_learners_classif_torch_image}},
 \code{\link{mlr_learners_regr.mlp}},
+\code{\link{mlr_learners_regr.torch_featureless}},
 \code{\link{mlr_learners_regr.torch}}
 
 Other Graph Network: 

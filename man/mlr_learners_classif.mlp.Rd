@@ -36,15 +36,16 @@ The state is a list with elements \code{network}, \code{optimizer}, \code{loss_f
 Parameters from \code{\link{LearnerClassifTorch}}, as well as:
 \itemize{
 \item \code{activation} :: \code{character(1)}\cr
-Activation function.
+Activation function. Is initialized to \code{"relu"}.
 \item \code{activation_args} :: named \code{list()}\cr
 A named list with initialization arguments for the activation function.
+Is initialized to \code{list()}.
 \item \code{layers} :: \code{integer(1)}\cr
 The number of layers.
 \item \code{d_hidden} :: \code{numeric(1)}\cr
 The dimension of the hidden layers.
 \item \code{p} :: \code{numeric(1)}\cr
-The dropout probability.
+The dropout probability. Is initialized to \code{0.5}.
 }
 }
 
@@ -78,6 +79,7 @@ Other Learner:
 \code{\link{mlr_learners_classif.torch}},
 \code{\link{mlr_learners_classif_torch_image}},
 \code{\link{mlr_learners_regr.mlp}},
+\code{\link{mlr_learners_regr.torch_featureless}},
 \code{\link{mlr_learners_regr.torch_model}},
 \code{\link{mlr_learners_regr.torch}}
 }

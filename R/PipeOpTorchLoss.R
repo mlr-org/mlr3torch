@@ -29,7 +29,7 @@ PipeOpTorchLoss = R6Class("PipeOpTorchLoss",
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    #' @param loss ([`TorchLoss`]) or `character(1)` or `nn_loss`\cr
+    #' @param loss ([`TorchLoss`] or `character(1)` or `nn_loss`)\cr
     #'   The loss (or something convertible via [`as_torch_loss()`]).
     #' @template params_pipelines
     initialize = function(loss, id = "torch_loss", param_vals = list()) {

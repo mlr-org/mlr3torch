@@ -12,6 +12,7 @@
 #'
 #' * `pretrained` :: `logical(1)`\cr
 #'   Whether to use the pretrained model.
+#'   This parameter is initialized to `TRUE`.
 #'
 #' @references `r format_bib("krizhevsky2017imagenet")`
 #' @include LearnerClassifTorchImage.R
@@ -25,9 +26,9 @@ LearnerClassifAlexNet = R6Class("LearnerClassifAlexNet",
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(optimizer = t_opt("adam"), loss = t_loss("cross_entropy"), callbacks = list()) {
       param_set = ps(
-        pretrained = p_lgl(default = TRUE, tags = "train")
+        pretrained = p_lgl(tags = c("train", "required"))
       )
-      # TODO: Freezing --> maybe as a callback?
+      param_set$values = list(pretrained = TRUE)
       super$initialize(
         id = "classif.alexnet",
         param_set = param_set,
@@ -41,7 +42,7 @@ LearnerClassifAlexNet = R6Class("LearnerClassifAlexNet",
   ),
   private = list(
     .network = function(task, param_vals) {
-      if (param_vals$pretrained %??% TRUE) {
+      if (param_vals$pretrained) {
         network = torchvision::model_alexnet(pretrained = TRUE)
 
         network$classifier$`6` = torch::nn_linear(

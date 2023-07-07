@@ -48,7 +48,7 @@ test_that("All stages are called correctly", {
   learner$train(task)
 
   output = readLines(path)
-  expect_identical(output, mlr3torch_callback_stages)
+  expect_identical(output, mlr_reflections$torch$callback_stages)
 
   task$row_roles$use = 2:3
   task$row_roles$test = 4:6
@@ -89,7 +89,7 @@ test_that("All stages are called correctly", {
 })
 
 test_that("callback_set is working", {
-  expect_subset(mlr3torch_callback_stages, formalArgs(callback_set))
+  expect_subset(mlr_reflections$torch$callback_stages, formalArgs(callback_set))
   expect_subset(formalArgs(callback_set), formalArgs(torch_callback))
 
   expect_error(callback_set("A"), regexp = "startsWith")

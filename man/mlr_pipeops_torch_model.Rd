@@ -28,22 +28,24 @@ The batch size.
 \item \code{epochs} :: \code{integer(1)}\cr
 The number of epochs.
 \item \code{device} :: \code{character(1)}\cr
-The device. One of \code{"auto"}, \code{"cpu"}, or \code{"cuda"}.
+The device. One of \code{"auto"}, \code{"cpu"}, or \code{"cuda"} or other values defined in \code{mlr_reflections$torch$devices}.
+The value is initialized to \code{"auto"}, which will select \code{"cuda"} if possible and \code{"cpu"} otherwise.
 \item \code{measures_train} :: \code{\link{Measure}} or \code{list()} of \code{\link{Measure}}s.
 Measures to be evaluated during training.
 \item \code{measures_valid} :: \code{\link{Measure}} or \code{list()} of \code{\link{Measure}}s.
 Measures to be evaluated during validation.
-\item \code{drop_last} :: \code{logical(1)}\cr
-Whether to drop the last batch in each epoch during training. Default is \code{FALSE}.
 \item \code{num_threads} :: \code{integer(1)}\cr
-The number of threads (if \code{device} is \code{"cpu"}). Default is 1.
+The number of threads for intraop pararallelization (if \code{device} is \code{"cpu"}).
+This value is initialized to 1.
 \item \code{shuffle} :: \code{logical(1)}\cr
-Whether to shuffle the instances in the dataset. Default is \code{TRUE}.
-\item \code{early_stopping_rounds} :: \code{integer(1)}\cr
-How many rounds to wait for early stopping. The default is 0.
-\item \code{seed} :: \code{integer(1)}\cr
-The seed that is used during training. The value \code{seed + 1} is used during prediction.
-If this is missing (default), a random seed is generated.
+Whether to shuffle the instances in the dataset. This value is initialized to \code{TRUE}.
+\item \code{seed} :: \code{integer(1)} or \code{"random"}\cr
+The seed that is used during training and prediction.
+This value is initialized to \code{"random"}, which means that a random seed will be sampled at the beginning of the
+training phase. This seed (either set or randomly sampled) is available via \verb{$model$seed} after training
+and used during prediction.
+Note that by setting the seed during the training phase this will mean that by default (i.e. when \code{seed} is
+\code{"random"}), clones of the learner will use a different seed.
 }
 
 Additionally there are the parameters for the optimizer, the loss function and the callbacks.
@@ -148,7 +150,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{task_type}}{\code{character(1)}\cr
+\item{\code{task_type}}{(\code{character(1)})\cr
 The task type of the model.}
 
 \item{\code{id}}{(\code{character(1)})\cr

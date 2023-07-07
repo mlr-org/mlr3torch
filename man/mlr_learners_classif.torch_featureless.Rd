@@ -6,8 +6,8 @@
 \title{Featureless Torch Classifier}
 \description{
 Featureless torch learner.
-Output is a constant weight that is learner during training.
-For classification, this should result in a majority class prediction with the standard cross-entropy loss.
+Output is a constant weight that is learned during training.
+For classification, this should (asymptoptically) result in a majority class prediction when using the standard cross-entropy loss.
 For regression, this should result in the median for L1 loss and in the mean for L2 loss.
 }
 \section{Dictionary}{
@@ -24,7 +24,7 @@ lrn("classif.torch_featureless")
 \itemize{
 \item Task type: \dQuote{classif}
 \item Predict Types: \dQuote{response}, \dQuote{prob}
-\item Feature Types: \dQuote{integer}, \dQuote{numeric}, \dQuote{factor}, \dQuote{ordered}
+\item Feature Types: \dQuote{logical}, \dQuote{integer}, \dQuote{numeric}, \dQuote{character}, \dQuote{factor}, \dQuote{ordered}, \dQuote{POSIXct}, \dQuote{imageuri}
 \item Required Packages: \CRANpkg{mlr3}, \CRANpkg{mlr3torch}, \CRANpkg{torch}
 }
 }
@@ -69,6 +69,7 @@ Other Learner:
 \code{\link{mlr_learners_classif.torch}},
 \code{\link{mlr_learners_classif_torch_image}},
 \code{\link{mlr_learners_regr.mlp}},
+\code{\link{mlr_learners_regr.torch_featureless}},
 \code{\link{mlr_learners_regr.torch_model}},
 \code{\link{mlr_learners_regr.torch}}
 }

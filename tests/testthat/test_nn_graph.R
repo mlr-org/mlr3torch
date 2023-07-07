@@ -167,7 +167,7 @@ test_that("model_descriptor_to_learner works", {
     po("nn_relu") %>>%
     po("nn_head") %>>%
     po("torch_optimizer") %>>%
-    po("torch_loss", loss = "mse") %>>%
+    po("torch_loss", loss = "cross_entropy") %>>%
     po("torch_callbacks")
 
   md = graph1$train(task)[[1L]]

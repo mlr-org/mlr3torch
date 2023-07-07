@@ -21,7 +21,6 @@ test_that("Basic tests: Classification", {
   expect_equal(learner$id, "classif.test1")
   expect_equal(learner$label, "Torch1 Classifier")
   expect_set_equal(learner$feature_types, c("numeric", "integer"))
-  expect_equal(learner$param_set$default$bias, FALSE)
   expect_set_equal(learner$properties, c("multiclass", "twoclass"))
 
   # default predict types are correct
@@ -46,7 +45,6 @@ test_that("Basic tests: Regression", {
   expect_equal(learner$id, "regr.test1")
   expect_equal(learner$label, "Test1 Regressor")
   expect_set_equal(learner$feature_types, c("numeric", "integer"))
-  expect_equal(learner$param_set$default$bias, FALSE)
   expect_set_equal(learner$properties, c())
 
   # default predict types are correct
@@ -69,10 +67,12 @@ test_that("Basic tests: Regression", {
 test_that("Param Set for optimizer and loss are correctly created", {
   opt = t_opt("sgd")
   loss = t_loss("cross_entropy")
-  loss$param_set$subset(c("weight", "ignore_index"))
-  learner = LearnerClassifTorch1$new(optimizer = opt, loss = loss)
+  cb = t_clbk("checkpoint")
+  # loss$param_set$subset(c("weight", "ignore_index"))
+  learner = LearnerClassifTorch1$new(optimizer = opt, loss = loss, callbacks = cb)
   expect_subset(paste0("opt.", opt$param_set$ids()), learner$param_set$ids())
   expect_subset(paste0("loss.", loss$param_set$ids()), learner$param_set$ids())
+  expect_subset(paste0("cb.checkpoint.", cb$param_set$ids()), learner$param_set$ids())
 })
 
 
@@ -98,6 +98,7 @@ test_that("Parameters cannot start with {loss, opt, cb}.", {
     )$new()
   }
 
+  # TODO: regex
   expect_error(helper(ps(loss.weight = p_dbl())))
   expect_error(helper(ps(opt.weight = p_dbl())))
   expect_error(helper(ps(cb.weight = p_dbl())))
@@ -133,7 +134,7 @@ test_that("Learner inherits packages from optimizer, loss, and callbacks", {
   expect_subset(c("utils", "stats", "base"), learner$packages)
 })
 
-test_that("Train-predict loop is reproducible", {
+test_that("Train-predict loop is reproducible when setting a seed", {
   learner1 = lrn("classif.torch_featureless", batch_size = 16, epochs = 1, predict_type = "prob", shuffle = TRUE,
     seed = 1)
   task = tsk("iris")

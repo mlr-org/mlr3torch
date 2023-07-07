@@ -56,7 +56,7 @@ The optimizer.}
 \item{\code{loss_fn}}{(\code{\link[torch:nn_module]{torch::nn_module}})\cr
 The loss function.}
 
-\item{\code{total_epochs}}{\code{integer(1)}\cr
+\item{\code{total_epochs}}{(\code{integer(1)})\cr
 The total number of epochs the learner is trained for.}
 
 \item{\code{last_scores_train}}{(named \code{list()})\cr

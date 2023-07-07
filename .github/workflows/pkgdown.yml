@@ -34,6 +34,10 @@ jobs:
           extra-packages: any::pkgdown, local::.
           needs: website
 
+      - name: Install torch
+        run: torch::install_torch()
+        shell: Rscript {0}
+
       - name: Install template
         run: pak::pkg_install("mlr-org/mlr3pkgdowntemplate")
         shell: Rscript {0}

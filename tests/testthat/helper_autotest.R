@@ -287,7 +287,7 @@ autotest_callback = function(descriptor, check_man = TRUE) {
   paramtest = autotest_paramset(descriptor$param_set, init_fn)
   expect_paramtest(paramtest)
   implemented_stages = names(cbgen$public_methods)[grepl("^on_", names(cbgen$public_methods))]
-  expect_subset(implemented_stages, mlr3torch_callback_stages)
+  expect_subset(implemented_stages, mlr_reflections$torch$callback_stages)
   walk(implemented_stages, function(stage) test_function(cbgen$public_methods[[stage]], nargs = 0))
 
   # Cloning works
@@ -300,8 +300,4 @@ autotest_callback = function(descriptor, check_man = TRUE) {
   expect_deep_clone(cb_trained, cb_trained$clone(deep = TRUE))
   cb_trained$ctx = "placeholder"
   expect_error(cb_trained$clone(deep = TRUE), "must never be cloned unless")
-}
-
-autotest_learner_torch = function() {
-  # TODO: Implement this
 }

@@ -5,7 +5,8 @@ test_that("autotest", {
 
 test_that("manual test", {
   learner = lrn("classif.mlp", epochs = 1, batch_size = 1, d_hidden = 1, layers = 0,
-    measures_train = msr("classif.acc"), measures_valid = msr("classif.ce"), callbacks = t_clbk("progress")
+    measures_train = msr("classif.acc"), measures_valid = msr("classif.ce"), callbacks = t_clbk("progress"),
+    drop_last = FALSE, shuffle = TRUE
   )
   task = tsk("iris")
   task$row_roles = list(use = 1, test = 2, holdout = integer(0))

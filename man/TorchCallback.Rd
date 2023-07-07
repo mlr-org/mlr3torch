@@ -26,8 +26,8 @@ descriptor = TorchCallback$new(CallbackSetCheckpoint)
 # The parameters are inferred
 descriptor$param_set
 
-# Retrieve a callback descriptor from the dictionary
-descriptor = t_clbk("checkpoint",
+# Retrieve a torch callback from the dictionary
+torchcallback = t_clbk("checkpoint",
   path = tempfile(), freq = 1
 )
 descriptor

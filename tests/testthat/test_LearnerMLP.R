@@ -1,4 +1,5 @@
 test_that("LearnerClassifMLP works", {
+  # TODO: Test make_mlp() separately
 
   verify_network = function(learner) {
     tab = table(map_chr(learner$network$children, function(x) class(x)[[1L]]))
