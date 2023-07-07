@@ -5,9 +5,15 @@
 \alias{CallbackSet}
 \title{Base Class for Callbacks}
 \description{
-Base class from which Callbacks should inherit.
+Base class from which callbacks should inherit (see section \emph{Inheriting}).
+A callback set is a collection of functions that are executed at different stages of the training loop.
 They can be used to gain more control over the training process of a neural network without
 having to write everything from scratch.
+
+When used a in torch learner, the \code{CallbackSet} is wrapped in a \code{\link{TorchCallback}}.
+The latters parameter set represents the arguments of the \code{\link{CallbackSet}}'s \verb{$initialize()} method.
+}
+\section{Inheriting}{
 
 For each available stage (see section \emph{Stages}) a public method \verb{$on_<stage>()} can be defined.
 The evaluation context (a \code{\link{ContextTorch}}) can be accessed via \code{self$ctx}, which contains
@@ -15,20 +21,10 @@ the current state of the training loop.
 This context is assigned at the beginning of the training loop and removed afterwards.
 Different stages of a callback can communicate with each other by assigning values to \verb{$self}.
 
-When used a in torch learner, the \code{CallbackSet} is wrapped in a \code{\link{TorchCallback}}.
-The latters parameter set represents the arguments of the \code{\link{CallbackSet}}'s \verb{$initialize()} method and can
-be specified in the learner. The callback is then initialized at the beginning of the training loop.
-
 For creating custom callbacks, the function \code{\link[=torch_callback]{torch_callback()}} is recommended, which creates a
-\code{\link{CallbackSet}} and then wraps it in a \code{\link{TorchCallback}}.
-}
-\section{Inheriting}{
-
-When one inherits from this class and overwrites the private \verb{$deep_clone()} method, it is
-important to ensure that a deep clone can only be created if the \code{ctx} field is \code{NULL},
-as this should never be cloned.
-Furthermore, it is convenient to set \code{lock_objects} to \code{FALSE} to be able to freely assign variables
-to \code{self}.
+\code{CallbackSet} and then wraps it in a \code{\link{TorchCallback}}.
+To create a \code{CallbackSet} the convenience function \code{\link[=callback_set]{callback_set()}} can be used.
+These functions perform checks such as that the stages are not accidentally misspelled.
 }
 
 \section{Stages}{

@@ -26,28 +26,30 @@ torch_callback(
   private = NULL,
   active = NULL,
   parent_env = parent.frame(),
-  inherit = CallbackSet
+  inherit = CallbackSet,
+  lock_objects = FALSE
 )
 }
 \arguments{
 \item{id}{(\code{character(1)})\cr`\cr
-The id for the callbacks.
-Note that the ids of callbacks passed to a learner must be unique.}
+The id for the torch callback.}
 
 \item{classname}{(\code{character(1)})\cr
 The class name.}
 
 \item{param_set}{(\code{ParamSet})\cr
-The parameter set, if not present it is inferred from the initialize method.}
+The parameter set, if not present it is inferred from the \verb{$initialize()} method.}
 
 \item{packages}{(\code{character()})\cr\verb{The packages the callback depends on. Default is}NULL`.}
 
 \item{label}{(\code{character(1)})\cr
-Label for the new instance.}
+The label for the torch callback.
+Defaults to the capitalized \code{id}.}
 
 \item{man}{(\code{character(1)})\cr
 String in the format \verb{[pkg]::[topic]} pointing to a manual page for this object.
-The referenced help package can be opened via method \verb{$help()}.}
+The referenced help package can be opened via method \verb{$help()}.
+The default is \code{NULL}.}
 
 \item{on_begin, on_end, on_epoch_begin, on_before_valid, on_epoch_end, on_batch_begin, on_batch_end, on_after_backward, on_batch_valid_begin, on_batch_valid_end}{(\code{function})\cr
 Function to execute at the given stage, see section \emph{Stages}.}
@@ -64,19 +66,24 @@ The parent environment for the \code{\link{R6Class}}.}
 \item{inherit}{(\code{R6ClassGenerator})\cr
 From which class to inherit.
 This class must either be \code{\link{CallbackSet}} (default) or inherit from it.}
+
+\item{lock_objects}{(\code{logical(1)})\cr
+Whether to lock the objects of the resulting \code{\link{R6Class}}.
+If \code{TRUE} (default), values can be freely assigned to \code{self} without declaring them in the
+class definition.}
 }
 \value{
 \code{\link{TorchCallback}}
 }
 \description{
-Convenience function to create a custom callback descriptor for torch.
+Convenience function to create a custom \code{\link{TorchCallback}}.
+All arguments that are available in \code{\link[=callback_set]{callback_set()}} are also available here.
 For more information on how to correctly implement a new callback, see \code{\link{CallbackSet}}.
-It returns a \code{\link{TorchCallback}} wrapping a \code{\link{CallbackSet}}.
 }
 \section{Internals}{
 
-It first creates an \code{R6ClassGenerator} using \code{\link[=torch_callback]{torch_callback()}} and when wraps this generator in a
-\code{\link{TorchCallback}}.
+It first creates an \code{R6} class inheriting from \code{\link{CallbackSet}} (using \code{\link[=callback_set]{callback_set()}}) and
+then wraps this generator in a \code{\link{TorchCallback}} that can be passed to a torch learner.
 }
 
 \section{Stages}{

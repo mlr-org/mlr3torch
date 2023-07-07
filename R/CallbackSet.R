@@ -3,29 +3,25 @@
 #' @name mlr_callback_set
 #'
 #' @description
-#' Base class from which Callbacks should inherit.
+#' Base class from which callbacks should inherit (see section *Inheriting*).
+#' A callback set is a collection of functions that are executed at different stages of the training loop.
 #' They can be used to gain more control over the training process of a neural network without
 #' having to write everything from scratch.
 #'
+#' When used a in torch learner, the `CallbackSet` is wrapped in a [`TorchCallback`].
+#' The latters parameter set represents the arguments of the [`CallbackSet`]'s `$initialize()` method.
+#'
+#' @section Inheriting:
 #' For each available stage (see section *Stages*) a public method `$on_<stage>()` can be defined.
 #' The evaluation context (a [`ContextTorch`]) can be accessed via `self$ctx`, which contains
 #' the current state of the training loop.
 #' This context is assigned at the beginning of the training loop and removed afterwards.
 #' Different stages of a callback can communicate with each other by assigning values to `$self`.
 #'
-#' When used a in torch learner, the `CallbackSet` is wrapped in a [`TorchCallback`].
-#' The latters parameter set represents the arguments of the [`CallbackSet`]'s `$initialize()` method and can
-#' be specified in the learner. The callback is then initialized at the beginning of the training loop.
-#'
 #' For creating custom callbacks, the function [`torch_callback()`] is recommended, which creates a
-#' [`CallbackSet`] and then wraps it in a [`TorchCallback`].
-#'
-#' @section Inheriting:
-#' When one inherits from this class and overwrites the private `$deep_clone()` method, it is
-#' important to ensure that a deep clone can only be created if the `ctx` field is `NULL`,
-#' as this should never be cloned.
-#' Furthermore, it is convenient to set `lock_objects` to `FALSE` to be able to freely assign variables
-#' to `self`.
+#' `CallbackSet` and then wraps it in a [`TorchCallback`].
+#' To create a `CallbackSet` the convenience function [`callback_set()`] can be used.
+#' These functions perform checks such as that the stages are not accidentally misspelled.
 #'
 #' @section Stages:
 #' * `begin` :: Run before the training loop begins.
@@ -82,6 +78,10 @@ CallbackSet = R6Class("CallbackSet",
 #' @param inherit (`R6ClassGenerator`)\cr
 #'   From which class to inherit.
 #'   This class must either be [`CallbackSet`] (default) or inherit from it.
+#' @param lock_objects (`logical(1)`)\cr
+#'  Whether to lock the objects of the resulting [`R6Class`].
+#'  If `TRUE` (default), values can be freely assigned to `self` without declaring them in the
+#'  class definition.
 #' @family Callback
 #'
 #' @return [`CallbackSet`]
@@ -103,7 +103,8 @@ callback_set = function(
   on_batch_valid_end = NULL,
   # other methods
   initialize = NULL,
-  public = NULL, private = NULL, active = NULL, parent_env = parent.frame(), inherit = CallbackSet
+  public = NULL, private = NULL, active = NULL, parent_env = parent.frame(), inherit = CallbackSet,
+  lock_objects = FALSE
   ) {
   assert_true(startsWith(classname, "CallbackSet"))
   more_public = list(
@@ -147,7 +148,7 @@ callback_set = function(
   parent_env_shim = new.env(parent = parent_env)
   parent_env_shim$inherit = inherit
   R6::R6Class(classname = classname, inherit = inherit, public = c(public, more_public),
-    private = private, active = active, parent_env = parent_env_shim, lock_objects = FALSE,
+    private = private, active = active, parent_env = parent_env_shim, lock_objects = lock_objects,
     cloneable = cloneable
   )
 }

@@ -11,7 +11,7 @@ t_clbks(.keys)
 }
 \arguments{
 \item{.key}{(\code{character(1)})\cr
-The key of the callback descriptor.}
+The key of the torch callback.}
 
 \item{...}{(any)\cr
 See description of \code{\link[=dictionary_sugar_get]{dictionary_sugar_get()}}.}
@@ -25,7 +25,7 @@ The keys of the callbacks.}
 \code{list()} of \code{\link{TorchCallback}}s
 }
 \description{
-Retrieves one or more \code{\link{TorchCallback}} from \code{\link{mlr3torch_callbacks}}.
+Retrieves one or more \href{s}{\code{TorchCallback}} from \code{\link{mlr3torch_callbacks}}.
 Works like \code{\link[mlr3:mlr_sugar]{mlr3::lrn()}} or \code{\link[mlr3:mlr_sugar]{mlr3::tsk()}}.
 }
 \examples{

@@ -23,7 +23,7 @@ The keys of the losses.}
 A \code{\link{TorchLoss}}
 }
 \description{
-Retrieves one or more \code{\link{TorchLoss}} from \code{\link{mlr3torch_losses}}.
+Retrieve one or more \href{es}{\code{TorchLoss}} from \code{\link{mlr3torch_losses}}.
 Works like \code{\link[mlr3:mlr_sugar]{mlr3::lrn()}} or \code{\link[mlr3:mlr_sugar]{mlr3::tsk()}}.
 }
 \examples{

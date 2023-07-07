@@ -21,7 +21,8 @@ callback_set(
   private = NULL,
   active = NULL,
   parent_env = parent.frame(),
-  inherit = CallbackSet
+  inherit = CallbackSet,
+  lock_objects = FALSE
 )
 }
 \arguments{
@@ -43,6 +44,11 @@ The parent environment for the \code{\link{R6Class}}.}
 \item{inherit}{(\code{R6ClassGenerator})\cr
 From which class to inherit.
 This class must either be \code{\link{CallbackSet}} (default) or inherit from it.}
+
+\item{lock_objects}{(\code{logical(1)})\cr
+Whether to lock the objects of the resulting \code{\link{R6Class}}.
+If \code{TRUE} (default), values can be freely assigned to \code{self} without declaring them in the
+class definition.}
 }
 \value{
 \code{\link{CallbackSet}}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/TorchCallback.R
 \name{TorchCallback}
 \alias{TorchCallback}
-\title{Descriptor of Torch Callback}
+\title{Torch Callback}
 \description{
 This wraps a \code{\link{CallbackSet}} and annotates it with metadata, most importantly a \code{\link{ParamSet}}.
 The callback is created for the given parameter values by calling the \verb{$generate()} method.
@@ -21,34 +21,34 @@ for each argument of the wrapped loss function, where the parametes are then of 
 }
 
 \examples{
- # Create a new torch callback from an existing callback set
- torch_callback = TorchCallback$new(CallbackSetCheckpoint)
- # The parameters are inferred
- torch_callback$param_set
+# Create a new torch callback from an existing callback set
+torch_callback = TorchCallback$new(CallbackSetCheckpoint)
+# The parameters are inferred
+torch_callback$param_set
 
- # Retrieve a torch callback from the dictionary
- torch_callback = t_clbk("checkpoint",
-   path = tempfile(), freq = 1
- )
- torch_callback
- torch_callback$label
- torch_callback$id
+# Retrieve a torch callback from the dictionary
+torch_callback = t_clbk("checkpoint",
+  path = tempfile(), freq = 1
+)
+torch_callback
+torch_callback$label
+torch_callback$id
 
- # open the help page of the wrapped callback
- # torch_callback$help()
+# open the help page of the wrapped callback set
+# torch_callback$help()
 
- # Create the callback set
- callback = torch_callback$generate()
- callback
- # is the same as
- CallbackSetCheckpoint$new(
-   path = tempfile(), freq = 1
- )
+# Create the callback set
+callback = torch_callback$generate()
+callback
+# is the same as
+CallbackSetCheckpoint$new(
+  path = tempfile(), freq = 1
+)
 
- # Use in a learner
- learner = lrn("regr.mlp", callbacks = t_clbk("checkpoint"))
- # the parameters of the callback are added to the learner's parameter set
- learner$param_set
+# Use in a learner
+learner = lrn("regr.mlp", callbacks = t_clbk("checkpoint"))
+# the parameters of the callback are added to the learner's parameter set
+learner$param_set
 
 }
 \seealso{
