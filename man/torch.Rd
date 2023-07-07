@@ -18,7 +18,7 @@ Defined by the constructor argument \code{param_set}.
 }
 
 \seealso{
-Other Descriptor Torch: 
+Other Torch Descriptor: 
 \code{\link{TorchCallback}},
 \code{\link{TorchLoss}},
 \code{\link{TorchOptimizer}},
@@ -31,7 +31,7 @@ Other Descriptor Torch:
 \code{\link{t_loss}()},
 \code{\link{t_opt}()}
 }
-\concept{Descriptor Torch}
+\concept{Torch Descriptor}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
@@ -84,10 +84,10 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{TorchDescriptor$new(
   generator,
-  id,
+  id = NULL,
   param_set = NULL,
   packages = NULL,
-  label = id,
+  label = NULL,
   man = NULL
 )}\if{html}{\out{</div>}}
 }

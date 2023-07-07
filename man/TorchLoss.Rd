@@ -6,7 +6,6 @@
 \description{
 This wraps a \code{torch::nn_loss} and annotates it with metadata, most importantly a \code{\link{ParamSet}}.
 The loss function is created for the given parameter values by calling the \verb{$generate()} method.
-\code{\link{Torch}}.
 
 This class is usually used to configure the loss function of a torch learner, e.g.
 when construcing a learner or in a \code{\link{ModelDescriptor}}.
@@ -23,28 +22,28 @@ for each argument of the wrapped loss function, where the parametes are then of 
 
 \examples{
 # Create a new loss descriptor
-descriptor = TorchLoss$new(torch_loss = nn_mse_loss, task_types = "regr")
-descriptor
+torch_loss = TorchLoss$new(torch_loss = nn_mse_loss, task_types = "regr")
+torch_loss
 # the parameters are inferred
-descriptor$param_set
+torch_loss$param_set
 
 # Retrieve a loss from the dictionary:
-descriptor = t_loss("mse", reduction = "mean")
+torch_loss = t_loss("mse", reduction = "mean")
 # is the same as
-descriptor
-descriptor$param_set
-descriptor$label
-descriptor$task_types
-descriptor$id
+torch_loss
+torch_loss$param_set
+torch_loss$label
+torch_loss$task_types
+torch_loss$id
 
 # Create the loss function
-loss_fn = descriptor$generate()
+loss_fn = torch_loss$generate()
 loss_fn
 # Is the same as
 nn_mse_loss(reduction = "mean")
 
 # open the help page of the wrapped loss function
-# descriptor$help()
+# torch_loss$help()
 
 # Use in a learner
 learner = lrn("regr.mlp", loss = t_loss("mse"))
@@ -52,7 +51,7 @@ learner = lrn("regr.mlp", loss = t_loss("mse"))
 learner$param_set
 }
 \seealso{
-Other Descriptor Torch: 
+Other Torch Descriptor: 
 \code{\link{TorchCallback}},
 \code{\link{TorchOptimizer}},
 \code{\link{as_torch_callbacks}()},
@@ -65,7 +64,7 @@ Other Descriptor Torch:
 \code{\link{t_opt}()},
 \code{\link{torch}}
 }
-\concept{Descriptor Torch}
+\concept{Torch Descriptor}
 \section{Super class}{
 \code{\link[mlr3torch:TorchDescriptor]{mlr3torch::TorchDescriptor}} -> \code{TorchLoss}
 }
@@ -103,8 +102,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   torch_loss,
   task_types,
   param_set = NULL,
-  id = deparse(substitute(torch_loss))[[1L]],
-  label = capitalize(id),
+  id = NULL,
+  label = NULL,
   packages = NULL,
   man = NULL
 )}\if{html}{\out{</div>}}

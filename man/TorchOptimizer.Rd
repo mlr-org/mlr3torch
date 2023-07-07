@@ -2,7 +2,7 @@
 % Please edit documentation in R/TorchOptimizer.R
 \name{TorchOptimizer}
 \alias{TorchOptimizer}
-\title{Descriptor Torch Optimizer}
+\title{Torch Optimizer}
 \description{
 This wraps a \code{torch::torch_optimizer_generator}a and annotates it with metadata, most importantly a \code{\link{ParamSet}}.
 The optimizer is created for the given parameter values by calling the \verb{$generate()} method.
@@ -22,26 +22,26 @@ for each argument of the wrapped loss function, where the parametes are then of 
 
 \examples{
 # Create a new optimizer descriptor
-descriptor = TorchOptimizer$new(optim_adam, label = "adam")
+torch_opt = TorchOptimizer$new(optim_adam, label = "adam")
 # If the param set is not specified, parameters are inferred but are of class ParamUty
-descriptor$param_set
+torch_opt$param_set
 
 # Retrieve an optimizer from the dictionary
-descriptor = t_opt("sgd", lr = 0.1)
-descriptor
-descriptor$param_set
-descriptor$label
-descriptor$id
+torch_opt = t_opt("sgd", lr = 0.1)
+torch_opt
+torch_opt$param_set
+torch_opt$label
+torch_opt$id
 
 # Create the optimizer for a network
 net = nn_linear(10, 1)
-opt = descriptor$generate(net$parameters)
+opt = torch_opt$generate(net$parameters)
 
 # is the same as
 optim_sgd(net$parameters, lr = 0.1)
 
 # open the help page of the wrapped optimizer
-# descriptor$help()
+# torch_opt$help()
 
 # Use in a learner
 learner = lrn("regr.mlp", optimizer = t_opt("sgd"))
@@ -49,7 +49,7 @@ learner = lrn("regr.mlp", optimizer = t_opt("sgd"))
 learner$param_set
 }
 \seealso{
-Other Descriptor Torch: 
+Other Torch Descriptor: 
 \code{\link{TorchCallback}},
 \code{\link{TorchLoss}},
 \code{\link{as_torch_callbacks}()},
@@ -62,7 +62,7 @@ Other Descriptor Torch:
 \code{\link{t_opt}()},
 \code{\link{torch}}
 }
-\concept{Descriptor Torch}
+\concept{Torch Descriptor}
 \section{Super class}{
 \code{\link[mlr3torch:TorchDescriptor]{mlr3torch::TorchDescriptor}} -> \code{TorchOptimizer}
 }
@@ -91,8 +91,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \if{html}{\out{<div class="r">}}\preformatted{TorchOptimizer$new(
   torch_optimizer,
   param_set = NULL,
-  id = deparse(substitute(torch_optimizer))[[1L]],
-  label = capitalize(id),
+  id = NULL,
+  label = NULL,
   packages = NULL,
   man = NULL
 )}\if{html}{\out{</div>}}

@@ -100,10 +100,10 @@ custom_tcb = torch_callback("custom",
   initialize = function(name) {
     self$name = name
   },
-  on_begin = function {
+  on_begin = function() {
     cat("Hello", self$name, ", we will train for ", self$ctx$total_epochs, "epochs.\n")
   },
-  on_end = function {
+  on_end = function() {
     cat("Training is done.")
   }
 )

@@ -64,7 +64,7 @@ Other Callback:
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{ctx}}{(\code{\link{TorchContext}} or \code{NULL})\cr
+\item{\code{ctx}}{(\code{\link{ContextTorch}} or \code{NULL})\cr
 The evaluation context for the callback.
 This field should always be \code{NULL} except during the \verb{$train()} call of the torch learner.}
 }

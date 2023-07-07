@@ -21,34 +21,34 @@ for each argument of the wrapped loss function, where the parametes are then of 
 }
 
 \examples{
-# Create a new callback descriptor from an existing callback
-descriptor = TorchCallback$new(CallbackSetCheckpoint)
-# The parameters are inferred
-descriptor$param_set
+ # Create a new torch callback from an existing callback set
+ torch_callback = TorchCallback$new(CallbackSetCheckpoint)
+ # The parameters are inferred
+ torch_callback$param_set
 
-# Retrieve a torch callback from the dictionary
-torchcallback = t_clbk("checkpoint",
-  path = tempfile(), freq = 1
-)
-descriptor
-descriptor$label
-descriptor$id
+ # Retrieve a torch callback from the dictionary
+ torch_callback = t_clbk("checkpoint",
+   path = tempfile(), freq = 1
+ )
+ torch_callback
+ torch_callback$label
+ torch_callback$id
 
-# Create the callback
-callback = descriptor$generate()
-callback
-# is the same as
-CallbackSetCheckpoint$new(
-  path = tempfile(), freq = 1
-)
+ # open the help page of the wrapped callback
+ # torch_callback$help()
 
-# open the help page of the wrapped callback
-# descriptor$help()
+ # Create the callback set
+ callback = torch_callback$generate()
+ callback
+ # is the same as
+ CallbackSetCheckpoint$new(
+   path = tempfile(), freq = 1
+ )
 
-# Use in a learner
-learner = lrn("regr.mlp", callbacks = t_clbk("checkpoint"))
-# the parameters of the callback are added to the learner's parameter set
-learner$param_set
+ # Use in a learner
+ learner = lrn("regr.mlp", callbacks = t_clbk("checkpoint"))
+ # the parameters of the callback are added to the learner's parameter set
+ learner$param_set
 
 }
 \seealso{
@@ -64,7 +64,7 @@ Other Callback:
 \code{\link{t_clbk}()},
 \code{\link{torch_callback}()}
 
-Other Descriptor Torch: 
+Other Torch Descriptor: 
 \code{\link{TorchLoss}},
 \code{\link{TorchOptimizer}},
 \code{\link{as_torch_callbacks}()},
@@ -78,7 +78,7 @@ Other Descriptor Torch:
 \code{\link{torch}}
 }
 \concept{Callback}
-\concept{Descriptor Torch}
+\concept{Torch Descriptor}
 \section{Super class}{
 \code{\link[mlr3torch:TorchDescriptor]{mlr3torch::TorchDescriptor}} -> \code{TorchCallback}
 }
@@ -107,8 +107,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \if{html}{\out{<div class="r">}}\preformatted{TorchCallback$new(
   callback_generator,
   param_set = NULL,
-  id = deparse(substitute(id))[[1L]],
-  label = capitalize(id),
+  id = NULL,
+  label = NULL,
   packages = NULL,
   man = NULL
 )}\if{html}{\out{</div>}}

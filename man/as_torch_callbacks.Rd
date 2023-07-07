@@ -2,7 +2,7 @@
 % Please edit documentation in R/TorchCallback.R
 \name{as_torch_callbacks}
 \alias{as_torch_callbacks}
-\title{Convert to a list of Callback Descriptors}
+\title{Convert to a list of Torch Callbacks}
 \usage{
 as_torch_callbacks(x, clone, ...)
 }
@@ -35,7 +35,7 @@ Other Callback:
 \code{\link{t_clbk}()},
 \code{\link{torch_callback}()}
 
-Other Descriptor Torch: 
+Other Torch Descriptor: 
 \code{\link{TorchCallback}},
 \code{\link{TorchLoss}},
 \code{\link{TorchOptimizer}},
@@ -49,4 +49,4 @@ Other Descriptor Torch:
 \code{\link{torch}}
 }
 \concept{Callback}
-\concept{Descriptor Torch}
+\concept{Torch Descriptor}

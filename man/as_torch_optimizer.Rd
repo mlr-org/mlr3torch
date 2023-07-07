@@ -25,7 +25,7 @@ Currently used to pass additional constructor arguments to \code{\link{TorchOpti
 Converts an object to a \code{\link{TorchOptimizer}}.
 }
 \seealso{
-Other Descriptor Torch: 
+Other Torch Descriptor: 
 \code{\link{TorchCallback}},
 \code{\link{TorchLoss}},
 \code{\link{TorchOptimizer}},
@@ -38,4 +38,4 @@ Other Descriptor Torch:
 \code{\link{t_opt}()},
 \code{\link{torch}}
 }
-\concept{Descriptor Torch}
+\concept{Torch Descriptor}

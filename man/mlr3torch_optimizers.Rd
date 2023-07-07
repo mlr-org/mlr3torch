@@ -28,7 +28,7 @@ t_opt("adam")
 as.data.table(mlr3torch_optimizers)
 }
 \seealso{
-Other Descriptor Torch: 
+Other Torch Descriptor: 
 \code{\link{TorchCallback}},
 \code{\link{TorchLoss}},
 \code{\link{TorchOptimizer}},
@@ -46,6 +46,6 @@ Other Dictionary:
 \code{\link{mlr3torch_losses}},
 \code{\link{t_opt}()}
 }
-\concept{Descriptor Torch}
 \concept{Dictionary}
+\concept{Torch Descriptor}
 \keyword{datasets}

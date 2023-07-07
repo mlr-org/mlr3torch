@@ -22,7 +22,7 @@ The keys of the callbacks.}
 \value{
 \code{\link{TorchCallback}}
 
-\code{list()} \code{\link{TorchCallback}}s
+\code{list()} of \code{\link{TorchCallback}}s
 }
 \description{
 Retrieves one or more \code{\link{TorchCallback}} from \code{\link{mlr3torch_callbacks}}.
@@ -44,7 +44,7 @@ Other Callback:
 \code{\link{mlr_context_torch}},
 \code{\link{torch_callback}()}
 
-Other Descriptor Torch: 
+Other Torch Descriptor: 
 \code{\link{TorchCallback}},
 \code{\link{TorchLoss}},
 \code{\link{TorchOptimizer}},
@@ -58,4 +58,4 @@ Other Descriptor Torch:
 \code{\link{torch}}
 }
 \concept{Callback}
-\concept{Descriptor Torch}
+\concept{Torch Descriptor}
