@@ -27,7 +27,7 @@ test_that("Basic Checks", {
   expect_equal(torchloss1$label, "Cross Entropy Loss")
 
   loss = torchloss1$generate()
-  expect_class(loss, c("nn_crossentropy_loss", "nn_module"))
+  expect_class(loss, c("nn_cross_entropy_loss", "nn_module"))
   expect_true(loss$ignore_index == 123)
 
   expect_error(TorchLoss$new(torch::nn_mse_loss, id = "mse", task_types = "regr", param_set = ps(par = p_uty())),
@@ -45,7 +45,7 @@ test_that("Basic Checks", {
 test_that("dictionary retrieval works", {
   torchloss = t_loss("cross_entropy", ignore_index = 1)
   expect_class(torchloss, "TorchLoss")
-  expect_class(torchloss$generator, "nn_crossentropy_loss")
+  expect_class(torchloss$generator, "nn_cross_entropy_loss")
   expect_equal(torchloss$param_set$values$ignore_index, 1)
 
   torchlosses = t_losses(c("cross_entropy", "mse"))
@@ -77,7 +77,7 @@ test_that("Printer works", {
 
   expected = c(
     "<TorchLoss:cross_entropy> Cross Entropy",
-    "* Generator: nn_crossentropy_loss",
+    "* Generator: nn_cross_entropy_loss",
     "* Parameters: list()",
     "* Packages: torch,mlr3torch",
     "* Task Types: classif"

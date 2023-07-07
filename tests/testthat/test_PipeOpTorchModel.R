@@ -41,7 +41,7 @@ test_that("Manual test: Classification and Regression", {
   expect_class(obj$state$model$network, c("nn_graph", "nn_module"))
   # Defaults are used
   expect_class(obj$state$model$optimizer, "optim_adam")
-  expect_class(obj$state$model$loss_fn, "nn_crossentropy_loss")
+  expect_class(obj$state$model$loss_fn, "nn_cross_entropy_loss")
 
   # It is possible to change parameter values
   md$optimizer = t_opt("adagrad", lr = 0.123)
@@ -57,7 +57,7 @@ test_that("Manual test: Classification and Regression", {
   graph = po("select", selector = selector_name(c("mpg", "cyl"))) %>>%
     po("torch_ingress_num") %>>%
     po("nn_head") %>>%
-    po("torch_loss", "cross_entropy") %>>%
+    po("torch_loss", "mse") %>>%
     po("torch_optimizer", "adam") %>>%
     po("torch_model_regr",
       batch_size = 10,

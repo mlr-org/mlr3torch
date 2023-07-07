@@ -10,10 +10,11 @@ PipeOpTorchMaxPool = R6Class("PipeOpTorchMaxPool",
     initialize = function(id, d, return_indices = FALSE, param_vals = list()) {
       private$.d = assert_int(d, lower = 1, upper = 3, coerce = TRUE)
       module_generator = switch(private$.d, nn_max_pool1d, nn_max_pool2d, nn_max_pool3d)
+      check_vector = make_check_vector(d)
       param_set = ps(
-        kernel_size = p_uty(custom_check = check_vector(d), tags = c("required", "train")),
-        stride = p_uty(default = NULL, custom_check = check_vector(d), tags = "train"),
-        padding = p_uty(default = 0L, custom_check = check_vector(d), tags = "train"),
+        kernel_size = p_uty(custom_check = check_vector, tags = c("required", "train")),
+        padding = p_uty(default = 0L, custom_check = check_vector, tags = "train"),
+        stride = p_uty(default = NULL, custom_check = check_vector, tags = "train"),
         dilation = p_int(default = 1L, tags = "train"),
         ceil_mode = p_lgl(default = FALSE, tags = "train")
       )

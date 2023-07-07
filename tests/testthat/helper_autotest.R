@@ -293,5 +293,5 @@ autotest_torch_callback = function(cb, init_args = list()) {
 
   implemented_stages = names(cbgen$public_methods)[grepl("^on_", names(cbgen$public_methods))]
 
-  expect_subset(implemented_stages, mlr3torch_callback_stages)
+  expect_subset(implemented_stages, mlr_reflections$torch$callback_stages)
 }

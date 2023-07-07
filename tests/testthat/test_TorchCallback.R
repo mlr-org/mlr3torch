@@ -54,7 +54,7 @@ test_that("dictionary can be coverted to a table", {
 test_that("torch_callback helper function works", {
   stages = formalArgs(torch_callback)
   stages = stages[grepl("^on_", stages)]
-  expect_set_equal(stages, mlr3torch_callback_stages)
+  expect_set_equal(stages, mlr_reflections$torch$callback_stages)
 
   expect_warning(torch_callback(id = "Custom", public = list(
     on_edn = function(ctx) NULL, on_nde = function(ctx) NULL)))

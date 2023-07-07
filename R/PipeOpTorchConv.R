@@ -4,12 +4,13 @@ PipeOpTorchConv = R6Class("PipeOpTorchConv",
     initialize = function(id, d, module_generator, param_vals = list()) {
       private$.d = assert_int(d)
 
+      check_vector = make_check_vector(d)
       param_set = ps(
         out_channels = p_int(lower = 1L, tags = c("required", "train")),
-        kernel_size = p_uty(custom_check = check_vector(d), tags = c("required", "train")),
-        stride = p_uty(default = 1L, custom_check = check_vector(d), tags = "train"),
-        padding = p_uty(default = 0L, custom_check = check_vector(d), tags = "train"),
-        dilation = p_uty(default = 1L, custom_check = check_vector(d), tags = "train"),
+        kernel_size = p_uty(custom_check = check_vector, tags = c("required", "train")),
+        stride = p_uty(default = 1L, custom_check = check_vector, tags = "train"),
+        padding = p_uty(default = 0L, custom_check = check_vector, tags = "train"),
+        dilation = p_uty(default = 1L, custom_check = check_vector, tags = "train"),
         groups = p_int(default = 1L, lower = 1L, tags = "train"),
         bias = p_lgl(default = TRUE, tags = "train"),
         padding_mode = p_fct(default = "zeros", levels = c("zeros", "circular", "replicate", "reflect"),

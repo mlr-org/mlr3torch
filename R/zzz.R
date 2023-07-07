@@ -19,39 +19,6 @@ mlr3torch_tasks = new.env()
 mlr3torch_tags = c("torch", "activation")
 mlr3torch_feature_types = c(img = "imageuri")
 
-mlr3torch_activations = c(
-  "celu",
-  "tanh",
-  "softpluts",
-  "rrelu",
-  "softsign",
-  "relu",
-  "sigmoid",
-  "gelu",
-  "hardtanh",
-  "linear",
-  "prelu",
-  "relu6",
-  "selu",
-  "hardshrink",
-  "softshrink",
-  "leaky_relu"
-)
-
-# these are sorted in the order in which they are executed
-mlr3torch_callback_stages = c(
-  "on_begin",
-  "on_epoch_begin",
-  "on_batch_begin",
-  "on_after_backward",
-  "on_batch_end",
-  "on_before_valid",
-  "on_batch_valid_begin",
-  "on_batch_valid_end",
-  "on_epoch_end",
-  "on_end"
-)
-
 
 # metainf must be manually added in the register_mlr3pipelines function
 # Because the value is substituted, we cannot pass it through this function
@@ -79,6 +46,41 @@ register_mlr3 = function() {
 
   mlr_reflections = utils::getFromNamespace("mlr_reflections", ns = "mlr3") # nolint
   iwalk(as.list(mlr3torch_feature_types), function(ft, nm) mlr_reflections$task_feature_types[[nm]] = ft) # nolint
+
+  mlr_reflections$torch = list(
+    devices = c("auto", "cpu", "cuda", "mkldnn", "opengl", "opencl", "ideep", "hip", "fpga", "xla", "mps"),
+    callback_stages = c(
+      "on_begin",
+      "on_epoch_begin",
+      "on_batch_begin",
+      "on_after_backward",
+      "on_batch_end",
+      "on_before_valid",
+      "on_batch_valid_begin",
+      "on_batch_valid_end",
+      "on_epoch_end",
+      "on_end"
+    ),
+    activations = c(
+      "celu",
+      "tanh",
+      "softpluts",
+      "rrelu",
+      "softsign",
+      "relu",
+      "sigmoid",
+      "gelu",
+      "hardtanh",
+      "linear",
+      "prelu",
+      "relu6",
+      "selu",
+      "hardshrink",
+      "softshrink",
+      "leaky_relu"
+    )
+  )
+
 }
 
 register_mlr3pipelines = function() {

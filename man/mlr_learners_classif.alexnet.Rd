@@ -37,6 +37,7 @@ Parameters from \code{\link{LearnerClassifTorchImage}} and
 \itemize{
 \item \code{pretrained} :: \code{logical(1)}\cr
 Whether to use the pretrained model.
+This parameter is initialized to \code{TRUE}.
 }
 }
 
@@ -57,6 +58,7 @@ Other Learner:
 \code{\link{mlr_learners_classif.torch}},
 \code{\link{mlr_learners_classif_torch_image}},
 \code{\link{mlr_learners_regr.mlp}},
+\code{\link{mlr_learners_regr.torch_featureless}},
 \code{\link{mlr_learners_regr.torch_model}},
 \code{\link{mlr_learners_regr.torch}}
 }

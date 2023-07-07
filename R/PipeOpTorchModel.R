@@ -30,12 +30,12 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
-    #' @param task_type `character(1)`\cr
+    #' @param task_type (`character(1)`)\cr
     #'   The task type of the model.
     initialize = function(id = "torch_model", param_vals = list(), task_type) {
       # TODO: Add properties argument
       private$.task_type = assert_choice(task_type, c("classif", "regr"))
-      param_set = paramset_torchlearner()
+      param_set = paramset_torchlearner(task_type)
       input = data.table(
         name = "input",
         train = "ModelDescriptor",

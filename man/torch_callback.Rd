@@ -30,7 +30,7 @@ torch_callback(
 )
 }
 \arguments{
-\item{id}{(\code{character(1)})\cr`\cr
+\item{id}{(\code{character(1)})\cr
 The id for the callbacks.
 Note that the ids of callbacks passed to a learner must be unique.}
 

@@ -58,7 +58,7 @@ t_clbks.NULL = function(.keys, ...) { # nolint
 #'
 #' @param x (any)\cr
 #'   Object to be converted.
-#' @param clone (`logical(1)`\cr
+#' @param clone (`logical(1)`)\cr
 #'   Whether to make a deep clone.
 #' @param ... (any)\cr
 #'   Additional arguments
@@ -152,7 +152,7 @@ as_torch_callbacks.character = function(x, clone = FALSE, ...) { # nolint
 #' # The parameters are inferred
 #' torchcallback$param_set
 #'
-#' # Retrieve a torch callbac from the dictionary
+#' # Retrieve a torch callback from the dictionary
 #' torchcallback = t_clbk("checkpoint",
 #'   path = tempfile(), freq = 1
 #' )
@@ -211,7 +211,7 @@ TorchCallback = R6Class("TorchCallback",
 #' It returns a [`TorchCallback`] wrapping a [`CallbackTorch`].
 #'
 #' @inheritParams callback_torch
-#' @param id (`character(1)`)\cr`\cr
+#' @param id (`character(1)`)\cr
 #'   The id for the callbacks.
 #'   Note that the ids of callbacks passed to a learner must be unique.
 #' @param param_set (`ParamSet`)\cr

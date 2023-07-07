@@ -57,7 +57,7 @@ LearnerClassifTorchModel = R6Class("LearnerClassifTorchModel",
       private$.network_stored = assert_class(network, "nn_module")
       private$.ingress_tokens = assert_list(ingress_tokens, types = "TorchIngressToken")
       if (is.null(feature_types)) {
-        feature_types = mlr_reflections$task_feature_types
+        feature_types = unname(mlr_reflections$task_feature_types)
       } else {
         assert_subset(feature_types, mlr_reflections$task_feature_types)
       }
@@ -66,6 +66,7 @@ LearnerClassifTorchModel = R6Class("LearnerClassifTorchModel",
         label = "Torch Classification Model",
         optimizer = optimizer,
         loss = loss,
+        callbacks = callbacks,
         packages = packages,
         param_set = ps(),
         feature_types = feature_types,
@@ -82,7 +83,7 @@ LearnerClassifTorchModel = R6Class("LearnerClassifTorchModel",
         task,
         feature_ingress_tokens = private$.ingress_tokens,
         target_batchgetter = target_batchgetter("classif"),
-        device = param_vals$device %??% self$param_set$default$device
+        device = param_vals$device
       )
     },
     .network_stored = NULL,
@@ -147,7 +148,7 @@ LearnerRegrTorchModel = R6Class("LearnerRegrTorchModel",
       private$.network_stored = assert_class(network, "nn_module")
       private$.ingress_tokens = assert_list(ingress_tokens, types = "TorchIngressToken")
       if (is.null(feature_types)) {
-        feature_types = mlr_reflections$task_feature_types
+        feature_types = unname(mlr_reflections$task_feature_types)
       } else {
         assert_subset(feature_types, mlr_reflections$task_feature_types)
       }
@@ -172,7 +173,7 @@ LearnerRegrTorchModel = R6Class("LearnerRegrTorchModel",
         task,
         feature_ingress_tokens = private$.ingress_tokens,
         target_batchgetter = target_batchgetter("regr"),
-        device = param_vals$device %??% self$param_set$default$device
+        device = param_vals$device
       )
     },
     .network_stored = NULL,

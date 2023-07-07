@@ -10,7 +10,7 @@ as_torch_loss(x, clone = FALSE, ...)
 \item{x}{(any)\cr
 Object to convert to a \code{\link{TorchLoss}}.}
 
-\item{clone}{(\code{logical(1)}\cr
+\item{clone}{(\code{logical(1)})\cr
 Whether to make a deep clone.}
 
 \item{...}{(any)\cr

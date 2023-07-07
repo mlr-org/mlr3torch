@@ -26,7 +26,7 @@ torchcallback = TorchCallback$new(CallbackTorchCheckpoint)
 # The parameters are inferred
 torchcallback$param_set
 
-# Retrieve a torch callbac from the dictionary
+# Retrieve a torch callback from the dictionary
 torchcallback = t_clbk("checkpoint",
   path = tempfile(), freq = 1
 )

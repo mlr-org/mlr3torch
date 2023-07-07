@@ -29,10 +29,10 @@ Authors@R:
 Description: Provides torch models as learners for the mlr3 ecosystem.
 License: LGPL (>= 3)
 Depends:
-    mlr3 (>= 0.13.1),
-    mlr3pipelines,
+    mlr3 (>= 0.16.0),
+    mlr3pipelines (>= 0.5.0),
     mlr3misc (>= 0.11.0),
-    torch (>= 0.8.1),
+    torch (>= 0.11.0),
     R (>= 3.5.0)
 Imports:
     backports,
@@ -55,11 +55,6 @@ Suggests:
     rmarkdown,
     torchvision,
     testthat (>= 3.0.0)
-Remotes:
-  mlverse/torchvision,
-  mlverse/torch,
-  mlr-org/mlr3pipelines,
-  mlr-org/mlr3misc
 Config/testthat/edition: 3
 NeedsCompilation: no
 ByteCompile: no
@@ -106,11 +101,8 @@ Collate:
     'TaskClassif_tiny_imagenet.R'
     'TorchOptimizer.R'
     'TorchWrapper.R'
-    'assertions.R'
     'bibentries.R'
-    'expectations.R'
     'helper.R'
-    'image_dataset.R'
     'imageuri.R'
     'learner_torch_methods.R'
     'nn_graph.R'
@@ -118,3 +110,4 @@ Collate:
     'reset_last_layer.R'
     'task_dataset.R'
     'utils.R'
+    'with_torch_settings.R'
