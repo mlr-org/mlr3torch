@@ -157,7 +157,7 @@ Identifier of the resulting  object.}
 List of hyperparameter settings, overwriting the hyperparameter settings that would
 otherwise be set during construction.}
 
-\item{\code{task_type}}{\code{character(1)}\cr
+\item{\code{task_type}}{(\code{character(1)})\cr
 The task type of the model.}
 }
 \if{html}{\out{</div>}}

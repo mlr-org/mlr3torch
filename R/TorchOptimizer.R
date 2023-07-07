@@ -5,7 +5,7 @@
 #'
 #' @param x (any)\cr
 #'   Object to convert to a [`TorchOptimizer`].
-#' @param clone (`logical(1)`\cr
+#' @param clone (`logical(1)`)\cr
 #'   Whether to make a deep clone. Default is `FALSE`.
 #' @param ... (any)\cr
 #'   Additional arguments.
@@ -180,7 +180,7 @@ t_opt = function(.key, ...) {
 
 #' @export
 t_opt.character = function(.key, ...) { #nolint
-  dictionary_sugar_inc_get(mlr3torch_optimizers, .key, ...)
+  dictionary_sugar_inc_get(dict = mlr3torch_optimizers, .key, ...)
 }
 
 #' @export
@@ -204,7 +204,7 @@ t_opts = function(.keys, ...) {
 
 #' @export
 t_opts.character = function(.keys, ...) { # nolint
-  dictionary_sugar_inc_mget(mlr3torch_optimizers, .keys, ...)
+  dictionary_sugar_inc_mget(dict = mlr3torch_optimizers, .keys, ...)
 }
 
 #' @export
