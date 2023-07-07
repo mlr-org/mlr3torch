@@ -27,7 +27,7 @@
 #'   ([`Task`], `list()`) -> [`torch::dataset`]\cr
 #'   Create the dataset for the task.
 #'   Must respect the parameter value of the device.
-#'   Moreover, one needs to pay attention use the row id of the provided task.
+#'   Moreover, one needs to pay attention respect the row ids of the provided task.
 #'
 #' It is also possible to overwrite the private `.dataloader()` method instead of the `.dataset()` method.
 #' Per default, a dataloader is constructed using the output from the `.dataset()` method.

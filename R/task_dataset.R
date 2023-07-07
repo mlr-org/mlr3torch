@@ -99,9 +99,6 @@ dataset_num = function(task, param_vals) {
 }
 
 dataset_num_categ = function(task, param_vals) {
-  assert_task(task)
-  assert_list(param_vals, names = "unique")
-  assert_choice(param_vals$device , c("cpu", "cuda"))
   features_num = task$feature_types[get("type") %in% c("numeric", "integer"), "id"][[1L]]
   features_categ = task$feature_types[get("type") %in% c("factor", "ordered", "logical"), "id"][[1L]]
 
