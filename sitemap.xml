@@ -58,7 +58,7 @@
     <loc>https://mlr3torch.mlr-org.com/reference/batchgetter_num.html</loc>
   </url>
   <url>
-    <loc>https://mlr3torch.mlr-org.com/reference/callback_torch.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/callback_set.html</loc>
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/imageuri.html</loc>
@@ -79,16 +79,16 @@
     <loc>https://mlr3torch.mlr-org.com/reference/mlr3torch_optimizers.html</loc>
   </url>
   <url>
-    <loc>https://mlr3torch.mlr-org.com/reference/mlr_callbacks_torch.checkpoint.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_callback_set.checkpoint.html</loc>
   </url>
   <url>
-    <loc>https://mlr3torch.mlr-org.com/reference/mlr_callbacks_torch.history.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_callback_set.history.html</loc>
   </url>
   <url>
-    <loc>https://mlr3torch.mlr-org.com/reference/mlr_callbacks_torch.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_callback_set.html</loc>
   </url>
   <url>
-    <loc>https://mlr3torch.mlr-org.com/reference/mlr_callbacks_torch.progress.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_callback_set.progress.html</loc>
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/mlr_context_torch.html</loc>
@@ -349,9 +349,9 @@
     <loc>https://mlr3torch.mlr-org.com/reference/task_dataset.html</loc>
   </url>
   <url>
-    <loc>https://mlr3torch.mlr-org.com/reference/torch_callback.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/torch.html</loc>
   </url>
   <url>
-    <loc>https://mlr3torch.mlr-org.com/reference/torch_wrapper.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/torch_callback.html</loc>
   </url>
 </urlset>

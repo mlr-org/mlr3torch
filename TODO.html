@@ -84,13 +84,13 @@
 <li>[o] learner_torch_predict (not sure how to test this)</li>
 </ul><p><strong>Callbacks</strong></p>
 <ul class="task-list"><li>
-<input type="checkbox" disabled checked>CallbackTorchProgress</li>
+<input type="checkbox" disabled checked>CallbackSetProgress</li>
 <li>
-<input type="checkbox" disabled checked>CallbackTorchHistory</li>
+<input type="checkbox" disabled checked>CallbackSetHistory</li>
 <li>
-<input type="checkbox" disabled checked>callback_torch</li>
+<input type="checkbox" disabled checked>torch_callback</li>
 <li>
-<input type="checkbox" disabled checked>CallbackTorch</li>
+<input type="checkbox" disabled checked>CallbackSet</li>
 <li>
 <input type="checkbox" disabled checked>ContextTorch</li>
 <li>
@@ -135,17 +135,17 @@
 <ul class="task-list"><li>
 <input type="checkbox" disabled checked>TorchLoss</li>
 <li>
-<input type="checkbox" disabled checked>as_torch_loss.TorchLoss</li>
+<input type="checkbox" disabled checked>as_torch_optimizer.TorchLoss</li>
 <li>
-<input type="checkbox" disabled checked>as_torch_loss.nn_loss</li>
+<input type="checkbox" disabled checked>as_torch_optimizer.nn_loss</li>
 <li>
-<input type="checkbox" disabled checked>as_torch_loss</li>
+<input type="checkbox" disabled checked>as_torch_optimizer</li>
 <li>
 <input type="checkbox" disabled checked>t_loss</li>
 <li>
 <input type="checkbox" disabled checked>mlr3torch_losses</li>
 <li>
-<input type="checkbox" disabled checked>as_torch_loss.character</li>
+<input type="checkbox" disabled checked>as_torch_optimizer.character</li>
 </ul><p><strong>Other</strong></p>
 <ul class="task-list"><li>
 <input type="checkbox" disabled checked>argument_matcher</li>
@@ -207,7 +207,8 @@
 <li>
 <input type="checkbox" disabled>nn_reshape</li>
 </ul><p>Some notes:</p>
-<ul><li>
+<ul><li>Should we enforce the “train” tag for Torch{Optimizer, Loss, Callback}, i.e. set it in the initialize method of LearnerTorch?</li>
+<li>
 <input type="checkbox" disabled>in learner construction ensure usage of “train” and “predict” parameters</li>
 <li>
 <input type="checkbox" disabled>Utility functions for save_torch_learner and load_torch_learner, this should also be called in callback checkpoint</li>
@@ -215,7 +216,6 @@
 <li>
 <input type="checkbox" disabled>Fix the dictionary issue for the learners and the tasks</li>
 <li>ctx in intitiaalize self zuweisen: Dann ist klar dass das immer das gleiche Objekt ist</li>
-<li>make callback methods public again</li>
 <li>rename TorchLoss, TorchOptimizer, TorchCallback to e.g. TorchDescriptorLoss</li>
 <li>images like in torchvision (not in inst but in tests)</li>
 <li>assignment for imageuri</li>
@@ -224,9 +224,8 @@
 <li>investigate caching of networks and datasets</li>
 <li>Ensure that the names of the output of the dataloader correspond to the names of the network’s forward function Beware … inputs! Needs renaming some existing dataloaders and an informative error message</li>
 <li>What happens if there are two ingress tokens but one of them returns an empty tensor?</li>
-<li>add saving to callback checkpoint</li>
-<li>I.e. the dataset_num, dataset_img etc. need to have an argument “argname” or something</li>
-<li>For tasks: Get a better task than nano_imagenet. Ideally one with images of different shape. Then remove it from the We should probably also provide a way to</li>
+<li>add saving to callback checkpoint I.e. the dataset_num, dataset_img etc. need to have an argument “argname” or something</li>
+<li>For tasks: Get a better task than nano_imagenet. Ideally one with images of different shape. Then remove it from the</li>
 <li>cloning of pipeopmodule –&gt; adapt expect_deep_clone for torch</li>
 <li>warn when cloning custom callbacks</li>
 <li>tests with non-standard row ids</li>
@@ -239,11 +238,12 @@
 <li>Why did the initialize method with param_set = self$param_set work???</li>
 <li>Use with_torch_manual_seed when available</li>
 <li>save_ctx as callback for testing</li>
-<li>How to clone LearnerTorchModel (When .network is the trained network (?), what happens when calling train twice ???) –&gt; Probably this learner should NOT be exported or it must be clearly documented how this learner behaves. We could address this by cloning but this would cost a lot of performance in every train call of a torch graph learner.</li>
+<li>How to clone LearnerTorchModel (When .network is the trained network (?), what happens when calling train twice ???) –&gt; Probably this learner should NOT be exported or it must be clearly documented how this learner behaves. We could address this by cloning but this would cost a lot of performance in every train call of a torch graph learner. Alternatively, the PipeOpTorchXXX objects could store the call to create the nn_module() instead of creating the nn_module() immediately.</li>
+<li>What about the learner that takes in a module?</li>
 </ul><p><strong>Other</strong> * Check how the output names are generated, when outputs of non-terminal nodes are used in “output_map” (“output_<id>_output.<channel>“)</channel></id></p>
 <ul class="task-list"><li>
 <input type="checkbox" disabled>Implement the torch methods with explicit parameters in the function so that we can better check whether a parameter from paramset_torchlearner is actually doing something</li>
-</ul><p><strong>Test Coverage</strong> * [ ] Proper testing for torch learners: * don’t need the autotest as we don’t really test the learners. * Instead we need to that: * network is generated correctly from the parameters * deep cloning works * The callbacks, optimizer, and loss are correctly set * the dataloader generates the data correctly and matches the network structure. This includes checking that the parameters (device, batch_size and shuffle are used correctly). Need to be extendinble to future parameters like num_workers * [ ] Check that defaults and initial values are correctly used everywhere * [ ] Autotest should check that all parameters are tagged with train and predict etc. Generally determine usage of tags. * [ ] Run some tests on gpu * [ ] ensure proper use of tags in e.g. <code>param_set$get_values(tags = "train")</code> in expect_learner_torch * use meta device to test device placement * What happens if a pipeoptorch ingress gets 0 features? * test: Manual test: Classification and Regression, test that it works with selecting only one features (“mpg”) (is currently a bug) * add test for predict_newdata * name variables and test better * [ ] properly test the shapes_out() method of the pipeoptorch * [ ] Parameters must have default or tag required (?) * [ ] Check that mlr_pipeops can still be converted to dict * [ ] autotest for torch learner should ensure that optimizer and loss can be set in construction * [ ] Test that the defaults of the activation functions are correctly implemented * [ ] Properly refactor the test helpers (classes and modules etc) in other files and dont keep them in the tests. * [ ] Use the tests from mlr3pipelines for all the pipeops * [ ] Test the updated versions of the TorchWrapper * [ ] Deep clones of torch modules: -&gt; the function that checks for deep clones needs to skip some torch-specific stuff, e.g. the attribute “module” for nn modules, or “Optimizer” for optim_adam etc. * [ ] Test that the default values of the pipeops are correctly documented * Write expect_learner_torch that checks all the properties a torch learner has to satisfy * [ ] Meta tests for the functions / objects created for the tests (like PipeOpTorchDebug) * [ ] Parameter tests for callbacks * [ ] Test that all optimizers are working (closure issue for lbfgs) * [ ] Test that all losses are working * [ ] regr learners have mse and classif ce as default loss * [ ] remove unneeded test helper functions from mlr3pipelines * Rename the TorchLoss, TorchOptimizer, TorchCallback to DescriptorTorchCallback, DescriptorTorchOptimizer, DescriptorTorchLoss. * mention that .dataset() must take row ids into account and add tests with reverse row ids for iris, mtcars, nano_imagenet, … * expect_learner_torch should test all private methods (like .network, .dataloader). Because all the learners are essentially the same (except for these methods) autotests don’t make sense. Instead we test the general training funtions once and then the .network and .dataloader for each object (and that they match each other, e.g. with respect to argument names of the network’s forward function) * Must be possible to randomly initialize a seed. This is desireable when resampling a nn as one might want to take the variance of the initialization into account (currently all resamplings would be run with the same initialization) * LearnerTorchModel: * Deep cloning of learner torch model is problematic. * calling <code>$train()</code> twice keeps training the network which we probably don’t want. * document somewhere that MPS device is not reprodicle with with_torch_manual_seed * Use lgr instead of cat etc., in general do a lot more logging</p>
+</ul><p><strong>Test Coverage</strong> * run paramtest vs autotest_paramset –&gt; decide for one and delete the other * [ ] Proper testing for torch learners: * don’t need the autotest as we don’t really test the learners. * Instead we need to that: * network is generated correctly from the parameters * deep cloning works * The callbacks, optimizer, and loss are correctly set * the dataloader generates the data correctly and matches the network structure. This includes checking that the parameters (device, batch_size and shuffle are used correctly). Need to be extendinble to future parameters like num_workers * [ ] Check that defaults and initial values are correctly used everywhere * [ ] Autotest should check that all parameters are tagged with train and predict etc. Generally determine usage of tags. * [ ] Run some tests on gpu * [ ] ensure proper use of tags in e.g. <code>param_set$get_values(tags = "train")</code> in expect_learner_torch * use meta device to test device placement * What happens if a pipeoptorch ingress gets 0 features? * test: Manual test: Classification and Regression, test that it works with selecting only one features (“mpg”) (is currently a bug) * add test for predict_newdata * name variables and test better * [ ] properly test the shapes_out() method of the pipeoptorch * [ ] Parameters must have default or tag required (?) * [ ] Check that mlr_pipeops can still be converted to dict * [ ] autotest for torch learner should ensure that optimizer and loss can be set in construction * [ ] Test that the defaults of the activation functions are correctly implemented * [ ] Properly refactor the test helpers (classes and modules etc) in other files and dont keep them in the tests. * [ ] Use the tests from mlr3pipelines for all the pipeops * [ ] Test the updated versions of the Descriptors * [ ] Deep clones of torch modules: -&gt; the function that checks for deep clones needs to skip some torch-specific stuff, e.g. the attribute “module” for nn modules, or “Optimizer” for optim_adam etc. * [ ] Test that the default values of the pipeops are correctly documented * Write expect_learner_torch that checks all the properties a torch learner has to satisfy * [ ] Meta tests for the functions / objects created for the tests (like PipeOpTorchDebug) * [ ] Parameter tests for callbacks * [ ] Test that all optimizers are working (closure issue for lbfgs) * [ ] Test that all losses are working * [ ] regr learners have mse and classif ce as default loss * [ ] remove unneeded test helper functions from mlr3pipelines * Rename the TorchLoss, TorchOptimizer, TorchCallback to TorchCallback, TorchOptimizer, TorchLoss. * mention that .dataset() must take row ids into account and add tests with reverse row ids for iris, mtcars, nano_imagenet, … * expect_learner_torch should test all private methods (like .network, .dataloader). Because all the learners are essentially the same (except for these methods) autotests don’t make sense. Instead we test the general training funtions once and then the .network and .dataloader for each object (and that they match each other, e.g. with respect to argument names of the network’s forward function) * Must be possible to randomly initialize a seed. This is desireable when resampling a nn as one might want to take the variance of the initialization into account (currently all resamplings would be run with the same initialization) * LearnerTorchModel: * Deep cloning of learner torch model is problematic. * calling <code>$train()</code> twice keeps training the network which we probably don’t want. * document somewhere that MPS device is not reprodicle with with_torch_manual_seed * Use lgr instead of cat etc., in general do a lot more logging</p>
 <p><strong>Maybe</strong></p>
 <p><strong>Documentation</strong></p>
 <ul><li>Vignette</li>
@@ -286,7 +286,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p><p>Developed by Sebastian Fischer, Lukas Burk, Martin Binder.</p>
+  <p></p><p>Developed by Sebastian Fischer, Martin Binder.</p>
 </div>
 
 <div class="pkgdown-footer-right">
