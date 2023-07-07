@@ -43,7 +43,7 @@
 CallbackSet = R6Class("CallbackSet",
   lock_objects = FALSE,
   public = list(
-    #' @field ctx ([`TorchContext`] or `NULL`)\cr
+    #' @field ctx ([`ContextTorch`] or `NULL`)\cr
     #'   The evaluation context for the callback.
     #'   This field should always be `NULL` except during the `$train()` call of the torch learner.
     ctx = NULL

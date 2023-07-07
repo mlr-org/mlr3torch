@@ -1,15 +1,15 @@
 test_that("Basic checks", {
-  descriptor = TorchOptimizer$new(
+  torch_opt = TorchOptimizer$new(
     torch_optimizer = optim_adam,
     label = "Adam",
     packages = "mypackage"
   )
-  expect_equal(descriptor$id, "optim_adam")
-  expect_r6(descriptor, "TorchOptimizer")
-  expect_set_equal(descriptor$packages, c("mypackage", "torch", "mlr3torch"))
-  expect_equal(descriptor$label, "Adam")
-  expect_set_equal(descriptor$param_set$ids(), setdiff(formalArgs(optim_adam), "params"))
-  expect_error(descriptor$generate(), regexp = "could not be loaded: mypackage", fixed = TRUE)
+  expect_equal(torch_opt$id, "optim_adam")
+  expect_r6(torch_opt, "TorchOptimizer")
+  expect_set_equal(torch_opt$packages, c("mypackage", "torch", "mlr3torch"))
+  expect_equal(torch_opt$label, "Adam")
+  expect_set_equal(torch_opt$param_set$ids(), setdiff(formalArgs(optim_adam), "params"))
+  expect_error(torch_opt$generate(), regexp = "could not be loaded: mypackage", fixed = TRUE)
 
   expect_error(
     TorchOptimizer$new(
@@ -23,35 +23,35 @@ test_that("Basic checks", {
     regexp = "Parameter values with ids 'par' are missing in generator.", fixed = TRUE
   )
 
-  descriptor1 = TorchOptimizer$new(
+  torch_opt1 = TorchOptimizer$new(
     torch_optimizer = optim_sgd,
     label = "Stochastic Gradient Descent",
     id = "Sgd"
   )
 
-  descriptor1$param_set$set_values(lr = 0.9191)
-  expect_set_equal(descriptor1$packages, c("torch", "mlr3torch"))
-  expect_equal(descriptor1$label, "Stochastic Gradient Descent")
-  expect_equal(descriptor1$id, "Sgd")
-  expect_equal(descriptor1$param_set$values$lr, 0.9191)
+  torch_opt1$param_set$set_values(lr = 0.9191)
+  expect_set_equal(torch_opt1$packages, c("torch", "mlr3torch"))
+  expect_equal(torch_opt1$label, "Stochastic Gradient Descent")
+  expect_equal(torch_opt1$id, "Sgd")
+  expect_equal(torch_opt1$param_set$values$lr, 0.9191)
 
-  opt = descriptor1$generate(nn_linear(1, 1)$parameters)
+  opt = torch_opt1$generate(nn_linear(1, 1)$parameters)
   expect_class(opt, "torch_optimizer")
   expect_equal(opt$defaults$lr, 0.9191)
 
-  descriptor2 = TorchOptimizer$new(
+  torch_opt2 = TorchOptimizer$new(
     torch_optimizer = optim_sgd,
     param_set = ps(lr = p_uty())
   )
-  expect_equal(descriptor2$param_set$ids(), "lr")
+  expect_equal(torch_opt2$param_set$ids(), "lr")
 })
 
 
 test_that("dictionary retrieval works", {
-  descriptor = t_opt("adam", lr = 0.99)
-  expect_r6(descriptor, "TorchOptimizer")
-  expect_class(descriptor$generator, "optim_adam")
-  expect_equal(descriptor$param_set$values$lr, 0.99)
+  torch_opt = t_opt("adam", lr = 0.99)
+  expect_r6(torch_opt, "TorchOptimizer")
+  expect_class(torch_opt$generator, "optim_adam")
+  expect_equal(torch_opt$param_set$values$lr, 0.99)
 
   descriptors = t_opts(c("adam", "sgd"))
   expect_list(descriptors, types = "TorchOptimizer")
@@ -70,9 +70,9 @@ test_that("dictionary can be converted to a table", {
 })
 
 test_that("Cloning works", {
-  descriptor1 = t_opt("adam")
-  descriptor2 = descriptor1$clone(deep = TRUE)
-  expect_deep_clone(descriptor1, descriptor2)
+  torch_opt1 = t_opt("adam")
+  torch_opt2 = torch_opt1$clone(deep = TRUE)
+  expect_deep_clone(torch_opt1, torch_opt2)
 })
 
 test_that("Printer works", {
@@ -89,78 +89,83 @@ test_that("Printer works", {
 
 test_that("Converters are correctly implemented", {
   expect_r6(as_torch_optimizer("adam"), "TorchOptimizer")
-  descriptor = as_torch_optimizer(optim_adam)
-  expect_r6(descriptor, "TorchOptimizer")
-  expect_equal(descriptor$id, "optim_adam")
-  expect_equal(descriptor$label, "Optim_adam")
+  torch_opt = as_torch_optimizer(optim_adam)
+  expect_r6(torch_opt, "TorchOptimizer")
+  expect_equal(torch_opt$id, "optim_adam")
+  expect_equal(torch_opt$label, "optim_adam")
 
-  descriptor1 = as_torch_optimizer(descriptor, clone = TRUE)
-  expect_deep_clone(descriptor, descriptor1)
+  torch_opt1 = as_torch_optimizer(torch_opt, clone = TRUE)
+  expect_deep_clone(torch_opt, torch_opt1)
 
-  descriptor2 = as_torch_optimizer(optim_adam, id = "myopt", label = "Custom",
+  torch_op2 = as_torch_optimizer(optim_adam, id = "myopt", label = "Custom",
     man = "my_opt", param_set = ps(lr = p_uty())
   )
-  expect_r6(descriptor2, "TorchOptimizer")
-  expect_equal(descriptor2$id, "myopt")
-  expect_equal(descriptor2$label, "Custom")
-  expect_equal(descriptor2$man, "my_opt")
-  expect_equal(descriptor2$param_set$ids(), "lr")
+  expect_r6(torch_op2, "TorchOptimizer")
+  expect_equal(torch_op2$id, "myopt")
+  expect_equal(torch_op2$label, "Custom")
+  expect_equal(torch_op2$man, "my_opt")
+  expect_equal(torch_op2$param_set$ids(), "lr")
+
+
+  torch_opt3 = as_torch_optimizer(optim_adam)
+  expect_equal(torch_opt3$id, "optim_adam")
+  expect_equal(torch_opt3$label, "optim_adam")
 })
 
 
 test_that("Parameter test: adam", {
-  descriptor = t_opt("adam")
-  param_set = descriptor$param_set
-  fn = descriptor$generator
+  torch_opt = t_opt("adam")
+  param_set = torch_opt$param_set
+  fn = torch_opt$generator
   res = autotest_paramset(param_set, fn, exclude = "params")
   expect_paramtest(res)
 })
 
 test_that("Parameter test: sgd", {
-  descriptor = t_opt("sgd")
-  param_set = descriptor$param_set
+  torch_opt = t_opt("sgd")
+  param_set = torch_opt$param_set
   # lr is set to `optim_required()`
-  fn = descriptor$generator
+  fn = torch_opt$generator
   res = autotest_paramset(param_set, fn, exclude = c("params", "lr"))
   expect_paramtest(res)
 })
 
 test_that("Parameter test: asgd", {
-  descriptor = t_opt("asgd")
-  param_set = descriptor$param_set
-  fn = descriptor$generator
+  torch_opt = t_opt("asgd")
+  param_set = torch_opt$param_set
+  fn = torch_opt$generator
   res = autotest_paramset(param_set, fn, exclude = "params")
   expect_paramtest(res)
 })
 
 test_that("Parameter test: rprop", {
-  descriptor = t_opt("rprop")
-  param_set = descriptor$param_set
-  fn = descriptor$generator
+  torch_opt = t_opt("rprop")
+  param_set = torch_opt$param_set
+  fn = torch_opt$generator
   res = autotest_paramset(param_set, fn, exclude = "params")
   expect_paramtest(res)
 })
 
 test_that("Parameter test: rmsprop", {
-  descriptor = t_opt("rmsprop")
-  param_set = descriptor$param_set
-  fn = descriptor$generator
+  torch_opt = t_opt("rmsprop")
+  param_set = torch_opt$param_set
+  fn = torch_opt$generator
   res = autotest_paramset(param_set, fn, exclude = "params")
   expect_paramtest(res)
 })
 
 test_that("Parameter test: adagrad", {
-  descriptor = t_opt("adagrad")
-  param_set = descriptor$param_set
-  fn = descriptor$generator
+  torch_opt = t_opt("adagrad")
+  param_set = torch_opt$param_set
+  fn = torch_opt$generator
   res = autotest_paramset(param_set, fn, exclude = "params")
   expect_paramtest(res)
 })
 
 test_that("Parameter test: adadelta", {
-  descriptor = t_opt("adadelta")
-  param_set = descriptor$param_set
-  fn = descriptor$generator
+  torch_opt = t_opt("adadelta")
+  param_set = torch_opt$param_set
+  fn = torch_opt$generator
   res = autotest_paramset(param_set, fn, exclude = "params")
   expect_paramtest(res)
 })

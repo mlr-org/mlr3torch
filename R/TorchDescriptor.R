@@ -12,7 +12,7 @@
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
 #'
-#' @family Descriptor Torch
+#' @family Torch Descriptor
 #' @export
 TorchDescriptor = R6Class("TorchDescriptor",
   public = list(
@@ -37,7 +37,8 @@ TorchDescriptor = R6Class("TorchDescriptor",
     #' @template param_packages
     #' @template param_label
     #' @template param_man
-    initialize = function(generator, id, param_set = NULL, packages = NULL, label = id, man = NULL) {
+    initialize = function(generator, id = NULL, param_set = NULL, packages = NULL, label = NULL, man = NULL) {
+
       assert_true(is.function(generator) || inherits(generator, "R6ClassGenerator"))
       self$generator = generator
       # TODO: Assert that all parameters are tagged with "train"
@@ -57,8 +58,8 @@ TorchDescriptor = R6Class("TorchDescriptor",
         stopf("Parameter values with ids %s are missing in generator.", paste0("'", missing, "'", collapse = ", "))
       }
       self$man = assert_string(man, null.ok = TRUE)
-      self$id = assert_string(id, min.chars = 1L)
-      self$label = assert_string(label, min.chars = 1L)
+      self$id = assert_string(id %??% class(generator)[[1L]], min.chars = 1L)
+      self$label = assert_string(label %??% self$id, min.chars = 1L)
       self$packages = assert_names(unique(union(packages, c("torch", "mlr3torch"))), type = "strict")
 
       private$.repr = if (test_class(self$generator, "R6ClassGenerator")) {

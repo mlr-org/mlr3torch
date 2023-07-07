@@ -11,7 +11,7 @@
 #'   Additional arguments.
 #'   Currently used to pass additional constructor arguments to [`TorchLoss`] for objects of type `nn_loss`.
 #'
-#' @family Descriptor Torch
+#' @family Torch Descriptor
 #'
 #' @return [`TorchLoss`].
 #' @export
@@ -21,9 +21,9 @@ as_torch_loss = function(x, clone = FALSE, ...) {
 }
 
 #' @export
-as_torch_loss.nn_loss = function(x, task_types, clone = FALSE, id = deparse(substitute(x))[[1L]], ...) { # nolint
+as_torch_loss.nn_loss = function(x, clone = FALSE, ...) { # nolint
   # clone argument is irrelevant
-  TorchLoss$new(x, id = id, task_types = task_types, ...)
+  TorchLoss$new(x, ...)
 }
 
 #' @export
@@ -41,7 +41,6 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 #' @description
 #' This wraps a `torch::nn_loss` and annotates it with metadata, most importantly a [`ParamSet`].
 #' The loss function is created for the given parameter values by calling the `$generate()` method.
-#' [`Torch`].
 #'
 #' This class is usually used to configure the loss function of a torch learner, e.g.
 #' when construcing a learner or in a [`ModelDescriptor`].
@@ -54,32 +53,32 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 #' If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
 #' for each argument of the wrapped loss function, where the parametes are then of type [`ParamUty`].
 #'
-#' @family Descriptor Torch
+#' @family Torch Descriptor
 #' @export
 #' @examples
 #' # Create a new loss descriptor
-#' descriptor = TorchLoss$new(torch_loss = nn_mse_loss, task_types = "regr")
-#' descriptor
+#' torch_loss = TorchLoss$new(torch_loss = nn_mse_loss, task_types = "regr")
+#' torch_loss
 #' # the parameters are inferred
-#' descriptor$param_set
+#' torch_loss$param_set
 #'
 #' # Retrieve a loss from the dictionary:
-#' descriptor = t_loss("mse", reduction = "mean")
+#' torch_loss = t_loss("mse", reduction = "mean")
 #' # is the same as
-#' descriptor
-#' descriptor$param_set
-#' descriptor$label
-#' descriptor$task_types
-#' descriptor$id
+#' torch_loss
+#' torch_loss$param_set
+#' torch_loss$label
+#' torch_loss$task_types
+#' torch_loss$id
 #'
 #' # Create the loss function
-#' loss_fn = descriptor$generate()
+#' loss_fn = torch_loss$generate()
 #' loss_fn
 #' # Is the same as
 #' nn_mse_loss(reduction = "mean")
 #'
 #' # open the help page of the wrapped loss function
-#' # descriptor$help()
+#' # torch_loss$help()
 #'
 #' # Use in a learner
 #' learner = lrn("regr.mlp", loss = t_loss("mse"))
@@ -104,7 +103,7 @@ TorchLoss = R6::R6Class("TorchLoss",
     #' @template param_packages
     #' @template param_man
     initialize = function(torch_loss, task_types, param_set = NULL,
-      id = deparse(substitute(torch_loss))[[1L]], label = capitalize(id), packages = NULL, man = NULL) {
+      id = NULL, label = NULL, packages = NULL, man = NULL) {
       force(id)
       self$task_types = assert_subset(task_types, mlr_reflections$task_types$type)
       torch_loss = assert_class(torch_loss, "nn_loss")
@@ -144,7 +143,7 @@ TorchLoss = R6::R6Class("TorchLoss",
 #' @section Available Loss Functions:
 #' `r paste0(mlr3torch_losses$keys(), collapse = ", ")`
 #'
-#' @family Descriptor Torch
+#' @family Torch Descriptor
 #' @family Dictionary
 #' @export
 #' @examples
@@ -184,7 +183,7 @@ as.data.table.DictionaryMlr3torchLosses = function(x, ...) {
 #'   See description of [`dictionary_sugar_get`].
 #' @return A [`TorchLoss`]
 #' @export
-#' @family Descriptor Torch
+#' @family Torch Descriptor
 #' @examples
 #' t_loss("mse", reduction = "mean")
 #' # get the dictionary

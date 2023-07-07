@@ -4,7 +4,7 @@ test_that("Basic checks", {
   tcb2 = TorchCallback$new(Cbt2, id = "test2")
   expect_identical(Cbt2, tcb2$generator)
   expect_identical(tcb2$id, "test2")
-  expect_identical(tcb2$label, "Test2")
+  expect_identical(tcb2$label, "test2")
   expect_set_equal(tcb2$packages, c("torch", "mlr3torch"))
 
   Cbt3 = R6Class("CallbackSetTest3")
@@ -44,7 +44,7 @@ test_that("Can retrieve predefined callback", {
   expect_class(t_clbks(), "DictionaryMlr3torchCallbacks")
 })
 
-test_that("dictionary can be coverted to a table", {
+test_that("dictionary can be converted to a table", {
   tbl = as.data.table(mlr3torch_callbacks)
 
   expect_data_table(tbl, ncols = 3, key = "key")
@@ -103,7 +103,7 @@ test_that("S3 converter work as expected", {
   test = R6Class("CallbackSetTest2", public = list(initialize = function(a) NULL))
   tcb4 = as_torch_callback(test)
   expect_true(tcb4$id == "test")
-  expect_true(tcb4$label == "Test")
+  expect_true(tcb4$label == "test")
   expect_equal(tcb4$param_set$ids(), "a")
 })
 

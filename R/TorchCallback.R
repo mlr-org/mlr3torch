@@ -13,7 +13,7 @@
 #'
 #' @export
 #' @family Callback
-#' @family Descriptor Torch
+#' @family Torch Descriptor
 #' @examples
 #' t_clbk("progress")
 t_clbk = function(.key, ...) {
@@ -36,7 +36,7 @@ t_clbk.NULL = function(.key, ...) { # nolint
 #' @param .keys (`character()`)\cr
 #'   The keys of the callbacks.
 #'
-#' @return `list()` [`TorchCallback`]s
+#' @return `list()` of [`TorchCallback`]s
 #' @export
 t_clbks = function(.keys) { # nolint
   UseMethod("t_clbks")
@@ -89,7 +89,7 @@ as_torch_callback.character = function(x, clone = FALSE, ...) { # nolint
   t_clbk(.key = x, ...)
 }
 
-#' @title Convert to a list of Callback Descriptors
+#' @title Convert to a list of Torch Callbacks
 #' @description
 #' Converts an object to a list of [`TorchCallback`].
 #'
@@ -101,7 +101,7 @@ as_torch_callback.character = function(x, clone = FALSE, ...) { # nolint
 #'   Additional arguments.
 #'
 #' @family Callback
-#' @family Descriptor Torch
+#' @family Torch Descriptor
 #' @return `list()` of [`TorchCallback`]s
 #' @export
 as_torch_callbacks = function(x, clone, ...) {
@@ -146,38 +146,38 @@ as_torch_callbacks.character = function(x, clone = FALSE, ...) { # nolint
 #' for each argument of the wrapped loss function, where the parametes are then of type [`ParamUty`].
 #'
 #' @family Callback
-#' @family Descriptor Torch
+#' @family Torch Descriptor
 #'
 #' @export
 #' @examples
-#' # Create a new callback descriptor from an existing callback
-#' descriptor = TorchCallback$new(CallbackSetCheckpoint)
-#' # The parameters are inferred
-#' descriptor$param_set
+#'  # Create a new torch callback from an existing callback set
+#'  torch_callback = TorchCallback$new(CallbackSetCheckpoint)
+#'  # The parameters are inferred
+#'  torch_callback$param_set
 #'
-#' # Retrieve a torch callback from the dictionary
-#' torchcallback = t_clbk("checkpoint",
-#'   path = tempfile(), freq = 1
-#' )
-#' descriptor
-#' descriptor$label
-#' descriptor$id
+#'  # Retrieve a torch callback from the dictionary
+#'  torch_callback = t_clbk("checkpoint",
+#'    path = tempfile(), freq = 1
+#'  )
+#'  torch_callback
+#'  torch_callback$label
+#'  torch_callback$id
 #'
-#' # Create the callback
-#' callback = descriptor$generate()
-#' callback
-#' # is the same as
-#' CallbackSetCheckpoint$new(
-#'   path = tempfile(), freq = 1
-#' )
+#'  # open the help page of the wrapped callback
+#'  # torch_callback$help()
 #'
-#' # open the help page of the wrapped callback
-#' # descriptor$help()
+#'  # Create the callback set
+#'  callback = torch_callback$generate()
+#'  callback
+#'  # is the same as
+#'  CallbackSetCheckpoint$new(
+#'    path = tempfile(), freq = 1
+#'  )
 #'
-#' # Use in a learner
-#' learner = lrn("regr.mlp", callbacks = t_clbk("checkpoint"))
-#' # the parameters of the callback are added to the learner's parameter set
-#' learner$param_set
+#'  # Use in a learner
+#'  learner = lrn("regr.mlp", callbacks = t_clbk("checkpoint"))
+#'  # the parameters of the callback are added to the learner's parameter set
+#'  learner$param_set
 #'
 TorchCallback = R6Class("TorchCallback",
   inherit = TorchDescriptor,
@@ -192,8 +192,8 @@ TorchCallback = R6Class("TorchCallback",
     #' @template param_label
     #' @template param_packages
     #' @template param_man
-    initialize = function(callback_generator, param_set = NULL, id = deparse(substitute(id))[[1L]],
-      label = capitalize(id), packages = NULL, man = NULL) {
+    initialize = function(callback_generator, param_set = NULL, id = NULL,
+      label = NULL, packages = NULL, man = NULL) {
       assert_class(callback_generator, "R6ClassGenerator")
 
       param_set = assert_param_set(param_set %??% inferps(callback_generator))
@@ -251,10 +251,10 @@ TorchCallback = R6Class("TorchCallback",
 #'   initialize = function(name) {
 #'     self$name = name
 #'   },
-#'   on_begin = function {
+#'   on_begin = function() {
 #'     cat("Hello", self$name, ", we will train for ", self$ctx$total_epochs, "epochs.\n")
 #'   },
-#'   on_end = function {
+#'   on_end = function() {
 #'     cat("Training is done.")
 #'   }
 #' )

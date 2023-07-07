@@ -39,7 +39,7 @@ test_that("Basic Checks", {
   torchloss2 = TorchLoss$new(torch::nn_mse_loss, id = "mse", task_types = "regr", param_set = ps(reduction = p_uty()))
 
   expect_equal(torchloss2$param_set$ids(), "reduction")
-  expect_equal(torchloss2$label, "Mse")
+  expect_equal(torchloss2$label, "mse")
   expect_true(torchloss2$task_types == "regr")
 })
 
@@ -105,6 +105,10 @@ test_that("Converters are correctly implemented", {
   expect_equal(loss2$task_types, "regr")
   expect_equal(loss2$man, "nn_cross_entropy_loss")
   expect_equal(loss2$param_set$ids(), "reduction")
+
+  loss3 = as_torch_loss(nn_mse_loss, task_types = "regr")
+  expect_equal(loss3$id, "nn_mse_loss")
+  expect_equal(loss3$label, "nn_mse_loss")
 })
 
 test_that("Parameter test: mse", {
