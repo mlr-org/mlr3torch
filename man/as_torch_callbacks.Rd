@@ -16,6 +16,9 @@ Whether to create a deep clone.}
 \item{...}{(any)\cr
 Additional arguments.}
 }
+\value{
+\code{list()} of \code{\link{TorchCallback}}s
+}
 \description{
 Converts an object to a list of \code{\link{TorchCallback}}.
 }

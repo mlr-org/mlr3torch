@@ -44,6 +44,9 @@ The parent environment for the \code{\link{R6Class}}.}
 From which class to inherit.
 This class must either be \code{\link{CallbackSet}} (default) or inherit from it.}
 }
+\value{
+\code{\link{CallbackSet}}
+}
 \description{
 Creates an \code{R6ClassGenerator} inheriting from \code{\link{CallbackSet}}.
 Additionally performs checks such as that the stages are not accidentally misspelled.

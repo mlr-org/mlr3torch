@@ -3,7 +3,7 @@
 \name{mlr_callback_set}
 \alias{mlr_callback_set}
 \alias{CallbackSet}
-\title{Set of Callbacks for Torch}
+\title{Base Class for Callbacks}
 \description{
 Base class from which Callbacks should inherit.
 They can be used to gain more control over the training process of a neural network without

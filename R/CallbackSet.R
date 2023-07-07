@@ -1,4 +1,4 @@
-#' @title Set of Callbacks for Torch
+#' @title Base Class for Callbacks
 #'
 #' @name mlr_callback_set
 #'
@@ -83,6 +83,8 @@ CallbackSet = R6Class("CallbackSet",
 #'   From which class to inherit.
 #'   This class must either be [`CallbackSet`] (default) or inherit from it.
 #' @family Callback
+#'
+#' @return [`CallbackSet`]
 #'
 #' @export
 callback_set = function(

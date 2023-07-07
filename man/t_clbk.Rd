@@ -21,6 +21,8 @@ The keys of the callbacks.}
 }
 \value{
 \code{\link{TorchCallback}}
+
+\code{list()} \code{\link{TorchCallback}}s
 }
 \description{
 Retrieves one or more \code{\link{TorchCallback}} from \code{\link{mlr3torch_callbacks}}.

@@ -35,6 +35,8 @@ t_clbk.NULL = function(.key, ...) { # nolint
 #' @rdname t_clbk
 #' @param .keys (`character()`)\cr
 #'   The keys of the callbacks.
+#'
+#' @return `list()` [`TorchCallback`]s
 #' @export
 t_clbks = function(.keys) { # nolint
   UseMethod("t_clbks")
@@ -100,6 +102,7 @@ as_torch_callback.character = function(x, clone = FALSE, ...) { # nolint
 #'
 #' @family Callback
 #' @family Descriptor Torch
+#' @return `list()` of [`TorchCallback`]s
 #' @export
 as_torch_callbacks = function(x, clone, ...) {
   UseMethod("as_torch_callbacks")
@@ -233,7 +236,7 @@ TorchCallback = R6Class("TorchCallback",
 #'   String in the format `[pkg]::[topic]` pointing to a manual page for this object.
 #'   The referenced help package can be opened via method `$help()`.
 #'
-#' @inheritSection mlr_torch_callbacks Stages
+#' @inheritSection mlr_callback_set Stages
 #'
 #' @section Internals:
 #' It first creates an `R6ClassGenerator` using [`torch_callback()`] and when wraps this generator in a
