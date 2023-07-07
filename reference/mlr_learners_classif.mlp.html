@@ -101,15 +101,16 @@
     
 
 <p>Parameters from <code><a href="mlr_learners_classif.torch.html">LearnerClassifTorch</a></code>, as well as:</p><ul><li><p><code>activation</code> :: <code>character(1)</code><br>
-Activation function.</p></li>
+Activation function. Is initialized to <code>"relu"</code>.</p></li>
 <li><p><code>activation_args</code> :: named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code><br>
-A named list with initialization arguments for the activation function.</p></li>
+A named list with initialization arguments for the activation function.
+Is initialized to <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>.</p></li>
 <li><p><code>layers</code> :: <code>integer(1)</code><br>
 The number of layers.</p></li>
 <li><p><code>d_hidden</code> :: <code>numeric(1)</code><br>
 The dimension of the hidden layers.</p></li>
 <li><p><code>p</code> :: <code>numeric(1)</code><br>
-The dropout probability.</p></li>
+The dropout probability. Is initialized to <code>0.5</code>.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -120,6 +121,7 @@ The dropout probability.</p></li>
 <code><a href="mlr_learners_classif.torch.html">mlr_learners_classif.torch</a></code>,
 <code><a href="mlr_learners_classif_torch_image.html">mlr_learners_classif_torch_image</a></code>,
 <code><a href="mlr_learners_regr.mlp.html">mlr_learners_regr.mlp</a></code>,
+<code><a href="mlr_learners_regr.torch_featureless.html">mlr_learners_regr.torch_featureless</a></code>,
 <code><a href="mlr_learners_regr.torch_model.html">mlr_learners_regr.torch_model</a></code>,
 <code><a href="mlr_learners_regr.torch.html">mlr_learners_regr.torch</a></code></p></div>
     </div>
@@ -217,7 +219,7 @@ The callbacks. Must have unique ids.</p></dd>
 <span class="r-in"><span><span class="co"># Score the predictions</span></span></span>
 <span class="r-in"><span><span class="va">predictions</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> classif.ce </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.6666667 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        0.5 </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

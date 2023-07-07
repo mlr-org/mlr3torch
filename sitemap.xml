@@ -7,6 +7,9 @@
     <loc>https://mlr3torch.mlr-org.com/LICENSE.html</loc>
   </url>
   <url>
+    <loc>https://mlr3torch.mlr-org.com/TODO.html</loc>
+  </url>
+  <url>
     <loc>https://mlr3torch.mlr-org.com/articles/index.html</loc>
   </url>
   <url>
@@ -113,6 +116,9 @@
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/mlr_learners_regr.torch.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_learners_regr.torch_featureless.html</loc>
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/mlr_learners_regr.torch_model.html</loc>

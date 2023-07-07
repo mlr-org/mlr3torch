@@ -259,7 +259,7 @@ The referenced help package can be opened via method <code>$help()</code>.</p></
 <span class="r-out co"><span class="r-pr">#&gt;</span>     clone: function (deep = FALSE) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     defaults: list</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     initialize: function (params, lr = optim_required(), momentum = 0, dampening = 0, </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     load_state_dict: function (state_dict) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     load_state_dict: function (state_dict, ..., .refer_to_state_dict = FALSE) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     param_groups: list</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     state: State, R6</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     state_dict: function () </span>
@@ -276,29 +276,27 @@ The referenced help package can be opened via method <code>$help()</code>.</p></
 <span class="r-in"><span><span class="co"># The parameters of the optimizer are added to the learner's parameter set</span></span></span>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="va">param_set</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSetCollection&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                        id    class lower upper nlevels        default value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1:            activation ParamFct    NA    NA      16           relu      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2:       activation_args ParamUty    NA    NA     Inf &lt;NoDefault[3]&gt;      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3:                layers ParamInt     0   Inf     Inf &lt;NoDefault[3]&gt;      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  4:              d_hidden ParamInt     1   Inf     Inf &lt;NoDefault[3]&gt;      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  5:                     p ParamDbl     0     1     Inf            0.5      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6:            batch_size ParamInt     1   Inf     Inf &lt;NoDefault[3]&gt;      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  7:                epochs ParamInt     0   Inf     Inf &lt;NoDefault[3]&gt;      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  8:                device ParamFct    NA    NA       3           auto      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  9:        measures_train ParamUty    NA    NA     Inf &lt;NoDefault[3]&gt;      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10:        measures_valid ParamUty    NA    NA     Inf &lt;NoDefault[3]&gt;      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11:             drop_last ParamLgl    NA    NA       2          FALSE      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12:           num_threads ParamInt     1   Inf     Inf              1      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13:               shuffle ParamLgl    NA    NA       2           TRUE      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14: early_stopping_rounds ParamInt  -Inf   Inf     Inf              0      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15:                  seed ParamInt  -Inf   Inf     Inf &lt;NoDefault[3]&gt;      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16:                opt.lr ParamDbl     0   Inf     Inf &lt;NoDefault[3]&gt;      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17:          opt.momentum ParamDbl     0     1     Inf              0      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18:         opt.dampening ParamDbl     0     1     Inf              0      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19:      opt.weight_decay ParamDbl     0     1     Inf              0      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20:          opt.nesterov ParamLgl    NA    NA       2          FALSE      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21:        loss.reduction ParamFct    NA    NA       2           mean      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                        id    class lower upper nlevels        default value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   id    class lower upper nlevels        default     value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1:       activation ParamFct    NA    NA      16 &lt;NoDefault[3]&gt;      relu</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2:  activation_args ParamUty    NA    NA     Inf &lt;NoDefault[3]&gt; &lt;list[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3:           layers ParamInt     0   Inf     Inf &lt;NoDefault[3]&gt;          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4:         d_hidden ParamInt     1   Inf     Inf &lt;NoDefault[3]&gt;          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  5:                p ParamDbl     0     1     Inf &lt;NoDefault[3]&gt;       0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6:       batch_size ParamInt     1   Inf     Inf &lt;NoDefault[3]&gt;          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7:           epochs ParamInt     0   Inf     Inf &lt;NoDefault[3]&gt;          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  8:           device ParamFct    NA    NA      11 &lt;NoDefault[3]&gt;      auto</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9:   measures_train ParamUty    NA    NA     Inf &lt;NoDefault[3]&gt; &lt;list[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10:   measures_valid ParamUty    NA    NA     Inf &lt;NoDefault[3]&gt; &lt;list[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11:        drop_last ParamLgl    NA    NA       2 &lt;NoDefault[3]&gt;     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12:          shuffle ParamLgl    NA    NA       2 &lt;NoDefault[3]&gt;      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13:      num_threads ParamInt     1   Inf     Inf &lt;NoDefault[3]&gt;         1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14:             seed ParamInt  -Inf   Inf     Inf &lt;NoDefault[3]&gt;    random</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15:           opt.lr ParamDbl     0   Inf     Inf &lt;NoDefault[3]&gt;          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16:     opt.momentum ParamDbl     0     1     Inf              0          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17:    opt.dampening ParamDbl     0     1     Inf              0          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18: opt.weight_decay ParamDbl     0     1     Inf              0          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19:     opt.nesterov ParamLgl    NA    NA       2          FALSE          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20:   loss.reduction ParamFct    NA    NA       2           mean          </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

@@ -97,22 +97,24 @@ The batch size.</p></li>
 <li><p><code>epochs</code> :: <code>integer(1)</code><br>
 The number of epochs.</p></li>
 <li><p><code>device</code> :: <code>character(1)</code><br>
-The device. One of <code>"auto"</code>, <code>"cpu"</code>, or <code>"cuda"</code>.</p></li>
+The device. One of <code>"auto"</code>, <code>"cpu"</code>, or <code>"cuda"</code> or other values defined in <code>mlr_reflections$torch$devices</code>.
+The value is initialized to <code>"auto"</code>, which will select <code>"cuda"</code> if possible and <code>"cpu"</code> otherwise.</p></li>
 <li><p><code>measures_train</code> :: <code>Measure</code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code>Measure</code>s.
 Measures to be evaluated during training.</p></li>
 <li><p><code>measures_valid</code> :: <code>Measure</code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code>Measure</code>s.
 Measures to be evaluated during validation.</p></li>
-<li><p><code>drop_last</code> :: <code>logical(1)</code><br>
-Whether to drop the last batch in each epoch during training. Default is <code>FALSE</code>.</p></li>
 <li><p><code>num_threads</code> :: <code>integer(1)</code><br>
-The number of threads (if <code>device</code> is <code>"cpu"</code>). Default is 1.</p></li>
+The number of threads for intraop pararallelization (if <code>device</code> is <code>"cpu"</code>).
+This value is initialized to 1.</p></li>
 <li><p><code>shuffle</code> :: <code>logical(1)</code><br>
-Whether to shuffle the instances in the dataset. Default is <code>TRUE</code>.</p></li>
-<li><p><code>early_stopping_rounds</code> :: <code>integer(1)</code><br>
-How many rounds to wait for early stopping. The default is 0.</p></li>
-<li><p><code>seed</code> :: <code>integer(1)</code><br>
-The seed that is used during training. The value <code>seed + 1</code> is used during prediction.
-If this is missing (default), a random seed is generated.</p></li>
+Whether to shuffle the instances in the dataset. This value is initialized to <code>TRUE</code>.</p></li>
+<li><p><code>seed</code> :: <code>integer(1)</code> or <code>"random"</code><br>
+The seed that is used during training and prediction.
+This value is initialized to <code>"random"</code>, which means that a random seed will be sampled at the beginning of the
+training phase. This seed (either set or randomly sampled) is available via <code>$model$seed</code> after training
+and used during prediction.
+Note that by setting the seed during the training phase this will mean that by default (i.e. when <code>seed</code> is
+<code>"random"</code>), clones of the learner will use a different seed.</p></li>
 </ul><p>Additionally there are the parameters for the optimizer, the loss function and the callbacks.
 They are prefixed with <code>"opt."</code>, <code>"loss."</code> and <code>"cb.&lt;callback id&gt;."</code> respectively.</p>
     </div>
@@ -128,7 +130,9 @@ For classification, the output of this network are expected to be the scores bef
 final softmax layer.</p></li>
 <li><p><code>.dataset(task, param_vals)</code><br>
 (<code>Task</code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code><a href="https://rdrr.io/pkg/torch/man/dataset.html" class="external-link">torch::dataset</a></code><br>
-Create the dataset for the task.  Must at least respect parameters <code>batch_size</code> and <code>shuffle</code>.</p></li>
+Create the dataset for the task.
+Must respect the parameter value of the device.
+Moreover, one needs to pay attention respect the row ids of the provided task.</p></li>
 </ul><p>It is also possible to overwrite the private <code>.dataloader()</code> method instead of the <code>.dataset()</code> method.
 Per default, a dataloader is constructed using the output from the <code>.dataset()</code> method.</p><ul><li><p><code>.dataloader(task, param_vals)</code><br>
 (<code>Task</code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code><a href="https://rdrr.io/pkg/torch/man/dataloader.html" class="external-link">torch::dataloader</a></code><br>
@@ -148,6 +152,7 @@ and the callbacks.</p>
 <code><a href="mlr_learners_classif.torch_model.html">mlr_learners_classif.torch_model</a></code>,
 <code><a href="mlr_learners_classif_torch_image.html">mlr_learners_classif_torch_image</a></code>,
 <code><a href="mlr_learners_regr.mlp.html">mlr_learners_regr.mlp</a></code>,
+<code><a href="mlr_learners_regr.torch_featureless.html">mlr_learners_regr.torch_featureless</a></code>,
 <code><a href="mlr_learners_regr.torch_model.html">mlr_learners_regr.torch_model</a></code>,
 <code><a href="mlr_learners_regr.torch.html">mlr_learners_regr.torch</a></code></p></div>
     </div>
@@ -205,7 +210,7 @@ Shortcut for <code>learner$model$callbacks$history</code>.</p></dd>
 <span>  <span class="va">feature_types</span>,</span>
 <span>  <span class="va">man</span>,</span>
 <span>  <span class="va">label</span>,</span>
-<span>  callbacks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="va">callbacks</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 

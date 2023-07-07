@@ -96,8 +96,9 @@ For an explanation see <code><a href="mlr_pipeops_torch.html">PipeOpTorch</a></c
     <h2 id="parameters">Parameters<a class="anchor" aria-label="anchor" href="#parameters"></a></h2>
     
 
-<p>No parameters.</p>
-    </div>
+<ul><li><p><code>approximate</code> :: <code>character(1)</code><br>
+Whether to use an approximation algorithm. Default is <code>"none"</code>.</p></li>
+</ul></div>
     <div class="section level2">
     <h2 id="internals">Internals<a class="anchor" aria-label="anchor" href="#internals"></a></h2>
     <p>Calls <code><a href="https://rdrr.io/pkg/torch/man/nn_gelu.html" class="external-link">torch::nn_gelu()</a></code> when trained.</p>
@@ -234,7 +235,8 @@ otherwise be set during construction.</p></dd>
 <span class="r-in"><span><span class="co"># The available parameters</span></span></span>
 <span class="r-in"><span><span class="va">pipeop</span><span class="op">$</span><span class="va">param_set</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSet:nn_gelu&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Empty.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             id    class lower upper nlevels default value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1: approximate ParamFct    NA    NA       2    none      </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

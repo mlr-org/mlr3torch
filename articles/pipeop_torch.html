@@ -135,8 +135,8 @@ training code was also refactored and simplified.</p>
 <code class="sourceCode R"><span><span class="va">input</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_randn.html" class="external-link">torch_randn</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="va">input</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.9331 -0.8989 -0.1502</span></span>
-<span><span class="co">#&gt;  0.1250 -0.1174  1.3385</span></span>
+<span><span class="co">#&gt; -0.1792  0.0484  1.1726</span></span>
+<span><span class="co">#&gt;  1.5441 -1.3392  0.6674</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,3} ]</span></span></code></pre></div>
 <p>A <code>nn_module</code> is constructed from a
 <code>nn_module_generator</code>. <code>nn_linear</code> is one of the
@@ -148,8 +148,8 @@ simpler generators:</p>
 <code class="sourceCode R"><span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu">module_1</span><span class="op">(</span><span class="va">input</span><span class="op">)</span></span>
 <span><span class="va">output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.0244 -0.2507  0.4597  0.4014</span></span>
-<span><span class="co">#&gt; -0.3800  0.9842  0.6800 -0.1913</span></span>
+<span><span class="co">#&gt;  0.3117  0.0489  0.0170  1.0627</span></span>
+<span><span class="co">#&gt;  1.1217 -1.5808 -0.0714  1.5525</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,4} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span></code></pre></div>
 <p>A neural network with one (4-unit) hidden layer and two outputs needs
 the following ingredients</p>
@@ -165,8 +165,8 @@ the following ingredients</p>
 <span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu">softmax</span><span class="op">(</span><span class="va">output</span><span class="op">)</span></span>
 <span><span class="va">output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.3027  0.4155  0.2817</span></span>
-<span><span class="co">#&gt;  0.3078  0.4340  0.2582</span></span>
+<span><span class="co">#&gt;  0.3836  0.3881  0.2282</span></span>
+<span><span class="co">#&gt;  0.4090  0.3775  0.2135</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,3} ][ grad_fn = &lt;SoftmaxBackward0&gt; ]</span></span></code></pre></div>
 <p>Training the neural network then consists of Toch keeping track of
 what parameters were used to calculate <code>output</code> to calculate
@@ -196,8 +196,8 @@ Number of outputs must be declared during construction, then.</p>
 <code class="sourceCode R"><span><span class="va">output</span> <span class="op">&lt;-</span> <span class="va">po_module_1</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">input</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.0244 -0.2507  0.4597  0.4014</span></span>
-<span><span class="co">#&gt; -0.3800  0.9842  0.6800 -0.1913</span></span>
+<span><span class="co">#&gt;  0.3117  0.0489  0.0170  1.0627</span></span>
+<span><span class="co">#&gt;  1.1217 -1.5808 -0.0714  1.5525</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,4} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span></code></pre></div>
 <p>Note we only use the <code>$train()</code>, since Torch modules do
 not have anything that maps to the <code>state</code> (it is filled by
@@ -216,8 +216,8 @@ through the <code>Graph</code>:</p>
 <code class="sourceCode R"><span><span class="va">output</span> <span class="op">&lt;-</span> <span class="va">module_graph</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">input</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.3027  0.4155  0.2817</span></span>
-<span><span class="co">#&gt;  0.3078  0.4340  0.2582</span></span>
+<span><span class="co">#&gt;  0.3836  0.3881  0.2282</span></span>
+<span><span class="co">#&gt;  0.4090  0.3775  0.2135</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,3} ][ grad_fn = &lt;SoftmaxBackward0&gt; ]</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -273,40 +273,40 @@ objects, e.g.:</p>
 <span><span class="va">graph_module</span><span class="op">$</span><span class="va">parameters</span></span>
 <span><span class="co">#&gt; $modules.0.weight</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; -0.3298 -0.0437 -0.4277</span></span>
-<span><span class="co">#&gt; -0.5136  0.2724  0.4077</span></span>
-<span><span class="co">#&gt; -0.3350 -0.2780  0.1121</span></span>
-<span><span class="co">#&gt;  0.2977 -0.0775 -0.1958</span></span>
+<span><span class="co">#&gt;  0.1473 -0.4436  0.1176</span></span>
+<span><span class="co">#&gt; -0.5473  0.4271  0.1859</span></span>
+<span><span class="co">#&gt;  0.3359  0.4586  0.0610</span></span>
+<span><span class="co">#&gt;  0.4036 -0.0259  0.4785</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{4,3} ][ requires_grad = TRUE ]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $modules.0.bias</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.2286</span></span>
-<span><span class="co">#&gt;  0.5347</span></span>
-<span><span class="co">#&gt;  0.5392</span></span>
-<span><span class="co">#&gt;  0.0245</span></span>
+<span><span class="co">#&gt;  0.2216</span></span>
+<span><span class="co">#&gt; -0.2878</span></span>
+<span><span class="co">#&gt; -0.0165</span></span>
+<span><span class="co">#&gt;  0.5753</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{4} ][ requires_grad = TRUE ]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $modules.2.weight</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.0941  0.2754 -0.4603  0.4646</span></span>
-<span><span class="co">#&gt; -0.1366 -0.2303  0.2229 -0.3258</span></span>
-<span><span class="co">#&gt; -0.3272 -0.4063  0.0434  0.2858</span></span>
+<span><span class="co">#&gt; -0.1570 -0.2772  0.1540  0.3457</span></span>
+<span><span class="co">#&gt;  0.1777  0.1954 -0.2022  0.3750</span></span>
+<span><span class="co">#&gt;  0.1445  0.2551 -0.0808  0.2571</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{3,4} ][ requires_grad = TRUE ]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $modules.2.bias</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; -0.4135</span></span>
-<span><span class="co">#&gt;  0.2960</span></span>
-<span><span class="co">#&gt; -0.1754</span></span>
+<span><span class="co">#&gt;  0.4400</span></span>
+<span><span class="co">#&gt;  0.1743</span></span>
+<span><span class="co">#&gt; -0.3418</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{3} ][ requires_grad = TRUE ]</span></span></code></pre></div>
 <p>And it can be used to transform tensors just as any other torch
 <code>nn_module</code>:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">graph_module</span><span class="op">(</span><span class="va">input</span><span class="op">)</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.3027  0.4155  0.2817</span></span>
-<span><span class="co">#&gt;  0.3078  0.4340  0.2582</span></span>
+<span><span class="co">#&gt;  0.3836  0.3881  0.2282</span></span>
+<span><span class="co">#&gt;  0.4090  0.3775  0.2135</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,3} ][ grad_fn = &lt;SoftmaxBackward0&gt; ]</span></span></code></pre></div>
 </div>
 </div>
@@ -420,8 +420,8 @@ this to an [<code>nn_graph</code>], it is a functional
 <span></span>
 <span><span class="fu">small_module</span><span class="op">(</span><span class="va">input</span><span class="op">)</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.5389 -0.1290 -0.2667  0.4351</span></span>
-<span><span class="co">#&gt;  0.7544 -0.1537 -0.2124  0.3542</span></span>
+<span><span class="co">#&gt; -0.1908  0.0114 -0.0996  0.0562</span></span>
+<span><span class="co">#&gt;  0.6393  1.2895 -0.7409  0.6984</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,4} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -441,7 +441,8 @@ machine learning model, which we have not looked at so far.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">td</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/task_dataset.html">task_dataset</a></span><span class="op">(</span></span>
 <span>  task <span class="op">=</span> <span class="va">md</span><span class="op">$</span><span class="va">task</span>,</span>
-<span>  feature_ingress_tokens <span class="op">=</span> <span class="va">md</span><span class="op">$</span><span class="va">ingress</span></span>
+<span>  feature_ingress_tokens <span class="op">=</span> <span class="va">md</span><span class="op">$</span><span class="va">ingress</span>,</span>
+<span>  device <span class="op">=</span> <span class="st">"cpu"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">td</span></span>
@@ -483,9 +484,9 @@ inputs (see below).</p>
 <span></span>
 <span><span class="fu">small_module</span><span class="op">(</span><span class="va">batch</span><span class="op">$</span><span class="va">x</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; -2.1661  1.6924 -0.6798 -1.2541</span></span>
-<span><span class="co">#&gt; -2.1409  1.6545 -0.6939 -1.2074</span></span>
-<span><span class="co">#&gt; -1.9616  1.5571 -0.6535 -1.1331</span></span>
+<span><span class="co">#&gt;  1.2708 -1.3436 -0.7557 -2.6572</span></span>
+<span><span class="co">#&gt;  1.0866 -1.3754 -0.7869 -2.4959</span></span>
+<span><span class="co">#&gt;  1.1232 -1.2576 -0.7228 -2.4274</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{3,4} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -497,7 +498,7 @@ follows:</p>
 <code class="sourceCode R"><span><span class="va">graph_generator</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">4</span>, id <span class="op">=</span> <span class="st">"linear1"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_sigmoid"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
-<span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">3</span>, id <span class="op">=</span> <span class="st">"linear2"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span>  </span>
+<span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">3</span>, id <span class="op">=</span> <span class="st">"linear2"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_softmax"</span>, dim <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p>Note how the second <code>nn_linear</code> does not need to be
 informed about the output dimension of the first <code>nn_linear</code>,
@@ -511,8 +512,8 @@ the <code>$.pointer_shape</code> slot).</p>
 <span></span>
 <span><span class="fu">graph_module</span><span class="op">(</span><span class="va">input</span><span class="op">)</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.2152  0.5874  0.1973</span></span>
-<span><span class="co">#&gt;  0.2326  0.5716  0.1958</span></span>
+<span><span class="co">#&gt;  0.2608  0.2589  0.4803</span></span>
+<span><span class="co">#&gt;  0.2370  0.2676  0.4955</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,3} ][ grad_fn = &lt;SoftmaxBackward0&gt; ]</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -685,7 +686,8 @@ given to <code><a href="../reference/task_dataset.html">task_dataset()</a></code
 <span></span>
 <span><span class="va">iris_td</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/task_dataset.html">task_dataset</a></span><span class="op">(</span></span>
 <span>  task <span class="op">=</span> <span class="va">iris_mds_union</span><span class="op">$</span><span class="va">task</span>,</span>
-<span>  feature_ingress_tokens <span class="op">=</span> <span class="va">iris_mds_union</span><span class="op">$</span><span class="va">ingress</span></span>
+<span>  feature_ingress_tokens <span class="op">=</span> <span class="va">iris_mds_union</span><span class="op">$</span><span class="va">ingress</span>,</span>
+<span>  device <span class="op">=</span> <span class="st">"cpu"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">batch</span> <span class="op">&lt;-</span> <span class="va">iris_td</span><span class="op">$</span><span class="fu">.getbatch</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span>
@@ -724,14 +726,14 @@ the <code>nn_module</code>’s <code>$graph</code>:</p>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; $lin_out.output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; -0.3338</span></span>
-<span><span class="co">#&gt; -0.3640</span></span>
+<span><span class="co">#&gt; -0.6987</span></span>
+<span><span class="co">#&gt; -0.6286</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,1} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $nn_softmax.output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.1160  0.7134  0.1706</span></span>
-<span><span class="co">#&gt;  0.1259  0.7069  0.1672</span></span>
+<span><span class="co">#&gt;  0.2762  0.0631  0.6607</span></span>
+<span><span class="co">#&gt;  0.2846  0.0714  0.6440</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,3} ][ grad_fn = &lt;SoftmaxBackward0&gt; ]</span></span></code></pre></div>
 <p>The first linear layer that takes “Sepal” input
 (<code>"linear1"</code>) creates a 2x4 tensor (batch size 2, 4 units),
@@ -740,15 +742,14 @@ while the <code>"linear3"</code> layer has 2x5 output:</p>
 <code class="sourceCode R"><span><span class="va">iris_module</span><span class="op">$</span><span class="va">graph</span><span class="op">$</span><span class="va">pipeops</span><span class="op">$</span><span class="va">linear1</span><span class="op">$</span><span class="va">.result</span></span>
 <span><span class="co">#&gt; $output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; -0.1436  0.4729 -0.8980  3.8363</span></span>
-<span><span class="co">#&gt;  0.0179  0.6074 -0.7690  3.5465</span></span>
+<span><span class="co">#&gt;  3.6440 -3.2972 -0.8419 -4.0117</span></span>
+<span><span class="co">#&gt;  3.2852 -3.0533 -1.0539 -3.7198</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,4} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span>
 <span><span class="va">iris_module</span><span class="op">$</span><span class="va">graph</span><span class="op">$</span><span class="va">pipeops</span><span class="op">$</span><span class="va">linear3</span><span class="op">$</span><span class="va">.result</span></span>
 <span><span class="co">#&gt; $output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; 0.01 *</span></span>
-<span><span class="co">#&gt;  5.0021 -17.0187 -48.7343 -36.7424 -9.1976</span></span>
-<span><span class="co">#&gt;   5.0021 -17.0187 -48.7343 -36.7424 -9.1976</span></span>
+<span><span class="co">#&gt; -0.4000  0.1364 -0.2044  0.4171  0.1111</span></span>
+<span><span class="co">#&gt; -0.4000  0.1364 -0.2044  0.4171  0.1111</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,5} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span></code></pre></div>
 <p>We observe that the <code>po("nn_merge_cat")</code> concatenates
 these, as expected:</p>
@@ -756,8 +757,8 @@ these, as expected:</p>
 <code class="sourceCode R"><span><span class="va">iris_module</span><span class="op">$</span><span class="va">graph</span><span class="op">$</span><span class="va">pipeops</span><span class="op">$</span><span class="va">nn_merge_cat</span><span class="op">$</span><span class="va">.result</span></span>
 <span><span class="co">#&gt; $output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; -0.1436  0.4729 -0.8980  3.8363  0.0500 -0.1702 -0.4873 -0.3674 -0.0920</span></span>
-<span><span class="co">#&gt;  0.0179  0.6074 -0.7690  3.5465  0.0500 -0.1702 -0.4873 -0.3674 -0.0920</span></span>
+<span><span class="co">#&gt;  3.6440 -3.2972 -0.8419 -4.0117 -0.4000  0.1364 -0.2044  0.4171  0.1111</span></span>
+<span><span class="co">#&gt;  3.2852 -3.0533 -1.0539 -3.7198 -0.4000  0.1364 -0.2044  0.4171  0.1111</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,9} ][ grad_fn = &lt;CatBackward0&gt; ]</span></span></code></pre></div>
 </li>
 </ol>
@@ -804,7 +805,7 @@ from a <code>Dictionary</code> using <code><a href="../reference/t_loss.html">t_
 <code class="sourceCode R"><span><span class="va">xe</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/t_loss.html">t_loss</a></span><span class="op">(</span><span class="st">"cross_entropy"</span><span class="op">)</span></span>
 <span><span class="va">xe</span></span>
 <span><span class="co">#&gt; &lt;TorchLoss:cross_entropy&gt; Cross Entropy</span></span>
-<span><span class="co">#&gt; * Generator: nn_crossentropy_loss</span></span>
+<span><span class="co">#&gt; * Generator: nn_cross_entropy_loss</span></span>
 <span><span class="co">#&gt; * Parameters: list()</span></span>
 <span><span class="co">#&gt; * Packages: torch,mlr3torch</span></span>
 <span><span class="co">#&gt; * Task Types: classif</span></span></code></pre></div>
@@ -835,8 +836,10 @@ below.) The following uses the sequential NN from above:</p>
 <span><span class="va">lr_sequential</span></span>
 <span><span class="co">#&gt; &lt;LearnerClassifTorchModel:classif.torch_model&gt;: Torch Classification Model</span></span>
 <span><span class="co">#&gt; * Model: -</span></span>
-<span><span class="co">#&gt; * Parameters: opt.lr=0.02</span></span>
-<span><span class="co">#&gt; * Packages: mlr3, mlr3torch, torch</span></span>
+<span><span class="co">#&gt; * Parameters: device=auto, measures_train=&lt;list&gt;,</span></span>
+<span><span class="co">#&gt;   measures_valid=&lt;list&gt;, num_threads=1, drop_last=FALSE, shuffle=TRUE,</span></span>
+<span><span class="co">#&gt;   seed=random, opt.lr=0.02</span></span>
+<span><span class="co">#&gt; * Packages: mlr3, mlr3torch, progress, torch</span></span>
 <span><span class="co">#&gt; * Predict Types:  [response], prob</span></span>
 <span><span class="co">#&gt; * Feature Types: logical, integer, numeric, character, factor, ordered,</span></span>
 <span><span class="co">#&gt;   POSIXct, imageuri</span></span>
@@ -852,7 +855,357 @@ validation losses that we request.</p>
 <span><span class="op">)</span></span>
 <span><span class="va">lr_sequential</span><span class="op">$</span><span class="va">predict_type</span> <span class="op">=</span> <span class="st">"response"</span></span>
 <span></span>
-<span><span class="va">lr_sequential</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">md_sequential</span><span class="op">$</span><span class="va">task</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">lr_sequential</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">md_sequential</span><span class="op">$</span><span class="va">task</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Epoch 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 1]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 1.10</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.67</span></span>
+<span><span class="co">#&gt; Epoch 2</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 2]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 1.09</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.67</span></span>
+<span><span class="co">#&gt; Epoch 3</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 3]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 1.07</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.59</span></span>
+<span><span class="co">#&gt; Epoch 4</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 4]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 1.06</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.40</span></span>
+<span><span class="co">#&gt; Epoch 5</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 5]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 1.05</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.34</span></span>
+<span><span class="co">#&gt; Epoch 6</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 6]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 1.03</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
+<span><span class="co">#&gt; Epoch 7</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 7]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 1.01</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
+<span><span class="co">#&gt; Epoch 8</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 8]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.98</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
+<span><span class="co">#&gt; Epoch 9</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 9]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.96</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
+<span><span class="co">#&gt; Epoch 10</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 10]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.93</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
+<span><span class="co">#&gt; Epoch 11</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 11]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.92</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
+<span><span class="co">#&gt; Epoch 12</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 12]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.90</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
+<span><span class="co">#&gt; Epoch 13</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 13]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.88</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
+<span><span class="co">#&gt; Epoch 14</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 14]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.87</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
+<span><span class="co">#&gt; Epoch 15</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 15]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.86</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
+<span><span class="co">#&gt; Epoch 16</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 16]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.85</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
+<span><span class="co">#&gt; Epoch 17</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 17]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.85</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
+<span><span class="co">#&gt; Epoch 18</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 18]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.84</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
+<span><span class="co">#&gt; Epoch 19</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 19]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.83</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
+<span><span class="co">#&gt; Epoch 20</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 20]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.83</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
+<span><span class="co">#&gt; Epoch 21</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 21]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.82</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.31</span></span>
+<span><span class="co">#&gt; Epoch 22</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 22]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.82</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.30</span></span>
+<span><span class="co">#&gt; Epoch 23</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 23]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.82</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.29</span></span>
+<span><span class="co">#&gt; Epoch 24</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 24]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.81</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.21</span></span>
+<span><span class="co">#&gt; Epoch 25</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 25]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.81</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.13</span></span>
+<span><span class="co">#&gt; Epoch 26</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 26]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.80</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.11</span></span>
+<span><span class="co">#&gt; Epoch 27</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 27]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.80</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.09</span></span>
+<span><span class="co">#&gt; Epoch 28</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 28]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.79</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.08</span></span>
+<span><span class="co">#&gt; Epoch 29</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 29]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.79</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.06</span></span>
+<span><span class="co">#&gt; Epoch 30</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 30]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.78</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.08</span></span>
+<span><span class="co">#&gt; Epoch 31</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 31]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.78</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.05</span></span>
+<span><span class="co">#&gt; Epoch 32</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 32]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.77</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.04</span></span>
+<span><span class="co">#&gt; Epoch 33</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 33]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.76</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.04</span></span>
+<span><span class="co">#&gt; Epoch 34</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 34]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.76</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.05</span></span>
+<span><span class="co">#&gt; Epoch 35</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 35]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.75</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.04</span></span>
+<span><span class="co">#&gt; Epoch 36</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 36]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.75</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.05</span></span>
+<span><span class="co">#&gt; Epoch 37</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 37]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.74</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.05</span></span>
+<span><span class="co">#&gt; Epoch 38</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 38]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.74</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.04</span></span>
+<span><span class="co">#&gt; Epoch 39</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 39]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.73</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.05</span></span>
+<span><span class="co">#&gt; Epoch 40</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 40]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.73</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.04</span></span>
+<span><span class="co">#&gt; Epoch 41</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 41]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.72</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.04</span></span>
+<span><span class="co">#&gt; Epoch 42</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 42]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.72</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.04</span></span>
+<span><span class="co">#&gt; Epoch 43</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 43]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.71</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.04</span></span>
+<span><span class="co">#&gt; Epoch 44</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 44]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.71</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.05</span></span>
+<span><span class="co">#&gt; Epoch 45</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 45]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.71</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.04</span></span>
+<span><span class="co">#&gt; Epoch 46</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 46]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.70</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.05</span></span>
+<span><span class="co">#&gt; Epoch 47</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 47]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.70</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.05</span></span>
+<span><span class="co">#&gt; Epoch 48</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 48]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.69</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.04</span></span>
+<span><span class="co">#&gt; Epoch 49</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 49]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.69</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.05</span></span>
+<span><span class="co">#&gt; Epoch 50</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [Summary epoch 50]</span></span>
+<span><span class="co">#&gt; ------------------</span></span>
+<span><span class="co">#&gt; Measures (Train):</span></span>
+<span><span class="co">#&gt;  * classif.logloss = 0.69</span></span>
+<span><span class="co">#&gt;  * classif.ce = 0.05</span></span></code></pre></div>
 <p>The following calls the <code>$predict_newdata</code> function to
 plot the response surface along the
 <code>Sepal.Width = mean(Sepal.Width)</code> plane, along with the
@@ -871,7 +1224,7 @@ ground-truth values:</p>
 <span><span class="va">plot_predictions</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">predictions</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">newdata</span>, Species <span class="op">=</span> <span class="va">predictions</span><span class="op">$</span><span class="va">response</span><span class="op">)</span>,</span>
 <span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Sepal.Length</span>, y <span class="op">=</span> <span class="va">Petal.Length</span>, fill <span class="op">=</span> <span class="va">Species</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_tile</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">.3</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_tile</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">.3</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">iris</span>,</span>
 <span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Sepal.Length</span>, y <span class="op">=</span> <span class="va">Petal.Length</span>, fill <span class="op">=</span> <span class="va">Species</span><span class="op">)</span>,</span>
 <span>      color <span class="op">=</span> <span class="st">"black"</span>, pch <span class="op">=</span> <span class="fl">21</span>, size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">+</span></span>
@@ -924,7 +1277,7 @@ its <code>ParamSet</code>.</p>
 <span></span>
 <span><span class="va">md_sequential</span><span class="op">$</span><span class="va">loss</span></span>
 <span><span class="co">#&gt; &lt;TorchLoss:cross_entropy&gt; Cross Entropy</span></span>
-<span><span class="co">#&gt; * Generator: nn_crossentropy_loss</span></span>
+<span><span class="co">#&gt; * Generator: nn_cross_entropy_loss</span></span>
 <span><span class="co">#&gt; * Parameters: list()</span></span>
 <span><span class="co">#&gt; * Packages: torch,mlr3torch</span></span>
 <span><span class="co">#&gt; * Task Types: classif</span></span></code></pre></div>
@@ -967,9 +1320,9 @@ before:</p>
 <code class="sourceCode R"><span><span class="va">graph_sequential_full</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">4</span>, id <span class="op">=</span> <span class="st">"linear1"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_sigmoid"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
-<span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">3</span>, id <span class="op">=</span> <span class="st">"linear2"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span>  </span>
+<span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">3</span>, id <span class="op">=</span> <span class="st">"linear2"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_softmax"</span>, dim <span class="op">=</span> <span class="fl">2</span>, id <span class="op">=</span> <span class="st">"softmax"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
-<span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">3</span>, id <span class="op">=</span> <span class="st">"linear3"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span>  </span>
+<span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">3</span>, id <span class="op">=</span> <span class="st">"linear3"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_softmax"</span>, dim <span class="op">=</span> <span class="fl">2</span>, id <span class="op">=</span> <span class="st">"softmax2"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_optimizer"</span>, optimizer <span class="op">=</span> <span class="va">adam</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_loss"</span>, loss <span class="op">=</span> <span class="va">xe</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>

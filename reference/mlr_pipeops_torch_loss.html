@@ -187,7 +187,7 @@ For an explanation see <code><a href="mlr_pipeops_torch.html">PipeOpTorch</a></c
 <div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>loss</code></dt>
-<dd><p>(<code><a href="TorchLoss.html">TorchLoss</a></code>) or <code>character(1)</code> or <code>nn_loss</code><br>
+<dd><p>(<code><a href="TorchLoss.html">TorchLoss</a></code> or <code>character(1)</code> or <code>nn_loss</code>)<br>
 The loss (or something convertible via <code><a href="as_torch_loss.html">as_torch_loss()</a></code>).</p></dd>
 
 
@@ -240,7 +240,7 @@ otherwise be set during construction.</p></dd>
 <span class="r-in"><span><span class="va">mdout</span> <span class="op">=</span> <span class="va">po_loss</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">mdin</span><span class="op">)</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span></span></span>
 <span class="r-in"><span><span class="va">mdout</span><span class="op">$</span><span class="va">loss</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;TorchLoss:cross_entropy&gt; Cross Entropy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Generator: nn_crossentropy_loss</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Generator: nn_cross_entropy_loss</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: list()</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Packages: torch,mlr3torch</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Task Types: classif</span>
