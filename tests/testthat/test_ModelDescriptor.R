@@ -92,7 +92,7 @@ test_that("ModelDescriptor basic checks", {
     task = task,
     loss = a
   ),
-    regexp = "Must inherit from class 'DescriptorTorchLoss'",
+    regexp = "Must inherit from class 'TorchLoss'",
     fixed = TRUE
   )
 
@@ -102,7 +102,7 @@ test_that("ModelDescriptor basic checks", {
     task = task,
     optimizer = a
   ),
-    regexp = "Must inherit from class 'DescriptorTorchOptimizer'",
+    regexp = "Must inherit from class 'TorchOptimizer'",
     fixed = TRUE
   )
 

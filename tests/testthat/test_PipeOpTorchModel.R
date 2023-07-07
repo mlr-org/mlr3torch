@@ -77,6 +77,6 @@ test_that("phash works", {
   po2 = PipeOpTorchModel$new(task_type = "regr", param_vals = list(shuffle = FALSE))
   expect_equal(po1$phash, po2$phash)
   expect_false(
-    po("torch_model", task_type = "regr")$phash == po("torch_model", task_type = "classif")$phash
+    PipeOpTorchModel$new("regr")$phash == PipeOpTorchModel$new("classif")$phash
   )
 })

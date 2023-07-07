@@ -14,7 +14,7 @@ test_that("manual test", {
   # We can make it longer by adding some sleep through callbacks
   # Still, this is not captured by capture.output(), so one has to manually inspect that it works
   # callbacks = list(t_clbk("progress"), cbutil)
-  # cbutil = callback_descriptor("util", on_batch_valid_begin = function() Sys.sleep(1))
+  # cbutil = torch_callback("util", on_batch_valid_begin = function() Sys.sleep(1))
 
   stdout = suppressMessages(capture.output(learner$train(task)))
 

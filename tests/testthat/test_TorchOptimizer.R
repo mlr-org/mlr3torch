@@ -1,29 +1,29 @@
 test_that("Basic checks", {
-  descriptor = DescriptorTorchOptimizer$new(
+  descriptor = TorchOptimizer$new(
     torch_optimizer = optim_adam,
     label = "Adam",
     packages = "mypackage"
   )
   expect_equal(descriptor$id, "optim_adam")
-  expect_r6(descriptor, "DescriptorTorchOptimizer")
+  expect_r6(descriptor, "TorchOptimizer")
   expect_set_equal(descriptor$packages, c("mypackage", "torch", "mlr3torch"))
   expect_equal(descriptor$label, "Adam")
   expect_set_equal(descriptor$param_set$ids(), setdiff(formalArgs(optim_adam), "params"))
   expect_error(descriptor$generate(), regexp = "could not be loaded: mypackage", fixed = TRUE)
 
   expect_error(
-    DescriptorTorchOptimizer$new(
+    TorchOptimizer$new(
       torch_optimizer = optim_sgd,
       param_set = ps(lr = p_uty(), params = p_uty())
     ),
     regexp = "The name 'params' is reserved for the network parameters.", fixed = TRUE
   )
 
-  expect_error(DescriptorTorchOptimizer$new(optim_adam, id = "mse", param_set = ps(par = p_uty())),
+  expect_error(TorchOptimizer$new(optim_adam, id = "mse", param_set = ps(par = p_uty())),
     regexp = "Parameter values with ids 'par' are missing in generator.", fixed = TRUE
   )
 
-  descriptor1 = DescriptorTorchOptimizer$new(
+  descriptor1 = TorchOptimizer$new(
     torch_optimizer = optim_sgd,
     label = "Stochastic Gradient Descent",
     id = "Sgd"
@@ -39,7 +39,7 @@ test_that("Basic checks", {
   expect_class(opt, "torch_optimizer")
   expect_equal(opt$defaults$lr, 0.9191)
 
-  descriptor2 = DescriptorTorchOptimizer$new(
+  descriptor2 = TorchOptimizer$new(
     torch_optimizer = optim_sgd,
     param_set = ps(lr = p_uty())
   )
@@ -49,12 +49,12 @@ test_that("Basic checks", {
 
 test_that("dictionary retrieval works", {
   descriptor = t_opt("adam", lr = 0.99)
-  expect_r6(descriptor, "DescriptorTorchOptimizer")
+  expect_r6(descriptor, "TorchOptimizer")
   expect_class(descriptor$generator, "optim_adam")
   expect_equal(descriptor$param_set$values$lr, 0.99)
 
   descriptors = t_opts(c("adam", "sgd"))
-  expect_list(descriptors, types = "DescriptorTorchOptimizer")
+  expect_list(descriptors, types = "TorchOptimizer")
   expect_identical(ids(descriptors), c("adam", "sgd"))
 
   expect_class(t_opt(), "DictionaryMlr3torchOptimizers")
@@ -78,7 +78,7 @@ test_that("Cloning works", {
 test_that("Printer works", {
   observed = capture.output(print(t_opt("adam")))
   expected = c(
-   "<DescriptorTorchOptimizer:adam> Adaptive Moment Estimation",
+   "<TorchOptimizer:adam> Adaptive Moment Estimation",
    "* Generator: optim_adam",
    "* Parameters: list()",
    "* Packages: torch,mlr3torch"
@@ -88,19 +88,19 @@ test_that("Printer works", {
 
 
 test_that("Converters are correctly implemented", {
-  expect_r6(as_descriptor_torch_optimizer("adam"), "DescriptorTorchOptimizer")
-  descriptor = as_descriptor_torch_optimizer(optim_adam)
-  expect_r6(descriptor, "DescriptorTorchOptimizer")
+  expect_r6(as_torch_optimizer("adam"), "TorchOptimizer")
+  descriptor = as_torch_optimizer(optim_adam)
+  expect_r6(descriptor, "TorchOptimizer")
   expect_equal(descriptor$id, "optim_adam")
   expect_equal(descriptor$label, "Optim_adam")
 
-  descriptor1 = as_descriptor_torch_optimizer(descriptor, clone = TRUE)
+  descriptor1 = as_torch_optimizer(descriptor, clone = TRUE)
   expect_deep_clone(descriptor, descriptor1)
 
-  descriptor2 = as_descriptor_torch_optimizer(optim_adam, id = "myopt", label = "Custom",
+  descriptor2 = as_torch_optimizer(optim_adam, id = "myopt", label = "Custom",
     man = "my_opt", param_set = ps(lr = p_uty())
   )
-  expect_r6(descriptor2, "DescriptorTorchOptimizer")
+  expect_r6(descriptor2, "TorchOptimizer")
   expect_equal(descriptor2$id, "myopt")
   expect_equal(descriptor2$label, "Custom")
   expect_equal(descriptor2$man, "my_opt")

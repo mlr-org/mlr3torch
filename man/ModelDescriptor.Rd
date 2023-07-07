@@ -25,13 +25,13 @@ List of inputs that go into \code{graph}. Names of this must be a subset of \cod
 \item{task}{(\code{\link[mlr3:Task]{Task}})\cr
 (Training)-Task for which the model is being built. May be necessary for for some aspects of what loss to use etc.}
 
-\item{optimizer}{(\code{\link{DescriptorTorchOptimizer}} | \code{NULL})\cr
+\item{optimizer}{(\code{\link{TorchOptimizer}} | \code{NULL})\cr
 Additional info: what optimizer to use.}
 
-\item{loss}{(\code{\link{DescriptorTorchLoss}} | \code{NULL})\cr
+\item{loss}{(\code{\link{TorchLoss}} | \code{NULL})\cr
 Additional info: what loss to use.}
 
-\item{callbacks}{(A \code{list} of \code{\link{CallbackTorch}} or \code{NULL})\cr
+\item{callbacks}{(A \code{list} of \code{\link{CallbackSet}} or \code{NULL})\cr
 Additional info: what callbacks to use.}
 
 \item{.pointer}{(\code{character(2)} | \code{NULL})\cr

@@ -148,9 +148,9 @@ model_descriptor_to_module = function(model_descriptor, output_pointers = NULL, 
 #' @family Graph Network
 #' @export
 model_descriptor_to_learner = function(model_descriptor) {
-  optimizer = as_descriptor_torch_optimizer(model_descriptor$optimizer)
-  loss = as_descriptor_torch_loss(model_descriptor$loss)
-  callbacks = as_descriptor_torch_callbacks(model_descriptor$callbacks)
+  optimizer = as_torch_optimizer(model_descriptor$optimizer)
+  loss = as_torch_loss(model_descriptor$loss)
+  callbacks = as_torch_callbacks(model_descriptor$callbacks)
   task_type = model_descriptor$task$task_type
 
   ingress_tokens = model_descriptor$ingress

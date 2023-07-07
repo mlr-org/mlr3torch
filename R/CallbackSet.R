@@ -1,6 +1,6 @@
-#' @title Base Class for Torch Callbacks
+#' @title Set of Callbacks for Torch
 #'
-#' @name mlr_callbacks_torch
+#' @name mlr_callback_set
 #'
 #' @description
 #' Base class from which Callbacks should inherit.
@@ -13,12 +13,12 @@
 #' This context is assigned at the beginning of the training loop and removed afterwards.
 #' Different stages of a callback can communicate with each other by assigning values to `$self`.
 #'
-#' When used a in torch learner, the `CallbackTorch` is wrapped in a [`DescriptorTorchCallback`].
-#' The latters parameter set represents the arguments of the [`CallbackTorch`]'s `$initialize()` method and can
+#' When used a in torch learner, the `CallbackSet` is wrapped in a [`TorchCallback`].
+#' The latters parameter set represents the arguments of the [`CallbackSet`]'s `$initialize()` method and can
 #' be specified in the learner. The callback is then initialized at the beginning of the training loop.
 #'
-#' For creating custom callbacks, the function [`callback_descriptor()`] is recommended, which creates a
-#' [`CallbackTorch`] and then wraps it in a [`DescriptorTorchCallback`].
+#' For creating custom callbacks, the function [`torch_callback()`] is recommended, which creates a
+#' [`CallbackSet`] and then wraps it in a [`TorchCallback`].
 #'
 #' @section Inheriting:
 #' When one inherits from this class and overwrites the private `$deep_clone()` method, it is
@@ -40,7 +40,7 @@
 #' * `end` :: Run at last, using `on.exit()`.
 #' @family Callback
 #' @export
-CallbackTorch = R6Class("CallbackTorch",
+CallbackSet = R6Class("CallbackSet",
   lock_objects = FALSE,
   public = list(
     #' @field ctx ([`TorchContext`] or `NULL`)\cr
@@ -51,7 +51,7 @@ CallbackTorch = R6Class("CallbackTorch",
   private = list(
     deep_clone = function(name, value) {
       if (name == "ctx" && !is.null(value)) {
-        stopf("CallbackTorch instances must never be cloned unless the ctx is NULL.")
+        stopf("CallbackSet instances must never be cloned unless the ctx is NULL.")
       } else {
         value
       }
@@ -59,12 +59,12 @@ CallbackTorch = R6Class("CallbackTorch",
   )
 )
 
-#' @title Create a Callback Torch
+#' @title Create a Set of Callbacks for Torch
 #'
 #' @description
-#' Creates an `R6ClassGenerator` inheriting from [`CallbackTorch`].
+#' Creates an `R6ClassGenerator` inheriting from [`CallbackSet`].
 #' Additionally performs checks such as that the stages are not accidentally misspelled.
-#' To create a [`DescriptorTorchCallback`] use [`callback_descriptor()`].
+#' To create a [`TorchCallback`] use [`torch_callback()`].
 #'
 #' In order for the resulting class to be cloneable, the private method `$deep_clone()` must be
 #' provided.
@@ -81,11 +81,11 @@ CallbackTorch = R6Class("CallbackTorch",
 #'   The parent environment for the [`R6Class`].
 #' @param inherit (`R6ClassGenerator`)\cr
 #'   From which class to inherit.
-#'   This class must either be [`CallbackTorch`] (default) or inherit from it.
+#'   This class must either be [`CallbackSet`] (default) or inherit from it.
 #' @family Callback
 #'
 #' @export
-callback_torch = function(
+callback_set = function(
   classname,
   # training
   on_begin = NULL,
@@ -101,9 +101,9 @@ callback_torch = function(
   on_batch_valid_end = NULL,
   # other methods
   initialize = NULL,
-  public = NULL, private = NULL, active = NULL, parent_env = parent.frame(), inherit = CallbackTorch
+  public = NULL, private = NULL, active = NULL, parent_env = parent.frame(), inherit = CallbackSet
   ) {
-  assert_true(startsWith(classname, "CallbackTorch"))
+  assert_true(startsWith(classname, "CallbackSet"))
   more_public = list(
     on_begin = assert_function(on_begin, nargs = 0, null.ok = TRUE),
     on_end = assert_function(on_end, nargs = 0, null.ok = TRUE),
@@ -139,7 +139,7 @@ callback_torch = function(
   assert_list(private, null.ok = TRUE, names = "unique")
   assert_list(active, null.ok = TRUE, names = "unique")
   assert_environment(parent_env)
-  assert_inherits_classname(inherit, "CallbackTorch")
+  assert_inherits_classname(inherit, "CallbackSet")
 
   more_public = Filter(function(x) !is.null(x), more_public)
   parent_env_shim = new.env(parent = parent_env)

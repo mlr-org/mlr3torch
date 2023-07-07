@@ -1,7 +1,7 @@
-#' @title Sugar Function for Callback Descriptor
+#' @title Sugar Function for Torch Callback
 #'
 #' @description
-#' Retrieves one or more [`DescriptorTorchCallback`] from [`mlr3torch_callbacks`].
+#' Retrieves one or more [`TorchCallback`] from [`mlr3torch_callbacks`].
 #' Works like [`mlr3::lrn()`] or [`mlr3::tsk()`].
 #'
 #' @param .key (`character(1)`)\cr
@@ -9,7 +9,7 @@
 #' @param ... (any)\cr
 #'   See description of [`dictionary_sugar_get()`].
 #'
-#' @return [`DescriptorTorchCallback`]
+#' @return [`TorchCallback`]
 #'
 #' @export
 #' @family Callback
@@ -51,10 +51,10 @@ t_clbks.NULL = function(.keys, ...) { # nolint
   dictionary_sugar_get(dict = mlr3torch_callbacks)
 }
 
-#' @title Convert to a DescriptorTorchCallback
+#' @title Convert to a TorchCallback
 #'
 #' @description
-#' Converts an object to a [`DescriptorTorchCallback`].
+#' Converts an object to a [`TorchCallback`].
 #'
 #' @param x (any)\cr
 #'   Object to be converted.
@@ -63,33 +63,33 @@ t_clbks.NULL = function(.keys, ...) { # nolint
 #' @param ... (any)\cr
 #'   Additional arguments
 #'
-#' @return [`DescriptorTorchCallback`].
+#' @return [`TorchCallback`].
 #' @family Callback
 
 #' @export
-as_descriptor_torch_callback = function(x, clone = FALSE, ...) {
+as_torch_callback = function(x, clone = FALSE, ...) {
   assert_flag(clone)
-  UseMethod("as_descriptor_torch_callback")
+  UseMethod("as_torch_callback")
 }
 
 #' @export
-as_descriptor_torch_callback.DescriptorTorchCallback = function(x, clone = FALSE, ...) { # nolint
+as_torch_callback.TorchCallback = function(x, clone = FALSE, ...) { # nolint
   if (clone) x$clone(deep = TRUE) else x
 }
 
 #' @export
-as_descriptor_torch_callback.R6ClassGenerator = function(x, clone = FALSE, id = deparse(substitute(x))[[1L]], ...) { # nolint
-  DescriptorTorchCallback$new(callback_generator = x, id = id, ...)
+as_torch_callback.R6ClassGenerator = function(x, clone = FALSE, id = deparse(substitute(x))[[1L]], ...) { # nolint
+  TorchCallback$new(callback_generator = x, id = id, ...)
 }
 
 #' @export
-as_descriptor_torch_callback.character = function(x, clone = FALSE, ...) { # nolint
+as_torch_callback.character = function(x, clone = FALSE, ...) { # nolint
   t_clbk(.key = x, ...)
 }
 
 #' @title Convert to a list of Callback Descriptors
 #' @description
-#' Converts an object to a list of [`DescriptorTorchCallback`].
+#' Converts an object to a list of [`TorchCallback`].
 #'
 #' @param x (any)\cr
 #'   Object to convert.
@@ -101,41 +101,41 @@ as_descriptor_torch_callback.character = function(x, clone = FALSE, ...) { # nol
 #' @family Callback
 #' @family Descriptor Torch
 #' @export
-as_descriptor_torch_callbacks = function(x, clone, ...) {
-  UseMethod("as_descriptor_torch_callbacks")
+as_torch_callbacks = function(x, clone, ...) {
+  UseMethod("as_torch_callbacks")
 }
 
 #' @export
-as_descriptor_torch_callbacks.list = function(x, clone = FALSE, ...) { # nolint
-  lapply(x, as_descriptor_torch_callback, clone = clone, ...)
+as_torch_callbacks.list = function(x, clone = FALSE, ...) { # nolint
+  lapply(x, as_torch_callback, clone = clone, ...)
 }
 
 #' @export
-as_descriptor_torch_callbacks.NULL = function(x, clone = FALSE, ...) { # nolint
+as_torch_callbacks.NULL = function(x, clone = FALSE, ...) { # nolint
   list()
 }
 
 #' @export
-as_descriptor_torch_callbacks.default = function(x, clone = FALSE, ...) { # nolint
-  list(as_descriptor_torch_callback(x, clone = clone, ...))
+as_torch_callbacks.default = function(x, clone = FALSE, ...) { # nolint
+  list(as_torch_callback(x, clone = clone, ...))
 }
 
 #' @export
-as_descriptor_torch_callbacks.character = function(x, clone = FALSE, ...) { # nolint
+as_torch_callbacks.character = function(x, clone = FALSE, ...) { # nolint
   t_clbks(x, ...)
 }
 
 #' @title Descriptor of Torch Callback
 #'
 #' @description
-#' This wraps a [`CallbackTorch`] and annotates it with metadata, most importantly a [`ParamSet`].
+#' This wraps a [`CallbackSet`] and annotates it with metadata, most importantly a [`ParamSet`].
 #' The callback is created for the given parameter values by calling the `$generate()` method.
 #'
 #' This class is usually used to configure the callback of a torch learner, e.g. when constructing
 #' a learner of in a [`ModelDescriptor`].
 #'
 #' For a list of available callbacks, see [`mlr3torch_callbacks]`.
-#' To conveniently retrieve a [`DescriptorTorchCallback`], use [`t_clbk()`].
+#' To conveniently retrieve a [`TorchCallback`], use [`t_clbk()`].
 #'
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
@@ -148,7 +148,7 @@ as_descriptor_torch_callbacks.character = function(x, clone = FALSE, ...) { # no
 #' @export
 #' @examples
 #' # Create a new callback descriptor from an existing callback
-#' descriptor = DescriptorTorchCallback$new(CallbackTorchCheckpoint)
+#' descriptor = TorchCallback$new(CallbackSetCheckpoint)
 #' # The parameters are inferred
 #' descriptor$param_set
 #'
@@ -164,7 +164,7 @@ as_descriptor_torch_callbacks.character = function(x, clone = FALSE, ...) { # no
 #' callback = descriptor$generate()
 #' callback
 #' # is the same as
-#' CallbackTorchCheckpoint$new(
+#' CallbackSetCheckpoint$new(
 #'   path = tempfile(), freq = 1
 #' )
 #'
@@ -176,8 +176,8 @@ as_descriptor_torch_callbacks.character = function(x, clone = FALSE, ...) { # no
 #' # the parameters of the callback are added to the learner's parameter set
 #' learner$param_set
 #'
-DescriptorTorchCallback = R6Class("DescriptorTorchCallback",
-  inherit = DescriptorTorch,
+TorchCallback = R6Class("TorchCallback",
+  inherit = TorchDescriptor,
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
@@ -216,10 +216,10 @@ DescriptorTorchCallback = R6Class("DescriptorTorchCallback",
 #'
 #' @description
 #' Convenience function to create a custom callback descriptor for torch.
-#' For more information on how to correctly implement a new callback, see [`CallbackTorch`].
-#' It returns a [`DescriptorTorchCallback`] wrapping a [`CallbackTorch`].
+#' For more information on how to correctly implement a new callback, see [`CallbackSet`].
+#' It returns a [`TorchCallback`] wrapping a [`CallbackSet`].
 #'
-#' @inheritParams callback_torch
+#' @inheritParams callback_set
 #' @param id (`character(1)`)\cr`\cr
 #'   The id for the callbacks.
 #'   Note that the ids of callbacks passed to a learner must be unique.
@@ -233,18 +233,18 @@ DescriptorTorchCallback = R6Class("DescriptorTorchCallback",
 #'   String in the format `[pkg]::[topic]` pointing to a manual page for this object.
 #'   The referenced help package can be opened via method `$help()`.
 #'
-#' @inheritSection mlr_callbacks_torch Stages
+#' @inheritSection mlr_torch_callbacks Stages
 #'
 #' @section Internals:
-#' It first creates an `R6ClassGenerator` using [`callback_descriptor()`] and when wraps this generator in a
-#' [`DescriptorTorchCallback`].
+#' It first creates an `R6ClassGenerator` using [`torch_callback()`] and when wraps this generator in a
+#' [`TorchCallback`].
 #'
 #' @export
-#' @return [`DescriptorTorchCallback`]
-#' @include zzz.R CallbackTorch.R
+#' @return [`TorchCallback`]
+#' @include zzz.R CallbackSet.R
 #' @family Callback
 #' @examples
-#' custom_tcb = callback_descriptor("custom",
+#' custom_tcb = torch_callback("custom",
 #'   initialize = function(name) {
 #'     self$name = name
 #'   },
@@ -264,9 +264,9 @@ DescriptorTorchCallback = R6Class("DescriptorTorchCallback",
 #' )
 #' task = tsk("iris")
 #' learner$train(task)
-callback_descriptor = function(
+torch_callback = function(
   id,
-  classname = paste0("CallbackTorch", capitalize(id)),
+  classname = paste0("CallbackSet", capitalize(id)),
   param_set = NULL,
   packages = NULL,
   label = capitalize(id),
@@ -285,10 +285,10 @@ callback_descriptor = function(
   on_batch_valid_end = NULL,
   # other arguments
   initialize = NULL,
-  public = NULL, private = NULL, active = NULL, parent_env = parent.frame(), inherit = CallbackTorch
+  public = NULL, private = NULL, active = NULL, parent_env = parent.frame(), inherit = CallbackSet
   ) {
 
-  callback_generator = callback_torch(
+  callback_generator = callback_set(
     classname = classname,
     # training
     on_begin = on_begin,
@@ -307,7 +307,7 @@ callback_descriptor = function(
     public = public, private = private, active = active, parent_env = parent_env, inherit = inherit
   )
 
-  DescriptorTorchCallback$new(
+  TorchCallback$new(
     callback_generator = callback_generator,
     param_set = param_set,
     packages = packages,
@@ -317,7 +317,7 @@ callback_descriptor = function(
   )
 }
 
-#' @title Dictionary of Callback Descriptors
+#' @title Dictionary of Torch Callbacks
 #'
 #' @description
 #' A [`mlr3misc::Dictionary`] of torch callbacks.

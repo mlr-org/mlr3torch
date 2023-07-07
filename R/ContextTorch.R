@@ -5,7 +5,7 @@
 #' @description
 #' Context for training a torch learner.
 #' This is the - mostly read-only - information callbacks have access to through the argument `ctx`.
-#' For more information on callbacks, see [`CallbackTorch`].
+#' For more information on callbacks, see [`CallbackSet`].
 #'
 #' @family Callback
 #' @export

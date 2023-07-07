@@ -133,8 +133,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{loss}}{(\code{\link{DescriptorTorchLoss}}) or \code{character(1)} or \code{nn_loss}\cr
-The loss (or something convertible via \code{\link[=as_descriptor_torch_loss]{as_descriptor_torch_loss()}}).}
+\item{\code{loss}}{(\code{\link{TorchLoss}}) or \code{character(1)} or \code{nn_loss}\cr
+The loss (or something convertible via \code{\link[=as_torch_loss]{as_torch_loss()}}).}
 
 \item{\code{id}}{(\code{character(1)})\cr
 Identifier of the resulting  object.}

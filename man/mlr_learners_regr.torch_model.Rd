@@ -114,13 +114,13 @@ Outputs must be the scores (before the softmax).}
 \item{\code{ingress_tokens}}{(\code{list} of \code{\link[=TorchIngressToken]{TorchIngressToken()}})\cr
 A list with ingress tokens that defines how the dataloader will be defined.}
 
-\item{\code{optimizer}}{(\code{\link{DescriptorTorchOptimizer}})\cr
+\item{\code{optimizer}}{(\code{\link{TorchOptimizer}})\cr
 The torch optimizer.}
 
-\item{\code{loss}}{(\code{\link{DescriptorTorchLoss}})\cr
+\item{\code{loss}}{(\code{\link{TorchLoss}})\cr
 The loss used to train the network.}
 
-\item{\code{callbacks}}{(\code{list()} of \code{\link{DescriptorTorchCallback}}s)\cr
+\item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
 The callbacks used during training.
 Must have unique ids.
 They are executed in the order in which they are provided}

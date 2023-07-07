@@ -7,20 +7,20 @@
 \description{
 Context for training a torch learner.
 This is the - mostly read-only - information callbacks have access to through the argument \code{ctx}.
-For more information on callbacks, see \code{\link{CallbackTorch}}.
+For more information on callbacks, see \code{\link{CallbackSet}}.
 }
 \seealso{
 Other Callback: 
-\code{\link{DescriptorTorchCallback}},
-\code{\link{as_descriptor_torch_callbacks}()},
-\code{\link{as_descriptor_torch_callback}()},
-\code{\link{callback_descriptor}()},
-\code{\link{callback_torch}()},
+\code{\link{TorchCallback}},
+\code{\link{as_torch_callbacks}()},
+\code{\link{as_torch_callback}()},
+\code{\link{callback_set}()},
 \code{\link{mlr3torch_callbacks}},
-\code{\link{mlr_callbacks_torch.checkpoint}},
-\code{\link{mlr_callbacks_torch.progress}},
-\code{\link{mlr_callbacks_torch}},
-\code{\link{t_clbk}()}
+\code{\link{mlr_callback_set.checkpoint}},
+\code{\link{mlr_callback_set.progress}},
+\code{\link{mlr_callback_set}},
+\code{\link{t_clbk}()},
+\code{\link{torch_callback}()}
 }
 \concept{Callback}
 \section{Public fields}{

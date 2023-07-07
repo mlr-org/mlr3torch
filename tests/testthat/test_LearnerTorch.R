@@ -120,7 +120,7 @@ test_that("ParamSet reference identities are preserved after a deep clone", {
 })
 
 test_that("Learner inherits packages from optimizer, loss, and callbacks", {
-  tcb = callback_descriptor("custom", packages = "utils")
+  tcb = torch_callback("custom", packages = "utils")
   opt = t_opt("adam")
   opt$packages = "base"
   loss = t_loss("cross_entropy")

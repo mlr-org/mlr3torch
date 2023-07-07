@@ -258,29 +258,29 @@ expect_paramtest = function(paramtest) {
 }
 
 
-#' @title Autotest for Callback Descriptors
+#' @title Autotest for Torch Callback
 #' @description
 #' Performs various sanity checks on a callback descriptor.
 #'
-#' @param descriptor ([`DescriptorTorchCallback`])\cr
+#' @param descriptor ([`TorchCallback`])\cr
 #'   The object to test.
 #' @param check_man (`logical(1)`)\cr
 #'   Whether to check that the manual page exists. Default is `TRUE`.
 autotest_callback = function(descriptor, check_man = TRUE) {
   # Checks on descriptor
-  expect_class(descriptor, "DescriptorTorchCallback")
+  expect_class(descriptor, "TorchCallback")
   expect_string(descriptor$id)
   expect_string(descriptor$label, null.ok = TRUE)
   expect_r6(descriptor$param_set, "ParamSet")
   if (check_man) {
     expect_man_exists(descriptor$man)
-    expect_true(startsWith(descriptor$man, "mlr3torch::mlr_callbacks"))
+    expect_true(startsWith(descriptor$man, "mlr3torch::mlr_callback_set"))
   }
 
   # Checks on generator
   cbgen = descriptor$generator
   expect_class(cbgen, "R6ClassGenerator")
-  expect_true(grepl("^CallbackTorch", cbgen$classname))
+  expect_true(grepl("^CallbackSet", cbgen$classname))
   expect_true(cbgen$cloneable)
   init_fn = get_init(descriptor$generator)
   if (is.null(init_fn)) init_fn = function() NULL
@@ -296,7 +296,7 @@ autotest_callback = function(descriptor, check_man = TRUE) {
   # e.g. the progress callback otherwise prints to the console
   invisible(capture.output(learner$train(task)))
   cb_trained = learner$model$callbacks[[descriptor$id]]
-  expect_class(cb_trained, "CallbackTorch")
+  expect_class(cb_trained, "CallbackSet")
   expect_deep_clone(cb_trained, cb_trained$clone(deep = TRUE))
   cb_trained$ctx = "placeholder"
   expect_error(cb_trained$clone(deep = TRUE), "must never be cloned unless")

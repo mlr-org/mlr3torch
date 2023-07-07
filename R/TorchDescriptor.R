@@ -1,8 +1,8 @@
 #' @title Base Class for Torch Descriptors
-#' @name descriptor_torch
+#' @name torch
 #'
 #' @description
-#' Abstract Base Class from which [`DescriptorTorchLoss`], [`DescriptorTorchOptimizer`], and [`DescriptorTorchCallback`] inherit.
+#' Abstract Base Class from which [`TorchLoss`], [`TorchOptimizer`], and [`TorchCallback`] inherit.
 #' This class wraps a generator (R6Class Generator or the torch version of such a generator) and annotates it
 #' with metadata such as a [`ParamSet`], a label, an ID, packages, or a manual page.
 #'
@@ -14,7 +14,7 @@
 #'
 #' @family Descriptor Torch
 #' @export
-DescriptorTorch = R6Class("DescriptorTorch",
+TorchDescriptor = R6Class("TorchDescriptor",
   public = list(
     #' @template field_label
     label = NULL,
@@ -110,7 +110,7 @@ DescriptorTorch = R6Class("DescriptorTorch",
   private = list(
     .repr = NULL,
     .additional_phash_input = function() {
-      stopf("Classes inheriting from DescriptorTorch must implement the .additional_phash_input() method.")
+      stopf("Classes inheriting from Torch must implement the .additional_phash_input() method.")
     }
 
   )

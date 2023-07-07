@@ -122,13 +122,13 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{optimizer}}{(\code{\link{DescriptorTorchOptimizer}})\cr
+\item{\code{optimizer}}{(\code{\link{TorchOptimizer}})\cr
 The optimizer used to train the network.}
 
-\item{\code{loss}}{(\code{\link{DescriptorTorchLoss}})\cr
+\item{\code{loss}}{(\code{\link{TorchLoss}})\cr
 The loss used to train the network.}
 
-\item{\code{callbacks}}{(\code{list()} of \code{\link{DescriptorTorchCallback}}s)\cr
+\item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
 The callbacks. Must have unique ids.}
 }
 \if{html}{\out{</div>}}

@@ -1,6 +1,6 @@
-#' @title Callback Torch Checkpoint
+#' @title Checkpoint Callback
 #'
-#' @name mlr_callbacks_torch.checkpoint
+#' @name mlr_callback_set.checkpoint
 #'
 #' @description
 #' Saves the model during training.
@@ -11,8 +11,9 @@
 #'
 #' @family Callback
 #' @export
-CallbackTorchCheckpoint = R6Class("CallbackTorchCheckpoint",
-  inherit = CallbackTorch,
+#' @include CallbackSet.R
+CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
+  inherit = CallbackSet,
   lock_objects = FALSE,
   # TODO: This should also save the learner itself
   public = list(
@@ -43,16 +44,16 @@ CallbackTorchCheckpoint = R6Class("CallbackTorchCheckpoint",
   )
 )
 
-#' @include DescriptorTorchCallback.R CallbackTorch.R
+#' @include TorchCallback.R
 mlr3torch_callbacks$add("checkpoint", function() {
-  DescriptorTorchCallback$new(
-    callback_generator = CallbackTorchCheckpoint,
+  TorchCallback$new(
+    callback_generator = CallbackSetCheckpoint,
     param_set = ps(
       path      = p_uty(),
       freq      = p_int(lower = 1L)
     ),
     id = "checkpoint",
     label = "Checkpoint",
-    man = "mlr3torch::mlr_callbacks_torch.checkpoint"
+    man = "mlr3torch::mlr_callback_set.checkpoint"
   )
 })

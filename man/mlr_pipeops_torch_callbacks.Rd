@@ -92,8 +92,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{callbacks}}{(\code{list} of \code{\link{DescriptorTorchCallback}}s) \cr
-The callbacks (or something convertible via \code{\link[=as_descriptor_torch_callbacks]{as_descriptor_torch_callbacks()}}).
+\item{\code{callbacks}}{(\code{list} of \code{\link{TorchCallback}}s) \cr
+The callbacks (or something convertible via \code{\link[=as_torch_callbacks]{as_torch_callbacks()}}).
 Must have unique ids.
 All callbacks are cloned during construction.}
 

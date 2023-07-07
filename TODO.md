@@ -12,10 +12,10 @@
 
 **Callbacks**
 
-*   [x] CallbackTorchProgress
-*   [x] CallbackTorchHistory
-*   [x] callback_torch
-*   [x] CallbackTorch
+*   [x] CallbackSetProgress
+*   [x] CallbackSetHistory
+*   [x] torch_callback
+*   [x] CallbackSet
 *   [x] ContextTorch
 *   [x] t_clbk
 
@@ -34,23 +34,23 @@
 
 **Optimizer**
 
-*   [x] DescriptorTorchOptimizer
-*   [x] as_descriptor_torch_optimizer
-*   [x] as_descriptor_torch_optimizer.character
+*   [x] TorchOptimizer
+*   [x] as_torch_optimizer
+*   [x] as_torch_optimizer.character
 *   [x] mlr3torch_optimizers
-*   [x] as_descriptor_torch_optimizer.DescriptorTorchOptimizer
-*   [x] as_descriptor_torch_optimizer.torch_optimizer_generator
+*   [x] as_torch_optimizer.TorchOptimizer
+*   [x] as_torch_optimizer.torch_optimizer_generator
 *   [x] t_opt
 
 **Loss**
 
-*   [x] DescriptorTorchLoss
-*   [x] as_descriptor_torch_optimizer.DescriptorTorchLoss
-*   [x] as_descriptor_torch_optimizer.nn_loss
-*   [x] as_descriptor_torch_optimizer
+*   [x] TorchLoss
+*   [x] as_torch_optimizer.TorchLoss
+*   [x] as_torch_optimizer.nn_loss
+*   [x] as_torch_optimizer
 *   [x] t_loss
 *   [x] mlr3torch_losses
-*   [x] as_descriptor_torch_optimizer.character
+*   [x] as_torch_optimizer.character
 
 **Other**
 
@@ -90,7 +90,7 @@
 
 Some notes:
 
-* Should we enforce the "train" tag for DescriptorTorch{Optimizer, Loss, Callback}, i.e.
+* Should we enforce the "train" tag for Torch{Optimizer, Loss, Callback}, i.e.
   set it in the initialize method of LearnerTorch?
 * [ ] in learner construction ensure usage of "train" and "predict" parameters
 * [ ] Utility functions for save_torch_learner and load_torch_learner, this should also be called in callback checkpoint
@@ -178,7 +178,7 @@ for nn modules, or "Optimizer" for optim_adam etc.
 * [ ] Test that all losses are working
 * [ ] regr learners have mse and classif ce as default loss
 * [ ] remove unneeded test helper functions from mlr3pipelines
-* Rename the TorchLoss, TorchOptimizer, TorchCallback to DescriptorTorchCallback, DescriptorTorchOptimizer, DescriptorTorchLoss.
+* Rename the TorchLoss, TorchOptimizer, TorchCallback to TorchCallback, TorchOptimizer, TorchLoss.
 * mention that .dataset() must take row ids into account and add tests with reverse row ids for iris, mtcars, nano_imagenet, ...
 * expect_learner_torch should test all private methods (like .network, .dataloader).
   Because all the learners are essentially the same (except for these methods) autotests don't make sense.

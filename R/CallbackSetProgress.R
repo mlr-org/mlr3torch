@@ -1,15 +1,15 @@
-#' @title Shows Training Process in the Console
+#' @title Progress Callback
 #'
-#' @name mlr_callbacks_torch.progress
+#' @name mlr_callback_set.progress
 #'
 #' @description
 #' Prints a progress bar and the metrics for training and validation.
 #'
 #' @family Callback
-#' @include CallbackTorch.R
+#' @include CallbackSet.R
 #' @export
-CallbackTorchProgress = R6Class("CallbackTorchProgress",
-  inherit = CallbackTorch,
+CallbackSetProgress = R6Class("CallbackSetProgress",
+  inherit = CallbackSet,
   lock_objects = FALSE,
   public = list(
     #' @description
@@ -72,14 +72,14 @@ CallbackTorchProgress = R6Class("CallbackTorchProgress",
   )
 )
 
-#' @include DescriptorTorchCallback.R CallbackTorch.R
+#' @include TorchCallback.R
 mlr3torch_callbacks$add("progress", function() {
-  DescriptorTorchCallback$new(
-    callback_generator = CallbackTorchProgress,
+  TorchCallback$new(
+    callback_generator = CallbackSetProgress,
     param_set = ps(),
     id = "progress",
     label = "Progress",
-    man = "mlr3torch::mlr_callbacks_torch.progress",
+    man = "mlr3torch::mlr_callback_set.progress",
     packages = "progress"
   )
 })

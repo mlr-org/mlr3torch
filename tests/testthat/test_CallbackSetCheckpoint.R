@@ -3,7 +3,7 @@ test_that("Autotest", {
   autotest_callback(cb)
 })
 
-test_that("CallbackTorchCheckpoint manual", {
+test_that("CallbackSetCheckpoint manual", {
   cb = t_clbk("checkpoint", freq = 1)
   task = tsk("iris")
   task$row_roles$use = 1

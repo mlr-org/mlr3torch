@@ -1,7 +1,7 @@
 test_that("Basic checks", {
-  expect_class(CallbackTorch, "R6ClassGenerator")
-  instance = CallbackTorch$new()
-  expect_true(is.null(CallbackTorch$inherit))
+  expect_class(CallbackSet, "R6ClassGenerator")
+  instance = CallbackSet$new()
+  expect_true(is.null(CallbackSet$inherit))
   expect_true(!inherits(instance, "Callback"))
 })
 
@@ -22,7 +22,7 @@ test_that("All stages are called correctly", {
     on_stage
   }
 
-  cb = callback_descriptor(id = "test",
+  cb = torch_callback(id = "test",
     initialize = function(path) {
       assert_path_for_output(path)
       file.create(path)
@@ -88,18 +88,18 @@ test_that("All stages are called correctly", {
   check_output(output3, 2, 2, 3)
 })
 
-test_that("callback_torch is working", {
-  expect_subset(mlr3torch_callback_stages, formalArgs(callback_torch))
-  expect_subset(formalArgs(callback_torch), formalArgs(callback_descriptor))
+test_that("callback_set is working", {
+  expect_subset(mlr3torch_callback_stages, formalArgs(callback_set))
+  expect_subset(formalArgs(callback_set), formalArgs(torch_callback))
 
-  expect_error(callback_torch("A"), regexp = "startsWith")
-  tcb = callback_torch("CallbackTorchA")
+  expect_error(callback_set("A"), regexp = "startsWith")
+  tcb = callback_set("CallbackSetA")
   expect_class(tcb, "R6ClassGenerator")
-  expect_warning(callback_torch("CallbackTorchA", public = list(on_edn = function() NULL)), regexp = "on_edn")
+  expect_warning(callback_set("CallbackSetA", public = list(on_edn = function() NULL)), regexp = "on_edn")
 
   e = new.env()
   e$aaaabbb = 1441
-  CallbackTorchB = callback_torch("CallbackTorchB",
+  CallbackSetB = callback_set("CallbackSetB",
     public = list(
       a = 1
     ),
@@ -111,57 +111,57 @@ test_that("callback_torch is working", {
     ),
     parent_env = e
   )
-  expect_class(CallbackTorchB, "R6ClassGenerator")
+  expect_class(CallbackSetB, "R6ClassGenerator")
 
-  expect_identical(parent.env(CallbackTorchB$parent_env), e)
-  cb = CallbackTorchB$new()
-  expect_class(cb, "CallbackTorchB")
+  expect_identical(parent.env(CallbackSetB$parent_env), e)
+  cb = CallbackSetB$new()
+  expect_class(cb, "CallbackSetB")
   expect_identical(cb$a, 1)
   expect_identical(get_private(cb)$b, 2)
   expect_identical(cb$c, 3)
 
   A = R6Class("A")
-  expect_error(callback_torch("CallbackTorchA", inherit = A), regexp = "does not generate object")
-  B = R6Class("B", inherit = CallbackTorch)
-  expect_error(callback_torch("CallbackTorchA", inherit = B), regexp = NA)
+  expect_error(callback_set("CallbackSetA", inherit = A), regexp = "does not generate object")
+  B = R6Class("B", inherit = CallbackSet)
+  expect_error(callback_set("CallbackSetA", inherit = B), regexp = NA)
 
 
-  CallbackTorchC = callback_torch("CallbackTorchC",
+  CallbackSetC = callback_set("CallbackSetC",
     initialize = function(x) {
       self$x = x
     }
   )
 
-  cb = CallbackTorchC$new(1)
+  cb = CallbackSetC$new(1)
   expect_equal(cb$x, 1)
 
-  CallbackTorchD = callback_torch("CallbackTorchD",
+  CallbackSetD = callback_set("CallbackSetD",
     public = list(
       initialize = function(x) {
         self$x = x
       }
     )
   )
-  cb = CallbackTorchC$new(1)
+  cb = CallbackSetC$new(1)
   expect_equal(cb$x, 1)
 
   expect_error(
-    callback_torch("CallbackTorchE", public = list(initialize = function() NULL), initialize = function() NULL),
+    callback_set("CallbackSetE", public = list(initialize = function() NULL), initialize = function() NULL),
     "initialize"
   )
 
-  CallbackTorchF = callback_torch("CallbackTorchF",
+  CallbackSetF = callback_set("CallbackSetF",
     private = list(deep_clone = function(name, value) "cloning works")
   )
-  expect_true(CallbackTorchF$cloneable)
-  cbf = CallbackTorchF$new()
+  expect_true(CallbackSetF$cloneable)
+  cbf = CallbackSetF$new()
   expect_equal(get_private(cbf)$deep_clone("a", 1), "cloning works")
 
-  CallbackTorchG = callback_torch("CallbackTorchG")
-  expect_false(CallbackTorchG$cloneable)
+  CallbackSetG = callback_set("CallbackSetG")
+  expect_false(CallbackSetG$cloneable)
 
-  CallbackTorchH = callback_torch("CallbackTorchTestH", initialize = function(ctx) NULL)
-  expect_error(DescriptorTorchCallback$new(CallbackTorchH), "is reserved for the ContextTorch")
+  CallbackSetH = callback_set("CallbackSetTestH", initialize = function(ctx) NULL)
+  expect_error(TorchCallback$new(CallbackSetH), "is reserved for the ContextTorch")
 })
 
 

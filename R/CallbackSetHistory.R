@@ -1,13 +1,14 @@
-#' @title Callback Torch History
+#' @title History Callback
 #'
-#' @name mlr_callbacks_torch.history
+#' @name mlr_callback_set.history
 #'
 #' @description
 #' Saves the history during training.
 #'
 #' @export
-CallbackTorchHistory = R6Class("CallbackTorchHistory",
-  inherit = CallbackTorch,
+#' @include CallbackSet.R
+CallbackSetHistory = R6Class("CallbackSetHistory",
+  inherit = CallbackSet,
   lock_objects = FALSE,
   public = list(
     #' @description
@@ -54,13 +55,13 @@ CallbackTorchHistory = R6Class("CallbackTorchHistory",
 
 
 
-#' @include DescriptorTorchCallback.R CallbackTorchHistory.R
+#' @include TorchCallback.R
 mlr3torch_callbacks$add("history", function() {
-  DescriptorTorchCallback$new(
-    callback_generator = CallbackTorchHistory,
+  TorchCallback$new(
+    callback_generator = CallbackSetHistory,
     param_set = ps(),
     id = "history",
     label = "History",
-    man = "mlr3torch::mlr_callbacks_torch.history"
+    man = "mlr3torch::mlr_callback_set.history"
   )
 })

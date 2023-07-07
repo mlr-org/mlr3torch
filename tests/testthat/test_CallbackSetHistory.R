@@ -4,7 +4,7 @@ test_that("Autotest", {
   autotest_callback(cb)
 })
 
-test_that("CallbackTorchHistory works", {
+test_that("CallbackSetHistory works", {
   cb = t_clbk("history")
   task = tsk("iris")
   task$row_roles$use = 1

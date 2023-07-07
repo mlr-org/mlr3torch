@@ -97,7 +97,7 @@ The network (only available after training).}
 \item{\code{param_set}}{(\code{\link{ParamSet}})\cr
 The parameter set}
 
-\item{\code{history}}{(\code{\link{CallbackTorchHistory}})\cr
+\item{\code{history}}{(\code{\link{CallbackSetHistory}})\cr
 Shortcut for \code{learner$model$callbacks$history}.}
 }
 \if{html}{\out{</div>}}
@@ -150,10 +150,10 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \item{\code{id}}{(\code{character(1)})\cr
 The id for of the new object.}
 
-\item{\code{optimizer}}{(\code{\link{DescriptorTorchOptimizer}})\cr
+\item{\code{optimizer}}{(\code{\link{TorchOptimizer}})\cr
 The torch optimizer.}
 
-\item{\code{loss}}{(\code{\link{DescriptorTorchLoss}})\cr
+\item{\code{loss}}{(\code{\link{TorchLoss}})\cr
 The loss used to train the network.}
 
 \item{\code{param_set}}{(\code{paradox::ParamSet})\cr
@@ -181,7 +181,7 @@ The referenced help package can be opened via method \verb{$help()}.}
 \item{\code{label}}{(\code{character(1)})\cr
 Label for the new instance.}
 
-\item{\code{callbacks}}{(\code{list()} of \code{\link{DescriptorTorchCallback}}s)\cr
+\item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
 The callbacks used during training.
 Must have unique ids.
 They are executed in the order in which they are provided}

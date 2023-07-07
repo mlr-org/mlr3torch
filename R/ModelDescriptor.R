@@ -28,11 +28,11 @@
 #'   List of inputs that go into `graph`. Names of this must be a subset of `graph$input$name`.
 #' @param task ([`Task`][mlr3::Task])\cr
 #'   (Training)-Task for which the model is being built. May be necessary for for some aspects of what loss to use etc.
-#' @param optimizer ([`DescriptorTorchOptimizer`] | `NULL`)\cr
+#' @param optimizer ([`TorchOptimizer`] | `NULL`)\cr
 #'   Additional info: what optimizer to use.
-#' @param loss ([`DescriptorTorchLoss`] | `NULL`)\cr
+#' @param loss ([`TorchLoss`] | `NULL`)\cr
 #'   Additional info: what loss to use.
-#' @param callbacks (A `list` of [`CallbackTorch`] or `NULL`)\cr
+#' @param callbacks (A `list` of [`CallbackSet`] or `NULL`)\cr
 #'   Additional info: what callbacks to use.
 #' @param .pointer (`character(2)` | `NULL`)\cr
 #'   Indicating an element on which a model is. Points to an output channel within `graph`:
@@ -55,12 +55,12 @@ ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, 
 
   assert_r6(task, "Task")
 
-  assert_r6(optimizer, "DescriptorTorchOptimizer", null.ok = TRUE)
-  assert_r6(loss, "DescriptorTorchLoss", null.ok = TRUE)
+  assert_r6(optimizer, "TorchOptimizer", null.ok = TRUE)
+  assert_r6(loss, "TorchLoss", null.ok = TRUE)
   if (!is.null(loss)) {
     assert_choice(task$task_type, loss$task_types)
   }
-  callbacks = as_descriptor_torch_callbacks(callbacks)
+  callbacks = as_torch_callbacks(callbacks)
   callbacks = set_names(callbacks, assert_names(ids(callbacks), type = "unique"))
 
   if (!is.null(.pointer)) {
