@@ -106,7 +106,77 @@ test_that("auto_paramtest works", {
   expect_equal(res16$info, list(eerror = "Extra parameters: x"))
 })
 
-test_that("autotest_callback works", {
-  #TODO
+test_that("autotest_torch_callback works", {
+  # captures misspelled stages
+  CallbackSetA = R6Class("CallbackSetA",
+    inherit = CallbackSet,
+    public = list(
+      on_edn = function() NULL
+    )
+  )
+  cba = as_torch_callback(CallbackSetA)
+  expect_error(
+    autotest_torch_callback(cba, check_man = FALSE),
+    regexp = "but has additional elements"
+  )
+  tmp = class(cba)
+  class(cba) = "blabla"
+  expect_error(autotest_torch_callback(cba, check_man = FALSE), "TorchCallback")
+  class(cba) = tmp
+
+  tmp = cba$id
+  cba$id = 1
+  expect_error(autotest_torch_callback(cba, check_man = FALSE), "Must be of type")
+  cba$id = tmp
+
+  tmp = cba$label
+  cba$label = 1.2
+  expect_error(autotest_torch_callback(cba, check_man = FALSE), "Must be of type")
+  cba$label = tmp
+
+  tmp = cba$generator
+  cba$generator = 1
+  expect_error(autotest_torch_callback(cba, check_man = FALSE), "Must inherit from class")
+  cba$generator = tmp
+
+  CallbackSetB = R6Class("CallbackSetB",
+    inherit = CallbackSet,
+    public = list(
+      initialize = function(a = -1) {
+        NULL
+      },
+      on_begin = function() NULL
+    )
+  )
+  cbb = as_torch_callback(CallbackSetB)
+  expect_error(autotest_torch_callback(cbb, check_man = FALSE), regexp = "Wrong defaults")
+
+  CallbackSetC = R6Class("CallbackSetC",
+    inherit = CallbackSet,
+    public = list(
+      on_begin = function(ctx) NULL
+    )
+  )
+
+  cbc = as_torch_callback(CallbackSetC)
+
+  CallbackSetD = R6Class("CallbackSetD",
+    inherit = CallbackSet,
+    lock_objects = FALSE,
+    public = list(
+      on_begin = function() NULL
+    ),
+    private = list(
+      deep_clone = function(name, value) 1
+    )
+  )
+  cbd = as_torch_callback(CallbackSetD)
+  expect_error(autotest_torch_callback(cbd, check_man = FALSE), regexp = "not equal to")
+
+})
+
+
+test_that("autotest_pipeop_torch works", {
+  # TODO:
 
 })

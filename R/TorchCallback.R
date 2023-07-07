@@ -2,7 +2,7 @@
 #'
 #' @description
 #' Retrieves one or more [`TorchCallback`](s) from [`mlr3torch_callbacks`].
-#' Works like [`mlr3::lrn()`] or [`mlr3::tsk()`].
+#' Works like [`mlr3::lrn()`] and [`mlr3::lrns()`].
 #'
 #' @param .key (`character(1)`)\cr
 #'   The key of the torch callback.
@@ -137,7 +137,7 @@ as_torch_callbacks.character = function(x, clone = FALSE, ...) { # nolint
 #' This class is usually used to configure the callback of a torch learner, e.g. when constructing
 #' a learner of in a [`ModelDescriptor`].
 #'
-#' For a list of available callbacks, see [`mlr3torch_callbacks]`.
+#' For a list of available callbacks, see [`mlr3torch_callbacks`].
 #' To conveniently retrieve a [`TorchCallback`], use [`t_clbk()`].
 #'
 #' @section Parameters:

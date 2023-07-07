@@ -36,7 +36,7 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
   t_loss(x, ...)
 }
 
-#' @title Descriptor of Torch Loss
+#' @title Torch Loss
 #'
 #' @description
 #' This wraps a `torch::nn_loss` and annotates it with metadata, most importantly a [`ParamSet`].
@@ -56,7 +56,7 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 #' @family Torch Descriptor
 #' @export
 #' @examples
-#' # Create a new loss descriptor
+#' # Create a new torch loss
 #' torch_loss = TorchLoss$new(torch_loss = nn_mse_loss, task_types = "regr")
 #' torch_loss
 #' # the parameters are inferred
@@ -175,7 +175,7 @@ as.data.table.DictionaryMlr3torchLosses = function(x, ...) {
 #'
 #' @description
 #' Retrieve one or more [`TorchLoss`](es) from [`mlr3torch_losses`].
-#' Works like [`mlr3::lrn()`] or [`mlr3::tsk()`].
+#' Works like [`mlr3::lrn()`] and [`mlr3::lrns()`].
 #'
 #' @param .key (`character(1)`)\cr
 #'   Key of the object to retrieve.

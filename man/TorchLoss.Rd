@@ -2,7 +2,7 @@
 % Please edit documentation in R/TorchLoss.R
 \name{TorchLoss}
 \alias{TorchLoss}
-\title{Descriptor of Torch Loss}
+\title{Torch Loss}
 \description{
 This wraps a \code{torch::nn_loss} and annotates it with metadata, most importantly a \code{\link{ParamSet}}.
 The loss function is created for the given parameter values by calling the \verb{$generate()} method.
@@ -21,7 +21,7 @@ for each argument of the wrapped loss function, where the parametes are then of 
 }
 
 \examples{
-# Create a new loss descriptor
+# Create a new torch loss
 torch_loss = TorchLoss$new(torch_loss = nn_mse_loss, task_types = "regr")
 torch_loss
 # the parameters are inferred

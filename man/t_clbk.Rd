@@ -26,7 +26,7 @@ The keys of the callbacks.}
 }
 \description{
 Retrieves one or more \href{s}{\code{TorchCallback}} from \code{\link{mlr3torch_callbacks}}.
-Works like \code{\link[mlr3:mlr_sugar]{mlr3::lrn()}} or \code{\link[mlr3:mlr_sugar]{mlr3::tsk()}}.
+Works like \code{\link[mlr3:mlr_sugar]{mlr3::lrn()}} and \code{\link[mlr3:mlr_sugar]{mlr3::lrns()}}.
 }
 \examples{
 t_clbk("progress")

@@ -47,7 +47,7 @@ This class must either be \code{\link{CallbackSet}} (default) or inherit from it
 
 \item{lock_objects}{(\code{logical(1)})\cr
 Whether to lock the objects of the resulting \code{\link{R6Class}}.
-If \code{TRUE} (default), values can be freely assigned to \code{self} without declaring them in the
+If \code{FALSE} (default), values can be freely assigned to \code{self} without declaring them in the
 class definition.}
 }
 \value{

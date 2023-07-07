@@ -391,7 +391,7 @@ lr_sequential <- LearnerClassifTorchModel$new(
 lr_sequential
 ```
 
-Before training the model, we set some more hyperparameters. Among others, we use a [`CallbackSet`] that prints progress and validation losses that we request.
+Before training the model, we set some more hyperparameters. Among others, we use a [`TorchCallback`] that prints progress and validation losses that we request.
 
 ```{r}
 lr_sequential$param_set$set_values(

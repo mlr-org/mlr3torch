@@ -21,10 +21,14 @@ for each argument of the wrapped loss function, where the parametes are then of 
 }
 
 \examples{
-# Create a new optimizer descriptor
+# Create a new torch loss
 torch_opt = TorchOptimizer$new(optim_adam, label = "adam")
+torch_opt
 # If the param set is not specified, parameters are inferred but are of class ParamUty
 torch_opt$param_set
+
+# open the help page of the wrapped optimizer
+# torch_opt$help()
 
 # Retrieve an optimizer from the dictionary
 torch_opt = t_opt("sgd", lr = 0.1)
@@ -39,9 +43,6 @@ opt = torch_opt$generate(net$parameters)
 
 # is the same as
 optim_sgd(net$parameters, lr = 0.1)
-
-# open the help page of the wrapped optimizer
-# torch_opt$help()
 
 # Use in a learner
 learner = lrn("regr.mlp", optimizer = t_opt("sgd"))

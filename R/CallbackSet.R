@@ -80,7 +80,7 @@ CallbackSet = R6Class("CallbackSet",
 #'   This class must either be [`CallbackSet`] (default) or inherit from it.
 #' @param lock_objects (`logical(1)`)\cr
 #'  Whether to lock the objects of the resulting [`R6Class`].
-#'  If `TRUE` (default), values can be freely assigned to `self` without declaring them in the
+#'  If `FALSE` (default), values can be freely assigned to `self` without declaring them in the
 #'  class definition.
 #' @family Callback
 #'

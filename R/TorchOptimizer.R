@@ -58,10 +58,14 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #' @family Torch Descriptor
 #' @export
 #' @examples
-#' # Create a new optimizer descriptor
+#' # Create a new torch loss
 #' torch_opt = TorchOptimizer$new(optim_adam, label = "adam")
+#' torch_opt
 #' # If the param set is not specified, parameters are inferred but are of class ParamUty
 #' torch_opt$param_set
+#'
+#' # open the help page of the wrapped optimizer
+#' # torch_opt$help()
 #'
 #' # Retrieve an optimizer from the dictionary
 #' torch_opt = t_opt("sgd", lr = 0.1)
@@ -76,9 +80,6 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #'
 #' # is the same as
 #' optim_sgd(net$parameters, lr = 0.1)
-#'
-#' # open the help page of the wrapped optimizer
-#' # torch_opt$help()
 #'
 #' # Use in a learner
 #' learner = lrn("regr.mlp", optimizer = t_opt("sgd"))
@@ -169,7 +170,7 @@ as.data.table.DictionaryMlr3torchOptimizers = function(x, ...) {
 #'
 #' @description
 #' Retrieves one or more [`TorchOptimizer`](s) from [`mlr3torch_optimizers`].
-#' Works like [`mlr3::lrn()`] or [`mlr3::tsk()`].
+#' Works like [`mlr3::lrn()`] and [`mlr3::lrns()`].
 #'
 #' @param .key (`character(1)`)\cr
 #'   Key of the object to retrieve.

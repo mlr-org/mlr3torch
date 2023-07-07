@@ -24,7 +24,7 @@ A \code{\link{TorchOptimizer}}
 }
 \description{
 Retrieves one or more \href{s}{\code{TorchOptimizer}} from \code{\link{mlr3torch_optimizers}}.
-Works like \code{\link[mlr3:mlr_sugar]{mlr3::lrn()}} or \code{\link[mlr3:mlr_sugar]{mlr3::tsk()}}.
+Works like \code{\link[mlr3:mlr_sugar]{mlr3::lrn()}} and \code{\link[mlr3:mlr_sugar]{mlr3::lrns()}}.
 }
 \examples{
 t_opt("adam", lr = 0.1)

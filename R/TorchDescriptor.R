@@ -61,19 +61,18 @@ TorchDescriptor = R6Class("TorchDescriptor",
       self$id = assert_string(id %??% class(generator)[[1L]], min.chars = 1L)
       self$label = assert_string(label %??% self$id, min.chars = 1L)
       self$packages = assert_names(unique(union(packages, c("torch", "mlr3torch"))), type = "strict")
-
-      private$.repr = if (test_class(self$generator, "R6ClassGenerator")) {
-        self$generator$classname
-      } else {
-        class(self$generator)[[1L]]
-      }
     },
     #' @description
     #' Prints the object
     #' @param ... any
     print = function(...)  {
+      repr = if (test_class(self$generator, "R6ClassGenerator")) {
+        self$generator$classname
+      } else {
+        class(self$generator)[[1L]]
+      }
       catn(sprintf("<%s:%s> %s", class(self)[[1L]], self$id, self$label))
-      catn(str_indent("* Generator:", private$.repr))
+      catn(str_indent("* Generator:", repr))
       catn(str_indent("* Parameters:", as_short_string(self$param_set$values, 1000L)))
       catn(str_indent("* Packages:", as_short_string(self$packages, 1000L)))
       invisible(self)
@@ -99,20 +98,15 @@ TorchDescriptor = R6Class("TorchDescriptor",
   active = list(
     #' @template field_phash
     phash = function() {
-      # FIXME: Unfortunately this phash is only heuristic (only ids and classes of ParamSet are considered).
-      # There is no phash method for the ParamSet, so in principle it is possible that
-      # there are hash collisions of objects that have a (slightly) different parameter set.
-      # However, this is highly unlikely
+      # This phash is only heuristic but should realistically always work.
       calculate_hash(class(self), self$id, self$packages, self$label, self$man, self$param_set$ids(),
-        self$param_set$class, private$.additional_phash_input()
+        self$param_set$class, class(self$generator), private$.additional_phash_input()
       )
     }
   ),
   private = list(
-    .repr = NULL,
     .additional_phash_input = function() {
       stopf("Classes inheriting from Torch must implement the .additional_phash_input() method.")
     }
-
   )
 )

@@ -10,7 +10,7 @@ The callback is created for the given parameter values by calling the \verb{$gen
 This class is usually used to configure the callback of a torch learner, e.g. when constructing
 a learner of in a \code{\link{ModelDescriptor}}.
 
-For a list of available callbacks, see [\verb{mlr3torch_callbacks]}.
+For a list of available callbacks, see \code{\link{mlr3torch_callbacks}}.
 To conveniently retrieve a \code{\link{TorchCallback}}, use \code{\link[=t_clbk]{t_clbk()}}.
 }
 \section{Parameters}{

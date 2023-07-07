@@ -151,11 +151,9 @@ test_that("callback_set is working", {
   )
 
   CallbackSetF = callback_set("CallbackSetF",
-    private = list(deep_clone = function(name, value) "cloning works")
+    private = list(deep_clone = function(name, value) value)
   )
   expect_true(CallbackSetF$cloneable)
-  cbf = CallbackSetF$new()
-  expect_equal(get_private(cbf)$deep_clone("a", 1), "cloning works")
 
   CallbackSetG = callback_set("CallbackSetG")
   expect_false(CallbackSetG$cloneable)

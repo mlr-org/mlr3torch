@@ -24,7 +24,7 @@ A \code{\link{TorchLoss}}
 }
 \description{
 Retrieve one or more \href{es}{\code{TorchLoss}} from \code{\link{mlr3torch_losses}}.
-Works like \code{\link[mlr3:mlr_sugar]{mlr3::lrn()}} or \code{\link[mlr3:mlr_sugar]{mlr3::tsk()}}.
+Works like \code{\link[mlr3:mlr_sugar]{mlr3::lrn()}} and \code{\link[mlr3:mlr_sugar]{mlr3::lrns()}}.
 }
 \examples{
 t_loss("mse", reduction = "mean")
