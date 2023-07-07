@@ -21,27 +21,28 @@ for each argument of the wrapped loss function, where the parametes are then of 
 }
 
 \examples{
-# Create a new Torch Optimizer
-torchopt = TorchOptimizer$new(optim_adam, label = "adam")
+# Create a new torch loss
+torch_opt = TorchOptimizer$new(optim_adam, label = "adam")
+torch_opt
 # If the param set is not specified, parameters are inferred but are of class ParamUty
-torchopt$param_set
+torch_opt$param_set
+
+# open the help page of the wrapped optimizer
+# torch_opt$help()
 
 # Retrieve an optimizer from the dictionary
-torchopt = t_opt("sgd", lr = 0.1)
-torchopt
-torchopt$param_set
-torchopt$label
-torchopt$id
+torch_opt = t_opt("sgd", lr = 0.1)
+torch_opt
+torch_opt$param_set
+torch_opt$label
+torch_opt$id
 
 # Create the optimizer for a network
 net = nn_linear(10, 1)
-opt = torchopt$generate(net$parameters)
+opt = torch_opt$generate(net$parameters)
 
 # is the same as
 optim_sgd(net$parameters, lr = 0.1)
-
-# open the help page of the wrapped optimizer
-# torchopt$help()
 
 # Use in a learner
 learner = lrn("regr.mlp", optimizer = t_opt("sgd"))
@@ -49,7 +50,7 @@ learner = lrn("regr.mlp", optimizer = t_opt("sgd"))
 learner$param_set
 }
 \seealso{
-Other Torch Wrapper: 
+Other Torch Descriptor: 
 \code{\link{TorchCallback}},
 \code{\link{TorchLoss}},
 \code{\link{as_torch_callbacks}()},
@@ -60,11 +61,11 @@ Other Torch Wrapper:
 \code{\link{t_clbk}()},
 \code{\link{t_loss}()},
 \code{\link{t_opt}()},
-\code{\link{torch_wrapper}}
+\code{\link{torch}}
 }
-\concept{Torch Wrapper}
+\concept{Torch Descriptor}
 \section{Super class}{
-\code{\link[mlr3torch:TorchWrapper]{mlr3torch::TorchWrapper}} -> \code{TorchOptimizer}
+\code{\link[mlr3torch:TorchDescriptor]{mlr3torch::TorchDescriptor}} -> \code{TorchOptimizer}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -77,8 +78,8 @@ Other Torch Wrapper:
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchWrapper" data-id="help"><a href='../../mlr3torch/html/TorchWrapper.html#method-TorchWrapper-help'><code>mlr3torch::TorchWrapper$help()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchWrapper" data-id="print"><a href='../../mlr3torch/html/TorchWrapper.html#method-TorchWrapper-print'><code>mlr3torch::TorchWrapper$print()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchDescriptor" data-id="help"><a href='../../mlr3torch/html/TorchDescriptor.html#method-TorchDescriptor-help'><code>mlr3torch::TorchDescriptor$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchDescriptor" data-id="print"><a href='../../mlr3torch/html/TorchDescriptor.html#method-TorchDescriptor-print'><code>mlr3torch::TorchDescriptor$print()</code></a></span></li>
 </ul>
 </details>
 }}
@@ -91,8 +92,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \if{html}{\out{<div class="r">}}\preformatted{TorchOptimizer$new(
   torch_optimizer,
   param_set = NULL,
-  id = deparse(substitute(torch_optimizer))[[1L]],
-  label = capitalize(id),
+  id = NULL,
+  label = NULL,
   packages = NULL,
   man = NULL
 )}\if{html}{\out{</div>}}
@@ -135,7 +136,7 @@ Instantiates the optimizer.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{params}}{The \verb{$parameters} of the network.}
+\item{\code{params}}{The parameters of the network.}
 }
 \if{html}{\out{</div>}}
 }

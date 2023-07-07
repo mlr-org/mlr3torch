@@ -18,7 +18,7 @@
 #'
 #' @export
 #' @examples
-#' po_loss = po("torch_loss", "cross_entropy")
+#' po_loss = po("torch_loss", loss = t_loss("cross_entropy"))
 #' po_loss$param_set
 #' mdin = po("torch_ingress_num")$train(list(tsk("iris")))
 #' mdin[[1L]]$loss
@@ -56,10 +56,11 @@ PipeOpTorchLoss = R6Class("PipeOpTorchLoss",
       self$state = list()
       inputs
     },
-    .predict = function (inputs) {
+    .predict = function(inputs) {
       inputs
     },
-    .loss = NULL
+    .loss = NULL,
+    .additional_phash_input = function() self$loss$phash
   )
 )
 

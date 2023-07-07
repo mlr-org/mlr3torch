@@ -9,6 +9,6 @@ test_that("PipeOpTorchHead autotest", {
 
 test_that("PipeOpTorchHead paramtest", {
   po_test = po("nn_head")
-  res = run_paramtest(po_test, torch::nn_linear, exclude = c("out_features", "in_features"))
+  res = autotest_paramset(po_test, torch::nn_linear, exclude = c("out_features", "in_features"))
   expect_paramtest(res)
 })

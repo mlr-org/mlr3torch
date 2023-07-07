@@ -11,9 +11,9 @@ An object of class \code{DictionaryMlr3torchLosses} (inherits from \code{Diction
 mlr3torch_losses
 }
 \description{
-Dictionary of torch loss functions.
-See \code{\link{t_loss}} for conveniently retrieving a loss function.
-Can be converted to a \code{\link{data.table}} using \code{as.data.table}.
+Dictionary of torch loss descriptors.
+See \code{\link[=t_loss]{t_loss()}} for conveniently retrieving a loss function.
+Can be converted to a \code{\link{data.table}} using \code{\link[=as.data.table]{as.data.table()}}.
 }
 \section{Available Loss Functions}{
 
@@ -28,7 +28,7 @@ t_loss("mse")
 as.data.table(mlr3torch_losses)
 }
 \seealso{
-Other Torch Wrapper: 
+Other Torch Descriptor: 
 \code{\link{TorchCallback}},
 \code{\link{TorchLoss}},
 \code{\link{TorchOptimizer}},
@@ -39,7 +39,7 @@ Other Torch Wrapper:
 \code{\link{t_clbk}()},
 \code{\link{t_loss}()},
 \code{\link{t_opt}()},
-\code{\link{torch_wrapper}}
+\code{\link{torch}}
 
 Other Dictionary: 
 \code{\link{mlr3torch_callbacks}},
@@ -47,5 +47,5 @@ Other Dictionary:
 \code{\link{t_opt}()}
 }
 \concept{Dictionary}
-\concept{Torch Wrapper}
+\concept{Torch Descriptor}
 \keyword{datasets}

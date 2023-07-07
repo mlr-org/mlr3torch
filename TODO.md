@@ -12,10 +12,10 @@
 
 **Callbacks**
 
-*   [x] CallbackTorchProgress
-*   [x] CallbackTorchHistory
-*   [x] callback_torch
-*   [x] CallbackTorch
+*   [x] CallbackSetProgress
+*   [x] CallbackSetHistory
+*   [x] torch_callback
+*   [x] CallbackSet
 *   [x] ContextTorch
 *   [x] t_clbk
 
@@ -45,12 +45,12 @@
 **Loss**
 
 *   [x] TorchLoss
-*   [x] as_torch_loss.TorchLoss
-*   [x] as_torch_loss.nn_loss
-*   [x] as_torch_loss
+*   [x] as_torch_optimizer.TorchLoss
+*   [x] as_torch_optimizer.nn_loss
+*   [x] as_torch_optimizer
 *   [x] t_loss
 *   [x] mlr3torch_losses
-*   [x] as_torch_loss.character
+*   [x] as_torch_optimizer.character
 
 **Other**
 
@@ -90,12 +90,13 @@
 
 Some notes:
 
+* Should we enforce the "train" tag for Torch{Optimizer, Loss, Callback}, i.e.
+  set it in the initialize method of LearnerTorch?
 * [ ] in learner construction ensure usage of "train" and "predict" parameters
 * [ ] Utility functions for save_torch_learner and load_torch_learner, this should also be called in callback checkpoint
 * Custom Backend for torch datases with hardcoded metadata, torchdatasets in suggests and not depends
 * [ ] Fix the dictionary issue for the learners and the tasks
 * ctx in intitiaalize self zuweisen: Dann ist klar dass das immer das gleiche Objekt ist
-* make callback methods public again
 * rename TorchLoss, TorchOptimizer, TorchCallback to e.g. TorchDescriptorLoss
 * images like in torchvision (not in inst but in tests)
 * assignment for imageuri
@@ -108,10 +109,9 @@ Some notes:
   Needs renaming some existing dataloaders and an informative error message
 * What happens if there are two ingress tokens but one of them returns an empty tensor?
 * add saving to callback checkpoint
-* I.e. the dataset_num, dataset_img etc. need to have an argument "argname" or something
+  I.e. the dataset_num, dataset_img etc. need to have an argument "argname" or something
 * For tasks: Get a better task than nano_imagenet. Ideally one with images of different shape.
   Then remove it from the
-We should probably also provide a way to
 * cloning of pipeopmodule --> adapt expect_deep_clone for torch
 * warn when cloning custom callbacks
 * tests with non-standard row ids
@@ -127,6 +127,9 @@ We should probably also provide a way to
 * How to clone LearnerTorchModel (When .network is the trained network (?), what happens when calling train twice ???)
   --> Probably this learner should NOT be exported or it must be clearly documented how this learner behaves.
   We could address this by cloning but this would cost a lot of performance in every train call of a torch graph learner.
+  Alternatively, the PipeOpTorchXXX objects could store the call to create the nn_module() instead of creating the nn_module()
+  immediately.
+* What about the learner that takes in a module?
 
 
 **Other**
@@ -137,6 +140,7 @@ We should probably also provide a way to
 from paramset_torchlearner is actually doing something
 
 **Test Coverage**
+* run paramtest vs autotest_paramset --> decide for one and delete the other
 * [ ] Proper testing for torch learners:
       * don't need the autotest as we don't really test the learners.
       * Instead we need to that:
@@ -162,7 +166,7 @@ from paramset_torchlearner is actually doing something
 * [ ] Test that the defaults of the activation functions are correctly implemented
 * [ ] Properly refactor the test helpers (classes and modules etc) in other files and dont keep them in the tests.
 * [ ] Use the tests from mlr3pipelines for all the pipeops
-* [ ] Test the updated versions of the TorchWrapper
+* [ ] Test the updated versions of the Descriptors
 * [ ] Deep clones of torch modules:
 -> the function that checks for deep clones needs to skip some torch-specific stuff, e.g. the attribute "module"
 for nn modules, or "Optimizer" for optim_adam etc.
@@ -174,7 +178,7 @@ for nn modules, or "Optimizer" for optim_adam etc.
 * [ ] Test that all losses are working
 * [ ] regr learners have mse and classif ce as default loss
 * [ ] remove unneeded test helper functions from mlr3pipelines
-* Rename the TorchLoss, TorchOptimizer, TorchCallback to DescriptorTorchCallback, DescriptorTorchOptimizer, DescriptorTorchLoss.
+* Rename the TorchLoss, TorchOptimizer, TorchCallback to TorchCallback, TorchOptimizer, TorchLoss.
 * mention that .dataset() must take row ids into account and add tests with reverse row ids for iris, mtcars, nano_imagenet, ...
 * expect_learner_torch should test all private methods (like .network, .dataloader).
   Because all the learners are essentially the same (except for these methods) autotests don't make sense.

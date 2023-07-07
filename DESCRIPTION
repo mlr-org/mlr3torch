@@ -14,7 +14,7 @@ Authors@R:
              comment = c(ORCID = "0000-0001-6002-6980")),
       person(given = "Lukas",
              family = "Burk",
-             role = "aut",
+             role = "ctb",
              email = "github@quantenbrot.de",
              comment = c(ORCID = "0000-0001-7528-3795")),
       person(given = "Martin",
@@ -63,12 +63,12 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE, r6 = TRUE)
 RoxygenNote: 7.2.3
 Collate:
-    'CallbackTorch.R'
+    'CallbackSet.R'
     'zzz.R'
     'TorchCallback.R'
-    'CallbackTorchCheckpoint.R'
-    'CallbackTorchHistory.R'
-    'CallbackTorchProgress.R'
+    'CallbackSetCheckpoint.R'
+    'CallbackSetHistory.R'
+    'CallbackSetProgress.R'
     'ContextTorch.R'
     'LearnerTorch.R'
     'LearnerClassifTorchImage.R'
@@ -99,10 +99,9 @@ Collate:
     'PipeOpTorchReshape.R'
     'PipeOpTorchSoftmax.R'
     'TaskClassif_tiny_imagenet.R'
+    'TorchDescriptor.R'
     'TorchOptimizer.R'
-    'TorchWrapper.R'
     'bibentries.R'
-    'helper.R'
     'imageuri.R'
     'learner_torch_methods.R'
     'nn_graph.R'

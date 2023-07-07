@@ -24,3 +24,5 @@
 ^\.lintr$
 ^info$
 ^README_files$
+^TODO\.md$
+^\.ignore$

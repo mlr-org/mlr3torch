@@ -3,7 +3,7 @@
 \name{t_clbk}
 \alias{t_clbk}
 \alias{t_clbks}
-\title{Sugar Function to Retrieve Torch Callback(s)}
+\title{Sugar Function for Torch Callback}
 \usage{
 t_clbk(.key, ...)
 
@@ -11,20 +11,22 @@ t_clbks(.keys)
 }
 \arguments{
 \item{.key}{(\code{character(1)})\cr
-The key of the callback.}
+The key of the torch callback.}
 
 \item{...}{(any)\cr
-See description of \code{\link{dictionary_sugar_get}}.}
+See description of \code{\link[=dictionary_sugar_get]{dictionary_sugar_get()}}.}
 
 \item{.keys}{(\code{character()})\cr
 The keys of the callbacks.}
 }
 \value{
 \code{\link{TorchCallback}}
+
+\code{list()} of \code{\link{TorchCallback}}s
 }
 \description{
-Retrieves one or more torch callback from \code{\link{mlr3torch_callbacks}}.
-Works like \code{\link[mlr3:mlr_sugar]{mlr3::lrn()}} or \code{\link[mlr3:mlr_sugar]{mlr3::tsk()}}.
+Retrieves one or more \href{s}{\code{TorchCallback}} from \code{\link{mlr3torch_callbacks}}.
+Works like \code{\link[mlr3:mlr_sugar]{mlr3::lrn()}} and \code{\link[mlr3:mlr_sugar]{mlr3::lrns()}}.
 }
 \examples{
 t_clbk("progress")
@@ -34,15 +36,15 @@ Other Callback:
 \code{\link{TorchCallback}},
 \code{\link{as_torch_callbacks}()},
 \code{\link{as_torch_callback}()},
-\code{\link{callback_torch}()},
+\code{\link{callback_set}()},
 \code{\link{mlr3torch_callbacks}},
-\code{\link{mlr_callbacks_torch.checkpoint}},
-\code{\link{mlr_callbacks_torch.progress}},
-\code{\link{mlr_callbacks_torch}},
+\code{\link{mlr_callback_set.checkpoint}},
+\code{\link{mlr_callback_set.progress}},
+\code{\link{mlr_callback_set}},
 \code{\link{mlr_context_torch}},
 \code{\link{torch_callback}()}
 
-Other Torch Wrapper: 
+Other Torch Descriptor: 
 \code{\link{TorchCallback}},
 \code{\link{TorchLoss}},
 \code{\link{TorchOptimizer}},
@@ -53,7 +55,7 @@ Other Torch Wrapper:
 \code{\link{mlr3torch_optimizers}},
 \code{\link{t_loss}()},
 \code{\link{t_opt}()},
-\code{\link{torch_wrapper}}
+\code{\link{torch}}
 }
 \concept{Callback}
-\concept{Torch Wrapper}
+\concept{Torch Descriptor}

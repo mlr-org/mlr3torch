@@ -11,7 +11,7 @@ test_that("Basic Checks", {
   expect_set_equal(torchloss$packages, c("mypackage", "torch", "mlr3torch"))
   expect_equal(torchloss$label, "Cross Entropy Loss")
   expect_true(torchloss$task_types == "classif")
-  expect_set_equal(torchloss$param_set$ids(), setdiff(formalArgs(torch::nn_cross_entropy_loss), "params"))
+  expect_set_equal(torchloss$param_set$ids(), formalArgs(torch::nn_cross_entropy_loss))
 
   expect_error(torchloss$generate(),
     regexp = "The following packages could not be loaded: mypackage", fixed = TRUE
@@ -20,11 +20,13 @@ test_that("Basic Checks", {
   torchloss1 = TorchLoss$new(
     torch_loss = torch::nn_cross_entropy_loss,
     label = "Cross Entropy Loss",
-    task_types = "classif"
+    task_types = "classif",
+    id = "xe"
   )
   torchloss1$param_set$set_values(ignore_index = 123)
   expect_set_equal(torchloss1$packages, c("torch", "mlr3torch"))
   expect_equal(torchloss1$label, "Cross Entropy Loss")
+  expect_equal(torchloss1$id, "xe")
 
   loss = torchloss1$generate()
   expect_class(loss, c("nn_cross_entropy_loss", "nn_module"))
@@ -37,9 +39,8 @@ test_that("Basic Checks", {
   torchloss2 = TorchLoss$new(torch::nn_mse_loss, id = "mse", task_types = "regr", param_set = ps(reduction = p_uty()))
 
   expect_equal(torchloss2$param_set$ids(), "reduction")
-  expect_equal(torchloss2$label, "Mse")
+  expect_equal(torchloss2$label, "mse")
   expect_true(torchloss2$task_types == "regr")
-
 })
 
 test_that("dictionary retrieval works", {
@@ -66,10 +67,6 @@ test_that("Cloning works", {
   torchloss1 = t_loss("cross_entropy")
   torchloss2 = torchloss1$clone(deep = TRUE)
   expect_deep_clone(torchloss1, torchloss2)
-
-  torchloss3 = as_torch_loss(torchloss1, clone = TRUE)
-
-  expect_deep_clone(torchloss1, torchloss3)
 })
 
 test_that("Printer works", {
@@ -86,51 +83,63 @@ test_that("Printer works", {
   expect_identical(observed, expected)
 })
 
-test_that("dictionary can be converted to a table", {
-  tbl = as.data.table(t_losses())
-  expect_data_table(tbl, ncols = 4)
-  expect_equal(colnames(tbl), c("key", "label", "task_types", "packages"))
-})
 
 test_that("Converters are correctly implemented", {
   expect_r6(as_torch_loss("l1"), "TorchLoss")
-  loss = as_torch_loss(torch::nn_l1_loss)
-  expect_set_equal(loss$task_types, mlr_reflections$task_types$type)
+  loss = as_torch_loss(torch::nn_l1_loss, task_types = "regr")
+  expect_equal(loss$task_types, "regr")
   expect_r6(loss, "TorchLoss")
   expect_r6(as_torch_loss(t_loss("l1")), "TorchLoss")
+
+  expect_error(as_torch_loss(nn_l1_loss), "task_types")
 
   loss1 = as_torch_loss(loss, clone = TRUE)
   expect_deep_clone(loss, loss1)
 
   loss2 = as_torch_loss(torch::nn_mse_loss, id = "ce", label = "CE", man = "nn_cross_entropy_loss",
-    param_set = ps(reduction = p_uty())
+    param_set = ps(reduction = p_uty()), task_types = "regr"
   )
+  expect_r6(loss2, "TorchLoss")
+  expect_equal(loss2$id, "ce")
+  expect_equal(loss2$label, "CE")
+  expect_equal(loss2$task_types, "regr")
+  expect_equal(loss2$man, "nn_cross_entropy_loss")
+  expect_equal(loss2$param_set$ids(), "reduction")
+
+  loss3 = as_torch_loss(nn_mse_loss, task_types = "regr")
+  expect_equal(loss3$id, "nn_mse_loss")
+  expect_equal(loss3$label, "nn_mse_loss")
 })
 
-for (key in mlr3torch_losses$keys()) {
-  test_that(sprintf("mlr3torch_losses: '%s'", key), {
-    torchloss = t_loss(key)
-    param_set = torchloss$param_set
-    observed = torchloss$param_set$default[sort(names(torchloss$param_set$default))]
+test_that("Parameter test: mse", {
+  loss_mse = t_loss("mse")
+  param_set = loss_mse$param_set
+  fn = loss_mse$generator
+  res = autotest_paramset(param_set, fn)
+  expect_paramtest(res)
+})
 
-    expect_true(all(map_lgl(param_set$params$tags, function(tags) tag == "train")))
+test_that("Parameter test: l1", {
+  loss = t_loss("l1")
+  param_set = loss$param_set
+  fn = loss$generator
+  res = autotest_paramset(param_set, fn)
+  expect_paramtest(res)
+})
 
-    # torch marks required parameters with `loss_required()`
-    expected = formals(torchloss$generator)
-    expected = expected[sort(names(expected))]
-    required_params = names(expected[map_lgl(expected, function(x) identical(x, str2lang("loss_required()")))])
+test_that("Parameter test: cross_entropy", {
+  loss = t_loss("cross_entropy")
+  param_set = loss$param_set
+  fn = loss$generator
+  # ignore_index has param
+  res = autotest_paramset(param_set, fn)
+  expect_paramtest(res)
+})
 
-    for (required_param in required_params) {
-      expect_true("required" %in% param_set$params[[required_param]]$tags)
-      # required params should not have a default
-      expect_true(required_param %nin% observed)
-    }
-
-    # required params were already checked
-    expected[required_params] = NULL
-
-    # formals stored the expressions
-    expected = map(expected, eval)
-    # expect_true(all.equal(observed, expected))
-  })
-}
+test_that("phash works", {
+  expect_equal(t_loss("mse", reduction = "mean")$phash, t_loss("mse", reduction = "sum")$phash)
+  expect_false(t_loss("mse")$phash == t_loss("l1")$phash)
+  expect_false(t_loss("mse", id = "a")$phash == t_loss("mse", id = "b")$phash)
+  expect_false(t_loss("mse", label = "a")$phash == t_loss("mse", label = "b")$phash)
+  expect_false(t_loss("mse", task_types = "regr")$phash == t_loss("mse", task_types = "classif")$phash)
+})

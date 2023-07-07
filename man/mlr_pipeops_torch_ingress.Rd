@@ -22,12 +22,7 @@ The state is set to the input shape.
 
 \section{Parameters}{
 
-Defined by the construction argument \code{param_set}, as well as:
-\itemize{
-\item \code{select} :: \code{logical(1)}\cr
-Whether to select the features of the task that can be consumed by this \code{PipeOpTorchIngress}.
-Default is \code{FALSE}, i.e. it errs during training if it receives a task with feature types that it cannot handle.
-}
+Defined by the construction argument \code{param_set}.
 }
 
 \section{Internals}{

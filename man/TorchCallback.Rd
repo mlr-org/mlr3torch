@@ -4,13 +4,13 @@
 \alias{TorchCallback}
 \title{Torch Callback}
 \description{
-This wraps a \code{\link{CallbackTorch}} and annotates it with metadata, most importantly a \code{\link{ParamSet}}.
+This wraps a \code{\link{CallbackSet}} and annotates it with metadata, most importantly a \code{\link{ParamSet}}.
 The callback is created for the given parameter values by calling the \verb{$generate()} method.
 
 This class is usually used to configure the callback of a torch learner, e.g. when constructing
 a learner of in a \code{\link{ModelDescriptor}}.
 
-For a list of available callbacks, see mlr3torch_callbacks
+For a list of available callbacks, see \code{\link{mlr3torch_callbacks}}.
 To conveniently retrieve a \code{\link{TorchCallback}}, use \code{\link[=t_clbk]{t_clbk()}}.
 }
 \section{Parameters}{
@@ -21,29 +21,29 @@ for each argument of the wrapped loss function, where the parametes are then of 
 }
 
 \examples{
-# Create a new Torch Callback from an existing callback
-torchcallback = TorchCallback$new(CallbackTorchCheckpoint)
+# Create a new torch callback from an existing callback set
+torch_callback = TorchCallback$new(CallbackSetCheckpoint)
 # The parameters are inferred
-torchcallback$param_set
+torch_callback$param_set
 
 # Retrieve a torch callback from the dictionary
-torchcallback = t_clbk("checkpoint",
+torch_callback = t_clbk("checkpoint",
   path = tempfile(), freq = 1
 )
-torchcallback
-torchcallback$label
-torchcallback$id
+torch_callback
+torch_callback$label
+torch_callback$id
 
-# Create the callback
-callback = torchcallback$generate()
+# open the help page of the wrapped callback set
+# torch_callback$help()
+
+# Create the callback set
+callback = torch_callback$generate()
 callback
 # is the same as
-CallbackTorchCheckpoint$new(
+CallbackSetCheckpoint$new(
   path = tempfile(), freq = 1
 )
-
-# open the help page of the wrapped callback
-# torchcallback$help()
 
 # Use in a learner
 learner = lrn("regr.mlp", callbacks = t_clbk("checkpoint"))
@@ -55,16 +55,16 @@ learner$param_set
 Other Callback: 
 \code{\link{as_torch_callbacks}()},
 \code{\link{as_torch_callback}()},
-\code{\link{callback_torch}()},
+\code{\link{callback_set}()},
 \code{\link{mlr3torch_callbacks}},
-\code{\link{mlr_callbacks_torch.checkpoint}},
-\code{\link{mlr_callbacks_torch.progress}},
-\code{\link{mlr_callbacks_torch}},
+\code{\link{mlr_callback_set.checkpoint}},
+\code{\link{mlr_callback_set.progress}},
+\code{\link{mlr_callback_set}},
 \code{\link{mlr_context_torch}},
 \code{\link{t_clbk}()},
 \code{\link{torch_callback}()}
 
-Other Torch Wrapper: 
+Other Torch Descriptor: 
 \code{\link{TorchLoss}},
 \code{\link{TorchOptimizer}},
 \code{\link{as_torch_callbacks}()},
@@ -75,12 +75,12 @@ Other Torch Wrapper:
 \code{\link{t_clbk}()},
 \code{\link{t_loss}()},
 \code{\link{t_opt}()},
-\code{\link{torch_wrapper}}
+\code{\link{torch}}
 }
 \concept{Callback}
-\concept{Torch Wrapper}
+\concept{Torch Descriptor}
 \section{Super class}{
-\code{\link[mlr3torch:TorchWrapper]{mlr3torch::TorchWrapper}} -> \code{TorchCallback}
+\code{\link[mlr3torch:TorchDescriptor]{mlr3torch::TorchDescriptor}} -> \code{TorchCallback}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -92,9 +92,9 @@ Other Torch Wrapper:
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchWrapper" data-id="generate"><a href='../../mlr3torch/html/TorchWrapper.html#method-TorchWrapper-generate'><code>mlr3torch::TorchWrapper$generate()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchWrapper" data-id="help"><a href='../../mlr3torch/html/TorchWrapper.html#method-TorchWrapper-help'><code>mlr3torch::TorchWrapper$help()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchWrapper" data-id="print"><a href='../../mlr3torch/html/TorchWrapper.html#method-TorchWrapper-print'><code>mlr3torch::TorchWrapper$print()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchDescriptor" data-id="generate"><a href='../../mlr3torch/html/TorchDescriptor.html#method-TorchDescriptor-generate'><code>mlr3torch::TorchDescriptor$generate()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchDescriptor" data-id="help"><a href='../../mlr3torch/html/TorchDescriptor.html#method-TorchDescriptor-help'><code>mlr3torch::TorchDescriptor$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchDescriptor" data-id="print"><a href='../../mlr3torch/html/TorchDescriptor.html#method-TorchDescriptor-print'><code>mlr3torch::TorchDescriptor$print()</code></a></span></li>
 </ul>
 </details>
 }}
@@ -107,8 +107,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \if{html}{\out{<div class="r">}}\preformatted{TorchCallback$new(
   callback_generator,
   param_set = NULL,
-  id = deparse(substitute(id))[[1L]],
-  label = capitalize(id),
+  id = NULL,
+  label = NULL,
   packages = NULL,
   man = NULL
 )}\if{html}{\out{</div>}}

@@ -11,7 +11,7 @@
 #'   Additional arguments.
 #'   Currently used to pass additional constructor arguments to [`TorchLoss`] for objects of type `nn_loss`.
 #'
-#' @family Torch Wrapper
+#' @family Torch Descriptor
 #'
 #' @return [`TorchLoss`].
 #' @export
@@ -21,9 +21,9 @@ as_torch_loss = function(x, clone = FALSE, ...) {
 }
 
 #' @export
-as_torch_loss.nn_loss = function(x, clone = FALSE, id = deparse(substitute(x))[[1L]], ...) { # nolint
+as_torch_loss.nn_loss = function(x, clone = FALSE, ...) { # nolint
   # clone argument is irrelevant
-  TorchLoss$new(x, id = id, ...)
+  TorchLoss$new(x, ...)
 }
 
 #' @export
@@ -40,8 +40,7 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 #'
 #' @description
 #' This wraps a `torch::nn_loss` and annotates it with metadata, most importantly a [`ParamSet`].
-#' The loss function is created for the given parameter values by calling the `$generate()` method inherited from
-#' [`TorchWrapper`].
+#' The loss function is created for the given parameter values by calling the `$generate()` method.
 #'
 #' This class is usually used to configure the loss function of a torch learner, e.g.
 #' when construcing a learner or in a [`ModelDescriptor`].
@@ -54,39 +53,39 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 #' If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
 #' for each argument of the wrapped loss function, where the parametes are then of type [`ParamUty`].
 #'
-#' @family Torch Wrapper
+#' @family Torch Descriptor
 #' @export
 #' @examples
-#' # Create a new Torch Loss
-#' torchloss = TorchLoss$new(torch_loss = nn_mse_loss, task_types = "regr")
-#' torchloss
+#' # Create a new torch loss
+#' torch_loss = TorchLoss$new(torch_loss = nn_mse_loss, task_types = "regr")
+#' torch_loss
 #' # the parameters are inferred
-#' torchloss$param_set
+#' torch_loss$param_set
 #'
 #' # Retrieve a loss from the dictionary:
-#' torchloss = t_loss("mse", reduction = "mean")
+#' torch_loss = t_loss("mse", reduction = "mean")
 #' # is the same as
-#' torchloss
-#' torchloss$param_set
-#' torchloss$label
-#' torchloss$task_types
-#' torchloss$id
+#' torch_loss
+#' torch_loss$param_set
+#' torch_loss$label
+#' torch_loss$task_types
+#' torch_loss$id
 #'
 #' # Create the loss function
-#' loss_fn = torchloss$generate()
+#' loss_fn = torch_loss$generate()
 #' loss_fn
 #' # Is the same as
 #' nn_mse_loss(reduction = "mean")
 #'
-#' # open the help page of the wrapper loss function
-#' # torchloss$help()
+#' # open the help page of the wrapped loss function
+#' # torch_loss$help()
 #'
 #' # Use in a learner
 #' learner = lrn("regr.mlp", loss = t_loss("mse"))
 #' # The parameters of the loss are added to the learner's parameter set
 #' learner$param_set
 TorchLoss = R6::R6Class("TorchLoss",
-  inherit = TorchWrapper,
+  inherit = TorchDescriptor,
   public = list(
     #' @field task_types (`character()`)\cr
     #'  The task types this loss supports.
@@ -97,22 +96,18 @@ TorchLoss = R6::R6Class("TorchLoss",
     #'   The loss module.
     #' @param task_types (`character()`)\cr
     #'   The task types supported by this loss.
-    #'   If left as `NULL` (default), this value is set to all available task types.
     #' @param param_set ([`ParamSet`] or `NULL`)\cr
     #'   The parameter set. If `NULL` (default) it is inferred from `torch_loss`.
     #' @template param_id
     #' @template param_label
     #' @template param_packages
     #' @template param_man
-    initialize = function(torch_loss, task_types = NULL, param_set = NULL,
-      id = deparse(substitute(torch_loss))[[1L]], label = capitalize(id), packages = NULL, man = NULL) {
+    initialize = function(torch_loss, task_types, param_set = NULL,
+      id = NULL, label = NULL, packages = NULL, man = NULL) {
       force(id)
-      if (!is.null(task_types)) {
-        self$task_types = assert_subset(task_types, mlr_reflections$task_types$type)
-      } else {
-        self$task_types = mlr_reflections$task_types$type
-      }
+      self$task_types = assert_subset(task_types, mlr_reflections$task_types$type)
       torch_loss = assert_class(torch_loss, "nn_loss")
+
       super$initialize(
         generator = torch_loss,
         id = id,
@@ -130,20 +125,25 @@ TorchLoss = R6::R6Class("TorchLoss",
       catn(str_indent("* Task Types:", as_short_string(self$task_types, 1000L)))
       invisible(self)
     }
+  ),
+  private = list(
+    .additional_phash_input = function() {
+      self$task_types
+    }
   )
 )
 
 #' @title Loss Functions
 #'
 #' @description
-#' Dictionary of torch loss functions.
-#' See [`t_loss`] for conveniently retrieving a loss function.
-#' Can be converted to a [`data.table`] using `as.data.table`.
+#' Dictionary of torch loss descriptors.
+#' See [`t_loss()`] for conveniently retrieving a loss function.
+#' Can be converted to a [`data.table`] using [`as.data.table()`].
 #'
 #' @section Available Loss Functions:
 #' `r paste0(mlr3torch_losses$keys(), collapse = ", ")`
 #'
-#' @family Torch Wrapper
+#' @family Torch Descriptor
 #' @family Dictionary
 #' @export
 #' @examples
@@ -172,13 +172,18 @@ as.data.table.DictionaryMlr3torchLosses = function(x, ...) {
 
 
 #' @title Loss Function Quick Access
+#'
+#' @description
+#' Retrieve one or more [`TorchLoss`](es) from [`mlr3torch_losses`].
+#' Works like [`mlr3::lrn()`] and [`mlr3::lrns()`].
+#'
 #' @param .key (`character(1)`)\cr
 #'   Key of the object to retrieve.
 #' @param ... (any)\cr
 #'   See description of [`dictionary_sugar_get`].
 #' @return A [`TorchLoss`]
 #' @export
-#' @family Torch Wrapper
+#' @family Torch Descriptor
 #' @examples
 #' t_loss("mse", reduction = "mean")
 #' # get the dictionary
@@ -250,7 +255,7 @@ mlr3torch_losses$add("l1", function() {
 mlr3torch_losses$add("cross_entropy", function() {
   p = ps(
     weight = p_uty(default = NULL, tags = "train"),
-    ignore_index = p_int(default = -100L, tags = "train"),
+    ignore_index = p_int(default = -100, tags = "train"),
     reduction = p_fct(levels = c("mean", "sum"), default = "mean", tags = "train")
   )
   TorchLoss$new(

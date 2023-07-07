@@ -130,9 +130,6 @@ learner_torch_train_worker = function(self, private, super, task, param_vals) {
   optimizer = private$.optimizer$generate(network$parameters)
   loss_fn = private$.loss$generate()
 
-  callbacks = c(lapply(private$.callbacks, function(cb) cb$generate()))
-  callbacks = set_names(callbacks, ids(private$.callbacks))
-
   ctx = ContextTorch$new(
     learner = self,
     task_train = task,
@@ -147,6 +144,12 @@ learner_torch_train_worker = function(self, private, super, task, param_vals) {
     total_epochs = param_vals$epochs
   )
 
+  callbacks = lapply(private$.callbacks, function(descriptor) {
+    cb = descriptor$generate()
+    cb$ctx = ctx
+    cb
+  })
+
   model = train_loop(ctx, callbacks)
 
   # In case the seed was "random" initially we want to make the sampled seed available in the state.
@@ -159,7 +162,7 @@ train_loop = function(ctx, cbs) {
   call = function(step_name) {
     lapply(cbs, function(x) {
       if (exists(step_name, x, inherits = FALSE)) {
-        x[[step_name]](ctx)
+        x[[step_name]]()
       }
     })
   }
@@ -178,6 +181,7 @@ train_loop = function(ctx, cbs) {
   on.exit({
     # in case a callback wants to finalize things
     call("on_end")
+    walk(cbs, function(cb) cb$ctx = NULL)
   }, add = TRUE)
 
 

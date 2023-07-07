@@ -105,7 +105,7 @@ The network (only available after training).}
 \item{\code{param_set}}{(\code{\link{ParamSet}})\cr
 The parameter set}
 
-\item{\code{history}}{(\code{\link{CallbackTorchHistory}})\cr
+\item{\code{history}}{(\code{\link{CallbackSetHistory}})\cr
 Shortcut for \code{learner$model$callbacks$history}.}
 }
 \if{html}{\out{</div>}}

@@ -83,11 +83,16 @@ PipeOpTorchCallbacks = R6Class("PipeOpTorchCallbacks",
     .callbacks = NULL,
     deep_clone = function(name, value) {
       if (name == ".callbacks") {
+        # TODO: Is this necessary?
         callbacks = map(private$.callbacks, function(cb) cb$clone(deep = TRUE))
         return(callbacks)
       }
       super$deep_clone(name, value)
+    },
+    .additional_phash_input = function() {
+      map(private$.callbacks, "phash")
     }
+
   )
 )
 

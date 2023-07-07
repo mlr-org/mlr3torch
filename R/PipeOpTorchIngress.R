@@ -12,11 +12,8 @@
 #' The state is set to the input shape.
 #'
 #' @section Parameters:
-#' Defined by the construction argument `param_set`, as well as:
-#' * `select` :: `logical(1)`\cr
-#'   Whether to select the features of the task that can be consumed by this `PipeOpTorchIngress`.
-#'   Default is `FALSE`, i.e. it errs during training if it receives a task with feature types that it cannot handle.
-#'
+#' Defined by the construction argument `param_set`.
+#!'
 #' @section Internals:
 #' Creates an object of class [`TorchIngressToken`] for the given task.
 #' The purpuse of this is to store the information on how to construct the torch dataloader from the task for this
@@ -339,9 +336,9 @@ PipeOpTorchIngressImage = R6Class("PipeOpTorchIngressImage",
     #' @template params_pipelines
     initialize = function(id = "torch_ingress_img", param_vals = list()) {
       param_set = ps(
-        channels = p_int(1, tags = "required"),
-        height   = p_int(1, tags = "required"),
-        width    = p_int(1, tags = "required")
+        channels = p_int(1, tags = c("train", "predict", "required")),
+        height   = p_int(1, tags = c("train", "predict", "required")),
+        width    = p_int(1, tags = c("train", "predict", "required"))
       )
       super$initialize(id = id, param_vals = param_vals, param_set = param_set, feature_types = "imageuri")
     }

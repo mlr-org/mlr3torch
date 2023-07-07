@@ -110,7 +110,7 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
     #' @field param_set ([`ParamSet`])\cr
     #'   The parameter set
     param_set = function(rhs) learner_torch_param_set(self, rhs),
-    #' @field history ([`CallbackTorchHistory`])\cr
+    #' @field history ([`CallbackSetHistory`])\cr
     #' Shortcut for `learner$model$callbacks$history`.
     history = function(rhs) learner_torch_history(self, rhs)
   )
@@ -195,7 +195,7 @@ LearnerRegrTorch = R6Class("LearnerRegrTorch",
     #' @field param_set ([`ParamSet`])\cr
     #'   The parameter set
     param_set = function(rhs) learner_torch_param_set(self, rhs),
-    #' @field history ([`CallbackTorchHistory`])\cr
+    #' @field history ([`CallbackSetHistory`])\cr
     #'   Shortcut for `learner$model$callbacks$history`.
     history = function(rhs) learner_torch_history(self, rhs)
   )

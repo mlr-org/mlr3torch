@@ -71,3 +71,12 @@ test_that("Manual test: Classification and Regression", {
   learner = graph$pipeops$torch_model_regr$state
   expect_class(learner, "LearnerRegrTorchModel")
 })
+
+test_that("phash works", {
+  po1 = PipeOpTorchModel$new(task_type = "regr", param_vals = list(shuffle = TRUE))
+  po2 = PipeOpTorchModel$new(task_type = "regr", param_vals = list(shuffle = FALSE))
+  expect_equal(po1$phash, po2$phash)
+  expect_false(
+    PipeOpTorchModel$new("regr")$phash == PipeOpTorchModel$new("classif")$phash
+  )
+})

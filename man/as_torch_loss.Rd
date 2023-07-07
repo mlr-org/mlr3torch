@@ -24,7 +24,7 @@ Currently used to pass additional constructor arguments to \code{\link{TorchLoss
 Converts an object to a \code{\link{TorchLoss}}.
 }
 \seealso{
-Other Torch Wrapper: 
+Other Torch Descriptor: 
 \code{\link{TorchCallback}},
 \code{\link{TorchLoss}},
 \code{\link{TorchOptimizer}},
@@ -35,6 +35,6 @@ Other Torch Wrapper:
 \code{\link{t_clbk}()},
 \code{\link{t_loss}()},
 \code{\link{t_opt}()},
-\code{\link{torch_wrapper}}
+\code{\link{torch}}
 }
-\concept{Torch Wrapper}
+\concept{Torch Descriptor}

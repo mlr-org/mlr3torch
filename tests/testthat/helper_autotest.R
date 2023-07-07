@@ -158,55 +158,12 @@ collapse_char_list = function(x) {
   return(x)
 }
 
-run_paramtest = function(learner, fun, exclude = character(), tag = NULL) {
-  par_learner = learner$param_set$ids(tags = tag)
-  if (checkmate::test_list(fun)) {
-    # for xgboost we pass a character vector with info scraped from the web
-    if (mlr3misc::some(fun, function(x) class(x) == "character")) {
-      which = which(mlr3misc::map_lgl(fun, function(x) class(x) == "character"))
-      par_package = fun[[which]]
-      fun[[which]] = NULL
-      other = unlist(lapply(fun, formalArgs))
-      par_package = append(par_package, other)
-    } else {
-      par_package = unlist(lapply(fun, formalArgs))
-    }
-  } else {
-    par_package = formalArgs(fun)
-  }
-
-  missing = setdiff(par_package, par_learner)
-  missing = setdiff(missing, c(exclude, "..."))
-
-  extra = setdiff(par_learner, par_package)
-  extra = setdiff(extra, c(exclude, "..."))
-
-  if (length(c(missing, extra)) == 0L) {
-    return(TRUE)
-  }
-
-  merror = eerror = character(0)
-
-  if (length(missing) > 0) {
-    merror = sprintf("Missing parameters for learner '%s': %s",
-      learner$id, paste0(missing, collapse = ", "))
-  }
-
-  if (length(extra) > 0) {
-    eerror = sprintf("Extra parameters for learner '%s': %s",
-      learner$id, paste0(extra, collapse = ", "))
-  }
-
-  error = paste(merror, eerror, sep = "\n")
-
-  list(ok = FALSE, error = error, missing = missing, extra = extra)
-}
 
 #' @title Parameter Test
 #' @description
 #' Tests that parameters are correctly implemented
 #'
-#' @param param_set ([`ParamSet`])\cr
+#' @param x ([`ParamSet`] or object with field `$param_set`)\cr
 #'   The parameter set to check.
 #' @param fns (`list()` of `function`s)\cr
 #'   The functions whose arguments the parameter set implements.
@@ -216,7 +173,14 @@ run_paramtest = function(learner, fun, exclude = character(), tag = NULL) {
 #'   For which parameters the defaults should not be checked.
 #'
 #' @export
-autotest_paramset = function(param_set, fns, exclude = character(0), exclude_defaults = character(0)) {
+autotest_paramset = function(x, fns, exclude = character(0), exclude_defaults = character(0)) {
+  if (test_r6(x, "ParamSet")) {
+    param_set = x
+  } else if (test_r6(x$param_set, "ParamSet")) {
+    param_set = x$param_set
+  } else {
+    stopf("Argument 'x' is neither a ParamSet nor does it have a valid $param_set field.")
+  }
   if (!is.list(fns)) fns = list(fns)
 
   args = Reduce(c, lapply(fns, formalArgs))
@@ -237,61 +201,105 @@ autotest_paramset = function(param_set, fns, exclude = character(0), exclude_def
     info$eerror = sprintf("Extra parameters: %s", paste0(extra, collapse = ", "))
   }
 
-
-  # The defaults
-  # Note that we ony check the defaults that are not language expressions.
-
   ps_defaults = param_set$default
-  ps_defaults[setdiff(param_set$ids(), names(ps_defaults))] = list(NULL)
   ps_defaults = ps_defaults[setdiff(names(ps_defaults), c(exclude, exclude_defaults))]
 
   fn_defaults = Reduce(c, lapply(fns, formals)) %??% list()
-  fn_defaults[map_lgl(fn_defaults, function(x) as.character(x) == "")] = list(NULL)
 
-  wrong_defaults = imap(ps_defaults, function(default, id) {
-    if(!identical(fn_defaults[[id]], default)) id
-  })
-  wrong_defaults = unlist(Filter(function(x) !is.null(x), wrong_defaults))
+  args = setdiff(args, c(exclude, exclude_defaults, missing, extra))
+  wrong_defaults = list()
+  for (arg in args) {
+    # This needs special treatment because of some weird behaviour in R
+    # Consider formals(function(x) NULL)[[1]]
+    # (therefore we can't assign fn_defaults[[arg]] to a variable)
+    if (is.name(fn_defaults[[arg]]) && as.character(fn_defaults[[arg]]) == "") { # upstream has no default
+      if (exists(arg, ps_defaults)) {
+        # if ps implements a default it is a wrong default
+        wrong_defaults = c(wrong_defaults, arg)
+      }
+    } else {
+      # Here upstream has a default so the parameter must have a default and it must be identical
+      # to the upstream default (here we need to be careful to not access list elements that don't
+      # exist as we get NULL in return, therefore the exists(...) check)
+      # Furthermore we need to be careful regaring expressions (such as -1, c("a", "b"))
+      # because the defaults are then calls and not the evaluated expression.
+      # we use the heuristic that either the value of the evaluated or unevaluated upstream default
+      # must be identical. This can give false negatives but they should be rare
+
+      if (!exists(arg, ps_defaults)) { # upstream has default but ps has none
+        wrong_defaults = c(wrong_defaults, arg)
+        next
+      }
+
+      upstream_default = fn_defaults[[arg]]
+      upstream_default_eval = try(eval(upstream_default), silent = TRUE)
+      implemented = ps_defaults[[arg]]
+
+      ok = isTRUE(all.equal(upstream_default, implemented))
+      if (!inherits(upstream_default_eval, "try-error")) {
+        ok = ok || isTRUE(all.equal(upstream_default_eval, implemented))
+      }
+      if (!ok) {
+        wrong_defaults = c(wrong_defaults, arg)
+      }
+    }
+  }
 
   if (length(wrong_defaults)) {
     info$derror = sprintf("Wrong defaults: %s", paste0(wrong_defaults, collapse = ", "))
   }
 
-  # unchecked_defaults = ps_defaults[setdiff(names(ps_defaults), names(fn_defaults))]
-
-  info
+  res = list(ok = identical(info, list()), info = info)
+  return(res)
 }
 
-# Helper function to convert a vector of probabilities to a matrix
-#
-# sometimes useful in tests, e.g., mlr3learners.partykit::LearnerClassifMob
-# uses this in its tests to set up its custom prediction function for a mob
-# version of a logit model
-prob_vector_to_matrix = function(p, levs) {
-  stopifnot(is.numeric(p))
-  y = matrix(c(1 - p, p), ncol = 2L, nrow = length(p))
-  colnames(y) = levs
-  y
+expect_paramtest = function(paramtest) {
+  expect_true(paramtest$ok, info = paramtest$info)
 }
 
-autotest_torch_callback = function(cb, init_args = list()) {
-  # TODO: This is half ready
-  # TODO: Check that man page exists
-  cbgen = cb$generator
-  expect_string(cb$id)
+
+#' @title Autotest for Torch Callback
+#' @description
+#' Performs various sanity checks on a callback descriptor.
+#'
+#' @param torch_callback ([`TorchCallback`])\cr
+#'   The object to test.
+#' @param check_man (`logical(1)`)\cr
+#'   Whether to check that the manual page exists. Default is `TRUE`.
+autotest_torch_callback = function(torch_callback, check_man = TRUE) {
+  # Checks on descriptor
+  expect_class(torch_callback, "TorchCallback")
+  expect_string(torch_callback$id)
+  expect_string(torch_callback$label)
+  expect_r6(torch_callback$param_set, "ParamSet")
+  if (check_man) {
+    expect_true(!is.null(torch_callback$man))
+    expect_man_exists(torch_callback$man)
+    expect_true(startsWith(torch_callback$man, "mlr3torch::mlr_callback_set"))
+  }
+
+  # Checks on generator
+  cbgen = torch_callback$generator
   expect_class(cbgen, "R6ClassGenerator")
-  expect_class(cb$param_set, "ParamSet")
-  init_fn = get_init(cb$generator)
+  expect_true(grepl("^CallbackSet", cbgen$classname))
+  expect_true(cbgen$cloneable)
+  init_fn = get_init(torch_callback$generator)
   if (is.null(init_fn)) init_fn = function() NULL
-  paramtest = autotest_paramset(cb$param_set, init_fn)
-  # TODO: Finish parameter est
-
-
-  # Check that the correct object comes out
-  cbt = do.call(cbgen$new, args = init_args)
-  expect_class(cbt, "CallbackTorch")
-
+  paramtest = autotest_paramset(torch_callback$param_set, init_fn)
+  expect_paramtest(paramtest)
   implemented_stages = names(cbgen$public_methods)[grepl("^on_", names(cbgen$public_methods))]
-
   expect_subset(implemented_stages, mlr_reflections$torch$callback_stages)
+  expect_true(length(implemented_stages) > 0)
+  walk(implemented_stages, function(stage) expect_function(cbgen$public_methods[[stage]], nargs = 0))
+
+  # Cloning works
+  task = tsk("iris")
+  learner = lrn("classif.torch_featureless", epochs = 1, batch_size = 50, callbacks = torch_callback)
+  # e.g. the progress callback otherwise prints to the console
+  invisible(capture.output(learner$train(task)))
+  cb_trained = learner$model$callbacks[[torch_callback$id]]
+  expect_class(cb_trained, "CallbackSet")
+  expect_deep_clone(cb_trained, cb_trained$clone(deep = TRUE))
+  cb_trained$ctx = "placeholder"
+  expect_error(cb_trained$clone(deep = TRUE), "must never be cloned unless")
 }

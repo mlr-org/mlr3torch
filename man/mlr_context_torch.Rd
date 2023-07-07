@@ -7,25 +7,22 @@
 \description{
 Context for training a torch learner.
 This is the - mostly read-only - information callbacks have access to through the argument \code{ctx}.
-For more information on callbacks, see \code{\link{CallbackTorch}}.
+For more information on callbacks, see \code{\link{CallbackSet}}.
 }
 \seealso{
 Other Callback: 
 \code{\link{TorchCallback}},
 \code{\link{as_torch_callbacks}()},
 \code{\link{as_torch_callback}()},
-\code{\link{callback_torch}()},
+\code{\link{callback_set}()},
 \code{\link{mlr3torch_callbacks}},
-\code{\link{mlr_callbacks_torch.checkpoint}},
-\code{\link{mlr_callbacks_torch.progress}},
-\code{\link{mlr_callbacks_torch}},
+\code{\link{mlr_callback_set.checkpoint}},
+\code{\link{mlr_callback_set.progress}},
+\code{\link{mlr_callback_set}},
 \code{\link{t_clbk}()},
 \code{\link{torch_callback}()}
 }
 \concept{Callback}
-\section{Super class}{
-\code{\link[mlr3misc:Context]{mlr3misc::Context}} -> \code{ContextTorch}
-}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
@@ -83,14 +80,6 @@ The current iteration of the batch.}
 \item \href{#method-ContextTorch-clone}{\code{ContextTorch$clone()}}
 }
 }
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
-<ul>
-<li><span class="pkg-link" data-pkg="mlr3misc" data-topic="Context" data-id="format"><a href='../../mlr3misc/html/Context.html#method-Context-format'><code>mlr3misc::Context$format()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3misc" data-topic="Context" data-id="print"><a href='../../mlr3misc/html/Context.html#method-Context-print'><code>mlr3misc::Context$print()</code></a></span></li>
-</ul>
-</details>
-}}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ContextTorch-new"></a>}}
 \if{latex}{\out{\hypertarget{method-ContextTorch-new}{}}}
