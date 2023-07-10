@@ -5,8 +5,7 @@
 \title{Torch Loss}
 \description{
 This wraps a \code{torch::nn_loss} and annotates it with metadata, most importantly a \code{\link{ParamSet}}.
-The loss function is created for the given parameter values by calling the \verb{$generate()} method inherited from
-\code{\link{TorchWrapper}}.
+The loss function is created for the given parameter values by calling the \verb{$generate()} method.
 
 This class is usually used to configure the loss function of a torch learner, e.g.
 when construcing a learner or in a \code{\link{ModelDescriptor}}.
@@ -22,29 +21,29 @@ for each argument of the wrapped loss function, where the parametes are then of 
 }
 
 \examples{
-# Create a new Torch Loss
-torchloss = TorchLoss$new(torch_loss = nn_mse_loss, task_types = "regr")
-torchloss
+# Create a new torch loss
+torch_loss = TorchLoss$new(torch_loss = nn_mse_loss, task_types = "regr")
+torch_loss
 # the parameters are inferred
-torchloss$param_set
+torch_loss$param_set
 
 # Retrieve a loss from the dictionary:
-torchloss = t_loss("mse", reduction = "mean")
+torch_loss = t_loss("mse", reduction = "mean")
 # is the same as
-torchloss
-torchloss$param_set
-torchloss$label
-torchloss$task_types
-torchloss$id
+torch_loss
+torch_loss$param_set
+torch_loss$label
+torch_loss$task_types
+torch_loss$id
 
 # Create the loss function
-loss_fn = torchloss$generate()
+loss_fn = torch_loss$generate()
 loss_fn
 # Is the same as
 nn_mse_loss(reduction = "mean")
 
-# open the help page of the wrapper loss function
-# torchloss$help()
+# open the help page of the wrapped loss function
+# torch_loss$help()
 
 # Use in a learner
 learner = lrn("regr.mlp", loss = t_loss("mse"))
@@ -52,7 +51,7 @@ learner = lrn("regr.mlp", loss = t_loss("mse"))
 learner$param_set
 }
 \seealso{
-Other Torch Wrapper: 
+Other Torch Descriptor: 
 \code{\link{TorchCallback}},
 \code{\link{TorchOptimizer}},
 \code{\link{as_torch_callbacks}()},
@@ -63,11 +62,11 @@ Other Torch Wrapper:
 \code{\link{t_clbk}()},
 \code{\link{t_loss}()},
 \code{\link{t_opt}()},
-\code{\link{torch_wrapper}}
+\code{\link{torch}}
 }
-\concept{Torch Wrapper}
+\concept{Torch Descriptor}
 \section{Super class}{
-\code{\link[mlr3torch:TorchWrapper]{mlr3torch::TorchWrapper}} -> \code{TorchLoss}
+\code{\link[mlr3torch:TorchDescriptor]{mlr3torch::TorchDescriptor}} -> \code{TorchLoss}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -88,8 +87,8 @@ The task types this loss supports.}
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchWrapper" data-id="generate"><a href='../../mlr3torch/html/TorchWrapper.html#method-TorchWrapper-generate'><code>mlr3torch::TorchWrapper$generate()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchWrapper" data-id="help"><a href='../../mlr3torch/html/TorchWrapper.html#method-TorchWrapper-help'><code>mlr3torch::TorchWrapper$help()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchDescriptor" data-id="generate"><a href='../../mlr3torch/html/TorchDescriptor.html#method-TorchDescriptor-generate'><code>mlr3torch::TorchDescriptor$generate()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchDescriptor" data-id="help"><a href='../../mlr3torch/html/TorchDescriptor.html#method-TorchDescriptor-help'><code>mlr3torch::TorchDescriptor$help()</code></a></span></li>
 </ul>
 </details>
 }}
@@ -101,10 +100,10 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{TorchLoss$new(
   torch_loss,
-  task_types = NULL,
+  task_types,
   param_set = NULL,
-  id = deparse(substitute(torch_loss))[[1L]],
-  label = capitalize(id),
+  id = NULL,
+  label = NULL,
   packages = NULL,
   man = NULL
 )}\if{html}{\out{</div>}}
@@ -117,8 +116,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 The loss module.}
 
 \item{\code{task_types}}{(\code{character()})\cr
-The task types supported by this loss.
-If left as \code{NULL} (default), this value is set to all available task types.}
+The task types supported by this loss.}
 
 \item{\code{param_set}}{(\code{\link{ParamSet}} or \code{NULL})\cr
 The parameter set. If \code{NULL} (default) it is inferred from \code{torch_loss}.}

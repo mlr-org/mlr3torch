@@ -87,7 +87,7 @@ LearnerTorchImage = R6Class("LearnerTorchImage",
   ),
   private = list(
     .dataset = function(task, param_vals) {
-      dataset_img(self, task, param_vals)
+      dataset_img(task, param_vals)
     }
   )
 )

@@ -1,6 +1,6 @@
 test_that("LearnerTorchImage works", {
   learner = LearnerTorchImageTest$new(task_type = "classif")
-  learner$param_set$values = list(
+  learner$param_set$set_values(
     height = 64,
     width = 64,
     channels = 3,

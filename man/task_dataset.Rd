@@ -4,12 +4,7 @@
 \alias{task_dataset}
 \title{Create a Dataset from a Task}
 \usage{
-task_dataset(
-  task,
-  feature_ingress_tokens,
-  target_batchgetter = NULL,
-  device = "cpu"
-)
+task_dataset(task, feature_ingress_tokens, target_batchgetter = NULL, device)
 }
 \arguments{
 \item{task}{(\code{\link{Task}})\cr

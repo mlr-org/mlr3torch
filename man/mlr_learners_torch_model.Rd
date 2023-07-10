@@ -28,7 +28,14 @@ ingress_tokens = list(
 )
 
 # Creating the learner and setting required parameters
-learner = lrn("classif.torch_model", batch_size = 16, epochs = 1)
+learner = lrn("classif.torch_model",
+  network = network,
+  ingress_tokens = ingress_tokens,
+  batch_size = 16,
+  epochs = 1
+)
+
+
 
 # A simple train-predict
 ids = partition(task)

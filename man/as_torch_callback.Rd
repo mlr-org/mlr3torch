@@ -10,7 +10,7 @@ as_torch_callback(x, clone = FALSE, ...)
 \item{x}{(any)\cr
 Object to be converted.}
 
-\item{clone}{(\code{logical(1)}\cr
+\item{clone}{(\code{logical(1)})\cr
 Whether to make a deep clone.}
 
 \item{...}{(any)\cr
@@ -26,11 +26,11 @@ Converts an object to a \code{\link{TorchCallback}}.
 Other Callback: 
 \code{\link{TorchCallback}},
 \code{\link{as_torch_callbacks}()},
-\code{\link{callback_torch}()},
+\code{\link{callback_set}()},
 \code{\link{mlr3torch_callbacks}},
-\code{\link{mlr_callbacks_torch.checkpoint}},
-\code{\link{mlr_callbacks_torch.progress}},
-\code{\link{mlr_callbacks_torch}},
+\code{\link{mlr_callback_set.checkpoint}},
+\code{\link{mlr_callback_set.progress}},
+\code{\link{mlr_callback_set}},
 \code{\link{mlr_context_torch}},
 \code{\link{t_clbk}()},
 \code{\link{torch_callback}()}

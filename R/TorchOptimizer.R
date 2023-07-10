@@ -5,14 +5,14 @@
 #'
 #' @param x (any)\cr
 #'   Object to convert to a [`TorchOptimizer`].
-#' @param clone (`logical(1)`\cr
+#' @param clone (`logical(1)`)\cr
 #'   Whether to make a deep clone. Default is `FALSE`.
 #' @param ... (any)\cr
 #'   Additional arguments.
 #'   Currently used to pass additional constructor arguments to [`TorchOptimizer`] for objects of type
 #'   `torch_optimizer_generator`.
 #'
-#' @family Torch Wrapper
+#' @family Torch Descriptor
 #'
 #' @return [`TorchOptimizer`]
 #' @export
@@ -55,37 +55,38 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #' If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
 #' for each argument of the wrapped loss function, where the parametes are then of type [`ParamUty`].
 #'
-#' @family Torch Wrapper
+#' @family Torch Descriptor
 #' @export
 #' @examples
-#' # Create a new Torch Optimizer
-#' torchopt = TorchOptimizer$new(optim_adam, label = "adam")
+#' # Create a new torch loss
+#' torch_opt = TorchOptimizer$new(optim_adam, label = "adam")
+#' torch_opt
 #' # If the param set is not specified, parameters are inferred but are of class ParamUty
-#' torchopt$param_set
+#' torch_opt$param_set
+#'
+#' # open the help page of the wrapped optimizer
+#' # torch_opt$help()
 #'
 #' # Retrieve an optimizer from the dictionary
-#' torchopt = t_opt("sgd", lr = 0.1)
-#' torchopt
-#' torchopt$param_set
-#' torchopt$label
-#' torchopt$id
+#' torch_opt = t_opt("sgd", lr = 0.1)
+#' torch_opt
+#' torch_opt$param_set
+#' torch_opt$label
+#' torch_opt$id
 #'
 #' # Create the optimizer for a network
 #' net = nn_linear(10, 1)
-#' opt = torchopt$generate(net$parameters)
+#' opt = torch_opt$generate(net$parameters)
 #'
 #' # is the same as
 #' optim_sgd(net$parameters, lr = 0.1)
-#'
-#' # open the help page of the wrapped optimizer
-#' # torchopt$help()
 #'
 #' # Use in a learner
 #' learner = lrn("regr.mlp", optimizer = t_opt("sgd"))
 #' # The parameters of the optimizer are added to the learner's parameter set
 #' learner$param_set
 TorchOptimizer = R6::R6Class("TorchOptimizer",
-  inherit = TorchWrapper,
+  inherit = TorchDescriptor,
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
@@ -97,8 +98,9 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
     #' @template param_label
     #' @template param_packages
     #' @template param_man
-    initialize = function(torch_optimizer, param_set = NULL, id = deparse(substitute(torch_optimizer))[[1L]],
-      label = capitalize(id), packages = NULL, man = NULL) {
+    initialize = function(torch_optimizer, param_set = NULL, id = NULL,
+      label = NULL, packages = NULL, man = NULL) {
+      force(id)
       torch_optimizer = assert_class(torch_optimizer, "torch_optimizer_generator") # maybe too strict?
       if (test_r6(param_set, "ParamSet")) {
         if ("params" %in% param_set$ids()) {
@@ -118,11 +120,14 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
     },
     #' @description
     #' Instantiates the optimizer.
-    #' @param params The `$parameters` of the network.
+    #' @param params The parameters of the network.
     generate = function(params) {
       require_namespaces(self$packages)
       invoke(self$generator, .args = self$param_set$get_values(), params = params)
     }
+  ),
+  private = list(
+    .additional_phash_input = function() NULL
   )
 )
 
@@ -136,7 +141,7 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
 #' @section Available Optimizers:
 #' `r paste0(mlr3torch_optimizers$keys(), collapse = ", ")`
 #'
-#' @family Torch Wrapper
+#' @family Torch Descriptor
 #' @family Dictionary
 #' @export
 #' @examples
@@ -162,13 +167,18 @@ as.data.table.DictionaryMlr3torchOptimizers = function(x, ...) {
 }
 
 #' @title Optimizers Quick Access
+#'
+#' @description
+#' Retrieves one or more [`TorchOptimizer`](s) from [`mlr3torch_optimizers`].
+#' Works like [`mlr3::lrn()`] and [`mlr3::lrns()`].
+#'
 #' @param .key (`character(1)`)\cr
 #'   Key of the object to retrieve.
 #' @param ... (any)\cr
 #'   See description of [`dictionary_sugar_get`].
 #' @return A [`TorchOptimizer`]
 #' @export
-#' @family Torch Wrapper
+#' @family Torch Descriptor
 #' @family Dictionary
 #' @examples
 #' t_opt("adam", lr = 0.1)
@@ -180,7 +190,7 @@ t_opt = function(.key, ...) {
 
 #' @export
 t_opt.character = function(.key, ...) { #nolint
-  dictionary_sugar_inc_get(mlr3torch_optimizers, .key, ...)
+  dictionary_sugar_inc_get(dict = mlr3torch_optimizers, .key, ...)
 }
 
 #' @export
@@ -204,7 +214,7 @@ t_opts = function(.keys, ...) {
 
 #' @export
 t_opts.character = function(.keys, ...) { # nolint
-  dictionary_sugar_inc_mget(mlr3torch_optimizers, .keys, ...)
+  dictionary_sugar_inc_mget(dict = mlr3torch_optimizers, .keys, ...)
 }
 
 #' @export
@@ -358,7 +368,7 @@ mlr3torch_optimizers$add("adadelta",
     TorchOptimizer$new(torch_optimizer = torch::optim_adadelta,
       param_set = p,
       id = "adadelta",
-      label = "Adaptive Learning Rate Method``",
+      label = "Adaptive Learning Rate Method",
       man = "torch::optim_adadelta"
     )
   }

@@ -45,7 +45,7 @@ test_that("Manual test: Classification and Regression", {
   expect_class(obj$state$model$network, c("nn_graph", "nn_module"))
   # Defaults are used
   expect_class(obj$state$model$optimizer, "optim_adam")
-  expect_class(obj$state$model$loss_fn, "nn_crossentropy_loss")
+  expect_class(obj$state$model$loss_fn, "nn_cross_entropy_loss")
 
   # It is possible to change parameter values
   md$optimizer = t_opt("adagrad", lr = 0.123)
@@ -73,4 +73,13 @@ test_that("Manual test: Classification and Regression", {
   expect_class(pred[[1]], "PredictionRegr")
   learner = graph$pipeops$torch_model_regr$state
   expect_class(learner, "LearnerTorchModel")
+})
+
+test_that("phash works", {
+  po1 = PipeOpTorchModel$new(task_type = "regr", param_vals = list(shuffle = TRUE))
+  po2 = PipeOpTorchModel$new(task_type = "regr", param_vals = list(shuffle = FALSE))
+  expect_equal(po1$phash, po2$phash)
+  expect_false(
+    PipeOpTorchModel$new("regr")$phash == PipeOpTorchModel$new("classif")$phash
+  )
 })

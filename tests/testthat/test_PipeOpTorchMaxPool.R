@@ -9,7 +9,7 @@ test_that("PipeOpTorchMaxPool1D works", {
 
 test_that("PipeOpTorchMaxPool1D paramtest", {
   # return_indices is a construction argument.
-  res = run_paramtest(po("nn_max_pool1d"), nn_max_pool1d, exclude = "return_indices")
+  res = autotest_paramset(po("nn_max_pool1d"), nn_max_pool1d, exclude = "return_indices")
   expect_paramtest(res)
 })
 
@@ -23,7 +23,7 @@ test_that("PipeOpTorchMaxPool2D autotest", {
 
 test_that("PipeOpTorchMaxPool2D paramtest", {
   # return_indices is a construction argument.
-  res = run_paramtest(po("nn_max_pool2d"), nn_max_pool2d, exclude = "return_indices")
+  res = autotest_paramset(po("nn_max_pool2d"), nn_max_pool2d, exclude = "return_indices")
   expect_paramtest(res)
 })
 
@@ -39,7 +39,7 @@ test_that("PipeOpTorchMaxPool3D autotest", {
 
 test_that("PipeOpTorchMaxPool3D paramtest", {
   # return_indices is a construction argument.
-  res = run_paramtest(po("nn_max_pool3d"), nn_max_pool3d, exclude = "return_indices")
+  res = autotest_paramset(po("nn_max_pool3d"), nn_max_pool3d, exclude = "return_indices")
   expect_paramtest(res)
 })
 

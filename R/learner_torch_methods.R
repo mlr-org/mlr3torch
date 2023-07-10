@@ -14,22 +14,13 @@ learner_torch_train = function(self, task) {
   super = self$.__enclos_env__$super
   param_vals = self$param_set$get_values(tags = "train")
 
-  seed = param_vals$seed %??% sample.int(10000000L, 1L)
-  torch_manual_seed(seed)
+  param_vals$device = auto_device(param_vals$device)
+  if (param_vals$seed == "random") param_vals$seed = sample.int(10000000L, 1L)
 
-  withr::with_seed(seed = seed, code = {
-    learner_torch_train_worker(self, private, super, task, param_vals, FALSE, seed = seed) })
+  with_torch_settings(seed = param_vals$seed, num_threads = param_vals$num_threads, {
+    learner_torch_train_worker(self, private, super, task, param_vals)
+  })
 }
-
-
-# learner_torch_continue = function(self, task) {
-#   private = self$.__enclos_env__$private
-#   super = self$.__enclos_env__$super
-#   param_vals = self$param_set$get_values()
-#   param_vals = set_defaults()
-#   param_vals$epochs = assert_int(param_vals$epochs - self$state$param_vals$epochs, lower = 1)
-#   learner_torch_train_worker(self, private, super, task, param_vals, TRUE)
-# }
 
 learner_torch_initialize = function(
   self,
@@ -53,17 +44,24 @@ learner_torch_initialize = function(
 
   private$.loss = as_torch_loss(loss, clone = TRUE)
   private$.loss$param_set$set_id = "loss"
+  if (task_type %nin% private$.loss$task_types) {
+    stopf("Loss only supports task types %s, but learner has type \"%s\".",
+      paste0("\"", private$.loss$task_types, "\"", sep = ", "), task_type
+    )
+  }
 
   callbacks = as_torch_callbacks(callbacks, clone = TRUE)
   callback_ids = ids(callbacks)
-  assert_names(callback_ids, type = "unique")
+  if (!test_names(callback_ids, type = "unique")) {
+    stopf("All callbacks must have unique IDs that are valid names, but they are %s.",
+      paste0("'", callback_ids, "'", collapse = ", ")
+    )
+  }
 
-  private$.callbacks = set_names(callbacks, ids(callbacks))
+  private$.callbacks = set_names(callbacks, callback_ids)
   walk(private$.callbacks, function(cb) {
     cb$param_set$set_id = paste0("cb.", cb$id)
   })
-
-  # TODO: Here we should tag all the parameters of the callbacks and optimizer and loss with `"train"` (?)
 
   packages = unique(c(
     packages,
@@ -80,13 +78,19 @@ learner_torch_initialize = function(
   packages = assert_character(packages, any.missing = FALSE, min.chars = 1L)
   packages = union(c("mlr3", "mlr3torch"), packages)
 
-  paramset_torch = paramset_torchlearner()
+  paramset_torch = paramset_torchlearner(task_type)
   if (param_set$length > 0) {
     private$.param_set_base = ParamSetCollection$new(list(param_set, paramset_torch))
   } else {
     private$.param_set_base = paramset_torch
   }
 
+  # explanation of the self$param_set call:
+  # As of now, private$.param_set is NULL, this will cause the ParamSetCollection to be constructed
+  # (as self$param_set) is an active binding.
+  # However we then pass this constructed paramset to the learner parent class, which will assign it to self$param_set
+  # However this behind the scene will once again set it to private$.param_set as it causes the function in
+  # self$param_set with an rhs to be called, which in turn assigns it (again) to private$.param_set
   super$initialize(
     id = id,
     task_type = task_type,
@@ -99,32 +103,33 @@ learner_torch_initialize = function(
     feature_types = feature_types,
     man = man
   )
-
 }
 
+learner_torch_dataloader = function(self, task, param_vals) {
+  dataloader(
+    dataset = get_private(self)$.dataset(task, param_vals),
+    batch_size = param_vals$batch_size,
+    shuffle = param_vals$shuffle,
+    drop_last = param_vals$drop_last
+  )
+}
 
-learner_torch_train_worker = function(self, private, super, task, param_vals, continue = FALSE, seed = seed) {
-  torch_set_num_threads(param_vals$num_threads %??% 1L)
+learner_torch_dataloader_predict = function(self, task, param_vals) {
+  param_vals_test = insert_named(param_vals, list(shuffle = FALSE, drop_last = FALSE))
+  get_private(self)$.dataloader(task, param_vals_test)
+}
 
+learner_torch_train_worker = function(self, private, super, task, param_vals) {
+  # Here, all param_vals (like seed = "random" or device = "auto") have already been resolved
   loader_train = private$.dataloader(task, param_vals)
 
   task_valid = task$clone()$filter(integer(0))
   task_valid$set_row_roles(task$row_roles$test, "use")
-  loader_valid = if (task_valid$nrow) private$.dataloader(task_valid, insert_named(param_vals, list(shuffle = FALSE)))
+  loader_valid = if (task_valid$nrow) private$.dataloader_predict(task_valid, param_vals)
 
-  if (continue) {
-    network = self$model$network
-    optimizer = self$model$optimizer
-    loss_fn = self$model$loss_fn
-    callbacks = self$model$callbacks
-  } else {
-    network = private$.network(task, param_vals)$to(device = param_vals$device)
-    optimizer = private$.optimizer$generate(network$parameters)
-    loss_fn = private$.loss$generate()
-
-    callbacks = c(lapply(private$.callbacks, function(cb) cb$generate()))
-    callbacks = set_names(callbacks, ids(private$.callbacks))
-  }
+  network = private$.network(task, param_vals)$to(device = param_vals$device)
+  optimizer = private$.optimizer$generate(network$parameters)
+  loss_fn = private$.loss$generate()
 
   ctx = ContextTorch$new(
     learner = self,
@@ -140,15 +145,25 @@ learner_torch_train_worker = function(self, private, super, task, param_vals, co
     total_epochs = param_vals$epochs
   )
 
-  train_loop(ctx, callbacks, seed = seed)
+  callbacks = lapply(private$.callbacks, function(descriptor) {
+    cb = descriptor$generate()
+    cb$ctx = ctx
+    cb
+  })
+
+  model = train_loop(ctx, callbacks)
+
+  # In case the seed was "random" initially we want to make the sampled seed available in the state.
+  model$seed = param_vals$seed
+  return(model)
 }
 
 
-train_loop = function(ctx, cbs, seed) {
+train_loop = function(ctx, cbs) {
   call = function(step_name) {
     lapply(cbs, function(x) {
       if (exists(step_name, x, inherits = FALSE)) {
-        x[[step_name]](ctx)
+        x[[step_name]]()
       }
     })
   }
@@ -158,8 +173,7 @@ train_loop = function(ctx, cbs, seed) {
     network = ctx$network,
     optimizer = ctx$optimizer,
     loss_fn = ctx$loss_fn,
-    callbacks = cbs,
-    seed = seed
+    callbacks = cbs
   )
 
   # note that task_valid may be present (callbacks could do their own validation)
@@ -168,6 +182,7 @@ train_loop = function(ctx, cbs, seed) {
   on.exit({
     # in case a callback wants to finalize things
     call("on_end")
+    walk(cbs, function(cb) cb$ctx = NULL)
   }, add = TRUE)
 
 
@@ -192,6 +207,7 @@ train_loop = function(ctx, cbs, seed) {
 
       if (length(batch$x) == 1L) {
         # With one argument there is no ambiguity and we can be less strict
+        # TODO: Make this more strict
         y_hat = ctx$network(batch$x[[1L]])
       } else {
         y_hat = do.call(ctx$network, batch$x)
@@ -229,19 +245,23 @@ train_loop = function(ctx, cbs, seed) {
     call("on_epoch_end")
   }
 
+  # The seed is added later
   list(
-    network = ctx$network,
-    optimizer = ctx$optimizer,
-    loss_fn = ctx$loss_fn,
-    callbacks = cbs,
-    seed = seed
+    network    = ctx$network,
+    loss_fn    = ctx$loss_fn,
+    optimizer  = ctx$optimizer,
+    callbacks  = cbs
   )
+}
+
+has_one_arg = function(network) {
+  fargs = formalArgs(network)
+  length(fargs) == 1L && !fargs == "..."
 }
 
 torch_network_predict_valid = function(network, loader,  callback_receiver = function(step_name) NULL) {
   iter = 1L
-  fargs = formalArgs(network)
-  one_arg = length(fargs) == 1L && !fargs == "..."
+  one_arg = has_one_arg(network)
   predictions = vector("list", length = length(loader))
   loop(for (batch in loader) {
     callback_receiver("on_batch_valid_begin")
@@ -264,9 +284,7 @@ torch_network_predict = function(network, loader) {
   # an unnamed argument
   # TODO: Maybe we should be stricter, but then we need to ensure that the .getbatch() method of the dataset
   # returns a list where the names of x correspond to the argument names of the network
-  fargs = formalArgs(network$forward)
-  one_arg = length(fargs) == 1L && !fargs == "..."
-
+  one_arg = has_one_arg(network)
   predictions = vector("list", length = length(loader))
   loop(for (batch in loader) {
     predictions[[iter]] = if (one_arg) {
@@ -278,7 +296,6 @@ torch_network_predict = function(network, loader) {
     iter = iter + 1L
   })
   torch_cat(predictions, dim = 1L)
-
 }
 
 encode_prediction = function(predict_tensor, predict_type, task) {
@@ -337,16 +354,13 @@ learner_torch_predict = function(self, task) {
   model = self$state$model
   network = model$network
   param_vals = self$param_set$get_values(tags = "predict")
-  param_vals$shuffle = FALSE
 
-  seed = self$model$seed
-  torch_manual_seed(seed)
-  # TODO: Do we already depend on withr? otherwise we can write our own with_seed / adapt the one from mlr3
-  state = withr::with_seed(seed = seed, code = {
+  param_vals$device = auto_device(param_vals$device)
+
+  with_torch_settings(seed = self$model$seed, num_threads = param_vals$num_threads, {
     network$eval()
-    data_loader = private$.dataloader(task, param_vals)
+    data_loader = private$.dataloader_predict(task, param_vals)
     prediction = torch_network_predict(network, data_loader)
     encode_prediction(prediction, self$predict_type, task)
   })
-  # TODO: Set torch seed back as well
 }

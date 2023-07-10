@@ -1,17 +1,17 @@
 test_that("Basic checks", {
-  Cbt1 = R6Class("CallbackTorchTest1")
-  Cbt2 = R6Class("CallbackTorchTest2")
+  Cbt1 = R6Class("CallbackSetTest1")
+  Cbt2 = R6Class("CallbackSetTest2")
   tcb2 = TorchCallback$new(Cbt2, id = "test2")
   expect_identical(Cbt2, tcb2$generator)
   expect_identical(tcb2$id, "test2")
-  expect_identical(tcb2$label, "Test2")
+  expect_identical(tcb2$label, "test2")
   expect_set_equal(tcb2$packages, c("torch", "mlr3torch"))
 
-  Cbt3 = R6Class("CallbackTorchTest3")
+  Cbt3 = R6Class("CallbackSetTest3")
   tcb2 = TorchCallback$new(Cbt2, packages = c("a", "b"))
   expect_set_equal(tcb2$packages, c("torch", "mlr3torch", "a", "b"))
 
-  Cbt4 = R6Class("CallbackTorchTest4", public = list(initialize = function(x) NULL))
+  Cbt4 = R6Class("CallbackSetTest4", public = list(initialize = function(x) NULL))
   tcb41 = TorchCallback$new(Cbt4)
   expect_identical(tcb41$param_set$ids(), "x")
   expect_class(tcb41$param_set$params$x, "ParamUty")
@@ -23,7 +23,7 @@ test_that("Basic checks", {
   addr2 = data.table::address(tcb42$param_set)
   expect_identical(addr1, addr2)
 
-  Cbt5 = R6Class("CallbackTorchTest5", inherit = Cbt4)
+  Cbt5 = R6Class("CallbackSetTest5", inherit = Cbt4)
   tcb5 = TorchCallback$new(Cbt5)
   expect_true(tcb5$param_set$ids() == "x")
 })
@@ -44,7 +44,7 @@ test_that("Can retrieve predefined callback", {
   expect_class(t_clbks(), "DictionaryMlr3torchCallbacks")
 })
 
-test_that("dictionary can be coverted to a table", {
+test_that("dictionary can be converted to a table", {
   tbl = as.data.table(mlr3torch_callbacks)
 
   expect_data_table(tbl, ncols = 3, key = "key")
@@ -54,13 +54,13 @@ test_that("dictionary can be coverted to a table", {
 test_that("torch_callback helper function works", {
   stages = formalArgs(torch_callback)
   stages = stages[grepl("^on_", stages)]
-  expect_set_equal(stages, mlr3torch_callback_stages)
+  expect_set_equal(stages, mlr_reflections$torch$callback_stages)
 
   expect_warning(torch_callback(id = "Custom", public = list(
-    on_edn = function(ctx) NULL, on_nde = function(ctx) NULL)))
+    on_edn = function() NULL, on_nde = function() NULL)))
 
   tcb = torch_callback("Custom",
-    on_end = function(ctx) NULL,
+    on_end = function() NULL,
     public = list(
       a = 1
     ),
@@ -77,7 +77,7 @@ test_that("torch_callback helper function works", {
 
   cbt = tcb$generate()
 
-  expect_class(cbt, "CallbackTorchCustom")
+  expect_class(cbt, "CallbackSetCustom")
   expect_true(!is.null(cbt$on_end))
   expect_true(cbt$a == 1)
   expect_true(get_private(cbt)$b == 2)
@@ -91,7 +91,7 @@ test_that("S3 converter work as expected", {
   expect_true(data.table::address(tcb1$param_set) != data.table::address(as_torch_callback(tcb1, clone = TRUE)))
   expect_identical(tcb1, as_torch_callback("history"))
 
-  Cbt1 = R6Class("CallbackTorchTest1")
+  Cbt1 = R6Class("CallbackSetTest1")
   ps2 = ps()
   tcb2 = as_torch_callback(Cbt1, param_set = ps2)
 
@@ -100,10 +100,10 @@ test_that("S3 converter work as expected", {
   tcb3 = as_torch_callback(tcb2, clone = TRUE)
   expect_deep_clone(tcb2, tcb3)
 
-  test = R6Class("CallbackTorchTest2", public = list(initialize = function(a) NULL))
+  test = R6Class("CallbackSetTest2", public = list(initialize = function(a) NULL))
   tcb4 = as_torch_callback(test)
   expect_true(tcb4$id == "test")
-  expect_true(tcb4$label == "Test")
+  expect_true(tcb4$label == "test")
   expect_equal(tcb4$param_set$ids(), "a")
 })
 
@@ -113,14 +113,3 @@ test_that("Cloning works", {
   tcb2 = tcb1$clone(deep = TRUE)
   expect_deep_clone(tcb1, tcb2)
 })
-
-for (key in mlr3torch_callbacks$keys()) {
-  test_that(sprintf("mlr3torch_callbacks: '%s'", key), {
-    tcb = t_clbk(key)
-    expect_class(tcb, "TorchCallback")
-    expect_r6(tcb$param_set, "ParamSet")
-    expect_string(tcb$id)
-    expect_string(tcb$label)
-    expect_man_exists(tcb$man)
-  })
-}

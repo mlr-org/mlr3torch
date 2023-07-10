@@ -30,6 +30,22 @@ Then the parameters are set according to the parameters specified in \code{PipeO
 its '$train()\verb{ method is called on the [}Task\verb{] stored in the [}ModelDescriptor`].
 }
 
+\examples{
+# simple logistic regression
+
+# configure the model descriptor
+md = as_graph(po("torch_ingress_num") \%>>\%
+  po("nn_head") \%>>\%
+  po("torch_loss", "cross_entropy") \%>>\%
+  po("torch_optimizer", "adam"))$train(tsk("iris"))[[1L]]
+
+print(md)
+
+# build the learner from the model descriptor and train it
+po_model = po("torch_model_classif", batch_size = 50, epochs = 1)
+po_model$train(list(md))
+po_model$state
+}
 \seealso{
 Other PipeOps: 
 \code{\link{mlr_pipeops_nn_avg_pool1d}},

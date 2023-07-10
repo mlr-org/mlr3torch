@@ -18,7 +18,7 @@
 #'
 #' @export
 #' @examples
-#' po_loss = po("torch_loss", "cross_entropy")
+#' po_loss = po("torch_loss", loss = t_loss("cross_entropy"))
 #' po_loss$param_set
 #' mdin = po("torch_ingress_num")$train(list(tsk("iris")))
 #' mdin[[1L]]$loss
@@ -29,7 +29,7 @@ PipeOpTorchLoss = R6Class("PipeOpTorchLoss",
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    #' @param loss ([`TorchLoss`]) or `character(1)` or `nn_loss`\cr
+    #' @param loss ([`TorchLoss`] or `character(1)` or `nn_loss`)\cr
     #'   The loss (or something convertible via [`as_torch_loss()`]).
     #' @template params_pipelines
     initialize = function(loss, id = "torch_loss", param_vals = list()) {
@@ -56,10 +56,11 @@ PipeOpTorchLoss = R6Class("PipeOpTorchLoss",
       self$state = list()
       inputs
     },
-    .predict = function (inputs) {
+    .predict = function(inputs) {
       inputs
     },
-    .loss = NULL
+    .loss = NULL,
+    .additional_phash_input = function() self$loss$phash
   )
 )
 

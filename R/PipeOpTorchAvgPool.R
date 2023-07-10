@@ -8,16 +8,16 @@ PipeOpTorchAvgPool = R6Class("PipeOpTorchAvgPool",
     initialize = function(id, d, param_vals = list()) {
       private$.d = assert_int(d, lower = 1, upper = 3)
       module_generator = switch(d, nn_avg_pool1d, nn_avg_pool2d, nn_avg_pool3d)
-
+      check_vector = make_check_vector(d)
       param_set = ps(
-        kernel_size = p_uty(custom_check = check_vector(d), tags = c("required", "train")),
-        stride = p_uty(default = NULL, custom_check = check_vector(d), tags = "train"),
-        padding = p_uty(default = 0L, custom_check = check_vector(d), tags = "train"),
+        kernel_size = p_uty(custom_check = check_vector, tags = c("required", "train")),
+        stride = p_uty(default = NULL, custom_check = check_vector, tags = "train"),
+        padding = p_uty(default = 0L, custom_check = check_vector, tags = "train"),
         ceil_mode = p_lgl(default = FALSE, tags = "train"),
         count_include_pad = p_lgl(default = TRUE, tags = "train")
       )
       if (d >= 2L) {
-        param_set$add(ParamDbl$new("divisor_override", lower = 0, tags = "train"))
+        param_set$add(ParamDbl$new("divisor_override", default = NULL, lower = 0, tags = "train", special_vals = list(NULL)))
       }
 
       super$initialize(

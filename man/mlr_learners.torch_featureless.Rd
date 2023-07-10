@@ -6,8 +6,8 @@
 \title{Featureless Torch Learner}
 \description{
 Featureless torch learner.
-Output is a constant weight that is learner during training.
-For classification, this should result in a majority class prediction with the standard cross-entropy loss.
+Output is a constant weight that is learned during training.
+For classification, this should (asymptoptically) result in a majority class prediction when using the standard cross-entropy loss.
 For regression, this should result in the median for L1 loss and in the mean for L2 loss.
 }
 \section{Dictionary}{
@@ -40,7 +40,7 @@ The state is a list with elements:
 \item \code{network} :: The trained \link[torch:nn_module]{network}.
 \item \code{optimizer} :: The \link[torch:optimizer]{optimizer} used to train the network.
 \item \code{loss_fn} :: The \link[torch:nn_module]{loss} used to train the network.
-\item \code{callbacks} :: The \link[=mlr_callbacks_torch]{callbacks} used to train the network.
+\item \code{callbacks} :: The \link[=mlr_callback_set]{callbacks} used to train the network.
 \item \code{seed} :: The actual seed that was / is used for training and prediction.
 }
 }

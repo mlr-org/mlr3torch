@@ -23,7 +23,8 @@ The keys of the losses.}
 A \code{\link{TorchLoss}}
 }
 \description{
-Loss Function Quick Access
+Retrieve one or more \href{es}{\code{TorchLoss}} from \code{\link{mlr3torch_losses}}.
+Works like \code{\link[mlr3:mlr_sugar]{mlr3::lrn()}} and \code{\link[mlr3:mlr_sugar]{mlr3::lrns()}}.
 }
 \examples{
 t_loss("mse", reduction = "mean")
@@ -34,7 +35,7 @@ t_losses(c("mse", "l1"))
 t_losses()
 }
 \seealso{
-Other Torch Wrapper: 
+Other Torch Descriptor: 
 \code{\link{TorchCallback}},
 \code{\link{TorchLoss}},
 \code{\link{TorchOptimizer}},
@@ -45,6 +46,6 @@ Other Torch Wrapper:
 \code{\link{mlr3torch_optimizers}},
 \code{\link{t_clbk}()},
 \code{\link{t_opt}()},
-\code{\link{torch_wrapper}}
+\code{\link{torch}}
 }
-\concept{Torch Wrapper}
+\concept{Torch Descriptor}

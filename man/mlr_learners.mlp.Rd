@@ -37,7 +37,7 @@ The state is a list with elements:
 \item \code{network} :: The trained \link[torch:nn_module]{network}.
 \item \code{optimizer} :: The \link[torch:optimizer]{optimizer} used to train the network.
 \item \code{loss_fn} :: The \link[torch:nn_module]{loss} used to train the network.
-\item \code{callbacks} :: The \link[=mlr_callbacks_torch]{callbacks} used to train the network.
+\item \code{callbacks} :: The \link[=mlr_callback_set]{callbacks} used to train the network.
 \item \code{seed} :: The actual seed that was / is used for training and prediction.
 }
 }

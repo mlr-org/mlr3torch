@@ -5,12 +5,11 @@
 #' @description
 #' Context for training a torch learner.
 #' This is the - mostly read-only - information callbacks have access to through the argument `ctx`.
-#' For more information on callbacks, see [`CallbackTorch`].
+#' For more information on callbacks, see [`CallbackSet`].
 #'
 #' @family Callback
 #' @export
 ContextTorch = R6Class("ContextTorch",
-  inherit = Context,
   lock_objects = FALSE,
   public = list(
     #' @description
@@ -87,7 +86,7 @@ ContextTorch = R6Class("ContextTorch",
     #' @field loss_fn ([`torch::nn_module`])\cr
     #'   The loss function.
     loss_fn = NULL,
-    #' @field total_epochs `integer(1)`\cr
+    #' @field total_epochs (`integer(1)`)\cr
     #'   The total number of epochs the learner is trained for.
     total_epochs = NULL,
     #' @field last_scores_train (named `list()`)\cr

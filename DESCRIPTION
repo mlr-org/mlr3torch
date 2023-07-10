@@ -14,7 +14,7 @@ Authors@R:
              comment = c(ORCID = "0000-0001-6002-6980")),
       person(given = "Lukas",
              family = "Burk",
-             role = "aut",
+             role = "ctb",
              email = "github@quantenbrot.de",
              comment = c(ORCID = "0000-0001-7528-3795")),
       person(given = "Martin",
@@ -29,10 +29,10 @@ Authors@R:
 Description: Provides torch models as learners for the mlr3 ecosystem.
 License: LGPL (>= 3)
 Depends:
-    mlr3 (>= 0.13.1),
-    mlr3pipelines,
+    mlr3 (>= 0.16.0),
+    mlr3pipelines (>= 0.5.0),
     mlr3misc (>= 0.11.0),
-    torch (>= 0.8.1),
+    torch (>= 0.11.0),
     R (>= 3.5.0)
 Imports:
     backports,
@@ -55,11 +55,6 @@ Suggests:
     rmarkdown,
     torchvision,
     testthat (>= 3.0.0)
-Remotes:
-  mlverse/torchvision,
-  mlverse/torch,
-  mlr-org/mlr3pipelines,
-  mlr-org/mlr3misc
 Config/testthat/edition: 3
 NeedsCompilation: no
 ByteCompile: no
@@ -68,12 +63,12 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE, r6 = TRUE)
 RoxygenNote: 7.2.3
 Collate:
-    'CallbackTorch.R'
+    'CallbackSet.R'
     'zzz.R'
     'TorchCallback.R'
-    'CallbackTorchCheckpoint.R'
-    'CallbackTorchHistory.R'
-    'CallbackTorchProgress.R'
+    'CallbackSetCheckpoint.R'
+    'CallbackSetHistory.R'
+    'CallbackSetProgress.R'
     'ContextTorch.R'
     'LearnerTorch.R'
     'LearnerTorchImage.R'
@@ -104,13 +99,10 @@ Collate:
     'PipeOpTorchReshape.R'
     'PipeOpTorchSoftmax.R'
     'TaskClassif_tiny_imagenet.R'
+    'TorchDescriptor.R'
     'TorchOptimizer.R'
-    'TorchWrapper.R'
-    'assertions.R'
     'bibentries.R'
     'expectations.R'
-    'helper.R'
-    'image_dataset.R'
     'imageuri.R'
     'learner_torch_methods.R'
     'nn_graph.R'
@@ -119,3 +111,4 @@ Collate:
     'reset_last_layer.R'
     'task_dataset.R'
     'utils.R'
+    'with_torch_settings.R'

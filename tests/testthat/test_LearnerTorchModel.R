@@ -8,7 +8,7 @@ test_that("LearnerTorchModel works", {
     packages = "data.table"
   )
 
-  learner$param_set$values = list(device = "cpu", epochs = 0, batch_size = 3)
+  learner$param_set$set_values(device = "cpu", epochs = 0, batch_size = 3)
 
   expect_learner(learner)
 

@@ -20,7 +20,7 @@
 #'   * `network` :: The trained [network][torch::nn_module].
 #'   * `optimizer` :: The [optimizer][torch::optimizer] used to train the network.
 #'   * `loss_fn` :: The [loss][torch::nn_module] used to train the network.
-#'   * `callbacks` :: The [callbacks][mlr3torch::mlr_callbacks_torch] used to train the network.
+#'   * `callbacks` :: The [callbacks][mlr3torch::mlr_callback_set] used to train the network.
 #'   * `seed` :: The actual seed that was / is used for training and prediction.
 #'
 #' @family Learner

@@ -17,7 +17,7 @@ test_that("PipeOpTorchConvTranspose1D autotest", {
 })
 
 test_that("PipeOpTorchConvTranspose1D paramtest", {
-  res = run_paramtest(po("nn_conv_transpose1d"), nn_conv_transpose1d, exclude = "in_channels")
+  res = autotest_paramset(po("nn_conv_transpose1d"), nn_conv_transpose1d, exclude = "in_channels")
   expect_paramtest(res)
 })
 
@@ -30,7 +30,7 @@ test_that("PipeOpTorchConvTranspose2D autotest", {
 })
 
 test_that("PipeOpTorchConvTranspose2D paramtest", {
-  res = run_paramtest(po("nn_conv_transpose2d"), nn_conv_transpose2d, exclude = "in_channels")
+  res = autotest_paramset(po("nn_conv_transpose2d"), nn_conv_transpose2d, exclude = "in_channels")
   expect_paramtest(res)
 })
 
@@ -45,7 +45,7 @@ test_that("PipeOpTorchConvTranspose3D autotest", {
 })
 
 test_that("PipeOpTorchConvTranspose3D paramtest", {
-  res = run_paramtest(po("nn_conv_transpose3d"), nn_conv_transpose3d, exclude = "in_channels")
+  res = autotest_paramset(po("nn_conv_transpose3d"), nn_conv_transpose3d, exclude = "in_channels")
   expect_paramtest(res)
 })
 

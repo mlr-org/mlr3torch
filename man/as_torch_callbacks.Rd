@@ -16,6 +16,9 @@ Whether to create a deep clone.}
 \item{...}{(any)\cr
 Additional arguments.}
 }
+\value{
+\code{list()} of \code{\link{TorchCallback}}s
+}
 \description{
 Converts an object to a list of \code{\link{TorchCallback}}.
 }
@@ -23,16 +26,16 @@ Converts an object to a list of \code{\link{TorchCallback}}.
 Other Callback: 
 \code{\link{TorchCallback}},
 \code{\link{as_torch_callback}()},
-\code{\link{callback_torch}()},
+\code{\link{callback_set}()},
 \code{\link{mlr3torch_callbacks}},
-\code{\link{mlr_callbacks_torch.checkpoint}},
-\code{\link{mlr_callbacks_torch.progress}},
-\code{\link{mlr_callbacks_torch}},
+\code{\link{mlr_callback_set.checkpoint}},
+\code{\link{mlr_callback_set.progress}},
+\code{\link{mlr_callback_set}},
 \code{\link{mlr_context_torch}},
 \code{\link{t_clbk}()},
 \code{\link{torch_callback}()}
 
-Other Torch Wrapper: 
+Other Torch Descriptor: 
 \code{\link{TorchCallback}},
 \code{\link{TorchLoss}},
 \code{\link{TorchOptimizer}},
@@ -43,7 +46,7 @@ Other Torch Wrapper:
 \code{\link{t_clbk}()},
 \code{\link{t_loss}()},
 \code{\link{t_opt}()},
-\code{\link{torch_wrapper}}
+\code{\link{torch}}
 }
 \concept{Callback}
-\concept{Torch Wrapper}
+\concept{Torch Descriptor}

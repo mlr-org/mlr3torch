@@ -1,5 +1,5 @@
-#' @title Base Class for Torch Wrappers
-#' @name torch_wrapper
+#' @title Base Class for Torch Descriptors
+#' @name torch
 #'
 #' @description
 #' Abstract Base Class from which [`TorchLoss`], [`TorchOptimizer`], and [`TorchCallback`] inherit.
@@ -12,9 +12,9 @@
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
 #'
-#' @family Torch Wrapper
+#' @family Torch Descriptor
 #' @export
-TorchWrapper = R6Class("TorchWrapper",
+TorchDescriptor = R6Class("TorchDescriptor",
   public = list(
     #' @template field_label
     label = NULL,
@@ -37,7 +37,8 @@ TorchWrapper = R6Class("TorchWrapper",
     #' @template param_packages
     #' @template param_label
     #' @template param_man
-    initialize = function(generator, id, param_set = NULL, packages = NULL, label = id, man = NULL) {
+    initialize = function(generator, id = NULL, param_set = NULL, packages = NULL, label = NULL, man = NULL) {
+
       assert_true(is.function(generator) || inherits(generator, "R6ClassGenerator"))
       self$generator = generator
       # TODO: Assert that all parameters are tagged with "train"
@@ -57,22 +58,21 @@ TorchWrapper = R6Class("TorchWrapper",
         stopf("Parameter values with ids %s are missing in generator.", paste0("'", missing, "'", collapse = ", "))
       }
       self$man = assert_string(man, null.ok = TRUE)
-      self$id = assert_string(id, min.chars = 1L)
-      self$label = assert_string(label, min.chars = 1L)
+      self$id = assert_string(id %??% class(generator)[[1L]], min.chars = 1L)
+      self$label = assert_string(label %??% self$id, min.chars = 1L)
       self$packages = assert_names(unique(union(packages, c("torch", "mlr3torch"))), type = "strict")
-
-      private$.repr = if (test_class(self$generator, "R6ClassGenerator")) {
-        self$generator$classname
-      } else {
-        class(self$generator)[[1L]]
-      }
     },
     #' @description
     #' Prints the object
     #' @param ... any
     print = function(...)  {
+      repr = if (test_class(self$generator, "R6ClassGenerator")) {
+        self$generator$classname
+      } else {
+        class(self$generator)[[1L]]
+      }
       catn(sprintf("<%s:%s> %s", class(self)[[1L]], self$id, self$label))
-      catn(str_indent("* Generator:", private$.repr))
+      catn(str_indent("* Generator:", repr))
       catn(str_indent("* Parameters:", as_short_string(self$param_set$values, 1000L)))
       catn(str_indent("* Packages:", as_short_string(self$packages, 1000L)))
       invisible(self)
@@ -95,7 +95,18 @@ TorchWrapper = R6Class("TorchWrapper",
       open_help(self$man)
     }
   ),
+  active = list(
+    #' @template field_phash
+    phash = function() {
+      # This phash is only heuristic but should realistically always work.
+      calculate_hash(class(self), self$id, self$packages, self$label, self$man, self$param_set$ids(),
+        self$param_set$class, class(self$generator), private$.additional_phash_input()
+      )
+    }
+  ),
   private = list(
-    .repr = NULL
+    .additional_phash_input = function() {
+      stopf("Classes inheriting from Torch must implement the .additional_phash_input() method.")
+    }
   )
 )

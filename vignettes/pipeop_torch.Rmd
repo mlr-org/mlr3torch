@@ -136,6 +136,7 @@ The [`PipeOpModule`] represents anf `nn_module` that is fixed for a specific ten
 A complete `Graph` of matching [`PipeOpModule`]s can be constructed using operators that mostly inherit from [`PipeOpTorch`], making use of the [`ModelDescriptor`] class. The [`ModelDescriptor`] class contains a `Graph` of [`PipeOpModule`] and some more necessary meta-info. The [`PipeOpTorch`] transforms a [`ModelDescriptor`] and adds more [`PipeOpModule`]s to the `Graph`.
 
 [`ModelDescriptor`]s always build up a [`Graph`] for a specific [`Task`]. The easiest way to initialize a proper [`ModelDescriptor`] is to use the appropriate [`PipeOpTorchIngress`] `PipeOp` for a given datatype.
+[`ModelDescriptor`]s always build up a [`Graph`] for a specific [`Task`]. The easiest way to initialize a proper [`ModelDescriptor`] is to use the appropriate [`PipeOpTorchIngress`] `PipeOp` for a given datatype.
 
 ```{r}
 task = tsk("iris")$select(colnames(iris)[1:3])
@@ -183,7 +184,8 @@ The [`ModelDescriptor`] does not only represent the `Graph` from which a `nn_mod
 ```{r}
 td = task_dataset(
   task = md$task,
-  feature_ingress_tokens = md$ingress
+  feature_ingress_tokens = md$ingress,
+  device = "cpu"
 )
 
 td
@@ -317,7 +319,8 @@ We make multiple observations here:
 
     iris_td = task_dataset(
       task = iris_mds_union$task,
-      feature_ingress_tokens = iris_mds_union$ingress
+      feature_ingress_tokens = iris_mds_union$ingress,
+      device = "cpu"
     )
 
     batch = iris_td$.getbatch(1:2)
@@ -372,7 +375,7 @@ xe
 
 ```{r}
 lr_sequential = LearnerTorchModel$new(
-  task_type = "classif"
+  task_type = "classif",
   network = model_descriptor_to_module(md_sequential, list(md_sequential$.pointer)),
   ingress_tokens = md_sequential$ingress,
   optimizer = adam,
@@ -383,7 +386,7 @@ lr_sequential = LearnerTorchModel$new(
 lr_sequential
 ```
 
-Before training the model, we set some more hyperparameters. Among others, we use a [`CallbackTorch`] that prints progress and validation losses that we request.
+Before training the model, we set some more hyperparameters. Among others, we use a [`TorchCallback`] that prints progress and validation losses that we request.
 
 ```{r}
 lr_sequential$param_set$set_values(
@@ -413,6 +416,7 @@ plot_predictions = function(predictions) {
   ggplot(cbind(newdata, Species = predictions$response),
       aes(x = Sepal.Length, y = Petal.Length, fill = Species)) +
     geom_tile(alpha = .3) +
+    geom_tile(alpha = .3) +
     geom_point(data = iris,
       aes(x = Sepal.Length, y = Petal.Length, fill = Species),
       color = "black", pch = 21, size = 3) +
@@ -423,6 +427,7 @@ plot_predictions(predictions)
 
 # Torch Learner Pipelines
 
+The model shown above is constructed using the [`ModelDescriptor`] that is generated from a `Graph` of [`PipeOpTorch`] operators.
 The model shown above is constructed using the [`ModelDescriptor`] that is generated from a `Graph` of [`PipeOpTorch`] operators.
 The [`ModelDescriptor`] furthermore contains the `Task` to which it pertains. This makes it possible to use it to create a NN model that gets trained right away, using [`PipeOpTorchModelClassif`]. The only missing prerequisite now is to add the desired [`TorchOptimizer`] and [`TorchLoss`] information to the [`ModelDescriptor`].
 
@@ -458,6 +463,7 @@ po_model = po("torch_model_classif", batch_size = 50, epochs = 50)
 po_model$train(list(md_sequential))
 ```
 
+`po("torch_model_classif")` behaves similarly to a `PipeOpLearner`: It returns `NULL` during training, and the prediction on `$predict()`.
 `po("torch_model_classif")` behaves similarly to a `PipeOpLearner`: It returns `NULL` during training, and the prediction on `$predict()`.
 
 ```{r}

@@ -8,8 +8,8 @@
 #'
 #' @description
 #' Featureless torch learner.
-#' Output is a constant weight that is learner during training.
-#' For classification, this should result in a majority class prediction with the standard cross-entropy loss.
+#' Output is a constant weight that is learned during training.
+#' For classification, this should (asymptoptically) result in a majority class prediction when using the standard cross-entropy loss.
 #' For regression, this should result in the median for L1 loss and in the mean for L2 loss.
 #'
 #' @section Parameters:
@@ -42,34 +42,42 @@ LearnerTorchFeatureless = R6Class("LearnerTorchFeatureless",
   ),
   private = list(
     .network = function(task, param_vals) {
-      nn_featureless(task)
+      nn_featureless(nout = length(task$class_names))
     },
     .dataset = function(task, param_vals) {
-      # TODO: Here we don't need the X values
-      # also adjust the feature types then
-      # the dataloader should just return the number of observations for the output shape and the target
-      dataset_num_categ(self, task, param_vals)
+      dataset_featureless(task, param_vals$device, target_batchgetter("classif"))
     }
   )
 )
 
-# TODO: Regression
+dataset_featureless = dataset(
+  initialize = function(task, device, target_batchgetter) {
+    self$device = device
+    self$task = task
+    self$target_batchgetter = target_batchgetter
+  },
+  .getbatch = function(index) {
+    target = self$task$data(rows = self$task$row_ids[index], cols = self$task$target_names)
+    y = self$target_batchgetter(target, self$device)
+    list(
+      x = list(n = torch_tensor(nrow(target), dtype = torch_long(), device = self$device)),
+      y = y,
+      .index = index
+    )
+
+  },
+  .length = function() {
+    self$task$nrow
+  }
+)
+
 
 nn_featureless = nn_module(
-  initialize = function(task) {
-    if (task$task_type == "classif") {
-      n_out = length(task$class_names)
-      self$weights = nn_parameter(torch_randn(n_out))
-    } else if (task$task_type == "regr") {
-      self$weights = nn_parameter(torch_randn(1))
-    } else {
-      stopf("Unsupported task type.")
-    }
+  initialize = function(nout) {
+    self$weights = nn_parameter(torch_randn(nout))
   },
-  # TODO: This should take in only an integer n
-  forward = function(input_num = NULL, input_categ = NULL) {
-    n = max(nrow(input_num), nrow(input_categ))
-    self$weights$expand(c(n, -1L))
+  forward = function(n) {
+    self$weights$expand(c(n$item(), -1L))
   }
 )
 

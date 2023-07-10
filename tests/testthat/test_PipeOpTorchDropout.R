@@ -7,6 +7,6 @@ test_that("PipeOpTorchDropout autotest", {
 
 
 test_that("PipeOpTorchDropout paramtest", {
-  res = run_paramtest(po("nn_dropout"), nn_dropout)
+  res = autotest_paramset(po("nn_dropout"), nn_dropout)
   expect_paramtest(res)
 })

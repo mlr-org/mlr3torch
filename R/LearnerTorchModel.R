@@ -41,7 +41,14 @@
 #' )
 #'
 #' # Creating the learner and setting required parameters
-#' learner = lrn("classif.torch_model", batch_size = 16, epochs = 1)
+#' learner = lrn("classif.torch_model",
+#'   network = network,
+#'   ingress_tokens = ingress_tokens,
+#'   batch_size = 16,
+#'   epochs = 1
+#' )
+#'
+#'
 #'
 #' # A simple train-predict
 #' ids = partition(task)
@@ -58,7 +65,7 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
       private$.network_stored = assert_class(network, "nn_module")
       private$.ingress_tokens = assert_list(ingress_tokens, types = "TorchIngressToken")
       if (is.null(feature_types)) {
-        feature_types = mlr_reflections$task_feature_types
+        feature_types = unname(mlr_reflections$task_feature_types)
       } else {
         assert_subset(feature_types, mlr_reflections$task_feature_types)
       }

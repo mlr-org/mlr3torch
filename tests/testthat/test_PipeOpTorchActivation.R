@@ -9,7 +9,7 @@ test_that("PipeOpTorchLogSigmoid autotest", {
 })
 
 test_that("PipeOpTorchLogSigmoid paramtest", {
-  res = run_paramtest(po("nn_log_sigmoid"), nn_log_sigmoid)
+  res = autotest_paramset(po("nn_log_sigmoid"), nn_log_sigmoid)
   expect_paramtest(res)
 })
 
@@ -24,7 +24,7 @@ test_that("PipeOpTorchSigmoid autotest", {
 })
 
 test_that("PipeOpTorchSigmoid paramtest", {
-  res = run_paramtest(po("nn_sigmoid"), nn_sigmoid)
+  res = autotest_paramset(po("nn_sigmoid"), nn_sigmoid)
   expect_paramtest(res)
 })
 
@@ -39,7 +39,7 @@ test_that("PipeOpTorchGELU autotest", {
 })
 
 test_that("PipeOpTorchGELU paramtest", {
-  res = run_paramtest(po("nn_gelu"), nn_gelu)
+  res = autotest_paramset(po("nn_gelu"), nn_gelu)
   expect_paramtest(res)
 })
 
@@ -54,7 +54,7 @@ test_that("PipeOpTorchReLU autotest", {
 })
 
 test_that("PipeOpTorchReLU paramtest", {
-  res = run_paramtest(po("nn_relu"), nn_relu)
+  res = autotest_paramset(po("nn_relu"), nn_relu)
   expect_paramtest(res)
 })
 
@@ -70,7 +70,7 @@ test_that("PipeOpTorchTanhShrink autotest", {
 })
 
 test_that("PipeOpTorchTanhShrink paramtest", {
-  res = run_paramtest(po("nn_tanhshrink"), nn_tanhshrink)
+  res = autotest_paramset(po("nn_tanhshrink"), nn_tanhshrink)
   expect_paramtest(res)
 })
 
@@ -84,7 +84,7 @@ test_that("PipeOpTorchGLU autotest", {
 })
 
 test_that("PipeOpTorchGLU paramtest", {
-  res = run_paramtest(po("nn_glu"), nn_glu)
+  res = autotest_paramset(po("nn_glu"), nn_glu)
   expect_paramtest(res)
 })
 
@@ -99,7 +99,7 @@ test_that("PipeOpTorchCelu autotest", {
 })
 
 test_that("PipeOpTorchCelu paramtest", {
-  res = run_paramtest(po("nn_celu"), nn_celu)
+  res = autotest_paramset(po("nn_celu"), nn_celu)
   expect_paramtest(res)
 })
 
@@ -114,7 +114,7 @@ test_that("PipeOpTorchThreshold autotest", {
 })
 
 test_that("PipeOpTorchThreshold paramtest", {
-  res = run_paramtest(po("nn_threshold"), nn_threshold)
+  res = autotest_paramset(po("nn_threshold"), nn_threshold)
   expect_paramtest(res)
 })
 
@@ -130,7 +130,7 @@ test_that("PipeOpTorchRReLU autotest", {
 })
 
 test_that("PipeOpTorchRReLU paramtest", {
-  res = run_paramtest(po("nn_rrelu"), nn_rrelu)
+  res = autotest_paramset(po("nn_rrelu"), nn_rrelu)
   expect_paramtest(res)
 })
 
@@ -147,7 +147,7 @@ test_that("PipeOpTorchHardSigmoid autotest", {
 
 
 test_that("PipeOpTorchHardSigmoid paramtest", {
-  res = run_paramtest(po("nn_hardsigmoid"), nn_hardsigmoid)
+  res = autotest_paramset(po("nn_hardsigmoid"), nn_hardsigmoid)
   expect_paramtest(res)
 })
 
@@ -162,8 +162,8 @@ test_that("PipeOpTorchPReLU autotest", {
   autotest_pipeop_torch(graph, "nn_prelu", task)
 })
 
-test_that("xyz paramtest", {
-  res = run_paramtest(po("nn_prelu"), nn_prelu)
+test_that("PipeOpTorchPReLU paramtest", {
+  res = autotest_paramset(po("nn_prelu"), nn_prelu)
   expect_paramtest(res)
 })
 
@@ -179,7 +179,7 @@ test_that("PipeOpTorchTanh autotest", {
 })
 
 test_that("PipeOpTorchTanh paramtest", {
-  res = run_paramtest(po("nn_tanh"), nn_tanh)
+  res = autotest_paramset(po("nn_tanh"), nn_tanh)
   expect_paramtest(res)
 })
 
@@ -194,7 +194,7 @@ test_that("PipeOpTorchLeakyReLU autotest", {
 })
 
 test_that("PipeOpTorchLeakyReLU paramtest", {
-  res = run_paramtest(po("nn_leaky_relu"), nn_leaky_relu)
+  res = autotest_paramset(po("nn_leaky_relu"), nn_leaky_relu)
   expect_paramtest(res)
 })
 
@@ -209,7 +209,7 @@ test_that("PipeOpTorchRelu6 autotest", {
 })
 
 test_that("PipeOpTorchRelu6 paramtest", {
-  res = run_paramtest(po("nn_relu6"), nn_relu6)
+  res = autotest_paramset(po("nn_relu6"), nn_relu6)
   expect_paramtest(res)
 })
 
@@ -227,7 +227,7 @@ test_that("PipeOpTorchELU autotest", {
 })
 
 test_that("PipeOpTorchELU paramtest", {
-  res = run_paramtest(po("nn_elu"), nn_elu)
+  res = autotest_paramset(po("nn_elu"), nn_elu)
   expect_paramtest(res)
 })
 
@@ -243,7 +243,7 @@ test_that("PipeOpTorchtSoftShrink autotest", {
 })
 
 test_that("PipeOpTorchtSoftShrink paramtest", {
-  res = run_paramtest(po("nn_softshrink"), nn_softshrink)
+  res = autotest_paramset(po("nn_softshrink"), nn_softshrink)
   expect_paramtest(res)
 })
 
@@ -260,7 +260,7 @@ test_that("PipeOpTorchHardShrink autotest", {
 })
 
 test_that("PipeOpTorchHardShrink paramtest", {
-  res = run_paramtest(po("nn_hardshrink"), nn_hardshrink)
+  res = autotest_paramset(po("nn_hardshrink"), nn_hardshrink)
   expect_paramtest(res)
 })
 
@@ -277,7 +277,7 @@ test_that("PipeOpTorchSoftPlus autotest", {
 })
 
 test_that("PipeOpTorchSoftPlus paramtest", {
-  res = run_paramtest(po("nn_softplus"), nn_softplus)
+  res = autotest_paramset(po("nn_softplus"), nn_softplus)
   expect_paramtest(res)
 })
 
@@ -293,7 +293,7 @@ test_that("PipeOpTorchSELU autotest", {
 })
 
 test_that("PipeOpTorchSELU paramtest", {
-  res = run_paramtest(po("nn_selu"), nn_selu)
+  res = autotest_paramset(po("nn_selu"), nn_selu)
   expect_paramtest(res)
 })
 
@@ -310,7 +310,7 @@ test_that("PipeOpTorchSoftmax autotest", {
 })
 
 test_that("PipeOpTorchSoftmax paramtest", {
-  res = run_paramtest(po("nn_softmax"), nn_softmax)
+  res = autotest_paramset(po("nn_softmax"), nn_softmax)
   expect_paramtest(res)
 })
 
@@ -327,7 +327,7 @@ test_that("PipeOpTorchSoftSign autotest", {
 })
 
 test_that("PipeOpTorchSoftSign paramtest", {
-  res = run_paramtest(po("nn_softsign"), nn_softsign)
+  res = autotest_paramset(po("nn_softsign"), nn_softsign)
   expect_paramtest(res)
 })
 
@@ -343,6 +343,6 @@ test_that("PipeOpTorchHardTanh autotest", {
 })
 
 test_that("PipeOpTorchHardTanh paramtest", {
-  res = run_paramtest(po("nn_hardtanh"), nn_hardtanh)
+  res = autotest_paramset(po("nn_hardtanh"), nn_hardtanh)
   expect_paramtest(res)
 })

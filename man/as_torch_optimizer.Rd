@@ -10,7 +10,7 @@ as_torch_optimizer(x, clone = FALSE, ...)
 \item{x}{(any)\cr
 Object to convert to a \code{\link{TorchOptimizer}}.}
 
-\item{clone}{(\code{logical(1)}\cr
+\item{clone}{(\code{logical(1)})\cr
 Whether to make a deep clone. Default is \code{FALSE}.}
 
 \item{...}{(any)\cr
@@ -25,7 +25,7 @@ Currently used to pass additional constructor arguments to \code{\link{TorchOpti
 Converts an object to a \code{\link{TorchOptimizer}}.
 }
 \seealso{
-Other Torch Wrapper: 
+Other Torch Descriptor: 
 \code{\link{TorchCallback}},
 \code{\link{TorchLoss}},
 \code{\link{TorchOptimizer}},
@@ -36,6 +36,6 @@ Other Torch Wrapper:
 \code{\link{t_clbk}()},
 \code{\link{t_loss}()},
 \code{\link{t_opt}()},
-\code{\link{torch_wrapper}}
+\code{\link{torch}}
 }
-\concept{Torch Wrapper}
+\concept{Torch Descriptor}

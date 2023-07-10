@@ -32,13 +32,12 @@ LearnerTorchTest1 = R6Class("LearnerTorchTest1",
         target_batchgetter = crate(function(data, device) {
           torch_tensor(data = as.integer(data[[1]]), dtype = torch_long(), device = device)
         }, .parent = topenv()),
-        device = param_vals$device %??% self$param_set$default$device
+        device = param_vals$device
       )
       dl = dataloader(
         dataset = dataset,
         batch_size = param_vals$batch_size,
-        drop_last = param_vals$drop_last %??% self$param_set$default$drop_last,
-        shuffle = param_vals$shuffle %??% self$param_set$default$shuffle
+        shuffle = param_vals$shuffle
       )
       return(dl)
 

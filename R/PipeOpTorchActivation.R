@@ -260,7 +260,7 @@ PipeOpTorchPReLU = R6Class("PipeOpTorchPReLU",
     #' @template params_pipelines
     initialize = function(id = "nn_prelu", param_vals = list()) {
       param_set = ps(
-        num_parameters = p_int(1, tags = "train"),
+        num_parameters = p_int(default = 1, lower = 1, tags = "train"),
         init           = p_dbl(default = 0.25, tags = "train")
       )
       super$initialize(
@@ -420,7 +420,7 @@ PipeOpTorchSELU = R6Class("PipeOpTorchSELU",
     #' @template params_pipelines
     initialize = function(id = "nn_selu", param_vals = list()) {
       param_set = ps(
-        inplace = p_lgl(tags = "train")
+        inplace = p_lgl(default = FALSE, tags = "train")
       )
       super$initialize(
         id = id,
@@ -486,7 +486,8 @@ register_po("nn_celu", PipeOpTorchCELU)
 #' @inherit torch::nnf_gelu description
 #'
 #' @section Parameters:
-#' No parameters.
+#' * `approximate` :: `character(1)`\cr
+#'   Whether to use an approximation algorithm. Default is `"none"`.
 #'
 #' @section Internals: Calls [`torch::nn_gelu()`] when trained.
 #' @export
@@ -497,7 +498,9 @@ PipeOpTorchGELU = R6Class("PipeOpTorchGELU",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
     initialize = function(id = "nn_gelu", param_vals = list()) {
-      param_set = ps()
+      param_set = ps(
+        approximate = p_fct(default = "none", levels = c("none", "tanh"), tags = "train")
+      )
       super$initialize(
         id = id,
         param_set = param_set,

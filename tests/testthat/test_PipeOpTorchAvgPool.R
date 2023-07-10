@@ -8,7 +8,7 @@ test_that("PipeOpTorchAvgPool1D works", {
 })
 
 test_that("PipeOpTorchAvgPool1D paramtest", {
-  res = run_paramtest(po("nn_avg_pool1d"), nn_avg_pool1d, exclude = "num_features")
+  res = autotest_paramset(po("nn_avg_pool1d"), nn_avg_pool1d, exclude = "num_features")
   expect_paramtest(res)
 })
 
@@ -21,7 +21,7 @@ test_that("PipeOpTorchAvgPool2D autotest", {
 })
 
 test_that("PipeOpTorchAvgPool2D paramtest", {
-  res = run_paramtest(po("nn_avg_pool2d"), nn_avg_pool2d, exclude = "num_features")
+  res = autotest_paramset(po("nn_avg_pool2d"), nn_avg_pool2d, exclude = "num_features")
   expect_paramtest(res)
 })
 
@@ -36,7 +36,7 @@ test_that("PipeOpTorchAvgPool3D autotest", {
 })
 
 test_that("PipeOpTorchAvgPool3D paramtest", {
-  res = run_paramtest(po("nn_avg_pool3d"), nn_avg_pool3d, exclude = "num_features")
+  res = autotest_paramset(po("nn_avg_pool3d"), nn_avg_pool3d, exclude = "num_features")
   expect_paramtest(res)
 })
 

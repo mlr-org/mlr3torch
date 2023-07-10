@@ -1,5 +1,5 @@
-test_that("TorchWrapper basic checks", {
-  wrapper = TorchWrapper$new(
+test_that("TorchDescriptor basic checks", {
+  descriptor = TorchDescriptor$new(
     generator = nn_mse_loss,
     id = "mse",
     param_set = ps(reduction = p_uty()),
@@ -8,25 +8,25 @@ test_that("TorchWrapper basic checks", {
     man = "torch::nn_mse_loss"
   )
 
-  expect_identical(wrapper$generator, nn_mse_loss)
-  expect_identical(wrapper$id, "mse")
-  expect_identical(wrapper$param_set$ids(), "reduction")
-  expect_set_equal(wrapper$packages, c("R6", "mlr3torch", "torch"))
-  expect_identical(wrapper$man, "torch::nn_mse_loss")
+  expect_identical(descriptor$generator, nn_mse_loss)
+  expect_identical(descriptor$id, "mse")
+  expect_identical(descriptor$param_set$ids(), "reduction")
+  expect_set_equal(descriptor$packages, c("R6", "mlr3torch", "torch"))
+  expect_identical(descriptor$man, "torch::nn_mse_loss")
 
-  expect_class(wrapper, "TorchWrapper")
+  expect_class(descriptor, "TorchDescriptor")
 
-  observed = capture.output(wrapper)
+  observed = capture.output(descriptor)
 
   expected = c(
-    "<TorchWrapper:mse> MSE Loss",
+    "<TorchDescriptor:mse> MSE Loss",
     "* Generator: nn_mse_loss",
     "* Parameters: list()",
     "* Packages: R6,torch,mlr3torch"
   )
   expect_identical(observed, expected)
 
-  expect_error(TorchWrapper$new(
+  expect_error(TorchDescriptor$new(
     generator = nn_mse_loss,
     id = "mse",
     param_set = ps(reduction = p_uty(), x = p_uty()),

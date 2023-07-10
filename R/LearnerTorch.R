@@ -41,7 +41,9 @@
 #'   final softmax layer.
 #' * `.dataset(task, param_vals)`\cr
 #'   ([`Task`], `list()`) -> [`torch::dataset`]\cr
-#'   Create the dataset for the task.  Must at least respect parameters `batch_size` and `shuffle`.
+#'   Create the dataset for the task.
+#'   Must respect the parameter value of the device.
+#'   Moreover, one needs to pay attention respect the row ids of the provided task.
 #'
 #' It is also possible to overwrite the private `.dataloader()` method instead of the `.dataset()` method.
 #' Per default, a dataloader is constructed using the output from the `.dataset()` method.
@@ -92,41 +94,6 @@ LearnerTorch = R6Class("LearnerTorch",
       )
     }
   ),
-  private = list(
-    .train = function(task) {
-      learner_torch_train(self, task)
-    },
-    .predict = function(task) {
-      learner_torch_predict(self, task)
-    },
-    .network = function(task, param_vals) stop(".network must be implemented."),
-    # the dataloader gets param_vals that may be different from self$param_set$values, e.g.
-    # when the dataloader for validation data is loaded, `shuffle` is set to FALSE.
-    .dataloader = function(task, param_vals) {
-      dataloader(
-        private$.dataset(task, param_vals),
-        batch_size = param_vals$batch_size %??% self$param_set$default$batch_size,
-        shuffle = param_vals$shuffle %??% self$param_set$default$shuffle
-      )
-    },
-    .dataset = function(task, param_vals) stop(".dataset must be implemented."),
-    .optimizer = NULL,
-    .loss = NULL,
-    .param_set_base = NULL,
-    .callbacks = NULL,
-    deep_clone = function(name, value) {
-      private$.param_set = NULL # required to keep clone identical to original, otherwise tests get really ugly
-
-      if (name == "state" && !is.null(value)) {
-        # https://github.com/mlr-org/mlr3torch/issues/97
-        stopf("Deep clone of trained network is currently not supported.")
-      } else if (name == ".param_set") {
-        NULL
-      } else {
-        super$deep_clone(name, value)
-      }
-    }
-  ),
   active = list(
     #' @field network ([`nn_module()`][torch::nn_module])\cr
     #'   The network (only available after training).
@@ -147,7 +114,7 @@ LearnerTorch = R6Class("LearnerTorch",
       }
       private$.param_set
     },
-    #' @field history ([`CallbackTorchHistory`])\cr
+    #' @field history ([`CallbackSetHistory`])\cr
     #' Shortcut for `learner$model$callbacks$history`.
     history = function(rhs) {
       assert_ro_binding(rhs)
@@ -155,10 +122,53 @@ LearnerTorch = R6Class("LearnerTorch",
         stopf("Cannot access history before training.")
       }
       if (is.null(self$model$callbacks$history)) {
-        warningf("No history found. Did you specify t_clbk(\"history\") during construction?")
-        return(NULL)
+        stopf("No history found. Did you specify t_clbk(\"history\") during construction?")
       }
       self$model$callbacks$history
     }
+  ),
+  private = list(
+    .train = function(task) {
+      learner_torch_train(self, task)
+    },
+    .predict = function(task) {
+      learner_torch_predict(self, task)
+    },
+    .network = function(task, param_vals) stop(".network must be implemented."),
+    # the dataloader gets param_vals that may be different from self$param_set$values, e.g.
+    # when the dataloader for validation data is loaded, `shuffle` is set to FALSE.
+   .dataloader = function(task, param_vals) {
+      learner_torch_dataloader(self, task, param_vals)
+    },
+    .dataloader_predict = function(task, param_vals) {
+      learner_torch_dataloader_predict(self, task, param_vals)
+    },
+    .dataset = function(task, param_vals) stop(".dataset must be implemented."),
+    .optimizer = NULL,
+    .loss = NULL,
+    .param_set_base = NULL,
+    .callbacks = NULL,
+    deep_clone = function(name, value) deep_clone(self, private, super, name, value)
   )
 )
+
+
+deep_clone = function(self, private, super, name, value) {
+  private$.param_set = NULL # required to keep clone identical to original, otherwise tests get really ugly
+
+  if (name == "state") {
+    # https://github.com/mlr-org/mlr3torch/issues/97
+    if (!is.null(value)) {
+      stopf("Deep clone of trained network is currently not supported.")
+    } else {
+      # Note that private methods are available in super.
+      super$deep_clone(name, value)
+    }
+  } else if (name == ".param_set") {
+    # Otherwise the value$clone() is called on NULL which errs
+    NULL
+  } else {
+    # Note that private methods are available in super.
+    super$deep_clone(name, value)
+  }
+}

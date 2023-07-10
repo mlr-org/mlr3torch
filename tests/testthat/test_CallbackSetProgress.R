@@ -5,7 +5,8 @@ test_that("autotest", {
 
 test_that("manual test", {
   learner = lrn("classif.mlp", epochs = 1, batch_size = 1, d_hidden = 1, layers = 0,
-    measures_train = msr("classif.acc"), measures_valid = msr("classif.ce"), callbacks = t_clbk("progress")
+    measures_train = msr("classif.acc"), measures_valid = msr("classif.ce"), callbacks = t_clbk("progress"),
+    drop_last = FALSE, shuffle = TRUE
   )
   task = tsk("iris")
   task$row_roles = list(use = 1, test = 2, holdout = integer(0))
@@ -14,7 +15,7 @@ test_that("manual test", {
   # We can make it longer by adding some sleep through callbacks
   # Still, this is not captured by capture.output(), so one has to manually inspect that it works
   # callbacks = list(t_clbk("progress"), cbutil)
-  # cbutil = torch_callback("util", on_batch_valid_begin = function(ctx) Sys.sleep(1))
+  # cbutil = torch_callback("util", on_batch_valid_begin = function() Sys.sleep(1))
 
   stdout = suppressMessages(capture.output(learner$train(task)))
 
