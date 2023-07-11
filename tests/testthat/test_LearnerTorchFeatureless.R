@@ -14,7 +14,7 @@ test_that("Basic checks: Classification", {
   expect_set_equal(learner$properties, c("twoclass", "multiclass", "missings", "featureless"))
 })
 
-test_that("LearnerClassifTorchFeatureless works", {
+test_that("LearnerTorchFeatureless works", {
   learner = lrn("classif.torch_featureless", batch_size = 50, epochs = 100, seed = 1)
   task = tsk("iris")
   task$row_roles$use = c(1:50, 51:60, 101:110)

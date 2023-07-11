@@ -162,14 +162,10 @@ model_descriptor_to_learner = function(model_descriptor) {
   )
   network$reset_parameters()
 
-  class = switch(task_type,
-    regr = LearnerRegrTorchModel,
-    classif = LearnerClassifTorchModel,
-    stopf("Unsupported task type: %s.", task_type)
-  )
-
-  learner = class$new(
+  learner = LearnerTorchModel$new(
+    task_type = task_type,
     network = network,
+    properties = NULL,
     ingress_tokens = ingress_tokens,
     optimizer = optimizer,
     loss = loss,
@@ -189,7 +185,7 @@ model_descriptor_to_learner = function(model_descriptor) {
 # f(1, 2, a = 3) --> list(a = 3, b = 1, c = 2)
 # usecase:
 # ff = function(...) {
-#   l <- argument_matcher(c("a", "b", "c"))(...)
+#   l = argument_matcher(c("a", "b", "c"))(...)
 #   l$a + l$b
 # }
 # # behaves like

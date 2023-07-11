@@ -39,8 +39,7 @@ can make this assumption and simplify things. Otherwise we'd need to treat "..."
 Other Graph Network: 
 \code{\link{ModelDescriptor}()},
 \code{\link{TorchIngressToken}()},
-\code{\link{mlr_learners_classif.torch_model}},
-\code{\link{mlr_learners_regr.torch_model}},
+\code{\link{mlr_learners_torch_model}},
 \code{\link{mlr_pipeops_module}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},
 \code{\link{mlr_pipeops_torch_ingress_img}},

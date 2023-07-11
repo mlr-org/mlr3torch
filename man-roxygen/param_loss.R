@@ -1,2 +1,2 @@
 #' @param loss ([`TorchLoss`])\cr
-#'   The loss used to train the network.
+#'   The loss to use for training.

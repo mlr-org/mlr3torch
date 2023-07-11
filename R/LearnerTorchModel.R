@@ -1,31 +1,33 @@
-#' @title Classification Torch Learner
+#' @title Learner Torch Model
 #'
-#' @name mlr_learners_classif.torch_model
+#' @name mlr_learners_torch_model
 #'
 #' @description
-#' Create a classification learner from an instantiated [`nn_module()`].
-#' This is learner is used internally by [`PipeOpTorchModelClassif`].
+#' Create a torch learner from an instantiated [`nn_module()`].
+#' For classification, the output of the network must be the scores (before the softmax).
 #'
-#' The output of the network must be the scores (before the softmax).
-#'
+#' @template param_task_type
 #' @param network ([`nn_module`])\cr
 #'   An instantiated [`nn_module`]. Is not cloned during construction.
-#'   Outputs must be the scores (before the softmax).
+#'   For classification, outputs must be the scores (before the softmax).
 #' @param ingress_tokens (`list` of [`TorchIngressToken()`])\cr
 #'   A list with ingress tokens that defines how the dataloader will be defined.
 #' @template param_optimizer
 #' @template param_loss
 #' @template param_callbacks
 #' @template param_packages
-#' @param feature_types (`character()`)\cr
+#' @param feature_types (`NULL` or `character()`)\cr
 #'   The feature types. Defaults to all available feature types.
-#'
-#' @section Parameters: See [`LearnerClassifTorch`]
+#' @param properties (`NULL` or `character()`)\cr
+#'   The properties of the learner.
+#'   Defaults to all available properties for the given task type.
+#' @section Parameters: See [`LearnerTorch`]
 #' @family Learner
 #' @family Graph Network
 #' @include LearnerTorch.R
 #' @export
 #' @examples
+#' # We show the learner using a classification task
 #'
 #' # The iris task has 4 features and 3 classes
 #' network = nn_linear(4, 3)
@@ -39,19 +41,23 @@
 #' )
 #'
 #' # Creating the learner and setting required parameters
-#' learner = LearnerClassifTorchModel$new(network, ingress_tokens)
-#' learner$param_set$set_values(batch_size = 16, epochs = 1)
+#' learner = lrn("classif.torch_model",
+#'   network = network,
+#'   ingress_tokens = ingress_tokens,
+#'   batch_size = 16,
+#'   epochs = 1
+#' )
 #'
 #' # A simple train-predict
 #' ids = partition(task)
 #' learner$train(task, ids$train)
 #' learner$predict(task, ids$test)
-LearnerClassifTorchModel = R6Class("LearnerClassifTorchModel",
-  inherit = LearnerClassifTorch,
+LearnerTorchModel = R6Class("LearnerTorchModel",
+  inherit = LearnerTorch,
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(network, ingress_tokens, optimizer = t_opt("adam"), loss = t_loss("cross_entropy"),
+    initialize = function(task_type, network, ingress_tokens, properties = NULL, optimizer = NULL, loss = NULL,
       callbacks = list(), packages = character(0), feature_types = NULL) {
       # TODO: What about the learner properties?
       private$.network_stored = assert_class(network, "nn_module")
@@ -61,16 +67,22 @@ LearnerClassifTorchModel = R6Class("LearnerClassifTorchModel",
       } else {
         assert_subset(feature_types, mlr_reflections$task_feature_types)
       }
+      if (is.null(properties)) {
+        properties = mlr_reflections$learner_properties[[task_type]]
+      } else {
+        properties = assert_subset(properties, mlr_reflections$learner_properties[[task_type]])
+      }
       super$initialize(
-        id = "classif.torch_model",
-        label = "Torch Classification Model",
+        id = paste0(task_type, ".model"),
+        task_type = task_type,
+        label = "Torch Model",
         optimizer = optimizer,
+        properties = properties,
         loss = loss,
-        callbacks = callbacks,
         packages = packages,
         param_set = ps(),
         feature_types = feature_types,
-        man = "mlr3torch::mlr_learners_classif.torch_model"
+        man = "mlr3torch::mlr_learners.torch_model"
       )
     }
   ),
@@ -82,7 +94,7 @@ LearnerClassifTorchModel = R6Class("LearnerClassifTorchModel",
       dataset = task_dataset(
         task,
         feature_ingress_tokens = private$.ingress_tokens,
-        target_batchgetter = target_batchgetter("classif"),
+        target_batchgetter = target_batchgetter(self$task_type),
         device = param_vals$device
       )
     },
@@ -91,92 +103,5 @@ LearnerClassifTorchModel = R6Class("LearnerClassifTorchModel",
   )
 )
 
-#' @title Regression Torch Learner
-#'
-#' @name mlr_learners_regr.torch_model
-#'
-#' @description
-#' Create a regression learner from an instantiated [`nn_module()`].
-#' This is learner is used internally by [`PipeOpTorchModelRegr`].
-#'
-#' @param network ([`nn_module`])\cr
-#'   An instantiated [`nn_module`]. This is not cloned during construction.
-#'   Outputs must be the scores (before the softmax).
-#' @param ingress_tokens (`list` of [`TorchIngressToken()`])\cr
-#'   A list with ingress tokens that defines how the dataloader will be defined.
-#' @template param_optimizer
-#' @template param_loss
-#' @template param_callbacks
-#' @template param_packages
-#' @param feature_types (`character()`)\cr
-#'   The feature types. Defaults to all available feature types.
-#'
-#' @section Parameters: See [`LearnerRegrTorch`]
-#' @family Learner
-#' @family Graph Network
-#' @include LearnerTorch.R
-#' @export
-#' @examples
-#'
-#' # The mtcars task has 10 features
-#' # The output of the network is 1, as it is a regression problem
-#' network = nn_linear(10, 1)
-#' task = tsk("mtcars")
-#'
-#' # This defines the dataloader.
-#' # It loads all 10 features, which are also numeric.
-#' # The shape is (NA, 10) because the batch dimension is generally NA
-#' ingress_tokens = list(
-#'   input = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, 10))
-#' )
-#'
-#' # Creating the learner and setting required parameters
-#' learner = LearnerRegrTorchModel$new(network, ingress_tokens)
-#' learner$param_set$set_values(batch_size = 16, epochs = 1)
-#'
-#' # A simple train-predict
-#' ids = partition(task)
-#' learner$train(task, ids$train)
-#' learner$predict(task, ids$test)
-LearnerRegrTorchModel = R6Class("LearnerRegrTorchModel",
-  inherit = LearnerRegrTorch,
-  public = list(
-    #' @description
-    #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(network, ingress_tokens, optimizer = t_opt("adam"), loss = t_loss("mse"),
-      callbacks = list(), packages = character(0), feature_types = NULL) {
-      private$.network_stored = assert_class(network, "nn_module")
-      private$.ingress_tokens = assert_list(ingress_tokens, types = "TorchIngressToken")
-      if (is.null(feature_types)) {
-        feature_types = unname(mlr_reflections$task_feature_types)
-      } else {
-        assert_subset(feature_types, mlr_reflections$task_feature_types)
-      }
-      super$initialize(
-        id = "regr.torch_model",
-        label = "Torch Regression Model",
-        optimizer = optimizer,
-        loss = loss,
-        packages = packages,
-        param_set = ps(),
-        feature_types = feature_types,
-        man = "mlr3torch::mlr_learners_regr.torch_model"
-      )
-    }
-  ),
-  private = list(
-    .network = function(task, param_vals) {
-      private$.network_stored
-    },
-    .dataset = function(task, param_vals) {
-      dataset = task_dataset(
-        task,
-        feature_ingress_tokens = private$.ingress_tokens,
-        target_batchgetter = target_batchgetter("regr"),
-        device = param_vals$device
-      )
-    },
-    .network_stored = NULL,
-    .ingress_tokens = NULL
-  )
-)
+register_learner("classif.torch_model", LearnerTorchModel)
+register_learner("regr.torch_model", LearnerTorchModel)

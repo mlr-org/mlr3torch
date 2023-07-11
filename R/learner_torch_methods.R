@@ -9,19 +9,6 @@ normalize_to_list = function(x) {
   x
 }
 
-learner_torch_train = function(self, task) {
-  private = self$.__enclos_env__$private
-  super = self$.__enclos_env__$super
-  param_vals = self$param_set$get_values(tags = "train")
-
-  param_vals$device = auto_device(param_vals$device)
-  if (param_vals$seed == "random") param_vals$seed = sample.int(10000000L, 1L)
-
-  with_torch_settings(seed = param_vals$seed, num_threads = param_vals$num_threads, {
-    learner_torch_train_worker(self, private, super, task, param_vals)
-  })
-}
-
 learner_torch_initialize = function(
   self,
   private,
@@ -39,6 +26,16 @@ learner_torch_initialize = function(
   label,
   callbacks
   ) {
+  predict_types = predict_types %??% switch(task_type,
+    regr = "response",
+    classif = c("response", "prob")
+  )
+  loss = loss %??% switch(task_type,
+    classif = t_loss("cross_entropy"),
+    regr = t_loss("mse")
+  )
+  optimizer = optimizer %??% t_opt("adam")
+
   private$.optimizer = as_torch_optimizer(optimizer, clone = TRUE)
   private$.optimizer$param_set$set_id = "opt"
 
@@ -93,6 +90,7 @@ learner_torch_initialize = function(
   # self$param_set with an rhs to be called, which in turn assigns it (again) to private$.param_set
   super$initialize(
     id = id,
+    task_type = task_type,
     packages = packages,
     param_set = self$param_set,
     predict_types = predict_types,
@@ -345,53 +343,4 @@ measure_prediction = function(pred_tensor, measures, task, row_ids) {
       measure$score(prediction, task = task, train_set = task$row_roles$use)
     }
   )
-}
-
-# Here are the standard methods that are shared between all the TorchLearners
-learner_torch_predict = function(self, task) {
-  private = self$.__enclos_env__$private
-  model = self$state$model
-  network = model$network
-  param_vals = self$param_set$get_values(tags = "predict")
-
-  param_vals$device = auto_device(param_vals$device)
-
-  with_torch_settings(seed = self$model$seed, num_threads = param_vals$num_threads, {
-    network$eval()
-    data_loader = private$.dataloader_predict(task, param_vals)
-    prediction = torch_network_predict(network, data_loader)
-    encode_prediction(prediction, self$predict_type, task)
-  })
-}
-
-learner_torch_network = function(self, task, rhs) {
-  assert_ro_binding(rhs)
-  if (is.null(self$state)) {
-    stopf("Cannot access network before training.")
-  }
-  self$state$model$network
-}
-
-learner_torch_param_set = function(self, rhs) {
-  private = self$.__enclos_env__$private
-  if (is.null(private$.param_set)) {
-    private$.param_set = ParamSetCollection$new(c(
-      list(private$.param_set_base, private$.optimizer$param_set, private$.loss$param_set),
-      map(private$.callbacks, "param_set"))
-    )
-  }
-  private$.param_set
-}
-
-learner_torch_history = function(self, rhs) {
-  assert_ro_binding(rhs)
-  if (is.null(self$state)) {
-    stopf("Cannot access history before training.")
-  }
-  if (is.null(self$model$callbacks$history)) {
-    warningf("No history found. Did you specify t_clbk(\"history\") during construction?")
-    return(NULL)
-  }
-
-  self$model$callbacks$history
 }

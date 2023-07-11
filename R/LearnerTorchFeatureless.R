@@ -1,6 +1,7 @@
-#' @title Featureless Torch Classifier
+#' @title Featureless Torch Learner
 #'
-#' @templateVar id classif.torch_featureless
+#' @templateVar name torch_featureless
+#' @templateVar task_types classif, regr
 #' @template params_learner
 #' @template learner
 #' @template learner_example
@@ -12,22 +13,26 @@
 #' For regression, this should result in the median for L1 loss and in the mean for L2 loss.
 #'
 #' @section Parameters:
-#' Only those from [`LearnerClassifTorch`].
+#' Only those from [`LearnerTorch`].
 #'
 #' @export
-LearnerClassifTorchFeatureless = R6Class("LearnerClassifTorchFeatureless",
-  inherit = LearnerClassifTorch,
+LearnerTorchFeatureless = R6Class("LearnerTorchFeatureless",
+  inherit = LearnerTorch,
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(optimizer = t_opt("adam"), loss = t_loss("cross_entropy"), callbacks = list()) {
+    initialize = function(task_type, optimizer = NULL, loss = NULL, callbacks = list()) {
+      properties = switch(task_type,
+        classif = c("twoclass", "multiclass", "missings", "featureless"),
+        regr = c("missings", "featureless")
+      )
       super$initialize(
-        id = "classif.torch_featureless",
-        label = "Featureless Torch Classifier",
+        id = paste0(task_type, ".torch_featureless"),
+        task_type = task_type,
+        label = "Featureless Torch Learner",
         param_set = ps(),
+        properties = properties,
         feature_types = unname(mlr_reflections$task_feature_types),
-        properties = c("twoclass", "multiclass", "missings", "featureless"),
-        predict_types = c("response", "prob"),
-        man = "mlr3torch::mlr_learners_classif.torch_featureless",
+        man = "mlr3torch::mlr_learners.torch_featureless",
         optimizer = optimizer,
         loss = loss,
         callbacks = callbacks
@@ -40,48 +45,6 @@ LearnerClassifTorchFeatureless = R6Class("LearnerClassifTorchFeatureless",
     },
     .dataset = function(task, param_vals) {
       dataset_featureless(task, param_vals$device, target_batchgetter("classif"))
-    }
-  )
-)
-
-#' @title Featureless Torch Regression Learner
-#'
-#' @templateVar id regr.torch_featureless
-#' @template params_learner
-#' @template learner
-#' @template learner_example
-#'
-#' @inherit mlr_learners_classif.torch_featureless description
-#'
-#' @section Parameters:
-#' Only those from [`LearnerRegrTorch`].
-#'
-#' @export
-LearnerRegrTorchFeatureless = R6Class("LearnerRegrTorchFeatureless",
-  inherit = LearnerRegrTorch,
-  public = list(
-    #' @description Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(optimizer = t_opt("adam"), loss = t_loss("mse"), callbacks = list()) {
-      super$initialize(
-        id = "regr.torch_featureless",
-        label = "Featureless Torch Regression",
-        param_set = ps(),
-        feature_types = unname(mlr_reflections$task_feature_types),
-        properties = c("missings", "featureless"),
-        predict_types = "response",
-        man = "mlr3torch::mlr_learners_regr.torch_featureless",
-        optimizer = optimizer,
-        loss = loss,
-        callbacks = callbacks
-      )
-    }
-  ),
-  private = list(
-    .network = function(task, param_vals) {
-      nn_featureless(nout = 1L)
-    },
-    .dataset = function(task, param_vals) {
-      dataset_featureless(task, param_vals$device, target_batchgetter("regr"))
     }
   )
 )
@@ -117,5 +80,5 @@ nn_featureless = nn_module(
   }
 )
 
-register_learner("classif.torch_featureless", LearnerClassifTorchFeatureless)
-register_learner("regr.torch_featureless", LearnerRegrTorchFeatureless)
+register_learner("classif.torch_featureless", LearnerTorchFeatureless)
+register_learner("regr.torch_featureless", LearnerTorchFeatureless)
