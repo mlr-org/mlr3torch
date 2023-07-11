@@ -6,12 +6,14 @@ LearnerTorchTest1 = R6Class("LearnerTorchTest1",
         regr = c(),
         classif = c("multiclass", "twoclass")
       )
+      param_set = ps(bias = p_lgl(tags = c("required", "train")))
+      param_set$values = list(bias = FALSE)
       super$initialize(
         task_type = task_type,
         id = paste0(task_type, ".test1"),
         label = "Test1 Learner",
         feature_types = c("numeric", "integer"),
-        param_set = ps(bias = p_lgl(default = FALSE, tags = "train")),
+        param_set = param_set,
         properties = properties,
         optimizer = optimizer,
         loss = loss,
@@ -22,7 +24,7 @@ LearnerTorchTest1 = R6Class("LearnerTorchTest1",
   private = list(
     .network = function(task, param_vals, defaults) {
       nout = if (task$task_type == "classif") length(task$class_names) else 1
-      nn_linear(length(task$feature_names), nout, bias = param_vals$bias %??% FALSE)
+      nn_linear(length(task$feature_names), nout, bias = param_vals$bias)
     },
     .dataloader = function(task, param_vals, defaults) {
       ingress_token = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, length(task$feature_names)))
@@ -50,10 +52,13 @@ LearnerTorchImageTest = R6Class("LearnerTorchImageTest",
   inherit = LearnerTorchImage,
   public = list(
     initialize = function(task_type, loss = t_loss("cross_entropy"), optimizer = t_opt("adam"), callbacks = list()) {
+      param_set = ps(bias = p_lgl(tags = c("required", "train")))
+      param_set$values = list(bias = FALSE)
+
       super$initialize(
         task_type = task_type,
         id = paste0(task_type, ".image_test"),
-        param_set = ps(bias = p_lgl(default = FALSE, tags = "train")),
+        param_set = param_set,
         label = "Test Learner Image",
         optimizer = optimizer,
         loss = loss,
@@ -69,7 +74,7 @@ LearnerTorchImageTest = R6Class("LearnerTorchImageTest",
       nout = if (task$task_type == "classif") length(task$class_names) else 1
       nn_sequential(
         nn_flatten(),
-        nn_linear(d, nout, bias = param_vals$bias %??% self$param_set$default$bias)
+        nn_linear(d, nout, bias = param_vals$bias)
       )
     }
   )

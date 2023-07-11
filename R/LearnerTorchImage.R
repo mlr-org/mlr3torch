@@ -51,11 +51,6 @@ LearnerTorchImage = R6Class("LearnerTorchImage",
         regr = c(),
         classif = c("twoclass", "multiclass")
       )
-      predict_types = predict_types %??% switch(task_type,
-        regr = "response",
-        classif = c("response", "prob")
-      )
-
       assert_param_set(param_set)
       predefined_set = ps(
         channels   = p_int(1, tags = c("train", "predict", "required")),

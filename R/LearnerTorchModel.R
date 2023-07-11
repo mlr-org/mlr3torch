@@ -4,8 +4,6 @@
 #'
 #' @description
 #' Create a torch learner from an instantiated [`nn_module()`].
-#' This is learner is used internally by [`PipeOpTorchModelClassif`] and [`PipeOpTorchModelRegr`].
-#'
 #' For classification, the output of the network must be the scores (before the softmax).
 #'
 #' @template param_task_type
@@ -18,16 +16,18 @@
 #' @template param_loss
 #' @template param_callbacks
 #' @template param_packages
-#' @param feature_types (`character()`)\cr
+#' @param feature_types (`NULL` or `character()`)\cr
 #'   The feature types. Defaults to all available feature types.
-#' @template param_properties
-#'
+#' @param properties (`NULL` or `character()`)\cr
+#'   The properties of the learner.
+#'   Defaults to all available properties for the given task type.
 #' @section Parameters: See [`LearnerTorch`]
 #' @family Learner
 #' @family Graph Network
 #' @include LearnerTorch.R
 #' @export
 #' @examples
+#' # We show the learner using a classification task
 #'
 #' # The iris task has 4 features and 3 classes
 #' network = nn_linear(4, 3)
@@ -48,8 +48,6 @@
 #'   epochs = 1
 #' )
 #'
-#'
-#'
 #' # A simple train-predict
 #' ids = partition(task)
 #' learner$train(task, ids$train)
@@ -69,11 +67,11 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
       } else {
         assert_subset(feature_types, mlr_reflections$task_feature_types)
       }
-      properties = properties %??% switch(task_type,
-        regr = character(),
-        classif = c("twoclass", "multiclass"),
-        stopf("Invalid task type '%s'.", task_type)
-      )
+      if (is.null(properties)) {
+        properties = mlr_reflections$learner_properties[[task_type]]
+      } else {
+        properties = assert_subset(properties, mlr_reflections$learner_properties[[task_type]])
+      }
       super$initialize(
         id = paste0(task_type, ".model"),
         task_type = task_type,
@@ -97,7 +95,7 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
         task,
         feature_ingress_tokens = private$.ingress_tokens,
         target_batchgetter = target_batchgetter(self$task_type),
-        device = param_vals$device %??% self$param_set$default$device
+        device = param_vals$device
       )
     },
     .network_stored = NULL,

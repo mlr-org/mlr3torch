@@ -24,8 +24,9 @@ LearnerTorchAlexNet = R6Class("LearnerTorchAlexNet",
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(task_type, optimizer = NULL, loss = NULL, callbacks = list()) {
       param_set = ps(
-        pretrained = p_lgl(default = TRUE, tags = "train")
+        pretrained = p_lgl(tags = c("required", "train"))
       )
+      param_set$values = list(pretrained = TRUE)
       # TODO: Freezing --> maybe as a callback?
       super$initialize(
         task_type = task_type,
@@ -42,7 +43,7 @@ LearnerTorchAlexNet = R6Class("LearnerTorchAlexNet",
   private = list(
     .network = function(task, param_vals) {
       nout = if (self$task_type == "regr") 1 else length(task$class_names)
-      if (param_vals$pretrained %??% TRUE) {
+      if (param_vals$pretrained) {
         network = torchvision::model_alexnet(pretrained = TRUE)
 
         network$classifier$`6` = torch::nn_linear(

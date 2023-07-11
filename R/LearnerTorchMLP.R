@@ -13,16 +13,18 @@
 #' @section Parameters:
 #' Parameters from [`LearnerTorch`], as well as:
 #'
-#' * `activation` :: `character(1)`\cr
-#'   Activation function.
+#' * `activation` :: `[nn_module]`\cr
+#'   The activation function. Is initialized to [`nn_relu`].
 #' * `activation_args` :: named `list()`\cr
 #'   A named list with initialization arguments for the activation function.
+#'   This is intialized to an empty list.
 #' * `layers` :: `integer(1)`\cr
 #'   The number of layers.
 #' * `d_hidden` :: `numeric(1)`\cr
 #'   The dimension of the hidden layers.
 #' * `p` :: `numeric(1)`\cr
 #'   The dropout probability.
+#'   Is initialized to `0.5`.
 #'
 #' @export
 LearnerTorchMLP = R6Class("LearnerTorchMLP",
@@ -31,12 +33,19 @@ LearnerTorchMLP = R6Class("LearnerTorchMLP",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(task_type, optimizer = NULL, loss = NULL, callbacks = list()) {
+      check_activation = crate(function(x) check_class(x, "nn_module"), .parent = topenv())
+      check_activation_args = crate(function(x) check_list(x, names = "unique"), .parent = topenv())
       param_set = ps(
-        activation      = p_fct(default = "relu", tags = "train", levels = mlr_reflections$torch$activations),
-        activation_args = p_uty(tags = "train", custom_check = check_list),
-        layers          = p_int(lower = 0L, tags = c("train", "required")),
-        d_hidden        = p_int(lower = 1L, tags = "train"),
-        p               = p_dbl(default = 0.5, lower = 0, upper = 1, tags = "train")
+        layers          = p_int(lower = 0L, tags = c("required", "train")),
+        d_hidden        = p_int(lower = 1L, tags = c("required", "train")),
+        p               = p_dbl(lower = 0, upper = 1, tags = c("required", "train")),
+        activation      = p_uty(tags = c("required", "train"), custom_check = check_activation),
+        activation_args = p_uty(tags = c("required", "train"), custom_check = check_activation_args)
+      )
+      param_set$set_values(
+        activation = nn_relu,
+        p = 0.5,
+        activation_args = list()
       )
       properties = switch(task_type,
         regr = character(0),
@@ -76,8 +85,6 @@ LearnerTorchMLP = R6Class("LearnerTorchMLP",
 
 make_mlp = function(task, activation, layers, d_hidden, p, activation_args) {
   task_type = task$task_type
-  activation = activation %??% "relu"
-  act = getFromNamespace(paste0("nn_", activation), ns = "torch")
   layers = layers
   d_hidden = d_hidden
   if (layers > 0) assert_true(!is.null(d_hidden))
@@ -94,19 +101,19 @@ make_mlp = function(task, activation, layers, d_hidden, p, activation_args) {
   }
 
   # This way, dropout_args will have length 0 if p is `NULL`
-  dropout_args = list(p = p)
+  dropout_args = list()
   dropout_args$p = p
 
   modules = list(
     nn_linear(length(task$feature_names), d_hidden),
-    invoke(act, .args = activation_args),
+    invoke(activation, .args = activation_args),
     invoke(nn_dropout, .args = dropout_args)
   )
 
   for (i in seq_len(layers - 1L)) {
     modules = c(modules, list(
       nn_linear(d_hidden, d_hidden),
-      invoke(act, .args = activation_args),
+      invoke(activation, .args = activation_args),
       invoke(nn_dropout, .args = dropout_args)
     ))
   }

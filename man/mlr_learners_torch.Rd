@@ -3,7 +3,7 @@
 \name{mlr_learners_torch}
 \alias{mlr_learners_torch}
 \alias{LearnerTorch}
-\title{Abstract Base Class for a Torch Learner}
+\title{Base Class for Torch Learners}
 \description{
 This base class provides the basic functionality for training and prediction of a neural network.
 All torch learners should inherit from this class.
@@ -12,7 +12,7 @@ It also allows to hook into the training loop via a callback mechanism.
 }
 \section{State}{
 
-The state is a list with elements \code{network}, \code{optimizer}, \code{loss_fn} and \code{callbacks}.
+The state is a list with elements \code{network}, \code{optimizer}, \code{loss_fn}, \code{callbacks} and \code{seed}.
 }
 
 \section{Parameters}{
@@ -50,7 +50,8 @@ They are prefixed with \code{"opt."}, \code{"loss."} and \code{"cb.<callback id>
 \section{Inheriting}{
 
 There are no seperate classes for classification and regression to inherit from.
-Instead, the \code{task_type} must be specified in the initialize method.
+Instead, the \code{task_type} must be specified  as a construction argument.
+Currently, only classification and regression are supported.
 
 When inheriting from this class, one should overload two private methods:
 \itemize{
@@ -73,7 +74,16 @@ Per default, a dataloader is constructed using the output from the \code{.datase
 \item \code{.dataloader(task, param_vals)}\cr
 (\code{\link{Task}}, \code{list()}) -> \code{\link[torch:dataloader]{torch::dataloader}}\cr
 Create a dataloader from the task.
-Needs to respect at least \code{batch_size} and \code{shuffle} (otherwise predictions are permuted).
+Needs to respect at least \code{batch_size} and \code{shuffle} (otherwise predictions can be permuted).
+}
+
+To change the predict types, the private \code{.encode_prediction()} method can be overwritten:
+\itemize{
+\item \code{.encode_prediction(predict_tensor, task, param_vals)}\cr
+(\code{\link{torch_tensor}}, \code{\link{Task}}, \code{list()}) -> \code{list()}\cr
+Take in the raw predictions from \code{self$network} (\code{predict_tensor}) and encode them into a
+format that can be converted to valid \code{mlr3} predictions using \code{\link[mlr3:as_prediction_data]{mlr3::as_prediction_data()}}.
+This must take \code{self$predict_type} into account.
 }
 
 While it is possible to add parameters by specifying the \code{param_set} construction argument, it is currently
@@ -178,23 +188,27 @@ Label for the new instance.}
 The feature types.
 See \code{\link[=mlr_reflections]{mlr_reflections$task_feature_types}} for available values.}
 
-\item{\code{optimizer}}{(\code{\link{TorchOptimizer}})\cr
-The torch optimizer.}
+\item{\code{optimizer}}{(\code{NULL} or \code{\link{TorchOptimizer}})\cr
+The optimizer to use for training.
+Defaults to adam.}
 
-\item{\code{loss}}{(\code{\link{TorchLoss}})\cr
-The loss to use to train the network.}
+\item{\code{loss}}{(\code{NULL} or \code{\link{TorchLoss}})\cr
+The loss to use for training.
+Defaults to MSE for regression and cross entropy for classification.}
 
 \item{\code{packages}}{(\code{character()})\cr
 The R packages this object depends on.}
 
 \item{\code{predict_types}}{(\code{character()})\cr
 The predict types.
-See \code{\link[=mlr_reflections]{mlr_reflections$learner_predict_types}} for available values.}
+See \code{\link[=mlr_reflections]{mlr_reflections$learner_predict_types}} for available values.
+For regression, the default is \code{"response"}.
+For classification, this defaults to \code{"response"} and \code{"prob"}.
+To deviate from the defaults, it is necessary to overwrite the private \verb{$.predict()} method.}
 
 \item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
-The callbacks used during training.
-Must have unique ids.
-They are executed in the order in which they are provided}
+The callbacks to use for training.
+Defaults to an empty\code{ list()}, i.e. no callbacks.}
 }
 \if{html}{\out{</div>}}
 }

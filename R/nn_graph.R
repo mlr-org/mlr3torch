@@ -162,16 +162,10 @@ model_descriptor_to_learner = function(model_descriptor) {
   )
   network$reset_parameters()
 
-  # FIXME: How to do this better?
-  properties = switch(task_type,
-    regr = character(),
-    classif = c("twoclass", "multiclass")
-  )
-
   learner = LearnerTorchModel$new(
     task_type = task_type,
     network = network,
-    properties = properties,
+    properties = NULL,
     ingress_tokens = ingress_tokens,
     optimizer = optimizer,
     loss = loss,

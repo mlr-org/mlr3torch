@@ -102,7 +102,6 @@ Collate:
     'TorchDescriptor.R'
     'TorchOptimizer.R'
     'bibentries.R'
-    'expectations.R'
     'imageuri.R'
     'learner_torch_methods.R'
     'nn_graph.R'

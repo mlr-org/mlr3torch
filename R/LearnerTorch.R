@@ -1,4 +1,4 @@
-#' @title Abstract Base Class for a Torch Learner
+#' @title Base Class for Torch Learners
 #'
 #' @name mlr_learners_torch
 #'
@@ -11,25 +11,37 @@
 #' @template param_id
 #' @template param_task_type
 #' @template param_param_vals
-#' @template param_optimizer
-#' @template param_loss
 #' @template param_param_set
 #' @template param_properties
 #' @template param_packages
-#' @template param_predict_types
 #' @template param_feature_types
 #' @template param_man
 #' @template param_label
-#' @template param_callbacks
+#' @param predict_types (`character()`)\cr
+#'   The predict types.
+#'   See [`mlr_reflections$learner_predict_types`][mlr_reflections] for available values.
+#'   For regression, the default is `"response"`.
+#'   For classification, this defaults to `"response"` and `"prob"`.
+#'   To deviate from the defaults, it is necessary to overwrite the private `$.predict()` method.
+#' @param loss (`NULL` or [`TorchLoss`])\cr
+#'   The loss to use for training.
+#'   Defaults to MSE for regression and cross entropy for classification.
+#' @param optimizer (`NULL` or [`TorchOptimizer`])\cr
+#'   The optimizer to use for training.
+#'   Defaults to adam.
+#' @param callbacks (`list()` of [`TorchCallback`]s)\cr
+#'   The callbacks to use for training.
+#'   Defaults to an empty` list()`, i.e. no callbacks.
 #'
 #' @section State:
-#' The state is a list with elements `network`, `optimizer`, `loss_fn` and `callbacks`.
+#' The state is a list with elements `network`, `optimizer`, `loss_fn`, `callbacks` and `seed`.
 #'
 #' @template paramset_torchlearner
 #'
 #' @section Inheriting:
 #' There are no seperate classes for classification and regression to inherit from.
-#' Instead, the `task_type` must be specified in the initialize method.
+#' Instead, the `task_type` must be specified  as a construction argument.
+#' Currently, only classification and regression are supported.
 #'
 #' When inheriting from this class, one should overload two private methods:
 #'
@@ -51,7 +63,15 @@
 #' * `.dataloader(task, param_vals)`\cr
 #'   ([`Task`], `list()`) -> [`torch::dataloader`]\cr
 #'   Create a dataloader from the task.
-#'   Needs to respect at least `batch_size` and `shuffle` (otherwise predictions are permuted).
+#'   Needs to respect at least `batch_size` and `shuffle` (otherwise predictions can be permuted).
+#'
+#' To change the predict types, the private `.encode_prediction()` method can be overwritten:
+#'
+#' * `.encode_prediction(predict_tensor, task, param_vals)`\cr
+#'   ([`torch_tensor`], [`Task`], `list()`) -> `list()`\cr
+#'   Take in the raw predictions from `self$network` (`predict_tensor`) and encode them into a
+#'   format that can be converted to valid `mlr3` predictions using [`mlr3::as_prediction_data()`].
+#'   This must take `self$predict_type` into account.
 #'
 #' While it is possible to add parameters by specifying the `param_set` construction argument, it is currently
 #' not possible to remove existing parameters, i.e. those listed in section *Parameters*.
@@ -129,10 +149,27 @@ LearnerTorch = R6Class("LearnerTorch",
   ),
   private = list(
     .train = function(task) {
-      learner_torch_train(self, task)
+      param_vals = self$param_set$get_values(tags = "train")
+      param_vals$device = auto_device(param_vals$device)
+      if (param_vals$seed == "random") param_vals$seed = sample.int(10000000L, 1L)
+
+      with_torch_settings(seed = param_vals$seed, num_threads = param_vals$num_threads, {
+        learner_torch_train_worker(self, private, super, task, param_vals)
+      })
     },
     .predict = function(task) {
-      learner_torch_predict(self, task)
+      param_vals = self$param_set$get_values(tags = "predict")
+      param_vals$device = auto_device(param_vals$device)
+
+      with_torch_settings(seed = self$model$seed, num_threads = param_vals$num_threads, {
+        self$network$eval()
+        data_loader = private$.dataloader_predict(task, param_vals)
+        predict_tensor = torch_network_predict(self$network, data_loader)
+        private$.encode_prediction(predict_tensor, task, param_vals)
+      })
+    },
+    .encode_prediction = function(predict_tensor, task, param_vals) {
+      encode_prediction(predict_tensor, self$predict_type, task)
     },
     .network = function(task, param_vals) stop(".network must be implemented."),
     # the dataloader gets param_vals that may be different from self$param_set$values, e.g.

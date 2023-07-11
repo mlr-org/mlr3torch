@@ -6,8 +6,6 @@
 \title{Learner Torch Model}
 \description{
 Create a torch learner from an instantiated \code{\link[=nn_module]{nn_module()}}.
-This is learner is used internally by \code{\link{PipeOpTorchModelClassif}} and \code{\link{PipeOpTorchModelRegr}}.
-
 For classification, the output of the network must be the scores (before the softmax).
 }
 \section{Parameters}{
@@ -15,6 +13,7 @@ For classification, the output of the network must be the scores (before the sof
 }
 
 \examples{
+# We show the learner using a classification task
 
 # The iris task has 4 features and 3 classes
 network = nn_linear(4, 3)
@@ -34,8 +33,6 @@ learner = lrn("classif.torch_model",
   batch_size = 16,
   epochs = 1
 )
-
-
 
 # A simple train-predict
 ids = partition(task)
@@ -122,15 +119,15 @@ For classification, outputs must be the scores (before the softmax).}
 \item{\code{ingress_tokens}}{(\code{list} of \code{\link[=TorchIngressToken]{TorchIngressToken()}})\cr
 A list with ingress tokens that defines how the dataloader will be defined.}
 
-\item{\code{properties}}{(\code{character()})\cr
-The properties of the object.
-See \code{\link[=mlr_reflections]{mlr_reflections$learner_properties}} for available values.}
+\item{\code{properties}}{(\code{NULL} or \code{character()})\cr
+The properties of the learner.
+Defaults to all available properties for the given task type.}
 
 \item{\code{optimizer}}{(\code{\link{TorchOptimizer}})\cr
 The torch optimizer.}
 
 \item{\code{loss}}{(\code{\link{TorchLoss}})\cr
-The loss to use to train the network.}
+The loss to use for training.}
 
 \item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
 The callbacks used during training.
@@ -140,7 +137,7 @@ They are executed in the order in which they are provided}
 \item{\code{packages}}{(\code{character()})\cr
 The R packages this object depends on.}
 
-\item{\code{feature_types}}{(\code{character()})\cr
+\item{\code{feature_types}}{(\code{NULL} or \code{character()})\cr
 The feature types. Defaults to all available feature types.}
 }
 \if{html}{\out{</div>}}

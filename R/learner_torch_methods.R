@@ -9,19 +9,6 @@ normalize_to_list = function(x) {
   x
 }
 
-learner_torch_train = function(self, task) {
-  private = self$.__enclos_env__$private
-  super = self$.__enclos_env__$super
-  param_vals = self$param_set$get_values(tags = "train")
-
-  param_vals$device = auto_device(param_vals$device)
-  if (param_vals$seed == "random") param_vals$seed = sample.int(10000000L, 1L)
-
-  with_torch_settings(seed = param_vals$seed, num_threads = param_vals$num_threads, {
-    learner_torch_train_worker(self, private, super, task, param_vals)
-  })
-}
-
 learner_torch_initialize = function(
   self,
   private,
@@ -346,21 +333,4 @@ measure_prediction = function(pred_tensor, measures, task, row_ids) {
       measure$score(prediction, task = task, train_set = task$row_roles$use)
     }
   )
-}
-
-# Here are the standard methods that are shared between all the TorchLearners
-learner_torch_predict = function(self, task) {
-  private = self$.__enclos_env__$private
-  model = self$state$model
-  network = model$network
-  param_vals = self$param_set$get_values(tags = "predict")
-
-  param_vals$device = auto_device(param_vals$device)
-
-  with_torch_settings(seed = self$model$seed, num_threads = param_vals$num_threads, {
-    network$eval()
-    data_loader = private$.dataloader_predict(task, param_vals)
-    prediction = torch_network_predict(network, data_loader)
-    encode_prediction(prediction, self$predict_type, task)
-  })
 }

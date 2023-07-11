@@ -46,16 +46,18 @@ The state is a list with elements:
 
 Parameters from \code{\link{LearnerTorch}}, as well as:
 \itemize{
-\item \code{activation} :: \code{character(1)}\cr
-Activation function.
+\item \code{activation} :: \verb{[nn_module]}\cr
+The activation function. Is initialized to \code{\link{nn_relu}}.
 \item \code{activation_args} :: named \code{list()}\cr
 A named list with initialization arguments for the activation function.
+This is intialized to an empty list.
 \item \code{layers} :: \code{integer(1)}\cr
 The number of layers.
 \item \code{d_hidden} :: \code{numeric(1)}\cr
 The dimension of the hidden layers.
 \item \code{p} :: \code{numeric(1)}\cr
 The dropout probability.
+Is initialized to \code{0.5}.
 }
 }
 

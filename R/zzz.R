@@ -28,7 +28,6 @@ register_po = function(name, constructor) {
 }
 
 register_learner = function(name, constructor) {
-  parent_env = parent.env(environment())
   assert_class(constructor, "R6ClassGenerator")
   task_type = if (startsWith(name, "classif")) "classif" else "regr"
   # What I am doing here:
@@ -39,7 +38,7 @@ register_learner = function(name, constructor) {
   # For this reason, we need this hacky solution here, might change in the future in mlr3misc
   fn = crate(function() {
     invoke(constructor$new, task_type = task_type, .args = as.list(match.call()[-1]))
-  }, constructor = constructor, task_type = task_type, .parent = parent_env)
+  }, constructor = constructor, task_type = task_type, .parent = topenv())
   fmls = formals(constructor$public_methods$initialize)
   fmls$task_type = NULL
   formals(fn) = fmls
@@ -75,24 +74,6 @@ register_mlr3 = function() {
       "on_batch_valid_end",
       "on_epoch_end",
       "on_end"
-    ),
-    activations = c(
-      "celu",
-      "tanh",
-      "softpluts",
-      "rrelu",
-      "softsign",
-      "relu",
-      "sigmoid",
-      "gelu",
-      "hardtanh",
-      "linear",
-      "prelu",
-      "relu6",
-      "selu",
-      "hardshrink",
-      "softshrink",
-      "leaky_relu"
     )
   )
 

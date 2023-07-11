@@ -105,7 +105,7 @@ Label for the new instance.}
 The torch optimizer.}
 
 \item{\code{loss}}{(\code{\link{TorchLoss}})\cr
-The loss to use to train the network.}
+The loss to use for training.}
 
 \item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
 The callbacks used during training.
