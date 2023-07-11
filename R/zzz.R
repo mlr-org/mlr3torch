@@ -8,6 +8,7 @@
 #' @import torch
 #' @import mlr3pipelines
 #' @import mlr3
+#' @importFrom tools R_user_dir
 "_PACKAGE"
 
 # to silence RCMD check
