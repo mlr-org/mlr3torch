@@ -174,7 +174,7 @@ test_that("model_descriptor_to_learner works", {
 
   learner = model_descriptor_to_learner(md)
 
-  expect_class(learner, "LearnerClassifTorchModel")
+  expect_class(learner, "LearnerTorchModel")
 
   learner$param_set$set_values(batch_size = 150, epochs = 0)
 

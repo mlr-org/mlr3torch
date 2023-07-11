@@ -1,5 +1,5 @@
-test_that("LearnerClassifTorchImage works", {
-  learner = LearnerClassifTorchImageTest$new()
+test_that("LearnerTorchImage works", {
+  learner = LearnerTorchImageTest$new(task_type = "classif")
   learner$param_set$set_values(
     height = 64,
     width = 64,
@@ -9,8 +9,8 @@ test_that("LearnerClassifTorchImage works", {
   )
   task = nano_imagenet()$filter(1)
 
-  expect_equal(learner$man, "mlr3torch::mlr_learners_classif.test")
-  expect_r6(learner, c("LearnerClassif", "LearnerClassifTorchImage", "LearnerClassifTorch"))
+  expect_equal(learner$man, "mlr3torch::mlr_learners.test")
+  expect_r6(learner, c("Learner", "LearnerTorchImage", "LearnerTorch"))
   expect_true(learner$label == "Test Learner Image")
   expect_identical(learner$feature_types, "imageuri")
   expect_set_equal(learner$predict_types, c("response", "prob"))

@@ -1,5 +1,5 @@
-test_that("Correct error when trying to create deep clone of trained network: Classification", {
-  learner = LearnerClassifTorch1$new()
+test_that("Correct error when trying to create deep clone of trained network", {
+  learner = lrn("classif.torch_featureless")
   learner$param_set$set_values(epochs = 1, batch_size = 1)
   task = tsk("iris")
   learner$train(task)
@@ -7,24 +7,16 @@ test_that("Correct error when trying to create deep clone of trained network: Cl
 })
 
 
-test_that("Correct error when trying to create deep clone of trained network: Regression", {
-  learner = LearnerRegrTorch1$new()
-  learner$param_set$set_values(epochs = 1, batch_size = 1)
-  task = tsk("mtcars")
-  learner$train(task)
-  expect_error(learner$clone(deep = TRUE), regexp = "Deep clone of trained network is currently not supported")
-})
-
 test_that("Basic tests: Classification", {
-  learner = LearnerClassifTorch1$new()
-  expect_class(learner, c("LearnerClassifTorch1", "LearnerClassifTorch", "LearnerClassif"))
+  learner = LearnerTorchTest1$new(task_type = "classif")
+  expect_class(learner, c("LearnerTorchTest1", "LearnerTorch", "Learner"))
   expect_equal(learner$id, "classif.test1")
-  expect_equal(learner$label, "Torch1 Classifier")
+  expect_equal(learner$label, "Test1 Learner")
   expect_set_equal(learner$feature_types, c("numeric", "integer"))
   expect_set_equal(learner$properties, c("multiclass", "twoclass"))
 
   # default predict types are correct
-  expect_set_equal(learner$predict_types, "response")
+  expect_set_equal(learner$predict_types, c("response", "prob"))
 
   expect_subset(c("torch", "mlr3torch"), learner$packages)
 
@@ -40,10 +32,10 @@ test_that("Basic tests: Classification", {
 })
 
 test_that("Basic tests: Regression", {
-  learner = LearnerRegrTorch1$new()
-  expect_class(learner, c("LearnerRegrTorch1", "LearnerRegrTorch", "LearnerRegr"))
+  learner = LearnerTorchTest1$new(task_type = "regr")
+  expect_class(learner, c("LearnerTorchTest1", "LearnerTorch", "Learner"))
   expect_equal(learner$id, "regr.test1")
-  expect_equal(learner$label, "Test1 Regressor")
+  expect_equal(learner$label, "Test1 Learner")
   expect_set_equal(learner$feature_types, c("numeric", "integer"))
   expect_set_equal(learner$properties, c())
 
@@ -69,7 +61,7 @@ test_that("Param Set for optimizer and loss are correctly created", {
   loss = t_loss("cross_entropy")
   cb = t_clbk("checkpoint")
   # loss$param_set$subset(c("weight", "ignore_index"))
-  learner = LearnerClassifTorch1$new(optimizer = opt, loss = loss, callbacks = cb)
+  learner = lrn("classif.torch_featureless", optimizer = opt, loss = loss, callbacks = cb)
   expect_subset(paste0("opt.", opt$param_set$ids()), learner$param_set$ids())
   expect_subset(paste0("loss.", loss$param_set$ids()), learner$param_set$ids())
   expect_subset(paste0("cb.checkpoint.", cb$param_set$ids()), learner$param_set$ids())
@@ -78,11 +70,12 @@ test_that("Param Set for optimizer and loss are correctly created", {
 
 test_that("Parameters cannot start with {loss, opt, cb}.", {
   helper = function(param_set) {
-    R6Class("LearnerClassifTorch1",
-      inherit = LearnerClassifTorch,
+    R6Class("LearnerTorchTest",
+      inherit = LearnerTorch,
       public = list(
         initialize = function(optimizer = t_opt("adagrad"), loss = t_loss("cross_entropy")) {
           super$initialize(
+            task_type = "classif",
             id = "classif.test1",
             label = "Test1 Classifier",
             feature_types = c("numeric", "integer"),
@@ -91,7 +84,7 @@ test_that("Parameters cannot start with {loss, opt, cb}.", {
             predict_types = "response",
             optimizer = optimizer,
             loss = loss,
-            man = "mlr3torch::mlr_learners_classif.test1"
+            man = "mlr3torch::mlr_learners.test1"
           )
         }
       )
@@ -111,7 +104,7 @@ test_that("ParamSet reference identities are preserved after a deep clone", {
   # This is solved by setting the private$.param_set to NULL in the deep clone, so that it is reconstructed correctly
   # afterwards
 
-  learner = LearnerClassifTorch1$new()
+  learner = LearnerTorchTest1$new(task_type = "classif")
   learner1 = learner$clone(deep = TRUE)
 
   learner1$param_set$set_values(opt.lr = 9.99)
@@ -126,7 +119,8 @@ test_that("Learner inherits packages from optimizer, loss, and callbacks", {
   opt$packages = "base"
   loss = t_loss("cross_entropy")
   loss$packages = "stats"
-  learner = LearnerClassifTorchFeatureless$new(
+  learner = LearnerTorchFeatureless$new(
+    task_type = "classif",
     callbacks = list(tcb),
     loss = loss,
     optimizer = opt
@@ -197,3 +191,4 @@ test_that("Train-predict loop is reproducible when setting a seed", {
 #
 #   saveRDS(learner$s)
 # })
+

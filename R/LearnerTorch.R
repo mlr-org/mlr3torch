@@ -1,20 +1,49 @@
-#' @title Abstract Base Class for a Torch Classification Learner
+#' @title Base Class for Torch Learners
 #'
-#' @name mlr_learners_classif.torch
+#' @name mlr_learners_torch
 #'
 #' @description
 #' This base class provides the basic functionality for training and prediction of a neural network.
-#' All torch classifiction learners should inherit from the respective class, i.e.
-#' [`LearnerClassifTorch`] for classification and [`LearnerRegrTorch`] for regression.
+#' All torch learners should inherit from this class.
 #'
 #' It also allows to hook into the training loop via a callback mechanism.
 #'
+#' @template param_id
+#' @template param_task_type
+#' @template param_param_vals
+#' @template param_param_set
+#' @template param_properties
+#' @template param_packages
+#' @template param_feature_types
+#' @template param_man
+#' @template param_label
+#' @param predict_types (`character()`)\cr
+#'   The predict types.
+#'   See [`mlr_reflections$learner_predict_types`][mlr_reflections] for available values.
+#'   For regression, the default is `"response"`.
+#'   For classification, this defaults to `"response"` and `"prob"`.
+#'   To deviate from the defaults, it is necessary to overwrite the private `$.encode_prediction()`
+#'   method, see section *Inheriting*.
+#' @param loss (`NULL` or [`TorchLoss`])\cr
+#'   The loss to use for training.
+#'   Defaults to MSE for regression and cross entropy for classification.
+#' @param optimizer (`NULL` or [`TorchOptimizer`])\cr
+#'   The optimizer to use for training.
+#'   Defaults to adam.
+#' @param callbacks (`list()` of [`TorchCallback`]s)\cr
+#'   The callbacks to use for training.
+#'   Defaults to an empty` list()`, i.e. no callbacks.
+#'
 #' @section State:
-#' The state is a list with elements `network`, `optimizer`, `loss_fn` and `callbacks`.
+#' The state is a list with elements `network`, `optimizer`, `loss_fn`, `callbacks` and `seed`.
 #'
 #' @template paramset_torchlearner
 #'
 #' @section Inheriting:
+#' There are no seperate classes for classification and regression to inherit from.
+#' Instead, the `task_type` must be specified  as a construction argument.
+#' Currently, only classification and regression are supported.
+#'
 #' When inheriting from this class, one should overload two private methods:
 #'
 #' * `.network(task, param_vals)`\cr
@@ -35,7 +64,15 @@
 #' * `.dataloader(task, param_vals)`\cr
 #'   ([`Task`], `list()`) -> [`torch::dataloader`]\cr
 #'   Create a dataloader from the task.
-#'   Needs to respect at least `batch_size` and `shuffle` (otherwise predictions are permuted).
+#'   Needs to respect at least `batch_size` and `shuffle` (otherwise predictions can be permuted).
+#'
+#' To change the predict types, the private `.encode_prediction()` method can be overwritten:
+#'
+#' * `.encode_prediction(predict_tensor, task, param_vals)`\cr
+#'   ([`torch_tensor`], [`Task`], `list()`) -> `list()`\cr
+#'   Take in the raw predictions from `self$network` (`predict_tensor`) and encode them into a
+#'   format that can be converted to valid `mlr3` predictions using [`mlr3::as_prediction_data()`].
+#'   This method must take `self$predict_type` into account.
 #'
 #' While it is possible to add parameters by specifying the `param_set` construction argument, it is currently
 #' not possible to remove existing parameters, i.e. those listed in section *Parameters*.
@@ -45,27 +82,16 @@
 #'
 #' @family Learner
 #' @export
-LearnerClassifTorch = R6Class("LearnerClassifTorch",
-  inherit = LearnerClassif,
+LearnerTorch = R6Class("LearnerTorch",
+  inherit = Learner,
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
-    #' @template param_id
-    #' @template param_param_vals
-    #' @template param_optimizer
-    #' @template param_loss
-    #' @template param_param_set
-    #' @template param_properties
-    #' @template param_packages
-    #' @template param_predict_types
-    #' @template param_feature_types
-    #' @template param_man
-    #' @template param_label
-    #' @template param_callbacks
-    initialize = function(id, optimizer, loss, param_set, properties = c("twoclass", "multiclass"), packages = character(0),
-      predict_types = c("response", "prob"), feature_types, man, label, callbacks) {
+    initialize = function(id, task_type, param_set, properties, man, label, feature_types,
+      optimizer = NULL, loss = NULL, packages = NULL, predict_types = NULL, callbacks = list()) {
+      assert_choice(task_type, c("regr", "classif"))
 
       learner_torch_initialize(self = self, private = private, super = super,
-        task_type = "classif",
+        task_type = task_type,
         id = id,
         optimizer = optimizer,
         loss = loss,
@@ -80,102 +106,68 @@ LearnerClassifTorch = R6Class("LearnerClassifTorch",
       )
     }
   ),
-  private = list(
-    .train = function(task) {
-      learner_torch_train(self, task)
-    },
-    .predict = function(task) {
-      learner_torch_predict(self, task)
-    },
-    .network = function(task, param_vals) stop(".network must be implemented."),
-    # the dataloader gets param_vals that may be different from self$param_set$values, e.g.
-    # when the dataloader for validation data is loaded, `shuffle` is set to FALSE.
-    .dataloader = function(task, param_vals) {
-      learner_torch_dataloader(self, task, param_vals)
-    },
-    .dataloader_predict = function(task, param_vals) {
-      learner_torch_dataloader_predict(self, task, param_vals)
-    },
-    .dataset = function(task, param_vals) stop(".dataset must be implemented."),
-    .optimizer = NULL,
-    .loss = NULL,
-    .param_set_base = NULL,
-    .callbacks = NULL,
-    deep_clone = function(name, value) deep_clone(self, private, super, name, value)
-  ),
   active = list(
     #' @field network ([`nn_module()`][torch::nn_module])\cr
     #'   The network (only available after training).
-    network = function(rhs) learner_torch_network(self, rhs),
+    network = function(rhs) {
+      assert_ro_binding(rhs)
+      if (is.null(self$state)) {
+        stopf("Cannot access network before training.")
+      }
+      self$state$model$network
+    },
     #' @field param_set ([`ParamSet`])\cr
     #'   The parameter set
-    param_set = function(rhs) learner_torch_param_set(self, rhs),
+    param_set = function(rhs) {
+      if (is.null(private$.param_set)) {
+        private$.param_set = ParamSetCollection$new(c(
+          list(private$.param_set_base, private$.optimizer$param_set, private$.loss$param_set),
+          map(private$.callbacks, "param_set"))
+        )
+      }
+      private$.param_set
+    },
     #' @field history ([`CallbackSetHistory`])\cr
     #' Shortcut for `learner$model$callbacks$history`.
-    history = function(rhs) learner_torch_history(self, rhs)
-  )
-)
-
-
-#' @title Abstract Base Class for a Torch Regression Learner
-#'
-#' @name mlr_learners_regr.torch
-#'
-#' @description
-#' This base class provides the basic functionality for training and prediction of a neural network.
-#' All torch regression learners should inherit from the respective subclass.
-#'
-#' @inheritSection mlr_learners_classif.torch State
-#' @inheritSection mlr_learners_classif.torch Parameters
-#' @inheritSection mlr_learners_classif.torch Inheriting
-#'
-#' @family Learner
-#' @export
-LearnerRegrTorch = R6Class("LearnerRegrTorch",
-  inherit = LearnerRegr,
-  public = list(
-    #' @description Creates a new instance of this [R6][R6::R6Class] class.
-    #' @template param_id
-    #' @template param_param_vals
-    #' @template param_optimizer
-    #' @template param_loss
-    #' @template param_param_set
-    #' @template param_properties
-    #' @template param_packages
-    #' @template param_predict_types
-    #' @template param_feature_types
-    #' @template param_man
-    #' @template param_label
-    #' @template param_callbacks
-    initialize = function(id, optimizer, loss, param_set, properties = character(0), packages = character(0),
-      predict_types = "response", feature_types, man, label, callbacks = list()) {
-      learner_torch_initialize(self = self, private = private, super = super,
-        task_type = "regr",
-        id = id,
-        optimizer = optimizer,
-        loss = loss,
-        param_set = param_set,
-        properties = properties,
-        packages = packages,
-        predict_types = predict_types,
-        feature_types = feature_types,
-        man = man,
-        label = label,
-        callbacks = callbacks
-      )
+    history = function(rhs) {
+      assert_ro_binding(rhs)
+      if (is.null(self$state)) {
+        stopf("Cannot access history before training.")
+      }
+      if (is.null(self$model$callbacks$history)) {
+        stopf("No history found. Did you specify t_clbk(\"history\") during construction?")
+      }
+      self$model$callbacks$history
     }
   ),
   private = list(
     .train = function(task) {
-      learner_torch_train(self, task)
+      param_vals = self$param_set$get_values(tags = "train")
+      param_vals$device = auto_device(param_vals$device)
+      if (param_vals$seed == "random") param_vals$seed = sample.int(10000000L, 1L)
+
+      with_torch_settings(seed = param_vals$seed, num_threads = param_vals$num_threads, {
+        learner_torch_train_worker(self, private, super, task, param_vals)
+      })
     },
     .predict = function(task) {
-      learner_torch_predict(self, task)
+      param_vals = self$param_set$get_values(tags = "predict")
+      param_vals$device = auto_device(param_vals$device)
+
+      with_torch_settings(seed = self$model$seed, num_threads = param_vals$num_threads, {
+        self$network$eval()
+        data_loader = private$.dataloader_predict(task, param_vals)
+        predict_tensor = torch_network_predict(self$network, data_loader)
+        private$.encode_prediction(predict_tensor, task, param_vals)
+      })
+    },
+    .encode_prediction = function(predict_tensor, task, param_vals) {
+      encode_prediction(predict_tensor, self$predict_type, task)
     },
     .network = function(task, param_vals) stop(".network must be implemented."),
     # the dataloader gets param_vals that may be different from self$param_set$values, e.g.
     # when the dataloader for validation data is loaded, `shuffle` is set to FALSE.
-    .dataloader = function(task, param_vals) {
+   .dataloader = function(task, param_vals) {
       learner_torch_dataloader(self, task, param_vals)
     },
     .dataloader_predict = function(task, param_vals) {
@@ -187,17 +179,6 @@ LearnerRegrTorch = R6Class("LearnerRegrTorch",
     .param_set_base = NULL,
     .callbacks = NULL,
     deep_clone = function(name, value) deep_clone(self, private, super, name, value)
-  ),
-  active = list(
-    #' @field network ([`nn_module()`][torch::nn_module])\cr
-    #'   The network (only available after training).
-    network = function(rhs) learner_torch_network(self, rhs),
-    #' @field param_set ([`ParamSet`])\cr
-    #'   The parameter set
-    param_set = function(rhs) learner_torch_param_set(self, rhs),
-    #' @field history ([`CallbackSetHistory`])\cr
-    #'   Shortcut for `learner$model$callbacks$history`.
-    history = function(rhs) learner_torch_history(self, rhs)
   )
 )
 

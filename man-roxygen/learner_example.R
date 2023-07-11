@@ -1,4 +1,6 @@
+#' <% task_types_vec = strsplit(task_types, ", ")[[1]] %>
 #' <% param_vals = if (exists("param_vals", inherits = FALSE)) param_vals else character(0) %>
+#' <% id = paste0(task_types_vec[1], ".", name)%>
 #' <% task_id = default_task_id(lrn(id)) %>
 #'
 #' @examples
@@ -15,10 +17,10 @@
 #' <%= sprintf("ids = partition(task)")%>
 #'
 #' # Train the learner on the training ids
-#' <%= sprintf("learner$train(task, ids$train)")%>
+#' <%= sprintf("learner$train(task, row_ids = ids$train)")%>
 #'
 #' # Make predictions for the test rows
-#' <%= sprintf("predictions = learner$predict(task, ids$test)")%>
+#' <%= sprintf("predictions = learner$predict(task, row_ids = ids$test)")%>
 #'
 #' # Score the predictions
 #' predictions$score()

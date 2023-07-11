@@ -14,14 +14,7 @@ library("mlr3torch")
 ```
 ```{r, include = FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
-
 ```
-
-# Intro
-
-The TorchOps Neo project tries to use `mlr3pipelines` as a backet to implement building network architectures from `PipeOp`s. Specific `PipeOp`s, inheriting from [`PipeOpModule`], contain `torch_module` objects. These `PipeOp`s are chained in a `Graph` that passes `torch_tensor` objects along its edges. Another class of `PipeOp`, [`PipeOpTorch`], can be used to build these torch module `Graph`s, they become parts of normal data preprocessing pipelines. These two distinct classes of `PipeOp`s are necessary since they represent different things: The [`PipeOpTorch`] operators correspond to `torch`'s `nn_module_generator` functions, the [`PipeOpModule`] then contain the instantiated `nn_module`-objects.
-
-Some further changes have been made compared to the old code, in particular the handling of different columns / datatypes within `Task`s and how network input is handled. The network training code was also refactored and simplified.
 
 # Torch modules and `PipeOpModule`
 
@@ -29,37 +22,37 @@ Some further changes have been made compared to the old code, in particular the 
 
 Some input tensor: 2-batch of 3 units.
 ```{r}
-input <- torch_randn(2, 3)
+input = torch_randn(2, 3)
 input
 ```
 
 A `nn_module` is constructed from a `nn_module_generator`. `nn_linear` is one of the simpler generators:
 ```{r}
-module_1 <- nn_linear(3, 4, bias = TRUE)
+module_1 = nn_linear(3, 4, bias = TRUE)
 ```
 
 Applying this module gives a 2-batch of 4 units:
 
 ```{r}
-output <- module_1(input)
+output = module_1(input)
 output
 ```
 
 A neural network with one (4-unit) hidden layer and two outputs needs the following ingredients
 
 ```{r}
-activation <- nn_sigmoid()
-module_2 <- nn_linear(4, 3, bias = TRUE)
-softmax <- nn_softmax(2)
+activation = nn_sigmoid()
+module_2 = nn_linear(4, 3, bias = TRUE)
+softmax = nn_softmax(2)
 ```
 
 Piping a tensor through this:
 
 ```{r}
-output <- module_1(input)
-output <- activation(output)
-output <- module_2(output)
-output <- softmax(output)
+output = module_1(input)
+output = activation(output)
+output = module_2(output)
+output = softmax(output)
 output
 ```
 
@@ -73,12 +66,12 @@ A `PipeOpModule` can be used to wrap a module directly, but it is usually constr
 
 Wrapping the linear `module_1` works like this:
 ```{r}
-po_module_1 <- PipeOpModule$new("module_1", module_1)
+po_module_1 = PipeOpModule$new("module_1", module_1)
 ```
 
 It is used in the familiar way:
 ```{r}
-output <- po_module_1$train(list(input))[[1]]
+output = po_module_1$train(list(input))[[1]]
 output
 ```
 
@@ -87,16 +80,16 @@ Note we only use the `$train()`, since Torch modules do not have anything that m
 The single hidden layer neural network can be constructed as a `Graph`, which can then do the training all at once.
 
 ```{r}
-po_activation <- PipeOpModule$new("activation", activation)
-po_module_2 <- PipeOpModule$new("module_2", module_2)
-po_softmax <- PipeOpModule$new("softmax", softmax)
+po_activation = PipeOpModule$new("activation", activation)
+po_module_2 = PipeOpModule$new("module_2", module_2)
+po_softmax = PipeOpModule$new("softmax", softmax)
 
-module_graph <- po_module_1 %>>% po_activation %>>% po_module_2 %>>% po_softmax
+module_graph = po_module_1 %>>% po_activation %>>% po_module_2 %>>% po_softmax
 ```
 
 Using the `Graph`'s `$train()` to pipe a tensor through the `Graph`:
 ```{r}
-output <- module_graph$train(input)[[1]]
+output = module_graph$train(input)[[1]]
 output
 ```
 
@@ -115,7 +108,7 @@ If the `Graph` has multiple outputs, it is also possible to select a subset of o
 # the name of the single input is:
 module_graph$input
 
-graph_module <- nn_graph(
+graph_module = nn_graph(
   module_graph,
   shapes_in = list(module_1.input = c(NA, 3))
 )
@@ -143,12 +136,13 @@ The [`PipeOpModule`] represents anf `nn_module` that is fixed for a specific ten
 A complete `Graph` of matching [`PipeOpModule`]s can be constructed using operators that mostly inherit from [`PipeOpTorch`], making use of the [`ModelDescriptor`] class. The [`ModelDescriptor`] class contains a `Graph` of [`PipeOpModule`] and some more necessary meta-info. The [`PipeOpTorch`] transforms a [`ModelDescriptor`] and adds more [`PipeOpModule`]s to the `Graph`.
 
 [`ModelDescriptor`]s always build up a [`Graph`] for a specific [`Task`]. The easiest way to initialize a proper [`ModelDescriptor`] is to use the appropriate [`PipeOpTorchIngress`] `PipeOp` for a given datatype.
+[`ModelDescriptor`]s always build up a [`Graph`] for a specific [`Task`]. The easiest way to initialize a proper [`ModelDescriptor`] is to use the appropriate [`PipeOpTorchIngress`] `PipeOp` for a given datatype.
 
 ```{r}
-task <- tsk("iris")$select(colnames(iris)[1:3])
+task = tsk("iris")$select(colnames(iris)[1:3])
 
-po_torch_in <- po("torch_ingress_num")
-md <- po_torch_in$train(list(task))[[1]]
+po_torch_in = po("torch_ingress_num")
+md = po_torch_in$train(list(task))[[1]]
 
 md
 ```
@@ -162,8 +156,8 @@ unclass(md)
 The `$.pointer` identifies the output of the `$graph` that [`PipeOpTorch`] will extend. Piping this [`ModelDescriptor`] through [`PipeOpTorchLinear`], for example, adds a [`PipeOpModule`] wrapping a `torch` `nn_linear`.
 
 ```{r}
-po_torch_linear <- po("nn_linear", out_features = 4)
-md <- po_torch_linear$train(list(md))[[1]]
+po_torch_linear = po("nn_linear", out_features = 4)
+md = po_torch_linear$train(list(md))[[1]]
 
 md$graph
 ```
@@ -178,7 +172,7 @@ md$.pointer_shape
 The [`model_descriptor_to_module()`] function converts this to an [`nn_graph`], it is a functional `torch` `nn_module`.
 
 ```{r}
-small_module <- model_descriptor_to_module(md, list(md$.pointer))
+small_module = model_descriptor_to_module(md, list(md$.pointer))
 
 small_module(input)
 ```
@@ -188,7 +182,7 @@ small_module(input)
 The [`ModelDescriptor`] does not only represent the `Graph` from which a `nn_module` is created, but also the way in which the `Task` is is processed to get input batches. A `torch` `dataset` can be created by calling `task_dataset()`; both the `task` and the `feature_ingress_tokens` arguments can be retrieved from the `ModelDescriptor`. The `target_batchgetter` needs to be created extra (if necessary), since it depends on the ultimate machine learning model, which we have not looked at so far.
 
 ```{r}
-td <- task_dataset(
+td = task_dataset(
   task = md$task,
   feature_ingress_tokens = md$ingress,
   device = "cpu"
@@ -199,7 +193,7 @@ td
 
 Use the `$.getbatch()` method to get a batch that can be given to the `nn_module`. Note it has an `$x` and an `$y` slot, the latter of which is not used, to account for possible target batches. The `$x` slot is also a `list`, since it should be able to handle NNs with multiple inputs (see below).
 ```{r}
-batch <- td$.getbatch(1:3)
+batch = td$.getbatch(1:3)
 batch
 
 small_module(batch$x[[1]])
@@ -210,7 +204,7 @@ small_module(batch$x[[1]])
 The sequential NN from above can easily be implemented as follows:
 
 ```{r}
-graph_generator <- po("torch_ingress_num") %>>%
+graph_generator = po("torch_ingress_num") %>>%
   po("nn_linear", out_features = 4, id = "linear1") %>>%
     po("nn_sigmoid") %>>%
     po("nn_linear", out_features = 3, id = "linear2") %>>%
@@ -220,9 +214,9 @@ graph_generator <- po("torch_ingress_num") %>>%
 Note how the second `nn_linear` does not need to be informed about the output dimension of the first `nn_linear`, since the [`ModelDescriptor`] that is passed along the `Graph` edges knows this info (in the `$.pointer_shape` slot).
 
 ```{r}
-md_sequential <- graph_generator$train(task)[[1]]
+md_sequential = graph_generator$train(task)[[1]]
 
-graph_module <- model_descriptor_to_module(md_sequential, list(md_sequential$.pointer))
+graph_module = model_descriptor_to_module(md_sequential, list(md_sequential$.pointer))
 
 graph_module(input)
 ```
@@ -235,20 +229,20 @@ The selling-point of `mlr3pipelines` is its ability to easily represent computat
 Consider the following (a bit nonsensical) network that operates differently on the `"Petal"` than on the `"Sepal"` features of `tsk("iris")`. We manually split the task here, further down it is shown that the wholly integrated `mlr3pipelines` pipeline can do this automatically.
 
 ```{r}
-iris_petal <- tsk("iris")$select(c("Petal.Length", "Petal.Width"))
-iris_sepal <- tsk("iris")$select(c("Sepal.Length", "Sepal.Width"))
+iris_petal = tsk("iris")$select(c("Petal.Length", "Petal.Width"))
+iris_sepal = tsk("iris")$select(c("Sepal.Length", "Sepal.Width"))
 ```
 
 ```{r}
-graph_sepal <- po("torch_ingress_num", id = "sepal.in") %>>%
+graph_sepal = po("torch_ingress_num", id = "sepal.in") %>>%
   po("nn_linear", out_features = 4, id = "linear1")
 
-graph_petal <- po("torch_ingress_num", id = "petal.in") %>>%
+graph_petal = po("torch_ingress_num", id = "petal.in") %>>%
   po("nn_linear", out_features = 3, id = "linear2") %>>%
   po("nn_tanh") %>>%
   po("nn_linear", out_features = 5, id = "linear3")
 
-graph_common <- ppl("branch", graphs = list(
+graph_common = ppl("branch", graphs = list(
     sigmoid = po("nn_sigmoid"),
     relu = po("nn_relu")
   )) %>>%
@@ -259,7 +253,7 @@ graph_common <- ppl("branch", graphs = list(
   ))
 
 
-graph_iris <- gunion(list(graph_sepal, graph_petal)) %>>%
+graph_iris = gunion(list(graph_sepal, graph_petal)) %>>%
   po("nn_merge_cat") %>>%
   graph_common
 
@@ -269,11 +263,11 @@ graph_iris$plot()
 We can use this to create a neural network for the `iris` tasks we created above. We set the `$keep_results` debug flag here so we can do some inspection about what is happening:
 
 ```{r}
-graph_iris$param_set$values$branch.selection <- "relu"
+graph_iris$param_set$values$branch.selection = "relu"
 
 graph_iris$keep_results = TRUE
 
-iris_mds <- graph_iris$train(
+iris_mds = graph_iris$train(
   input = list(sepal.in.input = iris_sepal, petal.in.input = iris_petal),
   single_input = FALSE
 )
@@ -323,13 +317,13 @@ We make multiple observations here:
     ```{r}
     iris_mds_union$task  # contains all features
 
-    iris_td <- task_dataset(
+    iris_td = task_dataset(
       task = iris_mds_union$task,
       feature_ingress_tokens = iris_mds_union$ingress,
       device = "cpu"
     )
 
-    batch <- iris_td$.getbatch(1:2)
+    batch = iris_td$.getbatch(1:2)
     batch
     ```
 1. The resulting module has multiple inputs and multiple outputs. We call it with the first two rows of iris, but set the debug `$keep_results` flag so we can inspect what is happening in the `nn_module`'s `$graph`:
@@ -363,7 +357,7 @@ We have now seen how NN `Graph`s of [`PipeOpModule`] are created and turned into
 Optimizers are represented as [`TorchOptimizer`] objects -- they wrap a `torch` `torch_optimizer_generator` object but also provide a `ParamSet`. They can be obtained from a `Dictionary` using the `t_opt` quick-access function.
 
 ```{r}
-adam <- t_opt("adam", lr = 0.02)
+adam = t_opt("adam", lr = 0.02)
 adam
 adam$param_set
 ```
@@ -371,16 +365,17 @@ adam$param_set
 Loss-functions work the same: [`TorchLoss`] are obtained from a `Dictionary` using `t_loss()` and they have `ParamSet`s.
 
 ```{r}
-xe <- t_loss("cross_entropy")
+xe = t_loss("cross_entropy")
 xe
 ```
 
-## [`LearnerClassifTorchModel`] and [`LearnerRegrTorchModel`]
+## [`LearnerTorchModel`]
 
-[`LearnerClassifTorchModel`] represents a classification model using `torch` NNs. It needs a `nn_module`, as well as a list of [`TorchIngressToken`] that define how batches are created from a `Task`. [`TorchIngressToken`] hard-code the column-names of a `Task` that are used for data-input, the `Learner` created like this therefore only works for the specific `Task` created. (Generally the full `mlr3pipelines`-UI should be used if this is a problem, see below.) The following uses the sequential NN from above:
+[`LearnerTorchModel`] represents a supervised model (regression or classification) using `torch` NNs. It needs a `nn_module`, as well as a list of [`TorchIngressToken`] that define how batches are created from a `Task`. [`TorchIngressToken`] hard-code the column-names of a `Task` that are used for data-input, the `Learner` created like this therefore only works for the specific `Task` created. (Generally the full `mlr3pipelines`-UI should be used if this is a problem, see below.) The following uses the sequential NN from above:
 
 ```{r}
-lr_sequential <- LearnerClassifTorchModel$new(
+lr_sequential = LearnerTorchModel$new(
+  task_type = "classif",
   network = model_descriptor_to_module(md_sequential, list(md_sequential$.pointer)),
   ingress_tokens = md_sequential$ingress,
   optimizer = adam,
@@ -408,18 +403,19 @@ The following calls the `$predict_newdata` function to plot the response surface
 
 ```{r}
 library("data.table")
-newdata <- cbind(data.table(Sepal.Width = mean(iris$Sepal.Width)), CJ(
+newdata = cbind(data.table(Sepal.Width = mean(iris$Sepal.Width)), CJ(
   Sepal.Length = seq(min(iris$Sepal.Length), max(iris$Sepal.Length), length.out = 30),
   Petal.Length = seq(min(iris$Petal.Length), max(iris$Petal.Length), length.out = 30)
 ))
 
-predictions <- lr_sequential$predict_newdata(newdata)
+predictions = lr_sequential$predict_newdata(newdata)
 
 library("ggplot2")
 
-plot_predictions <- function(predictions) {
+plot_predictions = function(predictions) {
   ggplot(cbind(newdata, Species = predictions$response),
       aes(x = Sepal.Length, y = Petal.Length, fill = Species)) +
+    geom_tile(alpha = .3) +
     geom_tile(alpha = .3) +
     geom_point(data = iris,
       aes(x = Sepal.Length, y = Petal.Length, fill = Species),
@@ -432,32 +428,33 @@ plot_predictions(predictions)
 # Torch Learner Pipelines
 
 The model shown above is constructed using the [`ModelDescriptor`] that is generated from a `Graph` of [`PipeOpTorch`] operators.
+The model shown above is constructed using the [`ModelDescriptor`] that is generated from a `Graph` of [`PipeOpTorch`] operators.
 The [`ModelDescriptor`] furthermore contains the `Task` to which it pertains. This makes it possible to use it to create a NN model that gets trained right away, using [`PipeOpTorchModelClassif`]. The only missing prerequisite now is to add the desired [`TorchOptimizer`] and [`TorchLoss`] information to the [`ModelDescriptor`].
 
-## Adding Optimizer and Loss Meta-Info to [`ModelDescriptor`]
+## Adding Optimizer, Loss and Callback Meta-Info to [`ModelDescriptor`]
 
-Remember that [`ModelDescriptor`] has the `$optimizer` and `$loss` slots that are necessary to build a complete `Learner` from an NN. They can be set by corresponding [`PipeOpTorch`] operators.
+Remember that [`ModelDescriptor`] has the `$optimizer`, `$loss` and `$callbacks` slots that are necessary to build a complete `Learner` from an NN. They can be set by corresponding [`PipeOpTorch`] operators.
 
-`po("torch_optimizer")` is used to set the `$optimizer` slot of a [`ModelDescriptor`]; it takes the desired `TorchOptimizer` object on construction and exports its `ParamSet`.
+`po("torch_optimizer")` is used to set the `$optimizer` slot of a [`ModelDescriptor`]; it takes the desired [`DescriptorTorchOptimizer`] object on construction and exports its `ParamSet`.
 ```{r}
 po_adam = po("torch_optimizer", optimizer = adam)
 
 # hyperparameters are made available and can be changed:
 po_adam$param_set$values
 
-md_sequential <- po_adam$train(list(md_sequential))[[1]]
+md_sequential = po_adam$train(list(md_sequential))[[1]]
 
 md_sequential$optimizer
 ```
 
 ```{r}
-po_xe <- po("torch_loss", loss = xe)
-md_sequential <- po_xe$train(list(md_sequential))[[1]]
+po_xe = po("torch_loss", loss = xe)
+md_sequential = po_xe$train(list(md_sequential))[[1]]
 
 md_sequential$loss
 ```
 
-## Combined Instantiation and Training of [`LearnerClassifTorchModel`]
+## Combined Instantiation and Training of [`LearnerTorchModel`]
 
 The [`ModelDescriptor`] can now be given to a `po("torch_model_classif")`.
 ```{r}
@@ -467,11 +464,12 @@ po_model$train(list(md_sequential))
 ```
 
 `po("torch_model_classif")` behaves similarly to a `PipeOpLearner`: It returns `NULL` during training, and the prediction on `$predict()`.
+`po("torch_model_classif")` behaves similarly to a `PipeOpLearner`: It returns `NULL` during training, and the prediction on `$predict()`.
 
 ```{r}
 newtask = TaskClassif$new("newdata", cbind(newdata, Species = factor(NA, levels = levels(iris$Species))), target = "Species")
 
-predictions <- po_model$predict(list(newtask))[[1]]
+predictions = po_model$predict(list(newtask))[[1]]
 
 plot_predictions(predictions)
 ```
@@ -481,7 +479,7 @@ plot_predictions(predictions)
 Remember that `md_sequential` was created using a `Graph` that the initial `Task` was piped through. If we combine such a `Graph` with [`PipeOpTorchModelClassif`], we get a `Graph` that behaves like any other `Graph` that ends with a `PipeOpLearner`, and can therefore be wrapped as a `GraphLearner`. The following uses one more hidden layer than before:
 
 ```{r}
-graph_sequential_full <- po("torch_ingress_num") %>>%
+graph_sequential_full = po("torch_ingress_num") %>>%
   po("nn_linear", out_features = 4, id = "linear1") %>>%
     po("nn_sigmoid") %>>%
     po("nn_linear", out_features = 3, id = "linear2") %>>%
@@ -503,13 +501,13 @@ graph_sequential_full$plot()
 
 With the `Graph` of the trained model:
 ```{r}
-model <- lr_sequential_full$graph_model$state$torch_model_classif$model
+model = lr_sequential_full$graph_model$state$torch_model_classif$model
 model$network$graph$plot()
 ```
 
 Predictions, as before (we can use `predict_newdata` again):
 ```{r}
-predictions <- lr_sequential_full$predict_newdata(newdata)
+predictions = lr_sequential_full$predict_newdata(newdata)
 
 plot_predictions(predictions)
 ```
@@ -519,7 +517,7 @@ plot_predictions(predictions)
 We are not just limited to [`PipeOpTorch`] in these kinds of `Graph`s, and we are also not limited to having only a single [`PipeOpTorchIngress`]. The following pipeline, for example, removes all but the `Petal.Length` columns from the `Task` and fits a model:
 
 ```{r}
-gr <- po("select", selector = selector_name("Petal.Length")) %>>%
+gr = po("select", selector = selector_name("Petal.Length")) %>>%
   po("torch_ingress_num") %>>%
   po("nn_linear", out_features = 5, id = "linear1") %>>%
   po("nn_relu") %>>%
@@ -531,9 +529,9 @@ gr <- po("select", selector = selector_name("Petal.Length")) %>>%
 gr$plot()
 ```
 ```{r}
-lr <- as_learner(gr)
+lr = as_learner(gr)
 lr$train(task)
-predictions <- lr$predict_newdata(newdata)
+predictions = lr$predict_newdata(newdata)
 
 plot_predictions(predictions)
 ```
@@ -541,7 +539,7 @@ plot_predictions(predictions)
 How about using `Petal.Length` and `Sepal.Length` separately at first?
 
 ```{r}
-gr <- gunion(list(
+gr = gunion(list(
       po("select", selector = selector_name("Petal.Length"), id = "sel1") %>>%
         po("torch_ingress_num", id = "ingress.petal") %>>%
         po("nn_linear", out_features = 3, id = "linear1"),
@@ -561,9 +559,9 @@ gr$plot()
 ```
 
 ```{r}
-lr <- as_learner(gr)
+lr = as_learner(gr)
 lr$train(task)
-predictions <- lr$predict_newdata(newdata)
+predictions = lr$predict_newdata(newdata)
 
 plot_predictions(predictions)
 ```

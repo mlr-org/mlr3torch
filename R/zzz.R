@@ -29,8 +29,22 @@ register_po = function(name, constructor) {
 }
 
 register_learner = function(name, constructor) {
+  assert_class(constructor, "R6ClassGenerator")
+  task_type = if (startsWith(name, "classif")) "classif" else "regr"
+  # What I am doing here:
+  # The problem is that we wan't to set the task_type when creating the learner from the dictionary
+  # The initial idea was to add functions function(...) LearnerClass$new(..., task_type = "<task-type>")
+  # This did not work because mlr3misc does not work with ... arguments (... arguments are not
+  # passed further to the initialize method)
+  # For this reason, we need this hacky solution here, might change in the future in mlr3misc
+  fn = crate(function() {
+    invoke(constructor$new, task_type = task_type, .args = as.list(match.call()[-1]))
+  }, constructor = constructor, task_type = task_type, .parent = topenv())
+  fmls = formals(constructor$public_methods$initialize)
+  fmls$task_type = NULL
+  formals(fn) = fmls
   if (name %in% names(mlr3torch_learners)) stopf("learner %s registered twice", name)
-  mlr3torch_learners[[name]] = constructor
+  mlr3torch_learners[[name]] = fn
 }
 
 register_task = function(name, constructor) {
@@ -61,24 +75,6 @@ register_mlr3 = function() {
       "on_batch_valid_end",
       "on_epoch_end",
       "on_end"
-    ),
-    activations = c(
-      "celu",
-      "tanh",
-      "softpluts",
-      "rrelu",
-      "softsign",
-      "relu",
-      "sigmoid",
-      "gelu",
-      "hardtanh",
-      "linear",
-      "prelu",
-      "relu6",
-      "selu",
-      "hardshrink",
-      "softshrink",
-      "leaky_relu"
     )
   )
 
