@@ -26,6 +26,16 @@ learner_torch_initialize = function(
   label,
   callbacks
   ) {
+  predict_types = predict_types %??% switch(task_type,
+    regr = "response",
+    classif = c("response", "prob")
+  )
+  loss = loss %??% switch(task_type,
+    classif = t_loss("cross_entropy"),
+    regr = t_loss("mse")
+  )
+  optimizer = optimizer %??% t_opt("adam")
+
   private$.optimizer = as_torch_optimizer(optimizer, clone = TRUE)
   private$.optimizer$param_set$set_id = "opt"
 

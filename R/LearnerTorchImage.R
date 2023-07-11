@@ -48,7 +48,7 @@ LearnerTorchImage = R6Class("LearnerTorchImage",
       callbacks = list(), packages = c("torchvision", "magick"), man, properties = NULL,
       predict_types = NULL) {
       properties = properties %??% switch(task_type,
-        regr = c(),
+        regr = character(0),
         classif = c("twoclass", "multiclass")
       )
       assert_param_set(param_set)

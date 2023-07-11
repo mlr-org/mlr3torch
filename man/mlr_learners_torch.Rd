@@ -83,7 +83,7 @@ To change the predict types, the private \code{.encode_prediction()} method can 
 (\code{\link{torch_tensor}}, \code{\link{Task}}, \code{list()}) -> \code{list()}\cr
 Take in the raw predictions from \code{self$network} (\code{predict_tensor}) and encode them into a
 format that can be converted to valid \code{mlr3} predictions using \code{\link[mlr3:as_prediction_data]{mlr3::as_prediction_data()}}.
-This must take \code{self$predict_type} into account.
+This method must take \code{self$predict_type} into account.
 }
 
 While it is possible to add parameters by specifying the \code{param_set} construction argument, it is currently
@@ -204,7 +204,8 @@ The predict types.
 See \code{\link[=mlr_reflections]{mlr_reflections$learner_predict_types}} for available values.
 For regression, the default is \code{"response"}.
 For classification, this defaults to \code{"response"} and \code{"prob"}.
-To deviate from the defaults, it is necessary to overwrite the private \verb{$.predict()} method.}
+To deviate from the defaults, it is necessary to overwrite the private \verb{$.encode_prediction()}
+method, see section \emph{Inheriting}.}
 
 \item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
 The callbacks to use for training.

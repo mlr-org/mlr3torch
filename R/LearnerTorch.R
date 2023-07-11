@@ -22,7 +22,8 @@
 #'   See [`mlr_reflections$learner_predict_types`][mlr_reflections] for available values.
 #'   For regression, the default is `"response"`.
 #'   For classification, this defaults to `"response"` and `"prob"`.
-#'   To deviate from the defaults, it is necessary to overwrite the private `$.predict()` method.
+#'   To deviate from the defaults, it is necessary to overwrite the private `$.encode_prediction()`
+#'   method, see section *Inheriting*.
 #' @param loss (`NULL` or [`TorchLoss`])\cr
 #'   The loss to use for training.
 #'   Defaults to MSE for regression and cross entropy for classification.
@@ -71,7 +72,7 @@
 #'   ([`torch_tensor`], [`Task`], `list()`) -> `list()`\cr
 #'   Take in the raw predictions from `self$network` (`predict_tensor`) and encode them into a
 #'   format that can be converted to valid `mlr3` predictions using [`mlr3::as_prediction_data()`].
-#'   This must take `self$predict_type` into account.
+#'   This method must take `self$predict_type` into account.
 #'
 #' While it is possible to add parameters by specifying the `param_set` construction argument, it is currently
 #' not possible to remove existing parameters, i.e. those listed in section *Parameters*.
@@ -88,15 +89,6 @@ LearnerTorch = R6Class("LearnerTorch",
     initialize = function(id, task_type, param_set, properties, man, label, feature_types,
       optimizer = NULL, loss = NULL, packages = NULL, predict_types = NULL, callbacks = list()) {
       assert_choice(task_type, c("regr", "classif"))
-      predict_types = predict_types %??% switch(task_type,
-        regr = "response",
-        classif = c("response", "prob")
-      )
-      loss = loss %??% switch(task_type,
-        classif = t_loss("cross_entropy"),
-        regr = t_loss("mse")
-      )
-      optimizer = optimizer %??% t_opt("adam")
 
       learner_torch_initialize(self = self, private = private, super = super,
         task_type = task_type,
@@ -118,6 +110,7 @@ LearnerTorch = R6Class("LearnerTorch",
     #' @field network ([`nn_module()`][torch::nn_module])\cr
     #'   The network (only available after training).
     network = function(rhs) {
+      assert_ro_binding(rhs)
       if (is.null(self$state)) {
         stopf("Cannot access network before training.")
       }

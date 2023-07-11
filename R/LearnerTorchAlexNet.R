@@ -27,7 +27,6 @@ LearnerTorchAlexNet = R6Class("LearnerTorchAlexNet",
         pretrained = p_lgl(tags = c("required", "train"))
       )
       param_set$values = list(pretrained = TRUE)
-      # TODO: Freezing --> maybe as a callback?
       super$initialize(
         task_type = task_type,
         id = paste0(task_type, ".alexnet"),
