@@ -103,28 +103,6 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"mlr3torch"</span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
-<h2 id="intro">Intro<a class="anchor" aria-label="anchor" href="#intro"></a>
-</h2>
-<p>The TorchOps Neo project tries to use <code>mlr3pipelines</code> as a
-backet to implement building network architectures from
-<code>PipeOp</code>s. Specific <code>PipeOp</code>s, inheriting from
-[<code>PipeOpModule</code>], contain <code>torch_module</code> objects.
-These <code>PipeOp</code>s are chained in a <code>Graph</code> that
-passes <code>torch_tensor</code> objects along its edges. Another class
-of <code>PipeOp</code>, [<code>PipeOpTorch</code>], can be used to build
-these torch module <code>Graph</code>s, they become parts of normal data
-preprocessing pipelines. These two distinct classes of
-<code>PipeOp</code>s are necessary since they represent different
-things: The [<code>PipeOpTorch</code>] operators correspond to
-<code>torch</code>’s <code>nn_module_generator</code> functions, the
-[<code>PipeOpModule</code>] then contain the instantiated
-<code>nn_module</code>-objects.</p>
-<p>Some further changes have been made compared to the old code, in
-particular the handling of different columns / datatypes within
-<code>Task</code>s and how network input is handled. The network
-training code was also refactored and simplified.</p>
-</div>
-<div class="section level2">
 <h2 id="torch-modules-and-pipeopmodule">Torch modules and <code>PipeOpModule</code><a class="anchor" aria-label="anchor" href="#torch-modules-and-pipeopmodule"></a>
 </h2>
 <div class="section level3">
@@ -132,41 +110,41 @@ training code was also refactored and simplified.</p>
 </h3>
 <p>Some input tensor: 2-batch of 3 units.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">input</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_randn.html" class="external-link">torch_randn</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">input</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_randn.html" class="external-link">torch_randn</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="va">input</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.5517 -0.8208  2.2143</span></span>
-<span><span class="co">#&gt; -1.0225  1.3829 -0.0966</span></span>
+<span><span class="co">#&gt;  1.9035 -0.1681 -1.1478</span></span>
+<span><span class="co">#&gt;  1.8320  0.1404 -1.1457</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,3} ]</span></span></code></pre></div>
 <p>A <code>nn_module</code> is constructed from a
 <code>nn_module_generator</code>. <code>nn_linear</code> is one of the
 simpler generators:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">module_1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">4</span>, bias <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">module_1</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">4</span>, bias <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>Applying this module gives a 2-batch of 4 units:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu">module_1</span><span class="op">(</span><span class="va">input</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">output</span> <span class="op">=</span> <span class="fu">module_1</span><span class="op">(</span><span class="va">input</span><span class="op">)</span></span>
 <span><span class="va">output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  1.0713  0.9505  0.7382  1.2631</span></span>
-<span><span class="co">#&gt;  0.0923 -0.5044 -0.8893  0.8142</span></span>
+<span><span class="co">#&gt; -0.2922  0.7284  0.5909 -0.5396</span></span>
+<span><span class="co">#&gt; -0.4131  0.6686  0.5073 -0.6873</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,4} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span></code></pre></div>
 <p>A neural network with one (4-unit) hidden layer and two outputs needs
 the following ingredients</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">activation</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_sigmoid.html" class="external-link">nn_sigmoid</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">module_2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">3</span>, bias <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">softmax</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_softmax.html" class="external-link">nn_softmax</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">activation</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_sigmoid.html" class="external-link">nn_sigmoid</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">module_2</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">3</span>, bias <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">softmax</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_softmax.html" class="external-link">nn_softmax</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p>Piping a tensor through this:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu">module_1</span><span class="op">(</span><span class="va">input</span><span class="op">)</span></span>
-<span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu">activation</span><span class="op">(</span><span class="va">output</span><span class="op">)</span></span>
-<span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu">module_2</span><span class="op">(</span><span class="va">output</span><span class="op">)</span></span>
-<span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu">softmax</span><span class="op">(</span><span class="va">output</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">output</span> <span class="op">=</span> <span class="fu">module_1</span><span class="op">(</span><span class="va">input</span><span class="op">)</span></span>
+<span><span class="va">output</span> <span class="op">=</span> <span class="fu">activation</span><span class="op">(</span><span class="va">output</span><span class="op">)</span></span>
+<span><span class="va">output</span> <span class="op">=</span> <span class="fu">module_2</span><span class="op">(</span><span class="va">output</span><span class="op">)</span></span>
+<span><span class="va">output</span> <span class="op">=</span> <span class="fu">softmax</span><span class="op">(</span><span class="va">output</span><span class="op">)</span></span>
 <span><span class="va">output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.2174  0.3204  0.4622</span></span>
-<span><span class="co">#&gt;  0.2542  0.3150  0.4308</span></span>
+<span><span class="co">#&gt;  0.1274  0.3259  0.5467</span></span>
+<span><span class="co">#&gt;  0.1305  0.3291  0.5404</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,3} ][ grad_fn = &lt;SoftmaxBackward0&gt; ]</span></span></code></pre></div>
 <p>Training the neural network then consists of Toch keeping track of
 what parameters were used to calculate <code>output</code> to calculate
@@ -190,14 +168,14 @@ multiple outputs are possible when the module-function returns a list.
 Number of outputs must be declared during construction, then.</p>
 <p>Wrapping the linear <code>module_1</code> works like this:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">po_module_1</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/mlr_pipeops_module.html">PipeOpModule</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"module_1"</span>, <span class="va">module_1</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">po_module_1</span> <span class="op">=</span> <span class="va"><a href="../reference/mlr_pipeops_module.html">PipeOpModule</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"module_1"</span>, <span class="va">module_1</span><span class="op">)</span></span></code></pre></div>
 <p>It is used in the familiar way:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">output</span> <span class="op">&lt;-</span> <span class="va">po_module_1</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">input</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<code class="sourceCode R"><span><span class="va">output</span> <span class="op">=</span> <span class="va">po_module_1</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">input</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  1.0713  0.9505  0.7382  1.2631</span></span>
-<span><span class="co">#&gt;  0.0923 -0.5044 -0.8893  0.8142</span></span>
+<span><span class="co">#&gt; -0.2922  0.7284  0.5909 -0.5396</span></span>
+<span><span class="co">#&gt; -0.4131  0.6686  0.5073 -0.6873</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,4} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span></code></pre></div>
 <p>Note we only use the <code>$train()</code>, since Torch modules do
 not have anything that maps to the <code>state</code> (it is filled by
@@ -205,19 +183,19 @@ an empty list).</p>
 <p>The single hidden layer neural network can be constructed as a
 <code>Graph</code>, which can then do the training all at once.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">po_activation</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/mlr_pipeops_module.html">PipeOpModule</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"activation"</span>, <span class="va">activation</span><span class="op">)</span></span>
-<span><span class="va">po_module_2</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/mlr_pipeops_module.html">PipeOpModule</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"module_2"</span>, <span class="va">module_2</span><span class="op">)</span></span>
-<span><span class="va">po_softmax</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/mlr_pipeops_module.html">PipeOpModule</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"softmax"</span>, <span class="va">softmax</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">po_activation</span> <span class="op">=</span> <span class="va"><a href="../reference/mlr_pipeops_module.html">PipeOpModule</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"activation"</span>, <span class="va">activation</span><span class="op">)</span></span>
+<span><span class="va">po_module_2</span> <span class="op">=</span> <span class="va"><a href="../reference/mlr_pipeops_module.html">PipeOpModule</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"module_2"</span>, <span class="va">module_2</span><span class="op">)</span></span>
+<span><span class="va">po_softmax</span> <span class="op">=</span> <span class="va"><a href="../reference/mlr_pipeops_module.html">PipeOpModule</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"softmax"</span>, <span class="va">softmax</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">module_graph</span> <span class="op">&lt;-</span> <span class="va">po_module_1</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span> <span class="va">po_activation</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span> <span class="va">po_module_2</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span> <span class="va">po_softmax</span></span></code></pre></div>
+<span><span class="va">module_graph</span> <span class="op">=</span> <span class="va">po_module_1</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span> <span class="va">po_activation</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span> <span class="va">po_module_2</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span> <span class="va">po_softmax</span></span></code></pre></div>
 <p>Using the <code>Graph</code>’s <code>$train()</code> to pipe a tensor
 through the <code>Graph</code>:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">output</span> <span class="op">&lt;-</span> <span class="va">module_graph</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">input</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<code class="sourceCode R"><span><span class="va">output</span> <span class="op">=</span> <span class="va">module_graph</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">input</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.2174  0.3204  0.4622</span></span>
-<span><span class="co">#&gt;  0.2542  0.3150  0.4308</span></span>
+<span><span class="co">#&gt;  0.1274  0.3259  0.5467</span></span>
+<span><span class="co">#&gt;  0.1305  0.3291  0.5404</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,3} ][ grad_fn = &lt;SoftmaxBackward0&gt; ]</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -254,7 +232,7 @@ giving the <code>output_map</code> argument.</p>
 <span><span class="co">#&gt;              name        train predict    op.id channel.name</span></span>
 <span><span class="co">#&gt; 1: module_1.input torch_tensor    NULL module_1        input</span></span>
 <span></span>
-<span><span class="va">graph_module</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nn_graph.html">nn_graph</a></span><span class="op">(</span></span>
+<span><span class="va">graph_module</span> <span class="op">=</span> <span class="fu"><a href="../reference/nn_graph.html">nn_graph</a></span><span class="op">(</span></span>
 <span>  <span class="va">module_graph</span>,</span>
 <span>  shapes_in <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>module_1.input <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -273,40 +251,40 @@ objects, e.g.:</p>
 <span><span class="va">graph_module</span><span class="op">$</span><span class="va">parameters</span></span>
 <span><span class="co">#&gt; $modules.0.weight</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.5448  0.5282  0.5562</span></span>
-<span><span class="co">#&gt; -0.2419 -0.2493  0.5566</span></span>
-<span><span class="co">#&gt;  0.4748 -0.0659  0.3180</span></span>
-<span><span class="co">#&gt;  0.0805  0.2771  0.4037</span></span>
+<span><span class="co">#&gt; -0.5238 -0.5100 -0.4751</span></span>
+<span><span class="co">#&gt;  0.5353 -0.0683 -0.2268</span></span>
+<span><span class="co">#&gt; -0.0037 -0.2709 -0.1419</span></span>
+<span><span class="co">#&gt; -0.2498 -0.5401  0.4978</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{4,3} ][ requires_grad = TRUE ]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $modules.0.bias</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; -0.0274</span></span>
-<span><span class="co">#&gt; -0.3531</span></span>
-<span><span class="co">#&gt; -0.2820</span></span>
-<span><span class="co">#&gt;  0.5522</span></span>
+<span><span class="co">#&gt;  0.0738</span></span>
+<span><span class="co">#&gt; -0.5623</span></span>
+<span><span class="co">#&gt;  0.3896</span></span>
+<span><span class="co">#&gt;  0.4164</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{4} ][ requires_grad = TRUE ]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $modules.2.weight</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.3688 -0.3325 -0.0073 -0.4735</span></span>
-<span><span class="co">#&gt; -0.4728  0.4627  0.1077  0.0082</span></span>
-<span><span class="co">#&gt;  0.3526 -0.0165  0.1870  0.0620</span></span>
+<span><span class="co">#&gt; -0.1219 -0.2377  0.2884 -0.2205</span></span>
+<span><span class="co">#&gt; -0.1380  0.3970  0.3643 -0.0785</span></span>
+<span><span class="co">#&gt;  0.0744  0.3792  0.3488  0.3950</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{3,4} ][ requires_grad = TRUE ]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $modules.2.bias</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.3637</span></span>
-<span><span class="co">#&gt;  0.3519</span></span>
-<span><span class="co">#&gt;  0.3533</span></span>
+<span><span class="co">#&gt; -0.2028</span></span>
+<span><span class="co">#&gt;  0.2142</span></span>
+<span><span class="co">#&gt;  0.4885</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{3} ][ requires_grad = TRUE ]</span></span></code></pre></div>
 <p>And it can be used to transform tensors just as any other torch
 <code>nn_module</code>:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">graph_module</span><span class="op">(</span><span class="va">input</span><span class="op">)</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.2174  0.3204  0.4622</span></span>
-<span><span class="co">#&gt;  0.2542  0.3150  0.4308</span></span>
+<span><span class="co">#&gt;  0.1274  0.3259  0.5467</span></span>
+<span><span class="co">#&gt;  0.1305  0.3291  0.5404</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,3} ][ grad_fn = &lt;SoftmaxBackward0&gt; ]</span></span></code></pre></div>
 </div>
 </div>
@@ -332,12 +310,16 @@ necessary meta-info. The [<code>PipeOpTorch</code>] transforms a <a href="#model
 build up a [<code>Graph</code>] for a specific [<code>Task</code>]. The
 easiest way to initialize a proper <a href="#modeldescriptor"><code>ModelDescriptor</code></a> is to use the
 appropriate [<code>PipeOpTorchIngress</code>] <code>PipeOp</code> for a
+given datatype. <a href="#modeldescriptor"><code>ModelDescriptor</code></a>s always build
+up a [<code>Graph</code>] for a specific [<code>Task</code>]. The
+easiest way to initialize a proper <a href="#modeldescriptor"><code>ModelDescriptor</code></a> is to use the
+appropriate [<code>PipeOpTorchIngress</code>] <code>PipeOp</code> for a
 given datatype.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">task</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span><span class="op">$</span><span class="fu">select</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">iris</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">task</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span><span class="op">$</span><span class="fu">select</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">iris</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">po_torch_in</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num"</span><span class="op">)</span></span>
-<span><span class="va">md</span> <span class="op">&lt;-</span> <span class="va">po_torch_in</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">task</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<span><span class="va">po_torch_in</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num"</span><span class="op">)</span></span>
+<span><span class="va">md</span> <span class="op">=</span> <span class="va">po_torch_in</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">task</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
 <span><span class="va">md</span></span>
 <span><span class="co">#&gt; &lt;ModelDescriptor: 1 ops&gt;</span></span>
@@ -395,8 +377,8 @@ this <a href="#modeldescriptor"><code>ModelDescriptor</code></a> through
 [<code>PipeOpModule</code>] wrapping a <code>torch</code>
 <code>nn_linear</code>.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">po_torch_linear</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
-<span><span class="va">md</span> <span class="op">&lt;-</span> <span class="va">po_torch_linear</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">md</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<code class="sourceCode R"><span><span class="va">po_torch_linear</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="va">md</span> <span class="op">=</span> <span class="va">po_torch_linear</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">md</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
 <span><span class="va">md</span><span class="op">$</span><span class="va">graph</span></span>
 <span><span class="co">#&gt; Graph with 2 PipeOps:</span></span>
@@ -416,12 +398,12 @@ before).</p>
 this to an [<code>nn_graph</code>], it is a functional
 <code>torch</code> <code>nn_module</code>.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">small_module</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/model_descriptor_to_module.html">model_descriptor_to_module</a></span><span class="op">(</span><span class="va">md</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">md</span><span class="op">$</span><span class="va">.pointer</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">small_module</span> <span class="op">=</span> <span class="fu"><a href="../reference/model_descriptor_to_module.html">model_descriptor_to_module</a></span><span class="op">(</span><span class="va">md</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">md</span><span class="op">$</span><span class="va">.pointer</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">small_module</span><span class="op">(</span><span class="va">input</span><span class="op">)</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; -1.1720 -0.2772  0.4031  0.0628</span></span>
-<span><span class="co">#&gt;  0.1238  0.3307 -0.8167 -0.5677</span></span>
+<span><span class="co">#&gt; -0.4289  0.8278 -0.5818 -1.1225</span></span>
+<span><span class="co">#&gt; -0.5437  0.8503 -0.4078 -1.0726</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,4} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -439,7 +421,7 @@ not only represent the <code>Graph</code> from which a
 to be created extra (if necessary), since it depends on the ultimate
 machine learning model, which we have not looked at so far.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">td</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/task_dataset.html">task_dataset</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">td</span> <span class="op">=</span> <span class="fu"><a href="../reference/task_dataset.html">task_dataset</a></span><span class="op">(</span></span>
 <span>  task <span class="op">=</span> <span class="va">md</span><span class="op">$</span><span class="va">task</span>,</span>
 <span>  feature_ingress_tokens <span class="op">=</span> <span class="va">md</span><span class="op">$</span><span class="va">ingress</span>,</span>
 <span>  device <span class="op">=</span> <span class="st">"cpu"</span></span>
@@ -465,7 +447,7 @@ possible target batches. The <code>$x</code> slot is also a
 <code>list</code>, since it should be able to handle NNs with multiple
 inputs (see below).</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">batch</span> <span class="op">&lt;-</span> <span class="va">td</span><span class="op">$</span><span class="fu">.getbatch</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">batch</span> <span class="op">=</span> <span class="va">td</span><span class="op">$</span><span class="fu">.getbatch</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span></span>
 <span><span class="va">batch</span></span>
 <span><span class="co">#&gt; $x</span></span>
 <span><span class="co">#&gt; $x$torch_ingress_num.input</span></span>
@@ -484,9 +466,9 @@ inputs (see below).</p>
 <span></span>
 <span><span class="fu">small_module</span><span class="op">(</span><span class="va">batch</span><span class="op">$</span><span class="va">x</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.9546  1.0705 -0.1959  0.1812</span></span>
-<span><span class="co">#&gt;  0.9908  1.0434 -0.2102  0.1717</span></span>
-<span><span class="co">#&gt;  0.8572  0.9879 -0.1929  0.1532</span></span>
+<span><span class="co">#&gt; -1.2735  1.6845  1.0766 -0.8355</span></span>
+<span><span class="co">#&gt; -1.3283  1.6293  1.0894 -0.8211</span></span>
+<span><span class="co">#&gt; -1.1564  1.5762  1.0122 -0.7966</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{3,4} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -495,7 +477,7 @@ inputs (see below).</p>
 <p>The sequential NN from above can easily be implemented as
 follows:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">graph_generator</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
+<code class="sourceCode R"><span><span class="va">graph_generator</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">4</span>, id <span class="op">=</span> <span class="st">"linear1"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_sigmoid"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">3</span>, id <span class="op">=</span> <span class="st">"linear2"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
@@ -506,14 +488,14 @@ since the <a href="#modeldescriptor"><code>ModelDescriptor</code></a>
 that is passed along the <code>Graph</code> edges knows this info (in
 the <code>$.pointer_shape</code> slot).</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">md_sequential</span> <span class="op">&lt;-</span> <span class="va">graph_generator</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<code class="sourceCode R"><span><span class="va">md_sequential</span> <span class="op">=</span> <span class="va">graph_generator</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
-<span><span class="va">graph_module</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/model_descriptor_to_module.html">model_descriptor_to_module</a></span><span class="op">(</span><span class="va">md_sequential</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">md_sequential</span><span class="op">$</span><span class="va">.pointer</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">graph_module</span> <span class="op">=</span> <span class="fu"><a href="../reference/model_descriptor_to_module.html">model_descriptor_to_module</a></span><span class="op">(</span><span class="va">md_sequential</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">md_sequential</span><span class="op">$</span><span class="va">.pointer</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">graph_module</span><span class="op">(</span><span class="va">input</span><span class="op">)</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.3140  0.3014  0.3846</span></span>
-<span><span class="co">#&gt;  0.3460  0.2890  0.3650</span></span>
+<span><span class="co">#&gt;  0.1469  0.4224  0.4307</span></span>
+<span><span class="co">#&gt;  0.1478  0.4173  0.4349</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,3} ][ grad_fn = &lt;SoftmaxBackward0&gt; ]</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -532,18 +514,18 @@ features of <code>tsk("iris")</code>. We manually split the task here,
 further down it is shown that the wholly integrated
 <code>mlr3pipelines</code> pipeline can do this automatically.</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">iris_petal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span><span class="op">$</span><span class="fu">select</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Petal.Length"</span>, <span class="st">"Petal.Width"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">iris_sepal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span><span class="op">$</span><span class="fu">select</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sepal.Length"</span>, <span class="st">"Sepal.Width"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">iris_petal</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span><span class="op">$</span><span class="fu">select</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Petal.Length"</span>, <span class="st">"Petal.Width"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">iris_sepal</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span><span class="op">$</span><span class="fu">select</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sepal.Length"</span>, <span class="st">"Sepal.Width"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">graph_sepal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num"</span>, id <span class="op">=</span> <span class="st">"sepal.in"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
+<code class="sourceCode R"><span><span class="va">graph_sepal</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num"</span>, id <span class="op">=</span> <span class="st">"sepal.in"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">4</span>, id <span class="op">=</span> <span class="st">"linear1"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">graph_petal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num"</span>, id <span class="op">=</span> <span class="st">"petal.in"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
+<span><span class="va">graph_petal</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num"</span>, id <span class="op">=</span> <span class="st">"petal.in"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">3</span>, id <span class="op">=</span> <span class="st">"linear2"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_tanh"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">5</span>, id <span class="op">=</span> <span class="st">"linear3"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">graph_common</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/ppl.html" class="external-link">ppl</a></span><span class="op">(</span><span class="st">"branch"</span>, graphs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span><span class="va">graph_common</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/ppl.html" class="external-link">ppl</a></span><span class="op">(</span><span class="st">"branch"</span>, graphs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    sigmoid <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_sigmoid"</span><span class="op">)</span>,</span>
 <span>    relu <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_relu"</span><span class="op">)</span></span>
 <span>  <span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
@@ -554,7 +536,7 @@ further down it is shown that the wholly integrated
 <span>  <span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span></span>
-<span><span class="va">graph_iris</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/gunion.html" class="external-link">gunion</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">graph_sepal</span>, <span class="va">graph_petal</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
+<span><span class="va">graph_iris</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/gunion.html" class="external-link">gunion</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">graph_sepal</span>, <span class="va">graph_petal</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_merge_cat"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="va">graph_common</span></span>
 <span></span>
@@ -564,11 +546,11 @@ further down it is shown that the wholly integrated
 tasks we created above. We set the <code>$keep_results</code> debug flag
 here so we can do some inspection about what is happening:</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">graph_iris</span><span class="op">$</span><span class="va">param_set</span><span class="op">$</span><span class="va">values</span><span class="op">$</span><span class="va">branch.selection</span> <span class="op">&lt;-</span> <span class="st">"relu"</span></span>
+<code class="sourceCode R"><span><span class="va">graph_iris</span><span class="op">$</span><span class="va">param_set</span><span class="op">$</span><span class="va">values</span><span class="op">$</span><span class="va">branch.selection</span> <span class="op">=</span> <span class="st">"relu"</span></span>
 <span></span>
 <span><span class="va">graph_iris</span><span class="op">$</span><span class="va">keep_results</span> <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span></span>
-<span><span class="va">iris_mds</span> <span class="op">&lt;-</span> <span class="va">graph_iris</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span></span>
+<span><span class="va">iris_mds</span> <span class="op">=</span> <span class="va">graph_iris</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span></span>
 <span>  input <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sepal.in.input <span class="op">=</span> <span class="va">iris_sepal</span>, petal.in.input <span class="op">=</span> <span class="va">iris_petal</span><span class="op">)</span>,</span>
 <span>  single_input <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
@@ -684,13 +666,13 @@ given to <code><a href="../reference/task_dataset.html">task_dataset()</a></code
 <span><span class="co">#&gt; * Features (4):</span></span>
 <span><span class="co">#&gt;   - dbl (4): Petal.Length, Petal.Width, Sepal.Length, Sepal.Width</span></span>
 <span></span>
-<span><span class="va">iris_td</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/task_dataset.html">task_dataset</a></span><span class="op">(</span></span>
+<span><span class="va">iris_td</span> <span class="op">=</span> <span class="fu"><a href="../reference/task_dataset.html">task_dataset</a></span><span class="op">(</span></span>
 <span>  task <span class="op">=</span> <span class="va">iris_mds_union</span><span class="op">$</span><span class="va">task</span>,</span>
 <span>  feature_ingress_tokens <span class="op">=</span> <span class="va">iris_mds_union</span><span class="op">$</span><span class="va">ingress</span>,</span>
 <span>  device <span class="op">=</span> <span class="st">"cpu"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">batch</span> <span class="op">&lt;-</span> <span class="va">iris_td</span><span class="op">$</span><span class="fu">.getbatch</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">batch</span> <span class="op">=</span> <span class="va">iris_td</span><span class="op">$</span><span class="fu">.getbatch</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">batch</span></span>
 <span><span class="co">#&gt; $x</span></span>
 <span><span class="co">#&gt; $x$sepal.in.input</span></span>
@@ -726,14 +708,14 @@ the <code>nn_module</code>’s <code>$graph</code>:</p>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; $lin_out.output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; -0.1156</span></span>
-<span><span class="co">#&gt; -0.1190</span></span>
+<span><span class="co">#&gt; -1.8212</span></span>
+<span><span class="co">#&gt; -1.7013</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,1} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $nn_softmax.output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.3833  0.3893  0.2275</span></span>
-<span><span class="co">#&gt;  0.3856  0.3793  0.2351</span></span>
+<span><span class="co">#&gt;  0.2893  0.1899  0.5208</span></span>
+<span><span class="co">#&gt;  0.2988  0.1955  0.5057</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,3} ][ grad_fn = &lt;SoftmaxBackward0&gt; ]</span></span></code></pre></div>
 <p>The first linear layer that takes “Sepal” input
 (<code>"linear1"</code>) creates a 2x4 tensor (batch size 2, 4 units),
@@ -742,14 +724,14 @@ while the <code>"linear3"</code> layer has 2x5 output:</p>
 <code class="sourceCode R"><span><span class="va">iris_module</span><span class="op">$</span><span class="va">graph</span><span class="op">$</span><span class="va">pipeops</span><span class="op">$</span><span class="va">linear1</span><span class="op">$</span><span class="va">.result</span></span>
 <span><span class="co">#&gt; $output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; -0.3799 -2.1498 -2.3977  0.1213</span></span>
-<span><span class="co">#&gt; -0.4049 -1.9789 -2.3346  0.2923</span></span>
+<span><span class="co">#&gt; -3.6851  2.8775  4.4381  0.6697</span></span>
+<span><span class="co">#&gt; -3.4792  2.7073  4.0168  0.5140</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,4} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span>
 <span><span class="va">iris_module</span><span class="op">$</span><span class="va">graph</span><span class="op">$</span><span class="va">pipeops</span><span class="op">$</span><span class="va">linear3</span><span class="op">$</span><span class="va">.result</span></span>
 <span><span class="co">#&gt; $output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; -1.3613 -0.1061  0.1592  0.2317  0.1124</span></span>
-<span><span class="co">#&gt; -1.3613 -0.1061  0.1592  0.2317  0.1124</span></span>
+<span><span class="co">#&gt; -0.0584  0.5586 -0.1623  0.0477  0.0125</span></span>
+<span><span class="co">#&gt; -0.0584  0.5586 -0.1623  0.0477  0.0125</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,5} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span></code></pre></div>
 <p>We observe that the <code>po("nn_merge_cat")</code> concatenates
 these, as expected:</p>
@@ -757,8 +739,8 @@ these, as expected:</p>
 <code class="sourceCode R"><span><span class="va">iris_module</span><span class="op">$</span><span class="va">graph</span><span class="op">$</span><span class="va">pipeops</span><span class="op">$</span><span class="va">nn_merge_cat</span><span class="op">$</span><span class="va">.result</span></span>
 <span><span class="co">#&gt; $output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; -0.3799 -2.1498 -2.3977  0.1213 -1.3613 -0.1061  0.1592  0.2317  0.1124</span></span>
-<span><span class="co">#&gt; -0.4049 -1.9789 -2.3346  0.2923 -1.3613 -0.1061  0.1592  0.2317  0.1124</span></span>
+<span><span class="co">#&gt; -3.6851  2.8775  4.4381  0.6697 -0.0584  0.5586 -0.1623  0.0477  0.0125</span></span>
+<span><span class="co">#&gt; -3.4792  2.7073  4.0168  0.5140 -0.0584  0.5586 -0.1623  0.0477  0.0125</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,9} ][ grad_fn = &lt;CatBackward0&gt; ]</span></span></code></pre></div>
 </li>
 </ol>
@@ -784,7 +766,7 @@ object but also provide a <code>ParamSet</code>. They can be obtained
 from a <code>Dictionary</code> using the <code>t_opt</code> quick-access
 function.</p>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">adam</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/t_opt.html">t_opt</a></span><span class="op">(</span><span class="st">"adam"</span>, lr <span class="op">=</span> <span class="fl">0.02</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">adam</span> <span class="op">=</span> <span class="fu"><a href="../reference/t_opt.html">t_opt</a></span><span class="op">(</span><span class="st">"adam"</span>, lr <span class="op">=</span> <span class="fl">0.02</span><span class="op">)</span></span>
 <span><span class="va">adam</span></span>
 <span><span class="co">#&gt; &lt;TorchOptimizer:adam&gt; Adaptive Moment Estimation</span></span>
 <span><span class="co">#&gt; * Generator: optim_adam</span></span>
@@ -802,7 +784,7 @@ function.</p>
 from a <code>Dictionary</code> using <code><a href="../reference/t_loss.html">t_loss()</a></code> and they have
 <code>ParamSet</code>s.</p>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">xe</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/t_loss.html">t_loss</a></span><span class="op">(</span><span class="st">"cross_entropy"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">xe</span> <span class="op">=</span> <span class="fu"><a href="../reference/t_loss.html">t_loss</a></span><span class="op">(</span><span class="st">"cross_entropy"</span><span class="op">)</span></span>
 <span><span class="va">xe</span></span>
 <span><span class="co">#&gt; &lt;TorchLoss:cross_entropy&gt; Cross Entropy</span></span>
 <span><span class="co">#&gt; * Generator: nn_cross_entropy_loss</span></span>
@@ -811,21 +793,21 @@ from a <code>Dictionary</code> using <code><a href="../reference/t_loss.html">t_
 <span><span class="co">#&gt; * Task Types: classif</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="learnerclassiftorchmodel-and-learnerregrtorchmodel">[<code>LearnerClassifTorchModel</code>] and
-[<code>LearnerRegrTorchModel</code>]<a class="anchor" aria-label="anchor" href="#learnerclassiftorchmodel-and-learnerregrtorchmodel"></a>
+<h3 id="learnertorchmodel">[<code>LearnerTorchModel</code>]<a class="anchor" aria-label="anchor" href="#learnertorchmodel"></a>
 </h3>
-<p>[<code>LearnerClassifTorchModel</code>] represents a classification
-model using <code>torch</code> NNs. It needs a <code>nn_module</code>,
-as well as a list of [<code>TorchIngressToken</code>] that define how
-batches are created from a <code>Task</code>.
-[<code>TorchIngressToken</code>] hard-code the column-names of a
-<code>Task</code> that are used for data-input, the <code>Learner</code>
-created like this therefore only works for the specific
-<code>Task</code> created. (Generally the full
+<p>[<code>LearnerTorchModel</code>] represents a supervised model
+(regression or classification) using <code>torch</code> NNs. It needs a
+<code>nn_module</code>, as well as a list of
+[<code>TorchIngressToken</code>] that define how batches are created
+from a <code>Task</code>. [<code>TorchIngressToken</code>] hard-code the
+column-names of a <code>Task</code> that are used for data-input, the
+<code>Learner</code> created like this therefore only works for the
+specific <code>Task</code> created. (Generally the full
 <code>mlr3pipelines</code>-UI should be used if this is a problem, see
 below.) The following uses the sequential NN from above:</p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">lr_sequential</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/mlr_learners_classif.torch_model.html">LearnerClassifTorchModel</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">lr_sequential</span> <span class="op">=</span> <span class="va"><a href="../reference/mlr_learners_torch_model.html">LearnerTorchModel</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  task_type <span class="op">=</span> <span class="st">"classif"</span>,</span>
 <span>  network <span class="op">=</span> <span class="fu"><a href="../reference/model_descriptor_to_module.html">model_descriptor_to_module</a></span><span class="op">(</span><span class="va">md_sequential</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">md_sequential</span><span class="op">$</span><span class="va">.pointer</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  ingress_tokens <span class="op">=</span> <span class="va">md_sequential</span><span class="op">$</span><span class="va">ingress</span>,</span>
 <span>  optimizer <span class="op">=</span> <span class="va">adam</span>,</span>
@@ -834,16 +816,18 @@ below.) The following uses the sequential NN from above:</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">lr_sequential</span></span>
-<span><span class="co">#&gt; &lt;LearnerClassifTorchModel:classif.torch_model&gt;: Torch Classification Model</span></span>
+<span><span class="co">#&gt; &lt;LearnerTorchModel:classif.model&gt;: Torch Model</span></span>
 <span><span class="co">#&gt; * Model: -</span></span>
 <span><span class="co">#&gt; * Parameters: device=auto, measures_train=&lt;list&gt;,</span></span>
 <span><span class="co">#&gt;   measures_valid=&lt;list&gt;, num_threads=1, drop_last=FALSE, shuffle=TRUE,</span></span>
 <span><span class="co">#&gt;   seed=random, opt.lr=0.02</span></span>
-<span><span class="co">#&gt; * Packages: mlr3, mlr3torch, progress, torch</span></span>
+<span><span class="co">#&gt; * Packages: mlr3, mlr3torch, torch</span></span>
 <span><span class="co">#&gt; * Predict Types:  [response], prob</span></span>
 <span><span class="co">#&gt; * Feature Types: logical, integer, numeric, character, factor, ordered,</span></span>
 <span><span class="co">#&gt;   POSIXct, imageuri</span></span>
-<span><span class="co">#&gt; * Properties: multiclass, twoclass</span></span></code></pre></div>
+<span><span class="co">#&gt; * Properties: featureless, hotstart_backward, hotstart_forward,</span></span>
+<span><span class="co">#&gt;   importance, loglik, missings, multiclass, oob_error,</span></span>
+<span><span class="co">#&gt;   selected_features, twoclass, weights</span></span></code></pre></div>
 <p>Before training the model, we set some more hyperparameters. Among
 others, we use a [<code>TorchCallback</code>] that prints progress and
 validation losses that we request.</p>
@@ -855,375 +839,26 @@ validation losses that we request.</p>
 <span><span class="op">)</span></span>
 <span><span class="va">lr_sequential</span><span class="op">$</span><span class="va">predict_type</span> <span class="op">=</span> <span class="st">"response"</span></span>
 <span></span>
-<span><span class="va">lr_sequential</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">md_sequential</span><span class="op">$</span><span class="va">task</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Epoch 1</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 1]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 1.10</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.67</span></span>
-<span><span class="co">#&gt; Epoch 2</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 2]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 1.10</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.53</span></span>
-<span><span class="co">#&gt; Epoch 3</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 3]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 1.09</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
-<span><span class="co">#&gt; Epoch 4</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 4]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 1.08</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
-<span><span class="co">#&gt; Epoch 5</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 5]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 1.07</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
-<span><span class="co">#&gt; Epoch 6</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 6]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 1.06</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
-<span><span class="co">#&gt; Epoch 7</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 7]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 1.04</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
-<span><span class="co">#&gt; Epoch 8</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 8]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 1.03</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.35</span></span>
-<span><span class="co">#&gt; Epoch 9</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 9]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 1.01</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.36</span></span>
-<span><span class="co">#&gt; Epoch 10</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 10]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.99</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.37</span></span>
-<span><span class="co">#&gt; Epoch 11</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 11]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.98</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.37</span></span>
-<span><span class="co">#&gt; Epoch 12</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 12]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.96</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.36</span></span>
-<span><span class="co">#&gt; Epoch 13</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 13]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.95</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.35</span></span>
-<span><span class="co">#&gt; Epoch 14</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 14]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.93</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.36</span></span>
-<span><span class="co">#&gt; Epoch 15</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 15]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.92</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.49</span></span>
-<span><span class="co">#&gt; Epoch 16</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 16]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.90</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
-<span><span class="co">#&gt; Epoch 17</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 17]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.89</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
-<span><span class="co">#&gt; Epoch 18</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 18]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.88</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
-<span><span class="co">#&gt; Epoch 19</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 19]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.87</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
-<span><span class="co">#&gt; Epoch 20</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 20]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.87</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
-<span><span class="co">#&gt; Epoch 21</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 21]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.86</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
-<span><span class="co">#&gt; Epoch 22</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 22]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.86</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
-<span><span class="co">#&gt; Epoch 23</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 23]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.85</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
-<span><span class="co">#&gt; Epoch 24</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 24]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.85</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
-<span><span class="co">#&gt; Epoch 25</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 25]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.84</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
-<span><span class="co">#&gt; Epoch 26</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 26]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.84</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
-<span><span class="co">#&gt; Epoch 27</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 27]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.84</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.33</span></span>
-<span><span class="co">#&gt; Epoch 28</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 28]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.83</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.29</span></span>
-<span><span class="co">#&gt; Epoch 29</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 29]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.83</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.29</span></span>
-<span><span class="co">#&gt; Epoch 30</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 30]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.82</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.29</span></span>
-<span><span class="co">#&gt; Epoch 31</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 31]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.82</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.25</span></span>
-<span><span class="co">#&gt; Epoch 32</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 32]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.82</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.17</span></span>
-<span><span class="co">#&gt; Epoch 33</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 33]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.81</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.15</span></span>
-<span><span class="co">#&gt; Epoch 34</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 34]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.81</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.15</span></span>
-<span><span class="co">#&gt; Epoch 35</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 35]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.81</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.14</span></span>
-<span><span class="co">#&gt; Epoch 36</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 36]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.80</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.13</span></span>
-<span><span class="co">#&gt; Epoch 37</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 37]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.80</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.13</span></span>
-<span><span class="co">#&gt; Epoch 38</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 38]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.79</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.12</span></span>
-<span><span class="co">#&gt; Epoch 39</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 39]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.79</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.12</span></span>
-<span><span class="co">#&gt; Epoch 40</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 40]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.79</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.09</span></span>
-<span><span class="co">#&gt; Epoch 41</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 41]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.78</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.05</span></span>
-<span><span class="co">#&gt; Epoch 42</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 42]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.78</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.05</span></span>
-<span><span class="co">#&gt; Epoch 43</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 43]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.77</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.08</span></span>
-<span><span class="co">#&gt; Epoch 44</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 44]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.77</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.07</span></span>
-<span><span class="co">#&gt; Epoch 45</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 45]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.77</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.04</span></span>
-<span><span class="co">#&gt; Epoch 46</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 46]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.76</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.07</span></span>
-<span><span class="co">#&gt; Epoch 47</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 47]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.76</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.06</span></span>
-<span><span class="co">#&gt; Epoch 48</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 48]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.75</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.04</span></span>
-<span><span class="co">#&gt; Epoch 49</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 49]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.75</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.04</span></span>
-<span><span class="co">#&gt; Epoch 50</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [Summary epoch 50]</span></span>
-<span><span class="co">#&gt; ------------------</span></span>
-<span><span class="co">#&gt; Measures (Train):</span></span>
-<span><span class="co">#&gt;  * classif.logloss = 0.74</span></span>
-<span><span class="co">#&gt;  * classif.ce = 0.03</span></span></code></pre></div>
+<span><span class="va">lr_sequential</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">md_sequential</span><span class="op">$</span><span class="va">task</span><span class="op">)</span></span></code></pre></div>
 <p>The following calls the <code>$predict_newdata</code> function to
 plot the response surface along the
 <code>Sepal.Width = mean(Sepal.Width)</code> plane, along with the
 ground-truth values:</p>
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://r-datatable.com" class="external-link">"data.table"</a></span><span class="op">)</span></span>
-<span><span class="va">newdata</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>Sepal.Width <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">iris</span><span class="op">$</span><span class="va">Sepal.Width</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/J.html" class="external-link">CJ</a></span><span class="op">(</span></span>
+<span><span class="va">newdata</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>Sepal.Width <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">iris</span><span class="op">$</span><span class="va">Sepal.Width</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/J.html" class="external-link">CJ</a></span><span class="op">(</span></span>
 <span>  Sepal.Length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">iris</span><span class="op">$</span><span class="va">Sepal.Length</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">iris</span><span class="op">$</span><span class="va">Sepal.Length</span><span class="op">)</span>, length.out <span class="op">=</span> <span class="fl">30</span><span class="op">)</span>,</span>
 <span>  Petal.Length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">iris</span><span class="op">$</span><span class="va">Petal.Length</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">iris</span><span class="op">$</span><span class="va">Petal.Length</span><span class="op">)</span>, length.out <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span>
 <span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">predictions</span> <span class="op">&lt;-</span> <span class="va">lr_sequential</span><span class="op">$</span><span class="fu">predict_newdata</span><span class="op">(</span><span class="va">newdata</span><span class="op">)</span></span>
+<span><span class="va">predictions</span> <span class="op">=</span> <span class="va">lr_sequential</span><span class="op">$</span><span class="fu">predict_newdata</span><span class="op">(</span><span class="va">newdata</span><span class="op">)</span></span>
 <span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ggplot2.tidyverse.org" class="external-link">"ggplot2"</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">plot_predictions</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">predictions</span><span class="op">)</span> <span class="op">{</span></span>
+<span><span class="va">plot_predictions</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">predictions</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">newdata</span>, Species <span class="op">=</span> <span class="va">predictions</span><span class="op">$</span><span class="va">response</span><span class="op">)</span>,</span>
 <span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Sepal.Length</span>, y <span class="op">=</span> <span class="va">Petal.Length</span>, fill <span class="op">=</span> <span class="va">Species</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_tile</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">.3</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_tile</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">.3</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">iris</span>,</span>
 <span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">Sepal.Length</span>, y <span class="op">=</span> <span class="va">Petal.Length</span>, fill <span class="op">=</span> <span class="va">Species</span><span class="op">)</span>,</span>
@@ -1239,6 +874,8 @@ ground-truth values:</p>
 </h2>
 <p>The model shown above is constructed using the <a href="#modeldescriptor"><code>ModelDescriptor</code></a> that is
 generated from a <code>Graph</code> of [<code>PipeOpTorch</code>]
+operators. The model shown above is constructed using the <a href="#modeldescriptor"><code>ModelDescriptor</code></a> that is
+generated from a <code>Graph</code> of [<code>PipeOpTorch</code>]
 operators. The <a href="#modeldescriptor"><code>ModelDescriptor</code></a> furthermore
 contains the <code>Task</code> to which it pertains. This makes it
 possible to use it to create a NN model that gets trained right away,
@@ -1246,16 +883,17 @@ using [<code>PipeOpTorchModelClassif</code>]. The only missing
 prerequisite now is to add the desired [<code>TorchOptimizer</code>] and
 [<code>TorchLoss</code>] information to the <a href="#modeldescriptor"><code>ModelDescriptor</code></a>.</p>
 <div class="section level3">
-<h3 id="adding-optimizer-and-loss-meta-info-to-modeldescriptor">Adding Optimizer and Loss Meta-Info to <a href="#modeldescriptor"><code>ModelDescriptor</code></a><a class="anchor" aria-label="anchor" href="#adding-optimizer-and-loss-meta-info-to-modeldescriptor"></a>
+<h3 id="adding-optimizer-loss-and-callback-meta-info-to-modeldescriptor">Adding Optimizer, Loss and Callback Meta-Info to <a href="#modeldescriptor"><code>ModelDescriptor</code></a><a class="anchor" aria-label="anchor" href="#adding-optimizer-loss-and-callback-meta-info-to-modeldescriptor"></a>
 </h3>
 <p>Remember that <a href="#modeldescriptor"><code>ModelDescriptor</code></a> has the
-<code>$optimizer</code> and <code>$loss</code> slots that are necessary
-to build a complete <code>Learner</code> from an NN. They can be set by
-corresponding [<code>PipeOpTorch</code>] operators.</p>
+<code>$optimizer</code>, <code>$loss</code> and <code>$callbacks</code>
+slots that are necessary to build a complete <code>Learner</code> from
+an NN. They can be set by corresponding [<code>PipeOpTorch</code>]
+operators.</p>
 <p><code>po("torch_optimizer")</code> is used to set the
 <code>$optimizer</code> slot of a <a href="#modeldescriptor"><code>ModelDescriptor</code></a>; it takes the
-desired <code>TorchOptimizer</code> object on construction and exports
-its <code>ParamSet</code>.</p>
+desired [<code>DescriptorTorchOptimizer</code>] object on construction
+and exports its <code>ParamSet</code>.</p>
 <div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">po_adam</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_optimizer"</span>, optimizer <span class="op">=</span> <span class="va">adam</span><span class="op">)</span></span>
 <span></span>
@@ -1264,7 +902,7 @@ its <code>ParamSet</code>.</p>
 <span><span class="co">#&gt; $lr</span></span>
 <span><span class="co">#&gt; [1] 0.02</span></span>
 <span></span>
-<span><span class="va">md_sequential</span> <span class="op">&lt;-</span> <span class="va">po_adam</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">md_sequential</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<span><span class="va">md_sequential</span> <span class="op">=</span> <span class="va">po_adam</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">md_sequential</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
 <span><span class="va">md_sequential</span><span class="op">$</span><span class="va">optimizer</span></span>
 <span><span class="co">#&gt; &lt;TorchOptimizer:adam&gt; Adaptive Moment Estimation</span></span>
@@ -1272,8 +910,8 @@ its <code>ParamSet</code>.</p>
 <span><span class="co">#&gt; * Parameters: lr=0.02</span></span>
 <span><span class="co">#&gt; * Packages: torch,mlr3torch</span></span></code></pre></div>
 <div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">po_xe</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_loss"</span>, loss <span class="op">=</span> <span class="va">xe</span><span class="op">)</span></span>
-<span><span class="va">md_sequential</span> <span class="op">&lt;-</span> <span class="va">po_xe</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">md_sequential</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<code class="sourceCode R"><span><span class="va">po_xe</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_loss"</span>, loss <span class="op">=</span> <span class="va">xe</span><span class="op">)</span></span>
+<span><span class="va">md_sequential</span> <span class="op">=</span> <span class="va">po_xe</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">md_sequential</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
 <span><span class="va">md_sequential</span><span class="op">$</span><span class="va">loss</span></span>
 <span><span class="co">#&gt; &lt;TorchLoss:cross_entropy&gt; Cross Entropy</span></span>
@@ -1283,8 +921,8 @@ its <code>ParamSet</code>.</p>
 <span><span class="co">#&gt; * Task Types: classif</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="combined-instantiation-and-training-of-learnerclassiftorchmodel">Combined Instantiation and Training of
-[<code>LearnerClassifTorchModel</code>]<a class="anchor" aria-label="anchor" href="#combined-instantiation-and-training-of-learnerclassiftorchmodel"></a>
+<h3 id="combined-instantiation-and-training-of-learnertorchmodel">Combined Instantiation and Training of
+[<code>LearnerTorchModel</code>]<a class="anchor" aria-label="anchor" href="#combined-instantiation-and-training-of-learnertorchmodel"></a>
 </h3>
 <p>The <a href="#modeldescriptor"><code>ModelDescriptor</code></a> can
 now be given to a <code>po("torch_model_classif")</code>.</p>
@@ -1296,11 +934,14 @@ now be given to a <code>po("torch_model_classif")</code>.</p>
 <span><span class="co">#&gt; NULL</span></span></code></pre></div>
 <p><code>po("torch_model_classif")</code> behaves similarly to a
 <code>PipeOpLearner</code>: It returns <code>NULL</code> during
+training, and the prediction on <code>$predict()</code>.
+<code>po("torch_model_classif")</code> behaves similarly to a
+<code>PipeOpLearner</code>: It returns <code>NULL</code> during
 training, and the prediction on <code>$predict()</code>.</p>
 <div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">newtask</span> <span class="op">=</span> <span class="va"><a href="https://mlr3.mlr-org.com/reference/TaskClassif.html" class="external-link">TaskClassif</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"newdata"</span>, <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">newdata</span>, Species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="cn">NA</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">iris</span><span class="op">$</span><span class="va">Species</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, target <span class="op">=</span> <span class="st">"Species"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">predictions</span> <span class="op">&lt;-</span> <span class="va">po_model</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">newtask</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<span><span class="va">predictions</span> <span class="op">=</span> <span class="va">po_model</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">newtask</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
 <span><span class="fu">plot_predictions</span><span class="op">(</span><span class="va">predictions</span><span class="op">)</span></span></code></pre></div>
 <p><img src="pipeop_torch_files/figure-html/unnamed-chunk-43-1.png" width="700"></p>
@@ -1317,7 +958,7 @@ behaves like any other <code>Graph</code> that ends with a
 <code>GraphLearner</code>. The following uses one more hidden layer than
 before:</p>
 <div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">graph_sequential_full</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
+<code class="sourceCode R"><span><span class="va">graph_sequential_full</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">4</span>, id <span class="op">=</span> <span class="st">"linear1"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_sigmoid"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">3</span>, id <span class="op">=</span> <span class="st">"linear2"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
@@ -1336,13 +977,13 @@ before:</p>
 <p><img src="pipeop_torch_files/figure-html/unnamed-chunk-45-1.png" width="700"></p>
 <p>With the <code>Graph</code> of the trained model:</p>
 <div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="va">lr_sequential_full</span><span class="op">$</span><span class="va">graph_model</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="va">torch_model_classif</span><span class="op">$</span><span class="va">model</span></span>
+<code class="sourceCode R"><span><span class="va">model</span> <span class="op">=</span> <span class="va">lr_sequential_full</span><span class="op">$</span><span class="va">graph_model</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="va">torch_model_classif</span><span class="op">$</span><span class="va">model</span></span>
 <span><span class="va">model</span><span class="op">$</span><span class="va">network</span><span class="op">$</span><span class="va">graph</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="pipeop_torch_files/figure-html/unnamed-chunk-46-1.png" width="700"></p>
 <p>Predictions, as before (we can use <code>predict_newdata</code>
 again):</p>
 <div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">predictions</span> <span class="op">&lt;-</span> <span class="va">lr_sequential_full</span><span class="op">$</span><span class="fu">predict_newdata</span><span class="op">(</span><span class="va">newdata</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">predictions</span> <span class="op">=</span> <span class="va">lr_sequential_full</span><span class="op">$</span><span class="fu">predict_newdata</span><span class="op">(</span><span class="va">newdata</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">plot_predictions</span><span class="op">(</span><span class="va">predictions</span><span class="op">)</span></span></code></pre></div>
 <p><img src="pipeop_torch_files/figure-html/unnamed-chunk-47-1.png" width="700"></p>
@@ -1356,7 +997,7 @@ single [<code>PipeOpTorchIngress</code>]. The following pipeline, for
 example, removes all but the <code>Petal.Length</code> columns from the
 <code>Task</code> and fits a model:</p>
 <div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">gr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"select"</span>, selector <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/Selector.html" class="external-link">selector_name</a></span><span class="op">(</span><span class="st">"Petal.Length"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
+<code class="sourceCode R"><span><span class="va">gr</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"select"</span>, selector <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/Selector.html" class="external-link">selector_name</a></span><span class="op">(</span><span class="st">"Petal.Length"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">5</span>, id <span class="op">=</span> <span class="st">"linear1"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_relu"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
@@ -1368,16 +1009,16 @@ example, removes all but the <code>Petal.Length</code> columns from the
 <span><span class="va">gr</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="pipeop_torch_files/figure-html/unnamed-chunk-48-1.png" width="700"></p>
 <div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">lr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/as_learner.html" class="external-link">as_learner</a></span><span class="op">(</span><span class="va">gr</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">lr</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/as_learner.html" class="external-link">as_learner</a></span><span class="op">(</span><span class="va">gr</span><span class="op">)</span></span>
 <span><span class="va">lr</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span>
-<span><span class="va">predictions</span> <span class="op">&lt;-</span> <span class="va">lr</span><span class="op">$</span><span class="fu">predict_newdata</span><span class="op">(</span><span class="va">newdata</span><span class="op">)</span></span>
+<span><span class="va">predictions</span> <span class="op">=</span> <span class="va">lr</span><span class="op">$</span><span class="fu">predict_newdata</span><span class="op">(</span><span class="va">newdata</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">plot_predictions</span><span class="op">(</span><span class="va">predictions</span><span class="op">)</span></span></code></pre></div>
 <p><img src="pipeop_torch_files/figure-html/unnamed-chunk-49-1.png" width="700"></p>
 <p>How about using <code>Petal.Length</code> and
 <code>Sepal.Length</code> separately at first?</p>
 <div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">gr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/gunion.html" class="external-link">gunion</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">gr</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/gunion.html" class="external-link">gunion</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>      <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"select"</span>, selector <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/Selector.html" class="external-link">selector_name</a></span><span class="op">(</span><span class="st">"Petal.Length"</span><span class="op">)</span>, id <span class="op">=</span> <span class="st">"sel1"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>        <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num"</span>, id <span class="op">=</span> <span class="st">"ingress.petal"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>        <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">3</span>, id <span class="op">=</span> <span class="st">"linear1"</span><span class="op">)</span>,</span>
@@ -1396,9 +1037,9 @@ example, removes all but the <code>Petal.Length</code> columns from the
 <span><span class="va">gr</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="pipeop_torch_files/figure-html/unnamed-chunk-50-1.png" width="700"></p>
 <div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">lr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/as_learner.html" class="external-link">as_learner</a></span><span class="op">(</span><span class="va">gr</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">lr</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/as_learner.html" class="external-link">as_learner</a></span><span class="op">(</span><span class="va">gr</span><span class="op">)</span></span>
 <span><span class="va">lr</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span>
-<span><span class="va">predictions</span> <span class="op">&lt;-</span> <span class="va">lr</span><span class="op">$</span><span class="fu">predict_newdata</span><span class="op">(</span><span class="va">newdata</span><span class="op">)</span></span>
+<span><span class="va">predictions</span> <span class="op">=</span> <span class="va">lr</span><span class="op">$</span><span class="fu">predict_newdata</span><span class="op">(</span><span class="va">newdata</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">plot_predictions</span><span class="op">(</span><span class="va">predictions</span><span class="op">)</span></span></code></pre></div>
 <p><img src="pipeop_torch_files/figure-html/unnamed-chunk-51-1.png" width="700"></p>

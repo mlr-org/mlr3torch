@@ -279,27 +279,27 @@ The referenced help package can be opened via method <code>$help()</code>.</p></
 <span class="r-in"><span><span class="co"># The parameters of the loss are added to the learner's parameter set</span></span></span>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="va">param_set</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSetCollection&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                   id    class lower upper nlevels        default     value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1:       activation ParamFct    NA    NA      16 &lt;NoDefault[3]&gt;      relu</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2:  activation_args ParamUty    NA    NA     Inf &lt;NoDefault[3]&gt; &lt;list[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3:           layers ParamInt 0e+00   Inf     Inf &lt;NoDefault[3]&gt;          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  4:         d_hidden ParamInt 1e+00   Inf     Inf &lt;NoDefault[3]&gt;          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  5:                p ParamDbl 0e+00 1e+00     Inf &lt;NoDefault[3]&gt;       0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6:       batch_size ParamInt 1e+00   Inf     Inf &lt;NoDefault[3]&gt;          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  7:           epochs ParamInt 0e+00   Inf     Inf &lt;NoDefault[3]&gt;          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  8:           device ParamFct    NA    NA      11 &lt;NoDefault[3]&gt;      auto</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  9:   measures_train ParamUty    NA    NA     Inf &lt;NoDefault[3]&gt; &lt;list[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10:   measures_valid ParamUty    NA    NA     Inf &lt;NoDefault[3]&gt; &lt;list[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11:        drop_last ParamLgl    NA    NA       2 &lt;NoDefault[3]&gt;     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12:          shuffle ParamLgl    NA    NA       2 &lt;NoDefault[3]&gt;      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13:      num_threads ParamInt 1e+00   Inf     Inf &lt;NoDefault[3]&gt;         1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14:             seed ParamInt  -Inf   Inf     Inf &lt;NoDefault[3]&gt;    random</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15:           opt.lr ParamDbl 0e+00   Inf     Inf          0.001          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16:        opt.betas ParamUty    NA    NA     Inf    0.900,0.999          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17:          opt.eps ParamDbl 1e-16 1e-04     Inf          1e-08          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18: opt.weight_decay ParamDbl 0e+00 1e+00     Inf              0          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19:      opt.amsgrad ParamLgl    NA    NA       2          FALSE          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20:   loss.reduction ParamFct    NA    NA       2           mean          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   id    class lower upper nlevels        default        value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1:           layers ParamInt 0e+00   Inf     Inf &lt;NoDefault[3]&gt;             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2:         d_hidden ParamInt 1e+00   Inf     Inf &lt;NoDefault[3]&gt;             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3:                p ParamDbl 0e+00 1e+00     Inf &lt;NoDefault[3]&gt;          0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4:       activation ParamUty    NA    NA     Inf &lt;NoDefault[3]&gt; &lt;nn_relu[1]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  5:  activation_args ParamUty    NA    NA     Inf &lt;NoDefault[3]&gt;    &lt;list[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6:       batch_size ParamInt 1e+00   Inf     Inf &lt;NoDefault[3]&gt;             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7:           epochs ParamInt 0e+00   Inf     Inf &lt;NoDefault[3]&gt;             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  8:           device ParamFct    NA    NA      11 &lt;NoDefault[3]&gt;         auto</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9:   measures_train ParamUty    NA    NA     Inf &lt;NoDefault[3]&gt;    &lt;list[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10:   measures_valid ParamUty    NA    NA     Inf &lt;NoDefault[3]&gt;    &lt;list[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11:        drop_last ParamLgl    NA    NA       2 &lt;NoDefault[3]&gt;        FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12:          shuffle ParamLgl    NA    NA       2 &lt;NoDefault[3]&gt;         TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13:      num_threads ParamInt 1e+00   Inf     Inf &lt;NoDefault[3]&gt;            1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14:             seed ParamInt  -Inf   Inf     Inf &lt;NoDefault[3]&gt;       random</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15:           opt.lr ParamDbl 0e+00   Inf     Inf          0.001             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16:        opt.betas ParamUty    NA    NA     Inf    0.900,0.999             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17:          opt.eps ParamDbl 1e-16 1e-04     Inf          1e-08             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18: opt.weight_decay ParamDbl 0e+00 1e+00     Inf              0             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19:      opt.amsgrad ParamLgl    NA    NA       2          FALSE             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20:   loss.reduction ParamFct    NA    NA       2           mean             </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
