@@ -26,97 +26,9 @@ learner_torch_initialize = function(
   label,
   callbacks
   ) {
-  predict_types = predict_types %??% switch(task_type,
-    regr = "response",
-    classif = c("response", "prob")
-  )
-  loss = loss %??% switch(task_type,
-    classif = t_loss("cross_entropy"),
-    regr = t_loss("mse")
-  )
-  optimizer = optimizer %??% t_opt("adam")
-
-  private$.optimizer = as_torch_optimizer(optimizer, clone = TRUE)
-  private$.optimizer$param_set$set_id = "opt"
-
-  private$.loss = as_torch_loss(loss, clone = TRUE)
-  private$.loss$param_set$set_id = "loss"
-  if (task_type %nin% private$.loss$task_types) {
-    stopf("Loss only supports task types %s, but learner has type \"%s\".",
-      paste0("\"", private$.loss$task_types, "\"", sep = ", "), task_type
-    )
-  }
-
-  callbacks = as_torch_callbacks(callbacks, clone = TRUE)
-  callback_ids = ids(callbacks)
-  if (!test_names(callback_ids, type = "unique")) {
-    stopf("All callbacks must have unique IDs that are valid names, but they are %s.",
-      paste0("'", callback_ids, "'", collapse = ", ")
-    )
-  }
-
-  private$.callbacks = set_names(callbacks, callback_ids)
-  walk(private$.callbacks, function(cb) {
-    cb$param_set$set_id = paste0("cb.", cb$id)
-  })
-
-  packages = unique(c(
-    packages,
-    unlist(map(private$.callbacks, "packages")),
-    private$.loss$packages,
-    private$.optimizer$packages
-  ))
-
-  assert_subset(properties, mlr_reflections$learner_properties[[task_type]])
-  assert_subset(predict_types, names(mlr_reflections$learner_predict_types[[task_type]]))
-  if (any(grepl("^(loss\\.|opt\\.|cb\\.)", param_set$ids()))) {
-    stopf("Prefixes 'loss.', 'opt.', and 'cb.' are reserved for dynamically constructed parameters.")
-  }
-  packages = assert_character(packages, any.missing = FALSE, min.chars = 1L)
-  packages = union(c("mlr3", "mlr3torch"), packages)
-
-  paramset_torch = paramset_torchlearner(task_type)
-  if (param_set$length > 0) {
-    private$.param_set_base = ParamSetCollection$new(list(param_set, paramset_torch))
-  } else {
-    private$.param_set_base = paramset_torch
-  }
-
-  # explanation of the self$param_set call:
-  # As of now, private$.param_set is NULL, this will cause the ParamSetCollection to be constructed
-  # (as self$param_set) is an active binding.
-  # However we then pass this constructed paramset to the learner parent class, which will assign it to self$param_set
-  # However this behind the scene will once again set it to private$.param_set as it causes the function in
-  # self$param_set with an rhs to be called, which in turn assigns it (again) to private$.param_set
-  super$initialize(
-    id = id,
-    task_type = task_type,
-    packages = packages,
-    param_set = self$param_set,
-    predict_types = predict_types,
-    properties = properties,
-    data_formats = "data.table",
-    label = label,
-    feature_types = feature_types,
-    man = man
-  )
 }
 
-learner_torch_dataloader = function(self, task, param_vals) {
-  dataloader(
-    dataset = get_private(self)$.dataset(task, param_vals),
-    batch_size = param_vals$batch_size,
-    shuffle = param_vals$shuffle,
-    drop_last = param_vals$drop_last
-  )
-}
-
-learner_torch_dataloader_predict = function(self, task, param_vals) {
-  param_vals_test = insert_named(param_vals, list(shuffle = FALSE, drop_last = FALSE))
-  get_private(self)$.dataloader(task, param_vals_test)
-}
-
-learner_torch_train_worker = function(self, private, super, task, param_vals) {
+learner_torch_train = function(self, private, super, task, param_vals) {
   # Here, all param_vals (like seed = "random" or device = "auto") have already been resolved
   loader_train = private$.dataloader(task, param_vals)
 

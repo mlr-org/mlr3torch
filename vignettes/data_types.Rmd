@@ -25,8 +25,7 @@ backend_dt$data(1:2, c("mpg", "cyl"))
 
 When focusing on multi-modal data types in mlr3torch -- e.g. datasets with images and tabular features -- it is desireable to be able to represent images alongside tabular data.
 For this reason, `mlr3torch` provides two data types for images, namely:
-* `image_vector` - Essentially a `list()` of 3-dimensional arrays.
-* `imageuri_vector` - Essentially a `character()` vector containing paths to images on disk.
+* `imageuri` - Essentially a `character()` vector containing paths to images on disk.
 
 The former can be used when the dataset is small and fits into RAM (e.g. MNIST), while the latter is intended to be used for larger datasets.
 

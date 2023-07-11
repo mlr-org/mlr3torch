@@ -4,10 +4,10 @@
 \alias{imageuri}
 \title{Create an object of class "imageuri"}
 \usage{
-imageuri(x)
+imageuri(obj)
 }
 \arguments{
-\item{x}{(\code{character()})\cr
+\item{obj}{(\code{character()})\cr
 Character vector containig the paths to images.}
 }
 \description{
