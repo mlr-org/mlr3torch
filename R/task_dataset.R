@@ -125,7 +125,7 @@ batchgetter_img = function(imgshape) {
   crate(function(data, device) {
     tensors = lapply(data[[1]], function(uri) {
       tnsr = torchvision::transform_to_tensor(magick::image_read(uri))
-      assert_true(identical(tnsr$shape, imgshape))
+      assert_true(all(tnsr$shape == imgshape))
       torch_reshape(tnsr, imgshape)$unsqueeze(1)
     })
     torch_cat(tensors, dim = 1)$to(device = device)

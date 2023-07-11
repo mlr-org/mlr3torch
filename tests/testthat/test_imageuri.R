@@ -1,5 +1,5 @@
-test_that("imageuri_vector works", {
-  cls = c("imageuri_vector", "character")
+test_that("imageuri works", {
+  cls = c("imageuri", "character")
   path = testthat::test_path("assets", "nano_mnist")
   image_names = list.files(path)
   uris = normalizePath(file.path(path, image_names))
@@ -7,17 +7,17 @@ test_that("imageuri_vector works", {
   img1 = uris[[1]]
   img2 = uris[[2]]
 
-  images = imageuri_vector(uris)
+  images = imageuri(uris)
 
   # class is correct
   expect_class(images, cls)
 
   # object is invariant under the constructor
-  expect_equal(imageuri_vector(images), images)
+  expect_equal(imageuri(images), images)
 
   # subsetting works
-  expect_equal(imageuri_vector(img1), images[[1]])
-  expect_equal(imageuri_vector(img2), images[[2]])
+  expect_equal(imageuri(img1), images[[1]])
+  expect_equal(imageuri(img2), images[[2]])
   expect_class(images[1:2], cls)
   expect_equal(images[1], images[[1]])
   expect_equal(images[2], images[[2]])
@@ -28,8 +28,8 @@ test_that("imageuri_vector works", {
   images2[1] = img2
   images3[[1]] = img2
   expect_equal(images2, images3)
-  expect_equal(images2[1], imageuri_vector(img2))
-  expect_equal(images3[1], imageuri_vector(img2))
+  expect_equal(images2[1], imageuri(img2))
+  expect_equal(images3[1], imageuri(img2))
 
   expect_error({images[1] = 1}, regexp = "Must be of type 'character'", fixed = TRUE)
 

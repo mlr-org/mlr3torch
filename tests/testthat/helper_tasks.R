@@ -1,19 +1,10 @@
-nano_cats_vs_dogs = function(id = "nano_cats_vs_dogs", image_type = "imageuri_vector") {
+nano_cats_vs_dogs = function(id = "nano_cats_vs_dogs") {
   assert_string(id)
-  assert_choice(image_type, c("imageuri_vector", "image_vector"))
   path = testthat::test_path("assets", "nano_cats_vs_dogs")
   image_names = list.files(path)
   uris = normalizePath(file.path(path, image_names))
 
-  if (image_type == "image_vector") {
-    images = lapply(uris, function(uri) {
-      as_array(torchvision::transform_to_tensor(magick::image_read(uri)))
-
-    })
-    images = image_vector(images)
-  } else {
-    images = imageuri_vector(uris)
-  }
+    images = imageuri(uris)
 
   labels = map_chr(image_names, function(name) {
     if (startsWith(name, "cat")) {
@@ -33,21 +24,13 @@ nano_cats_vs_dogs = function(id = "nano_cats_vs_dogs", image_type = "imageuri_ve
   task
 }
 
-nano_mnist = function(id = "nano_mnist", image_type = "image_vector") {
+nano_mnist = function(id = "nano_mnist") {
   assert_string(id)
-  assert_choice(image_type, c("imageuri_vector", "image_vector"))
   path = testthat::test_path("assets", "nano_mnist")
   image_names = list.files(path)
   uris = normalizePath(file.path(path, image_names))
 
-  if (image_type == "image_vector") {
-    images = lapply(uris, function(uri) {
-      as_array(torchvision::transform_to_tensor(magick::image_read(uri)))
-    })
-    images = image_vector(images)
-  } else {
-    images = imageuri_vector(uris)
-  }
+  images = imageuri(uris)
 
   labels = map_chr(image_names, function(name) {strsplit(name, split = "")[[1L]][1L]})
 
