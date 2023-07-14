@@ -94,22 +94,26 @@ LearnerTorch = R6Class("LearnerTorch",
         regr = "response",
         classif = c("response", "prob")
       )
-      loss = loss %??% switch(task_type,
-        classif = t_loss("cross_entropy"),
-        regr = t_loss("mse")
-      )
-      optimizer = optimizer %??% t_opt("adam")
+      if (is.null(loss)) {
+        private$.loss = t_loss(switch(task_type, classif = "cross_entropy", regr = "mse"))
+      } else {
+        private$.loss = as_torch_loss(loss, clone = TRUE)
+      }
 
-      private$.optimizer = as_torch_optimizer(optimizer, clone = TRUE)
-      private$.optimizer$param_set$set_id = "opt"
-
-      private$.loss = as_torch_loss(loss, clone = TRUE)
-      private$.loss$param_set$set_id = "loss"
       if (task_type %nin% private$.loss$task_types) {
         stopf("Loss only supports task types %s, but learner has type \"%s\".",
           paste0("\"", private$.loss$task_types, "\"", sep = ", "), task_type
         )
       }
+
+      if (is.null(optimizer)) {
+        private$.optimizer = t_opt("adam")
+      } else {
+        private$.optimizer = as_torch_optimizer(optimizer, clone = TRUE)
+      }
+
+      private$.optimizer$param_set$set_id = "opt"
+      private$.loss$param_set$set_id = "loss"
 
       callbacks = as_torch_callbacks(callbacks, clone = TRUE)
       callback_ids = ids(callbacks)

@@ -13,18 +13,15 @@
 #' or `$hash()` are redirected to it.
 #'
 #' Information that is available before the backend is constructed (and hence must be provided) is:
-#' * `nrow` - The number of rows.
-#' * `ncol` - The number of columns.
+#' * `nrow` - The number of rows (set as the length of the rownames).
+#' * `ncol` - The number of columns (provided via the `id` column of `col_info`).
 #' * `colnames` - The column names.
 #' * `rownames` - The column names.
 #' * `col_info` - The column information, which can be obtained via [`mlr3::col_info()`].
 #'
 #' @param constructor (`function()`)\cr
-#'   A function with no arguments, whose return value must construct the actual backend.
+#'   A function with no arguments, whose return value must be the actual backend.
 #'   This function is called the first time the field `$backend` is accessed.
-#' @param colnames (`character()`)\cr
-#'   The unique column names (including the primary key).
-#'   Must be a permutation of the column names of the lazily constructed backend.
 #' @param rownames (`integer()`)\cr
 #'   The row names. Must be a permtuation of the rownames of the lazily constructed backend.
 #' @param col_info ([`data.table::data.table()`])\cr
@@ -202,7 +199,7 @@ DataBackendLazy = R6Class("DataBackendLazy",
       private$.colnames
     },
     #' @field is_constructed (`logical(1)`)\cr
-    #'   Whether the backned has already been constructed.
+    #'   Whether the backend has already been constructed.
     is_constructed = function(rhs) {
       assert_ro_binding(rhs)
       !is.null(private$.backend)

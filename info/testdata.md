@@ -4,8 +4,8 @@ The names were left unchanged.
 The data in `./tests/testthat/assets/nano_mnist` was downloaded from: https://github.com/teavanist/MNIST-JPG.
 6 random pictures (2 from class 1, 2 and 3) were taken and the true label prepended to the name.
 
-The data in `./tests/testthat/assets/nano_imagenet` was creates as follows:
-It is wok vs torch classification.
+The data in `./tests/testthat/assets/nano_imagenet` was created as follows.
+It contains 5 "wok" and 5 "torch" images
 
 ```{r}
 task = tsk("tiny_imagenet")

@@ -25,13 +25,19 @@ test_that("imageuri works", {
   # assignment works
   images2 = images
   images3 = images
+  n_before2 = length(images2)
   images2[1] = img2
+  expect_true(length(images2) == n_before2)
+
+  n_before3 = length(images3)
   images3[[1]] = img2
+
+  expect_true(length(images3) == n_before3)
   expect_equal(images2, images3)
   expect_equal(images2[1], imageuri(img2))
   expect_equal(images3[1], imageuri(img2))
 
-  expect_error({images[1] = 1}, regexp = "Must be of type 'character'", fixed = TRUE)
+  expect_error({images[1] = 1}, regexp = "Must be of type 'character'", fixed = TRUE) # nolint
 
   # c() works
   expect_class(c(images[1], images[2]), cls)

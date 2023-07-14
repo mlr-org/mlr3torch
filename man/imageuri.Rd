@@ -8,7 +8,7 @@ imageuri(obj)
 }
 \arguments{
 \item{obj}{(\code{character()})\cr
-Character vector containig the paths to images.}
+Character vector containing the paths to images.}
 }
 \description{
 Creates an object of class \code{"imageuri"}, that contains the uris of images.

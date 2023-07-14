@@ -1,4 +1,3 @@
-
 #' CACHE
 #' This keeps track of the cache versions.
 #' When incremented in a release, it ensures that the previous cache gets flushed, thereby
@@ -30,10 +29,10 @@ get_cache_dir = function(cache = NULL) {
 }
 
 #' Initializes the cache directory.
-#' When a cached is initialized in a session, it is added to the `CACHE` environment, and we trust
-#' it without checking the cache versions.
-#' Otherwise we compare the written cache versions for the subfolders like `data_desc` with the
-#' current CACHE versions of the mlr3torch package. If they differ, we flush the cache and initialized
+#' When a cached is initialized in a session, it is added to the `CACHE$initialized` list and we trust
+#' it without checking the cache versions each time.
+#' Otherwise we compare the written cache versions for the subfolders like `datasets` with the
+#' current CACHE versions of the mlr3torch package. If they differ, we flush the cache and initialize
 #' a new folder with the updated cache version.
 #'
 #' @noRd
@@ -84,7 +83,7 @@ cached = function(constructor, type, name) {
   cache = !isFALSE(cache_dir)
 
   # Even when we don't cache, we need to store the data somewhere
-  path = if (isFALSE(cache_dir)) tempfile() else file.path(cache_dir, type, name)
+  path = if (cache) file.path(cache_dir, type, name) else tempfile()
 
   if (cache && dir.exists(path)) {
     # we cache and there is a cache hit
@@ -93,11 +92,14 @@ cached = function(constructor, type, name) {
     return(output)
   }
   # We either don't cache or there is no cache hit
-  path_raw = file.path(path, "raw")
-  if (!dir.exists(path_raw)) {
-    dir.create(path_raw, recursive = TRUE)
-  }
-  data = try(constructor(path_raw), silent = TRUE)
+  data = try({
+    path_raw = file.path(path, "raw")
+    if (!dir.exists(path_raw)) {
+      dir.create(path_raw, recursive = TRUE)
+    }
+    constructor(path_raw)
+    }, silent = TRUE
+  )
   if (inherits(data, "try-error")) {
     # in case anything goes wrong during the construction we need to clean up.
     # Otherwise we might get cache hits on corrupt folders
@@ -110,7 +112,6 @@ cached = function(constructor, type, name) {
   if (cache) {
     # store the processed data in case there is a cache hit, so next time we don't need the postprocessing
     # that comes after downloading the data
-    if (!dir.exists(path)) dir.create(path, recursive = TRUE)
     saveRDS(data, file = file.path(path, "data.rds"))
   }
   list(data = data, path = path)

@@ -2,7 +2,7 @@
 #' @description
 #' Creates an object of class `"imageuri"`, that contains the uris of images.
 #' @param obj (`character()`)\cr
-#'   Character vector containig the paths to images.
+#'   Character vector containing the paths to images.
 #' @export
 imageuri = function(obj) {
   # TODO: examples
@@ -28,22 +28,23 @@ imageuri = function(obj) {
   assert_character(value)
   obj = unclass(obj)
   obj[[...]] = value
-  imageuri(value)
+  imageuri(obj)
 }
 
 #' @export
 `[<-.imageuri` = function(obj,  ..., value) { # nolint
+  # imageuri inherits from character
   assert_character(value)
   obj = unclass(obj)
   obj[...] = value
-  imageuri(value)
+  imageuri(obj)
 }
 
 #' @export
 c.imageuri = function(...) { # nolint
   dots = list(...)
   if (!all(map_lgl(dots, function(x) test_character(x)))) {
-    stopf("To concatenate an imageuri, all objects must inherit from 'character'.")
+    stopf("To concatenate imageuri vectors, all objects must inherit from 'character'.")
   }
   imageuri(do.call(c, lapply(dots, unclass)))
 }
@@ -52,14 +53,24 @@ assert_imageuri = function(obj) {
   assert_class(obj, c("imageuri", "list"))
 }
 
-as_imageuri = function(obj) {
-  if (test_class(obj, "imageuri")) {
-    obj
-  } else if (test_character(obj)) {
-    imageuri(obj)
-  } else {
-    stopf("Cannot convert object of class '%s' to 'imageuri'", class(obj)[[1L]])
-  }
+#' @title Conver to imageuri
+#' @description
+#' Converts an object to class [`imageuri`].
+#' @param obj (any)\cr
+#'   Object to convert.
+#' @param ... (any)\cr
+#'   Additional arguments.
+#' @return ([`imageuri`])\cr
+as_imageuri = function(obj, ...) {
+  UseMethod("as_imageuri")
 }
 
-# TODO: printer
+#' @export
+as_imageuri.imageuri = function(obj) { # nolint
+  obj
+}
+
+#' @export
+as_imageuri.character = function(obj, ...) { # nolint
+  imageuri(obj)
+}

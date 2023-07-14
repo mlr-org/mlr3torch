@@ -4,7 +4,11 @@ test_that("tiny_imagenet task works", {
   withr::local_options(mlr3torch.cache = TRUE)
   task = tsk("tiny_imagenet")
 
-  expect_error(task$data(), regexp = NA)
+  dt = task$data()
+  expect_equal(task$backend$nrow, 120000)
+  expect_equal(task$backend$ncol, 4)
+  expect_data_table(dt, ncols = 2, nrows = 100000)
+  expect_permutation(colnames(dt), c("class", "image"))
   expect_class(task, "TaskClassif")
   expect_equal(length(task$row_roles$use), 100000)
   expect_equal(length(task$row_roles$test), 10000)

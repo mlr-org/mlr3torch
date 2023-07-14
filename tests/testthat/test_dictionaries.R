@@ -24,6 +24,10 @@ test_that("mlr3torch_losses can be converted to a table", {
   expect_data_table(tbl)
 })
 
-test_that("mlr_tasks can be converted to a table", {
+test_that("mlr_tasks can be converted to a table without downloading imagenet", {
+  dir = tempfile()
+  withr::local_options(mlr3torch.cache = dir)
   expect_data_table(as.data.table(mlr_tasks))
+  # nothing is in the cache directory -> imagenet was not downloaded
+  expect_true(!dir.exists(dir))
 })

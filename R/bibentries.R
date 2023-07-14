@@ -52,5 +52,16 @@ bibentries = c( # nolint start
     pages = "84--90",
     year = "2017",
     publisher = "Association for Computing Machinery (ACM)"
+  ),
+  imagenet2009 = bibentry(
+    bibtype = "InProceedings",
+    textVersion = "Deng, J. et al. (2009). Imagenet: A large-scale hierarchical image database. In Proceedings of the 2009 IEEE conference on computer vision and pattern recognition (pp. 248--255). IEEE.",
+    header = "deng2009imagenet",
+    title = "Imagenet: A large-scale hierarchical image database",
+    author = c("Deng, Jia", "Dong, Wei", "Socher, Richard", "Li, Li-Jia", "Li, Kai", "Fei-Fei, Li"),
+    booktitle = "2009 IEEE conference on computer vision and pattern recognition",
+    pages = "248--255",
+    year = "2009",
+    organization = "IEEE"
   )
 ) # nolint end

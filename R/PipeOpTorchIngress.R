@@ -208,24 +208,6 @@ PipeOpTorchIngressNumeric = R6Class("PipeOpTorchIngressNumeric",
   )
 )
 
-#' @title Batchgetter for Numeric Data
-#'
-#' @description
-#' Converts a data frame of numeric data into a float tensor.
-#'
-#' @param data (`data.table()`)\cr
-#'   `data.table` to be converted to a `tensor`.
-#' @param device (`character(1)`)\cr
-#'   The device on which the tensor should be created.
-#' @export
-batchgetter_num = function(data, device) {
-  torch_tensor(
-    data = as.matrix(data),
-    dtype = torch_float(),
-    device = device
-  )
-}
-
 #' @include zzz.R
 register_po("torch_ingress_num", PipeOpTorchIngressNumeric)
 
@@ -276,24 +258,6 @@ PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
     }
   )
 )
-
-#' @title Batchgetter for categorical data
-#'
-#' @description
-#' Converts a data frame of categorical data into a long tensor.
-#'
-#' @param data (`data.table`)\cr
-#'   `data.table` to be converted to a `tensor`.
-#' @param device (`character(1)`)\cr
-#'   The device.
-#' @export
-batchgetter_categ = function(data, device) {
-  torch_tensor(
-    data = as.matrix(data[, lapply(.SD, as.integer)]),
-    dtype = torch_long(),
-    device = device
-  )
-}
 
 register_po("torch_ingress_categ", PipeOpTorchIngressCategorical)
 

@@ -8,8 +8,8 @@
 \description{
 Provides torch models as learners for the mlr3 ecosystem.
 }
-\section{}{
- Options
+\section{Options}{
+
 \itemize{
 \item \code{mlr3torch.cache}:
 Whether to cache the downloaded data (\code{TRUE}) or not (\code{FALSE}, default).

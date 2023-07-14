@@ -6,10 +6,6 @@ auto_device = function(device = NULL) {
   return(device)
 }
 
-test_all = function(x, y) {
-  test_true(all(x == y))
-}
-
 running_on_mac = function() {
   Sys.info()["sysname"] == "Darwin"
 }

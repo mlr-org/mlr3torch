@@ -1,4 +1,4 @@
-nano_cats_vs_dogs = function(id = "nano_dogs_vs_cats") {
+nano_dogs_vs_cats = function(id = "nano_dogs_vs_cats") {
   assert_string(id)
   path = testthat::test_path("assets", "nano_dogs_vs_cats")
   image_names = list.files(path)
