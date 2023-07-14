@@ -151,24 +151,18 @@
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_callbacks"</span>, callbacks <span class="op">=</span> <span class="fu"><a href="reference/t_clbk.html">t_clbk</a></span><span class="op">(</span><span class="st">"history"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_model_classif"</span>, batch_size <span class="op">=</span> <span class="fl">16</span>, epochs <span class="op">=</span> <span class="fl">50</span>, device <span class="op">=</span> <span class="st">"cpu"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/as_learner.html" class="external-link">as_learner</a></span><span class="op">(</span><span class="va">graph_mlp</span><span class="op">)</span></span>
-<span><span class="co">#&gt; &lt;GraphLearner:torch_ingress_num.nn_linear.nn_relu.nn_head.torch_loss.torch_optimizer.torch_callbacks.torch_model_classif&gt;</span></span>
-<span><span class="co">#&gt; * Model: -</span></span>
-<span><span class="co">#&gt; * Parameters: nn_linear.out_features=20, torch_optimizer.lr=0.1,</span></span>
-<span><span class="co">#&gt;   torch_model_classif.device=cpu,</span></span>
-<span><span class="co">#&gt;   torch_model_classif.measures_train=&lt;list&gt;,</span></span>
-<span><span class="co">#&gt;   torch_model_classif.measures_valid=&lt;list&gt;,</span></span>
-<span><span class="co">#&gt;   torch_model_classif.num_threads=1,</span></span>
-<span><span class="co">#&gt;   torch_model_classif.drop_last=FALSE,</span></span>
-<span><span class="co">#&gt;   torch_model_classif.shuffle=TRUE, torch_model_classif.seed=random,</span></span>
-<span><span class="co">#&gt;   torch_model_classif.batch_size=16, torch_model_classif.epochs=50</span></span>
-<span><span class="co">#&gt; * Packages: mlr3, mlr3pipelines, torch, mlr3torch</span></span>
-<span><span class="co">#&gt; * Predict Types:  [response], prob</span></span>
-<span><span class="co">#&gt; * Feature Types: logical, integer, numeric, character, factor, ordered,</span></span>
-<span><span class="co">#&gt;   POSIXct, imageuri</span></span>
-<span><span class="co">#&gt; * Properties: featureless, hotstart_backward, hotstart_forward,</span></span>
-<span><span class="co">#&gt;   importance, loglik, missings, multiclass, oob_error,</span></span>
-<span><span class="co">#&gt;   selected_features, twoclass, weights</span></span></code></pre></div>
+<span><span class="va">graph_mlp</span></span>
+<span><span class="co">#&gt; Graph with 8 PipeOps:</span></span>
+<span><span class="co">#&gt;                   ID         State            sccssors         prdcssors</span></span>
+<span><span class="co">#&gt;               &lt;char&gt;        &lt;char&gt;              &lt;char&gt;            &lt;char&gt;</span></span>
+<span><span class="co">#&gt;    torch_ingress_num &lt;&lt;UNTRAINED&gt;&gt;           nn_linear                  </span></span>
+<span><span class="co">#&gt;            nn_linear &lt;&lt;UNTRAINED&gt;&gt;             nn_relu torch_ingress_num</span></span>
+<span><span class="co">#&gt;              nn_relu &lt;&lt;UNTRAINED&gt;&gt;             nn_head         nn_linear</span></span>
+<span><span class="co">#&gt;              nn_head &lt;&lt;UNTRAINED&gt;&gt;          torch_loss           nn_relu</span></span>
+<span><span class="co">#&gt;           torch_loss &lt;&lt;UNTRAINED&gt;&gt;     torch_optimizer           nn_head</span></span>
+<span><span class="co">#&gt;      torch_optimizer &lt;&lt;UNTRAINED&gt;&gt;     torch_callbacks        torch_loss</span></span>
+<span><span class="co">#&gt;      torch_callbacks &lt;&lt;UNTRAINED&gt;&gt; torch_model_classif   torch_optimizer</span></span>
+<span><span class="co">#&gt;  torch_model_classif &lt;&lt;UNTRAINED&gt;&gt;                       torch_callbacks</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="feature-overview">Feature Overview<a class="anchor" aria-label="anchor" href="#feature-overview"></a>
