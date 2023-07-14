@@ -17,7 +17,7 @@ task = tsk("mtcars")
 splits = partition(task)
 task$row_roles$use = splits$train
 task$row_roles$test = splits$test
-rr = resample(task, lrn("regr.rpart"), resampling)
+rr = resample(task, lrn("regr.featureless"), resampling)
 rr$score()
 }
 \section{Super class}{
