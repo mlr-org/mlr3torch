@@ -22,6 +22,11 @@ Deep Learning with torch and mlr3.
 remotes::install_github("mlr-org/mlr3torch")
 ```
 
+## Status
+
+`mlr3torch` is currently still unstable but under active development.
+Not everything might work yet and the API might change without notice.
+
 ## What is mlr3torch?
 
 `mlr3torch` is a deep learning framework for the
@@ -36,9 +41,10 @@ Using predefined learners such as a simple multi layer perceptron (MLP)
 works just like any other mlr3 `Learner`.
 
 ``` r
+library(mlr3torch)
 learner_mlp = lrn("classif.mlp",
   # defining network parameters
-  activation     = "relu",
+  activation     = nn_relu,
   layers         = 1,
   d_hidden       = 20,
   # training parameters
@@ -51,17 +57,16 @@ learner_mlp = lrn("classif.mlp",
   callbacks      = t_clbk("history"), # this saves the history in the learner
   # Measures to track
   measures_valid = msrs(c("classif.logloss", "classif.ce")),
-  measures_train = msrs(c("classif.logloss", "classif.ce"))
+  measures_train = msrs(c("classif.acc"))
 )
 ```
 
-This learner can for example be used for resampling or benchmarking. It
-can also be tuned using [mlr3tuning](https://mlr3tuning.mlr-org.com/).
+This learner can for example be used for resampling or benchmarking.
 
 ``` r
 resample(
-  learner    = learner_mlp,
   task       = tsk("iris"),
+  learner    = learner_mlp,
   resampling = rsmp("holdout")
 )
 #> <ResampleResult> with 1 resampling iterations
@@ -90,13 +95,30 @@ graph_mlp = architecture %>>%
   po("torch_callbacks", callbacks = t_clbk("history")) %>>%
   po("torch_model_classif", batch_size = 16, epochs = 50, device = "cpu")
 
-learner_graph_mlp = as_learner(graph_mlp)
+as_learner(graph_mlp)
+#> <GraphLearner:torch_ingress_num.nn_linear.nn_relu.nn_head.torch_loss.torch_optimizer.torch_callbacks.torch_model_classif>
+#> * Model: -
+#> * Parameters: nn_linear.out_features=20, torch_optimizer.lr=0.1,
+#>   torch_model_classif.device=cpu,
+#>   torch_model_classif.measures_train=<list>,
+#>   torch_model_classif.measures_valid=<list>,
+#>   torch_model_classif.num_threads=1,
+#>   torch_model_classif.drop_last=FALSE,
+#>   torch_model_classif.shuffle=TRUE, torch_model_classif.seed=random,
+#>   torch_model_classif.batch_size=16, torch_model_classif.epochs=50
+#> * Packages: mlr3, mlr3pipelines, torch, mlr3torch
+#> * Predict Types:  [response], prob
+#> * Feature Types: logical, integer, numeric, character, factor, ordered,
+#>   POSIXct, imageuri
+#> * Properties: featureless, hotstart_backward, hotstart_forward,
+#>   importance, loglik, missings, multiclass, oob_error,
+#>   selected_features, twoclass, weights
 ```
 
 ## Feature Overview
 
-  - Off-the-shelf architectures are readily available as mlr3
-    `Learner`s.
+  - Off-the-shelf architectures are readily available as
+    `mlr3::Learner`s.
   - Custom learners can be defined using the `Graph` language from
     `mlr3pipelines` or using `nn_module`s.
   - The package supports tabular and image data.

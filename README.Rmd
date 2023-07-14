@@ -38,6 +38,12 @@ Deep Learning with torch and mlr3.
 remotes::install_github("mlr-org/mlr3torch")
 ```
 
+
+## Status
+
+`mlr3torch` is currently still unstable but under active development.
+Not everything might work yet and the API might change without notice.
+
 ## What is mlr3torch?
 
 
@@ -48,9 +54,10 @@ Off-the-shelf learners are readily available, but custom architectures can be de
 Using predefined learners such as a simple multi layer perceptron (MLP) works just like any other mlr3 `Learner`.
 
 ```{r}
+library(mlr3torch)
 learner_mlp = lrn("classif.mlp",
   # defining network parameters
-  activation     = "relu",
+  activation     = nn_relu,
   layers         = 1,
   d_hidden       = 20,
   # training parameters
@@ -63,17 +70,16 @@ learner_mlp = lrn("classif.mlp",
   callbacks      = t_clbk("history"), # this saves the history in the learner
   # Measures to track
   measures_valid = msrs(c("classif.logloss", "classif.ce")),
-  measures_train = msrs(c("classif.logloss", "classif.ce"))
+  measures_train = msrs(c("classif.acc"))
 )
 ```
 
 This learner can for example be used for resampling or benchmarking.
-It can also be tuned using [mlr3tuning](https://mlr3tuning.mlr-org.com/).
 
 ```{r}
 resample(
-  learner    = learner_mlp,
   task       = tsk("iris"),
+  learner    = learner_mlp,
   resampling = rsmp("holdout")
 )
 ```
@@ -98,12 +104,12 @@ graph_mlp = architecture %>>%
   po("torch_callbacks", callbacks = t_clbk("history")) %>>%
   po("torch_model_classif", batch_size = 16, epochs = 50, device = "cpu")
 
-learner_graph_mlp = as_learner(graph_mlp)
+as_learner(graph_mlp)
 ```
 
 ## Feature Overview
 
-* Off-the-shelf architectures are readily available as mlr3 `Learner`s.
+* Off-the-shelf architectures are readily available as `mlr3::Learner`s.
 * Custom learners can be defined using the `Graph` language from `mlr3pipelines` or using `nn_module`s.
 * The package supports tabular and image data.
 * It is possible to customize the training process via (predefined or custom) callbacks.
