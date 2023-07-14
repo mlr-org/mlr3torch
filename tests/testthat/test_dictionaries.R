@@ -23,3 +23,7 @@ test_that("mlr3torch_losses can be converted to a table", {
   tbl = as.data.table(mlr3torch_losses)
   expect_data_table(tbl)
 })
+
+test_that("mlr_tasks can be converted to a table", {
+  expect_data_table(as.data.table(mlr_tasks))
+})

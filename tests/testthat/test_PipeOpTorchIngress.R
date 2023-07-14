@@ -18,6 +18,6 @@ test_that("PipeOpTorchIngressCategorical", {
 
 test_that("PipeOpTorchIngressImage", {
   po_ingress = po("torch_ingress_img", channels = 3, width = 64, height = 64)
-  task = nano_imagenet()$cbind(data.frame(x1 = 1:200))
+  task = nano_imagenet()$cbind(data.frame(x1 = 1:10))
   expect_po_ingress(po_ingress, task)
 })

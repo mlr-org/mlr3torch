@@ -6,6 +6,10 @@ auto_device = function(device = NULL) {
   return(device)
 }
 
+test_all = function(x, y) {
+  test_true(all(x == y))
+}
+
 running_on_mac = function() {
   Sys.info()["sysname"] == "Darwin"
 }
@@ -132,6 +136,6 @@ sample_input_from_shapes = function(shapes, n = 1L) {
   })
 }
 
-get_cache_dir = function() {
-  R_user_dir("mlr3torch", "cache")
+load_col_info = function(name) {
+  readRDS(system.file("col_info", paste0(name, ".rds"), package = "mlr3torch"))
 }

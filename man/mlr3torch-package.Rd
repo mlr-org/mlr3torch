@@ -8,6 +8,15 @@
 \description{
 Provides torch models as learners for the mlr3 ecosystem.
 }
+\section{}{
+ Options
+\itemize{
+\item \code{mlr3torch.cache}:
+Whether to cache the downloaded data (\code{TRUE}) or not (\code{FALSE}, default).
+This can also be set to a specific folder on the file system to be used as the cache directory.
+}
+}
+
 \author{
 \strong{Maintainer}: Sebastian Fischer \email{sebf.fischer@gmail.com} (\href{https://orcid.org/0000-0002-9609-3197}{ORCID})
 

@@ -9,6 +9,12 @@
 #' @import mlr3pipelines
 #' @import mlr3
 #' @importFrom tools R_user_dir
+#'
+#' @section: Options
+#' * `mlr3torch.cache`:
+#'   Whether to cache the downloaded data (`TRUE`) or not (`FALSE`, default).
+#'   This can also be set to a specific folder on the file system to be used as the cache directory.
+#'
 "_PACKAGE"
 
 # to silence RCMD check
@@ -17,6 +23,7 @@ utils::globalVariables(c("self", "private", "super"))
 mlr3torch_pipeops = new.env()
 mlr3torch_learners = new.env()
 mlr3torch_tasks = new.env()
+mlr3torch_resamplings = new.env()
 mlr3torch_tags = c("torch", "activation")
 mlr3torch_feature_types = c(img = "imageuri")
 
@@ -26,6 +33,11 @@ mlr3torch_feature_types = c(img = "imageuri")
 register_po = function(name, constructor) {
   if (name %in% names(mlr3torch_pipeops)) stopf("pipeop %s registered twice", name)
   mlr3torch_pipeops[[name]] = list(constructor = constructor)
+}
+
+register_resampling = function(name, constructor) {
+  if (name %in% names(mlr3torch_resamplings)) stopf("resampling %s registered twice", name)
+  mlr3torch_resamplings[[name]] = constructor
 }
 
 register_learner = function(name, constructor) {
@@ -59,8 +71,12 @@ register_mlr3 = function() {
   mlr_tasks = mlr3::mlr_tasks
   iwalk(as.list(mlr3torch_tasks), function(task, nm) mlr_tasks$add(nm, task)) # nolint
 
+  mlr_resamplings = mlr3::mlr_resamplings
+  iwalk(as.list(mlr3torch_resamplings), function(resampling, nm) mlr_resamplings$add(nm, resampling))
+
   mlr_reflections = utils::getFromNamespace("mlr_reflections", ns = "mlr3") # nolint
   iwalk(as.list(mlr3torch_feature_types), function(ft, nm) mlr_reflections$task_feature_types[[nm]] = ft) # nolint
+
 
   mlr_reflections$torch = list(
     devices = c("auto", "cpu", "cuda", "mkldnn", "opengl", "opencl", "ideep", "hip", "fpga", "xla", "mps"),

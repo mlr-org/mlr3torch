@@ -26,3 +26,4 @@
 ^README_files$
 ^TODO\.md$
 ^\.ignore$
+^inst/data_scripts$
