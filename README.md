@@ -95,24 +95,18 @@ graph_mlp = architecture %>>%
   po("torch_callbacks", callbacks = t_clbk("history")) %>>%
   po("torch_model_classif", batch_size = 16, epochs = 50, device = "cpu")
 
-as_learner(graph_mlp)
-#> <GraphLearner:torch_ingress_num.nn_linear.nn_relu.nn_head.torch_loss.torch_optimizer.torch_callbacks.torch_model_classif>
-#> * Model: -
-#> * Parameters: nn_linear.out_features=20, torch_optimizer.lr=0.1,
-#>   torch_model_classif.device=cpu,
-#>   torch_model_classif.measures_train=<list>,
-#>   torch_model_classif.measures_valid=<list>,
-#>   torch_model_classif.num_threads=1,
-#>   torch_model_classif.drop_last=FALSE,
-#>   torch_model_classif.shuffle=TRUE, torch_model_classif.seed=random,
-#>   torch_model_classif.batch_size=16, torch_model_classif.epochs=50
-#> * Packages: mlr3, mlr3pipelines, torch, mlr3torch
-#> * Predict Types:  [response], prob
-#> * Feature Types: logical, integer, numeric, character, factor, ordered,
-#>   POSIXct, imageuri
-#> * Properties: featureless, hotstart_backward, hotstart_forward,
-#>   importance, loglik, missings, multiclass, oob_error,
-#>   selected_features, twoclass, weights
+graph_mlp
+#> Graph with 8 PipeOps:
+#>                   ID         State            sccssors         prdcssors
+#>               <char>        <char>              <char>            <char>
+#>    torch_ingress_num <<UNTRAINED>>           nn_linear                  
+#>            nn_linear <<UNTRAINED>>             nn_relu torch_ingress_num
+#>              nn_relu <<UNTRAINED>>             nn_head         nn_linear
+#>              nn_head <<UNTRAINED>>          torch_loss           nn_relu
+#>           torch_loss <<UNTRAINED>>     torch_optimizer           nn_head
+#>      torch_optimizer <<UNTRAINED>>     torch_callbacks        torch_loss
+#>      torch_callbacks <<UNTRAINED>> torch_model_classif   torch_optimizer
+#>  torch_model_classif <<UNTRAINED>>                       torch_callbacks
 ```
 
 ## Feature Overview

@@ -104,7 +104,7 @@ graph_mlp = architecture %>>%
   po("torch_callbacks", callbacks = t_clbk("history")) %>>%
   po("torch_model_classif", batch_size = 16, epochs = 50, device = "cpu")
 
-as_learner(graph_mlp)
+graph_mlp
 ```
 
 ## Feature Overview
