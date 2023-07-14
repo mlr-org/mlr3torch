@@ -24,18 +24,18 @@ imageuri = function(obj) {
 }
 
 #' @export
-`[[<-.imageuri` = function(obj, value, ...) {
+`[[<-.imageuri` = function(obj, ..., value) {
   assert_character(value)
   obj = unclass(obj)
-  obj[[...]] <- value
+  obj[[...]] = value
   imageuri(value)
 }
 
 #' @export
-`[<-.imageuri` = function(obj, value, ...) { # nolint
+`[<-.imageuri` = function(obj,  ..., value) { # nolint
   assert_character(value)
   obj = unclass(obj)
-  obj[...] <- value
+  obj[...] = value
   imageuri(value)
 }
 

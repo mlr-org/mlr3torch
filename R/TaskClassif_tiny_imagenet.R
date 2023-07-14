@@ -1,47 +1,99 @@
-# #' @title Tiny Imagenet Classification Task
-# #' It only containst the training data of the task.
-# #' @format [R6::R6Class] inheriting from [TaskClassif].
-#
-# #' @name mlr_tasks_iris
-# #'
-# NULL
-#
-# load_task_tiny_imagenet = function(id = "tiny_imagenet", download = FALSE) {
-#   rlang::local_options(timeout = 300L) # download takes long
-#   cache_dir = tools::R_user_dir("mlr3torch", "cache")
-#   superdir = file.path(cache_dir, "tiny-imagenet-200")
-#   if (download) {
-#     torchvision::tiny_imagenet_dataset(root = superdir, download = TRUE)
-#   } else {
-#     assert_directory_exists(superdir)
-#   }
-#
-#   lookup = fread(sprintf("%s/words.txt", superdir), header = FALSE)
-#   colnames(lookup) = c("id", "label")
-#
-#   train_dir = sprintf("%s/train", superdir)
-#   train_ids = list.files(train_dir)
-#   train_folders = sprintf("%s/%s", train_dir, train_ids)
-#   train_uris = map(train_folders,
-#     function(train_folder) {
-#       image_dir = sprintf("%s/images", train_folder)
-#       sprintf("%s/%s", image_dir, list.files(image_dir))
-#     }
-#   )
-#
-#   train_labels = lookup[train_ids, "label", on = "id"][[1L]]
-#   train_labels = rep(train_labels, times = lengths(train_uris))
-#   train_labels = factor(train_labels)
-#   train_uris = unlist(train_uris)
-#
-#   images = imageuri(train_uris)
-#   d = data.table(
-#     class = train_labels,
-#     image = images
-#   )
-#
-#   as_task_classif(d, target = "class", id = id)
-# }
-#
-# #' @include zzz.R
-# mlr3torch_image_tasks[["tiny_imagenet"]] = load_task_tiny_imagenet
+#' @title Tiny Imagenet Classification Task
+#'
+#' @description
+#' The data is obtained using [`torchvision::tiny_imagenet_dataset()`].
+#' It contains the train, validation and test data.
+#' It contains three columns `"class"`, `"image"` and `"split"`, where the last column indicates whether
+#' the row belongs to the train, validation or test set.
+#' Note that test observations have no labels.
+#'
+#' The row role `use` is set to the training data, the row role `test` to the valdiation data and the row role
+#' `holdout` is set to the test data.
+#' There are no labels available for the test data.
+#'
+#'
+#'
+#' @name mlr_tasks_tiny_imagenet
+#' @examples
+#' tsk = tsk("tiny_imagenet")
+NULL
+
+# @param path (`character(1)`)\cr
+#   The cache_dir/datasets/tiny_imagenet folder.
+constructor_tiny_imagenet = function(path) {
+  # path points to {cache_dir, tempfile}/data/tiny_imagenet
+  torchvision::tiny_imagenet_dataset(root = file.path(path, "raw"), download = TRUE)
+  download_folder = file.path(path, "raw", "tiny-imagenet-200")
+
+  lookup = fread(sprintf("%s/words.txt", download_folder), header = FALSE)
+
+  colnames(lookup) = c("id", "label")
+
+  get_uris = function(dir, set) {
+    folder_names = list.files(file.path(dir, set))
+    folder_names = folder_names[folder_names != "val_annotations.txt"]
+    res = map(folder_names, function(folder_name) {
+      if (set == "train") {
+        uris = list.files(file.path(dir, set, folder_name, "images"), full.names = TRUE)
+      } else {
+        uris = list.files(file.path(dir, set, folder_name), full.names = TRUE)
+      }
+      label = lookup[folder_name, "label", on = "id"][[1L]]
+      list(uris = uris, label = label)
+    })
+    uris = map(res, "uris")
+    labels = map_chr(res, "label")
+    uri_vector = vector("character", length = sum(lengths(uris)))
+    i = 1
+    for (j in seq_along(uris)) {
+      uri_vector[i:(i + length(uris[[j]]) - 1)] = uris[[j]]
+      i = i + length(uris[[j]])
+    }
+
+    label_vector = rep(labels, times = lengths(uris))
+    list(labels = label_vector, uris = uri_vector)
+  }
+
+  train_res = get_uris(download_folder, "train")
+  valid_res = get_uris(download_folder, "val")
+  test_uris = list.files(file.path(download_folder, "test", "images"), full.names = TRUE)
+
+  classes = c(train_res$labels, valid_res$labels, rep(NA_character_, length(test_uris)))
+  uris = c(train_res$uris, valid_res$uris, test_uris)
+  splits = rep(c("train", "valid", "test"), times = map_int(list(train_res$labels, valid_res$labels, test_uris), length))
+
+  data.table(class = as.factor(classes), image = uris, split = factor(splits))
+}
+
+load_task_tiny_imagenet = function(id = "tiny_imagenet") {
+  cached_constructor = function() {
+    dt = cached(constructor_tiny_imagenet, "datasets", "tiny_imagenet")$data
+    dt$image = imageuri(dt$image)
+    dt$row_id = seq_len(nrow(dt))
+    DataBackendDataTable$new(data = dt, primary_key = "row_id")
+  }
+
+  backend = DataBackendLazy$new(
+    constructor = cached_constructor,
+    rownames = seq_len(120000),
+    col_info = load_col_info("tiny_imagenet"),
+    primary_key = "row_id",
+    data_formats = "data.table"
+  )
+
+  task = TaskClassif$new(
+    backend = backend,
+    id = "tiny_imagenet",
+    target = "class",
+    label = "ImageNet Subset"
+  )
+
+  task$row_roles$use = seq_len(100000)
+  task$row_roles$test = seq(from = 100001, 110000)
+  task$row_roles$holdout = seq(from = 110001, 120000)
+  task$col_roles$feature = "image"
+
+  return(task)
+}
+
+register_task("tiny_imagenet", load_task_tiny_imagenet)
