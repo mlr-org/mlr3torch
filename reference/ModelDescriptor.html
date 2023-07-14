@@ -111,7 +111,7 @@ It is allowed for the <code>graph</code> in this structure to be modified by-ref
 However, these modifications may never add edges with elements of the <code>Graph</code> as destination. In particular, no
 element of <code>graph$input</code> may be removed by reference, e.g. by adding an edge to the <code>Graph</code> that has the input
 channel of a <code>PipeOp</code> that was previously without parent as its destination.</p>
-<p>In most cases it is better to create a specific <code>ModelDescriptor</code> by training a <code>Graph</code> consisting (mostly) of
+<p>In most cases it is better to create a specific <code>ModelDescriptor</code> by training a <code><a href="https://mlr3pipelines.mlr-org.com/reference/Graph.html" class="external-link">Graph</a></code> consisting (mostly) of
 operators <code><a href="mlr_pipeops_torch_ingress.html">PipeOpTorchIngress</a></code>, <code><a href="mlr_pipeops_torch.html">PipeOpTorch</a></code>, <code><a href="mlr_pipeops_torch_loss.html">PipeOpTorchLoss</a></code>, <code><a href="mlr_pipeops_torch_optimizer.html">PipeOpTorchOptimizer</a></code>, and
 <code><a href="mlr_pipeops_torch_callbacks.html">PipeOpTorchCallbacks</a></code>.</p>
 <p>A <code>ModelDescriptor</code> can be converted to a <code><a href="nn_graph.html">nn_graph</a></code> via <code><a href="model_descriptor_to_module.html">model_descriptor_to_module</a></code>.</p>
@@ -134,7 +134,7 @@ operators <code><a href="mlr_pipeops_torch_ingress.html">PipeOpTorchIngress</a><
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>graph</dt>
-<dd><p>(<code><a href="https://mlr3pipelines.mlr-org.com/reference/Graph.html" class="external-link">Graph</a></code>)<br><code>Graph</code> of <code><a href="mlr_pipeops_module.html">PipeOpModule</a></code> and <code>PipeOpNOP</code> operators.</p></dd>
+<dd><p>(<code><a href="https://mlr3pipelines.mlr-org.com/reference/Graph.html" class="external-link">Graph</a></code>)<br><code>Graph</code> of <code><a href="mlr_pipeops_module.html">PipeOpModule</a></code> and <code><a href="https://mlr3pipelines.mlr-org.com/reference/mlr_pipeops_nop.html" class="external-link">PipeOpNOP</a></code> operators.</p></dd>
 
 
 <dt>ingress</dt>

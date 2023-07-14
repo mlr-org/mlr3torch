@@ -82,10 +82,10 @@ For more information on how to correctly implement a new callback, see <code><a 
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">torch_callback</span><span class="op">(</span></span>
 <span>  <span class="va">id</span>,</span>
-<span>  classname <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"CallbackSet"</span>, <span class="fu">capitalize</span><span class="op">(</span><span class="va">id</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  classname <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"CallbackSet"</span>, <span class="fu"><a href="https://mlr3misc.mlr-org.com/reference/capitalize.html" class="external-link">capitalize</a></span><span class="op">(</span><span class="va">id</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  param_set <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  packages <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  label <span class="op">=</span> <span class="fu">capitalize</span><span class="op">(</span><span class="va">id</span><span class="op">)</span>,</span>
+<span>  label <span class="op">=</span> <span class="fu"><a href="https://mlr3misc.mlr-org.com/reference/capitalize.html" class="external-link">capitalize</a></span><span class="op">(</span><span class="va">id</span><span class="op">)</span>,</span>
 <span>  man <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  on_begin <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  on_end <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -233,13 +233,13 @@ then wraps this generator in a <code><a href="TorchCallback.html">TorchCallback<
 <span class="r-in"><span>  <span class="op">}</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">learner</span> <span class="op">=</span> <span class="fu">lrn</span><span class="op">(</span><span class="st">"classif.torch_featureless"</span>,</span></span>
+<span class="r-in"><span><span class="va">learner</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"classif.torch_featureless"</span>,</span></span>
 <span class="r-in"><span>  batch_size <span class="op">=</span> <span class="fl">16</span>,</span></span>
 <span class="r-in"><span>  epochs <span class="op">=</span> <span class="fl">1</span>,</span></span>
 <span class="r-in"><span>  callbacks <span class="op">=</span> <span class="va">custom_tcb</span>,</span></span>
 <span class="r-in"><span>  cb.custom.name <span class="op">=</span> <span class="st">"Marie"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">task</span> <span class="op">=</span> <span class="fu">tsk</span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">task</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Hello Marie , we will train for  1 epochs.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Training is done.</span>

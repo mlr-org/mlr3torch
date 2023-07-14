@@ -225,7 +225,7 @@ The referenced help package can be opened via method <code>$help()</code>.</p></
 <span class="r-in"><span><span class="va">torch_callback</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;TorchCallback:checkpoint&gt; Checkpoint</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Generator: CallbackSetCheckpoint</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: path=/tmp/RtmpLYmCAI/file1a473c48f54d, freq=1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: path=/tmp/RtmpA38GaV/file1c0031e962c9, freq=1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Packages: torch,mlr3torch</span>
 <span class="r-in"><span><span class="va">torch_callback</span><span class="op">$</span><span class="va">label</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Checkpoint"</span>
@@ -247,7 +247,7 @@ The referenced help package can be opened via method <code>$help()</code>.</p></
 <span class="r-out co"><span class="r-pr">#&gt;</span>     initialize: function (path, freq) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     on_end: function () </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     on_epoch_end: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     path: /tmp/RtmpLYmCAI/file1a473c48f54d</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     path: /tmp/RtmpA38GaV/file1c0031e962c9</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Private:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     deep_clone: function (name, value) </span>
 <span class="r-in"><span><span class="co"># is the same as</span></span></span>
@@ -263,12 +263,12 @@ The referenced help package can be opened via method <code>$help()</code>.</p></
 <span class="r-out co"><span class="r-pr">#&gt;</span>     initialize: function (path, freq) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     on_end: function () </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     on_epoch_end: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     path: /tmp/RtmpLYmCAI/file1a4767c7fc03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     path: /tmp/RtmpA38GaV/file1c003e3cb133</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Private:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     deep_clone: function (name, value) </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Use in a learner</span></span></span>
-<span class="r-in"><span><span class="va">learner</span> <span class="op">=</span> <span class="fu">lrn</span><span class="op">(</span><span class="st">"regr.mlp"</span>, callbacks <span class="op">=</span> <span class="fu"><a href="t_clbk.html">t_clbk</a></span><span class="op">(</span><span class="st">"checkpoint"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">learner</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.mlp"</span>, callbacks <span class="op">=</span> <span class="fu"><a href="t_clbk.html">t_clbk</a></span><span class="op">(</span><span class="st">"checkpoint"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># the parameters of the callback are added to the learner's parameter set</span></span></span>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="va">param_set</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSetCollection&gt;</span>

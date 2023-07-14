@@ -94,7 +94,7 @@ Ingress tokens and callbacks are merged, where objects with the same &quot;id&qu
 reference.</p></li>
 <li><p><code>PipeOp</code>s with the same ID must be identical. No new input edges may be added to <code>PipeOp</code>s.</p></li>
 <li><p>Drops <code>.pointer</code> / <code>.pointer_shape</code> entries.</p></li>
-<li><p>The new task is the feature union of the two incoming tasks.</p></li>
+<li><p>The new task is the <a href="https://mlr3pipelines.mlr-org.com/reference/mlr_pipeops_featureunion.html" class="external-link">feature union</a> of the two incoming tasks.</p></li>
 <li><p>The <code>optimizer</code> and <code>loss</code> of both <code><a href="ModelDescriptor.html">ModelDescriptor</a></code>s must be identical.</p></li>
 <li><p>Ingress tokens and callbacks are merged, where objects with the same <code>"id"</code> must be identical.</p></li>
 </ul></div>

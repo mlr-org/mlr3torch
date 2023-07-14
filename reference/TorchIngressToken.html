@@ -74,7 +74,7 @@ of the neural network. It is stored as the ingress field in a ModelDescriptor.'>
 
     <div class="ref-description section level2">
     <p>This function creates an S3 class of class <code>"TorchIngressToken"</code>, which is an internal data structure.
-It contains the (meta-)information of how a batch is generated from a <code>Task</code> and fed into an entry point
+It contains the (meta-)information of how a batch is generated from a <code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code> and fed into an entry point
 of the neural network. It is stored as the <code>ingress</code> field in a <code><a href="ModelDescriptor.html">ModelDescriptor</a></code>.</p>
     </div>
 
@@ -128,7 +128,7 @@ Shape that <code>batchgetter</code> will produce. Batch-dimension should be incl
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Define a task for which we want to define an ingress token</span></span></span>
-<span class="r-in"><span><span class="va">task</span> <span class="op">=</span> <span class="fu">tsk</span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">task</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># We create an ingress token for two feature Sepal.Length and Petal.Length:</span></span></span>
 <span class="r-in"><span><span class="co"># We have to specify the features, the batchgetter and the shape</span></span></span>

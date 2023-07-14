@@ -96,9 +96,9 @@ The number of epochs.</p></li>
 <li><p><code>device</code> :: <code>character(1)</code><br>
 The device. One of <code>"auto"</code>, <code>"cpu"</code>, or <code>"cuda"</code> or other values defined in <code>mlr_reflections$torch$devices</code>.
 The value is initialized to <code>"auto"</code>, which will select <code>"cuda"</code> if possible and <code>"cpu"</code> otherwise.</p></li>
-<li><p><code>measures_train</code> :: <code>Measure</code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code>Measure</code>s.
+<li><p><code>measures_train</code> :: <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code>s.
 Measures to be evaluated during training.</p></li>
-<li><p><code>measures_valid</code> :: <code>Measure</code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code>Measure</code>s.
+<li><p><code>measures_valid</code> :: <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code>s.
 Measures to be evaluated during validation.</p></li>
 <li><p><code>num_threads</code> :: <code>integer(1)</code><br>
 The number of threads for intraop pararallelization (if <code>device</code> is <code>"cpu"</code>).
@@ -123,23 +123,23 @@ They are prefixed with <code>"opt."</code>, <code>"loss."</code> and <code>"cb.&
 Instead, the <code>task_type</code> must be specified  as a construction argument.
 Currently, only classification and regression are supported.</p>
 <p>When inheriting from this class, one should overload two private methods:</p><ul><li><p><code>.network(task, param_vals)</code><br>
-(<code>Task</code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code>nn_module</code><br>
+(<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module</a></code><br>
 Construct a <code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">torch::nn_module</a></code> object for the given task and parameter values, i.e. the neural network that
 is trained by the learner.
 For classification, the output of this network are expected to be the scores before the application of the
 final softmax layer.</p></li>
 <li><p><code>.dataset(task, param_vals)</code><br>
-(<code>Task</code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code><a href="https://rdrr.io/pkg/torch/man/dataset.html" class="external-link">torch::dataset</a></code><br>
+(<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code><a href="https://rdrr.io/pkg/torch/man/dataset.html" class="external-link">torch::dataset</a></code><br>
 Create the dataset for the task.
 Must respect the parameter value of the device.
 Moreover, one needs to pay attention respect the row ids of the provided task.</p></li>
 </ul><p>It is also possible to overwrite the private <code>.dataloader()</code> method instead of the <code>.dataset()</code> method.
 Per default, a dataloader is constructed using the output from the <code>.dataset()</code> method.</p><ul><li><p><code>.dataloader(task, param_vals)</code><br>
-(<code>Task</code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code><a href="https://rdrr.io/pkg/torch/man/dataloader.html" class="external-link">torch::dataloader</a></code><br>
+(<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code><a href="https://rdrr.io/pkg/torch/man/dataloader.html" class="external-link">torch::dataloader</a></code><br>
 Create a dataloader from the task.
 Needs to respect at least <code>batch_size</code> and <code>shuffle</code> (otherwise predictions can be permuted).</p></li>
 </ul><p>To change the predict types, the private <code>.encode_prediction()</code> method can be overwritten:</p><ul><li><p><code>.encode_prediction(predict_tensor, task, param_vals)</code><br>
-(<code>torch_tensor</code>, <code>Task</code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code><br>
+(<code><a href="https://rdrr.io/pkg/torch/man/torch_tensor.html" class="external-link">torch_tensor</a></code>, <code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code><br>
 Take in the raw predictions from <code>self$network</code> (<code>predict_tensor</code>) and encode them into a
 format that can be converted to valid <code>mlr3</code> predictions using <code><a href="https://mlr3.mlr-org.com/reference/as_prediction_data.html" class="external-link">mlr3::as_prediction_data()</a></code>.
 This method must take <code>self$predict_type</code> into account.</p></li>
@@ -236,7 +236,7 @@ The parameter set.</p></dd>
 <dt><code>properties</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
 The properties of the object.
-See <code>mlr_reflections$learner_properties</code> for available values.</p></dd>
+See <code><a href="https://mlr3.mlr-org.com/reference/mlr_reflections.html" class="external-link">mlr_reflections$learner_properties</a></code> for available values.</p></dd>
 
 
 <dt><code>man</code></dt>
@@ -253,7 +253,7 @@ Label for the new instance.</p></dd>
 <dt><code>feature_types</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
 The feature types.
-See <code>mlr_reflections$task_feature_types</code> for available values.</p></dd>
+See <code><a href="https://mlr3.mlr-org.com/reference/mlr_reflections.html" class="external-link">mlr_reflections$task_feature_types</a></code> for available values.</p></dd>
 
 
 <dt><code>optimizer</code></dt>
@@ -276,7 +276,7 @@ The R packages this object depends on.</p></dd>
 <dt><code>predict_types</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
 The predict types.
-See <code>mlr_reflections$learner_predict_types</code> for available values.
+See <code><a href="https://mlr3.mlr-org.com/reference/mlr_reflections.html" class="external-link">mlr_reflections$learner_predict_types</a></code> for available values.
 For regression, the default is <code>"response"</code>.
 For classification, this defaults to <code>"response"</code> and <code>"prob"</code>.
 To deviate from the defaults, it is necessary to overwrite the private <code>$.encode_prediction()</code>

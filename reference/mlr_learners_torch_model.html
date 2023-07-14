@@ -71,7 +71,7 @@ For classification, the output of the network must be the scores (before the sof
     </div>
 
     <div class="ref-description section level2">
-    <p>Create a torch learner from an instantiated <code>nn_module()</code>.
+    <p>Create a torch learner from an instantiated <code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module()</a></code>.
 For classification, the output of the network must be the scores (before the softmax).</p>
     </div>
 
@@ -147,8 +147,8 @@ The task type.</p></dd>
 
 
 <dt><code>network</code></dt>
-<dd><p>(<code>nn_module</code>)<br>
-An instantiated <code>nn_module</code>. Is not cloned during construction.
+<dd><p>(<code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module</a></code>)<br>
+An instantiated <code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module</a></code>. Is not cloned during construction.
 For classification, outputs must be the scores (before the softmax).</p></dd>
 
 
@@ -218,8 +218,8 @@ The feature types. Defaults to all available feature types.</p></dd>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># We show the learner using a classification task</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># The iris task has 4 features and 3 classes</span></span></span>
-<span class="r-in"><span><span class="va">network</span> <span class="op">=</span> <span class="fu">nn_linear</span><span class="op">(</span><span class="fl">4</span>, <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">task</span> <span class="op">=</span> <span class="fu">tsk</span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">network</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">task</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># This defines the dataloader.</span></span></span>
 <span class="r-in"><span><span class="co"># It loads all 4 features, which are also numeric.</span></span></span>
@@ -229,7 +229,7 @@ The feature types. Defaults to all available feature types.</p></dd>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Creating the learner and setting required parameters</span></span></span>
-<span class="r-in"><span><span class="va">learner</span> <span class="op">=</span> <span class="fu">lrn</span><span class="op">(</span><span class="st">"classif.torch_model"</span>,</span></span>
+<span class="r-in"><span><span class="va">learner</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"classif.torch_model"</span>,</span></span>
 <span class="r-in"><span>  network <span class="op">=</span> <span class="va">network</span>,</span></span>
 <span class="r-in"><span>  ingress_tokens <span class="op">=</span> <span class="va">ingress_tokens</span>,</span></span>
 <span class="r-in"><span>  batch_size <span class="op">=</span> <span class="fl">16</span>,</span></span>
@@ -237,18 +237,18 @@ The feature types. Defaults to all available feature types.</p></dd>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># A simple train-predict</span></span></span>
-<span class="r-in"><span><span class="va">ids</span> <span class="op">=</span> <span class="fu">partition</span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ids</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/partition.html" class="external-link">partition</a></span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task</span>, <span class="va">ids</span><span class="op">$</span><span class="va">train</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">task</span>, <span class="va">ids</span><span class="op">$</span><span class="va">test</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;PredictionClassif&gt; for 48 observations:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     row_ids     truth   response</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           3    setosa versicolor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           4    setosa versicolor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           5    setosa versicolor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           6    setosa versicolor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          10    setosa versicolor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          11    setosa versicolor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         142 virginica versicolor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         148 virginica versicolor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         149 virginica versicolor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         140 virginica versicolor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         147 virginica versicolor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         150 virginica versicolor</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

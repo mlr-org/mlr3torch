@@ -81,10 +81,10 @@ of PipeOpModules as part of the ModelDescriptor."><!-- mathjax --><script src="h
     </div>
 
     <div class="ref-description section level2">
-    <p><code>PipeOpModule</code> wraps an <code>nn_module</code> that is being called during the <code>train</code> phase of this <code><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html" class="external-link">mlr3pipelines::PipeOp</a></code>.
+    <p><code>PipeOpModule</code> wraps an <code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module</a></code> that is being called during the <code>train</code> phase of this <code><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html" class="external-link">mlr3pipelines::PipeOp</a></code>.
 By doing so, this allows to assemble <code>PipeOpModule</code>s in a computational <code><a href="https://mlr3pipelines.mlr-org.com/reference/Graph.html" class="external-link">mlr3pipelines::Graph</a></code> that
 represents a neural network architecture. Such a graph can also be used to create a <code><a href="nn_graph.html">nn_graph</a></code> which inherits
-from <code>nn_module</code>.</p>
+from <code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module</a></code>.</p>
 <p>In most cases it is easier to create such a network by creating a isomorphic graph consisting
 of nodes of class <code><a href="mlr_pipeops_torch_ingress.html">PipeOpTorchIngress</a></code> and <code><a href="mlr_pipeops_torch.html">PipeOpTorch</a></code>. This graph will then generate the graph consisting
 of <code>PipeOpModule</code>s as part of the <code><a href="ModelDescriptor.html">ModelDescriptor</a></code>.</p>
@@ -115,7 +115,7 @@ meaningful purpose.</p>
     <h2 id="internals">Internals<a class="anchor" aria-label="anchor" href="#internals"></a></h2>
     
 
-<p>During training, the wrapped <code>nn_module</code> is called with the provided inputs in the order in which the channels
+<p>During training, the wrapped <code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module</a></code> is called with the provided inputs in the order in which the channels
 are defined. Arguments are <strong>not</strong> matched by name.</p>
     </div>
     <div class="section level2">
@@ -145,7 +145,7 @@ are defined. Arguments are <strong>not</strong> matched by name.</p>
     <div class="section level2">
     <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
     <p></p><div class="r6-fields"><dl><dt><code>module</code></dt>
-<dd><p>(<code>nn_module</code>)<br>
+<dd><p>(<code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module</a></code>)<br>
 The torch module that is called during the training phase.</p></dd>
 
 
@@ -169,7 +169,7 @@ The torch module that is called during the training phase.</p></dd>
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/mlr_pipeops_module.html">PipeOpModule</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  id <span class="op">=</span> <span class="st">"module"</span>,</span>
-<span>  module <span class="op">=</span> <span class="fu">nn_identity</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  module <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_identity.html" class="external-link">nn_identity</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  inname <span class="op">=</span> <span class="st">"input"</span>,</span>
 <span>  outname <span class="op">=</span> <span class="st">"output"</span>,</span>
 <span>  param_vals <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -185,7 +185,7 @@ The id for of the new object.</p></dd>
 
 
 <dt><code>module</code></dt>
-<dd><p>(<code>nn_module</code>)<br>
+<dd><p>(<code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module</a></code>)<br>
 The torch module that is being wrapped.</p></dd>
 
 
@@ -277,8 +277,8 @@ The R packages this object depends on.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ out2:Float [1:1, 1:2]</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># How a PipeOpModule is usually generated</span></span></span>
-<span class="r-in"><span><span class="va">graph</span> <span class="op">=</span> <span class="fu">po</span><span class="op">(</span><span class="st">"torch_ingress_num"</span><span class="op">)</span> <span class="op">%&gt;&gt;%</span> <span class="fu">po</span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">result</span> <span class="op">=</span> <span class="va">graph</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu">tsk</span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">graph</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">result</span> <span class="op">=</span> <span class="va">graph</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># The PipeOpTorchLinear generates a PipeOpModule and adds it to a new (module) graph</span></span></span>
 <span class="r-in"><span><span class="va">result</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">graph</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Graph with 2 PipeOps:</span>

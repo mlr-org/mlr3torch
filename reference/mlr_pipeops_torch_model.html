@@ -101,9 +101,9 @@ The number of epochs.</p></li>
 <li><p><code>device</code> :: <code>character(1)</code><br>
 The device. One of <code>"auto"</code>, <code>"cpu"</code>, or <code>"cuda"</code> or other values defined in <code>mlr_reflections$torch$devices</code>.
 The value is initialized to <code>"auto"</code>, which will select <code>"cuda"</code> if possible and <code>"cpu"</code> otherwise.</p></li>
-<li><p><code>measures_train</code> :: <code>Measure</code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code>Measure</code>s.
+<li><p><code>measures_train</code> :: <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code>s.
 Measures to be evaluated during training.</p></li>
-<li><p><code>measures_valid</code> :: <code>Measure</code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code>Measure</code>s.
+<li><p><code>measures_valid</code> :: <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code>s.
 Measures to be evaluated during validation.</p></li>
 <li><p><code>num_threads</code> :: <code>integer(1)</code><br>
 The number of threads for intraop pararallelization (if <code>device</code> is <code>"cpu"</code>).

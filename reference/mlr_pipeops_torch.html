@@ -95,11 +95,11 @@ If there is only one input and output channel, the task is simply piped through.
     </div>
 
     <div class="ref-description section level2">
-    <p><code>PipeOpTorch</code> is the base class for all <code>PipeOp</code>s that represent neural network layers in a <code>Graph</code>.
+    <p><code>PipeOpTorch</code> is the base class for all <code><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html" class="external-link">PipeOp</a></code>s that represent neural network layers in a <code><a href="https://mlr3pipelines.mlr-org.com/reference/Graph.html" class="external-link">Graph</a></code>.
 During <strong>training</strong>, it generates a <code><a href="mlr_pipeops_module.html">PipeOpModule</a></code> that wraps an <code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module</a></code> and attaches it
-to the isomorphic architecture, which is also represented as a <code>Graph</code> consisting mostly of <code><a href="mlr_pipeops_module.html">PipeOpModule</a></code>s
-an <code>PipeOpNOP</code>s.</p>
-<p>While the former <code>Graph</code> operates on <code><a href="ModelDescriptor.html">ModelDescriptor</a></code>s, the latter operates on tensors.</p>
+to the isomorphic architecture, which is also represented as a <code><a href="https://mlr3pipelines.mlr-org.com/reference/Graph.html" class="external-link">Graph</a></code> consisting mostly of <code><a href="mlr_pipeops_module.html">PipeOpModule</a></code>s
+an <code><a href="https://mlr3pipelines.mlr-org.com/reference/mlr_pipeops_nop.html" class="external-link">PipeOpNOP</a></code>s.</p>
+<p>While the former <code><a href="https://mlr3pipelines.mlr-org.com/reference/Graph.html" class="external-link">Graph</a></code> operates on <code><a href="ModelDescriptor.html">ModelDescriptor</a></code>s, the latter operates on <a href="https://rdrr.io/pkg/torch/man/torch_tensor.html" class="external-link">tensors</a>.</p>
 <p>The relationship between a <code>PipeOpTorch</code> and a <code><a href="mlr_pipeops_module.html">PipeOpModule</a></code> is similar to the
 relationshop between a <code>nn_module_generator</code> (like <code><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></code>) and a
 <code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module</a></code> (like the output of <code>nn_linear(...)</code>).
@@ -107,7 +107,7 @@ A crucial difference is that the <code>PipeOpTorch</code> infers auxiliary param
 <code>nn_linear</code>) automatically from the intermediate tensor shapes that are being communicated through the
 <code><a href="ModelDescriptor.html">ModelDescriptor</a></code>.</p>
 <p>During <strong>prediction</strong>, <code>PipeOpTorch</code> takes in a <code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code> in each channel and outputs the same new
-<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code> resulting from their feature union in each channel.
+<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code> resulting from their <a href="https://mlr3pipelines.mlr-org.com/reference/mlr_pipeops_featureunion.html" class="external-link">feature union</a> in each channel.
 If there is only one input and output channel, the task is simply piped through.</p>
     </div>
 
@@ -126,7 +126,7 @@ the private method <code>.shape_dependent_params()</code>.</p></li>
 <li><p><code>.shapes_out(shapes_in, param_vals, task)</code><br>
 (<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code><br>
 This private method gets a list of <code>numeric</code> vectors (<code>shapes_in</code>), the parameter values (<code>param_vals</code>),
-as well as an (optional) <code>Task</code>.
+as well as an (optional) <code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>.
 The <code>shapes_in</code> can be assumed to be in the same order as the input names of the <code>PipeOp</code>.
 The output shapes must be in the same order as the output names of the <code>PipeOp</code>.
 In case the output shapes depends on the task (as is the case for <code><a href="mlr_pipeops_nn_head.html">PipeOpTorchHead</a></code>), the function should return
@@ -143,7 +143,7 @@ and add it to the user-supplied parameter values (<code>param_vals</code>).</p><
     
 
 <p>During <em>training</em>, all inputs and outputs are of class <code><a href="ModelDescriptor.html">ModelDescriptor</a></code>.
-During <em>prediction</em>, all input and output channels are of class <code>Task</code>.</p>
+During <em>prediction</em>, all input and output channels are of class <code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="state">State<a class="anchor" aria-label="anchor" href="#state"></a></h2>
@@ -156,7 +156,7 @@ During <em>prediction</em>, all input and output channels are of class <code>Tas
     
 
 <p>The <code><a href="https://paradox.mlr-org.com/reference/ParamSet.html" class="external-link">ParamSet</a></code> is specified by the child class inheriting from <code>PipeOpTorch</code>.
-Usually the parameters are the arguments of the wrapped <code>nn_module</code> minus the auxiliary parameter that can
+Usually the parameters are the arguments of the wrapped <code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module</a></code> minus the auxiliary parameter that can
 be automatically inferred from the shapes of the input tensors.</p>
     </div>
     <div class="section level2">
@@ -168,8 +168,8 @@ input shapes from the incoming <a href="s"><code>ModelDescriptor</code></a> usin
 The input shapes are provided by the slot <code>.pointer_shape</code> of the incoming <code><a href="ModelDescriptor.html">ModelDescriptor</a></code>s.
 The channel names of this <code><a href="mlr_pipeops_module.html">PipeOpModule</a></code> are identical to the channel names of the generating <code>PipeOpTorch</code>.</p>
 <p>A <a href="model_descriptor_union.html">model descriptor union</a> of all incoming <code><a href="ModelDescriptor.html">ModelDescriptor</a></code>s is then created.
-Note that this modifies the <code>graph</code> of the first <code><a href="ModelDescriptor.html">ModelDescriptor</a></code> <strong>in place</strong> for efficiency.
-The <code><a href="mlr_pipeops_module.html">PipeOpModule</a></code> is added to the <code>graph</code> slot of this union and the the edges that connect the
+Note that this modifies the <code><a href="https://mlr3pipelines.mlr-org.com/reference/Graph.html" class="external-link">graph</a></code> of the first <code><a href="ModelDescriptor.html">ModelDescriptor</a></code> <strong>in place</strong> for efficiency.
+The <code><a href="mlr_pipeops_module.html">PipeOpModule</a></code> is added to the <code><a href="https://mlr3pipelines.mlr-org.com/reference/Graph.html" class="external-link">graph</a></code> slot of this union and the the edges that connect the
 sending <code>PipeOpModule</code>s to the input channel of this <code>PipeOpModule</code> are addeded to the graph.
 This is possible because every incoming <code><a href="ModelDescriptor.html">ModelDescriptor</a></code> contains the information about the
 <code>id</code> and the <code>channel</code> name of the sending <code>PipeOp</code> in the slot <code>.pointer</code>.</p>
@@ -178,7 +178,7 @@ architecture. It is isomorphic to the subgraph that consists of all pipeops of c
 <code><a href="mlr_pipeops_torch_ingress.html">PipeOpTorchIngress</a></code> that are ancestors of this <code>PipeOpTorch</code>.</p>
 <p>For the output, a shallow copy of the <code><a href="ModelDescriptor.html">ModelDescriptor</a></code> is created and the <code>.pointer</code> and
 <code>.pointer_shape</code> are updated accordingly. The shallow copy means that all <code><a href="ModelDescriptor.html">ModelDescriptor</a></code>s point to the same
-<code>Graph</code> which allows the graph to be modified by-reference in different parts of the code.</p>
+<code><a href="https://mlr3pipelines.mlr-org.com/reference/Graph.html" class="external-link">Graph</a></code> which allows the graph to be modified by-reference in different parts of the code.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -265,7 +265,7 @@ otherwise be set during construction.</p></dd>
 
 <dt><code>inname</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
-The names of the <code>PipeOp</code>'s input channels. These will be the input channels of the generated <code><a href="mlr_pipeops_module.html">PipeOpModule</a></code>.
+The names of the <code><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html" class="external-link">PipeOp</a></code>'s input channels. These will be the input channels of the generated <code><a href="mlr_pipeops_module.html">PipeOpModule</a></code>.
 Unless the wrapped <code>module_generator</code>'s forward method (if present) has the argument <code>...</code>, <code>inname</code> must be
 identical to those argument names in order to avoid any ambiguity.<br>
 If the forward method has the argument <code>...</code>, the order of the input channels determines how the tensors
@@ -279,7 +279,7 @@ If left as <code>NULL</code> (default), the argument <code>module_generator</cod
 The names of the output channels channels. These will be the ouput channels of the generated <code><a href="mlr_pipeops_module.html">PipeOpModule</a></code>
 and therefore also the names of the list returned by its <code>$train()</code>.
 In case there is more than one output channel, the <code>nn_module</code> that is constructed by this
-<code>PipeOp</code> during training must return a named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>, where the names of the list are the
+<code><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html" class="external-link">PipeOp</a></code> during training must return a named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>, where the names of the list are the
 names out the output channels. The default is <code>"output"</code>.</p></dd>
 
 
@@ -290,7 +290,7 @@ The R packages this object depends on.</p></dd>
 
 <dt><code>tags</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
-The tags of the <code>PipeOp</code>. The tags <code>"torch"</code> is always added.</p></dd>
+The tags of the <code><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html" class="external-link">PipeOp</a></code>. The tags <code>"torch"</code> is always added.</p></dd>
 
 
 </dl><p></p></div>
@@ -312,7 +312,7 @@ If there is only one input channel, <code>shapes_in</code> can also contain the 
 
 
 <dt><code>task</code></dt>
-<dd><p>(<code>Task</code> or <code>NULL</code>)<br>
+<dd><p>(<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code> or <code>NULL</code>)<br>
 The task, which is very rarely used (default is <code>NULL</code>). An exception is <code><a href="mlr_pipeops_nn_head.html">PipeOpTorchHead</a></code>.</p></dd>
 
 
@@ -349,7 +349,7 @@ the <code>PipeOp</code>.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">## Creating a neural network</span></span></span>
 <span class="r-in"><span><span class="co"># In torch</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">task</span> <span class="op">=</span> <span class="fu">tsk</span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">task</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">network_generator</span> <span class="op">=</span> <span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  initialize <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">task</span>, <span class="va">d_hidden</span><span class="op">)</span> <span class="op">{</span></span></span>
@@ -374,9 +374,9 @@ the <code>PipeOp</code>.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># In mlr3torch</span></span></span>
-<span class="r-in"><span><span class="va">network_generator</span> <span class="op">=</span> <span class="fu">po</span><span class="op">(</span><span class="st">"torch_ingress_num"</span><span class="op">)</span> <span class="op">%&gt;&gt;%</span></span></span>
-<span class="r-in"><span>  <span class="fu">po</span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">50</span><span class="op">)</span> <span class="op">%&gt;&gt;%</span></span></span>
-<span class="r-in"><span>  <span class="fu">po</span><span class="op">(</span><span class="st">"nn_head"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">network_generator</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">50</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_head"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">md</span> <span class="op">=</span> <span class="va">network_generator</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task</span><span class="op">)</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span></span></span>
 <span class="r-in"><span><span class="va">network</span> <span class="op">=</span> <span class="fu"><a href="model_descriptor_to_module.html">model_descriptor_to_module</a></span><span class="op">(</span><span class="va">md</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">y</span> <span class="op">=</span> <span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/torch/man/with_no_grad.html" class="external-link">with_no_grad</a></span><span class="op">(</span><span class="fu">network</span><span class="op">(</span>torch_ingress_num.input <span class="op">=</span> <span class="va">x</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -386,10 +386,10 @@ the <code>PipeOp</code>.</p>
 <span class="r-in"><span><span class="co">## Implementing a custom PipeOpTorch</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># defining a custom module</span></span></span>
-<span class="r-in"><span><span class="va">nn_custom</span> <span class="op">=</span> <span class="fu">nn_module</span><span class="op">(</span><span class="st">"nn_custom"</span>,</span></span>
+<span class="r-in"><span><span class="va">nn_custom</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module</a></span><span class="op">(</span><span class="st">"nn_custom"</span>,</span></span>
 <span class="r-in"><span>  initialize <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">d_in1</span>, <span class="va">d_in2</span>, <span class="va">d_out1</span>, <span class="va">d_out2</span>, <span class="va">bias</span> <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>    <span class="va">self</span><span class="op">$</span><span class="va">linear1</span> <span class="op">=</span> <span class="fu">nn_linear</span><span class="op">(</span><span class="va">d_in1</span>, <span class="va">d_out1</span>, <span class="va">bias</span><span class="op">)</span></span></span>
-<span class="r-in"><span>    <span class="va">self</span><span class="op">$</span><span class="va">linear2</span> <span class="op">=</span> <span class="fu">nn_linear</span><span class="op">(</span><span class="va">d_in2</span>, <span class="va">d_out2</span>, <span class="va">bias</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="va">self</span><span class="op">$</span><span class="va">linear1</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="va">d_in1</span>, <span class="va">d_out1</span>, <span class="va">bias</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="va">self</span><span class="op">$</span><span class="va">linear2</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="va">d_in2</span>, <span class="va">d_out2</span>, <span class="va">bias</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="op">}</span>,</span></span>
 <span class="r-in"><span>  forward <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">input1</span>, <span class="va">input2</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span>    <span class="va">output1</span> <span class="op">=</span> <span class="va">self</span><span class="op">$</span><span class="fu">linear1</span><span class="op">(</span><span class="va">input1</span><span class="op">)</span></span></span>
@@ -440,10 +440,10 @@ the <code>PipeOp</code>.</p>
 <span class="r-in"><span><span class="co">## Training</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># generate input</span></span></span>
-<span class="r-in"><span><span class="va">task</span> <span class="op">=</span> <span class="fu">tsk</span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">task</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">task1</span> <span class="op">=</span> <span class="va">task</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="fu">select</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Sepal."</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Length"</span>, <span class="st">"Width"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">task2</span> <span class="op">=</span> <span class="va">task</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="fu">select</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Petal."</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Length"</span>, <span class="st">"Width"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">graph</span> <span class="op">=</span> <span class="fu">gunion</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu">po</span><span class="op">(</span><span class="st">"torch_ingress_num_1"</span><span class="op">)</span>, <span class="fu">po</span><span class="op">(</span><span class="st">"torch_ingress_num_2"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">graph</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/gunion.html" class="external-link">gunion</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num_1"</span><span class="op">)</span>, <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num_2"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">mds_in</span> <span class="op">=</span> <span class="va">graph</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">task1</span>, <span class="va">task2</span><span class="op">)</span>, single_input <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">mds_in</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"graph"</span>, <span class="st">"task"</span>, <span class="st">"ingress"</span>, <span class="st">".pointer"</span>, <span class="st">".pointer_shape"</span><span class="op">)</span><span class="op">]</span></span></span>
