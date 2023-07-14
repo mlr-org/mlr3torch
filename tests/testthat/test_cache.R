@@ -131,5 +131,12 @@ test_that("cache initialization and versioning are correct", {
 
   expect_true(cache_version[[name]] == 6)
   expect_permutation(list.files(cache_dir), c("datasets", "some_name", "version.json"))
+})
 
+test_that("correct error when directory was not initialized by mlr3torch", {
+  dir = tempfile()
+  dir.create(dir)
+  withr::local_options(mlr3torch.cache = dir)
+
+  expect_error(initialize_cache(dir), regexp = "not initialized")
 })

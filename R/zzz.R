@@ -10,7 +10,7 @@
 #' @import mlr3
 #' @importFrom tools R_user_dir
 #'
-#' @section: Options
+#' @section Options:
 #' * `mlr3torch.cache`:
 #'   Whether to cache the downloaded data (`TRUE`) or not (`FALSE`, default).
 #'   This can also be set to a specific folder on the file system to be used as the cache directory.
@@ -24,9 +24,8 @@ mlr3torch_pipeops = new.env()
 mlr3torch_learners = new.env()
 mlr3torch_tasks = new.env()
 mlr3torch_resamplings = new.env()
-mlr3torch_tags = c("torch", "activation")
+mlr3torch_pipeop_tags = c("torch", "activation")
 mlr3torch_feature_types = c(img = "imageuri")
-
 
 # metainf must be manually added in the register_mlr3pipelines function
 # Because the value is substituted, we cannot pass it through this function
@@ -79,7 +78,7 @@ register_mlr3 = function() {
 
 
   mlr_reflections$torch = list(
-    devices = c("auto", "cpu", "cuda", "mkldnn", "opengl", "opencl", "ideep", "hip", "fpga", "xla", "mps"),
+    devices = c("auto", "cpu", "cuda", "mkldnn", "opengl", "opencl", "ideep", "hip", "fpga", "xla", "mps", "meta"),
     callback_stages = c(
       "on_begin",
       "on_epoch_begin",
@@ -102,7 +101,7 @@ register_mlr3pipelines = function() {
     mlr_pipeops$add(name, value$constructor, value$metainf)
   })
   mlr_pipeops$metainf$torch_loss = list(loss = t_loss("cross_entropy"))
-  mlr_reflections$pipeops$valid_tags = unique(c(mlr_reflections$pipeops$valid_tags, c("torch", "activation")))
+  mlr_reflections$pipeops$valid_tags = unique(c(mlr_reflections$pipeops$valid_tags, mlr3torch_pipeop_tags))
   lapply(mlr3torch_pipeops, eval)
 }
 
@@ -122,8 +121,9 @@ register_mlr3pipelines = function() {
 
 .onUnload = function(libPaths) { # nolint
   walk(names(mlr3torch_learners), function(nm) mlr_learners$remove(nm))
+  walk(names(mlr3torch_resamplings), function(nm) mlr_resamplings$remove(nm))
   walk(names(mlr3torch_tasks), function(nm) mlr_tasks$remove(nm))
   walk(names(mlr3torch_pipeops), function(nm) mlr_pipeops$remove(nm))
-  mlr_reflections$pipeops$valid_tags = setdiff(mlr_reflections$pipeops$valid_tags, mlr3torch_tags)
+  mlr_reflections$pipeops$valid_tags = setdiff(mlr_reflections$pipeops$valid_tags, mlr3torch_pipeop_tags)
   mlr_reflections$learner_feature_types = setdiff(mlr_reflections$learner_feature_types, mlr3torch_feature_types)
 }

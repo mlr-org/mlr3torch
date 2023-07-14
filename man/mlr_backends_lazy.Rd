@@ -16,8 +16,8 @@ or \verb{$hash()} are redirected to it.
 
 Information that is available before the backend is constructed (and hence must be provided) is:
 \itemize{
-\item \code{nrow} - The number of rows.
-\item \code{ncol} - The number of columns.
+\item \code{nrow} - The number of rows (set as the length of the rownames).
+\item \code{ncol} - The number of columns (provided via the \code{id} column of \code{col_info}).
 \item \code{colnames} - The column names.
 \item \code{rownames} - The column names.
 \item \code{col_info} - The column information, which can be obtained via \code{\link[mlr3:col_info]{mlr3::col_info()}}.
@@ -82,7 +82,7 @@ Returns vector of all distinct row identifiers, i.e. the contents of the primary
 Returns vector of all column names, including the primary key column.}
 
 \item{\code{is_constructed}}{(\code{logical(1)})\cr
-Whether the backned has already been constructed.}
+Whether the backend has already been constructed.}
 }
 \if{html}{\out{</div>}}
 }
@@ -117,7 +117,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{constructor}}{(\verb{function()})\cr
-A function with no arguments, whose return value must construct the actual backend.
+A function with no arguments, whose return value must be the actual backend.
 This function is called the first time the field \verb{$backend} is accessed.}
 
 \item{\code{rownames}}{(\code{integer()})\cr

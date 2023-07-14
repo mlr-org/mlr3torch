@@ -42,8 +42,15 @@
 #' batch
 task_dataset = dataset(
   initialize = function(task, feature_ingress_tokens, target_batchgetter = NULL, device) {
-    self$task = assert_r6(task, "Task")
+    self$task = assert_r6(task$clone(deep = TRUE), "Task")
     self$feature_ingress_tokens = assert_list(feature_ingress_tokens, types = "TorchIngressToken", names = "unique")
+
+    iwalk(feature_ingress_tokens, function(it, nm) {
+      if (length(it$features) == 0) {
+        stopf("Received ingress token '%s' with no features.", nm)
+      }
+    })
+
     self$all_features = unique(c(unlist(map(feature_ingress_tokens, "features")), task$target_names))
     assert_subset(self$all_features, c(task$target_names, task$feature_names))
     self$target_batchgetter = assert_function(target_batchgetter, args = c("data", "device"), null.ok = TRUE)
@@ -72,7 +79,6 @@ dataset_img = function(task, param_vals) {
   imgshape = c(param_vals$channels, param_vals$height, param_vals$width)
 
   batchgetter = batchgetter_img(imgshape)
-
 
   ingress_tokens = list(image = TorchIngressToken(task$feature_names, batchgetter, imgshape))
 
@@ -121,11 +127,50 @@ dataset_num_categ = function(task, param_vals) {
   )
 }
 
+
+#' @title Batchgetter for Numeric Data
+#'
+#' @description
+#' Converts a data frame of numeric data into a float tensor.
+#'
+#' @param data (`data.table()`)\cr
+#'   `data.table` to be converted to a `tensor`.
+#' @param device (`character(1)`)\cr
+#'   The device on which the tensor should be created.
+#' @noRD
+batchgetter_num = function(data, device) {
+  torch_tensor(
+    data = as.matrix(data),
+    dtype = torch_float(),
+    device = device
+  )
+}
+
+
+#' @title Batchgetter for categorical data
+#'
+#' @description
+#' Converts a data frame of categorical data into a long tensor.
+#'
+#' @param data (`data.table`)\cr
+#'   `data.table` to be converted to a `tensor`.
+#' @param device (`character(1)`)\cr
+#'   The device.
+#' @noRD
+batchgetter_categ = function(data, device) {
+  torch_tensor(
+    data = as.matrix(data[, lapply(.SD, as.integer)]),
+    dtype = torch_long(),
+    device = device
+  )
+}
+
+
 batchgetter_img = function(imgshape) {
   crate(function(data, device) {
     tensors = lapply(data[[1]], function(uri) {
       tnsr = torchvision::transform_to_tensor(magick::image_read(uri))
-      assert_true(all(tnsr$shape == imgshape))
+      assert_true(length(tnsr$shape) == length(imgshape) && all(tnsr$shape == imgshape))
       torch_reshape(tnsr, imgshape)$unsqueeze(1)
     })
     torch_cat(tensors, dim = 1)$to(device = device)
@@ -136,14 +181,18 @@ target_batchgetter = function(task_type) {
   if (task_type == "classif") {
     target_batchgetter = crate(function(data, device) {
       torch_tensor(data = as.integer(data[[1L]]), dtype = torch_long(), device)
-    })
+    }, .parent = topenv())
   } else if (task_type == "regr") {
     target_batchgetter = crate(function(data, device) {
       torch_tensor(data = data[[1L]], dtype = torch_float32(), device)$unsqueeze(2)
-    })
+    }, .parent = topenv())
   } else {
     stopf("Unsupported task type %s", task_type)
   }
 
   return(target_batchgetter)
+}
+
+encode_factor = function(x) {
+
 }

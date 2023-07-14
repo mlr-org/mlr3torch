@@ -2,18 +2,41 @@
 % Please edit documentation in R/TaskClassif_tiny_imagenet.R
 \name{mlr_tasks_tiny_imagenet}
 \alias{mlr_tasks_tiny_imagenet}
-\title{Tiny Imagenet Classification Task}
+\title{Tiny ImageNet Classification Task}
 \description{
-The data is obtained using \code{\link[torchvision:tiny_imagenet_dataset]{torchvision::tiny_imagenet_dataset()}}.
+Subset of the famous ImageNet dataset.
+The data is obtained from \code{\link[torchvision:tiny_imagenet_dataset]{torchvision::tiny_imagenet_dataset()}}.
 It contains the train, validation and test data.
-It contains three columns \code{"class"}, \code{"image"} and \code{"split"}, where the last column indicates whether
-the row belongs to the train, validation or test set.
-Note that test observations have no labels.
-
 The row role \code{use} is set to the training data, the row role \code{test} to the valdiation data and the row role
 \code{holdout} is set to the test data.
 There are no labels available for the test data.
+
+The underlying \code{\link{DataBackend}} contains columns \code{"class"}, \code{"image"}, \code{"row_id"}, \code{"split"}, where the last column
+indicates whether the row belongs to the train, validation or test set.
 }
-\examples{
-tsk = tsk("tiny_imagenet")
+\section{Construction}{
+
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{tsk("tiny_imagenet")
+}\if{html}{\out{</div>}}
+}
+
+\section{Meta Information}{
+
+\itemize{
+\item Task type: \dQuote{classif}
+\item Properties: \dQuote{multiclass}
+\item Has Missings: no
+\item Target: \dQuote{class}
+\item Features: \dQuote{image}
+\item Backend Dimension: 120000x4
+\item Default Roles (use / test / holdout): 100000, 10000, 10000
+}
+}
+
+\references{
+Deng, Jia, Dong, Wei, Socher, Richard, Li, Li-Jia, Li, Kai, Fei-Fei, Li (2009).
+\dQuote{Imagenet: A large-scale hierarchical image database.}
+In \emph{2009 IEEE conference on computer vision and pattern recognition}, 248--255.
+IEEE.
 }

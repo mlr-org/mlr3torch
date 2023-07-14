@@ -1,21 +1,30 @@
-#' @title Tiny Imagenet Classification Task
+#' @title Tiny ImageNet Classification Task
+#'
+#' @name mlr_tasks_tiny_imagenet
 #'
 #' @description
-#' The data is obtained using [`torchvision::tiny_imagenet_dataset()`].
+#' Subset of the famous ImageNet dataset.
+#' The data is obtained from [`torchvision::tiny_imagenet_dataset()`].
 #' It contains the train, validation and test data.
-#' It contains three columns `"class"`, `"image"` and `"split"`, where the last column indicates whether
-#' the row belongs to the train, validation or test set.
-#' Note that test observations have no labels.
-#'
 #' The row role `use` is set to the training data, the row role `test` to the valdiation data and the row role
 #' `holdout` is set to the test data.
 #' There are no labels available for the test data.
 #'
+#' The underlying [`DataBackend`] contains columns `"class"`, `"image"`, `"row_id"`, `"split"`, where the last column
+#' indicates whether the row belongs to the train, validation or test set.
 #'
 #'
-#' @name mlr_tasks_tiny_imagenet
-#' @examples
-#' tsk = tsk("tiny_imagenet")
+#' @section Construction:
+#' ```
+#' tsk("tiny_imagenet")
+#' ```
+#'
+#' @section Meta Information:
+#' `r rd_info_task_torch("tiny_imagenet", missings = FALSE)`
+#'
+#' @references
+#' `r format_bib("imagenet2009")`
+#'
 NULL
 
 # @param path (`character(1)`)\cr
