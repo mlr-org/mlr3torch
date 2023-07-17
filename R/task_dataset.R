@@ -73,21 +73,18 @@ task_dataset = dataset(
 )
 
 dataset_img = function(task, param_vals) {
-  assert_true(length(task$feature_names) == 1)
   # TODO: Maybe we want to be more careful here to avoid changing parameters between train and predict
   # Instead use the param vals stored in the state?
   imgshape = c(param_vals$channels, param_vals$height, param_vals$width)
 
-  batchgetter = batchgetter_img(imgshape)
+  batchgetter = get_batchgetter_img(imgshape)
 
   ingress_tokens = list(image = TorchIngressToken(task$feature_names, batchgetter, imgshape))
 
   task_dataset(
     task,
     feature_ingress_tokens = ingress_tokens,
-    target_batchgetter = crate(function(data, device) {
-      torch_tensor(data = as.integer(data[[1]]), dtype = torch_long(), device = device)
-    }, .parent = topenv()),
+    target_batchgetter = get_target_batchgetter(task$task_type),
     device = param_vals$device
   )
 }
@@ -99,7 +96,7 @@ dataset_num = function(task, param_vals) {
   task_dataset(
     task,
     feature_ingress_tokens = list(input = ingress),
-    target_batchgetter = target_batchgetter(task$task_type),
+    target_batchgetter = get_target_batchgetter(task$task_type),
     device = param_vals$device
   )
 }
@@ -122,7 +119,7 @@ dataset_num_categ = function(task, param_vals) {
   task_dataset(
     task,
     feature_ingress_tokens = tokens,
-    target_batchgetter = target_batchgetter(task$task_type),
+    target_batchgetter = get_target_batchgetter(task$task_type),
     device = param_vals$device
   )
 }
@@ -131,13 +128,14 @@ dataset_num_categ = function(task, param_vals) {
 #' @title Batchgetter for Numeric Data
 #'
 #' @description
-#' Converts a data frame of numeric data into a float tensor.
+#' Converts a data frame of numeric data into a float tensor by calling `as.matrix()`.
+#' No input checks are performed
 #'
 #' @param data (`data.table()`)\cr
 #'   `data.table` to be converted to a `tensor`.
 #' @param device (`character(1)`)\cr
 #'   The device on which the tensor should be created.
-#' @noRD
+#' @export
 batchgetter_num = function(data, device) {
   torch_tensor(
     data = as.matrix(data),
@@ -147,16 +145,17 @@ batchgetter_num = function(data, device) {
 }
 
 
-#' @title Batchgetter for categorical data
+#' @title Batchgetter for Categorical data
 #'
 #' @description
-#' Converts a data frame of categorical data into a long tensor.
+#' Converts a data frame of categorical data into a long tensor by converting the data to integers.
+#' No input checks are performed.
 #'
 #' @param data (`data.table`)\cr
 #'   `data.table` to be converted to a `tensor`.
 #' @param device (`character(1)`)\cr
 #'   The device.
-#' @noRD
+#' @export
 batchgetter_categ = function(data, device) {
   torch_tensor(
     data = as.matrix(data[, lapply(.SD, as.integer)]),
@@ -166,7 +165,7 @@ batchgetter_categ = function(data, device) {
 }
 
 
-batchgetter_img = function(imgshape) {
+get_batchgetter_img = function(imgshape) {
   crate(function(data, device) {
     tensors = lapply(data[[1]], function(uri) {
       tnsr = torchvision::transform_to_tensor(magick::image_read(uri))
@@ -177,22 +176,17 @@ batchgetter_img = function(imgshape) {
   }, imgshape, .parent = topenv())
 }
 
-target_batchgetter = function(task_type) {
-  if (task_type == "classif") {
-    target_batchgetter = crate(function(data, device) {
-      torch_tensor(data = as.integer(data[[1L]]), dtype = torch_long(), device)
-    }, .parent = topenv())
-  } else if (task_type == "regr") {
-    target_batchgetter = crate(function(data, device) {
-      torch_tensor(data = data[[1L]], dtype = torch_float32(), device)$unsqueeze(2)
-    }, .parent = topenv())
-  } else {
-    stopf("Unsupported task type %s", task_type)
-  }
-
-  return(target_batchgetter)
+target_batchgetter_classif = function(data, device) {
+  torch_tensor(data = as.integer(data[[1L]]), dtype = torch_long(), device = device)
 }
 
-encode_factor = function(x) {
+target_batchgetter_regr = function(data, device) {
+  torch_tensor(data = data[[1L]], dtype = torch_float32(), device = device)$unsqueeze(2)
+}
 
+get_target_batchgetter = function(task_type) {
+  switch(task_type,
+    classif = target_batchgetter_classif,
+    regr = target_batchgetter_regr
+  )
 }

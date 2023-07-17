@@ -41,7 +41,7 @@ LearnerTorchAlexNet = R6Class("LearnerTorchAlexNet",
   ),
   private = list(
     .network = function(task, param_vals) {
-      nout = if (self$task_type == "regr") 1 else length(task$class_names)
+      nout = get_nout(task)
       if (param_vals$pretrained) {
         network = torchvision::model_alexnet(pretrained = TRUE)
 

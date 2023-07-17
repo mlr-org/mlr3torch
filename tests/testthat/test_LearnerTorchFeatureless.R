@@ -1,6 +1,6 @@
 test_that("dataset_featureless works", {
   task = tsk("iris")
-  ds = dataset_featureless(task = task, device = "cpu", target_batchgetter = target_batchgetter("classif"))
+  ds = dataset_featureless(task = task, device = "cpu")
   expect_true(ds$.length() == 150)
   batch = ds$.getbatch(1)
   expect_true(torch_equal(batch$x$n, torch_tensor(1L)))

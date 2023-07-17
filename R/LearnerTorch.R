@@ -215,6 +215,21 @@ LearnerTorch = R6Class("LearnerTorch",
       })
     },
     .predict = function(task) {
+      # FIXME: https://github.com/mlr-org/mlr3/issues/946
+      # This addresses the issues with the facto lrvels and is only a temporary fix
+      # Should be handled outside of mlr3torch
+      cols = c(task$feature_names, task$target_names)
+      ci_predict = task$col_info[get("id") %in% cols, c("id", "type", "levels")]
+      ci_train = self$state$train_task$col_info[get("id") %in% cols, c("id", "type", "levels")]
+      if (!test_equal_col_info(ci_train, ci_predict)) { # nolint
+        stopf(paste0(
+          "Predict task's `$col_info` does not match the train tasks' column info.\n",
+          "This will be handled more gracefully in the future.\n",
+          "Training column info:\n'%s'\n",
+          "Prediction column info:\n'%s'"),
+          paste0(capture.output(ci_train), collapse = "\n"),
+          paste0(capture.output(ci_predict), collapse = "\n"))
+      }
       param_vals = self$param_set$get_values(tags = "predict")
       param_vals$device = auto_device(param_vals$device)
 

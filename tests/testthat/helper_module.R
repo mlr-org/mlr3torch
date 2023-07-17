@@ -1,6 +1,6 @@
 testmodule_linear = nn_module(
   initialize = function(task) {
-    out = if (task$task_type == "classif") length(task$class_names) else 1
+    out = get_nout(task)
     self$linear = nn_linear(length(task$feature_names), out)
   },
   forward = function(x) {
