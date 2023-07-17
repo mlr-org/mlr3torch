@@ -119,3 +119,20 @@ test_that("primary_key must be in col_info", {
     data_formats = "data.table"
   ), regexp = "Must be element of")
 })
+
+test_that("primary_key must be the same for backends", {
+  constructor = function() {
+    DataBackendDataTable$new(
+      data.table(y = 1:5, x = 1:5),
+      primary_key = "x"
+    )
+  }
+  backend_lazy = DataBackendLazy$new(
+    constructor = constructor,
+    col_info = data.table(id = c("x", "y"), type = rep("integer", 2), levels = list(NULL, NULL)),
+    rownames = 1:5,
+    primary_key = "y",
+    data_formats = "data.table"
+  )
+  expect_error(backend_lazy$backend, "primary key")
+})
