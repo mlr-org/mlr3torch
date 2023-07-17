@@ -40,6 +40,9 @@
     <loc>https://mlr3torch.mlr-org.com/reference/TorchOptimizer.html</loc>
   </url>
   <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/as_imageuri.html</loc>
+  </url>
+  <url>
     <loc>https://mlr3torch.mlr-org.com/reference/as_torch_callback.html</loc>
   </url>
   <url>
@@ -77,6 +80,9 @@
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/mlr3torch_optimizers.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_backends_lazy.html</loc>
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/mlr_callback_set.checkpoint.html</loc>
@@ -290,6 +296,12 @@
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_optimizer.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_resamplings_row_roles.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_tasks_tiny_imagenet.html</loc>
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/model_descriptor_to_learner.html</loc>
