@@ -22,7 +22,7 @@ test_that("cache works if mlr3torch.cache is set to FALSE", {
 })
 
 
-test_that("cache works if mlr3oml.cache is set to a directory", {
+test_that("cache works if mlr3torch.cache is set to a directory", {
   # If we enable caching, we expect the folder structure of cache_dir/datasets/test_data to be
   # raw:
   #   - data.csv (the "downloaded" data)
@@ -51,7 +51,7 @@ test_that("cache works if mlr3oml.cache is set to a directory", {
   expect_equal(dat1, dat2)
 })
 
-test_that("cache works if mlr3oml.cache is set to TRUE", {
+test_that("cache works if mlr3torch.cache is set to TRUE", {
   name = paste0(sample(letters, 20), collapse = "")
   withr::local_options(mlr3torch.cache = TRUE)
   cache_dir = get_cache_dir()
