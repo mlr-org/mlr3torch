@@ -109,3 +109,13 @@ test_that("DataBackendLazy works", {
   expect_correct_error(rownames = 1:100, regexp = "row identifiers")
   expect_correct_error(letter = "b", regexp = "column info")
 })
+
+test_that("primary_key must be in col_info", {
+  expect_error(DataBackendLazy$new(
+    constructor = function() NULL,
+    col_info = data.table(id = "a", type = "integer", levels = list(NULL)),
+    rownames = 1,
+    primary_key = "b",
+    data_formats = "data.table"
+  ), regexp = "Must be element of")
+})
