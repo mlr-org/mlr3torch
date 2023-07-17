@@ -14,14 +14,16 @@ an informative error message is thrown.
 After the construction of the lazily constructed backend, calls like \verb{$data()}, \verb{$missings()}, \verb{$distinct()},
 or \verb{$hash()} are redirected to it.
 
-Information that is available before the backend is constructed (and hence must be provided) is:
+Information that is available before the backend is constructed is:
 \itemize{
-\item \code{nrow} - The number of rows (set as the length of the rownames).
+\item \code{nrow} - The number of rows (set as the length of the \code{rownames}).
 \item \code{ncol} - The number of columns (provided via the \code{id} column of \code{col_info}).
 \item \code{colnames} - The column names.
-\item \code{rownames} - The column names.
+\item \code{rownames} - The row names.
 \item \code{col_info} - The column information, which can be obtained via \code{\link[mlr3:col_info]{mlr3::col_info()}}.
 }
+
+Beware that accessing the backend's hash also contructs the backend.
 }
 \examples{
 # We first define a backend constructor
@@ -121,10 +123,11 @@ A function with no arguments, whose return value must be the actual backend.
 This function is called the first time the field \verb{$backend} is accessed.}
 
 \item{\code{rownames}}{(\code{integer()})\cr
-The row names. Must be a permtuation of the rownames of the lazily constructed backend.}
+The row names. Must be a permutation of the rownames of the lazily constructed backend.}
 
 \item{\code{col_info}}{(\code{\link[data.table:data.table]{data.table::data.table()}})\cr
-A data.table with columns \code{id}, \code{type} and \code{levels} containing the column id, type and levels.}
+A data.table with columns \code{id}, \code{type} and \code{levels} containing the column id, type and levels.
+Note that the levels must be provided in the correct order.}
 
 \item{\code{primary_key}}{(\code{character(1)})\cr
 Name of the primary key column.}
@@ -145,6 +148,8 @@ The rows must be addressed as vector of primary key values, columns must be refe
 Queries for rows with no matching row id and queries for columns with no matching column name are silently ignored.
 Rows are guaranteed to be returned in the same order as \code{rows}, columns may be returned in an arbitrary order.
 Duplicated row ids result in duplicated rows, duplicated column names lead to an exception.
+
+Accessing the data triggers the construction of the backend.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DataBackendLazy$data(rows, cols, data_format = "data.table")}\if{html}{\out{</div>}}
 }
@@ -152,10 +157,10 @@ Duplicated row ids result in duplicated rows, duplicated column names lead to an
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{rows}}{\code{integer()}\cr
+\item{\code{rows}}{(\code{integer()})\cr
 Row indices.}
 
-\item{\code{cols}}{\code{character()}\cr
+\item{\code{cols}}{(\code{character()})\cr
 Column names.}
 
 \item{\code{data_format}}{(\code{character(1)})\cr
@@ -169,6 +174,7 @@ Desired data format, e.g. \code{"data.table"} or \code{"Matrix"}.}
 \if{latex}{\out{\hypertarget{method-DataBackendLazy-head}{}}}
 \subsection{Method \code{head()}}{
 Retrieve the first \code{n} rows.
+This triggers the construction of the backend.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DataBackendLazy$head(n = 6L)}\if{html}{\out{</div>}}
 }
@@ -193,6 +199,8 @@ Returns a named list of vectors of distinct values for each column
 specified. If \code{na_rm} is \code{TRUE}, missing values are removed from the
 returned vectors of distinct values. Non-existing rows and columns are
 silently ignored.
+
+This triggers the construction of the backend.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DataBackendLazy$distinct(rows, cols, na_rm = TRUE)}\if{html}{\out{</div>}}
 }
@@ -200,13 +208,13 @@ silently ignored.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{rows}}{\code{integer()}\cr
+\item{\code{rows}}{(\code{integer()})\cr
 Row indices.}
 
-\item{\code{cols}}{\code{character()}\cr
+\item{\code{cols}}{(\code{character()})\cr
 Column names.}
 
-\item{\code{na_rm}}{\code{logical(1)}\cr
+\item{\code{na_rm}}{(\code{logical(1)})\cr
 Whether to remove NAs or not.}
 }
 \if{html}{\out{</div>}}
@@ -221,6 +229,8 @@ Named \code{list()} of distinct values.
 \subsection{Method \code{missings()}}{
 Returns the number of missing values per column in the specified slice
 of data. Non-existing rows and columns are silently ignored.
+
+This triggers the construction of the backend.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DataBackendLazy$missings(rows, cols)}\if{html}{\out{</div>}}
 }
@@ -228,10 +238,10 @@ of data. Non-existing rows and columns are silently ignored.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{rows}}{\code{integer()}\cr
+\item{\code{rows}}{(\code{integer()})\cr
 Row indices.}
 
-\item{\code{cols}}{\code{character()}\cr
+\item{\code{cols}}{(\code{character()})\cr
 Column names.}
 }
 \if{html}{\out{</div>}}

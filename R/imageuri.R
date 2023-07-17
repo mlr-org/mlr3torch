@@ -66,7 +66,7 @@ as_imageuri = function(obj, ...) {
 }
 
 #' @export
-as_imageuri.imageuri = function(obj) { # nolint
+as_imageuri.imageuri = function(obj, ...) { # nolint
   obj
 }
 

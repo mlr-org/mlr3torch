@@ -12,27 +12,30 @@
 #' After the construction of the lazily constructed backend, calls like `$data()`, `$missings()`, `$distinct()`,
 #' or `$hash()` are redirected to it.
 #'
-#' Information that is available before the backend is constructed (and hence must be provided) is:
-#' * `nrow` - The number of rows (set as the length of the rownames).
+#' Information that is available before the backend is constructed is:
+#' * `nrow` - The number of rows (set as the length of the `rownames`).
 #' * `ncol` - The number of columns (provided via the `id` column of `col_info`).
 #' * `colnames` - The column names.
-#' * `rownames` - The column names.
+#' * `rownames` - The row names.
 #' * `col_info` - The column information, which can be obtained via [`mlr3::col_info()`].
+#'
+#' Beware that accessing the backend's hash also contructs the backend.
 #'
 #' @param constructor (`function()`)\cr
 #'   A function with no arguments, whose return value must be the actual backend.
 #'   This function is called the first time the field `$backend` is accessed.
 #' @param rownames (`integer()`)\cr
-#'   The row names. Must be a permtuation of the rownames of the lazily constructed backend.
+#'   The row names. Must be a permutation of the rownames of the lazily constructed backend.
 #' @param col_info ([`data.table::data.table()`])\cr
 #'   A data.table with columns `id`, `type` and `levels` containing the column id, type and levels.
-#' @param cols `character()`\cr
+#'   Note that the levels must be provided in the correct order.
+#' @param cols (`character()`)\cr
 #'   Column names.
-#' @param rows `integer()`\cr
+#' @param rows (`integer()`)\cr
 #'   Row indices.
 #' @param data_format (`character(1)`)\cr
 #'  Desired data format, e.g. `"data.table"` or `"Matrix"`.
-#' @param na_rm `logical(1)`\cr
+#' @param na_rm (`logical(1)`)\cr
 #'   Whether to remove NAs or not.
 #' @param data_formats (`character()`)\cr
 #'   Set of supported data formats. E.g. `"data.table"`.
@@ -101,12 +104,15 @@ DataBackendLazy = R6Class("DataBackendLazy",
     #' Queries for rows with no matching row id and queries for columns with no matching column name are silently ignored.
     #' Rows are guaranteed to be returned in the same order as `rows`, columns may be returned in an arbitrary order.
     #' Duplicated row ids result in duplicated rows, duplicated column names lead to an exception.
+    #'
+    #' Accessing the data triggers the construction of the backend.
     data = function(rows, cols, data_format = "data.table") {
       self$backend$data(rows = rows, cols = cols, data_format = data_format)
     },
 
     #' @description
     #' Retrieve the first `n` rows.
+    #' This triggers the construction of the backend.
     #'
     #' @param n (`integer(1)`)\cr
     #'   Number of rows.
@@ -121,6 +127,8 @@ DataBackendLazy = R6Class("DataBackendLazy",
     #' returned vectors of distinct values. Non-existing rows and columns are
     #' silently ignored.
     #'
+    #' This triggers the construction of the backend.
+    #'
     #' @return Named `list()` of distinct values.
     distinct = function(rows, cols, na_rm = TRUE) {
       self$backend$distinct(rows = rows, cols = cols, na_rm = na_rm)
@@ -128,6 +136,8 @@ DataBackendLazy = R6Class("DataBackendLazy",
     #' @description
     #' Returns the number of missing values per column in the specified slice
     #' of data. Non-existing rows and columns are silently ignored.
+    #'
+    #' This triggers the construction of the backend.
     #'
     #' @return Total of missing values per column (named `numeric()`).
     missings = function(rows, cols) {
@@ -167,6 +177,8 @@ DataBackendLazy = R6Class("DataBackendLazy",
           }
         }
 
+        # test_equal does not exist so we abuse test_permutation for primary_key
+        f(test_permutation, private$.backend$primary_key, self$primary_key, "primary key")
         f(test_permutation, private$.backend$rownames, self$rownames, "row identifiers")
         f(test_permutation, private$.backend$colnames, private$.colnames, "column names")
         f(test_equal_col_info, col_info(private$.backend), private$.col_info, "column information")
