@@ -87,6 +87,7 @@ DataBackendLazy = R6Class("DataBackendLazy",
       private$.rownames = assert_integerish(rownames, unique = TRUE)
       private$.col_info = assert_data_table(col_info, ncols = 3, min.rows = 1)
       assert_permutation(colnames(col_info), c("id", "type", "levels"))
+      assert_choice(primary_key, col_info$id)
       private$.colnames = col_info$id
       assert_choice(primary_key, col_info$id)
       private$.constructor = assert_function(constructor, nargs = 0)
