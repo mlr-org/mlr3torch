@@ -310,15 +310,7 @@ PipeOpTorchIngressImage = R6Class("PipeOpTorchIngressImage",
   private = list(
     .shape = function(task, param_vals) c(NA, param_vals$channels, param_vals$height, param_vals$width),
     .get_batchgetter = function(task, param_vals) {
-      imgshape = c(param_vals$channels, param_vals$height, param_vals$width)
-      crate(function(data, device) {
-        tensors = lapply(data[[1]], function(uri) {
-          tnsr = torchvision::transform_to_tensor(magick::image_read(uri))
-          assert_true(identical(tnsr$shape, imgshape))
-          torch_reshape(tnsr, imgshape)$unsqueeze(1)
-        })
-        torch_cat(tensors, dim = 1)$to(device = device)
-      }, imgshape, .parent = topenv())
+      get_batchgetter_img(c(param_vals$channels, param_vals$height, param_vals$width))
     }
   )
 )
