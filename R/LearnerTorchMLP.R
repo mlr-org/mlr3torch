@@ -89,10 +89,7 @@ make_mlp = function(task, activation, layers, d_hidden, p, activation_args) {
   d_hidden = d_hidden
   if (layers > 0) assert_true(!is.null(d_hidden))
 
-  out_dim = switch(task_type,
-    regr = 1,
-    classif = length(task$class_names)
-  )
+  out_dim = get_nout(task)
   if (layers == 0L) {
     network = nn_sequential(
       nn_linear(length(task$feature_names), out_dim)

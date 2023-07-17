@@ -23,7 +23,7 @@ LearnerTorchTest1 = R6Class("LearnerTorchTest1",
   ),
   private = list(
     .network = function(task, param_vals, defaults) {
-      nout = if (task$task_type == "classif") length(task$class_names) else 1
+      nout = get_nout(task)
       nn_linear(length(task$feature_names), nout, bias = param_vals$bias)
     },
     .dataloader = function(task, param_vals, defaults) {
@@ -71,7 +71,7 @@ LearnerTorchImageTest = R6Class("LearnerTorchImageTest",
   private = list(
     .network = function(task, param_vals, defaults) {
       d = prod(param_vals$height, param_vals$width, param_vals$channels)
-      nout = if (task$task_type == "classif") length(task$class_names) else 1
+      nout = get_nout(task)
       nn_sequential(
         nn_flatten(),
         nn_linear(d, nout, bias = param_vals$bias)

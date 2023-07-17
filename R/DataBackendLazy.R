@@ -217,20 +217,6 @@ DataBackendLazy = R6Class("DataBackendLazy",
   )
 )
 
-test_equal_col_info = function(x, y) {
-  if (xor("id" %nin% colnames(x), "id" %nin% colnames(y))) return(FALSE)
-
-  x = x[order(get("id"))]
-  y = y[order(get("id"))]
-
-  test_data_table(x, ncols = 3) &&
-    test_data_table(y, ncols = 3) &&
-    all(x$id == y$id) &&
-    all(x$type == x$type) &&
-    all(pmap_lgl(list(x = x$levels, y = y$levels), function(x, y) isTRUE(all.equal(x, y))))
-
-}
-
 #' @export
 col_info.DataBackendLazy = function(x, ...) {
   copy(get_private(x)$.col_info)

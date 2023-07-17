@@ -135,3 +135,27 @@ sample_input_from_shapes = function(shapes, n = 1L) {
 load_col_info = function(name) {
   readRDS(system.file("col_info", paste0(name, ".rds"), package = "mlr3torch"))
 }
+
+get_nout = function(task) {
+  switch(task$task_type,
+    regr = 1,
+    classif = length(task$class_names),
+    stopf("Unknown task type '%s'.", task$task_type)
+  )
+}
+
+
+test_equal_col_info = function(x, y) {
+  nms = c("id", "type", "levels")
+  if (!(test_permutation(colnames(x), nms) && test_permutation(colnames(y), nms))) {
+    return(FALSE)
+  }
+
+  x = x[order(get("id"))]
+  y = y[order(get("id"))]
+
+  isTRUE(all.equal(x$id, y$id)) && isTRUE(all.equal(x$type, y$type)) &&
+    all(pmap_lgl(list(x = x$levels, y = y$levels), function(x, y) isTRUE(all.equal(x, y))))
+
+}
+

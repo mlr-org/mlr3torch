@@ -38,20 +38,13 @@ PipeOpTorchHead = R6Class("PipeOpTorchHead",
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
       assert_true(length(shapes_in[[1]]) == 2L)
-      d = switch(task$task_type,
-        regr = 1,
-        classif = length(task$class_names),
-        stopf("Task type not supported")
-      )
+      d = get_nout(task)
       list(c(shapes_in[[1]][[1]], d))
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {
       param_vals$in_features = shapes_in[[1L]][2L]
-      param_vals$out_features = switch(task$task_type,
-        classif = length(task$class_names),
-        regr = 1,
-        stopf("Task type not supported!")
-      )
+
+      param_vals$out_features = get_nout(task)
 
       param_vals
     }

@@ -41,19 +41,19 @@ LearnerTorchFeatureless = R6Class("LearnerTorchFeatureless",
   ),
   private = list(
     .network = function(task, param_vals) {
-      nn_featureless(nout = length(task$class_names))
+      nn_featureless(nout = get_nout(task))
     },
     .dataset = function(task, param_vals) {
-      dataset_featureless(task, param_vals$device, target_batchgetter("classif"))
+      dataset_featureless(task, param_vals$device)
     }
   )
 )
 
 dataset_featureless = dataset(
-  initialize = function(task, device, target_batchgetter) {
+  initialize = function(task, device) {
     self$device = device
     self$task = task
-    self$target_batchgetter = target_batchgetter
+    self$target_batchgetter = get_target_batchgetter(task$task_type)
   },
   .getbatch = function(index) {
     target = self$task$data(rows = self$task$row_ids[index], cols = self$task$target_names)
@@ -74,9 +74,10 @@ dataset_featureless = dataset(
 nn_featureless = nn_module(
   initialize = function(nout) {
     self$weights = nn_parameter(torch_randn(nout))
+    self$nout = nout
   },
   forward = function(n) {
-    self$weights$expand(c(n$item(), -1L))
+    self$weights$expand(c(n$item(), self$nout))
   }
 )
 

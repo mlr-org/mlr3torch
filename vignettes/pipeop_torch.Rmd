@@ -404,7 +404,7 @@ The following calls the `$predict_newdata` function to plot the response surface
 ```{r}
 library("data.table")
 newdata = cbind(data.table(Sepal.Width = mean(iris$Sepal.Width)), CJ(
-  Sepal.Length = seq(min(iris$Sepal.Length), max(iris$Sepal.Length), length.out = 30),
+  Sepal.Length = as.numeric(seq(min(iris$Sepal.Length), max(iris$Sepal.Length), length.out = 30)),
   Petal.Length = seq(min(iris$Petal.Length), max(iris$Petal.Length), length.out = 30)
 ))
 
