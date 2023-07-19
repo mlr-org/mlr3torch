@@ -109,6 +109,18 @@ graph_mlp
 #>      torch_optimizer <<UNTRAINED>>     torch_callbacks        torch_loss
 #>      torch_callbacks <<UNTRAINED>> torch_model_classif   torch_optimizer
 #>  torch_model_classif <<UNTRAINED>>                       torch_callbacks
+
+graph_lrn = as_learner(graph_mlp)
+graph_lrn$id = "graph_mlp"
+
+resample(
+  task       = tsk("iris"),
+  learner    = graph_lrn,
+  resampling = rsmp("holdout")
+)
+#> <ResampleResult> with 1 resampling iterations
+#>  task_id learner_id resampling_id iteration warnings errors
+#>     iris  graph_mlp       holdout         1        0      0
 ```
 
 ## Feature Overview

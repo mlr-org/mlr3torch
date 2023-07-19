@@ -107,6 +107,15 @@ graph_mlp = architecture %>>%
   po("torch_model_classif", batch_size = 16, epochs = 50, device = "cpu")
 
 graph_mlp
+
+graph_lrn = as_learner(graph_mlp)
+graph_lrn$id = "graph_mlp"
+
+resample(
+  task       = tsk("iris"),
+  learner    = graph_lrn,
+  resampling = rsmp("holdout")
+)
 ```
 
 ## Feature Overview
