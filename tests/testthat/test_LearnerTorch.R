@@ -263,7 +263,6 @@ test_that("train parameters do what they should: classification and regression",
 
     expect_equal(nrow(learner$model$callbacks$history$valid), 0)
 
-
     learner$state = NULL
     learner$param_set$set_values(
       device = "meta",
@@ -324,19 +323,22 @@ test_that("predict parameters do what they should: classification and regression
     batch_size = sample(16, 1)
     learner = lrn(paste0(task_type, ".torch_featureless"), epochs = 1, callbacks = callback,
       num_threads = num_threads,
-      batch_size = batch_size
+      batch_size = batch_size,
+      shuffle = TRUE
     )
     task = switch(task_type, regr = tsk("mtcars"), classif = tsk("iris"))
     learner$train(task)
     internals = learner$model$callbacks$internals
     ctx = internals$ctx1
     expect_equal(num_threads, internals$num_threads)
-    task$row_roles$use = integer(0)
 
     learner$param_set$set_values(device = "meta")
-    task$row_roles$use = 1
     try(learner$predict(task), silent = TRUE)
     expect_equal(learner$network$parameters[[1]]$device$type, "meta")
+
+    dl = get_private(learner)$.dataloader_predict(task, learner$param_set$values)
+    expect_equal(dl$batch_size, batch_size)
+    expect_class(dl$sampler, "utils_sampler_sequential")
   }
 
   f("regr")
