@@ -170,6 +170,11 @@ The current epoch.</p></dd>
 The current iteration of the batch.</p></dd>
 
 
+<dt><code>prediction_encoder</code></dt>
+<dd><p>(<code>function()</code>)<br>
+The learner's prediction encoder.</p></dd>
+
+
 </dl><p></p></div>
     </div>
     <div class="section level2">
@@ -195,7 +200,8 @@ The current iteration of the batch.</p></dd>
 <span>  <span class="va">network</span>,</span>
 <span>  <span class="va">optimizer</span>,</span>
 <span>  <span class="va">loss_fn</span>,</span>
-<span>  <span class="va">total_epochs</span></span>
+<span>  <span class="va">total_epochs</span>,</span>
+<span>  <span class="va">prediction_encoder</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -252,8 +258,13 @@ The loss function.</p></dd>
 
 
 <dt><code>total_epochs</code></dt>
-<dd><p>(integer(1))<br>
+<dd><p>(<code>integer(1)</code>)<br>
 The total number of epochs the learner is trained for.</p></dd>
+
+
+<dt><code>prediction_encoder</code></dt>
+<dd><p>(<code>function()</code>)<br>
+The learner's prediction encoder.</p></dd>
 
 
 </dl><p></p></div>
