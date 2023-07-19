@@ -25,7 +25,7 @@ remotes::install_github("mlr-org/mlr3torch")
 ## Status
 
 `mlr3torch` is currently still unstable and many things are missing. Not
-everything ill work yet and the API might change without notice.
+everything will work yet and the API might change without notice.
 
 ## What is mlr3torch?
 
