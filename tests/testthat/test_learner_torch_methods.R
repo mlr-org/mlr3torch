@@ -115,15 +115,15 @@ test_that("learner_torch_predict works", {
 
 })
 
-test_that("encode_prediction works", {
+test_that("encode_prediction_default works", {
   task = tsk("iris")
 
   # classif
   pt = torch_rand(task$nrow, length(task$class_names))
   pt = pt / torch_sum(pt, 2L)$reshape(c(150, 1))
 
-  p1 = encode_prediction(pt, "response", task)
-  p2 = encode_prediction(pt, "prob", task)
+  p1 = encode_prediction_default(pt, "response", task)
+  p2 = encode_prediction_default(pt, "prob", task)
 
   pd1 = as_prediction_data(p1, task)
   pd2 = as_prediction_data(p2, task)

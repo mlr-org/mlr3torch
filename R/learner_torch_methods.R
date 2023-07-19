@@ -28,6 +28,15 @@ learner_torch_initialize = function(
   ) {
 }
 
+learner_torch_predict = function(self, private, super, task, param_vals) {
+  # parameter like device "auto" already resolved
+  self$network$to(device = param_vals$device)
+  self$network$eval()
+  data_loader = private$.dataloader_predict(task, param_vals)
+  predict_tensor = torch_network_predict(self$network, data_loader)
+  private$.encode_prediction(predict_tensor = predict_tensor, task = task)
+}
+
 learner_torch_train = function(self, private, super, task, param_vals) {
   # Here, all param_vals (like seed = "random" or device = "auto") have already been resolved
   loader_train = private$.dataloader(task, param_vals)
@@ -40,18 +49,32 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   optimizer = private$.optimizer$generate(network$parameters)
   loss_fn = private$.loss$generate()
 
+  measures_train = normalize_to_list(param_vals$measures_train)
+  measures_valid = normalize_to_list(param_vals$measures_valid)
+
+  available_predict_types = mlr_reflections$learner_predict_types[[self$task_type]][[self$predict_type]]
+
+  walk(c(measures_train, measures_valid), function(m) {
+    if (m$predict_type %nin% available_predict_types) {
+      stopf("Measure '%s' requires predict type '%s' but learner has '%s'.\n Change the predict type or select other measures.", # nolint
+        m$id, m$predict_type, self$predict_type)
+    }
+  })
+
+
   ctx = ContextTorch$new(
     learner = self,
     task_train = task,
     task_valid = if (task_valid$nrow) task_valid,
     loader_train = loader_train,
     loader_valid = loader_valid,
-    measures_train = normalize_to_list(param_vals$measures_train),
-    measures_valid = if (task_valid$nrow) normalize_to_list(param_vals$measures_valid) else list(),
+    measures_train = measures_train,
+    measures_valid = measures_valid,
     network = network,
     optimizer = optimizer,
     loss_fn = loss_fn,
-    total_epochs = param_vals$epochs
+    total_epochs = param_vals$epochs,
+    prediction_encoder = private$.encode_prediction
   )
 
   callbacks = lapply(private$.callbacks, function(descriptor) {
@@ -86,7 +109,7 @@ train_loop = function(ctx, cbs) {
   )
 
   # note that task_valid may be present (callbacks could do their own validation)
-  does_validation = length(ctx$measures_valid)
+  does_validation = length(ctx$measures_valid) && !is.null(ctx$task_valid)
 
   on.exit({
     # in case a callback wants to finalize things
@@ -140,15 +163,22 @@ train_loop = function(ctx, cbs) {
       pred_tensor = torch_cat(predictions, dim = 1L),
       measures = ctx$measures_train,
       task = ctx$task_train,
-      row_ids = ctx$task_train$row_ids[unlist(indices)]
+      row_ids = ctx$task_train$row_ids[unlist(indices)],
+      prediction_encoder = ctx$prediction_encoder
     )
 
     call("on_before_valid")
     if (does_validation) {
       ctx$network$eval()
       pred_tensor = torch_network_predict_valid(ctx$network, ctx$loader_valid, call)
-      ctx$last_scores_valid = measure_prediction(pred_tensor, ctx$measures_valid, ctx$task_valid,
-        ctx$task_valid$row_ids)
+      ctx$last_scores_valid = measure_prediction(
+        pred_tensor = pred_tensor,
+        measures = ctx$measures_valid,
+        task = ctx$task_valid,
+        row_ids = ctx$task_valid$row_ids,
+        prediction_encoder = ctx$prediction_encoder
+
+      )
       ctx$network$train()
     }
     call("on_epoch_end")
@@ -207,7 +237,10 @@ torch_network_predict = function(network, loader) {
   torch_cat(predictions, dim = 1L)
 }
 
-encode_prediction = function(predict_tensor, predict_type, task) {
+encode_prediction_default = function(predict_tensor, predict_type, task) {
+  # here we assume that the levels of the factors are never reordered!
+  # This is important as otherwise all hell breaks loose
+  # Currently this check is done in mlr3torch but should at some point be handled in mlr3 / mlr3pipelines
 
   response = prob = NULL
   if (task$task_type == "classif") {
@@ -240,12 +273,12 @@ encode_prediction = function(predict_tensor, predict_type, task) {
 }
 
 
-measure_prediction = function(pred_tensor, measures, task, row_ids) {
+measure_prediction = function(pred_tensor, measures, task, row_ids, prediction_encoder) {
   if (!length(measures)) {
     return(structure(list(), names = character(0)))
   }
 
-  prediction = encode_prediction(pred_tensor, "prob", task)
+  prediction = prediction_encoder(predict_tensor = pred_tensor, task = task)
   prediction = as_prediction_data(prediction, task = task, check = TRUE, row_ids = row_ids)
   prediction = as_prediction(prediction, task = task)
 

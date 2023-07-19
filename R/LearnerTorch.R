@@ -210,17 +210,21 @@ LearnerTorch = R6Class("LearnerTorch",
       param_vals$device = auto_device(param_vals$device)
       if (param_vals$seed == "random") param_vals$seed = sample.int(10000000L, 1L)
 
-      with_torch_settings(seed = param_vals$seed, num_threads = param_vals$num_threads, {
+      model = with_torch_settings(seed = param_vals$seed, num_threads = param_vals$num_threads, {
         learner_torch_train(self, private, super, task, param_vals)
       })
+      model$task_col_info = copy(task$col_info)
+      return(model)
     },
     .predict = function(task) {
       # FIXME: https://github.com/mlr-org/mlr3/issues/946
       # This addresses the issues with the facto lrvels and is only a temporary fix
       # Should be handled outside of mlr3torch
+      # Ideally we could rely on state$train_task, but there is this bug
+      # https://github.com/mlr-org/mlr3/issues/947
       cols = c(task$feature_names, task$target_names)
       ci_predict = task$col_info[get("id") %in% cols, c("id", "type", "levels")]
-      ci_train = self$state$train_task$col_info[get("id") %in% cols, c("id", "type", "levels")]
+      ci_train = self$model$task_col_info[get("id") %in% cols, c("id", "type", "levels")]
       if (!test_equal_col_info(ci_train, ci_predict)) { # nolint
         stopf(paste0(
           "Predict task's `$col_info` does not match the train tasks' column info.\n",
@@ -234,14 +238,15 @@ LearnerTorch = R6Class("LearnerTorch",
       param_vals$device = auto_device(param_vals$device)
 
       with_torch_settings(seed = self$model$seed, num_threads = param_vals$num_threads, {
-        self$network$eval()
-        data_loader = private$.dataloader_predict(task, param_vals)
-        predict_tensor = torch_network_predict(self$network, data_loader)
-        private$.encode_prediction(predict_tensor, task, param_vals)
+        learner_torch_predict(self, private, super, task, param_vals)
       })
     },
-    .encode_prediction = function(predict_tensor, task, param_vals) {
-      encode_prediction(predict_tensor, self$predict_type, task)
+    .encode_prediction = function(predict_tensor, task) {
+      encode_prediction_default(
+        predict_tensor = predict_tensor,
+        predict_type = self$predict_type,
+        task = task
+      )
     },
     .network = function(task, param_vals) stop(".network must be implemented."),
     # the dataloader gets param_vals that may be different from self$param_set$values, e.g.
