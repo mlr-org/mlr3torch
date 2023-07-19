@@ -34,10 +34,12 @@ ContextTorch = R6Class("ContextTorch",
     #'   The optimizer.
     #' @param loss_fn ([`torch::nn_module`])\cr
     #'   The loss function.
-    #' @param total_epochs (integer(1))\cr
+    #' @param total_epochs (`integer(1)`)\cr
     #'   The total number of epochs the learner is trained for.
+    #' @param prediction_encoder (`function()`)\cr
+    #'   The learner's prediction encoder.
     initialize = function(learner, task_train, task_valid = NULL, loader_train, loader_valid = NULL,
-      measures_train = NULL, measures_valid = NULL, network, optimizer, loss_fn, total_epochs) {
+      measures_train = NULL, measures_valid = NULL, network, optimizer, loss_fn, total_epochs, prediction_encoder) {
       self$learner = assert_r6(learner, "Learner")
       self$task_train = assert_r6(task_train, "Task")
       self$task_valid = assert_r6(task_valid, "Task", null.ok = TRUE)
@@ -53,6 +55,7 @@ ContextTorch = R6Class("ContextTorch",
       self$total_epochs = assert_integerish(total_epochs, lower = 0, any.missing = FALSE)
       self$last_scores_train = structure(list(), names = character(0))
       self$last_scores_valid = structure(list(), names = character(0))
+      self$prediction_encoder = assert_function(prediction_encoder, args = c("predict_tensor", "task"))
       self$epoch = 0
       self$batch = 0
     },
@@ -100,6 +103,9 @@ ContextTorch = R6Class("ContextTorch",
     epoch = NULL,
     #' @field batch (`integer(1)`)\cr
     #'   The current iteration of the batch.
-    batch = NULL
+    batch = NULL,
+    #' @field prediction_encoder (`function()`)\cr
+    #'   The learner's prediction encoder.
+    prediction_encoder = NULL
   )
 )

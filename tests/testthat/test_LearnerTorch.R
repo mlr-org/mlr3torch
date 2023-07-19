@@ -6,6 +6,17 @@ test_that("Correct error when trying to create deep clone of trained network", {
   expect_error(learner$clone(deep = TRUE), regexp = "Deep clone of trained network is currently not supported")
 })
 
+test_that("Correct error when using problematic measures", {
+  learner = lrn("classif.torch_featureless", epochs = 1, batch_size = 16, measures_train = msr("classif.bbrier"))
+  task = tsk("german_credit")
+  expect_error(learner$train(task), "Change the predict type or select other measures")
+})
+
+test_that("Correct error when providing measure with id 'epoch'", {
+  m = msr("classif.acc")
+  m$id = "epoch"
+  expect_error(lrn("classif.torch_featureless", measures_train = m), "must not have id")
+})
 
 test_that("Basic tests: Classification", {
   learner = LearnerTorchTest1$new(task_type = "classif")
@@ -91,10 +102,9 @@ test_that("Parameters cannot start with {loss, opt, cb}.", {
     )$new()
   }
 
-  # TODO: regex
-  expect_error(helper(ps(loss.weight = p_dbl())))
-  expect_error(helper(ps(opt.weight = p_dbl())))
-  expect_error(helper(ps(cb.weight = p_dbl())))
+  expect_error(helper(ps(loss.weight = p_dbl())), "are reserved for")
+  expect_error(helper(ps(opt.weight = p_dbl())), "are reserved for")
+  expect_error(helper(ps(cb.weight = p_dbl())), "are reserved for")
 })
 
 test_that("ParamSet reference identities are preserved after a deep clone", {
@@ -145,50 +155,227 @@ test_that("Train-predict loop is reproducible when setting a seed", {
   expect_identical(p1$prob, p2$prob)
 })
 
+test_that("the state of a trained network contains what it should", {
+  task = tsk("mtcars")
+  learner = lrn("regr.torch_featureless", epochs = 0, batch_size = 10,
+    callbacks = t_clbk("history", id = "history1"),
+    optimizer = t_opt("sgd", lr = 1),
+    loss = t_loss("l1")
+  )
+  learner$train(task)
+  expect_permutation(names(learner$model), c("seed", "network", "optimizer", "loss_fn", "task_col_info", "callbacks"))
+  expect_true(is.integer(learner$model$seed))
+  expect_class(learner$model$network, "nn_module")
+  expect_class(learner$model$loss_fn, "nn_l1_loss")
+  expect_class(learner$model$optimizer, "optim_sgd")
+  expect_list(learner$model$callbacks, types = "CallbackSet", len = 1L)
+  expect_equal(names(learner$model$callbacks), "history1")
+  expect_true(is.integer(learner$model$seed))
+  expect_equal(task$col_info, learner$model$task_col_info)
+})
 
-# test_that("Bundling works",{
-#   callr::r(function() {
-#     library(mlr3torch)
-#     module =
-#     learner = lrn()
-#   })
-# })
-#
-# test_that("assemble and dissamble work.", {
-#   callr::r(function() {
-#     library(mlr3torch)
-#     learner = lrn("")
-#
-#
-#   })
-#   f = function() {
-#     library(mlr3torch)
-#     devtools::load_all("~/mlr/mlr3torch")
-#     learner = mlr3::lrn("classif.mlp",
-#       layers = 2L,
-#       p = 0.2,
-#       batch_size = 16L,
-#       epochs = 1L,
-#       d_hidden = 10,
-#       activation = "relu",
-#       optimizer = "adam"
-#     )
-#     task = mlr3::tsk("iris")
-#
-#     learner$train(task)
-#     learner$serialize()
-#     saveRDS(learner, "~/.lol/loeerna.R")
-#
-#   }
-#   callr::r(f)
-#   learner = readRDS("~/.lol/loeerna.R")
-#   learner$unserialize()
-#   learner$train(task)
-#
-#   dir = tempfile(fileext = ".rds")
-#   saveRDS(learner, dir)
-#   learner_ = readRDS(dir)
-#
-#   saveRDS(learner$s)
-# })
 
+test_that("train parameters do what they should: classification and regression", {
+  # Currently available train parameters:
+  # * batch_size
+  # * epochs
+  # * device
+  # * measures_train
+  # * measures_valid
+  # * drop_last
+  # * shuffle
+  # * num_threads
+  # * seed (reproducibility is already tested somewhere else)
+
+  callback = torch_callback(id = "internals",
+    on_begin = function() {
+      # rename to avoid deleting the ctx after finishing the training
+      self$ctx1 = self$ctx
+      self$num_threads = torch_get_num_threads()
+    }
+  )
+
+  f = function(task_type, measure_ids) {
+    task = switch(task_type, regr = tsk("mtcars"), classif = tsk("iris"))
+    epochs = sample(3, 1)
+    batch_size = sample(16, 1)
+    shuffle = sample(c(TRUE, FALSE), 1)
+    num_threads = sample(2, 1)
+    drop_last = sample(c(TRUE, FALSE), 1)
+    seed = sample.int(10, 1)
+    measures_train = msrs(paste0(measure_ids[sample(c(TRUE, FALSE, TRUE), 3, replace = FALSE)]))
+    measures_valid = msrs(paste0(measure_ids[sample(c(TRUE, FALSE, TRUE), 3, replace = FALSE)]))
+
+    learner = lrn(paste0(task_type, ".torch_featureless"),
+      epochs = epochs,
+      batch_size = batch_size,
+      callbacks = list(callback, t_clbk("history")),
+      shuffle = shuffle,
+      num_threads = num_threads,
+      drop_last = drop_last,
+      seed = seed,
+      measures_train = measures_train,
+      measures_valid = measures_valid,
+      predict_type = switch(task_type, classif = "prob", regr = "response")
+
+    )
+
+    # first we test everything with validation
+
+    split = partition(task)
+    task$row_roles$use = split$train
+    task$row_roles$test = split$train
+    learner$train(task)
+
+    internals = learner$model$callbacks$internals
+    ctx = internals$ctx1
+
+    expect_equal(num_threads, internals$num_threads)
+    expect_equal(ctx$loader_train$batch_size, batch_size)
+    expect_equal(ctx$loader_valid$batch_size, batch_size)
+    expect_equal(ctx$total_epochs, epochs)
+    expect_equal(ctx$network$parameters[[1]]$device$type, "cpu")
+
+    if (shuffle) {
+      expect_class(ctx$loader_train$sampler, "utils_sampler_random")
+    } else {
+      expect_class(ctx$loader_train$sampler, "utils_sampler_sequential")
+    }
+    expect_class(ctx$loader_valid$sampler, "utils_sampler_sequential")
+    if (drop_last) {
+      expect_true(ctx$loader_train$drop_last)
+    } else {
+      expect_false(ctx$loader_train$drop_last)
+    }
+
+    expect_false(ctx$loader_valid$drop_last)
+
+    expect_equal(nrow(learner$history$valid), epochs)
+    expect_equal(nrow(learner$history$train), epochs)
+    expect_permutation(c("epoch", ids(measures_train)), colnames(learner$history$train))
+    expect_permutation(c("epoch", ids(measures_valid)), colnames(learner$history$valid))
+
+    # now without validation
+    task$row_roles$test = integer()
+
+    learner$state = NULL
+    learner$train(task)
+
+    expect_equal(nrow(learner$model$callbacks$history$valid), 0)
+
+    learner$state = NULL
+    learner$param_set$set_values(
+      device = "meta",
+      epochs = 0
+    )
+
+    # now we also test that the device placement works
+    learner$train(task)
+    expect_equal(learner$network$parameters[[1]]$device$type, "meta")
+
+  }
+
+  f("regr", c("regr.mse", "regr.rmse", "regr.mae"))
+  f("classif", c("classif.acc", "classif.ce", "classif.mbrier"))
+})
+
+test_that("predict types work during training and prediction", {
+  # Here we check that when setting the predict type to "prob", they are available during training
+  # (and hence also for validation)
+  task = tsk("iris")
+  learner = lrn("classif.torch_featureless", epochs = 1, batch_size = 16, predict_type = "prob",
+    measures_train = msr("classif.mbrier"), callbacks = t_clbk("history"))
+  learner$train(task)
+  expect_true(!is.na(learner$history$train[1, "classif.mbrier"][[1L]]))
+
+  pred = learner$predict(task)
+  expect_true(is.matrix(pred$prob))
+  expect_true(is.factor(pred$response))
+  expect_equal(levels(pred$response), task$class_names)
+  expect_permutation(colnames(pred$prob), task$class_names)
+  expect_prediction_classif(pred)
+
+  learner$predict_type = "response"
+  pred = learner$predict(task)
+  expect_true(is.null(pred$prob))
+  expect_true(is.factor(pred$response))
+  expect_equal(levels(pred$response), task$class_names)
+  expect_prediction_classif(pred)
+})
+
+test_that("predict parameters do what they should: classification and regression", {
+  # Currently available predict parameters:
+  # * batch_size
+  # * device
+  # * num_threads
+  # * seed (already checked somewhere else)
+
+  callback = torch_callback(id = "internals",
+    on_begin = function() {
+      # Rename so it won't get deleted after training finishes
+      self$ctx1 = self$ctx
+      self$num_threads = torch_get_num_threads()
+    }
+  )
+
+  f = function(task_type) {
+    num_threads = sample(2, 1)
+    batch_size = sample(16, 1)
+    learner = lrn(paste0(task_type, ".torch_featureless"), epochs = 1, callbacks = callback,
+      num_threads = num_threads,
+      batch_size = batch_size,
+      shuffle = TRUE
+    )
+    task = switch(task_type, regr = tsk("mtcars"), classif = tsk("iris"))
+    learner$train(task)
+    internals = learner$model$callbacks$internals
+    ctx = internals$ctx1
+    expect_equal(num_threads, internals$num_threads)
+
+    learner$param_set$set_values(device = "meta")
+    try(learner$predict(task), silent = TRUE)
+    expect_equal(learner$network$parameters[[1]]$device$type, "meta")
+
+    dl = get_private(learner)$.dataloader_predict(task, learner$param_set$values)
+    expect_equal(dl$batch_size, batch_size)
+    expect_class(dl$sampler, "utils_sampler_sequential")
+  }
+
+  f("regr")
+  f("classif")
+})
+
+test_that("quick accessors work", {
+  task = tsk("mtcars")
+  learner = lrn("regr.torch_featureless", epochs = 1, batch_size = 1, callbacks = "history")
+  expect_error(learner$network, "Cannot")
+  expect_error(learner$history, "Cannot")
+  learner$train(task)
+  expect_class(learner$network, "nn_module")
+  expect_class(learner$history, "CallbackSetHistory")
+  learner = lrn("regr.torch_featureless", epochs = 1, batch_size = 1)
+  learner$train(task)
+  expect_error(learner$history, "No history found")
+})
+
+test_that("Train-Predict works", {
+  learner = lrn("classif.torch_featureless", epochs = 1, device = "cpu", batch_size = 16)
+  task = tsk("iris")
+  split = partition(task)
+  learner$train(task, row_ids = split$train)
+  pred = learner$predict(task, row_ids = split$test)
+
+  expect_prediction_classif(pred)
+
+  expect_equal(task$truth(split$test), pred$truth)
+})
+
+# This should not really be needed but see:
+# https://github.com/mlr-org/mlr3/issues/947
+test_that("resample() works", {
+  learner = lrn("regr.torch_featureless", epochs = 1, batch_size = 50)
+  task = tsk("mtcars")
+  resampling = rsmp("holdout")
+  rr = resample(task, learner, resampling)
+  expect_r6(rr, "ResampleResult")
+})

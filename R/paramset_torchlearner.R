@@ -12,6 +12,11 @@ make_check_measures = function(task_type) {
     if (!test_names(ids(x), type = "unique")) {
       return("IDs of measures must be unique.")
     }
+    # CallbackSetHistory has a column 'epoch' in a data.table, where all other columns are the ids
+    # of the measures
+    if ("epoch" %in% ids(x)) {
+      stopf("Measure must not have id 'epoch'.")
+    }
     # some measures have task_type NA, which means they work with all task types
     if (!all(map_lgl(map(x, "task_type"), function(x) task_type %in% x || (length(x) == 1L && is.na(x))))) {
       return(sprintf("Measures must support task type \"%s\".", task_type))

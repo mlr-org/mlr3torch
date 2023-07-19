@@ -394,7 +394,8 @@ lr_sequential$param_set$set_values(
   epochs = 50,
   measures_train = msrs(c("classif.logloss", "classif.ce"))
 )
-lr_sequential$predict_type = "response"
+# This is required to evaluate the logloss during training
+lr_sequential$predict_type = "prob"
 
 lr_sequential$train(md_sequential$task)
 ```

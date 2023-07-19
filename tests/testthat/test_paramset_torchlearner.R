@@ -23,9 +23,10 @@ test_that("paramset works", {
   expect_error(param_set_classif$set_values(measures_valid = msr("classif.acc")), regexp = NA)
   expect_error(param_set_classif$set_values(measures_train = msr("regr.mse")), regexp = "classif")
   expect_error(param_set_classif$set_values(measures_valid = msr("regr.mse")), regexp = "classif")
+  expect_error(param_set_classif$set_values(measures_train = msr("selected_features")), regexp = "must not require")
 
 
-  expect_error({param_set_regr$values$device = "opengl"}, regexp = NA)
+  expect_error({param_set_regr$values$device = "opengl"}, regexp = NA) # nolint
 })
 
 test_that("make_check_measures works", {
