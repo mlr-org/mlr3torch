@@ -66,8 +66,10 @@ CallbackSetHistory = R6Class("CallbackSetHistory",
         stopf("No eligible measures to plot for set '%s'.", set)
       }
 
+
+      epoch = score = measure = NULL
       if (ncol(data) == 2L) {
-        ggplot2::ggplot(data = data, ggplot2::aes_string(x = "epoch", y = measures)) +
+        ggplot2::ggplot(data = data, ggplot2::aes(x = epoch, y = !!rlang::sym(measures))) +
           ggplot2::geom_line() +
           ggplot2::geom_point() +
           ggplot2::labs(
@@ -78,7 +80,7 @@ CallbackSetHistory = R6Class("CallbackSetHistory",
           theme
       } else {
         data = melt(data, id.vars = "epoch", variable.name = "measure", value.name = "score")
-        ggplot2::ggplot(data = data, ggplot2::aes_string(x = "epoch", y = "score", color = "measure")) +
+        ggplot2::ggplot(data = data, ggplot2::aes_string(x = epoch, y = score, color = measure)) +
           viridis::scale_color_viridis(discrete = TRUE) +
           ggplot2::geom_line() +
           ggplot2::geom_point() +

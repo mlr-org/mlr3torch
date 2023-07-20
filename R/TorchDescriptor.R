@@ -1,4 +1,5 @@
 #' @title Base Class for Torch Descriptors
+
 #' @name torch
 #'
 #' @description
