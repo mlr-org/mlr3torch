@@ -31,8 +31,8 @@ NULL
 #   The cache_dir/datasets/tiny_imagenet folder.
 constructor_tiny_imagenet = function(path) {
   # path points to {cache_dir, tempfile}/data/tiny_imagenet
-  torchvision::tiny_imagenet_dataset(root = file.path(path, "raw"), download = TRUE)
-  download_folder = file.path(path, "raw", "tiny-imagenet-200")
+  torchvision::tiny_imagenet_dataset(root = file.path(path ), download = TRUE)
+  download_folder = file.path(path, "tiny-imagenet-200")
 
   lookup = fread(sprintf("%s/words.txt", download_folder), header = FALSE)
 
