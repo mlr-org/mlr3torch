@@ -34,6 +34,10 @@ navbar:
       href: https://stackoverflow.com/questions/tagged/mlr3
 
 articles:
+- title: Get Started
+  navbar: ~
+  contents:
+  - get_started
 - title: Building a Neural Network using PipeOps 
   navbar: ~
   contents:

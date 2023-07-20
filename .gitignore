@@ -8,3 +8,4 @@ mlr3torch*.tgz
 ^README\.html$
 *~
 docs
+inst/doc
