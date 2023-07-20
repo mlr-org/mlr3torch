@@ -5,7 +5,9 @@
 \alias{CallbackSetHistory}
 \title{History Callback}
 \description{
-Saves the history during training.
+Saves the training and validation history during training.
+The history is saved as a data.table in the \verb{$train} and \verb{$valid} slots.
+The first column is always \code{epoch}.
 }
 \section{Super class}{
 \code{\link[mlr3torch:CallbackSet]{mlr3torch::CallbackSet}} -> \code{CallbackSetHistory}
@@ -17,6 +19,7 @@ Saves the history during training.
 \item \href{#method-CallbackSetHistory-on_end}{\code{CallbackSetHistory$on_end()}}
 \item \href{#method-CallbackSetHistory-on_before_valid}{\code{CallbackSetHistory$on_before_valid()}}
 \item \href{#method-CallbackSetHistory-on_epoch_end}{\code{CallbackSetHistory$on_epoch_end()}}
+\item \href{#method-CallbackSetHistory-plot}{\code{CallbackSetHistory$plot()}}
 \item \href{#method-CallbackSetHistory-clone}{\code{CallbackSetHistory$clone()}}
 }
 }
@@ -59,6 +62,35 @@ Add the latest validation scores to the history.
 \if{html}{\out{<div class="r">}}\preformatted{CallbackSetHistory$on_epoch_end()}\if{html}{\out{</div>}}
 }
 
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSetHistory-plot"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetHistory-plot}{}}}
+\subsection{Method \code{plot()}}{
+Plots the history.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackSetHistory$plot(
+  set = "valid",
+  measures = NULL,
+  theme = ggplot2::theme_minimal(),
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{set}}{(\code{character(1)})\cr
+Which set to plot. Either \code{"train"} or \code{"valid"}. Default is \code{"valid"}.}
+
+\item{\code{measures}}{(\code{character()})\cr
+Which measures to plot. The default is \code{NULL}, which means that all numeric measures are plotted.}
+
+\item{\code{theme}}{(\code{\link[ggplot2:theme]{ggplot2::theme()}})\cr
+The theme, \code{\link[ggplot2:ggtheme]{ggplot2::theme_minimal()}} is the default.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetHistory-clone"></a>}}

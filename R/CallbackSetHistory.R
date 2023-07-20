@@ -3,7 +3,9 @@
 #' @name mlr_callback_set.history
 #'
 #' @description
-#' Saves the history during training.
+#' Saves the training and validation history during training.
+#' The history is saved as a data.table in the `$train` and `$valid` slots.
+#' The first column is always `epoch`.
 #'
 #' @export
 #' @include CallbackSet.R
@@ -39,6 +41,53 @@ CallbackSetHistory = R6Class("CallbackSetHistory",
         self$valid[[length(self$valid) + 1]] = c(
           list(epoch = self$ctx$epoch), self$ctx$last_scores_valid
         )
+      }
+    },
+    #' @description Plots the history.
+    #' @param measures (`character()`)\cr
+    #'   Which measures to plot. No default.
+    #' @param set (`character(1)`)\cr
+    #'   Which set to plot. Either `"train"` or `"valid"`. Default is `"valid"`.
+    #' @param theme ([ggplot2::theme()])\cr
+    #'   The theme, [ggplot2::theme_minimal()] is the default.
+    plot = function(measures, set = "valid", epochs = NULL, theme = ggplot2::theme_minimal(), ...) {
+      assert_choice(set, c("valid", "train"))
+      data = self[[set]]
+      assert_subset(measures, colnames(data))
+
+      if (is.null(epochs)) {
+        data = data[, c("epoch", measures), with = FALSE]
+      } else {
+        assert_integerish(epochs, unique = TRUE)
+        data = data[get("epoch") %in% epochs, c("epoch", measures), with = FALSE]
+      }
+
+      if ((!nrow(data)) || (ncol(data) < 2)) {
+        stopf("No eligible measures to plot for set '%s'.", set)
+      }
+
+      if (ncol(data) == 2L) {
+        ggplot2::ggplot(data = data, ggplot2::aes_string(x = "epoch", y = measures)) +
+          ggplot2::geom_line() +
+          ggplot2::geom_point() +
+          ggplot2::labs(
+            x = "Epoch",
+            y = measures,
+            title = sprintf("%s History", switch(set, valid = "Validation", train = "Training"))
+          ) +
+          theme
+      } else {
+        data = melt(data, id.vars = "epoch", variable.name = "measure", value.name = "score")
+        ggplot2::ggplot(data = data, ggplot2::aes_string(x = "epoch", y = "score", color = "measure")) +
+          viridis::scale_color_viridis(discrete = TRUE) +
+          ggplot2::geom_line() +
+          ggplot2::geom_point() +
+          ggplot2::labs(
+            x = "Epoch",
+            y = "Score",
+            title = sprintf("%s Loss", switch(set, valid = "Validation", train = "Training"))
+          ) +
+          theme
       }
     }
   ),

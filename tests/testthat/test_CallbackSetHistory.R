@@ -28,3 +28,18 @@ test_that("CallbackSetHistory works", {
   expect_data_table(learner$history$train, nrows = 3)
   expect_data_table(learner$history$valid, nrows = 3)
 })
+
+test_that("plotting works", {
+  task = tsk("iris")
+  split = partition(task)
+  learner = lrn("classif.mlp", epochs = 2, batch_size = 50, layers = 0, d_hidden = 1, callbacks = t_clbk("history"),
+    measures_train = msrs(c("classif.acc", "classif.ce", "classif.logloss")), measures_valid = msr("classif.ce"),
+    predict_type = "prob"
+  )
+  task$row_roles$use = split$train
+  task$row_roles$test = split$test
+  learner$train(task, row_ids = split$train)
+  expect_class(learner$history$plot("classif.ce", set = "valid"), "ggplot")
+  expect_class(learner$history$plot(c("classif.ce", "classif.acc"), set = "train"), "ggplot")
+  learner$history$plot(c("classif.ce", "classif.acc", "classif.logloss"), set = "train")
+})

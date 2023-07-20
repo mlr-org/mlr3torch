@@ -54,6 +54,7 @@ Suggests:
     magick,
     progress,
     rmarkdown,
+    viridis,
     torchvision,
     testthat (>= 3.0.0),
     zip
