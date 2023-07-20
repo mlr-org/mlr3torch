@@ -48,8 +48,12 @@ CallbackSetHistory = R6Class("CallbackSetHistory",
     #'   Which measures to plot. No default.
     #' @param set (`character(1)`)\cr
     #'   Which set to plot. Either `"train"` or `"valid"`. Default is `"valid"`.
+    #' @param epochs (`integer()`)\cr
+    #'   An integer vector restricting which epochs to plot. Default is `NULL`, which plots all epochs.
     #' @param theme ([ggplot2::theme()])\cr
     #'   The theme, [ggplot2::theme_minimal()] is the default.
+    #' @param ... (any)\cr
+    #'   Currently unused.
     plot = function(measures, set = "valid", epochs = NULL, theme = ggplot2::theme_minimal(), ...) {
       assert_choice(set, c("valid", "train"))
       data = self[[set]]

@@ -178,7 +178,7 @@ LearnerTorch = R6Class("LearnerTorch",
 
     #' @description
     #' Prints the object.
-    #' @param any (...)\cr
+    #' @param ... (any)\cr
     #'   Currently unused.
     print = function(...) {
       catn(format(self), if (is.null(self$label) || is.na(self$label)) "" else paste0(": ", self$label))

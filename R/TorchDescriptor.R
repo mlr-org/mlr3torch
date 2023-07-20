@@ -1,5 +1,4 @@
 #' @title Base Class for Torch Descriptors
-#' @name torch
 #'
 #' @description
 #' Abstract Base Class from which [`TorchLoss`], [`TorchOptimizer`], and [`TorchCallback`] inherit.
