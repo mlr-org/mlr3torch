@@ -204,7 +204,7 @@ TorchCallback = R6Class("TorchCallback",
         generator = callback_generator,
         id = id,
         param_set = param_set,
-        packages = packages,
+        packages = union(packages, "mlr3torch"),
         label = label,
         man = man
       )
