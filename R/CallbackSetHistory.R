@@ -73,7 +73,7 @@ CallbackSetHistory = R6Class("CallbackSetHistory",
           ggplot2::labs(
             x = "Epoch",
             y = measures,
-            title = sprintf("%s History", switch(set, valid = "Validation", train = "Training"))
+            title = sprintf("%s Loss", switch(set, valid = "Validation", train = "Training"))
           ) +
           theme
       } else {
