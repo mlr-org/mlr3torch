@@ -168,6 +168,37 @@ LearnerTorch = R6Class("LearnerTorch",
         feature_types = feature_types,
         man = man
       )
+    },
+    #' @description
+    #' Helper for print outputs.
+    #' @param ... (ignored).
+    format = function(...) {
+      sprintf("<%s[%s]:%s>", class(self)[1L], self$task_type, self$id)
+    },
+
+    #' @description
+    #' Prints the object.
+    #' @param any (...)\cr
+    #'   Currently unused.
+    print = function(...) {
+      catn(format(self), if (is.null(self$label) || is.na(self$label)) "" else paste0(": ", self$label))
+      catn(str_indent("* Model:", if (is.null(self$model)) "-" else class(self$model)[1L]))
+      catn(str_indent("* Optimizer:", private$.optimizer$id))
+      catn(str_indent("* Loss:", private$.loss$id))
+      catn(str_indent("* Callbacks:", if (length(private$.callbacks)) as_short_string(paste0(ids(private$.callbacks), collapse = ","), 1000L) else "-"))
+      catn(str_indent("* Parameters:", as_short_string(self$param_set$values, 1000L)))
+      catn(str_indent("* Packages:", self$packages))
+      catn(str_indent("* Predict Types: ", replace(self$predict_types, self$predict_types == self$predict_type, paste0("[", self$predict_type, "]"))))
+      catn(str_indent("* Feature Types:", self$feature_types))
+      catn(str_indent("* Properties:", self$properties))
+      w = self$warnings
+      e = self$errors
+      if (length(w)) {
+        catn(str_indent("* Warnings:", w))
+      }
+      if (length(e)) {
+        catn(str_indent("* Errors:", e))
+      }
     }
   ),
   active = list(

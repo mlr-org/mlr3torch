@@ -122,6 +122,8 @@ Shortcut for \code{learner$model$callbacks$history}.}
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-LearnerTorch-new}{\code{LearnerTorch$new()}}
+\item \href{#method-LearnerTorch-format}{\code{LearnerTorch$format()}}
+\item \href{#method-LearnerTorch-print}{\code{LearnerTorch$print()}}
 \item \href{#method-LearnerTorch-clone}{\code{LearnerTorch$clone()}}
 }
 }
@@ -129,11 +131,9 @@ Shortcut for \code{learner$model$callbacks$history}.}
 <details><summary>Inherited methods</summary>
 <ul>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner"><a href='../../mlr3/html/Learner.html#method-Learner-base_learner'><code>mlr3::Learner$base_learner()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="format"><a href='../../mlr3/html/Learner.html#method-Learner-format'><code>mlr3::Learner$format()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help"><a href='../../mlr3/html/Learner.html#method-Learner-help'><code>mlr3::Learner$help()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict"><a href='../../mlr3/html/Learner.html#method-Learner-predict'><code>mlr3::Learner$predict()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata"><a href='../../mlr3/html/Learner.html#method-Learner-predict_newdata'><code>mlr3::Learner$predict_newdata()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="print"><a href='../../mlr3/html/Learner.html#method-Learner-print'><code>mlr3::Learner$print()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset"><a href='../../mlr3/html/Learner.html#method-Learner-reset'><code>mlr3::Learner$reset()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train"><a href='../../mlr3/html/Learner.html#method-Learner-train'><code>mlr3::Learner$train()</code></a></span></li>
 </ul>
@@ -210,6 +210,41 @@ method, see section \emph{Inheriting}.}
 \item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
 The callbacks to use for training.
 Defaults to an empty\code{ list()}, i.e. no callbacks.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LearnerTorch-format"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerTorch-format}{}}}
+\subsection{Method \code{format()}}{
+Helper for print outputs.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LearnerTorch$format(...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{(ignored).}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LearnerTorch-print"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerTorch-print}{}}}
+\subsection{Method \code{print()}}{
+Prints the object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LearnerTorch$print(...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{any}}{(...)\cr
+Currently unused.}
 }
 \if{html}{\out{</div>}}
 }
