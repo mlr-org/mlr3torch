@@ -34,7 +34,7 @@ everything will work yet and the API might change without notice.
 [`torch`](https://torch.mlverse.org/). It allows to easily build, train
 and evaluate deep learning models in a few lines of codes, without
 needing to worry about low-level details. Off-the-shelf learners are
-readily available, but custom architectures can be defined by connection
+readily available, but custom architectures can be defined by connecting
 `PipeOpTorch` operators in an `mlr3pipelines::Graph`.
 
 Using predefined learners such as a simple multi layer perceptron (MLP)
