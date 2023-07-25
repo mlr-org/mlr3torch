@@ -3,6 +3,10 @@
 
 # mlr3torch
 
+Package website: [dev](https://mlr3torch.mlr-org.com/)
+
+Deep Learning with torch and mlr3.
+
 <!-- badges: start -->
 
 [![Lifecycle:
@@ -13,8 +17,6 @@ status](https://www.r-pkg.org/badges/version/mlr3torch)](https://CRAN.R-project.
 [![StackOverflow](https://img.shields.io/badge/stackoverflow-mlr3-orange.svg)](https://stackoverflow.com/questions/tagged/mlr3)
 [![Mattermost](https://img.shields.io/badge/chat-mattermost-orange.svg)](https://lmmisld-lmu-stats-slds.srv.mwn.de/mlr_invite/)
 <!-- badges: end -->
-
-Deep Learning with torch and mlr3.
 
 ## Installation
 

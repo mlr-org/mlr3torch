@@ -22,6 +22,10 @@ lgr::get_logger("mlr3")$set_threshold("warn")
 
 # mlr3torch
 
+Package website: [dev](https://mlr3torch.mlr-org.com/)
+
+Deep Learning with torch and mlr3.
+
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![r-cmd-check](https://github.com/mlr-org/mlr3torch/actions/workflows/r-cmd-check.yml/badge.svg)](https://github.com/mlr-org/mlr3torch/actions/workflows/r-cmd-check.yml)
@@ -30,14 +34,11 @@ lgr::get_logger("mlr3")$set_threshold("warn")
 [![Mattermost](https://img.shields.io/badge/chat-mattermost-orange.svg)](https://lmmisld-lmu-stats-slds.srv.mwn.de/mlr_invite/)
 <!-- badges: end -->
 
-Deep Learning with torch and mlr3.
-
 ## Installation
 
 ```{r eval = FALSE}
 remotes::install_github("mlr-org/mlr3torch")
 ```
-
 
 ## Status
 
