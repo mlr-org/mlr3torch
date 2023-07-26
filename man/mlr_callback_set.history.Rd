@@ -70,8 +70,9 @@ Add the latest validation scores to the history.
 Plots the history.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CallbackSetHistory$plot(
+  measures,
   set = "valid",
-  measures = NULL,
+  epochs = NULL,
   theme = ggplot2::theme_minimal(),
   ...
 )}\if{html}{\out{</div>}}
@@ -80,11 +81,11 @@ Plots the history.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
+\item{\code{measures}}{(\code{character()})\cr
+Which measures to plot. No default.}
+
 \item{\code{set}}{(\code{character(1)})\cr
 Which set to plot. Either \code{"train"} or \code{"valid"}. Default is \code{"valid"}.}
-
-\item{\code{measures}}{(\code{character()})\cr
-Which measures to plot. The default is \code{NULL}, which means that all numeric measures are plotted.}
 
 \item{\code{theme}}{(\code{\link[ggplot2:theme]{ggplot2::theme()}})\cr
 The theme, \code{\link[ggplot2:ggtheme]{ggplot2::theme_minimal()}} is the default.}

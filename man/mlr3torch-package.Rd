@@ -6,7 +6,9 @@
 \alias{mlr3torch-package}
 \title{mlr3torch: Deep Learning for 'mlr3'}
 \description{
-Provides torch models as learners for the mlr3 ecosystem.
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
+Deep Learning library that extends the mlr3 framework by building upon the 'torch' package. It allows to conveniently build, train, and evaluate deep learning models without having to worry about low level details. Custom architectures can be created using the graph language defined in 'mlr3pipelines'.
 }
 \section{Options}{
 

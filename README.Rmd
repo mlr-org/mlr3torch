@@ -20,7 +20,7 @@ lgr::get_logger("mlr3")$set_threshold("warn")
 
 
 
-# mlr3torch
+# mlr3torch <img src="man/figures/logo.png" align="right" width = "120" />
 
 Package website: [dev](https://mlr3torch.mlr-org.com/)
 
