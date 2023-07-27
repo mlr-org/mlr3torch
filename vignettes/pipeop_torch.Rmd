@@ -161,7 +161,7 @@ The `ModelDescriptor` class contains a `Graph` of (mostly) `PipeOpModule`s and s
 The `PipeOpTorch` transforms a `ModelDescriptor` and adds more `PipeOpModule`s to the `Graph`.
 
 `ModelDescriptor`s always build up a `Graph` for a specific `Task`. The easiest way to initialize a proper `ModelDescriptor` is to use the appropriate `PipeOpTorchIngress` for a given datatype.
-Below we use `PipeOpTorchNum`, which is is is used for numeric data.
+Below we use `PipeOpTorchIngressNumeric`, which is is is used for numeric data.
 
 ```{r}
 task = tsk("iris")$select(colnames(iris)[1:3])
@@ -403,7 +403,8 @@ We make multiple observations here:
 
 # Building Torch Learners
 
-We have now seen how NN `Graph`s of `PipeOpModule` are created and turned into `nn_module`s. Using `PipeOpTorch` even creates `ModelDescriptor` objects that contain additional info about how batch tensors are extracted from `Task`s.
+We have now seen how NN `Graph`s of `PipeOpModule` are created and turned into `nn_module`s.
+Using `PipeOpTorch` even creates `ModelDescriptor` objects that contain additional info about how batch tensors are extracted from `Task`s.
 For a complete `Learner`, it is still necessary to define the loss-function used for optimization, the optimizer, and optionally some callbacks.
 We have already covered their class representations -- `TorchLoss`, `TorchOptimizer`, `TorchCallbacks`, in the *Get Started* vignette.
 Here we use adam as the optimizer, cross-entropy as the loss function, and the history callback.
@@ -483,11 +484,14 @@ plot_predictions(predictions)
 # Torch Learner Pipelines
 
 The model shown above is constructed using the `ModelDescriptor` that is generated from a `Graph` of `PipeOpTorch` operators.
-The `ModelDescriptor` furthermore contains the `Task` to which it pertains. This makes it possible to use it to create a NN model that gets trained right away, using `PipeOpTorchModelClassif`. The only missing prerequisite now is to add the desired `TorchOptimizer` and `TorchLoss` information to the `ModelDescriptor`.
+The `ModelDescriptor` furthermore contains the `Task` to which it pertains.
+This makes it possible to use it to create a NN model that gets trained right away, using `PipeOpTorchModelClassif`.
+The only missing prerequisite now is to add the desired `TorchOptimizer` and `TorchLoss` information to the `ModelDescriptor`.
 
 ## Adding Optimizer, Loss and Callback Meta-Info to `ModelDescriptor`
 
-Remember that `ModelDescriptor` has the `$optimizer`, `$loss` and `$callbacks` slots that are necessary to build a complete `Learner` from an NN. They can be set by corresponding `PipeOpTorch` operators.
+Remember that `ModelDescriptor` has the `$optimizer`, `$loss` and `$callbacks` slots that are necessary to build a complete `Learner` from an NN.
+They can be set by corresponding `PipeOpTorch` operators.
 
 `po("torch_optimizer")` is used to set the `$optimizer` slot of a `ModelDescriptor`; it takes the desired `TorchOptimizer` object on construction and exports its `ParamSet`.
 ```{r}
@@ -541,7 +545,8 @@ plot_predictions(predictions)
 
 ## The whole Pipeline
 
-Remember that `md_sequential` was created using a `Graph` that the initial `Task` was piped through. If we combine such a `Graph` with `PipeOpTorchModelClassif`, we get a `Graph` that behaves like any other `Graph` that ends with a `PipeOpLearner`, and can therefore be wrapped as a `GraphLearner`.
+Remember that `md_sequential` was created using a `Graph` that the initial `Task` was piped through.
+If we combine such a `Graph` with `PipeOpTorchModelClassif`, we get a `Graph` that behaves like any other `Graph` that ends with a `PipeOpLearner`, and can therefore be wrapped as a `GraphLearner`.
 The following uses one more hidden layer than before:
 
 ```{r}
@@ -600,7 +605,7 @@ plot_predictions(predictions)
 
 We are not just limited to `PipeOpTorch` in these kinds of `Graph`s, and we are also not limited to having only a single `PipeOpTorchIngress`. The following pipeline, for example, removes all but the `Petal.Length` columns from the `Task` and fits a model:
 
-```{r, output = FALSE, fig.show = 'hide'}
+```{r, fig.show = 'hide'}
 gr = po("select", selector = selector_name("Petal.Length")) %>>%
   po("torch_ingress_num") %>>%
   po("nn_linear", out_features = 5, id = "linear1") %>>%
@@ -668,3 +673,4 @@ plot_predictions(predictions)
 ```
 
 All these examples have hopefully demonstrated the possibilities that come with the representation of neural network layers as `PipeOp`s.
+Even though this vignette was quite technical, we hope to have given you an in-depth understanding of the underlying mechanisms.
