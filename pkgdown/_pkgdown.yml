@@ -48,7 +48,7 @@ articles:
   navbar: ~
   contents:
   - articles/image_classification
-- title: Building a Neural Network using PipeOps
+- title: Neural Networks as Graphs
   navbar: ~
   contents:
   - pipeop_torch
