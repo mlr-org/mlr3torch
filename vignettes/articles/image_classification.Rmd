@@ -10,43 +10,56 @@ knitr::opts_chunk$set(
 ```
 
 In the *Get Started* vignette, we have already explained how to train a simple neural network on tabular data.
-In this article you will learn how to work with image data.
-For that `mlr3torch` relies on the functionality provided by the [`torchvision`](https://github.com/mlverse/torchvision) package.
+In this article we will briefly cover how to work with image data.
+In `mlr3torch`, image data is represented using the `mlr3torch::imageuri` class.
+It is essentially a character vector, containing paths to images on the file system.
+When listing the available task feature types (after loading the `mlr3torch` package), we can see that this class is available.
+
+```{r}
+library(mlr3torch)
+mlr_reflections$task_feature_types
+```
+
+Creating a vector (in this case of length 1) is as simple as passing the image paths to the `imageuri` function.
+
+```{r}
+image_vec = imageuri("/path/to/your/image")
+```
+
+For the processing of images, `mlr3torch` relies mostly on the functionality provided by [`torchvision`](https://github.com/mlverse/torchvision).
 As an example task, we will use the "tiny imagenet" dataset, which is a subset of the [ImageNet](http://www.image-net.org/) dataset.
 It consists of 200 classes with 500 training images each.
 The goal is to predict the class of an image from the pixels.
+For more information you can access the tasks's help page.
 
 ```{r setup}
 set.seed(314)
 library(mlr3torch)
 
-task = tsk("tiny_imagenet")
-task
+tsk_tiny = tsk("tiny_imagenet")
+tsk_tiny
 ```
 
-In `mlr3torch`, image data is represented using the `mlr3torch::imageuri` class.
-It is essentially a character vector, containing paths to images on the file system.
-Note that this task has to be downloaded from the internet when accessing the data.
-In order to download the dataset only once, you must set the `mlr3torch.cache` option to `TRUE`, or a specific path to be used as the cache folder.
+The first time this task is accessed, the data is downloaded from the internet.
+In order to download the dataset only once, you can set the `mlr3torch.cache` option to either `TRUE` or a specific path to be used as the cache folder.
 
 ```{r, eval = FALSE}
 options(mlr3torch.cache = TRUE)
 ```
 
-We can e.g. print the path to the first image as follows:
+Below, we print the path to the first image as follows:
 
 ```{r}
-task$data(1, "image")
+tsk_tiny$data(1, "image")
 ```
 
-
-As a learner, we we will use the famous AlexNet classification network, which sparked the "Deep Learning revolution" in 2012.
-
+To work with such data, we need to use learners that have `"imageuri"` as part of their supported feature types.
+One such learner is the famous AlexNet classification network, which sparked the "Deep Learning revolution" in 2012.
 
 ```{r}
 alexnet = lrn("classif.alexnet")
 alexnet
 ```
 
-
-
+We can now train this learner like any other learner on the task at hand, while `mlr3torch` internally creates a dataloader from the image paths.
+For computational reasons, we cannot demonstrate the actual training of the learner in this article.

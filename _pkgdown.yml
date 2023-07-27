@@ -38,7 +38,11 @@ articles:
   navbar: ~
   contents:
   - get_started
-- title: Building a Neural Network using PipeOps 
+- title: Image Classification
+  navbar: ~
+  contents:
+  - image_classification
+- title: Building a Neural Network using PipeOps
   navbar: ~
   contents:
   - pipeop_torch
