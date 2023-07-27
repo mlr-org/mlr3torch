@@ -43,6 +43,7 @@
 #' @family Model Configuration
 #' @family Graph Network
 #' @return (`ModelDescriptor`)
+#' @export
 ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, callbacks = NULL, .pointer = NULL,
   .pointer_shape = NULL) {
   assert_r6(graph, "Graph")
@@ -95,7 +96,7 @@ print.ModelDescriptor = function(x, ...) {
   catn(sprintf("<ModelDescriptor: %d ops>", length(x$graph$pipeops)))
   catn(str_indent("* Ingress: ", ingress_shapes))
   catn(str_indent("* Task: ", paste0(x$task$id, " [", x$task$task_type, "]")))
-  catn(str_indent("* Callbacks: ", if (!is.null(x$callbacks)) as_short_string(map_chr(x$callbacks, "label"), 100L) else "N/A")) # nolint
+  catn(str_indent("* Callbacks: ", if (!is.null(x$callbacks) && length(x$callbacks)) as_short_string(map_chr(x$callbacks, "label"), 100L) else "N/A")) # nolint
   catn(str_indent("* Optimizer: ", if (!is.null(x$optimizer)) as_short_string(x$optimizer$label) else "N/A"))
   catn(str_indent("* Loss: ", if (!is.null(x$loss)) as_short_string(x$loss$label) else "N/A"))
   catn(str_indent("* .pointer: ", if (is.null(x$.pointer)) "" else { # nolint

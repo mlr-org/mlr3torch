@@ -1,7 +1,11 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# mlr3torch
+# mlr3torch <img src="man/figures/logo.png" align="right" width = "120" />
+
+Package website: [dev](https://mlr3torch.mlr-org.com/)
+
+Deep Learning with torch and mlr3.
 
 <!-- badges: start -->
 
@@ -13,8 +17,6 @@ status](https://www.r-pkg.org/badges/version/mlr3torch)](https://CRAN.R-project.
 [![StackOverflow](https://img.shields.io/badge/stackoverflow-mlr3-orange.svg)](https://stackoverflow.com/questions/tagged/mlr3)
 [![Mattermost](https://img.shields.io/badge/chat-mattermost-orange.svg)](https://lmmisld-lmu-stats-slds.srv.mwn.de/mlr_invite/)
 <!-- badges: end -->
-
-Deep Learning with torch and mlr3.
 
 ## Installation
 
@@ -34,7 +36,7 @@ everything will work yet and the API might change without notice.
 [`torch`](https://torch.mlverse.org/). It allows to easily build, train
 and evaluate deep learning models in a few lines of codes, without
 needing to worry about low-level details. Off-the-shelf learners are
-readily available, but custom architectures can be defined by connection
+readily available, but custom architectures can be defined by connecting
 `PipeOpTorch` operators in an `mlr3pipelines::Graph`.
 
 Using predefined learners such as a simple multi layer perceptron (MLP)

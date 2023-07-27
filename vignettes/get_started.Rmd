@@ -21,7 +21,7 @@ We assume that you are familiar with the `mlr3` framework, for a detailed descri
 As a first example, we will train a simple multi-layer perceptron (MLP) on the well-known "mtcars" task.
 We first set a seed for reproducibility, load the library and construct the task.
 
-```{r}
+```{r, message = FALSE}
 set.seed(314)
 library(mlr3torch)
 task = tsk("mtcars")

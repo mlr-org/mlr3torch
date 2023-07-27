@@ -20,7 +20,11 @@ lgr::get_logger("mlr3")$set_threshold("warn")
 
 
 
-# mlr3torch
+# mlr3torch <img src="man/figures/logo.png" align="right" width = "120" />
+
+Package website: [dev](https://mlr3torch.mlr-org.com/)
+
+Deep Learning with torch and mlr3.
 
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
@@ -30,14 +34,11 @@ lgr::get_logger("mlr3")$set_threshold("warn")
 [![Mattermost](https://img.shields.io/badge/chat-mattermost-orange.svg)](https://lmmisld-lmu-stats-slds.srv.mwn.de/mlr_invite/)
 <!-- badges: end -->
 
-Deep Learning with torch and mlr3.
-
 ## Installation
 
 ```{r eval = FALSE}
 remotes::install_github("mlr-org/mlr3torch")
 ```
-
 
 ## Status
 
@@ -49,7 +50,7 @@ Not everything will work yet and the API might change without notice.
 
 `mlr3torch` is a deep learning framework for the [`mlr3`](https://mlr-org.com) ecosystem built on top of [`torch`](https://torch.mlverse.org/).
 It allows to easily build, train and evaluate deep learning models in a few lines of codes, without needing to worry about low-level details.
-Off-the-shelf learners are readily available, but custom architectures can be defined by connection `PipeOpTorch` operators in an `mlr3pipelines::Graph`.
+Off-the-shelf learners are readily available, but custom architectures can be defined by connecting `PipeOpTorch` operators in an `mlr3pipelines::Graph`.
 
 Using predefined learners such as a simple multi layer perceptron (MLP) works just like any other mlr3 `Learner`.
 
