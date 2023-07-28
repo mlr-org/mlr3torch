@@ -76,7 +76,12 @@ constructor_tiny_imagenet = function(path) {
 
 load_task_tiny_imagenet = function(id = "tiny_imagenet") {
   cached_constructor = function() {
-    dt = cached(constructor_tiny_imagenet, "datasets", "tiny_imagenet")$data
+    # We need this as otherwise the factor level are differently ordered,
+    # which causes the hard-coded col-info to be wrong for some locales
+    # (whether a < A or A > a depends on the locale)
+    withr::with_locale(c(LC_COLLATE = "C"), {
+      dt = cached(constructor_tiny_imagenet, "datasets", "tiny_imagenet")$data
+    })
     dt$image = imageuri(dt$image)
     dt$row_id = seq_len(nrow(dt))
     DataBackendDataTable$new(data = dt, primary_key = "row_id")
