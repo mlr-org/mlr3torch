@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="mlr3torch">
-<title>Building a Neural Network using PipeOps • mlr3torch</title>
+<title>Neural Networks as Graphs • mlr3torch</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
@@ -20,7 +20,7 @@
 <link href="../deps/Roboto_Slab-0.4.7/font.css" rel="stylesheet">
 <!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Building a Neural Network using PipeOps">
+<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Neural Networks as Graphs">
 <meta property="og:description" content="mlr3torch">
 <meta property="og:image" content="https://mlr3torch.mlr-org.com/logo.svg">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -59,7 +59,8 @@
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/get_started.html">Get Started</a>
-    <a class="dropdown-item" href="../articles/pipeop_torch.html">Building a Neural Network using PipeOps</a>
+    <a class="dropdown-item" href="../articles/image_classification.html">Image Classification</a>
+    <a class="dropdown-item" href="../articles/pipeop_torch.html">Neural Networks as Graphs</a>
   </div>
 </li>
 <li class="nav-item">
@@ -76,6 +77,12 @@
 
       <ul class="navbar-nav">
 <li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/mlr-org/mlr3extralearners">
+    <span class="fa fa fa fa-github"></span>
+     
+  </a>
+</li>
+<li class="nav-item">
   <a class="external-link nav-link" href="https://lmmisld-lmu-stats-slds.srv.mwn.de/mlr_invite/">
     <span class="fa fa fa fa-comments"></span>
      
@@ -84,6 +91,12 @@
 <li class="nav-item">
   <a class="external-link nav-link" href="https://stackoverflow.com/questions/tagged/mlr3">
     <span class="fab fa fab fa-stack-overflow"></span>
+     
+  </a>
+</li>
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://mlr-org.com/">
+    <span class="fa fa-rss"></span>
      
   </a>
 </li>
@@ -99,7 +112,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.svg" class="logo" alt=""><h1>Building a Neural Network using PipeOps</h1>
+      <img src="../logo.svg" class="logo" alt=""><h1>Neural Networks as Graphs</h1>
             
       
       
@@ -108,133 +121,133 @@
 
     
     
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"mlr3torch"</span><span class="op">)</span></span></code></pre></div>
+<p>This vignette contains technical details about the inner workings of
+representing neural networks as <code>mlr3pipelines::Graphs</code>s. If
+you are not familiar with <code>mlr3pipelines</code>, start by reading
+the <a href="https://mlr3book.mlr-org.com/chapters/chapter7/sequential_pipelines.html" class="external-link">related
+sections from the mlr3 book</a> first.</p>
 <div class="section level2">
-<h2 id="torch-modules-and-pipeopmodule">Torch modules and <code>PipeOpModule</code><a class="anchor" aria-label="anchor" href="#torch-modules-and-pipeopmodule"></a>
+<h2 id="a-torch-primer">A <code>torch</code> Primer<a class="anchor" aria-label="anchor" href="#a-torch-primer"></a>
 </h2>
-<div class="section level3">
-<h3 id="torch-primer">Torch Primer<a class="anchor" aria-label="anchor" href="#torch-primer"></a>
-</h3>
-<p>Some input tensor: 2-batch of 3 units.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<p>We start by sampling some input tensor: 2 batches with 3
+features:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">input</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_randn.html" class="external-link">torch_randn</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="va">input</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; -0.4387 -0.3354  0.6370</span></span>
-<span><span class="co">#&gt; -0.4558  0.6582 -0.5837</span></span>
+<span><span class="co">#&gt; -1.3860 -0.5298 -0.5042</span></span>
+<span><span class="co">#&gt; -0.9442  1.1963  0.3467</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,3} ]</span></span></code></pre></div>
-<p>A <code>nn_module</code> is constructed from a
+<p>An <code>nn_module</code> is constructed from a
 <code>nn_module_generator</code>. <code>nn_linear</code> is one of the
 simpler generators:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">module_1</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">4</span>, bias <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">module_1</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span>in_features <span class="op">=</span> <span class="fl">3</span>, out_features <span class="op">=</span> <span class="fl">4</span>, bias <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>Applying this module gives a 2-batch of 4 units:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">output</span> <span class="op">=</span> <span class="fu">module_1</span><span class="op">(</span><span class="va">input</span><span class="op">)</span></span>
 <span><span class="va">output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; -0.1609  0.2841  0.5336  0.0591</span></span>
-<span><span class="co">#&gt;  0.1323  0.3413 -0.1620 -0.6172</span></span>
+<span><span class="co">#&gt;  0.8688 -0.0499  0.5594 -0.3469</span></span>
+<span><span class="co">#&gt;  0.6440 -0.0752 -0.2004 -0.6373</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,4} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span></code></pre></div>
 <p>A neural network with one (4-unit) hidden layer and two outputs needs
 the following ingredients</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">activation</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_sigmoid.html" class="external-link">nn_sigmoid</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">module_2</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">3</span>, bias <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">softmax</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_softmax.html" class="external-link">nn_softmax</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p>Piping a tensor through this:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<p>We can pipe a tensor through the layers as follows.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">output</span> <span class="op">=</span> <span class="fu">module_1</span><span class="op">(</span><span class="va">input</span><span class="op">)</span></span>
 <span><span class="va">output</span> <span class="op">=</span> <span class="fu">activation</span><span class="op">(</span><span class="va">output</span><span class="op">)</span></span>
 <span><span class="va">output</span> <span class="op">=</span> <span class="fu">module_2</span><span class="op">(</span><span class="va">output</span><span class="op">)</span></span>
 <span><span class="va">output</span> <span class="op">=</span> <span class="fu">softmax</span><span class="op">(</span><span class="va">output</span><span class="op">)</span></span>
 <span><span class="va">output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.4877  0.3518  0.1605</span></span>
-<span><span class="co">#&gt;  0.4970  0.3414  0.1616</span></span>
+<span><span class="co">#&gt;  0.5246  0.1818  0.2936</span></span>
+<span><span class="co">#&gt;  0.4920  0.1936  0.3144</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,3} ][ grad_fn = &lt;SoftmaxBackward0&gt; ]</span></span></code></pre></div>
-<p>Training the neural network then consists of Toch keeping track of
-what parameters were used to calculate <code>output</code> to calculate
-gradients etc. In particular, this “piping through a series of modules”
-will happen a lot. An obvious idea here is to do this with
-<code>mlr3pipelines</code>.</p>
+<p>We will now continue with showing how such a neural network can be
+represented in<code>mlr3torch</code>.</p>
 </div>
-<div class="section level3">
-<h3 id="wrapped-torch-modules-as-pipeopmodule">Wrapped Torch modules as <code>PipeOpModule</code><a class="anchor" aria-label="anchor" href="#wrapped-torch-modules-as-pipeopmodule"></a>
-</h3>
-<p>Wrapping <code>nn_module</code> objects in a <code>PipeOp</code> has
-the advantage that the network structure can be represented as a
-<code>Graph</code> object where it is made explicit (can be plotted, can
-be extended or manipulated), compared to e.g. writing a function that
-pipes input through a series of modules.</p>
+<div class="section level2">
+<h2 id="neural-networks-as-graphs">Neural Networks as Graphs<a class="anchor" aria-label="anchor" href="#neural-networks-as-graphs"></a>
+</h2>
+<p>In <code>mlr3torch</code>, <code>nn_module</code>s are wrapped in a
+<code>PipeOpModule</code>. This has the advantage that the network
+structure can be represented as a <code>Graph</code> object where it is
+made explicit (can be plotted, can be extended or manipulated), compared
+to e.g. writing a function that pipes input through a series of
+modules.</p>
 <p>A <code>PipeOpModule</code> can be used to wrap a module directly,
 but it is usually constructed by a <code>PipeOpTorch</code> (see later).
 It typically has a single input and a single output, although multiple
 inputs are possible (module is then called with multiple arguments), and
 multiple outputs are possible when the module-function returns a list.
-Number of outputs must be declared during construction, then.</p>
-<p>Wrapping the linear <code>module_1</code> works like this:</p>
+The input and output channels must be explicitly declared then during
+construction. We will now continue to recreate the above network using
+<code>PipeOpModule</code>s.</p>
+<p>We can wrap the linear <code>module_1</code> layers like this:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mlr3torch</span><span class="op">)</span></span>
+<span><span class="va">po_module_1</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"module_1"</span>, module <span class="op">=</span> <span class="va">module_1</span><span class="op">)</span></span></code></pre></div>
+<p>Note that <code>po("module_1")</code> is equivalent to
+<code>po("module", id = "module_1")</code>. This mechanism can is
+convenient to avoid ID clashes in graphs.</p>
+<p>We can use the generated <code>PipeOp</code> in the familiar way:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">po_module_1</span> <span class="op">=</span> <span class="va"><a href="../reference/mlr_pipeops_module.html">PipeOpModule</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"module_1"</span>, <span class="va">module_1</span><span class="op">)</span></span></code></pre></div>
-<p>It is used in the familiar way:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">output</span> <span class="op">=</span> <span class="va">po_module_1</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">input</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; -0.1609  0.2841  0.5336  0.0591</span></span>
-<span><span class="co">#&gt;  0.1323  0.3413 -0.1620 -0.6172</span></span>
+<span><span class="co">#&gt;  0.8688 -0.0499  0.5594 -0.3469</span></span>
+<span><span class="co">#&gt;  0.6440 -0.0752 -0.2004 -0.6373</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,4} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span></code></pre></div>
-<p>Note we only use the <code>$train()</code>, since Torch modules do
+<p>Note we only use the <code>$train()</code>, since torch modules do
 not have anything that maps to the <code>state</code> (it is filled by
 an empty list).</p>
 <p>The single hidden layer neural network can be constructed as a
 <code>Graph</code>, which can then do the training all at once.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">po_activation</span> <span class="op">=</span> <span class="va"><a href="../reference/mlr_pipeops_module.html">PipeOpModule</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"activation"</span>, <span class="va">activation</span><span class="op">)</span></span>
-<span><span class="va">po_module_2</span> <span class="op">=</span> <span class="va"><a href="../reference/mlr_pipeops_module.html">PipeOpModule</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"module_2"</span>, <span class="va">module_2</span><span class="op">)</span></span>
-<span><span class="va">po_softmax</span> <span class="op">=</span> <span class="va"><a href="../reference/mlr_pipeops_module.html">PipeOpModule</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"softmax"</span>, <span class="va">softmax</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">po_activation</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"module"</span>, id <span class="op">=</span> <span class="st">"activation"</span>, <span class="va">activation</span><span class="op">)</span></span>
+<span><span class="va">po_module_2</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"module_2"</span>, module <span class="op">=</span> <span class="va">module_2</span><span class="op">)</span></span>
+<span><span class="va">po_softmax</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"module"</span>, id <span class="op">=</span> <span class="st">"softmax"</span>, module <span class="op">=</span> <span class="va">softmax</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">module_graph</span> <span class="op">=</span> <span class="va">po_module_1</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span> <span class="va">po_activation</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span> <span class="va">po_module_2</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span> <span class="va">po_softmax</span></span></code></pre></div>
-<p>Using the <code>Graph</code>’s <code>$train()</code> to pipe a tensor
-through the <code>Graph</code>:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<span><span class="va">module_graph</span> <span class="op">=</span> <span class="va">po_module_1</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
+<span>  <span class="va">po_activation</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
+<span>  <span class="va">po_module_2</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
+<span>  <span class="va">po_softmax</span></span>
+<span></span>
+<span><span class="va">module_graph</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>horizontal <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="../docs/articles/pipeop_torch_files/figure-html/unnamed-chunk-10-1.png" width="100%"></p>
+<p>We can now use the graph’s <code>$train()</code> method to pipe a
+tensor through the whole <code>Graph</code>.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">output</span> <span class="op">=</span> <span class="va">module_graph</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">input</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.4877  0.3518  0.1605</span></span>
-<span><span class="co">#&gt;  0.4970  0.3414  0.1616</span></span>
+<span><span class="co">#&gt;  0.5246  0.1818  0.2936</span></span>
+<span><span class="co">#&gt;  0.4920  0.1936  0.3144</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,3} ][ grad_fn = &lt;SoftmaxBackward0&gt; ]</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="graph-as-a-torch-module">
-<code>Graph</code> as a Torch module<a class="anchor" aria-label="anchor" href="#graph-as-a-torch-module"></a>
-</h3>
-<p>The native class in <code>torch</code> that represents a
-transformation of tensors is the <code>nn_module</code>. It would
-therefore also be advantageous to have the <code>Graph</code> of
-<code>PipeOpModule</code> also be a <code>nn_module</code>. This is
-particularly useful because the <code>nn_module</code> does some
-accounting of the model parameters that it contains for backpropagation
-(I believe).</p>
-<p>Instead of having a class that inherits both from
-<code>nn_module</code> and <code>Graph</code> (which doesn’t work in R6,
-since multiple inheritance is not available), there is a class that
+<p>While this object allows to easily perform a forward pass, it does
+not inherit from <code>nn_module</code>, which is useful for various
+reasons. Instead of having a class that inherits both from
+<code>nn_module</code> and <code>Graph</code> (which does not work in
+R6, since multiple inheritance is not available), there is a class that
 inherits from <code>nn_module</code> and contains a <code>Graph</code>
-member slot (composition). This class is [<code>nn_graph</code>]. It is
-constructed with a <code>Graph</code>, as well as information about the
-shape(s) of the <code>torch_tensor</code>(s) it expects as inputs.</p>
+member slot through composition. This class is <code>nn_graph</code>. It
+is constructed with a <code>Graph</code>, as well as information about
+the shape(s) of the <code>torch_tensor</code>(s) it expects as
+inputs.</p>
 <p>Shape info is communicated as an integer-valued <code>numeric</code>
 vector; dimensions that are arbitrary, e.g. batch-size, is given as
 <code>NA</code>. Our network expects an input of shape
 <code>c(NA, 3)</code>, since the first layer was created as
-<code>nn_linear(in_features = 3)</code>. (Currently nothing is done with
-this shape information, but it could in the future be used for asserts,
-or maybe to concatenate <code>nn_graph</code>s.)</p>
+<code>nn_linear(in_features = 3, ...)</code>.</p>
 <p>If the <code>Graph</code> has multiple outputs, it is also possible
 to select a subset of outputs to use, or change the output order, by
 giving the <code>output_map</code> argument.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># the name of the single input is:</span></span>
 <span><span class="va">module_graph</span><span class="op">$</span><span class="va">input</span></span>
 <span><span class="co">#&gt;              name        train predict    op.id channel.name</span></span>
@@ -246,7 +259,7 @@ giving the <code>output_map</code> argument.</p>
 <span><span class="op">)</span></span></code></pre></div>
 <p>This module gives us the convenience of torch <code>nn_module</code>
 objects, e.g.:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">graph_module</span><span class="op">$</span><span class="va">children</span></span>
 <span><span class="co">#&gt; $modules</span></span>
 <span><span class="co">#&gt; An `nn_module` containing 31 parameters.</span></span>
@@ -255,46 +268,15 @@ objects, e.g.:</p>
 <span><span class="co">#&gt; • 0: &lt;nn_linear&gt; #16 parameters</span></span>
 <span><span class="co">#&gt; • 1: &lt;nn_sigmoid&gt; #0 parameters</span></span>
 <span><span class="co">#&gt; • 2: &lt;nn_linear&gt; #15 parameters</span></span>
-<span><span class="co">#&gt; • 3: &lt;nn_softmax&gt; #0 parameters</span></span>
-<span><span class="va">graph_module</span><span class="op">$</span><span class="va">parameters</span></span>
-<span><span class="co">#&gt; $modules.0.weight</span></span>
-<span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.3171  0.3882  0.0714</span></span>
-<span><span class="co">#&gt;  0.4656  0.1723  0.0869</span></span>
-<span><span class="co">#&gt; -0.3543 -0.0588  0.5269</span></span>
-<span><span class="co">#&gt;  0.1098 -0.0868  0.4818</span></span>
-<span><span class="co">#&gt; [ CPUFloatType{4,3} ][ requires_grad = TRUE ]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $modules.0.bias</span></span>
-<span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.0630</span></span>
-<span><span class="co">#&gt;  0.4908</span></span>
-<span><span class="co">#&gt;  0.0228</span></span>
-<span><span class="co">#&gt; -0.2287</span></span>
-<span><span class="co">#&gt; [ CPUFloatType{4} ][ requires_grad = TRUE ]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $modules.2.weight</span></span>
-<span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.2934  0.0517  0.2051 -0.2187</span></span>
-<span><span class="co">#&gt;  0.2993 -0.3165  0.3464 -0.0969</span></span>
-<span><span class="co">#&gt; -0.0060 -0.2028 -0.3546  0.2802</span></span>
-<span><span class="co">#&gt; [ CPUFloatType{3,4} ][ requires_grad = TRUE ]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $modules.2.bias</span></span>
-<span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.4964</span></span>
-<span><span class="co">#&gt;  0.2254</span></span>
-<span><span class="co">#&gt; -0.2362</span></span>
-<span><span class="co">#&gt; [ CPUFloatType{3} ][ requires_grad = TRUE ]</span></span></code></pre></div>
-<p>And it can be used to transform tensors just as any other torch
-<code>nn_module</code>:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<span><span class="co">#&gt; • 3: &lt;nn_softmax&gt; #0 parameters</span></span></code></pre></div>
+<p>And it can be used to transform tensors just as any other
+<code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">torch::nn_module</a></code>:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">graph_module</span><span class="op">(</span><span class="va">input</span><span class="op">)</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.4877  0.3518  0.1605</span></span>
-<span><span class="co">#&gt;  0.4970  0.3414  0.1616</span></span>
+<span><span class="co">#&gt;  0.5246  0.1818  0.2936</span></span>
+<span><span class="co">#&gt;  0.4920  0.1936  0.3144</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,3} ][ grad_fn = &lt;SoftmaxBackward0&gt; ]</span></span></code></pre></div>
-</div>
 </div>
 <div class="section level2">
 <h2 id="building-torch-models-for-tasks-using-pipeoptorch">Building Torch Models for Tasks using <code>PipeOpTorch</code><a class="anchor" aria-label="anchor" href="#building-torch-models-for-tasks-using-pipeoptorch"></a>
@@ -303,27 +285,26 @@ objects, e.g.:</p>
 <h3 id="modeldescriptor">
 <code>ModelDescriptor</code><a class="anchor" aria-label="anchor" href="#modeldescriptor"></a>
 </h3>
-<p>The [<code>PipeOpModule</code>] represents anf <code>nn_module</code>
+<p>The <code>PipeOpModule</code> represents an <code>nn_module</code>
 that is fixed for a specific tensor shape and which has no
 hyperparameters. When constructing a neural network using these
 operators, one has to take care to have the output shape of operations
 match the input shapes of the following operations.</p>
-<p>A complete <code>Graph</code> of matching
-[<code>PipeOpModule</code>]s can be constructed using operators that
-mostly inherit from [<code>PipeOpTorch</code>], making use of the <a href="#modeldescriptor"><code>ModelDescriptor</code></a> class. The <a href="#modeldescriptor"><code>ModelDescriptor</code></a> class contains
-a <code>Graph</code> of [<code>PipeOpModule</code>] and some more
-necessary meta-info. The [<code>PipeOpTorch</code>] transforms a <a href="#modeldescriptor"><code>ModelDescriptor</code></a> and adds more
-[<code>PipeOpModule</code>]s to the <code>Graph</code>.</p>
-<p><a href="#modeldescriptor"><code>ModelDescriptor</code></a>s always
-build up a [<code>Graph</code>] for a specific [<code>Task</code>]. The
-easiest way to initialize a proper <a href="#modeldescriptor"><code>ModelDescriptor</code></a> is to use the
-appropriate [<code>PipeOpTorchIngress</code>] <code>PipeOp</code> for a
-given datatype. <a href="#modeldescriptor"><code>ModelDescriptor</code></a>s always build
-up a [<code>Graph</code>] for a specific [<code>Task</code>]. The
-easiest way to initialize a proper <a href="#modeldescriptor"><code>ModelDescriptor</code></a> is to use the
-appropriate [<code>PipeOpTorchIngress</code>] <code>PipeOp</code> for a
-given datatype.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<p>A complete <code>Graph</code> of matching <code>PipeOpModule</code>s
+can be constructed using operators that mostly inherit from
+<code>PipeOpTorch</code>, making use of the <code>ModelDescriptor</code>
+class. The <code>ModelDescriptor</code> class contains a
+<code>Graph</code> of (mostly) <code>PipeOpModule</code>s and some other
+information. The <code>PipeOpTorch</code> transforms a
+<code>ModelDescriptor</code> and adds more <code>PipeOpModule</code>s to
+the <code>Graph</code>.</p>
+<p><code>ModelDescriptor</code>s always build up a <code>Graph</code>
+for a specific <code>Task</code>. The easiest way to initialize a proper
+<code>ModelDescriptor</code> is to use the appropriate
+<code>PipeOpTorchIngress</code> for a given datatype. Below we use
+<code>PipeOpTorchIngressNumeric</code>, which is is is used for numeric
+data.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">task</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span><span class="op">$</span><span class="fu">select</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">iris</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">po_torch_in</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num"</span><span class="op">)</span></span>
@@ -333,19 +314,19 @@ given datatype.</p>
 <span><span class="co">#&gt; &lt;ModelDescriptor: 1 ops&gt;</span></span>
 <span><span class="co">#&gt; * Ingress:  torch_ingress_num.input: [(NA,3)]</span></span>
 <span><span class="co">#&gt; * Task:  iris [classif]</span></span>
-<span><span class="co">#&gt; * Callbacks:  character(0)</span></span>
+<span><span class="co">#&gt; * Callbacks:  N/A</span></span>
 <span><span class="co">#&gt; * Optimizer:  N/A</span></span>
 <span><span class="co">#&gt; * Loss:  N/A</span></span>
 <span><span class="co">#&gt; * .pointer:  torch_ingress_num.output [(NA,3)]</span></span></code></pre></div>
-<p>The <a href="#modeldescriptor"><code>ModelDescriptor</code></a> is an
-S3 object that contains a [<code>Graph</code>], information about how to
-generate data (<code>$ingress</code> and <code>$task</code>), some
-further tags about how to build a model that are unrelated to
-architecture (<code>$optimizer</code>, <code>$loss</code> and
+<p>The <code>ModelDescriptor</code> is an S3 object that contains a
+<code>Graph</code>, information about how to generate data
+(<code>$ingress</code> and <code>$task</code>), some further tags about
+how to build a model that are unrelated to architecture
+(<code>$optimizer</code>, <code>$loss</code> and
 <code>$callbacks</code>) as well as all further information necessary to
 extend that graph along a given output (<code>$.pointer</code> and
 <code>$.pointer_shape</code>).</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">unclass</a></span><span class="op">(</span><span class="va">md</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $graph</span></span>
 <span><span class="co">#&gt; Graph with 1 PipeOps:</span></span>
@@ -379,12 +360,11 @@ extend that graph along a given output (<code>$.pointer</code> and
 <span><span class="co">#&gt; $.pointer_shape</span></span>
 <span><span class="co">#&gt; [1] NA  3</span></span></code></pre></div>
 <p>The <code>$.pointer</code> identifies the output of the
-<code>$graph</code> that [<code>PipeOpTorch</code>] will extend. Piping
-this <a href="#modeldescriptor"><code>ModelDescriptor</code></a> through
-[<code>PipeOpTorchLinear</code>], for example, adds a
-[<code>PipeOpModule</code>] wrapping a <code>torch</code>
-<code>nn_linear</code>.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code>$graph</code> that <code>PipeOpTorch</code> will extend. Piping
+this <code>ModelDescriptor</code> through
+<code>PipeOpTorchLinear</code>, for example, adds a
+<code>PipeOpModule</code> wrapping a <code><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">torch::nn_linear</a></code>.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">po_torch_linear</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="va">md</span> <span class="op">=</span> <span class="va">po_torch_linear</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">md</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
@@ -394,41 +374,39 @@ this <a href="#modeldescriptor"><code>ModelDescriptor</code></a> through
 <span><span class="co">#&gt;  torch_ingress_num &lt;&lt;UNTRAINED&gt;&gt; nn_linear                  </span></span>
 <span><span class="co">#&gt;          nn_linear &lt;&lt;UNTRAINED&gt;&gt;           torch_ingress_num</span></span></code></pre></div>
 <p>The <code>$.pointer</code> is now updated to identify the output of
-that [<code>PipeOpModule</code>], and the <code>$.pointer_shape</code>
+that <code>PipeOpModule</code>, and the <code>$.pointer_shape</code>
 shows that the shape has changed to 4 units (was 3 for the input
 before).</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">md</span><span class="op">$</span><span class="va">.pointer</span></span>
 <span><span class="co">#&gt; [1] "nn_linear" "output"</span></span>
 <span><span class="va">md</span><span class="op">$</span><span class="va">.pointer_shape</span></span>
 <span><span class="co">#&gt; [1] NA  4</span></span></code></pre></div>
-<p>The [<code><a href="../reference/model_descriptor_to_module.html">model_descriptor_to_module()</a></code>] function converts
-this to an [<code>nn_graph</code>], it is a functional
-<code>torch</code> <code>nn_module</code>.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<p>The <code><a href="../reference/model_descriptor_to_module.html">model_descriptor_to_module()</a></code> function converts this
+to an <code>nn_graph</code>, it is a functional <code>torch</code>
+<code>nn_module</code>.</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">small_module</span> <span class="op">=</span> <span class="fu"><a href="../reference/model_descriptor_to_module.html">model_descriptor_to_module</a></span><span class="op">(</span><span class="va">md</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">md</span><span class="op">$</span><span class="va">.pointer</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">small_module</span><span class="op">(</span><span class="va">input</span><span class="op">)</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.8132  0.7307 -0.2773  0.2026</span></span>
-<span><span class="co">#&gt; -0.0124  0.1464 -0.0160 -0.2584</span></span>
+<span><span class="co">#&gt;  0.0204 -0.9230  0.1988  0.0545</span></span>
+<span><span class="co">#&gt;  0.7994 -0.6238 -0.4679  0.2886</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,4} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="using-modeldescriptor-to-get-data">Using <a href="#modeldescriptor"><code>ModelDescriptor</code></a> to
-get Data<a class="anchor" aria-label="anchor" href="#using-modeldescriptor-to-get-data"></a>
+<h3 id="using-modeldescriptor-to-get-data">Using <code>ModelDescriptor</code> to get Data<a class="anchor" aria-label="anchor" href="#using-modeldescriptor-to-get-data"></a>
 </h3>
-<p>The <a href="#modeldescriptor"><code>ModelDescriptor</code></a> does
-not only represent the <code>Graph</code> from which a
-<code>nn_module</code> is created, but also the way in which the
-<code>Task</code> is is processed to get input batches. A
-<code>torch</code> <code>dataset</code> can be created by calling
+<p>The <code>ModelDescriptor</code> does not only represent the
+<code>Graph</code> from which a <code>nn_module</code> is created, but
+also the way in which the <code>Task</code> is is processed to get input
+batches. A <code><a href="https://rdrr.io/pkg/torch/man/dataset.html" class="external-link">torch::dataset</a></code> can be created by calling
 <code><a href="../reference/task_dataset.html">task_dataset()</a></code>; both the <code>task</code> and the
 <code>feature_ingress_tokens</code> arguments can be retrieved from the
 <code>ModelDescriptor</code>. The <code>target_batchgetter</code> needs
 to be created extra (if necessary), since it depends on the ultimate
 machine learning model, which we have not looked at so far.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">td</span> <span class="op">=</span> <span class="fu"><a href="../reference/task_dataset.html">task_dataset</a></span><span class="op">(</span></span>
 <span>  task <span class="op">=</span> <span class="va">md</span><span class="op">$</span><span class="va">task</span>,</span>
 <span>  feature_ingress_tokens <span class="op">=</span> <span class="va">md</span><span class="op">$</span><span class="va">ingress</span>,</span>
@@ -454,7 +432,7 @@ an <code>$y</code> slot, the latter of which is not used, to account for
 possible target batches. The <code>$x</code> slot is also a
 <code>list</code>, since it should be able to handle NNs with multiple
 inputs (see below).</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">batch</span> <span class="op">=</span> <span class="va">td</span><span class="op">$</span><span class="fu">.getbatch</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span></span>
 <span><span class="va">batch</span></span>
 <span><span class="co">#&gt; $x</span></span>
@@ -474,9 +452,9 @@ inputs (see below).</p>
 <span></span>
 <span><span class="fu">small_module</span><span class="op">(</span><span class="va">batch</span><span class="op">$</span><span class="va">x</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.2621 -0.6316  2.7797  1.0027</span></span>
-<span><span class="co">#&gt;  0.0487 -0.6941  2.5833  0.8254</span></span>
-<span><span class="co">#&gt;  0.2403 -0.5618  2.5335  0.9089</span></span>
+<span><span class="co">#&gt;  2.8439  0.8784 -1.7882  0.5675</span></span>
+<span><span class="co">#&gt;  2.6465  0.6920 -1.8769  0.5312</span></span>
+<span><span class="co">#&gt;  2.6363  0.7676 -1.6739  0.5129</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{3,4} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -484,47 +462,47 @@ inputs (see below).</p>
 </h3>
 <p>The sequential NN from above can easily be implemented as
 follows:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">graph_generator</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">4</span>, id <span class="op">=</span> <span class="st">"linear1"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_sigmoid"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
-<span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">3</span>, id <span class="op">=</span> <span class="st">"linear2"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
-<span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_softmax"</span>, dim <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">3</span>, id <span class="op">=</span> <span class="st">"linear2"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_softmax"</span>, dim <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p>Note how the second <code>nn_linear</code> does not need to be
 informed about the output dimension of the first <code>nn_linear</code>,
-since the <a href="#modeldescriptor"><code>ModelDescriptor</code></a>
-that is passed along the <code>Graph</code> edges knows this info (in
-the <code>$.pointer_shape</code> slot).</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+since the <code>ModelDescriptor</code> that is passed along the
+<code>Graph</code> edges knows this info (in the
+<code>$.pointer_shape</code> slot).</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">md_sequential</span> <span class="op">=</span> <span class="va">graph_generator</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
 <span><span class="va">graph_module</span> <span class="op">=</span> <span class="fu"><a href="../reference/model_descriptor_to_module.html">model_descriptor_to_module</a></span><span class="op">(</span><span class="va">md_sequential</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">md_sequential</span><span class="op">$</span><span class="va">.pointer</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">graph_module</span><span class="op">(</span><span class="va">input</span><span class="op">)</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.2059  0.5728  0.2213</span></span>
-<span><span class="co">#&gt;  0.1622  0.6328  0.2049</span></span>
+<span><span class="co">#&gt;  0.2827  0.3097  0.4076</span></span>
+<span><span class="co">#&gt;  0.2921  0.2994  0.4085</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,3} ][ grad_fn = &lt;SoftmaxBackward0&gt; ]</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="building-more-interesting-nns">Building more interesting NNs<a class="anchor" aria-label="anchor" href="#building-more-interesting-nns"></a>
 </h3>
-<p>The selling-point of <code>mlr3pipelines</code> is its ability to
-easily represent computational <code>Graph</code>s. The <a href="#modeldescriptor"><code>ModelDescriptor</code></a> /
-[<code>PipeOpTorch</code>] setup is built to make full use of this
-functionality. It is possible to have multiple inputs into a NN by using
-multiple [<code>PipeOpTorchIngress</code>] inputs, it is possible to
-have parallel and alternative path branching, and it is possible to have
-multiple outputs.</p>
+<p>One of the main features of <code>mlr3pipelines</code> is its ability
+to easily represent computational <code>Graph</code>s. The
+<code>ModelDescriptor</code> / <code>PipeOpTorch</code> setup is built
+to make full use of this functionality. It is possible to have multiple
+inputs into a NN by using multiple <code>PipeOpTorchIngress</code>
+inputs, it is possible to have parallel and alternative path branching,
+and it is possible to have multiple outputs.</p>
 <p>Consider the following (a bit nonsensical) network that operates
 differently on the <code>"Petal"</code> than on the <code>"Sepal"</code>
-features of <code>tsk("iris")</code>. We manually split the task here,
+features of <code>tsk("iris")</code> We manually split the task here,
 further down it is shown that the wholly integrated
 <code>mlr3pipelines</code> pipeline can do this automatically.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">iris_petal</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span><span class="op">$</span><span class="fu">select</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Petal.Length"</span>, <span class="st">"Petal.Width"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">iris_sepal</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span><span class="op">$</span><span class="fu">select</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sepal.Length"</span>, <span class="st">"Sepal.Width"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">graph_sepal</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num"</span>, id <span class="op">=</span> <span class="st">"sepal.in"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">4</span>, id <span class="op">=</span> <span class="st">"linear1"</span><span class="op">)</span></span>
 <span></span>
@@ -548,12 +526,12 @@ further down it is shown that the wholly integrated
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_merge_cat"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="va">graph_common</span></span>
 <span></span>
-<span><span class="va">graph_iris</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="pipeop_torch_files/figure-html/unnamed-chunk-25-1.png" width="700"></p>
+<span><span class="va">graph_iris</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>horizontal <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="../docs/articles/pipeop_torch_files/figure-html/unnamed-chunk-26-1.png" width="100%"></p>
 <p>We can use this to create a neural network for the <code>iris</code>
 tasks we created above. We set the <code>$keep_results</code> debug flag
 here so we can do some inspection about what is happening:</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">graph_iris</span><span class="op">$</span><span class="va">param_set</span><span class="op">$</span><span class="va">values</span><span class="op">$</span><span class="va">branch.selection</span> <span class="op">=</span> <span class="st">"relu"</span></span>
 <span></span>
 <span><span class="va">graph_iris</span><span class="op">$</span><span class="va">keep_results</span> <span class="op">=</span> <span class="cn">TRUE</span></span>
@@ -568,7 +546,7 @@ here so we can do some inspection about what is happening:</p>
 <span><span class="co">#&gt; &lt;ModelDescriptor: 11 ops&gt;</span></span>
 <span><span class="co">#&gt; * Ingress:  sepal.in.input: [(NA,2)], petal.in.input: [(NA,2)]</span></span>
 <span><span class="co">#&gt; * Task:  iris [classif]</span></span>
-<span><span class="co">#&gt; * Callbacks:  character(0)</span></span>
+<span><span class="co">#&gt; * Callbacks:  N/A</span></span>
 <span><span class="co">#&gt; * Optimizer:  N/A</span></span>
 <span><span class="co">#&gt; * Loss:  N/A</span></span>
 <span><span class="co">#&gt; * .pointer:  lin_out.output [(NA,1)]</span></span>
@@ -577,23 +555,23 @@ here so we can do some inspection about what is happening:</p>
 <span><span class="co">#&gt; &lt;ModelDescriptor: 11 ops&gt;</span></span>
 <span><span class="co">#&gt; * Ingress:  sepal.in.input: [(NA,2)], petal.in.input: [(NA,2)]</span></span>
 <span><span class="co">#&gt; * Task:  iris [classif]</span></span>
-<span><span class="co">#&gt; * Callbacks:  character(0)</span></span>
+<span><span class="co">#&gt; * Callbacks:  N/A</span></span>
 <span><span class="co">#&gt; * Optimizer:  N/A</span></span>
 <span><span class="co">#&gt; * Loss:  N/A</span></span>
 <span><span class="co">#&gt; * .pointer:  nn_softmax.output [(NA,3)]</span></span></code></pre></div>
 <p>We make multiple observations here:</p>
 <ol style="list-style-type: decimal">
 <li>
-<p>We can observe how the <a href="#modeldescriptor"><code>ModelDescriptor</code></a> grows as it is
-passed along the edges of <code>graph_iris</code>. Note that the
-<code>$graph</code> slot of that <a href="#modeldescriptor"><code>ModelDescriptor</code></a> is often
+<p>We can observe how the <code>ModelDescriptor</code> grows as it
+is passed along the edges of <code>graph_iris</code>. Note that the
+<code>$graph</code> slot of that <code>ModelDescriptor</code> is often
 updated by-reference, so by the time we inspect intermediate results,
 they may contain the complete graph. However, see how the
 <code>$ingress</code>, <code>$.pointer</code> and
-<code>$.pointer_shape</code> of the <a href="#modeldescriptor"><code>ModelDescriptor</code></a>s that take the
-<code>sepal.in</code>-path differ from the ones that take the
+<code>$.pointer_shape</code> of the <code>ModelDescriptor</code>s that
+take the <code>sepal.in</code>-path differ from the ones that take the
 <code>petal.in</code>-path:</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># sepal.in path</span></span>
 <span><span class="va">graph_iris</span><span class="op">$</span><span class="va">pipeops</span><span class="op">$</span><span class="va">linear1</span><span class="op">$</span><span class="va">.result</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">ingress</span></span>
 <span><span class="co">#&gt; $sepal.in.input</span></span>
@@ -611,10 +589,11 @@ they may contain the complete graph. However, see how the
 <span><span class="co">#&gt; [1] "linear3" "output"</span></span>
 <span><span class="va">graph_iris</span><span class="op">$</span><span class="va">pipeops</span><span class="op">$</span><span class="va">linear3</span><span class="op">$</span><span class="va">.result</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">.pointer_shape</span></span>
 <span><span class="co">#&gt; [1] NA  5</span></span></code></pre></div>
-<p><code>po("nn_merge_cat")</code> unites the two <a href="#modeldescriptor"><code>ModelDescriptor</code></a>s and contains
-the common ingress. The <code>.pointer_shape</code> now reflects the
-output of the “cat”-operation: the 2nd dimension is added up:</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<p><code>po("nn_merge_cat")</code> unites the two
+<code>ModelDescriptor</code>s and contains the common ingress. The
+<code>.pointer_shape</code> now reflects the output of the
+“cat”-operation: the 2nd dimension is added up:</p>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">graph_iris</span><span class="op">$</span><span class="va">pipeops</span><span class="op">$</span><span class="va">nn_merge_cat</span><span class="op">$</span><span class="va">.result</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">ingress</span></span>
 <span><span class="co">#&gt; $sepal.in.input</span></span>
 <span><span class="co">#&gt; Ingress: Task[Sepal.Length,Sepal.Width] --&gt; Tensor(NA, 2)</span></span>
@@ -625,16 +604,16 @@ output of the “cat”-operation: the 2nd dimension is added up:</p>
 <span><span class="co">#&gt; [1] NA  9</span></span></code></pre></div>
 </li>
 <li>
-<p>Multiple <a href="#modeldescriptor"><code>ModelDescriptor</code></a>s were created,
-since the <code>graph_iris</code> has multiple outpus. This makes it
-possible to create a neural network with multiple outputs. We need to
-unite the outputs of <code>graph_iris</code> using
-[<code><a href="../reference/model_descriptor_union.html">model_descriptor_union()</a></code>] before we can pass it to
-[<code><a href="../reference/model_descriptor_to_module.html">model_descriptor_to_module()</a></code>]. We need to collect all
+<p>Multiple <code>ModelDescriptor</code>s were created, since the
+<code>graph_iris</code> has multiple outpus. This makes it possible to
+create a neural network with multiple outputs. We need to unite the
+outputs of <code>graph_iris</code> using
+<code><a href="../reference/model_descriptor_union.html">model_descriptor_union()</a></code> before we can pass it to
+<code><a href="../reference/model_descriptor_to_module.html">model_descriptor_to_module()</a></code>. We need to collect all
 <code>output_pointers</code> separately.</p>
-<p><code>list_output</code> must be set to <code>TRUE</code> since the
-module has multiple outputs.</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<p>The parameter <code>list_output</code> must be set to
+<code>TRUE</code> since the module has multiple outputs.</p>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">iris_mds_union</span> <span class="op">=</span> <span class="fu"><a href="../reference/model_descriptor_union.html">model_descriptor_union</a></span><span class="op">(</span><span class="va">iris_mds</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="va">iris_mds</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">output_pointers</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">iris_mds</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">.pointer</span>, <span class="va">iris_mds</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">.pointer</span><span class="op">)</span></span>
 <span><span class="va">output_pointers</span></span>
@@ -647,26 +626,26 @@ module has multiple outputs.</p>
 </li>
 <li>
 <p>The <code>PipeOpBranch</code> disappears in the resulting
-<code>Graph</code> of [<code>PipeOpModule</code>] in the
+<code>Graph</code> of <code>PipeOpModule</code> in the
 <code>iris_module</code>. This is because only the
-[<code>PipeOpTorch</code>]s in the <code>graph_iris</code> add anything
-to the <a href="#modeldescriptor"><code>ModelDescriptor</code></a>s. The
-branch is interpeted when <code>graph_iris</code> runs, and only the
-<code>nn_relu</code> path is followed. The <code>iris_module</code>
-therefore contains a <code>Graph</code> that does “relu” activation:</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">iris_module</span><span class="op">$</span><span class="va">graph</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="pipeop_torch_files/figure-html/unnamed-chunk-30-1.png" width="700"></p>
+<code>PipeOpTorch</code>s in the <code>graph_iris</code> add anything to
+the <code>ModelDescriptor</code>s. The branch is interpeted when
+<code>graph_iris</code> runs, and only the <code>nn_relu</code> path is
+followed. The <code>iris_module</code> therefore contains a
+<code>Graph</code> that does “relu” activation:</p>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">iris_module</span><span class="op">$</span><span class="va">graph</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>horizontal <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="../docs/articles/pipeop_torch_files/figure-html/unnamed-chunk-32-1.png" width="100%"></p>
 </li>
 <li>
-<p>The <a href="#modeldescriptor"><code>ModelDescriptor</code></a>’s
-<code>$task</code> slot contains a <code>Task</code> with all features
-that are used to create the input data for all NN inputs. It can be
-given to <code><a href="../reference/task_dataset.html">task_dataset()</a></code>, along with the
-<code>$ingress</code>, to create a <code>torch</code>
-<code>dataset</code> that creates all batches. As above, any output of
-<code>graph_iris</code> can be used:</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<p>The <code>ModelDescriptor</code>’s <code>$task</code> slot
+contains a <code>Task</code> with all features that are used to create
+the input data for all NN inputs. It can be given to
+<code><a href="../reference/task_dataset.html">task_dataset()</a></code>, along with the <code>$ingress</code>, to
+create a <code>torch</code> <code>dataset</code> that creates all
+batches. As above, any output of <code>graph_iris</code> can be
+used:</p>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">iris_mds_union</span><span class="op">$</span><span class="va">task</span>  <span class="co"># contains all features</span></span>
 <span><span class="co">#&gt; &lt;TaskClassif:iris&gt; (150 x 5): Iris Flowers</span></span>
 <span><span class="co">#&gt; * Target: Species</span></span>
@@ -707,7 +686,7 @@ given to <code><a href="../reference/task_dataset.html">task_dataset()</a></code
 call it with the first two rows of iris, but set the debug
 <code>$keep_results</code> flag so we can inspect what is happening in
 the <code>nn_module</code>’s <code>$graph</code>:</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">iris_module</span><span class="op">$</span><span class="va">graph</span><span class="op">$</span><span class="va">keep_results</span> <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span></span>
 <span><span class="fu">iris_module</span><span class="op">(</span></span>
@@ -716,39 +695,39 @@ the <code>nn_module</code>’s <code>$graph</code>:</p>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; $lin_out.output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; -1.3041</span></span>
-<span><span class="co">#&gt; -1.1733</span></span>
+<span><span class="co">#&gt;  1.5432</span></span>
+<span><span class="co">#&gt;  1.4614</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,1} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $nn_softmax.output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.0869  0.1889  0.7243</span></span>
-<span><span class="co">#&gt;  0.1019  0.1960  0.7021</span></span>
+<span><span class="co">#&gt;  0.5625  0.1420  0.2955</span></span>
+<span><span class="co">#&gt;  0.5634  0.1458  0.2908</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,3} ][ grad_fn = &lt;SoftmaxBackward0&gt; ]</span></span></code></pre></div>
 <p>The first linear layer that takes “Sepal” input
 (<code>"linear1"</code>) creates a 2x4 tensor (batch size 2, 4 units),
 while the <code>"linear3"</code> layer has 2x5 output:</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">iris_module</span><span class="op">$</span><span class="va">graph</span><span class="op">$</span><span class="va">pipeops</span><span class="op">$</span><span class="va">linear1</span><span class="op">$</span><span class="va">.result</span></span>
 <span><span class="co">#&gt; $output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; -1.0706  2.8818 -0.6878  4.5233</span></span>
-<span><span class="co">#&gt; -1.2103  2.5455 -0.8065  4.2102</span></span>
+<span><span class="co">#&gt;  0.5674  0.5551 -1.7825  4.3418</span></span>
+<span><span class="co">#&gt;  0.7494  0.4302 -1.8017  4.0218</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,4} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span>
 <span><span class="va">iris_module</span><span class="op">$</span><span class="va">graph</span><span class="op">$</span><span class="va">pipeops</span><span class="op">$</span><span class="va">linear3</span><span class="op">$</span><span class="va">.result</span></span>
 <span><span class="co">#&gt; $output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.0498 -0.4513  0.1802  0.5092  0.0133</span></span>
-<span><span class="co">#&gt;  0.0498 -0.4513  0.1802  0.5092  0.0133</span></span>
+<span><span class="co">#&gt;  0.6042  0.2406  0.2197  0.8726 -0.0195</span></span>
+<span><span class="co">#&gt;  0.6042  0.2406  0.2197  0.8726 -0.0195</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,5} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span></code></pre></div>
 <p>We observe that the <code>po("nn_merge_cat")</code> concatenates
 these, as expected:</p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">iris_module</span><span class="op">$</span><span class="va">graph</span><span class="op">$</span><span class="va">pipeops</span><span class="op">$</span><span class="va">nn_merge_cat</span><span class="op">$</span><span class="va">.result</span></span>
 <span><span class="co">#&gt; $output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; -1.0706  2.8818 -0.6878  4.5233  0.0498 -0.4513  0.1802  0.5092  0.0133</span></span>
-<span><span class="co">#&gt; -1.2103  2.5455 -0.8065  4.2102  0.0498 -0.4513  0.1802  0.5092  0.0133</span></span>
+<span><span class="co">#&gt;  0.5674  0.5551 -1.7825  4.3418  0.6042  0.2406  0.2197  0.8726 -0.0195</span></span>
+<span><span class="co">#&gt;  0.7494  0.4302 -1.8017  4.0218  0.6042  0.2406  0.2197  0.8726 -0.0195</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,9} ][ grad_fn = &lt;CatBackward0&gt; ]</span></span></code></pre></div>
 </li>
 </ol>
@@ -757,69 +736,61 @@ these, as expected:</p>
 <div class="section level2">
 <h2 id="building-torch-learners">Building Torch Learners<a class="anchor" aria-label="anchor" href="#building-torch-learners"></a>
 </h2>
-<div class="section level3">
-<h3 id="optimizer-and-loss">Optimizer and Loss<a class="anchor" aria-label="anchor" href="#optimizer-and-loss"></a>
-</h3>
 <p>We have now seen how NN <code>Graph</code>s of
-[<code>PipeOpModule</code>] are created and turned into
-<code>nn_module</code>s. Using [<code>PipeOpTorch</code>] even creates
-<a href="#modeldescriptor"><code>ModelDescriptor</code></a> objects that
-contain additional info about how batch tensors are extracted from
-<code>Task</code>s. For a complete <code>Learner</code>, it is still
-necessary to define the loss-function used for optimization, and the
-optimizer itself.</p>
-<p>Optimizers are represented as [<code>TorchOptimizer</code>] objects –
-they wrap a <code>torch</code> <code>torch_optimizer_generator</code>
-object but also provide a <code>ParamSet</code>. They can be obtained
-from a <code>Dictionary</code> using the <code>t_opt</code> quick-access
-function.</p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<code>PipeOpModule</code> are created and turned into
+<code>nn_module</code>s. Using <code>PipeOpTorch</code> even creates
+<code>ModelDescriptor</code> objects that contain additional info about
+how batch tensors are extracted from <code>Task</code>s. For a complete
+<code>Learner</code>, it is still necessary to define the loss-function
+used for optimization, the optimizer, and optionally some callbacks. We
+have already covered their class representations –
+<code>TorchLoss</code>, <code>TorchOptimizer</code>,
+<code>TorchCallbacks</code>, in the <em>Get Started</em> vignette. Here
+we use adam as the optimizer, cross-entropy as the loss function, and
+the history callback.</p>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">adam</span> <span class="op">=</span> <span class="fu"><a href="../reference/t_opt.html">t_opt</a></span><span class="op">(</span><span class="st">"adam"</span>, lr <span class="op">=</span> <span class="fl">0.02</span><span class="op">)</span></span>
 <span><span class="va">adam</span></span>
 <span><span class="co">#&gt; &lt;TorchOptimizer:adam&gt; Adaptive Moment Estimation</span></span>
 <span><span class="co">#&gt; * Generator: optim_adam</span></span>
 <span><span class="co">#&gt; * Parameters: lr=0.02</span></span>
 <span><span class="co">#&gt; * Packages: torch</span></span>
-<span><span class="va">adam</span><span class="op">$</span><span class="va">param_set</span></span>
-<span><span class="co">#&gt; &lt;ParamSet&gt;</span></span>
-<span><span class="co">#&gt;              id    class lower upper nlevels     default value</span></span>
-<span><span class="co">#&gt; 1:           lr ParamDbl 0e+00   Inf     Inf       0.001  0.02</span></span>
-<span><span class="co">#&gt; 2:        betas ParamUty    NA    NA     Inf 0.900,0.999      </span></span>
-<span><span class="co">#&gt; 3:          eps ParamDbl 1e-16 1e-04     Inf       1e-08      </span></span>
-<span><span class="co">#&gt; 4: weight_decay ParamDbl 0e+00 1e+00     Inf           0      </span></span>
-<span><span class="co">#&gt; 5:      amsgrad ParamLgl    NA    NA       2       FALSE</span></span></code></pre></div>
-<p>Loss-functions work the same: [<code>TorchLoss</code>] are obtained
-from a <code>Dictionary</code> using <code><a href="../reference/t_loss.html">t_loss()</a></code> and they have
-<code>ParamSet</code>s.</p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">xe</span> <span class="op">=</span> <span class="fu"><a href="../reference/t_loss.html">t_loss</a></span><span class="op">(</span><span class="st">"cross_entropy"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">xe</span> <span class="op">=</span> <span class="fu"><a href="../reference/t_loss.html">t_loss</a></span><span class="op">(</span><span class="st">"cross_entropy"</span><span class="op">)</span></span>
 <span><span class="va">xe</span></span>
 <span><span class="co">#&gt; &lt;TorchLoss:cross_entropy&gt; Cross Entropy</span></span>
 <span><span class="co">#&gt; * Generator: nn_cross_entropy_loss</span></span>
 <span><span class="co">#&gt; * Parameters: list()</span></span>
 <span><span class="co">#&gt; * Packages: torch</span></span>
-<span><span class="co">#&gt; * Task Types: classif</span></span></code></pre></div>
-</div>
+<span><span class="co">#&gt; * Task Types: classif</span></span>
+<span></span>
+<span><span class="va">history</span> <span class="op">=</span> <span class="fu"><a href="../reference/t_clbk.html">t_clbk</a></span><span class="op">(</span><span class="st">"history"</span><span class="op">)</span></span>
+<span><span class="va">history</span></span>
+<span><span class="co">#&gt; &lt;TorchCallback:history&gt; History</span></span>
+<span><span class="co">#&gt; * Generator: CallbackSetHistory</span></span>
+<span><span class="co">#&gt; * Parameters: list()</span></span>
+<span><span class="co">#&gt; * Packages: mlr3torch,torch</span></span></code></pre></div>
 <div class="section level3">
-<h3 id="learnertorchmodel">[<code>LearnerTorchModel</code>]<a class="anchor" aria-label="anchor" href="#learnertorchmodel"></a>
+<h3 id="learnertorchmodel">
+<code>LearnerTorchModel</code><a class="anchor" aria-label="anchor" href="#learnertorchmodel"></a>
 </h3>
-<p>[<code>LearnerTorchModel</code>] represents a supervised model
+<p><code>LearnerTorchModel</code> represents a supervised model
 (regression or classification) using <code>torch</code> NNs. It needs a
 <code>nn_module</code>, as well as a list of
-[<code>TorchIngressToken</code>] that define how batches are created
-from a <code>Task</code>. [<code>TorchIngressToken</code>] hard-code the
+<code>TorchIngressToken</code> that define how batches are created from
+a <code>Task</code>. <code>TorchIngressToken</code> hard-code the
 column-names of a <code>Task</code> that are used for data-input, the
 <code>Learner</code> created like this therefore only works for the
 specific <code>Task</code> created. (Generally the full
 <code>mlr3pipelines</code>-UI should be used if this is a problem, see
 below.) The following uses the sequential NN from above:</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">lr_sequential</span> <span class="op">=</span> <span class="va"><a href="../reference/mlr_learners_torch_model.html">LearnerTorchModel</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">lr_sequential</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"classif.torch_model"</span>,</span>
 <span>  task_type <span class="op">=</span> <span class="st">"classif"</span>,</span>
 <span>  network <span class="op">=</span> <span class="fu"><a href="../reference/model_descriptor_to_module.html">model_descriptor_to_module</a></span><span class="op">(</span><span class="va">md_sequential</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">md_sequential</span><span class="op">$</span><span class="va">.pointer</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  ingress_tokens <span class="op">=</span> <span class="va">md_sequential</span><span class="op">$</span><span class="va">ingress</span>,</span>
 <span>  optimizer <span class="op">=</span> <span class="va">adam</span>,</span>
-<span>  callbacks <span class="op">=</span> <span class="fu"><a href="../reference/t_clbk.html">t_clbk</a></span><span class="op">(</span><span class="st">"progress"</span><span class="op">)</span>,</span>
+<span>  callbacks <span class="op">=</span> <span class="va">history</span>,</span>
 <span>  loss <span class="op">=</span> <span class="va">xe</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -839,10 +810,8 @@ below.) The following uses the sequential NN from above:</p>
 <span><span class="co">#&gt; * Properties: featureless, hotstart_backward, hotstart_forward,</span></span>
 <span><span class="co">#&gt;   importance, loglik, missings, multiclass, oob_error,</span></span>
 <span><span class="co">#&gt;   selected_features, twoclass, weights</span></span></code></pre></div>
-<p>Before training the model, we set some more hyperparameters. Among
-others, we use a [<code>TorchCallback</code>] that prints progress and
-validation losses that we request.</p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<p>Before training the model, we set some more hyperparameters.</p>
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lr_sequential</span><span class="op">$</span><span class="va">param_set</span><span class="op">$</span><span class="fu">set_values</span><span class="op">(</span></span>
 <span>  batch_size <span class="op">=</span> <span class="fl">50</span>,</span>
 <span>  epochs <span class="op">=</span> <span class="fl">50</span>,</span>
@@ -856,16 +825,16 @@ validation losses that we request.</p>
 plot the response surface along the
 <code>Sepal.Width = mean(Sepal.Width)</code> plane, along with the
 ground-truth values:</p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://r-datatable.com" class="external-link">"data.table"</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ggplot2.tidyverse.org" class="external-link">"ggplot2"</a></span><span class="op">)</span></span>
+<span></span>
 <span><span class="va">newdata</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>Sepal.Width <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">iris</span><span class="op">$</span><span class="va">Sepal.Width</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/J.html" class="external-link">CJ</a></span><span class="op">(</span></span>
 <span>  Sepal.Length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">iris</span><span class="op">$</span><span class="va">Sepal.Length</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">iris</span><span class="op">$</span><span class="va">Sepal.Length</span><span class="op">)</span>, length.out <span class="op">=</span> <span class="fl">30</span><span class="op">)</span>,</span>
 <span>  Petal.Length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">iris</span><span class="op">$</span><span class="va">Petal.Length</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">iris</span><span class="op">$</span><span class="va">Petal.Length</span><span class="op">)</span>, length.out <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span>
 <span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">predictions</span> <span class="op">=</span> <span class="va">lr_sequential</span><span class="op">$</span><span class="fu">predict_newdata</span><span class="op">(</span><span class="va">newdata</span><span class="op">)</span></span>
-<span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ggplot2.tidyverse.org" class="external-link">"ggplot2"</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">plot_predictions</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">predictions</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">newdata</span>, Species <span class="op">=</span> <span class="va">predictions</span><span class="op">$</span><span class="va">response</span><span class="op">)</span>,</span>
@@ -878,35 +847,35 @@ ground-truth values:</p>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="fu">plot_predictions</span><span class="op">(</span><span class="va">predictions</span><span class="op">)</span></span></code></pre></div>
-<p><img src="pipeop_torch_files/figure-html/unnamed-chunk-39-1.png" width="700"></p>
+<p><img src="pipeop_torch_files/figure-html/unnamed-chunk-40-1.png" width="700"></p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="torch-learner-pipelines">Torch Learner Pipelines<a class="anchor" aria-label="anchor" href="#torch-learner-pipelines"></a>
 </h2>
-<p>The model shown above is constructed using the <a href="#modeldescriptor"><code>ModelDescriptor</code></a> that is
-generated from a <code>Graph</code> of [<code>PipeOpTorch</code>]
-operators. The model shown above is constructed using the <a href="#modeldescriptor"><code>ModelDescriptor</code></a> that is
-generated from a <code>Graph</code> of [<code>PipeOpTorch</code>]
-operators. The <a href="#modeldescriptor"><code>ModelDescriptor</code></a> furthermore
-contains the <code>Task</code> to which it pertains. This makes it
-possible to use it to create a NN model that gets trained right away,
-using [<code>PipeOpTorchModelClassif</code>]. The only missing
-prerequisite now is to add the desired [<code>TorchOptimizer</code>] and
-[<code>TorchLoss</code>] information to the <a href="#modeldescriptor"><code>ModelDescriptor</code></a>.</p>
+<p>The model shown above is constructed using the
+<code>ModelDescriptor</code> that is generated from a <code>Graph</code>
+of <code>PipeOpTorch</code> operators. The <code>ModelDescriptor</code>
+furthermore contains the <code>Task</code> to which it pertains. This
+makes it possible to use it to create a NN model that gets trained right
+away, using <code>PipeOpTorchModelClassif</code>. The only missing
+prerequisite now is to add the desired <code>TorchOptimizer</code> and
+<code>TorchLoss</code> information to the
+<code>ModelDescriptor</code>.</p>
 <div class="section level3">
-<h3 id="adding-optimizer-loss-and-callback-meta-info-to-modeldescriptor">Adding Optimizer, Loss and Callback Meta-Info to <a href="#modeldescriptor"><code>ModelDescriptor</code></a><a class="anchor" aria-label="anchor" href="#adding-optimizer-loss-and-callback-meta-info-to-modeldescriptor"></a>
+<h3 id="adding-optimizer-loss-and-callback-meta-info-to-modeldescriptor">Adding Optimizer, Loss and Callback Meta-Info to
+<code>ModelDescriptor</code><a class="anchor" aria-label="anchor" href="#adding-optimizer-loss-and-callback-meta-info-to-modeldescriptor"></a>
 </h3>
-<p>Remember that <a href="#modeldescriptor"><code>ModelDescriptor</code></a> has the
+<p>Remember that <code>ModelDescriptor</code> has the
 <code>$optimizer</code>, <code>$loss</code> and <code>$callbacks</code>
 slots that are necessary to build a complete <code>Learner</code> from
-an NN. They can be set by corresponding [<code>PipeOpTorch</code>]
+an NN. They can be set by corresponding <code>PipeOpTorch</code>
 operators.</p>
 <p><code>po("torch_optimizer")</code> is used to set the
-<code>$optimizer</code> slot of a <a href="#modeldescriptor"><code>ModelDescriptor</code></a>; it takes the
-desired [<code>DescriptorTorchOptimizer</code>] object on construction
-and exports its <code>ParamSet</code>.</p>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<code>$optimizer</code> slot of a <code>ModelDescriptor</code>; it takes
+the desired <code>TorchOptimizer</code> object on construction and
+exports its <code>ParamSet</code>.</p>
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">po_adam</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_optimizer"</span>, optimizer <span class="op">=</span> <span class="va">adam</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># hyperparameters are made available and can be changed:</span></span>
@@ -921,7 +890,8 @@ and exports its <code>ParamSet</code>.</p>
 <span><span class="co">#&gt; * Generator: optim_adam</span></span>
 <span><span class="co">#&gt; * Parameters: lr=0.02</span></span>
 <span><span class="co">#&gt; * Packages: torch</span></span></code></pre></div>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<p>This works analogously for the loss-function.</p>
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">po_xe</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_loss"</span>, loss <span class="op">=</span> <span class="va">xe</span><span class="op">)</span></span>
 <span><span class="va">md_sequential</span> <span class="op">=</span> <span class="va">po_xe</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">md_sequential</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
@@ -931,14 +901,25 @@ and exports its <code>ParamSet</code>.</p>
 <span><span class="co">#&gt; * Parameters: list()</span></span>
 <span><span class="co">#&gt; * Packages: torch</span></span>
 <span><span class="co">#&gt; * Task Types: classif</span></span></code></pre></div>
+<p>And also for callbacks:</p>
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">po_history</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_callbacks"</span>, callbacks <span class="op">=</span> <span class="fu"><a href="../reference/t_clbk.html">t_clbk</a></span><span class="op">(</span><span class="st">"history"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">md_sequential</span> <span class="op">=</span> <span class="va">po_history</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">md_sequential</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<span></span>
+<span><span class="va">md_sequential</span><span class="op">$</span><span class="va">callbacks</span></span>
+<span><span class="co">#&gt; $history</span></span>
+<span><span class="co">#&gt; &lt;TorchCallback:history&gt; History</span></span>
+<span><span class="co">#&gt; * Generator: CallbackSetHistory</span></span>
+<span><span class="co">#&gt; * Parameters: list()</span></span>
+<span><span class="co">#&gt; * Packages: mlr3torch,torch</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="combined-instantiation-and-training-of-learnertorchmodel">Combined Instantiation and Training of
-[<code>LearnerTorchModel</code>]<a class="anchor" aria-label="anchor" href="#combined-instantiation-and-training-of-learnertorchmodel"></a>
+<code>LearnerTorchModel</code><a class="anchor" aria-label="anchor" href="#combined-instantiation-and-training-of-learnertorchmodel"></a>
 </h3>
-<p>The <a href="#modeldescriptor"><code>ModelDescriptor</code></a> can
-now be given to a <code>po("torch_model_classif")</code>.</p>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<p>The <code>ModelDescriptor</code> can now be given to a
+<code>po("torch_model_classif")</code>.</p>
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">po_model</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_model_classif"</span>, batch_size <span class="op">=</span> <span class="fl">50</span>, epochs <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">po_model</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">md_sequential</span><span class="op">)</span><span class="op">)</span></span>
@@ -950,13 +931,13 @@ training, and the prediction on <code>$predict()</code>.
 <code>po("torch_model_classif")</code> behaves similarly to a
 <code>PipeOpLearner</code>: It returns <code>NULL</code> during
 training, and the prediction on <code>$predict()</code>.</p>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">newtask</span> <span class="op">=</span> <span class="va"><a href="https://mlr3.mlr-org.com/reference/TaskClassif.html" class="external-link">TaskClassif</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"newdata"</span>, <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">newdata</span>, Species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="cn">NA</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">iris</span><span class="op">$</span><span class="va">Species</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, target <span class="op">=</span> <span class="st">"Species"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">predictions</span> <span class="op">=</span> <span class="va">po_model</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">newtask</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
 <span><span class="fu">plot_predictions</span><span class="op">(</span><span class="va">predictions</span><span class="op">)</span></span></code></pre></div>
-<p><img src="pipeop_torch_files/figure-html/unnamed-chunk-43-1.png" width="700"></p>
+<p><img src="pipeop_torch_files/figure-html/unnamed-chunk-45-1.png" width="700"></p>
 </div>
 <div class="section level3">
 <h3 id="the-whole-pipeline">The whole Pipeline<a class="anchor" aria-label="anchor" href="#the-whole-pipeline"></a>
@@ -964,12 +945,12 @@ training, and the prediction on <code>$predict()</code>.</p>
 <p>Remember that <code>md_sequential</code> was created using a
 <code>Graph</code> that the initial <code>Task</code> was piped through.
 If we combine such a <code>Graph</code> with
-[<code>PipeOpTorchModelClassif</code>], we get a <code>Graph</code> that
+<code>PipeOpTorchModelClassif</code>, we get a <code>Graph</code> that
 behaves like any other <code>Graph</code> that ends with a
 <code>PipeOpLearner</code>, and can therefore be wrapped as a
 <code>GraphLearner</code>. The following uses one more hidden layer than
 before:</p>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">graph_sequential_full</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">4</span>, id <span class="op">=</span> <span class="st">"linear1"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_sigmoid"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
@@ -979,36 +960,37 @@ before:</p>
 <span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_softmax"</span>, dim <span class="op">=</span> <span class="fl">2</span>, id <span class="op">=</span> <span class="st">"softmax2"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_optimizer"</span>, optimizer <span class="op">=</span> <span class="va">adam</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_loss"</span>, loss <span class="op">=</span> <span class="va">xe</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
+<span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_callbacks"</span>, callbacks <span class="op">=</span> <span class="va">history</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_model_classif"</span>, batch_size <span class="op">=</span> <span class="fl">50</span>, epochs <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="va">lr_sequential_full</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/as_learner.html" class="external-link">as_learner</a></span><span class="op">(</span><span class="va">graph_sequential_full</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">lr_sequential_full</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span></code></pre></div>
 <p>Compare the resulting <code>Graph</code></p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">graph_sequential_full</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="pipeop_torch_files/figure-html/unnamed-chunk-45-1.png" width="700"></p>
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">graph_sequential_full</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>horizontal <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="../docs/articles/pipeop_torch_files/figure-html/unnamed-chunk-48-1.png" width="100%"></p>
 <p>With the <code>Graph</code> of the trained model:</p>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model</span> <span class="op">=</span> <span class="va">lr_sequential_full</span><span class="op">$</span><span class="va">graph_model</span><span class="op">$</span><span class="va">state</span><span class="op">$</span><span class="va">torch_model_classif</span><span class="op">$</span><span class="va">model</span></span>
-<span><span class="va">model</span><span class="op">$</span><span class="va">network</span><span class="op">$</span><span class="va">graph</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="pipeop_torch_files/figure-html/unnamed-chunk-46-1.png" width="700"></p>
+<span><span class="va">model</span><span class="op">$</span><span class="va">network</span><span class="op">$</span><span class="va">graph</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>horizontal <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="../docs/articles/pipeop_torch_files/figure-html/unnamed-chunk-50-1.png" width="100%"></p>
 <p>Predictions, as before (we can use <code>predict_newdata</code>
 again):</p>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">predictions</span> <span class="op">=</span> <span class="va">lr_sequential_full</span><span class="op">$</span><span class="fu">predict_newdata</span><span class="op">(</span><span class="va">newdata</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">plot_predictions</span><span class="op">(</span><span class="va">predictions</span><span class="op">)</span></span></code></pre></div>
-<p><img src="pipeop_torch_files/figure-html/unnamed-chunk-47-1.png" width="700"></p>
+<p><img src="pipeop_torch_files/figure-html/unnamed-chunk-51-1.png" width="700"></p>
 </div>
 <div class="section level3">
 <h3 id="mixed-pipelines">Mixed Pipelines<a class="anchor" aria-label="anchor" href="#mixed-pipelines"></a>
 </h3>
-<p>We are not just limited to [<code>PipeOpTorch</code>] in these kinds
-of <code>Graph</code>s, and we are also not limited to having only a
-single [<code>PipeOpTorchIngress</code>]. The following pipeline, for
-example, removes all but the <code>Petal.Length</code> columns from the
+<p>We are not just limited to <code>PipeOpTorch</code> in these kinds of
+<code>Graph</code>s, and we are also not limited to having only a single
+<code>PipeOpTorchIngress</code>. The following pipeline, for example,
+removes all but the <code>Petal.Length</code> columns from the
 <code>Task</code> and fits a model:</p>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gr</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"select"</span>, selector <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/Selector.html" class="external-link">selector_name</a></span><span class="op">(</span><span class="st">"Petal.Length"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">5</span>, id <span class="op">=</span> <span class="st">"linear1"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
@@ -1018,18 +1000,19 @@ example, removes all but the <code>Petal.Length</code> columns from the
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_optimizer"</span>, optimizer <span class="op">=</span> <span class="va">adam</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_loss"</span>, loss <span class="op">=</span> <span class="va">xe</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_model_classif"</span>, batch_size <span class="op">=</span> <span class="fl">50</span>, epochs <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
-<span><span class="va">gr</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="pipeop_torch_files/figure-html/unnamed-chunk-48-1.png" width="700"></p>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<span></span>
+<span><span class="va">gr</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>horizontal <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="../docs/articles/pipeop_torch_files/figure-html/unnamed-chunk-53-1.png" width="100%"></p>
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lr</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/as_learner.html" class="external-link">as_learner</a></span><span class="op">(</span><span class="va">gr</span><span class="op">)</span></span>
 <span><span class="va">lr</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span>
 <span><span class="va">predictions</span> <span class="op">=</span> <span class="va">lr</span><span class="op">$</span><span class="fu">predict_newdata</span><span class="op">(</span><span class="va">newdata</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">plot_predictions</span><span class="op">(</span><span class="va">predictions</span><span class="op">)</span></span></code></pre></div>
-<p><img src="pipeop_torch_files/figure-html/unnamed-chunk-49-1.png" width="700"></p>
+<p><img src="pipeop_torch_files/figure-html/unnamed-chunk-54-1.png" width="700"></p>
 <p>How about using <code>Petal.Length</code> and
 <code>Sepal.Length</code> separately at first?</p>
-<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gr</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/gunion.html" class="external-link">gunion</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>      <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"select"</span>, selector <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/Selector.html" class="external-link">selector_name</a></span><span class="op">(</span><span class="st">"Petal.Length"</span><span class="op">)</span>, id <span class="op">=</span> <span class="st">"sel1"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>        <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num"</span>, id <span class="op">=</span> <span class="st">"ingress.petal"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
@@ -1046,15 +1029,20 @@ example, removes all but the <code>Petal.Length</code> columns from the
 <span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_loss"</span>, loss <span class="op">=</span> <span class="va">xe</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_model_classif"</span>, batch_size <span class="op">=</span> <span class="fl">50</span>, epochs <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">gr</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="pipeop_torch_files/figure-html/unnamed-chunk-50-1.png" width="700"></p>
-<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
+<span><span class="va">gr</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>horizontal <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="../docs/articles/pipeop_torch_files/figure-html/unnamed-chunk-56-1.png" width="100%"></p>
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lr</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/as_learner.html" class="external-link">as_learner</a></span><span class="op">(</span><span class="va">gr</span><span class="op">)</span></span>
 <span><span class="va">lr</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span>
 <span><span class="va">predictions</span> <span class="op">=</span> <span class="va">lr</span><span class="op">$</span><span class="fu">predict_newdata</span><span class="op">(</span><span class="va">newdata</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">plot_predictions</span><span class="op">(</span><span class="va">predictions</span><span class="op">)</span></span></code></pre></div>
-<p><img src="pipeop_torch_files/figure-html/unnamed-chunk-51-1.png" width="700"></p>
+<p><img src="pipeop_torch_files/figure-html/unnamed-chunk-57-1.png" width="700"></p>
+<p>All these examples have hopefully demonstrated the possibilities that
+come with the representation of neural network layers as
+<code>PipeOp</code>s. Even though this vignette was quite technical, we
+hope to have given you an in-depth understanding of the underlying
+mechanisms.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

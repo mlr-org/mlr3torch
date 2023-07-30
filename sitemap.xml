@@ -13,6 +13,9 @@
     <loc>https://mlr3torch.mlr-org.com/articles/get_started.html</loc>
   </url>
   <url>
+    <loc>https://mlr3torch.mlr-org.com/articles/image_classification.html</loc>
+  </url>
+  <url>
     <loc>https://mlr3torch.mlr-org.com/articles/index.html</loc>
   </url>
   <url>
@@ -32,6 +35,9 @@
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/TorchCallback.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/TorchDescriptor.html</loc>
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/TorchIngressToken.html</loc>
@@ -350,9 +356,6 @@
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/task_dataset.html</loc>
-  </url>
-  <url>
-    <loc>https://mlr3torch.mlr-org.com/reference/torch.html</loc>
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/torch_callback.html</loc>
