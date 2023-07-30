@@ -3,8 +3,12 @@ skip_on_cran()
 test_that("tiny_imagenet task works", {
   withr::local_options(mlr3torch.cache = TRUE)
   task = tsk("tiny_imagenet")
-
   dt = task$data()
+
+  expect_true("tiny-imagenet-200" %in% list.files(file.path(get_cache_dir(), "datasets", "tiny_imagenet", "raw")))
+  expect_true("data.rds" %in% list.files(file.path(get_cache_dir(), "datasets", "tiny_imagenet")))
+
+
   expect_equal(task$backend$nrow, 120000)
   expect_equal(task$backend$ncol, 4)
   expect_data_table(dt, ncols = 2, nrows = 100000)

@@ -243,7 +243,7 @@ Prints the object.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{any}}{(...)\cr
+\item{\code{...}}{(any)\cr
 Currently unused.}
 }
 \if{html}{\out{</div>}}

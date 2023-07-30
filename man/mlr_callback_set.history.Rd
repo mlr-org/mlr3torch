@@ -87,8 +87,14 @@ Which measures to plot. No default.}
 \item{\code{set}}{(\code{character(1)})\cr
 Which set to plot. Either \code{"train"} or \code{"valid"}. Default is \code{"valid"}.}
 
+\item{\code{epochs}}{(\code{integer()})\cr
+An integer vector restricting which epochs to plot. Default is \code{NULL}, which plots all epochs.}
+
 \item{\code{theme}}{(\code{\link[ggplot2:theme]{ggplot2::theme()}})\cr
 The theme, \code{\link[ggplot2:ggtheme]{ggplot2::theme_minimal()}} is the default.}
+
+\item{\code{...}}{(any)\cr
+Currently unused.}
 }
 \if{html}{\out{</div>}}
 }

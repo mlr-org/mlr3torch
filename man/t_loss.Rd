@@ -37,6 +37,7 @@ t_losses()
 \seealso{
 Other Torch Descriptor: 
 \code{\link{TorchCallback}},
+\code{\link{TorchDescriptor}},
 \code{\link{TorchLoss}},
 \code{\link{TorchOptimizer}},
 \code{\link{as_torch_callbacks}()},
@@ -45,7 +46,6 @@ Other Torch Descriptor:
 \code{\link{mlr3torch_losses}},
 \code{\link{mlr3torch_optimizers}},
 \code{\link{t_clbk}()},
-\code{\link{t_opt}()},
-\code{\link{torch}}
+\code{\link{t_opt}()}
 }
 \concept{Torch Descriptor}
