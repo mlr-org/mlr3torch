@@ -28,4 +28,4 @@
 ^\.ignore$
 ^inst/data_scripts$
 ^vignettes/articles$
-data-raw
+^data-raw$

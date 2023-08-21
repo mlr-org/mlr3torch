@@ -230,7 +230,6 @@ DataBackendLazy = R6Class("DataBackendLazy",
   )
 )
 
-#' @export
 col_info.DataBackendLazy = function(x, ...) {
   copy(get_private(x)$.col_info)
 }
