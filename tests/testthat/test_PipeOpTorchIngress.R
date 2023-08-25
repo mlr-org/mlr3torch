@@ -21,3 +21,20 @@ test_that("PipeOpTorchIngressImage", {
   task = nano_imagenet()$cbind(data.frame(x1 = 1:10))
   expect_po_ingress(po_ingress, task)
 })
+
+test_that("PipeOpTorchIngressLazyTensor works", {
+  ds = dataset(
+    initialize = function() {
+      self$x = torch_randn(10, 5)
+    },
+    .getitem = function(i) {
+      self$x[i, ..]
+    },
+    .length = function() {
+      nrow(self$x)
+    }
+  )
+
+
+
+})

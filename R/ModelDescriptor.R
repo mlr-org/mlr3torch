@@ -37,15 +37,18 @@
 #' @param .pointer (`character(2)` | `NULL`)\cr
 #'   Indicating an element on which a model is. Points to an output channel within `graph`:
 #'   Element 1 is the `PipeOp`'s id and element 2 is that `PipeOp`'s output channel.
-#' @param .pointer_shape (`integer` | `NULL`)\cr
+#' @param .pointer_shape (`integer()` | `NULL`)\cr
 #'   Shape of the output indicated by `.pointer`.
+#'  @param .cache_fence (`character()`)\cr
+#'    A list with `PipeOp` ids that indicate the cache fence, i.e.
+#'    everything before is run on the workers while everything afterwards is run on the main process.
 #'
 #' @family Model Configuration
 #' @family Graph Network
 #' @return (`ModelDescriptor`)
 #' @export
 ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, callbacks = NULL, .pointer = NULL,
-  .pointer_shape = NULL) {
+  .pointer_shape = NULL, .cache_fence = list()) {
   assert_r6(graph, "Graph")
   innames = graph$input$name  # graph$input$name access is slow
 
@@ -135,42 +138,8 @@ print.ModelDescriptor = function(x, ...) {
 model_descriptor_union = function(md1, md2) {
   assert_class(md1, "ModelDescriptor")
   assert_class(md2, "ModelDescriptor")
-  graph = md1$graph
 
-  # if graphs are identical, we don't need to worry about copying stuff
-  if (!identical(md1$graph, md2$graph)) {
-    # PipeOps that have the same ID that occur in both graphs must be identical.
-    common_names = intersect(names(graph$pipeops), names(md2$graph$pipeops))
-    if (!identical(graph$pipeops[common_names], md2$graph$pipeops[common_names])) {
-      not_identical = map_lgl(common_names, function(name) {
-        !identical(graph$pipeops[[name]], md2$graph$pipeops[[name]])
-      })
-      stopf("Both graphs have PipeOps with ID(s) %s but they are not identical.",
-        paste0("'", common_names[not_identical], "'", collapse = ", ")
-      )
-    }
-
-    # copy all PipeOps that are in md2 but not in md1
-    graph$pipeops = c(graph$pipeops, md2$graph$pipeops[setdiff(names(md2$graph$pipeops), common_names)])
-
-    # clear param_set cache
-    graph$.__enclos_env__$private$.param_set = NULL
-
-    # edges that are in md2's graph that were not in md1's graph
-    new_edges = md2$graph$edges[!graph$edges, on = c("src_id", "src_channel", "dst_id", "dst_channel")]
-
-    # IDs and channel names that get new input edges. These channels must not already have incoming edges in md1.
-    new_input_edges = unique(new_edges[, c("dst_id", "dst_channel"), with = FALSE])
-
-    forbidden_edges = graph$edges[new_input_edges, on = c("dst_id", "dst_channel"), nomatch = NULL]
-
-    if (nrow(forbidden_edges)) {
-      stopf("PipeOp(s) %s have differing incoming edges in md1 and md2.",
-        paste(forbidden_edges$dst_id, collapse = ", "))
-
-    }
-    graph$edges = rbind(graph$edges, new_edges)
-  }
+  graph = merge_graphs(md1$graph, md2$graph)
 
   # merge tasks: this is pretty much exactly what POFU does, so we use it in the non-trivial case.
   if (identical(md1$task, md2$task)) {
@@ -187,6 +156,48 @@ model_descriptor_union = function(md1, md2) {
     loss = coalesce_assert_id(md1$loss, md2$loss, .var.name = "loss"),
     callbacks = merge_assert_unique(md1$callbacks, md2$callbacks, .var.name = "callbacks")
   )
+}
+
+
+merge_graphs = function(g1, g2) {
+  graph = g1
+
+  # if graphs are identical, we don't need to worry about copying stuff
+  if (!identical(g1, g2)) {
+    # PipeOps that have the same ID that occur in both graphs must be identical.
+    common_names = intersect(names(graph$pipeops), names(g2$pipeops))
+    if (!identical(graph$pipeops[common_names], g2$pipeops[common_names])) {
+      not_identical = map_lgl(common_names, function(name) {
+        !identical(graph$pipeops[[name]], g2$pipeops[[name]])
+      })
+      stopf("Both graphs have PipeOps with ID(s) %s but they are not identical.",
+        paste0("'", common_names[not_identical], "'", collapse = ", ")
+      )
+    }
+
+    # copy all PipeOps that are in g2 but not in g1
+    graph$pipeops = c(graph$pipeops, g2$pipeops[setdiff(names(g2$pipeops), common_names)])
+
+    # clear param_set cache
+    graph$.__enclos_env__$private$.param_set = NULL
+
+    # edges that are in g2' that were not in g1
+    new_edges = g2$edges[!graph$edges, on = c("src_id", "src_channel", "dst_id", "dst_channel")]
+
+    # IDs and channel names that get new input edges. These channels must not already have incoming edges in md1.
+    new_input_edges = unique(new_edges[, c("dst_id", "dst_channel"), with = FALSE])
+
+    forbidden_edges = graph$edges[new_input_edges, on = c("dst_id", "dst_channel"), nomatch = NULL]
+
+    if (nrow(forbidden_edges)) {
+      stopf("PipeOp(s) %s have differing incoming edges in g1 and g2",
+        paste(forbidden_edges$dst_id, collapse = ", "))
+
+    }
+    graph$edges = rbind(graph$edges, new_edges)
+  }
+
+  return(graph)
 }
 
 

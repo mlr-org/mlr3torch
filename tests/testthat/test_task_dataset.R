@@ -292,3 +292,35 @@ test_that("dataset_img works", {
   batch_meta = ds_meta$.getbatch(1)
   expect_true(batch_meta$x$image$device$type == "meta")
 })
+
+test_that("task_dataset works with lazy_tensor", {
+  obj = PipeOpTorchIngressLazyTensor$new()
+
+  ds = dataset(
+    initialize = function() {
+      self$x = matrix(rnorm(50), nrow = 10)
+    },
+    .getitem = function(i) {
+      list(x = self$x[i, 1:5])
+    },
+    .length = function() {
+      nrow(self$x)
+    }
+  )()
+
+  dsd = torch_dataset(shapes = list(x = 5), dataset = ds)
+
+  ltnsr = lazy_tensor(dsd)
+
+  dt = data.table(z = ltnsr, y = runif(10))
+
+  task = as_task_regr(dt, target = "y")
+
+  it = obj$train(list(task))[[1L]]
+
+  tds = task_dataset(task, it$ingress, device = "cpu")
+
+  tds$.getbatch(1)
+
+
+})

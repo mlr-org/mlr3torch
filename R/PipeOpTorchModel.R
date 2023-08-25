@@ -59,6 +59,11 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
     .train = function(inputs) {
       md = inputs[[1]]
 
+      # Now we split the graph into the part that is cached and the one that is not cached
+
+      graph = md$graph
+
+
       if (is.null(md$loss)) {
         stopf("No loss configured in ModelDescriptor. Use po(\"torch_loss\").")
       }

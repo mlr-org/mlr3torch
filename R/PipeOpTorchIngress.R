@@ -211,6 +211,45 @@ PipeOpTorchIngressNumeric = R6Class("PipeOpTorchIngressNumeric",
 #' @include zzz.R
 register_po("torch_ingress_num", PipeOpTorchIngressNumeric)
 
+#' @export
+PipeOpTorchIngressLazyTensor = R6Class("PipeOpTorchIngressLazyTensor",
+  inherit = PipeOpTorchIngress,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "torch_ingress_lazy_tensor", param_vals = list()) {
+      super$initialize(id = id, param_vals = param_vals, feature_types = "lazy_tensor")
+    }
+  ),
+  private = list(
+    .shape = function(task, param_vals) {
+      lazy_cols = task$feature_types[get("type") == "lazy_tensor", "id"][[1L]]
+      if (length(lazy_cols) > 1L) {
+        stopf("Can only have one lazy_tensor feature, but got %i.", length(lazy_cols))
+      }
+      example = task$data(task$row_ids[1L], lazy_cols)[[1L]][[1L]]
+      example$torch_dataset$shapes[[example$column]]
+
+    },
+    .get_batchgetter = function(task, param_vals) {
+      # FIXME: here we are ignoring the device, this then needs to be taken care of in the training loop
+      # (in case we here load it as image magick to be able to do non-tensor trafos)
+      crate(function(data, device) {
+        data = data[[1L]]
+        browser()
+        if (test_class(data[[1L]], "torch_tensor")) {
+          data = torch_cat(map(data, function(x) x$unsqueeze(1)), dim = 1L)
+        }
+        return(data)
+      })
+    }
+  )
+)
+
+#' @include zzz.R
+register_po("torch_ingress_lazy_tensor", PipeOpTorchIngressLazyTensor)
+
 #' @title Torch Entry Point for Categorical Features
 #' @name mlr_pipeops_torch_ingress_categ
 #'
@@ -314,4 +353,5 @@ PipeOpTorchIngressImage = R6Class("PipeOpTorchIngressImage",
     }
   )
 )
+
 register_po("torch_ingress_img", PipeOpTorchIngressImage)

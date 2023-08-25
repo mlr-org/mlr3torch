@@ -83,8 +83,8 @@ PipeOpModule = R6Class("PipeOpModule",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #' @template param_id
-    #' @param module ([`nn_module`])\cr
-    #'   The torch module that is being wrapped.
+    #' @param operator ([`nn_module`] or `function()`)\cr
+    #'   The operator that is being wrapped.
     #' @param inname (`character()`)\cr
     #'   The names of the input channels.
     #' @param outname (`character()`)\cr
@@ -95,12 +95,11 @@ PipeOpModule = R6Class("PipeOpModule",
     initialize = function(id = "module", module = nn_identity(), inname = "input", outname = "output",
       param_vals = list(), packages = character(0)) {
       private$.multi_output = length(outname) > 1L
-      self$module = assert_class(module, "nn_module")
       assert_names(outname, type = "strict")
       assert_character(packages, any.missing = FALSE)
 
-      input = data.table(name = inname, train = "torch_tensor", predict = "NULL")
-      output = data.table(name = outname, train = "torch_tensor", predict = "NULL")
+      input = data.table(name = inname, train = "*", predict = "NULL")
+      output = data.table(name = outname, train = "*", predict = "NULL")
 
       super$initialize(
         id = id,
@@ -118,7 +117,7 @@ PipeOpModule = R6Class("PipeOpModule",
       # Note that PipeOpTorch ensures that (unless the forward method has a ... argument) the input channels are
       # identical to the arguments of the forward method.
       outputs = do.call(self$module, unname(inputs))
-      outname = self$output$name
+      # FIXME: Add tests for multi output
       if (!private$.multi_output) outputs = list(outputs)
       outputs
     },

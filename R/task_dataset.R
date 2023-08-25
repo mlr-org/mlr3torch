@@ -8,6 +8,7 @@
 #' * `.index` is the index of the batch in the task's data.
 #'
 #' The data is returned on the device specified by the parameter `device`.
+#' FIXME: This is now not necessarily true (because of the lazy_tensor column.)
 #'
 #' @param task ([`Task`])\cr
 #'   The task for which to build the [dataset][torch::dataset].
@@ -16,7 +17,7 @@
 #' @param target_batchgetter (`function(data, device)`)\cr
 #'   A function taking in arguments `data`, which is a `data.table` containing only the target variable, and `device`.
 #'   It must return the target as a torch [tensor][torch::torch_tensor] on the selected device.
-#' @param device (`character()`)\cr
+#' @param device (`character()`)\crZYZ
 #'   The device, e.g. `"cuda"` or `"cpu"`.
 #' @export
 #' @return [`torch::dataset`]
@@ -41,9 +42,10 @@
 #' batch = dataset$.getbatch(1:10)
 #' batch
 task_dataset = dataset(
-  initialize = function(task, feature_ingress_tokens, target_batchgetter = NULL, device) {
+  initialize = function(task, feature_ingress_tokens, target_batchgetter = NULL, device, preprocessor = NULL) {
     self$task = assert_r6(task$clone(deep = TRUE), "Task")
     self$feature_ingress_tokens = assert_list(feature_ingress_tokens, types = "TorchIngressToken", names = "unique")
+    self$preprocessor = preprocessor
 
     iwalk(feature_ingress_tokens, function(it, nm) {
       if (length(it$features) == 0) {
@@ -51,13 +53,47 @@ task_dataset = dataset(
       }
     })
 
+    # we already calculate all the unique datasets for each row here.
+
     self$all_features = unique(c(unlist(map(feature_ingress_tokens, "features")), task$target_names))
+
+    tmp = task$data(task$row_ids[1], self$all_features)
+
+    self$tensor_columns = names(tmp)[map_lgl(tmp, function(x) test_class(x, "lazy_tensor"))]
     assert_subset(self$all_features, c(task$target_names, task$feature_names))
     self$target_batchgetter = assert_function(target_batchgetter, args = c("data", "device"), null.ok = TRUE)
     self$device = assert_choice(device, mlr_reflections$torch$devices)
   },
   .getbatch = function(index) {
     datapool = self$task$data(rows = self$task$row_ids[index], cols = self$all_features)
+
+    # we have (id, col, torch_loader) pairs, but we want to load every (id, torch_loader) pair only once for efficiency
+
+    tensor_env = new.env()
+    datapool_lazy_resolved = map_dtc(datapool[, self$tensor_columns, with = FALSE], function(column) {
+      map(column, function(elt) {
+        # elt[[1]] is the id
+        # elt[[2]] is the column (not used yet)
+        # elt [[3]] is the dataset_descriptor (to rename)
+        torch_dataset = elt$torch_dataset
+        hash = torch_dataset$hash
+        id = elt$id
+        # we cache the `$load()` result for usage afterwards
+        if (!exists(hash, tensor_env)) {
+          tensor_env[[hash]] = list()
+          tensor_env[[hash]][[id]] = torch_dataset$get(id)
+        } else if (is.null(tensor_env[[hash]][[id]])) {
+          tensor_env[[hash]][[id]] = torch_dataset$get(id)
+        }
+
+        tensor_env[[hash]][[id]][[elt$column]]
+      })
+    })
+
+    datapool_lazy_resolved = set_names(datapool_lazy_resolved, self$tensor_columns)
+    datapool[, self$tensor_columns] = NULL
+    datapool = cbind(datapool, datapool_lazy_resolved)
+
     x = lapply(self$feature_ingress_tokens, function(it) {
       it$batchgetter(datapool[, it$features, with = FALSE], self$device)
     })
@@ -65,6 +101,10 @@ task_dataset = dataset(
       self$target_batchgetter(datapool[, self$task$target_names, with = FALSE],
         self$device)
     }
+
+    if (is.null())
+
+
     list(x = x, y = y, .index = index)
   },
   .length = function() {
@@ -163,7 +203,6 @@ batchgetter_categ = function(data, device) {
     device = device
   )
 }
-
 
 get_batchgetter_img = function(imgshape) {
   crate(function(data, device) {

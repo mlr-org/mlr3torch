@@ -21,6 +21,8 @@
 #' @param properties (`NULL` or `character()`)\cr
 #'   The properties of the learner.
 #'   Defaults to all available properties for the given task type.
+#' @param preprocessor ([`Graph`])\cr
+#'   The preprocessing graph that is executed on the workers when loading the data.
 #' @section Parameters: See [`LearnerTorch`]
 #' @family Learner
 #' @family Graph Network
@@ -58,7 +60,7 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(task_type, network, ingress_tokens, properties = NULL, optimizer = NULL, loss = NULL,
-      callbacks = list(), packages = character(0), feature_types = NULL) {
+      callbacks = list(), packages = character(0), feature_types = NULL, preprocessor = NULL) {
       # TODO: What about the learner properties?
       private$.network_stored = assert_class(network, "nn_module")
       private$.ingress_tokens = assert_list(ingress_tokens, types = "TorchIngressToken")

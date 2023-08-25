@@ -20,7 +20,7 @@ imageuri = function(obj) {
 
 #' @export
 `[[.imageuri` = function(obj, ...) {
-  imageuri(unclass(obj)[...])
+  obj[...]
 }
 
 #' @export

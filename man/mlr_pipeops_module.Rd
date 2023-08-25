@@ -156,9 +156,6 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \item{\code{id}}{(\code{character(1)})\cr
 The id for of the new object.}
 
-\item{\code{module}}{(\code{\link{nn_module}})\cr
-The torch module that is being wrapped.}
-
 \item{\code{inname}}{(\code{character()})\cr
 The names of the input channels.}
 
@@ -171,6 +168,9 @@ Parameter values to be set after construction.}
 
 \item{\code{packages}}{(\code{character()})\cr
 The R packages this object depends on.}
+
+\item{\code{operator}}{(\code{\link{nn_module}} or \verb{function()})\cr
+The operator that is being wrapped.}
 }
 \if{html}{\out{</div>}}
 }

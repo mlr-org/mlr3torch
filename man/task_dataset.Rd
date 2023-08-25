@@ -17,7 +17,7 @@ Each ingress token defines one item in the \verb{$x} value of a batch with corre
 A function taking in arguments \code{data}, which is a \code{data.table} containing only the target variable, and \code{device}.
 It must return the target as a torch \link[torch:torch_tensor]{tensor} on the selected device.}
 
-\item{device}{(\code{character()})\cr
+\item{device}{(\code{character()})\crZYZ
 The device, e.g. \code{"cuda"} or \code{"cpu"}.}
 }
 \value{
