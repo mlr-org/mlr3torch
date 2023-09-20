@@ -38,14 +38,18 @@
 #'   Indicating an element on which a model is. Points to an output channel within `graph`:
 #'   Element 1 is the `PipeOp`'s id and element 2 is that `PipeOp`'s output channel.
 #' @param .pointer_shape (`integer` | `NULL`)\cr
-#'   Shape of the output indicated by `.pointer`.
+#'   Shape of the output indicated by `.pointer`
+#' @param .loader_outputs (`list()` of `character(2)`)\cr
+#'   A list of name-channel pairs that are the outputs of the data loader that is returned from the parallel workers
+#'   to the main workers.
+#'
 #'
 #' @family Model Configuration
 #' @family Graph Network
 #' @return (`ModelDescriptor`)
 #' @export
 ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, callbacks = NULL, .pointer = NULL,
-  .pointer_shape = NULL) {
+  .pointer_shape = NULL, .loader_outputs = NULL) {
   assert_r6(graph, "Graph")
   innames = graph$input$name  # graph$input$name access is slow
 
@@ -53,6 +57,8 @@ ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, 
 
   # conditions on ingress: maps shapes_in to graph$input$name
   assert_names(names(ingress), subset.of = innames)
+
+  assert_list(.loader_outputs, null.ok = TRUE)
 
   assert_r6(task, "Task")
 
@@ -78,7 +84,8 @@ ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, 
     loss = loss,
     callbacks = callbacks,
     .pointer = .pointer,
-    .pointer_shape = .pointer_shape
+    .pointer_shape = .pointer_shape,
+    .loader_outputs = .loader_outputs
   ), class = "ModelDescriptor")
 }
 
@@ -93,6 +100,8 @@ print.ModelDescriptor = function(x, ...) {
     paste0(nm, ": ", shape_to_str(list(x$shape)))
   })
 
+  loader_outputs = paste(map_chr(x$.loader_outputs, function(x) paste0(x[1], ".", x[2])))
+
   catn(sprintf("<ModelDescriptor: %d ops>", length(x$graph$pipeops)))
   catn(str_indent("* Ingress: ", ingress_shapes))
   catn(str_indent("* Task: ", paste0(x$task$id, " [", x$task$task_type, "]")))
@@ -102,6 +111,7 @@ print.ModelDescriptor = function(x, ...) {
   catn(str_indent("* .pointer: ", if (is.null(x$.pointer)) "" else { # nolint
     sprintf("\n%s %s", paste(x$.pointer, collapse = "."), shape_to_str(list(x$.pointer_shape)))
   }))
+  catn(str_indent("* .loader_outputs: ", loader_outputs))
 }
 
 #' @title Union of ModelDescriptors

@@ -248,16 +248,23 @@ PipeOpTorch = R6Class("PipeOpTorch",
     #'   In case there is more than one output channel, the `nn_module` that is constructed by this
     #'   [`PipeOp`] during training must return a named `list()`, where the names of the list are the
     #'   names out the output channels. The default is `"output"`.
+    #' @param variant_types (`logical(1)`)\cr
+    #'   Whether the input and output can be things other than a [`ModelDescriptor`].
+    #'   Default is `FALSE`.
     initialize = function(id, module_generator, param_set = ps(), param_vals = list(),
-      inname = "input", outname = "output", packages = "torch", tags = NULL) {
+      inname = "input", outname = "output", packages = character(0), tags = NULL, variant_types = FALSE) {
       self$module_generator = assert_class(module_generator, "nn_module_generator", null.ok = TRUE)
       assert_character(inname, .var.name = "input channel names")
       assert_character(outname, .var.name = "output channel names", min.len = 1L)
       assert_character(tags, null.ok = TRUE)
       assert_character(packages, any.missing = FALSE)
 
-      input = data.table(name = inname, train = "ModelDescriptor", predict = "Task")
-      output = data.table(name = outname, train = "ModelDescriptor", predict = "Task")
+      packages = union(packages, "torch")
+
+      data_type = if (variant_types) "*" else "ModelDescriptor"
+
+      input = data.table(name = inname, train = data_type, predict = "*")
+      output = data.table(name = outname, train = data_type, predict = "*")
 
       assert_r6(param_set, "ParamSet")
       walk(param_set$params, function(p) {

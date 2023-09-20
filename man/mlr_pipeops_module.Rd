@@ -17,7 +17,7 @@ of \code{PipeOpModule}s as part of the \code{\link{ModelDescriptor}}.
 \section{Input and Output Channels}{
 
 The number and names of the input and output channels can be set during construction. They input and output
-\code{"torch_tensor"} during training, and \code{NULL} during prediction as the prediction phase currently serves no
+\code{"*"} during training, and \code{NULL} during prediction as the prediction phase currently serves no
 meaningful purpose.
 }
 
@@ -91,6 +91,7 @@ Other Graph Network:
 \code{\link{mlr_learners_torch_model}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},
 \code{\link{mlr_pipeops_torch_ingress_img}},
+\code{\link{mlr_pipeops_torch_ingress_ltnsr}},
 \code{\link{mlr_pipeops_torch_ingress_num}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch}},

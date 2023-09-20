@@ -1,0 +1,10 @@
+---
+title: "Lazy Tensors"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Lazy Tensors}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+* It is weird that the shape of the tensor still exists even after subsetting.

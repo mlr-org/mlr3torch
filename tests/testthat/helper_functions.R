@@ -1,3 +1,15 @@
+random_dataset = dataset("random_dataset",
+  initialize = function(..., n = 10) {
+    self$x = torch_randn(n, ...)
+  },
+  .getitem = function(i) {
+    list(x = self$x[i, ..])
+  },
+  .length = function() {
+    nrow(self$x)
+  }
+)
+
 expect_po_ingress = function(po_ingress, task) {
   testthat::expect_error(po_ingress$train(list(task))[[1]], regexp = "Task contains features of type")
 

@@ -76,7 +76,6 @@ nn_graph = nn_module(
   }
 )
 
-
 #' @title Create a nn_graph from ModelDescriptor
 #'
 #' @description
@@ -175,26 +174,6 @@ model_descriptor_to_learner = function(model_descriptor) {
   )
 
   return(learner)
-}
-
-# a function that has argument names 'names' and returns its arguments as a named list.
-# used to simulate argument matching for `...`-functions.
-# example:
-# f = argument_matcher(c("a", "b", "c"))
-# f(1, 2, 3) --> list(a = 1, b = 2, c = 3)
-# f(1, 2, a = 3) --> list(a = 3, b = 1, c = 2)
-# usecase:
-# ff = function(...) {
-#   l = argument_matcher(c("a", "b", "c"))(...)
-#   l$a + l$b
-# }
-# # behaves like
-# ff(a, b, c) a + b
-# (Except in the awquard case of missing args)
-argument_matcher = function(args) {
-  fn = as.function(c(named_list(args, substitute()), quote(as.list(environment()))))
-  environment(fn) = topenv()
-  fn
 }
 
 # make unique ID that starts with 'newid' and appends _1, _2, etc. to avoid collisions

@@ -14,7 +14,7 @@
 #'
 #' @section Input and Output Channels:
 #' The number and names of the input and output channels can be set during construction. They input and output
-#' `"torch_tensor"` during training, and `NULL` during prediction as the prediction phase currently serves no
+#' `"*"` during training, and `NULL` during prediction as the prediction phase currently serves no
 #' meaningful purpose.
 #'
 #' @template pipeop_torch_state_default
@@ -95,12 +95,13 @@ PipeOpModule = R6Class("PipeOpModule",
     initialize = function(id = "module", module = nn_identity(), inname = "input", outname = "output",
       param_vals = list(), packages = character(0)) {
       private$.multi_output = length(outname) > 1L
-      self$module = assert_class(module, "nn_module")
+      assert(check_class(module, "nn_module"), check_class(module, "function"))
+      self$module = module
       assert_names(outname, type = "strict")
       assert_character(packages, any.missing = FALSE)
 
-      input = data.table(name = inname, train = "torch_tensor", predict = "NULL")
-      output = data.table(name = outname, train = "torch_tensor", predict = "NULL")
+      input = data.table(name = inname, train = "*", predict = "NULL")
+      output = data.table(name = outname, train = "*", predict = "NULL")
 
       super$initialize(
         id = id,
@@ -125,7 +126,10 @@ PipeOpModule = R6Class("PipeOpModule",
     .predict = function(inputs) {
       rep(list(NULL), nrow(self$output))
     },
-    .multi_output = FALSE
+    .multi_output = FALSE,
+    .additional_phash_input = function() {
+      list(self$module, self$input$name, self$output$name, self$packages)
+    }
   )
 )
 

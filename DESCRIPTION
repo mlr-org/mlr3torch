@@ -47,6 +47,7 @@ Imports:
     data.table,
     paradox (>= 0.11.0),
     R6,
+    vctrs,
     withr
 Suggests:
     callr,
@@ -64,7 +65,7 @@ Suggests:
     zip
 Remotes:
     r-lib/zip,
-    mlr-org/mlr3@col_info
+    mlr-org/mlr3
 Config/testthat/edition: 3
 NeedsCompilation: no
 ByteCompile: no
@@ -81,6 +82,7 @@ Collate:
     'CallbackSetProgress.R'
     'ContextTorch.R'
     'DataBackendLazy.R'
+    'DataDescriptor.R'
     'LearnerTorch.R'
     'LearnerTorchImage.R'
     'LearnerTorchAlexNet.R'
@@ -100,7 +102,9 @@ Collate:
     'PipeOpTorchHead.R'
     'PipeOpTorchIngress.R'
     'PipeOpTorchLayerNorm.R'
+    'PipeOpTorchLazyTransform.R'
     'PipeOpTorchLinear.R'
+    'PipeOpTorchLoad.R'
     'TorchLoss.R'
     'PipeOpTorchLoss.R'
     'PipeOpTorchMaxPool.R'
@@ -116,7 +120,9 @@ Collate:
     'bibentries.R'
     'cache.R'
     'imageuri.R'
+    'lazy_tensor.R'
     'learner_torch_methods.R'
+    'materialize.R'
     'nn_graph.R'
     'paramset_torchlearner.R'
     'rd_info.R'

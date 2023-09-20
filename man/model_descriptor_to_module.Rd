@@ -37,6 +37,7 @@ Other Graph Network:
 \code{\link{mlr_pipeops_module}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},
 \code{\link{mlr_pipeops_torch_ingress_img}},
+\code{\link{mlr_pipeops_torch_ingress_ltnsr}},
 \code{\link{mlr_pipeops_torch_ingress_num}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch}},

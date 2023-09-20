@@ -117,7 +117,6 @@ train_loop = function(ctx, cbs) {
     walk(cbs, function(cb) cb$ctx = NULL)
   }, add = TRUE)
 
-
   call("on_begin")
 
   ctx$network$train()
@@ -131,6 +130,11 @@ train_loop = function(ctx, cbs) {
     indices = list()
     ctx$batch = 0
     coro::loop(for (batch in ctx$loader_train) {
+      # TODO: Here we need to apply the preprocessing / data-augmentation
+
+
+      # FIXME: is this optimal?
+      batch = rapply(batch, function(x) x$to(device = ctx$device))
       ctx$batch = ctx$batch + 1
 
       ctx$optimizer$zero_grad()

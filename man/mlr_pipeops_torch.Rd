@@ -238,6 +238,7 @@ Other Graph Network:
 \code{\link{mlr_pipeops_module}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},
 \code{\link{mlr_pipeops_torch_ingress_img}},
+\code{\link{mlr_pipeops_torch_ingress_ltnsr}},
 \code{\link{mlr_pipeops_torch_ingress_num}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{model_descriptor_to_learner}()},
@@ -290,8 +291,9 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   param_vals = list(),
   inname = "input",
   outname = "output",
-  packages = "torch",
-  tags = NULL
+  packages = character(0),
+  tags = NULL,
+  variant_types = FALSE
 )}\if{html}{\out{</div>}}
 }
 
@@ -332,6 +334,10 @@ The R packages this object depends on.}
 
 \item{\code{tags}}{(\code{character()})\cr
 The tags of the \code{\link{PipeOp}}. The tags \code{"torch"} is always added.}
+
+\item{\code{variant_types}}{(\code{logical(1)})\cr
+Whether the input and output can be things other than a \code{\link{ModelDescriptor}}.
+Default is \code{FALSE}.}
 }
 \if{html}{\out{</div>}}
 }

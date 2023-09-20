@@ -211,6 +211,80 @@ PipeOpTorchIngressNumeric = R6Class("PipeOpTorchIngressNumeric",
 #' @include zzz.R
 register_po("torch_ingress_num", PipeOpTorchIngressNumeric)
 
+
+#' @title Ingress for Lazy Tensor
+#' @name mlr_pipeops_torch_ingress_ltnsr
+#' @description
+#' This ingress might not return the tensor as a [`torch_tensor`] but instead
+#' in the format specified by the dataset from the lazy tensor columns.
+#' In case no tensor
+#' @inheritSection mlr_pipeops_torch_ingress Input and Output Channels
+#' @inheritSection mlr_pipeops_torch_ingress State
+#'
+#' @section Parameters:
+#' * `to_tensor` :: `logical(1)`\cr
+#'   Whether `PipeOp` should convert the column to a torch tensor and cbind a column to a tensor.
+#'   This value is initialized to `TRUE`.
+#'   If this is set to `FALSE`, the returned data type is whatever you would get from the dataset.
+#'   In that case you must later convert and rbind the tensors yourself using e.g. [`PipeOpTorchTensor`].
+#'   Note that when the dataset from your [`DataDescriptor`] returns a tensor, setting this parameter to `FALSE`
+#'   in combination with transformations like [`PipeOpVflip`] (TODO:) might lead to unintended consequences
+#'   as the vlip is the n
+#' @section Internals:
+#' The input to the batchgetter are already the elements obtained from the datasets that are part of the lazy tensors
+#' and not the lazy tensors themselves.
+#' This ensures that every dataset's `$.getitem` is only called once for each batch.
+#' @family PipeOps
+#' @family Graph Network
+#' @export
+#' @examples
+# We first select the categorical features
+#' graph = po("select", selector = selector_type("factor")) %>>%
+#'   po("torch_ingress_categ")
+#' task = tsk("german_credit")
+#' # The output is a TorchIngressToken
+#' token = graph$train(task)[[1L]]
+#' ingress = token$ingress[[1L]]
+#' ingress$batchgetter(task$data(1, ingress$features), "cpu")
+PipeOpTorchIngressLazyTensor = R6Class("PipeOpTorchIngressLazyTensor",
+  inherit = PipeOpTorchIngress,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "torch_ingress_ltnsr", param_vals = list()) {
+      super$initialize(id = id, param_vals = param_vals, feature_types = "lazy_tensor")
+    }
+  ),
+  private = list(
+    .shapes_out = function(task, param_vals) {
+      lazy_cols = task$feature_types[get("type") == "lazy_tensor", "id"][[1L]]
+      if (length(lazy_cols) > 1L) {
+        stopf("Can only have one lazy_tensor feature, but got %i.", length(lazy_cols))
+      }
+      example = task$data(task$row_ids[1L], lazy_cols)[[1L]][[1L]]
+      c(NA_integer_, example$data_descriptor$shapes[[example$output]])
+    },
+    .get_batchgetter = function(task, param_vals) {
+      # This batchgetter receives the alread resolved lazy tensors.
+
+      if (param_vals$to_tensor) {
+        crate(function(data, device) {
+          torch_cat(map(data[[1L]], function(x) torch_tensor(x)$unsqueeze(1)$to(device = device)), dim = 1L)
+        })
+      } else {
+        crate(function(data, device) {
+          data[[1L]]
+        })
+      }
+
+    }
+  )
+)
+
+#' @include zzz.R
+register_po("torch_ingress_ltnsr", PipeOpTorchIngressLazyTensor)
+
 #' @title Torch Entry Point for Categorical Features
 #' @name mlr_pipeops_torch_ingress_categ
 #'
@@ -314,4 +388,6 @@ PipeOpTorchIngressImage = R6Class("PipeOpTorchIngressImage",
     }
   )
 )
+
+#' @include zzz.R
 register_po("torch_ingress_img", PipeOpTorchIngressImage)

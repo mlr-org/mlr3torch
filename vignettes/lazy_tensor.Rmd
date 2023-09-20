@@ -1,0 +1,113 @@
+---
+title: "Lazy Tensors"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Lazy Tensors}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(mlr3torch)
+```
+
+In this vignette you will learn about the `mlr3torch:;lazy_tensor` data type.
+Because deep learning often deals with large datasets, it is not always possible to load them into RAM.
+For this reason, deep learning frameworks like `torch` represent the data as a `torch::dataset` that has either
+a `.getitem(id)` or `.getbatch(ids)` method that must return either one element or a batch of elements.
+How this data is returned can be specified by the user and can e.g. reading an image from the disk.
+
+Within the mlr3 machine learning we represent data in a tabular format.
+The `lazy_tensor` datatype represent elements of a dataset in a tabular format such as a column in a `data.table`.
+To showase this we will create a dataset consisting of 100 tensors of size 3 x 8 x 8 with random values.
+
+```{r, message = FALSE}
+devtools::load_all()
+
+# create the dataset generator
+dsg = dataset("example_data",
+  initialize = function(n = 100L) {
+    self$images = torch_randn(100, 3, 8, 8)
+  },
+ .getitem = function(id) list(img = self$images[id, ]),
+ .length = function() nrow(self$images)
+)
+
+# create the actual dataset
+ds = dsg()
+
+ds$.getitem(1)
+```
+
+To represent all 100 elements of this dataset in a `vector()`, we call `lazy_tensor()` and specify the shapes of the returned data.
+Because the data is in RGB format, we specify the shape as `(NA, 3, 8, 8)`.
+The NA indicates that the batch dimension.
+
+```{r}
+lt = lazy_tensor(ds, list(img = c(NA, 3, 8, 8)))
+```
+
+Printing the vector just shows the dimension of each element.
+Note that we currently assume that each element has the same shape.
+
+```{r}
+head(lt)
+```
+
+However, we can use the function `materialize()` to load the elements.
+Here we load the first two.
+
+```{r}
+materialize(lt[1:2])
+```
+
+It is now possible to combine this lazy tensor with an R factor variable in a data.table.
+Having the target variable as a factor is preferable, because it is not only needed for training but e.g. also
+for stratified cross-validation or when inspecting the distribution of the target class.
+
+```{r}
+dt = data.table(
+  img = lt,
+  y = factor(rep(c("A", "B"), each = 50))
+)
+
+dt[c(1, 51),]
+```
+
+We could now crate a task from this table.
+
+```{r}
+task = as_task_classif(dt, target = "y", id = "lazy_tensor example")
+```
+
+
+One useful feature of `mlr3torch` is that such data can now even be preprocessed with `PipeOp`s just like other data types.
+Below, we resize the image to size `(5, 5)`.
+
+```{r}
+po_trafo = po("transform_resize", size = c(5, 5))
+
+task_transformed = po_trafo$train(list(task))[[1L]]
+```
+
+ATTENTION: There is still an issue that this will modify the input task in-place that will be addressed soon.
+
+Nonetheless we can inspect the preprocessed task and see that it is now printed as having shape `(3, 5, 5)` due to the reshape.
+
+```{r}
+lt_trafo = task_transformed$data(cols = "img")[[1L]]
+```
+
+Of course, this transformation cannot be performed eagerly as the whole point of the lazy tensor is that the data is not in memory.
+However, when we call `load_lazy_tensor()` again, we see that the transformation is applied
+
+```{r}
+load_lazy_tensor(lt_trafo, ids = 1:2)
+```
+
+
+

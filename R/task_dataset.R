@@ -45,6 +45,9 @@ task_dataset = dataset(
     self$task = assert_r6(task$clone(deep = TRUE), "Task")
     self$feature_ingress_tokens = assert_list(feature_ingress_tokens, types = "TorchIngressToken", names = "unique")
 
+    task_info = task$feature_types[]
+    self$feature_ingress_tokens
+
     iwalk(feature_ingress_tokens, function(it, nm) {
       if (length(it$features) == 0) {
         stopf("Received ingress token '%s' with no features.", nm)
@@ -52,12 +55,49 @@ task_dataset = dataset(
     })
 
     self$all_features = unique(c(unlist(map(feature_ingress_tokens, "features")), task$target_names))
+    tmp = task$data(task$row_ids[1], self$all_features)
+
+    self$lazy_tensor_columns = names(tmp)[map_lgl(tmp, function(x) test_class(x, "lazy_tensor"))]
+
+    self$simple_case = map(self$lazy_tensor_columns, function(col) {
+
+
+    })
+
     assert_subset(self$all_features, c(task$target_names, task$feature_names))
     self$target_batchgetter = assert_function(target_batchgetter, args = c("data", "device"), null.ok = TRUE)
     self$device = assert_choice(device, mlr_reflections$torch$devices)
   },
   .getbatch = function(index) {
     datapool = self$task$data(rows = self$task$row_ids[index], cols = self$all_features)
+
+    # FIXME: Here we also need to do the preprocessing from the
+    # supgraph of the ModelDescriptor that is being executed on the workers
+
+
+
+    # CONTINUE HERE:
+    tensor_env = new.env(
+    # Because we might load the same batches multiple times
+    datapool_lazy_resolved = map(datapool[, self$lazy_tensor_columns, with = FALSE], function(column) {
+      map(column, function(elt) {
+        data_descriptor = elt$data_descriptor
+        hash = data_descriptor$hash
+        id = elt$id
+        id_chr = as.character(id)
+        if (!exists(hash, tensor_env)) {
+          tensor_env[[hash]] = new.env()
+          tensor_env[[hash]][[id_chr]] = data_descriptor$dataset$.getitem(id)
+        } else if (is.null(tensor_env[[hash]][[id_chr]])) {
+          tensor_env[[hash]][[id_chr]] = data_descriptor$dataset$.getitem(id)
+        }
+        tensor_env[[hash]][[id_chr]][[elt$output]]
+      })
+    })
+
+    datapool_lazy_resolved = set_names(as.data.table(datapool_lazy_resolved), self$lazy_tensor_columns)
+    datapool[, c(self$lazy_tensor_columns)] = NULL
+    datapool = cbind(datapool, datapool_lazy_resolved)
     x = lapply(self$feature_ingress_tokens, function(it) {
       it$batchgetter(datapool[, it$features, with = FALSE], self$device)
     })

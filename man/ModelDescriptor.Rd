@@ -12,7 +12,8 @@ ModelDescriptor(
   loss = NULL,
   callbacks = NULL,
   .pointer = NULL,
-  .pointer_shape = NULL
+  .pointer_shape = NULL,
+  .loader_outputs = NULL
 )
 }
 \arguments{
@@ -39,7 +40,11 @@ Indicating an element on which a model is. Points to an output channel within \c
 Element 1 is the \code{PipeOp}'s id and element 2 is that \code{PipeOp}'s output channel.}
 
 \item{.pointer_shape}{(\code{integer} | \code{NULL})\cr
-Shape of the output indicated by \code{.pointer}.}
+Shape of the output indicated by \code{.pointer}}
+
+\item{.loader_outputs}{(\code{list()} of \code{character(2)})\cr
+A list of name-channel pairs that are the outputs of the data loader that is returned from the parallel workers
+to the main workers.}
 }
 \value{
 (\code{ModelDescriptor})
@@ -79,6 +84,7 @@ Other Graph Network:
 \code{\link{mlr_pipeops_module}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},
 \code{\link{mlr_pipeops_torch_ingress_img}},
+\code{\link{mlr_pipeops_torch_ingress_ltnsr}},
 \code{\link{mlr_pipeops_torch_ingress_num}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch}},

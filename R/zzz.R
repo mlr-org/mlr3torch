@@ -1,4 +1,5 @@
 #' @import paradox
+#' @import vctrs
 #' @import checkmate
 #' @import data.table
 #' @import mlr3misc
@@ -18,14 +19,14 @@
 "_PACKAGE"
 
 # to silence RCMD check
-utils::globalVariables(c("self", "private", "super"))
+utils::globalVariables(c("self", "private", "super", ".."))
 
 mlr3torch_pipeops = new.env()
 mlr3torch_learners = new.env()
 mlr3torch_tasks = new.env()
 mlr3torch_resamplings = new.env()
 mlr3torch_pipeop_tags = c("torch", "activation")
-mlr3torch_feature_types = c(img = "imageuri")
+mlr3torch_feature_types = c(img = "imageuri", ltnsr = "lazy_tensor")
 
 # metainf must be manually added in the register_mlr3pipelines function
 # Because the value is substituted, we cannot pass it through this function

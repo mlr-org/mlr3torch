@@ -303,3 +303,36 @@ autotest_torch_callback = function(torch_callback, check_man = TRUE) {
   cb_trained$ctx = "placeholder"
   expect_error(cb_trained$clone(deep = TRUE), "must never be cloned unless")
 }
+
+#' @title Autotest for PipeOpVariantTransform
+#' @description
+#' What we have to test both variants, namely that input and output are;
+#' * tasks: function is added to the column
+#' FIXME: When the piplines hooks are available we also need to test that the cloning works
+#' * model descriptors:
+#'
+#' In addition we need to check that the shapes are correctly implemented
+# this we also need to check for both scenarios, i.e. the batch size is NA or not.
+#' @param variant_transform ([`PipeOpVariantTransform`])\cr
+#'   The object to test.
+autotest_pipeop_variant_transform = function(variant_transform) { # nolint
+  variant_transform = po("transform_resize", size = c(5, 4))
+  expect_class(variant_transform, c("PipeOpVariantTransform", "PipeOpTorch"))
+  intask = nano_dogs_vs_cats()
+
+  example = intask$data(1L, cols = "x")[[1L]]
+  example_tnsr = load_lazy_tensor(example)[[1L]]
+
+  outtask = variant_transform$train(list(intask))[[1L]]
+
+  shapes_in = example[[1L]]$data_descriptor$.pointer_shape
+
+  po_fn = PipeOpModule$new(
+    module = get_private(variant_transform)$.make_module(shapes_in, variant_transform$param_set$values, intask)
+  )
+
+  example_tnsr_out = po_fn$train(list(example_tnsr))[[1L]]
+
+
+
+}
