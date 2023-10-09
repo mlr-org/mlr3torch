@@ -10,7 +10,7 @@ By doing so, this allows to assemble \code{PipeOpModule}s in a computational \co
 represents a neural network architecture. Such a graph can also be used to create a \code{\link{nn_graph}} which inherits
 from \code{\link{nn_module}}.
 
-In most cases it is easier to create such a network by creating a isomorphic graph consisting
+In most cases it is easier to create such a network by creating a related graph consisting
 of nodes of class \code{\link{PipeOpTorchIngress}} and \code{\link{PipeOpTorch}}. This graph will then generate the graph consisting
 of \code{PipeOpModule}s as part of the \code{\link{ModelDescriptor}}.
 }

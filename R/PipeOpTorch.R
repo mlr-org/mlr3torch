@@ -5,7 +5,7 @@
 #' @description
 #' `PipeOpTorch` is the base class for all [`PipeOp`]s that represent neural network layers in a [`Graph`].
 #' During **training**, it generates a [`PipeOpModule`] that wraps an [`nn_module`][torch::nn_module] and attaches it
-#' to the isomorphic architecture, which is also represented as a [`Graph`] consisting mostly of [`PipeOpModule`]s
+#' to the architecture, which is also represented as a [`Graph`] consisting mostly of [`PipeOpModule`]s
 #' an [`PipeOpNOP`]s.
 #'
 #' While the former [`Graph`] operates on [`ModelDescriptor`]s, the latter operates on [tensors][torch_tensor].
@@ -74,7 +74,7 @@
 #' `id` and the `channel` name of the sending `PipeOp` in the slot `.pointer`.
 #'
 #' The new graph in the [`model_descriptor_union`] represents the current state of the neural network
-#' architecture. It is isomorphic to the subgraph that consists of all pipeops of class `PipeOpTorch` and
+#' architecture. It is structurally similar to the subgraph that consists of all pipeops of class `PipeOpTorch` and
 #' [`PipeOpTorchIngress`] that are ancestors of this `PipeOpTorch`.
 #'
 #' For the output, a shallow copy of the [`ModelDescriptor`] is created and the `.pointer` and

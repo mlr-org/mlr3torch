@@ -24,6 +24,13 @@ Information that is available before the backend is constructed is:
 }
 
 Beware that accessing the backend's hash also contructs the backend.
+
+\strong{Important}
+
+When the constructor generates \code{factor()} variables it is important that the ordering of the levels agrees with
+the ordering of the levels in the \code{col_info} argument.
+Because the ordering of the level depends on the locale, it is recommended to e.g. use the \code{C} locale in the
+\code{constructor} function.
 }
 \examples{
 # We first define a backend constructor
