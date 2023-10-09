@@ -69,10 +69,13 @@ PipeOpTorchLazyTransform = R6Class("PipeOpTorchLazyTransform",
     },
     .train = function(inputs) {
       if (test_class(inputs[[1L]], "ModelDescriptor")) {
-        super$.train(inputs)
+        x = super$.train(inputs)
       } else if (test_class(inputs[[1L]], "Task")) {
-        private$.transform_task(inputs)
+        x = private$.transform_task(inputs)
+      } else {
+        stopf("Unsupported input type '%s'.", class(inputs)[[1L]])
       }
+      return(x)
     },
     .predict = function(inputs) {
       if (test_class(inputs[[1L]], "ModelDescriptor")) {

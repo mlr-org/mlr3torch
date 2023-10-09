@@ -77,7 +77,6 @@ task_dataset = dataset(
 
 
     # CONTINUE HERE:
-    tensor_env = new.env(
     # Because we might load the same batches multiple times
     datapool_lazy_resolved = map(datapool[, self$lazy_tensor_columns, with = FALSE], function(column) {
       map(column, function(elt) {

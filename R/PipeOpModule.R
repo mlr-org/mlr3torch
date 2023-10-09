@@ -128,7 +128,8 @@ PipeOpModule = R6Class("PipeOpModule",
     },
     .multi_output = FALSE,
     .additional_phash_input = function() {
-      list(self$module, self$input$name, self$output$name, self$packages)
+      # otherwise different nn_linear(1, 1) would get the same hash
+      list(address(self$module), self$input$name, self$output$name, self$packages)
     }
   )
 )

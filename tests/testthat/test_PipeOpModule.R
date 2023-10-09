@@ -27,3 +27,9 @@ test_that("PipeOpModule works", {
   expect_true(all(sort(names(y)) == c("out1", "out2")))
   expect_list(y, types = "torch_tensor")
 })
+
+test_that("hash of PipeOpModule changes with different instantiations of the same module", {
+  expect_false(
+    po("module", module = nn_linear(10, 1))$hash == po("module", module = nn_linear(10, 1))$hash
+  )
+})
