@@ -8,7 +8,7 @@
 #' represents a neural network architecture. Such a graph can also be used to create a [`nn_graph`] which inherits
 #' from [`nn_module`].
 #'
-#' In most cases it is easier to create such a network by creating a isomorphic graph consisting
+#' In most cases it is easier to create such a network by creating a structurally related graph consisting
 #' of nodes of class [`PipeOpTorchIngress`] and [`PipeOpTorch`]. This graph will then generate the graph consisting
 #' of `PipeOpModule`s as part of the [`ModelDescriptor`].
 #'

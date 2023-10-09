@@ -7,7 +7,7 @@
 \description{
 \code{PipeOpTorch} is the base class for all \code{\link{PipeOp}}s that represent neural network layers in a \code{\link{Graph}}.
 During \strong{training}, it generates a \code{\link{PipeOpModule}} that wraps an \code{\link[torch:nn_module]{nn_module}} and attaches it
-to the isomorphic architecture, which is also represented as a \code{\link{Graph}} consisting mostly of \code{\link{PipeOpModule}}s
+to the architecture, which is also represented as a \code{\link{Graph}} consisting mostly of \code{\link{PipeOpModule}}s
 an \code{\link{PipeOpNOP}}s.
 
 While the former \code{\link{Graph}} operates on \code{\link{ModelDescriptor}}s, the latter operates on \link[=torch_tensor]{tensors}.
@@ -84,7 +84,7 @@ This is possible because every incoming \code{\link{ModelDescriptor}} contains t
 \code{id} and the \code{channel} name of the sending \code{PipeOp} in the slot \code{.pointer}.
 
 The new graph in the \code{\link{model_descriptor_union}} represents the current state of the neural network
-architecture. It is isomorphic to the subgraph that consists of all pipeops of class \code{PipeOpTorch} and
+architecture. It is structurally similar to the subgraph that consists of all pipeops of class \code{PipeOpTorch} and
 \code{\link{PipeOpTorchIngress}} that are ancestors of this \code{PipeOpTorch}.
 
 For the output, a shallow copy of the \code{\link{ModelDescriptor}} is created and the \code{.pointer} and
