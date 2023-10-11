@@ -157,7 +157,7 @@ conv_output_shape = function(shape_in, conv_dim, padding, dilation, stride, kern
   shape_in = assert_integerish(shape_in, min.len = conv_dim + 1, coerce = TRUE)
   shape_head = utils::head(shape_in, -(conv_dim + 1))
   if (length(shape_head) == 0) {
-    warningf("Input tensor does not have hve batch dimension")
+    warningf("Input tensor does not have have batch dimension.")
   }
   shape_tail = utils::tail(shape_in, conv_dim)
   c(shape_head, out_channels,

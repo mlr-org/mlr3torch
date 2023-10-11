@@ -196,7 +196,7 @@ test_that("model_descriptor_union basic checks", {
   expect_identical(observed_edges, expected_edges)
 })
 
-test_that("model_desriptor_union verifies input correctly", {
+test_that("model_descriptor_union verifies input correctly", {
   expect_error(model_descriptor_union(list(), list()), regexp = "Must inherit from class")
 
   task = tsk("iris")

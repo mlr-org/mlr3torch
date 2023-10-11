@@ -58,13 +58,15 @@ Suggests:
     magick,
     progress,
     rmarkdown,
+    vctrs,
     viridis,
     torchvision,
     testthat (>= 3.0.0),
     zip
 Remotes:
     r-lib/zip,
-    mlr-org/mlr3@col_info
+    mlr-org/mlr3,
+    mlr-org/mlr3pipelines@feat/keep_results
 Config/testthat/edition: 3
 NeedsCompilation: no
 ByteCompile: no
@@ -81,6 +83,7 @@ Collate:
     'CallbackSetProgress.R'
     'ContextTorch.R'
     'DataBackendLazy.R'
+    'DataDescriptor.R'
     'LearnerTorch.R'
     'LearnerTorchImage.R'
     'LearnerTorchAlexNet.R'
@@ -110,13 +113,16 @@ Collate:
     'PipeOpTorchReshape.R'
     'PipeOpTorchSoftmax.R'
     'ResamplingRowRoles.R'
+    'TaskClassif_mnist.R'
     'TaskClassif_tiny_imagenet.R'
     'TorchDescriptor.R'
     'TorchOptimizer.R'
     'bibentries.R'
     'cache.R'
     'imageuri.R'
+    'lazy_tensor.R'
     'learner_torch_methods.R'
+    'materialize.R'
     'nn_graph.R'
     'paramset_torchlearner.R'
     'rd_info.R'

@@ -36,7 +36,7 @@ make_check_vector = function(d) {
     }
     tmp = if (d == 1) "." else sprintf(" or %s.", d)
     sprintf("Must be an integerish vector of length 1%s", tmp)
-    }, d = d, .parent = topenv())
+    }, d, .parent = topenv())
 }
 
 check_function_or_null = function(x) check_function(x, null.ok = TRUE)
@@ -58,17 +58,6 @@ broadcast = function(shape1, shape2) {
 
 broadcast_list = function(...) {
   Reduce(broadcast, list(...))
-}
-
-assert_shape = function(shape, name) {
-  if (!(is.na(shape[[1L]]) && sum(is.na(shape)) == 1)) {
-    stopf("Input '%s' has shape (%s) but must have exactly one NA in the first dimension (batch size).",
-      name, paste0(shape, collapse = ", "))
-  }
-}
-
-assert_shapes = function(shapes) {
-  iwalk(shapes, function(shape, name) assert_shape(shape, name))
 }
 
 check_nn_module_generator = function(x) {
@@ -159,3 +148,47 @@ test_equal_col_info = function(x, y) {
 
 }
 
+
+# a function that has argument names 'names' and returns its arguments as a named list.
+# used to simulate argument matching for `...`-functions.
+# example:
+# f = argument_matcher(c("a", "b", "c"))
+# f(1, 2, 3) --> list(a = 1, b = 2, c = 3)
+# f(1, 2, a = 3) --> list(a = 3, b = 1, c = 2)
+# usecase:
+# ff = function(...) {
+#   l = argument_matcher(c("a", "b", "c"))(...)
+#   l$a + l$b
+# }
+# # behaves like
+# ff(a, b, c) a + b
+# (Except in the aqward case of missing args)
+argument_matcher = function(args) {
+  fn = as.function(c(named_list(args, substitute()), quote(as.list(environment()))))
+  environment(fn) = topenv()
+  fn
+}
+
+as_shape = function(shape) {
+  assert_integerish(shape)
+  if (!is.na(shape[1L])) {
+    shape = c(NA_integer_, shape)
+  }
+  assert_integerish(shape[-1], any.missing = FALSE)
+  shape
+}
+
+assert_shape = function(shape, null.ok = FALSE) { # nolint
+  if (is.null(shape) && null.ok) return(TRUE)
+
+  assert_integerish(shape, min.len = 2L)
+  if (!(is.na(shape[[1L]]) || anyNA(shape[-1L]))) {
+    stopf("Shape must have exactly one NA in the batch dimension.")
+  }
+  TRUE
+}
+
+assert_shapes = function(shapes) {
+  assert_list(shapes, names = "unique", min.len = 1L)
+  walk(shapes, assert_shape)
+}

@@ -315,3 +315,52 @@ PipeOpTorchIngressImage = R6Class("PipeOpTorchIngressImage",
   )
 )
 register_po("torch_ingress_img", PipeOpTorchIngressImage)
+
+#' @title Ingress for Lazy Tensor
+#' @name mlr_pipeops_torch_ingress_ltnsr
+#' @description
+#' Ingress for [`lazy_tensor`] column.
+#' This ingress might not return the #' @inheritSection mlr_pipeops_torch_ingress Input and Output Channels
+#' @inheritSection mlr_pipeops_torch_ingress State
+#'
+#' @section Parameters:
+#' No parameters.
+#'
+#' @section Internals:
+#' The output of the created batchgetter merely returns the data as is.
+#' The dataset is then responsible to materialize the tensors.
+#' By doing so, the data-loading can be made more efficient, e.g. when two different ingress tokens exist
+#' for lazy tensors columns that share the same dataset.
+#' @family PipeOps
+#' @family Graph Network
+#' @export
+#' @examples
+#' TODO:
+PipeOpTorchIngressLazyTensor = R6Class("PipeOpTorchIngressLazyTensor",
+  inherit = PipeOpTorchIngress,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "torch_ingress_ltnsr", param_vals = list()) {
+      super$initialize(id = id, param_vals = param_vals, feature_types = "lazy_tensor")
+    }
+  ),
+  private = list(
+    .shape = function(task, param_vals) {
+      lazy_cols = task$feature_types[get("type") == "lazy_tensor", "id"][[1L]]
+      if (length(lazy_cols) != 1L) {
+        stopf("PipeOpTorchIngressLazyTensor expects 1 lazy_tensor feature, but got %i.", length(lazy_cols))
+      }
+      example = task$data(task$row_ids[1L], lazy_cols)[[1L]][[1L]]
+      attr(example, "data_descriptor")$.pointer_shape
+    },
+    .get_batchgetter = function(task, param_vals) {
+      crate(function(data, device) {
+        data[[1L]]
+      })
+    }
+  )
+)
+
+register_po("torch_ingress_ltnsr", PipeOpTorchIngressLazyTensor)

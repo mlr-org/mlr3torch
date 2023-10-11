@@ -27,16 +27,37 @@ nano_dogs_vs_cats = function(id = "nano_dogs_vs_cats") {
 nano_mnist = function(id = "nano_mnist") {
   assert_string(id)
   path = testthat::test_path("assets", "nano_mnist")
-  image_names = list.files(path)
-  uris = normalizePath(file.path(path, image_names))
+  data = readRDS(file.path(path, "data.rds"))
 
-  images = imageuri(uris)
+  ds = dataset(
+    initialize = function(images) {
+      self$images = torch_tensor(images, dtype = torch_float32())
+    },
+    .getbatch = function(idx) {
+      list(image = self$images[idx, , , drop = FALSE])
+    },
+    .length = function() dim(self$images)[1L]
+  )(data$image)
 
-  labels = map_chr(image_names, function(name) {strsplit(name, split = "")[[1L]][1L]})
+  data_descriptor = DataDescriptor(dataset = ds, list(image = c(NA, 1, 28, 28)))
 
-  dat = data.table(x = images, letter = labels)
+  dt = data.table(
+    image = lazy_tensor(data_descriptor),
+    label = droplevels(data$label),
+    row_id = seq_along(data$label)
+  )
 
-  task = as_task_classif(dat, id = "nano_mnist", label = "Letter Classification", target = "letter")
+  backend = DataBackendDataTable$new(data = dt, primary_key = "row_id")
+
+  task = TaskClassif$new(
+    backend = backend,
+    id = "nano_mnisst",
+    target = "label",
+    label = "MNIST Nano"
+  )
+
+  task$col_roles$feature = "image"
+
   task
 }
 

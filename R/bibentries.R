@@ -63,5 +63,15 @@ bibentries = c( # nolint start
     pages = "248--255",
     year = "2009",
     organization = "IEEE"
+  ),
+  mnist = bibentry("article",
+    author='Lecun, Y. and Bottou, L. and Bengio, Y. and Haffner, P.',
+    journal='Proceedings of the IEEE',
+    title='Gradient-based learning applied to document recognition',
+    year='1998',
+    volume='86',
+    number='11',
+    pages='2278-2324',
+    doi='10.1109/5.726791'
   )
 ) # nolint end

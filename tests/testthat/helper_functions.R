@@ -242,3 +242,15 @@ expect_graph = function(g, n_nodes = NULL, n_edges = NULL) {
 
   expect_flag(g$is_trained)
 }
+
+random_dataset = dataset("random_dataset",
+  initialize = function(..., n = 10) {
+    self$x = torch_randn(n, ...)
+  },
+  .getitem = function(i) {
+    list(x = self$x[i, ..])
+  },
+  .length = function() {
+    nrow(self$x)
+  }
+)
