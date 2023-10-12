@@ -192,3 +192,7 @@ assert_shapes = function(shapes) {
   assert_list(shapes, names = "unique", min.len = 1L)
   walk(shapes, assert_shape)
 }
+
+assert_lazy_tensor = function(x) {
+  assert_class(x, "lazy_tensor")
+}

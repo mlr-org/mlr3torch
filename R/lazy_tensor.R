@@ -100,3 +100,45 @@ is_lazy_tensor = function(x) {
   inherits(x, "lazy_tensor")
 }
 
+#' @title Transform Lazy Tensor
+#' @description
+#' Input must be PipeOpModule with exactly one input and one output
+#' shape must be shape with NA in first dimension
+#' @param lt ([`lazy_tensor`])\cr
+#'   A lazy tensor vector.
+#' @param pipeop ([`PipeOpModule`])\cr
+#'   The pipeop to be added to the preprocessing graph(s) of the lazy tensor.
+#'   Must have one input and one output.
+#' @param shape (`integer()`)\cr
+#'   The shape of the lazy tensor (without the batch dimension).
+#' @param clone_graph (`logical(1)`)\cr
+#'   Whether to clone the graph from the data descriptor.
+#' @noRd
+transform_lazy_tensor = function(lt, pipeop, shape, clone_graph = TRUE) {
+  assert_lazy_tensor(lt)
+  assert_class(pipeop, "PipeOpModule")
+  assert_true(nrow(pipeop$input) == 1L)
+  assert_true(nrow(pipeop$output) == 1L)
+  assert_shape(shape)
+  assert_flag(clone_graph)
+
+  data_descriptor = attr(lt, "data_descriptor")
+
+  if (clone_graph) {
+    data_descriptor$graph = data_descriptor$graph$clone(deep = TRUE)
+  }
+
+  data_descriptor$graph$add_pipeop(pipeop$clone(deep = TRUE))
+  data_descriptor$graph$add_edge(
+    src_id = data_descriptor$.pointer[1L],
+    src_channel = data_descriptor$.pointer[2L],
+    dst_id = pipeop$id,
+    dst_channel = pipeop$input$name
+  )
+
+  data_descriptor$.pointer = c(pipeop$id, pipeop$output$name)
+  data_descriptor$.pointer_shape = shape
+  data_descriptor = set_data_descriptor_hash(data_descriptor)
+
+  new_lazy_tensor(data_descriptor, vec_data(lt))
+}

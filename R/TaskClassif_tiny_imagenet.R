@@ -83,15 +83,15 @@ load_task_tiny_imagenet = function(id = "tiny_imagenet") {
       dt = cached(constructor_tiny_imagenet, "datasets", "tiny_imagenet")$data
     })
     dt$image = imageuri(dt$image)
-    dt$row_id = seq_len(nrow(dt))
-    DataBackendDataTable$new(data = dt, primary_key = "row_id")
+    dt$..row_id = seq_len(nrow(dt))
+    DataBackendDataTable$new(data = dt, primary_key = "..row_id")
   }
 
   backend = DataBackendLazy$new(
     constructor = cached_constructor,
     rownames = seq_len(120000),
     col_info = load_col_info("tiny_imagenet"),
-    primary_key = "row_id",
+    primary_key = "..row_id",
     data_formats = "data.table"
   )
 

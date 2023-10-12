@@ -249,22 +249,24 @@ PipeOpTorch = R6Class("PipeOpTorch",
     #'   [`PipeOp`] during training must return a named `list()`, where the names of the list are the
     #'   names out the output channels. The default is `"output"`.
     initialize = function(id, module_generator, param_set = ps(), param_vals = list(),
-      inname = "input", outname = "output", packages = "torch", tags = NULL) {
+      inname = "input", outname = "output", packages = "torch", tags = NULL, variant_types = FALSE) {
       self$module_generator = assert_class(module_generator, "nn_module_generator", null.ok = TRUE)
       assert_character(inname, .var.name = "input channel names")
       assert_character(outname, .var.name = "output channel names", min.len = 1L)
       assert_character(tags, null.ok = TRUE)
       assert_character(packages, any.missing = FALSE)
 
-      input = data.table(name = inname, train = "ModelDescriptor", predict = "Task")
-      output = data.table(name = outname, train = "ModelDescriptor", predict = "Task")
+      packages = union(packages, "torch")
+      data_type = if (variant_types) "*" else "ModelDescriptor"
+      input = data.table(name = inname, train = data_type, predict = "*")
+      output = data.table(name = outname, train = data_type, predict = "*")
 
       assert_r6(param_set, "ParamSet")
-      walk(param_set$params, function(p) {
-        if (!(("train" %in% p$tags) && !("predict" %in% p$tags))) {
-          stopf("Parameters of PipeOps inheriting from PipeOpTorch must only be active during training.")
-        }
-      })
+      #walk(param_set$params, function(p) {
+      #  if (!(("train" %in% p$tags) && !("predict" %in% p$tags))) {
+      #    stopf("Parameters of PipeOps inheriting from PipeOpTorch must only be active during training.")
+      #  }
+      #})
 
       super$initialize(
         id = id,

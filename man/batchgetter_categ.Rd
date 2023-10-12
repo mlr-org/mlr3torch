@@ -4,7 +4,7 @@
 \alias{batchgetter_categ}
 \title{Batchgetter for Categorical data}
 \usage{
-batchgetter_categ(data, device)
+batchgetter_categ(data, device, ...)
 }
 \arguments{
 \item{data}{(\code{data.table})\cr
@@ -12,6 +12,9 @@ batchgetter_categ(data, device)
 
 \item{device}{(\code{character(1)})\cr
 The device.}
+
+\item{...}{(any)\cr
+Unused.}
 }
 \description{
 Converts a data frame of categorical data into a long tensor by converting the data to integers.

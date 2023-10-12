@@ -252,8 +252,6 @@ PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
       c(NA, length(task$feature_names))
     },
     .get_batchgetter = function(task, param_vals) {
-      # Note that this function can only be called successfully if either select is TRUE or the task contains
-      # only factors and logicals. In both cases the formula below is correct
       batchgetter_categ
     }
   )
@@ -356,11 +354,13 @@ PipeOpTorchIngressLazyTensor = R6Class("PipeOpTorchIngressLazyTensor",
       attr(example, "data_descriptor")$.pointer_shape
     },
     .get_batchgetter = function(task, param_vals) {
-      crate(function(data, device) {
-        data[[1L]]
-      })
+      batchgetter_lazy_tensor
     }
   )
 )
+
+batchgetter_lazy_tensor = function(data, device, cache) {
+  materialize_internal(x = data[[1L]], device = device, cache = cache)
+}
 
 register_po("torch_ingress_ltnsr", PipeOpTorchIngressLazyTensor)

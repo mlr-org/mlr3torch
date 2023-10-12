@@ -19,7 +19,7 @@ expect_po_ingress = function(po_ingress, task) {
   ds = task_dataset(task, ingress, device = "cpu")
   batch = ds$.getbatch(1)
   x = batch$x[[1L]]
-  testthat::expect_true(torch_equal(x, token$ingress[[1L]]$batchgetter(task$data(1, token$task$feature_names), "cpu")))
+  testthat::expect_true(torch_equal(x, token$ingress[[1L]]$batchgetter(task$data(1, token$task$feature_names), "cpu", cache = NULL)))
 }
 
 expect_man_exists = function(man) {

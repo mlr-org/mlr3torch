@@ -45,6 +45,29 @@ task_dataset = dataset(
     self$task = assert_r6(task$clone(deep = TRUE), "Task")
     self$feature_ingress_tokens = assert_list(feature_ingress_tokens, types = "TorchIngressToken", names = "unique")
 
+    lazy_tensor_features = self$task$feature_types[get("type") == "lazy_tensor"][[1L]]
+    self$cache_lazy_tensors = length(lazy_tensor_features) > 1L
+
+
+    # Here, we could have multiple `lazy_tensor` columns that share parts of the graph
+    # We try to merge those graphs if possible
+    if (length(lazy_tensor_features) > 1L) {
+      first_row = self$task$data(self$task$row_ids[1L], cols = lazy_tensor_features)
+      graphs = map(first_row, function(x) attr(x, "data_descriptor")$graph)
+      graphs = graphs[!duplicated(graphs)]
+      graphs[[1L]] = graphs[[1L]]$clone(deep = TRUE)
+      merged_graph = try(Reduce(function(x, y) merge_graphs(x, y, in_place = TRUE), graphs), silent = TRUE)
+
+      if (!inherits(merged_graph, "try-error")) {
+        data = self$task$data(cols = lazy_tensor_features)
+        data = map_dtc(data, function(x) {
+          attr(x, "data_descriptor")$graph = merged_graph
+          x
+        })
+        task$cbind(data)
+      }
+    }
+
     iwalk(feature_ingress_tokens, function(it, nm) {
       if (length(it$features) == 0) {
         stopf("Received ingress token '%s' with no features.", nm)
@@ -57,11 +80,12 @@ task_dataset = dataset(
     self$device = assert_choice(device, mlr_reflections$torch$devices)
   },
   .getbatch = function(index) {
+    cache = if (self$cache_lazy_tensors) new.env()
+
     datapool = self$task$data(rows = self$task$row_ids[index], cols = self$all_features)
     x = lapply(self$feature_ingress_tokens, function(it) {
-      it$batchgetter(datapool[, it$features, with = FALSE], self$device)
+      it$batchgetter(datapool[, it$features, with = FALSE], self$device, cache = cache)
     })
-    x = materialize(x, device = self$device)
 
     y = if (!is.null(self$target_batchgetter)) {
       self$target_batchgetter(datapool[, self$task$target_names, with = FALSE],
@@ -137,8 +161,10 @@ dataset_num_categ = function(task, param_vals) {
 #'   `data.table` to be converted to a `tensor`.
 #' @param device (`character(1)`)\cr
 #'   The device on which the tensor should be created.
+#' @param ... (any)\cr
+#'   Unused.
 #' @export
-batchgetter_num = function(data, device) {
+batchgetter_num = function(data, device, ...) {
   torch_tensor(
     data = as.matrix(data),
     dtype = torch_float(),
@@ -157,8 +183,10 @@ batchgetter_num = function(data, device) {
 #'   `data.table` to be converted to a `tensor`.
 #' @param device (`character(1)`)\cr
 #'   The device.
+#' @param ... (any)\cr
+#'   Unused.
 #' @export
-batchgetter_categ = function(data, device) {
+batchgetter_categ = function(data, device, ...) {
   torch_tensor(
     data = as.matrix(data[, lapply(.SD, as.integer)]),
     dtype = torch_long(),
@@ -168,7 +196,7 @@ batchgetter_categ = function(data, device) {
 
 
 get_batchgetter_img = function(imgshape) {
-  crate(function(data, device) {
+  crate(function(data, device, ...) {
     tensors = lapply(data[[1]], function(uri) {
       tnsr = torchvision::transform_to_tensor(magick::image_read(uri))
       assert_true(length(tnsr$shape) == length(imgshape) && all(tnsr$shape == imgshape))

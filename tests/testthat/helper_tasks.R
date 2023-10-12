@@ -30,9 +30,9 @@ nano_mnist = function(id = "nano_mnist") {
   data = readRDS(file.path(path, "data.rds"))
 
   ds = dataset(
-    initialize = function(images) {
+    initialize = crate(function(images) {
       self$images = torch_tensor(images, dtype = torch_float32())
-    },
+    }),
     .getbatch = function(idx) {
       list(image = self$images[idx, , , drop = FALSE])
     },
@@ -44,14 +44,14 @@ nano_mnist = function(id = "nano_mnist") {
   dt = data.table(
     image = lazy_tensor(data_descriptor),
     label = droplevels(data$label),
-    row_id = seq_along(data$label)
+    ..row_id = seq_along(data$label)
   )
 
-  backend = DataBackendDataTable$new(data = dt, primary_key = "row_id")
+  backend = DataBackendDataTable$new(data = dt, primary_key = "..row_id")
 
   task = TaskClassif$new(
     backend = backend,
-    id = "nano_mnisst",
+    id = "nano_mnist",
     target = "label",
     label = "MNIST Nano"
   )

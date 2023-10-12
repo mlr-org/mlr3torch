@@ -64,18 +64,18 @@ load_task_mnist = function(id = "mnist") {
     dt = data.table(
       image = lazy_tensor(data_descriptor),
       label = data$label,
-      row_id = seq_along(data$label),
+      ..row_id = seq_along(data$label),
       split = factor(c(rep("train", 60000), rep("test", 10000)))
     )
 
-    DataBackendDataTable$new(data = dt, primary_key = "row_id")
+    DataBackendDataTable$new(data = dt, primary_key = "..row_id")
   }
 
   backend = DataBackendLazy$new(
     constructor = cached_constructor,
     rownames = seq_len(70000),
     col_info = load_col_info("mnist"),
-    primary_key = "row_id",
+    primary_key = "..row_id",
     data_formats = "data.table"
   )
 

@@ -42,7 +42,7 @@ Imports:
     checkmate (>= 2.2.0),
     coro,
     lgr,
-    mlr3misc (>= 0.11.0),
+    mlr3misc (>= 0.13.0),
     methods,
     data.table,
     paradox (>= 0.11.0),
@@ -103,6 +103,7 @@ Collate:
     'PipeOpTorchHead.R'
     'PipeOpTorchIngress.R'
     'PipeOpTorchLayerNorm.R'
+    'PipeOpTorchLazyTransform.R'
     'PipeOpTorchLinear.R'
     'TorchLoss.R'
     'PipeOpTorchLoss.R'
@@ -123,6 +124,7 @@ Collate:
     'lazy_tensor.R'
     'learner_torch_methods.R'
     'materialize.R'
+    'merge_graphs.R'
     'nn_graph.R'
     'paramset_torchlearner.R'
     'rd_info.R'

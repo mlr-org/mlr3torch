@@ -41,6 +41,18 @@ test_that("PipeOpTorchIngressLazyTensor", {
   batch_meta = ds_meta$.getbatch(2:3)
   expect_true(batch_meta$x$torch_ingress_ltnsr.input$device == torch_device("meta"))
 
+  task_old = task$clone()
   task$cbind(data.frame(row_id = 1:10, x_num = 1:10))
   expect_po_ingress(po_ingress, task)
+
+  graph = po("torch_ingress_ltnsr") %>>%
+    po("nn_flatten") %>>%
+    po("nn_linear", out_features = 10) %>>%
+    po("nn_relu") %>>%
+    po("nn_head") %>>%
+    po("torch_loss", "cross_entropy") %>>%
+    po("torch_optimizer") %>>%
+    po("torch_model_classif", epochs = 1L, device = "cpu", batch_size = 16)
+
+  graph$train(task_old)
 })

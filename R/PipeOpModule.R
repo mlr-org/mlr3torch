@@ -125,7 +125,10 @@ PipeOpModule = R6Class("PipeOpModule",
     .predict = function(inputs) {
       rep(list(NULL), nrow(self$output))
     },
-    .multi_output = FALSE
+    .multi_output = FALSE,
+    .additional_phash_input = function() {
+      list(address(self$module), self$input$name, self$output$name, self$packages)
+    }
   )
 )
 
