@@ -6,11 +6,35 @@
 \usage{
 materialize(x, device = "cpu", ...)
 }
+\value{
+(\code{\link[=torch_tensor]{torch_tensor()}} or \code{\link[=list]{list()}})
+}
 \description{
-This will materialize all columns from a \code{data.frame} containing \code{\link[=lazy_tensor]{lazy_tensor()}} columns.
+This will materialize a \code{\link[=lazy_tensor]{lazy_tensor()}} or a \code{\link[=data.frame]{data.frame()}} / \code{\link[=list]{list()}} containing -- among other things --
+\code{\link[=lazy_tensor]{lazy_tensor()}} columns.
+I.e. the data described in the underlying \code{\link{DataDescriptors}} is loaded for the indices in the \code{\link[=lazy_tensor]{lazy_tensor()}}
+and is afterwards put on the specified device.
 }
 \details{
-Caching is applied to ensure that each batch from the datasets wrapped by the lazy tensors is only loaded once.
-It is also ensured that each graph is only applied once to a given input batch, i.e. different columns
-can share the same graph, dataset and indices but point to different outputs.
+Materializing a lazy tensor consists of:
+\enumerate{
+\item Loading the data from the internal dataset of the \code{\link{DataDescriptor}}.
+\item Processing these batches in the preprocessing \code{\link{Graph}}s.
+\item Returning the result of the \code{\link{PipeOp}} pointed to by the \code{\link{DataDescriptor}} (\code{.pointer}).
+}
+
+With multiple \code{\link{lazy_tensor}} columns we can benefit from caching because:
+a) Output(s) from the dataset might be input to multiple graphs.
+b) Different lazy tensors might be outputs from the same graph.
+
+For this reason it is possible to provide a cache environment.
+The hash key for a) is the hash of the indices and the dataset.
+The hash key for b) is the hash of the indices dataset and preprocessing graph.
+}
+\examples{
+lt1 = as_lazy_tensor(torch_randn(10, 3))
+materialize(lt1)
+lt2 = as_lazy_tensor(torch_randn(10, 4))
+d = data.frame(lt1 = lt1, lt2 = lt2)
+materialize(d)
 }

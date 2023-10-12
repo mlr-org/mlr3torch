@@ -49,14 +49,30 @@ as_lazy_tensor = function(x, ...) {
 }
 
 #' @export
-as_lazy_tensor.DataDescriptor = function(x, ids = NULL) {
-  lazy_tensor(data_descriptor, ids = ids)
+as_lazy_tensor.DataDescriptor = function(x, ids = NULL) { # nolint
+  lazy_tensor(x, ids = ids)
 }
 
 #' @export
-as_lazy_tensor.dataset = function(x, dataset_shapes, ids = NULL, ...) {
+as_lazy_tensor.dataset = function(x, dataset_shapes, ids = NULL, ...) { # nolint
   dd = DataDescriptor(dataset = x, dataset_shapes = dataset_shapes, ...)
   lazy_tensor(dd, ids)
+}
+
+#' @export
+as_lazy_tensor.torch_tensor = function(x) { # nolint
+  ds = dataset(
+    initialize = function(x) {
+      self$x = x
+    },
+    .getbatch = function(ids) {
+      list(x = self$x[ids, .., drop = FALSE]) # nolint
+    },
+    .length = function(ids) {
+      dim(self$x)[1L]
+    }
+  )(x)
+  as_lazy_tensor(ds, dataset_shapes = list(x = c(NA, dim(x))))
 }
 
 

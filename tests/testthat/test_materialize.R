@@ -12,14 +12,22 @@ test_that("materialize works on lazy_tensor", {
   expect_true(output_meta$device == torch_device("meta"))
 })
 
-test_that("materialize works", {
+test_that("materialize works for data.frame", {
   df = nano_mnist()$data(1:10, cols = "image")
 
   out = materialize(df)
   expect_list(out)
   expect_equal(names(out), "image")
-  expect_class(out, "torch_tensor")
-  expect_equal(out$shape, "torch_tensor")
+  expect_class(out$image, "torch_tensor")
+  expect_equal(out$image$shape, c(10, 1, 28, 28))
+})
+
+test_that("caching of datasets works", {
+  # TODO
+})
+
+test_that("caching of graphs works", {
+  # TODO
 })
 
 
