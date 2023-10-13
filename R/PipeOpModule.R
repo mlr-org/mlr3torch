@@ -83,8 +83,8 @@ PipeOpModule = R6Class("PipeOpModule",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #' @template param_id
-    #' @param module ([`nn_module`])\cr
-    #'   The torch module that is being wrapped.
+    #' @param module ([`nn_module`] or `function()`)\cr
+    #'   The torch module or function that is being wrapped.
     #' @param inname (`character()`)\cr
     #'   The names of the input channels.
     #' @param outname (`character()`)\cr
@@ -95,7 +95,8 @@ PipeOpModule = R6Class("PipeOpModule",
     initialize = function(id = "module", module = nn_identity(), inname = "input", outname = "output",
       param_vals = list(), packages = character(0)) {
       private$.multi_output = length(outname) > 1L
-      self$module = assert_class(module, "nn_module")
+      self$module = assert(check_class(module, "nn_module"), check_class(module, "function"), combine = "or")
+      self$module = module
       assert_names(outname, type = "strict")
       assert_character(packages, any.missing = FALSE)
 

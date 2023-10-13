@@ -292,8 +292,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   inname = "input",
   outname = "output",
   packages = "torch",
-  tags = NULL,
-  variant_types = FALSE
+  tags = NULL
 )}\if{html}{\out{</div>}}
 }
 

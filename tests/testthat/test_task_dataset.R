@@ -302,6 +302,9 @@ test_that("task_dataset works with multiple lazy_tensor columns", {
       po("transform_resize_2", size = c(15, 15))
     )
 
-  graph$train(task)
 
+  # What to do next:
+  # Test that PipeOpTorchLazyTensor works as we want, i.e. all the 8 cases (train-predict, preproc-graph, augment)
+
+  graph$train(task)
 })

@@ -249,7 +249,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
     #'   [`PipeOp`] during training must return a named `list()`, where the names of the list are the
     #'   names out the output channels. The default is `"output"`.
     initialize = function(id, module_generator, param_set = ps(), param_vals = list(),
-      inname = "input", outname = "output", packages = "torch", tags = NULL, variant_types = FALSE) {
+      inname = "input", outname = "output", packages = "torch", tags = NULL) {
       self$module_generator = assert_class(module_generator, "nn_module_generator", null.ok = TRUE)
       assert_character(inname, .var.name = "input channel names")
       assert_character(outname, .var.name = "output channel names", min.len = 1L)
@@ -257,9 +257,8 @@ PipeOpTorch = R6Class("PipeOpTorch",
       assert_character(packages, any.missing = FALSE)
 
       packages = union(packages, "torch")
-      data_type = if (variant_types) "*" else "ModelDescriptor"
-      input = data.table(name = inname, train = data_type, predict = "*")
-      output = data.table(name = outname, train = data_type, predict = "*")
+      input = data.table(name = inname, train = "ModelDescriptor", predict = "*")
+      output = data.table(name = outname, train = "ModelDescriptor", predict = "*")
 
       assert_r6(param_set, "ParamSet")
       #walk(param_set$params, function(p) {
@@ -296,9 +295,15 @@ PipeOpTorch = R6Class("PipeOpTorch",
       } else {
         assert_list(shapes_in, len = nrow(self$input), types = "numeric")
       }
-      pv = self$param_set$get_values()
 
-      set_names(private$.shapes_out(shapes_in, pv, task = task), self$output$name)
+      s = if (is.null(private$.shapes_out)) {
+        shapes_in
+      } else {
+        pv = self$param_set$get_values()
+        private$.shapes_out(shapes_in, pv, task = task, self$output$name)
+      }
+
+      set_names(s, self$output$name)
     }
 
     # TODO: printer that calls the nn_module's printer

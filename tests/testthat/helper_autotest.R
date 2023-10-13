@@ -303,3 +303,8 @@ autotest_torch_callback = function(torch_callback, check_man = TRUE) {
   cb_trained$ctx = "placeholder"
   expect_error(cb_trained$clone(deep = TRUE), "must never be cloned unless")
 }
+
+autotest_pipeop_torch_preprocess = function() {
+  # TODO:
+  # a) Check that all parameters but augment have tags train and predict (this should hold in basically all cases)
+}

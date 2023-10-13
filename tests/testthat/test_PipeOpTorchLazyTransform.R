@@ -1,3 +1,27 @@
+test_that("PipeOpTorchLazyTransform basic checks", {
+  trafo = function(x) torchvision::transform_resize(x, c(10, 10))
+  po_lt = po("lazy_transform", trafo, packages = "R6")
+  expect_pipeop(po_lt)
+  expect_true("R6" %in% po_lt$packages)
+
+  expect_error(
+    po("lazy_transform", function(x) torchvision::transform_resize(x, c(10, 10)), param_set = ps(augment = p_lgl()))
+  )
+
+  taskin = nano_mnist()
+
+  taskout = po_lt$train(list(taskin))[[1L]]
+
+  expect_permutation(taskin$feature_names, taskout$feature_names)
+
+  # transformation is applied as we expect it
+  expect_true(torch_equal(
+    trafo(materialize(taskin$data(cols = "image")[[1L]])),
+    materialize(taskout$data(cols = "image")[[1L]])
+  ))
+
+})
+
 test_that("PipeOpTorchLazyTransform works for preprocessing", {
   task = nano_mnist()
   po_resize = po("transform_resize", size = c(10, 10))
@@ -22,3 +46,5 @@ test_that("PipeOpTorchLazyTransform works in Graph", {
   graph$train(task)[[1L]]
 
 })
+
+test_that("PipeOpTorchLazyTransform works with")
