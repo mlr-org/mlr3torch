@@ -17,6 +17,8 @@ test_that("lazy_tensor works", {
   expect_class(lt1_empty, "lazy_tensor")
 
   lt1_empty[1] = lt1[1]
+
+  expect_class(materialize(lazy_tensor()), "torch_tensor")
 })
 
 test_that("transform_lazy_tensor works", {
