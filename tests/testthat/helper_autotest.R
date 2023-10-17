@@ -308,3 +308,20 @@ autotest_pipeop_torch_preprocess = function() {
   # TODO:
   # a) Check that all parameters but augment have tags train and predict (this should hold in basically all cases)
 }
+
+autotest_preproc_and_trafo = function(obj) {
+  autotest_trafo(obj)
+  autotest_preproc(obj)
+}
+
+autotest_trafo = function(obj) {
+
+}
+
+autotest_preproc = function(obj) {
+  expect_class(obj, "PipeOpTaskPreprocTorch")
+
+  # TODO: Unless the test is disabled, check that all parameters have train and predict tag
+
+
+}

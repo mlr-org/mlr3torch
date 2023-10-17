@@ -349,7 +349,7 @@ Calculates the output shapes for the given input shapes, parameters and task.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{shapes_in}}{(\code{list()} of \code{integer()} or \code{integer()}, task)\cr
+\item{\code{shapes_in}}{(\code{list()} of \code{integer()} or \code{integer()})\cr
 The input input shapes, which must be in the same order as the input channel names of the \code{PipeOp}.
 If there is only one input channel, \code{shapes_in} can also contain the shapes for this input channel.}
 

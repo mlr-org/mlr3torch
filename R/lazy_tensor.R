@@ -60,7 +60,15 @@ as_lazy_tensor.dataset = function(x, dataset_shapes, ids = NULL, ...) { # nolint
 }
 
 #' @export
+as_lazy_tensor.numeric = function(x) { # nolint
+  as_lazy_tensor(torch_tensor(x))
+}
+
+#' @export
 as_lazy_tensor.torch_tensor = function(x) { # nolint
+  if (length(dim(x)) == 1L) {
+    x = x$unsqueeze(2)
+  }
   ds = dataset(
     initialize = function(x) {
       self$x = x
@@ -72,7 +80,7 @@ as_lazy_tensor.torch_tensor = function(x) { # nolint
       dim(self$x)[1L]
     }
   )(x)
-  as_lazy_tensor(ds, dataset_shapes = list(x = c(NA, dim(x))))
+  as_lazy_tensor(ds, dataset_shapes = list(x = c(NA, dim(x)[-1])))
 }
 
 
@@ -102,8 +110,8 @@ is_lazy_tensor = function(x) {
 
 #' @title Transform Lazy Tensor
 #' @description
-#' Input must be PipeOpModule with exactly one input and one output
-#' shape must be shape with NA in first dimension
+#' transform  a [`lazy_tensor`] vector by appending a preprocessing step.
+#'
 #' @param lt ([`lazy_tensor`])\cr
 #'   A lazy tensor vector.
 #' @param pipeop ([`PipeOpModule`])\cr
@@ -111,22 +119,42 @@ is_lazy_tensor = function(x) {
 #'   Must have one input and one output.
 #' @param shape (`integer()`)\cr
 #'   The shape of the lazy tensor (without the batch dimension).
-#' @param clone_graph (`logical(1)`)\cr
-#'   Whether to clone the graph from the data descriptor.
-#' @noRd
-transform_lazy_tensor = function(lt, pipeop, shape, clone_graph = TRUE) {
+#'
+#' @details
+#' The following is done:
+#' 1. A shallow copy of the [`lazy_tensor`]'s preprocessing `graph` is created.
+#' 1. The provided `pipeop` is added to the (shallowly cloned) `graph` and connected to the current `.pointer` of the
+#' [`DataDescriptor`].
+#' 1. The `.pointer` of the [`DataDescriptor`] is updated to point to the new output channel of the `pipeop`.
+#' 1. The `.pointer_shape` of the [`DataDescriptor`] set to the provided `shape`.
+#' 1. The `.hash` of the [`DataDescriptor`] is updated.
+#' Input must be PipeOpModule with exactly one input and one output
+#' shape must be shape with NA in first dimension
+#'
+#' @return [`lazy_tensor`]
+#' @examples
+#' lt = as_lazy_tensor(1:10)
+#' add_five = po("module", module = function(x) x + 5)
+#' lt_plus_five = transform_lazy_tensor(lt, add_five, c(NA, 1))
+#' torch_cat(list(materialize(lt),  materialize(lt_plus_five)), dim = 2)
+#' # graph is cloned
+#' identical(lt$graph, lt_plus_five$graph)
+#' lt$graph$edges
+#' lt_plus_five$graph_edges
+#' # pipeops are not cloned
+#' identical(lt$graph$pipeops[[1]], lt_plus_five$graph[[1]])
+#' @export
+transform_lazy_tensor = function(lt, pipeop, shape) {
   assert_lazy_tensor(lt)
   assert_class(pipeop, "PipeOpModule")
   assert_true(nrow(pipeop$input) == 1L)
   assert_true(nrow(pipeop$output) == 1L)
   assert_shape(shape)
-  assert_flag(clone_graph)
 
   data_descriptor = attr(lt, "data_descriptor")
 
-  if (clone_graph) {
-    data_descriptor$graph = data_descriptor$graph$clone(deep = TRUE)
-  }
+  data_descriptor$graph = data_descriptor$graph$clone(deep = FALSE)
+  data_descriptor$graph$edges = copy(data_descriptor$graph$edges)
 
   data_descriptor$graph$add_pipeop(pipeop$clone(deep = TRUE))
   data_descriptor$graph$add_edge(
@@ -141,4 +169,17 @@ transform_lazy_tensor = function(lt, pipeop, shape, clone_graph = TRUE) {
   data_descriptor = set_data_descriptor_hash(data_descriptor)
 
   new_lazy_tensor(data_descriptor, vec_data(lt))
+}
+
+#' @export
+`$.lazy_tensor` = function(x, name) {
+  if (name == "data_descriptor") {
+    return(attr(x, "data_descriptor"))
+  }
+
+  x = attr(x, "data_descriptor")[[name]]
+  if (is.null(x)) {
+    stopf("Unknown field '%s'.", name)
+  }
+  return(x)
 }

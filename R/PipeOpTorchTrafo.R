@@ -1,5 +1,5 @@
 #' @title Base Class for Lazy Transformations
-#' @name mlr_pipeops_torch_lazy_trafo
+#' @name mlr_pipeops_torch_trafo
 #'
 #' @description
 #' This `PipeOp` represents simple preprocessing transformations of torch tensors.
@@ -45,7 +45,7 @@
 #' When this PipeOp is used for preprocessing, it creates a [`PipeOpModule`] from the function `fn` (additionally
 #' passing the `param_vals` if there are any) and then adds it to the preprocessing graph that is part of the
 #' [`DataDescriptor`] contained in the [`lazy_tensor`] column that is being preprocessed.
-#' When the outpuf of this pipeop is then preprocessed by a different `PipeOpTorchLazyTrafo` a deep clone of the
+#' When the outpuf of this pipeop is then preprocessed by a different `PipeOpTorchTrafo` a deep clone of the
 #' preprocessing graph is done. However, this deep clone does not clone the environment of the
 #' function or its attributes in case they have a state (as e.g. in [`nn_module()`]s).
 #' When setting the parameter `augment` this meanst that the preprcessing
@@ -67,11 +67,11 @@
 #'   The transformation is always applied to a whole batch of tensors, i.e. the first dimension is the batch dimension.
 #'
 #' @export
-PipeOpTorchLazyTrafo = R6Class("PipeOpTorchLazyTrafo",
+PipeOpTorchTrafo = R6Class("PipeOpTorchTrafo",
   inherit = PipeOpTorch,
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(fn, id = "lazy_trafo", param_vals = list(), param_set = ps(), packages = character(0)) {
+    initialize = function(fn, id = "torch_trafo", param_vals = list(), param_set = ps(), packages = character(0)) {
       private$.fn = assert_function(fn, null.ok = FALSE)
 
       if ("augment" %in% param_set$ids()) {
@@ -136,7 +136,10 @@ PipeOpTorchLazyTrafo = R6Class("PipeOpTorchLazyTrafo",
   )
 )
 
-#' @include zzz.R
-register_po("lazy_trafo", PipeOpTorchLazyTrafo)
+pipeop_torch_trafo = function(fn, id, param_set = NULL) {
 
+}
+
+#' @include zzz.R
+register_po("torch_trafo", PipeOpTorchTrafo)
 

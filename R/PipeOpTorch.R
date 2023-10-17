@@ -279,7 +279,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
     },
     #' @description
     #'  Calculates the output shapes for the given input shapes, parameters and task.
-    #' @param shapes_in (`list()` of `integer()` or `integer()`, task)\cr
+    #' @param shapes_in (`list()` of `integer()` or `integer()`)\cr
     #'   The input input shapes, which must be in the same order as the input channel names of the `PipeOp`.
     #'  If there is only one input channel, `shapes_in` can also contain the shapes for this input channel.
     #' @param task ([`Task`] or `NULL`)\cr
@@ -300,7 +300,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
         shapes_in
       } else {
         pv = self$param_set$get_values()
-        private$.shapes_out(shapes_in, pv, task = task, self$output$name)
+        private$.shapes_out(shapes_in, pv, task = task)
       }
 
       set_names(s, self$output$name)
@@ -381,3 +381,9 @@ PipeOpTorch = R6Class("PipeOpTorch",
     }
   )
 )
+
+pipeop_torch = function(...) {
+  # TODO
+}
+
+

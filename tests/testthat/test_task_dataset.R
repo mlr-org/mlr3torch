@@ -296,10 +296,10 @@ test_that("dataset_img works", {
 test_that("task_dataset works with multiple lazy_tensor columns", {
   task = nano_mnist()
   graph = po("torch_ingress_ltnsr") %>>%
-    po("transform_resize", size = c(40, 40)) %>>%
+    po("trafo_resize", size = c(40, 40)) %>>%
     list(
-      po("transform_resize_1", size = c(30, 30)),
-      po("transform_resize_2", size = c(15, 15))
+      po("trafo_resize_1", size = c(30, 30)),
+      po("trafo_resize_2", size = c(15, 15))
     )
 
 
