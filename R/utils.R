@@ -188,11 +188,15 @@ assert_shape = function(shape, null.ok = FALSE) { # nolint
   TRUE
 }
 
-assert_shapes = function(shapes) {
-  assert_list(shapes, names = "unique", min.len = 1L)
+assert_shapes = function(shapes, named = TRUE) {
+  assert_list(shapes, names = if (named) "unique", min.len = 1L)
   walk(shapes, assert_shape)
 }
 
 assert_lazy_tensor = function(x) {
   assert_class(x, "lazy_tensor")
+}
+
+uniqueify = function(new, existing) {
+  make.unique(c(existing, new), sep = "_")[length(existing) + seq_along(new)]
 }

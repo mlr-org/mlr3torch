@@ -35,7 +35,7 @@ This private method is called to generated the \code{nn_module} that is passed a
 If left as is, it calls the provided \code{module_generator} with the arguments obtained by
 the private method \code{.shape_dependent_params()}.
 \item \code{.shapes_out(shapes_in, param_vals, task)}\cr
-(\code{list()}, \code{list()}) -> named \code{list()}\cr
+(\code{list()}, \code{list()}, \code{Task} or \code{NULL}) -> named \code{list()}\cr
 This private method gets a list of \code{numeric} vectors (\code{shapes_in}), the parameter values (\code{param_vals}),
 as well as an (optional) \code{\link{Task}}.
 The \code{shapes_in} can be assumed to be in the same order as the input names of the \code{PipeOp}.
@@ -349,9 +349,8 @@ Calculates the output shapes for the given input shapes, parameters and task.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{shapes_in}}{(\code{list()} of \code{integer()} or \code{integer()})\cr
-The input input shapes, which must be in the same order as the input channel names of the \code{PipeOp}.
-If there is only one input channel, \code{shapes_in} can also contain the shapes for this input channel.}
+\item{\code{shapes_in}}{(\code{list()} of \code{integer()})\cr
+The input input shapes, which must be in the same order as the input channel names of the \code{PipeOp}.}
 
 \item{\code{task}}{(\code{\link{Task}} or \code{NULL})\cr
 The task, which is very rarely used (default is \code{NULL}). An exception is \code{\link{PipeOpTorchHead}}.}

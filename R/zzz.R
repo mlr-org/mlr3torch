@@ -26,7 +26,7 @@ mlr3torch_learners = new.env()
 mlr3torch_tasks = new.env()
 mlr3torch_resamplings = new.env()
 mlr3torch_pipeop_tags = c("torch", "activation")
-mlr3torch_feature_types = c(img = "imageuri", ltnsr = "lazy_tensor")
+mlr3torch_feature_types = c(img = "imageuri", lt = "lazy_tensor")
 
 # metainf must be manually added in the register_mlr3pipelines function
 # Because the value is substituted, we cannot pass it through this function

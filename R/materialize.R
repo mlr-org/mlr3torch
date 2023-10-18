@@ -32,7 +32,6 @@ materialize = function(x, device = "cpu", ...) {
 }
 
 #' @export
-#' @return (`list()`)
 materialize.list = function(x, device = "cpu") { # nolint
   cache = if (sum(map_lgl(x, is_lazy_tensor)) > 1L) {
     new.env()
@@ -73,7 +72,6 @@ materialize.list = function(x, device = "cpu") { # nolint
 
 
 #' @export
-#' @return ([`torch_tensor()`])
 materialize.lazy_tensor = function(x, device = "cpu") { # nolint
   materialize_internal(x = x, device = device, cache = NULL, set_keep_results = TRUE)
 }
@@ -107,7 +105,7 @@ materialize.lazy_tensor = function(x, device = "cpu") { # nolint
 #'   When caching is done, this should be set to `FALSE` as otherwise data will be discarded that might be relevant
 #'   for materializing other lazy tensor columns.
 #' @return [`lazy_tensor()`]
-#' @noRd
+#' @keywords internal
 materialize_internal = function(x, device = "cpu", cache = NULL, set_keep_results = is.null(cache)) {
   do_caching = !is.null(cache)
   ids = vec_data(x)
@@ -176,5 +174,4 @@ materialize_internal = function(x, device = "cpu", cache = NULL, set_keep_result
 
 #' @method materialize data.frame
 #' @export
-#' @return ([`list()`])
 materialize.data.frame = materialize.list # nolint

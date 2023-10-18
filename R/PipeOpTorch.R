@@ -32,7 +32,7 @@
 #'   If left as is, it calls the provided `module_generator` with the arguments obtained by
 #'   the private method `.shape_dependent_params()`.
 #' * `.shapes_out(shapes_in, param_vals, task)`\cr
-#'   (`list()`, `list()`) -> named `list()`\cr
+#'   (`list()`, `list()`, `Task` or `NULL`) -> named `list()`\cr
 #'   This private method gets a list of `numeric` vectors (`shapes_in`), the parameter values (`param_vals`),
 #'   as well as an (optional) [`Task`].
 #    The `shapes_in` list indicates the shape of input tensors that will be fed to the module's `$forward()` function.
@@ -279,9 +279,8 @@ PipeOpTorch = R6Class("PipeOpTorch",
     },
     #' @description
     #'  Calculates the output shapes for the given input shapes, parameters and task.
-    #' @param shapes_in (`list()` of `integer()` or `integer()`)\cr
+    #' @param shapes_in (`list()` of `integer()`)\cr
     #'   The input input shapes, which must be in the same order as the input channel names of the `PipeOp`.
-    #'  If there is only one input channel, `shapes_in` can also contain the shapes for this input channel.
     #' @param task ([`Task`] or `NULL`)\cr
     #'  The task, which is very rarely used (default is `NULL`). An exception is [`PipeOpTorchHead`].
     #' @return
@@ -381,9 +380,3 @@ PipeOpTorch = R6Class("PipeOpTorch",
     }
   )
 )
-
-pipeop_torch = function(...) {
-  # TODO
-}
-
-

@@ -1,3 +1,36 @@
+
+register_trafo = function(name, fn, param_set, shapes_out = NULL, packages, envir) {
+  classname = paste0("PipeOpTorchTrafo", capitalize(name))
+  idname = paste0("trafo_", name)
+
+  init_fun = crate(function(id = idname, param_vals = list()) {
+    super$initialize(
+      id = id,
+      packages = packages,
+      param_set = param_set,
+      param_vals = param_vals,
+      fn = fn
+    )
+  }, param_set, fn, idname, packages, .parent = topenv())
+  body(init_fun)[[2]][[4]] = param_set
+  attributes(init_fun) = NULL
+
+  Class = R6Class(classname,
+    inherit = PipeOpTorchTrafo,
+    public = list(
+      initialize = init_fun
+    ),
+    private = list(
+      .shapes_out = shapes_out
+    )
+  )
+
+  assign(classname, Class, envir = envir)
+  register_po(idname, Class)
+
+  return(NULL)
+}
+
 #' @title Base Class for Lazy Transformations
 #' @name mlr_pipeops_torch_trafo
 #'
@@ -136,10 +169,9 @@ PipeOpTorchTrafo = R6Class("PipeOpTorchTrafo",
   )
 )
 
-pipeop_torch_trafo = function(fn, id, param_set = NULL) {
+pipeop_torch_trafo.function = function(fn, id, param_set = NULL) { # nolint
 
 }
 
 #' @include zzz.R
 register_po("torch_trafo", PipeOpTorchTrafo)
-
