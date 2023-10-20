@@ -27,13 +27,14 @@ test_that("PipeOpTaskPreprocTorch: basic checks", {
   )
 
   po_test1 = PipeOpTaskPreprocTorchTest$new(id = "test1")
-  expect_false("augment" %in% po_test1$param_set$ids())
+  expect_true("augment" %in% po_test1$param_set$ids())
 
   shapes_in = list(c(NA, 1), c(NA, 1))
-  expect_identical(shapes_in, po_test1$shapes_out(shapes_in))
+  expect_identical(shapes_in, po_test1$shapes_out(shapes_in, stage = "train"))
+  expect_identical(shapes_in, po_test1$shapes_out(shapes_in, stage = "predict"))
   shapes_in1 = list(a = c(NA, 1), b = c(NA, 1))
 
-  expect_true(is.null(names(po_test1$shapes_out(shapes_in1))))
+  expect_true(is.null(names(po_test1$shapes_out(shapes_in1, "train"))))
 
   task = as_task_regr(data.table(
     y = 1:10,
@@ -140,7 +141,7 @@ test_that("pipeop_preproc_torch works", {
 
   expect_class(po_test, "PipeOpPreprocTorchAbc")
   # parameter a was added
-  expect_set_equal(c("a", "affect_columns"), po_test$param_set$ids())
+  expect_set_equal(c("a", "affect_columns", "augment"), po_test$param_set$ids())
 
   task = as_task_regr(data.table(
     y = 2,
@@ -156,4 +157,21 @@ test_that("pipeop_preproc_torch works", {
   x = materialize(taskout$data(cols = "x")[[1L]])
   expect_torch_equal(x[1, 1]$item(), 3)
   expect_torch_equal(x[1, 2]$item(), 1)
+
+  po_test1 = pipeop_preproc_torch("test1", torchvision::transform_resize, shapes_out = TRUE,
+    param_vals = list(size = c(10, 10))
+  )
+
+  po_test$shapes_out(list(c(NA, 20, 20)), "train")
+})
+
+test_that("predict shapes are added during training", {
+  po_test = pipeop_preproc_torch("test", function(x) torch_cat(list(x, x * 2), dim = 2))
+  task = as_task_regr(data.table(
+    y = 1,
+    x = as_lazy_tensor(1)
+  ), target = "y")
+
+  taskout = po_test$train(list(task))[[1L]]
+
 })

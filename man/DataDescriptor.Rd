@@ -11,7 +11,8 @@ DataDescriptor(
   .input_map = NULL,
   .pointer = NULL,
   .pointer_shape = NULL,
-  clone_graph = TRUE
+  clone_graph = TRUE,
+  .info = list()
 )
 }
 \arguments{
@@ -43,6 +44,11 @@ has no batch dimension.}
 
 \item{clone_graph}{(\code{logical(1)})\cr
 Whether to clone the preprocessing graph.}
+
+\item{.info}{(any)\cr
+Any additional meta-information.
+This is used by \code{\link{PipeOpTaskPreprocTorch}} to communicate the 'would-be' predict shapes to ensure
+during the \verb{$train()} phase that \verb{$predict()} will be possible as well.}
 }
 \description{
 A data descriptor is a rather internal structure used in the \code{\link{lazy_tensor}} data type.

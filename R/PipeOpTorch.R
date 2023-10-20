@@ -283,10 +283,12 @@ PipeOpTorch = R6Class("PipeOpTorch",
     #'   The input input shapes, which must be in the same order as the input channel names of the `PipeOp`.
     #' @param task ([`Task`] or `NULL`)\cr
     #'  The task, which is very rarely used (default is `NULL`). An exception is [`PipeOpTorchHead`].
+    #' @param stage (`character(1)`)\cr
+    #'   Either `"train"` or `"predict"`.
     #' @return
     #'  A named `list()` containing the output shapes. The names are the names of the output channels of
     #'  the `PipeOp`.
-    shapes_out = function(shapes_in, task = NULL) {
+    shapes_out = function(shapes_in, task = NULL, stage) {
       assert_r6(task, "Task", null.ok = TRUE)
       if (is.numeric(shapes_in)) shapes_in = list(shapes_in)
       if (identical(self$input$name, "...")) {
@@ -299,7 +301,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
         shapes_in
       } else {
         pv = self$param_set$get_values()
-        private$.shapes_out(shapes_in, pv, task = task)
+        private$.shapes_out(shapes_in, pv, task = task, stage = stage)
       }
 
       set_names(s, self$output$name)

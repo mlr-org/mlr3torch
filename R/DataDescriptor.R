@@ -28,6 +28,10 @@
 #'   has no batch dimension.
 #' @param clone_graph (`logical(1)`)\cr
 #'   Whether to clone the preprocessing graph.
+#' @param .info (any)\cr
+#'   Any additional meta-information.
+#'   This is used by [`PipeOpTaskPreprocTorch`] to communicate the 'would-be' predict shapes to ensure
+#'   during the `$train()` phase that `$predict()` will be possible as well.
 #'
 #' @export
 #' @seealso ModelDescriptor, lazy_tensor
@@ -59,7 +63,7 @@
 #' # with no preprocessing
 #' dd1 = DataDescriptor(ds, list(x = c(NA, 3, 3)))
 DataDescriptor = function(dataset, dataset_shapes, graph = NULL, .input_map = NULL, .pointer = NULL,
-  .pointer_shape = NULL, clone_graph = TRUE) {
+  .pointer_shape = NULL, clone_graph = TRUE, .info = list()) {
   assert_class(dataset, "dataset")
   assert_shapes(dataset_shapes)
 
@@ -94,7 +98,7 @@ DataDescriptor = function(dataset, dataset_shapes, graph = NULL, .input_map = NU
   }
 
   # We get a warning that package:mlr3torch may not be available when loading (?)
-  dataset_hash = suppressWarnings(calculate_hash(dataset, dataset_shapes))
+  dataset_hash = calculate_hash(dataset, dataset_shapes)
   obj = structure(
     list(
       dataset = dataset,
@@ -107,7 +111,8 @@ DataDescriptor = function(dataset, dataset_shapes, graph = NULL, .input_map = NU
       .hash = NULL, # is set below
       # Once a DataDescriptor is created the input PipeOps are fix, we save them
       # here because they can be costly to compute
-      .graph_input = graph$input$name
+      .graph_input = graph$input$name,
+      .info = .info
     ),
     class = "DataDescriptor"
   )

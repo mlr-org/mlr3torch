@@ -343,7 +343,7 @@ The tags of the \code{\link{PipeOp}}. The tags \code{"torch"} is always added.}
 \subsection{Method \code{shapes_out()}}{
 Calculates the output shapes for the given input shapes, parameters and task.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorch$shapes_out(shapes_in, task = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorch$shapes_out(shapes_in, task = NULL, stage)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -354,6 +354,9 @@ The input input shapes, which must be in the same order as the input channel nam
 
 \item{\code{task}}{(\code{\link{Task}} or \code{NULL})\cr
 The task, which is very rarely used (default is \code{NULL}). An exception is \code{\link{PipeOpTorchHead}}.}
+
+\item{\code{stage}}{(\code{character(1)})\cr
+Either \code{"train"} or \code{"predict"}.}
 }
 \if{html}{\out{</div>}}
 }

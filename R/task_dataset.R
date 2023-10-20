@@ -52,7 +52,9 @@ task_dataset = dataset(
     # Here, we could have multiple `lazy_tensor` columns that share parts of the graph
     # We try to merge those graphs if possible
 
+    # FIXME: This must be tested, I don't think it works yet
     if (length(lazy_tensor_features) > 1L) {
+      stopf("Not working yet I think")
       # TODO: Inspect hashes of data descriptors to check whether caching is possible
       first_row = self$task$data(self$task$row_ids[1L], cols = lazy_tensor_features)
       graphs = map(first_row, function(x) attr(x, "data_descriptor")$graph)

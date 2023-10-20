@@ -351,7 +351,7 @@ PipeOpTorchIngressLazyTensor = R6Class("PipeOpTorchIngressLazyTensor",
         stopf("PipeOpTorchIngressLazyTensor expects 1 lazy_tensor feature, but got %i.", length(lazy_cols))
       }
       example = task$data(task$row_ids[1L], lazy_cols)[[1L]][[1L]]
-      attr(example, "data_descriptor")$.pointer_shape
+      example$.pointer_shape
     },
     .get_batchgetter = function(task, param_vals) {
       batchgetter_lazy_tensor

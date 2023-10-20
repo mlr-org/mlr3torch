@@ -220,7 +220,7 @@ DataBackendLazy = R6Class("DataBackendLazy",
   ),
   private = list(
     .calculate_hash = function() {
-      suppressWarnings(get_private(self$backend)$.calculate_hash())
+      get_private(self$backend)$.calculate_hash()
     },
     .constructor = NULL,
     .backend = NULL,
