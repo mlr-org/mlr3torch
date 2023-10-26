@@ -64,7 +64,7 @@ Suggests:
     zip
 Remotes:
     r-lib/zip,
-    mlr-org/mlr3@col_info
+    mlr-org/mlr3
 Config/testthat/edition: 3
 NeedsCompilation: no
 ByteCompile: no
