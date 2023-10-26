@@ -4,7 +4,15 @@
 \alias{materialize}
 \title{Materialize Lazy Tensor Columns}
 \usage{
-materialize(x, device = "cpu", ...)
+materialize(x, device = "cpu", rbind = FALSE, ...)
+}
+\arguments{
+\item{x}{(any)\cr
+The object to materialize.
+Either a \code{\link{lazy_tensor}} or a \code{list()} / \code{data.frame()} containing \code{\link{lazy_tensor}} columns.}
+
+\item{rbind}{(\code{logical(1)})\cr
+Whether to rbind the lazy tensor columns (\code{TRUE}) or return them as a list of tensors (\code{FALSE}).}
 }
 \value{
 (\code{\link[=torch_tensor]{torch_tensor()}} or \code{\link[=list]{list()}})
@@ -33,8 +41,10 @@ The hash key for b) is the hash of the indices dataset and preprocessing graph.
 }
 \examples{
 lt1 = as_lazy_tensor(torch_randn(10, 3))
-materialize(lt1)
+materialize(lt1, rbind = TRUE)
+materialize(lt1, rbind = FALSE)
 lt2 = as_lazy_tensor(torch_randn(10, 4))
 d = data.frame(lt1 = lt1, lt2 = lt2)
-materialize(d)
+materialize(d, rbind = TRUE)
+materialize(d, rbind = FALSE)
 }

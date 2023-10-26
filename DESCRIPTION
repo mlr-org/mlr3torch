@@ -83,7 +83,6 @@ Collate:
     'CallbackSetProgress.R'
     'ContextTorch.R'
     'DataBackendLazy.R'
-    'DataDescriptor.R'
     'LearnerTorch.R'
     'LearnerTorchImage.R'
     'LearnerTorchAlexNet.R'

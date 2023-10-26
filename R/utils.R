@@ -169,28 +169,33 @@ argument_matcher = function(args) {
   fn
 }
 
-as_shape = function(shape) {
-  assert_integerish(shape)
-  if (!is.na(shape[1L])) {
-    shape = c(NA_integer_, shape)
+#' Check Shape
+#'
+#' Checks whether an integer vector is a valid shape.
+#'
+#' @param shape (`integer()`)\cr
+#' @param null_ok (`logical(1)`)
+#' @param unknown_ok (`logical(1)`)
+assert_shape = function(shape, null_ok = FALSE, unknown_ok = FALSE) { # nolint
+  if (is.null(shape) && null_ok) return(shape)
+  shape = assert_integerish(shape, min.len = 2L, all.missing = TRUE, coerce = TRUE)
+
+  is_na = is.na(shape)
+  all_na = all(is_na)
+
+  if (all_na && unknown_ok) {
+    return(shape)
   }
-  assert_integerish(shape[-1], any.missing = FALSE)
-  shape
-}
-
-assert_shape = function(shape, null.ok = FALSE) { # nolint
-  if (is.null(shape) && null.ok) return(TRUE)
-
-  assert_integerish(shape, min.len = 2L)
-  if (!(is.na(shape[[1L]]) || anyNA(shape[-1L]))) {
+  if (!is_na[[1L]] || anyNA(shape[-1L])) {
     stopf("Shape must have exactly one NA in the batch dimension.")
   }
-  TRUE
+  return(shape)
 }
 
-assert_shapes = function(shapes, named = TRUE) {
-  assert_list(shapes, names = if (named) "unique", min.len = 1L)
-  walk(shapes, assert_shape)
+assert_shapes = function(shapes, named = TRUE, unknown_ok = FALSE) { # nolint
+  #
+  assert_list(shapes, names = if (named && !identical(unique(names(shapes)), "...")) "unique", min.len = 1L)
+  map(shapes, assert_shape, unknown_ok = unknown_ok, null_ok = FALSE)
 }
 
 assert_lazy_tensor = function(x) {
@@ -200,5 +205,3 @@ assert_lazy_tensor = function(x) {
 uniqueify = function(new, existing) {
   make.unique(c(existing, new), sep = "_")[length(existing) + seq_along(new)]
 }
-
-

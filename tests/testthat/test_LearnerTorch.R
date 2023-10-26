@@ -379,3 +379,8 @@ test_that("resample() works", {
   rr = resample(task, learner, resampling)
   expect_r6(rr, "ResampleResult")
 })
+
+test_that("Shapes are checked correctly during `$train()`", {
+  # FIXME: For this the taskpreproc should work first
+
+})

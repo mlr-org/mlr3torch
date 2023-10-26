@@ -354,13 +354,14 @@ PipeOpTorchIngressLazyTensor = R6Class("PipeOpTorchIngressLazyTensor",
       example$.pointer_shape
     },
     .get_batchgetter = function(task, param_vals) {
+      # FIXME: Various checks
       batchgetter_lazy_tensor
     }
   )
 )
 
 batchgetter_lazy_tensor = function(data, device, cache) {
-  materialize_internal(x = data[[1L]], device = device, cache = cache)
+  materialize_internal(x = data[[1L]], device = device, cache = cache, rbind = TRUE)
 }
 
 register_po("torch_ingress_ltnsr", PipeOpTorchIngressLazyTensor)

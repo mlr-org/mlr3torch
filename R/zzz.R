@@ -10,6 +10,7 @@
 #' @import mlr3
 #' @import vctrs
 #' @importFrom tools R_user_dir
+#' @importFrom rlang !!
 #'
 #' @section Options:
 #' * `mlr3torch.cache`:
@@ -28,11 +29,9 @@ mlr3torch_resamplings = new.env()
 mlr3torch_pipeop_tags = c("torch", "activation")
 mlr3torch_feature_types = c(img = "imageuri", lt = "lazy_tensor")
 
-# metainf must be manually added in the register_mlr3pipelines function
-# Because the value is substituted, we cannot pass it through this function
-register_po = function(name, constructor) {
+register_po = function(name, constructor, metainf = NULL) {
   if (name %in% names(mlr3torch_pipeops)) stopf("pipeop %s registered twice", name)
-  mlr3torch_pipeops[[name]] = list(constructor = constructor)
+  mlr3torch_pipeops[[name]] = list(constructor = constructor, metainf = substitute(metainf))
 }
 
 register_resampling = function(name, constructor) {
@@ -77,7 +76,6 @@ register_mlr3 = function() {
   mlr_reflections = utils::getFromNamespace("mlr_reflections", ns = "mlr3") # nolint
   iwalk(as.list(mlr3torch_feature_types), function(ft, nm) mlr_reflections$task_feature_types[[nm]] = ft) # nolint
 
-
   mlr_reflections$torch = list(
     devices = c("auto", "cpu", "cuda", "mkldnn", "opengl", "opencl", "ideep", "hip", "fpga", "xla", "mps", "meta"),
     callback_stages = c(
@@ -99,9 +97,10 @@ register_mlr3 = function() {
 register_mlr3pipelines = function() {
   mlr_pipeops = utils::getFromNamespace("mlr_pipeops", ns = "mlr3pipelines")
   iwalk(as.list(mlr3torch_pipeops), function(value, name) {
-    mlr_pipeops$add(name, value$constructor, value$metainf)
+    # metainf is quoted by pipelines
+    add = mlr_pipeops$add
+    eval(call("add", quote(name), quote(value$constructor), value$metainf))
   })
-  mlr_pipeops$metainf$torch_loss = list(loss = t_loss("cross_entropy"))
   mlr_reflections$pipeops$valid_tags = unique(c(mlr_reflections$pipeops$valid_tags, mlr3torch_pipeop_tags))
   lapply(mlr3torch_pipeops, eval)
 }
@@ -110,6 +109,18 @@ register_mlr3pipelines = function() {
   # For caching directory
   backports::import(pkgname)
   backports::import(pkgname, "R_user_dir", force = TRUE)
+
+  # Configure Logger:
+  lg = lgr::get_logger(pkgname)
+  assign("lg", lg, envir = parent.env(environment()))
+  f = function(event) {
+    event$msg = paste0("[mlr3torch] ", event$msg)
+    TRUE
+  }
+  lg$set_filters(list(f))
+  if (Sys.getenv("IN_PKGDOWN") == "true") {
+    lg$set_threshold("warn")
+  }
 
   register_namespace_callback(pkgname, "mlr3", register_mlr3)
   register_namespace_callback(pkgname, "mlr3pipelines", register_mlr3pipelines)
@@ -133,9 +144,9 @@ register_mlr3pipelines = function() {
       suppressWarnings(fn(...))
     }, .parent = getNamespace("mlr3misc"), fn)
 
-    unlockBinding("calculate_hash", parent.env(getNamespace("mlr3")))
-    assign("calculate_hash", calculate_hash, envir = parent.env(getNamespace("mlr3")))
-    lockBinding("calculate_hash", parent.env(getNamespace("mlr3")))
+    unlockBinding("calculate_hash", parent.env(getNamespace("mlr3torch")))
+    assign("calculate_hash", calculate_hash, envir = parent.env(getNamespace("mlr3torch")))
+    lockBinding("calculate_hash", parent.env(getNamespace("mlr3torch")))
   }
 
 }

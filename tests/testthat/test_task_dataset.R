@@ -293,18 +293,3 @@ test_that("dataset_img works", {
   expect_true(batch_meta$x$image$device$type == "meta")
 })
 
-test_that("task_dataset works with multiple lazy_tensor columns", {
-  task = nano_mnist()
-  graph = po("torch_ingress_ltnsr") %>>%
-    po("trafo_resize", size = c(40, 40)) %>>%
-    list(
-      po("trafo_resize_1", size = c(30, 30)),
-      po("trafo_resize_2", size = c(15, 15))
-    )
-
-
-  # What to do next:
-  # Test that PipeOpTorchLazyTensor works as we want, i.e. all the 8 cases (train-predict, preproc-graph, augment)
-
-  graph$train(task)
-})

@@ -247,8 +247,8 @@ random_dataset = dataset("random_dataset",
   initialize = function(..., n = 10) {
     self$x = torch_randn(n, ...)
   },
-  .getitem = function(i) {
-    list(x = self$x[i, ..])
+  .getbatch = function(i) {
+    list(x = self$x[i, .., drop = FALSE])
   },
   .length = function() {
     nrow(self$x)

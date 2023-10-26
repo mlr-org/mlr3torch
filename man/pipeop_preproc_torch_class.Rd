@@ -5,16 +5,18 @@
 \title{Create Torch Preprocessing PipeOps}
 \usage{
 pipeop_preproc_torch_class(
-  name,
+  id,
   fn,
   shapes_out = NULL,
   param_set = NULL,
   packages = character(0),
-  per_column = TRUE,
-  prefix = "trafo"
+  per_column = TRUE
 )
 }
 \arguments{
+\item{id}{(\code{character(1)})\cr
+The id for of the new object.}
+
 \item{fn}{(\code{function})\cr
 The preprocessing function.}
 
@@ -22,13 +24,17 @@ The preprocessing function.}
 The private \code{.shapes_out(shapes_in, param_vals, task)} method of \code{\link{PipeOpTaskPreprocTorch}}.
 If \code{NULL}, the pipeop does not change the output shapes.
 If \code{TRUE}, the output shape function is inferred and calculates the output shapes as follows:
+a) The input shapes are known:
 For an input shape of (NA, ...) a meta-tensor of shape (1, ...) is created and the preprocessing function is
-applied. Afterwards the batch dimension (1) is replaced with NA and the shape is returned.}
+applied. Afterwards the batch dimension (1) is replaced with NA and the shape is returned.
+b) The input shapes are unknown (all NA):
+The dimension is returned as is.}
 
 \item{param_set}{(\code{\link{ParamSet}} or \code{NULL})\cr
 The parameter set.
 If this is left as \code{NULL} (default) the parameter set is inferred in the following way:
-All arguments but the first and \code{...} of \code{fn} are set as untyped parameters with tags 'train' and 'predict'.
+All parameters but the first and \code{...} of \code{fn} are set as untyped parameters with tags 'train' and those that
+have nod default value are tagged as 'required' as well.
 Default values are not annotated.}
 
 \item{packages}{(\code{character()})\cr
@@ -36,9 +42,6 @@ The R packages this object depends on.}
 
 \item{per_column}{(\code{logical(1)})\cr
 Whether the preprocessing is applied per-column.}
-
-\item{id}{(\code{character(1)})\cr
-The id for of the new object.}
 
 \item{param_vals}{(named \code{list()})\cr
 Parameter values to be set after construction.}

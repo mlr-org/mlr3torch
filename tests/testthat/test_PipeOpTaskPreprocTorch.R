@@ -48,8 +48,8 @@ test_that("PipeOpTaskPreprocTorch: basic checks", {
 
   taskout1 = po_test1$train(list(task))[[1L]]
   expect_torch_equal(
-    -materialize(taskout1$data(cols = "x1")[[1L]]),
-    materialize(taskout1$data(cols = "x2")[[1L]])
+    -materialize(taskout1$data(cols = "x1")[[1L]], rbind = TRUE),
+    materialize(taskout1$data(cols = "x2")[[1L]], rbind = TRUE)
   )
 
   # "train" and "predict" tags are respected
@@ -74,11 +74,11 @@ test_that("PipeOpTaskPreprocTorch: basic checks", {
   po_test2 = PipeOpTaskPreprocTorchTest2$new(param_vals = list(affect_columns = selector_name("x1"), a = 0))
 
   expect_true(
-    torch_sum(materialize(po_test2$train(list(task))[[1L]]$data(cols = "x1")[[1L]]))$item() == 0
+    torch_sum(materialize(po_test2$train(list(task))[[1L]]$data(cols = "x1")[[1L]], rbind = TRUE))$item() == 0
   )
 
   expect_true(
-    torch_sum(materialize(po_test2$predict(list(task))[[1L]]$data(cols = "x1")[[1L]]))$item() == 2 * sum(1:10)
+    torch_sum(materialize(po_test2$predict(list(task))[[1L]]$data(cols = "x1")[[1L]], rbind = TRUE))$item() == 0
   )
 
   # augment parameter works as intended (above augment was FALSE)
@@ -86,8 +86,14 @@ test_that("PipeOpTaskPreprocTorch: basic checks", {
   po_test2$param_set$set_values(
     augment = TRUE
   )
+  # augment is TRUE, but a is tagged "train" --> does not change the results
   expect_true(
-    torch_sum(materialize(po_test2$predict(list(task))[[1L]]$data(cols = "x1")[[1L]]))$item() == sum(1:10)
+    torch_sum(materialize(po_test2$predict(list(task))[[1L]]$data(cols = "x1")[[1L]], rbind = TRUE))$item() == 0
+  )
+  # only if we re-train the augmentation is applied
+  po_test2$train(list(task))
+  expect_true(
+    torch_sum(materialize(po_test2$predict(list(task))[[1L]]$data(cols = "x1")[[1L]], rbind = TRUE))$item() == sum(1:10)
   )
 })
 
@@ -105,6 +111,7 @@ test_that("PipeOpTaskPreprocTorch modifies the underlying lazy tensor columns co
   taskout_pred = po_test$predict(list(taskin))[[1L]]
 
   po_test$param_set$set_values(augment = TRUE)
+  po_test$train(list(taskin))[[1L]]
   taskout_pred_aug = po_test$predict(list(taskin))[[1L]]
 
   expect_true(length(taskin$data(cols = "x")[[1]]$graph$pipeops) == 1L)
@@ -118,19 +125,19 @@ test_that("PipeOpTaskPreprocTorch modifies the underlying lazy tensor columns co
   taskout_pred$data(cols = "x")[[1]]$graph
 
   expect_equal(
-    as_array(materialize(taskin$data(cols = "x")[[1L]])),
-    as_array(materialize(taskout_train$data(cols = "x")[[1L]]) + 10),
+    as_array(materialize(taskin$data(cols = "x")[[1L]], rbind = TRUE)),
+    as_array(materialize(taskout_train$data(cols = "x")[[1L]], rbind = TRUE) + 10),
     tolerance = 1e-5
   )
 })
 
 test_that("pipeop_preproc_torch works", {
   expect_error(
-    pipeop_preproc_torch("abc", function(x) NULL, shapes_out = function(shapes) NULL),
-    "Must have formal"
+    pipeop_preproc_torch("trafo_abc", function(x) NULL, shapes_out = function(shapes) NULL),
+    "Must have formal arguments"
   )
 
-  po_test = pipeop_preproc_torch("abc", function(x, a) torch_cat(list(x, torch_pow(x, a)), dim = 2),
+  po_test = pipeop_preproc_torch("trafo_abc", function(x, a) torch_cat(list(x, torch_pow(x, a)), dim = 2),
     shapes_out = function(shapes_in, param_vals, task) {
       s = shapes_in[[1L]]
       s[2] = 2L
@@ -139,7 +146,8 @@ test_that("pipeop_preproc_torch works", {
     }
   )
 
-  expect_class(po_test, "PipeOpPreprocTorchAbc")
+  expect_true("required" %in% po_test$param_set$tags$a)
+  expect_class(po_test, "PipeOpPreprocTorchTrafoAbc")
   # parameter a was added
   expect_set_equal(c("a", "affect_columns", "augment"), po_test$param_set$ids())
 
@@ -154,7 +162,7 @@ test_that("pipeop_preproc_torch works", {
 
   taskout = po_test$train(list(task))[[1L]]
 
-  x = materialize(taskout$data(cols = "x")[[1L]])
+  x = materialize(taskout$data(cols = "x")[[1L]], rbind = TRUE)
   expect_torch_equal(x[1, 1]$item(), 3)
   expect_torch_equal(x[1, 2]$item(), 1)
 
@@ -162,7 +170,8 @@ test_that("pipeop_preproc_torch works", {
     param_vals = list(size = c(10, 10))
   )
 
-  po_test$shapes_out(list(c(NA, 20, 20)), "train")
+  size = po_test1$shapes_out(list(c(NA, 20, 20)), "train")
+  expect_equal(size, list(c(NA, 10, 10)))
 })
 
 test_that("predict shapes are added during training", {
@@ -173,5 +182,7 @@ test_that("predict shapes are added during training", {
   ), target = "y")
 
   taskout = po_test$train(list(task))[[1L]]
+
+  # TODO:
 
 })

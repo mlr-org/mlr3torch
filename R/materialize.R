@@ -18,21 +18,30 @@
 #' For this reason it is possible to provide a cache environment.
 #' The hash key for a) is the hash of the indices and the dataset.
 #' The hash key for b) is the hash of the indices dataset and preprocessing graph.
+#' @param x (any)\cr
+#'   The object to materialize.
+#'   Either a [`lazy_tensor`] or a `list()` / `data.frame()` containing [`lazy_tensor`] columns.
+#' @param rbind (`logical(1)`)\cr
+#'   Whether to rbind the lazy tensor columns (`TRUE`) or return them as a list of tensors (`FALSE`).
 #' @return ([`torch_tensor()`] or [`list()`])
 #' @export
 #' @examples
 #' lt1 = as_lazy_tensor(torch_randn(10, 3))
-#' materialize(lt1)
+#' materialize(lt1, rbind = TRUE)
+#' materialize(lt1, rbind = FALSE)
 #' lt2 = as_lazy_tensor(torch_randn(10, 4))
 #' d = data.frame(lt1 = lt1, lt2 = lt2)
-#' materialize(d)
-materialize = function(x, device = "cpu", ...) {
+#' materialize(d, rbind = TRUE)
+#' materialize(d, rbind = FALSE)
+materialize = function(x, device = "cpu", rbind = FALSE, ...) {
   assert_choice(device, mlr_reflections$torch$devices)
+  assert_flag(rbind)
   UseMethod("materialize")
 }
 
 #' @export
-materialize.list = function(x, device = "cpu") { # nolint
+materialize.list = function(x, device = "cpu", rbind = FALSE) { # nolint
+  # FIXME: smarter cache detecting
   cache = if (sum(map_lgl(x, is_lazy_tensor)) > 1L) {
     new.env()
   }
@@ -48,7 +57,7 @@ materialize.list = function(x, device = "cpu") { # nolint
   # clean up the keep_results after
   on.exit({walk(x, function(col) { # nolint
     if (is_lazy_tensor(x)) {
-      graph = attr(x, "data_descriptor")$graph
+      graph = x$graph
       graph$keep_results = keep_results_prev[[graph$hash]]
     }
   })}, add = TRUE)
@@ -63,7 +72,7 @@ materialize.list = function(x, device = "cpu") { # nolint
   # TODO: No hashing when there is only one column
   map(x, function(col) {
     if (is_lazy_tensor(col)) {
-      materialize_internal(col, device = device, cache = cache, set_keep_results = FALSE)
+      materialize_internal(col, device = device, cache = cache, set_keep_results = FALSE, rbind = rbind)
     } else {
       col
     }
@@ -72,18 +81,21 @@ materialize.list = function(x, device = "cpu") { # nolint
 
 
 #' @export
-materialize.lazy_tensor = function(x, device = "cpu") { # nolint
-  materialize_internal(x = x, device = device, cache = NULL, set_keep_results = TRUE)
+materialize.lazy_tensor = function(x, device = "cpu", rbind = FALSE) { # nolint
+  materialize_internal(x = x, device = device, cache = NULL, set_keep_results = TRUE, rbind = rbind)
 }
 
 #' @title Materialize a Lazy Tensor
 #' @description
+#' Convert a [`lazy_tensor()`] to a [`torch_tensor()`].
+#'
+#' @details
 #' Materializing a lazy tensor consists of:
 #' 1. Loading the data from the internal dataset of the [`DataDescriptor`].
 #' 2. Processing these batches in the preprocessing [`Graph`]s.
 #' 3. Returning the result of the [`PipeOp`] pointed to by the [`DataDescriptor`] (`.pointer`).
 #'
-#' With multiple [`lazy_tensor`] columns we can benefit from caching because:
+#' When materializing multiple [`lazy_tensor`] columns, caching can be useful because:
 #' a) Output(s) from the dataset might be input to multiple graphs.
 #' b) Different lazy tensors might be outputs from the same graph.
 #'
@@ -104,9 +116,14 @@ materialize.lazy_tensor = function(x, device = "cpu") { # nolint
 #'   Therefore we have to include this as part of the `keep_results` field of the [`Graph`].
 #'   When caching is done, this should be set to `FALSE` as otherwise data will be discarded that might be relevant
 #'   for materializing other lazy tensor columns.
+#' @param rbind (`logical(1)`)\cr
+#'   Whtether to rbind the resulting tensors (`TRUE`) or return them as a list of tensors (`FALSE`).
 #' @return [`lazy_tensor()`]
 #' @keywords internal
-materialize_internal = function(x, device = "cpu", cache = NULL, set_keep_results = is.null(cache)) {
+materialize_internal = function(x, device = "cpu", cache = NULL, set_keep_results = is.null(cache), rbind) {
+  if (!length(x)) {
+    stopf("Cannot materialize lazy tensor of length 0.")
+  }
   do_caching = !is.null(cache)
   ids = vec_data(x)
 
@@ -139,10 +156,18 @@ materialize_internal = function(x, device = "cpu", cache = NULL, set_keep_result
 
   if (!do_caching || !input_hit) {
     input = if (is.null(ds$.getbatch)) { # .getindex is never NULL but a function that errs if it was not defined
-      tmp = transpose_list(map(ids, function(id) map(ds$.getitem(id), function(x) x$unsqueeze(1))))
-      map(tmp, function(x) torch_cat(x, dim = 1L))
+      x = map(ids, function(id) map(ds$.getitem(id), function(x) x$unsqueeze(1)))
+      if (rbind) {
+        map(transpose_list(x), function(x) torch_cat(x, dim = 1L))
+      } else {
+        x
+      }
     } else {
-      ds$.getbatch(ids)
+      if (rbind) {
+        ds$.getbatch(ids)
+      } else {
+        map(ids, function(id) ds$.getbatch(id))
+      }
     }
   }
 
@@ -155,11 +180,27 @@ materialize_internal = function(x, device = "cpu", cache = NULL, set_keep_result
   # This is done after retrieving the element from the cache / before saving the element to the cache because
   # this can change
 
-  input = set_names(input[data_descriptor$.input_map], data_descriptor$.graph_input)
+  input = if (rbind) {
+    set_names(input[data_descriptor$.input_map], data_descriptor$.graph_input)
+  } else {
+    map(input, function(x) {
+      set_names(x[data_descriptor$.input_map], data_descriptor$.graph_input)
+    })
+  }
 
-  graph$train(input, single_input = FALSE)
-  output = map(data_descriptor$graph$keep_results, function(id) graph$pipeops[[id]]$.result)
-  output = set_names(output, data_descriptor$graph$keep_results)
+  output = if (rbind) {
+    # in this case, input is a tensor
+    graph$train(input, single_input = FALSE)
+    out = map(data_descriptor$graph$keep_results, function(id) graph$pipeops[[id]]$.result)
+    set_names(out, data_descriptor$graph$keep_results)
+  } else {
+    # in this case, input is a list of tensors
+    map(input, function(x) {
+      graph$train(x, single_input = FALSE)
+      out = map(data_descriptor$graph$keep_results, function(id) graph$pipeops[[id]]$.result)
+      set_names(out, data_descriptor$graph$keep_results)
+    })
+  }
 
   if (do_caching) {
     cache[[output_hash]] = output
@@ -168,7 +209,13 @@ materialize_internal = function(x, device = "cpu", cache = NULL, set_keep_result
   # discard the results
   walk(data_descriptor$graph$pipeops[data_descriptor$graph$keep_results], function(x) x$.result = NULL)
 
-  output[[data_descriptor$.pointer[1L]]][[data_descriptor$.pointer[2L]]]$to(device = device)
+  if (rbind) {
+    res = output[[data_descriptor$.pointer[1L]]][[data_descriptor$.pointer[2L]]]$to(device = device)
+  } else {
+    res = map(output, function(o) o[[data_descriptor$.pointer[1L]]][[data_descriptor$.pointer[2L]]]$to(device = device))
+  }
+
+  return(res)
 }
 
 

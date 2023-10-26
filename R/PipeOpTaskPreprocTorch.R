@@ -3,36 +3,45 @@
 #'
 #' @description
 #' This `PipeOp` can be used to preprocess (one or more) [`lazy_tensor`] columns contained in an [`mlr3::Task`].
-#' The function that is applied is specified as construction argument `fn` and additional arguments to this
+#' The preprocessing function is specified as construction argument `fn` and additional arguments to this
 #' function can be defined through the `PipeOp`'s parameter set.
-#' The preprocessing is either done per-column in which case the number lazy tensor output columns is equivalent
+#' The preprocessing is usually done per-column in which case the number lazy tensor output columns is equivalent
 #' to the number of lazy tensor input columns.
 #' It is also possible to implement preprocessing that is applied to all lazy tensor columns at once and returns
-#' one or more (not necessarily the same number) of lazy tensor columns.
+#' one or more (not necessarily the same number of) lazy tensor columns.
+#' The preprocessing that is applied during `$predict()` uses the parameters that were set during `$train()`
+#' and not those that are set when performing the prediction.
 #'
 #' @section Inheriting:
-#' In addition to specifying the parameters `fn`, `packages` and `param_set` during construction you can also overwrite
-#' the private `.shapes_out()` or `.tranform()` methods:
+#' In addition to specifying the construction arguments, you can overwrite the private `.shapes_out()` or
+#' `.tranform()` methods:
 #' * `.shapes_out(shapes_in, param_vals, task)`\cr
 #'   (`list()`, `list(), `Task` or `NULL`) -> `list()`\cr
 #'   This private method calculates the output shapes of the lazy tensor columns that are created from applying
 #'   the preprocessing.
-#'
-#'   Also see the documentation of [`PipeOpTorch`] how to implement this method.
+#'   Note that the input shapes can be only contain NAs (e.g. (NA, NA, NA)), indicating that only the number of input
+#'   dimensions is known, but not the exact shape.
+#'   In this case the output shape should also only contain NAs.
 #'
 #'   In case the construction argument `per_column` is `TRUE`, this private method only has the responsibility
-#'   to caclculate the output shapes for one input column, i.e. the input `shapes_in` can be assumed to have
-#'   exactly one shape vector for which it must calculate the output shapes.
+#'   to calculate the output shapes for one input column, i.e. the input `shapes_in` can be assumed to have
+#'   exactly one shape vector for which it must calculate the output shapes and return it as a `list()` of length 1.
+#'
+#'   Also see the documentation of [`PipeOpTorch`] how to implement this method.
 #'
 #' * `.transform(dt, task, param_vals, stage)`\cr
 #'   (`data.table()`, `Task`, `list()`, `character(1)`) -> `data.table()`\cr
 #'   This method must only be overwritten when the the `per_column` construction argument is `FALSE`.
 #'   It receives as inputs all selected lazy tensor columns, the input `Task` (already cloned),
 #'   the paramer values, and whether the preprocessing is applied during training (stage is `"train"`)
-#'   or prediction (stage is `"predict"`). It needs to return a `data.table` with lazy tensor columns.
-#'   Note that the lazy tensor inputs should not be modified in-place.
-#'   Note that overwriting this method (currently) requires a solid understanding of the [`lazy_tensor`] internals. This might be made easier in the future.
-#'   Note also that you need to pay attention to avoid name conflicts with existing columns in the task.
+#'   or prediction (stage is `"predict"`). One should not work with the parameters currently set in the paramet set,
+#'   only use those passed as argument `param_vals`. These are the parameters that were specified during the `$train()`
+#'   call of the [`PipeOp`] (otherwise it cannot be ensured that the shapes encountered during `$predict()` can actually
+#'   be processed by the neural network).
+#'   The method must return a `data.table` with lazy tensor columns.
+#'   The lazy tensor input columns should **not** be modified in-place.
+#'   Overwriting this method (currently) requires a solid understanding of the [`lazy_tensor`] internals.
+#'   You also need to pay attention to avoid name conflicts with existing columns in the task.
 #'
 #' @template param_id
 #' @template param_param_vals
@@ -42,7 +51,8 @@
 #'   The packages the preprocessing function depends on.
 #' @param param_set ([`ParamSet`])\cr
 #'   In case the function `fn` takes additional parameter besides a [`torch_tensor()`] they can be
-#'   specfied as parameters. Pay attention to set the correct `tags` for the parameters: if tag `"train"` is present,
+#'   specfied as parameters. None of the parameters can have the [`"predict"`] tag.
+#'   Pay attention to set the correct `tags` for the parameters: if tag `"train"` is present,
 #'   the preprocessing is applied during training and if tag `"predict"` is present, the preprocessing is applied
 #'   during prediction (if `augment` is set to `FALSE`).
 #' @param per_column (`logical(1)`)\cr
@@ -106,10 +116,10 @@
 #' )
 #'
 #' taskout_train = po_simple$train(list(taskin))[[1L]]
-#' materialize(taskout_train$data(cols = c("x1", "x2")))
+#' materialize(taskout_train$data(cols = c("x1", "x2")), rbind = TRUE)
 #'
 #' taskout_predict_noaug = po_simple$predict(list(taskin))[[1L]]
-#' materialize(taskout_predict_noaug$data(cols = c("x1", "x2")))
+#' materialize(taskout_predict_noaug$data(cols = c("x1", "x2")), rbind = TRUE)
 #'
 #' po_simple$param_set$set_values(
 #'   augment = TRUE
@@ -117,7 +127,7 @@
 #'
 #' # transformation is not applied
 #' taskout_predict_aug = po_simple$predict(list(taskin))[[1L]]
-#' materialize(taskout_predict_aug$data(cols = c("x1", "x2")))
+#' materialize(taskout_predict_aug$data(cols = c("x1", "x2")), rbind = TRUE)
 #'
 #' # Creating a more complex preprocessing PipeOp
 #'
@@ -126,7 +136,7 @@
 #'   public = list(
 #'     initialize = function(id = "preproc_poly", param_vals = list()) {
 #'       param_set = paradox::ps(
-#'         n_degree = paradox::p_int(lower = 1L, tags = c("train", "predict", "required"))
+#'         n_degree = paradox::p_int(lower = 1L, tags = c("train", "required"))
 #'       )
 #'       param_set$set_values(
 #'         n_degree = 1L
@@ -163,14 +173,10 @@
 #'   param_vals = list(n_degree = 3L, affect_columns = selector_name("x3"))
 #' )
 #'
-#' # Note that the 'augment' parameter is not present as the PipeOp
-#' # modifies the input shape and must hence be applied during training **and** prediction
-#' po_poly$param_set
-#'
 #' po_poly$shapes_out(list(c(NA, 1L)))
 #'
 #' taskout = po_poly$train(list(taskin))[[1L]]
-#' materialize(taskout$data(cols = "x3"))
+#' materialize(taskout$data(cols = "x3"), rbind = TRUE)
 PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
   inherit = PipeOpTaskPreproc,
   public = list(
@@ -184,11 +190,13 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
 
       if (per_column) {
         param_set$add(ps(
-          augment = p_lgl(tags = c("predict", "required"))
+          augment = p_lgl(tags = c("train", "required"))
         ))
         param_set$set_values(augment = augment_init)
       }
-
+      if (some(param_set$tags, function(tags) "predict" %in% tags)) {
+        stopf("Parameter set cannot contain tags 'predict'.")
+      }
 
       super$initialize(
         id = id,
@@ -211,6 +219,7 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
     #' @return `list()` of `integer()`
     shapes_out = function(shapes_in, stage = NULL, task = NULL) {
       assert_r6(task, "Task", null.ok = TRUE)
+      assert_choice(stage, c("train", "predict"))
       assert_shapes(shapes_in, named = FALSE)
       names(shapes_in) = NULL
 
@@ -219,9 +228,14 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
         return(shapes_in)
       }
 
-      assert_choice(stage, c("train", "predict"))
+      pv = self$param_set$get_values(tags = "train")
+      augment = pv$augment
+      pv$augment = NULL
+      pv$affect_columns = NULL
 
-      pv = self$param_set$get_values(tags = stage)
+      if (stage == "predict") {
+        pv = if (augment) list() else pv
+      }
 
       s = if (private$.per_column) {
         map(shapes_in, function(s) private$.shapes_out(list(s), param_vals = pv, task = task)[[1L]])
@@ -236,17 +250,21 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
     .train_task = function(task) {
       dt_columns = private$.select_cols(task)
       cols = dt_columns
+      param_vals = self$param_set$get_values(tags = "train")
+      param_vals$affect_columns = NULL
+
       if (!length(cols)) {
-        self$state = list(dt_columns = dt_columns)
+        self$state = list(dt_columns = dt_columns, param_vals = param_vals)
         return(task)
       }
       dt = task$data(cols = cols)
 
-      param_vals = self$param_set$get_values(tags = "train")
-      param_vals$affect_columns = NULL
+
+      self$state$param_vals = param_vals
+      self$state$dt_columns = dt_columns
+
       dt = private$.transform(dt, task, param_vals, "train")
 
-      self$state$dt_columns = dt_columns
       task$select(setdiff(task$feature_names, cols))$cbind(dt)
     },
     .predict_task = function(task) {
@@ -256,7 +274,7 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
       }
       dt = task$data(cols = cols)
 
-      param_vals = self$param_set$get_values(tags = "predict")
+      param_vals = self$state$param_vals
       dt = private$.transform(dt, task, param_vals, "predict")
       res = task$select(setdiff(task$feature_names, cols))$cbind(dt)
 
@@ -267,6 +285,7 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
       trafo = private$.fn
 
       if (stage == "train") {
+        param_vals$augment = NULL
         fn = if (length(param_vals)) {
           crate(function(x) {
             invoke(.f = trafo, x, .args = param_vals)
@@ -304,18 +323,20 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
 
         shape_before = lt$.pointer_shape
         shape_out = self$shapes_out(list(shape_before), stage = stage, task = task)[[1L]]
-        x = transform_lazy_tensor(lt, po_fn, shape_out)
-        dd = x$data_descriptor
+
+        shape_out_predict = if (stage == "train") {
+          shape_in_predict = if (is.null(lt$.info$.predict_shape)) shape_before
+          # during `$train()` we also keep track of the shapes that would arise during train
+          # This avoids that we first train a learner and then only notice during predict that the shapes
+          # during the predict phase are wrong
+          shape_out_predict = self$shapes_out(list(shape_before), stage = "predict", task = task)[[1L]]
+        }
+        x = transform_lazy_tensor(lt, po_fn, shape_out, shape_out_predict)
 
         # During "train" we will also calculate the shapes that would arise during prediction, making
         # some assumption that the task and the parameter values are the same.
         # This is then later used in PipeOpTorchModel **before** starting the training to verify that
         # a `$predict()` call is possible later.
-        if (stage == "train") {
-          shape_out_predict = self$shapes_out(list(shape_before), stage = "predict", task = task)[[1L]]
-          dd$.info$.pointer_shape_predict = shape_out_predict
-          attr(x, "data_descriptor") = dd
-        }
         x
       })
       names(dt) = uniqueify(names(dt), setdiff(task$col_info$id, names(dt)))
@@ -336,28 +357,36 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
 #' @param param_vals (`list()`)\cr
 #'   The parameter values.
 #' @export
-pipeop_preproc_torch = function(name, fn, shapes_out = NULL, param_set = NULL, param_vals = list(),
-  packages = character(0), per_column = TRUE, prefix = "trafo") {
+pipeop_preproc_torch = function(id, fn, shapes_out = NULL, param_set = NULL, param_vals = list(),
+  packages = character(0), per_column = TRUE) {
   pipeop_preproc_torch_class(
-    name = name,
+    id = id,
     fn = fn,
     shapes_out = shapes_out,
     param_set = param_set,
     packages = packages,
-    per_column = per_column,
-    prefix = prefix
+    per_column = per_column
     )$new(param_vals = param_vals)
 }
 
 
-create_ps_call = function(v) {
+create_ps_call = function(fn) {
+  fmls = rlang::fn_fmls(fn)
+  param_names = names(fmls)
+  param_names = setdiff(param_names[-1L], "...")
+  fmls = fmls[param_names]
+  is_required = map(fmls, function(x) x == rlang::missing_arg())
   # Create an empty named list to store the arguments
   args = list()
 
   # Iterate through the elements of v and create expressions
-  for (element in v) {
-    arg_name = as.name(element)
-    arg_value = rlang::expr(p_uty(tags = c("train", "predict")))
+  for (pname in param_names) {
+    arg_name = as.name(pname)
+    if (is_required[[pname]]) {
+      arg_value = rlang::expr(p_uty(tags = c("train", "required")))
+    } else {
+      arg_value = rlang::expr(p_uty(tags = "train"))
+    }
     args[[arg_name]] = arg_value
   }
 
@@ -378,12 +407,16 @@ create_ps_call = function(v) {
 #'   The private `.shapes_out(shapes_in, param_vals, task)` method of [`PipeOpTaskPreprocTorch`].
 #'   If `NULL`, the pipeop does not change the output shapes.
 #'   If `TRUE`, the output shape function is inferred and calculates the output shapes as follows:
-#'   For an input shape of (NA, ...) a meta-tensor of shape (1, ...) is created and the preprocessing function is
-#'   applied. Afterwards the batch dimension (1) is replaced with NA and the shape is returned.
+#'   a) The input shapes are known:
+#'      For an input shape of (NA, ...) a meta-tensor of shape (1, ...) is created and the preprocessing function is
+#'      applied. Afterwards the batch dimension (1) is replaced with NA and the shape is returned.
+#'   b) The input shapes are unknown (all NA):
+#'      The dimension is returned as is.
 #' @param param_set ([`ParamSet`] or `NULL`)\cr
 #'   The parameter set.
 #'   If this is left as `NULL` (default) the parameter set is inferred in the following way:
-#'   All arguments but the first and `...` of `fn` are set as untyped parameters with tags 'train' and 'predict'.
+#'   All parameters but the first and `...` of `fn` are set as untyped parameters with tags 'train' and those that
+#'   have nod default value are tagged as 'required' as well.
 #'   Default values are not annotated.
 #' @template param_param_vals
 #' @template param_packages
@@ -395,9 +428,9 @@ create_ps_call = function(v) {
 #' po_example = pipeop_preproc_torch("preproc_example", function(x, a) x + a)
 #' po_example
 #' po_example$param_set
-pipeop_preproc_torch_class = function(name, fn, shapes_out = NULL, param_set = NULL,
-  packages = character(0), per_column = TRUE, prefix = "trafo") {
-  assert_string(name)
+pipeop_preproc_torch_class = function(id, fn, shapes_out = NULL, param_set = NULL,
+  packages = character(0), per_column = TRUE) {
+  assert_string(id)
   assert_function(fn)
   if (!isTRUE(shapes_out)) {
     assert_function(shapes_out, args = c("shapes_in", "param_vals", "task"), null.ok = TRUE)
@@ -406,32 +439,35 @@ pipeop_preproc_torch_class = function(name, fn, shapes_out = NULL, param_set = N
   assert_flag(per_column)
 
   if (!is.null(param_set)) {
-    assert_param_set(param_set)
-    param_set = substitute(param_set)
+    assert_param_set(eval(param_set))
   } else {
-    param_names = setdiff(formalArgs(fn)[-1], "...")
-    param_set = create_ps_call(param_names)
+    # This should add required tags where it is applicable
+    param_set = create_ps_call(fn)
   }
 
-  classname = paste0("PipeOpPreprocTorch", paste0(capitalize(strsplit(name, split = "_")[[1L]]), collapse = ""))
+  classname = paste0("PipeOpPreprocTorch", paste0(capitalize(strsplit(id, split = "_")[[1L]]), collapse = ""))
   # Note that we don't set default values
-
 
   if (isTRUE(shapes_out)) {
     shapes_out = crate(function(shapes_in, param_vals, task) {
       sin = shapes_in[[1L]]
+      if (all(is.na(sin))) {
+        # This is only TRUE if the preprocessing pipeop does not change the number of dimensions.
+        return(list(sin))
+      }
       # set batch-dim to 1
       sin[1] = 1L
       tensor_in = invoke(torch_empty, .args = sin, device = torch_device("meta"))
       tensor_out = invoke(private$.fn, tensor_in, .args = param_vals)
 
       sout = dim(tensor_out)
+      if (sout[1] != 1) {
+        stopf("The automatically inferred private .shapes_out() method for class '%s' is wrong.", classname)
+      }
       sout[1] = NA
       list(sout)
     })
   }
-
-  idname = paste0(prefix, "_", name)
 
   init_fun = crate(function(id = idname, param_vals = list()) {
     super$initialize(
@@ -442,7 +478,7 @@ pipeop_preproc_torch_class = function(name, fn, shapes_out = NULL, param_set = N
       fn = fn
     )
   })
-  formals(init_fun)$id = idname
+  formals(init_fun)$id = id
   # param_set is already an expression
   body(init_fun)[[2]][[3]] = substitute(packages)
   body(init_fun)[[2]][[4]] = param_set
@@ -461,12 +497,9 @@ pipeop_preproc_torch_class = function(name, fn, shapes_out = NULL, param_set = N
   return(Class)
 }
 
-register_preproc = function(name, fn, param_set = NULL, shapes_out = NULL, packages, prefix = "trafo") {
-  id = register_po(paste0(prefix, "_", name), Class)
-  class = pipeop_preproc_torch_class(id, fn, param_set = param_set, shapes_out = shapes_out, packages = packages)
-
-  register_po(id, class)
-
+register_preproc = function(id, fn, param_set = NULL, shapes_out = NULL, packages) {
+  Class = pipeop_preproc_torch_class(id, fn, param_set = substitute(param_set), shapes_out = shapes_out, packages = packages)
+  register_po(id, Class)
 }
 
 
@@ -490,4 +523,4 @@ register_preproc = function(name, fn, param_set = NULL, shapes_out = NULL, packa
   #
 
 
-register_po("preproc_torch", PipeOpTaskPreprocTorch)
+register_po("preproc_torch", PipeOpTaskPreprocTorch, metainf = list(fn = identity))

@@ -124,18 +124,18 @@ Shortcut for \code{learner$model$callbacks$history}.}
 \item \href{#method-LearnerTorch-new}{\code{LearnerTorch$new()}}
 \item \href{#method-LearnerTorch-format}{\code{LearnerTorch$format()}}
 \item \href{#method-LearnerTorch-print}{\code{LearnerTorch$print()}}
+\item \href{#method-LearnerTorch-train}{\code{LearnerTorch$train()}}
+\item \href{#method-LearnerTorch-predict}{\code{LearnerTorch$predict()}}
 \item \href{#method-LearnerTorch-clone}{\code{LearnerTorch$clone()}}
 }
 }
 \if{html}{\out{
-<details><summary>Inherited methods</summary>
+<details open><summary>Inherited methods</summary>
 <ul>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner"><a href='../../mlr3/html/Learner.html#method-Learner-base_learner'><code>mlr3::Learner$base_learner()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help"><a href='../../mlr3/html/Learner.html#method-Learner-help'><code>mlr3::Learner$help()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict"><a href='../../mlr3/html/Learner.html#method-Learner-predict'><code>mlr3::Learner$predict()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata"><a href='../../mlr3/html/Learner.html#method-Learner-predict_newdata'><code>mlr3::Learner$predict_newdata()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset"><a href='../../mlr3/html/Learner.html#method-Learner-reset'><code>mlr3::Learner$reset()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train"><a href='../../mlr3/html/Learner.html#method-Learner-train'><code>mlr3::Learner$train()</code></a></span></li>
 </ul>
 </details>
 }}
@@ -247,6 +247,51 @@ Prints the object.
 Currently unused.}
 }
 \if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LearnerTorch-train"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerTorch-train}{}}}
+\subsection{Method \code{train()}}{
+Train the learner.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LearnerTorch$train(task, row_ids = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{task}}{(\code{\link{Task}})\cr
+The task.}
+
+\item{\code{row_ids}}{(\code{integer()})\cr
+Which rows to use for trainin.g}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LearnerTorch-predict"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerTorch-predict}{}}}
+\subsection{Method \code{predict()}}{
+Predict on a task.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LearnerTorch$predict(task, row_ids = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{task}}{(\code{\link{Task}})\cr
+The task.}
+
+\item{\code{row_ids}}{(\code{integer()})\cr
+For which rows to predict.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(\code{\link{Prediction}})
 }
 }
 \if{html}{\out{<hr>}}

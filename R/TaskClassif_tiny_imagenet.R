@@ -75,7 +75,7 @@ constructor_tiny_imagenet = function(path) {
 }
 
 load_task_tiny_imagenet = function(id = "tiny_imagenet") {
-  cached_constructor = function() {
+  cached_constructor = crate(function() {
     # We need this as otherwise the factor level are differently ordered,
     # which causes the hard-coded col-info to be wrong for some locales
     # (whether a < A or A > a depends on the locale)
@@ -85,7 +85,7 @@ load_task_tiny_imagenet = function(id = "tiny_imagenet") {
     dt$image = imageuri(dt$image)
     dt$..row_id = seq_len(nrow(dt))
     DataBackendDataTable$new(data = dt, primary_key = "..row_id")
-  }
+  })
 
   backend = DataBackendLazy$new(
     constructor = cached_constructor,

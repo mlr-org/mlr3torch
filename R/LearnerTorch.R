@@ -199,6 +199,25 @@ LearnerTorch = R6Class("LearnerTorch",
       if (length(e)) {
         catn(str_indent("* Errors:", e))
       }
+    },
+    #' @description Train the learner.
+    #' @param task ([`Task`])\cr
+    #'   The task.
+    #' @param row_ids (`integer()`)\cr
+    #'   Which rows to use for trainin.g
+    train = function(task, row_ids = NULL) {
+      private$.verify_train_task(task, row_ids)
+      super$train(task, row_ids)
+    },
+    #' @description Predict on a task.
+    #' @param task ([`Task`])\cr
+    #'   The task.
+    #' @param row_ids (`integer()`)\cr
+    #'   For which rows to predict.
+    #' @return ([`Prediction`])
+    predict = function(task, row_ids = NULL) {
+      private$.verify_predict_task(task, row_ids)
+      super$predict(task, row_ids)
     }
   ),
   active = list(
@@ -253,18 +272,6 @@ LearnerTorch = R6Class("LearnerTorch",
       # Should be handled outside of mlr3torch
       # Ideally we could rely on state$train_task, but there is this bug
       # https://github.com/mlr-org/mlr3/issues/947
-      cols = c(task$feature_names, task$target_names)
-      ci_predict = task$col_info[get("id") %in% cols, c("id", "type", "levels")]
-      ci_train = self$model$task_col_info[get("id") %in% cols, c("id", "type", "levels")]
-      if (!test_equal_col_info(ci_train, ci_predict)) { # nolint
-        stopf(paste0(
-          "Predict task's `$col_info` does not match the train tasks' column info.\n",
-          "This will be handled more gracefully in the future.\n",
-          "Training column info:\n'%s'\n",
-          "Prediction column info:\n'%s'"),
-          paste0(capture.output(ci_train), collapse = "\n"),
-          paste0(capture.output(ci_predict), collapse = "\n"))
-      }
       param_vals = self$param_set$get_values(tags = "predict")
       param_vals$device = auto_device(param_vals$device)
 
@@ -299,6 +306,34 @@ LearnerTorch = R6Class("LearnerTorch",
     .loss = NULL,
     .param_set_base = NULL,
     .callbacks = NULL,
+    .verify_train_task = function(task, row_ids) {
+      first_row = task$head(0)
+      iwalk(first_row, function(x, nm) {
+        if (!is_lazy_tensor(x)) return(NULL)
+        predict_shape = x$.info$.predict_shape
+        train_shape = x$.pointer_shape
+        # If no information on hypothetical predict shape is available we continue training
+        # This is e.g. the case when a completely un-preprocessed lazy tensor is used
+        # Otherwise we expect the predict_shape to be equal to the train shape
+        if (!is.null(predict_shape) && !identical(predict_shape, train_shape)) {
+          stopf("Lazy tensor column '%s' would have a different shape during training and prediction.", nm)
+        }
+      })
+    },
+    .verify_predict_task = function(task, row_ids) {
+      cols = c(task$feature_names, task$target_names)
+      ci_predict = task$col_info[get("id") %in% cols, c("id", "type", "levels")]
+      ci_train = self$model$task_col_info[get("id") %in% cols, c("id", "type", "levels")]
+      if (!test_equal_col_info(ci_train, ci_predict)) { # nolint
+        stopf(paste0(
+          "Predict task's `$col_info` does not match the train task's column info.\n",
+          "This will be handled more gracefully in the future.\n",
+          "Training column info:\n'%s'\n",
+          "Prediction column info:\n'%s'"),
+          paste0(capture.output(ci_train), collapse = "\n"),
+          paste0(capture.output(ci_predict), collapse = "\n"))
+      }
+    },
     deep_clone = function(name, value) deep_clone(self, private, super, name, value)
   )
 )

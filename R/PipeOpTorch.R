@@ -257,8 +257,8 @@ PipeOpTorch = R6Class("PipeOpTorch",
       assert_character(packages, any.missing = FALSE)
 
       packages = union(packages, "torch")
-      input = data.table(name = inname, train = "ModelDescriptor", predict = "*")
-      output = data.table(name = outname, train = "ModelDescriptor", predict = "*")
+      input = data.table(name = inname, train = "ModelDescriptor", predict = "Task")
+      output = data.table(name = outname, train = "ModelDescriptor", predict = "Task")
 
       assert_r6(param_set, "ParamSet")
       #walk(param_set$params, function(p) {
@@ -288,7 +288,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
     #' @return
     #'  A named `list()` containing the output shapes. The names are the names of the output channels of
     #'  the `PipeOp`.
-    shapes_out = function(shapes_in, task = NULL, stage) {
+    shapes_out = function(shapes_in, task = NULL) {
       assert_r6(task, "Task", null.ok = TRUE)
       if (is.numeric(shapes_in)) shapes_in = list(shapes_in)
       if (identical(self$input$name, "...")) {
@@ -301,7 +301,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
         shapes_in
       } else {
         pv = self$param_set$get_values()
-        private$.shapes_out(shapes_in, pv, task = task, stage = stage)
+        private$.shapes_out(shapes_in, pv, task = task)
       }
 
       set_names(s, self$output$name)
@@ -310,7 +310,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
     # TODO: printer that calls the nn_module's printer
   ),
   private = list(
-    .shapes_out = function(shapes_in, param_vals, task) shapes_in,
+    .shapes_out = function(shapes_in, param_vals, task, stage) shapes_in,
     .shape_dependent_params = function(shapes_in, param_vals, task) param_vals,
     .make_module = function(shapes_in, param_vals, task) {
       do.call(self$module_generator, private$.shape_dependent_params(shapes_in, param_vals, task))
@@ -320,7 +320,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
       input_pointers = map(inputs, ".pointer")
       input_shapes = map(inputs, ".pointer_shape")
 
-      assert_shapes(input_shapes)
+      assert_shapes(input_shapes, named = FALSE)
       # Now begin creating the result-object: it contains a merged version of all `inputs`' $graph slots etc.
       # The only thing missing afterwards is (1) integrating module_op to the merged $graph, and adding `.pointer`s.
       result_template = Reduce(model_descriptor_union, inputs)

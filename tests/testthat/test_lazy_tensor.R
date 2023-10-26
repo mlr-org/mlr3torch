@@ -1,3 +1,65 @@
+test_that("DataDescriptor works", {
+  ds = dataset(
+    initialize = function() {
+      self$x = torch_randn(10, 5, 3)
+    },
+    .getitem = function(i) {
+      list(x = self$x[i, ..])
+    },
+    .length = function() {
+      nrow(self$x)
+    }
+  )()
+
+  dd = DataDescriptor(ds, dataset_shapes = list(x = c(NA, 5, 3)))
+  expect_class(dd, "DataDescriptor")
+  expect_equal(dd$.pointer_shape, c(NA, 5, 3))
+  expect_class(dd$graph$pipeops[[1L]], "PipeOpNOP")
+  expect_true(length(dd$graph$pipeops) == 1L)
+  expect_equal(dd$.pointer, c(dd$graph$output$op.id, dd$graph$output$channel.name))
+  expect_string(dd$.dataset_hash)
+  expect_string(dd$.hash)
+  expect_false(dd$.dataset_hash == dd$.hash)
+
+  dd1 = DataDescriptor(ds, dataset_shapes = list(x = c(NA, 5, 3)))
+  expect_equal(dd$dataset_shapes, dd1$dataset_shapes)
+
+  expect_error(DataDescriptor(ds), "missing")
+
+  graph = as_graph(po("nop", id = "nop"))
+
+  expect_error(DataDescriptor(ds, dataset_shapes = list(x = c(5, 4)), "When passing a graph"))
+})
+
+test_that("Unknown shapes work", {
+  ds = dataset(
+    initialize = function() {
+      self$x = list(
+        torch_randn(2, 2),
+        torch_randn(3, 3)
+      )
+    },
+    .getitem = function(i) {
+      list(x = self$x[[i]])
+    },
+    .length = function() {
+      length(self$x)
+    }
+  )()
+
+  dd = DataDescriptor(ds, dataset_shapes = list(x = c(NA, NA, NA)))
+  expect_class(dd, "DataDescriptor")
+  expect_equal(dd$.pointer_shape, c(NA, NA, NA))
+  expect_equal(dd$dataset_shapes, list(x = c(NA, NA, NA)))
+
+  lt = as_lazy_tensor(dd)
+  expect_class(lt, "lazy_tensor")
+  materialize(lt)
+
+  ds = random_dataset(10, 3)
+  expect_error(DataDescriptor(ds, list(x = c(NA, NA, NA))))
+})
+
 test_that("lazy_tensor works", {
   dd1 = DataDescriptor(random_dataset(5, 4), list(x = c(NA, 5, 4)))
   dd2 = DataDescriptor(random_dataset(5, 4), list(x = c(NA, 5, 4)))
@@ -16,14 +78,12 @@ test_that("lazy_tensor works", {
   expect_true(is.null(attr(lt1_empty, "data_descriptor")))
   expect_class(lt1_empty, "lazy_tensor")
 
-  lt1_empty[1] = lt1[1]
-
-  expect_class(materialize(lazy_tensor()), "torch_tensor")
+  expect_error(materialize(lazy_tensor()), "Cannot materialize")
 })
 
 test_that("transform_lazy_tensor works", {
   lt = as_lazy_tensor(torch_randn(16, 2, 5))
-  lt_mat = materialize(lt)
+  lt_mat = materialize(lt, rbind = TRUE)
 
   expect_equal(lt_mat$shape, c(16, 2, 5))
 
@@ -39,7 +99,8 @@ test_that("transform_lazy_tensor works", {
   lt1 = transform_lazy_tensor(lt, po_module, new_shape)
 
   dd1 = attr(lt1, "data_descriptor")
-  expect_equal(dd$graph$edges,
+
+  expect_equal(dd1$graph$edges,
     data.table(src_id = "dataset_x", src_channel = "output", dst_id = "mod", dst_channel = "input")
   )
 
@@ -47,8 +108,8 @@ test_that("transform_lazy_tensor works", {
 
   # graph was cloned
   expect_true(!identical(dd1$graph, dd$graph))
-  # pipeop was cloned
-  expect_true(!identical(dd1$graph$pipeops$dataset_x, dd$graph$pipeops$dataset_x))
+  # pipeop was not cloned
+  expect_true(identical(dd1$graph$pipeops$dataset_x, dd$graph$pipeops$dataset_x))
 
   # .pointer was set
   expect_equal(dd1$.pointer, c("mod", "output"))
@@ -61,7 +122,7 @@ test_that("transform_lazy_tensor works", {
   expect_true(dd$.dataset_hash == dd1$.dataset_hash)
 
   # materialization gives correct result
-  lt1_mat = materialize(lt1)
+  lt1_mat = materialize(lt1, rbind = TRUE)
   expect_equal(lt1_mat$shape, c(16, 10))
 
   lt1_mat = torch_reshape(lt1_mat, c(-1, 2, 5))

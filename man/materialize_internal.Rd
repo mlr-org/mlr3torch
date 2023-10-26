@@ -8,7 +8,8 @@ materialize_internal(
   x,
   device = "cpu",
   cache = NULL,
-  set_keep_results = is.null(cache)
+  set_keep_results = is.null(cache),
+  rbind
 )
 }
 \arguments{
@@ -28,11 +29,17 @@ this result is not part of the output of the \code{\link{Graph}}.
 Therefore we have to include this as part of the \code{keep_results} field of the \code{\link{Graph}}.
 When caching is done, this should be set to \code{FALSE} as otherwise data will be discarded that might be relevant
 for materializing other lazy tensor columns.}
+
+\item{rbind}{(\code{logical(1)})\cr
+Whtether to rbind the resulting tensors (\code{TRUE}) or return them as a list of tensors (\code{FALSE}).}
 }
 \value{
 \code{\link[=lazy_tensor]{lazy_tensor()}}
 }
 \description{
+Convert a \code{\link[=lazy_tensor]{lazy_tensor()}} to a \code{\link[=torch_tensor]{torch_tensor()}}.
+}
+\details{
 Materializing a lazy tensor consists of:
 \enumerate{
 \item Loading the data from the internal dataset of the \code{\link{DataDescriptor}}.
@@ -40,7 +47,7 @@ Materializing a lazy tensor consists of:
 \item Returning the result of the \code{\link{PipeOp}} pointed to by the \code{\link{DataDescriptor}} (\code{.pointer}).
 }
 
-With multiple \code{\link{lazy_tensor}} columns we can benefit from caching because:
+When materializing multiple \code{\link{lazy_tensor}} columns, caching can be useful because:
 a) Output(s) from the dataset might be input to multiple graphs.
 b) Different lazy tensors might be outputs from the same graph.
 

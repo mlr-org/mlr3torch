@@ -2,6 +2,7 @@
 % Please edit documentation in R/preprocess.R
 \name{mlr_pipeops_preproc_torch_overview}
 \alias{mlr_pipeops_preproc_torch_overview}
+\alias{PipeOpPreprocTorchTrafoResize}
 \title{Lazy Preprocessing and Transformations}
 \description{
 Overview over all implemented preprocessing methods.

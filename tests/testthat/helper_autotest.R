@@ -321,7 +321,5 @@ autotest_trafo = function(obj) {
 autotest_preproc = function(obj) {
   expect_class(obj, "PipeOpTaskPreprocTorch")
 
-  # TODO: Unless the test is disabled, check that all parameters have train and predict tag
-
-
+  # TODO: Unless the test is disabled, check that all parameters have train tag
 }

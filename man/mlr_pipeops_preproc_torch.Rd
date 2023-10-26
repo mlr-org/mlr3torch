@@ -6,37 +6,46 @@
 \title{Base Class for Torch Preprocessing}
 \description{
 This \code{PipeOp} can be used to preprocess (one or more) \code{\link{lazy_tensor}} columns contained in an \code{\link[mlr3:Task]{mlr3::Task}}.
-The function that is applied is specified as construction argument \code{fn} and additional arguments to this
+The preprocessing function is specified as construction argument \code{fn} and additional arguments to this
 function can be defined through the \code{PipeOp}'s parameter set.
-The preprocessing is either done per-column in which case the number lazy tensor output columns is equivalent
+The preprocessing is usually done per-column in which case the number lazy tensor output columns is equivalent
 to the number of lazy tensor input columns.
 It is also possible to implement preprocessing that is applied to all lazy tensor columns at once and returns
-one or more (not necessarily the same number) of lazy tensor columns.
+one or more (not necessarily the same number of) lazy tensor columns.
+The preprocessing that is applied during \verb{$predict()} uses the parameters that were set during \verb{$train()}
+and not those that are set when performing the prediction.
 }
 \section{Inheriting}{
 
-In addition to specifying the parameters \code{fn}, \code{packages} and \code{param_set} during construction you can also overwrite
-the private \code{.shapes_out()} or \code{.tranform()} methods:
+In addition to specifying the construction arguments, you can overwrite the private \code{.shapes_out()} or
+\code{.tranform()} methods:
 \itemize{
 \item \code{.shapes_out(shapes_in, param_vals, task)}\cr
 (\code{list()}, \verb{list(), }Task\code{or}NULL\verb{) -> }list()`\cr
 This private method calculates the output shapes of the lazy tensor columns that are created from applying
 the preprocessing.
-
-Also see the documentation of \code{\link{PipeOpTorch}} how to implement this method.
+Note that the input shapes can be only contain NAs (e.g. (NA, NA, NA)), indicating that only the number of input
+dimensions is known, but not the exact shape.
+In this case the output shape should also only contain NAs.
 
 In case the construction argument \code{per_column} is \code{TRUE}, this private method only has the responsibility
-to caclculate the output shapes for one input column, i.e. the input \code{shapes_in} can be assumed to have
-exactly one shape vector for which it must calculate the output shapes.
+to calculate the output shapes for one input column, i.e. the input \code{shapes_in} can be assumed to have
+exactly one shape vector for which it must calculate the output shapes and return it as a \code{list()} of length 1.
+
+Also see the documentation of \code{\link{PipeOpTorch}} how to implement this method.
 \item \code{.transform(dt, task, param_vals, stage)}\cr
 (\code{data.table()}, \code{Task}, \code{list()}, \code{character(1)}) -> \code{data.table()}\cr
 This method must only be overwritten when the the \code{per_column} construction argument is \code{FALSE}.
 It receives as inputs all selected lazy tensor columns, the input \code{Task} (already cloned),
 the paramer values, and whether the preprocessing is applied during training (stage is \code{"train"})
-or prediction (stage is \code{"predict"}). It needs to return a \code{data.table} with lazy tensor columns.
-Note that the lazy tensor inputs should not be modified in-place.
-Note that overwriting this method (currently) requires a solid understanding of the \code{\link{lazy_tensor}} internals. This might be made easier in the future.
-Note also that you need to pay attention to avoid name conflicts with existing columns in the task.
+or prediction (stage is \code{"predict"}). One should not work with the parameters currently set in the paramet set,
+only use those passed as argument \code{param_vals}. These are the parameters that were specified during the \verb{$train()}
+call of the \code{\link{PipeOp}} (otherwise it cannot be ensured that the shapes encountered during \verb{$predict()} can actually
+be processed by the neural network).
+The method must return a \code{data.table} with lazy tensor columns.
+The lazy tensor input columns should \strong{not} be modified in-place.
+Overwriting this method (currently) requires a solid understanding of the \code{\link{lazy_tensor}} internals.
+You also need to pay attention to avoid name conflicts with existing columns in the task.
 }
 }
 
@@ -102,10 +111,10 @@ po_simple$param_set$set_values(
 )
 
 taskout_train = po_simple$train(list(taskin))[[1L]]
-materialize(taskout_train$data(cols = c("x1", "x2")))
+materialize(taskout_train$data(cols = c("x1", "x2")), rbind = TRUE)
 
 taskout_predict_noaug = po_simple$predict(list(taskin))[[1L]]
-materialize(taskout_predict_noaug$data(cols = c("x1", "x2")))
+materialize(taskout_predict_noaug$data(cols = c("x1", "x2")), rbind = TRUE)
 
 po_simple$param_set$set_values(
   augment = TRUE
@@ -113,7 +122,7 @@ po_simple$param_set$set_values(
 
 # transformation is not applied
 taskout_predict_aug = po_simple$predict(list(taskin))[[1L]]
-materialize(taskout_predict_aug$data(cols = c("x1", "x2")))
+materialize(taskout_predict_aug$data(cols = c("x1", "x2")), rbind = TRUE)
 
 # Creating a more complex preprocessing PipeOp
 
@@ -122,7 +131,7 @@ PipeOpPreprocTorchPoly = R6::R6Class("PipeOpPreprocTorchPoly",
   public = list(
     initialize = function(id = "preproc_poly", param_vals = list()) {
       param_set = paradox::ps(
-        n_degree = paradox::p_int(lower = 1L, tags = c("train", "predict", "required"))
+        n_degree = paradox::p_int(lower = 1L, tags = c("train", "required"))
       )
       param_set$set_values(
         n_degree = 1L
@@ -159,14 +168,10 @@ po_poly = PipeOpPreprocTorchPoly$new(
   param_vals = list(n_degree = 3L, affect_columns = selector_name("x3"))
 )
 
-# Note that the 'augment' parameter is not present as the PipeOp
-# modifies the input shape and must hence be applied during training **and** prediction
-po_poly$param_set
-
 po_poly$shapes_out(list(c(NA, 1L)))
 
 taskout = po_poly$train(list(taskin))[[1L]]
-materialize(taskout$data(cols = "x3"))
+materialize(taskout$data(cols = "x3"), rbind = TRUE)
 }
 \section{Super classes}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3pipelines:PipeOpTaskPreproc]{mlr3pipelines::PipeOpTaskPreproc}} -> \code{PipeOpTaskPreprocTorch}
@@ -220,7 +225,8 @@ Parameter values to be set after construction.}
 
 \item{\code{param_set}}{(\code{\link{ParamSet}})\cr
 In case the function \code{fn} takes additional parameter besides a \code{\link[=torch_tensor]{torch_tensor()}} they can be
-specfied as parameters. Pay attention to set the correct \code{tags} for the parameters: if tag \code{"train"} is present,
+specfied as parameters. None of the parameters can have the \code{\link{"predict"}} tag.
+Pay attention to set the correct \code{tags} for the parameters: if tag \code{"train"} is present,
 the preprocessing is applied during training and if tag \code{"predict"} is present, the preprocessing is applied
 during prediction (if \code{augment} is set to \code{FALSE}).}
 

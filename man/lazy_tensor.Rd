@@ -2,7 +2,7 @@
 % Please edit documentation in R/lazy_tensor.R
 \name{lazy_tensor}
 \alias{lazy_tensor}
-\title{Create a lazy tensor}
+\title{Create a lazy tesornsor}
 \usage{
 lazy_tensor(data_descriptor = NULL, ids = NULL)
 }
