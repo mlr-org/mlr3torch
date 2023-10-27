@@ -3,15 +3,17 @@
 \name{mlr_pipeops_preproc_torch_overview}
 \alias{mlr_pipeops_preproc_torch_overview}
 \alias{PipeOpPreprocTorchTrafoResize}
+\alias{PipeOpPreprocTorchTrafoNop}
 \title{Lazy Preprocessing and Transformations}
 \description{
 Overview over all implemented preprocessing methods.
 See \code{\link{PipeOpTaskPreprocTorch}} for more details on the class itself.
-}
-\section{Overview}{
 
 \itemize{
-\item trafo_resize: Calls \code{\link[torchvision:transform_resize]{torchvision::transform_resize}}
-}
+\item \code{trafo_resize}: Calls \code{\link[torchvision:transform_resize]{torchvision::transform_resize}}
 }
 
+\itemize{
+\item \code{trafo_nop}: Calls \code{identity()}.
+}
+}

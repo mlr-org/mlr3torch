@@ -4,7 +4,20 @@ nano_dogs_vs_cats = function(id = "nano_dogs_vs_cats") {
   image_names = list.files(path)
   uris = normalizePath(file.path(path, image_names))
 
-  images = imageuri(uris)
+  ds = dataset("dogs_vs_cats",
+    initialize = function(uris) {
+      self$uris = uris
+    },
+    .getitem = function(id) {
+      list(x = torchvision::transform_to_tensor(magick::image_read(self$uris[id]))$to(dtype = torch_float32()))
+    },
+    .length = function() {
+      length(self$uris)
+    }
+  )(uris)
+
+
+  images = as_lazy_tensor(ds, dataset_shapes = list(x = rep(NA_integer_, 4)))
 
   labels = map_chr(image_names, function(name) {
     if (startsWith(name, "cat")) {
@@ -18,9 +31,9 @@ nano_dogs_vs_cats = function(id = "nano_dogs_vs_cats") {
 
   labels = factor(labels)
 
-  dat = data.table(x = images, animal = labels)
+  dat = data.table(x = images, y = labels)
 
-  task = as_task_classif(dat, id = "nano_dogs_vs_cats", label = "Cats vs Dogs", target = "animal", positive = "cat")
+  task = as_task_classif(dat, id = "nano_dogs_vs_cats", label = "Cats vs Dogs", target = "y", positive = "cat")
   task
 }
 

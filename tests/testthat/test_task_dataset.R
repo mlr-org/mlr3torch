@@ -293,3 +293,11 @@ test_that("dataset_img works", {
   expect_true(batch_meta$x$image$device$type == "meta")
 })
 
+
+test_that("caching works", {
+  # TODO
+})
+
+test_that("merging of graphs works as expected", {
+  # TODO
+})

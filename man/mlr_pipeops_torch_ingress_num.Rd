@@ -27,9 +27,9 @@ The state is set to the input shape.
 graph = po("select", selector = selector_type(c("numeric", "integer"))) \%>>\%
   po("torch_ingress_num")
 task = tsk("german_credit")
-# The output is a TorchIngressToken
-token = graph$train(task)[[1L]]
-ingress = token$ingress[[1L]]
+# The output is a model descriptor
+md = graph$train(task)[[1L]]
+ingress = md$ingress[[1L]]
 ingress$batchgetter(task$data(1:5, ingress$features), "cpu")
 }
 \seealso{

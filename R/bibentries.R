@@ -73,5 +73,17 @@ bibentries = c( # nolint start
     number='11',
     pages='2278-2324',
     doi='10.1109/5.726791'
+  ),
+  anderson_1936 = bibentry("article",
+    doi       = "10.2307/2394164",
+    year      = "1936",
+    month     = "9",
+    publisher = "JSTOR",
+    volume    = "23",
+    number    = "3",
+    pages     = "457",
+    author    = "Edgar Anderson",
+    title     = "The Species Problem in Iris",
+    journal   = "Annals of the Missouri Botanical Garden"
   )
 ) # nolint end

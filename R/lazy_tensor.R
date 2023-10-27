@@ -100,7 +100,10 @@ DataDescriptor = function(dataset, dataset_shapes, graph = NULL, .input_map = NU
   }
 
   # We get a warning that package:mlr3torch may not be available when loading (?)
+  # for some reason, the hash of the dataset changes
+  #dataset_hash = calculate_hash(dataset, dataset_shapes)
   dataset_hash = calculate_hash(dataset, dataset_shapes)
+
   obj = structure(
     list(
       dataset = dataset,
@@ -161,7 +164,13 @@ lazy_tensor = function(data_descriptor = NULL, ids = NULL) {
 }
 
 new_lazy_tensor = function(data_descriptor, ids) {
-  vctrs::new_vctr(ids, data_descriptor = data_descriptor, class = "lazy_tensor")
+  hash = data_descriptor$.hash
+  # previously, only the id was included and not the hash
+  # this led to issues with stuff like unlist(), which dropped attribute and suddenly the lazy_tensor column
+  # was a simple integer vector. (this caused stuff like PipeOpFeatureUnion to go havock and lead to bugs)
+  # For this reason, we now also include the hash of the data_descriptor
+  # We can then later also use this to support different DataDescriptors in a single lazy tensor column
+  vctrs::new_vctr(map(ids, function(id) list(id, hash)), data_descriptor = data_descriptor, class = "lazy_tensor")
 }
 
 #' @export
@@ -311,7 +320,7 @@ transform_lazy_tensor = function(lt, pipeop, shape, shape_predict = NULL) {
   data_descriptor$.info$.pointer_shape_predict = shape_predict
   data_descriptor = set_data_descriptor_hash(data_descriptor)
 
-  new_lazy_tensor(data_descriptor, vec_data(lt))
+  new_lazy_tensor(data_descriptor, map_int(vec_data(lt), 1))
 }
 
 #' @export

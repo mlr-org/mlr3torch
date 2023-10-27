@@ -134,9 +134,9 @@ test_that("PipeOpTorch errs when there are unexpected NAs in the shape", {
   md = graph$train(task)[[1L]]
 
   md$.pointer_shape = c(4, NA)
-  expect_error(po("nn_relu")$train(list(md)), regexp = "must have exactly one NA")
+  expect_error(po("nn_relu")$train(list(md)), regexp = "Invalid shape")
 
   md$.pointer_shape = c(NA, NA, 4)
-  expect_error(po("nn_relu")$train(list(md)), regexp = "must have exactly one NA")
+  expect_error(po("nn_relu")$train(list(md)), regexp = "Invalid shape")
 
 })

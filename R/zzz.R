@@ -26,6 +26,7 @@ mlr3torch_pipeops = new.env()
 mlr3torch_learners = new.env()
 mlr3torch_tasks = new.env()
 mlr3torch_resamplings = new.env()
+mlr3torch_task_generators = new.env()
 mlr3torch_pipeop_tags = c("torch", "activation")
 mlr3torch_feature_types = c(img = "imageuri", lt = "lazy_tensor")
 

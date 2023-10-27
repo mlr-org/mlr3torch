@@ -177,19 +177,42 @@ argument_matcher = function(args) {
 #' @param null_ok (`logical(1)`)
 #' @param unknown_ok (`logical(1)`)
 assert_shape = function(shape, null_ok = FALSE, unknown_ok = FALSE) { # nolint
-  if (is.null(shape) && null_ok) return(shape)
-  shape = assert_integerish(shape, min.len = 2L, all.missing = TRUE, coerce = TRUE)
+  if (!test_shape(shape, null_ok = null_ok, unknown_ok = unknown_ok)) {
+    stopf("Invalid shape.")
+  }
+  if (is.null(shape)) {
+    return(NULL)
+  }
+  return(as.integer(shape))
+}
+
+test_shape = function(shape, null_ok = FALSE, unknown_ok = FALSE) {
+  if (is.null(shape) && null_ok) {
+    return(TRUE)
+  }
+  ok = test_integerish(shape, min.len = 2L, all.missing = TRUE)
+
+  if (!ok) {
+    return(FALSE)
+  }
 
   is_na = is.na(shape)
   all_na = all(is_na)
 
   if (all_na && unknown_ok) {
-    return(shape)
+    return(TRUE)
   }
   if (!is_na[[1L]] || anyNA(shape[-1L])) {
-    stopf("Shape must have exactly one NA in the batch dimension.")
+    return(FALSE)
   }
-  return(shape)
+  return(TRUE)
+}
+
+check_shape = function(x, null_ok = FALSE, unknown_ok = FALSE) {
+  if (test_shape(x, null_ok = null_ok, unknown_ok = unknown_ok)) {
+    return(TRUE)
+  }
+  "Must be a valid shape."
 }
 
 assert_shapes = function(shapes, named = TRUE, unknown_ok = FALSE) { # nolint

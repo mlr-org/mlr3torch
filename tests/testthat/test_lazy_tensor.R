@@ -128,3 +128,8 @@ test_that("transform_lazy_tensor works", {
   lt1_mat = torch_reshape(lt1_mat, c(-1, 2, 5))
   expect_true(torch_equal(lt1_mat, lt_mat))
 })
+
+test_that("unlist does not have any surprises", {
+
+
+})

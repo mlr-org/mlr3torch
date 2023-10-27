@@ -2,8 +2,6 @@
 #' @description
 #' Overview over all implemented preprocessing methods.
 #' See [`PipeOpTaskPreprocTorch`] for more details on the class itself.
-#' @section Overview:
-#' * trafo_resize: Calls [`torchvision::transform_resize`]
 #' @usage NULL
 #' @format NULL
 #' @name mlr_pipeops_preproc_torch_overview
@@ -19,6 +17,8 @@ table_preproc = function() {
 
 #' @name PipeOpPreprocTorchTrafoResize
 #' @rdname mlr_pipeops_preproc_torch_overview
+#' @description
+#' * `trafo_resize`: Calls [`torchvision::transform_resize`]
 register_preproc("trafo_resize", torchvision::transform_resize,
   packages = "torchvision",
   param_set = ps(
@@ -37,6 +37,12 @@ register_preproc("trafo_resize", torchvision::transform_resize,
     list(c(shape[seq_len(length(shape) - 2L)], s))
   }
 )
+
+#' @name PipeOpPreprocTorchTrafoNop
+#' @rdname mlr_pipeops_preproc_torch_overview
+#' @description
+#' * `trafo_nop`: Calls `identity()`.
+register_preproc("trafo_nop", identity)
 
 
 

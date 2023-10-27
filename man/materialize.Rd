@@ -15,13 +15,15 @@ Either a \code{\link{lazy_tensor}} or a \code{list()} / \code{data.frame()} cont
 Whether to rbind the lazy tensor columns (\code{TRUE}) or return them as a list of tensors (\code{FALSE}).}
 }
 \value{
-(\code{\link[=torch_tensor]{torch_tensor()}} or \code{\link[=list]{list()}})
+(\code{list()} of \code{\link{lazy_tensor}}s or a \code{\link{lazy_tensor}})
 }
 \description{
-This will materialize a \code{\link[=lazy_tensor]{lazy_tensor()}} or a \code{\link[=data.frame]{data.frame()}} / \code{\link[=list]{list()}} containing -- among other things --
+This will materialize a \code{\link[=lazy_tensor]{lazy_tensor()}} or a \code{data.frame()} / \code{list()} containing -- among other things --
 \code{\link[=lazy_tensor]{lazy_tensor()}} columns.
-I.e. the data described in the underlying \code{\link{DataDescriptors}} is loaded for the indices in the \code{\link[=lazy_tensor]{lazy_tensor()}}
-and is afterwards put on the specified device.
+I.e. the data described in the underlying \code{\link{DataDescriptors}} is loaded for the indices in the \code{\link[=lazy_tensor]{lazy_tensor()}},
+is preprocessed and then put unto the specified device.
+Because not all elements in a lazy tensor must have the same shape, a list of tensors is returned by default.
+If all elements have the same shape, these tensors can also be rbinded into a single tensor (parameter \code{rbind}).
 }
 \details{
 Materializing a lazy tensor consists of:
@@ -37,7 +39,7 @@ b) Different lazy tensors might be outputs from the same graph.
 
 For this reason it is possible to provide a cache environment.
 The hash key for a) is the hash of the indices and the dataset.
-The hash key for b) is the hash of the indices dataset and preprocessing graph.
+The hash key for b) is the hash of the indices, dataset and preprocessing graph.
 }
 \examples{
 lt1 = as_lazy_tensor(torch_randn(10, 3))

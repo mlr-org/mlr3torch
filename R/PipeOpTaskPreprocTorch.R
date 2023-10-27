@@ -220,7 +220,7 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
     shapes_out = function(shapes_in, stage = NULL, task = NULL) {
       assert_r6(task, "Task", null.ok = TRUE)
       assert_choice(stage, c("train", "predict"))
-      assert_shapes(shapes_in, named = FALSE)
+      assert_shapes(shapes_in, named = FALSE, unknown_ok = TRUE)
       names(shapes_in) = NULL
 
       if (is.null(private$.shapes_out)) {
@@ -238,7 +238,13 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
       }
 
       s = if (private$.per_column) {
-        map(shapes_in, function(s) private$.shapes_out(list(s), param_vals = pv, task = task)[[1L]])
+        map(shapes_in, function(s) {
+          if (all(is.na(s))) {
+            s
+          } else {
+            private$.shapes_out(list(s), param_vals = pv, task = task)[[1L]]
+          }
+        })
       } else {
         private$.shapes_out(shapes_in, param_vals = pv, task = task)
       }
@@ -497,8 +503,9 @@ pipeop_preproc_torch_class = function(id, fn, shapes_out = NULL, param_set = NUL
   return(Class)
 }
 
-register_preproc = function(id, fn, param_set = NULL, shapes_out = NULL, packages) {
+register_preproc = function(id, fn, param_set = NULL, shapes_out = NULL, packages = character(0)) {
   Class = pipeop_preproc_torch_class(id, fn, param_set = substitute(param_set), shapes_out = shapes_out, packages = packages)
+  assign(Class$classname, Class, parent.frame())
   register_po(id, Class)
 }
 

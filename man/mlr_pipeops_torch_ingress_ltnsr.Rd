@@ -5,20 +5,27 @@
 \alias{PipeOpTorchIngressLazyTensor}
 \title{Ingress for Lazy Tensor}
 \description{
-Ingress for \code{\link{lazy_tensor}} column.
-This ingress might not return the #' @inheritSection mlr_pipeops_torch_ingress Input and Output Channels
+Ingress for a single \code{\link{lazy_tensor}} column.
 }
 \section{Parameters}{
 
-No parameters.
+\itemize{
+\item \code{shape} :: \code{integer()}\cr
+The shape of the tensor, excluding the batch dimension.
+Whether it is necessary to specify the shape depends on whether the lazy tensor input column has a known shape.
+If the input shape is known, this parameter can be set, but must match the input shape.
+}
 }
 
 \section{Internals}{
 
-The output of the created batchgetter merely returns the data as is.
-The dataset is then responsible to materialize the tensors.
-By doing so, the data-loading can be made more efficient, e.g. when two different ingress tokens exist
-for lazy tensors columns that share the same dataset.
+The returned batchgetter materializes the lazy tensor column to a tensor.
+}
+
+\section{Input and Output Channels}{
+
+One input channel called \code{"input"} and one output channel called \code{"output"}.
+For an explanation see \code{\link{PipeOpTorch}}.
 }
 
 \section{State}{
@@ -27,7 +34,48 @@ The state is set to the input shape.
 }
 
 \examples{
-TODO:
+po_ingress = po("torch_ingress_ltnsr")
+task = tsk("lazy_iris")
+
+md = po_ingress$train(list(task))[[1L]]
+
+ingress = md$ingress
+x_batch = ingress[[1L]]$batchgetter( data = task$data(1, "x"), device = "cpu", cache = NULL)
+x_batch
+
+# Now we try a lazy tensor with unknown shape, i.e. the shapes between the rows can differ
+
+ds = dataset(
+  initialize = function() self$x = list(torch_randn(3, 10, 10), torch_randn(10, 8, 8)),
+  .getitem = function(i) list(x = self$x[[i]]),
+  .length = function() 2)()
+
+task_unknown = as_task_regr(data.table(
+  x = as_lazy_tensor(ds, dataset_shapes = list(x = c(NA, NA, NA, NA))),
+  y = rnorm(2)
+), target = "y", id = "example2")
+
+# this task (as it is) can NOT be processed by PipeOpTorchIngressLazyTensor
+# It therefore needs to be preprocessed
+po_resize = po("trafo_resize", size = c(6, 6))
+task_unknown_resize = po_resize$train(list(task_unknown))[[1L]]
+
+# printing the transformed column still hows unknown shapes, because the preprocessing pipeop cannot infer
+# the shapes, however we know that the shape is now (3, 10, 10) for all rows
+task_unknown_resize$data(1:2, "x")
+po_ingress$param_set$set_values(shape = c(NA, 3, 6, 6))
+
+md2 = po_ingress$train(list(task_unknown_resize))[[1L]]
+
+ingress2 = md2$ingress
+x_batch2 = ingress2[[1L]]$batchgetter(
+  data = task_unknown_resize$data(1:2, "x"),
+  device = "cpu",
+  cache = NULL
+)
+
+x_batch2
+
 }
 \seealso{
 Other PipeOps: 
