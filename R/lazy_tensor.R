@@ -102,7 +102,10 @@ DataDescriptor = function(dataset, dataset_shapes, graph = NULL, .input_map = NU
   # We get a warning that package:mlr3torch may not be available when loading (?)
   # for some reason, the hash of the dataset changes
   #dataset_hash = calculate_hash(dataset, dataset_shapes)
-  dataset_hash = calculate_hash(dataset, dataset_shapes)
+  dataset$.length()
+  dataset_hash = calculate_hash(dataset, dataset_shapes"")
+  # what we could do:
+  # 1) set the hah as field .__mlr3torch__dataset_hash in the dataset (and check before whether something like this is already set)
 
   obj = structure(
     list(

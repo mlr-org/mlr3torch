@@ -136,14 +136,15 @@ test_that("materialize_internal: caching of datasets works", {
       10
     }
   )()
-  ds$initialize()
-  debugonce(print)
-  print(dataset)
   x1 = as_lazy_tensor(ds, list(x = c(NA, 3)))
   x2 = as_lazy_tensor(ds, list(x = c(NA, 3)))
 
-  x1$.dataset_hash
-  x2$.dataset_hash
+  # hashes of environments change after a function was called (?)
+  # https://github.com/mlr-org/mlr3torch/issues/156
+  expect_equal(
+    x1$.dataset_hash,
+    x2$.dataset_hash
+  )
 
   dd1 = DataDescriptor(ds, list(x = c(NA, 3)))
   dd2 = DataDescriptor(ds, list(x = c(NA, 3)))
@@ -157,14 +158,26 @@ test_that("materialize_internal: caching of datasets works", {
   materialize(d, rbind = TRUE, cache = new.env())
   expect_true(d$count == 10)
 
-
-
 })
 
 test_that("materialize_internal: resets everything to previous state", {
 
+
 })
 
-test_that("materialize_internal: set_keep_results works")
+test_that("materialize_internal: set_keep_results works", {
+
+})
+
+test_that("PipeOpFeatureUnion can properly check whether to lazy tensors are identical", {
+  # when lazy_tensor only stored the integers in the vec_data() (and not integer + hash) this test failed
+  task = tsk("lazy_iris")
+
+  graph = po("nop") %>>%
+    list(po("preproc_torch", function(x) x + 1), po("trafo_nop")) %>>%
+    po("featureunion")
+
+  expect_error(graph$train(task), "cannot aggregate different features sharing")
+})
 
 
