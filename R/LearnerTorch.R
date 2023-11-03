@@ -307,7 +307,7 @@ LearnerTorch = R6Class("LearnerTorch",
     .param_set_base = NULL,
     .callbacks = NULL,
     .verify_train_task = function(task, row_ids) {
-      first_row = task$head(0)
+      first_row = task$head(1)
       iwalk(first_row, function(x, nm) {
         if (!is_lazy_tensor(x)) return(NULL)
         predict_shape = x$.info$.predict_shape

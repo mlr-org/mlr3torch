@@ -320,7 +320,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
       input_pointers = map(inputs, ".pointer")
       input_shapes = map(inputs, ".pointer_shape")
 
-      assert_shapes(input_shapes, named = FALSE)
+      assert_shapes(input_shapes, named = FALSE, null_ok = FALSE)
       # Now begin creating the result-object: it contains a merged version of all `inputs`' $graph slots etc.
       # The only thing missing afterwards is (1) integrating module_op to the merged $graph, and adding `.pointer`s.
       result_template = Reduce(model_descriptor_union, inputs)

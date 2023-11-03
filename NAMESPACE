@@ -2,7 +2,6 @@
 
 S3method("$",lazy_tensor)
 S3method("[",imageuri)
-S3method("[",lazy_tensor)
 S3method("[<-",imageuri)
 S3method("[[",imageuri)
 S3method("[[<-",imageuri)

@@ -352,7 +352,7 @@ register_po("torch_ingress_img", PipeOpTorchIngressImage)
 #'   .length = function() 2)()
 #'
 #' task_unknown = as_task_regr(data.table(
-#'   x = as_lazy_tensor(ds, dataset_shapes = list(x = c(NA, NA, NA, NA))),
+#'   x = as_lazy_tensor(ds, dataset_shapes = list(x = NULL)),
 #'   y = rnorm(2)
 #' ), target = "y", id = "example2")
 #'
@@ -396,15 +396,13 @@ PipeOpTorchIngressLazyTensor = R6Class("PipeOpTorchIngressLazyTensor",
       if (length(lazy_cols) != 1L) {
         stopf("PipeOpTorchIngressLazyTensor expects 1 'lazy_tensor' feature, but got %i.", length(lazy_cols))
       }
-      example = task$data(task$row_ids[1L], lazy_cols)[[1L]][[1L]]
+      example = task$data(task$row_ids[1L], lazy_cols)[[1L]]
       input_shape = example$.pointer_shape
       pv_shape = param_vals$shape
 
-      if (all(is.na(input_shape))) {
-        pv_shape = assert_shape(pv_shape, null_ok = FALSE)
-        if (length(input_shape) != length(pv_shape)) {
-          stopf("Number of dimensions of lazy_tensor column '%s' does not match those of parameter 'shape' set in PipeOp '%s'.", # nolint
-            lazy_cols, self$id)
+      if (is.null(input_shape)) {
+        if (is.null(pv_shape)) {
+          stopf("If input shape is unknown, the 'shape' parameter must be set.")
         }
         return(pv_shape)
       }

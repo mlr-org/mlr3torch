@@ -31,7 +31,8 @@ test_that("PipeOpTaskPreprocTorch: basic checks", {
 
   shapes_in = list(c(NA, 1), c(NA, 1))
   expect_identical(shapes_in, po_test1$shapes_out(shapes_in, stage = "train"))
-  expect_identical(shapes_in, po_test1$shapes_out(shapes_in, stage = "predict"))
+  expect_error(po_test1$shapes_out(shapes_in, stage = "predict"), "can only be calculated")
+
   shapes_in1 = list(a = c(NA, 1), b = c(NA, 1))
 
   expect_true(is.null(names(po_test1$shapes_out(shapes_in1, "train"))))
@@ -95,6 +96,26 @@ test_that("PipeOpTaskPreprocTorch: basic checks", {
   expect_true(
     torch_sum(materialize(po_test2$predict(list(task))[[1L]]$data(cols = "x1")[[1L]], rbind = TRUE))$item() == sum(1:10)
   )
+})
+
+test_that("PipeOptaskPreprocTorch: shapes_out() works", {
+  task = nano_dogs_vs_cats()
+  po_resize = po("trafo_resize", size = c(10, 10))
+  expect_identical(po_resize$shapes_out(list(x = NULL), stage = "train"), list(NULL))
+  expect_identical(po_resize$shapes_out(list(x = NULL, y = c(NA, 3, 5, 5)), stage = "train"), list(NULL, c(NA, 3, 10, 10)))
+  expect_error(po_resize$shapes_out(list(x = c(NA, 1, 3)), stage = "predict"), "can only be calculated")
+
+  # predict when augment is TRUE
+  po_resize$param_set$set_values(augment = TRUE)
+  po_resize$train(list(task))
+  expect_identical(po_resize$shapes_out(list(x = NULL), stage = "predict"), list(NULL))
+  expect_identical(po_resize$shapes_out(list(x = NULL, y = c(NA, 3, 5, 5)), stage = "predict"), list(NULL, c(NA, 3, 5, 5)))
+
+  # predict when augment is FALSE
+  po_resize$param_set$set_values(augment = FALSE)
+  po_resize$train(list(task))
+  expect_identical(po_resize$shapes_out(list(x = NULL), stage = "predict"), list(NULL))
+  expect_identical(po_resize$shapes_out(list(x = NULL, y = c(NA, 3, 5, 5)), stage = "predict"), list(NULL, c(NA, 3, 10, 10)))
 })
 
 test_that("PipeOpTaskPreprocTorch modifies the underlying lazy tensor columns correctly", {
@@ -166,7 +187,7 @@ test_that("pipeop_preproc_torch works", {
   expect_torch_equal(x[1, 1]$item(), 3)
   expect_torch_equal(x[1, 2]$item(), 1)
 
-  po_test1 = pipeop_preproc_torch("test1", torchvision::transform_resize, shapes_out = TRUE,
+  po_test1 = pipeop_preproc_torch("test1", torchvision::transform_resize, shapes_out = "infer",
     param_vals = list(size = c(10, 10))
   )
 
@@ -175,7 +196,7 @@ test_that("pipeop_preproc_torch works", {
 })
 
 test_that("predict shapes are added during training", {
-  po_test = pipeop_preproc_torch("test", function(x) torch_cat(list(x, x * 2), dim = 2))
+  po_test = pipeop_preproc_torch("test", function(x) torch_cat(list(x, x * 2), dim = 2), shapes_out = "infer")
   task = as_task_regr(data.table(
     y = 1,
     x = as_lazy_tensor(1)

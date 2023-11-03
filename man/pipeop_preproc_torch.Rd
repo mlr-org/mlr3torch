@@ -7,11 +7,10 @@
 pipeop_preproc_torch(
   id,
   fn,
-  shapes_out = NULL,
+  shapes_out,
   param_set = NULL,
   param_vals = list(),
-  packages = character(0),
-  per_column = TRUE
+  packages = character(0)
 )
 }
 \arguments{
@@ -21,7 +20,7 @@ The id for of the new object.}
 \item{fn}{(\code{function})\cr
 The preprocessing function.}
 
-\item{shapes_out}{(\code{function} or \code{NULL} or \code{TRUE})\cr
+\item{shapes_out}{(\code{function} or \code{NULL} or "infer")\cr
 The private \code{.shapes_out(shapes_in, param_vals, task)} method of \code{\link{PipeOpTaskPreprocTorch}}.
 If \code{NULL}, the pipeop does not change the output shapes.
 If \code{TRUE}, the output shape function is inferred and calculates the output shapes as follows:
@@ -43,9 +42,6 @@ The parameter values.}
 
 \item{packages}{(\code{character()})\cr
 The R packages this object depends on.}
-
-\item{per_column}{(\code{logical(1)})\cr
-Whether the preprocessing is applied per-column.}
 }
 \description{
 Calls \code{\link{pipeop_preproc_torch_class}} and instantiates the instance with the given parameter values.

@@ -17,7 +17,7 @@ nano_dogs_vs_cats = function(id = "nano_dogs_vs_cats") {
   )(uris)
 
 
-  images = as_lazy_tensor(ds, dataset_shapes = list(x = rep(NA_integer_, 4)))
+  images = as_lazy_tensor(ds, dataset_shapes = list(x = NULL))
 
   labels = map_chr(image_names, function(name) {
     if (startsWith(name, "cat")) {

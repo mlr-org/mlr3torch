@@ -57,7 +57,8 @@ task_dataset = dataset(
       stopf("Not working yet I think")
       # TODO: Inspect hashes of data descriptors to check whether caching is possible
       first_row = self$task$data(self$task$row_ids[1L], cols = lazy_tensor_features)
-      graphs = map(first_row, function(x) attr(x, "data_descriptor")$graph)
+      # attr no longer exists
+      # graphs = map(first_row, function(x) attr(x, "data_descriptor")$graph)
       graphs = graphs[!duplicated(graphs)]
       graphs[[1L]] = graphs[[1L]]$clone(deep = TRUE)
       merged_graph = try(Reduce(function(x, y) merge_graphs(x, y, in_place = TRUE), graphs), silent = TRUE)
@@ -65,7 +66,8 @@ task_dataset = dataset(
       if (!inherits(merged_graph, "try-error")) {
         data = self$task$data(cols = lazy_tensor_features)
         data = map_dtc(data, function(x) {
-          attr(x, "data_descriptor")$graph = merged_graph
+          #attr(x, "data_descriptor")$graph = merged_graph
+          # attr no longer exists
           x
         })
         task$cbind(data)

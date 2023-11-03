@@ -140,14 +140,21 @@ register_mlr3pipelines = function() {
     #
     # Because this is quite annoying, we here suppress warnings that arise from the calculate_hash function.
 
-    fn = force(mlr3misc::calculate_hash)
-    calculate_hash = mlr3misc::crate(function(...) {
-      suppressWarnings(fn(...))
-    }, .parent = getNamespace("mlr3misc"), fn)
+    suppress = function(name, fn, env) {
+      fn = mlr3misc::crate(function(...) {
+        suppressWarnings(fn(...))
+      }, .parent = parent.env(environment(fn)), fn)
 
-    unlockBinding("calculate_hash", parent.env(getNamespace("mlr3torch")))
-    assign("calculate_hash", calculate_hash, envir = parent.env(getNamespace("mlr3torch")))
-    lockBinding("calculate_hash", parent.env(getNamespace("mlr3torch")))
+      unlockBinding(name, env)
+      assign(name, fn, envir = env)
+      lockBinding(name, env)
+    }
+
+    suppress("calculate_hash", mlr3misc::calculate_hash, parent.env(getNamespace("mlr3torch")))
+
+    suppress("calculate_hash", mlr3misc::calculate_hash, parent.env(getNamespace("mlr3")))
+    suppress("calculate_hash", mlr3misc::calculate_hash, parent.env(getNamespace("mlr3pipelines")))
+    suppress("digest", digest::digest, parent.env(getNamespace("mlr3pipelines")))
   }
 
 }

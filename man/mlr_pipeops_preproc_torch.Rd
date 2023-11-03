@@ -24,13 +24,13 @@ In addition to specifying the construction arguments, you can overwrite the priv
 (\code{list()}, \verb{list(), }Task\code{or}NULL\verb{) -> }list()`\cr
 This private method calculates the output shapes of the lazy tensor columns that are created from applying
 the preprocessing.
-Note that the input shapes can be only contain NAs (e.g. (NA, NA, NA)), indicating that only the number of input
-dimensions is known, but not the exact shape.
-In this case the output shape should also only contain NAs.
 
-In case the construction argument \code{per_column} is \code{TRUE}, this private method only has the responsibility
-to calculate the output shapes for one input column, i.e. the input \code{shapes_in} can be assumed to have
+This private method only has the responsibility to calculate the output shapes for one input column, i.e. the
+input \code{shapes_in} can be assumed to have
 exactly one shape vector for which it must calculate the output shapes and return it as a \code{list()} of length 1.
+It can also be assumed, that the shape is not \code{NULL}.
+It should also output a shape with exactly one NA in the first dimension.
+It is also possible to output \code{NULL}, if the output shape cannot be determined (e.g. because it is random).
 
 Also see the documentation of \code{\link{PipeOpTorch}} how to implement this method.
 \item \code{.transform(dt, task, param_vals, stage)}\cr
@@ -40,7 +40,7 @@ It receives as inputs all selected lazy tensor columns, the input \code{Task} (a
 the paramer values, and whether the preprocessing is applied during training (stage is \code{"train"})
 or prediction (stage is \code{"predict"}). One should not work with the parameters currently set in the paramet set,
 only use those passed as argument \code{param_vals}. These are the parameters that were specified during the \verb{$train()}
-call of the \code{\link{PipeOp}} (otherwise it cannot be ensured that the shapes encountered during \verb{$predict()} can actually
+call of the \code{\link{PipeOp}} (otherwise it cannot be ensured that the shapes encountered during \verb{$predict()} can actuallT
 be processed by the neural network).
 The method must return a \code{data.table} with lazy tensor columns.
 The lazy tensor input columns should \strong{not} be modified in-place.
@@ -56,7 +56,7 @@ See \code{\link{PipeOpTaskPreproc}}.
 
 \section{State}{
 
-See \code{\link{PipeOpTaskPreproc}}.
+TODO:
 }
 
 \section{Parameters}{
@@ -73,17 +73,11 @@ This parameter is initialized to \code{FALSE}.
 
 \section{Internals}{
 
-If \code{per_column} is \code{TRUE}:
-
 A \code{\link{PipeOpModule}} with one input and one output channel is created.
 The pipeop simply applies the function \code{fn} to the input tensor while additionally
 passing the paramter values (minus \code{augment} and \code{affect_columns}) to \code{fn}.
 Then \code{\link{transform_lazy_tensor}} is called with the created \code{\link{PipeOpModule}} and the shapes obtained from the
 \verb{$shapes_out()} method of this \code{PipeOp}.
-
-If \code{per_column} is \code{FALSE}:
-It is the obligation of the user to overwrite the \code{.transform()} method appropriately.
-Note that on
 }
 
 \examples{
@@ -206,7 +200,6 @@ Creates a new instance of this \code{\link[R6:R6Class]{R6}} class.
   param_vals = list(),
   param_set = ps(),
   packages = character(0),
-  per_column = TRUE,
   augment_init = FALSE
 )}\if{html}{\out{</div>}}
 }
@@ -233,13 +226,9 @@ during prediction (if \code{augment} is set to \code{FALSE}).}
 \item{\code{packages}}{(\code{character()})\cr
 The packages the preprocessing function depends on.}
 
-\item{\code{per_column}}{(\code{logical(1)})\cr
-Whether the transformation is applied per column.
-If this is \code{FALSE}, is applied to all lazy tensor columns at once and might produce
-one or more new lazy tensor columns.}
-
-\item{\code{augment_init}}{(\code{logical(1)})\cr
-Initial value for the \code{augment} parameter.}
+\item{\code{augment_init}}{(\code{logical(1)} or \code{NULL})\cr
+Initial value for the \code{augment} parameter.
+If it is \code{NULL}, there is no \code{augment} parameter.}
 }
 \if{html}{\out{</div>}}
 }
@@ -251,6 +240,7 @@ Initial value for the \code{augment} parameter.}
 Calculates the output shapes that would result in applying the preprocessing to one or more
 lazy tensor columns with the provided shape.
 Names are ignored and only order matters.
+It uses the parameeter values that are currently set.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{PipeOpTaskPreprocTorch$shapes_out(shapes_in, stage = NULL, task = NULL)}\if{html}{\out{</div>}}
 }
@@ -258,8 +248,9 @@ Names are ignored and only order matters.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{shapes_in}}{(\code{list()} of \code{integer()})\cr
-The input input shapes of the lazy tensors.}
+\item{\code{shapes_in}}{(\code{list()} of (\code{integer()} or \code{NULL}))\cr
+The input input shapes of the lazy tensors.
+\code{NULL} indicates that the shape is unknown.}
 
 \item{\code{stage}}{(\code{character(1)})\cr
 The stage: either \code{"train"} or \code{"predict"}.}
@@ -270,7 +261,7 @@ The task, which is very rarely needed.}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-\code{list()} of \code{integer()}
+\code{list()} of (\code{integer()} or \code{NULL})
 }
 }
 \if{html}{\out{<hr>}}

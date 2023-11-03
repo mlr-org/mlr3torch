@@ -66,8 +66,8 @@ DataDescriptor = function(dataset, dataset_shapes, graph = NULL, .input_map = NU
   .pointer_shape = NULL, clone_graph = TRUE, .info = list()) {
   assert_class(dataset, "dataset")
 
-  # If the dataest implements a .getbatch() method the shaoe must be specified.
-  assert_shapes(dataset_shapes, unknown_ok = is.null(dataset$.getbatch))
+  # If the dataset implements a .getbatch() method the shape must be specified.
+  assert_shapes(dataset_shapes, null_ok = is.null(dataset$.getbatch))
 
   if (is.null(graph)) {
     if ((length(dataset_shapes) == 1L) && is.null(.input_map)) {
@@ -93,19 +93,13 @@ DataDescriptor = function(dataset, dataset_shapes, graph = NULL, .input_map = NU
     assert_choice(.pointer[[1]], names(graph$pipeops))
     assert_choice(.pointer[[2]], graph$pipeops[[.pointer[[1]]]]$output$name)
     assert_subset(paste0(.pointer, collapse = "."), graph$output$name)
-    assert_shape(.pointer_shape, unknown_ok = TRUE)
+    assert_shape(.pointer_shape, null_ok = TRUE)
 
     assert_subset(.input_map, names(dataset_shapes))
     assert_true(length(.input_map) == length(graph$input$name))
   }
 
-  # We get a warning that package:mlr3torch may not be available when loading (?)
-  # for some reason, the hash of the dataset changes
-  #dataset_hash = calculate_hash(dataset, dataset_shapes)
-  dataset$.length()
-  dataset_hash = calculate_hash(dataset, dataset_shapes"")
-  # what we could do:
-  # 1) set the hah as field .__mlr3torch__dataset_hash in the dataset (and check before whether something like this is already set)
+  dataset_hash = calculate_hash(address(dataset))
 
   obj = structure(
     list(
@@ -167,19 +161,24 @@ lazy_tensor = function(data_descriptor = NULL, ids = NULL) {
 }
 
 new_lazy_tensor = function(data_descriptor, ids) {
-  hash = data_descriptor$.hash
   # previously, only the id was included and not the hash
   # this led to issues with stuff like unlist(), which dropped attribute and suddenly the lazy_tensor column
   # was a simple integer vector. (this caused stuff like PipeOpFeatureUnion to go havock and lead to bugs)
   # For this reason, we now also include the hash of the data_descriptor
   # We can then later also use this to support different DataDescriptors in a single lazy tensor column
-  vctrs::new_vctr(map(ids, function(id) list(id, hash)), data_descriptor = data_descriptor, class = "lazy_tensor")
+  vctrs::new_vctr(map(ids, function(id) list(id, data_descriptor)), hash = data_descriptor$.hash, class = "lazy_tensor")
 }
 
 #' @export
 format.lazy_tensor = function(x, ...) { # nolint
   if (!length(x)) return(character(0))
-  shape = paste0(attr(x, "data_descriptor")$.pointer_shape[-1L], collapse = "x")
+  shape = x$data_descriptor
+  shape = if (is.null(shape)) {
+    "?"
+  } else {
+    shape = paste0(x$data_descriptor$.pointer_shape[-1L], collapse = "x")
+  }
+
   map_chr(x, function(elt) {
     sprintf("<tnsr[%s]>", shape)
   })
@@ -239,15 +238,6 @@ vec_ptype_abbr.lazy_tensor <- function(x, ...) { # nolint
   "ltnsr"
 }
 
-#' @export
-`[.lazy_tensor` = function(x, i, ...) { # nolint
-  x = NextMethod()
-  if (length(x) == 0L) {
-    attr(x, "data_descriptor") = NULL
-  }
-  return(x)
-}
-
 #' @title Check for lazy tensor
 #' @description
 #' Checks whether an object is a lazy tensor.
@@ -301,11 +291,11 @@ transform_lazy_tensor = function(lt, pipeop, shape, shape_predict = NULL) {
   assert_class(pipeop, "PipeOpModule")
   assert_true(nrow(pipeop$input) == 1L)
   assert_true(nrow(pipeop$output) == 1L)
-  assert_shape(shape, unknown_ok = TRUE)
+  assert_shape(shape, null_ok = TRUE)
   # shape_predict can be NULL if we transform a tensor during `$predict()` in PipeOpTaskPreprocTorch
-  assert_shape(shape_predict, null_ok = TRUE, unknown_ok = TRUE)
+  assert_shape(shape_predict, null_ok = TRUE)
 
-  data_descriptor = attr(lt, "data_descriptor")
+  data_descriptor = lt$data_descriptor
 
   data_descriptor$graph = data_descriptor$graph$clone(deep = FALSE)
   data_descriptor$graph$edges = copy(data_descriptor$graph$edges)
@@ -328,13 +318,16 @@ transform_lazy_tensor = function(lt, pipeop, shape, shape_predict = NULL) {
 
 #' @export
 `$.lazy_tensor` = function(x, name) {
+  if (!length(x)) {
+    stop("lazy tensor has length 0.")
+  }
+  dd = x[[1L]][[2L]]
   if (name == "data_descriptor") {
-    return(attr(x, "data_descriptor"))
+    return(dd)
   }
 
-  x = attr(x, "data_descriptor")[[name]]
-  if (is.null(x)) {
+  if (!(name %in% names(dd))) {
     stopf("Unknown field '%s'.", name)
   }
-  return(x)
+  dd[[name]]
 }

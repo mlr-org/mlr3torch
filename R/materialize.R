@@ -81,7 +81,6 @@ materialize.list = function(x, device = "cpu", rbind = FALSE, cache = "auto") { 
 
   map(x, function(col) {
     if (is_lazy_tensor(col)) {
-      browser()
       materialize_internal(col, device = device, cache = cache, set_keep_results = FALSE, rbind = rbind)
     } else {
       col

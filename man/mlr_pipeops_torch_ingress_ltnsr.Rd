@@ -51,7 +51,7 @@ ds = dataset(
   .length = function() 2)()
 
 task_unknown = as_task_regr(data.table(
-  x = as_lazy_tensor(ds, dataset_shapes = list(x = c(NA, NA, NA, NA))),
+  x = as_lazy_tensor(ds, dataset_shapes = list(x = NULL)),
   y = rnorm(2)
 ), target = "y", id = "example2")
 

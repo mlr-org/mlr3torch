@@ -27,30 +27,6 @@ test_that("get_nout works", {
   expect_equal(get_nout(tsk("mtcars")), 1)
 })
 
-test_that("assert_shape works", {
-  expect_true(is.null(assert_shape(NULL, null_ok = TRUE)))
-  expect_error(assert_shape(NULL, null_ok = FALSE))
-
-  # valid examples
-  expect_integer(assert_shape(c(NA, 1)))
-  expect_integer(assert_shape(c(NA, 1, 2)))
-  expect_integer(assert_shape(c(NA, NA), unknown_ok = TRUE))
-
-  # at least 2 dims
-  expect_error(assert_shape(NA))
-  # one NA in batch dim
-  expect_error(assert_shape(c(1, NA)))
-  expect_error(assert_shape(c(NA, NA, unknown_ok = FALSE)))
-})
-
-test_that("assert_shapes works", {
-  expect_list(assert_shapes(list(c(NA, 1, 2), c(NA, 1)), named = FALSE))
-  expect_error(assert_shapes(list(c(NA, 1, 2), c(NA, 1)), named = TRUE))
-
-  expect_list(assert_shapes(list(a = c(NA, 1, 2), b = c(NA, 1)), named = TRUE))
-  expect_error(assert_shapes(list(a = NULL, b = c(NA, 1)), named = TRUE))
-})
-
 test_that("uniqueify works", {
   expect_equal(uniqueify("a", "a"), "a_1")
 })

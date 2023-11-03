@@ -9,11 +9,6 @@
 #' @include PipeOpTaskPreprocTorch.R
 NULL
 
-table_preproc = function() {
-  keys = names(mlr3torch_pipeops)
-  keys = keys[grepl("^preproc_(?!torch).*", keys, perl = TRUE)]
-  paste0("* ", keys)
-}
 
 #' @name PipeOpPreprocTorchTrafoResize
 #' @rdname mlr_pipeops_preproc_torch_overview
@@ -42,7 +37,7 @@ register_preproc("trafo_resize", torchvision::transform_resize,
 #' @rdname mlr_pipeops_preproc_torch_overview
 #' @description
 #' * `trafo_nop`: Calls `identity()`.
-register_preproc("trafo_nop", identity)
+register_preproc("trafo_nop", identity, shapes_out = NULL)
 
 
 

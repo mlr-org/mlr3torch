@@ -47,17 +47,17 @@ test_that("Unknown shapes work", {
     }
   )()
 
-  dd = DataDescriptor(ds, dataset_shapes = list(x = c(NA, NA, NA)))
+  dd = DataDescriptor(ds, dataset_shapes = list(x = NULL))
   expect_class(dd, "DataDescriptor")
-  expect_equal(dd$.pointer_shape, c(NA, NA, NA))
-  expect_equal(dd$dataset_shapes, list(x = c(NA, NA, NA)))
+  expect_equal(dd$.pointer_shape, NULL)
+  expect_equal(dd$dataset_shapes, list(x = NULL))
 
   lt = as_lazy_tensor(dd)
   expect_class(lt, "lazy_tensor")
   materialize(lt)
 
   ds = random_dataset(10, 3)
-  expect_error(DataDescriptor(ds, list(x = c(NA, NA, NA))))
+  expect_error(DataDescriptor(ds, list(x = NULL)))
 })
 
 test_that("lazy_tensor works", {
@@ -67,7 +67,7 @@ test_that("lazy_tensor works", {
   lt = lazy_tensor()
   expect_class(lt, "lazy_tensor")
   expect_true(length(lt) == 0L)
-  expect_true(is.null(attr(lt, "data_descriptor")))
+  expect_error(is.null(lt$data_descriptor))
 
   lt1 = lazy_tensor(dd1)
   lt2 = lazy_tensor(dd2)
@@ -75,7 +75,7 @@ test_that("lazy_tensor works", {
   expect_error(c(lt1, lt2), "attributes are incompatible")
 
   lt1_empty = lt1[integer(0)]
-  expect_true(is.null(attr(lt1_empty, "data_descriptor")))
+  expect_error(is.null(lt1_empty$data_descriptor))
   expect_class(lt1_empty, "lazy_tensor")
 
   expect_error(materialize(lazy_tensor()), "Cannot materialize")
@@ -98,13 +98,13 @@ test_that("transform_lazy_tensor works", {
 
   lt1 = transform_lazy_tensor(lt, po_module, new_shape)
 
-  dd1 = attr(lt1, "data_descriptor")
+  dd1 = lt1$data_descriptor
 
   expect_equal(dd1$graph$edges,
     data.table(src_id = "dataset_x", src_channel = "output", dst_id = "mod", dst_channel = "input")
   )
 
-  dd = attr(lt, "data_descriptor")
+  dd = lt$data_descriptor
 
   # graph was cloned
   expect_true(!identical(dd1$graph, dd$graph))

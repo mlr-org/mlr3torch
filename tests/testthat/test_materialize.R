@@ -129,7 +129,7 @@ test_that("materialize_internal: caching of datasets works", {
       self$count = 0
     },
     .getitem = function(i) {
-      #self$count = self$count + 1
+      self$count = self$count + 1
       list(x = self$x[i, ])
     },
     .length = function() {
@@ -154,10 +154,8 @@ test_that("materialize_internal: caching of datasets works", {
 
 
   d = data.table(x1 = x1, x2 = x2)
-  debugonce(materialize)
   materialize(d, rbind = TRUE, cache = new.env())
-  expect_true(d$count == 10)
-
+  expect_true(ds$count == 10)
 })
 
 test_that("materialize_internal: resets everything to previous state", {
