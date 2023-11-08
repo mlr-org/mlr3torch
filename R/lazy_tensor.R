@@ -28,10 +28,9 @@
 #'   has no batch dimension.
 #' @param clone_graph (`logical(1)`)\cr
 #'   Whether to clone the preprocessing graph.
-#' @param .info (any)\cr
-#'   Any additional meta-information (internal).
-#'   This is used by [`PipeOpTaskPreprocTorch`] to communicate the 'would-be' predict shapes to ensure
-#'   during the `$train()` phase that `$predict()` will be possible as well.
+#' @param .pointer_shape_predict (`integer()` or `NULL`)\cr
+#'   Internal use only.
+#'   Used in a [`Graph`] to anticipate possible mismatches between train and predict shapes.
 #'
 #' @export
 #' @seealso ModelDescriptor, lazy_tensor
@@ -63,11 +62,12 @@
 #' # with no preprocessing
 #' dd1 = DataDescriptor(ds, list(x = c(NA, 3, 3)))
 DataDescriptor = function(dataset, dataset_shapes, graph = NULL, .input_map = NULL, .pointer = NULL,
-  .pointer_shape = NULL, clone_graph = TRUE, .info = list()) {
+  .pointer_shape = NULL, clone_graph = TRUE, .pointer_shape_predict = NULL) {
   assert_class(dataset, "dataset")
 
   # If the dataset implements a .getbatch() method the shape must be specified.
   assert_shapes(dataset_shapes, null_ok = is.null(dataset$.getbatch))
+  assert_shape(.pointer_shape_predict, null_ok = TRUE)
 
   if (is.null(graph)) {
     if ((length(dataset_shapes) == 1L) && is.null(.input_map)) {
@@ -114,7 +114,7 @@ DataDescriptor = function(dataset, dataset_shapes, graph = NULL, .input_map = NU
       # Once a DataDescriptor is created the input PipeOps are fix, we save them
       # here because they can be costly to compute
       .graph_input = graph$input$name,
-      .info = .info
+      .pointer_shape_predict = .pointer_shape_predict
     ),
     class = "DataDescriptor"
   )
@@ -172,12 +172,11 @@ new_lazy_tensor = function(data_descriptor, ids) {
 #' @export
 format.lazy_tensor = function(x, ...) { # nolint
   if (!length(x)) return(character(0))
-  shape = x$data_descriptor
+  shape = x$data_descriptor$.pointer_shape
   shape = if (is.null(shape)) {
-    "?"
-  } else {
-    shape = paste0(x$data_descriptor$.pointer_shape[-1L], collapse = "x")
+    return(rep("<tnsr[]>", length(x)))
   }
+  shape = paste0(x$data_descriptor$.pointer_shape[-1L], collapse = "x")
 
   map_chr(x, function(elt) {
     sprintf("<tnsr[%s]>", shape)
@@ -310,7 +309,7 @@ transform_lazy_tensor = function(lt, pipeop, shape, shape_predict = NULL) {
 
   data_descriptor$.pointer = c(pipeop$id, pipeop$output$name)
   data_descriptor$.pointer_shape = shape
-  data_descriptor$.info$.pointer_shape_predict = shape_predict
+  data_descriptor$.pointer_shape_predict = shape_predict
   data_descriptor = set_data_descriptor_hash(data_descriptor)
 
   new_lazy_tensor(data_descriptor, map_int(vec_data(lt), 1))
@@ -326,8 +325,17 @@ transform_lazy_tensor = function(lt, pipeop, shape, shape_predict = NULL) {
     return(dd)
   }
 
-  if (!(name %in% names(dd))) {
-    stopf("Unknown field '%s'.", name)
-  }
+  assert_choice(name, c(
+    "dataset",
+    "graph",
+    "dataset_shapes",
+    ".input_map",
+    ".pointer",
+    ".pointer_shape",
+    ".dataset_hash",
+    ".hash",
+    ".graph_input",
+    ".pointer_shape_predict"
+  ))
   dd[[name]]
 }

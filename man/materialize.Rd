@@ -2,9 +2,12 @@
 % Please edit documentation in R/materialize.R
 \name{materialize}
 \alias{materialize}
+\alias{materialize.list}
 \title{Materialize Lazy Tensor Columns}
 \usage{
 materialize(x, device = "cpu", rbind = FALSE, ...)
+
+\method{materialize}{list}(x, device = "cpu", rbind = FALSE, cache = "auto")
 }
 \arguments{
 \item{x}{(any)\cr
@@ -13,6 +16,10 @@ Either a \code{\link{lazy_tensor}} or a \code{list()} / \code{data.frame()} cont
 
 \item{rbind}{(\code{logical(1)})\cr
 Whether to rbind the lazy tensor columns (\code{TRUE}) or return them as a list of tensors (\code{FALSE}).}
+
+\item{cache}{(\code{character(1)} or \code{environment()} or \code{NULL})\cr
+Optional cache for (intermediate) materialization results.
+Per default, caching will be enabled when the same dataset / graph is used for more than one lazy tensor column.}
 }
 \value{
 (\code{list()} of \code{\link{lazy_tensor}}s or a \code{\link{lazy_tensor}})

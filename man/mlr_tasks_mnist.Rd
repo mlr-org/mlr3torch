@@ -3,14 +3,25 @@
 \name{mlr_tasks_mnist}
 \alias{mlr_tasks_mnist}
 \title{MNIST Image classification}
+\source{
+\url{https://torchvision.mlverse.org/reference/mnist_dataset.html}
+}
 \description{
-Classical MNIST image classification
+Classical MNIST image classification.
 
 The underlying \code{\link{DataBackend}} contains columns \code{"label"}, \code{"image"}, \code{"row_id"}, \code{"split"}, where the last column
 indicates whether the row belongs to the train or test set.
 
 The first 60000 rows belong to the training set, the last 10000 rows to the test set.
 }
+\section{Download}{
+
+The \link[=Task]{task}'s backend is a \code{\link{DataBackendLazy}} which will download the data once it is requested.
+Other meta-data is already available before that.
+You can cache these datasets by setting the \code{mlr3torch.cache} option to \code{TRUE} or to a specific path to be used
+as the cache directory.
+}
+
 \section{Construction}{
 
 
@@ -31,6 +42,10 @@ The first 60000 rows belong to the training set, the last 10000 rows to the test
 }
 }
 
+\examples{
+task = tsk("mnist")
+task
+}
 \references{
 Lecun, Y., Bottou, L., Bengio, Y., Haffner, P. (1998).
 \dQuote{Gradient-based learning applied to document recognition.}

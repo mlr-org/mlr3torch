@@ -1,24 +1,30 @@
 #' @title MNIST Image classification
 #' @name mlr_tasks_mnist
 #' @description
-#' Classical MNIST image classification
+#' Classical MNIST image classification.
 #'
 #' The underlying [`DataBackend`] contains columns `"label"`, `"image"`, `"row_id"`, `"split"`, where the last column
 #' indicates whether the row belongs to the train or test set.
 #'
 #' The first 60000 rows belong to the training set, the last 10000 rows to the test set.
 #'
+#' @template task_download
 #' @section Construction:
 #' ```
 #' tsk("mnist")
 #' ```
+#'
+#' @source
+#' \url{https://torchvision.mlverse.org/reference/mnist_dataset.html}
 #'
 #' @section Meta Information:
 #' `r rd_info_task_torch("mnist", missings = FALSE)`
 #'
 #' @references
 #' `r format_bib("mnist")`
-#'
+#' @examples
+#' task = tsk("mnist")
+#' task
 NULL
 
 # @param path (`character(1)`)\cr

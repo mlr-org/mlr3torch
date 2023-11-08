@@ -55,8 +55,7 @@ expect_deep_clone = function(one, two) {
 
     # TODO: Take care of torch parameters tensors and buffers and torch optimizer and nn module etc.
 
-    if (inherits(a, "nn_module_generator") || inherits(a, "torch_optimizer_generator") ||
-      inherits(a, "R6ClassGenerator")) {
+    if (inherits(a, "nn_module_generator") || inherits(a, "torch_optimizer_generator") || inherits(a, "R6ClassGenerator")) {
       return(invisible(NULL))
     }
 
@@ -248,7 +247,7 @@ random_dataset = dataset("random_dataset",
     self$x = torch_randn(n, ...)
   },
   .getbatch = function(i) {
-    list(x = self$x[i, .., drop = FALSE])
+    list(x = self$x[i, ..,])
   },
   .length = function() {
     nrow(self$x)

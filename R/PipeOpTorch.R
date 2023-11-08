@@ -256,16 +256,11 @@ PipeOpTorch = R6Class("PipeOpTorch",
       assert_character(tags, null.ok = TRUE)
       assert_character(packages, any.missing = FALSE)
 
-      packages = union(packages, "torch")
+      packages = union(packages, c("mlr3torch", "torch"))
       input = data.table(name = inname, train = "ModelDescriptor", predict = "Task")
       output = data.table(name = outname, train = "ModelDescriptor", predict = "Task")
 
       assert_r6(param_set, "ParamSet")
-      #walk(param_set$params, function(p) {
-      #  if (!(("train" %in% p$tags) && !("predict" %in% p$tags))) {
-      #    stopf("Parameters of PipeOps inheriting from PipeOpTorch must only be active during training.")
-      #  }
-      #})
 
       super$initialize(
         id = id,
@@ -283,8 +278,6 @@ PipeOpTorch = R6Class("PipeOpTorch",
     #'   The input input shapes, which must be in the same order as the input channel names of the `PipeOp`.
     #' @param task ([`Task`] or `NULL`)\cr
     #'  The task, which is very rarely used (default is `NULL`). An exception is [`PipeOpTorchHead`].
-    #' @param stage (`character(1)`)\cr
-    #'   Either `"train"` or `"predict"`.
     #' @return
     #'  A named `list()` containing the output shapes. The names are the names of the output channels of
     #'  the `PipeOp`.
@@ -310,7 +303,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
     # TODO: printer that calls the nn_module's printer
   ),
   private = list(
-    .shapes_out = function(shapes_in, param_vals, task, stage) shapes_in,
+    .shapes_out = function(shapes_in, param_vals, task) shapes_in,
     .shape_dependent_params = function(shapes_in, param_vals, task) param_vals,
     .make_module = function(shapes_in, param_vals, task) {
       do.call(self$module_generator, private$.shape_dependent_params(shapes_in, param_vals, task))

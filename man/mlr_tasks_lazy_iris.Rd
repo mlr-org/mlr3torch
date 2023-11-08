@@ -8,13 +8,39 @@
 }
 \source{
 \url{https://en.wikipedia.org/wiki/Iris_flower_data_set}
+}
+\description{
+A classification task for the popular \link[datasets:iris]{datasets::iris} data set.
+Just like the the \href{mlr3::mlr_tasks_iris}{iris task from mlr3}, but the features are represented as one lazy tensor column.
+}
+\section{Construction}{
 
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{tsk("lazy_iris")
+}\if{html}{\out{</div>}}
+}
+
+\section{Meta Information}{
+
+\itemize{
+\item Task type: \dQuote{classif}
+\item Properties: \dQuote{multiclass}
+\item Has Missings: no
+\item Target: \dQuote{Species}
+\item Features: \dQuote{x}
+\item Backend Dimension: 150x3
+\item Default Roles (use / test / holdout): 150, 0, 0
+}
+}
+
+\examples{
+task = tsk("lazy_iris")
+df = task$data()
+materialize(df$x[1:6], rbind = TRUE)
+}
+\references{
 Anderson E (1936).
 \dQuote{The Species Problem in Iris.}
 \emph{Annals of the Missouri Botanical Garden}, \bold{23}(3), 457.
 \doi{10.2307/2394164}.
-}
-\description{
-A classification task for the popular \link[datasets:iris]{datasets::iris} data set.
-Just like the the iris task from mlr3, but the features are represented as one lazy tensor column.
 }

@@ -1,3 +1,17 @@
+test_that("PipeOpModule: basic checks", {
+  # nn_Module cannot be used (otherwise the phash would be wrong)
+  expect_error(po("module", module = attr(nn_relu(), "module")))
+
+  po_fn = po("module", id = "identity", module = identity, packages = "R6", inname = "a", outname = "b")
+  expect_pipeop(po_fn)
+  expect_equal(po_fn$id, "identity")
+  expect_equal(po_fn$input$name, "a")
+  expect_equal(po_fn$output$name, "b")
+  po_nn = po("module", id = "relu", module = nn_relu())
+  expect_pipeop(po_nn)
+  expect_equal(po_nn$id, "relu")
+})
+
 test_that("PipeOpModule works", {
   po_module = PipeOpModule$new("linear", torch::nn_linear(10, 20), inname = "abc", outname = "xyz")
   x = torch::torch_randn(16, 10)
@@ -26,4 +40,29 @@ test_that("PipeOpModule works", {
   y = po_module$train(input)
   expect_true(all(sort(names(y)) == c("out1", "out2")))
   expect_list(y, types = "torch_tensor")
+})
+
+test_that("Cloning works", {
+  expect_error(po("module", module = nn_linear(1, 1))$clone(deep = TRUE))
+  expect_error(po("module", module = idenity)$clone(deep = TRUE))
+})
+
+test_that("phash for PipeOpModule works", {
+  f = function(x) x
+
+  fc = compiler::cmpfun(f)
+
+  fe = f
+  environment(fe) = new.env()
+
+  p1 = po("module", module = f)
+  p2 = po("module", module = fc)
+  p3 = po("module", module = fe)
+
+  expect_equal(p1$phash, p2$phash)
+  expect_false(p1$phash == p3$phash)
+
+  f1 = po("module", module = nn_linear(1, 1))
+  f2 = po("module", module = nn_linear(1, 1))
+  expect_false(f1$phash == f2$phash)
 })

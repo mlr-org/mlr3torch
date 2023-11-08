@@ -380,7 +380,51 @@ test_that("resample() works", {
   expect_r6(rr, "ResampleResult")
 })
 
-test_that("Shapes are checked correctly during `$train()`", {
-  # FIXME: For this the taskpreproc should work first
+test_that("Input verification works during `$train()` (train-predict shapes work together)", {
+  task = nano_mnist()
 
+  task_invalid = po("trafo_resize", size = c(10, 10), augment = TRUE) $train(list(task))[[1L]]
+  task_valid = po("trafo_resize", size = c(10, 10), augment = FALSE) $train(list(task))[[1L]]
+
+  learner = lrn("classif.torch_featureless",
+    batch_size = 1L, epochs = 0L
+  )
+
+  # fallback learner cannot help in this case!
+  learner$fallback = lrn("classif.featureless")
+  expect_error(
+    learner$train(task_invalid),
+    "would have a different shape during"
+  )
+
+  expect_error(
+    learner$train(task_valid),
+    NA
+  )
+
+  task_unknown = po("trafo_resize", size = c(10, 10), augment = TRUE) $train(list(nano_dogs_vs_cats()))[[1L]]
+
+  expect_error(
+    learner$train(task_unknown),
+    NA
+  )
+
+})
+
+test_that("Input verification works during `$predict()` (same column info, problematic fct -> int conversion)", {
+  task1 = as_task_classif(data.table(
+    y = factor(c("A", "B"))
+  ), target = "y", id = "test1")
+
+  task2 = as_task_classif(data.table(
+    y = factor(c("A", "B"), labels = c("B", "A"), levels = c("B", "A"))
+  ), target = "y", id = "test2")
+
+  learner = lrn("classif.torch_featureless", batch_size = 1L, epochs = 0L)
+
+  learner$train(task1)
+  expect_error(
+    learner$predict(task2),
+    "does not match"
+  )
 })

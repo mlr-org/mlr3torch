@@ -354,9 +354,6 @@ The input input shapes, which must be in the same order as the input channel nam
 
 \item{\code{task}}{(\code{\link{Task}} or \code{NULL})\cr
 The task, which is very rarely used (default is \code{NULL}). An exception is \code{\link{PipeOpTorchHead}}.}
-
-\item{\code{stage}}{(\code{character(1)})\cr
-Either \code{"train"} or \code{"predict"}.}
 }
 \if{html}{\out{</div>}}
 }

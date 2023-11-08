@@ -106,7 +106,7 @@ TorchLoss = R6::R6Class("TorchLoss",
       id = NULL, label = NULL, packages = NULL, man = NULL) {
       force(id)
       self$task_types = assert_subset(task_types, mlr_reflections$task_types$type)
-      torch_loss = assert_class(torch_loss, "nn_loss")
+      torch_loss = assert_class(torch_loss, "nn_module")
 
       super$initialize(
         generator = torch_loss,

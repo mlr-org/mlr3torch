@@ -42,6 +42,7 @@ materialize = function(x, device = "cpu", rbind = FALSE, ...) {
   UseMethod("materialize")
 }
 
+#' @rdname materialize
 #' @param cache (`character(1)` or `environment()` or `NULL`)\cr
 #'   Optional cache for (intermediate) materialization results.
 #'   Per default, caching will be enabled when the same dataset / graph is used for more than one lazy tensor column.

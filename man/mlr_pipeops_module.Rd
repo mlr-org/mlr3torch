@@ -5,14 +5,13 @@
 \alias{PipeOpModule}
 \title{Class for Torch Module Wrappers}
 \description{
-\code{PipeOpModule} wraps an \code{\link{nn_module}} that is being called during the \code{train} phase of this \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}}.
-By doing so, this allows to assemble \code{PipeOpModule}s in a computational \code{\link[mlr3pipelines:Graph]{mlr3pipelines::Graph}} that
-represents a neural network architecture. Such a graph can also be used to create a \code{\link{nn_graph}} which inherits
-from \code{\link{nn_module}}.
+\code{PipeOpModule} wraps an \code{\link{nn_module}} or \code{function} that is being called during the \code{train} phase of this
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}}. By doing so, this allows to assemble \code{PipeOpModule}s in a computational
+\code{\link[mlr3pipelines:Graph]{mlr3pipelines::Graph}} that represents either a neural network or a preprocessing graph of a \code{\link{lazy_tensor}}.
+In most cases it is easier to create such a network by creating a graph that generates this graph.
 
-In most cases it is easier to create such a network by creating a isomorphic graph consisting
-of nodes of class \code{\link{PipeOpTorchIngress}} and \code{\link{PipeOpTorch}}. This graph will then generate the graph consisting
-of \code{PipeOpModule}s as part of the \code{\link{ModelDescriptor}}.
+To construct a neural network one combines mostly \code{\link{PipeOpTorchIngress}} and \code{\link{PipeOpTorch}} operators.
+To construct a preprocessing graph, one combines mostly \code{PipeOp}s inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
 }
 \section{Input and Output Channels}{
 
@@ -33,16 +32,17 @@ No parameters.
 
 \section{Internals}{
 
-During training, the wrapped \code{\link{nn_module}} is called with the provided inputs in the order in which the channels
-are defined. Arguments are \strong{not} matched by name.
+During training, the wrapped \code{\link{nn_module}} / \code{function} is called with the provided inputs in the order in which
+the channels are defined. Arguments are \strong{not} matched by name.
 }
 
 \examples{
 ## creating an PipeOpModule manually
 
 # one input and output channel
-po_module = PipeOpModule$new("linear",
-  torch::nn_linear(10, 20),
+po_module = po("module",
+  id = "linear",
+  module = torch::nn_linear(10, 20),
   inname = "input",
   outname = "output"
 )
@@ -63,9 +63,9 @@ nn_custom = torch::nn_module("nn_custom",
 )
 
 module = nn_custom(3, 2)
-po_module = PipeOpModule$new(
-  "custom",
-  module,
+po_module = po("module",
+  id = "custom",
+  module = module,
   inname = c("x", "z"),
   outname = c("out1", "out2")
 )
@@ -74,7 +74,7 @@ z = torch::torch_randn(1, 3)
 out = po_module$train(list(x = x, z = z))
 str(out)
 
-# How a PipeOpModule is usually generated
+# How such a PipeOpModule is usually generated
 graph = po("torch_ingress_num") \%>>\% po("nn_linear", out_features = 10L)
 result = graph$train(tsk("iris"))
 # The PipeOpTorchLinear generates a PipeOpModule and adds it to a new (module) graph
@@ -83,6 +83,14 @@ linear_module = result[[1L]]$graph$pipeops$nn_linear
 linear_module
 formalArgs(linear_module$module)
 linear_module$input$name
+
+
+po_add1 = po("module",
+  id = "add_one",
+  module = function(x) x + 1
+)
+input = list(torch_tensor(1))
+po_add1$train(input)$output
 }
 \seealso{
 Other Graph Network: 

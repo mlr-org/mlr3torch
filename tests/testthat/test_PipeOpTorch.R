@@ -3,7 +3,7 @@ test_that("Basic checks", {
 
   # basic checks that output is checked correctly
   obj = PipeOpTorchDebug$new(id = "debug", inname = paste0("input", 1:2), outname = paste0("output", 1:2))
-  expect_pipeop(obj, )
+  expect_pipeop(obj)
   expect_class(obj, "PipeOpTorch")
 
   expect_equal(unique(obj$input$train), "ModelDescriptor")
@@ -13,6 +13,7 @@ test_that("Basic checks", {
   expect_equal(unique(obj$output$predict), "Task")
   expect_class(obj$module_generator, "nn_module_generator")
   expect_equal(obj$tags, "torch")
+  expect_set_equal(obj$packages, c("mlr3torch", "torch", "mlr3pipelines"))
 })
 
 test_that("cloning works", {

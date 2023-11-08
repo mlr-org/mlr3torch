@@ -120,14 +120,21 @@ autotest_pipeop_torch = function(graph, id, task, module_class = id, exclude_arg
 
   predicted = po_test$shapes_out(map(layerin, dim), task)
   observed = map(layerout, dim)
-  test_shapes(predicted, observed)
+  expect_compatible_shapes(predicted, observed)
+
+  # parameters must only ce active during training
+  walk(po_test$param_set$params, function(p) {
+    if (!(("train" %in% p$tags) && !("predict" %in% p$tags))) {
+      stopf("Parameters of PipeOps inheriting from PipeOpTorch must only be active during training.")
+    }
+  })
 
   return(TRUE)
 }
 
 # Note that we don't simply compare the shapes for equality. The actually observed shape does not have NAs,
 # so wherevery the predicted dimension is NA, the observed dimension can be anything.
-test_shapes = function(predicted, observed) {
+expect_compatible_shapes = function(predicted, observed) {
   # they are both lists
   if (length(predicted) != length(observed)){
     stopf("This should have been impossible!")
@@ -306,20 +313,14 @@ autotest_torch_callback = function(torch_callback, check_man = TRUE) {
 
 autotest_pipeop_torch_preprocess = function() {
   # TODO:
-  # a) Check that all parameters but augment have tags train and predict (this should hold in basically all cases)
-}
-
-autotest_preproc_and_trafo = function(obj) {
-  autotest_trafo(obj)
-  autotest_preproc(obj)
-}
-
-autotest_trafo = function(obj) {
-
-}
-
-autotest_preproc = function(obj) {
   expect_class(obj, "PipeOpTaskPreprocTorch")
+  # a) Check that all parameters but augment have tags train and predict (this should hold in basically all cases)
+  # b) Check that the shape prediction is compatible (already done in autotest for pipeop torch)
+  # c) check that start with augment / trafo, depending on the initial value
 
-  # TODO: Unless the test is disabled, check that all parameters have train tag
+  #walk(po_test$param_set$params, function(p) {
+  #  if (!(("train" %in% p$tags) && !("predict" %in% p$tags))) {
+  #    stopf("Parameters of PipeOps inheriting from PipeOpTorch must only be active during training.")
+  #  }
+  #})
 }

@@ -24,6 +24,9 @@ Information that is available before the backend is constructed is:
 }
 
 Beware that accessing the backend's hash also contructs the backend.
+
+Note that while in most cases the data contains \code{\link{lazy_tensor}} columns, this is not necessary and the naming
+of backend has nothing to do with the \code{\link{lazy_tensor}} datatype.
 }
 \examples{
 # We first define a backend constructor
@@ -118,7 +121,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{constructor}}{(\verb{function()})\cr
+\item{\code{constructor}}{(\code{function})\cr
 A function with no arguments, whose return value must be the actual backend.
 This function is called the first time the field \verb{$backend} is accessed.}
 

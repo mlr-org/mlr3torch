@@ -204,7 +204,7 @@ LearnerTorch = R6Class("LearnerTorch",
     #' @param task ([`Task`])\cr
     #'   The task.
     #' @param row_ids (`integer()`)\cr
-    #'   Which rows to use for trainin.g
+    #'   Which rows to use for training.
     train = function(task, row_ids = NULL) {
       private$.verify_train_task(task, row_ids)
       super$train(task, row_ids)
@@ -213,7 +213,7 @@ LearnerTorch = R6Class("LearnerTorch",
     #' @param task ([`Task`])\cr
     #'   The task.
     #' @param row_ids (`integer()`)\cr
-    #'   For which rows to predict.
+    #'   The rows for which to make predictions.
     #' @return ([`Prediction`])
     predict = function(task, row_ids = NULL) {
       private$.verify_predict_task(task, row_ids)
@@ -310,13 +310,17 @@ LearnerTorch = R6Class("LearnerTorch",
       first_row = task$head(1)
       iwalk(first_row, function(x, nm) {
         if (!is_lazy_tensor(x)) return(NULL)
-        predict_shape = x$.info$.predict_shape
+        predict_shape = x$.pointer_shape_predict
         train_shape = x$.pointer_shape
         # If no information on hypothetical predict shape is available we continue training
         # This is e.g. the case when a completely un-preprocessed lazy tensor is used
         # Otherwise we expect the predict_shape to be equal to the train shape
-        if (!is.null(predict_shape) && !identical(predict_shape, train_shape)) {
-          stopf("Lazy tensor column '%s' would have a different shape during training and prediction.", nm)
+        if (is.null(train_shape) || is.null(predict_shape)) {
+          return(NULL)
+        }
+        if (!isTRUE(all.equal(train_shape, predict_shape))) {
+          stopf("Lazy tensor column '%s' would have a different shape during training (%s) and prediction (%s).",
+            nm, paste0(train_shape, collapse = "x"), paste0(predict_shape, collapse = "x"))
         }
       })
     },
@@ -327,7 +331,7 @@ LearnerTorch = R6Class("LearnerTorch",
       if (!test_equal_col_info(ci_train, ci_predict)) { # nolint
         stopf(paste0(
           "Predict task's `$col_info` does not match the train task's column info.\n",
-          "This will be handled more gracefully in the future.\n",
+          "This migth be handled more gracefully in the future.\n",
           "Training column info:\n'%s'\n",
           "Prediction column info:\n'%s'"),
           paste0(capture.output(ci_train), collapse = "\n"),

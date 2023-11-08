@@ -5,43 +5,24 @@
 #' This `PipeOp` can be used to preprocess (one or more) [`lazy_tensor`] columns contained in an [`mlr3::Task`].
 #' The preprocessing function is specified as construction argument `fn` and additional arguments to this
 #' function can be defined through the `PipeOp`'s parameter set.
-#' The preprocessing is usually done per-column in which case the number lazy tensor output columns is equivalent
+#' The preprocessing is done per-column, i.e. the number lazy tensor output columns is equivalent
 #' to the number of lazy tensor input columns.
-#' It is also possible to implement preprocessing that is applied to all lazy tensor columns at once and returns
-#' one or more (not necessarily the same number of) lazy tensor columns.
-#' The preprocessing that is applied during `$predict()` uses the parameters that were set during `$train()`
-#' and not those that are set when performing the prediction.
+#' The preprocessing that is applied during `$predict()` uses the parameters that were set during `$train()` and not
+#' those that are set when performing the prediction.
 #'
 #' @section Inheriting:
-#' In addition to specifying the construction arguments, you can overwrite the private `.shapes_out()` or
-#' `.tranform()` methods:
+#' In addition to specifying the construction arguments, you can overwrite the private `.shapes_out()` method:
 #' * `.shapes_out(shapes_in, param_vals, task)`\cr
 #'   (`list()`, `list(), `Task` or `NULL`) -> `list()`\cr
 #'   This private method calculates the output shapes of the lazy tensor columns that are created from applying
 #'   the preprocessing.
 #'
 #'   This private method only has the responsibility to calculate the output shapes for one input column, i.e. the
-#'   input `shapes_in` can be assumed to have
-#'   exactly one shape vector for which it must calculate the output shapes and return it as a `list()` of length 1.
-#'   It can also be assumed, that the shape is not `NULL`.
-#'   It should also output a shape with exactly one NA in the first dimension.
-#'   It is also possible to output `NULL`, if the output shape cannot be determined (e.g. because it is random).
-#'
-#'   Also see the documentation of [`PipeOpTorch`] how to implement this method.
-#'
-#' * `.transform(dt, task, param_vals, stage)`\cr
-#'   (`data.table()`, `Task`, `list()`, `character(1)`) -> `data.table()`\cr
-#'   This method must only be overwritten when the the `per_column` construction argument is `FALSE`.
-#'   It receives as inputs all selected lazy tensor columns, the input `Task` (already cloned),
-#'   the paramer values, and whether the preprocessing is applied during training (stage is `"train"`)
-#'   or prediction (stage is `"predict"`). One should not work with the parameters currently set in the paramet set,
-#'   only use those passed as argument `param_vals`. These are the parameters that were specified during the `$train()`
-#'   call of the [`PipeOp`] (otherwise it cannot be ensured that the shapes encountered during `$predict()` can actuallT
-#'   be processed by the neural network).
-#'   The method must return a `data.table` with lazy tensor columns.
-#'   The lazy tensor input columns should **not** be modified in-place.
-#'   Overwriting this method (currently) requires a solid understanding of the [`lazy_tensor`] internals.
-#'   You also need to pay attention to avoid name conflicts with existing columns in the task.
+#'   input `shapes_in` can be assumed to have exactly one shape vector for which it must calculate the output shapes
+#'   and return it as a `list()` of length 1.
+#'   It can also be assumed that the shape is not `NULL` (unknown).
+#'   It should also output a shape with exactly one NA in the first dimension or `NULL`if the output shape cannot be
+#'   determined (e.g. because it is random).
 #'
 #' @template param_id
 #' @template param_param_vals
@@ -50,7 +31,7 @@
 #' @param packages (`character()`)\cr
 #'   The packages the preprocessing function depends on.
 #' @param param_set ([`ParamSet`])\cr
-#'   In case the function `fn` takes additional parameter besides a [`torch_tensor()`] they can be
+#'   In case the function `fn` takes additional parameter besides a [`torch_tensor`] they can be
 #'   specfied as parameters. None of the parameters can have the [`"predict"`] tag.
 #'   Pay attention to set the correct `tags` for the parameters: if tag `"train"` is present,
 #'   the preprocessing is applied during training and if tag `"predict"` is present, the preprocessing is applied
@@ -226,7 +207,7 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
       pv$augment = NULL
       pv$affect_columns = NULL
 
-      if (is.null(private$.shapes_out) || ((stage == "predict") && augment)) {
+      if ((stage == "predict") && augment) {
         return(shapes_in)
       }
 
@@ -317,7 +298,7 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
         shape_out = self$shapes_out(list(shape_before), stage = stage, task = task)[[1L]]
 
         shape_out_predict = if (stage == "train") {
-          shape_in_predict = if (is.null(lt$.info$.predict_shape)) shape_before
+          shape_in_predict = if (is.null(lt$.pointer_shape_predict)) shape_before
           # during `$train()` we also keep track of the shapes that would arise during train
           # This avoids that we first train a learner and then only notice during predict that the shapes
           # during the predict phase are wrong
@@ -337,6 +318,7 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
     .additional_phash_input = function() {
       list(self$param_set$ids(), private$.fn, self$packages)
     },
+    .shapes_out = function(shapes_in, param_vals, task) shapes_in,
     .fn = NULL
   )
 )

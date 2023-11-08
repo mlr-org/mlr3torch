@@ -265,7 +265,7 @@ Train the learner.
 The task.}
 
 \item{\code{row_ids}}{(\code{integer()})\cr
-Which rows to use for trainin.g}
+Which rows to use for training.}
 }
 \if{html}{\out{</div>}}
 }
@@ -286,7 +286,7 @@ Predict on a task.
 The task.}
 
 \item{\code{row_ids}}{(\code{integer()})\cr
-For which rows to predict.}
+The rows for which to make predictions.}
 }
 \if{html}{\out{</div>}}
 }

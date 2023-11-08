@@ -3,14 +3,13 @@
 #' @name mlr_pipeops_module
 #'
 #' @description
-#' `PipeOpModule` wraps an [`nn_module`] that is being called during the `train` phase of this [`mlr3pipelines::PipeOp`].
-#' By doing so, this allows to assemble `PipeOpModule`s in a computational [`mlr3pipelines::Graph`] that
-#' represents a neural network architecture. Such a graph can also be used to create a [`nn_graph`] which inherits
-#' from [`nn_module`].
+#' `PipeOpModule` wraps an [`nn_module`] or `function` that is being called during the `train` phase of this
+#' [`mlr3pipelines::PipeOp`]. By doing so, this allows to assemble `PipeOpModule`s in a computational
+#' [`mlr3pipelines::Graph`] that represents either a neural network or a preprocessing graph of a [`lazy_tensor`].
+#' In most cases it is easier to create such a network by creating a graph that generates this graph.
 #'
-#' In most cases it is easier to create such a network by creating a isomorphic graph consisting
-#' of nodes of class [`PipeOpTorchIngress`] and [`PipeOpTorch`]. This graph will then generate the graph consisting
-#' of `PipeOpModule`s as part of the [`ModelDescriptor`].
+#' To construct a neural network one combines mostly [`PipeOpTorchIngress`] and [`PipeOpTorch`] operators.
+#' To construct a preprocessing graph, one combines mostly `PipeOp`s inheriting from [`PipeOpTaskPreprocTorch`].
 #'
 #' @section Input and Output Channels:
 #' The number and names of the input and output channels can be set during construction. They input and output
@@ -22,8 +21,8 @@
 #' No parameters.
 #'
 #' @section Internals:
-#' During training, the wrapped [`nn_module`] is called with the provided inputs in the order in which the channels
-#' are defined. Arguments are **not** matched by name.
+#' During training, the wrapped [`nn_module`] / `function` is called with the provided inputs in the order in which
+#' the channels are defined. Arguments are **not** matched by name.
 #'
 #' @family Graph Network
 #' @family PipeOp
@@ -32,8 +31,9 @@
 #' ## creating an PipeOpModule manually
 #'
 #' # one input and output channel
-#' po_module = PipeOpModule$new("linear",
-#'   torch::nn_linear(10, 20),
+#' po_module = po("module",
+#'   id = "linear",
+#'   module = torch::nn_linear(10, 20),
 #'   inname = "input",
 #'   outname = "output"
 #' )
@@ -54,9 +54,9 @@
 #' )
 #'
 #' module = nn_custom(3, 2)
-#' po_module = PipeOpModule$new(
-#'   "custom",
-#'   module,
+#' po_module = po("module",
+#'   id = "custom",
+#'   module = module,
 #'   inname = c("x", "z"),
 #'   outname = c("out1", "out2")
 #' )
@@ -65,7 +65,7 @@
 #' out = po_module$train(list(x = x, z = z))
 #' str(out)
 #'
-#' # How a PipeOpModule is usually generated
+#' # How such a PipeOpModule is usually generated
 #' graph = po("torch_ingress_num") %>>% po("nn_linear", out_features = 10L)
 #' result = graph$train(tsk("iris"))
 #' # The PipeOpTorchLinear generates a PipeOpModule and adds it to a new (module) graph
@@ -74,6 +74,15 @@
 #' linear_module
 #' formalArgs(linear_module$module)
 #' linear_module$input$name
+#'
+#'
+# Constructing a PipeOpModule using a simple function
+#' po_add1 = po("module",
+#'   id = "add_one",
+#'   module = function(x) x + 1
+#' )
+#' input = list(torch_tensor(1))
+#' po_add1$train(input)$output
 PipeOpModule = R6Class("PipeOpModule",
   inherit = PipeOp,
   public = list(
@@ -97,8 +106,10 @@ PipeOpModule = R6Class("PipeOpModule",
       private$.multi_output = length(outname) > 1L
       self$module = assert(check_class(module, "nn_module"), check_class(module, "function"), combine = "or")
       self$module = module
+      assert_names(inname, type = "strict")
       assert_names(outname, type = "strict")
       assert_character(packages, any.missing = FALSE)
+      packages = union(c("mlr3torch", "torch"), packages)
 
       input = data.table(name = inname, train = "torch_tensor", predict = "NULL")
       output = data.table(name = outname, train = "torch_tensor", predict = "NULL")
@@ -115,9 +126,6 @@ PipeOpModule = R6Class("PipeOpModule",
   private = list(
     .train = function(inputs) {
       self$state = list()  # PipeOp API requires this.
-      # the inputs are passed in the order in which they appear in `graph$input`
-      # Note that PipeOpTorch ensures that (unless the forward method has a ... argument) the input channels are
-      # identical to the arguments of the forward method.
       outputs = do.call(self$module, unname(inputs))
       outname = self$output$name
       if (!private$.multi_output) outputs = list(outputs)
@@ -126,9 +134,27 @@ PipeOpModule = R6Class("PipeOpModule",
     .predict = function(inputs) {
       rep(list(NULL), nrow(self$output))
     },
-    .multi_output = FALSE,
+    .multi_output = NULL,
     .additional_phash_input = function() {
-      list(address(self$module), self$input$name, self$output$name, self$packages)
+      # mlr3pipelines does not use calculate_hash, but calls directly into digest, hence we have to take
+      # care of the byte code
+      fn_input = if (test_class(self$module, "nn_module")) {
+        address(self$module)
+      } else {
+        list(formals(self$module), body(self$module), address(environment(self$module)))
+      }
+
+      list(fn_input, self$input$name, self$output$name, self$packages)
+    },
+    deep_clone = function(name, value) {
+      if (name != "fn") {
+        return(super$deep_clone(name, value))
+      }
+      if (test_class(value, "nn_module")) {
+        value$clone(deep = TRUE)
+      } else {
+        value
+      }
     }
   )
 )
