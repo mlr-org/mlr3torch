@@ -6,14 +6,16 @@
 #' @param shape (`integer()`)\cr
 #' @param null_ok (`logical(1)`)\cr
 #'   Whether `NULL` is a valid shape.
-assert_shape = function(shape, null_ok = FALSE) {
+#' @param coerce (`logical(1)`)\cr
+#'   Whether to coerce the input to an `integer()` if possible.
+assert_shape = function(shape, null_ok = FALSE, coerce = TRUE) {
   if (!test_shape(shape, null_ok = null_ok)) {
-    stopf("Invalid shape.")
+    stopf("Invalid shape: %s.", paste0(format(shape), collapse = ", "))
   }
-  if (is.null(shape)) {
-    return(NULL)
+  if (coerce && !is.null(shape)) {
+    return(as.integer(shape))
   }
-  return(as.integer(shape))
+  shape
 }
 
 test_shape = function(shape, null_ok = FALSE) {
@@ -27,7 +29,7 @@ test_shape = function(shape, null_ok = FALSE) {
   }
 
   is_na = is.na(shape)
-  if (!is_na[[1L]] || anyNA(shape[-1L])) {
+  if (anyNA(shape[-1L])) {
     return(FALSE)
   }
   return(TRUE)

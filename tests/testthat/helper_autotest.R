@@ -92,7 +92,6 @@ autotest_pipeop_torch = function(graph, id, task, module_class = id, exclude_arg
   batch = ds$.getbatch(1)
   out = with_no_grad(invoke(net$forward, .args = batch$x))
 
-  # TODO: Make this better understandable
   tmp = net$graph$output
   # outnamein are the output nodes that contain the tensors that are the input to the pipeop we are testing
   outnamein = tmp[get("op.id") != id, c("op.id", "channel.name")]
@@ -169,7 +168,7 @@ collapse_char_list = function(x) {
 #' @title Parameter Test
 #' @description
 #' Tests that parameters are correctly implemented
-#'
+#'k
 #' @param x ([`ParamSet`] or object with field `$param_set`)\cr
 #'   The parameter set to check.
 #' @param fns (`list()` of `function`s)\cr
@@ -311,16 +310,52 @@ autotest_torch_callback = function(torch_callback, check_man = TRUE) {
   expect_error(cb_trained$clone(deep = TRUE), "must never be cloned unless")
 }
 
-autotest_pipeop_torch_preprocess = function() {
-  # TODO:
+#' @title Autotest for PipeOpTaskPreprocTorch
+#' @description
+#' Performs various sanity checks on a [`PipeOpTaskPreprocTorch`].
+#' @param obj ([`PipeOpTaskPreprocTorch`])\cr
+#'   The object to test.
+#' @parm tnsr_in (`integer()`)\cr
+autotest_pipeop_torch_preprocess = function(obj, shapes_in, exclude = character(0), exclude_defaults = character(0)) {
+  expect_pipeop(obj)
   expect_class(obj, "PipeOpTaskPreprocTorch")
-  # a) Check that all parameters but augment have tags train and predict (this should hold in basically all cases)
+  # a) Check that all parameters but stages have tags train and predict (this should hold in basically all cases)
+  # parameters must only ce active during training
+  walk(obj$param_set$params, function(p) {
+    if (!(("train" %in% p$tags) && !("predict" %in% p$tags))) {
+      stopf("Parameters of PipeOps inheriting from PipeOpTorch must only be active during training.")
+    }
+  })
+  autotest_paramset(obj$param_set, obj$fn, exclude = exclude, exclude_defaults = exclude_defaults)
   # b) Check that the shape prediction is compatible (already done in autotest for pipeop torch)
-  # c) check that start with augment / trafo, depending on the initial value
 
-  #walk(po_test$param_set$params, function(p) {
-  #  if (!(("train" %in% p$tags) && !("predict" %in% p$tags))) {
-  #    stopf("Parameters of PipeOps inheriting from PipeOpTorch must only be active during training.")
-  #  }
-  #})
+  # c) check that start with stages / trafo, depending on the initial value
+  class = get(class(obj)[[1L]], envir = getNamespace("mlr3torch"))
+  instance = class$new()
+
+  expect_true(grepl(instance$id, pattern = "^(trafo|augment)_"))
+  if (startsWith(instance$id, "augment")) {
+    expect_set_equal(instance$param_set$values$stages, "train")
+  } else {
+    expect_set_equal(instance$param_set$values$stages, c("train", "predict"))
+  }
+
+  shapes_in = if (!test_list(shapes_in)) list(shapes_in) else shapes_in
+
+  walk(shapes_in, function(shape_in) {
+    tnsr_in = torch_empty(shape_in)
+    shape_out = obj$shapes_out(list(shape_in), stage = "train")[[1L]]
+    taskin = as_task_regr(data.table(
+      y = rep(1, nrow(tnsr_in)),
+      x = as_lazy_tensor(tnsr_in)
+    ), target = "y")
+
+    taskout = obj$train(list(taskin))[[1L]]
+
+    tnsr_out = materialize(taskout$data(cols = "x")[[1L]], rbind = TRUE)
+
+    expect_class(tnsr_out, "torch_tensor")
+
+    expect_equal(tnsr_out$shape, shape_out)
+  })
 }

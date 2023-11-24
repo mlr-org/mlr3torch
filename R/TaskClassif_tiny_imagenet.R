@@ -24,7 +24,9 @@
 #'
 #' @references
 #' `r format_bib("imagenet2009")`
-#'
+#' @examples
+#' task = tsk("tiny_imagenet")
+#' task
 NULL
 
 # @param path (`character(1)`)\cr
@@ -101,6 +103,8 @@ load_task_tiny_imagenet = function(id = "tiny_imagenet") {
     target = "class",
     label = "ImageNet Subset"
   )
+
+  backend$hash = task$man = "mlr3torch::mlr_tasks_tiny_imagenet"
 
   task$row_roles$use = seq_len(100000)
   task$row_roles$test = seq(from = 100001, 110000)

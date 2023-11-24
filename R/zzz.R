@@ -130,33 +130,6 @@ register_mlr3pipelines = function() {
   if (Sys.getenv("IN_PKGDOWN") == "true") {
     lg$set_threshold("warn")
   }
-
-  if (Sys.getenv("DEVTOOLS_LOAD", unset = "") == "mlr3torch") {
-    # When loading mlr3torch with devtools, we always get a warning when hashing lazy tensors.
-    # mlr3misc's calculate_hash function calls digest::digest which in turn serializes objects.
-    # When mlr3torch is loaded with devtools the `$initialize()` method of the dataset that underpins the lazy tensor
-    # behaves differently than when loaded with library() and always throws the warning:
-    # "package:mlr3torch" might not be avaiable when loading.
-    #
-    # Because this is quite annoying, we here suppress warnings that arise from the calculate_hash function.
-
-    suppress = function(name, fn, env) {
-      fn = mlr3misc::crate(function(...) {
-        suppressWarnings(fn(...))
-      }, .parent = parent.env(environment(fn)), fn)
-
-      unlockBinding(name, env)
-      assign(name, fn, envir = env)
-      lockBinding(name, env)
-    }
-
-    suppress("calculate_hash", mlr3misc::calculate_hash, parent.env(getNamespace("mlr3torch")))
-
-    suppress("calculate_hash", mlr3misc::calculate_hash, parent.env(getNamespace("mlr3")))
-    suppress("calculate_hash", mlr3misc::calculate_hash, parent.env(getNamespace("mlr3pipelines")))
-    suppress("digest", digest::digest, parent.env(getNamespace("mlr3pipelines")))
-  }
-
 }
 
 .onUnload = function(libPaths) { # nolint

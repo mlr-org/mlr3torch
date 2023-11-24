@@ -120,7 +120,7 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
     },
     #' @description
     #' Instantiates the optimizer.
-    #' @param params (named `list()` of [`torch_tensor`])\cr
+    #' @param params (named `list()` of [`torch_tensor`]s)\cr
     #'   The parameters of the network.
     #' @return `torch_optimizer`
     generate = function(params) {

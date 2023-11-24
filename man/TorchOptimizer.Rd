@@ -136,7 +136,7 @@ Instantiates the optimizer.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{params}}{(named \code{list()} of \code{\link{torch_tensor}})\cr
+\item{\code{params}}{(named \code{list()} of \code{\link{torch_tensor}}s)\cr
 The parameters of the network.}
 }
 \if{html}{\out{</div>}}

@@ -74,6 +74,8 @@ test_that("lazy_tensor works", {
 
   expect_error(c(lt1, lt2), "attributes are incompatible")
 
+  expect_error({lt1[1] = lt2[1]}) # nolint
+
   lt1_empty = lt1[integer(0)]
   expect_error(is.null(lt1_empty$data_descriptor))
   expect_class(lt1_empty, "lazy_tensor")

@@ -22,7 +22,7 @@
 #' Beware that accessing the backend's hash also contructs the backend.
 #'
 #' Note that while in most cases the data contains [`lazy_tensor`] columns, this is not necessary and the naming
-#' of backend has nothing to do with the [`lazy_tensor`] datatype.
+#' of this class has nothing to do with the [`lazy_tensor`] datatype.
 #'
 #' @param constructor (`function`)\cr
 #'   A function with no arguments, whose return value must be the actual backend.

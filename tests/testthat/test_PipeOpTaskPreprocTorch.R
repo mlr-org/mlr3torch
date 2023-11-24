@@ -6,7 +6,7 @@ test_that("PipeOpTaskPreprocTorch: basic checks", {
   expect_true(po_test$outnum == 1L)
   expect_class(po_test, "PipeOpTaskPreproc")
   expect_true("R6" %in% po_test$packages)
-  expect_set_equal(po_test$param_set$ids(), c("augment", "affect_columns"))
+  expect_set_equal(po_test$param_set$ids(), c("stages", "affect_columns"))
   expect_error(po("preproc_torch"), "is missing")
 
   PipeOpTaskPreprocTorchTest = R6Class("PipeOpTaskPreprocTorchTest",
@@ -27,7 +27,7 @@ test_that("PipeOpTaskPreprocTorch: basic checks", {
   )
 
   po_test1 = PipeOpTaskPreprocTorchTest$new(id = "test1")
-  expect_true("augment" %in% po_test1$param_set$ids())
+  expect_true("stages" %in% po_test1$param_set$ids())
 
   shapes_in = list(c(NA, 1), c(NA, 1))
   expect_identical(shapes_in, po_test1$shapes_out(shapes_in, stage = "train"))
@@ -82,20 +82,32 @@ test_that("PipeOpTaskPreprocTorch: basic checks", {
     torch_sum(materialize(po_test2$predict(list(task))[[1L]]$data(cols = "x1")[[1L]], rbind = TRUE))$item() == 0
   )
 
-  # augment parameter works as intended (above augment was FALSE)
+  # stages parameter works as intended (above stages was set to c("train", "predict"))
 
   po_test2$param_set$set_values(
-    augment = TRUE
+    stages = "train"
   )
-  # augment is TRUE, but a is tagged "train" --> does not change the results
+  # stages is c("train", "predict"), but a is tagged "train" --> does not change the results
   expect_true(
     torch_sum(materialize(po_test2$predict(list(task))[[1L]]$data(cols = "x1")[[1L]], rbind = TRUE))$item() == 0
   )
-  # only if we re-train the augmentation is applied
+  # only if we re-train the transformatoin is applied during predict
   po_test2$train(list(task))
   expect_true(
     torch_sum(materialize(po_test2$predict(list(task))[[1L]]$data(cols = "x1")[[1L]], rbind = TRUE))$item() == sum(1:10)
   )
+
+  # when stages is set to "predict", it onlu applied during prediction
+  po_test$param_set$set_values(stages = "predict")
+  expect_torch_equal(
+    materialize(task$data(cols = "x1")[[1L]], rbind = TRUE),
+    materialize(po_test$train(list(task))[[1L]]$data(cols = "x1")[[1L]], rbind = TRUE)
+
+  )
+  expet_identical)
+  u
+  materialie(task$data(cols = "x1")[[1L]]
+
 })
 
 test_that("PipeOptaskPreprocTorch: shapes_out() works", {
@@ -105,14 +117,14 @@ test_that("PipeOptaskPreprocTorch: shapes_out() works", {
   expect_identical(po_resize$shapes_out(list(x = NULL, y = c(NA, 3, 5, 5)), stage = "train"), list(NULL, c(NA, 3, 10, 10)))
   expect_error(po_resize$shapes_out(list(x = c(NA, 1, 3)), stage = "predict"), "can only be calculated")
 
-  # predict when augment is TRUE
-  po_resize$param_set$set_values(augment = TRUE)
+  # predict when stages is "train"
+  po_resize$param_set$set_values(stages = "train")
   po_resize$train(list(task))
   expect_identical(po_resize$shapes_out(list(x = NULL), stage = "predict"), list(NULL))
   expect_identical(po_resize$shapes_out(list(x = NULL, y = c(NA, 3, 5, 5)), stage = "predict"), list(NULL, c(NA, 3, 5, 5)))
 
-  # predict when augment is FALSE
-  po_resize$param_set$set_values(augment = FALSE)
+  # predict when stages is c("train", "predict"")
+  po_resize$param_set$set_values(stages = c("train", "predict"))
   po_resize$train(list(task))
   expect_identical(po_resize$shapes_out(list(x = NULL), stage = "predict"), list(NULL))
   expect_identical(po_resize$shapes_out(list(x = NULL, y = c(NA, 3, 5, 5)), stage = "predict"), list(NULL, c(NA, 3, 10, 10)))
@@ -131,7 +143,7 @@ test_that("PipeOpTaskPreprocTorch modifies the underlying lazy tensor columns co
   taskout_train = po_test$train(list(taskin))[[1L]]
   taskout_pred = po_test$predict(list(taskin))[[1L]]
 
-  po_test$param_set$set_values(augment = TRUE)
+  po_test$param_set$set_values(stages = "train")
   po_test$train(list(taskin))[[1L]]
   taskout_pred_aug = po_test$predict(list(taskin))[[1L]]
 
@@ -152,7 +164,7 @@ test_that("PipeOpTaskPreprocTorch modifies the underlying lazy tensor columns co
   )
 })
 
-test_that("pipeop_preproc_torch works", {
+test_that("pipeop_preproc_torch", {
   expect_error(
     pipeop_preproc_torch("trafo_abc", function(x) NULL, shapes_out = function(shapes) NULL),
     "Must have formal arguments"
@@ -170,7 +182,7 @@ test_that("pipeop_preproc_torch works", {
   expect_true("required" %in% po_test$param_set$tags$a)
   expect_class(po_test, "PipeOpPreprocTorchTrafoAbc")
   # parameter a was added
-  expect_set_equal(c("a", "affect_columns", "augment"), po_test$param_set$ids())
+  expect_set_equal(c("a", "affect_columns", "stages"), po_test$param_set$ids())
 
   task = as_task_regr(data.table(
     y = 2,

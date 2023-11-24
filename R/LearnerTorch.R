@@ -312,9 +312,6 @@ LearnerTorch = R6Class("LearnerTorch",
         if (!is_lazy_tensor(x)) return(NULL)
         predict_shape = x$.pointer_shape_predict
         train_shape = x$.pointer_shape
-        # If no information on hypothetical predict shape is available we continue training
-        # This is e.g. the case when a completely un-preprocessed lazy tensor is used
-        # Otherwise we expect the predict_shape to be equal to the train shape
         if (is.null(train_shape) || is.null(predict_shape)) {
           return(NULL)
         }
@@ -328,6 +325,7 @@ LearnerTorch = R6Class("LearnerTorch",
       cols = c(task$feature_names, task$target_names)
       ci_predict = task$col_info[get("id") %in% cols, c("id", "type", "levels")]
       ci_train = self$model$task_col_info[get("id") %in% cols, c("id", "type", "levels")]
+      # permuted factor levels cause issues, because we are converting fct -> int
       if (!test_equal_col_info(ci_train, ci_predict)) { # nolint
         stopf(paste0(
           "Predict task's `$col_info` does not match the train task's column info.\n",

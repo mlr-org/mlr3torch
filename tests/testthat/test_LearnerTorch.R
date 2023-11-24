@@ -383,8 +383,8 @@ test_that("resample() works", {
 test_that("Input verification works during `$train()` (train-predict shapes work together)", {
   task = nano_mnist()
 
-  task_invalid = po("trafo_resize", size = c(10, 10), augment = TRUE) $train(list(task))[[1L]]
-  task_valid = po("trafo_resize", size = c(10, 10), augment = FALSE) $train(list(task))[[1L]]
+  task_invalid = po("trafo_resize", size = c(10, 10), stages = "train") $train(list(task))[[1L]]
+  task_valid = po("trafo_resize", size = c(10, 10), stages = c("train", "predict")) $train(list(task))[[1L]]
 
   learner = lrn("classif.torch_featureless",
     batch_size = 1L, epochs = 0L
@@ -402,7 +402,7 @@ test_that("Input verification works during `$train()` (train-predict shapes work
     NA
   )
 
-  task_unknown = po("trafo_resize", size = c(10, 10), augment = TRUE) $train(list(nano_dogs_vs_cats()))[[1L]]
+  task_unknown = po("trafo_resize", size = c(10, 10), stages = "train") $train(list(nano_dogs_vs_cats()))[[1L]]
 
   expect_error(
     learner$train(task_unknown),

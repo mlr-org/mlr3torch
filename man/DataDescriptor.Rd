@@ -19,10 +19,11 @@ DataDescriptor(
 \item{dataset}{(\code{\link[torch:dataset]{torch::dataset}})\cr
 The torch dataset.}
 
-\item{dataset_shapes}{(named \code{list()} of \code{integer()}s)\cr
+\item{dataset_shapes}{(named \code{list()} of (\code{integer()} or \code{NULL}))\cr
 The shapes of the output.
 Names are the elements of the list returned by the dataset.
-First dimension must be \code{NA}.}
+If the shape is not \code{NULL} (unknown, e.g. for images of different sizes) the first dimension must be \code{NA} to
+indicate the batch dimension.}
 
 \item{graph}{(\code{\link{Graph}})\cr
 The preprocessing graph.
@@ -38,9 +39,7 @@ Indicating an element on which a model is. Points to an output channel within \c
 Element 1 is the \code{PipeOp}'s id and element 2 is that \code{PipeOp}'s output channel.}
 
 \item{.pointer_shape}{(\code{integer} | \code{NULL})\cr
-Shape of the output indicated by \code{.pointer}. Note that this is \strong{without} the batch dimension as opposed
-to the \code{\link{ModelDescriptor}}. The reason is that the .pointer_shape refers to exactly one element and hence
-has no batch dimension.}
+Shape of the output indicated by \code{.pointer}.}
 
 \item{clone_graph}{(\code{logical(1)})\cr
 Whether to clone the preprocessing graph.}
@@ -50,10 +49,13 @@ Internal use only.
 Used in a \code{\link{Graph}} to anticipate possible mismatches between train and predict shapes.}
 }
 \description{
-A data descriptor is a rather internal structure used in the \code{\link{lazy_tensor}} data type.
+A data descriptor is a rather internal data structure used in the \code{\link{lazy_tensor}} data type.
 In essence it is an annotated \code{\link[torch:dataset]{torch::dataset}} and a preprocessing graph (consisting mosty of \code{\link{PipeOpModule}}
-operators). The additional meta data (e.g. shapes) allows to preprocess \code{\link{lazy_tensors}} in an
+operators). The additional meta data (e.g. pointer, shapes) allows to preprocess \code{\link{lazy_tensors}} in an
 \code{\link[mlr3pipelines:Graph]{mlr3pipelines::Graph}} just like any (non-lazy) data types.
+To observe the effect of such a preprocessing, the \code{\link{materialize}} function can be used.
+
+This class is similar to the \code{\link{ModelDescriptor}} class, although there are some differences, see \emph{details}.
 }
 \examples{
 # Create a dataset

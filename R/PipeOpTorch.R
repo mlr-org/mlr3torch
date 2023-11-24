@@ -337,7 +337,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
       )
 
       # integrate the operation into the graph
-      result_template$graph$add_pipeop(module_op)
+      result_template$graph$add_pipeop(module_op, clone = FALSE)
       # All of the `inputs` contained possibly the same `graph`, but definitely had different `.pointer`s,
       # indicating the different channels from within the `graph` that should be connected to the new operation.
       vararg = "..." == module_op$input$name[[1L]]

@@ -48,9 +48,8 @@ constructor_mnist = function(path) {
 
 load_task_mnist = function(id = "mnist") {
   cached_constructor = function() {
-    # We need this as otherwise the factor level are differently ordered,
-    # which causes the hard-coded col-info to be wrong for some locales
-    # (whether a < A or A > a depends on the locale)
+    # factor level ordering can depend on locale
+    # in this case, nothing should go wrong but we keep it here as a reminder (is e.g. needed in tiny imagenet)
     withr::with_locale(c(LC_COLLATE = "C"), {
       data = cached(constructor_mnist, "datasets", "mnist")$data
     })
@@ -89,10 +88,10 @@ load_task_mnist = function(id = "mnist") {
     backend = backend,
     id = "mnist",
     target = "label",
-    label = "MNIST Image Classifiacation",
+    label = "MNIST Digit Classification",
   )
 
-  backend$hash = task$man = "mlr3::mlr_tasks_mnist"
+  backend$hash = task$man = "mlr3torch::mlr_tasks_mnist"
 
   task$row_roles$use = seq_len(60000)
   task$row_roles$test = seq(from = 60001, 70000)

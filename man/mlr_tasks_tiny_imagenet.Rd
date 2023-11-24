@@ -34,6 +34,10 @@ indicates whether the row belongs to the train, validation or test set.
 }
 }
 
+\examples{
+task = tsk("tiny_imagenet")
+task
+}
 \references{
 Deng, Jia, Dong, Wei, Socher, Richard, Li, Li-Jia, Li, Kai, Fei-Fei, Li (2009).
 \dQuote{Imagenet: A large-scale hierarchical image database.}

@@ -26,6 +26,7 @@
 #'   Either a [`lazy_tensor`] or a `list()` / `data.frame()` containing [`lazy_tensor`] columns.
 #' @param rbind (`logical(1)`)\cr
 #'   Whether to rbind the lazy tensor columns (`TRUE`) or return them as a list of tensors (`FALSE`).
+#'   In the second case, the batch dimension is present for all individual tensors.
 #' @return (`list()` of [`lazy_tensor`]s or a [`lazy_tensor`])
 #' @export
 #' @examples

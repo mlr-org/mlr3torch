@@ -176,7 +176,18 @@ test_that("autotest_torch_callback works", {
 })
 
 
-test_that("autotest_pipeop_torch works", {
+test_that("autotest_pipeop_torch", {
   # TODO:
+
+})
+
+test_that("autotest_pipeop_torch_preproces", {
+  # test that:
+  # a) id *
+
+
+
+
+  autotest_pipeop_torch_preprocess
 
 })

@@ -1,28 +1,30 @@
-#' @title Base Class for Torch Preprocessing
+#' @title Base Class for Lazy Tensor Preprocessing
 #' @name mlr_pipeops_preproc_torch
 #'
 #' @description
 #' This `PipeOp` can be used to preprocess (one or more) [`lazy_tensor`] columns contained in an [`mlr3::Task`].
 #' The preprocessing function is specified as construction argument `fn` and additional arguments to this
 #' function can be defined through the `PipeOp`'s parameter set.
-#' The preprocessing is done per-column, i.e. the number lazy tensor output columns is equivalent
+#' The preprocessing is done per column, i.e. the number of lazy tensor output columns is equal
 #' to the number of lazy tensor input columns.
-#' The preprocessing that is applied during `$predict()` uses the parameters that were set during `$train()` and not
-#' those that are set when performing the prediction.
+#'
+#' To create custom preprocessing `PipeOp`s you can use [`pipeop_preproc_torch`] / [`pipeop_preproc_torch_class`].
 #'
 #' @section Inheriting:
-#' In addition to specifying the construction arguments, you can overwrite the private `.shapes_out()` method:
+#' In addition to specifying the construction arguments, you can overwrite the private `.shapes_out()` method.
+#' If you don't overwrite it, the output shapes are assumed to be unknown (`NULL`).
+#'
 #' * `.shapes_out(shapes_in, param_vals, task)`\cr
 #'   (`list()`, `list(), `Task` or `NULL`) -> `list()`\cr
 #'   This private method calculates the output shapes of the lazy tensor columns that are created from applying
-#'   the preprocessing.
+#'   the preprocessing function with the provided parameter values (`param_vals`).
+#'   The `task` is very rarely needed, but if it is it should be checked that it is not `NULL`.
 #'
 #'   This private method only has the responsibility to calculate the output shapes for one input column, i.e. the
 #'   input `shapes_in` can be assumed to have exactly one shape vector for which it must calculate the output shapes
 #'   and return it as a `list()` of length 1.
-#'   It can also be assumed that the shape is not `NULL` (unknown).
-#'   It should also output a shape with exactly one NA in the first dimension or `NULL`if the output shape cannot be
-#'   determined (e.g. because it is random).
+#'   It can also be assumed that the shape is not `NULL` (i.e. unknown).
+#'   Also, the first dimension can be `NA`, i.e. is unknown (as for the batch dimension).
 #'
 #' @template param_id
 #' @template param_param_vals
@@ -33,12 +35,9 @@
 #' @param param_set ([`ParamSet`])\cr
 #'   In case the function `fn` takes additional parameter besides a [`torch_tensor`] they can be
 #'   specfied as parameters. None of the parameters can have the [`"predict"`] tag.
-#'   Pay attention to set the correct `tags` for the parameters: if tag `"train"` is present,
-#'   the preprocessing is applied during training and if tag `"predict"` is present, the preprocessing is applied
-#'   during prediction (if `augment` is set to `FALSE`).
-#' @param augment_init (`logical(1)` or `NULL`)\cr
-#'   Initial value for the `augment` parameter.
-#'   If it is `NULL`, there is no `augment` parameter.
+#'   All tags should be set to `"train"`.
+#' @param stages_init (`logical(1)`)\cr
+#'   Initial value for the `stages` parameter.
 #' @section Input and Output Channels:
 #' See [`PipeOpTaskPreproc`].
 #' @section State:
@@ -47,17 +46,23 @@
 #' In addition to the parameters inherited from [`PipeOpTaskPreproc`] as well as those specified during construction
 #' as the argument `param_set` there are the following parameters:
 #'
-#' * `augment` :: `logical(1)`\cr
-#'   (This parameter only exists of the `PipeOp`) is applied per column.
-#'   Whether the to apply the preprocessing only during training (`TRUE`) or also during prediction (`FALSE`).
-#'   This parameter is initialized to `FALSE`.
+#' * `stages` :: `character()`\cr
+#'   The stages during which to apply the preprocessing.
+#'   Must be a subset of `"train"` and `"predict"`.
+#'   Note that the preprocessing that is applied during `$predict()` uses the parameters that were set during
+#'  `$train()` and not those that are set when performing the prediction.
 #'
 #' @section Internals:
 #' A [`PipeOpModule`] with one input and one output channel is created.
 #' The pipeop simply applies the function `fn` to the input tensor while additionally
-#' passing the paramter values (minus `augment` and `affect_columns`) to `fn`.
-#' Then [`transform_lazy_tensor`] is called with the created [`PipeOpModule`] and the shapes obtained from the
-#' `$shapes_out()` method of this `PipeOp`.
+#' passing the parameter values (minus `stages` and `affect_columns`) to `fn`.
+#' In addition, the new shapes are calculates using the `$shapes_out()` method.
+#' Then, new lazy tensor columns with updated preprocessing graphs and metadata are created.
+#' This mechanism is very similar to the [`ModelDescriptor`] mechanism that is being used to construct
+#' neural network architectures. Read the (Internals) documentation of [`PipeOpTorch`] for this.
+#'
+#' We also add the shape that would be present during a `$predict()` call, this information can later be used
+#' to check whether the train-preprocessing and the predict-preprocessing are compatible.
 #'
 #' @include PipeOpTorch.R
 #' @export
@@ -76,13 +81,13 @@
 #' po_simple = po("preproc_torch",
 #'   # use mlr3misc::crate to get rid of unnecessary environment baggage
 #'   fn = mlr3misc::crate(function(x, a) x + a),
-#'   param_set = ps(a = p_int(tags = c("train", "predict", "required")))
+#'   param_set = ps(a = p_int(tags = c("train", "required")))
 #' )
 #'
 #' po_simple$param_set$set_values(
 #'   a = 100,
 #'   affect_columns = selector_name(c("x1", "x2")),
-#'   augment = FALSE
+#'   stages = c("train", "predict")
 #' )
 #'
 #' taskout_train = po_simple$train(list(taskin))[[1L]]
@@ -92,7 +97,7 @@
 #' materialize(taskout_predict_noaug$data(cols = c("x1", "x2")), rbind = TRUE)
 #'
 #' po_simple$param_set$set_values(
-#'   augment = TRUE
+#'   stages = "train"
 #' )
 #'
 #' # transformation is not applied
@@ -153,18 +158,14 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
     #' @description
     #' Creates a new instance of this [`R6`][R6::R6Class] class.
     initialize = function(fn, id = "preproc_torch", param_vals = list(), param_set = ps(), packages = character(0),
-      augment_init = FALSE) {
+      stages_init = c("train", "predict")) {
       private$.fn = assert_function(fn)
-      assert_flag(augment_init, null.ok = TRUE)
+      assert_subset(stages_init, c("train", "predict"))
 
       param_set$add(ps(
-        augment = p_lgl(tags = c("train", "required"))
+        stages = p_uty(tags = c("train", "required"), custom_check = crate(function(x) check_subset(x, c("train", "predict"))))
       ))
-      param_set$set_values(augment = augment_init)
-
-      if (some(param_set$tags, function(tags) "predict" %in% tags)) {
-        stopf("Parameter set cannot contain tags 'predict'.")
-      }
+      param_set$set_values(stages = stages_init)
 
       super$initialize(
         id = id,
@@ -178,10 +179,11 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
     #'  Calculates the output shapes that would result in applying the preprocessing to one or more
     #'  lazy tensor columns with the provided shape.
     #'  Names are ignored and only order matters.
-    #'  It uses the parameeter values that are currently set.
+    #'  It uses the parameter values that are currently set.
     #' @param shapes_in (`list()` of (`integer()` or `NULL`))\cr
     #'   The input input shapes of the lazy tensors.
     #'   `NULL` indicates that the shape is unknown.
+    #'   First dimension must be `NA`.
     #' @param stage (`character(1)`)\cr
     #'   The stage: either `"train"` or `"predict"`.
     #' @param task ([`Task`] or `NULL`)\cr
@@ -203,11 +205,11 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
         self$state$param_vals
       }
 
-      augment = pv$augment
-      pv$augment = NULL
+      stages = pv$stages
+      pv$stages = NULL
       pv$affect_columns = NULL
 
-      if ((stage == "predict") && augment) {
+      if (stage %nin% stages) {
         return(shapes_in)
       }
 
@@ -218,6 +220,14 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
       })
 
       return(shapes)
+    }
+  ),
+  active = list(
+    #' @description
+    #' The preprocessing function.
+    fn = function(rhs) {
+      assert_ro_binding(rhs)
+      private$.fn
     }
   ),
   private = list(
@@ -255,11 +265,12 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
     .transform = function(dt, task, param_vals, stage) {
       # stage is "train" or "predict"
       param_vals$affect_columns = NULL
+      stages = param_vals$stages
+      param_vals$stages = NULL
       trafo = private$.fn
 
-      if (stage == "train") {
-        param_vals$augment = NULL
-        fn = if (length(param_vals)) {
+      fn = if (stage %in% stages) {
+        if (length(param_vals)) {
           crate(function(x) {
             invoke(.f = trafo, x, .args = param_vals)
           }, param_vals, trafo, .parent = environment(trafo))
@@ -267,21 +278,7 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
           trafo
         }
       } else {
-        augment = param_vals$augment
-        param_vals$augment = NULL
-        # augment can be NULL (in case the pipeop changes the output shape and hence augmentation is not supported)
-        # or a logical(1)
-        fn = if (isTRUE(augment)) {
-          # We cannot simple add no module to the graph as we need to maintain the same graph-structure
-          # as during training
-          identity
-        } else if (length(param_vals)) {
-          crate(function(x) {
-            invoke(.f = trafo, x, .args = param_vals)
-          }, param_vals, trafo, .parent = environment(trafo))
-        } else {
-          trafo
-        }
+        identity
       }
 
       dt = map_dtc(dt, function(lt) {
@@ -299,7 +296,7 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
 
         shape_out_predict = if (stage == "train") {
           shape_in_predict = if (is.null(lt$.pointer_shape_predict)) shape_before
-          # during `$train()` we also keep track of the shapes that would arise during train
+          # during `$train()` we also keep track of the shapes that would arise during predict
           # This avoids that we first train a learner and then only notice during predict that the shapes
           # during the predict phase are wrong
           shape_out_predict = self$shapes_out(list(shape_before), stage = "predict", task = task)[[1L]]
@@ -312,13 +309,16 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
         # a `$predict()` call is possible later.
         x
       })
-      names(dt) = uniqueify(names(dt), setdiff(task$col_info$id, names(dt)))
+      # no need to ensure uniqueness of names as we are just taking the names as they already are
       return(dt)
     },
     .additional_phash_input = function() {
-      list(self$param_set$ids(), private$.fn, self$packages)
+      list(
+        self$param_set$ids(), self$packages,
+        formals(private$.fn), body(private$.fn), address(environment(private$.fn))
+      )
     },
-    .shapes_out = function(shapes_in, param_vals, task) shapes_in,
+    .shapes_out = function(shapes_in, param_vals, task) list(NULL),
     .fn = NULL
   )
 )
@@ -370,20 +370,21 @@ create_ps_call = function(fn) {
 
 #' @title Create Torch Preprocessing PipeOps
 #' @description
-#' Convenience functions to create objects of class [`PipeOpTaskPreprocTorch`] in a slightly more convenient way.
+#' Function to create objects of class [`PipeOpTaskPreprocTorch`] in a slightly more convenient way.
 #' Start by reading the documentation of [`PipeOpTaskPreprocTorch`].
 #' @template param_id
 #' @param fn (`function`)\cr
 #'   The preprocessing function.
-#' @param shapes_out (`function` or `NULL` or "infer")\cr
-#'   The private `.shapes_out(shapes_in, param_vals, task)` method of [`PipeOpTaskPreprocTorch`].
-#'   If `NULL`, the pipeop does not change the output shapes.
-#'   If `TRUE`, the output shape function is inferred and calculates the output shapes as follows:
-#'   a) The input shapes are known:
-#'      For an input shape of (NA, ...) a meta-tensor of shape (1, ...) is created and the preprocessing function is
-#'      applied. Afterwards the batch dimension (1) is replaced with NA and the shape is returned.
-#'   b) The input shapes are unknown (all NA):
-#'      The dimension is returned as is.
+#' @param shapes_out (`function` or `NULL` or `"infer"` or `"unchanged"`)\cr
+#'   The private `.shapes_out(shapes_in, param_vals, task)` method of [`PipeOpTaskPreprocTorch`]
+#'   (see section Inheriting).
+#'   Special values are `NULL` and `infer`:
+#'   If `NULL`, the output shapes are unknown.
+#'   If "infer", the output shape function is inferred and calculates the output shapes as follows:
+#'   For an input shape of (NA, ...) a meta-tensor of shape (1, ...) is created and the preprocessing function is
+#'   applied. Afterwards the batch dimension (1) is replaced with NA and the shape is returned.
+#'
+#'   This should be correct in most cases, but might fail in some edge cases.
 #' @param param_set ([`ParamSet`] or `NULL`)\cr
 #'   The parameter set.
 #'   If this is left as `NULL` (default) the parameter set is inferred in the following way:
@@ -403,8 +404,9 @@ pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, pack
   assert_true(length(formals(fn)) >= 1L)
   assert(
     check_function(shapes_out, args = c("shapes_in", "param_vals", "task"), null.ok = TRUE),
-    check_choice(shapes_out, "infer")
+    check_choice(shapes_out, c("infer", "unknown", ))
   )
+
 
   if (!is.null(param_set)) {
     assert_param_set(eval(param_set))
@@ -419,23 +421,27 @@ pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, pack
   if (identical(shapes_out, "infer")) {
     shapes_out = crate(function(shapes_in, param_vals, task) {
       sin = shapes_in[[1L]]
-      if (all(is.na(sin))) {
-        # This is only TRUE if the preprocessing pipeop does not change the number of dimensions.
-        return(list(sin))
-      }
-      # set batch-dim to 1
 
-      sin[1] = 1L
+      unknown_batch_dim = is.na(sin[1L])
+      if (unknown_batch_dim) {
+        sin[1] = 1L
+      }
       tensor_in = invoke(torch_empty, .args = sin, device = torch_device("meta"))
       tensor_out = invoke(private$.fn, tensor_in, .args = param_vals)
       sout = dim(tensor_out)
 
-      sout[1] = NA
+      if (unknown_batch_dim) {
+        sout[1] = NA
+      }
+
       list(sout)
     })
+  } else if (identical(shapes_out, "unchanged")) {
+    shapes_out = crate(function(shapes_in, param_vals, task_in) shapes_in)
   } else {
-    assert_function(shapes_out, args = c("shapes_in", "param_vals", "task"), null.ok = TRUE)
+    stopf("Cannot happen")
   }
+
 
   init_fun = crate(function(id = idname, param_vals = list()) {
     super$initialize(
@@ -457,9 +463,7 @@ pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, pack
     public = list(
       initialize = init_fun
     ),
-    private = list(
-      .shapes_out = shapes_out
-    )
+    private = if (!is.null(shapes_out)) list(.shapes_out = shapes_out) else list()
   )
 
   return(Class)
@@ -470,26 +474,5 @@ register_preproc = function(id, fn, param_set = NULL, shapes_out = NULL, package
   assign(Class$classname, Class, parent.frame())
   register_po(id, Class)
 }
-
-
-# Where I was:
-# PipeOpTaskPreprocTorch and PipeOpTorchTrafo:
-# their shapes_out method should be slightly different, i.e.
-# --> How to implement this?
-# 1. In register_lazy I want to specify the shapes_out method only once.
-# 2. PipeOpTorch expects list()s but ...TaskPreproc should probably input and output shape
-# vectors
-#
-# Other thigns:
-  # I want to provide helper functions to create these pipeops for:
-  # * preproc
-  # * trafo
-  # * pipeop torch
-# Other things:
-  # * autotest for trafo and preproc
-  # * implement some common trafos and preprocs
-  #
-  #
-
 
 register_po("preproc_torch", PipeOpTaskPreprocTorch, metainf = list(fn = identity))

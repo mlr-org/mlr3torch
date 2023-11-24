@@ -75,8 +75,7 @@
 #' formalArgs(linear_module$module)
 #' linear_module$input$name
 #'
-#'
-# Constructing a PipeOpModule using a simple function
+#' Constructing a PipeOpModule using a simple function
 #' po_add1 = po("module",
 #'   id = "add_one",
 #'   module = function(x) x + 1
@@ -85,6 +84,7 @@
 #' po_add1$train(input)$output
 PipeOpModule = R6Class("PipeOpModule",
   inherit = PipeOp,
+  cloneable = FALSE,
   public = list(
     #' @field module ([`nn_module`])\cr
     #'   The torch module that is called during the training phase.
@@ -106,9 +106,6 @@ PipeOpModule = R6Class("PipeOpModule",
       private$.multi_output = length(outname) > 1L
       self$module = assert(check_class(module, "nn_module"), check_class(module, "function"), combine = "or")
       self$module = module
-      assert_names(inname, type = "strict")
-      assert_names(outname, type = "strict")
-      assert_character(packages, any.missing = FALSE)
       packages = union(c("mlr3torch", "torch"), packages)
 
       input = data.table(name = inname, train = "torch_tensor", predict = "NULL")
@@ -147,14 +144,10 @@ PipeOpModule = R6Class("PipeOpModule",
       list(fn_input, self$input$name, self$output$name, self$packages)
     },
     deep_clone = function(name, value) {
-      if (name != "fn") {
-        return(super$deep_clone(name, value))
-      }
-      if (test_class(value, "nn_module")) {
-        value$clone(deep = TRUE)
-      } else {
-        value
-      }
+      # Waiting for R6 release: https://github.com/r-lib/R6/commit/6ba0dce26b1a7fc9b812bc4d92f09123d3b9648d
+      stopf("Cannot create a deep clone of PipeOpModule if it wraps an `nn_module`.")
+      # Note that we could allow to clone methods that wrap functions, but this should basically never be necessary,
+      # as this PipeOp has not state and just functions as a function
     }
   )
 )

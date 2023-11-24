@@ -15,7 +15,8 @@ The object to materialize.
 Either a \code{\link{lazy_tensor}} or a \code{list()} / \code{data.frame()} containing \code{\link{lazy_tensor}} columns.}
 
 \item{rbind}{(\code{logical(1)})\cr
-Whether to rbind the lazy tensor columns (\code{TRUE}) or return them as a list of tensors (\code{FALSE}).}
+Whether to rbind the lazy tensor columns (\code{TRUE}) or return them as a list of tensors (\code{FALSE}).
+In the second case, the batch dimension is present for all individual tensors.}
 
 \item{cache}{(\code{character(1)} or \code{environment()} or \code{NULL})\cr
 Optional cache for (intermediate) materialization results.

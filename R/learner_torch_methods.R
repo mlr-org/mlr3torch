@@ -41,9 +41,6 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   # Here, all param_vals (like seed = "random" or device = "auto") have already been resolved
   loader_train = private$.dataloader(task, param_vals)
 
-  task_valid = task$clone()$filter(integer(0))
-  task_valid$set_row_roles(task$row_roles$test, "use")
-  loader_valid = if (task_valid$nrow) private$.dataloader_predict(task_valid, param_vals)
 
   network = private$.network(task, param_vals)$to(device = param_vals$device)
   optimizer = private$.optimizer$generate(network$parameters)
@@ -51,6 +48,17 @@ learner_torch_train = function(self, private, super, task, param_vals) {
 
   measures_train = normalize_to_list(param_vals$measures_train)
   measures_valid = normalize_to_list(param_vals$measures_valid)
+
+  task_valid = task$clone()$filter(integer(0))
+  task_valid$set_row_roles(task$row_roles$test, "use")
+  loader_valid = if (task_valid$nrow) {
+    private$.dataloader_predict(task_valid, param_vals)
+  } else {
+    if (length(measures_valid)) {
+      lg$warn("No validation set provided but measures for validation set specified.")
+    }
+    NULL
+  }
 
   available_predict_types = mlr_reflections$learner_predict_types[[self$task_type]][[self$predict_type]]
 

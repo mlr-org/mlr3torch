@@ -1,17 +1,19 @@
 #' @title Data Descriptor
 #'
 #' @description
-#' A data descriptor is a rather internal structure used in the [`lazy_tensor`] data type.
+#' A data descriptor is a rather internal data structure used in the [`lazy_tensor`] data type.
 #' In essence it is an annotated [`torch::dataset`] and a preprocessing graph (consisting mosty of [`PipeOpModule`]
-#' operators). The additional meta data (e.g. shapes) allows to preprocess [`lazy_tensors`] in an
+#' operators). The additional meta data (e.g. pointer, shapes) allows to preprocess [`lazy_tensors`] in an
 #' [`mlr3pipelines::Graph`] just like any (non-lazy) data types.
+#' To observe the effect of such a preprocessing, [`materialize()`] can be used.
 #'
 #' @param dataset ([`torch::dataset`])\cr
 #'   The torch dataset.
-#' @param dataset_shapes (named `list()` of `integer()`s)\cr
+#' @param dataset_shapes (named `list()` of (`integer()` or `NULL`))\cr
 #'   The shapes of the output.
 #'   Names are the elements of the list returned by the dataset.
-#'   First dimension must be `NA`.
+#'   If the shape is not `NULL` (unknown, e.g. for images of different sizes) the first dimension must be `NA` to
+#'   indicate the batch dimension.
 #' @param graph ([`Graph`])\cr
 #'  The preprocessing graph.
 #'  If left `NULL`, no preprocessing is applied to the data and `.input_map`, `.pointer` and `.pointer_shape`
@@ -23,9 +25,7 @@
 #'   Indicating an element on which a model is. Points to an output channel within `graph`:
 #'   Element 1 is the `PipeOp`'s id and element 2 is that `PipeOp`'s output channel.
 #' @param .pointer_shape (`integer` | `NULL`)\cr
-#'   Shape of the output indicated by `.pointer`. Note that this is **without** the batch dimension as opposed
-#'   to the [`ModelDescriptor`]. The reason is that the .pointer_shape refers to exactly one element and hence
-#'   has no batch dimension.
+#'   Shape of the output indicated by `.pointer`.
 #' @param clone_graph (`logical(1)`)\cr
 #'   Whether to clone the preprocessing graph.
 #' @param .pointer_shape_predict (`integer()` or `NULL`)\cr
@@ -80,10 +80,7 @@ DataDescriptor = function(dataset, dataset_shapes, graph = NULL, .input_map = NU
     .pointer = c(graph$output$op.id, graph$output$channel.name)
     .pointer_shape = dataset_shapes[[.input_map]]
   } else {
-    graph = as_graph(graph)
-    if (clone_graph) {
-      graph = graph$clone(deep = TRUE)
-    }
+    graph = as_graph(graph, clone = clone_graph)
     assert_true(length(graph$pipeops) >= 1L)
 
     if (any(is.null(.input_map), is.null(.pointer), is.null(.pointer_shape))) {
@@ -99,6 +96,9 @@ DataDescriptor = function(dataset, dataset_shapes, graph = NULL, .input_map = NU
     assert_true(length(.input_map) == length(graph$input$name))
   }
 
+  # We hash the address of the environment, because the hashes of an environment are not stable,
+  # even with a .dataset (that should usually not really have a state), hashes might change due to byte-code
+  # compilation
   dataset_hash = calculate_hash(address(dataset))
 
   obj = structure(
@@ -166,6 +166,9 @@ new_lazy_tensor = function(data_descriptor, ids) {
   # was a simple integer vector. (this caused stuff like PipeOpFeatureUnion to go havock and lead to bugs)
   # For this reason, we now also include the hash of the data_descriptor
   # We can then later also use this to support different DataDescriptors in a single lazy tensor column
+
+  # Note that we just include the hash as an attribute, so c() does not allow to combine lazy tensors whose
+  # data descriptors have different hashes.
   vctrs::new_vctr(map(ids, function(id) list(id, data_descriptor)), hash = data_descriptor$.hash, class = "lazy_tensor")
 }
 
@@ -256,6 +259,7 @@ is_lazy_tensor = function(x) {
 #' @param pipeop ([`PipeOpModule`])\cr
 #'   The pipeop to be added to the preprocessing graph(s) of the lazy tensor.
 #'   Must have one input and one output.
+#'   Is not cloned, so should be cloned beforehand.
 #' @param shape (`integer()`)\cr
 #'   The shape of the lazy tensor.
 #' @param shape_predict (`integer()`)\cr
@@ -299,7 +303,7 @@ transform_lazy_tensor = function(lt, pipeop, shape, shape_predict = NULL) {
   data_descriptor$graph = data_descriptor$graph$clone(deep = FALSE)
   data_descriptor$graph$edges = copy(data_descriptor$graph$edges)
 
-  data_descriptor$graph$add_pipeop(pipeop$clone(deep = TRUE))
+  data_descriptor$graph$add_pipeop(pipeop, clone = FALSE)
   data_descriptor$graph$add_edge(
     src_id = data_descriptor$.pointer[1L],
     src_channel = data_descriptor$.pointer[2L],
