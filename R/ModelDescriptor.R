@@ -65,7 +65,7 @@ ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, 
   callbacks = set_names(callbacks, assert_names(ids(callbacks), type = "unique"))
 
   if (!is.null(.pointer)) {
-    assert_integerish(.pointer_shape)
+    .pointer_shape = assert_shape(.pointer_shape, null_ok = FALSE, unknown_batch = TRUE)
     assert_choice(.pointer[[1]], names(graph$pipeops))
     assert_choice(.pointer[[2]], graph$pipeops[[.pointer[[1]]]]$output$name)
   }

@@ -1,4 +1,4 @@
-test_that("cache works if mlr3torch.cache is set to FALSE", {
+test_that("cache works if mlr3torch.cache is set to false", {
   # if we disable caching, we expect the folder structure of the tempfile() to be:
   # raw:
   #   - data.csv (the "downloaded" data)
@@ -7,7 +7,7 @@ test_that("cache works if mlr3torch.cache is set to FALSE", {
   dat = data.table(x = rnorm(1))
 
   test_constructor = function(path) {
-    fwrite(dat, file.path(path, "data.csv"))
+    fwrite(dat, fs::path_norm(file.path(path, "data.csv")))
     return(dat)
   }
 
@@ -20,7 +20,6 @@ test_that("cache works if mlr3torch.cache is set to FALSE", {
   expect_equal(list.files(file.path(dat1$path, "raw")), "data.csv")
   expect_equal(dat, dat1$data)
 })
-
 
 test_that("cache works if mlr3torch.cache is set to a directory", {
   # If we enable caching, we expect the folder structure of cache_dir/datasets/test_data to be
@@ -48,7 +47,9 @@ test_that("cache works if mlr3torch.cache is set to a directory", {
   expect_equal(dat, dat1$data)
 
   dat2 = cached(function(x) stop(), "datasets", "test_data")
-  expect_equal(dat1, dat2)
+  expect_equal(dat1$data, dat2$data)
+  # /private/var and /var are symlinked and somehow different paths are returned on macOS
+  expect_equal(fs::path_real(dat1$path), fs::path_real(dat2$path))
 })
 
 test_that("cache works if mlr3torch.cache is set to TRUE", {
@@ -104,6 +105,7 @@ test_that("cache initialization and versioning are correct", {
   }
 
   dat1 = cached(test_constructor, name, "test_data")
+  cache_dir = fs::path_real(cache_dir)
 
   # here the version should be 5
   cache_version = jsonlite::read_json(file.path(cache_dir, "version.json"))
@@ -112,7 +114,7 @@ test_that("cache initialization and versioning are correct", {
 
   # the other cache version is left unchanged
   expect_true(cache_version$datasets == CACHE$versions$datasets)
-  expect_true(cache_dir %in% CACHE$initialized)
+  expect_true(fs::path_real(cache_dir) %in% CACHE$initialized)
   # the subfolder is created
   assert_true(name %in% list.files(cache_dir))
 

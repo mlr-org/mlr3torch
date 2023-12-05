@@ -33,7 +33,7 @@ test_that("ModelDescriptor basic checks", {
   expect_identical(md$ingress, ingresslist)
   expect_identical(md$callbacks, list(checkpoint = cb))
   expect_identical(md$.pointer, pointer)
-  expect_identical(md$.pointer_shape, pointer_shape)
+  expect_equal(md$.pointer_shape, pointer_shape)
 
   repr = capture.output(md)
   expected = c(

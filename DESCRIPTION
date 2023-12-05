@@ -41,6 +41,7 @@ Imports:
     backports,
     checkmate (>= 2.2.0),
     coro,
+    fs,
     lgr,
     mlr3misc (>= 0.13.0),
     methods,
@@ -66,14 +67,15 @@ Suggests:
 Remotes:
     r-lib/zip,
     mlr-org/mlr3,
-    mlr-org/mlr3pipelines@feat/keep_results
+    mlr-org/mlr3pipelines@feat/keep_results,
+    mlverse/torchvision
 Config/testthat/edition: 3
 NeedsCompilation: no
 ByteCompile: no
 VignetteBuilder: knitr
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, r6 = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.2.3.9000
 Collate:
     'CallbackSet.R'
     'zzz.R'
@@ -83,6 +85,7 @@ Collate:
     'CallbackSetProgress.R'
     'ContextTorch.R'
     'DataBackendLazy.R'
+    'DataDescriptor.R'
     'LearnerTorch.R'
     'LearnerTorchImage.R'
     'LearnerTorchAlexNet.R'

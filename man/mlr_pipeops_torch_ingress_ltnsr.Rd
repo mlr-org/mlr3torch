@@ -11,9 +11,8 @@ Ingress for a single \code{\link{lazy_tensor}} column.
 
 \itemize{
 \item \code{shape} :: \code{integer()}\cr
-The shape of the tensor, excluding the batch dimension.
+The shape of the tensor, where the first dimension (batch) must be \code{NA}.
 Whether it is necessary to specify the shape depends on whether the lazy tensor input column has a known shape.
-If the input shape is known, this parameter can be set, but must match the input shape.
 }
 }
 
@@ -75,7 +74,6 @@ x_batch2 = ingress2[[1L]]$batchgetter(
 )
 
 x_batch2
-
 }
 \seealso{
 Other PipeOps: 

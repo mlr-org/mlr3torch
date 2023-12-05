@@ -45,14 +45,5 @@ test_that("PipeOpTorchIngressLazyTensor", {
   task$cbind(data.frame(row_id = 1:10, x_num = 1:10))
   expect_po_ingress(po_ingress, task)
 
-  graph = po("torch_ingress_ltnsr") %>>%
-    po("nn_flatten") %>>%
-    po("nn_linear", out_features = 10) %>>%
-    po("nn_relu") %>>%
-    po("nn_head") %>>%
-    po("torch_loss", "cross_entropy") %>>%
-    po("torch_optimizer") %>>%
-    po("torch_model_classif", epochs = 1L, device = "cpu", batch_size = 16)
-
-  graph$train(task_old)
+  expect_error(po_ingress$param_set$set_values(shape = c(22, 4)))
 })

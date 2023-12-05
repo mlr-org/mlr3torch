@@ -1,4 +1,3 @@
-#' Check Shape
 #'
 #' Checks whether an integer vector is a valid shape.
 #' Unknown shapes are represted as `NULL`.
@@ -8,17 +7,27 @@
 #'   Whether `NULL` is a valid shape.
 #' @param coerce (`logical(1)`)\cr
 #'   Whether to coerce the input to an `integer()` if possible.
-assert_shape = function(shape, null_ok = FALSE, coerce = TRUE) {
-  if (!test_shape(shape, null_ok = null_ok)) {
-    stopf("Invalid shape: %s.", paste0(format(shape), collapse = ", "))
-  }
+#' @param unknown_batch (`logical(1)`)\cr
+#'   Whether the batch **must** be unknonw, i.e. `NA`.
+#'   If left `NULL` (default), the first dimension can be `NA` or not.
+assert_shape = function(shape, null_ok = FALSE, coerce = TRUE, unknown_batch = NULL) {
+  result = check_shape(shape, null_ok = null_ok, unknown_batch = unknown_batch)
+
+  if (!isTRUE(result)) stopf(result)
+
   if (coerce && !is.null(shape)) {
     return(as.integer(shape))
   }
   shape
 }
 
-test_shape = function(shape, null_ok = FALSE) {
+
+#FIX SHAPE IN FIRST DIM:
+# * should not happen for DataDescriptor (subsetting)
+# * should not be possible in ModelDescriptor (makes no sense)
+# * still, shapes_out() should also handle this case
+
+test_shape = function(shape, null_ok = FALSE, unknown_batch = NULL) {
   if (is.null(shape) && null_ok) {
     return(TRUE)
   }
@@ -28,21 +37,26 @@ test_shape = function(shape, null_ok = FALSE) {
     return(FALSE)
   }
 
-  is_na = is.na(shape)
   if (anyNA(shape[-1L])) {
     return(FALSE)
   }
-  return(TRUE)
-}
-
-check_shape = function(x, null_ok = FALSE) {
-  if (test_shape(x, null_ok = null_ok)) {
+  if (is.null(unknown_batch)) {
+    # first dim can be present or missing
     return(TRUE)
   }
-  "Must be a valid shape."
+  return(is.na(shape[1L]) == unknown_batch)
 }
 
-assert_shapes = function(shapes, named = TRUE, null_ok = FALSE) { # nolint
-  assert_list(shapes, names = if (named && !identical(unique(names(shapes)), "...")) "unique", min.len = 1L)
-  map(shapes, assert_shape, null_ok = null_ok)
+check_shape = function(shape, null_ok = FALSE, unknown_batch = NULL) {
+  if (test_shape(shape, null_ok = null_ok, unknown_batch = unknown_batch)) {
+    return(TRUE)
+  }
+  stopf("Invalid shape: %s.", paste0(format(shape), collapse = ", "))
+}
+assert_shapes = function(shapes, coerce = TRUE, named = FALSE, null_ok = FALSE, unknown_batch = NULL) { # nolint
+  ok = test_list(shapes, names = if (named && !identical(unique(names(shapes)), "...")) "unique", min.len = 1L)
+  if (!ok) {
+    stopf("Invalid shape")
+  }
+  map(shapes, assert_shape, coerce = coerce, null_ok = null_ok, unknown_batch = unknown_batch)
 }

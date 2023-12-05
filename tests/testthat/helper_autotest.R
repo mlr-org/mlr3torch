@@ -117,9 +117,22 @@ autotest_pipeop_torch = function(graph, id, task, module_class = id, exclude_arg
   names(channels) = paste0("output", "_", tmp1$src_id, "_", tmp1$src_channel, ".", tmp1$src_channel)
   names(layerin) = channels[names(channels)]
 
+  # check that shapes are compatible when passing batch dimension
   predicted = po_test$shapes_out(map(layerin, dim), task)
   observed = map(layerout, dim)
   expect_compatible_shapes(predicted, observed)
+
+  # check that shapes are compatible without batch dimension as NA
+  predicted_unknown_batch = po_test$shapes_out(map(layerin, function(d) {
+    x = dim(d)
+    x[1L] = NA
+    x
+  }), task)
+
+  expect_error(assert_shapes(predicted_unknown_batch, null_ok = FALSE, unknown_batch = TRUE), regexp = NA)
+
+  expect_compatible_shapes(predicted_unknown_batch, observed)
+
 
   # parameters must only ce active during training
   walk(po_test$param_set$params, function(p) {
@@ -333,11 +346,11 @@ autotest_pipeop_torch_preprocess = function(obj, shapes_in, exclude = character(
   class = get(class(obj)[[1L]], envir = getNamespace("mlr3torch"))
   instance = class$new()
 
-  expect_true(grepl(instance$id, pattern = "^(trafo|augment)_"))
+  testthat::expect_true(grepl(instance$id, pattern = "^(trafo|augment)_"))
   if (startsWith(instance$id, "augment")) {
     expect_set_equal(instance$param_set$values$stages, "train")
   } else {
-    expect_set_equal(instance$param_set$values$stages, c("train", "predict"))
+    expect_set_equal(instance$param_set$values$stages, "both")
   }
 
   shapes_in = if (!test_list(shapes_in)) list(shapes_in) else shapes_in
@@ -356,6 +369,8 @@ autotest_pipeop_torch_preprocess = function(obj, shapes_in, exclude = character(
 
     expect_class(tnsr_out, "torch_tensor")
 
-    expect_equal(tnsr_out$shape, shape_out)
+    if (!is.null(shape_out)) {
+      testthat::expect_equal(tnsr_out$shape, shape_out)
+    }
   })
 }

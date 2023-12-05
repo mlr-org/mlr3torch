@@ -284,10 +284,11 @@ PipeOpTorch = R6Class("PipeOpTorch",
     shapes_out = function(shapes_in, task = NULL) {
       assert_r6(task, "Task", null.ok = TRUE)
       if (is.numeric(shapes_in)) shapes_in = list(shapes_in)
-      if (identical(self$input$name, "...")) {
-        assert_list(shapes_in, min.len = 1, types = "numeric")
-      } else {
-        assert_list(shapes_in, len = nrow(self$input), types = "numeric")
+      # batch dimensionc can be known or unknown
+      assert_shapes(shapes_in, unknown_batch = NULL)
+      if ("..." %nin% self$input$name) {
+        assert_true(length(shapes_in) == nrow(self$input),
+          .var.name = "number of input shapes equal to number of input channels")
       }
 
       s = if (is.null(private$.shapes_out)) {
@@ -313,7 +314,6 @@ PipeOpTorch = R6Class("PipeOpTorch",
       input_pointers = map(inputs, ".pointer")
       input_shapes = map(inputs, ".pointer_shape")
 
-      assert_shapes(input_shapes, named = FALSE, null_ok = FALSE)
       # Now begin creating the result-object: it contains a merged version of all `inputs`' $graph slots etc.
       # The only thing missing afterwards is (1) integrating module_op to the merged $graph, and adding `.pointer`s.
       result_template = Reduce(model_descriptor_union, inputs)

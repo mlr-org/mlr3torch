@@ -82,7 +82,7 @@ test_that("PipeOpTaskPreprocTorch: basic checks", {
     torch_sum(materialize(po_test2$predict(list(task))[[1L]]$data(cols = "x1")[[1L]], rbind = TRUE))$item() == 0
   )
 
-  # stages parameter works as intended (above stages was set to c("train", "predict"))
+  # stages parameter works as intended (above stages was set to "both")
 
   po_test2$param_set$set_values(
     stages = "train"
@@ -104,9 +104,11 @@ test_that("PipeOpTaskPreprocTorch: basic checks", {
     materialize(po_test$train(list(task))[[1L]]$data(cols = "x1")[[1L]], rbind = TRUE)
 
   )
-  expet_identical)
-  u
-  materialie(task$data(cols = "x1")[[1L]]
+  # TODO:
+  # need to finish the augment -> stages transition, i.e. add tests and "both", then finish the preprocess impmenetation. add the tests and test the preprocess autotest
+  # also test that the rowwise parameter works
+
+  materialize(task$data(cols = "x1")[[1L]])
 
 })
 
@@ -124,7 +126,7 @@ test_that("PipeOptaskPreprocTorch: shapes_out() works", {
   expect_identical(po_resize$shapes_out(list(x = NULL, y = c(NA, 3, 5, 5)), stage = "predict"), list(NULL, c(NA, 3, 5, 5)))
 
   # predict when stages is c("train", "predict"")
-  po_resize$param_set$set_values(stages = c("train", "predict"))
+  po_resize$param_set$set_values(stages = "both")
   po_resize$train(list(task))
   expect_identical(po_resize$shapes_out(list(x = NULL), stage = "predict"), list(NULL))
   expect_identical(po_resize$shapes_out(list(x = NULL, y = c(NA, 3, 5, 5)), stage = "predict"), list(NULL, c(NA, 3, 10, 10)))
@@ -138,7 +140,8 @@ test_that("PipeOpTaskPreprocTorch modifies the underlying lazy tensor columns co
 
   taskin = as_task_regr(d, target = "y")
 
-  po_test = po("preproc_torch", fn = crate(function(x, a) x + a), param_set = ps(a = p_int(tags = c("train", ""))), a = -10)
+  po_test = po("preproc_torch", fn = crate(function(x, a) x + a), param_set = ps(a = p_int(tags = c("train", ""))),
+    a = -10, rowwise = FALSE)
 
   taskout_train = po_test$train(list(taskin))[[1L]]
   taskout_pred = po_test$predict(list(taskin))[[1L]]
@@ -216,6 +219,5 @@ test_that("predict shapes are added during training", {
 
   taskout = po_test$train(list(task))[[1L]]
 
-  # TODO:
-
 })
+

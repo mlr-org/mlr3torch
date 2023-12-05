@@ -15,7 +15,8 @@ To create custom preprocessing \code{PipeOp}s you can use \code{\link{pipeop_pre
 }
 \section{Inheriting}{
 
-In addition to specifying the construction arguments, you can overwrite the private \code{.shapes_out()} method:
+In addition to specifying the construction arguments, you can overwrite the private \code{.shapes_out()} method.
+If you don't overwrite it, the output shapes are assumed to be unknown (\code{NULL}).
 \itemize{
 \item \code{.shapes_out(shapes_in, param_vals, task)}\cr
 (\code{list()}, \verb{list(), }Task\code{or}NULL\verb{) -> }list()\verb{\\cr This private method calculates the output shapes of the lazy tensor columns that are created from applying the preprocessing function with the provided parameter values (}param_vals\verb{). The }task\verb{is very rarely needed, but if it is it should be checked that it is not}NULL`.
@@ -24,8 +25,7 @@ This private method only has the responsibility to calculate the output shapes f
 input \code{shapes_in} can be assumed to have exactly one shape vector for which it must calculate the output shapes
 and return it as a \code{list()} of length 1.
 It can also be assumed that the shape is not \code{NULL} (i.e. unknown).
-It should output a shape with exactly one NA in the first (batch) dimension or \code{NULL}if the output shape cannot be
-determined (e.g. because it is random).
+Also, the first dimension can be \code{NA}, i.e. is unknown (as for the batch dimension).
 }
 }
 
@@ -44,28 +44,39 @@ TODO:
 In addition to the parameters inherited from \code{\link{PipeOpTaskPreproc}} as well as those specified during construction
 as the argument \code{param_set} there are the following parameters:
 \itemize{
-\item \code{augment} :: \code{logical(1)}\cr
-(This parameter only exists of the \code{PipeOp}) is applied per column.
-Whether the to apply the preprocessing only during training (\code{TRUE}) or also during prediction (\code{FALSE}).
-This parameter is initialized to \code{FALSE}.
-}
-
+\item \code{stages} :: \code{character(1)}\cr
+The stages during which to apply the preprocessing.
+Can be one of \code{"train"}, \code{"predict"} or \code{"both"}.
+The initial value of this parameter is set to \code{"train"} when the \code{PipeOp}'s id starts with \code{"augment_"} and
+to \code{"both"} otherwise.
+o
 Note that the preprocessing that is applied during \verb{$predict()} uses the parameters that were set during
 \verb{$train()} and not those that are set when performing the prediction.
+}
 }
 
 \section{Internals}{
 
-A \code{\link{PipeOpModule}} with one input and one output channel is created.
-The pipeop simply applies the function \code{fn} to the input tensor while additionally
-passing the parameter values (minus \code{augment} and \code{affect_columns}) to \code{fn}.
-In addition, the new shapes are calculates using the \verb{$shapes_out()} method.
-Then, new lazy tensor columns with updated preprocessing graphs and metadata are created.
-This mechanism is very similar to the \code{\link{ModelDescriptor}} mechanism that is being used to construct
-neural network architectures. Read the (Internals) documentation of \code{\link{PipeOpTorch}} for this.
+During \verb{$train()} / \verb{$predict()}, a \code{\link{PipeOpModule}} with one input and one output channel is created.
+The pipeop applies the function \code{fn} to the input tensor while additionally
+passing the parameter values (minus \code{stages} and \code{affect_columns}) to \code{fn}.
+The preprocessing graph of the lazy tensor columns is shallowly cloned and the \code{PipeOpModule} is added.
+This is done to avoid modifying user input and means that identical \code{PipeOpModule}s can be part of different
+preprocessing graphs. This is possible, because the created \code{PipeOpModule} is stateless.
+At a later point, graphs will be merged if possible to avoid unnecessary computation.
+This is best illustrated by example:
+One lazy tensor column's preprocessing graph is \code{A -> B}.
+Then, two branches are created \code{B -> C} and \code{B -> D}, creating two preprocessing graphs
+\code{A -> B -> C} and \code{A -> B -> D}. When loading the data, we want to run the preprocessing only once, i.e.
+the \code{A -> B} part. For this reason, \code{\link[=task_dataset]{task_dataset()}} will try to merge graphs and cache results from graphs.
 
-We also add the shape that would be present during a \verb{$predict()} call, this information can later be used
-to check whether the train-preprocessing and the predict-preprocessing are compatible.
+Also, the shapes created during \verb{$train()} and \verb{$predict()} might differ.
+To avoid the creation of graphs where the predict shapes are incompatible with the train shapes,
+the hypothetical predict shapes are already calculated during \verb{$train()} (hence the parameters that are set during
+train are also used during predict) and the \code{\link{PipeOpTorchModel}} will check the train and predict shapes for
+compatibility before starting the training.
+
+Otherwise, this mechanism is very similar to the \code{\link{ModelDescriptor}} construct.
 }
 
 \examples{
@@ -81,15 +92,15 @@ taskin = as_task_regr(d, target = "y")
 
 # Creating a simple preprocessing pipeop
 po_simple = po("preproc_torch",
-  # use mlr3misc::crate to get rid of unnecessary environment baggage
+  # get rid of environment baggage
   fn = mlr3misc::crate(function(x, a) x + a),
-  param_set = ps(a = p_int(tags = c("train", "predict", "required")))
+  param_set = ps(a = p_int(tags = c("train", "required")))
 )
 
 po_simple$param_set$set_values(
   a = 100,
   affect_columns = selector_name(c("x1", "x2")),
-  augment = FALSE
+  stages = "both" # use during train and predict
 )
 
 taskout_train = po_simple$train(list(taskin))[[1L]]
@@ -99,7 +110,7 @@ taskout_predict_noaug = po_simple$predict(list(taskin))[[1L]]
 materialize(taskout_predict_noaug$data(cols = c("x1", "x2")), rbind = TRUE)
 
 po_simple$param_set$set_values(
-  augment = TRUE
+  stages = "train"
 )
 
 # transformation is not applied
@@ -107,56 +118,61 @@ taskout_predict_aug = po_simple$predict(list(taskin))[[1L]]
 materialize(taskout_predict_aug$data(cols = c("x1", "x2")), rbind = TRUE)
 
 # Creating a more complex preprocessing PipeOp
+po_poly = pipeop_preproc_torch(
+ public = list(
+   initialize = function(id = "preproc_poly", param_vals = list()) {
+     param_set = paradox::ps(
+       n_degree = paradox::p_int(lower = 1L, tags = c("train", "required"))
+     )
+     param_set$set_values(
+       n_degree = 1L
+     )
+     fn = mlr3misc::crate(function(x, n_degree) {
+       torch::torch_cat(
+         lapply(seq_len(n_degree), function(d) torch_pow(x, d)),
+         dim = 2L
+       )
+     })
 
-PipeOpPreprocTorchPoly = R6::R6Class("PipeOpPreprocTorchPoly",
-  inherit = PipeOpTaskPreprocTorch,
-  public = list(
-    initialize = function(id = "preproc_poly", param_vals = list()) {
-      param_set = paradox::ps(
-        n_degree = paradox::p_int(lower = 1L, tags = c("train", "required"))
-      )
-      param_set$set_values(
-        n_degree = 1L
-      )
-      fn = mlr3misc::crate(function(x, n_degree) {
-        torch::torch_cat(
-          lapply(seq_len(n_degree), function(d) torch_pow(x, d)),
-          dim = 2L
-        )
-      })
-
-      super$initialize(
-        fn = fn,
-        id = id,
-        packages = character(0),
-        param_vals = param_vals,
-        param_set = param_set
-      )
-    }
-  ),
-  private = list(
-    .shapes_out = function(shapes_in, param_vals, task) {
-      # shapes_in is a list of length 1 containing the shapes
-      checkmate::assert_true(length(shapes_in[[1L]]) == 2L)
-      if (shapes_in[[1L]][2L] != 1L) {
-        stop("Input shape must be (NA, 1)")
-      }
-      list(c(NA, param_vals$n_degree))
-    }
-  )
+     super$initialize(
+       fn = fn,
+       id = id,
+       packages = character(0),
+       param_vals = param_vals,
+       param_set = param_set
+     )
+   }
+ ),
+ private = list(
+   .shapes_out = function(shapes_in, param_vals, task) {
+     # shapes_in is a list of length 1 containing the shapes
+     checkmate::assert_true(length(shapes_in[[1L]]) == 2L)
+     if (shapes_in[[1L]][2L] != 1L) {
+       stop("Input shape must be (NA, 1)")
+     }
+     list(c(NA, param_vals$n_degree))
+   }
+ )
 )
 
 po_poly = PipeOpPreprocTorchPoly$new(
-  param_vals = list(n_degree = 3L, affect_columns = selector_name("x3"))
+ param_vals = list(n_degree = 3L, affect_columns = selector_name("x3"))
 )
 
 po_poly$shapes_out(list(c(NA, 1L)))
 
-taskout = po_poly$train(list(taskin))[[1L]]
+taskout = po_poly$train(list(tasken))[[1L]]
 materialize(taskout$data(cols = "x3"), rbind = TRUE)
 }
 \section{Super classes}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3pipelines:PipeOpTaskPreproc]{mlr3pipelines::PipeOpTaskPreproc}} -> \code{PipeOpTaskPreprocTorch}
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{fn}}{The preprocessing function.}
+}
+\if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -188,7 +204,8 @@ Creates a new instance of this \code{\link[R6:R6Class]{R6}} class.
   param_vals = list(),
   param_set = ps(),
   packages = character(0),
-  augment_init = FALSE
+  stages_init = "both",
+  rowwise = FALSE
 )}\if{html}{\out{</div>}}
 }
 
@@ -212,8 +229,12 @@ All tags should be set to \code{"train"}.}
 \item{\code{packages}}{(\code{character()})\cr
 The packages the preprocessing function depends on.}
 
-\item{\code{augment_init}}{(\code{logical(1)})\cr
-Initial value for the \code{augment} parameter.}
+\item{\code{stages_init}}{(\code{logical(1)})\cr
+Initial value for the \code{stages} parameter.}
+
+\item{\code{rowwise}}{(\code{logical(1)})\cr
+Whether the preprocessing function is applied rowwise (and then concatenated by row) or directly to the whole
+tensor.}
 }
 \if{html}{\out{</div>}}
 }
@@ -225,7 +246,7 @@ Initial value for the \code{augment} parameter.}
 Calculates the output shapes that would result in applying the preprocessing to one or more
 lazy tensor columns with the provided shape.
 Names are ignored and only order matters.
-It uses the parameeter values that are currently set.
+It uses the parameter values that are currently set.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{PipeOpTaskPreprocTorch$shapes_out(shapes_in, stage = NULL, task = NULL)}\if{html}{\out{</div>}}
 }
@@ -235,7 +256,8 @@ It uses the parameeter values that are currently set.
 \describe{
 \item{\code{shapes_in}}{(\code{list()} of (\code{integer()} or \code{NULL}))\cr
 The input input shapes of the lazy tensors.
-\code{NULL} indicates that the shape is unknown.}
+\code{NULL} indicates that the shape is unknown.
+First dimension must be \code{NA}.}
 
 \item{\code{stage}}{(\code{character(1)})\cr
 The stage: either \code{"train"} or \code{"predict"}.}

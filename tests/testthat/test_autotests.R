@@ -1,4 +1,6 @@
 test_that("auto_paramtest works", {
+  # ficx
+
   # captures missing parameters
   f1 = function(x, y) NULL
   ps1 = ps(x = p_uty())

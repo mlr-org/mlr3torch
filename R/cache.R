@@ -25,7 +25,7 @@ get_cache_dir = function(cache = NULL) {
   }
 
   assert(check_directory_exists(cache), check_path_for_output(cache))
-  normalizePath(cache, mustWork = FALSE)
+  fs::path_norm(cache)
 }
 
 #' Initializes the cache directory.
@@ -37,7 +37,7 @@ get_cache_dir = function(cache = NULL) {
 #'
 #' @noRd
 initialize_cache = function(cache_dir) {
-  if (isFALSE(cache_dir) || cache_dir %in% CACHE$initialized) {
+  if (isFALSE(cache_dir) || (file.exists(cache_dir) && fs::path_real(cache_dir) %in% CACHE$initialized)) {
     lg$debug("Skipping initialization of cache", cache_dir = cache_dir)
     return(TRUE)
   }
@@ -70,7 +70,7 @@ initialize_cache = function(cache_dir) {
     writeLines(jsonlite::toJSON(CACHE$versions, auto_unbox = TRUE), con = cache_file)
   }
 
-  CACHE$initialized = c(CACHE$initialized, cache_dir)
+  CACHE$initialized = c(CACHE$initialized, fs::path_real(cache_dir))
 
   return(TRUE)
 }
@@ -80,12 +80,12 @@ cached = function(constructor, type, name) {
   initialize_cache(cache_dir)
   assert_choice(type, names(CACHE$versions))
 
-  cache = !isFALSE(cache_dir)
+  do_caching = !isFALSE(cache_dir)
 
   # Even when we don't cache, we need to store the data somewhere
-  path = if (cache) file.path(cache_dir, type, name) else tempfile()
+  path = fs::path_norm(if (do_caching) file.path(cache_dir, type, name) else tempfile())
 
-  if (cache && dir.exists(path)) {
+  if (do_caching && dir.exists(path)) {
     # we cache and there is a cache hit
     data = readRDS(file.path(path, "data.rds"))
     output = list(data = data, path = path)
@@ -109,7 +109,7 @@ cached = function(constructor, type, name) {
 
   # now path/raw exists
 
-  if (cache) {
+  if (do_caching) {
     # store the processed data in case there is a cache hit, so next time we don't need the postprocessing
     # that comes after downloading the data
     saveRDS(data, file = file.path(path, "data.rds"))
@@ -123,6 +123,6 @@ clear_mlr3torch_cache = function() {
     return(FALSE)
   }
   unlink(get_cache_dir(), recursive = TRUE)
-  CACHE$initialized = setdiff(CACHE$initialized, get_cache_dir())
+  CACHE$initialized = setdiff(CACHE$initialized, fs::path_norm(get_cache_dir()))
   return(TRUE)
 }

@@ -2,7 +2,7 @@ nano_dogs_vs_cats = function(id = "nano_dogs_vs_cats") {
   assert_string(id)
   path = testthat::test_path("assets", "nano_dogs_vs_cats")
   image_names = list.files(path)
-  uris = normalizePath(file.path(path, image_names))
+  uris = fs::path_norm(file.path(path, image_names))
 
   ds = dataset("dogs_vs_cats",
     initialize = function(uris) {
@@ -79,7 +79,7 @@ nano_imagenet = function(id = "nano_imagenet") {
 
   path = testthat::test_path("assets", "nano_imagenet")
   image_names = list.files(path)
-  uris = normalizePath(file.path(path, image_names))
+  uris = fs::path_norm(file.path(path, image_names))
 
   images = imageuri(uris)
 

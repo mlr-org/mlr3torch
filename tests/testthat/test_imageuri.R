@@ -2,7 +2,7 @@ test_that("imageuri works", {
   cls = c("imageuri", "character")
   path = testthat::test_path("assets", "nano_mnist")
   image_names = list.files(path)
-  uris = normalizePath(file.path(path, image_names))
+  uris = fs::path_norm(file.path(path, image_names))
 
   img1 = uris[[1]]
   img2 = uris[[2]]

@@ -111,7 +111,7 @@ test_that("train handles multiple input channels correctly", {
   expect_equal(mdout2$.pointer_shape, c(NA, 3))
 })
 
-test_that("shapes_out works", {
+test_that("shapes_out", {
   obj = po("nn_linear", out_features = 3)
 
   # single input
@@ -125,7 +125,7 @@ test_that("shapes_out works", {
   obj1$param_set$set_values(d_out1 = 2, d_out2 = 3)
 
   expect_equal(obj1$shapes_out(list(c(NA, 99), c(NA, 3))), list(output1 = c(NA, 2), output2 = c(NA, 3)))
-  expect_error(obj1$shapes_out(list(c(NA, 99))), regexp = "Must have length 2")
+  expect_error(obj1$shapes_out(list(c(NA, 99))), regexp = "number of input")
 })
 
 test_that("PipeOpTorch errs when there are unexpected NAs in the shape", {

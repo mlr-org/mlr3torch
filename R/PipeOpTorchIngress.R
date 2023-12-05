@@ -324,9 +324,8 @@ register_po("torch_ingress_img", PipeOpTorchIngressImage)
 #'
 #' @section Parameters:
 #' * `shape` :: `integer()`\cr
-#'   The shape of the tensor, excluding the batch dimension.
+#'   The shape of the tensor, where the first dimension (batch) must be `NA`.
 #'   Whether it is necessary to specify the shape depends on whether the lazy tensor input column has a known shape.
-#'   If the input shape is known, this parameter can be set, but must match the input shape.
 #'
 #' @section Internals:
 #' The returned batchgetter materializes the lazy tensor column to a tensor.
@@ -376,7 +375,6 @@ register_po("torch_ingress_img", PipeOpTorchIngressImage)
 #' )
 #'
 #' x_batch2
-#'
 PipeOpTorchIngressLazyTensor = R6Class("PipeOpTorchIngressLazyTensor",
   inherit = PipeOpTorchIngress,
   public = list(
@@ -385,8 +383,9 @@ PipeOpTorchIngressLazyTensor = R6Class("PipeOpTorchIngressLazyTensor",
     #' @template params_pipelines
     initialize = function(id = "torch_ingress_ltnsr", param_vals = list()) {
       param_set = ps(
-        shape = p_uty(tags = "train", custom_check = check_shape)
-      )
+        shape = p_uty(tags = "train", custom_check = crate(
+          function(x) check_shape(x, null_ok = FALSE, unknown_batch = TRUE)))
+        )
       super$initialize(id = id, param_vals = param_vals, feature_types = "lazy_tensor", param_set = param_set)
     }
   ),
@@ -407,7 +406,7 @@ PipeOpTorchIngressLazyTensor = R6Class("PipeOpTorchIngressLazyTensor",
         return(pv_shape)
       }
 
-      if (!is.null(pv_shape) && isTRUE(all.equal(pv_shape, input_shape))) {
+      if (!is.null(pv_shape) && !isTRUE(all.equal(pv_shape, input_shape))) {
         stopf("Parameter 'shape' is set for PipeOp '%s', but differs from the (known) lazy tensor input shape.", self$id) # nolint
       }
 
@@ -420,8 +419,6 @@ PipeOpTorchIngressLazyTensor = R6Class("PipeOpTorchIngressLazyTensor",
 )
 
 batchgetter_lazy_tensor = function(data, device, cache) {
-  # FIXME: Should we here check for the shapes?
-  # If the user set them wrong, the network should fail anyway
   materialize_internal(x = data[[1L]], device = device, cache = cache, rbind = TRUE)
 }
 

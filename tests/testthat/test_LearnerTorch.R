@@ -200,7 +200,7 @@ test_that("train parameters do what they should: classification and regression",
     epochs = sample(3, 1)
     batch_size = sample(16, 1)
     shuffle = sample(c(TRUE, FALSE), 1)
-    num_threads = sample(2, 1)
+    num_threads = if (running_on_mac()) 1L else sample(2, 1)
     drop_last = sample(c(TRUE, FALSE), 1)
     seed = sample.int(10, 1)
     measures_train = msrs(paste0(measure_ids[sample(c(TRUE, FALSE, TRUE), 3, replace = FALSE)]))
@@ -230,7 +230,9 @@ test_that("train parameters do what they should: classification and regression",
     internals = learner$model$callbacks$internals
     ctx = internals$ctx1
 
-    expect_equal(num_threads, internals$num_threads)
+    if (!running_on_mac()) {
+      expect_equal(num_threads, internals$num_threads)
+    }
     expect_equal(ctx$loader_train$batch_size, batch_size)
     expect_equal(ctx$loader_valid$batch_size, batch_size)
     expect_equal(ctx$total_epochs, epochs)
@@ -319,7 +321,7 @@ test_that("predict parameters do what they should: classification and regression
   )
 
   f = function(task_type) {
-    num_threads = sample(2, 1)
+    num_threads = if (running_on_mac()) 1L else sample(2, 1)
     batch_size = sample(16, 1)
     learner = lrn(paste0(task_type, ".torch_featureless"), epochs = 1, callbacks = callback,
       num_threads = num_threads,
@@ -330,7 +332,9 @@ test_that("predict parameters do what they should: classification and regression
     learner$train(task)
     internals = learner$model$callbacks$internals
     ctx = internals$ctx1
-    expect_equal(num_threads, internals$num_threads)
+    if (!running_on_mac()) {
+      expect_equal(num_threads, internals$num_threads)
+    }
 
     learner$param_set$set_values(device = "meta")
     try(learner$predict(task), silent = TRUE)
@@ -384,7 +388,7 @@ test_that("Input verification works during `$train()` (train-predict shapes work
   task = nano_mnist()
 
   task_invalid = po("trafo_resize", size = c(10, 10), stages = "train") $train(list(task))[[1L]]
-  task_valid = po("trafo_resize", size = c(10, 10), stages = c("train", "predict")) $train(list(task))[[1L]]
+  task_valid = po("trafo_resize", size = c(10, 10), stages = "both") $train(list(task))[[1L]]
 
   learner = lrn("classif.torch_featureless",
     batch_size = 1L, epochs = 0L

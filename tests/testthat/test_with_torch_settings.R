@@ -1,12 +1,12 @@
-skip_if(running_on_mac())
-# Threads must be 1 on macOS per ?torch_set_num_threads
-
 test_that("with_torch_settings leaves global state untouched", {
-  # Function to reset the torch manual seed cannot yet be used (wait for release after 0.10.0)
   runif(1)
 
-  prev_num_threads = 10
-  torch_set_num_threads(prev_num_threads)
+  if (!running_on_mac()) {
+    prev_num_threads = 10
+    torch_set_num_threads(prev_num_threads)
+  } else {
+    prev_num_threads = 1
+  }
   prev_seed = get0(".Random.seed", globalenv(), mode = "integer", inherits = FALSE)
   prev_torch_rng_state = torch_get_rng_state()
 

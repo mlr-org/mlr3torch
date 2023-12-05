@@ -167,7 +167,7 @@ test_that("materialize_internal: set_keep_results works", {
 
 })
 
-test_that("PipeOpFeatureUnion can properly check whether to lazy tensors are identical", {
+test_that("PipeOpFeatureUnion can properly check whether two lazy tensors are identical", {
   # when lazy_tensor only stored the integers in the vec_data() (and not integer + hash) this test failed
   task = tsk("lazy_iris")
 

@@ -9,7 +9,9 @@ pipeop_preproc_torch_class(
   fn,
   shapes_out,
   param_set = NULL,
-  packages = character(0)
+  packages = character(0),
+  init_params = list(),
+  rowwise = FALSE
 )
 }
 \arguments{
@@ -19,11 +21,12 @@ The id for of the new object.}
 \item{fn}{(\code{function})\cr
 The preprocessing function.}
 
-\item{shapes_out}{(\code{function} or \code{NULL} or "infer")\cr
+\item{shapes_out}{(\code{function} or \code{NULL} or \code{"infer"} or \code{"unchanged"})\cr
 The private \code{.shapes_out(shapes_in, param_vals, task)} method of \code{\link{PipeOpTaskPreprocTorch}}
 (see section Inheriting).
-If \code{NULL}, the pipeop does not change the output shapes.
-If \code{TRUE}, the output shape function is inferred and calculates the output shapes as follows:
+Special values are \code{NULL} and \code{infer}:
+If \code{NULL}, the output shapes are unknown.
+If "infer", the output shape function is inferred and calculates the output shapes as follows:
 For an input shape of (NA, ...) a meta-tensor of shape (1, ...) is created and the preprocessing function is
 applied. Afterwards the batch dimension (1) is replaced with NA and the shape is returned.
 
