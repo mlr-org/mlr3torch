@@ -292,5 +292,5 @@ test_that("caching of graph works", {
 
   ds$.getbatch(1)
   env$counter
-  expect_equal(envc$counter, 1L)
+  expect_equal(env$counter, 1L)
 })

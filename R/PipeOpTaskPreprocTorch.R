@@ -180,6 +180,8 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
       private$.fn = assert_function(fn)
       private$.rowwise = assert_flag(rowwise)
 
+      param_set = assert_param_set(param_set$clone(deep = TRUE))
+
       param_set$add(ps(
         stages = p_fct(c("train", "predict", "both"), tags = c("train", "required"))
       ))
@@ -371,7 +373,7 @@ pipeop_preproc_torch = function(id, fn, shapes_out, param_set = NULL, param_vals
   rowwise = FALSE) {
   pipeop_preproc_torch_class(
     id = id,
-    fn = if (is.language(fn)) fn else subs,
+    fn = if (is.language(fn)) fn else substitute(fn),
     shapes_out = shapes_out,
     param_set = if (is.language(param_set)) param_set else substitute(param_set),
     packages = if (is.language(packages)) packages else substitute(packages),
@@ -439,7 +441,7 @@ create_ps_call = function(fn) {
 #' po_example$param_set
 pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, packages = character(0),
   init_params = list(),
-  rowwise = FALSE) {
+  rowwise = FALSE, parent_env = parent.frame()) {
   assert(
     check_function(shapes_out, args = c("shapes_in", "param_vals", "task"), null.ok = TRUE),
     check_choice(shapes_out, c("infer", "unchanged"))
@@ -451,11 +453,11 @@ pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, pack
     }
   } else {
     # This should add required tags where it is applicable
-    param_set = create_ps_call(rlang::eval_tidy(fn))
+    param_set = create_ps_call(eval(fn, envir = parent_env))
   }
 
   if (!is.language(init_params)) init_params = substitute(init_params)
-  if (!rlang::is_quosure(fn)) fn = rlang::quo(fn)
+  if (!is.language(fn)) fn = substitute(fn)
 
   classname = paste0("PipeOpPreprocTorch", paste0(capitalize(strsplit(id, split = "_")[[1L]]), collapse = ""))
   # Note that we don't set default values
@@ -468,7 +470,7 @@ pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, pack
       if (batchdim_is_unknown) {
         sin[1] = 1L
       }
-      if (rowwise) {
+      if (self$rowwise) {
         sin = sin[-1L]
       }
       tensor_in = invoke(torch_empty, .args = sin, device = torch_device("meta"))
@@ -479,14 +481,14 @@ pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, pack
       )
       sout = dim(tensor_out)
 
-      if (rowwise) {
+      if (self$rowwise) {
         sout = c(batch_dim, sout)
       } else if (batchdim_is_unknown) {
         sout[1] = NA
       }
 
       list(sout)
-    }, rowwise, .parent = environment(rlang::eval_tidy(fn)))
+    })
     # FIXME: NSE issues, we need to evaluate fn in the proper environment,
     # I guess we can use this quosure idea that
   } else if (identical(shapes_out, "unchanged")) {
@@ -521,7 +523,7 @@ pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, pack
   body(init_fun)[[2]][[3]] = param_set
   body(init_fun)[[3]][[3]] = init_params
   body(init_fun)[[4]][[3]] = packages
-  body(init_fun)[[4]][[6]] = as.expression(fn)
+  body(init_fun)[[4]][[6]] = fn
   body(init_fun)[[4]][[7]] = rowwise
   body(init_fun)[[4]][[8]] = stages_init
 
@@ -530,15 +532,16 @@ pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, pack
     public = list(
       initialize = init_fun
     ),
-    private = if (!is.null(shapes_out)) list(.shapes_out = shapes_out) else list()
+    private = if (!is.null(shapes_out)) list(.shapes_out = shapes_out) else list(),
+    parent_env = parent_env
   )
 
   return(Class)
 }
 
 register_preproc = function(id, fn, param_set = NULL, shapes_out = NULL, packages = character(0), rowwise = FALSE) {
-  Class = pipeop_preproc_torch_class(id, rlang::quo(fn), param_set = substitute(param_set), shapes_out = shapes_out,
-    packages = packages, rowwise = rowwise)
+  Class = pipeop_preproc_torch_class(id, substitute(fn), param_set = substitute(param_set), shapes_out = shapes_out,
+    packages = packages, rowwise = rowwise, parent_env = parent.frame())
   assign(Class$classname, Class, parent.frame())
   register_po(id, Class)
 }
