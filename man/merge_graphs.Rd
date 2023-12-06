@@ -4,7 +4,7 @@
 \alias{merge_graphs}
 \title{note that this mo}
 \usage{
-merge_graphs(g1, g2, in_place = FALSE)
+merge_graphs(g1, g2)
 }
 \description{
 note that this mo

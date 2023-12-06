@@ -4,13 +4,7 @@
 \alias{materialize_internal}
 \title{Materialize a Lazy Tensor}
 \usage{
-materialize_internal(
-  x,
-  device = "cpu",
-  cache = NULL,
-  set_keep_results = is.null(cache),
-  rbind
-)
+materialize_internal(x, device = "cpu", cache = NULL, rbind)
 }
 \arguments{
 \item{x}{(\code{\link[=lazy_tensor]{lazy_tensor()}})\cr
@@ -22,13 +16,6 @@ The device to put the materialized tensor on (after running the preprocessing gr
 \item{cache}{(\code{NULL} or \code{environment()})\cr
 Whether to cache the (intermediate) results of the materialization.
 This can make data loading faster when multiple \code{lazy_tensor}s reference the same dataset or graph.}
-
-\item{set_keep_results}{(\code{logical(1)})\cr
-In some cases, the \code{.pointer} of a \code{\link{DataDescriptor}} might point to a non-terminal node in which case the
-this result is not part of the output of the \code{\link{Graph}}.
-Therefore we have to include this as part of the \code{keep_results} field of the \code{\link{Graph}}.
-When caching is done, this should be set to \code{FALSE} as otherwise data will be discarded that might be relevant
-for materializing other lazy tensor columns.}
 
 \item{rbind}{(\code{logical(1)})\cr
 Whtether to rbind the resulting tensors (\code{TRUE}) or return them as a list of tensors (\code{FALSE}).}

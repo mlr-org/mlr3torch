@@ -38,15 +38,22 @@ new_lazy_tensor = function(data_descriptor, ids) {
 #' @export
 format.lazy_tensor = function(x, ...) { # nolint
   if (!length(x)) return(character(0))
-  shape = x$data_descriptor$.pointer_shape
+  shape = dd(x)$.pointer_shape
   shape = if (is.null(shape)) {
     return(rep("<tnsr[]>", length(x)))
   }
-  shape = paste0(x$data_descriptor$.pointer_shape[-1L], collapse = "x")
+  shape = paste0(dd(x)$.pointer_shape[-1L], collapse = "x")
 
   map_chr(x, function(elt) {
     sprintf("<tnsr[%s]>", shape)
   })
+}
+
+dd = function(x) {
+  if (!length(x)) {
+    stopf("Cannot access data descriptor when lazy_tensor has length 0.")
+  }
+  x[[1L]][[2L]]
 }
 
 
@@ -97,7 +104,6 @@ as_lazy_tensor.torch_tensor = function(x) { # nolint
   as_lazy_tensor(ds, dataset_shapes = list(x = c(NA, dim(x)[-1])))
 }
 
-
 #' @export
 vec_ptype_abbr.lazy_tensor <- function(x, ...) { # nolint
   "ltnsr"
@@ -146,11 +152,11 @@ is_lazy_tensor = function(x) {
 #' lt_plus_five = transform_lazy_tensor(lt, add_five, c(NA, 1))
 #' torch_cat(list(materialize(lt, rbind = TRUE),  materialize(lt_plus_five, rbind = TRUE)), dim = 2)
 #' # graph is cloned
-#' identical(lt$graph, lt_plus_five$graph)
-#' lt$graph$edges
-#' lt_plus_five$graph_edges
+#' identical(lt[[1]][[2]]$graph, lt_plus_five[[1]][[2]]$graph)
+#' lt[[1]][[2]]$graph$edges
+#' lt_plus_five[[1]][[2]]$graph$edges
 #' # pipeops are not cloned
-#' identical(lt$graph$pipeops[[1]], lt_plus_five$graph[[1]])
+#' identical(lt[[1]][[2]]$graph$pipeops[[1]], lt_plus_five[[1]][[2]]$graph[[1]])
 #' @noRd
 transform_lazy_tensor = function(lt, pipeop, shape, shape_predict = NULL) {
   assert_lazy_tensor(lt)
@@ -161,9 +167,9 @@ transform_lazy_tensor = function(lt, pipeop, shape, shape_predict = NULL) {
   # shape_predict can be NULL if we transform a tensor during `$predict()` in PipeOpTaskPreprocTorch
   assert_shape(shape_predict, null_ok = TRUE, unknown_batch = TRUE)
 
-  data_descriptor = lt$data_descriptor
+  data_descriptor = dd(lt)
 
-  graph = data_descriptor$graph$clone(deep= FALSE)
+  graph = data_descriptor$graph$clone(deep = FALSE)
   graph$edges = copy(data_descriptor$graph$edges)
 
   graph$add_pipeop(pipeop, clone = FALSE)
@@ -190,9 +196,12 @@ transform_lazy_tensor = function(lt, pipeop, shape, shape_predict = NULL) {
 
 #' @export
 `$.lazy_tensor` = function(x, name) {
+  # FIXME: remove this method
+  #stop("Not supported anymore")
   if (!length(x)) {
     stop("lazy tensor has length 0.")
   }
+
   dd = x[[1L]][[2L]]
   if (name == "data_descriptor") {
     return(dd)

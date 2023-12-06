@@ -261,43 +261,36 @@ test_that("default target batchgetter works: classification", {
   expect_equal(y_loaded1$device$type, "meta")
 })
 
-test_that("get_batchgetter_img works", {
-  task = nano_imagenet()
-  batchgetter = get_batchgetter_img(imgshape = c(3, 64, 64))
+test_that("caching of graph works", {
+  env = new.env()
+  env$counter = 0L
+  fn = crate(function(x) {
+    env$counter = env$counter + 1L
+    match.call()
+    print(x)
+    x + 1
+  }, env)
+  po_test = pipeop_preproc_torch("test", fn  = fn , shapes_out = "unchanged")
 
-  dat = task$data(1:2, task$feature_names)
+  taskin = tsk("lazy_iris")
 
-  batch = batchgetter(dat, "cpu")
-  expect_equal(batch$shape, c(2, 3, 64, 64))
-  expect_equal(batch$device$type, "cpu")
-  expect_true(batch$dtype == torch_float())
+  graph = po_test %>>%
+    list(
+      po("trafo_nop_1") %>>% po("renamecolumns", renaming = c(x = "z")),
+      po("trafo_nop_2")) %>>%
+    po("featureunion")
 
-  batchgetter_wrong = get_batchgetter_img(imgshape = c(64, 64))
-  expect_error(batchgetter_wrong(dat), regexp = "imgshape")
+  task = graph$train(taskin)[[1L]]
 
-  batch1 = batchgetter(dat, "meta")
-  expect_true(batch1$device$type == "meta")
-})
+  ingress_tokens = list(
+    z = TorchIngressToken("z", batchgetter_lazy_tensor, c(NA, 4)),
+    x = TorchIngressToken("x", batchgetter_lazy_tensor, c(NA, 4))
+  )
 
-test_that("dataset_img works", {
-  task = nano_imagenet()
-  ds = dataset_img(task, list(device = "cpu", channels = 3, height = 64, width = 64))
+  ds = task_dataset(task, ingress_tokens, device = "cpu")
+  ds
 
-  batch = ds$.getbatch(1:2)
-  expect_equal(batch$x$image$shape, c(2, 3, 64, 64))
-  expect_equal(batch$x$image$device$type, "cpu")
-  expect_true(batch$x$image$dtype == torch_float())
-
-  ds_meta = dataset_img(task, list(device = "meta", channels = 3, height = 64, width = 64))
-  batch_meta = ds_meta$.getbatch(1)
-  expect_true(batch_meta$x$image$device$type == "meta")
-})
-
-
-test_that("caching works", {
-  # TODO
-})
-
-test_that("merging of graphs works as expected", {
-  # TODO
+  ds$.getbatch(1)
+  env$counter
+  expect_equal(envc$counter, 1L)
 })

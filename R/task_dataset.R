@@ -43,47 +43,36 @@
 task_dataset = dataset(
   initialize = function(task, feature_ingress_tokens, target_batchgetter = NULL, device) {
     self$task = assert_r6(task$clone(deep = TRUE), "Task")
-    self$feature_ingress_tokens = assert_list(feature_ingress_tokens, types = "TorchIngressToken", names = "unique")
-
-    lazy_tensor_features = self$task$feature_types[get("type") == "lazy_tensor"][[1L]]
-    self$cache_lazy_tensors = length(lazy_tensor_features) > 1L
-
-
-    # Here, we could have multiple `lazy_tensor` columns that share parts of the graph
-    # We try to merge those graphs if possible
-
-    # FIXME: This must be tested, I don't think it works yet
-    if (length(lazy_tensor_features) > 1L) {
-      stopf("Not working yet I think")
-      # TODO: Inspect hashes of data descriptors to check whether caching is possible
-      first_row = self$task$data(self$task$row_ids[1L], cols = lazy_tensor_features)
-      # attr no longer exists
-      # graphs = map(first_row, function(x) attr(x, "data_descriptor")$graph)
-      graphs = graphs[!duplicated(graphs)]
-      graphs[[1L]] = graphs[[1L]]$clone(deep = TRUE)
-      merged_graph = try(Reduce(function(x, y) merge_graphs(x, y, in_place = TRUE), graphs), silent = TRUE)
-
-      if (!inherits(merged_graph, "try-error")) {
-        data = self$task$data(cols = lazy_tensor_features)
-        data = map_dtc(data, function(x) {
-          #attr(x, "data_descriptor")$graph = merged_graph
-          # attr no longer exists
-          x
-        })
-        task$cbind(data)
-      }
-    }
-
     iwalk(feature_ingress_tokens, function(it, nm) {
       if (length(it$features) == 0) {
         stopf("Received ingress token '%s' with no features.", nm)
       }
     })
-
+    self$feature_ingress_tokens = assert_list(feature_ingress_tokens, types = "TorchIngressToken", names = "unique")
     self$all_features = unique(c(unlist(map(feature_ingress_tokens, "features")), task$target_names))
     assert_subset(self$all_features, c(task$target_names, task$feature_names))
     self$target_batchgetter = assert_function(target_batchgetter, args = c("data", "device"), null.ok = TRUE)
     self$device = assert_choice(device, mlr_reflections$torch$devices)
+
+    lazy_tensor_features = self$task$feature_types[get("type") == "lazy_tensor"][[1L]]
+
+    data = self$task$data(cols = lazy_tensor_features)
+
+    # Here, we could have multiple `lazy_tensor` columns that share parts of the graph
+    # We try to merge those graphs if possible
+    if (length(lazy_tensor_features) > 1L) {
+      merge_result = try(merge_lazy_tensor_graphs(data), silent = TRUE)
+
+      if (inherits(merge_result, "try-error")) {
+        # This should basically never happen
+        lg$warn("Failed to merge data descriptor, this might leady to inefficient preprocessing.")
+        # TODO: test that is still works when this triggers
+      } else {
+        self$task$cbind(merge_result)
+      }
+
+    }
+    self$cache_lazy_tensors = length(unique(map_chr(data, function(x) x$.hash))) > 1L
   },
   .getbatch = function(index) {
     cache = if (self$cache_lazy_tensors) new.env()
@@ -104,14 +93,61 @@ task_dataset = dataset(
   }
 )
 
-dataset_img = function(task, param_vals) {
-  # TODO: Maybe we want to be more careful here to avoid changing parameters between train and predict
-  # Instead use the param vals stored in the state?
-  imgshape = c(param_vals$channels, param_vals$height, param_vals$width)
+merge_lazy_tensor_graphs = function(lts) {
+  # Otherwise it is ugly to do the caching of the data loading
+  # and this is not really a strong restriction
+  assert_true(length(unique(map_chr(lts, function(x) dd(x)$.dataset_hash))) == 1L)
 
-  batchgetter = get_batchgetter_img(imgshape)
+  graph = Reduce(merge_graphs, map(lts, function(x) dd(x)$graph))
+  input_map = Reduce(c, map(lts, function(lt) {
+    set_names(list(dd(lt)$.input_map), dd(lt)$graph$input$name)
+  }))
+  input_map = input_map[unique(names(input_map))]
 
-  ingress_tokens = list(image = TorchIngressToken(task$feature_names, batchgetter, imgshape))
+  input_map = unname(unlist(input_map[graph$input$name]))
+
+
+  # some PipeOs that were previously terminal might not be anymore,
+  # for those we add nops and updaate the pointers for their data descriptors
+  map_dtc(lts, function(lt) {
+    pointer_name = paste0(lt$.pointer, collapse = ".")
+
+    pointer = if (pointer_name %nin% graph$output$name) {
+      po_terminal = po("nop", id = uniqueify(pointer_name, graph$ids()))
+      graph$add_pipeop(po_terminal, clone = FALSE)
+      graph$add_pipeop(
+        src_id = lt$.pointer[1L],
+        dst_id = po_terminal$id,
+        src_channel = lt$.pointer[2L],
+        dst_channel = po_terminal$input$name
+      )
+
+      c(po_terminal$id, po_terminal$output$name)
+    } else {
+      lt$.pointer
+    }
+
+    data_descriptor = DataDescriptor(
+      dataset = dd(lts[[1]])$dataset,
+      dataset_shapes = dd(lts[[1L]])$dataset_shapes,
+      graph = graph,
+      .input_map = input_map,
+      .pointer = pointer,
+      .pointer_shape = lt$.pointer_shape,
+      .pointer_shape_predict = lt$.pointer_shape_predict,
+      clone_graph = FALSE
+    )
+    new_lazy_tensor(data_descriptor, map_int(vec_data(lt), 1L))
+  })
+}
+
+dataset_ltnsr = function(task, param_vals) {
+  assert_true(length(task$feature_names) == 1L)
+  shape = dd(task$data(cols = task$feature_names)[[1L]])$.pointer_shape
+  if (is.null(shape)) {
+    stopf("Each row element of the lazy tensor column must be of a known shape, please resize it accordingly.")
+  }
+  ingress_tokens = list(image = TorchIngressToken(task$feature_names, batchgetter_lazy_tensor, shape))
 
   task_dataset(
     task,
@@ -198,18 +234,6 @@ batchgetter_categ = function(data, device, ...) {
     dtype = torch_long(),
     device = device
   )
-}
-
-
-get_batchgetter_img = function(imgshape) {
-  crate(function(data, device, ...) {
-    tensors = lapply(data[[1]], function(uri) {
-      tnsr = torchvision::transform_to_tensor(magick::image_read(uri))
-      assert_true(length(tnsr$shape) == length(imgshape) && all(tnsr$shape == imgshape))
-      torch_reshape(tnsr, imgshape)$unsqueeze(1)
-    })
-    torch_cat(tensors, dim = 1)$to(device = device)
-  }, imgshape, .parent = topenv())
 }
 
 target_batchgetter_classif = function(data, device) {

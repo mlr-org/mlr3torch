@@ -48,6 +48,8 @@ Imports:
     data.table,
     paradox (>= 0.11.0),
     R6,
+    rlang,
+    vctrs,
     withr
 Suggests:
     callr,
@@ -85,6 +87,7 @@ Collate:
     'CallbackSetProgress.R'
     'ContextTorch.R'
     'DataBackendLazy.R'
+    'utils.R'
     'DataDescriptor.R'
     'LearnerTorch.R'
     'LearnerTorchImage.R'
@@ -104,7 +107,6 @@ Collate:
     'PipeOpTorchConvTranspose.R'
     'PipeOpTorchDropout.R'
     'PipeOpTorchHead.R'
-    'utils.R'
     'PipeOpTorchIngress.R'
     'PipeOpTorchLayerNorm.R'
     'PipeOpTorchLinear.R'
@@ -124,7 +126,6 @@ Collate:
     'TorchOptimizer.R'
     'bibentries.R'
     'cache.R'
-    'imageuri.R'
     'lazy_tensor.R'
     'learner_torch_methods.R'
     'materialize.R'

@@ -53,37 +53,15 @@ materialize.list = function(x, device = "cpu", rbind = FALSE, cache = "auto") { 
   assert(check_choice(cache, "auto"), check_environment(cache, null.ok = TRUE))
 
   if (identical(cache, "auto")) {
-    data_hashes = map_chr(x_lt, function(x) x$.dataset_hash)
+    data_hashes = map_chr(x_lt, function(x) dd(x)$.dataset_hash)
     hashes = map_chr(x_lt, function(x) x$.hash)
     cache = if (uniqueN(data_hashes) > 1L || uniqueN(hashes) > 1L) {
       new.env()
     }
   }
-
-  # if we are materializing more than one lazy tensor, we must specify what we want to keep from the graph
-  # BEFORE calling materialize_internal because materialize_internal does not know about the other columns
-  keep_results_prev = list()
-  keep_results_prev = map(x_lt, function(x) {
-    graph = x$graph
-    keep_results = graph$keep_results
-    graph$keep_results = character(0)
-    return(keep_results)
-  })
-  on.exit({
-    walk(seq_along(x_lt), function(i) {
-      graph = x_lt[[i]]$graph
-      graph$keep_results = keep_results_prev[[i]]
-    })
-  }, add = TRUE)
-
-  walk(x_lt, function(col) {
-    graph = col$graph
-    graph$keep_results = union(graph$keep_results, col$.pointer[1L])
-  })
-
   map(x, function(col) {
     if (is_lazy_tensor(col)) {
-      materialize_internal(col, device = device, cache = cache, set_keep_results = FALSE, rbind = rbind)
+      materialize_internal(col, device = device, cache = cache, rbind = rbind)
     } else {
       col
     }
@@ -102,7 +80,7 @@ materialize.data.frame = function(x, device = "cpu", rbind = FALSE, cache = "aut
 
 #' @export
 materialize.lazy_tensor = function(x, device = "cpu", rbind = FALSE) { # nolint
-  materialize_internal(x = x, device = device, cache = NULL, set_keep_results = TRUE, rbind = rbind)
+  materialize_internal(x = x, device = device, cache = NULL, rbind = rbind)
 }
 
 #' @title Materialize a Lazy Tensor
@@ -130,43 +108,32 @@ materialize.lazy_tensor = function(x, device = "cpu", rbind = FALSE) { # nolint
 #' @param cache (`NULL` or `environment()`)\cr
 #'   Whether to cache the (intermediate) results of the materialization.
 #'   This can make data loading faster when multiple `lazy_tensor`s reference the same dataset or graph.
-#' @param set_keep_results (`logical(1)`)\cr
-#'   In some cases, the `.pointer` of a [`DataDescriptor`] might point to a non-terminal node in which case the
-#'   this result is not part of the output of the [`Graph`].
-#'   Therefore we have to include this as part of the `keep_results` field of the [`Graph`].
-#'   When caching is done, this should be set to `FALSE` as otherwise data will be discarded that might be relevant
-#'   for materializing other lazy tensor columns.
 #' @param rbind (`logical(1)`)\cr
 #'   Whtether to rbind the resulting tensors (`TRUE`) or return them as a list of tensors (`FALSE`).
 #' @return [`lazy_tensor()`]
 #' @keywords internal
-materialize_internal = function(x, device = "cpu", cache = NULL, set_keep_results = is.null(cache), rbind) {
+materialize_internal = function(x, device = "cpu", cache = NULL, rbind) {
   if (!length(x)) {
     stopf("Cannot materialize lazy tensor of length 0.")
   }
   do_caching = !is.null(cache)
   ids = map_int(vec_data(x), 1)
 
-  data_descriptor = x$data_descriptor
+  data_descriptor = dd(x)
   ds = data_descriptor$dataset
   graph = data_descriptor$graph
-  varying_shapes = some(data_descriptor$dataset_shapes, function(shape) all(is.na(shape)))
+  varying_shapes = some(data_descriptor$dataset_shapes, is.null)
 
-  if (set_keep_results) {
-    prev_results = graph$keep_results
-    on.exit({graph$keep_results = prev_results}, add = TRUE) # nolint
-    graph$keep_results = data_descriptor$.pointer[1L]
-  }
-
+  pointer_name = paste0(data_descriptor$.pointer, collapse = ".")
   if (do_caching) {
     output_hash = calculate_hash(ids, data_descriptor$.hash)
     output_hit = exists(output_hash, cache, inherits = FALSE)
 
     if (output_hit) {
-      return(cache[[output_hash]][[data_descriptor$.pointer]])
+      return(cache[[output_hash]][[pointer_name]])
     }
-
     input_hash = calculate_hash(data_descriptor$.dataset_hash, ids)
+
     input_hit = exists(input_hash, cache, inherits = FALSE)
 
     if (input_hit) {
@@ -212,23 +179,15 @@ materialize_internal = function(x, device = "cpu", cache = NULL, set_keep_result
   output = if (rbind && !varying_shapes) {
     # tensor --graph--> tensor
     graph$train(input, single_input = FALSE)
-    out = map(data_descriptor$graph$keep_results, function(id) graph$pipeops[[id]]$.result)
-    set_names(out, data_descriptor$graph$keep_results)
   } else {
     # list --graph--> (list or tensor)
-    out = map(input, function(x) {
-      graph$train(x, single_input = FALSE)
-      out = map(data_descriptor$graph$keep_results, function(id) graph$pipeops[[id]]$.result)
-      set_names(out, data_descriptor$graph$keep_results)
-    })
+    out = map(input, function(x) graph$train(x, single_input = FALSE))
+
     if (rbind) {
       # here, is a list with hierarchy: [id = [po_id = [ch_nm = ]]]
       # We want to obtain a list [po_id = [ch_nm = [...]]] where the [...] is the rbind over all ids
-      out = map(names(out[[1L]]), function(po_id) {
-        map(names(out[[1]][[po_id]]), function(ch_nm) {
-          torch_cat(map(seq_along(out), function(i) out[[i]][[po_id]][[ch_nm]]), dim = 1L)
-        })
-      })
+      rows = seq_along(out)
+      out = map(names(out[[1L]]), function(name) torch_cat(map(out[rows], name)))
     }
     out
   }
@@ -237,13 +196,11 @@ materialize_internal = function(x, device = "cpu", cache = NULL, set_keep_result
     cache[[output_hash]] = output
   }
 
-  # discard the results
-  walk(data_descriptor$graph$pipeops[data_descriptor$graph$keep_results], function(x) x$.result = NULL)
-
+  # put the tensor on the required device
   if (rbind) {
-    res = output[[data_descriptor$.pointer[1L]]][[data_descriptor$.pointer[2L]]]$to(device = device)
+    res = output[[pointer_name]]$to(device = device)
   } else {
-    res = map(output, function(o) o[[data_descriptor$.pointer[1L]]][[data_descriptor$.pointer[2L]]]$to(device = device))
+    res = map(output, function(o) o[[pointer_name]]$to(device = device))
   }
 
   return(res)

@@ -9,6 +9,7 @@
 \description{
 Calls \code{\link[torchvision:transform_hflip]{torchvision::transform_hflip}},
 see there for more information on the parameters.
+The preprocessing is applied row wise (no batch dimension).
 }
 \section{Parameters}{
 \tabular{llll}{

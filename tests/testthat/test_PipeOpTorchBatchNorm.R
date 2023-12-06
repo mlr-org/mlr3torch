@@ -16,7 +16,7 @@ test_that("PipeOpTorchBatchNorm1D paramtest", {
 test_that("PipeOpTorchBatchNorm2D autotest", {
   po_test = po("nn_batch_norm2d")
   task = nano_imagenet()
-  graph = po("torch_ingress_img", channels = 3, width = 64, height = 64) %>>% po_test
+  graph = po("torch_ingress_ltnsr") %>>% po_test
 
   autotest_pipeop_torch(graph, "nn_batch_norm2d", task)
 })
@@ -29,7 +29,7 @@ test_that("PipeOpTorchBatchNorm2D paramtest", {
 test_that("PipeOpTorchBatchNorm3D autotest", {
   po_test = po("nn_batch_norm3d")
   task = nano_imagenet()
-  graph = po("torch_ingress_img", channels = 3, width = 64, height = 64) %>>%
+  graph = po("torch_ingress_ltnsr") %>>%
     po("nn_reshape", shape = c(NA, 3, 64, 8, 8)) %>>%
     po_test
 

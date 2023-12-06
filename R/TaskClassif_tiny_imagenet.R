@@ -76,6 +76,7 @@ constructor_tiny_imagenet = function(path) {
   data.table(class = as.factor(classes), image = uris, split = factor(splits))
 }
 
+#' @include utils.R
 load_task_tiny_imagenet = function(id = "tiny_imagenet") {
   cached_constructor = crate(function() {
     # We need this as otherwise the factor level are differently ordered,
@@ -84,7 +85,7 @@ load_task_tiny_imagenet = function(id = "tiny_imagenet") {
     withr::with_locale(c(LC_COLLATE = "C"), {
       dt = cached(constructor_tiny_imagenet, "datasets", "tiny_imagenet")$data
     })
-    dt$image = imageuri(dt$image)
+    dt$image = as_lazy_tensor(dataset_image(dt$image), dataset_shapes = list(x = c(NA, 3, 64, 64)))
     dt$..row_id = seq_len(nrow(dt))
     DataBackendDataTable$new(data = dt, primary_key = "..row_id")
   })

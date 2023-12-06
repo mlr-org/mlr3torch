@@ -83,12 +83,8 @@ ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, 
 }
 
 #' @export
+#' @include utils.R
 print.ModelDescriptor = function(x, ...) {
-  shape_to_str = function(x) {
-    shapedescs = map_chr(x, function(y) paste0("(", paste(y, collapse = ",", recycle0 = TRUE), ")"))
-    paste0("[",  paste(shapedescs, collapse = ";", recycle0 = TRUE), "]")
-  }
-
   ingress_shapes = imap(x$ingress, function(x, nm) {
     paste0(nm, ": ", shape_to_str(list(x$shape)))
   })

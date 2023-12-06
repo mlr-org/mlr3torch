@@ -7,7 +7,7 @@
 \description{
 Use this as entry-point to mlr3torch-networks.
 Unless you are an advanced user, you should not need to use this directly but \code{\link{PipeOpTorchIngressNumeric}},
-\code{\link{PipeOpTorchIngressCategorical}} or \code{\link{PipeOpTorchIngressImage}}.
+\code{\link{PipeOpTorchIngressCategorical}} or \code{\link{PipeOpTorchIngressLazyTensor}}.
 }
 \section{Input and Output Channels}{
 
@@ -96,7 +96,6 @@ Other Graph Network:
 \code{\link{mlr_learners_torch_model}},
 \code{\link{mlr_pipeops_module}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},
-\code{\link{mlr_pipeops_torch_ingress_img}},
 \code{\link{mlr_pipeops_torch_ingress_ltnsr}},
 \code{\link{mlr_pipeops_torch_ingress_num}},
 \code{\link{mlr_pipeops_torch}},

@@ -84,6 +84,7 @@
 #' po_add1$train(input)$output
 PipeOpModule = R6Class("PipeOpModule",
   inherit = PipeOp,
+  # this has no effect because parent class is cloneable, waiting for new R6 release
   cloneable = FALSE,
   public = list(
     #' @field module ([`nn_module`])\cr

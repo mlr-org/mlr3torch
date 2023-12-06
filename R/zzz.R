@@ -28,7 +28,7 @@ mlr3torch_tasks = new.env()
 mlr3torch_resamplings = new.env()
 mlr3torch_task_generators = new.env()
 mlr3torch_pipeop_tags = c("torch", "activation")
-mlr3torch_feature_types = c(img = "imageuri", lt = "lazy_tensor")
+mlr3torch_feature_types = c(lt = "lazy_tensor")
 
 register_po = function(name, constructor, metainf = NULL) {
   if (name %in% names(mlr3torch_pipeops)) stopf("pipeop %s registered twice", name)

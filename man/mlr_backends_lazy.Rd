@@ -26,7 +26,7 @@ Information that is available before the backend is constructed is:
 Beware that accessing the backend's hash also contructs the backend.
 
 Note that while in most cases the data contains \code{\link{lazy_tensor}} columns, this is not necessary and the naming
-of this class has nothing to do with the \code{\link{lazy_tensor}} datatype.
+of this class has nothing to do with the \code{\link{lazy_tensor}} data type.
 }
 \examples{
 # We first define a backend constructor

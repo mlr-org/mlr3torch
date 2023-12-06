@@ -9,6 +9,7 @@
 \description{
 Calls \code{\link[torchvision:transform_resize]{torchvision::transform_resize}},
 see there for more information on the parameters.
+The preprocessing is applied to the whole batch.
 }
 \section{Parameters}{
 \tabular{llll}{

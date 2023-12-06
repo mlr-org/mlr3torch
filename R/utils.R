@@ -176,3 +176,29 @@ assert_lazy_tensor = function(x) {
 uniqueify = function(new, existing) {
   make.unique(c(existing, new), sep = "_")[length(existing) + seq_along(new)]
 }
+
+shape_to_str = function(x) {
+  shapedescs = map_chr(x, function(y) paste0("(", paste(y, collapse = ",", recycle0 = TRUE), ")"))
+  if (test_named(x)) {
+    repr = paste0("[", names(x), ": ",  paste(shapedescs, collapse = ";", recycle0 = TRUE), "]")
+    return(repr)
+  }
+  paste0("[",  paste(shapedescs, collapse = ";", recycle0 = TRUE), "]")
+}
+
+test_equal = function(x, y) {
+  isTRUE(all.equal(x, y))
+}
+
+dataset_image = dataset("image_dataset",
+  initialize = function(uris) {
+    self$uris = uris
+  },
+  .getitem = function(x) {
+    list(x = torchvision::transform_to_tensor(magick::image_read(self$uris[x])))
+  },
+  .length = function() {
+    length(self$uris)
+  }
+)
+

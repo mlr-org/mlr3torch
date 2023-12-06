@@ -46,7 +46,7 @@ test_that("PipeOpTorchSqueeze paramtest", {
 test_that("PipeOpTorchFlatten autotest", {
   obj = po("nn_flatten", start_dim = 2, end_dim = 4)
   task = nano_imagenet()
-  graph = po("torch_ingress_img", channels = 3, height = 64, width = 64) %>>% obj
+  graph = po("torch_ingress_ltnsr") %>>% obj
   autotest_pipeop_torch(graph, "nn_flatten", task)
 })
 

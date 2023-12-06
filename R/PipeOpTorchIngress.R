@@ -5,7 +5,7 @@
 #' @description
 #' Use this as entry-point to mlr3torch-networks.
 #' Unless you are an advanced user, you should not need to use this directly but [`PipeOpTorchIngressNumeric`],
-#' [`PipeOpTorchIngressCategorical`] or [`PipeOpTorchIngressImage`].
+#' [`PipeOpTorchIngressCategorical`] or [`PipeOpTorchIngressLazyTensor`].
 #'
 #' @template pipeop_torch_channels_default
 #' @section State:
@@ -259,61 +259,6 @@ PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
 
 register_po("torch_ingress_categ", PipeOpTorchIngressCategorical)
 
-#' @title Torch Entry Point for Images
-#' @name mlr_pipeops_torch_ingress_img
-#'
-#' @description
-#' uses task with "imageuri" column and loads this as images.
-#' doesn't do any preprocessing or so (image resizing) and instead just errors if images don't fit.
-#' also no data augmentation etc.
-#'
-#' @inheritSection mlr_pipeops_torch_ingress Input and Output Channels
-#' @inheritSection mlr_pipeops_torch_ingress State
-#'
-#' @section Parameters:
-#' * `select` :: `logical(1)`\cr
-#'   Whether `PipeOp` should selected the supported feature types. Otherwise it will err, when receiving tasks
-#'   with unsupported feature types.
-#' * `channels` :: `integer(1)`\cr
-#'   The number of input channels.
-#' * `height` :: `integer(1)`\cr
-#'   The height of the pixels.
-#' * `width` :: `integer(1)`\cr
-#'   The width of the pixels.
-#' @section Internals:
-#' Uses [`magick::image_read()`] to load the image.
-#'
-#' @family PipeOp
-#' @family Graph Network
-#'
-#' @export
-#' @examples
-#' po_ingress = po("torch_ingress_img", channels = 3, height = 64, width = 64)
-#' po_ingress
-PipeOpTorchIngressImage = R6Class("PipeOpTorchIngressImage",
-  inherit = PipeOpTorchIngress,
-  public = list(
-    #' @description
-    #' Creates a new instance of this [R6][R6::R6Class] class.
-    #' @template params_pipelines
-    initialize = function(id = "torch_ingress_img", param_vals = list()) {
-      param_set = ps(
-        channels = p_int(1, tags = c("train", "predict", "required")),
-        height   = p_int(1, tags = c("train", "predict", "required")),
-        width    = p_int(1, tags = c("train", "predict", "required"))
-      )
-      super$initialize(id = id, param_vals = param_vals, param_set = param_set, feature_types = "imageuri")
-    }
-  ),
-  private = list(
-    .shape = function(task, param_vals) c(NA, param_vals$channels, param_vals$height, param_vals$width),
-    .get_batchgetter = function(task, param_vals) {
-      get_batchgetter_img(c(param_vals$channels, param_vals$height, param_vals$width))
-    }
-  )
-)
-register_po("torch_ingress_img", PipeOpTorchIngressImage)
-
 #' @title Ingress for Lazy Tensor
 #' @name mlr_pipeops_torch_ingress_ltnsr
 #' @description
@@ -396,7 +341,7 @@ PipeOpTorchIngressLazyTensor = R6Class("PipeOpTorchIngressLazyTensor",
         stopf("PipeOpTorchIngressLazyTensor expects 1 'lazy_tensor' feature, but got %i.", length(lazy_cols))
       }
       example = task$data(task$row_ids[1L], lazy_cols)[[1L]]
-      input_shape = example$.pointer_shape
+      input_shape = dd(example)$.pointer_shape
       pv_shape = param_vals$shape
 
       if (is.null(input_shape)) {

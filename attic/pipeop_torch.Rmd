@@ -95,9 +95,9 @@ po_activation = po("module", id = "activation", activation)
 po_module_2 = po("module_2", module = module_2)
 po_softmax = po("module", id = "softmax", module = softmax)
 
-module_graph = po_module_1 %>>%
-  po_activation %>>%
-  po_module_2 %>>%
+module_graph = po_module_1 %>>!%
+  po_activation %>>!%
+  po_module_2 %>>!%
   po_softmax
 
 module_graph$plot(horizontal = TRUE)

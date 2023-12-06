@@ -24,7 +24,7 @@ This \link{Learner} can be instantiated using the sugar function \code{\link[=lr
 \itemize{
 \item classif: 'response', 'prob'
 }
-\item Feature Types: \dQuote{imageuri}
+\item Feature Types: \dQuote{lazy_tensor}
 \item Required Packages: \CRANpkg{mlr3}, \CRANpkg{mlr3torch}, \CRANpkg{torchvision}, \CRANpkg{magick}, \CRANpkg{torch}
 }
 }

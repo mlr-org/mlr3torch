@@ -9,6 +9,7 @@
 \description{
 Calls \code{\link[torchvision:transform_color_jitter]{torchvision::transform_color_jitter}},
 see there for more information on the parameters.
+The preprocessing is applied row wise (no batch dimension).
 }
 \section{Parameters}{
 \tabular{llll}{

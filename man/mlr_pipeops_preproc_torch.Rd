@@ -36,7 +36,8 @@ See \code{\link{PipeOpTaskPreproc}}.
 
 \section{State}{
 
-TODO:
+In addition to state elements from \code{\link{PipeOpTaskPreprocSimple}}, the state also contains the \verb{$param_vals} that
+were set during training.
 }
 
 \section{Parameters}{
@@ -62,18 +63,20 @@ The pipeop applies the function \code{fn} to the input tensor while additionally
 passing the parameter values (minus \code{stages} and \code{affect_columns}) to \code{fn}.
 The preprocessing graph of the lazy tensor columns is shallowly cloned and the \code{PipeOpModule} is added.
 This is done to avoid modifying user input and means that identical \code{PipeOpModule}s can be part of different
-preprocessing graphs. This is possible, because the created \code{PipeOpModule} is stateless.
-At a later point, graphs will be merged if possible to avoid unnecessary computation.
+preprocessing graphs. This is only possible, because the created \code{PipeOpModule} is stateless.
+
+At a later point in the graph, preprocessing graphs will be merged if possible to avoid unnecessary computation.
 This is best illustrated by example:
 One lazy tensor column's preprocessing graph is \code{A -> B}.
 Then, two branches are created \code{B -> C} and \code{B -> D}, creating two preprocessing graphs
-\code{A -> B -> C} and \code{A -> B -> D}. When loading the data, we want to run the preprocessing only once, i.e.
-the \code{A -> B} part. For this reason, \code{\link[=task_dataset]{task_dataset()}} will try to merge graphs and cache results from graphs.
+\code{A -> B -> C} and \code{A -> B -> D}. When loading the data, we want to run the preprocessing only once, i.e. we don't
+want to run the \code{A -> B} part twice. For this reason, \code{\link[=task_dataset]{task_dataset()}} will try to merge graphs and cache
+results from graphs.
 
 Also, the shapes created during \verb{$train()} and \verb{$predict()} might differ.
 To avoid the creation of graphs where the predict shapes are incompatible with the train shapes,
-the hypothetical predict shapes are already calculated during \verb{$train()} (hence the parameters that are set during
-train are also used during predict) and the \code{\link{PipeOpTorchModel}} will check the train and predict shapes for
+the hypothetical predict shapes are already calculated during \verb{$train()} (this is why the parameters that are set
+during train are also used during predict) and the \code{\link{PipeOpTorchModel}} will check the train and predict shapes for
 compatibility before starting the training.
 
 Otherwise, this mechanism is very similar to the \code{\link{ModelDescriptor}} construct.
@@ -171,6 +174,8 @@ materialize(taskout$data(cols = "x3"), rbind = TRUE)
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
 \item{\code{fn}}{The preprocessing function.}
+
+\item{\code{rowwise}}{Whether the preprocessing is applied rowwise.}
 }
 \if{html}{\out{</div>}}
 }
@@ -213,7 +218,7 @@ Creates a new instance of this \code{\link[R6:R6Class]{R6}} class.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{fn}}{(\code{function})\cr
-The preprocessing function.}
+The preprocessing function. Should not modify its input in-place.}
 
 \item{\code{id}}{(\code{character(1)})\cr
 The id for of the new object.}
@@ -234,7 +239,7 @@ Initial value for the \code{stages} parameter.}
 
 \item{\code{rowwise}}{(\code{logical(1)})\cr
 Whether the preprocessing function is applied rowwise (and then concatenated by row) or directly to the whole
-tensor.}
+tensor. In the first case there is no batch dimension.}
 }
 \if{html}{\out{</div>}}
 }

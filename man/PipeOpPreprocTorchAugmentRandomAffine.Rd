@@ -5,29 +5,13 @@
 \title{PipeOpPreprocTorchAugmentRandomAffine}
 \format{
 \code{\link{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
-
-\code{\link{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
 }
 \description{
 Calls \code{\link[torchvision:transform_random_affine]{torchvision::transform_random_affine}},
 see there for more information on the parameters.
-
-Calls \code{\link[torchvision:transform_random_affine]{torchvision::transform_random_affine}},
-see there for more information on the parameters.
+The preprocessing is applied row wise (no batch dimension).
 }
 \section{Parameters}{
-\tabular{llll}{
-   Id \tab Type \tab Default \tab Levels \cr
-   degrees \tab untyped \tab - \tab  \cr
-   translate \tab untyped \tab - \tab  \cr
-   scale \tab untyped \tab - \tab  \cr
-   shear \tab untyped \tab - \tab  \cr
-   resample \tab untyped \tab - \tab  \cr
-   fillcolor \tab untyped \tab - \tab  \cr
-   stages \tab character \tab - \tab train, predict, both \cr
-   affect_columns \tab untyped \tab selector_all \tab  \cr
-}
-
 \tabular{llll}{
    Id \tab Type \tab Default \tab Levels \cr
    degrees \tab untyped \tab - \tab  \cr

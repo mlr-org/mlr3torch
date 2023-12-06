@@ -10,7 +10,8 @@ pipeop_preproc_torch(
   shapes_out,
   param_set = NULL,
   param_vals = list(),
-  packages = character(0)
+  packages = character(0),
+  rowwise = FALSE
 )
 }
 \arguments{

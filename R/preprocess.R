@@ -110,9 +110,6 @@ register_preproc("augment_random_vertical_flip", torchvision::transform_random_v
 #' @templateVar id augment_random_affine
 register_preproc("augment_random_affine", torchvision::transform_random_affine, packages = "torchvision", shapes_out = NULL, rowwise = TRUE) # nolint
 
-#' @template preprocess_torchvision
-#' @templateVar id augment_random_affine
-register_preproc("augment_random_perspective", torchvision::transform_random_perspective, packages = "torchvision", shapes_out = NULL, rowwise = TRUE) # nolint
 
 #' @template preprocess_torchvision
 #' @templateVar id augment_vflip
@@ -161,3 +158,7 @@ register_preproc("augment_random_crop", torchvision::transform_random_crop, pack
 ##' @name PipeOpPreprocTorchAugmentLinearTransformation
 ##' @rdname mlr_pipeops_preproc_torch_overview
 #register_preproc("augment_linear_transformation", torchvision::transform_linear_transformation, packages = "torchvision", shapes_out = "infer", rowwise = TRUE) # nolint
+
+##' @template preprocess_torchvision
+##' @templateVar id augment_random_perspective
+#register_preproc("augment_random_perspective", torchvision::transform_random_perspective, packages = "torchvision", shapes_out = NULL, rowwise = TRUE) # nolint

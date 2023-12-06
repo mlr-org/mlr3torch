@@ -42,8 +42,7 @@ mdout[[1L]]$optimizer
 \seealso{
 Other PipeOp: 
 \code{\link{mlr_pipeops_module}},
-\code{\link{mlr_pipeops_torch_callbacks}},
-\code{\link{mlr_pipeops_torch_ingress_img}}
+\code{\link{mlr_pipeops_torch_callbacks}}
 
 Other Model Configuration: 
 \code{\link{ModelDescriptor}()},

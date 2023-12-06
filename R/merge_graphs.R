@@ -1,19 +1,16 @@
 #' note that this mo
-merge_graphs = function(g1, g2, in_place = FALSE) {
-  if (in_place) {
-    graph = g1
-  } else {
-    graph = g1$clone(deep = TRUE)
-  }
+merge_graphs = function(g1, g2) {
+  graph = g1$clone(deep = FALSE)
+
   # if graphs are identical, we don't need to worry about copying stuff
   if (!identical(g1, g2)) {
     # PipeOps that have the same ID that occur in both graphs must be identical.
     common_names = intersect(names(graph$pipeops), names(g2$pipeops))
-    if (!identical(map(graph$pipeops[common_names], "hash"), map(g2$pipeops[common_names], "hash"))) {
+    if (!identical(graph$pipeops[common_names], g2$pipeops[common_names])) {
       not_identical = map_lgl(common_names, function(name) {
-        !identical(graph$pipeops[[name]]$hash, g2$pipeops[[name]]$hash)
+        !identical(graph$pipeops[[name]], g2$pipeops[[name]])
       })
-      stopf("Both graphs have PipeOps with ID(s) %s but they don't have the same hashes.",
+      stopf("Both graphs have PipeOps with ID(s) %s but they are not identical.",
         paste0("'", common_names[not_identical], "'", collapse = ", ")
       )
     }

@@ -101,7 +101,6 @@ test_that("materialize.list works", {
 
   # to check:
   # a) caching works when en / disabling cache manually
-  # b) set_keep_results stuff works
   # c) default = "auto" works as expected
 
   # TODO
@@ -142,8 +141,8 @@ test_that("materialize_internal: caching of datasets works", {
   # hashes of environments change after a function was called (?)
   # https://github.com/mlr-org/mlr3torch/issues/156
   expect_equal(
-    x1$.dataset_hash,
-    x2$.dataset_hash
+    dd(x1)$.dataset_hash,
+    dd(x2)$.dataset_hash
   )
 
   dd1 = DataDescriptor(ds, list(x = c(NA, 3)))
@@ -158,12 +157,8 @@ test_that("materialize_internal: caching of datasets works", {
   expect_true(ds$count == 10)
 })
 
-test_that("materialize_internal: resets everything to previous state", {
+test_that("materialize_internal with varying shapes", {
 
-
-})
-
-test_that("materialize_internal: set_keep_results works", {
 
 })
 

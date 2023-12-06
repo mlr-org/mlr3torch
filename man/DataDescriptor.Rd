@@ -53,7 +53,7 @@ A data descriptor is a rather internal data structure used in the \code{\link{la
 In essence it is an annotated \code{\link[torch:dataset]{torch::dataset}} and a preprocessing graph (consisting mosty of \code{\link{PipeOpModule}}
 operators). The additional meta data (e.g. pointer, shapes) allows to preprocess \code{\link{lazy_tensors}} in an
 \code{\link[mlr3pipelines:Graph]{mlr3pipelines::Graph}} just like any (non-lazy) data types.
-To observe the effect of such a preprocessing, \code{\link[=materialize]{materialize()}} can be used.
+The preprocessing is applied when \code{\link[=materialize]{materialize()}} is called on the \code{\link{lazy_tensor}}.
 }
 \examples{
 # Create a dataset
@@ -81,7 +81,8 @@ dd = DataDescriptor(
 )
 
 # with no preprocessing
-dd1 = DataDescriptor(ds, list(x = c(NA, 3, 3)))
+dd_no_preproc = DataDescriptor(ds, list(x = c(NA, 3, 3)))
+dd_no_preproc
 }
 \seealso{
 ModelDescriptor, lazy_tensor

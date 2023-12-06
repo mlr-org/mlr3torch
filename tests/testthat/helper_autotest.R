@@ -7,8 +7,6 @@
 #' * the generated module has the intended class
 #' * the parameters are correctly implemented
 #' * Some other basic checks
-#' @details
-#' TODO
 #' @param graph ([`Graph`])\cr
 #'   The graph that contains the [`PipeOpTorch`] to be tested.
 #' @param id (`character(1)`)\cr
@@ -357,7 +355,10 @@ autotest_pipeop_torch_preprocess = function(obj, shapes_in, exclude = character(
 
   walk(shapes_in, function(shape_in) {
     tnsr_in = torch_empty(shape_in)
+    shape_in_unknown_batch = shape_in
+    shape_in_unknown_batch[1L] = NA
     shape_out = obj$shapes_out(list(shape_in), stage = "train")[[1L]]
+    shape_out_unknown_batch = obj$shapes_out(list(shape_in_unknown_batch), stage = "train")[[1L]]
     taskin = as_task_regr(data.table(
       y = rep(1, nrow(tnsr_in)),
       x = as_lazy_tensor(tnsr_in)
@@ -371,6 +372,8 @@ autotest_pipeop_torch_preprocess = function(obj, shapes_in, exclude = character(
 
     if (!is.null(shape_out)) {
       testthat::expect_equal(tnsr_out$shape, shape_out)
+      testthat::expect_equal(tnsr_out$shape[-1L], shape_out_unknown_batch[-1L])
+      expect_true(is.na(shape_out_unknown_batch[1L]))
     }
   })
 }

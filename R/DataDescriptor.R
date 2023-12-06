@@ -5,7 +5,7 @@
 #' In essence it is an annotated [`torch::dataset`] and a preprocessing graph (consisting mosty of [`PipeOpModule`]
 #' operators). The additional meta data (e.g. pointer, shapes) allows to preprocess [`lazy_tensors`] in an
 #' [`mlr3pipelines::Graph`] just like any (non-lazy) data types.
-#' To observe the effect of such a preprocessing, [`materialize()`] can be used.
+#' The preprocessing is applied when [`materialize()`] is called on the [`lazy_tensor`].
 #'
 #' @param dataset ([`torch::dataset`])\cr
 #'   The torch dataset.
@@ -60,7 +60,8 @@
 #' )
 #'
 #' # with no preprocessing
-#' dd1 = DataDescriptor(ds, list(x = c(NA, 3, 3)))
+#' dd_no_preproc = DataDescriptor(ds, list(x = c(NA, 3, 3)))
+#' dd_no_preproc
 DataDescriptor = function(dataset, dataset_shapes, graph = NULL, .input_map = NULL, .pointer = NULL,
   .pointer_shape = NULL, .pointer_shape_predict = NULL, clone_graph = TRUE) {
   assert_class(dataset, "dataset")
@@ -71,6 +72,17 @@ DataDescriptor = function(dataset, dataset_shapes, graph = NULL, .input_map = NU
   # e.g. during subsetting
   assert_shapes(dataset_shapes, null_ok = is.null(dataset$.getbatch), unknown_batch = TRUE, named = TRUE)
   assert_shape(.pointer_shape_predict, null_ok = TRUE, unknown_batch = TRUE)
+
+  # not sure whether we should keep this?
+  #example = if (is.null(dataset$.getbatch)) dataset$.getitem(1L) else dataset$.getbatch(1L)
+  #if (!test_list(example, names = "unique") || !test_permutation(names(example), names(dataset_shapes))) {
+  #  stopf("Dataset must return a list with named elements that are a permutation of the dataset_shapes names.")
+  #  iwalk(dataset_shapes, function(dataset_shape, name) {
+  #    if (!is.null(dataset_shape) && !test_equal(dataset_shapes[[name]][-1], example[[name]]$shape[-1L])) {
+  #      stopf("First batch from dataset is incompatible with the provided dataset_shapes.")
+  #    }
+  #  })
+  #}
 
   if (is.null(graph)) {
     if ((length(dataset_shapes) == 1L) && is.null(.input_map)) {
@@ -124,17 +136,54 @@ DataDescriptor = function(dataset, dataset_shapes, graph = NULL, .input_map = NU
   return(obj)
 }
 
+#' @include utils.R
+data_descriptor_union = function(dd1, dd2) {
+  # Otherwise it is ugly to do the caching of the data loading
+  # and this is not really a strong restriction
+  assert_true(dd1$.dataset_hash == dd2$.dataset_hash)
+  g1 = dd1$graph
+  g2 = dd2$graph
+
+  input_map = unique(c(
+    set_names(dd1$.input_map, g1$input$name),
+    set_names(dd2$.input_map, g2$input$name)
+  ))
+
+  graph = merge_graphs(g1, g2) # shallow clone, g1 and g2 graphs (not pipeops) are unmodified
+
+  DataDescriptor(
+    dataset = dd1$dataset,
+    dataset_shapes = dd1$dataset_shapes,
+    graph = graph,
+    .input_map = input_map,
+    .pointer = dd1$.pointer,
+    .pointer_shape = dd1$.pointer_shape,
+    .pointer_shape_predict = dd1$.pointer_shape_predict,
+    clone_graph = FALSE
+  )
+}
+
+#' @export
+#' @include utils.R
+print.DataDescriptor = function(x, ...) {
+  catn(sprintf("<DataDescriptor: %d ops>", length(x$graph$pipeops)))
+  catn(sprintf("* dataset_shapes: %s", shape_to_str(x$dataset_shapes)))
+  catn(sprintf("* .input_map: (%s) -> Graph", paste0(x$.input_map, collapse = ", ")))
+  catn(sprintf("* .pointer: %s", paste0(x$.pointer, collapse = ".")))
+  catn(str_indent("* .shape(train):",
+    if (is.null(x$.pointer_shape)) "<unknown>" else shape_to_str(list(x$.pointer_shape))))
+  catn(str_indent("* .shape(predict):",
+    if (is.null(x$.pointer_shape_predict)) "<unknown>" else shape_to_str(list(x$.pointer_shape_predict))))
+}
+
 # TODO: printer
 
 set_data_descriptor_hash = function(data_descriptor) {
-  # avoid partial argument m
+  # avoid partial argument matching
   data_descriptor$.hash = calculate_hash(
     data_descriptor[[".dataset_hash"]],
     data_descriptor[["graph"]][["hash"]],
-    data_descriptor[[".input_map"]],
-    data_descriptor[[".pointer"]],
-    data_descriptor[[".pointer_shape"]],
-    data_descriptor[[".pointer_shape_perdict"]]
+    data_descriptor[[".input_map"]]
   )
   return(data_descriptor)
 }

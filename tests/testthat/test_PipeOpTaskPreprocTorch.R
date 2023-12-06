@@ -67,12 +67,12 @@ test_that("PipeOpTaskPreprocTorch: basic checks", {
           param_vals = param_vals,
           fn = function(x, a = 2) x * a
         )
-
       }
     )
   )
 
-  po_test2 = PipeOpTaskPreprocTorchTest2$new(param_vals = list(affect_columns = selector_name("x1"), a = 0))
+  po_test2 = PipeOpTaskPreprocTorchTest2$new(param_vals = list(
+    affect_columns = selector_name("x1"), a = 0, stages = "both"))
 
   expect_true(
     torch_sum(materialize(po_test2$train(list(task))[[1L]]$data(cols = "x1")[[1L]], rbind = TRUE))$item() == 0
@@ -91,25 +91,39 @@ test_that("PipeOpTaskPreprocTorch: basic checks", {
   expect_true(
     torch_sum(materialize(po_test2$predict(list(task))[[1L]]$data(cols = "x1")[[1L]], rbind = TRUE))$item() == 0
   )
-  # only if we re-train the transformatoin is applied during predict
+  # only if we re-train the transformation is applied during predict
   po_test2$train(list(task))
   expect_true(
     torch_sum(materialize(po_test2$predict(list(task))[[1L]]$data(cols = "x1")[[1L]], rbind = TRUE))$item() == sum(1:10)
   )
 
-  # when stages is set to "predict", it onlu applied during prediction
+  # when stages is set to "predict", it is only applied during prediction
   po_test$param_set$set_values(stages = "predict")
   expect_torch_equal(
     materialize(task$data(cols = "x1")[[1L]], rbind = TRUE),
     materialize(po_test$train(list(task))[[1L]]$data(cols = "x1")[[1L]], rbind = TRUE)
-
   )
+
   # TODO:
-  # need to finish the augment -> stages transition, i.e. add tests and "both", then finish the preprocess impmenetation. add the tests and test the preprocess autotest
+  # need to finish the augment -> stages transition, i.e. add tests and "both", then finish the preprocess implementation add the tests and test the preprocess autotest
   # also test that the rowwise parameter works
 
-  materialize(task$data(cols = "x1")[[1L]])
+  po_test3 = pipeop_preproc_torch("test3", rowwise = FALSE, fn = function(x) x$reshape(-1), shapes_out = NULL)
+  po_test4 = pipeop_preproc_torch("test4", rowwise = TRUE, fn = function(x) x$reshape(-1), shapes_out = NULL)
 
+  expect_equal(
+    materialize(po_test3$train(list(task))[[1L]]$data(cols = "x1")$x1, rbind = TRUE)$shape,
+    10
+  )
+  expect_equal(
+    materialize(po_test4$train(list(task))[[1L]]$data(cols = "x1")$x1, rbind = TRUE)$shape,
+    c(10, 1)
+  )
+
+  expect_true(pipeop_preproc_torch("test3", identity, rowwise = TRUE, shapes_out = NULL)$rowwise)
+  expect_false(pipeop_preproc_torch("test3", identity, rowwise = FALSE, shapes_out = NULL)$rowwise)
+
+  # stages_init works
 })
 
 test_that("PipeOptaskPreprocTorch: shapes_out() works", {
@@ -140,7 +154,7 @@ test_that("PipeOpTaskPreprocTorch modifies the underlying lazy tensor columns co
 
   taskin = as_task_regr(d, target = "y")
 
-  po_test = po("preproc_torch", fn = crate(function(x, a) x + a), param_set = ps(a = p_int(tags = c("train", ""))),
+  po_test = po("preproc_torch", fn = crate(function(x, a) x + a), param_set = ps(a = p_int(tags = c("train", "required"))),
     a = -10, rowwise = FALSE)
 
   taskout_train = po_test$train(list(taskin))[[1L]]
@@ -150,15 +164,15 @@ test_that("PipeOpTaskPreprocTorch modifies the underlying lazy tensor columns co
   po_test$train(list(taskin))[[1L]]
   taskout_pred_aug = po_test$predict(list(taskin))[[1L]]
 
-  expect_true(length(taskin$data(cols = "x")[[1]]$graph$pipeops) == 1L)
+  expect_true(length(dd(taskin$data(cols = "x")[[1]])$graph$pipeops) == 1L)
 
-  expect_true(length(taskout_pred$data(cols = "x")[[1]]$graph$pipeops) == 2L)
-  expect_true(length(taskout_pred_aug$data(cols = "x")[[1]]$graph$pipeops) == 2L)
+  expect_true(length(dd(taskout_pred$data(cols = "x")[[1]])$graph$pipeops) == 2L)
+  expect_true(length(dd(taskout_pred_aug$data(cols = "x")[[1]])$graph$pipeops) == 2L)
 
-  expect_true(identical(taskout_pred_aug$data(cols = "x")[[1]]$graph$pipeops[[2]]$module, identity))
-  expect_false(identical(taskout_pred$data(cols = "x")[[1]]$graph$pipeops[[2]]$module, identity))
+  expect_true(identical(dd(taskout_pred_aug$data(cols = "x")[[1]])$graph$pipeops[[2]]$module, identity))
+  expect_false(identical(dd(taskout_pred$data(cols = "x")[[1]])$graph$pipeops[[2]]$module, identity))
 
-  taskout_pred$data(cols = "x")[[1]]$graph
+  dd(taskout_pred$data(cols = "x")[[1]])$graph
 
   expect_equal(
     as_array(materialize(taskin$data(cols = "x")[[1L]], rbind = TRUE)),
@@ -173,6 +187,7 @@ test_that("pipeop_preproc_torch", {
     "Must have formal arguments"
   )
 
+  rowwise = sample(c(TRUE, FALSE), 1L)
   po_test = pipeop_preproc_torch("trafo_abc", function(x, a) torch_cat(list(x, torch_pow(x, a)), dim = 2),
     shapes_out = function(shapes_in, param_vals, task) {
       s = shapes_in[[1L]]
@@ -212,12 +227,18 @@ test_that("pipeop_preproc_torch", {
 
 test_that("predict shapes are added during training", {
   po_test = pipeop_preproc_torch("test", function(x) torch_cat(list(x, x * 2), dim = 2), shapes_out = "infer")
-  task = as_task_regr(data.table(
-    y = 1,
-    x = as_lazy_tensor(1)
-  ), target = "y")
 
-  taskout = po_test$train(list(task))[[1L]]
+  po_test$param_set$set_values(
+    stages = "train"
+  )
 
+  task = tsk("lazy_iris")
+  graph = po_test %>>%
+    po("torch_ingress_ltnsr") %>>%
+    po("nn_head") %>>%
+    po("torch_optimizer") %>>%
+    po("torch_loss", "cross_entropy") %>>%
+    po("torch_model_classif", batch_size = 150L, epochs = 1L)
+
+  expect_error(graph$train(task), "would have a different shape")
 })
-

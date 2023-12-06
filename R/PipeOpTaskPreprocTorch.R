@@ -29,7 +29,7 @@
 #' @template param_id
 #' @template param_param_vals
 #' @param fn (`function`)\cr
-#'   The preprocessing function.
+#'   The preprocessing function. Should not modify its input in-place.
 #' @param packages (`character()`)\cr
 #'   The packages the preprocessing function depends on.
 #' @param param_set ([`ParamSet`])\cr
@@ -40,11 +40,13 @@
 #'   Initial value for the `stages` parameter.
 #' @param rowwise (`logical(1)`)\cr
 #'   Whether the preprocessing function is applied rowwise (and then concatenated by row) or directly to the whole
-#'   tensor.
+#'   tensor. In the first case there is no batch dimension.
 #' @section Input and Output Channels:
 #' See [`PipeOpTaskPreproc`].
 #' @section State:
-#' TODO:
+#' In addition to state elements from [`PipeOpTaskPreprocSimple`], the state also contains the `$param_vals` that
+#' were set during training.
+#'
 #' @section Parameters:
 #' In addition to the parameters inherited from [`PipeOpTaskPreproc`] as well as those specified during construction
 #' as the argument `param_set` there are the following parameters:
@@ -64,18 +66,20 @@
 #' passing the parameter values (minus `stages` and `affect_columns`) to `fn`.
 #' The preprocessing graph of the lazy tensor columns is shallowly cloned and the `PipeOpModule` is added.
 #' This is done to avoid modifying user input and means that identical `PipeOpModule`s can be part of different
-#' preprocessing graphs. This is possible, because the created `PipeOpModule` is stateless.
-#' At a later point, graphs will be merged if possible to avoid unnecessary computation.
+#' preprocessing graphs. This is only possible, because the created `PipeOpModule` is stateless.
+#'
+#' At a later point in the graph, preprocessing graphs will be merged if possible to avoid unnecessary computation.
 #' This is best illustrated by example:
 #' One lazy tensor column's preprocessing graph is `A -> B`.
 #' Then, two branches are created `B -> C` and `B -> D`, creating two preprocessing graphs
-#' `A -> B -> C` and `A -> B -> D`. When loading the data, we want to run the preprocessing only once, i.e.
-#' the `A -> B` part. For this reason, [`task_dataset()`] will try to merge graphs and cache results from graphs.
+#' `A -> B -> C` and `A -> B -> D`. When loading the data, we want to run the preprocessing only once, i.e. we don't
+#' want to run the `A -> B` part twice. For this reason, [`task_dataset()`] will try to merge graphs and cache
+#' results from graphs.
 #'
 #' Also, the shapes created during `$train()` and `$predict()` might differ.
 #' To avoid the creation of graphs where the predict shapes are incompatible with the train shapes,
-#' the hypothetical predict shapes are already calculated during `$train()` (hence the parameters that are set during
-#' train are also used during predict) and the [`PipeOpTorchModel`] will check the train and predict shapes for
+#' the hypothetical predict shapes are already calculated during `$train()` (this is why the parameters that are set
+#' during train are also used during predict) and the [`PipeOpTorchModel`] will check the train and predict shapes for
 #' compatibility before starting the training.
 #'
 #' Otherwise, this mechanism is very similar to the [`ModelDescriptor`] construct.
@@ -243,6 +247,12 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
     fn = function(rhs) {
       assert_ro_binding(rhs)
       private$.fn
+    },
+    #' @field rowwise
+    #' Whether the preprocessing is applied rowwise.
+    rowwise = function(rhs) {
+      assert_ro_binding(rhs)
+      private$.rowwise
     }
   ),
   private = list(
@@ -309,21 +319,20 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
         identity
       }
 
-      dt = map_dtc(dt, function(lt) {
+      dt = imap_dtc(dt, function(lt, nm) {
         po_fn = PipeOpModule$new(
-          # By randomizing the id we avoid ID clashes
-          id = paste0(self$id, sample.int(.Machine$integer.max, 1)),
+          id = paste0(self$id, ".", nm),
           module = fn,
           inname = self$input$name,
           outname = self$output$name,
           packages = self$packages
         )
 
-        shape_before = lt$.pointer_shape
+        shape_before = dd(lt)$.pointer_shape
         shape_out = self$shapes_out(list(shape_before), stage = stage, task = task)[[1L]]
 
         shape_out_predict = if (stage == "train") {
-          shape_in_predict = if (is.null(lt$.pointer_shape_predict)) shape_before
+          shape_in_predict = if (is.null(dd(lt)$.pointer_shape_predict)) shape_before
           # during `$train()` we also keep track of the shapes that would arise during predict
           # This avoids that we first train a learner and then only notice during predict that the shapes
           # during the predict phase are wrong
@@ -358,14 +367,15 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
 #' @param param_vals (`list()`)\cr
 #'   The parameter values.
 #' @export
-pipeop_preproc_torch = function(id, fn, shapes_out, param_set = NULL, param_vals = list(), packages = character(0)) {
-
+pipeop_preproc_torch = function(id, fn, shapes_out, param_set = NULL, param_vals = list(), packages = character(0),
+  rowwise = FALSE) {
   pipeop_preproc_torch_class(
     id = id,
-    fn = if (is.language(fn)) fn else substitute(fn),
+    fn = if (is.language(fn)) fn else subs,
     shapes_out = shapes_out,
     param_set = if (is.language(param_set)) param_set else substitute(param_set),
     packages = if (is.language(packages)) packages else substitute(packages),
+    rowwise = rowwise
     )$new(param_vals = param_vals)
 }
 
@@ -427,7 +437,8 @@ create_ps_call = function(fn) {
 #' po_example = pipeop_preproc_torch("preproc_example", function(x, a) x + a)
 #' po_example
 #' po_example$param_set
-pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, packages = character(0), init_params = list(),
+pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, packages = character(0),
+  init_params = list(),
   rowwise = FALSE) {
   assert(
     check_function(shapes_out, args = c("shapes_in", "param_vals", "task"), null.ok = TRUE),
@@ -440,11 +451,11 @@ pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, pack
     }
   } else {
     # This should add required tags where it is applicable
-    param_set = create_ps_call(eval(fn))
+    param_set = create_ps_call(rlang::eval_tidy(fn))
   }
 
   if (!is.language(init_params)) init_params = substitute(init_params)
-  if (!is.language(fn)) fn = substitute(fn)
+  if (!rlang::is_quosure(fn)) fn = rlang::quo(fn)
 
   classname = paste0("PipeOpPreprocTorch", paste0(capitalize(strsplit(id, split = "_")[[1L]]), collapse = ""))
   # Note that we don't set default values
@@ -452,10 +463,9 @@ pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, pack
   if (identical(shapes_out, "infer")) {
     shapes_out = crate(function(shapes_in, param_vals, task) {
       sin = shapes_in[[1L]]
-
       batch_dim = sin[1L]
-      unknown_batch_dim = is.na(batch_dim)
-      if (unknown_batch_dim) {
+      batchdim_is_unknown = is.na(batch_dim)
+      if (batchdim_is_unknown) {
         sin[1] = 1L
       }
       if (rowwise) {
@@ -464,19 +474,21 @@ pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, pack
       tensor_in = invoke(torch_empty, .args = sin, device = torch_device("meta"))
       tensor_out = tryCatch(invoke(private$.fn, tensor_in, .args = param_vals),
         error = function(e) {
-          stopf("Invalid input shape, error message: %s", e)
+          stopf("Failed to infer output shape, presumably invalid input shape; error message is: %s", e)
         }
       )
       sout = dim(tensor_out)
 
       if (rowwise) {
         sout = c(batch_dim, sout)
-      } else if (unknown_batch_dim) {
+      } else if (batchdim_is_unknown) {
         sout[1] = NA
       }
 
       list(sout)
-    }, rowwise)
+    }, rowwise, .parent = environment(rlang::eval_tidy(fn)))
+    # FIXME: NSE issues, we need to evaluate fn in the proper environment,
+    # I guess we can use this quosure idea that
   } else if (identical(shapes_out, "unchanged")) {
     shapes_out = crate(function(shapes_in, param_vals, task_in) shapes_in)
   } else if (is.function(shapes_out) || is.null(shapes_out)) {
@@ -485,17 +497,17 @@ pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, pack
     stopf("unreachable")
   }
 
-  init_fun = crate(function(id = idname, param_vals = list()) {
-    param_set = x1
-    param_set$values = x2
+  init_fun = crate(function(id = idname, param_vals = list()) { # nolint
+    param_set = x1 # nolint
+    param_set$values = x2 # nolint
     super$initialize(
       id = id,
-      packages = x3,
+      packages = x3, # nolint
       param_set = param_set,
       param_vals = param_vals,
-      fn = x4,
-      rowwise = x5,
-      stages_init = x6
+      fn = x4, # nolint
+      rowwise = x5, # nolint
+      stages_init = x6 # nolint
     )
   })
   stages_init = if (startsWith(id, "augment_")) {
@@ -509,7 +521,7 @@ pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, pack
   body(init_fun)[[2]][[3]] = param_set
   body(init_fun)[[3]][[3]] = init_params
   body(init_fun)[[4]][[3]] = packages
-  body(init_fun)[[4]][[6]] = fn
+  body(init_fun)[[4]][[6]] = as.expression(fn)
   body(init_fun)[[4]][[7]] = rowwise
   body(init_fun)[[4]][[8]] = stages_init
 
@@ -525,7 +537,7 @@ pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, pack
 }
 
 register_preproc = function(id, fn, param_set = NULL, shapes_out = NULL, packages = character(0), rowwise = FALSE) {
-  Class = pipeop_preproc_torch_class(id, substitute(fn), param_set = substitute(param_set), shapes_out = shapes_out,
+  Class = pipeop_preproc_torch_class(id, rlang::quo(fn), param_set = substitute(param_set), shapes_out = shapes_out,
     packages = packages, rowwise = rowwise)
   assign(Class$classname, Class, parent.frame())
   register_po(id, Class)

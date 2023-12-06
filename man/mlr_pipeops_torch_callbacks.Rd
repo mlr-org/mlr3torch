@@ -51,7 +51,6 @@ Other Model Configuration:
 
 Other PipeOp: 
 \code{\link{mlr_pipeops_module}},
-\code{\link{mlr_pipeops_torch_ingress_img}},
 \code{\link{mlr_pipeops_torch_optimizer}}
 }
 \concept{Model Configuration}

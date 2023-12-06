@@ -24,7 +24,7 @@ test_that("PipeOpTorchConvTranspose1D paramtest", {
 test_that("PipeOpTorchConvTranspose2D autotest", {
   po_conv = po("nn_conv_transpose2d", kernel_size = 2, out_channels = 4)
   task = nano_imagenet()
-  graph = po("torch_ingress_img", channels = 3L, height = 64L, width = 64L) %>>% po_conv
+  graph = po("torch_ingress_ltnsr") %>>% po_conv
 
   autotest_pipeop_torch(graph, "nn_conv_transpose2d", task)
 })
@@ -37,7 +37,7 @@ test_that("PipeOpTorchConvTranspose2D paramtest", {
 test_that("PipeOpTorchConvTranspose3D autotest", {
   po_conv = po("nn_conv_transpose3d", kernel_size = 2, out_channels = 4)
   task = nano_imagenet()
-  graph = po("torch_ingress_img", channels = 3L, height = 64L, width = 64L) %>>%
+  graph = po("torch_ingress_ltnsr") %>>%
     po("nn_reshape", shape = c(-1, 3, 64, 8, 8)) %>>%
     po_conv
 
