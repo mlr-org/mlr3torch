@@ -2,6 +2,7 @@
 % Please edit documentation in R/preprocess.R
 \name{mlr_pipeops_preproc_torch.trafo_adjust_brightness}
 \alias{mlr_pipeops_preproc_torch.trafo_adjust_brightness}
+\alias{PipeOpPreprocTorchTrafoAdjustBrightness}
 \title{PipeOpPreprocTorchTrafoAdjustBrightness}
 \format{
 \code{\link{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.

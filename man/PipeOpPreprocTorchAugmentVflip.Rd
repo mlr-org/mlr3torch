@@ -2,6 +2,7 @@
 % Please edit documentation in R/preprocess.R
 \name{mlr_pipeops_preproc_torch.augment_vflip}
 \alias{mlr_pipeops_preproc_torch.augment_vflip}
+\alias{PipeOpPreprocTorchAugmentVflip}
 \title{PipeOpPreprocTorchAugmentVflip}
 \format{
 \code{\link{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.

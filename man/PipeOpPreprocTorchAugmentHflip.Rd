@@ -2,6 +2,7 @@
 % Please edit documentation in R/preprocess.R
 \name{mlr_pipeops_preproc_torch.augment_hflip}
 \alias{mlr_pipeops_preproc_torch.augment_hflip}
+\alias{PipeOpPreprocTorchAugmentHflip}
 \title{PipeOpPreprocTorchAugmentHflip}
 \format{
 \code{\link{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.

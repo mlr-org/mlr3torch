@@ -2,6 +2,7 @@
 % Please edit documentation in R/preprocess.R
 \name{mlr_pipeops_preproc_torch.augment_random_affine}
 \alias{mlr_pipeops_preproc_torch.augment_random_affine}
+\alias{PipeOpPreprocTorchAugmentRandomAffine}
 \title{PipeOpPreprocTorchAugmentRandomAffine}
 \format{
 \code{\link{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.

@@ -2,6 +2,7 @@
 % Please edit documentation in R/preprocess.R
 \name{mlr_pipeops_preproc_torch.trafo_adjust_saturation}
 \alias{mlr_pipeops_preproc_torch.trafo_adjust_saturation}
+\alias{PipeOpPreprocTorchTrafoAdjustSaturation}
 \title{PipeOpPreprocTorchTrafoAdjustSaturation}
 \format{
 \code{\link{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.

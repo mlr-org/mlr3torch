@@ -32,6 +32,7 @@ register_preproc("trafo_resize", torchvision::transform_resize,
 #' @title PipeOpPreprocTorchTrafoNop
 #' @usage NULL
 #' @name mlr_pipeops_preproc_torch.trafo_nop
+#' @aliases PipeOpPreprocTorchTrafoNop
 #' @rdname PipeOpPreprocTorchTrafoNop
 #' @format [`R6Class`] inheriting from [`PipeOpTaskPreprocTorch`].
 #'

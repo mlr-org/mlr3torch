@@ -2,6 +2,7 @@
 % Please edit documentation in R/preprocess.R
 \name{mlr_pipeops_preproc_torch.trafo_pad}
 \alias{mlr_pipeops_preproc_torch.trafo_pad}
+\alias{PipeOpPreprocTorchTrafoPad}
 \title{PipeOpPreprocTorchTrafoPad}
 \format{
 \code{\link{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.

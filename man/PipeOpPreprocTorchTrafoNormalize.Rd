@@ -2,6 +2,7 @@
 % Please edit documentation in R/preprocess.R
 \name{mlr_pipeops_preproc_torch.trafo_normalize}
 \alias{mlr_pipeops_preproc_torch.trafo_normalize}
+\alias{PipeOpPreprocTorchTrafoNormalize}
 \title{PipeOpPreprocTorchTrafoNormalize}
 \format{
 \code{\link{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.

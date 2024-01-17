@@ -2,6 +2,7 @@
 % Please edit documentation in R/preprocess.R
 \name{mlr_pipeops_preproc_torch.trafo_adjust_gamma}
 \alias{mlr_pipeops_preproc_torch.trafo_adjust_gamma}
+\alias{PipeOpPreprocTorchTrafoAdjustGamma}
 \title{PipeOpPreprocTorchTrafoAdjustGamma}
 \format{
 \code{\link{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.

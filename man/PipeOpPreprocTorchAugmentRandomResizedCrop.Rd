@@ -2,6 +2,7 @@
 % Please edit documentation in R/preprocess.R
 \name{mlr_pipeops_preproc_torch.augment_random_resized_crop}
 \alias{mlr_pipeops_preproc_torch.augment_random_resized_crop}
+\alias{PipeOpPreprocTorchAugmentRandomResizedCrop}
 \title{PipeOpPreprocTorchAugmentRandomResizedCrop}
 \format{
 \code{\link{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.

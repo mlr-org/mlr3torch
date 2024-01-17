@@ -23,26 +23,8 @@ dsg = dataset(
   .length = function() nrow(self$x)
 )
 ds = dsg()
-
-# Create the preprocessing graph
-po_module = po("module", module = function(x) torch_reshape(x, c(-1, 9)))
-po_module$output
-graph = as_graph(po_module)
-
-# Create the data descriptor
-
-dd = DataDescriptor$new(
-  dataset = ds,
-  dataset_shapes = list(x = c(NA, 3, 3)),
-  graph = graph,
-  input_map = "x",
-  pointer = c("module", "output"),
-  pointer_shape = c(NA, 9)
-)
-
-# with no preprocessing
-dd_no_preproc = DataDescriptor$new(ds, list(x = c(NA, 3, 3)))
-dd_no_preproc
+dd = DataDescriptor$new(ds, list(x = c(NA, 3, 3)))
+dd
 }
 \seealso{
 ModelDescriptor, lazy_tensor

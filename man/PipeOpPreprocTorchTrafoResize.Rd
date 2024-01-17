@@ -2,6 +2,7 @@
 % Please edit documentation in R/preprocess.R
 \name{mlr_pipeops_preproc_torch.trafo_resize}
 \alias{mlr_pipeops_preproc_torch.trafo_resize}
+\alias{PipeOpPreprocTorchTrafoResize}
 \title{PipeOpPreprocTorchTrafoResize}
 \format{
 \code{\link{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.

@@ -2,6 +2,7 @@
 % Please edit documentation in R/preprocess.R
 \name{mlr_pipeops_preproc_torch.augment_rotate}
 \alias{mlr_pipeops_preproc_torch.augment_rotate}
+\alias{PipeOpPreprocTorchAugmentRotate}
 \title{PipeOpPreprocTorchAugmentRotate}
 \format{
 \code{\link{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.

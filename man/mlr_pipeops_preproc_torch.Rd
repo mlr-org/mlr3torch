@@ -97,7 +97,7 @@ taskin = as_task_regr(d, target = "y")
 po_simple = po("preproc_torch",
   # get rid of environment baggage
   fn = mlr3misc::crate(function(x, a) x + a),
-  param_set = ps(a = p_int(tags = c("train", "required")))
+  param_set = paradox::ps(a = paradox::p_int(tags = c("train", "required")))
 )
 
 po_simple$param_set$set_values(

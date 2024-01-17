@@ -2,6 +2,7 @@
 % Please edit documentation in R/preprocess.R
 \name{mlr_pipeops_preproc_torch.trafo_adjust_hue}
 \alias{mlr_pipeops_preproc_torch.trafo_adjust_hue}
+\alias{PipeOpPreprocTorchTrafoAdjustHue}
 \title{PipeOpPreprocTorchTrafoAdjustHue}
 \format{
 \code{\link{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.

@@ -2,6 +2,7 @@
 % Please edit documentation in R/preprocess.R
 \name{mlr_pipeops_preproc_torch.augment_random_vertical_flip}
 \alias{mlr_pipeops_preproc_torch.augment_random_vertical_flip}
+\alias{PipeOpPreprocTorchAugmentRandomVerticalFlip}
 \title{PipeOpPreprocTorchAugmentRandomVerticalFlip}
 \format{
 \code{\link{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.

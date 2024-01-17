@@ -101,7 +101,7 @@
 #' po_simple = po("preproc_torch",
 #'   # get rid of environment baggage
 #'   fn = mlr3misc::crate(function(x, a) x + a),
-#'   param_set = ps(a = p_int(tags = c("train", "required")))
+#'   param_set = paradox::ps(a = paradox::p_int(tags = c("train", "required")))
 #' )
 #'
 #' po_simple$param_set$set_values(
@@ -305,7 +305,7 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
             }, param_vals, trafo, .parent = environment(trafo))
           } else {
             crate(function(x) {
-              invoke(.f = trafo, x, .args = param_vals)
+              mlr3misc::invoke(.f = trafo, x, .args = param_vals)
             }, param_vals, trafo, .parent = environment(trafo))
           }
         } else {

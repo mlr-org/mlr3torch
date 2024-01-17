@@ -2,6 +2,7 @@
 % Please edit documentation in R/preprocess.R
 \name{mlr_pipeops_preproc_torch.augment_color_jitter}
 \alias{mlr_pipeops_preproc_torch.augment_color_jitter}
+\alias{PipeOpPreprocTorchAugmentColorJitter}
 \title{PipeOpPreprocTorchAugmentColorJitter}
 \format{
 \code{\link{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.

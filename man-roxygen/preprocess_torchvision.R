@@ -1,5 +1,6 @@
 #' <% pipeop = po(id) %>
 #' @title <%= class(pipeop)[[1L]] %>
+#' @aliases <%= class(pipeop)[[1L]] %>
 #' @usage NULL
 #' @name mlr_pipeops_preproc_torch.<%= id %>
 #' @rdname <%= class(pipeop)[[1L]] %>

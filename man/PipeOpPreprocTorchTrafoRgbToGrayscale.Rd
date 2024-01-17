@@ -2,6 +2,7 @@
 % Please edit documentation in R/preprocess.R
 \name{mlr_pipeops_preproc_torch.trafo_rgb_to_grayscale}
 \alias{mlr_pipeops_preproc_torch.trafo_rgb_to_grayscale}
+\alias{PipeOpPreprocTorchTrafoRgbToGrayscale}
 \title{PipeOpPreprocTorchTrafoRgbToGrayscale}
 \format{
 \code{\link{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.

@@ -2,6 +2,7 @@
 % Please edit documentation in R/preprocess.R
 \name{mlr_pipeops_preproc_torch.augment_random_choice}
 \alias{mlr_pipeops_preproc_torch.augment_random_choice}
+\alias{PipeOpPreprocTorchAugmentRandomChoice}
 \title{PipeOpPreprocTorchAugmentRandomChoice}
 \format{
 \code{\link{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
