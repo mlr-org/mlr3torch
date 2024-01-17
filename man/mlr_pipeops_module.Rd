@@ -84,7 +84,7 @@ linear_module
 formalArgs(linear_module$module)
 linear_module$input$name
 
-Constructing a PipeOpModule using a simple function
+# Constructing a PipeOpModule using a simple function
 po_add1 = po("module",
   id = "add_one",
   module = function(x) x + 1

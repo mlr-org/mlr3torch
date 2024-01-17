@@ -220,9 +220,10 @@ test_that("augment_center_crop", {
 })
 
 test_that("augment_random_choice", {
+  # needs dev version of torchvision
   autotest_pipeop_torch_preprocess(
     obj = po("augment_random_choice", transforms = list(
-      identity, identity
+      identity, function(x) x + 1
     )),
     shapes_in = list(c(1, 3, 8, 8))
   )

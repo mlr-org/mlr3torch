@@ -7,16 +7,22 @@
 \usage{
 materialize(x, device = "cpu", rbind = FALSE, ...)
 
-\method{materialize}{list}(x, device = "cpu", rbind = FALSE, cache = "auto")
+\method{materialize}{list}(x, device = "cpu", rbind = FALSE, cache = "auto", ...)
 }
 \arguments{
 \item{x}{(any)\cr
 The object to materialize.
 Either a \code{\link{lazy_tensor}} or a \code{list()} / \code{data.frame()} containing \code{\link{lazy_tensor}} columns.}
 
+\item{device}{(\code{character(1)})\cr
+The torch device.}
+
 \item{rbind}{(\code{logical(1)})\cr
 Whether to rbind the lazy tensor columns (\code{TRUE}) or return them as a list of tensors (\code{FALSE}).
 In the second case, the batch dimension is present for all individual tensors.}
+
+\item{...}{(any)\cr
+Additional arguments.}
 
 \item{cache}{(\code{character(1)} or \code{environment()} or \code{NULL})\cr
 Optional cache for (intermediate) materialization results.
@@ -28,7 +34,7 @@ Per default, caching will be enabled when the same dataset / graph is used for m
 \description{
 This will materialize a \code{\link[=lazy_tensor]{lazy_tensor()}} or a \code{data.frame()} / \code{list()} containing -- among other things --
 \code{\link[=lazy_tensor]{lazy_tensor()}} columns.
-I.e. the data described in the underlying \code{\link{DataDescriptors}} is loaded for the indices in the \code{\link[=lazy_tensor]{lazy_tensor()}},
+I.e. the data described in the underlying \code{\link{DataDescriptor}}s is loaded for the indices in the \code{\link[=lazy_tensor]{lazy_tensor()}},
 is preprocessed and then put unto the specified device.
 Because not all elements in a lazy tensor must have the same shape, a list of tensors is returned by default.
 If all elements have the same shape, these tensors can also be rbinded into a single tensor (parameter \code{rbind}).

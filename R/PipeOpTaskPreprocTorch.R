@@ -34,7 +34,7 @@
 #'   The packages the preprocessing function depends on.
 #' @param param_set ([`ParamSet`])\cr
 #'   In case the function `fn` takes additional parameter besides a [`torch_tensor`] they can be
-#'   specfied as parameters. None of the parameters can have the [`"predict"`] tag.
+#'   specfied as parameters. None of the parameters can have the `"predict"` tag.
 #'   All tags should be set to `"train"`.
 #' @param stages_init (`logical(1)`)\cr
 #'   Initial value for the `stages` parameter.
@@ -301,7 +301,7 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
         if (length(param_vals)) {
           if (private$.rowwise) {
             trafo = crate(function(x) {
-              torch_cat(map(seq_len(nrow(x)), function(i) invoke(trafo, x[i, ..], .args = param_vals)$unsqueeze(1L)), dim = 1L)
+              torch_cat(lapply(seq_len(nrow(x)), function(i) mlr3misc::invoke(trafo, x[i, ..], .args = param_vals)$unsqueeze(1L)), dim = 1L)
             }, param_vals, trafo, .parent = environment(trafo))
           } else {
             crate(function(x) {
@@ -312,7 +312,7 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
           if (private$.rowwise) {
             crate(function(x) {
               torch_cat(map(seq_len(nrow(x)), function(i) trafo(x[i, ..])$unsqueeze(1L)), dim = 1L)
-            }, trafo)
+            }, trafo, .parent = topenv())
           } else {
             trafo
           }
@@ -433,15 +433,21 @@ create_ps = function(fn) {
 #'   All parameters but the first and `...` of `fn` are set as untyped parameters with tags 'train' and those that
 #'   have nod default value are tagged as 'required' as well.
 #'   Default values are not annotated.
+#' @param parent_env (`environment`)\cr
+#'   The parent environment for the R6 class.
+#' @param rowwise (`logical(1)`)\cr
+#'   Whether the preprocessing is applied row-wise.
+#' @param init_params (name `list()`)\cr
+#'   List containing initial parameter values.
 #' @template param_packages
 #' @export
 #' @returns An [`R6Class`][R6::R6Class] instance inheriting from [`PipeOpTaskPreprocTorch`]
 #' @examples
 #' po_example = pipeop_preproc_torch("preproc_example", function(x, a) x + a)
 #' po_example
-#' po_example$param_setents cannot be passed as variables but need to be passed as expressions.
+#' po_example$param_set
 pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, packages = character(0),
-  init_params = list(), rowwise = FALSE, parent_env = parent.frame(), leanify = NULL) {
+  init_params = list(), rowwise = FALSE, parent_env = parent.frame()) {
   assert(
     check_function(shapes_out, args = c("shapes_in", "param_vals", "task"), null.ok = TRUE),
     check_choice(shapes_out, c("infer", "unchanged"))
@@ -486,7 +492,7 @@ pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, pack
   param_set = param_set %??% create_ps(fn)
 
   stages_init = if (startsWith(id, "augment_")) "train" else "both"
-  init_fun = crate(function(id = idname, param_vals = list()) { # nolint
+  init_fun = crate(function(id = id, param_vals = list()) { # nolint
     info = private$.__construction_info
     param_set = info$param_set$clone(deep = TRUE)
     param_set$values = info$init_params # nolint
@@ -501,7 +507,7 @@ pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, pack
     )
     # no need to keep the data around after initialiation
     private$.__construction_info = NULL
-  }, param_set, stages_init, rowwise, packages, init_params)
+  })
 
   formals(init_fun)$id = id
 
@@ -540,6 +546,7 @@ register_preproc = function(id, fn, param_set = NULL, shapes_out = NULL, package
     packages = packages, rowwise = rowwise, parent_env = parent.frame())
   assign(Class$classname, Class, parent.frame())
   register_po(id, Class)
+  NULL
 }
 
 register_po("preproc_torch", PipeOpTaskPreprocTorch, metainf = list(fn = identity, rowwise = FALSE))

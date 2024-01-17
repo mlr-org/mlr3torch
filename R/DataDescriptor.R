@@ -3,7 +3,7 @@
 #' @description
 #' A data descriptor is a rather internal data structure used in the [`lazy_tensor`] data type.
 #' In essence it is an annotated [`torch::dataset`] and a preprocessing graph (consisting mosty of [`PipeOpModule`]
-#' operators). The additional meta data (e.g. pointer, shapes) allows to preprocess [`lazy_tensors`] in an
+#' operators). The additional meta data (e.g. pointer, shapes) allows to preprocess [`lazy_tensor`]s in an
 #' [`mlr3pipelines::Graph`] just like any (non-lazy) data types.
 #' The preprocessing is applied when [`materialize()`] is called on the [`lazy_tensor`].
 #'
@@ -44,7 +44,7 @@
 #' # Create a dataset
 #' dsg = dataset(
 #'   initialize = function() self$x = torch_randn(10, 3, 3),
-#'   .getitem = function(i) self$x[i, ],
+#'   .getitem = function(i) list(x = self$x[i, ]),
 #'   .length = function() nrow(self$x)
 #' )
 #' ds = dsg()
@@ -141,7 +141,7 @@ DataDescriptor = R6Class("DataDescriptor",
       catn(sprintf("* dataset_shapes: %s", shape_to_str(self$dataset_shapes)))
       catn(sprintf("* input_map: (%s) -> Graph", paste0(self$input_map, collapse = ", ")))
       catn(sprintf("* pointer: %s", paste0(self$pointer, collapse = ".")))
-      catn(str_indent("* .shape(train):",
+      catn(str_indent("* shape(train):",
         if (is.null(self$pointer_shape)) "<unknown>" else shape_to_str(list(self$pointer_shape))))
       catn(str_indent("* shape(predict):",
         if (is.null(self$pointer_shape_predict)) "<unknown>" else shape_to_str(list(self$pointer_shape_predict))))

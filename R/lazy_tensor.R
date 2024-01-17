@@ -70,7 +70,7 @@ as_lazy_tensor = function(x, ...) {
 }
 
 #' @export
-as_lazy_tensor.DataDescriptor = function(x, ids = NULL) { # nolint
+as_lazy_tensor.DataDescriptor = function(x, ids = NULL, ...) { # nolint
   lazy_tensor(x, ids = ids)
 }
 
@@ -81,12 +81,12 @@ as_lazy_tensor.dataset = function(x, dataset_shapes, ids = NULL, ...) { # nolint
 }
 
 #' @export
-as_lazy_tensor.numeric = function(x) { # nolint
+as_lazy_tensor.numeric = function(x, ...) { # nolint
   as_lazy_tensor(torch_tensor(x))
 }
 
 #' @export
-as_lazy_tensor.torch_tensor = function(x) { # nolint
+as_lazy_tensor.torch_tensor = function(x, ...) { # nolint
   if (length(dim(x)) == 1L) {
     x = x$unsqueeze(2)
   }

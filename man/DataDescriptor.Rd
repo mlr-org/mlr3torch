@@ -6,7 +6,7 @@
 \description{
 A data descriptor is a rather internal data structure used in the \code{\link{lazy_tensor}} data type.
 In essence it is an annotated \code{\link[torch:dataset]{torch::dataset}} and a preprocessing graph (consisting mosty of \code{\link{PipeOpModule}}
-operators). The additional meta data (e.g. pointer, shapes) allows to preprocess \code{\link{lazy_tensors}} in an
+operators). The additional meta data (e.g. pointer, shapes) allows to preprocess \code{\link{lazy_tensor}}s in an
 \code{\link[mlr3pipelines:Graph]{mlr3pipelines::Graph}} just like any (non-lazy) data types.
 The preprocessing is applied when \code{\link[=materialize]{materialize()}} is called on the \code{\link{lazy_tensor}}.
 }
@@ -19,7 +19,7 @@ If each row contained a DataDescriptor as an S3 class, this would copy the objec
 # Create a dataset
 dsg = dataset(
   initialize = function() self$x = torch_randn(10, 3, 3),
-  .getitem = function(i) self$x[i, ],
+  .getitem = function(i) list(x = self$x[i, ]),
   .length = function() nrow(self$x)
 )
 ds = dsg()

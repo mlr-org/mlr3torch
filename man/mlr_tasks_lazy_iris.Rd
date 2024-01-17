@@ -11,7 +11,7 @@
 }
 \description{
 A classification task for the popular \link[datasets:iris]{datasets::iris} data set.
-Just like the the \href{mlr3::mlr_tasks_iris}{iris task from mlr3}, but the features are represented as one lazy tensor column.
+Just like the iris task, but the features are represented as one lazy tensor column.
 }
 \section{Construction}{
 

@@ -271,28 +271,27 @@ test_that("caching of graph works", {
     x + 1
   }, env)
   po_test = pipeop_preproc_torch("test", fn = fn, shapes_out = "unchanged")
-  #
-  # expect_true(is.function(po_test$fn))
-  #
-  # taskin = tsk("lazy_iris")
-  #
-  # graph = po_test %>>%
-  #   list(
-  #     po("trafo_nop_1") %>>% po("renamecolumns", renaming = c(x = "z")),
-  #     po("trafo_nop_2")) %>>%
-  #   po("featureunion")
-  #
-  # task = graph$train(taskin)[[1L]]
-  #
-  # ingress_tokens = list(
-  #   z = TorchIngressToken("z", batchgetter_lazy_tensor, c(NA, 4)),
-  #   x = TorchIngressToken("x", batchgetter_lazy_tensor, c(NA, 4))
-  # )
-  #
-  # ds = task_dataset(task, ingress_tokens, device = "cpu")
-  # ds
-  #
-  # ds$.getbatch(1)
-  # print(env)
-  # expect_equal(env$counter, 1)
+
+  expect_true(is.function(po_test$fn))
+
+  taskin = tsk("lazy_iris")
+
+  graph = po_test %>>%
+    list(
+      po("trafo_nop_1") %>>% po("renamecolumns", renaming = c(x = "z")),
+      po("trafo_nop_2")) %>>%
+    po("featureunion")
+
+  task = graph$train(taskin)[[1L]]
+
+  ingress_tokens = list(
+    z = TorchIngressToken("z", batchgetter_lazy_tensor, c(NA, 4)),
+    x = TorchIngressToken("x", batchgetter_lazy_tensor, c(NA, 4))
+  )
+
+  ds = task_dataset(task, ingress_tokens, device = "cpu")
+
+  ds$.getbatch(1)
+  print(env)
+  expect_equal(env$counter, 1)
 })

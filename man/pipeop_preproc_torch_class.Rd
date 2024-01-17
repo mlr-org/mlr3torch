@@ -12,8 +12,7 @@ pipeop_preproc_torch_class(
   packages = character(0),
   init_params = list(),
   rowwise = FALSE,
-  parent_env = parent.frame(),
-  leanify = NULL
+  parent_env = parent.frame()
 )
 }
 \arguments{
@@ -43,6 +42,15 @@ Default values are not annotated.}
 
 \item{packages}{(\code{character()})\cr
 The R packages this object depends on.}
+
+\item{init_params}{(name \code{list()})\cr
+List containing initial parameter values.}
+
+\item{rowwise}{(\code{logical(1)})\cr
+Whether the preprocessing is applied row-wise.}
+
+\item{parent_env}{(\code{environment})\cr
+The parent environment for the R6 class.}
 }
 \value{
 An \code{\link[R6:R6Class]{R6Class}} instance inheriting from \code{\link{PipeOpTaskPreprocTorch}}
@@ -54,5 +62,5 @@ Start by reading the documentation of \code{\link{PipeOpTaskPreprocTorch}}.
 \examples{
 po_example = pipeop_preproc_torch("preproc_example", function(x, a) x + a)
 po_example
-po_example$param_setents cannot be passed as variables but need to be passed as expressions.
+po_example$param_set
 }

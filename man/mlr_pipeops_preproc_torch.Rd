@@ -228,7 +228,7 @@ Parameter values to be set after construction.}
 
 \item{\code{param_set}}{(\code{\link{ParamSet}})\cr
 In case the function \code{fn} takes additional parameter besides a \code{\link{torch_tensor}} they can be
-specfied as parameters. None of the parameters can have the \code{\link{"predict"}} tag.
+specfied as parameters. None of the parameters can have the \code{"predict"} tag.
 All tags should be set to \code{"train"}.}
 
 \item{\code{packages}}{(\code{character()})\cr

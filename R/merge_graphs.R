@@ -1,4 +1,3 @@
-#' note that this mo
 merge_graphs = function(g1, g2) {
   graph = g1$clone(deep = FALSE)
 

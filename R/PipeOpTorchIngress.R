@@ -305,8 +305,9 @@ register_po("torch_ingress_categ", PipeOpTorchIngressCategorical)
 #' po_resize = po("trafo_resize", size = c(6, 6))
 #' task_unknown_resize = po_resize$train(list(task_unknown))[[1L]]
 #'
-#' # printing the transformed column still hows unknown shapes, because the preprocessing pipeop cannot infer
-#' # the shapes, however we know that the shape is now (3, 10, 10) for all rows
+#' # printing the transformed column still shows unknown shapes,
+#' # because the preprocessing pipeop cannot infer them,
+#' # however we know that the shape is now (3, 10, 10) for all rows
 #' task_unknown_resize$data(1:2, "x")
 #' po_ingress$param_set$set_values(shape = c(NA, 3, 6, 6))
 #'

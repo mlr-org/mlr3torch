@@ -2,7 +2,7 @@
 #' @description
 #' This will materialize a [`lazy_tensor()`] or a `data.frame()` / `list()` containing -- among other things --
 #' [`lazy_tensor()`] columns.
-#' I.e. the data described in the underlying [`DataDescriptors`] is loaded for the indices in the [`lazy_tensor()`],
+#' I.e. the data described in the underlying [`DataDescriptor`]s is loaded for the indices in the [`lazy_tensor()`],
 #' is preprocessed and then put unto the specified device.
 #' Because not all elements in a lazy tensor must have the same shape, a list of tensors is returned by default.
 #' If all elements have the same shape, these tensors can also be rbinded into a single tensor (parameter `rbind`).
@@ -28,6 +28,10 @@
 #'   Whether to rbind the lazy tensor columns (`TRUE`) or return them as a list of tensors (`FALSE`).
 #'   In the second case, the batch dimension is present for all individual tensors.
 #' @return (`list()` of [`lazy_tensor`]s or a [`lazy_tensor`])
+#' @param device (`character(1)`)\cr
+#'   The torch device.
+#' @param ... (any)\cr
+#'   Additional arguments.
 #' @export
 #' @examples
 #' lt1 = as_lazy_tensor(torch_randn(10, 3))
@@ -48,7 +52,7 @@ materialize = function(x, device = "cpu", rbind = FALSE, ...) {
 #'   Optional cache for (intermediate) materialization results.
 #'   Per default, caching will be enabled when the same dataset / graph is used for more than one lazy tensor column.
 #' @export
-materialize.list = function(x, device = "cpu", rbind = FALSE, cache = "auto") { # nolint
+materialize.list = function(x, device = "cpu", rbind = FALSE, cache = "auto", ...) { # nolint
   x_lt = x[map_lgl(x, is_lazy_tensor)]
   assert(check_choice(cache, "auto"), check_environment(cache, null.ok = TRUE))
 
@@ -73,13 +77,13 @@ materialize.list = function(x, device = "cpu", rbind = FALSE, cache = "auto") { 
 
 #' @method materialize data.frame
 #' @export
-materialize.data.frame = function(x, device = "cpu", rbind = FALSE, cache = "auto") { # nolint
+materialize.data.frame = function(x, device = "cpu", rbind = FALSE, cache = "auto", ...) { # nolint
   materialize(as.list(x), device = device, rbind = rbind, cache = cache)
 }
 
 
 #' @export
-materialize.lazy_tensor = function(x, device = "cpu", rbind = FALSE) { # nolint
+materialize.lazy_tensor = function(x, device = "cpu", rbind = FALSE, ...) { # nolint
   materialize_internal(x = x, device = device, cache = NULL, rbind = rbind)
 }
 

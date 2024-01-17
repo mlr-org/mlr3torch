@@ -45,6 +45,12 @@ The parameter values.}
 
 \item{packages}{(\code{character()})\cr
 The R packages this object depends on.}
+
+\item{rowwise}{(\code{logical(1)})\cr
+Whether the preprocessing is applied row-wise.}
+
+\item{parent_env}{(\code{environment})\cr
+The parent environment for the R6 class.}
 }
 \description{
 Calls \code{\link{pipeop_preproc_torch_class}} and instantiates the instance with the given parameter values.
