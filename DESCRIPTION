@@ -63,7 +63,8 @@ Suggests:
     testthat (>= 3.0.0),
     zip
 Remotes:
-    r-lib/zip
+    r-lib/zip,
+    mlr-org/mlr3
 Config/testthat/edition: 3
 NeedsCompilation: no
 ByteCompile: no
