@@ -12,12 +12,12 @@ model_descriptor_to_module(
 }
 \arguments{
 \item{model_descriptor}{(\code{\link{ModelDescriptor}})\cr
-Model Descriptor. \code{.pointer} is ignored, instead \code{output_pointer} values are used. \verb{$graph} member is
+Model Descriptor. \code{pointer} is ignored, instead \code{output_pointer} values are used. \verb{$graph} member is
 modified by-reference.}
 
 \item{output_pointers}{(\code{list} of \code{character})\cr
-Collection of \code{.pointer}s that indicate what part of the \code{model_descriptor$graph} is being used for output.
-Entries have the format of \code{ModelDescriptor$.pointer}.}
+Collection of \code{pointer}s that indicate what part of the \code{model_descriptor$graph} is being used for output.
+Entries have the format of \code{ModelDescriptor$pointer}.}
 
 \item{list_output}{(\code{logical(1)})\cr
 Whether output should be a list of tensors. If \code{FALSE}, then \code{length(output_pointers)} must be 1.}

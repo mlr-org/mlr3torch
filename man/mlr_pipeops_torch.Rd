@@ -73,7 +73,7 @@ be automatically inferred from the shapes of the input tensors.
 
 During training, the \code{PipeOpTorch} creates a \code{\link{PipeOpModule}} for the given parameter specification and the
 input shapes from the incoming \href{s}{\code{ModelDescriptor}} using the private method \code{.make_module()}.
-The input shapes are provided by the slot \code{.pointer_shape} of the incoming \code{\link{ModelDescriptor}}s.
+The input shapes are provided by the slot \code{pointer_shape} of the incoming \code{\link{ModelDescriptor}}s.
 The channel names of this \code{\link{PipeOpModule}} are identical to the channel names of the generating \code{\link{PipeOpTorch}}.
 
 A \link[=model_descriptor_union]{model descriptor union} of all incoming \code{\link{ModelDescriptor}}s is then created.
@@ -81,14 +81,14 @@ Note that this modifies the \code{\link[=Graph]{graph}} of the first \code{\link
 The \code{\link{PipeOpModule}} is added to the \code{\link[=Graph]{graph}} slot of this union and the the edges that connect the
 sending \code{PipeOpModule}s to the input channel of this \code{PipeOpModule} are addeded to the graph.
 This is possible because every incoming \code{\link{ModelDescriptor}} contains the information about the
-\code{id} and the \code{channel} name of the sending \code{PipeOp} in the slot \code{.pointer}.
+\code{id} and the \code{channel} name of the sending \code{PipeOp} in the slot \code{pointer}.
 
 The new graph in the \code{\link{model_descriptor_union}} represents the current state of the neural network
 architecture. It is isomorphic to the subgraph that consists of all pipeops of class \code{PipeOpTorch} and
 \code{\link{PipeOpTorchIngress}} that are ancestors of this \code{PipeOpTorch}.
 
-For the output, a shallow copy of the \code{\link{ModelDescriptor}} is created and the \code{.pointer} and
-\code{.pointer_shape} are updated accordingly. The shallow copy means that all \code{\link{ModelDescriptor}}s point to the same
+For the output, a shallow copy of the \code{\link{ModelDescriptor}} is created and the \code{pointer} and
+\code{pointer_shape} are updated accordingly. The shallow copy means that all \code{\link{ModelDescriptor}}s point to the same
 \code{\link{Graph}} which allows the graph to be modified by-reference in different parts of the code.
 }
 
@@ -193,8 +193,8 @@ task2 = task$clone()$select(paste0("Petal.", c("Length", "Width")))
 graph = gunion(list(po("torch_ingress_num_1"), po("torch_ingress_num_2")))
 mds_in = graph$train( list(task1, task2), single_input = FALSE)
 
-mds_in[[1L]][c("graph", "task", "ingress", ".pointer", ".pointer_shape")]
-mds_in[[2L]][c("graph", "task", "ingress", ".pointer", ".pointer_shape")]
+mds_in[[1L]][c("graph", "task", "ingress", "pointer", "pointer_shape")]
+mds_in[[2L]][c("graph", "task", "ingress", "pointer", "pointer_shape")]
 
 # creating the PipeOpTorch and training it
 po_torch = PipeOpTorchCustom$new()
@@ -218,12 +218,12 @@ mds_out[[2L]]$task
 identical(mds_out[[1L]]$ingress, mds_out[[2L]]$ingress)
 mds_out[[1L]]$ingress
 
-# The .pointer and .pointer_shape slots are different
-mds_out[[1L]]$.pointer
-mds_out[[2L]]$.pointer
+# The pointer and pointer_shape slots are different
+mds_out[[1L]]$pointer
+mds_out[[2L]]$pointer
 
-mds_out[[1L]]$.pointer_shape
-mds_out[[2L]]$.pointer_shape
+mds_out[[1L]]$pointer_shape
+mds_out[[2L]]$pointer_shape
 
 ## Prediction
 predict_input = list(input1 = task1, input2 = task2)

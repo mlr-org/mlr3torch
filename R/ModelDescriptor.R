@@ -8,8 +8,8 @@
 #' Output shapes are named by the output channels of `graph`; it is also possible
 #' to represent no-ops on tensors, in which case names of input and output should be identical.
 #'
-#' `ModelDescriptor` objects typically represent partial models being built up, in which case the `.pointer` slot
-#' indicates a specific point in the graph that produces a tensor of shape `.pointer_shape`, on which the graph should
+#' `ModelDescriptor` objects typically represent partial models being built up, in which case the `pointer` slot
+#' indicates a specific point in the graph that produces a tensor of shape `pointer_shape`, on which the graph should
 #' be extended.
 #' It is allowed for the `graph` in this structure to be modified by-reference in different parts of the code.
 #' However, these modifications may never add edges with elements of the `Graph` as destination. In particular, no
@@ -34,18 +34,18 @@
 #'   Additional info: what loss to use.
 #' @param callbacks (A `list` of [`CallbackSet`] or `NULL`)\cr
 #'   Additional info: what callbacks to use.
-#' @param .pointer (`character(2)` | `NULL`)\cr
+#' @param pointer (`character(2)` | `NULL`)\cr
 #'   Indicating an element on which a model is. Points to an output channel within `graph`:
 #'   Element 1 is the `PipeOp`'s id and element 2 is that `PipeOp`'s output channel.
-#' @param .pointer_shape (`integer` | `NULL`)\cr
-#'   Shape of the output indicated by `.pointer`.
+#' @param pointer_shape (`integer` | `NULL`)\cr
+#'   Shape of the output indicated by `pointer`.
 #'
 #' @family Model Configuration
 #' @family Graph Network
 #' @return (`ModelDescriptor`)
 #' @export
-ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, callbacks = NULL, .pointer = NULL,
-  .pointer_shape = NULL) {
+ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, callbacks = NULL, pointer = NULL,
+  pointer_shape = NULL) {
   assert_r6(graph, "Graph")
   innames = graph$input$name  # graph$input$name access is slow
 
@@ -64,10 +64,10 @@ ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, 
   callbacks = as_torch_callbacks(callbacks)
   callbacks = set_names(callbacks, assert_names(ids(callbacks), type = "unique"))
 
-  if (!is.null(.pointer)) {
-    .pointer_shape = assert_shape(.pointer_shape, null_ok = FALSE, unknown_batch = TRUE)
-    assert_choice(.pointer[[1]], names(graph$pipeops))
-    assert_choice(.pointer[[2]], graph$pipeops[[.pointer[[1]]]]$output$name)
+  if (!is.null(pointer)) {
+    pointer_shape = assert_shape(pointer_shape, null_ok = FALSE, unknown_batch = TRUE)
+    assert_choice(pointer[[1]], names(graph$pipeops))
+    assert_choice(pointer[[2]], graph$pipeops[[pointer[[1]]]]$output$name)
   }
 
   structure(list(
@@ -77,8 +77,8 @@ ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, 
     optimizer = optimizer,
     loss = loss,
     callbacks = callbacks,
-    .pointer = .pointer,
-    .pointer_shape = .pointer_shape
+    pointer = pointer,
+    pointer_shape = pointer_shape
   ), class = "ModelDescriptor")
 }
 
@@ -95,8 +95,8 @@ print.ModelDescriptor = function(x, ...) {
   catn(str_indent("* Callbacks: ", if (!is.null(x$callbacks) && length(x$callbacks)) as_short_string(map_chr(x$callbacks, "label"), 100L) else "N/A")) # nolint
   catn(str_indent("* Optimizer: ", if (!is.null(x$optimizer)) as_short_string(x$optimizer$label) else "N/A"))
   catn(str_indent("* Loss: ", if (!is.null(x$loss)) as_short_string(x$loss$label) else "N/A"))
-  catn(str_indent("* .pointer: ", if (is.null(x$.pointer)) "" else { # nolint
-    sprintf("\n%s %s", paste(x$.pointer, collapse = "."), shape_to_str(list(x$.pointer_shape)))
+  catn(str_indent("* pointer: ", if (is.null(x$pointer)) "" else { # nolint
+    sprintf("\n%s %s", paste(x$pointer, collapse = "."), shape_to_str(list(x$pointer_shape)))
   }))
 }
 
@@ -110,7 +110,7 @@ print.ModelDescriptor = function(x, ...) {
 #' * `graph`s are combinded (if they are not identical to begin with). The first entry's `graph` is modified by
 #'    reference.
 #' * `PipeOp`s with the same ID must be identical. No new input edges may be added to `PipeOp`s.
-#' * Drops `.pointer` / `.pointer_shape` entries.
+#' * Drops `pointer` / `pointer_shape` entries.
 #' * The new task is the [feature union][PipeOpFeatureUnion] of the two incoming tasks.
 #' * The `optimizer` and `loss` of both [`ModelDescriptor`]s must be identical.
 #' * Ingress tokens and callbacks are merged, where objects with the same `"id"` must be identical.

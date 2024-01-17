@@ -84,11 +84,11 @@ nn_graph = nn_module(
 #' most circumstances harder to use than just creating [`nn_graph`] directly.
 #'
 #' @param model_descriptor ([`ModelDescriptor`])\cr
-#'   Model Descriptor. `.pointer` is ignored, instead `output_pointer` values are used. `$graph` member is
+#'   Model Descriptor. `pointer` is ignored, instead `output_pointer` values are used. `$graph` member is
 #'   modified by-reference.
 #' @param output_pointers (`list` of `character`)\cr
-#'   Collection of `.pointer`s that indicate what part of the `model_descriptor$graph` is being used for output.
-#'   Entries have the format of `ModelDescriptor$.pointer`.
+#'   Collection of `pointer`s that indicate what part of the `model_descriptor$graph` is being used for output.
+#'   Entries have the format of `ModelDescriptor$pointer`.
 #' @param list_output (`logical(1)`)\cr
 #'   Whether output should be a list of tensors. If `FALSE`, then `length(output_pointers)` must be 1.
 #'
@@ -99,7 +99,7 @@ model_descriptor_to_module = function(model_descriptor, output_pointers = NULL, 
   assert_class(model_descriptor, "ModelDescriptor")
   assert_flag(list_output)
   assert_list(output_pointers, types = "character", len = if (!list_output) 1, null.ok = TRUE)
-  output_pointers = output_pointers %??% list(model_descriptor$.pointer)
+  output_pointers = output_pointers %??% list(model_descriptor$pointer)
 
   # all graph inputs have an entry in self$shapes_in
   # ModelDescriptor allows Graph to grow by-reference and therefore may have

@@ -89,8 +89,8 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
         graph = graph,
         ingress = structure(list(ingress), names = graph$input$name),
         task = task,
-        .pointer = as.character(graph$output[, c("op.id", "channel.name"), with = FALSE]),
-        .pointer_shape = ingress$shape
+        pointer = as.character(graph$output[, c("op.id", "channel.name"), with = FALSE]),
+        pointer_shape = ingress$shape
       ))
     },
     .predict = function(inputs) inputs
@@ -341,7 +341,7 @@ PipeOpTorchIngressLazyTensor = R6Class("PipeOpTorchIngressLazyTensor",
         stopf("PipeOpTorchIngressLazyTensor expects 1 'lazy_tensor' feature, but got %i.", length(lazy_cols))
       }
       example = task$data(task$row_ids[1L], lazy_cols)[[1L]]
-      input_shape = dd(example)$.pointer_shape
+      input_shape = dd(example)$pointer_shape
       pv_shape = param_vals$shape
 
       if (is.null(input_shape)) {

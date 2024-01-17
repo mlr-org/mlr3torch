@@ -7,8 +7,8 @@ expect_po_ingress = function(po_ingress, task) {
   testthat::expect_true(token$graph$ids() == po_ingress$id)
   testthat::expect_true(all(token$task$feature_types$type %in% po_ingress$feature_types))
   testthat::expect_equal(token$callbacks, named_list())
-  testthat::expect_equal(token$.pointer, c(po_ingress$id, "output"))
-  testthat::expect_equal(token$.pointer_shape, get_private(po_ingress)$.shape(task, po_ingress$param_set$values))
+  testthat::expect_equal(token$pointer, c(po_ingress$id, "output"))
+  testthat::expect_equal(token$pointer_shape, get_private(po_ingress)$.shape(task, po_ingress$param_set$values))
 
   ingress = token$ingress
   expect_set_equal(

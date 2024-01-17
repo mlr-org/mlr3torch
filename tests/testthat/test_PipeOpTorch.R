@@ -36,13 +36,13 @@ test_that("single input and output", {
 
   mdout = obj$train(list(md))[[1L]]
   expect_identical(address(md$graph), address(mdout$graph))
-  expect_true(!identical(md$.pointer, mdout$.pointer))
-  expect_true(!identical(md$.pointer_shape, mdout$.pointer_shape))
+  expect_true(!identical(md$pointer, mdout$pointer))
+  expect_true(!identical(md$pointer_shape, mdout$pointer_shape))
   expect_equal(address(md$loss), address(mdout$loss))
   expect_equal(address(md$optimizer), address(mdout$optimizer))
   expect_equal(address(md$callbacks[[1L]]), address(mdout$callbacks[[1L]]))
-  expect_equal(mdout$.pointer, c("nn_linear", "output"))
-  expect_equal(mdout$.pointer_shape, c(NA, 10))
+  expect_equal(mdout$pointer, c("nn_linear", "output"))
+  expect_equal(mdout$pointer_shape, c(NA, 10))
   expect_true(obj$is_trained)
   expect_true("nn_linear" %in% names(mdout$graph$pipeops))
   expect_class(mdout$graph$pipeops$nn_linear, "PipeOpModule")
@@ -77,8 +77,8 @@ test_that("train handles multiple input channels correctly", {
   mdsout = obj$train(mds)
   expect_true(obj$is_trained)
   expect_equal(address(mdsout[[1L]]$graph), address(mdsout[[1L]]$graph))
-  expect_equal(mdsout[[1L]]$.pointer, c("nn_merge_sum", "output"))
-  expect_equal(mdsout[[1L]]$.pointer_shape, c(NA, 2))
+  expect_equal(mdsout[[1L]]$pointer, c("nn_merge_sum", "output"))
+  expect_equal(mdsout[[1L]]$pointer_shape, c(NA, 2))
 
   expect_equal(
     data.table(
@@ -105,10 +105,10 @@ test_that("train handles multiple input channels correctly", {
   mdout2 = mdouts[["output2"]]
 
   expect_equal(address(mdout1$graph), address(mdout2$graph))
-  expect_equal(mdout1$.pointer, c("nn_debug", "output1"))
-  expect_equal(mdout2$.pointer, c("nn_debug", "output2"))
-  expect_equal(mdout1$.pointer_shape, c(NA, 2))
-  expect_equal(mdout2$.pointer_shape, c(NA, 3))
+  expect_equal(mdout1$pointer, c("nn_debug", "output1"))
+  expect_equal(mdout2$pointer, c("nn_debug", "output2"))
+  expect_equal(mdout1$pointer_shape, c(NA, 2))
+  expect_equal(mdout2$pointer_shape, c(NA, 3))
 })
 
 test_that("shapes_out", {
@@ -134,10 +134,10 @@ test_that("PipeOpTorch errs when there are unexpected NAs in the shape", {
   task = tsk("iris")
   md = graph$train(task)[[1L]]
 
-  md$.pointer_shape = c(4, NA)
+  md$pointer_shape = c(4, NA)
   expect_error(po("nn_relu")$train(list(md)), regexp = "Invalid shape")
 
-  md$.pointer_shape = c(NA, NA, 4)
+  md$pointer_shape = c(NA, NA, 4)
   expect_error(po("nn_relu")$train(list(md)), regexp = "Invalid shape")
 
 })

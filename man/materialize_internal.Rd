@@ -31,7 +31,7 @@ Materializing a lazy tensor consists of:
 \enumerate{
 \item Loading the data from the internal dataset of the \code{\link{DataDescriptor}}.
 \item Processing these batches in the preprocessing \code{\link{Graph}}s.
-\item Returning the result of the \code{\link{PipeOp}} pointed to by the \code{\link{DataDescriptor}} (\code{.pointer}).
+\item Returning the result of the \code{\link{PipeOp}} pointed to by the \code{\link{DataDescriptor}} (\code{pointer}).
 }
 
 When materializing multiple \code{\link{lazy_tensor}} columns, caching can be useful because:

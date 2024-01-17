@@ -64,7 +64,7 @@ load_task_mnist = function(id = "mnist") {
       .length = function() dim(self$images)[1L]
     )(data$image)
 
-    data_descriptor = DataDescriptor(dataset = ds, list(image = c(NA, 1, 28, 28)))
+    data_descriptor = DataDescriptor$new(dataset = ds, list(image = c(NA, 1, 28, 28)))
 
     dt = data.table(
       image = lazy_tensor(data_descriptor),

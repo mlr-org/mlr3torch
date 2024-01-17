@@ -11,7 +11,7 @@
 #' Materializing a lazy tensor consists of:
 #' 1. Loading the data from the internal dataset of the [`DataDescriptor`].
 #' 2. Processing these batches in the preprocessing [`Graph`]s.
-#' 3. Returning the result of the [`PipeOp`] pointed to by the [`DataDescriptor`] (`.pointer`).
+#' 3. Returning the result of the [`PipeOp`] pointed to by the [`DataDescriptor`] (`pointer`).
 #'
 #' With multiple [`lazy_tensor`] columns we can benefit from caching because:
 #' a) Output(s) from the dataset might be input to multiple graphs.
@@ -53,8 +53,8 @@ materialize.list = function(x, device = "cpu", rbind = FALSE, cache = "auto") { 
   assert(check_choice(cache, "auto"), check_environment(cache, null.ok = TRUE))
 
   if (identical(cache, "auto")) {
-    data_hashes = map_chr(x_lt, function(x) dd(x)$.dataset_hash)
-    hashes = map_chr(x_lt, function(x) x$.hash)
+    data_hashes = map_chr(x_lt, function(x) dd(x)$dataset_hash)
+    hashes = map_chr(x_lt, function(x) x$hash)
     cache = if (uniqueN(data_hashes) > 1L || uniqueN(hashes) > 1L) {
       new.env()
     }
@@ -91,7 +91,7 @@ materialize.lazy_tensor = function(x, device = "cpu", rbind = FALSE) { # nolint
 #' Materializing a lazy tensor consists of:
 #' 1. Loading the data from the internal dataset of the [`DataDescriptor`].
 #' 2. Processing these batches in the preprocessing [`Graph`]s.
-#' 3. Returning the result of the [`PipeOp`] pointed to by the [`DataDescriptor`] (`.pointer`).
+#' 3. Returning the result of the [`PipeOp`] pointed to by the [`DataDescriptor`] (`pointer`).
 #'
 #' When materializing multiple [`lazy_tensor`] columns, caching can be useful because:
 #' a) Output(s) from the dataset might be input to multiple graphs.
@@ -124,15 +124,15 @@ materialize_internal = function(x, device = "cpu", cache = NULL, rbind) {
   graph = data_descriptor$graph
   varying_shapes = some(data_descriptor$dataset_shapes, is.null)
 
-  pointer_name = paste0(data_descriptor$.pointer, collapse = ".")
+  pointer_name = paste0(data_descriptor$pointer, collapse = ".")
   if (do_caching) {
-    output_hash = calculate_hash(ids, data_descriptor$.hash)
+    output_hash = calculate_hash(ids, data_descriptor$hash)
     output_hit = exists(output_hash, cache, inherits = FALSE)
 
     if (output_hit) {
       return(cache[[output_hash]][[pointer_name]])
     }
-    input_hash = calculate_hash(data_descriptor$.dataset_hash, ids)
+    input_hash = calculate_hash(data_descriptor$dataset_hash, ids)
 
     input_hit = exists(input_hash, cache, inherits = FALSE)
 
@@ -169,10 +169,10 @@ materialize_internal = function(x, device = "cpu", cache = NULL, rbind) {
   # this can change
 
   input = if (rbind && !varying_shapes) {
-    set_names(input[data_descriptor$.input_map], data_descriptor$.graph_input)
+    set_names(input[data_descriptor$input_map], data_descriptor$graph_input)
   } else {
     map(input, function(x) {
-      set_names(x[data_descriptor$.input_map], data_descriptor$.graph_input)
+      set_names(x[data_descriptor$input_map], data_descriptor$graph_input)
     })
   }
 

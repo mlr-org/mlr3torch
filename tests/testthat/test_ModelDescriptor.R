@@ -23,8 +23,8 @@ test_that("ModelDescriptor basic checks", {
     loss = loss,
     optimizer = optimizer,
     callbacks = list(cb),
-    .pointer = pointer,
-    .pointer_shape = pointer_shape
+    pointer = pointer,
+    pointer_shape = pointer_shape
   )
 
   expect_class(md, "ModelDescriptor")
@@ -32,8 +32,8 @@ test_that("ModelDescriptor basic checks", {
   expect_identical(md$task, task)
   expect_identical(md$ingress, ingresslist)
   expect_identical(md$callbacks, list(checkpoint = cb))
-  expect_identical(md$.pointer, pointer)
-  expect_equal(md$.pointer_shape, pointer_shape)
+  expect_identical(md$pointer, pointer)
+  expect_equal(md$pointer_shape, pointer_shape)
 
   repr = capture.output(md)
   expected = c(
@@ -43,7 +43,7 @@ test_that("ModelDescriptor basic checks", {
     "* Callbacks:  Checkpoint",
     "* Optimizer:  Adaptive Moment Estimation",
     "* Loss:  Cross Entropy",
-    "* .pointer:  nn_linear.output [(NA,3)]"
+    "* pointer:  nn_linear.output [(NA,3)]"
   )
 
   expect_equal(expected, repr)

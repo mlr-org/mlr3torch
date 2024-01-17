@@ -11,7 +11,8 @@ pipeop_preproc_torch(
   param_set = NULL,
   param_vals = list(),
   packages = character(0),
-  rowwise = FALSE
+  rowwise = FALSE,
+  parent_env = parent.frame()
 )
 }
 \arguments{

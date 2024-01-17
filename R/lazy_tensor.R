@@ -32,17 +32,17 @@ new_lazy_tensor = function(data_descriptor, ids) {
 
   # Note that we just include the hash as an attribute, so c() does not allow to combine lazy tensors whose
   # data descriptors have different hashes.
-  vctrs::new_vctr(map(ids, function(id) list(id, data_descriptor)), hash = data_descriptor$.hash, class = "lazy_tensor")
+  vctrs::new_vctr(map(ids, function(id) list(id, data_descriptor)), hash = data_descriptor$hash, class = "lazy_tensor")
 }
 
 #' @export
 format.lazy_tensor = function(x, ...) { # nolint
   if (!length(x)) return(character(0))
-  shape = dd(x)$.pointer_shape
+  shape = dd(x)$pointer_shape
   shape = if (is.null(shape)) {
     return(rep("<tnsr[]>", length(x)))
   }
-  shape = paste0(dd(x)$.pointer_shape[-1L], collapse = "x")
+  shape = paste0(dd(x)$pointer_shape[-1L], collapse = "x")
 
   map_chr(x, function(elt) {
     sprintf("<tnsr[%s]>", shape)
@@ -76,7 +76,7 @@ as_lazy_tensor.DataDescriptor = function(x, ids = NULL) { # nolint
 
 #' @export
 as_lazy_tensor.dataset = function(x, dataset_shapes, ids = NULL, ...) { # nolint
-  dd = DataDescriptor(dataset = x, dataset_shapes = dataset_shapes, ...)
+  dd = DataDescriptor$new(dataset = x, dataset_shapes = dataset_shapes, ...)
   lazy_tensor(dd, ids)
 }
 
@@ -137,11 +137,11 @@ is_lazy_tensor = function(x) {
 #' @details
 #' The following is done:
 #' 1. A shallow copy of the [`lazy_tensor`]'s preprocessing `graph` is created.
-#' 1. The provided `pipeop` is added to the (shallowly cloned) `graph` and connected to the current `.pointer` of the
+#' 1. The provided `pipeop` is added to the (shallowly cloned) `graph` and connected to the current `pointer` of the
 #' [`DataDescriptor`].
-#' 1. The `.pointer` of the [`DataDescriptor`] is updated to point to the new output channel of the `pipeop`.
-#' 1. The `.pointer_shape` of the [`DataDescriptor`] set to the provided `shape`.
-#' 1. The `.hash` of the [`DataDescriptor`] is updated.
+#' 1. The `pointer` of the [`DataDescriptor`] is updated to point to the new output channel of the `pipeop`.
+#' 1. The `pointer_shape` of the [`DataDescriptor`] set to the provided `shape`.
+#' 1. The `hash` of the [`DataDescriptor`] is updated.
 #' Input must be PipeOpModule with exactly one input and one output
 #' shape must be shape with NA in first dimension
 #'
@@ -174,20 +174,20 @@ transform_lazy_tensor = function(lt, pipeop, shape, shape_predict = NULL) {
 
   graph$add_pipeop(pipeop, clone = FALSE)
   graph$add_edge(
-    src_id = data_descriptor$.pointer[1L],
-    src_channel = data_descriptor$.pointer[2L],
+    src_id = data_descriptor$pointer[1L],
+    src_channel = data_descriptor$pointer[2L],
     dst_id = pipeop$id,
     dst_channel = pipeop$input$name
   )
 
-  data_descriptor = DataDescriptor(
+  data_descriptor = DataDescriptor$new(
     data_descriptor$dataset,
     dataset_shapes = data_descriptor$dataset_shapes,
     graph = graph,
-    .input_map = data_descriptor$.input_map,
-    .pointer = c(pipeop$id, pipeop$output$name),
-    .pointer_shape = shape,
-    .pointer_shape_predict = shape_predict,
+    input_map = data_descriptor$input_map,
+    pointer = c(pipeop$id, pipeop$output$name),
+    pointer_shape = shape,
+    pointer_shape_predict = shape_predict,
     clone_graph = FALSE
   )
 
@@ -211,13 +211,13 @@ transform_lazy_tensor = function(lt, pipeop, shape, shape_predict = NULL) {
     "dataset",
     "graph",
     "dataset_shapes",
-    ".input_map",
-    ".pointer",
-    ".pointer_shape",
-    ".dataset_hash",
-    ".hash",
-    ".graph_input",
-    ".pointer_shape_predict"
+    "input_map",
+    "pointer",
+    "pointer_shape",
+    "dataset_hash",
+    "hash",
+    "graph_input",
+    "pointer_shape_predict"
   ))
   dd[[name]]
 }

@@ -14,9 +14,9 @@ test_that("Unknown shapes work", {
     }
   )()
 
-  dd = DataDescriptor(ds, dataset_shapes = list(x = NULL))
+  dd = DataDescriptor$new(ds, dataset_shapes = list(x = NULL))
   expect_class(dd, "DataDescriptor")
-  expect_equal(dd$.pointer_shape, NULL)
+  expect_equal(dd$pointer_shape, NULL)
   expect_equal(dd$dataset_shapes, list(x = NULL))
 
   lt = as_lazy_tensor(dd)
@@ -24,12 +24,12 @@ test_that("Unknown shapes work", {
   materialize(lt)
 
   ds = random_dataset(10, 3)
-  expect_error(DataDescriptor(ds, list(x = NULL)))
+  expect_error(DataDescriptor$new(ds, list(x = NULL)))
 })
 
 test_that("lazy_tensor works", {
-  dd1 = DataDescriptor(random_dataset(5, 4), list(x = c(NA, 5, 4)))
-  dd2 = DataDescriptor(random_dataset(5, 4), list(x = c(NA, 5, 4)))
+  dd1 = DataDescriptor$new(random_dataset(5, 4), list(x = c(NA, 5, 4)))
+  dd2 = DataDescriptor$new(random_dataset(5, 4), list(x = c(NA, 5, 4)))
 
   lt = lazy_tensor()
   expect_class(lt, "lazy_tensor")
@@ -80,15 +80,15 @@ test_that("transform_lazy_tensor works", {
   # pipeop was not cloned
   expect_true(identical(dd1$graph$pipeops$dataset_x, dd$graph$pipeops$dataset_x))
 
-  # .pointer was set
-  expect_equal(dd1$.pointer, c("mod", "output"))
+  # pointer was set
+  expect_equal(dd1$pointer, c("mod", "output"))
 
-  # .pointer_shape was set
-  expect_equal(dd1$.pointer_shape, c(NA, 10))
+  # pointer_shape was set
+  expect_equal(dd1$pointer_shape, c(NA, 10))
 
   # hash was updated
-  expect_false(dd$.hash == dd1$.hash)
-  expect_true(dd$.dataset_hash == dd1$.dataset_hash)
+  expect_false(dd$hash == dd1$hash)
+  expect_true(dd$dataset_hash == dd1$dataset_hash)
 
   # materialization gives correct result
   lt1_mat = materialize(lt1, rbind = TRUE)

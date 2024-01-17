@@ -72,7 +72,7 @@ task_dataset = dataset(
       }
 
     }
-    self$cache_lazy_tensors = length(unique(map_chr(data, function(x) x$.hash))) > 1L
+    self$cache_lazy_tensors = length(unique(map_chr(data, function(x) x$hash))) > 1L
   },
   .getbatch = function(index) {
     cache = if (self$cache_lazy_tensors) new.env()
@@ -96,11 +96,11 @@ task_dataset = dataset(
 merge_lazy_tensor_graphs = function(lts) {
   # Otherwise it is ugly to do the caching of the data loading
   # and this is not really a strong restriction
-  assert_true(length(unique(map_chr(lts, function(x) dd(x)$.dataset_hash))) == 1L)
+  assert_true(length(unique(map_chr(lts, function(x) dd(x)$dataset_hash))) == 1L)
 
   graph = Reduce(merge_graphs, map(lts, function(x) dd(x)$graph))
   input_map = Reduce(c, map(lts, function(lt) {
-    set_names(list(dd(lt)$.input_map), dd(lt)$graph$input$name)
+    set_names(list(dd(lt)$input_map), dd(lt)$graph$input$name)
   }))
   input_map = input_map[unique(names(input_map))]
 
@@ -110,31 +110,31 @@ merge_lazy_tensor_graphs = function(lts) {
   # some PipeOs that were previously terminal might not be anymore,
   # for those we add nops and updaate the pointers for their data descriptors
   map_dtc(lts, function(lt) {
-    pointer_name = paste0(lt$.pointer, collapse = ".")
+    pointer_name = paste0(lt$pointer, collapse = ".")
 
     pointer = if (pointer_name %nin% graph$output$name) {
       po_terminal = po("nop", id = uniqueify(pointer_name, graph$ids()))
       graph$add_pipeop(po_terminal, clone = FALSE)
       graph$add_pipeop(
-        src_id = lt$.pointer[1L],
+        src_id = lt$pointer[1L],
         dst_id = po_terminal$id,
-        src_channel = lt$.pointer[2L],
+        src_channel = lt$pointer[2L],
         dst_channel = po_terminal$input$name
       )
 
       c(po_terminal$id, po_terminal$output$name)
     } else {
-      lt$.pointer
+      lt$pointer
     }
 
-    data_descriptor = DataDescriptor(
+    data_descriptor = DataDescriptor$new(
       dataset = dd(lts[[1]])$dataset,
       dataset_shapes = dd(lts[[1L]])$dataset_shapes,
       graph = graph,
-      .input_map = input_map,
-      .pointer = pointer,
-      .pointer_shape = lt$.pointer_shape,
-      .pointer_shape_predict = lt$.pointer_shape_predict,
+      input_map = input_map,
+      pointer = pointer,
+      pointer_shape = lt$pointer_shape,
+      pointer_shape_predict = lt$pointer_shape_predict,
       clone_graph = FALSE
     )
     new_lazy_tensor(data_descriptor, map_int(vec_data(lt), 1L))
@@ -143,7 +143,7 @@ merge_lazy_tensor_graphs = function(lts) {
 
 dataset_ltnsr = function(task, param_vals) {
   assert_true(length(task$feature_names) == 1L)
-  shape = dd(task$data(cols = task$feature_names)[[1L]])$.pointer_shape
+  shape = dd(task$data(cols = task$feature_names)[[1L]])$pointer_shape
   if (is.null(shape)) {
     stopf("Each row element of the lazy tensor column must be of a known shape, please resize it accordingly.")
   }

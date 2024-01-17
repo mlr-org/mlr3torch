@@ -138,19 +138,22 @@ test_that("materialize_internal: caching of datasets works", {
   x1 = as_lazy_tensor(ds, list(x = c(NA, 3)))
   x2 = as_lazy_tensor(ds, list(x = c(NA, 3)))
 
+
   # hashes of environments change after a function was called (?)
   # https://github.com/mlr-org/mlr3torch/issues/156
   expect_equal(
-    dd(x1)$.dataset_hash,
-    dd(x2)$.dataset_hash
+    dd(x1)$dataset_hash,
+    dd(x2)$dataset_hash
   )
 
-  dd1 = DataDescriptor(ds, list(x = c(NA, 3)))
-  dd2 = DataDescriptor(ds, list(x = c(NA, 3)))
+  dd1 = DataDescriptor$new(ds, list(x = c(NA, 3)))
+  dd2 = DataDescriptor$new(ds, list(x = c(NA, 3)))
 
-  dd1$.dataset_hash
-  dd2$.dataset_hash
+  dd1$dataset_hash
+  dd2$dataset_hash
 
+  # need to do this, because DataDescritor creation retrieves an example batch to verify the shapes.
+  ds$count = 0
 
   d = data.table(x1 = x1, x2 = x2)
   materialize(d, rbind = TRUE, cache = new.env())

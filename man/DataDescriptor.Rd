@@ -3,57 +3,17 @@
 \name{DataDescriptor}
 \alias{DataDescriptor}
 \title{Data Descriptor}
-\usage{
-DataDescriptor(
-  dataset,
-  dataset_shapes,
-  graph = NULL,
-  .input_map = NULL,
-  .pointer = NULL,
-  .pointer_shape = NULL,
-  .pointer_shape_predict = NULL,
-  clone_graph = TRUE
-)
-}
-\arguments{
-\item{dataset}{(\code{\link[torch:dataset]{torch::dataset}})\cr
-The torch dataset.}
-
-\item{dataset_shapes}{(named \code{list()} of (\code{integer()} or \code{NULL}))\cr
-The shapes of the output.
-Names are the elements of the list returned by the dataset.
-If the shape is not \code{NULL} (unknown, e.g. for images of different sizes) the first dimension must be \code{NA} to
-indicate the batch dimension.}
-
-\item{graph}{(\code{\link{Graph}})\cr
-The preprocessing graph.
-If left \code{NULL}, no preprocessing is applied to the data and \code{.input_map}, \code{.pointer} and \code{.pointer_shape}
-are inferred in case the dataset returns only one element.}
-
-\item{.input_map}{(\code{character()})\cr
-Character vector that must have the same length as the input of the graph.
-Specifies how the data from the \code{dataset} is fed into the preprocessing graph.}
-
-\item{.pointer}{(\code{character(2)} | \code{NULL})\cr
-Indicating an element on which a model is. Points to an output channel within \code{graph}:
-Element 1 is the \code{PipeOp}'s id and element 2 is that \code{PipeOp}'s output channel.}
-
-\item{.pointer_shape}{(\code{integer} | \code{NULL})\cr
-Shape of the output indicated by \code{.pointer}.}
-
-\item{.pointer_shape_predict}{(\code{integer()} or \code{NULL})\cr
-Internal use only.
-Used in a \code{\link{Graph}} to anticipate possible mismatches between train and predict shapes.}
-
-\item{clone_graph}{(\code{logical(1)})\cr
-Whether to clone the preprocessing graph.}
-}
 \description{
 A data descriptor is a rather internal data structure used in the \code{\link{lazy_tensor}} data type.
 In essence it is an annotated \code{\link[torch:dataset]{torch::dataset}} and a preprocessing graph (consisting mosty of \code{\link{PipeOpModule}}
 operators). The additional meta data (e.g. pointer, shapes) allows to preprocess \code{\link{lazy_tensors}} in an
 \code{\link[mlr3pipelines:Graph]{mlr3pipelines::Graph}} just like any (non-lazy) data types.
 The preprocessing is applied when \code{\link[=materialize]{materialize()}} is called on the \code{\link{lazy_tensor}}.
+}
+\details{
+While it would be more natural to define this as an S3 class, we opted for an R6 class to avoid the usual
+trouble of serializing S3 objects.
+If each row contained a DataDescriptor as an S3 class, this would copy the object when serializing.
 }
 \examples{
 # Create a dataset
@@ -71,19 +31,154 @@ graph = as_graph(po_module)
 
 # Create the data descriptor
 
-dd = DataDescriptor(
+dd = DataDescriptor$new(
   dataset = ds,
   dataset_shapes = list(x = c(NA, 3, 3)),
   graph = graph,
-  .input_map = "x",
-  .pointer = c("module", "output"),
-  .pointer_shape = c(NA, 9)
+  input_map = "x",
+  pointer = c("module", "output"),
+  pointer_shape = c(NA, 9)
 )
 
 # with no preprocessing
-dd_no_preproc = DataDescriptor(ds, list(x = c(NA, 3, 3)))
+dd_no_preproc = DataDescriptor$new(ds, list(x = c(NA, 3, 3)))
 dd_no_preproc
 }
 \seealso{
 ModelDescriptor, lazy_tensor
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{dataset}}{(\code{\link[torch:dataset]{torch::dataset}})\cr
+The dataset.}
+
+\item{\code{graph}}{(\code{\link{Graph}})\cr
+The preprocessing graph.}
+
+\item{\code{dataset_shapes}}{(named \code{list()} of (\code{integer()} or \code{NULL}))\cr
+The shapes of the output.}
+
+\item{\code{input_map}}{(\code{character()})\cr
+The input map from the dataset to the preprocessing graph.}
+
+\item{\code{pointer}}{(\code{character(2)} | \code{NULL})\cr
+The output pointer.}
+
+\item{\code{pointer_shape}}{(\code{integer} | \code{NULL})\cr
+The shape of the output indicated by \code{pointer}.}
+
+\item{\code{dataset_hash}}{(\code{character(1)})\cr
+Hash for the wrapped dataset.}
+
+\item{\code{hash}}{(\code{character(1)})\cr
+Hash for the data descriptor.}
+
+\item{\code{graph_input}}{(\code{character()})\cr
+The input channels of the preprocessing graph (cached to save time).}
+
+\item{\code{pointer_shape_predict}}{(\code{integer()} or \code{NULL})\cr
+Internal use only.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-DataDescriptor-new}{\code{DataDescriptor$new()}}
+\item \href{#method-DataDescriptor-print}{\code{DataDescriptor$print()}}
+\item \href{#method-DataDescriptor-clone}{\code{DataDescriptor$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataDescriptor-new"></a>}}
+\if{latex}{\out{\hypertarget{method-DataDescriptor-new}{}}}
+\subsection{Method \code{new()}}{
+Creates a new instance of this \link[R6:R6Class]{R6} class.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataDescriptor$new(
+  dataset,
+  dataset_shapes,
+  graph = NULL,
+  input_map = NULL,
+  pointer = NULL,
+  pointer_shape = NULL,
+  pointer_shape_predict = NULL,
+  clone_graph = TRUE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{dataset}}{(\code{\link[torch:dataset]{torch::dataset}})\cr
+The torch dataset.}
+
+\item{\code{dataset_shapes}}{(named \code{list()} of (\code{integer()} or \code{NULL}))\cr
+The shapes of the output.
+Names are the elements of the list returned by the dataset.
+If the shape is not \code{NULL} (unknown, e.g. for images of different sizes) the first dimension must be \code{NA} to
+indicate the batch dimension.}
+
+\item{\code{graph}}{(\code{\link{Graph}})\cr
+The preprocessing graph.
+If left \code{NULL}, no preprocessing is applied to the data and \code{input_map}, \code{pointer} and \code{pointer_shape}
+are inferred in case the dataset returns only one element.}
+
+\item{\code{input_map}}{(\code{character()})\cr
+Character vector that must have the same length as the input of the graph.
+Specifies how the data from the \code{dataset} is fed into the preprocessing graph.}
+
+\item{\code{pointer}}{(\code{character(2)} | \code{NULL})\cr
+Indicating an element on which a model is. Points to an output channel within \code{graph}:
+Element 1 is the \code{PipeOp}'s id and element 2 is that \code{PipeOp}'s output channel.}
+
+\item{\code{pointer_shape}}{(\code{integer} | \code{NULL})\cr
+Shape of the output indicated by \code{pointer}.}
+
+\item{\code{pointer_shape_predict}}{(\code{integer()} or \code{NULL})\cr
+Internal use only.
+Used in a \code{\link{Graph}} to anticipate possible mismatches between train and predict shapes.}
+
+\item{\code{clone_graph}}{(\code{logical(1)})\cr
+Whether to clone the preprocessing graph.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataDescriptor-print"></a>}}
+\if{latex}{\out{\hypertarget{method-DataDescriptor-print}{}}}
+\subsection{Method \code{print()}}{
+Prints the object
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataDescriptor$print(...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{(any)\cr
+Unused}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataDescriptor-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-DataDescriptor-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataDescriptor$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
 }

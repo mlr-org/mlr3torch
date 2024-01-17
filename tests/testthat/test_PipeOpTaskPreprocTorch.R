@@ -225,8 +225,14 @@ test_that("pipeop_preproc_torch", {
   expect_equal(size, list(c(NA, 10, 10)))
 })
 
+test_that("can pass variable to fn", {
+  fn = function(x) x
+  po_test = pipeop_preproc_torch("test", fn = fn, shapes_out = "infer")
+  expect_pipeop(po_test)
+})
+
 test_that("predict shapes are added during training", {
-  po_test = pipeop_preproc_torch("test", function(x) torch_cat(list(x, x * 2), dim = 2), shapes_out = "infer")
+  fn =   po_test = pipeop_preproc_torch("test", fn = function(x) torch_cat(list(x, x * 2), dim = 2), shapes_out = "infer")
 
   po_test$param_set$set_values(
     stages = "train"

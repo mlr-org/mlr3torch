@@ -70,7 +70,7 @@ LearnerTorchImageTest = R6Class("LearnerTorchImageTest",
   ),
   private = list(
     .network = function(task, param_vals) {
-      shape = dd(task$data(task$row_ids[1L], task$feature_names)[[1L]])$.pointer_shape
+      shape = dd(task$data(task$row_ids[1L], task$feature_names)[[1L]])$pointer_shape
       d = prod(shape[-1])
       nout = get_nout(task)
       nn_sequential(

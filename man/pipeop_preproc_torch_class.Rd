@@ -12,7 +12,8 @@ pipeop_preproc_torch_class(
   packages = character(0),
   init_params = list(),
   rowwise = FALSE,
-  parent_env = parent.frame()
+  parent_env = parent.frame(),
+  leanify = NULL
 )
 }
 \arguments{
@@ -42,9 +43,6 @@ Default values are not annotated.}
 
 \item{packages}{(\code{character()})\cr
 The R packages this object depends on.}
-
-\item{param_vals}{(named \code{list()})\cr
-Parameter values to be set after construction.}
 }
 \value{
 An \code{\link[R6:R6Class]{R6Class}} instance inheriting from \code{\link{PipeOpTaskPreprocTorch}}
@@ -56,5 +54,5 @@ Start by reading the documentation of \code{\link{PipeOpTaskPreprocTorch}}.
 \examples{
 po_example = pipeop_preproc_torch("preproc_example", function(x, a) x + a)
 po_example
-po_example$param_set
+po_example$param_setents cannot be passed as variables but need to be passed as expressions.
 }
