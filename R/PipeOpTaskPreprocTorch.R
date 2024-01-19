@@ -125,7 +125,8 @@
 #' materialize(taskout_predict_aug$data(cols = c("x1", "x2")), rbind = TRUE)
 #'
 #' # Creating a more complex preprocessing PipeOp
-#'po_poly = pipeop_preproc_torch(
+#' PipeOpPreprocTorchPoly = R6::R6Class("PipeOpPreprocTorchPoly",
+#'  inherit = PipeOpTaskPreprocTorch,
 #'  public = list(
 #'    initialize = function(id = "preproc_poly", param_vals = list()) {
 #'      param_set = paradox::ps(
@@ -160,15 +161,15 @@
 #'      list(c(NA, param_vals$n_degree))
 #'    }
 #'  )
-#')
+#' )
 #'
-#'po_poly = PipeOpPreprocTorchPoly$new(
-#'  param_vals = list(n_degree = 3L, affect_columns = selector_name("x3"))
-#')
+#' po_poly = PipeOpPreprocTorchPoly$new(
+#'   param_vals = list(n_degree = 3L, affect_columns = selector_name("x3"))
+#' )
 #'
-#'po_poly$shapes_out(list(c(NA, 1L)))
+#' po_poly$shapes_out(list(c(NA, 1L)), stage = "train")
 #'
-#'taskout = po_poly$train(list(tasken))[[1L]]
+#'taskout = po_poly$train(list(taskin))[[1L]]
 #'materialize(taskout$data(cols = "x3"), rbind = TRUE)
 PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
   inherit = PipeOpTaskPreproc,
@@ -385,29 +386,21 @@ pipeop_preproc_torch = function(id, fn, shapes_out, param_set = NULL, param_vals
 
 create_ps = function(fn) {
   # TODO: could simplify this as we don't need the expression anymore
-  fmls = rlang::fn_fmls(fn)
+  missing = alist(x = )$x
+  fmls = formals(fn)
   param_names = names(fmls)
+  # we assume the firs argument is for the tensor
   param_names = setdiff(param_names[-1L], "...")
   fmls = fmls[param_names]
-  is_required = map(fmls, function(x) identical(x, rlang::missing_arg()))
+  is_required = map_lgl(fmls, function(x) identical(x, alist(x = )$x))
   # Create an empty named list to store the arguments
   args = list()
 
-  # Iterate through the elements of v and create expressions
-  for (pname in param_names) {
-    arg_name = as.name(pname)
-    if (is_required[[pname]]) {
-      arg_value = rlang::expr(p_uty(tags = c("train", "required")))
-    } else {
-      arg_value = rlang::expr(p_uty(tags = "train"))
-    }
-    args[[arg_name]] = arg_value
-  }
+  args = set_names(map(param_names, function(pn) {
+    p_uty(tags = if (is_required[pn]) c("train", "required") else "train")
+  }), param_names)
 
-  # Create the final language object
-  result = rlang::expr(ps(!!!args))
-
-  eval(result)
+  invoke(ps, .args = args)
 }
 
 #' @title Create Torch Preprocessing PipeOps

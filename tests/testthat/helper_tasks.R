@@ -2,7 +2,7 @@ nano_dogs_vs_cats = function(id = "nano_dogs_vs_cats") {
   assert_string(id)
   path = testthat::test_path("assets", "nano_dogs_vs_cats")
   image_names = list.files(path)
-  uris = fs::path_norm(file.path(path, image_names))
+  uris = normalizePath(file.path(path, image_names), mustWork = FALSE)
 
   ds = dataset_image(uris)
 
@@ -68,7 +68,7 @@ nano_imagenet = function(id = "nano_imagenet") {
 
   path = testthat::test_path("assets", "nano_imagenet")
   image_names = list.files(path)
-  uris = fs::path_norm(file.path(path, image_names))
+  uris = normalizePath(file.path(path, image_names), mustWork = FALSE)
 
   images = as_lazy_tensor(dataset_image(uris), list(x = c(NA, 3, 64, 64)))
   labels = map_chr(image_names, function(name) strsplit(name, split = "_")[[1L]][1L])

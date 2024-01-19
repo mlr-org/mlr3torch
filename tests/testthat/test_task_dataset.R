@@ -266,8 +266,6 @@ test_that("caching of graph works", {
   env$counter = 0L
   fn = crate(function(x) {
     env$counter = env$counter + 1L
-    match.call()
-    print(x)
     x + 1
   }, env)
   po_test = pipeop_preproc_torch("test", fn = fn, shapes_out = "unchanged")

@@ -30,6 +30,7 @@ NULL
 # @param path (`character(1)`)\cr
 #   The cache_dir/datasets/tiny_imagenet folder.
 constructor_mnist = function(path) {
+  require_namespaces("torchvision")
   # path points to {cache_dir, tempfile}/data/mnist
   d_train = torchvision::mnist_dataset(root = file.path(path), train = TRUE, download = TRUE)
   # test set is already downloaded with the training set above

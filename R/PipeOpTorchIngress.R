@@ -277,7 +277,7 @@ register_po("torch_ingress_categ", PipeOpTorchIngressCategorical)
 #' @family PipeOps
 #' @family Graph Network
 #' @export
-#' @include utils.R
+#' @include utils.R shape.R
 #' @examples
 #' po_ingress = po("torch_ingress_ltnsr")
 #' task = tsk("lazy_iris")
@@ -330,7 +330,7 @@ PipeOpTorchIngressLazyTensor = R6Class("PipeOpTorchIngressLazyTensor",
     initialize = function(id = "torch_ingress_ltnsr", param_vals = list()) {
       param_set = ps(
         shape = p_uty(tags = "train", custom_check = crate(
-          function(x) check_shape(x, null_ok = FALSE, unknown_batch = TRUE)))
+          function(x) check_shape(x, null_ok = FALSE, unknown_batch = TRUE), .parent = topenv()))
         )
       super$initialize(id = id, param_vals = param_vals, feature_types = "lazy_tensor", param_set = param_set)
     }

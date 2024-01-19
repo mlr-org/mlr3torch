@@ -64,7 +64,15 @@ DataDescriptor = R6Class("DataDescriptor",
       assert_shape(pointer_shape_predict, null_ok = TRUE, unknown_batch = TRUE)
 
       # prevent user from e.g. forgetting to wrap the return in a list
-      example = if (is.null(dataset$.getbatch)) dataset$.getitem(1L) else dataset$.getbatch(1L)
+      example = if (is.null(dataset$.getbatch)) {
+        example = dataset$.getitem(1L)
+        if (!test_list(example)) {
+          stopf("dataset must return names list")
+        }
+        map(example, function(x) x$unsqueeze(1))
+      } else {
+        dataset$.getbatch(1L)
+      }
       if (!test_list(example, names = "unique") || !test_permutation(names(example), names(dataset_shapes))) {
         stopf("Dataset must return a list with named elements that are a permutation of the dataset_shapes names.")
         iwalk(dataset_shapes, function(dataset_shape, name) {

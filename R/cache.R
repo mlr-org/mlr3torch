@@ -25,7 +25,7 @@ get_cache_dir = function(cache = NULL) {
   }
 
   assert(check_directory_exists(cache), check_path_for_output(cache))
-  fs::path_norm(cache)
+  normalizePath(cache, mustWork = FALSE)
 }
 
 #' Initializes the cache directory.
@@ -37,7 +37,8 @@ get_cache_dir = function(cache = NULL) {
 #'
 #' @noRd
 initialize_cache = function(cache_dir) {
-  if (isFALSE(cache_dir) || (file.exists(cache_dir) && fs::path_real(cache_dir) %in% CACHE$initialized)) {
+  if (isFALSE(cache_dir) || (file.exists(cache_dir) && normalizePath(cache_dir, mustWork = FALSE) %in%
+      CACHE$initialized)) {
     lg$debug("Skipping initialization of cache", cache_dir = cache_dir)
     return(TRUE)
   }
@@ -70,7 +71,7 @@ initialize_cache = function(cache_dir) {
     writeLines(jsonlite::toJSON(CACHE$versions, auto_unbox = TRUE), con = cache_file)
   }
 
-  CACHE$initialized = c(CACHE$initialized, fs::path_real(cache_dir))
+  CACHE$initialized = c(CACHE$initialized, normalizePath(cache_dir, mustWork = FALSE))
 
   return(TRUE)
 }
@@ -83,7 +84,7 @@ cached = function(constructor, type, name) {
   do_caching = !isFALSE(cache_dir)
 
   # Even when we don't cache, we need to store the data somewhere
-  path = fs::path_norm(if (do_caching) file.path(cache_dir, type, name) else tempfile())
+  path = normalizePath(if (do_caching) file.path(cache_dir, type, name) else tempfile(), mustWork = FALSE)
 
   if (do_caching && dir.exists(path)) {
     # we cache and there is a cache hit
@@ -123,6 +124,6 @@ clear_mlr3torch_cache = function() {
     return(FALSE)
   }
   unlink(get_cache_dir(), recursive = TRUE)
-  CACHE$initialized = setdiff(CACHE$initialized, fs::path_norm(get_cache_dir()))
+  CACHE$initialized = setdiff(CACHE$initialized, normalizePath(get_cache_dir(), mustWork = FALSE))
   return(TRUE)
 }

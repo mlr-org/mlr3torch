@@ -32,6 +32,7 @@ NULL
 # @param path (`character(1)`)\cr
 #   The cache_dir/datasets/tiny_imagenet folder.
 constructor_tiny_imagenet = function(path) {
+  require_namespaces("torchvision")
   # path points to {cache_dir, tempfile}/data/tiny_imagenet
   torchvision::tiny_imagenet_dataset(root = file.path(path), download = TRUE)
   download_folder = file.path(path, "tiny-imagenet-200")

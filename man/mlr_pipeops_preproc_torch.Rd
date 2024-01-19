@@ -121,7 +121,8 @@ taskout_predict_aug = po_simple$predict(list(taskin))[[1L]]
 materialize(taskout_predict_aug$data(cols = c("x1", "x2")), rbind = TRUE)
 
 # Creating a more complex preprocessing PipeOp
-po_poly = pipeop_preproc_torch(
+PipeOpPreprocTorchPoly = R6::R6Class("PipeOpPreprocTorchPoly",
+ inherit = PipeOpTaskPreprocTorch,
  public = list(
    initialize = function(id = "preproc_poly", param_vals = list()) {
      param_set = paradox::ps(
@@ -159,12 +160,12 @@ po_poly = pipeop_preproc_torch(
 )
 
 po_poly = PipeOpPreprocTorchPoly$new(
- param_vals = list(n_degree = 3L, affect_columns = selector_name("x3"))
+  param_vals = list(n_degree = 3L, affect_columns = selector_name("x3"))
 )
 
-po_poly$shapes_out(list(c(NA, 1L)))
+po_poly$shapes_out(list(c(NA, 1L)), stage = "train")
 
-taskout = po_poly$train(list(tasken))[[1L]]
+taskout = po_poly$train(list(taskin))[[1L]]
 materialize(taskout$data(cols = "x3"), rbind = TRUE)
 }
 \section{Super classes}{

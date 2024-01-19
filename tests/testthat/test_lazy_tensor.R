@@ -22,6 +22,8 @@ test_that("Unknown shapes work", {
   lt = as_lazy_tensor(dd)
   expect_class(lt, "lazy_tensor")
   materialize(lt)
+  expect_true(test_class(lt[1:2], "lazy_tensor"))
+  expect_true(test_class(lt[[1]], "lazy_tensor"))
 
   ds = random_dataset(10, 3)
   expect_error(DataDescriptor$new(ds, list(x = NULL)))
@@ -34,17 +36,17 @@ test_that("lazy_tensor works", {
   lt = lazy_tensor()
   expect_class(lt, "lazy_tensor")
   expect_true(length(lt) == 0L)
-  expect_error(is.null(lt$data_descriptor))
+  expect_error(is.null(dd(lt)$data_descriptor))
 
   lt1 = lazy_tensor(dd1)
   lt2 = lazy_tensor(dd2)
 
-  expect_error(c(lt1, lt2), "attributes are incompatible")
+  expect_error(c(lt1, lt2), "Can only concatenate")
 
   expect_error({lt1[1] = lt2[1]}) # nolint
 
   lt1_empty = lt1[integer(0)]
-  expect_error(is.null(lt1_empty$data_descriptor))
+  expect_error(is.null(dd(lt1_empty)))
   expect_class(lt1_empty, "lazy_tensor")
 
   expect_error(materialize(lazy_tensor()), "Cannot materialize")
@@ -67,13 +69,13 @@ test_that("transform_lazy_tensor works", {
 
   lt1 = transform_lazy_tensor(lt, po_module, new_shape)
 
-  dd1 = lt1$data_descriptor
+  dd1 = dd(lt1)
 
   expect_equal(dd1$graph$edges,
     data.table(src_id = "dataset_x", src_channel = "output", dst_id = "mod", dst_channel = "input")
   )
 
-  dd = lt$data_descriptor
+  dd = dd(lt)
 
   # graph was cloned
   expect_true(!identical(dd1$graph, dd$graph))

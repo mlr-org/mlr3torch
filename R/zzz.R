@@ -10,7 +10,6 @@
 #' @import mlr3
 #' @import vctrs
 #' @importFrom tools R_user_dir
-#' @importFrom rlang !!
 #'
 #' @section Options:
 #' * `mlr3torch.cache`:

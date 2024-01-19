@@ -23,6 +23,7 @@ lazy_tensor = function(data_descriptor = NULL, ids = NULL) {
   new_lazy_tensor(data_descriptor, ids)
 }
 
+
 new_lazy_tensor = function(data_descriptor, ids) {
   # previously, only the id was included and not the hash
   # this led to issues with stuff like unlist(), which dropped attribute and suddenly the lazy_tensor column
@@ -32,7 +33,53 @@ new_lazy_tensor = function(data_descriptor, ids) {
 
   # Note that we just include the hash as an attribute, so c() does not allow to combine lazy tensors whose
   # data descriptors have different hashes.
-  vctrs::new_vctr(map(ids, function(id) list(id, data_descriptor)), hash = data_descriptor$hash, class = "lazy_tensor")
+  structure(map(ids, function(id) list(id, data_descriptor)), class = c("lazy_tensor", "list"))
+}
+
+#' @export
+`[.lazy_tensor` = function(x, i) {
+  structure(unclass(x)[i], class = c("lazy_tensor", "list"))
+}
+
+#' @export
+`[[.lazy_tensor` = function(x, i) {
+  structure(unclass(x)[[i]], class = c("lazy_tensor", "list"))
+}
+
+#' @export
+`[<-.lazy_tensor` = function(x, i, value) {
+  assert_true(is_lazy_tensor(value))
+  # no compatibility check
+  if (length(x) == 0) return(NextMethod())
+  assert_true(identical(dd(x)$hash, dd(value)$hash))
+  x = unclass(x)
+  x[i] = value
+  structure(x, class = c("lazy_tensor", "list"))
+}
+
+#' @export
+`[[<-.lazy_tensor` = function(x, i, value) {
+  assert_true(is_lazy_tensor(value))
+  # no compatibility check
+  if (length(x) == 0) return(NextMethod())
+  assert_true(identical(dd(x)$hash), dd(value)$hash)
+  x = unclass(x)
+  x[[i]] = value
+  structure(x, class = c("lazy_tensor", "list"))
+}
+
+#' @export
+c.lazy_tensor = function(...) {
+  dots = list(...)
+  if (!all(map_lgl(dots, is_lazy_tensor))) {
+    return(NextMethod())
+  }
+  if (length(unique(map_chr(dots, function(x) dd(x)$hash))) > 1) {
+    stopf("Can only concatenate lazy tensors with the same data descriptors.")
+  }
+
+  x = NextMethod()
+  structure(x, class = c("lazy_tensor", "list"))
 }
 
 #' @export
@@ -47,6 +94,16 @@ format.lazy_tensor = function(x, ...) { # nolint
   map_chr(x, function(elt) {
     sprintf("<tnsr[%s]>", shape)
   })
+}
+
+#' @export
+print.lazy_tensor = function(x, ...) {
+  cat(paste0("<ltnsr[", length(x), "]>", "\n", collapse = ""))
+  if (length(x) == 0) return(invisible(x))
+
+  out <- stats::setNames(format(x), names(x))
+  print(out, quote = FALSE)
+  invisible(x)
 }
 
 dd = function(x) {
@@ -102,11 +159,6 @@ as_lazy_tensor.torch_tensor = function(x, ...) { # nolint
     }
   )(x)
   as_lazy_tensor(ds, dataset_shapes = list(x = c(NA, dim(x)[-1])))
-}
-
-#' @export
-vec_ptype_abbr.lazy_tensor <- function(x, ...) { # nolint
-  "ltnsr"
 }
 
 #' @title Check for lazy tensor
@@ -191,33 +243,5 @@ transform_lazy_tensor = function(lt, pipeop, shape, shape_predict = NULL) {
     clone_graph = FALSE
   )
 
-  new_lazy_tensor(data_descriptor, map_int(vec_data(lt), 1))
-}
-
-#' @export
-`$.lazy_tensor` = function(x, name) {
-  # FIXME: remove this method
-  #stop("Not supported anymore")
-  if (!length(x)) {
-    stop("lazy tensor has length 0.")
-  }
-
-  dd = x[[1L]][[2L]]
-  if (name == "data_descriptor") {
-    return(dd)
-  }
-
-  assert_choice(name, c(
-    "dataset",
-    "graph",
-    "dataset_shapes",
-    "input_map",
-    "pointer",
-    "pointer_shape",
-    "dataset_hash",
-    "hash",
-    "graph_input",
-    "pointer_shape_predict"
-  ))
-  dd[[name]]
+  new_lazy_tensor(data_descriptor, map_int(lt, 1))
 }

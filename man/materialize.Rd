@@ -60,7 +60,7 @@ lt1 = as_lazy_tensor(torch_randn(10, 3))
 materialize(lt1, rbind = TRUE)
 materialize(lt1, rbind = FALSE)
 lt2 = as_lazy_tensor(torch_randn(10, 4))
-d = data.frame(lt1 = lt1, lt2 = lt2)
+d = data.table::data.table(lt1 = lt1, lt2 = lt2)
 materialize(d, rbind = TRUE)
 materialize(d, rbind = FALSE)
 }

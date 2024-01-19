@@ -38,7 +38,7 @@
 #' materialize(lt1, rbind = TRUE)
 #' materialize(lt1, rbind = FALSE)
 #' lt2 = as_lazy_tensor(torch_randn(10, 4))
-#' d = data.frame(lt1 = lt1, lt2 = lt2)
+#' d = data.table::data.table(lt1 = lt1, lt2 = lt2)
 #' materialize(d, rbind = TRUE)
 #' materialize(d, rbind = FALSE)
 materialize = function(x, device = "cpu", rbind = FALSE, ...) {
@@ -58,7 +58,7 @@ materialize.list = function(x, device = "cpu", rbind = FALSE, cache = "auto", ..
 
   if (identical(cache, "auto")) {
     data_hashes = map_chr(x_lt, function(x) dd(x)$dataset_hash)
-    hashes = map_chr(x_lt, function(x) x$hash)
+    hashes = map_chr(x_lt, function(x) dd(x)$hash)
     cache = if (uniqueN(data_hashes) > 1L || uniqueN(hashes) > 1L) {
       new.env()
     }
@@ -121,7 +121,7 @@ materialize_internal = function(x, device = "cpu", cache = NULL, rbind) {
     stopf("Cannot materialize lazy tensor of length 0.")
   }
   do_caching = !is.null(cache)
-  ids = map_int(vec_data(x), 1)
+  ids = map_int(x, 1)
 
   data_descriptor = dd(x)
   ds = data_descriptor$dataset
