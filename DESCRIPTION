@@ -48,7 +48,6 @@ Imports:
     paradox (>= 0.11.0),
     R6,
     torchvision,
-    vctrs,
     withr
 Suggests:
     callr,
