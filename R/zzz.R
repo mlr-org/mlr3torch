@@ -8,7 +8,6 @@
 #' @import torch
 #' @import mlr3pipelines
 #' @import mlr3
-#' @import vctrs
 #' @importFrom tools R_user_dir
 #'
 #' @section Options:
