@@ -13,14 +13,14 @@ see there for more information on the parameters.
 The preprocessing is applied row wise (no batch dimension).
 }
 \section{Parameters}{
-\tabular{llll}{
-   Id \tab Type \tab Default \tab Levels \cr
-   top \tab untyped \tab - \tab  \cr
-   left \tab untyped \tab - \tab  \cr
-   height \tab untyped \tab - \tab  \cr
-   width \tab untyped \tab - \tab  \cr
-   stages \tab character \tab - \tab train, predict, both \cr
-   affect_columns \tab untyped \tab selector_all \tab  \cr
+\tabular{lllll}{
+   Id \tab Type \tab Default \tab Levels \tab Range \cr
+   top \tab integer \tab - \tab  \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
+   left \tab integer \tab - \tab  \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
+   height \tab integer \tab - \tab  \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
+   width \tab integer \tab - \tab  \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
+   stages \tab character \tab - \tab train, predict, both \tab - \cr
+   affect_columns \tab untyped \tab selector_all \tab  \tab - \cr
 }
 }
 

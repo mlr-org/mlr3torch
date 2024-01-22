@@ -13,12 +13,12 @@ see there for more information on the parameters.
 The preprocessing is applied row wise (no batch dimension).
 }
 \section{Parameters}{
-\tabular{llll}{
-   Id \tab Type \tab Default \tab Levels \cr
-   transforms \tab untyped \tab - \tab  \cr
-   p \tab untyped \tab - \tab  \cr
-   stages \tab character \tab - \tab train, predict, both \cr
-   affect_columns \tab untyped \tab selector_all \tab  \cr
+\tabular{lllll}{
+   Id \tab Type \tab Default \tab Levels \tab Range \cr
+   transforms \tab untyped \tab - \tab  \tab - \cr
+   p \tab numeric \tab 0.5 \tab  \tab \eqn{[0, 1]}{[0, 1]} \cr
+   stages \tab character \tab - \tab train, predict, both \tab - \cr
+   affect_columns \tab untyped \tab selector_all \tab  \tab - \cr
 }
 }
 

@@ -47,7 +47,6 @@ Imports:
     data.table,
     paradox (>= 0.11.0),
     R6,
-    torchvision,
     withr
 Suggests:
     callr,
@@ -61,6 +60,7 @@ Suggests:
     rmarkdown,
     viridis,
     testthat (>= 3.0.0),
+    torchvision,
     zip
 Remotes:
     r-lib/zip,

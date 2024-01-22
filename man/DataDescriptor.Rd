@@ -112,7 +112,7 @@ Character vector that must have the same length as the input of the graph.
 Specifies how the data from the \code{dataset} is fed into the preprocessing graph.}
 
 \item{\code{pointer}}{(\code{character(2)} | \code{NULL})\cr
-Indicating an element on which a model is. Points to an output channel within \code{graph}:
+Points to an output channel within \code{graph}:
 Element 1 is the \code{PipeOp}'s id and element 2 is that \code{PipeOp}'s output channel.}
 
 \item{\code{pointer_shape}}{(\code{integer} | \code{NULL})\cr

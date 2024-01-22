@@ -42,99 +42,218 @@ register_preproc("trafo_nop", identity, shapes_out = "unchanged", rowwise = FALS
 
 #' @template preprocess_torchvision
 #' @templateVar id trafo_adjust_gamma
-register_preproc("trafo_adjust_gamma", torchvision::transform_adjust_gamma, packages = "torchvision", shapes_out = "unchanged", rowwise = TRUE) # nolint
+register_preproc("trafo_adjust_gamma", torchvision::transform_adjust_gamma, packages = "torchvision", shapes_out = "unchanged", rowwise = TRUE,
+  param_set = ps(
+    gamma = p_dbl(lower = 0, tags = c("train", "required")),
+    gain = p_dbl(default = 1, tags = "train")
+  )
+) # nolint
 
 #' @template preprocess_torchvision
 #' @templateVar id trafo_adjust_brightness
-register_preproc("trafo_adjust_brightness", torchvision::transform_adjust_brightness, packages = "torchvision", shapes_out = "unchanged", rowwise = TRUE) # nolint
+register_preproc("trafo_adjust_brightness", torchvision::transform_adjust_brightness, packages = "torchvision", shapes_out = "unchanged", rowwise = TRUE,
+  param_set = ps(
+    brightness_factor = p_dbl(lower = 0, tags = c("train", "required"))
+  )
+) # nolint
 
 #' @template preprocess_torchvision
 #' @templateVar id trafo_adjust_hue
-register_preproc("trafo_adjust_hue", torchvision::transform_adjust_hue, packages = "torchvision", shapes_out = "unchanged", rowwise = TRUE)
+register_preproc("trafo_adjust_hue", torchvision::transform_adjust_hue, packages = "torchvision", shapes_out = "unchanged", rowwise = TRUE,
+  param_set = ps(
+    hue_factor = p_dbl(lower = -0.5, upper = 0.5, tags = c("train", "required"))
+  )
+)
 
 #' @template preprocess_torchvision
 #' @templateVar id trafo_adjust_saturation
-register_preproc("trafo_adjust_saturation", torchvision::transform_adjust_saturation, packages = "torchvision", shapes_out = "infer", rowwise = TRUE) # nolint
+register_preproc("trafo_adjust_saturation", torchvision::transform_adjust_saturation, packages = "torchvision", shapes_out = "infer", rowwise = TRUE,
+  param_set = ps(
+    saturation_factor = p_dbl(tags = c("train", "required"))
+  )
+) # nolint
 
 #' @template preprocess_torchvision
 #' @templateVar id trafo_grayscale
-register_preproc("trafo_grayscale", torchvision::transform_grayscale, packages = "torchvision", shapes_out = "unchanged", rowwise = TRUE) # nolint
+register_preproc("trafo_grayscale", torchvision::transform_grayscale, packages = "torchvision", shapes_out = "unchanged", rowwise = TRUE,
+  param_set = ps(
+    num_output_channels = p_int(lower = 1L, upper = 3L, tags = c("train", "required"))
+  )
+) # nolint
 
 #' @template preprocess_torchvision
 #' @templateVar id trafo_rgb_to_grayscale
-register_preproc("trafo_rgb_to_grayscale", torchvision::transform_rgb_to_grayscale, packages = "torchvision", shapes_out = "infer", rowwise = TRUE) # nolint
+register_preproc("trafo_rgb_to_grayscale", torchvision::transform_rgb_to_grayscale, packages = "torchvision", shapes_out = "infer", rowwise = TRUE,
+  param_set = ps()
+) # nolint
 
 #' @template preprocess_torchvision
 #' @templateVar id trafo_normalize
-register_preproc("trafo_normalize", torchvision::transform_normalize, packages = "torchvision", shapes_out = "unchanged", rowwise = TRUE) # nolint
+register_preproc("trafo_normalize", torchvision::transform_normalize, packages = "torchvision", shapes_out = "unchanged", rowwise = TRUE,
+  param_set = ps(
+    mean = p_uty(tags = c("train", "required")),
+    std = p_uty(tags = c("train", "required"))
+    # no inplace parameter as this might be problematic when a preprocessing pipeop's output is connected to multiple
+    # other pipeops
+  )
+) # nolint
 
 #' @template preprocess_torchvision
 #' @templateVar id trafo_pad
-register_preproc("trafo_pad", torchvision::transform_pad, packages = "torchvision", shapes_out = "infer", rowwise = TRUE) # nolint
+register_preproc("trafo_pad", torchvision::transform_pad, packages = "torchvision", shapes_out = "infer", rowwise = TRUE,
+  param_set = ps(
+    padding = p_uty(tags = c("train", "required")),
+    fill = p_uty(default = 0, tags = "train"),
+    padding_mode = p_fct(default = "constant", levels = c("constant", "edge", "reflect", "symmetric"), tags = "train")
+  )
+) # nolint
 
 # Data Augmentation
 
 #' @template preprocess_torchvision
 #' @templateVar id augment_resized_crop
-register_preproc("augment_resized_crop", torchvision::transform_resized_crop, packages = "torchvision", shapes_out = "infer", rowwise = TRUE) # nolint
+register_preproc("augment_resized_crop", torchvision::transform_resized_crop, packages = "torchvision", shapes_out = "infer", rowwise = TRUE,
+  param_set = ps(
+    top = p_int(tags = c("train", "required")),
+    left = p_int(tags = c("train", "required")),
+    height = p_int(tags = c("train", "required")),
+    width = p_int(tags = c("train", "required")),
+    size = p_uty(tags = c("train", "required")),
+    interpolation = p_int(default = 2L, lower = 0L, upper = 3L, tags = "train")
+  )
+) # nolint
 
 #' @template preprocess_torchvision
 #' @templateVar id augment_color_jitter
-register_preproc("augment_color_jitter", torchvision::transform_color_jitter, packages = "torchvision", shapes_out = "unchanged", rowwise = TRUE) # nolint
+register_preproc("augment_color_jitter", torchvision::transform_color_jitter, packages = "torchvision", shapes_out = "unchanged", rowwise = TRUE,
+  param_set = ps(
+    brightness = p_dbl(default = 0, lower = 0, tags = "train"),
+    contrast = p_dbl(default = 0, lower = 0, tags = "train"),
+    saturation = p_dbl(default = 0, lower = 0, tags = "train"),
+    hue = p_dbl(default = 0, lower = 0, tags = "train")
+  )
+) # nolint
 
 #' @template preprocess_torchvision
 #' @templateVar id augment_random_resized_crop
-register_preproc("augment_random_resized_crop", torchvision::transform_random_resized_crop, packages = "torchvision", shapes_out = NULL, rowwise = TRUE) # nolint
+register_preproc("augment_random_resized_crop", torchvision::transform_random_resized_crop, packages = "torchvision", shapes_out = NULL, rowwise = TRUE,
+  param_set = ps(
+    size = p_uty(tags = c("train", "required")),
+    scale = p_uty(default = c(0.08, 1), tags = "train"),
+    ratio = p_uty(default = c(3 / 4, 4 / 3), tags = "train"),
+    interpolation = p_int(default = 2L, lower = 0L, upper = 3L, tags = "train")
+  )
+) # nolint
 
 #' @template preprocess_torchvision
 #' @templateVar id augment_random_order
-register_preproc("augment_random_order", torchvision::transform_random_order, packages = "torchvision", shapes_out = NULL, rowwise = TRUE) # nolint
+register_preproc("augment_random_order", torchvision::transform_random_order, packages = "torchvision", shapes_out = NULL, rowwise = TRUE,
+  param_set = ps(
+    transforms = p_uty(tags = c("train", "required"), custom_check = check_list)
+  )
+) # nolint
 
 #' @template preprocess_torchvision
 #' @templateVar id augment_hflip
-register_preproc("augment_hflip", torchvision::transform_hflip, packages = "torchvision", shapes_out = "unchanged", rowwise = TRUE) # nolint
+register_preproc("augment_hflip", torchvision::transform_hflip, packages = "torchvision", shapes_out = "unchanged", rowwise = TRUE,
+  param_set = ps()
+) # nolint
 
 #' @template preprocess_torchvision
 #' @templateVar id augment_random_horizontal_flip
-register_preproc("augment_random_horizontal_flip", torchvision::transform_random_horizontal_flip, packages = "torchvision", shapes_out = NULL, rowwise = TRUE) # nolint
+register_preproc("augment_random_horizontal_flip", torchvision::transform_random_horizontal_flip, packages = "torchvision", shapes_out = NULL, rowwise = TRUE,
+  param_set = ps(
+    p = p_dbl(default = 0.5, lower = 0, upper = 1, tags = "train")
+  )
+) # nolint
 
 
 #' @template preprocess_torchvision
 #' @templateVar id augment_crop
-register_preproc("augment_crop", torchvision::transform_crop, packages = "torchvision", shapes_out = "infer", rowwise = TRUE) # nolint
+register_preproc("augment_crop", torchvision::transform_crop, packages = "torchvision", shapes_out = "infer", rowwise = TRUE,
+  param_set = ps(
+    top = p_int(tags = c("train", "required")),
+    left = p_int(tags = c("train", "required")),
+    height = p_int(tags = c("train", "required")),
+    width = p_int(tags = c("train", "required"))
+  )
+) # nolint
 
 #' @template preprocess_torchvision
 #' @templateVar id augment_random_vertical_flip
-register_preproc("augment_random_vertical_flip", torchvision::transform_random_vertical_flip, packages = "torchvision", shapes_out = "unchanged", rowwise = TRUE) # nolint
+register_preproc("augment_random_vertical_flip", torchvision::transform_random_vertical_flip, packages = "torchvision", shapes_out = "unchanged", rowwise = TRUE,
+  param_set = ps(
+    p = p_dbl(default = 0.5, lower = 0, upper = 1, tags = "train")
+  )
+) # nolint
 
 #' @template preprocess_torchvision
 #' @templateVar id augment_random_affine
-register_preproc("augment_random_affine", torchvision::transform_random_affine, packages = "torchvision", shapes_out = NULL, rowwise = TRUE) # nolint
+register_preproc("augment_random_affine", torchvision::transform_random_affine, packages = "torchvision", shapes_out = NULL, rowwise = TRUE,
+  param_set = ps(
+    degrees = p_uty(tags = c("train", "required")),
+    translate = p_uty(default = NULL, tags = "train"),
+    scale = p_uty(default = NULL, tags = "train"),
+    resample = p_int(default = 0, tags = "train"),
+    fillcolor = p_uty(default = 0, tags = "train")
+  )
+) # nolint
 
 
 #' @template preprocess_torchvision
 #' @templateVar id augment_vflip
-register_preproc("augment_vflip", torchvision::transform_vflip, packages = "torchvision", shapes_out = "unchanged", rowwise = TRUE) # nolint
+register_preproc("augment_vflip", torchvision::transform_vflip, packages = "torchvision", shapes_out = "unchanged", rowwise = TRUE,
+  param_set = ps()
+) # nolint
 
 #' @template preprocess_torchvision
 #' @templateVar id augment_random_apply
-register_preproc("augment_random_apply", torchvision::transform_random_apply, packages = "torchvision", shapes_out = NULL, rowwise = TRUE) # nolint
+register_preproc("augment_random_apply", torchvision::transform_random_apply, packages = "torchvision", shapes_out = NULL, rowwise = TRUE,
+  param_set = ps(
+    transforms = p_uty(tags = c("train", "required"), custom_check = check_list),
+    p = p_dbl(default = 0.5, lower = 0, upper = 1, tags = "train")
+  )
+) # nolint
 
 #' @template preprocess_torchvision
 #' @templateVar id augment_rotate
-register_preproc("augment_rotate", torchvision::transform_rotate, packages = "torchvision", shapes_out = NULL, rowwise = TRUE) # nolint
+register_preproc("augment_rotate", torchvision::transform_rotate, packages = "torchvision", shapes_out = NULL, rowwise = TRUE,
+  param_set = ps(
+    angle = p_uty(tags = c("train", "required")),
+    resample = p_int(default = 0L, tags = "train"),
+    expand = p_lgl(default = FALSE, tags = "train"),
+    center = p_uty(default = NULL, tags = "train"),
+    fill = p_uty(default = NULL, tags = "train")
+  )
+) # nolint
 
 #' @template preprocess_torchvision
 #' @templateVar id augment_center_crop
-register_preproc("augment_center_crop", torchvision::transform_center_crop, packages = "torchvision", shapes_out = "infer", rowwise = TRUE) # nolint
+register_preproc("augment_center_crop", torchvision::transform_center_crop, packages = "torchvision", shapes_out = "infer", rowwise = TRUE,
+  param_set = ps(
+    size = p_uty(tags = c("train", "required"))
+  )
+) # nolint
 
 #' @template preprocess_torchvision
 #' @templateVar id augment_random_choice
-register_preproc("augment_random_choice", torchvision::transform_random_choice, packages = "torchvision", shapes_out = NULL, rowwise = TRUE) # nolint
+register_preproc("augment_random_choice", torchvision::transform_random_choice, packages = "torchvision", shapes_out = NULL, rowwise = TRUE,
+  param_set = ps(
+    transforms = p_uty(custom_check = check_list, tags = c("train", "required"))
+  )
+) # nolint
 
 #' @template preprocess_torchvision
 #' @templateVar id augment_random_crop
-register_preproc("augment_random_crop", torchvision::transform_random_crop, packages = "torchvision", shapes_out = NULL, rowwise = TRUE)
+register_preproc("augment_random_crop", torchvision::transform_random_crop, packages = "torchvision", shapes_out = NULL, rowwise = TRUE,
+  param_set = ps(
+    size = p_uty(tags = c("train", "required")),
+    padding = p_uty(default = NULL, tags = "train"),
+    pad_if_needed = p_lgl(default = FALSE, tags = "train"),
+    fill = p_uty(default = 0L, tags = "train"),
+    padding_mode = p_fct(default = "constant", levels = c("constant", "edge", "reflect", "symmetric"), tags = "train")
+  )
+)
 
 
 ##' @name PipeOpPreprocTorchAugmentRandomRotation

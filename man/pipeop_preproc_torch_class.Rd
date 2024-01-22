@@ -60,7 +60,7 @@ Function to create objects of class \code{\link{PipeOpTaskPreprocTorch}} in a sl
 Start by reading the documentation of \code{\link{PipeOpTaskPreprocTorch}}.
 }
 \examples{
-po_example = pipeop_preproc_torch("preproc_example", function(x, a) x + a)
+po_example = pipeop_preproc_torch("preproc_example", function(x, a) x + a, )
 po_example
 po_example$param_set
 }

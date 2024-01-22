@@ -13,16 +13,15 @@ see there for more information on the parameters.
 The preprocessing is applied row wise (no batch dimension).
 }
 \section{Parameters}{
-\tabular{llll}{
-   Id \tab Type \tab Default \tab Levels \cr
-   degrees \tab untyped \tab - \tab  \cr
-   translate \tab untyped \tab - \tab  \cr
-   scale \tab untyped \tab - \tab  \cr
-   shear \tab untyped \tab - \tab  \cr
-   resample \tab untyped \tab - \tab  \cr
-   fillcolor \tab untyped \tab - \tab  \cr
-   stages \tab character \tab - \tab train, predict, both \cr
-   affect_columns \tab untyped \tab selector_all \tab  \cr
+\tabular{lllll}{
+   Id \tab Type \tab Default \tab Levels \tab Range \cr
+   degrees \tab untyped \tab - \tab  \tab - \cr
+   translate \tab untyped \tab  \tab  \tab - \cr
+   scale \tab untyped \tab  \tab  \tab - \cr
+   resample \tab integer \tab 0 \tab  \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
+   fillcolor \tab untyped \tab 0 \tab  \tab - \cr
+   stages \tab character \tab - \tab train, predict, both \tab - \cr
+   affect_columns \tab untyped \tab selector_all \tab  \tab - \cr
 }
 }
 

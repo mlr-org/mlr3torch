@@ -23,7 +23,9 @@ test_that("Unknown shapes work", {
   expect_class(lt, "lazy_tensor")
   materialize(lt)
   expect_true(test_class(lt[1:2], "lazy_tensor"))
-  expect_true(test_class(lt[[1]], "lazy_tensor"))
+  expect_class(lt[[1]], "list")
+
+  expect_class(c(lt, lazy_tensor()), "lazy_tensor")
 
   ds = random_dataset(10, 3)
   expect_error(DataDescriptor$new(ds, list(x = NULL)))

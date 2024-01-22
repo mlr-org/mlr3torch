@@ -7,7 +7,7 @@
 pipeop_preproc_torch(
   id,
   fn,
-  shapes_out,
+  shapes_out = NULL,
   param_set = NULL,
   param_vals = list(),
   packages = character(0),

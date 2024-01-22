@@ -43,7 +43,7 @@ new_lazy_tensor = function(data_descriptor, ids) {
 
 #' @export
 `[[.lazy_tensor` = function(x, i) {
-  structure(unclass(x)[[i]], class = c("lazy_tensor", "list"))
+  unclass(x)[[i]]
 }
 
 #' @export
@@ -74,7 +74,7 @@ c.lazy_tensor = function(...) {
   if (!all(map_lgl(dots, is_lazy_tensor))) {
     return(NextMethod())
   }
-  if (length(unique(map_chr(dots, function(x) dd(x)$hash))) > 1) {
+  if (length(unique(map_chr(dots[lengths(dots) != 0], function(x) dd(x)$hash))) > 1) {
     stopf("Can only concatenate lazy tensors with the same data descriptors.")
   }
 

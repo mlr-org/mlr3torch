@@ -13,14 +13,14 @@ see there for more information on the parameters.
 The preprocessing is applied row wise (no batch dimension).
 }
 \section{Parameters}{
-\tabular{llll}{
-   Id \tab Type \tab Default \tab Levels \cr
-   brightness \tab untyped \tab - \tab  \cr
-   contrast \tab untyped \tab - \tab  \cr
-   saturation \tab untyped \tab - \tab  \cr
-   hue \tab untyped \tab - \tab  \cr
-   stages \tab character \tab - \tab train, predict, both \cr
-   affect_columns \tab untyped \tab selector_all \tab  \cr
+\tabular{lllll}{
+   Id \tab Type \tab Default \tab Levels \tab Range \cr
+   brightness \tab numeric \tab 0 \tab  \tab \eqn{[0, \infty)}{[0, Inf)} \cr
+   contrast \tab numeric \tab 0 \tab  \tab \eqn{[0, \infty)}{[0, Inf)} \cr
+   saturation \tab numeric \tab 0 \tab  \tab \eqn{[0, \infty)}{[0, Inf)} \cr
+   hue \tab numeric \tab 0 \tab  \tab \eqn{[0, \infty)}{[0, Inf)} \cr
+   stages \tab character \tab - \tab train, predict, both \tab - \cr
+   affect_columns \tab untyped \tab selector_all \tab  \tab - \cr
 }
 }
 

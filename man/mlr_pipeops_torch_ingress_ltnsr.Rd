@@ -45,7 +45,7 @@ x_batch
 # Now we try a lazy tensor with unknown shape, i.e. the shapes between the rows can differ
 
 ds = dataset(
-  initialize = function() self$x = list(torch_randn(3, 10, 10), torch_randn(10, 8, 8)),
+  initialize = function() self$x = list(torch_randn(3, 10, 10), torch_randn(3, 8, 8)),
   .getitem = function(i) list(x = self$x[[i]]),
   .length = function() 2)()
 

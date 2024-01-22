@@ -22,7 +22,7 @@
 #'   Character vector that must have the same length as the input of the graph.
 #'   Specifies how the data from the `dataset` is fed into the preprocessing graph.
 #' @param pointer (`character(2)` | `NULL`)\cr
-#'   Indicating an element on which a model is. Points to an output channel within `graph`:
+#'   Points to an output channel within `graph`:
 #'   Element 1 is the `PipeOp`'s id and element 2 is that `PipeOp`'s output channel.
 #' @param pointer_shape (`integer` | `NULL`)\cr
 #'   Shape of the output indicated by `pointer`.
@@ -110,7 +110,6 @@ DataDescriptor = R6Class("DataDescriptor",
       # even with a .dataset (that should usually not really have a state), hashes might change due to byte-code
       # compilation
       dataset_hash = calculate_hash(address(dataset))
-
 
       self$dataset = dataset
       self$graph = graph

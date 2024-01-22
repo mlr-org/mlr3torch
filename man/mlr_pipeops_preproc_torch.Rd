@@ -218,8 +218,9 @@ Creates a new instance of this \code{\link[R6:R6Class]{R6}} class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{fn}}{(\code{function})\cr
-The preprocessing function. Should not modify its input in-place.}
+\item{\code{fn}}{(\code{function} or \code{character(2)})\cr
+The preprocessing function. Should not modify its input in-place.
+If it is a \code{character(2)}, the first element should be the namespace and thje second element the name.}
 
 \item{\code{id}}{(\code{character(1)})\cr
 The id for of the new object.}

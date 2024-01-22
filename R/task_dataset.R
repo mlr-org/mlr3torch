@@ -65,7 +65,7 @@ task_dataset = dataset(
 
       if (inherits(merge_result, "try-error")) {
         # This should basically never happen
-        lg$warn("Failed to merge data descriptor, this might leady to inefficient preprocessing.")
+        lg$warn("Failed to merge data descriptor, this might lead to inefficient preprocessing.")
         # TODO: test that is still works when this triggers
       } else {
         self$task$cbind(merge_result)
@@ -144,9 +144,6 @@ merge_lazy_tensor_graphs = function(lts) {
 dataset_ltnsr = function(task, param_vals) {
   assert_true(length(task$feature_names) == 1L)
   shape = dd(task$data(cols = task$feature_names)[[1L]])$pointer_shape
-  if (is.null(shape)) {
-    stopf("Each row element of the lazy tensor column must be of a known shape, please resize it accordingly.")
-  }
   ingress_tokens = list(image = TorchIngressToken(task$feature_names, batchgetter_lazy_tensor, shape))
 
   task_dataset(

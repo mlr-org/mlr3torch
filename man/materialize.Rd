@@ -19,7 +19,7 @@ The torch device.}
 
 \item{rbind}{(\code{logical(1)})\cr
 Whether to rbind the lazy tensor columns (\code{TRUE}) or return them as a list of tensors (\code{FALSE}).
-In the second case, the batch dimension is present for all individual tensors.}
+In the second case, there is no batch dimension.}
 
 \item{...}{(any)\cr
 Additional arguments.}

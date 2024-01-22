@@ -16,20 +16,26 @@
 #' @family Graph Network
 #' @export
 #' @examples
-#' graph = po("module_1", module = nn_linear(10, 20)) %>>%
-#'   po("module_2", module = nn_relu()) %>>%
-#'   po("module_3", module = nn_linear(20, 1))
+#' graph = mlr3pipelines::Graph$new()
+#' graph$add_pipeop(po("module_1", module = nn_linear(10, 20)), clone = FALSE)
+#' graph$add_pipeop(po("module_2", module = nn_relu()), clone = FALSE)
+#' graph$add_pipeop(po("module_3", module = nn_linear(20, 1)), clone = FALSE)
+#' graph$add_edge("module_1", "module_2")
+#' graph$add_edge("module_2", "module_3")
+#'
 #' network = nn_graph(graph, shapes_in = list(module_1.input = c(NA, 10)))
-#' network
+#'
 #' x = torch_randn(16, 10)
+#'
 #' network(module_1.input = x)
 nn_graph = nn_module(
   "nn_graph",
   initialize = function(graph, shapes_in, output_map = graph$output$name, list_output = FALSE) {
-    self$graph = as_graph(graph)
+    self$graph = as_graph(graph, clone = FALSE)
     self$graph_input_name = graph$input$name  # cache this, it is expensive
 
     # we do NOT verify the input and type of the graph to be `"torch_tensor"`.
+
     # The reason for this is that the graph, when constructed with the PipeOpTorch Machinery, contains PipeOpNOPs,
     # which have input and output type *.
 

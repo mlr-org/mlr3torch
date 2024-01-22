@@ -26,7 +26,7 @@
 #'   Either a [`lazy_tensor`] or a `list()` / `data.frame()` containing [`lazy_tensor`] columns.
 #' @param rbind (`logical(1)`)\cr
 #'   Whether to rbind the lazy tensor columns (`TRUE`) or return them as a list of tensors (`FALSE`).
-#'   In the second case, the batch dimension is present for all individual tensors.
+#'   In the second case, there is no batch dimension.
 #' @return (`list()` of [`lazy_tensor`]s or a [`lazy_tensor`])
 #' @param device (`character(1)`)\cr
 #'   The torch device.
@@ -87,6 +87,44 @@ materialize.lazy_tensor = function(x, device = "cpu", rbind = FALSE, ...) { # no
   materialize_internal(x = x, device = device, cache = NULL, rbind = rbind)
 }
 
+get_input = function(ds, ids, varying_shapes, rbind) {
+  if (is.null(ds$.getbatch)) { # .getindex is never NULL but a function that errs if it was not defined
+    x = map(ids, function(id) map(ds$.getitem(id), function(x) x$unsqueeze(1)))
+    if (varying_shapes) {
+      x
+    } else {
+      map(transpose_list(x), function(x) torch_cat(x, dim = 1L))
+    }
+  } else {
+    ds$.getbatch(ids)
+  }
+}
+
+get_output = function(input, graph, varying_shapes, rbind, device) {
+  output = if (varying_shapes) {
+    # list --graph--> (list or tensor)
+    transpose_list(map(input, function(x) graph$train(x, single_input = FALSE)))
+  } else {
+    # tensor --graph--> tensor
+    graph$train(input, single_input = FALSE)
+  }
+
+  # now we get it in the right output format and convert it to the requested device
+  output = if (rbind) {
+    if (varying_shapes) { # need to convert from list of tensors to tensor
+      output = map(output, list_to_batch)
+    }
+    map(output, function(x) x$to(device = device))
+  } else {
+    if (!varying_shapes) { # need to convert from tensor to list of tensors
+      output = map(output, function(x) torch_split(x, split_size = 1L, dim = 1L))
+    }
+    map(output, function(out) map(out, function(o) o$squeeze(1)$to(device = device)))
+  }
+
+  return(output)
+}
+
 #' @title Materialize a Lazy Tensor
 #' @description
 #' Convert a [`lazy_tensor()`] to a [`torch_tensor()`].
@@ -142,25 +180,11 @@ materialize_internal = function(x, device = "cpu", cache = NULL, rbind) {
 
     if (input_hit) {
       input = cache[[input_hash]]
-      input_hit = TRUE
     }
   }
 
   if (!do_caching || !input_hit) {
-    input = if (is.null(ds$.getbatch)) { # .getindex is never NULL but a function that errs if it was not defined
-      x = map(ids, function(id) map(ds$.getitem(id), function(x) x$unsqueeze(1)))
-      if (varying_shapes || !rbind) {
-        x
-      } else {
-        map(transpose_list(x), function(x) torch_cat(x, dim = 1L))
-      }
-    } else {
-      if (rbind) {
-        ds$.getbatch(ids)
-      } else {
-        map(ids, function(id) ds$.getbatch(id))
-      }
-    }
+    input = get_input(ds, ids, varying_shapes, rbind)
   }
 
   if (do_caching && !input_hit) {
@@ -170,42 +194,20 @@ materialize_internal = function(x, device = "cpu", cache = NULL, rbind) {
   # input is the output of a dataset so it can contain more than what we need for the graph,
   # also we need to set the correct names.
   # This is done after retrieving the element from the cache / before saving the element to the cache because
-  # this can change
-
-  input = if (rbind && !varying_shapes) {
-    set_names(input[data_descriptor$input_map], data_descriptor$graph_input)
-  } else {
+  # this can change depending on the preprocessing graph
+  input = if (varying_shapes) {
     map(input, function(x) {
       set_names(x[data_descriptor$input_map], data_descriptor$graph_input)
     })
-  }
-
-  output = if (rbind && !varying_shapes) {
-    # tensor --graph--> tensor
-    graph$train(input, single_input = FALSE)
   } else {
-    # list --graph--> (list or tensor)
-    out = map(input, function(x) graph$train(x, single_input = FALSE))
-
-    if (rbind) {
-      # here, is a list with hierarchy: [id = [po_id = [ch_nm = ]]]
-      # We want to obtain a list [po_id = [ch_nm = [...]]] where the [...] is the rbind over all ids
-      rows = seq_along(out)
-      out = map(names(out[[1L]]), function(name) torch_cat(map(out[rows], name)))
-    }
-    out
+    set_names(input[data_descriptor$input_map], data_descriptor$graph_input)
   }
+
+  output = get_output(input, graph, varying_shapes, rbind, device)
 
   if (do_caching) {
     cache[[output_hash]] = output
   }
 
-  # put the tensor on the required device
-  if (rbind) {
-    res = output[[pointer_name]]$to(device = device)
-  } else {
-    res = map(output, function(o) o[[pointer_name]]$to(device = device))
-  }
-
-  return(res)
+  output[[pointer_name]]
 }

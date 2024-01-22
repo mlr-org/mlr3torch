@@ -176,20 +176,3 @@ test_that("autotest_torch_callback works", {
   expect_error(autotest_torch_callback(cbd, check_man = FALSE), regexp = "not equal to")
 
 })
-
-
-test_that("autotest_pipeop_torch", {
-  # TODO:
-
-})
-
-test_that("autotest_pipeop_torch_preproces", {
-  # test that:
-  # a) id *
-
-
-
-
-  autotest_pipeop_torch_preprocess
-
-})

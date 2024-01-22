@@ -20,16 +20,18 @@
 #' @examples
 #' \dontrun{
 #' # AlexNet
-#' model = torchvision::model_alexnet(pretrained = TRUE)
-#' model$classifier[[7]]$out_feature
-#' model = reset_last_layer(model, 10)
-#' model$classifier[[7]]$out_feature
+#' if (mlr3misc::requires_namespaces("torchvision")) {
+#'  model = torchvision::model_alexnet(pretrained = TRUE)
+#'  model$classifier[[7]]$out_feature
+#'  model = reset_last_layer(model, 10)
+#'  model$classifier[[7]]$out_feature
 #'
-#' # ResNet
-#' model = torchvision::model_resnet18(pretrained = TRUE)
-#' model$fc$out_feature
-#' model = reset_last_layer(model, 10)
-#' model$fc$out_feature
+#'  # ResNet
+#'  model = torchvision::model_resnet18(pretrained = TRUE)
+#'  model$fc$out_feature
+#'  model = reset_last_layer(model, 10)
+#'  model$fc$out_feature
+#' }
 #' }
 reset_last_layer = function(model, num_classes, bias, freeze) {
   UseMethod("reset_last_layer")

@@ -373,7 +373,7 @@ autotest_pipeop_torch_preprocess = function(obj, shapes_in, exclude = character(
     if (!is.null(shape_out)) {
       testthat::expect_equal(tnsr_out$shape, shape_out)
       testthat::expect_equal(tnsr_out$shape[-1L], shape_out_unknown_batch[-1L])
-      expect_true(is.na(shape_out_unknown_batch[1L]))
+      testthat::expect_true(is.na(shape_out_unknown_batch[1L]))
     }
   })
 }

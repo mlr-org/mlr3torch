@@ -190,6 +190,7 @@ test_equal = function(x, y) {
   isTRUE(all.equal(x, y))
 }
 
+
 dataset_image = dataset("image_dataset",
   initialize = function(uris) {
     self$uris = uris
@@ -202,3 +203,6 @@ dataset_image = dataset("image_dataset",
   }
 )
 
+list_to_batch = function(tensors) {
+  torch_cat(map(tensors, function(x) x$unsqueeze(1)), dim = 1L)
+}

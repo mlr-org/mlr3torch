@@ -8,14 +8,14 @@ test_that("materialize works on lazy_tensor", {
   expect_true(output$device == torch_device("cpu"))
   expect_true(torch_equal(output, ds$x))
   # the correct elements are returned
-  expect_torch_equal(ds$.getbatch(1)[[1]], materialize(lt[1])[[1]])
-  expect_torch_equal(ds$.getbatch(2)[[1]], materialize(lt[2])[[1]])
+  expect_torch_equal(ds$.getbatch(1)[[1]], materialize(lt[1])[[1]]$unsqueeze(1))
+  expect_torch_equal(ds$.getbatch(2)[[1]], materialize(lt[2])[[1]]$unsqueeze(1))
   expect_torch_equal(ds$.getbatch(2:1)[[1]], materialize(lt[2:1], rbind = TRUE))
 
   output_meta_list = materialize(lt, device = "meta", rbind = FALSE)
   output_meta_tnsr = materialize(lt, device = "meta", rbind = TRUE)
 
-  expect_equal(torch_cat(output_meta_list, dim = 1L)$shape, output_meta_tnsr$shape)
+  expect_equal(torch_cat(map(output_meta_list, function(x) x$unsqueeze(1)), dim = 1L)$shape, output_meta_tnsr$shape)
   expect_true(output_meta_tnsr$device == torch_device("meta"))
 
   expect_error(materialize(lazy_tensor()), "Cannot materialize ")
@@ -50,7 +50,7 @@ test_that("materialize works with same shapes and .getbatch method", {
 
   res1cpu = materialize(x, rbind = FALSE)
   res2cpu = materialize(x, rbind = TRUE)
-  expect_torch_equal(torch_cat(res1cpu, dim = 1L), res2cpu)
+  expect_torch_equal(list_to_batch(res1cpu), res2cpu)
   expect_equal(res2cpu$shape, res2$shape)
 })
 
@@ -70,7 +70,7 @@ test_that("materialize works with same shapes and .getitem method", {
 
   res1cpu = materialize(x, rbind = FALSE)
   res2cpu = materialize(x, rbind = TRUE)
-  expect_torch_equal(torch_cat(res1cpu, dim = 1L), res2cpu)
+  expect_torch_equal(list_to_batch(res1cpu), res2cpu)
   expect_equal(res2cpu$shape, res2$shape)
 })
 
@@ -82,11 +82,11 @@ test_that("materialize_internal works", {
   res2 = materialize(x, rbind = TRUE)
   expect_list(res1, types = "torch_tensor")
   expect_class(res2, "torch_tensor")
-  expect_torch_equal(torch_cat(res1, dim = 1L), res2)
+  expect_torch_equal(list_to_batch(res1), res2)
 
   res1cpu = materialize(x, rbind = FALSE)
   res2cpu = materialize(x, rbind = TRUE)
-  expect_torch_equal(torch_cat(res1cpu, dim = 1L), res2cpu)
+  expect_torch_equal(list_to_batch(res1cpu), res2cpu)
 })
 
 
@@ -104,21 +104,6 @@ test_that("materialize.list works", {
   # c) default = "auto" works as expected
 
   # TODO
-
-})
-
-test_that("materialize_internal: caching of graphs works", {
-  cache = new.env()
-  task = tsk("lazy_iris")
-  # need to rename because of a nasty bug in pipelines:
-  # https://github.com/mlr-org/mlr3pipelines/issues/738`
-
-  dt = task$data(1:2, cols = "x")
-  dt$x1 = dt$x
-  names(dt) = c("x1", "x2")
-
-  materialize(dt, rbind = TRUE)
-
 })
 
 test_that("materialize_internal: caching of datasets works", {
