@@ -60,15 +60,6 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     NULL
   }
 
-  available_predict_types = mlr_reflections$learner_predict_types[[self$task_type]][[self$predict_type]]
-
-  walk(c(measures_train, measures_valid), function(m) {
-    if (m$predict_type %nin% available_predict_types) {
-      stopf("Measure '%s' requires predict type '%s' but learner has '%s'.\n Change the predict type or select other measures.", # nolint
-        m$id, m$predict_type, self$predict_type)
-    }
-  })
-
 
   ctx = ContextTorch$new(
     learner = self,

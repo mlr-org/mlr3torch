@@ -100,7 +100,7 @@ merge_lazy_tensor_graphs = function(lts) {
   names_lts = names(lts)
 
   # we only attempt to merge preprocessing graphs that have the same dataset_hash
-  groups = map_chr(lts, function(lt) digest::digest(dd(lt)$dataset_hash))
+  groups = map_chr(lts, function(lt) dd(lt)$dataset_hash)
   lts = unlist(map(unique(groups), function(group) {
     merge_compatible_lazy_tensor_graphs(lts[, names_lts[groups == group], with = FALSE])
   }), recursive = FALSE)

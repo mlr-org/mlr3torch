@@ -7,7 +7,7 @@
 #' @format [`R6Class`] inheriting from [`PipeOpTaskPreprocTorch`].
 #'
 #' @description
-#' Calls [`<%= paste0("torchvision::",gsub("^(augment|trafo)", "transform", id)) %>`],
+#' Calls [`<%= paste0("torchvision::", gsub("^(augment|trafo)", "transform", id)) %>`],
 #' see there for more information on the parameters.
 #' <%= if (pipeop$rowwise) "The preprocessing is applied row wise (no batch dimension)." else "The preprocessing is applied to the whole batch."%>
 #'

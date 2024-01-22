@@ -199,25 +199,6 @@ LearnerTorch = R6Class("LearnerTorch",
       if (length(e)) {
         catn(str_indent("* Errors:", e))
       }
-    },
-    #' @description Train the learner.
-    #' @param task ([`Task`])\cr
-    #'   The task.
-    #' @param row_ids (`integer()`)\cr
-    #'   Which rows to use for training.
-    train = function(task, row_ids = NULL) {
-      private$.verify_train_task(task, row_ids)
-      super$train(task, row_ids)
-    },
-    #' @description Predict on a task.
-    #' @param task ([`Task`])\cr
-    #'   The task.
-    #' @param row_ids (`integer()`)\cr
-    #'   The rows for which to make predictions.
-    #' @return ([`Prediction`])
-    predict = function(task, row_ids = NULL) {
-      private$.verify_predict_task(task, row_ids)
-      super$predict(task, row_ids)
     }
   ),
   active = list(
@@ -256,6 +237,7 @@ LearnerTorch = R6Class("LearnerTorch",
   ),
   private = list(
     .train = function(task) {
+      private$.verify_train_task(task)
       param_vals = self$param_set$get_values(tags = "train")
       param_vals$device = auto_device(param_vals$device)
       if (param_vals$seed == "random") param_vals$seed = sample.int(10000000L, 1L)
@@ -267,6 +249,7 @@ LearnerTorch = R6Class("LearnerTorch",
       return(model)
     },
     .predict = function(task) {
+      private$.verify_predict_task(task)
       # FIXME: https://github.com/mlr-org/mlr3/issues/946
       # This addresses the issues with the facto lrvels and is only a temporary fix
       # Should be handled outside of mlr3torch
@@ -308,6 +291,17 @@ LearnerTorch = R6Class("LearnerTorch",
     .callbacks = NULL,
     .verify_train_task = function(task, row_ids) {
       first_row = task$head(1)
+      pv = self$param_set$values
+      measures = c(normalize_to_list(pv$measures_train), normalize_to_list(pv$measures_valid))
+      available_predict_types = mlr_reflections$learner_predict_types[[self$task_type]][[self$predict_type]]
+      walk(measures, function(m) {
+        if (m$predict_type %nin% available_predict_types) {
+          stopf(paste0("Measure '%s' requires predict type '%s' but learner has '%s'.\n",
+              "Change the predict type or select other measures."),
+            m$id, m$predict_type, self$predict_type)
+        }
+      })
+
       iwalk(first_row, function(x, nm) {
         if (!is_lazy_tensor(x)) return(NULL)
         predict_shape = dd(x)$pointer_shape_predict
