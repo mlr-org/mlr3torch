@@ -293,3 +293,7 @@ test_that("caching of graph works", {
   print(env)
   expect_equal(env$counter, 1)
 })
+
+test_that("merge_compatible_lazy_tensor_graphs", {
+  # TODO:
+})

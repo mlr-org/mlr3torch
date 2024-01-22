@@ -44,10 +44,6 @@ articles:
   navbar: ~
   contents:
   - get_started
-- title: Image Classification
-  navbar: ~
-  contents:
-  - articles/image_classification
 - title: Neural Networks as Graphs
   navbar: ~
   contents:

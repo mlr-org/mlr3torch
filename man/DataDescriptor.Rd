@@ -115,7 +115,7 @@ Specifies how the data from the \code{dataset} is fed into the preprocessing gra
 Points to an output channel within \code{graph}:
 Element 1 is the \code{PipeOp}'s id and element 2 is that \code{PipeOp}'s output channel.}
 
-\item{\code{pointer_shape}}{(\code{integer} | \code{NULL})\cr
+\item{\code{pointer_shape}}{(\code{integer()} | \code{NULL})\cr
 Shape of the output indicated by \code{pointer}.}
 
 \item{\code{pointer_shape_predict}}{(\code{integer()} or \code{NULL})\cr

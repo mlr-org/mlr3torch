@@ -65,14 +65,17 @@ task_dataset = dataset(
 
       if (inherits(merge_result, "try-error")) {
         # This should basically never happen
-        lg$warn("Failed to merge data descriptor, this might lead to inefficient preprocessing.")
+        lg$debug("Failed to merge data descriptor, this might lead to inefficient preprocessing.")
         # TODO: test that is still works when this triggers
       } else {
         self$task$cbind(merge_result)
       }
-
     }
-    self$cache_lazy_tensors = length(unique(map_chr(data, function(x) dd(x)$hash))) > 1L
+
+    # we can cache the output (hash) or the data (dataset_hash)
+    self$cache_lazy_tensors = length(unique(map_chr(data, function(x) dd(x)$hash))) > 1L ||
+    length(unique(map_chr(data, function(x) dd(x)$dataset_hash))) > 1L
+
   },
   .getbatch = function(index) {
     cache = if (self$cache_lazy_tensors) new.env()
@@ -94,18 +97,25 @@ task_dataset = dataset(
 )
 
 merge_lazy_tensor_graphs = function(lts) {
-  # Otherwise it is ugly to do the caching of the data loading
-  # and this is not really a strong restriction
-  assert_true(length(unique(map_chr(lts, function(x) dd(x)$dataset_hash))) == 1L)
+  names_lts = names(lts)
 
+  # we only attempt to merge preprocessing graphs that have the same dataset_hash
+  groups = map_chr(lts, function(lt) digest::digest(dd(lt)$dataset_hash))
+  lts = unlist(map(unique(groups), function(group) {
+    merge_compatible_lazy_tensor_graphs(lts[, names_lts[groups == group], with = FALSE])
+  }), recursive = FALSE)
+
+  as_data_backend(as.data.table(set_names(lts, names_lts)))
+}
+
+merge_compatible_lazy_tensor_graphs = function(lts) {
   graph = Reduce(merge_graphs, map(lts, function(x) dd(x)$graph))
+
   input_map = Reduce(c, map(lts, function(lt) {
     set_names(list(dd(lt)$input_map), dd(lt)$graph$input$name)
   }))
   input_map = input_map[unique(names(input_map))]
-
   input_map = unname(unlist(input_map[graph$input$name]))
-
 
   # some PipeOs that were previously terminal might not be anymore,
   # for those we add nops and updaate the pointers for their data descriptors
@@ -131,7 +141,7 @@ merge_lazy_tensor_graphs = function(lts) {
       dataset = dd(lts[[1]])$dataset,
       dataset_shapes = dd(lts[[1L]])$dataset_shapes,
       graph = graph,
-      input_map = input_map,
+      input_map = dd(lts[[1]])$input_map,
       pointer = pointer,
       pointer_shape = dd(lt)$pointer_shape,
       pointer_shape_predict = dd(lt)$pointer_shape_predict,

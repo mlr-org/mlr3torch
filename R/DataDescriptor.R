@@ -24,7 +24,7 @@
 #' @param pointer (`character(2)` | `NULL`)\cr
 #'   Points to an output channel within `graph`:
 #'   Element 1 is the `PipeOp`'s id and element 2 is that `PipeOp`'s output channel.
-#' @param pointer_shape (`integer` | `NULL`)\cr
+#' @param pointer_shape (`integer()` | `NULL`)\cr
 #'   Shape of the output indicated by `pointer`.
 #' @param clone_graph (`logical(1)`)\cr
 #'   Whether to clone the preprocessing graph.
@@ -85,9 +85,10 @@ DataDescriptor = R6Class("DataDescriptor",
       if (is.null(graph)) {
         if ((length(dataset_shapes) == 1L) && is.null(input_map)) {
           input_map = names(dataset_shapes)
+        } else {
+          assert_true(length(input_map) == 1L)
+          assert_subset(input_map, names(dataset_shapes))
         }
-        assert_true(length(input_map) == 1L)
-        assert_subset(input_map, names(dataset_shapes))
 
         graph = as_graph(po("nop", id = paste0(class(dataset)[[1L]], "_", input_map)))
         pointer = c(graph$output$op.id, graph$output$channel.name)
@@ -95,13 +96,11 @@ DataDescriptor = R6Class("DataDescriptor",
       } else {
         graph = as_graph(graph, clone = clone_graph)
         assert_true(length(graph$pipeops) >= 1L)
-
         assert_true(!is.null(input_map))
         assert_choice(pointer[[1]], names(graph$pipeops))
         assert_choice(pointer[[2]], graph$pipeops[[pointer[[1]]]]$output$name)
         assert_subset(paste0(pointer, collapse = "."), graph$output$name)
         assert_shape(pointer_shape, null_ok = TRUE)
-
         assert_subset(input_map, names(dataset_shapes))
         assert_true(length(input_map) == length(graph$input$name))
       }
@@ -120,6 +119,9 @@ DataDescriptor = R6Class("DataDescriptor",
       self$dataset_hash = dataset_hash
       self$graph_input = graph$input$name
       self$pointer_shape_predict = pointer_shape_predict
+
+      # the pointer is not taken into account, because we save the whole output during caching (for which the
+      # hash is primarily used)
       self$hash = calculate_hash(self$dataset_hash, self$graph$hash, self$input_map)
     },
     #' @description Prints the object
@@ -167,30 +169,3 @@ DataDescriptor = R6Class("DataDescriptor",
     pointer_shape_predict = NULL
   )
 )
-
-#' @include utils.R
-data_descriptor_union = function(dd1, dd2) {
-  # Otherwise it is ugly to do the caching of the data loading
-  # and this is not really a strong restriction
-  assert_true(dd1$dataset_hash == dd2$dataset_hash)
-  g1 = dd1$graph
-  g2 = dd2$graph
-
-  input_map = unique(c(
-    set_names(dd1$input_map, g1$input$name),
-    set_names(dd2$input_map, g2$input$name)
-  ))
-
-  graph = merge_graphs(g1, g2) # shallow clone, g1 and g2 graphs (not pipeops) are unmodified
-
-  DataDescriptor$new(
-    dataset = dd1$dataset,
-    dataset_shapes = dd1$dataset_shapes,
-    graph = graph,
-    input_map = input_map,
-    pointer = dd1$pointer,
-    pointer_shape = dd1$pointer_shape,
-    pointer_shape_predict = dd1$pointer_shape_predict,
-    clone_graph = FALSE
-  )
-}
