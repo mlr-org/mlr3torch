@@ -310,7 +310,7 @@ LearnerTorch = R6Class("LearnerTorch",
           return(NULL)
         }
         if (!isTRUE(all.equal(train_shape, predict_shape))) {
-          stopf("Lazy tensor column '%s' would have a different shape during training (%s) and prediction (%s).",
+          stopf("Lazy tensor column '%s' has a different shape during training (%s) and prediction (%s).",
             nm, paste0(train_shape, collapse = "x"), paste0(predict_shape, collapse = "x"))
         }
       })

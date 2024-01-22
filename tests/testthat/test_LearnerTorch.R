@@ -396,23 +396,14 @@ test_that("Input verification works during `$train()` (train-predict shapes work
 
   # fallback learner cannot help in this case!
   learner$fallback = lrn("classif.featureless")
-  expect_error(
-    learner$train(task_invalid),
-    "would have a different shape during"
-  )
-
-  expect_error(
-    learner$train(task_valid),
-    NA
-  )
+  rr_faulty = resample(task_invalid, learner, rsmp("holdout"))
+  expect_true(nrow(rr_faulty$errors) == 1L)
+  rr1 = resample(task, learner, rsmp("holdout"))
+  expect_true(nrow(rr1$errors) == 0L)
 
   task_unknown = po("trafo_resize", size = c(10, 10), stages = "train") $train(list(nano_dogs_vs_cats()))[[1L]]
-
-  expect_error(
-    learner$train(task_unknown),
-    NA
-  )
-
+  rr2 = resample(task_unknown, learner, rsmp("holdout"))
+  expect_true(nrow(rr2$errors) == 0L)
 })
 
 test_that("Input verification works during `$predict()` (same column info, problematic fct -> int conversion)", {

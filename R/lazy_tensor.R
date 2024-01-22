@@ -245,3 +245,13 @@ transform_lazy_tensor = function(lt, pipeop, shape, shape_predict = NULL) {
 
   new_lazy_tensor(data_descriptor, map_int(lt, 1))
 }
+
+#' @export
+hash_input.lazy_tensor = function(x) {
+  # When the DataBackend calculates the hash of, this function is called
+  if (length(x)) {
+    list(map(x, 1L), dd(x)$hash)
+  } else {
+    list()
+  }
+}
