@@ -181,7 +181,6 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
       assert(check_function(fn), check_character(fn, len = 2L))
       private$.fn = fn
       private$.rowwise = assert_flag(rowwise)
-
       param_set = assert_param_set(param_set$clone(deep = TRUE))
 
       param_set$add(ps(
