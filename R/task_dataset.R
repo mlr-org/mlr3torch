@@ -74,7 +74,7 @@ task_dataset = dataset(
 
     # we can cache the output (hash) or the data (dataset_hash)
     self$cache_lazy_tensors = length(unique(map_chr(data, function(x) dd(x)$hash))) > 1L ||
-    length(unique(map_chr(data, function(x) dd(x)$dataset_hash))) > 1L
+      length(unique(map_chr(data, function(x) dd(x)$dataset_hash))) > 1L
 
   },
   .getbatch = function(index) {
@@ -96,19 +96,11 @@ task_dataset = dataset(
   }
 )
 
-merge_lazy_tensor_graphs = function(lts) {
-  names_lts = names(lts)
-
-  # we only attempt to merge preprocessing graphs that have the same dataset_hash
-  groups = map_chr(lts, function(lt) dd(lt)$dataset_hash)
-  lts = unlist(map(unique(groups), function(group) {
-    merge_compatible_lazy_tensor_graphs(lts[, names_lts[groups == group], with = FALSE])
-  }), recursive = FALSE)
-
-  as_data_backend(as.data.table(set_names(lts, names_lts)))
+optimize_lazy_tensors = function(lts) {
 }
 
-merge_compatible_lazy_tensor_graphs = function(lts) {
+merge_lazy_tensors = function(lts) {
+  dataset = make_dataset_collection(lts)
   graph = Reduce(merge_graphs, map(lts, function(x) dd(x)$graph))
 
   input_map = Reduce(c, map(lts, function(lt) {
@@ -149,6 +141,92 @@ merge_compatible_lazy_tensor_graphs = function(lts) {
     )
     new_lazy_tensor(data_descriptor, map_int(lt, 1L))
   })
+
+  # 1) Merge the datasets
+
+  # 2) Merge the graphs
+  # 3) Adjust the input maps
+
+
+  names_lts = names(lts)
+  # we onl attempt to merge preprocessing graphs that have the same dataset_hash
+  groups = map_chr(lts, function(lt) dd(lt)$dataset_hash)
+  lts = unlist(map(unique(groups), function(group) {
+    lts_to_merge = lts[, names_lts[groups == group, with = FALSE]]
+    if (length(lts_to_merge) > 1L) {
+      merge_compatible_lazy_tensor_graphs(lts_to_merge)
+    } else {
+      lts_to_merge
+    }
+  }), recursive = FALSE)
+
+  as_data_backend(as.data.table(set_names(lts, names_lts)))
+}
+
+make_dataset_collection_batch = function(lts) {
+  dataset("dataset_collection_batch",
+    initialize = function(lts) {
+      datasets = map(lts, function(lt) dd(lt)$dataset)
+      duplicated = duplicated(map(lts, function(lt) dd(lt)$dataset_hash))
+      self$datasets = datasets[!duplicated]
+      self$ids = map(lts, function(lt) map(lt, 1L))[!duplicated]
+      self$names = Reduce(c, map(lts[!duplicated], function(lt) {
+        paste0(substring(lt$dataset_hash, 1, 5), ".", names(dd(lt)$dataset_shapes))
+      }))
+    },
+    .getbatch = function(i) {
+      batch = list()
+      for (j in seq_along(self$datasets)) {
+        idx = self$ids[[j]][i]
+        batch = append(batch, self$datasets[[j]]$.getbatch(idx))
+      }
+      set_names(batch, self$names)
+    }
+  )
+}
+make_dataset_collection_item = function(lts) {
+  dataset("dataset_collection_batch",
+    initialize = function(lts) {
+      datasets = map(lts, function(lt) dd(lt)$dataset)
+      duplicated = duplicated(map(lts, function(lt) dd(lt)$dataset_hash))
+      self$datasets = datasets[!duplicated]
+      self$ids = map(lts, function(lt) map(lt, 1L))[!duplicated]
+      self$names = Reduce(c, map(lts[!duplicated], function(lt) {
+        paste0(substring(lt$dataset_hash, 1, 5), ".", names(dd(lt)$dataset_shapes))
+      }))
+    },
+    .getitem = function(i) {
+      batch = list()
+      for (j in seq_along(self$datasets)) {
+        idx = self$ids[[j]][i]
+        if (is.null(self$dataset[[j]]$.getbatch)) {
+          new = self$datasets[[j]]$.getitem(idx)
+        } else {
+          new = map(self$datasets[[j]]$.getitem(idx), function(x) x$squeeze(1L))
+        }
+        batch = append(batch, new)
+      }
+      set_names(batch, self$names)
+    }
+  )(lts)
+}
+
+make_dataset_collection = function(lts) {
+  # in principle it can now happen, that we cannot use the .getbatch method of
+  assert_true(length(unique(lengths(lts))) == 1L)
+  if (any(map_lgl(lts, function(lt) is.null(dd(lt)$dataset$.getbatch)))) {
+    make_dataset_collection_item(lts)
+  } else {
+    make_dataset_collection_batch(lts)
+  }
+}
+
+merge_lazy_tensors = function(lts) {
+
+}
+
+merge_compatible_lazy_tensor_graphs = function(lts) {
+
 }
 
 dataset_ltnsr = function(task, param_vals) {
