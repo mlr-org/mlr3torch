@@ -179,7 +179,6 @@ collapse_char_list = function(x) {
 #' @title Parameter Test
 #' @description
 #' Tests that parameters are correctly implemented
-#'k
 #' @param x ([`ParamSet`] or object with field `$param_set`)\cr
 #'   The parameter set to check.
 #' @param fns (`list()` of `function`s)\cr

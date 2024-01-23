@@ -142,7 +142,8 @@ PipeOpPreprocTorchPoly = R6::R6Class("PipeOpPreprocTorchPoly",
        id = id,
        packages = character(0),
        param_vals = param_vals,
-       param_set = param_set
+       param_set = param_set,
+       stages_init = "both"
      )
    }
  ),

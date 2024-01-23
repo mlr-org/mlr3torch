@@ -106,10 +106,6 @@ test_that("PipeOpTaskPreprocTorch: basic checks", {
     materialize(po_test$train(list(task))[[1L]]$data(cols = "x1")[[1L]], rbind = TRUE)
   )
 
-  # TODO:
-  # need to finish the augment -> stages transition, i.e. add tests and "both", then finish the preprocess implementation add the tests and test the preprocess autotest
-  # also test that the rowwise parameter works
-
   po_test3 = pipeop_preproc_torch("test3", rowwise = FALSE, fn = function(x) x$reshape(-1), shapes_out = NULL,
     stages_init = "both"
   )
@@ -125,11 +121,26 @@ test_that("PipeOpTaskPreprocTorch: basic checks", {
     materialize(po_test4$train(list(task))[[1L]]$data(cols = "x1")$x1, rbind = TRUE)$shape,
     c(10, 1)
   )
+})
 
-  expect_true(pipeop_preproc_torch("test3", identity, rowwise = TRUE, shapes_out = NULL, stages_init = "both")$rowwise)
-  expect_false(pipeop_preproc_torch("test3", identity, rowwise = FALSE, shapes_out = NULL, stages_init = "both")$rowwise)
+test_that("rowwise works", {
+  task = tsk("lazy_iris")
+  fn_rowwise = function(x) {
+    expect_true(nrow(x) == 150L)
+    x
+  }
+  po_rowwise = pipeop_preproc_torch("test3", fn = fn_rowwise, rowwise = FALSE, shapes_out = NULL, stages_init = "both")
 
-  # stages_init works
+  taskout = po_rowwise$train(list(task))[[1L]]
+  expect_error(materialize(taskout$data()$x), regexp = NA)
+
+  fn_batchwise = function(x) {
+    expect_true(all.equal(x$shape, 4))
+    x
+  }
+  po_batchwise = pipeop_preproc_torch("test3", fn = fn_batchwise, rowwise = TRUE, shapes_out = NULL, stages_init = "both")
+  taskout2 = po_batchwise$train(list(task))[[1L]]
+  expect_error(materialize(taskout2$data()$x), regexp = NA)
 })
 
 test_that("PipeOptaskPreprocTorch: shapes_out() works", {
@@ -189,8 +200,7 @@ test_that("PipeOpTaskPreprocTorch modifies the underlying lazy tensor columns co
 
 test_that("pipeop_preproc_torch", {
   expect_error(
-    pipeop_preproc_torch("trafo_abc", function(x) NULL, shapes_out = function(shapes) NULL),
-    "Must have formal arguments"
+    pipeop_preproc_torch("trafo_abc", function(x) NULL, shapes_out = function(shapes) NULL)
   )
 
   rowwise = sample(c(TRUE, FALSE), 1L)
@@ -200,7 +210,8 @@ test_that("pipeop_preproc_torch", {
       s[2] = 2L
       s
       list(s)
-    }
+    },
+    stages_init = "both"
   )
 
   expect_true("required" %in% po_test$param_set$tags$a)
@@ -224,21 +235,35 @@ test_that("pipeop_preproc_torch", {
   expect_torch_equal(x[1, 2]$item(), 1)
 
   po_test1 = pipeop_preproc_torch("test1", torchvision::transform_resize, shapes_out = "infer",
-    param_vals = list(size = c(10, 10))
+    param_vals = list(size = c(10, 10)), stages_init = "both"
   )
 
   size = po_test1$shapes_out(list(c(NA, 20, 20)), "train")
   expect_equal(size, list(c(NA, 10, 10)))
+
+  expect_true(pipeop_preproc_torch("test3", identity, rowwise = TRUE, shapes_out = NULL, stages_init = "both")$rowwise)
+  expect_false(pipeop_preproc_torch("test3", identity, rowwise = FALSE, shapes_out = NULL, stages_init = "both")$rowwise)
+
+  # stages_init works
+  expect_equal(pipeop_preproc_torch(
+    "test3", identity, rowwise = TRUE, shapes_out = NULL, stages_init = "both")$param_set$values$stages,
+    "both"
+  )
+  expect_equal(pipeop_preproc_torch(
+    "test3", identity, rowwise = TRUE, shapes_out = NULL, stages_init = "train")$param_set$values$stages,
+    "train"
+  )
 })
 
 test_that("can pass variable to fn", {
-  fn = function(x) x
-  po_test = pipeop_preproc_torch("test", fn = fn, shapes_out = "infer")
-  expect_pipeop(po_test)
+  fn = function(x, a) x + a
+  po_test = pipeop_preproc_torch("test", fn = fn, shapes_out = "infer", stages_init = "train", param_vals = list(a = 1000))
+  x = po_test$train(list(tsk("lazy_iris")$filter(1)))[[1L]]$data()$x
+  expect_true(all(as_array(materialize(x, rbind = TRUE)) >= 50))
 })
 
 test_that("predict shapes are added during training", {
-  fn =   po_test = pipeop_preproc_torch("test", fn = function(x) torch_cat(list(x, x * 2), dim = 2), shapes_out = "infer")
+  po_test = pipeop_preproc_torch("test", fn = function(x) torch_cat(list(x, x * 2), dim = 2), shapes_out = "infer")
 
   po_test$param_set$set_values(
     stages = "train"

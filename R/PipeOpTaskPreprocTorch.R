@@ -147,7 +147,8 @@
 #'        id = id,
 #'        packages = character(0),
 #'        param_vals = param_vals,
-#'        param_set = param_set
+#'        param_set = param_set,
+#'        stages_init = "both"
 #'      )
 #'    }
 #'  ),
@@ -500,8 +501,6 @@ pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, pack
   }
 
   param_set = param_set %??% create_ps(fn)
-
-  stages_init = if (startsWith(id, "augment_")) "train" else "both"
 
   # the .__construction info construct is used to not having to rely on NSE
   init_fun = crate(function(id = id, param_vals = list()) { # nolint

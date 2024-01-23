@@ -53,10 +53,11 @@ expect_deep_clone = function(one, two) {
     visited[[addr_a]] = path
     visited_b[[addr_b]] = path
 
-    # TODO: Take care of torch parameters tensors and buffers and torch optimizer and nn module etc.
-
-    if (inherits(a, "nn_module_generator") || inherits(a, "torch_optimizer_generator") || inherits(a, "R6ClassGenerator")) {
-      return(invisible(NULL))
+    #if (inherits(a, "nn_module_generator") || inherits(a, "torch_optimizer_generator")) {
+    #  stopf("Not implemented yet")
+    #}
+    if (inherits(a, "R6ClassGenerator")) {
+      return(NULL)
     }
 
     # follow attributes, even for non-recursive objects

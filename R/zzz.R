@@ -110,24 +110,13 @@ register_mlr3pipelines = function() {
   backports::import(pkgname, "R_user_dir", force = TRUE)
 
   # Configure Logger:
-  lg = lgr::get_logger(pkgname)
-  assign("lg", lg, envir = parent.env(environment()))
-  f = function(event) {
-    event$msg = paste0("[mlr3torch] ", event$msg)
-    TRUE
-  }
-  lg$set_filters(list(f))
+  assign("lg", lgr::get_logger("mlr3"), envir = parent.env(environment()))
   if (Sys.getenv("IN_PKGDOWN") == "true") {
     lg$set_threshold("warn")
   }
 
   register_namespace_callback(pkgname, "mlr3", register_mlr3)
   register_namespace_callback(pkgname, "mlr3pipelines", register_mlr3pipelines)
-
-  assign("lg", lgr::get_logger(pkgname), envir = parent.env(environment()))
-  if (Sys.getenv("IN_PKGDOWN") == "true") {
-    lg$set_threshold("warn")
-  }
 }
 
 .onUnload = function(libPaths) { # nolint
@@ -140,4 +129,3 @@ register_mlr3pipelines = function() {
 }
 
 leanify_package()
-

@@ -67,7 +67,7 @@ task_dataset = dataset(
 
     # we can cache the output (hash) or the data (dataset_hash)
     self$cache_lazy_tensors = length(unique(map_chr(data, function(x) dd(x)$hash))) > 1L ||
-    length(unique(map_chr(data, function(x) dd(x)$dataset_hash))) > 1L
+      length(unique(map_chr(data, function(x) dd(x)$dataset_hash))) > 1L
 
   },
   .getbatch = function(index) {
@@ -93,9 +93,9 @@ merge_lazy_tensor_graphs = function(lts) {
   names_lts = names(lts)
 
   # we only attempt to merge preprocessing graphs that have the same dataset_hash
-  groups = map_chr(lts, function(lt) dd(lt)$dataset_hash)
-  lts = unlist(map(unique(groups), function(group) {
-    merge_compatible_lazy_tensor_graphs(lts[, names_lts[groups == group], with = FALSE])
+  hashes = map_chr(lts, function(lt) dd(lt)$dataset_hash)
+  lts = unlist(map(unique(hashes), function(hash) {
+    merge_compatible_lazy_tensor_graphs(lts[, names_lts[hashes == hash], with = FALSE])
   }), recursive = FALSE)
 
   as_data_backend(as.data.table(set_names(lts, names_lts)))
@@ -106,7 +106,7 @@ merge_compatible_lazy_tensor_graphs = function(lts) {
   graph = Reduce(merge_graphs, map(lts, function(x) dd(x)$graph))
 
   # now we need to calculate the new input map, some of the graphs that were merged have different,
-  # others the same input pipeops,
+  # others the same input pipeops
   input_map = Reduce(c, map(lts, function(lt) {
     set_names(list(dd(lt)$input_map), dd(lt)$graph$input$name)
   }))
@@ -115,11 +115,10 @@ merge_compatible_lazy_tensor_graphs = function(lts) {
   input_map = input_map[unique(names(input_map))]
   input_map = unname(unlist(input_map[graph$input$name]))
 
-  # some PipeOs that were previously terminal might not be anymore,
-  # for those we add nops and update the pointers for their data descriptors
   map_dtc(lts, function(lt) {
     pointer_name = paste0(dd(lt)$pointer, collapse = ".")
-
+    # some PipeOs that were previously terminal might not be anymore,
+    # for those we add nops and update the pointers for their data descriptors
     pointer = if (pointer_name %nin% graph$output$name) {
       po_terminal = po("nop", id = uniqueify(pointer_name, graph$ids()))
       graph$add_pipeop(po_terminal, clone = FALSE)
@@ -141,9 +140,9 @@ merge_compatible_lazy_tensor_graphs = function(lts) {
       graph = graph, # was merged
       input_map = input_map, # was merged
       pointer = pointer, # is set per lt
-      pointer_shape = dd(lt)$pointer_shape, # is set per lt but unused anyway
+      pointer_shape = dd(lt)$pointer_shape, # is set per lt
       pointer_shape_predict = dd(lt)$pointer_shape_predict, # is set per lt
-      clone_graph = FALSE
+      clone_graph = FALSE # shallow clone already created above
     )
     new_lazy_tensor(data_descriptor, map_int(lt, 1L))
   })
