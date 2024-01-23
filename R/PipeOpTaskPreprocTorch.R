@@ -204,7 +204,7 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
     #' @param shapes_in (`list()` of (`integer()` or `NULL`))\cr
     #'   The input input shapes of the lazy tensors.
     #'   `NULL` indicates that the shape is unknown.
-    #'   First dimension must be `NA`.
+    #'   First dimension must be `NA` (if it is not `NULL`).
     #' @param stage (`character(1)`)\cr
     #'   The stage: either `"train"` or `"predict"`.
     #' @param task ([`Task`] or `NULL`)\cr
