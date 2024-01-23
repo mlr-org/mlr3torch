@@ -360,6 +360,7 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
         formals(self$fn), body(self$fn), address(environment(self$fn))
       )
     },
+    # Default is the most conservative variant, i.e. unknown shapes.
     .shapes_out = function(shapes_in, param_vals, task) list(NULL),
     .fn = NULL
   )
