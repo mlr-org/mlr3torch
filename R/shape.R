@@ -28,7 +28,7 @@ test_shape = function(shape, null_ok = FALSE, unknown_batch = NULL) {
   if (is.null(shape) && null_ok) {
     return(TRUE)
   }
-  ok = test_integerish(shape, min.len = 2L, all.missing = TRUE)
+  ok = test_integerish(shape, min.len = 2L, all.missing = FALSE, any.missing = TRUE)
 
   if (!ok) {
     return(FALSE)
