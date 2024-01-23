@@ -74,7 +74,7 @@
 #' Then, two branches are created `B -> C` and `B -> D`, creating two preprocessing graphs
 #' `A -> B -> C` and `A -> B -> D`. When loading the data, we want to run the preprocessing only once, i.e. we don't
 #' want to run the `A -> B` part twice. For this reason, [`task_dataset()`] will try to merge graphs and cache
-#' results from graphs.
+#' results from graphs. However, only graphs using the same dataset can currently be merged.
 #'
 #' Also, the shapes created during `$train()` and `$predict()` might differ.
 #' To avoid the creation of graphs where the predict shapes are incompatible with the train shapes,
