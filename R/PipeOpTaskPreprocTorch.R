@@ -216,7 +216,6 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
         stopf("Predict shapes can only be calculated after training the PipeOp.")
       }
       assert_r6(task, "Task", null.ok = TRUE)
-      # either all shapes are NULL or none are NULL
       assert_shapes(shapes_in, named = FALSE, null_ok = TRUE)
       names(shapes_in) = NULL
 
