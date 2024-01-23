@@ -30,7 +30,7 @@
 #' @template param_param_vals
 #' @param fn (`function` or `character(2)`)\cr
 #'   The preprocessing function. Must not modify its input in-place.
-#'   If it is a `character(2)`, the first element should be the namespace and thje second element the name.
+#'   If it is a `character(2)`, the first element should be the namespace and the second element the name.
 #' @param packages (`character()`)\cr
 #'   The packages the preprocessing function depends on.
 #' @param param_set ([`ParamSet`])\cr
