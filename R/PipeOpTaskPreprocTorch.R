@@ -176,8 +176,7 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
   public = list(
     #' @description
     #' Creates a new instance of this [`R6`][R6::R6Class] class.
-    initialize = function(fn, id = "preproc_torch", param_vals = list(), param_set = ps(), packages = character(0),
-      stages_init = "both", rowwise = FALSE) { # nolint
+    initialize = function(fn, id = "preproc_torch", param_vals = list(), param_set = ps(), packages = character(0), rowwise = FALSE) { # nolint
       assert(check_function(fn), check_character(fn, len = 2L))
       private$.fn = fn
       private$.rowwise = assert_flag(rowwise)
@@ -374,7 +373,7 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
 #'   The parameter values.
 #' @export
 pipeop_preproc_torch = function(id, fn, shapes_out = NULL, param_set = NULL, param_vals = list(), packages = character(0),
-  rowwise = FALSE, parent_env = parent.frame()) {
+  rowwise = FALSE, parent_env = parent.frame(), stages_init = NULL) {
   pipeop_preproc_torch_class(
     id = id,
     fn = fn,
@@ -382,7 +381,8 @@ pipeop_preproc_torch = function(id, fn, shapes_out = NULL, param_set = NULL, par
     param_set = param_set,
     packages = packages,
     rowwise = rowwise,
-    parent_env = parent_env
+    parent_env = parent_env,
+    stages_init = stages_init
     )$new(param_vals = param_vals)
 }
 
@@ -436,8 +436,11 @@ create_ps = function(fn) {
 #'   The parent environment for the R6 class.
 #' @param rowwise (`logical(1)`)\cr
 #'   Whether the preprocessing is applied row-wise.
-#' @param init_params (name `list()`)\cr
-#'   List containing initial parameter values.
+#' @param stages_init (`character(1)`)\cr
+#'   Initial value for the `stages` parameter.
+#'   If `NULL` (default), will be set to `"both"` in case the `id` starts with `"trafo"` and to `"train"`
+#'   if it starts with `"augment"`. Otherwise it must specified.
+#' @param
 #' @template param_packages
 #' @export
 #' @returns An [`R6Class`][R6::R6Class] instance inheriting from [`PipeOpTaskPreprocTorch`]
@@ -446,11 +449,21 @@ create_ps = function(fn) {
 #' po_example
 #' po_example$param_set
 pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, packages = character(0),
-  init_params = list(), rowwise = FALSE, parent_env = parent.frame()) {
+  rowwise = FALSE, parent_env = parent.frame(), stages_init = NULL) {
   assert(
     check_function(shapes_out, args = c("shapes_in", "param_vals", "task"), null.ok = TRUE),
     check_choice(shapes_out, c("infer", "unchanged"))
   )
+
+  if (is.null(stages_init)) {
+    stages_init = if (startsWith(id, "trafo_")) {
+      "both"
+    } else if (startsWith(id, "augment_")) {
+      "train"
+    } else {
+      stopf("stages_init must be specified")
+    }
+  }
 
   # we e.g. want torchvision in suggests, so we cannot already access the function.
   if (identical(shapes_out, "infer")) {
@@ -480,8 +493,6 @@ pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, pack
 
       list(sout)
     })
-    # FIXME: NSE issues, we need to evaluate fn in the proper environment,
-    # I guess we can use this quosure idea that
   } else if (identical(shapes_out, "unchanged")) {
     shapes_out = crate(function(shapes_in, param_vals, task_in) shapes_in)
   } else if (is.function(shapes_out) || is.null(shapes_out)) {
@@ -506,7 +517,6 @@ pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, pack
     } else {
       param_set = info$param_set$clone(deep = TRUE)
     }
-    param_set$values = info$init_params # nolint
     super$initialize(
       id = id,
       packages = info$packages,
@@ -523,16 +533,13 @@ pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, pack
   formals(init_fun)$id = id
 
   classname = paste0("PipeOpPreprocTorch", paste0(capitalize(strsplit(id, split = "_")[[1L]]), collapse = ""))
-  # Note that we don't set default values
-
   private = list(
     .__construction_info = list(
       packages = packages,
       param_set = param_set,
       fn = fn,
       rowwise = rowwise,
-      stages_init = stages_init,
-      init_params = init_params
+      stages_init = stages_init
     )
   )
 
