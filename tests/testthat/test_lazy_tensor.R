@@ -118,3 +118,35 @@ test_that("pofu identifies identical columns", {
 
   expect_set_equal(taskout$feature_names, "z")
 })
+
+test_that("as_lazy_tensor for dataset", {
+  ds = random_dataset(10, 3)
+  x = as_lazy_tensor(ds, dataset_shapes = list(x = c(NA, 3)), ids = 1:5)
+  expect_class(x, "lazy_tensor")
+  expect_torch_equal(ds$.getbatch(1:5)$x, materialize(x, rbind = TRUE))
+})
+
+test_that("as_lazy_tensor for DataDescriptor", {
+  ds = random_dataset(10, 3)
+  dd = DataDescriptor$new(
+    dataset = ds,
+    dataset_shapes = list(x = c(NA, 3))
+  )
+  x = as_lazy_tensor(dd, ids = c(1, 5))
+  expect_class(x, "lazy_tensor")
+  expect_torch_equal(ds$.getbatch(c(1, 5))$x, materialize(x, rbind = TRUE))
+})
+
+test_that("as_lazy_tensor for tensor", {
+  tnsr = torch_randn(10, 1)
+  x = as_lazy_tensor(tnsr)
+  expect_class(x, "lazy_tensor")
+  expect_torch_equal(tnsr, materialize(x, rbind = TRUE))
+
+})
+
+test_that("as_lazy_tensor for numeric", {
+  x = as_lazy_tensor(1:10)
+  expect_class(x, "lazy_tensor")
+  expect_equal(1:10, as.numeric(as_array(materialize(x, rbind = TRUE))))
+})

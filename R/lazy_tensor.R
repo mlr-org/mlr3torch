@@ -17,7 +17,7 @@ lazy_tensor = function(data_descriptor = NULL, ids = NULL) {
   if (is.null(ids)) {
     ids = seq_along(data_descriptor$dataset)
   } else {
-    assert_integerish(ids, lower = 1L, upper = length(data_descriptor$dataset), any.missing = FALSE)
+    ids = assert_integerish(ids, lower = 1L, upper = length(data_descriptor$dataset), any.missing = FALSE, coerce = TRUE)
   }
 
   new_lazy_tensor(data_descriptor, ids)
