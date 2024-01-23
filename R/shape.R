@@ -48,7 +48,7 @@ check_shape = function(shape, null_ok = FALSE, unknown_batch = NULL) {
   if (test_shape(shape, null_ok = null_ok, unknown_batch = unknown_batch)) {
     return(TRUE)
   }
-  stopf("Invalid shape: %s.", paste0(format(shape), collapse = ", "))
+  sprintf("Invalid shape: %s.", paste0(format(shape), collapse = ", "))
 }
 assert_shapes = function(shapes, coerce = TRUE, named = FALSE, null_ok = FALSE, unknown_batch = NULL) { # nolint
   ok = test_list(shapes, names = if (named && !identical(unique(names(shapes)), "...")) "unique", min.len = 1L)
