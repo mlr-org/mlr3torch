@@ -53,6 +53,11 @@ LearnerTorchImage = R6Class("LearnerTorchImage",
       )
       assert_param_set(param_set)
 
+      param_set$add(ps(
+        shape = p_uty(tags = "train", default = NULL, custom_check = crate(
+          function(x) check_shape(x, null_ok = TRUE, unknown_batch = TRUE), .parent = topenv()))
+        ))
+
       super$initialize(
         id = id,
         task_type = task_type,
@@ -78,5 +83,6 @@ LearnerTorchImage = R6Class("LearnerTorchImage",
     .dataset = function(task, param_vals) {
       dataset_ltnsr(task, param_vals)
     }
+
   )
 )

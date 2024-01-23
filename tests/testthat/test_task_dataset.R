@@ -157,8 +157,8 @@ test_that("dataset_num works for classification and regression", {
 
   expected = torch_tensor(as.matrix(task$data(1:2, task$feature_names)))
 
-  expect_true(torch_equal(torch_tensor(expected), batch$x$input))
-  expect_true(torch_equal(torch_tensor(expected), batch$x$input))
+  expect_true(torch_equal(torch_tensor(expected), batch$x[[1]]))
+  expect_true(torch_equal(torch_tensor(expected), batch$x[[1]]))
 
   # regression
   ids = 2:4
@@ -167,7 +167,7 @@ test_that("dataset_num works for classification and regression", {
   batch = ds$.getbatch(seq_len(length(ids)))
 
   expected = torch_tensor(as.matrix(task$data(2:4, task$feature_names)))
-  expect_true(torch_equal(torch_tensor(expected), batch$x$input))
+  expect_true(torch_equal(torch_tensor(expected), batch$x[[1]]))
 })
 
 test_that("batchgetter_categ works", {

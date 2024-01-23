@@ -198,7 +198,6 @@ PipeOpTorchIngressNumeric = R6Class("PipeOpTorchIngressNumeric",
   ),
   private = list(
     .shape = function(task, param_vals) {
-      # TODO: check that task is legit
       c(NA, length(task$feature_types$type))
     },
 

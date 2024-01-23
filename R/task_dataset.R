@@ -146,25 +146,26 @@ merge_compatible_lazy_tensor_graphs = function(lts) {
 }
 
 dataset_ltnsr = function(task, param_vals) {
-  assert_true(length(task$feature_names) == 1L)
-  shape = dd(task$data(cols = task$feature_names)[[1L]])$pointer_shape
-  ingress_tokens = list(image = TorchIngressToken(task$feature_names, batchgetter_lazy_tensor, shape))
-
+  po_ingress = po("torch_ingress_ltnsr", shape = param_vals$shape)
+  md = po_ingress$train(list(task))[[1L]]
+  ingress = md$ingress
+  names(ingress) = "input"
   task_dataset(
-    task,
-    feature_ingress_tokens = ingress_tokens,
+    task = task,
+    feature_ingress_tokens = ingress,
     target_batchgetter = get_target_batchgetter(task$task_type),
     device = param_vals$device
   )
 }
 
 dataset_num = function(task, param_vals) {
-  num_features = task$feature_types[get("type") %in% c("numeric", "integer"), "id"][[1L]]
-  ingress = TorchIngressToken(num_features, batchgetter_num, c(NA, length(task$feature_names)))
-
+  po_ingress = po("torch_ingress_num")
+  md = po_ingress$train(list(task))[[1L]]
+  ingress = md$ingress
+  names(ingress) = "input"
   task_dataset(
-    task,
-    feature_ingress_tokens = list(input = ingress),
+    task = task,
+    feature_ingress_tokens = ingress,
     target_batchgetter = get_target_batchgetter(task$task_type),
     device = param_vals$device
   )
