@@ -74,7 +74,7 @@ test_that("transform_lazy_tensor works", {
   dd1 = dd(lt1)
 
   expect_equal(dd1$graph$edges,
-    data.table(src_id = "dataset_x", src_channel = "output", dst_id = "mod", dst_channel = "input")
+    data.table(src_id = dd1$graph$input$op.id, src_channel = "output", dst_id = "mod", dst_channel = "input")
   )
 
   dd = dd(lt)

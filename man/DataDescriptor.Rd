@@ -104,8 +104,8 @@ indicate the batch dimension.}
 
 \item{\code{graph}}{(\code{\link{Graph}})\cr
 The preprocessing graph.
-If left \code{NULL}, no preprocessing is applied to the data and \code{input_map}, \code{pointer} and \code{pointer_shape}
-are inferred in case the dataset returns only one element.}
+If left \code{NULL}, no preprocessing is applied to the data and \code{input_map}, \code{pointer}, \code{pointer_shape}, and
+\code{pointer_shape_predict} are inferred in case the dataset returns only one element.}
 
 \item{\code{input_map}}{(\code{character()})\cr
 Character vector that must have the same length as the input of the graph.
