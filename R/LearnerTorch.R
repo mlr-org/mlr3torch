@@ -80,6 +80,9 @@
 #' or `"cb."`, as these are preserved for the dynamically constructed parameters of the optimizer, the loss function,
 #' and the callbacks.
 #'
+#' To perform additional input checks on the task, the private `.verify_train_task(task, param_vals)` and
+#' `.verify_predict_task(task, param_vals)` can be overwritten.
+#'
 #' @family Learner
 #' @export
 LearnerTorch = R6Class("LearnerTorch",
@@ -237,8 +240,32 @@ LearnerTorch = R6Class("LearnerTorch",
   ),
   private = list(
     .train = function(task) {
-      private$.verify_train_task(task)
       param_vals = self$param_set$get_values(tags = "train")
+      first_row = task$head(1)
+      measures = c(normalize_to_list(param_vals$measures_train), normalize_to_list(param_vals$measures_valid))
+      available_predict_types = mlr_reflections$learner_predict_types[[self$task_type]][[self$predict_type]]
+      walk(measures, function(m) {
+        if (m$predict_type %nin% available_predict_types) {
+          stopf(paste0("Measure '%s' requires predict type '%s' but learner has '%s'.\n",
+              "Change the predict type or select other measures."),
+            m$id, m$predict_type, self$predict_type)
+        }
+      })
+
+      iwalk(first_row, function(x, nm) {
+        if (!is_lazy_tensor(x)) return(NULL)
+        predict_shape = dd(x)$pointer_shape_predict
+        train_shape = dd(x)$pointer_shape
+        if (is.null(train_shape) || is.null(predict_shape)) {
+          return(NULL)
+        }
+        if (!isTRUE(all.equal(train_shape, predict_shape))) {
+          stopf("Lazy tensor column '%s' has a different shape during training (%s) and prediction (%s).",
+            nm, paste0(train_shape, collapse = "x"), paste0(predict_shape, collapse = "x"))
+        }
+      })
+      private$.verify_train_task(task, param_vals)
+
       param_vals$device = auto_device(param_vals$device)
       if (param_vals$seed == "random") param_vals$seed = sample.int(10000000L, 1L)
 
@@ -249,13 +276,26 @@ LearnerTorch = R6Class("LearnerTorch",
       return(model)
     },
     .predict = function(task) {
-      private$.verify_predict_task(task)
+      cols = c(task$feature_names, task$target_names)
+      ci_predict = task$col_info[get("id") %in% cols, c("id", "type", "levels")]
+      ci_train = self$model$task_col_info[get("id") %in% cols, c("id", "type", "levels")]
+      # permuted factor levels cause issues, because we are converting fct -> int
+      if (!test_equal_col_info(ci_train, ci_predict)) { # nolint
+        stopf(paste0(
+          "Predict task's column info does not match the train task's column info.\n",
+          "This migth be handled more gracefully in the future.\n",
+          "Training column info:\n'%s'\n",
+          "Prediction column info:\n'%s'"),
+          paste0(capture.output(ci_train), collapse = "\n"),
+          paste0(capture.output(ci_predict), collapse = "\n"))
+      }
+      param_vals = self$param_set$get_values(tags = "predict")
+      private$.verify_predict_task(task, param_vals)
       # FIXME: https://github.com/mlr-org/mlr3/issues/946
       # This addresses the issues with the facto lrvels and is only a temporary fix
       # Should be handled outside of mlr3torch
       # Ideally we could rely on state$train_task, but there is this bug
       # https://github.com/mlr-org/mlr3/issues/947
-      param_vals = self$param_set$get_values(tags = "predict")
       param_vals$device = auto_device(param_vals$device)
 
       with_torch_settings(seed = self$model$seed, num_threads = param_vals$num_threads, {
@@ -289,47 +329,8 @@ LearnerTorch = R6Class("LearnerTorch",
     .loss = NULL,
     .param_set_base = NULL,
     .callbacks = NULL,
-    .verify_train_task = function(task, row_ids) {
-      first_row = task$head(1)
-      pv = self$param_set$values
-      measures = c(normalize_to_list(pv$measures_train), normalize_to_list(pv$measures_valid))
-      available_predict_types = mlr_reflections$learner_predict_types[[self$task_type]][[self$predict_type]]
-      walk(measures, function(m) {
-        if (m$predict_type %nin% available_predict_types) {
-          stopf(paste0("Measure '%s' requires predict type '%s' but learner has '%s'.\n",
-              "Change the predict type or select other measures."),
-            m$id, m$predict_type, self$predict_type)
-        }
-      })
-
-      iwalk(first_row, function(x, nm) {
-        if (!is_lazy_tensor(x)) return(NULL)
-        predict_shape = dd(x)$pointer_shape_predict
-        train_shape = dd(x)$pointer_shape
-        if (is.null(train_shape) || is.null(predict_shape)) {
-          return(NULL)
-        }
-        if (!isTRUE(all.equal(train_shape, predict_shape))) {
-          stopf("Lazy tensor column '%s' has a different shape during training (%s) and prediction (%s).",
-            nm, paste0(train_shape, collapse = "x"), paste0(predict_shape, collapse = "x"))
-        }
-      })
-    },
-    .verify_predict_task = function(task, row_ids) {
-      cols = c(task$feature_names, task$target_names)
-      ci_predict = task$col_info[get("id") %in% cols, c("id", "type", "levels")]
-      ci_train = self$model$task_col_info[get("id") %in% cols, c("id", "type", "levels")]
-      # permuted factor levels cause issues, because we are converting fct -> int
-      if (!test_equal_col_info(ci_train, ci_predict)) { # nolint
-        stopf(paste0(
-          "Predict task's `$col_info` does not match the train task's column info.\n",
-          "This migth be handled more gracefully in the future.\n",
-          "Training column info:\n'%s'\n",
-          "Prediction column info:\n'%s'"),
-          paste0(capture.output(ci_train), collapse = "\n"),
-          paste0(capture.output(ci_predict), collapse = "\n"))
-      }
-    },
+    .verify_train_task = function(task, param_vals) NULL,
+    .verify_predict_task = function(task, param_vals) NULL,
     deep_clone = function(name, value) deep_clone(self, private, super, name, value)
   )
 )

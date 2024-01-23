@@ -90,6 +90,9 @@ While it is possible to add parameters by specifying the \code{param_set} constr
 not possible to remove existing parameters, i.e. those listed in section \emph{Parameters}.
 None of the parameters provided in \code{param_set} can have an id that starts with \code{"loss."}, \verb{"opt.", or }"cb."`, as these are preserved for the dynamically constructed parameters of the optimizer, the loss function,
 and the callbacks.
+
+To perform additional input checks on the task, the private \code{.verify_train_task(task, param_vals)} and
+\code{.verify_predict_task(task, param_vals)} can be overwritten.
 }
 
 \seealso{

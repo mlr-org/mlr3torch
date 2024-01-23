@@ -56,12 +56,12 @@ DataDescriptor = R6Class("DataDescriptor",
     initialize = function(dataset, dataset_shapes, graph = NULL, input_map = NULL, pointer = NULL,
       pointer_shape = NULL, pointer_shape_predict = NULL, clone_graph = TRUE) {
       assert_class(dataset, "dataset")
+      assert_flag(clone_graph)
       # If the dataset implements a .getbatch() method the shape must be specified, as it should be the same for
       # all batches
       # For simplicity we here require the first dimension of the shape to be NA so we don't have to deal with it,
       # e.g. during subsetting
       assert_shapes(dataset_shapes, null_ok = is.null(dataset$.getbatch), unknown_batch = TRUE, named = TRUE)
-      assert_shape(pointer_shape_predict, null_ok = TRUE, unknown_batch = TRUE)
 
       # prevent user from e.g. forgetting to wrap the return in a list
       example = if (is.null(dataset$.getbatch)) {
@@ -82,7 +82,7 @@ DataDescriptor = R6Class("DataDescriptor",
         })
       }
       if (is.null(graph)) {
-        # avoid name conflcts
+        # avoid name conflicts
         if (is.null(input_map)) {
           assert_true(length(dataset_shapes) == 1L)
           input_map = names(dataset_shapes)
@@ -170,10 +170,10 @@ DataDescriptor = R6Class("DataDescriptor",
     #' @field input_map (`character()`)\cr
     #' The input map from the dataset to the preprocessing graph.
     input_map = NULL,
-    #' @field pointer (`character(2)` | `NULL`)\cr
+    #' @field pointer (`character(2)`)\cr
     #' The output pointer.
     pointer = NULL,
-    #' @field pointer_shape (`integer` | `NULL`)\cr
+    #' @field pointer_shape (`integer()` | `NULL`)\cr
     #' The shape of the output indicated by `pointer`.
     pointer_shape = NULL,
     #' @field dataset_hash (`character(1)`)\cr

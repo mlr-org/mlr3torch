@@ -44,10 +44,10 @@ The shapes of the output.}
 \item{\code{input_map}}{(\code{character()})\cr
 The input map from the dataset to the preprocessing graph.}
 
-\item{\code{pointer}}{(\code{character(2)} | \code{NULL})\cr
+\item{\code{pointer}}{(\code{character(2)})\cr
 The output pointer.}
 
-\item{\code{pointer_shape}}{(\code{integer} | \code{NULL})\cr
+\item{\code{pointer_shape}}{(\code{integer()} | \code{NULL})\cr
 The shape of the output indicated by \code{pointer}.}
 
 \item{\code{dataset_hash}}{(\code{character(1)})\cr
