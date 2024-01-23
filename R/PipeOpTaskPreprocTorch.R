@@ -427,7 +427,7 @@ create_ps = function(fn) {
 #'   The parameter set.
 #'   If this is left as `NULL` (default) the parameter set is inferred in the following way:
 #'   All parameters but the first and `...` of `fn` are set as untyped parameters with tags 'train' and those that
-#'   have nod default value are tagged as 'required' as well.
+#'   have no default value are tagged as 'required' as well.
 #'   Default values are not annotated.
 #' @param parent_env (`environment`)\cr
 #'   The parent environment for the R6 class.
