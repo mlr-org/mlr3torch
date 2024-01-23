@@ -1,4 +1,4 @@
-test_that("Unknown shapes work", {
+test_that("Unknown shapes", {
   ds = dataset(
     initialize = function() {
       self$x = list(
@@ -21,7 +21,7 @@ test_that("Unknown shapes work", {
 
   lt = as_lazy_tensor(dd)
   expect_class(lt, "lazy_tensor")
-  materialize(lt)
+  expect_error(materialize(lt), regexp = NA)
   expect_true(test_class(lt[1:2], "lazy_tensor"))
   expect_class(lt[[1]], "list")
 
@@ -31,33 +31,49 @@ test_that("Unknown shapes work", {
   expect_error(DataDescriptor$new(ds, list(x = NULL)))
 })
 
-test_that("lazy_tensor works", {
-  dd1 = DataDescriptor$new(random_dataset(5, 4), list(x = c(NA, 5, 4)))
-  dd2 = DataDescriptor$new(random_dataset(5, 4), list(x = c(NA, 5, 4)))
+test_that("assignment", {
+  x = as_lazy_tensor(1:2)
+  x[2] = x[1]
+  expect_class(x, "lazy_tensor")
+  expect_torch_equal(
+    materialize(x[1], rbind = TRUE),
+    materialize(x[2], rbind = TRUE)
+  )
 
-  lt = lazy_tensor()
-  expect_class(lt, "lazy_tensor")
-  expect_true(length(lt) == 0L)
-  expect_error(is.null(dd(lt)$data_descriptor))
+  expect_error({x[1] = as_lazy_tensor(1)}) # nolint
+})
 
-  lt1 = lazy_tensor(dd1)
-  lt2 = lazy_tensor(dd2)
 
-  expect_error(c(lt1, lt2), "Can only concatenate")
+test_that("concatenation", {
+  x1 = as_lazy_tensor(1)
+  x2 = as_lazy_tensor(1)
+  expect_error(c(x1, x2), regexp = "Can only")
 
-  expect_error({lt1[1] = lt2[1]}) # nolint
+  x = c(x1, x1)
+  expect_class(x, "lazy_tensor")
+  expect_equal(length(x), 2)
+})
 
-  lt1_empty = lt1[integer(0)]
-  expect_error(is.null(dd(lt1_empty)))
-  expect_class(lt1_empty, "lazy_tensor")
+test_that("subsetting and indexing", {
+  x = as_lazy_tensor(1:3)
+  expect_class(x[1:2], "lazy_tensor")
+  expect_equal(length(x[1:2]), 2)
+  expect_list(x[[1]], len = 2L)
+  expect_class(x[integer(0)], "lazy_tensor")
+  expect_equal(length(x[integer(0)]), 0)
+})
 
-  lt1_empty[1] = lt1[1]
-  expect_class(lt1_empty, "lazy_tensor")
+
+test_that("prototype", {
+  proto = lazy_tensor()
+  expect_class(proto, "lazy_tensor")
+  expect_true(length(proto) == 0L)
+  expect_error(dd(proto))
 
   expect_error(materialize(lazy_tensor()), "Cannot materialize")
 })
 
-test_that("transform_lazy_tensor works", {
+test_that("transform_lazy_tensor", {
   lt = as_lazy_tensor(torch_randn(16, 2, 5))
   lt_mat = materialize(lt, rbind = TRUE)
 
@@ -149,4 +165,17 @@ test_that("as_lazy_tensor for numeric", {
   x = as_lazy_tensor(1:10)
   expect_class(x, "lazy_tensor")
   expect_equal(1:10, as.numeric(as_array(materialize(x, rbind = TRUE))))
+})
+
+test_that("format", {
+  expect_equal(format(lazy_tensor()), character(0))
+  expect_equal(format(as_lazy_tensor(1)), "<tnsr[1]>")
+  expect_equal(format(as_lazy_tensor(1:2)), c("<tnsr[1]>", "<tnsr[1]>"))
+})
+
+test_that("printer", {
+  expect_equal(
+    capture.output(as_lazy_tensor(1:2)),
+    c("<ltnsr[2]>", "[1] <tnsr[1]> <tnsr[1]>")
+  )
 })
