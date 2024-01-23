@@ -37,7 +37,7 @@
 #'   In case the function `fn` takes additional parameter besides a [`torch_tensor`] they can be
 #'   specfied as parameters. None of the parameters can have the `"predict"` tag.
 #'   All tags should include `"train"`.
-#' @param stages_init (`logical(1)`)\cr
+#' @param stages_init (`character(1)`)\cr
 #'   Initial value for the `stages` parameter.
 #' @param rowwise (`logical(1)`)\cr
 #'   Whether the preprocessing function is applied rowwise (and then concatenated by row) or directly to the whole
