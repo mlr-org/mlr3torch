@@ -1,4 +1,4 @@
-test_that("cache works if mlr3torch.cache is set to false", {
+test_that("cache works if mlr3torch.cache is set to FALSE", {
   # if we disable caching, we expect the folder structure of the tempfile() to be:
   # raw:
   #   - data.csv (the "downloaded" data)

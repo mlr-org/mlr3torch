@@ -26,7 +26,8 @@ Additional arguments.}
 
 \item{cache}{(\code{character(1)} or \code{environment()} or \code{NULL})\cr
 Optional cache for (intermediate) materialization results.
-Per default, caching will be enabled when the same dataset / graph is used for more than one lazy tensor column.}
+Per default, caching will be enabled when the same dataset or data descriptor (with different output pointer)
+is used for more than one lazy tensor columns.}
 }
 \value{
 (\code{list()} of \code{\link{lazy_tensor}}s or a \code{\link{lazy_tensor}})

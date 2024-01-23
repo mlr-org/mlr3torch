@@ -99,14 +99,15 @@ DataDescriptor = R6Class("DataDescriptor",
       simple_case = length(graph$pipeops) == 1L && inherits(graph$pipeops[[1L]], "PipeOpNOP") &&
         length(dataset_shapes) == 1L
 
-      if (is.null(input_map) && simple_case) {
-          input_map = names(dataset_shapes)
+      if (is.null(input_map) && nrow(graph$input) == 1L && length(dataset_shapes) == 1L) {
+        input_map = names(dataset_shapes)
       } else {
         assert_subset(input_map, names(dataset_shapes))
       }
       if (is.null(pointer) && simple_case) {
         pointer = c(graph$output$op.id, graph$output$channel.name)
       } else {
+        assert_character(pointer, len = 2L)
         assert_choice(pointer[[1]], names(graph$pipeops))
         assert_choice(pointer[[2]], graph$pipeops[[pointer[[1]]]]$output$name)
       }

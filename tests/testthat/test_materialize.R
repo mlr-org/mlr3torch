@@ -98,12 +98,6 @@ test_that("materialize.list works", {
   expect_equal(names(out), "image")
   expect_class(out$image, "torch_tensor")
   expect_equal(out$image$shape, c(10, 1, 28, 28))
-
-  # to check:
-  # a) caching works when en / disabling cache manually
-  # c) default = "auto" works as expected
-
-  # TODO
 })
 
 test_that("materialize_internal: caching of datasets works", {
@@ -145,9 +139,39 @@ test_that("materialize_internal: caching of datasets works", {
   expect_true(ds$count == 10)
 })
 
-test_that("materialize_internal with varying shapes", {
+test_that("materialize with varying shapes", {
+  task = nano_dogs_vs_cats()$filter(1:2)
+  x = materialize(task$data()$x, rbind = FALSE)
+  expect_list(x, types = "torch_tensor")
+  expect_equal(x[[1]]$shape[1L], 3)
+  expect_equal(x[[2]]$shape[1L], 3)
 
+  # shapes don't fit together
+  expect_error(materialize(task$data()$x, rbind = TRUE))
 
+  e = new.env()
+  e$a = 2L
+
+  # depending on whether we apply this per row or per batch, we will get different results
+  # (second's sum(abs()) is either zero or non-zero)
+  fn = crate(function(x) {
+    a <<- a - 1
+    x * a
+  }, .parent = e)
+  po_test = pipeop_preproc_torch("trafo_test", fn = fn)
+  # is processed batch-wise ->
+  task2 = po_test$train(list(nano_mnist()$filter(1:2)))[[1L]]
+
+  x2 = materialize(task2$data()$image, rbind = TRUE)
+  expect_true(as.logical(sum(abs(x2[2, ..])) != 0))
+
+  e$a = 2
+  x2 = materialize(task2$data()$image, rbind = FALSE)
+  expect_true(as.logical(sum(abs(x2[[2L]])) != 0))
+
+  e$a = 2
+  x3 = materialize(po_test$train(list(task))[[1L]]$data()$x)
+  expect_true(as.logical(sum(abs(x3[[2L]])) == 0L))
 })
 
 test_that("PipeOpFeatureUnion can properly check whether two lazy tensors are identical", {
@@ -160,5 +184,3 @@ test_that("PipeOpFeatureUnion can properly check whether two lazy tensors are id
 
   expect_error(graph$train(task), "cannot aggregate different features sharing")
 })
-
-

@@ -46,4 +46,5 @@ test_that("PipeOpTorchIngressLazyTensor", {
   expect_po_ingress(po_ingress, task)
 
   expect_error(po_ingress$param_set$set_values(shape = c(22, 4)))
+  expect_error(po_ingress$param_set$set_values(shape = c(NA, 22, 4)), regexp = NA)
 })

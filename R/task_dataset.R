@@ -65,10 +65,7 @@ task_dataset = dataset(
       self$task$cbind(merge_result)
     }
 
-    # we can cache the output (hash) or the data (dataset_hash)
-    self$cache_lazy_tensors = length(unique(map_chr(data, function(x) dd(x)$hash))) > 1L ||
-      length(unique(map_chr(data, function(x) dd(x)$dataset_hash))) > 1L
-
+    self$cache_lazy_tensors = auto_cache_lazy_tensors(data)
   },
   .getbatch = function(index) {
     cache = if (self$cache_lazy_tensors) new.env()

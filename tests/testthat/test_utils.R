@@ -30,3 +30,22 @@ test_that("get_nout works", {
 test_that("uniqueify works", {
   expect_equal(uniqueify("a", "a"), "a_1")
 })
+
+test_that("auto_cache_lazy_tensors", {
+  ds = random_dataset(10, 3)
+  ds2 = random_dataset(10, 3)
+
+  # 1) Duplicated dataset_hash
+  x1 = list(
+    as_lazy_tensor(ds, dataset_shapes = list(x = c(NA, 3)), ids = 1:3),
+    as_lazy_tensor(ds, dataset_shapes = list(x = c(NA, 3)), ids = 1:3)
+  )
+  expect_true(auto_cache_lazy_tensors(x1))
+
+  # 2) Duplicated hash
+  x2 = list(
+    as_lazy_tensor(ds, dataset_shapes = list(x = c(NA, 3)), ids = 1:3),
+    as_lazy_tensor(ds2, dataset_shapes = list(x = c(NA, 3)), ids = 1:3)
+  )
+  expect_false(auto_cache_lazy_tensors(x2))
+})

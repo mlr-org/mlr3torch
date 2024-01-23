@@ -50,19 +50,17 @@ materialize = function(x, device = "cpu", rbind = FALSE, ...) {
 #' @rdname materialize
 #' @param cache (`character(1)` or `environment()` or `NULL`)\cr
 #'   Optional cache for (intermediate) materialization results.
-#'   Per default, caching will be enabled when the same dataset / graph is used for more than one lazy tensor column.
+#'   Per default, caching will be enabled when the same dataset or data descriptor (with different output pointer)
+#'   is used for more than one lazy tensor columns.
 #' @export
 materialize.list = function(x, device = "cpu", rbind = FALSE, cache = "auto", ...) { # nolint
   x_lt = x[map_lgl(x, is_lazy_tensor)]
   assert(check_choice(cache, "auto"), check_environment(cache, null.ok = TRUE))
 
   if (identical(cache, "auto")) {
-    data_hashes = map_chr(x_lt, function(x) dd(x)$dataset_hash)
-    hashes = map_chr(x_lt, function(x) dd(x)$hash)
-    cache = if (uniqueN(data_hashes) > 1L || uniqueN(hashes) > 1L) {
-      new.env()
-    }
+    cache = if (auto_cache_lazy_tensors(x_lt)) new.env()
   }
+
   map(x, function(col) {
     if (is_lazy_tensor(col)) {
       materialize_internal(col, device = device, cache = cache, rbind = rbind)
@@ -112,7 +110,7 @@ get_output = function(input, graph, varying_shapes, rbind, device) {
   # now we get it in the right output format and convert it to the requested device
   output = if (rbind) {
     if (varying_shapes) { # need to convert from list of tensors to tensor
-      output = map(output, list_to_batch)
+      output = map(output, function(tensors) torch_cat(tensors, dim = 1L))
     }
     map(output, function(x) x$to(device = device))
   } else {

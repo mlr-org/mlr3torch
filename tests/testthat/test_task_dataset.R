@@ -268,7 +268,7 @@ test_that("caching of graph works", {
     env$counter = env$counter + 1L
     x + 1
   }, env)
-  po_test = pipeop_preproc_torch("test", fn = fn, shapes_out = "unchanged")
+  po_test = pipeop_preproc_torch("test", fn = fn, shapes_out = "unchanged", stages_init = "both")
 
   expect_true(is.function(po_test$fn))
 
@@ -290,10 +290,62 @@ test_that("caching of graph works", {
   ds = task_dataset(task, ingress_tokens, device = "cpu")
 
   ds$.getbatch(1)
-  print(env)
   expect_equal(env$counter, 1)
 })
 
-test_that("merge_compatible_lazy_tensor_graphs", {
-  # TODO:
+test_that("merging of graphs behaves as expected", {
+  task = tsk("lazy_iris")
+
+  e = new.env()
+  e$a = 0
+  fn = crate(function(x) {
+    a <<- a + 1
+    x
+  }, .parent = e)
+  graph = pipeop_preproc_torch("trafo_counter", fn = fn) %>>%
+    list(
+      po("renamecolumns", renaming = c(x = "x1"), id = "a1") %>>% po("trafo_nop", id = "nop1"),
+      po("renamecolumns", renaming = c(x = "x2"), id = "a2") %>>% po("trafo_nop", id = "nop2")
+    )
+
+  tasks = graph$train(task)
+  task = tasks[[1]]
+
+  task$cbind(tasks[[2]]$data(cols = "x2"))$filter(1:2)
+
+  cols = task$data(cols = task$feature_names)
+
+  ds = task_dataset(
+    task,
+    list(
+      x1 = TorchIngressToken("x1", batchgetter_lazy_tensor, c(NA, 4)),
+      x2 = TorchIngressToken("x2", batchgetter_lazy_tensor, c(NA, 4))
+    ),
+    device = "cpu"
+  )
+
+  ds$.getbatch(1)
+  expect_true(e$a == 1L)
+
+  # now we ensure that the addition of this unrelated columns (has a different dataset hash)
+  # does not intefer with the merging of the other columns
+  task$cbind(data.table(x3 = as_lazy_tensor(runif(150)), ..row_id = 1:150))
+
+  ds2 = task_dataset(
+    task,
+    list(
+      x1 = TorchIngressToken("x1", batchgetter_lazy_tensor, c(NA, 4)),
+      x2 = TorchIngressToken("x2", batchgetter_lazy_tensor, c(NA, 4)),
+      x3 = TorchIngressToken("x3", batchgetter_lazy_tensor, c(NA, 1))
+    ),
+    device = "cpu"
+  )
+
+  e$a = 0
+  ds2$.getbatch(1)
+  g1 = dd(ds2$task$data(cols = "x1")$x1)$graph
+  g2 = dd(ds2$task$data(cols = "x2")$x2)$graph
+  expect_true(identical(g1, g2))
+
+  expect_true(e$a == 1L)
 })

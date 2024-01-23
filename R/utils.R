@@ -206,3 +206,7 @@ dataset_image = dataset("image_dataset",
 list_to_batch = function(tensors) {
   torch_cat(map(tensors, function(x) x$unsqueeze(1)), dim = 1L)
 }
+
+auto_cache_lazy_tensors = function(lts) {
+  any(duplicated(map_chr(lts, function(x) dd(x)$dataset_hash)))
+}
