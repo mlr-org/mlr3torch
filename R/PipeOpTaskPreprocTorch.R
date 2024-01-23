@@ -399,7 +399,11 @@ create_ps = function(fn) {
   args = list()
 
   args = set_names(map(param_names, function(pn) {
-    p_uty(tags = if (is_required[pn]) c("train", "required") else "train")
+    if (is_required[pn]) {
+      p_uty(tags = c("train", "required"))
+    } else {
+      p_uty(default = "<unknown>", tags = "train")
+    }
   }), param_names)
 
   invoke(ps, .args = args)
