@@ -36,7 +36,7 @@
 #' @param param_set ([`ParamSet`])\cr
 #'   In case the function `fn` takes additional parameter besides a [`torch_tensor`] they can be
 #'   specfied as parameters. None of the parameters can have the `"predict"` tag.
-#'   All tags should be set to `"train"`.
+#'   All tags should include `"train"`.
 #' @param stages_init (`logical(1)`)\cr
 #'   Initial value for the `stages` parameter.
 #' @param rowwise (`logical(1)`)\cr
