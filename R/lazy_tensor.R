@@ -5,7 +5,7 @@
 #' @param data_descriptor ([`DataDescriptor`] or `NULL`)\cr
 #'   The data descriptor or `NULL` for a lazy tensor of length 0.
 #' @param ids (`integer()`)\cr
-#'   The elements of the `data_descriptor` that the created lazy tensor contains.
+#'   The elements of the `data_descriptor` to be included in the lazy tensor.
 #' @include DataDescriptor.R
 #' @export
 lazy_tensor = function(data_descriptor = NULL, ids = NULL) {
@@ -25,14 +25,7 @@ lazy_tensor = function(data_descriptor = NULL, ids = NULL) {
 
 
 new_lazy_tensor = function(data_descriptor, ids) {
-  # previously, only the id was included and not the hash
-  # this led to issues with stuff like unlist(), which dropped attribute and suddenly the lazy_tensor column
-  # was a simple integer vector. (this caused stuff like PipeOpFeatureUnion to go havock and lead to bugs)
-  # For this reason, we now also include the hash of the data_descriptor
-  # We can then later also use this to support different DataDescriptors in a single lazy tensor column
-
-  # Note that we just include the hash as an attribute, so c() does not allow to combine lazy tensors whose
-  # data descriptors have different hashes.
+  # don't use attributes for data_descriptor, because R will drop it when you don't expect it
   structure(map(ids, function(id) list(id, data_descriptor)), class = c("lazy_tensor", "list"))
 }
 
@@ -50,7 +43,15 @@ new_lazy_tensor = function(data_descriptor, ids) {
 `[<-.lazy_tensor` = function(x, i, value) {
   assert_true(is_lazy_tensor(value))
   # no compatibility check
-  if (length(x) == 0) return(NextMethod())
+  if (length(x) == 0) {
+    x = unclass(x)
+    x[i] = value
+    return(structure(x, class = c("lazy_tensor", "list")))
+  }
+  if (length(value) == 0L) {
+    assert_true(length(i) == 0L)
+    return(x)
+  }
   assert_true(identical(dd(x)$hash, dd(value)$hash))
   x = unclass(x)
   x[i] = value
@@ -60,8 +61,9 @@ new_lazy_tensor = function(data_descriptor, ids) {
 #' @export
 `[[<-.lazy_tensor` = function(x, i, value) {
   assert_true(is_lazy_tensor(value))
-  # no compatibility check
-  if (length(x) == 0) return(NextMethod())
+  assert_true(length(value) == 1L)
+  assert_true(length(i) == 1L)
+  assert_true(length(x) >= 1L)
   assert_true(identical(dd(x)$hash), dd(value)$hash)
   x = unclass(x)
   x[[i]] = value
@@ -116,9 +118,9 @@ dd = function(x) {
 
 #' @title Convert to lazy tensor
 #' @description
-#' Convert a object to a [`lazy_tensor()`].
+#' Convert a object to a [`lazy_tensor`].
 #' @param x (any)\cr
-#'   Object to convert to a [`lazy_tensor()`]
+#'   Object to convert to a [`lazy_tensor`]
 #' @param ... (any)\cr
 #'  Additional arguments passed to the method.
 #' @export
@@ -181,9 +183,9 @@ is_lazy_tensor = function(x) {
 #'   The pipeop to be added to the preprocessing graph(s) of the lazy tensor.
 #'   Must have one input and one output.
 #'   Is not cloned, so should be cloned beforehand.
-#' @param shape (`integer()`)\cr
+#' @param shape (`integer()` or `NULL`)\cr
 #'   The shape of the lazy tensor.
-#' @param shape_predict (`integer()`)\cr
+#' @param shape_predict (`integer()` or `NULL`)\cr
 #'   The shape of the lazy tensor if it was applied during `$predict()`.
 #'
 #' @details
@@ -193,9 +195,8 @@ is_lazy_tensor = function(x) {
 #' [`DataDescriptor`].
 #' 1. The `pointer` of the [`DataDescriptor`] is updated to point to the new output channel of the `pipeop`.
 #' 1. The `pointer_shape` of the [`DataDescriptor`] set to the provided `shape`.
-#' 1. The `hash` of the [`DataDescriptor`] is updated.
-#' Input must be PipeOpModule with exactly one input and one output
-#' shape must be shape with NA in first dimension
+#' 1. The `pointer_shape_predict` of the [`DataDescriptor`] set to the provided `shape_predict`.
+#' 1. A new [`DataDescriptor`] is created
 #'
 #' @return [`lazy_tensor`]
 #' @examples
@@ -213,6 +214,7 @@ is_lazy_tensor = function(x) {
 transform_lazy_tensor = function(lt, pipeop, shape, shape_predict = NULL) {
   assert_lazy_tensor(lt)
   assert_class(pipeop, "PipeOpModule")
+  # keep it simple for now
   assert_true(nrow(pipeop$input) == 1L)
   assert_true(nrow(pipeop$output) == 1L)
   assert_shape(shape, null_ok = TRUE, unknown_batch = TRUE)
@@ -240,7 +242,7 @@ transform_lazy_tensor = function(lt, pipeop, shape, shape_predict = NULL) {
     pointer = c(pipeop$id, pipeop$output$name),
     pointer_shape = shape,
     pointer_shape_predict = shape_predict,
-    clone_graph = FALSE
+    clone_graph = FALSE # graph was already cloned
   )
 
   new_lazy_tensor(data_descriptor, map_int(lt, 1))

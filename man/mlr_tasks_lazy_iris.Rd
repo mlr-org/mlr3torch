@@ -4,7 +4,7 @@
 \alias{mlr_tasks_lazy_iris}
 \title{Iris Classification Task}
 \format{
-\link[R6:R6Class]{R6::R6Class} inheriting from \link{TaskClassif}.
+\link[R6:R6Class]{R6::R6Class} inheriting from \link[mlr3:TaskClassif]{mlr3::TaskClassif}.
 }
 \source{
 \url{https://en.wikipedia.org/wiki/Iris_flower_data_set}

@@ -84,7 +84,7 @@
 #' po_add1$train(input)$output
 PipeOpModule = R6Class("PipeOpModule",
   inherit = PipeOp,
-  # this has no effect because parent class is cloneable, waiting for new R6 release
+  # FIXME: this has no effect because parent class is cloneable, waiting for new R6 release
   cloneable = FALSE,
   public = list(
     #' @field module ([`nn_module`])\cr
@@ -105,7 +105,7 @@ PipeOpModule = R6Class("PipeOpModule",
     initialize = function(id = "module", module = nn_identity(), inname = "input", outname = "output",
       param_vals = list(), packages = character(0)) {
       private$.multi_output = length(outname) > 1L
-      self$module = assert(check_class(module, "nn_module"), check_class(module, "function"), combine = "or")
+      assert(check_class(module, "nn_module"), check_class(module, "function"), combine = "or")
       self$module = module
       packages = union(c("mlr3torch", "torch"), packages)
 
@@ -145,10 +145,8 @@ PipeOpModule = R6Class("PipeOpModule",
       list(fn_input, self$input$name, self$output$name, self$packages)
     },
     deep_clone = function(name, value) {
-      # Waiting for R6 release: https://github.com/r-lib/R6/commit/6ba0dce26b1a7fc9b812bc4d92f09123d3b9648d
-      stopf("Cannot create a deep clone of PipeOpModule if it wraps an `nn_module`.")
-      # Note that we could allow to clone methods that wrap functions, but this should basically never be necessary,
-      # as this PipeOp has not state and just functions as a function
+      # FIXME: We can implement this, when https://github.com/mlverse/torch/issues/1126 is solved
+      stopf("Cannot create a deep clone of PipeOpModule.")
     }
   )
 )

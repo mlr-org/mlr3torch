@@ -8,7 +8,7 @@ nn_graph(graph, shapes_in, output_map = graph$output$name, list_output = FALSE)
 }
 \arguments{
 \item{graph}{(\code{\link[mlr3pipelines:Graph]{Graph}})\cr
-The \code{\link[mlr3pipelines:Graph]{Graph}} to wrap.}
+The \code{\link[mlr3pipelines:Graph]{Graph}} to wrap. Is \strong{not} cloned.}
 
 \item{shapes_in}{(named \code{integer})\cr
 Shape info of tensors that go into \code{graph}. Names must be \code{graph$input$name}, possibly in different order.}

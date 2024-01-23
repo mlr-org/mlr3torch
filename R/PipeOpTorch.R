@@ -181,7 +181,7 @@
 #' task1 = task$clone()$select(paste0("Sepal.", c("Length", "Width")))
 #' task2 = task$clone()$select(paste0("Petal.", c("Length", "Width")))
 #' graph = gunion(list(po("torch_ingress_num_1"), po("torch_ingress_num_2")))
-#' mds_in = graph$train( list(task1, task2), single_input = FALSE)
+#' mds_in = graph$train(list(task1, task2), single_input = FALSE)
 #'
 #' mds_in[[1L]][c("graph", "task", "ingress", "pointer", "pointer_shape")]
 #' mds_in[[2L]][c("graph", "task", "ingress", "pointer", "pointer_shape")]
@@ -221,7 +221,7 @@
 #' identical(tasks_out[[1L]], tasks_out[[2L]])
 PipeOpTorch = R6Class("PipeOpTorch",
   inherit = PipeOp,
-  # this has no effect because parent class is cloneable, waiting for new R6 release
+  # FIXME: this has no effect because parent class is cloneable, waiting for new R6 release
   cloneable = FALSE,
   public = list(
     #' @field module_generator (`nn_module_generator` or `NULL`)\cr
@@ -286,21 +286,13 @@ PipeOpTorch = R6Class("PipeOpTorch",
     shapes_out = function(shapes_in, task = NULL) {
       assert_r6(task, "Task", null.ok = TRUE)
       if (is.numeric(shapes_in)) shapes_in = list(shapes_in)
-      # batch dimensionc can be known or unknown
+      # batch dimension can be known or unknown
       assert_shapes(shapes_in, unknown_batch = NULL)
       if ("..." %nin% self$input$name) {
         assert_true(length(shapes_in) == nrow(self$input),
           .var.name = "number of input shapes equal to number of input channels")
       }
-
-      s = if (is.null(private$.shapes_out)) {
-        shapes_in
-      } else {
-        pv = self$param_set$get_values()
-        private$.shapes_out(shapes_in, pv, task = task)
-      }
-
-      set_names(s, self$output$name)
+      set_names(private$.shapes_out(shapes_in, self$param_set$get_values(), task = task), self$output$name)
     }
 
     # TODO: printer that calls the nn_module's printer

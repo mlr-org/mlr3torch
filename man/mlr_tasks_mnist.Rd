@@ -7,7 +7,7 @@
 \url{https://torchvision.mlverse.org/reference/mnist_dataset.html}
 }
 \description{
-Classical MNIST image classification.
+Classic MNIST image classification.
 
 The underlying \code{\link{DataBackend}} contains columns \code{"label"}, \code{"image"}, \code{"row_id"}, \code{"split"}, where the last column
 indicates whether the row belongs to the train or test set.

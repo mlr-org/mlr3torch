@@ -1,7 +1,7 @@
 #' @title MNIST Image classification
 #' @name mlr_tasks_mnist
 #' @description
-#' Classical MNIST image classification.
+#' Classic MNIST image classification.
 #'
 #' The underlying [`DataBackend`] contains columns `"label"`, `"image"`, `"row_id"`, `"split"`, where the last column
 #' indicates whether the row belongs to the train or test set.

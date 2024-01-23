@@ -4,7 +4,7 @@
 #' Represents a neural network using a [`Graph`] that usually costains mostly [`PipeOpModule`]s.
 #'
 #' @param graph ([`Graph`][mlr3pipelines::Graph])\cr
-#'   The [`Graph`][mlr3pipelines::Graph] to wrap.
+#'   The [`Graph`][mlr3pipelines::Graph] to wrap. Is **not** cloned.
 #' @param shapes_in (named `integer`)\cr
 #'   Shape info of tensors that go into `graph`. Names must be `graph$input$name`, possibly in different order.
 #' @param output_map (`character`)\cr
@@ -35,7 +35,6 @@ nn_graph = nn_module(
     self$graph_input_name = graph$input$name  # cache this, it is expensive
 
     # we do NOT verify the input and type of the graph to be `"torch_tensor"`.
-
     # The reason for this is that the graph, when constructed with the PipeOpTorch Machinery, contains PipeOpNOPs,
     # which have input and output type *.
 

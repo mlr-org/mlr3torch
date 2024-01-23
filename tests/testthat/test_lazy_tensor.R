@@ -51,6 +51,9 @@ test_that("lazy_tensor works", {
   expect_error(is.null(dd(lt1_empty)))
   expect_class(lt1_empty, "lazy_tensor")
 
+  lt1_empty[1] = lt1[1]
+  expect_class(lt1_empty, "lazy_tensor")
+
   expect_error(materialize(lazy_tensor()), "Cannot materialize")
 })
 

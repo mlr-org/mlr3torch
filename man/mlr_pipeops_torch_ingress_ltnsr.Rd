@@ -12,7 +12,7 @@ Ingress for a single \code{\link{lazy_tensor}} column.
 \itemize{
 \item \code{shape} :: \code{integer()}\cr
 The shape of the tensor, where the first dimension (batch) must be \code{NA}.
-Whether it is necessary to specify the shape depends on whether the lazy tensor input column has a known shape.
+When it is not specified, the lazy tensor input column needs to have a known shape.
 }
 }
 
@@ -39,7 +39,7 @@ task = tsk("lazy_iris")
 md = po_ingress$train(list(task))[[1L]]
 
 ingress = md$ingress
-x_batch = ingress[[1L]]$batchgetter( data = task$data(1, "x"), device = "cpu", cache = NULL)
+x_batch = ingress[[1L]]$batchgetter(data = task$data(1, "x"), device = "cpu", cache = NULL)
 x_batch
 
 # Now we try a lazy tensor with unknown shape, i.e. the shapes between the rows can differ

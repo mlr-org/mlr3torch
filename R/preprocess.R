@@ -1,8 +1,6 @@
 #' @rawNamespace exportPattern("^PipeOpPreprocTorch")
 NULL
 
-# FIXME: Better docs, not one for all
-
 #' @template preprocess_torchvision
 #' @templateVar id trafo_resize
 register_preproc("trafo_resize", torchvision::transform_resize,

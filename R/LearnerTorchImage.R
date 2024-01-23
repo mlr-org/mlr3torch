@@ -70,7 +70,7 @@ LearnerTorchImage = R6Class("LearnerTorchImage",
     }
   ),
   private = list(
-    .verify_train_task = function(task, row_ids) {
+    .verify_train_task = function(task, param_vals) {
       if (length(task$feature_names) != 1L || !identical(task$feature_types$type, "lazy_tensor")) {
         stopf("Must have exactly one feature of type lazy_tensor.")
       }

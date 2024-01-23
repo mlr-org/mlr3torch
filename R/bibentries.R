@@ -1,4 +1,4 @@
-bibentries = c( # nolint start
+bibentries = c(# nolint start
   gorishniy2021revisiting = bibentry("article",
     title = "Revisiting Deep Learning Models for Tabular Data",
     author = "Yury Gorishniy and Ivan Rubachev and Valentin Khrulkov and Artem Babenko",

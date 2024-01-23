@@ -2,7 +2,7 @@
 #'
 #' @name mlr_tasks_lazy_iris
 #'
-#' @format [R6::R6Class] inheriting from [TaskClassif].
+#' @format [R6::R6Class] inheriting from [mlr3::TaskClassif].
 #' @include zzz.R
 #'
 #' @description

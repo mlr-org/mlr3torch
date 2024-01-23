@@ -8,11 +8,11 @@ as_lazy_tensor(x, ...)
 }
 \arguments{
 \item{x}{(any)\cr
-Object to convert to a \code{\link[=lazy_tensor]{lazy_tensor()}}}
+Object to convert to a \code{\link{lazy_tensor}}}
 
 \item{...}{(any)\cr
 Additional arguments passed to the method.}
 }
 \description{
-Convert a object to a \code{\link[=lazy_tensor]{lazy_tensor()}}.
+Convert a object to a \code{\link{lazy_tensor}}.
 }

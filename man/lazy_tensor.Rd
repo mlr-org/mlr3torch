@@ -11,7 +11,7 @@ lazy_tensor(data_descriptor = NULL, ids = NULL)
 The data descriptor or \code{NULL} for a lazy tensor of length 0.}
 
 \item{ids}{(\code{integer()})\cr
-The elements of the \code{data_descriptor} that the created lazy tensor contains.}
+The elements of the \code{data_descriptor} to be included in the lazy tensor.}
 }
 \description{
 Create a lazy tensor.

@@ -2,8 +2,7 @@
 % Please edit documentation in R/shape.R
 \name{assert_shape}
 \alias{assert_shape}
-\title{Checks whether an integer vector is a valid shape.
-Unknown shapes are represted as \code{NULL}.}
+\title{Check for Shape}
 \usage{
 assert_shape(shape, null_ok = FALSE, coerce = TRUE, unknown_batch = NULL)
 }

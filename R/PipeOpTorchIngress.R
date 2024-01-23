@@ -270,7 +270,7 @@ register_po("torch_ingress_categ", PipeOpTorchIngressCategorical)
 #' @section Parameters:
 #' * `shape` :: `integer()`\cr
 #'   The shape of the tensor, where the first dimension (batch) must be `NA`.
-#'   Whether it is necessary to specify the shape depends on whether the lazy tensor input column has a known shape.
+#'   When it is not specified, the lazy tensor input column needs to have a known shape.
 #'
 #' @section Internals:
 #' The returned batchgetter materializes the lazy tensor column to a tensor.
@@ -285,7 +285,7 @@ register_po("torch_ingress_categ", PipeOpTorchIngressCategorical)
 #' md = po_ingress$train(list(task))[[1L]]
 #'
 #' ingress = md$ingress
-#' x_batch = ingress[[1L]]$batchgetter( data = task$data(1, "x"), device = "cpu", cache = NULL)
+#' x_batch = ingress[[1L]]$batchgetter(data = task$data(1, "x"), device = "cpu", cache = NULL)
 #' x_batch
 #'
 #' # Now we try a lazy tensor with unknown shape, i.e. the shapes between the rows can differ
@@ -329,9 +329,10 @@ PipeOpTorchIngressLazyTensor = R6Class("PipeOpTorchIngressLazyTensor",
     #' @template params_pipelines
     initialize = function(id = "torch_ingress_ltnsr", param_vals = list()) {
       param_set = ps(
-        shape = p_uty(tags = "train", custom_check = crate(
-          function(x) check_shape(x, null_ok = FALSE, unknown_batch = TRUE), .parent = topenv()))
+        shape = p_uty(tags = "train", default = NULL, custom_check = crate(
+          function(x) check_shape(x, null_ok = TRUE, unknown_batch = TRUE), .parent = topenv()))
         )
+      param_set$set_values(shape = NULL)
       super$initialize(id = id, param_vals = param_vals, feature_types = "lazy_tensor", param_set = param_set)
     }
   ),

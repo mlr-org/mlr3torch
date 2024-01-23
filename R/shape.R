@@ -1,5 +1,6 @@
+#' @title Check for Shape
 #'
-#' Checks whether an integer vector is a valid shape.
+#' @description Checks whether an integer vector is a valid shape.
 #' Unknown shapes are represted as `NULL`.
 #'
 #' @param shape (`integer()`)\cr
@@ -10,6 +11,7 @@
 #' @param unknown_batch (`logical(1)`)\cr
 #'   Whether the batch **must** be unknonw, i.e. `NA`.
 #'   If left `NULL` (default), the first dimension can be `NA` or not.
+#' @noRd
 assert_shape = function(shape, null_ok = FALSE, coerce = TRUE, unknown_batch = NULL) {
   result = check_shape(shape, null_ok = null_ok, unknown_batch = unknown_batch)
 
@@ -21,11 +23,6 @@ assert_shape = function(shape, null_ok = FALSE, coerce = TRUE, unknown_batch = N
   shape
 }
 
-
-#FIX SHAPE IN FIRST DIM:
-# * should not happen for DataDescriptor (subsetting)
-# * should not be possible in ModelDescriptor (makes no sense)
-# * still, shapes_out() should also handle this case
 
 test_shape = function(shape, null_ok = FALSE, unknown_batch = NULL) {
   if (is.null(shape) && null_ok) {
