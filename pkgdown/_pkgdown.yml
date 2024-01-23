@@ -44,7 +44,3 @@ articles:
   navbar: ~
   contents:
   - get_started
-- title: Neural Networks as Graphs
-  navbar: ~
-  contents:
-  - pipeop_torch

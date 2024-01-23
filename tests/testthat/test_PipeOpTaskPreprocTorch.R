@@ -246,5 +246,5 @@ test_that("predict shapes are added during training", {
     po("torch_loss", "cross_entropy") %>>%
     po("torch_model_classif", batch_size = 150L, epochs = 1L)
 
-  expect_error(graph$train(task), "would have a different shape")
+  expect_error(graph$train(task), "has a different shape")
 })

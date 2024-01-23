@@ -109,11 +109,16 @@ merge_lazy_tensor_graphs = function(lts) {
 }
 
 merge_compatible_lazy_tensor_graphs = function(lts) {
+  # all inputs have the same dataset (makes data-loading easier)
   graph = Reduce(merge_graphs, map(lts, function(x) dd(x)$graph))
 
+  # now we need to calculate the new input map, some of the graphs that were merged have different,
+  # others the same input pipeops,
   input_map = Reduce(c, map(lts, function(lt) {
     set_names(list(dd(lt)$input_map), dd(lt)$graph$input$name)
   }))
+  # all input pipeops that share IDs must be identical and hence receive the same data,
+  # therefore we can remove duplicates
   input_map = input_map[unique(names(input_map))]
   input_map = unname(unlist(input_map[graph$input$name]))
 
@@ -138,13 +143,13 @@ merge_compatible_lazy_tensor_graphs = function(lts) {
     }
 
     data_descriptor = DataDescriptor$new(
-      dataset = dd(lts[[1]])$dataset,
-      dataset_shapes = dd(lts[[1L]])$dataset_shapes,
-      graph = graph,
-      input_map = dd(lts[[1]])$input_map,
-      pointer = pointer,
-      pointer_shape = dd(lt)$pointer_shape,
-      pointer_shape_predict = dd(lt)$pointer_shape_predict,
+      dataset = dd(lts[[1]])$dataset, # all are the same
+      dataset_shapes = dd(lts[[1L]])$dataset_shapes, # all are the same
+      graph = graph, # was merged
+      input_map = input_map, # was merged
+      pointer = pointer, # is set per lt
+      pointer_shape = dd(lt)$pointer_shape, # is set per lt but unused anyway
+      pointer_shape_predict = dd(lt)$pointer_shape_predict, # is set per lt
       clone_graph = FALSE
     )
     new_lazy_tensor(data_descriptor, map_int(lt, 1L))
