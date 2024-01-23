@@ -392,7 +392,7 @@ pipeop_preproc_torch = function(id, fn, shapes_out = NULL, param_set = NULL, par
 create_ps = function(fn) {
   fmls = formals(fn)
   param_names = names(fmls)
-  # we assume the firs argument is for the tensor
+  # we assume the first argument is for the tensor
   param_names = setdiff(param_names[-1L], "...")
   fmls = fmls[param_names]
   is_required = map_lgl(fmls, function(x) identical(x, alist(x = )$x))
