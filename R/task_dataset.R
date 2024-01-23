@@ -61,15 +61,8 @@ task_dataset = dataset(
     # Here, we could have multiple `lazy_tensor` columns that share parts of the graph
     # We try to merge those graphs if possible
     if (length(lazy_tensor_features) > 1L) {
-      merge_result = try(merge_lazy_tensor_graphs(data), silent = TRUE)
-
-      if (inherits(merge_result, "try-error")) {
-        # This should basically never happen
-        lg$debug("Failed to merge data descriptor, this might lead to inefficient preprocessing.")
-        # TODO: test that is still works when this triggers
-      } else {
-        self$task$cbind(merge_result)
-      }
+      merge_result = merge_lazy_tensor_graphs(data)
+      self$task$cbind(merge_result)
     }
 
     # we can cache the output (hash) or the data (dataset_hash)
@@ -123,7 +116,7 @@ merge_compatible_lazy_tensor_graphs = function(lts) {
   input_map = unname(unlist(input_map[graph$input$name]))
 
   # some PipeOs that were previously terminal might not be anymore,
-  # for those we add nops and updaate the pointers for their data descriptors
+  # for those we add nops and update the pointers for their data descriptors
   map_dtc(lts, function(lt) {
     pointer_name = paste0(dd(lt)$pointer, collapse = ".")
 

@@ -176,7 +176,8 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
   public = list(
     #' @description
     #' Creates a new instance of this [`R6`][R6::R6Class] class.
-    initialize = function(fn, id = "preproc_torch", param_vals = list(), param_set = ps(), packages = character(0), rowwise = FALSE) { # nolint
+    initialize = function(fn, id = "preproc_torch", param_vals = list(), param_set = ps(), packages = character(0), rowwise = FALSE,
+      stages_init = NULL) { # nolint
       assert(check_function(fn), check_character(fn, len = 2L))
       private$.fn = fn
       private$.rowwise = assert_flag(rowwise)
@@ -440,7 +441,6 @@ create_ps = function(fn) {
 #'   Initial value for the `stages` parameter.
 #'   If `NULL` (default), will be set to `"both"` in case the `id` starts with `"trafo"` and to `"train"`
 #'   if it starts with `"augment"`. Otherwise it must specified.
-#' @param
 #' @template param_packages
 #' @export
 #' @returns An [`R6Class`][R6::R6Class] instance inheriting from [`PipeOpTaskPreprocTorch`]
@@ -460,8 +460,6 @@ pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, pack
       "both"
     } else if (startsWith(id, "augment_")) {
       "train"
-    } else {
-      stopf("stages_init must be specified")
     }
   }
 

@@ -50,7 +50,6 @@ The stages during which to apply the preprocessing.
 Can be one of \code{"train"}, \code{"predict"} or \code{"both"}.
 The initial value of this parameter is set to \code{"train"} when the \code{PipeOp}'s id starts with \code{"augment_"} and
 to \code{"both"} otherwise.
-o
 Note that the preprocessing that is applied during \verb{$predict()} uses the parameters that were set during
 \verb{$train()} and not those that are set when performing the prediction.
 }
@@ -71,7 +70,7 @@ One lazy tensor column's preprocessing graph is \code{A -> B}.
 Then, two branches are created \code{B -> C} and \code{B -> D}, creating two preprocessing graphs
 \code{A -> B -> C} and \code{A -> B -> D}. When loading the data, we want to run the preprocessing only once, i.e. we don't
 want to run the \code{A -> B} part twice. For this reason, \code{\link[=task_dataset]{task_dataset()}} will try to merge graphs and cache
-results from graphs.
+results from graphs. However, only graphs using the same dataset can currently be merged.
 
 Also, the shapes created during \verb{$train()} and \verb{$predict()} might differ.
 To avoid the creation of graphs where the predict shapes are incompatible with the train shapes,
@@ -210,8 +209,8 @@ Creates a new instance of this \code{\link[R6:R6Class]{R6}} class.
   param_vals = list(),
   param_set = ps(),
   packages = character(0),
-  stages_init = "both",
-  rowwise = FALSE
+  rowwise = FALSE,
+  stages_init = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -219,8 +218,8 @@ Creates a new instance of this \code{\link[R6:R6Class]{R6}} class.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{fn}}{(\code{function} or \code{character(2)})\cr
-The preprocessing function. Should not modify its input in-place.
-If it is a \code{character(2)}, the first element should be the namespace and thje second element the name.}
+The preprocessing function. Must not modify its input in-place.
+If it is a \code{character(2)}, the first element should be the namespace and the second element the name.}
 
 \item{\code{id}}{(\code{character(1)})\cr
 The id for of the new object.}
@@ -231,17 +230,17 @@ Parameter values to be set after construction.}
 \item{\code{param_set}}{(\code{\link{ParamSet}})\cr
 In case the function \code{fn} takes additional parameter besides a \code{\link{torch_tensor}} they can be
 specfied as parameters. None of the parameters can have the \code{"predict"} tag.
-All tags should be set to \code{"train"}.}
+All tags should include \code{"train"}.}
 
 \item{\code{packages}}{(\code{character()})\cr
 The packages the preprocessing function depends on.}
 
-\item{\code{stages_init}}{(\code{logical(1)})\cr
-Initial value for the \code{stages} parameter.}
-
 \item{\code{rowwise}}{(\code{logical(1)})\cr
 Whether the preprocessing function is applied rowwise (and then concatenated by row) or directly to the whole
 tensor. In the first case there is no batch dimension.}
+
+\item{\code{stages_init}}{(\code{character(1)})\cr
+Initial value for the \code{stages} parameter.}
 }
 \if{html}{\out{</div>}}
 }
@@ -264,7 +263,7 @@ It uses the parameter values that are currently set.
 \item{\code{shapes_in}}{(\code{list()} of (\code{integer()} or \code{NULL}))\cr
 The input input shapes of the lazy tensors.
 \code{NULL} indicates that the shape is unknown.
-First dimension must be \code{NA}.}
+First dimension must be \code{NA} (if it is not \code{NULL}).}
 
 \item{\code{stage}}{(\code{character(1)})\cr
 The stage: either \code{"train"} or \code{"predict"}.}

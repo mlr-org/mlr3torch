@@ -51,7 +51,10 @@ check_shape = function(shape, null_ok = FALSE, unknown_batch = NULL) {
   sprintf("Invalid shape: %s.", paste0(format(shape), collapse = ", "))
 }
 assert_shapes = function(shapes, coerce = TRUE, named = FALSE, null_ok = FALSE, unknown_batch = NULL) { # nolint
-  ok = test_list(shapes, names = if (named && !identical(unique(names(shapes)), "...")) "unique", min.len = 1L)
+  ok = test_list(shapes, min.len = 1L)
+  if (named) {
+    assert_names(setdiff(names(shapes), "..."), type = "unique")
+  }
   if (!ok) {
     stopf("Invalid shape")
   }

@@ -1,5 +1,5 @@
 test_that("PipeOpTaskPreprocTorch: basic checks", {
-  po_test = po("preproc_torch", identity, packages = "R6")
+  po_test = po("preproc_torch", identity, packages = "R6", stages_init = "both")
   expect_pipeop(po_test)
   expect_equal(po_test$feature_types, "lazy_tensor")
   expect_true(po_test$innum == 1L)
@@ -16,7 +16,8 @@ test_that("PipeOpTaskPreprocTorch: basic checks", {
         super$initialize(
           id = id,
           param_vals = param_vals,
-          fn = function(x) -x
+          fn = function(x) -x,
+          stages_init = "both"
         )
       }
     ),
@@ -65,7 +66,8 @@ test_that("PipeOpTaskPreprocTorch: basic checks", {
           param_set = param_set,
           id = id,
           param_vals = param_vals,
-          fn = function(x, a = 2) x * a
+          fn = function(x, a = 2) x * a,
+          stages_init = "both"
         )
       }
     )
@@ -108,8 +110,12 @@ test_that("PipeOpTaskPreprocTorch: basic checks", {
   # need to finish the augment -> stages transition, i.e. add tests and "both", then finish the preprocess implementation add the tests and test the preprocess autotest
   # also test that the rowwise parameter works
 
-  po_test3 = pipeop_preproc_torch("test3", rowwise = FALSE, fn = function(x) x$reshape(-1), shapes_out = NULL)
-  po_test4 = pipeop_preproc_torch("test4", rowwise = TRUE, fn = function(x) x$reshape(-1), shapes_out = NULL)
+  po_test3 = pipeop_preproc_torch("test3", rowwise = FALSE, fn = function(x) x$reshape(-1), shapes_out = NULL,
+    stages_init = "both"
+  )
+  po_test4 = pipeop_preproc_torch("test4", rowwise = TRUE, fn = function(x) x$reshape(-1), shapes_out = NULL,
+    stages_init = "both"
+  )
 
   expect_equal(
     materialize(po_test3$train(list(task))[[1L]]$data(cols = "x1")$x1, rbind = TRUE)$shape,
@@ -120,8 +126,8 @@ test_that("PipeOpTaskPreprocTorch: basic checks", {
     c(10, 1)
   )
 
-  expect_true(pipeop_preproc_torch("test3", identity, rowwise = TRUE, shapes_out = NULL)$rowwise)
-  expect_false(pipeop_preproc_torch("test3", identity, rowwise = FALSE, shapes_out = NULL)$rowwise)
+  expect_true(pipeop_preproc_torch("test3", identity, rowwise = TRUE, shapes_out = NULL, stages_init = "both")$rowwise)
+  expect_false(pipeop_preproc_torch("test3", identity, rowwise = FALSE, shapes_out = NULL, stages_init = "both")$rowwise)
 
   # stages_init works
 })
@@ -155,7 +161,7 @@ test_that("PipeOpTaskPreprocTorch modifies the underlying lazy tensor columns co
   taskin = as_task_regr(d, target = "y")
 
   po_test = po("preproc_torch", fn = crate(function(x, a) x + a), param_set = ps(a = p_int(tags = c("train", "required"))),
-    a = -10, rowwise = FALSE)
+    a = -10, rowwise = FALSE, stages_init = "both")
 
   taskout_train = po_test$train(list(taskin))[[1L]]
   taskout_pred = po_test$predict(list(taskin))[[1L]]

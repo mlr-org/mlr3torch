@@ -10,9 +10,9 @@ pipeop_preproc_torch_class(
   shapes_out,
   param_set = NULL,
   packages = character(0),
-  init_params = list(),
   rowwise = FALSE,
-  parent_env = parent.frame()
+  parent_env = parent.frame(),
+  stages_init = NULL
 )
 }
 \arguments{
@@ -30,6 +30,7 @@ If \code{NULL}, the output shapes are unknown.
 If "infer", the output shape function is inferred and calculates the output shapes as follows:
 For an input shape of (NA, ...) a meta-tensor of shape (1, ...) is created and the preprocessing function is
 applied. Afterwards the batch dimension (1) is replaced with NA and the shape is returned.
+If the first dimension is not \code{NA}, the output shape of applying the preprocessing function is returned.
 
 This should be correct in most cases, but might fail in some edge cases.}
 
@@ -37,20 +38,22 @@ This should be correct in most cases, but might fail in some edge cases.}
 The parameter set.
 If this is left as \code{NULL} (default) the parameter set is inferred in the following way:
 All parameters but the first and \code{...} of \code{fn} are set as untyped parameters with tags 'train' and those that
-have nod default value are tagged as 'required' as well.
+have no default value are tagged as 'required' as well.
 Default values are not annotated.}
 
 \item{packages}{(\code{character()})\cr
 The R packages this object depends on.}
-
-\item{init_params}{(name \code{list()})\cr
-List containing initial parameter values.}
 
 \item{rowwise}{(\code{logical(1)})\cr
 Whether the preprocessing is applied row-wise.}
 
 \item{parent_env}{(\code{environment})\cr
 The parent environment for the R6 class.}
+
+\item{stages_init}{(\code{character(1)})\cr
+Initial value for the \code{stages} parameter.
+If \code{NULL} (default), will be set to \code{"both"} in case the \code{id} starts with \code{"trafo"} and to \code{"train"}
+if it starts with \code{"augment"}. Otherwise it must specified.}
 }
 \value{
 An \code{\link[R6:R6Class]{R6Class}} instance inheriting from \code{\link{PipeOpTaskPreprocTorch}}

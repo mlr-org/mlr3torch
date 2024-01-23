@@ -155,7 +155,7 @@ test_that("PipeOpFeatureUnion can properly check whether two lazy tensors are id
   task = tsk("lazy_iris")
 
   graph = po("nop") %>>%
-    list(po("preproc_torch", function(x) x + 1), po("trafo_nop")) %>>%
+    list(po("preproc_torch", function(x) x + 1, stages_init = "both"), po("trafo_nop")) %>>%
     po("featureunion")
 
   expect_error(graph$train(task), "cannot aggregate different features sharing")
