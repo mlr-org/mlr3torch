@@ -1,4 +1,4 @@
-test_that("task_dataset basic tests", {
+test_that("basic", {
   task = tsk("german_credit")
   ds = task_dataset(
     task = task,
@@ -135,7 +135,7 @@ test_that("task_dataset respects the device", {
   f("meta")
 })
 
-test_that("batchgetter_num works", {
+test_that("batchgetter_num", {
   data = data.table(x_int = 1:3, x_dbl = runif(3))
   x = batchgetter_num(data, "cpu")
   expect_class(x, "torch_tensor")
@@ -261,7 +261,7 @@ test_that("default target batchgetter works: classification", {
   expect_equal(y_loaded1$device$type, "meta")
 })
 
-test_that("caching of graph works", {
+test_that("cachine of graph", {
   env = new.env()
   env$counter = 0L
   fn = crate(function(x) {
@@ -348,4 +348,21 @@ test_that("merging of graphs behaves as expected", {
   expect_true(identical(g1, g2))
 
   expect_true(e$a == 1L)
+})
+
+test_that("nop added for non-terminal pipeop", {
+  po_add = PipeOpPreprocTorchAddSome$new()
+
+  task = tsk("lazy_iris")
+  graph = po("trafo_nop") %>>%
+    list(
+      po("renamecolumns", renaming = c(x = "y")) %>>% po("torch_ingress_ltnsr_1"),
+      po_add %>>% po("torch_ingress_ltnsr_2")) %>>%
+    po("nn_merge_sum")
+
+  task = graph$train(task)[[1L]]$task
+
+  res = materialize(task$data()[1, ], rbind = TRUE)
+  expect_torch_equal(res$y + 1, res$x)
+
 })

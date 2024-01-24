@@ -1,4 +1,4 @@
-test_that("PipeOpTaskPreprocTorch: basic checks", {
+test_that("basic", {
   po_test = po("preproc_torch", identity, packages = "R6", stages_init = "both")
   expect_pipeop(po_test)
   expect_equal(po_test$feature_types, "lazy_tensor")
@@ -143,7 +143,7 @@ test_that("rowwise works", {
   expect_error(materialize(taskout2$data()$x), regexp = NA)
 })
 
-test_that("PipeOptaskPreprocTorch: shapes_out() works", {
+test_that("shapes_out", {
   task = nano_dogs_vs_cats()
   po_resize = po("trafo_resize", size = c(10, 10))
   expect_identical(po_resize$shapes_out(list(x = NULL), stage = "train"), list(NULL))
@@ -163,7 +163,7 @@ test_that("PipeOptaskPreprocTorch: shapes_out() works", {
   expect_identical(po_resize$shapes_out(list(x = NULL, y = c(NA, 3, 5, 5)), stage = "predict"), list(NULL, c(NA, 3, 10, 10)))
 })
 
-test_that("PipeOpTaskPreprocTorch modifies the underlying lazy tensor columns correctly", {
+test_that("lazy tensor modified as expected", {
   d = data.table(
     y = 1:10,
     x = as_lazy_tensor(rnorm(10))

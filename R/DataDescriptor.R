@@ -75,12 +75,15 @@ DataDescriptor = R6Class("DataDescriptor",
       }
       if (!test_list(example, names = "unique") || !test_permutation(names(example), names(dataset_shapes))) {
         stopf("Dataset must return a list with named elements that are a permutation of the dataset_shapes names.")
-        iwalk(dataset_shapes, function(dataset_shape, name) {
-          if (!is.null(dataset_shape) && !test_equal(dataset_shapes[[name]][-1], example[[name]]$shape[-1L])) {
-            stopf("First batch from dataset is incompatible with the provided dataset_shapes.")
-          }
-        })
       }
+      iwalk(dataset_shapes, function(dataset_shape, name) {
+        if (!is.null(dataset_shape) && !test_equal(dataset_shapes[[name]][-1], example[[name]]$shape[-1L])) {
+          stopf(paste0("First batch from dataset is incompatible with the provided dataset_shapes:\n",
+            "* Provided shape (%s): %s.\n* Observed shape (%s): %s."), name, name,
+            shape_to_str(unname(dataset_shapes[name])), shape_to_str(list(example[[name]]$shape)
+          ))
+        }
+      })
       if (is.null(graph)) {
         # avoid name conflicts
         if (is.null(input_map)) {
