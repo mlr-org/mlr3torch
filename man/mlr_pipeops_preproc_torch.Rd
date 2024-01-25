@@ -212,7 +212,7 @@ Creates a new instance of this \code{\link[R6:R6Class]{R6}} class.
   packages = character(0),
   rowwise = FALSE,
   stages_init = NULL,
-  tags = "torch"
+  tags = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -243,6 +243,9 @@ tensor. In the first case there is no batch dimension.}
 
 \item{\code{stages_init}}{(\code{character(1)})\cr
 Initial value for the \code{stages} parameter.}
+
+\item{\code{tags}}{(\code{character()})\cr
+Tags for the pipeop.}
 }
 \if{html}{\out{</div>}}
 }

@@ -24,6 +24,13 @@
 #' Note that while in most cases the data contains [`lazy_tensor`] columns, this is not necessary and the naming
 #' of this class has nothing to do with the [`lazy_tensor`] data type.
 #'
+#' **Important**
+#'
+#' When the constructor generates `factor()` variables it is important that the ordering of the levels in data
+#' corresponds to the ordering of the levels in the `col_info` argument.
+#' Because the ordering of the level depends on the locale, it is recommended to e.g. use the `C` locale in the
+#' `constructor` function, e.g. with `withr::with_locale()`.
+#'
 #' @param constructor (`function`)\cr
 #'   A function with no arguments, whose return value must be the actual backend.
 #'   This function is called the first time the field `$backend` is accessed.

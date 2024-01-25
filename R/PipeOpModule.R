@@ -8,8 +8,9 @@
 #' [`mlr3pipelines::Graph`] that represents either a neural network or a preprocessing graph of a [`lazy_tensor`].
 #' In most cases it is easier to create such a network by creating a graph that generates this graph.
 #'
-#' To construct a neural network one combines mostly [`PipeOpTorchIngress`] and [`PipeOpTorch`] operators.
-#' To construct a preprocessing graph, one combines mostly `PipeOp`s inheriting from [`PipeOpTaskPreprocTorch`].
+#' In most cases it is easier to create such a network by creating a structurally related graph consisting
+#' of nodes of class [`PipeOpTorchIngress`] and [`PipeOpTorch`]. This graph will then generate the graph consisting
+#' of `PipeOpModule`s as part of the [`ModelDescriptor`].
 #'
 #' @section Input and Output Channels:
 #' The number and names of the input and output channels can be set during construction. They input and output

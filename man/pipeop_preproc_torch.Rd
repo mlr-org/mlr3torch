@@ -13,7 +13,8 @@ pipeop_preproc_torch(
   packages = character(0),
   rowwise = FALSE,
   parent_env = parent.frame(),
-  stages_init = NULL
+  stages_init = NULL,
+  tags = NULL
 )
 }
 \arguments{
@@ -58,6 +59,9 @@ The parent environment for the R6 class.}
 Initial value for the \code{stages} parameter.
 If \code{NULL} (default), will be set to \code{"both"} in case the \code{id} starts with \code{"trafo"} and to \code{"train"}
 if it starts with \code{"augment"}. Otherwise it must specified.}
+
+\item{tags}{(\code{character()})\cr
+Tags for the pipeop.}
 }
 \description{
 Calls \code{\link{pipeop_preproc_torch_class}} and instantiates the instance with the given parameter values.

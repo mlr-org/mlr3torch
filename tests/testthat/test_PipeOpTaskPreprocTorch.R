@@ -253,6 +253,12 @@ test_that("pipeop_preproc_torch", {
     "test3", identity, rowwise = TRUE, shapes_out = NULL, stages_init = "train")$param_set$values$stages,
     "train"
   )
+
+  # tags work
+  expect_set_equal(pipeop_preproc_torch(
+    "test3", identity, rowwise = TRUE, shapes_out = NULL, stages_init = "train", tags = c("learner", "encode"))$tags,
+    c("learner", "encode", "data transform", "torch")
+  )
 })
 
 test_that("can pass variable to fn", {

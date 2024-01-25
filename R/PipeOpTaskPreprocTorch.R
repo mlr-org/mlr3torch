@@ -42,6 +42,8 @@
 #' @param rowwise (`logical(1)`)\cr
 #'   Whether the preprocessing function is applied rowwise (and then concatenated by row) or directly to the whole
 #'   tensor. In the first case there is no batch dimension.
+#' @param tags (`character()`)\cr
+#'   Tags for the pipeop.
 #' @section Input and Output Channels:
 #' See [`PipeOpTaskPreproc`].
 #' @section State:
@@ -178,7 +180,7 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
     #' @description
     #' Creates a new instance of this [`R6`][R6::R6Class] class.
     initialize = function(fn, id = "preproc_torch", param_vals = list(), param_set = ps(), packages = character(0), rowwise = FALSE,
-      stages_init = NULL, tags = "torch") { # nolint
+      stages_init = NULL, tags = NULL) { # nolint
       assert(check_function(fn), check_character(fn, len = 2L))
       private$.fn = fn
       private$.rowwise = assert_flag(rowwise)
@@ -195,7 +197,7 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
         param_set = param_set,
         feature_types = "lazy_tensor",
         packages = packages,
-        tags = tags
+        tags = unique(c(tags, "torch"))
       )
     },
     #' @description
@@ -374,9 +376,11 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
 #' @template param_param_vals
 #' @param param_vals (`list()`)\cr
 #'   The parameter values.
+#' @param tags (`character()`)\cr
+#'   Tags for the pipeop.
 #' @export
 pipeop_preproc_torch = function(id, fn, shapes_out = NULL, param_set = NULL, param_vals = list(), packages = character(0),
-  rowwise = FALSE, parent_env = parent.frame(), stages_init = NULL) {
+  rowwise = FALSE, parent_env = parent.frame(), stages_init = NULL, tags = NULL) {
   pipeop_preproc_torch_class(
     id = id,
     fn = fn,
@@ -385,7 +389,8 @@ pipeop_preproc_torch = function(id, fn, shapes_out = NULL, param_set = NULL, par
     packages = packages,
     rowwise = rowwise,
     parent_env = parent_env,
-    stages_init = stages_init
+    stages_init = stages_init,
+    tags = tags
     )$new(param_vals = param_vals)
 }
 
@@ -451,7 +456,7 @@ create_ps = function(fn) {
 #' po_example
 #' po_example$param_set
 pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, packages = character(0),
-  rowwise = FALSE, parent_env = parent.frame(), stages_init = NULL) {
+  rowwise = FALSE, parent_env = parent.frame(), stages_init = NULL, tags = NULL) {
   assert(
     check_function(shapes_out, args = c("shapes_in", "param_vals", "task"), null.ok = TRUE),
     check_choice(shapes_out, c("infer", "unchanged"))
@@ -522,7 +527,8 @@ pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, pack
       param_vals = param_vals,
       fn = info$fn, # nolint
       rowwise = info$rowwise,
-      stages_init = info$stages_init
+      stages_init = info$stages_init,
+      tags = info$tags
     )
     # no need to keep the data around after initialiation
     private$.__construction_info = NULL
@@ -537,7 +543,8 @@ pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, pack
       param_set = param_set,
       fn = fn,
       rowwise = rowwise,
-      stages_init = stages_init
+      stages_init = stages_init,
+      tags = tags
     )
   )
 
