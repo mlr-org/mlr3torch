@@ -1,6 +1,12 @@
 auto_device = function(device = NULL) {
   if (device == "auto") {
-    device = if (cuda_is_available()) "cuda" else "cpu"
+    device = if (cuda_is_available()) {
+      "cuda"
+    } else if (backends_mps_is_available()) {
+      "mps"
+    } else {
+      "cpu"
+    }
     lg$debug("Auto-detected device '%s'.", device)
   }
   return(device)
