@@ -49,6 +49,7 @@ constructor_mnist = function(path) {
 
 load_task_mnist = function(id = "mnist") {
   cached_constructor = function() {
+    data = cached(constructor_mnist, "datasets", "mnist")$data
     ds = dataset(
       initialize = function(images) {
         self$images = torch_tensor(images, dtype = torch_float32())

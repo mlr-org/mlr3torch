@@ -41,6 +41,8 @@ constructor_tiny_imagenet = function(path) {
 
   colnames(lookup) = c("id", "label")
 
+
+
   get_uris = function(dir, set) {
     folder_names = list.files(file.path(dir, set))
     folder_names = folder_names[folder_names != "val_annotations.txt"]
@@ -75,12 +77,13 @@ constructor_tiny_imagenet = function(path) {
   uris = c(train_res$uris, valid_res$uris, test_uris)
   splits = rep(c("train", "valid", "test"), times = map_int(list(train_res$labels, valid_res$labels, test_uris), length))
 
-  data.table(class = factor(classes, levels = ci[id == "image", "levelsl"][[1L]]), image = uris, split = factor(splits))
+  data.table(class = factor(classes, levels = ci[list("image"), "levelsl", on = "id"][[1L]]), image = uris, split = factor(splits))
 }
 
 #' @include utils.R
 load_task_tiny_imagenet = function(id = "tiny_imagenet") {
   cached_constructor = crate(function() {
+    dt = cached(constructor_tiny_imagenet, "datasets", "tiny_imagenet")$data
 
     dt$image = as_lazy_tensor(dataset_image(dt$image), dataset_shapes = list(x = c(NA, 3, 64, 64)))
     dt$..row_id = seq_len(nrow(dt))
