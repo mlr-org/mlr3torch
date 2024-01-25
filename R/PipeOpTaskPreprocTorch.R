@@ -178,7 +178,7 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
     #' @description
     #' Creates a new instance of this [`R6`][R6::R6Class] class.
     initialize = function(fn, id = "preproc_torch", param_vals = list(), param_set = ps(), packages = character(0), rowwise = FALSE,
-      stages_init = NULL) { # nolint
+      stages_init = NULL, tags = "torch") { # nolint
       assert(check_function(fn), check_character(fn, len = 2L))
       private$.fn = fn
       private$.rowwise = assert_flag(rowwise)
@@ -194,7 +194,8 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
         param_vals = param_vals,
         param_set = param_set,
         feature_types = "lazy_tensor",
-        packages = packages
+        packages = packages,
+        tags = tags
       )
     },
     #' @description
