@@ -297,11 +297,11 @@ LearnerTorch = R6Class("LearnerTorch",
     .bundle = function(model) {
       # FIXME: Ignore optimizer, loss_fn for the time being
       # TODO: check torch version (?)
-      model$network = serialize_torch(model$network)
+      model$network = torch_serialize(model$network)
       model
     },
     .unbundle = function(model) {
-      model$network = unserialize_torch(model$network)
+      model$network = torch_load(model$network)
       model
     },
     .dataset = function(task, param_vals) stop(".dataset must be implemented."),
@@ -312,23 +312,6 @@ LearnerTorch = R6Class("LearnerTorch",
     deep_clone = function(name, value) deep_clone(self, private, super, name, value)
   )
 )
-
-serialize_torch = function(x) {
-  on.exit({close(con)}, add = TRUE) # nolint
-  con = rawConnection(raw(), open = "wr")
-  torch_save(x, con)
-  res = rawConnectionValue(con)
-  res
-}
-
-unserialize_torch = function(x) {
-  on.exit({close(con)}, add = TRUE) # nolint
-  con = rawConnection(x)
-  torch_load(con)
-}
-
-
-
 
 deep_clone = function(self, private, super, name, value) {
   private$.param_set = NULL # required to keep clone identical to original, otherwise tests get really ugly
