@@ -32,8 +32,6 @@ of this class has nothing to do with the \code{\link{lazy_tensor}} data type.
 
 When the constructor generates \code{factor()} variables it is important that the ordering of the levels in data
 corresponds to the ordering of the levels in the \code{col_info} argument.
-Because the ordering of the level depends on the locale, it is recommended to e.g. use the \code{C} locale in the
-\code{constructor} function, e.g. with \code{withr::with_locale()}.
 }
 \examples{
 # We first define a backend constructor

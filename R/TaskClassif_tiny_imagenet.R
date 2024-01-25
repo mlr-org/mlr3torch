@@ -70,22 +70,17 @@ constructor_tiny_imagenet = function(path) {
   valid_res = get_uris(download_folder, "val")
   test_uris = list.files(file.path(download_folder, "test", "images"), full.names = TRUE)
 
+  ci = load_col_info("tiny_imagenet")
   classes = c(train_res$labels, valid_res$labels, rep(NA_character_, length(test_uris)))
   uris = c(train_res$uris, valid_res$uris, test_uris)
   splits = rep(c("train", "valid", "test"), times = map_int(list(train_res$labels, valid_res$labels, test_uris), length))
 
-  data.table(class = as.factor(classes), image = uris, split = factor(splits))
+  data.table(class = factor(classes, levels = ci[id == "image", "levelsl"][[1L]]), image = uris, split = factor(splits))
 }
 
 #' @include utils.R
 load_task_tiny_imagenet = function(id = "tiny_imagenet") {
   cached_constructor = crate(function() {
-    # We need this as otherwise the factor level are differently ordered,
-    # which causes the hard-coded col-info to be wrong for some locales
-    # (whether a < A or A > a depends on the locale)
-    withr::with_locale(c(LC_COLLATE = "C"), {
-      dt = cached(constructor_tiny_imagenet, "datasets", "tiny_imagenet")$data
-    })
 
     dt$image = as_lazy_tensor(dataset_image(dt$image), dataset_shapes = list(x = c(NA, 3, 64, 64)))
     dt$..row_id = seq_len(nrow(dt))

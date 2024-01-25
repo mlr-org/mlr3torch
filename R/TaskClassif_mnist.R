@@ -49,12 +49,6 @@ constructor_mnist = function(path) {
 
 load_task_mnist = function(id = "mnist") {
   cached_constructor = function() {
-    # factor level ordering can depend on locale
-    # in this case, nothing should go wrong but we keep it here as a reminder (is e.g. needed in tiny imagenet)
-    withr::with_locale(c(LC_COLLATE = "C"), {
-      data = cached(constructor_mnist, "datasets", "mnist")$data
-    })
-
     ds = dataset(
       initialize = function(images) {
         self$images = torch_tensor(images, dtype = torch_float32())
