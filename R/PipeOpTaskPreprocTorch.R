@@ -376,8 +376,6 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
 #' @template param_param_vals
 #' @param param_vals (`list()`)\cr
 #'   The parameter values.
-#' @param tags (`character()`)\cr
-#'   Tags for the pipeop.
 #' @export
 pipeop_preproc_torch = function(id, fn, shapes_out = NULL, param_set = NULL, param_vals = list(), packages = character(0),
   rowwise = FALSE, parent_env = parent.frame(), stages_init = NULL, tags = NULL) {
@@ -449,6 +447,8 @@ create_ps = function(fn) {
 #'   If `NULL` (default), will be set to `"both"` in case the `id` starts with `"trafo"` and to `"train"`
 #'   if it starts with `"augment"`. Otherwise it must specified.
 #' @template param_packages
+#' @param tags (`character()`)\cr
+#'   Tags for the pipeop
 #' @export
 #' @returns An [`R6Class`][R6::R6Class] instance inheriting from [`PipeOpTaskPreprocTorch`]
 #' @examples

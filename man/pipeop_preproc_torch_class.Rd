@@ -55,6 +55,9 @@ The parent environment for the R6 class.}
 Initial value for the \code{stages} parameter.
 If \code{NULL} (default), will be set to \code{"both"} in case the \code{id} starts with \code{"trafo"} and to \code{"train"}
 if it starts with \code{"augment"}. Otherwise it must specified.}
+
+\item{tags}{(\code{character()})\cr
+Tags for the pipeop}
 }
 \value{
 An \code{\link[R6:R6Class]{R6Class}} instance inheriting from \code{\link{PipeOpTaskPreprocTorch}}

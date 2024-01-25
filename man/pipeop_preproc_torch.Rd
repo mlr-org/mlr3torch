@@ -61,7 +61,7 @@ If \code{NULL} (default), will be set to \code{"both"} in case the \code{id} sta
 if it starts with \code{"augment"}. Otherwise it must specified.}
 
 \item{tags}{(\code{character()})\cr
-Tags for the pipeop.}
+Tags for the pipeop}
 }
 \description{
 Calls \code{\link{pipeop_preproc_torch_class}} and instantiates the instance with the given parameter values.
