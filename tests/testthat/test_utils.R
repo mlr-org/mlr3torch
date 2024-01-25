@@ -32,8 +32,8 @@ test_that("uniqueify works", {
 })
 
 test_that("auto_cache_lazy_tensors", {
-  ds = random_dataset(10, 3)
-  ds2 = random_dataset(10, 3)
+  ds = random_dataset(3)
+  ds2 = random_dataset(3)
 
   # 1) Duplicated dataset_hash
   x1 = list(

@@ -211,7 +211,8 @@ Creates a new instance of this \code{\link[R6:R6Class]{R6}} class.
   param_set = ps(),
   packages = character(0),
   rowwise = FALSE,
-  stages_init = NULL
+  stages_init = NULL,
+  tags = "torch"
 )}\if{html}{\out{</div>}}
 }
 

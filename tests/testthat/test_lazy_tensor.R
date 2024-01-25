@@ -136,14 +136,14 @@ test_that("pofu identifies identical columns", {
 })
 
 test_that("as_lazy_tensor for dataset", {
-  ds = random_dataset(10, 3)
+  ds = random_dataset(3)
   x = as_lazy_tensor(ds, dataset_shapes = list(x = c(NA, 3)), ids = 1:5)
   expect_class(x, "lazy_tensor")
   expect_torch_equal(ds$.getbatch(1:5)$x, materialize(x, rbind = TRUE))
 })
 
 test_that("as_lazy_tensor for DataDescriptor", {
-  ds = random_dataset(10, 3)
+  ds = random_dataset(3)
   dd = DataDescriptor$new(
     dataset = ds,
     dataset_shapes = list(x = c(NA, 3))
