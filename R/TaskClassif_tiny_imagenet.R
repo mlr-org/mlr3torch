@@ -77,7 +77,7 @@ constructor_tiny_imagenet = function(path) {
   uris = c(train_res$uris, valid_res$uris, test_uris)
   splits = rep(c("train", "valid", "test"), times = map_int(list(train_res$labels, valid_res$labels, test_uris), length))
 
-  data.table(class = factor(classes, levels = ci[list("image"), "levelsl", on = "id"][[1L]]), image = uris, split = factor(splits))
+  data.table(class = factor(classes, levels = ci[list("image"), "levels", on = "id"][[1L]]), image = uris, split = factor(splits))
 }
 
 #' @include utils.R
