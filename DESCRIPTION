@@ -64,14 +64,16 @@ Suggests:
     zip
 Remotes:
     r-lib/zip,
-    mlr-org/mlr3
+    mlr-org/mlr3,
+    mlverse/torch,
+    mlr-org/mlr3@bundle
 Config/testthat/edition: 3
 NeedsCompilation: no
 ByteCompile: no
 VignetteBuilder: knitr
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, r6 = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.2.3.9000
 Collate:
     'CallbackSet.R'
     'zzz.R'

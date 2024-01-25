@@ -379,3 +379,23 @@ test_that("resample() works", {
   rr = resample(task, learner, resampling)
   expect_r6(rr, "ResampleResult")
 })
+
+test_that("bundling", {
+  task = tsk("mtcars")$filter(1:5)
+  learner = lrn("regr.mlp", batch_size = 150, epochs = 1, device = "cpu", encapsulate = c(train = "callr"),
+    layers = 1, d_hidden = 20
+  )
+  learner$train(task)
+  expect_false(learner$bundled)
+  learner$bundle()$unbundle()
+  expect_prediction(learner$predict(task))
+})
+
+test_that("callr encapsulation and bundling", {
+  task = tsk("mtcars")$filter(1:5)
+  learner = lrn("regr.mlp", batch_size = 150, epochs = 1, device = "cpu", encapsulate = c(train = "callr"),
+    layers = 1, d_hidden = 20
+  )
+  learner$train(task)
+  expect_prediction(learner$predict(task))
+})

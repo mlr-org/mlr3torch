@@ -294,6 +294,16 @@ LearnerTorch = R6Class("LearnerTorch",
       param_vals_test = insert_named(param_vals, list(shuffle = FALSE, drop_last = FALSE))
       private$.dataloader(task, param_vals_test)
     },
+    .bundle = function(model) {
+      # FIXME: Ignore optimizer, loss_fn for the time being
+      # TODO: check torch version (?)
+      model$network = serialize_torch(model$network)
+      model
+    },
+    .unbundle = function(model) {
+      model$network = unserialize_torch(model$network)
+      model
+    },
     .dataset = function(task, param_vals) stop(".dataset must be implemented."),
     .optimizer = NULL,
     .loss = NULL,
@@ -302,6 +312,22 @@ LearnerTorch = R6Class("LearnerTorch",
     deep_clone = function(name, value) deep_clone(self, private, super, name, value)
   )
 )
+
+serialize_torch = function(x) {
+  on.exit({close(con)}, add = TRUE) # nolint
+  con = rawConnection(raw(), open = "wr")
+  torch_save(x, con)
+  res = rawConnectionValue(con)
+  res
+}
+
+unserialize_torch = function(x) {
+  on.exit({close(con)}, add = TRUE) # nolint
+  con = rawConnection(x)
+  torch_load(con)
+}
+
+
 
 
 deep_clone = function(self, private, super, name, value) {
