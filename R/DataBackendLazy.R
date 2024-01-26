@@ -186,8 +186,8 @@ DataBackendLazy = R6Class("DataBackendLazy",
         }
 
         f(function(x, y) isTRUE(all.equal(x, y)), private$.backend$primary_key, self$primary_key, "primary key")
-        f(test_permutation, private$.backend$rownames, self$rownames, "row identifiers")
-        f(function(x, y) isTRUE(all.equal(x, y)), private$.backend$colnames, private$.colnames, "column names")
+        f(function(x, y) isTRUE(all.equal(x, y)), private$.backend$rownames, self$rownames, "row identifiers")
+        f(test_permutation, private$.backend$colnames, private$.colnames, "column names")
         f(test_equal_col_info, col_info(private$.backend), private$.col_info, "column information")
         # need to reverse the order for correct error message
         f(function(x, y) test_subset(y, x), private$.backend$data_formats, self$data_formats, "data formats")
