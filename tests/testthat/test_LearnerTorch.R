@@ -216,7 +216,8 @@ test_that("train parameters do what they should: classification and regression",
       seed = seed,
       measures_train = measures_train,
       measures_valid = measures_valid,
-      predict_type = switch(task_type, classif = "prob", regr = "response")
+      predict_type = switch(task_type, classif = "prob", regr = "response"),
+      device = "cpu"
 
     )
 
