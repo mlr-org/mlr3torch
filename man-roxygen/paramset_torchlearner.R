@@ -6,7 +6,8 @@
 #'   The number of epochs.
 #' * `device` :: `character(1)`\cr
 #'   The device. One of `"auto"`, `"cpu"`, or `"cuda"` or other values defined in `mlr_reflections$torch$devices`.
-#'   The value is initialized to `"auto"`, which will select `"cuda"` if possible and `"cpu"` otherwise.
+#'   The value is initialized to `"auto"`, which will select `"cuda"` if possible, then try `"mps"`, and otherwise
+#'   will fall back to `"cpu"`.
 #' * `measures_train` :: [`Measure`] or `list()` of [`Measure`]s.
 #'   Measures to be evaluated during training.
 #' * `measures_valid` :: [`Measure`] or `list()` of [`Measure`]s.

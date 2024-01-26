@@ -24,7 +24,8 @@ The batch size.
 The number of epochs.
 \item \code{device} :: \code{character(1)}\cr
 The device. One of \code{"auto"}, \code{"cpu"}, or \code{"cuda"} or other values defined in \code{mlr_reflections$torch$devices}.
-The value is initialized to \code{"auto"}, which will select \code{"cuda"} if possible and \code{"cpu"} otherwise.
+The value is initialized to \code{"auto"}, which will select \code{"cuda"} if possible, then try \code{"mps"}, and otherwise
+will fall back to \code{"cpu"}.
 \item \code{measures_train} :: \code{\link{Measure}} or \code{list()} of \code{\link{Measure}}s.
 Measures to be evaluated during training.
 \item \code{measures_valid} :: \code{\link{Measure}} or \code{list()} of \code{\link{Measure}}s.
@@ -134,11 +135,13 @@ Shortcut for \code{learner$model$callbacks$history}.}
 <details><summary>Inherited methods</summary>
 <ul>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner"><a href='../../mlr3/html/Learner.html#method-Learner-base_learner'><code>mlr3::Learner$base_learner()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="bundle"><a href='../../mlr3/html/Learner.html#method-Learner-bundle'><code>mlr3::Learner$bundle()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help"><a href='../../mlr3/html/Learner.html#method-Learner-help'><code>mlr3::Learner$help()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict"><a href='../../mlr3/html/Learner.html#method-Learner-predict'><code>mlr3::Learner$predict()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata"><a href='../../mlr3/html/Learner.html#method-Learner-predict_newdata'><code>mlr3::Learner$predict_newdata()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset"><a href='../../mlr3/html/Learner.html#method-Learner-reset'><code>mlr3::Learner$reset()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train"><a href='../../mlr3/html/Learner.html#method-Learner-train'><code>mlr3::Learner$train()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="unbundle"><a href='../../mlr3/html/Learner.html#method-Learner-unbundle'><code>mlr3::Learner$unbundle()</code></a></span></li>
 </ul>
 </details>
 }}

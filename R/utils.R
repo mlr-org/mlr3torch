@@ -1,6 +1,12 @@
 auto_device = function(device = NULL) {
   if (device == "auto") {
-    device = if (cuda_is_available()) "cuda" else "cpu"
+    device = if (cuda_is_available()) {
+      "cuda"
+    } else if (backends_mps_is_available()) {
+      "mps"
+    } else {
+      "cpu"
+    }
     lg$debug("Auto-detected device '%s'.", device)
   }
   return(device)
@@ -42,31 +48,6 @@ make_check_vector = function(d) {
 check_function_or_null = function(x) check_function(x, null.ok = TRUE)
 
 check_integerish_or_null = function(x) check_integerish(x, null.ok = TRUE)
-
-broadcast = function(shape1, shape2) {
-  assert_true(!anyNA(shape1) && !anyNA(shape2))
-  d = abs(length(shape1) - length(shape2))
-  if (d != 0) {
-    if (length(shape1) > length(shape2)) {
-      x = c(rep(1L, d), shape1)
-    } else {
-      y = c(rep(1L, d), shape2)
-    }
-  }
-  pmax(shape1, shape2)
-}
-
-broadcast_list = function(...) {
-  Reduce(broadcast, list(...))
-}
-
-check_nn_module_generator = function(x) {
-  if (inherits(x, "nn_module_generator")) {
-    return(TRUE)
-  }
-
-  "Most be module generator."
-}
 
 assert_inherits_classname = function(class_generator, classname) {
   assert_class(class_generator, "R6ClassGenerator")
