@@ -45,7 +45,8 @@
 #'   network = network,
 #'   ingress_tokens = ingress_tokens,
 #'   batch_size = 16,
-#'   epochs = 1
+#'   epochs = 1,
+#'   device = "cpu"
 #' )
 #'
 #' # A simple train-predict

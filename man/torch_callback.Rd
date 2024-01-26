@@ -119,7 +119,8 @@ learner = lrn("classif.torch_featureless",
   batch_size = 16,
   epochs = 1,
   callbacks = custom_tcb,
-  cb.custom.name = "Marie"
+  cb.custom.name = "Marie",
+  device = "cpu"
 )
 task = tsk("iris")
 learner$train(task)
