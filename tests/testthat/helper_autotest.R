@@ -301,5 +301,5 @@ autotest_torch_callback = function(torch_callback, check_man = TRUE) {
   expect_class(cb_trained, "CallbackSet")
   expect_deep_clone(cb_trained, cb_trained$clone(deep = TRUE))
   cb_trained$ctx = "placeholder"
-  expect_error(cb_trained$clone(deep = TRUE), "must never be cloned unless")
+  expect_error(cb_trained$clone(deep = TRUE), "can only be cloned")
 }
