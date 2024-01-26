@@ -23,7 +23,6 @@ assignInNamespace(ns = "mlr3torch", x = "auto_device",  value = function(device 
     device = if (cuda_is_available()) {
       "cuda"
     } else if (backends_mps_is_available() && identical(Sys.getenv("GITHUB_ACTIONS"), "true")) {
-      stop()
       # We are not the only ones experiencing issues:
       # https://discuss.pytorch.org/t/mps-back-end-out-of-memory-on-github-action/189773
       if (identical(Sys.getenv("GITHUB_ACTIONS"), "true") && nzchar(Sys.getenv("_R_CHECK_PACKAGE_NAME_", ""))) {
