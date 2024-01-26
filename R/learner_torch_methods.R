@@ -152,7 +152,7 @@ train_loop = function(ctx, cbs) {
 
       ctx$last_loss = loss$item()
       predictions[[length(predictions) + 1]] = y_hat$detach()
-      indices[[length(indices) + 1]] = as.numeric(batch$.index)
+      indices[[length(indices) + 1]] = as.integer(batch$.index$to(device = "cpu"))
       ctx$optimizer$step()
 
       call("on_batch_end")
@@ -244,11 +244,12 @@ encode_prediction_default = function(predict_tensor, predict_type, task) {
   response = prob = NULL
   if (task$task_type == "classif") {
     if (predict_type == "prob") {
-      predict_tensor = nnf_softmax(predict_tensor, dim = 2L)
+      predict_tensor = with_no_grad(nnf_softmax(predict_tensor, dim = 2L))
     }
     # We still execute the argmax on the device before converting to R
-    response = as.integer(predict_tensor$argmax(dim = 2L))
+    response = as.integer(with_no_grad(predict_tensor$argmax(dim = 2L))$to(device = "cpu"))
 
+    predict_tensor = predict_tensor$to(device = "cpu")
     if (predict_type == "prob") {
       prob = as.matrix(predict_tensor)
       colnames(prob) = task$class_names
