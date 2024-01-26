@@ -42,14 +42,14 @@ constructor_mnist = function(path) {
   images = array(NA, dim = c(70000, 1, 28, 28))
   images[1:60000, , , ] = images_train
   images[60001:70000, , , ] = images_test
-  labels = factor(c(d_train$targets, d_test$targets), levels = 1:10, labels = as.character(0:9))
 
-  list(label = labels, image = images)
+  list(label = c(d_train$targets, d_test$targets), image = images)
 }
 
 load_task_mnist = function(id = "mnist") {
-  cached_constructor = function() {
+  cached_constructor = function(backend) {
     data = cached(constructor_mnist, "datasets", "mnist")$data
+    labels = factor(data$label, levels = 1:10, labels = as.character(0:9))
     ds = dataset(
       initialize = function(images) {
         self$images = torch_tensor(images, dtype = torch_float32())
@@ -64,9 +64,8 @@ load_task_mnist = function(id = "mnist") {
 
     dt = data.table(
       image = lazy_tensor(data_descriptor),
-      label = data$label,
-      ..row_id = seq_along(data$label),
-      split = factor(c(rep("train", 60000), rep("test", 10000)))
+      label = labels,
+      ..row_id = seq_along(labels)
     )
 
     DataBackendDataTable$new(data = dt, primary_key = "..row_id")

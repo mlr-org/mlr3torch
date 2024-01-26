@@ -30,7 +30,7 @@
 #' corresponds to the ordering of the levels in the `col_info` argument.
 #'
 #' @param constructor (`function`)\cr
-#'   A function with no arguments, whose return value must be the actual backend.
+#'   A function with argument `backend` (the lazy backend), whose return value must be the actual backend.
 #'   This function is called the first time the field `$backend` is accessed.
 #' @param rownames (`integer()`)\cr
 #'   The row names. Must be a permutation of the rownames of the lazily constructed backend.
@@ -54,7 +54,7 @@
 #' @export
 #' @examples
 #' # We first define a backend constructor
-#' constructor = function() {
+#' constructor = function(backend) {
 #'   cat("Data is constructed!\n")
 #'   DataBackendDataTable$new(
 #'     data.table(x = rnorm(10), y = rnorm(10), row_id = 1:10),
@@ -101,7 +101,7 @@ DataBackendLazy = R6Class("DataBackendLazy",
       assert_choice(primary_key, col_info$id)
       private$.colnames = col_info$id
       assert_choice(primary_key, col_info$id)
-      private$.constructor = assert_function(constructor, nargs = 0)
+      private$.constructor = assert_function(constructor, args = "backend")
 
       super$initialize(data = NULL, primary_key = primary_key, data_formats = data_formats)
     },
@@ -173,7 +173,7 @@ DataBackendLazy = R6Class("DataBackendLazy",
     backend = function(rhs) {
       assert_ro_binding(rhs)
       if (is.null(private$.backend)) {
-        private$.backend = assert_backend(private$.constructor())
+        private$.backend = assert_backend(private$.constructor(self))
 
         f = function(test, x, y, var_name) {
           if (!test(x, y)) {
@@ -185,8 +185,8 @@ DataBackendLazy = R6Class("DataBackendLazy",
           }
         }
 
-        f(function(x, y) isTRUE(all.equal(x, y)), private$.backend$primary_key, self$primary_key, "primary key")
-        f(function(x, y) isTRUE(all.equal(x, y)), private$.backend$rownames, self$rownames, "row identifiers")
+        f(identical, private$.backend$primary_key, self$primary_key, "primary key")
+        f(test_permutation, private$.backend$rownames, self$rownames, "row identifiers")
         f(test_permutation, private$.backend$colnames, private$.colnames, "column names")
         f(test_equal_col_info, col_info(private$.backend), private$.col_info, "column information")
         # need to reverse the order for correct error message

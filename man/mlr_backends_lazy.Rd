@@ -35,7 +35,7 @@ corresponds to the ordering of the levels in the \code{col_info} argument.
 }
 \examples{
 # We first define a backend constructor
-constructor = function() {
+constructor = function(backend) {
   cat("Data is constructed!\n")
   DataBackendDataTable$new(
     data.table(x = rnorm(10), y = rnorm(10), row_id = 1:10),
@@ -127,7 +127,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{constructor}}{(\code{function})\cr
-A function with no arguments, whose return value must be the actual backend.
+A function with argument \code{backend} (the lazy backend), whose return value must be the actual backend.
 This function is called the first time the field \verb{$backend} is accessed.}
 
 \item{\code{rownames}}{(\code{integer()})\cr

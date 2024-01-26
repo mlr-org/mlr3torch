@@ -88,11 +88,14 @@ cached = function(constructor, type, name) {
 
   if (do_caching && dir.exists(path)) {
     # we cache and there is a cache hit
-    data = readRDS(file.path(path, "data.rds"))
-    output = list(data = data, path = path)
-    return(output)
+    data = try(readRDS(file.path(path, "data.rds")), silent = TRUE)
+    if (!inherits(data, "try-error")) {
+      return(list(data = data, path = path))
+    }
+    lg$debug("Cache hit failed, removing cache", path = path)
+    lapply(list.files(path, full.names = TRUE), unlink)
   }
-  # We either don't cache or there is no cache hit
+  # We either don't cache, there is no cache hit or cache retrieval failed
   data = try({
     path_raw = file.path(path, "raw")
     if (!dir.exists(path_raw)) {

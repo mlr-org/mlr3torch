@@ -18,5 +18,5 @@ test_that("tiny_imagenet works", {
   expect_true("tiny-imagenet-200" %in% list.files(file.path(get_cache_dir(), "datasets", "tiny_imagenet", "raw")))
   expect_true("data.rds" %in% list.files(file.path(get_cache_dir(), "datasets", "tiny_imagenet")))
   expect_equal(task$backend$nrow, 120000)
-  expect_equal(task$backend$ncol, 4)
+  expect_equal(task$backend$ncol, 3)
 })

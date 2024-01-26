@@ -29,7 +29,7 @@ indicates whether the row belongs to the train, validation or test set.
 \item Has Missings: no
 \item Target: \dQuote{class}
 \item Features: \dQuote{image}
-\item Backend Dimension: 120000x4
+\item Backend Dimension: 120000x3
 \item Default Roles (use / test / holdout): 100000, 10000, 10000
 }
 }

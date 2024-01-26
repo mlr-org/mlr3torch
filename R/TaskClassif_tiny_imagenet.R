@@ -41,8 +41,6 @@ constructor_tiny_imagenet = function(path) {
 
   colnames(lookup) = c("id", "label")
 
-
-
   get_uris = function(dir, set) {
     folder_names = list.files(file.path(dir, set))
     folder_names = folder_names[folder_names != "val_annotations.txt"]
@@ -72,21 +70,25 @@ constructor_tiny_imagenet = function(path) {
   valid_res = get_uris(download_folder, "val")
   test_uris = list.files(file.path(download_folder, "test", "images"), full.names = TRUE)
 
-  ci = load_col_info("tiny_imagenet")
   classes = c(train_res$labels, valid_res$labels, rep(NA_character_, length(test_uris)))
   uris = c(train_res$uris, valid_res$uris, test_uris)
-  splits = rep(c("train", "valid", "test"), times = map_int(list(train_res$labels, valid_res$labels, test_uris), length))
 
-  data.table(class = factor(classes, levels = ci[list("image"), "levels", on = "id"][[1L]]), image = uris, split = factor(splits))
+  data.frame(
+    class = classes,
+    image = uris
+  )
 }
 
 #' @include utils.R
 load_task_tiny_imagenet = function(id = "tiny_imagenet") {
-  cached_constructor = crate(function() {
+  cached_constructor = crate(function(backend) {
     dt = cached(constructor_tiny_imagenet, "datasets", "tiny_imagenet")$data
+    setDT(dt)
 
-    dt$image = as_lazy_tensor(dataset_image(dt$image), dataset_shapes = list(x = c(NA, 3, 64, 64)))
-    dt$..row_id = seq_len(nrow(dt))
+    ci = col_info(backend)
+    set(dt, j = "class", value = factor(dt$class, levels = ci[list("class"), "levels", on = "id"][[1L]][[1L]]))
+    set(dt, j = "image", value = as_lazy_tensor(dataset_image(dt$image), dataset_shapes = list(x = c(NA, 3, 64, 64))))
+    set(dt, j = "..row_id", value = seq_len(nrow(dt)))
     DataBackendDataTable$new(data = dt, primary_key = "..row_id")
   }, .parent = topenv())
 
