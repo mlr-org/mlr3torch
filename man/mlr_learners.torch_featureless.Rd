@@ -54,7 +54,7 @@ Only those from \code{\link{LearnerTorch}}.
 # Define the Learner and set parameter values
 learner = lrn("classif.torch_featureless")
 learner$param_set$set_values(
-  batch_size = 1, epochs = 1, cpu
+  batch_size = 1, epochs = 1, device = "cpu"
 )
 
 # Define a Task

@@ -65,7 +65,7 @@ Is initialized to \code{0.5}.
 # Define the Learner and set parameter values
 learner = lrn("classif.mlp")
 learner$param_set$set_values(
-  layers = 1, d_hidden = 10, batch_size = 1, epochs = 1, cpu
+  layers = 1, d_hidden = 10, batch_size = 1, epochs = 1, device = "cpu"
 )
 
 # Define a Task
