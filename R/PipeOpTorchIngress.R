@@ -57,7 +57,7 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
         stopf("No missing values allowed in task '%s'.", task$id)
       }
       param_vals = self$param_set$get_values()
-      graph = as_graph(po("nop", id = self$id))
+      graph = as_graph(po("nop", id = self$id), clone = FALSE)
       batchgetter = private$.get_batchgetter(task, param_vals)
 
       # In case the user is tempted to do things that will break in bad ways...

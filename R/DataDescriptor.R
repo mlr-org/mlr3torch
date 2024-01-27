@@ -93,7 +93,7 @@ DataDescriptor = R6Class("DataDescriptor",
         # get unique ID for input PipeOp
         graph = as_graph(po("nop", id =
           paste0("nop.", calculate_hash(address(dataset)), ".", input_map)
-        ))
+        ), clone = FALSE)
       } else {
         graph = as_graph(graph, clone = clone_graph)
         assert_true(length(graph$pipeops) >= 1L)
