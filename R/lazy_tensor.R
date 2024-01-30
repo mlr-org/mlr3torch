@@ -280,7 +280,7 @@ hash_input.lazy_tensor = function(x) {
 #' This means that if two [`lazy_tensor`]s:
 #' * are equal: they will mateterialize to the same tensors.
 #' * are unequal: they might materialize to the same tensors.
-#' @param x, y ([`lazy_tensor`])\cr
+#' @param x,y ([`lazy_tensor`])\cr
 #'   Values to compare.
 #' @export
 `==.lazy_tensor` = function(x, y) {

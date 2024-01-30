@@ -7,7 +7,7 @@
 \method{==}{lazy_tensor}(x, y)
 }
 \arguments{
-\item{x, }{y (\code{\link{lazy_tensor}})\cr
+\item{x, y}{(\code{\link{lazy_tensor}})\cr
 Values to compare.}
 }
 \description{
