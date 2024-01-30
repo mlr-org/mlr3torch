@@ -108,10 +108,10 @@ test_that("basic", {
 
   po_test3 = pipeop_preproc_torch("test3", rowwise = FALSE, fn = function(x) x$reshape(-1), shapes_out = NULL,
     stages_init = "both"
-  )
+  )$new()
   po_test4 = pipeop_preproc_torch("test4", rowwise = TRUE, fn = function(x) x$reshape(-1), shapes_out = NULL,
     stages_init = "both"
-  )
+  )$new()
 
   expect_equal(
     materialize(po_test3$train(list(task))[[1L]]$data(cols = "x1")$x1, rbind = TRUE)$shape,
@@ -129,7 +129,7 @@ test_that("rowwise works", {
     expect_true(nrow(x) == 150L)
     x
   }
-  po_rowwise = pipeop_preproc_torch("test3", fn = fn_rowwise, rowwise = FALSE, shapes_out = NULL, stages_init = "both")
+  po_rowwise = pipeop_preproc_torch("test3", fn = fn_rowwise, rowwise = FALSE, shapes_out = NULL, stages_init = "both")$new() # nolint
 
   taskout = po_rowwise$train(list(task))[[1L]]
   expect_error(materialize(taskout$data()$x), regexp = NA)
@@ -138,7 +138,7 @@ test_that("rowwise works", {
     expect_true(all.equal(x$shape, 4))
     x
   }
-  po_batchwise = pipeop_preproc_torch("test3", fn = fn_batchwise, rowwise = TRUE, shapes_out = NULL, stages_init = "both")
+  po_batchwise = pipeop_preproc_torch("test3", fn = fn_batchwise, rowwise = TRUE, shapes_out = NULL, stages_init = "both")$new() # nolint
   taskout2 = po_batchwise$train(list(task))[[1L]]
   expect_error(materialize(taskout2$data()$x), regexp = NA)
 })
@@ -212,7 +212,7 @@ test_that("pipeop_preproc_torch", {
       list(s)
     },
     stages_init = "both"
-  )
+  )$new()
 
   expect_true("required" %in% po_test$param_set$tags$a)
   expect_class(po_test, "PipeOpPreprocTorchTrafoAbc")
@@ -235,41 +235,41 @@ test_that("pipeop_preproc_torch", {
   expect_torch_equal(x[1, 2]$item(), 1)
 
   po_test1 = pipeop_preproc_torch("test1", torchvision::transform_resize, shapes_out = "infer",
-    param_vals = list(size = c(10, 10)), stages_init = "both"
-  )
+    stages_init = "both"
+  )$new(param_vals = list(size = c(10, 10)))
 
   size = po_test1$shapes_out(list(c(NA, 20, 20)), "train")
   expect_equal(size, list(c(NA, 10, 10)))
 
-  expect_true(pipeop_preproc_torch("test3", identity, rowwise = TRUE, shapes_out = NULL, stages_init = "both")$rowwise)
-  expect_false(pipeop_preproc_torch("test3", identity, rowwise = FALSE, shapes_out = NULL, stages_init = "both")$rowwise)
+  expect_true(pipeop_preproc_torch("test3", identity, rowwise = TRUE, shapes_out = NULL, stages_init = "both")$new()$rowwise)
+  expect_false(pipeop_preproc_torch("test3", identity, rowwise = FALSE, shapes_out = NULL, stages_init = "both")$new()$rowwise)
 
   # stages_init works
   expect_equal(pipeop_preproc_torch(
-    "test3", identity, rowwise = TRUE, shapes_out = NULL, stages_init = "both")$param_set$values$stages,
+    "test3", identity, rowwise = TRUE, shapes_out = NULL, stages_init = "both")$new()$param_set$values$stages,
     "both"
   )
   expect_equal(pipeop_preproc_torch(
-    "test3", identity, rowwise = TRUE, shapes_out = NULL, stages_init = "train")$param_set$values$stages,
+    "test3", identity, rowwise = TRUE, shapes_out = NULL, stages_init = "train")$new()$param_set$values$stages,
     "train"
   )
 
   # tags work
   expect_set_equal(pipeop_preproc_torch(
-    "test3", identity, rowwise = TRUE, shapes_out = NULL, stages_init = "train", tags = c("learner", "encode"))$tags,
+    "test3", identity, rowwise = TRUE, shapes_out = NULL, stages_init = "train", tags = c("learner", "encode"))$new()$tags,
     c("learner", "encode", "data transform", "torch")
   )
 })
 
 test_that("can pass variable to fn", {
   fn = function(x, a) x + a
-  po_test = pipeop_preproc_torch("test", fn = fn, shapes_out = "infer", stages_init = "train", param_vals = list(a = 1000))
+  po_test = pipeop_preproc_torch("test", fn = fn, shapes_out = "infer", stages_init = "train", )$new(param_vals = list(a = 1000))
   x = po_test$train(list(tsk("lazy_iris")$filter(1)))[[1L]]$data()$x
   expect_true(all(as_array(materialize(x, rbind = TRUE)) >= 50))
 })
 
 test_that("predict shapes are added during training", {
-  po_test = pipeop_preproc_torch("test", fn = function(x) torch_cat(list(x, x * 2), dim = 2), shapes_out = "infer")
+  po_test = pipeop_preproc_torch("test", fn = function(x) torch_cat(list(x, x * 2), dim = 2), shapes_out = "infer")$new()
 
   po_test$param_set$set_values(
     stages = "train"

@@ -157,10 +157,6 @@ argument_matcher = function(args) {
   fn
 }
 
-assert_lazy_tensor = function(x) {
-  assert_class(x, "lazy_tensor")
-}
-
 uniqueify = function(new, existing) {
   make.unique(c(existing, new), sep = "_")[length(existing) + seq_along(new)]
 }

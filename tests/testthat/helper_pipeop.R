@@ -45,7 +45,7 @@ PipeOpTorchDebug = R6Class("PipeOpTorchDebug",
   )
 )
 
-PipeOpPreprocTorchAddSome = pipeop_preproc_torch_class("trafo_some",
+PipeOpPreprocTorchAddSome = pipeop_preproc_torch("trafo_some",
   param_set = ps(some = p_dbl(default = 1L, tags = "train")),
   fn = crate(function(x, some = 1L) x + some),
   shapes_out = "unchanged"

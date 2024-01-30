@@ -9,7 +9,6 @@ pipeop_preproc_torch(
   fn,
   shapes_out = NULL,
   param_set = NULL,
-  param_vals = list(),
   packages = character(0),
   rowwise = FALSE,
   parent_env = parent.frame(),
@@ -33,8 +32,7 @@ If "infer", the output shape function is inferred and calculates the output shap
 For an input shape of (NA, ...) a meta-tensor of shape (1, ...) is created and the preprocessing function is
 applied. Afterwards the batch dimension (1) is replaced with NA and the shape is returned.
 If the first dimension is not \code{NA}, the output shape of applying the preprocessing function is returned.
-
-This should be correct in most cases, but might fail in some edge cases.}
+Method \code{"infer"} should be correct in most cases, but might fail in some edge cases.}
 
 \item{param_set}{(\code{\link{ParamSet}} or \code{NULL})\cr
 The parameter set.
@@ -42,9 +40,6 @@ If this is left as \code{NULL} (default) the parameter set is inferred in the fo
 All parameters but the first and \code{...} of \code{fn} are set as untyped parameters with tags 'train' and those that
 have no default value are tagged as 'required' as well.
 Default values are not annotated.}
-
-\item{param_vals}{(\code{list()})\cr
-The parameter values.}
 
 \item{packages}{(\code{character()})\cr
 The R packages this object depends on.}
@@ -63,6 +58,15 @@ if it starts with \code{"augment"}. Otherwise it must specified.}
 \item{tags}{(\code{character()})\cr
 Tags for the pipeop}
 }
+\value{
+An \code{\link[R6:R6Class]{R6Class}} instance inheriting from \code{\link{PipeOpTaskPreprocTorch}}
+}
 \description{
-Calls \code{\link{pipeop_preproc_torch_class}} and instantiates the instance with the given parameter values.
+Function to create objects of class \code{\link{PipeOpTaskPreprocTorch}} in a more convenient way.
+Start by reading the documentation of \code{\link{PipeOpTaskPreprocTorch}}.
+}
+\examples{
+PipeOpPreprocExample = pipeop_preproc_torch("preproc_example", function(x, a) x + a, )
+po_example = PipeOpPreprocExample$new()
+po_example$param_set
 }

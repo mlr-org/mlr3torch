@@ -158,7 +158,7 @@ test_that("materialize with varying shapes", {
     a <<- a - 1
     x * a
   }, .parent = e)
-  po_test = pipeop_preproc_torch("trafo_test", fn = fn)
+  po_test = pipeop_preproc_torch("trafo_test", fn = fn)$new()
   # is processed batch-wise ->
   task2 = po_test$train(list(nano_mnist()$filter(1:2)))[[1L]]
 

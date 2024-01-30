@@ -41,18 +41,15 @@ new_lazy_tensor = function(data_descriptor, ids) {
 
 #' @export
 `[<-.lazy_tensor` = function(x, i, value) {
-  assert_true(is_lazy_tensor(value))
-  # no compatibility check
-  if (length(x) == 0) {
-    x = unclass(x)
-    x[i] = value
-    return(structure(x, class = c("lazy_tensor", "list")))
+  # avoid degenerate lazy tensors after assignment
+  assert_lazy_tensor(value)
+  assert_integerish(i)
+  assert_true(max(i) <= length(x)) # otherwise checks get ugly
+
+  if (!(length(x) == 0 || length(value) == 0) && !identical(dd(x), dd(value))) {
+    stopf("Cannot assign lazy tensor with different data descriptor")
   }
-  if (length(value) == 0L) {
-    assert_true(length(i) == 0L)
-    return(x)
-  }
-  assert_true(identical(dd(x)$hash, dd(value)$hash))
+
   x = unclass(x)
   x[i] = value
   structure(x, class = c("lazy_tensor", "list"))
@@ -60,11 +57,12 @@ new_lazy_tensor = function(data_descriptor, ids) {
 
 #' @export
 `[[<-.lazy_tensor` = function(x, i, value) {
-  assert_true(is_lazy_tensor(value))
+  # We ensure that there are no degenerate entries in a lazy tensor
+  assert_lazy_tensor(value)
   assert_true(length(value) == 1L)
-  assert_true(length(i) == 1L)
-  assert_true(length(x) >= 1L)
-  assert_true(identical(dd(x)$hash), dd(value)$hash)
+  assert_int(i)
+  assert_true(i <= length(x) + 1L)
+  assert(check_true(length(x) == 0), check_true(identical(dd(x), dd(value))), combine = "or")
   x = unclass(x)
   x[[i]] = value
   structure(x, class = c("lazy_tensor", "list"))
@@ -162,6 +160,18 @@ as_lazy_tensor.torch_tensor = function(x, ...) { # nolint
   )(x)
   as_lazy_tensor(ds, dataset_shapes = list(x = c(NA, dim(x)[-1])))
 }
+
+#' Assert Lazy Tensor
+#'
+#' Asserts whether something is a lazy tensor.
+#'
+#' @param x (any)\cr
+#'  Object to check.
+#' @export
+assert_lazy_tensor = function(x) {
+  assert_class(x, "lazy_tensor")
+}
+
 
 #' @title Check for lazy tensor
 #' @description
@@ -261,4 +271,27 @@ hash_input.lazy_tensor = function(x) {
   } else {
     list()
   }
+}
+
+
+#' Compare lazy tensors
+#' @description
+#' Compares lazy tensors using their indices and the data descriptor's hash.
+#' This means that if two [`lazy_tensor`]s:
+#' * are equal: they will mateterialize to the same tensors.
+#' * are unequal: they might materialize to the same tensors.
+#' @param x, y ([`lazy_tensor`])\cr
+#'   Values to compare.
+#' @export
+`==.lazy_tensor` = function(x, y) {
+  if (length(x) == 0L && length(y) == 0L) {
+    return(logical(0))
+  }
+  assert_true(length(x) >= 0 && length(y) >= 0)
+  n = max(length(x), length(y))
+
+  if (dd(x)$hash != dd(y)$hash) {
+    return(rep(FALSE, n))
+  }
+  map_int(x, 1L) == map_int(y, 1L)
 }

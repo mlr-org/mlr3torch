@@ -8,7 +8,7 @@
 #' The preprocessing is done per column, i.e. the number of lazy tensor output columns is equal
 #' to the number of lazy tensor input columns.
 #'
-#' To create custom preprocessing `PipeOp`s you can use [`pipeop_preproc_torch`] / [`pipeop_preproc_torch_class`].
+#' To create custom preprocessing `PipeOp`s you can use [`pipeop_preproc_torch`].
 #'
 #' @section Inheriting:
 #' In addition to specifying the construction arguments, you can overwrite the private `.shapes_out()` method.
@@ -369,29 +369,6 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
     .fn = NULL
   )
 )
-#' @title Create Torch Preprocessing PipeOps
-#' @description
-#' Calls [`pipeop_preproc_torch_class`] and instantiates the instance with the given parameter values.
-#' @inheritParams pipeop_preproc_torch_class
-#' @template param_param_vals
-#' @param param_vals (`list()`)\cr
-#'   The parameter values.
-#' @export
-pipeop_preproc_torch = function(id, fn, shapes_out = NULL, param_set = NULL, param_vals = list(), packages = character(0),
-  rowwise = FALSE, parent_env = parent.frame(), stages_init = NULL, tags = NULL) {
-  pipeop_preproc_torch_class(
-    id = id,
-    fn = fn,
-    shapes_out = shapes_out,
-    param_set = param_set,
-    packages = packages,
-    rowwise = rowwise,
-    parent_env = parent_env,
-    stages_init = stages_init,
-    tags = tags
-    )$new(param_vals = param_vals)
-}
-
 
 create_ps = function(fn) {
   fmls = formals(fn)
@@ -416,8 +393,9 @@ create_ps = function(fn) {
 
 #' @title Create Torch Preprocessing PipeOps
 #' @description
-#' Function to create objects of class [`PipeOpTaskPreprocTorch`] in a slightly more convenient way.
+#' Function to create objects of class [`PipeOpTaskPreprocTorch`] in a more convenient way.
 #' Start by reading the documentation of [`PipeOpTaskPreprocTorch`].
+#'
 #' @template param_id
 #' @param fn (`function`)\cr
 #'   The preprocessing function.
@@ -429,9 +407,8 @@ create_ps = function(fn) {
 #'   If "infer", the output shape function is inferred and calculates the output shapes as follows:
 #'   For an input shape of (NA, ...) a meta-tensor of shape (1, ...) is created and the preprocessing function is
 #'   applied. Afterwards the batch dimension (1) is replaced with NA and the shape is returned.
-#'  If the first dimension is not `NA`, the output shape of applying the preprocessing function is returned.
-#'
-#'   This should be correct in most cases, but might fail in some edge cases.
+#'   If the first dimension is not `NA`, the output shape of applying the preprocessing function is returned.
+#'   Method `"infer"` should be correct in most cases, but might fail in some edge cases.
 #' @param param_set ([`ParamSet`] or `NULL`)\cr
 #'   The parameter set.
 #'   If this is left as `NULL` (default) the parameter set is inferred in the following way:
@@ -452,10 +429,10 @@ create_ps = function(fn) {
 #' @export
 #' @returns An [`R6Class`][R6::R6Class] instance inheriting from [`PipeOpTaskPreprocTorch`]
 #' @examples
-#' po_example = pipeop_preproc_torch("preproc_example", function(x, a) x + a, )
-#' po_example
+#' PipeOpPreprocExample = pipeop_preproc_torch("preproc_example", function(x, a) x + a, )
+#' po_example = PipeOpPreprocExample$new()
 #' po_example$param_set
-pipeop_preproc_torch_class = function(id, fn, shapes_out, param_set = NULL, packages = character(0),
+pipeop_preproc_torch = function(id, fn, shapes_out = NULL, param_set = NULL, packages = character(0),
   rowwise = FALSE, parent_env = parent.frame(), stages_init = NULL, tags = NULL) {
   assert(
     check_function(shapes_out, args = c("shapes_in", "param_vals", "task"), null.ok = TRUE),
@@ -570,7 +547,7 @@ register_preproc = function(id, fn, param_set = NULL, shapes_out = NULL, package
     fn = as.character(as.list(fn_call)[-1L])
   }
 
-  Class = pipeop_preproc_torch_class(id, fn, param_set = param_set, shapes_out = shapes_out,
+  Class = pipeop_preproc_torch(id, fn, param_set = param_set, shapes_out = shapes_out,
     packages = packages, rowwise = rowwise, parent_env = parent.frame())
   assign(Class$classname, Class, parent.frame())
   register_po(id, Class)

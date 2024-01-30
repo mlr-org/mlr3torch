@@ -1,4 +1,20 @@
-test_that("Unknown shapes", {
+test_that("prototype", {
+  proto = lazy_tensor()
+  expect_class(proto, "lazy_tensor")
+  expect_true(length(proto) == 0L)
+  expect_error(dd(proto))
+
+  expect_error(materialize(lazy_tensor()), "Cannot materialize")
+})
+
+test_that("input checks", {
+  desc = dd(as_lazy_tensor(1:10))
+  expect_error(lazy_tensor(desc, 1:11), "ids")
+  expect_error(lazy_tensor(desc, NA), "missing values")
+})
+
+
+test_that("unknown shapes", {
   ds = dataset(
     initialize = function() {
       self$x = list(
@@ -39,6 +55,18 @@ test_that("assignment", {
     materialize(x[1], rbind = TRUE),
     materialize(x[2], rbind = TRUE)
   )
+  # cannot assign beyond vector length
+  expect_error({x[3] = as_lazy_tensor(1)}, "max") # nolint
+  expect_error({x[2] = 1}, "class") # nolint
+  # indices must be ints
+  expect_error({x["hallo"] = as_lazy_tensor(1)}, "integerish") # nolint
+  expect_error({x[1] = as_lazy_tensor(10)}, "data descriptor")
+
+
+  y = lazy_tensor()
+  y[[1]] = as_lazy_tensor(1)
+  expect_class(y, "lazy_tensor")
+  expect_true(length(y) == 1)
 
   expect_error({x[1] = as_lazy_tensor(1)}) # nolint
 })
@@ -52,6 +80,11 @@ test_that("concatenation", {
   x = c(x1, x1)
   expect_class(x, "lazy_tensor")
   expect_equal(length(x), 2)
+
+  # can still concatenate lazy tensor with other objects
+  l = list(1, x)
+  expect_class(l, "list")
+  expect_false(inherits(l, "lazy_tensor"))
 })
 
 test_that("subsetting and indexing", {
@@ -63,15 +96,6 @@ test_that("subsetting and indexing", {
   expect_equal(length(x[integer(0)]), 0)
 })
 
-
-test_that("prototype", {
-  proto = lazy_tensor()
-  expect_class(proto, "lazy_tensor")
-  expect_true(length(proto) == 0L)
-  expect_error(dd(proto))
-
-  expect_error(materialize(lazy_tensor()), "Cannot materialize")
-})
 
 test_that("transform_lazy_tensor", {
   lt = as_lazy_tensor(torch_randn(16, 2, 5))
@@ -178,4 +202,14 @@ test_that("printer", {
     capture.output(as_lazy_tensor(1:2)),
     c("<ltnsr[2]>", "[1] <tnsr[1]> <tnsr[1]>")
   )
+})
+
+test_that("comparison", {
+  x = as_lazy_tensor(1:2)
+  # diffe
+  y = as_lazy_tensor(1:2)
+  expect_equal(x == x, c(TRUE, TRUE))
+  expect_equal(x[2:1] == x, c(FALSE, FALSE))
+  expect_equal(x[c(1, 1)] == x, c(TRUE, FALSE))
+  expect_equal(x == y, c(FALSE, FALSE))
 })

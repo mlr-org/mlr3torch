@@ -268,7 +268,7 @@ test_that("cachine of graph", {
     env$counter = env$counter + 1L
     x + 1
   }, env)
-  po_test = pipeop_preproc_torch("test", fn = fn, shapes_out = "unchanged", stages_init = "both")
+  po_test = pipeop_preproc_torch("test", fn = fn, shapes_out = "unchanged", stages_init = "both")$new()
 
   expect_true(is.function(po_test$fn))
 
@@ -302,7 +302,7 @@ test_that("merging of graphs behaves as expected", {
     a <<- a + 1
     x
   }, .parent = e)
-  graph = pipeop_preproc_torch("trafo_counter", fn = fn) %>>%
+  graph = pipeop_preproc_torch("trafo_counter", fn = fn)$new() %>>%
     list(
       po("renamecolumns", renaming = c(x = "x1"), id = "a1") %>>% po("trafo_nop", id = "nop1"),
       po("renamecolumns", renaming = c(x = "x2"), id = "a2") %>>% po("trafo_nop", id = "nop2")

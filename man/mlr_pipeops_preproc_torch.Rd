@@ -11,7 +11,7 @@ function can be defined through the \code{PipeOp}'s parameter set.
 The preprocessing is done per column, i.e. the number of lazy tensor output columns is equal
 to the number of lazy tensor input columns.
 
-To create custom preprocessing \code{PipeOp}s you can use \code{\link{pipeop_preproc_torch}} / \code{\link{pipeop_preproc_torch_class}}.
+To create custom preprocessing \code{PipeOp}s you can use \code{\link{pipeop_preproc_torch}}.
 }
 \section{Inheriting}{
 
