@@ -75,7 +75,7 @@ glrn$train(tsk("iris"))
 ## Creating a Lazy Tensor
 
 Every `lazy_tensor` is built on top of a `torch::dataset`, so we start by creating an dataset containing random data.
-The only restriction that we impose on the dataset is that it must have a `.getitem` method that returns a list of named tensors.
+The only restriction that we impose on the dataset is that it must have a `.getitem` or `.getbatch` method that returns a list of named tensors.
 In this case, the dataset returns a single tensor named `x`.
 While the data is stored in-memory in this example, this is not necessary and the `$.getitem()` method can e.g. load images from disk.
 For more information on how to create `torch::dataset`s, we recommend reading the [torch package documentation](https://torch.mlverse.org/).
@@ -96,7 +96,7 @@ We can also set a shape to `NULL` to indicate that it is unknown (e.g. because i
 
 ```{r}
 lt = as_lazy_tensor(mydata, dataset_shapes = list(x = c(NA, 1)))
-lt
+lt[1:5]
 ```
 
 We can convert this vector to a `torch_tensor` just like before
@@ -155,15 +155,18 @@ PipeOpPreprocTorchPoly = pipeop_preproc_torch("poly",
 )
 
 po_poly = PipeOpPreprocTorchPoly$new()
+
+# We want to apply the preprocessing during both `"train"` and `"predict"` and set te stages parameter accordingly.
 po_poly$param_set$set_values(
   degrees = c(0, 1, 2, 3, 4, 7, 11),
   stages = "both"
 )
 
 lrn_poly = as_learner(
-  po_poly %>>% lrn("regr.mlp", batch_size = 256, epochs = 100)
+  po_poly %>>% lrn("regr.mlp", batch_size = 256, epochs = 20)
 )
 
+lrn_poly$train(task_poly)
 pred = lrn_poly$predict(task_poly)
 
 dt = melt(data.table(
@@ -181,6 +184,81 @@ ggplot(data = dt) +
 
 ## Digging Into Internals
 
-TODO
+Internally, the `lazy_tensor` vector uses the `DataDescriptor` class to represent the (possibly) preprocessed data.
+It is very similar to the `ModelDescriptor` class that is used to build up neural nerworks using `PipeOpTorch` objects.
+The `DataDescriptor` stores a `torch::dataset`, an `mlr3pipelines::Graph` and some metadata.
 
 
+```{r}
+desc = DataDescriptor$new(
+  dataset = mydata,
+  dataset_shapes = list(x = c(NA, 1))
+)
+```
+
+Per default, the preprocessing graph contains only a single `PipOpNop` that doees nothing.
+
+```{r}
+desc
+```
+
+The printed output of the data descriptor informs us about:
+
+* The number of `PipeOp`s contained in the preprocessing graph
+* The output shapes of the dataset
+* The input map, i.e. how the data is passed to the preprocessing graph, which is important when there are multiple inputs
+* The `pointer`, which points to a specific channel of an output `PipeOp`.
+  The output of this channel is the tensor represented by the `DataDescriptor`.
+
+
+A lazy tensor can be constructed from an integer vector and a `DataDescriptor`.
+The integer vector specifies which element of the `DataDescriptor` an element of the `lazy_tensor` vector represents.
+Below, the first two elements of the `lazy_tensor` vector represent the same element of the `DataDescriptor`, while the third element represents a different element.
+Note that all indices refer to the same `DataDescriptor`.
+
+```{r}
+lt = lazy_tensor(desc, ids = c(1, 1, 2))
+materialize(lt, rbind = TRUE)
+```
+
+Internally, the lazy tensor is represented as a list of lists, containing an id and a `DataDescriptor`
+Currently, there can only be a single `DataDescriptor` in a `lazy_tensor` vector.
+
+```{r}
+unclass(lt[[1]])
+```
+
+
+What happens during `materialize(lt[1])` is the following:
+
+```{r}
+# get index and data descriptor
+desc = lt[[1]][[2]]
+id = lt[[1]][[1]]
+dataset_output = desc$dataset$.getbatch(id)
+
+# batch is reorganized according to the input map
+graph_input = dataset_output[desc$input_map]
+names(graph_input) = names(desc$graph$input$name)
+
+# the reorganized batch is fed into the preprocessing graph
+graph_output = desc$graph$train(graph_input, single_input = FALSE)
+
+# the output pointed to by the pointer is returned
+tensor = graph_output[[paste0(desc$pointer, collapse = ".")]]
+tensor
+```
+Preprocessing a `lazy_tensor` vector adds new `PipeOp`s to the preprocessing graph and updates the metainformation like the pointer and output shape.
+To show this, we create a simple example task, using the `lt` vector as a feature.
+
+```{r}
+taskin = as_task_regr(data.table(x = lt, y = 1:3), target = "y")
+
+taskout = po_poly$train(list(taskin))[[1L]]
+
+lt_out = taskout$data(cols = "x")$x
+
+descout = lt_out[[1]][[2]]
+
+descout$graph
+```

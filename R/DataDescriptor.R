@@ -155,10 +155,9 @@ DataDescriptor = R6Class("DataDescriptor",
       catn(sprintf("* dataset_shapes: %s", shape_to_str(self$dataset_shapes)))
       catn(sprintf("* input_map: (%s) -> Graph", paste0(self$input_map, collapse = ", ")))
       catn(sprintf("* pointer: %s", paste0(self$pointer, collapse = ".")))
-      catn(str_indent("* shape(train):",
+      catn(str_indent("* shape:",
         if (is.null(self$pointer_shape)) "<unknown>" else shape_to_str(list(self$pointer_shape))))
-      catn(str_indent("* shape(predict):",
-        if (is.null(self$pointer_shape_predict)) "<unknown>" else shape_to_str(list(self$pointer_shape_predict))))
+      # dont print the predict shape, it is too confusing
     },
     #' @field dataset ([`torch::dataset`])\cr
     #' The dataset.

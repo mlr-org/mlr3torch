@@ -46,8 +46,8 @@ LearnerTorchMLP = R6Class("LearnerTorchMLP",
         activation      = p_uty(tags = c("required", "train"), custom_check = check_activation),
         activation_args = p_uty(tags = c("required", "train"), custom_check = check_activation_args),
         shape           = p_uty(default = NULL, tags = "train", custom_check = crate(function(x) {
-          check_shape(x, null_ok = TRUE)
-        }))
+            check_shape(x, null_ok = TRUE)
+        }, .parent = topenv()))
       )
       param_set$set_values(
         activation = nn_relu,
