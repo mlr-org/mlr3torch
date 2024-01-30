@@ -2,13 +2,14 @@
 #'
 #' @templateVar name mlp
 #' @templateVar task_types classif, regr
-#' @templateVar param_vals layers = 1, d_hidden = 10
+#' @templateVar param_vals neurons = 10
 #' @template params_learner
 #' @template learner
 #' @template learner_example
 #'
 #' @description
 #' Fully connected feed forward network with dropout after each activation function.
+#' The features can either be a single [`lazy_tensor`] or one or more numeric columns.
 #'
 #' @section Parameters:
 #' Parameters from [`LearnerTorch`], as well as:
@@ -18,13 +19,15 @@
 #' * `activation_args` :: named `list()`\cr
 #'   A named list with initialization arguments for the activation function.
 #'   This is intialized to an empty list.
-#' * `layers` :: `integer(1)`\cr
-#'   The number of layers.
-#' * `d_hidden` :: `numeric(1)`\cr
-#'   The dimension of the hidden layers.
+#' * `neurons` :: `integer()`\cr
+#'   The number of neurons per hidden layer.
+#'   By default there is no hidden layer.
 #' * `p` :: `numeric(1)`\cr
 #'   The dropout probability.
 #'   Is initialized to `0.5`.
+#' * `shape` :: `integer()` or `NULL`\cr
+#'   The input shape.
+#'   Only needs to be present specified when there is a lazy tensor input with unknown shape.
 #'
 #' @export
 LearnerTorchMLP = R6Class("LearnerTorchMLP",
@@ -36,11 +39,15 @@ LearnerTorchMLP = R6Class("LearnerTorchMLP",
       check_activation = crate(function(x) check_class(x, "nn_module"), .parent = topenv())
       check_activation_args = crate(function(x) check_list(x, names = "unique"), .parent = topenv())
       param_set = ps(
-        layers          = p_int(lower = 0L, tags = c("required", "train")),
-        d_hidden        = p_int(lower = 1L, tags = c("required", "train")),
+        neurons         = p_uty(default = integer(0), tags = "train", custom_check = crate(function(x) {
+          check_integerish(x, any.missing = FALSE, lower = 1)
+        })),
         p               = p_dbl(lower = 0, upper = 1, tags = c("required", "train")),
         activation      = p_uty(tags = c("required", "train"), custom_check = check_activation),
-        activation_args = p_uty(tags = c("required", "train"), custom_check = check_activation_args)
+        activation_args = p_uty(tags = c("required", "train"), custom_check = check_activation_args),
+        shape           = p_uty(default = NULL, tags = "train", custom_check = crate(function(x) {
+          check_shape(x, null_ok = TRUE)
+        }))
       )
       param_set$set_values(
         activation = nn_relu,
@@ -62,61 +69,65 @@ LearnerTorchMLP = R6Class("LearnerTorchMLP",
         callbacks = callbacks,
         loss = loss,
         man = "mlr3torch::mlr_learners.mlp",
-        feature_types = c("numeric", "integer")
+        feature_types = c("numeric", "integer", "lazy_tensor")
       )
     }
   ),
   private = list(
     .network = function(task, param_vals) {
-      make_mlp(
-        task = task,
-        activation = param_vals$activation,
-        layers = param_vals$layers,
-        d_hidden = param_vals$d_hidden,
-        p = param_vals$p,
-        activation_args = param_vals$activation_args
-      )
+      # verify_train_task was already called beforehand, so we can make some assumptions
+      d_out = get_nout(task)
+      d_in = if (single_lazy_tensor(task)) {
+        get_unique_shape(task, param_vals$shape)[2L]
+      } else {
+        length(task$feature_names)
+      }
+      network = invoke(make_mlp, .args = param_vals, d_in = d_in, d_out = d_out)
+      network
     },
     .dataset = function(task, param_vals) {
-      dataset_num(task, param_vals)
+      if (single_lazy_tensor(task)) {
+        param_vals$shape = get_unique_shape(task, param_vals$shape)
+        dataset_ltnsr(task, param_vals)
+      } else {
+        dataset_num(task, param_vals)
+      }
+    },
+    .verify_train_task = function(task, param_vals) {
+      features = task$feature_types[, "type"][[1L]]
+      lazy_tensor_input = identical(features, "lazy_tensor")
+      assert(check_true(lazy_tensor_input), check_false(some(features, function(x) x == "lazy_tensor")))
+
+      if (lazy_tensor_input) {
+        shape = get_unique_shape(task, param_vals$shape)
+        assert_shape(shape, len = 2L)
+      }
     }
   )
 )
 
-make_mlp = function(task, activation, layers, d_hidden, p, activation_args) {
-  task_type = task$task_type
-  layers = layers
-  d_hidden = d_hidden
-  if (layers > 0) assert_true(!is.null(d_hidden))
+single_lazy_tensor = function(task) {
+  identical(task$feature_types[, "type"][[1L]], "lazy_tensor")
+}
 
-  out_dim = get_nout(task)
-  if (layers == 0L) {
-    network = nn_sequential(
-      nn_linear(length(task$feature_names), out_dim)
-    )
-    return(network)
-  }
-
+# shape is (NA, x) if preesnt
+make_mlp = function(task, d_in, d_out, activation, neurons = integer(0), p, activation_args, ...) {
   # This way, dropout_args will have length 0 if p is `NULL`
   dropout_args = list()
   dropout_args$p = p
-
-  modules = list(
-    nn_linear(length(task$feature_names), d_hidden),
-    invoke(activation, .args = activation_args),
-    invoke(nn_dropout, .args = dropout_args)
-  )
-
-  for (i in seq_len(layers - 1L)) {
-    modules = c(modules, list(
-      nn_linear(d_hidden, d_hidden),
+  prev_dim = d_in
+  modules = list()
+  for (n in neurons) {
+    modules = append(modules, list(
+      nn_linear(
+        in_features = prev_dim,
+        out_features = n),
       invoke(activation, .args = activation_args),
       invoke(nn_dropout, .args = dropout_args)
     ))
+    prev_dim = n
   }
-
-  modules = c(modules, list(nn_linear(d_hidden, out_dim)))
-
+  modules = c(modules, list(nn_linear(prev_dim, d_out)))
   invoke(nn_sequential, .args = modules)
 }
 

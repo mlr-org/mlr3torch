@@ -7,13 +7,7 @@
 #' @export
 auto_device = function(device = NULL) {
   if (device == "auto") {
-    device = if (cuda_is_available()) {
-      "cuda"
-    } else if (backends_mps_is_available()) {
-      "mps"
-    } else {
-      "cpu"
-    }
+    device = if (cuda_is_available()) "cuda" else "cpu"
     lg$debug("Auto-detected device '%s'.", device)
   }
   return(device)
@@ -162,7 +156,12 @@ uniqueify = function(new, existing) {
 }
 
 shape_to_str = function(x) {
-  shapedescs = map_chr(x, function(y) paste0("(", paste(y, collapse = ",", recycle0 = TRUE), ")"))
+  shapedescs = map_chr(x, function(y) {
+    if (is.null(y)) {
+      return("<unknown>")
+    }
+    paste0("(", paste(y, collapse = ",", recycle0 = TRUE), ")")
+  })
   if (test_named(x)) {
     repr = paste0("[", names(x), ": ",  paste(shapedescs, collapse = ";", recycle0 = TRUE), "]")
     return(repr)
@@ -194,3 +193,21 @@ list_to_batch = function(tensors) {
 auto_cache_lazy_tensors = function(lts) {
   any(duplicated(map_chr(lts, function(x) dd(x)$dataset_hash)))
 }
+
+unchanged_shapes = function(shapes_in, param_vals, task) {
+  shapes_in
+}
+
+get_unique_shape = function(s1, s2) {
+  if (test_class(s1, "Task")) {
+    assert_true(identical(s1$feature_types[, "type"][[1L]], "lazy_tensor"))
+    s1 = dd(s1$data(s1$row_roles$use[1L], s1$feature_names)[[1L]])$pointer_shape
+  }
+  assert_shape(s1, null_ok = TRUE)
+  assert_shape(s2, null_ok = TRUE)
+  s = unique(discard(list(s1, s2), is.null))
+  assert_true(length(s) == 1L)
+  s[[1L]]
+}
+
+assert_compatible_shapes = get_unique_shape

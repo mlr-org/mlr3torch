@@ -43,3 +43,9 @@ test_that("can infer the simple case", {
   expect_equal(dd$pointer, c(dd$graph$output$op.id, dd$graph$output$channel.name))
 })
 
+
+test_that("printer", {
+  dd = DataDescriptor$new(random_dataset(1), list(x = NULL))
+  # unknown shapes
+  expect_true(grepl(paste0(capture.output(dd), collapse = ""), pattern = "<unknown>", fixed = TRUE))
+})

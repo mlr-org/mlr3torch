@@ -326,7 +326,8 @@ autotest_torch_callback = function(torch_callback, check_man = TRUE) {
 #' @param obj ([`PipeOpTaskPreprocTorch`])\cr
 #'   The object to test.
 #' @parm tnsr_in (`integer()`)\cr
-autotest_pipeop_torch_preprocess = function(obj, shapes_in, exclude = character(0), exclude_defaults = character(0)) {
+autotest_pipeop_torch_preprocess = function(obj, shapes_in, exclude = character(0), exclude_defaults = character(0),
+  in_package = TRUE) {
   expect_pipeop(obj)
   expect_class(obj, "PipeOpTaskPreprocTorch")
   # a) Check that all parameters but stages have tags train and predict (this should hold in basically all cases)
@@ -340,14 +341,16 @@ autotest_pipeop_torch_preprocess = function(obj, shapes_in, exclude = character(
   # b) Check that the shape prediction is compatible (already done in autotest for pipeop torch)
 
   # c) check that start with stages / trafo, depending on the initial value
-  class = get(class(obj)[[1L]], envir = getNamespace("mlr3torch"))
-  instance = class$new()
+  if (in_package) {
+    class = get(class(obj)[[1L]], envir = getNamespace("mlr3torch"))
+    instance = class$new()
 
-  testthat::expect_true(grepl(instance$id, pattern = "^(trafo|augment)_"))
-  if (startsWith(instance$id, "augment")) {
-    expect_set_equal(instance$param_set$values$stages, "train")
-  } else {
-    expect_set_equal(instance$param_set$values$stages, "both")
+    testthat::expect_true(grepl(instance$id, pattern = "^(trafo|augment)_"))
+    if (startsWith(instance$id, "augment")) {
+      expect_set_equal(instance$param_set$values$stages, "train")
+    } else {
+      expect_set_equal(instance$param_set$values$stages, "both")
+    }
   }
 
   shapes_in = if (!test_list(shapes_in)) list(shapes_in) else shapes_in
@@ -376,3 +379,13 @@ autotest_pipeop_torch_preprocess = function(obj, shapes_in, exclude = character(
     }
   })
 }
+
+
+#' @title Autotest Learner Torch
+#' @descrition
+#' The autotest for torch learners differs from the standard mlr3 autotest for learners.
+#' The reason is, that we do not have to test the
+autotest_learner_torch = function(learner) {
+
+}
+

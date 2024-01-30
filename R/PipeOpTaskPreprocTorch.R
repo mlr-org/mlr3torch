@@ -399,7 +399,7 @@ create_ps = function(fn) {
 #' @template param_id
 #' @param fn (`function`)\cr
 #'   The preprocessing function.
-#' @param shapes_out (`function` or `NULL` or `"infer"` or `"unchanged"`)\cr
+#' @param shapes_out (`function` or `NULL` or `"infer"`)\cr
 #'   The private `.shapes_out(shapes_in, param_vals, task)` method of [`PipeOpTaskPreprocTorch`]
 #'   (see section Inheriting).
 #'   Special values are `NULL` and `infer`:
@@ -436,7 +436,7 @@ pipeop_preproc_torch = function(id, fn, shapes_out = NULL, param_set = NULL, pac
   rowwise = FALSE, parent_env = parent.frame(), stages_init = NULL, tags = NULL) {
   assert(
     check_function(shapes_out, args = c("shapes_in", "param_vals", "task"), null.ok = TRUE),
-    check_choice(shapes_out, c("infer", "unchanged"))
+    check_choice(shapes_out, "infer")
   )
 
   if (is.null(stages_init)) {
@@ -462,7 +462,7 @@ pipeop_preproc_torch = function(id, fn, shapes_out = NULL, param_set = NULL, pac
       tensor_in = invoke(torch_empty, .args = sin, device = torch_device("meta"))
       tensor_out = tryCatch(invoke(self$fn, tensor_in, .args = param_vals),
         error = function(e) {
-          stopf("Failed to infer output shape, presumably invalid input shape; error message is: %s", e)
+          stopf("Input shape '%s' is invalid for PipeOp with id '%s'.", shape_to_str(list(sin)), self$id)
         }
       )
       sout = dim(tensor_out)
@@ -475,14 +475,18 @@ pipeop_preproc_torch = function(id, fn, shapes_out = NULL, param_set = NULL, pac
 
       list(sout)
     })
-  } else if (identical(shapes_out, "unchanged")) {
-    shapes_out = crate(function(shapes_in, param_vals, task_in) shapes_in)
   } else if (is.function(shapes_out) || is.null(shapes_out)) {
     # nothing to do
   } else {
     stopf("unreachable")
   }
-
+  if (test_class(param_set, "ParamSet") && is.function(fn) && "..." %nin% formalArgs(fn)) {
+    pars = setdiff(param_set$ids(), c("stages", "affect_columns"))
+    fn_args = formalArgs(fn)
+    # there needs to be a parameter for the tensor
+    assert_true(length(fn_args) > length(pars))
+    assert_subset(pars, fn_args)
+  }
   param_set = param_set %??% create_ps(fn)
 
   # the .__construction info construct is used to not having to rely on NSE

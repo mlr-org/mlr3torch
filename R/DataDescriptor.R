@@ -57,11 +57,9 @@ DataDescriptor = R6Class("DataDescriptor",
       pointer_shape = NULL, pointer_shape_predict = NULL, clone_graph = TRUE) {
       assert_class(dataset, "dataset")
       assert_flag(clone_graph)
-      # If the dataset implements a .getbatch() method the shape must be specified, as it should be the same for
-      # all batches
       # For simplicity we here require the first dimension of the shape to be NA so we don't have to deal with it,
       # e.g. during subsetting
-      assert_shapes(dataset_shapes, null_ok = is.null(dataset$.getbatch), unknown_batch = TRUE, named = TRUE)
+      assert_shapes(dataset_shapes, null_ok = TRUE, unknown_batch = TRUE, named = TRUE)
 
       # prevent user from e.g. forgetting to wrap the return in a list
       example = if (is.null(dataset$.getbatch)) {
@@ -92,7 +90,7 @@ DataDescriptor = R6Class("DataDescriptor",
         }
         # get unique ID for input PipeOp
         graph = as_graph(po("nop", id =
-          paste0("nop.", calculate_hash(address(dataset)), ".", input_map)
+          paste0("nop.", substr(calculate_hash(address(dataset)), 1, 4))
         ), clone = FALSE)
       } else {
         graph = as_graph(graph, clone = clone_graph)

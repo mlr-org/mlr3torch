@@ -4,7 +4,7 @@ test_that("autotest", {
 })
 
 test_that("manual test", {
-  learner = lrn("classif.mlp", epochs = 1, batch_size = 1, d_hidden = 1, layers = 0,
+  learner = lrn("classif.mlp", epochs = 1, batch_size = 1,
     measures_train = msr("classif.acc"), measures_valid = msr("classif.ce"), callbacks = t_clbk("progress"),
     drop_last = FALSE, shuffle = TRUE
   )

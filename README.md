@@ -47,8 +47,7 @@ library(mlr3torch)
 learner_mlp = lrn("classif.mlp",
   # defining network parameters
   activation     = nn_relu,
-  layers         = 1,
-  d_hidden       = 20,
+  neurons        = 20,
   # training parameters
   batch_size     = 16,
   epochs         = 50,
@@ -103,7 +102,7 @@ graph_mlp
 #> Graph with 8 PipeOps:
 #>                   ID         State            sccssors         prdcssors
 #>               <char>        <char>              <char>            <char>
-#>    torch_ingress_num <<UNTRAINED>>           nn_linear                  
+#>    torch_ingress_num <<UNTRAINED>>           nn_linear
 #>            nn_linear <<UNTRAINED>>             nn_relu torch_ingress_num
 #>              nn_relu <<UNTRAINED>>             nn_head         nn_linear
 #>              nn_head <<UNTRAINED>>          torch_loss           nn_relu

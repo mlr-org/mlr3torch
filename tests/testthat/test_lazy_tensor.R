@@ -42,9 +42,6 @@ test_that("unknown shapes", {
   expect_class(lt[[1]], "list")
 
   expect_class(c(lt, lazy_tensor()), "lazy_tensor")
-
-  ds = random_dataset(10, 3)
-  expect_error(DataDescriptor$new(ds, list(x = NULL)))
 })
 
 test_that("assignment", {

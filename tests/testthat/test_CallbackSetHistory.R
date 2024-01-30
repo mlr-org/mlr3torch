@@ -10,7 +10,7 @@ test_that("CallbackSetHistory works", {
   task$row_roles$use = 1
   task$row_roles$test = 2
 
-  learner = lrn("classif.mlp", epochs = 3, batch_size = 1, layers = 0, d_hidden = 1, callbacks = t_clbk("history"))
+  learner = lrn("classif.mlp", epochs = 3, batch_size = 1, callbacks = t_clbk("history"))
 
   learner$train(task)
 
@@ -32,7 +32,7 @@ test_that("CallbackSetHistory works", {
 test_that("plotting works", {
   task = tsk("iris")
   split = partition(task)
-  learner = lrn("classif.mlp", epochs = 2, batch_size = 50, layers = 0, d_hidden = 1, callbacks = t_clbk("history"),
+  learner = lrn("classif.mlp", epochs = 2, batch_size = 50, callbacks = t_clbk("history"),
     measures_train = msrs(c("classif.acc", "classif.ce", "classif.logloss")), measures_valid = msr("classif.ce"),
     predict_type = "prob"
   )

@@ -23,7 +23,7 @@ The id for of the new object.}
 \item{fn}{(\code{function})\cr
 The preprocessing function.}
 
-\item{shapes_out}{(\code{function} or \code{NULL} or \code{"infer"} or \code{"unchanged"})\cr
+\item{shapes_out}{(\code{function} or \code{NULL} or \code{"infer"})\cr
 The private \code{.shapes_out(shapes_in, param_vals, task)} method of \code{\link{PipeOpTaskPreprocTorch}}
 (see section Inheriting).
 Special values are \code{NULL} and \code{infer}:

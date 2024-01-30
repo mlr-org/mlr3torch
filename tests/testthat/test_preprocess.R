@@ -147,7 +147,7 @@ test_that("augment_crop", {
 test_that("augment_random_vertical_flip", {
   autotest_pipeop_torch_preprocess(
     obj = po("augment_random_vertical_flip"),
-    shapes_in = list(c(3, 3, 8, 7))
+    shapes_in = list(c(3, 3, 8, 8))
   )
 })
 

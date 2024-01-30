@@ -51,7 +51,7 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
     .train = function(inputs) {
       pv = self$param_set$get_values()
       task = inputs[[1]]
-      if (any(task$missings())) {
+      if (any(task$missings(task$feature_names))) {
         # NAs are converted to their underlying machine representation when calling `torch_tensor()`
         # https://github.com/mlverse/torch/issues/933
         stopf("No missing values allowed in task '%s'.", task$id)

@@ -48,3 +48,9 @@ test_that("PipeOpTorchIngressLazyTensor", {
   expect_error(po_ingress$param_set$set_values(shape = c(22, 4)))
   expect_error(po_ingress$param_set$set_values(shape = c(NA, 22, 4)), regexp = NA)
 })
+
+test_that("target can contain missings for ingress", {
+  task = as_task_regr(data.table(y = c(1, NA), x = 1:1), target = "y")
+  md = po("torch_ingress_num")$train(list(task))[[1L]]
+  expect_class(md, "ModelDescriptor")
+})

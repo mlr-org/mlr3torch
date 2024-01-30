@@ -11,9 +11,11 @@
 #' @param unknown_batch (`logical(1)`)\cr
 #'   Whether the batch **must** be unknonw, i.e. `NA`.
 #'   If left `NULL` (default), the first dimension can be `NA` or not.
+#' @param len (`integer(1)`)\cr
+#'   The length of the shape.
 #' @noRd
-assert_shape = function(shape, null_ok = FALSE, coerce = TRUE, unknown_batch = NULL) {
-  result = check_shape(shape, null_ok = null_ok, unknown_batch = unknown_batch)
+assert_shape = function(shape, null_ok = FALSE, coerce = TRUE, unknown_batch = NULL, len = NULL) {
+  result = check_shape(shape, null_ok = null_ok, unknown_batch = unknown_batch, len = len)
 
   if (!isTRUE(result)) stopf(result)
 
@@ -24,11 +26,11 @@ assert_shape = function(shape, null_ok = FALSE, coerce = TRUE, unknown_batch = N
 }
 
 
-test_shape = function(shape, null_ok = FALSE, unknown_batch = NULL) {
+test_shape = function(shape, null_ok = FALSE, unknown_batch = NULL, len = NULL) {
   if (is.null(shape) && null_ok) {
     return(TRUE)
   }
-  ok = test_integerish(shape, min.len = 2L, all.missing = FALSE, any.missing = TRUE)
+  ok = test_integerish(shape, min.len = 2L, all.missing = FALSE, any.missing = TRUE, len = len)
 
   if (!ok) {
     return(FALSE)
@@ -44,12 +46,13 @@ test_shape = function(shape, null_ok = FALSE, unknown_batch = NULL) {
   return(is.na(shape[1L]) == unknown_batch)
 }
 
-check_shape = function(shape, null_ok = FALSE, unknown_batch = NULL) {
-  if (test_shape(shape, null_ok = null_ok, unknown_batch = unknown_batch)) {
+check_shape = function(x, null_ok = FALSE, unknown_batch = NULL, len = NULL) {
+  if (test_shape(x, null_ok = null_ok, unknown_batch = unknown_batch, len = len)) {
     return(TRUE)
   }
-  sprintf("Invalid shape: %s.", paste0(format(shape), collapse = ", "))
+  sprintf("Invalid shape: %s.", paste0(format(x), collapse = ", "))
 }
+
 assert_shapes = function(shapes, coerce = TRUE, named = FALSE, null_ok = FALSE, unknown_batch = NULL) { # nolint
   ok = test_list(shapes, min.len = 1L)
   if (named) {
@@ -59,4 +62,15 @@ assert_shapes = function(shapes, coerce = TRUE, named = FALSE, null_ok = FALSE, 
     stopf("Invalid shape")
   }
   map(shapes, assert_shape, coerce = coerce, null_ok = null_ok, unknown_batch = unknown_batch)
+}
+
+assert_rgb_shape = function(shape) {
+  assert_shape(shape, len = 4L, null_ok = FALSE)
+  assert_true(shape[2L] == 3L)
+}
+
+# grayscale or rgb image
+assert_image_shape = function(shape) {
+  assert_shape(shape, len = 4L, null_ok = FALSE)
+  assert_true(shape[2L] == 3L || shape[2L] == 1L)
 }

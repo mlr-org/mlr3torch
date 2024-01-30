@@ -263,12 +263,11 @@ test_that("default target batchgetter works: classification", {
 
 test_that("cachine of graph", {
   env = new.env()
-  env$counter = 0L
   fn = crate(function(x) {
     env$counter = env$counter + 1L
     x + 1
   }, env)
-  po_test = pipeop_preproc_torch("test", fn = fn, shapes_out = "unchanged", stages_init = "both")$new()
+  po_test = pipeop_preproc_torch("test", fn = fn, shapes_out = "infer", stages_init = "both")$new()
 
   expect_true(is.function(po_test$fn))
 
@@ -288,6 +287,7 @@ test_that("cachine of graph", {
   )
 
   ds = task_dataset(task, ingress_tokens, device = "cpu")
+  env$counter = 0L
 
   ds$.getbatch(1)
   expect_equal(env$counter, 1)

@@ -6,6 +6,7 @@
 \title{My Little Pony}
 \description{
 Fully connected feed forward network with dropout after each activation function.
+The features can either be a single \code{\link{lazy_tensor}} or one or more numeric columns.
 }
 \section{Dictionary}{
 
@@ -25,7 +26,7 @@ lrn("regr.mlp", ...)
 \item classif: 'response', 'prob'
 \item regr: 'response'
 }
-\item Feature Types: \dQuote{integer}, \dQuote{numeric}
+\item Feature Types: \dQuote{integer}, \dQuote{numeric}, \dQuote{lazy_tensor}
 \item Required Packages: \CRANpkg{mlr3}, \CRANpkg{mlr3torch}, \CRANpkg{torch}
 }
 }
@@ -51,13 +52,15 @@ The activation function. Is initialized to \code{\link{nn_relu}}.
 \item \code{activation_args} :: named \code{list()}\cr
 A named list with initialization arguments for the activation function.
 This is intialized to an empty list.
-\item \code{layers} :: \code{integer(1)}\cr
-The number of layers.
-\item \code{d_hidden} :: \code{numeric(1)}\cr
-The dimension of the hidden layers.
+\item \code{neurons} :: \code{integer()}\cr
+The number of neurons per hidden layer.
+By default there is no hidden layer.
 \item \code{p} :: \code{numeric(1)}\cr
 The dropout probability.
 Is initialized to \code{0.5}.
+\item \code{shape} :: \code{integer()} or \code{NULL}\cr
+The input shape.
+Only needs to be present specified when there is a lazy tensor input with unknown shape.
 }
 }
 
@@ -65,7 +68,7 @@ Is initialized to \code{0.5}.
 # Define the Learner and set parameter values
 learner = lrn("classif.mlp")
 learner$param_set$set_values(
-  layers = 1, d_hidden = 10, batch_size = 1, epochs = 1, device = "cpu"
+  neurons = 10, batch_size = 1, epochs = 1, device = "cpu"
 )
 
 # Define a Task
