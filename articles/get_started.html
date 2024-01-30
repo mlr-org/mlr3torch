@@ -258,7 +258,7 @@ batch.</p>
 <span><span class="co">#&gt;     initialize: function (reduction = "mean") </span></span>
 <span><span class="co">#&gt;     forward: function (input, target) </span></span>
 <span><span class="co">#&gt;     clone: function (deep = FALSE) </span></span>
-<span><span class="co">#&gt;   Parent env: &lt;environment: 0x560948176960&gt;</span></span>
+<span><span class="co">#&gt;   Parent env: &lt;environment: 0x557b7c6a4180&gt;</span></span>
 <span><span class="co">#&gt;   Locked objects: FALSE</span></span>
 <span><span class="co">#&gt;   Locked class: FALSE</span></span>
 <span><span class="co">#&gt;   Portable: TRUE</span></span></code></pre></div>
@@ -511,19 +511,7 @@ training.</p>
 <code class="sourceCode R"><span><span class="va">mlp_custom</span><span class="op">$</span><span class="va">model</span><span class="op">$</span><span class="va">callbacks</span></span>
 <span><span class="co">#&gt; $history</span></span>
 <span><span class="co">#&gt; &lt;CallbackSetHistory&gt;</span></span>
-<span><span class="co">#&gt;   Inherits from: &lt;CallbackSet&gt;</span></span>
-<span><span class="co">#&gt;   Public:</span></span>
-<span><span class="co">#&gt;     clone: function (deep = FALSE) </span></span>
-<span><span class="co">#&gt;     ctx: NULL</span></span>
-<span><span class="co">#&gt;     on_before_valid: function () </span></span>
-<span><span class="co">#&gt;     on_begin: function () </span></span>
-<span><span class="co">#&gt;     on_end: function () </span></span>
-<span><span class="co">#&gt;     on_epoch_end: function () </span></span>
-<span><span class="co">#&gt;     plot: function (measures, set = "valid", epochs = NULL, theme = ggplot2::theme_minimal(), </span></span>
-<span><span class="co">#&gt;     train: data.table, data.frame</span></span>
-<span><span class="co">#&gt;     valid: data.table, data.frame</span></span>
-<span><span class="co">#&gt;   Private:</span></span>
-<span><span class="co">#&gt;     deep_clone: function (name, value)</span></span></code></pre></div>
+<span><span class="co">#&gt; * Stages: on_begin, on_before_valid, on_epoch_end, on_end</span></span></code></pre></div>
 </li>
 <li><p><code>seed</code> - The seed that was used during training. By
 default, a random seed is sampled at the beginning of the training loop
