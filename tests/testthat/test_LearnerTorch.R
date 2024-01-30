@@ -24,7 +24,7 @@ test_that("Basic tests: Classification", {
   expect_equal(learner$id, "classif.test1")
   expect_equal(learner$label, "Test1 Learner")
   expect_set_equal(learner$feature_types, c("numeric", "integer"))
-  expect_set_equal(learner$properties, c("multiclass", "twoclass"))
+  expect_set_equal(learner$properties, c("multiclass", "twoclass", "bundle"))
 
   # default predict types are correct
   expect_set_equal(learner$predict_types, c("response", "prob"))
@@ -48,7 +48,7 @@ test_that("Basic tests: Regression", {
   expect_equal(learner$id, "regr.test1")
   expect_equal(learner$label, "Test1 Learner")
   expect_set_equal(learner$feature_types, c("numeric", "integer"))
-  expect_set_equal(learner$properties, c())
+  expect_set_equal(learner$properties, "bundle")
 
   # default predict types are correct
   expect_set_equal(learner$predict_types, "response")
@@ -378,4 +378,21 @@ test_that("resample() works", {
   resampling = rsmp("holdout")
   rr = resample(task, learner, resampling)
   expect_r6(rr, "ResampleResult")
+})
+
+test_that("callr encapsulation and bundling", {
+  task = tsk("mtcars")$filter(1:5)
+  learner = lrn("regr.mlp", batch_size = 150, epochs = 1, device = "cpu", encapsulate = c(train = "callr"),
+    layers = 1, d_hidden = 20
+  )
+  learner$train(task)
+  expect_false(learner$bundled)
+  learner$bundle()$unbundle()
+  expect_prediction(learner$predict(task))
+
+  learner = lrn("regr.mlp", batch_size = 150, epochs = 1, device = "cpu", encapsulate = c(train = "callr"),
+    layers = 1, d_hidden = 20
+  )
+  learner$train(task)
+  expect_prediction(learner$predict(task))
 })

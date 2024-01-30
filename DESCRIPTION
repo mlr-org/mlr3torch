@@ -35,7 +35,7 @@ License: LGPL (>= 3)
 Depends:
     mlr3 (>= 0.16.1),
     mlr3pipelines (>= 0.5.0),
-    torch (>= 0.11.0),
+    torch (>= 0.12.0),
     R (>= 3.5.0)
 Imports:
     backports,
@@ -64,7 +64,9 @@ Suggests:
     zip
 Remotes:
     r-lib/zip,
-    mlr-org/mlr3
+    mlr-org/mlr3,
+    mlverse/torch,
+    mlr-org/mlr3@bundle
 Config/testthat/edition: 3
 NeedsCompilation: no
 ByteCompile: no
