@@ -165,7 +165,7 @@ dataset_num = function(task, param_vals) {
   names(ingress) = "input"
   task_dataset(
     task = task,
-    feature_ingress_tokens = ingress,
+    feature_ingress_tokens = md$ingress,
     target_batchgetter = get_target_batchgetter(task$task_type),
     device = param_vals$device
   )

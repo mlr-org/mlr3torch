@@ -95,9 +95,9 @@ register_mlr3 = function() {
 
 register_mlr3pipelines = function() {
   mlr_pipeops = utils::getFromNamespace("mlr_pipeops", ns = "mlr3pipelines")
+  add = mlr_pipeops$add # nolint
   iwalk(as.list(mlr3torch_pipeops), function(value, name) {
     # metainf is quoted by pipelines
-    add = mlr_pipeops$add
     eval(call("add", quote(name), quote(value$constructor), value$metainf))
   })
   mlr_reflections$pipeops$valid_tags = unique(c(mlr_reflections$pipeops$valid_tags, mlr3torch_pipeop_tags))

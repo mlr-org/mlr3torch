@@ -194,20 +194,3 @@ auto_cache_lazy_tensors = function(lts) {
   any(duplicated(map_chr(lts, function(x) dd(x)$dataset_hash)))
 }
 
-unchanged_shapes = function(shapes_in, param_vals, task) {
-  shapes_in
-}
-
-get_unique_shape = function(s1, s2) {
-  if (test_class(s1, "Task")) {
-    assert_true(identical(s1$feature_types[, "type"][[1L]], "lazy_tensor"))
-    s1 = dd(s1$data(s1$row_roles$use[1L], s1$feature_names)[[1L]])$pointer_shape
-  }
-  assert_shape(s1, null_ok = TRUE)
-  assert_shape(s2, null_ok = TRUE)
-  s = unique(discard(list(s1, s2), is.null))
-  assert_true(length(s) == 1L)
-  s[[1L]]
-}
-
-assert_compatible_shapes = get_unique_shape

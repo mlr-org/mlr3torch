@@ -19,4 +19,6 @@ test_that("assert_shape and friends", {
   expect_error(assert_shapes(list(c(1, 2), c(2, 3))), regexp = NA)
   expect_error(assert_shapes(list(c(4, 5), c(2, 3)), unknown_batch = TRUE))
   expect_error(assert_shape(c(NA, 1, 2), len = 2))
+  # NULL is ok even when len is specified
+  expect_true(check_shape(NULL, null_ok = TRUE, len = 2))
 })

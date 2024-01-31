@@ -6,7 +6,7 @@
 \title{My Little Pony}
 \description{
 Fully connected feed forward network with dropout after each activation function.
-The features can either be a single \code{\link{lazy_tensor}} or one or more numeric columns.
+The features can either be a single \code{\link{lazy_tensor}} or one or more numeric columns (but not both).
 }
 \section{Dictionary}{
 
@@ -53,14 +53,14 @@ The activation function. Is initialized to \code{\link{nn_relu}}.
 A named list with initialization arguments for the activation function.
 This is intialized to an empty list.
 \item \code{neurons} :: \code{integer()}\cr
-The number of neurons per hidden layer.
-By default there is no hidden layer.
+The number of neurons per hidden layer. By default there is no hidden layer.
+Setting this to \code{c(10, 20)} would have a the first hidden layer with 10 neurons and the second with 20.
 \item \code{p} :: \code{numeric(1)}\cr
-The dropout probability.
-Is initialized to \code{0.5}.
+The dropout probability. Is initialized to \code{0.5}.
 \item \code{shape} :: \code{integer()} or \code{NULL}\cr
-The input shape.
-Only needs to be present specified when there is a lazy tensor input with unknown shape.
+The input shape of length 2, e.g. \code{c(NA, 5)}.
+Only needs to be present when there is a lazy tensor input with unknown shape (\code{NULL}).
+Otherwise the input shape is inferred from the number of numeric features.
 }
 }
 

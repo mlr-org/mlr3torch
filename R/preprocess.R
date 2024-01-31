@@ -37,6 +37,10 @@ unchanged_shapes_image = function(shapes_in, param_vals, task) {
   shapes_in
 }
 
+unchanged_shapes = function(shapes_in, param_vals, task) {
+  shapes_in
+}
+
 #' @title PipeOpPreprocTorchTrafoNop
 #' @usage NULL
 #' @name mlr_pipeops_preproc_torch.trafo_nop
