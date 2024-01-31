@@ -9,25 +9,6 @@ normalize_to_list = function(x) {
   x
 }
 
-learner_torch_initialize = function(
-  self,
-  private,
-  super,
-  task_type,
-  id,
-  optimizer,
-  loss,
-  param_set,
-  properties,
-  packages,
-  predict_types,
-  feature_types,
-  man,
-  label,
-  callbacks
-  ) {
-}
-
 learner_torch_predict = function(self, private, super, task, param_vals) {
   # parameter like device "auto" already resolved
   self$network$to(device = param_vals$device)
@@ -40,7 +21,6 @@ learner_torch_predict = function(self, private, super, task, param_vals) {
 learner_torch_train = function(self, private, super, task, param_vals) {
   # Here, all param_vals (like seed = "random" or device = "auto") have already been resolved
   loader_train = private$.dataloader(task, param_vals)
-
 
   network = private$.network(task, param_vals)$to(device = param_vals$device)
   optimizer = private$.optimizer$generate(network$parameters)

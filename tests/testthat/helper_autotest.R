@@ -385,7 +385,7 @@ autotest_pipeop_torch_preprocess = function(obj, shapes_in, exclude = character(
 #' @descrition
 #' The autotest for torch learners differs from the standard mlr3 autotest for learners.
 #' The reason is, that we do not have to test the
-autotest_learner_torch = function(learner) {
+expect_learner_torch = function(learner) {
 
 }
 
