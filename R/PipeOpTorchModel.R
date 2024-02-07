@@ -106,6 +106,7 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
 #' @inheritSection mlr_pipeops_torch_model Internals
 #' @family PipeOps
 #' @export
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 #' # simple logistic regression
 #'
@@ -150,6 +151,7 @@ PipeOpTorchModelClassif = R6Class("PipeOpTorchModelClassif",
 #' @inheritSection mlr_pipeops_torch_model Internals
 #' @family PipeOps
 #' @export
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 #' # simple linear regression
 #'

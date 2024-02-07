@@ -55,6 +55,7 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 #'
 #' @family Torch Descriptor
 #' @export
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 #' # Create a new torch loss
 #' torch_loss = TorchLoss$new(torch_loss = nn_mse_loss, task_types = "regr")

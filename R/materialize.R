@@ -33,6 +33,7 @@
 #' @param ... (any)\cr
 #'   Additional arguments.
 #' @export
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 #' lt1 = as_lazy_tensor(torch_randn(10, 3))
 #' materialize(lt1, rbind = TRUE)

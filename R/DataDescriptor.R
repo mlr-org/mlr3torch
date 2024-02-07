@@ -40,6 +40,7 @@
 #' @export
 #' @include utils.R
 #' @seealso ModelDescriptor, lazy_tensor
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 #' # Create a dataset
 #' dsg = dataset(

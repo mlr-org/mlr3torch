@@ -123,6 +123,7 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
 #' @return `TorchIngressToken` object.
 #' @family Graph Network
 #' @export
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 #' # Define a task for which we want to define an ingress token
 #' task = tsk("iris")
@@ -177,6 +178,7 @@ print.TorchIngressToken = function(x, ...) {
 #' @export
 #' @family Graph Network
 #' @family PipeOps
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 # We select the numeric features first
 #' graph = po("select", selector = selector_type(c("numeric", "integer"))) %>>%
@@ -227,6 +229,7 @@ register_po("torch_ingress_num", PipeOpTorchIngressNumeric)
 #' @family PipeOps
 #' @family Graph Network
 #' @export
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 # We first select the categorical features
 #' graph = po("select", selector = selector_type("factor")) %>>%
@@ -277,6 +280,7 @@ register_po("torch_ingress_categ", PipeOpTorchIngressCategorical)
 #' @family Graph Network
 #' @export
 #' @include utils.R shape.R
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 #' po_ingress = po("torch_ingress_ltnsr")
 #' task = tsk("lazy_iris")

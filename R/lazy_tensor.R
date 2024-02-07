@@ -209,6 +209,7 @@ is_lazy_tensor = function(x) {
 #' 1. A new [`DataDescriptor`] is created
 #'
 #' @return [`lazy_tensor`]
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 #' lt = as_lazy_tensor(1:10)
 #' add_five = po("module", module = function(x) x + 5)

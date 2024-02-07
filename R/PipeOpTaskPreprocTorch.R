@@ -88,6 +88,7 @@
 #'
 #' @include PipeOpTorch.R
 #' @export
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 #' # Creating a simple task
 #' d = data.table(

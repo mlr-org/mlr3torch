@@ -57,6 +57,7 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #'
 #' @family Torch Descriptor
 #' @export
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 #' # Create a new torch loss
 #' torch_opt = TorchOptimizer$new(optim_adam, label = "adam")
@@ -146,6 +147,7 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
 #' @family Torch Descriptor
 #' @family Dictionary
 #' @export
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 #' mlr3torch_optimizers$get("adam")
 #' # is equivalent to

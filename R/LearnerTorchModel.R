@@ -26,6 +26,7 @@
 #' @family Graph Network
 #' @include LearnerTorch.R
 #' @export
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 #' # We show the learner using a classification task
 #'

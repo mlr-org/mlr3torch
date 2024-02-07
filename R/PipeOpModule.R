@@ -28,6 +28,7 @@
 #' @family Graph Network
 #' @family PipeOp
 #' @export
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 #' ## creating an PipeOpModule manually
 #'

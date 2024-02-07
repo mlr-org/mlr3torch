@@ -20,6 +20,7 @@
 #'   The device, e.g. `"cuda"` or `"cpu"`.
 #' @export
 #' @return [`torch::dataset`]
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 #' task = tsk("iris")
 #' sepal_ingress = TorchIngressToken(

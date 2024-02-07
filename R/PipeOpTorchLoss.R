@@ -17,6 +17,7 @@
 #' @family Model Configuration
 #'
 #' @export
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 #' po_loss = po("torch_loss", loss = t_loss("cross_entropy"))
 #' po_loss$param_set

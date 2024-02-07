@@ -82,6 +82,7 @@
 #' [`Graph`] which allows the graph to be modified by-reference in different parts of the code.
 #' @export
 #' @family Graph Network
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 #' ## Creating a neural network
 #' # In torch

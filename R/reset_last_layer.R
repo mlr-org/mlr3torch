@@ -17,10 +17,11 @@
 #' @return Same as input `model` with modified last layer.
 #' @export
 #'
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 #' \dontrun{
 #' # AlexNet
-#' if (mlr3misc::requires_namespaces("torchvision")) {
+#' if (mlr3misc::requires_namespaces("torchvision") && torch::torch_is_installed(h)) {
 #'  model = torchvision::model_alexnet(pretrained = TRUE)
 #'  model$classifier[[7]]$out_feature
 #'  model = reset_last_layer(model, 10)
