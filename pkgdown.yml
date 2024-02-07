@@ -3,7 +3,7 @@ pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
   get_started: get_started.html
-last_built: 2024-02-07T17:46Z
+last_built: 2024-02-07T17:57Z
 urls:
   reference: https://mlr3torch.mlr-org.com/reference
   article: https://mlr3torch.mlr-org.com/articles
