@@ -1,6 +1,6 @@
 #' Auto Device
 #'
-#' First tries cuda, then mp, then cpu.
+#' First tries cuda, then cpu.
 #'
 #' @param device (`character(1)`)\cr
 #'   The device. If not `NULL`, is returned as is.
