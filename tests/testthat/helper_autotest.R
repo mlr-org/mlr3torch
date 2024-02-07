@@ -7,8 +7,6 @@
 #' * the generated module has the intended class
 #' * the parameters are correctly implemented
 #' * Some other basic checks
-#' @details
-#' TODO
 #' @param graph ([`Graph`])\cr
 #'   The graph that contains the [`PipeOpTorch`] to be tested.
 #' @param id (`character(1)`)\cr
@@ -24,7 +22,7 @@
 #'
 #' @return `TRUE` if the autotest passes, errs otherwise.
 #' @export
-autotest_pipeop_torch = function(graph, id, task, module_class = id, exclude_args = character(0)) {
+expect_pipeop_torch = function(graph, id, task, module_class = id, exclude_args = character(0)) {
   require_namespaces(c("testthat"))
   po_test = graph$pipeops[[id]]
   result = graph$train(task)
@@ -92,7 +90,6 @@ autotest_pipeop_torch = function(graph, id, task, module_class = id, exclude_arg
   batch = ds$.getbatch(1)
   out = with_no_grad(invoke(net$forward, .args = batch$x))
 
-  # TODO: Make this better understandable
   tmp = net$graph$output
   # outnamein are the output nodes that contain the tensors that are the input to the pipeop we are testing
   outnamein = tmp[get("op.id") != id, c("op.id", "channel.name")]
@@ -118,16 +115,36 @@ autotest_pipeop_torch = function(graph, id, task, module_class = id, exclude_arg
   names(channels) = paste0("output", "_", tmp1$src_id, "_", tmp1$src_channel, ".", tmp1$src_channel)
   names(layerin) = channels[names(channels)]
 
+  # check that shapes are compatible when passing batch dimension
   predicted = po_test$shapes_out(map(layerin, dim), task)
   observed = map(layerout, dim)
-  test_shapes(predicted, observed)
+  expect_compatible_shapes(predicted, observed)
+
+  # check that shapes are compatible without batch dimension as NA
+  predicted_unknown_batch = po_test$shapes_out(map(layerin, function(d) {
+    x = dim(d)
+    x[1L] = NA
+    x
+  }), task)
+
+  expect_error(assert_shapes(predicted_unknown_batch, null_ok = FALSE, unknown_batch = TRUE), regexp = NA)
+
+  expect_compatible_shapes(predicted_unknown_batch, observed)
+
+
+  # parameters must only ce active during training
+  walk(po_test$param_set$params, function(p) {
+    if (!(("train" %in% p$tags) && !("predict" %in% p$tags))) {
+      stopf("Parameters of PipeOps inheriting from PipeOpTorch must only be active during training.")
+    }
+  })
 
   return(TRUE)
 }
 
 # Note that we don't simply compare the shapes for equality. The actually observed shape does not have NAs,
 # so wherevery the predicted dimension is NA, the observed dimension can be anything.
-test_shapes = function(predicted, observed) {
+expect_compatible_shapes = function(predicted, observed) {
   # they are both lists
   if (length(predicted) != length(observed)){
     stopf("This should have been impossible!")
@@ -162,7 +179,6 @@ collapse_char_list = function(x) {
 #' @title Parameter Test
 #' @description
 #' Tests that parameters are correctly implemented
-#'
 #' @param x ([`ParamSet`] or object with field `$param_set`)\cr
 #'   The parameter set to check.
 #' @param fns (`list()` of `function`s)\cr
@@ -173,7 +189,7 @@ collapse_char_list = function(x) {
 #'   For which parameters the defaults should not be checked.
 #'
 #' @export
-autotest_paramset = function(x, fns, exclude = character(0), exclude_defaults = character(0)) {
+expect_paramset = function(x, fns, exclude = character(0), exclude_defaults = character(0)) {
   if (test_r6(x, "ParamSet")) {
     param_set = x
   } else if (test_r6(x$param_set, "ParamSet")) {
@@ -266,7 +282,7 @@ expect_paramtest = function(paramtest) {
 #'   The object to test.
 #' @param check_man (`logical(1)`)\cr
 #'   Whether to check that the manual page exists. Default is `TRUE`.
-autotest_torch_callback = function(torch_callback, check_man = TRUE) {
+expect_torch_callback = function(torch_callback, check_man = TRUE) {
   # Checks on descriptor
   expect_class(torch_callback, "TorchCallback")
   expect_string(torch_callback$id)
@@ -285,7 +301,7 @@ autotest_torch_callback = function(torch_callback, check_man = TRUE) {
   expect_true(cbgen$cloneable)
   init_fn = get_init(torch_callback$generator)
   if (is.null(init_fn)) init_fn = function() NULL
-  paramtest = autotest_paramset(torch_callback$param_set, init_fn)
+  paramtest = expect_paramset(torch_callback$param_set, init_fn)
   expect_paramtest(paramtest)
   implemented_stages = names(cbgen$public_methods)[grepl("^on_", names(cbgen$public_methods))]
   expect_subset(implemented_stages, mlr_reflections$torch$callback_stages)
@@ -302,4 +318,64 @@ autotest_torch_callback = function(torch_callback, check_man = TRUE) {
   expect_deep_clone(cb_trained, cb_trained$clone(deep = TRUE))
   cb_trained$ctx = "placeholder"
   expect_error(cb_trained$clone(deep = TRUE), "can only be cloned")
+}
+
+#' @title Autotest for PipeOpTaskPreprocTorch
+#' @description
+#' Performs various sanity checks on a [`PipeOpTaskPreprocTorch`].
+#' @param obj ([`PipeOpTaskPreprocTorch`])\cr
+#'   The object to test.
+#' @parm tnsr_in (`integer()`)\cr
+expect_pipeop_torch_preprocess = function(obj, shapes_in, exclude = character(0), exclude_defaults = character(0),
+  in_package = TRUE) {
+  expect_pipeop(obj)
+  expect_class(obj, "PipeOpTaskPreprocTorch")
+  # a) Check that all parameters but stages have tags train and predict (this should hold in basically all cases)
+  # parameters must only ce active during training
+  walk(obj$param_set$params, function(p) {
+    if (!(("train" %in% p$tags) && !("predict" %in% p$tags))) {
+      stopf("Parameters of PipeOps inheriting from PipeOpTorch must only be active during training.")
+    }
+  })
+  expect_paramset(obj$param_set, obj$fn, exclude = exclude, exclude_defaults = exclude_defaults)
+  # b) Check that the shape prediction is compatible (already done in autotest for pipeop torch)
+
+  # c) check that start with stages / trafo, depending on the initial value
+  if (in_package) {
+    class = get(class(obj)[[1L]], envir = getNamespace("mlr3torch"))
+    instance = class$new()
+
+    testthat::expect_true(grepl(instance$id, pattern = "^(trafo|augment)_"))
+    if (startsWith(instance$id, "augment")) {
+      expect_set_equal(instance$param_set$values$stages, "train")
+    } else {
+      expect_set_equal(instance$param_set$values$stages, "both")
+    }
+  }
+
+  shapes_in = if (!test_list(shapes_in)) list(shapes_in) else shapes_in
+
+  walk(shapes_in, function(shape_in) {
+    tnsr_in = torch_empty(shape_in)
+    shape_in_unknown_batch = shape_in
+    shape_in_unknown_batch[1L] = NA
+    shape_out = obj$shapes_out(list(shape_in), stage = "train")[[1L]]
+    shape_out_unknown_batch = obj$shapes_out(list(shape_in_unknown_batch), stage = "train")[[1L]]
+    taskin = as_task_regr(data.table(
+      y = rep(1, nrow(tnsr_in)),
+      x = as_lazy_tensor(tnsr_in)
+    ), target = "y")
+
+    taskout = obj$train(list(taskin))[[1L]]
+
+    tnsr_out = materialize(taskout$data(cols = "x")[[1L]], rbind = TRUE)
+
+    expect_class(tnsr_out, "torch_tensor")
+
+    if (!is.null(shape_out)) {
+      testthat::expect_equal(tnsr_out$shape, shape_out)
+      testthat::expect_equal(tnsr_out$shape[-1L], shape_out_unknown_batch[-1L])
+      testthat::expect_true(is.na(shape_out_unknown_batch[1L]))
+    }
+  })
 }

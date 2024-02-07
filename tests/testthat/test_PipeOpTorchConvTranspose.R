@@ -13,39 +13,39 @@ test_that("PipeOpTorchConvTranspose1D autotest", {
   expect_pipeop(po_conv)
 
 
-  autotest_pipeop_torch(graph, "nn_conv_transpose1d", task)
+  expect_pipeop_torch(graph, "nn_conv_transpose1d", task)
 })
 
 test_that("PipeOpTorchConvTranspose1D paramtest", {
-  res = autotest_paramset(po("nn_conv_transpose1d"), nn_conv_transpose1d, exclude = "in_channels")
+  res = expect_paramset(po("nn_conv_transpose1d"), nn_conv_transpose1d, exclude = "in_channels")
   expect_paramtest(res)
 })
 
 test_that("PipeOpTorchConvTranspose2D autotest", {
   po_conv = po("nn_conv_transpose2d", kernel_size = 2, out_channels = 4)
   task = nano_imagenet()
-  graph = po("torch_ingress_img", channels = 3L, height = 64L, width = 64L) %>>% po_conv
+  graph = po("torch_ingress_ltnsr") %>>% po_conv
 
-  autotest_pipeop_torch(graph, "nn_conv_transpose2d", task)
+  expect_pipeop_torch(graph, "nn_conv_transpose2d", task)
 })
 
 test_that("PipeOpTorchConvTranspose2D paramtest", {
-  res = autotest_paramset(po("nn_conv_transpose2d"), nn_conv_transpose2d, exclude = "in_channels")
+  res = expect_paramset(po("nn_conv_transpose2d"), nn_conv_transpose2d, exclude = "in_channels")
   expect_paramtest(res)
 })
 
 test_that("PipeOpTorchConvTranspose3D autotest", {
   po_conv = po("nn_conv_transpose3d", kernel_size = 2, out_channels = 4)
   task = nano_imagenet()
-  graph = po("torch_ingress_img", channels = 3L, height = 64L, width = 64L) %>>%
+  graph = po("torch_ingress_ltnsr") %>>%
     po("nn_reshape", shape = c(-1, 3, 64, 8, 8)) %>>%
     po_conv
 
-  autotest_pipeop_torch(graph, "nn_conv_transpose3d", task)
+  expect_pipeop_torch(graph, "nn_conv_transpose3d", task)
 })
 
 test_that("PipeOpTorchConvTranspose3D paramtest", {
-  res = autotest_paramset(po("nn_conv_transpose3d"), nn_conv_transpose3d, exclude = "in_channels")
+  res = expect_paramset(po("nn_conv_transpose3d"), nn_conv_transpose3d, exclude = "in_channels")
   expect_paramtest(res)
 })
 

@@ -55,6 +55,7 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 #'
 #' @family Torch Descriptor
 #' @export
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 #' # Create a new torch loss
 #' torch_loss = TorchLoss$new(torch_loss = nn_mse_loss, task_types = "regr")
@@ -106,7 +107,7 @@ TorchLoss = R6::R6Class("TorchLoss",
       id = NULL, label = NULL, packages = NULL, man = NULL) {
       force(id)
       self$task_types = assert_subset(task_types, mlr_reflections$task_types$type)
-      torch_loss = assert_class(torch_loss, "nn_loss")
+      torch_loss = assert_class(torch_loss, "nn_module")
 
       super$initialize(
         generator = torch_loss,

@@ -59,8 +59,7 @@ library(mlr3torch)
 learner_mlp = lrn("classif.mlp",
   # defining network parameters
   activation     = nn_relu,
-  layers         = 1,
-  d_hidden       = 20,
+  neurons        = c(20, 20),
   # training parameters
   batch_size     = 16,
   epochs         = 50,

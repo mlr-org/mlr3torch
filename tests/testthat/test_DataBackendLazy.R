@@ -1,6 +1,6 @@
 test_that("DataBackendLazy works", {
   n = 5
-  constructor = function() {
+  constructor = function(backend) {
     dt = data.table(
       y = c(0.1, 0.2, 0.3, 0.4, 0.5),
       x_fct = factor(letters[1:n]),
@@ -40,7 +40,6 @@ test_that("DataBackendLazy works", {
   expect_r6(backend_lazy$backend, c("DataBackend", "DataBackendDataTable"))
   expect_true(backend_lazy$is_constructed)
 
-
   expect_true(any(grepl(capture.output(backend_lazy), pattern = "x_fct")))
 
   expect_equal(backend_lazy$data(rows = 1, cols = "y")[[1L]], 0.5)
@@ -60,7 +59,7 @@ test_that("DataBackendLazy works", {
   constructor_constructor = function(colnames = letters[1:3], rownames = 1:10, letter = "a") {
     ncol = length(colnames)
 
-    function() {
+    function(backend) {
       cols = lapply(colnames[1:(length(colnames) - 1)], function(x) {
         dt = data.table(rownames)
         names(dt) = x
@@ -112,7 +111,7 @@ test_that("DataBackendLazy works", {
 
 test_that("primary_key must be in col_info", {
   expect_error(DataBackendLazy$new(
-    constructor = function() NULL,
+    constructor = function(backend) NULL,
     col_info = data.table(id = "a", type = "integer", levels = list(NULL)),
     rownames = 1,
     primary_key = "b",
@@ -121,7 +120,7 @@ test_that("primary_key must be in col_info", {
 })
 
 test_that("primary_key must be the same for backends", {
-  constructor = function() {
+  constructor = function(backend) {
     DataBackendDataTable$new(
       data.table(y = 1:5, x = 1:5),
       primary_key = "x"
@@ -135,4 +134,14 @@ test_that("primary_key must be the same for backends", {
     data_formats = "data.table"
   )
   expect_error(backend_lazy$backend, "primary key")
+})
+
+test_that("constructor must have argument backend", {
+  expect_error(DataBackendLazy$new(
+    constructor = function() NULL,
+    col_info = data.table(id = c("x", "y"), type = rep("integer", 2), levels = list(NULL, NULL)),
+    rownames = 1:5,
+    primary_key = "y",
+    data_formats = "data.table"
+  ), regexp = "formal arguments")
 })

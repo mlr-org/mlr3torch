@@ -5,7 +5,7 @@ test_that("PipeOpTorchMergeSum autotest", {
     list(po("nn_linear_1", out_features = 10), po("nn_linear_2", out_features = 10)) %>>%
     po_test
 
-  autotest_pipeop_torch(graph, "nn_merge_sum", task)
+  expect_pipeop_torch(graph, "nn_merge_sum", task)
 })
 
 test_that("basic test", {
@@ -19,7 +19,7 @@ test_that("basic test", {
 
 test_that("PipeOpTorchMergeSum paramtest", {
   po_test = po("nn_merge_sum")
-  res = autotest_paramset(po_test, nn_merge_sum)
+  res = expect_paramset(po_test, nn_merge_sum)
   expect_paramtest(res)
 })
 
@@ -30,12 +30,12 @@ test_that("PipeOpTorchMergeProd autotest", {
     list(po("nn_linear_1", out_features = 10), po("nn_linear_2", out_features = 10)) %>>%
     po_test
 
-  autotest_pipeop_torch(graph, "nn_merge_prod", task)
+  expect_pipeop_torch(graph, "nn_merge_prod", task)
 })
 
 test_that("PipeOpTorchMergeProd paramtest", {
   po_test = po("nn_merge_prod")
-  res = autotest_paramset(po_test, nn_merge_prod)
+  res = expect_paramset(po_test, nn_merge_prod)
   expect_paramtest(res)
 })
 
@@ -47,14 +47,14 @@ test_that("PipeOpTorchMergeCat autotest", {
     list(po("nn_linear_1", out_features = 10), po("nn_linear_2", out_features = 10)) %>>%
     po_test
 
-  autotest_pipeop_torch(graph, "nn_merge_cat", task)
+  expect_pipeop_torch(graph, "nn_merge_cat", task)
 
 })
 
 
 test_that("PipeOpTorchMergeCat paramtest", {
   po_test = po("nn_merge_cat")
-  res = autotest_paramset(po_test, nn_merge_cat)
+  res = expect_paramset(po_test, nn_merge_cat)
   expect_paramtest(res)
 })
 

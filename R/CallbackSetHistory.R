@@ -70,9 +70,9 @@ CallbackSetHistory = R6Class("CallbackSetHistory",
         stopf("No eligible measures to plot for set '%s'.", set)
       }
 
-      epoch = score = measure = NULL
+      epoch = score = measure = .data = NULL
       if (ncol(data) == 2L) {
-        ggplot2::ggplot(data = data, ggplot2::aes(x = epoch, y = !!rlang::sym(measures))) +
+        ggplot2::ggplot(data = data, ggplot2::aes(x = epoch, y = .data[[measures]])) +
           ggplot2::geom_line() +
           ggplot2::geom_point() +
           ggplot2::labs(

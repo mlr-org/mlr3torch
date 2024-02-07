@@ -97,7 +97,7 @@ test_that("nn_graph can reset parameters", {
     }
   )
 
-  network = nn_graph(as_graph(po("module", module = nn_lin())),
+  network = nn_graph(as_graph(po("module", module = nn_lin()), clone = FALSE),
     shapes_in = list(module.input = 1)
   )
 

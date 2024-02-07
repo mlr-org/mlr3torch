@@ -28,6 +28,7 @@ jobs:
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      TORCH_INSTALL: 1
 
     strategy:
       fail-fast: false
@@ -35,6 +36,8 @@ jobs:
         config:
           - {os: ubuntu-latest,   r: 'devel'}
           - {os: ubuntu-latest,   r: 'release'}
+          - {os: macos-latest,   r: 'release'}
+          - {os: windows-latest, r: 'release'}
 
     steps:
       - uses: actions/checkout@v3
@@ -49,10 +52,6 @@ jobs:
         with:
           extra-packages: any::rcmdcheck
           needs: check
-
-      - name: Install torch
-        run: torch::install_torch()
-        shell: Rscript {0}
 
       - uses: r-lib/actions/check-r-package@v2
 

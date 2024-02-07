@@ -4,7 +4,7 @@
 #' Represents a neural network using a [`Graph`] that usually costains mostly [`PipeOpModule`]s.
 #'
 #' @param graph ([`Graph`][mlr3pipelines::Graph])\cr
-#'   The [`Graph`][mlr3pipelines::Graph] to wrap.
+#'   The [`Graph`][mlr3pipelines::Graph] to wrap. Is **not** cloned.
 #' @param shapes_in (named `integer`)\cr
 #'   Shape info of tensors that go into `graph`. Names must be `graph$input$name`, possibly in different order.
 #' @param output_map (`character`)\cr
@@ -15,18 +15,24 @@
 #' @return [`nn_graph`]
 #' @family Graph Network
 #' @export
+#' @examplesIf torch::torch_is_installed()
 #' @examples
-#' graph = po("module_1", module = nn_linear(10, 20)) %>>%
-#'   po("module_2", module = nn_relu()) %>>%
-#'   po("module_3", module = nn_linear(20, 1))
+#' graph = mlr3pipelines::Graph$new()
+#' graph$add_pipeop(po("module_1", module = nn_linear(10, 20)), clone = FALSE)
+#' graph$add_pipeop(po("module_2", module = nn_relu()), clone = FALSE)
+#' graph$add_pipeop(po("module_3", module = nn_linear(20, 1)), clone = FALSE)
+#' graph$add_edge("module_1", "module_2")
+#' graph$add_edge("module_2", "module_3")
+#'
 #' network = nn_graph(graph, shapes_in = list(module_1.input = c(NA, 10)))
-#' network
+#'
 #' x = torch_randn(16, 10)
+#'
 #' network(module_1.input = x)
 nn_graph = nn_module(
   "nn_graph",
   initialize = function(graph, shapes_in, output_map = graph$output$name, list_output = FALSE) {
-    self$graph = as_graph(graph)
+    self$graph = as_graph(graph, clone = FALSE)
     self$graph_input_name = graph$input$name  # cache this, it is expensive
 
     # we do NOT verify the input and type of the graph to be `"torch_tensor"`.
@@ -84,11 +90,11 @@ nn_graph = nn_module(
 #' most circumstances harder to use than just creating [`nn_graph`] directly.
 #'
 #' @param model_descriptor ([`ModelDescriptor`])\cr
-#'   Model Descriptor. `.pointer` is ignored, instead `output_pointer` values are used. `$graph` member is
+#'   Model Descriptor. `pointer` is ignored, instead `output_pointer` values are used. `$graph` member is
 #'   modified by-reference.
 #' @param output_pointers (`list` of `character`)\cr
-#'   Collection of `.pointer`s that indicate what part of the `model_descriptor$graph` is being used for output.
-#'   Entries have the format of `ModelDescriptor$.pointer`.
+#'   Collection of `pointer`s that indicate what part of the `model_descriptor$graph` is being used for output.
+#'   Entries have the format of `ModelDescriptor$pointer`.
 #' @param list_output (`logical(1)`)\cr
 #'   Whether output should be a list of tensors. If `FALSE`, then `length(output_pointers)` must be 1.
 #'
@@ -99,7 +105,7 @@ model_descriptor_to_module = function(model_descriptor, output_pointers = NULL, 
   assert_class(model_descriptor, "ModelDescriptor")
   assert_flag(list_output)
   assert_list(output_pointers, types = "character", len = if (!list_output) 1, null.ok = TRUE)
-  output_pointers = output_pointers %??% list(model_descriptor$.pointer)
+  output_pointers = output_pointers %??% list(model_descriptor$pointer)
 
   # all graph inputs have an entry in self$shapes_in
   # ModelDescriptor allows Graph to grow by-reference and therefore may have

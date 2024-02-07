@@ -24,12 +24,15 @@
 #'
 #' @references
 #' `r format_bib("imagenet2009")`
-#'
+#' @examples
+#' task = tsk("tiny_imagenet")
+#' task
 NULL
 
 # @param path (`character(1)`)\cr
 #   The cache_dir/datasets/tiny_imagenet folder.
 constructor_tiny_imagenet = function(path) {
+  require_namespaces("torchvision")
   # path points to {cache_dir, tempfile}/data/tiny_imagenet
   torchvision::tiny_imagenet_dataset(root = file.path(path), download = TRUE)
   download_folder = file.path(path, "tiny-imagenet-200")
@@ -69,29 +72,31 @@ constructor_tiny_imagenet = function(path) {
 
   classes = c(train_res$labels, valid_res$labels, rep(NA_character_, length(test_uris)))
   uris = c(train_res$uris, valid_res$uris, test_uris)
-  splits = rep(c("train", "valid", "test"), times = map_int(list(train_res$labels, valid_res$labels, test_uris), length))
 
-  data.table(class = as.factor(classes), image = uris, split = factor(splits))
+  data.frame(
+    class = classes,
+    image = uris
+  )
 }
 
+#' @include utils.R
 load_task_tiny_imagenet = function(id = "tiny_imagenet") {
-  cached_constructor = function() {
-    # We need this as otherwise the factor level are differently ordered,
-    # which causes the hard-coded col-info to be wrong for some locales
-    # (whether a < A or A > a depends on the locale)
-    withr::with_locale(c(LC_COLLATE = "C"), {
-      dt = cached(constructor_tiny_imagenet, "datasets", "tiny_imagenet")$data
-    })
-    dt$image = imageuri(dt$image)
-    dt$row_id = seq_len(nrow(dt))
-    DataBackendDataTable$new(data = dt, primary_key = "row_id")
-  }
+  cached_constructor = crate(function(backend) {
+    dt = cached(constructor_tiny_imagenet, "datasets", "tiny_imagenet")$data
+    setDT(dt)
+
+    ci = col_info(backend)
+    set(dt, j = "class", value = factor(dt$class, levels = ci[list("class"), "levels", on = "id"][[1L]][[1L]]))
+    set(dt, j = "image", value = as_lazy_tensor(dataset_image(dt$image), dataset_shapes = list(x = c(NA, 3, 64, 64))))
+    set(dt, j = "..row_id", value = seq_len(nrow(dt)))
+    DataBackendDataTable$new(data = dt, primary_key = "..row_id")
+  }, .parent = topenv())
 
   backend = DataBackendLazy$new(
     constructor = cached_constructor,
     rownames = seq_len(120000),
     col_info = load_col_info("tiny_imagenet"),
-    primary_key = "row_id",
+    primary_key = "..row_id",
     data_formats = "data.table"
   )
 
@@ -101,6 +106,8 @@ load_task_tiny_imagenet = function(id = "tiny_imagenet") {
     target = "class",
     label = "ImageNet Subset"
   )
+
+  backend$hash = task$man = "mlr3torch::mlr_tasks_tiny_imagenet"
 
   task$row_roles$use = seq_len(100000)
   task$row_roles$test = seq(from = 100001, 110000)

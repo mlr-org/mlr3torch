@@ -29,6 +29,8 @@ During training the loss is cloned and added to the \code{\link{ModelDescriptor}
 }
 
 \examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{\}) # examplesIf}
 po_loss = po("torch_loss", loss = t_loss("cross_entropy"))
 po_loss$param_set
 mdin = po("torch_ingress_num")$train(list(tsk("iris")))
@@ -67,13 +69,13 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_max_pool1d}},
 \code{\link{mlr_pipeops_nn_max_pool2d}},
 \code{\link{mlr_pipeops_nn_max_pool3d}},
+\code{\link{mlr_pipeops_nn_merge}},
 \code{\link{mlr_pipeops_nn_merge_cat}},
 \code{\link{mlr_pipeops_nn_merge_prod}},
 \code{\link{mlr_pipeops_nn_merge_sum}},
-\code{\link{mlr_pipeops_nn_merge}},
 \code{\link{mlr_pipeops_nn_prelu}},
-\code{\link{mlr_pipeops_nn_relu6}},
 \code{\link{mlr_pipeops_nn_relu}},
+\code{\link{mlr_pipeops_nn_relu6}},
 \code{\link{mlr_pipeops_nn_reshape}},
 \code{\link{mlr_pipeops_nn_rrelu}},
 \code{\link{mlr_pipeops_nn_selu}},
@@ -83,15 +85,16 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_softshrink}},
 \code{\link{mlr_pipeops_nn_softsign}},
 \code{\link{mlr_pipeops_nn_squeeze}},
-\code{\link{mlr_pipeops_nn_tanhshrink}},
 \code{\link{mlr_pipeops_nn_tanh}},
+\code{\link{mlr_pipeops_nn_tanhshrink}},
 \code{\link{mlr_pipeops_nn_threshold}},
-\code{\link{mlr_pipeops_torch_ingress_categ}},
-\code{\link{mlr_pipeops_torch_ingress_num}},
 \code{\link{mlr_pipeops_torch_ingress}},
+\code{\link{mlr_pipeops_torch_ingress_categ}},
+\code{\link{mlr_pipeops_torch_ingress_ltnsr}},
+\code{\link{mlr_pipeops_torch_ingress_num}},
+\code{\link{mlr_pipeops_torch_model}},
 \code{\link{mlr_pipeops_torch_model_classif}},
-\code{\link{mlr_pipeops_torch_model_regr}},
-\code{\link{mlr_pipeops_torch_model}}
+\code{\link{mlr_pipeops_torch_model_regr}}
 
 Other Model Configuration: 
 \code{\link{ModelDescriptor}()},

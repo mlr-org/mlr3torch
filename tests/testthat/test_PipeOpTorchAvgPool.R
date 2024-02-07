@@ -4,39 +4,39 @@ test_that("PipeOpTorchAvgPool1D works", {
   graph = po("torch_ingress_num") %>>%
     po("nn_unsqueeze", dim = 2) %>>%
     po_test
-  autotest_pipeop_torch(graph, "nn_avg_pool1d", task)
+  expect_pipeop_torch(graph, "nn_avg_pool1d", task)
 })
 
 test_that("PipeOpTorchAvgPool1D paramtest", {
-  res = autotest_paramset(po("nn_avg_pool1d"), nn_avg_pool1d, exclude = "num_features")
+  res = expect_paramset(po("nn_avg_pool1d"), nn_avg_pool1d, exclude = "num_features")
   expect_paramtest(res)
 })
 
 test_that("PipeOpTorchAvgPool2D autotest", {
   po_test = po("nn_avg_pool2d", kernel_size = 3)
   task = nano_imagenet()
-  graph = po("torch_ingress_img", channels = 3, width = 64, height = 64) %>>% po_test
+  graph = po("torch_ingress_ltnsr") %>>% po_test
 
-  autotest_pipeop_torch(graph, "nn_avg_pool2d", task)
+  expect_pipeop_torch(graph, "nn_avg_pool2d", task)
 })
 
 test_that("PipeOpTorchAvgPool2D paramtest", {
-  res = autotest_paramset(po("nn_avg_pool2d"), nn_avg_pool2d, exclude = "num_features")
+  res = expect_paramset(po("nn_avg_pool2d"), nn_avg_pool2d, exclude = "num_features")
   expect_paramtest(res)
 })
 
 test_that("PipeOpTorchAvgPool3D autotest", {
   po_test = po("nn_avg_pool3d", kernel_size = c(2, 3, 4))
   task = nano_imagenet()
-  graph = po("torch_ingress_img", channels = 3, width = 64, height = 64) %>>%
+  graph = po("torch_ingress_ltnsr") %>>%
     po("nn_reshape", shape = c(NA, 3, 64, 8, 8)) %>>%
     po_test
 
-  autotest_pipeop_torch(graph, "nn_avg_pool3d", task)
+  expect_pipeop_torch(graph, "nn_avg_pool3d", task)
 })
 
 test_that("PipeOpTorchAvgPool3D paramtest", {
-  res = autotest_paramset(po("nn_avg_pool3d"), nn_avg_pool3d, exclude = "num_features")
+  res = expect_paramset(po("nn_avg_pool3d"), nn_avg_pool3d, exclude = "num_features")
   expect_paramtest(res)
 })
 

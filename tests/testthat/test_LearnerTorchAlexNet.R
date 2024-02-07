@@ -5,9 +5,6 @@ test_that("LearnerAlexnet runs", {
     callbacks = list(),
     optimizer = "adam",
     loss = "cross_entropy",
-    channels = 3,
-    height = 64,
-    width = 64,
     pretrained = FALSE
   )
   task = nano_imagenet()

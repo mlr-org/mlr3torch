@@ -57,6 +57,7 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #'
 #' @family Torch Descriptor
 #' @export
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 #' # Create a new torch loss
 #' torch_opt = TorchOptimizer$new(optim_adam, label = "adam")
@@ -120,7 +121,9 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
     },
     #' @description
     #' Instantiates the optimizer.
-    #' @param params The parameters of the network.
+    #' @param params (named `list()` of [`torch_tensor`]s)\cr
+    #'   The parameters of the network.
+    #' @return `torch_optimizer`
     generate = function(params) {
       require_namespaces(self$packages)
       invoke(self$generator, .args = self$param_set$get_values(), params = params)
@@ -144,6 +147,7 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
 #' @family Torch Descriptor
 #' @family Dictionary
 #' @export
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 #' mlr3torch_optimizers$get("adam")
 #' # is equivalent to

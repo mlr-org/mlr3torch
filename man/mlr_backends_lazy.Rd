@@ -25,16 +25,17 @@ Information that is available before the backend is constructed is:
 
 Beware that accessing the backend's hash also contructs the backend.
 
+Note that while in most cases the data contains \code{\link{lazy_tensor}} columns, this is not necessary and the naming
+of this class has nothing to do with the \code{\link{lazy_tensor}} data type.
+
 \strong{Important}
 
 When the constructor generates \code{factor()} variables it is important that the ordering of the levels in data
 corresponds to the ordering of the levels in the \code{col_info} argument.
-Because the ordering of the level depends on the locale, it is recommended to e.g. use the \code{C} locale in the
-\code{constructor} function, e.g. with \code{withr::with_locale()}.
 }
 \examples{
 # We first define a backend constructor
-constructor = function() {
+constructor = function(backend) {
   cat("Data is constructed!\n")
   DataBackendDataTable$new(
     data.table(x = rnorm(10), y = rnorm(10), row_id = 1:10),
@@ -125,8 +126,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{constructor}}{(\verb{function()})\cr
-A function with no arguments, whose return value must be the actual backend.
+\item{\code{constructor}}{(\code{function})\cr
+A function with argument \code{backend} (the lazy backend), whose return value must be the actual backend.
 This function is called the first time the field \verb{$backend} is accessed.}
 
 \item{\code{rownames}}{(\code{integer()})\cr

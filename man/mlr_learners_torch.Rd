@@ -91,6 +91,9 @@ While it is possible to add parameters by specifying the \code{param_set} constr
 not possible to remove existing parameters, i.e. those listed in section \emph{Parameters}.
 None of the parameters provided in \code{param_set} can have an id that starts with \code{"loss."}, \verb{"opt.", or }"cb."`, as these are preserved for the dynamically constructed parameters of the optimizer, the loss function,
 and the callbacks.
+
+To perform additional input checks on the task, the private \code{.verify_train_task(task, param_vals)} and
+\code{.verify_predict_task(task, param_vals)} can be overwritten.
 }
 
 \seealso{
@@ -132,13 +135,11 @@ Shortcut for \code{learner$model$callbacks$history}.}
 <details><summary>Inherited methods</summary>
 <ul>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner"><a href='../../mlr3/html/Learner.html#method-Learner-base_learner'><code>mlr3::Learner$base_learner()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="bundle"><a href='../../mlr3/html/Learner.html#method-Learner-bundle'><code>mlr3::Learner$bundle()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help"><a href='../../mlr3/html/Learner.html#method-Learner-help'><code>mlr3::Learner$help()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict"><a href='../../mlr3/html/Learner.html#method-Learner-predict'><code>mlr3::Learner$predict()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata"><a href='../../mlr3/html/Learner.html#method-Learner-predict_newdata'><code>mlr3::Learner$predict_newdata()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset"><a href='../../mlr3/html/Learner.html#method-Learner-reset'><code>mlr3::Learner$reset()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train"><a href='../../mlr3/html/Learner.html#method-Learner-train'><code>mlr3::Learner$train()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="unbundle"><a href='../../mlr3/html/Learner.html#method-Learner-unbundle'><code>mlr3::Learner$unbundle()</code></a></span></li>
 </ul>
 </details>
 }}

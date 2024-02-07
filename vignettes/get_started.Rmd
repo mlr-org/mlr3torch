@@ -32,14 +32,14 @@ task$head()
 Learners in `mlr3torch` work very similary to other `mlr3` learners.
 Below, we construct a simple multi layer perceptron for regression.
 We do this as usual using the `lrn()` function and specify its parameters:
-The hidden dimension is set to 50 and the number of layers to 2.
+We use two hidden layers with 50 neurons,
 For training, we set the batch size to 32, the number of training epochs to 30 and the device to `"cpu"`.
 For a complete description of the available parameters see `?mlr3torch::LearnerTorchMLP`.
 
 ```{r}
 mlp = lrn("regr.mlp",
   # architecture parameters
-  d_hidden = 50, layers = 2,
+  neurons = c(50, 50),
   # training arguments
   batch_size = 32, epochs = 30, device = "cpu"
 )
@@ -213,7 +213,7 @@ mlp_custom = lrn("regr.mlp",
   measures_train = msr("regr.mae"),
   # other parameters are left as-is:
   # architecture
-  d_hidden = 50, layers = 2,
+  neurons = c(50, 50),
   # training arguments
   batch_size = 32, epochs = 30, device = "cpu"
 )

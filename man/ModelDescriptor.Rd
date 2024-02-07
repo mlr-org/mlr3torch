@@ -11,8 +11,8 @@ ModelDescriptor(
   optimizer = NULL,
   loss = NULL,
   callbacks = NULL,
-  .pointer = NULL,
-  .pointer_shape = NULL
+  pointer = NULL,
+  pointer_shape = NULL
 )
 }
 \arguments{
@@ -34,12 +34,12 @@ Additional info: what loss to use.}
 \item{callbacks}{(A \code{list} of \code{\link{CallbackSet}} or \code{NULL})\cr
 Additional info: what callbacks to use.}
 
-\item{.pointer}{(\code{character(2)} | \code{NULL})\cr
+\item{pointer}{(\code{character(2)} | \code{NULL})\cr
 Indicating an element on which a model is. Points to an output channel within \code{graph}:
 Element 1 is the \code{PipeOp}'s id and element 2 is that \code{PipeOp}'s output channel.}
 
-\item{.pointer_shape}{(\code{integer} | \code{NULL})\cr
-Shape of the output indicated by \code{.pointer}.}
+\item{pointer_shape}{(\code{integer} | \code{NULL})\cr
+Shape of the output indicated by \code{pointer}.}
 }
 \value{
 (\code{ModelDescriptor})
@@ -52,8 +52,8 @@ pipes them through \code{graph}. Input shapes get mapped to input channels of \c
 Output shapes are named by the output channels of \code{graph}; it is also possible
 to represent no-ops on tensors, in which case names of input and output should be identical.
 
-\code{ModelDescriptor} objects typically represent partial models being built up, in which case the \code{.pointer} slot
-indicates a specific point in the graph that produces a tensor of shape \code{.pointer_shape}, on which the graph should
+\code{ModelDescriptor} objects typically represent partial models being built up, in which case the \code{pointer} slot
+indicates a specific point in the graph that produces a tensor of shape \code{pointer_shape}, on which the graph should
 be extended.
 It is allowed for the \code{graph} in this structure to be modified by-reference in different parts of the code.
 However, these modifications may never add edges with elements of the \code{Graph} as destination. In particular, no
@@ -77,11 +77,11 @@ Other Graph Network:
 \code{\link{TorchIngressToken}()},
 \code{\link{mlr_learners_torch_model}},
 \code{\link{mlr_pipeops_module}},
-\code{\link{mlr_pipeops_torch_ingress_categ}},
-\code{\link{mlr_pipeops_torch_ingress_img}},
-\code{\link{mlr_pipeops_torch_ingress_num}},
-\code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch}},
+\code{\link{mlr_pipeops_torch_ingress}},
+\code{\link{mlr_pipeops_torch_ingress_categ}},
+\code{\link{mlr_pipeops_torch_ingress_ltnsr}},
+\code{\link{mlr_pipeops_torch_ingress_num}},
 \code{\link{model_descriptor_to_learner}()},
 \code{\link{model_descriptor_to_module}()},
 \code{\link{model_descriptor_union}()},

@@ -200,7 +200,7 @@ test_that("train parameters do what they should: classification and regression",
     epochs = sample(3, 1)
     batch_size = sample(16, 1)
     shuffle = sample(c(TRUE, FALSE), 1)
-    num_threads = sample(2, 1)
+    num_threads = if (running_on_mac()) 1L else sample(2, 1)
     drop_last = sample(c(TRUE, FALSE), 1)
     seed = sample.int(10, 1)
     measures_train = msrs(paste0(measure_ids[sample(c(TRUE, FALSE, TRUE), 3, replace = FALSE)]))
@@ -216,7 +216,8 @@ test_that("train parameters do what they should: classification and regression",
       seed = seed,
       measures_train = measures_train,
       measures_valid = measures_valid,
-      predict_type = switch(task_type, classif = "prob", regr = "response")
+      predict_type = switch(task_type, classif = "prob", regr = "response"),
+      device = "cpu"
 
     )
 
@@ -230,7 +231,9 @@ test_that("train parameters do what they should: classification and regression",
     internals = learner$model$callbacks$internals
     ctx = internals$ctx1
 
-    expect_equal(num_threads, internals$num_threads)
+    if (!running_on_mac()) {
+      expect_equal(num_threads, internals$num_threads)
+    }
     expect_equal(ctx$loader_train$batch_size, batch_size)
     expect_equal(ctx$loader_valid$batch_size, batch_size)
     expect_equal(ctx$total_epochs, epochs)
@@ -319,7 +322,7 @@ test_that("predict parameters do what they should: classification and regression
   )
 
   f = function(task_type) {
-    num_threads = sample(2, 1)
+    num_threads = if (running_on_mac()) 1L else sample(2, 1)
     batch_size = sample(16, 1)
     learner = lrn(paste0(task_type, ".torch_featureless"), epochs = 1, callbacks = callback,
       num_threads = num_threads,
@@ -330,7 +333,9 @@ test_that("predict parameters do what they should: classification and regression
     learner$train(task)
     internals = learner$model$callbacks$internals
     ctx = internals$ctx1
-    expect_equal(num_threads, internals$num_threads)
+    if (!running_on_mac()) {
+      expect_equal(num_threads, internals$num_threads)
+    }
 
     learner$param_set$set_values(device = "meta")
     try(learner$predict(task), silent = TRUE)
@@ -378,4 +383,44 @@ test_that("resample() works", {
   resampling = rsmp("holdout")
   rr = resample(task, learner, resampling)
   expect_r6(rr, "ResampleResult")
+})
+
+test_that("Input verification works during `$train()` (train-predict shapes work together)", {
+  task = nano_mnist()
+
+  task_invalid = po("trafo_resize", size = c(10, 10), stages = "train") $train(list(task))[[1L]]
+  task_valid = po("trafo_resize", size = c(10, 10), stages = "both") $train(list(task))[[1L]]
+
+  learner = lrn("classif.torch_featureless",
+    batch_size = 1L, epochs = 0L
+  )
+
+  # fallback learner cannot help in this case!
+  learner$fallback = lrn("classif.featureless")
+  rr_faulty = resample(task_invalid, learner, rsmp("holdout"))
+  expect_true(nrow(rr_faulty$errors) == 1L)
+  rr1 = resample(task, learner, rsmp("holdout"))
+  expect_true(nrow(rr1$errors) == 0L)
+
+  task_unknown = po("trafo_resize", size = c(10, 10), stages = "train") $train(list(nano_dogs_vs_cats()))[[1L]]
+  rr2 = resample(task_unknown, learner, rsmp("holdout"))
+  expect_true(nrow(rr2$errors) == 0L)
+})
+
+test_that("Input verification works during `$predict()` (same column info, problematic fct -> int conversion)", {
+  task1 = as_task_classif(data.table(
+    y = factor(c("A", "B"))
+  ), target = "y", id = "test1")
+
+  task2 = as_task_classif(data.table(
+    y = factor(c("A", "B"), labels = c("B", "A"), levels = c("B", "A"))
+  ), target = "y", id = "test2")
+
+  learner = lrn("classif.torch_featureless", batch_size = 1L, epochs = 0L)
+
+  learner$train(task1)
+  expect_error(
+    learner$predict(task2),
+    "does not match"
+  )
 })

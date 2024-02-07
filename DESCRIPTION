@@ -42,7 +42,7 @@ Imports:
     checkmate (>= 2.2.0),
     coro,
     lgr,
-    mlr3misc (>= 0.11.0),
+    mlr3misc (>= 0.14.0),
     methods,
     data.table,
     paradox (>= 0.11.0),
@@ -59,19 +59,19 @@ Suggests:
     progress,
     rmarkdown,
     viridis,
-    torchvision,
     testthat (>= 3.0.0),
-    zip
+    torchvision
 Remotes:
-    r-lib/zip,
-    mlr-org/mlr3
+    mlr-org/mlr3,
+    mlr-org/mlr3pipelines@feat/keep_results,
+    mlverse/torchvision
 Config/testthat/edition: 3
 NeedsCompilation: no
 ByteCompile: no
 VignetteBuilder: knitr
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, r6 = TRUE)
-RoxygenNote: 7.2.3.9000
+RoxygenNote: 7.3.1
 Collate:
     'CallbackSet.R'
     'zzz.R'
@@ -81,6 +81,8 @@ Collate:
     'CallbackSetProgress.R'
     'ContextTorch.R'
     'DataBackendLazy.R'
+    'utils.R'
+    'DataDescriptor.R'
     'LearnerTorch.R'
     'LearnerTorchImage.R'
     'LearnerTorchAlexNet.R'
@@ -90,6 +92,7 @@ Collate:
     'ModelDescriptor.R'
     'PipeOpModule.R'
     'PipeOpTorch.R'
+    'PipeOpTaskPreprocTorch.R'
     'PipeOpTorchActivation.R'
     'PipeOpTorchAvgPool.R'
     'PipeOpTorchBatchNorm.R'
@@ -98,6 +101,7 @@ Collate:
     'PipeOpTorchConvTranspose.R'
     'PipeOpTorchDropout.R'
     'PipeOpTorchHead.R'
+    'shape.R'
     'PipeOpTorchIngress.R'
     'PipeOpTorchLayerNorm.R'
     'PipeOpTorchLinear.R'
@@ -110,17 +114,21 @@ Collate:
     'PipeOpTorchReshape.R'
     'PipeOpTorchSoftmax.R'
     'ResamplingRowRoles.R'
+    'TaskClassif_lazy_iris.R'
+    'TaskClassif_mnist.R'
     'TaskClassif_tiny_imagenet.R'
     'TorchDescriptor.R'
     'TorchOptimizer.R'
     'bibentries.R'
     'cache.R'
-    'imageuri.R'
+    'lazy_tensor.R'
     'learner_torch_methods.R'
+    'materialize.R'
+    'merge_graphs.R'
     'nn_graph.R'
     'paramset_torchlearner.R'
+    'preprocess.R'
     'rd_info.R'
     'reset_last_layer.R'
     'task_dataset.R'
-    'utils.R'
     'with_torch_settings.R'

@@ -47,6 +47,8 @@ The parameter \code{num_features} is inferred as the second dimension of the inp
 }
 
 \examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{\}) # examplesIf}
 # Construct the PipeOp
 pipeop = po("nn_batch_norm1d")
 pipeop
@@ -83,13 +85,13 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_max_pool1d}},
 \code{\link{mlr_pipeops_nn_max_pool2d}},
 \code{\link{mlr_pipeops_nn_max_pool3d}},
+\code{\link{mlr_pipeops_nn_merge}},
 \code{\link{mlr_pipeops_nn_merge_cat}},
 \code{\link{mlr_pipeops_nn_merge_prod}},
 \code{\link{mlr_pipeops_nn_merge_sum}},
-\code{\link{mlr_pipeops_nn_merge}},
 \code{\link{mlr_pipeops_nn_prelu}},
-\code{\link{mlr_pipeops_nn_relu6}},
 \code{\link{mlr_pipeops_nn_relu}},
+\code{\link{mlr_pipeops_nn_relu6}},
 \code{\link{mlr_pipeops_nn_reshape}},
 \code{\link{mlr_pipeops_nn_rrelu}},
 \code{\link{mlr_pipeops_nn_selu}},
@@ -99,20 +101,21 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_softshrink}},
 \code{\link{mlr_pipeops_nn_softsign}},
 \code{\link{mlr_pipeops_nn_squeeze}},
-\code{\link{mlr_pipeops_nn_tanhshrink}},
 \code{\link{mlr_pipeops_nn_tanh}},
+\code{\link{mlr_pipeops_nn_tanhshrink}},
 \code{\link{mlr_pipeops_nn_threshold}},
-\code{\link{mlr_pipeops_torch_ingress_categ}},
-\code{\link{mlr_pipeops_torch_ingress_num}},
 \code{\link{mlr_pipeops_torch_ingress}},
+\code{\link{mlr_pipeops_torch_ingress_categ}},
+\code{\link{mlr_pipeops_torch_ingress_ltnsr}},
+\code{\link{mlr_pipeops_torch_ingress_num}},
 \code{\link{mlr_pipeops_torch_loss}},
+\code{\link{mlr_pipeops_torch_model}},
 \code{\link{mlr_pipeops_torch_model_classif}},
-\code{\link{mlr_pipeops_torch_model_regr}},
-\code{\link{mlr_pipeops_torch_model}}
+\code{\link{mlr_pipeops_torch_model_regr}}
 }
 \concept{PipeOps}
 \section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{mlr3torch::PipeOpTorch}} -> \code{mlr3torch::PipeOpTorchBatchNorm} -> \code{PipeOpTorchBatchNorm1D}
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{mlr3torch::PipeOpTorch} -> \code{mlr3torch::PipeOpTorchBatchNorm} -> \code{PipeOpTorchBatchNorm1D}
 }
 \section{Methods}{
 \subsection{Public methods}{

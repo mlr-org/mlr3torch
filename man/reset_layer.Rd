@@ -34,17 +34,21 @@ but training is intended to be applied to e.g. 10 classes.
 As of this, this also freezes the parameters of all but the last layer.
 }
 \examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{\}) # examplesIf}
 \dontrun{
 # AlexNet
-model = torchvision::model_alexnet(pretrained = TRUE)
-model$classifier[[7]]$out_feature
-model = reset_last_layer(model, 10)
-model$classifier[[7]]$out_feature
+if (mlr3misc::requires_namespaces("torchvision") && torch::torch_is_installed(h)) {
+ model = torchvision::model_alexnet(pretrained = TRUE)
+ model$classifier[[7]]$out_feature
+ model = reset_last_layer(model, 10)
+ model$classifier[[7]]$out_feature
 
-# ResNet
-model = torchvision::model_resnet18(pretrained = TRUE)
-model$fc$out_feature
-model = reset_last_layer(model, 10)
-model$fc$out_feature
+ # ResNet
+ model = torchvision::model_resnet18(pretrained = TRUE)
+ model$fc$out_feature
+ model = reset_last_layer(model, 10)
+ model$fc$out_feature
+}
 }
 }

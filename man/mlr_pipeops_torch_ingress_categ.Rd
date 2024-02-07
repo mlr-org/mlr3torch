@@ -33,12 +33,14 @@ The state is set to the input shape.
 }
 
 \examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{\}) # examplesIf}
 graph = po("select", selector = selector_type("factor")) \%>>\%
   po("torch_ingress_categ")
 task = tsk("german_credit")
-# The output is a TorchIngressToken
-token = graph$train(task)[[1L]]
-ingress = token$ingress[[1L]]
+# The output is a model descriptor
+md = graph$train(task)[[1L]]
+ingress = md$ingress[[1L]]
 ingress$batchgetter(task$data(1, ingress$features), "cpu")
 }
 \seealso{
@@ -72,13 +74,13 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_max_pool1d}},
 \code{\link{mlr_pipeops_nn_max_pool2d}},
 \code{\link{mlr_pipeops_nn_max_pool3d}},
+\code{\link{mlr_pipeops_nn_merge}},
 \code{\link{mlr_pipeops_nn_merge_cat}},
 \code{\link{mlr_pipeops_nn_merge_prod}},
 \code{\link{mlr_pipeops_nn_merge_sum}},
-\code{\link{mlr_pipeops_nn_merge}},
 \code{\link{mlr_pipeops_nn_prelu}},
-\code{\link{mlr_pipeops_nn_relu6}},
 \code{\link{mlr_pipeops_nn_relu}},
+\code{\link{mlr_pipeops_nn_relu6}},
 \code{\link{mlr_pipeops_nn_reshape}},
 \code{\link{mlr_pipeops_nn_rrelu}},
 \code{\link{mlr_pipeops_nn_selu}},
@@ -88,25 +90,26 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_softshrink}},
 \code{\link{mlr_pipeops_nn_softsign}},
 \code{\link{mlr_pipeops_nn_squeeze}},
-\code{\link{mlr_pipeops_nn_tanhshrink}},
 \code{\link{mlr_pipeops_nn_tanh}},
+\code{\link{mlr_pipeops_nn_tanhshrink}},
 \code{\link{mlr_pipeops_nn_threshold}},
-\code{\link{mlr_pipeops_torch_ingress_num}},
 \code{\link{mlr_pipeops_torch_ingress}},
+\code{\link{mlr_pipeops_torch_ingress_ltnsr}},
+\code{\link{mlr_pipeops_torch_ingress_num}},
 \code{\link{mlr_pipeops_torch_loss}},
+\code{\link{mlr_pipeops_torch_model}},
 \code{\link{mlr_pipeops_torch_model_classif}},
-\code{\link{mlr_pipeops_torch_model_regr}},
-\code{\link{mlr_pipeops_torch_model}}
+\code{\link{mlr_pipeops_torch_model_regr}}
 
 Other Graph Network: 
 \code{\link{ModelDescriptor}()},
 \code{\link{TorchIngressToken}()},
 \code{\link{mlr_learners_torch_model}},
 \code{\link{mlr_pipeops_module}},
-\code{\link{mlr_pipeops_torch_ingress_img}},
-\code{\link{mlr_pipeops_torch_ingress_num}},
-\code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch}},
+\code{\link{mlr_pipeops_torch_ingress}},
+\code{\link{mlr_pipeops_torch_ingress_ltnsr}},
+\code{\link{mlr_pipeops_torch_ingress_num}},
 \code{\link{model_descriptor_to_learner}()},
 \code{\link{model_descriptor_to_module}()},
 \code{\link{model_descriptor_union}()},
@@ -115,7 +118,7 @@ Other Graph Network:
 \concept{Graph Network}
 \concept{PipeOps}
 \section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorchIngress]{mlr3torch::PipeOpTorchIngress}} -> \code{PipeOpTorchIngressCategorical}
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{mlr3torch::PipeOpTorchIngress} -> \code{PipeOpTorchIngressCategorical}
 }
 \section{Methods}{
 \subsection{Public methods}{

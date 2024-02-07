@@ -5,11 +5,11 @@ test_that("PipeOpTorchLogSigmoid autotest", {
   graph = po("torch_ingress_num") %>>% po_test
   task = tsk("iris")
 
-  autotest_pipeop_torch(graph, "nn_log_sigmoid", task)
+  expect_pipeop_torch(graph, "nn_log_sigmoid", task)
 })
 
 test_that("PipeOpTorchLogSigmoid paramtest", {
-  res = autotest_paramset(po("nn_log_sigmoid"), nn_log_sigmoid)
+  res = expect_paramset(po("nn_log_sigmoid"), nn_log_sigmoid)
   expect_paramtest(res)
 })
 
@@ -20,11 +20,11 @@ test_that("PipeOpTorchSigmoid autotest", {
   graph = po("torch_ingress_num") %>>% po_test
   task = tsk("iris")
 
-  autotest_pipeop_torch(graph, "nn_sigmoid", task)
+  expect_pipeop_torch(graph, "nn_sigmoid", task)
 })
 
 test_that("PipeOpTorchSigmoid paramtest", {
-  res = autotest_paramset(po("nn_sigmoid"), nn_sigmoid)
+  res = expect_paramset(po("nn_sigmoid"), nn_sigmoid)
   expect_paramtest(res)
 })
 
@@ -35,11 +35,11 @@ test_that("PipeOpTorchGELU autotest", {
   graph = po("torch_ingress_num") %>>% po_test
   task = tsk("iris")
 
-  autotest_pipeop_torch(graph, "nn_gelu", task)
+  expect_pipeop_torch(graph, "nn_gelu", task)
 })
 
 test_that("PipeOpTorchGELU paramtest", {
-  res = autotest_paramset(po("nn_gelu"), nn_gelu)
+  res = expect_paramset(po("nn_gelu"), nn_gelu)
   expect_paramtest(res)
 })
 
@@ -50,11 +50,11 @@ test_that("PipeOpTorchReLU autotest", {
   graph = po("torch_ingress_num") %>>% po_test
   task = tsk("iris")
 
-  autotest_pipeop_torch(graph, "nn_relu", task)
+  expect_pipeop_torch(graph, "nn_relu", task)
 })
 
 test_that("PipeOpTorchReLU paramtest", {
-  res = autotest_paramset(po("nn_relu"), nn_relu)
+  res = expect_paramset(po("nn_relu"), nn_relu)
   expect_paramtest(res)
 })
 
@@ -66,11 +66,11 @@ test_that("PipeOpTorchTanhShrink autotest", {
   graph = po("torch_ingress_num") %>>% po_test
   task = tsk("iris")
 
-  autotest_pipeop_torch(graph, "nn_tanhshrink", task)
+  expect_pipeop_torch(graph, "nn_tanhshrink", task)
 })
 
 test_that("PipeOpTorchTanhShrink paramtest", {
-  res = autotest_paramset(po("nn_tanhshrink"), nn_tanhshrink)
+  res = expect_paramset(po("nn_tanhshrink"), nn_tanhshrink)
   expect_paramtest(res)
 })
 
@@ -80,11 +80,11 @@ test_that("PipeOpTorchGLU autotest", {
   po_test = po("nn_glu")
   graph = po("torch_ingress_num") %>>% po_test
   task = tsk("iris")
-  autotest_pipeop_torch(graph, "nn_glu", task)
+  expect_pipeop_torch(graph, "nn_glu", task)
 })
 
 test_that("PipeOpTorchGLU paramtest", {
-  res = autotest_paramset(po("nn_glu"), nn_glu)
+  res = expect_paramset(po("nn_glu"), nn_glu)
   expect_paramtest(res)
 })
 
@@ -95,11 +95,11 @@ test_that("PipeOpTorchCelu autotest", {
   graph = po("torch_ingress_num") %>>% po_test
   task = tsk("iris")
 
-  autotest_pipeop_torch(graph, "nn_celu", task)
+  expect_pipeop_torch(graph, "nn_celu", task)
 })
 
 test_that("PipeOpTorchCelu paramtest", {
-  res = autotest_paramset(po("nn_celu"), nn_celu)
+  res = expect_paramset(po("nn_celu"), nn_celu)
   expect_paramtest(res)
 })
 
@@ -110,11 +110,11 @@ test_that("PipeOpTorchThreshold autotest", {
   graph = po("torch_ingress_num") %>>% po_test
   task = tsk("iris")
 
-  autotest_pipeop_torch(graph, "nn_threshold", task)
+  expect_pipeop_torch(graph, "nn_threshold", task)
 })
 
 test_that("PipeOpTorchThreshold paramtest", {
-  res = autotest_paramset(po("nn_threshold"), nn_threshold)
+  res = expect_paramset(po("nn_threshold"), nn_threshold)
   expect_paramtest(res)
 })
 
@@ -126,11 +126,11 @@ test_that("PipeOpTorchRReLU autotest", {
   graph = po("torch_ingress_num") %>>% po_test
   task = tsk("iris")
 
-  autotest_pipeop_torch(graph, "nn_rrelu", task)
+  expect_pipeop_torch(graph, "nn_rrelu", task)
 })
 
 test_that("PipeOpTorchRReLU paramtest", {
-  res = autotest_paramset(po("nn_rrelu"), nn_rrelu)
+  res = expect_paramset(po("nn_rrelu"), nn_rrelu)
   expect_paramtest(res)
 })
 
@@ -142,12 +142,12 @@ test_that("PipeOpTorchHardSigmoid autotest", {
   graph = po("torch_ingress_num") %>>% po_test
   task = tsk("iris")
 
-  autotest_pipeop_torch(graph, "nn_hardsigmoid", task)
+  expect_pipeop_torch(graph, "nn_hardsigmoid", task)
 })
 
 
 test_that("PipeOpTorchHardSigmoid paramtest", {
-  res = autotest_paramset(po("nn_hardsigmoid"), nn_hardsigmoid)
+  res = expect_paramset(po("nn_hardsigmoid"), nn_hardsigmoid)
   expect_paramtest(res)
 })
 
@@ -159,11 +159,11 @@ test_that("PipeOpTorchPReLU autotest", {
   graph = po("torch_ingress_num") %>>% po_test
   task = tsk("iris")
 
-  autotest_pipeop_torch(graph, "nn_prelu", task)
+  expect_pipeop_torch(graph, "nn_prelu", task)
 })
 
 test_that("PipeOpTorchPReLU paramtest", {
-  res = autotest_paramset(po("nn_prelu"), nn_prelu)
+  res = expect_paramset(po("nn_prelu"), nn_prelu)
   expect_paramtest(res)
 })
 
@@ -175,11 +175,11 @@ test_that("PipeOpTorchTanh autotest", {
   graph = po("torch_ingress_num") %>>% po_test
   task = tsk("iris")
 
-  autotest_pipeop_torch(graph, "nn_tanh", task)
+  expect_pipeop_torch(graph, "nn_tanh", task)
 })
 
 test_that("PipeOpTorchTanh paramtest", {
-  res = autotest_paramset(po("nn_tanh"), nn_tanh)
+  res = expect_paramset(po("nn_tanh"), nn_tanh)
   expect_paramtest(res)
 })
 
@@ -190,11 +190,11 @@ test_that("PipeOpTorchLeakyReLU autotest", {
   graph = po("torch_ingress_num") %>>% po_test
   task = tsk("iris")
 
-  autotest_pipeop_torch(graph, "nn_leaky_relu", task)
+  expect_pipeop_torch(graph, "nn_leaky_relu", task)
 })
 
 test_that("PipeOpTorchLeakyReLU paramtest", {
-  res = autotest_paramset(po("nn_leaky_relu"), nn_leaky_relu)
+  res = expect_paramset(po("nn_leaky_relu"), nn_leaky_relu)
   expect_paramtest(res)
 })
 
@@ -205,11 +205,11 @@ test_that("PipeOpTorchRelu6 autotest", {
   graph = po("torch_ingress_num") %>>% po_test
   task = tsk("iris")
 
-  autotest_pipeop_torch(graph, "nn_relu6", task)
+  expect_pipeop_torch(graph, "nn_relu6", task)
 })
 
 test_that("PipeOpTorchRelu6 paramtest", {
-  res = autotest_paramset(po("nn_relu6"), nn_relu6)
+  res = expect_paramset(po("nn_relu6"), nn_relu6)
   expect_paramtest(res)
 })
 
@@ -222,12 +222,12 @@ test_that("PipeOpTorchELU autotest", {
   graph = po("torch_ingress_num") %>>% po_test
   task = tsk("iris")
 
-  autotest_pipeop_torch(graph, "nn_elu", task)
+  expect_pipeop_torch(graph, "nn_elu", task)
 
 })
 
 test_that("PipeOpTorchELU paramtest", {
-  res = autotest_paramset(po("nn_elu"), nn_elu)
+  res = expect_paramset(po("nn_elu"), nn_elu)
   expect_paramtest(res)
 })
 
@@ -238,12 +238,12 @@ test_that("PipeOpTorchtSoftShrink autotest", {
   graph = po("torch_ingress_num") %>>% po_test
   task = tsk("iris")
 
-  autotest_pipeop_torch(graph, "nn_softshrink", task)
+  expect_pipeop_torch(graph, "nn_softshrink", task)
 
 })
 
 test_that("PipeOpTorchtSoftShrink paramtest", {
-  res = autotest_paramset(po("nn_softshrink"), nn_softshrink)
+  res = expect_paramset(po("nn_softshrink"), nn_softshrink)
   expect_paramtest(res)
 })
 
@@ -255,12 +255,12 @@ test_that("PipeOpTorchHardShrink autotest", {
   graph = po("torch_ingress_num") %>>% po_test
   task = tsk("iris")
 
-  autotest_pipeop_torch(graph, "nn_hardshrink", task)
+  expect_pipeop_torch(graph, "nn_hardshrink", task)
 
 })
 
 test_that("PipeOpTorchHardShrink paramtest", {
-  res = autotest_paramset(po("nn_hardshrink"), nn_hardshrink)
+  res = expect_paramset(po("nn_hardshrink"), nn_hardshrink)
   expect_paramtest(res)
 })
 
@@ -272,12 +272,12 @@ test_that("PipeOpTorchSoftPlus autotest", {
   graph = po("torch_ingress_num") %>>% po_test
   task = tsk("iris")
 
-  autotest_pipeop_torch(graph, "nn_softplus", task)
+  expect_pipeop_torch(graph, "nn_softplus", task)
 
 })
 
 test_that("PipeOpTorchSoftPlus paramtest", {
-  res = autotest_paramset(po("nn_softplus"), nn_softplus)
+  res = expect_paramset(po("nn_softplus"), nn_softplus)
   expect_paramtest(res)
 })
 
@@ -288,12 +288,12 @@ test_that("PipeOpTorchSELU autotest", {
   graph = po("torch_ingress_num") %>>% po_test
   task = tsk("iris")
 
-  autotest_pipeop_torch(graph, "nn_selu", task)
+  expect_pipeop_torch(graph, "nn_selu", task)
 
 })
 
 test_that("PipeOpTorchSELU paramtest", {
-  res = autotest_paramset(po("nn_selu"), nn_selu)
+  res = expect_paramset(po("nn_selu"), nn_selu)
   expect_paramtest(res)
 })
 
@@ -305,12 +305,12 @@ test_that("PipeOpTorchSoftmax autotest", {
   graph = po("torch_ingress_num") %>>% po_test
   task = tsk("iris")
 
-  autotest_pipeop_torch(graph, "nn_softmax", task)
+  expect_pipeop_torch(graph, "nn_softmax", task)
 
 })
 
 test_that("PipeOpTorchSoftmax paramtest", {
-  res = autotest_paramset(po("nn_softmax"), nn_softmax)
+  res = expect_paramset(po("nn_softmax"), nn_softmax)
   expect_paramtest(res)
 })
 
@@ -322,12 +322,12 @@ test_that("PipeOpTorchSoftSign autotest", {
   graph = po("torch_ingress_num") %>>% po_test
   task = tsk("iris")
 
-  autotest_pipeop_torch(graph, "nn_softsign", task)
+  expect_pipeop_torch(graph, "nn_softsign", task)
 
 })
 
 test_that("PipeOpTorchSoftSign paramtest", {
-  res = autotest_paramset(po("nn_softsign"), nn_softsign)
+  res = expect_paramset(po("nn_softsign"), nn_softsign)
   expect_paramtest(res)
 })
 
@@ -338,11 +338,11 @@ test_that("PipeOpTorchHardTanh autotest", {
   graph = po("torch_ingress_num") %>>% po_test
   task = tsk("iris")
 
-  autotest_pipeop_torch(graph, "nn_hardtanh", task)
+  expect_pipeop_torch(graph, "nn_hardtanh", task)
 
 })
 
 test_that("PipeOpTorchHardTanh paramtest", {
-  res = autotest_paramset(po("nn_hardtanh"), nn_hardtanh)
+  res = expect_paramset(po("nn_hardtanh"), nn_hardtanh)
   expect_paramtest(res)
 })

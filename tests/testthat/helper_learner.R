@@ -22,18 +22,18 @@ LearnerTorchTest1 = R6Class("LearnerTorchTest1",
     }
   ),
   private = list(
-    .network = function(task, param_vals, defaults) {
+    .network = function(task, param_vals) {
       nout = get_nout(task)
       nn_linear(length(task$feature_names), nout, bias = param_vals$bias)
     },
-    .dataloader = function(task, param_vals, defaults) {
+    .dataloader = function(task, param_vals) {
       ingress_token = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, length(task$feature_names)))
       dataset = task_dataset(
         task,
         feature_ingress_tokens = list(num = ingress_token),
         target_batchgetter = crate(function(data, device) {
           torch_tensor(data = as.integer(data[[1]]), dtype = torch_long(), device = device)
-        }, .parent = topenv()),
+        }),
         device = param_vals$device
       )
       dl = dataloader(
@@ -69,8 +69,9 @@ LearnerTorchImageTest = R6Class("LearnerTorchImageTest",
     }
   ),
   private = list(
-    .network = function(task, param_vals, defaults) {
-      d = prod(param_vals$height, param_vals$width, param_vals$channels)
+    .network = function(task, param_vals) {
+      shape = dd(task$data(task$row_ids[1L], task$feature_names)[[1L]])$pointer_shape
+      d = prod(shape[-1])
       nout = get_nout(task)
       nn_sequential(
         nn_flatten(),

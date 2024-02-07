@@ -52,17 +52,11 @@ LearnerTorchImage = R6Class("LearnerTorchImage",
         classif = c("twoclass", "multiclass")
       )
       assert_param_set(param_set)
-      predefined_set = ps(
-        channels   = p_int(1, tags = c("train", "predict", "required")),
-        height     = p_int(1, tags = c("train", "predict", "required")),
-        width      = p_int(1, tags = c("train", "predict", "required"))
-      )
 
-      if (param_set$length) {
-        param_set$add(predefined_set)
-      } else {
-        param_set = predefined_set
-      }
+      param_set$add(ps(
+        shape = p_uty(tags = "train", default = NULL, custom_check = crate(
+          function(x) check_shape(x, null_ok = TRUE, unknown_batch = TRUE), .parent = topenv()))
+        ))
 
       super$initialize(
         id = id,
@@ -75,14 +69,20 @@ LearnerTorchImage = R6Class("LearnerTorchImage",
         packages = packages,
         callbacks = callbacks,
         predict_types = predict_types,
-        feature_types = "imageuri",
+        feature_types = "lazy_tensor",
         man = man
       )
     }
   ),
   private = list(
+    .verify_train_task = function(task, param_vals) {
+      if (length(task$feature_names) != 1L || !identical(task$feature_types$type, "lazy_tensor")) {
+        stopf("Must have exactly one feature of type lazy_tensor.")
+      }
+    },
     .dataset = function(task, param_vals) {
-      dataset_img(task, param_vals)
+      dataset_ltnsr(task, param_vals)
     }
+
   )
 )

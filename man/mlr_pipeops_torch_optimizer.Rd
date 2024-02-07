@@ -32,6 +32,8 @@ pipeop itself.
 }
 
 \examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{\}) # examplesIf}
 po_opt = po("torch_optimizer", "sgd", lr = 0.01)
 po_opt$param_set
 mdin = po("torch_ingress_num")$train(list(tsk("iris")))
@@ -42,8 +44,7 @@ mdout[[1L]]$optimizer
 \seealso{
 Other PipeOp: 
 \code{\link{mlr_pipeops_module}},
-\code{\link{mlr_pipeops_torch_callbacks}},
-\code{\link{mlr_pipeops_torch_ingress_img}}
+\code{\link{mlr_pipeops_torch_callbacks}}
 
 Other Model Configuration: 
 \code{\link{ModelDescriptor}()},

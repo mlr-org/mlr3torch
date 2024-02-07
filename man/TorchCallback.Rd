@@ -21,6 +21,8 @@ for each argument of the wrapped loss function, where the parametes are then of 
 }
 
 \examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{\}) # examplesIf}
 # Create a new torch callback from an existing callback set
 torch_callback = TorchCallback$new(CallbackSetCheckpoint)
 # The parameters are inferred
@@ -53,13 +55,13 @@ learner$param_set
 }
 \seealso{
 Other Callback: 
-\code{\link{as_torch_callbacks}()},
 \code{\link{as_torch_callback}()},
+\code{\link{as_torch_callbacks}()},
 \code{\link{callback_set}()},
 \code{\link{mlr3torch_callbacks}},
+\code{\link{mlr_callback_set}},
 \code{\link{mlr_callback_set.checkpoint}},
 \code{\link{mlr_callback_set.progress}},
-\code{\link{mlr_callback_set}},
 \code{\link{mlr_context_torch}},
 \code{\link{t_clbk}()},
 \code{\link{torch_callback}()}
@@ -80,7 +82,7 @@ Other Torch Descriptor:
 \concept{Callback}
 \concept{Torch Descriptor}
 \section{Super class}{
-\code{\link[mlr3torch:TorchDescriptor]{mlr3torch::TorchDescriptor}} -> \code{TorchCallback}
+\code{mlr3torch::TorchDescriptor} -> \code{TorchCallback}
 }
 \section{Methods}{
 \subsection{Public methods}{

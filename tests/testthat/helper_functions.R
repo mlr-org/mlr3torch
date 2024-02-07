@@ -7,8 +7,8 @@ expect_po_ingress = function(po_ingress, task) {
   testthat::expect_true(token$graph$ids() == po_ingress$id)
   testthat::expect_true(all(token$task$feature_types$type %in% po_ingress$feature_types))
   testthat::expect_equal(token$callbacks, named_list())
-  testthat::expect_equal(token$.pointer, c(po_ingress$id, "output"))
-  testthat::expect_equal(token$.pointer_shape, get_private(po_ingress)$.shape(task, po_ingress$param_set$values))
+  testthat::expect_equal(token$pointer, c(po_ingress$id, "output"))
+  testthat::expect_equal(token$pointer_shape, get_private(po_ingress)$.shape(task, po_ingress$param_set$values))
 
   ingress = token$ingress
   expect_set_equal(
@@ -19,7 +19,7 @@ expect_po_ingress = function(po_ingress, task) {
   ds = task_dataset(task, ingress, device = "cpu")
   batch = ds$.getbatch(1)
   x = batch$x[[1L]]
-  testthat::expect_true(torch_equal(x, token$ingress[[1L]]$batchgetter(task$data(1, token$task$feature_names), "cpu")))
+  testthat::expect_true(torch_equal(x, token$ingress[[1L]]$batchgetter(task$data(1, token$task$feature_names), "cpu", cache = NULL)))
 }
 
 expect_man_exists = function(man) {
@@ -53,11 +53,11 @@ expect_deep_clone = function(one, two) {
     visited[[addr_a]] = path
     visited_b[[addr_b]] = path
 
-    # TODO: Take care of torch parameters tensors and buffers and torch optimizer and nn module etc.
-
-    if (inherits(a, "nn_module_generator") || inherits(a, "torch_optimizer_generator") ||
-      inherits(a, "R6ClassGenerator")) {
-      return(invisible(NULL))
+    #if (inherits(a, "nn_module_generator") || inherits(a, "torch_optimizer_generator")) {
+    #  stopf("Not implemented yet")
+    #}
+    if (inherits(a, "R6ClassGenerator")) {
+      return(NULL)
     }
 
     # follow attributes, even for non-recursive objects
@@ -242,3 +242,15 @@ expect_graph = function(g, n_nodes = NULL, n_edges = NULL) {
 
   expect_flag(g$is_trained)
 }
+
+random_dataset = dataset("random_dataset",
+  initialize = function(..., n = 10) {
+    self$x = torch_randn(n, ...)
+  },
+  .getbatch = function(i) {
+    list(x = self$x[i, .., drop = FALSE])
+  },
+  .length = function() {
+    nrow(self$x)
+  }
+)

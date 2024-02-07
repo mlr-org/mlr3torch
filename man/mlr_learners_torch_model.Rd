@@ -13,6 +13,8 @@ For classification, the output of the network must be the scores (before the sof
 }
 
 \examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{\}) # examplesIf}
 # We show the learner using a classification task
 
 # The iris task has 4 features and 3 classes
@@ -31,7 +33,8 @@ learner = lrn("classif.torch_model",
   network = network,
   ingress_tokens = ingress_tokens,
   batch_size = 16,
-  epochs = 1
+  epochs = 1,
+  device = "cpu"
 )
 
 # A simple train-predict
@@ -44,18 +47,18 @@ Other Learner:
 \code{\link{mlr_learners.alexnet}},
 \code{\link{mlr_learners.mlp}},
 \code{\link{mlr_learners.torch_featureless}},
-\code{\link{mlr_learners_torch_image}},
-\code{\link{mlr_learners_torch}}
+\code{\link{mlr_learners_torch}},
+\code{\link{mlr_learners_torch_image}}
 
 Other Graph Network: 
 \code{\link{ModelDescriptor}()},
 \code{\link{TorchIngressToken}()},
 \code{\link{mlr_pipeops_module}},
-\code{\link{mlr_pipeops_torch_ingress_categ}},
-\code{\link{mlr_pipeops_torch_ingress_img}},
-\code{\link{mlr_pipeops_torch_ingress_num}},
-\code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch}},
+\code{\link{mlr_pipeops_torch_ingress}},
+\code{\link{mlr_pipeops_torch_ingress_categ}},
+\code{\link{mlr_pipeops_torch_ingress_ltnsr}},
+\code{\link{mlr_pipeops_torch_ingress_num}},
 \code{\link{model_descriptor_to_learner}()},
 \code{\link{model_descriptor_to_module}()},
 \code{\link{model_descriptor_union}()},
@@ -77,13 +80,11 @@ Other Graph Network:
 <details><summary>Inherited methods</summary>
 <ul>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner"><a href='../../mlr3/html/Learner.html#method-Learner-base_learner'><code>mlr3::Learner$base_learner()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="bundle"><a href='../../mlr3/html/Learner.html#method-Learner-bundle'><code>mlr3::Learner$bundle()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help"><a href='../../mlr3/html/Learner.html#method-Learner-help'><code>mlr3::Learner$help()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict"><a href='../../mlr3/html/Learner.html#method-Learner-predict'><code>mlr3::Learner$predict()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata"><a href='../../mlr3/html/Learner.html#method-Learner-predict_newdata'><code>mlr3::Learner$predict_newdata()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset"><a href='../../mlr3/html/Learner.html#method-Learner-reset'><code>mlr3::Learner$reset()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train"><a href='../../mlr3/html/Learner.html#method-Learner-train'><code>mlr3::Learner$train()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="unbundle"><a href='../../mlr3/html/Learner.html#method-Learner-unbundle'><code>mlr3::Learner$unbundle()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerTorch" data-id="format"><a href='../../mlr3torch/html/LearnerTorch.html#method-LearnerTorch-format'><code>mlr3torch::LearnerTorch$format()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerTorch" data-id="print"><a href='../../mlr3torch/html/LearnerTorch.html#method-LearnerTorch-print'><code>mlr3torch::LearnerTorch$print()</code></a></span></li>
 </ul>

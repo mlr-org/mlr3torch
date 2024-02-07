@@ -4,7 +4,7 @@ test_that("LearnerTorchMLP works", {
     tab = table(map_chr(learner$network$children, function(x) class(x)[[1L]]))
     act = class(learner$param_set$values$activation)[[1L]]
 
-    l = learner$param_set$values$layers
+    l = length(learner$param_set$values$neurons)
 
     expect_true(tab["nn_linear"] == l + 1)
     if (l > 0) {
@@ -17,11 +17,10 @@ test_that("LearnerTorchMLP works", {
   }
 
   learner = lrn("classif.mlp",
-    layers = 2L,
+    neurons = rep(13, 2),
     p = 0.111,
     batch_size = 16L,
     epochs = 0,
-    d_hidden = 13,
     optimizer = "adagrad",
     activation = nn_softshrink,
     activation_args = list(lambd = 0.25)
@@ -38,10 +37,17 @@ test_that("LearnerTorchMLP works", {
 
   verify_network(learner)
 
-  learner$param_set$set_values(layers = 0L)
+  learner$param_set$set_values(neurons = integer(0))
 
   learner$train(task)
   verify_network(learner)
 })
 
-# FIXME: Autotest for learner
+test_that("works for lazy tensor", {
+  learner = lrn("classif.mlp", epochs = 100, batch_size = 150)
+  task_lazy = tsk("lazy_iris")
+  lt = learner$train(task_lazy)
+})
+
+
+# TODO: More tests
