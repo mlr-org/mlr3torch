@@ -22,7 +22,7 @@
 #'
 #' @return `TRUE` if the autotest passes, errs otherwise.
 #' @export
-autotest_pipeop_torch = function(graph, id, task, module_class = id, exclude_args = character(0)) {
+expect_pipeop_torch = function(graph, id, task, module_class = id, exclude_args = character(0)) {
   require_namespaces(c("testthat"))
   po_test = graph$pipeops[[id]]
   result = graph$train(task)
@@ -189,7 +189,7 @@ collapse_char_list = function(x) {
 #'   For which parameters the defaults should not be checked.
 #'
 #' @export
-autotest_paramset = function(x, fns, exclude = character(0), exclude_defaults = character(0)) {
+expect_paramset = function(x, fns, exclude = character(0), exclude_defaults = character(0)) {
   if (test_r6(x, "ParamSet")) {
     param_set = x
   } else if (test_r6(x$param_set, "ParamSet")) {
@@ -282,7 +282,7 @@ expect_paramtest = function(paramtest) {
 #'   The object to test.
 #' @param check_man (`logical(1)`)\cr
 #'   Whether to check that the manual page exists. Default is `TRUE`.
-autotest_torch_callback = function(torch_callback, check_man = TRUE) {
+expect_torch_callback = function(torch_callback, check_man = TRUE) {
   # Checks on descriptor
   expect_class(torch_callback, "TorchCallback")
   expect_string(torch_callback$id)
@@ -301,7 +301,7 @@ autotest_torch_callback = function(torch_callback, check_man = TRUE) {
   expect_true(cbgen$cloneable)
   init_fn = get_init(torch_callback$generator)
   if (is.null(init_fn)) init_fn = function() NULL
-  paramtest = autotest_paramset(torch_callback$param_set, init_fn)
+  paramtest = expect_paramset(torch_callback$param_set, init_fn)
   expect_paramtest(paramtest)
   implemented_stages = names(cbgen$public_methods)[grepl("^on_", names(cbgen$public_methods))]
   expect_subset(implemented_stages, mlr_reflections$torch$callback_stages)
@@ -326,7 +326,7 @@ autotest_torch_callback = function(torch_callback, check_man = TRUE) {
 #' @param obj ([`PipeOpTaskPreprocTorch`])\cr
 #'   The object to test.
 #' @parm tnsr_in (`integer()`)\cr
-autotest_pipeop_torch_preprocess = function(obj, shapes_in, exclude = character(0), exclude_defaults = character(0),
+expect_pipeop_torch_preprocess = function(obj, shapes_in, exclude = character(0), exclude_defaults = character(0),
   in_package = TRUE) {
   expect_pipeop(obj)
   expect_class(obj, "PipeOpTaskPreprocTorch")
@@ -337,7 +337,7 @@ autotest_pipeop_torch_preprocess = function(obj, shapes_in, exclude = character(
       stopf("Parameters of PipeOps inheriting from PipeOpTorch must only be active during training.")
     }
   })
-  autotest_paramset(obj$param_set, obj$fn, exclude = exclude, exclude_defaults = exclude_defaults)
+  expect_paramset(obj$param_set, obj$fn, exclude = exclude, exclude_defaults = exclude_defaults)
   # b) Check that the shape prediction is compatible (already done in autotest for pipeop torch)
 
   # c) check that start with stages / trafo, depending on the initial value

@@ -57,7 +57,7 @@ test_that("assignment", {
   expect_error({x[2] = 1}, "class") # nolint
   # indices must be ints
   expect_error({x["hallo"] = as_lazy_tensor(1)}, "integerish") # nolint
-  expect_error({x[1] = as_lazy_tensor(10)}, "data descriptor")
+  expect_error({x[1] = as_lazy_tensor(10)}, "data descriptor") # nolint
 
 
   y = lazy_tensor()

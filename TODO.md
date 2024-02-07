@@ -55,7 +55,7 @@
 **Other**
 
 *   [x] argument_matcher
-*   [ ] autotest_pipeop_torch
+*   [ ] expect_pipeop_torch
 *   [ ] avg_output_shape
 *   [ ] po_register_env
 *   [ ] Tiny Imagenet
@@ -140,7 +140,7 @@ Some notes:
 from paramset_torchlearner is actually doing something
 
 **Test Coverage**
-* run paramtest vs autotest_paramset --> decide for one and delete the other
+* run paramtest vs expect_paramset --> decide for one and delete the other
 * [ ] Proper testing for torch learners:
       * don't need the autotest as we don't really test the learners.
       * Instead we need to that:

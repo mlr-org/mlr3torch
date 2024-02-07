@@ -1,6 +1,6 @@
 test_that("autotest", {
   cb = t_clbk("progress")
-  autotest_torch_callback(cb)
+  expect_torch_callback(cb)
 })
 
 test_that("manual test", {

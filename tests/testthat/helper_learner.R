@@ -33,7 +33,7 @@ LearnerTorchTest1 = R6Class("LearnerTorchTest1",
         feature_ingress_tokens = list(num = ingress_token),
         target_batchgetter = crate(function(data, device) {
           torch_tensor(data = as.integer(data[[1]]), dtype = torch_long(), device = device)
-        }, .parent = topenv()),
+        }),
         device = param_vals$device
       )
       dl = dataloader(

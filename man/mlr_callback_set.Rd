@@ -46,8 +46,8 @@ These functions perform checks such as that the stages are not accidentally miss
 \seealso{
 Other Callback: 
 \code{\link{TorchCallback}},
-\code{\link{as_torch_callbacks}()},
 \code{\link{as_torch_callback}()},
+\code{\link{as_torch_callbacks}()},
 \code{\link{callback_set}()},
 \code{\link{mlr3torch_callbacks}},
 \code{\link{mlr_callback_set.checkpoint}},

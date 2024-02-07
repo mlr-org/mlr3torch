@@ -48,6 +48,7 @@ task_dataset = dataset(
         stopf("Received ingress token '%s' with no features.", nm)
       }
     })
+    assert_list(feature_ingress_tokens, types = "TorchIngressToken", names = "unique", min.len = 1L)
     self$feature_ingress_tokens = assert_list(feature_ingress_tokens, types = "TorchIngressToken", names = "unique")
     self$all_features = unique(c(unlist(map(feature_ingress_tokens, "features")), task$target_names))
     assert_subset(self$all_features, c(task$target_names, task$feature_names))
@@ -59,10 +60,13 @@ task_dataset = dataset(
     data = self$task$data(cols = lazy_tensor_features)
 
     # Here, we could have multiple `lazy_tensor` columns that share parts of the graph
-    # We try to merge those graphs if possible
+    # we only try to merge those with the same DataDescriptor, this is a restriction which we might want to
+    # relax later, but it eases data-loading
     if (length(lazy_tensor_features) > 1L) {
-      merge_result = merge_lazy_tensor_graphs(data)
-      self$task$cbind(merge_result)
+      merged_cols = merge_lazy_tensor_graphs(data)
+      if (!is.null(merged_cols)) {
+        self$task$cbind(merged_cols)
+      }
     }
 
     self$cache_lazy_tensors = auto_cache_lazy_tensors(data)
@@ -86,16 +90,26 @@ task_dataset = dataset(
   }
 )
 
+# This returns a
 merge_lazy_tensor_graphs = function(lts) {
-  names_lts = names(lts)
-
   # we only attempt to merge preprocessing graphs that have the same dataset_hash
   hashes = map_chr(lts, function(lt) dd(lt)$dataset_hash)
-  lts = unlist(map(unique(hashes), function(hash) {
-    merge_compatible_lazy_tensor_graphs(lts[, names_lts[hashes == hash], with = FALSE])
-  }), recursive = FALSE)
+  # we remove columns that don't share dataset_hash with other columns
+  hashes_to_merge = unique(hashes[duplicated(hashes)])
+  lts = lts[, hashes %in% hashes_to_merge, with = FALSE]
+  hashes_subset = map_chr(lts, function(lt) dd(lt)$dataset_hash)
 
-  as_data_backend(as.data.table(set_names(lts, names_lts)))
+  names_lts = names(lts)
+  lts = map(hashes_to_merge, function(hash) {
+    x = try(merge_compatible_lazy_tensor_graphs(lts[, names_lts[hashes_subset == hash], with = FALSE]), silent = TRUE)
+    if (inherits(x, "try-error")) {
+      lg$warn("Cannot merge lazy tensors with data descriptor with hash '%s'", hash)
+      return(NULL)
+    }
+    x
+  })
+
+  Reduce(cbind, lts)
 }
 
 merge_compatible_lazy_tensor_graphs = function(lts) {

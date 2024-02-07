@@ -1,4 +1,3 @@
-# TODO
 #' @title AlexNet Image Classifier
 #'
 #' @templateVar name alexnet

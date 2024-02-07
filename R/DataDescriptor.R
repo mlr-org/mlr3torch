@@ -90,7 +90,7 @@ DataDescriptor = R6Class("DataDescriptor",
         }
         # get unique ID for input PipeOp
         graph = as_graph(po("nop", id =
-          paste0("nop.", substr(calculate_hash(address(dataset)), 1, 4))
+          paste0("nop.", substr(calculate_hash(address(dataset)), 1, 4), ".", input_map)
         ), clone = FALSE)
       } else {
         graph = as_graph(graph, clone = clone_graph)
@@ -105,7 +105,7 @@ DataDescriptor = R6Class("DataDescriptor",
       } else {
         assert_subset(input_map, names(dataset_shapes))
       }
-      if (is.null(pointer) && simple_case) {
+      if (is.null(pointer) && nrow(graph$output) == 1L) {
         pointer = c(graph$output$op.id, graph$output$channel.name)
       } else {
         assert_character(pointer, len = 2L)

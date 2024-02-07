@@ -4,12 +4,12 @@ test_that("PipeOpTorchMaxPool1D works", {
   graph = po("torch_ingress_num") %>>%
     po("nn_unsqueeze", dim = 2) %>>%
     po_test
-  autotest_pipeop_torch(graph, "nn_max_pool1d", task)
+  expect_pipeop_torch(graph, "nn_max_pool1d", task)
 })
 
 test_that("PipeOpTorchMaxPool1D paramtest", {
   # return_indices is a construction argument.
-  res = autotest_paramset(po("nn_max_pool1d"), nn_max_pool1d, exclude = "return_indices")
+  res = expect_paramset(po("nn_max_pool1d"), nn_max_pool1d, exclude = "return_indices")
   expect_paramtest(res)
 })
 
@@ -18,12 +18,12 @@ test_that("PipeOpTorchMaxPool2D autotest", {
   task = nano_imagenet()
   graph = po("torch_ingress_ltnsr") %>>% po_test
 
-  autotest_pipeop_torch(graph, "nn_max_pool2d", task)
+  expect_pipeop_torch(graph, "nn_max_pool2d", task)
 })
 
 test_that("PipeOpTorchMaxPool2D paramtest", {
   # return_indices is a construction argument.
-  res = autotest_paramset(po("nn_max_pool2d"), nn_max_pool2d, exclude = "return_indices")
+  res = expect_paramset(po("nn_max_pool2d"), nn_max_pool2d, exclude = "return_indices")
   expect_paramtest(res)
 })
 
@@ -34,12 +34,12 @@ test_that("PipeOpTorchMaxPool3D autotest", {
     po("nn_reshape", shape = c(NA, 3, 64, 8, 8)) %>>%
     po_test
 
-  autotest_pipeop_torch(graph, "nn_max_pool3d", task)
+  expect_pipeop_torch(graph, "nn_max_pool3d", task)
 })
 
 test_that("PipeOpTorchMaxPool3D paramtest", {
   # return_indices is a construction argument.
-  res = autotest_paramset(po("nn_max_pool3d"), nn_max_pool3d, exclude = "return_indices")
+  res = expect_paramset(po("nn_max_pool3d"), nn_max_pool3d, exclude = "return_indices")
   expect_paramtest(res)
 })
 

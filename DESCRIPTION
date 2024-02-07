@@ -60,12 +60,9 @@ Suggests:
     rmarkdown,
     viridis,
     testthat (>= 3.0.0),
-    torchvision,
-    zip
+    torchvision
 Remotes:
-    r-lib/zip,
     mlr-org/mlr3,
-    mlr-org/mlr3misc@feat/custom-hash-info,
     mlr-org/mlr3pipelines@feat/keep_results,
     mlverse/torchvision
 Config/testthat/edition: 3
@@ -74,7 +71,7 @@ ByteCompile: no
 VignetteBuilder: knitr
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, r6 = TRUE)
-RoxygenNote: 7.2.3.9000
+RoxygenNote: 7.3.1
 Collate:
     'CallbackSet.R'
     'zzz.R'

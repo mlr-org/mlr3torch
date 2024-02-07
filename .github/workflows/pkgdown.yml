@@ -22,6 +22,7 @@ jobs:
       group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      TORCH_INSTALL: 1
     steps:
       - uses: actions/checkout@v3
 
@@ -33,10 +34,6 @@ jobs:
         with:
           extra-packages: any::pkgdown, local::.
           needs: website
-
-      - name: Install torch
-        run: torch::install_torch()
-        shell: Rscript {0}
 
       - name: Install template
         run: pak::pkg_install("mlr-org/mlr3pkgdowntemplate")

@@ -41,6 +41,10 @@ test_that("basic", {
   expect_equal(batch2$y$shape, 2)
   expect_equal(batch2$x$x_num$shape, c(2, ingress_num$shape[2]))
   expect_equal(batch2$x$x_categ$shape, c(2, ingress_categ$shape[2]))
+
+  # input checks on ingress tokens
+  expect_error(task_dataset(task, list(), device = "cpu"))
+  expect_error(task_dataset(task, list(1), device = "cpu"))
 })
 
 test_that("task_dataset throws error for empty ingress tokens", {
@@ -261,7 +265,7 @@ test_that("default target batchgetter works: classification", {
   expect_equal(y_loaded1$device$type, "meta")
 })
 
-test_that("cachine of graph", {
+test_that("caching of graph", {
   env = new.env()
   fn = crate(function(x) {
     env$counter = env$counter + 1L
@@ -365,4 +369,50 @@ test_that("nop added for non-terminal pipeop", {
   res = materialize(task$data()[1, ], rbind = TRUE)
   expect_torch_equal(res$y + 1, res$x)
 
+})
+
+test_that("unmergeable graphs are handled correctly", {
+  ds = dataset(
+    initialize = function() {
+      self$x1 = 1:10
+      self$x2 = 2:11
+    },
+    .getitem = function(i) {
+      list(x1 = torch_tensor(self$x1[i]), x2 = torch_tensor(self$x2[1]))
+    },
+    .length = function() 10
+  )()
+  lt1 = as_lazy_tensor(ds, dataset_shapes = list(x1 = NULL, x2 = NULL), graph = po("nop", id = "nop1"),
+    input_map = "x1", pointer_shape = c(NA, 1))
+  lt2 = as_lazy_tensor(ds, dataset_shapes = list(x1 = NULL, x2 = NULL), graph = po("nop", id = "nop1"), input_map = "x2",
+    pointer_shape = c(NA, 1))
+
+  task = as_task_regr(data.table(y = runif(10), x1 = lt1, x2 = lt2), target = "y", id = "t1")
+
+  i1 = po("torch_ingress_ltnsr_1")$train(list(task$clone(deep = TRUE)$select("x1")))[[1]]$ingress
+  i2 = po("torch_ingress_ltnsr_2")$train(list(task$clone(deep = TRUE)$select("x2")))[[1]]$ingress
+  expect_true(grepl(
+    capture.output(invisible(task_dataset(task, c(i1, i2), device = "cpu"))),
+    pattern = "Cannot merge", fixed = TRUE
+  ))
+  prev_threshold = lg$threshold
+  on.exit({lg$set_threshold(prev_threshold)}, add = TRUE) # nolint
+  lg$set_threshold("error")
+  task_ds = task_dataset(task, c(i1, i2), device = "cpu")
+
+  batch = task_ds$.getbatch(1)
+  expect_torch_equal(batch$x[[1]], batch$x[[2]] - 1)
+})
+
+test_that("merge_lazy_tensors only returns modified columns", {
+  # don't waste memory by cbinding unmerged graph
+  task = as_task_regr(data.table(
+    y = 1:10,
+    x1 = as_lazy_tensor(1:10),
+    x2 = as_lazy_tensor(2:11)
+  ), target = "y", id = "test")
+
+  data = task$data(cols = task$feature_names)
+  merged = merge_lazy_tensor_graphs(data)
+  expect_true(is.null(merged))
 })

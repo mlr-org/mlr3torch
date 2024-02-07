@@ -36,14 +36,14 @@ LearnerTorchMLP = R6Class("LearnerTorchMLP",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(task_type, optimizer = NULL, loss = NULL, callbacks = list()) {
-      check_activation = crate(function(x) check_class(x, "nn_module"), .parent = topenv())
-      check_activation_args = crate(function(x) check_list(x, names = "unique"), .parent = topenv())
-      check_neurons = crate(function(x) check_integerish(x, any.missing = FALSE, lower = 1), .parent = topenv())
-      cehck_shape = crate(function(x) check_shape(x, null_ok = TRUE, len = 2L), .parent = topenv())
+      check_activation = crate(function(x) check_class(x, "nn_module"))
+      check_activation_args = crate(function(x) check_list(x, names = "unique"))
+      check_neurons = crate(function(x) check_integerish(x, any.missing = FALSE, lower = 1))
+      cechk_shape = crate(function(x) check_shape(x, null_ok = TRUE, len = 2L))
 
       param_set = ps(
         neurons         = p_uty(tags = c("train", "predict"), custom_check = check_neurons),
-        p               = p_dbl(default = 0.5, lower = 0, upper = 1),
+        p               = p_dbl(lower = 0, upper = 1, tags = "train"),
         activation      = p_uty(tags = c("required", "train"), custom_check = check_activation),
         activation_args = p_uty(tags = c("required", "train"), custom_check = check_activation_args),
         shape           = p_uty(tags = "train", custom_check = check_shape)
@@ -52,7 +52,8 @@ LearnerTorchMLP = R6Class("LearnerTorchMLP",
       param_set$set_values(
         activation = nn_relu,
         activation_args = list(),
-        neurons = integer(0)
+        neurons = integer(0),
+        p = 0.5
       )
       properties = switch(task_type,
         regr = character(0),

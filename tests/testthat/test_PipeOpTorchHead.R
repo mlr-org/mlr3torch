@@ -3,12 +3,12 @@ test_that("PipeOpTorchHead autotest", {
   task = tsk("iris")
   graph = po("torch_ingress_num") %>>% po_test
 
-  autotest_pipeop_torch(graph, "nn_head", task, "nn_linear")
+  expect_pipeop_torch(graph, "nn_head", task, "nn_linear")
 })
 
 
 test_that("PipeOpTorchHead paramtest", {
   po_test = po("nn_head")
-  res = autotest_paramset(po_test, torch::nn_linear, exclude = c("out_features", "in_features"))
+  res = expect_paramset(po_test, torch::nn_linear, exclude = c("out_features", "in_features"))
   expect_paramtest(res)
 })

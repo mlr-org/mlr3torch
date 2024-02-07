@@ -1,6 +1,6 @@
 test_that("Autotest", {
   cb = t_clbk("checkpoint", freq = 1, path = tempfile())
-  autotest_torch_callback(cb)
+  expect_torch_callback(cb)
 })
 
 test_that("CallbackSetCheckpoint manual", {

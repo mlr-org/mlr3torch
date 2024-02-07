@@ -59,9 +59,9 @@ Krizhevsky, Alex, Sutskever, Ilya, Hinton, E. G (2017).
 Other Learner: 
 \code{\link{mlr_learners.mlp}},
 \code{\link{mlr_learners.torch_featureless}},
+\code{\link{mlr_learners_torch}},
 \code{\link{mlr_learners_torch_image}},
-\code{\link{mlr_learners_torch_model}},
-\code{\link{mlr_learners_torch}}
+\code{\link{mlr_learners_torch_model}}
 }
 \concept{Learner}
 \section{Super classes}{
