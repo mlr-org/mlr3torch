@@ -4,8 +4,8 @@ This model takes input tensors of shapes shapes_in and
 pipes them through graph. Input shapes get mapped to input channels of graph.
 Output shapes are named by the output channels of graph; it is also possible
 to represent no-ops on tensors, in which case names of input and output should be identical.
-ModelDescriptor objects typically represent partial models being built up, in which case the .pointer slot
-indicates a specific point in the graph that produces a tensor of shape .pointer_shape, on which the graph should
+ModelDescriptor objects typically represent partial models being built up, in which case the pointer slot
+indicates a specific point in the graph that produces a tensor of shape pointer_shape, on which the graph should
 be extended.
 It is allowed for the graph in this structure to be modified by-reference in different parts of the code.
 However, these modifications may never add edges with elements of the Graph as destination. In particular, no
@@ -19,8 +19,8 @@ This model takes input tensors of shapes shapes_in and
 pipes them through graph. Input shapes get mapped to input channels of graph.
 Output shapes are named by the output channels of graph; it is also possible
 to represent no-ops on tensors, in which case names of input and output should be identical.
-ModelDescriptor objects typically represent partial models being built up, in which case the .pointer slot
-indicates a specific point in the graph that produces a tensor of shape .pointer_shape, on which the graph should
+ModelDescriptor objects typically represent partial models being built up, in which case the pointer slot
+indicates a specific point in the graph that produces a tensor of shape pointer_shape, on which the graph should
 be extended.
 It is allowed for the graph in this structure to be modified by-reference in different parts of the code.
 However, these modifications may never add edges with elements of the Graph as destination. In particular, no
@@ -29,7 +29,7 @@ channel of a PipeOp that was previously without parent as its destination.
 In most cases it is better to create a specific ModelDescriptor by training a Graph consisting (mostly) of
 operators PipeOpTorchIngress, PipeOpTorch, PipeOpTorchLoss, PipeOpTorchOptimizer, and
 PipeOpTorchCallbacks.
-A ModelDescriptor can be converted to a nn_graph via model_descriptor_to_module."><meta property="og:image" content="https://mlr3torch.mlr-org.com/logo.svg"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
+A ModelDescriptor can be converted to a nn_graph via model_descriptor_to_module."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body>
@@ -62,8 +62,6 @@ A ModelDescriptor can be converted to a nn_graph via model_descriptor_to_module.
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/get_started.html">Get Started</a>
-    <a class="dropdown-item" href="../articles/image_classification.html">Image Classification</a>
-    <a class="dropdown-item" href="../articles/pipeop_torch.html">Neural Networks as Graphs</a>
   </div>
 </li>
 <li class="nav-item">
@@ -107,7 +105,7 @@ A ModelDescriptor can be converted to a nn_graph via model_descriptor_to_module.
 </nav><div class="container template-reference-topic">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.svg" class="logo" alt=""><h1>Represent a Model with Meta-Info</h1>
+      <img src="" class="logo" alt=""><h1>Represent a Model with Meta-Info</h1>
       
       <div class="d-none name"><code>ModelDescriptor.Rd</code></div>
     </div>
@@ -118,8 +116,8 @@ A ModelDescriptor can be converted to a nn_graph via model_descriptor_to_module.
 pipes them through <code>graph</code>. Input shapes get mapped to input channels of <code>graph</code>.
 Output shapes are named by the output channels of <code>graph</code>; it is also possible
 to represent no-ops on tensors, in which case names of input and output should be identical.</p>
-<p><code>ModelDescriptor</code> objects typically represent partial models being built up, in which case the <code>.pointer</code> slot
-indicates a specific point in the graph that produces a tensor of shape <code>.pointer_shape</code>, on which the graph should
+<p><code>ModelDescriptor</code> objects typically represent partial models being built up, in which case the <code>pointer</code> slot
+indicates a specific point in the graph that produces a tensor of shape <code>pointer_shape</code>, on which the graph should
 be extended.
 It is allowed for the <code>graph</code> in this structure to be modified by-reference in different parts of the code.
 However, these modifications may never add edges with elements of the <code>Graph</code> as destination. In particular, no
@@ -140,8 +138,8 @@ operators <code><a href="mlr_pipeops_torch_ingress.html">PipeOpTorchIngress</a><
 <span>  optimizer <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  loss <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  callbacks <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  .pointer <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  .pointer_shape <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  pointer <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pointer_shape <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -176,15 +174,15 @@ Additional info: what loss to use.</p></dd>
 Additional info: what callbacks to use.</p></dd>
 
 
-<dt>.pointer</dt>
+<dt>pointer</dt>
 <dd><p>(<code>character(2)</code> | <code>NULL</code>)<br>
 Indicating an element on which a model is. Points to an output channel within <code>graph</code>:
 Element 1 is the <code>PipeOp</code>'s id and element 2 is that <code>PipeOp</code>'s output channel.</p></dd>
 
 
-<dt>.pointer_shape</dt>
+<dt>pointer_shape</dt>
 <dd><p>(<code>integer</code> | <code>NULL</code>)<br>
-Shape of the output indicated by <code>.pointer</code>.</p></dd>
+Shape of the output indicated by <code>pointer</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -204,11 +202,11 @@ Shape of the output indicated by <code>.pointer</code>.</p></dd>
 <code><a href="TorchIngressToken.html">TorchIngressToken</a>()</code>,
 <code><a href="mlr_learners_torch_model.html">mlr_learners_torch_model</a></code>,
 <code><a href="mlr_pipeops_module.html">mlr_pipeops_module</a></code>,
-<code><a href="mlr_pipeops_torch_ingress_categ.html">mlr_pipeops_torch_ingress_categ</a></code>,
-<code><a href="mlr_pipeops_torch_ingress_img.html">mlr_pipeops_torch_ingress_img</a></code>,
-<code><a href="mlr_pipeops_torch_ingress_num.html">mlr_pipeops_torch_ingress_num</a></code>,
-<code><a href="mlr_pipeops_torch_ingress.html">mlr_pipeops_torch_ingress</a></code>,
 <code><a href="mlr_pipeops_torch.html">mlr_pipeops_torch</a></code>,
+<code><a href="mlr_pipeops_torch_ingress.html">mlr_pipeops_torch_ingress</a></code>,
+<code><a href="mlr_pipeops_torch_ingress_categ.html">mlr_pipeops_torch_ingress_categ</a></code>,
+<code><a href="mlr_pipeops_torch_ingress_ltnsr.html">mlr_pipeops_torch_ingress_ltnsr</a></code>,
+<code><a href="mlr_pipeops_torch_ingress_num.html">mlr_pipeops_torch_ingress_num</a></code>,
 <code><a href="model_descriptor_to_learner.html">model_descriptor_to_learner</a>()</code>,
 <code><a href="model_descriptor_to_module.html">model_descriptor_to_module</a>()</code>,
 <code><a href="model_descriptor_union.html">model_descriptor_union</a>()</code>,

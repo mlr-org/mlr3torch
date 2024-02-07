@@ -2,10 +2,8 @@ pandoc: 2.19.2
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
-  image_classification: image_classification.html
   get_started: get_started.html
-  pipeop_torch: pipeop_torch.html
-last_built: 2024-01-30T06:00Z
+last_built: 2024-02-07T17:46Z
 urls:
   reference: https://mlr3torch.mlr-org.com/reference
   article: https://mlr3torch.mlr-org.com/articles

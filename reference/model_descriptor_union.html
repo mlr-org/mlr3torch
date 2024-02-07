@@ -4,7 +4,7 @@ It creates the union of multiple ModelDescriptors:
 graphs are combinded (if they are not identical to begin with). The first entry's graph is modified by
 reference.
 PipeOps with the same ID must be identical. No new input edges may be added to PipeOps.
-Drops .pointer / .pointer_shape entries.
+Drops pointer / pointer_shape entries.
 The new task is the feature union of the two incoming tasks.
 The optimizer and loss of both ModelDescriptors must be identical.
 Ingress tokens and callbacks are merged, where objects with the same &quot;id&quot; must be identical.
@@ -14,12 +14,12 @@ It creates the union of multiple ModelDescriptors:
 graphs are combinded (if they are not identical to begin with). The first entry's graph is modified by
 reference.
 PipeOps with the same ID must be identical. No new input edges may be added to PipeOps.
-Drops .pointer / .pointer_shape entries.
+Drops pointer / pointer_shape entries.
 The new task is the feature union of the two incoming tasks.
 The optimizer and loss of both ModelDescriptors must be identical.
 Ingress tokens and callbacks are merged, where objects with the same &quot;id&quot; must be identical.
 
-"><meta property="og:image" content="https://mlr3torch.mlr-org.com/logo.svg"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
+"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body>
@@ -52,8 +52,6 @@ Ingress tokens and callbacks are merged, where objects with the same &quot;id&qu
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/get_started.html">Get Started</a>
-    <a class="dropdown-item" href="../articles/image_classification.html">Image Classification</a>
-    <a class="dropdown-item" href="../articles/pipeop_torch.html">Neural Networks as Graphs</a>
   </div>
 </li>
 <li class="nav-item">
@@ -97,7 +95,7 @@ Ingress tokens and callbacks are merged, where objects with the same &quot;id&qu
 </nav><div class="container template-reference-topic">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.svg" class="logo" alt=""><h1>Union of ModelDescriptors</h1>
+      <img src="" class="logo" alt=""><h1>Union of ModelDescriptors</h1>
       
       <div class="d-none name"><code>model_descriptor_union.Rd</code></div>
     </div>
@@ -107,7 +105,7 @@ Ingress tokens and callbacks are merged, where objects with the same &quot;id&qu
 <p>It creates the union of multiple <code><a href="ModelDescriptor.html">ModelDescriptor</a></code>s:</p><ul><li><p><code>graph</code>s are combinded (if they are not identical to begin with). The first entry's <code>graph</code> is modified by
 reference.</p></li>
 <li><p><code>PipeOp</code>s with the same ID must be identical. No new input edges may be added to <code>PipeOp</code>s.</p></li>
-<li><p>Drops <code>.pointer</code> / <code>.pointer_shape</code> entries.</p></li>
+<li><p>Drops <code>pointer</code> / <code>pointer_shape</code> entries.</p></li>
 <li><p>The new task is the <a href="https://mlr3pipelines.mlr-org.com/reference/mlr_pipeops_featureunion.html" class="external-link">feature union</a> of the two incoming tasks.</p></li>
 <li><p>The <code>optimizer</code> and <code>loss</code> of both <code><a href="ModelDescriptor.html">ModelDescriptor</a></code>s must be identical.</p></li>
 <li><p>Ingress tokens and callbacks are merged, where objects with the same <code>"id"</code> must be identical.</p></li>
@@ -151,11 +149,11 @@ can make this assumption and simplify things. Otherwise we'd need to treat "..."
 <code><a href="TorchIngressToken.html">TorchIngressToken</a>()</code>,
 <code><a href="mlr_learners_torch_model.html">mlr_learners_torch_model</a></code>,
 <code><a href="mlr_pipeops_module.html">mlr_pipeops_module</a></code>,
-<code><a href="mlr_pipeops_torch_ingress_categ.html">mlr_pipeops_torch_ingress_categ</a></code>,
-<code><a href="mlr_pipeops_torch_ingress_img.html">mlr_pipeops_torch_ingress_img</a></code>,
-<code><a href="mlr_pipeops_torch_ingress_num.html">mlr_pipeops_torch_ingress_num</a></code>,
-<code><a href="mlr_pipeops_torch_ingress.html">mlr_pipeops_torch_ingress</a></code>,
 <code><a href="mlr_pipeops_torch.html">mlr_pipeops_torch</a></code>,
+<code><a href="mlr_pipeops_torch_ingress.html">mlr_pipeops_torch_ingress</a></code>,
+<code><a href="mlr_pipeops_torch_ingress_categ.html">mlr_pipeops_torch_ingress_categ</a></code>,
+<code><a href="mlr_pipeops_torch_ingress_ltnsr.html">mlr_pipeops_torch_ingress_ltnsr</a></code>,
+<code><a href="mlr_pipeops_torch_ingress_num.html">mlr_pipeops_torch_ingress_num</a></code>,
 <code><a href="model_descriptor_to_learner.html">model_descriptor_to_learner</a>()</code>,
 <code><a href="model_descriptor_to_module.html">model_descriptor_to_module</a>()</code>,
 <code><a href="nn_graph.html">nn_graph</a>()</code></p>

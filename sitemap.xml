@@ -13,13 +13,7 @@
     <loc>https://mlr3torch.mlr-org.com/articles/get_started.html</loc>
   </url>
   <url>
-    <loc>https://mlr3torch.mlr-org.com/articles/image_classification.html</loc>
-  </url>
-  <url>
     <loc>https://mlr3torch.mlr-org.com/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://mlr3torch.mlr-org.com/articles/pipeop_torch.html</loc>
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/authors.html</loc>
@@ -31,7 +25,88 @@
     <loc>https://mlr3torch.mlr-org.com/news/index.html</loc>
   </url>
   <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/DataDescriptor.html</loc>
+  </url>
+  <url>
     <loc>https://mlr3torch.mlr-org.com/reference/ModelDescriptor.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchAugmentCenterCrop.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchAugmentColorJitter.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchAugmentCrop.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchAugmentHflip.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchAugmentRandomAffine.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchAugmentRandomApply.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchAugmentRandomChoice.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchAugmentRandomCrop.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchAugmentRandomHorizontalFlip.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchAugmentRandomOrder.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchAugmentRandomResizedCrop.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchAugmentRandomVerticalFlip.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchAugmentResizedCrop.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchAugmentRotate.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchAugmentVflip.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchTrafoAdjustBrightness.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchTrafoAdjustGamma.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchTrafoAdjustHue.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchTrafoAdjustSaturation.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchTrafoGrayscale.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchTrafoNop.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchTrafoNormalize.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchTrafoPad.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchTrafoResize.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchTrafoRgbToGrayscale.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchTrafoScale.html</loc>
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/TorchCallback.html</loc>
@@ -49,7 +124,7 @@
     <loc>https://mlr3torch.mlr-org.com/reference/TorchOptimizer.html</loc>
   </url>
   <url>
-    <loc>https://mlr3torch.mlr-org.com/reference/as_imageuri.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/as_lazy_tensor.html</loc>
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/as_torch_callback.html</loc>
@@ -64,6 +139,12 @@
     <loc>https://mlr3torch.mlr-org.com/reference/as_torch_optimizer.html</loc>
   </url>
   <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/assert_lazy_tensor.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/auto_device.html</loc>
+  </url>
+  <url>
     <loc>https://mlr3torch.mlr-org.com/reference/batchgetter_categ.html</loc>
   </url>
   <url>
@@ -73,10 +154,25 @@
     <loc>https://mlr3torch.mlr-org.com/reference/callback_set.html</loc>
   </url>
   <url>
-    <loc>https://mlr3torch.mlr-org.com/reference/imageuri.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/equals-.lazy_tensor.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/hash_input.lazy_tensor.html</loc>
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/is_lazy_tensor.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/lazy_tensor.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/materialize.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/materialize_internal.html</loc>
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/mlr3torch-package.html</loc>
@@ -274,6 +370,9 @@
     <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_threshold.html</loc>
   </url>
   <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_preproc_torch.html</loc>
+  </url>
+  <url>
     <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch.html</loc>
   </url>
   <url>
@@ -286,7 +385,7 @@
     <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress_categ.html</loc>
   </url>
   <url>
-    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress_img.html</loc>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress_ltnsr.html</loc>
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_torch_ingress_num.html</loc>
@@ -308,6 +407,12 @@
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/mlr_resamplings_row_roles.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_tasks_lazy_iris.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_tasks_mnist.html</loc>
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/mlr_tasks_tiny_imagenet.html</loc>
@@ -341,6 +446,9 @@
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/nn_unsqueeze.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/pipeop_preproc_torch.html</loc>
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/reset_layer.html</loc>

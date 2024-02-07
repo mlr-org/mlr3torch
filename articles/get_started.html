@@ -22,7 +22,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Get Started">
 <meta property="og:description" content="mlr3torch">
-<meta property="og:image" content="https://mlr3torch.mlr-org.com/logo.svg">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -59,8 +58,6 @@
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/get_started.html">Get Started</a>
-    <a class="dropdown-item" href="../articles/image_classification.html">Image Classification</a>
-    <a class="dropdown-item" href="../articles/pipeop_torch.html">Neural Networks as Graphs</a>
   </div>
 </li>
 <li class="nav-item">
@@ -112,7 +109,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.svg" class="logo" alt=""><h1>Get Started</h1>
+      <img src="" class="logo" alt=""><h1>Get Started</h1>
             
       
       
@@ -136,25 +133,26 @@ and construct the task.</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mlr3torch</span><span class="op">)</span></span>
 <span><span class="va">task</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"mtcars"</span><span class="op">)</span></span>
 <span><span class="va">task</span><span class="op">$</span><span class="fu">head</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt;     mpg am carb cyl disp drat gear  hp  qsec vs    wt</span></span>
-<span><span class="co">#&gt; 1: 21.0  1    4   6  160 3.90    4 110 16.46  0 2.620</span></span>
-<span><span class="co">#&gt; 2: 21.0  1    4   6  160 3.90    4 110 17.02  0 2.875</span></span>
-<span><span class="co">#&gt; 3: 22.8  1    1   4  108 3.85    4  93 18.61  1 2.320</span></span>
-<span><span class="co">#&gt; 4: 21.4  0    1   6  258 3.08    3 110 19.44  1 3.215</span></span>
-<span><span class="co">#&gt; 5: 18.7  0    2   8  360 3.15    3 175 17.02  0 3.440</span></span>
-<span><span class="co">#&gt; 6: 18.1  0    1   6  225 2.76    3 105 20.22  1 3.460</span></span></code></pre></div>
+<span><span class="co">#&gt;      mpg    am  carb   cyl  disp  drat  gear    hp  qsec    vs    wt</span></span>
+<span><span class="co">#&gt;    &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:  21.0     1     4     6   160  3.90     4   110 16.46     0 2.620</span></span>
+<span><span class="co">#&gt; 2:  21.0     1     4     6   160  3.90     4   110 17.02     0 2.875</span></span>
+<span><span class="co">#&gt; 3:  22.8     1     1     4   108  3.85     4    93 18.61     1 2.320</span></span>
+<span><span class="co">#&gt; 4:  21.4     0     1     6   258  3.08     3   110 19.44     1 3.215</span></span>
+<span><span class="co">#&gt; 5:  18.7     0     2     8   360  3.15     3   175 17.02     0 3.440</span></span>
+<span><span class="co">#&gt; 6:  18.1     0     1     6   225  2.76     3   105 20.22     1 3.460</span></span></code></pre></div>
 <p>Learners in <code>mlr3torch</code> work very similary to other
 <code>mlr3</code> learners. Below, we construct a simple multi layer
 perceptron for regression. We do this as usual using the
-<code><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn()</a></code> function and specify its parameters: The hidden
-dimension is set to 50 and the number of layers to 2. For training, we
-set the batch size to 32, the number of training epochs to 30 and the
-device to <code>"cpu"</code>. For a complete description of the
-available parameters see <code><a href="../reference/mlr_learners.mlp.html">?mlr3torch::LearnerTorchMLP</a></code>.</p>
+<code><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn()</a></code> function and specify its parameters: We use two
+hidden layers with 50 neurons, For training, we set the batch size to
+32, the number of training epochs to 30 and the device to
+<code>"cpu"</code>. For a complete description of the available
+parameters see <code><a href="../reference/mlr_learners.mlp.html">?mlr3torch::LearnerTorchMLP</a></code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mlp</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.mlp"</span>,</span>
 <span>  <span class="co"># architecture parameters</span></span>
-<span>  d_hidden <span class="op">=</span> <span class="fl">50</span>, layers <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  neurons <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">50</span><span class="op">)</span>,</span>
 <span>  <span class="co"># training arguments</span></span>
 <span>  batch_size <span class="op">=</span> <span class="fl">32</span>, epochs <span class="op">=</span> <span class="fl">30</span>, device <span class="op">=</span> <span class="st">"cpu"</span></span>
 <span><span class="op">)</span></span>
@@ -164,13 +162,13 @@ available parameters see <code><a href="../reference/mlr_learners.mlp.html">?mlr
 <span><span class="co">#&gt; * Optimizer: adam</span></span>
 <span><span class="co">#&gt; * Loss: mse</span></span>
 <span><span class="co">#&gt; * Callbacks: -</span></span>
-<span><span class="co">#&gt; * Parameters: layers=2, d_hidden=50, p=0.5, activation=&lt;nn_relu&gt;,</span></span>
+<span><span class="co">#&gt; * Parameters: neurons=50,50, p=0.5, activation=&lt;nn_relu&gt;,</span></span>
 <span><span class="co">#&gt;   activation_args=&lt;list&gt;, batch_size=32, epochs=30, device=cpu,</span></span>
 <span><span class="co">#&gt;   measures_train=&lt;list&gt;, measures_valid=&lt;list&gt;, drop_last=FALSE,</span></span>
 <span><span class="co">#&gt;   shuffle=TRUE, num_threads=1, seed=random</span></span>
 <span><span class="co">#&gt; * Packages: mlr3, mlr3torch, torch</span></span>
 <span><span class="co">#&gt; * Predict Types:  [response]</span></span>
-<span><span class="co">#&gt; * Feature Types: integer, numeric</span></span>
+<span><span class="co">#&gt; * Feature Types: integer, numeric, lazy_tensor</span></span>
 <span><span class="co">#&gt; * Properties: -</span></span></code></pre></div>
 <p>We can use this learner for training and prediction just like any
 other regression learner. Below, we split the observations into a
@@ -245,7 +243,8 @@ batch.</p>
 <code class="sourceCode R"><span><span class="co"># the paradox::ParamSet of the loss</span></span>
 <span><span class="va">l1</span><span class="op">$</span><span class="va">param_set</span></span>
 <span><span class="co">#&gt; &lt;ParamSet&gt;</span></span>
-<span><span class="co">#&gt;           id    class lower upper nlevels default value</span></span>
+<span><span class="co">#&gt;           id    class lower upper nlevels default  value</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;int&gt;  &lt;list&gt; &lt;list&gt;</span></span>
 <span><span class="co">#&gt; 1: reduction ParamFct    NA    NA       2    mean</span></span></code></pre></div>
 <p>The wrapped torch loss is accessible through the slot
 <code>$generator</code>.</p>
@@ -258,7 +257,7 @@ batch.</p>
 <span><span class="co">#&gt;     initialize: function (reduction = "mean") </span></span>
 <span><span class="co">#&gt;     forward: function (input, target) </span></span>
 <span><span class="co">#&gt;     clone: function (deep = FALSE) </span></span>
-<span><span class="co">#&gt;   Parent env: &lt;environment: 0x557b7c6a4180&gt;</span></span>
+<span><span class="co">#&gt;   Parent env: &lt;environment: 0x56080b511fd8&gt;</span></span>
 <span><span class="co">#&gt;   Locked objects: FALSE</span></span>
 <span><span class="co">#&gt;   Locked class: FALSE</span></span>
 <span><span class="co">#&gt;   Portable: TRUE</span></span></code></pre></div>
@@ -271,6 +270,7 @@ the loss’s parameters are prefixed with <code>"loss."</code>.</p>
 <code class="sourceCode R"><span><span class="va">mlp_l1</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.mlp"</span>, loss <span class="op">=</span> <span class="va">l1</span><span class="op">)</span></span>
 <span><span class="va">mlp_l1</span><span class="op">$</span><span class="va">param_set</span><span class="op">$</span><span class="va">params</span><span class="op">$</span><span class="va">loss.reduction</span></span>
 <span><span class="co">#&gt;                id    class lower upper   levels default</span></span>
+<span><span class="co">#&gt;            &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;list&gt;  &lt;list&gt;</span></span>
 <span><span class="co">#&gt; 1: loss.reduction ParamFct    NA    NA mean,sum    mean</span></span></code></pre></div>
 <p>All predefined loss functions are stored in the
 <code>mlr3torch_losses</code> dictionary, from which they can be
@@ -303,12 +303,27 @@ such as Adam (<code>optim_adam</code>) or SGD (<code>optim_sgd</code>).
 <span><span class="co"># The paradox::ParamSet of the optimizer</span></span>
 <span><span class="va">sgd</span><span class="op">$</span><span class="va">param_set</span></span>
 <span><span class="co">#&gt; &lt;ParamSet&gt;</span></span>
-<span><span class="co">#&gt;              id    class lower upper nlevels        default value</span></span>
-<span><span class="co">#&gt; 1:           lr ParamDbl     0   Inf     Inf &lt;NoDefault[3]&gt;      </span></span>
-<span><span class="co">#&gt; 2:     momentum ParamDbl     0     1     Inf              0      </span></span>
-<span><span class="co">#&gt; 3:    dampening ParamDbl     0     1     Inf              0      </span></span>
-<span><span class="co">#&gt; 4: weight_decay ParamDbl     0     1     Inf              0      </span></span>
-<span><span class="co">#&gt; 5:     nesterov ParamLgl    NA    NA       2          FALSE</span></span></code></pre></div>
+<span><span class="co">#&gt;              id    class lower upper nlevels</span></span>
+<span><span class="co">#&gt;          &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:           lr ParamDbl     0   Inf     Inf</span></span>
+<span><span class="co">#&gt; 2:     momentum ParamDbl     0     1     Inf</span></span>
+<span><span class="co">#&gt; 3:    dampening ParamDbl     0     1     Inf</span></span>
+<span><span class="co">#&gt; 4: weight_decay ParamDbl     0     1     Inf</span></span>
+<span><span class="co">#&gt; 5:     nesterov ParamLgl    NA    NA       2</span></span>
+<span><span class="co">#&gt;                                                                                      default</span></span>
+<span><span class="co">#&gt;                                                                                       &lt;list&gt;</span></span>
+<span><span class="co">#&gt; 1: &lt;NoDefault&gt;\n  Public:\n    clone: function (deep = FALSE) \n    initialize: function () </span></span>
+<span><span class="co">#&gt; 2:                                                                                         0</span></span>
+<span><span class="co">#&gt; 3:                                                                                         0</span></span>
+<span><span class="co">#&gt; 4:                                                                                         0</span></span>
+<span><span class="co">#&gt; 5:                                                                                     FALSE</span></span>
+<span><span class="co">#&gt;     value</span></span>
+<span><span class="co">#&gt;    &lt;list&gt;</span></span>
+<span><span class="co">#&gt; 1:       </span></span>
+<span><span class="co">#&gt; 2:       </span></span>
+<span><span class="co">#&gt; 3:       </span></span>
+<span><span class="co">#&gt; 4:       </span></span>
+<span><span class="co">#&gt; 5:</span></span></code></pre></div>
 <p>The wrapped torch optimizer can be accessed through the slot
 <code>generator</code>.</p>
 <p>Parameters of <code>TorchOptimizer</code> (but also
@@ -420,7 +435,7 @@ before.</p>
 <span>  measures_train <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mae"</span><span class="op">)</span>,</span>
 <span>  <span class="co"># other parameters are left as-is:</span></span>
 <span>  <span class="co"># architecture</span></span>
-<span>  d_hidden <span class="op">=</span> <span class="fl">50</span>, layers <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  neurons <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">50</span><span class="op">)</span>,</span>
 <span>  <span class="co"># training arguments</span></span>
 <span>  batch_size <span class="op">=</span> <span class="fl">32</span>, epochs <span class="op">=</span> <span class="fl">30</span>, device <span class="op">=</span> <span class="st">"cpu"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -432,14 +447,14 @@ before.</p>
 <span><span class="co">#&gt; * Optimizer: sgd</span></span>
 <span><span class="co">#&gt; * Loss: l1</span></span>
 <span><span class="co">#&gt; * Callbacks: history</span></span>
-<span><span class="co">#&gt; * Parameters: layers=2, d_hidden=50, p=0.5, activation=&lt;nn_relu&gt;,</span></span>
+<span><span class="co">#&gt; * Parameters: neurons=50,50, p=0.5, activation=&lt;nn_relu&gt;,</span></span>
 <span><span class="co">#&gt;   activation_args=&lt;list&gt;, batch_size=32, epochs=30, device=cpu,</span></span>
 <span><span class="co">#&gt;   measures_train=&lt;MeasureRegrSimple&gt;, measures_valid=&lt;list&gt;,</span></span>
 <span><span class="co">#&gt;   drop_last=FALSE, shuffle=TRUE, num_threads=1, seed=random,</span></span>
 <span><span class="co">#&gt;   opt.lr=0.5, opt.nesterov=FALSE</span></span>
 <span><span class="co">#&gt; * Packages: mlr3, mlr3torch, torch</span></span>
 <span><span class="co">#&gt; * Predict Types:  [response]</span></span>
-<span><span class="co">#&gt; * Feature Types: integer, numeric</span></span>
+<span><span class="co">#&gt; * Feature Types: integer, numeric, lazy_tensor</span></span>
 <span><span class="co">#&gt; * Properties: -</span></span></code></pre></div>
 <p>We now train the learner on the “mtcars” task from the introductory
 example using the same train-test split.</p>
