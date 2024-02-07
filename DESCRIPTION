@@ -42,7 +42,7 @@ Imports:
     checkmate (>= 2.2.0),
     coro,
     lgr,
-    mlr3misc (>= 0.13.0),
+    mlr3misc (>= 0.14.0),
     methods,
     data.table,
     paradox (>= 0.11.0),
