@@ -44,7 +44,3 @@ articles:
   navbar: ~
   contents:
   - get_started
-- title: Lazy Tensor
-  navbar: ~
-  contents:
-  - lazy_tensor
