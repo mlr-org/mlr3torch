@@ -91,7 +91,7 @@ task_dataset = dataset(
   }
 )
 
-# This returns a
+# This returns a data.table or NULL (if nothing was merged)
 merge_lazy_tensor_graphs = function(lts) {
   # we only attempt to merge preprocessing graphs that have the same dataset_hash
   hashes = map_chr(lts, function(lt) dd(lt)$dataset_hash)
