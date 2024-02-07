@@ -36,6 +36,13 @@ Other Callback:
 \item \href{#method-CallbackSetProgress-clone}{\code{CallbackSetProgress$clone()}}
 }
 }
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-print'><code>mlr3torch::CallbackSet$print()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetProgress-on_epoch_begin"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetProgress-on_epoch_begin}{}}}

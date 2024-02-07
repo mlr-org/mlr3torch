@@ -66,10 +66,37 @@ This field should always be \code{NULL} except during the \verb{$train()} call o
 }
 \if{html}{\out{</div>}}
 }
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{stages}}{(\code{character()})\cr
+The active stages of this callback set.}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
+\item \href{#method-CallbackSet-print}{\code{CallbackSet$print()}}
 \item \href{#method-CallbackSet-clone}{\code{CallbackSet$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSet-print"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSet-print}{}}}
+\subsection{Method \code{print()}}{
+Prints the object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackSet$print(...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{(any)\cr
+Currently unused.}
+}
+\if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}

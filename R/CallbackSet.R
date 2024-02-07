@@ -42,12 +42,35 @@ CallbackSet = R6Class("CallbackSet",
     #' @field ctx ([`ContextTorch`] or `NULL`)\cr
     #'   The evaluation context for the callback.
     #'   This field should always be `NULL` except during the `$train()` call of the torch learner.
-    ctx = NULL
+    ctx = NULL,
+    #' @description
+    #' Prints the object.
+    #' @param ... (any)\cr
+    #'   Currently unused.
+    print = function(...) {
+      catn(sprintf("<%s>", class(self)[[1L]]))
+      catn(str_indent("* Stages:", self$stages))
+    }
+  ),
+  active = list(
+    #' @field stages (`character()`)\cr
+    #'   The active stages of this callback set.
+    stages = function(rhs) {
+      assert_ro_binding(rhs)
+      if (is.null(private$.stages)) {
+        private$.stages = mlr_reflections$torch$callback_stages[
+          map_lgl(mlr_reflections$torch$callback_stages, function(stage) exists(stage, self, inherits = FALSE))]
+      }
+
+      private$.stages
+    }
+
   ),
   private = list(
+    .stages = NULL,
     deep_clone = function(name, value) {
       if (name == "ctx" && !is.null(value)) {
-        stopf("CallbackSet instances must never be cloned unless the ctx is NULL.")
+        stopf("CallbackSet instances can only be cloned when the 'ctx' is NULL.")
       } else {
         value
       }
