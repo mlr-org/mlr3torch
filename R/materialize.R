@@ -52,7 +52,7 @@ materialize = function(x, device = "cpu", rbind = FALSE, ...) {
 #' @param cache (`character(1)` or `environment()` or `NULL`)\cr
 #'   Optional cache for (intermediate) materialization results.
 #'   Per default, caching will be enabled when the same dataset or data descriptor (with different output pointer)
-#'   is used for more than one lazy tensor columns.
+#'   is used for more than one lazy tensor column.
 #' @export
 materialize.list = function(x, device = "cpu", rbind = FALSE, cache = "auto", ...) { # nolint
   x_lt = x[map_lgl(x, is_lazy_tensor)]
