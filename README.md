@@ -104,16 +104,16 @@ graph_mlp = architecture %>>%
 
 graph_mlp
 #> Graph with 8 PipeOps:
-#>                 ID         State          sccssors         prdcssors
-#>             <char>        <char>            <char>            <char>
-#>  torch_ingress_... <<UNTRAINED>>         nn_linear                  
-#>          nn_linear <<UNTRAINED>>           nn_relu torch_ingress_...
-#>            nn_relu <<UNTRAINED>>           nn_head         nn_linear
-#>            nn_head <<UNTRAINED>>        torch_loss           nn_relu
-#>         torch_loss <<UNTRAINED>> torch_optimize...           nn_head
-#>  torch_optimize... <<UNTRAINED>> torch_callback...        torch_loss
-#>  torch_callback... <<UNTRAINED>> torch_model_cl... torch_optimize...
-#>  torch_model_cl... <<UNTRAINED>>                   torch_callback...
+#>                   ID         State            sccssors         prdcssors
+#>               <char>        <char>              <char>            <char>
+#>    torch_ingress_num <<UNTRAINED>>           nn_linear                  
+#>            nn_linear <<UNTRAINED>>             nn_relu torch_ingress_num
+#>              nn_relu <<UNTRAINED>>             nn_head         nn_linear
+#>              nn_head <<UNTRAINED>>          torch_loss           nn_relu
+#>           torch_loss <<UNTRAINED>>     torch_optimizer           nn_head
+#>      torch_optimizer <<UNTRAINED>>     torch_callbacks        torch_loss
+#>      torch_callbacks <<UNTRAINED>> torch_model_classif   torch_optimizer
+#>  torch_model_classif <<UNTRAINED>>                       torch_callbacks
 
 graph_lrn = as_learner(graph_mlp)
 graph_lrn$id = "graph_mlp"
@@ -159,7 +159,7 @@ task_reshaped$head()
 #> 5:      9 <tnsr[1x5x5]>
 #> 6:      2 <tnsr[1x5x5]>
 
-# The tenosrs are loaded and preprocessed only when materialized
+# The tensors are loaded and preprocessed only when materialized
 
 materialize(
   task_reshaped$data(1, cols = "image")[[1L]],
