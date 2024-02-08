@@ -80,7 +80,7 @@ learner_mlp = lrn("classif.mlp",
 )
 ```
 
-This learner can for example be used for resampling or benchmarking.
+This learner can for be resampled, benchmarked or tuned as any other learner.
 
 ```{r}
 resample(
@@ -130,7 +130,7 @@ It wraps a `torch::dataset`, but allows to preproress the data using `PipeOp` ob
 task = tsk("mnist")
 task$head()
 
-# Resize the images to 20x20
+# Resize the images to 5x5
 po_resize = po("trafo_resize", size = c(5, 5))
 task_reshaped = po_resize$train(list(task))[[1L]]
 
