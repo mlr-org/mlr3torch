@@ -87,6 +87,7 @@ test_that("concatenation", {
 test_that("subsetting and indexing", {
   x = as_lazy_tensor(1:3)
   expect_class(x[1:2], "lazy_tensor")
+  expect_false(inherits(x[[1]], "lazy_tensor"))
   expect_equal(length(x[1:2]), 2)
   expect_list(x[[1]], len = 2L)
   expect_class(x[integer(0)], "lazy_tensor")

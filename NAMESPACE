@@ -3,7 +3,6 @@
 S3method("==",lazy_tensor)
 S3method("[",lazy_tensor)
 S3method("[<-",lazy_tensor)
-S3method("[[",lazy_tensor)
 S3method("[[<-",lazy_tensor)
 S3method(as.data.table,DictionaryMlr3torchCallbacks)
 S3method(as.data.table,DictionaryMlr3torchLosses)

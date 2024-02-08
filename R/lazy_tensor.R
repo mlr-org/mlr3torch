@@ -35,11 +35,6 @@ new_lazy_tensor = function(data_descriptor, ids) {
 }
 
 #' @export
-`[[.lazy_tensor` = function(x, i) {
-  unclass(x)[[i]]
-}
-
-#' @export
 `[<-.lazy_tensor` = function(x, i, value) {
   # avoid degenerate lazy tensors after assignment
   assert_lazy_tensor(value)
