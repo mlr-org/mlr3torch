@@ -38,9 +38,9 @@ register_resampling = function(name, constructor) {
   mlr3torch_resamplings[[name]] = constructor
 }
 
-register_learner = function(name, constructor) {
-  assert_class(constructor, "R6ClassGenerator")
-  task_type = if (startsWith(name, "classif")) "classif" else "regr"
+register_learner = function(.name, .constructor, ...) {
+  assert_class(.constructor, "R6ClassGenerator")
+  task_type = if (startsWith(.name, "classif")) "classif" else "regr"
   # What I am doing here:
   # The problem is that we wan't to set the task_type when creating the learner from the dictionary
   # The initial idea was to add functions function(...) LearnerClass$new(..., task_type = "<task-type>")
@@ -48,13 +48,13 @@ register_learner = function(name, constructor) {
   # passed further to the initialize method)
   # For this reason, we need this hacky solution here, might change in the future in mlr3misc
   fn = crate(function() {
-    invoke(constructor$new, task_type = task_type, .args = as.list(match.call()[-1]))
-  }, constructor, task_type)
-  fmls = formals(constructor$public_methods$initialize)
+    invoke(.constructor$new, task_type = task_type, .args = as.list(match.call()[-1]))
+  }, .constructor, task_type)
+  fmls = formals(.constructor$public_methods$initialize)
   fmls$task_type = NULL
   formals(fn) = fmls
-  if (name %in% names(mlr3torch_learners)) stopf("learner %s registered twice", name)
-  mlr3torch_learners[[name]] = fn
+  if (.name %in% names(mlr3torch_learners)) stopf("learner %s registered twice", .name)
+  mlr3torch_learners[[.name]] = list(fn = fn, prototype_args = list(...))
 }
 
 register_task = function(name, constructor) {
@@ -64,7 +64,7 @@ register_task = function(name, constructor) {
 
 register_mlr3 = function() {
   mlr_learners = utils::getFromNamespace("mlr_learners", ns = "mlr3")
-  iwalk(as.list(mlr3torch_learners), function(l, nm) mlr_learners$add(nm, l)) # nolint
+  iwalk(as.list(mlr3torch_learners), function(x, nm) mlr_learners$add(nm, x$fn, .prototype_args = x$prototype_args))
 
   mlr_tasks = mlr3::mlr_tasks
   iwalk(as.list(mlr3torch_tasks), function(task, nm) mlr_tasks$add(nm, task)) # nolint
