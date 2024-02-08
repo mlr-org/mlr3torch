@@ -60,6 +60,13 @@ expect_deep_clone = function(one, two) {
       return(NULL)
     }
 
+
+    if (is_externalptr(a)) {
+      label = sprintf("Object addresses differ at path %s", paste0(path, collapse = "->"))
+      expect_true(addr_a != addr_b, label = label)
+      return(invisible(NULL))
+    }
+
     # follow attributes, even for non-recursive objects
     if (utils::tail(path, 1) != "[attributes]" && !is.null(base::attributes(a))) {
       expect_references_differ(base::attributes(a), base::attributes(b), c(path, "[attributes]"))

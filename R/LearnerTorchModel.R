@@ -90,7 +90,12 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
   ),
   private = list(
     .network = function(task, param_vals) {
-      private$.network_stored
+      if (is.null(private$.network_stored)) {
+        stopf("No network stored, did you already train learner '%s'?", self$id)
+      }
+      network = private$.network_stored
+      private$.network_stored = NULL
+      network
     },
     .dataset = function(task, param_vals) {
       dataset = task_dataset(
@@ -101,7 +106,14 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
       )
     },
     .network_stored = NULL,
-    .ingress_tokens = NULL
+    .ingress_tokens = NULL,
+    deep_clone = function(name, value) {
+      if (!is.null(self$state)) {
+        stopf("cannot clone %s because it has already been trained", self$id)
+      } else {
+        super$deep_clone(name, value)
+      }
+    }
   )
 )
 

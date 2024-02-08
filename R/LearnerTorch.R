@@ -34,8 +34,8 @@
 #'   The callbacks to use for training.
 #'   Defaults to an empty` list()`, i.e. no callbacks.
 #'
-#' @section State:
-#' The state is a list with elements `network`, `optimizer`, `loss_fn`, `callbacks` and `seed`.
+#' @section Model:
+#' The Model is a list with elements `network`, `loss_state`, `optimizer_state`, `callbacks` and `seed`.
 #'
 #' @template paramset_torchlearner
 #'
@@ -331,27 +331,37 @@ LearnerTorch = R6Class("LearnerTorch",
     .callbacks = NULL,
     .verify_train_task = function(task, param_vals) NULL,
     .verify_predict_task = function(task, param_vals) NULL,
-    deep_clone = function(name, value) deep_clone(self, private, super, name, value)
+    deep_clone = function(name, value) {
+      private$.param_set = NULL # required to keep clone identical to original, otherwise tests get really ugly
+      if (name == "state") {
+        model = value$model
+        value$model = NULL
+        value = super$deep_clone(name, value)
+        if (!is.null(value)) {
+          value$model = list(
+            network = patch_module_clone(value$network, value$network$clone(deep = TRUE)),
+            loss_state = patch_list(value$loss_state, lapply(value$loss_state, function(x) x$clone(deep = TRUE))),
+            optimizer_state = patch_list(value$loss_state, lapply(value$optimizer_state, function(x) x$clone(deep = TRUE))),
+            callbacks = map(value$callbacks, function(x) x$clone(deep = TRUE)),
+            seed = value$seed,
+            task_col_info = copy(value$task_col_info)
+          )
+          value
+        } else {
+          NULL
+        }
+      } else if (name == ".param_set") {
+        NULL
+      } else {
+        super$deep_clone(name, value)
+      }
+    }
   )
 )
 
-
-deep_clone = function(self, private, super, name, value) {
-  private$.param_set = NULL # required to keep clone identical to original, otherwise tests get really ugly
-
-  if (name == "state") {
-    # https://github.com/mlr-org/mlr3torch/issues/97
-    if (!is.null(value)) {
-      stopf("Deep clone of trained network is currently not supported.")
-    } else {
-      # Note that private methods are available in super.
-      super$deep_clone(name, value)
-    }
-  } else if (name == ".param_set") {
-    # Otherwise the value$clone() is called on NULL which errs
-    NULL
-  } else {
-    # Note that private methods are available in super.
-    super$deep_clone(name, value)
+clone_recurse = function(l) {
+  if (!is.list(l)) {
+    return(l$clone(deep = TRUE))
   }
+  lapply(clone_recurse)
 }

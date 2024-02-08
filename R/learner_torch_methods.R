@@ -166,8 +166,8 @@ train_loop = function(ctx, cbs) {
   # The seed is added later
   list(
     network    = ctx$network,
-    loss_fn    = ctx$loss_fn,
-    optimizer  = ctx$optimizer,
+    loss_state    = ctx$loss_fn$state_dict(),
+    optimizer_state  = ctx$optimizer$state_dict(),
     callbacks  = cbs
   )
 }

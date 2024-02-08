@@ -10,9 +10,9 @@ All torch learners should inherit from this class.
 
 It also allows to hook into the training loop via a callback mechanism.
 }
-\section{State}{
+\section{Model}{
 
-The state is a list with elements \code{network}, \code{optimizer}, \code{loss_fn}, \code{callbacks} and \code{seed}.
+The Model is a list with elements \code{network}, \code{loss_state}, \code{optimizer_state}, \code{callbacks} and \code{seed}.
 }
 
 \section{Parameters}{

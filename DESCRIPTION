@@ -60,7 +60,8 @@ Suggests:
     rmarkdown,
     viridis,
     testthat (>= 3.0.0),
-    torchvision
+    torchvision,
+    waldo
 Remotes:
     mlr-org/mlr3,
     mlr-org/mlr3pipelines@feat/keep_results,

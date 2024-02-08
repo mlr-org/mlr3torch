@@ -1,8 +1,12 @@
-test_that("Correct error when trying to create deep clone of trained network", {
-  learner = lrn("classif.torch_featureless")
+test_that("deep cloning", {
+  learner = lrn("classif.torch_featureless", callbacks = "history")
   learner$param_set$set_values(epochs = 1, batch_size = 1)
   task = tsk("iris")
   learner$train(task)
+
+  learner$state$train_task = NULL
+  learner_cloned = learner$clone(deep = TRUE)
+  expect_deep_clone(learner, learner$clone(deep = TRUE))
   expect_error(learner$clone(deep = TRUE), regexp = "Deep clone of trained network is currently not supported")
 })
 

@@ -194,3 +194,6 @@ auto_cache_lazy_tensors = function(lts) {
   any(duplicated(map_chr(lts, function(x) dd(x)$dataset_hash)))
 }
 
+is_externalptr = function(x) {
+  typeof(x) == "externalptr"
+}
