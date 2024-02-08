@@ -118,7 +118,7 @@ Other Graph Network:
 \concept{Graph Network}
 \concept{PipeOps}
 \section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{mlr3torch::PipeOpTorchIngress} -> \code{PipeOpTorchIngressCategorical}
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorchIngress]{mlr3torch::PipeOpTorchIngress}} -> \code{PipeOpTorchIngressCategorical}
 }
 \section{Methods}{
 \subsection{Public methods}{

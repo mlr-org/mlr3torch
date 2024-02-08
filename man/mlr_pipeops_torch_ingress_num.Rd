@@ -109,7 +109,7 @@ Other PipeOps:
 \concept{Graph Network}
 \concept{PipeOps}
 \section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{mlr3torch::PipeOpTorchIngress} -> \code{PipeOpTorchIngressNumeric}
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorchIngress]{mlr3torch::PipeOpTorchIngress}} -> \code{PipeOpTorchIngressNumeric}
 }
 \section{Methods}{
 \subsection{Public methods}{

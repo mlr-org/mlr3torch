@@ -117,7 +117,7 @@ Other PipeOps:
 }
 \concept{PipeOps}
 \section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{mlr3torch::PipeOpTorch} -> \code{mlr3torch::PipeOpTorchAvgPool} -> \code{PipeOpTorchAvgPool1D}
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{mlr3torch::PipeOpTorch}} -> \code{mlr3torch::PipeOpTorchAvgPool} -> \code{PipeOpTorchAvgPool1D}
 }
 \section{Methods}{
 \subsection{Public methods}{

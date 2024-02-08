@@ -82,7 +82,7 @@ Other Torch Descriptor:
 \concept{Callback}
 \concept{Torch Descriptor}
 \section{Super class}{
-\code{mlr3torch::TorchDescriptor} -> \code{TorchCallback}
+\code{\link[mlr3torch:TorchDescriptor]{mlr3torch::TorchDescriptor}} -> \code{TorchCallback}
 }
 \section{Methods}{
 \subsection{Public methods}{

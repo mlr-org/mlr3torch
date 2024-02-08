@@ -67,7 +67,7 @@ Other Torch Descriptor:
 }
 \concept{Torch Descriptor}
 \section{Super class}{
-\code{mlr3torch::TorchDescriptor} -> \code{TorchOptimizer}
+\code{\link[mlr3torch:TorchDescriptor]{mlr3torch::TorchDescriptor}} -> \code{TorchOptimizer}
 }
 \section{Methods}{
 \subsection{Public methods}{

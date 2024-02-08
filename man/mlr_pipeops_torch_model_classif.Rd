@@ -109,7 +109,7 @@ Other PipeOps:
 }
 \concept{PipeOps}
 \section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{mlr3torch::PipeOpTorchModel} -> \code{PipeOpTorchModelClassif}
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorchModel]{mlr3torch::PipeOpTorchModel}} -> \code{PipeOpTorchModelClassif}
 }
 \section{Methods}{
 \subsection{Public methods}{

@@ -164,7 +164,7 @@ Other PipeOps:
 }
 \concept{PipeOps}
 \section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{mlr3torch::PipeOpTorch} -> \code{mlr3torch::PipeOpTorchMerge} -> \code{PipeOpTorchMergeSum}
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{mlr3torch::PipeOpTorch}} -> \code{\link[mlr3torch:PipeOpTorchMerge]{mlr3torch::PipeOpTorchMerge}} -> \code{PipeOpTorchMergeSum}
 }
 \section{Methods}{
 \subsection{Public methods}{

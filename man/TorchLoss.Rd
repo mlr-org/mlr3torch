@@ -68,7 +68,7 @@ Other Torch Descriptor:
 }
 \concept{Torch Descriptor}
 \section{Super class}{
-\code{mlr3torch::TorchDescriptor} -> \code{TorchLoss}
+\code{\link[mlr3torch:TorchDescriptor]{mlr3torch::TorchDescriptor}} -> \code{TorchLoss}
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

@@ -21,13 +21,17 @@ status](https://www.r-pkg.org/badges/version/mlr3torch)](https://CRAN.R-project.
 ## Installation
 
 ``` r
-remotes::install_github("mlr-org/mlr3torch")
+# Install the development version from GitHub:
+pak::pak("mlr-org/mlr3torch")
+# You also need to install torch:
+torch::install_torch()
 ```
 
 ## Status
 
-`mlr3torch` is currently still unstable and many things are missing. Not
-everything will work yet and the API might change without notice.
+`mlr3torch` is currently still in its experimental phase and many things
+are missing. Not everything will work yet and the API might change
+without notice.
 
 ## What is mlr3torch?
 
@@ -47,7 +51,7 @@ library(mlr3torch)
 learner_mlp = lrn("classif.mlp",
   # defining network parameters
   activation     = nn_relu,
-  neurons        = 20,
+  neurons        = c(20, 20),
   # training parameters
   batch_size     = 16,
   epochs         = 50,
@@ -100,16 +104,16 @@ graph_mlp = architecture %>>%
 
 graph_mlp
 #> Graph with 8 PipeOps:
-#>                   ID         State            sccssors         prdcssors
-#>               <char>        <char>              <char>            <char>
-#>    torch_ingress_num <<UNTRAINED>>           nn_linear
-#>            nn_linear <<UNTRAINED>>             nn_relu torch_ingress_num
-#>              nn_relu <<UNTRAINED>>             nn_head         nn_linear
-#>              nn_head <<UNTRAINED>>          torch_loss           nn_relu
-#>           torch_loss <<UNTRAINED>>     torch_optimizer           nn_head
-#>      torch_optimizer <<UNTRAINED>>     torch_callbacks        torch_loss
-#>      torch_callbacks <<UNTRAINED>> torch_model_classif   torch_optimizer
-#>  torch_model_classif <<UNTRAINED>>                       torch_callbacks
+#>                 ID         State          sccssors         prdcssors
+#>             <char>        <char>            <char>            <char>
+#>  torch_ingress_... <<UNTRAINED>>         nn_linear                  
+#>          nn_linear <<UNTRAINED>>           nn_relu torch_ingress_...
+#>            nn_relu <<UNTRAINED>>           nn_head         nn_linear
+#>            nn_head <<UNTRAINED>>        torch_loss           nn_relu
+#>         torch_loss <<UNTRAINED>> torch_optimize...           nn_head
+#>  torch_optimize... <<UNTRAINED>> torch_callback...        torch_loss
+#>  torch_callback... <<UNTRAINED>> torch_model_cl... torch_optimize...
+#>  torch_model_cl... <<UNTRAINED>>                   torch_callback...
 
 graph_lrn = as_learner(graph_mlp)
 graph_lrn$id = "graph_mlp"
@@ -124,42 +128,90 @@ resample(
 #>     iris  graph_mlp       holdout         1        0      0
 ```
 
+To work with generic tensors, the `lazy_tensor` type can be used. It
+wraps a `torch::dataset`, but allows to preproress the data using
+`PipeOp` objects, just like tabular data.
+
+``` r
+# load the predefined mnist task
+task = tsk("mnist")
+task$head()
+#>     label           image
+#>    <fctr>   <lazy_tensor>
+#> 1:      5 <tnsr[1x28x28]>
+#> 2:      0 <tnsr[1x28x28]>
+#> 3:      4 <tnsr[1x28x28]>
+#> 4:      1 <tnsr[1x28x28]>
+#> 5:      9 <tnsr[1x28x28]>
+#> 6:      2 <tnsr[1x28x28]>
+
+# Resize the images to 20x20
+po_resize = po("trafo_resize", size = c(5, 5))
+task_reshaped = po_resize$train(list(task))[[1L]]
+
+task_reshaped$head()
+#>     label         image
+#>    <fctr> <lazy_tensor>
+#> 1:      5 <tnsr[1x5x5]>
+#> 2:      0 <tnsr[1x5x5]>
+#> 3:      4 <tnsr[1x5x5]>
+#> 4:      1 <tnsr[1x5x5]>
+#> 5:      9 <tnsr[1x5x5]>
+#> 6:      2 <tnsr[1x5x5]>
+
+# The tenosrs are loaded and preprocessed only when materialized
+
+materialize(
+  task_reshaped$data(1, cols = "image")[[1L]],
+  rbind = TRUE
+)
+#> torch_tensor
+#> (1,1,.,.) = 
+#>     0.0000    0.0000    0.0000    0.0000    0.0000
+#>     0.0000  200.9199  228.2500    8.2000    0.0000
+#>     0.0000    0.0000  196.7500    0.0000    0.0000
+#>     0.0000    0.0000  194.9500  147.4199    0.0000
+#>     0.0000   64.8303    0.0000    0.0000    0.0000
+#> [ CPUFloatType{1,1,5,5} ]
+```
+
 ## Feature Overview
 
-  - Off-the-shelf architectures are readily available as
-    `mlr3::Learner`s.
-  - Custom learners can be defined using the `Graph` language from
-    `mlr3pipelines` or using `nn_module`s.
-  - The package supports tabular and image data.
-  - It is possible to customize the training process via (predefined or
-    custom) callbacks.
-  - The package is fully integrated into the `mlr3` ecosystem.
+- Off-the-shelf architectures are readily available as `mlr3::Learner`s.
+- Custom learners can be defined using the `Graph` language from
+  `mlr3pipelines`
+- The package supports tabular data, as well as generic tensors via the
+  `lazy_tensor` type
+- Multi-modal data can be handled conveniently, as `lazy_tensor` objects
+  can be stored alongside tabular data.
+- It is possible to customize the training process via (predefined or
+  custom) callbacks.
+- The package is fully integrated into the `mlr3` ecosystem.
 
 ## Documentation
 
-The easiest way to learn about `mlr3torch` is to read one of the
-vignettes.
+Coming soon.
 
 ## Acknowledgements
 
-  - Without the great R package `torch` none of this would have been
-    possible.
-  - The names for the callback stages are taken from
-    [luz](https://mlverse.github.io/luz/), another high-level deep
-    learning framework for R `torch`.
-  - Building neural networks using `PipeOpTorch` operators is inspired
-    by [keras](https://keras.io/).
+- Without the great R package `torch` none of this would have been
+  possible.
+- The names for the callback stages are taken from
+  [luz](https://mlverse.github.io/luz/), another high-level deep
+  learning framework for R `torch`.
+- Building neural networks using `PipeOpTorch` operators is inspired by
+  [keras](https://keras.io/).
 
 ## Bugs, Questions, Feedback
 
 *mlr3torch* is a free and open source software project that encourages
 participation and feedback. If you have any issues, questions,
 suggestions or feedback, please do not hesitate to open an “issue” about
-it on the GitHub page\!
+it on the GitHub page!
 
 In case of problems / bugs, it is often helpful if you provide a
-“minimum working example” that showcases the behaviour (but don’t
-worry about this if the bug is obvious).
+“minimum working example” that showcases the behaviour (but don’t worry
+about this if the bug is obvious).
 
 Please understand that the resources of the project are limited:
 response may sometimes be delayed by a few days, and some feature

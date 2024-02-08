@@ -191,7 +191,7 @@ Other PipeOps:
 }
 \concept{PipeOps}
 \section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{mlr3torch::PipeOpTorch} -> \code{PipeOpTorchSqueeze}
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{mlr3torch::PipeOpTorch}} -> \code{PipeOpTorchSqueeze}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -252,7 +252,7 @@ The objects of this class are cloneable with this method.
 }
 }
 \section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{mlr3torch::PipeOpTorch} -> \code{PipeOpTorchUnsqueeze}
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{mlr3torch::PipeOpTorch}} -> \code{PipeOpTorchUnsqueeze}
 }
 \section{Methods}{
 \subsection{Public methods}{

@@ -37,12 +37,16 @@ Deep Learning with torch and mlr3.
 ## Installation
 
 ```{r eval = FALSE}
-remotes::install_github("mlr-org/mlr3torch")
+# Install the development version from GitHub:
+pak::pak("mlr-org/mlr3torch")
+# You also need to install torch:
+torch::install_torch()
+
 ```
 
 ## Status
 
-`mlr3torch` is currently still unstable and many things are missing.
+`mlr3torch` is currently still in its experimental phase and many things are missing.
 Not everything will work yet and the API might change without notice.
 
 ## What is mlr3torch?
@@ -118,17 +122,41 @@ resample(
 )
 ```
 
+To work with generic tensors, the `lazy_tensor` type can be used.
+It wraps a `torch::dataset`, but allows to preproress the data using `PipeOp` objects, just like tabular data.
+
+```{r}
+# load the predefined mnist task
+task = tsk("mnist")
+task$head()
+
+# Resize the images to 20x20
+po_resize = po("trafo_resize", size = c(5, 5))
+task_reshaped = po_resize$train(list(task))[[1L]]
+
+task_reshaped$head()
+
+# The tenosrs are loaded and preprocessed only when materialized
+
+materialize(
+  task_reshaped$data(1, cols = "image")[[1L]],
+  rbind = TRUE
+)
+```
+
+
 ## Feature Overview
 
 * Off-the-shelf architectures are readily available as `mlr3::Learner`s.
-* Custom learners can be defined using the `Graph` language from `mlr3pipelines` or using `nn_module`s.
-* The package supports tabular and image data.
+* Custom learners can be defined using the `Graph` language from `mlr3pipelines`
+* The package supports tabular data, as well as generic tensors via the `lazy_tensor` type
+* Multi-modal data can be handled conveniently, as `lazy_tensor` objects can be stored alongside tabular data.
 * It is possible to customize the training process via (predefined or custom) callbacks.
 * The package is fully integrated into the `mlr3` ecosystem.
 
 ## Documentation
 
-The easiest way to learn about `mlr3torch` is to read one of the vignettes.
+Coming soon.
 
 ## Acknowledgements
 
