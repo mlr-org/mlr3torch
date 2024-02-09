@@ -118,9 +118,10 @@ register_mlr3pipelines = function() {
 
   register_namespace_callback(pkgname, "mlr3", register_mlr3)
   register_namespace_callback(pkgname, "mlr3pipelines", register_mlr3pipelines)
-
   register_s3_method("waldo", "compare_proxy", "torch_tensor")
 }
+
+
 .onUnload = function(libPaths) { # nolint
   walk(names(mlr3torch_learners), function(nm) mlr_learners$remove(nm))
   walk(names(mlr3torch_resamplings), function(nm) mlr_resamplings$remove(nm))
@@ -130,30 +131,5 @@ register_mlr3pipelines = function() {
   mlr_reflections$learner_feature_types = setdiff(mlr_reflections$learner_feature_types, mlr3torch_feature_types)
 }
 
-# https://github.com/tidyverse/readr/blob/e529cb2775f1b52a0dfa30dabc9f8e0014aa77e6/R/zzz.R
-register_s3_method = function(pkg, generic, class, fun = NULL) {
-  check_string(pkg)
-  check_string(generic)
-  check_string(class)
-
-  if (is.null(fun)) {
-    fun <- get(paste0(generic, ".", class), envir = parent.frame())
-  } else {
-    stopifnot(is.function(fun))
-  }
-
-  if (pkg %in% loadedNamespaces()) {
-    registerS3method(generic, class, fun, envir = asNamespace(pkg))
-  }
-
-  # Always register hook in case package is later unloaded & reloaded
-  setHook(
-    packageEvent(pkg, "onLoad"),
-    function(...) {
-      registerS3method(generic, class, fun, envir = asNamespace(pkg))
-    }
-  )
-}
 
 leanify_package()
-

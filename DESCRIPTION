@@ -65,7 +65,8 @@ Suggests:
 Remotes:
     mlr-org/mlr3,
     mlr-org/mlr3pipelines@feat/keep_results,
-    mlverse/torchvision
+    mlverse/torchvision,
+    sebffischer/torch@fix/deep-clone
 Config/testthat/edition: 3
 NeedsCompilation: no
 ByteCompile: no
@@ -129,6 +130,7 @@ Collate:
     'merge_graphs.R'
     'nn_graph.R'
     'paramset_torchlearner.R'
+    'patch.R'
     'preprocess.R'
     'rd_info.R'
     'reset_last_layer.R'

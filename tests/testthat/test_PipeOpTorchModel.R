@@ -44,14 +44,14 @@ test_that("Manual test: Classification and Regression", {
   expect_class(obj$state, "LearnerTorchModel")
   expect_class(obj$state$model$network, c("nn_graph", "nn_module"))
   # Defaults are used
-  expect_class(obj$state$model$optimizer, "optim_adam")
-  expect_class(obj$state$model$loss_fn, "nn_cross_entropy_loss")
+  expect_list(obj$state$model$optimizer_state)
+  expect_list(obj$state$model$loss_state)
 
   # It is possible to change parameter values
   md$optimizer = t_opt("adagrad", lr = 0.123)
   obj = po("torch_model_classif", epochs = 0, batch_size = 2)
   obj$train(list(md))
-  expect_class(obj$state$model$optimizer, "optim_adagrad")
+  expect_class(obj$state$model$optimizer_state, "list")
   expect_true(obj$state$state$param_vals$opt.lr == 0.123)
   expect_true(obj$state$state$param_vals$batch_size == 2)
 

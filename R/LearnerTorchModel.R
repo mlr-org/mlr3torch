@@ -106,14 +106,7 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
       )
     },
     .network_stored = NULL,
-    .ingress_tokens = NULL,
-    deep_clone = function(name, value) {
-      if (!is.null(self$state)) {
-        stopf("cannot clone %s because it has already been trained", self$id)
-      } else {
-        super$deep_clone(name, value)
-      }
-    }
+    .ingress_tokens = NULL
   )
 )
 

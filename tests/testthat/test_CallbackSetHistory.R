@@ -42,3 +42,9 @@ test_that("plotting works", {
   expect_class(learner$history$plot(c("classif.ce", "classif.acc"), set = "train"), "ggplot")
   learner$history$plot(c("classif.ce", "classif.acc", "classif.logloss"), set = "train")
 })
+
+test_that("deep clone", {
+  history = lrn("classif.torch_featureless", epochs = 0, batch_size = 1, callbacks = "history")$train(tsk("iris"))$
+    model$callbacks$history
+
+})

@@ -3,11 +3,34 @@ test_that("deep cloning", {
   learner$param_set$set_values(epochs = 1, batch_size = 1)
   task = tsk("iris")
   learner$train(task)
-
   learner$state$train_task = NULL
+
   learner_cloned = learner$clone(deep = TRUE)
-  expect_deep_clone(learner, learner$clone(deep = TRUE))
-  expect_error(learner$clone(deep = TRUE), regexp = "Deep clone of trained network is currently not supported")
+  expect_deep_clone(learner, learner_cloned)
+
+  # just because we are paranoid
+  network = learner$network
+  network_cloned = learner_cloned$network
+  expect_true(torch_equal(network$weights, network_cloned$weights))
+  network$weights$requires_grad_(FALSE)
+  network$weights[1] = network$weights[1] + 1
+  expect_false(torch_equal(network$weights, network_cloned$weights))
+
+  # but the generators are not cloned
+  expect_identical(
+    get_private(learner)$.loss$generator,
+    get_private(learner_cloned)$.loss$generator
+  )
+
+  expect_identical(
+    get_private(learner)$.loss$generator,
+    get_private(learner_cloned)$.loss$generator
+  )
+
+  expect_true(all(pmap_lgl(list(
+      get_private(learner)$.callbacks$generator,
+      get_private(learner_cloned)$.callbacks$generator),
+    identical)))
 })
 
 test_that("Correct error when using problematic measures", {
@@ -167,11 +190,14 @@ test_that("the state of a trained network contains what it should", {
     loss = t_loss("l1")
   )
   learner$train(task)
-  expect_permutation(names(learner$model), c("seed", "network", "optimizer", "loss_fn", "task_col_info", "callbacks"))
+  expect_permutation(
+    names(learner$model),
+    c("seed", "network", "optimizer_state", "loss_state", "task_col_info", "callbacks")
+  )
   expect_true(is.integer(learner$model$seed))
   expect_class(learner$model$network, "nn_module")
-  expect_class(learner$model$loss_fn, "nn_l1_loss")
-  expect_class(learner$model$optimizer, "optim_sgd")
+  expect_list(learner$model$loss_state)
+  expect_list(learner$model$optimizer_state)
   expect_list(learner$model$callbacks, types = "CallbackSet", len = 1L)
   expect_equal(names(learner$model$callbacks), "history1")
   expect_true(is.integer(learner$model$seed))
@@ -357,14 +383,11 @@ test_that("predict parameters do what they should: classification and regression
 test_that("quick accessors work", {
   task = tsk("mtcars")
   learner = lrn("regr.torch_featureless", epochs = 1, batch_size = 1, callbacks = "history")
-  expect_error(learner$network, "Cannot")
-  expect_error(learner$history, "Cannot")
+  expect_true(is.null(learner$network))
+  expect_true(is.null(learner$history))
   learner$train(task)
   expect_class(learner$network, "nn_module")
   expect_class(learner$history, "CallbackSetHistory")
-  learner = lrn("regr.torch_featureless", epochs = 1, batch_size = 1)
-  learner$train(task)
-  expect_error(learner$history, "No history found")
 })
 
 test_that("Train-Predict works", {

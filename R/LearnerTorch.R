@@ -206,12 +206,9 @@ LearnerTorch = R6Class("LearnerTorch",
   ),
   active = list(
     #' @field network ([`nn_module()`][torch::nn_module])\cr
-    #'   The network (only available after training).
+    #' Shortcut for `learner$model$network`.
     network = function(rhs) {
       assert_ro_binding(rhs)
-      if (is.null(self$state)) {
-        stopf("Cannot access network before training.")
-      }
       self$state$model$network
     },
     #' @field param_set ([`ParamSet`])\cr
@@ -229,12 +226,6 @@ LearnerTorch = R6Class("LearnerTorch",
     #' Shortcut for `learner$model$callbacks$history`.
     history = function(rhs) {
       assert_ro_binding(rhs)
-      if (is.null(self$state)) {
-        stopf("Cannot access history before training.")
-      }
-      if (is.null(self$model$callbacks$history)) {
-        stopf("No history found. Did you specify t_clbk(\"history\") during construction?")
-      }
       self$model$callbacks$history
     }
   ),
@@ -333,23 +324,28 @@ LearnerTorch = R6Class("LearnerTorch",
     .verify_predict_task = function(task, param_vals) NULL,
     deep_clone = function(name, value) {
       private$.param_set = NULL # required to keep clone identical to original, otherwise tests get really ugly
-      if (name == "state") {
-        model = value$model
-        value$model = NULL
-        value = super$deep_clone(name, value)
+      # FIXME this repairs the mlr3::Learner deep_clone() method which is broken.
+      if (is.environment(value) && !is.null(value[[".__enclos_env__"]])) {
+        return(value$clone(deep = TRUE))
+      } else if (test_class(value, "nn_module")) {
+        value$clone(deep = TRUE)
+      } else if (name == ".callbacks") {
+        map(value, function(x) x$clone(deep = TRUE))
+      } else if (name == "state") {
         if (!is.null(value)) {
-          value$model = list(
-            network = patch_module_clone(value$network, value$network$clone(deep = TRUE)),
-            loss_state = patch_list(value$loss_state, lapply(value$loss_state, function(x) x$clone(deep = TRUE))),
-            optimizer_state = patch_list(value$loss_state, lapply(value$optimizer_state, function(x) x$clone(deep = TRUE))),
-            callbacks = map(value$callbacks, function(x) x$clone(deep = TRUE)),
-            seed = value$seed,
-            task_col_info = copy(value$task_col_info)
+          model = value$model
+          value["model"] = list(NULL)
+          value = super$deep_clone(name, value)
+          value[["model"]] = list(
+            network = model$network$clone(deep = TRUE),
+            loss_state = clone_recurse(model$loss_state),
+            optimizer_state = clone_recurse(model$optimizer_state),
+            callbacks = map(model$callbacks, function(x) x$clone(deep = TRUE)),
+            seed = model$seed,
+            task_col_info = copy(model$task_col_info)
           )
-          value
-        } else {
-          NULL
         }
+        return(value)
       } else if (name == ".param_set") {
         NULL
       } else {
@@ -360,8 +356,11 @@ LearnerTorch = R6Class("LearnerTorch",
 )
 
 clone_recurse = function(l) {
-  if (!is.list(l)) {
-    return(l$clone(deep = TRUE))
+  if (test_class(l, "torch_tensor")) {
+    return(l$clone())
+  } else if (test_list(l) && length(l) > 0L) {
+    map(l, clone_recurse)
+  } else {
+    return(l)
   }
-  lapply(clone_recurse)
 }

@@ -48,7 +48,7 @@ test_that("assignment", {
   x = as_lazy_tensor(1:2)
   x[2] = x[1]
   expect_class(x, "lazy_tensor")
-  expect_torch_equal(
+  expect_equal(
     materialize(x[1], rbind = TRUE),
     materialize(x[2], rbind = TRUE)
   )
@@ -161,7 +161,7 @@ test_that("as_lazy_tensor for dataset", {
   ds = random_dataset(3)
   x = as_lazy_tensor(ds, dataset_shapes = list(x = c(NA, 3)), ids = 1:5)
   expect_class(x, "lazy_tensor")
-  expect_torch_equal(ds$.getbatch(1:5)$x, materialize(x, rbind = TRUE))
+  expect_equal(ds$.getbatch(1:5)$x, materialize(x, rbind = TRUE))
 })
 
 test_that("as_lazy_tensor for DataDescriptor", {
@@ -172,14 +172,14 @@ test_that("as_lazy_tensor for DataDescriptor", {
   )
   x = as_lazy_tensor(dd, ids = c(1, 5))
   expect_class(x, "lazy_tensor")
-  expect_torch_equal(ds$.getbatch(c(1, 5))$x, materialize(x, rbind = TRUE))
+  expect_equal(ds$.getbatch(c(1, 5))$x, materialize(x, rbind = TRUE))
 })
 
 test_that("as_lazy_tensor for tensor", {
   tnsr = torch_randn(10, 1)
   x = as_lazy_tensor(tnsr)
   expect_class(x, "lazy_tensor")
-  expect_torch_equal(tnsr, materialize(x, rbind = TRUE))
+  expect_equal(tnsr, materialize(x, rbind = TRUE))
 
 })
 

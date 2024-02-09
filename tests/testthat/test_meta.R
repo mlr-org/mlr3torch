@@ -21,7 +21,31 @@ test_that("deep clone: tensor", {
 })
 
 test_that("deep clone: nn_module", {
-  #linear = nn_linear(1, 1)
-  #linear2 = linear$clone(deep = TRUE)
-  #expect_deep_clone(linear, linear2)
+  linear = nn_linear(1, 1)
+  linear2 = linear$clone(deep = TRUE)
+  expect_deep_clone(linear, linear2)
+})
+
+test_that("expect_deep_clone for data table", {
+  d = data.table(a = 1)
+  expect_deep_clone(d, copy(d))
+})
+
+test_that("can compare tensors", {
+  expect_equal(
+    torch_tensor(1)$requires_grad_(FALSE),
+    torch_tensor(1)$requires_grad_(FALSE)
+  )
+  expect_equal(
+    torch_tensor(1)$requires_grad_(TRUE),
+    torch_tensor(1)$requires_grad_(TRUE)
+  )
+  expect_failure(expect_equal(
+    torch_tensor(1)$requires_grad_(FALSE),
+    torch_tensor(1)$requires_grad_(TRUE)
+  ))
+  expect_failure(expect_equal(
+    torch_tensor(1),
+    torch_tensor(2)
+  ))
 })

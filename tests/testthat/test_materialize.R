@@ -8,9 +8,9 @@ test_that("materialize works on lazy_tensor", {
   expect_true(output$device == torch_device("cpu"))
   expect_true(torch_equal(output, ds$x))
   # the correct elements are returned
-  expect_torch_equal(ds$.getbatch(1)[[1]], materialize(lt[1])[[1]]$unsqueeze(1))
-  expect_torch_equal(ds$.getbatch(2)[[1]], materialize(lt[2])[[1]]$unsqueeze(1))
-  expect_torch_equal(ds$.getbatch(2:1)[[1]], materialize(lt[2:1], rbind = TRUE))
+  expect_equal(ds$.getbatch(1)[[1]], materialize(lt[1])[[1]]$unsqueeze(1))
+  expect_equal(ds$.getbatch(2)[[1]], materialize(lt[2])[[1]]$unsqueeze(1))
+  expect_equal(ds$.getbatch(2:1)[[1]], materialize(lt[2:1], rbind = TRUE))
 
   output_meta_list = materialize(lt, device = "meta", rbind = FALSE)
   output_meta_tnsr = materialize(lt, device = "meta", rbind = TRUE)
@@ -50,7 +50,7 @@ test_that("materialize works with same shapes and .getbatch method", {
 
   res1cpu = materialize(x, rbind = FALSE)
   res2cpu = materialize(x, rbind = TRUE)
-  expect_torch_equal(list_to_batch(res1cpu), res2cpu)
+  expect_equal(list_to_batch(res1cpu), res2cpu)
   expect_equal(res2cpu$shape, res2$shape)
 })
 
@@ -70,7 +70,7 @@ test_that("materialize works with same shapes and .getitem method", {
 
   res1cpu = materialize(x, rbind = FALSE)
   res2cpu = materialize(x, rbind = TRUE)
-  expect_torch_equal(list_to_batch(res1cpu), res2cpu)
+  expect_equal(list_to_batch(res1cpu), res2cpu)
   expect_equal(res2cpu$shape, res2$shape)
 })
 
@@ -82,11 +82,11 @@ test_that("materialize_internal works", {
   res2 = materialize(x, rbind = TRUE)
   expect_list(res1, types = "torch_tensor")
   expect_class(res2, "torch_tensor")
-  expect_torch_equal(list_to_batch(res1), res2)
+  expect_equal(list_to_batch(res1), res2)
 
   res1cpu = materialize(x, rbind = FALSE)
   res2cpu = materialize(x, rbind = TRUE)
-  expect_torch_equal(list_to_batch(res1cpu), res2cpu)
+  expect_equal(list_to_batch(res1cpu), res2cpu)
 })
 
 

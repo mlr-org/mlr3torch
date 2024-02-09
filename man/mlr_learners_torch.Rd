@@ -112,7 +112,7 @@ Other Learner:
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
 \item{\code{network}}{(\code{\link[torch:nn_module]{nn_module()}})\cr
-The network (only available after training).}
+Shortcut for \code{learner$model$network}.}
 
 \item{\code{param_set}}{(\code{\link{ParamSet}})\cr
 The parameter set}

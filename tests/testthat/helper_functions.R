@@ -53,23 +53,18 @@ expect_deep_clone = function(one, two) {
     visited[[addr_a]] = path
     visited_b[[addr_b]] = path
 
-    #if (inherits(a, "nn_module_generator") || inherits(a, "torch_optimizer_generator")) {
-    #  stopf("Not implemented yet")
-    #}
     if (inherits(a, "R6ClassGenerator")) {
       return(NULL)
-    }
-
-
-    if (is_externalptr(a)) {
-      label = sprintf("Object addresses differ at path %s", paste0(path, collapse = "->"))
-      expect_true(addr_a != addr_b, label = label)
-      return(invisible(NULL))
     }
 
     # follow attributes, even for non-recursive objects
     if (utils::tail(path, 1) != "[attributes]" && !is.null(base::attributes(a))) {
       expect_references_differ(base::attributes(a), base::attributes(b), c(path, "[attributes]"))
+    }
+
+    if (is_externalptr(a)) {
+      label = sprintf("External Pointer differ at path %s", paste0(path, collapse = "->"))
+      expect_true(addr_a != addr_b, label = label)
     }
 
     # don't recurse if there is nowhere to go
@@ -95,7 +90,7 @@ expect_deep_clone = function(one, two) {
       label = sprintf("Object addresses differ at path %s", paste0(path, collapse = "->"))
       expect_true(addr_a != addr_b, label = label)
       expect_null(visited_b[[addr_a]], label = label)
-    } else {
+    } else  {
       a = unclass(a)
       b = unclass(b)
     }
@@ -103,9 +98,6 @@ expect_deep_clone = function(one, two) {
     # recurse
     if (base::is.function(a)) {
       return(invisible(NULL))
-      ## # maybe this is overdoing it
-      ## expect_references_differ(base::formals(a), base::formals(b), c(path, "[function args]"))
-      ## expect_references_differ(base::body(a), base::body(b), c(path, "[function body]"))
     }
     objnames = base::names(a)
     if (is.null(objnames) || anyDuplicated(objnames)) {
@@ -117,7 +109,7 @@ expect_deep_clone = function(one, two) {
       }
     }
     for (i in index) {
-      if (utils::tail(path, 1) == "[attributes]" && i %in% c("srcref", "srcfile", ".Environment")) next
+      if (utils::tail(path, 1) == "[attributes]" && i %in% c(".internal.selfref", "srcref", "srcfile", ".Environment")) next
       expect_references_differ(base::`[[`(a, i), base::`[[`(b, i), c(path, sprintf("[element %s]%s", i,
         if (!is.null(objnames)) sprintf(" '%s'", if (is.character(index)) i else objnames[[i]]) else "")))
     }
