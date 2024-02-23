@@ -21,8 +21,6 @@ for each argument of the wrapped loss function, where the parametes are then of 
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 # Create a new torch loss
 torch_loss = TorchLoss$new(torch_loss = nn_mse_loss, task_types = "regr")
 torch_loss
@@ -102,7 +100,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{TorchLoss$new(
   torch_loss,
-  task_types,
+  task_types = NULL,
   param_set = NULL,
   id = NULL,
   label = NULL,

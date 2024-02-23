@@ -3,33 +3,14 @@
 \name{mlr_learners_torch_image}
 \alias{mlr_learners_torch_image}
 \alias{LearnerTorchImage}
-\title{Image Network}
+\title{Image Learner}
 \description{
-Base Class for Torch Image Learners.
+Base Class for Image Learners.
+The features are assumed to be a single \code{\link{lazy_tensor}} column in RGB format.
 }
-\section{State}{
-
-The state is a list with elements \code{network}, \code{optimizer}, \code{loss_fn}, \code{callbacks} and \code{seed}.
-}
-
-\section{Inheriting}{
-
-To inherit from this class, one should overwrite the private \verb{$.network()} method to return a
-\code{\link{nn_module}} that has one argument in its forward method.
-}
-
 \section{Parameters}{
 
-Parameters include those inherited from \code{\link{LearnerTorch}}, the \code{param_set} construction argument, as
-well as:
-\itemize{
-\item \code{channels} :: \code{integer(1)} \cr
-The number of input channels.
-\item \code{height} :: \code{integer(1)} \cr
-The height of the input image.
-\item \code{width} :: \code{integer(1)} \cr
-The width of the input image.
-}
+Parameters include those inherited from \code{\link{LearnerTorch}} and the \code{param_set} construction argument.
 }
 
 \seealso{
@@ -74,7 +55,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \if{html}{\out{<div class="r">}}\preformatted{LearnerTorchImage$new(
   id,
   task_type,
-  param_set,
+  param_set = ps(),
   label,
   optimizer = NULL,
   loss = NULL,

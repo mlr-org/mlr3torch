@@ -8,6 +8,15 @@
 #'   The elements of the `data_descriptor` to be included in the lazy tensor.
 #' @include DataDescriptor.R
 #' @export
+#' @examplesIf torch::torch_is_installed()
+#' @examples
+#' ds = dataset("example",
+#'   initialize = function() self$iris = iris[, -5],
+#'   .getitem = function(i) list(x = torch_tensor(as.numeric(self$iris[i, ]))),
+#'   .length = function() nrow(self$iris)
+#' )()
+#' dd = as_data_descriptor(ds, list(x = c(NA, 4L)))
+#' lt = as_lazy_tensor(dd)
 lazy_tensor = function(data_descriptor = NULL, ids = NULL) {
   assert_class(data_descriptor, "DataDescriptor", null.ok = TRUE)
   if (is.null(data_descriptor)) {
@@ -109,14 +118,45 @@ dd = function(x) {
 }
 
 
-#' @title Convert to lazy tensor
+#' @title Convert to Lazy Tensor
 #' @description
 #' Convert a object to a [`lazy_tensor`].
+#'
 #' @param x (any)\cr
 #'   Object to convert to a [`lazy_tensor`]
 #' @param ... (any)\cr
 #'  Additional arguments passed to the method.
 #' @export
+#' @examplesIf torch::torch_is_installed()
+#' @examples
+#' # Convert a dataset
+#' iris_ds = dataset("iris",
+#'   initialize = function() {
+#'     self$iris = iris[, -5]
+#'   },
+#'   .getbatch = function(i) {
+#'     list(x = torch_tensor(as.matrix(self$iris[i, ])))
+#'   },
+#'   .length = function() nrow(self$iris)
+#' )()
+#' # no need to specify the dataset shapes as they can be inferred from the .getbatch method
+#' # only first 5 observations
+#' as_lazy_tensor(iris_ds, ids = 1:5)
+#' # all observations
+#' head(as_lazy_tensor(iris_ds))
+#'
+#' iris_ds2 = dataset("iris",
+#'   initialize = function() self$iris = iris[, -5],
+#'   .getitem = function(i) list(x = torch_tensor(as.numeric(self$iris[i, ]))),
+#'   .length = function() nrow(self$iris)
+#' )()
+#' # if .getitem is implemented we cannot infer the shapes as they might vary,
+#' # so we have to annotate them explicitly
+#' as_lazy_tensor(iris_ds2, dataset_shapes = list(x = c(NA, 4L)))[1:5]
+#'
+#' # Convert a matrix
+#' lt = as_lazy_tensor(matrix(rnorm(100), nrow = 20))
+#' materialize(lt[1:5], rbind = TRUE)
 as_lazy_tensor = function(x, ...) {
   UseMethod("as_lazy_tensor")
 }
@@ -126,8 +166,12 @@ as_lazy_tensor.DataDescriptor = function(x, ids = NULL, ...) { # nolint
   lazy_tensor(x, ids = ids)
 }
 
+#' @rdname as_lazy_tensor
+#' @param ids (`integer()`)\cr
+#'   Which ids to include in the lazy tensor.
+#' @template param_dataset_shapes
 #' @export
-as_lazy_tensor.dataset = function(x, dataset_shapes, ids = NULL, ...) { # nolint
+as_lazy_tensor.dataset = function(x, dataset_shapes = NULL, ids = NULL, ...) { # nolint
   dd = DataDescriptor$new(dataset = x, dataset_shapes = dataset_shapes, ...)
   lazy_tensor(dd, ids)
 }

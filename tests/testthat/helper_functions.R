@@ -254,3 +254,39 @@ random_dataset = dataset("random_dataset",
     nrow(self$x)
   }
 )
+
+make_dataset = function(shapes, n = 5, getbatch = TRUE) {
+  if (getbatch) {
+    dataset("data",
+      initialize = function(shapes) {
+        self$data = map(shapes, function(shape) {
+          torch_randn(c(n, shape))
+        })
+      },
+      .getbatch = function(i) {
+        map(self$data, function(x) {
+          x[i, .., drop = FALSE]
+        })
+      },
+      .length = function() {
+        nrow(self$data[[1]])
+      }
+    )(shapes)
+  } else {
+    dataset("data",
+      initialize = function(shapes) {
+        self$data = map(shapes, function(shape) {
+          torch_randn(c(n, shape))
+        })
+      },
+      .getitem = function(i) {
+        map(self$data, function(x) {
+          x[i, .., drop = FALSE]$squeeze(1)
+        })
+      },
+      .length = function() {
+        nrow(self$data[[1]])
+      }
+    )(shapes)
+  }
+}

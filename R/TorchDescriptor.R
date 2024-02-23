@@ -45,7 +45,6 @@ TorchDescriptor = R6Class("TorchDescriptor",
         param$tags = union(param$tags, "train")
       }
       #self$param_set$tags = map(self$param_set$tags, function(tags) union(tags, "train"))
-
       if (is.function(generator)) {
         args = formalArgs(generator)
       } else {

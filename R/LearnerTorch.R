@@ -261,14 +261,21 @@ LearnerTorch = R6Class("LearnerTorch",
       model = with_torch_settings(seed = param_vals$seed, num_threads = param_vals$num_threads, {
         learner_torch_train(self, private, super, task, param_vals)
       })
-      model$task_col_info = copy(task$col_info)
+      model$task_col_info = copy(task$col_info[c(task$feature_names, task$target_names), c("id", "type", "levels")])
       return(model)
     },
     .predict = function(task) {
+      param_vals = self$param_set$get_values(tags = "predict")
       cols = c(task$feature_names, task$target_names)
       ci_predict = task$col_info[get("id") %in% cols, c("id", "type", "levels")]
       ci_train = self$model$task_col_info[get("id") %in% cols, c("id", "type", "levels")]
       # permuted factor levels cause issues, because we are converting fct -> int
+      # FIXME: https://github.com/mlr-org/mlr3/issues/946
+      # This addresses the issues with the factor levels and is only a temporary fix
+      # Should be handled outside of mlr3torch
+      # Ideally we could rely on state$train_task, but there is this complication
+      # https://github.com/mlr-org/mlr3/issues/947
+      param_vals$device = auto_device(param_vals$device)
       if (!test_equal_col_info(ci_train, ci_predict)) { # nolint
         stopf(paste0(
           "Predict task's column info does not match the train task's column info.\n",
@@ -278,14 +285,7 @@ LearnerTorch = R6Class("LearnerTorch",
           paste0(capture.output(ci_train), collapse = "\n"),
           paste0(capture.output(ci_predict), collapse = "\n"))
       }
-      param_vals = self$param_set$get_values(tags = "predict")
       private$.verify_predict_task(task, param_vals)
-      # FIXME: https://github.com/mlr-org/mlr3/issues/946
-      # This addresses the issues with the factor levels and is only a temporary fix
-      # Should be handled outside of mlr3torch
-      # Ideally we could rely on state$train_task, but there is this complication
-      # https://github.com/mlr-org/mlr3/issues/947
-      param_vals$device = auto_device(param_vals$device)
 
       with_torch_settings(seed = self$model$seed, num_threads = param_vals$num_threads, {
         learner_torch_predict(self, private, super, task, param_vals)

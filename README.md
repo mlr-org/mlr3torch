@@ -71,7 +71,8 @@ learner_mlp = lrn("classif.mlp",
 )
 ```
 
-This learner can for example be used for resampling or benchmarking.
+This learner can for be resampled, benchmarked or tuned as any other
+learner.
 
 ``` r
 resample(
@@ -148,7 +149,7 @@ task$head()
 #> 5:      9 <tnsr[1x28x28]>
 #> 6:      2 <tnsr[1x28x28]>
 
-# Resize the images to 20x20
+# Resize the images to 5x5
 po_resize = po("trafo_resize", size = c(5, 5))
 task_reshaped = po_resize$train(list(task))[[1L]]
 
@@ -162,7 +163,7 @@ task_reshaped$head()
 #> 5:      9 <tnsr[1x5x5]>
 #> 6:      2 <tnsr[1x5x5]>
 
-# The tenosrs are loaded and preprocessed only when materialized
+# The tensors are loaded and preprocessed only when materialized
 
 materialize(
   task_reshaped$data(1, cols = "image")[[1L]],

@@ -127,7 +127,6 @@ test_equal_col_info = function(x, y) {
 
   isTRUE(all.equal(x$id, y$id)) && isTRUE(all.equal(x$type, y$type)) &&
     all(pmap_lgl(list(x = x$levels, y = y$levels), function(x, y) isTRUE(all.equal(x, y))))
-
 }
 
 

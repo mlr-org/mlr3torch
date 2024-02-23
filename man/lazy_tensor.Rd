@@ -16,3 +16,14 @@ The elements of the \code{data_descriptor} to be included in the lazy tensor.}
 \description{
 Create a lazy tensor.
 }
+\examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{\}) # examplesIf}
+ds = dataset("example",
+  initialize = function() self$iris = iris[, -5],
+  .getitem = function(i) list(x = torch_tensor(as.numeric(self$iris[i, ]))),
+  .length = function() nrow(self$iris)
+)()
+dd = as_data_descriptor(ds, list(x = c(NA, 4L)))
+lt = as_lazy_tensor(dd)
+}

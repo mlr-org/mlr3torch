@@ -33,7 +33,7 @@ unchanged_shapes_rgb = function(shapes_in, param_vals, task) {
 }
 
 unchanged_shapes_image = function(shapes_in, param_vals, task) {
-  assert_image_shape(shapes_in[[1L]])
+  assert_grayscale_or_rgb(shapes_in[[1L]])
   shapes_in
 }
 
@@ -195,7 +195,7 @@ register_preproc("augment_random_order", torchvision::transform_random_order, pa
 #' @templateVar id augment_hflip
 register_preproc("augment_hflip", torchvision::transform_hflip, packages = "torchvision", rowwise = TRUE,
   shapes_out = function(shapes_in, param_vals, task) {
-    assert_image_shape(shapes_in[[1L]])
+    assert_grayscale_or_rgb(shapes_in[[1L]])
     shapes_in
   },
   param_set = ps()
@@ -252,7 +252,7 @@ register_preproc("augment_random_affine", torchvision::transform_random_affine, 
 register_preproc("augment_vflip", torchvision::transform_vflip, packages = "torchvision", rowwise = TRUE,
   param_set = ps(),
   shapes_out = function(shapes_in, param_vals, task) {
-    assert_image_shape(shapes_in[[1L]])
+    assert_grayscale_or_rgb(shapes_in[[1L]])
     shapes_in
   }
 )

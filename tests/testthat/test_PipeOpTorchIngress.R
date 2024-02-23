@@ -7,6 +7,13 @@ test_that("PipeOpTorchIngressNumeric", {
   expect_po_ingress(po_ingress, task)
 })
 
+test_that("ingress fails with 0 features", {
+  expect_error(
+    po("torch_ingress_cat")$train(list(tsk("iris")))
+  )
+
+})
+
 test_that("PipeOpTorchIngressCategorical", {
   po_ingress = po("torch_ingress_categ")
   dat = data.table(y = runif(10), x_cat = factor(letters[1:10]), x_lgl = TRUE, x_ord = ordered(letters[1:10]),
