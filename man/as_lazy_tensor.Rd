@@ -21,6 +21,9 @@ The shapes of the output.
 Names are the elements of the list returned by the dataset.
 If the shape is not \code{NULL} (unknown, e.g. for images of different sizes) the first dimension must be \code{NA} to
 indicate the batch dimension.}
+
+\item{ids}{(\code{integer()})\cr
+Which ids to include in the lazy tensor.}
 }
 \description{
 Convert a object to a \code{\link{lazy_tensor}}.
@@ -45,16 +48,13 @@ as_lazy_tensor(iris_ds, ids = 1:5)
 head(as_lazy_tensor(iris_ds))
 
 iris_ds2 = dataset("iris",
-  initialize = function() {
-    self$iris = iris[, -5]
-  },
-  .getitem = function(i) {
-    list(x = torch_tensor(as.matrix(self$iris[i, ])))
-  }
+  initialize = function() self$iris = iris[, -5],
+  .getitem = function(i) list(x = torch_tensor(as.numeric(self$iris[i, ]))),
+  .length = function() nrow(self$iris)
 )()
 # if .getitem is implemented we cannot infer the shapes as they might vary,
 # so we have to annotate them explicitly
-as_lazy_tensor(iris_ds2, dataset_shapes = list(x = c(NA, 4L)))
+as_lazy_tensor(iris_ds2, dataset_shapes = list(x = c(NA, 4L)))[1:5]
 
 # Convert a matrix
 lt = as_lazy_tensor(matrix(rnorm(100), nrow = 20))

@@ -146,16 +146,13 @@ dd = function(x) {
 #' head(as_lazy_tensor(iris_ds))
 #'
 #' iris_ds2 = dataset("iris",
-#'   initialize = function() {
-#'     self$iris = iris[, -5]
-#'   },
-#'   .getitem = function(i) {
-#'     list(x = torch_tensor(as.matrix(self$iris[i, ])))
-#'   }
+#'   initialize = function() self$iris = iris[, -5],
+#'   .getitem = function(i) list(x = torch_tensor(as.numeric(self$iris[i, ]))),
+#'   .length = function() nrow(self$iris)
 #' )()
 #' # if .getitem is implemented we cannot infer the shapes as they might vary,
 #' # so we have to annotate them explicitly
-#' as_lazy_tensor(iris_ds2, dataset_shapes = list(x = c(NA, 4L)))
+#' as_lazy_tensor(iris_ds2, dataset_shapes = list(x = c(NA, 4L)))[1:5]
 #'
 #' # Convert a matrix
 #' lt = as_lazy_tensor(matrix(rnorm(100), nrow = 20))
@@ -170,6 +167,8 @@ as_lazy_tensor.DataDescriptor = function(x, ids = NULL, ...) { # nolint
 }
 
 #' @rdname as_lazy_tensor
+#' @param ids (`integer()`)\cr
+#'   Which ids to include in the lazy tensor.
 #' @template param_dataset_shapes
 #' @export
 as_lazy_tensor.dataset = function(x, dataset_shapes = NULL, ids = NULL, ...) { # nolint
