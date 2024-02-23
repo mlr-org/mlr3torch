@@ -10,6 +10,8 @@ test_that("PipeOpModule: basic checks", {
   po_nn = po("module", id = "relu", module = nn_relu())
   expect_pipeop(po_nn)
   expect_equal(po_nn$id, "relu")
+  expect_true("torch" %in% po_nn$packages)
+  expect_true("mlr3torch" %in% po_nn$packages)
 })
 
 test_that("PipeOpModule works", {
@@ -43,8 +45,20 @@ test_that("PipeOpModule works", {
 })
 
 test_that("Cloning works", {
-  expect_error(po("module", module = nn_linear(1, 1))$clone(deep = TRUE))
-  expect_error(po("module", module = idenity)$clone(deep = TRUE))
+  po_nn = po("module", module = nn_linear(1, 1))$clone(deep = TRUE)
+  po_nn1 = po_nn$clone(deep = TRUE)
+
+  # phash should and is different between hashes
+  unlockBinding(".additional_phash_input", get_private(po_nn))
+  unlockBinding(".additional_phash_input", get_private(po_nn1))
+  get_private(po_nn, ".additional_phash_input") = function(...) NULL
+  get_private(po_nn1, ".additional_phash_input") = function(...) NULL
+
+  expect_deep_clone(po_nn, po_nn1)
+
+  po_fn = po("module", module = function(x) x + 1)
+  po_fn1 = po_fn$clone(deep = TRUE)
+  expect_deep_clone(po_fn, po_fn1)
 })
 
 test_that("phash for PipeOpModule works", {

@@ -101,9 +101,9 @@ ContextTorch = R6Class("ContextTorch",
     #' @field epoch (`integer(1)`)\cr
     #'   The current epoch.
     epoch = NULL,
-    #' @field batch (`integer(1)`)\cr
-    #'   The current iteration of the batch.
-    batch = NULL,
+    #' @field step (`integer(1)`)\cr
+    #'   The current iteration.
+    step = NULL,
     #' @field prediction_encoder (`function()`)\cr
     #'   The learner's prediction encoder.
     prediction_encoder = NULL

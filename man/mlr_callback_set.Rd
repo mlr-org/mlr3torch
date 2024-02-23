@@ -39,7 +39,8 @@ These functions perform checks such as that the stages are not accidentally miss
 \item \code{batch_valid_begin} :: Run before the forward call in the validation loop.
 \item \code{batch_valid_end} :: Run after the forward call in the validation loop.
 \item \code{epoch_end} :: Run at the end of each epoch.
-\item \code{end} :: Run at last, using \code{on.exit()}.
+\item \code{end} :: Run after last epoch.
+\item \code{exit} :: Run at last, using \code{on.exit()}.
 }
 }
 

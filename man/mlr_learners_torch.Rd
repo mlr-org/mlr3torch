@@ -10,9 +10,9 @@ All torch learners should inherit from this class.
 
 It also allows to hook into the training loop via a callback mechanism.
 }
-\section{State}{
+\section{Model}{
 
-The state is a list with elements \code{network}, \code{optimizer}, \code{loss_fn}, \code{callbacks} and \code{seed}.
+The Model is a list with elements \code{network}, \code{loss_state}, \code{optimizer_state}, \code{callbacks} and \code{seed}.
 }
 
 \section{Parameters}{
@@ -112,13 +112,13 @@ Other Learner:
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
 \item{\code{network}}{(\code{\link[torch:nn_module]{nn_module()}})\cr
-The network (only available after training).}
+Shortcut for \code{learner$model$network}.}
 
 \item{\code{param_set}}{(\code{\link{ParamSet}})\cr
 The parameter set}
 
-\item{\code{history}}{(\code{\link{CallbackSetHistory}})\cr
-Shortcut for \code{learner$model$callbacks$history}.}
+\item{\code{callbacks}}{(\code{\link{CallbackSetHistory}})\cr
+Shortcut for \code{learner$model$callbacks}.}
 }
 \if{html}{\out{</div>}}
 }

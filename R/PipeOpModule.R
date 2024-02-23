@@ -147,8 +147,11 @@ PipeOpModule = R6Class("PipeOpModule",
       list(fn_input, self$input$name, self$output$name, self$packages)
     },
     deep_clone = function(name, value) {
-      # FIXME: We can implement this, when https://github.com/mlverse/torch/issues/1126 is solved
-      stopf("Cannot create a deep clone of PipeOpModule.")
+      if (name == "module" && test_class(value, "nn_module")) {
+        value$clone(deep = TRUE)
+      } else {
+        super$deep_clone(name, value)
+      }
     }
   )
 )

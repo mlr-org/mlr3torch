@@ -27,6 +27,9 @@ pak::pak("mlr-org/mlr3torch")
 torch::install_torch()
 ```
 
+More information about installing `torch` can be found
+[here](https://torch.mlverse.org/docs/articles/installation.html).
+
 ## Status
 
 `mlr3torch` is currently still in its experimental phase and many things

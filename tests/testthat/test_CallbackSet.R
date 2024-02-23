@@ -37,7 +37,8 @@ test_that("All stages are called correctly", {
     on_batch_valid_end = write_stage("on_batch_valid_end"),
     on_batch_end = write_stage("on_batch_end"),
     on_epoch_end = write_stage("on_epoch_end"),
-    on_end = write_stage("on_end")
+    on_end = write_stage("on_end"),
+    on_exit = write_stage("on_exit")
   )
   path = tempfile()
   learner = lrn("classif.mlp", batch_size = 1, epochs = 1, callbacks = cb, cb.test.path = path,
@@ -168,4 +169,10 @@ test_that("phash works", {
   expect_false(t_clbk("history")$phash == t_clbk("progress")$phash)
   expect_false(t_clbk("history", id = "a")$phash == t_clbk("history", id = "b")$phash)
   expect_false(t_clbk("history", label = "a")$phash == t_clbk("history", label = "b")$phash)
+})
+
+test_that("stages works", {
+  stages = lrn("classif.torch_featureless", epochs = 1L, batch_size = 1, callbacks = "history")$train(tsk("iris"))$
+    model$callbacks$stages
+  expect_subset(stages, mlr_reflections$torch$callback_stages)
 })

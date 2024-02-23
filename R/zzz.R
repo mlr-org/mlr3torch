@@ -87,7 +87,8 @@ register_mlr3 = function() {
       "on_batch_valid_begin",
       "on_batch_valid_end",
       "on_epoch_end",
-      "on_end"
+      "on_end",
+      "on_exit"
     )
   )
 
@@ -118,7 +119,9 @@ register_mlr3pipelines = function() {
 
   register_namespace_callback(pkgname, "mlr3", register_mlr3)
   register_namespace_callback(pkgname, "mlr3pipelines", register_mlr3pipelines)
+  register_s3_method("waldo", "compare_proxy", "torch_tensor")
 }
+
 
 .onUnload = function(libPaths) { # nolint
   walk(names(mlr3torch_learners), function(nm) mlr_learners$remove(nm))
@@ -128,5 +131,6 @@ register_mlr3pipelines = function() {
   mlr_reflections$pipeops$valid_tags = setdiff(mlr_reflections$pipeops$valid_tags, mlr3torch_pipeop_tags)
   mlr_reflections$learner_feature_types = setdiff(mlr_reflections$learner_feature_types, mlr3torch_feature_types)
 }
+
 
 leanify_package()

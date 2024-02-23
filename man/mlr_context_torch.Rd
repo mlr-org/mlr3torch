@@ -68,8 +68,8 @@ The scores from the last validation batch. Names are the ids of the validation m
 \item{\code{epoch}}{(\code{integer(1)})\cr
 The current epoch.}
 
-\item{\code{batch}}{(\code{integer(1)})\cr
-The current iteration of the batch.}
+\item{\code{step}}{(\code{integer(1)})\cr
+The current iteration.}
 
 \item{\code{prediction_encoder}}{(\verb{function()})\cr
 The learner's prediction encoder.}

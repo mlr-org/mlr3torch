@@ -90,7 +90,12 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
   ),
   private = list(
     .network = function(task, param_vals) {
-      private$.network_stored
+      if (is.null(private$.network_stored)) {
+        stopf("No network stored, did you already train learner '%s'?", self$id)
+      }
+      network = private$.network_stored
+      private$.network_stored = NULL
+      network
     },
     .dataset = function(task, param_vals) {
       dataset = task_dataset(

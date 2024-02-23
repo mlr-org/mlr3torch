@@ -49,7 +49,7 @@ test_that("basic", {
   )
 
   taskout1 = po_test1$train(list(task))[[1L]]
-  expect_torch_equal(
+  expect_equal(
     -materialize(taskout1$data(cols = "x1")[[1L]], rbind = TRUE),
     materialize(taskout1$data(cols = "x2")[[1L]], rbind = TRUE)
   )
@@ -101,7 +101,7 @@ test_that("basic", {
 
   # when stages is set to "predict", it is only applied during prediction
   po_test$param_set$set_values(stages = "predict")
-  expect_torch_equal(
+  expect_equal(
     materialize(task$data(cols = "x1")[[1L]], rbind = TRUE),
     materialize(po_test$train(list(task))[[1L]]$data(cols = "x1")[[1L]], rbind = TRUE)
   )
@@ -231,8 +231,8 @@ test_that("pipeop_preproc_torch", {
   taskout = po_test$train(list(task))[[1L]]
 
   x = materialize(taskout$data(cols = "x")[[1L]], rbind = TRUE)
-  expect_torch_equal(x[1, 1]$item(), 3)
-  expect_torch_equal(x[1, 2]$item(), 1)
+  expect_equal(x[1, 1]$item(), 3)
+  expect_equal(x[1, 2]$item(), 1)
 
   po_test1 = pipeop_preproc_torch("test1", torchvision::transform_resize, shapes_out = "infer",
     stages_init = "both"

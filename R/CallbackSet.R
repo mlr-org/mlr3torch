@@ -33,7 +33,8 @@
 #' * `batch_valid_begin` :: Run before the forward call in the validation loop.
 #' * `batch_valid_end` :: Run after the forward call in the validation loop.
 #' * `epoch_end` :: Run at the end of each epoch.
-#' * `end` :: Run at last, using `on.exit()`.
+#' * `end` :: Run after last epoch.
+#' * `exit` :: Run at last, using `on.exit()`.
 #' @family Callback
 #' @export
 CallbackSet = R6Class("CallbackSet",
@@ -90,7 +91,7 @@ CallbackSet = R6Class("CallbackSet",
 #'
 #' @param classname (`character(1)`)\cr
 #'   The class name.
-#' @param on_begin,on_end,on_epoch_begin,on_before_valid,on_epoch_end,on_batch_begin,on_batch_end,on_after_backward,on_batch_valid_begin,on_batch_valid_end (`function`)\cr
+#' @param on_begin,on_end,on_epoch_begin,on_before_valid,on_epoch_end,on_batch_begin,on_batch_end,on_after_backward,on_batch_valid_begin,on_batch_valid_end,on_exit (`function`)\cr
 #'   Function to execute at the given stage, see section *Stages*.
 #' @param initialize (`function()`)\cr
 #'   The initialization method of the callback.
@@ -115,6 +116,7 @@ callback_set = function(
   # training
   on_begin = NULL,
   on_end = NULL,
+  on_exit = NULL,
   on_epoch_begin = NULL,
   on_before_valid = NULL,
   on_epoch_end = NULL,
@@ -140,7 +142,8 @@ callback_set = function(
     on_batch_end = assert_function(on_batch_end, nargs = 0, null.ok = TRUE),
     on_after_backward = assert_function(on_after_backward, nargs = 0, null.ok = TRUE),
     on_batch_valid_begin = assert_function(on_batch_valid_begin, nargs = 0, null.ok = TRUE),
-    on_batch_valid_end = assert_function(on_batch_valid_end, nargs = 0, null.ok = TRUE)
+    on_batch_valid_end = assert_function(on_batch_valid_end, nargs = 0, null.ok = TRUE),
+    on_exit = assert_function(on_exit, nargs = 0, null.ok = TRUE)
   )
 
   assert_function(initialize, null.ok = TRUE)

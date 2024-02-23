@@ -98,7 +98,7 @@ test_that("Converters are correctly implemented", {
   expect_deep_clone(torch_opt, torch_opt1)
 
   torch_op2 = as_torch_optimizer(optim_adam, id = "myopt", label = "Custom",
-    man = "my_opt", param_set = ps(lr = p_uty())
+    man = "my_opt", param_set = ps(lr = p_uty(tags = "train"))
   )
   expect_r6(torch_op2, "TorchOptimizer")
   expect_equal(torch_op2$id, "myopt")

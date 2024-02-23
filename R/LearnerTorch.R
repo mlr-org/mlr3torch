@@ -34,8 +34,8 @@
 #'   The callbacks to use for training.
 #'   Defaults to an empty` list()`, i.e. no callbacks.
 #'
-#' @section State:
-#' The state is a list with elements `network`, `optimizer`, `loss_fn`, `callbacks` and `seed`.
+#' @section Model:
+#' The Model is a list with elements `network`, `loss_state`, `optimizer_state`, `callbacks` and `seed`.
 #'
 #' @template paramset_torchlearner
 #'
@@ -117,7 +117,6 @@ LearnerTorch = R6Class("LearnerTorch",
 
       private$.optimizer$param_set$set_id = "opt"
       private$.loss$param_set$set_id = "loss"
-
       callbacks = as_torch_callbacks(callbacks, clone = TRUE)
       callback_ids = ids(callbacks)
       if (!test_names(callback_ids, type = "unique")) {
@@ -184,34 +183,17 @@ LearnerTorch = R6Class("LearnerTorch",
     #' @param ... (any)\cr
     #'   Currently unused.
     print = function(...) {
-      catn(format(self), if (is.null(self$label) || is.na(self$label)) "" else paste0(": ", self$label))
-      catn(str_indent("* Model:", if (is.null(self$model)) "-" else class(self$model)[1L]))
+      super$print(...)
       catn(str_indent("* Optimizer:", private$.optimizer$id))
       catn(str_indent("* Loss:", private$.loss$id))
       catn(str_indent("* Callbacks:", if (length(private$.callbacks)) as_short_string(paste0(ids(private$.callbacks), collapse = ","), 1000L) else "-"))
-      catn(str_indent("* Parameters:", as_short_string(self$param_set$values, 1000L)))
-      catn(str_indent("* Packages:", self$packages))
-      catn(str_indent("* Predict Types: ", replace(self$predict_types, self$predict_types == self$predict_type, paste0("[", self$predict_type, "]"))))
-      catn(str_indent("* Feature Types:", self$feature_types))
-      catn(str_indent("* Properties:", self$properties))
-      w = self$warnings
-      e = self$errors
-      if (length(w)) {
-        catn(str_indent("* Warnings:", w))
-      }
-      if (length(e)) {
-        catn(str_indent("* Errors:", e))
-      }
     }
   ),
   active = list(
     #' @field network ([`nn_module()`][torch::nn_module])\cr
-    #'   The network (only available after training).
+    #' Shortcut for `learner$model$network`.
     network = function(rhs) {
       assert_ro_binding(rhs)
-      if (is.null(self$state)) {
-        stopf("Cannot access network before training.")
-      }
       self$state$model$network
     },
     #' @field param_set ([`ParamSet`])\cr
@@ -225,18 +207,25 @@ LearnerTorch = R6Class("LearnerTorch",
       }
       private$.param_set
     },
-    #' @field history ([`CallbackSetHistory`])\cr
-    #' Shortcut for `learner$model$callbacks$history`.
-    history = function(rhs) {
+    #' @field callbacks ([`CallbackSetHistory`])\cr
+    #' Shortcut for `learner$model$callbacks`.
+    callbacks = function(rhs) {
       assert_ro_binding(rhs)
-      if (is.null(self$state)) {
-        stopf("Cannot access history before training.")
-      }
-      if (is.null(self$model$callbacks$history)) {
-        stopf("No history found. Did you specify t_clbk(\"history\") during construction?")
-      }
-      self$model$callbacks$history
+      self$model$callbacks
     }
+    # hash = function(rhs) {
+    #   assert_ro_binding(rhs)
+    #   calculate_hash(super$hash, )
+    #
+    # },
+    # phash = function(rhs) {
+    #   assert_ro_binding(rhs)
+    #   calclate_hash(super$hash,
+    #     private$.optimizer$phash,
+    #     private$.loss$phash,
+    #     map(private$.callbacks, "phash")
+    #   )
+    # }
   ),
   private = list(
     .train = function(task) {
@@ -324,34 +313,66 @@ LearnerTorch = R6Class("LearnerTorch",
       param_vals_test = insert_named(param_vals, list(shuffle = FALSE, drop_last = FALSE))
       private$.dataloader(task, param_vals_test)
     },
-    .dataset = function(task, param_vals) stop(".dataset must be implemented."),
+    .dataset = function(task, param_vals) {
+      task_dataset(
+        task = task,
+        feature_ingress_tokens = private$.feature_ingress_tokens(task, param_vals),
+        target_batchgetter = private$.target_batchgetter(task, param_vals),
+        device = param_vals$device
+      )
+
+    },
+    .feature_ingress_tokens = function(task, param_vals) {
+
+    },
+    .target_batchgetter = function(task, param_vals) {
+      get_target_batchgetter(task$task_type)
+    },
     .optimizer = NULL,
     .loss = NULL,
     .param_set_base = NULL,
     .callbacks = NULL,
     .verify_train_task = function(task, param_vals) NULL,
     .verify_predict_task = function(task, param_vals) NULL,
-    deep_clone = function(name, value) deep_clone(self, private, super, name, value)
+    deep_clone = function(name, value) {
+      private$.param_set = NULL # required to keep clone identical to original, otherwise tests get really ugly
+      # FIXME this repairs the mlr3::Learner deep_clone() method which is broken.
+      if (is.environment(value) && !is.null(value[[".__enclos_env__"]])) {
+        return(value$clone(deep = TRUE))
+      } else if (test_class(value, "nn_module")) {
+        value$clone(deep = TRUE)
+      } else if (name == ".callbacks") {
+        map(value, function(x) x$clone(deep = TRUE))
+      } else if (name == "state") {
+        if (!is.null(value)) {
+          model = value$model
+          value["model"] = list(NULL)
+          value = super$deep_clone(name, value)
+          value[["model"]] = list(
+            network = model$network$clone(deep = TRUE),
+            loss_state = clone_recurse(model$loss_state),
+            optimizer_state = clone_recurse(model$optimizer_state),
+            callbacks = map(model$callbacks, function(x) x$clone(deep = TRUE)),
+            seed = model$seed,
+            task_col_info = copy(model$task_col_info)
+          )
+        }
+        return(value)
+      } else if (name == ".param_set") {
+        NULL
+      } else {
+        super$deep_clone(name, value)
+      }
+    }
   )
 )
 
-
-deep_clone = function(self, private, super, name, value) {
-  private$.param_set = NULL # required to keep clone identical to original, otherwise tests get really ugly
-
-  if (name == "state") {
-    # https://github.com/mlr-org/mlr3torch/issues/97
-    if (!is.null(value)) {
-      stopf("Deep clone of trained network is currently not supported.")
-    } else {
-      # Note that private methods are available in super.
-      super$deep_clone(name, value)
-    }
-  } else if (name == ".param_set") {
-    # Otherwise the value$clone() is called on NULL which errs
-    NULL
+clone_recurse = function(l) {
+  if (test_class(l, "torch_tensor")) {
+    return(l$clone())
+  } else if (test_list(l) && length(l) > 0L) {
+    map(l, clone_recurse)
   } else {
-    # Note that private methods are available in super.
-    super$deep_clone(name, value)
+    return(l)
   }
 }

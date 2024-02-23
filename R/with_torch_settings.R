@@ -1,4 +1,4 @@
-with_torch_settings = function(seed, num_threads, expr) {
+with_torch_settings = function(seed, num_threads = 1, expr) {
   old_num_threads = torch_get_num_threads()
   if (!running_on_mac()) {
     on.exit({torch_set_num_threads(old_num_threads)},
