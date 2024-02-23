@@ -4,7 +4,7 @@
 \alias{as_data_descriptor}
 \title{Convert to Data Descriptor}
 \usage{
-as_data_descriptor(x, dataset_shapes, ..)
+as_data_descriptor(x, dataset_shapes, ...)
 }
 \arguments{
 \item{x}{(any)\cr
@@ -20,17 +20,17 @@ indicate the batch dimension.}
 Further arguments passed to the \code{\link{DataDescriptor}} constructor.}
 }
 \description{
-Converts the input to a data descriptor.
+Converts the input to a \code{\link{DataDescriptor}}.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 \dontshow{\}) # examplesIf}
 ds = dataset("example",
   initialize = function() self$iris = iris[, -5],
-  .getitem = function(i) list(x = torch_tensor(as.matrix(self$iris[i, ]))),
+  .getitem = function(i) list(x = torch_tensor(as.numeric(self$iris[i, ]))),
   .length = function() nrow(self$iris)
 )()
-as_data_descriptor(ds, list(x = c(NA, 5L)))
+as_data_descriptor(ds, list(x = c(NA, 4L)))
 
 # if the dataset has a .getbatch method, the shapes are inferred
 ds2 = dataset("example",

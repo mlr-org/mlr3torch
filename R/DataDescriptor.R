@@ -11,11 +11,7 @@
 #'
 #' @param dataset ([`torch::dataset`])\cr
 #'   The torch dataset.
-#' @param dataset_shapes (named `list()` of (`integer()` or `NULL`))\cr
-#'   The shapes of the output.
-#'   Names are the elements of the list returned by the dataset.
-#'   If the shape is not `NULL` (unknown, e.g. for images of different sizes) the first dimension must be `NA` to
-#'   indicate the batch dimension.
+#' @template param_dataset_shapes
 #' @param graph ([`Graph`])\cr
 #'  The preprocessing graph.
 #'  If left `NULL`, no preprocessing is applied to the data and `input_map`, `pointer`, `pointer_shape`, and
@@ -185,14 +181,10 @@ DataDescriptor = R6Class("DataDescriptor",
 
 #' @title Convert to Data Descriptor
 #' @description
-#' Converts the input to a data descriptor.
+#' Converts the input to a [`DataDescriptor`].
 #' @param x (any)\cr
 #'   Object to convert.
-#' @param dataset_shapes (named `list()` of (`integer()` or `NULL`))\cr
-#'   The shapes of the output.
-#'   Names are the elements of the list returned by the dataset.
-#'   If the shape is not `NULL` (unknown, e.g. for images of different sizes) the first dimension must be `NA` to
-#'   indicate the batch dimension.
+#' @template param_dataset_shapes
 #' @param ... (any)\cr
 #'   Further arguments passed to the [`DataDescriptor`] constructor.
 #' @export
@@ -200,10 +192,10 @@ DataDescriptor = R6Class("DataDescriptor",
 #' @examples
 #' ds = dataset("example",
 #'   initialize = function() self$iris = iris[, -5],
-#'   .getitem = function(i) list(x = torch_tensor(as.matrix(self$iris[i, ]))),
+#'   .getitem = function(i) list(x = torch_tensor(as.numeric(self$iris[i, ]))),
 #'   .length = function() nrow(self$iris)
 #' )()
-#' as_data_descriptor(ds, list(x = c(NA, 5L)))
+#' as_data_descriptor(ds, list(x = c(NA, 4L)))
 #'
 #' # if the dataset has a .getbatch method, the shapes are inferred
 #' ds2 = dataset("example",
@@ -212,13 +204,13 @@ DataDescriptor = R6Class("DataDescriptor",
 #'   .length = function() nrow(self$iris)
 #' )()
 #' as_data_descriptor(ds2)
-as_data_descriptor = function(x, dataset_shapes, ..) {
+as_data_descriptor = function(x, dataset_shapes, ...) {
   UseMethod("as_data_descriptor")
 }
 
 #' @export
 as_data_descriptor.dataset = function(x, dataset_shapes = NULL, ...) {
-  DataDescriptor$new(x, ...)
+  DataDescriptor$new(x, dataset_shapes = dataset_shapes, ...)
 }
 
 infer_shapes_from_getbatch = function(ds) {

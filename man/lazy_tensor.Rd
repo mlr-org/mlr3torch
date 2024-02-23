@@ -2,18 +2,9 @@
 % Please edit documentation in R/lazy_tensor.R
 \name{lazy_tensor}
 \alias{lazy_tensor}
-\alias{as_lazy_tensor}
-\alias{as_lazy_tensor.dataset}
-\alias{as_lazy_tensor.numeric}
 \title{Create a lazy tesornsor}
 \usage{
 lazy_tensor(data_descriptor = NULL, ids = NULL)
-
-as_lazy_tensor(x, ...)
-
-\method{as_lazy_tensor}{dataset}(x, dataset_shapes = NULL, ids = NULL, ...)
-
-\method{as_lazy_tensor}{numeric}(x, ...)
 }
 \arguments{
 \item{data_descriptor}{(\code{\link{DataDescriptor}} or \code{NULL})\cr
@@ -21,54 +12,18 @@ The data descriptor or \code{NULL} for a lazy tensor of length 0.}
 
 \item{ids}{(\code{integer()})\cr
 The elements of the \code{data_descriptor} to be included in the lazy tensor.}
-
-\item{x}{(any)\cr
-Object to convert to a \code{\link{lazy_tensor}}}
-
-\item{...}{(any)\cr
-Additional arguments passed to the method.}
 }
 \description{
 Create a lazy tensor.
-
-Convert a object to a \code{\link{lazy_tensor}}.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 \dontshow{\}) # examplesIf}
 ds = dataset("example",
   initialize = function() self$iris = iris[, -5],
-  .getitem = function(i) list(x = torch_tensor(as.matrix(self$iris[i, ]))),
+  .getitem = function(i) list(x = torch_tensor(as.numeric(self$iris[i, ]))),
   .length = function() nrow(self$iris)
 )()
 dd = as_data_descriptor(ds, list(x = c(NA, 4L)))
 lt = as_lazy_tensor(dd)
-iris_ds = dataset("iris",
-  initialize = function() {
-    self$iris = iris[, -5]
-  },
-  .getbatch = function(i) {
-    list(x = torch_tensor(as.matrix(self$iris[i, ])))
-  },
-  .length = function() nrow(self$iris)
-)()
-# no need to specify the dataset shapes as they can be inferred from the .getbatch method
-# only first 5 observations
-as_lazy_tensor(iris_ds, ids = 1:5)
-# all observations
-head(as_lazy_tensor(iris_ds))
-
-iris_ds2 = dataset("iris",
-  initialize = function() {
-    self$iris = iris[, -5]
-  },
-  .getitem = function(i) {
-    list(x = torch_tensor(as.matrix(self$iris[i, ])))
-  }
-)()
-# if .getitem is implemented we cannot infer the shapes as they might vary,
-# so we have to annotate them explicitly
-as_lazy_tensor(iris_ds2, dataset_shapes = list(x = c(NA, 4L)))
-lt = as_lazy_tensor(matrix(rnorm(100), nrow = 20))
-materialize(lt[1:5], rbind = TRUE)
 }
