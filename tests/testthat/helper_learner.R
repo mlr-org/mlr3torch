@@ -47,7 +47,6 @@ LearnerTorchTest1 = R6Class("LearnerTorchTest1",
   )
 )
 
-
 LearnerTorchImageTest = R6Class("LearnerTorchImageTest",
   inherit = LearnerTorchImage,
   public = list(
@@ -80,3 +79,16 @@ LearnerTorchImageTest = R6Class("LearnerTorchImageTest",
     }
   )
 )
+
+classif_mlp2 = function() {
+  l = LearnerTorchMLP$new("classif")
+  l$param_set$set_values(epochs = 1L, batch_size = 100)
+  l
+}
+
+
+regr_mlp2 = function() {
+  l = LearnerTorchMLP$new("regr")
+  l$param_set$set_values(epochs = 1L, batch_size = 100)
+  l
+}

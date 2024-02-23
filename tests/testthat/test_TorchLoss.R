@@ -85,13 +85,15 @@ test_that("Printer works", {
 
 
 test_that("Converters are correctly implemented", {
+  expect_permutation(
+    as_torch_loss(torch::nn_mse_loss)$task_types,
+    c("regr", "classif")
+  )
   expect_r6(as_torch_loss("l1"), "TorchLoss")
   loss = as_torch_loss(torch::nn_l1_loss, task_types = "regr")
   expect_equal(loss$task_types, "regr")
   expect_r6(loss, "TorchLoss")
   expect_r6(as_torch_loss(t_loss("l1")), "TorchLoss")
-
-  expect_error(as_torch_loss(nn_l1_loss), "task_types")
 
   loss1 = as_torch_loss(loss, clone = TRUE)
   expect_deep_clone(loss, loss1)
@@ -142,4 +144,22 @@ test_that("phash works", {
   expect_false(t_loss("mse", id = "a")$phash == t_loss("mse", id = "b")$phash)
   expect_false(t_loss("mse", label = "a")$phash == t_loss("mse", label = "b")$phash)
   expect_false(t_loss("mse", task_types = "regr")$phash == t_loss("mse", task_types = "classif")$phash)
+})
+
+test_that("all classif losses can be used to train", {
+  task = tsk("iris")$filter(1)
+  classif_losses = as.data.table(mlr3torch_losses)[
+    map_lgl(get("task_types"), function(x) "classif" %in% x), "key"][[1L]]
+  for (loss_id in classif_losses) {
+    expect_learner(lrn("classif.mlp", loss = t_loss(loss_id), epochs = 1L, batch_size = 1L)$train(task))
+  }
+})
+
+test_that("all regr losses can be used to train", {
+  task = tsk("mtcars")$filter(1)
+  regr_losses = as.data.table(mlr3torch_losses)[
+    map_lgl(get("task_types"), function(x) "regr" %in% x), "key"][[1L]]
+  for (loss_id in regr_losses) {
+    expect_learner(lrn("regr.mlp", loss = t_loss(loss_id), epochs = 1L, batch_size = 1L)$train(task))
+  }
 })

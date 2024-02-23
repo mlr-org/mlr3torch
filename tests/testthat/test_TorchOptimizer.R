@@ -177,3 +177,15 @@ test_that("phash works", {
   expect_false(t_opt("sgd", id = "a")$phash == t_opt("adam", id = "b")$phash)
   expect_false(t_opt("sgd", label = "a")$phash == t_opt("adam", label = "b")$phash)
 })
+
+test_that("can train with every optimizer", {
+  task = tsk("iris")$filter(1)
+  test_optimizer = function(opt_id, ...) {
+    opt = t_opt(opt_id, lr = 0.1)
+    expect_learner(lrn("classif.mlp", optimizer = opt, batch_size = 1, epochs = 1)$train(task))
+  }
+
+  for (opt_id in names(mlr3torch_optimizers$items)) {
+    test_optimizer(opt_id)
+  }
+})
