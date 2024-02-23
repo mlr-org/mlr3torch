@@ -143,3 +143,28 @@ test_that("phash works", {
   expect_false(t_loss("mse", label = "a")$phash == t_loss("mse", label = "b")$phash)
   expect_false(t_loss("mse", task_types = "regr")$phash == t_loss("mse", task_types = "classif")$phash)
 })
+
+test_that("all classif losses can be used to train", {
+  task = tsk("iris")$filter(1)
+  classif_losses = as.data.table(mlr3torch_losses)[
+    map_lgl(get("task_types"), function(x) "classif" %in% x), "key"][[1L]]
+  for (loss_id in classif_losses) {
+    expect_learner(lrn("classif.mlp", loss = t_loss(loss_id), epochs = 1L, batch_size = 1L)$train(task))
+  }
+})
+
+test_that("all regr losses can be used to train", {
+  task = tsk("mtcars")$filter(1)
+  regr_losses = as.data.table(mlr3torch_losses)[
+    map_lgl(get("task_types"), function(x) "regr" %in% x), "key"][[1L]]
+  for (loss_id in regr_losses) {
+    expect_learner(lrn("regr.mlp", loss = t_loss(loss_id), epochs = 1L, batch_size = 1L)$train(task))
+  }
+})
+
+test_that("by default, regr and classif are allowed", {
+  expect_permutation(
+    as_torch_loss(torch::nn_mse_loss)$task_types,
+    c("regr", "classif")
+  )
+})

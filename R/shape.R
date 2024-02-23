@@ -70,7 +70,7 @@ assert_rgb_shape = function(shape) {
 }
 
 # grayscale or rgb image
-assert_image_shape = function(shape) {
+assert_grayscale_or_rgb = function(shape) {
   assert_shape(shape, len = 4L, null_ok = FALSE)
   assert_true(shape[2L] == 3L || shape[2L] == 1L)
 }

@@ -156,7 +156,8 @@ test_that("Train-predict loop is reproducible when setting a seed", {
 })
 
 test_that("the state of a trained network contains what it should", {
-  task = tsk("mtcars")
+  task = tsk("mtcars")$select("am")
+
   learner = lrn("regr.torch_featureless", epochs = 0, batch_size = 10,
     callbacks = t_clbk("history", id = "history1"),
     optimizer = t_opt("sgd", lr = 1),
@@ -171,7 +172,8 @@ test_that("the state of a trained network contains what it should", {
   expect_list(learner$model$callbacks, types = "CallbackSet", len = 1L)
   expect_equal(names(learner$model$callbacks), "history1")
   expect_true(is.integer(learner$model$seed))
-  expect_equal(task$col_info, learner$model$task_col_info)
+  expect_permutation(learner$model$task_col_info$id, c("mpg", "am"))
+  expect_permutation(colnames(learner$model$task_col_info), c("id", "type", "levels"))
 })
 
 
@@ -423,4 +425,17 @@ test_that("Input verification works during `$predict()` (same column info, probl
     learner$predict(task2),
     "does not match"
   )
+})
+
+test_that("col_info is propertly subset when comparing task validity during predict", {
+  task = tsk("iris")$select("Sepal.Length")
+  learner = classif_mlp2()
+  learner$train(task)
+  learner$model$task_col_info
+  expect_permutation(learner$model$task_col_info$id, c("Sepal.Length", "Species"))
+
+  task2 = tsk("iris")
+  task2$cbind(data.frame(x = rnorm(150)))$select("Sepal.Length")
+
+  expect_class(learner$predict(task), "PredictionClassif")
 })
