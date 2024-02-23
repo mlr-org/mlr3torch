@@ -155,7 +155,7 @@
 <span>  <span class="co"># predict type (required by logloss)</span></span>
 <span>  predict_type <span class="op">=</span> <span class="st">"prob"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>This learner can for example be used for resampling or benchmarking.</p>
+<p>This learner can for be resampled, benchmarked or tuned as any other learner.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/resample.html" class="external-link">resample</a></span><span class="op">(</span></span>
 <span>  task       <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span>,</span>
@@ -181,16 +181,16 @@
 <span></span>
 <span><span class="va">graph_mlp</span></span>
 <span><span class="co">#&gt; Graph with 8 PipeOps:</span></span>
-<span><span class="co">#&gt;                 ID         State          sccssors         prdcssors</span></span>
-<span><span class="co">#&gt;             &lt;char&gt;        &lt;char&gt;            &lt;char&gt;            &lt;char&gt;</span></span>
-<span><span class="co">#&gt;  torch_ingress_... &lt;&lt;UNTRAINED&gt;&gt;         nn_linear                  </span></span>
-<span><span class="co">#&gt;          nn_linear &lt;&lt;UNTRAINED&gt;&gt;           nn_relu torch_ingress_...</span></span>
-<span><span class="co">#&gt;            nn_relu &lt;&lt;UNTRAINED&gt;&gt;           nn_head         nn_linear</span></span>
-<span><span class="co">#&gt;            nn_head &lt;&lt;UNTRAINED&gt;&gt;        torch_loss           nn_relu</span></span>
-<span><span class="co">#&gt;         torch_loss &lt;&lt;UNTRAINED&gt;&gt; torch_optimize...           nn_head</span></span>
-<span><span class="co">#&gt;  torch_optimize... &lt;&lt;UNTRAINED&gt;&gt; torch_callback...        torch_loss</span></span>
-<span><span class="co">#&gt;  torch_callback... &lt;&lt;UNTRAINED&gt;&gt; torch_model_cl... torch_optimize...</span></span>
-<span><span class="co">#&gt;  torch_model_cl... &lt;&lt;UNTRAINED&gt;&gt;                   torch_callback...</span></span>
+<span><span class="co">#&gt;                   ID         State            sccssors         prdcssors</span></span>
+<span><span class="co">#&gt;               &lt;char&gt;        &lt;char&gt;              &lt;char&gt;            &lt;char&gt;</span></span>
+<span><span class="co">#&gt;    torch_ingress_num &lt;&lt;UNTRAINED&gt;&gt;           nn_linear                  </span></span>
+<span><span class="co">#&gt;            nn_linear &lt;&lt;UNTRAINED&gt;&gt;             nn_relu torch_ingress_num</span></span>
+<span><span class="co">#&gt;              nn_relu &lt;&lt;UNTRAINED&gt;&gt;             nn_head         nn_linear</span></span>
+<span><span class="co">#&gt;              nn_head &lt;&lt;UNTRAINED&gt;&gt;          torch_loss           nn_relu</span></span>
+<span><span class="co">#&gt;           torch_loss &lt;&lt;UNTRAINED&gt;&gt;     torch_optimizer           nn_head</span></span>
+<span><span class="co">#&gt;      torch_optimizer &lt;&lt;UNTRAINED&gt;&gt;     torch_callbacks        torch_loss</span></span>
+<span><span class="co">#&gt;      torch_callbacks &lt;&lt;UNTRAINED&gt;&gt; torch_model_classif   torch_optimizer</span></span>
+<span><span class="co">#&gt;  torch_model_classif &lt;&lt;UNTRAINED&gt;&gt;                       torch_callbacks</span></span>
 <span></span>
 <span><span class="va">graph_lrn</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/as_learner.html" class="external-link">as_learner</a></span><span class="op">(</span><span class="va">graph_mlp</span><span class="op">)</span></span>
 <span><span class="va">graph_lrn</span><span class="op">$</span><span class="va">id</span> <span class="op">=</span> <span class="st">"graph_mlp"</span></span>
@@ -217,7 +217,7 @@
 <span><span class="co">#&gt; 5:      9 &lt;tnsr[1x28x28]&gt;</span></span>
 <span><span class="co">#&gt; 6:      2 &lt;tnsr[1x28x28]&gt;</span></span>
 <span></span>
-<span><span class="co"># Resize the images to 20x20</span></span>
+<span><span class="co"># Resize the images to 5x5</span></span>
 <span><span class="va">po_resize</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"trafo_resize"</span>, size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">task_reshaped</span> <span class="op">=</span> <span class="va">po_resize</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">task</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
@@ -231,7 +231,7 @@
 <span><span class="co">#&gt; 5:      9 &lt;tnsr[1x5x5]&gt;</span></span>
 <span><span class="co">#&gt; 6:      2 &lt;tnsr[1x5x5]&gt;</span></span>
 <span></span>
-<span><span class="co"># The tenosrs are loaded and preprocessed only when materialized</span></span>
+<span><span class="co"># The tensors are loaded and preprocessed only when materialized</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/materialize.html">materialize</a></span><span class="op">(</span></span>
 <span>  <span class="va">task_reshaped</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span><span class="fl">1</span>, cols <span class="op">=</span> <span class="st">"image"</span><span class="op">)</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span>,</span>

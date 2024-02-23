@@ -118,6 +118,9 @@
     <loc>https://mlr3torch.mlr-org.com/reference/TorchOptimizer.html</loc>
   </url>
   <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/as_data_descriptor.html</loc>
+  </url>
+  <url>
     <loc>https://mlr3torch.mlr-org.com/reference/as_lazy_tensor.html</loc>
   </url>
   <url>
