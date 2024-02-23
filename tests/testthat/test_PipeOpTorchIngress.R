@@ -8,7 +8,9 @@ test_that("PipeOpTorchIngressNumeric", {
 })
 
 test_that("ingress fails with 0 features", {
-  po("torch_ingress_cat")$train(list(tsk("iris")))
+  expect_error(
+    po("torch_ingress_cat")$train(list(tsk("iris")))
+  )
 
 })
 

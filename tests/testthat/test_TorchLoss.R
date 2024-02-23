@@ -85,13 +85,15 @@ test_that("Printer works", {
 
 
 test_that("Converters are correctly implemented", {
+  expect_permutation(
+    as_torch_loss(torch::nn_mse_loss)$task_types,
+    c("regr", "classif")
+  )
   expect_r6(as_torch_loss("l1"), "TorchLoss")
   loss = as_torch_loss(torch::nn_l1_loss, task_types = "regr")
   expect_equal(loss$task_types, "regr")
   expect_r6(loss, "TorchLoss")
   expect_r6(as_torch_loss(t_loss("l1")), "TorchLoss")
-
-  expect_error(as_torch_loss(nn_l1_loss), "task_types")
 
   loss1 = as_torch_loss(loss, clone = TRUE)
   expect_deep_clone(loss, loss1)
@@ -160,11 +162,4 @@ test_that("all regr losses can be used to train", {
   for (loss_id in regr_losses) {
     expect_learner(lrn("regr.mlp", loss = t_loss(loss_id), epochs = 1L, batch_size = 1L)$train(task))
   }
-})
-
-test_that("by default, regr and classif are allowed", {
-  expect_permutation(
-    as_torch_loss(torch::nn_mse_loss)$task_types,
-    c("regr", "classif")
-  )
 })
