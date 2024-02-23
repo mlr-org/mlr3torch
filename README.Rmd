@@ -41,8 +41,9 @@ Deep Learning with torch and mlr3.
 pak::pak("mlr-org/mlr3torch")
 # You also need to install torch:
 torch::install_torch()
-
 ```
+
+More information about installing `torch` can be found [here](https://torch.mlverse.org/docs/articles/installation.html).
 
 ## Status
 

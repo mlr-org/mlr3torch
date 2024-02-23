@@ -32,7 +32,7 @@ expect_man_exists = function(man) {
 }
 
 # expect that 'one' is a deep clone of 'two'
-expect_deep_clone = function(one, two) {
+expect_deep_clone = function(one, two, ignore = c("hash", "phash")) {
   # is equal
   expect_equal(one, two)
   visited = new.env()
@@ -100,6 +100,7 @@ expect_deep_clone = function(one, two) {
       return(invisible(NULL))
     }
     objnames = base::names(a)
+    objnames = discard(objnames, function(x) x %in% ignore)
     if (is.null(objnames) || anyDuplicated(objnames)) {
       index = seq_len(base::length(a))
     } else {

@@ -10,6 +10,7 @@
 #'
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
+#' All parameters are tagged with `"train"`, but this is done automatically during initialize.
 #'
 #' @family Torch Descriptor
 #' @export
@@ -37,11 +38,14 @@ TorchDescriptor = R6Class("TorchDescriptor",
     #' @template param_label
     #' @template param_man
     initialize = function(generator, id = NULL, param_set = NULL, packages = NULL, label = NULL, man = NULL) {
-
       assert_true(is.function(generator) || inherits(generator, "R6ClassGenerator"))
       self$generator = generator
-      # TODO: Assert that all parameters are tagged with "train"
       self$param_set = assert_r6(param_set, "ParamSet", null.ok = TRUE) %??% inferps(generator)
+      for (param in self$param_set$params) {
+        param$tags = union(param$tags, "train")
+      }
+      #self$param_set$tags = map(self$param_set$tags, function(tags) union(tags, "train"))
+
       if (is.function(generator)) {
         args = formalArgs(generator)
       } else {
@@ -105,7 +109,7 @@ TorchDescriptor = R6Class("TorchDescriptor",
   ),
   private = list(
     .additional_phash_input = function() {
-      stopf("Classes inheriting from Torch must implement the .additional_phash_input() method.")
+      stopf("Classes inheriting from TorchDescriptor must implement the .additional_phash_input() method.")
     }
   )
 )

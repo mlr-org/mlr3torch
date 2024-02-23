@@ -1,4 +1,5 @@
 expect_learner_torch = function(learner, check_man = TRUE, check_id = TRUE) {
+  expect_learner(learner)
   # TODO: Finish this:
   # * Test device placement of dataloader / network with "meta" device
 

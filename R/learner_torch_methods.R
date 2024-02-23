@@ -92,7 +92,7 @@ train_loop = function(ctx, cbs) {
 
   on.exit({
     # in case a callback wants to finalize things
-    call("on_end")
+    call("on_exit")
     walk(cbs, function(cb) cb$ctx = NULL)
   }, add = TRUE)
 
@@ -108,9 +108,9 @@ train_loop = function(ctx, cbs) {
 
     predictions = list()
     indices = list()
-    ctx$batch = 0
+    ctx$step = 0
     coro::loop(for (batch in ctx$loader_train) {
-      ctx$batch = ctx$batch + 1
+      ctx$step = ctx$step + 1
 
       ctx$optimizer$zero_grad()
 
@@ -163,12 +163,14 @@ train_loop = function(ctx, cbs) {
     call("on_epoch_end")
   }
 
+  call("on_end")
+
   # The seed is added later
   list(
-    network    = ctx$network,
-    loss_state    = ctx$loss_fn$state_dict(),
-    optimizer_state  = ctx$optimizer$state_dict(),
-    callbacks  = cbs
+    network         = ctx$network,
+    loss_state      = ctx$loss_fn$state_dict(),
+    optimizer_state = ctx$optimizer$state_dict(),
+    callbacks       = cbs
   )
 }
 

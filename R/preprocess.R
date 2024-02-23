@@ -289,13 +289,13 @@ register_preproc("augment_random_crop", torchvision::transform_random_crop, pack
   )
 )
 
-##' @template preprocess_torchvision
-##' @templateVar id augment_random_choice
-#register_preproc("augment_random_choice", torchvision::transform_random_choice, packages = "torchvision", shapes_out = NULL, rowwise = TRUE,
-#  param_set = ps(
-#    transforms = p_uty(custom_check = check_list, tags = c("train", "required"))
-#  )
-#)
+#' @template preprocess_torchvision
+#' @templateVar id augment_random_choice
+register_preproc("augment_random_choice", torchvision::transform_random_choice, packages = "torchvision", shapes_out = NULL, rowwise = TRUE,
+  param_set = ps(
+    transforms = p_uty(custom_check = check_list, tags = c("train", "required"))
+  )
+)
 
 
 ##' @name PipeOpPreprocTorchAugmentRandomRotation

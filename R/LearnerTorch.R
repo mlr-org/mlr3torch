@@ -117,7 +117,6 @@ LearnerTorch = R6Class("LearnerTorch",
 
       private$.optimizer$param_set$set_id = "opt"
       private$.loss$param_set$set_id = "loss"
-
       callbacks = as_torch_callbacks(callbacks, clone = TRUE)
       callback_ids = ids(callbacks)
       if (!test_names(callback_ids, type = "unique")) {
@@ -184,24 +183,10 @@ LearnerTorch = R6Class("LearnerTorch",
     #' @param ... (any)\cr
     #'   Currently unused.
     print = function(...) {
-      catn(format(self), if (is.null(self$label) || is.na(self$label)) "" else paste0(": ", self$label))
-      catn(str_indent("* Model:", if (is.null(self$model)) "-" else class(self$model)[1L]))
+      super$print(...)
       catn(str_indent("* Optimizer:", private$.optimizer$id))
       catn(str_indent("* Loss:", private$.loss$id))
       catn(str_indent("* Callbacks:", if (length(private$.callbacks)) as_short_string(paste0(ids(private$.callbacks), collapse = ","), 1000L) else "-"))
-      catn(str_indent("* Parameters:", as_short_string(self$param_set$values, 1000L)))
-      catn(str_indent("* Packages:", self$packages))
-      catn(str_indent("* Predict Types: ", replace(self$predict_types, self$predict_types == self$predict_type, paste0("[", self$predict_type, "]"))))
-      catn(str_indent("* Feature Types:", self$feature_types))
-      catn(str_indent("* Properties:", self$properties))
-      w = self$warnings
-      e = self$errors
-      if (length(w)) {
-        catn(str_indent("* Warnings:", w))
-      }
-      if (length(e)) {
-        catn(str_indent("* Errors:", e))
-      }
     }
   ),
   active = list(
@@ -222,12 +207,25 @@ LearnerTorch = R6Class("LearnerTorch",
       }
       private$.param_set
     },
-    #' @field history ([`CallbackSetHistory`])\cr
-    #' Shortcut for `learner$model$callbacks$history`.
-    history = function(rhs) {
+    #' @field callbacks ([`CallbackSetHistory`])\cr
+    #' Shortcut for `learner$model$callbacks`.
+    callbacks = function(rhs) {
       assert_ro_binding(rhs)
-      self$model$callbacks$history
+      self$model$callbacks
     }
+    # hash = function(rhs) {
+    #   assert_ro_binding(rhs)
+    #   calculate_hash(super$hash, )
+    #
+    # },
+    # phash = function(rhs) {
+    #   assert_ro_binding(rhs)
+    #   calclate_hash(super$hash,
+    #     private$.optimizer$phash,
+    #     private$.loss$phash,
+    #     map(private$.callbacks, "phash")
+    #   )
+    # }
   ),
   private = list(
     .train = function(task) {
@@ -315,7 +313,21 @@ LearnerTorch = R6Class("LearnerTorch",
       param_vals_test = insert_named(param_vals, list(shuffle = FALSE, drop_last = FALSE))
       private$.dataloader(task, param_vals_test)
     },
-    .dataset = function(task, param_vals) stop(".dataset must be implemented."),
+    .dataset = function(task, param_vals) {
+      task_dataset(
+        task = task,
+        feature_ingress_tokens = private$.feature_ingress_tokens(task, param_vals),
+        target_batchgetter = private$.target_batchgetter(task, param_vals),
+        device = param_vals$device
+      )
+
+    },
+    .feature_ingress_tokens = function(task, param_vals) {
+
+    },
+    .target_batchgetter = function(task, param_vals) {
+      get_target_batchgetter(task$task_type)
+    },
     .optimizer = NULL,
     .loss = NULL,
     .param_set_base = NULL,

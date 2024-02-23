@@ -66,7 +66,7 @@ Remotes:
     mlr-org/mlr3,
     mlr-org/mlr3pipelines@feat/keep_results,
     mlverse/torchvision,
-    sebffischer/torch@fix/deep-clone
+    mlverse/torch
 Config/testthat/edition: 3
 NeedsCompilation: no
 ByteCompile: no

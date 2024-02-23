@@ -1,3 +1,8 @@
+test_that("Basic checks", {
+  learner = lrn("classif.torch_featureless", callbacks = "history")
+  expect_learner(learner)
+})
+
 test_that("deep cloning", {
   learner = lrn("classif.torch_featureless", callbacks = "history")
   learner$param_set$set_values(epochs = 1, batch_size = 1)
@@ -32,6 +37,7 @@ test_that("deep cloning", {
       get_private(learner_cloned)$.callbacks$generator),
     identical)))
 })
+
 
 test_that("Correct error when using problematic measures", {
   learner = lrn("classif.torch_featureless", epochs = 1, batch_size = 16, measures_train = msr("classif.bbrier"))
@@ -283,10 +289,10 @@ test_that("train parameters do what they should: classification and regression",
 
     expect_false(ctx$loader_valid$drop_last)
 
-    expect_equal(nrow(learner$history$valid), epochs)
-    expect_equal(nrow(learner$history$train), epochs)
-    expect_permutation(c("epoch", ids(measures_train)), colnames(learner$history$train))
-    expect_permutation(c("epoch", ids(measures_valid)), colnames(learner$history$valid))
+    expect_equal(nrow(learner$callbacks$history$valid), epochs)
+    expect_equal(nrow(learner$callbacks$history$train), epochs)
+    expect_permutation(c("epoch", ids(measures_train)), colnames(learner$callbacks$history$train))
+    expect_permutation(c("epoch", ids(measures_valid)), colnames(learner$callbacks$history$valid))
 
     # now without validation
     task$row_roles$test = integer()
@@ -319,7 +325,7 @@ test_that("predict types work during training and prediction", {
   learner = lrn("classif.torch_featureless", epochs = 1, batch_size = 16, predict_type = "prob",
     measures_train = msr("classif.mbrier"), callbacks = t_clbk("history"))
   learner$train(task)
-  expect_true(!is.na(learner$history$train[1, "classif.mbrier"][[1L]]))
+  expect_true(!is.na(learner$callbacks$history$train[1, "classif.mbrier"][[1L]]))
 
   pred = learner$predict(task)
   expect_true(is.matrix(pred$prob))
@@ -384,10 +390,10 @@ test_that("quick accessors work", {
   task = tsk("mtcars")
   learner = lrn("regr.torch_featureless", epochs = 1, batch_size = 1, callbacks = "history")
   expect_true(is.null(learner$network))
-  expect_true(is.null(learner$history))
+  expect_true(is.null(learner$callbacks$history))
   learner$train(task)
   expect_class(learner$network, "nn_module")
-  expect_class(learner$history, "CallbackSetHistory")
+  expect_class(learner$callbacks$history, "CallbackSetHistory")
 })
 
 test_that("Train-Predict works", {

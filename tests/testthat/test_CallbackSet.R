@@ -37,7 +37,8 @@ test_that("All stages are called correctly", {
     on_batch_valid_end = write_stage("on_batch_valid_end"),
     on_batch_end = write_stage("on_batch_end"),
     on_epoch_end = write_stage("on_epoch_end"),
-    on_end = write_stage("on_end")
+    on_end = write_stage("on_end"),
+    on_exit = write_stage("on_exit")
   )
   path = tempfile()
   learner = lrn("classif.mlp", batch_size = 1, epochs = 1, callbacks = cb, cb.test.path = path,

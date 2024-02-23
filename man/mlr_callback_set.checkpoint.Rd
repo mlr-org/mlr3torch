@@ -28,8 +28,10 @@ Other Callback:
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-CallbackSetCheckpoint-new}{\code{CallbackSetCheckpoint$new()}}
+\item \href{#method-CallbackSetCheckpoint-on_begin}{\code{CallbackSetCheckpoint$on_begin()}}
 \item \href{#method-CallbackSetCheckpoint-on_epoch_end}{\code{CallbackSetCheckpoint$on_epoch_end()}}
-\item \href{#method-CallbackSetCheckpoint-on_end}{\code{CallbackSetCheckpoint$on_end()}}
+\item \href{#method-CallbackSetCheckpoint-on_batch_end}{\code{CallbackSetCheckpoint$on_batch_end()}}
+\item \href{#method-CallbackSetCheckpoint-on_exit}{\code{CallbackSetCheckpoint$on_exit()}}
 \item \href{#method-CallbackSetCheckpoint-clone}{\code{CallbackSetCheckpoint$clone()}}
 }
 }
@@ -46,7 +48,7 @@ Other Callback:
 \subsection{Method \code{new()}}{
 Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetCheckpoint$new(path, freq)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackSetCheckpoint$new(path, freq = 1, save = "all", freq_type = "epoch")}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -56,28 +58,62 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 The path to a folder where the models are saved. This path must not exist before.}
 
 \item{\code{freq}}{(\code{integer(1)})\cr
-The frequency how often the model is saved (epoch frequency).}
+The frequency how often the model is saved (epoch frequency).
+Frequency is either per step or epoch, which can be configured through the \code{freq_type} parameter.}
+
+\item{\code{save}}{(\code{character()})\cr
+The objects to save, must be either "all" or a subset of "network", "optimizer", "learner" and "loss".
+Default is "all".
+Only the network and optimizer are stored every \code{freq} \code{epoch}s or \code{step}s, as they are necesseary to resume
+training for a specific point.
+The (final) learner and the loss are only stored once at the end of training.}
+
+\item{\code{freq_type}}{(\code{character(1)})\cr
+Can be be either \code{"epoch"} (default) or \code{"step"}.}
 }
 \if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSetCheckpoint-on_begin"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-on_begin}{}}}
+\subsection{Method \code{on_begin()}}{
+Saves the configuration to a file.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackSetCheckpoint$on_begin()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetCheckpoint-on_epoch_end"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-on_epoch_end}{}}}
 \subsection{Method \code{on_epoch_end()}}{
-Saves the network state dict.
+Saves the objects network and optimizer if selected.
+Does nothing if freq_type or freq are not met.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CallbackSetCheckpoint$on_epoch_end()}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackSetCheckpoint-on_end"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-on_end}{}}}
-\subsection{Method \code{on_end()}}{
-Saves the final network.
+\if{html}{\out{<a id="method-CallbackSetCheckpoint-on_batch_end"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-on_batch_end}{}}}
+\subsection{Method \code{on_batch_end()}}{
+Saves the selected objects defined in \code{save}.
+Does nothing if freq_type or freq are not met.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetCheckpoint$on_end()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackSetCheckpoint$on_batch_end()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSetCheckpoint-on_exit"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-on_exit}{}}}
+\subsection{Method \code{on_exit()}}{
+Saves the objects network and optimizer and learner if selected.
+If the learner is already saved it will not be saved again.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackSetCheckpoint$on_exit()}\if{html}{\out{</div>}}
 }
 
 }

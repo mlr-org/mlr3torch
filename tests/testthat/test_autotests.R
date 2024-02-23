@@ -172,5 +172,4 @@ test_that("expect_torch_callback works", {
   )
   cbd = as_torch_callback(CallbackSetD)
   expect_error(expect_torch_callback(cbd, check_man = FALSE), regexp = "not equal to")
-
 })

@@ -117,8 +117,8 @@ Shortcut for \code{learner$model$network}.}
 \item{\code{param_set}}{(\code{\link{ParamSet}})\cr
 The parameter set}
 
-\item{\code{history}}{(\code{\link{CallbackSetHistory}})\cr
-Shortcut for \code{learner$model$callbacks$history}.}
+\item{\code{callbacks}}{(\code{\link{CallbackSetHistory}})\cr
+Shortcut for \code{learner$model$callbacks}.}
 }
 \if{html}{\out{</div>}}
 }

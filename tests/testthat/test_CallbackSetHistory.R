@@ -13,19 +13,19 @@ test_that("CallbackSetHistory works", {
 
   learner$train(task)
 
-  expect_data_table(learner$history$train, nrows = 0)
-  expect_data_table(learner$history$valid, nrows = 0)
+  expect_data_table(learner$callbacks$history$train, nrows = 0)
+  expect_data_table(learner$callbacks$history$valid, nrows = 0)
 
   learner$param_set$set_values(
     measures_train = msrs(c("classif.acc", "classif.ce")),
     measures_valid = msr("classif.ce"))
   learner$train(task)
 
-  expect_equal(colnames(learner$history$train), c("epoch", "classif.acc", "classif.ce"))
-  expect_equal(colnames(learner$history$valid), c("epoch", "classif.ce"))
+  expect_equal(colnames(learner$callbacks$history$train), c("epoch", "classif.acc", "classif.ce"))
+  expect_equal(colnames(learner$callbacks$history$valid), c("epoch", "classif.ce"))
 
-  expect_data_table(learner$history$train, nrows = 3)
-  expect_data_table(learner$history$valid, nrows = 3)
+  expect_data_table(learner$callbacks$history$train, nrows = 3)
+  expect_data_table(learner$callbacks$history$valid, nrows = 3)
 })
 
 test_that("plotting works", {
@@ -38,9 +38,9 @@ test_that("plotting works", {
   task$row_roles$use = split$train
   task$row_roles$test = split$test
   learner$train(task, row_ids = split$train)
-  expect_class(learner$history$plot("classif.ce", set = "valid"), "ggplot")
-  expect_class(learner$history$plot(c("classif.ce", "classif.acc"), set = "train"), "ggplot")
-  learner$history$plot(c("classif.ce", "classif.acc", "classif.logloss"), set = "train")
+  expect_class(learner$callbacks$history$plot("classif.ce", set = "valid"), "ggplot")
+  expect_class(learner$callbacks$history$plot(c("classif.ce", "classif.acc"), set = "train"), "ggplot")
+  learner$callbacks$history$plot(c("classif.ce", "classif.acc", "classif.logloss"), set = "train")
 })
 
 test_that("deep clone", {
