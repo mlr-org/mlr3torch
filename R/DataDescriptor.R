@@ -7,6 +7,8 @@
 #' [`mlr3pipelines::Graph`] just like any (non-lazy) data types.
 #' The preprocessing is applied when [`materialize()`] is called on the [`lazy_tensor`].
 #'
+#' To create a data descriptor, you can also use the [`as_data_descriptor()`] function.
+#'
 #' @param dataset ([`torch::dataset`])\cr
 #'   The torch dataset.
 #' @param dataset_shapes (named `list()` of (`integer()` or `NULL`))\cr
@@ -43,46 +45,34 @@
 #' @examplesIf torch::torch_is_installed()
 #' @examples
 #' # Create a dataset
-#' dsg = dataset(
+#' ds = dataset(
 #'   initialize = function() self$x = torch_randn(10, 3, 3),
 #'   .getitem = function(i) list(x = self$x[i, ]),
 #'   .length = function() nrow(self$x)
-#' )
-#' ds = dsg()
+#' )()
 #' dd = DataDescriptor$new(ds, list(x = c(NA, 3, 3)))
 #' dd
+#' # is the same as using the converter:
+#' as_data_descriptor(ds, list(x = c(NA, 3, 3)))
 DataDescriptor = R6Class("DataDescriptor",
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(dataset, dataset_shapes, graph = NULL, input_map = NULL, pointer = NULL,
+    initialize = function(dataset, dataset_shapes = NULL, graph = NULL, input_map = NULL, pointer = NULL,
       pointer_shape = NULL, pointer_shape_predict = NULL, clone_graph = TRUE) {
       assert_class(dataset, "dataset")
       assert_flag(clone_graph)
       # For simplicity we here require the first dimension of the shape to be NA so we don't have to deal with it,
       # e.g. during subsetting
-      assert_shapes(dataset_shapes, null_ok = TRUE, unknown_batch = TRUE, named = TRUE)
 
-      # prevent user from e.g. forgetting to wrap the return in a list
-      example = if (is.null(dataset$.getbatch)) {
-        example = dataset$.getitem(1L)
-        if (!test_list(example)) {
-          stopf("dataset must return names list")
+      if (is.null(dataset_shapes)) {
+        if (is.null(dataset$.getbatch)) {
+          stopf("dataset_shapes must be provided if dataset does not have a `.getbatch` method.")
         }
-        map(example, function(x) x$unsqueeze(1))
+        dataset_shapes = infer_shapes_from_getbatch(dataset)
       } else {
-        dataset$.getbatch(1L)
+        assert_compatible_shapes(dataset_shapes, dataset)
       }
-      if (!test_list(example, names = "unique") || !test_permutation(names(example), names(dataset_shapes))) {
-        stopf("Dataset must return a list with named elements that are a permutation of the dataset_shapes names.")
-      }
-      iwalk(dataset_shapes, function(dataset_shape, name) {
-        if (!is.null(dataset_shape) && !test_equal(dataset_shapes[[name]][-1], example[[name]]$shape[-1L])) {
-          stopf(paste0("First batch from dataset is incompatible with the provided dataset_shapes:\n",
-            "* Provided shape (%s): %s.\n* Observed shape (%s): %s."), name, name,
-            shape_to_str(unname(dataset_shapes[name])), shape_to_str(list(example[[name]]$shape)
-          ))
-        }
-      })
+
       if (is.null(graph)) {
         # avoid name conflicts
         if (is.null(input_map)) {
@@ -192,3 +182,80 @@ DataDescriptor = R6Class("DataDescriptor",
     pointer_shape_predict = NULL
   )
 )
+
+#' @title Convert to Data Descriptor
+#' @description
+#' Converts the input to a data descriptor.
+#' @param x (any)\cr
+#'   Object to convert.
+#' @param dataset_shapes (named `list()` of (`integer()` or `NULL`))\cr
+#'   The shapes of the output.
+#'   Names are the elements of the list returned by the dataset.
+#'   If the shape is not `NULL` (unknown, e.g. for images of different sizes) the first dimension must be `NA` to
+#'   indicate the batch dimension.
+#' @param ... (any)\cr
+#'   Further arguments passed to the [`DataDescriptor`] constructor.
+#' @export
+#' @examplesIf torch::torch_is_installed()
+#' @examples
+#' ds = dataset("example",
+#'   initialize = function() self$iris = iris[, -5],
+#'   .getitem = function(i) list(x = torch_tensor(as.matrix(self$iris[i, ]))),
+#'   .length = function() nrow(self$iris)
+#' )()
+#' as_data_descriptor(ds, list(x = c(NA, 5L)))
+#'
+#' # if the dataset has a .getbatch method, the shapes are inferred
+#' ds2 = dataset("example",
+#'   initialize = function() self$iris = iris[, -5],
+#'   .getbatch = function(i) list(x = torch_tensor(as.matrix(self$iris[i, ]))),
+#'   .length = function() nrow(self$iris)
+#' )()
+#' as_data_descriptor(ds2)
+as_data_descriptor = function(x, dataset_shapes, ..) {
+  UseMethod("as_data_descriptor")
+}
+
+#' @export
+as_data_descriptor.dataset = function(x, dataset_shapes = NULL, ...) {
+  DataDescriptor$new(x, ...)
+}
+
+infer_shapes_from_getbatch = function(ds) {
+  example = ds$.getbatch(1L)
+  if (!test_list(example, names = "unique", types = "torch_tensor")) {
+    stopf("Dataset must return a named list of tensors, but it does not")
+  }
+  map(example, function(x) {
+    shape = x$shape
+    shape[1L] = NA
+    shape
+  })
+}
+
+assert_compatible_shapes = function(shapes, dataset) {
+  assert_shapes(shapes, null_ok = TRUE, unknown_batch = TRUE, named = TRUE)
+
+  # prevent user from e.g. forgetting to wrap the return in a list
+  example = if (is.null(dataset$.getbatch)) {
+    example = dataset$.getitem(1L)
+    if (!test_list(example)) {
+      stopf("dataset must return names list")
+    }
+    map(example, function(x) x$unsqueeze(1))
+  } else {
+    dataset$.getbatch(1L)
+  }
+  if (!test_list(example, names = "unique") || !test_permutation(names(example), names(shapes))) {
+    stopf("Dataset must return a list with named elements that are a permutation of the dataset_shapes names.")
+  }
+  iwalk(shapes, function(dataset_shape, name) {
+    if (!is.null(dataset_shape) && !test_equal(shapes[[name]][-1], example[[name]]$shape[-1L])) {
+      expected_shape = example[[name]]$shape
+      expected_shape[1] = NA
+      stopf(paste0("First batch from dataset is incompatible with the provided shape of %s:\n",
+        "* Provided shape: %s.\n* Expected shape: %s."), name,
+        shape_to_str(unname(shapes[name])), shape_to_str(list(expected_shape)))
+    }
+  })
+}

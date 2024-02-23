@@ -9,6 +9,8 @@ In essence it is an annotated \code{\link[torch:dataset]{torch::dataset}} and a 
 operators). The additional meta data (e.g. pointer, shapes) allows to preprocess \code{\link{lazy_tensor}}s in an
 \code{\link[mlr3pipelines:Graph]{mlr3pipelines::Graph}} just like any (non-lazy) data types.
 The preprocessing is applied when \code{\link[=materialize]{materialize()}} is called on the \code{\link{lazy_tensor}}.
+
+To create a data descriptor, you can also use the \code{\link[=as_data_descriptor]{as_data_descriptor()}} function.
 }
 \details{
 While it would be more natural to define this as an S3 class, we opted for an R6 class to avoid the usual
@@ -19,14 +21,15 @@ If each row contained a DataDescriptor as an S3 class, this would copy the objec
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 \dontshow{\}) # examplesIf}
 # Create a dataset
-dsg = dataset(
+ds = dataset(
   initialize = function() self$x = torch_randn(10, 3, 3),
   .getitem = function(i) list(x = self$x[i, ]),
   .length = function() nrow(self$x)
-)
-ds = dsg()
+)()
 dd = DataDescriptor$new(ds, list(x = c(NA, 3, 3)))
 dd
+# is the same as using the converter:
+as_data_descriptor(ds, list(x = c(NA, 3, 3)))
 }
 \seealso{
 ModelDescriptor, lazy_tensor
@@ -82,7 +85,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DataDescriptor$new(
   dataset,
-  dataset_shapes,
+  dataset_shapes = NULL,
   graph = NULL,
   input_map = NULL,
   pointer = NULL,
