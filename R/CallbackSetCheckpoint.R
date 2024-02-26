@@ -29,28 +29,12 @@ CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(path, freq = 1, save = "all", freq_type = "epoch") {
+    initialize = function(path, freq = 1) {
       self$freq = assert_int(freq, lower = 1L)
-      if (isTRUE(all.equal(save, "all"))) {
-        self$save = c("network", "optimizer", "learner", "loss")
-      } else {
-        self$save = assert_subset(save, c("network", "optimizer", "learner", "loss"))
-      }
-      self$freq_type = assert_subset(freq_type, c("epoch", "step"))
-      assert(check_directory_exists(path), check_path_for_output(path))
       self$path = path
       if (!dir.exists(path)) {
         dir.create(path, recursive = TRUE)
       }
-    },
-    #' @description
-    #' Saves the configuration to a file.
-    on_begin = function() {
-      jsonlite::write_json(list(
-        freq = self$freq,
-        freq_type = self$freq_type,
-        save = self$save
-      ), path = file.path(self$path, "config.json"))
     },
     #' @description
     #' Saves the objects network and optimizer if selected.
@@ -83,7 +67,7 @@ CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
         # e.g. cross_entropy loss can have weights
         torch::torch_save(self$ctx$loss_fn$state_dict(), file.path(self$path, "loss.pt"))
       }
-    }
+    },
   ),
   private = list(
     .save = function(suffix) {
@@ -103,11 +87,7 @@ mlr3torch_callbacks$add("checkpoint", function() {
     callback_generator = CallbackSetCheckpoint,
     param_set = ps(
       path =      p_uty(tags = c("train", "required")),
-      freq =      p_int(default = 1L, lower = 1L, tags = "train"),
-      freq_type = p_fct(default = "epoch", levels = c("epoch", "step"), tags = "train"),
-      save =      p_uty(default = "all", tags = "train", custom_check = crate(function(x) {
-        if (isTRUE(all.equal(x, "all"))) return(TRUE)
-        check_subset(x, c("network", "optimizer", "learner", "loss"), empty.ok = FALSE)}, .parent = topenv()))
+      freq =      p_int(lower = 1L, tags = c("train", "required"))
     ),
     id = "checkpoint",
     label = "Checkpoint",

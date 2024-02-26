@@ -170,7 +170,7 @@ train_loop = function(ctx, cbs) {
     network         = ctx$network,
     loss_state      = ctx$loss_fn$state_dict(),
     optimizer_state = ctx$optimizer$state_dict(),
-    callbacks       = cbs
+    callbacks       = map(cbs, function(cb) cb$state_dict())
   )
 }
 
