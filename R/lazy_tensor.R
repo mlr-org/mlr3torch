@@ -1,4 +1,4 @@
-#' @title Create a lazy tesornsor
+#' @title Create a lazy tensor
 #'
 #' @description
 #' Create a lazy tensor.

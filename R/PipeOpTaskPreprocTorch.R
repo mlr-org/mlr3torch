@@ -430,7 +430,7 @@ create_ps = function(fn) {
 #' @export
 #' @returns An [`R6Class`][R6::R6Class] instance inheriting from [`PipeOpTaskPreprocTorch`]
 #' @examples
-#' PipeOpPreprocExample = pipeop_preproc_torch("preproc_example", function(x, a) x + a, )
+#' PipeOpPreprocExample = pipeop_preproc_torch("preproc_example", function(x, a) x + a)
 #' po_example = PipeOpPreprocExample$new()
 #' po_example$param_set
 pipeop_preproc_torch = function(id, fn, shapes_out = NULL, param_set = NULL, packages = character(0),
