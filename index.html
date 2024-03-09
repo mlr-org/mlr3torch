@@ -126,11 +126,6 @@
 <span><span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/torch/man/install_torch.html" class="external-link">install_torch</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="status">Status<a class="anchor" aria-label="anchor" href="#status"></a>
-</h2>
-<p><code>mlr3torch</code> is currently still in its experimental phase and many things are missing. Not everything will work yet and the API might change without notice.</p>
-</div>
-<div class="section level2">
 <h2 id="what-is-mlr3torch">What is mlr3torch?<a class="anchor" aria-label="anchor" href="#what-is-mlr3torch"></a>
 </h2>
 <p><code>mlr3torch</code> is a deep learning framework for the <a href="https://mlr-org.com" class="external-link"><code>mlr3</code></a> ecosystem built on top of <a href="https://torch.mlverse.org/" class="external-link"><code>torch</code></a>. It allows to easily build, train and evaluate deep learning models in a few lines of codes, without needing to worry about low-level details. Off-the-shelf learners are readily available, but custom architectures can be defined by connecting <code>PipeOpTorch</code> operators in an <code><a href="https://mlr3pipelines.mlr-org.com/reference/Graph.html" class="external-link">mlr3pipelines::Graph</a></code>.</p>
@@ -183,7 +178,7 @@
 <span><span class="co">#&gt; Graph with 8 PipeOps:</span></span>
 <span><span class="co">#&gt;                   ID         State            sccssors         prdcssors</span></span>
 <span><span class="co">#&gt;               &lt;char&gt;        &lt;char&gt;              &lt;char&gt;            &lt;char&gt;</span></span>
-<span><span class="co">#&gt;    torch_ingress_num &lt;&lt;UNTRAINED&gt;&gt;           nn_linear                  </span></span>
+<span><span class="co">#&gt;    torch_ingress_num &lt;&lt;UNTRAINED&gt;&gt;           nn_linear</span></span>
 <span><span class="co">#&gt;            nn_linear &lt;&lt;UNTRAINED&gt;&gt;             nn_relu torch_ingress_num</span></span>
 <span><span class="co">#&gt;              nn_relu &lt;&lt;UNTRAINED&gt;&gt;             nn_head         nn_linear</span></span>
 <span><span class="co">#&gt;              nn_head &lt;&lt;UNTRAINED&gt;&gt;          torch_loss           nn_relu</span></span>
@@ -238,7 +233,7 @@
 <span>  rbind <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; (1,1,.,.) = </span></span>
+<span><span class="co">#&gt; (1,1,.,.) =</span></span>
 <span><span class="co">#&gt;     0.0000    0.0000    0.0000    0.0000    0.0000</span></span>
 <span><span class="co">#&gt;     0.0000  200.9199  228.2500    8.2000    0.0000</span></span>
 <span><span class="co">#&gt;     0.0000    0.0000  196.7500    0.0000    0.0000</span></span>
