@@ -27,12 +27,6 @@ pak::pak("mlr-org/mlr3torch")
 torch::install_torch()
 ```
 
-## Status
-
-`mlr3torch` is currently still in its experimental phase and many things
-are missing. Not everything will work yet and the API might change
-without notice.
-
 ## What is mlr3torch?
 
 `mlr3torch` is a deep learning framework for the
@@ -107,7 +101,7 @@ graph_mlp
 #> Graph with 8 PipeOps:
 #>                   ID         State            sccssors         prdcssors
 #>               <char>        <char>              <char>            <char>
-#>    torch_ingress_num <<UNTRAINED>>           nn_linear                  
+#>    torch_ingress_num <<UNTRAINED>>           nn_linear
 #>            nn_linear <<UNTRAINED>>             nn_relu torch_ingress_num
 #>              nn_relu <<UNTRAINED>>             nn_head         nn_linear
 #>              nn_head <<UNTRAINED>>          torch_loss           nn_relu
@@ -167,7 +161,7 @@ materialize(
   rbind = TRUE
 )
 #> torch_tensor
-#> (1,1,.,.) = 
+#> (1,1,.,.) =
 #>     0.0000    0.0000    0.0000    0.0000    0.0000
 #>     0.0000  200.9199  228.2500    8.2000    0.0000
 #>     0.0000    0.0000  196.7500    0.0000    0.0000

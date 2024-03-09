@@ -44,11 +44,6 @@ torch::install_torch()
 
 ```
 
-## Status
-
-`mlr3torch` is currently still in its experimental phase and many things are missing.
-Not everything will work yet and the API might change without notice.
-
 ## What is mlr3torch?
 
 
