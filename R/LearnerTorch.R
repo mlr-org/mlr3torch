@@ -112,9 +112,6 @@ LearnerTorch = R6Class("LearnerTorch",
         private$.optimizer = as_torch_optimizer(optimizer, clone = TRUE)
       }
 
-      private$.optimizer$param_set$set_id = "opt"
-      private$.loss$param_set$set_id = "loss"
-
       callbacks = as_torch_callbacks(callbacks, clone = TRUE)
       callback_ids = ids(callbacks)
       if (!test_names(callback_ids, type = "unique")) {
@@ -124,10 +121,6 @@ LearnerTorch = R6Class("LearnerTorch",
       }
 
       private$.callbacks = set_names(callbacks, callback_ids)
-      walk(private$.callbacks, function(cb) {
-        cb$param_set$set_id = paste0("cb.", cb$id)
-      })
-
       packages = unique(c(
         packages,
         unlist(map(private$.callbacks, "packages")),
@@ -216,8 +209,8 @@ LearnerTorch = R6Class("LearnerTorch",
     param_set = function(rhs) {
       if (is.null(private$.param_set)) {
         private$.param_set = ParamSetCollection$new(c(
-          list(private$.param_set_base, private$.optimizer$param_set, private$.loss$param_set),
-          map(private$.callbacks, "param_set"))
+          list(private$.param_set_base, opt = private$.optimizer$param_set, loss = private$.loss$param_set),
+          set_names(map(private$.callbacks, "param_set"), sprintf("cb.%s", ids(private$.callbacks))))
         )
       }
       private$.param_set
@@ -312,6 +305,23 @@ LearnerTorch = R6Class("LearnerTorch",
     deep_clone = function(name, value) deep_clone(self, private, super, name, value)
   )
 )
+
+#' @export
+marshal_model.learner_torch_state = function(model, inplace = FALSE, ...) {
+  model$network = torch_serialize(model$network)
+
+  structure(list(
+    marshaled = model,
+    packages = "mlr3torch"
+  ), class = c("learner_torch_state", "list"))
+}
+
+#' @export
+unmarshal_model.learner_torch_state_marshaled = function(model, inplace = FALSE, device = "cpu", ...) {
+  model = model$marshaled
+  model$network = torch_load(model$network, device = device)
+  return(model)
+}
 
 deep_clone = function(self, private, super, name, value) {
   private$.param_set = NULL # required to keep clone identical to original, otherwise tests get really ugly

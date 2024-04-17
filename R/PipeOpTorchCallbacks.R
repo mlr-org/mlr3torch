@@ -47,16 +47,15 @@ PipeOpTorchCallbacks = R6Class("PipeOpTorchCallbacks",
       assert_names(cbids, type = "unique")
       walk(private$.callbacks, function(cb) {
         cb$param_set$set_id = cb$id
-        walk(cb$param_set$params, function(p) {
-          p$tags = union(p$tags, "train")
-        })
+        cb$param_set$tags = map(cb$param_set$tags, function(tags) union(tags, "train"))
       })
       private$.callbacks = set_names(private$.callbacks, cbids)
       input = data.table(name = "input", train = "ModelDescriptor", predict = "Task")
       output = data.table(name = "output", train = "ModelDescriptor", predict = "Task")
       super$initialize(
         id = id,
-        param_set = alist(invoke(ParamSetCollection$new, sets = map(private$.callbacks, "param_set"))),
+        param_set = alist(invoke(ParamSetCollection$new, sets = set_names(map(private$.callbacks, "param_set")),
+          sprintf("cb.%s", ids(private$.callbacks)))),
         param_vals = param_vals,
         input = input,
         output = output,

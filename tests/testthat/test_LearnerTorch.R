@@ -24,7 +24,7 @@ test_that("Basic tests: Classification", {
   expect_equal(learner$id, "classif.test1")
   expect_equal(learner$label, "Test1 Learner")
   expect_set_equal(learner$feature_types, c("numeric", "integer"))
-  expect_set_equal(learner$properties, c("multiclass", "twoclass", "bundle"))
+  expect_set_equal(learner$properties, c("multiclass", "twoclass", "marshal"))
 
   # default predict types are correct
   expect_set_equal(learner$predict_types, c("response", "prob"))
@@ -48,7 +48,7 @@ test_that("Basic tests: Regression", {
   expect_equal(learner$id, "regr.test1")
   expect_equal(learner$label, "Test1 Learner")
   expect_set_equal(learner$feature_types, c("numeric", "integer"))
-  expect_set_equal(learner$properties, "bundle")
+  expect_set_equal(learner$properties, "marshal")
 
   # default predict types are correct
   expect_set_equal(learner$predict_types, "response")
