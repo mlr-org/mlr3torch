@@ -5,7 +5,7 @@
 #' @description
 #' Use this as entry-point to mlr3torch-networks.
 #' Unless you are an advanced user, you should not need to use this directly but [`PipeOpTorchIngressNumeric`],
-#' [`PipeOpTorchIngressCategorical`] or [`PipeOpTorchIngressImage`].
+#' [`PipeOpTorchIngressCategorical`] or [`PipeOpTorchIngressLazyTensor`].
 #'
 #' @template pipeop_torch_channels_default
 #' @section State:
@@ -51,13 +51,13 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
     .train = function(inputs) {
       pv = self$param_set$get_values()
       task = inputs[[1]]
-      if (any(task$missings())) {
+      if (any(task$missings(task$feature_names))) {
         # NAs are converted to their underlying machine representation when calling `torch_tensor()`
         # https://github.com/mlverse/torch/issues/933
         stopf("No missing values allowed in task '%s'.", task$id)
       }
       param_vals = self$param_set$get_values()
-      graph = as_graph(po("nop", id = self$id))
+      graph = as_graph(po("nop", id = self$id), clone = FALSE)
       batchgetter = private$.get_batchgetter(task, param_vals)
 
       # In case the user is tempted to do things that will break in bad ways...
@@ -89,8 +89,8 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
         graph = graph,
         ingress = structure(list(ingress), names = graph$input$name),
         task = task,
-        .pointer = as.character(graph$output[, c("op.id", "channel.name"), with = FALSE]),
-        .pointer_shape = ingress$shape
+        pointer = as.character(graph$output[, c("op.id", "channel.name"), with = FALSE]),
+        pointer_shape = ingress$shape
       ))
     },
     .predict = function(inputs) inputs
@@ -123,6 +123,7 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
 #' @return `TorchIngressToken` object.
 #' @family Graph Network
 #' @export
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 #' # Define a task for which we want to define an ingress token
 #' task = tsk("iris")
@@ -177,14 +178,15 @@ print.TorchIngressToken = function(x, ...) {
 #' @export
 #' @family Graph Network
 #' @family PipeOps
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 # We select the numeric features first
 #' graph = po("select", selector = selector_type(c("numeric", "integer"))) %>>%
 #'   po("torch_ingress_num")
 #' task = tsk("german_credit")
-#' # The output is a TorchIngressToken
-#' token = graph$train(task)[[1L]]
-#' ingress = token$ingress[[1L]]
+#' # The output is a model descriptor
+#' md = graph$train(task)[[1L]]
+#' ingress = md$ingress[[1L]]
 #' ingress$batchgetter(task$data(1:5, ingress$features), "cpu")
 PipeOpTorchIngressNumeric = R6Class("PipeOpTorchIngressNumeric",
   inherit = PipeOpTorchIngress,
@@ -198,7 +200,6 @@ PipeOpTorchIngressNumeric = R6Class("PipeOpTorchIngressNumeric",
   ),
   private = list(
     .shape = function(task, param_vals) {
-      # TODO: check that task is legit
       c(NA, length(task$feature_types$type))
     },
 
@@ -228,14 +229,15 @@ register_po("torch_ingress_num", PipeOpTorchIngressNumeric)
 #' @family PipeOps
 #' @family Graph Network
 #' @export
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 # We first select the categorical features
 #' graph = po("select", selector = selector_type("factor")) %>>%
 #'   po("torch_ingress_categ")
 #' task = tsk("german_credit")
-#' # The output is a TorchIngressToken
-#' token = graph$train(task)[[1L]]
-#' ingress = token$ingress[[1L]]
+#' # The output is a model descriptor
+#' md = graph$train(task)[[1L]]
+#' ingress = md$ingress[[1L]]
 #' ingress$batchgetter(task$data(1, ingress$features), "cpu")
 PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
   inherit = PipeOpTorchIngress,
@@ -252,8 +254,6 @@ PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
       c(NA, length(task$feature_names))
     },
     .get_batchgetter = function(task, param_vals) {
-      # Note that this function can only be called successfully if either select is TRUE or the task contains
-      # only factors and logicals. In both cases the formula below is correct
       batchgetter_categ
     }
   )
@@ -261,57 +261,114 @@ PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
 
 register_po("torch_ingress_categ", PipeOpTorchIngressCategorical)
 
-#' @title Torch Entry Point for Images
-#' @name mlr_pipeops_torch_ingress_img
-#'
+#' @title Ingress for Lazy Tensor
+#' @name mlr_pipeops_torch_ingress_ltnsr
 #' @description
-#' uses task with "imageuri" column and loads this as images.
-#' doesn't do any preprocessing or so (image resizing) and instead just errors if images don't fit.
-#' also no data augmentation etc.
+#' Ingress for a single [`lazy_tensor`] column.
 #'
 #' @inheritSection mlr_pipeops_torch_ingress Input and Output Channels
 #' @inheritSection mlr_pipeops_torch_ingress State
 #'
 #' @section Parameters:
-#' * `select` :: `logical(1)`\cr
-#'   Whether `PipeOp` should selected the supported feature types. Otherwise it will err, when receiving tasks
-#'   with unsupported feature types.
-#' * `channels` :: `integer(1)`\cr
-#'   The number of input channels.
-#' * `height` :: `integer(1)`\cr
-#'   The height of the pixels.
-#' * `width` :: `integer(1)`\cr
-#'   The width of the pixels.
+#' * `shape` :: `integer()`\cr
+#'   The shape of the tensor, where the first dimension (batch) must be `NA`.
+#'   When it is not specified, the lazy tensor input column needs to have a known shape.
+#'
 #' @section Internals:
-#' Uses [`magick::image_read()`] to load the image.
-#'
-#' @family PipeOp
+#' The returned batchgetter materializes the lazy tensor column to a tensor.
+#' @family PipeOps
 #' @family Graph Network
-#'
 #' @export
+#' @include utils.R shape.R
+#' @examplesIf torch::torch_is_installed()
 #' @examples
-#' po_ingress = po("torch_ingress_img", channels = 3, height = 64, width = 64)
-#' po_ingress
-PipeOpTorchIngressImage = R6Class("PipeOpTorchIngressImage",
+#' po_ingress = po("torch_ingress_ltnsr")
+#' task = tsk("lazy_iris")
+#'
+#' md = po_ingress$train(list(task))[[1L]]
+#'
+#' ingress = md$ingress
+#' x_batch = ingress[[1L]]$batchgetter(data = task$data(1, "x"), device = "cpu", cache = NULL)
+#' x_batch
+#'
+#' # Now we try a lazy tensor with unknown shape, i.e. the shapes between the rows can differ
+#'
+#' ds = dataset(
+#'   initialize = function() self$x = list(torch_randn(3, 10, 10), torch_randn(3, 8, 8)),
+#'   .getitem = function(i) list(x = self$x[[i]]),
+#'   .length = function() 2)()
+#'
+#' task_unknown = as_task_regr(data.table(
+#'   x = as_lazy_tensor(ds, dataset_shapes = list(x = NULL)),
+#'   y = rnorm(2)
+#' ), target = "y", id = "example2")
+#'
+#' # this task (as it is) can NOT be processed by PipeOpTorchIngressLazyTensor
+#' # It therefore needs to be preprocessed
+#' po_resize = po("trafo_resize", size = c(6, 6))
+#' task_unknown_resize = po_resize$train(list(task_unknown))[[1L]]
+#'
+#' # printing the transformed column still shows unknown shapes,
+#' # because the preprocessing pipeop cannot infer them,
+#' # however we know that the shape is now (3, 10, 10) for all rows
+#' task_unknown_resize$data(1:2, "x")
+#' po_ingress$param_set$set_values(shape = c(NA, 3, 6, 6))
+#'
+#' md2 = po_ingress$train(list(task_unknown_resize))[[1L]]
+#'
+#' ingress2 = md2$ingress
+#' x_batch2 = ingress2[[1L]]$batchgetter(
+#'   data = task_unknown_resize$data(1:2, "x"),
+#'   device = "cpu",
+#'   cache = NULL
+#' )
+#'
+#' x_batch2
+PipeOpTorchIngressLazyTensor = R6Class("PipeOpTorchIngressLazyTensor",
   inherit = PipeOpTorchIngress,
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
-    initialize = function(id = "torch_ingress_img", param_vals = list()) {
+    initialize = function(id = "torch_ingress_ltnsr", param_vals = list()) {
       param_set = ps(
-        channels = p_int(1, tags = c("train", "predict", "required")),
-        height   = p_int(1, tags = c("train", "predict", "required")),
-        width    = p_int(1, tags = c("train", "predict", "required"))
-      )
-      super$initialize(id = id, param_vals = param_vals, param_set = param_set, feature_types = "imageuri")
+        shape = p_uty(tags = "train", default = NULL, custom_check = crate(
+          function(x) check_shape(x, null_ok = TRUE, unknown_batch = TRUE), .parent = topenv()))
+        )
+      super$initialize(id = id, param_vals = param_vals, feature_types = "lazy_tensor", param_set = param_set)
     }
   ),
   private = list(
-    .shape = function(task, param_vals) c(NA, param_vals$channels, param_vals$height, param_vals$width),
+    .shape = function(task, param_vals) {
+      lazy_cols = task$feature_types[get("type") == "lazy_tensor", "id"][[1L]]
+      if (length(lazy_cols) != 1L) {
+        stopf("PipeOpTorchIngressLazyTensor expects 1 'lazy_tensor' feature, but got %i.", length(lazy_cols))
+      }
+      example = task$data(task$row_ids[1L], lazy_cols)[[1L]]
+      input_shape = dd(example)$pointer_shape
+      pv_shape = param_vals$shape
+
+      if (is.null(input_shape)) {
+        if (is.null(pv_shape)) {
+          stopf("If input shape is unknown, the 'shape' parameter must be set.")
+        }
+        return(pv_shape)
+      }
+
+      if (!is.null(pv_shape) && !isTRUE(all.equal(pv_shape, input_shape))) {
+        stopf("Parameter 'shape' is set for PipeOp '%s', but differs from the (known) lazy tensor input shape.", self$id) # nolint
+      }
+
+      input_shape
+    },
     .get_batchgetter = function(task, param_vals) {
-      get_batchgetter_img(c(param_vals$channels, param_vals$height, param_vals$width))
+      batchgetter_lazy_tensor
     }
   )
 )
-register_po("torch_ingress_img", PipeOpTorchIngressImage)
+
+batchgetter_lazy_tensor = function(data, device, cache) {
+  materialize_internal(x = data[[1L]], device = device, cache = cache, rbind = TRUE)
+}
+
+register_po("torch_ingress_ltnsr", PipeOpTorchIngressLazyTensor)

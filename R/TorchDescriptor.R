@@ -42,6 +42,10 @@ TorchDescriptor = R6Class("TorchDescriptor",
       self$generator = generator
       # TODO: Assert that all parameters are tagged with "train"
       self$param_set = assert_r6(param_set, "ParamSet", null.ok = TRUE) %??% inferps(generator)
+      if (length(self$param_set$tags)) {
+        self$param_set$tags = map(self$param_set$tags, function(tags) union(tags, "train"))
+
+      }
       if (is.function(generator)) {
         args = formalArgs(generator)
       } else {

@@ -29,6 +29,8 @@ During training the loss is cloned and added to the \code{\link{ModelDescriptor}
 }
 
 \examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{\}) # examplesIf}
 po_loss = po("torch_loss", loss = t_loss("cross_entropy"))
 po_loss$param_set
 mdin = po("torch_ingress_num")$train(list(tsk("iris")))
@@ -88,6 +90,10 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_threshold}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},
+<<<<<<< HEAD
+=======
+\code{\link{mlr_pipeops_torch_ingress_ltnsr}},
+>>>>>>> main
 \code{\link{mlr_pipeops_torch_ingress_num}},
 \code{\link{mlr_pipeops_torch_model}},
 \code{\link{mlr_pipeops_torch_model_classif}},

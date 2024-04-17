@@ -6,6 +6,7 @@
 \title{My Little Pony}
 \description{
 Fully connected feed forward network with dropout after each activation function.
+The features can either be a single \code{\link{lazy_tensor}} or one or more numeric columns (but not both).
 }
 \section{Dictionary}{
 
@@ -18,7 +19,20 @@ lrn("regr.mlp", ...)
 
 \section{Meta Information}{
 
+<<<<<<< HEAD
 \verb{r mlr3torch:::rd_info_learner_torch("mlp", "classif, regr")}
+=======
+\itemize{
+\item Supported task types: 'classif', 'regr'
+\item Predict Types:
+\itemize{
+\item classif: 'response', 'prob'
+\item regr: 'response'
+}
+\item Feature Types: \dQuote{integer}, \dQuote{numeric}, \dQuote{lazy_tensor}
+\item Required Packages: \CRANpkg{mlr3}, \CRANpkg{mlr3torch}, \CRANpkg{torch}
+}
+>>>>>>> main
 }
 
 \section{State}{
@@ -42,16 +56,45 @@ The activation function. Is initialized to \code{\link{nn_relu}}.
 \item \code{activation_args} :: named \code{list()}\cr
 A named list with initialization arguments for the activation function.
 This is intialized to an empty list.
-\item \code{layers} :: \code{integer(1)}\cr
-The number of layers.
-\item \code{d_hidden} :: \code{numeric(1)}\cr
-The dimension of the hidden layers.
+\item \code{neurons} :: \code{integer()}\cr
+The number of neurons per hidden layer. By default there is no hidden layer.
+Setting this to \code{c(10, 20)} would have a the first hidden layer with 10 neurons and the second with 20.
 \item \code{p} :: \code{numeric(1)}\cr
-The dropout probability.
-Is initialized to \code{0.5}.
+The dropout probability. Is initialized to \code{0.5}.
+\item \code{shape} :: \code{integer()} or \code{NULL}\cr
+The input shape of length 2, e.g. \code{c(NA, 5)}.
+Only needs to be present when there is a lazy tensor input with unknown shape (\code{NULL}).
+Otherwise the input shape is inferred from the number of numeric features.
 }
 }
 
+<<<<<<< HEAD
+=======
+\examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{\}) # examplesIf}
+# Define the Learner and set parameter values
+learner = lrn("classif.mlp")
+learner$param_set$set_values(
+  neurons = 10, batch_size = 1, epochs = 1, device = "cpu"
+)
+
+# Define a Task
+task = tsk("iris")
+
+# Create train and test set
+ids = partition(task)
+
+# Train the learner on the training ids
+learner$train(task, row_ids = ids$train)
+
+# Make predictions for the test rows
+predictions = learner$predict(task, row_ids = ids$test)
+
+# Score the predictions
+predictions$score()
+}
+>>>>>>> main
 \seealso{
 Other Learner: 
 \code{\link{mlr_learners.alexnet}},

@@ -32,6 +32,8 @@ its '$train()\verb{ method is called on the [}Task\verb{] stored in the [}ModelD
 }
 
 \examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{\}) # examplesIf}
 # simple linear regression
 
 # build the model descriptor
@@ -99,6 +101,10 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_threshold}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},
+<<<<<<< HEAD
+=======
+\code{\link{mlr_pipeops_torch_ingress_ltnsr}},
+>>>>>>> main
 \code{\link{mlr_pipeops_torch_ingress_num}},
 \code{\link{mlr_pipeops_torch_loss}},
 \code{\link{mlr_pipeops_torch_model}},

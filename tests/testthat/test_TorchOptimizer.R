@@ -117,7 +117,7 @@ test_that("Parameter test: adam", {
   torch_opt = t_opt("adam")
   param_set = torch_opt$param_set
   fn = torch_opt$generator
-  res = autotest_paramset(param_set, fn, exclude = "params")
+  res = expect_paramset(param_set, fn, exclude = "params")
   expect_paramtest(res)
 })
 
@@ -126,7 +126,7 @@ test_that("Parameter test: sgd", {
   param_set = torch_opt$param_set
   # lr is set to `optim_required()`
   fn = torch_opt$generator
-  res = autotest_paramset(param_set, fn, exclude = c("params", "lr"))
+  res = expect_paramset(param_set, fn, exclude = c("params", "lr"))
   expect_paramtest(res)
 })
 
@@ -134,7 +134,7 @@ test_that("Parameter test: asgd", {
   torch_opt = t_opt("asgd")
   param_set = torch_opt$param_set
   fn = torch_opt$generator
-  res = autotest_paramset(param_set, fn, exclude = "params")
+  res = expect_paramset(param_set, fn, exclude = "params")
   expect_paramtest(res)
 })
 
@@ -142,7 +142,7 @@ test_that("Parameter test: rprop", {
   torch_opt = t_opt("rprop")
   param_set = torch_opt$param_set
   fn = torch_opt$generator
-  res = autotest_paramset(param_set, fn, exclude = "params")
+  res = expect_paramset(param_set, fn, exclude = "params")
   expect_paramtest(res)
 })
 
@@ -150,7 +150,7 @@ test_that("Parameter test: rmsprop", {
   torch_opt = t_opt("rmsprop")
   param_set = torch_opt$param_set
   fn = torch_opt$generator
-  res = autotest_paramset(param_set, fn, exclude = "params")
+  res = expect_paramset(param_set, fn, exclude = "params")
   expect_paramtest(res)
 })
 
@@ -158,7 +158,7 @@ test_that("Parameter test: adagrad", {
   torch_opt = t_opt("adagrad")
   param_set = torch_opt$param_set
   fn = torch_opt$generator
-  res = autotest_paramset(param_set, fn, exclude = "params")
+  res = expect_paramset(param_set, fn, exclude = "params")
   expect_paramtest(res)
 })
 
@@ -166,7 +166,7 @@ test_that("Parameter test: adadelta", {
   torch_opt = t_opt("adadelta")
   param_set = torch_opt$param_set
   fn = torch_opt$generator
-  res = autotest_paramset(param_set, fn, exclude = "params")
+  res = expect_paramset(param_set, fn, exclude = "params")
   expect_paramtest(res)
 })
 
@@ -176,4 +176,16 @@ test_that("phash works", {
   expect_false(t_opt("sgd")$phash == t_opt("adam")$phash)
   expect_false(t_opt("sgd", id = "a")$phash == t_opt("adam", id = "b")$phash)
   expect_false(t_opt("sgd", label = "a")$phash == t_opt("adam", label = "b")$phash)
+})
+
+test_that("can train with every optimizer", {
+  task = tsk("iris")$filter(1)
+  test_optimizer = function(opt_id, ...) {
+    opt = t_opt(opt_id, lr = 0.1)
+    expect_learner(lrn("classif.mlp", optimizer = opt, batch_size = 1, epochs = 1)$train(task))
+  }
+
+  for (opt_id in names(mlr3torch_optimizers$items)) {
+    test_optimizer(opt_id)
+  }
 })

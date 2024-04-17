@@ -21,16 +21,6 @@ PipeOpTorchReshape = R6Class("PipeOpTorchReshape",
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
     initialize = function(id = "nn_reshape", param_vals = list()) {
-      check_shape = function(x) {
-        x[x == -1] = NA
-        assert_integerish(shape, lower = 1)
-        if (sum(is.na(shape)) > 1) {
-          return("Parameter 'shape' must only contain one -1 or NA.")
-        } else if (!is.na(x[1])) {
-          return("First dimension should be -1 or NA.")
-        }
-        return(TRUE)
-      }
       param_set = ps(
         shape = p_uty(tags = c("train", "required"), custom_check = check_integerish)
       )

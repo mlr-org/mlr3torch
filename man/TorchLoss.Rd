@@ -100,7 +100,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{TorchLoss$new(
   torch_loss,
-  task_types,
+  task_types = NULL,
   param_set = NULL,
   id = NULL,
   label = NULL,

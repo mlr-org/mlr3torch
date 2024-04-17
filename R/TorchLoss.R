@@ -102,11 +102,15 @@ TorchLoss = R6::R6Class("TorchLoss",
     #' @template param_label
     #' @template param_packages
     #' @template param_man
-    initialize = function(torch_loss, task_types, param_set = NULL,
+    initialize = function(torch_loss, task_types = NULL, param_set = NULL,
       id = NULL, label = NULL, packages = NULL, man = NULL) {
       force(id)
-      self$task_types = assert_subset(task_types, mlr_reflections$task_types$type)
-      torch_loss = assert_class(torch_loss, "nn_loss")
+      self$task_types = if (!is.null(task_types)) {
+        assert_subset(task_types, mlr_reflections$task_types$type)
+      } else {
+        c("classif", "regr")
+      }
+      torch_loss = assert_class(torch_loss, "nn_module")
 
       super$initialize(
         generator = torch_loss,
@@ -164,7 +168,7 @@ as.data.table.DictionaryMlr3torchLosses = function(x, ...) {
     list(
       key = key,
       label = loss$label,
-      task_types = loss$task_types,
+      task_types = list(loss$task_types),
       packages = paste0(loss$packages, collapse = ",")
     )}), "key")[]
 }

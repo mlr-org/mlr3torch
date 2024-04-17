@@ -24,7 +24,7 @@ It creates the union of multiple \code{\link{ModelDescriptor}}s:
 \item \code{graph}s are combinded (if they are not identical to begin with). The first entry's \code{graph} is modified by
 reference.
 \item \code{PipeOp}s with the same ID must be identical. No new input edges may be added to \code{PipeOp}s.
-\item Drops \code{.pointer} / \code{.pointer_shape} entries.
+\item Drops \code{pointer} / \code{pointer_shape} entries.
 \item The new task is the \link[=PipeOpFeatureUnion]{feature union} of the two incoming tasks.
 \item The \code{optimizer} and \code{loss} of both \code{\link{ModelDescriptor}}s must be identical.
 \item Ingress tokens and callbacks are merged, where objects with the same \code{"id"} must be identical.
@@ -44,7 +44,11 @@ Other Graph Network:
 \code{\link{mlr_pipeops_torch}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},
+<<<<<<< HEAD
 \code{\link{mlr_pipeops_torch_ingress_img}},
+=======
+\code{\link{mlr_pipeops_torch_ingress_ltnsr}},
+>>>>>>> main
 \code{\link{mlr_pipeops_torch_ingress_num}},
 \code{\link{model_descriptor_to_learner}()},
 \code{\link{model_descriptor_to_module}()},

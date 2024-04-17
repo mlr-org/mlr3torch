@@ -18,7 +18,19 @@ This \link{Learner} can be instantiated using the sugar function \code{\link[=lr
 
 \section{Meta Information}{
 
+<<<<<<< HEAD
 \verb{r mlr3torch:::rd_info_learner_torch("alexnet", "classif")}
+=======
+\itemize{
+\item Supported task types: 'classif'
+\item Predict Types:
+\itemize{
+\item classif: 'response', 'prob'
+}
+\item Feature Types: \dQuote{lazy_tensor}
+\item Required Packages: \CRANpkg{mlr3}, \CRANpkg{mlr3torch}, \CRANpkg{torchvision}, \CRANpkg{magick}, \CRANpkg{torch}
+}
+>>>>>>> main
 }
 
 \section{State}{

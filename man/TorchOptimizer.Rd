@@ -21,6 +21,8 @@ for each argument of the wrapped loss function, where the parametes are then of 
 }
 
 \examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{\}) # examplesIf}
 # Create a new torch loss
 torch_opt = TorchOptimizer$new(optim_adam, label = "adam")
 torch_opt
@@ -136,9 +138,13 @@ Instantiates the optimizer.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{params}}{The parameters of the network.}
+\item{\code{params}}{(named \code{list()} of \code{\link{torch_tensor}}s)\cr
+The parameters of the network.}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+\code{torch_optimizer}
 }
 }
 \if{html}{\out{<hr>}}

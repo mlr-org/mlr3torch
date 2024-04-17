@@ -7,7 +7,7 @@
 \description{
 Use this as entry-point to mlr3torch-networks.
 Unless you are an advanced user, you should not need to use this directly but \code{\link{PipeOpTorchIngressNumeric}},
-\code{\link{PipeOpTorchIngressCategorical}} or \code{\link{PipeOpTorchIngressImage}}.
+\code{\link{PipeOpTorchIngressCategorical}} or \code{\link{PipeOpTorchIngressLazyTensor}}.
 }
 \section{Input and Output Channels}{
 
@@ -83,6 +83,7 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_tanhshrink}},
 \code{\link{mlr_pipeops_nn_threshold}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},
+\code{\link{mlr_pipeops_torch_ingress_ltnsr}},
 \code{\link{mlr_pipeops_torch_ingress_num}},
 \code{\link{mlr_pipeops_torch_loss}},
 \code{\link{mlr_pipeops_torch_model}},
@@ -96,7 +97,11 @@ Other Graph Network:
 \code{\link{mlr_pipeops_module}},
 \code{\link{mlr_pipeops_torch}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},
+<<<<<<< HEAD
 \code{\link{mlr_pipeops_torch_ingress_img}},
+=======
+\code{\link{mlr_pipeops_torch_ingress_ltnsr}},
+>>>>>>> main
 \code{\link{mlr_pipeops_torch_ingress_num}},
 \code{\link{model_descriptor_to_learner}()},
 \code{\link{model_descriptor_to_module}()},

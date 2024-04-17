@@ -29,7 +29,8 @@ The batch size.
 The number of epochs.
 \item \code{device} :: \code{character(1)}\cr
 The device. One of \code{"auto"}, \code{"cpu"}, or \code{"cuda"} or other values defined in \code{mlr_reflections$torch$devices}.
-The value is initialized to \code{"auto"}, which will select \code{"cuda"} if possible and \code{"cpu"} otherwise.
+The value is initialized to \code{"auto"}, which will select \code{"cuda"} if possible, then try \code{"mps"} and otherwise
+fall back to \code{"cpu"}.
 \item \code{measures_train} :: \code{\link{Measure}} or \code{list()} of \code{\link{Measure}}s.
 Measures to be evaluated during training.
 \item \code{measures_valid} :: \code{\link{Measure}} or \code{list()} of \code{\link{Measure}}s.
@@ -112,6 +113,10 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_threshold}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},
+<<<<<<< HEAD
+=======
+\code{\link{mlr_pipeops_torch_ingress_ltnsr}},
+>>>>>>> main
 \code{\link{mlr_pipeops_torch_ingress_num}},
 \code{\link{mlr_pipeops_torch_loss}},
 \code{\link{mlr_pipeops_torch_model_classif}},

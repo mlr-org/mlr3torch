@@ -1,9 +1,10 @@
-#' @title Image Network
+#' @title Image Learner
 #'
 #' @name mlr_learners_torch_image
 #'
 #' @description
-#' Base Class for Torch Image Learners.
+#' Base Class for Image Learners.
+#' The features are assumed to be a single [`lazy_tensor`] column in RGB format.
 #'
 #' @template param_id
 #' @template param_task_type
@@ -17,23 +18,8 @@
 #' @template param_label
 #' @template param_predict_types
 #'
-#' @section State:
-#' The state is a list with elements `network`, `optimizer`, `loss_fn`, `callbacks` and `seed`.
-#'
-#' @section Inheriting:
-#' To inherit from this class, one should overwrite the private `$.network()` method to return a
-#' [`nn_module`] that has one argument in its forward method.
-#'
 #' @section Parameters:
-#' Parameters include those inherited from [`LearnerTorch`], the `param_set` construction argument, as
-#' well as:
-#'
-#' * `channels` :: `integer(1)` \cr
-#'   The number of input channels.
-#' * `height` :: `integer(1)` \cr
-#'   The height of the input image.
-#' * `width` :: `integer(1)` \cr
-#'   The width of the input image.
+#' Parameters include those inherited from [`LearnerTorch`] and the `param_set` construction argument.
 #'
 #' @family Learner
 #' @include LearnerTorch.R
@@ -44,26 +30,13 @@ LearnerTorchImage = R6Class("LearnerTorchImage",
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(id, task_type, param_set, label, optimizer = NULL, loss = NULL,
+    initialize = function(id, task_type, param_set = ps(), label, optimizer = NULL, loss = NULL,
       callbacks = list(), packages = c("torchvision", "magick"), man, properties = NULL,
       predict_types = NULL) {
       properties = properties %??% switch(task_type,
-        regr = character(0),
+        regr = c(),
         classif = c("twoclass", "multiclass")
       )
-      assert_param_set(param_set)
-      predefined_set = ps(
-        channels   = p_int(1, tags = c("train", "predict", "required")),
-        height     = p_int(1, tags = c("train", "predict", "required")),
-        width      = p_int(1, tags = c("train", "predict", "required"))
-      )
-
-      if (param_set$length) {
-        param_set$add(predefined_set)
-      } else {
-        param_set = predefined_set
-      }
-
       super$initialize(
         id = id,
         task_type = task_type,
@@ -75,14 +48,24 @@ LearnerTorchImage = R6Class("LearnerTorchImage",
         packages = packages,
         callbacks = callbacks,
         predict_types = predict_types,
-        feature_types = "imageuri",
+        feature_types = "lazy_tensor",
         man = man
       )
     }
   ),
   private = list(
+    .verify_train_task = function(task, param_vals) {
+      if (!isTRUE(all.equal(task$feature_types$type, "lazy_tensor"))) {
+        stopf("Must have exactly one feature of type lazy_tensor.")
+      }
+      assert_rgb_shape(c(
+        c(NA, materialize(task$data(task$row_ids[1L], task$feature_names)[[1L]])[[1L]]$shape))
+      )
+      return(TRUE)
+    },
     .dataset = function(task, param_vals) {
-      dataset_img(task, param_vals)
+      dataset_ltnsr(task, param_vals)
     }
+
   )
 )

@@ -8,6 +8,8 @@ test_that("TorchDescriptor basic checks", {
     man = "torch::nn_mse_loss"
   )
 
+  # train tag is added
+  expect_true("train" %in% descriptor$param_set$tags$reduction)
   expect_identical(descriptor$generator, nn_mse_loss)
   expect_identical(descriptor$id, "mse")
   expect_identical(descriptor$param_set$ids(), "reduction")

@@ -37,7 +37,8 @@ get_cache_dir = function(cache = NULL) {
 #'
 #' @noRd
 initialize_cache = function(cache_dir) {
-  if (isFALSE(cache_dir) || cache_dir %in% CACHE$initialized) {
+  if (isFALSE(cache_dir) || (file.exists(cache_dir) && normalizePath(cache_dir, mustWork = FALSE) %in%
+      CACHE$initialized)) {
     lg$debug("Skipping initialization of cache", cache_dir = cache_dir)
     return(TRUE)
   }
@@ -70,7 +71,7 @@ initialize_cache = function(cache_dir) {
     writeLines(jsonlite::toJSON(CACHE$versions, auto_unbox = TRUE), con = cache_file)
   }
 
-  CACHE$initialized = c(CACHE$initialized, cache_dir)
+  CACHE$initialized = c(CACHE$initialized, normalizePath(cache_dir, mustWork = FALSE))
 
   return(TRUE)
 }
@@ -80,18 +81,21 @@ cached = function(constructor, type, name) {
   initialize_cache(cache_dir)
   assert_choice(type, names(CACHE$versions))
 
-  cache = !isFALSE(cache_dir)
+  do_caching = !isFALSE(cache_dir)
 
   # Even when we don't cache, we need to store the data somewhere
-  path = if (cache) file.path(cache_dir, type, name) else tempfile()
+  path = normalizePath(if (do_caching) file.path(cache_dir, type, name) else tempfile(), mustWork = FALSE)
 
-  if (cache && dir.exists(path)) {
+  if (do_caching && dir.exists(path)) {
     # we cache and there is a cache hit
-    data = readRDS(file.path(path, "data.rds"))
-    output = list(data = data, path = path)
-    return(output)
+    data = try(readRDS(file.path(path, "data.rds")), silent = TRUE)
+    if (!inherits(data, "try-error")) {
+      return(list(data = data, path = path))
+    }
+    lg$debug("Cache hit failed, removing cache", path = path)
+    lapply(list.files(path, full.names = TRUE), unlink)
   }
-  # We either don't cache or there is no cache hit
+  # We either don't cache, there is no cache hit or cache retrieval failed
   data = try({
     path_raw = file.path(path, "raw")
     if (!dir.exists(path_raw)) {
@@ -109,7 +113,7 @@ cached = function(constructor, type, name) {
 
   # now path/raw exists
 
-  if (cache) {
+  if (do_caching) {
     # store the processed data in case there is a cache hit, so next time we don't need the postprocessing
     # that comes after downloading the data
     saveRDS(data, file = file.path(path, "data.rds"))
@@ -123,6 +127,6 @@ clear_mlr3torch_cache = function() {
     return(FALSE)
   }
   unlink(get_cache_dir(), recursive = TRUE)
-  CACHE$initialized = setdiff(CACHE$initialized, get_cache_dir())
+  CACHE$initialized = setdiff(CACHE$initialized, normalizePath(get_cache_dir(), mustWork = FALSE))
   return(TRUE)
 }

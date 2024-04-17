@@ -21,7 +21,20 @@ lrn("regr.torch_featureless", ...)
 
 \section{Meta Information}{
 
+<<<<<<< HEAD
 \verb{r mlr3torch:::rd_info_learner_torch("torch_featureless", "classif, regr")}
+=======
+\itemize{
+\item Supported task types: 'classif', 'regr'
+\item Predict Types:
+\itemize{
+\item classif: 'response', 'prob'
+\item regr: 'response'
+}
+\item Feature Types: \dQuote{logical}, \dQuote{integer}, \dQuote{numeric}, \dQuote{character}, \dQuote{factor}, \dQuote{ordered}, \dQuote{POSIXct}, \dQuote{lazy_tensor}
+\item Required Packages: \CRANpkg{mlr3}, \CRANpkg{mlr3torch}, \CRANpkg{torch}
+}
+>>>>>>> main
 }
 
 \section{State}{
@@ -41,6 +54,33 @@ The state is a list with elements:
 Only those from \code{\link{LearnerTorch}}.
 }
 
+<<<<<<< HEAD
+=======
+\examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{\}) # examplesIf}
+# Define the Learner and set parameter values
+learner = lrn("classif.torch_featureless")
+learner$param_set$set_values(
+  batch_size = 1, epochs = 1, device = "cpu"
+)
+
+# Define a Task
+task = tsk("iris")
+
+# Create train and test set
+ids = partition(task)
+
+# Train the learner on the training ids
+learner$train(task, row_ids = ids$train)
+
+# Make predictions for the test rows
+predictions = learner$predict(task, row_ids = ids$test)
+
+# Score the predictions
+predictions$score()
+}
+>>>>>>> main
 \seealso{
 Other Learner: 
 \code{\link{mlr_learners.alexnet}},

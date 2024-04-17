@@ -9,25 +9,6 @@ normalize_to_list = function(x) {
   x
 }
 
-learner_torch_initialize = function(
-  self,
-  private,
-  super,
-  task_type,
-  id,
-  optimizer,
-  loss,
-  param_set,
-  properties,
-  packages,
-  predict_types,
-  feature_types,
-  man,
-  label,
-  callbacks
-  ) {
-}
-
 learner_torch_predict = function(self, private, super, task, param_vals) {
   # parameter like device "auto" already resolved
   self$network$to(device = param_vals$device)
@@ -41,10 +22,6 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   # Here, all param_vals (like seed = "random" or device = "auto") have already been resolved
   loader_train = private$.dataloader(task, param_vals)
 
-  task_valid = task$clone()$filter(integer(0))
-  task_valid$set_row_roles(task$row_roles$test, "use")
-  loader_valid = if (task_valid$nrow) private$.dataloader_predict(task_valid, param_vals)
-
   network = private$.network(task, param_vals)$to(device = param_vals$device)
   optimizer = private$.optimizer$generate(network$parameters)
   loss_fn = private$.loss$generate()
@@ -52,14 +29,16 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   measures_train = normalize_to_list(param_vals$measures_train)
   measures_valid = normalize_to_list(param_vals$measures_valid)
 
-  available_predict_types = mlr_reflections$learner_predict_types[[self$task_type]][[self$predict_type]]
-
-  walk(c(measures_train, measures_valid), function(m) {
-    if (m$predict_type %nin% available_predict_types) {
-      stopf("Measure '%s' requires predict type '%s' but learner has '%s'.\n Change the predict type or select other measures.", # nolint
-        m$id, m$predict_type, self$predict_type)
+  task_valid = task$clone()$filter(integer(0))
+  task_valid$set_row_roles(task$row_roles$test, "use")
+  loader_valid = if (task_valid$nrow) {
+    private$.dataloader_predict(task_valid, param_vals)
+  } else {
+    if (length(measures_valid)) {
+      lg$warn("No validation set provided but measures for validation set specified.")
     }
-  })
+    NULL
+  }
 
 
   ctx = ContextTorch$new(
@@ -153,7 +132,7 @@ train_loop = function(ctx, cbs) {
 
       ctx$last_loss = loss$item()
       predictions[[length(predictions) + 1]] = y_hat$detach()
-      indices[[length(indices) + 1]] = as.numeric(batch$.index)
+      indices[[length(indices) + 1]] = as.integer(batch$.index$to(device = "cpu"))
       ctx$optimizer$step()
 
       call("on_batch_end")
@@ -187,8 +166,8 @@ train_loop = function(ctx, cbs) {
   # The seed is added later
   list(
     network    = ctx$network,
-    loss_fn    = ctx$loss_fn,
-    optimizer  = ctx$optimizer,
+    loss_fn    = ctx$loss_fn$state_dict(),
+    optimizer  = ctx$optimizer$state_dict(),
     callbacks  = cbs
   )
 }
@@ -245,11 +224,12 @@ encode_prediction_default = function(predict_tensor, predict_type, task) {
   response = prob = NULL
   if (task$task_type == "classif") {
     if (predict_type == "prob") {
-      predict_tensor = nnf_softmax(predict_tensor, dim = 2L)
+      predict_tensor = with_no_grad(nnf_softmax(predict_tensor, dim = 2L))
     }
     # We still execute the argmax on the device before converting to R
-    response = as.integer(predict_tensor$argmax(dim = 2L))
+    response = as.integer(with_no_grad(predict_tensor$argmax(dim = 2L))$to(device = "cpu"))
 
+    predict_tensor = predict_tensor$to(device = "cpu")
     if (predict_type == "prob") {
       prob = as.matrix(predict_tensor)
       colnames(prob) = task$class_names

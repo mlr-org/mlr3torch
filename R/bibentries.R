@@ -1,4 +1,4 @@
-bibentries = c( # nolint start
+bibentries = c(# nolint start
   gorishniy2021revisiting = bibentry("article",
     title = "Revisiting Deep Learning Models for Tabular Data",
     author = "Yury Gorishniy and Ivan Rubachev and Valentin Khrulkov and Artem Babenko",
@@ -63,5 +63,27 @@ bibentries = c( # nolint start
     pages = "248--255",
     year = "2009",
     organization = "IEEE"
+  ),
+  mnist = bibentry("article",
+    author='Lecun, Y. and Bottou, L. and Bengio, Y. and Haffner, P.',
+    journal='Proceedings of the IEEE',
+    title='Gradient-based learning applied to document recognition',
+    year='1998',
+    volume='86',
+    number='11',
+    pages='2278-2324',
+    doi='10.1109/5.726791'
+  ),
+  anderson_1936 = bibentry("article",
+    doi       = "10.2307/2394164",
+    year      = "1936",
+    month     = "9",
+    publisher = "JSTOR",
+    volume    = "23",
+    number    = "3",
+    pages     = "457",
+    author    = "Edgar Anderson",
+    title     = "The Species Problem in Iris",
+    journal   = "Annals of the Missouri Botanical Garden"
   )
 ) # nolint end

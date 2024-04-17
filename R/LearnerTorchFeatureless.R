@@ -22,8 +22,8 @@ LearnerTorchFeatureless = R6Class("LearnerTorchFeatureless",
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(task_type, optimizer = NULL, loss = NULL, callbacks = list()) {
       properties = switch(task_type,
-        classif = c("twoclass", "multiclass", "missings", "featureless"),
-        regr = c("missings", "featureless")
+        classif = c("twoclass", "multiclass", "missings", "featureless", "marshal"),
+        regr = c("missings", "featureless", "marshal")
       )
       super$initialize(
         id = paste0(task_type, ".torch_featureless"),

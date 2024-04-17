@@ -1,3 +1,10 @@
+#' Auto Device
+#'
+#' First tries cuda, then cpu.
+#'
+#' @param device (`character(1)`)\cr
+#'   The device. If not `NULL`, is returned as is.
+#' @export
 auto_device = function(device = NULL) {
   if (device == "auto") {
     device = if (cuda_is_available()) "cuda" else "cpu"
@@ -36,48 +43,12 @@ make_check_vector = function(d) {
     }
     tmp = if (d == 1) "." else sprintf(" or %s.", d)
     sprintf("Must be an integerish vector of length 1%s", tmp)
-    }, d = d, .parent = topenv())
+    }, d)
 }
 
 check_function_or_null = function(x) check_function(x, null.ok = TRUE)
 
 check_integerish_or_null = function(x) check_integerish(x, null.ok = TRUE)
-
-broadcast = function(shape1, shape2) {
-  assert_true(!anyNA(shape1) && !anyNA(shape2))
-  d = abs(length(shape1) - length(shape2))
-  if (d != 0) {
-    if (length(shape1) > length(shape2)) {
-      x = c(rep(1L, d), shape1)
-    } else {
-      y = c(rep(1L, d), shape2)
-    }
-  }
-  pmax(shape1, shape2)
-}
-
-broadcast_list = function(...) {
-  Reduce(broadcast, list(...))
-}
-
-assert_shape = function(shape, name) {
-  if (!(is.na(shape[[1L]]) && sum(is.na(shape)) == 1)) {
-    stopf("Input '%s' has shape (%s) but must have exactly one NA in the first dimension (batch size).",
-      name, paste0(shape, collapse = ", "))
-  }
-}
-
-assert_shapes = function(shapes) {
-  iwalk(shapes, function(shape, name) assert_shape(shape, name))
-}
-
-check_nn_module_generator = function(x) {
-  if (inherits(x, "nn_module_generator")) {
-    return(TRUE)
-  }
-
-  "Most be module generator."
-}
 
 assert_inherits_classname = function(class_generator, classname) {
   assert_class(class_generator, "R6ClassGenerator")
@@ -156,6 +127,69 @@ test_equal_col_info = function(x, y) {
 
   isTRUE(all.equal(x$id, y$id)) && isTRUE(all.equal(x$type, y$type)) &&
     all(pmap_lgl(list(x = x$levels, y = y$levels), function(x, y) isTRUE(all.equal(x, y))))
+}
 
+
+# a function that has argument names 'names' and returns its arguments as a named list.
+# used to simulate argument matching for `...`-functions.
+# example:
+# f = argument_matcher(c("a", "b", "c"))
+# f(1, 2, 3) --> list(a = 1, b = 2, c = 3)
+# f(1, 2, a = 3) --> list(a = 3, b = 1, c = 2)
+# usecase:
+# ff = function(...) {
+#   l = argument_matcher(c("a", "b", "c"))(...)
+#   l$a + l$b
+# }
+# # behaves like
+# ff(a, b, c) a + b
+# (Except in the aqward case of missing args)
+argument_matcher = function(args) {
+  fn = as.function(c(named_list(args, substitute()), quote(as.list(environment()))))
+  environment(fn) = topenv()
+  fn
+}
+
+uniqueify = function(new, existing) {
+  make.unique(c(existing, new), sep = "_")[length(existing) + seq_along(new)]
+}
+
+shape_to_str = function(x) {
+  shapedescs = map_chr(x, function(y) {
+    if (is.null(y)) {
+      return("<unknown>")
+    }
+    paste0("(", paste(y, collapse = ",", recycle0 = TRUE), ")")
+  })
+  if (test_named(x)) {
+    repr = paste0("[", names(x), ": ",  paste(shapedescs, collapse = ";", recycle0 = TRUE), "]")
+    return(repr)
+  }
+  paste0("[",  paste(shapedescs, collapse = ";", recycle0 = TRUE), "]")
+}
+
+test_equal = function(x, y) {
+  isTRUE(all.equal(x, y))
+}
+
+
+dataset_image = dataset("image_dataset",
+  initialize = function(uris) {
+    self$uris = uris
+  },
+  .getitem = function(x) {
+    list(x = torchvision::transform_to_tensor(magick::image_read(self$uris[x])))
+  },
+  .length = function() {
+    length(self$uris)
+  }
+)
+
+list_to_batch = function(tensors) {
+  torch_cat(map(tensors, function(x) x$unsqueeze(1)), dim = 1L)
+}
+
+auto_cache_lazy_tensors = function(lts) {
+  any(duplicated(map_chr(lts, function(x) dd(x)$dataset_hash)))
 }
 

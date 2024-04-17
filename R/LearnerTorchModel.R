@@ -26,6 +26,7 @@
 #' @family Graph Network
 #' @include LearnerTorch.R
 #' @export
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 #' # We show the learner using a classification task
 #'
@@ -45,7 +46,8 @@
 #'   network = network,
 #'   ingress_tokens = ingress_tokens,
 #'   batch_size = 16,
-#'   epochs = 1
+#'   epochs = 1,
+#'   device = "cpu"
 #' )
 #'
 #' # A simple train-predict
@@ -61,7 +63,7 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
       callbacks = list(), packages = character(0), feature_types = NULL) {
       # TODO: What about the learner properties?
       private$.network_stored = assert_class(network, "nn_module")
-      private$.ingress_tokens = assert_list(ingress_tokens, types = "TorchIngressToken")
+      private$.ingress_tokens = assert_list(ingress_tokens, types = "TorchIngressToken", min.len = 1L)
       if (is.null(feature_types)) {
         feature_types = unname(mlr_reflections$task_feature_types)
       } else {
@@ -103,5 +105,10 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
   )
 )
 
-register_learner("classif.torch_model", LearnerTorchModel)
-register_learner("regr.torch_model", LearnerTorchModel)
+#' @include PipeOpTorchIngress.R task_dataset.R
+register_learner("classif.torch_model", LearnerTorchModel, network = nn_identity(),
+  ingress_tokens = list(x = TorchIngressToken("x", batchgetter_num, c(NA, 1))
+))
+register_learner("regr.torch_model", LearnerTorchModel, network = nn_identity(),
+  ingress_tokens = list(x = TorchIngressToken("x", batchgetter_num, c(NA, 1)))
+)

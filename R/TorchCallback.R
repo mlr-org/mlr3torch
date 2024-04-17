@@ -149,6 +149,7 @@ as_torch_callbacks.character = function(x, clone = FALSE, ...) { # nolint
 #' @family Torch Descriptor
 #'
 #' @export
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 #' # Create a new torch callback from an existing callback set
 #' torch_callback = TorchCallback$new(CallbackSetCheckpoint)
@@ -247,6 +248,7 @@ TorchCallback = R6Class("TorchCallback",
 #' @return [`TorchCallback`]
 #' @include zzz.R CallbackSet.R
 #' @family Callback
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 #' custom_tcb = torch_callback("custom",
 #'   initialize = function(name) {
@@ -264,7 +266,8 @@ TorchCallback = R6Class("TorchCallback",
 #'   batch_size = 16,
 #'   epochs = 1,
 #'   callbacks = custom_tcb,
-#'   cb.custom.name = "Marie"
+#'   cb.custom.name = "Marie",
+#'   device = "cpu"
 #' )
 #' task = tsk("iris")
 #' learner$train(task)

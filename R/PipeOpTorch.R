@@ -5,7 +5,7 @@
 #' @description
 #' `PipeOpTorch` is the base class for all [`PipeOp`]s that represent neural network layers in a [`Graph`].
 #' During **training**, it generates a [`PipeOpModule`] that wraps an [`nn_module`][torch::nn_module] and attaches it
-#' to the isomorphic architecture, which is also represented as a [`Graph`] consisting mostly of [`PipeOpModule`]s
+#' to the architecture, which is also represented as a [`Graph`] consisting mostly of [`PipeOpModule`]s
 #' an [`PipeOpNOP`]s.
 #'
 #' While the former [`Graph`] operates on [`ModelDescriptor`]s, the latter operates on [tensors][torch_tensor].
@@ -32,7 +32,7 @@
 #'   If left as is, it calls the provided `module_generator` with the arguments obtained by
 #'   the private method `.shape_dependent_params()`.
 #' * `.shapes_out(shapes_in, param_vals, task)`\cr
-#'   (`list()`, `list()`) -> named `list()`\cr
+#'   (`list()`, `list()`, `Task` or `NULL`) -> named `list()`\cr
 #'   This private method gets a list of `numeric` vectors (`shapes_in`), the parameter values (`param_vals`),
 #'   as well as an (optional) [`Task`].
 #    The `shapes_in` list indicates the shape of input tensors that will be fed to the module's `$forward()` function.
@@ -63,7 +63,7 @@
 #' @section Internals:
 #' During training, the `PipeOpTorch` creates a [`PipeOpModule`] for the given parameter specification and the
 #' input shapes from the incoming [`ModelDescriptor`](s) using the private method `.make_module()`.
-#' The input shapes are provided by the slot `.pointer_shape` of the incoming [`ModelDescriptor`]s.
+#' The input shapes are provided by the slot `pointer_shape` of the incoming [`ModelDescriptor`]s.
 #' The channel names of this [`PipeOpModule`] are identical to the channel names of the generating [`PipeOpTorch`].
 #'
 #' A [model descriptor union][model_descriptor_union] of all incoming [`ModelDescriptor`]s is then created.
@@ -71,17 +71,18 @@
 #' The [`PipeOpModule`] is added to the [`graph`][Graph] slot of this union and the the edges that connect the
 #' sending `PipeOpModule`s to the input channel of this `PipeOpModule` are addeded to the graph.
 #' This is possible because every incoming [`ModelDescriptor`] contains the information about the
-#' `id` and the `channel` name of the sending `PipeOp` in the slot `.pointer`.
+#' `id` and the `channel` name of the sending `PipeOp` in the slot `pointer`.
 #'
 #' The new graph in the [`model_descriptor_union`] represents the current state of the neural network
-#' architecture. It is isomorphic to the subgraph that consists of all pipeops of class `PipeOpTorch` and
+#' architecture. It is structurally similar to the subgraph that consists of all pipeops of class `PipeOpTorch` and
 #' [`PipeOpTorchIngress`] that are ancestors of this `PipeOpTorch`.
 #'
-#' For the output, a shallow copy of the [`ModelDescriptor`] is created and the `.pointer` and
-#' `.pointer_shape` are updated accordingly. The shallow copy means that all [`ModelDescriptor`]s point to the same
+#' For the output, a shallow copy of the [`ModelDescriptor`] is created and the `pointer` and
+#' `pointer_shape` are updated accordingly. The shallow copy means that all [`ModelDescriptor`]s point to the same
 #' [`Graph`] which allows the graph to be modified by-reference in different parts of the code.
 #' @export
 #' @family Graph Network
+#' @examplesIf torch::torch_is_installed()
 #' @examples
 #' ## Creating a neural network
 #' # In torch
@@ -181,10 +182,10 @@
 #' task1 = task$clone()$select(paste0("Sepal.", c("Length", "Width")))
 #' task2 = task$clone()$select(paste0("Petal.", c("Length", "Width")))
 #' graph = gunion(list(po("torch_ingress_num_1"), po("torch_ingress_num_2")))
-#' mds_in = graph$train( list(task1, task2), single_input = FALSE)
+#' mds_in = graph$train(list(task1, task2), single_input = FALSE)
 #'
-#' mds_in[[1L]][c("graph", "task", "ingress", ".pointer", ".pointer_shape")]
-#' mds_in[[2L]][c("graph", "task", "ingress", ".pointer", ".pointer_shape")]
+#' mds_in[[1L]][c("graph", "task", "ingress", "pointer", "pointer_shape")]
+#' mds_in[[2L]][c("graph", "task", "ingress", "pointer", "pointer_shape")]
 #'
 #' # creating the PipeOpTorch and training it
 #' po_torch = PipeOpTorchCustom$new()
@@ -208,12 +209,12 @@
 #' identical(mds_out[[1L]]$ingress, mds_out[[2L]]$ingress)
 #' mds_out[[1L]]$ingress
 #'
-#' # The .pointer and .pointer_shape slots are different
-#' mds_out[[1L]]$.pointer
-#' mds_out[[2L]]$.pointer
+#' # The pointer and pointer_shape slots are different
+#' mds_out[[1L]]$pointer
+#' mds_out[[2L]]$pointer
 #'
-#' mds_out[[1L]]$.pointer_shape
-#' mds_out[[2L]]$.pointer_shape
+#' mds_out[[1L]]$pointer_shape
+#' mds_out[[2L]]$pointer_shape
 #'
 #' ## Prediction
 #' predict_input = list(input1 = task1, input2 = task2)
@@ -221,6 +222,8 @@
 #' identical(tasks_out[[1L]], tasks_out[[2L]])
 PipeOpTorch = R6Class("PipeOpTorch",
   inherit = PipeOp,
+  # FIXME: this has no effect because parent class is cloneable, waiting for new R6 release
+  cloneable = FALSE,
   public = list(
     #' @field module_generator (`nn_module_generator` or `NULL`)\cr
     #'    The module generator wrapped by this `PipeOpTorch`. If `NULL`, the private method
@@ -256,15 +259,11 @@ PipeOpTorch = R6Class("PipeOpTorch",
       assert_character(tags, null.ok = TRUE)
       assert_character(packages, any.missing = FALSE)
 
+      packages = union(packages, c("mlr3torch", "torch"))
       input = data.table(name = inname, train = "ModelDescriptor", predict = "Task")
       output = data.table(name = outname, train = "ModelDescriptor", predict = "Task")
 
       assert_r6(param_set, "ParamSet")
-      walk(param_set$params, function(p) {
-        if (!(("train" %in% p$tags) && !("predict" %in% p$tags))) {
-          stopf("Parameters of PipeOps inheriting from PipeOpTorch must only be active during training.")
-        }
-      })
 
       super$initialize(
         id = id,
@@ -278,9 +277,8 @@ PipeOpTorch = R6Class("PipeOpTorch",
     },
     #' @description
     #'  Calculates the output shapes for the given input shapes, parameters and task.
-    #' @param shapes_in (`list()` of `integer()` or `integer()`, task)\cr
+    #' @param shapes_in (`list()` of `integer()`)\cr
     #'   The input input shapes, which must be in the same order as the input channel names of the `PipeOp`.
-    #'  If there is only one input channel, `shapes_in` can also contain the shapes for this input channel.
     #' @param task ([`Task`] or `NULL`)\cr
     #'  The task, which is very rarely used (default is `NULL`). An exception is [`PipeOpTorchHead`].
     #' @return
@@ -289,14 +287,13 @@ PipeOpTorch = R6Class("PipeOpTorch",
     shapes_out = function(shapes_in, task = NULL) {
       assert_r6(task, "Task", null.ok = TRUE)
       if (is.numeric(shapes_in)) shapes_in = list(shapes_in)
-      if (identical(self$input$name, "...")) {
-        assert_list(shapes_in, min.len = 1, types = "numeric")
-      } else {
-        assert_list(shapes_in, len = nrow(self$input), types = "numeric")
+      # batch dimension can be known or unknown
+      assert_shapes(shapes_in, unknown_batch = NULL)
+      if ("..." %nin% self$input$name) {
+        assert_true(length(shapes_in) == nrow(self$input),
+          .var.name = "number of input shapes equal to number of input channels")
       }
-      pv = self$param_set$get_values()
-
-      set_names(private$.shapes_out(shapes_in, pv, task = task), self$output$name)
+      set_names(private$.shapes_out(shapes_in, self$param_set$get_values(), task = task), self$output$name)
     }
 
     # TODO: printer that calls the nn_module's printer
@@ -309,12 +306,11 @@ PipeOpTorch = R6Class("PipeOpTorch",
     },
     .train = function(inputs) {
       param_vals = self$param_set$get_values()
-      input_pointers = map(inputs, ".pointer")
-      input_shapes = map(inputs, ".pointer_shape")
+      input_pointers = map(inputs, "pointer")
+      input_shapes = map(inputs, "pointer_shape")
 
-      assert_shapes(input_shapes)
       # Now begin creating the result-object: it contains a merged version of all `inputs`' $graph slots etc.
-      # The only thing missing afterwards is (1) integrating module_op to the merged $graph, and adding `.pointer`s.
+      # The only thing missing afterwards is (1) integrating module_op to the merged $graph, and adding `pointer`s.
       result_template = Reduce(model_descriptor_union, inputs)
       task = result_template$task
 
@@ -336,8 +332,8 @@ PipeOpTorch = R6Class("PipeOpTorch",
       )
 
       # integrate the operation into the graph
-      result_template$graph$add_pipeop(module_op)
-      # All of the `inputs` contained possibly the same `graph`, but definitely had different `.pointer`s,
+      result_template$graph$add_pipeop(module_op, clone = FALSE)
+      # All of the `inputs` contained possibly the same `graph`, but definitely had different `pointer`s,
       # indicating the different channels from within the `graph` that should be connected to the new operation.
       vararg = "..." == module_op$input$name[[1L]]
       current_channel = "..."
@@ -352,12 +348,12 @@ PipeOpTorch = R6Class("PipeOpTorch",
       }
 
       # now we split up the result_template into one item per output channel.
-      # each output channel contains a different `.pointer` / `.pointer_shape`, referring to the
+      # each output channel contains a different `pointer` / `pointer_shape`, referring to the
       # individual outputs of the module_op.
       results = Map(shape = shapes_out, channel_id = module_op$output$name, f = function(shape, channel_id) {
         r = result_template  # unnecessary, but good for readability: result_template is not changed
-        r$.pointer = c(module_op$id, channel_id)
-        r$.pointer_shape = shape
+        r$pointer = c(module_op$id, channel_id)
+        r$pointer_shape = shape
         r
       })
       # PipeOp API requires us to only set this to some list. We set it to output shape to ease debugging.

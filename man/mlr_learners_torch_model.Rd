@@ -13,6 +13,8 @@ For classification, the output of the network must be the scores (before the sof
 }
 
 \examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{\}) # examplesIf}
 # We show the learner using a classification task
 
 # The iris task has 4 features and 3 classes
@@ -31,7 +33,8 @@ learner = lrn("classif.torch_model",
   network = network,
   ingress_tokens = ingress_tokens,
   batch_size = 16,
-  epochs = 1
+  epochs = 1,
+  device = "cpu"
 )
 
 # A simple train-predict
@@ -54,7 +57,11 @@ Other Graph Network:
 \code{\link{mlr_pipeops_torch}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},
+<<<<<<< HEAD
 \code{\link{mlr_pipeops_torch_ingress_img}},
+=======
+\code{\link{mlr_pipeops_torch_ingress_ltnsr}},
+>>>>>>> main
 \code{\link{mlr_pipeops_torch_ingress_num}},
 \code{\link{model_descriptor_to_learner}()},
 \code{\link{model_descriptor_to_module}()},

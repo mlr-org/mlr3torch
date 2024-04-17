@@ -33,12 +33,14 @@ The state is set to the input shape.
 }
 
 \examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{\}) # examplesIf}
 graph = po("select", selector = selector_type("factor")) \%>>\%
   po("torch_ingress_categ")
 task = tsk("german_credit")
-# The output is a TorchIngressToken
-token = graph$train(task)[[1L]]
-ingress = token$ingress[[1L]]
+# The output is a model descriptor
+md = graph$train(task)[[1L]]
+ingress = md$ingress[[1L]]
 ingress$batchgetter(task$data(1, ingress$features), "cpu")
 }
 \seealso{
@@ -92,6 +94,10 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_tanhshrink}},
 \code{\link{mlr_pipeops_nn_threshold}},
 \code{\link{mlr_pipeops_torch_ingress}},
+<<<<<<< HEAD
+=======
+\code{\link{mlr_pipeops_torch_ingress_ltnsr}},
+>>>>>>> main
 \code{\link{mlr_pipeops_torch_ingress_num}},
 \code{\link{mlr_pipeops_torch_loss}},
 \code{\link{mlr_pipeops_torch_model}},
@@ -105,7 +111,11 @@ Other Graph Network:
 \code{\link{mlr_pipeops_module}},
 \code{\link{mlr_pipeops_torch}},
 \code{\link{mlr_pipeops_torch_ingress}},
+<<<<<<< HEAD
 \code{\link{mlr_pipeops_torch_ingress_img}},
+=======
+\code{\link{mlr_pipeops_torch_ingress_ltnsr}},
+>>>>>>> main
 \code{\link{mlr_pipeops_torch_ingress_num}},
 \code{\link{model_descriptor_to_learner}()},
 \code{\link{model_descriptor_to_module}()},

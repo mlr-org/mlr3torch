@@ -41,7 +41,7 @@ test_that("All stages are called correctly", {
   )
   path = tempfile()
   learner = lrn("classif.mlp", batch_size = 1, epochs = 1, callbacks = cb, cb.test.path = path,
-    layers = 0, d_hidden = 1, measures_valid = msr("classif.acc"))
+    measures_valid = msr("classif.acc"))
   task$row_roles$use = 2
   task$row_roles$test = 3
 

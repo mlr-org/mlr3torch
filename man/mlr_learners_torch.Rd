@@ -24,7 +24,8 @@ The batch size.
 The number of epochs.
 \item \code{device} :: \code{character(1)}\cr
 The device. One of \code{"auto"}, \code{"cpu"}, or \code{"cuda"} or other values defined in \code{mlr_reflections$torch$devices}.
-The value is initialized to \code{"auto"}, which will select \code{"cuda"} if possible and \code{"cpu"} otherwise.
+The value is initialized to \code{"auto"}, which will select \code{"cuda"} if possible, then try \code{"mps"} and otherwise
+fall back to \code{"cpu"}.
 \item \code{measures_train} :: \code{\link{Measure}} or \code{list()} of \code{\link{Measure}}s.
 Measures to be evaluated during training.
 \item \code{measures_valid} :: \code{\link{Measure}} or \code{list()} of \code{\link{Measure}}s.
@@ -90,6 +91,9 @@ While it is possible to add parameters by specifying the \code{param_set} constr
 not possible to remove existing parameters, i.e. those listed in section \emph{Parameters}.
 None of the parameters provided in \code{param_set} can have an id that starts with \code{"loss."}, \verb{"opt.", or }"cb."`, as these are preserved for the dynamically constructed parameters of the optimizer, the loss function,
 and the callbacks.
+
+To perform additional input checks on the task, the private \code{.verify_train_task(task, param_vals)} and
+\code{.verify_predict_task(task, param_vals)} can be overwritten.
 }
 
 \seealso{

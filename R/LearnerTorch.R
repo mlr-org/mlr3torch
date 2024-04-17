@@ -80,6 +80,9 @@
 #' or `"cb."`, as these are preserved for the dynamically constructed parameters of the optimizer, the loss function,
 #' and the callbacks.
 #'
+#' To perform additional input checks on the task, the private `.verify_train_task(task, param_vals)` and
+#' `.verify_predict_task(task, param_vals)` can be overwritten.
+#'
 #' @family Learner
 #' @export
 LearnerTorch = R6Class("LearnerTorch",
@@ -88,7 +91,6 @@ LearnerTorch = R6Class("LearnerTorch",
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id, task_type, param_set, properties, man, label, feature_types,
       optimizer = NULL, loss = NULL, packages = NULL, predict_types = NULL, callbacks = list()) {
-
       assert_choice(task_type, c("regr", "classif"))
       predict_types = predict_types %??% switch(task_type,
         regr = "response",
@@ -128,7 +130,9 @@ LearnerTorch = R6Class("LearnerTorch",
         private$.optimizer$packages
       ))
 
+
       assert_subset(properties, mlr_reflections$learner_properties[[task_type]])
+      properties = union(properties, "marshal")
       assert_subset(predict_types, names(mlr_reflections$learner_predict_types[[task_type]]))
       if (any(grepl("^(loss\\.|opt\\.|cb\\.)", param_set$ids()))) {
         stopf("Prefixes 'loss.', 'opt.', and 'cb.' are reserved for dynamically constructed parameters.")
@@ -138,7 +142,7 @@ LearnerTorch = R6Class("LearnerTorch",
 
       paramset_torch = paramset_torchlearner(task_type)
       if (param_set$length > 0) {
-        private$.param_set_base = ParamSetCollection$new(list(param_set, paramset_torch))
+        private$.param_set_base = ParamSetCollection$new(sets = list(param_set, paramset_torch))
       } else {
         private$.param_set_base = paramset_torch
       }
@@ -192,9 +196,30 @@ LearnerTorch = R6Class("LearnerTorch",
       if (length(e)) {
         catn(str_indent("* Errors:", e))
       }
+    },
+    #' @description
+    #' Marshal the learner.
+    #' @param ... (any)\cr
+    #'   Additional parameters.
+    #' @return self
+    marshal = function(...) {
+      learner_marshal(.learner = self, ...)
+    },
+    #' @description
+    #' Unmarshal the learner.
+    #' @param ... (any)\cr
+    #'   Additional parameters.
+    #' @return self
+    unmarshal = function(...) {
+      learner_unmarshal(.learner = self, ...)
     }
   ),
   active = list(
+    #' @field marshaled (`logical(1)`)\cr
+    #' Whether the learner is marshaled.
+    marshaled = function() {
+      learner_marshaled(self)
+    },
     #' @field network ([`nn_module()`][torch::nn_module])\cr
     #'   The network (only available after training).
     network = function(rhs) {
@@ -208,7 +233,7 @@ LearnerTorch = R6Class("LearnerTorch",
     #'   The parameter set
     param_set = function(rhs) {
       if (is.null(private$.param_set)) {
-        private$.param_set = ParamSetCollection$new(c(
+        private$.param_set = ParamSetCollection$new(sets = c(
           list(private$.param_set_base, opt = private$.optimizer$param_set, loss = private$.loss$param_set),
           set_names(map(private$.callbacks, "param_set"), sprintf("cb.%s", ids(private$.callbacks))))
         )
@@ -231,35 +256,62 @@ LearnerTorch = R6Class("LearnerTorch",
   private = list(
     .train = function(task) {
       param_vals = self$param_set$get_values(tags = "train")
+      first_row = task$head(1)
+      measures = c(normalize_to_list(param_vals$measures_train), normalize_to_list(param_vals$measures_valid))
+      available_predict_types = mlr_reflections$learner_predict_types[[self$task_type]][[self$predict_type]]
+      walk(measures, function(m) {
+        if (m$predict_type %nin% available_predict_types) {
+          stopf(paste0("Measure '%s' requires predict type '%s' but learner has '%s'.\n",
+              "Change the predict type or select other measures."),
+            m$id, m$predict_type, self$predict_type)
+        }
+      })
+
+      iwalk(first_row, function(x, nm) {
+        if (!is_lazy_tensor(x)) return(NULL)
+        predict_shape = dd(x)$pointer_shape_predict
+        train_shape = dd(x)$pointer_shape
+        if (is.null(train_shape) || is.null(predict_shape)) {
+          return(NULL)
+        }
+        if (!isTRUE(all.equal(train_shape, predict_shape))) {
+          stopf("Lazy tensor column '%s' has a different shape during training (%s) and prediction (%s).",
+            nm, paste0(train_shape, collapse = "x"), paste0(predict_shape, collapse = "x"))
+        }
+      })
+      private$.verify_train_task(task, param_vals)
+
       param_vals$device = auto_device(param_vals$device)
       if (param_vals$seed == "random") param_vals$seed = sample.int(10000000L, 1L)
 
       model = with_torch_settings(seed = param_vals$seed, num_threads = param_vals$num_threads, {
         learner_torch_train(self, private, super, task, param_vals)
       })
-      model$task_col_info = copy(task$col_info)
+      model$task_col_info = copy(task$col_info[c(task$feature_names, task$target_names), c("id", "type", "levels")])
       return(model)
     },
     .predict = function(task) {
-      # FIXME: https://github.com/mlr-org/mlr3/issues/946
-      # This addresses the issues with the facto lrvels and is only a temporary fix
-      # Should be handled outside of mlr3torch
-      # Ideally we could rely on state$train_task, but there is this bug
-      # https://github.com/mlr-org/mlr3/issues/947
+      param_vals = self$param_set$get_values(tags = "predict")
       cols = c(task$feature_names, task$target_names)
       ci_predict = task$col_info[get("id") %in% cols, c("id", "type", "levels")]
       ci_train = self$model$task_col_info[get("id") %in% cols, c("id", "type", "levels")]
+      # permuted factor levels cause issues, because we are converting fct -> int
+      # FIXME: https://github.com/mlr-org/mlr3/issues/946
+      # This addresses the issues with the factor levels and is only a temporary fix
+      # Should be handled outside of mlr3torch
+      # Ideally we could rely on state$train_task, but there is this complication
+      # https://github.com/mlr-org/mlr3/issues/947
+      param_vals$device = auto_device(param_vals$device)
       if (!test_equal_col_info(ci_train, ci_predict)) { # nolint
         stopf(paste0(
-          "Predict task's `$col_info` does not match the train tasks' column info.\n",
-          "This will be handled more gracefully in the future.\n",
+          "Predict task's column info does not match the train task's column info.\n",
+          "This migth be handled more gracefully in the future.\n",
           "Training column info:\n'%s'\n",
           "Prediction column info:\n'%s'"),
           paste0(capture.output(ci_train), collapse = "\n"),
           paste0(capture.output(ci_predict), collapse = "\n"))
       }
-      param_vals = self$param_set$get_values(tags = "predict")
-      param_vals$device = auto_device(param_vals$device)
+      private$.verify_predict_task(task, param_vals)
 
       with_torch_settings(seed = self$model$seed, num_threads = param_vals$num_threads, {
         learner_torch_predict(self, private, super, task, param_vals)
@@ -287,28 +339,23 @@ LearnerTorch = R6Class("LearnerTorch",
       param_vals_test = insert_named(param_vals, list(shuffle = FALSE, drop_last = FALSE))
       private$.dataloader(task, param_vals_test)
     },
-    .bundle = function(model) {
-      # FIXME: Ignore optimizer, loss_fn for the time being
-      # TODO: check torch version (?)
-      model$network = torch_serialize(model$network)
-      model
-    },
-    .unbundle = function(model) {
-      model$network = torch_load(model$network)
-      model
-    },
     .dataset = function(task, param_vals) stop(".dataset must be implemented."),
     .optimizer = NULL,
     .loss = NULL,
     .param_set_base = NULL,
     .callbacks = NULL,
+    .verify_train_task = function(task, param_vals) NULL,
+    .verify_predict_task = function(task, param_vals) NULL,
     deep_clone = function(name, value) deep_clone(self, private, super, name, value)
   )
 )
 
 #' @export
 marshal_model.learner_torch_state = function(model, inplace = FALSE, ...) {
+  # FIXME: optimizer and loss_fn
   model$network = torch_serialize(model$network)
+  model$loss_fn = torch_serialize(model$loss_fn)
+  model$optimizer = torch_serialize(model$optimizer)
 
   structure(list(
     marshaled = model,
@@ -320,6 +367,8 @@ marshal_model.learner_torch_state = function(model, inplace = FALSE, ...) {
 unmarshal_model.learner_torch_state_marshaled = function(model, inplace = FALSE, device = "cpu", ...) {
   model = model$marshaled
   model$network = torch_load(model$network, device = device)
+  model$loss_fn = torch_load(model$loss_fn, device = device)
+  model$optimizer = torch_load(model$optimizer, device = device)
   return(model)
 }
 

@@ -31,7 +31,7 @@ test_that("torch_network_predict works", {
     feature_ingress_tokens = ingress1,
     target_batchgetter = crate(function(data, device) {
       torch_tensor(data = as.integer(data[[1]]), dtype = torch_long(), device = device)
-    }, .parent = topenv()),
+    }),
     device = "cpu"
   )
 
@@ -54,7 +54,7 @@ test_that("torch_network_predict works", {
     feature_ingress_tokens = ingress2,
     target_batchgetter = crate(function(data, device) {
       torch_tensor(data = as.integer(data[[1]]), dtype = torch_long(), device = device)
-    }, .parent = topenv()),
+    }),
     device = "cpu"
   )
 
@@ -102,7 +102,7 @@ test_that("Test roles are respected", {
 
 test_that("learner_torch_predict works", {
   task = tsk("iris")
-  learner = lrn("classif.mlp", batch_size = 16, epochs = 1, layers = 0, device = "cpu")
+  learner = lrn("classif.mlp", batch_size = 16, epochs = 1, device = "cpu")
   dl = get_private(learner)$.dataloader(task, learner$param_set$values)
 
   network = get_private(learner)$.network(task, learner$param_set$values)

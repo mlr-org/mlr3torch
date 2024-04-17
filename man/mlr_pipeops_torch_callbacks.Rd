@@ -31,6 +31,8 @@ During training the callbacks are cloned and added to the \code{\link{ModelDescr
 }
 
 \examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{\}) # examplesIf}
 po_cb = po("torch_callbacks", "checkpoint")
 po_cb$param_set
 mdin = po("torch_ingress_num")$train(list(tsk("iris")))
@@ -51,7 +53,6 @@ Other Model Configuration:
 
 Other PipeOp: 
 \code{\link{mlr_pipeops_module}},
-\code{\link{mlr_pipeops_torch_ingress_img}},
 \code{\link{mlr_pipeops_torch_optimizer}}
 }
 \concept{Model Configuration}
