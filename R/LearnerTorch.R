@@ -217,7 +217,8 @@ LearnerTorch = R6Class("LearnerTorch",
   active = list(
     #' @field marshaled (`logical(1)`)\cr
     #' Whether the learner is marshaled.
-    marshaled = function() {
+    marshaled = function(rhs) {
+      assert_ro_binding(rhs)
       learner_marshaled(self)
     },
     #' @field network ([`nn_module()`][torch::nn_module])\cr
@@ -287,6 +288,7 @@ LearnerTorch = R6Class("LearnerTorch",
       model = with_torch_settings(seed = param_vals$seed, num_threads = param_vals$num_threads, {
         learner_torch_train(self, private, super, task, param_vals)
       })
+      browser()
       model$task_col_info = copy(task$col_info[c(task$feature_names, task$target_names), c("id", "type", "levels")])
       return(model)
     },
@@ -360,7 +362,7 @@ marshal_model.learner_torch_state = function(model, inplace = FALSE, ...) {
   structure(list(
     marshaled = model,
     packages = "mlr3torch"
-  ), class = c("learner_torch_state", "list"))
+  ), class = c("learner_torch_state_marshaled", "list_marshaled", "marshaled"))
 }
 
 #' @export
