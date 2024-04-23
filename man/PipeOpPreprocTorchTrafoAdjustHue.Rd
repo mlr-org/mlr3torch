@@ -17,7 +17,7 @@ The preprocessing is applied row wise (no batch dimension).
    Id \tab Type \tab Default \tab Levels \tab Range \cr
    hue_factor \tab numeric \tab - \tab  \tab \eqn{[-0.5, 0.5]}{[-0.5, 0.5]} \cr
    stages \tab character \tab - \tab train, predict, both \tab - \cr
-   affect_columns \tab untyped \tab selector_all \tab  \tab - \cr
+   affect_columns \tab untyped \tab selector_all() \tab  \tab - \cr
 }
 }
 

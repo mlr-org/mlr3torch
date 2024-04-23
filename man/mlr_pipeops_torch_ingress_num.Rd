@@ -43,11 +43,7 @@ Other Graph Network:
 \code{\link{mlr_pipeops_torch}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},
-<<<<<<< HEAD
-\code{\link{mlr_pipeops_torch_ingress_img}},
-=======
 \code{\link{mlr_pipeops_torch_ingress_ltnsr}},
->>>>>>> main
 \code{\link{model_descriptor_to_learner}()},
 \code{\link{model_descriptor_to_module}()},
 \code{\link{model_descriptor_union}()},
@@ -104,10 +100,7 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_threshold}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},
-<<<<<<< HEAD
-=======
 \code{\link{mlr_pipeops_torch_ingress_ltnsr}},
->>>>>>> main
 \code{\link{mlr_pipeops_torch_loss}},
 \code{\link{mlr_pipeops_torch_model}},
 \code{\link{mlr_pipeops_torch_model_classif}},

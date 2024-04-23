@@ -288,7 +288,6 @@ LearnerTorch = R6Class("LearnerTorch",
       model = with_torch_settings(seed = param_vals$seed, num_threads = param_vals$num_threads, {
         learner_torch_train(self, private, super, task, param_vals)
       })
-      browser()
       model$task_col_info = copy(task$col_info[c(task$feature_names, task$target_names), c("id", "type", "levels")])
       return(model)
     },

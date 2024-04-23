@@ -16,11 +16,11 @@ The preprocessing is applied row wise (no batch dimension).
 \tabular{lllll}{
    Id \tab Type \tab Default \tab Levels \tab Range \cr
    size \tab untyped \tab - \tab  \tab - \cr
-   scale \tab untyped \tab c   , 0.08, 1 \tab  \tab - \cr
-   ratio \tab untyped \tab c  , 3/4, 4/3 \tab  \tab - \cr
+   scale \tab untyped \tab c(0.08, 1) \tab  \tab - \cr
+   ratio \tab untyped \tab c(3/4, 4/3) \tab  \tab - \cr
    interpolation \tab integer \tab 2 \tab  \tab \eqn{[0, 3]}{[0, 3]} \cr
    stages \tab character \tab - \tab train, predict, both \tab - \cr
-   affect_columns \tab untyped \tab selector_all \tab  \tab - \cr
+   affect_columns \tab untyped \tab selector_all() \tab  \tab - \cr
 }
 }
 

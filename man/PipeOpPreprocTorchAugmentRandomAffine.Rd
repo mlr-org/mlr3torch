@@ -16,12 +16,12 @@ The preprocessing is applied row wise (no batch dimension).
 \tabular{lllll}{
    Id \tab Type \tab Default \tab Levels \tab Range \cr
    degrees \tab untyped \tab - \tab  \tab - \cr
-   translate \tab untyped \tab  \tab  \tab - \cr
-   scale \tab untyped \tab  \tab  \tab - \cr
+   translate \tab untyped \tab NULL \tab  \tab - \cr
+   scale \tab untyped \tab NULL \tab  \tab - \cr
    resample \tab integer \tab 0 \tab  \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
    fillcolor \tab untyped \tab 0 \tab  \tab - \cr
    stages \tab character \tab - \tab train, predict, both \tab - \cr
-   affect_columns \tab untyped \tab selector_all \tab  \tab - \cr
+   affect_columns \tab untyped \tab selector_all() \tab  \tab - \cr
 }
 }
 

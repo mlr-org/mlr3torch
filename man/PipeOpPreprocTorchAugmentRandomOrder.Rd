@@ -17,7 +17,7 @@ The preprocessing is applied row wise (no batch dimension).
    Id \tab Type \tab Default \tab Levels \cr
    transforms \tab untyped \tab - \tab  \cr
    stages \tab character \tab - \tab train, predict, both \cr
-   affect_columns \tab untyped \tab selector_all \tab  \cr
+   affect_columns \tab untyped \tab selector_all() \tab  \cr
 }
 }
 
