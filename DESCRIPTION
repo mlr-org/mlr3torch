@@ -65,6 +65,8 @@ Remotes:
     mlverse/torch,
     mlr-org/paradox,
     torchvision
+    mlr-org/mlr3pipelines,
+    mlverse/torchvision
 Config/testthat/edition: 3
 NeedsCompilation: no
 ByteCompile: no
