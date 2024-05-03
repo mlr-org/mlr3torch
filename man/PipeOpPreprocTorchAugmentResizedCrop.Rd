@@ -22,7 +22,7 @@ The preprocessing is applied row wise (no batch dimension).
    size \tab untyped \tab - \tab  \tab - \cr
    interpolation \tab integer \tab 2 \tab  \tab \eqn{[0, 3]}{[0, 3]} \cr
    stages \tab character \tab - \tab train, predict, both \tab - \cr
-   affect_columns \tab untyped \tab selector_all \tab  \tab - \cr
+   affect_columns \tab untyped \tab selector_all() \tab  \tab - \cr
 }
 }
 

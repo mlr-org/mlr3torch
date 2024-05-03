@@ -187,7 +187,7 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
       private$.rowwise = assert_flag(rowwise)
       param_set = assert_param_set(param_set$clone(deep = TRUE))
 
-      param_set$add(ps(
+      param_set = c(param_set, ps(
         stages = p_fct(c("train", "predict", "both"), tags = c("train", "required"))
       ))
       param_set$set_values(stages = stages_init)

@@ -66,7 +66,8 @@ learner_torch_train = function(self, private, super, task, param_vals) {
 
   # In case the seed was "random" initially we want to make the sampled seed available in the state.
   model$seed = param_vals$seed
-  return(model)
+
+  structure(model, class = c("learner_torch_state", "list"))
 }
 
 
@@ -166,8 +167,8 @@ train_loop = function(ctx, cbs) {
   # The seed is added later
   list(
     network    = ctx$network,
-    loss_fn    = ctx$loss_fn,
-    optimizer  = ctx$optimizer,
+    loss_fn    = ctx$loss_fn$state_dict(),
+    optimizer  = ctx$optimizer$state_dict(),
     callbacks  = cbs
   )
 }

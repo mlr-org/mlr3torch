@@ -14,7 +14,7 @@ test_that("Basic checks", {
   Cbt4 = R6Class("CallbackSetTest4", public = list(initialize = function(x) NULL))
   tcb41 = TorchCallback$new(Cbt4)
   expect_identical(tcb41$param_set$ids(), "x")
-  expect_class(tcb41$param_set$params$x, "ParamUty")
+  expect_equal(tcb41$param_set$params[list("x"), "cls", on = "id"][[1L]], "ParamUty")
 
   ps42 = ps(x = p_int())
   tcb42 = TorchCallback$new(Cbt4, param_set = ps42)

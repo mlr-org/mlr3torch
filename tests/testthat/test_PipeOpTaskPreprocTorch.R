@@ -166,13 +166,13 @@ test_that("shapes_out", {
 test_that("lazy tensor modified as expected", {
   d = data.table(
     y = 1:10,
-    x = as_lazy_tensor(rnorm(10))
+    x = as_lazy_tensor(1:10)
   )
 
   taskin = as_task_regr(d, target = "y")
 
   po_test = po("preproc_torch", fn = crate(function(x, a) x + a), param_set = ps(a = p_int(tags = c("train", "required"))),
-    a = -10, rowwise = FALSE, stages_init = "both")
+    a = 10, rowwise = FALSE, stages_init = "both")
 
   taskout_train = po_test$train(list(taskin))[[1L]]
   taskout_pred = po_test$predict(list(taskin))[[1L]]
@@ -193,7 +193,7 @@ test_that("lazy tensor modified as expected", {
 
   expect_equal(
     as_array(materialize(taskin$data(cols = "x")[[1L]], rbind = TRUE)),
-    as_array(materialize(taskout_train$data(cols = "x")[[1L]], rbind = TRUE) + 10),
+    as_array(materialize(taskout_train$data(cols = "x")[[1L]], rbind = TRUE) - 10),
     tolerance = 1e-5
   )
 })

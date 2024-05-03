@@ -18,10 +18,10 @@ The preprocessing is applied row wise (no batch dimension).
    angle \tab untyped \tab - \tab  \tab - \cr
    resample \tab integer \tab 0 \tab  \tab \eqn{(-\infty, \infty)}{(-Inf, Inf)} \cr
    expand \tab logical \tab FALSE \tab TRUE, FALSE \tab - \cr
-   center \tab untyped \tab  \tab  \tab - \cr
-   fill \tab untyped \tab  \tab  \tab - \cr
+   center \tab untyped \tab NULL \tab  \tab - \cr
+   fill \tab untyped \tab NULL \tab  \tab - \cr
    stages \tab character \tab - \tab train, predict, both \tab - \cr
-   affect_columns \tab untyped \tab selector_all \tab  \tab - \cr
+   affect_columns \tab untyped \tab selector_all() \tab  \tab - \cr
 }
 }
 

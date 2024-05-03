@@ -35,7 +35,12 @@
 #'   Defaults to an empty` list()`, i.e. no callbacks.
 #'
 #' @section State:
-#' The state is a list with elements `network`, `optimizer`, `loss_fn`, `callbacks` and `seed`.
+#' The state is a list with elements:
+#'   * `network` :: The trained [network][torch::nn_module].
+#'   * `optimizer` :: The `$state_dict()` [optimizer][torch::optimizer] used to train the network.
+#'   * `loss_fn` :: The `$state_dict()` of the [loss][torch::nn_module] used to train the network.
+#'   * `callbacks` :: The [callbacks][mlr3torch::mlr_callback_set] used to train the network.
+#'   * `seed` :: The seed that was / is used for training and prediction.
 #'
 #' @template paramset_torchlearner
 #'
@@ -91,7 +96,6 @@ LearnerTorch = R6Class("LearnerTorch",
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id, task_type, param_set, properties, man, label, feature_types,
       optimizer = NULL, loss = NULL, packages = NULL, predict_types = NULL, callbacks = list()) {
-
       assert_choice(task_type, c("regr", "classif"))
       predict_types = predict_types %??% switch(task_type,
         regr = "response",
@@ -115,9 +119,6 @@ LearnerTorch = R6Class("LearnerTorch",
         private$.optimizer = as_torch_optimizer(optimizer, clone = TRUE)
       }
 
-      private$.optimizer$param_set$set_id = "opt"
-      private$.loss$param_set$set_id = "loss"
-
       callbacks = as_torch_callbacks(callbacks, clone = TRUE)
       callback_ids = ids(callbacks)
       if (!test_names(callback_ids, type = "unique")) {
@@ -127,10 +128,6 @@ LearnerTorch = R6Class("LearnerTorch",
       }
 
       private$.callbacks = set_names(callbacks, callback_ids)
-      walk(private$.callbacks, function(cb) {
-        cb$param_set$set_id = paste0("cb.", cb$id)
-      })
-
       packages = unique(c(
         packages,
         unlist(map(private$.callbacks, "packages")),
@@ -138,7 +135,9 @@ LearnerTorch = R6Class("LearnerTorch",
         private$.optimizer$packages
       ))
 
+
       assert_subset(properties, mlr_reflections$learner_properties[[task_type]])
+      properties = union(properties, "marshal")
       assert_subset(predict_types, names(mlr_reflections$learner_predict_types[[task_type]]))
       if (any(grepl("^(loss\\.|opt\\.|cb\\.)", param_set$ids()))) {
         stopf("Prefixes 'loss.', 'opt.', and 'cb.' are reserved for dynamically constructed parameters.")
@@ -148,7 +147,7 @@ LearnerTorch = R6Class("LearnerTorch",
 
       paramset_torch = paramset_torchlearner(task_type)
       if (param_set$length > 0) {
-        private$.param_set_base = ParamSetCollection$new(list(param_set, paramset_torch))
+        private$.param_set_base = ParamSetCollection$new(sets = list(param_set, paramset_torch))
       } else {
         private$.param_set_base = paramset_torch
       }
@@ -202,9 +201,31 @@ LearnerTorch = R6Class("LearnerTorch",
       if (length(e)) {
         catn(str_indent("* Errors:", e))
       }
+    },
+    #' @description
+    #' Marshal the learner.
+    #' @param ... (any)\cr
+    #'   Additional parameters.
+    #' @return self
+    marshal = function(...) {
+      learner_marshal(.learner = self, ...)
+    },
+    #' @description
+    #' Unmarshal the learner.
+    #' @param ... (any)\cr
+    #'   Additional parameters.
+    #' @return self
+    unmarshal = function(...) {
+      learner_unmarshal(.learner = self, ...)
     }
   ),
   active = list(
+    #' @field marshaled (`logical(1)`)\cr
+    #' Whether the learner is marshaled.
+    marshaled = function(rhs) {
+      assert_ro_binding(rhs)
+      learner_marshaled(self)
+    },
     #' @field network ([`nn_module()`][torch::nn_module])\cr
     #'   The network (only available after training).
     network = function(rhs) {
@@ -218,9 +239,9 @@ LearnerTorch = R6Class("LearnerTorch",
     #'   The parameter set
     param_set = function(rhs) {
       if (is.null(private$.param_set)) {
-        private$.param_set = ParamSetCollection$new(c(
-          list(private$.param_set_base, private$.optimizer$param_set, private$.loss$param_set),
-          map(private$.callbacks, "param_set"))
+        private$.param_set = ParamSetCollection$new(sets = c(
+          list(private$.param_set_base, opt = private$.optimizer$param_set, loss = private$.loss$param_set),
+          set_names(map(private$.callbacks, "param_set"), sprintf("cb.%s", ids(private$.callbacks))))
         )
       }
       private$.param_set
@@ -335,6 +356,27 @@ LearnerTorch = R6Class("LearnerTorch",
   )
 )
 
+#' @export
+marshal_model.learner_torch_state = function(model, inplace = FALSE, ...) {
+  # FIXME: optimizer and loss_fn
+  model$network = torch_serialize(model$network)
+  model$loss_fn = torch_serialize(model$loss_fn)
+  model$optimizer = torch_serialize(model$optimizer)
+
+  structure(list(
+    marshaled = model,
+    packages = "mlr3torch"
+  ), class = c("learner_torch_state_marshaled", "list_marshaled", "marshaled"))
+}
+
+#' @export
+unmarshal_model.learner_torch_state_marshaled = function(model, inplace = FALSE, device = "cpu", ...) {
+  model = model$marshaled
+  model$network = torch_load(model$network, device = device)
+  model$loss_fn = torch_load(model$loss_fn, device = device)
+  model$optimizer = torch_load(model$optimizer, device = device)
+  return(model)
+}
 
 deep_clone = function(self, private, super, name, value) {
   private$.param_set = NULL # required to keep clone identical to original, otherwise tests get really ugly

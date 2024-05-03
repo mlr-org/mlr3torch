@@ -17,7 +17,9 @@ PipeOpTorchAvgPool = R6Class("PipeOpTorchAvgPool",
         count_include_pad = p_lgl(default = TRUE, tags = "train")
       )
       if (d >= 2L) {
-        param_set$add(ParamDbl$new("divisor_override", default = NULL, lower = 0, tags = "train", special_vals = list(NULL)))
+        param_set = c(param_set, ps(
+          divisor_override = p_dbl(default = NULL, lower = 0, tags = "train", special_vals = list(NULL))
+        ))
       }
 
       super$initialize(

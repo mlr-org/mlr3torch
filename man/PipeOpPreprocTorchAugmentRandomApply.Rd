@@ -18,7 +18,7 @@ The preprocessing is applied row wise (no batch dimension).
    transforms \tab untyped \tab - \tab  \tab - \cr
    p \tab numeric \tab 0.5 \tab  \tab \eqn{[0, 1]}{[0, 1]} \cr
    stages \tab character \tab - \tab train, predict, both \tab - \cr
-   affect_columns \tab untyped \tab selector_all \tab  \tab - \cr
+   affect_columns \tab untyped \tab selector_all() \tab  \tab - \cr
 }
 }
 

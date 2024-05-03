@@ -39,7 +39,7 @@ LearnerTorchMLP = R6Class("LearnerTorchMLP",
       check_activation = crate(function(x) check_class(x, "nn_module"))
       check_activation_args = crate(function(x) check_list(x, names = "unique"))
       check_neurons = crate(function(x) check_integerish(x, any.missing = FALSE, lower = 1))
-      cechk_shape = crate(function(x) check_shape(x, null_ok = TRUE, len = 2L))
+      check_shape = crate(function(x) check_shape(x, null_ok = TRUE, len = 2L), .parent = topenv())
 
       param_set = ps(
         neurons         = p_uty(tags = c("train", "predict"), custom_check = check_neurons),

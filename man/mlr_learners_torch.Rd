@@ -12,7 +12,14 @@ It also allows to hook into the training loop via a callback mechanism.
 }
 \section{State}{
 
-The state is a list with elements \code{network}, \code{optimizer}, \code{loss_fn}, \code{callbacks} and \code{seed}.
+The state is a list with elements:
+\itemize{
+\item \code{network} :: The trained \link[torch:nn_module]{network}.
+\item \code{optimizer} :: The \verb{$state_dict()} \link[torch:optimizer]{optimizer} used to train the network.
+\item \code{loss_fn} :: The \verb{$state_dict()} of the \link[torch:nn_module]{loss} used to train the network.
+\item \code{callbacks} :: The \link[=mlr_callback_set]{callbacks} used to train the network.
+\item \code{seed} :: The seed that was / is used for training and prediction.
+}
 }
 
 \section{Parameters}{
@@ -111,6 +118,9 @@ Other Learner:
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
+\item{\code{marshaled}}{(\code{logical(1)})\cr
+Whether the learner is marshaled.}
+
 \item{\code{network}}{(\code{\link[torch:nn_module]{nn_module()}})\cr
 The network (only available after training).}
 
@@ -128,6 +138,8 @@ Shortcut for \code{learner$model$callbacks$history}.}
 \item \href{#method-LearnerTorch-new}{\code{LearnerTorch$new()}}
 \item \href{#method-LearnerTorch-format}{\code{LearnerTorch$format()}}
 \item \href{#method-LearnerTorch-print}{\code{LearnerTorch$print()}}
+\item \href{#method-LearnerTorch-marshal}{\code{LearnerTorch$marshal()}}
+\item \href{#method-LearnerTorch-unmarshal}{\code{LearnerTorch$unmarshal()}}
 \item \href{#method-LearnerTorch-clone}{\code{LearnerTorch$clone()}}
 }
 }
@@ -251,6 +263,48 @@ Prints the object.
 Currently unused.}
 }
 \if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LearnerTorch-marshal"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerTorch-marshal}{}}}
+\subsection{Method \code{marshal()}}{
+Marshal the learner.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LearnerTorch$marshal(...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{(any)\cr
+Additional parameters.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+self
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LearnerTorch-unmarshal"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerTorch-unmarshal}{}}}
+\subsection{Method \code{unmarshal()}}{
+Unmarshal the learner.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LearnerTorch$unmarshal(...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{(any)\cr
+Additional parameters.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+self
 }
 }
 \if{html}{\out{<hr>}}
