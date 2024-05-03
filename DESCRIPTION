@@ -34,7 +34,7 @@ Description: Deep Learning library that extends the mlr3 framework by building
 License: LGPL (>= 3)
 Depends:
     mlr3 (>= 0.19.0),
-    mlr3pipelines (>= 0.5.2-9000),
+    mlr3pipelines (>= 0.5.2),
     torch (>= 0.12.0),
     R (>= 3.5.0)
 Imports:
