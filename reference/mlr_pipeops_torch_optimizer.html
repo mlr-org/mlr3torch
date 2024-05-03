@@ -190,28 +190,14 @@ otherwise be set during construction.</p></dd>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">po_opt</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_optimizer"</span>, <span class="st">"sgd"</span>, lr <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">po_opt</span><span class="op">$</span><span class="va">param_set</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSet:torch_optimizer&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              id    class lower upper nlevels</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:           lr ParamDbl     0   Inf     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:     momentum ParamDbl     0     1     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:    dampening ParamDbl     0     1     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4: weight_decay ParamDbl     0     1     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:     nesterov ParamLgl    NA    NA       2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                                      default</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                                       &lt;list&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1: &lt;NoDefault&gt;\n  Public:\n    clone: function (deep = FALSE) \n    initialize: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:                                                                                         0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:                                                                                         0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:                                                                                         0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:                                                                                     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;list&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:   0.01</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSet(5)&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              id    class lower upper nlevels        default  value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;         &lt;list&gt; &lt;list&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:           lr ParamDbl     0   Inf     Inf &lt;NoDefault[0]&gt;   0.01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:     momentum ParamDbl     0     1     Inf              0       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:    dampening ParamDbl     0     1     Inf              0       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4: weight_decay ParamDbl     0     1     Inf              0       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:     nesterov ParamLgl    NA    NA       2          FALSE       </span>
 <span class="r-in"><span><span class="va">mdin</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num"</span><span class="op">)</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">mdin</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">optimizer</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>

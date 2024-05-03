@@ -256,47 +256,25 @@ otherwise be set during construction.</p></dd>
 <span class="r-in"><span><span class="va">pipeop</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_conv_transpose1d"</span>, kernel_size <span class="op">=</span> <span class="fl">3</span>, out_channels <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pipeop</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> PipeOp: &lt;nn_conv_transpose1d&gt; (not trained)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> values: &lt;kernel_size=3, out_channels=2&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> values: &lt;out_channels=2, kernel_size=3&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Input channels &lt;name [train type, predict type]&gt;:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   input [ModelDescriptor,Task]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Output channels &lt;name [train type, predict type]&gt;:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   output [ModelDescriptor,Task]</span>
 <span class="r-in"><span><span class="co"># The available parameters</span></span></span>
 <span class="r-in"><span><span class="va">pipeop</span><span class="op">$</span><span class="va">param_set</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSet:nn_conv_transpose1d&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                id    class lower upper nlevels</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:   out_channels ParamInt     1   Inf     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:    kernel_size ParamUty    NA    NA     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:         stride ParamUty    NA    NA     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:        padding ParamUty    NA    NA     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5: output_padding ParamUty    NA    NA     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6:       dilation ParamUty    NA    NA     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7:         groups ParamInt     1   Inf     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8:           bias ParamLgl    NA    NA       2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9:   padding_mode ParamFct    NA    NA       4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                                      default</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                                       &lt;list&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1: &lt;NoDefault&gt;\n  Public:\n    clone: function (deep = FALSE) \n    initialize: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2: &lt;NoDefault&gt;\n  Public:\n    clone: function (deep = FALSE) \n    initialize: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:                                                                                         1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:                                                                                         0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:                                                                                         0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6:                                                                                         1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7:                                                                                         1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8:                                                                                      TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9:                                                                                     zeros</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;list&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:      2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:      3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6:       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7:       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8:       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9:       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSet(9)&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                id    class lower upper nlevels        default  value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;         &lt;list&gt; &lt;list&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:   out_channels ParamInt     1   Inf     Inf &lt;NoDefault[0]&gt;      2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:    kernel_size ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;      3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:         stride ParamUty    NA    NA     Inf              1       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:        padding ParamUty    NA    NA     Inf              0       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5: output_padding ParamUty    NA    NA     Inf              0       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6:       dilation ParamUty    NA    NA     Inf              1       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7:         groups ParamInt     1   Inf     Inf              1       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8:           bias ParamLgl    NA    NA       2           TRUE       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9:   padding_mode ParamFct    NA    NA       4          zeros       </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

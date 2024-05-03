@@ -100,7 +100,7 @@ Items from this dictionary can be retrieved using <code><a href="t_opt.html">t_o
 
 <p>Defined by the constructor argument <code>param_set</code>.
 If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
-for each argument of the wrapped loss function, where the parametes are then of type <code>ParamUty</code>.</p>
+for each argument of the wrapped loss function, where the parametes are then of type ParamUty.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -234,28 +234,14 @@ The parameters of the network.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Packages: torch</span>
 <span class="r-in"><span><span class="co"># If the param set is not specified, parameters are inferred but are of class ParamUty</span></span></span>
 <span class="r-in"><span><span class="va">torch_opt</span><span class="op">$</span><span class="va">param_set</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSet&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              id    class lower upper nlevels</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:           lr ParamUty    NA    NA     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:        betas ParamUty    NA    NA     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:          eps ParamUty    NA    NA     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4: weight_decay ParamUty    NA    NA     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:      amsgrad ParamUty    NA    NA     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                                      default</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                                       &lt;list&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1: &lt;NoDefault&gt;\n  Public:\n    clone: function (deep = FALSE) \n    initialize: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2: &lt;NoDefault&gt;\n  Public:\n    clone: function (deep = FALSE) \n    initialize: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3: &lt;NoDefault&gt;\n  Public:\n    clone: function (deep = FALSE) \n    initialize: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4: &lt;NoDefault&gt;\n  Public:\n    clone: function (deep = FALSE) \n    initialize: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5: &lt;NoDefault&gt;\n  Public:\n    clone: function (deep = FALSE) \n    initialize: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;list&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSet(5)&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              id    class lower upper nlevels        default  value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;         &lt;list&gt; &lt;list&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:           lr ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:        betas ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:          eps ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4: weight_decay ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:      amsgrad ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;       </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># open the help page of the wrapped optimizer</span></span></span>
 <span class="r-in"><span><span class="co"># torch_opt$help()</span></span></span>
@@ -268,28 +254,14 @@ The parameters of the network.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: lr=0.1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Packages: torch</span>
 <span class="r-in"><span><span class="va">torch_opt</span><span class="op">$</span><span class="va">param_set</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSet&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              id    class lower upper nlevels</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:           lr ParamDbl     0   Inf     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:     momentum ParamDbl     0     1     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:    dampening ParamDbl     0     1     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4: weight_decay ParamDbl     0     1     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:     nesterov ParamLgl    NA    NA       2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                                      default</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                                       &lt;list&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1: &lt;NoDefault&gt;\n  Public:\n    clone: function (deep = FALSE) \n    initialize: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:                                                                                         0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:                                                                                         0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:                                                                                         0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:                                                                                     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;list&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:    0.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSet(5)&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              id    class lower upper nlevels        default  value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;         &lt;list&gt; &lt;list&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:           lr ParamDbl     0   Inf     Inf &lt;NoDefault[0]&gt;    0.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:     momentum ParamDbl     0     1     Inf              0       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:    dampening ParamDbl     0     1     Inf              0       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4: weight_decay ParamDbl     0     1     Inf              0       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:     nesterov ParamLgl    NA    NA       2          FALSE       </span>
 <span class="r-in"><span><span class="va">torch_opt</span><span class="op">$</span><span class="va">label</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Stochastic Gradient Descent"</span>
 <span class="r-in"><span><span class="va">torch_opt</span><span class="op">$</span><span class="va">id</span></span></span>
@@ -321,76 +293,30 @@ The parameters of the network.</p></dd>
 <span class="r-in"><span><span class="va">learner</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.mlp"</span>, optimizer <span class="op">=</span> <span class="fu"><a href="t_opt.html">t_opt</a></span><span class="op">(</span><span class="st">"sgd"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># The parameters of the optimizer are added to the learner's parameter set</span></span></span>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="va">param_set</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSetCollection&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                   id    class lower upper nlevels</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1:          neurons ParamUty    NA    NA     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2:                p ParamDbl     0     1     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3:       activation ParamUty    NA    NA     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  4:  activation_args ParamUty    NA    NA     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  5:            shape ParamUty    NA    NA     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6:       batch_size ParamInt     1   Inf     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  7:           epochs ParamInt     0   Inf     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  8:           device ParamFct    NA    NA      12</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  9:   measures_train ParamUty    NA    NA     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10:   measures_valid ParamUty    NA    NA     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11:        drop_last ParamLgl    NA    NA       2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12:          shuffle ParamLgl    NA    NA       2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13:      num_threads ParamInt     1   Inf     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14:             seed ParamInt  -Inf   Inf     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15:           opt.lr ParamDbl     0   Inf     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16:     opt.momentum ParamDbl     0     1     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17:    opt.dampening ParamDbl     0     1     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18: opt.weight_decay ParamDbl     0     1     Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19:     opt.nesterov ParamLgl    NA    NA       2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20:   loss.reduction ParamFct    NA    NA       2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                   id    class lower upper nlevels</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                                       default</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                                        &lt;list&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1: &lt;NoDefault&gt;\n  Public:\n    clone: function (deep = FALSE) \n    initialize: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2: &lt;NoDefault&gt;\n  Public:\n    clone: function (deep = FALSE) \n    initialize: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3: &lt;NoDefault&gt;\n  Public:\n    clone: function (deep = FALSE) \n    initialize: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  4: &lt;NoDefault&gt;\n  Public:\n    clone: function (deep = FALSE) \n    initialize: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  5: &lt;NoDefault&gt;\n  Public:\n    clone: function (deep = FALSE) \n    initialize: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6: &lt;NoDefault&gt;\n  Public:\n    clone: function (deep = FALSE) \n    initialize: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  7: &lt;NoDefault&gt;\n  Public:\n    clone: function (deep = FALSE) \n    initialize: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  8: &lt;NoDefault&gt;\n  Public:\n    clone: function (deep = FALSE) \n    initialize: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  9: &lt;NoDefault&gt;\n  Public:\n    clone: function (deep = FALSE) \n    initialize: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10: &lt;NoDefault&gt;\n  Public:\n    clone: function (deep = FALSE) \n    initialize: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11: &lt;NoDefault&gt;\n  Public:\n    clone: function (deep = FALSE) \n    initialize: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12: &lt;NoDefault&gt;\n  Public:\n    clone: function (deep = FALSE) \n    initialize: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13: &lt;NoDefault&gt;\n  Public:\n    clone: function (deep = FALSE) \n    initialize: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14: &lt;NoDefault&gt;\n  Public:\n    clone: function (deep = FALSE) \n    initialize: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15: &lt;NoDefault&gt;\n  Public:\n    clone: function (deep = FALSE) \n    initialize: function () </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16:                                                                                         0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17:                                                                                         0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18:                                                                                         0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19:                                                                                     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20:                                                                                      mean</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                                       default</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           &lt;list&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2:          0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3: &lt;nn_relu[1]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  4:    &lt;list[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  5:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  7:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  8:         auto</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  9:    &lt;list[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10:    &lt;list[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11:        FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12:         TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13:            1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14:       random</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSetCollection(20)&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   id    class lower upper nlevels        default        value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;         &lt;list&gt;       &lt;list&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1:          neurons ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2:                p ParamDbl     0     1     Inf &lt;NoDefault[0]&gt;          0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3:       activation ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt; &lt;nn_relu[1]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4:  activation_args ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;    &lt;list[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  5:            shape ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6:       batch_size ParamInt     1   Inf     Inf &lt;NoDefault[0]&gt;             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7:           epochs ParamInt     0   Inf     Inf &lt;NoDefault[0]&gt;             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  8:           device ParamFct    NA    NA      12 &lt;NoDefault[0]&gt;         auto</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9:   measures_train ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;    &lt;list[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10:   measures_valid ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;    &lt;list[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11:        drop_last ParamLgl    NA    NA       2 &lt;NoDefault[0]&gt;        FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12:          shuffle ParamLgl    NA    NA       2 &lt;NoDefault[0]&gt;         TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13:      num_threads ParamInt     1   Inf     Inf &lt;NoDefault[0]&gt;            1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14:             seed ParamInt  -Inf   Inf     Inf &lt;NoDefault[0]&gt;       random</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15:           opt.lr ParamDbl     0   Inf     Inf &lt;NoDefault[0]&gt;             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16:     opt.momentum ParamDbl     0     1     Inf              0             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17:    opt.dampening ParamDbl     0     1     Inf              0             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18: opt.weight_decay ParamDbl     0     1     Inf              0             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19:     opt.nesterov ParamLgl    NA    NA       2          FALSE             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20:   loss.reduction ParamFct    NA    NA       2           mean             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   id    class lower upper nlevels        default        value</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
