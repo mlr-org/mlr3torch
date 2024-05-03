@@ -12,7 +12,14 @@ It also allows to hook into the training loop via a callback mechanism.
 }
 \section{State}{
 
-The state is a list with elements \code{network}, \code{optimizer}, \code{loss_fn}, \code{callbacks} and \code{seed}.
+The state is a list with elements:
+\itemize{
+\item \code{network} :: The trained \link[torch:nn_module]{network}.
+\item \code{optimizer} :: The \verb{$state_dict()} \link[torch:optimizer]{optimizer} used to train the network.
+\item \code{loss_fn} :: The \verb{$state_dict()} of the \link[torch:nn_module]{loss} used to train the network.
+\item \code{callbacks} :: The \link[=mlr_callback_set]{callbacks} used to train the network.
+\item \code{seed} :: The seed that was / is used for training and prediction.
+}
 }
 
 \section{Parameters}{

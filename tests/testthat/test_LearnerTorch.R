@@ -167,8 +167,8 @@ test_that("the state of a trained network contains what it should", {
   expect_permutation(names(learner$model), c("seed", "network", "optimizer", "loss_fn", "task_col_info", "callbacks"))
   expect_true(is.integer(learner$model$seed))
   expect_class(learner$model$network, "nn_module")
-  expect_class(learner$model$loss_fn, "nn_l1_loss")
-  expect_class(learner$model$optimizer, "optim_sgd")
+  expect_class(learner$model$loss_fn, "list")
+  expect_class(learner$model$optimizer, "list")
   expect_list(learner$model$callbacks, types = "CallbackSet", len = 1L)
   expect_equal(names(learner$model$callbacks), "history1")
   expect_true(is.integer(learner$model$seed))
@@ -398,7 +398,7 @@ test_that("callr encapsulation and marshaling", {
   expect_prediction(learner$predict(task))
 
   learner = lrn("regr.mlp", batch_size = 150, epochs = 1, device = "cpu", encapsulate = c(train = "callr"),
-    layers = 1, d_hidden = 20
+    neurons = 20
   )
   learner$train(task)
   expect_prediction(learner$predict(task))

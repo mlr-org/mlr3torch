@@ -35,7 +35,12 @@
 #'   Defaults to an empty` list()`, i.e. no callbacks.
 #'
 #' @section State:
-#' The state is a list with elements `network`, `optimizer`, `loss_fn`, `callbacks` and `seed`.
+#' The state is a list with elements:
+#'   * `network` :: The trained [network][torch::nn_module].
+#'   * `optimizer` :: The `$state_dict()` [optimizer][torch::optimizer] used to train the network.
+#'   * `loss_fn` :: The `$state_dict()` of the [loss][torch::nn_module] used to train the network.
+#'   * `callbacks` :: The [callbacks][mlr3torch::mlr_callback_set] used to train the network.
+#'   * `seed` :: The seed that was / is used for training and prediction.
 #'
 #' @template paramset_torchlearner
 #'
