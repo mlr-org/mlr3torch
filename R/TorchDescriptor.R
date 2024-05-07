@@ -110,6 +110,15 @@ TorchDescriptor = R6Class("TorchDescriptor",
   private = list(
     .additional_phash_input = function() {
       stopf("Classes inheriting from Torch must implement the .additional_phash_input() method.")
+    },
+    deep_clone = function(name, value) {
+      if (name == "generator") {
+        return(value)
+      } else if (is.R6(value)) {
+        value$clone(deep = TRUE)
+      } else {
+        value
+      }
     }
   )
 )

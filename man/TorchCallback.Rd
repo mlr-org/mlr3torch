@@ -17,7 +17,7 @@ To conveniently retrieve a \code{\link{TorchCallback}}, use \code{\link[=t_clbk]
 
 Defined by the constructor argument \code{param_set}.
 If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
-for each argument of the wrapped loss function, where the parametes are then of type \link[paradox:Domain]{ParamUty}.
+for each argument of the wrapped loss function, where the parametes are then of type \code{ParamUty}.
 }
 
 \examples{

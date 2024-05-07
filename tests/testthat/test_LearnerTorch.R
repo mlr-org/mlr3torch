@@ -456,3 +456,9 @@ test_that("col_info is propertly subset when comparing task validity during pred
 
   expect_class(learner$predict(task), "PredictionClassif")
 })
+
+test_that("deep clone works", {
+  l1 = lrn("classif.mlp")
+  l2 = l1$clone(deep = TRUE)
+  expect_deep_clone(l1, l2)
+})
