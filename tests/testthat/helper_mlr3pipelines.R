@@ -32,9 +32,9 @@ expect_deep_clone = function(one, two) {
     visited[[addr_a]] = path
     visited_b[[addr_b]] = path
 
-    #if (inherits(a, "nn_module_generator") || inherits(a, "torch_optimizer_generator")) {
-    #  stopf("Not implemented yet")
-    #}
+    if (inherits(a, "nn_module_generator") || inherits(a, "torch_optimizer_generator")) {
+      return(NULL)
+    }
     if (inherits(a, "R6ClassGenerator")) {
       return(NULL)
     }

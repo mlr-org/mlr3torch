@@ -147,7 +147,7 @@ LearnerTorch = R6Class("LearnerTorch",
 
       paramset_torch = paramset_torchlearner(task_type)
       if (param_set$length > 0) {
-        private$.param_set_base = ParamSetCollection$new(sets = list(param_set, paramset_torch))
+        private$.param_set_base = ParamSetCollection$new(sets = list(param_set, paramset_torch))$flatten()
       } else {
         private$.param_set_base = paramset_torch
       }
@@ -386,14 +386,14 @@ deep_clone = function(self, private, super, name, value) {
     if (!is.null(value)) {
       stopf("Deep clone of trained network is currently not supported.")
     } else {
-      # Note that private methods are available in super.
-      super$deep_clone(name, value)
+      NULL
     }
+  } else if (is.R6(value)) {
+    value$clone(deep = TRUE)
   } else if (name == ".param_set") {
-    # Otherwise the value$clone() is called on NULL which errs
+    # mlr3::Learner's deep clone would try to deep-clone this
     NULL
   } else {
-    # Note that private methods are available in super.
     super$deep_clone(name, value)
   }
 }
