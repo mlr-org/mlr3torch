@@ -145,3 +145,13 @@ make_mlp = function(task, d_in, d_out, activation, neurons = integer(0), p, acti
 
 register_learner("regr.mlp", LearnerTorchMLP)
 register_learner("classif.mlp", LearnerTorchMLP)
+
+#' @export
+default_values.LearnerTorchMLP = function(x, search_space, task, ...) { # nolint
+  special_defaults = list(
+    batch_size = 1L,
+    epochs = 1L
+  )
+  defaults = insert_named(default_values(x$param_set), special_defaults)
+  defaults[search_space$ids()]
+}
