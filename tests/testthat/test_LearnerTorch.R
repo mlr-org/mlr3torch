@@ -462,3 +462,8 @@ test_that("deep clone works", {
   l2 = l1$clone(deep = TRUE)
   expect_deep_clone(l1, l2)
 })
+
+test_that("param set is read-only", {
+  learner = lrn("classif.mlp")
+  expect_error({learner$param_set = ps()}, "read-only")
+})

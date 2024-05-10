@@ -244,6 +244,9 @@ LearnerTorch = R6Class("LearnerTorch",
           set_names(map(private$.callbacks, "param_set"), sprintf("cb.%s", ids(private$.callbacks))))
         )
       }
+      if (!missing(rhs) && !identical(rhs, private$.param_set)) {
+        stopf("parameter set is read-only")
+      }
       private$.param_set
     },
     #' @field history ([`CallbackSetHistory`])\cr
