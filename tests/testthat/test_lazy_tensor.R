@@ -251,7 +251,7 @@ test_that("error messages: no torch tensor or no unique names", {
     .length = function() nrow(self$x)
   )()
   expect_error(
-    as_lazy_tensor(ds1, dataset_shapes = list(x = c(NA, 3, 3))),
+    as_lazy_tensor(ds1b, dataset_shapes = list(x = c(NA, 3, 3))),
     regexp = "list with named elements"
   )
 })
