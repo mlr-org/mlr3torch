@@ -11,6 +11,7 @@
 #'
 #' @param dataset ([`torch::dataset`])\cr
 #'   The torch dataset.
+#'   It should return a named `list()` of [`torch_tensor`][torch::torch_tensor] objects.
 #' @template param_dataset_shapes
 #' @param graph ([`Graph`])\cr
 #'  The preprocessing graph.
