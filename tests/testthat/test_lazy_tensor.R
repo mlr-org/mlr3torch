@@ -211,3 +211,47 @@ test_that("comparison", {
   expect_equal(x[c(1, 1)] == x, c(TRUE, FALSE))
   expect_equal(x == y, c(FALSE, FALSE))
 })
+
+test_that("error messages: no torch tensor or no unique names", {
+  ds = dataset(
+    initialize = function() self$x = torch_randn(10, 3, 3),
+    .getitem = function(i) list(x = self$x[i, ], y = sample.int(1)),
+    .length = function() nrow(self$x)
+  )()
+
+  expect_error(
+    as_lazy_tensor(ds, dataset_shapes = list(x = c(NA, 3, 3), y = NULL)),
+    regexp = "must return torch tensors"
+  )
+
+  dsb = dataset(
+    initialize = function() self$x = torch_randn(10, 3, 3),
+    .getbatch = function(i) list(x = self$x[i, , drop = FALSE], y = sample.int(1)),
+    .length = function() nrow(self$x)
+  )()
+
+  expect_error(
+    as_lazy_tensor(dsb, dataset_shapes = list(x = c(NA, 3, 3), y = NULL)),
+    regexp = "must return torch tensors"
+  )
+
+  ds1 = dataset(
+    initialize = function() self$x = torch_randn(10, 3, 3),
+    .getitem = function(i) list(self$x[i, ]),
+    .length = function() nrow(self$x)
+  )()
+  expect_error(
+    as_lazy_tensor(ds1, dataset_shapes = list(x = c(NA, 3, 3))),
+    regexp = "list with named elements"
+  )
+
+  ds1b = dataset(
+    initialize = function() self$x = torch_randn(10, 3, 3),
+    .getbatch = function(i) list(self$x[i, drop = FALSE]),
+    .length = function() nrow(self$x)
+  )()
+  expect_error(
+    as_lazy_tensor(ds1, dataset_shapes = list(x = c(NA, 3, 3))),
+    regexp = "list with named elements"
+  )
+})

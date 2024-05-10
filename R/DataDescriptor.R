@@ -230,17 +230,23 @@ assert_compatible_shapes = function(shapes, dataset) {
 
   # prevent user from e.g. forgetting to wrap the return in a list
   example = if (is.null(dataset$.getbatch)) {
-    example = dataset$.getitem(1L)
-    if (!test_list(example)) {
-      stopf("dataset must return names list")
-    }
-    map(example, function(x) x$unsqueeze(1))
+    dataset$.getitem(1L)
   } else {
     dataset$.getbatch(1L)
   }
   if (!test_list(example, names = "unique") || !test_permutation(names(example), names(shapes))) {
     stopf("Dataset must return a list with named elements that are a permutation of the dataset_shapes names.")
   }
+  iwalk(example, function(x, nm) {
+    if (!test_class(x, "torch_tensor")) {
+      stopf("The dataset must return torch tensors, but element '%s' is of class %s", nm, class(x)[[1L]])
+    }
+  })
+
+  if (is.null(dataset$.getbatch)) {
+    example = map(example, function(x) x$unsqueeze(1))
+  }
+
   iwalk(shapes, function(dataset_shape, name) {
     if (!is.null(dataset_shape) && !test_equal(shapes[[name]][-1], example[[name]]$shape[-1L])) {
       expected_shape = example[[name]]$shape
