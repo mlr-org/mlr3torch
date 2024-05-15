@@ -36,6 +36,8 @@ Deep Learning with torch and mlr3.
 
 ## Installation
 
+For more details on how to install {torch}, see [torch installation instruction](https://torch.mlverse.org/docs/articles/installation).
+
 ```{r eval = FALSE}
 # Install the development version from GitHub:
 pak::pak("mlr-org/mlr3torch")
