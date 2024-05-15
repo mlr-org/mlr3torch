@@ -20,7 +20,7 @@ status](https://www.r-pkg.org/badges/version/mlr3torch)](https://CRAN.R-project.
 
 ## Installation
 
-For more details on how to install {torch}, see [torch installation
+For more details on how to install {torch}, see the [torch installation
 instruction](https://torch.mlverse.org/docs/articles/installation).
 
 ``` r
@@ -104,7 +104,7 @@ graph_mlp
 #> Graph with 8 PipeOps:
 #>                   ID         State            sccssors         prdcssors
 #>               <char>        <char>              <char>            <char>
-#>    torch_ingress_num <<UNTRAINED>>           nn_linear                  
+#>    torch_ingress_num <<UNTRAINED>>           nn_linear
 #>            nn_linear <<UNTRAINED>>             nn_relu torch_ingress_num
 #>              nn_relu <<UNTRAINED>>             nn_head         nn_linear
 #>              nn_head <<UNTRAINED>>          torch_loss           nn_relu
@@ -164,7 +164,7 @@ materialize(
   rbind = TRUE
 )
 #> torch_tensor
-#> (1,1,.,.) = 
+#> (1,1,.,.) =
 #>     0.0000    0.0000    0.0000    0.0000    0.0000
 #>     0.0000  200.9199  228.2500    8.2000    0.0000
 #>     0.0000    0.0000  196.7500    0.0000    0.0000
