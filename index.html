@@ -111,6 +111,7 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
+<p>For more details on how to install {torch}, see <a href="https://torch.mlverse.org/docs/articles/installation" class="external-link">torch installation instruction</a>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Install the development version from GitHub:</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"mlr-org/mlr3torch"</span><span class="op">)</span></span>
@@ -170,7 +171,7 @@
 <span><span class="co">#&gt; Graph with 8 PipeOps:</span></span>
 <span><span class="co">#&gt;                   ID         State            sccssors         prdcssors</span></span>
 <span><span class="co">#&gt;               &lt;char&gt;        &lt;char&gt;              &lt;char&gt;            &lt;char&gt;</span></span>
-<span><span class="co">#&gt;    torch_ingress_num &lt;&lt;UNTRAINED&gt;&gt;           nn_linear</span></span>
+<span><span class="co">#&gt;    torch_ingress_num &lt;&lt;UNTRAINED&gt;&gt;           nn_linear                  </span></span>
 <span><span class="co">#&gt;            nn_linear &lt;&lt;UNTRAINED&gt;&gt;             nn_relu torch_ingress_num</span></span>
 <span><span class="co">#&gt;              nn_relu &lt;&lt;UNTRAINED&gt;&gt;             nn_head         nn_linear</span></span>
 <span><span class="co">#&gt;              nn_head &lt;&lt;UNTRAINED&gt;&gt;          torch_loss           nn_relu</span></span>
@@ -225,7 +226,7 @@
 <span>  rbind <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; (1,1,.,.) =</span></span>
+<span><span class="co">#&gt; (1,1,.,.) = </span></span>
 <span><span class="co">#&gt;     0.0000    0.0000    0.0000    0.0000    0.0000</span></span>
 <span><span class="co">#&gt;     0.0000  200.9199  228.2500    8.2000    0.0000</span></span>
 <span><span class="co">#&gt;     0.0000    0.0000  196.7500    0.0000    0.0000</span></span>
