@@ -78,7 +78,7 @@ The id for of the new object.}
 \item{\code{task_type}}{(\code{character(1)})\cr
 The task type.}
 
-\item{\code{param_set}}{(\code{paradox::ParamSet})\cr
+\item{\code{param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}})\cr
 The parameter set.}
 
 \item{\code{label}}{(\code{character(1)})\cr

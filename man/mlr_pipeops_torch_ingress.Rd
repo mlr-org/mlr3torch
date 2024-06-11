@@ -155,7 +155,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \item{\code{id}}{(\code{character(1)})\cr
 Identifier of the resulting  object.}
 
-\item{\code{param_set}}{(\code{paradox::ParamSet})\cr
+\item{\code{param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}})\cr
 The parameter set.}
 
 \item{\code{param_vals}}{(\code{list()})\cr

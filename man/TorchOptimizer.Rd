@@ -17,7 +17,7 @@ Items from this dictionary can be retrieved using \code{\link[=t_opt]{t_opt()}}.
 
 Defined by the constructor argument \code{param_set}.
 If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
-for each argument of the wrapped loss function, where the parametes are then of type \link[`paradox:p_uty`]{ParamUty}.
+for each argument of the wrapped loss function, where the parametes are then of type \code{\link[paradox:Domain]{ParamUty}}.
 }
 
 \examples{
