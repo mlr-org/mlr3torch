@@ -31,7 +31,15 @@ as the cache directory.
 
 \section{Meta Information}{
 
-\verb{r rd_info_task_torch("mnist", missings = FALSE)}
+\itemize{
+\item Task type: \dQuote{classif}
+\item Properties: \dQuote{multiclass}
+\item Has Missings: no
+\item Target: \dQuote{label}
+\item Features: \dQuote{image}
+\item Backend Dimension: 70000x3
+\item Default Roles (use / test / holdout): 60000, 10000, 0
+}
 }
 
 \examples{

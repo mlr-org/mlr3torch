@@ -341,6 +341,7 @@ rep.lazy_tensor = function(x, ...) {
   set_class(NextMethod(), c("lazy_tensor", "list"))
 }
 
+#' @method rep_len lazy_tensor
 #' @export
 rep_len.lazy_tensor = function(x, ...) {
   set_class(NextMethod(), c("lazy_tensor", "list"))
