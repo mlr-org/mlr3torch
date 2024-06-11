@@ -1,2 +1,2 @@
-#' @param param_set (`paradox::ParamSet`)\cr
+#' @param param_set ([`ParamSet`][paradox::ParamSet])\cr
 #'   The parameter set.

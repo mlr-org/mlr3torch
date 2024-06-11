@@ -335,3 +335,13 @@ hash_input.lazy_tensor = function(x) {
   }
   map_int(x, 1L) == map_int(y, 1L)
 }
+
+#' @export
+rep.lazy_tensor = function(x, ...) {
+  set_class(NextMethod(), c("lazy_tensor", "list"))
+}
+
+#' @export
+rep_len.lazy_tensor = function(x, ...) {
+  set_class(NextMethod(), c("lazy_tensor", "list"))
+}

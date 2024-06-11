@@ -23,15 +23,7 @@ indicates whether the row belongs to the train, validation or test set.
 
 \section{Meta Information}{
 
-\itemize{
-\item Task type: \dQuote{classif}
-\item Properties: \dQuote{multiclass}
-\item Has Missings: no
-\item Target: \dQuote{class}
-\item Features: \dQuote{image}
-\item Backend Dimension: 120000x3
-\item Default Roles (use / test / holdout): 100000, 10000, 10000
-}
+\verb{r rd_info_task_torch("tiny_imagenet", missings = FALSE)}
 }
 
 \examples{

@@ -53,7 +53,7 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
 #' If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
-#' for each argument of the wrapped loss function, where the parametes are then of type [ParamUty][`paradox::p_uty`].
+#' for each argument of the wrapped loss function, where the parametes are then of type [`ParamUty`][paradox::Domain].
 #'
 #' @family Torch Descriptor
 #' @export
