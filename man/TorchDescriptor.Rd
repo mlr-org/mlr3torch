@@ -39,7 +39,7 @@ Other Torch Descriptor:
 Label for this object.
 Can be used in tables, plot and text output instead of the ID.}
 
-\item{\code{param_set}}{(\link[paradox:ParamSet]{paradox::ParamSet})\cr
+\item{\code{param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}})\cr
 Set of hyperparameters.}
 
 \item{\code{packages}}{(\code{character(1)})\cr
@@ -100,7 +100,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \item{\code{id}}{(\code{character(1)})\cr
 The id for of the new object.}
 
-\item{\code{param_set}}{(\code{paradox::ParamSet})\cr
+\item{\code{param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}})\cr
 The parameter set.}
 
 \item{\code{packages}}{(\code{character()})\cr

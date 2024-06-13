@@ -143,7 +143,7 @@ as_torch_callbacks.character = function(x, clone = FALSE, ...) { # nolint
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
 #' If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
-#' for each argument of the wrapped loss function, where the parametes are then of type [`ParamUty`].
+#' for each argument of the wrapped loss function, where the parametes are then of type `ParamUty`.
 #'
 #' @family Callback
 #' @family Torch Descriptor

@@ -67,7 +67,7 @@ CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
         # e.g. cross_entropy loss can have weights
         torch::torch_save(self$ctx$loss_fn$state_dict(), file.path(self$path, "loss.pt"))
       }
-    },
+    }
   ),
   private = list(
     .save = function(suffix) {

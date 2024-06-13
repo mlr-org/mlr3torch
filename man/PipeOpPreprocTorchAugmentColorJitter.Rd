@@ -20,7 +20,7 @@ The preprocessing is applied row wise (no batch dimension).
    saturation \tab numeric \tab 0 \tab  \tab \eqn{[0, \infty)}{[0, Inf)} \cr
    hue \tab numeric \tab 0 \tab  \tab \eqn{[0, \infty)}{[0, Inf)} \cr
    stages \tab character \tab - \tab train, predict, both \tab - \cr
-   affect_columns \tab untyped \tab selector_all \tab  \tab - \cr
+   affect_columns \tab untyped \tab selector_all() \tab  \tab - \cr
 }
 }
 

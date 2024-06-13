@@ -19,7 +19,7 @@ The preprocessing is applied row wise (no batch dimension).
    fill \tab untyped \tab 0 \tab  \cr
    padding_mode \tab character \tab constant \tab constant, edge, reflect, symmetric \cr
    stages \tab character \tab - \tab train, predict, both \cr
-   affect_columns \tab untyped \tab selector_all \tab  \cr
+   affect_columns \tab untyped \tab selector_all() \tab  \cr
 }
 }
 

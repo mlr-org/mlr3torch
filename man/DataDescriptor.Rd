@@ -99,7 +99,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{dataset}}{(\code{\link[torch:dataset]{torch::dataset}})\cr
-The torch dataset.}
+The torch dataset.
+It should return a named \code{list()} of \code{\link[torch:torch_tensor]{torch_tensor}} objects.}
 
 \item{\code{dataset_shapes}}{(named \code{list()} of (\code{integer()} or \code{NULL}))\cr
 The shapes of the output.

@@ -53,7 +53,7 @@ CallbackSet = R6Class("CallbackSet",
       catn(str_indent("* Stages:", self$stages))
     },
     #' @description
-    #' Returns information that is kept in the the [`LearnereTorch`]'s state after training.
+    #' Returns information that is kept in the the [`LearnerTorch`]'s state after training.
     #' This information should be loadable into the callback using `$load_state_dict()` to be able to continue training.
     #' This returns `NULL` by default.
     state_dict = function() {

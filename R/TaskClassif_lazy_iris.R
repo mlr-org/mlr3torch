@@ -24,6 +24,7 @@
 #' @examplesIf torch::torch_is_installed()
 #' @examples
 #' task = tsk("lazy_iris")
+#' task
 #' df = task$data()
 #' materialize(df$x[1:6], rbind = TRUE)
 NULL

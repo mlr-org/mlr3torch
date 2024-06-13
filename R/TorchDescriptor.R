@@ -41,10 +41,10 @@ TorchDescriptor = R6Class("TorchDescriptor",
       assert_true(is.function(generator) || inherits(generator, "R6ClassGenerator"))
       self$generator = generator
       self$param_set = assert_r6(param_set, "ParamSet", null.ok = TRUE) %??% inferps(generator)
-      for (param in self$param_set$params) {
-        param$tags = union(param$tags, "train")
+      if (length(self$param_set$tags)) {
+        self$param_set$tags = map(self$param_set$tags, function(tags) union(tags, "train"))
+
       }
-      #self$param_set$tags = map(self$param_set$tags, function(tags) union(tags, "train"))
       if (is.function(generator)) {
         args = formalArgs(generator)
       } else {
@@ -109,6 +109,15 @@ TorchDescriptor = R6Class("TorchDescriptor",
   private = list(
     .additional_phash_input = function() {
       stopf("Classes inheriting from TorchDescriptor must implement the .additional_phash_input() method.")
+    },
+    deep_clone = function(name, value) {
+      if (name == "generator") {
+        return(value)
+      } else if (is.R6(value)) {
+        value$clone(deep = TRUE)
+      } else {
+        value
+      }
     }
   )
 )

@@ -79,6 +79,8 @@ The active stages of this callback set.}
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-CallbackSet-print}{\code{CallbackSet$print()}}
+\item \href{#method-CallbackSet-state_dict}{\code{CallbackSet$state_dict()}}
+\item \href{#method-CallbackSet-load_state_dict}{\code{CallbackSet$load_state_dict()}}
 \item \href{#method-CallbackSet-clone}{\code{CallbackSet$clone()}}
 }
 }
@@ -99,6 +101,28 @@ Currently unused.}
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSet-state_dict"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSet-state_dict}{}}}
+\subsection{Method \code{state_dict()}}{
+Returns information that is kept in the the \code{\link{LearnereTorch}}'s state after training.
+This information should be loadable into the callback using \verb{$load_state_dict()} to be able to continue training.
+This returns \code{NULL} by default.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackSet$state_dict()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSet-load_state_dict"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSet-load_state_dict}{}}}
+\subsection{Method \code{load_state_dict()}}{
+Loads the state dict into the callback to continue training.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackSet$load_state_dict(state_dict)}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSet-clone"></a>}}

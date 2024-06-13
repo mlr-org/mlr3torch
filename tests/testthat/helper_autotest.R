@@ -133,8 +133,8 @@ expect_pipeop_torch = function(graph, id, task, module_class = id, exclude_args 
 
 
   # parameters must only ce active during training
-  walk(po_test$param_set$params, function(p) {
-    if (!(("train" %in% p$tags) && !("predict" %in% p$tags))) {
+  walk(po_test$param_set$tags, function(tags) {
+    if (!(("train" %in% tags) && !("predict" %in% tags))) {
       stopf("Parameters of PipeOps inheriting from PipeOpTorch must only be active during training.")
     }
   })
@@ -335,8 +335,8 @@ expect_pipeop_torch_preprocess = function(obj, shapes_in, exclude = character(0)
   expect_class(obj, "PipeOpTaskPreprocTorch")
   # a) Check that all parameters but stages have tags train and predict (this should hold in basically all cases)
   # parameters must only ce active during training
-  walk(obj$param_set$params, function(p) {
-    if (!(("train" %in% p$tags) && !("predict" %in% p$tags))) {
+  walk(obj$param_set$tags, function(tags) {
+    if (!(("train" %in% tags) && !("predict" %in% tags))) {
       stopf("Parameters of PipeOps inheriting from PipeOpTorch must only be active during training.")
     }
   })

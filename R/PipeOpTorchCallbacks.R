@@ -51,7 +51,7 @@ PipeOpTorchCallbacks = R6Class("PipeOpTorchCallbacks",
       output = data.table(name = "output", train = "ModelDescriptor", predict = "Task")
       super$initialize(
         id = id,
-        param_set = alist(invoke(ParamSetCollection$new, sets = map(private$.callbacks, "param_set"))),
+        param_set = alist(ParamSetCollection$new(sets = map(private$.callbacks, "param_set"))),
         param_vals = param_vals,
         input = input,
         output = output,

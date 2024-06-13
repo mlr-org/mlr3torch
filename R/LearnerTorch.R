@@ -35,7 +35,13 @@
 #'   Defaults to an empty` list()`, i.e. no callbacks.
 #'
 #' @section Model:
-#' The Model is a list with elements `network`, `loss_state`, `optimizer_state`, `callbacks` and `seed`.
+#' The Model is a list with elements `network`, `loss`, `optimizer`, `callbacks` and `seed`.
+#' The state is a list with elements:
+#'   * `network` :: The trained [network][torch::nn_module].
+#'   * `optimizer` :: The `$state_dict()` [optimizer][torch::optimizer] used to train the network.
+#'   * `loss_fn` :: The `$state_dict()` of the [loss][torch::nn_module] used to train the network.
+#'   * `callbacks` :: The [callbacks][mlr3torch::mlr_callback_set] used to train the network.
+#'   * `seed` :: The seed that was / is used for training and prediction.
 #'
 #' @template paramset_torchlearner
 #'
@@ -91,7 +97,6 @@ LearnerTorch = R6Class("LearnerTorch",
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id, task_type, param_set, properties, man, label, feature_types,
       optimizer = NULL, loss = NULL, packages = NULL, predict_types = NULL, callbacks = list()) {
-
       assert_choice(task_type, c("regr", "classif"))
       predict_types = predict_types %??% switch(task_type,
         regr = "response",
@@ -115,8 +120,6 @@ LearnerTorch = R6Class("LearnerTorch",
         private$.optimizer = as_torch_optimizer(optimizer, clone = TRUE)
       }
 
-      private$.optimizer$param_set$set_id = "opt"
-      private$.loss$param_set$set_id = "loss"
       callbacks = as_torch_callbacks(callbacks, clone = TRUE)
       callback_ids = ids(callbacks)
       if (!test_names(callback_ids, type = "unique")) {
@@ -126,10 +129,6 @@ LearnerTorch = R6Class("LearnerTorch",
       }
 
       private$.callbacks = set_names(callbacks, callback_ids)
-      walk(private$.callbacks, function(cb) {
-        cb$param_set$set_id = paste0("cb.", cb$id)
-      })
-
       packages = unique(c(
         packages,
         unlist(map(private$.callbacks, "packages")),
@@ -137,7 +136,9 @@ LearnerTorch = R6Class("LearnerTorch",
         private$.optimizer$packages
       ))
 
+
       assert_subset(properties, mlr_reflections$learner_properties[[task_type]])
+      properties = union(properties, "marshal")
       assert_subset(predict_types, names(mlr_reflections$learner_predict_types[[task_type]]))
       if (any(grepl("^(loss\\.|opt\\.|cb\\.)", param_set$ids()))) {
         stopf("Prefixes 'loss.', 'opt.', and 'cb.' are reserved for dynamically constructed parameters.")
@@ -147,7 +148,7 @@ LearnerTorch = R6Class("LearnerTorch",
 
       paramset_torch = paramset_torchlearner(task_type)
       if (param_set$length > 0) {
-        private$.param_set_base = ParamSetCollection$new(list(param_set, paramset_torch))
+        private$.param_set_base = ParamSetCollection$new(sets = list(param_set, paramset_torch))$flatten()
       } else {
         private$.param_set_base = paramset_torch
       }
@@ -187,9 +188,31 @@ LearnerTorch = R6Class("LearnerTorch",
       catn(str_indent("* Optimizer:", private$.optimizer$id))
       catn(str_indent("* Loss:", private$.loss$id))
       catn(str_indent("* Callbacks:", if (length(private$.callbacks)) as_short_string(paste0(ids(private$.callbacks), collapse = ","), 1000L) else "-"))
+    },
+    #' @description
+    #' Marshal the learner.
+    #' @param ... (any)\cr
+    #'   Additional parameters.
+    #' @return self
+    marshal = function(...) {
+      learner_marshal(.learner = self, ...)
+    },
+    #' @description
+    #' Unmarshal the learner.
+    #' @param ... (any)\cr
+    #'   Additional parameters.
+    #' @return self
+    unmarshal = function(...) {
+      learner_unmarshal(.learner = self, ...)
     }
   ),
   active = list(
+    #' @field marshaled (`logical(1)`)\cr
+    #' Whether the learner is marshaled.
+    marshaled = function(rhs) {
+      assert_ro_binding(rhs)
+      learner_marshaled(self)
+    },
     #' @field network ([`nn_module()`][torch::nn_module])\cr
     #' Shortcut for `learner$model$network`.
     network = function(rhs) {
@@ -200,10 +223,13 @@ LearnerTorch = R6Class("LearnerTorch",
     #'   The parameter set
     param_set = function(rhs) {
       if (is.null(private$.param_set)) {
-        private$.param_set = ParamSetCollection$new(c(
-          list(private$.param_set_base, private$.optimizer$param_set, private$.loss$param_set),
-          map(private$.callbacks, "param_set"))
+        private$.param_set = ParamSetCollection$new(sets = c(
+          list(private$.param_set_base, opt = private$.optimizer$param_set, loss = private$.loss$param_set),
+          set_names(map(private$.callbacks, "param_set"), sprintf("cb.%s", ids(private$.callbacks))))
         )
+      }
+      if (!missing(rhs) && !identical(rhs, private$.param_set)) {
+        stopf("parameter set is read-only")
       }
       private$.param_set
     },
@@ -350,8 +376,8 @@ LearnerTorch = R6Class("LearnerTorch",
           value = super$deep_clone(name, value)
           value[["model"]] = list(
             network = model$network$clone(deep = TRUE),
-            loss_state = clone_recurse(model$loss_state),
-            optimizer_state = clone_recurse(model$optimizer_state),
+            loss_fn = clone_recurse(model$loss),
+            optimizer = clone_recurse(model$optimizer),
             callbacks = map(model$callbacks, function(x) x$clone(deep = TRUE)),
             seed = model$seed,
             task_col_info = copy(model$task_col_info)
@@ -374,5 +400,47 @@ clone_recurse = function(l) {
     map(l, clone_recurse)
   } else {
     return(l)
+  }
+}
+
+#' @export
+marshal_model.learner_torch_state = function(model, inplace = FALSE, ...) {
+  # FIXME: optimizer and loss_fn
+  model$network = torch_serialize(model$network)
+  model$loss_fn = torch_serialize(model$loss_fn)
+  model$optimizer = torch_serialize(model$optimizer)
+
+  structure(list(
+    marshaled = model,
+    packages = "mlr3torch"
+  ), class = c("learner_torch_state_marshaled", "list_marshaled", "marshaled"))
+}
+
+#' @export
+unmarshal_model.learner_torch_state_marshaled = function(model, inplace = FALSE, device = "cpu", ...) {
+  model = model$marshaled
+  model$network = torch_load(model$network, device = device)
+  model$loss_fn = torch_load(model$loss_fn, device = device)
+  model$optimizer = torch_load(model$optimizer, device = device)
+  return(model)
+}
+
+deep_clone = function(self, private, super, name, value) {
+  private$.param_set = NULL # required to keep clone identical to original, otherwise tests get really ugly
+
+  if (name == "state") {
+    # https://github.com/mlr-org/mlr3torch/issues/97
+    if (!is.null(value)) {
+      stopf("Deep clone of trained network is currently not supported.")
+    } else {
+      NULL
+    }
+  } else if (is.R6(value)) {
+    value$clone(deep = TRUE)
+  } else if (name == ".param_set") {
+    # mlr3::Learner's deep clone would try to deep-clone this
+    NULL
+  } else {
+    super$deep_clone(name, value)
   }
 }

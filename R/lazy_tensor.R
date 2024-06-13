@@ -1,4 +1,4 @@
-#' @title Create a lazy tesornsor
+#' @title Create a lazy tensor
 #'
 #' @description
 #' Create a lazy tensor.
@@ -334,4 +334,15 @@ hash_input.lazy_tensor = function(x) {
     return(rep(FALSE, n))
   }
   map_int(x, 1L) == map_int(y, 1L)
+}
+
+#' @export
+rep.lazy_tensor = function(x, ...) {
+  set_class(NextMethod(), c("lazy_tensor", "list"))
+}
+
+#' @method rep_len lazy_tensor
+#' @export
+rep_len.lazy_tensor = function(x, ...) {
+  set_class(NextMethod(), c("lazy_tensor", "list"))
 }

@@ -53,7 +53,7 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
 #' If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
-#' for each argument of the wrapped loss function, where the parametes are then of type [`ParamUty`].
+#' for each argument of the wrapped loss function, where the parametes are then of type [`ParamUty`][paradox::Domain].
 #'
 #' @family Torch Descriptor
 #' @export
@@ -278,7 +278,7 @@ mlr3torch_optimizers$add("sgd",
 mlr3torch_optimizers$add("asgd",
   function() {
     p = ps(
-      lr           = p_dbl(default = 1e-2, lower = 0, tags = c("required", "train")),
+      lr           = p_dbl(default = 1e-2, lower = 0, tags = "train"),
       lambda       = p_dbl(lower = 0, upper = 1, default = 1e-4, tags = "train"),
       alpha        = p_dbl(lower = 0, upper = Inf, default = 0.75, tags = "train"),
       t0           = p_int(lower = 1L, upper = Inf, default = 1e6, tags = "train"),
@@ -308,7 +308,7 @@ mlr3torch_optimizers$add("rprop",
     p = ps(
       lr         = p_dbl(default = 0.01, lower = 0, tags = "train"),
       etas       = p_uty(default = c(0.5, 1.2), tags = "train"),
-      step_sizes = p_uty(c(1e-06, 50), tags = "train")
+      step_sizes = p_uty(default = c(1e-06, 50), tags = "train")
     )
     TorchOptimizer$new(
       torch_optimizer = torch::optim_rprop,

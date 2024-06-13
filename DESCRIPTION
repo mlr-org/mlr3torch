@@ -33,20 +33,21 @@ Description: Deep Learning library that extends the mlr3 framework by building
   defined in 'mlr3pipelines'.
 License: LGPL (>= 3)
 Depends:
-    mlr3 (>= 0.16.1),
-    mlr3pipelines (>= 0.5.0),
-    torch (>= 0.11.0),
+    mlr3 (>= 0.19.0),
+    mlr3pipelines (>= 0.5.2),
+    torch (>= 0.13.0),
     R (>= 3.5.0)
 Imports:
     backports,
     checkmate (>= 2.2.0),
     coro,
-    lgr,
-    mlr3misc (>= 0.14.0),
-    methods,
     data.table,
-    paradox (>= 0.11.0),
+    lgr,
+    methods,
+    mlr3misc (>= 0.14.0),
+    paradox (>= 1.0.0),
     R6,
+    torch (>= 0.13.0),
     withr
 Suggests:
     callr,
@@ -59,6 +60,7 @@ Suggests:
     mlr3viz,
     progress,
     rmarkdown,
+    rpart,
     viridis,
     testthat (>= 3.0.0),
     torchvision,
@@ -66,8 +68,7 @@ Suggests:
 Remotes:
     mlr-org/mlr3,
     mlr-org/mlr3pipelines@feat/keep_results,
-    mlverse/torchvision,
-    mlverse/torch
+    mlverse/torchvision
 Config/testthat/edition: 3
 NeedsCompilation: no
 ByteCompile: no

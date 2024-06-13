@@ -16,10 +16,10 @@ The first column is always \code{epoch}.
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-CallbackSetHistory-on_begin}{\code{CallbackSetHistory$on_begin()}}
-\item \href{#method-CallbackSetHistory-on_end}{\code{CallbackSetHistory$on_end()}}
+\item \href{#method-CallbackSetHistory-state_dict}{\code{CallbackSetHistory$state_dict()}}
+\item \href{#method-CallbackSetHistory-load_state_dict}{\code{CallbackSetHistory$load_state_dict()}}
 \item \href{#method-CallbackSetHistory-on_before_valid}{\code{CallbackSetHistory$on_before_valid()}}
 \item \href{#method-CallbackSetHistory-on_epoch_end}{\code{CallbackSetHistory$on_epoch_end()}}
-\item \href{#method-CallbackSetHistory-plot}{\code{CallbackSetHistory$plot()}}
 \item \href{#method-CallbackSetHistory-clone}{\code{CallbackSetHistory$clone()}}
 }
 }
@@ -41,12 +41,21 @@ Initializes lists where the train and validation metrics are stored.
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackSetHistory-on_end"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackSetHistory-on_end}{}}}
-\subsection{Method \code{on_end()}}{
+\if{html}{\out{<a id="method-CallbackSetHistory-state_dict"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetHistory-state_dict}{}}}
+\subsection{Method \code{state_dict()}}{
 Converts the lists to data.tables.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetHistory$on_end()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackSetHistory$state_dict()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSetHistory-load_state_dict"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetHistory-load_state_dict}{}}}
+\subsection{Method \code{load_state_dict()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackSetHistory$load_state_dict(state_dict)}\if{html}{\out{</div>}}
 }
 
 }
@@ -69,42 +78,6 @@ Add the latest validation scores to the history.
 \if{html}{\out{<div class="r">}}\preformatted{CallbackSetHistory$on_epoch_end()}\if{html}{\out{</div>}}
 }
 
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackSetHistory-plot"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackSetHistory-plot}{}}}
-\subsection{Method \code{plot()}}{
-Plots the history.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetHistory$plot(
-  measures,
-  set = "valid",
-  epochs = NULL,
-  theme = ggplot2::theme_minimal(),
-  ...
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{measures}}{(\code{character()})\cr
-Which measures to plot. No default.}
-
-\item{\code{set}}{(\code{character(1)})\cr
-Which set to plot. Either \code{"train"} or \code{"valid"}. Default is \code{"valid"}.}
-
-\item{\code{epochs}}{(\code{integer()})\cr
-An integer vector restricting which epochs to plot. Default is \code{NULL}, which plots all epochs.}
-
-\item{\code{theme}}{(\code{\link[ggplot2:theme]{ggplot2::theme()}})\cr
-The theme, \code{\link[ggplot2:ggtheme]{ggplot2::theme_minimal()}} is the default.}
-
-\item{\code{...}}{(any)\cr
-Currently unused.}
-}
-\if{html}{\out{</div>}}
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetHistory-clone"></a>}}

@@ -57,7 +57,7 @@ test_that("Basic tests: Classification", {
   expect_equal(learner$id, "classif.test1")
   expect_equal(learner$label, "Test1 Learner")
   expect_set_equal(learner$feature_types, c("numeric", "integer"))
-  expect_set_equal(learner$properties, c("multiclass", "twoclass"))
+  expect_set_equal(learner$properties, c("multiclass", "twoclass", "marshal"))
 
   # default predict types are correct
   expect_set_equal(learner$predict_types, c("response", "prob"))
@@ -81,7 +81,7 @@ test_that("Basic tests: Regression", {
   expect_equal(learner$id, "regr.test1")
   expect_equal(learner$label, "Test1 Learner")
   expect_set_equal(learner$feature_types, c("numeric", "integer"))
-  expect_set_equal(learner$properties, c())
+  expect_set_equal(learner$properties, "marshal")
 
   # default predict types are correct
   expect_set_equal(learner$predict_types, "response")
@@ -199,12 +199,12 @@ test_that("the state of a trained network contains what it should", {
   learner$train(task)
   expect_permutation(
     names(learner$model),
-    c("seed", "network", "optimizer_state", "loss_state", "task_col_info", "callbacks")
+    c("seed", "network", "optimizer", "loss_fn", "task_col_info", "callbacks")
   )
   expect_true(is.integer(learner$model$seed))
   expect_class(learner$model$network, "nn_module")
-  expect_list(learner$model$loss_state)
-  expect_list(learner$model$optimizer_state)
+  expect_list(learner$model$loss_fn)
+  expect_list(learner$model$optimizer)
   expect_list(learner$model$callbacks, types = "CallbackSet", len = 1L)
   expect_equal(names(learner$model$callbacks), "history1")
   expect_true(is.integer(learner$model$seed))
@@ -420,6 +420,23 @@ test_that("resample() works", {
   expect_r6(rr, "ResampleResult")
 })
 
+test_that("callr encapsulation and marshaling", {
+  task = tsk("mtcars")$filter(1:5)
+  learner = lrn("regr.mlp", batch_size = 150, epochs = 1, device = "cpu", encapsulate = c(train = "callr"),
+    neurons = 20
+  )
+  learner$train(task)
+  expect_false(learner$marshaled)
+  learner$marshal()$unmarshal()
+  expect_prediction(learner$predict(task))
+
+  learner = lrn("regr.mlp", batch_size = 150, epochs = 1, device = "cpu", encapsulate = c(train = "callr"),
+    neurons = 20
+  )
+  learner$train(task)
+  expect_prediction(learner$predict(task))
+})
+
 test_that("Input verification works during `$train()` (train-predict shapes work together)", {
   task = nano_mnist()
 
@@ -471,4 +488,15 @@ test_that("col_info is propertly subset when comparing task validity during pred
   task2$cbind(data.frame(x = rnorm(150)))$select("Sepal.Length")
 
   expect_class(learner$predict(task), "PredictionClassif")
+})
+
+test_that("deep clone works", {
+  l1 = lrn("classif.mlp")
+  l2 = l1$clone(deep = TRUE)
+  expect_deep_clone(l1, l2)
+})
+
+test_that("param set is read-only", {
+  learner = lrn("classif.mlp")
+  expect_error({learner$param_set = ps()}, "read-only")
 })

@@ -16,12 +16,12 @@ The preprocessing is applied row wise (no batch dimension).
 \tabular{llll}{
    Id \tab Type \tab Default \tab Levels \cr
    size \tab untyped \tab - \tab  \cr
-   padding \tab untyped \tab  \tab  \cr
+   padding \tab untyped \tab NULL \tab  \cr
    pad_if_needed \tab logical \tab FALSE \tab TRUE, FALSE \cr
-   fill \tab untyped \tab 0 \tab  \cr
+   fill \tab untyped \tab 0L \tab  \cr
    padding_mode \tab character \tab constant \tab constant, edge, reflect, symmetric \cr
    stages \tab character \tab - \tab train, predict, both \cr
-   affect_columns \tab untyped \tab selector_all \tab  \cr
+   affect_columns \tab untyped \tab selector_all() \tab  \cr
 }
 }
 

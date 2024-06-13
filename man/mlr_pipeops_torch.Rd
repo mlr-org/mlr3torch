@@ -305,7 +305,7 @@ Identifier of the resulting  object.}
 \item{\code{module_generator}}{(\code{nn_module_generator})\cr
 The torch module generator.}
 
-\item{\code{param_set}}{(\code{paradox::ParamSet})\cr
+\item{\code{param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}})\cr
 The parameter set.}
 
 \item{\code{param_vals}}{(\code{list()})\cr

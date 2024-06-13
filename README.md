@@ -20,6 +20,9 @@ status](https://www.r-pkg.org/badges/version/mlr3torch)](https://CRAN.R-project.
 
 ## Installation
 
+For more details on how to install {torch}, see the [torch installation
+instruction](https://torch.mlverse.org/docs/articles/installation).
+
 ``` r
 # Install the development version from GitHub:
 pak::pak("mlr-org/mlr3torch")
@@ -182,10 +185,11 @@ materialize(
 ## Feature Overview
 
 - Off-the-shelf architectures are readily available as `mlr3::Learner`s.
+- Currently, supervised regression and classification is supported.
 - Custom learners can be defined using the `Graph` language from
-  `mlr3pipelines`
+  `mlr3pipelines`.
 - The package supports tabular data, as well as generic tensors via the
-  `lazy_tensor` type
+  `lazy_tensor` type.
 - Multi-modal data can be handled conveniently, as `lazy_tensor` objects
   can be stored alongside tabular data.
 - It is possible to customize the training process via (predefined or
