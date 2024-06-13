@@ -65,7 +65,7 @@ Suggests:
     waldo
 Remotes:
     mlr-org/mlr3,
-    mlr-org/mlr3pipelines@feat/keep_results,
+    mlr-org/mlr3pipelines@feat/inner_valid,
     mlverse/torchvision
 Config/testthat/edition: 3
 NeedsCompilation: no
