@@ -124,7 +124,7 @@ CallbackSet = R6Class("CallbackSet",
 #'   The function that retrieves the state dict from the callback.
 #'   This is what will be available in the learner after training.
 #' @param load_state_dict (`function(state_dict)`)\cr
-#'   Function that loads / appends a state dict to a context.
+#'   Function that loads a callback state.
 #' @param lock_objects (`logical(1)`)\cr
 #'  Whether to lock the objects of the resulting [`R6Class`].
 #'  If `FALSE` (default), values can be freely assigned to `self` without declaring them in the

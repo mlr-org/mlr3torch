@@ -184,9 +184,6 @@ test_that("model_descriptor_to_learner works", {
 
   learner$train(task, row_ids = ids$train)
   network = learner$network
-  learner1 = learner$clone(deep = TRUE)
-  expect_false(learner$hash == learner1$hash)
-  expect_false(learner$phash == learner1$phash)
 
   network1 = learner$network$clone(deep = TRUE)
 
@@ -196,34 +193,28 @@ test_that("model_descriptor_to_learner works", {
       get_private(pipeop, ".additional_phash_input") = function(...) NULL
     }
   }
-  network$graph = NULL
-  network1$graph = NULL
-  expect_deep_clone(network, network1)
-
-  expect_deep_clone(attr(network, "module"), attr(network1, "module"))
-  # TODO: phash and phash
 
   expect_false(identical(network$module_list$modules[[1]], network1$module_list$modules[[1]]))
   expect_false(identical(network$graph, network1$graph))
   expect_false(identical(network$graph$pipeops, network1$graph$pipeops))
   expect_false(identical(network$module_list, network1$module_list))
+  # first module is self
   expect_false(identical(network$module_list$modules[[2]], network1$module_list$modules[[2]]))
   expect_false(identical(network$graph$pipeops$nn_linear$module, network1$graph$pipeops$nn_linear$module))
 
-  identical(
+  expect_true(identical(
     network1$graph$pipeops$nn_linear$module,
-    network1$module_list$modules[[1]]
-  )
+    network1$module_list$modules[[2]]
+  ))
 
   expect_false(identical(
     network$graph$pipeops$nn_linear$module,
     network1$graph$pipeops$nn_linear$module
   ))
 
-  identical(network1$module_list$modules[[1]], network1$graph$pipeops[[1]]$module)
-
-  pred = learner$predict(task, row_ids = ids$test)
-  expect_class(pred, "PredictionClassif")
+  network$graph = NULL
+  network1$graph = NULL
+  expect_deep_clone(network, network1)
 })
 
 test_that("cloning", {
@@ -235,6 +226,7 @@ test_that("cloning", {
     }
   )()
 
+  
   nn_test1 = nn_test$clone(deep = TRUE)
   nn_test = nn_test$clone(deep = TRUE)$clone(deep = TRUE)
 

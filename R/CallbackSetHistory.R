@@ -29,7 +29,7 @@ CallbackSetHistory = R6Class("CallbackSetHistory",
     },
     #' @description
     #' Sets the field `$train` and `$valid` to those contained in the state dict.
-    #' @param state_dict ([`callback_state_history`])\cr
+    #' @param state_dict (`callback_state_history`)\cr
     #'   The state dict as retrieved via `$state_dict()`.
     load_state_dict = function(state_dict) {
       assert_class(state_dict, "callback_state_history")

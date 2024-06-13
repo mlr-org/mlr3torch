@@ -62,7 +62,7 @@ The function that retrieves the state dict from the callback.
 This is what will be available in the learner after training.}
 
 \item{load_state_dict}{(\verb{function(state_dict)})\cr
-Function that loads / appends a state dict to a context.}
+Function that loads a callback state.}
 
 \item{initialize}{(\verb{function()})\cr
 The initialization method of the callback.}

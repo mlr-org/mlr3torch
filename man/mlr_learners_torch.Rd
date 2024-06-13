@@ -12,8 +12,7 @@ It also allows to hook into the training loop via a callback mechanism.
 }
 \section{Model}{
 
-The Model is a list with elements \code{network}, \code{loss}, \code{optimizer}, \code{callbacks} and \code{seed}.
-The state is a list with elements:
+The Model is a list of class \code{"learner_torch_model"} with the following elements:
 \itemize{
 \item \code{network} :: The trained \link[torch:nn_module]{network}.
 \item \code{optimizer} :: The \verb{$state_dict()} \link[torch:optimizer]{optimizer} used to train the network.
@@ -103,6 +102,9 @@ and the callbacks.
 
 To perform additional input checks on the task, the private \code{.verify_train_task(task, param_vals)} and
 \code{.verify_predict_task(task, param_vals)} can be overwritten.
+
+For learners that have other construction arguments that should change the hash of a learner, it is possible
+to implement the private \verb{$.additional_phash_input()}.
 }
 
 \seealso{
@@ -128,6 +130,13 @@ Shortcut for \code{learner$model$network}.}
 
 \item{\code{param_set}}{(\code{\link{ParamSet}})\cr
 The parameter set}
+
+\item{\code{hash}}{(\code{character(1)})\cr
+Hash (unique identifier) for this object.}
+
+\item{\code{phash}}{(\code{character(1)})\cr
+Hash (unique identifier) for this partial object, excluding some components
+which are varied systematically during tuning (parameter values).}
 }
 \if{html}{\out{</div>}}
 }

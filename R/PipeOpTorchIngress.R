@@ -159,6 +159,11 @@ TorchIngressToken = function(features, batchgetter, shape) {
 }
 
 #' @export
+hash_input.TorchIngressToken = function(x) {
+  list(x$features, x$shape, hash_input(x$batchgetter))
+}
+
+#' @export
 print.TorchIngressToken = function(x, ...) {
   cat(sprintf("Ingress: Task[%s] --> Tensor(%s)\n", str_collapse(x$features, n = 3, sep = ","), str_collapse(x$shape)))
 }

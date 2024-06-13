@@ -35,8 +35,7 @@
 #'   Defaults to an empty` list()`, i.e. no callbacks.
 #'
 #' @section Model:
-#' The Model is a list with elements `network`, `loss`, `optimizer`, `callbacks` and `seed`.
-#' The state is a list with elements:
+#' The Model is a list of class `"learner_torch_model"` with the following elements:
 #'   * `network` :: The trained [network][torch::nn_module].
 #'   * `optimizer` :: The `$state_dict()` [optimizer][torch::optimizer] used to train the network.
 #'   * `loss_fn` :: The `$state_dict()` of the [loss][torch::nn_module] used to train the network.
@@ -89,6 +88,9 @@
 #'
 #' To perform additional input checks on the task, the private `.verify_train_task(task, param_vals)` and
 #' `.verify_predict_task(task, param_vals)` can be overwritten.
+#'
+#' For learners that have other construction arguments that should change the hash of a learner, it is possible
+#' to implement the private `$.additional_phash_input()`.
 #'
 #' @family Learner
 #' @export
@@ -234,20 +236,35 @@ LearnerTorch = R6Class("LearnerTorch",
       }
       private$.param_set
     },
+    #' @field hash (`character(1)`)\cr
+    #' Hash (unique identifier) for this object.
     hash = function(rhs) {
        assert_ro_binding(rhs)
-       calculate_hash(self$phash, self$param_set$values)
+       calculate_hash(c(list(self$phash), self$param_set$values))
     },
+    #' @field phash (`character(1)`)\cr
+    #' Hash (unique identifier) for this partial object, excluding some components
+    #' which are varied systematically during tuning (parameter values).
     phash = function(rhs) {
       assert_ro_binding(rhs)
-      calculate_hash(super$hash,
+      calculate_hash(super$phash,
+        self$task_type,
         private$.optimizer$phash,
         private$.loss$phash,
-        map(private$.callbacks, "phash")
+        map(private$.callbacks, "phash"),
+        private$.additional_phash_input()
       )
     }
   ),
   private = list(
+    .additional_phash_input = function() {
+      if (is.null(self$initialize)) return(NULL)
+      initformals <- names(formals(args(self$initialize)))
+      if (!test_subset(initformals, c("task_type", "loss", "optimizer", "callbacks"))) {
+        stopf("Learner %s has non-standard construction arguments, implemenent .additional_phash_input()",
+        self$id)
+      }
+    },
     .train = function(task) {
       param_vals = self$param_set$get_values(tags = "train")
       first_row = task$head(1)
@@ -345,7 +362,7 @@ LearnerTorch = R6Class("LearnerTorch",
     deep_clone = function(name, value) {
       private$.param_set = NULL # required to keep clone identical to original, otherwise tests get really ugly
       # FIXME this repairs the mlr3::Learner deep_clone() method which is broken.
-      if (is.environment(value) && !is.null(value[[".__enclos_env__"]])) {
+      if (is.R6(value)) {
         return(value$clone(deep = TRUE))
       } else if (test_class(value, "nn_module")) {
         value$clone(deep = TRUE)
@@ -413,3 +430,8 @@ unmarshal_model.learner_torch_model_marshaled = function(model, inplace = FALSE,
   return(model)
 }
 
+
+#' @export
+hash_input.nn_module = function(x) {
+  data.table::address(x)
+}

@@ -89,6 +89,14 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
     }
   ),
   private = list(
+    deep_clone = function(name, value) {
+      if (name == ".network_stored" && is.null(value)) {
+        # otherwise the cloned learner starts 
+        stopf("Learner %s: Can only create deep clone for untrained learner", self$id)
+      } else {
+        super$deep_clone(name, value)
+      }
+    },
     .network = function(task, param_vals) {
       if (is.null(private$.network_stored)) {
         stopf("No network stored, did you already train learner '%s'?", self$id)
@@ -106,7 +114,10 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
       )
     },
     .network_stored = NULL,
-    .ingress_tokens = NULL
+    .ingress_tokens = NULL,
+    .additional_phash_input = function() {
+      list(self$properties, self$feature_types, private$.network_stored, self$packages, private$.ingress_tokens)
+     }
   )
 )
 

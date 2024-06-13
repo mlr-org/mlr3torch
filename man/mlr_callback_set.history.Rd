@@ -62,7 +62,7 @@ Sets the field \verb{$train} and \verb{$valid} to those contained in the state d
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{state_dict}}{(\code{\link{callback_state_history}})\cr
+\item{\code{state_dict}}{(\code{callback_state_history})\cr
 The state dict as retrieved via \verb{$state_dict()}.}
 }
 \if{html}{\out{</div>}}

@@ -507,3 +507,18 @@ test_that("param set is read-only", {
   learner = lrn("classif.mlp")
   expect_error({learner$param_set = ps()}, "read-only")
 })
+
+test_that("(p)hash", {
+  expect_eq_phash = function(x, y) expect_equal(x$phash, y$phash)
+  expect_eq_hash = function(x, y) expect_equal(x$hash, y$hash)
+  expect_ne_phash = function(x, y) expect_false(x$phash == y$phash)
+  expect_ne_hash = function(x, y) expect_false(x$hash == y$hash)
+
+  expect_ne_hash(lrn("regr.mlp"), lrn("classif.mlp"))
+  expect_ne_hash(lrn("regr.mlp"), lrn("regr.mlp", epochs = 1))
+  expect_eq_phash(lrn("regr.mlp"), lrn("regr.mlp", epochs = 1))
+
+  expect_ne_hash(lrn("regr.mlp"), lrn("regr.mlp", optimizer = "sgd"))
+  expect_ne_hash(lrn("regr.mlp", loss = "mse"), lrn("regr.mlp", loss = "l1"))
+  expect_ne_hash(lrn("regr.mlp"), lrn("regr.mlp", callbacks = t_clbk("history")))
+})
