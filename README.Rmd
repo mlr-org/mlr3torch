@@ -36,8 +36,6 @@ Deep Learning with torch and mlr3.
 
 ## Installation
 
-For more details on how to install {torch}, see the [torch installation instruction](https://torch.mlverse.org/docs/articles/installation).
-
 ```{r eval = FALSE}
 # Install the development version from GitHub:
 pak::pak("mlr-org/mlr3torch")
@@ -47,13 +45,7 @@ torch::install_torch()
 
 More information about installing `torch` can be found [here](https://torch.mlverse.org/docs/articles/installation.html).
 
-## Status
-
-`mlr3torch` is currently still in its experimental phase and many things are missing.
-Not everything will work yet and the API might change without notice.
-
 ## What is mlr3torch?
-
 
 `mlr3torch` is a deep learning framework for the [`mlr3`](https://mlr-org.com) ecosystem built on top of [`torch`](https://torch.mlverse.org/).
 It allows to easily build, train and evaluate deep learning models in a few lines of codes, without needing to worry about low-level details.

@@ -263,18 +263,18 @@ test_that("recycling in data.table", {
 })
 
 test_that("rep for lazy_tensor", {
-  expect_torch_equal(
+  expect_equal(
     materialize(rep(as_lazy_tensor(c(1, 2)), times = 2), rbind = TRUE),
     torch_tensor(matrix(c(1, 2, 1, 2), ncol = 1))
   )
-  expect_torch_equal(
+  expect_equal(
     materialize(rep(as_lazy_tensor(c(1, 2)), each = 2), rbind = TRUE),
     torch_tensor(matrix(c(1, 1, 2, 2), ncol = 1))
   )
 })
 
 test_that("rep_len for lazy_tensor", {
-  expect_torch_equal(
+  expect_equal(
     materialize(rep_len(as_lazy_tensor(c(1, 2)), length.out = 3), rbind = TRUE),
     torch_tensor(matrix(c(1, 2, 1), ncol = 1))
   )

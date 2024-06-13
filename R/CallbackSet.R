@@ -61,6 +61,8 @@ CallbackSet = R6Class("CallbackSet",
     },
     #' @description
     #' Loads the state dict into the callback to continue training.
+    #' @param state_dict (any)\cr
+    #'   The state dict as retrieved via `$state_dict()`.
     load_state_dict = function(state_dict) {
       NULL
     }
@@ -84,6 +86,10 @@ CallbackSet = R6Class("CallbackSet",
     deep_clone = function(name, value) {
       if (name == "ctx" && !is.null(value)) {
         stopf("CallbackSet instances can only be cloned when the 'ctx' is NULL.")
+      } else if (is.R6(value)) {
+        value$clone(deep = TRUE)
+      } else if (is.data.table(value)) {
+        copy(value)
       } else {
         value
       }
@@ -114,6 +120,11 @@ CallbackSet = R6Class("CallbackSet",
 #' @param inherit (`R6ClassGenerator`)\cr
 #'   From which class to inherit.
 #'   This class must either be [`CallbackSet`] (default) or inherit from it.
+#' @param state_dict (`function()`)\cr
+#'   The function that retrieves the state dict from the callback.
+#'   This is what will be available in the learner after training.
+#' @param load_state_dict (`function(state_dict)`)\cr
+#'   Function that loads / appends a state dict to a context.
 #' @param lock_objects (`logical(1)`)\cr
 #'  Whether to lock the objects of the resulting [`R6Class`].
 #'  If `FALSE` (default), values can be freely assigned to `self` without declaring them in the
@@ -139,11 +150,19 @@ callback_set = function(
   on_batch_valid_begin = NULL,
   on_batch_valid_end = NULL,
   # other methods
+  state_dict = NULL,
+  load_state_dict = NULL,
   initialize = NULL,
   public = NULL, private = NULL, active = NULL, parent_env = parent.frame(), inherit = CallbackSet,
   lock_objects = FALSE
   ) {
   assert_true(startsWith(classname, "CallbackSet"))
+  assert_true(
+    (is.null(state_dict) && is.null(load_state_dict)) ||
+    (!is.null(state_dict) && !is.null(load_state_dict))
+  )
+  assert_function(state_dict, nargs = 0, null.ok = TRUE)
+  assert_function(load_state_dict, args = "state_dict", nargs = 1, null.ok = TRUE)
   more_public = list(
     on_begin = assert_function(on_begin, nargs = 0, null.ok = TRUE),
     on_end = assert_function(on_end, nargs = 0, null.ok = TRUE),
@@ -167,6 +186,11 @@ callback_set = function(
 
   assert_list(public, null.ok = TRUE, names = "unique")
   if (length(public)) assert_names(names(public), disjunct.from = names(more_public))
+
+  if (!is.null(state_dict)) {
+    public$state_dict = state_dict
+    public$load_state_dict = load_state_dict
+  }
 
   invalid_stages = names(public)[grepl("^on_", names(public))]
 

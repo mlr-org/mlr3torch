@@ -222,7 +222,7 @@ test_that("model_descriptor_to_learner works", {
 
   identical(network1$module_list$modules[[1]], network1$graph$pipeops[[1]]$module)
 
-  pred = learner$predict(tasS, row_ids = ids$test)
+  pred = learner$predict(task, row_ids = ids$test)
   expect_class(pred, "PredictionClassif")
 })
 

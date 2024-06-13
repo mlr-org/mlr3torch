@@ -308,16 +308,8 @@ expect_torch_callback = function(torch_callback, check_man = TRUE) {
   expect_true(length(implemented_stages) > 0)
   walk(implemented_stages, function(stage) expect_function(cbgen$public_methods[[stage]], nargs = 0))
 
-  # Cloning works
-  task = tsk("iris")
-  learner = lrn("classif.torch_featureless", epochs = 1, batch_size = 50, callbacks = torch_callback)
-  # e.g. the progress callback otherwise prints to the console
-  invisible(capture.output(learner$train(task)))
-  cb_trained = learner$model$callbacks[[torch_callback$id]]
-  expect_class(cb_trained, "CallbackSet")
-  expect_deep_clone(cb_trained, cb_trained$clone(deep = TRUE))
-  cb_trained$ctx = "placeholder"
-  expect_error(cb_trained$clone(deep = TRUE), "can only be cloned")
+  cb = torch_callback$generate()
+  expect_deep_clone(cb, cb$clone(deep = TRUE))
 }
 
 #' @title Autotest for PipeOpTaskPreprocTorch

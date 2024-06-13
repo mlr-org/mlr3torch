@@ -289,6 +289,8 @@ torch_callback = function(
   on_after_backward = NULL,
   on_batch_valid_begin = NULL,
   on_batch_valid_end = NULL,
+  state_dict = NULL,
+  load_state_dict = NULL,
   # other arguments
   initialize = NULL,
   public = NULL, private = NULL, active = NULL, parent_env = parent.frame(), inherit = CallbackSet,
@@ -311,6 +313,7 @@ torch_callback = function(
     on_batch_valid_begin = on_batch_valid_begin,
     on_batch_valid_end = on_batch_valid_end,
     # other arguments
+    state_dict = state_dict, load_state_dict = load_state_dict,
     initialize = initialize,
     public = public, private = private, active = active, parent_env = parent_env, inherit = inherit,
     lock_objects = lock_objects

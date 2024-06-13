@@ -6,6 +6,7 @@
 \title{Checkpoint Callback}
 \description{
 Saves the optimizer and network states during training.
+The final learner and optimizer are always stored.
 }
 \seealso{
 Other Callback: 
@@ -49,18 +50,21 @@ Other Callback:
 \subsection{Method \code{new()}}{
 Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetCheckpoint$new(path, freq = 1)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackSetCheckpoint$new(path, freq, freq_type = "epoch")}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{path}}{(\code{character(1)})\cr
-The path to a folder where the models are saved. This path must not exist before.}
+The path to a folder where the models are saved.}
 
 \item{\code{freq}}{(\code{integer(1)})\cr
-The frequency how often the model is saved (epoch frequency).
+The frequency how often the model is saved.
 Frequency is either per step or epoch, which can be configured through the \code{freq_type} parameter.}
+
+\item{\code{freq_type}}{(\code{character(1)})\cr
+Can be be either \code{"epoch"} (default) or \code{"step"}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -91,8 +95,7 @@ Does nothing if freq_type or freq are not met.
 \if{html}{\out{<a id="method-CallbackSetCheckpoint-on_exit"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-on_exit}{}}}
 \subsection{Method \code{on_exit()}}{
-Saves the objects network and optimizer and learner if selected.
-If the learner is already saved it will not be saved again.
+Saves the learner.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CallbackSetCheckpoint$on_exit()}\if{html}{\out{</div>}}
 }

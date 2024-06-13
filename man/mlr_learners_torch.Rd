@@ -20,6 +20,7 @@ The state is a list with elements:
 \item \code{loss_fn} :: The \verb{$state_dict()} of the \link[torch:nn_module]{loss} used to train the network.
 \item \code{callbacks} :: The \link[=mlr_callback_set]{callbacks} used to train the network.
 \item \code{seed} :: The seed that was / is used for training and prediction.
+\item \code{task_col_info} :: A \code{data.table()} containing information about the train-task.
 }
 }
 
@@ -127,9 +128,6 @@ Shortcut for \code{learner$model$network}.}
 
 \item{\code{param_set}}{(\code{\link{ParamSet}})\cr
 The parameter set}
-
-\item{\code{callbacks}}{(\code{\link{CallbackSetHistory}})\cr
-Shortcut for \code{learner$model$callbacks}.}
 }
 \if{html}{\out{</div>}}
 }

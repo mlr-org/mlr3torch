@@ -54,10 +54,19 @@ Converts the lists to data.tables.
 \if{html}{\out{<a id="method-CallbackSetHistory-load_state_dict"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetHistory-load_state_dict}{}}}
 \subsection{Method \code{load_state_dict()}}{
+Sets the field \verb{$train} and \verb{$valid} to those contained in the state dict.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CallbackSetHistory$load_state_dict(state_dict)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{state_dict}}{(\code{\link{callback_state_history}})\cr
+The state dict as retrieved via \verb{$state_dict()}.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetHistory-on_before_valid"></a>}}

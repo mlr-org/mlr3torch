@@ -42,6 +42,7 @@
 #'   * `loss_fn` :: The `$state_dict()` of the [loss][torch::nn_module] used to train the network.
 #'   * `callbacks` :: The [callbacks][mlr3torch::mlr_callback_set] used to train the network.
 #'   * `seed` :: The seed that was / is used for training and prediction.
+#'   * `task_col_info` :: A `data.table()` containing information about the train-task.
 #'
 #' @template paramset_torchlearner
 #'
@@ -233,25 +234,18 @@ LearnerTorch = R6Class("LearnerTorch",
       }
       private$.param_set
     },
-    #' @field callbacks ([`CallbackSetHistory`])\cr
-    #' Shortcut for `learner$model$callbacks`.
-    callbacks = function(rhs) {
+    hash = function(rhs) {
+       assert_ro_binding(rhs)
+       calculate_hash(self$phash, self$param_set$values)
+    },
+    phash = function(rhs) {
       assert_ro_binding(rhs)
-      self$model$callbacks
+      calculate_hash(super$hash,
+        private$.optimizer$phash,
+        private$.loss$phash,
+        map(private$.callbacks, "phash")
+      )
     }
-    # hash = function(rhs) {
-    #   assert_ro_binding(rhs)
-    #   calculate_hash(super$hash, )
-    #
-    # },
-    # phash = function(rhs) {
-    #   assert_ro_binding(rhs)
-    #   calclate_hash(super$hash,
-    #     private$.optimizer$phash,
-    #     private$.loss$phash,
-    #     map(private$.callbacks, "phash")
-    #   )
-    # }
   ),
   private = list(
     .train = function(task) {
@@ -340,19 +334,7 @@ LearnerTorch = R6Class("LearnerTorch",
       private$.dataloader(task, param_vals_test)
     },
     .dataset = function(task, param_vals) {
-      task_dataset(
-        task = task,
-        feature_ingress_tokens = private$.feature_ingress_tokens(task, param_vals),
-        target_batchgetter = private$.target_batchgetter(task, param_vals),
-        device = param_vals$device
-      )
-
-    },
-    .feature_ingress_tokens = function(task, param_vals) {
-
-    },
-    .target_batchgetter = function(task, param_vals) {
-      get_target_batchgetter(task$task_type)
+      stopf(".dataset must be implememnted")
     },
     .optimizer = NULL,
     .loss = NULL,
@@ -374,14 +356,20 @@ LearnerTorch = R6Class("LearnerTorch",
           model = value$model
           value["model"] = list(NULL)
           value = super$deep_clone(name, value)
-          value[["model"]] = list(
+          value[["model"]] = set_class(list(
             network = model$network$clone(deep = TRUE),
-            loss_fn = clone_recurse(model$loss),
+            loss_fn = clone_recurse(model$loss_fn),
             optimizer = clone_recurse(model$optimizer),
-            callbacks = map(model$callbacks, function(x) x$clone(deep = TRUE)),
+            callbacks = map(model$callbacks, function(x) {
+              if (is.R6(x)) {
+                x$clone(deep = TRUE)
+              } else {
+                x
+              }
+            }),
             seed = model$seed,
             task_col_info = copy(model$task_col_info)
-          )
+          ), c("learner_torch_model", "list"))
         }
         return(value)
       } else if (name == ".param_set") {
@@ -404,7 +392,7 @@ clone_recurse = function(l) {
 }
 
 #' @export
-marshal_model.learner_torch_state = function(model, inplace = FALSE, ...) {
+marshal_model.learner_torch_model = function(model, inplace = FALSE, ...) {
   # FIXME: optimizer and loss_fn
   model$network = torch_serialize(model$network)
   model$loss_fn = torch_serialize(model$loss_fn)
@@ -413,11 +401,11 @@ marshal_model.learner_torch_state = function(model, inplace = FALSE, ...) {
   structure(list(
     marshaled = model,
     packages = "mlr3torch"
-  ), class = c("learner_torch_state_marshaled", "list_marshaled", "marshaled"))
+  ), class = c("learner_torch_model_marshaled", "list_marshaled", "marshaled"))
 }
 
 #' @export
-unmarshal_model.learner_torch_state_marshaled = function(model, inplace = FALSE, device = "cpu", ...) {
+unmarshal_model.learner_torch_model_marshaled = function(model, inplace = FALSE, device = "cpu", ...) {
   model = model$marshaled
   model$network = torch_load(model$network, device = device)
   model$loss_fn = torch_load(model$loss_fn, device = device)
@@ -425,22 +413,3 @@ unmarshal_model.learner_torch_state_marshaled = function(model, inplace = FALSE,
   return(model)
 }
 
-deep_clone = function(self, private, super, name, value) {
-  private$.param_set = NULL # required to keep clone identical to original, otherwise tests get really ugly
-
-  if (name == "state") {
-    # https://github.com/mlr-org/mlr3torch/issues/97
-    if (!is.null(value)) {
-      stopf("Deep clone of trained network is currently not supported.")
-    } else {
-      NULL
-    }
-  } else if (is.R6(value)) {
-    value$clone(deep = TRUE)
-  } else if (name == ".param_set") {
-    # mlr3::Learner's deep clone would try to deep-clone this
-    NULL
-  } else {
-    super$deep_clone(name, value)
-  }
-}

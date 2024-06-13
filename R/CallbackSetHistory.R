@@ -25,10 +25,14 @@ CallbackSetHistory = R6Class("CallbackSetHistory",
       structure(list(
         train = rbindlist(self$train, fill = TRUE),
         valid = rbindlist(self$valid, fill = TRUE)
-      ), class = "learner_torch_history")
+      ), class = "callback_state_history_history")
     },
+    #' @description
+    #' Sets the field `$train` and `$valid` to those contained in the state dict.
+    #' @param state_dict ([`callback_state_history`])\cr
+    #'   The state dict as retrieved via `$state_dict()`.
     load_state_dict = function(state_dict) {
-      assert_class(state_dict, "learner_torch_history")
+      assert_class(state_dict, "callback_state_history")
       self$train = state_dict$train
       self$valid = state_dict$valid
     },

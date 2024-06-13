@@ -84,11 +84,11 @@ test_that("Test roles are respected", {
   )
   learner$train(task)
 
-  expect_data_table(learner$callbacks$history$train, nrows = 2)
-  expect_equal(colnames(learner$callbacks$history$train), c("epoch", "classif.acc"))
+  expect_data_table(learner$model$callbacks$history$train, nrows = 2)
+  expect_equal(colnames(learner$model$callbacks$history$train), c("epoch", "classif.acc"))
 
-  expect_true(nrow(learner$callbacks$history$valid) == 0)
-  expect_equal(colnames(learner$callbacks$history$valid), "epoch")
+  expect_true(nrow(learner$model$callbacks$history$valid) == 0)
+  expect_equal(colnames(learner$model$callbacks$history$valid), "epoch")
 
   learner = lrn("classif.torch_featureless", epochs = 2, batch_size = 1, measures_train = msrs(c("classif.acc")),
     measures_valid = msr("classif.bacc"), callbacks = t_clbk("history")
@@ -96,8 +96,8 @@ test_that("Test roles are respected", {
 
   learner$train(task)
 
-  expect_true(nrow(learner$callbacks$history$train) == 2)
-  expect_true(nrow(learner$callbacks$history$valid) == 2)
+  expect_true(nrow(learner$model$callbacks$history$train) == 2)
+  expect_true(nrow(learner$model$callbacks$history$valid) == 2)
 })
 
 test_that("learner_torch_predict works", {

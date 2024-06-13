@@ -47,7 +47,6 @@ Imports:
     mlr3misc (>= 0.14.0),
     paradox (>= 1.0.0),
     R6,
-    torch (>= 0.13.0),
     withr
 Suggests:
     callr,
@@ -132,7 +131,6 @@ Collate:
     'merge_graphs.R'
     'nn_graph.R'
     'paramset_torchlearner.R'
-    'patch.R'
     'preprocess.R'
     'rd_info.R'
     'reset_last_layer.R'
