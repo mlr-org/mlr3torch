@@ -8,6 +8,10 @@
 Saves the optimizer and network states during training.
 The final learner and optimizer are always stored.
 }
+\details{
+Saving the learner itself in the callback with a trained model is impossible,
+as the model slot is set \emph{after} the last callback step is executed.
+}
 \seealso{
 Other Callback: 
 \code{\link{TorchCallback}},

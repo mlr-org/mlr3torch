@@ -159,7 +159,7 @@ test_that("model_descriptor_to_module works", {
   expect_equal(result2$shape, c(1, 3))
 })
 
-test_that("model_descriptor_to_learner works", {
+test_that("cloning", {
   task = tsk("iris")
 
   graph1 = po("torch_ingress_num") %>>%
@@ -194,24 +194,18 @@ test_that("model_descriptor_to_learner works", {
     }
   }
 
-  expect_false(identical(network$module_list$modules[[1]], network1$module_list$modules[[1]]))
+
+  expect_false(identical(network$module_list, network1$module_list))
   expect_false(identical(network$graph, network1$graph))
   expect_false(identical(network$graph$pipeops, network1$graph$pipeops))
-  expect_false(identical(network$module_list, network1$module_list))
   # first module is self
   expect_false(identical(network$module_list$modules[[2]], network1$module_list$modules[[2]]))
   expect_false(identical(network$graph$pipeops$nn_linear$module, network1$graph$pipeops$nn_linear$module))
+  # references are preserved between the graph and the module list
+  # the first list entry of module list is the module list itself
+  expect_true(identical(network1$graph$pipeops$nn_linear$module, network1$module_list$modules[[2]]))
 
-  expect_true(identical(
-    network1$graph$pipeops$nn_linear$module,
-    network1$module_list$modules[[2]]
-  ))
-
-  expect_false(identical(
-    network$graph$pipeops$nn_linear$module,
-    network1$graph$pipeops$nn_linear$module
-  ))
-
+  expect_deep_clone(network$graph, network1$graph)
   network$graph = NULL
   network1$graph = NULL
   expect_deep_clone(network, network1)
@@ -226,7 +220,6 @@ test_that("cloning", {
     }
   )()
 
-  
   nn_test1 = nn_test$clone(deep = TRUE)
   nn_test = nn_test$clone(deep = TRUE)$clone(deep = TRUE)
 
@@ -247,6 +240,4 @@ test_that("cloning", {
 
   identical(nn_test$l$modules[[2]], nn_test1$l$modules[[2]])
   identical(nn_test$children$l, nn_test1$children$l)
-
 })
-

@@ -5,6 +5,9 @@
 #' @description
 #' Saves the optimizer and network states during training.
 #' The final learner and optimizer are always stored.
+#' @details
+#' Saving the learner itself in the callback with a trained model is impossible,
+#' as the model slot is set *after* the last callback step is executed.
 #'
 #' @param path (`character(1)`)\cr
 #'   The path to a folder where the models are saved.
