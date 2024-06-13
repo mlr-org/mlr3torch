@@ -145,8 +145,9 @@ materialize(
 ## Feature Overview
 
 * Off-the-shelf architectures are readily available as `mlr3::Learner`s.
-* Custom learners can be defined using the `Graph` language from `mlr3pipelines`
-* The package supports tabular data, as well as generic tensors via the `lazy_tensor` type
+* Currently, supervised regression and classification is supported.
+* Custom learners can be defined using the `Graph` language from `mlr3pipelines`.
+* The package supports tabular data, as well as generic tensors via the `lazy_tensor` type.
 * Multi-modal data can be handled conveniently, as `lazy_tensor` objects can be stored alongside tabular data.
 * It is possible to customize the training process via (predefined or custom) callbacks.
 * The package is fully integrated into the `mlr3` ecosystem.

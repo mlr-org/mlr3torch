@@ -104,7 +104,7 @@ graph_mlp
 #> Graph with 8 PipeOps:
 #>                   ID         State            sccssors         prdcssors
 #>               <char>        <char>              <char>            <char>
-#>    torch_ingress_num <<UNTRAINED>>           nn_linear
+#>    torch_ingress_num <<UNTRAINED>>           nn_linear                  
 #>            nn_linear <<UNTRAINED>>             nn_relu torch_ingress_num
 #>              nn_relu <<UNTRAINED>>             nn_head         nn_linear
 #>              nn_head <<UNTRAINED>>          torch_loss           nn_relu
@@ -164,7 +164,7 @@ materialize(
   rbind = TRUE
 )
 #> torch_tensor
-#> (1,1,.,.) =
+#> (1,1,.,.) = 
 #>     0.0000    0.0000    0.0000    0.0000    0.0000
 #>     0.0000  200.9199  228.2500    8.2000    0.0000
 #>     0.0000    0.0000  196.7500    0.0000    0.0000
@@ -176,10 +176,11 @@ materialize(
 ## Feature Overview
 
 - Off-the-shelf architectures are readily available as `mlr3::Learner`s.
+- Currently, supervised regression and classification is supported.
 - Custom learners can be defined using the `Graph` language from
-  `mlr3pipelines`
+  `mlr3pipelines`.
 - The package supports tabular data, as well as generic tensors via the
-  `lazy_tensor` type
+  `lazy_tensor` type.
 - Multi-modal data can be handled conveniently, as `lazy_tensor` objects
   can be stored alongside tabular data.
 - It is possible to customize the training process via (predefined or
