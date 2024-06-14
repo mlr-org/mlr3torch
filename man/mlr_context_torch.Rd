@@ -78,8 +78,7 @@ The learner's prediction encoder.}
 The current batch.}
 
 \item{\code{end_training}}{(\code{logical(1)})\cr
-If this field is set to \code{TRUE} at the end of an epoch, training stops.
-This field can be written by callbacks such as \code{\link{CallbackSetEarlyStopping}}.}
+If this field is set to \code{TRUE} at the end of an epoch, training stops.}
 }
 \if{html}{\out{</div>}}
 }

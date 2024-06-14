@@ -73,7 +73,7 @@ constructor_tiny_imagenet = function(path) {
   data.table(
     class = classes,
     image = uris,
-    split = factor(c("train", "valid", "test"), times = c(100000, 10000, 10000))
+    split = factor(rep(c("train", "valid", "test"), times = c(100000, 10000, 10000)))
   )
 }
 

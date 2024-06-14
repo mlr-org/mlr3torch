@@ -115,7 +115,6 @@ ContextTorch = R6Class("ContextTorch",
     batch = NULL,
     #' @field end_training (`logical(1)`)\cr
     #'   If this field is set to `TRUE` at the end of an epoch, training stops.
-    #'  This field can be written by callbacks such as [`CallbackSetEarlyStopping`].
     end_training = NULL
   )
 )
