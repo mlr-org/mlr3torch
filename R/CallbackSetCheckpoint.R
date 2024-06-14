@@ -4,7 +4,7 @@
 #'
 #' @description
 #' Saves the optimizer and network states during training.
-#' The final learner and optimizer are always stored.
+#' The final network and optimizer are always stored.
 #' @details
 #' Saving the learner itself in the callback with a trained model is impossible,
 #' as the model slot is set *after* the last callback step is executed.
@@ -35,8 +35,8 @@ CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
       }
     },
     #' @description
-    #' Saves the objects network and optimizer if selected.
-    #' Does nothing if freq_type or freq are not met.
+    #' Saves the network and optimizer state dict.
+    #' Does nothing if `freq_type` or `freq` are not met.
     on_epoch_end = function() {
       if (self$freq_type == "step" || (self$ctx$epoch %% self$freq != 0)) {
         return(NULL)
@@ -55,6 +55,7 @@ CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
     #' @description
     #' Saves the learner.
     on_exit = function() {
+      if (self$ctx$epoch == 0) return(NULL)
       if (self$freq_type == "epoch") {
         if (self$ctx$epoch %% self$freq == 0) {
           # already saved

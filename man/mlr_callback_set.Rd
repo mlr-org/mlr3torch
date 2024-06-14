@@ -21,6 +21,14 @@ the current state of the training loop.
 This context is assigned at the beginning of the training loop and removed afterwards.
 Different stages of a callback can communicate with each other by assigning values to \verb{$self}.
 
+\emph{State}:
+To be able to store information in the \verb{$model} slot of a \code{\link{LearnerTorch}}, callbacks support a state API.
+You can overload the \verb{$state_dict()} public method to define what will be stored in \verb{learner$model$callbacks$<id>}
+after training finishes.
+This then also requires to implement a \verb{$load_state_dict(state_dict)} method that defines how to load a previously saved
+callback state into a different callback.
+Note that the \verb{$state_dict()} should not include the parameter values that were used to initialize the callback.
+
 For creating custom callbacks, the function \code{\link[=torch_callback]{torch_callback()}} is recommended, which creates a
 \code{CallbackSet} and then wraps it in a \code{\link{TorchCallback}}.
 To create a \code{CallbackSet} the convenience function \code{\link[=callback_set]{callback_set()}} can be used.

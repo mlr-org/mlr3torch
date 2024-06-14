@@ -18,10 +18,19 @@
 #' This context is assigned at the beginning of the training loop and removed afterwards.
 #' Different stages of a callback can communicate with each other by assigning values to `$self`.
 #'
+#' *State*:
+#' To be able to store information in the `$model` slot of a [`LearnerTorch`], callbacks support a state API.
+#' You can overload the `$state_dict()` public method to define what will be stored in `learner$model$callbacks$<id>`
+#' after training finishes.
+#' This then also requires to implement a `$load_state_dict(state_dict)` method that defines how to load a previously saved
+#' callback state into a different callback.
+#' Note that the `$state_dict()` should not include the parameter values that were used to initialize the callback.
+#'
 #' For creating custom callbacks, the function [`torch_callback()`] is recommended, which creates a
 #' `CallbackSet` and then wraps it in a [`TorchCallback`].
 #' To create a `CallbackSet` the convenience function [`callback_set()`] can be used.
 #' These functions perform checks such as that the stages are not accidentally misspelled.
+#'
 #'
 #' @section Stages:
 #' * `begin` :: Run before the training loop begins.
@@ -64,6 +73,7 @@ CallbackSet = R6Class("CallbackSet",
     #' @param state_dict (any)\cr
     #'   The state dict as retrieved via `$state_dict()`.
     load_state_dict = function(state_dict) {
+      assert_true(is.null(state_dict))
       NULL
     }
   ),
@@ -157,10 +167,7 @@ callback_set = function(
   lock_objects = FALSE
   ) {
   assert_true(startsWith(classname, "CallbackSet"))
-  assert_true(
-    (is.null(state_dict) && is.null(load_state_dict)) ||
-    (!is.null(state_dict) && !is.null(load_state_dict))
-  )
+  assert_false(xor(is.null(state_dict), is.null(load_state_dict)))
   assert_function(state_dict, nargs = 0, null.ok = TRUE)
   assert_function(load_state_dict, args = "state_dict", nargs = 1, null.ok = TRUE)
   more_public = list(

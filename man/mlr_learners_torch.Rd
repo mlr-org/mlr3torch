@@ -103,7 +103,7 @@ and the callbacks.
 To perform additional input checks on the task, the private \code{.verify_train_task(task, param_vals)} and
 \code{.verify_predict_task(task, param_vals)} can be overwritten.
 
-For learners that have other construction arguments that should change the hash of a learner, it is possible
+For learners that have other construction arguments that should change the hash of a learner, it is required
 to implement the private \verb{$.additional_phash_input()}.
 }
 

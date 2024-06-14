@@ -89,7 +89,7 @@
 #' To perform additional input checks on the task, the private `.verify_train_task(task, param_vals)` and
 #' `.verify_predict_task(task, param_vals)` can be overwritten.
 #'
-#' For learners that have other construction arguments that should change the hash of a learner, it is possible
+#' For learners that have other construction arguments that should change the hash of a learner, it is required
 #' to implement the private `$.additional_phash_input()`.
 #'
 #' @family Learner
@@ -259,9 +259,9 @@ LearnerTorch = R6Class("LearnerTorch",
   private = list(
     .additional_phash_input = function() {
       if (is.null(self$initialize)) return(NULL)
-      initformals <- names(formals(args(self$initialize)))
+      initformals = names(formals(args(self$initialize)))
       if (!test_subset(initformals, c("task_type", "loss", "optimizer", "callbacks"))) {
-        stopf("Learner %s has non-standard construction arguments, implemenent .additional_phash_input()",
+        stopf("Learner %s has non-standard construction arguments, implement .additional_phash_input()",
         self$id)
       }
     },
@@ -361,7 +361,6 @@ LearnerTorch = R6Class("LearnerTorch",
     .verify_predict_task = function(task, param_vals) NULL,
     deep_clone = function(name, value) {
       private$.param_set = NULL # required to keep clone identical to original, otherwise tests get really ugly
-      # FIXME this repairs the mlr3::Learner deep_clone() method which is broken.
       if (is.R6(value)) {
         return(value$clone(deep = TRUE))
       } else if (test_class(value, "nn_module")) {
@@ -410,7 +409,6 @@ clone_recurse = function(l) {
 
 #' @export
 marshal_model.learner_torch_model = function(model, inplace = FALSE, ...) {
-  # FIXME: optimizer and loss_fn
   model$network = torch_serialize(model$network)
   model$loss_fn = torch_serialize(model$loss_fn)
   model$optimizer = torch_serialize(model$optimizer)

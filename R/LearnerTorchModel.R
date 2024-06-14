@@ -91,7 +91,7 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
   private = list(
     deep_clone = function(name, value) {
       if (name == ".network_stored" && is.null(value)) {
-        # otherwise the cloned learner starts 
+        # the initial network state is lost after training a LearnerTorchModel
         stopf("Learner %s: Can only create deep clone for untrained learner", self$id)
       } else {
         super$deep_clone(name, value)

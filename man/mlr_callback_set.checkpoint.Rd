@@ -6,7 +6,7 @@
 \title{Checkpoint Callback}
 \description{
 Saves the optimizer and network states during training.
-The final learner and optimizer are always stored.
+The final network and optimizer are always stored.
 }
 \details{
 Saving the learner itself in the callback with a trained model is impossible,
@@ -77,8 +77,8 @@ Can be be either \code{"epoch"} (default) or \code{"step"}.}
 \if{html}{\out{<a id="method-CallbackSetCheckpoint-on_epoch_end"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-on_epoch_end}{}}}
 \subsection{Method \code{on_epoch_end()}}{
-Saves the objects network and optimizer if selected.
-Does nothing if freq_type or freq are not met.
+Saves the network and optimizer state dict.
+Does nothing if \code{freq_type} or \code{freq} are not met.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CallbackSetCheckpoint$on_epoch_end()}\if{html}{\out{</div>}}
 }
