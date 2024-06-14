@@ -269,6 +269,7 @@ test_that("train parameters do what they should: classification and regression",
     task$divide(ratio = 2 / 3)
     learner$train(task)
 
+
     internals = learner$model$callbacks$internals
     ctx = internals$ctx
 
