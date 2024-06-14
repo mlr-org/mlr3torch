@@ -33,7 +33,8 @@ CallbackSetHistory = R6Class("CallbackSetHistory",
     #' @param state_dict (`callback_state_history`)\cr
     #'   The state dict as retrieved via `$state_dict()`.
     load_state_dict = function(state_dict) {
-      assert_class(state_dict, "callback_state_history")
+      assert_list(state_dict, "data.table")
+      assert_permutation(names(state_dict), c("train", "valid"))
       self$train = state_dict$train
       self$valid = state_dict$valid
     },
