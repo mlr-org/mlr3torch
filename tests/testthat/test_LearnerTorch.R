@@ -57,7 +57,7 @@ test_that("Basic tests: Classification", {
   expect_equal(learner$id, "classif.test1")
   expect_equal(learner$label, "Test1 Learner")
   expect_set_equal(learner$feature_types, c("numeric", "integer"))
-  expect_set_equal(learner$properties, c("multiclass", "twoclass", "marshal"))
+  expect_set_equal(learner$properties, c("multiclass", "twoclass", "marshal", "validation", "internal_tuning"))
 
   # default predict types are correct
   expect_set_equal(learner$predict_types, c("response", "prob"))
@@ -81,7 +81,7 @@ test_that("Basic tests: Regression", {
   expect_equal(learner$id, "regr.test1")
   expect_equal(learner$label, "Test1 Learner")
   expect_set_equal(learner$feature_types, c("numeric", "integer"))
-  expect_set_equal(learner$properties, "marshal")
+  expect_set_equal(learner$properties, c("marshal", "validation", "internal_tuning"))
 
   # default predict types are correct
   expect_set_equal(learner$predict_types, "response")
@@ -199,7 +199,7 @@ test_that("the state of a trained network contains what it should", {
   learner$train(task)
   expect_permutation(
     names(learner$model),
-    c("seed", "network", "optimizer", "loss_fn", "task_col_info", "callbacks")
+    c("seed", "network", "optimizer", "loss_fn", "task_col_info", "callbacks", "epochs", "internal_valid_scores")
   )
   expect_true(is.integer(learner$model$seed))
   expect_class(learner$model$network, "nn_module")
@@ -269,7 +269,6 @@ test_that("train parameters do what they should: classification and regression",
     task$divide(ratio = 2 / 3)
     learner$train(task)
 
-
     internals = learner$model$callbacks$internals
     ctx = internals$ctx
 
@@ -312,17 +311,14 @@ test_that("train parameters do what they should: classification and regression",
     learner$state = NULL
     learner$param_set$set_values(
       device = "meta",
-      epochs = 0
+      epochs = 0,
+      measures_valid = list()
     )
 
     # now we also test that the device placement works
     learner$train(task)
     expect_equal(learner$network$parameters[[1]]$device$type, "meta")
-
   }
-
-  f("regr", c("regr.mse", "regr.rmse", "regr.mae"))
-  f("classif", c("classif.acc", "classif.ce", "classif.mbrier"))
 })
 
 test_that("predict types work during training and prediction", {

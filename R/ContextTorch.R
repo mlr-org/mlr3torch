@@ -41,7 +41,7 @@ ContextTorch = R6Class("ContextTorch",
     #' @param eval_freq (`integer(1)`)\cr
     #'   The evaluation frequency.
     initialize = function(learner, task_train, task_valid = NULL, loader_train, loader_valid = NULL,
-      measures_train = NULL, measures_valid = NULL, network, optimizer, loss_fn, total_epochs, prediction_encoder, 
+      measures_train = NULL, measures_valid = NULL, network, optimizer, loss_fn, total_epochs, prediction_encoder,
       eval_freq = 1L) {
       self$learner = assert_r6(learner, "Learner")
       self$task_train = assert_r6(task_train, "Task")
@@ -60,6 +60,7 @@ ContextTorch = R6Class("ContextTorch",
       self$last_scores_valid = structure(list(), names = character(0))
       self$prediction_encoder = assert_function(prediction_encoder, args = c("predict_tensor", "task"))
       self$eval_freq = assert_int(eval_freq, lower = 1L)
+      self$end_training = FALSE
     },
     #' @field learner ([`Learner`])\cr
     #'   The torch learner.
@@ -111,6 +112,10 @@ ContextTorch = R6Class("ContextTorch",
     prediction_encoder = NULL,
     #' @field batch (named `list()` of `torch_tensor`s)\cr
     #'   The current batch.
-    batch = NULL
+    batch = NULL,
+    #' @field end_training (`logical(1)`)\cr
+    #'   If this field is set to `TRUE` at the end of an epoch, training stops.
+    #'  This field can be written by callbacks such as [`CallbackSetEarlyStopping`].
+    end_training = NULL
   )
 )

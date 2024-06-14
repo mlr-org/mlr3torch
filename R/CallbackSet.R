@@ -35,15 +35,20 @@
 #' @section Stages:
 #' * `begin` :: Run before the training loop begins.
 #' * `epoch_begin` :: Run he beginning of each epoch.
-#' * `before_validation` :: Run before each validation loop.
 #' * `batch_begin` :: Run before the forward call.
 #' * `after_backward` :: Run after the backward call.
 #' * `batch_end` :: Run after the optimizer step.
 #' * `batch_valid_begin` :: Run before the forward call in the validation loop.
 #' * `batch_valid_end` :: Run after the forward call in the validation loop.
+#' * `valid_end` :: Run at the end of validation.
 #' * `epoch_end` :: Run at the end of each epoch.
 #' * `end` :: Run after last epoch.
 #' * `exit` :: Run at last, using `on.exit()`.
+#'
+#' @section Ending Training:
+#' If training is to be stopped, it is possible to set the field `$end_training` of [`ContextTorch`].
+#' At the end of every epoch this field is checked and if it is `TRUE`, training stops.
+#'
 #' @family Callback
 #' @export
 CallbackSet = R6Class("CallbackSet",
@@ -119,7 +124,7 @@ CallbackSet = R6Class("CallbackSet",
 #'
 #' @param classname (`character(1)`)\cr
 #'   The class name.
-#' @param on_begin,on_end,on_epoch_begin,on_before_valid,on_epoch_end,on_batch_begin,on_batch_end,on_after_backward,on_batch_valid_begin,on_batch_valid_end,on_exit (`function`)\cr
+#' @param on_begin,on_end,on_epoch_begin,on_before_valid,on_epoch_end,on_batch_begin,on_batch_end,on_after_backward,on_batch_valid_begin,on_batch_valid_end,on_valid_end,on_exit (`function`)\cr
 #'   Function to execute at the given stage, see section *Stages*.
 #' @param initialize (`function()`)\cr
 #'   The initialization method of the callback.
@@ -159,6 +164,7 @@ callback_set = function(
   # validation
   on_batch_valid_begin = NULL,
   on_batch_valid_end = NULL,
+  on_valid_end = NULL,
   # other methods
   state_dict = NULL,
   load_state_dict = NULL,
@@ -181,6 +187,7 @@ callback_set = function(
     on_after_backward = assert_function(on_after_backward, nargs = 0, null.ok = TRUE),
     on_batch_valid_begin = assert_function(on_batch_valid_begin, nargs = 0, null.ok = TRUE),
     on_batch_valid_end = assert_function(on_batch_valid_end, nargs = 0, null.ok = TRUE),
+    on_valid_end = assert_function(on_valid_end, nargs = 0, null.ok = TRUE),
     on_exit = assert_function(on_exit, nargs = 0, null.ok = TRUE)
   )
 

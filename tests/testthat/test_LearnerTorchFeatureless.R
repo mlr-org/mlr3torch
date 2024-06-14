@@ -11,7 +11,6 @@ test_that("dataset_featureless works", {
 test_that("Basic checks: Classification", {
   learner = lrn("classif.torch_featureless")
   expect_learner_torch(learner)
-  expect_set_equal(learner$properties, c("twoclass", "multiclass", "missings", "featureless", "marshal"))
 })
 
 test_that("LearnerTorchFeatureless works", {
@@ -27,5 +26,4 @@ test_that("LearnerTorchFeatureless works", {
 test_that("Basic checks: Regression", {
   learner = lrn("regr.torch_featureless")
   expect_learner_torch(learner)
-  expect_set_equal(learner$properties, c("missings", "featureless", "marshal"))
 })

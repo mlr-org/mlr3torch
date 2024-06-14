@@ -36,6 +36,10 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     stopf("Learner '%s' has a non 0 patience parameter but specifies no measures_valid.", self$id)
   }
 
+  if (param_vals$patience > 0 && is.na(measures_valid[[1L]]$minimize)) {
+    stopf("Learner '%s' uses a validation measure with minimize = NA for early stopping.", self$id)
+  }
+
   task_valid = task$internal_valid_task
   loader_valid = if (!is.null(task_valid) && task_valid$nrow) {
     private$.dataloader_predict(task_valid$clone(deep = TRUE), param_vals)
@@ -62,6 +66,15 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     cb$ctx = ctx
     cb
   })
+
+  if (param_vals$patience > 0L) {
+    es = CallbackEarlyStopping$new(
+      patience = param_vals$patience,
+      min_delta = param_vals$min_delta
+    )$generate()
+
+    callbacks = c(callbacks, es)
+  }
 
   model = train_loop(ctx, callbacks)
 
@@ -102,15 +115,19 @@ train_loop = function(ctx, cbs) {
 
   ctx$network$train()
 
-  ctx$epoch = 1L
-  while (ctx$epoch <= ctx$total_epochs) {
+  # if we increment epoch at the end of the loop it has the wrong value
+  # during the final two callback stages
+  ctx$epoch = 0L
+  while (ctx$epoch < ctx$total_epochs) {
+    ctx$epoch = ctx$epoch + 1
     call("on_epoch_begin")
 
     predictions = list()
     indices = list()
     train_iterator = dataloader_make_iter(ctx$loader_train)
-    ctx$step = 1L
-    while (ctx$step <= length(ctx$loader_train)) {
+    ctx$step = 0L
+    while (ctx$step < length(ctx$loader_train)) {
+      ctx$step = ctx$step + 1
       ctx$batch = dataloader_next(train_iterator)
       ctx$optimizer$zero_grad()
 
@@ -136,7 +153,6 @@ train_loop = function(ctx, cbs) {
       ctx$optimizer$step()
 
       call("on_batch_end")
-      ctx$step = ctx$step + 1
     }
 
     ctx$last_scores_train = if (eval_train_in_epoch(ctx)) {
@@ -150,7 +166,7 @@ train_loop = function(ctx, cbs) {
     }
 
     call("on_before_valid")
-    ctx$last_scores_valid = if (eval_valid_in_epoch(ctx)) {
+    if (eval_valid_in_epoch(ctx)) {
       ctx$network$eval()
       pred_tensor = torch_network_predict_valid(ctx, call)
       ctx$last_scores_valid = measure_prediction(
@@ -159,12 +175,15 @@ train_loop = function(ctx, cbs) {
         task = ctx$task_valid,
         row_ids = ctx$task_valid$row_ids,
         prediction_encoder = ctx$prediction_encoder
-
       )
       ctx$network$train()
+      call("on_valid_end")
+    } else {
+      ctx$last_scores_valid = NULL
     }
     call("on_epoch_end")
-    ctx$epoch = ctx$epoch + 1
+
+    if (isTRUE(ctx$end_training)) break
   }
 
   call("on_end")
@@ -181,10 +200,10 @@ train_loop = function(ctx, cbs) {
 }
 
 eval_train_in_epoch = function(ctx) {
-  length(ctx$measures_train) && !(ctx$epoch %% ctx$eval_freq) || ctx$epoch == ctx$total_epochs
+  length(ctx$measures_train) && (!(ctx$epoch %% ctx$eval_freq) || ctx$epoch == ctx$total_epochs)
 }
 eval_valid_in_epoch = function(ctx) {
-  !is.null(ctx$loader_valid) && !(ctx$epoch %% ctx$eval_freq) || ctx$epoch == ctx$total_epochs
+  !is.null(ctx$loader_valid) && (!(ctx$epoch %% ctx$eval_freq) || ctx$epoch == ctx$total_epochs)
 }
 
 has_one_arg = function(network) {
@@ -198,8 +217,9 @@ torch_network_predict_valid = function(ctx, callback_receiver = function(step_na
   one_arg = has_one_arg(network)
   predictions = vector("list", length = length(loader))
   valid_iterator = dataloader_make_iter(loader)
-  ctx$step = 1L
-  while (ctx$step <= length(loader)) {
+  ctx$step = 0L
+  while (ctx$step < length(loader)) {
+    ctx$step = ctx$step + 1L
     ctx$batch = dataloader_next(valid_iterator)
     callback_receiver("on_batch_valid_begin")
     predictions[[ctx$step]] = if (one_arg) {
@@ -209,7 +229,6 @@ torch_network_predict_valid = function(ctx, callback_receiver = function(step_na
     }
 
     callback_receiver("on_batch_valid_end")
-    ctx$step = ctx$step + 1L
   }
   torch_cat(predictions, dim = 1L)
 }
@@ -221,8 +240,9 @@ torch_network_predict = function(network, loader) {
   one_arg = has_one_arg(network)
   predictions = vector("list", length = length(loader))
   train_iterator = dataloader_make_iter(loader)
-  step = 1L
-  while (step <= length(loader)) {
+  step = 0L
+  while (step < length(loader)) {
+    step = step + 1L
     batch = dataloader_next(train_iterator)
     if (is.null(batch)) break
     predictions[[step]] = if (one_arg) {
@@ -231,7 +251,6 @@ torch_network_predict = function(network, loader) {
       with_no_grad(invoke(network$forward, .args = batch$x))
     }
 
-    step = step + 1L
   }
   torch_cat(predictions, dim = 1L)
 }

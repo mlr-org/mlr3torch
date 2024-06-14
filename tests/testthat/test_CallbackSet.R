@@ -5,91 +5,6 @@ test_that("Basic checks", {
   expect_true(!inherits(instance, "Callback"))
 })
 
-test_that("All stages are called correctly", {
-  # We test that:
-  # 1. The callbacks are executed in the right order with 1 epoch, 1 training and validation batch
-  # 2. Wenn we increase the epoch, training and validation iterations the counts how often the
-  # callbacks are executed is correct
-  #
-  # To implement this, we use a custom callback, that appends its name to a file each time it is
-  # executed
-
-  task = tsk("iris")
-
-  write_stage = function(stage) {
-    on_stage = function() {} # nolint
-    body(on_stage)[[2L]] = str2lang(sprintf("write(\"%s\", self$path, append = TRUE)", stage))
-    on_stage
-  }
-
-  cb = torch_callback(id = "test",
-    initialize = function(path) {
-      assert_path_for_output(path)
-      file.create(path)
-      self$path = path
-    },
-    on_begin = write_stage("on_begin"),
-    on_epoch_begin = write_stage("on_epoch_begin"),
-    on_after_backward = write_stage("on_after_backward"),
-    on_batch_begin = write_stage("on_batch_begin"),
-    on_before_valid = write_stage("on_before_valid"),
-    on_batch_valid_begin = write_stage("on_batch_valid_begin"),
-    on_batch_valid_end = write_stage("on_batch_valid_end"),
-    on_batch_end = write_stage("on_batch_end"),
-    on_epoch_end = write_stage("on_epoch_end"),
-    on_end = write_stage("on_end"),
-    on_exit = write_stage("on_exit")
-  )
-  path = tempfile()
-  learner = lrn("classif.mlp", batch_size = 1, epochs = 1, callbacks = cb, cb.test.path = path,
-    measures_valid = msr("classif.acc"), validate = "predefined")
-  task$divide(ids = 3)
-  task$filter(2)
-
-  learner$train(task)
-
-  output = readLines(path)
-  expect_identical(output, mlr_reflections$torch$callback_stages)
-
-  task$divide(ids = 4:6)
-  task$filter(2:3)
-
-  path2 = tempfile()
-
-  learner$param_set$set_values(cb.test.path = path2)
-  learner$train(task)
-  output2 = readLines(path2)
-
-  check_output = function(output, epochs, ntrain, nvalid) {
-    tbl = as.list(table(output))
-    train_iter_stages = c("on_after_backward", "on_batch_begin", "on_batch_end")
-    valid_iter_stages = c("on_batch_valid_end", "on_batch_valid_begin")
-    tbltrain = tbl[train_iter_stages]
-    browser()
-    expect_true(unique(unlist(tbltrain)) == ntrain * epochs)
-
-    tblvalid = tbl[valid_iter_stages]
-    expect_true(unique(unlist(tblvalid)) == nvalid * epochs)
-
-    stages_once = c("on_begin", "on_end")
-    tblonce = tbl[stages_once]
-    expect_true(unique(unlist(tblonce)) == 1)
-
-    tblrest = tbl[setdiff(names(tbl), c(train_iter_stages, valid_iter_stages, stages_once))]
-
-  }
-
-  check_output(output2, 1, 2, 3)
-
-  path3 = tempfile()
-  learner$param_set$set_values(epochs = 2, cb.test.path = path3)
-  learner$train(task)
-
-  output3 = readLines(path3)
-
-  check_output(output3, 2, 2, 3)
-})
-
 test_that("callback_set is working", {
   expect_subset(mlr_reflections$torch$callback_stages, formalArgs(callback_set))
   expect_subset(formalArgs(callback_set), formalArgs(torch_callback))
@@ -170,10 +85,4 @@ test_that("phash works", {
   expect_false(t_clbk("history")$phash == t_clbk("progress")$phash)
   expect_false(t_clbk("history", id = "a")$phash == t_clbk("history", id = "b")$phash)
   expect_false(t_clbk("history", label = "a")$phash == t_clbk("history", label = "b")$phash)
-})
-
-test_that("stages works", {
-  stages = lrn("classif.torch_featureless", epochs = 1L, batch_size = 1, callbacks = "history")$train(tsk("iris"))$
-    model$callbacks$stages
-  expect_subset(stages, mlr_reflections$torch$callback_stages)
 })

@@ -410,20 +410,16 @@ LearnerTorch = R6Class("LearnerTorch",
           model = value$model
           value["model"] = list(NULL)
           value = super$deep_clone(name, value)
-          value[["model"]] = set_class(list(
-            network = model$network$clone(deep = TRUE),
-            loss_fn = clone_recurse(model$loss_fn),
-            optimizer = clone_recurse(model$optimizer),
-            callbacks = map(model$callbacks, function(x) {
+          model$network = model$network$clone(deep = TRUE)
+          model$loss_fn = clone_recurse(model$loss_fn)
+          model$callbacks = map(model$callbacks, function(x) {
               if (is.R6(x)) {
                 x$clone(deep = TRUE)
               } else {
                 x
               }
-            }),
-            seed = model$seed,
-            task_col_info = copy(model$task_col_info)
-          ), c("learner_torch_model", "list"))
+          })
+          value$model = model
         }
         return(value)
       } else if (name == ".param_set") {
