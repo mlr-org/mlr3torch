@@ -26,7 +26,7 @@ There are no labels for the test rows.
 \item Has Missings: yes
 \item Target: \dQuote{class}
 \item Features: \dQuote{image}
-\item Backend Dimension: 120000x3
+\item Backend Dimension: 120000x4
 }
 }
 

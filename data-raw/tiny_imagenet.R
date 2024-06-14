@@ -9,5 +9,5 @@ mlr3:::DataBackendCbind$new(c)
 
 split = factor(rep(c("train", "valid", "test"), times = c(100000, 10000, 10000)))
 
-ci = rbind(ci, data.table(id = "split", type = "factor", levels = levels(split), label = NA, fix_factor_levels = TRUE))
+ci = rbind(ci, data.table(id = "split", type = "factor", levels = levels(split)))
 setkeyv(ci)

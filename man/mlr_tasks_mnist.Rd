@@ -37,7 +37,7 @@ as the cache directory.
 \item Has Missings: no
 \item Target: \dQuote{label}
 \item Features: \dQuote{image}
-\item Backend Dimension: 70000x3
+\item Backend Dimension: 70000x4
 }
 }
 

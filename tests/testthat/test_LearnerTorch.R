@@ -554,8 +554,7 @@ test_that("validation measure must specify minimize when early stopping", {
   measure = msr("regr.mse")
   measure$minimize = NA
   learner = lrn("regr.torch_featureless", epochs = 1, batch_size = 50,
-    measures_valid = measure, validate = "predefined", opt.lr = 1, patience = 1L,
-    validate = 0.3)
+    measures_valid = measure, validate = 0.2, opt.lr = 1, patience = 1)
 
   expect_error(learner$train(tsk("mtcars")), "NA")
 })

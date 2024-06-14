@@ -35,14 +35,7 @@ test_that("history works with eval_freq", {
   learner$train(task)
   expect_equal(learner$model$callbacks$history$train$epoch, c(4, 8, 10))
 
-  browser()
   learner$param_set$set_values(eval_freq = 5)
   learner$train(task)
-  expect_equal(learner$model$callbacks$history$valid$epoch, c(5, 10))
-})
-
-test_that("deep clone", {
-  history = lrn("classif.torch_featureless", epochs = 0, batch_size = 1, callbacks = "history")$train(tsk("iris"))$
-    model$callbacks$history
-
+  expect_equal(learner$model$callbacks$history$train$epoch, c(5, 10))
 })

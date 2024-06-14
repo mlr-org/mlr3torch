@@ -36,5 +36,5 @@ test_that("manual test", {
 
   # does not throw with different eval_freq
   learner$param_set$set_values(eval_freq = 2)
-  expect_error(learner$train(task), regexp = NA)
+  expect_error(capture.output(learner$train(task)), regexp = NA)
 })
