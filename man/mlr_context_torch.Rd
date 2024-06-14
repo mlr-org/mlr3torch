@@ -76,6 +76,10 @@ The learner's prediction encoder.}
 
 \item{\code{batch}}{(named \code{list()} of \code{torch_tensor}s)\cr
 The current batch.}
+
+\item{\code{end_training}}{(\code{logical(1)})\cr
+If this field is set to \code{TRUE} at the end of an epoch, training stops.
+This field can be written by callbacks such as \code{\link{CallbackSetEarlyStopping}}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -104,7 +108,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   optimizer,
   loss_fn,
   total_epochs,
-  prediction_encoder
+  prediction_encoder,
+  eval_freq = 1L
 )}\if{html}{\out{</div>}}
 }
 

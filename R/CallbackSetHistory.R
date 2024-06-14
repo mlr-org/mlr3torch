@@ -26,7 +26,7 @@ CallbackSetHistory = R6Class("CallbackSetHistory",
       structure(list(
         train = rbindlist(self$train, fill = TRUE),
         valid = rbindlist(self$valid, fill = TRUE)
-      ), class = "callback_state_history")
+      ), class = c("callback_state_history", "list"))
     },
     #' @description
     #' Sets the field `$train` and `$valid` to those contained in the state dict.

@@ -62,12 +62,6 @@ CallbackSetProgress = R6Class("CallbackSetProgress",
           cat(paste(output, collapse = ""))
         }
       }
-    },
-    #' @description
-    #' Deletes the progess bar objects.
-    on_end = function() {
-      self$pb_train = NULL
-      self$pb_valid = NULL
     }
   )
 )

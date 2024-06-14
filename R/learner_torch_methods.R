@@ -68,10 +68,11 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   })
 
   if (param_vals$patience > 0L) {
-    es = CallbackEarlyStopping$new(
+    es = CallbackSetEarlyStopping$new(
       patience = param_vals$patience,
       min_delta = param_vals$min_delta
-    )$generate()
+    )
+    es$ctx = ctx
 
     callbacks = c(callbacks, es)
   }
@@ -194,8 +195,8 @@ train_loop = function(ctx, cbs) {
     internal_valid_scores = if (length(ctx$measures_valid)) ctx$last_scores_valid,
     loss_fn               = ctx$loss_fn$state_dict(),
     optimizer             = ctx$optimizer$state_dict(),
-    epochs                = ctx$epochs,
-    callbacks             = map(cbs, function(cb) cb$state_dict())
+    epochs                = ctx$epoch,
+    callbacks             = discard(map(cbs, function(cb) cb$state_dict()), is.null)
   )
 }
 

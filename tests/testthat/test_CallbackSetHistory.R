@@ -28,6 +28,18 @@ test_that("CallbackSetHistory works", {
   expect_data_table(learner$model$callbacks$history$valid, nrows = 3)
 })
 
+test_that("history works with eval_freq", {
+  learner = lrn("regr.torch_featureless", epochs = 10, batch_size = 50, eval_freq = 4, callbacks = "history",
+    measures_train = msrs("regr.mse"))
+  task = tsk("mtcars")
+  learner$train(task)
+  expect_equal(learner$model$callbacks$history$train$epoch, c(4, 8, 10))
+
+  learner$param_set$set_values(eval_freq = 5)
+  learner$train(task)
+  expect_equal(learner$model$callbacks$history$valid$epoch, c(5, 10))
+})
+
 test_that("deep clone", {
   history = lrn("classif.torch_featureless", epochs = 0, batch_size = 1, callbacks = "history")$train(tsk("iris"))$
     model$callbacks$history

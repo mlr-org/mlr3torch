@@ -519,7 +519,33 @@ test_that("(p)hash", {
 })
 
 test_that("eval_freq works", {
-  learner = lrn("regr.torch_featureless", epochs = 10, batch_size = 50, eval_freq = 10, callbacks = "history")
+  learner = lrn("regr.torch_featureless", epochs = 10, batch_size = 50, eval_freq = 4, callbacks = "history",
+    measures_train = msrs("regr.mse"), measures_valid = msrs("regr.mse"), validate = 0.3)
   task = tsk("mtcars")
   learner$train(task)
+  expect_equal(learner$model$callbacks$history$valid$epoch, c(4, 8, 10))
+  expect_equal(learner$model$callbacks$history$train$epoch, c(4, 8, 10))
+})
+
+test_that("early stopping works", {
+  learner = lrn("classif.torch_featureless", epochs = 10, batch_size = 50, eval_freq = 3, callbacks = "history",
+    measures_valid = msr("classif.ce"), validate = 0.3, patience = 2, min_delta = 2)
+  task = tsk("iris")
+
+  learner$train(task)
+  # the first evaluation can do no comparison, i.e. the second eval with no improvement is the third epoch
+  expect_equal(learner$internal_tuned_values, list(epochs = 9))
+})
+
+test_that("validation works", {
+  task = tsk("mtcars")
+  task$internal_valid_task = task
+
+  learner = lrn("regr.torch_featureless", epochs = 20, batch_size = 150, eval_freq = 3,
+    measures_valid = msr("regr.mse"), validate = "predefined", seed = 1, opt.lr = 1)
+
+  learner$train(task)
+  expect_list(learner$internal_valid_scores, "numeric", len = 1L)
+  expect_equal(names(learner$internal_valid_scores), "regr.mse")
+  expect_true(abs(var(task$truth()) - learner$internal_valid_scores[[1L]]) < 2)
 })

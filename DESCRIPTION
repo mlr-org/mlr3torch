@@ -40,7 +40,6 @@ Depends:
 Imports:
     backports,
     checkmate (>= 2.2.0),
-    coro,
     data.table,
     lgr,
     methods,
@@ -79,6 +78,7 @@ Collate:
     'zzz.R'
     'TorchCallback.R'
     'CallbackSetCheckpoint.R'
+    'CallbackSetEarlyStopping.R'
     'CallbackSetHistory.R'
     'CallbackSetProgress.R'
     'ContextTorch.R'

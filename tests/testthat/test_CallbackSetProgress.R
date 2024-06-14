@@ -33,4 +33,8 @@ test_that("manual test", {
 
   expect_true(length(stdout) == length(expected))
   expect_true(all(map_lgl(seq_along(stdout), function(i) startsWith(stdout[[i]], expected[[i]]))))
+
+  # does not throw with different eval_freq
+  learner$param_set$set_values(eval_freq = 2)
+  expect_error(learner$train(task), regexp = NA)
 })
