@@ -260,17 +260,14 @@ test_that("train parameters do what they should: classification and regression",
       measures_train = measures_train,
       measures_valid = measures_valid,
       predict_type = switch(task_type, classif = "prob", regr = "response"),
-      device = "cpu"
-
+      device = "cpu",
+      validate = "predefined"
     )
 
     # first we test everything with validation
 
-    split = partition(task)
-    task$row_roles$use = split$train
-    task$row_roles$test = split$train
+    task$divide(ratio = 2 / 3)
     learner$train(task)
-
 
     internals = learner$model$callbacks$internals
     ctx = internals$ctx
@@ -303,7 +300,8 @@ test_that("train parameters do what they should: classification and regression",
     expect_permutation(c("epoch", ids(measures_valid)), colnames(learner$model$callbacks$history$valid))
 
     # now without validation
-    task$row_roles$test = integer()
+    task$internal_valid_task = NULL
+    learner$validate = NULL
 
     learner$state = NULL
     learner$train(task)
@@ -521,4 +519,10 @@ test_that("(p)hash", {
   expect_ne_hash(lrn("regr.mlp"), lrn("regr.mlp", optimizer = "sgd"))
   expect_ne_hash(lrn("regr.mlp", loss = "mse"), lrn("regr.mlp", loss = "l1"))
   expect_ne_hash(lrn("regr.mlp"), lrn("regr.mlp", callbacks = t_clbk("history")))
+})
+
+test_that("eval_freq works", {
+  learner = lrn("regr.torch_featureless", epochs = 10, batch_size = 50, eval_freq = 10, callbacks = "history")
+  task = tsk("mtcars")
+  learner$train(task)
 })

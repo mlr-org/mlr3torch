@@ -38,7 +38,6 @@ as the cache directory.
 \item Target: \dQuote{label}
 \item Features: \dQuote{image}
 \item Backend Dimension: 70000x3
-\item Default Roles (use / test / holdout): 60000, 10000, 0
 }
 }
 

@@ -38,8 +38,11 @@ ContextTorch = R6Class("ContextTorch",
     #'   The total number of epochs the learner is trained for.
     #' @param prediction_encoder (`function()`)\cr
     #'   The learner's prediction encoder.
+    #' @param eval_freq (`integer(1)`)\cr
+    #'   The evaluation frequency.
     initialize = function(learner, task_train, task_valid = NULL, loader_train, loader_valid = NULL,
-      measures_train = NULL, measures_valid = NULL, network, optimizer, loss_fn, total_epochs, prediction_encoder) {
+      measures_train = NULL, measures_valid = NULL, network, optimizer, loss_fn, total_epochs, prediction_encoder, 
+      eval_freq = 1L) {
       self$learner = assert_r6(learner, "Learner")
       self$task_train = assert_r6(task_train, "Task")
       self$task_valid = assert_r6(task_valid, "Task", null.ok = TRUE)
@@ -56,8 +59,7 @@ ContextTorch = R6Class("ContextTorch",
       self$last_scores_train = structure(list(), names = character(0))
       self$last_scores_valid = structure(list(), names = character(0))
       self$prediction_encoder = assert_function(prediction_encoder, args = c("predict_tensor", "task"))
-      self$epoch = 0
-      self$batch = 0
+      self$eval_freq = assert_int(eval_freq, lower = 1L)
     },
     #' @field learner ([`Learner`])\cr
     #'   The torch learner.
@@ -106,6 +108,9 @@ ContextTorch = R6Class("ContextTorch",
     step = NULL,
     #' @field prediction_encoder (`function()`)\cr
     #'   The learner's prediction encoder.
-    prediction_encoder = NULL
+    prediction_encoder = NULL,
+    #' @field batch (named `list()` of `torch_tensor`s)\cr
+    #'   The current batch.
+    batch = NULL
   )
 )

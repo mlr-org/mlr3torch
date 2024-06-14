@@ -42,17 +42,17 @@ test_that("All stages are called correctly", {
   )
   path = tempfile()
   learner = lrn("classif.mlp", batch_size = 1, epochs = 1, callbacks = cb, cb.test.path = path,
-    measures_valid = msr("classif.acc"))
-  task$row_roles$use = 2
-  task$row_roles$test = 3
+    measures_valid = msr("classif.acc"), validate = "predefined")
+  task$divide(ids = 3)
+  task$filter(2)
 
   learner$train(task)
 
   output = readLines(path)
   expect_identical(output, mlr_reflections$torch$callback_stages)
 
-  task$row_roles$use = 2:3
-  task$row_roles$test = 4:6
+  task$divide(ids = 4:6)
+  task$filter(2:3)
 
   path2 = tempfile()
 
@@ -65,6 +65,7 @@ test_that("All stages are called correctly", {
     train_iter_stages = c("on_after_backward", "on_batch_begin", "on_batch_end")
     valid_iter_stages = c("on_batch_valid_end", "on_batch_valid_begin")
     tbltrain = tbl[train_iter_stages]
+    browser()
     expect_true(unique(unlist(tbltrain)) == ntrain * epochs)
 
     tblvalid = tbl[valid_iter_stages]
@@ -169,10 +170,4 @@ test_that("phash works", {
   expect_false(t_clbk("history")$phash == t_clbk("progress")$phash)
   expect_false(t_clbk("history", id = "a")$phash == t_clbk("history", id = "b")$phash)
   expect_false(t_clbk("history", label = "a")$phash == t_clbk("history", label = "b")$phash)
-})
-
-test_that("stages works", {
-  stages = lrn("classif.torch_featureless", epochs = 1L, batch_size = 1, callbacks = "history")$train(tsk("iris"))$
-    model$callbacks$stages
-  expect_subset(stages, mlr_reflections$torch$callback_stages)
 })

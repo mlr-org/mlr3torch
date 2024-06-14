@@ -33,6 +33,14 @@ make_check_measures = function(task_type) {
 check_measures_regr = make_check_measures("regr")
 check_measures_classif = make_check_measures("classif")
 
+epochs_aggr = crate(function(x) as.integer(ceiling(mean(unlist(x)))), .parent = topenv())
+epochs_tune_fn = crate(function(domain, param_vals) {
+  assert_true(isTRUE(param_vals$early_stopping))
+  assert_true(domain$lower <= 1)
+  domain$upper
+}, .parent = topenv())
+
+
 paramset_torchlearner = function(task_type) {
   check_measures = switch(task_type,
     regr = check_measures_regr,
@@ -42,23 +50,18 @@ paramset_torchlearner = function(task_type) {
 
   param_set = ps(
     batch_size            = p_int(tags = c("train", "predict", "required"), lower = 1L),
-    epochs                = p_int(tags = c("train", "required"), lower = 0L),
-    device                = p_fct(tags = c("train", "predict", "required"), levels = mlr_reflections$torch$devices),
-    measures_train        = p_uty(tags = c("train", "required"), custom_check = check_measures),
-    measures_valid        = p_uty(tags = c("train", "required"), custom_check = check_measures),
-    drop_last             = p_lgl(tags = c("train", "required")),
-    shuffle               = p_lgl(tags = c("train", "required")),
-    num_threads           = p_int(lower = 1L, tags = c("train", "predict", "required", "threads")),
-    seed                  = p_int(tags = c("train", "predict", "required"), special_vals = list("random"))
-  )
-  param_set$values = list(
-    device         = "auto",
-    measures_train = list(),
-    measures_valid = list(),
-    num_threads    = 1L,
-    drop_last      = FALSE,
-    shuffle        = TRUE,
-    seed           = "random"
+    epochs                = p_int(tags = c("train", "validation", "internal_tuning", "required"), lower = 0L,
+      aggr = epochs_aggr, in_tune_fn = epochs_tune_fn, disable_in_tune = list(patience = 0)),
+    device                = p_fct(tags = c("train", "predict", "required"), levels = mlr_reflections$torch$devices, init = "auto"),
+    eval_freq             = p_int(lower = 1L, tags = c("train", "required"), init = 1L),
+    measures_train        = p_uty(tags = c("train", "required"), custom_check = check_measures, init = list()),
+    measures_valid        = p_uty(tags = c("train", "required"), custom_check = check_measures, init = list()),
+    patience              = p_int(lower = 0L, tags = c("train", "required"), init = 0L),
+    min_delta             = p_dbl(lower = 0, tags = c("train", "required"), init = 0),
+    drop_last             = p_lgl(tags = c("train", "required"), init = FALSE),
+    shuffle               = p_lgl(tags = c("train", "required"), init = TRUE),
+    num_threads           = p_int(lower = 1L, tags = c("train", "predict", "required", "threads"), init = 1L),
+    seed                  = p_int(tags = c("train", "predict", "required"), special_vals = list("random"), init = "random")
   )
   return(param_set)
 }

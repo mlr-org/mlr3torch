@@ -27,6 +27,19 @@
 #'   and used during prediction.
 #'   Note that by setting the seed during the training phase this will mean that by default (i.e. when `seed` is
 #'   `"random"`), clones of the learner will use a different seed.
+#' * `eval_freq` :: `integer(1)`\cr
+#'   How often the train / validation predictions are evaluated using `measures_train` / `measures_valid`.
+#'   This is initialized to `1`.
+#'   Note that the final model is always evaluated.
+#' * `patience` :: `integer(1)`\cr
+#'   This activates early stopping using the validation scores.
+#'   If the performance of a model does not improve for `patience` evaluation steps, training is ended.
+#'   Note that the final model is stored in the learner, not the best model.
+#'   This is initialized to `0`, which means no early stopping.
+#'   The first entry from `measures_valid` is used as the metric.
+#' * `min_delta` :: `double(1)`\cr
+#'   The minimum improvement threshold (`>`) for early stopping.
+#'   Is initialized to 0.
 #'
 #' Additionally there are the parameters for the optimizer, the loss function and the callbacks.
 #' They are prefixed with `"opt."`, `"loss."` and `"cb.<callback id>."` respectively.

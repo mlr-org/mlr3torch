@@ -24,7 +24,7 @@ rd_info_learner_torch = function(name, task_types = "classif, regr") {
   paste(x, collapse = "\n")
 }
 
-rd_info_task_torch = function(name, missings) {
+rd_info_task_torch = function(name, missings, splits) {
   obj = tsk(name)
   x = c("",
     sprintf("* Task type: %s", rd_format_string(obj$task_type)),
@@ -32,10 +32,7 @@ rd_info_task_torch = function(name, missings) {
     sprintf("* Has Missings: %s", if (missings) "yes" else "no"),
     sprintf("* Target: %s", rd_format_string(obj$target_names)),
     sprintf("* Features: %s", rd_format_string(obj$feature_names)),
-    sprintf("* Backend Dimension: %ix%i", obj$backend$nrow, obj$backend$ncol),
-    sprintf("* Default Roles (use / test / holdout): %i, %i, %i",
-      length(obj$row_roles$use), length(obj$row_roles$test), length(obj$row_roles$holdout)
-    )
+    sprintf("* Backend Dimension: %ix%i", obj$backend$nrow, obj$backend$ncol)
   )
   paste(x, collapse = "\n")
 }

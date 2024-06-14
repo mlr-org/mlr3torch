@@ -41,6 +41,7 @@
 #'   * `loss_fn` :: The `$state_dict()` of the [loss][torch::nn_module] used to train the network.
 #'   * `callbacks` :: The [callbacks][mlr3torch::mlr_callback_set] used to train the network.
 #'   * `seed` :: The seed that was / is used for training and prediction.
+#'   * `epochs` :: How many epochs the model was trained for (for early stopping).
 #'   * `task_col_info` :: A `data.table()` containing information about the train-task.
 #'
 #' @template paramset_torchlearner
@@ -141,7 +142,7 @@ LearnerTorch = R6Class("LearnerTorch",
 
 
       assert_subset(properties, mlr_reflections$learner_properties[[task_type]])
-      properties = union(properties, "marshal")
+      properties = union(properties, c("marshal", "validation", "internal_tuning"))
       assert_subset(predict_types, names(mlr_reflections$learner_predict_types[[task_type]]))
       if (any(grepl("^(loss\\.|opt\\.|cb\\.)", param_set$ids()))) {
         stopf("Prefixes 'loss.', 'opt.', and 'cb.' are reserved for dynamically constructed parameters.")
@@ -210,6 +211,28 @@ LearnerTorch = R6Class("LearnerTorch",
     }
   ),
   active = list(
+    #' @field validate
+    #' How to construct the internal validation data. This parameter can be either `NULL`,
+    #' a ratio in $(0, 1)$, `"test"`, or `"predefined"`.
+    validate = function(rhs) {
+      if (!missing(rhs)) {
+        private$.validate = assert_validate(rhs)
+      }
+      private$.validate
+    },
+
+    #' @field internal_valid_scores
+    #' Retrieves the internal validation scores as a named `list()`.
+    #' Returns `NULL` if learner is not trained yet.
+    internal_valid_scores = function() {
+      self$state$internal_valid_scores
+    },
+    #' @field internal_tuned_values
+    #' Retrieves the internally tuned values as a named `list()`.
+    #' Returns `NULL` if learner is not trained yet.
+    internal_tuned_values = function() {
+      self$state$internal_tuned_values
+    },
     #' @field marshaled (`logical(1)`)\cr
     #' Whether the learner is marshaled.
     marshaled = function(rhs) {
@@ -257,6 +280,21 @@ LearnerTorch = R6Class("LearnerTorch",
     }
   ),
   private = list(
+    .extract_internal_tuned_values = function() {
+      if (self$state$param_vals$patience == 0) {
+        named_list()
+      } else {
+        self$model$epochs
+      }
+    },
+    .extract_internal_valid_scores = function() {
+      if (is.null(self$model$internal_valid_scores)) {
+        named_list()
+      } else {
+        self$model$internal_valid_scores
+      }
+    },
+    .validate = NULL,
     .additional_phash_input = function() {
       if (is.null(self$initialize)) return(NULL)
       initformals = names(formals(args(self$initialize)))

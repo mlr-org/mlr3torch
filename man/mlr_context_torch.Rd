@@ -73,6 +73,9 @@ The current iteration.}
 
 \item{\code{prediction_encoder}}{(\verb{function()})\cr
 The learner's prediction encoder.}
+
+\item{\code{batch}}{(named \code{list()} of \code{torch_tensor}s)\cr
+The current batch.}
 }
 \if{html}{\out{</div>}}
 }
@@ -143,6 +146,9 @@ The total number of epochs the learner is trained for.}
 
 \item{\code{prediction_encoder}}{(\verb{function()})\cr
 The learner's prediction encoder.}
+
+\item{\code{eval_freq}}{(\code{integer(1)})\cr
+The evaluation frequency.}
 }
 \if{html}{\out{</div>}}
 }

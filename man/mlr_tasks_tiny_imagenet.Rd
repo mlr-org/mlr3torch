@@ -6,13 +6,10 @@
 \description{
 Subset of the famous ImageNet dataset.
 The data is obtained from \code{\link[torchvision:tiny_imagenet_dataset]{torchvision::tiny_imagenet_dataset()}}.
-It contains the train, validation and test data.
-The row role \code{use} is set to the training data, the row role \code{test} to the valdiation data and the row role
-\code{holdout} is set to the test data.
-There are no labels available for the test data.
 
-The underlying \code{\link{DataBackend}} contains columns \code{"class"}, \code{"image"}, \code{"row_id"}, \code{"split"}, where the last column
+The underlying \code{\link{DataBackend}} contains columns \code{"class"}, \code{"image"}, \code{"..row_id"}, \code{"split"}, where the last column
 indicates whether the row belongs to the train, validation or test set.
+There are no labels for the test rows.
 }
 \section{Construction}{
 
@@ -26,11 +23,10 @@ indicates whether the row belongs to the train, validation or test set.
 \itemize{
 \item Task type: \dQuote{classif}
 \item Properties: \dQuote{multiclass}
-\item Has Missings: no
+\item Has Missings: yes
 \item Target: \dQuote{class}
 \item Features: \dQuote{image}
 \item Backend Dimension: 120000x3
-\item Default Roles (use / test / holdout): 100000, 10000, 10000
 }
 }
 

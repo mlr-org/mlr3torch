@@ -19,6 +19,7 @@ The Model is a list of class \code{"learner_torch_model"} with the following ele
 \item \code{loss_fn} :: The \verb{$state_dict()} of the \link[torch:nn_module]{loss} used to train the network.
 \item \code{callbacks} :: The \link[=mlr_callback_set]{callbacks} used to train the network.
 \item \code{seed} :: The seed that was / is used for training and prediction.
+\item \code{epochs} :: How many epochs the model was trained for (for early stopping).
 \item \code{task_col_info} :: A \code{data.table()} containing information about the train-task.
 }
 }
@@ -50,6 +51,19 @@ training phase. This seed (either set or randomly sampled) is available via \ver
 and used during prediction.
 Note that by setting the seed during the training phase this will mean that by default (i.e. when \code{seed} is
 \code{"random"}), clones of the learner will use a different seed.
+\item \code{eval_freq} :: \code{integer(1)}\cr
+How often the train / validation predictions are evaluated using \code{measures_train} / \code{measures_valid}.
+This is initialized to \code{1}.
+Note that the final model is always evaluated.
+\item \code{patience} :: \code{integer(1)}\cr
+This activates early stopping using the validation scores.
+If the performance of a model does not improve for \code{patience} evaluation steps, training is ended.
+Note that the final model is stored in the learner, not the best model.
+This is initialized to \code{0}, which means no early stopping.
+The first entry from \code{measures_valid} is used as the metric.
+\item \code{min_delta} :: \code{double(1)}\cr
+The minimum improvement threshold (\code{>}) for early stopping.
+Is initialized to 0.
 }
 
 Additionally there are the parameters for the optimizer, the loss function and the callbacks.
@@ -122,6 +136,15 @@ Other Learner:
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
+\item{\code{validate}}{How to construct the internal validation data. This parameter can be either \code{NULL},
+a ratio in $(0, 1)$, \code{"test"}, or \code{"predefined"}.}
+
+\item{\code{internal_valid_scores}}{Retrieves the internal validation scores as a named \code{list()}.
+Returns \code{NULL} if learner is not trained yet.}
+
+\item{\code{internal_tuned_values}}{Retrieves the internally tuned values as a named \code{list()}.
+Returns \code{NULL} if learner is not trained yet.}
+
 \item{\code{marshaled}}{(\code{logical(1)})\cr
 Whether the learner is marshaled.}
 

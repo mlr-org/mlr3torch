@@ -5,13 +5,10 @@
 #' @description
 #' Subset of the famous ImageNet dataset.
 #' The data is obtained from [`torchvision::tiny_imagenet_dataset()`].
-#' It contains the train, validation and test data.
-#' The row role `use` is set to the training data, the row role `test` to the valdiation data and the row role
-#' `holdout` is set to the test data.
-#' There are no labels available for the test data.
 #'
-#' The underlying [`DataBackend`] contains columns `"class"`, `"image"`, `"row_id"`, `"split"`, where the last column
+#' The underlying [`DataBackend`] contains columns `"class"`, `"image"`, `"..row_id"`, `"split"`, where the last column
 #' indicates whether the row belongs to the train, validation or test set.
+#' There are no labels for the test rows.
 #'
 #'
 #' @section Construction:
@@ -20,7 +17,7 @@
 #' ```
 #'
 #' @section Meta Information:
-#' `r rd_info_task_torch("tiny_imagenet", missings = FALSE)`
+#' `r rd_info_task_torch("tiny_imagenet", missings = TRUE)`
 #'
 #' @references
 #' `r format_bib("imagenet2009")`
@@ -73,9 +70,10 @@ constructor_tiny_imagenet = function(path) {
   classes = c(train_res$labels, valid_res$labels, rep(NA_character_, length(test_uris)))
   uris = c(train_res$uris, valid_res$uris, test_uris)
 
-  data.frame(
+  data.table(
     class = classes,
-    image = uris
+    image = uris,
+    split = factor(c("train", "valid", "test"), times = c(100000, 10000, 10000))
   )
 }
 
@@ -108,10 +106,6 @@ load_task_tiny_imagenet = function(id = "tiny_imagenet") {
   )
 
   backend$hash = task$man = "mlr3torch::mlr_tasks_tiny_imagenet"
-
-  task$row_roles$use = seq_len(100000)
-  task$row_roles$test = seq(from = 100001, 110000)
-  task$row_roles$holdout = seq(from = 110001, 120000)
   task$col_roles$feature = "image"
 
   return(task)

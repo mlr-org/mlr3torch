@@ -29,7 +29,6 @@ Just like the iris task, but the features are represented as one lazy tensor col
 \item Target: \dQuote{Species}
 \item Features: \dQuote{x}
 \item Backend Dimension: 150x3
-\item Default Roles (use / test / holdout): 150, 0, 0
 }
 }
 
