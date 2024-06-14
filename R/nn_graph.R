@@ -51,8 +51,9 @@ nn_graph = nn_module(
 
     # the following is necessary to make torch aware of all the included parameters
     # (some operators in the graph could be different from PipeOpModule, e.g. PipeOpBranch or PipeOpNOP
-    mops = Filter(function(x) inherits(x, "PipeOpModule"), graph$pipeops)
-    self$modules = nn_module_list(map(mops, "module"))
+    mops =  Filter(function(x) inherits(x, "PipeOpModule"), graph$pipeops)
+    # dont use modules name as it is reserved
+    self$module_list = nn_module_list(keep(map(mops, "module"), is, "nn_module"))
   },
   forward = function(...) {
     # this ensures that the arguments are passed in the correct order
@@ -79,7 +80,27 @@ nn_graph = nn_module(
     }
 
     recursive_reset(self)
-  }
+  },
+  private = list(
+    finalize_deep_clone = function() {
+      # here we need to clone the graph without cloning
+      # this assumes that the order of the PipeOps in self$graph does not change
+      # the problem is that nn_module_list() does not preserve the names
+      module_ids = discard(.p = is.null, map(self$graph$pipeops, function(po) {
+        if (!test_class(po, "PipeOpModule")) return(NULL)
+        if (!test_class(po$module, "nn_module")) return(NULL)
+        po$module = NULL
+        po$id
+      }))
+      self$graph = self$graph$clone(deep = TRUE)
+      for (i in seq_along(module_ids)) {
+        # the first module is self
+        self$graph$pipeops[[module_ids[[i]]]]$module = self$module_list$modules[[i + 1]]
+        i = i + 1
+      }
+      invisible(self)
+    }
+  )
 )
 
 

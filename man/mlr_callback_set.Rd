@@ -21,6 +21,14 @@ the current state of the training loop.
 This context is assigned at the beginning of the training loop and removed afterwards.
 Different stages of a callback can communicate with each other by assigning values to \verb{$self}.
 
+\emph{State}:
+To be able to store information in the \verb{$model} slot of a \code{\link{LearnerTorch}}, callbacks support a state API.
+You can overload the \verb{$state_dict()} public method to define what will be stored in \verb{learner$model$callbacks$<id>}
+after training finishes.
+This then also requires to implement a \verb{$load_state_dict(state_dict)} method that defines how to load a previously saved
+callback state into a different callback.
+Note that the \verb{$state_dict()} should not include the parameter values that were used to initialize the callback.
+
 For creating custom callbacks, the function \code{\link[=torch_callback]{torch_callback()}} is recommended, which creates a
 \code{CallbackSet} and then wraps it in a \code{\link{TorchCallback}}.
 To create a \code{CallbackSet} the convenience function \code{\link[=callback_set]{callback_set()}} can be used.
@@ -39,7 +47,8 @@ These functions perform checks such as that the stages are not accidentally miss
 \item \code{batch_valid_begin} :: Run before the forward call in the validation loop.
 \item \code{batch_valid_end} :: Run after the forward call in the validation loop.
 \item \code{epoch_end} :: Run at the end of each epoch.
-\item \code{end} :: Run at last, using \code{on.exit()}.
+\item \code{end} :: Run after last epoch.
+\item \code{exit} :: Run at last, using \code{on.exit()}.
 }
 }
 
@@ -78,6 +87,8 @@ The active stages of this callback set.}
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-CallbackSet-print}{\code{CallbackSet$print()}}
+\item \href{#method-CallbackSet-state_dict}{\code{CallbackSet$state_dict()}}
+\item \href{#method-CallbackSet-load_state_dict}{\code{CallbackSet$load_state_dict()}}
 \item \href{#method-CallbackSet-clone}{\code{CallbackSet$clone()}}
 }
 }
@@ -95,6 +106,36 @@ Prints the object.
 \describe{
 \item{\code{...}}{(any)\cr
 Currently unused.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSet-state_dict"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSet-state_dict}{}}}
+\subsection{Method \code{state_dict()}}{
+Returns information that is kept in the the \code{\link{LearnerTorch}}'s state after training.
+This information should be loadable into the callback using \verb{$load_state_dict()} to be able to continue training.
+This returns \code{NULL} by default.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackSet$state_dict()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSet-load_state_dict"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSet-load_state_dict}{}}}
+\subsection{Method \code{load_state_dict()}}{
+Loads the state dict into the callback to continue training.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackSet$load_state_dict(state_dict)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{state_dict}}{(any)\cr
+The state dict as retrieved via \verb{$state_dict()}.}
 }
 \if{html}{\out{</div>}}
 }

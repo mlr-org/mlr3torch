@@ -18,10 +18,19 @@
 #' This context is assigned at the beginning of the training loop and removed afterwards.
 #' Different stages of a callback can communicate with each other by assigning values to `$self`.
 #'
+#' *State*:
+#' To be able to store information in the `$model` slot of a [`LearnerTorch`], callbacks support a state API.
+#' You can overload the `$state_dict()` public method to define what will be stored in `learner$model$callbacks$<id>`
+#' after training finishes.
+#' This then also requires to implement a `$load_state_dict(state_dict)` method that defines how to load a previously saved
+#' callback state into a different callback.
+#' Note that the `$state_dict()` should not include the parameter values that were used to initialize the callback.
+#'
 #' For creating custom callbacks, the function [`torch_callback()`] is recommended, which creates a
 #' `CallbackSet` and then wraps it in a [`TorchCallback`].
 #' To create a `CallbackSet` the convenience function [`callback_set()`] can be used.
 #' These functions perform checks such as that the stages are not accidentally misspelled.
+#'
 #'
 #' @section Stages:
 #' * `begin` :: Run before the training loop begins.
@@ -33,7 +42,8 @@
 #' * `batch_valid_begin` :: Run before the forward call in the validation loop.
 #' * `batch_valid_end` :: Run after the forward call in the validation loop.
 #' * `epoch_end` :: Run at the end of each epoch.
-#' * `end` :: Run at last, using `on.exit()`.
+#' * `end` :: Run after last epoch.
+#' * `exit` :: Run at last, using `on.exit()`.
 #' @family Callback
 #' @export
 CallbackSet = R6Class("CallbackSet",
@@ -50,6 +60,21 @@ CallbackSet = R6Class("CallbackSet",
     print = function(...) {
       catn(sprintf("<%s>", class(self)[[1L]]))
       catn(str_indent("* Stages:", self$stages))
+    },
+    #' @description
+    #' Returns information that is kept in the the [`LearnerTorch`]'s state after training.
+    #' This information should be loadable into the callback using `$load_state_dict()` to be able to continue training.
+    #' This returns `NULL` by default.
+    state_dict = function() {
+      NULL
+    },
+    #' @description
+    #' Loads the state dict into the callback to continue training.
+    #' @param state_dict (any)\cr
+    #'   The state dict as retrieved via `$state_dict()`.
+    load_state_dict = function(state_dict) {
+      assert_true(is.null(state_dict))
+      NULL
     }
   ),
   active = list(
@@ -71,6 +96,10 @@ CallbackSet = R6Class("CallbackSet",
     deep_clone = function(name, value) {
       if (name == "ctx" && !is.null(value)) {
         stopf("CallbackSet instances can only be cloned when the 'ctx' is NULL.")
+      } else if (is.R6(value)) {
+        value$clone(deep = TRUE)
+      } else if (is.data.table(value)) {
+        copy(value)
       } else {
         value
       }
@@ -90,7 +119,7 @@ CallbackSet = R6Class("CallbackSet",
 #'
 #' @param classname (`character(1)`)\cr
 #'   The class name.
-#' @param on_begin,on_end,on_epoch_begin,on_before_valid,on_epoch_end,on_batch_begin,on_batch_end,on_after_backward,on_batch_valid_begin,on_batch_valid_end (`function`)\cr
+#' @param on_begin,on_end,on_epoch_begin,on_before_valid,on_epoch_end,on_batch_begin,on_batch_end,on_after_backward,on_batch_valid_begin,on_batch_valid_end,on_exit (`function`)\cr
 #'   Function to execute at the given stage, see section *Stages*.
 #' @param initialize (`function()`)\cr
 #'   The initialization method of the callback.
@@ -101,6 +130,11 @@ CallbackSet = R6Class("CallbackSet",
 #' @param inherit (`R6ClassGenerator`)\cr
 #'   From which class to inherit.
 #'   This class must either be [`CallbackSet`] (default) or inherit from it.
+#' @param state_dict (`function()`)\cr
+#'   The function that retrieves the state dict from the callback.
+#'   This is what will be available in the learner after training.
+#' @param load_state_dict (`function(state_dict)`)\cr
+#'   Function that loads a callback state.
 #' @param lock_objects (`logical(1)`)\cr
 #'  Whether to lock the objects of the resulting [`R6Class`].
 #'  If `FALSE` (default), values can be freely assigned to `self` without declaring them in the
@@ -115,6 +149,7 @@ callback_set = function(
   # training
   on_begin = NULL,
   on_end = NULL,
+  on_exit = NULL,
   on_epoch_begin = NULL,
   on_before_valid = NULL,
   on_epoch_end = NULL,
@@ -125,11 +160,16 @@ callback_set = function(
   on_batch_valid_begin = NULL,
   on_batch_valid_end = NULL,
   # other methods
+  state_dict = NULL,
+  load_state_dict = NULL,
   initialize = NULL,
   public = NULL, private = NULL, active = NULL, parent_env = parent.frame(), inherit = CallbackSet,
   lock_objects = FALSE
   ) {
   assert_true(startsWith(classname, "CallbackSet"))
+  assert_false(xor(is.null(state_dict), is.null(load_state_dict)))
+  assert_function(state_dict, nargs = 0, null.ok = TRUE)
+  assert_function(load_state_dict, args = "state_dict", nargs = 1, null.ok = TRUE)
   more_public = list(
     on_begin = assert_function(on_begin, nargs = 0, null.ok = TRUE),
     on_end = assert_function(on_end, nargs = 0, null.ok = TRUE),
@@ -140,7 +180,8 @@ callback_set = function(
     on_batch_end = assert_function(on_batch_end, nargs = 0, null.ok = TRUE),
     on_after_backward = assert_function(on_after_backward, nargs = 0, null.ok = TRUE),
     on_batch_valid_begin = assert_function(on_batch_valid_begin, nargs = 0, null.ok = TRUE),
-    on_batch_valid_end = assert_function(on_batch_valid_end, nargs = 0, null.ok = TRUE)
+    on_batch_valid_end = assert_function(on_batch_valid_end, nargs = 0, null.ok = TRUE),
+    on_exit = assert_function(on_exit, nargs = 0, null.ok = TRUE)
   )
 
   assert_function(initialize, null.ok = TRUE)
@@ -152,6 +193,11 @@ callback_set = function(
 
   assert_list(public, null.ok = TRUE, names = "unique")
   if (length(public)) assert_names(names(public), disjunct.from = names(more_public))
+
+  if (!is.null(state_dict)) {
+    public$state_dict = state_dict
+    public$load_state_dict = load_state_dict
+  }
 
   invalid_stages = names(public)[grepl("^on_", names(public))]
 

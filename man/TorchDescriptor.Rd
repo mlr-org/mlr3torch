@@ -14,6 +14,7 @@ to the generator when calling the public method \verb{$generate()}.
 \section{Parameters}{
 
 Defined by the constructor argument \code{param_set}.
+All parameters are tagged with \code{"train"}, but this is done automatically during initialize.
 }
 
 \seealso{

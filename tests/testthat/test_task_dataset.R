@@ -367,7 +367,7 @@ test_that("nop added for non-terminal pipeop", {
   task = graph$train(task)[[1L]]$task
 
   res = materialize(task$data()[1, ], rbind = TRUE)
-  expect_torch_equal(res$y + 1, res$x)
+  expect_equal(res$y + 1, res$x)
 
 })
 
@@ -401,7 +401,7 @@ test_that("unmergeable graphs are handled correctly", {
   task_ds = task_dataset(task, c(i1, i2), device = "cpu")
 
   batch = task_ds$.getbatch(1)
-  expect_torch_equal(batch$x[[1]], batch$x[[2]] - 1)
+  expect_equal(batch$x[[1]], batch$x[[2]] - 1)
 })
 
 test_that("merge_lazy_tensors only returns modified columns", {

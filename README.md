@@ -20,15 +20,15 @@ status](https://www.r-pkg.org/badges/version/mlr3torch)](https://CRAN.R-project.
 
 ## Installation
 
-For more details on how to install {torch}, see the [torch installation
-instruction](https://torch.mlverse.org/docs/articles/installation).
-
 ``` r
 # Install the development version from GitHub:
 pak::pak("mlr-org/mlr3torch")
 # You also need to install torch:
 torch::install_torch()
 ```
+
+More information about installing `torch` can be found
+[here](https://torch.mlverse.org/docs/articles/installation.html).
 
 ## What is mlr3torch?
 

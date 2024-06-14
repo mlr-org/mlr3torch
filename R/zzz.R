@@ -87,7 +87,8 @@ register_mlr3 = function() {
       "on_batch_valid_begin",
       "on_batch_valid_end",
       "on_epoch_end",
-      "on_end"
+      "on_end",
+      "on_exit"
     )
   )
 
@@ -119,6 +120,7 @@ register_mlr3pipelines = function() {
   register_namespace_callback(pkgname, "mlr3", register_mlr3)
   register_namespace_callback(pkgname, "mlr3pipelines", register_mlr3pipelines)
 }
+
 
 .onUnload = function(libPaths) { # nolint
   walk(names(mlr3torch_learners), function(nm) mlr_learners$remove(nm))

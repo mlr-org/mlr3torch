@@ -258,15 +258,6 @@ register_preproc("augment_vflip", torchvision::transform_vflip, packages = "torc
 )
 
 #' @template preprocess_torchvision
-#' @templateVar id augment_random_apply
-register_preproc("augment_random_apply", torchvision::transform_random_apply, packages = "torchvision", shapes_out = NULL, rowwise = TRUE,
-  param_set = ps(
-    transforms = p_uty(tags = c("train", "required"), custom_check = check_list),
-    p = p_dbl(default = 0.5, lower = 0, upper = 1, tags = "train")
-  )
-)
-
-#' @template preprocess_torchvision
 #' @templateVar id augment_rotate
 register_preproc("augment_rotate", torchvision::transform_rotate, packages = "torchvision", shapes_out = NULL, rowwise = TRUE,
   param_set = ps(
@@ -287,14 +278,6 @@ register_preproc("augment_center_crop", torchvision::transform_center_crop, pack
 )
 
 #' @template preprocess_torchvision
-#' @templateVar id augment_random_choice
-register_preproc("augment_random_choice", torchvision::transform_random_choice, packages = "torchvision", shapes_out = NULL, rowwise = TRUE,
-  param_set = ps(
-    transforms = p_uty(custom_check = check_list, tags = c("train", "required"))
-  )
-)
-
-#' @template preprocess_torchvision
 #' @templateVar id augment_random_crop
 register_preproc("augment_random_crop", torchvision::transform_random_crop, packages = "torchvision", shapes_out = NULL, rowwise = TRUE,
   param_set = ps(
@@ -303,6 +286,14 @@ register_preproc("augment_random_crop", torchvision::transform_random_crop, pack
     pad_if_needed = p_lgl(default = FALSE, tags = "train"),
     fill = p_uty(default = 0L, tags = "train"),
     padding_mode = p_fct(default = "constant", levels = c("constant", "edge", "reflect", "symmetric"), tags = "train")
+  )
+)
+
+#' @template preprocess_torchvision
+#' @templateVar id augment_random_choice
+register_preproc("augment_random_choice", torchvision::transform_random_choice, packages = "torchvision", shapes_out = NULL, rowwise = TRUE,
+  param_set = ps(
+    transforms = p_uty(custom_check = check_list, tags = c("train", "required"))
   )
 )
 
@@ -333,3 +324,13 @@ register_preproc("augment_random_crop", torchvision::transform_random_crop, pack
 ##' @template preprocess_torchvision
 ##' @templateVar id augment_random_perspective
 #register_preproc("augment_random_perspective", torchvision::transform_random_perspective, packages = "torchvision", shapes_out = NULL, rowwise = TRUE)
+
+##' @template preprocess_torchvision
+##' @templateVar id augment_random_apply
+#register_preproc("augment_random_apply", torchvision::transform_random_apply, packages = "torchvision", shapes_out = NULL, rowwise = TRUE,
+#  param_set = ps(
+#    transforms = p_uty(tags = c("train", "required"), custom_check = check_list),
+#    p = p_dbl(default = 0.5, lower = 0, upper = 1, tags = "train")
+#  )
+#)
+

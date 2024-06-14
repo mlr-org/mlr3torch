@@ -46,11 +46,6 @@ PipeOpTorchCallbacks = R6Class("PipeOpTorchCallbacks",
       private$.callbacks = as_torch_callbacks(callbacks, clone = TRUE)
       cbids = ids(private$.callbacks)
       assert_names(cbids, type = "unique")
-      walk(private$.callbacks, function(cb) {
-        if (length(cb$param_set$tags)) {
-          cb$param_set$tags = map(cb$param_set$tags, function(tags) union(tags, "train"))
-        }
-      })
       private$.callbacks = set_names(private$.callbacks, cbids)
       input = data.table(name = "input", train = "ModelDescriptor", predict = "Task")
       output = data.table(name = "output", train = "ModelDescriptor", predict = "Task")

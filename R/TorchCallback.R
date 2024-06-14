@@ -278,18 +278,19 @@ torch_callback = function(
   packages = NULL,
   label = capitalize(id),
   man = NULL,
-  # training
   on_begin = NULL,
   on_end = NULL,
+  on_exit = NULL,
   on_epoch_begin = NULL,
   on_before_valid = NULL,
   on_epoch_end = NULL,
   on_batch_begin = NULL,
   on_batch_end = NULL,
   on_after_backward = NULL,
-  # validation
   on_batch_valid_begin = NULL,
   on_batch_valid_end = NULL,
+  state_dict = NULL,
+  load_state_dict = NULL,
   # other arguments
   initialize = NULL,
   public = NULL, private = NULL, active = NULL, parent_env = parent.frame(), inherit = CallbackSet,
@@ -301,6 +302,7 @@ torch_callback = function(
     # training
     on_begin = on_begin,
     on_end = on_end,
+    on_exit = on_exit,
     on_epoch_begin = on_epoch_begin,
     on_before_valid = on_before_valid,
     on_epoch_end = on_epoch_end,
@@ -311,6 +313,7 @@ torch_callback = function(
     on_batch_valid_begin = on_batch_valid_begin,
     on_batch_valid_end = on_batch_valid_end,
     # other arguments
+    state_dict = state_dict, load_state_dict = load_state_dict,
     initialize = initialize,
     public = public, private = private, active = active, parent_env = parent_env, inherit = inherit,
     lock_objects = lock_objects

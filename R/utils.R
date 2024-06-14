@@ -192,4 +192,3 @@ list_to_batch = function(tensors) {
 auto_cache_lazy_tensors = function(lts) {
   any(duplicated(map_chr(lts, function(x) dd(x)$dataset_hash)))
 }
-

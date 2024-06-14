@@ -34,13 +34,14 @@
 #'   The callbacks to use for training.
 #'   Defaults to an empty` list()`, i.e. no callbacks.
 #'
-#' @section State:
-#' The state is a list with elements:
+#' @section Model:
+#' The Model is a list of class `"learner_torch_model"` with the following elements:
 #'   * `network` :: The trained [network][torch::nn_module].
 #'   * `optimizer` :: The `$state_dict()` [optimizer][torch::optimizer] used to train the network.
 #'   * `loss_fn` :: The `$state_dict()` of the [loss][torch::nn_module] used to train the network.
 #'   * `callbacks` :: The [callbacks][mlr3torch::mlr_callback_set] used to train the network.
 #'   * `seed` :: The seed that was / is used for training and prediction.
+#'   * `task_col_info` :: A `data.table()` containing information about the train-task.
 #'
 #' @template paramset_torchlearner
 #'
@@ -87,6 +88,9 @@
 #'
 #' To perform additional input checks on the task, the private `.verify_train_task(task, param_vals)` and
 #' `.verify_predict_task(task, param_vals)` can be overwritten.
+#'
+#' For learners that have other construction arguments that should change the hash of a learner, it is required
+#' to implement the private `$.additional_phash_input()`.
 #'
 #' @family Learner
 #' @export
@@ -183,24 +187,10 @@ LearnerTorch = R6Class("LearnerTorch",
     #' @param ... (any)\cr
     #'   Currently unused.
     print = function(...) {
-      catn(format(self), if (is.null(self$label) || is.na(self$label)) "" else paste0(": ", self$label))
-      catn(str_indent("* Model:", if (is.null(self$model)) "-" else class(self$model)[1L]))
+      super$print(...)
       catn(str_indent("* Optimizer:", private$.optimizer$id))
       catn(str_indent("* Loss:", private$.loss$id))
       catn(str_indent("* Callbacks:", if (length(private$.callbacks)) as_short_string(paste0(ids(private$.callbacks), collapse = ","), 1000L) else "-"))
-      catn(str_indent("* Parameters:", as_short_string(self$param_set$values, 1000L)))
-      catn(str_indent("* Packages:", self$packages))
-      catn(str_indent("* Predict Types: ", replace(self$predict_types, self$predict_types == self$predict_type, paste0("[", self$predict_type, "]"))))
-      catn(str_indent("* Feature Types:", self$feature_types))
-      catn(str_indent("* Properties:", self$properties))
-      w = self$warnings
-      e = self$errors
-      if (length(w)) {
-        catn(str_indent("* Warnings:", w))
-      }
-      if (length(e)) {
-        catn(str_indent("* Errors:", e))
-      }
     },
     #' @description
     #' Marshal the learner.
@@ -227,12 +217,9 @@ LearnerTorch = R6Class("LearnerTorch",
       learner_marshaled(self)
     },
     #' @field network ([`nn_module()`][torch::nn_module])\cr
-    #'   The network (only available after training).
+    #' Shortcut for `learner$model$network`.
     network = function(rhs) {
       assert_ro_binding(rhs)
-      if (is.null(self$state)) {
-        stopf("Cannot access network before training.")
-      }
       self$state$model$network
     },
     #' @field param_set ([`ParamSet`])\cr
@@ -249,20 +236,35 @@ LearnerTorch = R6Class("LearnerTorch",
       }
       private$.param_set
     },
-    #' @field history ([`CallbackSetHistory`])\cr
-    #' Shortcut for `learner$model$callbacks$history`.
-    history = function(rhs) {
+    #' @field hash (`character(1)`)\cr
+    #' Hash (unique identifier) for this object.
+    hash = function(rhs) {
+       assert_ro_binding(rhs)
+       calculate_hash(c(list(self$phash), self$param_set$values))
+    },
+    #' @field phash (`character(1)`)\cr
+    #' Hash (unique identifier) for this partial object, excluding some components
+    #' which are varied systematically during tuning (parameter values).
+    phash = function(rhs) {
       assert_ro_binding(rhs)
-      if (is.null(self$state)) {
-        stopf("Cannot access history before training.")
-      }
-      if (is.null(self$model$callbacks$history)) {
-        stopf("No history found. Did you specify t_clbk(\"history\") during construction?")
-      }
-      self$model$callbacks$history
+      calculate_hash(super$phash,
+        self$task_type,
+        private$.optimizer$phash,
+        private$.loss$phash,
+        map(private$.callbacks, "phash"),
+        private$.additional_phash_input()
+      )
     }
   ),
   private = list(
+    .additional_phash_input = function() {
+      if (is.null(self$initialize)) return(NULL)
+      initformals = names(formals(args(self$initialize)))
+      if (!test_subset(initformals, c("task_type", "loss", "optimizer", "callbacks"))) {
+        stopf("Learner %s has non-standard construction arguments, implement .additional_phash_input()",
+        self$id)
+      }
+    },
     .train = function(task) {
       param_vals = self$param_set$get_values(tags = "train")
       first_row = task$head(1)
@@ -348,20 +350,65 @@ LearnerTorch = R6Class("LearnerTorch",
       param_vals_test = insert_named(param_vals, list(shuffle = FALSE, drop_last = FALSE))
       private$.dataloader(task, param_vals_test)
     },
-    .dataset = function(task, param_vals) stop(".dataset must be implemented."),
+    .dataset = function(task, param_vals) {
+      stopf(".dataset must be implememnted")
+    },
     .optimizer = NULL,
     .loss = NULL,
     .param_set_base = NULL,
     .callbacks = NULL,
     .verify_train_task = function(task, param_vals) NULL,
     .verify_predict_task = function(task, param_vals) NULL,
-    deep_clone = function(name, value) deep_clone(self, private, super, name, value)
+    deep_clone = function(name, value) {
+      private$.param_set = NULL # required to keep clone identical to original, otherwise tests get really ugly
+      if (is.R6(value)) {
+        return(value$clone(deep = TRUE))
+      } else if (test_class(value, "nn_module")) {
+        value$clone(deep = TRUE)
+      } else if (name == ".callbacks") {
+        map(value, function(x) x$clone(deep = TRUE))
+      } else if (name == "state") {
+        if (!is.null(value)) {
+          model = value$model
+          value["model"] = list(NULL)
+          value = super$deep_clone(name, value)
+          value[["model"]] = set_class(list(
+            network = model$network$clone(deep = TRUE),
+            loss_fn = clone_recurse(model$loss_fn),
+            optimizer = clone_recurse(model$optimizer),
+            callbacks = map(model$callbacks, function(x) {
+              if (is.R6(x)) {
+                x$clone(deep = TRUE)
+              } else {
+                x
+              }
+            }),
+            seed = model$seed,
+            task_col_info = copy(model$task_col_info)
+          ), c("learner_torch_model", "list"))
+        }
+        return(value)
+      } else if (name == ".param_set") {
+        NULL
+      } else {
+        super$deep_clone(name, value)
+      }
+    }
   )
 )
 
+clone_recurse = function(l) {
+  if (test_class(l, "torch_tensor")) {
+    return(l$clone())
+  } else if (test_list(l) && length(l) > 0L) {
+    map(l, clone_recurse)
+  } else {
+    return(l)
+  }
+}
+
 #' @export
-marshal_model.learner_torch_state = function(model, inplace = FALSE, ...) {
-  # FIXME: optimizer and loss_fn
+marshal_model.learner_torch_model = function(model, inplace = FALSE, ...) {
   model$network = torch_serialize(model$network)
   model$loss_fn = torch_serialize(model$loss_fn)
   model$optimizer = torch_serialize(model$optimizer)
@@ -369,11 +416,11 @@ marshal_model.learner_torch_state = function(model, inplace = FALSE, ...) {
   structure(list(
     marshaled = model,
     packages = "mlr3torch"
-  ), class = c("learner_torch_state_marshaled", "list_marshaled", "marshaled"))
+  ), class = c("learner_torch_model_marshaled", "list_marshaled", "marshaled"))
 }
 
 #' @export
-unmarshal_model.learner_torch_state_marshaled = function(model, inplace = FALSE, device = "cpu", ...) {
+unmarshal_model.learner_torch_model_marshaled = function(model, inplace = FALSE, device = "cpu", ...) {
   model = model$marshaled
   model$network = torch_load(model$network, device = device)
   model$loss_fn = torch_load(model$loss_fn, device = device)
@@ -381,22 +428,8 @@ unmarshal_model.learner_torch_state_marshaled = function(model, inplace = FALSE,
   return(model)
 }
 
-deep_clone = function(self, private, super, name, value) {
-  private$.param_set = NULL # required to keep clone identical to original, otherwise tests get really ugly
 
-  if (name == "state") {
-    # https://github.com/mlr-org/mlr3torch/issues/97
-    if (!is.null(value)) {
-      stopf("Deep clone of trained network is currently not supported.")
-    } else {
-      NULL
-    }
-  } else if (is.R6(value)) {
-    value$clone(deep = TRUE)
-  } else if (name == ".param_set") {
-    # mlr3::Learner's deep clone would try to deep-clone this
-    NULL
-  } else {
-    super$deep_clone(name, value)
-  }
+#' @export
+hash_input.nn_module = function(x) {
+  data.table::address(x)
 }

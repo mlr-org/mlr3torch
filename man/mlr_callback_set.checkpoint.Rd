@@ -5,7 +5,12 @@
 \alias{CallbackSetCheckpoint}
 \title{Checkpoint Callback}
 \description{
-Saves the model during training.
+Saves the optimizer and network states during training.
+The final network and optimizer are always stored.
+}
+\details{
+Saving the learner itself in the callback with a trained model is impossible,
+as the model slot is set \emph{after} the last callback step is executed.
 }
 \seealso{
 Other Callback: 
@@ -29,14 +34,17 @@ Other Callback:
 \itemize{
 \item \href{#method-CallbackSetCheckpoint-new}{\code{CallbackSetCheckpoint$new()}}
 \item \href{#method-CallbackSetCheckpoint-on_epoch_end}{\code{CallbackSetCheckpoint$on_epoch_end()}}
-\item \href{#method-CallbackSetCheckpoint-on_end}{\code{CallbackSetCheckpoint$on_end()}}
+\item \href{#method-CallbackSetCheckpoint-on_batch_end}{\code{CallbackSetCheckpoint$on_batch_end()}}
+\item \href{#method-CallbackSetCheckpoint-on_exit}{\code{CallbackSetCheckpoint$on_exit()}}
 \item \href{#method-CallbackSetCheckpoint-clone}{\code{CallbackSetCheckpoint$clone()}}
 }
 }
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="load_state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-load_state_dict'><code>mlr3torch::CallbackSet$load_state_dict()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-print'><code>mlr3torch::CallbackSet$print()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-state_dict'><code>mlr3torch::CallbackSet$state_dict()</code></a></span></li>
 </ul>
 </details>
 }}
@@ -46,17 +54,21 @@ Other Callback:
 \subsection{Method \code{new()}}{
 Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetCheckpoint$new(path, freq)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackSetCheckpoint$new(path, freq, freq_type = "epoch")}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{path}}{(\code{character(1)})\cr
-The path to a folder where the models are saved. This path must not exist before.}
+The path to a folder where the models are saved.}
 
 \item{\code{freq}}{(\code{integer(1)})\cr
-The frequency how often the model is saved (epoch frequency).}
+The frequency how often the model is saved.
+Frequency is either per step or epoch, which can be configured through the \code{freq_type} parameter.}
+
+\item{\code{freq_type}}{(\code{character(1)})\cr
+Can be be either \code{"epoch"} (default) or \code{"step"}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -65,19 +77,31 @@ The frequency how often the model is saved (epoch frequency).}
 \if{html}{\out{<a id="method-CallbackSetCheckpoint-on_epoch_end"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-on_epoch_end}{}}}
 \subsection{Method \code{on_epoch_end()}}{
-Saves the network state dict.
+Saves the network and optimizer state dict.
+Does nothing if \code{freq_type} or \code{freq} are not met.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CallbackSetCheckpoint$on_epoch_end()}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackSetCheckpoint-on_end"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-on_end}{}}}
-\subsection{Method \code{on_end()}}{
-Saves the final network.
+\if{html}{\out{<a id="method-CallbackSetCheckpoint-on_batch_end"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-on_batch_end}{}}}
+\subsection{Method \code{on_batch_end()}}{
+Saves the selected objects defined in \code{save}.
+Does nothing if freq_type or freq are not met.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetCheckpoint$on_end()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackSetCheckpoint$on_batch_end()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSetCheckpoint-on_exit"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-on_exit}{}}}
+\subsection{Method \code{on_exit()}}{
+Saves the learner.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackSetCheckpoint$on_exit()}\if{html}{\out{</div>}}
 }
 
 }

@@ -87,7 +87,6 @@ load_task_mnist = function(id = "mnist") {
   )
 
   backend$hash = task$man = "mlr3torch::mlr_tasks_mnist"
-
   task$row_roles$use = seq_len(60000)
   task$row_roles$test = seq(from = 60001, 70000)
   task$col_roles$feature = "image"

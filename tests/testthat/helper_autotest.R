@@ -308,16 +308,8 @@ expect_torch_callback = function(torch_callback, check_man = TRUE) {
   expect_true(length(implemented_stages) > 0)
   walk(implemented_stages, function(stage) expect_function(cbgen$public_methods[[stage]], nargs = 0))
 
-  # Cloning works
-  task = tsk("iris")
-  learner = lrn("classif.torch_featureless", epochs = 1, batch_size = 50, callbacks = torch_callback)
-  # e.g. the progress callback otherwise prints to the console
-  invisible(capture.output(learner$train(task)))
-  cb_trained = learner$model$callbacks[[torch_callback$id]]
-  expect_class(cb_trained, "CallbackSet")
-  expect_deep_clone(cb_trained, cb_trained$clone(deep = TRUE))
-  cb_trained$ctx = "placeholder"
-  expect_error(cb_trained$clone(deep = TRUE), "can only be cloned")
+  cb = torch_callback$generate()
+  expect_deep_clone(cb, cb$clone(deep = TRUE))
 }
 
 #' @title Autotest for PipeOpTaskPreprocTorch
@@ -327,7 +319,10 @@ expect_torch_callback = function(torch_callback, check_man = TRUE) {
 #'   The object to test.
 #' @parm tnsr_in (`integer()`)\cr
 expect_pipeop_torch_preprocess = function(obj, shapes_in, exclude = character(0), exclude_defaults = character(0),
-  in_package = TRUE) {
+  in_package = TRUE, seed = NULL, deterministic) {
+  if (is.null(seed)) {
+    seed = sample.int(100000, 1)
+  }
   expect_pipeop(obj)
   expect_class(obj, "PipeOpTaskPreprocTorch")
   # a) Check that all parameters but stages have tags train and predict (this should hold in basically all cases)
@@ -355,27 +350,71 @@ expect_pipeop_torch_preprocess = function(obj, shapes_in, exclude = character(0)
 
   shapes_in = if (!test_list(shapes_in)) list(shapes_in) else shapes_in
 
-  walk(shapes_in, function(shape_in) {
+  make_task = function(shape_in) {
     tnsr_in = torch_empty(shape_in)
-    shape_in_unknown_batch = shape_in
-    shape_in_unknown_batch[1L] = NA
-    shape_out = obj$shapes_out(list(shape_in), stage = "train")[[1L]]
-    shape_out_unknown_batch = obj$shapes_out(list(shape_in_unknown_batch), stage = "train")[[1L]]
-    taskin = as_task_regr(data.table(
+    as_task_regr(data.table(
       y = rep(1, nrow(tnsr_in)),
       x = as_lazy_tensor(tnsr_in)
     ), target = "y")
+  }
 
-    taskout = obj$train(list(taskin))[[1L]]
+  walk(shapes_in, function(shape_in) {
+    shape_out = obj$shapes_out(list(shape_in), stage = "train")[[1L]]
+    shape_in_unknown_batch = shape_in
+    shape_in_unknown_batch[1L] = NA
+    shape_out_unknown_batch = obj$shapes_out(list(shape_in_unknown_batch), stage = "train")[[1L]]
+    taskin = make_task(shape_in)
 
-    tnsr_out = materialize(taskout$data(cols = "x")[[1L]], rbind = TRUE)
-
-    expect_class(tnsr_out, "torch_tensor")
+    # reproducible
+    dout = obj$train(list(taskin))[[1L]]$data(cols = "x")[[1L]]
+    tnsr_out1 = materialize(dout, rbind = FALSE)
+    expect_list(tnsr_out1, types = "torch_tensor")
 
     if (!is.null(shape_out)) {
-      testthat::expect_equal(tnsr_out$shape, shape_out)
-      testthat::expect_equal(tnsr_out$shape[-1L], shape_out_unknown_batch[-1L])
+      tnsr_out1 = torch_cat(map(tnsr_out1, function(x) x$unsqueeze(1)), dim = 1L)
+      testthat::expect_equal(tnsr_out1$shape, shape_out)
+      testthat::expect_equal(tnsr_out1$shape[-1L], shape_out_unknown_batch[-1L])
       testthat::expect_true(is.na(shape_out_unknown_batch[1L]))
     }
   })
+
+  if (deterministic) {
+    # train
+    taskin = make_task(shapes_in[[1L]])$clone(deep = TRUE)$filter(1:2)
+    taskin1 = taskin$clone(deep = TRUE)$filter(1)
+    taskin2 = taskin$clone(deep = TRUE)$filter(2)
+
+    dtrain = with_torch_settings(seed = 1, expr = {
+      obj$train(list(taskin))[[1L]]$data()
+    })
+    dtrain1 = with_torch_settings(seed = 1, expr = {
+      obj$train(list(taskin1))[[1L]]$data()
+    })
+    dtrain2 = with_torch_settings(seed = 1, expr = {
+      obj$train(list(taskin2))[[1L]]$data()
+    })
+
+    testthat::expect_equal(materialize(dtrain[1]), materialize(dtrain1))
+    testthat::expect_equal(materialize(dtrain[2]), materialize(dtrain2))
+
+    # predict
+    taskin = make_task(shapes_in[[1L]])$clone(deep = TRUE)$filter(1:2)
+    taskin1 = taskin$clone(deep = TRUE)$filter(1)
+    taskin2 = taskin$clone(deep = TRUE)$filter(2)
+
+    dtest = with_torch_settings(seed = 1, expr = {
+      obj$predict(list(taskin))[[1L]]$data()
+    })
+    dtest1 = with_torch_settings(seed = 1, expr = {
+      obj$predict(list(taskin1))[[1L]]$data()
+    })
+    dtest2 = with_torch_settings(seed = 1, expr = {
+      obj$predict(list(taskin2))[[1L]]$data()
+    })
+
+    testthat::expect_equal(materialize(dtest[1]), materialize(dtest1))
+    testthat::expect_equal(materialize(dtest[2]), materialize(dtest2))
+  }
+
+  # FIXME: test for test rows when available
 }

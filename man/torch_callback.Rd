@@ -13,6 +13,7 @@ torch_callback(
   man = NULL,
   on_begin = NULL,
   on_end = NULL,
+  on_exit = NULL,
   on_epoch_begin = NULL,
   on_before_valid = NULL,
   on_epoch_end = NULL,
@@ -21,6 +22,8 @@ torch_callback(
   on_after_backward = NULL,
   on_batch_valid_begin = NULL,
   on_batch_valid_end = NULL,
+  state_dict = NULL,
+  load_state_dict = NULL,
   initialize = NULL,
   public = NULL,
   private = NULL,
@@ -51,8 +54,15 @@ String in the format \verb{[pkg]::[topic]} pointing to a manual page for this ob
 The referenced help package can be opened via method \verb{$help()}.
 The default is \code{NULL}.}
 
-\item{on_begin, on_end, on_epoch_begin, on_before_valid, on_epoch_end, on_batch_begin, on_batch_end, on_after_backward, on_batch_valid_begin, on_batch_valid_end}{(\code{function})\cr
+\item{on_begin, on_end, on_epoch_begin, on_before_valid, on_epoch_end, on_batch_begin, on_batch_end, on_after_backward, on_batch_valid_begin, on_batch_valid_end, on_exit}{(\code{function})\cr
 Function to execute at the given stage, see section \emph{Stages}.}
+
+\item{state_dict}{(\verb{function()})\cr
+The function that retrieves the state dict from the callback.
+This is what will be available in the learner after training.}
+
+\item{load_state_dict}{(\verb{function(state_dict)})\cr
+Function that loads a callback state.}
 
 \item{initialize}{(\verb{function()})\cr
 The initialization method of the callback.}
@@ -98,7 +108,8 @@ then wraps this generator in a \code{\link{TorchCallback}} that can be passed to
 \item \code{batch_valid_begin} :: Run before the forward call in the validation loop.
 \item \code{batch_valid_end} :: Run after the forward call in the validation loop.
 \item \code{epoch_end} :: Run at the end of each epoch.
-\item \code{end} :: Run at last, using \code{on.exit()}.
+\item \code{end} :: Run after last epoch.
+\item \code{exit} :: Run at last, using \code{on.exit()}.
 }
 }
 

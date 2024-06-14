@@ -7,8 +7,6 @@ test_that("Basic checks", {
   md = po("torch_ingress_num")$train(list(task))
   mdout = obj$train(md)[[1L]]
 
-  expect_set_equal(obj$param_set$ids(), paste0("checkpoint.", c("path", "freq")))
-
   expect_subset("stats", obj$packages)
   expect_true(obj$is_trained)
   expect_identical(obj$state, list())

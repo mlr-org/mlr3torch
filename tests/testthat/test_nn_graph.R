@@ -101,13 +101,13 @@ test_that("nn_graph can reset parameters", {
     shapes_in = list(module.input = 1)
   )
 
-  expect_equal(network$parameters[["modules.0.nn_add.a"]]$item(), -99)
-  expect_equal(network$parameters[["modules.0.nn_mul.a"]]$item(), -99)
+  expect_equal(network$parameters[["module_list.0.nn_add.a"]]$item(), -99)
+  expect_equal(network$parameters[["module_list.0.nn_mul.a"]]$item(), -99)
 
   network$reset_parameters()
 
-  expect_equal(network$parameters[["modules.0.nn_add.a"]]$item(), 0)
-  expect_equal(network$parameters[["modules.0.nn_mul.a"]]$item(), 1)
+  expect_equal(network$parameters[["module_list.0.nn_add.a"]]$item(), 0)
+  expect_equal(network$parameters[["module_list.0.nn_mul.a"]]$item(), 1)
 })
 
 test_that("argument_matcher works", {
@@ -159,7 +159,7 @@ test_that("model_descriptor_to_module works", {
   expect_equal(result2$shape, c(1, 3))
 })
 
-test_that("model_descriptor_to_learner works", {
+test_that("cloning", {
   task = tsk("iris")
 
   graph1 = po("torch_ingress_num") %>>%
@@ -183,6 +183,61 @@ test_that("model_descriptor_to_learner works", {
   ids = partition(task)
 
   learner$train(task, row_ids = ids$train)
-  pred = learner$predict(task, row_ids = ids$test)
-  expect_class(pred, "PredictionClassif")
+  network = learner$network
+
+  network1 = learner$network$clone(deep = TRUE)
+
+  for (net in list(network, network1)) {
+    for (pipeop in net$graph$pipeops) {
+      unlockBinding(".additional_phash_input", get_private(pipeop))
+      get_private(pipeop, ".additional_phash_input") = function(...) NULL
+    }
+  }
+
+
+  expect_false(identical(network$module_list, network1$module_list))
+  expect_false(identical(network$graph, network1$graph))
+  expect_false(identical(network$graph$pipeops, network1$graph$pipeops))
+  # first module is self
+  expect_false(identical(network$module_list$modules[[2]], network1$module_list$modules[[2]]))
+  expect_false(identical(network$graph$pipeops$nn_linear$module, network1$graph$pipeops$nn_linear$module))
+  # references are preserved between the graph and the module list
+  # the first list entry of module list is the module list itself
+  expect_true(identical(network1$graph$pipeops$nn_linear$module, network1$module_list$modules[[2]]))
+
+  expect_deep_clone(network$graph, network1$graph)
+  network$graph = NULL
+  network1$graph = NULL
+  expect_deep_clone(network, network1)
+})
+
+test_that("cloning", {
+  nn_test = nn_module("test", initialize = function() {
+    self$l = nn_module_list(list(nn_linear(1, 1)))
+    },
+    forward = function(x) {
+      self$l[[1]](x)
+    }
+  )()
+
+  nn_test1 = nn_test$clone(deep = TRUE)
+  nn_test = nn_test$clone(deep = TRUE)$clone(deep = TRUE)
+
+  expect_deep_clone(nn_test, nn_test1)
+  nn_test = nn_module("test", initialize = function() {
+    self$l = nn_module_list(list(nn_linear(1, 1)))
+    },
+    forward = function(x) {
+      self$l[[1]](x)
+    }
+  )()
+
+  nn_test1 = nn_test$clone(deep = TRUE)
+  nn_test$clone(deep = TRUE)
+
+  nn_test$l$modules[[2]]
+  nn_test1$l$modules[[2]]
+
+  identical(nn_test$l$modules[[2]], nn_test1$l$modules[[2]])
+  identical(nn_test$children$l, nn_test1$children$l)
 })

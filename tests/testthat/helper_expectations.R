@@ -1,4 +1,5 @@
 expect_learner_torch = function(learner, check_man = TRUE, check_id = TRUE) {
+  expect_learner(learner)
   # TODO: Finish this:
   # * Test device placement of dataloader / network with "meta" device
 
@@ -9,8 +10,3 @@ expect_learner_torch = function(learner, check_man = TRUE, check_id = TRUE) {
   expect_subset(c("loss", "optimizer", "callbacks"), formalArgs(learner$initialize))
   expect_subset(c("mlr3", "mlr3torch", "torch"), learner$packages)
 }
-
-expect_torch_equal = function(...) {
-  expect_true(torch_equal(...))
-}
-

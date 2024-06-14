@@ -8,6 +8,7 @@ callback_set(
   classname,
   on_begin = NULL,
   on_end = NULL,
+  on_exit = NULL,
   on_epoch_begin = NULL,
   on_before_valid = NULL,
   on_epoch_end = NULL,
@@ -16,6 +17,8 @@ callback_set(
   on_after_backward = NULL,
   on_batch_valid_begin = NULL,
   on_batch_valid_end = NULL,
+  state_dict = NULL,
+  load_state_dict = NULL,
   initialize = NULL,
   public = NULL,
   private = NULL,
@@ -29,8 +32,15 @@ callback_set(
 \item{classname}{(\code{character(1)})\cr
 The class name.}
 
-\item{on_begin, on_end, on_epoch_begin, on_before_valid, on_epoch_end, on_batch_begin, on_batch_end, on_after_backward, on_batch_valid_begin, on_batch_valid_end}{(\code{function})\cr
+\item{on_begin, on_end, on_epoch_begin, on_before_valid, on_epoch_end, on_batch_begin, on_batch_end, on_after_backward, on_batch_valid_begin, on_batch_valid_end, on_exit}{(\code{function})\cr
 Function to execute at the given stage, see section \emph{Stages}.}
+
+\item{state_dict}{(\verb{function()})\cr
+The function that retrieves the state dict from the callback.
+This is what will be available in the learner after training.}
+
+\item{load_state_dict}{(\verb{function(state_dict)})\cr
+Function that loads a callback state.}
 
 \item{initialize}{(\verb{function()})\cr
 The initialization method of the callback.}

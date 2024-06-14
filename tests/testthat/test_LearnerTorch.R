@@ -1,10 +1,43 @@
-test_that("Correct error when trying to create deep clone of trained network", {
-  learner = lrn("classif.torch_featureless")
+test_that("Basic checks", {
+  learner = lrn("classif.torch_featureless", callbacks = "history")
+  expect_learner(learner)
+})
+
+test_that("deep cloning", {
+  learner = lrn("classif.torch_featureless", callbacks = "history")
   learner$param_set$set_values(epochs = 1, batch_size = 1)
   task = tsk("iris")
   learner$train(task)
-  expect_error(learner$clone(deep = TRUE), regexp = "Deep clone of trained network is currently not supported")
+  learner$state$train_task = NULL
+
+  learner_cloned = learner$clone(deep = TRUE)
+  expect_deep_clone(learner, learner_cloned)
+
+  # just because we are paranoid
+  network = learner$network
+  network_cloned = learner_cloned$network
+  expect_true(torch_equal(network$weights, network_cloned$weights))
+  network$weights$requires_grad_(FALSE)
+  network$weights[1] = network$weights[1] + 1
+  expect_false(torch_equal(network$weights, network_cloned$weights))
+
+  # but the generators are not cloned
+  expect_identical(
+    get_private(learner)$.loss$generator,
+    get_private(learner_cloned)$.loss$generator
+  )
+
+  expect_identical(
+    get_private(learner)$.loss$generator,
+    get_private(learner_cloned)$.loss$generator
+  )
+
+  expect_true(all(pmap_lgl(list(
+      get_private(learner)$.callbacks$generator,
+      get_private(learner_cloned)$.callbacks$generator),
+    identical)))
 })
+
 
 test_that("Correct error when using problematic measures", {
   learner = lrn("classif.torch_featureless", epochs = 1, batch_size = 16, measures_train = msr("classif.bbrier"))
@@ -164,12 +197,15 @@ test_that("the state of a trained network contains what it should", {
     loss = t_loss("l1")
   )
   learner$train(task)
-  expect_permutation(names(learner$model), c("seed", "network", "optimizer", "loss_fn", "task_col_info", "callbacks"))
+  expect_permutation(
+    names(learner$model),
+    c("seed", "network", "optimizer", "loss_fn", "task_col_info", "callbacks")
+  )
   expect_true(is.integer(learner$model$seed))
   expect_class(learner$model$network, "nn_module")
-  expect_class(learner$model$loss_fn, "list")
-  expect_class(learner$model$optimizer, "list")
-  expect_list(learner$model$callbacks, types = "CallbackSet", len = 1L)
+  expect_list(learner$model$loss_fn)
+  expect_list(learner$model$optimizer)
+  expect_list(learner$model$callbacks)
   expect_equal(names(learner$model$callbacks), "history1")
   expect_true(is.integer(learner$model$seed))
   expect_permutation(learner$model$task_col_info$id, c("mpg", "am"))
@@ -193,7 +229,12 @@ test_that("train parameters do what they should: classification and regression",
     on_begin = function() {
       # rename to avoid deleting the ctx after finishing the training
       self$ctx1 = self$ctx
-      self$num_threads = torch_get_num_threads()
+    },
+    load_state_dict = function(state_dict) {
+      NULL
+    },
+    state_dict = function() {
+      list(ctx = self$ctx1, num_threads = torch_get_num_threads())
     }
   )
 
@@ -230,8 +271,9 @@ test_that("train parameters do what they should: classification and regression",
     task$row_roles$test = split$train
     learner$train(task)
 
+
     internals = learner$model$callbacks$internals
-    ctx = internals$ctx1
+    ctx = internals$ctx
 
     if (!running_on_mac()) {
       expect_equal(num_threads, internals$num_threads)
@@ -255,10 +297,10 @@ test_that("train parameters do what they should: classification and regression",
 
     expect_false(ctx$loader_valid$drop_last)
 
-    expect_equal(nrow(learner$history$valid), epochs)
-    expect_equal(nrow(learner$history$train), epochs)
-    expect_permutation(c("epoch", ids(measures_train)), colnames(learner$history$train))
-    expect_permutation(c("epoch", ids(measures_valid)), colnames(learner$history$valid))
+    expect_equal(nrow(learner$model$callbacks$history$valid), epochs)
+    expect_equal(nrow(learner$model$callbacks$history$train), epochs)
+    expect_permutation(c("epoch", ids(measures_train)), colnames(learner$model$callbacks$history$train))
+    expect_permutation(c("epoch", ids(measures_valid)), colnames(learner$model$callbacks$history$valid))
 
     # now without validation
     task$row_roles$test = integer()
@@ -291,7 +333,7 @@ test_that("predict types work during training and prediction", {
   learner = lrn("classif.torch_featureless", epochs = 1, batch_size = 16, predict_type = "prob",
     measures_train = msr("classif.mbrier"), callbacks = t_clbk("history"))
   learner$train(task)
-  expect_true(!is.na(learner$history$train[1, "classif.mbrier"][[1L]]))
+  expect_true(!is.na(learner$model$callbacks$history$train[1, "classif.mbrier"][[1L]]))
 
   pred = learner$predict(task)
   expect_true(is.matrix(pred$prob))
@@ -319,8 +361,11 @@ test_that("predict parameters do what they should: classification and regression
     on_begin = function() {
       # Rename so it won't get deleted after training finishes
       self$ctx1 = self$ctx
-      self$num_threads = torch_get_num_threads()
-    }
+    },
+    state_dict = function() {
+      list(ctx = self$ctx1, num_threads = torch_get_num_threads())
+    },
+    load_state_dict = function(state_dict) NULL
   )
 
   f = function(task_type) {
@@ -334,7 +379,7 @@ test_that("predict parameters do what they should: classification and regression
     task = switch(task_type, regr = tsk("mtcars"), classif = tsk("iris"))
     learner$train(task)
     internals = learner$model$callbacks$internals
-    ctx = internals$ctx1
+    ctx = internals$ctx
     if (!running_on_mac()) {
       expect_equal(num_threads, internals$num_threads)
     }
@@ -355,14 +400,9 @@ test_that("predict parameters do what they should: classification and regression
 test_that("quick accessors work", {
   task = tsk("mtcars")
   learner = lrn("regr.torch_featureless", epochs = 1, batch_size = 1, callbacks = "history")
-  expect_error(learner$network, "Cannot")
-  expect_error(learner$history, "Cannot")
+  expect_true(is.null(learner$network))
   learner$train(task)
   expect_class(learner$network, "nn_module")
-  expect_class(learner$history, "CallbackSetHistory")
-  learner = lrn("regr.torch_featureless", epochs = 1, batch_size = 1)
-  learner$train(task)
-  expect_error(learner$history, "No history found")
 })
 
 test_that("Train-Predict works", {
@@ -466,4 +506,19 @@ test_that("deep clone works", {
 test_that("param set is read-only", {
   learner = lrn("classif.mlp")
   expect_error({learner$param_set = ps()}, "read-only")
+})
+
+test_that("(p)hash", {
+  expect_eq_phash = function(x, y) expect_equal(x$phash, y$phash)
+  expect_eq_hash = function(x, y) expect_equal(x$hash, y$hash)
+  expect_ne_phash = function(x, y) expect_false(x$phash == y$phash)
+  expect_ne_hash = function(x, y) expect_false(x$hash == y$hash)
+
+  expect_ne_hash(lrn("regr.mlp"), lrn("classif.mlp"))
+  expect_ne_hash(lrn("regr.mlp"), lrn("regr.mlp", epochs = 1))
+  expect_eq_phash(lrn("regr.mlp"), lrn("regr.mlp", epochs = 1))
+
+  expect_ne_hash(lrn("regr.mlp"), lrn("regr.mlp", optimizer = "sgd"))
+  expect_ne_hash(lrn("regr.mlp", loss = "mse"), lrn("regr.mlp", loss = "l1"))
+  expect_ne_hash(lrn("regr.mlp"), lrn("regr.mlp", callbacks = t_clbk("history")))
 })

@@ -31,8 +31,6 @@ expect_man_exists = function(man) {
   }
 }
 
-# expect that 'one' is a deep clone of 'two'
-
 
 expect_shallow_clone = function(one, two) {
   expect_equal(one, two)
