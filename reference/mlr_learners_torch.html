@@ -86,14 +86,15 @@ All torch learners should inherit from this class.</p>
 
 
     <div class="section level2">
-    <h2 id="state">State<a class="anchor" aria-label="anchor" href="#state"></a></h2>
+    <h2 id="model">Model<a class="anchor" aria-label="anchor" href="#model"></a></h2>
     
 
-<p>The state is a list with elements:</p><ul><li><p><code>network</code> :: The trained <a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">network</a>.</p></li>
+<p>The Model is a list of class <code>"learner_torch_model"</code> with the following elements:</p><ul><li><p><code>network</code> :: The trained <a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">network</a>.</p></li>
 <li><p><code>optimizer</code> :: The <code>$state_dict()</code> <a href="https://rdrr.io/pkg/torch/man/optimizer.html" class="external-link">optimizer</a> used to train the network.</p></li>
 <li><p><code>loss_fn</code> :: The <code>$state_dict()</code> of the <a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">loss</a> used to train the network.</p></li>
 <li><p><code>callbacks</code> :: The <a href="mlr_callback_set.html">callbacks</a> used to train the network.</p></li>
 <li><p><code>seed</code> :: The seed that was / is used for training and prediction.</p></li>
+<li><p><code>task_col_info</code> :: A <code><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table()</a></code> containing information about the train-task.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="parameters">Parameters<a class="anchor" aria-label="anchor" href="#parameters"></a></h2>
@@ -160,6 +161,8 @@ None of the parameters provided in <code>param_set</code> can have an id that st
 and the callbacks.</p>
 <p>To perform additional input checks on the task, the private <code>.verify_train_task(task, param_vals)</code> and
 <code>.verify_predict_task(task, param_vals)</code> can be overwritten.</p>
+<p>For learners that have other construction arguments that should change the hash of a learner, it is required
+to implement the private <code>$.additional_phash_input()</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -183,7 +186,7 @@ Whether the learner is marshaled.</p></dd>
 
 <dt><code>network</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module()</a></code>)<br>
-The network (only available after training).</p></dd>
+Shortcut for <code>learner$model$network</code>.</p></dd>
 
 
 <dt><code>param_set</code></dt>
@@ -191,9 +194,15 @@ The network (only available after training).</p></dd>
 The parameter set</p></dd>
 
 
-<dt><code>history</code></dt>
-<dd><p>(<code><a href="mlr_callback_set.history.html">CallbackSetHistory</a></code>)<br>
-Shortcut for <code>learner$model$callbacks$history</code>.</p></dd>
+<dt><code>hash</code></dt>
+<dd><p>(<code>character(1)</code>)<br>
+Hash (unique identifier) for this object.</p></dd>
+
+
+<dt><code>phash</code></dt>
+<dd><p>(<code>character(1)</code>)<br>
+Hash (unique identifier) for this partial object, excluding some components
+which are varied systematically during tuning (parameter values).</p></dd>
 
 
 </dl><p></p></div>

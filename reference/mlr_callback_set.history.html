@@ -96,10 +96,10 @@ The first column is always <code>epoch</code>.</p>
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
 
 <ul><li><p><a href="#method-CallbackSetHistory-on_begin"><code>CallbackSetHistory$on_begin()</code></a></p></li>
-<li><p><a href="#method-CallbackSetHistory-on_end"><code>CallbackSetHistory$on_end()</code></a></p></li>
+<li><p><a href="#method-CallbackSetHistory-state_dict"><code>CallbackSetHistory$state_dict()</code></a></p></li>
+<li><p><a href="#method-CallbackSetHistory-load_state_dict"><code>CallbackSetHistory$load_state_dict()</code></a></p></li>
 <li><p><a href="#method-CallbackSetHistory-on_before_valid"><code>CallbackSetHistory$on_before_valid()</code></a></p></li>
 <li><p><a href="#method-CallbackSetHistory-on_epoch_end"><code>CallbackSetHistory$on_epoch_end()</code></a></p></li>
-<li><p><a href="#method-CallbackSetHistory-plot"><code>CallbackSetHistory$plot()</code></a></p></li>
 <li><p><a href="#method-CallbackSetHistory-clone"><code>CallbackSetHistory$clone()</code></a></p></li>
 </ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href="CallbackSet.html#method-print"><code>mlr3torch::CallbackSet$print()</code></a></span></li>
 </ul></details></p><hr><a id="method-CallbackSetHistory-on_begin"></a><div class="section">
@@ -110,18 +110,35 @@ The first column is always <code>epoch</code>.</p>
 </div>
 
 
-</div><p></p><hr><a id="method-CallbackSetHistory-on_end"></a><div class="section">
-<h3 id="method-on-end-">Method <code>on_end()</code><a class="anchor" aria-label="anchor" href="#method-on-end-"></a></h3>
+</div><p></p><hr><a id="method-CallbackSetHistory-state_dict"></a><div class="section">
+<h3 id="method-state-dict-">Method <code>state_dict()</code><a class="anchor" aria-label="anchor" href="#method-state-dict-"></a></h3>
 <p>Converts the lists to data.tables.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetHistory</span><span class="op">$</span><span class="fu">on_end</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetHistory</span><span class="op">$</span><span class="fu">state_dict</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
+
+</div><p></p><hr><a id="method-CallbackSetHistory-load_state_dict"></a><div class="section">
+<h3 id="method-load-state-dict-">Method <code><a href="https://rdrr.io/pkg/torch/man/load_state_dict.html" class="external-link">load_state_dict()</a></code><a class="anchor" aria-label="anchor" href="#method-load-state-dict-"></a></h3>
+<p>Sets the field <code>$train</code> and <code>$valid</code> to those contained in the state dict.</p><div class="section">
+<h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetHistory</span><span class="op">$</span><span class="fu">load_state_dict</span><span class="op">(</span><span class="va">state_dict</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>state_dict</code></dt>
+<dd><p>(<code>callback_state_history</code>)<br>
+The state dict as retrieved via <code>$state_dict()</code>.</p></dd>
+
+
+</dl><p></p></div>
+</div>
 
 </div><p></p><hr><a id="method-CallbackSetHistory-on_before_valid"></a><div class="section">
 <h3 id="method-on-before-valid-">Method <code>on_before_valid()</code><a class="anchor" aria-label="anchor" href="#method-on-before-valid-"></a></h3>
 <p>Add the latest training scores to the history.</p><div class="section">
-<h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
+<h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetHistory</span><span class="op">$</span><span class="fu">on_before_valid</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -129,53 +146,10 @@ The first column is always <code>epoch</code>.</p>
 </div><p></p><hr><a id="method-CallbackSetHistory-on_epoch_end"></a><div class="section">
 <h3 id="method-on-epoch-end-">Method <code>on_epoch_end()</code><a class="anchor" aria-label="anchor" href="#method-on-epoch-end-"></a></h3>
 <p>Add the latest validation scores to the history.</p><div class="section">
-<h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
+<h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetHistory</span><span class="op">$</span><span class="fu">on_epoch_end</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
-
-</div><p></p><hr><a id="method-CallbackSetHistory-plot"></a><div class="section">
-<h3 id="method-plot-">Method <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code><a class="anchor" aria-label="anchor" href="#method-plot-"></a></h3>
-<p>Plots the history.</p><div class="section">
-<h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetHistory</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span></span>
-<span>  <span class="va">measures</span>,</span>
-<span>  set <span class="op">=</span> <span class="st">"valid"</span>,</span>
-<span>  epochs <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  theme <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  <span class="va">...</span></span>
-<span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
-<h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
-<p></p><div class="arguments"><dl><dt><code>measures</code></dt>
-<dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
-Which measures to plot. No default.</p></dd>
-
-
-<dt><code>set</code></dt>
-<dd><p>(<code>character(1)</code>)<br>
-Which set to plot. Either <code>"train"</code> or <code>"valid"</code>. Default is <code>"valid"</code>.</p></dd>
-
-
-<dt><code>epochs</code></dt>
-<dd><p>(<code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code>)<br>
-An integer vector restricting which epochs to plot. Default is <code>NULL</code>, which plots all epochs.</p></dd>
-
-
-<dt><code>theme</code></dt>
-<dd><p>(<code><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">ggplot2::theme()</a></code>)<br>
-The theme, <code><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">ggplot2::theme_minimal()</a></code> is the default.</p></dd>
-
-
-<dt><code>...</code></dt>
-<dd><p>(any)<br>
-Currently unused.</p></dd>
-
-
-</dl><p></p></div>
-</div>
 
 </div><p></p><hr><a id="method-CallbackSetHistory-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>

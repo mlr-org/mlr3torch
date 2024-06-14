@@ -111,12 +111,12 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>For more details on how to install {torch}, see the <a href="https://torch.mlverse.org/docs/articles/installation" class="external-link">torch installation instruction</a>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Install the development version from GitHub:</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"mlr-org/mlr3torch"</span><span class="op">)</span></span>
 <span><span class="co"># You also need to install torch:</span></span>
 <span><span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/torch/man/install_torch.html" class="external-link">install_torch</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>More information about installing <code>torch</code> can be found <a href="https://torch.mlverse.org/docs/articles/installation.html" class="external-link">here</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="what-is-mlr3torch">What is mlr3torch?<a class="anchor" aria-label="anchor" href="#what-is-mlr3torch"></a>
@@ -171,7 +171,7 @@
 <span><span class="co">#&gt; Graph with 8 PipeOps:</span></span>
 <span><span class="co">#&gt;                   ID         State            sccssors         prdcssors</span></span>
 <span><span class="co">#&gt;               &lt;char&gt;        &lt;char&gt;              &lt;char&gt;            &lt;char&gt;</span></span>
-<span><span class="co">#&gt;    torch_ingress_num &lt;&lt;UNTRAINED&gt;&gt;           nn_linear</span></span>
+<span><span class="co">#&gt;    torch_ingress_num &lt;&lt;UNTRAINED&gt;&gt;           nn_linear                  </span></span>
 <span><span class="co">#&gt;            nn_linear &lt;&lt;UNTRAINED&gt;&gt;             nn_relu torch_ingress_num</span></span>
 <span><span class="co">#&gt;              nn_relu &lt;&lt;UNTRAINED&gt;&gt;             nn_head         nn_linear</span></span>
 <span><span class="co">#&gt;              nn_head &lt;&lt;UNTRAINED&gt;&gt;          torch_loss           nn_relu</span></span>
@@ -226,7 +226,7 @@
 <span>  rbind <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; (1,1,.,.) =</span></span>
+<span><span class="co">#&gt; (1,1,.,.) = </span></span>
 <span><span class="co">#&gt;     0.0000    0.0000    0.0000    0.0000    0.0000</span></span>
 <span><span class="co">#&gt;     0.0000  200.9199  228.2500    8.2000    0.0000</span></span>
 <span><span class="co">#&gt;     0.0000    0.0000  196.7500    0.0000    0.0000</span></span>
@@ -239,9 +239,9 @@
 </h2>
 <ul>
 <li>Off-the-shelf architectures are readily available as <code><a href="https://mlr3.mlr-org.com/reference/Learner.html" class="external-link">mlr3::Learner</a></code>s.</li>
-<li>Custom learners can be defined using the <code>Graph</code> language from <code>mlr3pipelines</code>
-</li>
-<li>The package supports tabular data, as well as generic tensors via the <code>lazy_tensor</code> type</li>
+<li>Currently, supervised regression and classification is supported.</li>
+<li>Custom learners can be defined using the <code>Graph</code> language from <code>mlr3pipelines</code>.</li>
+<li>The package supports tabular data, as well as generic tensors via the <code>lazy_tensor</code> type.</li>
 <li>Multi-modal data can be handled conveniently, as <code>lazy_tensor</code> objects can be stored alongside tabular data.</li>
 <li>It is possible to customize the training process via (predefined or custom) callbacks.</li>
 <li>The package is fully integrated into the <code>mlr3</code> ecosystem.</li>

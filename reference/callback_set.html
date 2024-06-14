@@ -96,6 +96,7 @@ provided.</p>
 <span>  <span class="va">classname</span>,</span>
 <span>  on_begin <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  on_end <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  on_exit <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  on_epoch_begin <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  on_before_valid <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  on_epoch_end <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -104,6 +105,8 @@ provided.</p>
 <span>  on_after_backward <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  on_batch_valid_begin <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  on_batch_valid_end <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  state_dict <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  load_state_dict <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  initialize <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  public <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  private <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -121,9 +124,20 @@ provided.</p>
 The class name.</p></dd>
 
 
-<dt>on_begin, on_end, on_epoch_begin, on_before_valid, on_epoch_end, on_batch_begin, on_batch_end, on_after_backward, on_batch_valid_begin, on_batch_valid_end</dt>
+<dt>on_begin, on_end, on_epoch_begin, on_before_valid, on_epoch_end, on_batch_begin, on_batch_end, on_after_backward, on_batch_valid_begin, on_batch_valid_end, on_exit</dt>
 <dd><p>(<code>function</code>)<br>
 Function to execute at the given stage, see section <em>Stages</em>.</p></dd>
+
+
+<dt>state_dict</dt>
+<dd><p>(<code>function()</code>)<br>
+The function that retrieves the state dict from the callback.
+This is what will be available in the learner after training.</p></dd>
+
+
+<dt>load_state_dict</dt>
+<dd><p>(<code>function(state_dict)</code>)<br>
+Function that loads a callback state.</p></dd>
 
 
 <dt>initialize</dt>

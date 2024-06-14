@@ -95,6 +95,7 @@ For more information on how to correctly implement a new callback, see <code><a 
 <span>  man <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  on_begin <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  on_end <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  on_exit <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  on_epoch_begin <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  on_before_valid <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  on_epoch_end <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -103,6 +104,8 @@ For more information on how to correctly implement a new callback, see <code><a 
 <span>  on_after_backward <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  on_batch_valid_begin <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  on_batch_valid_end <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  state_dict <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  load_state_dict <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  initialize <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  public <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  private <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -147,9 +150,20 @@ The referenced help package can be opened via method <code>$help()</code>.
 The default is <code>NULL</code>.</p></dd>
 
 
-<dt>on_begin, on_end, on_epoch_begin, on_before_valid, on_epoch_end, on_batch_begin, on_batch_end, on_after_backward, on_batch_valid_begin, on_batch_valid_end</dt>
+<dt>on_begin, on_end, on_epoch_begin, on_before_valid, on_epoch_end, on_batch_begin, on_batch_end, on_after_backward, on_batch_valid_begin, on_batch_valid_end, on_exit</dt>
 <dd><p>(<code>function</code>)<br>
 Function to execute at the given stage, see section <em>Stages</em>.</p></dd>
+
+
+<dt>state_dict</dt>
+<dd><p>(<code>function()</code>)<br>
+The function that retrieves the state dict from the callback.
+This is what will be available in the learner after training.</p></dd>
+
+
+<dt>load_state_dict</dt>
+<dd><p>(<code>function(state_dict)</code>)<br>
+Function that loads a callback state.</p></dd>
 
 
 <dt>initialize</dt>
@@ -208,7 +222,8 @@ then wraps this generator in a <code><a href="TorchCallback.html">TorchCallback<
 <li><p><code>batch_valid_begin</code> :: Run before the forward call in the validation loop.</p></li>
 <li><p><code>batch_valid_end</code> :: Run after the forward call in the validation loop.</p></li>
 <li><p><code>epoch_end</code> :: Run at the end of each epoch.</p></li>
-<li><p><code>end</code> :: Run at last, using <code><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit()</a></code>.</p></li>
+<li><p><code>end</code> :: Run after last epoch.</p></li>
+<li><p><code>exit</code> :: Run at last, using <code><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit()</a></code>.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

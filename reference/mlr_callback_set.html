@@ -103,6 +103,13 @@ The evaluation context (a <code><a href="mlr_context_torch.html">ContextTorch</a
 the current state of the training loop.
 This context is assigned at the beginning of the training loop and removed afterwards.
 Different stages of a callback can communicate with each other by assigning values to <code>$self</code>.</p>
+<p><em>State</em>:
+To be able to store information in the <code>$model</code> slot of a <code><a href="mlr_learners_torch.html">LearnerTorch</a></code>, callbacks support a state API.
+You can overload the <code>$state_dict()</code> public method to define what will be stored in <code>learner$model$callbacks$&lt;id&gt;</code>
+after training finishes.
+This then also requires to implement a <code>$load_state_dict(state_dict)</code> method that defines how to load a previously saved
+callback state into a different callback.
+Note that the <code>$state_dict()</code> should not include the parameter values that were used to initialize the callback.</p>
 <p>For creating custom callbacks, the function <code><a href="torch_callback.html">torch_callback()</a></code> is recommended, which creates a
 <code>CallbackSet</code> and then wraps it in a <code><a href="TorchCallback.html">TorchCallback</a></code>.
 To create a <code>CallbackSet</code> the convenience function <code><a href="callback_set.html">callback_set()</a></code> can be used.
@@ -121,7 +128,8 @@ These functions perform checks such as that the stages are not accidentally miss
 <li><p><code>batch_valid_begin</code> :: Run before the forward call in the validation loop.</p></li>
 <li><p><code>batch_valid_end</code> :: Run after the forward call in the validation loop.</p></li>
 <li><p><code>epoch_end</code> :: Run at the end of each epoch.</p></li>
-<li><p><code>end</code> :: Run at last, using <code><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit()</a></code>.</p></li>
+<li><p><code>end</code> :: Run after last epoch.</p></li>
+<li><p><code>exit</code> :: Run at last, using <code><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit()</a></code>.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -163,6 +171,8 @@ The active stages of this callback set.</p></dd>
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
 
 <ul><li><p><a href="#method-CallbackSet-print"><code>CallbackSet$print()</code></a></p></li>
+<li><p><a href="#method-CallbackSet-state_dict"><code>CallbackSet$state_dict()</code></a></p></li>
+<li><p><a href="#method-CallbackSet-load_state_dict"><code>CallbackSet$load_state_dict()</code></a></p></li>
 <li><p><a href="#method-CallbackSet-clone"><code>CallbackSet$clone()</code></a></p></li>
 </ul></div><p></p><hr><a id="method-CallbackSet-print"></a><div class="section">
 <h3 id="method-print-">Method <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code><a class="anchor" aria-label="anchor" href="#method-print-"></a></h3>
@@ -181,15 +191,42 @@ Currently unused.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-CallbackSet-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
-<p>The objects of this class are cloneable with this method.</p><div class="section">
+</div><p></p><hr><a id="method-CallbackSet-state_dict"></a><div class="section">
+<h3 id="method-state-dict-">Method <code>state_dict()</code><a class="anchor" aria-label="anchor" href="#method-state-dict-"></a></h3>
+<p>Returns information that is kept in the the <code><a href="mlr_learners_torch.html">LearnerTorch</a></code>'s state after training.
+This information should be loadable into the callback using <code>$load_state_dict()</code> to be able to continue training.
+This returns <code>NULL</code> by default.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSet</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSet</span><span class="op">$</span><span class="fu">state_dict</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+
+</div><p></p><hr><a id="method-CallbackSet-load_state_dict"></a><div class="section">
+<h3 id="method-load-state-dict-">Method <code><a href="https://rdrr.io/pkg/torch/man/load_state_dict.html" class="external-link">load_state_dict()</a></code><a class="anchor" aria-label="anchor" href="#method-load-state-dict-"></a></h3>
+<p>Loads the state dict into the callback to continue training.</p><div class="section">
+<h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSet</span><span class="op">$</span><span class="fu">load_state_dict</span><span class="op">(</span><span class="va">state_dict</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>state_dict</code></dt>
+<dd><p>(any)<br>
+The state dict as retrieved via <code>$state_dict()</code>.</p></dd>
+
+
+</dl><p></p></div>
+</div>
+
+</div><p></p><hr><a id="method-CallbackSet-clone"></a><div class="section">
+<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+<p>The objects of this class are cloneable with this method.</p><div class="section">
+<h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSet</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 

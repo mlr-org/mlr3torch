@@ -40,9 +40,6 @@
     <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchAugmentRandomAffine.html</loc>
   </url>
   <url>
-    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchAugmentRandomApply.html</loc>
-  </url>
-  <url>
     <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchAugmentRandomChoice.html</loc>
   </url>
   <url>

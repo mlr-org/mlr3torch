@@ -219,11 +219,12 @@ The referenced help package can be opened via method <code>$help()</code>.</p></
 <span class="r-in"><span><span class="va">torch_callback</span> <span class="op">=</span> <span class="va">TorchCallback</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">CallbackSetCheckpoint</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># The parameters are inferred</span></span></span>
 <span class="r-in"><span><span class="va">torch_callback</span><span class="op">$</span><span class="va">param_set</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSet(2)&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        id    class lower upper nlevels        default  value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;         &lt;list&gt; &lt;list&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:   path ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:   freq ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSet(3)&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           id    class lower upper nlevels        default  value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;         &lt;list&gt; &lt;list&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:      path ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:      freq ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3: freq_type ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;       </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Retrieve a torch callback from the dictionary</span></span></span>
 <span class="r-in"><span><span class="va">torch_callback</span> <span class="op">=</span> <span class="fu"><a href="t_clbk.html">t_clbk</a></span><span class="op">(</span><span class="st">"checkpoint"</span>,</span></span>
@@ -232,7 +233,7 @@ The referenced help package can be opened via method <code>$help()</code>.</p></
 <span class="r-in"><span><span class="va">torch_callback</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;TorchCallback:checkpoint&gt; Checkpoint</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Generator: CallbackSetCheckpoint</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: path=/tmp/RtmpgSMT68/file1d623110184d, freq=1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: path=/tmp/Rtmpi2MEKN/file1ac85039b473, freq=1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Packages: mlr3torch,torch</span>
 <span class="r-in"><span><span class="va">torch_callback</span><span class="op">$</span><span class="va">label</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Checkpoint"</span>
@@ -246,44 +247,71 @@ The referenced help package can be opened via method <code>$help()</code>.</p></
 <span class="r-in"><span><span class="va">callback</span> <span class="op">=</span> <span class="va">torch_callback</span><span class="op">$</span><span class="fu">generate</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">callback</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;CallbackSetCheckpoint&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Stages: on_epoch_end, on_end</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Stages: on_batch_end, on_epoch_end, on_exit</span>
 <span class="r-in"><span><span class="co"># is the same as</span></span></span>
 <span class="r-in"><span><span class="va"><a href="mlr_callback_set.checkpoint.html">CallbackSetCheckpoint</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span>, freq <span class="op">=</span> <span class="fl">1</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;CallbackSetCheckpoint&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Stages: on_epoch_end, on_end</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Stages: on_batch_end, on_epoch_end, on_exit</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Use in a learner</span></span></span>
 <span class="r-in"><span><span class="va">learner</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.mlp"</span>, callbacks <span class="op">=</span> <span class="fu"><a href="t_clbk.html">t_clbk</a></span><span class="op">(</span><span class="st">"checkpoint"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># the parameters of the callback are added to the learner's parameter set</span></span></span>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="va">param_set</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSetCollection(22)&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                     id    class lower upper nlevels        default        value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;         &lt;list&gt;       &lt;list&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1:            neurons ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2:                  p ParamDbl 0e+00 1e+00     Inf &lt;NoDefault[0]&gt;          0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3:         activation ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt; &lt;nn_relu[1]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  4:    activation_args ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;    &lt;list[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  5:              shape ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6:         batch_size ParamInt 1e+00   Inf     Inf &lt;NoDefault[0]&gt;             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  7:             epochs ParamInt 0e+00   Inf     Inf &lt;NoDefault[0]&gt;             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  8:             device ParamFct    NA    NA      12 &lt;NoDefault[0]&gt;         auto</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  9:     measures_train ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;    &lt;list[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10:     measures_valid ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;    &lt;list[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11:          drop_last ParamLgl    NA    NA       2 &lt;NoDefault[0]&gt;        FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12:            shuffle ParamLgl    NA    NA       2 &lt;NoDefault[0]&gt;         TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13:        num_threads ParamInt 1e+00   Inf     Inf &lt;NoDefault[0]&gt;            1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14:               seed ParamInt  -Inf   Inf     Inf &lt;NoDefault[0]&gt;       random</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15:             opt.lr ParamDbl 0e+00   Inf     Inf          0.001             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16:          opt.betas ParamUty    NA    NA     Inf    0.900,0.999             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17:            opt.eps ParamDbl 1e-16 1e-04     Inf          1e-08             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18:   opt.weight_decay ParamDbl 0e+00 1e+00     Inf              0             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19:        opt.amsgrad ParamLgl    NA    NA       2          FALSE             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20:     loss.reduction ParamFct    NA    NA       2           mean             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21: cb.checkpoint.path ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 22: cb.checkpoint.freq ParamInt 1e+00   Inf     Inf &lt;NoDefault[0]&gt;             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                     id    class lower upper nlevels        default        value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSetCollection(23)&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                          id    class lower upper nlevels        default</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                      &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;         &lt;list&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1:                 neurons ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2:                       p ParamDbl 0e+00 1e+00     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3:              activation ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4:         activation_args ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  5:                   shape ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6:              batch_size ParamInt 1e+00   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7:                  epochs ParamInt 0e+00   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  8:                  device ParamFct    NA    NA      12 &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9:          measures_train ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10:          measures_valid ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11:               drop_last ParamLgl    NA    NA       2 &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12:                 shuffle ParamLgl    NA    NA       2 &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13:             num_threads ParamInt 1e+00   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14:                    seed ParamInt  -Inf   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15:                  opt.lr ParamDbl 0e+00   Inf     Inf          0.001</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16:               opt.betas ParamUty    NA    NA     Inf    0.900,0.999</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17:                 opt.eps ParamDbl 1e-16 1e-04     Inf          1e-08</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18:        opt.weight_decay ParamDbl 0e+00 1e+00     Inf              0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19:             opt.amsgrad ParamLgl    NA    NA       2          FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20:          loss.reduction ParamFct    NA    NA       2           mean</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21:      cb.checkpoint.path ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22:      cb.checkpoint.freq ParamInt 1e+00   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23: cb.checkpoint.freq_type ParamFct    NA    NA       2          epoch</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                          id    class lower upper nlevels        default</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           &lt;list&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1:             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2:          0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3: &lt;nn_relu[1]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4:    &lt;list[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  5:             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6:             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7:             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  8:         auto</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9:    &lt;list[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10:    &lt;list[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11:        FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12:         TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13:            1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14:       random</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15:             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16:             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17:             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18:             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19:             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20:             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21:             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22:             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23:             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            value</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
