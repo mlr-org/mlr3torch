@@ -94,6 +94,7 @@ All torch learners should inherit from this class.</p>
 <li><p><code>loss_fn</code> :: The <code>$state_dict()</code> of the <a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">loss</a> used to train the network.</p></li>
 <li><p><code>callbacks</code> :: The <a href="mlr_callback_set.html">callbacks</a> used to train the network.</p></li>
 <li><p><code>seed</code> :: The seed that was / is used for training and prediction.</p></li>
+<li><p><code>epochs</code> :: How many epochs the model was trained for (early stopping).</p></li>
 <li><p><code>task_col_info</code> :: A <code><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table()</a></code> containing information about the train-task.</p></li>
 </ul></div>
     <div class="section level2">
@@ -124,6 +125,19 @@ training phase. This seed (either set or randomly sampled) is available via <cod
 and used during prediction.
 Note that by setting the seed during the training phase this will mean that by default (i.e. when <code>seed</code> is
 <code>"random"</code>), clones of the learner will use a different seed.</p></li>
+<li><p><code>eval_freq</code> :: <code>integer(1)</code><br>
+How often the train / validation predictions are evaluated using <code>measures_train</code> / <code>measures_valid</code>.
+This is initialized to <code>1</code>.
+Note that the final model is always evaluated.</p></li>
+<li><p><code>patience</code> :: <code>integer(1)</code><br>
+This activates early stopping using the validation scores.
+If the performance of a model does not improve for <code>patience</code> evaluation steps, training is ended.
+Note that the final model is stored in the learner, not the best model.
+This is initialized to <code>0</code>, which means no early stopping.
+The first entry from <code>measures_valid</code> is used as the metric.</p></li>
+<li><p><code>min_delta</code> :: <code>double(1)</code><br>
+The minimum improvement threshold (<code>&gt;</code>) for early stopping.
+Is initialized to 0.</p></li>
 </ul><p>Additionally there are the parameters for the optimizer, the loss function and the callbacks.
 They are prefixed with <code>"opt."</code>, <code>"loss."</code> and <code>"cb.&lt;callback id&gt;."</code> respectively.</p>
     </div>
@@ -179,7 +193,24 @@ to implement the private <code>$.additional_phash_input()</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="active-bindings">Active bindings<a class="anchor" aria-label="anchor" href="#active-bindings"></a></h2>
-    <p></p><div class="r6-active-bindings"><dl><dt><code>marshaled</code></dt>
+    <p></p><div class="r6-active-bindings"><dl><dt><code>validate</code></dt>
+<dd><p>How to construct the internal validation data. This parameter can be either <code>NULL</code>,
+a ratio in $(0, 1)$, <code>"test"</code>, or <code>"predefined"</code>.</p></dd>
+
+
+<dt><code>internal_valid_scores</code></dt>
+<dd><p>Retrieves the internal validation scores as a named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>.
+Specify the <code>$validate</code> field and the <code>measures_valid</code> parameter to configure this.
+Returns <code>NULL</code> if learner is not trained yet.</p></dd>
+
+
+<dt><code>internal_tuned_values</code></dt>
+<dd><p>When early stopping is activate, this returns a named list with the early-stopped epochs,
+otherwise an empty list is returned.
+Returns <code>NULL</code> if learner is not trained yet.</p></dd>
+
+
+<dt><code>marshaled</code></dt>
 <dd><p>(<code>logical(1)</code>)<br>
 Whether the learner is marshaled.</p></dd>
 

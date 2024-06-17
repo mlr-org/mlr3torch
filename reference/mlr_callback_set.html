@@ -121,16 +121,24 @@ These functions perform checks such as that the stages are not accidentally miss
 
 <ul><li><p><code>begin</code> :: Run before the training loop begins.</p></li>
 <li><p><code>epoch_begin</code> :: Run he beginning of each epoch.</p></li>
-<li><p><code>before_validation</code> :: Run before each validation loop.</p></li>
 <li><p><code>batch_begin</code> :: Run before the forward call.</p></li>
 <li><p><code>after_backward</code> :: Run after the backward call.</p></li>
 <li><p><code>batch_end</code> :: Run after the optimizer step.</p></li>
 <li><p><code>batch_valid_begin</code> :: Run before the forward call in the validation loop.</p></li>
 <li><p><code>batch_valid_end</code> :: Run after the forward call in the validation loop.</p></li>
+<li><p><code>valid_end</code> :: Run at the end of validation.</p></li>
 <li><p><code>epoch_end</code> :: Run at the end of each epoch.</p></li>
 <li><p><code>end</code> :: Run after last epoch.</p></li>
 <li><p><code>exit</code> :: Run at last, using <code><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit()</a></code>.</p></li>
 </ul></div>
+    <div class="section level2">
+    <h2 id="terminate-training">Terminate Training<a class="anchor" aria-label="anchor" href="#terminate-training"></a></h2>
+    
+
+<p>If training is to be stopped, it is possible to set the field <code>$terminate</code> of <code><a href="mlr_context_torch.html">ContextTorch</a></code>.
+At the end of every epoch this field is checked and if it is <code>TRUE</code>, training stops.
+This can for example be used to implement custom early stopping.</p>
+    </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other Callback: 

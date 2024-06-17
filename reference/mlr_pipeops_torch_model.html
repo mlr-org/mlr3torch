@@ -124,6 +124,19 @@ training phase. This seed (either set or randomly sampled) is available via <cod
 and used during prediction.
 Note that by setting the seed during the training phase this will mean that by default (i.e. when <code>seed</code> is
 <code>"random"</code>), clones of the learner will use a different seed.</p></li>
+<li><p><code>eval_freq</code> :: <code>integer(1)</code><br>
+How often the train / validation predictions are evaluated using <code>measures_train</code> / <code>measures_valid</code>.
+This is initialized to <code>1</code>.
+Note that the final model is always evaluated.</p></li>
+<li><p><code>patience</code> :: <code>integer(1)</code><br>
+This activates early stopping using the validation scores.
+If the performance of a model does not improve for <code>patience</code> evaluation steps, training is ended.
+Note that the final model is stored in the learner, not the best model.
+This is initialized to <code>0</code>, which means no early stopping.
+The first entry from <code>measures_valid</code> is used as the metric.</p></li>
+<li><p><code>min_delta</code> :: <code>double(1)</code><br>
+The minimum improvement threshold (<code>&gt;</code>) for early stopping.
+Is initialized to 0.</p></li>
 </ul><p>Additionally there are the parameters for the optimizer, the loss function and the callbacks.
 They are prefixed with <code>"opt."</code>, <code>"loss."</code> and <code>"cb.&lt;callback id&gt;."</code> respectively.</p>
     </div>

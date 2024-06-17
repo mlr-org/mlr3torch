@@ -105,6 +105,7 @@ provided.</p>
 <span>  on_after_backward <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  on_batch_valid_begin <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  on_batch_valid_end <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  on_valid_end <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  state_dict <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  load_state_dict <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  initialize <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -124,7 +125,7 @@ provided.</p>
 The class name.</p></dd>
 
 
-<dt>on_begin, on_end, on_epoch_begin, on_before_valid, on_epoch_end, on_batch_begin, on_batch_end, on_after_backward, on_batch_valid_begin, on_batch_valid_end, on_exit</dt>
+<dt>on_begin, on_end, on_epoch_begin, on_before_valid, on_epoch_end, on_batch_begin, on_batch_end, on_after_backward, on_batch_valid_begin, on_batch_valid_end, on_valid_end, on_exit</dt>
 <dd><p>(<code>function</code>)<br>
 Function to execute at the given stage, see section <em>Stages</em>.</p></dd>
 

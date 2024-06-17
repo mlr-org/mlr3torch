@@ -157,13 +157,17 @@ The total number of epochs the learner is trained for.</p></dd>
 
 
 <dt><code>last_scores_train</code></dt>
-<dd><p>(named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>)<br>
-The scores from the last training batch. Names are the ids of the training measures.</p></dd>
+<dd><p>(named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> or <code>NULL</code>)<br>
+The scores from the last training batch. Names are the ids of the training measures.
+If <code><a href="mlr_learners_torch.html">LearnerTorch</a></code> sets <code>eval_freq</code> different from <code>1</code>, this is <code>NULL</code> in all epochs
+that don't evaluate the model.</p></dd>
 
 
 <dt><code>last_scores_valid</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>)<br>
-The scores from the last validation batch. Names are the ids of the validation measures.</p></dd>
+The scores from the last validation batch. Names are the ids of the validation measures.
+If <code><a href="mlr_learners_torch.html">LearnerTorch</a></code> sets <code>eval_freq</code> different from <code>1</code>, this is <code>NULL</code> in all epochs
+that don't evaluate the model.</p></dd>
 
 
 <dt><code>epoch</code></dt>
@@ -179,6 +183,16 @@ The current iteration.</p></dd>
 <dt><code>prediction_encoder</code></dt>
 <dd><p>(<code>function()</code>)<br>
 The learner's prediction encoder.</p></dd>
+
+
+<dt><code>batch</code></dt>
+<dd><p>(named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code>torch_tensor</code>s)<br>
+The current batch.</p></dd>
+
+
+<dt><code>terminate</code></dt>
+<dd><p>(<code>logical(1)</code>)<br>
+If this field is set to <code>TRUE</code> at the end of an epoch, training stops.</p></dd>
 
 
 </dl><p></p></div>
@@ -207,7 +221,8 @@ The learner's prediction encoder.</p></dd>
 <span>  <span class="va">optimizer</span>,</span>
 <span>  <span class="va">loss_fn</span>,</span>
 <span>  <span class="va">total_epochs</span>,</span>
-<span>  <span class="va">prediction_encoder</span></span>
+<span>  <span class="va">prediction_encoder</span>,</span>
+<span>  eval_freq <span class="op">=</span> <span class="fl">1L</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -271,6 +286,11 @@ The total number of epochs the learner is trained for.</p></dd>
 <dt><code>prediction_encoder</code></dt>
 <dd><p>(<code>function()</code>)<br>
 The learner's prediction encoder.</p></dd>
+
+
+<dt><code>eval_freq</code></dt>
+<dd><p>(<code>integer(1)</code>)<br>
+The evaluation frequency.</p></dd>
 
 
 </dl><p></p></div>
