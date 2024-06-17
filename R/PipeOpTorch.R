@@ -317,6 +317,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
       shapes_out = self$shapes_out(input_shapes, task)
       shapes_out = assert_list(shapes_out, types = "numeric", any.missing = FALSE, len = nrow(self$output))
 
+      # we need this so PipeOpBlock can implement $shapes_out() without creating the possibly expensive network
       if (!private$.only_shape) {
         # second possibly user-supplied function: create the concrete nn_module, given shape info.
         # If this is not user-supplied, then at least `.shape_dependent_params` is called.

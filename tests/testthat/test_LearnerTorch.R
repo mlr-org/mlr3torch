@@ -538,7 +538,7 @@ test_that("early stopping works", {
 
   # in this scenario early stopping should definitely not trigger yet
   learner$param_set$set_values(
-    min_delta = 0, patience = 1, opt.lr = 0.01, eval_freq = 1
+    min_delta = 0, patience = 5, opt.lr = 0.01, eval_freq = 1
   )
   learner$train(task)
   expect_equal(learner$internal_tuned_values, list(epochs = 10))

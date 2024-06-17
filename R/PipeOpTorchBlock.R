@@ -76,16 +76,17 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
       }
       block = private$.block$clone(deep = TRUE)
       walk(block$pipeops, function(po) {
+        # thereby we avoid initializing the nn modules (it is a little hacky)
         if (test_class(po, "PipeOpTorch")) {
           get_private(po, ".only_shape") = TRUE
         }
       })
-      # thereby we avoid initializing the nn modules (it is a little hacky)
       graph = private$.make_graph(block, param_vals$times)
 
       mds = map(seq_along(shapes_in), function(i) {
         ModelDescriptor(
-          # because we set the .only_shape above, the graph is not touched
+          # because we set the .only_shape above, the graph is not used at all
+          # so we just set it to something
           graph = as_graph(po("nop", id = paste0("nop.", i))),
           ingress = set_names(list(
             TorchIngressToken(
