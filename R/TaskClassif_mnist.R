@@ -68,7 +68,6 @@ load_task_mnist = function(id = "mnist") {
       ..row_id = seq_along(labels),
       split = factor(rep(c("train", "test"), times = c(60000, 10000)))
     )
-
     DataBackendDataTable$new(data = dt, primary_key = "..row_id")
   }
 
