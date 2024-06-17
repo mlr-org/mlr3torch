@@ -336,7 +336,6 @@ The task, which is very rarely needed.</p></dd>
 <span class="r-in"><span><span class="fu"><a href="materialize.html">materialize</a></span><span class="op">(</span><span class="va">taskout_train</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span>cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x1"</span>, <span class="st">"x2"</span><span class="op">)</span><span class="op">)</span>, rbind <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $x1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  102.0867</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   99.8891</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   98.6072</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   98.8577</span>
@@ -346,11 +345,11 @@ The task, which is very rarely needed.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   99.8808</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  100.7865</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   99.4211</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.8546</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{10,1} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $x2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   99.8546</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  100.5265</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  101.7336</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  101.4487</span>
@@ -360,6 +359,7 @@ The task, which is very rarely needed.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   99.4485</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   99.1342</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   99.6562</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  101.0629</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{10,1} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
@@ -367,7 +367,6 @@ The task, which is very rarely needed.</p></dd>
 <span class="r-in"><span><span class="fu"><a href="materialize.html">materialize</a></span><span class="op">(</span><span class="va">taskout_predict_noaug</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span>cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x1"</span>, <span class="st">"x2"</span><span class="op">)</span><span class="op">)</span>, rbind <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $x1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  102.0867</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   99.8891</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   98.6072</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   98.8577</span>
@@ -377,11 +376,11 @@ The task, which is very rarely needed.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   99.8808</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  100.7865</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   99.4211</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.8546</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{10,1} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $x2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   99.8546</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  100.5265</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  101.7336</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  101.4487</span>
@@ -391,6 +390,7 @@ The task, which is very rarely needed.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   99.4485</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   99.1342</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   99.6562</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  101.0629</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{10,1} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
@@ -403,7 +403,6 @@ The task, which is very rarely needed.</p></dd>
 <span class="r-in"><span><span class="fu"><a href="materialize.html">materialize</a></span><span class="op">(</span><span class="va">taskout_predict_aug</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span>cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x1"</span>, <span class="st">"x2"</span><span class="op">)</span><span class="op">)</span>, rbind <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $x1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  102.0867</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   99.8891</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   98.6072</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   98.8577</span>
@@ -413,11 +412,11 @@ The task, which is very rarely needed.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   99.8808</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  100.7865</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   99.4211</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.8546</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{10,1} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $x2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   99.8546</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  100.5265</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  101.7336</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  101.4487</span>
@@ -427,6 +426,7 @@ The task, which is very rarely needed.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   99.4485</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   99.1342</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   99.6562</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  101.0629</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{10,1} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
