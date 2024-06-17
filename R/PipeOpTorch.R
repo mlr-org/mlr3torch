@@ -262,8 +262,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
       packages = union(packages, c("mlr3torch", "torch"))
       input = data.table(name = inname, train = "ModelDescriptor", predict = "Task")
       output = data.table(name = outname, train = "ModelDescriptor", predict = "Task")
-
-      assert_r6(param_set, "ParamSet")
+      private$.only_shape = FALSE
 
       super$initialize(
         id = id,
@@ -318,41 +317,44 @@ PipeOpTorch = R6Class("PipeOpTorch",
       shapes_out = self$shapes_out(input_shapes, task)
       shapes_out = assert_list(shapes_out, types = "numeric", any.missing = FALSE, len = nrow(self$output))
 
-      # second possibly user-supplied function: create the concrete nn_module, given shape info.
-      # If this is not user-supplied, then at least `.shape_dependent_params` is called.
-      module = private$.make_module(input_shapes, param_vals, task)
+      # we need this so PipeOpBlock can implement $shapes_out() without creating the possibly expensive network
+      if (!private$.only_shape) {
+        # second possibly user-supplied function: create the concrete nn_module, given shape info.
+        # If this is not user-supplied, then at least `.shape_dependent_params` is called.
+        module = private$.make_module(input_shapes, param_vals, task)
 
-      # create the PipeOp that contains the instantiated nn_module.
-      module_op = PipeOpModule$new(
-        id = self$id,
-        module = module,
-        inname = self$input$name,
-        outname = self$output$name,
-        packages = self$packages
-      )
-
-      # integrate the operation into the graph
-      result_template$graph$add_pipeop(module_op, clone = FALSE)
-      # All of the `inputs` contained possibly the same `graph`, but definitely had different `pointer`s,
-      # indicating the different channels from within the `graph` that should be connected to the new operation.
-      vararg = "..." == module_op$input$name[[1L]]
-      current_channel = "..."
-
-      for (i in seq_along(inputs)) {
-        ptr = input_pointers[[i]]
-        if (!vararg) current_channel = module_op$input$name[[i]]
-        result_template$graph$add_edge(
-          src_id = ptr[[1]], src_channel = ptr[[2]],
-          dst_id = module_op$id, dst_channel = current_channel
+        # create the PipeOp that contains the instantiated nn_module.
+        module_op = PipeOpModule$new(
+          id = self$id,
+          module = module,
+          inname = self$input$name,
+          outname = self$output$name,
+          packages = self$packages
         )
+
+        # integrate the operation into the graph
+        result_template$graph$add_pipeop(module_op, clone = FALSE)
+        # All of the `inputs` contained possibly the same `graph`, but definitely had different `pointer`s,
+        # indicating the different channels from within the `graph` that should be connected to the new operation.
+        vararg = "..." == module_op$input$name[[1L]]
+        current_channel = "..."
+
+        for (i in seq_along(inputs)) {
+          ptr = input_pointers[[i]]
+          if (!vararg) current_channel = module_op$input$name[[i]]
+          result_template$graph$add_edge(
+            src_id = ptr[[1]], src_channel = ptr[[2]],
+            dst_id = module_op$id, dst_channel = current_channel
+          )
+        }
       }
 
       # now we split up the result_template into one item per output channel.
       # each output channel contains a different `pointer` / `pointer_shape`, referring to the
       # individual outputs of the module_op.
-      results = Map(shape = shapes_out, channel_id = module_op$output$name, f = function(shape, channel_id) {
+      results = Map(shape = shapes_out, channel_id = self$output$name, f = function(shape, channel_id) {
         r = result_template  # unnecessary, but good for readability: result_template is not changed
-        r$pointer = c(module_op$id, channel_id)
+        r$pointer = c(self$id, channel_id)
         r$pointer_shape = shape
         r
       })
@@ -367,6 +369,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
         inputs = PipeOpFeatureUnion$new()$train(inputs)
       }
       rep(inputs[1], nrow(self$output))
-    }
+    },
+    .only_shape = NULL
   )
 )

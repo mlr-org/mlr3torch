@@ -50,6 +50,7 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_batch_norm1d}},
 \code{\link{mlr_pipeops_nn_batch_norm2d}},
 \code{\link{mlr_pipeops_nn_batch_norm3d}},
+\code{\link{mlr_pipeops_nn_block}},
 \code{\link{mlr_pipeops_nn_celu}},
 \code{\link{mlr_pipeops_nn_conv1d}},
 \code{\link{mlr_pipeops_nn_conv2d}},
