@@ -70,7 +70,7 @@ paramset_torchlearner = function(task_type) {
     collate_fn            = p_uty(tags = c("train", "predict"), default = NULL),
     pin_memory            = p_lgl(default = FALSE, tags = c("train", "predict")),
     drop_last             = p_lgl(tags = "train", default = FALSE),
-    timeout               = p_int(default = -1L, tags = c("train_predict")),
+    timeout               = p_int(default = -1L, tags = c("train", "predict")),
     worker_init_fn        = p_uty(tags = c("train", "predict")),
     worker_globals        = p_uty(tags = c("train", "predict")),
     worker_packages       = p_uty(tags = c("train", "predict"), custom_check = check_character, special_vals = list(NULL))

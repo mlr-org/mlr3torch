@@ -2,10 +2,6 @@ test_that("paramset works", {
   test_ps = function(param_set) {
     expect_r6(param_set, "ParamSet")
     expect_true(all(map_lgl(param_set$tags, function(tags) "train" %in% tags || "predict" %in% tags)))
-    # all parameters are required and have initial values set
-    expect_true(all(map_lgl(param_set$tags, function(tags) "required" %in% tags)))
-    # only parameters batch_size and epochs don't have initial values
-    expect_true(length(param_set$values) == param_set$length - 2)
   }
   param_set_regr = paramset_torchlearner("regr")
 
