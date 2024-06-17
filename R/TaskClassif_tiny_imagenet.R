@@ -7,7 +7,7 @@
 #' The data is obtained from [`torchvision::tiny_imagenet_dataset()`].
 #'
 #' The underlying [`DataBackend`] contains columns `"class"`, `"image"`, `"..row_id"`, `"split"`, where the last column
-#' indicates whether the row belongs to the train, validation or test set that defined provided in {torchvision}.
+#' indicates whether the row belongs to the train, validation or test set that defined provided in torchvision.
 #'
 #' There are no labels for the test rows, so by default, these observations are inactive, which means that the task
 #' uses only 110000 of the 120000 observations that are defined in the underlying data backend.
