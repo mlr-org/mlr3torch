@@ -12,12 +12,12 @@ test_that("manual", {
   learner = lrn("classif.mlp", epochs = 3, batch_size = 1, callbacks = cb)
   learner$param_set$set_values(cb.checkpoint.path = pth0)
 
-  # learner$train(task)
+  learner$train(task)
 
-  # expect_set_equal(
-  #   c(paste0("network", 1:3, ".pt"), paste0("optimizer", 1:3, ".pt")),
-  #   list.files(pth0)
-  # )
+  expect_set_equal(
+    c(paste0("network", 1:3, ".pt"), paste0("optimizer", 1:3, ".pt")),
+    list.files(pth0)
+  )
 
 
   learner = lrn("classif.mlp", epochs = 3, batch_size = 1, callbacks = cb)

@@ -24,7 +24,7 @@ rd_info_learner_torch = function(name, task_types = "classif, regr") {
   paste(x, collapse = "\n")
 }
 
-rd_info_task_torch = function(name, missings, splits) {
+rd_info_task_torch = function(name, missings) {
   obj = tsk(name)
   x = c("",
     sprintf("* Task type: %s", rd_format_string(obj$task_type)),

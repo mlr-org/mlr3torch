@@ -15,18 +15,16 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       if (is.null(self$ctx$last_scores_valid)) {
         return(NULL)
       }
-      delta = self$ctx$last_scores_valid[[1L]] - self$prev_valid_scores[[1L]]
-      minimize = self$ctx$measures_valid[[1L]]$minimize
+      multiplier = if (self$ctx$measures_valid[[1L]]$minimize) -1 else 1
+      improvement = multiplier * (self$ctx$last_scores_valid[[1L]] - self$prev_valid_scores[[1L]])
 
-      if (is.na(delta)) {
+      if (is.na(improvement)) {
         lg$warn("Learner %s in epoch %s: Difference between subsequent validation performances is NA",
           self$ctx$learner$id, self$ctx$epoch)
         return(NULL)
       }
 
-      delta = if (!minimize) -delta else delta
-
-      if (delta < self$min_delta) {
+      if (improvement < self$min_delta) {
         self$stagnation = self$stagnation + 1L
         if (self$stagnation == self$patience) {
           self$ctx$terminate = TRUE
