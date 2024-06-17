@@ -30,10 +30,10 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   measures_valid = normalize_to_list(param_vals$measures_valid)
 
   if (length(measures_valid) && is.null(self$validate)) {
-    stopf("Learner '%s' has measures_valid set, but it's validate field is NULL`", self$id)
+    stopf("Learner '%s' has measures_valid set, but its validate field is NULL`", self$id)
   }
   if (!length(measures_valid) && param_vals$patience != 0) {
-    stopf("Learner '%s' has a non 0 patience parameter but specifies no measures_valid.", self$id)
+    stopf("Learner '%s' has a non 0 patience parameter but has no measures_valid set.", self$id)
   }
 
   if (param_vals$patience > 0 && is.na(measures_valid[[1L]]$minimize)) {
@@ -184,7 +184,7 @@ train_loop = function(ctx, cbs) {
     }
     call("on_epoch_end")
 
-    if (isTRUE(ctx$end_training)) break
+    if (isTRUE(ctx$terminate)) break
   }
 
   call("on_end")
@@ -192,6 +192,7 @@ train_loop = function(ctx, cbs) {
   # The seed is added later
   list(
     network               = ctx$network,
+    # last epoch always does validation so this is fine
     internal_valid_scores = if (length(ctx$measures_valid)) ctx$last_scores_valid,
     loss_fn               = ctx$loss_fn$state_dict(),
     optimizer             = ctx$optimizer$state_dict(),
@@ -245,7 +246,6 @@ torch_network_predict = function(network, loader) {
   while (step < length(loader)) {
     step = step + 1L
     batch = dataloader_next(train_iterator)
-    if (is.null(batch)) break
     predictions[[step]] = if (one_arg) {
       with_no_grad(network$forward(batch$x[[1L]]))
     } else {

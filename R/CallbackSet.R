@@ -45,9 +45,10 @@
 #' * `end` :: Run after last epoch.
 #' * `exit` :: Run at last, using `on.exit()`.
 #'
-#' @section Ending Training:
-#' If training is to be stopped, it is possible to set the field `$end_training` of [`ContextTorch`].
+#' @section Terminate Training:
+#' If training is to be stopped, it is possible to set the field `$terminate` of [`ContextTorch`].
 #' At the end of every epoch this field is checked and if it is `TRUE`, training stops.
+#' This can for example be used to implement custom early stopping.
 #'
 #' @family Callback
 #' @export

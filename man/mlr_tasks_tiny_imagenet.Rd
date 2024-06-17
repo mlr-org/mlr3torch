@@ -8,8 +8,10 @@ Subset of the famous ImageNet dataset.
 The data is obtained from \code{\link[torchvision:tiny_imagenet_dataset]{torchvision::tiny_imagenet_dataset()}}.
 
 The underlying \code{\link{DataBackend}} contains columns \code{"class"}, \code{"image"}, \code{"..row_id"}, \code{"split"}, where the last column
-indicates whether the row belongs to the train, validation or test set.
-There are no labels for the test rows.
+indicates whether the row belongs to the train, validation or test set that defined provided in {torchvision}.
+
+There are no labels for the test rows, so by default, these observations are inactive, which means that the task
+uses only 110000 of the 120000 observations that are defined in the underlying data backend.
 }
 \section{Construction}{
 
@@ -18,15 +20,23 @@ There are no labels for the test rows.
 }\if{html}{\out{</div>}}
 }
 
+\section{Download}{
+
+The \link[=Task]{task}'s backend is a \code{\link{DataBackendLazy}} which will download the data once it is requested.
+Other meta-data is already available before that.
+You can cache these datasets by setting the \code{mlr3torch.cache} option to \code{TRUE} or to a specific path to be used
+as the cache directory.
+}
+
 \section{Meta Information}{
 
 \itemize{
 \item Task type: \dQuote{classif}
 \item Properties: \dQuote{multiclass}
-\item Has Missings: yes
+\item Has Missings: no
 \item Target: \dQuote{class}
 \item Features: \dQuote{image}
-\item Backend Dimension: 120000x4
+\item Data Dimension: 120000x4
 }
 }
 

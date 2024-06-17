@@ -35,7 +35,7 @@ check_measures_classif = make_check_measures("classif")
 
 epochs_aggr = crate(function(x) as.integer(ceiling(mean(unlist(x)))), .parent = topenv())
 epochs_tune_fn = crate(function(domain, param_vals) {
-  assert_true(isTRUE(param_vals$early_stopping))
+  assert_true(param_vals$patience > 0L, .var.name = "patience parameter for LearnerTorch")
   assert_true(domain$lower <= 1)
   domain$upper
 }, .parent = topenv())

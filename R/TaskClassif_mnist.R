@@ -8,11 +8,12 @@
 #'
 #' The first 60000 rows belong to the training set, the last 10000 rows to the test set.
 #'
-#' @template task_download
 #' @section Construction:
 #' ```
 #' tsk("mnist")
 #' ```
+#'
+#' @template task_download
 #'
 #' @source
 #' \url{https://torchvision.mlverse.org/reference/mnist_dataset.html}

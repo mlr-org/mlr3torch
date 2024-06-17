@@ -59,11 +59,15 @@ The loss function.}
 \item{\code{total_epochs}}{(\code{integer(1)})\cr
 The total number of epochs the learner is trained for.}
 
-\item{\code{last_scores_train}}{(named \code{list()})\cr
-The scores from the last training batch. Names are the ids of the training measures.}
+\item{\code{last_scores_train}}{(named \code{list()} or \code{NULL})\cr
+The scores from the last training batch. Names are the ids of the training measures.
+If \code{\link{LearnerTorch}} sets \code{eval_freq} different from \code{1}, this is \code{NULL} in all epochs
+that don't evaluate the model.}
 
 \item{\code{last_scores_valid}}{(\code{list()})\cr
-The scores from the last validation batch. Names are the ids of the validation measures.}
+The scores from the last validation batch. Names are the ids of the validation measures.
+If \code{\link{LearnerTorch}} sets \code{eval_freq} different from \code{1}, this is \code{NULL} in all epochs
+that don't evaluate the model.}
 
 \item{\code{epoch}}{(\code{integer(1)})\cr
 The current epoch.}
@@ -77,7 +81,7 @@ The learner's prediction encoder.}
 \item{\code{batch}}{(named \code{list()} of \code{torch_tensor}s)\cr
 The current batch.}
 
-\item{\code{end_training}}{(\code{logical(1)})\cr
+\item{\code{terminate}}{(\code{logical(1)})\cr
 If this field is set to \code{TRUE} at the end of an epoch, training stops.}
 }
 \if{html}{\out{</div>}}

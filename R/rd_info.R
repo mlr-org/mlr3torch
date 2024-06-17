@@ -32,7 +32,7 @@ rd_info_task_torch = function(name, missings, splits) {
     sprintf("* Has Missings: %s", if (missings) "yes" else "no"),
     sprintf("* Target: %s", rd_format_string(obj$target_names)),
     sprintf("* Features: %s", rd_format_string(obj$feature_names)),
-    sprintf("* Backend Dimension: %ix%i", obj$backend$nrow, obj$backend$ncol)
+    sprintf("* Data Dimension: %ix%i", obj$backend$nrow, obj$backend$ncol)
   )
   paste(x, collapse = "\n")
 }

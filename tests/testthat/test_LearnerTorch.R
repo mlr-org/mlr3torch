@@ -535,6 +535,13 @@ test_that("early stopping works", {
   learner$train(task)
   # the first evaluation can do no comparison, i.e. the second eval with no improvement is the third epoch
   expect_equal(learner$internal_tuned_values, list(epochs = 9))
+
+  # in this scenario early stopping should definitely not trigger yet
+  learner$param_set$set_values(
+    min_delta = 0, patience = 1, opt.lr = 0.01, eval_freq = 1
+  )
+  learner$train(task)
+  expect_equal(learner$internal_tuned_values, list(epochs = 10))
 })
 
 test_that("validation works", {
@@ -557,4 +564,27 @@ test_that("validation measure must specify minimize when early stopping", {
     measures_valid = measure, validate = 0.2, opt.lr = 1, patience = 1)
 
   expect_error(learner$train(tsk("mtcars")), "NA")
+})
+
+test_that("internal tuning", {
+  skip_if_not_installed("mlr3tuning")
+  task = tsk("iris")
+  lgr::get_logger("bbotk")$set_threshold("warn")
+  learner = lrn("classif.torch_featureless",
+    epochs = to_tune(upper = 10, internal = TRUE),
+    batch_size = to_tune(10, 20), eval_freq = 3, measures_valid = msr("classif.ce"),
+    validate = 0.3, patience = 2, min_delta = 2
+  )
+
+  ti = mlr3tuning::tune(
+    tuner = mlr3tuning::tnr("grid_search", batch_size = 2),
+    learner = learner,
+    task = tsk("iris"),
+    resampling = rsmp("holdout"),
+    term_evals = 2
+  )
+  expect_equal(
+    ti$archive$data$internal_tuned_values, replicate(list(list(epochs = 9L)), n = 2L)
+  )
+  expect_equal(ti$result_learner_param_vals$epochs, 9L)
 })

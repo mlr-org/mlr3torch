@@ -4,6 +4,7 @@ test_that("tiny_imagenet works", {
   withr::local_options(mlr3torch.cache = TRUE)
   task = tsk("tiny_imagenet")
 
+  expect_equal(task$nrow, 110000)
   # this makes the test faster
   task$filter(1:10)
   expect_equal(task$id, "tiny_imagenet")

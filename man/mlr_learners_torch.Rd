@@ -19,7 +19,7 @@ The Model is a list of class \code{"learner_torch_model"} with the following ele
 \item \code{loss_fn} :: The \verb{$state_dict()} of the \link[torch:nn_module]{loss} used to train the network.
 \item \code{callbacks} :: The \link[=mlr_callback_set]{callbacks} used to train the network.
 \item \code{seed} :: The seed that was / is used for training and prediction.
-\item \code{epochs} :: How many epochs the model was trained for (for early stopping).
+\item \code{epochs} :: How many epochs the model was trained for (early stopping).
 \item \code{task_col_info} :: A \code{data.table()} containing information about the train-task.
 }
 }
@@ -140,9 +140,11 @@ Other Learner:
 a ratio in $(0, 1)$, \code{"test"}, or \code{"predefined"}.}
 
 \item{\code{internal_valid_scores}}{Retrieves the internal validation scores as a named \code{list()}.
+Specify the \verb{$validate} field and the \code{measures_valid} parameter to configure this.
 Returns \code{NULL} if learner is not trained yet.}
 
-\item{\code{internal_tuned_values}}{Retrieves the internally tuned values as a named \code{list()}.
+\item{\code{internal_tuned_values}}{When early stopping is activate, this returns a named list with the early-stopped epochs,
+otherwise an empty list is returned.
 Returns \code{NULL} if learner is not trained yet.}
 
 \item{\code{marshaled}}{(\code{logical(1)})\cr

@@ -41,7 +41,7 @@
 #'   * `loss_fn` :: The `$state_dict()` of the [loss][torch::nn_module] used to train the network.
 #'   * `callbacks` :: The [callbacks][mlr3torch::mlr_callback_set] used to train the network.
 #'   * `seed` :: The seed that was / is used for training and prediction.
-#'   * `epochs` :: How many epochs the model was trained for (for early stopping).
+#'   * `epochs` :: How many epochs the model was trained for (early stopping).
 #'   * `task_col_info` :: A `data.table()` containing information about the train-task.
 #'
 #' @template paramset_torchlearner
@@ -223,12 +223,14 @@ LearnerTorch = R6Class("LearnerTorch",
 
     #' @field internal_valid_scores
     #' Retrieves the internal validation scores as a named `list()`.
+    #' Specify the `$validate` field and the `measures_valid` parameter to configure this.
     #' Returns `NULL` if learner is not trained yet.
     internal_valid_scores = function() {
       self$state$internal_valid_scores
     },
     #' @field internal_tuned_values
-    #' Retrieves the internally tuned values as a named `list()`.
+    #' When early stopping is activate, this returns a named list with the early-stopped epochs,
+    #' otherwise an empty list is returned.
     #' Returns `NULL` if learner is not trained yet.
     internal_tuned_values = function() {
       self$state$internal_tuned_values

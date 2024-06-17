@@ -60,7 +60,7 @@ ContextTorch = R6Class("ContextTorch",
       self$last_scores_valid = structure(list(), names = character(0))
       self$prediction_encoder = assert_function(prediction_encoder, args = c("predict_tensor", "task"))
       self$eval_freq = assert_int(eval_freq, lower = 1L)
-      self$end_training = FALSE
+      self$terminate = FALSE
     },
     #' @field learner ([`Learner`])\cr
     #'   The torch learner.
@@ -95,11 +95,15 @@ ContextTorch = R6Class("ContextTorch",
     #' @field total_epochs (`integer(1)`)\cr
     #'   The total number of epochs the learner is trained for.
     total_epochs = NULL,
-    #' @field last_scores_train (named `list()`)\cr
-    #'   The scores from the last training batch. Names are the ids of the training measures.
+    #' @field last_scores_train (named `list()` or `NULL`)\cr
+    #'  The scores from the last training batch. Names are the ids of the training measures.
+    #'  If [`LearnerTorch`] sets `eval_freq` different from `1`, this is `NULL` in all epochs
+    #'  that don't evaluate the model.
     last_scores_train = NULL,
     #' @field last_scores_valid (`list()`)\cr
     #'   The scores from the last validation batch. Names are the ids of the validation measures.
+    #'  If [`LearnerTorch`] sets `eval_freq` different from `1`, this is `NULL` in all epochs
+    #'  that don't evaluate the model.
     last_scores_valid = NULL,
     #' @field epoch (`integer(1)`)\cr
     #'   The current epoch.
@@ -113,8 +117,8 @@ ContextTorch = R6Class("ContextTorch",
     #' @field batch (named `list()` of `torch_tensor`s)\cr
     #'   The current batch.
     batch = NULL,
-    #' @field end_training (`logical(1)`)\cr
+    #' @field terminate (`logical(1)`)\cr
     #'   If this field is set to `TRUE` at the end of an epoch, training stops.
-    end_training = NULL
+    terminate = NULL
   )
 )

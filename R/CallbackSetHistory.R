@@ -23,10 +23,10 @@ CallbackSetHistory = R6Class("CallbackSetHistory",
     #' @description
     #' Converts the lists to data.tables.
     state_dict = function() {
-      structure(list(
+      list(
         train = rbindlist(self$train, fill = TRUE),
         valid = rbindlist(self$valid, fill = TRUE)
-      ), class = c("callback_state_history", "list"))
+      )
     },
     #' @description
     #' Sets the field `$train` and `$valid` to those contained in the state dict.
