@@ -131,6 +131,7 @@ The torch module that is called during the training phase.}
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-PipeOpModule-new}{\code{PipeOpModule$new()}}
+\item \href{#method-PipeOpModule-clone}{\code{PipeOpModule$clone()}}
 }
 }
 \if{html}{\out{
@@ -180,6 +181,23 @@ Parameter values to be set after construction.}
 
 \item{\code{packages}}{(\code{character()})\cr
 The R packages this object depends on.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipeOpModule-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-PipeOpModule-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PipeOpModule$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
 }
 \if{html}{\out{</div>}}
 }

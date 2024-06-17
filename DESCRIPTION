@@ -103,6 +103,7 @@ Collate:
     'PipeOpTorchActivation.R'
     'PipeOpTorchAvgPool.R'
     'PipeOpTorchBatchNorm.R'
+    'PipeOpTorchBlock.R'
     'PipeOpTorchCallbacks.R'
     'PipeOpTorchConv.R'
     'PipeOpTorchConvTranspose.R'

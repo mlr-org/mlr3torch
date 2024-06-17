@@ -264,8 +264,6 @@ PipeOpTorch = R6Class("PipeOpTorch",
       output = data.table(name = outname, train = "ModelDescriptor", predict = "Task")
       private$.only_shape = FALSE
 
-      assert_r6(param_set, "ParamSet")
-
       super$initialize(
         id = id,
         param_set = param_set,
