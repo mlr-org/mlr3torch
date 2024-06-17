@@ -29,22 +29,26 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   measures_train = normalize_to_list(param_vals$measures_train)
   measures_valid = normalize_to_list(param_vals$measures_valid)
 
-  task_valid = task$clone()$filter(integer(0))
-  task_valid$set_row_roles(task$row_roles$test, "use")
-  loader_valid = if (task_valid$nrow) {
-    private$.dataloader_predict(task_valid, param_vals)
-  } else {
-    if (length(measures_valid)) {
-      lg$warn("No validation set provided but measures for validation set specified.")
-    }
-    NULL
+  if (length(measures_valid) && is.null(self$validate)) {
+    stopf("Learner '%s' has measures_valid set, but its validate field is NULL`", self$id)
+  }
+  if (!length(measures_valid) && param_vals$patience != 0) {
+    stopf("Learner '%s' has a non 0 patience parameter but has no measures_valid set.", self$id)
   }
 
+  if (param_vals$patience > 0 && is.na(measures_valid[[1L]]$minimize)) {
+    stopf("Learner '%s' uses a validation measure with minimize = NA for early stopping.", self$id)
+  }
+
+  task_valid = task$internal_valid_task
+  loader_valid = if (!is.null(task_valid) && task_valid$nrow) {
+    private$.dataloader_predict(task_valid$clone(deep = TRUE), param_vals)
+  }
 
   ctx = ContextTorch$new(
     learner = self,
     task_train = task,
-    task_valid = if (task_valid$nrow) task_valid,
+    task_valid = task_valid,
     loader_train = loader_train,
     loader_valid = loader_valid,
     measures_train = measures_train,
@@ -53,7 +57,8 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     optimizer = optimizer,
     loss_fn = loss_fn,
     total_epochs = param_vals$epochs,
-    prediction_encoder = private$.encode_prediction
+    prediction_encoder = private$.encode_prediction,
+    eval_freq = param_vals$eval_freq
   )
 
   callbacks = lapply(private$.callbacks, function(descriptor) {
@@ -61,6 +66,16 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     cb$ctx = ctx
     cb
   })
+
+  if (param_vals$patience > 0L) {
+    es = CallbackSetEarlyStopping$new(
+      patience = param_vals$patience,
+      min_delta = param_vals$min_delta
+    )
+    es$ctx = ctx
+
+    callbacks = c(callbacks, es)
+  }
 
   model = train_loop(ctx, callbacks)
 
@@ -89,7 +104,6 @@ train_loop = function(ctx, cbs) {
   )
 
   # note that task_valid may be present (callbacks could do their own validation)
-  does_validation = length(ctx$measures_valid) && !is.null(ctx$task_valid)
 
   on.exit({
     # in case a callback wants to finalize things
@@ -102,30 +116,33 @@ train_loop = function(ctx, cbs) {
 
   ctx$network$train()
 
-  ctx$epoch = 0
+  # if we increment epoch at the end of the loop it has the wrong value
+  # during the final two callback stages
+  ctx$epoch = 0L
   while (ctx$epoch < ctx$total_epochs) {
     ctx$epoch = ctx$epoch + 1
     call("on_epoch_begin")
 
     predictions = list()
     indices = list()
-    ctx$step = 0
-    coro::loop(for (batch in ctx$loader_train) {
+    train_iterator = dataloader_make_iter(ctx$loader_train)
+    ctx$step = 0L
+    while (ctx$step < length(ctx$loader_train)) {
       ctx$step = ctx$step + 1
-
+      ctx$batch = dataloader_next(train_iterator)
       ctx$optimizer$zero_grad()
 
       call("on_batch_begin")
 
-      if (length(batch$x) == 1L) {
+      if (length(ctx$batch$x) == 1L) {
         # With one argument there is no ambiguity and we can be less strict
         # TODO: Make this more strict
-        y_hat = ctx$network(batch$x[[1L]])
+        y_hat = ctx$network(ctx$batch$x[[1L]])
       } else {
-        y_hat = do.call(ctx$network, batch$x)
+        y_hat = do.call(ctx$network, ctx$batch$x)
       }
 
-      loss = ctx$loss_fn(y_hat, batch$y)
+      loss = ctx$loss_fn(y_hat, ctx$batch$y)
 
       loss$backward()
 
@@ -133,46 +150,62 @@ train_loop = function(ctx, cbs) {
 
       ctx$last_loss = loss$item()
       predictions[[length(predictions) + 1]] = y_hat$detach()
-      indices[[length(indices) + 1]] = as.integer(batch$.index$to(device = "cpu"))
+      indices[[length(indices) + 1]] = as.integer(ctx$batch$.index$to(device = "cpu"))
       ctx$optimizer$step()
 
       call("on_batch_end")
-    })
+    }
 
-    ctx$last_scores_train = measure_prediction(
-      pred_tensor = torch_cat(predictions, dim = 1L),
-      measures = ctx$measures_train,
-      task = ctx$task_train,
-      row_ids = ctx$task_train$row_ids[unlist(indices)],
-      prediction_encoder = ctx$prediction_encoder
-    )
+    ctx$last_scores_train = if (eval_train_in_epoch(ctx)) {
+      measure_prediction(
+        pred_tensor = torch_cat(predictions, dim = 1L),
+        measures = ctx$measures_train,
+        task = ctx$task_train,
+        row_ids = ctx$task_train$row_ids[unlist(indices)],
+        prediction_encoder = ctx$prediction_encoder
+      )
+    }
 
     call("on_before_valid")
-    if (does_validation) {
+    if (eval_valid_in_epoch(ctx)) {
       ctx$network$eval()
-      pred_tensor = torch_network_predict_valid(ctx$network, ctx$loader_valid, call)
+      pred_tensor = torch_network_predict_valid(ctx, call)
       ctx$last_scores_valid = measure_prediction(
         pred_tensor = pred_tensor,
         measures = ctx$measures_valid,
         task = ctx$task_valid,
         row_ids = ctx$task_valid$row_ids,
         prediction_encoder = ctx$prediction_encoder
-
       )
       ctx$network$train()
+      call("on_valid_end")
+    } else {
+      ctx$last_scores_valid = NULL
     }
     call("on_epoch_end")
+
+    if (isTRUE(ctx$terminate)) break
   }
 
   call("on_end")
 
   # The seed is added later
   list(
-    network   = ctx$network,
-    loss_fn   = ctx$loss_fn$state_dict(),
-    optimizer = ctx$optimizer$state_dict(),
-    callbacks = map(cbs, function(cb) cb$state_dict())
+    network               = ctx$network,
+    # last epoch always does validation so this is fine
+    internal_valid_scores = if (length(ctx$measures_valid)) ctx$last_scores_valid,
+    loss_fn               = ctx$loss_fn$state_dict(),
+    optimizer             = ctx$optimizer$state_dict(),
+    epochs                = ctx$epoch,
+    callbacks             = discard(map(cbs, function(cb) cb$state_dict()), is.null)
   )
+}
+
+eval_train_in_epoch = function(ctx) {
+  length(ctx$measures_train) && (!(ctx$epoch %% ctx$eval_freq) || ctx$epoch == ctx$total_epochs)
+}
+eval_valid_in_epoch = function(ctx) {
+  !is.null(ctx$loader_valid) && (!(ctx$epoch %% ctx$eval_freq) || ctx$epoch == ctx$total_epochs)
 }
 
 has_one_arg = function(network) {
@@ -180,42 +213,46 @@ has_one_arg = function(network) {
   length(fargs) == 1L && !fargs == "..."
 }
 
-torch_network_predict_valid = function(network, loader,  callback_receiver = function(step_name) NULL) {
-  iter = 1L
+torch_network_predict_valid = function(ctx, callback_receiver = function(step_name) NULL) {
+  network = ctx$network
+  loader = ctx$loader_valid
   one_arg = has_one_arg(network)
   predictions = vector("list", length = length(loader))
-  loop(for (batch in loader) {
+  valid_iterator = dataloader_make_iter(loader)
+  ctx$step = 0L
+  while (ctx$step < length(loader)) {
+    ctx$step = ctx$step + 1L
+    ctx$batch = dataloader_next(valid_iterator)
     callback_receiver("on_batch_valid_begin")
-    predictions[[iter]] = if (one_arg) {
-      with_no_grad(network$forward(batch$x[[1L]]))
+    predictions[[ctx$step]] = if (one_arg) {
+      with_no_grad(network$forward(ctx$batch$x[[1L]]))
     } else {
-      with_no_grad(invoke(network$forward, .args = batch$x))
+      with_no_grad(invoke(network$forward, .args = ctx$batch$x))
     }
 
-    iter = iter + 1L
     callback_receiver("on_batch_valid_end")
-  })
+  }
   torch_cat(predictions, dim = 1L)
 }
 
 torch_network_predict = function(network, loader) {
-  iter = 1L
-
-  # If there is one arg, we don't care about the name of the ingress token and we just pass it as
   # an unnamed argument
   # TODO: Maybe we should be stricter, but then we need to ensure that the .getbatch() method of the dataset
   # returns a list where the names of x correspond to the argument names of the network
   one_arg = has_one_arg(network)
   predictions = vector("list", length = length(loader))
-  loop(for (batch in loader) {
-    predictions[[iter]] = if (one_arg) {
+  train_iterator = dataloader_make_iter(loader)
+  step = 0L
+  while (step < length(loader)) {
+    step = step + 1L
+    batch = dataloader_next(train_iterator)
+    predictions[[step]] = if (one_arg) {
       with_no_grad(network$forward(batch$x[[1L]]))
     } else {
       with_no_grad(invoke(network$forward, .args = batch$x))
     }
 
-    iter = iter + 1L
-  })
+  }
   torch_cat(predictions, dim = 1L)
 }
 

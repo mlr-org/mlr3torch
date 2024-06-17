@@ -74,13 +74,12 @@ test_that("torch_network_predict works", {
 
 })
 
-test_that("Test roles are respected", {
+test_that("Validation Task is respected", {
   task = tsk("iris")
-  task$filter(1:20)
-  task$set_row_roles(1:10, "test")
+  task$divide(ids = 1:10)
 
   learner = lrn("classif.torch_featureless", epochs = 2, batch_size = 1, measures_train = msrs(c("classif.acc")),
-    callbacks = t_clbk("history")
+    callbacks = t_clbk("history"), validate = "predefined"
   )
   learner$train(task)
 
@@ -91,7 +90,7 @@ test_that("Test roles are respected", {
   expect_equal(colnames(learner$model$callbacks$history$valid), "epoch")
 
   learner = lrn("classif.torch_featureless", epochs = 2, batch_size = 1, measures_train = msrs(c("classif.acc")),
-    measures_valid = msr("classif.bacc"), callbacks = t_clbk("history")
+    measures_valid = msr("classif.bacc"), callbacks = t_clbk("history"), validate = "predefined"
   )
 
   learner$train(task)

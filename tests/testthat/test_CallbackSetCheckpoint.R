@@ -26,7 +26,7 @@ test_that("manual", {
   learner$train(task)
 
   expect_set_equal(
-    c("network2.pt", "optimizer2.pt", c("network3.pt", "optimizer3.pt")),
+    c("network2.pt", "optimizer2.pt", "network3.pt", "optimizer3.pt"),
     list.files(pth2)
   )
   pred = learner$predict(tsk("iris"))

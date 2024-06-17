@@ -86,6 +86,7 @@ register_mlr3 = function() {
       "on_before_valid",
       "on_batch_valid_begin",
       "on_batch_valid_end",
+      "on_valid_end",
       "on_epoch_end",
       "on_end",
       "on_exit"

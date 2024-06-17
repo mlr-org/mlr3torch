@@ -11,14 +11,12 @@ test_that("dataset_featureless works", {
 test_that("Basic checks: Classification", {
   learner = lrn("classif.torch_featureless")
   expect_learner_torch(learner)
-  expect_set_equal(learner$properties, c("twoclass", "multiclass", "missings", "featureless", "marshal"))
 })
 
 test_that("LearnerTorchFeatureless works", {
   learner = lrn("classif.torch_featureless", batch_size = 50, epochs = 100, seed = 1)
   task = tsk("iris")
   task$row_roles$use = c(1:50, 51:60, 101:110)
-  task$row_roles$holdout = 51:150
   learner$train(task)
   pred = learner$predict(task)
   expect_true(pred$response[[1L]] == "setosa")
@@ -28,5 +26,4 @@ test_that("LearnerTorchFeatureless works", {
 test_that("Basic checks: Regression", {
   learner = lrn("regr.torch_featureless")
   expect_learner_torch(learner)
-  expect_set_equal(learner$properties, c("missings", "featureless", "marshal"))
 })

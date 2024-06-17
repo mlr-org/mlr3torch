@@ -173,7 +173,7 @@ DataBackendLazy = R6Class("DataBackendLazy",
     backend = function(rhs) {
       assert_ro_binding(rhs)
       if (is.null(private$.backend)) {
-        private$.backend = assert_backend(private$.constructor(self))
+        backend = assert_backend(private$.constructor(self))
 
         f = function(test, x, y, var_name) {
           if (!test(x, y)) {
@@ -185,12 +185,13 @@ DataBackendLazy = R6Class("DataBackendLazy",
           }
         }
 
-        f(identical, private$.backend$primary_key, self$primary_key, "primary key")
-        f(test_permutation, private$.backend$rownames, self$rownames, "row identifiers")
-        f(test_permutation, private$.backend$colnames, private$.colnames, "column names")
-        f(test_equal_col_info, col_info(private$.backend), private$.col_info, "column information")
+        f(identical, backend$primary_key, self$primary_key, "primary key")
+        f(test_permutation, backend$rownames, self$rownames, "row identifiers")
+        f(test_permutation, backend$colnames, private$.colnames, "column names")
+        f(test_equal_col_info, col_info(backend), private$.col_info, "column information")
         # need to reverse the order for correct error message
-        f(function(x, y) test_subset(y, x), private$.backend$data_formats, self$data_formats, "data formats")
+        f(function(x, y) test_subset(y, x), backend$data_formats, self$data_formats, "data formats")
+        private$.backend = backend
       }
       private$.backend
     },

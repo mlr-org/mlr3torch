@@ -57,7 +57,7 @@ test_that("Basic tests: Classification", {
   expect_equal(learner$id, "classif.test1")
   expect_equal(learner$label, "Test1 Learner")
   expect_set_equal(learner$feature_types, c("numeric", "integer"))
-  expect_set_equal(learner$properties, c("multiclass", "twoclass", "marshal"))
+  expect_set_equal(learner$properties, c("multiclass", "twoclass", "marshal", "validation", "internal_tuning"))
 
   # default predict types are correct
   expect_set_equal(learner$predict_types, c("response", "prob"))
@@ -81,7 +81,7 @@ test_that("Basic tests: Regression", {
   expect_equal(learner$id, "regr.test1")
   expect_equal(learner$label, "Test1 Learner")
   expect_set_equal(learner$feature_types, c("numeric", "integer"))
-  expect_set_equal(learner$properties, "marshal")
+  expect_set_equal(learner$properties, c("marshal", "validation", "internal_tuning"))
 
   # default predict types are correct
   expect_set_equal(learner$predict_types, "response")
@@ -199,7 +199,7 @@ test_that("the state of a trained network contains what it should", {
   learner$train(task)
   expect_permutation(
     names(learner$model),
-    c("seed", "network", "optimizer", "loss_fn", "task_col_info", "callbacks")
+    c("seed", "network", "optimizer", "loss_fn", "task_col_info", "callbacks", "epochs", "internal_valid_scores")
   )
   expect_true(is.integer(learner$model$seed))
   expect_class(learner$model$network, "nn_module")
@@ -260,17 +260,14 @@ test_that("train parameters do what they should: classification and regression",
       measures_train = measures_train,
       measures_valid = measures_valid,
       predict_type = switch(task_type, classif = "prob", regr = "response"),
-      device = "cpu"
-
+      device = "cpu",
+      validate = "predefined"
     )
 
     # first we test everything with validation
 
-    split = partition(task)
-    task$row_roles$use = split$train
-    task$row_roles$test = split$train
+    task$divide(ratio = 2 / 3)
     learner$train(task)
-
 
     internals = learner$model$callbacks$internals
     ctx = internals$ctx
@@ -303,7 +300,8 @@ test_that("train parameters do what they should: classification and regression",
     expect_permutation(c("epoch", ids(measures_valid)), colnames(learner$model$callbacks$history$valid))
 
     # now without validation
-    task$row_roles$test = integer()
+    task$internal_valid_task = NULL
+    learner$validate = NULL
 
     learner$state = NULL
     learner$train(task)
@@ -313,17 +311,14 @@ test_that("train parameters do what they should: classification and regression",
     learner$state = NULL
     learner$param_set$set_values(
       device = "meta",
-      epochs = 0
+      epochs = 0,
+      measures_valid = list()
     )
 
     # now we also test that the device placement works
     learner$train(task)
     expect_equal(learner$network$parameters[[1]]$device$type, "meta")
-
   }
-
-  f("regr", c("regr.mse", "regr.rmse", "regr.mae"))
-  f("classif", c("classif.acc", "classif.ce", "classif.mbrier"))
 })
 
 test_that("predict types work during training and prediction", {
@@ -521,4 +516,75 @@ test_that("(p)hash", {
   expect_ne_hash(lrn("regr.mlp"), lrn("regr.mlp", optimizer = "sgd"))
   expect_ne_hash(lrn("regr.mlp", loss = "mse"), lrn("regr.mlp", loss = "l1"))
   expect_ne_hash(lrn("regr.mlp"), lrn("regr.mlp", callbacks = t_clbk("history")))
+})
+
+test_that("eval_freq works", {
+  learner = lrn("regr.torch_featureless", epochs = 10, batch_size = 50, eval_freq = 4, callbacks = "history",
+    measures_train = msrs("regr.mse"), measures_valid = msrs("regr.mse"), validate = 0.3)
+  task = tsk("mtcars")
+  learner$train(task)
+  expect_equal(learner$model$callbacks$history$valid$epoch, c(4, 8, 10))
+  expect_equal(learner$model$callbacks$history$train$epoch, c(4, 8, 10))
+})
+
+test_that("early stopping works", {
+  learner = lrn("classif.torch_featureless", epochs = 10, batch_size = 50, eval_freq = 3, callbacks = "history",
+    measures_valid = msr("classif.ce"), validate = 0.3, patience = 2, min_delta = 2)
+  task = tsk("iris")
+
+  learner$train(task)
+  # the first evaluation can do no comparison, i.e. the second eval with no improvement is the third epoch
+  expect_equal(learner$internal_tuned_values, list(epochs = 9))
+
+  # in this scenario early stopping should definitely not trigger yet
+  learner$param_set$set_values(
+    min_delta = 0, patience = 1, opt.lr = 0.01, eval_freq = 1
+  )
+  learner$train(task)
+  expect_equal(learner$internal_tuned_values, list(epochs = 10))
+})
+
+test_that("validation works", {
+  task = tsk("mtcars")
+  task$internal_valid_task = task
+
+  learner = lrn("regr.torch_featureless", epochs = 20, batch_size = 150, eval_freq = 3,
+    measures_valid = msr("regr.mse"), validate = "predefined", seed = 1, opt.lr = 1)
+
+  learner$train(task)
+  expect_list(learner$internal_valid_scores, "numeric", len = 1L)
+  expect_equal(names(learner$internal_valid_scores), "regr.mse")
+  expect_true(abs(var(task$truth()) - learner$internal_valid_scores[[1L]]) < 2)
+})
+
+test_that("validation measure must specify minimize when early stopping", {
+  measure = msr("regr.mse")
+  measure$minimize = NA
+  learner = lrn("regr.torch_featureless", epochs = 1, batch_size = 50,
+    measures_valid = measure, validate = 0.2, opt.lr = 1, patience = 1)
+
+  expect_error(learner$train(tsk("mtcars")), "NA")
+})
+
+test_that("internal tuning", {
+  skip_if_not_installed("mlr3tuning")
+  task = tsk("iris")
+  lgr::get_logger("bbotk")$set_threshold("warn")
+  learner = lrn("classif.torch_featureless",
+    epochs = to_tune(upper = 10, internal = TRUE),
+    batch_size = to_tune(10, 20), eval_freq = 3, measures_valid = msr("classif.ce"),
+    validate = 0.3, patience = 2, min_delta = 2
+  )
+
+  ti = mlr3tuning::tune(
+    tuner = mlr3tuning::tnr("grid_search", batch_size = 2),
+    learner = learner,
+    task = tsk("iris"),
+    resampling = rsmp("holdout"),
+    term_evals = 2
+  )
+  expect_equal(
+    ti$archive$data$internal_tuned_values, replicate(list(list(epochs = 9L)), n = 2L)
+  )
+  expect_equal(ti$result_learner_param_vals$epochs, 9L)
 })
