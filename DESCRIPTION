@@ -40,7 +40,6 @@ Depends:
 Imports:
     backports,
     checkmate (>= 2.2.0),
-    coro,
     data.table,
     lgr,
     methods,
@@ -56,6 +55,7 @@ Suggests:
     jsonlite,
     knitr,
     magick,
+	mlr3tuning,
     progress,
     rmarkdown,
     rpart,
@@ -64,8 +64,9 @@ Suggests:
     torchvision,
     waldo
 Remotes:
-    mlr-org/mlr3,
-    mlr-org/mlr3pipelines,
+    mlr-org/mlr3@feat/inner_valid,
+    mlr-org/mlr3pipelines@feat/inner_valid,
+	mlr-org/mlr3tuning@internal_tuning,
     mlverse/torchvision
 Config/testthat/edition: 3
 NeedsCompilation: no
@@ -79,6 +80,7 @@ Collate:
     'zzz.R'
     'TorchCallback.R'
     'CallbackSetCheckpoint.R'
+    'CallbackSetEarlyStopping.R'
     'CallbackSetHistory.R'
     'CallbackSetProgress.R'
     'ContextTorch.R'
@@ -116,7 +118,6 @@ Collate:
     'PipeOpTorchOptimizer.R'
     'PipeOpTorchReshape.R'
     'PipeOpTorchSoftmax.R'
-    'ResamplingRowRoles.R'
     'TaskClassif_lazy_iris.R'
     'TaskClassif_mnist.R'
     'TaskClassif_tiny_imagenet.R'

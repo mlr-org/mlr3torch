@@ -47,6 +47,19 @@ training phase. This seed (either set or randomly sampled) is available via \ver
 and used during prediction.
 Note that by setting the seed during the training phase this will mean that by default (i.e. when \code{seed} is
 \code{"random"}), clones of the learner will use a different seed.
+\item \code{eval_freq} :: \code{integer(1)}\cr
+How often the train / validation predictions are evaluated using \code{measures_train} / \code{measures_valid}.
+This is initialized to \code{1}.
+Note that the final model is always evaluated.
+\item \code{patience} :: \code{integer(1)}\cr
+This activates early stopping using the validation scores.
+If the performance of a model does not improve for \code{patience} evaluation steps, training is ended.
+Note that the final model is stored in the learner, not the best model.
+This is initialized to \code{0}, which means no early stopping.
+The first entry from \code{measures_valid} is used as the metric.
+\item \code{min_delta} :: \code{double(1)}\cr
+The minimum improvement threshold (\code{>}) for early stopping.
+Is initialized to 0.
 }
 
 Additionally there are the parameters for the optimizer, the loss function and the callbacks.

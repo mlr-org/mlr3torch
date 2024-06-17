@@ -8,11 +8,12 @@
 #'
 #' The first 60000 rows belong to the training set, the last 10000 rows to the test set.
 #'
-#' @template task_download
 #' @section Construction:
 #' ```
 #' tsk("mnist")
 #' ```
+#'
+#' @template task_download
 #'
 #' @source
 #' \url{https://torchvision.mlverse.org/reference/mnist_dataset.html}
@@ -61,13 +62,12 @@ load_task_mnist = function(id = "mnist") {
     )(data$image)
 
     data_descriptor = DataDescriptor$new(dataset = ds, list(image = c(NA, 1, 28, 28)))
-
     dt = data.table(
       image = lazy_tensor(data_descriptor),
       label = labels,
-      ..row_id = seq_along(labels)
+      ..row_id = seq_along(labels),
+      split = factor(rep(c("train", "test"), times = c(60000, 10000)))
     )
-
     DataBackendDataTable$new(data = dt, primary_key = "..row_id")
   }
 
@@ -87,8 +87,6 @@ load_task_mnist = function(id = "mnist") {
   )
 
   backend$hash = task$man = "mlr3torch::mlr_tasks_mnist"
-  task$row_roles$use = seq_len(60000)
-  task$row_roles$test = seq(from = 60001, 70000)
   task$col_roles$feature = "image"
 
   return(task)

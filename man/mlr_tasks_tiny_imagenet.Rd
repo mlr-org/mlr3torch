@@ -6,19 +6,26 @@
 \description{
 Subset of the famous ImageNet dataset.
 The data is obtained from \code{\link[torchvision:tiny_imagenet_dataset]{torchvision::tiny_imagenet_dataset()}}.
-It contains the train, validation and test data.
-The row role \code{use} is set to the training data, the row role \code{test} to the valdiation data and the row role
-\code{holdout} is set to the test data.
-There are no labels available for the test data.
 
-The underlying \code{\link{DataBackend}} contains columns \code{"class"}, \code{"image"}, \code{"row_id"}, \code{"split"}, where the last column
-indicates whether the row belongs to the train, validation or test set.
+The underlying \code{\link{DataBackend}} contains columns \code{"class"}, \code{"image"}, \code{"..row_id"}, \code{"split"}, where the last column
+indicates whether the row belongs to the train, validation or test set that defined provided in torchvision.
+
+There are no labels for the test rows, so by default, these observations are inactive, which means that the task
+uses only 110000 of the 120000 observations that are defined in the underlying data backend.
 }
 \section{Construction}{
 
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{tsk("tiny_imagenet")
 }\if{html}{\out{</div>}}
+}
+
+\section{Download}{
+
+The \link[=Task]{task}'s backend is a \code{\link{DataBackendLazy}} which will download the data once it is requested.
+Other meta-data is already available before that.
+You can cache these datasets by setting the \code{mlr3torch.cache} option to \code{TRUE} or to a specific path to be used
+as the cache directory.
 }
 
 \section{Meta Information}{
@@ -29,8 +36,7 @@ indicates whether the row belongs to the train, validation or test set.
 \item Has Missings: no
 \item Target: \dQuote{class}
 \item Features: \dQuote{image}
-\item Backend Dimension: 120000x3
-\item Default Roles (use / test / holdout): 100000, 10000, 10000
+\item Data Dimension: 120000x4
 }
 }
 
