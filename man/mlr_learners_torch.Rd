@@ -26,24 +26,21 @@ The Model is a list of class \code{"learner_torch_model"} with the following ele
 
 \section{Parameters}{
 
+
+\strong{General}:
+
+The parameters of the optimizer, loss and callbacks,
+prefixed with \code{"opt."}, \code{"loss."} and \code{"cb.<callback id>."} respectively.
 \itemize{
-\item \code{batch_size} :: (\code{integer(1)})\cr
-The batch size.
 \item \code{epochs} :: \code{integer(1)}\cr
 The number of epochs.
 \item \code{device} :: \code{character(1)}\cr
 The device. One of \code{"auto"}, \code{"cpu"}, or \code{"cuda"} or other values defined in \code{mlr_reflections$torch$devices}.
 The value is initialized to \code{"auto"}, which will select \code{"cuda"} if possible, then try \code{"mps"} and otherwise
 fall back to \code{"cpu"}.
-\item \code{measures_train} :: \code{\link{Measure}} or \code{list()} of \code{\link{Measure}}s.
-Measures to be evaluated during training.
-\item \code{measures_valid} :: \code{\link{Measure}} or \code{list()} of \code{\link{Measure}}s.
-Measures to be evaluated during validation.
 \item \code{num_threads} :: \code{integer(1)}\cr
 The number of threads for intraop pararallelization (if \code{device} is \code{"cpu"}).
 This value is initialized to 1.
-\item \code{shuffle} :: \code{logical(1)}\cr
-Whether to shuffle the instances in the dataset. This value is initialized to \code{TRUE}.
 \item \code{seed} :: \code{integer(1)} or \code{"random"}\cr
 The seed that is used during training and prediction.
 This value is initialized to \code{"random"}, which means that a random seed will be sampled at the beginning of the
@@ -51,10 +48,22 @@ training phase. This seed (either set or randomly sampled) is available via \ver
 and used during prediction.
 Note that by setting the seed during the training phase this will mean that by default (i.e. when \code{seed} is
 \code{"random"}), clones of the learner will use a different seed.
+}
+
+\strong{Evaluation}:
+\itemize{
+\item \code{measures_train} :: \code{\link{Measure}} or \code{list()} of \code{\link{Measure}}s.\cr
+Measures to be evaluated during training.
+\item \code{measures_valid} :: \code{\link{Measure}} or \code{list()} of \code{\link{Measure}}s.\cr
+Measures to be evaluated during validation.
 \item \code{eval_freq} :: \code{integer(1)}\cr
 How often the train / validation predictions are evaluated using \code{measures_train} / \code{measures_valid}.
 This is initialized to \code{1}.
 Note that the final model is always evaluated.
+}
+
+\strong{Early Stopping}:
+\itemize{
 \item \code{patience} :: \code{integer(1)}\cr
 This activates early stopping using the validation scores.
 If the performance of a model does not improve for \code{patience} evaluation steps, training is ended.
@@ -66,8 +75,41 @@ The minimum improvement threshold (\code{>}) for early stopping.
 Is initialized to 0.
 }
 
-Additionally there are the parameters for the optimizer, the loss function and the callbacks.
-They are prefixed with \code{"opt."}, \code{"loss."} and \code{"cb.<callback id>."} respectively.
+\strong{Dataloader}:
+\itemize{
+\item \code{batch_size} :: \code{integer(1)}\cr
+The batch size (required).
+\item \code{shuffle} :: \code{logical(1)}\cr
+Whether to shuffle the instances in the dataset. Default is \code{FALSE}.
+This does not impact validation.
+\item \code{sampler} :: \code{\link[torch:sampler]{torch::sampler}}\cr
+Object that defines how the dataloader draw samples.
+\item \code{batch_sampler} :: \code{\link[torch:sampler]{torch::sampler}}\cr
+Object that defines how the dataloader draws batches.
+\item \code{num_workers} :: \code{integer(1)}\cr
+The number of workers for data loading (batches are loaded in parallel).
+The default is \code{0}, which means that data will be loaded in the main process.
+\item \code{collate_fn} :: \code{function}\cr
+How to merge a list of samples to form a batch.
+\item \code{pin_memory} :: \code{logical(1)}\cr
+Whether the dataloader copies tensors into CUDA pinned memory before returning them.
+\item \code{drop_last} :: \code{logical(1)}\cr
+Whether to drop the last training batch in each epoch during training. Default is \code{FALSE}.
+\item \code{timeout} :: \code{numeric(1)}\cr
+The timeout value for collecting a batch from workers.
+Negative values mean no timeout and the default is \code{-1}.
+\item \code{worker_init_fn} :: \verb{function(id)}\cr
+A function that receives the worker id (in \verb{[1, num_workers]}) and is exectued after seeding
+on the worker but before data loading.
+\item \code{worker_globals} :: \code{list()} | \code{character()}\cr
+When loading data in parallel, this allows to export globals to the workers.
+If this is a character vector, the objects in the global environment with those names
+are copied to the workers.
+\item \code{worker_packages} :: \code{character()}\cr
+Which packages to load on the workers.
+}
+
+Also see \code{torch::dataloder} for more information.
 }
 
 \section{Inheriting}{
@@ -93,6 +135,7 @@ Moreover, one needs to pay attention respect the row ids of the provided task.
 
 It is also possible to overwrite the private \code{.dataloader()} method instead of the \code{.dataset()} method.
 Per default, a dataloader is constructed using the output from the \code{.dataset()} method.
+However, this should respect the dataloader parameters from the \code{\link{ParamSet}}.
 \itemize{
 \item \code{.dataloader(task, param_vals)}\cr
 (\code{\link{Task}}, \code{list()}) -> \code{\link[torch:dataloader]{torch::dataloader}}\cr

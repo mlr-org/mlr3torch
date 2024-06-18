@@ -36,13 +36,22 @@ LearnerTorchTest1 = R6Class("LearnerTorchTest1",
         }),
         device = param_vals$device
       )
-      dl = dataloader(
-        dataset = dataset,
-        batch_size = param_vals$batch_size,
-        shuffle = param_vals$shuffle
+      dl_args = c(
+        "batch_size",
+        "shuffle",
+        "sampler",
+        "batch_sampler",
+        "num_workers",
+        "collate_fn",
+        "pin_memory",
+        "drop_last",
+        "timeout",
+        "worker_init_fn",
+        "worker_globals",
+        "worker_packages"
       )
-      return(dl)
-
+      args = param_vals[names(param_vals) %in% dl_args]
+      invoke(dataloader, dataset = dataset)
     }
   )
 )

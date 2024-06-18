@@ -49,19 +49,31 @@ paramset_torchlearner = function(task_type) {
   )
 
   param_set = ps(
-    batch_size            = p_int(tags = c("train", "predict", "required"), lower = 1L),
     epochs                = p_int(tags = c("train", "validation", "internal_tuning", "required"), lower = 0L,
       aggr = epochs_aggr, in_tune_fn = epochs_tune_fn, disable_in_tune = list(patience = 0)),
     device                = p_fct(tags = c("train", "predict", "required"), levels = mlr_reflections$torch$devices, init = "auto"),
+    num_threads           = p_int(lower = 1L, tags = c("train", "predict", "required", "threads"), init = 1L),
+    seed                  = p_int(tags = c("train", "predict", "required"), special_vals = list("random"), init = "random"),
+    # evaluation
     eval_freq             = p_int(lower = 1L, tags = c("train", "required"), init = 1L),
     measures_train        = p_uty(tags = c("train", "required"), custom_check = check_measures, init = list()),
     measures_valid        = p_uty(tags = c("train", "required"), custom_check = check_measures, init = list()),
+    # early stopping
     patience              = p_int(lower = 0L, tags = c("train", "required"), init = 0L),
     min_delta             = p_dbl(lower = 0, tags = c("train", "required"), init = 0),
-    drop_last             = p_lgl(tags = c("train", "required"), init = FALSE),
-    shuffle               = p_lgl(tags = c("train", "required"), init = TRUE),
-    num_threads           = p_int(lower = 1L, tags = c("train", "predict", "required", "threads"), init = 1L),
-    seed                  = p_int(tags = c("train", "predict", "required"), special_vals = list("random"), init = "random")
+    # dataloader parameters
+    batch_size            = p_int(tags = c("train", "predict", "required"), lower = 1L),
+    shuffle               = p_lgl(tags = "train", default = FALSE),
+    sampler               = p_uty(tags = c("train", "predict")),
+    batch_sampler         = p_uty(tags = c("train", "predict")),
+    num_workers           = p_int(lower = 0, default = 0, tags = c("train", "predict")),
+    collate_fn            = p_uty(tags = c("train", "predict"), default = NULL),
+    pin_memory            = p_lgl(default = FALSE, tags = c("train", "predict")),
+    drop_last             = p_lgl(tags = "train", default = FALSE),
+    timeout               = p_dbl(default = -1, tags = c("train", "predict")),
+    worker_init_fn        = p_uty(tags = c("train", "predict")),
+    worker_globals        = p_uty(tags = c("train", "predict")),
+    worker_packages       = p_uty(tags = c("train", "predict"), custom_check = check_character, special_vals = list(NULL))
   )
   return(param_set)
 }
