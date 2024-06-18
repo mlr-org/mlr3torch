@@ -67,6 +67,7 @@
 #'
 #' It is also possible to overwrite the private `.dataloader()` method instead of the `.dataset()` method.
 #' Per default, a dataloader is constructed using the output from the `.dataset()` method.
+#' However, this should respect the dataloader parameters from the [`ParamSet`].
 #'
 #' * `.dataloader(task, param_vals)`\cr
 #'   ([`Task`], `list()`) -> [`torch::dataloader`]\cr
@@ -379,12 +380,22 @@ LearnerTorch = R6Class("LearnerTorch",
     # the dataloader gets param_vals that may be different from self$param_set$values, e.g.
     # when the dataloader for validation data is loaded, `shuffle` is set to FALSE.
    .dataloader = function(task, param_vals) {
-      dataloader(
-        dataset = private$.dataset(task, param_vals),
-        batch_size = param_vals$batch_size,
-        shuffle = param_vals$shuffle,
-        drop_last = param_vals$drop_last
+      dl_args = c(
+        "batch_size",
+        "shuffle",
+        "sampler",
+        "batch_sampler",
+        "num_workers",
+        "collate_fn",
+        "pin_memory",
+        "drop_last",
+        "timeout",
+        "worker_init_fn",
+        "worker_globals",
+        "worker_packages"
       )
+      args = param_vals[names(param_vals) %in% dl_args]
+      invoke(dataloader, dataset = private$.dataset(task, param_vals), .args = args)
     },
     .dataloader_predict = function(task, param_vals) {
       param_vals_test = insert_named(param_vals, list(shuffle = FALSE, drop_last = FALSE))

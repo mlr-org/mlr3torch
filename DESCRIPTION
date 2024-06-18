@@ -61,13 +61,12 @@ Suggests:
     rpart,
     viridis,
     testthat (>= 3.0.0),
-    torchvision,
+    torchvision (>= 0.6.0),
     waldo
 Remotes:
     mlr-org/mlr3@feat/inner_valid,
     mlr-org/mlr3pipelines@bundle,
-	mlr-org/mlr3tuning@internal_tuning,
-    mlverse/torchvision
+    mlr-org/mlr3tuning@internal_tuning
 Config/testthat/edition: 3
 NeedsCompilation: no
 ByteCompile: no
