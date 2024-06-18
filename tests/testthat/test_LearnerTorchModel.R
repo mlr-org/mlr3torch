@@ -46,3 +46,23 @@ test_that("cannot clone trained LearnerTorchModel", {
   learner$train(task)
   expect_error(learner$clone(deep = TRUE), "for untrained")
 })
+
+test_that("marshaling works for graph learner", {
+  graph = po("torch_ingress_num") %>>%
+    po("nn_linear", out_features = 20) %>>%
+    po("nn_relu") %>>%
+    po("nn_head") %>>%
+    po("torch_loss", loss = t_loss("cross_entropy")) %>>%
+    po("torch_optimizer", optimizer = t_opt("adam", lr = 0.1)) %>>%
+    po("torch_callbacks", callbacks = t_clbk("history")) %>>%
+    po("torch_model_classif", batch_size = 50, epochs = 1, device = "cpu")
+
+  learner = as_learner(graph)
+  learner$id = "graph_mlp"
+  browser()
+  task = tsk("iris")
+  learner$train(task)
+  learner$marshal()
+  learner$unmarshal()
+  expect_class(learner$predict(task), "Prediction")
+})

@@ -464,6 +464,18 @@ unmarshal_model.learner_torch_model_marshaled = function(model, inplace = FALSE,
   return(model)
 }
 
+#' @export
+marshal_model.LearnerTorch = function(model, inplace = FALSE, ...) {
+  model$model = marshal_model(model$model, inplace = inplace, ...)
+  model
+}
+
+#' @export
+unmarshal_model.LearnerTorch = function(model, inplace = FALSE, ...) {
+  model$model = unmarshal_model(model$model, inplace = inplace, ...)
+  model
+}
+
 
 #' @export
 hash_input.nn_module = function(x) {
