@@ -59,7 +59,6 @@ test_that("marshaling works for graph learner", {
 
   learner = as_learner(graph)
   learner$id = "graph_mlp"
-  browser()
   task = tsk("iris")
   learner$train(task)
   learner$marshal()
