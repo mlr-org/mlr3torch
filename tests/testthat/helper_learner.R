@@ -29,7 +29,7 @@ LearnerTorchTest1 = R6Class("LearnerTorchTest1",
     .dataloader = function(task, param_vals) {
       ingress_token = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, length(task$feature_names)))
       dataset = task_dataset(
-       task,
+        task,
         feature_ingress_tokens = list(num = ingress_token),
         target_batchgetter = crate(function(data, device) {
           torch_tensor(data = as.integer(data[[1]]), dtype = torch_long(), device = device)
