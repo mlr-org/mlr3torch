@@ -100,23 +100,18 @@ The output is <code>NULL</code> during training and a <code>Prediction</code> of
     <h2 id="parameters">Parameters<a class="anchor" aria-label="anchor" href="#parameters"></a></h2>
     
 
-<ul><li><p><code>batch_size</code> :: (<code>integer(1)</code>)<br>
-The batch size.</p></li>
-<li><p><code>epochs</code> :: <code>integer(1)</code><br>
+
+<p><strong>General</strong>:</p>
+<p>The parameters of the optimizer, loss and callbacks,
+prefixed with <code>"opt."</code>, <code>"loss."</code> and <code>"cb.&lt;callback id&gt;."</code> respectively.</p><ul><li><p><code>epochs</code> :: <code>integer(1)</code><br>
 The number of epochs.</p></li>
 <li><p><code>device</code> :: <code>character(1)</code><br>
 The device. One of <code>"auto"</code>, <code>"cpu"</code>, or <code>"cuda"</code> or other values defined in <code>mlr_reflections$torch$devices</code>.
 The value is initialized to <code>"auto"</code>, which will select <code>"cuda"</code> if possible, then try <code>"mps"</code> and otherwise
 fall back to <code>"cpu"</code>.</p></li>
-<li><p><code>measures_train</code> :: <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code>s.
-Measures to be evaluated during training.</p></li>
-<li><p><code>measures_valid</code> :: <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code>s.
-Measures to be evaluated during validation.</p></li>
 <li><p><code>num_threads</code> :: <code>integer(1)</code><br>
 The number of threads for intraop pararallelization (if <code>device</code> is <code>"cpu"</code>).
 This value is initialized to 1.</p></li>
-<li><p><code>shuffle</code> :: <code>logical(1)</code><br>
-Whether to shuffle the instances in the dataset. This value is initialized to <code>TRUE</code>.</p></li>
 <li><p><code>seed</code> :: <code>integer(1)</code> or <code>"random"</code><br>
 The seed that is used during training and prediction.
 This value is initialized to <code>"random"</code>, which means that a random seed will be sampled at the beginning of the
@@ -124,11 +119,15 @@ training phase. This seed (either set or randomly sampled) is available via <cod
 and used during prediction.
 Note that by setting the seed during the training phase this will mean that by default (i.e. when <code>seed</code> is
 <code>"random"</code>), clones of the learner will use a different seed.</p></li>
+</ul><p><strong>Evaluation</strong>:</p><ul><li><p><code>measures_train</code> :: <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code>s.<br>
+Measures to be evaluated during training.</p></li>
+<li><p><code>measures_valid</code> :: <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code>s.<br>
+Measures to be evaluated during validation.</p></li>
 <li><p><code>eval_freq</code> :: <code>integer(1)</code><br>
 How often the train / validation predictions are evaluated using <code>measures_train</code> / <code>measures_valid</code>.
 This is initialized to <code>1</code>.
 Note that the final model is always evaluated.</p></li>
-<li><p><code>patience</code> :: <code>integer(1)</code><br>
+</ul><p><strong>Early Stopping</strong>:</p><ul><li><p><code>patience</code> :: <code>integer(1)</code><br>
 This activates early stopping using the validation scores.
 If the performance of a model does not improve for <code>patience</code> evaluation steps, training is ended.
 Note that the final model is stored in the learner, not the best model.
@@ -137,8 +136,37 @@ The first entry from <code>measures_valid</code> is used as the metric.</p></li>
 <li><p><code>min_delta</code> :: <code>double(1)</code><br>
 The minimum improvement threshold (<code>&gt;</code>) for early stopping.
 Is initialized to 0.</p></li>
-</ul><p>Additionally there are the parameters for the optimizer, the loss function and the callbacks.
-They are prefixed with <code>"opt."</code>, <code>"loss."</code> and <code>"cb.&lt;callback id&gt;."</code> respectively.</p>
+</ul><p><strong>Dataloader</strong>:</p><ul><li><p><code>batch_size</code> :: <code>integer(1)</code><br>
+The batch size (required).</p></li>
+<li><p><code>shuffle</code> :: <code>logical(1)</code><br>
+Whether to shuffle the instances in the dataset. Default is <code>FALSE</code>.
+This does not impact validation.</p></li>
+<li><p><code>sampler</code> :: <code><a href="https://rdrr.io/pkg/torch/man/sampler.html" class="external-link">torch::sampler</a></code><br>
+Object that defines how the dataloader draw samples.</p></li>
+<li><p><code>batch_sampler</code> :: <code><a href="https://rdrr.io/pkg/torch/man/sampler.html" class="external-link">torch::sampler</a></code><br>
+Object that defines how the dataloader draws batches.</p></li>
+<li><p><code>num_workers</code> :: <code>integer(1)</code><br>
+The number of workers for data loading (batches are loaded in parallel).
+The default is <code>0</code>, which means that data will be loaded in the main process.</p></li>
+<li><p><code>collate_fn</code> :: <code>function</code><br>
+How to merge a list of samples to form a batch.</p></li>
+<li><p><code>pin_memory</code> :: <code>logical(1)</code><br>
+Whether the dataloader copies tensors into CUDA pinned memory before returning them.</p></li>
+<li><p><code>drop_last</code> :: <code>logical(1)</code><br>
+Whether to drop the last training batch in each epoch during training. Default is <code>FALSE</code>.</p></li>
+<li><p><code>timeout</code> :: <code>numeric(1)</code><br>
+The timeout value for collecting a batch from workers.
+Negative values mean no timeout and the default is <code>-1</code>.</p></li>
+<li><p><code>worker_init_fn</code> :: <code>function(id)</code><br>
+A function that receives the worker id (in <code>[1, num_workers]</code>) and is exectued after seeding
+on the worker but before data loading.</p></li>
+<li><p><code>worker_globals</code> :: <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> | <code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code><br>
+When loading data in parallel, this allows to export globals to the workers.
+If this is a character vector, the objects in the global environment with those names
+are copied to the workers.</p></li>
+<li><p><code>worker_packages</code> :: <code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code><br>
+Which packages to load on the workers.</p></li>
+</ul><p>Also see <code>torch::dataloder</code> for more information.</p>
     </div>
     <div class="section level2">
     <h2 id="internals">Internals<a class="anchor" aria-label="anchor" href="#internals"></a></h2>
