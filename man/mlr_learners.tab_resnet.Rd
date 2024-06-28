@@ -67,7 +67,7 @@ Second dropout ratio.
 # Define the Learner and set parameter values
 learner = lrn("classif.tab_resnet")
 learner$param_set$set_values(
-  n_blocks = 2, d_block = 10, d_hidden = 20, batch_size = 1, epochs = 1, device = "cpu"
+  n_blocks = 2, d_block = 10, d_hidden = 20, dropout1 = 0.3, dropout2 = 0.3, batch_size = 1, epochs = 1, device = "cpu"
 )
 
 # Define a Task

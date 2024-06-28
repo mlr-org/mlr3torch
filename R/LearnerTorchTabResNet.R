@@ -2,7 +2,7 @@
 #'
 #' @templateVar name tab_resnet
 #' @templateVar task_types classif, regr
-#' @templateVar param_vals n_blocks = 2, d_block = 10, d_hidden = 20
+#' @templateVar param_vals n_blocks = 2, d_block = 10, d_hidden = 20, dropout1 = 0.3, dropout2 = 0.3
 #' @template params_learner
 #' @template learner
 #' @template learner_example
