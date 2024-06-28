@@ -129,7 +129,6 @@ Collate:
     'learner_torch_methods.R'
     'materialize.R'
     'merge_graphs.R'
-    'nn_ft_transformer.R'
     'nn_graph.R'
     'paramset_torchlearner.R'
     'preprocess.R'
