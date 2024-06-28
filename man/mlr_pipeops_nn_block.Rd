@@ -5,13 +5,13 @@
 \alias{PipeOpTorchBlock}
 \title{Block Repetition}
 \description{
-Repeat a block n times.
+Repeat a block \code{n_blocks} times.
 }
 \section{Parameters}{
 
 The parameters available for the block itself, as well as
 \itemize{
-\item \code{times} :: \code{integer(1)}\cr
+\item \code{n_blocks} :: \code{integer(1)}\cr
 How often to repeat the block.
 }
 }
@@ -35,7 +35,7 @@ Part of this documentation have been copied or adapted from the documentation of
 \examples{
 block = po("nn_linear") \%>>\% po("nn_relu")
 po_block = po("nn_block", block,
-nn_linear.out_features = 10L, times = 3)
+nn_linear.out_features = 10L, n_blocks = 3)
 network = po("torch_ingress_num") \%>>\%
 po_block \%>>\%
 po("nn_head") \%>>\%

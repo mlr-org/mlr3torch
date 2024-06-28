@@ -95,6 +95,7 @@ Collate:
     'shape.R'
     'PipeOpTorchIngress.R'
     'LearnerTorchModel.R'
+    'LearnerTorchTabResNet.R'
     'ModelDescriptor.R'
     'PipeOpModule.R'
     'PipeOpTorch.R'
