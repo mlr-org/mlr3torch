@@ -18,7 +18,7 @@
 #' @source
 #' \url{https://torchvision.mlverse.org/reference/mnist_dataset.html}
 #'
-#' @section Meta Information:
+#' @section Properties:
 #' `r rd_info_task_torch("mnist", missings = FALSE)`
 #'
 #' @references
