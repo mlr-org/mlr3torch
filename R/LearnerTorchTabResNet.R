@@ -111,11 +111,6 @@ PipeOpTorchTabResNetBlock = R6Class("PipeOpTorchTabResNetBlock",
   )
 )
 
-check_activation_args = function(x) {
-  check_list(x, names = "unique", null.ok = TRUE, any.missing = FALSE)
-}
-
-
 nn_tab_resnet_block = nn_module("nn_tab_resnet_block",
   initialize = function(
     d_block,
