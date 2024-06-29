@@ -78,6 +78,11 @@ predictions$score()
 }
 \seealso{
 Other Learner: 
+<<<<<<< HEAD
+=======
+\code{\link{mlr_learners.alexnet}},
+\code{\link{mlr_learners.tab_resnet}},
+>>>>>>> main
 \code{\link{mlr_learners.torch_featureless}},
 \code{\link{mlr_learners_torch}},
 \code{\link{mlr_learners_torch_image}},

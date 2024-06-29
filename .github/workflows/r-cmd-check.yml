@@ -60,7 +60,7 @@ jobs:
 
       - name: Get torchvision package version
         id: get_package_version
-        run: echo "##[set-output name=torchvision_package_version;]$(Rscript -e 'cat(packageVersion("torchvision"))')"
+        run: echo "##[set-output name=torchvision_package_version;]$(Rscript -e 'packageVersion("torchvision")')"
 
       - name: Get torch cache path
         id: get_cache_path

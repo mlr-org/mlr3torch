@@ -228,3 +228,6 @@ replace_head = function(network, d_out) {
   UseMethod("replace_head")
 }
 
+check_nn_module = function(x) {
+  check_class(x, "nn_module")
+}

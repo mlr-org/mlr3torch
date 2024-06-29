@@ -588,3 +588,63 @@ test_that("internal tuning", {
   expect_equal(ti$result_learner_param_vals$epochs, 9L)
 })
 
+
+test_that("param_set source works", {
+  l = R6Class("LearnerTorchTest",
+    inherit = LearnerTorch,
+    public = list(
+      initialize = function() {
+        private$.ps1 = ps(a = p_int(tags = c("train", "required")))
+        super$initialize(
+          task_type = "regr", id = "test", properties = c(),
+          param_set = alist(private$.ps1),
+          feature_types = "numeric",
+          label = "Test Learner",
+          callbacks = t_clbk("checkpoint"),
+          man = "some_man"
+        )
+      }
+    ),
+    private = list(.ps1 = NULL)
+  )$new()
+
+  l$param_set$set_values(
+    a = 7,
+    epochs = 8,
+    opt.lr = 9,
+    loss.reduction = "mean",
+    cb.checkpoint.freq = 3
+  )
+  expect_equal(l$param_set$values$a, 7)
+  expect_equal(get_private(l)$.ps1$values$a, 7)
+  expect_equal(l$param_set$values$epochs, 8)
+  expect_equal(get_private(l)$.param_set_torch$values$epochs, 8)
+  expect_equal(l$param_set$values$opt.lr, 9)
+  expect_equal(get_private(l)$.optimizer$param_set$values$lr, 9)
+  expect_equal(l$param_set$values$loss.reduction, "mean")
+  expect_equal(get_private(l)$.loss$param_set$values$reduction, "mean")
+  expect_equal(l$param_set$values$cb.checkpoint.freq, 3)
+  expect_equal(get_private(l)$.callbacks$checkpoint$param_set$values$freq, 3)
+
+  l1 = l$clone(deep = TRUE)
+
+  expect_deep_clone(l, l1)
+  l1$param_set$set_values(
+    a = 17,
+    epochs = 18,
+    opt.lr = 19,
+    loss.reduction = "sum",
+    cb.checkpoint.freq = 13
+  )
+
+  expect_equal(l1$param_set$values$a, 17)
+  expect_equal(get_private(l1)$.ps1$values$a, 17)
+  expect_equal(l1$param_set$values$epochs, 18)
+  expect_equal(get_private(l1)$.param_set_torch$values$epochs, 18)
+  expect_equal(l1$param_set$values$opt.lr, 19)
+  expect_equal(get_private(l1)$.optimizer$param_set$values$lr, 19)
+  expect_equal(l1$param_set$values$loss.reduction, "sum")
+  expect_equal(get_private(l1)$.loss$param_set$values$reduction, "sum")
+  expect_equal(l1$param_set$values$cb.checkpoint.freq, 13)
+  expect_equal(get_private(l1)$.callbacks$checkpoint$param_set$values$freq, 13)
+})

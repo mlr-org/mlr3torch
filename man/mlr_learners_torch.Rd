@@ -167,6 +167,7 @@ to implement the private \verb{$.additional_phash_input()}.
 \seealso{
 Other Learner: 
 \code{\link{mlr_learners.mlp}},
+\code{\link{mlr_learners.tab_resnet}},
 \code{\link{mlr_learners.torch_featureless}},
 \code{\link{mlr_learners_torch_image}},
 \code{\link{mlr_learners_torch_model}}
