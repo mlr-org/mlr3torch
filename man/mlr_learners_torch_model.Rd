@@ -46,6 +46,7 @@ learner$predict(task, ids$test)
 Other Learner: 
 \code{\link{mlr_learners.alexnet}},
 \code{\link{mlr_learners.mlp}},
+\code{\link{mlr_learners.tab_resnet}},
 \code{\link{mlr_learners.torch_featureless}},
 \code{\link{mlr_learners_torch}},
 \code{\link{mlr_learners_torch_image}}

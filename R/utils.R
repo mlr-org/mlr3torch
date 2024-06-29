@@ -218,3 +218,7 @@ clone_graph_unique_ids = function(g) {
 
   return(g1)
 }
+
+check_nn_module = function(x) {
+  check_class(x, "nn_module")
+}

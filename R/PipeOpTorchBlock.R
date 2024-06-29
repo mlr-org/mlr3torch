@@ -1,9 +1,9 @@
 #' @title Block Repetition
 #' @description
-#' Repeat a block n times.
+#' Repeat a block `n_blocks` times.
 #' @section Parameters:
 #' The parameters available for the block itself, as well as
-#' * `times` :: `integer(1)`\cr
+#' * `n_blocks` :: `integer(1)`\cr
 #'   How often to repeat the block.
 #' @section Input and Output Channels:
 #' The `PipeOp` sets its input and output channels to those from the `block` (Graph)
@@ -14,7 +14,7 @@
 #' @examples
 #' block = po("nn_linear") %>>% po("nn_relu")
 #' po_block = po("nn_block", block,
-#' nn_linear.out_features = 10L, times = 3)
+#' nn_linear.out_features = 10L, n_blocks = 3)
 #' network = po("torch_ingress_num") %>>%
 #' po_block %>>%
 #' po("nn_head") %>>%
@@ -39,7 +39,7 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
     initialize = function(block, id = "nn_block", param_vals = list()) {
       private$.block = as_graph(block)
       private$.param_set_base = ps(
-        times = p_int(lower = 1L, tags = c("train", "required"))
+        n_blocks = p_int(lower = 1L, tags = c("train", "required"))
       )
       super$initialize(
         id = id,
@@ -62,9 +62,9 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
   ),
   private = list(
     .block = NULL,
-    .make_graph = function(block, times) {
+    .make_graph = function(block, n_blocks) {
       graph = block
-      for (i in seq_len(times - 1L)) {
+      for (i in seq_len(n_blocks - 1L)) {
         block = clone_graph_unique_ids(block)
         graph = graph %>>% block
       }
@@ -81,7 +81,7 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
           get_private(po, ".only_shape") = TRUE
         }
       })
-      graph = private$.make_graph(block, param_vals$times)
+      graph = private$.make_graph(block, param_vals$n_blocks)
 
       mds = map(seq_along(shapes_in), function(i) {
         ModelDescriptor(
@@ -108,7 +108,7 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
     .train = function(inputs) {
       param_vals = self$param_set$get_values(tags = "train")
       block = private$.block$clone(deep = TRUE)
-      graph = private$.make_graph(block, param_vals$times)
+      graph = private$.make_graph(block, param_vals$n_blocks)
       out = graph$train(inputs, single_input = FALSE)
     },
     .param_set_base = NULL
