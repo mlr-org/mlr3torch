@@ -28,10 +28,9 @@ task = tsk("mtcars")
 task$head()
 ```
 
-
 Learners in `mlr3torch` work very similary to other `mlr3` learners.
 Below, we construct a simple multi layer perceptron for regression.
-We do this as usual using the `lrn()` function and specify its parameters:
+We do this as usual by calling `lrn()` and passing relevant parameters:
 We use two hidden layers with 50 neurons,
 For training, we set the batch size to 32, the number of training epochs to 30 and the device to `"cpu"`.
 For a complete description of the available parameters see `?mlr3torch::LearnerTorchMLP`.
@@ -48,7 +47,7 @@ mlp
 
 We can use this learner for training and prediction just like any other regression learner.
 Below, we split the observations into a training and test set, train the learner on the training set and predict the test set.
-Finally, we compute the mean squared error (MSE) of the predictions.
+Finally, we compute the mean squared error of the predictions.
 
 ```{r}
 # Split the obersevations into training and test set
@@ -67,13 +66,10 @@ Although torch learners are quite like other `mlr3` learners, there are some dif
 One is that all `LearnerTorch` classes have *construction arguments*, i.e. torch learners are more modular then other learners.
 While learners are free to implement their own construction arguments, there are some that are common to all torch learners, namely the `loss`, `optimizer` and `callbacks`.
 
-
-
 As these are construction arguments (and not part of the learner's `ParamSet`) they cannot be changed afterwards.
 The reason for this is that these construction arguments can themselves have parameters, which are exposed through the learner's hyperparameter set.
 In the previous example, we did not specify any of these explicitly and used the default values, which was the Adam optimizer, MSE as the loss and no callbacks.
 We will now show how to configure these three aspects of a learner through the `mlr3torch::TorchOptimizer`, `mlr3torch::TorchLoss`, and `mlr3torch::TorchCallback` classes.
-
 
 ### Loss
 
@@ -83,7 +79,7 @@ In `mlr3torch`, we represent loss functions using the `mlr3torch::TorchLoss` cla
 It provides a thin wrapper around the torch loss functions and annotates them with meta information, most importantly a `paradox::ParamSet`.
 Such an object can be constructed using `t_loss()`.
 Below, we construct the L1 loss function, which is also known as Mean Absolute Error (MAE).
-The printed output below informs  us about the wrapped loss function `(nn_l1_loss`), the set parameters, the pacakges it depends on and for which task types it can be used.
+The printed output below informs  us about the wrapped loss function `(nn_l1_loss`), the set parameters, the packages it depends on and for which task types it can be used.
 
 ```{r}
 l1 = t_loss("l1")
@@ -105,7 +101,6 @@ l1$generator
 
 We can pass the `TorchLoss` as the argument `loss` during initialization of the learner.
 The parameters of the loss are added to the learner's `ParamSet`, prefixed with `"loss."`.
-When added to the learner's parameter set, the loss's parameters are prefixed with `"loss."`.
 
 ```{r}
 mlp_l1 = lrn("regr.mlp", loss = l1)
@@ -118,19 +113,17 @@ All predefined loss functions are stored in the `mlr3torch_losses` dictionary, f
 mlr3torch_losses
 ```
 
-
 ### Optimizer
 
 The optimizer determines how the model's weights are updated based on the calculated loss. It adjusts the parameters of the model to minimize the loss function, optimizing the model's performance.
 Optimizers work analogous to loss functions, i.e. `mlr3torch` provides a thin wrapper -- the `TorchOptimizer` class -- around the optimizers such as Adam (`optim_adam`) or SGD (`optim_sgd`).
 `TorchLoss` objects can be constructed using `t_opt()`.
-For optimizers, the associated `ParamSet` is more interesting as seen below.
+For optimizers, the associated `ParamSet` is more interesting as we see below:
 
 ```{r}
 sgd = t_opt("sgd")
 sgd
 
-# The paradox::ParamSet of the optimizer
 sgd$param_set
 ```
 
@@ -165,7 +158,7 @@ mlr3torch_optimizers
 
 ### Callbacks
 
-The third major configuration option are callbacks, which are objects in `mlr3torch` that allow you to customize the behavior of the training process at various stages. They are called at specific points during training, such as the beginning or end of an epoch.
+The third important configuration option are callbacks, which are objects in `mlr3torch` that allow you to customize the behavior of the training process at various stages. They are called at specific points during training, such as the beginning or end of an epoch.
 Callbacks enable you to perform additional actions, such as saving model checkpoints, logging metrics, or implementing custom functionality for specific training scenarios.
 
 Callbacks are different from the optimizer and loss as the callbacks themselves (not only their wrappers) are defined in `mlr3torch`.
@@ -311,6 +304,18 @@ mlp_custom$param_set$set_values(
 
 mlp_custom$train(task)
 mlp_custom$history$plot("regr.mae", set = "valid", epochs = 5:30)
+
+data = melt(data, id.vars = "epoch", variable.name = "measure", value.name = "score")
+ggplot2::ggplot(data = data, ggplot2::aes(x = epoch, y = score, color = measure)) +
+  viridis::scale_color_viridis(discrete = TRUE) +
+  ggplot2::geom_line() +
+  ggplot2::geom_point() +
+  ggplot2::labs(
+    x = "Epoch",
+    y = "Score",
+    title = sprintf("%s Loss", switch(set, valid = "Validation", train = "Training"))
+  ) +
+  theme
 ```
 
 We can confirm that not only the training loss, but also the validation loss was decreasing over time, all is well!

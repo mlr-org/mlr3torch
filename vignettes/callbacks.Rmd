@@ -1,5 +1,5 @@
 ---
-title: "TOrch Callbacks"
+title: "Torch Callbacks"
 author: "Sebastian Fischer"
 date: "`r Sys.Date()`"
 output:
