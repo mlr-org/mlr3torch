@@ -70,6 +70,12 @@ jobs:
           TORCH_CACHE_PATH=$(Rscript -e 'cat(rappdirs::user_cache_dir("torch"))')
           echo "TORCH_CACHE_PATH=$TORCH_CACHE_PATH" >> $GITHUB_ENV
 
+      - name: Cache Torchvision Downloads
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.TORCH_CACHE_PATH }}
+          key: ${{ runner.os }}-r-${{ env.TORCHVISION_PACKAGE_VERSION }}
+
       - uses: r-lib/actions/check-r-package@v2
 
       - uses: mxschmitt/action-tmate@v3
