@@ -91,6 +91,7 @@ For classification, the output of the network must be the scores (before the sof
     <div class="dont-index"><p>Other Learner: 
 <code><a href="mlr_learners.alexnet.html">mlr_learners.alexnet</a></code>,
 <code><a href="mlr_learners.mlp.html">mlr_learners.mlp</a></code>,
+<code><a href="mlr_learners.tab_resnet.html">mlr_learners.tab_resnet</a></code>,
 <code><a href="mlr_learners.torch_featureless.html">mlr_learners.torch_featureless</a></code>,
 <code><a href="mlr_learners_torch.html">mlr_learners_torch</a></code>,
 <code><a href="mlr_learners_torch_image.html">mlr_learners_torch_image</a></code></p>
@@ -250,14 +251,14 @@ The feature types. Defaults to all available feature types.</p></dd>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task</span>, <span class="va">ids</span><span class="op">$</span><span class="va">train</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">task</span>, <span class="va">ids</span><span class="op">$</span><span class="va">test</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;PredictionClassif&gt; for 48 observations:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     row_ids     truth   response</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           2    setosa versicolor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          12    setosa versicolor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          17    setosa versicolor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ---                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         148 virginica versicolor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         149 virginica versicolor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         150 virginica versicolor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     row_ids     truth  response</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           1    setosa    setosa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           6    setosa    setosa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          12    setosa    setosa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ---                            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         142 virginica virginica</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         148 virginica virginica</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         149 virginica virginica</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
