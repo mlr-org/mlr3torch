@@ -29,6 +29,7 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       TORCH_INSTALL: 1
+      INCLUDE_IGNORED: "true"
 
     strategy:
       fail-fast: false
@@ -53,6 +54,23 @@ jobs:
           extra-packages: any::rcmdcheck
           needs: check
 
+      - name: Install additional packages
+        run: |
+          Rscript -e 'install.packages("rappdirs")'
+
+      - name: Get torchvision package version
+        id: get_package_version
+        run: echo "##[set-output name=torchvision_package_version;]$(Rscript -e 'cat(packageVersion("torchvision"))')"
+
+      - name: Get torch cache path
+        id: get_cache_path
+        run: echo "##[set-output name=torch_cache_path;]$(Rscript -e 'cat(rappdirs::user_cache_dir("torch"))')"
+
+      - name: Cache Torchvision Downloads
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.get_cache_path.outputs.torch_cache_path }}
+          key: ${{ runner.os }}-r-${{ steps.get_version.outputs.torchvision_package_version}}
       - uses: r-lib/actions/check-r-package@v2
 
       - uses: mxschmitt/action-tmate@v3

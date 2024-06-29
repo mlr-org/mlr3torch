@@ -28,7 +28,7 @@ You can cache these datasets by setting the \code{mlr3torch.cache} option to \co
 as the cache directory.
 }
 
-\section{Meta Information}{
+\section{Properties}{
 
 \itemize{
 \item Task type: \dQuote{classif}

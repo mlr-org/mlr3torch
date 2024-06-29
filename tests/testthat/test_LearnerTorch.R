@@ -13,7 +13,6 @@ test_that("deep cloning", {
   learner_cloned = learner$clone(deep = TRUE)
   expect_deep_clone(learner, learner_cloned)
 
-  # just because we are paranoid
   network = learner$network
   network_cloned = learner_cloned$network
   expect_true(torch_equal(network$weights, network_cloned$weights))
@@ -21,7 +20,6 @@ test_that("deep cloning", {
   network$weights[1] = network$weights[1] + 1
   expect_false(torch_equal(network$weights, network_cloned$weights))
 
-  # but the generators are not cloned
   expect_identical(
     get_private(learner)$.loss$generator,
     get_private(learner_cloned)$.loss$generator
