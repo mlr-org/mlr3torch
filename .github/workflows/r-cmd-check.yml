@@ -60,17 +60,15 @@ jobs:
 
       - name: Get torchvision package version
         id: get_package_version
-        run: echo "TORCHVISION_PACKAGE_VERSION=$(Rscript -e 'cat(format(packageVersion(\"torchvision\")')))" >> $GITHUB_ENV
+        run: |
+          TORCHVISION_PACKAGE_VERSION=$(Rscript -e 'cat(as.character(packageVersion("torchvision")))')
+          echo "TORCHVISION_PACKAGE_VERSION=$TORCHVISION_PACKAGE_VERSION" >> $GITHUB_ENV
 
       - name: Get torch cache path
         id: get_cache_path
-        run: echo "TORCH_CACHE_PATH=$(Rscript -e 'cat(rappdirs::user_cache_dir(\"torch\"))')" >> $GITHUB_ENV
-
-      - name: Cache Torchvision Downloads
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.TORCH_CACHE_PATH }}
-          key: ${{ runner.os }}-r-${{ env.TORCHVISION_PACKAGE_VERSION }}
+        run: |
+          TORCH_CACHE_PATH=$(Rscript -e 'cat(rappdirs::user_cache_dir("torch"))')
+          echo "TORCH_CACHE_PATH=$TORCH_CACHE_PATH" >> $GITHUB_ENV
 
       - uses: r-lib/actions/check-r-package@v2
 
