@@ -58,7 +58,8 @@ Otherwise the input shape is inferred from the number of numeric features.
 # Define the Learner and set parameter values
 learner = lrn("classif.mlp")
 learner$param_set$set_values(
-  neurons = 10, batch_size = 1, epochs = 1, device = "cpu"
+  epochs = 1, batch_size = 16, device = "cpu",
+  neurons = 10
 )
 
 # Define a Task
@@ -78,11 +79,7 @@ predictions$score()
 }
 \seealso{
 Other Learner: 
-<<<<<<< HEAD
-=======
-\code{\link{mlr_learners.alexnet}},
 \code{\link{mlr_learners.tab_resnet}},
->>>>>>> main
 \code{\link{mlr_learners.torch_featureless}},
 \code{\link{mlr_learners_torch}},
 \code{\link{mlr_learners_torch_image}},

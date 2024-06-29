@@ -5,7 +5,7 @@
 \alias{LearnerTorchVision}
 \title{AlexNet Image Classifier}
 \description{
-Classic image classification networks from {torchvision}.
+Classic image classification networks from \code{torchvision}.
 }
 \section{Parameters}{
 
@@ -26,17 +26,6 @@ number of classes inferred from the \code{\link[mlr3:Task]{Task}}.
 \item Feature Types: \code{"lazy_tensor"}
 \item Required packages: \code{"mlr3torch"}, \code{"torch"}, \code{"torchvision"}
 }
-<<<<<<< HEAD:man/mlr_learners.torchvision.Rd
-=======
-\seealso{
-Other Learner: 
-\code{\link{mlr_learners.mlp}},
-\code{\link{mlr_learners.tab_resnet}},
-\code{\link{mlr_learners.torch_featureless}},
-\code{\link{mlr_learners_torch}},
-\code{\link{mlr_learners_torch_image}},
-\code{\link{mlr_learners_torch_model}}
->>>>>>> main:man/mlr_learners.alexnet.Rd
 }
 
 \section{Super classes}{

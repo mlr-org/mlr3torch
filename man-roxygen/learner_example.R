@@ -8,7 +8,8 @@
 #' # Define the Learner and set parameter values
 #' <%= sprintf("learner = lrn(\"%s\")", id)%>
 #' learner$param_set$set_values(
-#' <%= paste0("  ", paste0(c(param_vals, "batch_size = 1", "epochs = 1", "device = \"cpu\""), collapse = ", "))%>
+#'   epochs = 1, batch_size = 16, device = "cpu",
+#'   <%= paste0(param_vals, collapse = ",\n ")%>
 #' )
 #'
 #' # Define a Task
