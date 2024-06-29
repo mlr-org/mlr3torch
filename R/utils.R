@@ -223,6 +223,8 @@ clone_graph_unique_ids = function(g) {
 #' Replaces the head of the network with a linear layer with d_out classes.
 #' @param network ([`torch::nn_module`])\cr
 #'   The network
+#' @param d_out (`integer(1)`)\cr
+#'   The number of output classes.
 #' @export
 replace_head = function(network, d_out) {
   UseMethod("replace_head")

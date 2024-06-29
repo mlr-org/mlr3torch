@@ -10,6 +10,9 @@ replace_head(network, d_out)
 \arguments{
 \item{network}{(\code{\link[torch:nn_module]{torch::nn_module}})\cr
 The network}
+
+\item{d_out}{(\code{integer(1)})\cr
+The number of output classes.}
 }
 \description{
 Replace the head of a network
