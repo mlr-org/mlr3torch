@@ -3,7 +3,7 @@
 #' @name mlr_learners.torchvision
 #'
 #' @description
-#' Classic image classification networks from {torchvision}.
+#' Classic image classification networks from `torchvision`.
 #'
 #' @section Parameters:
 #' Parameters from [`LearnerTorchImage`] and
