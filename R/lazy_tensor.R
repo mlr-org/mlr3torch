@@ -298,11 +298,7 @@ transform_lazy_tensor = function(lt, pipeop, shape, shape_predict = NULL) {
   new_lazy_tensor(data_descriptor, map_int(lt, 1))
 }
 
-#' @title Hash Input for Lazy Tensor
-#' @description
-#' Returns the a list containing the IDs and the data descriprot's hash.
-#' @param x (any)\cr
-#'   Object for which to retrieve hash input.
+#' @keywords internal
 #' @export
 hash_input.lazy_tensor = function(x) {
   # When the DataBackend calculates the hash of, this function is called

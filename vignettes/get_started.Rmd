@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 ## Quickstart
 
-In this vignette we will show how to get started with `mlr3torch` by training a simple neural network on tabular data.
+In this vignette we will show how to get started with `mlr3torch` by training a simple neural network on a tabular regression problem.
 We assume that you are familiar with the `mlr3` framework, for a detailed description see e.g. the [mlr3 book](https://mlr3book.mlr-org.com/).
 As a first example, we will train a simple multi-layer perceptron (MLP) on the well-known "mtcars" task.
 We first set a seed for reproducibility, load the library and construct the task.
@@ -30,7 +30,7 @@ task$head()
 
 Learners in `mlr3torch` work very similary to other `mlr3` learners.
 Below, we construct a simple multi layer perceptron for regression.
-We do this as usual by calling `lrn()` and passing relevant parameters:
+We do this as usual by calling `lrn()` and configuring the parameters:
 We use two hidden layers with 50 neurons,
 For training, we set the batch size to 32, the number of training epochs to 30 and the device to `"cpu"`.
 For a complete description of the available parameters see `?mlr3torch::LearnerTorchMLP`.
@@ -46,7 +46,7 @@ mlp
 ```
 
 We can use this learner for training and prediction just like any other regression learner.
-Below, we split the observations into a training and test set, train the learner on the training set and predict the test set.
+Below, we split the observations into a training and test set, train the learner on the training set and create predictions for the test set.
 Finally, we compute the mean squared error of the predictions.
 
 ```{r}
@@ -63,11 +63,10 @@ prediction$score(msr("regr.mse"))
 ## Configuring a Learner
 
 Although torch learners are quite like other `mlr3` learners, there are some differences.
-One is that all `LearnerTorch` classes have *construction arguments*, i.e. torch learners are more modular then other learners.
+One is that all `LearnerTorch` classes have *construction arguments*, i.e. torch learners are more modular than other learners.
 While learners are free to implement their own construction arguments, there are some that are common to all torch learners, namely the `loss`, `optimizer` and `callbacks`.
 
-As these are construction arguments (and not part of the learner's `ParamSet`) they cannot be changed afterwards.
-The reason for this is that these construction arguments can themselves have parameters, which are exposed through the learner's hyperparameter set.
+As these are construction arguments (and not part of the learner's `ParamSet`) they cannot be changed after a learner is created.
 In the previous example, we did not specify any of these explicitly and used the default values, which was the Adam optimizer, MSE as the loss and no callbacks.
 We will now show how to configure these three aspects of a learner through the `mlr3torch::TorchOptimizer`, `mlr3torch::TorchLoss`, and `mlr3torch::TorchCallback` classes.
 
@@ -76,10 +75,10 @@ We will now show how to configure these three aspects of a learner through the `
 The loss function, also known as the objective function or cost function, measures the discrepancy between the predicted output and the true output. It quantifies how well the model is performing during training.
 The R package `torch`, which underpins the `mlr3torch` framework, already provides a number of predefined loss functions such as the Mean Squared Error (`nn_mse_loss`), the Mean Absolute Error (`nn_l1_loss`), or the cross entropy loss (`nn_cross_entropy_loss`).
 In `mlr3torch`, we represent loss functions using the `mlr3torch::TorchLoss` class.
-It provides a thin wrapper around the torch loss functions and annotates them with meta information, most importantly a `paradox::ParamSet`.
+It provides a thin wrapper around the torch loss functions and annotates them with meta information, most importantly a `paradox::ParamSet` that allows to configure the loss function.
 Such an object can be constructed using `t_loss()`.
 Below, we construct the L1 loss function, which is also known as Mean Absolute Error (MAE).
-The printed output below informs  us about the wrapped loss function `(nn_l1_loss`), the set parameters, the packages it depends on and for which task types it can be used.
+The printed output below informs us about the wrapped loss function `(nn_l1_loss`), the configured parameters, the packages it depends on and for which task types it can be used.
 
 ```{r}
 l1 = t_loss("l1")
@@ -104,7 +103,7 @@ The parameters of the loss are added to the learner's `ParamSet`, prefixed with 
 
 ```{r}
 mlp_l1 = lrn("regr.mlp", loss = l1)
-mlp_l1$param_set$params$loss.reduction
+mlp_l1$param_set$values$loss.reduction
 ```
 
 All predefined loss functions are stored in the `mlr3torch_losses` dictionary, from which they can be retrieved using `t_loss(<key>)`.
@@ -129,7 +128,6 @@ sgd$param_set
 
 The wrapped torch optimizer can be accessed through the slot `generator`.
 
-
 Parameters of `TorchOptimizer` (but also `TorchLoss` and `TorchCallback`) can be set in the usual `mlr3` way, i.e. either during construction, or afterwards using the `$set_values()` method of the parameter set.
 
 ```{r}
@@ -150,7 +148,7 @@ mlp_sgd$param_set$values[c("opt.lr", "opt.nesterov")]
 
 By exposing the optimizer's parameters, they can be conveniently tuned using [`mlr3tuning`](https://github.com/mlr-org/mlr3tuning).
 
-All predefined optimizers are stored in the `mlr3torch_optimizers` dictionary.
+All available optimizers are stored in the `mlr3torch_optimizers` dictionary.
 
 ```{r}
 mlr3torch_optimizers
@@ -158,24 +156,15 @@ mlr3torch_optimizers
 
 ### Callbacks
 
-The third important configuration option are callbacks, which are objects in `mlr3torch` that allow you to customize the behavior of the training process at various stages. They are called at specific points during training, such as the beginning or end of an epoch.
-Callbacks enable you to perform additional actions, such as saving model checkpoints, logging metrics, or implementing custom functionality for specific training scenarios.
-
-Callbacks are different from the optimizer and loss as the callbacks themselves (not only their wrappers) are defined in `mlr3torch`.
-For this reason, there is a more in-depth coverage of the callback mechanism in a separate vignette (TODO:).
-For the purpose of this "get started" guide we will only show how to use predefined callbacks.
-The wrapper class is `TorchCallback`, while callbacks themselves have class `CallbackSet`.
-Below, we retrieve the predefined `"history"` callback using `t_clbk()`, which has no parameters and merely saves the training history in the learner.
+The third important configuration option are callbacks which allow to customize the training process.
+This allows saving model checkpoints, logging metrics, or implementing custom functionality for specific training scenarios.
+For a tutorial on how to implement a custom callback, see the *Custom Callbacks* vignette.
+Here, we will only show how to use predefined callbacks.
+Below, we retrieve the predefined `"history"` callback using `t_clbk()`, which has no parameters and merely saves the training and validation history in the learner so it can be accessed afterwards.
 
 ```{r}
 history = t_clbk("history")
 history
-```
-
-It wraps the `CallbackSetHistory` class.
-
-```{r}
-history$generator
 ```
 
 If we wanted to learn about what the callback does, we can access the help page of the wrapped object using the `$help()` method.
@@ -193,32 +182,28 @@ mlr3torch_callbacks
 
 ### Putting it Together
 
-We can proceed by defining our customized MLP learner using the loss, optimizer and callback we have just covered.
-To really make use of the history callback, we have to specify which scores we want to keep track of through the `measures_train` parameter.
-It takes in one or more `mlr3::Measure` objects.
-Here we decide to only evaluate the Mean Absolute Error (MAE) and leave the other parameters as before.
+We now define our customized MLP learner using the loss, optimizer and callback we have just covered.
+To keep track of the performance, we use 30% of the training data for validation and evaluate it using the MAE `Measure`.
 
 ```{r}
 mlp_custom = lrn("regr.mlp",
   # construction arguments
   optimizer = sgd, loss = l1, callbacks = history,
   # scores to keep track of
-  measures_train = msr("regr.mae"),
+  measures_valid = msr("regr.mae"),
   # other parameters are left as-is:
   # architecture
   neurons = c(50, 50),
   # training arguments
-  batch_size = 32, epochs = 30, device = "cpu"
+  batch_size = 32, epochs = 30, device = "cpu",
+  # validation proportion
+  validate = 0.3
 )
-```
 
-The printed output below informs us that the
-
-```{r}
 mlp_custom
 ```
 
-We now train the learner on the "mtcars" task from the introductory example using the same train-test split.
+We now train the learner on the "mtcars" task again and use the same train-test split as before.
 
 ```{r}
 mlp_custom$train(task, row_ids = splits$train)
@@ -227,99 +212,38 @@ prediction_custom = mlp_custom$predict(task, row_ids = splits$test)
 
 Below we make predictions on the unseen test data and compare the scores.
 Because we directly optimized the L1 (aka MAE) loss and tweaked the learning rate, our configured `mlp_custom` learner has a lower MAE than the default `mlp` learner.
+
 ```{r}
 prediction_custom$score(msr("regr.mae"))
 prediction$score(msr("regr.mae"))
 ```
 
-To understand the impact of the history callback, we will need to dig into the state of a trained `LearnerTorch`, which we will do in the next section.
-
-## `LearnerTorch`'s State
-
-After training a `LearnerTorch` like above, the trained model can be accessed through the `$model` slot, which is a list, whose most important elements are:
-
-* `network` - The trained network, i.e. a `torch::nn_module`.
-  ```{r}
-  mlp_custom$model$network
-  ```
-* `optimizer` - The torch optimizer used for training.
-  This is the actual optimizer -- in this case a `torch::optim_sgd` and not the `TorchOptimizer` wrapper.
-  ```{r}
-  class(mlp_custom$model$optimizer)
-  ```
-* `loss_fn` - The loss function -- in this case the `nn_l1_loss` -- used during training.
-  ```{r}
-  mlp_custom$model$loss_fn
-  class(mlp_custom$model$loss_fn)
-  ```
-* `callbacks` - A list of callbacks used during training.
-  ```{r}
-  mlp_custom$model$callbacks
-  ```
-* `seed` - The seed that was used during training.
-  By default, a random seed is sampled at the beginning of the training loop but provided in the model afterwards.
-
-To show the training loss over time, we can use the `$plot()` method of the history callback.
-We only plot the epochs 5 to 30 because the loss is very unstable before that.
-
-```{r, out.width="50%", fig.align='center', dpi = 300}
-library(ggplot2)
-mlp_custom$model$callbacks$history$plot("regr.mae", set = "train", epochs = 5:30)
-```
-
-To not only track the training, but also the validation loss, we need to be able to specify a validation set, which we will learn how to do in the next section.
-
-## Validation
-
-While a decreasing training loss is necessary for a model to generalize well, it is not sufficient.
-For this reason, it is common to also track the loss of a neural network on a validation set.
-To learn how to specify validation sets for `mlr3torch`, we need to understand the different row roles that can be set in `mlr3::Task`s.
-Each observation can be assigned to the following roles:
-
-* `use` - These are the observations that are used for training when calling `$train()`.
-* `test` - When observations are set to this role, they are available as an independent validation set during training.
-* `holdout` - These observations are neither used for training nor validation and we will not discuss them here further.
-
-For the mtcars task, all observations had the row roles `"use"`.
+Because we configured the learner to use the history callback, we can find the validation history in its `$model` slot:
 
 ```{r}
-task$row_roles
+head(mlp_custom$model$callbacks$history$valid)
 ```
 
-We use our train-test split from the beginning of this vignette and set the test observations to the role `"test"`.
-By using `$set_row_roles`, they are automatically removed from the `"use"` role.
+The plot below shows it for the epochs 6 to 30.
 
-```{r}
-task$set_row_roles(splits$test, "test")
-task$row_roles
-```
-
-We can now set some validation metrics that we want to evaluate on the test set during training.
-Below, we set the validation measures to also track the MAE during validation, re-train the learner and then plot the results.
-
-```{r, fig.align='center', out.width="50%", dpi = 300}
+```{r, fig.align='center', out.width="50%", dpi = 300, echo = FALSE}
 mlp_custom$param_set$set_values(
   measures_valid = msr("regr.mae")
 )
 
-mlp_custom$train(task)
-mlp_custom$history$plot("regr.mae", set = "valid", epochs = 5:30)
-
-data = melt(data, id.vars = "epoch", variable.name = "measure", value.name = "score")
-ggplot2::ggplot(data = data, ggplot2::aes(x = epoch, y = score, color = measure)) +
+data = data.table::melt(mlp_custom$model$callbacks$history$valid,
+  id.vars = "epoch", variable.name = "measure", value.name = "score")
+ggplot2::ggplot(data = data[6:30, ], ggplot2::aes(x = epoch, y = score)) +
   viridis::scale_color_viridis(discrete = TRUE) +
   ggplot2::geom_line() +
   ggplot2::geom_point() +
   ggplot2::labs(
     x = "Epoch",
-    y = "Score",
-    title = sprintf("%s Loss", switch(set, valid = "Validation", train = "Training"))
+    y = "MAE",
+    title = "Validation Loss"
   ) +
-  theme
+  ggplot2::theme_bw()
 ```
 
-We can confirm that not only the training loss, but also the validation loss was decreasing over time, all is well!
-
-
-
-
+Other important information that is stored in the `Learner`'s model is the `$network`, which is the underlying `nn_module`.
+For a full description of the model, see `?LearnerTorch`.

@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 library(mlr3torch)
 ```
 
-This vignette contains technical details about the inner workings of representing neural networks as `mlr3pipelines::Graphs`s.
+This vignette contains technical details about the inner workings of representing neural networks as `mlr3pipelines::Graph`s.
 If you are not familiar with `mlr3pipelines`, start by reading the [related sections from the mlr3 book](https://mlr3book.mlr-org.com/chapters/chapter7/sequential_pipelines.html) first.
 
 # A `torch` Primer
@@ -57,7 +57,7 @@ output = softmax(output)
 output
 ```
 
-We will now continue with showing how such a neural network can be represented in`mlr3torch`.
+We will now continue with showing how such a neural network can be represented in `mlr3torch`.
 
 # Neural Networks as Graphs
 
@@ -77,7 +77,7 @@ po_module_1 = po("module_1", module = module_1)
 ```
 
 Note that `po("module_1")` is equivalent to `po("module", id = "module_1")`.
-This mechanism can is convenient to avoid ID clashes in graphs.
+This mechanism is convenient to avoid ID clashes in graphs that contain the same `PipeOp` multiple times.
 
 We can use the generated `PipeOp` in the familiar way:
 
@@ -95,9 +95,9 @@ po_activation = po("module", id = "activation", activation)
 po_module_2 = po("module_2", module = module_2)
 po_softmax = po("module", id = "softmax", module = softmax)
 
-module_graph = po_module_1 %>>!%
-  po_activation %>>!%
-  po_module_2 %>>!%
+module_graph = po_module_1 %>>%
+  po_activation %>>%
+  po_module_2 %>>%
   po_softmax
 
 module_graph$plot(horizontal = TRUE)
@@ -172,13 +172,13 @@ md = po_torch_in$train(list(task))[[1]]
 md
 ```
 
-The `ModelDescriptor` is an S3 object that contains a `Graph`, information about how to generate data (`$ingress` and `$task`), some further tags about how to build a model that are unrelated to architecture (`$optimizer`, `$loss` and `$callbacks`) as well as all further information necessary to extend that graph along a given output (`$.pointer` and `$.pointer_shape`).
+The `ModelDescriptor` is an S3 object that contains a `Graph`, information about how to generate data (`$ingress` and `$task`), some further tags about how to build a model that are unrelated to architecture (`$optimizer`, `$loss` and `$callbacks`) as well as all further information necessary to extend that graph along a given output (`$pointer` and `$pointer_shape`).
 
 ```{r}
 unclass(md)
 ```
 
-The `$.pointer` identifies the output of the `$graph` that `PipeOpTorch` will extend.
+The `$pointer` identifies the output of the `$graph` that `PipeOpTorch` will extend.
 Piping this `ModelDescriptor` through `PipeOpTorchLinear`, for example, adds a `PipeOpModule` wrapping a `torch::nn_linear`.
 
 ```{r}
@@ -188,17 +188,17 @@ md = po_torch_linear$train(list(md))[[1]]
 md$graph
 ```
 
-The `$.pointer` is now updated to identify the output of that `PipeOpModule`, and the `$.pointer_shape` shows that the shape has changed to 4 units (was 3 for the input before).
+The `$pointer` is now updated to identify the output of that `PipeOpModule`, and the `$pointer_shape` shows that the shape has changed to 4 units (was 3 for the input before).
 
 ```{r}
-md$.pointer
-md$.pointer_shape
+md$pointer
+md$pointer_shape
 ```
 
-The `model_descriptor_to_module()` function converts this to an `nn_graph`, it is a functional `torch` `nn_module`.
+The `model_descriptor_to_module()` function converts this to an `nn_graph`, it is a functional `torch::nn_module`.
 
 ```{r}
-small_module = model_descriptor_to_module(md, list(md$.pointer))
+small_module = model_descriptor_to_module(md, list(md$pointer))
 
 small_module(input)
 ```
@@ -241,12 +241,12 @@ graph_generator = po("torch_ingress_num") %>>%
   po("nn_softmax", dim = 2)
 ```
 
-Note how the second `nn_linear` does not need to be informed about the output dimension of the first `nn_linear`, since the `ModelDescriptor` that is passed along the `Graph` edges knows this info (in the `$.pointer_shape` slot).
+Note how the second `nn_linear` does not need to be informed about the output dimension of the first `nn_linear`, since the `ModelDescriptor` that is passed along the `Graph` edges knows this info (in the `$pointer_shape` slot).
 
 ```{r}
 md_sequential = graph_generator$train(task)[[1]]
 
-graph_module = model_descriptor_to_module(md_sequential, list(md_sequential$.pointer))
+graph_module = model_descriptor_to_module(md_sequential, list(md_sequential$pointer))
 
 graph_module(input)
 ```
@@ -318,25 +318,25 @@ iris_mds
 
 We make multiple observations here:
 
-1. We can observe how the `ModelDescriptor` grows as it is passed along the edges of `graph_iris`. Note that the `$graph` slot of that `ModelDescriptor` is often updated by-reference, so by the time we inspect intermediate results, they may contain the complete graph. However, see how the `$ingress`, `$.pointer` and `$.pointer_shape` of the `ModelDescriptor`s that take the `sepal.in`-path differ from the ones that take the `petal.in`-path:
+1. We can observe how the `ModelDescriptor` grows as it is passed along the edges of `graph_iris`. Note that the `$graph` slot of that `ModelDescriptor` is often updated by-reference, so by the time we inspect intermediate results, they may contain the complete graph. However, see how the `$ingress`, `$pointer` and `$pointer_shape` of the `ModelDescriptor`s that take the `sepal.in`-path differ from the ones that take the `petal.in`-path:
 
     ```{r}
     # sepal.in path
     graph_iris$pipeops$linear1$.result[[1]]$ingress
-    graph_iris$pipeops$linear1$.result[[1]]$.pointer
-    graph_iris$pipeops$linear1$.result[[1]]$.pointer_shape
+    graph_iris$pipeops$linear1$.result[[1]]$pointer
+    graph_iris$pipeops$linear1$.result[[1]]$pointer_shape
 
     # petal.in path
     graph_iris$pipeops$linear3$.result[[1]]$ingress
-    graph_iris$pipeops$linear3$.result[[1]]$.pointer
-    graph_iris$pipeops$linear3$.result[[1]]$.pointer_shape
+    graph_iris$pipeops$linear3$.result[[1]]$pointer
+    graph_iris$pipeops$linear3$.result[[1]]$pointer_shape
     ```
 
-    `po("nn_merge_cat")` unites the two `ModelDescriptor`s and contains the common ingress. The `.pointer_shape` now reflects the output of the "cat"-operation: the 2nd dimension is added up:
+    `po("nn_merge_cat")` unites the two `ModelDescriptor`s and contains the common ingress. The `pointer_shape` now reflects the output of the "cat"-operation: the 2nd dimension is added up:
 
     ```{r}
     graph_iris$pipeops$nn_merge_cat$.result[[1]]$ingress
-    graph_iris$pipeops$nn_merge_cat$.result[[1]]$.pointer_shape
+    graph_iris$pipeops$nn_merge_cat$.result[[1]]$pointer_shape
     ```
 1. Multiple `ModelDescriptor`s were created, since the `graph_iris` has multiple outpus.
    This makes it possible to create a neural network with multiple outputs.
@@ -347,7 +347,7 @@ We make multiple observations here:
 
     ```{r}
     iris_mds_union = model_descriptor_union(iris_mds[[1]], iris_mds[[2]])
-    output_pointers = list(iris_mds[[1]]$.pointer, iris_mds[[2]]$.pointer)
+    output_pointers = list(iris_mds[[1]]$pointer, iris_mds[[2]]$pointer)
     output_pointers
     iris_module = model_descriptor_to_module(iris_mds_union, output_pointers, list_output = TRUE)
     ```
@@ -431,7 +431,7 @@ The following uses the sequential NN from above:
 ```{r}
 lr_sequential = lrn("classif.torch_model",
   task_type = "classif",
-  network = model_descriptor_to_module(md_sequential, list(md_sequential$.pointer)),
+  network = model_descriptor_to_module(md_sequential, list(md_sequential$pointer)),
   ingress_tokens = md_sequential$ingress,
   optimizer = adam,
   callbacks = history,
@@ -446,7 +446,7 @@ Before training the model, we set some more hyperparameters.
 ```{r}
 lr_sequential$param_set$set_values(
   batch_size = 50,
-  epochs = 50,
+  epochs = 100,
   measures_train = msrs(c("classif.logloss", "classif.ce"))
 )
 # This is required to evaluate the logloss during training
@@ -457,9 +457,9 @@ lr_sequential$train(md_sequential$task)
 
 The following calls the `$predict_newdata` function to plot the response surface along the `Sepal.Width = mean(Sepal.Width)` plane, along with the ground-truth values:
 
-```{r}
-library("data.table")
-library("ggplot2")
+```{r, message = FALSE}
+library(data.table)
+library(ggplot2)
 
 newdata = cbind(data.table(Sepal.Width = mean(iris$Sepal.Width)), CJ(
   Sepal.Length = seq(min(iris$Sepal.Length), max(iris$Sepal.Length), length.out = 30),

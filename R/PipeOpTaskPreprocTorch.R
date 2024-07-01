@@ -31,6 +31,7 @@
 #' @param fn (`function` or `character(2)`)\cr
 #'   The preprocessing function. Must not modify its input in-place.
 #'   If it is a `character(2)`, the first element should be the namespace and the second element the name.
+#'   If the `param_set` is inferred (left as `NULL`) it is assumed that the first argument is the `torch_tensor`.
 #' @param packages (`character()`)\cr
 #'   The packages the preprocessing function depends on.
 #' @param param_set ([`ParamSet`])\cr

@@ -1,91 +1,125 @@
 ---
-title: "Torch Callbacks"
+title: "Custom Callbacks"
 author: "Sebastian Fischer"
-date: "`r Sys.Date()`"
 output:
   rmarkdown::html_vignette:
-    keep_md: true
+    toc: true
 vignette: >
-  %\VignetteIndexEntry{Devtools dependencies}
+  %\VignetteIndexEntry{Custom Callbacks}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-
-# Torch in Callbacks
-
-The torch callback mechanism provides an option to customize the training, validation or prediction without having to write the whole training loop from scratch.
-This vignette will teach about the internal structure of callbacks, and why they are designed as they are.
-
-There are a couple of desiderata that should be fullfilled by the callback:
-
-1. They should allow to extend the parameter space of a learner, such that the parameters of a callback can be tuned.
-   This means that the callbacks should be - like the optimizer or the loss function - be a construction argument rather than a parameter.
-1. Learners that are configured with a custom callback should be cloneable without the user having to write a `deep_clone()` method.
-1. `lock_objects` should be `FALSE`, and arbitrary entries can be written into the callbacks.
-
-In the first callback implementation in `mlr3misc`, the `Tuner` took an instance of a `CallbackTorch`.
-The problem with that approach is that we should be able to ensure that the callback that was received was unused.
-
-A callback might write something into its fields. 
-The torch history callback for example saves the training and validation losses.
-The user might provide a callback that was already used.
-
-Consider for example the following pseudo code, where 
-
-```{r}
-# User wrote a custom callback
-callback = CallbackCustom$new()
-learner = lrn("classif.mlp", callback = callback)
-
-learner$clone(deep = TRUE)
+```{r, include = FALSE}
+library(mlr3torch)
 ```
 
-In order for this to work, the CallbackCustom must e.g. not contain an environment. 
-It is of course even possible, that the user modifies the callback after initialization but before passing it to the learner.
-This can all be easily avoided, when the class of the callback is passed to the learner:
+The torch callback mechanism allows to customize the training loop of a neural network.
+While `mlr3torch` has some predefined callbacks for common use-cases, this vignette will show you how to write your own custom callback.
 
+### Building Blocks
 
-```{r}
-learner = lrn("classif.mlp", callback = CallbackCustom)
+At the heart of the callback mechanism are three `R6` classes:
+
+* `CallbackSet` contains the callback code that is executed during training
+* `TorchCallback` wraps a `CallbackSet` and annotates it with meta information, e.g. a `ParamSet`
+* `ContextTorch` defines which information of the training process the `CallbackSet` has access to
+
+When using predefined callbacks, one usually only interacts with the `TorchCallback` class, which is constructed using `t_clbk(<id>)`:
+
+```r
+tc_hist = t_clbk("history")
+tc_hist
 ```
 
-Only during the `$train()` call of the learner, the `CallbackCustom$new()` is called.
+The wrapped `CallbackSet` is accessible via the field `$generator`, and we can create a new instance by calling `$new()`
 
-This however has the problem that a callback cannot be configured.
-An idea is to give the `CallbackCustom` a parameter set. However to access that parameter set, it must be initialized.
-This shows the need of a Wrapper class that contains the callback generator, i.e. `CallbackCustom` in the example above, as well as the configuration space which is implemented as a parameter set.
+```r
+cbs_hist = tc_hist$generator$new()
+```
 
-In pseudo-code, this would be something like: 
+Within the training loop of a torch model, different stages exist at which a callback can execute code.
+Below, we list all stages that are available, but they are also described in the documentation of `CallbackSet`.
+
+```r
+mlr_reflections$torch$callback_stages
+```
+
+For the history callback, we see that it runs code at the beginning, before validation starts, and at the end of an epoch.
+
+```r
+cbs_hist
+```
+
+### Writing a Custom Logger
+
+In order to define our own custom callback, we can use the `torch_callback()` function that makes it easier to implement a custom callback.
+As an example, we will create a custom logger that keeps track of an exponential moving average of the train loss and prints and prints it at the end of every epoch.
+This callback takes one argument `alpha` which is the smoothing parameter and will store the moving average in `self$moving_loss`.
+This can later be configured in the `Learner`.
+
+Then, we implement the main logic of the callback using two stages:
+
+* `on_batch_end()`:  is after the optimizer updates the parameters using a mini-batch.
+  We access the last loss via the `ContextTorch`'s (accessible via `self$ctx`) `$last_loss` field and update the value `self$moving_loss`.
+* `on_before_valid()`: Right before the validation loop, we simply print the exponentail moving average of the training loss.
+
+Finally, in order to make the final value of the moving average accessible in the `Learner` after the training finishes, we implement the
+
+* `state_dict()` method to return this value and the
+* `load_state_dict(state_dict)` method, that takes a previously retrieved state dict and sets it in the callback.
+
+Note that we only do this here to have access to the final `moving_loss` via the learner, but we would otherwise not have to implement these methods.  
 
 ```{r}
-callback_wrapper = CallbackWrapper$new(
-  callback_generator = CallbackCustom, 
-  param_set = ps(...)
+custom_logger = torch_callback("custom_logger",
+  initialize = function(alpha = 0.1) {
+    self$alpha = alpha
+    self$moving_loss = NULL
+  },
+  on_batch_end = function() {
+    if (is.null(self$moving_training_loss)) {
+      self$moving_loss = self$ctx$last_loss
+    } else {
+      self$moving_loss = self$alpha * self$last_loss + (1 - self$alpha) * self$moving_loss
+    }
+  },
+  on_before_valid = function() {
+    cat(sprintf("Epoch %s: %.2f\n", self$ctx$epoch, self$moving_loss))
+  },
+  state_dict = function() {
+    self$moving_loss
+  },
+  load_state_dict = function(state_dict) {
+    self$moving_loss = state_dict
+  }
 )
 ```
 
-The values in the `param_set`, will be passed to the `callback_generator$new()` call, so should be arguments of the `$initialize()` metod.
+This created a `TorchCallback` object and and associated `CallbackSet` R6-class for us:
 
-In the `$initialize()` method of the learn, the param set is added to the `ParamSetCollection` of the learner, that already consists of the network parameters and the `TorchOptimizer`'s and `TorchLoss`'s parameters.
+```{r}
+custom_logger
+custom_logger$generator
+```
 
-To make the ids unique, the set_id of the callback is set to `"cb.<id>"`, which means that no parameter of the network must start with `"cb."`
+### Using the Custom Logger
+
+In order to showcase its effects, we create train a simple multi layer perceptron and pass it the callback.
+We set the smoothing parameter `alpha` to 0.05.
+
+```{r}
+task = tsk("iris")
+mlp = lrn("classif.mlp",
+  callbacks = custom_logger, cb.custom_logger.alpha = 0.05,
+  epochs = 5, batch_size = 64, neurons = 20)
+
+mlp$train(task)
+```
+
+The information that is returnede by `state_dict()` is now accessible via the `Learner`'s `$model`-slot:
 
 
-There are also other advantages to the approach. 
-
-During interactive use, the user might cancel the training / tuning.
-With the initial implementation, this means that the callback might be left in a weird state.
-If the learner is then trained again, the callback starts in a modified state, even if it was provided in a clean state initially.
-When the instance of the callback is created in the `$train()` call this problem does not arise.
-
-
-Of course, the question also arises with respect to the usability of this mechanism, as users should have have to be aware of all the listed details when they just want to modify the training loop.
-The natural solution to this problem is to hide all these details in the `torch_callback()` function.
-
-The final question is regarding the naming scheme, which is subotimal.
-
-The callback generators have the naming scheme `"CallbackTorch<Id>"`, while the wrapper class is named `"TorchCallback"`.
-While this might seem confusing, it is consistent with the other names for the wrappers classes `"TorchOptimizer"` and `"TorchLoss"`.
-
-
+```{r}
+mlp$model$callbacks$custom_logger
+```
