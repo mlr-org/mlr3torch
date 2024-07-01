@@ -123,6 +123,7 @@ LearnerTorch = R6Class("LearnerTorch",
     initialize = function(id, task_type, param_set, properties, man, label, feature_types,
       optimizer = NULL, loss = NULL, packages = NULL, predict_types = NULL, callbacks = list()) {
       assert_choice(task_type, c("regr", "classif"))
+
       predict_types = predict_types %??% switch(task_type,
         regr = "response",
         classif = c("response", "prob")
@@ -165,17 +166,26 @@ LearnerTorch = R6Class("LearnerTorch",
       assert_subset(properties, mlr_reflections$learner_properties[[task_type]])
       properties = union(properties, c("marshal", "validation", "internal_tuning"))
       assert_subset(predict_types, names(mlr_reflections$learner_predict_types[[task_type]]))
-      if (any(grepl("^(loss\\.|opt\\.|cb\\.)", param_set$ids()))) {
-        stopf("Prefixes 'loss.', 'opt.', and 'cb.' are reserved for dynamically constructed parameters.")
-      }
       packages = assert_character(packages, any.missing = FALSE, min.chars = 1L)
       packages = union(c("mlr3", "mlr3torch"), packages)
 
-      paramset_torch = paramset_torchlearner(task_type)
-      if (param_set$length > 0) {
-        private$.param_set_base = ParamSetCollection$new(sets = list(param_set, paramset_torch))$flatten()
+      private$.param_set_torch = paramset_torchlearner(task_type)
+
+      check_ps = function(param_set) {
+        assert_param_set(param_set)
+        if (any(grepl("^(loss\\.|opt\\.|cb\\.)", param_set$ids()))) {
+          stopf("Prefixes 'loss.', 'opt.', and 'cb.' are reserved for dynamically constructed parameters.")
+        }
+      }
+
+      if (test_class(param_set, "ParamSet")) {
+        check_ps(param_set)
+        private$.param_set_base = param_set
+        private$.param_set_source = alist(private$.param_set_base)
       } else {
-        private$.param_set_base = paramset_torch
+
+        lapply(param_set, function(x) check_ps(eval(x)))
+        private$.param_set_source = param_set
       }
 
       # explanation of the self$param_set call:
@@ -272,10 +282,14 @@ LearnerTorch = R6Class("LearnerTorch",
     #'   The parameter set
     param_set = function(rhs) {
       if (is.null(private$.param_set)) {
-        private$.param_set = ParamSetCollection$new(sets = c(
-          list(private$.param_set_base, opt = private$.optimizer$param_set, loss = private$.loss$param_set),
-          set_names(map(private$.callbacks, "param_set"), sprintf("cb.%s", ids(private$.callbacks))))
-        )
+        sourcelist = lapply(private$.param_set_source, function(x) eval(x))
+        private$.param_set = ParamSetCollection$new(c(
+          list(private$.param_set_torch),
+          sourcelist,
+          list(opt = private$.optimizer$param_set),
+          list(loss = private$.loss$param_set),
+          set_names(map(private$.callbacks, "param_set"), sprintf("cb.%s", ids(private$.callbacks)))
+        ))
       }
       if (!missing(rhs) && !identical(rhs, private$.param_set)) {
         stopf("parameter set is read-only")
@@ -303,6 +317,9 @@ LearnerTorch = R6Class("LearnerTorch",
     }
   ),
   private = list(
+    .param_set_torch = NULL,
+    .param_set_source = NULL,
+    .param_set_base = NULL,
     .extract_internal_tuned_values = function() {
       if (self$state$param_vals$patience == 0) {
         named_list()
@@ -426,7 +443,6 @@ LearnerTorch = R6Class("LearnerTorch",
     },
     .optimizer = NULL,
     .loss = NULL,
-    .param_set_base = NULL,
     .callbacks = NULL,
     .verify_train_task = function(task, param_vals) NULL,
     .verify_predict_task = function(task, param_vals) NULL,
@@ -438,6 +454,8 @@ LearnerTorch = R6Class("LearnerTorch",
         value$clone(deep = TRUE)
       } else if (name == ".callbacks") {
         map(value, function(x) x$clone(deep = TRUE))
+      } else if (name == ".param_set") {
+        NULL
       } else if (name == "state") {
         if (!is.null(value)) {
           model = value$model
@@ -455,8 +473,6 @@ LearnerTorch = R6Class("LearnerTorch",
           value$model = model
         }
         return(value)
-      } else if (name == ".param_set") {
-        NULL
       } else {
         super$deep_clone(name, value)
       }

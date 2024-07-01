@@ -20,7 +20,7 @@ Just like the iris task, but the features are represented as one lazy tensor col
 }\if{html}{\out{</div>}}
 }
 
-\section{Meta Information}{
+\section{Properties}{
 
 \itemize{
 \item Task type: \dQuote{classif}

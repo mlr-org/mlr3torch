@@ -29,6 +29,7 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       TORCH_INSTALL: 1
+      INCLUDE_IGNORED: "true"
 
     strategy:
       fail-fast: false
@@ -52,6 +53,42 @@ jobs:
         with:
           extra-packages: any::rcmdcheck
           needs: check
+
+      - name: Install additional packages
+        run: |
+          Rscript -e 'install.packages("rappdirs")'
+
+      - name: Get torchvision package version (Linux/macOS)
+        if: runner.os != 'Windows'
+        id: get_package_version_unix
+        run: |
+          echo "TORCHVISION_PACKAGE_VERSION=$(Rscript -e 'cat(as.character(packageVersion("torchvision")))')" >> $GITHUB_ENV
+
+      - name: Get torchvision package version (Windows)
+        if: runner.os == 'Windows'
+        id: get_package_version_windows
+        run: |
+          $version = Rscript -e 'cat(as.character(packageVersion("torchvision")))' 
+          echo "TORCHVISION_PACKAGE_VERSION=$version" >> $env:GITHUB_ENV
+
+      - name: Get torch cache path (Linux/macOS)
+        if: runner.os != 'Windows'
+        id: get_cache_path_unix
+        run: |
+          echo "TORCH_CACHE_PATH=$(Rscript -e 'cat(rappdirs::user_cache_dir("torch"))')" >> $GITHUB_ENV
+
+      - name: Get torch cache path (Windows)
+        if: runner.os == 'Windows'
+        id: get_cache_path_windows
+        run: |
+          $cachePath = Rscript -e 'cat(rappdirs::user_cache_dir("torch"))'
+          echo "TORCH_CACHE_PATH=$cachePath" >> $env:GITHUB_ENV
+
+      - name: Cache Torchvision Downloads
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.TORCH_CACHE_PATH }}
+          key: ${{ runner.os }}-r-${{ env.TORCHVISION_PACKAGE_VERSION }}
 
       - uses: r-lib/actions/check-r-package@v2
 

@@ -44,7 +44,7 @@ LearnerTorchMLP = R6Class("LearnerTorchMLP",
       param_set = ps(
         neurons         = p_uty(tags = c("train", "predict"), custom_check = check_neurons),
         p               = p_dbl(lower = 0, upper = 1, tags = "train"),
-        activation      = p_uty(tags = c("required", "train"), custom_check = check_activation),
+        activation      = p_uty(tags = c("required", "train"), custom_check = check_nn_module),
         activation_args = p_uty(tags = c("required", "train"), custom_check = check_activation_args),
         shape           = p_uty(tags = "train", custom_check = check_shape)
       )

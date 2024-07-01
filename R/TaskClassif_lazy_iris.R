@@ -16,7 +16,7 @@
 #' @source
 #' \url{https://en.wikipedia.org/wiki/Iris_flower_data_set}
 #'
-#' @section Meta Information:
+#' @section Properties:
 #' `r rd_info_task_torch("lazy_iris", missings = FALSE)`
 #'
 #' @references

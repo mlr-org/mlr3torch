@@ -39,7 +39,11 @@ register_resampling = function(name, constructor) {
 }
 
 register_learner = function(.name, .constructor, ...) {
-  assert_class(.constructor, "R6ClassGenerator")
+  assert_multi_class(.constructor, c("function", "R6ClassGenerator"))
+  if (is.function(.constructor)) {
+    mlr3torch_learners[[.name]] = list(fn = .constructor, prototype_args = list(...))
+    return(NULL)
+  }
   task_type = if (startsWith(.name, "classif")) "classif" else "regr"
   # What I am doing here:
   # The problem is that we wan't to set the task_type when creating the learner from the dictionary

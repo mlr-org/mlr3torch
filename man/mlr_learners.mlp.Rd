@@ -17,7 +17,7 @@ lrn("regr.mlp", ...)
 }\if{html}{\out{</div>}}
 }
 
-\section{Meta Information}{
+\section{Properties}{
 
 \itemize{
 \item Supported task types: 'classif', 'regr'
@@ -28,18 +28,6 @@ lrn("regr.mlp", ...)
 }
 \item Feature Types: \dQuote{integer}, \dQuote{numeric}, \dQuote{lazy_tensor}
 \item Required Packages: \CRANpkg{mlr3}, \CRANpkg{mlr3torch}, \CRANpkg{torch}
-}
-}
-
-\section{State}{
-
-The state is a list with elements:
-\itemize{
-\item \code{network} :: The trained \link[torch:nn_module]{network}.
-\item \code{optimizer} :: The \link[torch:optimizer]{optimizer} used to train the network.
-\item \code{loss_fn} :: The \link[torch:nn_module]{loss} used to train the network.
-\item \code{callbacks} :: The \link[=mlr_callback_set]{callbacks} used to train the network.
-\item \code{seed} :: The actual seed that was / is used for training and prediction.
 }
 }
 
@@ -70,7 +58,8 @@ Otherwise the input shape is inferred from the number of numeric features.
 # Define the Learner and set parameter values
 learner = lrn("classif.mlp")
 learner$param_set$set_values(
-  neurons = 10, batch_size = 1, epochs = 1, device = "cpu"
+  epochs = 1, batch_size = 16, device = "cpu",
+  neurons = 10
 )
 
 # Define a Task
@@ -90,7 +79,7 @@ predictions$score()
 }
 \seealso{
 Other Learner: 
-\code{\link{mlr_learners.alexnet}},
+\code{\link{mlr_learners.tab_resnet}},
 \code{\link{mlr_learners.torch_featureless}},
 \code{\link{mlr_learners_torch}},
 \code{\link{mlr_learners_torch_image}},
