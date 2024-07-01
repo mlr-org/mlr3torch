@@ -16,7 +16,7 @@ lrn("regr.tab_resnet", ...)
 }\if{html}{\out{</div>}}
 }
 
-\section{Meta Information}{
+\section{Properties}{
 
 \itemize{
 \item Supported task types: 'classif', 'regr'
@@ -27,18 +27,6 @@ lrn("regr.tab_resnet", ...)
 }
 \item Feature Types: \dQuote{integer}, \dQuote{numeric}
 \item Required Packages: \CRANpkg{mlr3}, \CRANpkg{mlr3torch}, \CRANpkg{torch}
-}
-}
-
-\section{State}{
-
-The state is a list with elements:
-\itemize{
-\item \code{network} :: The trained \link[torch:nn_module]{network}.
-\item \code{optimizer} :: The \link[torch:optimizer]{optimizer} used to train the network.
-\item \code{loss_fn} :: The \link[torch:nn_module]{loss} used to train the network.
-\item \code{callbacks} :: The \link[=mlr_callback_set]{callbacks} used to train the network.
-\item \code{seed} :: The actual seed that was / is used for training and prediction.
 }
 }
 
@@ -67,7 +55,8 @@ Second dropout ratio.
 # Define the Learner and set parameter values
 learner = lrn("classif.tab_resnet")
 learner$param_set$set_values(
-  n_blocks = 2, d_block = 10, d_hidden = 20, dropout1 = 0.3, dropout2 = 0.3, batch_size = 1, epochs = 1, device = "cpu"
+  epochs = 1, batch_size = 16, device = "cpu",
+  n_blocks = 2, d_block = 10, d_hidden = 20, dropout1 = 0.3, dropout2 = 0.3
 )
 
 # Define a Task
@@ -87,12 +76,11 @@ predictions$score()
 }
 \references{
 Gorishniy Y, Rubachev I, Khrulkov V, Babenko A (2021).
-\dQuote{Revisiting Deep Learning Models for Tabular Data.}
+\dQuote{Revisiting Deep Learning  for Tabular Data.}
 \emph{arXiv}, \bold{2106.11959}.
 }
 \seealso{
 Other Learner: 
-\code{\link{mlr_learners.alexnet}},
 \code{\link{mlr_learners.mlp}},
 \code{\link{mlr_learners.torch_featureless}},
 \code{\link{mlr_learners_torch}},

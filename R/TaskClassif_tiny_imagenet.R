@@ -19,7 +19,7 @@
 #'
 #' @template task_download
 #'
-#' @section Meta Information:
+#' @section Properties:
 #' `r rd_info_task_torch("tiny_imagenet", missings = FALSE)`
 #'
 #' @references

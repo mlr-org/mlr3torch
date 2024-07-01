@@ -15,7 +15,6 @@ Parameters include those inherited from \code{\link{LearnerTorch}} and the \code
 
 \seealso{
 Other Learner: 
-\code{\link{mlr_learners.alexnet}},
 \code{\link{mlr_learners.mlp}},
 \code{\link{mlr_learners.tab_resnet}},
 \code{\link{mlr_learners.torch_featureless}},

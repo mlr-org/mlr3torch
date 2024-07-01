@@ -1,6 +1,6 @@
 bibentries = c(# nolint start
   gorishniy2021revisiting = bibentry("article",
-    title = "Revisiting Deep Learning Models for Tabular Data",
+    title = "Revisiting Deep Learning  for Tabular Data",
     author = "Yury Gorishniy and Ivan Rubachev and Valentin Khrulkov and Artem Babenko",
     journal = "arXiv",
     volume = "2106.11959",
@@ -26,12 +26,6 @@ bibentries = c(# nolint start
     volume = "35",
     pages = "6679--6687",
     year = "2021"
-  ),
-  krizhevsky2014one = bibentry("article",
-    title = "One weird trick for parallelizing convolutional neural networks",
-    author = "Krizhevsky, Alex",
-    journal = "arXiv preprint arXiv:1404.5997",
-    year = "2014"
   ),
 
   ioffe2015batch = bibentry("inproceedings",
@@ -85,5 +79,39 @@ bibentries = c(# nolint start
     author    = "Edgar Anderson",
     title     = "The Species Problem in Iris",
     journal   = "Annals of the Missouri Botanical Garden"
+  ),
+  sandler2018mobilenetv2 = bibentry("InProceedings",
+    title    = "Mobilenetv2: Inverted residuals and linear bottlenecks",
+    author   = "Sandler, Mark and Howard, Andrew and Zhu, Menglong and Zhmoginov, Andrey and Chen, Liang-Chieh",
+    booktitle= "Proceedings of the IEEE conference on computer vision and pattern recognition",
+    pages    = "4510--4520",
+    year     = "2018"
+  ),
+  simonyan2014very = bibentry("article",
+    title  = "Very deep convolutional networks for large-scale image recognition",
+    author = "Simonyan, Karen and Zisserman, Andrew",
+    journal= "arXiv preprint arXiv:1409.1556",
+    year   = "2014"
+  ),
+  he2016deep = bibentry("InProceedings",
+    title     = "Deep residual learning for image recognition ",
+    author    = "He, Kaiming and Zhang, Xiangyu and Ren, Shaoqing and Sun, Jian ",
+    booktitle = "Proceedings of the IEEE conference on computer vision and pattern recognition ",
+    pages     = "770--778 ",
+    year      = "2016 "
+  ),
+  krizhevsky2014one = bibentry("article",
+    title = "One weird trick for parallelizing convolutional neural networks",
+    author = "Krizhevsky, Alex",
+    journal = "arXiv preprint arXiv:1404.5997",
+    year = "2014"
+  ),
+  szegedy2016rethinking = bibentry("InProceedings",
+    title     = "Rethinking the inception architecture for computer vision ",
+    author    = "Szegedy, Christian and Vanhoucke, Vincent and Ioffe, Sergey and Shlens, Jon and Wojna, Zbigniew ",
+    booktitle = "Proceedings of the IEEE conference on computer vision and pattern recognition ",
+    pages     = "2818--2826 ",
+    year      = "2016 "
   )
 ) # nolint end
+
