@@ -52,16 +52,84 @@ navbar:
       href: callbacks.html
 
 reference:
-  - title: Helpers
+  - title: Package
     contents:
-      - create_learner
-      - list_mlr3learners
-      - starts_with("install_")
-      - lrn
+      - mlr3torch-package
   - title: Learners
     contents:
       - starts_with("mlr_learners")
-  - title: 
-  - title: General
+  - title: Tasks
     contents:
-      - mlr3torch-package
+      - starts_with("mlr_tasks")
+      - mlr_backends_lazy
+  - title: Network Building Blocks
+    contents:
+      - starts_with("mlr_pipeops_torch")
+  - title: Preprocessing Operators
+    contents:
+      - pipeop_preproc_torch
+      - starts_with("PipeOpPreprocTorch")
+  - title: Helper for Custom Classes
+    contents:
+  - title: Loss
+    contents:
+      - t_loss
+      - TorchLoss
+      - mlr_pipeops_torch_loss
+      - as_torch_loss
+      - mlr3torch_losses
+  - title: Optimizer
+    contents:
+      - t_opt
+      - TorchLoss
+      - mlr_pipeops_torch_optimizer
+      - as_torch_optimizer
+      - mlr3torch_optimizers
+  - title: Callbacks
+    contents:
+      - callback_set
+      - torch_callback
+      - starts_with("Torch")
+      - TorchCallback
+      - CallbackSet
+      - as_torch_callback
+      - as_torch_callbacks
+      - mlr_pipeops_torch_callbacks
+      - mlr3torch_callbacks
+  - title: NN Modules
+    contents:
+      - starts_with("nn")
+  - title: Network Building Blocks
+    contents:
+      - ModelDescriptor
+      - starts_with("model_descriptor")
+      - mlr_pipeops_module
+      - TorchIngressToken
+      - mlr_pipeops_torch
+      - mlr_pipeops_torch_ingress
+      - mlr_pipeops_torch_model
+      - mlr_pipeops_torch_loss
+      - mlr_pipeops_torch_optimizer
+      - mlr_pipeops_torch_callbacks
+  - title: Ingress Operators
+    contents:
+      - starts_with("pipeop_torch_ingress")
+
+  - title: Lazy Tensor
+    contents:
+      - lazy_tensor
+      - DataDescriptor
+      - as_lazy_tensor
+      - as_data_descriptor
+      - assert_lazy_tensor
+      - is_lazy_tensor
+      - materialize
+  - title: Abstract Clases
+    contents:
+      - TorchDescriptor
+  - title: Helper
+    contents:
+      - auto_device
+
+
+

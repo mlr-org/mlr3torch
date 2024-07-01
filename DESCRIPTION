@@ -133,5 +133,4 @@ Collate:
     'paramset_torchlearner.R'
     'preprocess.R'
     'rd_info.R'
-    'reset_last_layer.R'
     'with_torch_settings.R'
