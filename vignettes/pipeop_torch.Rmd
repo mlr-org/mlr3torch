@@ -100,14 +100,7 @@ module_graph = po_module_1 %>>%
   po_module_2 %>>%
   po_softmax
 
-module_graph$plot(horizontal = TRUE)
-```
-
-```{r, fig.width = 8, fig.height = 6, echo = FALSE, out.width = "100%"}
-fig = magick::image_graph(width = 2000, height = 900, res = 100, pointsize = 16)
-module_graph$plot(horizontal = TRUE)
-invisible(dev.off())
-magick::image_trim(fig)
+module_graph$plot(html = TRUE)
 ```
 
 We can now use the graph's `$train()` method to pipe a tensor through the whole `Graph`.
@@ -289,17 +282,8 @@ graph_iris = gunion(list(graph_sepal, graph_petal)) %>>%
   po("nn_merge_cat") %>>%
   graph_common
 
-graph_iris$plot(horizontal = TRUE)
+graph_iris$plot(html = TRUE)
 ```
-
-```{r, fig.width = 8, fig.height = 6, echo = FALSE, out.width = "100%"}
-fig = magick::image_graph(width = 2000, height = 900, res = 100, pointsize = 16)
-graph_iris$plot(horizontal = TRUE)
-invisible(dev.off())
-magick::image_trim(fig)
-```
-
-
 
 We can use this to create a neural network for the `iris` tasks we created above. We set the `$keep_results` debug flag here so we can do some inspection about what is happening:
 
@@ -356,15 +340,9 @@ We make multiple observations here:
    The branch is interpeted when `graph_iris` runs, and only the `nn_relu` path is followed. The `iris_module` therefore contains a `Graph` that does "relu" activation:
 
     ```{r, fig.show='hide'}
-    iris_module$graph$plot(horizontal = TRUE)
+    iris_module$graph$plot(html = TRUE)
     ```
 
-    ```{r, fig.width = 8, fig.height = 6, echo = FALSE, out.width = "100%"}
-    fig = magick::image_graph(width = 2000, height = 900, res = 100, pointsize = 16)
-    iris_module$graph$plot(horizontal = TRUE)
-    invisible(dev.off())
-    magick::image_trim(fig)
-    ```
 1. The `ModelDescriptor`'s `$task` slot contains a `Task` with all features that are used to create the input data for all NN inputs. It can be given to `task_dataset()`, along with the `$ingress`, to create a `torch` `dataset` that creates all batches. As above, any output of `graph_iris` can be used:
 
     ```{r}
@@ -569,28 +547,14 @@ lr_sequential_full$train(task)
 Compare the resulting `Graph`
 
 ```{r, fig.show='hide'}
-graph_sequential_full$plot(horizontal = TRUE)
-```
-
-```{r, fig.width = 8, fig.height = 6, echo = FALSE, out.width = "100%"}
-fig = magick::image_graph(width = 2000, height = 900, res = 100, pointsize = 15)
-graph_sequential_full$plot(horizontal = TRUE)
-invisible(dev.off())
-magick::image_trim(fig)
+graph_sequential_full$plot(html = TRUE)
 ```
 
 With the `Graph` of the trained model:
 
 ```{r, fig.show = 'hide'}
 model = lr_sequential_full$graph_model$state$torch_model_classif$model
-model$network$graph$plot(horizontal = TRUE)
-```
-
-```{r, fig.width = 8, fig.height = 6, echo = FALSE, out.width = "100%"}
-fig = magick::image_graph(width = 2000, height = 900, res = 100, pointsize = 15)
-model$network$graph$plot(horizontal = TRUE)
-invisible(dev.off())
-magick::image_trim(fig)
+model$network$graph$plot(html = TRUE)
 ```
 
 Predictions, as before (we can use `predict_newdata` again):
@@ -616,16 +580,8 @@ gr = po("select", selector = selector_name("Petal.Length")) %>>%
   po("torch_loss", loss = xe) %>>%
   po("torch_model_classif", batch_size = 50, epochs = 50)
 
-gr$plot(horizontal = TRUE)
+gr$plot(html = TRUE)
 ```
-
-```{r, fig.width = 8, fig.height = 6, echo = FALSE, out.width = "100%"}
-fig = magick::image_graph(width = 2000, height = 900, res = 100, pointsize = 16)
-gr$plot(horizontal = TRUE)
-invisible(dev.off())
-magick::image_trim(fig)
-```
-
 
 ```{r}
 lr = as_learner(gr)
@@ -637,7 +593,7 @@ plot_predictions(predictions)
 
 How about using `Petal.Length` and `Sepal.Length` separately at first?
 
-```{r, fig.show='hide'}
+```{r}
 gr = gunion(list(
       po("select", selector = selector_name("Petal.Length"), id = "sel1") %>>%
         po("torch_ingress_num", id = "ingress.petal") %>>%
@@ -654,14 +610,7 @@ gr = gunion(list(
     po("torch_loss", loss = xe) %>>%
     po("torch_model_classif", batch_size = 50, epochs = 50)
 
-gr$plot(horizontal = TRUE)
-```
-
-```{r, fig.width = 8, fig.height = 6, echo = FALSE, out.width = "100%"}
-fig = magick::image_graph(width = 2000, height = 900, res = 100, pointsize = 16)
-gr$plot(horizontal = TRUE)
-invisible(dev.off())
-magick::image_trim(fig)
+gr$plot(html = TRUE)
 ```
 
 ```{r}

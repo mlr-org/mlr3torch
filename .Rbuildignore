@@ -29,3 +29,5 @@
 ^inst/data_scripts$
 ^vignettes/articles$
 data-raw
+^doc$
+^Meta$

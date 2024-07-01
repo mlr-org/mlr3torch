@@ -318,6 +318,7 @@ hash_input.lazy_tensor = function(x) {
 #' * are unequal: they might materialize to the same tensors.
 #' @param x,y ([`lazy_tensor`])\cr
 #'   Values to compare.
+#' @keywords internal
 #' @export
 `==.lazy_tensor` = function(x, y) {
   if (length(x) == 0L && length(y) == 0L) {

@@ -311,11 +311,11 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
           if (private$.rowwise) {
             trafo = crate(function(x) {
               torch_cat(lapply(seq_len(nrow(x)), function(i) mlr3misc::invoke(trafo, x[i, ..], .args = param_vals)$unsqueeze(1L)), dim = 1L)
-            }, param_vals, trafo, .parent = environment(trafo))
+            }, param_vals, trafo, .parent = topenv())
           } else {
             crate(function(x) {
               mlr3misc::invoke(.f = trafo, x, .args = param_vals)
-            }, param_vals, trafo, .parent = environment(trafo))
+            }, param_vals, trafo, .parent = topenv())
           }
         } else {
           if (private$.rowwise) {
@@ -390,7 +390,7 @@ create_ps = function(fn) {
     }
   }), param_names)
 
-  invoke(ps, .args = args)
+  mlr3misc::invoke(ps, .args = args)
 }
 
 #' @title Create Torch Preprocessing PipeOps
@@ -461,8 +461,8 @@ pipeop_preproc_torch = function(id, fn, shapes_out = NULL, param_set = NULL, pac
       if (self$rowwise) {
         sin = sin[-1L]
       }
-      tensor_in = invoke(torch_empty, .args = sin, device = torch_device("meta"))
-      tensor_out = tryCatch(invoke(self$fn, tensor_in, .args = param_vals),
+      tensor_in = mlr3misc::invoke(torch_empty, .args = sin, device = torch_device("meta"))
+      tensor_out = tryCatch(mlr3misc::invoke(self$fn, tensor_in, .args = param_vals),
         error = function(e) {
           stopf("Input shape '%s' is invalid for PipeOp with id '%s'.", shape_to_str(list(sin)), self$id)
         }
