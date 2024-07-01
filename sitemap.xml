@@ -199,9 +199,6 @@
     <loc>https://mlr3torch.mlr-org.com/reference/mlr_context_torch.html</loc>
   </url>
   <url>
-    <loc>https://mlr3torch.mlr-org.com/reference/mlr_learners.alexnet.html</loc>
-  </url>
-  <url>
     <loc>https://mlr3torch.mlr-org.com/reference/mlr_learners.mlp.html</loc>
   </url>
   <url>
@@ -209,6 +206,9 @@
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/mlr_learners.torch_featureless.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/mlr_learners.torchvision.html</loc>
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/mlr_learners_torch.html</loc>
@@ -446,6 +446,9 @@
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/pipeop_preproc_torch.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/replace_head.html</loc>
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/reset_layer.html</loc>

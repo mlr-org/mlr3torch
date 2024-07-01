@@ -88,7 +88,7 @@
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">lrn</span>(<span class="st">"regr.tab_resnet"</span>, ...)</span></code></pre><p></p></div>
     </div>
     <div class="section level2">
-    <h2 id="meta-information">Meta Information<a class="anchor" aria-label="anchor" href="#meta-information"></a></h2>
+    <h2 id="properties">Properties<a class="anchor" aria-label="anchor" href="#properties"></a></h2>
     
 
 <ul><li><p>Supported task types: 'classif', 'regr'</p></li>
@@ -97,16 +97,6 @@
 </ul></li>
 <li><p>Feature Types: “integer”, “numeric”</p></li>
 <li><p>Required Packages: <a href="https://CRAN.R-project.org/package=mlr3" class="external-link"><span class="pkg">mlr3</span></a>, <a href="https://CRAN.R-project.org/package=mlr3torch" class="external-link"><span class="pkg">mlr3torch</span></a>, <a href="https://CRAN.R-project.org/package=torch" class="external-link"><span class="pkg">torch</span></a></p></li>
-</ul></div>
-    <div class="section level2">
-    <h2 id="state">State<a class="anchor" aria-label="anchor" href="#state"></a></h2>
-    
-
-<p>The state is a list with elements:</p><ul><li><p><code>network</code> :: The trained <a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">network</a>.</p></li>
-<li><p><code>optimizer</code> :: The <a href="https://rdrr.io/pkg/torch/man/optimizer.html" class="external-link">optimizer</a> used to train the network.</p></li>
-<li><p><code>loss_fn</code> :: The <a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">loss</a> used to train the network.</p></li>
-<li><p><code>callbacks</code> :: The <a href="mlr_callback_set.html">callbacks</a> used to train the network.</p></li>
-<li><p><code>seed</code> :: The actual seed that was / is used for training and prediction.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="parameters">Parameters<a class="anchor" aria-label="anchor" href="#parameters"></a></h2>
@@ -128,13 +118,12 @@ Second dropout ratio.</p></li>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Gorishniy Y, Rubachev I, Khrulkov V, Babenko A (2021).
-“Revisiting Deep Learning Models for Tabular Data.”
+“Revisiting Deep Learning  for Tabular Data.”
 <em>arXiv</em>, <b>2106.11959</b>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other Learner: 
-<code><a href="mlr_learners.alexnet.html">mlr_learners.alexnet</a></code>,
 <code><a href="mlr_learners.mlp.html">mlr_learners.mlp</a></code>,
 <code><a href="mlr_learners.torch_featureless.html">mlr_learners.torch_featureless</a></code>,
 <code><a href="mlr_learners_torch.html">mlr_learners_torch</a></code>,
@@ -227,7 +216,8 @@ The callbacks. Must have unique ids.</p></dd>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Define the Learner and set parameter values</span></span></span>
 <span class="r-in"><span><span class="va">learner</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"classif.tab_resnet"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="va">param_set</span><span class="op">$</span><span class="fu">set_values</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  n_blocks <span class="op">=</span> <span class="fl">2</span>, d_block <span class="op">=</span> <span class="fl">10</span>, d_hidden <span class="op">=</span> <span class="fl">20</span>, dropout1 <span class="op">=</span> <span class="fl">0.3</span>, dropout2 <span class="op">=</span> <span class="fl">0.3</span>, batch_size <span class="op">=</span> <span class="fl">1</span>, epochs <span class="op">=</span> <span class="fl">1</span>, device <span class="op">=</span> <span class="st">"cpu"</span></span></span>
+<span class="r-in"><span>  epochs <span class="op">=</span> <span class="fl">1</span>, batch_size <span class="op">=</span> <span class="fl">16</span>, device <span class="op">=</span> <span class="st">"cpu"</span>,</span></span>
+<span class="r-in"><span>  n_blocks <span class="op">=</span> <span class="fl">2</span>, d_block <span class="op">=</span> <span class="fl">10</span>, d_hidden <span class="op">=</span> <span class="fl">20</span>, dropout1 <span class="op">=</span> <span class="fl">0.3</span>, dropout2 <span class="op">=</span> <span class="fl">0.3</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Define a Task</span></span></span>
@@ -244,8 +234,7 @@ The callbacks. Must have unique ids.</p></dd>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Score the predictions</span></span></span>
 <span class="r-in"><span><span class="va">predictions</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> classif.ce </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.6666667 </span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in assert_classif(truth, response = response):</span> Assertion on 'response' failed: Contains missing values (element 1).</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
