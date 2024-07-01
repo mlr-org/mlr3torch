@@ -33,7 +33,7 @@ Description: Deep Learning library that extends the mlr3 framework by building
   defined in 'mlr3pipelines'.
 License: LGPL (>= 3)
 Depends:
-    mlr3 (>= 0.19.0),
+    mlr3 (>= 0.20.0),
     mlr3pipelines,
     torch (>= 0.13.0),
     R (>= 3.5.0)
@@ -55,7 +55,7 @@ Suggests:
     jsonlite,
     knitr,
     magick,
-	mlr3tuning,
+	mlr3tuning (>= 1.0.0),
     progress,
     rmarkdown,
     rpart,
@@ -64,8 +64,7 @@ Suggests:
     torchvision (>= 0.6.0),
     waldo
 Remotes:
-    mlr-org/mlr3pipelines@bundle,
-    mlr-org/mlr3tuning
+    mlr-org/mlr3pipelines
 Config/testthat/edition: 3
 NeedsCompilation: no
 ByteCompile: no
