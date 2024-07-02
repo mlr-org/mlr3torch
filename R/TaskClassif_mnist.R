@@ -56,7 +56,7 @@ load_task_mnist = function(id = "mnist") {
         self$images = images
       },
       .getbatch = function(idx) {
-        list(image = torch_tensor(self$images[idx, , , , drop = FALSE]))
+        list(image = torch_tensor(self$images[idx, , , , drop = FALSE], dtype = torch_float32()))
       },
       .length = function() dim(self$images)[1L]
     )(data$image)
