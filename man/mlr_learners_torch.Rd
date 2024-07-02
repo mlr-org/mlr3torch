@@ -248,7 +248,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   feature_types,
   optimizer = NULL,
   loss = NULL,
-  packages = NULL,
+  packages = character(),
   predict_types = NULL,
   callbacks = list()
 )}\if{html}{\out{</div>}}

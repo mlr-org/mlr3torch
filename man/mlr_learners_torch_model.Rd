@@ -73,6 +73,7 @@ Other Graph Network:
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-LearnerTorchModel-new}{\code{LearnerTorchModel$new()}}
+\item \href{#method-LearnerTorchModel-set_network}{\code{LearnerTorchModel$set_network()}}
 \item \href{#method-LearnerTorchModel-clone}{\code{LearnerTorchModel$clone()}}
 }
 }
@@ -100,8 +101,8 @@ Other Graph Network:
 Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LearnerTorchModel$new(
+  network = NULL,
   task_type,
-  network,
   ingress_tokens,
   properties = NULL,
   optimizer = NULL,
@@ -115,12 +116,12 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{task_type}}{(\code{character(1)})\cr
-The task type.}
-
 \item{\code{network}}{(\code{\link{nn_module}})\cr
 An instantiated \code{\link{nn_module}}. Is not cloned during construction.
 For classification, outputs must be the scores (before the softmax).}
+
+\item{\code{task_type}}{(\code{character(1)})\cr
+The task type.}
 
 \item{\code{ingress_tokens}}{(\code{list} of \code{\link[=TorchIngressToken]{TorchIngressToken()}})\cr
 A list with ingress tokens that defines how the dataloader will be defined.}
@@ -145,6 +146,24 @@ The R packages this object depends on.}
 
 \item{\code{feature_types}}{(\code{NULL} or \code{character()})\cr
 The feature types. Defaults to all available feature types.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LearnerTorchModel-set_network"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerTorchModel-set_network}{}}}
+\subsection{Method \code{set_network()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LearnerTorchModel$set_network(network)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{network}}{(\code{\link{nn_module}})\cr
+An instantiated \code{\link{nn_module}}. Is not cloned during construction.
+For classification, outputs must be the scores (before the softmax).}
 }
 \if{html}{\out{</div>}}
 }

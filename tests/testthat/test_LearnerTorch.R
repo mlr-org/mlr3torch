@@ -671,7 +671,8 @@ test_that("param_set alist must refer to self, private or super", {
           optimizer = optimizer,
           param_set = param_set,
           properties = c(),
-          feature_types = "integer"
+          feature_types = "integer",
+          man = NA
         )
       },
       ps1 = NULL
@@ -683,7 +684,7 @@ test_that("param_set alist must refer to self, private or super", {
 
   learner = LearnerTest$new(param_set = alist(self$ps1, private$ps2))
   expect_subset(c("a", "b"), learner$param_set$ids())
-  expect_error(LearnerTest$new(param_set = ps(c = p_int(tags = "train"))))
+  expect_error(LearnerTest$new(param_set = alist(ps(c = p_int(tags = "train")))))
 
 
 })

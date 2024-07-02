@@ -180,13 +180,12 @@ model_descriptor_to_learner = function(model_descriptor) {
   callbacks = as_torch_callbacks(model_descriptor$callbacks)
   task_type = model_descriptor$task$task_type
 
-  ingress_tokens = model_descriptor$ingress
-
   network = model_descriptor_to_module(
     model_descriptor = model_descriptor,
     output_pointers = model_descriptor$.output_pointers,
     list_output = FALSE
   )
+  ingress_tokens = model_descriptor$ingress
   network$reset_parameters()
 
   learner = LearnerTorchModel$new(

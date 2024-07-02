@@ -23,8 +23,8 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   loader_train = private$.dataloader(task, param_vals)
 
   network = private$.network(task, param_vals)$to(device = param_vals$device)
-  optimizer = private$.optimizer$generate(network$parameters)
-  loss_fn = private$.loss$generate()
+  optimizer = self$optimizer$generate(network$parameters)
+  loss_fn = self$loss$generate()
 
   measures_train = normalize_to_list(param_vals$measures_train)
   measures_valid = normalize_to_list(param_vals$measures_valid)
@@ -61,7 +61,7 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     eval_freq = param_vals$eval_freq
   )
 
-  callbacks = lapply(private$.callbacks, function(descriptor) {
+  callbacks = lapply(self$callbacks, function(descriptor) {
     cb = descriptor$generate()
     cb$ctx = ctx
     cb
@@ -309,3 +309,5 @@ measure_prediction = function(pred_tensor, measures, task, row_ids, prediction_e
     }
   )
 }
+
+

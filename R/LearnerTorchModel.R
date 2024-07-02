@@ -59,11 +59,10 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(task_type, network, ingress_tokens, properties = NULL, optimizer = NULL, loss = NULL,
+    initialize = function(network = NULL, task_type, ingress_tokens, properties = NULL, optimizer = NULL, loss = NULL,
       callbacks = list(), packages = character(0), feature_types = NULL) {
       # TODO: What about the learner properties?
-      private$.network_stored = assert_class(network, "nn_module")
-      private$.ingress_tokens = assert_list(ingress_tokens, types = "TorchIngressToken", min.len = 1L)
+      private$.network_stored = assert_class(network, "nn_module", null.ok = TRUE)
       if (is.null(feature_types)) {
         feature_types = unname(mlr_reflections$task_feature_types)
       } else {
@@ -74,23 +73,42 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
       } else {
         properties = assert_subset(properties, mlr_reflections$learner_properties[[task_type]])
       }
+      param_set = ps(
+        ingress_tokens = p_uty(tags = c("train", "required"), custom_check = crate(function(x) {
+          check_list(x, types = "TorchIngressToken", min.len = 1L)
+        }))
+      )
+      if (inherits(loss, "LossParam")) {
+        param_set = c(param_set, ps(loss = p_uty(tags = c("train", "required"))))
+      }
+      if (inherits(optimizer, "OptimizerParam")) {
+        param_set = c(param_set, ps(optimizer = p_uty(tags = c("train", "required"))))
+      }
+      if (inherits(loss, "CallbacksParam")) {
+        param_set = c(param_set, ps(callbacks = p_uty(tags = c("train", "required"))))
+      }
       super$initialize(
         id = paste0(task_type, ".model"),
+        loss = loss,
+        optimizer = optimizer,
+        callbacks = callbacks,
         task_type = task_type,
         label = "Torch Model",
-        optimizer = optimizer,
         properties = properties,
-        loss = loss,
         packages = packages,
         param_set = ps(),
         feature_types = feature_types,
         man = "mlr3torch::mlr_learners.torch_model"
       )
+    },
+    set_network = function(network) {
+      private$.network_stored = assert_class(network, "nn_module")
+      invisible(self)
     }
   ),
   private = list(
     deep_clone = function(name, value) {
-      if (name == ".network_stored" && is.null(value)) {
+      if (name == ".network_stored" && is.null(value) && !is.null(self$state)) {
         # the initial network state is lost after training a LearnerTorchModel
         stopf("Learner %s: Can only create deep clone for untrained learner", self$id)
       } else {
@@ -108,23 +126,18 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
     .dataset = function(task, param_vals) {
       dataset = task_dataset(
         task,
-        feature_ingress_tokens = private$.ingress_tokens,
+        feature_ingress_tokens = self$param_set$get_values()$ingress_tokens,
         target_batchgetter = get_target_batchgetter(self$task_type),
         device = param_vals$device
       )
     },
     .network_stored = NULL,
-    .ingress_tokens = NULL,
     .additional_phash_input = function() {
-      list(self$properties, self$feature_types, private$.network_stored, self$packages, private$.ingress_tokens)
+      list(self$properties, self$feature_types, private$.network_stored, self$packages)
      }
   )
 )
 
 #' @include PipeOpTorchIngress.R task_dataset.R
-register_learner("classif.torch_model", LearnerTorchModel, network = nn_identity(),
-  ingress_tokens = list(x = TorchIngressToken("x", batchgetter_num, c(NA, 1))
-))
-register_learner("regr.torch_model", LearnerTorchModel, network = nn_identity(),
-  ingress_tokens = list(x = TorchIngressToken("x", batchgetter_num, c(NA, 1)))
-)
+register_learner("classif.torch_model", LearnerTorchModel)
+register_learner("regr.torch_model", LearnerTorchModel)

@@ -85,7 +85,6 @@ test_that("phash works", {
 })
 
 test_that("validation", {
-  browser()
   po_model = po("torch_model_regr")
   expect_true("validation" %in% po_model$properties)
 
@@ -95,6 +94,6 @@ test_that("validation", {
   glrn = as_learner(graph)
   set_validate(glrn, 0.2)
   expect_equal(glrn$validate, 0.2)
-  expect_eqal(glrn$graph$pipeops$torch_model_regr$validate, "predefined")
+  expect_equal(glrn$graph$pipeops$torch_model_regr$validate, "predefined")
 })
 
