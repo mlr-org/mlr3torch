@@ -41,7 +41,7 @@ test_that("Manual test: Classification and Regression", {
 
   res = obj$train(list(md))
   expect_equal(res, list(output = NULL))
-  expect_class(obj$state, "LearnerTorchModel")
+  expect_class(obj$state, "learner_state")
   expect_class(obj$state$model$network, c("nn_graph", "nn_module"))
   # Defaults are used
   expect_list(obj$state$model$optimizer)
@@ -52,8 +52,8 @@ test_that("Manual test: Classification and Regression", {
   obj = po("torch_model_classif", epochs = 0, batch_size = 2)
   obj$train(list(md))
   expect_list(obj$state$model$optimizer)
-  expect_true(obj$state$state$param_vals$opt.lr == 0.123)
-  expect_true(obj$state$state$param_vals$batch_size == 2)
+  expect_true(obj$learner_model$optimizer$param_set$values$lr == 0.123)
+  expect_true(obj$state$param_vals$batch_size == 2)
 
   task = tsk("mtcars")
 
@@ -72,7 +72,7 @@ test_that("Manual test: Classification and Regression", {
   pred = graph$predict(task)
   expect_class(pred[[1]], "PredictionRegr")
   learner = graph$pipeops$torch_model_regr$state
-  expect_class(learner, "LearnerTorchModel")
+  expect_class(learner, "learner_state")
 })
 
 test_that("phash works", {
@@ -97,3 +97,30 @@ test_that("validation", {
   expect_equal(glrn$graph$pipeops$torch_model_regr$validate, "predefined")
 })
 
+
+test_that("base_learner works", {
+  graph = po("torch_ingress_num") %>>%
+    po("nn_head") %>>%
+    po("torch_loss", "mse") %>>%
+    po("torch_optimizer", "adam") %>>%
+    po("torch_model_regr")
+
+  glrn = as_learner(graph)
+  expect_equal(glrn$base_learner(return_po = TRUE)$id, "torch_model_regr")
+})
+
+test_that("internal_tuning", {
+  graph = po("torch_ingress_num") %>>%
+    po("nn_head") %>>%
+    po("torch_loss", "mse") %>>%
+    po("torch_optimizer") %>>%
+    po("torch_model_regr", epochs = 1L, batch_size = 3, patience = 10,
+      measures_valid = msr("regr.mse"))
+
+  glrn = as_learner(graph)
+  glrn$validate = 0.2
+  glrn$graph$pipeops$torch_model_regr$validate = "predefined"
+  task = tsk("mtcars")
+  glrn$train(task)
+  expect_true("torch_model_regr.epochs" %in% glrn$internal_tuned_values)
+})

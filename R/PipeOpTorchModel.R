@@ -38,9 +38,9 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
       # them to become parameters instead of construction arguments, otherwise we 
       # cannot satisfy the PipeOpLearner requirements
       learner = LearnerTorchModel$new(
-        loss = structure(list(), class = "LossParam"),
-        optimizer = structure(list(), class = "OptimizerParam"),
-        callbacks = structure(list(), class = "CallbacksParam"),
+        loss = LossNone(),
+        optimizer = OptimizerNone(),
+        callbacks = CallbacksNone(),
         task_type = task_type
       )
 
@@ -65,51 +65,36 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
   private = list(
     .train = function(inputs) {
       md = inputs[[1]]
-        network = model_descriptor_to_module(
+      network = model_descriptor_to_module(
         model_descriptor = md,
         output_pointers = md$.output_pointers,
         list_output = FALSE
       )
+      private$.learner$network_stored = network
+      private$.learner$ingress_tokens = md$ingress
 
-      if (is.null(md$loss)) {
-        stopf("No loss configured in ModelDescriptor. Use po(\"torch_loss\").")
+      if (is.null(md$loss) && is.null(self$learner$loss)) {
+        stopf("No loss configured in ModelDescriptor. Use (\"torch_loss\").")
       }
-      private$.learner$param_set$values$loss = as_torch_loss(md$loss)
-      if (is.null(md$optimizer)) {
+      self$learner$loss = md$loss
+      if (is.null(md$optimizer) && is.null(self$learner$optimizer)) {
         stopf("No optimizer configured in ModelDescriptor. Use po(\"torch_optimizer\").")
       }
-      private$.learner$param_set$values$optimizer = as_torch_optimizer(md$optimizer)
+      self$learner$optimizer = md$optimizer
       if (!is.null(md$callbacks)) {
-        private$.learner$param_set$values$callbacks = md$callbacks
+        self$learner$callbacks = md$callbacks
       }
 
-      ingress_tokens = model_descriptor$ingress
-      network$reset_parameters()
+      ingress_tokens = md$ingress
 
-      private$.learner$packages = unique(private$.learner, md$network$graph$packages)
+      private$.learner$packages = unique(private$.learner$packages, md$network$graph$packages)
 
-      learner = model_descriptor_to_learner(md)
-
-      # TODO: Maybe we want the learner and the pipeop to actually share the paramset by reference.
-      # If we do this we need to write a custom clone function.
-      # While it is not efficient, the current solution works.
-      learner$param_set$set_values(.values = param_vals)
-      # in case something goes wrong during training we still set the state.
-      on.exit({self$state = learner}, add = TRUE)
-      learner$train(md$task)
-      self$state = learner
-      list(NULL)
-    },
-    .predict = function(inputs) {
-      # This is copied from mlr3pipelines (PipeOpLearner)
-      task = inputs[[1]]
-      list(self$state$predict(task))
+      super$.train(list(md$task))
     },
     .task_type = NULL,
     .additional_phash_input = function() {
       private$.task_type
-    },
-    .validate = NULL
+    }
   )
 )
 
@@ -206,3 +191,4 @@ PipeOpTorchModelRegr = R6Class("PipeOpTorchModelRegr",
 #' @include zzz.R
 register_po("torch_model_regr", PipeOpTorchModelRegr)
 register_po("torch_model_classif", PipeOpTorchModelClassif)
+

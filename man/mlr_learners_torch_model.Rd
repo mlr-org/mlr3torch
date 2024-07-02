@@ -69,11 +69,21 @@ Other Graph Network:
 \section{Super classes}{
 \code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3torch:LearnerTorch]{mlr3torch::LearnerTorch}} -> \code{LearnerTorchModel}
 }
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{network_stored}}{(\code{nn_module} or \code{NULL})\cr
+The network that will be trained.}
+
+\item{\code{ingress_tokens}}{(named \code{list()} with \code{TorchIngressToken} or \code{NULL})\cr
+The ingress tokens. Must be non-\code{NULL} when calling \verb{$train()}.}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-LearnerTorchModel-new}{\code{LearnerTorchModel$new()}}
-\item \href{#method-LearnerTorchModel-set_network}{\code{LearnerTorchModel$set_network()}}
 \item \href{#method-LearnerTorchModel-clone}{\code{LearnerTorchModel$clone()}}
 }
 }
@@ -102,8 +112,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LearnerTorchModel$new(
   network = NULL,
+  ingress_tokens = NULL,
   task_type,
-  ingress_tokens,
   properties = NULL,
   optimizer = NULL,
   loss = NULL,
@@ -120,11 +130,11 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 An instantiated \code{\link{nn_module}}. Is not cloned during construction.
 For classification, outputs must be the scores (before the softmax).}
 
-\item{\code{task_type}}{(\code{character(1)})\cr
-The task type.}
-
 \item{\code{ingress_tokens}}{(\code{list} of \code{\link[=TorchIngressToken]{TorchIngressToken()}})\cr
 A list with ingress tokens that defines how the dataloader will be defined.}
+
+\item{\code{task_type}}{(\code{character(1)})\cr
+The task type.}
 
 \item{\code{properties}}{(\code{NULL} or \code{character()})\cr
 The properties of the learner.
@@ -146,24 +156,6 @@ The R packages this object depends on.}
 
 \item{\code{feature_types}}{(\code{NULL} or \code{character()})\cr
 The feature types. Defaults to all available feature types.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-LearnerTorchModel-set_network"></a>}}
-\if{latex}{\out{\hypertarget{method-LearnerTorchModel-set_network}{}}}
-\subsection{Method \code{set_network()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LearnerTorchModel$set_network(network)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{network}}{(\code{\link{nn_module}})\cr
-An instantiated \code{\link{nn_module}}. Is not cloned during construction.
-For classification, outputs must be the scores (before the softmax).}
 }
 \if{html}{\out{</div>}}
 }

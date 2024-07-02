@@ -211,6 +211,7 @@ test_that("the state of a trained network contains what it should", {
 })
 
 test_that("train parameters do what they should: classification and regression", {
+  withr::local_seed(1L)
   callback = torch_callback(id = "internals",
     on_begin = function() {
       # rename to avoid deleting the ctx after finishing the training
@@ -685,6 +686,78 @@ test_that("param_set alist must refer to self, private or super", {
   learner = LearnerTest$new(param_set = alist(self$ps1, private$ps2))
   expect_subset(c("a", "b"), learner$param_set$ids())
   expect_error(LearnerTest$new(param_set = alist(ps(c = p_int(tags = "train")))))
+})
 
+test_that("configure loss, optimizer and callbacks after construction", {
+  learner = lrn("classif.torch_model",
+    loss = LossNone(),
+    optimizer = OptimizerNone(),
+    callbacks = CallbacksNone()
+  )
 
+  expect_true(is.null(learner$loss))
+  expect_true(is.null(learner$optimizer))
+  expect_true(is.null(learner$callbacks))
+
+  expect_false(any(grepl("^loss\\.", learner$param_set$ids())))
+  expect_error({learner$loss = t_loss("mse")}) # nolint
+
+  loss = t_loss("cross_entropy")
+  loss$packages = c(loss$packages, "utils")
+  learner$loss = loss
+  expect_true("loss.reduction" %in% learner$param_set$ids())
+  expect_true("utils" %in% learner$packages)
+  expect_false(any(grepl("^opt\\.", learner$param_set$ids())))
+  expect_class(learner$loss, "TorchLoss")
+  learner$param_set$set_values(loss.reduction = "sum")
+  expect_equal(learner$param_set$values$loss.reduction, "sum")
+  expect_equal(learner$loss$param_set$values$reduction, "sum")
+
+  expect_error({learner$optimizer = 1L}) # nolint
+  optimizer = t_opt("adam")
+  optimizer$packages = c(optimizer$packages, "stats")
+  learner$optimizer = optimizer
+  expect_true("stats" %in% optimizer$packages)
+  expect_true("opt.amsgrad" %in% learner$param_set$ids())
+  expect_class(learner$optimizer, "TorchOptimizer")
+  learner$param_set$set_values(opt.lr = 2)
+  expect_equal(learner$param_set$values$opt.lr, 2)
+  expect_equal(learner$optimizer$param_set$values$lr, 2)
+
+  expect_false(any(grepl("^cb\\.", learner$param_set$ids())))
+  expect_error({learner$callbacks = list(1L)}) # nolint
+  callback = t_clbk("checkpoint")
+  callback$packages = c(callback$packages, "R6")
+  learner$callbacks = list(callback)
+  expect_true("cb.checkpoint.freq" %in% learner$param_set$ids())
+  expect_list(learner$callbacks, "TorchCallback")
+  # FINISH:
+  learner$param_set$set_values(cb.checkpoint.freq = 100)
+  expect_equal(learner$param_set$values$cb.checkpoint.freq, 100)
+  expect_equal(learner$callbacks$checkpoint$param_set$values$freq, 100)
+
+  learner$param_set$set_values(
+    loss.reduction = "mean",
+    opt.lr = 123,
+    cb.checkpoint.freq = 456
+  )
+  learner1 = learner$clone(deep = TRUE)
+  expect_deep_clone(learner, learner1)
+  expect_equal(learner1$param_set$values$loss.reduction, "mean")
+  expect_equal(learner1$param_set$values$opt.lr, 123)
+  expect_equal(learner1$param_set$values$cb.checkpoint.freq, 456)
+})
+
+test_that("dataset works", {
+  task = tsk("iris")
+  learner = lrn("classif.mlp", device = "meta", batch_size = 10,
+    epochs = 1L)
+  ds = learner$dataset(task)
+  batch = ds$.getbatch(1:2)
+  expect_equal(batch$x$torch_ingress_num.input$device$type, "meta")
+  expect_equal(batch$x$torch_ingress_num.input$shape, c(2, 4))
+  expect_equal(batch$y$device$type, "meta")
+  expect_equal(batch$y$shape, 2)
+  expect_equal(batch$.index$device$type, "meta")
+  expect_equal(batch$.index$shape, 2)
 })

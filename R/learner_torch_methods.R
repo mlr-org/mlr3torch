@@ -61,11 +61,12 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     eval_freq = param_vals$eval_freq
   )
 
-  callbacks = lapply(self$callbacks, function(descriptor) {
+  callbacks = set_names(lapply(self$callbacks, function(descriptor) {
     cb = descriptor$generate()
     cb$ctx = ctx
     cb
-  })
+  }), ids(self$callbacks))
+
 
   if (param_vals$patience > 0L) {
     es = CallbackSetEarlyStopping$new(
@@ -95,16 +96,7 @@ train_loop = function(ctx, cbs) {
     })
   }
 
-  ## we do this so if the learner should crash the intermediate progress is saved somewhere
-  ctx$learner$state$model = list(
-    network = ctx$network,
-    optimizer = ctx$optimizer,
-    loss_fn = ctx$loss_fn,
-    callbacks = cbs
-  )
-
   # note that task_valid may be present (callbacks could do their own validation)
-
   on.exit({
     # in case a callback wants to finalize things
     call("on_exit")
@@ -189,6 +181,7 @@ train_loop = function(ctx, cbs) {
 
   call("on_end")
 
+  callback_states = discard(map(cbs, function(cb) cb$state_dict()), is.null)
   # The seed is added later
   list(
     network               = ctx$network,
@@ -197,7 +190,7 @@ train_loop = function(ctx, cbs) {
     loss_fn               = ctx$loss_fn$state_dict(),
     optimizer             = ctx$optimizer$state_dict(),
     epochs                = ctx$epoch,
-    callbacks             = discard(map(cbs, function(cb) cb$state_dict()), is.null)
+    callbacks             = callback_states
   )
 }
 

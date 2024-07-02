@@ -18,9 +18,8 @@
 #' @template param_label
 #' @param param_set ([`ParamSet`] or `alist()`)\cr
 #'   Either a parameter set, or an `alist()` containing different values of self,
-#'   e.g. `alist(self$.param_set1, self$.param_set2)`, from which a [`ParamSet`] collection
-#'   should be created. Note that the `alist()` should not contain calls to `ps()`, because
-#'   then cloning will discard the set parameter values.
+#'   e.g. `alist(private$.param_set1, private$.param_set2)`, from which a [`ParamSet`] collection
+#'   should be created.
 #' @param predict_types (`character()`)\cr
 #'   The predict types.
 #'   See [`mlr_reflections$learner_predict_types`][mlr_reflections] for available values.
@@ -126,9 +125,6 @@ LearnerTorch = R6Class("LearnerTorch",
         if (any(grepl("^(loss\\.|opt\\.|cb\\.)", param_set$ids()))) {
           stopf("Prefixes 'loss.', 'opt.', and 'cb.' are reserved for dynamically constructed parameters.")
         }
-        if (some(c("loss", "optimizer", "callbacks"), function(id) id %in% param_set$ids())) {
-          stopf("Parameter names loss, optimzer and callbacks are reserved.")
-        }
       }
 
       if (test_class(param_set, "ParamSet")) {
@@ -140,51 +136,28 @@ LearnerTorch = R6Class("LearnerTorch",
         private$.param_set_source = alist(private$.param_set_base)
       } else {
         lapply(param_set, function(x) {
+          # otherwise cloning can fail when parameter values are set in the param_set constructed
+          # from expressions in alist()
           assert_true(grepl("^(self|private|super)", deparse(x)))
           check_ps(eval(x))
         })
-        if (inherits(loss, "LossParam") || inherits(optimizer, "OptimizerParam") ||
-          inherits(callbacks, "CallbacksParam")) {
-            stopf("Not implemented currently")
-          }
         private$.param_set_source = param_set
       }
 
       if (is.null(loss)) {
         private$.loss = t_loss(switch(task_type, classif = "cross_entropy", regr = "mse"))
-      } else if (inherits(loss, "LossParam")) {
-        private$.param_set_base = c(private$.param_set_base,
-          ps(loss = p_uty(tags = c("train", "required"), custom_check = check_nn_module))
-        )
-      } else {
-        private$.loss = as_torch_loss(loss, clone = TRUE)
-        assert_true(task_type %in% private$.loss$task_types)
+      } else if (!inherits(loss, "LossNone")) {
+        self$loss = loss
       }
 
       if (is.null(optimizer)) {
         private$.optimizer = t_opt("adam")
-      } else if (inherits(optimizer, "OptimizerParam")) {
-        private$.param_set_base = c(private$.param_set_base,
-          ps(optimizer = p_uty(tags = c("train", "required"),
-            custom_check = crate(function(x) check_class(x, "optimizer"), .parent = topenv())))
-        )
-      } else {
-        private$.optimizer = as_torch_optimizer(optimizer, clone = TRUE)
+      } else if (!inherits(optimizer, "OptimizerNone")) {
+        self$optimizer = optimizer
       }
 
-      if (inherits(callbacks, "CallbacksParam")) {
-        private$.param_set_base = c(private$.param_set_base,
-          ps(callbacks = p_uty(tags = c("train", "required"), custom_check = check_callbacks)))
-      } else {
-        callbacks = as_torch_callbacks(callbacks, clone = TRUE)
-        callback_ids = ids(callbacks)
-        if (!test_names(callback_ids, type = "unique")) {
-          stopf("All callbacks must have unique IDs that are valid names, but they are %s.",
-            paste0("'", callback_ids, "'", collapse = ", ")
-          )
-        }
-
-        private$.callbacks = set_names(callbacks, callback_ids)
+      if (!inherits(callbacks, "CallbacksNone")) {
+        self$callbacks = callbacks
       }
 
      packages = unique(c(
@@ -270,61 +243,56 @@ LearnerTorch = R6Class("LearnerTorch",
       private$.validate
     },
 
-    # packages = function(rhs) {
-    #   if (!missing(rhs)) {
-    #     private$.packages = assert_character(rhs, any.missing = FALSE)
-    #   }
-    #   unique(c(
-    #     private$.packages,
-    #     if (!is.null(self$callbacks)) unlist(map(self$callbacks, "packages")),
-    #     self$loss$packages,
-    #     self$optimizer$packages
-    #   ))
-    # },
-
+    #' @field loss ([`TorchLoss`])\cr
+    #' The torch loss.
     loss = function(rhs) {
-      if (is.null(private$.loss)) {
-        assert_ro_binding(rhs)
-        self$param_set$values$loss
-      } else {
-        if (!missing(rhs)) {
-          private$.loss = as_torch_loss(rhs, clone = TRUE)
-          assert_true(task_type %in% private$.loss$task_types)
-          self$packages = unique(c(self$packages, private$.loss$packages))
+      if (!missing(rhs)) {
+        if (!is.null(private$.loss)) {
+          stopf("Learner '%s' already has its loss configured", self$id)
         }
-        private$.loss
+        loss = as_torch_loss(rhs, clone = TRUE)
+        assert_choice(self$task_type %in% loss$task_types)
+        private$.loss = loss
+        self$packages = unique(c(self$packages, private$.loss$packages))
+        private$.param_set = NULL
       }
+      private$.loss
     },
 
+    #' @field optimizer ([`TorchOptimizer`])\cr
+    #' The torch optimizer.
     optimizer = function(rhs) {
-      if (is.null(private$.optimizer)) {
-        assert_ro_binding(rhs)
-        self$param_set$values$optimizer
-      } else {
-        if (!missing(rhs)) {
-          private$.optimizer = as_torch_optimizer(rhs, clone = TRUE)
-          self$packages = unique(c(self$packages, private$.optimizer$packages))
+      if (!missing(rhs)) {
+        if (!is.null(private$.optimizer)) {
+          stopf("Learner '%s' already has its optimizer configured", self$id)
         }
-        private$.optimizer
+        private$.optimizer = as_torch_optimizer(rhs, clone = TRUE)
+        private$.param_set = NULL
+        self$packages = unique(c(self$packages, private$.optimizer$packages))
       }
+      private$.optimizer
     },
 
+    #' @field callbacks (`list()` of [`TorchCallback`]s)\cr
+    #' List of torch callbacks.
+    #' The ids will be set as the names.
     callbacks = function(rhs) {
-      if (is.null(private$.callbacks)) {
-        assert_ro_binding(rhs)
-        self$param_set$values$callbacks
-      } else {
-        if (!missing(rhs)) {
-          private$.callbacks = as_torch_callbacks(rhs, clone = TRUE)
-          if (!test_names(callback_ids, type = "unique")) {
-            stopf("All callbacks must have unique IDs that are valid names, but they are %s.",
-              paste0("'", callback_ids, "'", collapse = ", ")
-            )
-          }
-          self$packages = unique(c(self$packages, unlist(map(private$.callbacks, "packages"))))
+      if (!missing(rhs)) {
+        if (!is.null(private$.callbacks)) {
+          stopf("Learner '%s' already has its callbacks configured", self$id)
         }
-        private$.callbacks
+        callbacks = as_torch_callbacks(rhs, clone = TRUE)
+        callback_ids = ids(callbacks)
+        if (!test_names(callback_ids, type = "unique")) {
+          stopf("All callbacks must have unique IDs that are valid names, but they are %s.",
+            paste0("'", callback_ids, "'", collapse = ", ")
+          )
+        }
+        private$.callbacks = callbacks
+        private$.param_set = NULL
+        self$packages = unique(c(self$packages, unlist(map(private$.callbacks, "packages"))))
       }
+      private$.callbacks
     },
 
     #' @field internal_valid_scores
@@ -365,6 +333,7 @@ LearnerTorch = R6Class("LearnerTorch",
           sourcelist,
           if (!is.null(private$.optimizer)) list(opt = private$.optimizer$param_set),
           if (!is.null(private$.loss)) list(loss = private$.loss$param_set),
+
           if (!is.null(private$.callbacks)) {
             set_names(map(private$.callbacks, "param_set"), sprintf("cb.%s", ids(private$.callbacks)))
           }
@@ -532,6 +501,7 @@ LearnerTorch = R6Class("LearnerTorch",
       } else if (test_class(value, "nn_module")) {
         value$clone(deep = TRUE)
       } else if (name == ".callbacks") {
+        if (is.null(value)) return(NULL)
         map(value, function(x) x$clone(deep = TRUE))
       } else if (name == ".param_set") {
         NULL

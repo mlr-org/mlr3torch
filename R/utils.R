@@ -260,3 +260,15 @@ check_callbacks = function(x) {
   }
   TRUE
 }
+
+LossNone = function() {
+  structure(list(), class = "LossNone")
+}
+
+OptimizerNone = function() {
+  structure(list(), class = "OptimizerNone")
+}
+
+CallbacksNone = function() {
+  structure(list(), class = "CallbacksNone")
+}

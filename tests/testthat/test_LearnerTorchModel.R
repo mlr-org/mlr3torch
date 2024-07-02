@@ -4,9 +4,9 @@ test_that("LearnerTorchModel works", {
   learner = LearnerTorchModel$new(
     task_type = "classif",
     network = testmodule_linear(task),
-    ingress_tokens = list(x = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, 4L))),
     packages = "data.table"
   )
+  learner$ingress_tokens = list(x = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, 4L)))
 
 
   expect_deep_clone(
