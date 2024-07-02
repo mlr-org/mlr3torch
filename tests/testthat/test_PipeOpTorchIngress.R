@@ -69,29 +69,29 @@ test_that("ingress cat: device placement", {
   iter = dataloader_make_iter(dataloader(task_dataset(task, md$ingress, device = "mps",
     target_batchgetter = target_batchgetter_regr)))
   batch = iter$.next()
-  expect_equal(batch$x[[1L]]$device, torch_device("mps"))
-  expect_equal(batch$y$device, torch_device("mps"))
-  expect_equal(batch$.index$device, torch_device("mps"))
+  expect_equal(batch$x[[1L]]$device, torch_device("meta"))
+  expect_equal(batch$y$device, torch_device("meta"))
+  expect_equal(batch$.index$device, torch_device("meta"))
 })
 
 test_that("ingress num: device placement", {
   task = tsk("mtcars")
   md = po("torch_ingress_num")$train(list(task))[[1L]]
-  iter = dataloader_make_iter(dataloader(task_dataset(task, md$ingress, device = "mps",
+  iter = dataloader_make_iter(dataloader(task_dataset(task, md$ingress, device = "meta",
     target_batchgetter = target_batchgetter_classif)))
   batch = iter$.next()
-  expect_equal(batch$x[[1L]]$device, torch_device("mps"))
-  expect_equal(batch$y$device, torch_device("mps"))
-  expect_equal(batch$.index$device, torch_device("mps"))
+  expect_equal(batch$x[[1L]]$device, torch_device("meta"))
+  expect_equal(batch$y$device, torch_device("meta"))
+  expect_equal(batch$.index$device, torch_device("meta"))
 })
 
 test_that("ingress ltnsr: device placement", {
   task = tsk("lazy_iris")
   md = po("torch_ingress_ltnsr")$train(list(task))[[1L]]
-  iter = dataloader_make_iter(dataloader(task_dataset(task, md$ingress, device = "mps",
+  iter = dataloader_make_iter(dataloader(task_dataset(task, md$ingress, device = "meta",
     target_batchgetter = target_batchgetter_regr)))
   batch = iter$.next()
-  expect_equal(batch$x[[1L]]$device, torch_device("mps"))
-  expect_equal(batch$y$device, torch_device("mps"))
-  expect_equal(batch$.index$device, torch_device("mps"))
+  expect_equal(batch$x[[1L]]$device, torch_device("meta"))
+  expect_equal(batch$y$device, torch_device("meta"))
+  expect_equal(batch$.index$device, torch_device("meta"))
 })
