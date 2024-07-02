@@ -143,7 +143,8 @@ LearnerTorch = R6Class("LearnerTorch",
         })
         private$.param_set_source = param_set
       }
-
+      # loss needs access to the task_type
+      self$task_type = task_type
       if (is.null(loss)) {
         private$.loss = t_loss(switch(task_type, classif = "cross_entropy", regr = "mse"))
       } else if (!inherits(loss, "LossNone")) {
@@ -160,12 +161,11 @@ LearnerTorch = R6Class("LearnerTorch",
         self$callbacks = callbacks
       }
 
-     packages = unique(c(
+      packages = unique(c(
         packages,
         unlist(map(private$.callbacks, "packages")),
         private$.loss$packages,
-        private$.optimizer$packages
-      ))
+        private$.optimizer$packages))
 
       # explanation of the self$param_set call:
       # As of now, private$.param_set is NULL, this will cause the ParamSetCollection to be constructed
@@ -185,6 +185,7 @@ LearnerTorch = R6Class("LearnerTorch",
         feature_types = feature_types,
         man = man
       )
+
     },
     #' @description
     #' Helper for print outputs.
@@ -250,11 +251,11 @@ LearnerTorch = R6Class("LearnerTorch",
         if (!is.null(private$.loss)) {
           stopf("Learner '%s' already has its loss configured", self$id)
         }
+        private$.param_set = NULL
         loss = as_torch_loss(rhs, clone = TRUE)
-        assert_choice(self$task_type %in% loss$task_types)
+        assert_choice(self$task_type, loss$task_types)
         private$.loss = loss
         self$packages = unique(c(self$packages, private$.loss$packages))
-        private$.param_set = NULL
       }
       private$.loss
     },

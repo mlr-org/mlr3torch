@@ -606,7 +606,6 @@ test_that("param_set source works", {
     ),
     private = list(.ps1 = NULL)
   )$new()
-
   l$param_set$set_values(
     a = 7,
     epochs = 8,
@@ -623,7 +622,7 @@ test_that("param_set source works", {
   expect_equal(l$param_set$values$loss.reduction, "mean")
   expect_equal(get_private(l)$.loss$param_set$values$reduction, "mean")
   expect_equal(l$param_set$values$cb.checkpoint.freq, 3)
-  expect_equal(get_private(l)$.callbacks$checkpoint$param_set$values$freq, 3)
+  expect_equal(get_private(l)$.callbacks[[1L]]$param_set$values$freq, 3)
 
   l1 = l$clone(deep = TRUE)
 
@@ -731,7 +730,6 @@ test_that("configure loss, optimizer and callbacks after construction", {
   learner$callbacks = list(callback)
   expect_true("cb.checkpoint.freq" %in% learner$param_set$ids())
   expect_list(learner$callbacks, "TorchCallback")
-  # FINISH:
   learner$param_set$set_values(cb.checkpoint.freq = 100)
   expect_equal(learner$param_set$values$cb.checkpoint.freq, 100)
   expect_equal(learner$callbacks$checkpoint$param_set$values$freq, 100)
