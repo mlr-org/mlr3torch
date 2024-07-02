@@ -655,3 +655,35 @@ test_that("one feature works", {
   pred = learner$predict(task)
   expect_class(pred, "Prediction")
 })
+
+test_that("param_set alist must refer to self, private or super", {
+  LearnerTest = R6Class("LearnerTest", inherit = LearnerTorch,
+    public = list(
+      initialize = function(loss = NULL, optimizer = NULL, callbacks = list(), param_set) {
+        self$ps1 = ps(a = p_int(tags = "train"))
+        private$ps2 = ps(b = p_int(tags = "train"))
+        super$initialize(
+          "regr",
+          id = "test",
+          label = "Test",
+          loss = loss,
+          callbacks = callbacks,
+          optimizer = optimizer,
+          param_set = param_set,
+          properties = c(),
+          feature_types = "integer"
+        )
+      },
+      ps1 = NULL
+    ),
+    private = list(
+      ps2 = NULL
+    )
+  )
+
+  learner = LearnerTest$new(param_set = alist(self$ps1, private$ps2))
+  expect_subset(c("a", "b"), learner$param_set$ids())
+  expect_error(LearnerTest$new(param_set = ps(c = p_int(tags = "train"))))
+
+
+})

@@ -170,7 +170,10 @@ LearnerTorch = R6Class("LearnerTorch",
         private$.param_set_base = param_set
         private$.param_set_source = alist(private$.param_set_base)
       } else {
-        lapply(param_set, function(x) check_ps(eval(x)))
+        lapply(param_set, function(x) {
+          assert_true(grepl("^(self|private|super)", deparse(x)))
+          check_ps(eval(x))
+        })
         private$.param_set_source = param_set
       }
 

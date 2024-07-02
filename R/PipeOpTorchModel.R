@@ -25,14 +25,13 @@
 #' @family PipeOps
 #' @export
 PipeOpTorchModel = R6Class("PipeOpTorchModel",
-  inherit = PipeOp,
+  inherit = PipeOpLearner,
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
     #' @param task_type (`character(1)`)\cr
     #'   The task type of the model.
     initialize = function(task_type, id = "torch_model", param_vals = list()) {
-      # TODO: Add properties argument
       private$.task_type = assert_choice(task_type, c("classif", "regr"))
       param_set = paramset_torchlearner(task_type)
       input = data.table(
@@ -51,8 +50,34 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
         param_set = param_set,
         param_vals = param_vals,
         input = input,
-        output = output
+        output = output,
+        properties = c("validation", "internal_tuning")
       )
+    }
+  ),
+  active = list(
+    #' @field internal_valid_scores (named `list()` or `NULL`)\cr
+    #' The internal validation scores from the created `LearnerTorchModel`.
+    internal_valid_scores = function(rhs) {
+      assert_ro_binding(rhs)
+      self$state$internal_valid_scores
+    },
+    #' @field internal_tuned_values (named `list()` or `NULL`)\cr
+    #' The internal tuned values from the created `LearnerTorchModel`.
+    internal_tuned_values = function(rhs) {
+      assert_ro_binding(rhs)
+      self$state$internal_tuned_values
+    },
+    #' @field validate (`"predefined"` or `NULL`)\cr
+    #' Whether to use the validation data specified by the `GraphLearner`.
+    #' Setting the field to `"predefined"` means that the wrapped `Learner` will use the internal validation task,
+    #' otherwise it will be ignored.
+    #' Note that specifying *how* the validation data is created is possible via the `$validate` field of the [`GraphLearner`].
+    validate = function(rhs) {
+      if (!missing(rhs)) {
+        private$.validate = assert_choice(rhs, "predefined", null.ok = TRUE)
+      }
+      private$.validate
     }
   ),
   private = list(
@@ -69,6 +94,7 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
       param_vals = self$param_set$get_values()
 
       learner = model_descriptor_to_learner(md)
+      learner$validate = private$.validate
 
       # TODO: Maybe we want the learner and the pipeop to actually share the paramset by reference.
       # If we do this we need to write a custom clone function.
@@ -88,7 +114,8 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
     .task_type = NULL,
     .additional_phash_input = function() {
       private$.task_type
-    }
+    },
+    .validate = NULL
   )
 )
 
@@ -128,7 +155,6 @@ PipeOpTorchModelClassif = R6Class("PipeOpTorchModelClassif",
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
     initialize = function(id = "torch_model_classif", param_vals = list()) {
-      # TODO: Add properties argument
       super$initialize(
         id = id,
         param_vals = param_vals,
@@ -174,7 +200,6 @@ PipeOpTorchModelRegr = R6Class("PipeOpTorchModelRegr",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
     initialize = function(id = "torch_model_regr", param_vals = list()) {
-      # TODO: Add properties argument
       super$initialize(
         id = id,
         param_vals = param_vals,

@@ -83,3 +83,18 @@ test_that("phash works", {
     PipeOpTorchModel$new("regr")$phash == PipeOpTorchModel$new("classif")$phash
   )
 })
+
+test_that("validation", {
+  browser()
+  po_model = po("torch_model_regr")
+  expect_true("validation" %in% po_model$properties)
+
+  graph = po("torch_ingress_num") %>>% po("nn_head") %>>%
+    po("torch_loss", "cross_entropy") %>>% po("torch_optimizer") %>>% po_model
+
+  glrn = as_learner(graph)
+  set_validate(glrn, 0.2)
+  expect_equal(glrn$validate, 0.2)
+  expect_eqal(glrn$graph$pipeops$torch_model_regr$validate, "predefined")
+})
+

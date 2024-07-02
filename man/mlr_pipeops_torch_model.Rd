@@ -179,6 +179,23 @@ Other PipeOps:
 \section{Super class}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{PipeOpTorchModel}
 }
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{internal_valid_scores}}{(named \code{list()} or \code{NULL})\cr
+The internal validation scores from the created \code{LearnerTorchModel}.}
+
+\item{\code{internal_tuned_values}}{(named \code{list()} or \code{NULL})\cr
+The internal tuned values from the created \code{LearnerTorchModel}.}
+
+\item{\code{validate}}{(\code{"predefined"} or \code{NULL})\cr
+Whether to use the validation data specified by the \code{GraphLearner}.
+Setting the field to \code{"predefined"} means that the wrapped \code{Learner} will use the internal validation task,
+otherwise it will be ignored.
+Note that specifying \emph{how} the validation data is created is possible via the \verb{$validate} field of the \code{\link{GraphLearner}}.}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
