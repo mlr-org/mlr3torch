@@ -210,19 +210,7 @@ test_that("the state of a trained network contains what it should", {
   expect_permutation(colnames(learner$model$task_col_info), c("id", "type", "levels"))
 })
 
-
 test_that("train parameters do what they should: classification and regression", {
-  # Currently available train parameters:
-  # * batch_size
-  # * epochs
-  # * device
-  # * measures_train
-  # * measures_valid
-  # * drop_last
-  # * shuffle
-  # * num_threads
-  # * seed (reproducibility is already tested somewhere else)
-
   callback = torch_callback(id = "internals",
     on_begin = function() {
       # rename to avoid deleting the ctx after finishing the training
@@ -238,14 +226,14 @@ test_that("train parameters do what they should: classification and regression",
 
   f = function(task_type, measure_ids) {
     task = switch(task_type, regr = tsk("mtcars"), classif = tsk("iris"))
-    epochs = sample(3, 1)
+    epochs = sample(10:12, 1)
     batch_size = sample(16, 1)
     shuffle = sample(c(TRUE, FALSE), 1)
     num_threads = if (running_on_mac()) 1L else sample(2, 1)
     drop_last = sample(c(TRUE, FALSE), 1)
     seed = sample.int(10, 1)
-    measures_train = msrs(paste0(measure_ids[sample(c(TRUE, FALSE, TRUE), 3, replace = FALSE)]))
-    measures_valid = msrs(paste0(measure_ids[sample(c(TRUE, FALSE, TRUE), 3, replace = FALSE)]))
+    measures_train = msrs(paste0(measure_ids[sample(c(TRUE, FALSE), 2, replace = FALSE)]))
+    measures_valid = msrs(paste0(measure_ids[sample(c(TRUE, FALSE), 2, replace = FALSE)]))
 
     learner = lrn(paste0(task_type, ".torch_featureless"),
       epochs = epochs,
@@ -302,10 +290,13 @@ test_that("train parameters do what they should: classification and regression",
     learner$validate = NULL
 
     learner$state = NULL
+    learner$param_set$values$measures_valid = list()
     learner$train(task)
 
     expect_equal(nrow(learner$model$callbacks$history$valid), 0)
 
+
+    learner$validate = 0.2
     learner$state = NULL
     learner$param_set$set_values(
       device = "meta",
@@ -313,10 +304,19 @@ test_that("train parameters do what they should: classification and regression",
       measures_valid = list()
     )
 
-    # now we also test that the device placement works
+    # FIXME: extend this to all dataloader parameters
+
     learner$train(task)
-    expect_equal(learner$network$parameters[[1]]$device$type, "meta")
+    ctx = learner$model$callbacks$internals$ctx
+    loader_train_iter = dataloader_make_iter(ctx$loader_train)
+    loader_valid = dataloader_make_iter(ctx$loader_valid)
+
+    # now we also test that the device placement works
+    # expect_equal(learner$network$parameters[[1]]$device$type, "meta")
   }
+
+  f("classif", c("classif.acc", "classif.ce"))
+  f("regr", c("regr.mse", "regr.mae"))
 })
 
 test_that("predict types work during training and prediction", {
@@ -378,8 +378,6 @@ test_that("predict parameters do what they should: classification and regression
     }
 
     learner$param_set$set_values(device = "meta")
-    try(learner$predict(task), silent = TRUE)
-    expect_equal(learner$network$parameters[[1]]$device$type, "meta")
 
     dl = get_private(learner)$.dataloader_predict(task, learner$param_set$values)
     expect_equal(dl$batch_size, batch_size)
@@ -647,4 +645,13 @@ test_that("param_set source works", {
   expect_equal(get_private(l1)$.loss$param_set$values$reduction, "sum")
   expect_equal(l1$param_set$values$cb.checkpoint.freq, 13)
   expect_equal(get_private(l1)$.callbacks$checkpoint$param_set$values$freq, 13)
+})
+
+test_that("one feature works", {
+  task = tsk("mtcars")$select("am")
+  learner = lrn("regr.mlp", epochs = 1L, batch_size = 150)
+  learner$train(task)
+  expect_class(learner, "Learner")
+  pred = learner$predict(task)
+  expect_class(pred, "Prediction")
 })

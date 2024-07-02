@@ -11,12 +11,12 @@
 #' @template param_id
 #' @template param_task_type
 #' @template param_param_vals
-#' @template param_param_set
 #' @template param_properties
 #' @template param_packages
 #' @template param_feature_types
 #' @template param_man
 #' @template param_label
+#' @param param_set ([`ParamSet`])
 #' @param predict_types (`character()`)\cr
 #'   The predict types.
 #'   See [`mlr_reflections$learner_predict_types`][mlr_reflections] for available values.
@@ -160,10 +160,12 @@ LearnerTorch = R6Class("LearnerTorch",
 
       if (test_class(param_set, "ParamSet")) {
         check_ps(param_set)
+        if (!is.null(private$.param_set_base)) {
+          stopf("Learner '%s': Don't set .param_set_base before passing a ParamSet to param_set", self$id)
+        }
         private$.param_set_base = param_set
         private$.param_set_source = alist(private$.param_set_base)
       } else {
-
         lapply(param_set, function(x) check_ps(eval(x)))
         private$.param_set_source = param_set
       }
@@ -219,6 +221,18 @@ LearnerTorch = R6Class("LearnerTorch",
     #' @return self
     unmarshal = function(...) {
       learner_unmarshal(.learner = self, ...)
+    },
+    #' @description
+    #' Create the dataset for a task.
+    #' @param task [`Task`][mlr3::Task]\cr
+    #' The task
+    #' @return [`dataset`][torch::dataset]
+    dataset = function(task) {
+      assert_task(task)
+      param_vals = self$param_set$get_values()
+      param_vals$device = auto_device(param_vals$device)
+
+      private$.dataset(task, param_vals)
     }
   ),
   active = list(

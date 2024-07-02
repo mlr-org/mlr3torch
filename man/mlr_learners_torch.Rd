@@ -216,6 +216,7 @@ which are varied systematically during tuning (parameter values).}
 \item \href{#method-LearnerTorch-print}{\code{LearnerTorch$print()}}
 \item \href{#method-LearnerTorch-marshal}{\code{LearnerTorch$marshal()}}
 \item \href{#method-LearnerTorch-unmarshal}{\code{LearnerTorch$unmarshal()}}
+\item \href{#method-LearnerTorch-dataset}{\code{LearnerTorch$dataset()}}
 \item \href{#method-LearnerTorch-clone}{\code{LearnerTorch$clone()}}
 }
 }
@@ -262,8 +263,7 @@ The id for of the new object.}
 \item{\code{task_type}}{(\code{character(1)})\cr
 The task type.}
 
-\item{\code{param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}})\cr
-The parameter set.}
+\item{\code{param_set}}{(\code{\link{ParamSet}})}
 
 \item{\code{properties}}{(\code{character()})\cr
 The properties of the object.
@@ -381,6 +381,27 @@ Additional parameters.}
 }
 \subsection{Returns}{
 self
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LearnerTorch-dataset"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerTorch-dataset}{}}}
+\subsection{Method \code{dataset()}}{
+Create the dataset for a task.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LearnerTorch$dataset(task)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{task}}{\code{\link[mlr3:Task]{Task}}\cr
+The task}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+\code{\link[torch:dataset]{dataset}}
 }
 }
 \if{html}{\out{<hr>}}

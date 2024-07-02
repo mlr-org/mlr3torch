@@ -178,7 +178,7 @@ test_that("cloning", {
 
   learner$param_set$set_values(batch_size = 150, epochs = 0)
 
-  expect_learner_torch(learner)
+  expect_learner_torch(learner, task = tsk("iris"))
 
   ids = partition(task)
 
@@ -240,4 +240,9 @@ test_that("cloning", {
 
   identical(nn_test$l$modules[[2]], nn_test1$l$modules[[2]])
   identical(nn_test$children$l, nn_test1$children$l)
+})
+
+test_that("non-terminal output", {
+
+  
 })
