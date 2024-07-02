@@ -5,12 +5,12 @@ test_that("dataset_featureless works", {
   batch = ds$.getbatch(1)
   expect_true(torch_equal(batch$x$n, torch_tensor(1L)))
   expect_true(inherits(batch$y, "torch_tensor"))
-  expect_equal(batch$.index, 1L)
+  expect_equal(batch$.index, torch_tensor(1, torch_long()))
 })
 
 test_that("Basic checks: Classification", {
-  learner = lrn("classif.torch_featureless")
-  expect_learner_torch(learner)
+  learner = lrn("classif.torch_featureless", epochs = 1, batch_size = 50)
+  expect_learner_torch(learner, task = tsk("iris"))
 })
 
 test_that("LearnerTorchFeatureless works", {
@@ -24,6 +24,6 @@ test_that("LearnerTorchFeatureless works", {
 
 
 test_that("Basic checks: Regression", {
-  learner = lrn("regr.torch_featureless")
-  expect_learner_torch(learner)
+  learner = lrn("regr.torch_featureless", epochs = 1, batch_size = 50)
+  expect_learner_torch(learner, task = tsk("mtcars"))
 })

@@ -11,7 +11,7 @@ test_that("LearnerTorchVision basic checks", {
   alexnet$train(task)
   expect_class(alexnet$predict(task), "PredictionClassif")
 
-  expect_learner_torch(alexnet)
+  expect_learner_torch(alexnet, task = task)
   alexnet$id = "a"
   vgg13 = lrn("classif.vgg13", pretrained = FALSE)
   vgg13$id = "a"

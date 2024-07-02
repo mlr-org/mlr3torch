@@ -42,12 +42,11 @@ LearnerTorchTabResNet = R6Class("LearnerTorchTabResNet",
         classif = c("twoclass", "multiclass")
       )
 
-      param_set = alist(private$.block$param_set,
-        ps(
-          n_blocks = p_int(1, tags = c("train", "required")),
-          d_block = p_int(1, tags = c("train", "required"))
-        )
+      private$.param_set_base =  ps(
+        n_blocks = p_int(1, tags = c("train", "required")),
+        d_block = p_int(1, tags = c("train", "required"))
       )
+      param_set = alist(private$.block$param_set, private$.param_set_base)
 
       super$initialize(
         task_type = task_type,

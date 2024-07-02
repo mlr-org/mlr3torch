@@ -63,6 +63,8 @@ learner_mlp = lrn("classif.mlp",
   batch_size     = 16,
   epochs         = 50,
   device         = "cpu",
+  # proportion of data for validation
+  validate = 0.3,
   # Defining the optimizer, loss, and callbacks
   optimizer      = t_opt("adam", lr = 0.1),
   loss           = t_loss("cross_entropy"),
@@ -106,8 +108,10 @@ graph_mlp = architecture %>>%
   po("torch_model_classif", batch_size = 16, epochs = 50, device = "cpu")
 
 graph_mlp
-
 graph_lrn = as_learner(graph_mlp)
+# For GraphLearners, set_validate should be used to specify the validation data:
+set_validate(graph_lrn, 0.3)
+
 graph_lrn$id = "graph_mlp"
 
 resample(
@@ -119,26 +123,42 @@ resample(
 
 To work with generic tensors, the `lazy_tensor` type can be used.
 It wraps a `torch::dataset`, but allows to preproress the data using `PipeOp` objects, just like tabular data.
+Below, we flatten the MNIST task, so we can then train a multi-layer perceptron on it.
 
 ```{r}
 # load the predefined mnist task
 task = tsk("mnist")
 task$head()
 
-# Resize the images to 5x5
-po_resize = po("trafo_resize", size = c(5, 5))
-task_reshaped = po_resize$train(list(task))[[1L]]
+# Flatten the images
+po_reshape = po("trafo_reshape", size = c(-1, 28 * 28))
+task_reshaped = po_reshape$train(list(task))[[1L]]
 
 task_reshaped$head()
 
 # The tensors are loaded and preprocessed only when materialized
-
 materialize(
   task_reshaped$data(1, cols = "image")[[1L]],
   rbind = TRUE
 )
 ```
 
+
+```{r, include = FALSE}
+# so it renders faster
+task_reshaped = task_reshaped$filter(1:10)
+```
+
+```{r}
+graph_lrn$train(task_reshaped)
+```
+
+We can also combine the preprocessing step and the network in one graph:
+
+```{r}
+graph_mlp_lrn = as_learner(po_reshape %>>% graph_mlp)
+graph_mlp_lrn$train(task)
+```
 
 ## Feature Overview
 

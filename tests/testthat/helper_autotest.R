@@ -1,4 +1,4 @@
-# #' @title Autotest for PipeOpTorch
+#' @title Autotest for PipeOpTorch
 #' @description
 #' This tests a [`PipeOpTorch`] that is embedded in a [`Graph`].
 #' Note that the id of the [`PipeOp`] to test should be the default id.
@@ -417,4 +417,36 @@ expect_pipeop_torch_preprocess = function(obj, shapes_in, exclude = character(0)
   }
 
   # FIXME: test for test rows when available
+}
+
+expect_learner_torch = function(learner, task, check_man = TRUE, check_id = TRUE) {
+  checkmate::expect_class(learner, "LearnerTorch")
+  get("expect_learner", envir = .GlobalEnv)(learner)
+  # state cloning is tested separately
+  learner1 = learner
+  learner1$state = NULL
+  expect_deep_clone(learner1, learner1$clone(deep = TRUE))
+  rr = resample(task, learner, rsmp("holdout"))
+  checkmate::expect_class(rr, "ResampleResult")
+  if (check_id) testthat::expect_true(startsWith(learner$id, learner$task_type))
+  checkmate::expect_subset(c("loss", "optimizer", "callbacks"), formalArgs(learner$initialize))
+  checkmate::expect_subset(c("mlr3", "mlr3torch", "torch"), learner$packages)
+  testthat::expect_true(all(map_lgl(learner$tags, function(tags) "predict" %in% tags || "train" %in% tags)))
+
+  learner$param_set$set_values(device = "meta")
+  ds = learner$dataset(task)
+  batch = if (is.null(ds$.getbatch)) {
+    ds$.getitem(1)
+  } else {
+    ds$.getbatch(1)
+  }
+  lapply(batch$x, function(tnsr) testthat::expect_true(tnsr$device == torch_device("meta")))
+  testthat::expect_true(batch$y$device == torch_device("meta"))
+  if (task$task_type == "regr") {
+    testthat::expect_true(batch$y$dtype == torch_float())
+  } else {
+    testthat::expect_true(batch$y$dtype == torch_long())
+  }
+  testthat::expect_true(batch$.index$device == torch_device("meta"))
+  testthat::expect_true(batch$.index$dtype == torch_long())
 }

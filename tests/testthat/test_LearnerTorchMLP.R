@@ -47,7 +47,9 @@ test_that("works for lazy tensor", {
   learner = lrn("classif.mlp", epochs = 100, batch_size = 150)
   task_lazy = tsk("lazy_iris")
   lt = learner$train(task_lazy)
+  expect_class(lt, "Learner")
+  pred = learner$predict(task_lazy)
+  expect_class(pred, "Prediction")
 })
-
 
 # TODO: More tests

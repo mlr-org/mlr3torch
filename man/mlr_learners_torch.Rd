@@ -216,6 +216,7 @@ which are varied systematically during tuning (parameter values).}
 \item \href{#method-LearnerTorch-print}{\code{LearnerTorch$print()}}
 \item \href{#method-LearnerTorch-marshal}{\code{LearnerTorch$marshal()}}
 \item \href{#method-LearnerTorch-unmarshal}{\code{LearnerTorch$unmarshal()}}
+\item \href{#method-LearnerTorch-dataset}{\code{LearnerTorch$dataset()}}
 \item \href{#method-LearnerTorch-clone}{\code{LearnerTorch$clone()}}
 }
 }
@@ -247,7 +248,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   feature_types,
   optimizer = NULL,
   loss = NULL,
-  packages = NULL,
+  packages = character(),
   predict_types = NULL,
   callbacks = list()
 )}\if{html}{\out{</div>}}
@@ -262,8 +263,11 @@ The id for of the new object.}
 \item{\code{task_type}}{(\code{character(1)})\cr
 The task type.}
 
-\item{\code{param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}})\cr
-The parameter set.}
+\item{\code{param_set}}{(\code{\link{ParamSet}} or \code{alist()})\cr
+Either a parameter set, or an \code{alist()} containing different values of self,
+e.g. \code{alist(self$.param_set1, self$.param_set2)}, from which a \code{\link{ParamSet}} collection
+should be created. Note that the \code{alist()} should not contain calls to \code{ps()}, because
+then cloning will discard the set parameter values.}
 
 \item{\code{properties}}{(\code{character()})\cr
 The properties of the object.
@@ -381,6 +385,27 @@ Additional parameters.}
 }
 \subsection{Returns}{
 self
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LearnerTorch-dataset"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerTorch-dataset}{}}}
+\subsection{Method \code{dataset()}}{
+Create the dataset for a task.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LearnerTorch$dataset(task)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{task}}{\code{\link[mlr3:Task]{Task}}\cr
+The task}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+\code{\link[torch:dataset]{dataset}}
 }
 }
 \if{html}{\out{<hr>}}

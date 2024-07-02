@@ -73,6 +73,7 @@ Other Graph Network:
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-LearnerTorchModel-new}{\code{LearnerTorchModel$new()}}
+\item \href{#method-LearnerTorchModel-set_network}{\code{LearnerTorchModel$set_network()}}
 \item \href{#method-LearnerTorchModel-clone}{\code{LearnerTorchModel$clone()}}
 }
 }
@@ -85,6 +86,7 @@ Other Graph Network:
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata"><a href='../../mlr3/html/Learner.html#method-Learner-predict_newdata'><code>mlr3::Learner$predict_newdata()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset"><a href='../../mlr3/html/Learner.html#method-Learner-reset'><code>mlr3::Learner$reset()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train"><a href='../../mlr3/html/Learner.html#method-Learner-train'><code>mlr3::Learner$train()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerTorch" data-id="dataset"><a href='../../mlr3torch/html/LearnerTorch.html#method-LearnerTorch-dataset'><code>mlr3torch::LearnerTorch$dataset()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerTorch" data-id="format"><a href='../../mlr3torch/html/LearnerTorch.html#method-LearnerTorch-format'><code>mlr3torch::LearnerTorch$format()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerTorch" data-id="marshal"><a href='../../mlr3torch/html/LearnerTorch.html#method-LearnerTorch-marshal'><code>mlr3torch::LearnerTorch$marshal()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerTorch" data-id="print"><a href='../../mlr3torch/html/LearnerTorch.html#method-LearnerTorch-print'><code>mlr3torch::LearnerTorch$print()</code></a></span></li>
@@ -99,8 +101,8 @@ Other Graph Network:
 Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{LearnerTorchModel$new(
+  network = NULL,
   task_type,
-  network,
   ingress_tokens,
   properties = NULL,
   optimizer = NULL,
@@ -114,12 +116,12 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{task_type}}{(\code{character(1)})\cr
-The task type.}
-
 \item{\code{network}}{(\code{\link{nn_module}})\cr
 An instantiated \code{\link{nn_module}}. Is not cloned during construction.
 For classification, outputs must be the scores (before the softmax).}
+
+\item{\code{task_type}}{(\code{character(1)})\cr
+The task type.}
 
 \item{\code{ingress_tokens}}{(\code{list} of \code{\link[=TorchIngressToken]{TorchIngressToken()}})\cr
 A list with ingress tokens that defines how the dataloader will be defined.}
@@ -144,6 +146,24 @@ The R packages this object depends on.}
 
 \item{\code{feature_types}}{(\code{NULL} or \code{character()})\cr
 The feature types. Defaults to all available feature types.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LearnerTorchModel-set_network"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerTorchModel-set_network}{}}}
+\subsection{Method \code{set_network()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LearnerTorchModel$set_network(network)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{network}}{(\code{\link{nn_module}})\cr
+An instantiated \code{\link{nn_module}}. Is not cloned during construction.
+For classification, outputs must be the scores (before the softmax).}
 }
 \if{html}{\out{</div>}}
 }

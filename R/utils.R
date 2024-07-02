@@ -233,3 +233,30 @@ replace_head = function(network, d_out) {
 check_nn_module = function(x) {
   check_class(x, "nn_module")
 }
+
+nn_none = nn_module("none",
+  initialize = function() {
+    stop("nn_none should not be initialized, something went wrong")
+  }
+)
+
+optim_none = optimizer("optim_none",
+  initialize = function() {
+    stop("optim_none should not be initialized, something went wrong")
+  }
+)
+
+check_callbacks = function(x) {
+  if (test_class(x, "TorchCallback")) {
+    x = list(x)
+  } else {
+    if (!test_list(x, "TorchCallback")) {
+      return("Invalid parameter 'callbacks'")
+    }
+  }
+  callback_ids = ids(x)
+  if (!test_names(callback_ids, type = "unique")) {
+    return("Callbacks must have unique IDS that are valid names.")
+  }
+  TRUE
+}

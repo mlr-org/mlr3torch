@@ -1,5 +1,4 @@
 #' @title History Callback
-
 #'
 #' @name mlr_callback_set.history
 #'

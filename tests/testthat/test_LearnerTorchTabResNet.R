@@ -36,6 +36,13 @@ test_that("LearnerTorchTabResNet works", {
   learner$train(task)
   pred = learner$predict(task)
   expect_prediction(pred)
-  expect_deep_clone(learner, learner$clone(deep = TRUE))
-  expect_learner_torch(learner)
+  expect_learner_torch(learner, task = tsk("iris"))
+})
+
+test_that("cloning also keeps parameter values", {
+  learner = lrn("classif.tab_resnet", n_blocks = 2)
+  learnerc = learner$clone(deep = TRUE)
+  expect_deep_clone(learner, learnerc)
+  expect_equal(learner$param_set$values$n_blocks, 2)
+  expect_equal(learnerc$param_set$values$n_blocks, 2)
 })

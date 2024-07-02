@@ -8,6 +8,7 @@ test_that("LearnerTorchModel works", {
     packages = "data.table"
   )
 
+
   expect_deep_clone(
     learner, learner$clone(deep = TRUE)
   )

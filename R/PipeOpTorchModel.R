@@ -25,48 +25,68 @@
 #' @family PipeOps
 #' @export
 PipeOpTorchModel = R6Class("PipeOpTorchModel",
-  inherit = PipeOp,
+  inherit = PipeOpLearner,
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
     #' @param task_type (`character(1)`)\cr
     #'   The task type of the model.
     initialize = function(task_type, id = "torch_model", param_vals = list()) {
-      # TODO: Add properties argument
       private$.task_type = assert_choice(task_type, c("classif", "regr"))
-      param_set = paramset_torchlearner(task_type)
-      input = data.table(
+
+      # loss, optimizer and callbacks are set to special values, that cause
+      # them to become parameters instead of construction arguments, otherwise we 
+      # cannot satisfy the PipeOpLearner requirements
+      learner = LearnerTorchModel$new(
+        loss = structure(list(), class = "LossParam"),
+        optimizer = structure(list(), class = "OptimizerParam"),
+        callbacks = structure(list(), class = "CallbacksParam"),
+        task_type = task_type
+      )
+
+      super$initialize(
+        learner = learner,
+        id = id,
+        param_vals = param_vals
+      )
+      # FIXME: is this okay?
+      self$input = data.table(
         name = "input",
         train = "ModelDescriptor",
         predict = mlr_reflections$task_types[private$.task_type, task]
       )
-      output = data.table(
+      self$output = data.table(
         name = "output",
         train = "NULL",
         predict = mlr_reflections$task_types[private$.task_type, prediction]
-      )
-
-      super$initialize(
-        id = id,
-        param_set = param_set,
-        param_vals = param_vals,
-        input = input,
-        output = output
       )
     }
   ),
   private = list(
     .train = function(inputs) {
       md = inputs[[1]]
+        network = model_descriptor_to_module(
+        model_descriptor = md,
+        output_pointers = md$.output_pointers,
+        list_output = FALSE
+      )
 
       if (is.null(md$loss)) {
         stopf("No loss configured in ModelDescriptor. Use po(\"torch_loss\").")
       }
+      private$.learner$param_set$values$loss = as_torch_loss(md$loss)
       if (is.null(md$optimizer)) {
         stopf("No optimizer configured in ModelDescriptor. Use po(\"torch_optimizer\").")
       }
+      private$.learner$param_set$values$optimizer = as_torch_optimizer(md$optimizer)
+      if (!is.null(md$callbacks)) {
+        private$.learner$param_set$values$callbacks = md$callbacks
+      }
 
-      param_vals = self$param_set$get_values()
+      ingress_tokens = model_descriptor$ingress
+      network$reset_parameters()
+
+      private$.learner$packages = unique(private$.learner, md$network$graph$packages)
 
       learner = model_descriptor_to_learner(md)
 
@@ -88,7 +108,8 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
     .task_type = NULL,
     .additional_phash_input = function() {
       private$.task_type
-    }
+    },
+    .validate = NULL
   )
 )
 
@@ -128,7 +149,6 @@ PipeOpTorchModelClassif = R6Class("PipeOpTorchModelClassif",
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
     initialize = function(id = "torch_model_classif", param_vals = list()) {
-      # TODO: Add properties argument
       super$initialize(
         id = id,
         param_vals = param_vals,
@@ -174,7 +194,6 @@ PipeOpTorchModelRegr = R6Class("PipeOpTorchModelRegr",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
     initialize = function(id = "torch_model_regr", param_vals = list()) {
-      # TODO: Add properties argument
       super$initialize(
         id = id,
         param_vals = param_vals,
