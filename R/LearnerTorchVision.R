@@ -107,74 +107,128 @@ replace_head.VGG = function(network, d_out) {
 }
 
 #' @include zzz.R
-register_learner("classif.alexnet", function() {
-  LearnerTorchVision$new("alexnet", torchvision::model_alexnet, "AlexNet")
-})
+register_learner("classif.alexnet", 
+  function(loss = NULL, optimizer = NULL, callbacks = list()) {
+    LearnerTorchVision$new("alexnet", torchvision::model_alexnet, "AlexNet",
+      loss = loss, optimizer = optimizer, callbacks = callbacks)
+  }
+)
 
-# register_learner("classif.inception_v3", function() {
-#   LearnerTorchVision$new("inception_v3", torchvision::model_inception_v3, "Inception V3")
-# })
+# register_learner("classif.inception_v3", 
+#   function(loss = NULL, optimizer = NULL, callbacks = list()) {
+#     LearnerTorchVision$new("inception_v3", torchvision::model_inception_v3, "Inception V3",
+#     loss = loss, optimizer = optimizer, callbacks = callbacks)
+#   }
+# )
 
-register_learner("classif.mobilenet_v2", function() {
-  LearnerTorchVision$new("mobilenet_v2", torchvision::model_mobilenet_v2, "Mobilenet V2")
-})
+register_learner("classif.mobilenet_v2", 
+  function(loss = NULL, optimizer = NULL, callbacks = list()) {
+    LearnerTorchVision$new("mobilenet_v2", torchvision::model_mobilenet_v2, "Mobilenet V2",
+      loss = loss, optimizer = optimizer, callbacks = callbacks)
+  }
+)
 
-register_learner("classif.resnet18", function() {
-  LearnerTorchVision$new("resnet18", torchvision::model_resnet18, "ResNet-18")
-})
+register_learner("classif.resnet18", 
+  function(loss = NULL, optimizer = NULL, callbacks = list()) {
+    LearnerTorchVision$new("resnet18", torchvision::model_resnet18, "ResNet-18",
+      loss = loss, optimizer = optimizer, callbacks = callbacks)
+  }
+)
 
-register_learner("classif.resnet34", function() {
-  LearnerTorchVision$new("resnet34", torchvision::model_resnet34, "ResNet-34")
-})
+register_learner("classif.resnet34", 
+  function(loss = NULL, optimizer = NULL, callbacks = list()) {
+    LearnerTorchVision$new("resnet34", torchvision::model_resnet34, "ResNet-34",
+      loss = loss, optimizer = optimizer, callbacks = callbacks)
+  }
+)
 
-register_learner("classif.resnet50", function() {
-  LearnerTorchVision$new("resnet50", torchvision::model_resnet50, "ResNet-50")
-})
+register_learner("classif.resnet50", 
+  function(loss = NULL, optimizer = NULL, callbacks = list()) {
+    LearnerTorchVision$new("resnet50", torchvision::model_resnet50, "ResNet-50",
+      loss = loss, optimizer = optimizer, callbacks = callbacks)
+  }
+)
 
-register_learner("classif.resnet101", function() {
-  LearnerTorchVision$new("resnet101", torchvision::model_resnet101, "ResNet-101")
-})
+register_learner("classif.resnet101", 
+  function(loss = NULL, optimizer = NULL, callbacks = list()) {
+    LearnerTorchVision$new("resnet101", torchvision::model_resnet101, "ResNet-101",
+      loss = loss, optimizer = optimizer, callbacks = callbacks)
+  }
+)
 
-register_learner("classif.resnet152", function() {
-  LearnerTorchVision$new("resnet152", torchvision::model_resnet152, "ResNet-152")
-})
+register_learner("classif.resnet152", 
+  function(loss = NULL, optimizer = NULL, callbacks = list()) {
+    LearnerTorchVision$new("resnet152", torchvision::model_resnet152, "ResNet-152",
+      loss = loss, optimizer = optimizer, callbacks = callbacks)
+  }
+)
 
-register_learner("classif.resnext101_32x8d", function() {
-  LearnerTorchVision$new("resnext101_32x8d", torchvision::model_resnext101_32x8d, "ResNeXt-101 32x8d")
-})
+register_learner("classif.resnext101_32x8d", 
+  function(loss = NULL, optimizer = NULL, callbacks = list()) {
+    LearnerTorchVision$new("resnext101_32x8d", torchvision::model_resnext101_32x8d, "ResNeXt-101 32x8d",
+      loss = loss, optimizer = optimizer, callbacks = callbacks)
+  }
+)
 
-register_learner("classif.resnext50_32x4d", function() {
-  LearnerTorchVision$new("resnext50_32x4d", torchvision::model_resnext50_32x4d, "ResNeXt-50 32x4d")
-})
+register_learner("classif.resnext50_32x4d", 
+  function(loss = NULL, optimizer = NULL, callbacks = list()) {
+    LearnerTorchVision$new("resnext50_32x4d", torchvision::model_resnext50_32x4d, "ResNeXt-50 32x4d",
+      loss = loss, optimizer = optimizer, callbacks = callbacks)
+  }
+)
 
-register_learner("classif.vgg11", function() {
-  LearnerTorchVision$new("vgg11", torchvision::model_vgg11, "VGG 11")
-})
+register_learner("classif.vgg11", 
+  function(loss = NULL, optimizer = NULL, callbacks = list()) {
+    LearnerTorchVision$new("vgg11", torchvision::model_vgg11, "VGG 11",
+      loss = loss, optimizer = optimizer, callbacks = callbacks)
+  }
+)
 
-register_learner("classif.vgg11_bn", function() {
-  LearnerTorchVision$new("vgg11_bn", torchvision::model_vgg11_bn, "VGG 11")
-})
+register_learner("classif.vgg11_bn", 
+  function(loss = NULL, optimizer = NULL, callbacks = list()) {
+    LearnerTorchVision$new("vgg11_bn", torchvision::model_vgg11_bn, "VGG 11",
+      loss = loss, optimizer = optimizer, callbacks = callbacks)
+  }
+)
 
-register_learner("classif.vgg13", function() {
-  LearnerTorchVision$new("vgg13", torchvision::model_vgg13, "VGG 13")
-})
+register_learner("classif.vgg13", 
+  function(loss = NULL, optimizer = NULL, callbacks = list()) {
+    LearnerTorchVision$new("vgg13", torchvision::model_vgg13, "VGG 13",
+      loss = loss, optimizer = optimizer, callbacks = callbacks)
+  }
+)
 
-register_learner("classif.vgg13_bn", function() {
-  LearnerTorchVision$new("vgg13_bn", torchvision::model_vgg13_bn, "VGG 13")
-})
+register_learner("classif.vgg13_bn", 
+  function(loss = NULL, optimizer = NULL, callbacks = list()) {
+    LearnerTorchVision$new("vgg13_bn", torchvision::model_vgg13_bn, "VGG 13",
+      loss = loss, optimizer = optimizer, callbacks = callbacks)
+  }
+)
 
-register_learner("classif.vgg16", function() {
-  LearnerTorchVision$new("vgg16", torchvision::model_vgg16, "VGG 16")
-})
+register_learner("classif.vgg16", 
+  function(loss = NULL, optimizer = NULL, callbacks = list()) {
+    LearnerTorchVision$new("vgg16", torchvision::model_vgg16, "VGG 16",
+      loss = loss, optimizer = optimizer, callbacks = callbacks)
+  }
+)
 
-register_learner("classif.vgg16_bn", function() {
-  LearnerTorchVision$new("vgg16_bn", torchvision::model_vgg16_bn, "VGG 16")
-})
+register_learner("classif.vgg16_bn", 
+  function(loss = NULL, optimizer = NULL, callbacks = list()) {
+    LearnerTorchVision$new("vgg16_bn", torchvision::model_vgg16_bn, "VGG 16",
+      loss = loss, optimizer = optimizer, callbacks = callbacks)
+  }
+)
 
-register_learner("classif.vgg19", function() {
-  LearnerTorchVision$new("vgg19", torchvision::model_vgg19, "VGG 19")
-})
+register_learner("classif.vgg19", 
+  function(loss = NULL, optimizer = NULL, callbacks = list()) {
+    LearnerTorchVision$new("vgg19", torchvision::model_vgg19, "VGG 19",
+      loss = loss, optimizer = optimizer, callbacks = callbacks)
+  }
+)
 
-register_learner("classif.vgg19_bn", function() {
-  LearnerTorchVision$new("vgg19_bn", torchvision::model_vgg19_bn, "VGG 19")
-})
+register_learner("classif.vgg19_bn", 
+  function(loss = NULL, optimizer = NULL, callbacks = list()) {
+    LearnerTorchVision$new("vgg19_bn", torchvision::model_vgg19_bn, "VGG 19",
+      loss = loss, optimizer = optimizer, callbacks = callbacks)
+  }
+)

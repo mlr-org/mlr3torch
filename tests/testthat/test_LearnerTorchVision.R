@@ -18,6 +18,12 @@ test_that("LearnerTorchVision basic checks", {
   expect_false(alexnet$phash == vgg13$phash)
   expect_true("torchvision" %in% alexnet$packages)
   expect_true("magick" %in% alexnet$packages)
+
+  alexnet = lrn("classif.alexnet", optimizer = "sgd", loss = "cross_entropy",
+    callbacks = t_clbk("checkpoint"), epochs = 0, batch_size = 1
+  )
+  expect_learner(alexnet)
+  expect_true("cb.checkpoint.freq" %in% alexnet$param_set$ids())
 })
 
 test_that("alexnet", {
