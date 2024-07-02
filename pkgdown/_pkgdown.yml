@@ -40,16 +40,16 @@ navbar:
       href: https://mlr-org.com/
     get_started:
       text: Get Started
-      href: get_started.html
+      href: articles/get_started.html
     callbacks:
       text: Callbacks
-      href: callbacks.html
+      href: articles/callbacks.html
     lazy_tensor:
       text: Lazy Tensor
-      href: lazy_tensor.html
+      href: articles/lazy_tensor.html
     networks_as_graphs:
       text: Neural Networks as Graphs
-      href: callbacks.html
+      href: articles/callbacks.html
 
 reference:
   - title: Package
