@@ -11,3 +11,5 @@ docs
 inst/doc
 *.html
 **/.DS_Store
+/doc/
+/Meta/

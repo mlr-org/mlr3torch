@@ -7,9 +7,37 @@
 \description{
 This base class provides the basic functionality for training and prediction of a neural network.
 All torch learners should inherit from this class.
-
-It also allows to hook into the training loop via a callback mechanism.
 }
+\section{Validation}{
+
+To specify the validation data, you can set the \verb{$validate} field of the Learner, which can be set to:
+\itemize{
+\item \code{NULL}: no validation
+\item \code{ratio}: only proportion \code{1 - ratio} of the task is used for training and \code{ratio} is used for validation.
+\item \code{"test"} means that the \code{"test"} task of a resampling is used and is not possible when calling \verb{$train()} manually.
+\item \code{"predefined"}: This will use the predefined \verb{$internal_valid_task} of a \code{\link[mlr3:Task]{mlr3::Task}}, which can e.g.
+be created using the \verb{$divide()} method  of \code{Task}.
+}
+
+This validation data can also be used for early stopping, see the description of the \code{Learner}'s parameters.
+}
+
+\section{Saving a Learner}{
+
+In order to save a \code{LearnerTorch} for later usage, it is necessary to call the \verb{$marshal()} method on the \code{Learner}
+before writing it to disk, as the object will otherwise not be saved correctly.
+After loading a marshaled \code{LearnerTorch} into R again, you then need to call \verb{$unmarshal()} to set a usable state.
+}
+
+\section{Early Stopping and Tuning}{
+
+In order to prevent overfitting, the \code{LearnerTorch} class allows to use early stopping.
+When tuning a \code{LearnerTorch} it is possible to combine the explicit tuning via \code{mlr3tuning}
+and the \code{LearnerTorch}'s internal tuning of the epochs via early stopping.
+To do so, you just need to include \verb{epochs = to_tune(upper = <upper>, internal = TRUE)} in the search space,
+where \verb{<upper>} is the maximally allowed number of epochs.
+}
+
 \section{Model}{
 
 The Model is a list of class \code{"learner_torch_model"} with the following elements:
@@ -70,6 +98,7 @@ If the performance of a model does not improve for \code{patience} evaluation st
 Note that the final model is stored in the learner, not the best model.
 This is initialized to \code{0}, which means no early stopping.
 The first entry from \code{measures_valid} is used as the metric.
+This also requires to specify the \verb{$validate} field of the Learner, as well as \code{measures_valid}.
 \item \code{min_delta} :: \code{double(1)}\cr
 The minimum improvement threshold (\code{>}) for early stopping.
 Is initialized to 0.

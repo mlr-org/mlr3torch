@@ -223,7 +223,8 @@ Creates a new instance of this \code{\link[R6:R6Class]{R6}} class.
 \describe{
 \item{\code{fn}}{(\code{function} or \code{character(2)})\cr
 The preprocessing function. Must not modify its input in-place.
-If it is a \code{character(2)}, the first element should be the namespace and the second element the name.}
+If it is a \code{character(2)}, the first element should be the namespace and the second element the name.
+If the \code{param_set} is inferred (left as \code{NULL}) it is assumed that the first argument is the \code{torch_tensor}.}
 
 \item{\code{id}}{(\code{character(1)})\cr
 The id for of the new object.}

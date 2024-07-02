@@ -18,3 +18,4 @@ The number of output classes.}
 Replace the head of a network
 Replaces the head of the network with a linear layer with d_out classes.
 }
+\keyword{internal}
