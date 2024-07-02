@@ -263,7 +263,11 @@ The id for of the new object.}
 \item{\code{task_type}}{(\code{character(1)})\cr
 The task type.}
 
-\item{\code{param_set}}{(\code{\link{ParamSet}})}
+\item{\code{param_set}}{(\code{\link{ParamSet}} or \code{alist()})\cr
+Either a parameter set, or an \code{alist()} containing different values of self,
+e.g. \code{alist(self$.param_set1, self$.param_set2)}, from which a \code{\link{ParamSet}} collection
+should be created. Note that the \code{alist()} should not contain calls to \code{ps()}, because
+then cloning will discard the set parameter values.}
 
 \item{\code{properties}}{(\code{character()})\cr
 The properties of the object.

@@ -16,7 +16,11 @@
 #' @template param_feature_types
 #' @template param_man
 #' @template param_label
-#' @param param_set ([`ParamSet`])
+#' @param param_set ([`ParamSet`] or `alist()`)\cr
+#'   Either a parameter set, or an `alist()` containing different values of self,
+#'   e.g. `alist(self$.param_set1, self$.param_set2)`, from which a [`ParamSet`] collection
+#'   should be created. Note that the `alist()` should not contain calls to `ps()`, because
+#'   then cloning will discard the set parameter values.
 #' @param predict_types (`character()`)\cr
 #'   The predict types.
 #'   See [`mlr_reflections$learner_predict_types`][mlr_reflections] for available values.
