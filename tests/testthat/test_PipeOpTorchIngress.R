@@ -66,7 +66,7 @@ test_that("target can contain missings for ingress", {
 test_that("ingress cat: device placement", {
   task = tsk("german_credit")$select(c("job", "credit_history"))
   md = po("torch_ingress_categ")$train(list(task))[[1L]]
-  iter = dataloader_make_iter(dataloader(task_dataset(task, md$ingress, device = "mps",
+  iter = dataloader_make_iter(dataloader(task_dataset(task, md$ingress, device = "meta",
     target_batchgetter = target_batchgetter_regr)))
   batch = iter$.next()
   expect_equal(batch$x[[1L]]$device, torch_device("meta"))
