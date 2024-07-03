@@ -420,12 +420,12 @@ test_that("merge_lazy_tensors only returns modified columns", {
 test_that("y is NULL if no target batchgetter is provided", {
   task = tsk("lazy_iris")
   md = po("torch_ingress_ltnsr")$train(list(task))[[1L]]
-  iter = dataloader_make_iter(dataloader(task_dataset(task, md$ingress, device = "mps",
+  iter = dataloader_make_iter(dataloader(task_dataset(task, md$ingress, device = "cpu",
     target_batchgetter = target_batchgetter_regr)))
   batch = iter$.next()
   expect_class(batch$y, "torch_tensor")
 
-  iter = dataloader_make_iter(dataloader(task_dataset(task, md$ingress, device = "mps")))
+  iter = dataloader_make_iter(dataloader(task_dataset(task, md$ingress, device = "cpu")))
   batch = iter$.next()
   expect_true(is.null(batch$y))
 })

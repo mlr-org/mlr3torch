@@ -85,18 +85,30 @@ test_that("phash works", {
 })
 
 test_that("validation", {
-  po_model = po("torch_model_regr")
+  po_model = po("torch_model_regr", epochs = 1L, batch_size = 16,
+    measures_valid = msrs(c("regr.mse", "regr.mae")))
   expect_true("validation" %in% po_model$properties)
 
   graph = po("torch_ingress_num") %>>% po("nn_head") %>>%
-    po("torch_loss", "cross_entropy") %>>% po("torch_optimizer") %>>% po_model
+    po("torch_loss", "mse") %>>% po("torch_optimizer") %>>% po_model
 
   glrn = as_learner(graph)
   set_validate(glrn, 0.2)
   expect_equal(glrn$validate, 0.2)
   expect_equal(glrn$graph$pipeops$torch_model_regr$validate, "predefined")
-})
+  task = tsk("mtcars")
+  glrn$train(task)
+  expect_permutation(names(glrn$internal_valid_scores),
+    c("torch_model_regr.regr.mse", "torch_model_regr.regr.mae"))
+  expect_numeric(glrn$internal_valid_scores$torch_model_regr.regr.mae)
+  expect_numeric(glrn$internal_valid_scores$torch_model_regr.regr.mse)
 
+  glrn$param_set$set_values(
+    torch_model_regr.measures_valid = list()
+  )
+  glrn$train(task)
+  expect_equal(glrn$internal_valid_scores, named_list())
+})
 
 test_that("base_learner works", {
   graph = po("torch_ingress_num") %>>%
@@ -122,5 +134,25 @@ test_that("internal_tuning", {
   glrn$graph$pipeops$torch_model_regr$validate = "predefined"
   task = tsk("mtcars")
   glrn$train(task)
-  expect_true("torch_model_regr.epochs" %in% glrn$internal_tuned_values)
+  expect_integerish(glrn$internal_tuned_values$torch_model_regr.epochs)
+  glrn$param_set$set_values(torch_model_regr.patience = 0)
+  glrn$train(task)
+  expect_equal(glrn$internal_tuned_values, named_list())
+})
+
+test_that("marshaling", {
+  graph = po("torch_ingress_num") %>>%
+    po("nn_head") %>>%
+    po("torch_loss", "mse") %>>%
+    po("torch_optimizer", "adam") %>>%
+    po("torch_model_regr", batch_size = 16, epochs = 1L)
+
+  task = tsk("mtcars")
+  glrn = as_learner(graph)
+  glrn$train(task)
+  model = glrn$model
+  glrn$marshal()$unmarshal()
+  expect_equal(model, glrn$model)
+  pred = glrn$predict(task)
+  expect_class(pred, "Prediction")
 })

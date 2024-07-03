@@ -248,9 +248,6 @@ LearnerTorch = R6Class("LearnerTorch",
     #' The torch loss.
     loss = function(rhs) {
       if (!missing(rhs)) {
-        if (!is.null(private$.loss)) {
-          stopf("Learner '%s' already has its loss configured", self$id)
-        }
         private$.param_set = NULL
         loss = as_torch_loss(rhs, clone = TRUE)
         assert_choice(self$task_type, loss$task_types)
@@ -264,9 +261,6 @@ LearnerTorch = R6Class("LearnerTorch",
     #' The torch optimizer.
     optimizer = function(rhs) {
       if (!missing(rhs)) {
-        if (!is.null(private$.optimizer)) {
-          stopf("Learner '%s' already has its optimizer configured", self$id)
-        }
         private$.optimizer = as_torch_optimizer(rhs, clone = TRUE)
         private$.param_set = NULL
         self$packages = unique(c(self$packages, private$.optimizer$packages))
@@ -279,9 +273,6 @@ LearnerTorch = R6Class("LearnerTorch",
     #' The ids will be set as the names.
     callbacks = function(rhs) {
       if (!missing(rhs)) {
-        if (!is.null(private$.callbacks)) {
-          stopf("Learner '%s' already has its callbacks configured", self$id)
-        }
         callbacks = as_torch_callbacks(rhs, clone = TRUE)
         callback_ids = ids(callbacks)
         if (!test_names(callback_ids, type = "unique")) {

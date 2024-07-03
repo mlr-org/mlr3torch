@@ -644,7 +644,7 @@ test_that("param_set source works", {
   expect_equal(l1$param_set$values$loss.reduction, "sum")
   expect_equal(get_private(l1)$.loss$param_set$values$reduction, "sum")
   expect_equal(l1$param_set$values$cb.checkpoint.freq, 13)
-  expect_equal(get_private(l1)$.callbacks$checkpoint$param_set$values$freq, 13)
+  expect_equal(get_private(l1)$.callbacks[[1]]$param_set$values$freq, 13)
 })
 
 test_that("one feature works", {
@@ -758,4 +758,9 @@ test_that("dataset works", {
   expect_equal(batch$y$shape, 2)
   expect_equal(batch$.index$device$type, "meta")
   expect_equal(batch$.index$shape, 2)
+  skip_if(torch::cuda_is_available())
+  learner$param_set$set_values(device = "auto")
+  ds = learner$dataset(task)
+  batch = ds$.getbatch(1:2)
+  expect_equal(batch$x$torch_ingress_num.input$device$type, "cpu")
 })
