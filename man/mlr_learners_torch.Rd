@@ -182,6 +182,16 @@ Other Learner:
 \item{\code{validate}}{How to construct the internal validation data. This parameter can be either \code{NULL},
 a ratio in $(0, 1)$, \code{"test"}, or \code{"predefined"}.}
 
+\item{\code{loss}}{(\code{\link{TorchLoss}})\cr
+The torch loss.}
+
+\item{\code{optimizer}}{(\code{\link{TorchOptimizer}})\cr
+The torch optimizer.}
+
+\item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
+List of torch callbacks.
+The ids will be set as the names.}
+
 \item{\code{internal_valid_scores}}{Retrieves the internal validation scores as a named \code{list()}.
 Specify the \verb{$validate} field and the \code{measures_valid} parameter to configure this.
 Returns \code{NULL} if learner is not trained yet.}
@@ -265,9 +275,8 @@ The task type.}
 
 \item{\code{param_set}}{(\code{\link{ParamSet}} or \code{alist()})\cr
 Either a parameter set, or an \code{alist()} containing different values of self,
-e.g. \code{alist(self$.param_set1, self$.param_set2)}, from which a \code{\link{ParamSet}} collection
-should be created. Note that the \code{alist()} should not contain calls to \code{ps()}, because
-then cloning will discard the set parameter values.}
+e.g. \code{alist(private$.param_set1, private$.param_set2)}, from which a \code{\link{ParamSet}} collection
+should be created.}
 
 \item{\code{properties}}{(\code{character()})\cr
 The properties of the object.
