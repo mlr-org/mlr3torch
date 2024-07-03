@@ -34,7 +34,7 @@ Description: Deep Learning library that extends the mlr3 framework by building
 License: LGPL (>= 3)
 Depends:
     mlr3 (>= 0.20.0),
-    mlr3pipelines,
+    mlr3pipelines (>= 0.6.0),
     torch (>= 0.13.0),
     R (>= 3.5.0)
 Imports:
@@ -64,8 +64,6 @@ Suggests:
     testthat (>= 3.0.0),
     torchvision (>= 0.6.0),
     waldo
-Remotes:
-    mlr-org/mlr3pipelines
 Config/testthat/edition: 3
 NeedsCompilation: no
 ByteCompile: no
