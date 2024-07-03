@@ -26,7 +26,7 @@ input = torch_randn(2, 3)
 input
 ```
 
-An `nn_module` is constructed from a `nn_module_generator`.
+A `nn_module` is constructed from a `nn_module_generator`.
 `nn_linear` is one of the simpler generators:
 ```{r}
 module_1 = nn_linear(in_features = 3, out_features = 4, bias = TRUE)
@@ -62,7 +62,7 @@ We will now continue with showing how such a neural network can be represented i
 # Neural Networks as Graphs
 
 In `mlr3torch`, `nn_module`s are wrapped in a `PipeOpModule`.
-This has the advantage that the network structure can be represented as a `Graph` object where it is made explicit (can be plotted, can be extended or manipulated), compared to e.g. writing a function that pipes input through a series of modules.
+This has the advantage that the network structure can be represented as an `mlr3pipelines::Graph` object where it is made explicit (can be plotted, can be extended or manipulated), compared to e.g. writing a function that pipes input through a series of modules.
 
 A `PipeOpModule` can be used to wrap a module directly, but it is usually constructed by a `PipeOpTorch` (see later).
 It typically has a single input and a single output, although multiple inputs are possible (module is then called with multiple arguments), and multiple outputs are possible when the module-function returns a list.
@@ -435,7 +435,7 @@ lr_sequential$train(md_sequential$task)
 
 The following calls the `$predict_newdata` function to plot the response surface along the `Sepal.Width = mean(Sepal.Width)` plane, along with the ground-truth values:
 
-```{r, message = FALSE}
+```{r, message = FALSE, fig.dpi = 300, fig.align = "center"}
 library(data.table)
 library(ggplot2)
 

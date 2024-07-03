@@ -19,14 +19,16 @@
 #' @section Saving a Learner:
 #' In order to save a `LearnerTorch` for later usage, it is necessary to call the `$marshal()` method on the `Learner`
 #' before writing it to disk, as the object will otherwise not be saved correctly.
-#' After loading a marshaled `LearnerTorch` into R again, you then need to call `$unmarshal()` to set a usable state.
+#' After loading a marshaled `LearnerTorch` into R again, you then need to call `$unmarshal()` to transform it
+#' into a useable state.
 #'
 #' @section Early Stopping and Tuning:
-#' In order to prevent overfitting, the `LearnerTorch` class allows to use early stopping.
-#' When tuning a `LearnerTorch` it is possible to combine the explicit tuning via `mlr3tuning`
+#' In order to prevent overfitting, the `LearnerTorch` class allows to use early stopping via the `patience`
+#' and `min_delta` parameters, see the `Learner`'s parameters.
+#' When tuning a `LearnerTorch` it is also possible to combine the explicit tuning via `mlr3tuning`
 #' and the `LearnerTorch`'s internal tuning of the epochs via early stopping.
 #' To do so, you just need to include `epochs = to_tune(upper = <upper>, internal = TRUE)` in the search space,
-#' where `<upper>` is the maximally allowed number of epochs.
+#' where `<upper>` is the maximally allowed number of epochs, and configure the early stopping.
 #'
 #' @template param_id
 #' @template param_task_type

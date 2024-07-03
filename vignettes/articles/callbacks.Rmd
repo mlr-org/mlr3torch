@@ -21,55 +21,55 @@ While `mlr3torch` has some predefined callbacks for common use-cases, this vigne
 
 At the heart of the callback mechanism are three `R6` classes:
 
-* `CallbackSet` contains the callback code that is executed during training
-* `TorchCallback` wraps a `CallbackSet` and annotates it with meta information, e.g. a `ParamSet`
+* `CallbackSet` contains the methods that are executed at different stages of the training loop
+* `TorchCallback` wraps a `CallbackSet` and annotates it with meta information, including a `ParamSet`
 * `ContextTorch` defines which information of the training process the `CallbackSet` has access to
 
 When using predefined callbacks, one usually only interacts with the `TorchCallback` class, which is constructed using `t_clbk(<id>)`:
 
-```r
+```{r}
 tc_hist = t_clbk("history")
 tc_hist
 ```
 
 The wrapped `CallbackSet` is accessible via the field `$generator`, and we can create a new instance by calling `$new()`
 
-```r
+```{r}
 cbs_hist = tc_hist$generator$new()
 ```
 
 Within the training loop of a torch model, different stages exist at which a callback can execute code.
 Below, we list all stages that are available, but they are also described in the documentation of `CallbackSet`.
 
-```r
+```{r}
 mlr_reflections$torch$callback_stages
 ```
 
 For the history callback, we see that it runs code at the beginning, before validation starts, and at the end of an epoch.
 
-```r
+```{r}
 cbs_hist
 ```
 
 ### Writing a Custom Logger
 
-In order to define our own custom callback, we can use the `torch_callback()` function that makes it easier to implement a custom callback.
-As an example, we will create a custom logger that keeps track of an exponential moving average of the train loss and prints and prints it at the end of every epoch.
+In order to define our own custom callback, we can use the helper `torch_callback()` helper function.
+As an example, we will create a custom logger that keeps track of an exponential moving average of the train loss and prints it at the end of every epoch.
 This callback takes one argument `alpha` which is the smoothing parameter and will store the moving average in `self$moving_loss`.
-This can later be configured in the `Learner`.
+The value `alpha` can later be configured in the `Learner`.
 
 Then, we implement the main logic of the callback using two stages:
 
-* `on_batch_end()`:  is after the optimizer updates the parameters using a mini-batch.
-  We access the last loss via the `ContextTorch`'s (accessible via `self$ctx`) `$last_loss` field and update the value `self$moving_loss`.
-* `on_before_valid()`: Right before the validation loop, we simply print the exponentail moving average of the training loss.
+* `on_batch_end()`, which is called after the optimizer updates the network parameters using a mini-batch.
+  Here, we access the last loss via the `ContextTorch`'s (accessible via `self$ctx`) `$last_loss` field and update the value `self$moving_loss`.
+* `on_before_valid()`, which is run before the validation loop. At this point we simply print the exponential moving average of the training loss.
 
 Finally, in order to make the final value of the moving average accessible in the `Learner` after the training finishes, we implement the
 
 * `state_dict()` method to return this value and the
 * `load_state_dict(state_dict)` method, that takes a previously retrieved state dict and sets it in the callback.
 
-Note that we only do this here to have access to the final `moving_loss` via the learner, but we would otherwise not have to implement these methods.  
+Note that we only do this here to have access to the final `$moving_loss` via the learner, but we would otherwise not have to implement these methods.  
 
 ```{r}
 custom_logger = torch_callback("custom_logger",

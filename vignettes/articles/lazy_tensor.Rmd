@@ -46,7 +46,7 @@ materialize(lt[1])[[1]][1, 12:16, 12:16]
 
 If all elements have the same shape as is the case here, we could also obtain a single `torch_tensor` by specifying `rbind = TRUE`.
 
-In order to train a `Learner` on a `Task` containing `lazy_tensor` columns it must support the `lazy_tensor` feature type, as is the case for the multi layer perceptron:
+In order to train a `Learner` on a `Task` containing `lazy_tensor` columns it must support the `lazy_tensor` feature type, as is the case for the multi layer perceptron, which works both with `numeric` types, as well as the `lazy_tensor`.
 
 ```{r}
 mlp = lrn("classif.mlp",
@@ -67,7 +67,7 @@ mnist_flat = reshaper$train(list(mnist))[[1L]]
 mnist_flat$head()
 ```
 
-Note that this does not *actually* reshape all the tensors, this will again only happen once `materialize()` is called.
+Note that this does not *actually* reshape all the tensors in-memory, this will again only happen once `materialize()` is called.
 
 We can now proceed to train the a simple multi-layer perceptron on the flattened mnist task:
 
@@ -115,7 +115,7 @@ lt[1:5]
 
 Note that in this case, because we implemented the `.getbatch` method, we could have even omitted specifying the `dataset_shapes` as they could have been auto-inferred. 
 
-We can convert this vector to a `torch_tensor` just like before
+We can convert this vector to a `torch_tensor` just like before:
 
 ```{r}
 materialize(lt[1:5], rbind = TRUE)
@@ -131,7 +131,7 @@ torch_equal(
 ```
 
 We continue with creating an example task from `lt`, where the relationship between the `x` and `y` variable is polynomial.
-Note that the target variable, both for classification and regression, cannot be a `lazy_tensor`, but must be a `factor` or `numeric`.
+Note that the target variable, both for classification and regression, cannot be a `lazy_tensor`, but must be a `factor` or `numeric` respectively.
 
 ```{r, message = FALSE}
 library(data.table)
@@ -144,7 +144,7 @@ task_poly
 
 Below, we plot the data:
 
-```{r, fig.align = "center"}
+```{r, fig.align = "center", fig.dpi = 300}
 library(ggplot2)
 ggplot(data = data.frame(x = x, y = y)) +
   geom_point(aes(x = x, y = y), alpha = 0.5)
@@ -159,7 +159,7 @@ To make this as convenient as possible, `mlr3torch` offters a `pipeop_preproc_to
 Its most important arguments are:
 
 * `id` - Used as the default identifier of the `PipeOp`
-* `fn` - The preprocessing function. The first argument is assumed to be the `torch_tensor` and the remaining arguments will be part of the `PipeOp`'s parameter set. 
+* `fn` - The preprocessing function. By default, the first argument is assumed to be the `torch_tensor` and the remaining arguments will be part of the `PipeOp`'s parameter set. 
 * `shapes_out` - A function that returns the shapes of the output tensors given the input shapes.
   This can also be set to `NULL` for an unknown shape or to `"infer"` for auto-inference, see `?pipeop_preproc_torch` for more information.
 
@@ -176,7 +176,7 @@ PipeOpPreprocTorchPoly = pipeop_preproc_torch("poly",
 
 We can now create a new instance of this `PipeOp` by calling `$new()`, and we set the parameter `degrees` to those degrees that were used when simulating the data above. 
 Further, we set the parameter `stages`, that is always available, to `"both"`, which means that the preprocessing is applied during training and prediction.
-For data augmentation, for example, this can be set to `"train"`.
+For data augmentation this can be set to `"train"`.
 
 ```{r}
 po_poly = PipeOpPreprocTorchPoly$new()
@@ -187,7 +187,7 @@ po_poly$param_set$set_values(
 )
 ```
 
-To create our polynomial regression learner, we combine the polynomial preprocessor with a `lrn("regr.mlp")` with no hidden layer and train the learner on the task.
+To create our polynomial regression learner, we combine the polynomial preprocessor with a `lrn("regr.mlp")` with no hidden layer (i.e. a linear model) and train the learner on the task.
 
 ```{r}
 lrn_poly = as_learner(
@@ -201,7 +201,7 @@ pred = lrn_poly$predict(task_poly)
 
 Below, we visualize the predictions and see that the model captured the non-linear relationship reasonably:
 
-```{r, fig.align = "center"}
+```{r, fig.align = "center", fig.dpi = 300}
 dt = melt(data.table(
   truth = pred$truth,
   response = pred$response,
@@ -243,7 +243,8 @@ The printed output of the data descriptor informs us about:
 * The input map, i.e. how the data is passed to the preprocessing graph, which is important when there are multiple inputs
 * The `pointer`, which points to a specific channel of an output `PipeOp`.
   The output of this channel is the tensor represented by the `DataDescriptor`.
-* The `shape`, which is the shape of the tensor at posititon `pointer`
+  Note that the `id` from the input `po("nop")` is randomly generated, which is needed to prevent id clashes then there are more than one input to the preprocessing graph.
+* The `shape`, which is the shape of the tensor at position `pointer`
 
 
 A lazy tensor can be constructed from an integer vector and a `DataDescriptor`.
@@ -256,14 +257,12 @@ lt = lazy_tensor(desc, ids = c(1, 1, 2))
 materialize(lt, rbind = TRUE)
 ```
 
-Internally, the lazy tensor is represented as a list of lists, containing an id and a `DataDescriptor`
+Internally, the lazy tensor is represented as a list of lists, each element containing an id and a `DataDescriptor`
 Currently, there can only be a single `DataDescriptor` in a `lazy_tensor` vector.
-The first element in the `lazy_tensor` then represents the first element from the `DataDescriptor`:
 
 ```{r}
 unclass(lt[[1]])
 ```
-
 
 What happens during `materialize(lt[1])` is the following:
 
@@ -301,4 +300,11 @@ descout = lt_out[[1]][[2]]
 descout
 
 descout$graph
+```
+
+We see that the `$graph` has a new pipeop with id `"poly.x"` and the output `pointer` points to `poly.x`.
+Also we see that the shape of the tensor is now `c(NA, 7)` and not `c(NA, 1)` as before, which we can verify by calling `materialize()` again:
+
+```{r}
+materialize(lt_out[1:2], rbind = TRUE)
 ```
