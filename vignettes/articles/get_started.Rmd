@@ -65,8 +65,8 @@ prediction$score(msr("regr.mse"))
 Although torch learners are quite like other `mlr3` learners, there are some differences.
 One is that all `LearnerTorch` classes have *construction arguments*, i.e. torch learners are more modular than other learners.
 While learners are free to implement their own construction arguments, there are some that are common to all torch learners, namely the `loss`, `optimizer` and `callbacks`.
+Each of these object can have their own parameters that are included in the `LearnerTorch`'s parameter set.
 
-As these are construction arguments (and not part of the learner's `ParamSet`) they cannot be changed after a learner is created.
 In the previous example, we did not specify any of these explicitly and used the default values, which was the Adam optimizer, MSE as the loss and no callbacks.
 We will now show how to configure these three aspects of a learner through the `mlr3torch::TorchOptimizer`, `mlr3torch::TorchLoss`, and `mlr3torch::TorchCallback` classes.
 
