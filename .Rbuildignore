@@ -1,3 +1,5 @@
+^renv$
+^renv\.lock$
 ^mlr3torch\.Rproj$
 ^\.Rproj\.user$
 ^README\.Rmd$
