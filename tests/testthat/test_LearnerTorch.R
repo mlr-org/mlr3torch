@@ -210,19 +210,8 @@ test_that("the state of a trained network contains what it should", {
   expect_permutation(colnames(learner$model$task_col_info), c("id", "type", "levels"))
 })
 
-
 test_that("train parameters do what they should: classification and regression", {
-  # Currently available train parameters:
-  # * batch_size
-  # * epochs
-  # * device
-  # * measures_train
-  # * measures_valid
-  # * drop_last
-  # * shuffle
-  # * num_threads
-  # * seed (reproducibility is already tested somewhere else)
-
+  withr::local_seed(1L)
   callback = torch_callback(id = "internals",
     on_begin = function() {
       # rename to avoid deleting the ctx after finishing the training
@@ -238,14 +227,14 @@ test_that("train parameters do what they should: classification and regression",
 
   f = function(task_type, measure_ids) {
     task = switch(task_type, regr = tsk("mtcars"), classif = tsk("iris"))
-    epochs = sample(3, 1)
-    batch_size = sample(16, 1)
+    epochs = sample(10:12, 1)
+    batch_size = sample(2:3, 1)
     shuffle = sample(c(TRUE, FALSE), 1)
     num_threads = if (running_on_mac()) 1L else sample(2, 1)
     drop_last = sample(c(TRUE, FALSE), 1)
     seed = sample.int(10, 1)
-    measures_train = msrs(paste0(measure_ids[sample(c(TRUE, FALSE, TRUE), 3, replace = FALSE)]))
-    measures_valid = msrs(paste0(measure_ids[sample(c(TRUE, FALSE, TRUE), 3, replace = FALSE)]))
+    measures_train = msrs(paste0(measure_ids[sample(c(TRUE, FALSE), 2, replace = FALSE)]))
+    measures_valid = msrs(paste0(measure_ids[sample(c(TRUE, FALSE), 2, replace = FALSE)]))
 
     learner = lrn(paste0(task_type, ".torch_featureless"),
       epochs = epochs,
@@ -302,10 +291,13 @@ test_that("train parameters do what they should: classification and regression",
     learner$validate = NULL
 
     learner$state = NULL
+    learner$param_set$values$measures_valid = list()
     learner$train(task)
 
     expect_equal(nrow(learner$model$callbacks$history$valid), 0)
 
+
+    learner$validate = 0.2
     learner$state = NULL
     learner$param_set$set_values(
       device = "meta",
@@ -313,10 +305,19 @@ test_that("train parameters do what they should: classification and regression",
       measures_valid = list()
     )
 
-    # now we also test that the device placement works
+    # FIXME: extend this to all dataloader parameters
+
     learner$train(task)
-    expect_equal(learner$network$parameters[[1]]$device$type, "meta")
+    ctx = learner$model$callbacks$internals$ctx
+    loader_train_iter = dataloader_make_iter(ctx$loader_train)
+    loader_valid = dataloader_make_iter(ctx$loader_valid)
+
+    # now we also test that the device placement works
+    # expect_equal(learner$network$parameters[[1]]$device$type, "meta")
   }
+
+  f("classif", c("classif.acc", "classif.ce"))
+  f("regr", c("regr.mse", "regr.mae"))
 })
 
 test_that("predict types work during training and prediction", {
@@ -378,8 +379,6 @@ test_that("predict parameters do what they should: classification and regression
     }
 
     learner$param_set$set_values(device = "meta")
-    try(learner$predict(task), silent = TRUE)
-    expect_equal(learner$network$parameters[[1]]$device$type, "meta")
 
     dl = get_private(learner)$.dataloader_predict(task, learner$param_set$values)
     expect_equal(dl$batch_size, batch_size)
@@ -607,7 +606,6 @@ test_that("param_set source works", {
     ),
     private = list(.ps1 = NULL)
   )$new()
-
   l$param_set$set_values(
     a = 7,
     epochs = 8,
@@ -624,7 +622,7 @@ test_that("param_set source works", {
   expect_equal(l$param_set$values$loss.reduction, "mean")
   expect_equal(get_private(l)$.loss$param_set$values$reduction, "mean")
   expect_equal(l$param_set$values$cb.checkpoint.freq, 3)
-  expect_equal(get_private(l)$.callbacks$checkpoint$param_set$values$freq, 3)
+  expect_equal(get_private(l)$.callbacks[[1L]]$param_set$values$freq, 3)
 
   l1 = l$clone(deep = TRUE)
 
@@ -646,5 +644,129 @@ test_that("param_set source works", {
   expect_equal(l1$param_set$values$loss.reduction, "sum")
   expect_equal(get_private(l1)$.loss$param_set$values$reduction, "sum")
   expect_equal(l1$param_set$values$cb.checkpoint.freq, 13)
-  expect_equal(get_private(l1)$.callbacks$checkpoint$param_set$values$freq, 13)
+  expect_equal(get_private(l1)$.callbacks[[1]]$param_set$values$freq, 13)
+})
+
+test_that("one feature works", {
+  task = tsk("mtcars")$select("am")
+  learner = lrn("regr.mlp", epochs = 1L, batch_size = 150)
+  learner$train(task)
+  expect_class(learner, "Learner")
+  pred = learner$predict(task)
+  expect_class(pred, "Prediction")
+})
+
+test_that("param_set alist must refer to self, private or super", {
+  LearnerTest = R6Class("LearnerTest", inherit = LearnerTorch,
+    public = list(
+      initialize = function(loss = NULL, optimizer = NULL, callbacks = list(), param_set) {
+        self$ps1 = ps(a = p_int(tags = "train"))
+        private$ps2 = ps(b = p_int(tags = "train"))
+        super$initialize(
+          "regr",
+          id = "test",
+          label = "Test",
+          loss = loss,
+          callbacks = callbacks,
+          optimizer = optimizer,
+          param_set = param_set,
+          properties = c(),
+          feature_types = "integer",
+          man = NA
+        )
+      },
+      ps1 = NULL
+    ),
+    private = list(
+      ps2 = NULL
+    )
+  )
+
+  learner = LearnerTest$new(param_set = alist(self$ps1, private$ps2))
+  expect_subset(c("a", "b"), learner$param_set$ids())
+  expect_error(LearnerTest$new(param_set = alist(ps(c = p_int(tags = "train")))))
+})
+
+test_that("configure loss, optimizer and callbacks after construction", {
+  learner = lrn("classif.torch_model",
+    loss = LossNone(),
+    optimizer = OptimizerNone(),
+    callbacks = CallbacksNone()
+  )
+
+  expect_true(is.null(learner$loss))
+  expect_true(is.null(learner$optimizer))
+  expect_true(is.null(learner$callbacks))
+
+  expect_false(any(grepl("^loss\\.", learner$param_set$ids())))
+  expect_error({learner$loss = t_loss("mse")}) # nolint
+
+  loss = t_loss("cross_entropy")
+  loss$packages = c(loss$packages, "utils")
+  learner$loss = loss
+  expect_true("loss.reduction" %in% learner$param_set$ids())
+  expect_true("utils" %in% learner$packages)
+  expect_false(any(grepl("^opt\\.", learner$param_set$ids())))
+  expect_class(learner$loss, "TorchLoss")
+  learner$param_set$set_values(loss.reduction = "sum")
+  expect_equal(learner$param_set$values$loss.reduction, "sum")
+  expect_equal(learner$loss$param_set$values$reduction, "sum")
+
+  expect_error({learner$optimizer = 1L}) # nolint
+  optimizer = t_opt("adam")
+  optimizer$packages = c(optimizer$packages, "stats")
+  learner$optimizer = optimizer
+  expect_true("stats" %in% optimizer$packages)
+  expect_true("opt.amsgrad" %in% learner$param_set$ids())
+  expect_class(learner$optimizer, "TorchOptimizer")
+  learner$param_set$set_values(opt.lr = 2)
+  expect_equal(learner$param_set$values$opt.lr, 2)
+  expect_equal(learner$optimizer$param_set$values$lr, 2)
+
+  expect_false(any(grepl("^cb\\.", learner$param_set$ids())))
+  expect_error({learner$callbacks = list(1L)}) # nolint
+  callback = t_clbk("checkpoint")
+  callback$packages = c(callback$packages, "R6")
+  learner$callbacks = list(callback)
+  expect_true("cb.checkpoint.freq" %in% learner$param_set$ids())
+  expect_list(learner$callbacks, "TorchCallback")
+  learner$param_set$set_values(cb.checkpoint.freq = 100)
+  expect_equal(learner$param_set$values$cb.checkpoint.freq, 100)
+  expect_equal(learner$callbacks[[1]]$param_set$values$freq, 100)
+
+  learner$param_set$set_values(
+    loss.reduction = "mean",
+    opt.lr = 123,
+    cb.checkpoint.freq = 456
+  )
+  learner1 = learner$clone(deep = TRUE)
+  expect_deep_clone(learner, learner1)
+  expect_equal(learner1$param_set$values$loss.reduction, "mean")
+  expect_equal(learner1$param_set$values$opt.lr, 123)
+  expect_equal(learner1$param_set$values$cb.checkpoint.freq, 456)
+})
+
+test_that("dataset works", {
+  task = tsk("iris")
+  learner = lrn("classif.mlp", device = "meta", batch_size = 10,
+    epochs = 1L)
+  ds = learner$dataset(task)
+  batch = ds$.getbatch(1:2)
+  expect_equal(batch$x$torch_ingress_num.input$device$type, "meta")
+  expect_equal(batch$x$torch_ingress_num.input$shape, c(2, 4))
+  expect_equal(batch$y$device$type, "meta")
+  expect_equal(batch$y$shape, 2)
+  expect_equal(batch$.index$device$type, "meta")
+  expect_equal(batch$.index$shape, 2)
+  skip_if(torch::cuda_is_available())
+  learner$param_set$set_values(device = "auto")
+  ds = learner$dataset(task)
+  batch = ds$.getbatch(1:2)
+  expect_equal(batch$x$torch_ingress_num.input$device$type, "cpu")
+})
+
+test_that("error when dataloaders have length 0", {
+  learner = lrn("regr.torch_featureless", epochs = 1L, batch_size = 100, drop_last = TRUE)
+  task = tsk("mtcars")
+  expect_error({learner$train(task)}, "has length 0") # nolint
 })

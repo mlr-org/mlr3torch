@@ -40,16 +40,19 @@ navbar:
       href: https://mlr-org.com/
     get_started:
       text: Get Started
-      href: articles/get_started.html
+      href: get_started.html
+    pipeop_torch:
+      text: Defining an Architecture
+      href: articles/pipeop_torch.html
     callbacks:
       text: Callbacks
       href: articles/callbacks.html
     lazy_tensor:
       text: Lazy Tensor
       href: articles/lazy_tensor.html
-    networks_as_graphs:
-      text: Neural Networks as Graphs
-      href: articles/callbacks.html
+    internals:
+      text: Internals
+      href: internals_pipeop_torch.html
 
 reference:
   - title: Package

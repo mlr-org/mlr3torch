@@ -34,7 +34,8 @@ test_that("PipeOpTorchIngressLazyTensor", {
   po_ingress = po("torch_ingress_ltnsr")
 
   output = po_ingress$train(list(task))[[1L]]
-  ds = task_dataset(task, output$ingress, device = "cpu")
+  ds = task_dataset(task, output$ingress, device = "cpu",
+    target_batchgetter = target_batchgetter_classif)
 
   batch = ds$.getbatch(1:2)
   expect_permutation(names(batch), c("x", "y", ".index"))
@@ -60,4 +61,37 @@ test_that("target can contain missings for ingress", {
   task = as_task_regr(data.table(y = c(1, NA), x = 1:1), target = "y")
   md = po("torch_ingress_num")$train(list(task))[[1L]]
   expect_class(md, "ModelDescriptor")
+})
+
+test_that("ingress cat: device placement", {
+  task = tsk("german_credit")$select(c("job", "credit_history"))
+  md = po("torch_ingress_categ")$train(list(task))[[1L]]
+  iter = dataloader_make_iter(dataloader(task_dataset(task, md$ingress, device = "meta",
+    target_batchgetter = target_batchgetter_regr)))
+  batch = iter$.next()
+  expect_equal(batch$x[[1L]]$device, torch_device("meta"))
+  expect_equal(batch$y$device, torch_device("meta"))
+  expect_equal(batch$.index$device, torch_device("meta"))
+})
+
+test_that("ingress num: device placement", {
+  task = tsk("mtcars")
+  md = po("torch_ingress_num")$train(list(task))[[1L]]
+  iter = dataloader_make_iter(dataloader(task_dataset(task, md$ingress, device = "meta",
+    target_batchgetter = target_batchgetter_classif)))
+  batch = iter$.next()
+  expect_equal(batch$x[[1L]]$device, torch_device("meta"))
+  expect_equal(batch$y$device, torch_device("meta"))
+  expect_equal(batch$.index$device, torch_device("meta"))
+})
+
+test_that("ingress ltnsr: device placement", {
+  task = tsk("lazy_iris")
+  md = po("torch_ingress_ltnsr")$train(list(task))[[1L]]
+  iter = dataloader_make_iter(dataloader(task_dataset(task, md$ingress, device = "meta",
+    target_batchgetter = target_batchgetter_regr)))
+  batch = iter$.next()
+  expect_equal(batch$x[[1L]]$device, torch_device("meta"))
+  expect_equal(batch$y$device, torch_device("meta"))
+  expect_equal(batch$.index$device, torch_device("meta"))
 })

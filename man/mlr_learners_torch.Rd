@@ -26,16 +26,18 @@ This validation data can also be used for early stopping, see the description of
 
 In order to save a \code{LearnerTorch} for later usage, it is necessary to call the \verb{$marshal()} method on the \code{Learner}
 before writing it to disk, as the object will otherwise not be saved correctly.
-After loading a marshaled \code{LearnerTorch} into R again, you then need to call \verb{$unmarshal()} to set a usable state.
+After loading a marshaled \code{LearnerTorch} into R again, you then need to call \verb{$unmarshal()} to transform it
+into a useable state.
 }
 
 \section{Early Stopping and Tuning}{
 
-In order to prevent overfitting, the \code{LearnerTorch} class allows to use early stopping.
-When tuning a \code{LearnerTorch} it is possible to combine the explicit tuning via \code{mlr3tuning}
+In order to prevent overfitting, the \code{LearnerTorch} class allows to use early stopping via the \code{patience}
+and \code{min_delta} parameters, see the \code{Learner}'s parameters.
+When tuning a \code{LearnerTorch} it is also possible to combine the explicit tuning via \code{mlr3tuning}
 and the \code{LearnerTorch}'s internal tuning of the epochs via early stopping.
 To do so, you just need to include \verb{epochs = to_tune(upper = <upper>, internal = TRUE)} in the search space,
-where \verb{<upper>} is the maximally allowed number of epochs.
+where \verb{<upper>} is the maximally allowed number of epochs, and configure the early stopping.
 }
 
 \section{Model}{
@@ -211,6 +213,16 @@ Other Learner:
 \item{\code{validate}}{How to construct the internal validation data. This parameter can be either \code{NULL},
 a ratio in $(0, 1)$, \code{"test"}, or \code{"predefined"}.}
 
+\item{\code{loss}}{(\code{\link{TorchLoss}})\cr
+The torch loss.}
+
+\item{\code{optimizer}}{(\code{\link{TorchOptimizer}})\cr
+The torch optimizer.}
+
+\item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
+List of torch callbacks.
+The ids will be set as the names.}
+
 \item{\code{internal_valid_scores}}{Retrieves the internal validation scores as a named \code{list()}.
 Specify the \verb{$validate} field and the \code{measures_valid} parameter to configure this.
 Returns \code{NULL} if learner is not trained yet.}
@@ -245,6 +257,7 @@ which are varied systematically during tuning (parameter values).}
 \item \href{#method-LearnerTorch-print}{\code{LearnerTorch$print()}}
 \item \href{#method-LearnerTorch-marshal}{\code{LearnerTorch$marshal()}}
 \item \href{#method-LearnerTorch-unmarshal}{\code{LearnerTorch$unmarshal()}}
+\item \href{#method-LearnerTorch-dataset}{\code{LearnerTorch$dataset()}}
 \item \href{#method-LearnerTorch-clone}{\code{LearnerTorch$clone()}}
 }
 }
@@ -276,7 +289,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   feature_types,
   optimizer = NULL,
   loss = NULL,
-  packages = NULL,
+  packages = character(),
   predict_types = NULL,
   callbacks = list()
 )}\if{html}{\out{</div>}}
@@ -291,8 +304,10 @@ The id for of the new object.}
 \item{\code{task_type}}{(\code{character(1)})\cr
 The task type.}
 
-\item{\code{param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}})\cr
-The parameter set.}
+\item{\code{param_set}}{(\code{\link{ParamSet}} or \code{alist()})\cr
+Either a parameter set, or an \code{alist()} containing different values of self,
+e.g. \code{alist(private$.param_set1, private$.param_set2)}, from which a \code{\link{ParamSet}} collection
+should be created.}
 
 \item{\code{properties}}{(\code{character()})\cr
 The properties of the object.
@@ -410,6 +425,27 @@ Additional parameters.}
 }
 \subsection{Returns}{
 self
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-LearnerTorch-dataset"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerTorch-dataset}{}}}
+\subsection{Method \code{dataset()}}{
+Create the dataset for a task.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LearnerTorch$dataset(task)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{task}}{\code{\link[mlr3:Task]{Task}}\cr
+The task}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+\code{\link[torch:dataset]{dataset}}
 }
 }
 \if{html}{\out{<hr>}}

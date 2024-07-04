@@ -12,7 +12,7 @@ test_that("basic", {
   batch = ds$.getbatch(1)
   expect_list(batch)
   expect_class(batch$x$x, "torch_tensor")
-  expect_equal(batch$.index, 1)
+  expect_equal(batch$.index, torch_tensor(1, torch_long()))
 
   # now we check with two ingress tokens
 
@@ -30,14 +30,14 @@ test_that("basic", {
   batch = ds$.getbatch(7)
 
   expect_permutation(names(batch), c("x", "y", ".index"))
-  expect_equal(batch$.index, 7)
+  expect_equal(batch$.index, torch_tensor(7L))
   expect_equal(batch$y$shape, 1)
   expect_equal(batch$x$x_num$shape, c(1, ingress_num$shape[2]))
   expect_equal(batch$x$x_categ$shape, c(1, ingress_categ$shape[2]))
 
   batch2 = ds$.getbatch(7:8)
   expect_permutation(names(batch2), c("x", "y", ".index"))
-  expect_equal(batch2$.index, 7:8)
+  expect_equal(batch2$.index, torch_tensor(7:8))
   expect_equal(batch2$y$shape, 2)
   expect_equal(batch2$x$x_num$shape, c(2, ingress_num$shape[2]))
   expect_equal(batch2$x$x_categ$shape, c(2, ingress_categ$shape[2]))
@@ -415,4 +415,17 @@ test_that("merge_lazy_tensors only returns modified columns", {
   data = task$data(cols = task$feature_names)
   merged = merge_lazy_tensor_graphs(data)
   expect_true(is.null(merged))
+})
+
+test_that("y is NULL if no target batchgetter is provided", {
+  task = tsk("lazy_iris")
+  md = po("torch_ingress_ltnsr")$train(list(task))[[1L]]
+  iter = dataloader_make_iter(dataloader(task_dataset(task, md$ingress, device = "cpu",
+    target_batchgetter = target_batchgetter_regr)))
+  batch = iter$.next()
+  expect_class(batch$y, "torch_tensor")
+
+  iter = dataloader_make_iter(dataloader(task_dataset(task, md$ingress, device = "cpu")))
+  batch = iter$.next()
+  expect_true(is.null(batch$y))
 })

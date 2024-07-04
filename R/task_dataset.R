@@ -84,7 +84,9 @@ task_dataset = dataset(
       self$target_batchgetter(datapool[, self$task$target_names, with = FALSE],
         self$device)
     }
-    list(x = x, y = y, .index = index)
+    out = list(x = x, .index = torch_tensor(index, device = self$device, dtype = torch_long()))
+    if (!is.null(y)) out$y = y
+    return(out)
   },
   .length = function() {
     self$task$nrow

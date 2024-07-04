@@ -177,8 +177,8 @@ Other PipeOps:
 \code{\link{mlr_pipeops_torch_model_regr}}
 }
 \concept{PipeOps}
-\section{Super class}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{PipeOpTorchModel}
+\section{Super classes}{
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3pipelines:PipeOpLearner]{mlr3pipelines::PipeOpLearner}} -> \code{PipeOpTorchModel}
 }
 \section{Methods}{
 \subsection{Public methods}{

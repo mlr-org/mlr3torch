@@ -21,10 +21,15 @@ learner_torch_predict = function(self, private, super, task, param_vals) {
 learner_torch_train = function(self, private, super, task, param_vals) {
   # Here, all param_vals (like seed = "random" or device = "auto") have already been resolved
   loader_train = private$.dataloader(task, param_vals)
+  if (!length(loader_train)) {
+    stopf("Training Dataloader of Learner '%s' has length 0", self$id)
+  }
 
   network = private$.network(task, param_vals)$to(device = param_vals$device)
-  optimizer = private$.optimizer$generate(network$parameters)
-  loss_fn = private$.loss$generate()
+  if (is.null(self$optimizer)) stopf("Learner '%s' defines no optimizer", self$id)
+  optimizer = self$optimizer$generate(network$parameters)
+  if (is.null(self$loss)) stopf("Learner '%s' defines no loss", self$id)
+  loss_fn = self$loss$generate()
 
   measures_train = normalize_to_list(param_vals$measures_train)
   measures_valid = normalize_to_list(param_vals$measures_valid)
@@ -45,6 +50,10 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     private$.dataloader_predict(task_valid$clone(deep = TRUE), param_vals)
   }
 
+  if (!is.null(loader_valid) && !length(loader_valid)) {
+    stopf("Validation Dataloader of Learner '%s' has length 0", self$id)
+  }
+
   ctx = ContextTorch$new(
     learner = self,
     task_train = task,
@@ -61,11 +70,12 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     eval_freq = param_vals$eval_freq
   )
 
-  callbacks = lapply(private$.callbacks, function(descriptor) {
+  callbacks = set_names(lapply(self$callbacks, function(descriptor) {
     cb = descriptor$generate()
     cb$ctx = ctx
     cb
-  })
+  }), ids(self$callbacks))
+
 
   if (param_vals$patience > 0L) {
     es = CallbackSetEarlyStopping$new(
@@ -95,16 +105,7 @@ train_loop = function(ctx, cbs) {
     })
   }
 
-  ## we do this so if the learner should crash the intermediate progress is saved somewhere
-  ctx$learner$state$model = list(
-    network = ctx$network,
-    optimizer = ctx$optimizer,
-    loss_fn = ctx$loss_fn,
-    callbacks = cbs
-  )
-
   # note that task_valid may be present (callbacks could do their own validation)
-
   on.exit({
     # in case a callback wants to finalize things
     call("on_exit")
@@ -135,8 +136,6 @@ train_loop = function(ctx, cbs) {
       call("on_batch_begin")
 
       if (length(ctx$batch$x) == 1L) {
-        # With one argument there is no ambiguity and we can be less strict
-        # TODO: Make this more strict
         y_hat = ctx$network(ctx$batch$x[[1L]])
       } else {
         y_hat = do.call(ctx$network, ctx$batch$x)
@@ -189,6 +188,7 @@ train_loop = function(ctx, cbs) {
 
   call("on_end")
 
+  callback_states = discard(map(cbs, function(cb) cb$state_dict()), is.null)
   # The seed is added later
   list(
     network               = ctx$network,
@@ -197,7 +197,7 @@ train_loop = function(ctx, cbs) {
     loss_fn               = ctx$loss_fn$state_dict(),
     optimizer             = ctx$optimizer$state_dict(),
     epochs                = ctx$epoch,
-    callbacks             = discard(map(cbs, function(cb) cb$state_dict()), is.null)
+    callbacks             = callback_states
   )
 }
 

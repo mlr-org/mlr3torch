@@ -178,7 +178,7 @@ test_that("cloning", {
 
   learner$param_set$set_values(batch_size = 150, epochs = 0)
 
-  expect_learner_torch(learner)
+  expect_learner_torch(learner, task = tsk("iris"))
 
   ids = partition(task)
 
@@ -240,4 +240,14 @@ test_that("cloning", {
 
   identical(nn_test$l$modules[[2]], nn_test1$l$modules[[2]])
   identical(nn_test$children$l, nn_test1$children$l)
+})
+
+test_that("non-terminal output", {
+  md = (po("torch_ingress_num") %>>% po("nn_head") %>>% po("nn_reshape", shape = c(-1, 1, 3)))$train(tsk("iris"))[[1L]]
+  module = model_descriptor_to_module(md, list(c("nn_head", "output")), list_output = TRUE)
+  x = torch_randn(1, 4)
+  xout = module(x)
+  expect_equal(xout[[1L]]$shape, c(1, 3))
+  expect_equal(names(xout), "output_nn_head.output")
+  expect_true("output_nn_head.output" %in% module$graph$output$name)
 })

@@ -53,6 +53,8 @@ learner_mlp = lrn("classif.mlp",
   batch_size     = 16,
   epochs         = 50,
   device         = "cpu",
+  # Proportion of data to use for validation
+  validate = 0.3,
   # Defining the optimizer, loss, and callbacks
   optimizer      = t_opt("adam", lr = 0.1),
   loss           = t_loss("cross_entropy"),
@@ -65,21 +67,13 @@ learner_mlp = lrn("classif.mlp",
 )
 ```
 
-This learner can for be resampled, benchmarked or tuned as any other
-learner.
+Below, we train this learner on the sonar example task:
 
 ``` r
-resample(
-  task       = tsk("iris"),
-  learner    = learner_mlp,
-  resampling = rsmp("holdout")
-)
-#> <ResampleResult> with 1 resampling iterations
-#>  task_id  learner_id resampling_id iteration warnings errors
-#>     iris classif.mlp       holdout         1        0      0
+learner_mlp$train(tsk("sonar"))
 ```
 
-Below, we construct the same architecture using `PipeOpTorch` objects.
+Next, we construct the same architecture using `PipeOpTorch` objects.
 The first pipeop – a `PipeOpTorchIngress` – defines the entrypoint of
 the network. All subsequent pipeops define the neural network layers.
 
@@ -91,86 +85,118 @@ architecture = po("torch_ingress_num") %>>%
 ```
 
 To turn this into a learner, we configure the loss, optimizer, callbacks
-and the training arguments.
+as well as the training arguments.
 
 ``` r
 graph_mlp = architecture %>>%
   po("torch_loss", loss = t_loss("cross_entropy")) %>>%
   po("torch_optimizer", optimizer = t_opt("adam", lr = 0.1)) %>>%
   po("torch_callbacks", callbacks = t_clbk("history")) %>>%
-  po("torch_model_classif", batch_size = 16, epochs = 50, device = "cpu")
-
-graph_mlp
-#> Graph with 8 PipeOps:
-#>                   ID         State            sccssors         prdcssors
-#>               <char>        <char>              <char>            <char>
-#>    torch_ingress_num <<UNTRAINED>>           nn_linear                  
-#>            nn_linear <<UNTRAINED>>             nn_relu torch_ingress_num
-#>              nn_relu <<UNTRAINED>>             nn_head         nn_linear
-#>              nn_head <<UNTRAINED>>          torch_loss           nn_relu
-#>           torch_loss <<UNTRAINED>>     torch_optimizer           nn_head
-#>      torch_optimizer <<UNTRAINED>>     torch_callbacks        torch_loss
-#>      torch_callbacks <<UNTRAINED>> torch_model_classif   torch_optimizer
-#>  torch_model_classif <<UNTRAINED>>                       torch_callbacks
+  po("torch_model_classif",
+    batch_size = 16, epochs = 50, device = "cpu")
 
 graph_lrn = as_learner(graph_mlp)
-graph_lrn$id = "graph_mlp"
-
-resample(
-  task       = tsk("iris"),
-  learner    = graph_lrn,
-  resampling = rsmp("holdout")
-)
-#> <ResampleResult> with 1 resampling iterations
-#>  task_id learner_id resampling_id iteration warnings errors
-#>     iris  graph_mlp       holdout         1        0      0
 ```
 
 To work with generic tensors, the `lazy_tensor` type can be used. It
-wraps a `torch::dataset`, but allows to preproress the data using
-`PipeOp` objects, just like tabular data.
+wraps a `torch::dataset`, but allows to preprocess the data (lazily)
+using `PipeOp` objects Below, we flatten the MNIST task, so we can then
+train a multi-layer perceptron on it. Note that this does *not*
+transform the data in-memory, but is only applied when the data is
+actually loaded.
 
 ``` r
 # load the predefined mnist task
-task = tsk("mnist")
-task$head()
+mnist = tsk("mnist")
+mnist$head(3L)
 #>     label           image
 #>    <fctr>   <lazy_tensor>
 #> 1:      5 <tnsr[1x28x28]>
 #> 2:      0 <tnsr[1x28x28]>
 #> 3:      4 <tnsr[1x28x28]>
-#> 4:      1 <tnsr[1x28x28]>
-#> 5:      9 <tnsr[1x28x28]>
-#> 6:      2 <tnsr[1x28x28]>
 
-# Resize the images to 5x5
-po_resize = po("trafo_resize", size = c(5, 5))
-task_reshaped = po_resize$train(list(task))[[1L]]
+# Flatten the images
+flattener = po("trafo_reshape", shape = c(-1, 28 * 28))
+mnist_flat = flattener$train(list(mnist))[[1L]]
 
-task_reshaped$head()
+mnist_flat$head(3L)
 #>     label         image
 #>    <fctr> <lazy_tensor>
-#> 1:      5 <tnsr[1x5x5]>
-#> 2:      0 <tnsr[1x5x5]>
-#> 3:      4 <tnsr[1x5x5]>
-#> 4:      1 <tnsr[1x5x5]>
-#> 5:      9 <tnsr[1x5x5]>
-#> 6:      2 <tnsr[1x5x5]>
+#> 1:      5   <tnsr[784]>
+#> 2:      0   <tnsr[784]>
+#> 3:      4   <tnsr[784]>
+```
 
-# The tensors are loaded and preprocessed only when materialized
+To actually access the tensors, we can call `materialize()`, but only
+show a slice for readability:
 
+``` r
 materialize(
-  task_reshaped$data(1, cols = "image")[[1L]],
+  mnist_flat$data(1:2, cols = "image")[[1L]],
   rbind = TRUE
-)
+)[1:2, 1:4]
 #> torch_tensor
-#> (1,1,.,.) = 
-#>     0.0000    0.0000    0.0000    0.0000    0.0000
-#>     0.0000  200.9199  228.2500    8.2000    0.0000
-#>     0.0000    0.0000  196.7500    0.0000    0.0000
-#>     0.0000    0.0000  194.9500  147.4199    0.0000
-#>     0.0000   64.8303    0.0000    0.0000    0.0000
-#> [ CPUFloatType{1,1,5,5} ]
+#>  0  0  0  0
+#>  0  0  0  0
+#> [ CPUFloatType{2,4} ]
+```
+
+We now define a more complex architecture that has one single input
+which is a `lazy_tensor`. For that, we first deine a single residual
+block:
+
+``` r
+layer = list(
+  po("nop"),
+  po("nn_linear", out_features = 50L) %>>%
+    po("nn_dropout") %>>% po("nn_relu")
+) %>>% po("nn_merge_sum")
+```
+
+Next, we create a neural network that takes as input a `lazy_tensor`
+(`po("torch_ingress_num")`). It first applies a linear layer and then
+repeat the above layer using the special `PipeOpTorchBlock`, followed by
+the network’s head. After that, we configure the loss and the optimizer
+and the training parameters. Note that `po("nn_linear_0")` is equivalent
+to `po("nn_linear", id = "nn_linear_0")` and we need this here to avoid
+ID clashes with the linear layer from `po("nn_block")`.
+
+``` r
+deep_network = po("torch_ingress_ltnsr") %>>%
+  po("nn_linear_0", out_features = 50L) %>>%
+  po("nn_block", layer, n_blocks = 5L) %>>%
+  po("nn_head") %>>%
+  po("torch_loss", loss = t_loss("cross_entropy")) %>>%
+  po("torch_optimizer", optimizer = t_opt("adam")) %>>%
+  po("torch_model_classif",
+    epochs = 100L, batch_size = 32
+  )
+```
+
+Next, we prepend the preprocessing step that flattens the images so we
+can directly apply this learner to the unflattened MNIST task.
+
+``` r
+deep_learner = as_learner(
+  flattener %>>% deep_network
+)
+deep_learner$id = "deep_network"
+```
+
+In order to keep track of the performance during training, we use 20% of
+the data and evaluate the classification accuracy.
+
+``` r
+set_validate(deep_learner, 0.2)
+deep_learner$param_set$set_values(
+  torch_model_classif.measures_valid = msr("classif.acc")
+)
+```
+
+All that is left is to train the learner:
+
+``` r
+deep_learner$train(mnist)
 ```
 
 ## Feature Overview
@@ -186,10 +212,12 @@ materialize(
 - It is possible to customize the training process via (predefined or
   custom) callbacks.
 - The package is fully integrated into the `mlr3` ecosystem.
+- Neural network architectures, as well as their hyperparameters can be
+  easily tuned via `mlr3tuning` and friends
 
 ## Documentation
 
-Coming soon.
+- Start by reading one of the vignettes on the package website!
 
 ## Acknowledgements
 

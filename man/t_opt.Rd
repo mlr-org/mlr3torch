@@ -23,7 +23,7 @@ The keys of the optimizers.}
 A \code{\link{TorchOptimizer}}
 }
 \description{
-Retrieves one or more \href{s}{\code{TorchOptimizer}} from \code{\link{mlr3torch_optimizers}}.
+Retrieves one or more \code{\link{TorchOptimizer}}s from \code{\link{mlr3torch_optimizers}}.
 Works like \code{\link[mlr3:mlr_sugar]{mlr3::lrn()}} and \code{\link[mlr3:mlr_sugar]{mlr3::lrns()}}.
 }
 \examples{

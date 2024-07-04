@@ -173,7 +173,7 @@ as.data.table.DictionaryMlr3torchOptimizers = function(x, ...) {
 #' @title Optimizers Quick Access
 #'
 #' @description
-#' Retrieves one or more [`TorchOptimizer`](s) from [`mlr3torch_optimizers`].
+#' Retrieves one or more [`TorchOptimizer`]s from [`mlr3torch_optimizers`].
 #' Works like [`mlr3::lrn()`] and [`mlr3::lrns()`].
 #'
 #' @param .key (`character(1)`)\cr

@@ -33,12 +33,15 @@
 #' @template param_id
 #' @template param_task_type
 #' @template param_param_vals
-#' @template param_param_set
 #' @template param_properties
 #' @template param_packages
 #' @template param_feature_types
 #' @template param_man
 #' @template param_label
+#' @param param_set ([`ParamSet`] or `alist()`)\cr
+#'   Either a parameter set, or an `alist()` containing different values of self,
+#'   e.g. `alist(private$.param_set1, private$.param_set2)`, from which a [`ParamSet`] collection
+#'   should be created.
 #' @param predict_types (`character()`)\cr
 #'   The predict types.
 #'   See [`mlr_reflections$learner_predict_types`][mlr_reflections] for available values.
@@ -123,47 +126,13 @@ LearnerTorch = R6Class("LearnerTorch",
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id, task_type, param_set, properties, man, label, feature_types,
-      optimizer = NULL, loss = NULL, packages = NULL, predict_types = NULL, callbacks = list()) {
+      optimizer = NULL, loss = NULL, packages = character(), predict_types = NULL, callbacks = list()) {
       assert_choice(task_type, c("regr", "classif"))
 
       predict_types = predict_types %??% switch(task_type,
         regr = "response",
         classif = c("response", "prob")
       )
-      if (is.null(loss)) {
-        private$.loss = t_loss(switch(task_type, classif = "cross_entropy", regr = "mse"))
-      } else {
-        private$.loss = as_torch_loss(loss, clone = TRUE)
-      }
-
-      if (task_type %nin% private$.loss$task_types) {
-        stopf("Loss only supports task types %s, but learner has type \"%s\".",
-          paste0("\"", private$.loss$task_types, "\"", sep = ", "), task_type
-        )
-      }
-
-      if (is.null(optimizer)) {
-        private$.optimizer = t_opt("adam")
-      } else {
-        private$.optimizer = as_torch_optimizer(optimizer, clone = TRUE)
-      }
-
-      callbacks = as_torch_callbacks(callbacks, clone = TRUE)
-      callback_ids = ids(callbacks)
-      if (!test_names(callback_ids, type = "unique")) {
-        stopf("All callbacks must have unique IDs that are valid names, but they are %s.",
-          paste0("'", callback_ids, "'", collapse = ", ")
-        )
-      }
-
-      private$.callbacks = set_names(callbacks, callback_ids)
-      packages = unique(c(
-        packages,
-        unlist(map(private$.callbacks, "packages")),
-        private$.loss$packages,
-        private$.optimizer$packages
-      ))
-
 
       assert_subset(properties, mlr_reflections$learner_properties[[task_type]])
       properties = union(properties, c("marshal", "validation", "internal_tuning"))
@@ -182,13 +151,43 @@ LearnerTorch = R6Class("LearnerTorch",
 
       if (test_class(param_set, "ParamSet")) {
         check_ps(param_set)
+        if (!is.null(private$.param_set_base)) {
+          stopf("Learner '%s': Don't set .param_set_base before passing a ParamSet to param_set", self$id)
+        }
         private$.param_set_base = param_set
         private$.param_set_source = alist(private$.param_set_base)
       } else {
-
-        lapply(param_set, function(x) check_ps(eval(x)))
+        lapply(param_set, function(x) {
+          # otherwise cloning can fail when parameter values are set in the param_set constructed
+          # from expressions in alist()
+          assert_true(grepl("^(self|private|super)", deparse(x)))
+          check_ps(eval(x))
+        })
         private$.param_set_source = param_set
       }
+      # loss needs access to the task_type
+      self$task_type = task_type
+      if (is.null(loss)) {
+        private$.loss = t_loss(switch(task_type, classif = "cross_entropy", regr = "mse"))
+      } else if (!inherits(loss, "LossNone")) {
+        self$loss = loss
+      }
+
+      if (is.null(optimizer)) {
+        private$.optimizer = t_opt("adam")
+      } else if (!inherits(optimizer, "OptimizerNone")) {
+        self$optimizer = optimizer
+      }
+
+      if (!inherits(callbacks, "CallbacksNone")) {
+        self$callbacks = callbacks
+      }
+
+      packages = unique(c(
+        packages,
+        unlist(map(private$.callbacks, "packages")),
+        private$.loss$packages,
+        private$.optimizer$packages))
 
       # explanation of the self$param_set call:
       # As of now, private$.param_set is NULL, this will cause the ParamSetCollection to be constructed
@@ -208,6 +207,7 @@ LearnerTorch = R6Class("LearnerTorch",
         feature_types = feature_types,
         man = man
       )
+
     },
     #' @description
     #' Helper for print outputs.
@@ -241,6 +241,18 @@ LearnerTorch = R6Class("LearnerTorch",
     #' @return self
     unmarshal = function(...) {
       learner_unmarshal(.learner = self, ...)
+    },
+    #' @description
+    #' Create the dataset for a task.
+    #' @param task [`Task`][mlr3::Task]\cr
+    #' The task
+    #' @return [`dataset`][torch::dataset]
+    dataset = function(task) {
+      assert_task(task)
+      param_vals = self$param_set$values
+      param_vals$device = auto_device(param_vals$device)
+
+      private$.dataset(task, param_vals)
     }
   ),
   active = list(
@@ -252,6 +264,49 @@ LearnerTorch = R6Class("LearnerTorch",
         private$.validate = assert_validate(rhs)
       }
       private$.validate
+    },
+
+    #' @field loss ([`TorchLoss`])\cr
+    #' The torch loss.
+    loss = function(rhs) {
+      if (!missing(rhs)) {
+        private$.param_set = NULL
+        loss = as_torch_loss(rhs, clone = TRUE)
+        assert_choice(self$task_type, loss$task_types)
+        private$.loss = loss
+        self$packages = unique(c(self$packages, private$.loss$packages))
+      }
+      private$.loss
+    },
+
+    #' @field optimizer ([`TorchOptimizer`])\cr
+    #' The torch optimizer.
+    optimizer = function(rhs) {
+      if (!missing(rhs)) {
+        private$.optimizer = as_torch_optimizer(rhs, clone = TRUE)
+        private$.param_set = NULL
+        self$packages = unique(c(self$packages, private$.optimizer$packages))
+      }
+      private$.optimizer
+    },
+
+    #' @field callbacks (`list()` of [`TorchCallback`]s)\cr
+    #' List of torch callbacks.
+    #' The ids will be set as the names.
+    callbacks = function(rhs) {
+      if (!missing(rhs)) {
+        callbacks = as_torch_callbacks(rhs, clone = TRUE)
+        callback_ids = ids(callbacks)
+        if (!test_names(callback_ids, type = "unique")) {
+          stopf("All callbacks must have unique IDs that are valid names, but they are %s.",
+            paste0("'", callback_ids, "'", collapse = ", ")
+          )
+        }
+        private$.callbacks = callbacks
+        private$.param_set = NULL
+        self$packages = unique(c(self$packages, unlist(map(private$.callbacks, "packages"))))
+      }
+      private$.callbacks
     },
 
     #' @field internal_valid_scores
@@ -284,13 +339,18 @@ LearnerTorch = R6Class("LearnerTorch",
     #'   The parameter set
     param_set = function(rhs) {
       if (is.null(private$.param_set)) {
+        # optimizer, loss and callbacks don't have to be part of the param_set, they can also be
+        # parameters themselves
         sourcelist = lapply(private$.param_set_source, function(x) eval(x))
         private$.param_set = ParamSetCollection$new(c(
           list(private$.param_set_torch),
           sourcelist,
-          list(opt = private$.optimizer$param_set),
-          list(loss = private$.loss$param_set),
-          set_names(map(private$.callbacks, "param_set"), sprintf("cb.%s", ids(private$.callbacks)))
+          if (!is.null(private$.optimizer)) list(opt = private$.optimizer$param_set),
+          if (!is.null(private$.loss)) list(loss = private$.loss$param_set),
+
+          if (!is.null(private$.callbacks)) {
+            set_names(map(private$.callbacks, "param_set"), sprintf("cb.%s", ids(private$.callbacks)))
+          }
         ))
       }
       if (!missing(rhs) && !identical(rhs, private$.param_set)) {
@@ -455,6 +515,7 @@ LearnerTorch = R6Class("LearnerTorch",
       } else if (test_class(value, "nn_module")) {
         value$clone(deep = TRUE)
       } else if (name == ".callbacks") {
+        if (is.null(value)) return(NULL)
         map(value, function(x) x$clone(deep = TRUE))
       } else if (name == ".param_set") {
         NULL

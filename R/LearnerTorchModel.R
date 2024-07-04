@@ -59,11 +59,11 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(task_type, network, ingress_tokens, properties = NULL, optimizer = NULL, loss = NULL,
+    initialize = function(network = NULL, ingress_tokens = NULL, task_type, properties = NULL, optimizer = NULL, loss = NULL,
       callbacks = list(), packages = character(0), feature_types = NULL) {
       # TODO: What about the learner properties?
-      private$.network_stored = assert_class(network, "nn_module")
-      private$.ingress_tokens = assert_list(ingress_tokens, types = "TorchIngressToken", min.len = 1L)
+      if (!is.null(network)) self$network_stored = network
+      if (!is.null(ingress_tokens)) self$ingress_tokens = ingress_tokens
       if (is.null(feature_types)) {
         feature_types = unname(mlr_reflections$task_feature_types)
       } else {
@@ -76,11 +76,12 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
       }
       super$initialize(
         id = paste0(task_type, ".model"),
+        loss = loss,
+        optimizer = optimizer,
+        callbacks = callbacks,
         task_type = task_type,
         label = "Torch Model",
-        optimizer = optimizer,
         properties = properties,
-        loss = loss,
         packages = packages,
         param_set = ps(),
         feature_types = feature_types,
@@ -88,9 +89,29 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
       )
     }
   ),
+  active = list(
+    #' @field network_stored (`nn_module` or `NULL`)\cr
+    #' The network that will be trained.
+    #' After calling `$train()`, this is `NULL`.
+    network_stored = function(rhs) {
+      if (!missing(rhs)) {
+        private$.network_stored = assert_class(rhs, "nn_module")
+      }
+      private$.network_stored
+    },
+    #' @field ingress_tokens (named `list()` with `TorchIngressToken` or `NULL`)\cr
+    #' The ingress tokens. Must be non-`NULL` when calling `$train()`.
+    ingress_tokens = function(rhs) {
+      if (!missing(rhs)) {
+        private$.ingress_tokens = assert_list(rhs, types = "TorchIngressToken", min.len = 1L, names = "unique")
+      }
+      private$.ingress_tokens
+    }
+  ),
   private = list(
+    .ingress_tokens = NULL,
     deep_clone = function(name, value) {
-      if (name == ".network_stored" && is.null(value)) {
+      if (name == ".network_stored" && is.null(value) && !is.null(self$state)) {
         # the initial network state is lost after training a LearnerTorchModel
         stopf("Learner %s: Can only create deep clone for untrained learner", self$id)
       } else {
@@ -99,22 +120,25 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
     },
     .network = function(task, param_vals) {
       if (is.null(private$.network_stored)) {
-        stopf("No network stored, did you already train learner '%s'?", self$id)
+        stopf("No network stored, did you already train learner '%s' or did not specify a model?", self$id)
       }
       network = private$.network_stored
       private$.network_stored = NULL
       network
     },
     .dataset = function(task, param_vals) {
+      ingress_tokens = self$ingress_tokens
+      if (is.null(ingress_tokens)) {
+        stopf("Learner '%s' has no $ingress_tokens set.", self$id)
+      }
       dataset = task_dataset(
         task,
-        feature_ingress_tokens = private$.ingress_tokens,
+        feature_ingress_tokens = ingress_tokens,
         target_batchgetter = get_target_batchgetter(self$task_type),
         device = param_vals$device
       )
     },
     .network_stored = NULL,
-    .ingress_tokens = NULL,
     .additional_phash_input = function() {
       list(self$properties, self$feature_types, private$.network_stored, self$packages, private$.ingress_tokens)
      }
@@ -122,9 +146,5 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
 )
 
 #' @include PipeOpTorchIngress.R task_dataset.R
-register_learner("classif.torch_model", LearnerTorchModel, network = nn_identity(),
-  ingress_tokens = list(x = TorchIngressToken("x", batchgetter_num, c(NA, 1))
-))
-register_learner("regr.torch_model", LearnerTorchModel, network = nn_identity(),
-  ingress_tokens = list(x = TorchIngressToken("x", batchgetter_num, c(NA, 1)))
-)
+register_learner("classif.torch_model", LearnerTorchModel)
+register_learner("regr.torch_model", LearnerTorchModel)

@@ -25,65 +25,72 @@
 #' @family PipeOps
 #' @export
 PipeOpTorchModel = R6Class("PipeOpTorchModel",
-  inherit = PipeOp,
+  inherit = PipeOpLearner,
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
     #' @param task_type (`character(1)`)\cr
     #'   The task type of the model.
     initialize = function(task_type, id = "torch_model", param_vals = list()) {
-      # TODO: Add properties argument
       private$.task_type = assert_choice(task_type, c("classif", "regr"))
-      param_set = paramset_torchlearner(task_type)
-      input = data.table(
+
+      # loss, optimizer and callbacks are set to special values, that cause
+      # them to become fields instead of construction arguments, otherwise we
+      # cannot satisfy the PipeOpLearner, which needs to create the learner in $initialize()
+      # We need to inherit from PipeOpLearner, as otherwise things like $base_learner() don't work
+      learner = LearnerTorchModel$new(
+        loss = LossNone(),
+        optimizer = OptimizerNone(),
+        callbacks = CallbacksNone(),
+        task_type = task_type
+      )
+
+      super$initialize(
+        learner = learner,
+        id = id,
+        param_vals = param_vals
+      )
+      # FIXME: is this okay?
+      self$input = data.table(
         name = "input",
         train = "ModelDescriptor",
         predict = mlr_reflections$task_types[private$.task_type, task]
       )
-      output = data.table(
+      self$output = data.table(
         name = "output",
         train = "NULL",
         predict = mlr_reflections$task_types[private$.task_type, prediction]
-      )
-
-      super$initialize(
-        id = id,
-        param_set = param_set,
-        param_vals = param_vals,
-        input = input,
-        output = output
       )
     }
   ),
   private = list(
     .train = function(inputs) {
       md = inputs[[1]]
+      network = model_descriptor_to_module(
+        model_descriptor = md,
+        output_pointers = list(md$pointer),
+        list_output = FALSE
+      )
+      private$.learner$network_stored = network
+      private$.learner$ingress_tokens = md$ingress
 
       if (is.null(md$loss)) {
-        stopf("No loss configured in ModelDescriptor. Use po(\"torch_loss\").")
+        stopf("No loss configured in ModelDescriptor. Use (\"torch_loss\").")
       }
+      self$learner$loss = md$loss
       if (is.null(md$optimizer)) {
         stopf("No optimizer configured in ModelDescriptor. Use po(\"torch_optimizer\").")
       }
+      self$learner$optimizer = md$optimizer
+      if (!is.null(md$callbacks)) {
+        self$learner$callbacks = md$callbacks
+      }
 
-      param_vals = self$param_set$get_values()
+      ingress_tokens = md$ingress
 
-      learner = model_descriptor_to_learner(md)
+      private$.learner$packages = unique(private$.learner$packages, md$network$graph$packages)
 
-      # TODO: Maybe we want the learner and the pipeop to actually share the paramset by reference.
-      # If we do this we need to write a custom clone function.
-      # While it is not efficient, the current solution works.
-      learner$param_set$set_values(.values = param_vals)
-      # in case something goes wrong during training we still set the state.
-      on.exit({self$state = learner}, add = TRUE)
-      learner$train(md$task)
-      self$state = learner
-      list(NULL)
-    },
-    .predict = function(inputs) {
-      # This is copied from mlr3pipelines (PipeOpLearner)
-      task = inputs[[1]]
-      list(self$state$predict(task))
+      super$.train(list(md$task))
     },
     .task_type = NULL,
     .additional_phash_input = function() {
@@ -128,7 +135,6 @@ PipeOpTorchModelClassif = R6Class("PipeOpTorchModelClassif",
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
     initialize = function(id = "torch_model_classif", param_vals = list()) {
-      # TODO: Add properties argument
       super$initialize(
         id = id,
         param_vals = param_vals,
@@ -174,7 +180,6 @@ PipeOpTorchModelRegr = R6Class("PipeOpTorchModelRegr",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
     initialize = function(id = "torch_model_regr", param_vals = list()) {
-      # TODO: Add properties argument
       super$initialize(
         id = id,
         param_vals = param_vals,

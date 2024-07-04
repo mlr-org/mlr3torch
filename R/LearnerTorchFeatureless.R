@@ -61,7 +61,7 @@ dataset_featureless = dataset(
     list(
       x = list(n = torch_tensor(nrow(target), dtype = torch_long(), device = self$device)),
       y = y,
-      .index = index
+      .index = torch_tensor(index, device = self$device, dtype = torch_long())
     )
 
   },
