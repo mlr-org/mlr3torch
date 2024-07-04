@@ -26,21 +26,23 @@ imagenet
 The central ingredients for creating such graphs are `PipeOpTorch` operators.
 
 To mark the entry-point of the neural network, we use a `PipeOpTorchIngress`, for which three different flavors exist:
+
 * `po("torch_ingress_num")` for numeric data
-* `po("torch_ingress_categ")` for categoricalc columns
+* `po("torch_ingress_categ")` for categorical columns
 * `po("torch_ingress_ltnsr")` for `lazy_tensor`s
 
-Because the imagenet task contains only one feature of type `lazy_tensor`, the latter is the correct choice:
+Because the imagenet task contains only one feature of type `lazy_tensor`, we go for the last option:
 
 ```{r}
 architecture = po("torch_ingress_ltnsr")
 ```
 
 We now define a relatively simple convolutional neural network.
-Note that `po("nn_relu_1")` is equivalent to `po("nn_relu", id = "nn_linear_1")`.
+Note that in the code below `po("nn_relu_1")` is equivalent to `po("nn_relu", id = "nn_linear_1")`.
 This is needed, because `mlr3pipelines::Graph`s require that each `PipeOp` has a unique ID.
-What we can notice that we don't have to specify the input dimension for the convolutional layers, which are inferred from the task during `$train()`ing.
-This means that our `Learner` can be applied to tasks with different image sizes.
+
+What we can further notice is that we don't have to specify the input dimension for the convolutional layers, which are inferred from the task during `$train()`ing.
+This means that our `Learner` can be applied to tasks with different image sizes, each time building up the correct network structure.
 
 ```{r}
 architecture = architecture %>>%
@@ -84,7 +86,6 @@ architecture$plot(html = TRUE)
 
 To turn this network architecture into an `mlr3::Learner` what is left to do is to configure the loss, optimizer, callbacks, and training arguments, which we do now:
 We use the standard cross-entropy loss, SGD as the optimizer and checkpoint our model every 20 epochs.
-F
 
 ```{r}
 checkpoint = tempfile()
@@ -126,6 +127,11 @@ imagenet$filter(1L)
 ```
 
 Finally, we train the learner on the task:
+
+```{r, include = FALSE}
+# otherwise downloading might show in the code-snippet below
+imagenet$data()
+```
 
 
 ```{r}

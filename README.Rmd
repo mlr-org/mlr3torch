@@ -77,7 +77,7 @@ learner_mlp = lrn("classif.mlp",
 )
 ```
 
-This learner can for example be resampled, benchmarked or tuned.
+The code below evaluates the learner using a simple holdout resampling.
 
 ```{r}
 resample(
@@ -106,56 +106,39 @@ graph_mlp = architecture %>>%
   po("torch_optimizer", optimizer = t_opt("adam", lr = 0.1)) %>>%
   po("torch_callbacks", callbacks = t_clbk("history")) %>>%
   po("torch_model_classif",
-    batch_size = 16, epochs = 50, device = "cpu",
-    measures_valid = msr("classif.acc"))
+    batch_size = 16, epochs = 50, device = "cpu")
 
-graph_mlp
 graph_lrn = as_learner(graph_mlp)
 ```
 
-As validation data, we use 30%, which is used to keep track of the performance during training:
-
-```{r}
-set_validate(graph_lrn, 0.3)
-```
-
-Then, we evaluate the network using a simple holdout resampling.
-
-```{r}
-resample(
-  task       = tsk("iris"),
-  learner    = graph_lrn,
-  resampling = rsmp("holdout")
-)
-```
-
 To work with generic tensors, the `lazy_tensor` type can be used.
-It wraps a `torch::dataset`, but allows to preprocess the data (lazily) using `PipeOp` objects, just like for tabular data.
+It wraps a `torch::dataset`, but allows to preprocess the data (lazily) using `PipeOp` objects
 Below, we flatten the MNIST task, so we can then train a multi-layer perceptron on it.
+Note that this does *not* transform the data in-memory, but is only applied when the data is actually loaded.
 
 ```{r}
 # load the predefined mnist task
 mnist = tsk("mnist")
-mnist$head()
+mnist$head(3L)
 
 # Flatten the images
 flattener = po("trafo_reshape", shape = c(-1, 28 * 28))
 mnist_flat = flattener$train(list(mnist))[[1L]]
 
-mnist_flat$head()
+mnist_flat$head(3L)
 ```
 
-The tensors are loaded and preprocessed only when materialized
+To actually access the tensors, we can call `materialize()`, but only show a slice for readability:
 
 ```{r}
 materialize(
   mnist_flat$data(1:2, cols = "image")[[1L]],
   rbind = TRUE
-)$shape
+)[1:2, 1:4]
 ```
 
 We now define a more complex architecture that has one single input which is a `lazy_tensor`.
-For that, we first dine a single residual block:
+For that, we first deine a single residual block:
 
 ```{r}
 layer = list(
@@ -166,8 +149,10 @@ layer = list(
 
 ```
 
-Next, we create a neural network that takes as input a `lazy_tensor` (`po("torch_ingress_num")`), then applies a linear layer without output dimension 50 and then repeat the above layer using the special `PipeOpTorchBlock`, followed by the network's head.
+Next, we create a neural network that takes as input a `lazy_tensor` (`po("torch_ingress_num")`).
+It first applies a linear layer and then repeat the above layer using the special `PipeOpTorchBlock`, followed by the network's head.
 After that, we configure the loss and the optimizer and the training parameters.
+Note that `po("nn_linear_0")` is equivalent to `po("nn_linear", id = "nn_linear_0")` and we need this here to avoid ID clashes with the linear layer from `po("nn_block")`.
 
 ```{r}
 deep_network = po("torch_ingress_ltnsr") %>>%
@@ -180,8 +165,7 @@ deep_network = po("torch_ingress_ltnsr") %>>%
     epochs = 100L, batch_size = 32
   )
 ```
-
-Finally, we prepend the preprocessing step that flattens the images so we can directly apply this learner to the unflattened MNIST task.
+Next, we prepend the preprocessing step that flattens the images so we can directly apply this learner to the unflattened MNIST task.
 
 ```{r}
 deep_learner = as_learner(
@@ -190,13 +174,22 @@ deep_learner = as_learner(
 deep_learner$id = "deep_network"
 ```
 
+In order to keep track of the performance during training, we use 20% of the data and evaluate the classification accuracy.
+
+```{r}
+set_validate(deep_learner, 0.2)
+deep_learner$param_set$set_values(
+  torch_model_classif.measures_valid = msr("classif.acc")
+)
+```
+
 ```{r, include = FALSE}
 # so it renders faster
 deep_learner$param_set$values$torch_model_classif.epochs = 1L
 mnist$filter(1)
 ```
 
-All that is left is to train the learner
+All that is left is to train the learner:
 
 ```{r}
 deep_learner$train(mnist)

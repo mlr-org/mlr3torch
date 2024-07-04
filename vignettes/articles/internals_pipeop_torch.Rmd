@@ -1,8 +1,8 @@
 ---
-title: "Neural Networks as Graphs"
+title: "Internals"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Neural Networks as Graphs}
+  %\VignetteIndexEntry{Internals}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
