@@ -17,7 +17,8 @@ knitr::opts_chunk$set(
 In this vignette, we will show how to build neural network architectures as `mlr3pipelines::Graphs`s.
 We will create a simple CNN for the tiny-imagenet task, which is a subst of well-known Imagenet benchmark.
 
-```{r}
+```{r, message = FALSE}
+library(mlr3torch)
 imagenet = tsk("tiny_imagenet")
 imagenet
 ```

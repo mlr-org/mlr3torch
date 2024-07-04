@@ -41,6 +41,9 @@ navbar:
     get_started:
       text: Get Started
       href: articles/get_started.html
+    networks_as_graphs:
+      text: Defining an Architecture
+      href: articles/pipeop_torch.html
     callbacks:
       text: Callbacks
       href: articles/callbacks.html
@@ -49,7 +52,7 @@ navbar:
       href: articles/lazy_tensor.html
     networks_as_graphs:
       text: Internals of Network Graphs
-      href: articles/pipeop_torch.html
+      href: articles/internals_pipeop_torch.html
 
 reference:
   - title: Package

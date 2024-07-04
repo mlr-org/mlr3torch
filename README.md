@@ -67,8 +67,7 @@ learner_mlp = lrn("classif.mlp",
 )
 ```
 
-This learner can for be resampled, benchmarked or tuned as any other
-learner.
+This learner can for example be resampled, benchmarked or tuned.
 
 ``` r
 resample(
@@ -93,14 +92,16 @@ architecture = po("torch_ingress_num") %>>%
 ```
 
 To turn this into a learner, we configure the loss, optimizer, callbacks
-and the training arguments.
+as well as the training arguments.
 
 ``` r
 graph_mlp = architecture %>>%
   po("torch_loss", loss = t_loss("cross_entropy")) %>>%
   po("torch_optimizer", optimizer = t_opt("adam", lr = 0.1)) %>>%
   po("torch_callbacks", callbacks = t_clbk("history")) %>>%
-  po("torch_model_classif", batch_size = 16, epochs = 50, device = "cpu")
+  po("torch_model_classif",
+    batch_size = 16, epochs = 50, device = "cpu",
+    measures_valid = msr("classif.acc"))
 
 graph_mlp
 #> Graph with 8 PipeOps:
@@ -115,25 +116,36 @@ graph_mlp
 #>      torch_callbacks <<UNTRAINED>> torch_model_classif   torch_optimizer
 #>  torch_model_classif <<UNTRAINED>>                       torch_callbacks
 graph_lrn = as_learner(graph_mlp)
-# For GraphLearners, set_validate should be used to specify the validation data:
+```
+
+As validation data, we use 30%, which is used to keep track of the
+performance during training:
+
+``` r
 set_validate(graph_lrn, 0.3)
+```
 
-graph_lrn$id = "graph_mlp"
+Then, we evaluate the network using a simple holdout resampling.
 
+``` r
 resample(
   task       = tsk("iris"),
   learner    = graph_lrn,
   resampling = rsmp("holdout")
 )
 #> <ResampleResult> with 1 resampling iterations
-#>  task_id learner_id resampling_id iteration warnings errors
-#>     iris  graph_mlp       holdout         1        0      0
+#>  task_id
+#>     iris
+#>                                                                                                  learner_id
+#>  torch_ingress_num.nn_linear.nn_relu.nn_head.torch_loss.torch_optimizer.torch_callbacks.torch_model_classif
+#>  resampling_id iteration warnings errors
+#>        holdout         1        0      0
 ```
 
 To work with generic tensors, the `lazy_tensor` type can be used. It
-wraps a `torch::dataset`, but allows to preprocess the data using
-`PipeOp` objects, just like tabular data. Below, we flatten the MNIST
-task, so we can then train a multi-layer perceptron on it.
+wraps a `torch::dataset`, but allows to preprocess the data (lazily)
+using `PipeOp` objects, just like for tabular data. Below, we flatten
+the MNIST task, so we can then train a multi-layer perceptron on it.
 
 ``` r
 # load the predefined mnist task
@@ -161,8 +173,11 @@ mnist_flat$head()
 #> 4:      1   <tnsr[784]>
 #> 5:      9   <tnsr[784]>
 #> 6:      2   <tnsr[784]>
+```
 
-# The tensors are loaded and preprocessed only when materialized
+The tensors are loaded and preprocessed only when materialized
+
+``` r
 materialize(
   mnist_flat$data(1:2, cols = "image")[[1L]],
   rbind = TRUE
@@ -171,8 +186,8 @@ materialize(
 ```
 
 We now define a more complex architecture that has one single input
-which is a `lazy_tensor`. For that, we define first a single residual
-layer:
+which is a `lazy_tensor`. For that, we first dine a single residual
+block:
 
 ``` r
 layer = list(
@@ -182,8 +197,8 @@ layer = list(
 ) %>>% po("nn_merge_sum")
 ```
 
-We now define the input of the neural network to be a `lazy_tensor`
-(`po("torch_ingress_num")`), apply a linear layer without output
+Next, we create a neural network that takes as input a `lazy_tensor`
+(`po("torch_ingress_num")`), then applies a linear layer without output
 dimension 50 and then repeat the above layer using the special
 `PipeOpTorchBlock`, followed by the network’s head. After that, we
 configure the loss and the optimizer and the training parameters.
@@ -209,6 +224,8 @@ deep_learner = as_learner(
 )
 deep_learner$id = "deep_network"
 ```
+
+All that is left is to train the learner
 
 ``` r
 deep_learner$train(mnist)
