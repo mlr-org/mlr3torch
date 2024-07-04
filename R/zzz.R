@@ -53,7 +53,7 @@ register_learner = function(.name, .constructor, ...) {
   # For this reason, we need this hacky solution here, might change in the future in mlr3misc
   fn = crate(function() {
     invoke(.constructor$new, task_type = task_type, .args = as.list(match.call()[-1]))
-  }, .constructor, task_type)
+  }, .constructor, task_type, .parent = topenv())
   fmls = formals(.constructor$public_methods$initialize)
   fmls$task_type = NULL
   formals(fn) = fmls

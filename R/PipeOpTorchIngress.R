@@ -159,6 +159,7 @@ TorchIngressToken = function(features, batchgetter, shape) {
 }
 
 #' @export
+#' @keywords internal
 hash_input.TorchIngressToken = function(x) {
   list(x$features, x$shape, hash_input(x$batchgetter))
 }

@@ -38,3 +38,98 @@ navbar:
     rss:
       icon: fa-rss
       href: https://mlr-org.com/
+    get_started:
+      text: Get Started
+      href: articles/get_started.html
+    callbacks:
+      text: Callbacks
+      href: articles/callbacks.html
+    lazy_tensor:
+      text: Lazy Tensor
+      href: articles/lazy_tensor.html
+    networks_as_graphs:
+      text: Neural Networks as Graphs
+      href: articles/callbacks.html
+
+reference:
+  - title: Package
+    contents:
+      - mlr3torch-package
+  - title: Learners
+    contents:
+      - starts_with("mlr_learners")
+  - title: Tasks
+    contents:
+      - starts_with("mlr_tasks")
+      - mlr_backends_lazy
+  - title: Network Building Blocks
+    contents:
+      - ModelDescriptor
+      - starts_with("model_descriptor")
+      - mlr_pipeops_module
+      - TorchIngressToken
+      - mlr_pipeops_torch
+      - mlr_pipeops_torch_ingress
+      - starts_with("mlr_pipeops_torch_model")
+      - starts_with("pipeop_torch_ingress")
+      - starts_with("batchgetter")
+      - starts_with("mlr_pipeops_torch_ingress")
+      - mlr_pipeops_torch_loss
+      - mlr_pipeops_torch_optimizer
+      - mlr_pipeops_torch_callbacks
+  - title: Network Layers
+    contents:
+      - starts_with("mlr_pipeops_nn")
+  - title: Preprocessing Operators
+    contents:
+      - mlr_pipeops_preproc_torch
+      - pipeop_preproc_torch
+      - starts_with("PipeOpPreprocTorch")
+  - title: NN Modules
+    contents:
+      - starts_with("nn")
+  - title: Lazy Tensor
+    contents:
+      - lazy_tensor
+      - DataDescriptor
+      - as_lazy_tensor
+      - as_data_descriptor
+      - assert_lazy_tensor
+      - is_lazy_tensor
+      - materialize
+  - title: Loss
+    contents:
+      - t_loss
+      - TorchLoss
+      - mlr_pipeops_torch_loss
+      - as_torch_loss
+      - mlr3torch_losses
+  - title: Optimizer
+    contents:
+      - t_opt
+      - TorchLoss
+      - mlr_pipeops_torch_optimizer
+      - as_torch_optimizer
+      - mlr3torch_optimizers
+  - title: Callbacks
+    contents:
+      - callback_set
+      - torch_callback
+      - t_clbk
+      - starts_with("Torch")
+      - starts_with("mlr_callback_set")
+      - TorchCallback
+      - CallbackSet
+      - as_torch_callback
+      - as_torch_callbacks
+      - mlr_pipeops_torch_callbacks
+      - mlr3torch_callbacks
+      - mlr_context_torch
+  - title: Helper
+    contents:
+      - TorchDescriptor
+      - auto_device
+      - task_dataset
+
+
+

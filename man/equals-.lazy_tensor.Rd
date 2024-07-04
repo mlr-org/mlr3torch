@@ -18,3 +18,4 @@ This means that if two \code{\link{lazy_tensor}}s:
 \item are unequal: they might materialize to the same tensors.
 }
 }
+\keyword{internal}

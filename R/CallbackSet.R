@@ -174,7 +174,8 @@ callback_set = function(
   lock_objects = FALSE
   ) {
   assert_true(startsWith(classname, "CallbackSet"))
-  assert_false(xor(is.null(state_dict), is.null(load_state_dict)))
+  assert_false(xor(is.null(state_dict), is.null(load_state_dict)),
+    .var.name = "Implement both state_dict and load_state_dict")
   assert_function(state_dict, nargs = 0, null.ok = TRUE)
   assert_function(load_state_dict, args = "state_dict", nargs = 1, null.ok = TRUE)
   more_public = list(

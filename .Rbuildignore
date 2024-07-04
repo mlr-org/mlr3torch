@@ -1,3 +1,5 @@
+^renv$
+^renv\.lock$
 ^mlr3torch\.Rproj$
 ^\.Rproj\.user$
 ^README\.Rmd$
@@ -29,3 +31,5 @@
 ^inst/data_scripts$
 ^vignettes/articles$
 data-raw
+^doc$
+^Meta$

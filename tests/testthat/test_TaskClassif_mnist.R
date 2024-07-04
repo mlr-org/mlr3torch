@@ -11,4 +11,8 @@ test_that("mnist task works", {
   expect_equal(task$target_names, "label")
   expect_equal(task$man, "mlr3torch::mlr_tasks_mnist")
   expect_equal(task$properties, "multiclass")
+
+  x = materialize(task$data(task$row_ids[1:2], cols = "image")[[1L]], rbind = TRUE)
+  expect_equal(x$shape, c(2, 1, 28, 28))
+  expect_equal(x$dtype, torch_float32())
 })
