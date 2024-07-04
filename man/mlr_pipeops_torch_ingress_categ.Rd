@@ -34,7 +34,6 @@ The state is set to the input shape.
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 graph = po("select", selector = selector_type("factor")) \%>>\%
   po("torch_ingress_categ")
 task = tsk("german_credit")
@@ -42,6 +41,7 @@ task = tsk("german_credit")
 md = graph$train(task)[[1L]]
 ingress = md$ingress[[1L]]
 ingress$batchgetter(task$data(1, ingress$features), "cpu")
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other PipeOps: 

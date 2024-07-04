@@ -34,6 +34,7 @@ When the constructor generates \code{factor()} variables it is important that th
 corresponds to the ordering of the levels in the \code{col_info} argument.
 }
 \examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # We first define a backend constructor
 constructor = function(backend) {
   cat("Data is constructed!\n")
@@ -69,6 +70,7 @@ col_info(backend_lazy)
 backend_lazy$data(1, "x")
 # Is the same as:
 backend_lazy$backend$data(1, "x")
+\dontshow{\}) # examplesIf}
 }
 \section{Super class}{
 \code{\link[mlr3:DataBackend]{mlr3::DataBackend}} -> \code{DataBackendLazy}

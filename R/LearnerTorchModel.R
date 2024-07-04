@@ -27,7 +27,6 @@
 #' @include LearnerTorch.R
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' # We show the learner using a classification task
 #'
 #' # The iris task has 4 features and 3 classes

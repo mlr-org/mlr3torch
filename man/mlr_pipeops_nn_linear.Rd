@@ -42,12 +42,12 @@ to last dimension of the input tensor.
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 # Construct the PipeOp
 pipeop = po("nn_linear", out_features = 10)
 pipeop
 # The available parameters
 pipeop$param_set
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other PipeOps: 

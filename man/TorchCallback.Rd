@@ -22,7 +22,6 @@ for each argument of the wrapped loss function, where the parametes are then of 
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 # Create a new torch callback from an existing callback set
 torch_callback = TorchCallback$new(CallbackSetCheckpoint)
 # The parameters are inferred
@@ -51,7 +50,7 @@ CallbackSetCheckpoint$new(
 learner = lrn("regr.mlp", callbacks = t_clbk("checkpoint"))
 # the parameters of the callback are added to the learner's parameter set
 learner$param_set
-
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other Callback: 

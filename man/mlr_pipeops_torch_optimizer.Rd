@@ -33,13 +33,13 @@ pipeop itself.
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 po_opt = po("torch_optimizer", "sgd", lr = 0.01)
 po_opt$param_set
 mdin = po("torch_ingress_num")$train(list(tsk("iris")))
 mdin[[1L]]$optimizer
 mdout = po_opt$train(mdin)
 mdout[[1L]]$optimizer
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other PipeOp: 

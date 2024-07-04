@@ -66,7 +66,9 @@ Function to create objects of class \code{\link{PipeOpTaskPreprocTorch}} in a mo
 Start by reading the documentation of \code{\link{PipeOpTaskPreprocTorch}}.
 }
 \examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 PipeOpPreprocExample = pipeop_preproc_torch("preproc_example", function(x, a) x + a)
 po_example = PipeOpPreprocExample$new()
 po_example$param_set
+\dontshow{\}) # examplesIf}
 }

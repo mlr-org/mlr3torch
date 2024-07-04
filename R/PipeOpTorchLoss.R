@@ -18,7 +18,6 @@
 #'
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' po_loss = po("torch_loss", loss = t_loss("cross_entropy"))
 #' po_loss$param_set
 #' mdin = po("torch_ingress_num")$train(list(tsk("iris")))

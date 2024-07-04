@@ -39,7 +39,6 @@ the channels are defined. Arguments are \strong{not} matched by name.
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 ## creating an PipeOpModule manually
 
 # one input and output channel
@@ -94,6 +93,7 @@ po_add1 = po("module",
 )
 input = list(torch_tensor(1))
 po_add1$train(input)$output
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other Graph Network: 

@@ -22,12 +22,12 @@ adadelta, adagrad, adam, asgd, rmsprop, rprop, sgd
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 mlr3torch_optimizers$get("adam")
 # is equivalent to
 t_opt("adam")
 # convert to a data.table
 as.data.table(mlr3torch_optimizers)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other Torch Descriptor: 

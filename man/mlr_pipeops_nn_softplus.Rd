@@ -39,12 +39,12 @@ Values above this revert to a linear function. Default: 20
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 # Construct the PipeOp
 pipeop = po("nn_softplus")
 pipeop
 # The available parameters
 pipeop$param_set
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other PipeOps: 

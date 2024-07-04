@@ -52,7 +52,7 @@
 #'   Name of the primary key column.
 #'
 #' @export
-#' @examples
+#' @examplesIf torch::torch_is_installed()
 #' # We first define a backend constructor
 #' constructor = function(backend) {
 #'   cat("Data is constructed!\n")

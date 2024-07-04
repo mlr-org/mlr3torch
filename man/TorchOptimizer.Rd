@@ -22,7 +22,6 @@ for each argument of the wrapped loss function, where the parametes are then of 
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 # Create a new torch loss
 torch_opt = TorchOptimizer$new(optim_adam, label = "adam")
 torch_opt
@@ -50,6 +49,7 @@ optim_sgd(net$parameters, lr = 0.1)
 learner = lrn("regr.mlp", optimizer = t_opt("sgd"))
 # The parameters of the optimizer are added to the learner's parameter set
 learner$param_set
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other Torch Descriptor: 

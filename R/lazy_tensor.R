@@ -9,7 +9,6 @@
 #' @include DataDescriptor.R
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' ds = dataset("example",
 #'   initialize = function() self$iris = iris[, -5],
 #'   .getitem = function(i) list(x = torch_tensor(as.numeric(self$iris[i, ]))),
@@ -128,8 +127,6 @@ dd = function(x) {
 #'  Additional arguments passed to the method.
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' @examples
-#' # Convert a dataset
 #' iris_ds = dataset("iris",
 #'   initialize = function() {
 #'     self$iris = iris[, -5]
@@ -249,7 +246,6 @@ is_lazy_tensor = function(x) {
 #'
 #' @return [`lazy_tensor`]
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' lt = as_lazy_tensor(1:10)
 #' add_five = po("module", module = function(x) x + 5)
 #' lt_plus_five = transform_lazy_tensor(lt, add_five, c(NA, 1))

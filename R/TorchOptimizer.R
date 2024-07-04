@@ -58,7 +58,6 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #' @family Torch Descriptor
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' # Create a new torch loss
 #' torch_opt = TorchOptimizer$new(optim_adam, label = "adam")
 #' torch_opt
@@ -148,7 +147,6 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
 #' @family Dictionary
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' mlr3torch_optimizers$get("adam")
 #' # is equivalent to
 #' t_opt("adam")
@@ -184,7 +182,7 @@ as.data.table.DictionaryMlr3torchOptimizers = function(x, ...) {
 #' @export
 #' @family Torch Descriptor
 #' @family Dictionary
-#' @examples
+#' @examplesIf torch::torch_is_installed()
 #' t_opt("adam", lr = 0.1)
 #' # get the dictionary
 #' t_opt()
@@ -207,7 +205,7 @@ t_opt.NULL = function(.key, ...) { # nolint
 #' @param .keys (`character()`)\cr
 #'   The keys of the optimizers.
 #' @export
-#' @examples
+#' @examplesIf torch::torch_is_installed()
 #' t_opts(c("adam", "sgd"))
 #' # get the dictionary
 #' t_opts()

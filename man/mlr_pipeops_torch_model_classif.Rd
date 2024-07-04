@@ -33,7 +33,6 @@ its '$train()\verb{ method is called on the [}Task\verb{] stored in the [}ModelD
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 # simple logistic regression
 
 # configure the model descriptor
@@ -48,6 +47,7 @@ print(md)
 po_model = po("torch_model_classif", batch_size = 50, epochs = 1)
 po_model$train(list(md))
 po_model$state
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other PipeOps: 

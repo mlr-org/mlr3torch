@@ -55,7 +55,7 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 #'
 #' @family Torch Descriptor
 #' @export
-#' @examples
+#' @examplesIf torch::torch_is_installed()
 #' # Create a new torch loss
 #' torch_loss = TorchLoss$new(torch_loss = nn_mse_loss, task_types = "regr")
 #' torch_loss
@@ -150,7 +150,7 @@ TorchLoss = R6::R6Class("TorchLoss",
 #' @family Torch Descriptor
 #' @family Dictionary
 #' @export
-#' @examples
+#' @examplesIf torch::torch_is_installed()
 #' mlr3torch_losses$get("mse")
 #' # is equivalent to
 #' t_loss("mse")
@@ -188,7 +188,7 @@ as.data.table.DictionaryMlr3torchLosses = function(x, ...) {
 #' @return A [`TorchLoss`]
 #' @export
 #' @family Torch Descriptor
-#' @examples
+#' @examplesIf torch::torch_is_installed()
 #' t_loss("mse", reduction = "mean")
 #' # get the dictionary
 #' t_loss()
@@ -211,7 +211,7 @@ t_loss.NULL = function(.key, ...) { # nolint
 #' @param .keys (`character()`)\cr
 #'   The keys of the losses.
 #' @export
-#' @examples
+#' @examplesIf torch::torch_is_installed()
 #' t_losses(c("mse", "l1"))
 #' # get the dictionary
 #' t_losses()

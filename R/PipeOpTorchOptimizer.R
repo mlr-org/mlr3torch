@@ -22,7 +22,6 @@
 #' @family Model Configuration
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' po_opt = po("torch_optimizer", "sgd", lr = 0.01)
 #' po_opt$param_set
 #' mdin = po("torch_ingress_num")$train(list(tsk("iris")))

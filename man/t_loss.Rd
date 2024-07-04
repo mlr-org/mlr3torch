@@ -27,12 +27,16 @@ Retrieve one or more \code{\link{TorchLoss}}es from \code{\link{mlr3torch_losses
 Works like \code{\link[mlr3:mlr_sugar]{mlr3::lrn()}} and \code{\link[mlr3:mlr_sugar]{mlr3::lrns()}}.
 }
 \examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 t_loss("mse", reduction = "mean")
 # get the dictionary
 t_loss()
+\dontshow{\}) # examplesIf}
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 t_losses(c("mse", "l1"))
 # get the dictionary
 t_losses()
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other Torch Descriptor: 

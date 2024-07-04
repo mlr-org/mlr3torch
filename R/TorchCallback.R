@@ -14,7 +14,7 @@
 #' @export
 #' @family Callback
 #' @family Torch Descriptor
-#' @examples
+#' @examplesIf torch::torch_is_installed()
 #' t_clbk("progress")
 t_clbk = function(.key, ...) {
   UseMethod("t_clbk")
@@ -150,7 +150,6 @@ as_torch_callbacks.character = function(x, clone = FALSE, ...) { # nolint
 #'
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' # Create a new torch callback from an existing callback set
 #' torch_callback = TorchCallback$new(CallbackSetCheckpoint)
 #' # The parameters are inferred
@@ -249,7 +248,6 @@ TorchCallback = R6Class("TorchCallback",
 #' @include zzz.R CallbackSet.R
 #' @family Callback
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' custom_tcb = torch_callback("custom",
 #'   initialize = function(name) {
 #'     self$name = name
@@ -341,7 +339,7 @@ torch_callback = function(
 #' @family Callback
 #' @family Dictionary
 #' @export
-#' @examples
+#' @examplesIf torch::torch_is_installed()
 #' mlr3torch_callbacks$get("checkpoint")
 #' # is the same as
 #' t_clbk("checkpoint")

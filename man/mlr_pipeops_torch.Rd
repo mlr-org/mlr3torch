@@ -94,7 +94,6 @@ For the output, a shallow copy of the \code{\link{ModelDescriptor}} is created a
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 ## Creating a neural network
 # In torch
 
@@ -231,6 +230,7 @@ mds_out[[2L]]$pointer_shape
 predict_input = list(input1 = task1, input2 = task2)
 tasks_out = do.call(po_torch$predict, args = list(input = predict_input))
 identical(tasks_out[[1L]], tasks_out[[2L]])
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other Graph Network: 

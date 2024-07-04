@@ -116,7 +116,6 @@ then wraps this generator in a \code{\link{TorchCallback}} that can be passed to
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 custom_tcb = torch_callback("custom",
   initialize = function(name) {
     self$name = name
@@ -138,6 +137,7 @@ learner = lrn("classif.torch_featureless",
 )
 task = tsk("iris")
 learner$train(task)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other Callback: 

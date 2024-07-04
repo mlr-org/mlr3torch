@@ -29,7 +29,9 @@ Retrieves one or more \code{\link{TorchCallback}}s from \code{\link{mlr3torch_ca
 Works like \code{\link[mlr3:mlr_sugar]{mlr3::lrn()}} and \code{\link[mlr3:mlr_sugar]{mlr3::lrns()}}.
 }
 \examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 t_clbk("progress")
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other Callback: 

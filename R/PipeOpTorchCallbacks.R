@@ -21,7 +21,6 @@
 #' @family PipeOp
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' po_cb = po("torch_callbacks", "checkpoint")
 #' po_cb$param_set
 #' mdin = po("torch_ingress_num")$train(list(tsk("iris")))

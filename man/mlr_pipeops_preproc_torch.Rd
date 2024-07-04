@@ -83,7 +83,6 @@ Otherwise, this mechanism is very similar to the \code{\link{ModelDescriptor}} c
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 # Creating a simple task
 d = data.table(
   x1 = as_lazy_tensor(rnorm(10)),
@@ -169,6 +168,7 @@ po_poly$shapes_out(list(c(NA, 1L)), stage = "train")
 
 taskout = po_poly$train(list(taskin))[[1L]]
 materialize(taskout$data(cols = "x3"), rbind = TRUE)
+\dontshow{\}) # examplesIf}
 }
 \section{Super classes}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3pipelines:PipeOpTaskPreproc]{mlr3pipelines::PipeOpTaskPreproc}} -> \code{PipeOpTaskPreprocTorch}

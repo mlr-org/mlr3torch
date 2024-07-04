@@ -48,12 +48,12 @@ The parameter \code{num_features} is inferred as the second dimension of the inp
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 # Construct the PipeOp
 pipeop = po("nn_batch_norm1d")
 pipeop
 # The available parameters
 pipeop$param_set
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other PipeOps: 

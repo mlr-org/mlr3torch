@@ -114,7 +114,6 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
 #' @family PipeOps
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' # simple logistic regression
 #'
 #' # configure the model descriptor
@@ -158,7 +157,6 @@ PipeOpTorchModelClassif = R6Class("PipeOpTorchModelClassif",
 #' @family PipeOps
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' # simple linear regression
 #'
 #' # build the model descriptor

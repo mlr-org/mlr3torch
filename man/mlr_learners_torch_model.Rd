@@ -14,7 +14,6 @@ For classification, the output of the network must be the scores (before the sof
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 # We show the learner using a classification task
 
 # The iris task has 4 features and 3 classes
@@ -41,6 +40,7 @@ learner = lrn("classif.torch_model",
 ids = partition(task)
 learner$train(task, ids$train)
 learner$predict(task, ids$test)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other Learner: 

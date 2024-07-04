@@ -91,7 +91,6 @@
 #' @include PipeOpTorch.R
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' # Creating a simple task
 #' d = data.table(
 #'   x1 = as_lazy_tensor(rnorm(10)),
@@ -431,7 +430,7 @@ create_ps = function(fn) {
 #'   Tags for the pipeop
 #' @export
 #' @returns An [`R6Class`][R6::R6Class] instance inheriting from [`PipeOpTaskPreprocTorch`]
-#' @examples
+#' @examplesIf torch::torch_is_installed()
 #' PipeOpPreprocExample = pipeop_preproc_torch("preproc_example", function(x, a) x + a)
 #' po_example = PipeOpPreprocExample$new()
 #' po_example$param_set

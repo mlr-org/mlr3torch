@@ -40,7 +40,6 @@
 #' @include utils.R
 #' @seealso ModelDescriptor, lazy_tensor
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' # Create a dataset
 #' ds = dataset(
 #'   initialize = function() self$x = torch_randn(10, 3, 3),
@@ -190,7 +189,6 @@ DataDescriptor = R6Class("DataDescriptor",
 #'   Further arguments passed to the [`DataDescriptor`] constructor.
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' ds = dataset("example",
 #'   initialize = function() self$iris = iris[, -5],
 #'   .getitem = function(i) list(x = torch_tensor(as.numeric(self$iris[i, ]))),

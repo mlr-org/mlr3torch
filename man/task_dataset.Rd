@@ -36,7 +36,6 @@ The data is returned on the device specified by the parameter \code{device}.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 task = tsk("iris")
 sepal_ingress = TorchIngressToken(
   features = c("Sepal.Length", "Sepal.Width"),
@@ -56,4 +55,5 @@ target_batchgetter = function(data, device) {
 dataset = task_dataset(task, ingress_tokens, target_batchgetter, "cpu")
 batch = dataset$.getbatch(1:10)
 batch
+\dontshow{\}) # examplesIf}
 }

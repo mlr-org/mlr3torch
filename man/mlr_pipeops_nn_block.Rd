@@ -33,6 +33,7 @@ Part of this documentation have been copied or adapted from the documentation of
 }
 
 \examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 block = po("nn_linear") \%>>\% po("nn_relu")
 po_block = po("nn_block", block,
 nn_linear.out_features = 10L, n_blocks = 3)
@@ -47,6 +48,7 @@ po("torch_model_classif",
 
 task = tsk("iris")
 network$train(task)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other PipeOps: 

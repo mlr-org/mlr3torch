@@ -19,7 +19,6 @@ If each row contained a DataDescriptor as an S3 class, this would copy the objec
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 # Create a dataset
 ds = dataset(
   initialize = function() self$x = torch_randn(10, 3, 3),
@@ -30,6 +29,7 @@ dd = DataDescriptor$new(ds, list(x = c(NA, 3, 3)))
 dd
 # is the same as using the converter:
 as_data_descriptor(ds, list(x = c(NA, 3, 3)))
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 ModelDescriptor, lazy_tensor

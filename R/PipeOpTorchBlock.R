@@ -11,7 +11,7 @@
 #' @templateVar id nn_block
 #' @template pipeop_torch
 #' @export
-#' @examples
+#' @examplesIf torch::torch_is_installed()
 #' block = po("nn_linear") %>>% po("nn_relu")
 #' po_block = po("nn_block", block,
 #' nn_linear.out_features = 10L, n_blocks = 3)

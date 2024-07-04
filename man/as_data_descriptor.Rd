@@ -24,7 +24,6 @@ Converts the input to a \code{\link{DataDescriptor}}.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 ds = dataset("example",
   initialize = function() self$iris = iris[, -5],
   .getitem = function(i) list(x = torch_tensor(as.numeric(self$iris[i, ]))),
@@ -39,4 +38,5 @@ ds2 = dataset("example",
   .length = function() nrow(self$iris)
 )()
 as_data_descriptor(ds2)
+\dontshow{\}) # examplesIf}
 }

@@ -16,7 +16,6 @@
 #' @family Graph Network
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' graph = mlr3pipelines::Graph$new()
 #' graph$add_pipeop(po("module_1", module = nn_linear(10, 20)), clone = FALSE)
 #' graph$add_pipeop(po("module_2", module = nn_relu()), clone = FALSE)

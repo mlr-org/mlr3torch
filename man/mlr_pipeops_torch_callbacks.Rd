@@ -32,7 +32,6 @@ During training the callbacks are cloned and added to the \code{\link{ModelDescr
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 po_cb = po("torch_callbacks", "checkpoint")
 po_cb$param_set
 mdin = po("torch_ingress_num")$train(list(tsk("iris")))
@@ -43,6 +42,7 @@ mdout$callbacks
 po_cb1 = po("torch_callbacks", t_clbk("progress"))
 mdout1 = po_cb1$train(list(mdout))[[1L]]
 mdout1$callbacks
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other Model Configuration: 

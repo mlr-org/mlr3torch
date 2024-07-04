@@ -16,11 +16,13 @@ Use \code{\link[=t_clbk]{t_clbk()}} to conveniently retrieve callbacks.
 Can be converted to a \code{\link{data.table}} using \code{as.data.table}.
 }
 \examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 mlr3torch_callbacks$get("checkpoint")
 # is the same as
 t_clbk("checkpoint")
 # convert to a data.table
 as.data.table(mlr3torch_callbacks)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other Callback: 

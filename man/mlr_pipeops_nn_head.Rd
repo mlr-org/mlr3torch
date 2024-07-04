@@ -42,12 +42,12 @@ Calls \code{\link[torch:nn_linear]{torch::nn_linear()}} with the input and outpu
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 # Construct the PipeOp
 pipeop = po("nn_head")
 pipeop
 # The available parameters
 pipeop$param_set
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other PipeOps: 

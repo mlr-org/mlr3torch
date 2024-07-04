@@ -34,7 +34,6 @@ The state is set to the input shape.
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 po_ingress = po("torch_ingress_ltnsr")
 task = tsk("lazy_iris")
 
@@ -77,6 +76,7 @@ x_batch2 = ingress2[[1L]]$batchgetter(
 )
 
 x_batch2
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other PipeOps: 

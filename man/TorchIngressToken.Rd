@@ -28,7 +28,6 @@ of the neural network. It is stored as the \code{ingress} field in a \code{\link
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 # Define a task for which we want to define an ingress token
 task = tsk("iris")
 
@@ -50,7 +49,7 @@ ingress_token = TorchIngressToken(
   shape = c(NA, 2)
 )
 ingress_token
-
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other Graph Network: 

@@ -57,12 +57,12 @@ The parameter \code{in_channels} is inferred as the second dimension of the inpu
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 # Construct the PipeOp
 pipeop = po("nn_conv_transpose1d", kernel_size = 3, out_channels = 2)
 pipeop
 # The available parameters
 pipeop$param_set
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other PipeOps: 
