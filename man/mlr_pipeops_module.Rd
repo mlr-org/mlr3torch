@@ -151,8 +151,8 @@ The torch module that is called during the training phase.}
 Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{PipeOpModule$new(
-  module = nn_identity(),
   id = "module",
+  module = nn_identity(),
   inname = "input",
   outname = "output",
   param_vals = list(),
@@ -163,11 +163,11 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{module}}{(\code{\link{nn_module}} or \verb{function()})\cr
-The torch module or function that is being wrapped.}
-
 \item{\code{id}}{(\code{character(1)})\cr
 The id for of the new object.}
+
+\item{\code{module}}{(\code{\link{nn_module}} or \verb{function()})\cr
+The torch module or function that is being wrapped.}
 
 \item{\code{inname}}{(\code{character()})\cr
 The names of the input channels.}

@@ -92,6 +92,7 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
   active = list(
     #' @field network_stored (`nn_module` or `NULL`)\cr
     #' The network that will be trained.
+    #' After calling `$train()`, this is `NULL`.
     network_stored = function(rhs) {
       if (!missing(rhs)) {
         private$.network_stored = assert_class(rhs, "nn_module")
@@ -139,7 +140,7 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
     },
     .network_stored = NULL,
     .additional_phash_input = function() {
-      list(self$properties, self$feature_types, private$.network_stored, self$packages)
+      list(self$properties, self$feature_types, private$.network_stored, self$packages, private$.ingress_tokens)
      }
   )
 )

@@ -182,7 +182,7 @@ model_descriptor_to_learner = function(model_descriptor) {
 
   network = model_descriptor_to_module(
     model_descriptor = model_descriptor,
-    output_pointers = model_descriptor$.output_pointers,
+    output_pointers = list(model_descriptor$pointer),
     list_output = FALSE
   )
   ingress_tokens = model_descriptor$ingress

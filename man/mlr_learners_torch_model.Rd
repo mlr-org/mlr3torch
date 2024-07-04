@@ -73,7 +73,8 @@ Other Graph Network:
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
 \item{\code{network_stored}}{(\code{nn_module} or \code{NULL})\cr
-The network that will be trained.}
+The network that will be trained.
+After calling \verb{$train()}, this is \code{NULL}.}
 
 \item{\code{ingress_tokens}}{(named \code{list()} with \code{TorchIngressToken} or \code{NULL})\cr
 The ingress tokens. Must be non-\code{NULL} when calling \verb{$train()}.}

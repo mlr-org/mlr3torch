@@ -35,8 +35,9 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
       private$.task_type = assert_choice(task_type, c("classif", "regr"))
 
       # loss, optimizer and callbacks are set to special values, that cause
-      # them to become parameters instead of construction arguments, otherwise we 
-      # cannot satisfy the PipeOpLearner requirements
+      # them to become fields instead of construction arguments, otherwise we
+      # cannot satisfy the PipeOpLearner, which needs to create the learner in $initialize()
+      # We need to inherit from PipeOpLearner, as otherwise things like $base_learner() don't work
       learner = LearnerTorchModel$new(
         loss = LossNone(),
         optimizer = OptimizerNone(),
@@ -67,7 +68,7 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
       md = inputs[[1]]
       network = model_descriptor_to_module(
         model_descriptor = md,
-        output_pointers = md$.output_pointers,
+        output_pointers = list(md$pointer),
         list_output = FALSE
       )
       private$.learner$network_stored = network
