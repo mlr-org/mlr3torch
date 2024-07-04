@@ -150,7 +150,7 @@ model_descriptor_to_module = function(model_descriptor, output_pointers = NULL, 
       # to operation2 and *also* to output: the graph doesn't know that operation1's result should
       # be an output as well --> we add a nop-pipeop to create a terminal channel
       # note that op = c(id, channel)
-      nopid = unique_id(paste(c("output", op), collapse = "_"), names(graph$pipeops))
+      nopid = unique_id(paste(c("output", op[1L]), collapse = "_"), names(graph$pipeops))
 
       graph$add_pipeop(po("nop", id = nopid))
       graph$add_edge(src_id = op[[1]], src_channel = op[[2]], dst_id = nopid)

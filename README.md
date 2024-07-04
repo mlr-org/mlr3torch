@@ -53,6 +53,8 @@ learner_mlp = lrn("classif.mlp",
   batch_size     = 16,
   epochs         = 50,
   device         = "cpu",
+  # proportion of data for validation
+  validate = 0.3,
   # Defining the optimizer, loss, and callbacks
   optimizer      = t_opt("adam", lr = 0.1),
   loss           = t_loss("cross_entropy"),
@@ -112,8 +114,10 @@ graph_mlp
 #>      torch_optimizer <<UNTRAINED>>     torch_callbacks        torch_loss
 #>      torch_callbacks <<UNTRAINED>> torch_model_classif   torch_optimizer
 #>  torch_model_classif <<UNTRAINED>>                       torch_callbacks
-
 graph_lrn = as_learner(graph_mlp)
+# For GraphLearners, set_validate should be used to specify the validation data:
+set_validate(graph_lrn, 0.3)
+
 graph_lrn$id = "graph_mlp"
 
 resample(
@@ -127,13 +131,14 @@ resample(
 ```
 
 To work with generic tensors, the `lazy_tensor` type can be used. It
-wraps a `torch::dataset`, but allows to preproress the data using
-`PipeOp` objects, just like tabular data.
+wraps a `torch::dataset`, but allows to preprocess the data using
+`PipeOp` objects, just like tabular data. Below, we flatten the MNIST
+task, so we can then train a multi-layer perceptron on it.
 
 ``` r
 # load the predefined mnist task
-task = tsk("mnist")
-task$head()
+mnist = tsk("mnist")
+mnist$head()
 #>     label           image
 #>    <fctr>   <lazy_tensor>
 #> 1:      5 <tnsr[1x28x28]>
@@ -143,34 +148,105 @@ task$head()
 #> 5:      9 <tnsr[1x28x28]>
 #> 6:      2 <tnsr[1x28x28]>
 
-# Resize the images to 5x5
-po_resize = po("trafo_resize", size = c(5, 5))
-task_reshaped = po_resize$train(list(task))[[1L]]
+# Flatten the images
+flattener = po("trafo_reshape", shape = c(-1, 28 * 28))
+mnist_flat = flattener$train(list(mnist))[[1L]]
 
-task_reshaped$head()
+mnist_flat$head()
 #>     label         image
 #>    <fctr> <lazy_tensor>
-#> 1:      5 <tnsr[1x5x5]>
-#> 2:      0 <tnsr[1x5x5]>
-#> 3:      4 <tnsr[1x5x5]>
-#> 4:      1 <tnsr[1x5x5]>
-#> 5:      9 <tnsr[1x5x5]>
-#> 6:      2 <tnsr[1x5x5]>
+#> 1:      5   <tnsr[784]>
+#> 2:      0   <tnsr[784]>
+#> 3:      4   <tnsr[784]>
+#> 4:      1   <tnsr[784]>
+#> 5:      9   <tnsr[784]>
+#> 6:      2   <tnsr[784]>
 
 # The tensors are loaded and preprocessed only when materialized
-
 materialize(
-  task_reshaped$data(1, cols = "image")[[1L]],
+  mnist_flat$data(1, cols = "image")[[1L]],
   rbind = TRUE
 )
 #> torch_tensor
-#> (1,1,.,.) = 
-#>     0.0000    0.0000    0.0000    0.0000    0.0000
-#>     0.0000  200.9199  228.2500    8.2000    0.0000
-#>     0.0000    0.0000  196.7500    0.0000    0.0000
-#>     0.0000    0.0000  194.9500  147.4199    0.0000
-#>     0.0000   64.8303    0.0000    0.0000    0.0000
-#> [ CPUFloatType{1,1,5,5} ]
+#> Columns 1 to 16   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+#> 
+#> Columns 17 to 32   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+#> 
+#> Columns 33 to 48   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+#> 
+#> Columns 49 to 64   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+#> 
+#> Columns 65 to 80   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+#> 
+#> Columns 81 to 96   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+#> 
+#> Columns 97 to 112   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+#> 
+#> Columns 113 to 128   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+#> 
+#> Columns 129 to 144   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+#> 
+#> Columns 145 to 160   0    0    0    0    0    0    0    0    3   18   18   18  126  136  175   26
+#> 
+#> Columns 161 to 176 166  255  247  127    0    0    0    0    0    0    0    0    0    0    0    0
+#> 
+#> Columns 177 to 192  30   36   94  154  170  253  253  253  253  253  225  172  253  242  195   64
+#> 
+#> Columns 193 to 208   0    0    0    0    0    0    0    0    0    0    0   49  238  253  253  253
+#> 
+#> Columns 209 to 224 253  253  253  253  253  251   93   82   82   56   39    0    0    0    0    0
+#> 
+#> Columns 225 to 240   0    0    0    0    0    0    0   18  219  253  253  253  253  253  198  182
+#> 
+#> ... [the output was truncated (use n=-1 to disable)]
+#> [ CPUFloatType{1,784} ]
+```
+
+We now define a more complex architecture that has one single input
+which is a `lazy_tensor`. For that, we define first a single residual
+layer:
+
+``` r
+layer = list(
+  po("nop"),
+  po("nn_linear", out_features = 50L) %>>%
+    po("nn_dropout") %>>% po("nn_relu")
+) %>>% po("nn_merge_sum")
+layer$plot(horizontal = TRUE)
+```
+
+<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
+
+We now define the input of the neural network to be a `lazy_tensor`
+(`po("torch_ingress_num")`), apply a linear layer without output
+dimension 50 and then repeat the above layer using the special
+`PipeOpTorchBlock`, followed by the network’s head.and finally configure
+the model arguments. After that, we configure the loss and the optimizer
+and the training parameters.
+
+``` r
+deep_network = po("torch_ingress_ltnsr") %>>%
+  po("nn_linear_0", out_features = 50L) %>>%
+  po("nn_block", layer, n_blocks = 5L) %>>%
+  po("nn_head") %>>%
+  po("torch_loss", loss = t_loss("cross_entropy")) %>>%
+  po("torch_optimizer", optimizer = t_opt("adam")) %>>%
+  po("torch_model_classif",
+    epochs = 100L, batch_size = 32
+  )
+```
+
+Finally, we prepend the preprocessing step that flattens the images:
+
+``` r
+deep_learner = as_learner(
+  flattener %>>% deep_network
+)
+deep_learner$id = "deep_network"
+```
+
+``` r
+deep_learner$train(mnist)
 ```
 
 ## Feature Overview
@@ -186,6 +262,8 @@ materialize(
 - It is possible to customize the training process via (predefined or
   custom) callbacks.
 - The package is fully integrated into the `mlr3` ecosystem.
+- Neural network architectures, as well as their hyperparameters can be
+  easily tuned, `mlr3tuning` and friends
 
 ## Documentation
 

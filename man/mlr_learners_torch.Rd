@@ -26,16 +26,18 @@ This validation data can also be used for early stopping, see the description of
 
 In order to save a \code{LearnerTorch} for later usage, it is necessary to call the \verb{$marshal()} method on the \code{Learner}
 before writing it to disk, as the object will otherwise not be saved correctly.
-After loading a marshaled \code{LearnerTorch} into R again, you then need to call \verb{$unmarshal()} to set a usable state.
+After loading a marshaled \code{LearnerTorch} into R again, you then need to call \verb{$unmarshal()} to transform it
+into a useable state.
 }
 
 \section{Early Stopping and Tuning}{
 
-In order to prevent overfitting, the \code{LearnerTorch} class allows to use early stopping.
-When tuning a \code{LearnerTorch} it is possible to combine the explicit tuning via \code{mlr3tuning}
+In order to prevent overfitting, the \code{LearnerTorch} class allows to use early stopping via the \code{patience}
+and \code{min_delta} parameters, see the \code{Learner}'s parameters.
+When tuning a \code{LearnerTorch} it is also possible to combine the explicit tuning via \code{mlr3tuning}
 and the \code{LearnerTorch}'s internal tuning of the epochs via early stopping.
 To do so, you just need to include \verb{epochs = to_tune(upper = <upper>, internal = TRUE)} in the search space,
-where \verb{<upper>} is the maximally allowed number of epochs.
+where \verb{<upper>} is the maximally allowed number of epochs, and configure the early stopping.
 }
 
 \section{Model}{

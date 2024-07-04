@@ -249,7 +249,7 @@ LearnerTorch = R6Class("LearnerTorch",
     #' @return [`dataset`][torch::dataset]
     dataset = function(task) {
       assert_task(task)
-      param_vals = self$param_set$get_values()
+      param_vals = self$param_set$values
       param_vals$device = auto_device(param_vals$device)
 
       private$.dataset(task, param_vals)

@@ -21,6 +21,9 @@ learner_torch_predict = function(self, private, super, task, param_vals) {
 learner_torch_train = function(self, private, super, task, param_vals) {
   # Here, all param_vals (like seed = "random" or device = "auto") have already been resolved
   loader_train = private$.dataloader(task, param_vals)
+  if (!length(loader_train)) {
+    stopf("Training Dataloader of Learner '%s' has length 0", self$id)
+  }
 
   network = private$.network(task, param_vals)$to(device = param_vals$device)
   optimizer = self$optimizer$generate(network$parameters)
@@ -43,6 +46,10 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   task_valid = task$internal_valid_task
   loader_valid = if (!is.null(task_valid) && task_valid$nrow) {
     private$.dataloader_predict(task_valid$clone(deep = TRUE), param_vals)
+  }
+
+  if (!is.null(loader_valid) && !length(loader_valid)) {
+    stopf("Validation Dataloader of Learner '%s' has length 0", self$id)
   }
 
   ctx = ContextTorch$new(
@@ -127,8 +134,6 @@ train_loop = function(ctx, cbs) {
       call("on_batch_begin")
 
       if (length(ctx$batch$x) == 1L) {
-        # With one argument there is no ambiguity and we can be less strict
-        # TODO: Make this more strict
         y_hat = ctx$network(ctx$batch$x[[1L]])
       } else {
         y_hat = do.call(ctx$network, ctx$batch$x)

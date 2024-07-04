@@ -228,7 +228,7 @@ test_that("train parameters do what they should: classification and regression",
   f = function(task_type, measure_ids) {
     task = switch(task_type, regr = tsk("mtcars"), classif = tsk("iris"))
     epochs = sample(10:12, 1)
-    batch_size = sample(16, 1)
+    batch_size = sample(2:3, 1)
     shuffle = sample(c(TRUE, FALSE), 1)
     num_threads = if (running_on_mac()) 1L else sample(2, 1)
     drop_last = sample(c(TRUE, FALSE), 1)
@@ -732,7 +732,7 @@ test_that("configure loss, optimizer and callbacks after construction", {
   expect_list(learner$callbacks, "TorchCallback")
   learner$param_set$set_values(cb.checkpoint.freq = 100)
   expect_equal(learner$param_set$values$cb.checkpoint.freq, 100)
-  expect_equal(learner$callbacks$checkpoint$param_set$values$freq, 100)
+  expect_equal(learner$callbacks[[1]]$param_set$values$freq, 100)
 
   learner$param_set$set_values(
     loss.reduction = "mean",
@@ -763,4 +763,10 @@ test_that("dataset works", {
   ds = learner$dataset(task)
   batch = ds$.getbatch(1:2)
   expect_equal(batch$x$torch_ingress_num.input$device$type, "cpu")
+})
+
+test_that("error when dataloaders have length 0", {
+  learner = lrn("regr.torch_featureless", epochs = 1L, batch_size = 100, drop_last = TRUE)
+  task = tsk("mtcars")
+  expect_error({learner$train(task)}, "has length 0") # nolint
 })

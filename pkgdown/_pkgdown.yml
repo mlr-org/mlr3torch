@@ -48,8 +48,8 @@ navbar:
       text: Lazy Tensor
       href: articles/lazy_tensor.html
     networks_as_graphs:
-      text: Neural Networks as Graphs
-      href: articles/callbacks.html
+      text: Internals of Network Graphs
+      href: articles/pipeop_torch.html
 
 reference:
   - title: Package
