@@ -435,7 +435,7 @@ lr_sequential$train(md_sequential$task)
 
 The following calls the `$predict_newdata` function to plot the response surface along the `Sepal.Width = mean(Sepal.Width)` plane, along with the ground-truth values:
 
-```{r, message = FALSE, fig.dpi = 300, fig.align = "center"}
+```{r, message = FALSE, fig.align = "center"}
 library(data.table)
 library(ggplot2)
 

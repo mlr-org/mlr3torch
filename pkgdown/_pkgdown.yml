@@ -43,13 +43,13 @@ navbar:
       href: get_started.html
     pipeop_torch:
       text: Defining an Architecture
-      href: pipeop_torch.html
+      href: articles/pipeop_torch.html
     callbacks:
       text: Callbacks
-      href: callbacks.html
+      href: articles/callbacks.html
     lazy_tensor:
       text: Lazy Tensor
-      href: lazy_tensor.html
+      href: articles/lazy_tensor.html
     internals:
       text: Internals
       href: internals_pipeop_torch.html
