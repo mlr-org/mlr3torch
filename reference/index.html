@@ -28,6 +28,15 @@
 <li class="nav-item">
   <a class="nav-link" href="../news/index.html">Changelog</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="../articles/callbacks.html">Custom Callbacks</a>
+    <a class="dropdown-item" href="../articles/get_started.html">Get Started</a>
+    <a class="dropdown-item" href="../articles/lazy_tensor.html">Lazy Tensor</a>
+    <a class="dropdown-item" href="../articles/pipeop_torch.html">Neural Networks as Graphs</a>
+  </div>
+</li>
 <li class="nav-item">
   <a class="external-link nav-link" href="https://mlr3book.mlr-org.com">
     <span class="fa fa fa fa-link"></span>
@@ -73,7 +82,7 @@
     </div>
 
     <div class="section level2">
-      <h2 id="all-functions">All functions<a class="anchor" aria-label="anchor" href="#all-functions"></a></h2>
+      <h2 id="package">Package<a class="anchor" aria-label="anchor" href="#package"></a></h2>
       
       
 
@@ -85,295 +94,21 @@
 
       <dl><dt>
           
-          <code><a href="DataDescriptor.html">DataDescriptor</a></code> 
-        </dt>
-        <dd>Data Descriptor</dd>
-      </dl><dl><dt>
-          
-          <code><a href="ModelDescriptor.html">ModelDescriptor()</a></code> 
-        </dt>
-        <dd>Represent a Model with Meta-Info</dd>
-      </dl><dl><dt>
-          
-          <code><a href="PipeOpPreprocTorchAugmentCenterCrop.html">mlr_pipeops_preproc_torch.augment_center_crop</a></code> <code><a href="PipeOpPreprocTorchAugmentCenterCrop.html">PipeOpPreprocTorchAugmentCenterCrop</a></code> 
-        </dt>
-        <dd>PipeOpPreprocTorchAugmentCenterCrop</dd>
-      </dl><dl><dt>
-          
-          <code><a href="PipeOpPreprocTorchAugmentColorJitter.html">mlr_pipeops_preproc_torch.augment_color_jitter</a></code> <code><a href="PipeOpPreprocTorchAugmentColorJitter.html">PipeOpPreprocTorchAugmentColorJitter</a></code> 
-        </dt>
-        <dd>PipeOpPreprocTorchAugmentColorJitter</dd>
-      </dl><dl><dt>
-          
-          <code><a href="PipeOpPreprocTorchAugmentCrop.html">mlr_pipeops_preproc_torch.augment_crop</a></code> <code><a href="PipeOpPreprocTorchAugmentCrop.html">PipeOpPreprocTorchAugmentCrop</a></code> 
-        </dt>
-        <dd>PipeOpPreprocTorchAugmentCrop</dd>
-      </dl><dl><dt>
-          
-          <code><a href="PipeOpPreprocTorchAugmentHflip.html">mlr_pipeops_preproc_torch.augment_hflip</a></code> <code><a href="PipeOpPreprocTorchAugmentHflip.html">PipeOpPreprocTorchAugmentHflip</a></code> 
-        </dt>
-        <dd>PipeOpPreprocTorchAugmentHflip</dd>
-      </dl><dl><dt>
-          
-          <code><a href="PipeOpPreprocTorchAugmentRandomAffine.html">mlr_pipeops_preproc_torch.augment_random_affine</a></code> <code><a href="PipeOpPreprocTorchAugmentRandomAffine.html">PipeOpPreprocTorchAugmentRandomAffine</a></code> 
-        </dt>
-        <dd>PipeOpPreprocTorchAugmentRandomAffine</dd>
-      </dl><dl><dt>
-          
-          <code><a href="PipeOpPreprocTorchAugmentRandomChoice.html">mlr_pipeops_preproc_torch.augment_random_choice</a></code> <code><a href="PipeOpPreprocTorchAugmentRandomChoice.html">PipeOpPreprocTorchAugmentRandomChoice</a></code> 
-        </dt>
-        <dd>PipeOpPreprocTorchAugmentRandomChoice</dd>
-      </dl><dl><dt>
-          
-          <code><a href="PipeOpPreprocTorchAugmentRandomCrop.html">mlr_pipeops_preproc_torch.augment_random_crop</a></code> <code><a href="PipeOpPreprocTorchAugmentRandomCrop.html">PipeOpPreprocTorchAugmentRandomCrop</a></code> 
-        </dt>
-        <dd>PipeOpPreprocTorchAugmentRandomCrop</dd>
-      </dl><dl><dt>
-          
-          <code><a href="PipeOpPreprocTorchAugmentRandomHorizontalFlip.html">mlr_pipeops_preproc_torch.augment_random_horizontal_flip</a></code> <code><a href="PipeOpPreprocTorchAugmentRandomHorizontalFlip.html">PipeOpPreprocTorchAugmentRandomHorizontalFlip</a></code> 
-        </dt>
-        <dd>PipeOpPreprocTorchAugmentRandomHorizontalFlip</dd>
-      </dl><dl><dt>
-          
-          <code><a href="PipeOpPreprocTorchAugmentRandomOrder.html">mlr_pipeops_preproc_torch.augment_random_order</a></code> <code><a href="PipeOpPreprocTorchAugmentRandomOrder.html">PipeOpPreprocTorchAugmentRandomOrder</a></code> 
-        </dt>
-        <dd>PipeOpPreprocTorchAugmentRandomOrder</dd>
-      </dl><dl><dt>
-          
-          <code><a href="PipeOpPreprocTorchAugmentRandomResizedCrop.html">mlr_pipeops_preproc_torch.augment_random_resized_crop</a></code> <code><a href="PipeOpPreprocTorchAugmentRandomResizedCrop.html">PipeOpPreprocTorchAugmentRandomResizedCrop</a></code> 
-        </dt>
-        <dd>PipeOpPreprocTorchAugmentRandomResizedCrop</dd>
-      </dl><dl><dt>
-          
-          <code><a href="PipeOpPreprocTorchAugmentRandomVerticalFlip.html">mlr_pipeops_preproc_torch.augment_random_vertical_flip</a></code> <code><a href="PipeOpPreprocTorchAugmentRandomVerticalFlip.html">PipeOpPreprocTorchAugmentRandomVerticalFlip</a></code> 
-        </dt>
-        <dd>PipeOpPreprocTorchAugmentRandomVerticalFlip</dd>
-      </dl><dl><dt>
-          
-          <code><a href="PipeOpPreprocTorchAugmentResizedCrop.html">mlr_pipeops_preproc_torch.augment_resized_crop</a></code> <code><a href="PipeOpPreprocTorchAugmentResizedCrop.html">PipeOpPreprocTorchAugmentResizedCrop</a></code> 
-        </dt>
-        <dd>PipeOpPreprocTorchAugmentResizedCrop</dd>
-      </dl><dl><dt>
-          
-          <code><a href="PipeOpPreprocTorchAugmentRotate.html">mlr_pipeops_preproc_torch.augment_rotate</a></code> <code><a href="PipeOpPreprocTorchAugmentRotate.html">PipeOpPreprocTorchAugmentRotate</a></code> 
-        </dt>
-        <dd>PipeOpPreprocTorchAugmentRotate</dd>
-      </dl><dl><dt>
-          
-          <code><a href="PipeOpPreprocTorchAugmentVflip.html">mlr_pipeops_preproc_torch.augment_vflip</a></code> <code><a href="PipeOpPreprocTorchAugmentVflip.html">PipeOpPreprocTorchAugmentVflip</a></code> 
-        </dt>
-        <dd>PipeOpPreprocTorchAugmentVflip</dd>
-      </dl><dl><dt>
-          
-          <code><a href="PipeOpPreprocTorchTrafoAdjustBrightness.html">mlr_pipeops_preproc_torch.trafo_adjust_brightness</a></code> <code><a href="PipeOpPreprocTorchTrafoAdjustBrightness.html">PipeOpPreprocTorchTrafoAdjustBrightness</a></code> 
-        </dt>
-        <dd>PipeOpPreprocTorchTrafoAdjustBrightness</dd>
-      </dl><dl><dt>
-          
-          <code><a href="PipeOpPreprocTorchTrafoAdjustGamma.html">mlr_pipeops_preproc_torch.trafo_adjust_gamma</a></code> <code><a href="PipeOpPreprocTorchTrafoAdjustGamma.html">PipeOpPreprocTorchTrafoAdjustGamma</a></code> 
-        </dt>
-        <dd>PipeOpPreprocTorchTrafoAdjustGamma</dd>
-      </dl><dl><dt>
-          
-          <code><a href="PipeOpPreprocTorchTrafoAdjustHue.html">mlr_pipeops_preproc_torch.trafo_adjust_hue</a></code> <code><a href="PipeOpPreprocTorchTrafoAdjustHue.html">PipeOpPreprocTorchTrafoAdjustHue</a></code> 
-        </dt>
-        <dd>PipeOpPreprocTorchTrafoAdjustHue</dd>
-      </dl><dl><dt>
-          
-          <code><a href="PipeOpPreprocTorchTrafoAdjustSaturation.html">mlr_pipeops_preproc_torch.trafo_adjust_saturation</a></code> <code><a href="PipeOpPreprocTorchTrafoAdjustSaturation.html">PipeOpPreprocTorchTrafoAdjustSaturation</a></code> 
-        </dt>
-        <dd>PipeOpPreprocTorchTrafoAdjustSaturation</dd>
-      </dl><dl><dt>
-          
-          <code><a href="PipeOpPreprocTorchTrafoGrayscale.html">mlr_pipeops_preproc_torch.trafo_grayscale</a></code> <code><a href="PipeOpPreprocTorchTrafoGrayscale.html">PipeOpPreprocTorchTrafoGrayscale</a></code> 
-        </dt>
-        <dd>PipeOpPreprocTorchTrafoGrayscale</dd>
-      </dl><dl><dt>
-          
-          <code><a href="PipeOpPreprocTorchTrafoNop.html">mlr_pipeops_preproc_torch.trafo_nop</a></code> <code><a href="PipeOpPreprocTorchTrafoNop.html">PipeOpPreprocTorchTrafoNop</a></code> 
-        </dt>
-        <dd>PipeOpPreprocTorchTrafoNop</dd>
-      </dl><dl><dt>
-          
-          <code><a href="PipeOpPreprocTorchTrafoNormalize.html">mlr_pipeops_preproc_torch.trafo_normalize</a></code> <code><a href="PipeOpPreprocTorchTrafoNormalize.html">PipeOpPreprocTorchTrafoNormalize</a></code> 
-        </dt>
-        <dd>PipeOpPreprocTorchTrafoNormalize</dd>
-      </dl><dl><dt>
-          
-          <code><a href="PipeOpPreprocTorchTrafoPad.html">mlr_pipeops_preproc_torch.trafo_pad</a></code> <code><a href="PipeOpPreprocTorchTrafoPad.html">PipeOpPreprocTorchTrafoPad</a></code> 
-        </dt>
-        <dd>PipeOpPreprocTorchTrafoPad</dd>
-      </dl><dl><dt>
-          
-          <code><a href="PipeOpPreprocTorchTrafoResize.html">mlr_pipeops_preproc_torch.trafo_resize</a></code> <code><a href="PipeOpPreprocTorchTrafoResize.html">PipeOpPreprocTorchTrafoResize</a></code> 
-        </dt>
-        <dd>PipeOpPreprocTorchTrafoResize</dd>
-      </dl><dl><dt>
-          
-          <code><a href="PipeOpPreprocTorchTrafoRgbToGrayscale.html">mlr_pipeops_preproc_torch.trafo_rgb_to_grayscale</a></code> <code><a href="PipeOpPreprocTorchTrafoRgbToGrayscale.html">PipeOpPreprocTorchTrafoRgbToGrayscale</a></code> 
-        </dt>
-        <dd>PipeOpPreprocTorchTrafoRgbToGrayscale</dd>
-      </dl><dl><dt>
-          
-          <code><a href="PipeOpPreprocTorchTrafoScale.html">mlr_pipeops_preproc_torch.trafo_scale</a></code> <code><a href="PipeOpPreprocTorchTrafoScale.html">PipeOpPreprocTorchTrafoScale</a></code> 
-        </dt>
-        <dd>PipeOpPreprocTorchTrafoNop</dd>
-      </dl><dl><dt>
-          
-          <code><a href="TorchCallback.html">TorchCallback</a></code> 
-        </dt>
-        <dd>Torch Callback</dd>
-      </dl><dl><dt>
-          
-          <code><a href="TorchDescriptor.html">TorchDescriptor</a></code> 
-        </dt>
-        <dd>Base Class for Torch Descriptors</dd>
-      </dl><dl><dt>
-          
-          <code><a href="TorchIngressToken.html">TorchIngressToken()</a></code> 
-        </dt>
-        <dd>Torch Ingress Token</dd>
-      </dl><dl><dt>
-          
-          <code><a href="TorchLoss.html">TorchLoss</a></code> 
-        </dt>
-        <dd>Torch Loss</dd>
-      </dl><dl><dt>
-          
-          <code><a href="TorchOptimizer.html">TorchOptimizer</a></code> 
-        </dt>
-        <dd>Torch Optimizer</dd>
-      </dl><dl><dt>
-          
-          <code><a href="as_data_descriptor.html">as_data_descriptor()</a></code> 
-        </dt>
-        <dd>Convert to Data Descriptor</dd>
-      </dl><dl><dt>
-          
-          <code><a href="as_lazy_tensor.html">as_lazy_tensor()</a></code> 
-        </dt>
-        <dd>Convert to Lazy Tensor</dd>
-      </dl><dl><dt>
-          
-          <code><a href="as_torch_callback.html">as_torch_callback()</a></code> 
-        </dt>
-        <dd>Convert to a TorchCallback</dd>
-      </dl><dl><dt>
-          
-          <code><a href="as_torch_callbacks.html">as_torch_callbacks()</a></code> 
-        </dt>
-        <dd>Convert to a list of Torch Callbacks</dd>
-      </dl><dl><dt>
-          
-          <code><a href="as_torch_loss.html">as_torch_loss()</a></code> 
-        </dt>
-        <dd>Convert to TorchLoss</dd>
-      </dl><dl><dt>
-          
-          <code><a href="as_torch_optimizer.html">as_torch_optimizer()</a></code> 
-        </dt>
-        <dd>Convert to TorchOptimizer</dd>
-      </dl><dl><dt>
-          
-          <code><a href="assert_lazy_tensor.html">assert_lazy_tensor()</a></code> 
-        </dt>
-        <dd>Assert Lazy Tensor</dd>
-      </dl><dl><dt>
-          
-          <code><a href="auto_device.html">auto_device()</a></code> 
-        </dt>
-        <dd>Auto Device</dd>
-      </dl><dl><dt>
-          
-          <code><a href="batchgetter_categ.html">batchgetter_categ()</a></code> 
-        </dt>
-        <dd>Batchgetter for Categorical data</dd>
-      </dl><dl><dt>
-          
-          <code><a href="batchgetter_num.html">batchgetter_num()</a></code> 
-        </dt>
-        <dd>Batchgetter for Numeric Data</dd>
-      </dl><dl><dt>
-          
-          <code><a href="callback_set.html">callback_set()</a></code> 
-        </dt>
-        <dd>Create a Set of Callbacks for Torch</dd>
-      </dl><dl><dt>
-          
-          <code><a href="equals-.lazy_tensor.html">`==`(<i>&lt;lazy_tensor&gt;</i>)</a></code> 
-        </dt>
-        <dd>Compare lazy tensors</dd>
-      </dl><dl><dt>
-          
-          <code><a href="hash_input.lazy_tensor.html">hash_input(<i>&lt;lazy_tensor&gt;</i>)</a></code> 
-        </dt>
-        <dd>Hash Input for Lazy Tensor</dd>
-      </dl><dl><dt>
-          
-          <code><a href="is_lazy_tensor.html">is_lazy_tensor()</a></code> 
-        </dt>
-        <dd>Check for lazy tensor</dd>
-      </dl><dl><dt>
-          
-          <code><a href="lazy_tensor.html">lazy_tensor()</a></code> 
-        </dt>
-        <dd>Create a lazy tensor</dd>
-      </dl><dl><dt>
-          
-          <code><a href="materialize.html">materialize()</a></code> 
-        </dt>
-        <dd>Materialize Lazy Tensor Columns</dd>
-      </dl><dl><dt>
-          
           <code><a href="mlr3torch-package.html">mlr3torch</a></code> <code><a href="mlr3torch-package.html">mlr3torch-package</a></code> 
         </dt>
         <dd>mlr3torch: Deep Learning for 'mlr3'</dd>
-      </dl><dl><dt>
-          
-          <code><a href="mlr3torch_callbacks.html">mlr3torch_callbacks</a></code> 
-        </dt>
-        <dd>Dictionary of Torch Callbacks</dd>
-      </dl><dl><dt>
-          
-          <code><a href="mlr3torch_losses.html">mlr3torch_losses</a></code> 
-        </dt>
-        <dd>Loss Functions</dd>
-      </dl><dl><dt>
-          
-          <code><a href="mlr3torch_optimizers.html">mlr3torch_optimizers</a></code> 
-        </dt>
-        <dd>Optimizers</dd>
-      </dl><dl><dt>
-          
-          <code><a href="mlr_backends_lazy.html">mlr_backends_lazy</a></code> <code><a href="mlr_backends_lazy.html">DataBackendLazy</a></code> 
-        </dt>
-        <dd>Lazy Data Backend</dd>
-      </dl><dl><dt>
-          
-          <code><a href="mlr_callback_set.html">mlr_callback_set</a></code> <code><a href="mlr_callback_set.html">CallbackSet</a></code> 
-        </dt>
-        <dd>Base Class for Callbacks</dd>
-      </dl><dl><dt>
-          
-          <code><a href="mlr_callback_set.checkpoint.html">mlr_callback_set.checkpoint</a></code> <code><a href="mlr_callback_set.checkpoint.html">CallbackSetCheckpoint</a></code> 
-        </dt>
-        <dd>Checkpoint Callback</dd>
-      </dl><dl><dt>
-          
-          <code><a href="mlr_callback_set.history.html">mlr_callback_set.history</a></code> <code><a href="mlr_callback_set.history.html">CallbackSetHistory</a></code> 
-        </dt>
-        <dd>History Callback</dd>
-      </dl><dl><dt>
-          
-          <code><a href="mlr_callback_set.progress.html">mlr_callback_set.progress</a></code> <code><a href="mlr_callback_set.progress.html">CallbackSetProgress</a></code> 
-        </dt>
-        <dd>Progress Callback</dd>
-      </dl><dl><dt>
-          
-          <code><a href="mlr_context_torch.html">mlr_context_torch</a></code> <code><a href="mlr_context_torch.html">ContextTorch</a></code> 
-        </dt>
-        <dd>Context for Torch Learner</dd>
-      </dl><dl><dt>
+      </dl></div><div class="section level2">
+      <h2 id="learners">Learners<a class="anchor" aria-label="anchor" href="#learners"></a></h2>
+      
+      
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
           
           <code><a href="mlr_learners.mlp.html">mlr_learners.mlp</a></code> <code><a href="mlr_learners.mlp.html">LearnerTorchMLP</a></code> 
         </dt>
@@ -408,12 +143,155 @@
           <code><a href="mlr_learners_torch_model.html">mlr_learners_torch_model</a></code> <code><a href="mlr_learners_torch_model.html">LearnerTorchModel</a></code> 
         </dt>
         <dd>Learner Torch Model</dd>
+      </dl></div><div class="section level2">
+      <h2 id="tasks">Tasks<a class="anchor" aria-label="anchor" href="#tasks"></a></h2>
+      
+      
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
+          
+          <code><a href="mlr_tasks_lazy_iris.html">mlr_tasks_lazy_iris</a></code> 
+        </dt>
+        <dd>Iris Classification Task</dd>
+      </dl><dl><dt>
+          
+          <code><a href="mlr_tasks_mnist.html">mlr_tasks_mnist</a></code> 
+        </dt>
+        <dd>MNIST Image classification</dd>
+      </dl><dl><dt>
+          
+          <code><a href="mlr_tasks_tiny_imagenet.html">mlr_tasks_tiny_imagenet</a></code> 
+        </dt>
+        <dd>Tiny ImageNet Classification Task</dd>
+      </dl><dl><dt>
+          
+          <code><a href="mlr_backends_lazy.html">mlr_backends_lazy</a></code> <code><a href="mlr_backends_lazy.html">DataBackendLazy</a></code> 
+        </dt>
+        <dd>Lazy Data Backend</dd>
+      </dl></div><div class="section level2">
+      <h2 id="network-building-blocks">Network Building Blocks<a class="anchor" aria-label="anchor" href="#network-building-blocks"></a></h2>
+      
+      
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
+          
+          <code><a href="ModelDescriptor.html">ModelDescriptor()</a></code> 
+        </dt>
+        <dd>Represent a Model with Meta-Info</dd>
+      </dl><dl><dt>
+          
+          <code><a href="model_descriptor_to_learner.html">model_descriptor_to_learner()</a></code> 
+        </dt>
+        <dd>Create a Torch Learner from a ModelDescriptor</dd>
+      </dl><dl><dt>
+          
+          <code><a href="model_descriptor_to_module.html">model_descriptor_to_module()</a></code> 
+        </dt>
+        <dd>Create a nn_graph from ModelDescriptor</dd>
+      </dl><dl><dt>
+          
+          <code><a href="model_descriptor_union.html">model_descriptor_union()</a></code> 
+        </dt>
+        <dd>Union of ModelDescriptors</dd>
       </dl><dl><dt>
           
           <code><a href="mlr_pipeops_module.html">mlr_pipeops_module</a></code> <code><a href="mlr_pipeops_module.html">PipeOpModule</a></code> 
         </dt>
         <dd>Class for Torch Module Wrappers</dd>
       </dl><dl><dt>
+          
+          <code><a href="TorchIngressToken.html">TorchIngressToken()</a></code> 
+        </dt>
+        <dd>Torch Ingress Token</dd>
+      </dl><dl><dt>
+          
+          <code><a href="mlr_pipeops_torch.html">mlr_pipeops_torch</a></code> <code><a href="mlr_pipeops_torch.html">PipeOpTorch</a></code> 
+        </dt>
+        <dd>Base Class for Torch Module Constructor Wrappers</dd>
+      </dl><dl><dt>
+          
+          <code><a href="mlr_pipeops_torch_ingress.html">mlr_pipeops_torch_ingress</a></code> <code><a href="mlr_pipeops_torch_ingress.html">PipeOpTorchIngress</a></code> 
+        </dt>
+        <dd>Entrypoint to Torch Network</dd>
+      </dl><dl><dt>
+          
+          <code><a href="mlr_pipeops_torch_model.html">mlr_pipeops_torch_model</a></code> <code><a href="mlr_pipeops_torch_model.html">PipeOpTorchModel</a></code> 
+        </dt>
+        <dd>PipeOp Torch Model</dd>
+      </dl><dl><dt>
+          
+          <code><a href="mlr_pipeops_torch_model_classif.html">mlr_pipeops_torch_model_classif</a></code> <code><a href="mlr_pipeops_torch_model_classif.html">PipeOpTorchModelClassif</a></code> 
+        </dt>
+        <dd>PipeOp Torch Classifier</dd>
+      </dl><dl><dt>
+          
+          <code><a href="mlr_pipeops_torch_model_regr.html">mlr_pipeops_torch_model_regr</a></code> <code><a href="mlr_pipeops_torch_model_regr.html">PipeOpTorchModelRegr</a></code> 
+        </dt>
+        <dd>Torch Regression Model</dd>
+      </dl><dl><dt>
+          
+          <code><a href="batchgetter_categ.html">batchgetter_categ()</a></code> 
+        </dt>
+        <dd>Batchgetter for Categorical data</dd>
+      </dl><dl><dt>
+          
+          <code><a href="batchgetter_num.html">batchgetter_num()</a></code> 
+        </dt>
+        <dd>Batchgetter for Numeric Data</dd>
+      </dl><dl><dt>
+          
+          <code><a href="mlr_pipeops_torch_ingress_categ.html">mlr_pipeops_torch_ingress_categ</a></code> <code><a href="mlr_pipeops_torch_ingress_categ.html">PipeOpTorchIngressCategorical</a></code> 
+        </dt>
+        <dd>Torch Entry Point for Categorical Features</dd>
+      </dl><dl><dt>
+          
+          <code><a href="mlr_pipeops_torch_ingress_ltnsr.html">mlr_pipeops_torch_ingress_ltnsr</a></code> <code><a href="mlr_pipeops_torch_ingress_ltnsr.html">PipeOpTorchIngressLazyTensor</a></code> 
+        </dt>
+        <dd>Ingress for Lazy Tensor</dd>
+      </dl><dl><dt>
+          
+          <code><a href="mlr_pipeops_torch_ingress_num.html">mlr_pipeops_torch_ingress_num</a></code> <code><a href="mlr_pipeops_torch_ingress_num.html">PipeOpTorchIngressNumeric</a></code> 
+        </dt>
+        <dd>Torch Entry Point for Numeric Features</dd>
+      </dl><dl><dt>
+          
+          <code><a href="mlr_pipeops_torch_loss.html">mlr_pipeops_torch_loss</a></code> <code><a href="mlr_pipeops_torch_loss.html">PipeOpTorchLoss</a></code> 
+        </dt>
+        <dd>Loss Configuration</dd>
+      </dl><dl><dt>
+          
+          <code><a href="mlr_pipeops_torch_optimizer.html">mlr_pipeops_torch_optimizer</a></code> <code><a href="mlr_pipeops_torch_optimizer.html">PipeOpTorchOptimizer</a></code> 
+        </dt>
+        <dd>Optimizer Configuration</dd>
+      </dl><dl><dt>
+          
+          <code><a href="mlr_pipeops_torch_callbacks.html">mlr_pipeops_torch_callbacks</a></code> <code><a href="mlr_pipeops_torch_callbacks.html">PipeOpTorchCallbacks</a></code> 
+        </dt>
+        <dd>Callback Configuration</dd>
+      </dl></div><div class="section level2">
+      <h2 id="network-layers">Network Layers<a class="anchor" aria-label="anchor" href="#network-layers"></a></h2>
+      
+      
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
           
           <code><a href="mlr_pipeops_nn_avg_pool1d.html">mlr_pipeops_nn_avg_pool1d</a></code> <code><a href="mlr_pipeops_nn_avg_pool1d.html">PipeOpTorchAvgPool1D</a></code> 
         </dt>
@@ -658,97 +536,164 @@
           <code><a href="mlr_pipeops_nn_threshold.html">mlr_pipeops_nn_threshold</a></code> <code><a href="mlr_pipeops_nn_threshold.html">PipeOpTorchThreshold</a></code> 
         </dt>
         <dd>Treshold Activation Function</dd>
-      </dl><dl><dt>
+      </dl></div><div class="section level2">
+      <h2 id="preprocessing-operators">Preprocessing Operators<a class="anchor" aria-label="anchor" href="#preprocessing-operators"></a></h2>
+      
+      
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
           
           <code><a href="mlr_pipeops_preproc_torch.html">mlr_pipeops_preproc_torch</a></code> <code><a href="mlr_pipeops_preproc_torch.html">PipeOpTaskPreprocTorch</a></code> 
         </dt>
         <dd>Base Class for Lazy Tensor Preprocessing</dd>
       </dl><dl><dt>
           
-          <code><a href="mlr_pipeops_torch.html">mlr_pipeops_torch</a></code> <code><a href="mlr_pipeops_torch.html">PipeOpTorch</a></code> 
+          <code><a href="pipeop_preproc_torch.html">pipeop_preproc_torch()</a></code> 
         </dt>
-        <dd>Base Class for Torch Module Constructor Wrappers</dd>
+        <dd>Create Torch Preprocessing PipeOps</dd>
       </dl><dl><dt>
           
-          <code><a href="mlr_pipeops_torch_callbacks.html">mlr_pipeops_torch_callbacks</a></code> <code><a href="mlr_pipeops_torch_callbacks.html">PipeOpTorchCallbacks</a></code> 
+          <code><a href="PipeOpPreprocTorchAugmentCenterCrop.html">mlr_pipeops_preproc_torch.augment_center_crop</a></code> <code><a href="PipeOpPreprocTorchAugmentCenterCrop.html">PipeOpPreprocTorchAugmentCenterCrop</a></code> 
         </dt>
-        <dd>Callback Configuration</dd>
+        <dd>PipeOpPreprocTorchAugmentCenterCrop</dd>
       </dl><dl><dt>
           
-          <code><a href="mlr_pipeops_torch_ingress.html">mlr_pipeops_torch_ingress</a></code> <code><a href="mlr_pipeops_torch_ingress.html">PipeOpTorchIngress</a></code> 
+          <code><a href="PipeOpPreprocTorchAugmentColorJitter.html">mlr_pipeops_preproc_torch.augment_color_jitter</a></code> <code><a href="PipeOpPreprocTorchAugmentColorJitter.html">PipeOpPreprocTorchAugmentColorJitter</a></code> 
         </dt>
-        <dd>Entrypoint to Torch Network</dd>
+        <dd>PipeOpPreprocTorchAugmentColorJitter</dd>
       </dl><dl><dt>
           
-          <code><a href="mlr_pipeops_torch_ingress_categ.html">mlr_pipeops_torch_ingress_categ</a></code> <code><a href="mlr_pipeops_torch_ingress_categ.html">PipeOpTorchIngressCategorical</a></code> 
+          <code><a href="PipeOpPreprocTorchAugmentCrop.html">mlr_pipeops_preproc_torch.augment_crop</a></code> <code><a href="PipeOpPreprocTorchAugmentCrop.html">PipeOpPreprocTorchAugmentCrop</a></code> 
         </dt>
-        <dd>Torch Entry Point for Categorical Features</dd>
+        <dd>PipeOpPreprocTorchAugmentCrop</dd>
       </dl><dl><dt>
           
-          <code><a href="mlr_pipeops_torch_ingress_ltnsr.html">mlr_pipeops_torch_ingress_ltnsr</a></code> <code><a href="mlr_pipeops_torch_ingress_ltnsr.html">PipeOpTorchIngressLazyTensor</a></code> 
+          <code><a href="PipeOpPreprocTorchAugmentHflip.html">mlr_pipeops_preproc_torch.augment_hflip</a></code> <code><a href="PipeOpPreprocTorchAugmentHflip.html">PipeOpPreprocTorchAugmentHflip</a></code> 
         </dt>
-        <dd>Ingress for Lazy Tensor</dd>
+        <dd>PipeOpPreprocTorchAugmentHflip</dd>
       </dl><dl><dt>
           
-          <code><a href="mlr_pipeops_torch_ingress_num.html">mlr_pipeops_torch_ingress_num</a></code> <code><a href="mlr_pipeops_torch_ingress_num.html">PipeOpTorchIngressNumeric</a></code> 
+          <code><a href="PipeOpPreprocTorchAugmentRandomAffine.html">mlr_pipeops_preproc_torch.augment_random_affine</a></code> <code><a href="PipeOpPreprocTorchAugmentRandomAffine.html">PipeOpPreprocTorchAugmentRandomAffine</a></code> 
         </dt>
-        <dd>Torch Entry Point for Numeric Features</dd>
+        <dd>PipeOpPreprocTorchAugmentRandomAffine</dd>
       </dl><dl><dt>
           
-          <code><a href="mlr_pipeops_torch_loss.html">mlr_pipeops_torch_loss</a></code> <code><a href="mlr_pipeops_torch_loss.html">PipeOpTorchLoss</a></code> 
+          <code><a href="PipeOpPreprocTorchAugmentRandomChoice.html">mlr_pipeops_preproc_torch.augment_random_choice</a></code> <code><a href="PipeOpPreprocTorchAugmentRandomChoice.html">PipeOpPreprocTorchAugmentRandomChoice</a></code> 
         </dt>
-        <dd>Loss Configuration</dd>
+        <dd>PipeOpPreprocTorchAugmentRandomChoice</dd>
       </dl><dl><dt>
           
-          <code><a href="mlr_pipeops_torch_model.html">mlr_pipeops_torch_model</a></code> <code><a href="mlr_pipeops_torch_model.html">PipeOpTorchModel</a></code> 
+          <code><a href="PipeOpPreprocTorchAugmentRandomCrop.html">mlr_pipeops_preproc_torch.augment_random_crop</a></code> <code><a href="PipeOpPreprocTorchAugmentRandomCrop.html">PipeOpPreprocTorchAugmentRandomCrop</a></code> 
         </dt>
-        <dd>PipeOp Torch Model</dd>
+        <dd>PipeOpPreprocTorchAugmentRandomCrop</dd>
       </dl><dl><dt>
           
-          <code><a href="mlr_pipeops_torch_model_classif.html">mlr_pipeops_torch_model_classif</a></code> <code><a href="mlr_pipeops_torch_model_classif.html">PipeOpTorchModelClassif</a></code> 
+          <code><a href="PipeOpPreprocTorchAugmentRandomHorizontalFlip.html">mlr_pipeops_preproc_torch.augment_random_horizontal_flip</a></code> <code><a href="PipeOpPreprocTorchAugmentRandomHorizontalFlip.html">PipeOpPreprocTorchAugmentRandomHorizontalFlip</a></code> 
         </dt>
-        <dd>PipeOp Torch Classifier</dd>
+        <dd>PipeOpPreprocTorchAugmentRandomHorizontalFlip</dd>
       </dl><dl><dt>
           
-          <code><a href="mlr_pipeops_torch_model_regr.html">mlr_pipeops_torch_model_regr</a></code> <code><a href="mlr_pipeops_torch_model_regr.html">PipeOpTorchModelRegr</a></code> 
+          <code><a href="PipeOpPreprocTorchAugmentRandomOrder.html">mlr_pipeops_preproc_torch.augment_random_order</a></code> <code><a href="PipeOpPreprocTorchAugmentRandomOrder.html">PipeOpPreprocTorchAugmentRandomOrder</a></code> 
         </dt>
-        <dd>Torch Regression Model</dd>
+        <dd>PipeOpPreprocTorchAugmentRandomOrder</dd>
       </dl><dl><dt>
           
-          <code><a href="mlr_pipeops_torch_optimizer.html">mlr_pipeops_torch_optimizer</a></code> <code><a href="mlr_pipeops_torch_optimizer.html">PipeOpTorchOptimizer</a></code> 
+          <code><a href="PipeOpPreprocTorchAugmentRandomResizedCrop.html">mlr_pipeops_preproc_torch.augment_random_resized_crop</a></code> <code><a href="PipeOpPreprocTorchAugmentRandomResizedCrop.html">PipeOpPreprocTorchAugmentRandomResizedCrop</a></code> 
         </dt>
-        <dd>Optimizer Configuration</dd>
+        <dd>PipeOpPreprocTorchAugmentRandomResizedCrop</dd>
       </dl><dl><dt>
           
-          <code><a href="mlr_tasks_lazy_iris.html">mlr_tasks_lazy_iris</a></code> 
+          <code><a href="PipeOpPreprocTorchAugmentRandomVerticalFlip.html">mlr_pipeops_preproc_torch.augment_random_vertical_flip</a></code> <code><a href="PipeOpPreprocTorchAugmentRandomVerticalFlip.html">PipeOpPreprocTorchAugmentRandomVerticalFlip</a></code> 
         </dt>
-        <dd>Iris Classification Task</dd>
+        <dd>PipeOpPreprocTorchAugmentRandomVerticalFlip</dd>
       </dl><dl><dt>
           
-          <code><a href="mlr_tasks_mnist.html">mlr_tasks_mnist</a></code> 
+          <code><a href="PipeOpPreprocTorchAugmentResizedCrop.html">mlr_pipeops_preproc_torch.augment_resized_crop</a></code> <code><a href="PipeOpPreprocTorchAugmentResizedCrop.html">PipeOpPreprocTorchAugmentResizedCrop</a></code> 
         </dt>
-        <dd>MNIST Image classification</dd>
+        <dd>PipeOpPreprocTorchAugmentResizedCrop</dd>
       </dl><dl><dt>
           
-          <code><a href="mlr_tasks_tiny_imagenet.html">mlr_tasks_tiny_imagenet</a></code> 
+          <code><a href="PipeOpPreprocTorchAugmentRotate.html">mlr_pipeops_preproc_torch.augment_rotate</a></code> <code><a href="PipeOpPreprocTorchAugmentRotate.html">PipeOpPreprocTorchAugmentRotate</a></code> 
         </dt>
-        <dd>Tiny ImageNet Classification Task</dd>
+        <dd>PipeOpPreprocTorchAugmentRotate</dd>
       </dl><dl><dt>
           
-          <code><a href="model_descriptor_to_learner.html">model_descriptor_to_learner()</a></code> 
+          <code><a href="PipeOpPreprocTorchAugmentVflip.html">mlr_pipeops_preproc_torch.augment_vflip</a></code> <code><a href="PipeOpPreprocTorchAugmentVflip.html">PipeOpPreprocTorchAugmentVflip</a></code> 
         </dt>
-        <dd>Create a Torch Learner from a ModelDescriptor</dd>
+        <dd>PipeOpPreprocTorchAugmentVflip</dd>
       </dl><dl><dt>
           
-          <code><a href="model_descriptor_to_module.html">model_descriptor_to_module()</a></code> 
+          <code><a href="PipeOpPreprocTorchTrafoAdjustBrightness.html">mlr_pipeops_preproc_torch.trafo_adjust_brightness</a></code> <code><a href="PipeOpPreprocTorchTrafoAdjustBrightness.html">PipeOpPreprocTorchTrafoAdjustBrightness</a></code> 
         </dt>
-        <dd>Create a nn_graph from ModelDescriptor</dd>
+        <dd>PipeOpPreprocTorchTrafoAdjustBrightness</dd>
       </dl><dl><dt>
           
-          <code><a href="model_descriptor_union.html">model_descriptor_union()</a></code> 
+          <code><a href="PipeOpPreprocTorchTrafoAdjustGamma.html">mlr_pipeops_preproc_torch.trafo_adjust_gamma</a></code> <code><a href="PipeOpPreprocTorchTrafoAdjustGamma.html">PipeOpPreprocTorchTrafoAdjustGamma</a></code> 
         </dt>
-        <dd>Union of ModelDescriptors</dd>
+        <dd>PipeOpPreprocTorchTrafoAdjustGamma</dd>
       </dl><dl><dt>
+          
+          <code><a href="PipeOpPreprocTorchTrafoAdjustHue.html">mlr_pipeops_preproc_torch.trafo_adjust_hue</a></code> <code><a href="PipeOpPreprocTorchTrafoAdjustHue.html">PipeOpPreprocTorchTrafoAdjustHue</a></code> 
+        </dt>
+        <dd>PipeOpPreprocTorchTrafoAdjustHue</dd>
+      </dl><dl><dt>
+          
+          <code><a href="PipeOpPreprocTorchTrafoAdjustSaturation.html">mlr_pipeops_preproc_torch.trafo_adjust_saturation</a></code> <code><a href="PipeOpPreprocTorchTrafoAdjustSaturation.html">PipeOpPreprocTorchTrafoAdjustSaturation</a></code> 
+        </dt>
+        <dd>PipeOpPreprocTorchTrafoAdjustSaturation</dd>
+      </dl><dl><dt>
+          
+          <code><a href="PipeOpPreprocTorchTrafoGrayscale.html">mlr_pipeops_preproc_torch.trafo_grayscale</a></code> <code><a href="PipeOpPreprocTorchTrafoGrayscale.html">PipeOpPreprocTorchTrafoGrayscale</a></code> 
+        </dt>
+        <dd>PipeOpPreprocTorchTrafoGrayscale</dd>
+      </dl><dl><dt>
+          
+          <code><a href="PipeOpPreprocTorchTrafoNop.html">mlr_pipeops_preproc_torch.trafo_nop</a></code> <code><a href="PipeOpPreprocTorchTrafoNop.html">PipeOpPreprocTorchTrafoNop</a></code> 
+        </dt>
+        <dd>PipeOpPreprocTorchTrafoNop</dd>
+      </dl><dl><dt>
+          
+          <code><a href="PipeOpPreprocTorchTrafoNormalize.html">mlr_pipeops_preproc_torch.trafo_normalize</a></code> <code><a href="PipeOpPreprocTorchTrafoNormalize.html">PipeOpPreprocTorchTrafoNormalize</a></code> 
+        </dt>
+        <dd>PipeOpPreprocTorchTrafoNormalize</dd>
+      </dl><dl><dt>
+          
+          <code><a href="PipeOpPreprocTorchTrafoPad.html">mlr_pipeops_preproc_torch.trafo_pad</a></code> <code><a href="PipeOpPreprocTorchTrafoPad.html">PipeOpPreprocTorchTrafoPad</a></code> 
+        </dt>
+        <dd>PipeOpPreprocTorchTrafoPad</dd>
+      </dl><dl><dt>
+          
+          <code><a href="PipeOpPreprocTorchTrafoReshape.html">mlr_pipeops_preproc_torch.trafo_reshape</a></code> <code><a href="PipeOpPreprocTorchTrafoReshape.html">PipeOpPreprocTorchTrafoReshape</a></code> 
+        </dt>
+        <dd>PipeOpPreprocTorchTrafoReshape</dd>
+      </dl><dl><dt>
+          
+          <code><a href="PipeOpPreprocTorchTrafoResize.html">mlr_pipeops_preproc_torch.trafo_resize</a></code> <code><a href="PipeOpPreprocTorchTrafoResize.html">PipeOpPreprocTorchTrafoResize</a></code> 
+        </dt>
+        <dd>PipeOpPreprocTorchTrafoResize</dd>
+      </dl><dl><dt>
+          
+          <code><a href="PipeOpPreprocTorchTrafoRgbToGrayscale.html">mlr_pipeops_preproc_torch.trafo_rgb_to_grayscale</a></code> <code><a href="PipeOpPreprocTorchTrafoRgbToGrayscale.html">PipeOpPreprocTorchTrafoRgbToGrayscale</a></code> 
+        </dt>
+        <dd>PipeOpPreprocTorchTrafoRgbToGrayscale</dd>
+      </dl></div><div class="section level2">
+      <h2 id="nn-modules">NN Modules<a class="anchor" aria-label="anchor" href="#nn-modules"></a></h2>
+      
+      
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
           
           <code><a href="nn_graph.html">nn_graph()</a></code> 
         </dt>
@@ -783,21 +728,145 @@
           <code><a href="nn_unsqueeze.html">nn_unsqueeze()</a></code> 
         </dt>
         <dd>Unsqueeze</dd>
+      </dl></div><div class="section level2">
+      <h2 id="lazy-tensor">Lazy Tensor<a class="anchor" aria-label="anchor" href="#lazy-tensor"></a></h2>
+      
+      
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
+          
+          <code><a href="lazy_tensor.html">lazy_tensor()</a></code> 
+        </dt>
+        <dd>Create a lazy tensor</dd>
       </dl><dl><dt>
           
-          <code><a href="pipeop_preproc_torch.html">pipeop_preproc_torch()</a></code> 
+          <code><a href="DataDescriptor.html">DataDescriptor</a></code> 
         </dt>
-        <dd>Create Torch Preprocessing PipeOps</dd>
+        <dd>Data Descriptor</dd>
       </dl><dl><dt>
           
-          <code><a href="replace_head.html">replace_head()</a></code> 
+          <code><a href="as_lazy_tensor.html">as_lazy_tensor()</a></code> 
         </dt>
-        <dd>Replace the head of a network Replaces the head of the network with a linear layer with d_out classes.</dd>
+        <dd>Convert to Lazy Tensor</dd>
       </dl><dl><dt>
           
-          <code><a href="reset_layer.html">reset_last_layer()</a></code> 
+          <code><a href="as_data_descriptor.html">as_data_descriptor()</a></code> 
         </dt>
-        <dd>Reset a classification models last layer</dd>
+        <dd>Convert to Data Descriptor</dd>
+      </dl><dl><dt>
+          
+          <code><a href="assert_lazy_tensor.html">assert_lazy_tensor()</a></code> 
+        </dt>
+        <dd>Assert Lazy Tensor</dd>
+      </dl><dl><dt>
+          
+          <code><a href="is_lazy_tensor.html">is_lazy_tensor()</a></code> 
+        </dt>
+        <dd>Check for lazy tensor</dd>
+      </dl><dl><dt>
+          
+          <code><a href="materialize.html">materialize()</a></code> 
+        </dt>
+        <dd>Materialize Lazy Tensor Columns</dd>
+      </dl></div><div class="section level2">
+      <h2 id="loss">Loss<a class="anchor" aria-label="anchor" href="#loss"></a></h2>
+      
+      
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
+          
+          <code><a href="t_loss.html">t_loss()</a></code> <code><a href="t_loss.html">t_losses()</a></code> 
+        </dt>
+        <dd>Loss Function Quick Access</dd>
+      </dl><dl><dt>
+          
+          <code><a href="TorchLoss.html">TorchLoss</a></code> 
+        </dt>
+        <dd>Torch Loss</dd>
+      </dl><dl><dt>
+          
+          <code><a href="mlr_pipeops_torch_loss.html">mlr_pipeops_torch_loss</a></code> <code><a href="mlr_pipeops_torch_loss.html">PipeOpTorchLoss</a></code> 
+        </dt>
+        <dd>Loss Configuration</dd>
+      </dl><dl><dt>
+          
+          <code><a href="as_torch_loss.html">as_torch_loss()</a></code> 
+        </dt>
+        <dd>Convert to TorchLoss</dd>
+      </dl><dl><dt>
+          
+          <code><a href="mlr3torch_losses.html">mlr3torch_losses</a></code> 
+        </dt>
+        <dd>Loss Functions</dd>
+      </dl></div><div class="section level2">
+      <h2 id="optimizer">Optimizer<a class="anchor" aria-label="anchor" href="#optimizer"></a></h2>
+      
+      
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
+          
+          <code><a href="t_opt.html">t_opt()</a></code> <code><a href="t_opt.html">t_opts()</a></code> 
+        </dt>
+        <dd>Optimizers Quick Access</dd>
+      </dl><dl><dt>
+          
+          <code><a href="TorchLoss.html">TorchLoss</a></code> 
+        </dt>
+        <dd>Torch Loss</dd>
+      </dl><dl><dt>
+          
+          <code><a href="mlr_pipeops_torch_optimizer.html">mlr_pipeops_torch_optimizer</a></code> <code><a href="mlr_pipeops_torch_optimizer.html">PipeOpTorchOptimizer</a></code> 
+        </dt>
+        <dd>Optimizer Configuration</dd>
+      </dl><dl><dt>
+          
+          <code><a href="as_torch_optimizer.html">as_torch_optimizer()</a></code> 
+        </dt>
+        <dd>Convert to TorchOptimizer</dd>
+      </dl><dl><dt>
+          
+          <code><a href="mlr3torch_optimizers.html">mlr3torch_optimizers</a></code> 
+        </dt>
+        <dd>Optimizers</dd>
+      </dl></div><div class="section level2">
+      <h2 id="callbacks">Callbacks<a class="anchor" aria-label="anchor" href="#callbacks"></a></h2>
+      
+      
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
+          
+          <code><a href="callback_set.html">callback_set()</a></code> 
+        </dt>
+        <dd>Create a Set of Callbacks for Torch</dd>
+      </dl><dl><dt>
+          
+          <code><a href="torch_callback.html">torch_callback()</a></code> 
+        </dt>
+        <dd>Create a Callback Desctiptor</dd>
       </dl><dl><dt>
           
           <code><a href="t_clbk.html">t_clbk()</a></code> <code><a href="t_clbk.html">t_clbks()</a></code> 
@@ -805,26 +874,103 @@
         <dd>Sugar Function for Torch Callback</dd>
       </dl><dl><dt>
           
-          <code><a href="t_loss.html">t_loss()</a></code> <code><a href="t_loss.html">t_losses()</a></code> 
+          <code><a href="TorchCallback.html">TorchCallback</a></code> 
         </dt>
-        <dd>Loss Function Quick Access</dd>
+        <dd>Torch Callback</dd>
       </dl><dl><dt>
           
-          <code><a href="t_opt.html">t_opt()</a></code> <code><a href="t_opt.html">t_opts()</a></code> 
+          <code><a href="TorchDescriptor.html">TorchDescriptor</a></code> 
         </dt>
-        <dd>Optimizers Quick Access</dd>
+        <dd>Base Class for Torch Descriptors</dd>
+      </dl><dl><dt>
+          
+          <code><a href="TorchIngressToken.html">TorchIngressToken()</a></code> 
+        </dt>
+        <dd>Torch Ingress Token</dd>
+      </dl><dl><dt>
+          
+          <code><a href="TorchLoss.html">TorchLoss</a></code> 
+        </dt>
+        <dd>Torch Loss</dd>
+      </dl><dl><dt>
+          
+          <code><a href="TorchOptimizer.html">TorchOptimizer</a></code> 
+        </dt>
+        <dd>Torch Optimizer</dd>
+      </dl><dl><dt>
+          
+          <code><a href="mlr_callback_set.html">mlr_callback_set</a></code> <code><a href="mlr_callback_set.html">CallbackSet</a></code> 
+        </dt>
+        <dd>Base Class for Callbacks</dd>
+      </dl><dl><dt>
+          
+          <code><a href="mlr_callback_set.checkpoint.html">mlr_callback_set.checkpoint</a></code> <code><a href="mlr_callback_set.checkpoint.html">CallbackSetCheckpoint</a></code> 
+        </dt>
+        <dd>Checkpoint Callback</dd>
+      </dl><dl><dt>
+          
+          <code><a href="mlr_callback_set.history.html">mlr_callback_set.history</a></code> <code><a href="mlr_callback_set.history.html">CallbackSetHistory</a></code> 
+        </dt>
+        <dd>History Callback</dd>
+      </dl><dl><dt>
+          
+          <code><a href="mlr_callback_set.progress.html">mlr_callback_set.progress</a></code> <code><a href="mlr_callback_set.progress.html">CallbackSetProgress</a></code> 
+        </dt>
+        <dd>Progress Callback</dd>
+      </dl><dl><dt>
+          
+          <code><a href="as_torch_callback.html">as_torch_callback()</a></code> 
+        </dt>
+        <dd>Convert to a TorchCallback</dd>
+      </dl><dl><dt>
+          
+          <code><a href="as_torch_callbacks.html">as_torch_callbacks()</a></code> 
+        </dt>
+        <dd>Convert to a list of Torch Callbacks</dd>
+      </dl><dl><dt>
+          
+          <code><a href="mlr_pipeops_torch_callbacks.html">mlr_pipeops_torch_callbacks</a></code> <code><a href="mlr_pipeops_torch_callbacks.html">PipeOpTorchCallbacks</a></code> 
+        </dt>
+        <dd>Callback Configuration</dd>
+      </dl><dl><dt>
+          
+          <code><a href="mlr3torch_callbacks.html">mlr3torch_callbacks</a></code> 
+        </dt>
+        <dd>Dictionary of Torch Callbacks</dd>
+      </dl><dl><dt>
+          
+          <code><a href="mlr_context_torch.html">mlr_context_torch</a></code> <code><a href="mlr_context_torch.html">ContextTorch</a></code> 
+        </dt>
+        <dd>Context for Torch Learner</dd>
+      </dl></div><div class="section level2">
+      <h2 id="helper">Helper<a class="anchor" aria-label="anchor" href="#helper"></a></h2>
+      
+      
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
+          
+          <code><a href="TorchDescriptor.html">TorchDescriptor</a></code> 
+        </dt>
+        <dd>Base Class for Torch Descriptors</dd>
+      </dl><dl><dt>
+          
+          <code><a href="auto_device.html">auto_device()</a></code> 
+        </dt>
+        <dd>Auto Device</dd>
       </dl><dl><dt>
           
           <code><a href="task_dataset.html">task_dataset()</a></code> 
         </dt>
         <dd>Create a Dataset from a Task</dd>
-      </dl><dl><dt>
-          
-          <code><a href="torch_callback.html">torch_callback()</a></code> 
-        </dt>
-        <dd>Create a Callback Desctiptor</dd>
       </dl></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">

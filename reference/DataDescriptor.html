@@ -38,6 +38,15 @@ To create a data descriptor, you can also use the as_data_descriptor() function.
 <li class="nav-item">
   <a class="nav-link" href="../news/index.html">Changelog</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="../articles/callbacks.html">Custom Callbacks</a>
+    <a class="dropdown-item" href="../articles/get_started.html">Get Started</a>
+    <a class="dropdown-item" href="../articles/lazy_tensor.html">Lazy Tensor</a>
+    <a class="dropdown-item" href="../articles/pipeop_torch.html">Neural Networks as Graphs</a>
+  </div>
+</li>
 <li class="nav-item">
   <a class="external-link nav-link" href="https://mlr3book.mlr-org.com">
     <span class="fa fa fa fa-link"></span>
@@ -287,14 +296,14 @@ Unused</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;DataDescriptor: 1 ops&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * dataset_shapes: [x: (NA,3,3)]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * input_map: (x) -&gt; Graph</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * pointer: nop.74a9.x.output</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * pointer: nop.c6bcfa.x.output</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * shape: [(NA,3,3)]</span>
 <span class="r-in"><span><span class="co"># is the same as using the converter:</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="as_data_descriptor.html">as_data_descriptor</a></span><span class="op">(</span><span class="va">ds</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;DataDescriptor: 1 ops&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * dataset_shapes: [x: (NA,3,3)]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * input_map: (x) -&gt; Graph</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * pointer: nop.74a9.x.output</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * pointer: nop.c6bcfa.x.output</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * shape: [(NA,3,3)]</span>
 </code></pre></div>
     </div>

@@ -10,6 +10,21 @@
     <loc>https://mlr3torch.mlr-org.com/TODO.html</loc>
   </url>
   <url>
+    <loc>https://mlr3torch.mlr-org.com/articles/callbacks.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/articles/get_started.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/articles/lazy_tensor.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/articles/pipeop_torch.html</loc>
+  </url>
+  <url>
     <loc>https://mlr3torch.mlr-org.com/authors.html</loc>
   </url>
   <url>
@@ -91,13 +106,13 @@
     <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchTrafoPad.html</loc>
   </url>
   <url>
+    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchTrafoReshape.html</loc>
+  </url>
+  <url>
     <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchTrafoResize.html</loc>
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchTrafoRgbToGrayscale.html</loc>
-  </url>
-  <url>
-    <loc>https://mlr3torch.mlr-org.com/reference/PipeOpPreprocTorchTrafoScale.html</loc>
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/TorchCallback.html</loc>
@@ -149,9 +164,6 @@
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/equals-.lazy_tensor.html</loc>
-  </url>
-  <url>
-    <loc>https://mlr3torch.mlr-org.com/reference/hash_input.lazy_tensor.html</loc>
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/index.html</loc>
@@ -449,9 +461,6 @@
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/replace_head.html</loc>
-  </url>
-  <url>
-    <loc>https://mlr3torch.mlr-org.com/reference/reset_layer.html</loc>
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/reference/t_clbk.html</loc>
