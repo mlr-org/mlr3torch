@@ -60,8 +60,9 @@
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/callbacks.html">Custom Callbacks</a>
     <a class="dropdown-item" href="../articles/get_started.html">Get Started</a>
+    <a class="dropdown-item" href="../articles/internals_pipeop_torch.html">Internals</a>
     <a class="dropdown-item" href="../articles/lazy_tensor.html">Lazy Tensor</a>
-    <a class="dropdown-item" href="../articles/pipeop_torch.html">Neural Networks as Graphs</a>
+    <a class="dropdown-item" href="../articles/pipeop_torch.html">Defining an Architecture</a>
   </div>
 </li>
 <li class="nav-item">
@@ -418,7 +419,7 @@ nerworks using <code>PipeOpTorch</code> objects. The
 <span><span class="co">#&gt; &lt;DataDescriptor: 1 ops&gt;</span></span>
 <span><span class="co">#&gt; * dataset_shapes: [x: (NA,1)]</span></span>
 <span><span class="co">#&gt; * input_map: (x) -&gt; Graph</span></span>
-<span><span class="co">#&gt; * pointer: nop.28602e.x.output</span></span>
+<span><span class="co">#&gt; * pointer: nop.596423.x.output</span></span>
 <span><span class="co">#&gt; * shape: [(NA,1)]</span></span></code></pre></div>
 <p>The printed output of the data descriptor informs us about:</p>
 <ul>
@@ -465,7 +466,7 @@ there can only be a single <code>DataDescriptor</code> in a
 <span><span class="co">#&gt; &lt;DataDescriptor: 1 ops&gt;</span></span>
 <span><span class="co">#&gt; * dataset_shapes: [x: (NA,1)]</span></span>
 <span><span class="co">#&gt; * input_map: (x) -&gt; Graph</span></span>
-<span><span class="co">#&gt; * pointer: nop.28602e.x.output</span></span>
+<span><span class="co">#&gt; * pointer: nop.596423.x.output</span></span>
 <span><span class="co">#&gt; * shape: [(NA,1)]</span></span></code></pre></div>
 <p>What happens during <code>materialize(lt[1])</code> is the
 following:</p>
@@ -516,8 +517,8 @@ feature.</p>
 <span><span class="co">#&gt; Graph with 2 PipeOps:</span></span>
 <span><span class="co">#&gt;            ID         State sccssors    prdcssors</span></span>
 <span><span class="co">#&gt;        &lt;char&gt;        &lt;char&gt;   &lt;char&gt;       &lt;char&gt;</span></span>
-<span><span class="co">#&gt;  nop.28602e.x        &lt;list&gt;   poly.x             </span></span>
-<span><span class="co">#&gt;        poly.x &lt;&lt;UNTRAINED&gt;&gt;          nop.28602e.x</span></span></code></pre></div>
+<span><span class="co">#&gt;  nop.596423.x        &lt;list&gt;   poly.x             </span></span>
+<span><span class="co">#&gt;        poly.x &lt;&lt;UNTRAINED&gt;&gt;          nop.596423.x</span></span></code></pre></div>
 <p>We see that the <code>$graph</code> has a new pipeop with id
 <code>"poly.x"</code> and the output <code>pointer</code> points to
 <code>poly.x</code>. Also we see that the shape of the tensor is now

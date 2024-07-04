@@ -35,8 +35,9 @@ For classification, the output of the network must be the scores (before the sof
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/callbacks.html">Custom Callbacks</a>
     <a class="dropdown-item" href="../articles/get_started.html">Get Started</a>
+    <a class="dropdown-item" href="../articles/internals_pipeop_torch.html">Internals</a>
     <a class="dropdown-item" href="../articles/lazy_tensor.html">Lazy Tensor</a>
-    <a class="dropdown-item" href="../articles/pipeop_torch.html">Neural Networks as Graphs</a>
+    <a class="dropdown-item" href="../articles/pipeop_torch.html">Defining an Architecture</a>
   </div>
 </li>
 <li class="nav-item">
@@ -122,6 +123,21 @@ For classification, the output of the network must be the scores (before the sof
     <p><code><a href="https://mlr3.mlr-org.com/reference/Learner.html" class="external-link">mlr3::Learner</a></code> -&gt; <code><a href="mlr_learners_torch.html">mlr3torch::LearnerTorch</a></code> -&gt; <code>LearnerTorchModel</code></p>
     </div>
     <div class="section level2">
+    <h2 id="active-bindings">Active bindings<a class="anchor" aria-label="anchor" href="#active-bindings"></a></h2>
+    <p></p><div class="r6-active-bindings"><dl><dt><code>network_stored</code></dt>
+<dd><p>(<code>nn_module</code> or <code>NULL</code>)<br>
+The network that will be trained.
+After calling <code>$train()</code>, this is <code>NULL</code>.</p></dd>
+
+
+<dt><code>ingress_tokens</code></dt>
+<dd><p>(named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> with <code>TorchIngressToken</code> or <code>NULL</code>)<br>
+The ingress tokens. Must be non-<code>NULL</code> when calling <code>$train()</code>.</p></dd>
+
+
+</dl><p></p></div>
+    </div>
+    <div class="section level2">
     <h2 id="methods">Methods<a class="anchor" aria-label="anchor" href="#methods"></a></h2>
     
 <div class="section">
@@ -135,6 +151,7 @@ For classification, the output of the network must be the scores (before the sof
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata"><a href="https://mlr3.mlr-org.com/reference/Learner.html#method-predict_newdata"><code>mlr3::Learner$predict_newdata()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset"><a href="https://mlr3.mlr-org.com/reference/Learner.html#method-reset"><code>mlr3::Learner$reset()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train"><a href="https://mlr3.mlr-org.com/reference/Learner.html#method-train"><code>mlr3::Learner$train()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerTorch" data-id="dataset"><a href="LearnerTorch.html#method-dataset"><code>mlr3torch::LearnerTorch$dataset()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerTorch" data-id="format"><a href="LearnerTorch.html#method-format"><code>mlr3torch::LearnerTorch$format()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerTorch" data-id="marshal"><a href="LearnerTorch.html#method-marshal"><code>mlr3torch::LearnerTorch$marshal()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerTorch" data-id="print"><a href="LearnerTorch.html#method-print"><code>mlr3torch::LearnerTorch$print()</code></a></span></li>
@@ -144,9 +161,9 @@ For classification, the output of the network must be the scores (before the sof
 <p>Creates a new instance of this <a href="https://r6.r-lib.org/reference/R6Class.html" class="external-link">R6</a> class.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/mlr_learners_torch_model.html">LearnerTorchModel</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  network <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ingress_tokens <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">task_type</span>,</span>
-<span>  <span class="va">network</span>,</span>
-<span>  <span class="va">ingress_tokens</span>,</span>
 <span>  properties <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  optimizer <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  loss <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -158,12 +175,7 @@ For classification, the output of the network must be the scores (before the sof
 
 <div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
-<p></p><div class="arguments"><dl><dt><code>task_type</code></dt>
-<dd><p>(<code>character(1)</code>)<br>
-The task type.</p></dd>
-
-
-<dt><code>network</code></dt>
+<p></p><div class="arguments"><dl><dt><code>network</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module</a></code>)<br>
 An instantiated <code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module</a></code>. Is not cloned during construction.
 For classification, outputs must be the scores (before the softmax).</p></dd>
@@ -172,6 +184,11 @@ For classification, outputs must be the scores (before the softmax).</p></dd>
 <dt><code>ingress_tokens</code></dt>
 <dd><p>(<code>list</code> of <code><a href="TorchIngressToken.html">TorchIngressToken()</a></code>)<br>
 A list with ingress tokens that defines how the dataloader will be defined.</p></dd>
+
+
+<dt><code>task_type</code></dt>
+<dd><p>(<code>character(1)</code>)<br>
+The task type.</p></dd>
 
 
 <dt><code>properties</code></dt>
@@ -259,14 +276,14 @@ The feature types. Defaults to all available feature types.</p></dd>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task</span>, <span class="va">ids</span><span class="op">$</span><span class="va">train</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">task</span>, <span class="va">ids</span><span class="op">$</span><span class="va">test</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;PredictionClassif&gt; for 48 observations:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     row_ids     truth response</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           1    setosa   setosa</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           6    setosa   setosa</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          12    setosa   setosa</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ---                           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         142 virginica   setosa</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         148 virginica   setosa</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         149 virginica   setosa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     row_ids     truth  response</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           1    setosa virginica</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           6    setosa virginica</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          12    setosa virginica</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ---                            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         142 virginica virginica</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         148 virginica virginica</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         149 virginica virginica</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

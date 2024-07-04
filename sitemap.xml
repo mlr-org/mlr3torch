@@ -7,9 +7,6 @@
     <loc>https://mlr3torch.mlr-org.com/LICENSE.html</loc>
   </url>
   <url>
-    <loc>https://mlr3torch.mlr-org.com/TODO.html</loc>
-  </url>
-  <url>
     <loc>https://mlr3torch.mlr-org.com/articles/callbacks.html</loc>
   </url>
   <url>
@@ -17,6 +14,9 @@
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>https://mlr3torch.mlr-org.com/articles/internals_pipeop_torch.html</loc>
   </url>
   <url>
     <loc>https://mlr3torch.mlr-org.com/articles/lazy_tensor.html</loc>

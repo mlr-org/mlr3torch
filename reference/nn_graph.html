@@ -33,8 +33,9 @@
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/callbacks.html">Custom Callbacks</a>
     <a class="dropdown-item" href="../articles/get_started.html">Get Started</a>
+    <a class="dropdown-item" href="../articles/internals_pipeop_torch.html">Internals</a>
     <a class="dropdown-item" href="../articles/lazy_tensor.html">Lazy Tensor</a>
-    <a class="dropdown-item" href="../articles/pipeop_torch.html">Neural Networks as Graphs</a>
+    <a class="dropdown-item" href="../articles/pipeop_torch.html">Defining an Architecture</a>
   </div>
 </li>
 <li class="nav-item">
@@ -154,22 +155,22 @@ Whether output should be a list of tensors. If <code>FALSE</code> (default), the
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">network</span><span class="op">(</span>module_1.input <span class="op">=</span> <span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.5954</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1170</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.3048</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2469</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.4989</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1286</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.3603</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.3472</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.3418</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1768</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2652</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2593</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.3969</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.4770</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0163</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0735</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3593</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3673</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2290</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0844</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4587</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.8260</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3083</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4675</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2828</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2965</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.5621</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2880</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3496</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3543</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2322</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{16,1} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span>
 </code></pre></div>
     </div>

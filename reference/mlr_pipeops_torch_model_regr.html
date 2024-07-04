@@ -33,8 +33,9 @@
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/callbacks.html">Custom Callbacks</a>
     <a class="dropdown-item" href="../articles/get_started.html">Get Started</a>
+    <a class="dropdown-item" href="../articles/internals_pipeop_torch.html">Internals</a>
     <a class="dropdown-item" href="../articles/lazy_tensor.html">Lazy Tensor</a>
-    <a class="dropdown-item" href="../articles/pipeop_torch.html">Neural Networks as Graphs</a>
+    <a class="dropdown-item" href="../articles/pipeop_torch.html">Defining an Architecture</a>
   </div>
 </li>
 <li class="nav-item">
@@ -177,7 +178,7 @@ its '$train()<code> method is called on the [</code>Task<code>] stored in the [<
     </div>
     <div class="section level2">
     <h2 id="super-classes">Super classes<a class="anchor" aria-label="anchor" href="#super-classes"></a></h2>
-    <p><code><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html" class="external-link">mlr3pipelines::PipeOp</a></code> -&gt; <code><a href="mlr_pipeops_torch_model.html">mlr3torch::PipeOpTorchModel</a></code> -&gt; <code>PipeOpTorchModelRegr</code></p>
+    <p><code><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html" class="external-link">mlr3pipelines::PipeOp</a></code> -&gt; <code><a href="https://mlr3pipelines.mlr-org.com/reference/mlr_pipeops_learner.html" class="external-link">mlr3pipelines::PipeOpLearner</a></code> -&gt; <code><a href="mlr_pipeops_torch_model.html">mlr3torch::PipeOpTorchModel</a></code> -&gt; <code>PipeOpTorchModelRegr</code></p>
     </div>
     <div class="section level2">
     <h2 id="methods">Methods<a class="anchor" aria-label="anchor" href="#methods"></a></h2>
@@ -260,22 +261,172 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="va">po_model</span><span class="op">$</span><span class="va">state</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;LearnerTorchModel[regr]:regr.model&gt;: Torch Model</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Model: learner_torch_model</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: epochs=1, device=auto, num_threads=1, seed=random,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   eval_freq=1, measures_train=&lt;list&gt;, measures_valid=&lt;list&gt;,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   patience=0, min_delta=0, batch_size=20</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Validate: NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Packages: mlr3, mlr3torch, mlr3pipelines, torch</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Predict Types:  [response]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Feature Types: logical, integer, numeric, character, factor, ordered,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   POSIXct, lazy_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Properties: featureless, hotstart_backward, hotstart_forward,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   importance, internal_tuning, loglik, marshal, missings, oob_error,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   selected_features, validation, weights</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Optimizer: adam</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Loss: mse</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Callbacks: -</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $model</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $network</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> An `nn_module` containing 11 parameters.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ── Modules ─────────────────────────────────────────────────────────────────────</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • module_list: &lt;nn_module_list&gt; #11 parameters</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $internal_valid_scores</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $loss_fn</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> list()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$param_groups</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$param_groups[[1]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$param_groups[[1]]$params</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$param_groups[[1]]$lr</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.001</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$param_groups[[1]]$betas</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.900 0.999</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$param_groups[[1]]$eps</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1e-08</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$param_groups[[1]]$weight_decay</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$param_groups[[1]]$amsgrad</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$step</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$exp_avg</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -8.0321 -55.0554 -116.7390 -4451.3574 -65.6354 -68.7291 -2934.8577 -318.6669 -6.6818 -58.9055</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1,10} ]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$exp_avg_sq</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 1 to 6 3.9292e+00  1.6774e+02  7.5332e+02  1.0971e+06  2.3793e+02  2.6137e+02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 7 to 10 4.7793e+05  5.6456e+03  2.6329e+00  1.9401e+02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1,10} ]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$step</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$exp_avg</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -18.2803</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1} ]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$exp_avg_sq</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  18.4746</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1} ]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $epochs</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $callbacks</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> named list()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $seed</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1382745</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $task_col_info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         id    type levels</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;char&gt;  &lt;char&gt; &lt;list&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1:     am numeric       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2:   carb numeric       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3:    cyl numeric       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4:   disp numeric       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  5:   drat numeric       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6:   gear numeric       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7:     hp numeric       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  8:   qsec numeric       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9:     vs numeric       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10:     wt numeric       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11:    mpg numeric       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "learner_torch_model" "list"               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $log</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Empty data.table (0 rows and 3 cols): stage,class,msg</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $train_time</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.044</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals$epochs</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals$device</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "auto"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals$num_threads</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals$seed</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "random"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals$eval_freq</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals$measures_train</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> list()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals$measures_valid</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> list()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals$patience</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals$min_delta</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals$batch_size</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 20</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $task_hash</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "6fbb93eed42adb31"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $feature_names</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "am"   "carb" "cyl"  "disp" "drat" "gear" "hp"   "qsec" "vs"   "wt"  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $validate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $mlr3_version</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] ‘0.20.0’</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $internal_tuned_values</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> named list()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $data_prototype</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Empty data.table (0 rows and 11 cols): mpg,am,carb,cyl,disp,drat...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $task_prototype</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Empty data.table (0 rows and 11 cols): mpg,am,carb,cyl,disp,drat...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $train_task</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;TaskRegr:mtcars&gt; (32 x 11): Motor Trends</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Target: mpg</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Properties: -</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Features (10):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - dbl (10): am, carb, cyl, disp, drat, gear, hp, qsec, vs, wt</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "learner_state" "list"         </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

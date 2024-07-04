@@ -4,9 +4,10 @@ pkgdown_sha: ~
 articles:
   callbacks: callbacks.html
   get_started: get_started.html
+  internals_pipeop_torch: internals_pipeop_torch.html
   lazy_tensor: lazy_tensor.html
   pipeop_torch: pipeop_torch.html
-last_built: 2024-07-04T09:57Z
+last_built: 2024-07-04T16:16Z
 urls:
   reference: https://mlr3torch.mlr-org.com/reference
   article: https://mlr3torch.mlr-org.com/articles

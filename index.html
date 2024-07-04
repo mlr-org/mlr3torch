@@ -60,8 +60,9 @@
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="articles/callbacks.html">Custom Callbacks</a>
     <a class="dropdown-item" href="articles/get_started.html">Get Started</a>
+    <a class="dropdown-item" href="articles/internals_pipeop_torch.html">Internals</a>
     <a class="dropdown-item" href="articles/lazy_tensor.html">Lazy Tensor</a>
-    <a class="dropdown-item" href="articles/pipeop_torch.html">Neural Networks as Graphs</a>
+    <a class="dropdown-item" href="articles/pipeop_torch.html">Defining an Architecture</a>
   </div>
 </li>
 <li class="nav-item">
@@ -142,6 +143,8 @@
 <span>  batch_size     <span class="op">=</span> <span class="fl">16</span>,</span>
 <span>  epochs         <span class="op">=</span> <span class="fl">50</span>,</span>
 <span>  device         <span class="op">=</span> <span class="st">"cpu"</span>,</span>
+<span>  <span class="co"># Proportion of data to use for validation</span></span>
+<span>  validate <span class="op">=</span> <span class="fl">0.3</span>,</span>
 <span>  <span class="co"># Defining the optimizer, loss, and callbacks</span></span>
 <span>  optimizer      <span class="op">=</span> <span class="fu"><a href="reference/t_opt.html">t_opt</a></span><span class="op">(</span><span class="st">"adam"</span>, lr <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>,</span>
 <span>  loss           <span class="op">=</span> <span class="fu"><a href="reference/t_loss.html">t_loss</a></span><span class="op">(</span><span class="st">"cross_entropy"</span><span class="op">)</span>,</span>
@@ -152,96 +155,89 @@
 <span>  <span class="co"># predict type (required by logloss)</span></span>
 <span>  predict_type <span class="op">=</span> <span class="st">"prob"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>This learner can for be resampled, benchmarked or tuned as any other learner.</p>
+<p>Below, we train this learner on the sonar example task:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/resample.html" class="external-link">resample</a></span><span class="op">(</span></span>
-<span>  task       <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span>,</span>
-<span>  learner    <span class="op">=</span> <span class="va">learner_mlp</span>,</span>
-<span>  resampling <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">rsmp</a></span><span class="op">(</span><span class="st">"holdout"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; &lt;ResampleResult&gt; with 1 resampling iterations</span></span>
-<span><span class="co">#&gt;  task_id  learner_id resampling_id iteration warnings errors</span></span>
-<span><span class="co">#&gt;     iris classif.mlp       holdout         1        0      0</span></span></code></pre></div>
-<p>Below, we construct the same architecture using <code>PipeOpTorch</code> objects. The first pipeop – a <code>PipeOpTorchIngress</code> – defines the entrypoint of the network. All subsequent pipeops define the neural network layers.</p>
+<code class="sourceCode R"><span><span class="va">learner_mlp</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"sonar"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Next, we construct the same architecture using <code>PipeOpTorch</code> objects. The first pipeop – a <code>PipeOpTorchIngress</code> – defines the entrypoint of the network. All subsequent pipeops define the neural network layers.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">architecture</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_num"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">20</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_relu"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_head"</span><span class="op">)</span></span></code></pre></div>
-<p>To turn this into a learner, we configure the loss, optimizer, callbacks and the training arguments.</p>
+<p>To turn this into a learner, we configure the loss, optimizer, callbacks as well as the training arguments.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">graph_mlp</span> <span class="op">=</span> <span class="va">architecture</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_loss"</span>, loss <span class="op">=</span> <span class="fu"><a href="reference/t_loss.html">t_loss</a></span><span class="op">(</span><span class="st">"cross_entropy"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_optimizer"</span>, optimizer <span class="op">=</span> <span class="fu"><a href="reference/t_opt.html">t_opt</a></span><span class="op">(</span><span class="st">"adam"</span>, lr <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_callbacks"</span>, callbacks <span class="op">=</span> <span class="fu"><a href="reference/t_clbk.html">t_clbk</a></span><span class="op">(</span><span class="st">"history"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_model_classif"</span>, batch_size <span class="op">=</span> <span class="fl">16</span>, epochs <span class="op">=</span> <span class="fl">50</span>, device <span class="op">=</span> <span class="st">"cpu"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_model_classif"</span>,</span>
+<span>    batch_size <span class="op">=</span> <span class="fl">16</span>, epochs <span class="op">=</span> <span class="fl">50</span>, device <span class="op">=</span> <span class="st">"cpu"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">graph_mlp</span></span>
-<span><span class="co">#&gt; Graph with 8 PipeOps:</span></span>
-<span><span class="co">#&gt;                   ID         State            sccssors         prdcssors</span></span>
-<span><span class="co">#&gt;               &lt;char&gt;        &lt;char&gt;              &lt;char&gt;            &lt;char&gt;</span></span>
-<span><span class="co">#&gt;    torch_ingress_num &lt;&lt;UNTRAINED&gt;&gt;           nn_linear                  </span></span>
-<span><span class="co">#&gt;            nn_linear &lt;&lt;UNTRAINED&gt;&gt;             nn_relu torch_ingress_num</span></span>
-<span><span class="co">#&gt;              nn_relu &lt;&lt;UNTRAINED&gt;&gt;             nn_head         nn_linear</span></span>
-<span><span class="co">#&gt;              nn_head &lt;&lt;UNTRAINED&gt;&gt;          torch_loss           nn_relu</span></span>
-<span><span class="co">#&gt;           torch_loss &lt;&lt;UNTRAINED&gt;&gt;     torch_optimizer           nn_head</span></span>
-<span><span class="co">#&gt;      torch_optimizer &lt;&lt;UNTRAINED&gt;&gt;     torch_callbacks        torch_loss</span></span>
-<span><span class="co">#&gt;      torch_callbacks &lt;&lt;UNTRAINED&gt;&gt; torch_model_classif   torch_optimizer</span></span>
-<span><span class="co">#&gt;  torch_model_classif &lt;&lt;UNTRAINED&gt;&gt;                       torch_callbacks</span></span>
-<span></span>
-<span><span class="va">graph_lrn</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/as_learner.html" class="external-link">as_learner</a></span><span class="op">(</span><span class="va">graph_mlp</span><span class="op">)</span></span>
-<span><span class="va">graph_lrn</span><span class="op">$</span><span class="va">id</span> <span class="op">=</span> <span class="st">"graph_mlp"</span></span>
-<span></span>
-<span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/resample.html" class="external-link">resample</a></span><span class="op">(</span></span>
-<span>  task       <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span>,</span>
-<span>  learner    <span class="op">=</span> <span class="va">graph_lrn</span>,</span>
-<span>  resampling <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">rsmp</a></span><span class="op">(</span><span class="st">"holdout"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; &lt;ResampleResult&gt; with 1 resampling iterations</span></span>
-<span><span class="co">#&gt;  task_id learner_id resampling_id iteration warnings errors</span></span>
-<span><span class="co">#&gt;     iris  graph_mlp       holdout         1        0      0</span></span></code></pre></div>
-<p>To work with generic tensors, the <code>lazy_tensor</code> type can be used. It wraps a <code><a href="https://rdrr.io/pkg/torch/man/dataset.html" class="external-link">torch::dataset</a></code>, but allows to preproress the data using <code>PipeOp</code> objects, just like tabular data.</p>
+<span><span class="va">graph_lrn</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/as_learner.html" class="external-link">as_learner</a></span><span class="op">(</span><span class="va">graph_mlp</span><span class="op">)</span></span></code></pre></div>
+<p>To work with generic tensors, the <code>lazy_tensor</code> type can be used. It wraps a <code><a href="https://rdrr.io/pkg/torch/man/dataset.html" class="external-link">torch::dataset</a></code>, but allows to preprocess the data (lazily) using <code>PipeOp</code> objects Below, we flatten the MNIST task, so we can then train a multi-layer perceptron on it. Note that this does <em>not</em> transform the data in-memory, but is only applied when the data is actually loaded.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># load the predefined mnist task</span></span>
-<span><span class="va">task</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"mnist"</span><span class="op">)</span></span>
-<span><span class="va">task</span><span class="op">$</span><span class="fu">head</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">mnist</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"mnist"</span><span class="op">)</span></span>
+<span><span class="va">mnist</span><span class="op">$</span><span class="fu">head</span><span class="op">(</span><span class="fl">3L</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     label           image</span></span>
 <span><span class="co">#&gt;    &lt;fctr&gt;   &lt;lazy_tensor&gt;</span></span>
 <span><span class="co">#&gt; 1:      5 &lt;tnsr[1x28x28]&gt;</span></span>
 <span><span class="co">#&gt; 2:      0 &lt;tnsr[1x28x28]&gt;</span></span>
 <span><span class="co">#&gt; 3:      4 &lt;tnsr[1x28x28]&gt;</span></span>
-<span><span class="co">#&gt; 4:      1 &lt;tnsr[1x28x28]&gt;</span></span>
-<span><span class="co">#&gt; 5:      9 &lt;tnsr[1x28x28]&gt;</span></span>
-<span><span class="co">#&gt; 6:      2 &lt;tnsr[1x28x28]&gt;</span></span>
 <span></span>
-<span><span class="co"># Resize the images to 5x5</span></span>
-<span><span class="va">po_resize</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"trafo_resize"</span>, size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">task_reshaped</span> <span class="op">=</span> <span class="va">po_resize</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">task</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span></span>
+<span><span class="co"># Flatten the images</span></span>
+<span><span class="va">flattener</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"trafo_reshape"</span>, shape <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">28</span> <span class="op">*</span> <span class="fl">28</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">mnist_flat</span> <span class="op">=</span> <span class="va">flattener</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">mnist</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
-<span><span class="va">task_reshaped</span><span class="op">$</span><span class="fu">head</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">mnist_flat</span><span class="op">$</span><span class="fu">head</span><span class="op">(</span><span class="fl">3L</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     label         image</span></span>
 <span><span class="co">#&gt;    &lt;fctr&gt; &lt;lazy_tensor&gt;</span></span>
-<span><span class="co">#&gt; 1:      5 &lt;tnsr[1x5x5]&gt;</span></span>
-<span><span class="co">#&gt; 2:      0 &lt;tnsr[1x5x5]&gt;</span></span>
-<span><span class="co">#&gt; 3:      4 &lt;tnsr[1x5x5]&gt;</span></span>
-<span><span class="co">#&gt; 4:      1 &lt;tnsr[1x5x5]&gt;</span></span>
-<span><span class="co">#&gt; 5:      9 &lt;tnsr[1x5x5]&gt;</span></span>
-<span><span class="co">#&gt; 6:      2 &lt;tnsr[1x5x5]&gt;</span></span>
-<span></span>
-<span><span class="co"># The tensors are loaded and preprocessed only when materialized</span></span>
-<span></span>
-<span><span class="fu"><a href="reference/materialize.html">materialize</a></span><span class="op">(</span></span>
-<span>  <span class="va">task_reshaped</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span><span class="fl">1</span>, cols <span class="op">=</span> <span class="st">"image"</span><span class="op">)</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span>,</span>
+<span><span class="co">#&gt; 1:      5   &lt;tnsr[784]&gt;</span></span>
+<span><span class="co">#&gt; 2:      0   &lt;tnsr[784]&gt;</span></span>
+<span><span class="co">#&gt; 3:      4   &lt;tnsr[784]&gt;</span></span></code></pre></div>
+<p>To actually access the tensors, we can call <code><a href="reference/materialize.html">materialize()</a></code>, but only show a slice for readability:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/materialize.html">materialize</a></span><span class="op">(</span></span>
+<span>  <span class="va">mnist_flat</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, cols <span class="op">=</span> <span class="st">"image"</span><span class="op">)</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span>,</span>
 <span>  rbind <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span>
+<span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; (1,1,.,.) = </span></span>
-<span><span class="co">#&gt;     0.0000    0.0000    0.0000    0.0000    0.0000</span></span>
-<span><span class="co">#&gt;     0.0000  200.9199  228.2500    8.2000    0.0000</span></span>
-<span><span class="co">#&gt;     0.0000    0.0000  196.7500    0.0000    0.0000</span></span>
-<span><span class="co">#&gt;     0.0000    0.0000  194.9500  147.4199    0.0000</span></span>
-<span><span class="co">#&gt;     0.0000   64.8303    0.0000    0.0000    0.0000</span></span>
-<span><span class="co">#&gt; [ CPUFloatType{1,1,5,5} ]</span></span></code></pre></div>
+<span><span class="co">#&gt;  0  0  0  0</span></span>
+<span><span class="co">#&gt;  0  0  0  0</span></span>
+<span><span class="co">#&gt; [ CPUFloatType{2,4} ]</span></span></code></pre></div>
+<p>We now define a more complex architecture that has one single input which is a <code>lazy_tensor</code>. For that, we first deine a single residual block:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">layer</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nop"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear"</span>, out_features <span class="op">=</span> <span class="fl">50L</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
+<span>    <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_dropout"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_relu"</span><span class="op">)</span></span>
+<span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_merge_sum"</span><span class="op">)</span></span></code></pre></div>
+<p>Next, we create a neural network that takes as input a <code>lazy_tensor</code> (<code>po("torch_ingress_num")</code>). It first applies a linear layer and then repeat the above layer using the special <code>PipeOpTorchBlock</code>, followed by the network’s head. After that, we configure the loss and the optimizer and the training parameters. Note that <code>po("nn_linear_0")</code> is equivalent to <code>po("nn_linear", id = "nn_linear_0")</code> and we need this here to avoid ID clashes with the linear layer from <code>po("nn_block")</code>.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">deep_network</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_ingress_ltnsr"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_linear_0"</span>, out_features <span class="op">=</span> <span class="fl">50L</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_block"</span>, <span class="va">layer</span>, n_blocks <span class="op">=</span> <span class="fl">5L</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_head"</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_loss"</span>, loss <span class="op">=</span> <span class="fu"><a href="reference/t_loss.html">t_loss</a></span><span class="op">(</span><span class="st">"cross_entropy"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_optimizer"</span>, optimizer <span class="op">=</span> <span class="fu"><a href="reference/t_opt.html">t_opt</a></span><span class="op">(</span><span class="st">"adam"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_model_classif"</span>,</span>
+<span>    epochs <span class="op">=</span> <span class="fl">100L</span>, batch_size <span class="op">=</span> <span class="fl">32</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
+<p>Next, we prepend the preprocessing step that flattens the images so we can directly apply this learner to the unflattened MNIST task.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">deep_learner</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/as_learner.html" class="external-link">as_learner</a></span><span class="op">(</span></span>
+<span>  <span class="va">flattener</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span> <span class="va">deep_network</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">deep_learner</span><span class="op">$</span><span class="va">id</span> <span class="op">=</span> <span class="st">"deep_network"</span></span></code></pre></div>
+<p>In order to keep track of the performance during training, we use 20% of the data and evaluate the classification accuracy.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">set_validate</a></span><span class="op">(</span><span class="va">deep_learner</span>, <span class="fl">0.2</span><span class="op">)</span></span>
+<span><span class="va">deep_learner</span><span class="op">$</span><span class="va">param_set</span><span class="op">$</span><span class="fu">set_values</span><span class="op">(</span></span>
+<span>  torch_model_classif.measures_valid <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"classif.acc"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>All that is left is to train the learner:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">deep_learner</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">mnist</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="feature-overview">Feature Overview<a class="anchor" aria-label="anchor" href="#feature-overview"></a>
@@ -254,12 +250,15 @@
 <li>Multi-modal data can be handled conveniently, as <code>lazy_tensor</code> objects can be stored alongside tabular data.</li>
 <li>It is possible to customize the training process via (predefined or custom) callbacks.</li>
 <li>The package is fully integrated into the <code>mlr3</code> ecosystem.</li>
+<li>Neural network architectures, as well as their hyperparameters can be easily tuned via <code>mlr3tuning</code> and friends</li>
 </ul>
 </div>
 <div class="section level2">
 <h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
 </h2>
-<p>Coming soon.</p>
+<ul>
+<li>Start by reading one of the vignettes on the package website!</li>
+</ul>
 </div>
 <div class="section level2">
 <h2 id="acknowledgements">Acknowledgements<a class="anchor" aria-label="anchor" href="#acknowledgements"></a>

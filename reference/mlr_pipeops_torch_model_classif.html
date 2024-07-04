@@ -33,8 +33,9 @@
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/callbacks.html">Custom Callbacks</a>
     <a class="dropdown-item" href="../articles/get_started.html">Get Started</a>
+    <a class="dropdown-item" href="../articles/internals_pipeop_torch.html">Internals</a>
     <a class="dropdown-item" href="../articles/lazy_tensor.html">Lazy Tensor</a>
-    <a class="dropdown-item" href="../articles/pipeop_torch.html">Neural Networks as Graphs</a>
+    <a class="dropdown-item" href="../articles/pipeop_torch.html">Defining an Architecture</a>
   </div>
 </li>
 <li class="nav-item">
@@ -177,7 +178,7 @@ its '$train()<code> method is called on the [</code>Task<code>] stored in the [<
     </div>
     <div class="section level2">
     <h2 id="super-classes">Super classes<a class="anchor" aria-label="anchor" href="#super-classes"></a></h2>
-    <p><code><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html" class="external-link">mlr3pipelines::PipeOp</a></code> -&gt; <code><a href="mlr_pipeops_torch_model.html">mlr3torch::PipeOpTorchModel</a></code> -&gt; <code>PipeOpTorchModelClassif</code></p>
+    <p><code><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html" class="external-link">mlr3pipelines::PipeOp</a></code> -&gt; <code><a href="https://mlr3pipelines.mlr-org.com/reference/mlr_pipeops_learner.html" class="external-link">mlr3pipelines::PipeOpLearner</a></code> -&gt; <code><a href="mlr_pipeops_torch_model.html">mlr3torch::PipeOpTorchModel</a></code> -&gt; <code>PipeOpTorchModelClassif</code></p>
     </div>
     <div class="section level2">
     <h2 id="methods">Methods<a class="anchor" aria-label="anchor" href="#methods"></a></h2>
@@ -260,22 +261,175 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="va">po_model</span><span class="op">$</span><span class="va">state</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;LearnerTorchModel[classif]:classif.model&gt;: Torch Model</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Model: learner_torch_model</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: epochs=1, device=auto, num_threads=1, seed=random,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   eval_freq=1, measures_train=&lt;list&gt;, measures_valid=&lt;list&gt;,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   patience=0, min_delta=0, batch_size=50</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Validate: NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Packages: mlr3, mlr3torch, mlr3pipelines, torch</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Predict Types:  [response], prob</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Feature Types: logical, integer, numeric, character, factor, ordered,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   POSIXct, lazy_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Properties: featureless, hotstart_backward, hotstart_forward,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   importance, internal_tuning, loglik, marshal, missings, multiclass,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   oob_error, selected_features, twoclass, validation, weights</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Optimizer: adam</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Loss: cross_entropy</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Callbacks: -</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $model</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $network</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> An `nn_module` containing 15 parameters.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ── Modules ─────────────────────────────────────────────────────────────────────</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • module_list: &lt;nn_module_list&gt; #15 parameters</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $internal_valid_scores</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $loss_fn</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> list()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$param_groups</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$param_groups[[1]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$param_groups[[1]]$params</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$param_groups[[1]]$lr</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.001</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$param_groups[[1]]$betas</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.900 0.999</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$param_groups[[1]]$eps</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1e-08</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$param_groups[[1]]$weight_decay</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$param_groups[[1]]$amsgrad</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$step</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$exp_avg</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0921 -0.0111 -0.3702 -0.2608</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.6387  0.2109  1.0177  0.5529</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.5467 -0.1998 -0.6475 -0.2921</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3,4} ]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$exp_avg_sq</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.01 *</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2132  0.0064  2.4642  1.1543</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3.0734  0.3877  6.4860  1.9718</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3.0287  0.4035  4.2655  0.8695</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3,4} ]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$step</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$exp_avg</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0751</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1732</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0981</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$exp_avg_sq</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.001 *</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.9821</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.9051</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.9823</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $epochs</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $callbacks</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> named list()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $seed</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 5352849</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $task_col_info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;id&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              id    type                      levels</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          &lt;char&gt;  &lt;char&gt;                      &lt;list&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1: Petal.Length numeric                            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:  Petal.Width numeric                            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3: Sepal.Length numeric                            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:  Sepal.Width numeric                            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:      Species  factor setosa,versicolor,virginica</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "learner_torch_model" "list"               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $log</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Empty data.table (0 rows and 3 cols): stage,class,msg</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $train_time</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.059</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals$epochs</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals$device</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "auto"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals$num_threads</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals$seed</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "random"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals$eval_freq</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals$measures_train</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> list()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals$measures_valid</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> list()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals$patience</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals$min_delta</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals$batch_size</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 50</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $task_hash</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "34a6beb27c3181c3"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $feature_names</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Petal.Length" "Petal.Width"  "Sepal.Length" "Sepal.Width" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $validate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $mlr3_version</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] ‘0.20.0’</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $internal_tuned_values</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> named list()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $data_prototype</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Empty data.table (0 rows and 5 cols): Species,Petal.Length,Petal.Width,Sepal.Length,Sepal.Width</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $task_prototype</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Empty data.table (0 rows and 5 cols): Species,Petal.Length,Petal.Width,Sepal.Length,Sepal.Width</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $train_task</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;TaskClassif:iris&gt; (150 x 5): Iris Flowers</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Target: Species</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Properties: multiclass</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Features (4):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - dbl (4): Petal.Length, Petal.Width, Sepal.Length, Sepal.Width</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "learner_state" "list"         </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

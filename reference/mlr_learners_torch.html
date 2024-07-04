@@ -35,8 +35,9 @@ All torch learners should inherit from this class."><meta property="og:image" co
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/callbacks.html">Custom Callbacks</a>
     <a class="dropdown-item" href="../articles/get_started.html">Get Started</a>
+    <a class="dropdown-item" href="../articles/internals_pipeop_torch.html">Internals</a>
     <a class="dropdown-item" href="../articles/lazy_tensor.html">Lazy Tensor</a>
-    <a class="dropdown-item" href="../articles/pipeop_torch.html">Neural Networks as Graphs</a>
+    <a class="dropdown-item" href="../articles/pipeop_torch.html">Defining an Architecture</a>
   </div>
 </li>
 <li class="nav-item">
@@ -108,17 +109,19 @@ be created using the <code>$divide()</code> method  of <code>Task</code>.</p></l
 
 <p>In order to save a <code>LearnerTorch</code> for later usage, it is necessary to call the <code>$marshal()</code> method on the <code>Learner</code>
 before writing it to disk, as the object will otherwise not be saved correctly.
-After loading a marshaled <code>LearnerTorch</code> into R again, you then need to call <code>$unmarshal()</code> to set a usable state.</p>
+After loading a marshaled <code>LearnerTorch</code> into R again, you then need to call <code>$unmarshal()</code> to transform it
+into a useable state.</p>
     </div>
     <div class="section level2">
     <h2 id="early-stopping-and-tuning">Early Stopping and Tuning<a class="anchor" aria-label="anchor" href="#early-stopping-and-tuning"></a></h2>
     
 
-<p>In order to prevent overfitting, the <code>LearnerTorch</code> class allows to use early stopping.
-When tuning a <code>LearnerTorch</code> it is possible to combine the explicit tuning via <code>mlr3tuning</code>
+<p>In order to prevent overfitting, the <code>LearnerTorch</code> class allows to use early stopping via the <code>patience</code>
+and <code>min_delta</code> parameters, see the <code>Learner</code>'s parameters.
+When tuning a <code>LearnerTorch</code> it is also possible to combine the explicit tuning via <code>mlr3tuning</code>
 and the <code>LearnerTorch</code>'s internal tuning of the epochs via early stopping.
 To do so, you just need to include <code>epochs = to_tune(upper = &lt;upper&gt;, internal = TRUE)</code> in the search space,
-where <code>&lt;upper&gt;</code> is the maximally allowed number of epochs.</p>
+where <code>&lt;upper&gt;</code> is the maximally allowed number of epochs, and configure the early stopping.</p>
     </div>
     <div class="section level2">
     <h2 id="model">Model<a class="anchor" aria-label="anchor" href="#model"></a></h2>
@@ -263,6 +266,22 @@ to implement the private <code>$.additional_phash_input()</code>.</p>
 a ratio in $(0, 1)$, <code>"test"</code>, or <code>"predefined"</code>.</p></dd>
 
 
+<dt><code>loss</code></dt>
+<dd><p>(<code><a href="TorchLoss.html">TorchLoss</a></code>)<br>
+The torch loss.</p></dd>
+
+
+<dt><code>optimizer</code></dt>
+<dd><p>(<code><a href="TorchOptimizer.html">TorchOptimizer</a></code>)<br>
+The torch optimizer.</p></dd>
+
+
+<dt><code>callbacks</code></dt>
+<dd><p>(<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="TorchCallback.html">TorchCallback</a></code>s)<br>
+List of torch callbacks.
+The ids will be set as the names.</p></dd>
+
+
 <dt><code>internal_valid_scores</code></dt>
 <dd><p>Retrieves the internal validation scores as a named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>.
 Specify the <code>$validate</code> field and the <code>measures_valid</code> parameter to configure this.
@@ -314,6 +333,7 @@ which are varied systematically during tuning (parameter values).</p></dd>
 <li><p><a href="#method-LearnerTorch-print"><code>LearnerTorch$print()</code></a></p></li>
 <li><p><a href="#method-LearnerTorch-marshal"><code>LearnerTorch$marshal()</code></a></p></li>
 <li><p><a href="#method-LearnerTorch-unmarshal"><code>LearnerTorch$unmarshal()</code></a></p></li>
+<li><p><a href="#method-LearnerTorch-dataset"><code>LearnerTorch$dataset()</code></a></p></li>
 <li><p><a href="#method-LearnerTorch-clone"><code>LearnerTorch$clone()</code></a></p></li>
 </ul></div><p><details><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner"><a href="https://mlr3.mlr-org.com/reference/Learner.html#method-base_learner"><code>mlr3::Learner$base_learner()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help"><a href="https://mlr3.mlr-org.com/reference/Learner.html#method-help"><code>mlr3::Learner$help()</code></a></span></li>
@@ -335,7 +355,7 @@ which are varied systematically during tuning (parameter values).</p></dd>
 <span>  <span class="va">feature_types</span>,</span>
 <span>  optimizer <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  loss <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  packages <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  packages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  predict_types <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  callbacks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
@@ -354,8 +374,10 @@ The task type.</p></dd>
 
 
 <dt><code>param_set</code></dt>
-<dd><p>(<code><a href="https://paradox.mlr-org.com/reference/ParamSet.html" class="external-link">ParamSet</a></code>)<br>
-The parameter set.</p></dd>
+<dd><p>(<code>ParamSet</code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">alist()</a></code>)<br>
+Either a parameter set, or an <code><a href="https://rdrr.io/r/base/list.html" class="external-link">alist()</a></code> containing different values of self,
+e.g. <code>alist(private$.param_set1, private$.param_set2)</code>, from which a <code>ParamSet</code> collection
+should be created.</p></dd>
 
 
 <dt><code>properties</code></dt>
@@ -492,15 +514,36 @@ Additional parameters.</p></dd>
 <p>self</p>
 </div>
 
-</div><p></p><hr><a id="method-LearnerTorch-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
-<p>The objects of this class are cloneable with this method.</p><div class="section">
+</div><p></p><hr><a id="method-LearnerTorch-dataset"></a><div class="section">
+<h3 id="method-dataset-">Method <code><a href="https://rdrr.io/pkg/torch/man/dataset.html" class="external-link">dataset()</a></code><a class="anchor" aria-label="anchor" href="#method-dataset-"></a></h3>
+<p>Create the dataset for a task.</p><div class="section">
 <h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">LearnerTorch</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">LearnerTorch</span><span class="op">$</span><span class="fu">dataset</span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>task</code></dt>
+<dd><p><code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code><br>
+The task</p></dd>
+
+
+</dl><p></p></div>
+</div>
+<div class="section">
+<h4 id="returns-2">Returns<a class="anchor" aria-label="anchor" href="#returns-2"></a></h4>
+<p><code><a href="https://rdrr.io/pkg/torch/man/dataset.html" class="external-link">dataset</a></code></p>
+</div>
+
+</div><p></p><hr><a id="method-LearnerTorch-clone"></a><div class="section">
+<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+<p>The objects of this class are cloneable with this method.</p><div class="section">
+<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">LearnerTorch</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 
