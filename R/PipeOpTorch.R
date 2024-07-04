@@ -62,7 +62,7 @@
 #'
 #' @section Internals:
 #' During training, the `PipeOpTorch` creates a [`PipeOpModule`] for the given parameter specification and the
-#' input shapes from the incoming [`ModelDescriptor`](s) using the private method `.make_module()`.
+#' input shapes from the incoming [`ModelDescriptor`]s using the private method `.make_module()`.
 #' The input shapes are provided by the slot `pointer_shape` of the incoming [`ModelDescriptor`]s.
 #' The channel names of this [`PipeOpModule`] are identical to the channel names of the generating [`PipeOpTorch`].
 #'

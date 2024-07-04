@@ -178,7 +178,7 @@ as.data.table.DictionaryMlr3torchLosses = function(x, ...) {
 #' @title Loss Function Quick Access
 #'
 #' @description
-#' Retrieve one or more [`TorchLoss`](es) from [`mlr3torch_losses`].
+#' Retrieve one or more [`TorchLoss`]es from [`mlr3torch_losses`].
 #' Works like [`mlr3::lrn()`] and [`mlr3::lrns()`].
 #'
 #' @param .key (`character(1)`)\cr

@@ -72,7 +72,7 @@ be automatically inferred from the shapes of the input tensors.
 \section{Internals}{
 
 During training, the \code{PipeOpTorch} creates a \code{\link{PipeOpModule}} for the given parameter specification and the
-input shapes from the incoming \href{s}{\code{ModelDescriptor}} using the private method \code{.make_module()}.
+input shapes from the incoming \code{\link{ModelDescriptor}}s using the private method \code{.make_module()}.
 The input shapes are provided by the slot \code{pointer_shape} of the incoming \code{\link{ModelDescriptor}}s.
 The channel names of this \code{\link{PipeOpModule}} are identical to the channel names of the generating \code{\link{PipeOpTorch}}.
 

@@ -1,7 +1,7 @@
 #' @title Sugar Function for Torch Callback
 #'
 #' @description
-#' Retrieves one or more [`TorchCallback`](s) from [`mlr3torch_callbacks`].
+#' Retrieves one or more [`TorchCallback`]s from [`mlr3torch_callbacks`].
 #' Works like [`mlr3::lrn()`] and [`mlr3::lrns()`].
 #'
 #' @param .key (`character(1)`)\cr

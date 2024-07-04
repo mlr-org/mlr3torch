@@ -25,7 +25,7 @@ The keys of the callbacks.}
 \code{list()} of \code{\link{TorchCallback}}s
 }
 \description{
-Retrieves one or more \href{s}{\code{TorchCallback}} from \code{\link{mlr3torch_callbacks}}.
+Retrieves one or more \code{\link{TorchCallback}}s from \code{\link{mlr3torch_callbacks}}.
 Works like \code{\link[mlr3:mlr_sugar]{mlr3::lrn()}} and \code{\link[mlr3:mlr_sugar]{mlr3::lrns()}}.
 }
 \examples{
