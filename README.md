@@ -164,42 +164,10 @@ mnist_flat$head()
 
 # The tensors are loaded and preprocessed only when materialized
 materialize(
-  mnist_flat$data(1, cols = "image")[[1L]],
+  mnist_flat$data(1:2, cols = "image")[[1L]],
   rbind = TRUE
-)
-#> torch_tensor
-#> Columns 1 to 16   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
-#> 
-#> Columns 17 to 32   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
-#> 
-#> Columns 33 to 48   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
-#> 
-#> Columns 49 to 64   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
-#> 
-#> Columns 65 to 80   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
-#> 
-#> Columns 81 to 96   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
-#> 
-#> Columns 97 to 112   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
-#> 
-#> Columns 113 to 128   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
-#> 
-#> Columns 129 to 144   0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
-#> 
-#> Columns 145 to 160   0    0    0    0    0    0    0    0    3   18   18   18  126  136  175   26
-#> 
-#> Columns 161 to 176 166  255  247  127    0    0    0    0    0    0    0    0    0    0    0    0
-#> 
-#> Columns 177 to 192  30   36   94  154  170  253  253  253  253  253  225  172  253  242  195   64
-#> 
-#> Columns 193 to 208   0    0    0    0    0    0    0    0    0    0    0   49  238  253  253  253
-#> 
-#> Columns 209 to 224 253  253  253  253  253  251   93   82   82   56   39    0    0    0    0    0
-#> 
-#> Columns 225 to 240   0    0    0    0    0    0    0   18  219  253  253  253  253  253  198  182
-#> 
-#> ... [the output was truncated (use n=-1 to disable)]
-#> [ CPUFloatType{1,784} ]
+)$shape
+#> [1]   2 784
 ```
 
 We now define a more complex architecture that has one single input
@@ -212,17 +180,13 @@ layer = list(
   po("nn_linear", out_features = 50L) %>>%
     po("nn_dropout") %>>% po("nn_relu")
 ) %>>% po("nn_merge_sum")
-layer$plot(horizontal = TRUE)
 ```
-
-<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
 
 We now define the input of the neural network to be a `lazy_tensor`
 (`po("torch_ingress_num")`), apply a linear layer without output
 dimension 50 and then repeat the above layer using the special
-`PipeOpTorchBlock`, followed by the network’s head.and finally configure
-the model arguments. After that, we configure the loss and the optimizer
-and the training parameters.
+`PipeOpTorchBlock`, followed by the network’s head. After that, we
+configure the loss and the optimizer and the training parameters.
 
 ``` r
 deep_network = po("torch_ingress_ltnsr") %>>%
@@ -236,7 +200,8 @@ deep_network = po("torch_ingress_ltnsr") %>>%
   )
 ```
 
-Finally, we prepend the preprocessing step that flattens the images:
+Finally, we prepend the preprocessing step that flattens the images so
+we can directly apply this learner to the unflattened MNIST task.
 
 ``` r
 deep_learner = as_learner(
@@ -263,11 +228,11 @@ deep_learner$train(mnist)
   custom) callbacks.
 - The package is fully integrated into the `mlr3` ecosystem.
 - Neural network architectures, as well as their hyperparameters can be
-  easily tuned, `mlr3tuning` and friends
+  easily tuned via `mlr3tuning` and friends
 
 ## Documentation
 
-Coming soon.
+- Start by reading one of the vignettes on the package website!
 
 ## Acknowledgements
 
