@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 library(mlr3torch)
 ```
 
-This vignette contains technical details about the inner workings of representing neural networks as `mlr3pipelines::Graphs`s.
+This vignette contains technical details about the inner workings of representing neural networks as `mlr3pipelines::Graph`s.
 If you are not familiar with `mlr3pipelines`, start by reading the [related sections from the mlr3 book](https://mlr3book.mlr-org.com/chapters/chapter7/sequential_pipelines.html) first.
 
 # A `torch` Primer
@@ -26,7 +26,7 @@ input = torch_randn(2, 3)
 input
 ```
 
-An `nn_module` is constructed from a `nn_module_generator`.
+A `nn_module` is constructed from a `nn_module_generator`.
 `nn_linear` is one of the simpler generators:
 ```{r}
 module_1 = nn_linear(in_features = 3, out_features = 4, bias = TRUE)
@@ -57,12 +57,12 @@ output = softmax(output)
 output
 ```
 
-We will now continue with showing how such a neural network can be represented in`mlr3torch`.
+We will now continue with showing how such a neural network can be represented in `mlr3torch`.
 
 # Neural Networks as Graphs
 
 In `mlr3torch`, `nn_module`s are wrapped in a `PipeOpModule`.
-This has the advantage that the network structure can be represented as a `Graph` object where it is made explicit (can be plotted, can be extended or manipulated), compared to e.g. writing a function that pipes input through a series of modules.
+This has the advantage that the network structure can be represented as an `mlr3pipelines::Graph` object where it is made explicit (can be plotted, can be extended or manipulated), compared to e.g. writing a function that pipes input through a series of modules.
 
 A `PipeOpModule` can be used to wrap a module directly, but it is usually constructed by a `PipeOpTorch` (see later).
 It typically has a single input and a single output, although multiple inputs are possible (module is then called with multiple arguments), and multiple outputs are possible when the module-function returns a list.
@@ -77,7 +77,7 @@ po_module_1 = po("module_1", module = module_1)
 ```
 
 Note that `po("module_1")` is equivalent to `po("module", id = "module_1")`.
-This mechanism can is convenient to avoid ID clashes in graphs.
+This mechanism is convenient to avoid ID clashes in graphs that contain the same `PipeOp` multiple times.
 
 We can use the generated `PipeOp` in the familiar way:
 
@@ -95,19 +95,12 @@ po_activation = po("module", id = "activation", activation)
 po_module_2 = po("module_2", module = module_2)
 po_softmax = po("module", id = "softmax", module = softmax)
 
-module_graph = po_module_1 %>>!%
-  po_activation %>>!%
-  po_module_2 %>>!%
+module_graph = po_module_1 %>>%
+  po_activation %>>%
+  po_module_2 %>>%
   po_softmax
 
-module_graph$plot(horizontal = TRUE)
-```
-
-```{r, fig.width = 8, fig.height = 6, echo = FALSE, out.width = "100%"}
-fig = magick::image_graph(width = 2000, height = 900, res = 100, pointsize = 16)
-module_graph$plot(horizontal = TRUE)
-invisible(dev.off())
-magick::image_trim(fig)
+module_graph$plot(html = TRUE)
 ```
 
 We can now use the graph's `$train()` method to pipe a tensor through the whole `Graph`.
@@ -172,13 +165,13 @@ md = po_torch_in$train(list(task))[[1]]
 md
 ```
 
-The `ModelDescriptor` is an S3 object that contains a `Graph`, information about how to generate data (`$ingress` and `$task`), some further tags about how to build a model that are unrelated to architecture (`$optimizer`, `$loss` and `$callbacks`) as well as all further information necessary to extend that graph along a given output (`$.pointer` and `$.pointer_shape`).
+The `ModelDescriptor` is an S3 object that contains a `Graph`, information about how to generate data (`$ingress` and `$task`), some further tags about how to build a model that are unrelated to architecture (`$optimizer`, `$loss` and `$callbacks`) as well as all further information necessary to extend that graph along a given output (`$pointer` and `$pointer_shape`).
 
 ```{r}
 unclass(md)
 ```
 
-The `$.pointer` identifies the output of the `$graph` that `PipeOpTorch` will extend.
+The `$pointer` identifies the output of the `$graph` that `PipeOpTorch` will extend.
 Piping this `ModelDescriptor` through `PipeOpTorchLinear`, for example, adds a `PipeOpModule` wrapping a `torch::nn_linear`.
 
 ```{r}
@@ -188,17 +181,17 @@ md = po_torch_linear$train(list(md))[[1]]
 md$graph
 ```
 
-The `$.pointer` is now updated to identify the output of that `PipeOpModule`, and the `$.pointer_shape` shows that the shape has changed to 4 units (was 3 for the input before).
+The `$pointer` is now updated to identify the output of that `PipeOpModule`, and the `$pointer_shape` shows that the shape has changed to 4 units (was 3 for the input before).
 
 ```{r}
-md$.pointer
-md$.pointer_shape
+md$pointer
+md$pointer_shape
 ```
 
-The `model_descriptor_to_module()` function converts this to an `nn_graph`, it is a functional `torch` `nn_module`.
+The `model_descriptor_to_module()` function converts this to an `nn_graph`, it is a functional `torch::nn_module`.
 
 ```{r}
-small_module = model_descriptor_to_module(md, list(md$.pointer))
+small_module = model_descriptor_to_module(md, list(md$pointer))
 
 small_module(input)
 ```
@@ -241,12 +234,12 @@ graph_generator = po("torch_ingress_num") %>>%
   po("nn_softmax", dim = 2)
 ```
 
-Note how the second `nn_linear` does not need to be informed about the output dimension of the first `nn_linear`, since the `ModelDescriptor` that is passed along the `Graph` edges knows this info (in the `$.pointer_shape` slot).
+Note how the second `nn_linear` does not need to be informed about the output dimension of the first `nn_linear`, since the `ModelDescriptor` that is passed along the `Graph` edges knows this info (in the `$pointer_shape` slot).
 
 ```{r}
 md_sequential = graph_generator$train(task)[[1]]
 
-graph_module = model_descriptor_to_module(md_sequential, list(md_sequential$.pointer))
+graph_module = model_descriptor_to_module(md_sequential, list(md_sequential$pointer))
 
 graph_module(input)
 ```
@@ -289,17 +282,8 @@ graph_iris = gunion(list(graph_sepal, graph_petal)) %>>%
   po("nn_merge_cat") %>>%
   graph_common
 
-graph_iris$plot(horizontal = TRUE)
+graph_iris$plot(html = TRUE)
 ```
-
-```{r, fig.width = 8, fig.height = 6, echo = FALSE, out.width = "100%"}
-fig = magick::image_graph(width = 2000, height = 900, res = 100, pointsize = 16)
-graph_iris$plot(horizontal = TRUE)
-invisible(dev.off())
-magick::image_trim(fig)
-```
-
-
 
 We can use this to create a neural network for the `iris` tasks we created above. We set the `$keep_results` debug flag here so we can do some inspection about what is happening:
 
@@ -318,25 +302,25 @@ iris_mds
 
 We make multiple observations here:
 
-1. We can observe how the `ModelDescriptor` grows as it is passed along the edges of `graph_iris`. Note that the `$graph` slot of that `ModelDescriptor` is often updated by-reference, so by the time we inspect intermediate results, they may contain the complete graph. However, see how the `$ingress`, `$.pointer` and `$.pointer_shape` of the `ModelDescriptor`s that take the `sepal.in`-path differ from the ones that take the `petal.in`-path:
+1. We can observe how the `ModelDescriptor` grows as it is passed along the edges of `graph_iris`. Note that the `$graph` slot of that `ModelDescriptor` is often updated by-reference, so by the time we inspect intermediate results, they may contain the complete graph. However, see how the `$ingress`, `$pointer` and `$pointer_shape` of the `ModelDescriptor`s that take the `sepal.in`-path differ from the ones that take the `petal.in`-path:
 
     ```{r}
     # sepal.in path
     graph_iris$pipeops$linear1$.result[[1]]$ingress
-    graph_iris$pipeops$linear1$.result[[1]]$.pointer
-    graph_iris$pipeops$linear1$.result[[1]]$.pointer_shape
+    graph_iris$pipeops$linear1$.result[[1]]$pointer
+    graph_iris$pipeops$linear1$.result[[1]]$pointer_shape
 
     # petal.in path
     graph_iris$pipeops$linear3$.result[[1]]$ingress
-    graph_iris$pipeops$linear3$.result[[1]]$.pointer
-    graph_iris$pipeops$linear3$.result[[1]]$.pointer_shape
+    graph_iris$pipeops$linear3$.result[[1]]$pointer
+    graph_iris$pipeops$linear3$.result[[1]]$pointer_shape
     ```
 
-    `po("nn_merge_cat")` unites the two `ModelDescriptor`s and contains the common ingress. The `.pointer_shape` now reflects the output of the "cat"-operation: the 2nd dimension is added up:
+    `po("nn_merge_cat")` unites the two `ModelDescriptor`s and contains the common ingress. The `pointer_shape` now reflects the output of the "cat"-operation: the 2nd dimension is added up:
 
     ```{r}
     graph_iris$pipeops$nn_merge_cat$.result[[1]]$ingress
-    graph_iris$pipeops$nn_merge_cat$.result[[1]]$.pointer_shape
+    graph_iris$pipeops$nn_merge_cat$.result[[1]]$pointer_shape
     ```
 1. Multiple `ModelDescriptor`s were created, since the `graph_iris` has multiple outpus.
    This makes it possible to create a neural network with multiple outputs.
@@ -347,7 +331,7 @@ We make multiple observations here:
 
     ```{r}
     iris_mds_union = model_descriptor_union(iris_mds[[1]], iris_mds[[2]])
-    output_pointers = list(iris_mds[[1]]$.pointer, iris_mds[[2]]$.pointer)
+    output_pointers = list(iris_mds[[1]]$pointer, iris_mds[[2]]$pointer)
     output_pointers
     iris_module = model_descriptor_to_module(iris_mds_union, output_pointers, list_output = TRUE)
     ```
@@ -356,15 +340,9 @@ We make multiple observations here:
    The branch is interpeted when `graph_iris` runs, and only the `nn_relu` path is followed. The `iris_module` therefore contains a `Graph` that does "relu" activation:
 
     ```{r, fig.show='hide'}
-    iris_module$graph$plot(horizontal = TRUE)
+    iris_module$graph$plot(html = TRUE)
     ```
 
-    ```{r, fig.width = 8, fig.height = 6, echo = FALSE, out.width = "100%"}
-    fig = magick::image_graph(width = 2000, height = 900, res = 100, pointsize = 16)
-    iris_module$graph$plot(horizontal = TRUE)
-    invisible(dev.off())
-    magick::image_trim(fig)
-    ```
 1. The `ModelDescriptor`'s `$task` slot contains a `Task` with all features that are used to create the input data for all NN inputs. It can be given to `task_dataset()`, along with the `$ingress`, to create a `torch` `dataset` that creates all batches. As above, any output of `graph_iris` can be used:
 
     ```{r}
@@ -431,7 +409,7 @@ The following uses the sequential NN from above:
 ```{r}
 lr_sequential = lrn("classif.torch_model",
   task_type = "classif",
-  network = model_descriptor_to_module(md_sequential, list(md_sequential$.pointer)),
+  network = model_descriptor_to_module(md_sequential, list(md_sequential$pointer)),
   ingress_tokens = md_sequential$ingress,
   optimizer = adam,
   callbacks = history,
@@ -446,7 +424,7 @@ Before training the model, we set some more hyperparameters.
 ```{r}
 lr_sequential$param_set$set_values(
   batch_size = 50,
-  epochs = 50,
+  epochs = 100,
   measures_train = msrs(c("classif.logloss", "classif.ce"))
 )
 # This is required to evaluate the logloss during training
@@ -457,9 +435,9 @@ lr_sequential$train(md_sequential$task)
 
 The following calls the `$predict_newdata` function to plot the response surface along the `Sepal.Width = mean(Sepal.Width)` plane, along with the ground-truth values:
 
-```{r}
-library("data.table")
-library("ggplot2")
+```{r, message = FALSE, fig.dpi = 300, fig.align = "center"}
+library(data.table)
+library(ggplot2)
 
 newdata = cbind(data.table(Sepal.Width = mean(iris$Sepal.Width)), CJ(
   Sepal.Length = seq(min(iris$Sepal.Length), max(iris$Sepal.Length), length.out = 30),
@@ -569,28 +547,14 @@ lr_sequential_full$train(task)
 Compare the resulting `Graph`
 
 ```{r, fig.show='hide'}
-graph_sequential_full$plot(horizontal = TRUE)
-```
-
-```{r, fig.width = 8, fig.height = 6, echo = FALSE, out.width = "100%"}
-fig = magick::image_graph(width = 2000, height = 900, res = 100, pointsize = 15)
-graph_sequential_full$plot(horizontal = TRUE)
-invisible(dev.off())
-magick::image_trim(fig)
+graph_sequential_full$plot(html = TRUE)
 ```
 
 With the `Graph` of the trained model:
 
 ```{r, fig.show = 'hide'}
 model = lr_sequential_full$graph_model$state$torch_model_classif$model
-model$network$graph$plot(horizontal = TRUE)
-```
-
-```{r, fig.width = 8, fig.height = 6, echo = FALSE, out.width = "100%"}
-fig = magick::image_graph(width = 2000, height = 900, res = 100, pointsize = 15)
-model$network$graph$plot(horizontal = TRUE)
-invisible(dev.off())
-magick::image_trim(fig)
+model$network$graph$plot(html = TRUE)
 ```
 
 Predictions, as before (we can use `predict_newdata` again):
@@ -616,16 +580,8 @@ gr = po("select", selector = selector_name("Petal.Length")) %>>%
   po("torch_loss", loss = xe) %>>%
   po("torch_model_classif", batch_size = 50, epochs = 50)
 
-gr$plot(horizontal = TRUE)
+gr$plot(html = TRUE)
 ```
-
-```{r, fig.width = 8, fig.height = 6, echo = FALSE, out.width = "100%"}
-fig = magick::image_graph(width = 2000, height = 900, res = 100, pointsize = 16)
-gr$plot(horizontal = TRUE)
-invisible(dev.off())
-magick::image_trim(fig)
-```
-
 
 ```{r}
 lr = as_learner(gr)
@@ -637,7 +593,7 @@ plot_predictions(predictions)
 
 How about using `Petal.Length` and `Sepal.Length` separately at first?
 
-```{r, fig.show='hide'}
+```{r}
 gr = gunion(list(
       po("select", selector = selector_name("Petal.Length"), id = "sel1") %>>%
         po("torch_ingress_num", id = "ingress.petal") %>>%
@@ -654,14 +610,7 @@ gr = gunion(list(
     po("torch_loss", loss = xe) %>>%
     po("torch_model_classif", batch_size = 50, epochs = 50)
 
-gr$plot(horizontal = TRUE)
-```
-
-```{r, fig.width = 8, fig.height = 6, echo = FALSE, out.width = "100%"}
-fig = magick::image_graph(width = 2000, height = 900, res = 100, pointsize = 16)
-gr$plot(horizontal = TRUE)
-invisible(dev.off())
-magick::image_trim(fig)
+gr$plot(html = TRUE)
 ```
 
 ```{r}

@@ -52,21 +52,22 @@ unchanged_shapes = function(shapes_in, param_vals, task) {
 #' Does nothing.
 register_preproc("trafo_nop", identity, rowwise = FALSE, shapes_out = unchanged_shapes)
 
-
-#' @title PipeOpPreprocTorchTrafoNop
+#' @title PipeOpPreprocTorchTrafoReshape
 #' @usage NULL
-#' @name mlr_pipeops_preproc_torch.trafo_scale
-#' @aliases PipeOpPreprocTorchTrafoScale
-#' @rdname PipeOpPreprocTorchTrafoScale
+#' @name mlr_pipeops_preproc_torch.trafo_reshape
+#' @aliases PipeOpPreprocTorchTrafoReshape
+#' @rdname PipeOpPreprocTorchTrafoReshape
 #' @format [`R6Class`] inheriting from [`PipeOpTaskPreprocTorch`].
+#' @section Parameters:
+#' * `shape` :: `integer()`\cr
+#'   The desired output shape. The first dimension is the batch dimension and should usually be `-1`.
 #'
 #' @description
-#' Applies `(x - mean) / sd` to a tensor `x`.
-register_preproc("trafo_scale", crate(function(x, mean, sd) (x - mean) / sd),
-  shapes_out = unchanged_shapes, rowwise = FALSE,
+#' Reshapes the tensor according to the parameter `shape`, by calling `torch_reshape()`.
+#' This preprocessing function is applied batch-wise.
+register_preproc("trafo_reshape", torch_reshape, rowwise = FALSE, shapes_out = "infer",
   param_set = ps(
-    mean = p_uty(tags = c("train", "required")),
-    sd = p_uty(tags = c("train", "required"))
+    shape = p_uty(tags = c("train", "required"), custom_check = check_integerish)
   )
 )
 

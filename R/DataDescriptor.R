@@ -78,7 +78,7 @@ DataDescriptor = R6Class("DataDescriptor",
         }
         # get unique ID for input PipeOp
         graph = as_graph(po("nop", id =
-          paste0("nop.", substr(calculate_hash(address(dataset)), 1, 4), ".", input_map)
+          paste0("nop.", substr(calculate_hash(address(dataset)), 1, 6), ".", input_map)
         ), clone = FALSE)
       } else {
         graph = as_graph(graph, clone = clone_graph)

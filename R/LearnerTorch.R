@@ -6,7 +6,29 @@
 #' This base class provides the basic functionality for training and prediction of a neural network.
 #' All torch learners should inherit from this class.
 #'
-#' It also allows to hook into the training loop via a callback mechanism.
+#' @section Validation:
+#' To specify the validation data, you can set the `$validate` field of the Learner, which can be set to:
+#' * `NULL`: no validation
+#' * `ratio`: only proportion `1 - ratio` of the task is used for training and `ratio` is used for validation.
+#' * `"test"` means that the `"test"` task of a resampling is used and is not possible when calling `$train()` manually.
+#' * `"predefined"`: This will use the predefined `$internal_valid_task` of a [`mlr3::Task`], which can e.g.
+#'   be created using the `$divide()` method  of `Task`.
+#'
+#' This validation data can also be used for early stopping, see the description of the `Learner`'s parameters.
+#'
+#' @section Saving a Learner:
+#' In order to save a `LearnerTorch` for later usage, it is necessary to call the `$marshal()` method on the `Learner`
+#' before writing it to disk, as the object will otherwise not be saved correctly.
+#' After loading a marshaled `LearnerTorch` into R again, you then need to call `$unmarshal()` to transform it
+#' into a useable state.
+#'
+#' @section Early Stopping and Tuning:
+#' In order to prevent overfitting, the `LearnerTorch` class allows to use early stopping via the `patience`
+#' and `min_delta` parameters, see the `Learner`'s parameters.
+#' When tuning a `LearnerTorch` it is also possible to combine the explicit tuning via `mlr3tuning`
+#' and the `LearnerTorch`'s internal tuning of the epochs via early stopping.
+#' To do so, you just need to include `epochs = to_tune(upper = <upper>, internal = TRUE)` in the search space,
+#' where `<upper>` is the maximally allowed number of epochs, and configure the early stopping.
 #'
 #' @template param_id
 #' @template param_task_type
@@ -504,6 +526,7 @@ unmarshal_model.LearnerTorch = function(model, inplace = FALSE, ...) {
 }
 
 
+#' @keywords internal
 #' @export
 hash_input.nn_module = function(x) {
   data.table::address(x)

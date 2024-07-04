@@ -226,6 +226,7 @@ clone_graph_unique_ids = function(g) {
 #' @param d_out (`integer(1)`)\cr
 #'   The number of output classes.
 #' @export
+#' @keywords internal
 replace_head = function(network, d_out) {
   UseMethod("replace_head")
 }

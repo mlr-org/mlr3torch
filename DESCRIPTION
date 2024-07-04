@@ -60,6 +60,7 @@ Suggests:
     rmarkdown,
     rpart,
     viridis,
+	visNetwork,
     testthat (>= 3.0.0),
     torchvision (>= 0.6.0),
     waldo
@@ -130,5 +131,4 @@ Collate:
     'paramset_torchlearner.R'
     'preprocess.R'
     'rd_info.R'
-    'reset_last_layer.R'
     'with_torch_settings.R'
