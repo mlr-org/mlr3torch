@@ -201,7 +201,7 @@ deep_learner$train(mnist)
 * Multi-modal data can be handled conveniently, as `lazy_tensor` objects can be stored alongside tabular data.
 * It is possible to customize the training process via (predefined or custom) callbacks.
 * The package is fully integrated into the `mlr3` ecosystem.
-* Neural network architectures, as well as their hyperparameters can be easily tuned via `mlr3tuning` and friends
+* Neural network architectures, as well as their hyperparameters can be easily tuned via `mlr3tuning` and friends.
 
 ## Documentation
 
@@ -210,7 +210,7 @@ deep_learner$train(mnist)
 
 ## Contributing:
 
-* To run the tests one needs to run `Sys.setenv(TEST_TORCH = 1)`, e.g. by adding it to `.Rprofile`
+* To run the tests one needs to run set the environment variable `TEST_TORCH = 1`, e.g. by adding it to `.Renviron`.
 
 ## Acknowledgements
 

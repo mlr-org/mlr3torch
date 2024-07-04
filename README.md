@@ -100,7 +100,7 @@ graph_lrn = as_learner(graph_mlp)
 
 To work with generic tensors, the `lazy_tensor` type can be used. It
 wraps a `torch::dataset`, but allows to preprocess the data (lazily)
-using `PipeOp` objects Below, we flatten the MNIST task, so we can then
+using `PipeOp` objects. Below, we flatten the MNIST task, so we can then
 train a multi-layer perceptron on it. Note that this does *not*
 transform the data in-memory, but is only applied when the data is
 actually loaded.
@@ -127,8 +127,8 @@ mnist_flat$head(3L)
 #> 3:      4   <tnsr[784]>
 ```
 
-To actually access the tensors, we can call `materialize()`, but only
-show a slice for readability:
+To actually access the tensors, we can call `materialize()`. We only
+show a slice of the resulting tensor for readability:
 
 ``` r
 materialize(
@@ -141,8 +141,8 @@ materialize(
 #> [ CPUFloatType{2,4} ]
 ```
 
-We now define a more complex architecture that has one single input
-which is a `lazy_tensor`. For that, we first deine a single residual
+Below, we define a more complex architecture that has one single input
+which is a `lazy_tensor`. For that, we first define a single residual
 block:
 
 ``` r
@@ -155,11 +155,11 @@ layer = list(
 
 Next, we create a neural network that takes as input a `lazy_tensor`
 (`po("torch_ingress_num")`). It first applies a linear layer and then
-repeat the above layer using the special `PipeOpTorchBlock`, followed by
-the network’s head. After that, we configure the loss and the optimizer
-and the training parameters. Note that `po("nn_linear_0")` is equivalent
-to `po("nn_linear", id = "nn_linear_0")` and we need this here to avoid
-ID clashes with the linear layer from `po("nn_block")`.
+repeats the above layer using the special `PipeOpTorchBlock`, followed
+by the network’s head. After that, we configure the loss, optimizer and
+the training parameters. Note that `po("nn_linear_0")` is equivalent to
+`po("nn_linear", id = "nn_linear_0")` and we need this here to avoid ID
+clashes with the linear layer from `po("nn_block")`.
 
 ``` r
 deep_network = po("torch_ingress_ltnsr") %>>%
@@ -184,7 +184,7 @@ deep_learner$id = "deep_network"
 ```
 
 In order to keep track of the performance during training, we use 20% of
-the data and evaluate the classification accuracy.
+the data and evaluate it using classification accuracy.
 
 ``` r
 set_validate(deep_learner, 0.2)
@@ -213,15 +213,16 @@ deep_learner$train(mnist)
   custom) callbacks.
 - The package is fully integrated into the `mlr3` ecosystem.
 - Neural network architectures, as well as their hyperparameters can be
-  easily tuned via `mlr3tuning` and friends
+  easily tuned via `mlr3tuning` and friends.
 
 ## Documentation
 
 - Start by reading one of the vignettes on the package website!
 
-## Contributing
+## Contributing:
 
-- To run the tests, it is necessary to set the environemnt variable `TEST_TORCH=1`
+- To run the tests one needs to run set the environment variable
+  `TEST_TORCH = 1`, e.g. by adding it to `.Renviron`.
 
 ## Acknowledgements
 
