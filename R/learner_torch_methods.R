@@ -26,7 +26,9 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   }
 
   network = private$.network(task, param_vals)$to(device = param_vals$device)
+  if (is.null(self$optimizer)) stopf("Learner '%s' defines no optimizer", self$id)
   optimizer = self$optimizer$generate(network$parameters)
+  if (is.null(self$loss)) stopf("Learner '%s' defines no loss", self$id)
   loss_fn = self$loss$generate()
 
   measures_train = normalize_to_list(param_vals$measures_train)
@@ -307,5 +309,3 @@ measure_prediction = function(pred_tensor, measures, task, row_ids, prediction_e
     }
   )
 }
-
-

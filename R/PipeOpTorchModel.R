@@ -74,11 +74,11 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
       private$.learner$network_stored = network
       private$.learner$ingress_tokens = md$ingress
 
-      if (is.null(md$loss) && is.null(self$learner$loss)) {
+      if (is.null(md$loss)) {
         stopf("No loss configured in ModelDescriptor. Use (\"torch_loss\").")
       }
       self$learner$loss = md$loss
-      if (is.null(md$optimizer) && is.null(self$learner$optimizer)) {
+      if (is.null(md$optimizer)) {
         stopf("No optimizer configured in ModelDescriptor. Use po(\"torch_optimizer\").")
       }
       self$learner$optimizer = md$optimizer
@@ -192,4 +192,3 @@ PipeOpTorchModelRegr = R6Class("PipeOpTorchModelRegr",
 #' @include zzz.R
 register_po("torch_model_regr", PipeOpTorchModelRegr)
 register_po("torch_model_classif", PipeOpTorchModelClassif)
-

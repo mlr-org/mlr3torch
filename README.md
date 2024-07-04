@@ -53,7 +53,7 @@ learner_mlp = lrn("classif.mlp",
   batch_size     = 16,
   epochs         = 50,
   device         = "cpu",
-  # proportion of data for validation
+  # Proportion of data to use for validation
   validate = 0.3,
   # Defining the optimizer, loss, and callbacks
   optimizer      = t_opt("adam", lr = 0.1),
@@ -67,20 +67,13 @@ learner_mlp = lrn("classif.mlp",
 )
 ```
 
-The code below evaluates the learner using a simple holdout resampling.
+Below, we train this learner on the sonar example task:
 
 ``` r
-resample(
-  task       = tsk("iris"),
-  learner    = learner_mlp,
-  resampling = rsmp("holdout")
-)
-#> <ResampleResult> with 1 resampling iterations
-#>  task_id  learner_id resampling_id iteration warnings errors
-#>     iris classif.mlp       holdout         1        0      0
+learner_mlp$train(tsk("sonar"))
 ```
 
-Below, we construct the same architecture using `PipeOpTorch` objects.
+Next, we construct the same architecture using `PipeOpTorch` objects.
 The first pipeop – a `PipeOpTorchIngress` – defines the entrypoint of
 the network. All subsequent pipeops define the neural network layers.
 
