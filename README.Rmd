@@ -207,6 +207,11 @@ deep_learner$train(mnist)
 
 * Start by reading one of the vignettes on the package website!
 
+
+## Contributing:
+
+* To run the tests one needs to run `Sys.setenv(TEST_TORCH = 1)`, e.g. by adding it to `.Rprofile`
+
 ## Acknowledgements
 
 * Without the great R package `torch` none of this would have been possible.

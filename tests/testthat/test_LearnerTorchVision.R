@@ -44,7 +44,7 @@ test_that("alexnet", {
 # these tests are run the CI, but they should basically never fail, so
 # we skip them in the local run
 # models are also cached in the CI, so it is not too slow
-skip_if(Sys.getenv("INCLUDE_IGNORED") != "true", "Slow vision tests")
+skip_if(!identical(Sys.getenv("INCLUDE_IGNORED"),  "1"), "Slow vision tests")
 
 test_that("mobilenet_v2", {
   learner = lrn("classif.mobilenet_v2", epochs = 0L, batch_size = 2L, pretrained = FALSE)

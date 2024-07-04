@@ -219,6 +219,10 @@ deep_learner$train(mnist)
 
 - Start by reading one of the vignettes on the package website!
 
+## Contributing
+
+- To run the tests, it is necessary to set the environemnt variable `TEST_TORCH=1`
+
 ## Acknowledgements
 
 - Without the great R package `torch` none of this would have been

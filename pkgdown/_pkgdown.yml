@@ -40,7 +40,7 @@ navbar:
       href: https://mlr-org.com/
     get_started:
       text: Get Started
-      href: get_started.html
+      href: articles/get_started.html
     pipeop_torch:
       text: Defining an Architecture
       href: articles/pipeop_torch.html
@@ -52,7 +52,7 @@ navbar:
       href: articles/lazy_tensor.html
     internals:
       text: Internals
-      href: internals_pipeop_torch.html
+      href: articles/internals_pipeop_torch.html
 
 reference:
   - title: Package
