@@ -31,7 +31,6 @@ jobs:
       TORCH_INSTALL: 1
       TEST_TORCH: 1
       INCLUDE_IGNORED: 1
-      NOT_CRAN: false
 
     strategy:
       fail-fast: false
