@@ -5,7 +5,7 @@
 #' @include LearnerTorch.R
 #'
 #' @section Dictionary:
-#' This [Learner] can be instantiated using the sugar function [lrn()]:
+#' This [Learner] can be instantiated using the sugar function [`lrn()`][mlr3::lrn]:
 #' ```
 #' <%= if ("classif" %in% task_types_vec) paste0("lrn(\"classif.", name, "\", ...)") else ""%>
 #' <%= if ("regr" %in% task_types_vec) paste0("lrn(\"regr.", name, "\", ...)") else ""%>

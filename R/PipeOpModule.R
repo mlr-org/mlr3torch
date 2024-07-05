@@ -3,7 +3,7 @@
 #' @name mlr_pipeops_module
 #'
 #' @description
-#' `PipeOpModule` wraps an [`nn_module`] or `function` that is being called during the `train` phase of this
+#' `PipeOpModule` wraps an [`nn_module`][torch::nn_module] or `function` that is being called during the `train` phase of this
 #' [`mlr3pipelines::PipeOp`]. By doing so, this allows to assemble `PipeOpModule`s in a computational
 #' [`mlr3pipelines::Graph`] that represents either a neural network or a preprocessing graph of a [`lazy_tensor`].
 #' In most cases it is easier to create such a network by creating a graph that generates this graph.
@@ -22,7 +22,7 @@
 #' No parameters.
 #'
 #' @section Internals:
-#' During training, the wrapped [`nn_module`] / `function` is called with the provided inputs in the order in which
+#' During training, the wrapped [`nn_module`][torch::nn_module] / `function` is called with the provided inputs in the order in which
 #' the channels are defined. Arguments are **not** matched by name.
 #'
 #' @family Graph Network
@@ -86,13 +86,13 @@
 PipeOpModule = R6Class("PipeOpModule",
   inherit = PipeOp,
   public = list(
-    #' @field module ([`nn_module`])\cr
+    #' @field module ([`nn_module`][torch::nn_module])\cr
     #'   The torch module that is called during the training phase.
     module = NULL,
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #' @template param_id
-    #' @param module ([`nn_module`] or `function()`)\cr
+    #' @param module ([`nn_module`][torch::nn_module] or `function()`)\cr
     #'   The torch module or function that is being wrapped.
     #' @param inname (`character()`)\cr
     #'   The names of the input channels.

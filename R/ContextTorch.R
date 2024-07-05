@@ -14,19 +14,19 @@ ContextTorch = R6Class("ContextTorch",
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    #' @param learner ([`Learner`])\cr
+    #' @param learner ([`Learner`][mlr3::Learner])\cr
     #'   The torch learner.
-    #' @param task_train ([`Task`])\cr
+    #' @param task_train ([`Task`][mlr3::Task])\cr
     #'   The training task.
-    #' @param task_valid ([`Task`] or `NULL`)\cr
+    #' @param task_valid ([`Task`][mlr3::Task] or `NULL`)\cr
     #'   The validation task.
     #' @param loader_train ([`torch::dataloader`])\cr
     #'   The data loader for training.
     #' @param loader_valid ([`torch::dataloader`] or `NULL`)\cr
     #'   The data loader for validation.
-    #' @param measures_train (`list()` of [`Measure`]s or `NULL`)\cr
+    #' @param measures_train (`list()` of [`Measure`][mlr3::Measure]s or `NULL`)\cr
     #'   Measures used for training. Default is `NULL`.
-    #' @param measures_valid (`list()` of [`Measure`]s or `NULL`)\cr
+    #' @param measures_valid (`list()` of [`Measure`][mlr3::Measure]s or `NULL`)\cr
     #'   Measures used for validation.
     #' @param network ([`torch::nn_module`])\cr
     #'   The torch network.
@@ -62,13 +62,13 @@ ContextTorch = R6Class("ContextTorch",
       self$eval_freq = assert_int(eval_freq, lower = 1L)
       self$terminate = FALSE
     },
-    #' @field learner ([`Learner`])\cr
+    #' @field learner ([`Learner`][mlr3::Learner])\cr
     #'   The torch learner.
     learner = NULL,
-    #' @field task_train ([`Task`])\cr
+    #' @field task_train ([`Task`][mlr3::Task])\cr
     #'   The training task.
     task_train = NULL,
-    #' @field task_valid ([`Task`] or `NULL`)\cr
+    #' @field task_valid ([`Task`][mlr3::Task] or `NULL`)\cr
     #'   The validation task.
     task_valid = NULL,
     #' @field loader_train ([`torch::dataloader`])\cr
@@ -77,10 +77,10 @@ ContextTorch = R6Class("ContextTorch",
     #' @field loader_valid ([`torch::dataloader`])\cr
     #'   The data loader for validation.
     loader_valid = NULL,
-    #' @field measures_train (`list()` of [`Measure`]s or `NULL`)\cr
+    #' @field measures_train (`list()` of [`Measure`][mlr3::Measure]s)\cr
     #'   Measures used for training.
     measures_train = NULL,
-    #' @field measures_valid (`list()` of [`Measure`]s or `NULL`)\cr
+    #' @field measures_valid (`list()` of [`Measure`][mlr3::Measure]s)\cr
     #'   Measures used for validation.
     measures_valid = NULL,
     #' @field network ([`torch::nn_module`])\cr
@@ -102,8 +102,8 @@ ContextTorch = R6Class("ContextTorch",
     last_scores_train = NULL,
     #' @field last_scores_valid (`list()`)\cr
     #'   The scores from the last validation batch. Names are the ids of the validation measures.
-    #'  If [`LearnerTorch`] sets `eval_freq` different from `1`, this is `NULL` in all epochs
-    #'  that don't evaluate the model.
+    #'   If [`LearnerTorch`] sets `eval_freq` different from `1`, this is `NULL` in all epochs
+    #'   that don't evaluate the model.
     last_scores_valid = NULL,
     #' @field epoch (`integer(1)`)\cr
     #'   The current epoch.

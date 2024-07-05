@@ -7,7 +7,7 @@
 Subset of the famous ImageNet dataset.
 The data is obtained from \code{\link[torchvision:tiny_imagenet_dataset]{torchvision::tiny_imagenet_dataset()}}.
 
-The underlying \code{\link{DataBackend}} contains columns \code{"class"}, \code{"image"}, \code{"..row_id"}, \code{"split"}, where the last column
+The underlying \code{\link[mlr3:DataBackend]{DataBackend}} contains columns \code{"class"}, \code{"image"}, \code{"..row_id"}, \code{"split"}, where the last column
 indicates whether the row belongs to the train, validation or test set that defined provided in torchvision.
 
 There are no labels for the test rows, so by default, these observations are inactive, which means that the task

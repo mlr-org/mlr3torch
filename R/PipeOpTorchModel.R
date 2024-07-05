@@ -20,7 +20,7 @@
 #' A [`LearnerTorchModel`] is created by calling [`model_descriptor_to_learner()`] on the
 #' provided [`ModelDescriptor`] that is received through the input channel.
 #' Then the parameters are set according to the parameters specified in `PipeOpTorchModel` and
-#' its '$train()` method is called on the [`Task`] stored in the [`ModelDescriptor`].
+#' its '$train()` method is called on the [`Task`][mlr3::Task] stored in the [`ModelDescriptor`].
 #'
 #' @family PipeOps
 #' @export

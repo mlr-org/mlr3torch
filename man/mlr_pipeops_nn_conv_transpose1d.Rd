@@ -51,7 +51,7 @@ The padding mode. One of \code{"zeros"}, \code{"reflect"}, \code{"replicate"}, o
 
 \section{Internals}{
 
-Calls \code{\link{nn_conv_transpose1d}}.
+Calls \code{\link[torch:nn_conv_transpose1d]{nn_conv_transpose1d}}.
 The parameter \code{in_channels} is inferred as the second dimension of the input tensor.
 }
 

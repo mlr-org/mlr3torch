@@ -2,4 +2,4 @@
 #' Task type, e.g. `"classif"` or `"regr"`.
 #'
 #' For a complete list of possible task types (depending on the loaded packages),
-#' see [`mlr_reflections$task_types$type`][mlr_reflections].
+#' see [`mlr_reflections$task_types$type`][mlr3::mlr_reflections].

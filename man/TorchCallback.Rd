@@ -4,7 +4,7 @@
 \alias{TorchCallback}
 \title{Torch Callback}
 \description{
-This wraps a \code{\link{CallbackSet}} and annotates it with metadata, most importantly a \code{\link{ParamSet}}.
+This wraps a \code{\link{CallbackSet}} and annotates it with metadata, most importantly a \code{\link[paradox:ParamSet]{ParamSet}}.
 The callback is created for the given parameter values by calling the \verb{$generate()} method.
 
 This class is usually used to configure the callback of a torch learner, e.g. when constructing

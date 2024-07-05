@@ -35,8 +35,8 @@
 #'   If the `param_set` is inferred (left as `NULL`) it is assumed that the first argument is the `torch_tensor`.
 #' @param packages (`character()`)\cr
 #'   The packages the preprocessing function depends on.
-#' @param param_set ([`ParamSet`])\cr
-#'   In case the function `fn` takes additional parameter besides a [`torch_tensor`] they can be
+#' @param param_set ([`ParamSet`][paradox::ParamSet])\cr
+#'   In case the function `fn` takes additional parameter besides a [`torch_tensor`][torch::torch_tensor] they can be
 #'   specfied as parameters. None of the parameters can have the `"predict"` tag.
 #'   All tags should include `"train"`.
 #' @param stages_init (`character(1)`)\cr
@@ -47,13 +47,13 @@
 #' @param tags (`character()`)\cr
 #'   Tags for the pipeop.
 #' @section Input and Output Channels:
-#' See [`PipeOpTaskPreproc`].
+#' See [`PipeOpTaskPreproc`][mlr3pipelines::PipeOpTaskPreproc].
 #' @section State:
 #' In addition to state elements from [`PipeOpTaskPreprocSimple`], the state also contains the `$param_vals` that
 #' were set during training.
 #'
 #' @section Parameters:
-#' In addition to the parameters inherited from [`PipeOpTaskPreproc`] as well as those specified during construction
+#' In addition to the parameters inherited from [`PipeOpTaskPreproc`][mlr3pipelines::PipeOpTaskPreproc] as well as those specified during construction
 #' as the argument `param_set` there are the following parameters:
 #'
 #' * `stages` :: `character(1)`\cr
@@ -213,7 +213,7 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
     #'   First dimension must be `NA` (if it is not `NULL`).
     #' @param stage (`character(1)`)\cr
     #'   The stage: either `"train"` or `"predict"`.
-    #' @param task ([`Task`] or `NULL`)\cr
+    #' @param task ([`Task`][mlr3::Task] or `NULL`)\cr
     #'   The task, which is very rarely needed.
     #' @return `list()` of (`integer()` or `NULL`)
     shapes_out = function(shapes_in, stage = NULL, task = NULL) {
@@ -411,7 +411,7 @@ create_ps = function(fn) {
 #'   applied. Afterwards the batch dimension (1) is replaced with NA and the shape is returned.
 #'   If the first dimension is not `NA`, the output shape of applying the preprocessing function is returned.
 #'   Method `"infer"` should be correct in most cases, but might fail in some edge cases.
-#' @param param_set ([`ParamSet`] or `NULL`)\cr
+#' @param param_set ([`ParamSet`][paradox::ParamSet] or `NULL`)\cr
 #'   The parameter set.
 #'   If this is left as `NULL` (default) the parameter set is inferred in the following way:
 #'   All parameters but the first and `...` of `fn` are set as untyped parameters with tags 'train' and those that

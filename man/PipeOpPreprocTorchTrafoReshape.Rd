@@ -5,7 +5,7 @@
 \alias{PipeOpPreprocTorchTrafoReshape}
 \title{PipeOpPreprocTorchTrafoReshape}
 \format{
-\code{\link{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
+\code{\link[R6:R6Class]{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
 }
 \description{
 Reshapes the tensor according to the parameter \code{shape}, by calling \code{torch_reshape()}.

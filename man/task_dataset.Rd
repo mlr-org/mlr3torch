@@ -7,7 +7,7 @@
 task_dataset(task, feature_ingress_tokens, target_batchgetter = NULL, device)
 }
 \arguments{
-\item{task}{(\code{\link{Task}})\cr
+\item{task}{(\code{\link[mlr3:Task]{Task}})\cr
 The task for which to build the \link[torch:dataset]{dataset}.}
 
 \item{feature_ingress_tokens}{(named \code{list()} of \code{\link{TorchIngressToken}})\cr
@@ -24,7 +24,7 @@ The device, e.g. \code{"cuda"} or \code{"cpu"}.}
 \code{\link[torch:dataset]{torch::dataset}}
 }
 \description{
-Creates a torch \link[torch:dataset]{dataset} from an mlr3 \code{\link{Task}}.
+Creates a torch \link[torch:dataset]{dataset} from an mlr3 \code{\link[mlr3:Task]{Task}}.
 The resulting dataset's \verb{$.get_batch()} method returns a list with elements \code{x}, \code{y} and \code{index}:
 \itemize{
 \item \code{x} is a list with tensors, whose content is defined by the parameter \code{feature_ingress_tokens}.

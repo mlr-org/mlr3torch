@@ -5,7 +5,7 @@
 \alias{PipeOpModule}
 \title{Class for Torch Module Wrappers}
 \description{
-\code{PipeOpModule} wraps an \code{\link{nn_module}} or \code{function} that is being called during the \code{train} phase of this
+\code{PipeOpModule} wraps an \code{\link[torch:nn_module]{nn_module}} or \code{function} that is being called during the \code{train} phase of this
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}}. By doing so, this allows to assemble \code{PipeOpModule}s in a computational
 \code{\link[mlr3pipelines:Graph]{mlr3pipelines::Graph}} that represents either a neural network or a preprocessing graph of a \code{\link{lazy_tensor}}.
 In most cases it is easier to create such a network by creating a graph that generates this graph.
@@ -33,7 +33,7 @@ No parameters.
 
 \section{Internals}{
 
-During training, the wrapped \code{\link{nn_module}} / \code{function} is called with the provided inputs in the order in which
+During training, the wrapped \code{\link[torch:nn_module]{nn_module}} / \code{function} is called with the provided inputs in the order in which
 the channels are defined. Arguments are \strong{not} matched by name.
 }
 
@@ -122,7 +122,7 @@ Other PipeOp:
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{module}}{(\code{\link{nn_module}})\cr
+\item{\code{module}}{(\code{\link[torch:nn_module]{nn_module}})\cr
 The torch module that is called during the training phase.}
 }
 \if{html}{\out{</div>}}
@@ -166,7 +166,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \item{\code{id}}{(\code{character(1)})\cr
 The id for of the new object.}
 
-\item{\code{module}}{(\code{\link{nn_module}} or \verb{function()})\cr
+\item{\code{module}}{(\code{\link[torch:nn_module]{nn_module}} or \verb{function()})\cr
 The torch module or function that is being wrapped.}
 
 \item{\code{inname}}{(\code{character()})\cr

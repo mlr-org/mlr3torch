@@ -26,7 +26,7 @@ Part of this documentation have been copied or adapted from the documentation of
 
 \section{Internals}{
 
-Calls \code{\link[=nn_avg_pool2d]{nn_avg_pool2d()}} during training.
+Calls \code{\link[torch:nn_avg_pool2d]{nn_avg_pool2d()}} during training.
 }
 
 \section{Parameters}{

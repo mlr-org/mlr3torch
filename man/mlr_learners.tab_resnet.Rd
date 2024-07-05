@@ -9,7 +9,7 @@ Tabular resnet.
 }
 \section{Dictionary}{
 
-This \link{Learner} can be instantiated using the sugar function \code{\link[=lrn]{lrn()}}:
+This \link{Learner} can be instantiated using the sugar function \code{\link[mlr3:mlr_sugar]{lrn()}}:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{lrn("classif.tab_resnet", ...)
 lrn("regr.tab_resnet", ...)

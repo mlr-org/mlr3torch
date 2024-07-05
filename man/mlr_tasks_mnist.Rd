@@ -9,7 +9,7 @@
 \description{
 Classic MNIST image classification.
 
-The underlying \code{\link{DataBackend}} contains columns \code{"label"}, \code{"image"}, \code{"row_id"}, \code{"split"}, where the last column
+The underlying \code{\link[mlr3:DataBackend]{DataBackend}} contains columns \code{"label"}, \code{"image"}, \code{"row_id"}, \code{"split"}, where the last column
 indicates whether the row belongs to the train or test set.
 
 The first 60000 rows belong to the training set, the last 10000 rows to the test set.

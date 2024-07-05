@@ -60,7 +60,7 @@ The Model is a list of class \code{"learner_torch_model"} with the following ele
 \strong{General}:
 
 The parameters of the optimizer, loss and callbacks,
-prefixed with \code{"opt."}, \code{"loss."} and \code{"cb.<callback id>."} respectively.
+prefixed with \code{"opt."}, \code{"loss."} and \code{"cb.<callback id>."} respectively, as well as:
 \itemize{
 \item \code{epochs} :: \code{integer(1)}\cr
 The number of epochs.
@@ -82,9 +82,9 @@ Note that by setting the seed during the training phase this will mean that by d
 
 \strong{Evaluation}:
 \itemize{
-\item \code{measures_train} :: \code{\link{Measure}} or \code{list()} of \code{\link{Measure}}s.\cr
+\item \code{measures_train} :: \code{\link[mlr3:Measure]{Measure}} or \code{list()} of \code{\link[mlr3:Measure]{Measure}}s.\cr
 Measures to be evaluated during training.
-\item \code{measures_valid} :: \code{\link{Measure}} or \code{list()} of \code{\link{Measure}}s.\cr
+\item \code{measures_valid} :: \code{\link[mlr3:Measure]{Measure}} or \code{list()} of \code{\link[mlr3:Measure]{Measure}}s.\cr
 Measures to be evaluated during validation.
 \item \code{eval_freq} :: \code{integer(1)}\cr
 How often the train / validation predictions are evaluated using \code{measures_train} / \code{measures_valid}.
@@ -152,13 +152,13 @@ Currently, only classification and regression are supported.
 When inheriting from this class, one should overload two private methods:
 \itemize{
 \item \code{.network(task, param_vals)}\cr
-(\code{\link{Task}}, \code{list()}) -> \code{\link{nn_module}}\cr
+(\code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{\link[torch:nn_module]{nn_module}}\cr
 Construct a \code{\link[torch:nn_module]{torch::nn_module}} object for the given task and parameter values, i.e. the neural network that
 is trained by the learner.
 For classification, the output of this network are expected to be the scores before the application of the
 final softmax layer.
 \item \code{.dataset(task, param_vals)}\cr
-(\code{\link{Task}}, \code{list()}) -> \code{\link[torch:dataset]{torch::dataset}}\cr
+(\code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{\link[torch:dataset]{torch::dataset}}\cr
 Create the dataset for the task.
 Must respect the parameter value of the device.
 Moreover, one needs to pay attention respect the row ids of the provided task.
@@ -166,10 +166,10 @@ Moreover, one needs to pay attention respect the row ids of the provided task.
 
 It is also possible to overwrite the private \code{.dataloader()} method instead of the \code{.dataset()} method.
 Per default, a dataloader is constructed using the output from the \code{.dataset()} method.
-However, this should respect the dataloader parameters from the \code{\link{ParamSet}}.
+However, this should respect the dataloader parameters from the \code{\link[paradox:ParamSet]{ParamSet}}.
 \itemize{
 \item \code{.dataloader(task, param_vals)}\cr
-(\code{\link{Task}}, \code{list()}) -> \code{\link[torch:dataloader]{torch::dataloader}}\cr
+(\code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{\link[torch:dataloader]{torch::dataloader}}\cr
 Create a dataloader from the task.
 Needs to respect at least \code{batch_size} and \code{shuffle} (otherwise predictions can be permuted).
 }
@@ -177,7 +177,7 @@ Needs to respect at least \code{batch_size} and \code{shuffle} (otherwise predic
 To change the predict types, the private \code{.encode_prediction()} method can be overwritten:
 \itemize{
 \item \code{.encode_prediction(predict_tensor, task, param_vals)}\cr
-(\code{\link{torch_tensor}}, \code{\link{Task}}, \code{list()}) -> \code{list()}\cr
+(\code{\link{torch_tensor}}, \code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{list()}\cr
 Take in the raw predictions from \code{self$network} (\code{predict_tensor}) and encode them into a
 format that can be converted to valid \code{mlr3} predictions using \code{\link[mlr3:as_prediction_data]{mlr3::as_prediction_data()}}.
 This method must take \code{self$predict_type} into account.
@@ -237,7 +237,7 @@ Whether the learner is marshaled.}
 \item{\code{network}}{(\code{\link[torch:nn_module]{nn_module()}})\cr
 Shortcut for \code{learner$model$network}.}
 
-\item{\code{param_set}}{(\code{\link{ParamSet}})\cr
+\item{\code{param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}})\cr
 The parameter set}
 
 \item{\code{hash}}{(\code{character(1)})\cr
@@ -304,14 +304,14 @@ The id for of the new object.}
 \item{\code{task_type}}{(\code{character(1)})\cr
 The task type.}
 
-\item{\code{param_set}}{(\code{\link{ParamSet}} or \code{alist()})\cr
+\item{\code{param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}} or \code{alist()})\cr
 Either a parameter set, or an \code{alist()} containing different values of self,
-e.g. \code{alist(private$.param_set1, private$.param_set2)}, from which a \code{\link{ParamSet}} collection
+e.g. \code{alist(private$.param_set1, private$.param_set2)}, from which a \code{\link[paradox:ParamSet]{ParamSet}} collection
 should be created.}
 
 \item{\code{properties}}{(\code{character()})\cr
 The properties of the object.
-See \code{\link[=mlr_reflections]{mlr_reflections$learner_properties}} for available values.}
+See \code{\link[mlr3:mlr_reflections]{mlr_reflections$learner_properties}} for available values.}
 
 \item{\code{man}}{(\code{character(1)})\cr
 String in the format \verb{[pkg]::[topic]} pointing to a manual page for this object.
@@ -322,7 +322,8 @@ Label for the new instance.}
 
 \item{\code{feature_types}}{(\code{character()})\cr
 The feature types.
-See \code{\link[=mlr_reflections]{mlr_reflections$task_feature_types}} for available values.}
+See \code{\link[mlr3:mlr_reflections]{mlr_reflections$task_feature_types}} for available values,
+Additionally, \code{"lazy_tensor"} is supported.}
 
 \item{\code{optimizer}}{(\code{NULL} or \code{\link{TorchOptimizer}})\cr
 The optimizer to use for training.
@@ -337,7 +338,7 @@ The R packages this object depends on.}
 
 \item{\code{predict_types}}{(\code{character()})\cr
 The predict types.
-See \code{\link[=mlr_reflections]{mlr_reflections$learner_predict_types}} for available values.
+See \code{\link[mlr3:mlr_reflections]{mlr_reflections$learner_predict_types}} for available values.
 For regression, the default is \code{"response"}.
 For classification, this defaults to \code{"response"} and \code{"prob"}.
 To deviate from the defaults, it is necessary to overwrite the private \verb{$.encode_prediction()}

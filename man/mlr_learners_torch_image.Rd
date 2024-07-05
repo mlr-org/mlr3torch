@@ -105,11 +105,11 @@ The referenced help package can be opened via method \verb{$help()}.}
 
 \item{\code{properties}}{(\code{character()})\cr
 The properties of the object.
-See \code{\link[=mlr_reflections]{mlr_reflections$learner_properties}} for available values.}
+See \code{\link[mlr3:mlr_reflections]{mlr_reflections$learner_properties}} for available values.}
 
 \item{\code{predict_types}}{(\code{character()})\cr
 The predict types.
-See \code{\link[=mlr_reflections]{mlr_reflections$learner_predict_types}} for available values.}
+See \code{\link[mlr3:mlr_reflections]{mlr_reflections$learner_predict_types}} for available values.}
 }
 \if{html}{\out{</div>}}
 }

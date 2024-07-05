@@ -3,7 +3,7 @@
 #' @description
 #' Classic MNIST image classification.
 #'
-#' The underlying [`DataBackend`] contains columns `"label"`, `"image"`, `"row_id"`, `"split"`, where the last column
+#' The underlying [`DataBackend`][mlr3::DataBackend] contains columns `"label"`, `"image"`, `"row_id"`, `"split"`, where the last column
 #' indicates whether the row belongs to the train or test set.
 #'
 #' The first 60000 rows belong to the training set, the last 10000 rows to the test set.

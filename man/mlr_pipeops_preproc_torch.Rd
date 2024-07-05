@@ -31,7 +31,7 @@ Also, the first dimension can be \code{NA}, i.e. is unknown (as for the batch di
 
 \section{Input and Output Channels}{
 
-See \code{\link{PipeOpTaskPreproc}}.
+See \code{\link[mlr3pipelines:PipeOpTaskPreproc]{PipeOpTaskPreproc}}.
 }
 
 \section{State}{
@@ -42,7 +42,7 @@ were set during training.
 
 \section{Parameters}{
 
-In addition to the parameters inherited from \code{\link{PipeOpTaskPreproc}} as well as those specified during construction
+In addition to the parameters inherited from \code{\link[mlr3pipelines:PipeOpTaskPreproc]{PipeOpTaskPreproc}} as well as those specified during construction
 as the argument \code{param_set} there are the following parameters:
 \itemize{
 \item \code{stages} :: \code{character(1)}\cr
@@ -233,8 +233,8 @@ The id for of the new object.}
 \item{\code{param_vals}}{(named \code{list()})\cr
 Parameter values to be set after construction.}
 
-\item{\code{param_set}}{(\code{\link{ParamSet}})\cr
-In case the function \code{fn} takes additional parameter besides a \code{\link{torch_tensor}} they can be
+\item{\code{param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}})\cr
+In case the function \code{fn} takes additional parameter besides a \code{\link[torch:torch_tensor]{torch_tensor}} they can be
 specfied as parameters. None of the parameters can have the \code{"predict"} tag.
 All tags should include \code{"train"}.}
 
@@ -277,7 +277,7 @@ First dimension must be \code{NA} (if it is not \code{NULL}).}
 \item{\code{stage}}{(\code{character(1)})\cr
 The stage: either \code{"train"} or \code{"predict"}.}
 
-\item{\code{task}}{(\code{\link{Task}} or \code{NULL})\cr
+\item{\code{task}}{(\code{\link[mlr3:Task]{Task}} or \code{NULL})\cr
 The task, which is very rarely needed.}
 }
 \if{html}{\out{</div>}}

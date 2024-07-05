@@ -84,7 +84,7 @@ PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",
 #'   The padding mode. One of `"zeros"`, `"reflect"`, `"replicate"`, or `"circular"`. Default is `"zeros"`.
 #'
 #' @section Internals:
-#' Calls [`nn_conv_transpose1d`].
+#' Calls [`nn_conv_transpose1d`][torch::nn_conv_transpose1d].
 #' The parameter `in_channels` is inferred as the second dimension of the input tensor.
 #' @export
 PipeOpTorchConvTranspose1D = R6Class("PipeOpTorchConvTranspose1D", inherit = PipeOpTorchConvTranspose,
@@ -112,7 +112,7 @@ PipeOpTorchConvTranspose1D = R6Class("PipeOpTorchConvTranspose1D", inherit = Pip
 #' @inheritSection mlr_pipeops_nn_conv_transpose1d Parameters
 #'
 #' @section Internals:
-#' Calls [`nn_conv_transpose2d`].
+#' Calls [`nn_conv_transpose2d`][torch::nn_conv_transpose2d].
 #' The parameter `in_channels` is inferred as the second dimension of the input tensor.
 #' @export
 PipeOpTorchConvTranspose2D = R6Class("PipeOpTorchConvTranspose2D", inherit = PipeOpTorchConvTranspose,
@@ -139,7 +139,7 @@ PipeOpTorchConvTranspose2D = R6Class("PipeOpTorchConvTranspose2D", inherit = Pip
 #' @inheritSection mlr_pipeops_nn_conv_transpose1d Parameters
 #'
 #' @section Internals:
-#' Calls [`nn_conv_transpose3d`].
+#' Calls [`nn_conv_transpose3d`][torch::nn_conv_transpose3d].
 #' The parameter `in_channels` is inferred as the second dimension of the input tensor.
 #' @export
 PipeOpTorchConvTranspose3D = R6Class("PipeOpTorchConvTranspose3D", inherit = PipeOpTorchConvTranspose,

@@ -26,7 +26,7 @@ Part of this documentation have been copied or adapted from the documentation of
 
 \section{Internals}{
 
-Calls \code{\link{nn_conv_transpose2d}}.
+Calls \code{\link[torch:nn_conv_transpose2d]{nn_conv_transpose2d}}.
 The parameter \code{in_channels} is inferred as the second dimension of the input tensor.
 }
 

@@ -23,7 +23,7 @@ Shape that \code{batchgetter} will produce. Batch-dimension should be included a
 }
 \description{
 This function creates an S3 class of class \code{"TorchIngressToken"}, which is an internal data structure.
-It contains the (meta-)information of how a batch is generated from a \code{\link{Task}} and fed into an entry point
+It contains the (meta-)information of how a batch is generated from a \code{\link[mlr3:Task]{Task}} and fed into an entry point
 of the neural network. It is stored as the \code{ingress} field in a \code{\link{ModelDescriptor}}.
 }
 \examples{

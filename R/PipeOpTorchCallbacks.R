@@ -8,7 +8,7 @@
 #' @section Input and Output Channels:
 #' There is one input channel `"input"` and one output channel `"output"`.
 #' During *training*, the channels are of class [`ModelDescriptor`].
-#' During *prediction*, the channels are of class [`Task`].
+#' During *prediction*, the channels are of class [`Task`][mlr3::Task].
 #'
 #' @template pipeop_torch_state_default
 #'

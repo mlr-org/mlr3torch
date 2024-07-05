@@ -14,7 +14,7 @@ t_opts(.keys, ...)
 Key of the object to retrieve.}
 
 \item{...}{(any)\cr
-See description of \code{\link{dictionary_sugar_get}}.}
+See description of \code{\link[mlr3misc:dictionary_sugar_get]{dictionary_sugar_get}}.}
 
 \item{.keys}{(\code{character()})\cr
 The keys of the optimizers.}

@@ -13,7 +13,7 @@
 #'   The torch dataset.
 #'   It should return a named `list()` of [`torch_tensor`][torch::torch_tensor] objects.
 #' @template param_dataset_shapes
-#' @param graph ([`Graph`])\cr
+#' @param graph ([`Graph`][mlr3pipelines::Graph])\cr
 #'  The preprocessing graph.
 #'  If left `NULL`, no preprocessing is applied to the data and `input_map`, `pointer`, `pointer_shape`, and
 #' `pointer_shape_predict` are inferred in case the dataset returns only one element.
@@ -29,7 +29,7 @@
 #'   Whether to clone the preprocessing graph.
 #' @param pointer_shape_predict (`integer()` or `NULL`)\cr
 #'   Internal use only.
-#'   Used in a [`Graph`] to anticipate possible mismatches between train and predict shapes.
+#'   Used in a [`Graph`][mlr3pipelines::Graph] to anticipate possible mismatches between train and predict shapes.
 #'
 #' @details
 #' While it would be more natural to define this as an S3 class, we opted for an R6 class to avoid the usual
@@ -149,7 +149,7 @@ DataDescriptor = R6Class("DataDescriptor",
     #' @field dataset ([`torch::dataset`])\cr
     #' The dataset.
     dataset = NULL,
-    #' @field graph ([`Graph`])\cr
+    #' @field graph ([`Graph`][mlr3pipelines::Graph])\cr
     #' The preprocessing graph.
     graph = NULL,
     #' @field dataset_shapes (named `list()` of (`integer()` or `NULL`))\cr

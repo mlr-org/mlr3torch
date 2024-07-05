@@ -14,7 +14,7 @@ t_clbks(.keys)
 The key of the torch callback.}
 
 \item{...}{(any)\cr
-See description of \code{\link[=dictionary_sugar_get]{dictionary_sugar_get()}}.}
+See description of \code{\link[mlr3misc:dictionary_sugar_get]{dictionary_sugar_get()}}.}
 
 \item{.keys}{(\code{character()})\cr
 The keys of the callbacks.}

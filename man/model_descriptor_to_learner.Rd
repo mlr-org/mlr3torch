@@ -11,7 +11,7 @@ model_descriptor_to_learner(model_descriptor)
 The model descriptor.}
 }
 \value{
-\code{\link{Learner}}
+\code{\link[mlr3:Learner]{Learner}}
 }
 \description{
 First a \code{\link{nn_graph}} is created using \code{\link{model_descriptor_to_module}} and then a learner is created from this

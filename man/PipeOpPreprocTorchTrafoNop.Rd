@@ -5,7 +5,7 @@
 \alias{PipeOpPreprocTorchTrafoNop}
 \title{PipeOpPreprocTorchTrafoNop}
 \format{
-\code{\link{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
+\code{\link[R6:R6Class]{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
 }
 \description{
 Does nothing.

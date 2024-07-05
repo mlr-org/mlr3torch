@@ -127,8 +127,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{network}}{(\code{\link{nn_module}})\cr
-An instantiated \code{\link{nn_module}}. Is not cloned during construction.
+\item{\code{network}}{(\code{\link[torch:nn_module]{nn_module}})\cr
+An instantiated \code{\link[torch:nn_module]{nn_module}}. Is not cloned during construction.
 For classification, outputs must be the scores (before the softmax).}
 
 \item{\code{ingress_tokens}}{(\code{list} of \code{\link[=TorchIngressToken]{TorchIngressToken()}})\cr

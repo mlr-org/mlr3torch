@@ -3,12 +3,13 @@
 #' @name mlr_pipeops_torch
 #'
 #' @description
-#' `PipeOpTorch` is the base class for all [`PipeOp`]s that represent neural network layers in a [`Graph`].
+#' `PipeOpTorch` is the base class for all [`PipeOp`][mlr3pipelines::PipeOp]s that represent
+#' neural network layers in a [`Graph`][mlr3pipelines::Graph].
 #' During **training**, it generates a [`PipeOpModule`] that wraps an [`nn_module`][torch::nn_module] and attaches it
 #' to the architecture, which is also represented as a [`Graph`] consisting mostly of [`PipeOpModule`]s
-#' an [`PipeOpNOP`]s.
+#' an [`PipeOpNOP`][mlr3pipelines::PipeOpNOP]s.
 #'
-#' While the former [`Graph`] operates on [`ModelDescriptor`]s, the latter operates on [tensors][torch_tensor].
+#' While the former [`Graph`][mlr3pipelines::Graph] operates on [`ModelDescriptor`]s, the latter operates on [tensors][torch_tensor].
 #'
 #' The relationship between a `PipeOpTorch` and a [`PipeOpModule`] is similar to the
 #' relationshop between a `nn_module_generator` (like [`nn_linear`][torch::nn_linear]) and a
@@ -18,7 +19,7 @@
 #' [`ModelDescriptor`].
 #'
 #' During **prediction**, `PipeOpTorch` takes in a [`Task`][mlr3::Task] in each channel and outputs the same new
-#' [`Task`][mlr3::Task] resulting from their [feature union][PipeOpFeatureUnion] in each channel.
+#' [`Task`][mlr3::Task] resulting from their [feature union][mlr3pipelines::PipeOpFeatureUnion] in each channel.
 #' If there is only one input and output channel, the task is simply piped through.
 #'
 #' @section Inheriting:
@@ -32,9 +33,9 @@
 #'   If left as is, it calls the provided `module_generator` with the arguments obtained by
 #'   the private method `.shape_dependent_params()`.
 #' * `.shapes_out(shapes_in, param_vals, task)`\cr
-#'   (`list()`, `list()`, `Task` or `NULL`) -> named `list()`\cr
+#'   (`list()`, `list()`, [`Task`][mlr3::Task] or `NULL`) -> named `list()`\cr
 #'   This private method gets a list of `numeric` vectors (`shapes_in`), the parameter values (`param_vals`),
-#'   as well as an (optional) [`Task`].
+#'   as well as an (optional) [`Task`][mlr3::Task].
 #    The `shapes_in` list indicates the shape of input tensors that will be fed to the module's `$forward()` function.
 #    The list has one item per input tensor, typically only one.
 #    The function should return a list of shapes of tensors that are created by the module.
@@ -51,13 +52,13 @@
 #'
 #' @section Input and Output Channels:
 #' During *training*, all inputs and outputs are of class [`ModelDescriptor`].
-#' During *prediction*, all input and output channels are of class [`Task`].
+#' During *prediction*, all input and output channels are of class [`Task`][mlr3::Task].
 #'
 #' @template pipeop_torch_state_default
 #'
 #' @section Parameters:
 #' The [`ParamSet`][paradox::ParamSet] is specified by the child class inheriting from [`PipeOpTorch`].
-#' Usually the parameters are the arguments of the wrapped [`nn_module`] minus the auxiliary parameter that can
+#' Usually the parameters are the arguments of the wrapped [`nn_module`][torch::nn_module] minus the auxiliary parameter that can
 #' be automatically inferred from the shapes of the input tensors.
 #'
 #' @section Internals:
@@ -277,7 +278,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
     #'  Calculates the output shapes for the given input shapes, parameters and task.
     #' @param shapes_in (`list()` of `integer()`)\cr
     #'   The input input shapes, which must be in the same order as the input channel names of the `PipeOp`.
-    #' @param task ([`Task`] or `NULL`)\cr
+    #' @param task ([`Task`][mlr3::Task] or `NULL`)\cr
     #'  The task, which is very rarely used (default is `NULL`). An exception is [`PipeOpTorchHead`].
     #' @return
     #'  A named `list()` containing the output shapes. The names are the names of the output channels of

@@ -45,7 +45,7 @@ Only available for dimension greater than 1.
 
 \section{Internals}{
 
-Calls \code{\link[=nn_avg_pool1d]{nn_avg_pool1d()}} during training.
+Calls \code{\link[torch:nn_avg_pool1d]{nn_avg_pool1d()}} during training.
 }
 
 \examples{

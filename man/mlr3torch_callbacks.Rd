@@ -13,7 +13,8 @@ mlr3torch_callbacks
 \description{
 A \code{\link[mlr3misc:Dictionary]{mlr3misc::Dictionary}} of torch callbacks.
 Use \code{\link[=t_clbk]{t_clbk()}} to conveniently retrieve callbacks.
-Can be converted to a \code{\link{data.table}} using \code{as.data.table}.
+Can be converted to a \code{\link[data.table:data.table]{data.table}} using
+\code{\link[data.table:as.data.table]{as.data.table}}.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}

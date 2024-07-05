@@ -10,7 +10,7 @@ The features can either be a single \code{\link{lazy_tensor}} or one or more num
 }
 \section{Dictionary}{
 
-This \link{Learner} can be instantiated using the sugar function \code{\link[=lrn]{lrn()}}:
+This \link{Learner} can be instantiated using the sugar function \code{\link[mlr3:mlr_sugar]{lrn()}}:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{lrn("classif.mlp", ...)
 lrn("regr.mlp", ...)
@@ -36,7 +36,7 @@ lrn("regr.mlp", ...)
 Parameters from \code{\link{LearnerTorch}}, as well as:
 \itemize{
 \item \code{activation} :: \verb{[nn_module]}\cr
-The activation function. Is initialized to \code{\link{nn_relu}}.
+The activation function. Is initialized to \code{\link[torch:nn_relu]{nn_relu}}.
 \item \code{activation_args} :: named \code{list()}\cr
 A named list with initialization arguments for the activation function.
 This is intialized to an empty list.

@@ -26,13 +26,13 @@ Other Callback:
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{learner}}{(\code{\link{Learner}})\cr
+\item{\code{learner}}{(\code{\link[mlr3:Learner]{Learner}})\cr
 The torch learner.}
 
-\item{\code{task_train}}{(\code{\link{Task}})\cr
+\item{\code{task_train}}{(\code{\link[mlr3:Task]{Task}})\cr
 The training task.}
 
-\item{\code{task_valid}}{(\code{\link{Task}} or \code{NULL})\cr
+\item{\code{task_valid}}{(\code{\link[mlr3:Task]{Task}} or \code{NULL})\cr
 The validation task.}
 
 \item{\code{loader_train}}{(\code{\link[torch:dataloader]{torch::dataloader}})\cr
@@ -41,10 +41,10 @@ The data loader for training.}
 \item{\code{loader_valid}}{(\code{\link[torch:dataloader]{torch::dataloader}})\cr
 The data loader for validation.}
 
-\item{\code{measures_train}}{(\code{list()} of \code{\link{Measure}}s or \code{NULL})\cr
+\item{\code{measures_train}}{(\code{list()} of \code{\link[mlr3:Measure]{Measure}}s)\cr
 Measures used for training.}
 
-\item{\code{measures_valid}}{(\code{list()} of \code{\link{Measure}}s or \code{NULL})\cr
+\item{\code{measures_valid}}{(\code{list()} of \code{\link[mlr3:Measure]{Measure}}s)\cr
 Measures used for validation.}
 
 \item{\code{network}}{(\code{\link[torch:nn_module]{torch::nn_module}})\cr
@@ -119,13 +119,13 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{learner}}{(\code{\link{Learner}})\cr
+\item{\code{learner}}{(\code{\link[mlr3:Learner]{Learner}})\cr
 The torch learner.}
 
-\item{\code{task_train}}{(\code{\link{Task}})\cr
+\item{\code{task_train}}{(\code{\link[mlr3:Task]{Task}})\cr
 The training task.}
 
-\item{\code{task_valid}}{(\code{\link{Task}} or \code{NULL})\cr
+\item{\code{task_valid}}{(\code{\link[mlr3:Task]{Task}} or \code{NULL})\cr
 The validation task.}
 
 \item{\code{loader_train}}{(\code{\link[torch:dataloader]{torch::dataloader}})\cr
@@ -134,10 +134,10 @@ The data loader for training.}
 \item{\code{loader_valid}}{(\code{\link[torch:dataloader]{torch::dataloader}} or \code{NULL})\cr
 The data loader for validation.}
 
-\item{\code{measures_train}}{(\code{list()} of \code{\link{Measure}}s or \code{NULL})\cr
+\item{\code{measures_train}}{(\code{list()} of \code{\link[mlr3:Measure]{Measure}}s or \code{NULL})\cr
 Measures used for training. Default is \code{NULL}.}
 
-\item{\code{measures_valid}}{(\code{list()} of \code{\link{Measure}}s or \code{NULL})\cr
+\item{\code{measures_valid}}{(\code{list()} of \code{\link[mlr3:Measure]{Measure}}s or \code{NULL})\cr
 Measures used for validation.}
 
 \item{\code{network}}{(\code{\link[torch:nn_module]{torch::nn_module}})\cr

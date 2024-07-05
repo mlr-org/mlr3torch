@@ -116,7 +116,7 @@ Other PipeOps:
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
-\item{\code{block}}{(\code{\link{Graph}})\cr
+\item{\code{block}}{(\code{\link[mlr3pipelines:Graph]{Graph}})\cr
 The neural network segment that is repeated by this \code{PipeOp}.}
 }
 \if{html}{\out{</div>}}
@@ -151,7 +151,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{block}}{(\code{\link{Graph}})\cr
+\item{\code{block}}{(\code{\link[mlr3pipelines:Graph]{Graph}})\cr
 A graph consisting primarily of \code{\link{PipeOpTorch}} objects that is to be
 repeated.}
 

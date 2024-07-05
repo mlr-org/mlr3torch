@@ -13,7 +13,8 @@ mlr3torch_losses
 \description{
 Dictionary of torch loss descriptors.
 See \code{\link[=t_loss]{t_loss()}} for conveniently retrieving a loss function.
-Can be converted to a \code{\link{data.table}} using \code{\link[=as.data.table]{as.data.table()}}.
+Can be converted to a \code{\link[data.table:data.table]{data.table}} using
+\code{\link[data.table:as.data.table]{as.data.table}}.
 }
 \section{Available Loss Functions}{
 

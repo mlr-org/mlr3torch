@@ -10,7 +10,7 @@
 #' @details
 #' Materializing a lazy tensor consists of:
 #' 1. Loading the data from the internal dataset of the [`DataDescriptor`].
-#' 2. Processing these batches in the preprocessing [`Graph`]s.
+#' 2. Processing these batches in the preprocessing [`Graph`][mlr3pipelines::Graph]s.
 #' 3. Returning the result of the [`PipeOp`] pointed to by the [`DataDescriptor`] (`pointer`).
 #'
 #' With multiple [`lazy_tensor`] columns we can benefit from caching because:
@@ -130,7 +130,7 @@ get_output = function(input, graph, varying_shapes, rbind, device) {
 #' @details
 #' Materializing a lazy tensor consists of:
 #' 1. Loading the data from the internal dataset of the [`DataDescriptor`].
-#' 2. Processing these batches in the preprocessing [`Graph`]s.
+#' 2. Processing these batches in the preprocessing [`Graph`][mlr3pipelines::Graph]s.
 #' 3. Returning the result of the [`PipeOp`] pointed to by the [`DataDescriptor`] (`pointer`).
 #'
 #' When materializing multiple [`lazy_tensor`] columns, caching can be useful because:

@@ -7,7 +7,7 @@
 #' @param .key (`character(1)`)\cr
 #'   The key of the torch callback.
 #' @param ... (any)\cr
-#'   See description of [`dictionary_sugar_get()`].
+#'   See description of [`dictionary_sugar_get()`][mlr3misc::dictionary_sugar_get].
 #'
 #' @return [`TorchCallback`]
 #'
@@ -131,7 +131,7 @@ as_torch_callbacks.character = function(x, clone = FALSE, ...) { # nolint
 #' @title Torch Callback
 #'
 #' @description
-#' This wraps a [`CallbackSet`] and annotates it with metadata, most importantly a [`ParamSet`].
+#' This wraps a [`CallbackSet`] and annotates it with metadata, most importantly a [`ParamSet`][paradox::ParamSet].
 #' The callback is created for the given parameter values by calling the `$generate()` method.
 #'
 #' This class is usually used to configure the callback of a torch learner, e.g. when constructing
@@ -334,7 +334,8 @@ torch_callback = function(
 #' @description
 #' A [`mlr3misc::Dictionary`] of torch callbacks.
 #' Use [`t_clbk()`] to conveniently retrieve callbacks.
-#' Can be converted to a [`data.table`] using `as.data.table`.
+#' Can be converted to a [`data.table`][data.table::data.table] using
+#' [`as.data.table`][data.table::as.data.table].
 #'
 #' @family Callback
 #' @family Dictionary

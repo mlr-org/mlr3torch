@@ -13,7 +13,8 @@ mlr3torch_optimizers
 \description{
 Dictionary of torch optimizers.
 Use \code{\link{t_opt}} for conveniently retrieving optimizers.
-Can be converted to a \code{\link{data.table}} using \code{as.data.table}.
+Can be converted to a \code{\link[data.table:data.table]{data.table}} using
+\code{\link[data.table:as.data.table]{as.data.table}}.
 }
 \section{Available Optimizers}{
 

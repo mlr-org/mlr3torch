@@ -7,8 +7,8 @@
 #' For classification, the output of the network must be the scores (before the softmax).
 #'
 #' @template param_task_type
-#' @param network ([`nn_module`])\cr
-#'   An instantiated [`nn_module`]. Is not cloned during construction.
+#' @param network ([`nn_module`][torch::nn_module])\cr
+#'   An instantiated [`nn_module`][torch::nn_module]. Is not cloned during construction.
 #'   For classification, outputs must be the scores (before the softmax).
 #' @param ingress_tokens (`list` of [`TorchIngressToken()`])\cr
 #'   A list with ingress tokens that defines how the dataloader will be defined.

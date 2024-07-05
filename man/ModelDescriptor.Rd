@@ -17,7 +17,7 @@ ModelDescriptor(
 }
 \arguments{
 \item{graph}{(\code{\link[mlr3pipelines:Graph]{Graph}})\cr
-\code{Graph} of \code{\link{PipeOpModule}} and \code{\link{PipeOpNOP}} operators.}
+\code{Graph} of \code{\link{PipeOpModule}} and \code{\link[mlr3pipelines:mlr_pipeops_nop]{PipeOpNOP}} operators.}
 
 \item{ingress}{(uniquely named \code{list} of \code{TorchIngressToken})\cr
 List of inputs that go into \code{graph}. Names of this must be a subset of \code{graph$input$name}.}
@@ -60,7 +60,7 @@ However, these modifications may never add edges with elements of the \code{Grap
 element of \code{graph$input} may be removed by reference, e.g. by adding an edge to the \code{Graph} that has the input
 channel of a \code{PipeOp} that was previously without parent as its destination.
 
-In most cases it is better to create a specific \code{ModelDescriptor} by training a \code{\link{Graph}} consisting (mostly) of
+In most cases it is better to create a specific \code{ModelDescriptor} by training a \code{\link[mlr3pipelines:Graph]{Graph}} consisting (mostly) of
 operators \code{\link{PipeOpTorchIngress}}, \code{\link{PipeOpTorch}}, \code{\link{PipeOpTorchLoss}}, \code{\link{PipeOpTorchOptimizer}}, and
 \code{\link{PipeOpTorchCallbacks}}.
 

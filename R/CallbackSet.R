@@ -132,7 +132,7 @@ CallbackSet = R6Class("CallbackSet",
 #' @param public,private,active (`list()`)\cr
 #'   Additional public, private, and active fields to add to the callback.
 #' @param parent_env (`environment()`)\cr
-#'   The parent environment for the [`R6Class`].
+#'   The parent environment for the [`R6Class`][R6::R6Class].
 #' @param inherit (`R6ClassGenerator`)\cr
 #'   From which class to inherit.
 #'   This class must either be [`CallbackSet`] (default) or inherit from it.
@@ -142,7 +142,7 @@ CallbackSet = R6Class("CallbackSet",
 #' @param load_state_dict (`function(state_dict)`)\cr
 #'   Function that loads a callback state.
 #' @param lock_objects (`logical(1)`)\cr
-#'  Whether to lock the objects of the resulting [`R6Class`].
+#'  Whether to lock the objects of the resulting [`R6Class`][R6::R6Class].
 #'  If `FALSE` (default), values can be freely assigned to `self` without declaring them in the
 #'  class definition.
 #' @family Callback

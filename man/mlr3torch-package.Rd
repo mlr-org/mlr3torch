@@ -4,7 +4,7 @@
 \name{mlr3torch-package}
 \alias{mlr3torch}
 \alias{mlr3torch-package}
-\title{mlr3torch: Deep Learning for 'mlr3'}
+\title{mlr3torch: Deep Learning with 'mlr3'}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 

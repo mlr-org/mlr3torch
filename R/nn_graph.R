@@ -1,7 +1,7 @@
 #' @title Graph Network
 #'
 #' @description
-#' Represents a neural network using a [`Graph`] that usually costains mostly [`PipeOpModule`]s.
+#' Represents a neural network using a [`Graph`][mlr3pipelines::Graph] that usually costains mostly [`PipeOpModule`]s.
 #'
 #' @param graph ([`Graph`][mlr3pipelines::Graph])\cr
 #'   The [`Graph`][mlr3pipelines::Graph] to wrap. Is **not** cloned.
@@ -170,7 +170,7 @@ model_descriptor_to_module = function(model_descriptor, output_pointers = NULL, 
 #'
 #' @param model_descriptor ([`ModelDescriptor`])\cr
 #'   The model descriptor.
-#' @return [`Learner`]
+#' @return [`Learner`][mlr3::Learner]
 #' @family Graph Network
 #' @export
 model_descriptor_to_learner = function(model_descriptor) {

@@ -109,7 +109,7 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
 #'
 #' @description
 #' This function creates an S3 class of class `"TorchIngressToken"`, which is an internal data structure.
-#' It contains the (meta-)information of how a batch is generated from a [`Task`] and fed into an entry point
+#' It contains the (meta-)information of how a batch is generated from a [`Task`][mlr3::Task] and fed into an entry point
 #' of the neural network. It is stored as the `ingress` field in a [`ModelDescriptor`].
 #'
 #' @param features (`character`)\cr

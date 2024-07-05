@@ -25,7 +25,7 @@ It creates the union of multiple \code{\link{ModelDescriptor}}s:
 reference.
 \item \code{PipeOp}s with the same ID must be identical. No new input edges may be added to \code{PipeOp}s.
 \item Drops \code{pointer} / \code{pointer_shape} entries.
-\item The new task is the \link[=PipeOpFeatureUnion]{feature union} of the two incoming tasks.
+\item The new task is the \link[mlr3pipelines:mlr_pipeops_featureunion]{feature union} of the two incoming tasks.
 \item The \code{optimizer} and \code{loss} of both \code{\link{ModelDescriptor}}s must be identical.
 \item Ingress tokens and callbacks are merged, where objects with the same \code{"id"} must be identical.
 }

@@ -5,7 +5,7 @@
 \alias{PipeOpPreprocTorchAugmentResizedCrop}
 \title{PipeOpPreprocTorchAugmentResizedCrop}
 \format{
-\code{\link{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
+\code{\link[R6:R6Class]{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
 }
 \description{
 Calls \code{\link[torchvision:transform_resized_crop]{torchvision::transform_resized_crop}},

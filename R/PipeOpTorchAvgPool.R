@@ -84,7 +84,7 @@ avg_output_shape = function(shape_in, conv_dim, padding, stride, kernel_size, ce
 #'   Only available for dimension greater than 1.
 #'
 #' @section Internals:
-#' Calls [`nn_avg_pool1d()`] during training.
+#' Calls [`nn_avg_pool1d()`][torch::nn_avg_pool1d] during training.
 #' @export
 PipeOpTorchAvgPool1D = R6Class("PipeOpTorchAvgPool1D", inherit = PipeOpTorchAvgPool,
   public = list(
@@ -109,7 +109,7 @@ PipeOpTorchAvgPool1D = R6Class("PipeOpTorchAvgPool1D", inherit = PipeOpTorchAvgP
 #' @inheritSection mlr_pipeops_nn_avg_pool1d Parameters
 #'
 #' @section Internals:
-#' Calls [`nn_avg_pool2d()`] during training.
+#' Calls [`nn_avg_pool2d()`][torch::nn_avg_pool2d] during training.
 #' @export
 PipeOpTorchAvgPool2D = R6Class("PipeOpTorchAvgPool2D", inherit = PipeOpTorchAvgPool,
   public = list(
@@ -133,7 +133,7 @@ PipeOpTorchAvgPool2D = R6Class("PipeOpTorchAvgPool2D", inherit = PipeOpTorchAvgP
 #' @inheritSection mlr_pipeops_nn_avg_pool1d Parameters
 #'
 #' @section Internals:
-#' Calls [`nn_avg_pool3d()`] during training.
+#' Calls [`nn_avg_pool3d()`][torch::nn_avg_pool3d] during training.
 #' @export
 PipeOpTorchAvgPool3D = R6Class("PipeOpTorchAvgPool3D", inherit = PipeOpTorchAvgPool,
   public = list(

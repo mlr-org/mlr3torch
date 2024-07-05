@@ -38,13 +38,13 @@
 #' @template param_feature_types
 #' @template param_man
 #' @template param_label
-#' @param param_set ([`ParamSet`] or `alist()`)\cr
+#' @param param_set ([`ParamSet`][paradox::ParamSet] or `alist()`)\cr
 #'   Either a parameter set, or an `alist()` containing different values of self,
-#'   e.g. `alist(private$.param_set1, private$.param_set2)`, from which a [`ParamSet`] collection
+#'   e.g. `alist(private$.param_set1, private$.param_set2)`, from which a [`ParamSet`][paradox::ParamSet] collection
 #'   should be created.
 #' @param predict_types (`character()`)\cr
 #'   The predict types.
-#'   See [`mlr_reflections$learner_predict_types`][mlr_reflections] for available values.
+#'   See [`mlr_reflections$learner_predict_types`][mlr3::mlr_reflections] for available values.
 #'   For regression, the default is `"response"`.
 #'   For classification, this defaults to `"response"` and `"prob"`.
 #'   To deviate from the defaults, it is necessary to overwrite the private `$.encode_prediction()`
@@ -79,30 +79,30 @@
 #' When inheriting from this class, one should overload two private methods:
 #'
 #' * `.network(task, param_vals)`\cr
-#'   ([`Task`], `list()`) -> [`nn_module`]\cr
+#'   ([`Task`][mlr3::Task], `list()`) -> [`nn_module`][torch::nn_module]\cr
 #'   Construct a [`torch::nn_module`] object for the given task and parameter values, i.e. the neural network that
 #'   is trained by the learner.
 #'   For classification, the output of this network are expected to be the scores before the application of the
 #'   final softmax layer.
 #' * `.dataset(task, param_vals)`\cr
-#'   ([`Task`], `list()`) -> [`torch::dataset`]\cr
+#'   ([`Task`][mlr3::Task], `list()`) -> [`torch::dataset`]\cr
 #'   Create the dataset for the task.
 #'   Must respect the parameter value of the device.
 #'   Moreover, one needs to pay attention respect the row ids of the provided task.
 #'
 #' It is also possible to overwrite the private `.dataloader()` method instead of the `.dataset()` method.
 #' Per default, a dataloader is constructed using the output from the `.dataset()` method.
-#' However, this should respect the dataloader parameters from the [`ParamSet`].
+#' However, this should respect the dataloader parameters from the [`ParamSet`][paradox::ParamSet].
 #'
 #' * `.dataloader(task, param_vals)`\cr
-#'   ([`Task`], `list()`) -> [`torch::dataloader`]\cr
+#'   ([`Task`][mlr3::Task], `list()`) -> [`torch::dataloader`]\cr
 #'   Create a dataloader from the task.
 #'   Needs to respect at least `batch_size` and `shuffle` (otherwise predictions can be permuted).
 #'
 #' To change the predict types, the private `.encode_prediction()` method can be overwritten:
 #'
 #' * `.encode_prediction(predict_tensor, task, param_vals)`\cr
-#'   ([`torch_tensor`], [`Task`], `list()`) -> `list()`\cr
+#'   ([`torch_tensor`], [`Task`][mlr3::Task], `list()`) -> `list()`\cr
 #'   Take in the raw predictions from `self$network` (`predict_tensor`) and encode them into a
 #'   format that can be converted to valid `mlr3` predictions using [`mlr3::as_prediction_data()`].
 #'   This method must take `self$predict_type` into account.
@@ -335,7 +335,7 @@ LearnerTorch = R6Class("LearnerTorch",
       assert_ro_binding(rhs)
       self$state$model$network
     },
-    #' @field param_set ([`ParamSet`])\cr
+    #' @field param_set ([`ParamSet`][paradox::ParamSet])\cr
     #'   The parameter set
     param_set = function(rhs) {
       if (is.null(private$.param_set)) {

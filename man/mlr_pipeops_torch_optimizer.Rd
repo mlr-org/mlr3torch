@@ -11,7 +11,7 @@ Configures the optimizer of a deep learning model.
 
 There is one input channel \code{"input"} and one output channel \code{"output"}.
 During \emph{training}, the channels are of class \code{\link{ModelDescriptor}}.
-During \emph{prediction}, the channels are of class \code{\link{Task}}.
+During \emph{prediction}, the channels are of class \code{\link[mlr3:Task]{Task}}.
 }
 
 \section{State}{

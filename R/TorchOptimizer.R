@@ -138,7 +138,8 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
 #' @description
 #' Dictionary of torch optimizers.
 #' Use [`t_opt`] for conveniently retrieving optimizers.
-#' Can be converted to a [`data.table`] using `as.data.table`.
+#' Can be converted to a [`data.table`][data.table::data.table] using
+#' [`as.data.table`][data.table::as.data.table].
 #'
 #' @section Available Optimizers:
 #' `r paste0(mlr3torch_optimizers$keys(), collapse = ", ")`
@@ -177,7 +178,7 @@ as.data.table.DictionaryMlr3torchOptimizers = function(x, ...) {
 #' @param .key (`character(1)`)\cr
 #'   Key of the object to retrieve.
 #' @param ... (any)\cr
-#'   See description of [`dictionary_sugar_get`].
+#'   See description of [`dictionary_sugar_get`][mlr3misc::dictionary_sugar_get].
 #' @return A [`TorchOptimizer`]
 #' @export
 #' @family Torch Descriptor
