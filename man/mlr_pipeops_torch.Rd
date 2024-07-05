@@ -8,7 +8,7 @@
 \code{PipeOpTorch} is the base class for all \code{\link[mlr3pipelines:PipeOp]{PipeOp}}s that represent
 neural network layers in a \code{\link[mlr3pipelines:Graph]{Graph}}.
 During \strong{training}, it generates a \code{\link{PipeOpModule}} that wraps an \code{\link[torch:nn_module]{nn_module}} and attaches it
-to the architecture, which is also represented as a \code{\link{Graph}} consisting mostly of \code{\link{PipeOpModule}}s
+to the architecture, which is also represented as a \code{\link[=mlr3pipelines]{Graph}} consisting mostly of \code{\link{PipeOpModule}}s
 an \code{\link[mlr3pipelines:mlr_pipeops_nop]{PipeOpNOP}}s.
 
 While the former \code{\link[mlr3pipelines:Graph]{Graph}} operates on \code{\link{ModelDescriptor}}s, the latter operates on \link[=torch_tensor]{tensors}.
@@ -90,7 +90,7 @@ architecture. It is structurally similar to the subgraph that consists of all pi
 
 For the output, a shallow copy of the \code{\link{ModelDescriptor}} is created and the \code{pointer} and
 \code{pointer_shape} are updated accordingly. The shallow copy means that all \code{\link{ModelDescriptor}}s point to the same
-\code{\link{Graph}} which allows the graph to be modified by-reference in different parts of the code.
+\code{\link[mlr3pipelines:Graph]{Graph}} which allows the graph to be modified by-reference in different parts of the code.
 }
 
 \examples{
@@ -314,7 +314,7 @@ List of hyperparameter settings, overwriting the hyperparameter settings that wo
 otherwise be set during construction.}
 
 \item{\code{inname}}{(\code{character()})\cr
-The names of the \code{\link{PipeOp}}'s input channels. These will be the input channels of the generated \code{\link{PipeOpModule}}.
+The names of the \code{\link[mlr3pipelines:PipeOp]{PipeOp}}'s input channels. These will be the input channels of the generated \code{\link{PipeOpModule}}.
 Unless the wrapped \code{module_generator}'s forward method (if present) has the argument \code{...}, \code{inname} must be
 identical to those argument names in order to avoid any ambiguity.\cr
 If the forward method has the argument \code{...}, the order of the input channels determines how the tensors
@@ -326,14 +326,14 @@ If left as \code{NULL} (default), the argument \code{module_generator} must be g
 The names of the output channels channels. These will be the ouput channels of the generated \code{\link{PipeOpModule}}
 and therefore also the names of the list returned by its \verb{$train()}.
 In case there is more than one output channel, the \code{nn_module} that is constructed by this
-\code{\link{PipeOp}} during training must return a named \code{list()}, where the names of the list are the
+\code{\link[mlr3pipelines:PipeOp]{PipeOp}} during training must return a named \code{list()}, where the names of the list are the
 names out the output channels. The default is \code{"output"}.}
 
 \item{\code{packages}}{(\code{character()})\cr
 The R packages this object depends on.}
 
 \item{\code{tags}}{(\code{character()})\cr
-The tags of the \code{\link{PipeOp}}. The tags \code{"torch"} is always added.}
+The tags of the \code{\link[mlr3pipelines:PipeOp]{PipeOp}}. The tags \code{"torch"} is always added.}
 }
 \if{html}{\out{</div>}}
 }

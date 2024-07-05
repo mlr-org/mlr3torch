@@ -3,7 +3,7 @@
 #' @name mlr_learners_torch_model
 #'
 #' @description
-#' Create a torch learner from an instantiated [`nn_module()`].
+#' Create a torch learner from an instantiated [`nn_module()`][torch::nn_module].
 #' For classification, the output of the network must be the scores (before the softmax).
 #'
 #' @template param_task_type

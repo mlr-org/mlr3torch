@@ -102,7 +102,7 @@
 #' To change the predict types, the private `.encode_prediction()` method can be overwritten:
 #'
 #' * `.encode_prediction(predict_tensor, task, param_vals)`\cr
-#'   ([`torch_tensor`], [`Task`][mlr3::Task], `list()`) -> `list()`\cr
+#'   ([`torch_tensor`][torch::torch_tensor], [`Task`][mlr3::Task], `list()`) -> `list()`\cr
 #'   Take in the raw predictions from `self$network` (`predict_tensor`) and encode them into a
 #'   format that can be converted to valid `mlr3` predictions using [`mlr3::as_prediction_data()`].
 #'   This method must take `self$predict_type` into account.

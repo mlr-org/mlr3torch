@@ -177,7 +177,7 @@ Needs to respect at least \code{batch_size} and \code{shuffle} (otherwise predic
 To change the predict types, the private \code{.encode_prediction()} method can be overwritten:
 \itemize{
 \item \code{.encode_prediction(predict_tensor, task, param_vals)}\cr
-(\code{\link{torch_tensor}}, \code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{list()}\cr
+(\code{\link[torch:torch_tensor]{torch_tensor}}, \code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{list()}\cr
 Take in the raw predictions from \code{self$network} (\code{predict_tensor}) and encode them into a
 format that can be converted to valid \code{mlr3} predictions using \code{\link[mlr3:as_prediction_data]{mlr3::as_prediction_data()}}.
 This method must take \code{self$predict_type} into account.

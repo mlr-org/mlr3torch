@@ -41,7 +41,7 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #' @title Torch Optimizer
 #'
 #' @description
-#' This wraps a `torch::torch_optimizer_generator`a and annotates it with metadata, most importantly a [`ParamSet`].
+#' This wraps a `torch::torch_optimizer_generator`a and annotates it with metadata, most importantly a [`ParamSet`][paradox::ParamSet].
 #' The optimizer is created for the given parameter values by calling the `$generate()` method.
 #'
 #' This class is usually used to configure the optimizer of a torch learner, e.g.
@@ -120,7 +120,7 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
     },
     #' @description
     #' Instantiates the optimizer.
-    #' @param params (named `list()` of [`torch_tensor`]s)\cr
+    #' @param params (named `list()` of [`torch_tensor`][torch::torch_tensor]s)\cr
     #'   The parameters of the network.
     #' @return `torch_optimizer`
     generate = function(params) {

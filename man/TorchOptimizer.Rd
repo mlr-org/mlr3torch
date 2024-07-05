@@ -4,7 +4,7 @@
 \alias{TorchOptimizer}
 \title{Torch Optimizer}
 \description{
-This wraps a \code{torch::torch_optimizer_generator}a and annotates it with metadata, most importantly a \code{\link{ParamSet}}.
+This wraps a \code{torch::torch_optimizer_generator}a and annotates it with metadata, most importantly a \code{\link[paradox:ParamSet]{ParamSet}}.
 The optimizer is created for the given parameter values by calling the \verb{$generate()} method.
 
 This class is usually used to configure the optimizer of a torch learner, e.g.
@@ -138,7 +138,7 @@ Instantiates the optimizer.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{params}}{(named \code{list()} of \code{\link{torch_tensor}}s)\cr
+\item{\code{params}}{(named \code{list()} of \code{\link[torch:torch_tensor]{torch_tensor}}s)\cr
 The parameters of the network.}
 }
 \if{html}{\out{</div>}}

@@ -10,7 +10,7 @@ The features can either be a single \code{\link{lazy_tensor}} or one or more num
 }
 \section{Dictionary}{
 
-This \link{Learner} can be instantiated using the sugar function \code{\link[mlr3:mlr_sugar]{lrn()}}:
+This \link[mlr3:Learner]{Learner} can be instantiated using the sugar function \code{\link[mlr3:mlr_sugar]{lrn()}}:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{lrn("classif.mlp", ...)
 lrn("regr.mlp", ...)

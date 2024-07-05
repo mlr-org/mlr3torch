@@ -5,7 +5,7 @@
 \alias{LearnerTorchModel}
 \title{Learner Torch Model}
 \description{
-Create a torch learner from an instantiated \code{\link[=nn_module]{nn_module()}}.
+Create a torch learner from an instantiated \code{\link[torch:nn_module]{nn_module()}}.
 For classification, the output of the network must be the scores (before the softmax).
 }
 \section{Parameters}{

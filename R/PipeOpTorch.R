@@ -6,7 +6,7 @@
 #' `PipeOpTorch` is the base class for all [`PipeOp`][mlr3pipelines::PipeOp]s that represent
 #' neural network layers in a [`Graph`][mlr3pipelines::Graph].
 #' During **training**, it generates a [`PipeOpModule`] that wraps an [`nn_module`][torch::nn_module] and attaches it
-#' to the architecture, which is also represented as a [`Graph`] consisting mostly of [`PipeOpModule`]s
+#' to the architecture, which is also represented as a [`Graph`][mlr3pipelines] consisting mostly of [`PipeOpModule`]s
 #' an [`PipeOpNOP`][mlr3pipelines::PipeOpNOP]s.
 #'
 #' While the former [`Graph`][mlr3pipelines::Graph] operates on [`ModelDescriptor`]s, the latter operates on [tensors][torch_tensor].
@@ -80,7 +80,7 @@
 #'
 #' For the output, a shallow copy of the [`ModelDescriptor`] is created and the `pointer` and
 #' `pointer_shape` are updated accordingly. The shallow copy means that all [`ModelDescriptor`]s point to the same
-#' [`Graph`] which allows the graph to be modified by-reference in different parts of the code.
+#' [`Graph`][mlr3pipelines::Graph] which allows the graph to be modified by-reference in different parts of the code.
 #' @export
 #' @family Graph Network
 #' @examplesIf torch::torch_is_installed()
@@ -236,9 +236,9 @@ PipeOpTorch = R6Class("PipeOpTorch",
     #' @template param_param_set
     #' @template param_packages
     #' @param tags (`character()`)\cr
-    #'   The tags of the [`PipeOp`]. The tags `"torch"` is always added.
+    #'   The tags of the [`PipeOp`][mlr3pipelines::PipeOp]. The tags `"torch"` is always added.
     #' @param inname (`character()`)\cr
-    #'   The names of the [`PipeOp`]'s input channels. These will be the input channels of the generated [`PipeOpModule`].
+    #'   The names of the [`PipeOp`][mlr3pipelines::PipeOp]'s input channels. These will be the input channels of the generated [`PipeOpModule`].
     #'   Unless the wrapped `module_generator`'s forward method (if present) has the argument `...`, `inname` must be
     #'   identical to those argument names in order to avoid any ambiguity.\cr
     #'   If the forward method has the argument `...`, the order of the input channels determines how the tensors
@@ -249,7 +249,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
     #'   The names of the output channels channels. These will be the ouput channels of the generated [`PipeOpModule`]
     #'   and therefore also the names of the list returned by its `$train()`.
     #'   In case there is more than one output channel, the `nn_module` that is constructed by this
-    #'   [`PipeOp`] during training must return a named `list()`, where the names of the list are the
+    #'   [`PipeOp`][mlr3pipelines::PipeOp] during training must return a named `list()`, where the names of the list are the
     #'   names out the output channels. The default is `"output"`.
     initialize = function(id, module_generator, param_set = ps(), param_vals = list(),
       inname = "input", outname = "output", packages = "torch", tags = NULL) {

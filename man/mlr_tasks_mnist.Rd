@@ -23,7 +23,7 @@ The first 60000 rows belong to the training set, the last 10000 rows to the test
 
 \section{Download}{
 
-The \link[=Task]{task}'s backend is a \code{\link{DataBackendLazy}} which will download the data once it is requested.
+The \link[mlr3:Task]{task}'s backend is a \code{\link{DataBackendLazy}} which will download the data once it is requested.
 Other meta-data is already available before that.
 You can cache these datasets by setting the \code{mlr3torch.cache} option to \code{TRUE} or to a specific path to be used
 as the cache directory.
