@@ -43,4 +43,4 @@ For this reason it is possible to provide a cache environment.
 The hash key for a) is the hash of the indices and the dataset.
 The hash key for b) is the hash of the indices dataset and preprocessing graph.
 }
-\keyword{interna}
+\keyword{internal}

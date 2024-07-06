@@ -152,7 +152,7 @@ get_output = function(input, graph, varying_shapes, rbind, device) {
 #' @param rbind (`logical(1)`)\cr
 #'   Whtether to rbind the resulting tensors (`TRUE`) or return them as a list of tensors (`FALSE`).
 #' @return [`lazy_tensor()`]
-#' @keywords interna
+#' @keywords internal
 materialize_internal = function(x, device = "cpu", cache = NULL, rbind) {
   if (!length(x)) {
     stopf("Cannot materialize lazy tensor of length 0.")
