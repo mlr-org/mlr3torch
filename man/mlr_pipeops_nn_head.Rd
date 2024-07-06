@@ -9,7 +9,7 @@ Output head for classification and regresssion.
 
 \strong{NOTE}
 Because the method \verb{$shapes_out()} does not have access to the task, it returns \code{c(NA, NA)}.
-When this \code{\link{PipeOp}} is trained however, the model descriptor has the correct output shape.
+When this \code{\link[mlr3pipelines:PipeOp]{PipeOp}} is trained however, the model descriptor has the correct output shape.
 }
 \section{Input and Output Channels}{
 

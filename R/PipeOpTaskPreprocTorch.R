@@ -49,8 +49,8 @@
 #' @section Input and Output Channels:
 #' See [`PipeOpTaskPreproc`][mlr3pipelines::PipeOpTaskPreproc].
 #' @section State:
-#' In addition to state elements from [`PipeOpTaskPreprocSimple`], the state also contains the `$param_vals` that
-#' were set during training.
+#' In addition to state elements from [`PipeOpTaskPreprocSimple`][mlr3pipelines::PipeOpTaskPreprocSimple],
+#' the state also contains the `$param_vals` that were set during training.
 #'
 #' @section Parameters:
 #' In addition to the parameters inherited from [`PipeOpTaskPreproc`][mlr3pipelines::PipeOpTaskPreproc] as well as those specified during construction

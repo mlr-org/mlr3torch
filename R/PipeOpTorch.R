@@ -6,10 +6,10 @@
 #' `PipeOpTorch` is the base class for all [`PipeOp`][mlr3pipelines::PipeOp]s that represent
 #' neural network layers in a [`Graph`][mlr3pipelines::Graph].
 #' During **training**, it generates a [`PipeOpModule`] that wraps an [`nn_module`][torch::nn_module] and attaches it
-#' to the architecture, which is also represented as a [`Graph`][mlr3pipelines] consisting mostly of [`PipeOpModule`]s
+#' to the architecture, which is also represented as a [`Graph`][mlr3pipelines::Graph] consisting mostly of [`PipeOpModule`]s
 #' an [`PipeOpNOP`][mlr3pipelines::PipeOpNOP]s.
 #'
-#' While the former [`Graph`][mlr3pipelines::Graph] operates on [`ModelDescriptor`]s, the latter operates on [tensors][torch_tensor].
+#' While the former [`Graph`][mlr3pipelines::Graph] operates on [`ModelDescriptor`]s, the latter operates on [tensors][torch::torch_tensor].
 #'
 #' The relationship between a `PipeOpTorch` and a [`PipeOpModule`] is similar to the
 #' relationshop between a `nn_module_generator` (like [`nn_linear`][torch::nn_linear]) and a
@@ -68,8 +68,8 @@
 #' The channel names of this [`PipeOpModule`] are identical to the channel names of the generating [`PipeOpTorch`].
 #'
 #' A [model descriptor union][model_descriptor_union] of all incoming [`ModelDescriptor`]s is then created.
-#' Note that this modifies the [`graph`][Graph] of the first [`ModelDescriptor`] **in place** for efficiency.
-#' The [`PipeOpModule`] is added to the [`graph`][Graph] slot of this union and the the edges that connect the
+#' Note that this modifies the [`graph`][mlr3pipelines::Graph] of the first [`ModelDescriptor`] **in place** for efficiency.
+#' The [`PipeOpModule`] is added to the [`graph`][mlr3pipelines::Graph] slot of this union and the the edges that connect the
 #' sending `PipeOpModule`s to the input channel of this `PipeOpModule` are addeded to the graph.
 #' This is possible because every incoming [`ModelDescriptor`] contains the information about the
 #' `id` and the `channel` name of the sending `PipeOp` in the slot `pointer`.
@@ -222,7 +222,6 @@
 #' identical(tasks_out[[1L]], tasks_out[[2L]])
 PipeOpTorch = R6Class("PipeOpTorch",
   inherit = PipeOp,
-  # FIXME: this has no effect because parent class is cloneable, waiting for new R6 release
   cloneable = FALSE,
   public = list(
     #' @field module_generator (`nn_module_generator` or `NULL`)\cr

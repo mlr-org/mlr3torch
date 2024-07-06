@@ -36,8 +36,8 @@ See \code{\link[mlr3pipelines:PipeOpTaskPreproc]{PipeOpTaskPreproc}}.
 
 \section{State}{
 
-In addition to state elements from \code{\link{PipeOpTaskPreprocSimple}}, the state also contains the \verb{$param_vals} that
-were set during training.
+In addition to state elements from \code{\link[mlr3pipelines:PipeOpTaskPreprocSimple]{PipeOpTaskPreprocSimple}},
+the state also contains the \verb{$param_vals} that were set during training.
 }
 
 \section{Parameters}{

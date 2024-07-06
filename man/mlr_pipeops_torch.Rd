@@ -8,10 +8,10 @@
 \code{PipeOpTorch} is the base class for all \code{\link[mlr3pipelines:PipeOp]{PipeOp}}s that represent
 neural network layers in a \code{\link[mlr3pipelines:Graph]{Graph}}.
 During \strong{training}, it generates a \code{\link{PipeOpModule}} that wraps an \code{\link[torch:nn_module]{nn_module}} and attaches it
-to the architecture, which is also represented as a \code{\link[=mlr3pipelines]{Graph}} consisting mostly of \code{\link{PipeOpModule}}s
+to the architecture, which is also represented as a \code{\link[mlr3pipelines:Graph]{Graph}} consisting mostly of \code{\link{PipeOpModule}}s
 an \code{\link[mlr3pipelines:mlr_pipeops_nop]{PipeOpNOP}}s.
 
-While the former \code{\link[mlr3pipelines:Graph]{Graph}} operates on \code{\link{ModelDescriptor}}s, the latter operates on \link[=torch_tensor]{tensors}.
+While the former \code{\link[mlr3pipelines:Graph]{Graph}} operates on \code{\link{ModelDescriptor}}s, the latter operates on \link[torch:torch_tensor]{tensors}.
 
 The relationship between a \code{PipeOpTorch} and a \code{\link{PipeOpModule}} is similar to the
 relationshop between a \code{nn_module_generator} (like \code{\link[torch:nn_linear]{nn_linear}}) and a
@@ -78,8 +78,8 @@ The input shapes are provided by the slot \code{pointer_shape} of the incoming \
 The channel names of this \code{\link{PipeOpModule}} are identical to the channel names of the generating \code{\link{PipeOpTorch}}.
 
 A \link[=model_descriptor_union]{model descriptor union} of all incoming \code{\link{ModelDescriptor}}s is then created.
-Note that this modifies the \code{\link[=Graph]{graph}} of the first \code{\link{ModelDescriptor}} \strong{in place} for efficiency.
-The \code{\link{PipeOpModule}} is added to the \code{\link[=Graph]{graph}} slot of this union and the the edges that connect the
+Note that this modifies the \code{\link[mlr3pipelines:Graph]{graph}} of the first \code{\link{ModelDescriptor}} \strong{in place} for efficiency.
+The \code{\link{PipeOpModule}} is added to the \code{\link[mlr3pipelines:Graph]{graph}} slot of this union and the the edges that connect the
 sending \code{PipeOpModule}s to the input channel of this \code{PipeOpModule} are addeded to the graph.
 This is possible because every incoming \code{\link{ModelDescriptor}} contains the information about the
 \code{id} and the \code{channel} name of the sending \code{PipeOp} in the slot \code{pointer}.

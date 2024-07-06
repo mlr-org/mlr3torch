@@ -11,7 +11,7 @@
 #' Materializing a lazy tensor consists of:
 #' 1. Loading the data from the internal dataset of the [`DataDescriptor`].
 #' 2. Processing these batches in the preprocessing [`Graph`][mlr3pipelines::Graph]s.
-#' 3. Returning the result of the [`PipeOp`] pointed to by the [`DataDescriptor`] (`pointer`).
+#' 3. Returning the result of the [`PipeOp`][mlr3pipelines::PipeOp] pointed to by the [`DataDescriptor`] (`pointer`).
 #'
 #' With multiple [`lazy_tensor`] columns we can benefit from caching because:
 #' a) Output(s) from the dataset might be input to multiple graphs.
@@ -125,13 +125,13 @@ get_output = function(input, graph, varying_shapes, rbind, device) {
 
 #' @title Materialize a Lazy Tensor
 #' @description
-#' Convert a [`lazy_tensor`] to a [`torch_tensor`].
+#' Convert a [`lazy_tensor`] to a [`torch_tensor`][torch::torch_tensor].
 #'
 #' @details
 #' Materializing a lazy tensor consists of:
 #' 1. Loading the data from the internal dataset of the [`DataDescriptor`].
 #' 2. Processing these batches in the preprocessing [`Graph`][mlr3pipelines::Graph]s.
-#' 3. Returning the result of the [`PipeOp`] pointed to by the [`DataDescriptor`] (`pointer`).
+#' 3. Returning the result of the [`PipeOp`][mlr3pipelines::PipeOp] pointed to by the [`DataDescriptor`] (`pointer`).
 #'
 #' When materializing multiple [`lazy_tensor`] columns, caching can be useful because:
 #' a) Output(s) from the dataset might be input to multiple graphs.
@@ -152,7 +152,7 @@ get_output = function(input, graph, varying_shapes, rbind, device) {
 #' @param rbind (`logical(1)`)\cr
 #'   Whtether to rbind the resulting tensors (`TRUE`) or return them as a list of tensors (`FALSE`).
 #' @return [`lazy_tensor()`]
-#' @keywords internal
+#' @keywords interna
 materialize_internal = function(x, device = "cpu", cache = NULL, rbind) {
   if (!length(x)) {
     stopf("Cannot materialize lazy tensor of length 0.")
