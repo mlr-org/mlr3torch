@@ -4,7 +4,7 @@
 #' @usage NULL
 #' @name mlr_pipeops_preproc_torch.<%= id %>
 #' @rdname <%= class(pipeop)[[1L]] %>
-#' @format [`R6Class`] inheriting from [`PipeOpTaskPreprocTorch`].
+#' @format [`R6Class`][R6::R6Class] inheriting from [`PipeOpTaskPreprocTorch`].
 #'
 #' @description
 #' Calls [`<%= paste0("torchvision::", gsub("^(augment|trafo)", "transform", id)) %>`],

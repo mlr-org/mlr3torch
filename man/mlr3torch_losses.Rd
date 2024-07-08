@@ -13,7 +13,8 @@ mlr3torch_losses
 \description{
 Dictionary of torch loss descriptors.
 See \code{\link[=t_loss]{t_loss()}} for conveniently retrieving a loss function.
-Can be converted to a \code{\link{data.table}} using \code{\link[=as.data.table]{as.data.table()}}.
+Can be converted to a \code{\link[data.table:data.table]{data.table}} using
+\code{\link[data.table:as.data.table]{as.data.table}}.
 }
 \section{Available Loss Functions}{
 
@@ -21,11 +22,13 @@ cross_entropy, l1, mse
 }
 
 \examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 mlr3torch_losses$get("mse")
 # is equivalent to
 t_loss("mse")
 # convert to a data.table
 as.data.table(mlr3torch_losses)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other Torch Descriptor: 

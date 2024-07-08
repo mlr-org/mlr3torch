@@ -11,7 +11,7 @@
 #' @templateVar id nn_block
 #' @template pipeop_torch
 #' @export
-#' @examples
+#' @examplesIf torch::torch_is_installed()
 #' block = po("nn_linear") %>>% po("nn_relu")
 #' po_block = po("nn_block", block,
 #' nn_linear.out_features = 10L, n_blocks = 3)
@@ -33,7 +33,7 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #' @template param_id
     #' @template param_param_vals
-    #' @param block ([`Graph`])\cr
+    #' @param block ([`Graph`][mlr3pipelines::Graph])\cr
     #'   A graph consisting primarily of [`PipeOpTorch`] objects that is to be
     #'   repeated.
     initialize = function(block, id = "nn_block", param_vals = list()) {
@@ -53,7 +53,7 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
     }
   ),
   active = list(
-    #' @field block ([`Graph`])\cr
+    #' @field block ([`Graph`][mlr3pipelines::Graph])\cr
     #' The neural network segment that is repeated by this `PipeOp`.
     block = function(rhs) {
       assert_ro_binding(rhs)

@@ -1,7 +1,7 @@
 #' @title Create a Dataset from a Task
 #'
 #' @description
-#' Creates a torch [dataset][torch::dataset] from an mlr3 [`Task`].
+#' Creates a torch [dataset][torch::dataset] from an mlr3 [`Task`][mlr3::Task].
 #' The resulting dataset's `$.get_batch()` method returns a list with elements `x`, `y` and `index`:
 #' * `x` is a list with tensors, whose content is defined by the parameter `feature_ingress_tokens`.
 #' * `y` is the target variable and its content is defined by the parameter `target_batchgetter`.
@@ -9,7 +9,7 @@
 #'
 #' The data is returned on the device specified by the parameter `device`.
 #'
-#' @param task ([`Task`])\cr
+#' @param task ([`Task`][mlr3::Task])\cr
 #'   The task for which to build the [dataset][torch::dataset].
 #' @param feature_ingress_tokens (named `list()` of [`TorchIngressToken`])\cr
 #'   Each ingress token defines one item in the `$x` value of a batch with corresponding names.
@@ -21,7 +21,6 @@
 #' @export
 #' @return [`torch::dataset`]
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' task = tsk("iris")
 #' sepal_ingress = TorchIngressToken(
 #'   features = c("Sepal.Length", "Sepal.Width"),

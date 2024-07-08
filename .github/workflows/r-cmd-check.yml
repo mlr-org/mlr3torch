@@ -29,7 +29,8 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       TORCH_INSTALL: 1
-      INCLUDE_IGNORED: "true"
+      TEST_TORCH: 1
+      INCLUDE_IGNORED: 1
 
     strategy:
       fail-fast: false

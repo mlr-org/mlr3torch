@@ -12,7 +12,7 @@ For regression, this should result in the median for L1 loss and in the mean for
 }
 \section{Dictionary}{
 
-This \link{Learner} can be instantiated using the sugar function \code{\link[=lrn]{lrn()}}:
+This \link[mlr3:Learner]{Learner} can be instantiated using the sugar function \code{\link[mlr3:mlr_sugar]{lrn()}}:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{lrn("classif.torch_featureless", ...)
 lrn("regr.torch_featureless", ...)
@@ -40,7 +40,6 @@ Only those from \code{\link{LearnerTorch}}.
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 # Define the Learner and set parameter values
 learner = lrn("classif.torch_featureless")
 learner$param_set$set_values(
@@ -62,6 +61,7 @@ predictions = learner$predict(task, row_ids = ids$test)
 
 # Score the predictions
 predictions$score()
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other Learner: 

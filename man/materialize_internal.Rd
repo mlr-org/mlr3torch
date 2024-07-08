@@ -24,14 +24,14 @@ Whtether to rbind the resulting tensors (\code{TRUE}) or return them as a list o
 \code{\link[=lazy_tensor]{lazy_tensor()}}
 }
 \description{
-Convert a \code{\link{lazy_tensor}} to a \code{\link{torch_tensor}}.
+Convert a \code{\link{lazy_tensor}} to a \code{\link[torch:torch_tensor]{torch_tensor}}.
 }
 \details{
 Materializing a lazy tensor consists of:
 \enumerate{
 \item Loading the data from the internal dataset of the \code{\link{DataDescriptor}}.
-\item Processing these batches in the preprocessing \code{\link{Graph}}s.
-\item Returning the result of the \code{\link{PipeOp}} pointed to by the \code{\link{DataDescriptor}} (\code{pointer}).
+\item Processing these batches in the preprocessing \code{\link[mlr3pipelines:Graph]{Graph}}s.
+\item Returning the result of the \code{\link[mlr3pipelines:PipeOp]{PipeOp}} pointed to by the \code{\link{DataDescriptor}} (\code{pointer}).
 }
 
 When materializing multiple \code{\link{lazy_tensor}} columns, caching can be useful because:

@@ -15,7 +15,7 @@
 #' Parameters from [`LearnerTorch`], as well as:
 #'
 #' * `activation` :: `[nn_module]`\cr
-#'   The activation function. Is initialized to [`nn_relu`].
+#'   The activation function. Is initialized to [`nn_relu`][torch::nn_relu].
 #' * `activation_args` :: named `list()`\cr
 #'   A named list with initialization arguments for the activation function.
 #'   This is intialized to an empty list.

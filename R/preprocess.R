@@ -46,7 +46,7 @@ unchanged_shapes = function(shapes_in, param_vals, task) {
 #' @name mlr_pipeops_preproc_torch.trafo_nop
 #' @aliases PipeOpPreprocTorchTrafoNop
 #' @rdname PipeOpPreprocTorchTrafoNop
-#' @format [`R6Class`] inheriting from [`PipeOpTaskPreprocTorch`].
+#' @format [`R6Class`][R6::R6Class] inheriting from [`PipeOpTaskPreprocTorch`].
 #'
 #' @description
 #' Does nothing.
@@ -57,7 +57,7 @@ register_preproc("trafo_nop", identity, rowwise = FALSE, shapes_out = unchanged_
 #' @name mlr_pipeops_preproc_torch.trafo_reshape
 #' @aliases PipeOpPreprocTorchTrafoReshape
 #' @rdname PipeOpPreprocTorchTrafoReshape
-#' @format [`R6Class`] inheriting from [`PipeOpTaskPreprocTorch`].
+#' @format [`R6Class`][R6::R6Class] inheriting from [`PipeOpTaskPreprocTorch`].
 #' @section Parameters:
 #' * `shape` :: `integer()`\cr
 #'   The desired output shape. The first dimension is the batch dimension and should usually be `-1`.

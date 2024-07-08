@@ -26,7 +26,7 @@ Part of this documentation have been copied or adapted from the documentation of
 
 \section{Internals}{
 
-Calls \code{\link[=nn_avg_pool2d]{nn_avg_pool2d()}} during training.
+Calls \code{\link[torch:nn_avg_pool2d]{nn_avg_pool2d()}} during training.
 }
 
 \section{Parameters}{
@@ -50,12 +50,12 @@ Only available for dimension greater than 1.
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 # Construct the PipeOp
 pipeop = po("nn_avg_pool2d")
 pipeop
 # The available parameters
 pipeop$param_set
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other PipeOps: 

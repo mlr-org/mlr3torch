@@ -3,7 +3,7 @@
 #' @description
 #' Abstract Base Class from which [`TorchLoss`], [`TorchOptimizer`], and [`TorchCallback`] inherit.
 #' This class wraps a generator (R6Class Generator or the torch version of such a generator) and annotates it
-#' with metadata such as a [`ParamSet`], a label, an ID, packages, or a manual page.
+#' with metadata such as a [`ParamSet`][paradox::ParamSet], a label, an ID, packages, or a manual page.
 #'
 #' The parameters are the construction arguments of the wrapped generator and the parameter `$values` are passed
 #' to the generator when calling the public method `$generate()`.

@@ -41,7 +41,7 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #' @title Torch Optimizer
 #'
 #' @description
-#' This wraps a `torch::torch_optimizer_generator`a and annotates it with metadata, most importantly a [`ParamSet`].
+#' This wraps a `torch::torch_optimizer_generator`a and annotates it with metadata, most importantly a [`ParamSet`][paradox::ParamSet].
 #' The optimizer is created for the given parameter values by calling the `$generate()` method.
 #'
 #' This class is usually used to configure the optimizer of a torch learner, e.g.
@@ -58,7 +58,6 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #' @family Torch Descriptor
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' # Create a new torch loss
 #' torch_opt = TorchOptimizer$new(optim_adam, label = "adam")
 #' torch_opt
@@ -121,7 +120,7 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
     },
     #' @description
     #' Instantiates the optimizer.
-    #' @param params (named `list()` of [`torch_tensor`]s)\cr
+    #' @param params (named `list()` of [`torch_tensor`][torch::torch_tensor]s)\cr
     #'   The parameters of the network.
     #' @return `torch_optimizer`
     generate = function(params) {
@@ -139,7 +138,8 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
 #' @description
 #' Dictionary of torch optimizers.
 #' Use [`t_opt`] for conveniently retrieving optimizers.
-#' Can be converted to a [`data.table`] using `as.data.table`.
+#' Can be converted to a [`data.table`][data.table::data.table] using
+#' [`as.data.table`][data.table::as.data.table].
 #'
 #' @section Available Optimizers:
 #' `r paste0(mlr3torch_optimizers$keys(), collapse = ", ")`
@@ -148,7 +148,6 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
 #' @family Dictionary
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' mlr3torch_optimizers$get("adam")
 #' # is equivalent to
 #' t_opt("adam")
@@ -179,12 +178,12 @@ as.data.table.DictionaryMlr3torchOptimizers = function(x, ...) {
 #' @param .key (`character(1)`)\cr
 #'   Key of the object to retrieve.
 #' @param ... (any)\cr
-#'   See description of [`dictionary_sugar_get`].
+#'   See description of [`dictionary_sugar_get`][mlr3misc::dictionary_sugar_get].
 #' @return A [`TorchOptimizer`]
 #' @export
 #' @family Torch Descriptor
 #' @family Dictionary
-#' @examples
+#' @examplesIf torch::torch_is_installed()
 #' t_opt("adam", lr = 0.1)
 #' # get the dictionary
 #' t_opt()
@@ -207,7 +206,7 @@ t_opt.NULL = function(.key, ...) { # nolint
 #' @param .keys (`character()`)\cr
 #'   The keys of the optimizers.
 #' @export
-#' @examples
+#' @examplesIf torch::torch_is_installed()
 #' t_opts(c("adam", "sgd"))
 #' # get the dictionary
 #' t_opts()

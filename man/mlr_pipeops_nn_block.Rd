@@ -33,6 +33,7 @@ Part of this documentation have been copied or adapted from the documentation of
 }
 
 \examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 block = po("nn_linear") \%>>\% po("nn_relu")
 po_block = po("nn_block", block,
 nn_linear.out_features = 10L, n_blocks = 3)
@@ -47,6 +48,7 @@ po("torch_model_classif",
 
 task = tsk("iris")
 network$train(task)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other PipeOps: 
@@ -114,7 +116,7 @@ Other PipeOps:
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
-\item{\code{block}}{(\code{\link{Graph}})\cr
+\item{\code{block}}{(\code{\link[mlr3pipelines:Graph]{Graph}})\cr
 The neural network segment that is repeated by this \code{PipeOp}.}
 }
 \if{html}{\out{</div>}}
@@ -149,7 +151,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{block}}{(\code{\link{Graph}})\cr
+\item{\code{block}}{(\code{\link[mlr3pipelines:Graph]{Graph}})\cr
 A graph consisting primarily of \code{\link{PipeOpTorch}} objects that is to be
 repeated.}
 

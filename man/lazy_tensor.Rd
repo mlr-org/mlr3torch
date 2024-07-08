@@ -18,7 +18,6 @@ Create a lazy tensor.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 ds = dataset("example",
   initialize = function() self$iris = iris[, -5],
   .getitem = function(i) list(x = torch_tensor(as.numeric(self$iris[i, ]))),
@@ -26,4 +25,5 @@ ds = dataset("example",
 )()
 dd = as_data_descriptor(ds, list(x = c(NA, 4L)))
 lt = as_lazy_tensor(dd)
+\dontshow{\}) # examplesIf}
 }

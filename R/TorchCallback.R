@@ -7,14 +7,14 @@
 #' @param .key (`character(1)`)\cr
 #'   The key of the torch callback.
 #' @param ... (any)\cr
-#'   See description of [`dictionary_sugar_get()`].
+#'   See description of [`dictionary_sugar_get()`][mlr3misc::dictionary_sugar_get].
 #'
 #' @return [`TorchCallback`]
 #'
 #' @export
 #' @family Callback
 #' @family Torch Descriptor
-#' @examples
+#' @examplesIf torch::torch_is_installed()
 #' t_clbk("progress")
 t_clbk = function(.key, ...) {
   UseMethod("t_clbk")
@@ -131,7 +131,7 @@ as_torch_callbacks.character = function(x, clone = FALSE, ...) { # nolint
 #' @title Torch Callback
 #'
 #' @description
-#' This wraps a [`CallbackSet`] and annotates it with metadata, most importantly a [`ParamSet`].
+#' This wraps a [`CallbackSet`] and annotates it with metadata, most importantly a [`ParamSet`][paradox::ParamSet].
 #' The callback is created for the given parameter values by calling the `$generate()` method.
 #'
 #' This class is usually used to configure the callback of a torch learner, e.g. when constructing
@@ -150,7 +150,6 @@ as_torch_callbacks.character = function(x, clone = FALSE, ...) { # nolint
 #'
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' # Create a new torch callback from an existing callback set
 #' torch_callback = TorchCallback$new(CallbackSetCheckpoint)
 #' # The parameters are inferred
@@ -249,7 +248,6 @@ TorchCallback = R6Class("TorchCallback",
 #' @include zzz.R CallbackSet.R
 #' @family Callback
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' custom_tcb = torch_callback("custom",
 #'   initialize = function(name) {
 #'     self$name = name
@@ -336,12 +334,13 @@ torch_callback = function(
 #' @description
 #' A [`mlr3misc::Dictionary`] of torch callbacks.
 #' Use [`t_clbk()`] to conveniently retrieve callbacks.
-#' Can be converted to a [`data.table`] using `as.data.table`.
+#' Can be converted to a [`data.table`][data.table::data.table] using
+#' [`as.data.table`][data.table::as.data.table].
 #'
 #' @family Callback
 #' @family Dictionary
 #' @export
-#' @examples
+#' @examplesIf torch::torch_is_installed()
 #' mlr3torch_callbacks$get("checkpoint")
 #' # is the same as
 #' t_clbk("checkpoint")

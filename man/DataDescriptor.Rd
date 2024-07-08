@@ -19,7 +19,6 @@ If each row contained a DataDescriptor as an S3 class, this would copy the objec
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 # Create a dataset
 ds = dataset(
   initialize = function() self$x = torch_randn(10, 3, 3),
@@ -30,6 +29,7 @@ dd = DataDescriptor$new(ds, list(x = c(NA, 3, 3)))
 dd
 # is the same as using the converter:
 as_data_descriptor(ds, list(x = c(NA, 3, 3)))
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 ModelDescriptor, lazy_tensor
@@ -40,7 +40,7 @@ ModelDescriptor, lazy_tensor
 \item{\code{dataset}}{(\code{\link[torch:dataset]{torch::dataset}})\cr
 The dataset.}
 
-\item{\code{graph}}{(\code{\link{Graph}})\cr
+\item{\code{graph}}{(\code{\link[mlr3pipelines:Graph]{Graph}})\cr
 The preprocessing graph.}
 
 \item{\code{dataset_shapes}}{(named \code{list()} of (\code{integer()} or \code{NULL}))\cr
@@ -108,7 +108,7 @@ Names are the elements of the list returned by the dataset.
 If the shape is not \code{NULL} (unknown, e.g. for images of different sizes) the first dimension must be \code{NA} to
 indicate the batch dimension.}
 
-\item{\code{graph}}{(\code{\link{Graph}})\cr
+\item{\code{graph}}{(\code{\link[mlr3pipelines:Graph]{Graph}})\cr
 The preprocessing graph.
 If left \code{NULL}, no preprocessing is applied to the data and \code{input_map}, \code{pointer}, \code{pointer_shape}, and
 \code{pointer_shape_predict} are inferred in case the dataset returns only one element.}
@@ -126,7 +126,7 @@ Shape of the output indicated by \code{pointer}.}
 
 \item{\code{pointer_shape_predict}}{(\code{integer()} or \code{NULL})\cr
 Internal use only.
-Used in a \code{\link{Graph}} to anticipate possible mismatches between train and predict shapes.}
+Used in a \code{\link[mlr3pipelines:Graph]{Graph}} to anticipate possible mismatches between train and predict shapes.}
 
 \item{\code{clone_graph}}{(\code{logical(1)})\cr
 Whether to clone the preprocessing graph.}

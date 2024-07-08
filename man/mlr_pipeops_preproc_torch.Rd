@@ -31,18 +31,18 @@ Also, the first dimension can be \code{NA}, i.e. is unknown (as for the batch di
 
 \section{Input and Output Channels}{
 
-See \code{\link{PipeOpTaskPreproc}}.
+See \code{\link[mlr3pipelines:PipeOpTaskPreproc]{PipeOpTaskPreproc}}.
 }
 
 \section{State}{
 
-In addition to state elements from \code{\link{PipeOpTaskPreprocSimple}}, the state also contains the \verb{$param_vals} that
-were set during training.
+In addition to state elements from \code{\link[mlr3pipelines:PipeOpTaskPreprocSimple]{PipeOpTaskPreprocSimple}},
+the state also contains the \verb{$param_vals} that were set during training.
 }
 
 \section{Parameters}{
 
-In addition to the parameters inherited from \code{\link{PipeOpTaskPreproc}} as well as those specified during construction
+In addition to the parameters inherited from \code{\link[mlr3pipelines:PipeOpTaskPreproc]{PipeOpTaskPreproc}} as well as those specified during construction
 as the argument \code{param_set} there are the following parameters:
 \itemize{
 \item \code{stages} :: \code{character(1)}\cr
@@ -83,7 +83,6 @@ Otherwise, this mechanism is very similar to the \code{\link{ModelDescriptor}} c
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 # Creating a simple task
 d = data.table(
   x1 = as_lazy_tensor(rnorm(10)),
@@ -169,6 +168,7 @@ po_poly$shapes_out(list(c(NA, 1L)), stage = "train")
 
 taskout = po_poly$train(list(taskin))[[1L]]
 materialize(taskout$data(cols = "x3"), rbind = TRUE)
+\dontshow{\}) # examplesIf}
 }
 \section{Super classes}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3pipelines:PipeOpTaskPreproc]{mlr3pipelines::PipeOpTaskPreproc}} -> \code{PipeOpTaskPreprocTorch}
@@ -233,8 +233,8 @@ The id for of the new object.}
 \item{\code{param_vals}}{(named \code{list()})\cr
 Parameter values to be set after construction.}
 
-\item{\code{param_set}}{(\code{\link{ParamSet}})\cr
-In case the function \code{fn} takes additional parameter besides a \code{\link{torch_tensor}} they can be
+\item{\code{param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}})\cr
+In case the function \code{fn} takes additional parameter besides a \code{\link[torch:torch_tensor]{torch_tensor}} they can be
 specfied as parameters. None of the parameters can have the \code{"predict"} tag.
 All tags should include \code{"train"}.}
 
@@ -277,7 +277,7 @@ First dimension must be \code{NA} (if it is not \code{NULL}).}
 \item{\code{stage}}{(\code{character(1)})\cr
 The stage: either \code{"train"} or \code{"predict"}.}
 
-\item{\code{task}}{(\code{\link{Task}} or \code{NULL})\cr
+\item{\code{task}}{(\code{\link[mlr3:Task]{Task}} or \code{NULL})\cr
 The task, which is very rarely needed.}
 }
 \if{html}{\out{</div>}}

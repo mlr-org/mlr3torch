@@ -25,7 +25,6 @@ The state is set to the input shape.
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 graph = po("select", selector = selector_type(c("numeric", "integer"))) \%>>\%
   po("torch_ingress_num")
 task = tsk("german_credit")
@@ -33,6 +32,7 @@ task = tsk("german_credit")
 md = graph$train(task)[[1L]]
 ingress = md$ingress[[1L]]
 ingress$batchgetter(task$data(1:5, ingress$features), "cpu")
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other Graph Network: 

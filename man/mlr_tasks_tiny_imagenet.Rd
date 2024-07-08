@@ -7,7 +7,7 @@
 Subset of the famous ImageNet dataset.
 The data is obtained from \code{\link[torchvision:tiny_imagenet_dataset]{torchvision::tiny_imagenet_dataset()}}.
 
-The underlying \code{\link{DataBackend}} contains columns \code{"class"}, \code{"image"}, \code{"..row_id"}, \code{"split"}, where the last column
+The underlying \code{\link[mlr3:DataBackend]{DataBackend}} contains columns \code{"class"}, \code{"image"}, \code{"..row_id"}, \code{"split"}, where the last column
 indicates whether the row belongs to the train, validation or test set that defined provided in torchvision.
 
 There are no labels for the test rows, so by default, these observations are inactive, which means that the task
@@ -22,7 +22,7 @@ uses only 110000 of the 120000 observations that are defined in the underlying d
 
 \section{Download}{
 
-The \link[=Task]{task}'s backend is a \code{\link{DataBackendLazy}} which will download the data once it is requested.
+The \link[mlr3:Task]{task}'s backend is a \code{\link{DataBackendLazy}} which will download the data once it is requested.
 Other meta-data is already available before that.
 You can cache these datasets by setting the \code{mlr3torch.cache} option to \code{TRUE} or to a specific path to be used
 as the cache directory.
@@ -41,8 +41,10 @@ as the cache directory.
 }
 
 \examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 task = tsk("tiny_imagenet")
 task
+\dontshow{\}) # examplesIf}
 }
 \references{
 Deng, Jia, Dong, Wei, Socher, Richard, Li, Li-Jia, Li, Kai, Fei-Fei, Li (2009).

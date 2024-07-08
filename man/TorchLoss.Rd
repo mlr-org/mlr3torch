@@ -4,7 +4,7 @@
 \alias{TorchLoss}
 \title{Torch Loss}
 \description{
-This wraps a \code{torch::nn_loss} and annotates it with metadata, most importantly a \code{\link{ParamSet}}.
+This wraps a \code{torch::nn_loss} and annotates it with metadata, most importantly a \code{\link[paradox:ParamSet]{ParamSet}}.
 The loss function is created for the given parameter values by calling the \verb{$generate()} method.
 
 This class is usually used to configure the loss function of a torch learner, e.g.
@@ -21,6 +21,7 @@ for each argument of the wrapped loss function, where the parametes are then of 
 }
 
 \examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Create a new torch loss
 torch_loss = TorchLoss$new(torch_loss = nn_mse_loss, task_types = "regr")
 torch_loss
@@ -49,6 +50,7 @@ nn_mse_loss(reduction = "mean")
 learner = lrn("regr.mlp", loss = t_loss("mse"))
 # The parameters of the loss are added to the learner's parameter set
 learner$param_set
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other Torch Descriptor: 
@@ -118,7 +120,7 @@ The loss module.}
 \item{\code{task_types}}{(\code{character()})\cr
 The task types supported by this loss.}
 
-\item{\code{param_set}}{(\code{\link{ParamSet}} or \code{NULL})\cr
+\item{\code{param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}} or \code{NULL})\cr
 The parameter set. If \code{NULL} (default) it is inferred from \code{torch_loss}.}
 
 \item{\code{id}}{(\code{character(1)})\cr

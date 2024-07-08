@@ -16,14 +16,14 @@
 #' element of `graph$input` may be removed by reference, e.g. by adding an edge to the `Graph` that has the input
 #' channel of a `PipeOp` that was previously without parent as its destination.
 #'
-#' In most cases it is better to create a specific `ModelDescriptor` by training a [`Graph`] consisting (mostly) of
+#' In most cases it is better to create a specific `ModelDescriptor` by training a [`Graph`][mlr3pipelines::Graph] consisting (mostly) of
 #' operators [`PipeOpTorchIngress`], [`PipeOpTorch`], [`PipeOpTorchLoss`], [`PipeOpTorchOptimizer`], and
 #' [`PipeOpTorchCallbacks`].
 #'
 #' A `ModelDescriptor` can be converted to a [`nn_graph`] via [`model_descriptor_to_module`].
 #'
 #' @param graph ([`Graph`][mlr3pipelines::Graph])\cr
-#'   `Graph` of [`PipeOpModule`] and [`PipeOpNOP`] operators.
+#'   `Graph` of [`PipeOpModule`] and [`PipeOpNOP`][mlr3pipelines::PipeOpNOP] operators.
 #' @param ingress (uniquely named `list` of `TorchIngressToken`)\cr
 #'   List of inputs that go into `graph`. Names of this must be a subset of `graph$input$name`.
 #' @param task ([`Task`][mlr3::Task])\cr
@@ -111,7 +111,7 @@ print.ModelDescriptor = function(x, ...) {
 #'    reference.
 #' * `PipeOp`s with the same ID must be identical. No new input edges may be added to `PipeOp`s.
 #' * Drops `pointer` / `pointer_shape` entries.
-#' * The new task is the [feature union][PipeOpFeatureUnion] of the two incoming tasks.
+#' * The new task is the [feature union][mlr3pipelines::PipeOpFeatureUnion] of the two incoming tasks.
 #' * The `optimizer` and `loss` of both [`ModelDescriptor`]s must be identical.
 #' * Ingress tokens and callbacks are merged, where objects with the same `"id"` must be identical.
 #'

@@ -9,7 +9,7 @@ Output head for classification and regresssion.
 
 \strong{NOTE}
 Because the method \verb{$shapes_out()} does not have access to the task, it returns \code{c(NA, NA)}.
-When this \code{\link{PipeOp}} is trained however, the model descriptor has the correct output shape.
+When this \code{\link[mlr3pipelines:PipeOp]{PipeOp}} is trained however, the model descriptor has the correct output shape.
 }
 \section{Input and Output Channels}{
 
@@ -42,12 +42,12 @@ Calls \code{\link[torch:nn_linear]{torch::nn_linear()}} with the input and outpu
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 # Construct the PipeOp
 pipeop = po("nn_head")
 pipeop
 # The available parameters
 pipeop$param_set
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other PipeOps: 

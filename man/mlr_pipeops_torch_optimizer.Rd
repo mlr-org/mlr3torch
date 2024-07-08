@@ -11,7 +11,7 @@ Configures the optimizer of a deep learning model.
 
 There is one input channel \code{"input"} and one output channel \code{"output"}.
 During \emph{training}, the channels are of class \code{\link{ModelDescriptor}}.
-During \emph{prediction}, the channels are of class \code{\link{Task}}.
+During \emph{prediction}, the channels are of class \code{\link[mlr3:Task]{Task}}.
 }
 
 \section{State}{
@@ -33,13 +33,13 @@ pipeop itself.
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 po_opt = po("torch_optimizer", "sgd", lr = 0.01)
 po_opt$param_set
 mdin = po("torch_ingress_num")$train(list(tsk("iris")))
 mdin[[1L]]$optimizer
 mdout = po_opt$train(mdin)
 mdout[[1L]]$optimizer
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other PipeOp: 

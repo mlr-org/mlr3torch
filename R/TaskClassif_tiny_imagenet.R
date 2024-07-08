@@ -6,7 +6,7 @@
 #' Subset of the famous ImageNet dataset.
 #' The data is obtained from [`torchvision::tiny_imagenet_dataset()`].
 #'
-#' The underlying [`DataBackend`] contains columns `"class"`, `"image"`, `"..row_id"`, `"split"`, where the last column
+#' The underlying [`DataBackend`][mlr3::DataBackend] contains columns `"class"`, `"image"`, `"..row_id"`, `"split"`, where the last column
 #' indicates whether the row belongs to the train, validation or test set that defined provided in torchvision.
 #'
 #' There are no labels for the test rows, so by default, these observations are inactive, which means that the task
@@ -24,7 +24,7 @@
 #'
 #' @references
 #' `r format_bib("imagenet2009")`
-#' @examples
+#' @examplesIf torch::torch_is_installed()
 #' task = tsk("tiny_imagenet")
 #' task
 NULL

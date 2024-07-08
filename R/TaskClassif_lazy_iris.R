@@ -22,7 +22,6 @@
 #' @references
 #' `r format_bib("anderson_1936")`
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' task = tsk("lazy_iris")
 #' task
 #' df = task$data()

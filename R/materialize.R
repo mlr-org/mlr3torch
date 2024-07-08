@@ -10,8 +10,8 @@
 #' @details
 #' Materializing a lazy tensor consists of:
 #' 1. Loading the data from the internal dataset of the [`DataDescriptor`].
-#' 2. Processing these batches in the preprocessing [`Graph`]s.
-#' 3. Returning the result of the [`PipeOp`] pointed to by the [`DataDescriptor`] (`pointer`).
+#' 2. Processing these batches in the preprocessing [`Graph`][mlr3pipelines::Graph]s.
+#' 3. Returning the result of the [`PipeOp`][mlr3pipelines::PipeOp] pointed to by the [`DataDescriptor`] (`pointer`).
 #'
 #' With multiple [`lazy_tensor`] columns we can benefit from caching because:
 #' a) Output(s) from the dataset might be input to multiple graphs.
@@ -34,7 +34,6 @@
 #'   Additional arguments.
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' lt1 = as_lazy_tensor(torch_randn(10, 3))
 #' materialize(lt1, rbind = TRUE)
 #' materialize(lt1, rbind = FALSE)
@@ -126,13 +125,13 @@ get_output = function(input, graph, varying_shapes, rbind, device) {
 
 #' @title Materialize a Lazy Tensor
 #' @description
-#' Convert a [`lazy_tensor`] to a [`torch_tensor`].
+#' Convert a [`lazy_tensor`] to a [`torch_tensor`][torch::torch_tensor].
 #'
 #' @details
 #' Materializing a lazy tensor consists of:
 #' 1. Loading the data from the internal dataset of the [`DataDescriptor`].
-#' 2. Processing these batches in the preprocessing [`Graph`]s.
-#' 3. Returning the result of the [`PipeOp`] pointed to by the [`DataDescriptor`] (`pointer`).
+#' 2. Processing these batches in the preprocessing [`Graph`][mlr3pipelines::Graph]s.
+#' 3. Returning the result of the [`PipeOp`][mlr3pipelines::PipeOp] pointed to by the [`DataDescriptor`] (`pointer`).
 #'
 #' When materializing multiple [`lazy_tensor`] columns, caching can be useful because:
 #' a) Output(s) from the dataset might be input to multiple graphs.

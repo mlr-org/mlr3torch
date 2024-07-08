@@ -7,7 +7,7 @@
 task_dataset(task, feature_ingress_tokens, target_batchgetter = NULL, device)
 }
 \arguments{
-\item{task}{(\code{\link{Task}})\cr
+\item{task}{(\code{\link[mlr3:Task]{Task}})\cr
 The task for which to build the \link[torch:dataset]{dataset}.}
 
 \item{feature_ingress_tokens}{(named \code{list()} of \code{\link{TorchIngressToken}})\cr
@@ -24,7 +24,7 @@ The device, e.g. \code{"cuda"} or \code{"cpu"}.}
 \code{\link[torch:dataset]{torch::dataset}}
 }
 \description{
-Creates a torch \link[torch:dataset]{dataset} from an mlr3 \code{\link{Task}}.
+Creates a torch \link[torch:dataset]{dataset} from an mlr3 \code{\link[mlr3:Task]{Task}}.
 The resulting dataset's \verb{$.get_batch()} method returns a list with elements \code{x}, \code{y} and \code{index}:
 \itemize{
 \item \code{x} is a list with tensors, whose content is defined by the parameter \code{feature_ingress_tokens}.
@@ -36,7 +36,6 @@ The data is returned on the device specified by the parameter \code{device}.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 task = tsk("iris")
 sepal_ingress = TorchIngressToken(
   features = c("Sepal.Length", "Sepal.Width"),
@@ -56,4 +55,5 @@ target_batchgetter = function(data, device) {
 dataset = task_dataset(task, ingress_tokens, target_batchgetter, "cpu")
 batch = dataset$.getbatch(1:10)
 batch
+\dontshow{\}) # examplesIf}
 }

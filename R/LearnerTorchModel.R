@@ -3,12 +3,12 @@
 #' @name mlr_learners_torch_model
 #'
 #' @description
-#' Create a torch learner from an instantiated [`nn_module()`].
+#' Create a torch learner from an instantiated [`nn_module()`][torch::nn_module].
 #' For classification, the output of the network must be the scores (before the softmax).
 #'
 #' @template param_task_type
-#' @param network ([`nn_module`])\cr
-#'   An instantiated [`nn_module`]. Is not cloned during construction.
+#' @param network ([`nn_module`][torch::nn_module])\cr
+#'   An instantiated [`nn_module`][torch::nn_module]. Is not cloned during construction.
 #'   For classification, outputs must be the scores (before the softmax).
 #' @param ingress_tokens (`list` of [`TorchIngressToken()`])\cr
 #'   A list with ingress tokens that defines how the dataloader will be defined.
@@ -27,7 +27,6 @@
 #' @include LearnerTorch.R
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' # We show the learner using a classification task
 #'
 #' # The iris task has 4 features and 3 classes

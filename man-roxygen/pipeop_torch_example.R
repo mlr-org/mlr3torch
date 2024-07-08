@@ -1,7 +1,6 @@
 #' <% param_vals = if (exists("param_vals", inherits = FALSE)) paste0(", ", param_vals)%>
 #'
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' # Construct the PipeOp
 #' pipeop = po("<%=id %>"<%=param_vals%>)
 #' pipeop

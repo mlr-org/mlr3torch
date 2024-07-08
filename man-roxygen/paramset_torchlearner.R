@@ -3,7 +3,7 @@
 #' **General**:
 #'
 #' The parameters of the optimizer, loss and callbacks,
-#' prefixed with `"opt."`, `"loss."` and `"cb.<callback id>."` respectively.
+#' prefixed with `"opt."`, `"loss."` and `"cb.<callback id>."` respectively, as well as:
 #'
 #' * `epochs` :: `integer(1)`\cr
 #'   The number of epochs.
@@ -23,9 +23,9 @@
 #'   `"random"`), clones of the learner will use a different seed.
 #'
 #' **Evaluation**:
-#' * `measures_train` :: [`Measure`] or `list()` of [`Measure`]s.\cr
+#' * `measures_train` :: [`Measure`][mlr3::Measure] or `list()` of [`Measure`][mlr3::Measure]s.\cr
 #'   Measures to be evaluated during training.
-#' * `measures_valid` :: [`Measure`] or `list()` of [`Measure`]s.\cr
+#' * `measures_valid` :: [`Measure`][mlr3::Measure] or `list()` of [`Measure`][mlr3::Measure]s.\cr
 #'   Measures to be evaluated during validation.
 #' * `eval_freq` :: `integer(1)`\cr
 #'   How often the train / validation predictions are evaluated using `measures_train` / `measures_valid`.

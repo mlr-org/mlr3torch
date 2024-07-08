@@ -9,7 +9,7 @@ Tabular resnet.
 }
 \section{Dictionary}{
 
-This \link{Learner} can be instantiated using the sugar function \code{\link[=lrn]{lrn()}}:
+This \link[mlr3:Learner]{Learner} can be instantiated using the sugar function \code{\link[mlr3:mlr_sugar]{lrn()}}:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{lrn("classif.tab_resnet", ...)
 lrn("regr.tab_resnet", ...)
@@ -51,7 +51,6 @@ Second dropout ratio.
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 # Define the Learner and set parameter values
 learner = lrn("classif.tab_resnet")
 learner$param_set$set_values(
@@ -73,6 +72,7 @@ predictions = learner$predict(task, row_ids = ids$test)
 
 # Score the predictions
 predictions$score()
+\dontshow{\}) # examplesIf}
 }
 \references{
 Gorishniy Y, Rubachev I, Khrulkov V, Babenko A (2021).

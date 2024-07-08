@@ -34,11 +34,11 @@ Just like the iris task, but the features are represented as one lazy tensor col
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 task = tsk("lazy_iris")
 task
 df = task$data()
 materialize(df$x[1:6], rbind = TRUE)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Anderson E (1936).

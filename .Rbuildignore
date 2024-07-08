@@ -33,3 +33,4 @@
 data-raw
 ^doc$
 ^Meta$
+^CRAN-SUBMISSION$

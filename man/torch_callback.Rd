@@ -72,14 +72,14 @@ The initialization method of the callback.}
 Additional public, private, and active fields to add to the callback.}
 
 \item{parent_env}{(\code{environment()})\cr
-The parent environment for the \code{\link{R6Class}}.}
+The parent environment for the \code{\link[R6:R6Class]{R6Class}}.}
 
 \item{inherit}{(\code{R6ClassGenerator})\cr
 From which class to inherit.
 This class must either be \code{\link{CallbackSet}} (default) or inherit from it.}
 
 \item{lock_objects}{(\code{logical(1)})\cr
-Whether to lock the objects of the resulting \code{\link{R6Class}}.
+Whether to lock the objects of the resulting \code{\link[R6:R6Class]{R6Class}}.
 If \code{FALSE} (default), values can be freely assigned to \code{self} without declaring them in the
 class definition.}
 }
@@ -116,7 +116,6 @@ then wraps this generator in a \code{\link{TorchCallback}} that can be passed to
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 custom_tcb = torch_callback("custom",
   initialize = function(name) {
     self$name = name
@@ -138,6 +137,7 @@ learner = lrn("classif.torch_featureless",
 )
 task = tsk("iris")
 learner$train(task)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other Callback: 

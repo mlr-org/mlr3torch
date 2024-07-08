@@ -26,7 +26,7 @@ A trained \code{\link{LearnerTorchModel}}.
 \strong{General}:
 
 The parameters of the optimizer, loss and callbacks,
-prefixed with \code{"opt."}, \code{"loss."} and \code{"cb.<callback id>."} respectively.
+prefixed with \code{"opt."}, \code{"loss."} and \code{"cb.<callback id>."} respectively, as well as:
 \itemize{
 \item \code{epochs} :: \code{integer(1)}\cr
 The number of epochs.
@@ -48,9 +48,9 @@ Note that by setting the seed during the training phase this will mean that by d
 
 \strong{Evaluation}:
 \itemize{
-\item \code{measures_train} :: \code{\link{Measure}} or \code{list()} of \code{\link{Measure}}s.\cr
+\item \code{measures_train} :: \code{\link[mlr3:Measure]{Measure}} or \code{list()} of \code{\link[mlr3:Measure]{Measure}}s.\cr
 Measures to be evaluated during training.
-\item \code{measures_valid} :: \code{\link{Measure}} or \code{list()} of \code{\link{Measure}}s.\cr
+\item \code{measures_valid} :: \code{\link[mlr3:Measure]{Measure}} or \code{list()} of \code{\link[mlr3:Measure]{Measure}}s.\cr
 Measures to be evaluated during validation.
 \item \code{eval_freq} :: \code{integer(1)}\cr
 How often the train / validation predictions are evaluated using \code{measures_train} / \code{measures_valid}.
@@ -114,7 +114,7 @@ Also see \code{torch::dataloder} for more information.
 A \code{\link{LearnerTorchModel}} is created by calling \code{\link[=model_descriptor_to_learner]{model_descriptor_to_learner()}} on the
 provided \code{\link{ModelDescriptor}} that is received through the input channel.
 Then the parameters are set according to the parameters specified in \code{PipeOpTorchModel} and
-its '$train()\verb{ method is called on the [}Task\verb{] stored in the [}ModelDescriptor`].
+its '$train()\verb{ method is called on the [}Task\verb{][mlr3::Task] stored in the [}ModelDescriptor`].
 }
 
 \seealso{

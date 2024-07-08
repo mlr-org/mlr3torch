@@ -8,7 +8,7 @@
 #' @section Input and Output Channels:
 #' There is one input channel `"input"` and one output channel `"output"`.
 #' During *training*, the channels are of class [`ModelDescriptor`].
-#' During *prediction*, the channels are of class [`Task`].
+#' During *prediction*, the channels are of class [`Task`][mlr3::Task].
 #'
 #' @template pipeop_torch_state_default
 #'
@@ -22,7 +22,6 @@
 #' @family Model Configuration
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' po_opt = po("torch_optimizer", "sgd", lr = 0.01)
 #' po_opt$param_set
 #' mdin = po("torch_ingress_num")$train(list(tsk("iris")))

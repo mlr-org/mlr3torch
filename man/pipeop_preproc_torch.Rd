@@ -34,7 +34,7 @@ applied. Afterwards the batch dimension (1) is replaced with NA and the shape is
 If the first dimension is not \code{NA}, the output shape of applying the preprocessing function is returned.
 Method \code{"infer"} should be correct in most cases, but might fail in some edge cases.}
 
-\item{param_set}{(\code{\link{ParamSet}} or \code{NULL})\cr
+\item{param_set}{(\code{\link[paradox:ParamSet]{ParamSet}} or \code{NULL})\cr
 The parameter set.
 If this is left as \code{NULL} (default) the parameter set is inferred in the following way:
 All parameters but the first and \code{...} of \code{fn} are set as untyped parameters with tags 'train' and those that
@@ -66,7 +66,9 @@ Function to create objects of class \code{\link{PipeOpTaskPreprocTorch}} in a mo
 Start by reading the documentation of \code{\link{PipeOpTaskPreprocTorch}}.
 }
 \examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 PipeOpPreprocExample = pipeop_preproc_torch("preproc_example", function(x, a) x + a)
 po_example = PipeOpPreprocExample$new()
 po_example$param_set
+\dontshow{\}) # examplesIf}
 }

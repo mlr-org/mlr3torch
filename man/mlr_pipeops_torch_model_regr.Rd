@@ -28,12 +28,11 @@ A trained \code{\link{LearnerTorchModel}}.
 A \code{\link{LearnerTorchModel}} is created by calling \code{\link[=model_descriptor_to_learner]{model_descriptor_to_learner()}} on the
 provided \code{\link{ModelDescriptor}} that is received through the input channel.
 Then the parameters are set according to the parameters specified in \code{PipeOpTorchModel} and
-its '$train()\verb{ method is called on the [}Task\verb{] stored in the [}ModelDescriptor`].
+its '$train()\verb{ method is called on the [}Task\verb{][mlr3::Task] stored in the [}ModelDescriptor`].
 }
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 # simple linear regression
 
 # build the model descriptor
@@ -48,6 +47,7 @@ print(md)
 po_model = po("torch_model_regr", batch_size = 20, epochs = 1)
 po_model$train(list(md))
 po_model$state
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other PipeOps: 

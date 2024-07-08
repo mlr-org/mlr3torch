@@ -10,7 +10,7 @@
 #'
 #' **NOTE**
 #' Because the method `$shapes_out()` does not have access to the task, it returns `c(NA, NA)`.
-#' When this [`PipeOp`] is trained however, the model descriptor has the correct output shape.
+#' When this [`PipeOp`][mlr3pipelines::PipeOp] is trained however, the model descriptor has the correct output shape.
 #'
 #' @section Parameters:
 #' * `bias` :: `logical(1)`\cr

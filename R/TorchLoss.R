@@ -39,7 +39,7 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 #' @title Torch Loss
 #'
 #' @description
-#' This wraps a `torch::nn_loss` and annotates it with metadata, most importantly a [`ParamSet`].
+#' This wraps a `torch::nn_loss` and annotates it with metadata, most importantly a [`ParamSet`][paradox::ParamSet].
 #' The loss function is created for the given parameter values by calling the `$generate()` method.
 #'
 #' This class is usually used to configure the loss function of a torch learner, e.g.
@@ -55,7 +55,7 @@ as_torch_loss.character = function(x, clone = FALSE, ...) { # nolint
 #'
 #' @family Torch Descriptor
 #' @export
-#' @examples
+#' @examplesIf torch::torch_is_installed()
 #' # Create a new torch loss
 #' torch_loss = TorchLoss$new(torch_loss = nn_mse_loss, task_types = "regr")
 #' torch_loss
@@ -96,7 +96,7 @@ TorchLoss = R6::R6Class("TorchLoss",
     #'   The loss module.
     #' @param task_types (`character()`)\cr
     #'   The task types supported by this loss.
-    #' @param param_set ([`ParamSet`] or `NULL`)\cr
+    #' @param param_set ([`ParamSet`][paradox::ParamSet] or `NULL`)\cr
     #'   The parameter set. If `NULL` (default) it is inferred from `torch_loss`.
     #' @template param_id
     #' @template param_label
@@ -142,7 +142,8 @@ TorchLoss = R6::R6Class("TorchLoss",
 #' @description
 #' Dictionary of torch loss descriptors.
 #' See [`t_loss()`] for conveniently retrieving a loss function.
-#' Can be converted to a [`data.table`] using [`as.data.table()`].
+#' Can be converted to a [`data.table`][data.table::data.table] using
+#' [`as.data.table`][data.table::as.data.table].
 #'
 #' @section Available Loss Functions:
 #' `r paste0(mlr3torch_losses$keys(), collapse = ", ")`
@@ -150,7 +151,7 @@ TorchLoss = R6::R6Class("TorchLoss",
 #' @family Torch Descriptor
 #' @family Dictionary
 #' @export
-#' @examples
+#' @examplesIf torch::torch_is_installed()
 #' mlr3torch_losses$get("mse")
 #' # is equivalent to
 #' t_loss("mse")
@@ -184,11 +185,11 @@ as.data.table.DictionaryMlr3torchLosses = function(x, ...) {
 #' @param .key (`character(1)`)\cr
 #'   Key of the object to retrieve.
 #' @param ... (any)\cr
-#'   See description of [`dictionary_sugar_get`].
+#'   See description of [`dictionary_sugar_get`][mlr3misc::dictionary_sugar_get].
 #' @return A [`TorchLoss`]
 #' @export
 #' @family Torch Descriptor
-#' @examples
+#' @examplesIf torch::torch_is_installed()
 #' t_loss("mse", reduction = "mean")
 #' # get the dictionary
 #' t_loss()
@@ -211,7 +212,7 @@ t_loss.NULL = function(.key, ...) { # nolint
 #' @param .keys (`character()`)\cr
 #'   The keys of the losses.
 #' @export
-#' @examples
+#' @examplesIf torch::torch_is_installed()
 #' t_losses(c("mse", "l1"))
 #' # get the dictionary
 #' t_losses()

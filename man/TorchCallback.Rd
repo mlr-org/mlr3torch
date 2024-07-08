@@ -4,7 +4,7 @@
 \alias{TorchCallback}
 \title{Torch Callback}
 \description{
-This wraps a \code{\link{CallbackSet}} and annotates it with metadata, most importantly a \code{\link{ParamSet}}.
+This wraps a \code{\link{CallbackSet}} and annotates it with metadata, most importantly a \code{\link[paradox:ParamSet]{ParamSet}}.
 The callback is created for the given parameter values by calling the \verb{$generate()} method.
 
 This class is usually used to configure the callback of a torch learner, e.g. when constructing
@@ -22,7 +22,6 @@ for each argument of the wrapped loss function, where the parametes are then of 
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 # Create a new torch callback from an existing callback set
 torch_callback = TorchCallback$new(CallbackSetCheckpoint)
 # The parameters are inferred
@@ -51,7 +50,7 @@ CallbackSetCheckpoint$new(
 learner = lrn("regr.mlp", callbacks = t_clbk("checkpoint"))
 # the parameters of the callback are added to the learner's parameter set
 learner$param_set
-
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other Callback: 

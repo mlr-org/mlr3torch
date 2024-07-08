@@ -4,7 +4,7 @@
 \alias{TorchOptimizer}
 \title{Torch Optimizer}
 \description{
-This wraps a \code{torch::torch_optimizer_generator}a and annotates it with metadata, most importantly a \code{\link{ParamSet}}.
+This wraps a \code{torch::torch_optimizer_generator}a and annotates it with metadata, most importantly a \code{\link[paradox:ParamSet]{ParamSet}}.
 The optimizer is created for the given parameter values by calling the \verb{$generate()} method.
 
 This class is usually used to configure the optimizer of a torch learner, e.g.
@@ -22,7 +22,6 @@ for each argument of the wrapped loss function, where the parametes are then of 
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 # Create a new torch loss
 torch_opt = TorchOptimizer$new(optim_adam, label = "adam")
 torch_opt
@@ -50,6 +49,7 @@ optim_sgd(net$parameters, lr = 0.1)
 learner = lrn("regr.mlp", optimizer = t_opt("sgd"))
 # The parameters of the optimizer are added to the learner's parameter set
 learner$param_set
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other Torch Descriptor: 
@@ -138,7 +138,7 @@ Instantiates the optimizer.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{params}}{(named \code{list()} of \code{\link{torch_tensor}}s)\cr
+\item{\code{params}}{(named \code{list()} of \code{\link[torch:torch_tensor]{torch_tensor}}s)\cr
 The parameters of the network.}
 }
 \if{html}{\out{</div>}}

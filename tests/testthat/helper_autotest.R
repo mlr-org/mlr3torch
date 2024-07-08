@@ -1,27 +1,27 @@
-#' @title Autotest for PipeOpTorch
-#' @description
-#' This tests a [`PipeOpTorch`] that is embedded in a [`Graph`].
-#' Note that the id of the [`PipeOp`] to test should be the default id.
-#' It tests whether:
-#' * the output tensor(s) have the correct shape(s)
-#' * the generated module has the intended class
-#' * the parameters are correctly implemented
-#' * Some other basic checks
-#' @param graph ([`Graph`])\cr
-#'   The graph that contains the [`PipeOpTorch`] to be tested.
-#' @param id (`character(1)`)\cr
-#'   The id of the [`PipeOpTorch`] to be tested.
-#' @param task ([`Task`])\cr
-#'   The task with which the [`PipeOpTorch`] will be tested.
-#' @param module_class (`character(1)`)\cr
-#'   The module class that is expected from the generated module of the [`PipeOpTorch`].
-#'   Default is the [`PipeOp`]s `id`.
-#' @param exclude_args (`character()`)\cr
-#'   We check that the arguments of the module's forward function match the input channels except for those
-#'   values specified as `exclude_args`.
-#'
-#' @return `TRUE` if the autotest passes, errs otherwise.
-#' @export
+# @title Autotest for PipeOpTorch
+# @description
+# This tests a [`PipeOpTorch`] that is embedded in a [`Graph`][mlr3pipelines::Graph].
+# Note that the id of the [`PipeOp`] to test should be the default id.
+# It tests whether:
+# * the output tensor(s) have the correct shape(s)
+# * the generated module has the intended class
+# * the parameters are correctly implemented
+# * Some other basic checks
+# @param graph ([`Graph`])\cr
+#   The graph that contains the [`PipeOpTorch`] to be tested.
+# @param id (`character(1)`)\cr
+#   The id of the [`PipeOpTorch`] to be tested.
+# @param task ([`Task`][mlr3::Task])\cr
+#   The task with which the [`PipeOpTorch`] will be tested.
+# @param module_class (`character(1)`)\cr
+#   The module class that is expected from the generated module of the [`PipeOpTorch`].
+#   Default is the [`PipeOp`]s `id`.
+# @param exclude_args (`character()`)\cr
+#   We check that the arguments of the module's forward function match the input channels except for those
+#   values specified as `exclude_args`.
+#
+# @return `TRUE` if the autotest passes, errs otherwise.
+# @export
 expect_pipeop_torch = function(graph, id, task, module_class = id, exclude_args = character(0)) {
   require_namespaces(c("testthat"))
   po_test = graph$pipeops[[id]]
@@ -176,19 +176,17 @@ collapse_char_list = function(x) {
 }
 
 
-#' @title Parameter Test
-#' @description
-#' Tests that parameters are correctly implemented
-#' @param x ([`ParamSet`] or object with field `$param_set`)\cr
-#'   The parameter set to check.
-#' @param fns (`list()` of `function`s)\cr
-#'   The functions whose arguments the parameter set implements.
-#' @param exclude (`character`)\cr
-#'   The parameter ids and arguments of the functions that are exluded from checking.
-#' @param exclude_defaults (`character()`)\cr
-#'   For which parameters the defaults should not be checked.
-#'
-#' @export
+# @title Parameter Test
+# @description
+# Tests that parameters are correctly implemented
+# @param x ([`ParamSet`][paradox::ParamSet] or object with field `$param_set`)\cr
+#   The parameter set to check.
+# @param fns (`list()` of `function`s)\cr
+#   The functions whose arguments the parameter set implements.
+# @param exclude (`character`)\cr
+#   The parameter ids and arguments of the functions that are exluded from checking.
+# @param exclude_defaults (`character()`)\cr
+#   For which parameters the defaults should not be checked.
 expect_paramset = function(x, fns, exclude = character(0), exclude_defaults = character(0)) {
   if (test_r6(x, "ParamSet")) {
     param_set = x

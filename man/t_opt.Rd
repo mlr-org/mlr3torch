@@ -14,7 +14,7 @@ t_opts(.keys, ...)
 Key of the object to retrieve.}
 
 \item{...}{(any)\cr
-See description of \code{\link{dictionary_sugar_get}}.}
+See description of \code{\link[mlr3misc:dictionary_sugar_get]{dictionary_sugar_get}}.}
 
 \item{.keys}{(\code{character()})\cr
 The keys of the optimizers.}
@@ -27,12 +27,16 @@ Retrieves one or more \code{\link{TorchOptimizer}}s from \code{\link{mlr3torch_o
 Works like \code{\link[mlr3:mlr_sugar]{mlr3::lrn()}} and \code{\link[mlr3:mlr_sugar]{mlr3::lrns()}}.
 }
 \examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 t_opt("adam", lr = 0.1)
 # get the dictionary
 t_opt()
+\dontshow{\}) # examplesIf}
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 t_opts(c("adam", "sgd"))
 # get the dictionary
 t_opts()
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other Torch Descriptor: 

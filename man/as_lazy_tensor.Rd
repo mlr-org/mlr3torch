@@ -30,8 +30,6 @@ Convert a object to a \code{\link{lazy_tensor}}.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
-# Convert a dataset
 iris_ds = dataset("iris",
   initialize = function() {
     self$iris = iris[, -5]
@@ -59,4 +57,5 @@ as_lazy_tensor(iris_ds2, dataset_shapes = list(x = c(NA, 4L)))[1:5]
 # Convert a matrix
 lt = as_lazy_tensor(matrix(rnorm(100), nrow = 20))
 materialize(lt[1:5], rbind = TRUE)
+\dontshow{\}) # examplesIf}
 }

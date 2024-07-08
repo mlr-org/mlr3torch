@@ -4,7 +4,6 @@
 #' <% task_id = default_task_id(lrn(id)) %>
 #'
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' # Define the Learner and set parameter values
 #' <%= sprintf("learner = lrn(\"%s\")", id)%>
 #' learner$param_set$set_values(

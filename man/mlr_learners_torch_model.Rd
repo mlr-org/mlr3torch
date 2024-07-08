@@ -5,7 +5,7 @@
 \alias{LearnerTorchModel}
 \title{Learner Torch Model}
 \description{
-Create a torch learner from an instantiated \code{\link[=nn_module]{nn_module()}}.
+Create a torch learner from an instantiated \code{\link[torch:nn_module]{nn_module()}}.
 For classification, the output of the network must be the scores (before the softmax).
 }
 \section{Parameters}{
@@ -14,7 +14,6 @@ For classification, the output of the network must be the scores (before the sof
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\dontshow{\}) # examplesIf}
 # We show the learner using a classification task
 
 # The iris task has 4 features and 3 classes
@@ -41,6 +40,7 @@ learner = lrn("classif.torch_model",
 ids = partition(task)
 learner$train(task, ids$train)
 learner$predict(task, ids$test)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other Learner: 
@@ -127,8 +127,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{network}}{(\code{\link{nn_module}})\cr
-An instantiated \code{\link{nn_module}}. Is not cloned during construction.
+\item{\code{network}}{(\code{\link[torch:nn_module]{nn_module}})\cr
+An instantiated \code{\link[torch:nn_module]{nn_module}}. Is not cloned during construction.
 For classification, outputs must be the scores (before the softmax).}
 
 \item{\code{ingress_tokens}}{(\code{list} of \code{\link[=TorchIngressToken]{TorchIngressToken()}})\cr

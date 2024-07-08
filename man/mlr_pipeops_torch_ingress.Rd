@@ -168,7 +168,8 @@ The R packages this object depends on.}
 
 \item{\code{feature_types}}{(\code{character()})\cr
 The feature types.
-See \code{\link[=mlr_reflections]{mlr_reflections$task_feature_types}} for available values.}
+See \code{\link[mlr3:mlr_reflections]{mlr_reflections$task_feature_types}} for available values,
+Additionally, \code{"lazy_tensor"} is supported.}
 }
 \if{html}{\out{</div>}}
 }

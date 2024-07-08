@@ -109,7 +109,7 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
 #'
 #' @description
 #' This function creates an S3 class of class `"TorchIngressToken"`, which is an internal data structure.
-#' It contains the (meta-)information of how a batch is generated from a [`Task`] and fed into an entry point
+#' It contains the (meta-)information of how a batch is generated from a [`Task`][mlr3::Task] and fed into an entry point
 #' of the neural network. It is stored as the `ingress` field in a [`ModelDescriptor`].
 #'
 #' @param features (`character`)\cr
@@ -124,7 +124,6 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
 #' @family Graph Network
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' # Define a task for which we want to define an ingress token
 #' task = tsk("iris")
 #'
@@ -185,7 +184,6 @@ print.TorchIngressToken = function(x, ...) {
 #' @family Graph Network
 #' @family PipeOps
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 # We select the numeric features first
 #' graph = po("select", selector = selector_type(c("numeric", "integer"))) %>>%
 #'   po("torch_ingress_num")
@@ -236,7 +234,6 @@ register_po("torch_ingress_num", PipeOpTorchIngressNumeric)
 #' @family Graph Network
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 # We first select the categorical features
 #' graph = po("select", selector = selector_type("factor")) %>>%
 #'   po("torch_ingress_categ")
@@ -287,7 +284,6 @@ register_po("torch_ingress_categ", PipeOpTorchIngressCategorical)
 #' @export
 #' @include utils.R shape.R
 #' @examplesIf torch::torch_is_installed()
-#' @examples
 #' po_ingress = po("torch_ingress_ltnsr")
 #' task = tsk("lazy_iris")
 #'
