@@ -3,7 +3,8 @@
 
 # mlr3torch <img src="man/figures/logo.svg" align="right" width = "120" />
 
-Package website: [dev](https://mlr3torch.mlr-org.com/)
+Package website: [release](https://mlr3torch.mlr-org.com/) \|
+[dev](https://mlr3torch.mlr-org.com/)
 
 Deep Learning with torch and mlr3.
 
@@ -21,9 +22,15 @@ status](https://www.r-pkg.org/badges/version/mlr3torch)](https://CRAN.R-project.
 ## Installation
 
 ``` r
+# Install from CRAN
+install.packages("mlr3torch")
 # Install the development version from GitHub:
 pak::pak("mlr-org/mlr3torch")
-# You also need to install torch:
+```
+
+Afterwards, you also need to run the command below:
+
+``` r
 torch::install_torch()
 ```
 
@@ -221,7 +228,7 @@ deep_learner$train(mnist)
 
 ## Contributing:
 
-- To run the tests one needs to run set the environment variable
+- To run the tests one needs to set the environment variable
   `TEST_TORCH = 1`, e.g. by adding it to `.Renviron`.
 
 ## Acknowledgements
