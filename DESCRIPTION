@@ -32,6 +32,8 @@ Description: Deep Learning library that extends the mlr3 framework by building
   details. Custom architectures can be created using the graph language
   defined in 'mlr3pipelines'.
 License: LGPL (>= 3)
+BugReports: https://github.com/mlr-org/mlr3torch/issues
+URL: https://mlr3torch.mlr-org.com/, https://github.com/mlr-org/mlr3torch/
 Depends:
     mlr3 (>= 0.20.0),
     mlr3pipelines (>= 0.6.0),
@@ -55,12 +57,12 @@ Suggests:
     jsonlite,
     knitr,
     magick,
-	mlr3tuning (>= 1.0.0),
+    mlr3tuning (>= 1.0.0),
     progress,
     rmarkdown,
     rpart,
     viridis,
-	visNetwork,
+    visNetwork,
     testthat (>= 3.0.0),
     torchvision (>= 0.6.0),
     waldo
