@@ -2,6 +2,7 @@ url: https://mlr3torch.mlr-org.com
 
 template:
   bootstrap: 5
+  light-switch: true
   package: mlr3pkgdowntemplate
 
 development:
@@ -15,7 +16,7 @@ toc:
 navbar:
   structure:
     left:  [reference, news, articles, book]
-    right: [github, mattermost, stackoverflow, rss]
+    right: [github, mattermost, stackoverflow, rss, lightswitch]
   components:
     home: ~
     reference:
