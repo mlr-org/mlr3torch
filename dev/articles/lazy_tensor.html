@@ -19,7 +19,7 @@
 <link href="../deps/Roboto_Slab-0.4.9/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Lazy Tensor">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="../deps/MathJax-3.2.2/tex-chtml.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Lazy Tensor">
 <meta name="robots" content="noindex">
 </head>
 <body>
@@ -210,11 +210,9 @@ only additional restriction that we impose on the dataset is that it
 must have a <code>.getitem</code> or <code>.getbatch</code> method that
 returns a list of named tensors.</p>
 <p>As an example, we will create a <code>lazy_tensor</code> of length
-1000, whose elements are drawn from a uniform distribution over
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0, 1]</annotation></semantics></math>.
-While the data is stored in-memory in this example, this is not
-necessary and the <code>$.getitem()</code> method can e.g. load images
-from disk.</p>
+1000, whose elements are drawn from a uniform distribution over <span class="math inline">\([0, 1]\)</span>. While the data is stored
+in-memory in this example, this is not necessary and the
+<code>$.getitem()</code> method can e.g. load images from disk.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mydata</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/dataset.html" class="external-link">dataset</a></span><span class="op">(</span></span>
 <span>  initialize <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
@@ -309,11 +307,9 @@ auto-inference, see <code><a href="../reference/pipeop_preproc_torch.html">?pipe
 information.</li>
 </ul>
 <p>Below, we create a <code>PipeOp</code>, that transforms a vector
-<code>x</code> into a matrix
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>x</mi><msub><mi>d</mi><mn>1</mn></msub></msup><mi>.</mi><mi>.</mi><mi>.</mi><mo>,</mo><msup><mi>x</mi><msub><mi>d</mi><mi>n</mi></msub></msup><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(x^{d_1} ..., x^{d_n})</annotation></semantics></math>,
-where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>
-is the <code>degrees</code> parameter of the <code>PipeOp</code>.</p>
+<code>x</code> into a matrix <span class="math inline">\((x^{d_1} ...,
+x^{d_n})\)</span>, where <span class="math inline">\(d\)</span> is the
+<code>degrees</code> parameter of the <code>PipeOp</code>.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">PipeOpPreprocTorchPoly</span> <span class="op">=</span> <span class="fu"><a href="../reference/pipeop_preproc_torch.html">pipeop_preproc_torch</a></span><span class="op">(</span><span class="st">"poly"</span>,</span>
 <span>  fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">degrees</span><span class="op">)</span> <span class="op">{</span></span>
@@ -387,7 +383,7 @@ nerworks using <code>PipeOpTorch</code> objects. The
 <span><span class="co">#&gt; &lt;DataDescriptor: 1 ops&gt;</span></span>
 <span><span class="co">#&gt; * dataset_shapes: [x: (NA,1)]</span></span>
 <span><span class="co">#&gt; * input_map: (x) -&gt; Graph</span></span>
-<span><span class="co">#&gt; * pointer: nop.d26b7d.x.output</span></span>
+<span><span class="co">#&gt; * pointer: nop.daa22e.x.output</span></span>
 <span><span class="co">#&gt; * shape: [(NA,1)]</span></span></code></pre></div>
 <p>The printed output of the data descriptor informs us about:</p>
 <ul>
@@ -434,7 +430,7 @@ there can only be a single <code>DataDescriptor</code> in a
 <span><span class="co">#&gt; &lt;DataDescriptor: 1 ops&gt;</span></span>
 <span><span class="co">#&gt; * dataset_shapes: [x: (NA,1)]</span></span>
 <span><span class="co">#&gt; * input_map: (x) -&gt; Graph</span></span>
-<span><span class="co">#&gt; * pointer: nop.d26b7d.x.output</span></span>
+<span><span class="co">#&gt; * pointer: nop.daa22e.x.output</span></span>
 <span><span class="co">#&gt; * shape: [(NA,1)]</span></span></code></pre></div>
 <p>What happens during <code>materialize(lt[1])</code> is the
 following:</p>
@@ -484,8 +480,8 @@ feature.</p>
 <span><span class="co">#&gt; Graph with 2 PipeOps:</span></span>
 <span><span class="co">#&gt;            ID         State sccssors    prdcssors</span></span>
 <span><span class="co">#&gt;        &lt;char&gt;        &lt;char&gt;   &lt;char&gt;       &lt;char&gt;</span></span>
-<span><span class="co">#&gt;  nop.d26b7d.x        &lt;list&gt;   poly.x             </span></span>
-<span><span class="co">#&gt;        poly.x &lt;&lt;UNTRAINED&gt;&gt;          nop.d26b7d.x</span></span></code></pre></div>
+<span><span class="co">#&gt;  nop.daa22e.x        &lt;list&gt;   poly.x             </span></span>
+<span><span class="co">#&gt;        poly.x &lt;&lt;UNTRAINED&gt;&gt;          nop.daa22e.x</span></span></code></pre></div>
 <p>We see that the <code>$graph</code> has a new pipeop with id
 <code>"poly.x"</code> and the output <code>pointer</code> points to
 <code>poly.x</code>. Also we see that the shape of the tensor is now
