@@ -26,12 +26,6 @@ jobs:
 
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
 
-    env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      TORCH_INSTALL: 1
-      TEST_TORCH: 1
-      INCLUDE_IGNORED: 1
-
     strategy:
       fail-fast: false
       matrix:
@@ -41,7 +35,17 @@ jobs:
           - {os: macos-latest,   r: 'release'}
           - {os: windows-latest, r: 'release'}
 
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      TORCH_INSTALL: 1
+      TEST_TORCH: 1
+      INCLUDE_IGNORED: 1
+
     steps:
+      - name: Install Python packages
+        run: |
+          print(Sys.getenv("TORCH_TEST"))
+        shell: Rscript {0}
       - uses: actions/checkout@v4
 
       - uses: r-lib/actions/setup-pandoc@v2
