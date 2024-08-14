@@ -311,11 +311,11 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
           if (private$.rowwise) {
             trafo = crate(function(x) {
               torch_cat(lapply(seq_len(nrow(x)), function(i) mlr3misc::invoke(trafo, x[i, ..], .args = param_vals)$unsqueeze(1L)), dim = 1L)
-            }, param_vals, trafo, .parent = topenv())
+            }, param_vals, trafo, .parent = topenv(parent.frame()))
           } else {
             crate(function(x) {
               mlr3misc::invoke(.f = trafo, x, .args = param_vals)
-            }, param_vals, trafo, .parent = topenv())
+            }, param_vals, trafo, .parent = topenv(parent.frame()))
           }
         } else {
           if (private$.rowwise) {

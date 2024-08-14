@@ -91,7 +91,7 @@ load_task_tiny_imagenet = function(id = "tiny_imagenet") {
     set(dt, j = "image", value = as_lazy_tensor(dataset_image(dt$image), dataset_shapes = list(x = c(NA, 3, 64, 64))))
     set(dt, j = "..row_id", value = seq_len(nrow(dt)))
     DataBackendDataTable$new(data = dt, primary_key = "..row_id")
-  }, .parent = topenv())
+  }, .parent = topenv(parent.frame()))
 
   backend = DataBackendLazy$new(
     constructor = cached_constructor,

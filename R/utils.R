@@ -146,7 +146,7 @@ test_equal_col_info = function(x, y) {
 # (Except in the aqward case of missing args)
 argument_matcher = function(args) {
   fn = as.function(c(named_list(args, substitute()), quote(as.list(environment()))))
-  environment(fn) = topenv()
+  environment(fn) = topenv(parent.frame())
   fn
 }
 

@@ -335,7 +335,7 @@ PipeOpTorchIngressLazyTensor = R6Class("PipeOpTorchIngressLazyTensor",
     initialize = function(id = "torch_ingress_ltnsr", param_vals = list()) {
       param_set = ps(
         shape = p_uty(tags = "train", default = NULL, custom_check = crate(
-          function(x) check_shape(x, null_ok = TRUE, unknown_batch = TRUE), .parent = topenv()))
+          function(x) check_shape(x, null_ok = TRUE, unknown_batch = TRUE), .parent = topenv(parent.frame())))
         )
       super$initialize(id = id, param_vals = param_vals, feature_types = "lazy_tensor", param_set = param_set)
     }
