@@ -36,12 +36,12 @@ LearnerTorchMLP = R6Class("LearnerTorchMLP",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(task_type, optimizer = NULL, loss = NULL, callbacks = list()) {
-      check_activation = crate(function(x) check_class(x, "nn_module"), .parent = topenv(parent.frame()))
+      check_activation = crate(function(x) checkmate::check_class(x, "nn_module"))
       check_activation_args = crate(function(x) checkmate::check_list(x, names = "unique"),
         .parent = topenv(parent.frame()))
       check_neurons = crate(function(x) checkmate::check_integerish(x, any.missing = FALSE, lower = 1),
         .parent = topenv(parent.frame()))
-      check_shape = crate(function(x) check_shape(x, null_ok = TRUE, len = 2L), .parent = topenv(parent.frame()))
+      check_shape = crate(function(x) mlr3torch::check_shape(x, null_ok = TRUE, len = 2L))
 
       param_set = ps(
         neurons         = p_uty(tags = c("train", "predict"), custom_check = check_neurons),
