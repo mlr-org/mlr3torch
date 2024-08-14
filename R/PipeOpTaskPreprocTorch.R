@@ -321,7 +321,7 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
           if (private$.rowwise) {
             crate(function(x) {
               torch_cat(mlr3misc::map(seq_len(nrow(x)), function(i) trafo(x[i, ..])$unsqueeze(1L)), dim = 1L)
-            }, trafo, .parent = topenf())
+            }, trafo, .parent = topenv())
           } else {
             trafo
           }
