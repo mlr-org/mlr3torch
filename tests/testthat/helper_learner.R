@@ -1,3 +1,5 @@
+library(R6)
+
 LearnerTorchTest1 = R6Class("LearnerTorchTest1",
   inherit = LearnerTorch,
   public = list(
