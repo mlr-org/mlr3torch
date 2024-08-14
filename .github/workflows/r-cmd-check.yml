@@ -60,12 +60,10 @@ jobs:
       - name: Install torch
         run: |
           Rscript -e 'torch::install_torch()'
-        shell: Rscript {0}
 
       - name: Install further packages
         run: |
           Rscript -e 'install.packages("rappdirs")'
-        shell: Rscript {0}
 
       - name: Get torchvision package version (Linux/macOS)
         if: runner.os != 'Windows'
