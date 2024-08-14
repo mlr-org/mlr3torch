@@ -141,7 +141,7 @@
 #'      )
 #'      fn = mlr3misc::crate(function(x, n_degree) {
 #'        torch::torch_cat(
-#'          lapply(seq_len(n_degree), function(d) torch_pow(x, d)),
+#'          lapply(seq_len(n_degree), function(d) torch::torch_pow(x, d)),
 #'          dim = 2L
 #'        )
 #'      })
@@ -321,7 +321,7 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
           if (private$.rowwise) {
             crate(function(x) {
               torch_cat(mlr3misc::map(seq_len(nrow(x)), function(i) trafo(x[i, ..])$unsqueeze(1L)), dim = 1L)
-            }, trafo, .parent = environment(trafo))
+            }, trafo, .parent = topenv())
           } else {
             trafo
           }
@@ -476,7 +476,7 @@ pipeop_preproc_torch = function(id, fn, shapes_out = NULL, param_set = NULL, pac
       }
 
       list(sout)
-    })
+    }, .parent = topenv())
   } else if (is.function(shapes_out) || is.null(shapes_out)) {
     # nothing to do
   } else {
@@ -515,7 +515,7 @@ pipeop_preproc_torch = function(id, fn, shapes_out = NULL, param_set = NULL, pac
     )
     # no need to keep the data around after initialiation
     private$.__construction_info = NULL
-  })
+  }, .parent = topenv())
 
   formals(init_fun)$id = id
 

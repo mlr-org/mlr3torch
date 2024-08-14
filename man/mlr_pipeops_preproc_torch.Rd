@@ -133,7 +133,7 @@ PipeOpPreprocTorchPoly = R6::R6Class("PipeOpPreprocTorchPoly",
      )
      fn = mlr3misc::crate(function(x, n_degree) {
        torch::torch_cat(
-         lapply(seq_len(n_degree), function(d) torch_pow(x, d)),
+         lapply(seq_len(n_degree), function(d) torch::torch_pow(x, d)),
          dim = 2L
        )
      })

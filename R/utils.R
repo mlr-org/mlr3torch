@@ -43,7 +43,7 @@ make_check_vector = function(d) {
     }
     tmp = if (d == 1) "." else sprintf(" or %s.", d)
     sprintf("Must be an integerish vector of length 1%s", tmp)
-    }, d)
+    }, d, .parent = topenv())
 }
 
 check_function_or_null = function(x) check_function(x, null.ok = TRUE)

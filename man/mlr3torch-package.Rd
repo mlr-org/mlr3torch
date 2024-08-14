@@ -19,6 +19,15 @@ This can also be set to a specific folder on the file system to be used as the c
 }
 }
 
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://mlr3torch.mlr-org.com/}
+  \item \url{https://github.com/mlr-org/mlr3torch/}
+  \item Report bugs at \url{https://github.com/mlr-org/mlr3torch/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Sebastian Fischer \email{sebf.fischer@gmail.com} (\href{https://orcid.org/0000-0002-9609-3197}{ORCID})
 

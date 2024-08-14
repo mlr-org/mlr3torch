@@ -171,7 +171,8 @@ test_that("lazy tensor modified as expected", {
 
   taskin = as_task_regr(d, target = "y")
 
-  po_test = po("preproc_torch", fn = crate(function(x, a) x + a), param_set = ps(a = p_int(tags = c("train", "required"))),
+  po_test = po("preproc_torch", fn = crate(function(x, a) x + a),
+    param_set = ps(a = p_int(tags = c("train", "required"))),
     a = 10, rowwise = FALSE, stages_init = "both")
 
   taskout_train = po_test$train(list(taskin))[[1L]]
