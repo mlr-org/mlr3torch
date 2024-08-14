@@ -20,6 +20,10 @@ on:
 
 name: r-cmd-check
 
+env:
+  TEST_TORCH: 1
+  INCLUDE_IGNORED: 1
+
 jobs:
   r-cmd-check:
     runs-on: ${{ matrix.config.os }}
@@ -37,9 +41,6 @@ jobs:
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      TORCH_INSTALL: 1
-      TEST_TORCH: 1
-      INCLUDE_IGNORED: 1
 
     steps:
       - uses: r-lib/actions/setup-r@v2
