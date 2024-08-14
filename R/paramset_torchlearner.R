@@ -26,19 +26,20 @@ make_check_measures = function(task_type) {
       return("Measures must not require a learner or model.")
     }
     return(TRUE)
-  }, task_type)
+  }, task_type, .parent = topenv())
 
 }
 
 check_measures_regr = make_check_measures("regr")
 check_measures_classif = make_check_measures("classif")
 
-epochs_aggr = crate(function(x) as.integer(ceiling(mean(unlist(x)))), .parent = topenv(parent.frame()))
-epochs_tune_fn = crate(function(domain, param_vals) {
-  assert_true(param_vals$patience > 0L, .var.name = "patience parameter for LearnerTorch")
-  assert_true(domain$lower <= 1)
+epochs_aggr = function(x) as.integer(ceiling(mean(unlist(x))))
+
+epochs_tune_fn = function(domain, param_vals) {
+  checkmate::assert_true(param_vals$patience > 0L, .var.name = "patience parameter for LearnerTorch")
+  checkmate::assert_true(domain$lower <= 1)
   domain$upper
-}, .parent = topenv(parent.frame()))
+}
 
 
 paramset_torchlearner = function(task_type) {

@@ -34,7 +34,7 @@ nano_mnist = function(id = "nano_mnist") {
   ds = dataset(
     initialize = crate(function(images) {
       self$images = torch_tensor(images, dtype = torch_float32())
-    }),
+    }, .parent = topenv()),
     .getbatch = function(idx) {
       list(image = self$images[idx, , , drop = FALSE])
     },

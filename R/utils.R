@@ -43,7 +43,7 @@ make_check_vector = function(d) {
     }
     tmp = if (d == 1) "." else sprintf(" or %s.", d)
     sprintf("Must be an integerish vector of length 1%s", tmp)
-    }, d)
+    }, d, .parent = topenv())
 }
 
 check_function_or_null = function(x) check_function(x, null.ok = TRUE)
@@ -146,7 +146,7 @@ test_equal_col_info = function(x, y) {
 # (Except in the aqward case of missing args)
 argument_matcher = function(args) {
   fn = as.function(c(named_list(args, substitute()), quote(as.list(environment()))))
-  environment(fn) = topenv(parent.frame())
+  environment(fn) = topenv()
   fn
 }
 

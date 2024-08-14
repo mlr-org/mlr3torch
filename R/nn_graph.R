@@ -218,7 +218,7 @@ model_descriptor_to_learner = function(model_descriptor) {
 # (Except in the awquard case of missing args)
 argument_matcher = function(args) {
   fn = as.function(c(named_list(args, substitute()), quote(as.list(environment()))))
-  environment(fn) = topenv(parent.frame())
+  environment(fn) = topenv()
   fn
 }
 

@@ -31,7 +31,7 @@ test_that("torch_network_predict works", {
     feature_ingress_tokens = ingress1,
     target_batchgetter = crate(function(data, device) {
       torch_tensor(data = as.integer(data[[1]]), dtype = torch_long(), device = device)
-    }),
+    }, .parent = topenv()),
     device = "cpu"
   )
 
@@ -54,7 +54,7 @@ test_that("torch_network_predict works", {
     feature_ingress_tokens = ingress2,
     target_batchgetter = crate(function(data, device) {
       torch_tensor(data = as.integer(data[[1]]), dtype = torch_long(), device = device)
-    }),
+    }, .parent = topenv()),
     device = "cpu"
   )
 
