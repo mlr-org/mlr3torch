@@ -41,7 +41,8 @@ LearnerTorchMLP = R6Class("LearnerTorchMLP",
         .parent = topenv(parent.frame()))
       check_neurons = crate(function(x) checkmate::check_integerish(x, any.missing = FALSE, lower = 1),
         .parent = topenv(parent.frame()))
-      check_shape = crate(function(x) mlr3torch::check_shape(x, null_ok = TRUE, len = 2L))
+      check_shape = crate(function(x) check_shape(x, null_ok = TRUE, len = 2L),
+        .parent = topenv(parent.frame()))
 
       param_set = ps(
         neurons         = p_uty(tags = c("train", "predict"), custom_check = check_neurons),
