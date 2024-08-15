@@ -18,7 +18,7 @@ library("mlr3torch")
 lgr::get_logger("mlr3")$set_threshold("warn")
 ```
 
-# mlr3torch <img src="man/figures/logo.svg" align="right" width = "120" />
+# mlr3torch <a href="https://mlr3torch.mlr-org.com"><img src="man/figures/logo.svg" align="right" height="139" /></a>
 
 Package website: [release](https://mlr3torch.mlr-org.com/) | [dev](https://mlr3torch.mlr-org.com/)
 
@@ -187,7 +187,7 @@ deep_learner$param_set$set_values(
 ```{r, include = FALSE}
 # so it renders faster
 deep_learner$param_set$values$torch_model_classif.epochs = 1L
-mnist$filter(1)
+mnist$filter(1:5)
 ```
 
 All that is left is to train the learner:

@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# mlr3torch <img src="man/figures/logo.svg" align="right" width = "120" />
+# mlr3torch <a href="https://mlr3torch.mlr-org.com"><img src="man/figures/logo.svg" align="right" height="139" /></a>
 
 Package website: [release](https://mlr3torch.mlr-org.com/) \|
 [dev](https://mlr3torch.mlr-org.com/)
