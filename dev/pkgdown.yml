@@ -7,7 +7,7 @@ articles:
   articles/internals_pipeop_torch: internals_pipeop_torch.html
   articles/lazy_tensor: lazy_tensor.html
   articles/pipeop_torch: pipeop_torch.html
-last_built: 2024-08-15T11:43Z
+last_built: 2024-08-15T14:50Z
 urls:
   reference: https://mlr3torch.mlr-org.com/reference
   article: https://mlr3torch.mlr-org.com/articles
