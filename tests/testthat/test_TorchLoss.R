@@ -8,7 +8,7 @@ test_that("Basic Checks", {
 
   expect_equal(torchloss$id, "nn_cross_entropy_loss")
   expect_r6(torchloss, "TorchLoss")
-  expect_set_equal(torchloss$packages, c("mypackage", "torch"))
+  expect_set_equal(torchloss$packages, c("mypackage", "torch", "mlr3torch"))
   expect_equal(torchloss$label, "Cross Entropy Loss")
   expect_true(torchloss$task_types == "classif")
   expect_set_equal(torchloss$param_set$ids(), formalArgs(torch::nn_cross_entropy_loss))
@@ -24,7 +24,7 @@ test_that("Basic Checks", {
     id = "xe"
   )
   torchloss1$param_set$set_values(ignore_index = 123)
-  expect_set_equal(torchloss1$packages, "torch")
+  expect_set_equal(torchloss1$packages, c("torch", "mlr3torch"))
   expect_equal(torchloss1$label, "Cross Entropy Loss")
   expect_equal(torchloss1$id, "xe")
 
@@ -76,7 +76,7 @@ test_that("Printer works", {
     "<TorchLoss:cross_entropy> Cross Entropy",
     "* Generator: nn_cross_entropy_loss",
     "* Parameters: list()",
-    "* Packages: torch",
+    "* Packages: torch,mlr3torch",
     "* Task Types: classif"
   )
 

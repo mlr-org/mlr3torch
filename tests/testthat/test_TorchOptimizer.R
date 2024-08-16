@@ -6,7 +6,7 @@ test_that("Basic checks", {
   )
   expect_equal(torch_opt$id, "optim_adam")
   expect_r6(torch_opt, "TorchOptimizer")
-  expect_set_equal(torch_opt$packages, c("mypackage", "torch"))
+  expect_set_equal(torch_opt$packages, c("mypackage", "torch", "mlr3torch"))
   expect_equal(torch_opt$label, "Adam")
   expect_set_equal(torch_opt$param_set$ids(), setdiff(formalArgs(optim_adam), "params"))
   expect_error(torch_opt$generate(), regexp = "could not be loaded: mypackage", fixed = TRUE)
@@ -30,7 +30,7 @@ test_that("Basic checks", {
   )
 
   torch_opt1$param_set$set_values(lr = 0.9191)
-  expect_set_equal(torch_opt1$packages, c("torch"))
+  expect_set_equal(torch_opt1$packages, c("torch", "mlr3torch"))
   expect_equal(torch_opt1$label, "Stochastic Gradient Descent")
   expect_equal(torch_opt1$id, "Sgd")
   expect_equal(torch_opt1$param_set$values$lr, 0.9191)
@@ -81,7 +81,7 @@ test_that("Printer works", {
    "<TorchOptimizer:adam> Adaptive Moment Estimation",
    "* Generator: optim_adam",
    "* Parameters: list()",
-   "* Packages: torch"
+   "* Packages: torch,mlr3torch"
   )
   expect_identical(observed, expected)
 })

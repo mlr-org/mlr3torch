@@ -13,7 +13,7 @@ test_that("TorchDescriptor basic checks", {
   expect_identical(descriptor$generator, nn_mse_loss)
   expect_identical(descriptor$id, "mse")
   expect_identical(descriptor$param_set$ids(), "reduction")
-  expect_set_equal(descriptor$packages, c("R6", "torch"))
+  expect_set_equal(descriptor$packages, c("R6", "torch", "mlr3torch"))
   expect_identical(descriptor$man, "torch::nn_mse_loss")
 
   expect_class(descriptor, "TorchDescriptor")
@@ -24,7 +24,7 @@ test_that("TorchDescriptor basic checks", {
     "<TorchDescriptor:mse> MSE Loss",
     "* Generator: nn_mse_loss",
     "* Parameters: list()",
-    "* Packages: R6,torch"
+    "* Packages: R6,torch,mlr3torch"
   )
   expect_identical(observed, expected)
 
