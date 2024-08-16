@@ -43,7 +43,7 @@ unchanged_shapes = function(shapes_in, param_vals, task) {
 
 #' @title PipeOpPreprocTorchTrafoNop
 #' @usage NULL
-#' @name mlr_pipeops.trafo_nop
+#' @name mlr_pipeops_trafo_nop
 #' @aliases PipeOpPreprocTorchTrafoNop
 #' @rdname PipeOpPreprocTorchTrafoNop
 #' @format [`R6Class`][R6::R6Class] inheriting from [`PipeOpTaskPreprocTorch`].
@@ -54,7 +54,7 @@ register_preproc("trafo_nop", identity, rowwise = FALSE, shapes_out = unchanged_
 
 #' @title PipeOpPreprocTorchTrafoReshape
 #' @usage NULL
-#' @name mlr_pipeops.trafo_reshape
+#' @name mlr_pipeops_trafo_reshape
 #' @aliases PipeOpPreprocTorchTrafoReshape
 #' @rdname PipeOpPreprocTorchTrafoReshape
 #' @format [`R6Class`][R6::R6Class] inheriting from [`PipeOpTaskPreprocTorch`].
