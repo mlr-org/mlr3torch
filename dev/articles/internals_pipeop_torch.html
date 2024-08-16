@@ -104,8 +104,8 @@ features:</p>
 <code class="sourceCode R"><span><span class="va">input</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_randn.html" class="external-link">torch_randn</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="va">input</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.3523 -1.2318  0.3239</span></span>
-<span><span class="co">#&gt;  0.7956  0.8281 -1.7749</span></span>
+<span><span class="co">#&gt;  0.6886  1.5234 -0.4646</span></span>
+<span><span class="co">#&gt; -0.2283 -0.4859  1.8830</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,3} ]</span></span></code></pre></div>
 <p>A <code>nn_module</code> is constructed from a
 <code>nn_module_generator</code>. <code>nn_linear</code> is one of the
@@ -117,8 +117,8 @@ simpler generators:</p>
 <code class="sourceCode R"><span><span class="va">output</span> <span class="op">=</span> <span class="fu">module_1</span><span class="op">(</span><span class="va">input</span><span class="op">)</span></span>
 <span><span class="va">output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.2760 -0.9127  0.6610 -0.1370</span></span>
-<span><span class="co">#&gt;  0.8999  0.5818 -0.5390 -1.4131</span></span>
+<span><span class="co">#&gt; -0.5194 -0.5348 -0.6050  1.0497</span></span>
+<span><span class="co">#&gt;  0.9937  0.5747  0.5523 -0.8098</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,4} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span></code></pre></div>
 <p>A neural network with one (4-unit) hidden layer and two outputs needs
 the following ingredients</p>
@@ -134,8 +134,8 @@ the following ingredients</p>
 <span><span class="va">output</span> <span class="op">=</span> <span class="fu">softmax</span><span class="op">(</span><span class="va">output</span><span class="op">)</span></span>
 <span><span class="va">output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.2606  0.3220  0.4174</span></span>
-<span><span class="co">#&gt;  0.3031  0.3645  0.3324</span></span>
+<span><span class="co">#&gt;  0.3351  0.3104  0.3545</span></span>
+<span><span class="co">#&gt;  0.3483  0.2008  0.4510</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,3} ][ grad_fn = &lt;SoftmaxBackward0&gt; ]</span></span></code></pre></div>
 <p>We will now continue with showing how such a neural network can be
 represented in <code>mlr3torch</code>.</p>
@@ -170,8 +170,8 @@ multiple times.</p>
 <code class="sourceCode R"><span><span class="va">output</span> <span class="op">=</span> <span class="va">po_module_1</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">input</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.2760 -0.9127  0.6610 -0.1370</span></span>
-<span><span class="co">#&gt;  0.8999  0.5818 -0.5390 -1.4131</span></span>
+<span><span class="co">#&gt; -0.5194 -0.5348 -0.6050  1.0497</span></span>
+<span><span class="co">#&gt;  0.9937  0.5747  0.5523 -0.8098</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,4} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span></code></pre></div>
 <p>Note we only use the <code>$train()</code>, since torch modules do
 not have anything that maps to the <code>state</code> (it is filled by
@@ -196,8 +196,8 @@ tensor through the whole <code>Graph</code>.</p>
 <code class="sourceCode R"><span><span class="va">output</span> <span class="op">=</span> <span class="va">module_graph</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">input</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.2606  0.3220  0.4174</span></span>
-<span><span class="co">#&gt;  0.3031  0.3645  0.3324</span></span>
+<span><span class="co">#&gt;  0.3351  0.3104  0.3545</span></span>
+<span><span class="co">#&gt;  0.3483  0.2008  0.4510</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,3} ][ grad_fn = &lt;SoftmaxBackward0&gt; ]</span></span></code></pre></div>
 <p>While this object allows to easily perform a forward pass, it does
 not inherit from <code>nn_module</code>, which is useful for various
@@ -245,8 +245,8 @@ objects, e.g.:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">graph_module</span><span class="op">(</span><span class="va">input</span><span class="op">)</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.2606  0.3220  0.4174</span></span>
-<span><span class="co">#&gt;  0.3031  0.3645  0.3324</span></span>
+<span><span class="co">#&gt;  0.3351  0.3104  0.3545</span></span>
+<span><span class="co">#&gt;  0.3483  0.2008  0.4510</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,3} ][ grad_fn = &lt;SoftmaxBackward0&gt; ]</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -363,8 +363,8 @@ to an <code>nn_graph</code>, it is a functional
 <span></span>
 <span><span class="fu">small_module</span><span class="op">(</span><span class="va">input</span><span class="op">)</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; -0.0085  0.5001  0.0189 -0.8415</span></span>
-<span><span class="co">#&gt;  0.2737 -1.1212  0.2270 -0.3720</span></span>
+<span><span class="co">#&gt;  0.2002 -0.1355  0.8235  1.2075</span></span>
+<span><span class="co">#&gt; -1.1713 -0.2991  0.4776 -0.6605</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,4} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -429,9 +429,9 @@ inputs (see below).</p>
 <span></span>
 <span><span class="fu">small_module</span><span class="op">(</span><span class="va">batch</span><span class="op">$</span><span class="va">x</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; -2.2059 -0.9033  2.7936  3.0107</span></span>
-<span><span class="co">#&gt; -2.0079 -1.0007  2.6154  2.7973</span></span>
-<span><span class="co">#&gt; -2.0381 -0.8644  2.5998  2.7272</span></span>
+<span><span class="co">#&gt; -0.9670  0.3528  1.9821  0.5473</span></span>
+<span><span class="co">#&gt; -0.7823  0.3230  1.8976  0.7231</span></span>
+<span><span class="co">#&gt; -0.8980  0.2995  1.8627  0.5497</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{3,4} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -457,8 +457,8 @@ since the <code>ModelDescriptor</code> that is passed along the
 <span></span>
 <span><span class="fu">graph_module</span><span class="op">(</span><span class="va">input</span><span class="op">)</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.3326  0.2813  0.3860</span></span>
-<span><span class="co">#&gt;  0.3416  0.2208  0.4376</span></span>
+<span><span class="co">#&gt;  0.2972  0.4167  0.2862</span></span>
+<span><span class="co">#&gt;  0.2418  0.4720  0.2862</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,3} ][ grad_fn = &lt;SoftmaxBackward0&gt; ]</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -673,14 +673,14 @@ the <code>nn_module</code>’s <code>$graph</code>:</p>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; $lin_out.output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; -0.6452</span></span>
-<span><span class="co">#&gt; -0.5805</span></span>
+<span><span class="co">#&gt; -0.5266</span></span>
+<span><span class="co">#&gt; -0.5441</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,1} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $nn_softmax.output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.6540  0.0882  0.2578</span></span>
-<span><span class="co">#&gt;  0.6189  0.1049  0.2761</span></span>
+<span><span class="co">#&gt;  0.2203  0.4658  0.3139</span></span>
+<span><span class="co">#&gt;  0.2211  0.4608  0.3181</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,3} ][ grad_fn = &lt;SoftmaxBackward0&gt; ]</span></span></code></pre></div>
 <p>The first linear layer that takes “Sepal” input
 (<code>"linear1"</code>) creates a 2x4 tensor (batch size 2, 4 units),
@@ -689,14 +689,14 @@ while the <code>"linear3"</code> layer has 2x5 output:</p>
 <code class="sourceCode R"><span><span class="va">iris_module</span><span class="op">$</span><span class="va">graph</span><span class="op">$</span><span class="va">pipeops</span><span class="op">$</span><span class="va">linear1</span><span class="op">$</span><span class="va">.result</span></span>
 <span><span class="co">#&gt; $output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; -0.3670  2.6644  1.5224  2.9457</span></span>
-<span><span class="co">#&gt; -0.1040  2.4606  1.4121  2.6115</span></span>
+<span><span class="co">#&gt; -3.8580 -1.0830 -1.7136  0.4629</span></span>
+<span><span class="co">#&gt; -3.5353 -1.1476 -1.6128  0.5261</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,4} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span>
 <span><span class="va">iris_module</span><span class="op">$</span><span class="va">graph</span><span class="op">$</span><span class="va">pipeops</span><span class="op">$</span><span class="va">linear3</span><span class="op">$</span><span class="va">.result</span></span>
 <span><span class="co">#&gt; $output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; -0.0572  0.8390  0.6079  0.6556 -0.2773</span></span>
-<span><span class="co">#&gt; -0.0572  0.8390  0.6079  0.6556 -0.2773</span></span>
+<span><span class="co">#&gt; -0.1886  0.3924  0.7736 -0.4227 -0.1783</span></span>
+<span><span class="co">#&gt; -0.1886  0.3924  0.7736 -0.4227 -0.1783</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,5} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span></span></code></pre></div>
 <p>We observe that the <code>po("nn_merge_cat")</code> concatenates
 these, as expected:</p>
@@ -704,8 +704,8 @@ these, as expected:</p>
 <code class="sourceCode R"><span><span class="va">iris_module</span><span class="op">$</span><span class="va">graph</span><span class="op">$</span><span class="va">pipeops</span><span class="op">$</span><span class="va">nn_merge_cat</span><span class="op">$</span><span class="va">.result</span></span>
 <span><span class="co">#&gt; $output</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt; -0.3670  2.6644  1.5224  2.9457 -0.0572  0.8390  0.6079  0.6556 -0.2773</span></span>
-<span><span class="co">#&gt; -0.1040  2.4606  1.4121  2.6115 -0.0572  0.8390  0.6079  0.6556 -0.2773</span></span>
+<span><span class="co">#&gt; -3.8580 -1.0830 -1.7136  0.4629 -0.1886  0.3924  0.7736 -0.4227 -0.1783</span></span>
+<span><span class="co">#&gt; -3.5353 -1.1476 -1.6128  0.5261 -0.1886  0.3924  0.7736 -0.4227 -0.1783</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,9} ][ grad_fn = &lt;CatBackward0&gt; ]</span></span></code></pre></div>
 </li>
 </ol>
