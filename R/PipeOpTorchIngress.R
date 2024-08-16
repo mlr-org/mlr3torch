@@ -40,7 +40,7 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
         param_vals = param_vals,
         input = data.table(name = "input", train = "Task", predict = "Task"),
         output = data.table(name = "output", train = "ModelDescriptor", predict = "Task"),
-        packages = packages
+        packages = union(packages, "mlr3torch")
       )
      }
   ),

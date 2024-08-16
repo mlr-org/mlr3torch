@@ -198,7 +198,7 @@ PipeOpTaskPreprocTorch = R6Class("PipeOpTaskPreprocTorch",
         param_vals = param_vals,
         param_set = param_set,
         feature_types = "lazy_tensor",
-        packages = packages,
+        packages = union(packages, "mlr3torch"),
         tags = unique(c(tags, "torch"))
       )
     },

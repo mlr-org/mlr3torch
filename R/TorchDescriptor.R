@@ -62,7 +62,7 @@ TorchDescriptor = R6Class("TorchDescriptor",
       self$man = assert_string(man, null.ok = TRUE)
       self$id = assert_string(id %??% class(generator)[[1L]], min.chars = 1L)
       self$label = assert_string(label %??% self$id, min.chars = 1L)
-      self$packages = assert_names(unique(union(packages, "torch")), type = "strict")
+      self$packages = assert_names(unique(union(packages, c("torch", "mlr3torch"))), type = "strict")
     },
     #' @description
     #' Prints the object
