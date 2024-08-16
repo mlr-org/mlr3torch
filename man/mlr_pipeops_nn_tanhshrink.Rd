@@ -91,6 +91,7 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_squeeze}},
 \code{\link{mlr_pipeops_nn_tanh}},
 \code{\link{mlr_pipeops_nn_threshold}},
+\code{\link{mlr_pipeops_nn_unsqueeze}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},
 \code{\link{mlr_pipeops_torch_ingress_ltnsr}},

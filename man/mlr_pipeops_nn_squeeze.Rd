@@ -3,7 +3,6 @@
 \name{mlr_pipeops_nn_squeeze}
 \alias{mlr_pipeops_nn_squeeze}
 \alias{PipeOpTorchSqueeze}
-\alias{PipeOpTorchUnsqueeze}
 \title{Squeeze a Tensor}
 \description{
 Squeezes a tensor by calling \code{\link[torch:torch_squeeze]{torch::torch_squeeze()}} with the given dimension \code{dim}.
@@ -12,24 +11,14 @@ Squeezes a tensor by calling \code{\link[torch:torch_squeeze]{torch::torch_squee
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
 For an explanation see \code{\link{PipeOpTorch}}.
-
-
-One input channel called \code{"input"} and one output channel called \code{"output"}.
-For an explanation see \code{\link{PipeOpTorch}}.
 }
 
 \section{State}{
 
 The state is the value calculated by the public method \verb{$shapes_out()}.
-
-
-The state is the value calculated by the public method \verb{$shapes_out()}.
 }
 
 \section{Credit}{
-
-Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
-
 
 Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
 }
@@ -41,31 +30,14 @@ Part of this documentation have been copied or adapted from the documentation of
 The dimension to squeeze. If \code{NULL}, all dimensions of size 1 will be squeezed.
 Negative values are interpreted downwards from the last dimension.
 }
-
-
-\itemize{
-\item \code{dim} :: \code{integer(1)}\cr
-The dimension which to unsqueeze. Negative values are interpreted downwards from the last dimension.
-}
 }
 
 \section{Internals}{
 
 Calls \code{\link[=nn_squeeze]{nn_squeeze()}} when trained.
-
-
-Calls \code{\link[=nn_unsqueeze]{nn_unsqueeze()}} when trained.
-This internally calls \code{\link[torch:torch_unsqueeze]{torch::torch_unsqueeze()}}.
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-# Construct the PipeOp
-pipeop = po("nn_squeeze")
-pipeop
-# The available parameters
-pipeop$param_set
-\dontshow{\}) # examplesIf}
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Construct the PipeOp
 pipeop = po("nn_squeeze")
@@ -124,64 +96,7 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_tanh}},
 \code{\link{mlr_pipeops_nn_tanhshrink}},
 \code{\link{mlr_pipeops_nn_threshold}},
-\code{\link{mlr_pipeops_torch_ingress}},
-\code{\link{mlr_pipeops_torch_ingress_categ}},
-\code{\link{mlr_pipeops_torch_ingress_ltnsr}},
-\code{\link{mlr_pipeops_torch_ingress_num}},
-\code{\link{mlr_pipeops_torch_loss}},
-\code{\link{mlr_pipeops_torch_model}},
-\code{\link{mlr_pipeops_torch_model_classif}},
-\code{\link{mlr_pipeops_torch_model_regr}}
-
-Other PipeOps: 
-\code{\link{mlr_pipeops_nn_avg_pool1d}},
-\code{\link{mlr_pipeops_nn_avg_pool2d}},
-\code{\link{mlr_pipeops_nn_avg_pool3d}},
-\code{\link{mlr_pipeops_nn_batch_norm1d}},
-\code{\link{mlr_pipeops_nn_batch_norm2d}},
-\code{\link{mlr_pipeops_nn_batch_norm3d}},
-\code{\link{mlr_pipeops_nn_block}},
-\code{\link{mlr_pipeops_nn_celu}},
-\code{\link{mlr_pipeops_nn_conv1d}},
-\code{\link{mlr_pipeops_nn_conv2d}},
-\code{\link{mlr_pipeops_nn_conv3d}},
-\code{\link{mlr_pipeops_nn_conv_transpose1d}},
-\code{\link{mlr_pipeops_nn_conv_transpose2d}},
-\code{\link{mlr_pipeops_nn_conv_transpose3d}},
-\code{\link{mlr_pipeops_nn_dropout}},
-\code{\link{mlr_pipeops_nn_elu}},
-\code{\link{mlr_pipeops_nn_flatten}},
-\code{\link{mlr_pipeops_nn_gelu}},
-\code{\link{mlr_pipeops_nn_glu}},
-\code{\link{mlr_pipeops_nn_hardshrink}},
-\code{\link{mlr_pipeops_nn_hardsigmoid}},
-\code{\link{mlr_pipeops_nn_hardtanh}},
-\code{\link{mlr_pipeops_nn_head}},
-\code{\link{mlr_pipeops_nn_layer_norm}},
-\code{\link{mlr_pipeops_nn_leaky_relu}},
-\code{\link{mlr_pipeops_nn_linear}},
-\code{\link{mlr_pipeops_nn_log_sigmoid}},
-\code{\link{mlr_pipeops_nn_max_pool1d}},
-\code{\link{mlr_pipeops_nn_max_pool2d}},
-\code{\link{mlr_pipeops_nn_max_pool3d}},
-\code{\link{mlr_pipeops_nn_merge}},
-\code{\link{mlr_pipeops_nn_merge_cat}},
-\code{\link{mlr_pipeops_nn_merge_prod}},
-\code{\link{mlr_pipeops_nn_merge_sum}},
-\code{\link{mlr_pipeops_nn_prelu}},
-\code{\link{mlr_pipeops_nn_relu}},
-\code{\link{mlr_pipeops_nn_relu6}},
-\code{\link{mlr_pipeops_nn_reshape}},
-\code{\link{mlr_pipeops_nn_rrelu}},
-\code{\link{mlr_pipeops_nn_selu}},
-\code{\link{mlr_pipeops_nn_sigmoid}},
-\code{\link{mlr_pipeops_nn_softmax}},
-\code{\link{mlr_pipeops_nn_softplus}},
-\code{\link{mlr_pipeops_nn_softshrink}},
-\code{\link{mlr_pipeops_nn_softsign}},
-\code{\link{mlr_pipeops_nn_tanh}},
-\code{\link{mlr_pipeops_nn_tanhshrink}},
-\code{\link{mlr_pipeops_nn_threshold}},
+\code{\link{mlr_pipeops_nn_unsqueeze}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},
 \code{\link{mlr_pipeops_torch_ingress_ltnsr}},
@@ -242,67 +157,6 @@ otherwise be set during construction.}
 The objects of this class are cloneable with this method.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchSqueeze$clone(deep = FALSE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
-}
-\section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{mlr3torch::PipeOpTorch}} -> \code{PipeOpTorchUnsqueeze}
-}
-\section{Methods}{
-\subsection{Public methods}{
-\itemize{
-\item \href{#method-PipeOpTorchUnsqueeze-new}{\code{PipeOpTorchUnsqueeze$new()}}
-\item \href{#method-PipeOpTorchUnsqueeze-clone}{\code{PipeOpTorchUnsqueeze$clone()}}
-}
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
-<ul>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-print'><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="PipeOpTorch" data-id="shapes_out"><a href='../../mlr3torch/html/PipeOpTorch.html#method-PipeOpTorch-shapes_out'><code>mlr3torch::PipeOpTorch$shapes_out()</code></a></span></li>
-</ul>
-</details>
-}}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-PipeOpTorchUnsqueeze-new"></a>}}
-\if{latex}{\out{\hypertarget{method-PipeOpTorchUnsqueeze-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of this \link[R6:R6Class]{R6} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchUnsqueeze$new(id = "nn_unsqueeze", param_vals = list())}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{id}}{(\code{character(1)})\cr
-Identifier of the resulting  object.}
-
-\item{\code{param_vals}}{(\code{list()})\cr
-List of hyperparameter settings, overwriting the hyperparameter settings that would
-otherwise be set during construction.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-PipeOpTorchUnsqueeze-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-PipeOpTorchUnsqueeze-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchUnsqueeze$clone(deep = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

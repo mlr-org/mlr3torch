@@ -108,7 +108,7 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
 
 #' @title Unqueeze a Tensor
 #'
-#' @templateVar id nn_squeeze
+#' @templateVar id nn_unsqueeze
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
 #' @template pipeop_torch_example
