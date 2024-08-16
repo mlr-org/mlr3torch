@@ -104,23 +104,23 @@ Can be converted to a <code><a href="https://rdatatable.gitlab.io/data.table/ref
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;TorchLoss:mse&gt; Mean Squared Error</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Generator: nn_mse_loss</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: list()</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Packages: torch</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Packages: torch,mlr3torch</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Task Types: regr</span>
 <span class="r-in"><span><span class="co"># is equivalent to</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="t_loss.html">t_loss</a></span><span class="op">(</span><span class="st">"mse"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;TorchLoss:mse&gt; Mean Squared Error</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Generator: nn_mse_loss</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: list()</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Packages: torch</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Packages: torch,mlr3torch</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Task Types: regr</span>
 <span class="r-in"><span><span class="co"># convert to a data.table</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">mlr3torch_losses</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;key&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              key              label task_types packages</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           &lt;char&gt;             &lt;char&gt;     &lt;list&gt;   &lt;char&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1: cross_entropy      Cross Entropy    classif    torch</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:            l1     Absolute Error       regr    torch</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:           mse Mean Squared Error       regr    torch</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              key              label task_types        packages</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           &lt;char&gt;             &lt;char&gt;     &lt;list&gt;          &lt;char&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1: cross_entropy      Cross Entropy    classif torch,mlr3torch</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:            l1     Absolute Error       regr torch,mlr3torch</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:           mse Mean Squared Error       regr torch,mlr3torch</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
