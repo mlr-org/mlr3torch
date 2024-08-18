@@ -6,7 +6,7 @@ test_that("Autotest", {
 test_that("CallbackSetHistory works", {
   cb = t_clbk("history")
   task = tsk("iris")
-  task$divide(ids = 2)
+  task$internal_valid_task = task$clone(deep = TRUE)$filter(2)
   task$filter(1)
 
   learner = lrn("classif.mlp", epochs = 3, batch_size = 1, callbacks = t_clbk("history"), validate = "predefined")

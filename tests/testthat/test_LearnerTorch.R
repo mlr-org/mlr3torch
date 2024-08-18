@@ -252,8 +252,7 @@ test_that("train parameters do what they should: classification and regression",
     )
 
     # first we test everything with validation
-
-    task$divide(ratio = 2 / 3)
+    learner$validate = 0.3
     learner$train(task)
 
     internals = learner$model$callbacks$internals
@@ -287,7 +286,6 @@ test_that("train parameters do what they should: classification and regression",
     expect_permutation(c("epoch", ids(measures_valid)), colnames(learner$model$callbacks$history$valid))
 
     # now without validation
-    task$internal_valid_task = NULL
     learner$validate = NULL
 
     learner$state = NULL

@@ -11,8 +11,7 @@
 #' * `NULL`: no validation
 #' * `ratio`: only proportion `1 - ratio` of the task is used for training and `ratio` is used for validation.
 #' * `"test"` means that the `"test"` task of a resampling is used and is not possible when calling `$train()` manually.
-#' * `"predefined"`: This will use the predefined `$internal_valid_task` of a [`mlr3::Task`], which can e.g.
-#'   be created using the `$divide()` method  of `Task`.
+#' * `"predefined"`: This will use the predefined `$internal_valid_task` of a [`mlr3::Task`].
 #'
 #' This validation data can also be used for early stopping, see the description of the `Learner`'s parameters.
 #'

@@ -9,7 +9,7 @@ test_that("manual test", {
     drop_last = FALSE, shuffle = TRUE, validate = "predefined"
   )
   task = tsk("iris")
-  task$divide(ids = 2)
+  task$internal_valid_task = task$clone(deep = TRUE)$filter(2)
   task$filter(1)
 
   # Because the validation is so short, it does not show in the example

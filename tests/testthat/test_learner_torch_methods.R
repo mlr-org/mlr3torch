@@ -76,7 +76,8 @@ test_that("torch_network_predict works", {
 
 test_that("Validation Task is respected", {
   task = tsk("iris")
-  task$divide(ids = 1:10)
+  task$internal_valid_task = task$clone(deep = TRUE)$filter(1:10)
+  task$row_roles$use = 1:10
 
   learner = lrn("classif.torch_featureless", epochs = 2, batch_size = 1, measures_train = msrs(c("classif.acc")),
     callbacks = t_clbk("history"), validate = "predefined"
