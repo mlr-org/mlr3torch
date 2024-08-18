@@ -65,8 +65,7 @@ All torch learners should inherit from this class.</p>
 <p>To specify the validation data, you can set the <code>$validate</code> field of the Learner, which can be set to:</p><ul><li><p><code>NULL</code>: no validation</p></li>
 <li><p><code>ratio</code>: only proportion <code>1 - ratio</code> of the task is used for training and <code>ratio</code> is used for validation.</p></li>
 <li><p><code>"test"</code> means that the <code>"test"</code> task of a resampling is used and is not possible when calling <code>$train()</code> manually.</p></li>
-<li><p><code>"predefined"</code>: This will use the predefined <code>$internal_valid_task</code> of a <code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">mlr3::Task</a></code>, which can e.g.
-be created using the <code>$divide()</code> method  of <code>Task</code>.</p></li>
+<li><p><code>"predefined"</code>: This will use the predefined <code>$internal_valid_task</code> of a <code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">mlr3::Task</a></code>.</p></li>
 </ul><p>This validation data can also be used for early stopping, see the description of the <code>Learner</code>'s parameters.</p>
     </div>
     <div class="section level2">
