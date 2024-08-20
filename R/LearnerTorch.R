@@ -432,7 +432,7 @@ LearnerTorch = R6Class("LearnerTorch",
       private$.verify_train_task(task, param_vals)
 
       param_vals$device = auto_device(param_vals$device)
-      if (param_vals$seed == "random") param_vals$seed = sample.int(10000000L, 1L)
+      if (param_vals$seed == "random") param_vals$seed = sample.int(.Machine$integer.max, 1)
 
       model = with_torch_settings(seed = param_vals$seed, num_threads = param_vals$num_threads, {
         learner_torch_train(self, private, super, task, param_vals)

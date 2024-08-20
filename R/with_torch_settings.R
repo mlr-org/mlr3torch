@@ -11,11 +11,8 @@ with_torch_settings = function(seed, num_threads = 1, expr) {
     }
   }
   # sets the seed back when exiting the function
-  local_torch_manual_seed(seed)
-
-  withr::with_seed(
-    seed = seed,
-    code = {
-      force(expr)
-  })
+  if (!is.null(seed)) {
+    local_torch_manual_seed(seed)
+  }
+  force(expr)
 }
