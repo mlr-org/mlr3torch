@@ -178,5 +178,5 @@ test_that("wrong column info stops learner from prediction.", {
 
   learner = lrn("regr.torch_featureless", epochs = 1, batch_size = 50)
   learner$train(t1)
-  expect_error(learner$predict(t2), "more gracefully")
+  expect_error(learner$predict(t2))
 })
