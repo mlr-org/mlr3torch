@@ -43,10 +43,17 @@ jobs:
         with:
           r-version: ${{ matrix.config.r }}
 
-      - name: Set environment variables
+      - name: Set test environment variables (unix)
+        if: runner.os != 'Windows'
         run: |
           echo "TORCH_TEST=1" >> $GITHUB_ENV
           echo "INCLUDE_IGNORED=1" >> $GITHUB_ENV
+
+      - name: Set test environment variables (windows)
+        if: runner.os == 'Windows'
+        run: |
+          echo "TORCH_TEST=1" >> $env:GITHUB_ENV
+          echo "INCLUDE_IGNORED=1" >> $env:GITHUB_ENV
 
       - uses: actions/checkout@v4
 
