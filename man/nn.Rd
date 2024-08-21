@@ -8,6 +8,9 @@ nn(.key, ...)
 }
 \arguments{
 \item{.key}{(\code{character(1)})\cr}
+
+\item{...}{(any)\cr
+Additional parameters, constructor arguments or fields.}
 }
 \description{
 Retrieve a neural network layer from the
