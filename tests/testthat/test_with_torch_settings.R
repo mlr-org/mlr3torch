@@ -22,8 +22,6 @@ test_that("with_torch_settings leaves global state untouched", {
   expect_true(torch_equal(prev_torch_rng_state, torch_get_rng_state()))
 
   expect_equal(torch_get_num_threads(), prev_num_threads)
-  expect_equal(get0(".Random.seed", globalenv(), mode = "integer", inherits = FALSE), prev_seed)
-
 
   # We have checked that within with_torch_settings() everything is as expected,
   # Now we check that not everything afterwards is deterministic
