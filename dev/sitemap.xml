@@ -144,6 +144,7 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/model_descriptor_to_learner.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/model_descriptor_to_module.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/model_descriptor_union.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/nn.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/nn_graph.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/nn_merge_cat.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/nn_merge_prod.html</loc></url>
