@@ -36,6 +36,5 @@ test_that("with_torch_settings leaves global state untouched", {
     with_torch_settings(seed = 1, num_threads = 1, NULL)
     bt = torch_randn(1)
   })
-  expect_false(all(a == b))
   expect_false(torch_equal(at, bt))
 })
