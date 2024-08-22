@@ -417,8 +417,7 @@ test_that("resample() works", {
   expect_r6(rr, "ResampleResult")
 })
 
-test_that("callr encapsulation and marshaling", {
-  skip_if_not_installed("callr")
+test_that("marshaling", {
   task = tsk("mtcars")$filter(1:5)
   learner = lrn("regr.mlp", batch_size = 150, epochs = 1, device = "cpu", encapsulate = c(train = "callr"),
     neurons = 20
@@ -427,12 +426,28 @@ test_that("callr encapsulation and marshaling", {
   expect_false(learner$marshaled)
   learner$marshal()$unmarshal()
   expect_prediction(learner$predict(task))
+})
 
+test_that("callr encapsulation and marshaling", {
+  skip_if_not_installed("callr")
+  task = tsk("mtcars")$filter(1:5)
   learner = lrn("regr.mlp", batch_size = 150, epochs = 1, device = "cpu", encapsulate = c(train = "callr"),
     neurons = 20
   )
   learner$train(task)
   expect_prediction(learner$predict(task))
+})
+
+test_that("future and marshaling", {
+  skip_if_not_installed("future")
+  task = tsk("mtcars")$filter(1:5)
+  learner = lrn("regr.mlp", batch_size = 150, epochs = 1, device = "cpu",
+    neurons = 20
+  )
+  rr = with_future(future::multisession, {
+    resample(task, learner, rsmp("holdout"))
+  })
+  expect_class(rr, "ResampleResult")
 })
 
 test_that("Input verification works during `$train()` (train-predict shapes work together)", {
