@@ -88,13 +88,14 @@ fall back to <code>"cpu"</code>.</p></li>
 <li><p><code>num_threads</code> :: <code>integer(1)</code><br>
 The number of threads for intraop pararallelization (if <code>device</code> is <code>"cpu"</code>).
 This value is initialized to 1.</p></li>
-<li><p><code>seed</code> :: <code>integer(1)</code> or <code>"random"</code><br>
-The seed that is used during training and prediction.
+<li><p><code>seed</code> :: <code>integer(1)</code> or <code>"random"</code> or <code>NULL</code><br>
+The torch seed that is used during training and prediction.
 This value is initialized to <code>"random"</code>, which means that a random seed will be sampled at the beginning of the
 training phase. This seed (either set or randomly sampled) is available via <code>$model$seed</code> after training
 and used during prediction.
 Note that by setting the seed during the training phase this will mean that by default (i.e. when <code>seed</code> is
-<code>"random"</code>), clones of the learner will use a different seed.</p></li>
+<code>"random"</code>), clones of the learner will use a different seed.
+If set to <code>NULL</code>, no seeding will be done.</p></li>
 </ul><p><strong>Evaluation</strong>:</p><ul><li><p><code>measures_train</code> :: <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code>s.<br>
 Measures to be evaluated during training.</p></li>
 <li><p><code>measures_valid</code> :: <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code>s.<br>

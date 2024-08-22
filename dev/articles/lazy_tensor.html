@@ -243,11 +243,11 @@ before:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/materialize.html">materialize</a></span><span class="op">(</span><span class="va">lt</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>, rbind <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
+<span><span class="co">#&gt; -0.9852</span></span>
+<span><span class="co">#&gt; -0.0672</span></span>
+<span><span class="co">#&gt; -0.0044</span></span>
+<span><span class="co">#&gt; -0.4205</span></span>
 <span><span class="co">#&gt;  0.4658</span></span>
-<span><span class="co">#&gt;  0.5450</span></span>
-<span><span class="co">#&gt;  0.7492</span></span>
-<span><span class="co">#&gt; -0.6501</span></span>
-<span><span class="co">#&gt; -0.9315</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{5,1} ]</span></span></code></pre></div>
 <p>Because we added no preprocessing, this is the same as calling the
 <code>$.getbatch()</code> method on <code>mydata</code> and selecting
@@ -386,7 +386,7 @@ nerworks using <code>PipeOpTorch</code> objects. The
 <span><span class="co">#&gt; &lt;DataDescriptor: 1 ops&gt;</span></span>
 <span><span class="co">#&gt; * dataset_shapes: [x: (NA,1)]</span></span>
 <span><span class="co">#&gt; * input_map: (x) -&gt; Graph</span></span>
-<span><span class="co">#&gt; * pointer: nop.a37362.x.output</span></span>
+<span><span class="co">#&gt; * pointer: nop.ac5969.x.output</span></span>
 <span><span class="co">#&gt; * shape: [(NA,1)]</span></span></code></pre></div>
 <p>The printed output of the data descriptor informs us about:</p>
 <ul>
@@ -416,9 +416,9 @@ indices refer to the same <code>DataDescriptor</code>.</p>
 <code class="sourceCode R"><span><span class="va">lt</span> <span class="op">=</span> <span class="fu"><a href="../reference/lazy_tensor.html">lazy_tensor</a></span><span class="op">(</span><span class="va">desc</span>, ids <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/materialize.html">materialize</a></span><span class="op">(</span><span class="va">lt</span>, rbind <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.4658</span></span>
-<span><span class="co">#&gt;  0.4658</span></span>
-<span><span class="co">#&gt;  0.5450</span></span>
+<span><span class="co">#&gt; -0.9852</span></span>
+<span><span class="co">#&gt; -0.9852</span></span>
+<span><span class="co">#&gt; -0.0672</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{3,1} ]</span></span></code></pre></div>
 <p>Internally, the lazy tensor is represented as a list of lists, each
 element containing an id and a <code>DataDescriptor</code> Currently,
@@ -433,7 +433,7 @@ there can only be a single <code>DataDescriptor</code> in a
 <span><span class="co">#&gt; &lt;DataDescriptor: 1 ops&gt;</span></span>
 <span><span class="co">#&gt; * dataset_shapes: [x: (NA,1)]</span></span>
 <span><span class="co">#&gt; * input_map: (x) -&gt; Graph</span></span>
-<span><span class="co">#&gt; * pointer: nop.a37362.x.output</span></span>
+<span><span class="co">#&gt; * pointer: nop.ac5969.x.output</span></span>
 <span><span class="co">#&gt; * shape: [(NA,1)]</span></span></code></pre></div>
 <p>What happens during <code>materialize(lt[1])</code> is the
 following:</p>
@@ -456,7 +456,7 @@ following:</p>
 <span><span class="va">tensor</span> <span class="op">=</span> <span class="va">graph_output</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">desc</span><span class="op">$</span><span class="va">pointer</span>, collapse <span class="op">=</span> <span class="st">"."</span><span class="op">)</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">tensor</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  0.4658</span></span>
+<span><span class="co">#&gt; -0.9852</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{1,1} ]</span></span></code></pre></div>
 <p>Preprocessing a <code>lazy_tensor</code> vector adds new
 <code>PipeOp</code>s to the preprocessing graph and updates the
@@ -483,8 +483,8 @@ feature.</p>
 <span><span class="co">#&gt; Graph with 2 PipeOps:</span></span>
 <span><span class="co">#&gt;            ID         State sccssors    prdcssors</span></span>
 <span><span class="co">#&gt;        &lt;char&gt;        &lt;char&gt;   &lt;char&gt;       &lt;char&gt;</span></span>
-<span><span class="co">#&gt;  nop.a37362.x        &lt;list&gt;   poly.x             </span></span>
-<span><span class="co">#&gt;        poly.x &lt;&lt;UNTRAINED&gt;&gt;          nop.a37362.x</span></span></code></pre></div>
+<span><span class="co">#&gt;  nop.ac5969.x        &lt;list&gt;   poly.x             </span></span>
+<span><span class="co">#&gt;        poly.x &lt;&lt;UNTRAINED&gt;&gt;          nop.ac5969.x</span></span></code></pre></div>
 <p>We see that the <code>$graph</code> has a new pipeop with id
 <code>"poly.x"</code> and the output <code>pointer</code> points to
 <code>poly.x</code>. Also we see that the shape of the tensor is now
@@ -493,8 +493,8 @@ can verify by calling <code><a href="../reference/materialize.html">materialize(
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/materialize.html">materialize</a></span><span class="op">(</span><span class="va">lt_out</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span>, rbind <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; torch_tensor</span></span>
-<span><span class="co">#&gt;  1.0000  0.4658  0.2169  0.1010  0.0471  0.0048  0.0002</span></span>
-<span><span class="co">#&gt;  1.0000  0.4658  0.2169  0.1010  0.0471  0.0048  0.0002</span></span>
+<span><span class="co">#&gt;  1.0000 -0.9852  0.9706 -0.9563  0.9421 -0.9009 -0.8487</span></span>
+<span><span class="co">#&gt;  1.0000 -0.9852  0.9706 -0.9563  0.9421 -0.9009 -0.8487</span></span>
 <span><span class="co">#&gt; [ CPUFloatType{2,7} ]</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
