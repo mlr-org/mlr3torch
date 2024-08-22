@@ -425,6 +425,7 @@ expect_learner_torch = function(learner, task, check_man = TRUE, check_id = TRUE
   learner1$state = NULL
   expect_deep_clone(learner1, learner1$clone(deep = TRUE))
   rr = resample(task, learner, rsmp("holdout"))
+  expect_double(rr$aggregate())
   checkmate::expect_class(rr, "ResampleResult")
   if (check_id) testthat::expect_true(startsWith(learner$id, learner$task_type))
   checkmate::expect_subset(c("loss", "optimizer", "callbacks"), formalArgs(learner$initialize))
