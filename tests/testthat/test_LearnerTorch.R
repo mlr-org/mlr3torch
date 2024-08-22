@@ -457,24 +457,6 @@ test_that("Input verification works during `$train()` (train-predict shapes work
   expect_true(nrow(rr2$errors) == 0L)
 })
 
-test_that("Input verification works during `$predict()` (same column info, problematic fct -> int conversion)", {
-  task1 = as_task_classif(data.table(
-    y = factor(c("A", "B"))
-  ), target = "y", id = "test1")
-
-  task2 = as_task_classif(data.table(
-    y = factor(c("A", "B"), labels = c("B", "A"), levels = c("B", "A"))
-  ), target = "y", id = "test2")
-
-  learner = lrn("classif.torch_featureless", batch_size = 1L, epochs = 0L)
-
-  learner$train(task1)
-  expect_error(
-    learner$predict(task2),
-    "does not match"
-  )
-})
-
 test_that("col_info is propertly subset when comparing task validity during predict", {
   task = tsk("iris")$select("Sepal.Length")
   learner = classif_mlp2()

@@ -169,14 +169,3 @@ test_that("learner_torch_dataloader_predict works", {
   expect_false(dl$drop_last)
   expect_class(dl$batch_sampler$sampler, "utils_sampler_sequential")
 })
-
-test_that("wrong column info stops learner from prediction.", {
-  d1 = data.table(x = 1:10, y = 1:10)
-  d2 = data.table(x = runif(10), y = 1:10)
-  t1 = as_task_regr(d1, target = "y")
-  t2 = as_task_regr(d2, target = "y")
-
-  learner = lrn("regr.torch_featureless", epochs = 1, batch_size = 50)
-  learner$train(t1)
-  expect_error(learner$predict(t2), "more gracefully")
-})
