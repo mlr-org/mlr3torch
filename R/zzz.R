@@ -20,6 +20,7 @@
 # to silence RCMD check
 utils::globalVariables(c("self", "private", "super", ".."))
 if (FALSE) knitr::knit2pandoc
+if (FALSE) withr::with_seed
 
 mlr3torch_pipeops = new.env()
 mlr3torch_learners = new.env()
