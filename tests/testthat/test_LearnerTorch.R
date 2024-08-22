@@ -750,3 +750,11 @@ test_that("error when dataloaders have length 0", {
   task = tsk("mtcars")
   expect_error({learner$train(task)}, "has length 0") # nolint
 })
+
+test_that("can set seed to NULL", {
+  task = tsk("iris")
+  l = lrn("classif.torch_featureless", epochs = 1, batch_size = 150, seed = NULL)
+  l$train(task)
+  l$predict(task)
+  expect_true(is.null(l$model$seed))
+})

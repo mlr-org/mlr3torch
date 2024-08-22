@@ -70,13 +70,14 @@ fall back to \code{"cpu"}.
 \item \code{num_threads} :: \code{integer(1)}\cr
 The number of threads for intraop pararallelization (if \code{device} is \code{"cpu"}).
 This value is initialized to 1.
-\item \code{seed} :: \code{integer(1)} or \code{"random"}\cr
-The seed that is used during training and prediction.
+\item \code{seed} :: \code{integer(1)} or \code{"random"} or \code{NULL}\cr
+The torch seed that is used during training and prediction.
 This value is initialized to \code{"random"}, which means that a random seed will be sampled at the beginning of the
 training phase. This seed (either set or randomly sampled) is available via \verb{$model$seed} after training
 and used during prediction.
 Note that by setting the seed during the training phase this will mean that by default (i.e. when \code{seed} is
 \code{"random"}), clones of the learner will use a different seed.
+If set to \code{NULL}, no seeding will be done.
 }
 
 \strong{Evaluation}:

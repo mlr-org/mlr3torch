@@ -70,7 +70,7 @@ LearnerTorchTabResNet = R6Class("LearnerTorchTabResNet",
     .network = function(task, param_vals) {
       graph = po("torch_ingress_num") %>>%
         po("nn_linear", out_features = param_vals$d_block) %>>%
-        po("nn_block", private$.block, n_blocks = param_vals$n_blocks)
+        po("nn_block", private$.block, n_blocks = param_vals$n_blocks) %>>%
         po("nn_head")
 
       md = graph$train(task)[[1L]]

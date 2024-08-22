@@ -14,13 +14,14 @@
 #' * `num_threads` :: `integer(1)`\cr
 #'   The number of threads for intraop pararallelization (if `device` is `"cpu"`).
 #'   This value is initialized to 1.
-#' * `seed` :: `integer(1)` or `"random"`\cr
-#'   The seed that is used during training and prediction.
+#' * `seed` :: `integer(1)` or `"random"` or `NULL`\cr
+#'   The torch seed that is used during training and prediction.
 #'   This value is initialized to `"random"`, which means that a random seed will be sampled at the beginning of the
 #'   training phase. This seed (either set or randomly sampled) is available via `$model$seed` after training
 #'   and used during prediction.
 #'   Note that by setting the seed during the training phase this will mean that by default (i.e. when `seed` is
 #'   `"random"`), clones of the learner will use a different seed.
+#'   If set to `NULL`, no seeding will be done.
 #'
 #' **Evaluation**:
 #' * `measures_train` :: [`Measure`][mlr3::Measure] or `list()` of [`Measure`][mlr3::Measure]s.\cr
