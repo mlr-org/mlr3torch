@@ -47,7 +47,8 @@ Imports:
     methods,
     mlr3misc (>= 0.14.0),
     paradox (>= 1.0.0),
-    R6
+    R6,
+	withr
 Suggests:
     callr,
     future,

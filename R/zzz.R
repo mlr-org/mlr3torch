@@ -29,6 +29,9 @@ mlr3torch_task_generators = new.env()
 mlr3torch_pipeop_tags = c("torch", "activation")
 mlr3torch_feature_types = c(lt = "lazy_tensor")
 
+# silence static checker
+withr::with_seed
+
 register_po = function(name, constructor, metainf = NULL) {
   if (name %in% names(mlr3torch_pipeops)) stopf("pipeop %s registered twice", name)
   mlr3torch_pipeops[[name]] = list(constructor = constructor, metainf = substitute(metainf))
