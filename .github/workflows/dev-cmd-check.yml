@@ -18,7 +18,7 @@ on:
     - cron:  '0 4 * * 1'
 
 
-name: r-cmd-check
+name: dev-cmd-check
 
 jobs:
   r-cmd-check:
