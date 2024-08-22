@@ -161,7 +161,7 @@ layer = list(
 ```
 
 Next, we create a neural network that takes as input a `lazy_tensor`
-(`po("torch_ingress_num")`). It first applies a linear layer and then
+(`po("torch_ingress_ltnsr")`). It first applies a linear layer and then
 repeats the above layer using the special `PipeOpTorchBlock`, followed
 by the network’s head. After that, we configure the loss, optimizer and
 the training parameters. Note that `po("nn_linear_0")` is equivalent to
