@@ -25,7 +25,14 @@ Authors@R:
              family = "Pfisterer",
              role = "ctb",
              email = "pfistererf@googlemail.com",
-             comment = c(ORCID = "0000-0001-8867-762X")))
+             comment = c(ORCID = "0000-0001-8867-762X")),
+      person(given = "Carson",
+             family = "Zhang",
+             role = "ctb",
+             email = "carsonzhang4@gmail.com")
+             ),
+             
+
 Description: Deep Learning library that extends the mlr3 framework by building
   upon the 'torch' package. It allows to conveniently build, train,
   and evaluate deep learning models without having to worry about low level
@@ -64,6 +71,7 @@ Suggests:
     viridis,
     visNetwork,
     testthat (>= 3.0.0),
+    tfevents,
     torchvision (>= 0.6.0),
     waldo
 Config/testthat/edition: 3
