@@ -22,25 +22,11 @@ CallbackSetTB = R6Class("CallbackSetTB",
         initialize = function(path = tempfile()) {
             self$path = assert_path_for_output(path)
         },
-        # #' @description
-        # #' Logs the training measures as TensorFlow events.
-        # #' Meaningful changes happen at the end of each batch, 
-        # #' since this is when the gradient step occurs.
-        # # TODO: change this to log last_loss
-        # on_batch_end = function() {
-        #     # TODO: determine whether you can refactor this and the 
-        #     # validation one into a single function
-        #     # need to be able to access self$ctx
-
-        #     # TODO: pass in the appropriate step from the context
-        #     log_event(last_loss = self$ctx$last_loss)
-        # },
         #' @description
-        #' Logs the validation measures as TensorFlow events.
+        #' Logs the training loss and validation measures as TensorFlow events.
         #' Meaningful changes happen at the end of each epoch.
         #' Notably NOT on_batch_valid_end, since there are no gradient steps between validation batches,
         #' and therefore differences are due to randomness
-        # TODO: log last_scores_train here
         # TODO: display the appropriate x axis with its label in TensorBoard
         # relevant when we log different scores at different times
         on_epoch_end = function() {
@@ -53,13 +39,8 @@ CallbackSetTB = R6Class("CallbackSetTB",
             }
 
             log_train_score = function(measure_name) {
-                # OLD: previously logged the elements in last_scores_train
-                # train_score = list(self$ctx$last_scores_train[[measure_name]])
-                # names(train_score) = paste0("train.", measure_name)
-                # with_logdir(temp, {
-                #     do.call(log_event, train_score)
-                # })
                 # TODO: figure out what self$ctx$last_loss looks like when there are multiple train measures
+                # TODO: remind ourselves why we wanted to display last_loss and not last_scores_train
                 with_logdir(self$path, {
                     log_event(train.loss = self$ctx$last_loss)
                 })
