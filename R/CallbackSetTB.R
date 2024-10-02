@@ -3,7 +3,7 @@
 #' @name mlr_callback_set.tb
 #'
 #' @description
-#' Logs the training and validation measures for tracking via TensorBoard.
+#' Logs training loss and validation measures as events that can be tracked using TensorBoard.
 #' @details
 #' TODO: add
 #'
@@ -47,17 +47,21 @@ CallbackSetTB = R6Class("CallbackSetTB",
             log_valid_score = function(measure_name) {
                 valid_score = list(self$ctx$last_scores_valid[[measure_name]])
                 names(valid_score) = paste0("valid.", measure_name)
-                with_logdir(temp, {
+                with_logdir(self$path, {
                     do.call(log_event, valid_score)
                 })
             }
 
             log_train_score = function(measure_name) {
-                # TODO: change this to use last_loss. I don't recall why we wanted to do that.
-                train_score = list(self$ctx$last_scores_train[[measure_name]])
-                names(train_score) = paste0("train.", measure_name)
-                with_logdir(temp, {
-                    do.call(log_event, valid_score)
+                # OLD: previously logged the elements in last_scores_train
+                # train_score = list(self$ctx$last_scores_train[[measure_name]])
+                # names(train_score) = paste0("train.", measure_name)
+                # with_logdir(temp, {
+                #     do.call(log_event, train_score)
+                # })
+                # TODO: figure out what self$ctx$last_loss looks like when there are multiple train measures
+                with_logdir(self$path, {
+                    log_event(train.loss = self$ctx$last_loss)
                 })
             }
 
