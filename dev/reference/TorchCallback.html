@@ -209,7 +209,7 @@ The referenced help package can be opened via method <code>$help()</code>.</p></
 <span class="r-in"><span><span class="va">torch_callback</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;TorchCallback:checkpoint&gt; Checkpoint</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Generator: CallbackSetCheckpoint</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: path=/tmp/Rtmp4a2vlb/file1ad576ba4a5b, freq=1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: path=/tmp/RtmpUzM8Hy/file1af8671bb8b8, freq=1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Packages: mlr3torch,torch</span>
 <span class="r-in"><span><span class="va">torch_callback</span><span class="op">$</span><span class="va">label</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Checkpoint"</span>
@@ -233,7 +233,6 @@ The referenced help package can be opened via method <code>$help()</code>.</p></
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Use in a learner</span></span></span>
 <span class="r-in"><span><span class="va">learner</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.mlp"</span>, callbacks <span class="op">=</span> <span class="fu"><a href="t_clbk.html">t_clbk</a></span><span class="op">(</span><span class="st">"checkpoint"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Learner$initialize argument 'data_formats' is deprecated and will be removed in the future.</span>
 <span class="r-in"><span><span class="co"># the parameters of the callback are added to the learner's parameter set</span></span></span>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="va">param_set</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSetCollection(35)&gt;</span>
