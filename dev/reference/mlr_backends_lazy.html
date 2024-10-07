@@ -170,7 +170,7 @@ Whether the backend has already been constructed.</p></dd>
 <h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
 <p>Creates a new instance of this <a href="https://r6.r-lib.org/reference/R6Class.html" class="external-link">R6</a> class.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/mlr_backends_lazy.html">DataBackendLazy</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">constructor</span>, <span class="va">rownames</span>, <span class="va">col_info</span>, <span class="va">primary_key</span>, <span class="va">data_formats</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/mlr_backends_lazy.html">DataBackendLazy</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">constructor</span>, <span class="va">rownames</span>, <span class="va">col_info</span>, <span class="va">primary_key</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -197,12 +197,6 @@ Note that the levels must be provided in the correct order.</p></dd>
 Name of the primary key column.</p></dd>
 
 
-<dt><code>data_formats</code></dt>
-<dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
-Set of supported data formats. E.g. <code>"data.table"</code>.
-These must be a subset of the data formats of the lazily constructed backend.</p></dd>
-
-
 </dl><p></p></div>
 </div>
 
@@ -215,7 +209,7 @@ Rows are guaranteed to be returned in the same order as <code>rows</code>, colum
 Duplicated row ids result in duplicated rows, duplicated column names lead to an exception.</p>
 <p>Accessing the data triggers the construction of the backend.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DataBackendLazy</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span><span class="va">rows</span>, <span class="va">cols</span>, data_format <span class="op">=</span> <span class="st">"data.table"</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DataBackendLazy</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span><span class="va">rows</span>, <span class="va">cols</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -228,11 +222,6 @@ Row indices.</p></dd>
 <dt><code>cols</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
 Column names.</p></dd>
-
-
-<dt><code>data_format</code></dt>
-<dd><p>(<code>character(1)</code>)<br>
-Desired data format, e.g. <code>"data.table"</code> or <code>"Matrix"</code>.</p></dd>
 
 
 </dl><p></p></div>
@@ -356,30 +345,37 @@ Column names.</p></dd>
 <span class="r-in"><span>  constructor <span class="op">=</span> <span class="va">constructor</span>,</span></span>
 <span class="r-in"><span>  rownames <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span>,</span></span>
 <span class="r-in"><span>  col_info <span class="op">=</span> <span class="va">column_info</span>,</span></span>
-<span class="r-in"><span>  data_formats <span class="op">=</span> <span class="st">"data.table"</span>,</span></span>
 <span class="r-in"><span>  primary_key <span class="op">=</span> <span class="st">"row_id"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in initialize(...):</span> unused argument (data_formats = "data.table")</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Note that the constructor is not called for the calls below</span></span></span>
 <span class="r-in"><span><span class="co"># as they can be read from the metadata</span></span></span>
 <span class="r-in"><span><span class="va">backend_lazy</span><span class="op">$</span><span class="va">nrow</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'backend_lazy' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 10</span>
 <span class="r-in"><span><span class="va">backend_lazy</span><span class="op">$</span><span class="va">rownames</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'backend_lazy' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  1  2  3  4  5  6  7  8  9 10</span>
 <span class="r-in"><span><span class="va">backend_lazy</span><span class="op">$</span><span class="va">ncol</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'backend_lazy' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3</span>
 <span class="r-in"><span><span class="va">backend_lazy</span><span class="op">$</span><span class="va">colnames</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'backend_lazy' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "x"      "y"      "row_id"</span>
 <span class="r-in"><span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/col_info.html" class="external-link">col_info</a></span><span class="op">(</span><span class="va">backend_lazy</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'backend_lazy' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        id    type levels</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;char&gt;  &lt;char&gt; &lt;list&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:      x numeric [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:      y numeric [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3: row_id integer [NULL]</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Only now the backend is constructed</span></span></span>
 <span class="r-in"><span><span class="va">backend_lazy</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span><span class="fl">1</span>, <span class="st">"x"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'backend_lazy' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Data is constructed!</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             x</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         &lt;num&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1: -0.3872136</span>
 <span class="r-in"><span><span class="co"># Is the same as:</span></span></span>
 <span class="r-in"><span><span class="va">backend_lazy</span><span class="op">$</span><span class="va">backend</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span><span class="fl">1</span>, <span class="st">"x"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'backend_lazy' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             x</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         &lt;num&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1: -0.3872136</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
