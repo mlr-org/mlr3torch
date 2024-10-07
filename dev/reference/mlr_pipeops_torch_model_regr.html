@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mlr3torch</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.1.0-9000</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.1.1-9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -271,16 +271,14 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$exp_avg</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 1 to 8  -4.2996   -8.8053   -4.9629  279.4307  -11.7942  -14.2161 -219.8500  -42.0361</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 9 to 10  -2.8226   -1.3508</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -7.8598 -44.4016 -84.1983 -2978.2761 -51.3101 -55.0547 -2212.6970 -239.7735 -5.7471 -41.6495</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1,10} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$exp_avg_sq</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 1 to 6 1.1416e+00  1.1147e+01  1.0219e+01  2.4895e+04  1.0055e+01  1.5679e+01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 1 to 6 3.8665e+00  1.1373e+02  3.9362e+02  4.9284e+05  1.4640e+02  1.7129e+02</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 7 to 10 1.6791e+04  1.4878e+02  4.4410e-01  3.2987e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 7 to 10 2.8303e+05  3.1755e+03  1.8687e+00  9.5806e+01</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1,10} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -290,12 +288,12 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$exp_avg</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -2.4055</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -13.8452</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$exp_avg_sq</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.5297</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  10.6333</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -308,22 +306,22 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> named list()</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $seed</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 313482040</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1984753776</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $task_col_info</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         id    type levels</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;char&gt;  &lt;char&gt; &lt;list&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1:     am numeric       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2:   carb numeric       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3:    cyl numeric       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  4:   disp numeric       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  5:   drat numeric       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6:   gear numeric       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  7:     hp numeric       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  8:   qsec numeric       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  9:     vs numeric       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10:     wt numeric       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11:    mpg numeric       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1:     am numeric [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2:   carb numeric [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3:    cyl numeric [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4:   disp numeric [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  5:   drat numeric [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6:   gear numeric [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7:     hp numeric [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  8:   qsec numeric [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9:     vs numeric [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10:     wt numeric [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11:    mpg numeric [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "learner_torch_model" "list"               </span>
@@ -332,7 +330,7 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Empty data.table (0 rows and 3 cols): stage,class,msg</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $train_time</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.042</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.041</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals$epochs</span>
@@ -376,7 +374,7 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $mlr3_version</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] ‘0.20.2’</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] ‘0.21.0’</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $internal_tuned_values</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> named list()</span>
@@ -407,7 +405,7 @@ otherwise be set during construction.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer></div>

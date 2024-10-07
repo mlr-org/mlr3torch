@@ -49,7 +49,7 @@ corresponds to the ordering of the levels in the col_info argument."><meta prope
 
     <a class="navbar-brand me-2" href="../index.html">mlr3torch</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.1.0-9000</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.1.1-9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -359,6 +359,7 @@ Column names.</p></dd>
 <span class="r-in"><span>  data_formats <span class="op">=</span> <span class="st">"data.table"</span>,</span></span>
 <span class="r-in"><span>  primary_key <span class="op">=</span> <span class="st">"row_id"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>DataBackend$initialize argument 'data_formats' is deprecated and will be removed in the future.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Note that the constructor is not called for the calls below</span></span></span>
 <span class="r-in"><span><span class="co"># as they can be read from the metadata</span></span></span>
@@ -373,13 +374,15 @@ Column names.</p></dd>
 <span class="r-in"><span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/col_info.html" class="external-link">col_info</a></span><span class="op">(</span><span class="va">backend_lazy</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        id    type levels</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;char&gt;  &lt;char&gt; &lt;list&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:      x numeric       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:      y numeric       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3: row_id integer       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:      x numeric [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:      y numeric [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3: row_id integer [NULL]</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Only now the backend is constructed</span></span></span>
 <span class="r-in"><span><span class="va">backend_lazy</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span><span class="fl">1</span>, <span class="st">"x"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Data is constructed!</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>DataBackend$data_formats is deprecated and will be removed in the future.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>DataBackendDataTable$data argument 'data_format' is deprecated and will be removed in the future.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             x</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         &lt;num&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1: -0.3872136</span>
@@ -399,7 +402,7 @@ Column names.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer></div>

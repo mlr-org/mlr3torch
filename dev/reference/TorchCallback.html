@@ -17,7 +17,7 @@ To conveniently retrieve a TorchCallback, use t_clbk()."><meta property="og:imag
 
     <a class="navbar-brand me-2" href="../index.html">mlr3torch</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.1.0-9000</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.1.1-9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -198,9 +198,9 @@ The referenced help package can be opened via method <code>$help()</code>.</p></
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSet(3)&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           id    class lower upper nlevels        default  value</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;         &lt;list&gt; &lt;list&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:      path ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:      freq ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3: freq_type ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:      path ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt; [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:      freq ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt; [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3: freq_type ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt; [NULL]</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Retrieve a torch callback from the dictionary</span></span></span>
 <span class="r-in"><span><span class="va">torch_callback</span> <span class="op">=</span> <span class="fu"><a href="t_clbk.html">t_clbk</a></span><span class="op">(</span><span class="st">"checkpoint"</span>,</span></span>
@@ -209,7 +209,7 @@ The referenced help package can be opened via method <code>$help()</code>.</p></
 <span class="r-in"><span><span class="va">torch_callback</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;TorchCallback:checkpoint&gt; Checkpoint</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Generator: CallbackSetCheckpoint</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: path=/tmp/RtmphkOjXP/file1a55cce22c3, freq=1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: path=/tmp/Rtmp4a2vlb/file1ad576ba4a5b, freq=1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Packages: mlr3torch,torch</span>
 <span class="r-in"><span><span class="va">torch_callback</span><span class="op">$</span><span class="va">label</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Checkpoint"</span>
@@ -233,6 +233,7 @@ The referenced help package can be opened via method <code>$help()</code>.</p></
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Use in a learner</span></span></span>
 <span class="r-in"><span><span class="va">learner</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.mlp"</span>, callbacks <span class="op">=</span> <span class="fu"><a href="t_clbk.html">t_clbk</a></span><span class="op">(</span><span class="st">"checkpoint"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Learner$initialize argument 'data_formats' is deprecated and will be removed in the future.</span>
 <span class="r-in"><span><span class="co"># the parameters of the callback are added to the learner's parameter set</span></span></span>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="va">param_set</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSetCollection(35)&gt;</span>
@@ -252,7 +253,7 @@ The referenced help package can be opened via method <code>$help()</code>.</p></
 <span class="r-out co"><span class="r-pr">#&gt;</span> 12:                 sampler ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 13:           batch_sampler ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 14:             num_workers ParamInt 0e+00   Inf     Inf              0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15:              collate_fn ParamUty    NA    NA     Inf               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15:              collate_fn ParamUty    NA    NA     Inf         [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 16:              pin_memory ParamLgl    NA    NA       2          FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 17:               drop_last ParamLgl    NA    NA       2          FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 18:                 timeout ParamDbl  -Inf   Inf     Inf             -1</span>
@@ -276,7 +277,7 @@ The referenced help package can be opened via method <code>$help()</code>.</p></
 <span class="r-out co"><span class="r-pr">#&gt;</span>                          id    class lower upper nlevels        default</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            value</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           &lt;list&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1:             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  2:         auto</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  3:            1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  4:       random</span>
@@ -285,32 +286,32 @@ The referenced help package can be opened via method <code>$help()</code>.</p></
 <span class="r-out co"><span class="r-pr">#&gt;</span>  7:    &lt;list[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  8:            0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  9:            0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21:             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 22:             </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 23:          0.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 24: &lt;nn_relu[1]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 25:    &lt;list[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 26:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 27:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 28:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 29:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 30:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 31:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 32:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 33:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 34:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 35:             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 30:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 31:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 32:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 33:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 34:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 35:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            value</span>
 </code></pre></div>
     </div>
@@ -323,7 +324,7 @@ The referenced help package can be opened via method <code>$help()</code>.</p></
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer></div>

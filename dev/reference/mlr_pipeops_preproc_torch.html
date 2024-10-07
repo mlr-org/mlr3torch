@@ -17,7 +17,7 @@ To create custom preprocessing PipeOps you can use pipeop_preproc_torch."><meta 
 
     <a class="navbar-brand me-2" href="../index.html">mlr3torch</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.1.0-9000</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.1.1-9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -314,30 +314,30 @@ The task, which is very rarely needed.</p></dd>
 <span class="r-in"><span><span class="fu"><a href="materialize.html">materialize</a></span><span class="op">(</span><span class="va">taskout_train</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span>cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x1"</span>, <span class="st">"x2"</span><span class="op">)</span><span class="op">)</span>, rbind <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $x1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   97.1900</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   99.3058</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  100.1315</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  100.3278</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  101.4361</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   98.6713</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  100.1757</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  100.5266</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   99.8275</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  100.1677</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  100.6242</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.3046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.2164</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.0469</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  101.7928</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  100.3490</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  100.2591</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.1940</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  100.1057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.6664</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{10,1} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $x2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  101.1765</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  101.5255</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   99.4354</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  100.2963</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   99.7508</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   99.7929</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  100.8221</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  100.7036</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   99.8423</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   99.8232</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  101.6418</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.3561</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  100.5870</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.8496</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   98.2892</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  101.4310</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   97.3548</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   98.9675</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.2925</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.2994</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{10,1} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
@@ -345,30 +345,30 @@ The task, which is very rarely needed.</p></dd>
 <span class="r-in"><span><span class="fu"><a href="materialize.html">materialize</a></span><span class="op">(</span><span class="va">taskout_predict_noaug</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span>cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x1"</span>, <span class="st">"x2"</span><span class="op">)</span><span class="op">)</span>, rbind <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $x1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   97.1900</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   99.3058</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  100.1315</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  100.3278</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  101.4361</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   98.6713</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  100.1757</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  100.5266</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   99.8275</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  100.1677</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  100.6242</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.3046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.2164</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.0469</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  101.7928</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  100.3490</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  100.2591</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.1940</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  100.1057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.6664</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{10,1} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $x2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  101.1765</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  101.5255</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   99.4354</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  100.2963</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   99.7508</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   99.7929</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  100.8221</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  100.7036</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   99.8423</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   99.8232</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  101.6418</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.3561</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  100.5870</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.8496</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   98.2892</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  101.4310</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   97.3548</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   98.9675</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.2925</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.2994</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{10,1} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
@@ -381,30 +381,30 @@ The task, which is very rarely needed.</p></dd>
 <span class="r-in"><span><span class="fu"><a href="materialize.html">materialize</a></span><span class="op">(</span><span class="va">taskout_predict_aug</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span>cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x1"</span>, <span class="st">"x2"</span><span class="op">)</span><span class="op">)</span>, rbind <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $x1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   97.1900</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   99.3058</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  100.1315</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  100.3278</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  101.4361</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   98.6713</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  100.1757</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  100.5266</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   99.8275</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  100.1677</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  100.6242</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.3046</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.2164</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.0469</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  101.7928</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  100.3490</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  100.2591</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.1940</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  100.1057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.6664</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{10,1} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $x2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  101.1765</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  101.5255</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   99.4354</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  100.2963</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   99.7508</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   99.7929</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  100.8221</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  100.7036</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   99.8423</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   99.8232</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  101.6418</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.3561</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  100.5870</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.8496</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   98.2892</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  101.4310</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   97.3548</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   98.9675</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.2925</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   99.2994</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{10,1} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
@@ -484,7 +484,7 @@ The task, which is very rarely needed.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer></div>

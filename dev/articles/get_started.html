@@ -30,7 +30,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mlr3torch</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.1.0-9000</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.1.1-9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -132,6 +132,9 @@ For a complete description of the available parameters see
 <span>  <span class="co"># training arguments</span></span>
 <span>  batch_size <span class="op">=</span> <span class="fl">32</span>, epochs <span class="op">=</span> <span class="fl">30</span>, device <span class="op">=</span> <span class="st">"cpu"</span></span>
 <span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in warn_deprecated("Learner$initialize argument 'data_formats'"):</span></span>
+<span><span class="co">#&gt; Learner$initialize argument 'data_formats' is deprecated and will be removed in</span></span>
+<span><span class="co">#&gt; the future.</span></span>
 <span><span class="va">mlp</span></span>
 <span><span class="co">#&gt; &lt;LearnerTorchMLP[regr]:regr.mlp&gt;: My Little Powny</span></span>
 <span><span class="co">#&gt; * Model: -</span></span>
@@ -162,7 +165,7 @@ of the predictions.</p>
 <span><span class="co"># Compute the mse</span></span>
 <span><span class="va">prediction</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mse"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; regr.mse </span></span>
-<span><span class="co">#&gt; 152.5175</span></span></code></pre></div>
+<span><span class="co">#&gt;  283.838</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="configuring-a-learner">Configuring a Learner<a class="anchor" aria-label="anchor" href="#configuring-a-learner"></a>
@@ -221,7 +224,7 @@ batch.</p>
 <span><span class="co">#&gt; &lt;ParamSet(1)&gt;</span></span>
 <span><span class="co">#&gt;           id    class lower upper nlevels default  value</span></span>
 <span><span class="co">#&gt;       &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;  &lt;list&gt; &lt;list&gt;</span></span>
-<span><span class="co">#&gt; 1: reduction ParamFct    NA    NA       2    mean</span></span></code></pre></div>
+<span><span class="co">#&gt; 1: reduction ParamFct    NA    NA       2    mean [NULL]</span></span></code></pre></div>
 <p>The wrapped loss module generator is accessible through the slot
 <code>$generator</code>.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -235,7 +238,7 @@ batch.</p>
 <span><span class="co">#&gt;     clone: function (deep = FALSE, ..., replace_values = TRUE) </span></span>
 <span><span class="co">#&gt;   Private:</span></span>
 <span><span class="co">#&gt;     .__clone_r6__: function (deep = FALSE) </span></span>
-<span><span class="co">#&gt;   Parent env: &lt;environment: 0x558c2b6c0e38&gt;</span></span>
+<span><span class="co">#&gt;   Parent env: &lt;environment: 0x55d8b28bbac0&gt;</span></span>
 <span><span class="co">#&gt;   Locked objects: FALSE</span></span>
 <span><span class="co">#&gt;   Locked class: FALSE</span></span>
 <span><span class="co">#&gt;   Portable: TRUE</span></span></code></pre></div>
@@ -279,11 +282,11 @@ such as Adam (<code>optim_adam</code>) or SGD (<code>optim_sgd</code>).
 <span><span class="co">#&gt; &lt;ParamSet(5)&gt;</span></span>
 <span><span class="co">#&gt;              id    class lower upper nlevels        default  value</span></span>
 <span><span class="co">#&gt;          &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;         &lt;list&gt; &lt;list&gt;</span></span>
-<span><span class="co">#&gt; 1:           lr ParamDbl     0   Inf     Inf &lt;NoDefault[0]&gt;       </span></span>
-<span><span class="co">#&gt; 2:     momentum ParamDbl     0     1     Inf              0       </span></span>
-<span><span class="co">#&gt; 3:    dampening ParamDbl     0     1     Inf              0       </span></span>
-<span><span class="co">#&gt; 4: weight_decay ParamDbl     0     1     Inf              0       </span></span>
-<span><span class="co">#&gt; 5:     nesterov ParamLgl    NA    NA       2          FALSE</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:           lr ParamDbl     0   Inf     Inf &lt;NoDefault[0]&gt; [NULL]</span></span>
+<span><span class="co">#&gt; 2:     momentum ParamDbl     0     1     Inf              0 [NULL]</span></span>
+<span><span class="co">#&gt; 3:    dampening ParamDbl     0     1     Inf              0 [NULL]</span></span>
+<span><span class="co">#&gt; 4: weight_decay ParamDbl     0     1     Inf              0 [NULL]</span></span>
+<span><span class="co">#&gt; 5:     nesterov ParamLgl    NA    NA       2          FALSE [NULL]</span></span></code></pre></div>
 <p>The wrapped torch optimizer can be accessed through the slot
 <code>generator</code>.</p>
 <p>Parameters of <code>TorchOptimizer</code> (but also
@@ -404,22 +407,22 @@ lower MAE than the default <code>mlp</code> learner.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">prediction_custom</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mae"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; regr.mae </span></span>
-<span><span class="co">#&gt; 9.904111</span></span>
+<span><span class="co">#&gt; 7.122375</span></span>
 <span><span class="va">prediction</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mae"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; regr.mae </span></span>
-<span><span class="co">#&gt; 10.03284</span></span></code></pre></div>
+<span><span class="co">#&gt; 15.27983</span></span></code></pre></div>
 <p>Because we configured the learner to use the history callback, we can
 find the validation history in its <code>$model</code> slot:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">mlp_custom</span><span class="op">$</span><span class="va">model</span><span class="op">$</span><span class="va">callbacks</span><span class="op">$</span><span class="va">history</span><span class="op">$</span><span class="va">valid</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    epoch     regr.mae</span></span>
 <span><span class="co">#&gt;    &lt;num&gt;        &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:     1 1.048699e+05</span></span>
-<span><span class="co">#&gt; 2:     2 2.500048e+06</span></span>
-<span><span class="co">#&gt; 3:     3 6.342546e+02</span></span>
-<span><span class="co">#&gt; 4:     4 1.688923e+04</span></span>
-<span><span class="co">#&gt; 5:     5 8.859892e+01</span></span>
-<span><span class="co">#&gt; 6:     6 9.095035e+00</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:     1 1.777395e+04</span></span>
+<span><span class="co">#&gt; 2:     2 3.955504e+08</span></span>
+<span><span class="co">#&gt; 3:     3 1.143863e+04</span></span>
+<span><span class="co">#&gt; 4:     4 1.792927e+01</span></span>
+<span><span class="co">#&gt; 5:     5 1.759594e+01</span></span>
+<span><span class="co">#&gt; 6:     6 1.726260e+01</span></span></code></pre></div>
 <p>The plot below shows it for the epochs 6 to 30.</p>
 <p><img src="get_started_files/figure-html/unnamed-chunk-21-1.png" width="50%" style="display: block; margin: auto;"></p>
 <p>Other important information that is stored in the
@@ -439,7 +442,7 @@ see <code><a href="../reference/mlr_learners_torch.html">?LearnerTorch</a></code
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer>

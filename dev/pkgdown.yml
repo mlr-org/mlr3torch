@@ -1,5 +1,5 @@
 pandoc: 3.1.11
-pkgdown: 2.1.0
+pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   articles/callbacks: callbacks.html
@@ -7,7 +7,7 @@ articles:
   articles/internals_pipeop_torch: internals_pipeop_torch.html
   articles/lazy_tensor: lazy_tensor.html
   articles/pipeop_torch: pipeop_torch.html
-last_built: 2024-08-22T14:57Z
+last_built: 2024-10-07T11:36Z
 urls:
   reference: https://mlr3torch.mlr-org.com/reference
   article: https://mlr3torch.mlr-org.com/articles

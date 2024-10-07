@@ -30,7 +30,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mlr3torch</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.1.0-9000</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.1.1-9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -102,6 +102,9 @@ correctly.</p>
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3torch.mlr-org.com/">mlr3torch</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">mnist</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"mnist"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in warn_deprecated("DataBackend$initialize argument 'data_formats'"):</span></span>
+<span><span class="co">#&gt; DataBackend$initialize argument 'data_formats' is deprecated and will be</span></span>
+<span><span class="co">#&gt; removed in the future.</span></span>
 <span><span class="va">mnist</span></span>
 <span><span class="co">#&gt; &lt;TaskClassif:mnist&gt; (70000 x 2): MNIST Digit Classification</span></span>
 <span><span class="co">#&gt; * Target: label</span></span>
@@ -119,6 +122,11 @@ input feature.</p>
 <code class="sourceCode R"><span><span class="va">mnist</span><span class="op">$</span><span class="fu">head</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Processing...</span></span>
 <span><span class="co">#&gt; Done!</span></span>
+<span><span class="co">#&gt; Warning in warn_deprecated("DataBackend$data_formats"):</span></span>
+<span><span class="co">#&gt; DataBackend$data_formats is deprecated and will be removed in the future.</span></span>
+<span><span class="co">#&gt; Warning in warn_deprecated("DataBackendDataTable$data argument 'data_format'"):</span></span>
+<span><span class="co">#&gt; DataBackendDataTable$data argument 'data_format' is deprecated and will be</span></span>
+<span><span class="co">#&gt; removed in the future.</span></span>
 <span><span class="co">#&gt;     label           image</span></span>
 <span><span class="co">#&gt;    &lt;fctr&gt;   &lt;lazy_tensor&gt;</span></span>
 <span><span class="co">#&gt; 1:      5 &lt;tnsr[1x28x28]&gt;</span></span>
@@ -154,6 +162,9 @@ well as the <code>lazy_tensor</code>.</p>
 <span>  neurons <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">100</span><span class="op">)</span>,</span>
 <span>  epochs <span class="op">=</span> <span class="fl">10</span>, batch_size <span class="op">=</span> <span class="fl">32</span></span>
 <span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in warn_deprecated("Learner$initialize argument 'data_formats'"):</span></span>
+<span><span class="co">#&gt; Learner$initialize argument 'data_formats' is deprecated and will be removed in</span></span>
+<span><span class="co">#&gt; the future.</span></span>
 <span><span class="va">mlp</span></span>
 <span><span class="co">#&gt; &lt;LearnerTorchMLP[classif]:classif.mlp&gt;: My Little Powny</span></span>
 <span><span class="co">#&gt; * Model: -</span></span>
@@ -386,7 +397,7 @@ nerworks using <code>PipeOpTorch</code> objects. The
 <span><span class="co">#&gt; &lt;DataDescriptor: 1 ops&gt;</span></span>
 <span><span class="co">#&gt; * dataset_shapes: [x: (NA,1)]</span></span>
 <span><span class="co">#&gt; * input_map: (x) -&gt; Graph</span></span>
-<span><span class="co">#&gt; * pointer: nop.e73617.x.output</span></span>
+<span><span class="co">#&gt; * pointer: nop.75bcd5.x.output</span></span>
 <span><span class="co">#&gt; * shape: [(NA,1)]</span></span></code></pre></div>
 <p>The printed output of the data descriptor informs us about:</p>
 <ul>
@@ -433,7 +444,7 @@ there can only be a single <code>DataDescriptor</code> in a
 <span><span class="co">#&gt; &lt;DataDescriptor: 1 ops&gt;</span></span>
 <span><span class="co">#&gt; * dataset_shapes: [x: (NA,1)]</span></span>
 <span><span class="co">#&gt; * input_map: (x) -&gt; Graph</span></span>
-<span><span class="co">#&gt; * pointer: nop.e73617.x.output</span></span>
+<span><span class="co">#&gt; * pointer: nop.75bcd5.x.output</span></span>
 <span><span class="co">#&gt; * shape: [(NA,1)]</span></span></code></pre></div>
 <p>What happens during <code>materialize(lt[1])</code> is the
 following:</p>
@@ -483,8 +494,8 @@ feature.</p>
 <span><span class="co">#&gt; Graph with 2 PipeOps:</span></span>
 <span><span class="co">#&gt;            ID         State sccssors    prdcssors</span></span>
 <span><span class="co">#&gt;        &lt;char&gt;        &lt;char&gt;   &lt;char&gt;       &lt;char&gt;</span></span>
-<span><span class="co">#&gt;  nop.e73617.x        &lt;list&gt;   poly.x             </span></span>
-<span><span class="co">#&gt;        poly.x &lt;&lt;UNTRAINED&gt;&gt;          nop.e73617.x</span></span></code></pre></div>
+<span><span class="co">#&gt;  nop.75bcd5.x        &lt;list&gt;   poly.x             </span></span>
+<span><span class="co">#&gt;        poly.x &lt;&lt;UNTRAINED&gt;&gt;          nop.75bcd5.x</span></span></code></pre></div>
 <p>We see that the <code>$graph</code> has a new pipeop with id
 <code>"poly.x"</code> and the output <code>pointer</code> points to
 <code>poly.x</code>. Also we see that the shape of the tensor is now
@@ -508,7 +519,7 @@ can verify by calling <code><a href="../reference/materialize.html">materialize(
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer>
