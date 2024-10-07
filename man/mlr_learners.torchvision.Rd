@@ -42,6 +42,7 @@ number of classes inferred from the \code{\link[mlr3:Task]{Task}}.
 <details><summary>Inherited methods</summary>
 <ul>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner"><a href='../../mlr3/html/Learner.html#method-Learner-base_learner'><code>mlr3::Learner$base_learner()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="encapsulate"><a href='../../mlr3/html/Learner.html#method-Learner-encapsulate'><code>mlr3::Learner$encapsulate()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help"><a href='../../mlr3/html/Learner.html#method-Learner-help'><code>mlr3::Learner$help()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict"><a href='../../mlr3/html/Learner.html#method-Learner-predict'><code>mlr3::Learner$predict()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata"><a href='../../mlr3/html/Learner.html#method-Learner-predict_newdata'><code>mlr3::Learner$predict_newdata()</code></a></span></li>
@@ -89,9 +90,9 @@ Krizhevsky, Alex, Sutskever, Ilya, Hinton, E. G (2017).
 Sandler, Mark, Howard, Andrew, Zhu, Menglong, Zhmoginov, Andrey, Chen, Liang-Chieh (2018).
 \dQuote{Mobilenetv2: Inverted residuals and linear bottlenecks.}
 In \emph{Proceedings of the IEEE conference on computer vision and pattern recognition}, 4510--4520.
-He, Kaiming, Zhang, Xiangyu, Ren, Shaoqing, Sun, Jian (2016 ).
-\dQuote{Deep residual learning for image recognition .}
-In \emph{Proceedings of the IEEE conference on computer vision and pattern recognition }, 770--778 .
+He, Kaiming, Zhang, Xiangyu, Ren, Shaoqing, Sun, Jian (2016).
+\dQuote{Deep residual learning for image recognition.}
+In \emph{Proceedings of the IEEE conference on computer vision and pattern recognition}, 770--778.
 Simonyan, Karen, Zisserman, Andrew (2014).
 \dQuote{Very deep convolutional networks for large-scale image recognition.}
 \emph{arXiv preprint arXiv:1409.1556}.}

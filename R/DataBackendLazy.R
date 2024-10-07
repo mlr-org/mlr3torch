@@ -41,8 +41,6 @@
 #'   Column names.
 #' @param rows (`integer()`)\cr
 #'   Row indices.
-#' @param data_format (`character(1)`)\cr
-#'  Desired data format, e.g. `"data.table"` or `"Matrix"`.
 #' @param na_rm (`logical(1)`)\cr
 #'   Whether to remove NAs or not.
 #' @param primary_key (`character(1)`)\cr

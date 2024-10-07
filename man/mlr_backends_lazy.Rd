@@ -54,7 +54,6 @@ backend_lazy = DataBackendLazy$new(
   constructor = constructor,
   rownames = 1:10,
   col_info = column_info,
-  data_formats = "data.table",
   primary_key = "row_id"
 )
 
@@ -122,7 +121,7 @@ Whether the backend has already been constructed.}
 \subsection{Method \code{new()}}{
 Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataBackendLazy$new(constructor, rownames, col_info, primary_key, data_formats)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DataBackendLazy$new(constructor, rownames, col_info, primary_key)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -141,10 +140,6 @@ Note that the levels must be provided in the correct order.}
 
 \item{\code{primary_key}}{(\code{character(1)})\cr
 Name of the primary key column.}
-
-\item{\code{data_formats}}{(\code{character()})\cr
-Set of supported data formats. E.g. \code{"data.table"}.
-These must be a subset of the data formats of the lazily constructed backend.}
 }
 \if{html}{\out{</div>}}
 }
@@ -161,7 +156,7 @@ Duplicated row ids result in duplicated rows, duplicated column names lead to an
 
 Accessing the data triggers the construction of the backend.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataBackendLazy$data(rows, cols, data_format = "data.table")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DataBackendLazy$data(rows, cols)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -172,9 +167,6 @@ Row indices.}
 
 \item{\code{cols}}{(\code{character()})\cr
 Column names.}
-
-\item{\code{data_format}}{(\code{character(1)})\cr
-Desired data format, e.g. \code{"data.table"} or \code{"Matrix"}.}
 }
 \if{html}{\out{</div>}}
 }
