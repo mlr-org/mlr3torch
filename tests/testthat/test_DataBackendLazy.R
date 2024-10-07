@@ -21,8 +21,7 @@ test_that("DataBackendLazy works", {
     constructor = constructor,
     rownames = n:1,
     col_info = column_info,
-    primary_key = "row_id",
-    data_formats = "data.table"
+    primary_key = "row_id"
   )
 
   expect_r6(backend_lazy, c("DataBackend", "DataBackendLazy"))
@@ -97,8 +96,7 @@ test_that("DataBackendLazy works", {
         constructor = constructor,
         rownames = 1:10,
         col_info = col_info,
-        primary_key = "a",
-        data_formats = "data.table"
+        primary_key = "a"
       )$backend,
       regexp = regexp
     )
@@ -114,8 +112,7 @@ test_that("primary_key must be in col_info", {
     constructor = function(backend) NULL,
     col_info = data.table(id = "a", type = "integer", levels = list(NULL)),
     rownames = 1,
-    primary_key = "b",
-    data_formats = "data.table"
+    primary_key = "b"
   ), regexp = "Must be element of")
 })
 
@@ -130,8 +127,7 @@ test_that("primary_key must be the same for backends", {
     constructor = constructor,
     col_info = data.table(id = c("x", "y"), type = rep("integer", 2), levels = list(NULL, NULL)),
     rownames = 1:5,
-    primary_key = "y",
-    data_formats = "data.table"
+    primary_key = "y"
   )
   expect_error(backend_lazy$backend, "primary key")
 })
@@ -141,7 +137,6 @@ test_that("constructor must have argument backend", {
     constructor = function() NULL,
     col_info = data.table(id = c("x", "y"), type = rep("integer", 2), levels = list(NULL, NULL)),
     rownames = 1:5,
-    primary_key = "y",
-    data_formats = "data.table"
+    primary_key = "y"
   ), regexp = "formal arguments")
 })

@@ -45,9 +45,6 @@
 #'  Desired data format, e.g. `"data.table"` or `"Matrix"`.
 #' @param na_rm (`logical(1)`)\cr
 #'   Whether to remove NAs or not.
-#' @param data_formats (`character()`)\cr
-#'   Set of supported data formats. E.g. `"data.table"`.
-#'   These must be a subset of the data formats of the lazily constructed backend.
 #' @param primary_key (`character(1)`)\cr
 #'   Name of the primary key column.
 #'
@@ -72,7 +69,6 @@
 #'   constructor = constructor,
 #'   rownames = 1:10,
 #'   col_info = column_info,
-#'   data_formats = "data.table",
 #'   primary_key = "row_id"
 #' )
 #'
@@ -94,7 +90,7 @@ DataBackendLazy = R6Class("DataBackendLazy",
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(constructor, rownames, col_info, primary_key, data_formats) {
+    initialize = function(constructor, rownames, col_info, primary_key) {
       private$.rownames = assert_integerish(rownames, unique = TRUE)
       private$.col_info = assert_data_table(col_info, ncols = 3, min.rows = 1)
       assert_permutation(colnames(col_info), c("id", "type", "levels"))
@@ -103,7 +99,7 @@ DataBackendLazy = R6Class("DataBackendLazy",
       assert_choice(primary_key, col_info$id)
       private$.constructor = assert_function(constructor, args = "backend")
 
-      super$initialize(data = NULL, primary_key = primary_key, data_formats = data_formats)
+      super$initialize(data = NULL, primary_key = primary_key)
     },
 
     #' @description
@@ -114,8 +110,8 @@ DataBackendLazy = R6Class("DataBackendLazy",
     #' Duplicated row ids result in duplicated rows, duplicated column names lead to an exception.
     #'
     #' Accessing the data triggers the construction of the backend.
-    data = function(rows, cols, data_format = "data.table") {
-      self$backend$data(rows = rows, cols = cols, data_format = data_format)
+    data = function(rows, cols) {
+      self$backend$data(rows = rows, cols = cols)
     },
 
     #' @description
@@ -190,7 +186,6 @@ DataBackendLazy = R6Class("DataBackendLazy",
         f(test_permutation, backend$colnames, private$.colnames, "column names")
         f(test_equal_col_info, col_info(backend), private$.col_info, "column information")
         # need to reverse the order for correct error message
-        f(function(x, y) test_subset(y, x), backend$data_formats, self$data_formats, "data formats")
         private$.backend = backend
       }
       private$.backend

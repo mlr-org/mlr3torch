@@ -201,7 +201,6 @@ LearnerTorch = R6Class("LearnerTorch",
         param_set = self$param_set,
         predict_types = predict_types,
         properties = properties,
-        data_formats = "data.table",
         label = label,
         feature_types = feature_types,
         man = man
