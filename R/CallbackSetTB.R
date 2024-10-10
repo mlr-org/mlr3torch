@@ -8,19 +8,23 @@
 #' TODO: add
 #'
 #' @param path (`character(1)`)\cr
-#'   The path to a folder where the events are logged. 
+#'   The path to a folder where the events are logged.
 #'   Point TensorBoard to this folder to view them.
 #' @family Callback
 #' @export
 #' @include CallbackSet.R
 CallbackSetTB = R6Class("CallbackSetTB",
     inherit = CallbackSet,
-    lock_objects = TRUE,
+    lock_objects = FALSE,
     public = list(
+        path = NULL,
         #' @description
         #' Creates a new instance of this [R6][R6::R6Class] class.
-        initialize = function(path = tempfile()) {
-            self$path = assert_path_for_output(path)
+        initialize = function(path) {
+          self$path = assert_path_for_output(path)
+          if (!dir.exists(path)) {
+            dir.create(path, recursive = TRUE)
+          }
         },
         #' @description
         #' Logs the training loss and validation measures as TensorFlow events.
@@ -58,7 +62,7 @@ CallbackSetTB = R6Class("CallbackSetTB",
     )
     # private = list(
     #     log_score = function(prefix, measure_name, score) {
-            
+
     #     }
     # )
 )
