@@ -8,13 +8,13 @@ test_that("a simple example works", {
     # using a temp dir
     cb = t_clbk("tb")
 
-    # check that directory doesn't exist
-    expect_false(dir.exists(cb$path))
-
     task = tsk("iris")
     n_epochs = 10
     batch_size = 50
     neurons = 200
+
+    pth0 = tempfile()
+
     mlp = lrn("classif.mlp",
           callbacks = cb,
           epochs = n_epochs, batch_size = batch_size, neurons = neurons,
@@ -22,6 +22,11 @@ test_that("a simple example works", {
           measures_valid = msrs(c("classif.acc", "classif.ce")),
           measures_train = msrs(c("classif.acc", "classif.ce"))
     )
+    mlp$param_set$set_values(cb.tb.path = pth0)
+
+    # check that directory doesn't exist
+    expect_false(dir.exists(mlp$param_set$get_values(path)))
+
     mlp$train(task)
 
     events = collect_events(cb$path)$summary %>%

@@ -17,7 +17,6 @@ CallbackSetTB = R6Class("CallbackSetTB",
     inherit = CallbackSet,
     lock_objects = FALSE,
     public = list(
-        path = NULL,
         #' @description
         #' Creates a new instance of this [R6][R6::R6Class] class.
         initialize = function(path) {
@@ -70,7 +69,7 @@ CallbackSetTB = R6Class("CallbackSetTB",
 
 mlr3torch_callbacks$add("tb", function() {
     TorchCallback$new(
-        callback_generator = CallbackSetCheckpoint,
+        callback_generator = CallbackSetTB,
         param_set = ps(
             path      = p_uty(tags = c("train", "required"))
         ),
