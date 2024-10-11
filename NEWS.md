@@ -1,5 +1,6 @@
 # mlr3torch dev
 
+* Added `CallbackSetTB`, which allows logging that can be viewed by TensorBoard.
 * Don't use deprecated `data_formats` anymore
 
 # mlr3torch 0.1.1

@@ -30,8 +30,6 @@ CallbackSetTB = R6Class("CallbackSetTB",
     },
     #' @description
     #' Logs the training loss and validation measures as TensorFlow events.
-    # TODO: display the appropriate x axis with its label in TensorBoard
-    # relevant when we log different scores at different times
     on_epoch_end = function() {
       if (self$log_train_loss) {
         private$.log_train_loss()
@@ -64,7 +62,6 @@ CallbackSetTB = R6Class("CallbackSetTB",
       private$.log_score("train.", measure_name, train_score)
     },
     .log_train_loss = function() {
-      # TODO: remind ourselves why we wanted to display last_loss and not last_scores_train
       with_logdir(self$path, {
         log_event(train.loss = self$ctx$last_loss)
       })
