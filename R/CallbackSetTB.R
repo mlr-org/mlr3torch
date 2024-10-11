@@ -41,7 +41,7 @@ CallbackSetTB = R6Class("CallbackSetTB",
                 })
             }
 
-            log_train_score = function(measure_name) {
+            log_train_score = function() {
                 # TODO: figure out what self$ctx$last_loss looks like when there are multiple train measures
                 # TODO: remind ourselves why we wanted to display last_loss and not last_scores_train
                 with_logdir(self$path, {
@@ -49,13 +49,10 @@ CallbackSetTB = R6Class("CallbackSetTB",
                 })
             }
 
-            if (length(self$ctx$last_scores_train)) {
-                # TODO: decide whether we should put the temporary logdir modification here instead.
-                map(names(self$ctx$measures_train), log_train_score)
-            }
+            log_train_score()
 
             if (length(self$ctx$last_scores_valid)) {
-                map(names(self$ctx$measure_valid), log_valid_score)
+                map(names(self$ctx$measures_valid), log_valid_score)
             }
         }
     )
