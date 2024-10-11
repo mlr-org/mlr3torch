@@ -30,9 +30,6 @@ CallbackSetTB = R6Class("CallbackSetTB",
     },
     #' @description
     #' Logs the training loss and validation measures as TensorFlow events.
-    #' Meaningful changes happen at the end of each epoch.
-    #' Notably NOT on_batch_valid_end, since there are no gradient steps between validation batches,
-    #' and therefore differences are due to randomness
     # TODO: display the appropriate x axis with its label in TensorBoard
     # relevant when we log different scores at different times
     on_epoch_end = function() {
@@ -50,19 +47,21 @@ CallbackSetTB = R6Class("CallbackSetTB",
     }
   ),
   private = list(
-    .log_valid_score = function(measure_name) {
-      valid_score = list(self$ctx$last_scores_valid[[measure_name]])
-      names(valid_score) = paste0("valid.", measure_name)
+    .log_score = function(prefix, measure_name, score) {
+      event_list = list(score, self$ctx$epoch)
+      names(event_list) = c(paste0(prefix, measure_name), "step")
+
       with_logdir(self$path, {
-        do.call(log_event, valid_score)
+        do.call(log_event, event_list)
       })
     },
+    .log_valid_score = function(measure_name) {
+      valid_score = self$ctx$last_scores_valid[[measure_name]]
+      private$.log_score("valid.", measure_name, valid_score)
+    },
     .log_train_score = function(measure_name) {
-      train_score = list(self$ctx$last_scores_train[[measure_name]])
-      names(train_score) = paste0("train.", measure_name)
-      with_logdir(self$path, {
-        do.call(log_event, train_score)
-      })
+      train_score = self$ctx$last_scores_train[[measure_name]]
+      private$.log_score("train.", measure_name, train_score)
     },
     .log_train_loss = function() {
       # TODO: remind ourselves why we wanted to display last_loss and not last_scores_train

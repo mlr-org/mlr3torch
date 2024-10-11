@@ -124,6 +124,10 @@ test_that("the flag for tracking the train loss works", {
 
   events = mlr3misc::map(collect_events(pth0)$summary, unlist)
 
+  event_tag_is = function(event, tag_name) {
+    ifelse(is.null(event), FALSE, event["tag"] == tag_name)
+  }
+
   n_train_loss_events = sum(unlist(mlr3misc::map(events, event_tag_is, tag_name = "train.loss")))
 
   expect_equal(n_train_loss_events, 0)
