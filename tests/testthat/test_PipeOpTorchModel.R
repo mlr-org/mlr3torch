@@ -118,7 +118,7 @@ test_that("base_learner works", {
     po("torch_model_regr")
 
   glrn = as_learner(graph)
-  expect_equal(glrn$base_learner(return_po = TRUE)$id, "torch_model_regr")
+  expect_equal(glrn$base_learner(return_po = TRUE, recursive = 1)$id, "torch_model_regr")
 })
 
 test_that("internal_tuning", {

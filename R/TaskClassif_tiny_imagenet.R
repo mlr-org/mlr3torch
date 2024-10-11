@@ -97,8 +97,7 @@ load_task_tiny_imagenet = function(id = "tiny_imagenet") {
     constructor = cached_constructor,
     rownames = seq_len(120000),
     col_info = load_col_info("tiny_imagenet"),
-    primary_key = "..row_id",
-    data_formats = "data.table"
+    primary_key = "..row_id"
   )
 
   task = TaskClassif$new(

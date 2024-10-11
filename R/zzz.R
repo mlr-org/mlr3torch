@@ -9,6 +9,7 @@
 #' @import mlr3pipelines
 #' @import mlr3
 #' @importFrom tools R_user_dir
+#' @importFrom withr with_seed
 #'
 #' @section Options:
 #' * `mlr3torch.cache`:

@@ -419,9 +419,10 @@ test_that("resample() works", {
 
 test_that("marshaling", {
   task = tsk("mtcars")$filter(1:5)
-  learner = lrn("regr.mlp", batch_size = 150, epochs = 1, device = "cpu", encapsulate = c(train = "callr"),
+  learner = lrn("regr.mlp", batch_size = 150, epochs = 1, device = "cpu",
     neurons = 20
   )
+  learner$encapsulate("callr", lrn("regr.featureless"))
   learner$train(task)
   expect_false(learner$marshaled)
   learner$marshal()$unmarshal()
@@ -431,9 +432,10 @@ test_that("marshaling", {
 test_that("callr encapsulation and marshaling", {
   skip_if_not_installed("callr")
   task = tsk("mtcars")$filter(1:5)
-  learner = lrn("regr.mlp", batch_size = 150, epochs = 1, device = "cpu", encapsulate = c(train = "callr"),
+  learner = lrn("regr.mlp", batch_size = 150, epochs = 1, device = "cpu",
     neurons = 20
   )
+  learner$encapsulate("callr", lrn("regr.featureless"))
   learner$train(task)
   expect_prediction(learner$predict(task))
 })
@@ -461,7 +463,7 @@ test_that("Input verification works during `$train()` (train-predict shapes work
   )
 
   # fallback learner cannot help in this case!
-  learner$fallback = lrn("classif.featureless")
+  learner$encapsulate("evaluate", fallback = lrn("classif.featureless"))
   rr_faulty = resample(task_invalid, learner, rsmp("holdout"))
   expect_true(nrow(rr_faulty$errors) == 1L)
   rr1 = resample(task, learner, rsmp("holdout"))

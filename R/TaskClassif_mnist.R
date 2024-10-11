@@ -75,8 +75,7 @@ load_task_mnist = function(id = "mnist") {
     constructor = cached_constructor,
     rownames = seq_len(70000),
     col_info = load_col_info("mnist"),
-    primary_key = "..row_id",
-    data_formats = "data.table"
+    primary_key = "..row_id"
   )
 
   task = TaskClassif$new(
