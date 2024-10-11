@@ -5,7 +5,7 @@
 #' @description
 #' Logs training loss and validation measures as events that can be tracked using TensorBoard.
 #' @details
-#' TODO: add
+#' Logs at most every epoch.
 #'
 #' @param path (`character(1)`)\cr
 #'   The path to a folder where the events are logged.
@@ -53,7 +53,6 @@ CallbackSetTB = R6Class("CallbackSetTB",
       })
     },
     log_train_score = function() {
-      # TODO: figure out what self$ctx$last_loss looks like when there are multiple train measures
       # TODO: remind ourselves why we wanted to display last_loss and not last_scores_train
       with_logdir(self$path, {
         log_event(train.loss = self$ctx$last_loss)
