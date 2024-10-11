@@ -51,7 +51,7 @@ Other Callback:
 \subsection{Method \code{new()}}{
 Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetTB$new(path)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackSetTB$new(path, log_train_loss)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -60,6 +60,9 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \item{\code{path}}{(\code{character(1)})\cr
 The path to a folder where the events are logged.
 Point TensorBoard to this folder to view them.}
+
+\item{\code{log_train_loss}}{(\code{logical(1)})\cr
+Whether we log the training loss.}
 }
 \if{html}{\out{</div>}}
 }
