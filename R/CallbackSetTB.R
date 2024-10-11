@@ -33,34 +33,33 @@ CallbackSetTB = R6Class("CallbackSetTB",
         # TODO: display the appropriate x axis with its label in TensorBoard
         # relevant when we log different scores at different times
         on_epoch_end = function() {
-            log_valid_score = function(measure_name) {
-                valid_score = list(self$ctx$last_scores_valid[[measure_name]])
-                names(valid_score) = paste0("valid.", measure_name)
-                with_logdir(self$path, {
-                    do.call(log_event, valid_score)
-                })
-            }
-
-            log_train_score = function() {
-                # TODO: figure out what self$ctx$last_loss looks like when there are multiple train measures
-                # TODO: remind ourselves why we wanted to display last_loss and not last_scores_train
-                with_logdir(self$path, {
-                    log_event(train.loss = self$ctx$last_loss)
-                })
-            }
-
-            log_train_score()
+            private$log_train_score()
 
             if (length(self$ctx$last_scores_valid)) {
-                map(names(self$ctx$measures_valid), log_valid_score)
+                map(names(self$ctx$measures_valid), private$log_valid_score)
             }
         }
+    ),
+    private = list(
+      # TODO: refactor into a single function with the following signature
+        # log_score = function(prefix, measure_name, score) {
+        #
+        # },
+        log_valid_score = function(measure_name) {
+          valid_score = list(self$ctx$last_scores_valid[[measure_name]])
+          names(valid_score) = paste0("valid.", measure_name)
+          with_logdir(self$path, {
+            do.call(log_event, valid_score)
+          })
+        },
+        log_train_score = function() {
+          # TODO: figure out what self$ctx$last_loss looks like when there are multiple train measures
+          # TODO: remind ourselves why we wanted to display last_loss and not last_scores_train
+          with_logdir(self$path, {
+            log_event(train.loss = self$ctx$last_loss)
+          })
+        }
     )
-    # private = list(
-    #     log_score = function(prefix, measure_name, score) {
-
-    #     }
-    # )
 )
 
 
