@@ -31,9 +31,7 @@ test_that("a simple example works", {
   events = mlr3misc::map(collect_events(pth0)$summary, unlist)
 
   n_last_loss_events = sum(unlist(mlr3misc::map(events, \(x) x["tag"] == "train.loss")))
-
   n_valid_acc_events = sum(unlist(mlr3misc::map(events, \(x) x["tag"] == "valid.classif.acc")))
-
   n_valid_ce_events = sum(unlist(mlr3misc::map(events, \(x) x["tag"] == "valid.classif.ce")))
 
   # TODO: refactor to expect a specific ordering of the events list
@@ -69,9 +67,7 @@ test_that("eval_freq works", {
   events = mlr3misc::map(collect_events(pth0)$summary, unlist)
 
   n_last_loss_events = sum(unlist(mlr3misc::map(events, \(x) x["tag"] == "train.loss")))
-
   n_valid_acc_events = sum(unlist(mlr3misc::map(events, \(x) x["tag"] == "valid.classif.acc")))
-
   n_valid_ce_events = sum(unlist(mlr3misc::map(events, \(x) x["tag"] == "valid.classif.ce")))
 
   expect_equal(n_last_loss_events, n_epochs)
