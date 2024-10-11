@@ -34,7 +34,7 @@ test_that("a simple example works", {
   n_valid_acc_events = sum(unlist(mlr3misc::map(events, \(x) x["tag"] == "valid.classif.acc")))
   n_valid_ce_events = sum(unlist(mlr3misc::map(events, \(x) x["tag"] == "valid.classif.ce")))
 
-  # TODO: refactor to expect a specific ordering of the events list
+  # TODO: refactor to expect a specific ordering of the events list, not just the right counts
   expect_equal(n_last_loss_events, n_epochs)
   expect_equal(n_valid_acc_events, n_epochs)
   expect_equal(n_valid_ce_events, n_epochs)

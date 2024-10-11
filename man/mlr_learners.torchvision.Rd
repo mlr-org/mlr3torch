@@ -89,9 +89,9 @@ Krizhevsky, Alex, Sutskever, Ilya, Hinton, E. G (2017).
 Sandler, Mark, Howard, Andrew, Zhu, Menglong, Zhmoginov, Andrey, Chen, Liang-Chieh (2018).
 \dQuote{Mobilenetv2: Inverted residuals and linear bottlenecks.}
 In \emph{Proceedings of the IEEE conference on computer vision and pattern recognition}, 4510--4520.
-He, Kaiming, Zhang, Xiangyu, Ren, Shaoqing, Sun, Jian (2016 ).
-\dQuote{Deep residual learning for image recognition .}
-In \emph{Proceedings of the IEEE conference on computer vision and pattern recognition }, 770--778 .
+He, Kaiming, Zhang, Xiangyu, Ren, Shaoqing, Sun, Jian (2016).
+\dQuote{Deep residual learning for image recognition.}
+In \emph{Proceedings of the IEEE conference on computer vision and pattern recognition}, 770--778.
 Simonyan, Karen, Zisserman, Andrew (2014).
 \dQuote{Very deep convolutional networks for large-scale image recognition.}
 \emph{arXiv preprint arXiv:1409.1556}.}
