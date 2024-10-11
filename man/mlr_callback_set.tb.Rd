@@ -5,10 +5,11 @@
 \alias{CallbackSetTB}
 \title{TensorBoard Logging Callback}
 \description{
-Logs training loss and validation measures as events that can be tracked using TensorBoard.
+Logs training loss, training measures, and validation measures as events.
+To view them, use TensorBoard with \code{tensorflow::tensorboard()} (requires \code{tensorflow}) or the CLI.
 }
 \details{
-Logs at most every epoch.
+Logs events at most every epoch.
 }
 \seealso{
 Other Callback: 
@@ -71,10 +72,7 @@ Whether we log the training loss.}
 \if{html}{\out{<a id="method-CallbackSetTB-on_epoch_end"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetTB-on_epoch_end}{}}}
 \subsection{Method \code{on_epoch_end()}}{
-Logs the training loss and validation measures as TensorFlow events.
-Meaningful changes happen at the end of each epoch.
-Notably NOT on_batch_valid_end, since there are no gradient steps between validation batches,
-and therefore differences are due to randomness
+Logs the training loss, training measures, and validation measures as TensorFlow events.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CallbackSetTB$on_epoch_end()}\if{html}{\out{</div>}}
 }
