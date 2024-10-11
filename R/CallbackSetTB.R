@@ -3,9 +3,10 @@
 #' @name mlr_callback_set.tb
 #'
 #' @description
-#' Logs training loss and validation measures as events that can be tracked using TensorBoard.
+#' Logs training loss, training measures, and validation measures as events.
+#' To view them, use TensorBoard with `tensorflow::tensorboard()` (requires `tensorflow`) or the CLI.
 #' @details
-#' Logs at most every epoch.
+#' Logs events at most every epoch.
 #'
 #' @param path (`character(1)`)\cr
 #'   The path to a folder where the events are logged.
@@ -29,7 +30,7 @@ CallbackSetTB = R6Class("CallbackSetTB",
       self$log_train_loss = assert_logical(log_train_loss)
     },
     #' @description
-    #' Logs the training loss and validation measures as TensorFlow events.
+    #' Logs the training loss, training measures, and validation measures as TensorFlow events.
     on_epoch_end = function() {
       if (self$log_train_loss) {
         private$.log_train_loss()
