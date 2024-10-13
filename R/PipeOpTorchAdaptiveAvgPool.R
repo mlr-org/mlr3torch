@@ -21,11 +21,25 @@ PipeOpTorchAdaptiveAvgPool = R6Class("PipeOpTorchAdaptiveAvgPool",
   ),
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
-      list(output_size = param_vals$output_size)
+      list(adaptive_avg_output_shape(
+        shape_in = shapes_in[[1]],
+        conv_dim = private$.d,
+        output_size = param_vals$output_size
+      ))
     },
     .d = NULL
   )
 )
+
+adaptive_avg_output_shape = function(shape_in, conv_dim, output_size) {
+  shape_in = assert_integerish(shape_in, min.len = conv_dim, coerce = TRUE)
+
+  # TODO: what should these be?
+  shape_head = utils::head(shape_in, -conv_dim)
+  shape_tail = output_size
+
+  c(shape_head, shape_tail)
+}
 
 #' @title 1D Adaptive Average Pooling
 #' 
