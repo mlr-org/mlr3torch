@@ -44,6 +44,9 @@ adaptive_avg_output_shape = function(shape_in, conv_dim, output_size) {
 #' @title 1D Adaptive Average Pooling
 #' 
 #' @templateVar id nn_adaptive_avg_pool1d
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
 #' 
 #' @inherit torch::nnf_adaptive_avg_pool1d description
 #' 
@@ -64,5 +67,59 @@ PipeOpTorchAdaptiveAvgPool1D = R6Class("PipeOpTorchAdaptiveAvgPool1D", inherit =
   )
 )
 
+#' @title 2D Adaptive Average Pooling
+#' 
+#' @templateVar id nn_adaptive_avg_pool2d
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
+#' 
+#' @inherit torch::nnf_adaptive_avg_pool2d description
+#' 
+#' @section Parameters:
+#' * `output_size` :: `integer()`\cr
+#'   The target output size. A single number.
+#' 
+#' @section Internals:
+#' Calls [`nn_adaptive_avg_pool1d()`][torch::nn_adaptive_avg_pool2d] during training.
+#' @export
+PipeOpTorchAdaptiveAvgPool1D = R6Class("PipeOpTorchAdaptiveAvgPool1D", inherit = PipeOpTorchAdaptiveAvgPool,
+  public = list(
+    #' @description Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_adaptive_avg_pool1d", param_vals = list()) {
+      super$initialize(id = id, d = 2, param_vals = param_vals)
+    }
+  )
+)
+
+#' @title 3D Adaptive Average Pooling
+#' 
+#' @templateVar id nn_adaptive_avg_pool1d
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
+#' 
+#' @inherit torch::nnf_adaptive_avg_pool3d description
+#' 
+#' @section Parameters:
+#' * `output_size` :: `integer()`\cr
+#'   The target output size. A single number.
+#' 
+#' @section Internals:
+#' Calls [`nn_adaptive_avg_pool3d()`][torch::nn_adaptive_avg_pool1d] during training.
+#' @export
+PipeOpTorchAdaptiveAvgPool1D = R6Class("PipeOpTorchAdaptiveAvgPool1D", inherit = PipeOpTorchAdaptiveAvgPool,
+  public = list(
+    #' @description Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_adaptive_avg_pool1d", param_vals = list()) {
+      super$initialize(id = id, d = 3, param_vals = param_vals)
+    }
+  )
+)
+
 #' @include zzz.R
 register_po("nn_adaptive_avg_pool1d", PipeOpTorchAdaptiveAvgPool1D)
+register_po("nn_adaptive_avg_pool2d", PipeOpTorchAdaptiveAvgPool2D)
+register_po("nn_adaptive_avg_pool3d", PipeOpTorchAdaptiveAvgPool3D)
