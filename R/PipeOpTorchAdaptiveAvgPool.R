@@ -3,7 +3,6 @@ PipeOpTorchAdaptiveAvgPool = R6Class("PipeOpTorchAdaptiveAvgPool",
   public = list(
     # @description Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id, d, param_vals = list()) {
-      # TODO: allow higher dimensions
       private$.d = assert_int(d, lower = 1, upper = 3)
       module_generator = switch(d, nn_adaptive_avg_pool1d, nn_adaptive_avg_pool2d, nn_adaptive_avg_pool3d)
       check_vector = make_check_vector(private$.d)
@@ -23,7 +22,7 @@ PipeOpTorchAdaptiveAvgPool = R6Class("PipeOpTorchAdaptiveAvgPool",
     .shapes_out = function(shapes_in, param_vals, task) {
       list(adaptive_avg_output_shape(
         shape_in = shapes_in[[1]],
-        conv_dim = private$.d,
+        conv_dim = length(param_vals$output_size),
         output_size = param_vals$output_size
       ))
     },
@@ -34,7 +33,7 @@ PipeOpTorchAdaptiveAvgPool = R6Class("PipeOpTorchAdaptiveAvgPool",
 adaptive_avg_output_shape = function(shape_in, conv_dim, output_size) {
   shape_in = assert_integerish(shape_in, min.len = conv_dim, coerce = TRUE)
 
-  # TODO: what should these be?
+  # TODO: fix
   shape_head = utils::head(shape_in, -conv_dim)
   shape_tail = output_size
 

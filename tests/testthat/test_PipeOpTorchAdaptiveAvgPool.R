@@ -1,5 +1,4 @@
 test_that("PipeOpTorchAdaptiveAvgPool1D works", {
-  # TODO: pick a good output size, perhaps by matching the output size of non-adaptive average pooling
   po_test = po("nn_adaptive_avg_pool1d", output_size = 10)
   task = tsk("iris")
   graph = po("torch_ingress_num") %>>%
@@ -13,8 +12,8 @@ test_that("PipeOpTorchAdaptiveAvgPool1D paramtest", {
   expect_paramtest(res)
 })
 
+# TODO: add 2d and 3d tests for output sizes of higher dimensions
 test_that("PipeOpTorchAdaptiveAvgPool2D works", {
-  # TODO: pick a good output size, perhaps by matching the output size of non-adaptive average pooling
   po_test = po("nn_adaptive_avg_pool2d", output_size = 10)
   task = tsk("iris")
   graph = po("torch_ingress_num") %>>%
@@ -29,7 +28,6 @@ test_that("PipeOpTorchAdaptiveAvgPool2D paramtest", {
 })
 
 test_that("PipeOpTorchAdaptiveAvgPool3D works", {
-  # TODO: pick a good output size, perhaps by matching the output size of non-adaptive average pooling
   po_test = po("nn_adaptive_avg_pool3d", output_size = 10)
   task = tsk("iris")
   graph = po("torch_ingress_num") %>>%
