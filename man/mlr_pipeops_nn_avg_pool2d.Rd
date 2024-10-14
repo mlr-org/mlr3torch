@@ -5,8 +5,9 @@
 \alias{PipeOpTorchAvgPool2D}
 \title{2D Average Pooling}
 \description{
-Applies a 2D adaptive average pooling over an input signal composed of
-several input planes.
+Applies 2D average-pooling operation in \eqn{kH * kW} regions by step size
+\eqn{sH * sW} steps. The number of output features is equal to the number of
+input planes.
 }
 \section{Input and Output Channels}{
 

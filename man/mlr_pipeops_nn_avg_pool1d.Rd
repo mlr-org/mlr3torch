@@ -5,8 +5,8 @@
 \alias{PipeOpTorchAvgPool1D}
 \title{1D Average Pooling}
 \description{
-Applies a 1D adaptive average pooling over an input signal composed of
-several input planes.
+Applies a 1D average pooling over an input signal composed of several
+input planes.
 }
 \section{Input and Output Channels}{
 

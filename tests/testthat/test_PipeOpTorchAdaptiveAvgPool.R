@@ -12,7 +12,6 @@ test_that("PipeOpTorchAdaptiveAvgPool1D paramtest", {
   expect_paramtest(res)
 })
 
-# TODO: add 2d and 3d tests for output sizes of higher dimensions
 test_that("PipeOpTorchAdaptiveAvgPool2D works with a 1d output size", {
   po_test = po("nn_adaptive_avg_pool2d", output_size = 10)
   task = nano_imagenet()
