@@ -4,8 +4,8 @@ PipeOpTorchAdaptiveAvgPool = R6Class("PipeOpTorchAdaptiveAvgPool",
     # @description Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id, d, param_vals = list()) {
       # TODO: allow higher dimensions
-      private$.d = assert_int(d, lower = 1, upper = 1)
-      module_generator = switch(d, nn_adaptive_avg_pool1d)
+      private$.d = assert_int(d, lower = 1, upper = 3)
+      module_generator = switch(d, nn_adaptive_avg_pool1d, nn_adaptive_avg_pool2d, nn_adaptive_avg_pool3d)
       check_vector = make_check_vector(private$.d)
       param_set = ps(
         output_size = p_uty(custom_check = check_vector, tags = c("required", "train"))
@@ -83,11 +83,11 @@ PipeOpTorchAdaptiveAvgPool1D = R6Class("PipeOpTorchAdaptiveAvgPool1D", inherit =
 #' @section Internals:
 #' Calls [`nn_adaptive_avg_pool1d()`][torch::nn_adaptive_avg_pool2d] during training.
 #' @export
-PipeOpTorchAdaptiveAvgPool1D = R6Class("PipeOpTorchAdaptiveAvgPool1D", inherit = PipeOpTorchAdaptiveAvgPool,
+PipeOpTorchAdaptiveAvgPool2D = R6Class("PipeOpTorchAdaptiveAvgPool2D", inherit = PipeOpTorchAdaptiveAvgPool,
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
-    initialize = function(id = "nn_adaptive_avg_pool1d", param_vals = list()) {
+    initialize = function(id = "nn_adaptive_avg_pool2d", param_vals = list()) {
       super$initialize(id = id, d = 2, param_vals = param_vals)
     }
   )
@@ -109,11 +109,11 @@ PipeOpTorchAdaptiveAvgPool1D = R6Class("PipeOpTorchAdaptiveAvgPool1D", inherit =
 #' @section Internals:
 #' Calls [`nn_adaptive_avg_pool3d()`][torch::nn_adaptive_avg_pool1d] during training.
 #' @export
-PipeOpTorchAdaptiveAvgPool1D = R6Class("PipeOpTorchAdaptiveAvgPool1D", inherit = PipeOpTorchAdaptiveAvgPool,
+PipeOpTorchAdaptiveAvgPool3D = R6Class("PipeOpTorchAdaptiveAvgPool3D", inherit = PipeOpTorchAdaptiveAvgPool,
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
-    initialize = function(id = "nn_adaptive_avg_pool1d", param_vals = list()) {
+    initialize = function(id = "nn_adaptive_avg_pool3d", param_vals = list()) {
       super$initialize(id = id, d = 3, param_vals = param_vals)
     }
   )

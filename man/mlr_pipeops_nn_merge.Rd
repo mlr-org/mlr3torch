@@ -37,6 +37,8 @@ This private method can be overwritten by \code{\link{PipeOpTorch}}s inheriting 
 
 \seealso{
 Other PipeOps: 
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool1d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool2d}},
 \code{\link{mlr_pipeops_nn_avg_pool1d}},
 \code{\link{mlr_pipeops_nn_avg_pool2d}},
 \code{\link{mlr_pipeops_nn_avg_pool3d}},
