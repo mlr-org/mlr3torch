@@ -9,7 +9,7 @@ PipeOpTorchAdaptiveAvgPool = R6Class("PipeOpTorchAdaptiveAvgPool",
       param_set = ps(
         output_size = p_uty(custom_check = check_vector, tags = c("required", "train"))
       )
-      
+
       super$initialize(
         id = id,
         param_set = param_set,
@@ -22,7 +22,7 @@ PipeOpTorchAdaptiveAvgPool = R6Class("PipeOpTorchAdaptiveAvgPool",
     .shapes_out = function(shapes_in, param_vals, task) {
       list(adaptive_avg_output_shape(
         shape_in = shapes_in[[1]],
-        conv_dim = length(param_vals$output_size),
+        conv_dim = private$.d,
         output_size = param_vals$output_size
       ))
     },
@@ -33,8 +33,11 @@ PipeOpTorchAdaptiveAvgPool = R6Class("PipeOpTorchAdaptiveAvgPool",
 adaptive_avg_output_shape = function(shape_in, conv_dim, output_size) {
   shape_in = assert_integerish(shape_in, min.len = conv_dim, coerce = TRUE)
 
-  # TODO: fix
+  if (length(output_size) == 1) output_size = rep(output_size, conv_dim)
+
   shape_head = utils::head(shape_in, -conv_dim)
+  if (length(shape_head) <= 1) warningf("Input tensor does not have batch dimension.")
+
   shape_tail = output_size
 
   c(shape_head, shape_tail)
@@ -77,7 +80,7 @@ PipeOpTorchAdaptiveAvgPool1D = R6Class("PipeOpTorchAdaptiveAvgPool1D", inherit =
 #' 
 #' @section Parameters:
 #' * `output_size` :: `integer()`\cr
-#'   The target output size. A single number.
+#'   The target output size. Can be a single number or a vector.
 #' 
 #' @section Internals:
 #' Calls [`nn_adaptive_avg_pool2d()`][torch::nn_adaptive_avg_pool2d] during training.
@@ -103,7 +106,7 @@ PipeOpTorchAdaptiveAvgPool2D = R6Class("PipeOpTorchAdaptiveAvgPool2D", inherit =
 #' 
 #' @section Parameters:
 #' * `output_size` :: `integer()`\cr
-#'   The target output size. A single number.
+#'   The target output size. Can be a single number or a vector.
 #' 
 #' @section Internals:
 #' Calls [`nn_adaptive_avg_pool3d()`][torch::nn_adaptive_avg_pool3d] during training.

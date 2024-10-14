@@ -28,7 +28,7 @@ Part of this documentation have been copied or adapted from the documentation of
 
 \itemize{
 \item \code{output_size} :: \code{integer()}\cr
-The target output size. A single number.
+The target output size. Can be a single number or a vector.
 }
 }
 
