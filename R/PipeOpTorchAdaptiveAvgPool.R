@@ -81,7 +81,7 @@ PipeOpTorchAdaptiveAvgPool1D = R6Class("PipeOpTorchAdaptiveAvgPool1D", inherit =
 #'   The target output size. A single number.
 #' 
 #' @section Internals:
-#' Calls [`nn_adaptive_avg_pool1d()`][torch::nn_adaptive_avg_pool2d] during training.
+#' Calls [`nn_adaptive_avg_pool2d()`][torch::nn_adaptive_avg_pool2d] during training.
 #' @export
 PipeOpTorchAdaptiveAvgPool2D = R6Class("PipeOpTorchAdaptiveAvgPool2D", inherit = PipeOpTorchAdaptiveAvgPool,
   public = list(
@@ -95,7 +95,7 @@ PipeOpTorchAdaptiveAvgPool2D = R6Class("PipeOpTorchAdaptiveAvgPool2D", inherit =
 
 #' @title 3D Adaptive Average Pooling
 #' 
-#' @templateVar id nn_adaptive_avg_pool1d
+#' @templateVar id nn_adaptive_avg_pool3d
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
 #' @template pipeop_torch_example
@@ -107,7 +107,7 @@ PipeOpTorchAdaptiveAvgPool2D = R6Class("PipeOpTorchAdaptiveAvgPool2D", inherit =
 #'   The target output size. A single number.
 #' 
 #' @section Internals:
-#' Calls [`nn_adaptive_avg_pool3d()`][torch::nn_adaptive_avg_pool1d] during training.
+#' Calls [`nn_adaptive_avg_pool3d()`][torch::nn_adaptive_avg_pool3d] during training.
 #' @export
 PipeOpTorchAdaptiveAvgPool3D = R6Class("PipeOpTorchAdaptiveAvgPool3D", inherit = PipeOpTorchAdaptiveAvgPool,
   public = list(
