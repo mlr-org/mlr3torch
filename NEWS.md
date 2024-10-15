@@ -1,4 +1,4 @@
-# mlr3torch dev
+# mlr3torch 0.1.2
 
 * Don't use deprecated `data_formats` anymore
 
