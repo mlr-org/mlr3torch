@@ -78,6 +78,7 @@ mlr3torch_callbacks$add("tb", function() {
       log_train_loss = p_lgl(tags = c("train", "required"), init = FALSE)
     ),
     id = "tb",
+    packages = "tfevents",
     label = "TensorBoard",
     man = "mlr3torch::mlr_callback_set.tb"
   )
