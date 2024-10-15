@@ -15,8 +15,8 @@ test_that("metrics are logged correctly", {
 
   task = tsk("iris")
   n_epochs = 10
-  batch_size = 50
-  neurons = 200
+  batch_size = 150
+  neurons = 10
 
   pth0 = tempfile()
 
