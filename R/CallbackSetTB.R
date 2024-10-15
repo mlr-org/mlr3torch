@@ -37,7 +37,7 @@ CallbackSetTB = R6Class("CallbackSetTB",
       }
 
       if (length(self$ctx$last_scores_train)) {
-        map(names(self$ctx$measures_train), private$.log_train_score)
+        walk(names(self$ctx$measures_train), private$.log_train_score)
       }
 
       if (length(self$ctx$last_scores_valid)) {
