@@ -10,7 +10,7 @@ test_that("autotest", {
 })
 
 # TODO: investigate what's happening when there is only a single epoch (why don't we log anything?)
-test_that("a simple example works", {
+test_that("metrics are logged correctly", {
   cb = t_clbk("tb")
 
   task = tsk("iris")
