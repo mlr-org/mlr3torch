@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mlr3torch</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.1.1</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.1.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -96,9 +96,6 @@ Imagenet benchmark.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3torch.mlr-org.com/">mlr3torch</a></span><span class="op">)</span></span>
 <span><span class="va">imagenet</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"tiny_imagenet"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in warn_deprecated("DataBackend$initialize argument 'data_formats'"):</span></span>
-<span><span class="co">#&gt; DataBackend$initialize argument 'data_formats' is deprecated and will be</span></span>
-<span><span class="co">#&gt; removed in the future.</span></span>
 <span><span class="va">imagenet</span></span>
 <span><span class="co">#&gt; &lt;TaskClassif:tiny_imagenet&gt; (110000 x 2): ImageNet Subset</span></span>
 <span><span class="co">#&gt; * Target: class</span></span>
@@ -177,9 +174,6 @@ loss, SGD as the optimizer and checkpoint our model every 20 epochs.</p>
 <span>    <span class="fu"><a href="../reference/t_clbk.html">t_clbk</a></span><span class="op">(</span><span class="st">"checkpoint"</span>, freq <span class="op">=</span> <span class="fl">20</span>, path <span class="op">=</span> <span class="va">checkpoint</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_model_classif"</span>,</span>
 <span>    batch_size <span class="op">=</span> <span class="fl">32</span>, epochs <span class="op">=</span> <span class="fl">100L</span>, device <span class="op">=</span> <span class="st">"cuda"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in warn_deprecated("Learner$initialize argument 'data_formats'"):</span></span>
-<span><span class="co">#&gt; Learner$initialize argument 'data_formats' is deprecated and will be removed in</span></span>
-<span><span class="co">#&gt; the future.</span></span>
 <span></span>
 <span><span class="va">cnn</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/as_learner.html" class="external-link">as_learner</a></span><span class="op">(</span><span class="va">architecture</span><span class="op">)</span></span>
 <span><span class="va">cnn</span><span class="op">$</span><span class="va">id</span> <span class="op">=</span> <span class="st">"cnn"</span></span></code></pre></div>
