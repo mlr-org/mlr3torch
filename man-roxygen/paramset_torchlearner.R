@@ -14,7 +14,7 @@
 #' * `num_threads` :: `integer(1)`\cr
 #'   The number of threads for intraop pararallelization (if `device` is `"cpu"`).
 #'   This value is initialized to 1.
-#' * `num_threads_interop` :: `integer(1)`\cr
+#' * `num_interop_threads` :: `integer(1)`\cr
 #'   The number of threads for intraop and interop pararallelization (if `device` is `"cpu"`).
 #'   This value is initialized to 1.
 #'   Note that this can only be set once during a session and changing the value within an R session will raise a warning.

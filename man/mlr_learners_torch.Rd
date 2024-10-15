@@ -70,7 +70,7 @@ fall back to \code{"cpu"}.
 \item \code{num_threads} :: \code{integer(1)}\cr
 The number of threads for intraop pararallelization (if \code{device} is \code{"cpu"}).
 This value is initialized to 1.
-\item \code{num_threads_interop} :: \code{integer(1)}\cr
+\item \code{num_interop_threads} :: \code{integer(1)}\cr
 The number of threads for intraop and interop pararallelization (if \code{device} is \code{"cpu"}).
 This value is initialized to 1.
 Note that this can only be set once during a session and changing the value within an R session will raise a warning.

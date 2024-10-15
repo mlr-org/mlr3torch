@@ -54,7 +54,7 @@ paramset_torchlearner = function(task_type) {
       aggr = epochs_aggr, in_tune_fn = epochs_tune_fn, disable_in_tune = list(patience = 0)),
     device                = p_fct(tags = c("train", "predict", "required"), levels = mlr_reflections$torch$devices, init = "auto"),
     num_threads           = p_int(lower = 1L, tags = c("train", "predict", "required", "threads"), init = 1L),
-    num_threads_interop   = p_int(lower = 1L, tags = c("train", "predict", "required", "threads"), init = 1L),
+    num_interop_threads   = p_int(lower = 1L, tags = c("train", "predict", "required", "threads"), init = 1L),
     seed                  = p_int(tags = c("train", "predict", "required"), special_vals = list("random", NULL), init = "random"),
     # evaluation
     eval_freq             = p_int(lower = 1L, tags = c("train", "required"), init = 1L),
