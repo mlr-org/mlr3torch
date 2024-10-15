@@ -41,7 +41,7 @@ CallbackSetTB = R6Class("CallbackSetTB",
       }
 
       if (length(self$ctx$last_scores_valid)) {
-        map(names(self$ctx$measures_valid), private$.log_valid_score)
+        walk(names(self$ctx$measures_valid), private$.log_valid_score)
       }
     }
   ),
