@@ -47,8 +47,7 @@ CallbackSetTB = R6Class("CallbackSetTB",
   ),
   private = list(
     .log_score = function(prefix, measure_name, score) {
-      event_list = list(score, self$ctx$epoch)
-      names(event_list) = c(paste0(prefix, measure_name), "step")
+      event_list = set_names(list(score, self$ctx$epoch), c(paste0(prefix, measure_name), "step"))
 
       with_logdir(self$path, {
         do.call(log_event, event_list)
