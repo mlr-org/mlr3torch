@@ -38,3 +38,17 @@ test_that("with_torch_settings leaves global state untouched", {
   })
   expect_false(torch_equal(at, bt))
 })
+
+test_that("interop threads work", {
+  skip_if_not_installed("callr")
+  result = callr::r(function() {
+    library(torch)
+    with_torch_settings = getFromNamespace("with_torch_settings", "mlr3torch")
+    with_torch_settings(NULL, 1, 2, invisible(NULL))
+    x1 = capture.output(with_torch_settings(NULL, 1, 2, invisible(NULL)))
+    x2 = capture.output(with_torch_settings(NULL, 1, 1, invisible(NULL)))
+    list(x1, x2)
+  })
+  expect_equal(result[[1]], character(0))
+  expect_true(grepl("keeping the previous value 2", result[[2]], fixed = TRUE))
+})
