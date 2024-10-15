@@ -5,7 +5,7 @@ event_tag_is = function(event, tag_name) {
 }
 
 test_that("autotest", {
-  cb = t_clbk("tb", path = tempfile(), log_train_loss = TRUE)
+  cb = t_clbk("tb", path = tempfile())
   expect_torch_callback(cb, check_man = TRUE)
 })
 
