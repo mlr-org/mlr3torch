@@ -27,7 +27,7 @@ CallbackSetTB = R6Class("CallbackSetTB",
       if (!dir.exists(path)) {
         dir.create(path, recursive = TRUE)
       }
-      self$log_train_loss = assert_logical(log_train_loss)
+      self$log_train_loss = assert_flag(log_train_loss)
     },
     #' @description
     #' Logs the training loss, training measures, and validation measures as TensorFlow events.
