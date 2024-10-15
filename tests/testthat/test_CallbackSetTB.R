@@ -37,11 +37,11 @@ test_that("metrics are logged correctly", {
 
   events = mlr3misc::map(collect_events(pth0)$summary, unlist)
 
-  n_train_loss_events = sum(unlist(mlr3misc::map(events, event_tag_is, tag_name = "train.loss")))
-  n_train_acc_events = sum(unlist(mlr3misc::map(events, event_tag_is, tag_name = "train.classif.acc")))
-  n_train_ce_events = sum(unlist(mlr3misc::map(events, event_tag_is, tag_name = "train.classif.ce")))
-  n_valid_acc_events = sum(unlist(mlr3misc::map(events, event_tag_is, tag_name = "valid.classif.acc")))
-  n_valid_ce_events = sum(unlist(mlr3misc::map(events, event_tag_is, tag_name = "valid.classif.ce")))
+  n_train_loss_events = sum(mlr3misc::map_lgl(events, event_tag_is, tag_name = "train.loss"))
+  n_train_acc_events = sum(mlr3misc::map_lgl(events, event_tag_is, tag_name = "train.classif.acc"))
+  n_train_ce_events = sum(mlr3misc::map_lgl(events, event_tag_is, tag_name = "train.classif.ce"))
+  n_valid_acc_events = sum(mlr3misc::map_lgl(events, event_tag_is, tag_name = "valid.classif.acc"))
+  n_valid_ce_events = sum(mlr3misc::map_lgl(events, event_tag_is, tag_name = "valid.classif.ce"))
 
   # TODO: refactor to expect a specific ordering of the events list, not just the right counts
   expect_equal(n_train_loss_events, n_epochs)
@@ -79,11 +79,11 @@ test_that("eval_freq works", {
 
   events = mlr3misc::map(collect_events(pth0)$summary, unlist)
 
-  n_train_loss_events = sum(unlist(mlr3misc::map(events, event_tag_is, tag_name = "train.loss")))
-  n_train_acc_events = sum(unlist(mlr3misc::map(events, event_tag_is, tag_name = "train.classif.acc")))
-  n_train_ce_events = sum(unlist(mlr3misc::map(events, event_tag_is, tag_name = "train.classif.ce")))
-  n_valid_acc_events = sum(unlist(mlr3misc::map(events, event_tag_is, tag_name = "valid.classif.acc")))
-  n_valid_ce_events = sum(unlist(mlr3misc::map(events, event_tag_is, tag_name = "valid.classif.ce")))
+  n_train_loss_events = sum(mlr3misc::map_lgl(events, event_tag_is, tag_name = "train.loss"))
+  n_train_acc_events = sum(mlr3misc::map_lgl(events, event_tag_is, tag_name = "train.classif.acc"))
+  n_train_ce_events = sum(mlr3misc::map_lgl(events, event_tag_is, tag_name = "train.classif.ce"))
+  n_valid_acc_events = sum(mlr3misc::map_lgl(events, event_tag_is, tag_name = "valid.classif.acc"))
+  n_valid_ce_events = sum(mlr3misc::map_lgl(events, event_tag_is, tag_name = "valid.classif.ce"))
 
   expect_equal(n_train_loss_events, n_epochs)
   expect_equal(n_train_acc_events, ceiling(n_epochs / eval_freq))
@@ -118,7 +118,7 @@ test_that("the flag for tracking the train loss works", {
 
   events = mlr3misc::map(collect_events(pth0)$summary, unlist)
 
-  n_train_loss_events = sum(unlist(mlr3misc::map(events, event_tag_is, tag_name = "train.loss")))
+  n_train_loss_events = sum(mlr3misc::map_lgl(events, event_tag_is, tag_name = "train.loss"))
 
   expect_equal(n_train_loss_events, 0)
 })
