@@ -30,7 +30,7 @@ CallbackSetTB = R6Class("CallbackSetTB",
       self$log_train_loss = assert_flag(log_train_loss)
     },
     #' @description
-    #' Logs the training loss, training measures, and validation measures as TensorFlow events.
+    #' Logs the training loss, training measures, and validation measures as TensorBoard events.
     on_epoch_end = function() {
       if (self$log_train_loss) {
         private$.log_train_loss()
