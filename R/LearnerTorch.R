@@ -434,7 +434,7 @@ LearnerTorch = R6Class("LearnerTorch",
       if (identical(param_vals$seed, "random")) param_vals$seed = sample.int(.Machine$integer.max, 1)
 
       model = with_torch_settings(seed = param_vals$seed, num_threads = param_vals$num_threads,
-       num_interop_threads = param_vals$num_threads_interop, expr = {
+       num_interop_threads = param_vals$num_interop_threads, expr = {
         learner_torch_train(self, private, super, task, param_vals)
       })
       model$task_col_info = copy(task$col_info[c(task$feature_names, task$target_names), c("id", "type", "levels")])
@@ -455,7 +455,7 @@ LearnerTorch = R6Class("LearnerTorch",
       private$.verify_predict_task(task, param_vals)
 
       with_torch_settings(seed = self$model$seed, num_threads = param_vals$num_threads, 
-        num_interop_threads = param_vals$num_threads_interop, expr = {
+        num_interop_threads = param_vals$num_interop_threads, expr = {
         learner_torch_predict(self, private, super, task, param_vals)
       })
     },
