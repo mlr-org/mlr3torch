@@ -45,7 +45,7 @@ at = auto_tuner(
   learner = mlp,
   tuner = tnr("grid_search"),
   resampling = rsmp("cv"),
-  measure = msr("clasif.acc"),
+  measure = msr("classif.acc"),
   term_evals = 10
 )
 
