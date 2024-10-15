@@ -75,7 +75,7 @@ mlr3torch_callbacks$add("tb", function() {
     callback_generator = CallbackSetTB,
     param_set = ps(
       path           = p_uty(tags = c("train", "required")),
-      log_train_loss = p_lgl(tags = c("train", "required"))
+      log_train_loss = p_lgl(tags = c("train", "required"), init = FALSE)
     ),
     id = "tb",
     label = "TensorBoard",
