@@ -12,13 +12,10 @@ test_that("metrics are logged correctly", {
   cb = t_clbk("tb")
 
   task = tsk("iris")
-  n_epochs = 10
-  batch_size = 150
-  neurons = 10
 
   mlp = lrn("classif.mlp",
             callbacks = cb,
-            epochs = n_epochs, batch_size = batch_size, neurons = neurons,
+            epochs = 10, batch_size = 150, neurons = 10,
             validate = 0.2,
             measures_valid = msrs(c("classif.acc", "classif.ce")),
             measures_train = msrs(c("classif.acc", "classif.ce"))
@@ -44,28 +41,18 @@ test_that("metrics are logged correctly", {
 })
 
 test_that("eval_freq works", {
-  cb = t_clbk("tb")
-
   task = tsk("iris")
-  n_epochs = 9
-  batch_size = 50
-  neurons = 200
-  eval_freq = 4
-
-  pth0 = tempfile()
-
-  log_train_loss = TRUE
 
   mlp = lrn("classif.mlp",
-            callbacks = cb,
-            epochs = n_epochs, batch_size = batch_size, neurons = neurons,
+            callbacks = t_clbk("tb"),
+            epochs = 9, batch_size = 150, neurons = 200,
             validate = 0.2,
             measures_valid = msrs(c("classif.acc", "classif.ce")),
             measures_train = msrs(c("classif.acc", "classif.ce")),
-            eval_freq = eval_freq
+            eval_freq = 4
   )
-  mlp$param_set$set_values(cb.tb.path = pth0)
-  mlp$param_set$set_values(cb.tb.log_train_loss = log_train_loss)
+  mlp$param_set$set_values(cb.tb.path = tempfile())
+  mlp$param_set$set_values(cb.tb.log_train_loss = TRUE)
 
   mlp$train(task)
 
@@ -85,26 +72,17 @@ test_that("eval_freq works", {
 })
 
 test_that("the flag for tracking the train loss works", {
-  cb = t_clbk("tb")
-
   task = tsk("iris")
-  n_epochs = 10
-  batch_size = 50
-  neurons = 200
-
-  log_train_loss = FALSE
-
-  pth0 = tempfile()
 
   mlp = lrn("classif.mlp",
-            callbacks = cb,
-            epochs = n_epochs, batch_size = batch_size, neurons = neurons,
+            callbacks = t_clbk("tb"),
+            epochs = 10, batch_size = 150, neurons = 200,
             validate = 0.2,
             measures_valid = msrs(c("classif.acc", "classif.ce")),
             measures_train = msrs(c("classif.acc", "classif.ce"))
   )
-  mlp$param_set$set_values(cb.tb.path = pth0)
-  mlp$param_set$set_values(cb.tb.log_train_loss = log_train_loss)
+  mlp$param_set$set_values(cb.tb.path = tempfile()
+  mlp$param_set$set_values(cb.tb.log_train_loss = FALSE)
 
   mlp$train(task)
 
