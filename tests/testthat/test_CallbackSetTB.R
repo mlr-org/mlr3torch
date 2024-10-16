@@ -1,5 +1,3 @@
-library(tfevents)
-
 event_tag_is = function(event, tag_name) {
   ifelse(is.null(event), FALSE, event["tag"] == tag_name)
 }
@@ -35,7 +33,7 @@ test_that("metrics are logged correctly", {
 
   mlp$train(task)
 
-  events = mlr3misc::map(collect_events(pth0)$summary, unlist)
+  events = mlr3misc::map(tfevents::collect_events(pth0)$summary, unlist)
 
   n_train_loss_events = sum(mlr3misc::map_lgl(events, event_tag_is, tag_name = "train.loss"))
   n_train_acc_events = sum(mlr3misc::map_lgl(events, event_tag_is, tag_name = "train.classif.acc"))
@@ -77,7 +75,7 @@ test_that("eval_freq works", {
 
   mlp$train(task)
 
-  events = mlr3misc::map(collect_events(pth0)$summary, unlist)
+  events = mlr3misc::map(tfevents::collect_events(pth0)$summary, unlist)
 
   n_train_loss_events = sum(mlr3misc::map_lgl(events, event_tag_is, tag_name = "train.loss"))
   n_train_acc_events = sum(mlr3misc::map_lgl(events, event_tag_is, tag_name = "train.classif.acc"))
@@ -116,7 +114,7 @@ test_that("the flag for tracking the train loss works", {
 
   mlp$train(task)
 
-  events = mlr3misc::map(collect_events(pth0)$summary, unlist)
+  events = mlr3misc::map(tfevents::collect_events(pth0)$summary, unlist)
 
   n_train_loss_events = sum(mlr3misc::map_lgl(events, event_tag_is, tag_name = "train.loss"))
 

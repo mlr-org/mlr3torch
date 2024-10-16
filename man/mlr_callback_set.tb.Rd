@@ -72,7 +72,7 @@ Whether we log the training loss.}
 \if{html}{\out{<a id="method-CallbackSetTB-on_epoch_end"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetTB-on_epoch_end}{}}}
 \subsection{Method \code{on_epoch_end()}}{
-Logs the training loss, training measures, and validation measures as TensorFlow events.
+Logs the training loss, training measures, and validation measures as TensorBoard events.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CallbackSetTB$on_epoch_end()}\if{html}{\out{</div>}}
 }
