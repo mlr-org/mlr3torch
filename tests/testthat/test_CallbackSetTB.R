@@ -16,10 +16,6 @@ test_that("metrics are logged correctly", {
   batch_size = 150
   neurons = 10
 
-  pth0 = tempfile()
-
-  log_train_loss = TRUE
-
   mlp = lrn("classif.mlp",
             callbacks = cb,
             epochs = n_epochs, batch_size = batch_size, neurons = neurons,
@@ -27,9 +23,8 @@ test_that("metrics are logged correctly", {
             measures_valid = msrs(c("classif.acc", "classif.ce")),
             measures_train = msrs(c("classif.acc", "classif.ce"))
   )
-  mlp$param_set$set_values(cb.tb.path = pth0)
-
-  mlp$param_set$set_values(cb.tb.log_train_loss = log_train_loss)
+  mlp$param_set$set_values(cb.tb.path = tempfile())
+  mlp$param_set$set_values(cb.tb.log_train_loss = TRUE)
 
   mlp$train(task)
 
@@ -41,7 +36,6 @@ test_that("metrics are logged correctly", {
   n_valid_acc_events = sum(mlr3misc::map_lgl(events, event_tag_is, tag_name = "valid.classif.acc"))
   n_valid_ce_events = sum(mlr3misc::map_lgl(events, event_tag_is, tag_name = "valid.classif.ce"))
 
-  # TODO: refactor to expect a specific ordering of the events list, not just the right counts
   expect_equal(n_train_loss_events, n_epochs)
   expect_equal(n_train_acc_events, n_epochs)
   expect_equal(n_train_ce_events, n_epochs)
