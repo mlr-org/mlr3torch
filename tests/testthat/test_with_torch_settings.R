@@ -45,10 +45,11 @@ test_that("interop threads work", {
     library(torch)
     with_torch_settings = getFromNamespace("with_torch_settings", "mlr3torch")
     with_torch_settings(NULL, 1, 2, invisible(NULL))
-    x1 = capture.output(with_torch_settings(NULL, 1, 2, invisible(NULL)))
-    x2 = capture.output(with_torch_settings(NULL, 1, 1, invisible(NULL)))
-    list(x1, x2)
+    x1 = tryCatch(with_torch_settings(NULL, 1, 2, invisible(NULL)), warning = identity)$message
+    x2 = tryCatch(with_torch_settings(NULL, 1, 1, invisible(NULL)), warning = identity)$message
+    list(x1, x2, torch_get_num_interop_threads())
   })
-  expect_equal(result[[1]], character(0))
+  expect_true(length(result[[1]]) == 0)
   expect_true(grepl("keeping the previous value 2", result[[2]], fixed = TRUE))
+  expect_equal(result[[3]], 2)
 })
