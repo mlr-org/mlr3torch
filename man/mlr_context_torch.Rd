@@ -19,6 +19,7 @@ Other Callback:
 \code{\link{mlr_callback_set}},
 \code{\link{mlr_callback_set.checkpoint}},
 \code{\link{mlr_callback_set.progress}},
+\code{\link{mlr_callback_set.tb}},
 \code{\link{t_clbk}()},
 \code{\link{torch_callback}()}
 }
