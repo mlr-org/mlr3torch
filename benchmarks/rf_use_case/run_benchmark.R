@@ -5,22 +5,14 @@ library(paradox)
 
 library(here)
 
+options(mlr3oml.cache = here("benchmarks", "data", "oml"))
+
 # define the tasks
-cc18_small = fread(here("data", "oml", "cc18_small.csv"))
-cc18_small_datasets = mlr3misc::pmap(cc18_small, function(data_id, name, NumberOfFeatures, NumberOfInstances) {
-  dt_name = here("data", "oml", paste0(name, "_", data_id, ".csv"))
-  fread(dt_name)
-})
-# cc18_small_datasets
+cc18_small = fread(here(getOption("mlr3oml.cache"), "collections", "cc18_small.csv"))
 
-# cc18_small_datasets[[1]]
+task_list = mlr3misc::pmap(cc18_small, function(data_id, name, NumberOfFeatures, NumberOfInstances) tsk("oml", data_id = data_id))
 
-# TODO: determine whether we can use OML tasks "directly"
-# didn't do this at first because they come with resamplings and we want to use our own resamplings
-kc1_1067 = as_task_classif(cc18_small_datasets[[1]], target = "defects")
-blood_1464 = as_task_classif(cc18_small_datasets[[2]], target = "Class")
-
-tasks = list(kc1_1067, blood_1464)
+task_list
 
 # define the learners
 mlp = lrn("classif.mlp",
@@ -88,15 +80,15 @@ fwrite(bmrdt, here("R", "rf_Use_case", "results", "bmrdt.csv"))
 
 # generate_permutations <- function(layers_search_space, neurons_search_space) {
 #   result <- list()
-  
+
 #   for (layers in layers_search_space) {
 #     # Generate all permutations with replacement
 #     perms <- expand.grid(replicate(layers, list(neurons_search_space), simplify = FALSE))
-    
+
 #     # Convert each row to a vector and add to the result
 #     result <- c(result, apply(perms, 1, as.numeric))
 #   }
-  
+
 #   return(result)
 # }
 
