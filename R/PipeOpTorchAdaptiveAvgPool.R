@@ -1,7 +1,6 @@
 PipeOpTorchAdaptiveAvgPool = R6Class("PipeOpTorchAdaptiveAvgPool",
   inherit = PipeOpTorch,
   public = list(
-    # @description Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id, d, param_vals = list()) {
       private$.d = assert_int(d, lower = 1, upper = 3)
       module_generator = switch(d, nn_adaptive_avg_pool1d, nn_adaptive_avg_pool2d, nn_adaptive_avg_pool3d)
