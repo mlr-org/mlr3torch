@@ -20,14 +20,28 @@ task_list = mlr3misc::pmap(cc18_small, function(data_id, name, NumberOfFeatures,
 task_list
 
 # define the learners
+neurons = function(n_layers, latent_dim) {
+  rep(latent_dim, n_layers)
+}
+
+n_layers_values <- 1:10
+latent_dim_values <- seq(10, 500, by = 10)
+neurons_search_space <- mapply(
+  neurons,
+  expand.grid(n_layers = n_layers_values, latent_dim = latent_dim_values)$n_layers,
+  expand.grid(n_layers = n_layers_values, latent_dim = latent_dim_values)$latent_dim,
+  SIMPLIFY = FALSE
+)
+
 mlp = lrn("classif.mlp",
   activation = nn_relu,
-  neurons = to_tune(ps(
-    n_layers = p_int(lower = 1, upper = 10), latent = p_int(10, 500),
-    .extra_trafo = function(x, param_set) {
-      list(neurons = rep(x$latent, x$n_layers))
-    })
-  ),
+  # neurons = to_tune(ps(
+  #   n_layers = p_int(lower = 1, upper = 10), latent = p_int(10, 500),
+  #   .extra_trafo = function(x, param_set) {
+  #     list(neurons = rep(x$latent, x$n_layers))
+  #   })
+  # ),
+  neurons = to_tune(neurons_search_space),
   batch_size = to_tune(c(16, 32, 64, 128, 256)),
   p = to_tune(0.1, 0.9),
   epochs = to_tune(upper = 1000L, internal = TRUE),
@@ -37,7 +51,7 @@ mlp = lrn("classif.mlp",
   device = "cpu"
 )
 
-# define the optimizatio nstrategy
+# define the optimization strategy
 bayesopt_ego = mlr_loop_functions$get("bayesopt_ego")
 surrogate = srlrn(lrn("regr.km", covtype = "matern5_2",
   optim.method = "BFGS", control = list(trace = FALSE)))
@@ -54,19 +68,20 @@ tnr_mbo = tnr("mbo",
 # define an AutoTuner that wraps the classif.mlp
 at = auto_tuner(
   learner = mlp,
-  tuner = tnr("grid_search"),
+  tuner = tnr_mbo,
   resampling = rsmp("cv"),
   measure = msr("classif.acc"),
-  term_evals = 1000
+  term_evals = 10
 )
 
-future::plan("multisession", workers = 8)
+future::plan("multisession", workers = 64)
 
 lrn_rf = lrn("classif.ranger")
 design = benchmark_grid(
   task_list,
   learners = list(at, lrn_rf),
-  resampling = rsmp("cv", folds = 10))
+  resampling = rsmp("cv", folds = 10)
+)
 
 time = bench::system_time(
   bmr <- benchmark(design)
