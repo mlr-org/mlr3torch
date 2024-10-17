@@ -1,7 +1,12 @@
 library(mlr3)
-library(data.table)
+library(mlr3learners)
+library(mlr3oml)
 library(mlr3torch)
+library(mlr3tuning)
+
 library(paradox)
+
+library(data.table)
 
 library(here)
 
@@ -23,7 +28,7 @@ mlp = lrn("classif.mlp",
       list(neurons = rep(x$latent, x$n_layers))
     })
   ),
-  batch_size = to_tune(16, 32, 64),
+  batch_size = to_tune(c(16, 32, 64)),
   p = to_tune(0.1, 0.9),
   epochs = to_tune(upper = 100, internal = TRUE),
   validate = 0.3,
@@ -43,14 +48,16 @@ at = auto_tuner(
 
 future::plan("multisession")
 
+lrn_rf = lrn("classif.ranger")
 design = benchmark_grid(
-  tasks,
-  learners = list(at, lrn("classif.ranger"),
+  task_list,
+  learners = list(at, lrn_rf),
   resampling = rsmp("cv", folds = 10))
-)
 
-bmr = benchmark(design)
+bench::system_time(
+  bmr <- benchmark(design)
+)
 
 bmrdt = as.data.table(bmr)
 
-fwrite(bmrdt, here("R", "rf_Use_case", "results", "bmrdt.csv"))
+fwrite(bmrdt, here("R", "rf_use_case", "results", "bmrdt.csv"))
