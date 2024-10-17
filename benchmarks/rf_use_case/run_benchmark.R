@@ -3,11 +3,11 @@ library(mlr3learners)
 library(mlr3oml)
 library(mlr3torch)
 library(mlr3tuning)
+library(mlr3mbo)
+library(bbotk)
 
-library(paradox)
-
+library(bench)
 library(data.table)
-
 library(here)
 
 options(mlr3oml.cache = here("benchmarks", "data", "oml"))
@@ -28,25 +28,37 @@ mlp = lrn("classif.mlp",
       list(neurons = rep(x$latent, x$n_layers))
     })
   ),
-  batch_size = to_tune(c(16, 32, 64)),
+  batch_size = to_tune(c(16, 32, 64, 128, 256)),
   p = to_tune(0.1, 0.9),
-  epochs = to_tune(upper = 100, internal = TRUE),
+  epochs = to_tune(upper = 1000L, internal = TRUE),
   validate = 0.3,
   measures_valid = msr("classif.acc"),
   patience = 10,
   device = "cpu"
 )
 
+# define the optimizatio nstrategy
+bayesopt_ego = mlr_loop_functions$get("bayesopt_ego")
+surrogate = srlrn(lrn("regr.km", covtype = "matern5_2",
+  optim.method = "BFGS", control = list(trace = FALSE)))
+acq_function = acqf("ei")
+acq_optimizer = acqo(opt("nloptr", algorithm = "NLOPT_GN_ORIG_DIRECT"),
+  terminator = trm("stagnation", iters = 100, threshold = 1e-5))
+
 # define an AutoTuner that wraps the classif.mlp
 at = auto_tuner(
   learner = mlp,
-  tuner = tnr("grid_search"),
+  tuner = tnr("mbo",
+    loop_function = bayesopt_ego,
+    surrogate = surrogate,
+    acq_function = acq_function,
+    acq_optimizer = acq_optimizer),
   resampling = rsmp("cv"),
   measure = msr("classif.acc"),
-  term_evals = 10
+  term_evals = 100
 )
 
-future::plan("multisession")
+future::plan("multisession", workers = 8)
 
 lrn_rf = lrn("classif.ranger")
 design = benchmark_grid(
@@ -54,10 +66,11 @@ design = benchmark_grid(
   learners = list(at, lrn_rf),
   resampling = rsmp("cv", folds = 10))
 
-bench::system_time(
+time = bench::system_time(
   bmr <- benchmark(design)
 )
 
 bmrdt = as.data.table(bmr)
 
 fwrite(bmrdt, here("R", "rf_use_case", "results", "bmrdt.csv"))
+fwrite(time, here("R", "rf_use_case", "results", "time.csv"))
