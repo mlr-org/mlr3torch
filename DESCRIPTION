@@ -99,6 +99,7 @@ Collate:
     'PipeOpTorch.R'
     'PipeOpTaskPreprocTorch.R'
     'PipeOpTorchActivation.R'
+    'PipeOpTorchAdaptiveAvgPool.R'
     'PipeOpTorchAvgPool.R'
     'PipeOpTorchBatchNorm.R'
     'PipeOpTorchBlock.R'
