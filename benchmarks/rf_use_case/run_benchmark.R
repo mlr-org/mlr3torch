@@ -45,17 +45,19 @@ acq_function = acqf("ei")
 acq_optimizer = acqo(opt("nloptr", algorithm = "NLOPT_GN_ORIG_DIRECT"),
   terminator = trm("stagnation", iters = 100, threshold = 1e-5))
 
-# define an AutoTuner that wraps the classif.mlp
-at = auto_tuner(
-  learner = mlp,
-  tuner = tnr("mbo",
+tnr_mbo = tnr("mbo",
     loop_function = bayesopt_ego,
     surrogate = surrogate,
     acq_function = acq_function,
-    acq_optimizer = acq_optimizer),
+    acq_optimizer = acq_optimizer)
+
+# define an AutoTuner that wraps the classif.mlp
+at = auto_tuner(
+  learner = mlp,
+  tuner = tnr("grid_search"),
   resampling = rsmp("cv"),
   measure = msr("classif.acc"),
-  term_evals = 100
+  term_evals = 1000
 )
 
 future::plan("multisession", workers = 8)
