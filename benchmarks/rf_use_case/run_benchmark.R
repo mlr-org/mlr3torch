@@ -12,6 +12,8 @@ library(here)
 
 options(mlr3oml.cache = here("benchmarks", "data", "oml"))
 
+# when working on the GPU server, don't forget to activate the mamba environment with the torch installation
+
 # define the tasks
 cc18_small = fread(here(getOption("mlr3oml.cache"), "collections", "cc18_small.csv"))
 
@@ -71,10 +73,10 @@ at = auto_tuner(
   tuner = tnr_mbo,
   resampling = rsmp("cv"),
   measure = msr("classif.acc"),
-  term_evals = 10
+  term_evals = 1000
 )
 
-future::plan("multisession", workers = 64)
+future::plan("multisession", workers = 8)
 
 lrn_rf = lrn("classif.ranger")
 design = benchmark_grid(
