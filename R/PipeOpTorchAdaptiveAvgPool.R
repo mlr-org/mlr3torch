@@ -52,7 +52,7 @@ adaptive_avg_output_shape = function(shape_in, conv_dim, output_size) {
 #' @inherit torch::nnf_adaptive_avg_pool1d description
 #' 
 #' @section Parameters:
-#' * `output_size` :: `integer()`\cr
+#' * `output_size` :: `integer(1)`\cr
 #'   The target output size. A single number.
 #' 
 #' @section Internals:
