@@ -17,15 +17,15 @@ task_list
 # define the learners
 mlp = lrn("classif.mlp",
   activation = nn_relu,
-  neurons = to_tune(
-    c(
-      10, 20,
-      c(10, 10), c(10, 20), c(20, 10), c(20, 20)
-    )
+  neurons = to_tune(ps(
+    n_layers = p_int(lower = 1, upper = 10), latent = p_int(10, 500),
+    .extra_trafo = function(x, param_set) {
+      list(neurons = rep(x$latent, x$n_layers))
+    })
   ),
   batch_size = to_tune(16, 32, 64),
   p = to_tune(0.1, 0.9),
-  epochs = to_tune(upper = 1000L, internal = TRUE),
+  epochs = to_tune(upper = 100, internal = TRUE),
   validate = 0.3,
   measures_valid = msr("classif.acc"),
   patience = 10,
@@ -54,44 +54,3 @@ bmr = benchmark(design)
 bmrdt = as.data.table(bmr)
 
 fwrite(bmrdt, here("R", "rf_Use_case", "results", "bmrdt.csv"))
-
-  # define an optimization strategy: grid search
-
-  # define a search space: the parameters to tune over
-
-    # neurons
-
-    # batch size
-
-    # dropout rate
-
-    # epochs
-
-  # use something standard (e.g. accuracy) as the tuning measure
-
-  # use k-fold cross validation
-
-  # set a number of evaluations for the tuner
-
-# TODO: set up the tuning space for the neurons and layers
-
-# layers_search_space <- 1:5
-# neurons_search_space <- seq(10, 50, by = 10)
-
-# generate_permutations <- function(layers_search_space, neurons_search_space) {
-#   result <- list()
-
-#   for (layers in layers_search_space) {
-#     # Generate all permutations with replacement
-#     perms <- expand.grid(replicate(layers, list(neurons_search_space), simplify = FALSE))
-
-#     # Convert each row to a vector and add to the result
-#     result <- c(result, apply(perms, 1, as.numeric))
-#   }
-
-#   return(result)
-# }
-
-# permutations <- generate_permutations(layers_search_space, neurons_search_space)
-
-# head(permutations)
