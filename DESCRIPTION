@@ -1,6 +1,6 @@
 Package: mlr3torch
 Title: Deep Learning with 'mlr3'
-Version: 0.1.1-9000
+Version: 0.1.2
 Authors@R:
     c(person(given = "Sebastian",
              family = "Fischer",
@@ -106,6 +106,7 @@ Collate:
     'PipeOpTorch.R'
     'PipeOpTaskPreprocTorch.R'
     'PipeOpTorchActivation.R'
+    'PipeOpTorchAdaptiveAvgPool.R'
     'PipeOpTorchAvgPool.R'
     'PipeOpTorchBatchNorm.R'
     'PipeOpTorchBlock.R'

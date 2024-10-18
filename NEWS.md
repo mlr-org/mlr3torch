@@ -1,5 +1,10 @@
 # mlr3torch dev
 
+* feat: Add parameter `num_interop_threads` to `LearnerTorch`
+* feat: Add adaptive average pooling
+
+# mlr3torch 0.1.2
+
 * Don't use deprecated `data_formats` anymore
 * Added `CallbackSetTB`, which allows logging that can be viewed by TensorBoard.
 

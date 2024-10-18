@@ -5,8 +5,9 @@
 \alias{PipeOpTorchAvgPool3D}
 \title{3D Average Pooling}
 \description{
-Applies a 3D adaptive average pooling over an input signal composed of
-several input planes.
+Applies 3D average-pooling operation in \eqn{kT * kH * kW} regions by step
+size \eqn{sT * sH * sW} steps. The number of output features is equal to
+\eqn{\lfloor \frac{ \mbox{input planes} }{sT} \rfloor}.
 }
 \section{Input and Output Channels}{
 
@@ -59,6 +60,9 @@ pipeop$param_set
 }
 \seealso{
 Other PipeOps: 
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool1d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool2d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool3d}},
 \code{\link{mlr_pipeops_nn_avg_pool1d}},
 \code{\link{mlr_pipeops_nn_avg_pool2d}},
 \code{\link{mlr_pipeops_nn_batch_norm1d}},

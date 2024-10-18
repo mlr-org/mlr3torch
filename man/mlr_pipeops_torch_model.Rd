@@ -37,6 +37,10 @@ fall back to \code{"cpu"}.
 \item \code{num_threads} :: \code{integer(1)}\cr
 The number of threads for intraop pararallelization (if \code{device} is \code{"cpu"}).
 This value is initialized to 1.
+\item \code{num_interop_threads} :: \code{integer(1)}\cr
+The number of threads for intraop and interop pararallelization (if \code{device} is \code{"cpu"}).
+This value is initialized to 1.
+Note that this can only be set once during a session and changing the value within an R session will raise a warning.
 \item \code{seed} :: \code{integer(1)} or \code{"random"} or \code{NULL}\cr
 The torch seed that is used during training and prediction.
 This value is initialized to \code{"random"}, which means that a random seed will be sampled at the beginning of the
@@ -120,6 +124,9 @@ its '$train()\verb{ method is called on the [}Task\verb{][mlr3::Task] stored in 
 
 \seealso{
 Other PipeOps: 
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool1d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool2d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool3d}},
 \code{\link{mlr_pipeops_nn_avg_pool1d}},
 \code{\link{mlr_pipeops_nn_avg_pool2d}},
 \code{\link{mlr_pipeops_nn_avg_pool3d}},

@@ -14,6 +14,10 @@
 #' * `num_threads` :: `integer(1)`\cr
 #'   The number of threads for intraop pararallelization (if `device` is `"cpu"`).
 #'   This value is initialized to 1.
+#' * `num_interop_threads` :: `integer(1)`\cr
+#'   The number of threads for intraop and interop pararallelization (if `device` is `"cpu"`).
+#'   This value is initialized to 1.
+#'   Note that this can only be set once during a session and changing the value within an R session will raise a warning.
 #' * `seed` :: `integer(1)` or `"random"` or `NULL`\cr
 #'   The torch seed that is used during training and prediction.
 #'   This value is initialized to `"random"`, which means that a random seed will be sampled at the beginning of the
