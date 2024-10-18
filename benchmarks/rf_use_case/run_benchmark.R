@@ -1,6 +1,7 @@
 library(mlr3)
 library(mlr3learners)
 library(mlr3oml)
+# pak::pkg_install("mlr-org/mlr3torch")
 library(mlr3torch)
 library(mlr3tuning)
 library(mlr3mbo)
@@ -26,8 +27,8 @@ neurons = function(n_layers, latent_dim) {
   rep(latent_dim, n_layers)
 }
 
-n_layers_values <- 1:10
-latent_dim_values <- seq(10, 500, by = 10)
+n_layers_values <- 1:5
+latent_dim_values <- seq(10, 200, by = 20)
 neurons_search_space <- mapply(
   neurons,
   expand.grid(n_layers = n_layers_values, latent_dim = latent_dim_values)$n_layers,
@@ -44,7 +45,7 @@ mlp = lrn("classif.mlp",
   #   })
   # ),
   neurons = to_tune(neurons_search_space),
-  batch_size = to_tune(c(16, 32, 64, 128, 256)),
+  batch_size = to_tune(c(16, 32)),
   p = to_tune(0.1, 0.9),
   epochs = to_tune(upper = 1000L, internal = TRUE),
   validate = 0.3,
@@ -82,7 +83,7 @@ lrn_rf = lrn("classif.ranger")
 design = benchmark_grid(
   task_list,
   learners = list(at, lrn_rf),
-  resampling = rsmp("cv", folds = 10)
+  resampling = rsmp("cv", folds = 3)
 )
 
 time = bench::system_time(
