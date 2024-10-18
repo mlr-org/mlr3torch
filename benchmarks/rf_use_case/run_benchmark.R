@@ -13,8 +13,6 @@ library(here)
 
 options(mlr3oml.cache = here("benchmarks", "data", "oml"))
 
-# when working on the GPU server, don't forget to activate the mamba environment with the torch installation
-
 # define the tasks
 cc18_small = fread(here(getOption("mlr3oml.cache"), "collections", "cc18_small.csv"))
 
@@ -65,26 +63,17 @@ at = auto_tuner(
   term_evals = 10
 )
 
-# two ways to parallelize:
-# 1: inner resampling by the tuner
-# outer resampling by the benchmark
-# 8 "learners whose final performance will be compared" are evalua
-# each task, learner, resampling fold are independent
-# some parallelization frameworks will wait for all 8 in the first "batch" to finish before working on the next 8
-# TODO: change this to parallelize both inner and outer resamplings
 future::plan("multisession", workers = 8)
 
 lrn_rf = lrn("classif.ranger")
 
 options(mlr3.exec_random = FALSE)
 
-# ensure that first the autotuner runs
 design = benchmark_grid(
   task_list,
   learners = list(at, lrn_rf),
   resampling = rsmp("cv", folds = 3)
 )
-
 design = design[order(mlr3misc::ids(learner)), ]
 
 time = bench::system_time(
