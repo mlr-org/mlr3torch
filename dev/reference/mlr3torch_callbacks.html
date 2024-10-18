@@ -13,7 +13,7 @@ as.data.table."><meta property="og:image" content="https://mlr3torch.mlr-org.com
 
     <a class="navbar-brand me-2" href="../index.html">mlr3torch</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.1.1-9000</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.1.2-9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,6 +82,7 @@ Can be converted to a <code><a href="https://rdatatable.gitlab.io/data.table/ref
 <code><a href="mlr_callback_set.html">mlr_callback_set</a></code>,
 <code><a href="mlr_callback_set.checkpoint.html">mlr_callback_set.checkpoint</a></code>,
 <code><a href="mlr_callback_set.progress.html">mlr_callback_set.progress</a></code>,
+<code><a href="mlr_callback_set.tb.html">mlr_callback_set.tb</a></code>,
 <code><a href="mlr_context_torch.html">mlr_context_torch</a></code>,
 <code><a href="t_clbk.html">t_clbk</a>()</code>,
 <code><a href="torch_callback.html">torch_callback</a>()</code></p>
@@ -107,11 +108,12 @@ Can be converted to a <code><a href="https://rdatatable.gitlab.io/data.table/ref
 <span class="r-in"><span><span class="co"># convert to a data.table</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">mlr3torch_callbacks</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;key&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           key      label                 packages</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        &lt;char&gt;     &lt;char&gt;                   &lt;char&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1: checkpoint Checkpoint          mlr3torch,torch</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:    history    History          mlr3torch,torch</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:   progress   Progress progress,mlr3torch,torch</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           key       label                 packages</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        &lt;char&gt;      &lt;char&gt;                   &lt;char&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1: checkpoint  Checkpoint          mlr3torch,torch</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:    history     History          mlr3torch,torch</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:   progress    Progress progress,mlr3torch,torch</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:         tb TensorBoard tfevents,mlr3torch,torch</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

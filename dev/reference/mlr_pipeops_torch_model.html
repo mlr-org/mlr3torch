@@ -9,7 +9,7 @@ The task type must be specified during construction."><meta property="og:image" 
 
     <a class="navbar-brand me-2" href="../index.html">mlr3torch</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.1.1-9000</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.1.2-9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -88,6 +88,10 @@ fall back to <code>"cpu"</code>.</p></li>
 <li><p><code>num_threads</code> :: <code>integer(1)</code><br>
 The number of threads for intraop pararallelization (if <code>device</code> is <code>"cpu"</code>).
 This value is initialized to 1.</p></li>
+<li><p><code>num_interop_threads</code> :: <code>integer(1)</code><br>
+The number of threads for intraop and interop pararallelization (if <code>device</code> is <code>"cpu"</code>).
+This value is initialized to 1.
+Note that this can only be set once during a session and changing the value within an R session will raise a warning.</p></li>
 <li><p><code>seed</code> :: <code>integer(1)</code> or <code>"random"</code> or <code>NULL</code><br>
 The torch seed that is used during training and prediction.
 This value is initialized to <code>"random"</code>, which means that a random seed will be sampled at the beginning of the
@@ -158,6 +162,9 @@ its '$train()<code> method is called on the [</code>Task<code>][mlr3::Task] stor
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other PipeOps:
+<code><a href="mlr_pipeops_nn_adaptive_avg_pool1d.html">mlr_pipeops_nn_adaptive_avg_pool1d</a></code>,
+<code><a href="mlr_pipeops_nn_adaptive_avg_pool2d.html">mlr_pipeops_nn_adaptive_avg_pool2d</a></code>,
+<code><a href="mlr_pipeops_nn_adaptive_avg_pool3d.html">mlr_pipeops_nn_adaptive_avg_pool3d</a></code>,
 <code><a href="mlr_pipeops_nn_avg_pool1d.html">mlr_pipeops_nn_avg_pool1d</a></code>,
 <code><a href="mlr_pipeops_nn_avg_pool2d.html">mlr_pipeops_nn_avg_pool2d</a></code>,
 <code><a href="mlr_pipeops_nn_avg_pool3d.html">mlr_pipeops_nn_avg_pool3d</a></code>,

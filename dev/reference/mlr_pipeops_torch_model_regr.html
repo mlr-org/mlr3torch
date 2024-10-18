@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mlr3torch</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.1.1-9000</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.1.2-9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -85,6 +85,9 @@ its '$train()<code> method is called on the [</code>Task<code>][mlr3::Task] stor
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other PipeOps:
+<code><a href="mlr_pipeops_nn_adaptive_avg_pool1d.html">mlr_pipeops_nn_adaptive_avg_pool1d</a></code>,
+<code><a href="mlr_pipeops_nn_adaptive_avg_pool2d.html">mlr_pipeops_nn_adaptive_avg_pool2d</a></code>,
+<code><a href="mlr_pipeops_nn_adaptive_avg_pool3d.html">mlr_pipeops_nn_adaptive_avg_pool3d</a></code>,
 <code><a href="mlr_pipeops_nn_avg_pool1d.html">mlr_pipeops_nn_avg_pool1d</a></code>,
 <code><a href="mlr_pipeops_nn_avg_pool2d.html">mlr_pipeops_nn_avg_pool2d</a></code>,
 <code><a href="mlr_pipeops_nn_avg_pool3d.html">mlr_pipeops_nn_avg_pool3d</a></code>,
@@ -271,16 +274,14 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$exp_avg</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 1 to 8-13.1509 -98.9903 -206.1225 -8014.5713 -111.5956 -117.2976 -5283.9326 -542.0857</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 9 to 10-10.0870 -103.6579</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.1899 -2.5584 -16.8081 -583.6016 -12.5174 -11.6554 -219.9824 -66.3019 -2.5536 -9.4319</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1,10} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$exp_avg_sq</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 1 to 6 1.0949e+01  5.4385e+02  2.3467e+03  3.5528e+06  6.8783e+02  7.6321e+02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 1 to 6 1.3291e-01  4.0389e+00  2.2521e+01  2.8091e+04  1.1109e+01  1.0300e+01</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 7 to 10 1.5533e+06  1.6299e+04  6.0018e+00  5.9910e+02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 7 to 10 8.3546e+03  3.0016e+02  4.2510e-01  7.0911e+00</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1,10} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -290,12 +291,12 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$exp_avg</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -31.3488</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -3.4187</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$exp_avg_sq</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  54.2858</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.8167</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -332,7 +333,7 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Empty data.table (0 rows and 3 cols): stage,class,msg</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $train_time</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.043</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.04</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals$epochs</span>
@@ -342,6 +343,9 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "auto"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals$num_threads</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals$num_interop_threads</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $param_vals$seed</span>
@@ -376,7 +380,7 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $mlr3_version</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] ‘0.21.0’</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] ‘0.21.1’</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $internal_tuned_values</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> named list()</span>
