@@ -45,46 +45,47 @@ mlp = lrn("classif.mlp",
   #   })
   # ),
   neurons = to_tune(neurons_search_space),
-  batch_size = to_tune(c(16, 32)),
-  p = to_tune(0.1, 0.9),
+  batch_size = to_tune(c(64, 128, 256)),
+  p = to_tune(0.1, 0.7),
   epochs = to_tune(upper = 1000L, internal = TRUE),
-  validate = 0.3,
+  validate = "test",
   measures_valid = msr("classif.acc"),
   patience = 10,
   device = "cpu"
 )
 
-# define the optimization strategy
-bayesopt_ego = mlr_loop_functions$get("bayesopt_ego")
-surrogate = srlrn(lrn("regr.km", covtype = "matern5_2",
-  optim.method = "BFGS", control = list(trace = FALSE)))
-acq_function = acqf("ei")
-acq_optimizer = acqo(opt("nloptr", algorithm = "NLOPT_GN_ORIG_DIRECT"),
-  terminator = trm("stagnation", iters = 100, threshold = 1e-5))
-
-tnr_mbo = tnr("mbo",
-    loop_function = bayesopt_ego,
-    surrogate = surrogate,
-    acq_function = acq_function,
-    acq_optimizer = acq_optimizer)
+mlp$encapsulate("callr", lrn("classif.featureless"))
 
 # define an AutoTuner that wraps the classif.mlp
 at = auto_tuner(
   learner = mlp,
-  tuner = tnr_mbo,
-  resampling = rsmp("cv"),
+  tuner = tnr("mbo"),
+  resampling = rsmp("cv", folds = 5),
   measure = msr("classif.acc"),
-  term_evals = 1000
+  term_evals = 10
 )
 
+# two ways to parallelize:
+# 1: inner resampling by the tuner
+# outer resampling by the benchmark
+# 8 "learners whose final performance will be compared" are evalua
+# each task, learner, resampling fold are independent
+# some parallelization frameworks will wait for all 8 in the first "batch" to finish before working on the next 8
+# TODO: change this to parallelize both inner and outer resamplings
 future::plan("multisession", workers = 8)
 
 lrn_rf = lrn("classif.ranger")
+
+options(mlr3.exec_random = FALSE)
+
+# ensure that first the autotuner runs
 design = benchmark_grid(
   task_list,
   learners = list(at, lrn_rf),
   resampling = rsmp("cv", folds = 3)
 )
+
+design = design[order(mlr3misc::ids(learner)), ]
 
 time = bench::system_time(
   bmr <- benchmark(design)
