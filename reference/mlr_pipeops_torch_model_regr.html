@@ -85,6 +85,9 @@ its '$train()<code> method is called on the [</code>Task<code>][mlr3::Task] stor
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other PipeOps:
+<code><a href="mlr_pipeops_nn_adaptive_avg_pool1d.html">mlr_pipeops_nn_adaptive_avg_pool1d</a></code>,
+<code><a href="mlr_pipeops_nn_adaptive_avg_pool2d.html">mlr_pipeops_nn_adaptive_avg_pool2d</a></code>,
+<code><a href="mlr_pipeops_nn_adaptive_avg_pool3d.html">mlr_pipeops_nn_adaptive_avg_pool3d</a></code>,
 <code><a href="mlr_pipeops_nn_avg_pool1d.html">mlr_pipeops_nn_avg_pool1d</a></code>,
 <code><a href="mlr_pipeops_nn_avg_pool2d.html">mlr_pipeops_nn_avg_pool2d</a></code>,
 <code><a href="mlr_pipeops_nn_avg_pool3d.html">mlr_pipeops_nn_avg_pool3d</a></code>,
@@ -271,14 +274,14 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$exp_avg</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -2.0402 -4.2890 -16.1017 -454.0163 -13.9036 -13.6640 -246.8090 -68.9233 -2.9459 -8.7404</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -3.6073 -12.0676 -24.0698 -664.1591 -19.2834 -20.4528 -561.1848 -88.6206 -3.3210 -11.9917</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1,10} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$exp_avg_sq</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 1 to 6 2.4559e-01  2.2669e+00  1.7129e+01  1.4249e+04  1.1753e+01  1.1324e+01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 1 to 6 7.3793e-01  8.2739e+00  3.2016e+01  2.4739e+04  2.0536e+01  2.3239e+01</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 7 to 10 4.9853e+03  2.8853e+02  5.2393e-01  5.0494e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 7 to 10 1.8256e+04  4.3417e+02  6.2616e-01  7.9415e+00</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1,10} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -288,12 +291,12 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$exp_avg</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -3.6048</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -4.9108</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$exp_avg_sq</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.7874</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.3321</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -377,7 +380,7 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $mlr3_version</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] ‘0.21.0’</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] ‘0.21.1’</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $internal_tuned_values</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> named list()</span>

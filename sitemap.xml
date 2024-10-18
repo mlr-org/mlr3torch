@@ -77,6 +77,9 @@
 <url><loc>https://mlr3torch.mlr-org.com/reference/mlr_learners_torch_image.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/reference/mlr_learners_torch_model.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_module.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_avg_pool1d.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_avg_pool2d.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_adaptive_avg_pool3d.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_avg_pool1d.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_avg_pool2d.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_avg_pool3d.html</loc></url>
