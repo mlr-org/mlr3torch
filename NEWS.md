@@ -1,6 +1,7 @@
 # mlr3torch dev
 
 * feat: Add parameter `num_interop_threads` to `LearnerTorch`
+* feat: Add adaptive average pooling
 
 # mlr3torch 0.1.2
 
