@@ -7,7 +7,6 @@ test_that("autotest", {
   expect_torch_callback(cb, check_man = TRUE)
 })
 
-# TODO: investigate what's happening when there is only a single epoch (why don't we log anything?)
 test_that("metrics are logged correctly", {
   cb = t_clbk("tb")
 
