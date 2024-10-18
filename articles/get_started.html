@@ -83,7 +83,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>Get Started</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/mlr-org/mlr3torch/blob/v0.1.2/vignettes/articles/get_started.Rmd" class="external-link"><code>vignettes/articles/get_started.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/mlr-org/mlr3torch/blob/main/vignettes/articles/get_started.Rmd" class="external-link"><code>vignettes/articles/get_started.Rmd</code></a></small>
       <div class="d-none name"><code>get_started.Rmd</code></div>
     </div>
 
@@ -134,9 +134,10 @@ For a complete description of the available parameters see
 <span><span class="va">mlp</span></span>
 <span><span class="co">#&gt; &lt;LearnerTorchMLP[regr]:regr.mlp&gt;: My Little Powny</span></span>
 <span><span class="co">#&gt; * Model: -</span></span>
-<span><span class="co">#&gt; * Parameters: epochs=30, device=cpu, num_threads=1, seed=random,</span></span>
-<span><span class="co">#&gt;   eval_freq=1, measures_train=&lt;list&gt;, measures_valid=&lt;list&gt;,</span></span>
-<span><span class="co">#&gt;   patience=0, min_delta=0, batch_size=32, neurons=50,50, p=0.5,</span></span>
+<span><span class="co">#&gt; * Parameters: epochs=30, device=cpu, num_threads=1,</span></span>
+<span><span class="co">#&gt;   num_interop_threads=1, seed=random, eval_freq=1,</span></span>
+<span><span class="co">#&gt;   measures_train=&lt;list&gt;, measures_valid=&lt;list&gt;, patience=0,</span></span>
+<span><span class="co">#&gt;   min_delta=0, batch_size=32, neurons=50,50, p=0.5,</span></span>
 <span><span class="co">#&gt;   activation=&lt;nn_relu&gt;, activation_args=&lt;list&gt;</span></span>
 <span><span class="co">#&gt; * Validate: NULL</span></span>
 <span><span class="co">#&gt; * Packages: mlr3, mlr3torch, torch</span></span>
@@ -234,7 +235,7 @@ batch.</p>
 <span><span class="co">#&gt;     clone: function (deep = FALSE, ..., replace_values = TRUE) </span></span>
 <span><span class="co">#&gt;   Private:</span></span>
 <span><span class="co">#&gt;     .__clone_r6__: function (deep = FALSE) </span></span>
-<span><span class="co">#&gt;   Parent env: &lt;environment: 0x563a5a08a0a8&gt;</span></span>
+<span><span class="co">#&gt;   Parent env: &lt;environment: 0x55e56dd9cb10&gt;</span></span>
 <span><span class="co">#&gt;   Locked objects: FALSE</span></span>
 <span><span class="co">#&gt;   Locked class: FALSE</span></span>
 <span><span class="co">#&gt;   Portable: TRUE</span></span></code></pre></div>
@@ -378,11 +379,12 @@ common <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="ex
 <span><span class="va">mlp_custom</span></span>
 <span><span class="co">#&gt; &lt;LearnerTorchMLP[regr]:regr.mlp&gt;: My Little Powny</span></span>
 <span><span class="co">#&gt; * Model: -</span></span>
-<span><span class="co">#&gt; * Parameters: epochs=30, device=cpu, num_threads=1, seed=random,</span></span>
-<span><span class="co">#&gt;   eval_freq=1, measures_train=&lt;list&gt;,</span></span>
-<span><span class="co">#&gt;   measures_valid=&lt;MeasureRegrSimple&gt;, patience=0, min_delta=0,</span></span>
-<span><span class="co">#&gt;   batch_size=32, neurons=50,50, p=0.5, activation=&lt;nn_relu&gt;,</span></span>
-<span><span class="co">#&gt;   activation_args=&lt;list&gt;, opt.lr=0.5, opt.nesterov=FALSE</span></span>
+<span><span class="co">#&gt; * Parameters: epochs=30, device=cpu, num_threads=1,</span></span>
+<span><span class="co">#&gt;   num_interop_threads=1, seed=random, eval_freq=1,</span></span>
+<span><span class="co">#&gt;   measures_train=&lt;list&gt;, measures_valid=&lt;MeasureRegrSimple&gt;,</span></span>
+<span><span class="co">#&gt;   patience=0, min_delta=0, batch_size=32, neurons=50,50, p=0.5,</span></span>
+<span><span class="co">#&gt;   activation=&lt;nn_relu&gt;, activation_args=&lt;list&gt;, opt.lr=0.5,</span></span>
+<span><span class="co">#&gt;   opt.nesterov=FALSE</span></span>
 <span><span class="co">#&gt; * Validate: 0.3</span></span>
 <span><span class="co">#&gt; * Packages: mlr3, mlr3torch, torch</span></span>
 <span><span class="co">#&gt; * Predict Types:  [response]</span></span>
