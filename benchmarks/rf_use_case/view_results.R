@@ -3,6 +3,10 @@ library(mlr3)
 
 library(here)
 
-bmrdt = fread(here("R", "rf_Use_case", "results", "bmrdt.csv"))
+bmr_ce = fread(here("benchmarks", "rf_use_case", "results", "bmr_ce.csv"))
 
-bmrdt
+bmr_ce
+
+time = fread(here("benchmarks", "rf_use_case", "results", "time.csv"))
+
+time

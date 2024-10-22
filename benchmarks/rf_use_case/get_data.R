@@ -13,8 +13,12 @@ cc18_small = cc18_simple |>
   select(data_id, name, NumberOfFeatures, NumberOfInstances) |>
   filter(name %in% c("qsar-biodeg", "madelon", "kc1", "blood-transfusion-service-center", "climate-model-simulation-crashes"))
 
-cache_dir = here("benchmarks", "data", "oml")
-options(mlr3oml.cache = here("benchmarks", "data", "oml"))
+data_dir =  here("benchmarks", "data")
+if (!dir.exists(data_dir)) {
+  dir.create(data_dir)
+}
+
+options(mlr3oml.cache = here(data_dir, "oml"))
 mlr3misc::pwalk(cc18_small, function(data_id, name, NumberOfFeatures, NumberOfInstances) odt(data_id))
 
 dir.create(here("benchmarks", "data", "oml", "collections"))

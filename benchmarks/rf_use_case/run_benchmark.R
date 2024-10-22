@@ -27,10 +27,10 @@ mlp = lrn("classif.mlp",
   ),
   batch_size = to_tune(c(64, 128, 256)),
   p = to_tune(0.1, 0.7),
-  epochs = to_tune(upper = 1000L, internal = TRUE),
+  epochs = to_tune(lower = 1, upper = 500L, internal = TRUE),
   validate = "test",
   measures_valid = msr("classif.acc"),
-  patience = 10,
+  patience = 5,
   device = "cpu"
 )
 
@@ -42,7 +42,7 @@ at = auto_tuner(
   tuner = tnr("mbo"),
   resampling = rsmp("cv", folds = 5),
   measure = msr("classif.acc"),
-  term_evals = 10
+  term_evals = 100
 )
 
 future::plan("multisession", workers = 8)
@@ -53,7 +53,8 @@ options(mlr3.exec_random = FALSE)
 
 design = benchmark_grid(
   task_list,
-  learners = list(at, lrn_rf),
+  # learners = list(at, lrn_rf),
+  learners = lrn_rf,
   resampling = rsmp("cv", folds = 3)
 )
 design = design[order(mlr3misc::ids(learner)), ]
@@ -64,5 +65,11 @@ time = bench::system_time(
 
 bmrdt = as.data.table(bmr)
 
-fwrite(bmrdt, here("R", "rf_use_case", "results", "bmrdt.csv"))
-fwrite(time, here("R", "rf_use_case", "results", "time.csv"))
+bmr$aggregate()[, .(task_id, learner_id, classif.ce)]
+
+results_dir = here("benchmarks", "rf_use_case", "results")
+if (!dir.exists(results_dir)) {
+  dir.create(results_dir)
+}
+fwrite(bmr$aggregate()[, .(task_id, learner_id, classif.ce)], here(results_dir, "bmr_ce.csv"))
+fwrite(as.data.table(as.list(time)), here(results_dir, "time.csv"))
