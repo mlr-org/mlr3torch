@@ -25,11 +25,30 @@
 #' task
 NULL
 
+# @param path (`character(1)`)\cr
+#   The cache_dir/datasets/melanoma folder
+constructor_melanoma = function(path) {
+  # download data
+  # TODO: look at the similar code from the `torchdatasets` package and decide what you want to include
+
+  data.table(
+    # image: ltsnr
+    # metadata cols
+  )
+}
+
 load_task_melanoma = function(id = "melanoma") {
   # construct a DataBackendLazy for this large dataset
+  backend = DataBackendLazy$new(
+    constructor = cached_constructor,
+    rownames = seq_len(n_rows), # TODO: compute
+    col_info = load_col_info("melanoma")
+    primary_key = "..row_id" # TODO: explain
+  )
 
   # the DataBackendLazy implements the logic for downloading, processing, caching the dataset. 
-  # in this caes, we only need to implement the download and processing becuase the private `cached()` function implements caching
+  # in this case, we only need to implement the download and processing because the private `cached()` function implements caching
+  # TODO: find this private `cached()` function
 
   # the DataBackendLazy also hardcodes some metadata that will be available even before the data is downloaded.
   # this metadata will be stored in `.inst/col_info`
@@ -37,6 +56,13 @@ load_task_melanoma = function(id = "melanoma") {
   # the code that generates this hardcoded metadata should be in `./data-raw`
 
   # create a TaskClassif from this DataBackendLazy
+  task = TaskClassif$new(
+    backend = backend,
+    id = "melanoma",
+    target = "class",
+    label = "Melanoma classification"
+  )
+
   return(task)
 }
 
