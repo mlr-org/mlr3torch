@@ -36,10 +36,15 @@ mlp = lrn("classif.mlp",
 
 mlp$encapsulate("callr", lrn("classif.featureless"))
 
+surrogate = srlrn(as_learner(po("imputesample", affect_columns = selector_type("logical")) %>>%
+  po("imputeoor", multiplier = 3, affect_columns = selector_type(c("integer", "numeric", "character", "factor", "ordered"))) %>>%
+  po("colapply", applicator = as.factor, affect_columns = selector_type("character")) %>>%
+  lrn("regr.ranger")), catch_errors = TRUE)
+
 # define an AutoTuner that wraps the classif.mlp
 at = auto_tuner(
   learner = mlp,
-  tuner = tnr("mbo"),
+  tuner = tnr("mbo", surrogate = surrogate),
   resampling = rsmp("cv", folds = 5),
   measure = msr("classif.acc"),
   term_evals = 100
@@ -53,8 +58,7 @@ options(mlr3.exec_random = FALSE)
 
 design = benchmark_grid(
   task_list,
-  # learners = list(at, lrn_rf),
-  learners = lrn_rf,
+  learners = list(at, lrn_rf),
   resampling = rsmp("cv", folds = 3)
 )
 design = design[order(mlr3misc::ids(learner)), ]
