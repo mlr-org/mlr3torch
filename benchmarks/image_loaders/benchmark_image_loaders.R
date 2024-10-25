@@ -4,6 +4,7 @@ library(mlr3torch)
 library(here)
 
 library(data.table)
+setDTthreads(threads = 1)
 
 training_metadata = fread(here::here("cache", "ISIC_2020_Training_GroundTruth.csv"))
 
@@ -55,6 +56,5 @@ ds_magick = ds_magick_loader(n_images)
 
 bench::mark(
   for (i in 1:n_images) ds_base$.getitem(i),
-  for (i in 1:n_images) ds_magick$.getitem(i),
-  memory = FALSE
+  for (i in 1:n_images) ds_magick$.getitem(i)
 )
