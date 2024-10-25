@@ -4,14 +4,12 @@ library(mlr3torch)
 library(here)
 
 library(data.table)
-library(tidytable)
 
 training_metadata = fread(here::here("cache", "ISIC_2020_Training_GroundTruth.csv"))
 
 # hard-coded cache directory that I use locally
 cache_dir = here("cache")
 
-# construct a torch dataset
 ds_base_loader = torch::dataset(
   initialize = function(n_images) {
     self$.metadata = fread(here(cache_dir, "ISIC_2020_Training_GroundTruth.csv"))[1:n_images, ]
