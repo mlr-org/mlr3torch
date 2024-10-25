@@ -3,7 +3,7 @@
 #' @description
 #' Classification of melanoma tumor images.
 #'
-#' More descriptive text.
+#' The data comes from the 2020 ISIC challenge.
 #'
 #' @section Construction:
 #' ```
