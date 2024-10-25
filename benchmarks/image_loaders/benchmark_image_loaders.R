@@ -50,7 +50,7 @@ ds_magick_loader = torch::dataset(
   }
 )
 
-n_images = 10
+n_images = 100
 
 ds_base = ds_base_loader(n_images)
 ds_magick = ds_magick_loader(n_images)
