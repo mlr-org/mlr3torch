@@ -49,12 +49,13 @@ ds_magick_loader = torch::dataset(
   }
 )
 
-n_images = 100
+n_images = 1000
 
 ds_base = ds_base_loader(n_images)
 ds_magick = ds_magick_loader(n_images)
 
 bench::mark(
   for (i in 1:n_images) ds_base$.getitem(i),
-  for (i in 1:n_images) ds_magick$.getitem(i)
+  for (i in 1:n_images) ds_magick$.getitem(i),
+  memory = FALSE
 )
