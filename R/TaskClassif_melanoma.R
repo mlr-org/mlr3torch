@@ -113,9 +113,3 @@ load_task_melanoma = function(id = "melanoma") {
 }
 
 register_task("melanoma", load_task_melanoma)
-
-download_melanoma = function() {
-  download.file("https://isic-challenge-data.s3.amazonaws.com/2020/ISIC_2020_Training_GroundTruth_v2.csv",
-    dest = "~/Downloads/metadata.csv"
-  )
-}
