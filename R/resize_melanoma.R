@@ -17,9 +17,10 @@ resize_to_dims = c(128, 128)
 
 resize_and_write = function(image_file_name, path_to_input_train, path_to_output_dir, dims) {
   image = base_loader(file.path(path_to_input_train, image_file_name))
-  small_image = torchvision::transform_resize(image, dims)
+  small_image = torchvision::transform_resize(transform_to_tensor(image), dims)
 
   output_file_name = file.path(path_to_output_dir, basename(image_file_name))
+  print(output_file_name)
 
   torch::torch_save(small_image, path_to_output_dir)
 }
