@@ -178,7 +178,7 @@ dataset_image = dataset("image_dataset",
     self$uris = uris
   },
   .getitem = function(x) {
-    list(x = torchvision::transform_to_tensor(magick::image_read(self$uris[x])))
+    list(x = torchvision::transform_to_tensor(torchvision::base_loader(self$uris[x])))
   },
   .length = function() {
     length(self$uris)
