@@ -16,7 +16,7 @@
 #' \url{https://challenge2020.isic-archive.com/}
 #'
 #' @section Properties:
-#' `r rd_info_task_torch("mnmelanoma", missings = FALSE)`
+#' `r rd_info_task_torch("melanoma", missings = FALSE)`
 #'
 #' @references
 #' `r format_bib("melanoma")`
@@ -43,35 +43,46 @@ constructor_melanoma = function(path) {
   )
 
   download_melanoma_file = function(url) {
-    # change if necessary
-    prev_options = options(timeout = 3600)
+    prev_options = options(timeout = 36000)
     on.exit(options(prev_options))
 
-    download.file(url, here(cache_dir, basename(url)))
+    download.file(url, path)
   }
 
   mlr3misc::walk(urls, download_melanoma_file)
   
-  unzip(here(cache_dir, basename(training_jpeg_images_url)), exdir = here(cache_dir))
-  unzip(here(cache_dir, basename(test_jpeg_images_url)), exdir = here(cache_dir))
+  unzip(here(path, basename(training_jpeg_images_url)), exdir = path)
+  unzip(here(cache_dir, basename(test_jpeg_images_url)), exdir = path)
 
-  train_metadata = fread(here(path, basename(test_jpeg_images_url)))
-  # train_images = 
+  training_metadata = fread(here(path, basename(training_metadata_url)))
+  
+  ds = torch::dataset(
+    initialize = function() {
+      self$.metadata = fread(here(path, "ISIC_2020_Training_GroundTruth.csv"))
+      self$.path = file.path(here(path), "train")
+    },
+    .getitem = function(idx) {
+      force(idx)
 
-  # TODO: decide whether to delete these, since there are no ground truth labels
-  # test_metadata = fread(here(path, basename(test_metadata_url)))
-  # test_images = fread(here())
+      x = torchvision::base_loader(file.path(self$.path, paste0(self$.metadata[idx, ]$image_name, ".jpg")))
+      x = torchvision::transform_to_tensor(x)
 
-  data.table(
-    # image: ltsnr
-    # metadata cols
+      return(list(x = x))
+    },
+    .length = function() {
+      nrow(self$.metadata)
+    }
   )
+
+  dd = as_data_descriptor(melanoma_ds, list(x = NULL))
+  lt = lazy_tensor(dd)
+
+  return(cbind(training_metadata, data.table(x = lt)))
 }
 
 load_task_melanoma = function(id = "melanoma") {
   cached_constructor = function(backend) {
     data = cached(constructor_melanoma, "datasets", "melanoma")$data
-    labels = ...
 
     ds = dataset(
 
@@ -79,8 +90,11 @@ load_task_melanoma = function(id = "melanoma") {
 
     # some preprocessing
 
-    # TODO: determine the end dimensionality
-    data_descriptor = DataDescriptor$new(dataset = ds, list(image = c(NA, channel, spatial_dims)))
+    dd = as_data_descriptor(melanoma_ds, list(x = NULL))
+    lt = lazy_tensor(dd)
+    dt = cbind(training_metadata, data.table(x = lt))
+
+    DataBackendDataTable$new(data = dt, primary_key = ...)
   }
 
   # construct a DataBackendLazy for this large dataset

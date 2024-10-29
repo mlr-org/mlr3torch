@@ -39,7 +39,7 @@ ds_magick_loader = torch::dataset(
 
     image_name = self$.metadata[idx, ]$image_name
 
-    x = torchvision::magick_loader(file.path(self$.path, paste0(image_name, ".jpg")))
+    x = magick::image_read(file.path(self$.path, paste0(image_name, ".jpg")))
     x = torchvision::transform_to_tensor(x)
 
     return(list(x = x, image_name = image_name))
@@ -49,13 +49,15 @@ ds_magick_loader = torch::dataset(
   }
 )
 
-n_images = 1000
+n_images = 10
 
 ds_base = ds_base_loader(n_images)
 ds_magick = ds_magick_loader(n_images)
 
-bench::mark(
+bmr = bench::mark(
   for (i in 1:n_images) ds_base$.getitem(i),
   for (i in 1:n_images) ds_magick$.getitem(i),
   memory = FALSE
 )
+
+print(bmr)
