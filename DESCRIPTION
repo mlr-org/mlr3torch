@@ -74,7 +74,7 @@ Suggests:
     waldo
 Config/testthat/edition: 3
 NeedsCompilation: no
-ByteCompile: no
+ByteCompile: yes
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, r6 = TRUE)
 RoxygenNote: 7.3.2
