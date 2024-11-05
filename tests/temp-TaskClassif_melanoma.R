@@ -7,9 +7,7 @@ library(data.table)
 library(tidytable)
 
 # TODO: figure out whether we want the v2 file
-# I think no, since I don't really see a "use" for the lesion ID
-training_metadata = fread(here::here("cache", "ISIC_2020_Training_GroundTruth.csv"))
-# training_metadata_v2 = fread(here::here("cache", "ISIC_2020_Training_GroundTruth_v2.csv"))
+training_metadata_v2 = fread(here::here("cache", "ISIC_2020_Training_GroundTruth_v2.csv"))
 
 cache_dir = here("cache")
 # construct a torch dataset
@@ -35,7 +33,7 @@ melanoma_ds = ds()
 
 dd = as_data_descriptor(melanoma_ds, list(x = NULL))
 lt = lazy_tensor(dd)
-dt_train = cbind(training_metadata, data.table(x = lt))
+dt_train = cbind(training_metadata_v2, data.table(x = lt))
 # as_task_regr(dt_train, target = "corr", id = "guess_the_correlation")
 
 training_duplicates = fread(here(cache_dir, "ISIC_2020_Training_Duplicates.csv"))
