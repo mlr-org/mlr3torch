@@ -1,5 +1,6 @@
 # mlr3torch dev
 
+* perf: Use a faster image loader
 * feat: Add parameter `num_interop_threads` to `LearnerTorch`
 * feat: Add adaptive average pooling
 
