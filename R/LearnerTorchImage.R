@@ -31,7 +31,7 @@ LearnerTorchImage = R6Class("LearnerTorchImage",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id, task_type, param_set = ps(), label, optimizer = NULL, loss = NULL,
-      callbacks = list(), packages = c("torchvision"), man, properties = NULL,
+      callbacks = list(), packages = "torchvision", man, properties = NULL,
       predict_types = NULL) {
       properties = properties %??% switch(task_type,
         regr = c(),
