@@ -27,7 +27,7 @@ Part of this documentation have been copied or adapted from the documentation of
 \section{Parameters}{
 
 \itemize{
-\item \code{output_size} :: \code{integer()}\cr
+\item \code{output_size} :: \code{integer(1)}\cr
 The target output size. A single number.
 }
 }
