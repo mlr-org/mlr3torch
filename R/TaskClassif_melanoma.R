@@ -77,16 +77,17 @@ load_task_melanoma = function(id = "melanoma") {
     data = cached(constructor_melanoma, "datasets", "melanoma")$data
 
     # remove irrelevant cols: image_name, target
-    data[, image_name := NULL]
-    data[, target := NULL]
+    data[, (image_name) := NULL]
+    data[, (target) := NULL]
 
     # change the encodings of variables: diagnosis, benign_malignant
-    data[, benign_malignant := factor(benign_malignant, levels = c("benign", "malignant"))]
+    data[, (benign_malignant) := factor(benign_malignant, levels = c("benign", "malignant"))]
 
-    char_features = c("sex", "anatom_site_general_challenge", "diagnosis")
-    data[, lapply(.SD, factor), .SDcols = char_features]
+    char_features = c("sex", "anatom_site_general_challenge")
+    data[, (char_features) := lapply(.SD, factor), .SDcols = char_features]
 
-    dt = cbind(data,
+    dt = cbind(
+      data,
       data.table(
         ..row_id = seq_along(data$benign_malignant)
       )
@@ -105,13 +106,14 @@ load_task_melanoma = function(id = "melanoma") {
   task = TaskClassif$new(
     backend = backend,
     id = "melanoma",
-    target = "target",
+    target = "benign_malignant",
     label = "Melanoma classification"
   )
 
+  task$set_col_roles("patient_id", "group")
+  task$col_roles$feature = c("sex", "anatom_site_general_challenge", "age_approx", "image")
+
   backend$hash = task$man = "mlr3torch::mlr_tasks_melanoma"
-  
-  task$set_col_roles("patient_id", roles = "group")
 
   task$filter(1:32701)
 
