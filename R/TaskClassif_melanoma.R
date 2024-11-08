@@ -28,45 +28,33 @@ NULL
 # @param path (`character(1)`)\cr
 #   The cache_dir/datasets/melanoma folder
 constructor_melanoma = function(path) {
-  # download data
-  # TODO: change to Hugging Face URLs
-  # TODO: use the code from the attic
-  training_jpeg_images_url = "https://isic-challenge-data.s3.amazonaws.com/2020/ISIC_2020_Training_JPEG.zip"
-  training_metadata_url = "https://isic-challenge-data.s3.amazonaws.com/2020/ISIC_2020_Training_GroundTruth.csv"
-  training_metadata_v2_url = "https://isic-challenge-data.s3.amazonaws.com/2020/ISIC_2020_Training_GroundTruth_v2.csv"
-  training_duplicate_image_list_url = "https://isic-challenge-data.s3.amazonaws.com/2020/ISIC_2020_Training_Duplicates.csv"
-
-  test_metadata_url = "https://isic-challenge-data.s3.amazonaws.com/2020/ISIC_2020_Test_Metadata.csv"
-
-  urls = c(
-    training_jpeg_images_url, training_metadata_url, training_metadata_v2_url, training_duplicate_image_list_url,
-    test_jpeg_images_url, test_metadata_url
+  file_names = c(
+    "ISIC_2020_Training_GroundTruth_v2.csv", "train1", "train2", "train3", "train4",
+    "ISIC_2020_Test_Metadata.csv", "ISIC_2020_Test_Input1", "ISIC_2020_Test_Input2"
   )
 
-  download_melanoma_file = function(url) {
-    prev_options = options(timeout = 36000)
-    on.exit(options(prev_options))
+  withr::with_envvar(c(HUGGINGFACE_HUB_CACHE = path), {
+    hfhub::hub_snapshot("carsonzhang/ISIC_2020_small", repo_type = "dataset")
+  })
 
-    download.file(url, path)
-  }
+  hf_dataset_path = here(path, "datasets--carsonzhang--ISIC_2020_small", "snapshots", "2737ff07cc2ef8bd44d692d3323472fce272fca3")
 
-  mlr3misc::walk(urls, download_melanoma_file)
+  training_metadata = fread(here(hf_dataset_path, "ISIC_2020_Training_GroundTruth_v2.csv"))[, split := "train"]
+  test_metadata = setnames(fread(here(hf_dataset_path, "ISIC_2020_Test_Metadata.csv")), 
+    old = c("image", "patient", "anatom_site_general"), 
+    new = c("image_name", "patient_id", "anatom_site_general_challenge")
+  )[, split := "test"]
+  metadata = rbind(training_metadata, test_metadata, fill = TRUE)
 
-  unzip(here(path, basename(training_jpeg_images_url)), exdir = path)
-  unzip(here(cache_dir, basename(test_jpeg_images_url)), exdir = path)
-
-  training_metadata = fread(here(path, basename(training_metadata_v2_url)))
-
-  # if you want some operation to be cached (e.g. if it's expensive) do it here
-  ds_train = torch::dataset(
+  melanoma_ds_generator = torch::dataset(
     initialize = function() {
-      self$.metadata = fread(here(path, "ISIC_2020_Training_GroundTruth_v2.csv"))
-      self$.path = file.path(here(path), "train")
+      self$.metadata = metadata
+      self$.path = hf_dataset_path
     },
     .getitem = function(idx) {
       force(idx)
 
-      x = torchvision::base_loader(file.path(self$.path, paste0(self$.metadata[idx, ]$image_name, ".jpg")))
+      x = torchvision::base_loader(file.path(self$.path, paste0(self$.metadata[idx, ]$file_name)))
       x = torchvision::transform_to_tensor(x)
 
       return(list(x = x))
@@ -76,88 +64,56 @@ constructor_melanoma = function(path) {
     }
   )
 
-  ds_test = torch::dataset(
-    initialize = function() {
-      self$.metadata = fread(here(path, "ISIC_2020_Test_Metadata.csv"))
-      self$.path = file.path(here(path), "ISIC_2020_Test_Input")
-    }
-    .getitem = function(idx) {
-      force(idx)
+  melanoma_ds = melanoma_ds_generator()
 
-      x = torchvision::base_loader(file.path(self$.path, paste0(self$.metadata[idx, ]$image_name, ".jpg")))
-      x = torchvision::transform_to_tensor(x)
+  dd = as_data_descriptor(melanoma_ds, list(x = c(NA, 3, 128, 128)))
+  lt = lazy_tensor(dd)
 
-      return(list(x = x))
-    },
-    .length = function() {
-      nrow(self$.metadata)
-    }
-  )
-
-  dd_train = as_data_descriptor(melanoma_ds, list(x = NULL))
-  lt_train = lazy_tensor(dd)
-
-  return(cbind(training_metadata, data.table(x = lt)))
+  return(cbind(metadata, data.table(image = lt)))
 }
 
 load_task_melanoma = function(id = "melanoma") {
   cached_constructor = function(backend) {
     data = cached(constructor_melanoma, "datasets", "melanoma")$data
 
-    ds = dataset(
-      initialize = function() {
-        self$.metadata = fread(here(cache_dir, "ISIC_2020_Training_GroundTruth.csv"))
-        self$.path = file.path(here(cache_dir), "train")
-      },
-      .getitem = function(idx) {
-        force(idx)
+    # remove irrelevant cols: image_name, target
+    data[, image_name := NULL]
+    data[, target := NULL]
 
-        x = torchvision::base_loader(file.path(self$.path, paste0(self$.metadata[idx, ]$image_name, ".jpg")))
-        x = torchvision::transform_to_tensor(x)
+    # change the encodings of variables: diagnosis, benign_malignant
+    data[, benign_malignant := factor(benign_malignant, levels = c("benign", "malignant"))]
 
-        return(list(x = x))
-      },
-      .length = function() {
-        nrow(self$.metadata)
-      }
-    )(data$image)
+    char_features = c("sex", "anatom_site_general_challenge", "diagnosis")
+    data[, lapply(.SD, factor), .SDcols = char_features]
 
-    # TODO: some preprocessing
-
-    dd = as_data_descriptor(melanoma_ds, list(x = NULL))
-    lt = lazy_tensor(dd)
-    dt = cbind(training_metadata, data.table(x = lt))
-
-    # set ..row_id = 
+    dt = cbind(data,
+      data.table(
+        ..row_id = seq_along(data$benign_malignant)
+      )
+    )
 
     DataBackendDataTable$new(data = dt, primary_key = "..row_id")
   }
 
-  # construct a DataBackendLazy for this large dataset
   backend = DataBackendLazy$new(
     constructor = cached_constructor,
-    rownames = seq_len(32701), # TODO: is it weird to have rownames different from primary_key?
-    # hard-coded info about the task (nrows, ncols)
+    rownames = seq_len(32701 + 10982),
     col_info = load_col_info("melanoma"),
     primary_key = "..row_id"
   )
 
-  # the DataBackendLazy implements the logic for downloading, processing, caching the dataset.
-  # in this case, we only need to implement the download and processing because the private `cached()` function implements caching
-
-  # the DataBackendLazy also hardcodes some metadata that will be available even before the data is downloaded.
-  # this metadata will be stored in `.inst/col_info`
-  # and can be loaded using `load_column_info()`
-  # the code that generates this hardcoded metadata should be in `./data-raw`
-
-  # create a TaskClassif from this DataBackendLazy
   task = TaskClassif$new(
     backend = backend,
     id = "melanoma",
-    target = "class",
+    target = "target",
     label = "Melanoma classification"
   )
+
+  backend$hash = task$man = "mlr3torch::mlr_tasks_melanoma"
+  
   task$set_col_roles("patient_id", roles = "group")
+
+  task$filter(1:32701)
 
   return(task)
 }
