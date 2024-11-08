@@ -17,7 +17,6 @@ test_that("LearnerTorchVision basic checks", {
   vgg13$id = "a"
   expect_false(alexnet$phash == vgg13$phash)
   expect_true("torchvision" %in% alexnet$packages)
-  expect_true("magick" %in% alexnet$packages)
 
   alexnet = lrn("classif.alexnet", optimizer = "sgd", loss = "cross_entropy",
     callbacks = t_clbk("checkpoint"), epochs = 0, batch_size = 1

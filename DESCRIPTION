@@ -62,7 +62,6 @@ Suggests:
     igraph,
     jsonlite,
     knitr,
-    magick,
     mlr3tuning (>= 1.0.0),
     progress,
     rmarkdown,
