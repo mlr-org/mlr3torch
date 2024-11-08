@@ -68,6 +68,8 @@ tsk_melanoma = as_task_classif(melanoma_dt, target = "benign_malignant", id = "m
 tsk_melanoma$set_col_roles("patient_id", "group")
 tsk_melanoma$col_roles$feature = c(char_features, "age_approx", "image")
 
+tsk_melanoma$label = "Melanoma classification"
+
 ci = col_info(tsk_melanoma$backend)
 
 saveRDS(ci, here::here("inst/col_info/melanoma.rds"))
