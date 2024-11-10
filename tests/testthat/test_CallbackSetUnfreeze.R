@@ -7,19 +7,18 @@ test_that("weights are frozen correctly using epochs", {
   cb = t_clbk("unfreeze")
   n_epochs = 10
 
+  task = tsk("iris")
+
   mlp = lrn("classif.mlp",
-            callbacks = cb,
-            epochs = n_epochs, batch_size = 150, neurons = 10,
-            validate = 0.2,
-            measures_valid = msrs(c("classif.acc", "classif.ce")),
-            measures_train = msrs(c("classif.acc", "classif.ce"))
+            callbacks = t_clbk("tb"),
+            epochs = 10, batch_size = 150, neurons = 200
   )
 
   # begin LLM
   # Test with simple layer selection
   mlp$param_set$set_values(
-    cb.freeze.starting_weights = selector_name("layer1"),
-    cb.freeze.unfreeze = data.table(
+    cb.unfreeze.starting_weights = selector_name("layer1"),
+    cb.unfreeze.unfreeze = data.table(
       weights = list(selector_name("layer2")), 
       epochs = 2
     )
@@ -40,18 +39,15 @@ test_that("weights are frozen correctly using batches", {
   n_epochs = 10
 
   mlp = lrn("classif.mlp",
-            callbacks = cb,
-            epochs = n_epochs, batch_size = 150, neurons = 10,
-            validate = 0.2,
-            measures_valid = msrs(c("classif.acc", "classif.ce")),
-            measures_train = msrs(c("classif.acc", "classif.ce"))
+            callbacks = t_clbk("tb"),
+            epochs = 10, batch_size = 150, neurons = 200
   )
 
   # begin LLM
   # Test with multiple layer unfreezing
   mlp$param_set$set_values(
-    cb.freeze.starting_weights = selector_none(),
-    cb.freeze.unfreeze = data.table(
+    cb.unfreeze.starting_weights = selector_none(),
+    cb.unfreeze.unfreeze = data.table(
       weights = list(
         selector_name("layer1"),
         selector_name("layer2")
@@ -105,8 +101,8 @@ test_that("gradual unfreezing works correctly", {
   )
 
   mlp$param_set$set_values(
-    cb.freeze.starting_weights = selector_none(),
-    cb.freeze.unfreeze = data.table(
+    cb.unfreeze.starting_weights = selector_none(),
+    cb.unfreeze.unfreeze = data.table(
       weights = list(
         selector_name("layer1"),
         selector_name("layer2"),
