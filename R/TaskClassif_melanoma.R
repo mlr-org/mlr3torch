@@ -89,7 +89,7 @@ load_task_melanoma = function(id = "melanoma") {
     dt = cbind(
       data,
       data.table(
-        ..row_id = seq_along(data$benign_malignant)
+        ..row_id = seq_along(data$lesion_id)
       )
     )
 

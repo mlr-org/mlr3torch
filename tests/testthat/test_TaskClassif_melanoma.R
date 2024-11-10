@@ -1,7 +1,7 @@
 skip_on_cran()
 
 test_that("melanoma task works", {
-  withr::local_options(mlr3torch.cache = TRUE)
+  withr::local_options(mlr3torch.cache = here::here("cache2"))
   task = tsk("melanoma")
   # this makes the test faster
   task$row_roles$use = 1:10

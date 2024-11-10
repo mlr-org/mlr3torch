@@ -58,6 +58,7 @@ Suggests:
     callr,
     future,
     ggplot2,
+    hfhub,
     igraph,
     jsonlite,
     knitr,
