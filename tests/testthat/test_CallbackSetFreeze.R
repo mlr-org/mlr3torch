@@ -1,10 +1,10 @@
 test_that("autotest", {
-  cb = t_clbk("freeze")
+  cb = t_clbk("unfreeze")
   expect_torch_callback(cb, check_man = TRUE)
 })
 
 test_that("weights are frozen correctly using epochs", {
-  cb = t_clbk("freeze")
+  cb = t_clbk("unfreeze")
   n_epochs = 10
 
   mlp = lrn("classif.mlp",
@@ -36,7 +36,7 @@ test_that("weights are frozen correctly using epochs", {
 })
 
 test_that("weights are frozen correctly using batches", {
-  cb = t_clbk("freeze")
+  cb = t_clbk("unfreeze")
   n_epochs = 10
 
   mlp = lrn("classif.mlp",
@@ -72,7 +72,7 @@ test_that("weights are frozen correctly using batches", {
 
 # TODO: decide whether we want to test this (Copilot suggestion)
 test_that("invalid configurations throw errors", {
-  cb = t_clbk("freeze")
+  cb = t_clbk("unfreeze")
   
   expect_error(
     cb$param_set$set_values(
@@ -93,7 +93,7 @@ test_that("invalid configurations throw errors", {
 
 # TODO: decide whether we want to test this (Copilot suggestion)
 test_that("gradual unfreezing works correctly", {
-  cb = t_clbk("freeze")
+  cb = t_clbk("unfreeze")
   n_epochs = 5
 
   mlp = lrn("classif.mlp",

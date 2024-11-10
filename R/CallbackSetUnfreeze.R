@@ -1,6 +1,6 @@
-#' @title Freezing Weights Callback
+#' @title Unfreezing Weights Callback
 #' 
-#' @name mlr_callback_set.freeze
+#' @name mlr_callback_set.unfreeze
 #' 
 #' @description 
 #' Freeze some weights for some number of steps or epochs.
@@ -16,7 +16,7 @@
 #' @family Callback
 #' @export 
 #' @include CallbackSet.R
-CallbackSetFreeze = R6Class("CallbackSetFreeze",
+CallbackSetFreeze = R6Class("CallbackSetUnfreeze",
   inherit = CallbackSet,
   lock_objects = FALSE,
   public = list(
@@ -30,15 +30,15 @@ CallbackSetFreeze = R6Class("CallbackSetFreeze",
 )
 
 @include TorchCallback.R
-mlr3torch_callbacks$add("freeze", function() {
+mlr3torch_callbacks$add("unfreeze", function() {
   TorchCallback$new(
     callabck_generator = CallabckSetFreeze,
     param_set = ps(
       starting_weights = p_uty(tags = c("train", "required")),
       unfreeze = p_uty(tags = c("train", "required"))
     ),
-    id = "freeze",
-    label = "Freeze",
-    man = "mlr3torch::mlr_callback_set.freeze"
+    id = "unfreeze",
+    label = "Unfreeze",
+    man = "mlr3torch::mlr_callback_set.unfreeze"
   )
 })
