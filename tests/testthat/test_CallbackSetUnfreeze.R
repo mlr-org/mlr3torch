@@ -11,7 +11,7 @@ test_that("weights are frozen correctly using epochs", {
 
   mlp = lrn("classif.mlp",
             callbacks = t_clbk("tb"),
-            epochs = 10, batch_size = 150, neurons = 200
+            epochs = 10, batch_size = 150, neurons = c(100, 200, 300)
   )
 
   # begin LLM
@@ -40,7 +40,7 @@ test_that("weights are frozen correctly using batches", {
 
   mlp = lrn("classif.mlp",
             callbacks = t_clbk("tb"),
-            epochs = 10, batch_size = 150, neurons = 200
+            epochs = 10, batch_size = 150, neurons = c(100, 200, 300)
   )
 
   # begin LLM
