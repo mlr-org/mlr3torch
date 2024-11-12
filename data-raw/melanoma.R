@@ -1,8 +1,8 @@
 devtools::load_all()
 
 # manually construct the task once
-library(here)
-library(data.table)
+# library(here)
+# library(data.table)
 
 withr::local_options(mlr3torch.cache = TRUE)
 
@@ -21,12 +21,12 @@ constructor_melanoma = function(path) {
   withr::with_envvar(c(HUGGINGFACE_HUB_CACHE = path), {
     hfhub::hub_snapshot("carsonzhang/ISIC_2020_extrasmall", repo_type = "dataset")
   })
-  hf_dataset_parent_path = here::here(path, "raw", "datasets--carsonzhang--ISIC_2020_extrasmall", "snapshots")
+  hf_dataset_parent_path = here::here(path, "datasets--carsonzhang--ISIC_2020_extrasmall", "snapshots")
   # there should only be a single directory whose name is a hash value, this avoids hard-coding it
   hf_dataset_path = here::here(hf_dataset_parent_path, list.files(hf_dataset_parent_path))
 
-  training_metadata = fread(here(hf_dataset_path, "ISIC_2020_Training_GroundTruth_v2.csv"))[, split := "train"]
-  test_metadata = setnames(fread(here(hf_dataset_path, "ISIC_2020_Test_Metadata.csv")),
+  training_metadata = fread(here::here(hf_dataset_path, "ISIC_2020_Training_GroundTruth_v2.csv"))[, split := "train"]
+  test_metadata = setnames(fread(here::here(hf_dataset_path, "ISIC_2020_Test_Metadata.csv")),
     old = c("image", "patient", "anatom_site_general"),
     new = c("image_name", "patient_id", "anatom_site_general_challenge")
   )[, split := "test"]
@@ -58,7 +58,7 @@ constructor_melanoma = function(path) {
   return(cbind(metadata, data.table(image = lt)))
 }
 
-melanoma_dt = constructor_melanoma(get_cache_dir())
+melanoma_dt = constructor_melanoma(file.path(get_cache_dir(), "datasets", "melanoma"))
 
 melanoma_dt[, image_name := NULL]
 melanoma_dt[, target := NULL]

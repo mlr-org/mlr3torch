@@ -36,8 +36,7 @@ constructor_melanoma = function(path) {
   withr::with_envvar(c(HUGGINGFACE_HUB_CACHE = path), {
     hfhub::hub_snapshot("carsonzhang/ISIC_2020_extrasmall", repo_type = "dataset")
   })
-
-  hf_dataset_parent_path = here::here(path, "raw", "datasets--carsonzhang--ISIC_2020_extrasmall", "snapshots")
+  hf_dataset_parent_path = here::here(path, "datasets--carsonzhang--ISIC_2020_extrasmall", "snapshots")
   # there should only be a single directory whose name is a hash value, this avoids hard-coding it
   hf_dataset_path = here::here(hf_dataset_parent_path, list.files(hf_dataset_parent_path))
 
