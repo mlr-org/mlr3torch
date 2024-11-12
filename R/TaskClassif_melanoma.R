@@ -34,14 +34,16 @@ constructor_melanoma = function(path) {
   )
 
   withr::with_envvar(c(HUGGINGFACE_HUB_CACHE = path), {
-    hfhub::hub_snapshot("carsonzhang/ISIC_2020_small", repo_type = "dataset")
+    hfhub::hub_snapshot("carsonzhang/ISIC_2020_extrasmall", repo_type = "dataset")
   })
 
-  hf_dataset_path = here(path, "datasets--carsonzhang--ISIC_2020_small", "snapshots", "2737ff07cc2ef8bd44d692d3323472fce272fca3")
+  hf_dataset_parent_path = here::here(path, "raw", "datasets--carsonzhang--ISIC_2020_extrasmall", "snapshots")
+  # there should only be a single directory whose name is a hash value, this avoids hard-coding it
+  hf_dataset_path = here::here(hf_dataset_parent_path, list.files(hf_dataset_parent_path))
 
-  training_metadata = fread(here(hf_dataset_path, "ISIC_2020_Training_GroundTruth_v2.csv"))[, split := "train"]
-  test_metadata = setnames(fread(here(hf_dataset_path, "ISIC_2020_Test_Metadata.csv")), 
-    old = c("image", "patient", "anatom_site_general"), 
+  training_metadata = fread(here::here(hf_dataset_path, "ISIC_2020_Training_GroundTruth_v2.csv"))[, split := "train"]
+  test_metadata = setnames(fread(here::here(hf_dataset_path, "ISIC_2020_Test_Metadata.csv")),
+    old = c("image", "patient", "anatom_site_general"),
     new = c("image_name", "patient_id", "anatom_site_general_challenge")
   )[, split := "test"]
   metadata = rbind(training_metadata, test_metadata, fill = TRUE)
@@ -89,7 +91,7 @@ load_task_melanoma = function(id = "melanoma") {
     dt = cbind(
       data,
       data.table(
-        ..row_id = seq_along(data$lesion_id)
+        ..row_id = seq_len(nrow(data))
       )
     )
 
@@ -98,7 +100,8 @@ load_task_melanoma = function(id = "melanoma") {
 
   backend = DataBackendLazy$new(
     constructor = cached_constructor,
-    rownames = seq_len(32701 + 10982),
+    # rownames = seq_len(32701 + 10982),
+    rownames = seq_len(18),
     col_info = load_col_info("melanoma"),
     primary_key = "..row_id"
   )
@@ -115,7 +118,7 @@ load_task_melanoma = function(id = "melanoma") {
 
   backend$hash = task$man = "mlr3torch::mlr_tasks_melanoma"
 
-  task$filter(1:32701)
+  # task$filter(1:32701)
 
   return(task)
 }

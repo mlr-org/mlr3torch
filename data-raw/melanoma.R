@@ -4,9 +4,13 @@ devtools::load_all()
 library(here)
 library(data.table)
 
-hf_cache_dir = here::here("cache", "hf_downloaded")
+withr::local_options(mlr3torch.cache = TRUE)
 
-hf_dataset_path = here::here(hf_cache_dir, "datasets--carsonzhang--ISIC_2020_small", "snapshots", "2737ff07cc2ef8bd44d692d3323472fce272fca3")
+# hf_cache_dir = here::here("cache2")
+
+# hf_dataset_parent_path = here::here(hf_cache_dir, "raw", "datasets--carsonzhang--ISIC_2020_extrasmall", "snapshots")
+# there should only be a single directory whose name is a hash value, this avoids hard-coding it
+# hf_dataset_path = here::here(hf_dataset_parent_path, list.files(hf_dataset_parent_path))
 
 constructor_melanoma = function(path) {
   file_names = c(
@@ -14,15 +18,16 @@ constructor_melanoma = function(path) {
     "ISIC_2020_Test_Metadata.csv", "ISIC_2020_Test_Input1", "ISIC_2020_Test_Input2"
   )
 
-  # withr::with_envvar(c(HUGGINGFACE_HUB_CACHE = path), {
-  #   hfhub::hub_snapshot("carsonzhang/ISIC_2020_small", repo_type = "dataset")
-  # })
-
-  hf_dataset_path = here(path, "datasets--carsonzhang--ISIC_2020_small", "snapshots", "2737ff07cc2ef8bd44d692d3323472fce272fca3")
+  withr::with_envvar(c(HUGGINGFACE_HUB_CACHE = path), {
+    hfhub::hub_snapshot("carsonzhang/ISIC_2020_extrasmall", repo_type = "dataset")
+  })
+  hf_dataset_parent_path = here::here(path, "raw", "datasets--carsonzhang--ISIC_2020_extrasmall", "snapshots")
+  # there should only be a single directory whose name is a hash value, this avoids hard-coding it
+  hf_dataset_path = here::here(hf_dataset_parent_path, list.files(hf_dataset_parent_path))
 
   training_metadata = fread(here(hf_dataset_path, "ISIC_2020_Training_GroundTruth_v2.csv"))[, split := "train"]
-  test_metadata = setnames(fread(here(hf_dataset_path, "ISIC_2020_Test_Metadata.csv")), 
-    old = c("image", "patient", "anatom_site_general"), 
+  test_metadata = setnames(fread(here(hf_dataset_path, "ISIC_2020_Test_Metadata.csv")),
+    old = c("image", "patient", "anatom_site_general"),
     new = c("image_name", "patient_id", "anatom_site_general_challenge")
   )[, split := "test"]
   metadata = rbind(training_metadata, test_metadata, fill = TRUE)
@@ -53,7 +58,7 @@ constructor_melanoma = function(path) {
   return(cbind(metadata, data.table(image = lt)))
 }
 
-melanoma_dt = constructor_melanoma(hf_cache_dir)
+melanoma_dt = constructor_melanoma(get_cache_dir())
 
 melanoma_dt[, image_name := NULL]
 melanoma_dt[, target := NULL]
