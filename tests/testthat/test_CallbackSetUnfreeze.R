@@ -1,10 +1,7 @@
 test_that("autotest", {
   cb = t_clbk("unfreeze", 
     starting_weights = selectorparam_all(),
-    unfreeze = data.table(
-      epoch = c(1, 2),
-      weights = list(selector_name("1"), selector_invert(selector_name("1")))
-    )
+    unfreeze = data.table()
   )
   expect_torch_callback(cb, check_man = TRUE)
 })
