@@ -7,6 +7,7 @@
 #' 
 #' @section Details:
 #' ...
+NULL
 
 make_selectorparam = function(fun, description, ...) {
   structure(fun,
@@ -58,8 +59,44 @@ selectorparam_name = function(param_names, assert_present = FALSE) {
     }
   }, "selectorparam_name(%s%s)", char_repr(feature_names), str_assert_present)
 }
+#' @describeIn SelectorParam `selectorparam_invert` selects the parameters NOT selected by the given selector
+#' @export
+selectorparam_invert = function(selectorparam) {
+  assert_function(selectorparam)
+  make_selectorparam(function(full_names) {
+    setdiff(full_names, selectorparam(full_names))
+  }, "selectorparam_invert(%s)", selectorparam_repr(selectorparam))
+}
 
-# selector_invert = function(selector) {
-#   assert_function(selector)
-#   make_selectorparam(function())
-# }
+# copied from mlr3pipelines
+# Representation of character vector
+# letters[1]   --> '"a"'
+# letters[1:2] --> 'c("a", "b")'
+char_repr = function(x) {
+  output = str_collapse(x, sep = ", ", quote = '"')
+  if (length(x) == 0) {
+    "character(0)"
+  } else if (length(x) == 1) {
+    output
+  } else {
+    sprintf("c(%s)", output)
+  }
+}
+
+# Representation for a function that may or may not be a `Selector`.
+# If it is not, we just use deparse(), otherwise we use the repr as
+# reported by that selector.
+selectorparam_repr = function(selectorparam) {
+  if (test_string(attr(selectorparam, "repr"))) {
+    attr(selectorparam, "repr")
+  } else {
+    str_collapse(deparse(selectorparam), sep = "\n")
+  }
+}
+
+#' @export
+print.SelectorParam = function(x, ...) {
+  if (inherits(x, "R6")) return(NextMethod("print"))
+  cat(paste0(attr(x, "repr"), "\n"))
+  invisible(x)
+}

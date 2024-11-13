@@ -1,5 +1,11 @@
 test_that("autotest", {
-  cb = t_clbk("unfreeze")
+  cb = t_clbk("unfreeze", 
+    starting_weights = selectorparam_all(),
+    unfreeze = data.table(
+      epoch = c(1, 2),
+      weights = list(selector_name("1"), selector_invert(selector_name("1")))
+    )
+  )
   expect_torch_callback(cb, check_man = TRUE)
 })
 
@@ -19,7 +25,7 @@ test_that("weights are frozen correctly using epochs", {
   mlp$param_set$set_values(
     cb.unfreeze.starting_weights = selectorparam_name("layer1"),
     cb.unfreeze.unfreeze = data.table(
-      weights = list(selector_name("layer2")), 
+      weights = list(selectorparam_name("layer2")), 
       epochs = 2
     )
   )

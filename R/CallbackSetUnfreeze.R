@@ -8,10 +8,10 @@
 #' @details 
 #' TODO: add
 #' 
-#' @param starting_weights (`Selector`)\cr
+#' @param starting_weights (`SelectorParam`)\cr
 #'  A `Selector` denoting the weights that are trainable from the start.
 #' @param unfreeze (`data.table`)\cr
-#'  A `data.table` with a column `weights` (a list column containing a `Selector`) and a column `epoch` or `batch`.
+#'  A `data.table` with a column `weights` (a list column containing a `SelectorParam`) and a column `epoch` or `batch`.
 #' 
 #' @family Callback
 #' @export 
@@ -26,36 +26,32 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
 
       self$batch_num = 0
 
-      # sort the unfreeze data.table
-      
-      # anti-select starting weights: set grad = FALSE
-      # selector_invert(starting_weights)
+      # sort the unfreeze data.table??
+    
+      weights = selectorparam_invert(starting_weights)
+      mlr3misc::map(self$ctx$network$parameters[weights], function(param) param$requires_grad_(FALSE))
     },
     on_batch_end = function() {
       self$batch_num = self$batch_num + 1
     },
-    
     on_epoch_begin = function() {
       if (self$ctx$epoch %in% self$unfreeze$epoch) {
         # get the specific layer
-        layer = self$unfreeze[epoch == self$ctx$epoch]$weights
-        mlr3misc::map(self$ctx$network$modules[[layer]]$parameters, function(param_type) param_type$requires_grad_(FALSE))
+        weights = self$unfreeze[epoch == self$ctx$epoch]$weights
+        mlr3misc::map(self$ctx$network$parameters[weights], function(param) param$requires_grad_(FALSE))
       }
     },
-    
     on_batch_begin = function() {
       if (self$batch_num %in% self$unfreeze$batch) {
-        layer = self$unfreeze[batch == self$batch]$weights
-        mlr3misc::map(self$ctx$network$modules[[layer]]$parameters, function(param_type) param_type$requires_grad_(FALSE))
+        weights = self$unfreeze[batch == self$batch_num]$weights
+        mlr3misc::map(self$ctx$network$parameters[weights], function(param) param$requires_grad_(FALSE))
       }
-    },
+    }
   ),
-  
-  private = list(
-  )
+  private = list()
 )
 
-@include TorchCallback.R
+#' @include TorchCallback.R
 mlr3torch_callbacks$add("unfreeze", function() {
   TorchCallback$new(
     callback_generator = CallbackSetUnfreeze,
