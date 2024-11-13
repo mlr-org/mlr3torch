@@ -31,7 +31,7 @@ selectorparam_none = function() {
   }, "selectorparam_none()")
 }
 
-selector_grep = function(pattern, ignore.case = FALSE, perl = FALSE, fixed = FALSE) {
+selectorparam_grep = function(pattern, ignore.case = FALSE, perl = FALSE, fixed = FALSE) {
   assert_character(pattern)
   assert_flag(ignore.case)
   assert_flag(perl)
@@ -44,13 +44,18 @@ selector_grep = function(pattern, ignore.case = FALSE, perl = FALSE, fixed = FAL
   }, "selector_grep(%s%s%s%s)", pattern, str_ignore_case, str_perl, str_fixed)
 }
 
-selector_name = function(param_names, assert_present = FALSE) {
+selectorparam_name = function(param_names, assert_present = FALSE) {
   assert_character(feature_names, any.missing = FALSE)
   assert_flag(assert_present)
   str_assert_present = if (assert_present) ", assert_present = TRUE" else ""
-  # make_selectorparam(function(task) {
-  #   if (assert_present) {
-  #     assert_subset(param_names, )
-  #   }
-  # })
+  make_selectorparam(function(full_names) {
+    if (assert_present) {
+      assert_subset(param_names, full_names)
+    }
+  }, "selectorparam_name(%s%s)", char_repr(feature_names), str_assert_present)
 }
+
+# selector_invert = function(selector) {
+#   assert_function(selector)
+#   make_selectorparam(function())
+# }
