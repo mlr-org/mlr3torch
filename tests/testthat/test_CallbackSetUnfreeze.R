@@ -17,7 +17,7 @@ test_that("weights are frozen correctly using epochs", {
   # begin LLM
   # Test with simple layer selection
   mlp$param_set$set_values(
-    cb.unfreeze.starting_weights = selector_name("layer1"),
+    cb.unfreeze.starting_weights = selectorparam_name("layer1"),
     cb.unfreeze.unfreeze = data.table(
       weights = list(selector_name("layer2")), 
       epochs = 2

@@ -31,6 +31,8 @@ selectorparam_none = function() {
   }, "selectorparam_none()")
 }
 
+#' @describeIn SelectorParam `selectorparam_grep` selects parameters with names matching a regular expression
+#' @export
 selectorparam_grep = function(pattern, ignore.case = FALSE, perl = FALSE, fixed = FALSE) {
   assert_character(pattern)
   assert_flag(ignore.case)
@@ -44,6 +46,8 @@ selectorparam_grep = function(pattern, ignore.case = FALSE, perl = FALSE, fixed 
   }, "selector_grep(%s%s%s%s)", pattern, str_ignore_case, str_perl, str_fixed)
 }
 
+#' @describeIn SelectorParam `selectorparam_grep` selects parameters with names matching the given names
+#' @export
 selectorparam_name = function(param_names, assert_present = FALSE) {
   assert_character(feature_names, any.missing = FALSE)
   assert_flag(assert_present)
