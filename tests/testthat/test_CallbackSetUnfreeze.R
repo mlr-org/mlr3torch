@@ -6,35 +6,79 @@ test_that("autotest", {
   expect_torch_callback(cb, check_man = TRUE)
 })
 
-test_that("weights are frozen correctly using epochs", {
-  cb = t_clbk("unfreeze")
+# freeze an entire network: should train and everything is untrained at the end
+test_that("freezing an entire network works", {
   n_epochs = 10
 
   task = tsk("iris")
 
   mlp = lrn("classif.mlp",
-            callbacks = t_clbk("tb"),
+            callbacks = t_clbk("unfreeze"),
             epochs = 10, batch_size = 150, neurons = c(100, 200, 300)
   )
 
-  # begin LLM
-  # Test with simple layer selection
-  mlp$param_set$set_values(
-    cb.unfreeze.starting_weights = selectorparam_name("layer1"),
-    cb.unfreeze.unfreeze = data.table(
-      weights = list(selectorparam_name("layer2")), 
-      epochs = 2
+  mlp$param_set$set_values(cb.unfreeze.starting_weights = selectorparam_none())
+  # mlp$param_set$set_values(cb.unfreeze.unfreeze = data.table(
+  #   epoch = c(2, 4),
+  #   unfreeze = list(selectorparam_grep("9"), selectorparam_))
+  # )
+  mlp$param_set$set_values(cb.unfreeze.unfreeze = data.table(
+      epoch = c(1, 2),
     )
   )
-  
-  # Verify initial frozen state
-  expect_false(mlp$model$layer2$requires_grad)
-  expect_true(mlp$model$layer1$requires_grad)
-  
-  # Train for 3 epochs
+
+  list(
+
+  )
+
   mlp$train(task)
-  expect_true(mlp$model$layer2$requires_grad)
-  # end LLM
+
+  expect_true(all(!mlr3misc::map_lgl(mlp$network$parameters, function(param) param$requires_grad)))
+})
+
+# realistic example using epochs
+test_that("weights are frozen correctly using epochs", {
+  n_epochs = 10
+
+  task = tsk("iris")
+
+  mlp = lrn("classif.mlp",
+            callbacks = t_clbk("unfreeze"),
+            epochs = 10, batch_size = 150, neurons = c(100, 200, 300)
+  )
+
+  mlp$param_set$set_values(cb.unfreeze.starting_weights = selectorparam_all())
+  # mlp$param_set$set_values(cb.unfreeze.unfreeze = data.table(
+  #   epoch = c(2, 4),
+  #   unfreeze = list(selectorparam_grep("9"), selectorparam_))
+  # )
+  mlp$param_set$set_values(cb.unfreeze.unfreeze = data.table())
+
+  mlp$train(task)
+
+  expect_true(all(mlr3misc::map_lgl(mlp$network$parameters, function(param) param$requires_grad)))
+
+  # do I need a custom callback to check the internal state (context) at a given epoch?
+  # possibly, but I can also just check that at the end, the parameters look how I expect them to
+
+  # # begin LLM
+  # # Test with simple layer selection
+  # mlp$param_set$set_values(
+  #   cb.unfreeze.starting_weights = selectorparam_name(c("9.weight", "9.bias")),
+  #   cb.unfreeze.unfreeze = data.table(
+  #     weights = list(selectorparam_name("layer2")), 
+  #     epochs = 2
+  #   )
+  # )
+  
+  # # Verify initial frozen state
+  # expect_false(mlp$model$layer2$requires_grad)
+  # expect_true(mlp$model$layer1$requires_grad)
+  
+  # # Train for 3 epochs
+  # mlp$train(task)
+  # expect_true(mlp$model$layer2$requires_grad)
+  # # end LLM
 })
 
 test_that("weights are frozen correctly using batches", {
@@ -46,27 +90,27 @@ test_that("weights are frozen correctly using batches", {
             epochs = 10, batch_size = 150, neurons = c(100, 200, 300)
   )
 
-  # begin LLM
-  # Test with multiple layer unfreezing
-  mlp$param_set$set_values(
-    cb.unfreeze.starting_weights = selector_none(),
-    cb.unfreeze.unfreeze = data.table(
-      weights = list(
-        selector_name("layer1"),
-        selector_name("layer2")
-      ),
-      batches = c(10, 20)
-    )
-  )
+  # # begin LLM
+  # # Test with multiple layer unfreezing
+  # mlp$param_set$set_values(
+  #   cb.unfreeze.starting_weights = selector_none(),
+  #   cb.unfreeze.unfreeze = data.table(
+  #     weights = list(
+  #       selector_name("layer1"),
+  #       selector_name("layer2")
+  #     ),
+  #     batches = c(10, 20)
+  #   )
+  # )
   
-  # Verify all layers start frozen
-  expect_false(mlp$model$layer1$requires_grad)
-  expect_false(mlp$model$layer2$requires_grad)
+  # # Verify all layers start frozen
+  # expect_false(mlp$model$layer1$requires_grad)
+  # expect_false(mlp$model$layer2$requires_grad)
   
-  mlp$train(task)
-  expect_true(mlp$model$layer1$requires_grad)
-  expect_true(mlp$model$layer2$requires_grad)
-  # end LLM
+  # mlp$train(task)
+  # expect_true(mlp$model$layer1$requires_grad)
+  # expect_true(mlp$model$layer2$requires_grad)
+  # # end LLM
 })
 
 # TODO: decide whether we want to test this (Copilot suggestion)

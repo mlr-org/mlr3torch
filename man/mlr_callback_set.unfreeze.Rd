@@ -33,6 +33,7 @@ Other Callback:
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-CallbackSetUnfreeze-new}{\code{CallbackSetUnfreeze$new()}}
+\item \href{#method-CallbackSetUnfreeze-on_begin}{\code{CallbackSetUnfreeze$on_begin()}}
 \item \href{#method-CallbackSetUnfreeze-on_batch_end}{\code{CallbackSetUnfreeze$on_batch_end()}}
 \item \href{#method-CallbackSetUnfreeze-on_epoch_begin}{\code{CallbackSetUnfreeze$on_epoch_begin()}}
 \item \href{#method-CallbackSetUnfreeze-on_batch_begin}{\code{CallbackSetUnfreeze$on_batch_begin()}}
@@ -59,14 +60,23 @@ Other Callback:
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{starting_weights}}{(\code{Selector})\cr
+\item{\code{starting_weights}}{(\code{SelectorParam})\cr
 A \code{Selector} denoting the weights that are trainable from the start.}
 
 \item{\code{unfreeze}}{(\code{data.table})\cr
-A \code{data.table} with a column \code{weights} (a list column containing a \code{Selector}) and a column \code{epoch} or \code{batch}.}
+A \code{data.table} with a column \code{weights} (a list column containing a \code{SelectorParam}) and a column \code{epoch} or \code{batch}.}
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSetUnfreeze-on_begin"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetUnfreeze-on_begin}{}}}
+\subsection{Method \code{on_begin()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackSetUnfreeze$on_begin()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetUnfreeze-on_batch_end"></a>}}

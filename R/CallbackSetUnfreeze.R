@@ -24,27 +24,31 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
       self$starting_weights = starting_weights
       self$unfreeze = unfreeze
 
+      # TODO: remove
       self$batch_num = 0
 
       # sort the unfreeze data.table??
-    
+    },
+    on_begin = function() {
       weights = selectorparam_invert(starting_weights)
-      mlr3misc::map(self$ctx$network$parameters[weights], function(param) param$requires_grad_(FALSE))
+      walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(FALSE))
     },
     on_batch_end = function() {
+      # compute from epoch and step (batch num within an epoch)
       self$batch_num = self$batch_num + 1
     },
     on_epoch_begin = function() {
       if (self$ctx$epoch %in% self$unfreeze$epoch) {
-        # get the specific layer
+        # TODO: refactor to use selectors
         weights = self$unfreeze[epoch == self$ctx$epoch]$weights
-        mlr3misc::map(self$ctx$network$parameters[weights], function(param) param$requires_grad_(FALSE))
+        walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(FALSE))
       }
     },
     on_batch_begin = function() {
       if (self$batch_num %in% self$unfreeze$batch) {
+        # TODO: refactor to use selectors
         weights = self$unfreeze[batch == self$batch_num]$weights
-        mlr3misc::map(self$ctx$network$parameters[weights], function(param) param$requires_grad_(FALSE))
+        walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(FALSE))
       }
     }
   ),

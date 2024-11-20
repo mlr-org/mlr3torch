@@ -125,7 +125,7 @@ Collate:
     'PipeOpTorchOptimizer.R'
     'PipeOpTorchReshape.R'
     'PipeOpTorchSoftmax.R'
-    'SelectorParam.R'
+    'Select.R'
     'TaskClassif_lazy_iris.R'
     'TaskClassif_mnist.R'
     'TaskClassif_tiny_imagenet.R'
