@@ -29,7 +29,7 @@ After loading a marshaled \code{LearnerTorch} into R again, you then need to cal
 into a useable state.
 }
 
-\section{Early Stopping and Tuning}{
+\section{Early Stopping and Internal Tuning}{
 
 In order to prevent overfitting, the \code{LearnerTorch} class allows to use early stopping via the \code{patience}
 and \code{min_delta} parameters, see the \code{Learner}'s parameters.
