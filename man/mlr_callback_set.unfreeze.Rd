@@ -53,6 +53,7 @@ Other Callback:
 \if{html}{\out{<a id="method-CallbackSetUnfreeze-new"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetUnfreeze-new}{}}}
 \subsection{Method \code{new()}}{
+Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CallbackSetUnfreeze$new(starting_weights, unfreeze)}\if{html}{\out{</div>}}
 }
@@ -61,10 +62,10 @@ Other Callback:
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{starting_weights}}{(\code{SelectorParam})\cr
-A \code{Selector} denoting the weights that are trainable from the start.}
+A \code{Select} denoting the weights that are trainable from the start.}
 
 \item{\code{unfreeze}}{(\code{data.table})\cr
-A \code{data.table} with a column \code{weights} (a list column containing a \code{SelectorParam}) and a column \code{epoch} or \code{batch}.}
+A \code{data.table} with a column \code{weights} (a list column containing a \code{Select}) and a column \code{epoch} or \code{batch}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -73,6 +74,7 @@ A \code{data.table} with a column \code{weights} (a list column containing a \co
 \if{html}{\out{<a id="method-CallbackSetUnfreeze-on_begin"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetUnfreeze-on_begin}{}}}
 \subsection{Method \code{on_begin()}}{
+Sets the starting weights
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CallbackSetUnfreeze$on_begin()}\if{html}{\out{</div>}}
 }
@@ -82,6 +84,7 @@ A \code{data.table} with a column \code{weights} (a list column containing a \co
 \if{html}{\out{<a id="method-CallbackSetUnfreeze-on_batch_end"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetUnfreeze-on_batch_end}{}}}
 \subsection{Method \code{on_batch_end()}}{
+Increment the batch counter (old)
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CallbackSetUnfreeze$on_batch_end()}\if{html}{\out{</div>}}
 }
@@ -91,6 +94,7 @@ A \code{data.table} with a column \code{weights} (a list column containing a \co
 \if{html}{\out{<a id="method-CallbackSetUnfreeze-on_epoch_begin"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetUnfreeze-on_epoch_begin}{}}}
 \subsection{Method \code{on_epoch_begin()}}{
+Unfreezes weights if the training is at the correct epoch
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CallbackSetUnfreeze$on_epoch_begin()}\if{html}{\out{</div>}}
 }
@@ -100,6 +104,7 @@ A \code{data.table} with a column \code{weights} (a list column containing a \co
 \if{html}{\out{<a id="method-CallbackSetUnfreeze-on_batch_begin"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetUnfreeze-on_batch_begin}{}}}
 \subsection{Method \code{on_batch_begin()}}{
+Unfreezes weights if the training is at the correct batch
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CallbackSetUnfreeze$on_batch_begin()}\if{html}{\out{</div>}}
 }
