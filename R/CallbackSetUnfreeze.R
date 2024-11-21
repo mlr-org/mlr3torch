@@ -23,7 +23,9 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(starting_weights, unfreeze) {
+      # TODO: change to the frozen weights
       self$starting_weights = starting_weights
+      # consider supporting character vectors
       self$unfreeze = unfreeze
 
       # TODO: remove, you can access this or compute from the information in the context
@@ -34,7 +36,7 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
     #' @description
     #' Sets the starting weights
     on_begin = function() {
-      weights = select_invert(self$starting_weights)(names(mlp$network$parameters))
+      weights = select_invert(self$starting_weights)(names(self$ctx$network$parameters))
       walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(FALSE))
     },
     #' @description

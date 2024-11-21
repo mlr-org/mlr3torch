@@ -6,7 +6,6 @@ test_that("autotest", {
   expect_torch_callback(cb, check_man = TRUE)
 })
 
-# freeze an entire network: should train and everything is untrained at the end
 test_that("freezing some weights works", {
   n_epochs = 10
 
@@ -25,12 +24,12 @@ test_that("freezing some weights works", {
     )
   )
   
-  mlp$param_set$set_values(cb.unfreeze.unfreeze = data.table())
+  # mlp$param_set$set_values(cb.unfreeze.unfreeze = data.table())
 
   mlp$train(task)
 
-  # print(mlp$network$parameters[select_name("0.weight")(names(mlp$network$parameters))])
-  # print(mlp$network$parameters[select_name("3.weight")(names(mlp$network$parameters))])
+  print(mlp$network$parameters[[select_name("0.weight")(names(mlp$network$parameters))]]$requires_grad)
+  print(mlp$network$parameters[[select_name("3.weight")(names(mlp$network$parameters))]]$requires_grad)
 
   expect_true(mlp$network$parameters[[select_name("0.weight")(names(mlp$network$parameters))]]$requires_grad)
   expect_false(mlp$network$parameters[[select_name("3.weight")(names(mlp$network$parameters))]]$requires_grad)
