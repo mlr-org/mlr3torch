@@ -40,7 +40,7 @@ The number of blocks.
 The input and output dimension of a block.
 \item \code{d_hidden} :: \code{integer(1)}\cr
 The latent dimension of a block.
-\item \code{d_hidden_multiplier} :: \code{integer(1)}\cr
+\item \code{d_hidden_multiplier} :: \code{numeric(1)}\cr
 Alternative way to specify the latent dimension as \code{d_block * d_hidden_multiplier}.
 \item \code{dropout1} :: \code{numeric(1)}\cr
 First dropout ratio.
