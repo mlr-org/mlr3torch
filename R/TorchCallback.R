@@ -245,7 +245,7 @@ TorchCallback = R6Class("TorchCallback",
 #'
 #' @export
 #' @return [`TorchCallback`]
-#' @include zzz.R CallbackSet.R
+#' @include aaa.R CallbackSet.R
 #' @family Callback
 #' @examplesIf torch::torch_is_installed()
 #' custom_tcb = torch_callback("custom",

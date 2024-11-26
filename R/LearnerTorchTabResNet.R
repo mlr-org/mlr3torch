@@ -120,7 +120,7 @@ nn_tab_resnet_block = nn_module("nn_tab_resnet_block",
   ) {
     assert_int(d_block, lower = 1L)
     if (is.null(d_hidden)) {
-      assert_numeric(d_hidden_multiplier, lower = 0)
+      assert_numeric(d_hidden_multiplier, lower = 0, null.ok = TRUE)
       d_hidden = as.integer(d_block * d_hidden_multiplier)
     } else {
       assert_int(d_hidden, lower = 1L)

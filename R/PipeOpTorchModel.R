@@ -187,6 +187,6 @@ PipeOpTorchModelRegr = R6Class("PipeOpTorchModelRegr",
   )
 )
 
-#' @include zzz.R
+#' @include aaa.R
 register_po("torch_model_regr", PipeOpTorchModelRegr)
 register_po("torch_model_classif", PipeOpTorchModelClassif)
