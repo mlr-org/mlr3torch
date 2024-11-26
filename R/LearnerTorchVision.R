@@ -106,7 +106,7 @@ replace_head.VGG = function(network, d_out) {
   network
 }
 
-#' @include zzz.R
+#' @include aaa.R
 register_learner("classif.alexnet", 
   function(loss = NULL, optimizer = NULL, callbacks = list()) {
     LearnerTorchVision$new("alexnet", torchvision::model_alexnet, "AlexNet",
