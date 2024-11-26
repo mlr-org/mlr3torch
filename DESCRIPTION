@@ -143,5 +143,6 @@ Collate:
     'paramset_torchlearner.R'
     'preprocess.R'
     'rd_info.R'
+    'trace.R'
     'with_torch_settings.R'
     'zzz.R'

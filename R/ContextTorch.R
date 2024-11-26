@@ -62,23 +62,27 @@ ContextTorch = R6Class("ContextTorch",
       self$eval_freq = assert_int(eval_freq, lower = 1L)
       self$terminate = FALSE
 
-      self$opt_step = if (inherits(self$network, "nn_trace") && inherits(self$loss_fn, "script_module") && inherits(self$optimizer, "optim_ignite")) {
+      if (inherits(self$network, "nn_trace") && inherits(self$loss_fn, "script_module") && inherits(self$optimizer, "optim_ignite")) {
         self$igniter = ignite::Igniter$new(
-          network = self$network,
+          network = self$network$module,
           optimizer = self$optimizer,
           loss_fn = self$loss_fn
         )
-        function() {
+        self$opt_step = function() {
           self$step = self$step + 1
           self$batch = dataloader_next(self$train_iterator)
           # FIXME: Callback stage is missing
-          result = self$igniter$opt_step(batch$x, batch$y)
+          result = self$igniter$opt_step(unname(self$batch$x), self$batch$y)
           self$last_loss = result[[1]]$item()
           self$predictions[[length(self$predictions) + 1]] = result[[2]]$detach()
           self$indices[[length(self$indices) + 1]] = as.integer(self$batch$.index$to(device = "cpu"))
         }
+        self$predict_step = function() {
+
+
+        }
       } else {
-        function() {
+        self$opt_step = function() {
           self$step = self$step + 1
           self$batch = dataloader_next(self$train_iterator)
           self$optimizer$zero_grad()

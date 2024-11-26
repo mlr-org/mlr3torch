@@ -55,10 +55,13 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   }
 
   if (param_vals$jit_trace) {
-    network = nn_trace(network, loader_valid$.iter()$.next())
-    loss_fn = jit_trace(loss_fn, loader_valid$.iter()$.next())
+    batch = loader_train$.iter()$.next()
+    example_x = unname(batch$x)
+    example_y = batch$y
+    # FIXME: Ensure ordering is correct
+    network = nn_trace(network, example_x)
+    loss_fn = jit_trace(loss_fn, with_no_grad(do.call(network, args = example_x)), example_y)
   }
-
 
   ctx = ContextTorch$new(
     learner = self,
