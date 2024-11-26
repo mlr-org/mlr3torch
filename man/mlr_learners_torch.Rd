@@ -82,6 +82,9 @@ and used during prediction.
 Note that by setting the seed during the training phase this will mean that by default (i.e. when \code{seed} is
 \code{"random"}), clones of the learner will use a different seed.
 If set to \code{NULL}, no seeding will be done.
+\item \code{jit_trace} :: \code{logical(1)}\cr
+Whether to trace-jit the network. If this is set to \code{TRUE}, the 'ignite' training method is used.
+Note that this also requires using a LibTorch optimizer.
 }
 
 \strong{Evaluation}:
