@@ -4,6 +4,8 @@
 * feat: Add parameter `num_interop_threads` to `LearnerTorch`
 * feat: Add adaptive average pooling
 * feat: Added `n_layers` parameter to MLP
+* feat(perf): Added support for faster optimizers and trace-jitting,
+  which can yield considerable performance improvements
 
 # mlr3torch 0.1.2
 

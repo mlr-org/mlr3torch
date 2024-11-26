@@ -53,7 +53,8 @@ Imports:
     mlr3misc (>= 0.14.0),
     paradox (>= 1.0.0),
     R6,
-	withr
+	withr,
+	ignite
 Suggests:
     callr,
     future,
@@ -71,6 +72,8 @@ Suggests:
     tfevents,
     torchvision (>= 0.6.0),
     waldo
+Remotes:
+	sebffischer/ignite
 Config/testthat/edition: 3
 NeedsCompilation: no
 ByteCompile: yes

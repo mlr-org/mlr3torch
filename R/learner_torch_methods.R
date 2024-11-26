@@ -54,6 +54,12 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     stopf("Validation Dataloader of Learner '%s' has length 0", self$id)
   }
 
+  if (param_vals$jit_trace) {
+    network = nn_trace(network, loader_valid$.iter()$.next())
+    loss_fn = jit_trace(loss_fn, loader_valid$.iter()$.next())
+  }
+
+
   ctx = ContextTorch$new(
     learner = self,
     task_train = task,
@@ -124,43 +130,22 @@ train_loop = function(ctx, cbs) {
     ctx$epoch = ctx$epoch + 1
     call("on_epoch_begin")
 
-    predictions = list()
-    indices = list()
-    train_iterator = dataloader_make_iter(ctx$loader_train)
+    ctx$predictions = list()
+    ctx$indices = list()
+    ctx$train_iterator = dataloader_make_iter(ctx$loader_train)
     ctx$step = 0L
     while (ctx$step < length(ctx$loader_train)) {
-      ctx$step = ctx$step + 1
-      ctx$batch = dataloader_next(train_iterator)
-      ctx$optimizer$zero_grad()
-
       call("on_batch_begin")
-
-      if (length(ctx$batch$x) == 1L) {
-        y_hat = ctx$network(ctx$batch$x[[1L]])
-      } else {
-        y_hat = do.call(ctx$network, ctx$batch$x)
-      }
-
-      loss = ctx$loss_fn(y_hat, ctx$batch$y)
-
-      loss$backward()
-
-      call("on_after_backward")
-
-      ctx$last_loss = loss$item()
-      predictions[[length(predictions) + 1]] = y_hat$detach()
-      indices[[length(indices) + 1]] = as.integer(ctx$batch$.index$to(device = "cpu"))
-      ctx$optimizer$step()
-
+      ctx$opt_step()
       call("on_batch_end")
     }
 
     ctx$last_scores_train = if (eval_train_in_epoch(ctx)) {
       measure_prediction(
-        pred_tensor = torch_cat(predictions, dim = 1L),
+        pred_tensor = torch_cat(ctx$predictions, dim = 1L),
         measures = ctx$measures_train,
         task = ctx$task_train,
-        row_ids = ctx$task_train$row_ids[unlist(indices)],
+        row_ids = ctx$task_train$row_ids[unlist(ctx$indices)],
         prediction_encoder = ctx$prediction_encoder
       )
     }

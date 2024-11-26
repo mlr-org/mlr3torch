@@ -61,6 +61,47 @@ ContextTorch = R6Class("ContextTorch",
       self$prediction_encoder = assert_function(prediction_encoder, args = c("predict_tensor", "task"))
       self$eval_freq = assert_int(eval_freq, lower = 1L)
       self$terminate = FALSE
+
+      self$opt_step = if (inherits(self$network, "nn_trace") && inherits(self$loss_fn, "script_module") && inherits(self$optimizer, "optim_ignite")) {
+        self$igniter = ignite::Igniter$new(
+          network = self$network,
+          optimizer = self$optimizer,
+          loss_fn = self$loss_fn
+        )
+        function() {
+          self$step = self$step + 1
+          self$batch = dataloader_next(self$train_iterator)
+          # FIXME: Callback stage is missing
+          result = self$igniter$opt_step(batch$x, batch$y)
+          self$last_loss = result[[1]]$item()
+          self$predictions[[length(self$predictions) + 1]] = result[[2]]$detach()
+          self$indices[[length(self$indices) + 1]] = as.integer(self$batch$.index$to(device = "cpu"))
+        }
+      } else {
+        function() {
+          self$step = self$step + 1
+          self$batch = dataloader_next(self$train_iterator)
+          self$optimizer$zero_grad()
+
+          if (length(self$batch$x) == 1L) {
+            y_hat = self$network(self$batch$x[[1L]])
+          } else {
+            y_hat = do.call(self$network, self$batch$x)
+          }
+
+          loss = self$loss_fn(y_hat, self$batch$y)
+
+          loss$backward()
+
+          call("on_after_backward")
+
+          self$last_loss = loss$item()
+          self$predictions[[length(self$predictions) + 1]] = y_hat$detach()
+          self$indices[[length(self$indices) + 1]] = as.integer(self$batch$.index$to(device = "cpu"))
+          self$optimizer$step()
+        }
+      }
+
     },
     #' @field learner ([`Learner`][mlr3::Learner])\cr
     #'   The torch learner.

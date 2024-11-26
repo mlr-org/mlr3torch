@@ -26,6 +26,9 @@
 #'   Note that by setting the seed during the training phase this will mean that by default (i.e. when `seed` is
 #'   `"random"`), clones of the learner will use a different seed.
 #'   If set to `NULL`, no seeding will be done.
+#' * `jit_trace` :: `logical(1)`\cr
+#'   Whether to trace-jit the network. If this is set to `TRUE`, the 'ignite' training method is used.
+#'   Note that this also requires using a LibTorch optimizer.
 #'
 #' **Evaluation**:
 #' * `measures_train` :: [`Measure`][mlr3::Measure] or `list()` of [`Measure`][mlr3::Measure]s.\cr
