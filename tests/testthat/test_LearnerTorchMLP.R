@@ -52,4 +52,22 @@ test_that("works for lazy tensor", {
   expect_class(pred, "Prediction")
 })
 
-# TODO: More tests
+test_that("neurons and n_layers", {
+  l1 = lrn("classif.mlp", batch_size = 32, epochs = 0L)
+  l2 = l1$clone(deep = TRUE)
+  task = tsk("iris")
+  l1$param_set$set_values(neurons = c(10, 10))
+  l2$param_set$set_values(neurons = 10, n_layers = 2)
+  l1$train(task)
+  l2$train(task)
+  expect_equal(l1$network$parameters[[1]]$shape, l2$network$parameters[[1]]$shape)
+  expect_equal(l1$network$parameters[[3]]$shape, l2$network$parameters[[3]]$shape)
+  expect_equal(l1$network$parameters[[5]]$shape, l2$network$parameters[[5]]$shape)
+  expect_equal(l1$network$parameters[[1]]$shape, c(10, 4))
+  expect_equal(l1$network$parameters[[3]]$shape, c(10, 10))
+  expect_equal(l1$network$parameters[[5]]$shape, c(3, 10))
+
+  l1$param_set$set_values(n_layers = 2)
+  expect_error(l1$train(task), "Can only supply")
+})
+
