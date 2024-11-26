@@ -120,7 +120,7 @@ PipeOpTorchAdaptiveAvgPool3D = R6Class("PipeOpTorchAdaptiveAvgPool3D", inherit =
   )
 )
 
-#' @include zzz.R
+#' @include aaa.R
 register_po("nn_adaptive_avg_pool1d", PipeOpTorchAdaptiveAvgPool1D)
 register_po("nn_adaptive_avg_pool2d", PipeOpTorchAdaptiveAvgPool2D)
 register_po("nn_adaptive_avg_pool3d", PipeOpTorchAdaptiveAvgPool3D)

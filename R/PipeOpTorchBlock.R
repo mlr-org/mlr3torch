@@ -116,5 +116,5 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
 )
 
 
-#' @include zzz.R
+#' @include aaa.R
 register_po("nn_block", PipeOpTorchBlock, metainf = list(block = as_graph(po("nop"))))

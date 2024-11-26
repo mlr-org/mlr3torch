@@ -3,7 +3,7 @@
 #' @name mlr_tasks_lazy_iris
 #'
 #' @format [R6::R6Class] inheriting from [mlr3::TaskClassif].
-#' @include zzz.R
+#' @include aaa.R
 #'
 #' @description
 #' A classification task for the popular [datasets::iris] data set.
@@ -44,5 +44,5 @@ load_task_lazy_iris = function(id = "lazy_iris") {
   task
 }
 
-#' @include zzz.R
+#' @include aaa.R
 mlr3torch_tasks[["lazy_iris"]] = load_task_lazy_iris
