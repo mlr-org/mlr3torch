@@ -1,3 +1,27 @@
+check_frozen = torch_callback("custom_logger",
+  initialize = function(alpha = 0.1) {
+    self$starting_weights = starting_weights
+    # consider supporting character vectors
+    self$unfreeze = unfreeze
+
+    # TODO: remove, you can access this or compute from the information in the context
+    self$batch_num = 0
+
+    # sort the unfreeze data.table??
+  },
+  on_epoch_end = function() {
+    # print
+    # then test expects some output
+  },
+  on_batch_end = function() {
+    if (is.null(self$moving_training_loss)) {
+      self$moving_loss = self$ctx$last_loss
+    } else {
+      self$moving_loss = self$alpha * self$last_loss + (1 - self$alpha) * self$moving_loss
+    }
+  }
+)
+
 test_that("autotest", {
   cb = t_clbk("unfreeze", 
     starting_weights = select_all(),
@@ -26,8 +50,8 @@ test_that("freezing some weights works", {
 
   mlp$train(task)
 
-  # print(mlp$network$parameters[[select_name("0.weight")(names(mlp$network$parameters))]]$requires_grad)
-  # print(mlp$network$parameters[[select_name("3.weight")(names(mlp$network$parameters))]]$requires_grad)
+  print(mlp$network$parameters[[select_name("0.weight")(names(mlp$network$parameters))]]$requires_grad)
+  print(mlp$network$parameters[[select_name("3.weight")(names(mlp$network$parameters))]]$requires_grad)
 
   expect_true(mlp$network$parameters[[select_name("0.weight")(names(mlp$network$parameters))]]$requires_grad)
   expect_false(mlp$network$parameters[[select_name("3.weight")(names(mlp$network$parameters))]]$requires_grad)
