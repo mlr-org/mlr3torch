@@ -49,7 +49,9 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
     #' Unfreezes weights if the training is at the correct epoch
     on_epoch_begin = function() {
       if (self$ctx$epoch %in% self$unfreeze$epoch) {
-        weights = (self$unfreeze[epoch == self$ctx$epoch]$weights)(names(self$ctx$network$parameters))
+        # debugonce()
+        # browser()
+        weights = (self$unfreeze[epoch == self$ctx$epoch]$unfreeze)[[1]](names(self$ctx$network$parameters))
         walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(FALSE))
       }
     },
@@ -57,7 +59,7 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
     #' Unfreezes weights if the training is at the correct batch
     on_batch_begin = function() {
       if (self$batch_num %in% self$unfreeze$batch) {
-        weights = (self$unfreeze[epoch == self$ctx$epoch]$weights)(names(self$ctx$network$parameters))
+        weights = (self$unfreeze[epoch == self$ctx$epoch]$unfreeze)[[1]](names(self$ctx$network$parameters))
         walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(FALSE))
       }
     }
