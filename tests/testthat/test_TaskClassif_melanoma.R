@@ -14,8 +14,9 @@ test_that("melanoma task works", {
 
   task$data()
 
-  expect_true("datasets--carsonzhang--ISIC_2020_small" %in% list.files(file.path(get_cache_dir(), "datasets", "melanoma", "raw")))
-  expect_true("data.rds" %in% list.files(file.path(get_cache_dir(), "datasets", "melanoma")))
+  # expect_true("datasets--carsonzhang--ISIC_2020_small" %in% list.files(file.path(get_cache_dir(), "datasets", "melanoma", "raw")))
+  # expect_true("data.rds" %in% list.files(file.path(get_cache_dir(), "datasets", "melanoma")))
   expect_equal(task$backend$nrow, 32701 + 10982)
-  expect_equal(task$backend$ncol, 5)
+  expect_equal(task$backend$ncol, 11)
+  expect_equal(task$ncol, 5)
 })

@@ -6,27 +6,40 @@ devtools::load_all()
 
 withr::local_options(mlr3torch.cache = TRUE)
 
-# hf_cache_dir = here::here("cache2")
-
-# hf_dataset_parent_path = here::here(hf_cache_dir, "raw", "datasets--carsonzhang--ISIC_2020_extrasmall", "snapshots")
-# there should only be a single directory whose name is a hash value, this avoids hard-coding it
-# hf_dataset_path = here::here(hf_dataset_parent_path, list.files(hf_dataset_parent_path))
-
 constructor_melanoma = function(path) {
-  file_names = c(
-    "ISIC_2020_Training_GroundTruth_v2.csv", "train1", "train2", "train3", "train4",
-    "ISIC_2020_Test_Metadata.csv", "ISIC_2020_Test_Input1", "ISIC_2020_Test_Input2"
+  # path = file.path(get_cache_dir(), "datasets", "melanoma")
+  base_url = "https://huggingface.co/datasets/carsonzhang/ISIC_2020_small/resolve/main/"
+
+  training_metadata_file_name = "ISIC_2020_Training_GroundTruth_v2.csv"
+  curl::curl_download(paste0(base_url, training_metadata_file_name), file.path(path, training_metadata_file_name))
+  training_metadata = fread(here::here(path, training_metadata_file_name))
+
+  train_dir_names = c("train1", "train2", "train3", "train4")
+  for (dir in train_dir_names) {
+    if (!dir.exists(file.path(path, dir))) dir.create(file.path(path, dir))
+  }
+
+  pmap(
+    list(paste(base_url, training_metadata$file_name, sep = ""), paste(path, "/", training_metadata$file_name, sep = "")),
+    curl::curl_download
   )
 
-  withr::with_envvar(c(HUGGINGFACE_HUB_CACHE = path), {
-    hfhub::hub_snapshot("carsonzhang/ISIC_2020_extrasmall", repo_type = "dataset")
-  })
-  hf_dataset_parent_path = here::here(path, "datasets--carsonzhang--ISIC_2020_extrasmall", "snapshots")
-  # there should only be a single directory whose name is a hash value, this avoids hard-coding it
-  hf_dataset_path = here::here(hf_dataset_parent_path, list.files(hf_dataset_parent_path))
+  test_metadata_file_name = "ISIC_2020_Test_Metadata.csv"
+  curl::curl_download(paste0(base_url, test_metadata_file_name), file.path(path, test_metadata_file_name))
+  test_metadata = fread(here::here(path, test_metadata_file_name))
 
-  training_metadata = fread(here::here(hf_dataset_path, "ISIC_2020_Training_GroundTruth_v2.csv"))[, split := "train"]
-  test_metadata = setnames(fread(here::here(hf_dataset_path, "ISIC_2020_Test_Metadata.csv")),
+  test_dir_names = c("ISIC_2020_Test_Input1", "ISIC_2020_Test_Input2")
+  for (dir in train_dir_names) {
+    if (!dir.exists(file.path(path, dir))) dir.create(file.path(path, dir))
+  }
+
+  pmap(
+    list(paste(base_url, test_metadata$file_name, sep = ""), paste(path, "/", test_metadata$file_name, sep = "")),
+    curl::curl_download
+  )
+
+  training_metadata = training_metadata[, split := "train"]
+  test_metadata = setnames(test_metadata,
     old = c("image", "patient", "anatom_site_general"),
     new = c("image_name", "patient_id", "anatom_site_general_challenge")
   )[, split := "test"]
@@ -58,6 +71,7 @@ constructor_melanoma = function(path) {
   return(cbind(metadata, data.table(image = lt)))
 }
 
+bench::system_time(melanoma_dt <- constructor_melanoma(file.path(get_cache_dir(), "datasets", "melanoma")))
 melanoma_dt = constructor_melanoma(file.path(get_cache_dir(), "datasets", "melanoma"))
 
 melanoma_dt[, image_name := NULL]
@@ -78,3 +92,4 @@ tsk_melanoma$label = "Melanoma classification"
 ci = col_info(tsk_melanoma$backend)
 
 saveRDS(ci, here::here("inst/col_info/melanoma.rds"))
+saveRDS(melanoma_)
