@@ -23,18 +23,17 @@ test_that("freezing some weights works", {
       unfreeze = select_name("0.weight")
     )
   )
-  
-  # mlp$param_set$set_values(cb.unfreeze.unfreeze = data.table())
 
   mlp$train(task)
 
-  print(mlp$network$parameters[[select_name("0.weight")(names(mlp$network$parameters))]]$requires_grad)
-  print(mlp$network$parameters[[select_name("3.weight")(names(mlp$network$parameters))]]$requires_grad)
+  # print(mlp$network$parameters[[select_name("0.weight")(names(mlp$network$parameters))]]$requires_grad)
+  # print(mlp$network$parameters[[select_name("3.weight")(names(mlp$network$parameters))]]$requires_grad)
 
   expect_true(mlp$network$parameters[[select_name("0.weight")(names(mlp$network$parameters))]]$requires_grad)
   expect_false(mlp$network$parameters[[select_name("3.weight")(names(mlp$network$parameters))]]$requires_grad)
-  # expect_false(any(mlr3misc::map_lgl(mlp$network$parameters, function(param) param$requires_grad)))
 })
+
+
 
 # # realistic example using epochs
 # # TODO: write a custom callback that accesses the requires_grad of a parameter

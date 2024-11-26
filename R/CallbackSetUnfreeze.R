@@ -23,7 +23,6 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(starting_weights, unfreeze) {
-      # TODO: change to the frozen weights
       self$starting_weights = starting_weights
       # consider supporting character vectors
       self$unfreeze = unfreeze
@@ -50,9 +49,9 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
     on_epoch_begin = function() {
       if (self$ctx$epoch %in% self$unfreeze$epoch) {
         # debugonce()
-        # browser()
         weights = (self$unfreeze[epoch == self$ctx$epoch]$unfreeze)[[1]](names(self$ctx$network$parameters))
-        walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(FALSE))
+        browser()
+        walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(TRUE))
       }
     },
     #' @description
@@ -60,7 +59,7 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
     on_batch_begin = function() {
       if (self$batch_num %in% self$unfreeze$batch) {
         weights = (self$unfreeze[epoch == self$ctx$epoch]$unfreeze)[[1]](names(self$ctx$network$parameters))
-        walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(FALSE))
+        walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(TRUE))
       }
     }
   ),
