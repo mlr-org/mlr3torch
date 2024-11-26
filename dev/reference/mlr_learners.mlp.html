@@ -89,6 +89,8 @@ This is intialized to an empty list.</p></li>
 <li><p><code>neurons</code> :: <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code><br>
 The number of neurons per hidden layer. By default there is no hidden layer.
 Setting this to <code>c(10, 20)</code> would have a the first hidden layer with 10 neurons and the second with 20.</p></li>
+<li><p><code>n_layers</code> :: <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code><br>
+The number of layers. This parameter must only be set when <code>neurons</code> has length 1.</p></li>
 <li><p><code>p</code> :: <code>numeric(1)</code><br>
 The dropout probability. Is initialized to <code>0.5</code>.</p></li>
 <li><p><code>shape</code> :: <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code> or <code>NULL</code><br>

@@ -262,7 +262,7 @@ The referenced help package can be opened via method <code>$help()</code>.</p></
 <span class="r-in"><span><span class="va">learner</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.mlp"</span>, loss <span class="op">=</span> <span class="fu"><a href="t_loss.html">t_loss</a></span><span class="op">(</span><span class="st">"mse"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># The parameters of the loss are added to the learner's parameter set</span></span></span>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="va">param_set</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSetCollection(33)&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSetCollection(34)&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                      id    class lower upper nlevels        default</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                  &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;         &lt;list&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  1:              epochs ParamInt 0e+00   Inf     Inf &lt;NoDefault[0]&gt;</span>
@@ -289,15 +289,16 @@ The referenced help package can be opened via method <code>$help()</code>.</p></
 <span class="r-out co"><span class="r-pr">#&gt;</span> 22:     worker_packages ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 23:             neurons ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 24:                   p ParamDbl 0e+00 1e+00     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 25:          activation ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 26:     activation_args ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 27:               shape ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 28:              opt.lr ParamDbl 0e+00   Inf     Inf          0.001</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 29:           opt.betas ParamUty    NA    NA     Inf    0.900,0.999</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 30:             opt.eps ParamDbl 1e-16 1e-04     Inf          1e-08</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 31:    opt.weight_decay ParamDbl 0e+00 1e+00     Inf              0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 32:         opt.amsgrad ParamLgl    NA    NA       2          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 33:      loss.reduction ParamFct    NA    NA       2           mean</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25:            n_layers ParamInt 1e+00   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26:          activation ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27:     activation_args ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28:               shape ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29:              opt.lr ParamDbl 0e+00   Inf     Inf          0.001</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 30:           opt.betas ParamUty    NA    NA     Inf    0.900,0.999</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 31:             opt.eps ParamDbl 1e-16 1e-04     Inf          1e-08</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 32:    opt.weight_decay ParamDbl 0e+00 1e+00     Inf              0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 33:         opt.amsgrad ParamLgl    NA    NA       2          FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 34:      loss.reduction ParamFct    NA    NA       2           mean</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                      id    class lower upper nlevels        default</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            value</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           &lt;list&gt;</span>
@@ -325,15 +326,16 @@ The referenced help package can be opened via method <code>$help()</code>.</p></
 <span class="r-out co"><span class="r-pr">#&gt;</span> 22:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 23:             </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 24:          0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 25: &lt;nn_relu[1]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 26:    &lt;list[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 27:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26: &lt;nn_relu[1]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27:    &lt;list[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 28:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 29:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 30:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 31:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 32:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 33:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 34:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            value</span>
 </code></pre></div>
     </div>
