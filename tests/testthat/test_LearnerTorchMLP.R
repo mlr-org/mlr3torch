@@ -62,10 +62,12 @@ test_that("neurons and n_layers", {
   l2$train(task)
   expect_equal(l1$network$parameters[[1]]$shape, l2$network$parameters[[1]]$shape)
   expect_equal(l1$network$parameters[[3]]$shape, l2$network$parameters[[3]]$shape)
+  expect_equal(l1$network$parameters[[5]]$shape, l2$network$parameters[[5]]$shape)
   expect_equal(l1$network$parameters[[1]]$shape, c(10, 4))
-  expect_equal(l1$network$parameters[[3]]$shape, c(3, 10))
+  expect_equal(l1$network$parameters[[3]]$shape, c(10, 10))
+  expect_equal(l1$network$parameters[[5]]$shape, c(3, 10))
 
   l1$param_set$set_values(n_layers = 2)
-  expect_error(l2$train(task), "Can only supply")
+  expect_error(l1$train(task), "Can only supply")
 })
 
