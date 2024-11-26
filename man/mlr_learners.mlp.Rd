@@ -43,6 +43,8 @@ This is intialized to an empty list.
 \item \code{neurons} :: \code{integer()}\cr
 The number of neurons per hidden layer. By default there is no hidden layer.
 Setting this to \code{c(10, 20)} would have a the first hidden layer with 10 neurons and the second with 20.
+\item \code{n_layers} :: \code{integer()}\cr
+The number of layers. This parameter must only be set when \code{neurons} has length 1.
 \item \code{p} :: \code{numeric(1)}\cr
 The dropout probability. Is initialized to \code{0.5}.
 \item \code{shape} :: \code{integer()} or \code{NULL}\cr
