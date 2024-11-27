@@ -4,7 +4,7 @@
 #' @import mlr3misc
 #' @importFrom R6 R6Class is.R6
 #' @importFrom methods formalArgs
-#' @importFrom utils getFromNamespace
+#' @importFrom utils getFromNamespace capture.output head tail
 #' @import torch
 #' @import mlr3pipelines
 #' @import mlr3
