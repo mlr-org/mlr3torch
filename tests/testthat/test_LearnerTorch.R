@@ -775,3 +775,48 @@ test_that("can set seed to NULL", {
   l$predict(task)
   expect_true(is.null(l$model$seed))
 })
+
+test_that("early stopping works with autotuner", {
+  skip_if_not_installed("mlr3tuning")
+
+  MeasureConstant = R6::R6Class("MeasureConstant",
+    inherit = Measure,
+    public = list(
+      # Constructor
+      initialize = function(constant = 0) {
+        super$initialize(
+          id = paste0("constant"),
+          task_type = "classif",
+          range = c(0, Inf),
+          minimize = TRUE
+        )
+        private$.constant = constant
+      }
+    ),
+    private = list(
+      .constant = NULL,
+      .score = function(prediction, task, ...) {
+        private$.constant
+      }
+    )
+  )
+
+  constant_measure = MeasureConstant$new(constant = 42)
+
+  learner = lrn("classif.mlp", neurons = 10, measures_valid = constant_measure,
+    validate = "test", patience = 10, epochs = to_tune(upper = 100, internal = TRUE), predict_sets = NULL,
+    batch_size = 256, predict_type = "prob")
+
+  task = tsk("iris")
+
+  at = mlr3tuning::auto_tuner(
+    learner = learner,
+    resampling = rsmp("holdout"),
+    measure = msr("internal_valid_score", minimize = TRUE),
+    tuner = mlr3tuning::tnr("internal"),
+    term_evals = 2
+  )
+
+  at$train(task)
+  expect_equal(at$model$learner$param_set$values$epochs, 1)
+})

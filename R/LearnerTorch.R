@@ -384,7 +384,7 @@ LearnerTorch = R6Class("LearnerTorch",
       if (self$state$param_vals$patience == 0) {
         named_list()
       } else {
-        list(epochs = self$model$epochs)
+        list(epochs = self$model$epochs - self$state$param_vals$patience)
       }
     },
     .extract_internal_valid_scores = function() {

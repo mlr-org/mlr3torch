@@ -4,6 +4,9 @@
 * feat: Add parameter `num_interop_threads` to `LearnerTorch`
 * feat: Add adaptive average pooling
 * feat: Added `n_layers` parameter to MLP
+* BREAKING_CHANGE: Early stopping now not uses `epochs - patience` for the internally tuned
+  epochs instead of `epochs` as it was before.
+  Further, check for improvement now uses `improvement <= min_delta` instead of `<`.
 
 # mlr3torch 0.1.2
 
