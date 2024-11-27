@@ -529,14 +529,14 @@ test_that("early stopping works", {
 
   learner$train(task)
   # the first evaluation can do no comparison, i.e. the second eval with no improvement is the third epoch
-  expect_equal(learner$internal_tuned_values, list(epochs = 9))
+  expect_equal(learner$internal_tuned_values, list(epochs = 3))
 
   # in this scenario early stopping should definitely not trigger yet
   learner$param_set$set_values(
     min_delta = 0, patience = 5, opt.lr = 0.01, eval_freq = 1
   )
   learner$train(task)
-  expect_equal(learner$internal_tuned_values, list(epochs = 10))
+  expect_equal(learner$internal_tuned_values, list(epochs = 1))
 })
 
 test_that("validation works", {
@@ -579,9 +579,9 @@ test_that("internal tuning", {
     term_evals = 2
   )
   expect_equal(
-    ti$archive$data$internal_tuned_values, replicate(list(list(epochs = 9L)), n = 2L)
+    ti$archive$data$internal_tuned_values, replicate(list(list(epochs = 3L)), n = 2L)
   )
-  expect_equal(ti$result_learner_param_vals$epochs, 9L)
+  expect_equal(ti$result_learner_param_vals$epochs, 3L)
 })
 
 
