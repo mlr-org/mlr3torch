@@ -7,6 +7,7 @@
 * BREAKING_CHANGE: Early stopping now not uses `epochs - patience` for the internally tuned
   epochs instead of `epochs` as it was before.
   Further, check for improvement now uses `improvement <= min_delta` instead of `<`.
+* fix: torch learners can now be used with `AutoTuner`
 
 # mlr3torch 0.1.2
 
