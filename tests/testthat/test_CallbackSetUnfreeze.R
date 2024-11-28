@@ -3,21 +3,18 @@ check_frozen = torch_callback("custom_logger",
     self$starting_weights = starting_weights
     # consider supporting character vectors
     self$unfreeze = unfreeze
-
-    # TODO: remove, you can access this or compute from the information in the context
-    self$batch_num = 0
-
-    # sort the unfreeze data.table??
   },
   on_epoch_end = function() {
-    # print
-    # then test expects some output
+    if (self$ctx$epoch %in% self$unfreeze$epoch) {
+      weights = (self$unfreeze[epoch == self$ctx$epoch]$unfreeze)[[1]](names(self$ctx$network$parameters))
+      print(self$ctx$network$parameters[weights]$requires_grad)
+    }
   },
   on_batch_end = function() {
-    if (is.null(self$moving_training_loss)) {
-      self$moving_loss = self$ctx$last_loss
-    } else {
-      self$moving_loss = self$alpha * self$last_loss + (1 - self$alpha) * self$moving_loss
+    batch_num = (self$ctx$epoch - 1) * length(self$ctx$loader_train) + self$ctx$step
+    if (batch_num %in% self$unfreeze$batch) {
+      weights = (self$unfreeze[batch == batch_num]$unfreeze)[[1]](names(self$ctx$network$parameters))
+      print(self$ctx$network$parameters[weights]$requires_grad)
     }
   }
 )
@@ -30,7 +27,7 @@ test_that("autotest", {
   expect_torch_callback(cb, check_man = TRUE)
 })
 
-test_that("freezing some weights works", {
+test_that("unfreezing on epochs works in the end", {
   n_epochs = 10
 
   task = tsk("iris")
@@ -54,7 +51,7 @@ test_that("freezing some weights works", {
   expect_false(mlp$network$parameters[[select_name("3.weight")(names(mlp$network$parameters))]]$requires_grad)
 })
 
-test_that("freezing with a batch number works", {
+test_that("unfreezing on batches works in the end", {
   n_epochs = 10
 
   task = tsk("iris")
@@ -78,6 +75,29 @@ test_that("freezing with a batch number works", {
   expect_false(mlp$network$parameters[[select_name("3.weight")(names(mlp$network$parameters))]]$requires_grad)
 })
 
+test_that("freezing both with batches and epochs works at the correct time", {
+  n_epochs = 10
+
+  task = tsk("iris")
+
+  mlp = lrn("classif.mlp",
+            callbacks = list(t_clbk("unfreeze"), check_frozen),
+            epochs = 10, batch_size = 150, neurons = c(100, 200, 300)
+  )
+
+  # mlp$param_set$set_values(cb.unfreeze.starting_weights = select_invert(select_name(c("0.weight", "3.weight"))))
+
+  # mlp$param_set$set_values(cb.unfreeze.unfreeze = data.table(
+  #     epoch = 2,
+  #     unfreeze = select_name("0.weight")
+  #   )
+  # )
+
+  # mlp$train(task)
+
+  # expect_true(mlp$network$parameters[[select_name("0.weight")(names(mlp$network$parameters))]]$requires_grad)
+  # expect_false(mlp$network$parameters[[select_name("3.weight")(names(mlp$network$parameters))]]$requires_grad)
+})
 
 
 # # realistic example using epochs
