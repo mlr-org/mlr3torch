@@ -34,5 +34,5 @@ PipeOpTorchSoftmax = R6::R6Class("PipeOpTorchSoftmax",
   )
 )
 
-#' @include zzz.R
+#' @include aaa.R
 register_po("nn_softmax", PipeOpTorchSoftmax)

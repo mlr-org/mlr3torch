@@ -66,5 +66,5 @@ PipeOpTorchLoss = R6Class("PipeOpTorchLoss",
 
 # We set an arbitrary loss, so Dict -> DT conversion works
 
-#' @include zzz.R TorchLoss.R
+#' @include aaa.R TorchLoss.R
 register_po("torch_loss", PipeOpTorchLoss, metainf = list(loss = t_loss("mse")))

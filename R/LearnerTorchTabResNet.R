@@ -18,7 +18,7 @@
 #'   The input and output dimension of a block.
 #' * `d_hidden` :: `integer(1)`\cr
 #'   The latent dimension of a block.
-#' * `d_hidden_multiplier` :: `integer(1)`\cr
+#' * `d_hidden_multiplier` :: `numeric(1)`\cr
 #'   Alternative way to specify the latent dimension as `d_block * d_hidden_multiplier`.
 #' * `dropout1` :: `numeric(1)`\cr
 #'   First dropout ratio.
@@ -85,7 +85,7 @@ PipeOpTorchTabResNetBlock = R6Class("PipeOpTorchTabResNetBlock",
     initialize = function(id = "nn_tab_resnet", param_vals = list()) {
       param_set = ps(
         d_hidden            = p_int(1, default = NULL, tags = "train", special_vals = list(NULL)),
-        d_hidden_multiplier = p_int(1, default = NULL, tags = "train", special_vals = list(NULL)),
+        d_hidden_multiplier = p_dbl(0, default = NULL, tags = "train", special_vals = list(NULL)),
         dropout1            = p_dbl(0, 1, tags = c("train", "required")),
         dropout2            = p_dbl(0, 1, tags = c("train", "required"))
       )
@@ -120,8 +120,8 @@ nn_tab_resnet_block = nn_module("nn_tab_resnet_block",
   ) {
     assert_int(d_block, lower = 1L)
     if (is.null(d_hidden)) {
-      assert_int(d_hidden_multiplier, lower = 1L)
-      d_hidden = d_block * d_hidden_multiplier
+      assert_numeric(d_hidden_multiplier, lower = 0, null.ok = TRUE)
+      d_hidden = as.integer(d_block * d_hidden_multiplier)
     } else {
       assert_int(d_hidden, lower = 1L)
       assert_true(is.null(d_hidden_multiplier))
