@@ -56,9 +56,9 @@ Imports:
 	withr
 Suggests:
     callr,
+    curl,
     future,
     ggplot2,
-    hfhub,
     igraph,
     jsonlite,
     knitr,
