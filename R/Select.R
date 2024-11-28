@@ -86,7 +86,7 @@ char_repr = function(x) {
 }
 
 # copied from mlr3pipelines
-# Representation for a function that may or may not be a `Selector`.
+# Representation for a function that may or may not be a `Select`.
 # If it is not, we just use deparse(), otherwise we use the repr as
 # reported by that selector.
 select_repr = function(select) {
