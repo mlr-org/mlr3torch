@@ -34,7 +34,6 @@ Other Callback:
 \itemize{
 \item \href{#method-CallbackSetUnfreeze-new}{\code{CallbackSetUnfreeze$new()}}
 \item \href{#method-CallbackSetUnfreeze-on_begin}{\code{CallbackSetUnfreeze$on_begin()}}
-\item \href{#method-CallbackSetUnfreeze-on_batch_end}{\code{CallbackSetUnfreeze$on_batch_end()}}
 \item \href{#method-CallbackSetUnfreeze-on_epoch_begin}{\code{CallbackSetUnfreeze$on_epoch_begin()}}
 \item \href{#method-CallbackSetUnfreeze-on_batch_begin}{\code{CallbackSetUnfreeze$on_batch_begin()}}
 \item \href{#method-CallbackSetUnfreeze-clone}{\code{CallbackSetUnfreeze$clone()}}
@@ -61,7 +60,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{starting_weights}}{(\code{SelectorParam})\cr
+\item{\code{starting_weights}}{(\code{Select})\cr
 A \code{Select} denoting the weights that are trainable from the start.}
 
 \item{\code{unfreeze}}{(\code{data.table})\cr
@@ -77,16 +76,6 @@ A \code{data.table} with a column \code{weights} (a list column containing a \co
 Sets the starting weights
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CallbackSetUnfreeze$on_begin()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackSetUnfreeze-on_batch_end"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackSetUnfreeze-on_batch_end}{}}}
-\subsection{Method \code{on_batch_end()}}{
-Increment the batch counter (old)
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetUnfreeze$on_batch_end()}\if{html}{\out{</div>}}
 }
 
 }
