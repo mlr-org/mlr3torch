@@ -50,8 +50,29 @@ test_that("freezing some weights works", {
 
   mlp$train(task)
 
-  print(mlp$network$parameters[[select_name("0.weight")(names(mlp$network$parameters))]]$requires_grad)
-  print(mlp$network$parameters[[select_name("3.weight")(names(mlp$network$parameters))]]$requires_grad)
+  expect_true(mlp$network$parameters[[select_name("0.weight")(names(mlp$network$parameters))]]$requires_grad)
+  expect_false(mlp$network$parameters[[select_name("3.weight")(names(mlp$network$parameters))]]$requires_grad)
+})
+
+test_that("freezing with a batch number works", {
+  n_epochs = 10
+
+  task = tsk("iris")
+
+  mlp = lrn("classif.mlp",
+            callbacks = t_clbk("unfreeze"),
+            epochs = 10, batch_size = 50, neurons = c(100, 200, 300)
+  )
+
+  mlp$param_set$set_values(cb.unfreeze.starting_weights = select_invert(select_name(c("0.weight", "3.weight"))))
+
+  mlp$param_set$set_values(cb.unfreeze.unfreeze = data.table(
+      batch = 2,
+      unfreeze = select_name("0.weight")
+    )
+  )
+
+  mlp$train(task)
 
   expect_true(mlp$network$parameters[[select_name("0.weight")(names(mlp$network$parameters))]]$requires_grad)
   expect_false(mlp$network$parameters[[select_name("3.weight")(names(mlp$network$parameters))]]$requires_grad)

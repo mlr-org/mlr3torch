@@ -28,7 +28,7 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
       self$unfreeze = unfreeze
 
       # TODO: remove, you can access this or compute from the information in the context
-      self$batch_num = 0
+      # self$batch_num = 0
 
       # sort the unfreeze data.table??
     },
@@ -42,7 +42,7 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
     #' Increment the batch counter (old)
     on_batch_end = function() {
       # TODO: compute from epoch and step (batch num within an epoch)
-      self$batch_num = self$batch_num + 1
+      # self$batch_num = self$batch_num + 1
     },
     #' @description
     #' Unfreezes weights if the training is at the correct epoch
@@ -50,15 +50,17 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
       if (self$ctx$epoch %in% self$unfreeze$epoch) {
         # debugonce()
         weights = (self$unfreeze[epoch == self$ctx$epoch]$unfreeze)[[1]](names(self$ctx$network$parameters))
-        browser()
+        # browser()
         walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(TRUE))
       }
     },
     #' @description
     #' Unfreezes weights if the training is at the correct batch
     on_batch_begin = function() {
-      if (self$batch_num %in% self$unfreeze$batch) {
-        weights = (self$unfreeze[epoch == self$ctx$epoch]$unfreeze)[[1]](names(self$ctx$network$parameters))
+      # browser()
+      batch_num = (self$ctx$epoch - 1) * length(self$ctx$loader_train) + self$ctx$step
+      if (batch_num %in% self$unfreeze$batch) {
+        weights = (self$unfreeze[batch == batch_num]$unfreeze)[[1]](names(self$ctx$network$parameters))
         walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(TRUE))
       }
     }
