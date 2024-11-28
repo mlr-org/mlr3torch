@@ -15,5 +15,3 @@ inst/doc
 /Meta/
 CRAN-SUBMISSION
 paper/data
-cache/
-benchmarks/data

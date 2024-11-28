@@ -28,16 +28,13 @@ NULL
 # @param path (`character(1)`)\cr
 #   The cache_dir/datasets/melanoma folder
 constructor_melanoma = function(path) {
-  # should happen automatically, but this is needed for curl to work
-  # fs::dir_create(path, recurse = TRUE)
-
   base_url = "https://huggingface.co/datasets/carsonzhang/ISIC_2020_small/resolve/main/"
 
   compressed_tarball_file_name = "hf_ISIC_2020_small.tar.gz"
-
-  curl::curl_download(paste0(base_url, compressed_tarball_file_name), file.path(path, compressed_tarball_file_name))
-
-  utils::untar(file.path(path, compressed_tarball_file_name), exdir = path)
+  compressed_tarball_path = file.path(path, compressed_tarball_file_name)
+  curl::curl_download(paste0(base_url, compressed_tarball_file_name), compressed_tarball_path)
+  utils::untar(compressed_tarball_path, exdir = path)
+  file.remove(compressed_tarball_path)
 
   training_metadata_file_name = "ISIC_2020_Training_GroundTruth_v2.csv"
   training_metadata = data.table::fread(here::here(path, training_metadata_file_name))
