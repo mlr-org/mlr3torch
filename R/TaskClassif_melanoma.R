@@ -28,41 +28,22 @@ NULL
 # @param path (`character(1)`)\cr
 #   The cache_dir/datasets/melanoma folder
 constructor_melanoma = function(path) {
-  # file_names = c(
-  #   "ISIC_2020_Training_GroundTruth_v2.csv", "train1", "train2", "train3", "train4",
-  #   "ISIC_2020_Test_Metadata.csv", "ISIC_2020_Test_Input1", "ISIC_2020_Test_Input2"
-  # )
-  withr::local_options(mlr3torch.cache = TRUE)
-  path = file.path(get_cache_dir(), "datasets", "melanoma")
+  # should happen automatically, but this is needed for curl to work
+  # fs::dir_create(path, recurse = TRUE)
+
   base_url = "https://huggingface.co/datasets/carsonzhang/ISIC_2020_small/resolve/main/"
 
+  compressed_tarball_file_name = "hf_ISIC_2020_small.tar.gz"
+
+  curl::curl_download(paste0(base_url, compressed_tarball_file_name), file.path(path, compressed_tarball_file_name))
+
+  utils::untar(file.path(path, compressed_tarball_file_name), exdir = path)
+
   training_metadata_file_name = "ISIC_2020_Training_GroundTruth_v2.csv"
-  curl::curl_download(paste0(base_url, training_metadata_file_name), file.path(path, training_metadata_file_name))
-  training_metadata = fread(here::here(path, training_metadata_file_name))
-
-  train_dir_names = c("train1", "train2", "train3", "train4")
-  for (dir in train_dir_names) {
-    if (!dir.exists(file.path(path, dir))) dir.create(file.path(path, dir))
-  }
-
-  pmap(
-    list(paste(base_url, training_metadata$file_name, sep = ""), paste(path, "/", training_metadata$file_name, sep = "")),
-    curl::curl_download
-  )
+  training_metadata = data.table::fread(here::here(path, training_metadata_file_name))
 
   test_metadata_file_name = "ISIC_2020_Test_Metadata.csv"
-  curl::curl_download(paste0(base_url, test_metadata_file_name), file.path(path, test_metadata_file_name))
-  test_metadata = fread(here::here(path, test_metadata_file_name))
-
-  test_dir_names = c("ISIC_2020_Test_Input1", "ISIC_2020_Test_Input2")
-  for (dir in train_dir_names) {
-    if (!dir.exists(file.path(path, dir))) dir.create(file.path(path, dir))
-  }
-
-  pmap(
-    list(paste(base_url, test_metadata$file_name, sep = ""), paste(path, "/", test_metadata$file_name, sep = "")),
-    curl_download
-  )
+  test_metadata = data.table::fread(here::here(path, test_metadata_file_name))
 
   training_metadata = training_metadata[, split := "train"]
   test_metadata = setnames(test_metadata,
@@ -74,7 +55,7 @@ constructor_melanoma = function(path) {
   melanoma_ds_generator = torch::dataset(
     initialize = function() {
       self$.metadata = metadata
-      self$.path = hf_dataset_path
+      self$.path = path
     },
     .getitem = function(idx) {
       force(idx)
