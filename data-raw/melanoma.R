@@ -6,14 +6,6 @@ devtools::load_all()
 library(data.table)
 withr::local_options(mlr3torch.cache = TRUE)
 
-unzip2 <- function(path, exdir) {
-  if (grepl("linux", R.version$os)) {
-    utils::unzip(path, exdir = exdir)
-  } else {
-    zip::unzip(path, exdir = exdir)
-  }
-}
-
 constructor_melanoma = function(path) {
   require_namespaces("curl")
 
@@ -26,17 +18,17 @@ constructor_melanoma = function(path) {
   on.exit({file.remove(compressed_tarball_path)}, add = TRUE)
 
   training_metadata_file_name = "ISIC_2020_Training_GroundTruth_v2.csv"
-  training_metadata = data.table::fread(file.path(path, training_metadata_file_name))
+  training_metadata = fread(file.path(path, training_metadata_file_name))
 
   test_metadata_file_name = "ISIC_2020_Test_Metadata.csv"
-  test_metadata = file.path(path, test_metadata_file_name)
+  test_metadata = fread(file.path(path, test_metadata_file_name))
 
   training_metadata = training_metadata[, split := "train"]
   test_metadata = setnames(test_metadata,
     old = c("image", "patient", "anatom_site_general"),
     new = c("image_name", "patient_id", "anatom_site_general_challenge")
   )[, split := "test"]
-  metadata = rbind(training_metadata, test_metadata)
+  metadata = rbind(training_metadata, test_metadata, fill = TRUE)
   metadata[, image_name := NULL]
   metadata[, target := NULL]
   metadata = setnames(metadata, old = "benign_malignant", new = "outcome")
@@ -70,13 +62,13 @@ constructor_melanoma = function(path) {
 bench::system_time(melanoma_dt <- constructor_melanoma(file.path(get_cache_dir(), "datasets", "melanoma")))
 # melanoma_dt = constructor_melanoma(file.path(get_cache_dir(), "datasets", "melanoma"))
 
-# change the encodings of variables: diagnosis, benign_malignant
-melanoma_dt[, benign_malignant := factor(benign_malignant, levels = c("benign", "malignant"))]
+# change the encodings of variables: diagnosis, outcome
+melanoma_dt[, outcome := factor(outcome, levels = c("benign", "malignant"))]
 
 char_features = c("sex", "anatom_site_general_challenge")
 melanoma_dt[, (char_features) := lapply(.SD, factor), .SDcols = char_features]
 
-tsk_melanoma = as_task_classif(melanoma_dt, target = "benign_malignant", id = "melanoma")
+tsk_melanoma = as_task_classif(melanoma_dt, target = "outcome", id = "melanoma")
 tsk_melanoma$set_col_roles("patient_id", "group")
 tsk_melanoma$col_roles$feature = c(char_features, "age_approx", "image")
 

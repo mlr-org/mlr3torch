@@ -83,7 +83,7 @@ load_task_melanoma = function(id = "melanoma") {
   cached_constructor = function(backend) {
     data = cached(constructor_melanoma, "datasets", "melanoma")$data
 
-    data[, benign_malignant := factor(benign_malignant, levels = c("benign", "malignant"))]
+    data[, outcome := factor(outcome, levels = c("benign", "malignant"))]
 
     char_features = c("sex", "anatom_site_general_challenge")
     data[, (char_features) := lapply(.SD, factor), .SDcols = char_features]
@@ -108,7 +108,7 @@ load_task_melanoma = function(id = "melanoma") {
   task = TaskClassif$new(
     backend = backend,
     id = "melanoma",
-    target = "benign_malignant",
+    target = "outcome",
     label = "Melanoma Classification"
   )
 
