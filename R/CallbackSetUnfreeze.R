@@ -3,10 +3,7 @@
 #' @name mlr_callback_set.unfreeze
 #'
 #' @description
-#' Unfreeze some weights after some number of steps or epochs. Select either a given module or a parameter.
-#'
-#' @details
-#' TODO: add
+#' Unfreeze some weights (parameters of the network) after some number of steps or epochs.
 #'
 #' @param starting_weights (`Select`)\cr
 #'  A `Select` denoting the weights that are trainable from the start.
@@ -30,8 +27,10 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
     #' @description
     #' Sets the starting weights
     on_begin = function() {
-      weights = select_invert(self$starting_weights)(names(self$ctx$network$parameters))
-      walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(FALSE))
+      trainable_weights = self$starting_weights(names(self$ctx$network$parameters))
+      walk(self$ctx$network$parameters[trainable_weights], function(param) param$requires_grad_(TRUE))
+      frozen_weights = select_invert(self$starting_weights)(names(self$ctx$network$parameters))
+      walk(self$ctx$network$parameters[frozen_weights], function(param) param$requires_grad_(FALSE))
     },
     #' @description
     #' Unfreezes weights if the training is at the correct epoch
@@ -54,8 +53,7 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
         }
       }
     }
-  ),
-  private = list()
+  )
 )
 
 #' @include TorchCallback.R

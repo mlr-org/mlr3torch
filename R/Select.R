@@ -3,9 +3,7 @@
 #' @name Select
 #' 
 #' @description
-#' A [`Select`] function is used by the callback `CallbackSetUnfreeze` to determine a subset of parameters to freeze or unfreeze during training.
-#' 
-#' @section Details:
+#' A [`Select`] function subsets a character vector. They are used by the callback `CallbackSetUnfreeze` to select parameters to freeze or unfreeze during training.
 #' ...
 NULL
 
@@ -49,7 +47,7 @@ select_grep = function(pattern, ignore.case = FALSE, perl = FALSE, fixed = FALSE
 
 #' @describeIn Select `select_name` selects parameters with names matching the given names
 #' @export
-select_name = function(param_names, assert_present = FALSE) {
+select_name = function(param_names, assert_present = TRUE) {
   assert_character(param_names, any.missing = FALSE)
   assert_flag(assert_present)
   str_assert_present = if (assert_present) ", assert_present = TRUE" else ""

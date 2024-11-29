@@ -1,14 +1,5 @@
 test_that("selectors work", {
-  n_epochs = 1
-
-  task = tsk("iris")
-
-  mlp = lrn("classif.mlp",
-            epochs = 10, batch_size = 150, neurons = c(100, 200, 300)
-  )
-  mlp$train(task)
-
-  all_params = names(mlp$network$parameters)
+  all_params = c("0.weight", "0.bias", "3.weight", "3.bias", "6.weight", "6.bias", "9.weight", "9.bias")
 
   expect_equal(selectorparam_none()(all_params), character(0))
   expect_equal(selectorparam_all()(all_params), all_params)
