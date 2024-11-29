@@ -20,7 +20,6 @@
 #'
 #' @references
 #' `r format_bib("melanoma2021")`
-#' @examplesIf torch::torch_is_installed()
 #' task = tsk("melanoma")
 #' task
 NULL
@@ -28,26 +27,31 @@ NULL
 # @param path (`character(1)`)\cr
 #   The cache_dir/datasets/melanoma folder
 constructor_melanoma = function(path) {
+  require_namespaces("curl")
+
   base_url = "https://huggingface.co/datasets/carsonzhang/ISIC_2020_small/resolve/main/"
 
   compressed_tarball_file_name = "hf_ISIC_2020_small.tar.gz"
   compressed_tarball_path = file.path(path, compressed_tarball_file_name)
   curl::curl_download(paste0(base_url, compressed_tarball_file_name), compressed_tarball_path)
   utils::untar(compressed_tarball_path, exdir = path)
-  file.remove(compressed_tarball_path)
+  on.exit({file.remove(compressed_tarball_path)}, add = TRUE)
 
   training_metadata_file_name = "ISIC_2020_Training_GroundTruth_v2.csv"
-  training_metadata = data.table::fread(here::here(path, training_metadata_file_name))
+  training_metadata = data.table::fread(file.path(path, training_metadata_file_name))
 
   test_metadata_file_name = "ISIC_2020_Test_Metadata.csv"
-  test_metadata = data.table::fread(here::here(path, test_metadata_file_name))
+  test_metadata = file.path(path, test_metadata_file_name)
 
   training_metadata = training_metadata[, split := "train"]
   test_metadata = setnames(test_metadata,
     old = c("image", "patient", "anatom_site_general"),
     new = c("image_name", "patient_id", "anatom_site_general_challenge")
   )[, split := "test"]
-  metadata = rbind(training_metadata, test_metadata, fill = TRUE)
+  metadata = rbind(training_metadata, test_metadata)
+  metadata[, image_name := NULL]
+  metadata[, target := NULL]
+  metadata = setnames(metadata, old = "benign_malignant", new = "outcome")
 
   melanoma_ds_generator = torch::dataset(
     initialize = function() {
@@ -79,13 +83,6 @@ load_task_melanoma = function(id = "melanoma") {
   cached_constructor = function(backend) {
     data = cached(constructor_melanoma, "datasets", "melanoma")$data
 
-    # remove irrelevant cols: image_name, target
-    print(names(data))
-    # if ("image_name" %in% names(data)) data[, image_name := NULL]
-    data[, image_name := NULL]
-    data[, target := NULL]
-
-    # change the encodings of variables: diagnosis, benign_malignant
     data[, benign_malignant := factor(benign_malignant, levels = c("benign", "malignant"))]
 
     char_features = c("sex", "anatom_site_general_challenge")
@@ -112,7 +109,7 @@ load_task_melanoma = function(id = "melanoma") {
     backend = backend,
     id = "melanoma",
     target = "benign_malignant",
-    label = "Melanoma classification"
+    label = "Melanoma Classification"
   )
 
   task$set_col_roles("patient_id", "group")

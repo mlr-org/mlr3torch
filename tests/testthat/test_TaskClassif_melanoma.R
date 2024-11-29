@@ -1,4 +1,5 @@
 skip_on_cran()
+skip_if_not_installed("curl")
 
 test_that("melanoma task works", {
   withr::local_options(mlr3torch.cache = TRUE)

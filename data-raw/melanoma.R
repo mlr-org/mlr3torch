@@ -15,29 +15,31 @@ unzip2 <- function(path, exdir) {
 }
 
 constructor_melanoma = function(path) {
-  # should happen automatically, but this is needed for curl to work
-  fs::dir_create(path, recurse = TRUE)
+  require_namespaces("curl")
 
   base_url = "https://huggingface.co/datasets/carsonzhang/ISIC_2020_small/resolve/main/"
 
   compressed_tarball_file_name = "hf_ISIC_2020_small.tar.gz"
-
-  curl::curl_download(paste0(base_url, compressed_tarball_file_name), file.path(path, compressed_tarball_file_name))
-
-  untar(file.path(path, compressed_tarball_file_name), exdir = path)
+  compressed_tarball_path = file.path(path, compressed_tarball_file_name)
+  curl::curl_download(paste0(base_url, compressed_tarball_file_name), compressed_tarball_path)
+  utils::untar(compressed_tarball_path, exdir = path)
+  on.exit({file.remove(compressed_tarball_path)}, add = TRUE)
 
   training_metadata_file_name = "ISIC_2020_Training_GroundTruth_v2.csv"
-  training_metadata = data.table::fread(here::here(path, training_metadata_file_name))
+  training_metadata = data.table::fread(file.path(path, training_metadata_file_name))
 
   test_metadata_file_name = "ISIC_2020_Test_Metadata.csv"
-  test_metadata = data.table::fread(here::here(path, test_metadata_file_name))
+  test_metadata = file.path(path, test_metadata_file_name)
 
   training_metadata = training_metadata[, split := "train"]
   test_metadata = setnames(test_metadata,
     old = c("image", "patient", "anatom_site_general"),
     new = c("image_name", "patient_id", "anatom_site_general_challenge")
   )[, split := "test"]
-  metadata = rbind(training_metadata, test_metadata, fill = TRUE)
+  metadata = rbind(training_metadata, test_metadata)
+  metadata[, image_name := NULL]
+  metadata[, target := NULL]
+  metadata = setnames(metadata, old = "benign_malignant", new = "outcome")
 
   melanoma_ds_generator = torch::dataset(
     initialize = function() {
@@ -65,14 +67,8 @@ constructor_melanoma = function(path) {
   return(cbind(metadata, data.table(image = lt)))
 }
 
-# path = file.path(here::here("cache"), "datasets", "melanoma")
-# fs::dir_create(path, recurse = TRUE)
-
 bench::system_time(melanoma_dt <- constructor_melanoma(file.path(get_cache_dir(), "datasets", "melanoma")))
 # melanoma_dt = constructor_melanoma(file.path(get_cache_dir(), "datasets", "melanoma"))
-
-melanoma_dt[, image_name := NULL]
-melanoma_dt[, target := NULL]
 
 # change the encodings of variables: diagnosis, benign_malignant
 melanoma_dt[, benign_malignant := factor(benign_malignant, levels = c("benign", "malignant"))]
@@ -84,7 +80,7 @@ tsk_melanoma = as_task_classif(melanoma_dt, target = "benign_malignant", id = "m
 tsk_melanoma$set_col_roles("patient_id", "group")
 tsk_melanoma$col_roles$feature = c(char_features, "age_approx", "image")
 
-tsk_melanoma$label = "Melanoma classification"
+tsk_melanoma$label = "Melanoma Classification"
 
 ci = col_info(tsk_melanoma$backend)
 
