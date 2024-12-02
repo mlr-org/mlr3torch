@@ -48,7 +48,8 @@ constructor_melanoma = function(path) {
     old = c("image", "patient", "anatom_site_general"),
     new = c("image_name", "patient_id", "anatom_site_general_challenge")
   )[, split := "test"]
-  metadata = rbind(training_metadata, test_metadata)
+  # response column needs to be filled for the test data
+  metadata = rbind(training_metadata, test_metadata, fill = TRUE)
   metadata[, image_name := NULL]
   metadata[, target := NULL]
   metadata = setnames(metadata, old = "benign_malignant", new = "outcome")
@@ -83,7 +84,8 @@ load_task_melanoma = function(id = "melanoma") {
   cached_constructor = function(backend) {
     data = cached(constructor_melanoma, "datasets", "melanoma")$data
 
-    data[, outcome := factor(outcome, levels = c("benign", "malignant"))]
+    data[, outcome := factor(get(outcome), levels = c("benign", "malignant"))]
+    set(data, j = "outcome", value = factor(get(outcome), levels = c("benign", "malignant")))
 
     char_features = c("sex", "anatom_site_general_challenge")
     data[, (char_features) := lapply(.SD, factor), .SDcols = char_features]

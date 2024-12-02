@@ -28,6 +28,7 @@ constructor_melanoma = function(path) {
     old = c("image", "patient", "anatom_site_general"),
     new = c("image_name", "patient_id", "anatom_site_general_challenge")
   )[, split := "test"]
+  # response column needs to be filled for the test data
   metadata = rbind(training_metadata, test_metadata, fill = TRUE)
   metadata[, image_name := NULL]
   metadata[, target := NULL]
@@ -63,7 +64,7 @@ bench::system_time(melanoma_dt <- constructor_melanoma(file.path(get_cache_dir()
 # melanoma_dt = constructor_melanoma(file.path(get_cache_dir(), "datasets", "melanoma"))
 
 # change the encodings of variables: diagnosis, outcome
-melanoma_dt[, outcome := factor(outcome, levels = c("benign", "malignant"))]
+melanoma_dt[, outcome := factor(get(outcome), levels = c("benign", "malignant"))]
 
 char_features = c("sex", "anatom_site_general_challenge")
 melanoma_dt[, (char_features) := lapply(.SD, factor), .SDcols = char_features]
