@@ -61,8 +61,21 @@ mlr3torch_callbacks$add("unfreeze", function() {
   TorchCallback$new(
     callback_generator = CallbackSetUnfreeze,
     param_set = ps(
-      starting_weights = p_uty(tags = c("train", "required")),
-      unfreeze = p_uty(tags = c("train", "required"))
+      starting_weights = p_uty(
+        tags = c("train", "required"),
+        custom_check = function(input) {
+          # check that the input is a selector
+          # check that the selector is valid(?)
+        }),
+      unfreeze = p_uty(
+        tags = c("train", "required"),
+        custom_check = function(input) {
+          # check that this is a data.table
+          # check that one of the columns is named `epoch` or `batch`
+          # check that there is only one column named `epoch` or `batch``
+          # check that the selectors are valid(?)
+        }
+      )
     ),
     id = "unfreeze",
     label = "Unfreeze",
