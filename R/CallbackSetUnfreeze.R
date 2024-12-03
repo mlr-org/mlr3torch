@@ -81,7 +81,7 @@ check_unfreeze_dt = function(x) {
     return(TRUE)
   }
 
-  if (!test_names(x, must.include = "weights")) {
+  if (!test_names(names(x), must.include = "weights")) {
     return("Must contain 2 columns: `weights` and (epoch or batch)")
   }
   if (!xor("epoch" %in% names(x), "batch" %in% names(x))) {
