@@ -529,14 +529,14 @@ test_that("early stopping works", {
 
   learner$train(task)
   # the first evaluation can do no comparison, i.e. the second eval with no improvement is the third epoch
-  expect_equal(learner$internal_tuned_values, list(epochs = 9))
+  expect_equal(learner$internal_tuned_values, list(epochs = 3))
 
   # in this scenario early stopping should definitely not trigger yet
   learner$param_set$set_values(
     min_delta = 0, patience = 5, opt.lr = 0.01, eval_freq = 1
   )
   learner$train(task)
-  expect_equal(learner$internal_tuned_values, list(epochs = 10))
+  expect_equal(learner$internal_tuned_values, list(epochs = 1))
 })
 
 test_that("validation works", {
@@ -579,9 +579,9 @@ test_that("internal tuning", {
     term_evals = 2
   )
   expect_equal(
-    ti$archive$data$internal_tuned_values, replicate(list(list(epochs = 9L)), n = 2L)
+    ti$archive$data$internal_tuned_values, replicate(list(list(epochs = 3L)), n = 2L)
   )
-  expect_equal(ti$result_learner_param_vals$epochs, 9L)
+  expect_equal(ti$result_learner_param_vals$epochs, 3L)
 })
 
 
@@ -774,4 +774,52 @@ test_that("can set seed to NULL", {
   l$train(task)
   l$predict(task)
   expect_true(is.null(l$model$seed))
+})
+
+test_that("early stopping works with autotuner", {
+  skip_if_not_installed("mlr3tuning")
+
+  # min_delta = 2 means no improvement possible -> early stopping will trigger immediately
+  learner = lrn("classif.mlp", neurons = 10, measures_valid = msr("classif.ce"),
+    validate = "test", patience = 10, epochs = to_tune(upper = 100, internal = TRUE), predict_sets = NULL,
+    batch_size = 256, predict_type = "prob", min_delta = 2)
+
+  task = tsk("iris")
+
+  at = mlr3tuning::auto_tuner(
+    learner = learner,
+    resampling = rsmp("holdout"),
+    measure = msr("internal_valid_score", minimize = TRUE),
+    tuner = mlr3tuning::tnr("internal"),
+    term_evals = 2
+  )
+
+  at$train(task)
+  expect_equal(at$model$learner$param_set$values$epochs, 1)
+
+  # test that eval_freq also works
+
+})
+
+test_that("early stopping and eval freq", {
+  task = tsk("iris")
+
+  learner = lrn("classif.mlp", measures_valid = msr("classif.logloss"),
+    validate = "test", patience = 10, epochs = to_tune(upper = 100, internal = TRUE), predict_sets = NULL,
+    batch_size = 256, predict_type = "prob", eval_freq = 4, min_delta = Inf)
+
+
+  at = mlr3tuning::auto_tuner(
+    learner = learner,
+    resampling = rsmp("holdout"),
+    measure = msr("internal_valid_score", minimize = TRUE),
+    tuner = mlr3tuning::tnr("internal"),
+    term_evals = 2,
+    store_benchmark_result = TRUE,
+    store_models = TRUE
+  )
+  at$train(task)
+  expect_equal(at$tuning_instance$archive$data$internal_tuned_values, list(list(epochs = 4L)))
+  # first eval is after 4, then 10 evaluations every 4 epochs with no improvement -> 44
+  expect_equal(at$tuning_instance$archive$resample_result(1)$learners[[1]]$model$epochs, 44L)
 })
