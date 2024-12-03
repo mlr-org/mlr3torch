@@ -779,33 +779,10 @@ test_that("can set seed to NULL", {
 test_that("early stopping works with autotuner", {
   skip_if_not_installed("mlr3tuning")
 
-  MeasureConstant = R6::R6Class("MeasureConstant",
-    inherit = Measure,
-    public = list(
-      # Constructor
-      initialize = function(constant = 0) {
-        super$initialize(
-          id = paste0("constant"),
-          task_type = "classif",
-          range = c(0, Inf),
-          minimize = TRUE
-        )
-        private$.constant = constant
-      }
-    ),
-    private = list(
-      .constant = NULL,
-      .score = function(prediction, task, ...) {
-        private$.constant
-      }
-    )
-  )
-
-  constant_measure = MeasureConstant$new(constant = 42)
-
-  learner = lrn("classif.mlp", neurons = 10, measures_valid = constant_measure,
+  # min_delta = 2 means no improvement possible -> early stopping will trigger immediately
+  learner = lrn("classif.mlp", neurons = 10, measures_valid = msr("classif.ce"),
     validate = "test", patience = 10, epochs = to_tune(upper = 100, internal = TRUE), predict_sets = NULL,
-    batch_size = 256, predict_type = "prob")
+    batch_size = 256, predict_type = "prob", min_delta = 2)
 
   task = tsk("iris")
 
@@ -819,4 +796,30 @@ test_that("early stopping works with autotuner", {
 
   at$train(task)
   expect_equal(at$model$learner$param_set$values$epochs, 1)
+
+  # test that eval_freq also works
+
+})
+
+test_that("early stopping and eval freq", {
+  task = tsk("iris")
+
+  learner = lrn("classif.mlp", measures_valid = msr("classif.logloss"),
+    validate = "test", patience = 10, epochs = to_tune(upper = 100, internal = TRUE), predict_sets = NULL,
+    batch_size = 256, predict_type = "prob", eval_freq = 4, min_delta = Inf)
+
+
+  at = mlr3tuning::auto_tuner(
+    learner = learner,
+    resampling = rsmp("holdout"),
+    measure = msr("internal_valid_score", minimize = TRUE),
+    tuner = mlr3tuning::tnr("internal"),
+    term_evals = 2,
+    store_benchmark_result = TRUE,
+    store_models = TRUE
+  )
+  at$train(task)
+  expect_equal(at$tuning_instance$archive$data$internal_tuned_values, list(list(epochs = 4L)))
+  # first eval is after 4, then 10 evaluations every 4 epochs with no improvement -> 44
+  expect_equal(at$tuning_instance$archive$resample_result(1)$learners[[1]]$model$epochs, 44L)
 })
