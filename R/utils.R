@@ -250,6 +250,29 @@ check_callbacks = function(x) {
   TRUE
 }
 
+check_unfreeze_dt = function(x) {
+  if (check_names(x, must.include = "unfreeze", subset.of = c("weights", "epoch", "batch"))) {
+    if (!xor("epoch" %in% names(x), "batch" %in% names(x))) {
+      return("Exactly one of the columns must be named 'epoch' or 'batch'")
+    }
+    if (check_class(x, "data.table")) {
+      if (!all(map_lgl(x$unfreeze), check_class, classes = "Select")) {
+        return("The `weights` column should be a list of Selects")
+      }
+    }
+    TRUE
+  } else {
+    return("Must contain 2 columns: `weights` and (epoch or batch)")
+  }
+}
+
+check_starting_weights = function(x) {
+  check_class(x, "Select")
+  # if (grepl("select_name", attr(x, "repr"), fixed = TRUE)) {
+  #   print("select_name")
+  # }
+}
+
 LossNone = function() {
   structure(list(), class = "LossNone")
 }

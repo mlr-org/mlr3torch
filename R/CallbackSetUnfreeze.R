@@ -8,7 +8,7 @@
 #' @param starting_weights (`Select`)\cr
 #'  A `Select` denoting the weights that are trainable from the start.
 #' @param unfreeze (`data.table`)\cr
-#'  A `data.table` with a column `weights` (a list column containing a `Select`) and a column `epoch` or `batch`.
+#'  A `data.table` with a column `weights` (a list column of `Select`s) and a column `epoch` or `batch`.
 #'
 #' @family Callback
 #' @export
@@ -63,18 +63,11 @@ mlr3torch_callbacks$add("unfreeze", function() {
     param_set = ps(
       starting_weights = p_uty(
         tags = c("train", "required"),
-        custom_check = function(input) {
-          # check that the input is a selector
-          # check that the selector is valid(?)
-        }),
+        custom_check = check_startin_weigts
+      ),
       unfreeze = p_uty(
         tags = c("train", "required"),
-        custom_check = function(input) {
-          # check that this is a data.table
-          # check that one of the columns is named `epoch` or `batch`
-          # check that there is only one column named `epoch` or `batch``
-          # check that the selectors are valid(?)
-        }
+        custom_check = check_unfreeze_dt
       )
     ),
     id = "unfreeze",
