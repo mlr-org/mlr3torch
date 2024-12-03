@@ -9,17 +9,21 @@ test_that("autotest", {
 test_that("unfreezing on epochs works in the end", {
   task = tsk("iris")
   mlp = lrn("classif.mlp",
-            callbacks = t_clbk("unfreeze"),
+            callbacks = t_clbk("unfreeze"), 
+            cb.unfreeze.starting_weights = select_invert(select_name(c("0.weight", "3.weight", "6.weight"))),
+            cb.unfreeze.unfreeze = data.table(
+              epoch = c(2, 5),
+              weights = list(select_name("0.weight"), select_name("3.weight"))
+            ),
             epochs = 10, batch_size = 150, neurons = c(100, 200, 300)
   )
 
-  mlp$param_set$set_values(cb.unfreeze.starting_weights = select_invert(select_name(c("0.weight", "3.weight", "6.weight"))))
-
-  mlp$param_set$set_values(cb.unfreeze.unfreeze = data.table(
-      epoch = c(2, 5),
-      unfreeze = list(select_name(c("0.weight", "3.weight")))
-    )
-  )
+  # mlp$param_set$set_values(cb.unfreeze.starting_weights = select_invert(select_name(c("0.weight", "3.weight", "6.weight"))))
+  # mlp$param_set$set_values(cb.unfreeze.unfreeze = data.table(
+  #     epoch = c(2, 5),
+  #     weights = list(select_name(c("0.weight", "3.weight")))
+  #   )
+  # )
 
   mlp$train(task)
 
@@ -39,7 +43,7 @@ test_that("unfreezing on batches works in the end", {
 
   mlp$param_set$set_values(cb.unfreeze.unfreeze = data.table(
       batch = c(2, 5),
-      unfreeze = list(select_name(c("0.weight", "3.weight")))
+      weights = list(select_name(c("0.weight", "3.weight")))
     )
   )
 
@@ -59,10 +63,9 @@ test_that("starting weights work", {
             epochs = 2, batch_size = 150, neurons = c(100, 200, 300)
   )
 
-  # mlp$param_set$set_values(cb.unfreeze.starting_weights = select_invert(select_name(c("0.weight", "3.weight"))))
-  # mlp$param_set$set_values(cb.unfreeze.unfreeze = data.table())
-
   mlp$train(task)
+
+  print(names(mlp$network$parameters))
 
   expect_false(mlp$network$parameters[[select_name(c("0.weight", "3.weight"))(names(mlp$network$parameters))]]$requires_grad)
   expect_true(mlp$network$parameters[[select_invert(select_name(c("0.weight", "3.weight")))(names(mlp$network$parameters))]]$requires_grad)

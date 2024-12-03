@@ -37,7 +37,7 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
     on_epoch_begin = function() {
       if ("epoch" %in% names(self$unfreeze)) {
         if (self$ctx$epoch %in% self$unfreeze$epoch) {
-          weights = (self$unfreeze[epoch == self$ctx$epoch]$unfreeze)[[1]](names(self$ctx$network$parameters))
+          weights = (self$unfreeze[epoch == self$ctx$epoch]$weights)[[1]](names(self$ctx$network$parameters))
           walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(TRUE))
         }
       }
@@ -48,7 +48,7 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
       if ("batch" %in% names(self$unfreeze)) {
         batch_num = (self$ctx$epoch - 1) * length(self$ctx$loader_train) + self$ctx$step
         if (batch_num %in% self$unfreeze$batch) {
-          weights = (self$unfreeze[batch == batch_num]$unfreeze)[[1]](names(self$ctx$network$parameters))
+          weights = (self$unfreeze[batch == batch_num]$weights)[[1]](names(self$ctx$network$parameters))
           walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(TRUE))
         }
       }
@@ -75,3 +75,34 @@ mlr3torch_callbacks$add("unfreeze", function() {
     man = "mlr3torch::mlr_callback_set.unfreeze"
   )
 })
+
+check_unfreeze_dt = function(x) {
+  if (is.null(x) || (is.data.table(x) && nrow(x) == 0)) {
+    return(TRUE)
+  }
+
+  if (!test_names(x, must.include = "weights")) {
+    return("Must contain 2 columns: `weights` and (epoch or batch)")
+  }
+  if (!xor("epoch" %in% names(x), "batch" %in% names(x))) {
+    return("Exactly one of the columns must be named 'epoch' or 'batch'")
+  }
+  if (!test_class(x, "data.table")) {
+    return("`unfreeze` must be a data.table()")
+  }
+  if (!test_class(x$weights, "list")) {
+    return("The `weights` column should be a list")
+  }
+  if (!all(map_lgl(x$weights, check_class, classes = "Select"))) {
+    return("The `weights` column should be a list of Selects")
+  }
+  return(TRUE)
+
+}
+
+check_starting_weights = function(x) {
+  check_class(x, "Select")
+  # if (grepl("select_name", attr(x, "repr"), fixed = TRUE)) {
+  #   print("select_name")
+  # }
+}
