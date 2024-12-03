@@ -21,7 +21,7 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(starting_weights, unfreeze) {
       self$starting_weights = starting_weights
-      # consider supporting character vectors
+      # TODO: consider supporting character vectors
       self$unfreeze = unfreeze
     },
     #' @description
@@ -63,7 +63,7 @@ mlr3torch_callbacks$add("unfreeze", function() {
     param_set = ps(
       starting_weights = p_uty(
         tags = c("train", "required"),
-        custom_check = check_startin_weigts
+        custom_check = check_starting_weights
       ),
       unfreeze = p_uty(
         tags = c("train", "required"),

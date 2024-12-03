@@ -251,12 +251,18 @@ check_callbacks = function(x) {
 }
 
 check_unfreeze_dt = function(x) {
+  browser()
+  if (is.null(x) || (is.data.table(x) && nrow(x) == 0)) {
+    return(TRUE)
+  }
+
   if (check_names(x, must.include = "unfreeze", subset.of = c("weights", "epoch", "batch"))) {
     if (!xor("epoch" %in% names(x), "batch" %in% names(x))) {
       return("Exactly one of the columns must be named 'epoch' or 'batch'")
     }
     if (check_class(x, "data.table")) {
-      if (!all(map_lgl(x$unfreeze), check_class, classes = "Select")) {
+      check_class(x$unfreeze, "list")
+      if (!all(map_lgl(x$unfreeze, check_class, classes = "Select"))) {
         return("The `weights` column should be a list of Selects")
       }
     }
