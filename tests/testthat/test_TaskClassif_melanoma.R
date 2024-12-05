@@ -6,9 +6,9 @@ test_that("melanoma task works", {
   task = tsk("melanoma")
 
   expect_equal(task$id, "melanoma")
-  expect_equal(task$label, "Melanoma classification")
+  expect_equal(task$label, "Melanoma Classification")
   expect_equal(task$feature_names, c("sex", "anatom_site_general_challenge", "age_approx", "image"))
-  expect_equal(task$target_names, "benign_malignant")
+  expect_equal(task$target_names, "outcome")
   expect_equal(task$man, "mlr3torch::mlr_tasks_melanoma")
   expect_equal(task$properties, c("twoclass", "groups"))
 

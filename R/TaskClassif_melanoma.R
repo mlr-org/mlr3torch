@@ -29,6 +29,9 @@ NULL
 constructor_melanoma = function(path) {
   require_namespaces("curl")
 
+  # should happen automatically, but this is needed for curl to work
+  fs::dir_create(path, recurse = TRUE)
+
   base_url = "https://huggingface.co/datasets/carsonzhang/ISIC_2020_small/resolve/main/"
 
   compressed_tarball_file_name = "hf_ISIC_2020_small.tar.gz"
@@ -41,7 +44,7 @@ constructor_melanoma = function(path) {
   training_metadata = data.table::fread(file.path(path, training_metadata_file_name))
 
   test_metadata_file_name = "ISIC_2020_Test_Metadata.csv"
-  test_metadata = file.path(path, test_metadata_file_name)
+  test_metadata = data.table::fread(file.path(path, test_metadata_file_name))
 
   training_metadata = training_metadata[, split := "train"]
   test_metadata = setnames(test_metadata,
@@ -52,43 +55,42 @@ constructor_melanoma = function(path) {
   metadata = rbind(training_metadata, test_metadata, fill = TRUE)
   metadata[, "image_name" := NULL]
   metadata[, "target" := NULL]
-  metadata = setnames(metadata, old = "benign_malignant", new = "outcome")
+  setnames(metadata, old = "benign_malignant", new = "outcome")
 
-  melanoma_ds_generator = torch::dataset(
-    initialize = function() {
-      self$.metadata = metadata
-      self$.path = path
-    },
-    .getitem = function(idx) {
-      force(idx)
-
-      x = torchvision::base_loader(file.path(self$.path, paste0(self$.metadata[idx, ]$file_name)))
-      x = torchvision::transform_to_tensor(x)
-
-      return(list(x = x))
-    },
-    .length = function() {
-      nrow(self$.metadata)
-    }
-  )
-
-  melanoma_ds = melanoma_ds_generator()
-
-  dd = as_data_descriptor(melanoma_ds, list(x = c(NA, 3, 128, 128)))
-  lt = lazy_tensor(dd)
-
-  return(cbind(metadata, data.table(image = lt)))
+  metadata
 }
 
 load_task_melanoma = function(id = "melanoma") {
   cached_constructor = function(backend) {
-    data = cached(constructor_melanoma, "datasets", "melanoma")$data
+    metadata = cached(constructor_melanoma, "datasets", "melanoma")$data
 
-    data[, "outcome" := factor(get("outcome"), levels = c("benign", "malignant"))]
-    # set(data, j = "outcome", value = factor(get(outcome), levels = c("benign", "malignant")))
+    melanoma_ds_generator = torch::dataset(
+      initialize = function(metadata, cache_dir) {
+        self$.metadata = metadata
+        self$.cache_dir = cache_dir
+      },
+      .getitem = function(idx) {
+        force(idx)
 
-    char_features = c("sex", "anatom_site_general_challenge")
-    data[, (char_features) := lapply(.SD, factor), .SDcols = char_features]
+        x = torchvision::base_loader(file.path(self$.cache_dir, "raw", paste0(self$.metadata[idx, ]$file_name)))
+        x = torchvision::transform_to_tensor(x)
+
+        return(list(x = x))
+      },
+      .length = function() {
+        nrow(self$.metadata)
+      }
+    )
+
+    melanoma_ds = melanoma_ds_generator(metadata, file.path(get_cache_dir(), "datasets", "melanoma"))
+
+    dd = as_data_descriptor(melanoma_ds, list(x = c(NA, 3, 128, 128)))
+    lt = lazy_tensor(dd)
+
+    data = cbind(metadata, data.table(image = lt))
+
+    char_vars = c("outcome", "sex", "anatom_site_general_challenge")
+    data[, (char_vars) := lapply(.SD, factor), .SDcols = char_vars]
 
     dt = cbind(
       data,
