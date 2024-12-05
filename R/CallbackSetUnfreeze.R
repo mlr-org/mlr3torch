@@ -80,7 +80,6 @@ check_unfreeze_dt = function(x) {
   if (is.null(x) || (is.data.table(x) && nrow(x) == 0)) {
     return(TRUE)
   }
-
   if (!test_names(names(x), must.include = "weights")) {
     return("Must contain 2 columns: `weights` and (epoch or batch)")
   }
@@ -97,12 +96,8 @@ check_unfreeze_dt = function(x) {
     return("The `weights` column should be a list of Selects")
   }
   return(TRUE)
-
 }
 
 check_starting_weights = function(x) {
   check_class(x, "Select")
-  # if (grepl("select_name", attr(x, "repr"), fixed = TRUE)) {
-  #   print("select_name")
-  # }
 }

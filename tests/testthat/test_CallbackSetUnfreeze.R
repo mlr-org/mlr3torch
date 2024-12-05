@@ -27,9 +27,8 @@ test_that("unfreezing on epochs works in the end", {
 
   mlp$train(task)
 
-  expect_true(mlp$network$parameters[[select_name("0.weight")(names(mlp$network$parameters))]]$requires_grad)
-  expect_false(mlp$network$parameters[[select_name("3.weight")(names(mlp$network$parameters))]]$requires_grad)
-  expect_true(mlp$network$parameters[[select_invert(select_name(c("0.weight", "3.weight")))(names(mlp$network$parameters))]]$requires_grad)
+  expect_false(mlp$network$parameters[[select_name("6.weight")(names(mlp$network$parameters))]]$requires_grad)
+  expect_true(all(map_lgl(mlp$network$parameters[select_invert(select_name(c("6.weight")))(names(mlp$network$parameters))], function(param) param$requires_grad)))
 })
 
 test_that("unfreezing on batches works in the end", {
@@ -49,9 +48,8 @@ test_that("unfreezing on batches works in the end", {
 
   mlp$train(task)
 
-  expect_true(mlp$network$parameters[[select_name("0.weight")(names(mlp$network$parameters))]]$requires_grad)
-  expect_false(mlp$network$parameters[[select_name("3.weight")(names(mlp$network$parameters))]]$requires_grad)
-  expect_true(mlp$network$parameters[[select_invert(select_name(c("0.weight", "3.weight")))(names(mlp$network$parameters))]]$requires_grad)
+  expect_false(mlp$network$parameters[[select_name("6.weight")(names(mlp$network$parameters))]]$requires_grad)
+  expect_true(all(map_lgl(mlp$network$parameters[select_invert(select_name(c("6.weight")))(names(mlp$network$parameters))], function(param) param$requires_grad)))
 })
 
 test_that("starting weights work", {
@@ -67,6 +65,7 @@ test_that("starting weights work", {
 
   print(names(mlp$network$parameters))
 
-  expect_false(mlp$network$parameters[[select_name(c("0.weight", "3.weight"))(names(mlp$network$parameters))]]$requires_grad)
-  expect_true(mlp$network$parameters[[select_invert(select_name(c("0.weight", "3.weight")))(names(mlp$network$parameters))]]$requires_grad)
+  expect_false(mlp$network$parameters[[select_name("0.weight")(names(mlp$network$parameters))]]$requires_grad)
+  expect_false(mlp$network$parameters[[select_name("3.weight")(names(mlp$network$parameters))]]$requires_grad)
+  expect_true(all(map_lgl(mlp$network$parameters[select_invert(select_name(c("0.weight", "3.weight")))(names(mlp$network$parameters))], function(param) param$requires_grad)))
 })
