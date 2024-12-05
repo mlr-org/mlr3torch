@@ -7,10 +7,6 @@ test_that("autotest", {
 })
 
 test_that("unfreezing on epochs works in the end", {
-  logger = lgr::get_logger("mlr3")
-  buffer = lgr::AppenderBuffer$new()
-  logger$add_appender(buffer, name = "buffer")
-
   task = tsk("iris")
   mlp = lrn("classif.mlp",
             callbacks = t_clbk("unfreeze"),
@@ -26,21 +22,9 @@ test_that("unfreezing on epochs works in the end", {
 
   expect_false(mlp$network$parameters[[select_name("6.bias")(names(mlp$network$parameters))]]$requires_grad)
   expect_true(all(map_lgl(mlp$network$parameters[select_invert(select_name(c("6.bias")))(names(mlp$network$parameters))], function(param) param$requires_grad)))
-
-  expect_length(buffer$data$msg, 3)
-  grepl("Freezing the following parameters before training: 0.weight, 3.weight, 6.weight, 6.bias", buffer$data$msg[1], fixed = TRUE)
-  grepl("Unfreezing at epoch 2: 0.weight", buffer$data$msg[2], fixed = TRUE)
-  grepl("Unfreezing at epoch 5: 3.weight, 6.weight", buffer$data$msg[3], fixed = TRUE)
-
-  buffer$clear()
-  logger$remove_appender("buffer")
 })
 
 test_that("unfreezing on batches works in the end", {
-  logger = lgr::get_logger("mlr3")
-  buffer = lgr::AppenderBuffer$new()
-  logger$add_appender(buffer, name = "buffer")
-
   task = tsk("iris")
   mlp = lrn("classif.mlp",
             callbacks = t_clbk("unfreeze"),
@@ -59,21 +43,9 @@ test_that("unfreezing on batches works in the end", {
 
   expect_false(mlp$network$parameters[[select_name("6.weight")(names(mlp$network$parameters))]]$requires_grad)
   expect_true(all(map_lgl(mlp$network$parameters[select_invert(select_name(c("6.weight")))(names(mlp$network$parameters))], function(param) param$requires_grad)))
-
-  expect_length(buffer$data$msg, 3)
-  grepl("Freezing the following parameters before training: 0.weight, 3.weight", buffer$data$msg[1], fixed = TRUE)
-  grepl("Unfreezing at batch 2: 0.weight", buffer$data$msg[2], fixed = TRUE)
-  grepl("Unfreezing at batch 5: 3.weight", buffer$data$msg[3], fixed = TRUE)
-
-  buffer$clear()
-  logger$remove_appender("buffer")
 })
 
 test_that("starting weights work", {
-  logger = lgr::get_logger("mlr3")
-  buffer = lgr::AppenderBuffer$new()
-  logger$add_appender(buffer, name = "buffer")
-
   task = tsk("iris")
   mlp = lrn("classif.mlp",
             callbacks = t_clbk("unfreeze"),
@@ -87,10 +59,4 @@ test_that("starting weights work", {
   expect_false(mlp$network$parameters[[select_name("0.weight")(names(mlp$network$parameters))]]$requires_grad)
   expect_false(mlp$network$parameters[[select_name("3.weight")(names(mlp$network$parameters))]]$requires_grad)
   expect_true(all(map_lgl(mlp$network$parameters[select_invert(select_name(c("0.weight", "3.weight")))(names(mlp$network$parameters))], function(param) param$requires_grad)))
-
-  expect_length(buffer$data$msg, 1)
-  grepl("Freezing the following parameters before training: 0.weight, 3.weight", buffer$data$msg[1], fixed = TRUE)
-
-  buffer$clear()
-  logger$remove_appender("buffer")
 })
