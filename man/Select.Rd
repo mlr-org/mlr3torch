@@ -15,12 +15,13 @@ select_none()
 
 select_grep(pattern, ignore.case = FALSE, perl = FALSE, fixed = FALSE)
 
-select_name(param_names, assert_present = FALSE)
+select_name(param_names, assert_present = TRUE)
 
 select_invert(select)
 }
 \description{
-A \code{\link{Select}} function is used by the callback \code{CallbackSetUnfreeze} to determine a subset of parameters to freeze or unfreeze during training.
+A \code{\link{Select}} function subsets a character vector. They are used by the callback \code{CallbackSetUnfreeze} to select parameters to freeze or unfreeze during training.
+...
 }
 \section{Functions}{
 \itemize{
@@ -35,8 +36,3 @@ A \code{\link{Select}} function is used by the callback \code{CallbackSetUnfreez
 \item \code{select_invert()}: \code{select_invert} selects the parameters NOT selected by the given selector
 
 }}
-\section{Details}{
-
-...
-}
-

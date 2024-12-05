@@ -5,10 +5,7 @@
 \alias{CallbackSetUnfreeze}
 \title{Unfreezing Weights Callback}
 \description{
-Unfreeze some weights after some number of steps or epochs. Select either a given module or a parameter.
-}
-\details{
-TODO: add
+Unfreeze some weights (parameters of the network) after some number of steps or epochs.
 }
 \seealso{
 Other Callback: 
@@ -64,7 +61,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 A \code{Select} denoting the weights that are trainable from the start.}
 
 \item{\code{unfreeze}}{(\code{data.table})\cr
-A \code{data.table} with a column \code{weights} (a list column containing a \code{Select}) and a column \code{epoch} or \code{batch}.}
+A \code{data.table} with a column \code{weights} (a list column of \code{Select}s) and a column \code{epoch} or \code{batch}.}
 }
 \if{html}{\out{</div>}}
 }

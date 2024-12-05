@@ -31,6 +31,9 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
       walk(self$ctx$network$parameters[trainable_weights], function(param) param$requires_grad_(TRUE))
       frozen_weights = select_invert(self$starting_weights)(names(self$ctx$network$parameters))
       walk(self$ctx$network$parameters[frozen_weights], function(param) param$requires_grad_(FALSE))
+
+      frozen_weights_str = paste(frozen_weights, collapse = ", ")
+      lgr::get_logger("mlr3")$info(paste0("Freezing the following parameters before training: ", frozen_weights_str))
     },
     #' @description
     #' Unfreezes weights if the training is at the correct epoch
@@ -39,6 +42,9 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
         if (self$ctx$epoch %in% self$unfreeze$epoch) {
           weights = (self$unfreeze[epoch == self$ctx$epoch]$weights)[[1]](names(self$ctx$network$parameters))
           walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(TRUE))
+
+          weights_str = paste(weights, collapse = ", ")
+          lgr::get_logger("mlr3")$info(paste0("Unfreezing at epoch ", self$ctx$epoch, ": ", weights_str))
         }
       }
     },
@@ -50,6 +56,9 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
         if (batch_num %in% self$unfreeze$batch) {
           weights = (self$unfreeze[batch == batch_num]$weights)[[1]](names(self$ctx$network$parameters))
           walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(TRUE))
+
+          weights_str = paste(weights, collapse = ", ")
+          lgr::get_logger("mlr3")$info(paste0("Unfreezing at batch ", batch_num, ": ", weights_str))
         }
       }
     }
