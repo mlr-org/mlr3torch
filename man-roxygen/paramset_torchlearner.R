@@ -26,6 +26,13 @@
 #'   Note that by setting the seed during the training phase this will mean that by default (i.e. when `seed` is
 #'   `"random"`), clones of the learner will use a different seed.
 #'   If set to `NULL`, no seeding will be done.
+#' * `tensor_dataset` :: `logical(1)`\cr
+#'   Whether to load all batches at once at the beginning of training and stack them.
+#'   This is initialized to `FALSE`.
+#'   When your dataset fits into memory this will make the loading of batches more efficient.
+#'   When shuffle is `FALSE` (default), this means that each batch is constructed as a view of these tensors.
+#'   Note that this should not be set for datasets that contain [`lazy_tensor`]s with random data augmentation,
+#'   as this augmentation will only be applied once at the beginning of training.
 #'
 #' **Evaluation**:
 #' * `measures_train` :: [`Measure`][mlr3::Measure] or `list()` of [`Measure`][mlr3::Measure]s.\cr
@@ -48,7 +55,8 @@
 #' * `min_delta` :: `double(1)`\cr
 #'   The minimum improvement threshold (`>`) for early stopping.
 #'   Is initialized to 0.
-#'
+#' 
+'
 #' **Dataloader**:
 #' * `batch_size` :: `integer(1)`\cr
 #'   The batch size (required).

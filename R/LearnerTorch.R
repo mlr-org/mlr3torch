@@ -89,11 +89,10 @@
 #'   Must respect the parameter value of the device.
 #'   Moreover, one needs to pay attention respect the row ids of the provided task.
 #'
-#' It is also possible to overwrite the private `.dataloader()` method instead of the `.dataset()` method.
-#' Per default, a dataloader is constructed using the output from the `.dataset()` method.
-#' However, this should respect the dataloader parameters from the [`ParamSet`][paradox::ParamSet].
+#' It is also possible to overwrite the private `.dataloader()` method.
+#' This must respect the dataloader parameters from the [`ParamSet`][paradox::ParamSet].
 #'
-#' * `.dataloader(task, param_vals)`\cr
+#' * `.dataloader(dataset, param_vals)`\cr
 #'   ([`Task`][mlr3::Task], `list()`) -> [`torch::dataloader`]\cr
 #'   Create a dataloader from the task.
 #'   Needs to respect at least `batch_size` and `shuffle` (otherwise predictions can be permuted).
@@ -469,7 +468,7 @@ LearnerTorch = R6Class("LearnerTorch",
     .network = function(task, param_vals) stop(".network must be implemented."),
     # the dataloader gets param_vals that may be different from self$param_set$values, e.g.
     # when the dataloader for validation data is loaded, `shuffle` is set to FALSE.
-   .dataloader = function(task, param_vals) {
+   .dataloader = function(dataset, param_vals) {
       dl_args = c(
         "batch_size",
         "shuffle",
@@ -485,7 +484,7 @@ LearnerTorch = R6Class("LearnerTorch",
         "worker_packages"
       )
       args = param_vals[names(param_vals) %in% dl_args]
-      invoke(dataloader, dataset = private$.dataset(task, param_vals), .args = args)
+      invoke(dataloader, dataset = dataset)
     },
     .dataloader_predict = function(task, param_vals) {
       param_vals_test = insert_named(param_vals, list(shuffle = FALSE, drop_last = FALSE))

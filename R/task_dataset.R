@@ -40,7 +40,7 @@
 #' dataset = task_dataset(task, ingress_tokens, target_batchgetter, "cpu")
 #' batch = dataset$.getbatch(1:10)
 #' batch
-task_dataset = dataset(
+task_dataset = dataset("task_datast",
   initialize = function(task, feature_ingress_tokens, target_batchgetter = NULL, device) {
     self$task = assert_r6(task$clone(deep = TRUE), "Task")
     iwalk(feature_ingress_tokens, function(it, nm) {
