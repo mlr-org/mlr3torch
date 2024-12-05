@@ -55,8 +55,7 @@
 #' * `min_delta` :: `double(1)`\cr
 #'   The minimum improvement threshold (`>`) for early stopping.
 #'   Is initialized to 0.
-#' 
-'
+#'
 #' **Dataloader**:
 #' * `batch_size` :: `integer(1)`\cr
 #'   The batch size (required).
