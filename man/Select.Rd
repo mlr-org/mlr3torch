@@ -53,7 +53,7 @@ A \code{\link{Select}} function subsets a character vector. They are used by the
 \examples{
 select_all()(c("a", "b"))
 select_none()(c("a", "b"))
-select_all("b$")(c("ab", "ac"))
+select_grep("b$")(c("ab", "ac"))
 select_name("a")(c("a", "b"))
 select_invert(select_all())(c("a", "b"))
 }

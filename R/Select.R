@@ -40,7 +40,7 @@ select_none = function() {
 #' @param fixed See `grep()`
 #' @export
 #' @examples
-#' select_all("b$")(c("ab", "ac"))
+#' select_grep("b$")(c("ab", "ac"))
 select_grep = function(pattern, ignore.case = FALSE, perl = FALSE, fixed = FALSE) {
   assert_character(pattern)
   assert_flag(ignore.case)
