@@ -7,8 +7,14 @@
 #'
 #' By default only the training rows are active in the task,
 #' but the test data (that has no targets) is also included.
-#' 
-#' * Column `"Id"` has been removed.
+#'
+#' There are no labels for the test rows, so by default, these observations are inactive,
+#' which means that the task uses only 32701 of the 43683 observations that are defined in the underlying data backend.
+#'
+#' The data backend also contains a more detailed `diagnosis` of the specific type of tumor.
+#'
+#' * The positive class has been set to `malignant`
+#' * `anatom_site_general_challenge` is the location of the tumor on the patient's body.
 #'
 #' @section Construction:
 #' ```
@@ -118,6 +124,7 @@ load_task_melanoma = function(id = "melanoma") {
     backend = backend,
     id = "melanoma",
     target = "outcome",
+    positive = "malignant",
     label = "Melanoma Classification"
   )
 
