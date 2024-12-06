@@ -1,19 +1,11 @@
-#' @title Selector Functions for Neural Network Parameters
-#' 
+#' @title Selector Functions for Character Vectors
+#'
 #' @name Select
-#' 
+#'
 #' @description
 #' A [`Select`] function subsets a character vector. They are used by the callback `CallbackSetUnfreeze` to select parameters to freeze or unfreeze during training.
 #' ...
 NULL
-
-#' Select
-#' 
-#' @param ... Arguments that get passed on during method dispatch
-#' @export
-Select <- function(...) {
-  UseMethod("Select")
-}
 
 make_select = function(fun, description, ...) {
   structure(fun,
@@ -22,7 +14,7 @@ make_select = function(fun, description, ...) {
   )
 }
 
-#' @describeIn Select `select_all` selects all parameters
+#' @describeIn Select `select_all` selects all elements
 #' @export
 select_all = function() {
   make_select(function(param_names) {
@@ -30,7 +22,7 @@ select_all = function() {
   }, "select_all()")
 }
 
-#' @describeIn Select `select_none` selects no parameters
+#' @describeIn Select `select_none` selects no elements
 #' @export
 select_none = function() {
   make_select(function(param_names) {
@@ -38,7 +30,7 @@ select_none = function() {
   }, "select_none()")
 }
 
-#' @describeIn Select `select_grep` selects parameters with names matching a regular expression
+#' @describeIn Select `select_grep` selects elements with names matching a regular expression
 #' @param pattern See `grep()`
 #' @param ignore.case See `grep()`
 #' @param perl See `grep()`
@@ -57,7 +49,7 @@ select_grep = function(pattern, ignore.case = FALSE, perl = FALSE, fixed = FALSE
   }, "selector_grep(%s%s%s%s)", pattern, str_ignore_case, str_perl, str_fixed)
 }
 
-#' @describeIn Select `select_name` selects parameters with names matching the given names
+#' @describeIn Select `select_name` selects elements with names matching the given names
 #' @param param_names The names of the parameters that you want to select
 #' @param assert_present Whether to check that `param_names` is a subset of the full vector of names
 #' @export
@@ -73,7 +65,7 @@ select_name = function(param_names, assert_present = TRUE) {
   }, "select_name(%s%s)", char_repr(param_names), str_assert_present)
 }
 
-#' @describeIn Select `select_invert` selects the parameters NOT selected by the given selector
+#' @describeIn Select `select_invert` selects the elements NOT selected by the given selector
 #' @param select A `Select`
 #' @export
 select_invert = function(select) {

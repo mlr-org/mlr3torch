@@ -41,12 +41,14 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
       if ("epoch" %in% names(self$unfreeze)) {
         if (self$ctx$epoch %in% self$unfreeze$epoch) {
           weights = (self$unfreeze[get("epoch") == self$ctx$epoch]$weights)[[1]](names(self$ctx$network$parameters))
-          if (!length(weights)) lgr::get_logger("mlr3")$warn("No weights unfrozen, check the specification of the Selector")
-          
-          walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(TRUE))
+          if (!length(weights)) {
+            lgr::get_logger("mlr3")$warn(paste0("No weights unfrozen at epoch ", self$ctx$epoch, " , check the specification of the Selector"))
+          } else {
+            walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(TRUE))
+            weights_str = paste(weights, collapse = ", ")
+            lgr::get_logger("mlr3")$info(paste0("Unfreezing at epoch ", self$ctx$epoch, ": ", weights_str))
+          }
 
-          weights_str = paste(weights, collapse = ", ")
-          lgr::get_logger("mlr3")$info(paste0("Unfreezing at epoch ", self$ctx$epoch, ": ", weights_str))
         }
       }
     },
@@ -57,12 +59,13 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
         batch_num = (self$ctx$epoch - 1) * length(self$ctx$loader_train) + self$ctx$step
         if (batch_num %in% self$unfreeze$batch) {
           weights = (self$unfreeze[get("batch") == batch_num]$weights)[[1]](names(self$ctx$network$parameters))
-          if (!length(weights)) lgr::get_logger("mlr3")$warn("No weights unfrozen, check the specification of the Selector")
-
-          walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(TRUE))
-
-          weights_str = paste(weights, collapse = ", ")
-          lgr::get_logger("mlr3")$info(paste0("Unfreezing at batch ", batch_num, ": ", weights_str))
+          if (!length(weights)) {
+            lgr::get_logger("mlr3")$warn(paste0("No weights unfrozen at batch ", batch_num, " , check the specification of the Selector"))
+          } else {
+            walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(TRUE))
+            weights_str = paste(weights, collapse = ", ")
+            lgr::get_logger("mlr3")$info(paste0("Unfreezing at batch ", batch_num, ": ", weights_str))
+          }
         }
       }
     }
@@ -76,7 +79,7 @@ mlr3torch_callbacks$add("unfreeze", function() {
     param_set = ps(
       starting_weights = p_uty(
         tags = c("train", "required"),
-        custom_check = check_starting_weights
+        custom_check = function(input) check_class(input, "Select")
       ),
       unfreeze = p_uty(
         tags = c("train", "required"),
@@ -93,14 +96,14 @@ check_unfreeze_dt = function(x) {
   if (is.null(x) || (is.data.table(x) && nrow(x) == 0)) {
     return(TRUE)
   }
+  if (!test_class(x, "data.table")) {
+    return("`unfreeze` must be a data.table()")
+  }
   if (!test_names(names(x), must.include = "weights")) {
     return("Must contain 2 columns: `weights` and (epoch or batch)")
   }
   if (!xor("epoch" %in% names(x), "batch" %in% names(x))) {
     return("Exactly one of the columns must be named 'epoch' or 'batch'")
-  }
-  if (!test_class(x, "data.table")) {
-    return("`unfreeze` must be a data.table()")
   }
   if (!test_class(x$weights, "list")) {
     return("The `weights` column should be a list")
@@ -109,8 +112,4 @@ check_unfreeze_dt = function(x) {
     return("The `weights` column should be a list of Selects")
   }
   return(TRUE)
-}
-
-check_starting_weights = function(x) {
-  check_class(x, "Select")
 }

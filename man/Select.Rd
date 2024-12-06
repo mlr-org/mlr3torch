@@ -7,10 +7,8 @@
 \alias{select_grep}
 \alias{select_name}
 \alias{select_invert}
-\title{Selector Functions for Neural Network Parameters}
+\title{Selector Functions for Character Vectors}
 \usage{
-Select(...)
-
 select_all()
 
 select_none()
@@ -22,8 +20,6 @@ select_name(param_names, assert_present = TRUE)
 select_invert(select)
 }
 \arguments{
-\item{...}{Arguments that get passed on during method dispatch}
-
 \item{pattern}{See \code{grep()}}
 
 \item{ignore.case}{See \code{grep()}}
@@ -44,14 +40,14 @@ A \code{\link{Select}} function subsets a character vector. They are used by the
 }
 \section{Functions}{
 \itemize{
-\item \code{select_all()}: \code{select_all} selects all parameters
+\item \code{select_all()}: \code{select_all} selects all elements
 
-\item \code{select_none()}: \code{select_none} selects no parameters
+\item \code{select_none()}: \code{select_none} selects no elements
 
-\item \code{select_grep()}: \code{select_grep} selects parameters with names matching a regular expression
+\item \code{select_grep()}: \code{select_grep} selects elements with names matching a regular expression
 
-\item \code{select_name()}: \code{select_name} selects parameters with names matching the given names
+\item \code{select_name()}: \code{select_name} selects elements with names matching the given names
 
-\item \code{select_invert()}: \code{select_invert} selects the parameters NOT selected by the given selector
+\item \code{select_invert()}: \code{select_invert} selects the elements NOT selected by the given selector
 
 }}
