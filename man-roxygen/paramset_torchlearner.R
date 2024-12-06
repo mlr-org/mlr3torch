@@ -53,7 +53,7 @@
 #'   The first entry from `measures_valid` is used as the metric.
 #'   This also requires to specify the `$validate` field of the Learner, as well as `measures_valid`.
 #' * `min_delta` :: `double(1)`\cr
-#'   The minimum improvement threshold (`>`) for early stopping.
+#'   The minimum improvement threshold for early stopping.
 #'   Is initialized to 0.
 #'
 #' **Dataloader**:
