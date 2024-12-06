@@ -9,6 +9,8 @@
 \alias{select_invert}
 \title{Selector Functions for Neural Network Parameters}
 \usage{
+Select(...)
+
 select_all()
 
 select_none()
@@ -20,6 +22,8 @@ select_name(param_names, assert_present = TRUE)
 select_invert(select)
 }
 \arguments{
+\item{...}{Arguments that get passed on during method dispatch}
+
 \item{pattern}{See \code{grep()}}
 
 \item{ignore.case}{See \code{grep()}}

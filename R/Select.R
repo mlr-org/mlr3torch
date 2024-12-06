@@ -7,6 +7,14 @@
 #' ...
 NULL
 
+#' Select
+#' 
+#' @param ... Arguments that get passed on during method dispatch
+#' @export
+Select <- function(...) {
+  UseMethod("Select")
+}
+
 make_select = function(fun, description, ...) {
   structure(fun,
     repr = sprintf(description, ...),
