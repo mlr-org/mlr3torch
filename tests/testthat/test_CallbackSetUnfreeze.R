@@ -67,7 +67,9 @@ test_that("input checks work", {
   expect_error(t_clbk("unfreeze", starting_weights = select_name("a"), unfreeze = data.table(
     weights = list(select_all()), batch = "a")), "integerish")
   expect_error(t_clbk("unfreeze", starting_weights = select_name("a"), unfreeze = data.table(
-    weights = list(select_all(), select_all()), batch = c(1L, 2L))), "duplicates")
+    weights = list(select_all(), select_all()), batch = c(1L, 1L))), "duplicates")
+  expect_error(t_clbk("unfreeze", starting_weights = select_name("a"), unfreeze = data.table(
+    weights = list(select_all(), select_all()), batch = c(1L, 2L))), NA)
   expect_error(t_clbk("unfreeze", starting_weights = select_name("a"), unfreeze = data.table(
     weights = list(select_all()), batch = 1L)), NA)
   expect_error(t_clbk("unfreeze", starting_weights = select_name("a"), unfreeze = data.table(

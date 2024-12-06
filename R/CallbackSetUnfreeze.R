@@ -23,7 +23,7 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
     initialize = function(starting_weights, unfreeze) {
       self$starting_weights = starting_weights
       self$unfreeze = unfreeze
-      private$.batchwise = "batch" %in% names(self$freeze)
+      private$.batchwise = "batch" %in% names(self$unfreeze)
     },
     #' @description
     #' Sets the starting weights
