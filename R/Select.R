@@ -4,7 +4,6 @@
 #'
 #' @description
 #' A [`Select`] function subsets a character vector. They are used by the callback `CallbackSetUnfreeze` to select parameters to freeze or unfreeze during training.
-#' ...
 NULL
 
 make_select = function(fun, description, ...) {
@@ -16,6 +15,8 @@ make_select = function(fun, description, ...) {
 
 #' @describeIn Select `select_all` selects all elements
 #' @export
+#' @examples
+#' select_all()(c("a", "b"))
 select_all = function() {
   make_select(function(param_names) {
     param_names
@@ -24,6 +25,8 @@ select_all = function() {
 
 #' @describeIn Select `select_none` selects no elements
 #' @export
+#' @examples
+#' select_none()(c("a", "b"))
 select_none = function() {
   make_select(function(param_names) {
     character(0)
@@ -36,6 +39,8 @@ select_none = function() {
 #' @param perl See `grep()`
 #' @param fixed See `grep()`
 #' @export
+#' @examples
+#' select_all("b$")(c("ab", "ac"))
 select_grep = function(pattern, ignore.case = FALSE, perl = FALSE, fixed = FALSE) {
   assert_character(pattern)
   assert_flag(ignore.case)
@@ -53,6 +58,8 @@ select_grep = function(pattern, ignore.case = FALSE, perl = FALSE, fixed = FALSE
 #' @param param_names The names of the parameters that you want to select
 #' @param assert_present Whether to check that `param_names` is a subset of the full vector of names
 #' @export
+#' @examples
+#' select_name("a")(c("a", "b"))
 select_name = function(param_names, assert_present = TRUE) {
   assert_character(param_names, any.missing = FALSE)
   assert_flag(assert_present)
@@ -68,6 +75,8 @@ select_name = function(param_names, assert_present = TRUE) {
 #' @describeIn Select `select_invert` selects the elements NOT selected by the given selector
 #' @param select A `Select`
 #' @export
+#' @examples
+#' select_invert(select_all())(c("a", "b"))
 select_invert = function(select) {
   assert_function(select)
   make_select(function(full_names) {

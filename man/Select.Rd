@@ -36,7 +36,6 @@ select_invert(select)
 }
 \description{
 A \code{\link{Select}} function subsets a character vector. They are used by the callback \code{CallbackSetUnfreeze} to select parameters to freeze or unfreeze during training.
-...
 }
 \section{Functions}{
 \itemize{
@@ -51,3 +50,10 @@ A \code{\link{Select}} function subsets a character vector. They are used by the
 \item \code{select_invert()}: \code{select_invert} selects the elements NOT selected by the given selector
 
 }}
+\examples{
+select_all()(c("a", "b"))
+select_none()(c("a", "b"))
+select_all("b$")(c("ab", "ac"))
+select_name("a")(c("a", "b"))
+select_invert(select_all())(c("a", "b"))
+}

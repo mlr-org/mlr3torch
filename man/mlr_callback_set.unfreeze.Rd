@@ -61,7 +61,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 A \code{Select} denoting the weights that are trainable from the start.}
 
 \item{\code{unfreeze}}{(\code{data.table})\cr
-A \code{data.table} with a column \code{weights} (a list column of \code{Select}s) and a column \code{epoch} or \code{batch}.}
+A \code{data.table} with a column \code{weights} (a list column of \code{Select}s) and a column \code{epoch} or \code{batch}.
+The selector indicates which parameters to unfreeze, while the \code{epoch} or \code{batch} column indicates when to do so.}
 }
 \if{html}{\out{</div>}}
 }
