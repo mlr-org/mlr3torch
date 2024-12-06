@@ -36,6 +36,7 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/PipeOpPreprocTorchTrafoReshape.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/PipeOpPreprocTorchTrafoResize.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/PipeOpPreprocTorchTrafoRgbToGrayscale.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/Select.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/TorchCallback.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/TorchDescriptor.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/TorchIngressToken.html</loc></url>
@@ -68,6 +69,7 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.progress.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.tb.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.unfreeze.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_context_torch.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.mlp.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.tab_resnet.html</loc></url>
