@@ -40,7 +40,9 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
     on_epoch_begin = function() {
       if ("epoch" %in% names(self$unfreeze)) {
         if (self$ctx$epoch %in% self$unfreeze$epoch) {
-          weights = (self$unfreeze[epoch == self$ctx$epoch]$weights)[[1]](names(self$ctx$network$parameters))
+          weights = (self$unfreeze[get("epoch") == self$ctx$epoch]$weights)[[1]](names(self$ctx$network$parameters))
+          if (!length(weights)) lgr::get_logger("mlr3")$warn("No weights unfrozen, check the specification of the Selector")
+          
           walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(TRUE))
 
           weights_str = paste(weights, collapse = ", ")
@@ -54,7 +56,9 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
       if ("batch" %in% names(self$unfreeze)) {
         batch_num = (self$ctx$epoch - 1) * length(self$ctx$loader_train) + self$ctx$step
         if (batch_num %in% self$unfreeze$batch) {
-          weights = (self$unfreeze[batch == batch_num]$weights)[[1]](names(self$ctx$network$parameters))
+          weights = (self$unfreeze[get("batch") == batch_num]$weights)[[1]](names(self$ctx$network$parameters))
+          if (!length(weights)) lgr::get_logger("mlr3")$warn("No weights unfrozen, check the specification of the Selector")
+
           walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(TRUE))
 
           weights_str = paste(weights, collapse = ", ")
