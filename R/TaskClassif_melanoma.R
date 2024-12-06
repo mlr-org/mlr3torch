@@ -7,6 +7,8 @@
 #'
 #' By default only the training rows are active in the task,
 #' but the test data (that has no targets) is also included.
+#' 
+#' * Column `"Id"` has been removed.
 #'
 #' @section Construction:
 #' ```
