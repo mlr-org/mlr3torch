@@ -140,5 +140,6 @@ Collate:
     'paramset_torchlearner.R'
     'preprocess.R'
     'rd_info.R'
+    'tensor_dataset.R'
     'with_torch_settings.R'
     'zzz.R'

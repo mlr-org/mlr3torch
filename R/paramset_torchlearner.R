@@ -75,7 +75,8 @@ paramset_torchlearner = function(task_type) {
     timeout               = p_dbl(default = -1, tags = c("train", "predict")),
     worker_init_fn        = p_uty(tags = c("train", "predict")),
     worker_globals        = p_uty(tags = c("train", "predict")),
-    worker_packages       = p_uty(tags = c("train", "predict"), custom_check = check_character, special_vals = list(NULL))
+    worker_packages       = p_uty(tags = c("train", "predict"), custom_check = check_character, special_vals = list(NULL)),
+    tensor_dataset        = p_lgl(init = FALSE, tags = c("train", "predict"))
   )
   return(param_set)
 }

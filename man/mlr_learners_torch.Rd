@@ -82,6 +82,13 @@ and used during prediction.
 Note that by setting the seed during the training phase this will mean that by default (i.e. when \code{seed} is
 \code{"random"}), clones of the learner will use a different seed.
 If set to \code{NULL}, no seeding will be done.
+\item \code{tensor_dataset} :: \code{logical(1)}\cr
+Whether to load all batches at once at the beginning of training and stack them.
+This is initialized to \code{FALSE}.
+When your dataset fits into memory this will make the loading of batches more efficient.
+When shuffle is \code{FALSE} (default), this means that each batch is constructed as a view of these tensors.
+Note that this should not be set for datasets that contain \code{\link{lazy_tensor}}s with random data augmentation,
+as this augmentation will only be applied once at the beginning of training.
 }
 
 \strong{Evaluation}:
@@ -168,11 +175,10 @@ Must respect the parameter value of the device.
 Moreover, one needs to pay attention respect the row ids of the provided task.
 }
 
-It is also possible to overwrite the private \code{.dataloader()} method instead of the \code{.dataset()} method.
-Per default, a dataloader is constructed using the output from the \code{.dataset()} method.
-However, this should respect the dataloader parameters from the \code{\link[paradox:ParamSet]{ParamSet}}.
+It is also possible to overwrite the private \code{.dataloader()} method.
+This must respect the dataloader parameters from the \code{\link[paradox:ParamSet]{ParamSet}}.
 \itemize{
-\item \code{.dataloader(task, param_vals)}\cr
+\item \code{.dataloader(dataset, param_vals)}\cr
 (\code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{\link[torch:dataloader]{torch::dataloader}}\cr
 Create a dataloader from the task.
 Needs to respect at least \code{batch_size} and \code{shuffle} (otherwise predictions can be permuted).

@@ -20,7 +20,11 @@ learner_torch_predict = function(self, private, super, task, param_vals) {
 
 learner_torch_train = function(self, private, super, task, param_vals) {
   # Here, all param_vals (like seed = "random" or device = "auto") have already been resolved
-  loader_train = private$.dataloader(task, param_vals)
+  dataset_train = private$.dataset(task, param_vals)
+  if (param_vals$tensor_dataset) {
+    dataset_train = tensor_dataset(dataset_train)
+  }
+  loader_train = private$.dataloader(dataset_train, param_vals)
   if (!length(loader_train)) {
     stopf("Training Dataloader of Learner '%s' has length 0", self$id)
   }
@@ -47,7 +51,11 @@ learner_torch_train = function(self, private, super, task, param_vals) {
 
   task_valid = task$internal_valid_task
   loader_valid = if (!is.null(task_valid) && task_valid$nrow) {
-    private$.dataloader_predict(task_valid$clone(deep = TRUE), param_vals)
+    dataset_valid = private$.dataset(task_valid, param_vals)
+    if (param_vals$tensor_dataset) {
+      dataset_valid = tensor_dataset(dataset_valid)
+    }
+    private$.dataloader_predict(dataset_valid, param_vals)
   }
 
   if (!is.null(loader_valid) && !length(loader_valid)) {
