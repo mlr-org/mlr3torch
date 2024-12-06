@@ -108,7 +108,7 @@ check_unfreeze_dt = function(x) {
   if (!test_class(x$weights, "list")) {
     return("The `weights` column should be a list")
   }
-  if (some(map_lgl(x$weights, function(input) !test_class(input, classes = "Select")))) {
+  if (some(x$weights, function(input) !test_class(input, classes = "Select"))) {
     return("The `weights` column should be a list of Selects")
   }
   return(TRUE)
