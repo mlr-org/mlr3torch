@@ -7,17 +7,20 @@
 #'
 #' By default only the training rows are active in the task,
 #' but the test data (that has no targets) is also included.
+#' Whether an observation is part of the train or test set is indicated by the column `"test"`.
 #'
 #' There are no labels for the test rows, so by default, these observations are inactive,
 #' which means that the task uses only 32701 of the 43683 observations that are defined in the underlying data backend.
 #'
 #' The data backend also contains a more detailed `diagnosis` of the specific type of tumor.
-#' 
+#'
 #' Columns:
 #' * `outcome` (factor): the target variable. Whether the tumor is benign or malignant (the positive class)
 #' * `anatom_site_general_challenge` (factor): the location of the tumor on the patient's body
 #' * `sex` (factor): the sex of the patient
 #' * `age_approx` (int): approximate age of the patient at the time of imaging
+#' * `image` (lazy_tensor): The image (shape $(3, 128, 128)$) of the tumor.
+#'ee `split` (character): Whether the observation os part of the train or test set.
 #'
 #' @section Construction:
 #' ```
@@ -43,6 +46,8 @@ NULL
 constructor_melanoma = function(path) {
   require_namespaces("curl")
 
+  lg$info("Downloading the dataset")
+
   # should happen automatically, but this is needed for curl to work
   if (!dir.exists(path)) dir.create(path)
 
@@ -55,10 +60,10 @@ constructor_melanoma = function(path) {
   utils::untar(compressed_tarball_path, exdir = path)
 
   training_metadata_file_name = "ISIC_2020_Training_GroundTruth_v2.csv"
-  training_metadata = data.table::fread(file.path(path, training_metadata_file_name))
+  training_metadata = fread(file.path(path, training_metadata_file_name))
 
   test_metadata_file_name = "ISIC_2020_Test_Metadata.csv"
-  test_metadata = data.table::fread(file.path(path, test_metadata_file_name))
+  test_metadata = fread(file.path(path, test_metadata_file_name))
 
   training_metadata = training_metadata[, split := "train"]
   test_metadata = setnames(test_metadata,

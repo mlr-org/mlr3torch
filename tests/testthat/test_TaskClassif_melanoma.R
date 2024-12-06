@@ -13,6 +13,9 @@ test_that("melanoma task works", {
   expect_equal(task$properties, c("twoclass", "groups"))
 
   task$data()
+  x = materialize(task$data(1, "image")[[1]])[[1L]]
+  expect_class(x, "torch_tensor")
+  expect_equal(x$shape, c(3, 128, 128))
 
   expect_true("data.rds" %in% list.files(file.path(get_cache_dir(), "datasets", "melanoma")))
   expect_equal(task$backend$nrow, 32701 + 10982)

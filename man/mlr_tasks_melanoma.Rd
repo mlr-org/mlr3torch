@@ -13,6 +13,7 @@ the images have been reshaped to size $(3, 128, 128)$.
 
 By default only the training rows are active in the task,
 but the test data (that has no targets) is also included.
+Whether an observation is part of the train or test set is indicated by the column \code{"test"}.
 
 There are no labels for the test rows, so by default, these observations are inactive,
 which means that the task uses only 32701 of the 43683 observations that are defined in the underlying data backend.
@@ -25,6 +26,8 @@ Columns:
 \item \code{anatom_site_general_challenge} (factor): the location of the tumor on the patient's body
 \item \code{sex} (factor): the sex of the patient
 \item \code{age_approx} (int): approximate age of the patient at the time of imaging
+\item \code{image} (lazy_tensor): The image (shape $(3, 128, 128)$) of the tumor.
+ee \code{split} (character): Whether the observation os part of the train or test set.
 }
 }
 \section{Construction}{
