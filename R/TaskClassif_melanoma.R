@@ -2,8 +2,11 @@
 #' @name mlr_tasks_melanoma
 #' @description
 #' Classification of melanoma tumor images.
+#' The data is a preprocessed version of the 2020 SIIM-ISIC challenge where
+#' the images have been reshaped to size $(3, 128, 128)$.
 #'
-#' The data comes from the 2020 SIIM-ISIC challenge.
+#' By default only the training rows are active in the task,
+#' but the test data (that has no targets) is also included.
 #'
 #' @section Construction:
 #' ```
@@ -13,7 +16,7 @@
 #' @template task_download
 #'
 #' @source
-#' \url{https://challenge2020.isic-archive.com/}
+#' \url{https://huggingface.co/datasets/carsonzhang/ISIC_2020_small}
 #'
 #' @section Properties:
 #' `r rd_info_task_torch("melanoma", missings = FALSE)`
@@ -36,9 +39,9 @@ constructor_melanoma = function(path) {
 
   compressed_tarball_file_name = "hf_ISIC_2020_small.tar.gz"
   compressed_tarball_path = file.path(path, compressed_tarball_file_name)
+  on.exit({file.remove(compressed_tarball_path)}, add = TRUE)
   curl::curl_download(paste0(base_url, compressed_tarball_file_name), compressed_tarball_path)
   utils::untar(compressed_tarball_path, exdir = path)
-  on.exit({file.remove(compressed_tarball_path)}, add = TRUE)
 
   training_metadata_file_name = "ISIC_2020_Training_GroundTruth_v2.csv"
   training_metadata = data.table::fread(file.path(path, training_metadata_file_name))

@@ -4,12 +4,15 @@
 \alias{mlr_tasks_melanoma}
 \title{Melanoma Image classification}
 \source{
-\url{https://challenge2020.isic-archive.com/}
+\url{https://huggingface.co/datasets/carsonzhang/ISIC_2020_small}
 }
 \description{
 Classification of melanoma tumor images.
+The data is a preprocessed version of the 2020 SIIM-ISIC challenge where
+the images have been reshaped to size $(3, 128, 128)$.
 
-The data comes from the 2020 SIIM-ISIC challenge.
+By default only the training rows are active in the task,
+but the test data (that has no targets) is also included.
 }
 \section{Construction}{
 
@@ -32,21 +35,17 @@ as the cache directory.
 \item Task type: \dQuote{classif}
 \item Properties: \dQuote{twoclass}, \dQuote{groups}
 \item Has Missings: no
-\item Target: \dQuote{benign_malignant}
+\item Target: \dQuote{outcome}
 \item Features: \dQuote{sex}, \dQuote{anatom_site_general_challenge}, \dQuote{age_approx}, \dQuote{image}
 \item Data Dimension: 43683x11
 }
 }
 
-\examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-task = tsk("melanoma")
-task
-\dontshow{\}) # examplesIf}
-}
 \references{
 Rotemberg, V., Kurtansky, N., Betz-Stablein, B., Caffery, L., Chousakos, E., Codella, N., Combalia, M., Dusza, S., Guitera, P., Gutman, D., Halpern, A., Helba, B., Kittler, H., Kose, K., Langer, S., Lioprys, K., Malvehy, J., Musthaq, S., Nanda, J., Reiter, O., Shih, G., Stratigos, A., Tschandl, P., Weber, J., Soyer, P. (2021).
 \dQuote{A patient-centric dataset of images and metadata for identifying melanomas using clinical context.}
 \emph{Scientific Data}, \bold{8}, 34.
 \doi{10.1038/s41597-021-00815-z}.
+task = tsk("melanoma")
+task
 }
