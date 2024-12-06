@@ -30,7 +30,7 @@ constructor_melanoma = function(path) {
   require_namespaces("curl")
 
   # should happen automatically, but this is needed for curl to work
-  fs::dir_create(path, recurse = TRUE)
+  if (!dir.exists(path)) dir.create(path)
 
   base_url = "https://huggingface.co/datasets/carsonzhang/ISIC_2020_small/resolve/main/"
 
