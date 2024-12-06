@@ -56,6 +56,7 @@ Imports:
 	withr
 Suggests:
     callr,
+    curl,
     future,
     ggplot2,
     igraph,
@@ -125,6 +126,7 @@ Collate:
     'PipeOpTorchReshape.R'
     'PipeOpTorchSoftmax.R'
     'TaskClassif_lazy_iris.R'
+    'TaskClassif_melanoma.R'
     'TaskClassif_mnist.R'
     'TaskClassif_tiny_imagenet.R'
     'TorchDescriptor.R'
