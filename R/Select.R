@@ -31,6 +31,10 @@ select_none = function() {
 }
 
 #' @describeIn Select `select_grep` selects parameters with names matching a regular expression
+#' @param pattern See `grep()`
+#' @param ignore.case See `grep()`
+#' @param perl See `grep()`
+#' @param fixed See `grep()`
 #' @export
 select_grep = function(pattern, ignore.case = FALSE, perl = FALSE, fixed = FALSE) {
   assert_character(pattern)
@@ -46,6 +50,8 @@ select_grep = function(pattern, ignore.case = FALSE, perl = FALSE, fixed = FALSE
 }
 
 #' @describeIn Select `select_name` selects parameters with names matching the given names
+#' @param param_names The names of the parameters that you want to select
+#' @param assert_present Whether to check that `param_names` is a subset of the full vector of names
 #' @export
 select_name = function(param_names, assert_present = TRUE) {
   assert_character(param_names, any.missing = FALSE)
@@ -60,6 +66,7 @@ select_name = function(param_names, assert_present = TRUE) {
 }
 
 #' @describeIn Select `select_invert` selects the parameters NOT selected by the given selector
+#' @param select A `Select`
 #' @export
 select_invert = function(select) {
   assert_function(select)

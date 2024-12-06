@@ -19,6 +19,21 @@ select_name(param_names, assert_present = TRUE)
 
 select_invert(select)
 }
+\arguments{
+\item{pattern}{See \code{grep()}}
+
+\item{ignore.case}{See \code{grep()}}
+
+\item{perl}{See \code{grep()}}
+
+\item{fixed}{See \code{grep()}}
+
+\item{param_names}{The names of the parameters that you want to select}
+
+\item{assert_present}{Whether to check that \code{param_names} is a subset of the full vector of names}
+
+\item{select}{A \code{Select}}
+}
 \description{
 A \code{\link{Select}} function subsets a character vector. They are used by the callback \code{CallbackSetUnfreeze} to select parameters to freeze or unfreeze during training.
 ...
