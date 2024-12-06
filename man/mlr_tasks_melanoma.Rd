@@ -13,6 +13,19 @@ the images have been reshaped to size $(3, 128, 128)$.
 
 By default only the training rows are active in the task,
 but the test data (that has no targets) is also included.
+
+There are no labels for the test rows, so by default, these observations are inactive,
+which means that the task uses only 32701 of the 43683 observations that are defined in the underlying data backend.
+
+The data backend also contains a more detailed \code{diagnosis} of the specific type of tumor.
+
+Columns:
+\itemize{
+\item \code{outcome} (factor): the target variable. Whether the tumor is benign or malignant (the positive class)
+\item \code{anatom_site_general_challenge} (factor): the location of the tumor on the patient's body
+\item \code{sex} (factor): the sex of the patient
+\item \code{age_approx} (int): approximate age of the patient at the time of imaging
+}
 }
 \section{Construction}{
 

@@ -12,9 +12,12 @@
 #' which means that the task uses only 32701 of the 43683 observations that are defined in the underlying data backend.
 #'
 #' The data backend also contains a more detailed `diagnosis` of the specific type of tumor.
-#'
-#' * The positive class has been set to `malignant`
-#' * `anatom_site_general_challenge` is the location of the tumor on the patient's body.
+#' 
+#' Columns:
+#' * `outcome` (factor): the target variable. Whether the tumor is benign or malignant (the positive class)
+#' * `anatom_site_general_challenge` (factor): the location of the tumor on the patient's body
+#' * `sex` (factor): the sex of the patient
+#' * `age_approx` (int): approximate age of the patient at the time of imaging
 #'
 #' @section Construction:
 #' ```
