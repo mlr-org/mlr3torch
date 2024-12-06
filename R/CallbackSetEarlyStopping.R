@@ -24,7 +24,7 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
         return(NULL)
       }
 
-      if (improvement < self$min_delta) {
+      if (improvement <= self$min_delta) {
         self$stagnation = self$stagnation + 1L
         if (self$stagnation == self$patience) {
           self$ctx$terminate = TRUE
