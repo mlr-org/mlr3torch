@@ -7,6 +7,8 @@
 #' 
 #' @param scheduler_fn (`function`)\cr
 #'   The torch scheduler constructor function (e.g. `torch::lr_scheduler_step_lr`).
+#' @param scheduler_args (`list`)\cr
+#'   A named list specifying the additional arguments
 #' @param step_on (`character(1)`)\cr
 #'   When the scheduler updates the learning rate. Must be one of:
 #'   * "epoch" - Step after each epoch (default)
@@ -19,8 +21,9 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(scheduler_fn, scheduler_step_on = "epoch") {
+    initialize = function(scheduler_fn, schduler_args, scheduler_step_on = "epoch") {
       self$scheduler_fn = scheduler_fn
+      scheduler_args = scheduler_args
       self$step_on = step_on
     },
 
