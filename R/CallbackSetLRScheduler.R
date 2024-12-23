@@ -10,9 +10,8 @@
 #' @param scheduler_args (`list`)\cr
 #'   A named list specifying the additional arguments
 #' @param step_on (`character(1)`)\cr
-#'   When the scheduler updates the learning rate. Must be one of:
+#'   When the scheduler updates the learning rate. Must be:
 #'   * "epoch" - Step after each epoch (default)
-#'   * "batch" - Step after each batch
 #'
 #' 
 #' @export
@@ -22,7 +21,7 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(.scheduler, ...) {
-
+      
     },
 
     #' @description
@@ -34,14 +33,12 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
     #' @description
     #' Depending on the scheduler, step after each epoch
     on_epoch_end = function() {
-      if (self$step_on == "epoch") {
-        self$scheduler$step()
-      }
+      self$scheduler$step()
     }
     # TODO: add batches
 )
 
-# ignore custom schedulers for now? 
+# TODO: add custom schedulers (ignore for MVP)
 
 #' @include TorchCallback.R
 mlr3torch_callbacks$add("lr_scheduler_step", function() {
