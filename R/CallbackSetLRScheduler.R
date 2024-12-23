@@ -21,16 +21,14 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(scheduler_fn, schduler_args, scheduler_step_on = "epoch") {
-      self$scheduler_fn = scheduler_fn
-      scheduler_args = scheduler_args
-      self$step_on = step_on
+    initialize = function(.scheduler, ...) {
+
     },
 
     #' @description
     #' Creates the scheduler using the optimizer from the context
     on_begin = function() {
-      self$scheduler = self$scheduler_fn(self$ctx$optimizer)
+      self$scheduler = invoke(self$scheduler_fn, optimizer = self$ctx$optimizer)
     },
 
     #' @description
@@ -39,29 +37,66 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
       if (self$step_on == "epoch") {
         self$scheduler$step()
       }
-    },
-
-    #' @description
-    #' Depending on the scheduler, step after each batch
-    on_batch_end = function() {
-      if (self$step_on == "batch") {
-        self$scheduler$step()
-      }
     }
-  )
+    # TODO: add batches
 )
 
+# ignore custom schedulers for now? 
+
 #' @include TorchCallback.R
-mlr3torch_callbacks$add("lr_scheduler", function() {
+mlr3torch_callbacks$add("lr_scheduler_step", function() {
   TorchCallback$new(
     callback_generator = CallbackSetLRScheduler,
     param_set = ps(
-      scheduler_fn = p_uty(tags = c("train", "required"), custom_check = function(input) check_class(input, "LRScheduler")),
-      scheduler_args = p_uty(default = list(), tags = "train"),
-      step_on = p_fct(levels = c("epoch", "batch"), default = "epoch", tags = "train")
+      scheduler = p
+      a = p_int()
     ),
     id = "lr_scheduler",
     label = "Learning Rate Scheduler",
-    man = "mlr3torch::mlr_callback_set.lr_scheduler"
+    man = "mlr3torch::mlr_callback_set.lr_scheduler",
+    additional_args = lr_step
   )
 })
+
+#' @include TorchCallback.R
+mlr3torch_callbacks$add("lr_scheduler_cosine_annealing", function() {
+  TorchCallback$new(
+    callback_generator = CallbackSetLRScheduler,
+    param_set = ps(
+      # scheduler_fn_2 = p_uty(tags = c("train", "required"), custom_check = function(input) check_class(input, "LRScheduler")),
+      # scheduler_args = p_uty(default = list(), tags = "train"),
+      # step_on = p_fct(levels = c("epoch", "batch"), default = "epoch", tags = "train"),
+      b = p_int()
+    ),
+    id = "lr_scheduler",
+    label = "Learning Rate Scheduler",
+    man = "mlr3torch::mlr_callback_set.lr_scheduler",
+    additional_args = lr_cosine_annealing
+  )
+})
+
+#' @include TorchCallback.R
+mlr3torch_callbacks$add("lr_scheduler_custom", function() {
+  TorchCallback$new(
+    callback_generator = CallbackSetLRScheduler,
+    param_set = ps(
+      .scheduler = p_uty(tags = c("train", "required"), custom_check = function(input) check_class(input, "LRScheduler")),
+      
+    ),
+    id = "lr_scheduler",
+    label = "Learning Rate Scheduler",
+    man = "mlr3torch::mlr_callback_set.lr_scheduler",
+    # additional_args = lr_cosine_annealing
+  )
+})
+
+as_lr_scheduler = function(lr_scheduler) {
+  # infer the ps from the lr_scheduler signature (using inferps())
+
+  # alternatively, allow the user to pass in a ps
+}
+
+t_clbk("lr_step", ...)
+
+custom_scheduler = function()
+as_lr_scheduler(custom_scheduler)

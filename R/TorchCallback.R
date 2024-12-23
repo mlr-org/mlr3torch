@@ -193,7 +193,7 @@ TorchCallback = R6Class("TorchCallback",
     #' @template param_packages
     #' @template param_man
     initialize = function(callback_generator, param_set = NULL, id = NULL,
-      label = NULL, packages = NULL, man = NULL) {
+      label = NULL, packages = NULL, man = NULL, additional_args = NULL) {
       assert_class(callback_generator, "R6ClassGenerator")
 
       param_set = assert_param_set(param_set %??% inferps(callback_generator))
@@ -206,7 +206,8 @@ TorchCallback = R6Class("TorchCallback",
         param_set = param_set,
         packages = union(packages, "mlr3torch"),
         label = label,
-        man = man
+        man = man,
+        additional_args = additional_args
       )
     }
   ),
