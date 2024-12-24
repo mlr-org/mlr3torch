@@ -36,6 +36,7 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
       self$scheduler$step()
     }
     # TODO: add batches
+  ) 
 )
 
 # TODO: add custom schedulers (ignore for MVP)
@@ -72,6 +73,7 @@ mlr3torch_callbacks$add("lr_scheduler_cosine_annealing", function() {
   )
 })
 
+# custom implemented separately
 #' @include TorchCallback.R
 mlr3torch_callbacks$add("lr_scheduler_custom", function() {
   TorchCallback$new(
