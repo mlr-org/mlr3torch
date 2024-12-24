@@ -12,6 +12,21 @@ The final network and optimizer are always stored.
 Saving the learner itself in the callback with a trained model is impossible,
 as the model slot is set \emph{after} the last callback step is executed.
 }
+\examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+cb = t_clbk("checkpoint", freq = 1)
+task = tsk("iris")
+task$row_roles$use = 1
+
+pth = tempfile()
+learner = lrn("classif.mlp", epochs = 3, batch_size = 1, callbacks = cb)
+learner$param_set$set_values(cb.checkpoint.path = pth)
+
+learner$train(task)
+
+list.files(pth)
+\dontshow{\}) # examplesIf}
+}
 \seealso{
 Other Callback: 
 \code{\link{TorchCallback}},

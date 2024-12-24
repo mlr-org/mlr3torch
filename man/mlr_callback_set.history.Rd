@@ -9,6 +9,23 @@ Saves the training and validation history during training.
 The history is saved as a data.table in the \verb{$train} and \verb{$valid} slots.
 The first column is always \code{epoch}.
 }
+\examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+
+cb = t_clbk("history")
+task = tsk("iris")
+task$filter(1:10)
+
+learner = lrn("classif.mlp", epochs = 3, batch_size = 1, callbacks = t_clbk("history"), validate = 0.1)
+learner$param_set$set_values(
+  measures_train = msrs(c("classif.acc", "classif.ce")),
+  measures_valid = msr("classif.ce")
+)
+learner$train(task)
+
+print(learner$model$callbacks$history)
+\dontshow{\}) # examplesIf}
+}
 \section{Super class}{
 \code{\link[mlr3torch:CallbackSet]{mlr3torch::CallbackSet}} -> \code{CallbackSetHistory}
 }
