@@ -14,6 +14,19 @@
 #' @family Callback
 #' @export
 #' @include CallbackSet.R
+#' @examplesIf torch::torch_is_installed()
+#' task = tsk("iris")
+#' mlp = lrn("classif.mlp",
+#' callbacks = t_clbk("unfreeze"),
+#' cb.unfreeze.starting_weights = select_invert(select_name(c("0.weight", "3.weight", "6.weight", "6.bias"))),
+#' cb.unfreeze.unfreeze = data.table(
+#'   epoch = c(2, 5),
+#'   weights = list(select_name("0.weight"), select_name(c("3.weight", "6.weight")))
+#' ),
+#' epochs = 6, batch_size = 150, neurons = c(1, 1, 1)
+#' )
+#' 
+#' mlp$train(task)
 CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
   inherit = CallbackSet,
   lock_objects = FALSE,
