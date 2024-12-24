@@ -10,14 +10,14 @@ Unfreeze some weights (parameters of the network) after some number of steps or 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 task = tsk("iris")
-mlp = lrn("classif.mlp",
-callbacks = t_clbk("unfreeze"),
-cb.unfreeze.starting_weights = select_invert(select_name(c("0.weight", "3.weight", "6.weight", "6.bias"))),
-cb.unfreeze.unfreeze = data.table(
-  epoch = c(2, 5),
-  weights = list(select_name("0.weight"), select_name(c("3.weight", "6.weight")))
-),
-epochs = 6, batch_size = 150, neurons = c(1, 1, 1)
+seln = select_name()
+mlp = lrn("classif.mlp", callbacks = t_clbk("unfreeze"),
+ cb.unfreeze.starting_weights = select_invert(seln(c("0.weight", "3.weight", "6.weight", "6.bias"))),
+ cb.unfreeze.unfreeze = data.table(
+   epoch = c(2, 5),
+   weights = list(select_name("0.weight"), select_name(c("3.weight", "6.weight")))
+ ),
+ epochs = 6, batch_size = 150, neurons = c(1, 1, 1)
 )
 
 mlp$train(task)
