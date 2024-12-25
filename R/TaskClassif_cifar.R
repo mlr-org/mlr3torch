@@ -17,7 +17,6 @@ constructor_cifar10 = function(path) {
     d_test = torchvision::cifar10_dataset(root = file.path(path), train = FALSE)
 
     # look at the directory structure
-
     # create a data.table with columns class, image (uri of the image in the downloaded dir)
 }
 
