@@ -13,6 +13,8 @@ constructor_cifar10 = function(path) {
 
 constructor_cifar10(path <- file.path(get_cache_dir(), "datasets", "cifar10"))
 
+
+devtools::load_all()
 library(here)
 
 path <- here("cache")
