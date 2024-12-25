@@ -22,4 +22,3 @@ cifar_ds <- torchvision::cifar10_dataset(root = file.path(path), download = FALS
 # first: remove the response (handled separately)
 dd = as_data_descriptor(cifar_ds, list(x = c(NA, 3, 32, 32)))
 
-
