@@ -33,7 +33,22 @@ constructor_cifar10 = function(path) {
 
 load_task_cifar10 = function(id = "cifar10") {
   cached_constructor = function(backend) {
+    data = cached(constructor_cifar10, "datasets", "cifar10")$data
 
+    cifar10_ds_generator = torch::dataset(
+      initialize = function(data, cache_dir) {
+        self$.data = data
+        self$.cache_dir = cache_dir
+      },
+      .getitem = function(idx) {
+        list(img = read_cifar_image(file.path(cache_dir, self$.data[, "file"]), idx))
+      },
+      .length = function() {
+        nrow(self$.data)
+      }
+    )
+
+    cifar10_ds = cifar10_ds_generator(data, file.path(get_cache_dir(), "datasets", "cifar10"))
   }
 
   backend = DataBackendLazy$new(
@@ -59,7 +74,7 @@ load_task_cifar10 = function(id = "cifar10") {
 
 read_cifar_labels = function(file) {
   con = file(file, "rb")
-  on.exit(close(con))
+  on.exit({close(con)}, add = TRUE)
   
   labels = vector("integer", 10000)
   for (i in 1:10000) {
@@ -74,10 +89,10 @@ read_cifar_image = function(file, i, type = 10) {
   record_size = 1 + (32 * 32 * 3)
 
   con = file(file, "rb")
-  on.exit(close(con))
+  on.exit({close(con)}, add = TRUE)
 
-  seek(con, (i - 1) * record_size)
-  seek(1)
+  seek(con, (i - 1) * record_size) # previous labels and images
+  seek(1) # label
 
   r = as.integer(readBin(con, raw(), size = 1, n = 1024, endian = "big"))
   g = as.integer(readBin(con, raw(), size = 1, n = 1024, endian = "big"))
