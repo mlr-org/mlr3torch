@@ -58,33 +58,36 @@ load_task_cifar10 = function(id = "cifar10") {
 }
 
 read_cifar_labels = function(file) {
-  record_size = 1 + (32 * 32 * 3)
-  
-  # Open connection to binary file
   con = file(file, "rb")
   on.exit(close(con))
   
-  # Read only the first byte of each record
-  labels = vector("integer", 10000)  # Each file has 10000 images
+  labels = vector("integer", 10000)
   for (i in 1:10000) {
-    # TODO: debug. I think this is incorrect.
-    # readBin advances the "pointer"
-    # so we want to seek (32 * 32 * 3) bytes each time
-    # but not the first time
-    # soo... while loop?
-    # Seek to the start of each record
-    seek(con, (i - 1) * record_size)
-    # Read just the label byte
     labels[i] = readBin(con, "integer", n = 1, size = 1)
+    seek(con, 32 * 32 * 3)
   }
   
   labels
 }
 
-read_cifar_image = function(file, idx, type = 10) {
+read_cifar_image = function(file, i, type = 10) {
   record_size = 1 + (32 * 32 * 3)
 
-  
+  con = file(file, "rb")
+  on.exit(close(con))
+
+  seek(con, (i - 1) * record_size)
+  seek(1)
+
+  r = as.integer(readBin(con, raw(), size = 1, n = 1024, endian = "big"))
+  g = as.integer(readBin(con, raw(), size = 1, n = 1024, endian = "big"))
+  b = as.integer(readBin(con, raw(), size = 1, n = 1024, endian = "big"))
+
+  img[,,1] = matrix(r, ncol = 32, byrow = TRUE)
+  img[,,2] = matrix(g, ncol = 32, byrow = TRUE)
+  img[,,3] = matrix(b, ncol = 32, byrow = TRUE)
+
+  img
 }
 
 register_task("cifar10", load_task_cifar10)
