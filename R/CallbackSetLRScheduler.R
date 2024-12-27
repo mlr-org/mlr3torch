@@ -34,6 +34,8 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
     #' @description
     #' Depending on the scheduler, step after each epoch
     on_epoch_end = function() {
+      # ensure that this happens after optimizer$step()
+      # https://blogs.rstudio.com/ai/posts/2020-10-19-torch-image-classification/#training
       if (self$step_on == "epoch") {
         self$scheduler$step()
       }
