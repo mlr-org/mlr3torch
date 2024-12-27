@@ -16,11 +16,10 @@
 #' @include CallbackSet.R
 #' @examplesIf torch::torch_is_installed()
 #' task = tsk("iris")
-#' cb = t_clbk("unfreeze)
-#' seln = select_name()
+#' cb = t_clbk("unfreeze")
 #' mlp = lrn("classif.mlp", callbacks = cb,
 #'  cb.unfreeze.starting_weights = select_invert(
-#'    seln(c("0.weight", "3.weight", "6.weight", "6.bias"))
+#'    select_name(c("0.weight", "3.weight", "6.weight", "6.bias"))
 #'  ),
 #'  cb.unfreeze.unfreeze = data.table(
 #'    epoch = c(2, 5),
