@@ -42,6 +42,12 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
 
 # TODO: determine whether we should set ranges and such even when torch does not
 
+# TODO: determine whether we can access the number of param_groups in an optimizer at the time
+# that the parameter is passed in
+check_something_or_list = function(check_fn) {
+
+}
+
 #' @include TorchCallback.R
 mlr3torch_callbacks$add("lr_scheduler_cosine_annealing", function() {
   TorchCallback$new(
