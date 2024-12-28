@@ -1,64 +1,30 @@
 devtools::load_all()
+library(mlr3misc)
+library(data.table)
 
-path <- here::here("cache")
-fs::dir_create(path, recurse = TRUE)
-
-cifar_ds_train <- torchvision::cifar10_dataset(root = file.path(path), train = TRUE)
-cifar_ds_test <- torchvision::cifar10_dataset(root = file.path(path), download = FALSE, train = TRUE)
-
-dd = as_data_descriptor(cifar_ds, list(x = c(NA, 3, 32, 32)))
-
-read_batch <- function(path, type = 10) {
-  if (type == 10)
-    n <- 10000
-  else if (type == 100 && grepl("test", path))
-    n <- 10000
-  else
-    n <- 50000
-
-  imgs <- array(dim = c(n, 32, 32, 3))
-  labels <- integer(length = n)
-  if (type == 100)
-    fine_labels <- integer(length = n)
-
-  con <- file(path, open = "rb")
+# for a specific batch file
+read_cifar_labels_batch = function(file_path) {
+  con = file(file_path, "rb")
   on.exit({close(con)}, add = TRUE)
 
-  for (i in seq_len(n)) {
-
-  labels[i] <- readBin(con, integer(), size=1, n=1, endian="big")
-
-    if (type == 100) {
-      fine_labels[i] <- readBin(con, integer(), size=1, n=1, endian="big")
-    }
-
-    r <- as.integer(readBin(con, raw(), size=1, n=1024, endian="big"))
-    g <- as.integer(readBin(con, raw(), size=1, n=1024, endian="big"))
-    b <- as.integer(readBin(con, raw(), size=1, n=1024, endian="big"))
-
-    imgs[i,,,1] <- matrix(r, ncol = 32, byrow = TRUE)
-    imgs[i,,,2] <- matrix(g, ncol = 32, byrow = TRUE)
-    imgs[i,,,3] <- matrix(b, ncol = 32, byrow = TRUE)
+  labels = integer(length = 10000)
+  for (i in 1:10000) {
+    labels[i] = readBin(con, integer(), n = 1, size = 1, endian="big")
+    seek(con, 32 * 32 * 3, origin = "current")
   }
 
-  if (type == 100)
-    list(imgs = imgs, labels = fine_labels)
-  else
-    list(imgs = imgs, labels = labels)
+  labels
 }
 
-# path: the full path to the batch binary file
-# i: the "global" index (1 to 60k) of the image
-read_img_from_batch = function(path, i) {
-  n = 10000
+# for a specific batch file
+read_cifar_image = function(file_path, i, type = 10) {
+  record_size = 1 + (32 * 32 * 3)
 
-  img = array(dim = c(32, 32, 3))
-  
-  con = file(path, open = "rb")
-
+  con = file(file_path, "rb")
   on.exit({close(con)}, add = TRUE)
 
-  label = readBin(con, integer(), size = 1, n = 1, endian = "big")
+  seek(con, (i - 1) * record_size, origin = "current") # previous labels and images
+  seek(1) # label
 
   r = as.integer(readBin(con, raw(), size = 1, n = 1024, endian = "big"))
   g = as.integer(readBin(con, raw(), size = 1, n = 1024, endian = "big"))
@@ -68,8 +34,35 @@ read_img_from_batch = function(path, i) {
   img[,,2] = matrix(g, ncol = 32, byrow = TRUE)
   img[,,3] = matrix(b, ncol = 32, byrow = TRUE)
 
-  list(img = img, label = label)
+  img
 }
 
-batch = read_batch(file.path(path, "cifar-10-batches-bin", "data_batch_2.bin"))
-readBin(file.path(path, "cifar-10-batches-bin", "data_batch_2.bin"), integer(), size=1, )
+# cached
+constructor_cifar10 = function(path) {
+  require_namespaces("torchvision")
+
+  torchvision::cifar10_dataset(root = path, download = FALSE)
+  browser()
+  train_files = file.path(path, "cifar-10-batches-bin", sprintf("data_batch_%d.bin", 1:5))
+  test_file = file.path(path, "cifar-10-batches-bin", "test_batch.bin")
+
+  train_labels = unlist(map(train_files, read_cifar_labels_batch))
+
+  # TODO: ensure this is all correct, Claude-generated
+  data.table(
+    class = factor(c(train_labels, rep(NA, times = 10000))),
+    file = c(rep(train_files, each = 10000),
+             rep(test_file, 10000)),
+    index = c(rep(1:10000, 5),
+             1:10000),
+    split = factor(rep(c("train", "test"), c(50000, 10000))),
+    ..row_id = seq_len(60000)
+  )
+}
+
+path <- here::here("cache")
+fs::dir_create(path, recurse = TRUE)
+
+lazy_dt <- constructor_cifar10(path)
+
+dd = as_data_descriptor(cifar_ds, list(x = c(NA, 3, 32, 32)))
