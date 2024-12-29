@@ -23,13 +23,14 @@ read_cifar_image = function(file_path, i, type = 10) {
   con = file(file_path, "rb")
   on.exit({close(con)}, add = TRUE)
 
-  seek(con, (i - 1) * record_size, origin = "current") # previous labels and images
-  seek(1) # label
+  seek(con, (i - 1) * record_size, origin = "start") # previous labels and images
+  seek(con, 1, origin = "current") # label
 
   r = as.integer(readBin(con, raw(), size = 1, n = 1024, endian = "big"))
   g = as.integer(readBin(con, raw(), size = 1, n = 1024, endian = "big"))
   b = as.integer(readBin(con, raw(), size = 1, n = 1024, endian = "big"))
 
+  img = array(dim = c(32, 32, 3))
   img[,,1] = matrix(r, ncol = 32, byrow = TRUE)
   img[,,2] = matrix(g, ncol = 32, byrow = TRUE)
   img[,,3] = matrix(b, ncol = 32, byrow = TRUE)
@@ -42,7 +43,7 @@ constructor_cifar10 = function(path) {
   require_namespaces("torchvision")
 
   torchvision::cifar10_dataset(root = path, download = FALSE)
-  browser()
+
   train_files = file.path(path, "cifar-10-batches-bin", sprintf("data_batch_%d.bin", 1:5))
   test_file = file.path(path, "cifar-10-batches-bin", "test_batch.bin")
 
@@ -63,6 +64,32 @@ constructor_cifar10 = function(path) {
 path <- here::here("cache")
 fs::dir_create(path, recurse = TRUE)
 
-lazy_dt <- constructor_cifar10(path)
+data <- constructor_cifar10(path)
 
-dd = as_data_descriptor(cifar_ds, list(x = c(NA, 3, 32, 32)))
+cifar10_ds_generator = torch::dataset(
+  initialize = function() {
+    self$.data = data
+  },
+  .getitem = function(idx) {
+    force(idx)
+
+    x = torchvision::transform_to_tensor(read_cifar_image(self$.data$file[idx], idx))
+
+    return(list(x = x))
+  },
+  .length = function() {
+    nrow(self$.data)
+  }
+)
+
+cifar10_ds = cifar10_ds_generator()
+
+dd = as_data_descriptor(cifar10_ds, list(x = c(NA, 3, 32, 32)))
+lt = lazy_tensor(dd)
+
+tsk_dt = cbind(data, data.table(image = lt))
+
+tsk_cifar10 = as_task_classif(tsk_dt, target = "class", id = "cifar10")
+
+# test interactively: look at torchvision version and this version for a few images, they should look the same
+
