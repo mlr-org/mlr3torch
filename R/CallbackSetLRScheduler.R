@@ -23,7 +23,7 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(.scheduler, ...) {
       self$scheduler_fn = .scheduler
-      private$.additional_args = list(...)
+      private$.scheduler_args = list(...)
     },
     #' @description
     #' Creates the scheduler using the optimizer from the context
@@ -44,8 +44,8 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
 
 # TODO: determine whether we can access the number of param_groups in an optimizer at the time
 # that the parameter is passed in
-check_something_or_list = function(check_fn) {
-
+check_something_or_list = function(x, check_fn) {
+  all(map_lgl(x, check_fn))
 }
 
 #' @include TorchCallback.R
@@ -64,6 +64,14 @@ mlr3torch_callbacks$add("lr_scheduler_cosine_annealing", function() {
     additional_args = lr_cosine_annealing
   )
 })
+
+# right now leaning towards not implementing
+# since torch implements it and we don't want something different
+check_lambda_fn = function(x) {
+  if (is.function(x))
+}
+
+check_class_or_list = function(x, classname) all(map_lgl(x, is(x, classname)))
 
 #' @include TorchCallback.R
 mlr3torch_callbacks$add("lr_scheduler_lambda", function() {
