@@ -48,11 +48,13 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
 check_class_or_list = function(x, classname) {
   # TODO: make this work only for lists
   # currently vectors are allowed as well
-  if (any(!map_lgl(x, test_class(x, classname)))) {
+  if (some(!map_lgl(x, test_class(x, classname)))) {
     return(paste0("One of the arguments is not of class ", classname))
   }
   return(TRUE)
 }
+
+# begin built-in torch LR schedulers
 
 #' @include TorchCallback.R
 mlr3torch_callbacks$add("lr_scheduler_cosine_annealing", function() {
@@ -92,7 +94,7 @@ mlr3torch_callbacks$add("lr_scheduler_multiplicative", function() {
   TorchCallback$new(
     callback_generator = CallbackSetLRScheduler,
     param_set = ps(
-      lr_lambda = p_uty(tags = c("train"), custom_check = function(x) check_class_or_list(x, "function")), # TODO: assert fn or list of fns
+      lr_lambda = p_uty(tags = c("train"), custom_check = function(x) check_class_or_list(x, "function")),
       last_epoch = p_int(default = -1, lower = -1, tags = "train"),
       verbose = p_lgl(default = FALSE, tags = "train")
     ),
@@ -166,13 +168,14 @@ mlr3torch_callbacks$add("lr_scheduler_step", function() {
   )
 })
 
+# end torch-provided schedulers
+
 #' @include TorchCallback.R
 mlr3torch_callbacks$add("lr_scheduler_custom", function() {
   TorchCallback$new(
     callback_generator = CallbackSetLRScheduler,
     param_set = ps(
       .scheduler = p_uty(tags = c("train", "required"), custom_check = function(input) check_class(input, "LRScheduler")),
-      
     ),
     id = "lr_scheduler",
     label = "Learning Rate Scheduler",
