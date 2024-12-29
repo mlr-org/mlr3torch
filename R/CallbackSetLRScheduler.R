@@ -38,14 +38,20 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
       self$scheduler$step()
     }
     # TODO: add batches
+  )
 )
 
 # TODO: determine whether we should set ranges and such even when torch does not
 
-# TODO: determine whether we can access the number of param_groups in an optimizer at the time
-# that the parameter is passed in
-check_something_or_list = function(x, check_fn) {
-  all(map_lgl(x, check_fn))
+# some of the schedulers accept lists
+# so they can treat different parameter groups differently
+check_class_or_list = function(x, classname) {
+  # TODO: make this work only for lists
+  # currently vectors are allowed as well
+  if (any(!map_lgl(x, test_class(x, classname)))) {
+    return(paste0("One of the arguments is not of class ", classname))
+  }
+  return(TRUE)
 }
 
 #' @include TorchCallback.R
@@ -65,20 +71,12 @@ mlr3torch_callbacks$add("lr_scheduler_cosine_annealing", function() {
   )
 })
 
-# right now leaning towards not implementing
-# since torch implements it and we don't want something different
-check_lambda_fn = function(x) {
-  if (is.function(x))
-}
-
-check_class_or_list = function(x, classname) all(map_lgl(x, is(x, classname)))
-
 #' @include TorchCallback.R
 mlr3torch_callbacks$add("lr_scheduler_lambda", function() {
   TorchCallback$new(
     callback_generator = CallbackSetLRScheduler,
     param_set = ps(
-      lr_lambda = p_uty(), # TODO: assert fn or list of fns
+      lr_lambda = p_uty(tags = c("train"), custom_check = function(x) check_class_or_list(x, "function")), # TODO: assert fn or list of fns
       last_epoch = p_int(default = -1, lower = -1, tags = "train"),
       verbose = p_lgl(default = FALSE, tags = "train")
     ),
@@ -94,7 +92,7 @@ mlr3torch_callbacks$add("lr_scheduler_multiplicative", function() {
   TorchCallback$new(
     callback_generator = CallbackSetLRScheduler,
     param_set = ps(
-      lr_lambda = p_uty(), # TODO: assert fn or list of fns, need to know how many groups there are to make assertions about the length of the list
+      lr_lambda = p_uty(tags = c("train"), custom_check = function(x) check_class_or_list(x, "function")), # TODO: assert fn or list of fns
       last_epoch = p_int(default = -1, lower = -1, tags = "train"),
       verbose = p_lgl(default = FALSE, tags = "train")
     ),
@@ -117,8 +115,8 @@ mlr3torch_callbacks$add("lr_scheduler_one_cycle", function() {
       pct_start = p_dbl(default = 0.3, lower = 0, upper = 1, tags = "train"),
       anneal_strategy = p_fct(default = "cos", levels = c("cos", "linear")), # this is a string in the torch fn
       cycle_momentum = p_lgl(default = TRUE, tags = "train"),
-      base_momentum = p_dbl(default = 0.85, tags = "train"), # float or list
-      max_momentum = p_dbl(default = 0.95, tags = "train"), # or list
+      base_momentum = p_uty(default = 0.85, tags = "train", custom_check = function(x) check_class_or_list(x, "numeric")), # float or list
+      max_momentum = p_uty(default = 0.95, tags = "train", custom_check = function(x) check_class_or_list(x, "numeric")), # or list
       div_factor = p_dbl(default = 25, tags = "train"),
       final_div_factor = p_dbl(default = 1e4, tags = "train"),
       verbose = p_lgl(default = FALSE, tags = "train")
@@ -141,7 +139,7 @@ mlr3torch_callbacks$add("lr_scheduler_reduce_on_plateau", function() {
       threshold = p_dbl(default = 1e-04, tags = "train"),
       threshold_mode = p_fct(default = "rel", levels = c("rel", "abs"), tags = "train"),
       cooldown = p_int(default = 0, tags = "train"),
-      min_lr = p_dbl(), # float or list
+      min_lr = p_uty(default = 0, tags = "train", custom_check = function(x) check_class_or_list(x, "numeric")),
       eps = p_dbl(default = 1e-08, tags = "train"),
       verbose = p_lgl(default = FALSE, tags = "train")
     ),
