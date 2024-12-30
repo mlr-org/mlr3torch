@@ -1,4 +1,9 @@
 devtools::load_all()
+
+# ci = col_info(get_private(tsk("cifar10")$backend)$.constructor())
+
+# saveRDS(ci, here::here("inst/col_info/cifar10.rds"))
+
 library(mlr3misc)
 library(data.table)
 library(torchvision)
@@ -91,39 +96,46 @@ lt = lazy_tensor(dd)
 tsk_dt = cbind(data, data.table(image = lt))
 
 tsk_cifar10 = as_task_classif(tsk_dt, target = "class", id = "cifar10")
+tsk_cifar10$col_roles$feature = "image"
+
+ci = col_info(tsk_cifar10$backend)
+
+saveRDS(ci, here::here("inst/col_info/cifar10.rds"))
 
 # test interactively: look at torchvision version and this version for a few images, they should look the same
-img = cifar10_ds$.getitem(2)$x
-img_uint8 = (img * 255)$to(dtype = torch::torch_uint8())
-torchvision::tensor_image_browse(img_uint8)
+# img = cifar10_ds$.getitem(2)$x
+# img_uint8 = (img * 255)$to(dtype = torch::torch_uint8())
+# torchvision::tensor_image_browse(img_uint8)
 
-img_arr = as.array(img)
+# img_arr = as.array(img)
 
 # torchvision direct dataset
 
-tv_cifar10_ds = cifar10_dataset(root = path, download = FALSE)
-tv_img = tv_cifar10_ds$.getitem(2)$x
+# tv_cifar10_ds = cifar10_dataset(root = path, download = FALSE)
+# tv_img = tv_cifar10_ds$.getitem(2)$x
 
-all.equal(img_arr, tv_img)
+# all.equal(img_arr, tv_img)
 
-test_same_at_idx = function(idx, ds_mlr3torch, ds_torch) {
-  all.equal(as.array(ds_mlr3torch$.getitem(idx)$x), ds_torch$.getitem(idx)$x)
-}
+# test_same_at_idx = function(idx, ds_mlr3torch, ds_torch) {
+#   all.equal(as.array(ds_mlr3torch$.getitem(idx)$x), ds_torch$.getitem(idx)$x)
+# }
 
-trn_idx = 1:50000
-int_mlr3torch_responses = as.integer(tsk_dt$class[trn_idx])
-get_response = function(idx, ds) {
-  ds$.getitem(idx)$y
-}
-int_tv_responses = map_int(trn_idx, get_response, ds = tv_cifar10_ds)
+# trn_idx = 1:50000
+# int_mlr3torch_responses = as.integer(tsk_dt$class[trn_idx])
+# get_response = function(idx, ds) {
+#   ds$.getitem(idx)$y
+# }
+# int_tv_responses = map_int(trn_idx, get_response, ds = tv_cifar10_ds)
 
-idx_to_test = c(1, 2, 27, 9999,
-  10000, 10001, 10901, 19999,
-  20000, 20001, 29999,
-  30000, 30001, 39999,
-  40000, 40001, 49999,
-  50000)
+# all.equal(int_mlr3torch_responses, int_tv_responses)
 
-all(map_lgl(.x = idx_to_test, .f = test_same_at_idx, ds_mlr3torch = cifar10_ds, ds_torch = tv_cifar10_ds))
+# idx_to_test = c(1, 2, 27, 9999,
+#   10000, 10001, 10901, 19999,
+#   20000, 20001, 29999,
+#   30000, 30001, 39999,
+#   40000, 40001, 49999,
+#   50000)
 
-test_same_at_idx(10001, cifar10_ds, tv_cifar10_ds)
+# all(map_lgl(.x = idx_to_test, .f = test_same_at_idx, ds_mlr3torch = cifar10_ds, ds_torch = tv_cifar10_ds))
+
+# test_same_at_idx(10001, cifar10_ds, tv_cifar10_ds)
