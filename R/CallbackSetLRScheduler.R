@@ -30,10 +30,6 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
     #' @description
     #' Creates the scheduler using the optimizer from the context
     on_begin = function() {
-      # args = self$ctx$param_set$get_values(prefix = "lr_scheduler")
-      
-      # Combine with optimizer
-      # args = c(list(optimizer = self$ctx$optimizer), args)
       self$scheduler = invoke(self$scheduler_fn, optimizer = self$ctx$optimizer, .args = private$.scheduler_args)
     },
     #' @description
@@ -56,12 +52,15 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
 # some of the schedulers accept lists
 # so they can treat different parameter groups differently
 check_class_or_list = function(x, classname) {
-  # TODO: make this work only for lists
-  # currently vectors are allowed as well
-  if (some(!map_lgl(x, test_class(x, classname)))) {
-    return(paste0("One of the arguments is not of class ", classname))
+  if (test_class(x, classname)) {
+    return(TRUE)
+  } else if (is.list(x)) {
+    if (some(!map_lgl(x, test_class(x, classname)))) {
+      return(paste0("One of the elements is not of class ", classname))
+    }
+  } else {
+    return(paste0("x must be of class ", classname, " or a list of objects of class ", classname))
   }
-  return(TRUE)
 }
 
 # begin built-in torch LR schedulers
