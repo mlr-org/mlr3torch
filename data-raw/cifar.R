@@ -55,7 +55,7 @@ constructor_cifar10 = function(path) {
     class = factor(c(train_labels, rep(NA, times = 10000))),
     file = c(rep(train_files, each = 10000),
              rep(test_file, 10000)),
-    index = c(rep(1:10000, 5),
+    idx_in_file = c(rep(1:10000, 5),
              1:10000),
     split = factor(rep(c("train", "test"), c(50000, 10000))),
     ..row_id = seq_len(60000)
@@ -74,7 +74,7 @@ cifar10_ds_generator = torch::dataset(
   .getitem = function(idx) {
     force(idx)
 
-    x = torch_tensor(read_cifar_image(self$.data$file[idx], self$.data$index[idx]))
+    x = torch_tensor(read_cifar_image(self$.data$file[idx], self$.data$idx_in_file[idx]))
 
     return(list(x = x))
   },
