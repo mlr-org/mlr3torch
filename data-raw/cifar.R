@@ -74,7 +74,7 @@ cifar10_ds_generator = torch::dataset(
   .getitem = function(idx) {
     force(idx)
 
-    x = torch_tensor(read_cifar_image(self$.data$file[idx], idx))
+    x = torch_tensor(read_cifar_image(self$.data$file[idx], self$.data$index[idx]))
 
     return(list(x = x))
   },
