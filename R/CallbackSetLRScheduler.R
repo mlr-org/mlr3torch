@@ -179,6 +179,8 @@ mlr3torch_callbacks$add("lr_scheduler_step", function() {
 
 # end torch-provided schedulers
 
+# begin custom LR schedulers
+
 # #' @include TorchCallback.R
 # mlr3torch_callbacks$add("lr_scheduler_custom", function() {
 #   TorchCallback$new(
