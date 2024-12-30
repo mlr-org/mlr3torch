@@ -29,28 +29,13 @@ test_that("CIFAR-10 works", {
 test_that("CIFAR-10 data matches the torchvision implementation", {
   withr::local_options(mlr3torch.cache = TRUE)
   task = tsk("cifar10")
+  task$data()
 
   cifar10_ds_train = cifar10_dataset(root = file.path(get_cache_dir(), "datasets", "cifar10", "raw"), train = TRUE,
     download = FALSE)
 
-  test_same_at_idx = function(idx, ds_mlr3torch, ds_torch) {
-    all.equal(as.array(ds_mlr3torch$.getitem(idx)$x), ds_torch$.getitem(idx)$x)
-  }
-  
-  train_idx = c(1, 2, 27, 9999,
-    10000, 10001, 10901, 19999,
-    20000, 20001, 29999,
-    30000, 30001, 39999,
-    40000, 40001, 49999,
-    50000)
-  task$filter(train_idx)
-  task$data()
-
-  all(map_lgl(.x = idx_to_test, .f = test_same_at_idx, ds_mlr3torch = cifar10_ds, ds_torch = tv_cifar10_ds))
-
-
-  trn_idx = 1:50000
-  int_mlr3torch_responses = as.integer(tsk_dt$class[trn_idx])
+  train_idx = 1:50000
+  int_mlr3torch_responses = as.integer(task$class[trn_idx])
 
   get_response = function(idx, ds) {
     ds$.getitem(idx)$y
@@ -58,6 +43,22 @@ test_that("CIFAR-10 data matches the torchvision implementation", {
   int_tv_responses = map_int(trn_idx, get_response, ds = tv_cifar10_ds)
 
   all.equal(int_mlr3torch_responses, int_tv_responses)
+
+  test_same_at_idx = function(idx, lt_col, ds) {
+    all.equal(as.array(lt_col[[idx]]), ds$.getitem(idx)$x)
+  }
+  
+  small_train_idx = c(1, 2, 27, 9999,
+    10000, 10001, 10901, 19999,
+    20000, 20001, 29999,
+    30000, 30001, 39999,
+    40000, 40001, 49999,
+    50000
+  )
+  task$filter(train_idx)
+  task$data()
+
+  all(map_lgl(.x = small_train_idx, .f = test_same_at_idx, lt = task$image, ds = cifar10_ds_train))
 
   train_idx = c(1, 2, 27, 9999,
     10000, 10001, 10901, 19999,
