@@ -93,7 +93,7 @@ tsk_dt = cbind(data, data.table(image = lt))
 tsk_cifar10 = as_task_classif(tsk_dt, target = "class", id = "cifar10")
 
 # test interactively: look at torchvision version and this version for a few images, they should look the same
-img = cifar10_ds$.getitem(1)$x
+img = cifar10_ds$.getitem(2)$x
 img_uint8 = (img * 255)$to(dtype = torch::torch_uint8())
 torchvision::tensor_image_browse(img_uint8)
 
@@ -102,6 +102,21 @@ img_arr = as.array(img)
 # torchvision direct dataset
 
 tv_cifar10_ds = cifar10_dataset(root = path, download = FALSE)
-tv_img = tv_cifar10_ds$.getitem(1)$x
+tv_img = tv_cifar10_ds$.getitem(2)$x
 
 all.equal(img_arr, tv_img)
+
+test_same_at_idx = function(idx, ds_mlr3torch, ds_torch) {
+  all.equal(as.array(ds_mlr3torch$.getitem(idx)$x), ds_torch$.getitem(idx)$x)
+}
+
+idx_to_test = c(1, 2, 27, 9999,
+  10000, 10001, 10901, 19999,
+  20000, 20001, 29999,
+  30000, 30001, 39999,
+  40000, 40001, 49999,
+  50000)
+
+all(map_lgl(.x = idx_to_test, .f = test_same_at_idx, ds_mlr3torch = cifar10_ds, ds_torch = tv_cifar10_ds))
+
+test_same_at_idx(10001, cifar10_ds, tv_cifar10_ds)
