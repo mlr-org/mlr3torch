@@ -74,7 +74,7 @@ cifar10_ds_generator = torch::dataset(
   .getitem = function(idx) {
     force(idx)
 
-    x = torchvision::transform_to_tensor(read_cifar_image(self$.data$file[idx], idx))
+    x = torch_tensor(read_cifar_image(self$.data$file[idx], idx))
 
     return(list(x = x))
   },
@@ -85,7 +85,7 @@ cifar10_ds_generator = torch::dataset(
 
 cifar10_ds = cifar10_ds_generator()
 
-dd = as_data_descriptor(cifar10_ds, list(x = c(NA, 3, 32, 32)))
+dd = as_data_descriptor(cifar10_ds, list(x = c(NA, 32, 32, 3)))
 lt = lazy_tensor(dd)
 
 tsk_dt = cbind(data, data.table(image = lt))
@@ -97,7 +97,11 @@ img = cifar10_ds$.getitem(1)$x
 img_uint8 = (img * 255)$to(dtype = torch::torch_uint8())
 torchvision::tensor_image_browse(img_uint8)
 
+img_arr = as.array(img)
+
 # torchvision direct dataset
 
 tv_cifar10_ds = cifar10_dataset(root = path, download = FALSE)
 tv_img = tv_cifar10_ds$.getitem(1)$x
+
+all.equal(img_arr, tv_img)
