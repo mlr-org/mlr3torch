@@ -1,10 +1,10 @@
 #' @title Learning Rate Scheduling Callback
-#' 
+#'
 #' @name mlr_callback_set.lr_scheduler
-#' 
-#' @description 
+#'
+#' @description
 #' Changes the learning rate based on the schedule specified by a `torch::LRScheduler`.
-#' 
+#'
 #' @param scheduler_fn (`function`)\cr
 #'   The torch scheduler constructor function (e.g. `torch::lr_scheduler_step_lr`).
 #' @param scheduler_args (`list`)\cr
@@ -14,11 +14,13 @@
 #'   * "epoch" - Step after each epoch (default)
 #'   * "batch" - Step after each batch
 #'
-#' 
+#'
 #' @export
 CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
   inherit = CallbackSet,
   public = list(
+    scheduler_fn = NULL,
+    scheduler = NULL,
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(.scheduler, ...) {
@@ -28,16 +30,24 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
     #' @description
     #' Creates the scheduler using the optimizer from the context
     on_begin = function() {
-      self$scheduler = invoke(self$scheduler_fn, optimizer = self$ctx$optimizer, .args = private$.additional_args)
+      # args = self$ctx$param_set$get_values(prefix = "lr_scheduler")
+      
+      # Combine with optimizer
+      # args = c(list(optimizer = self$ctx$optimizer), args)
+      self$scheduler = invoke(self$scheduler_fn, optimizer = self$ctx$optimizer, .args = private$.scheduler_args)
     },
     #' @description
     #' Depending on the scheduler, step after each epoch
     on_epoch_end = function() {
       # TODO: ensure that this happens after optimizer$step()
       # https://blogs.rstudio.com/ai/posts/2020-10-19-torch-image-classification/#training
+      # but for now let's hope that it does
       self$scheduler$step()
     }
     # TODO: add batches
+  ),
+  private = list(
+    .scheduler_args = NULL
   )
 )
 
@@ -61,7 +71,7 @@ mlr3torch_callbacks$add("lr_scheduler_cosine_annealing", function() {
   TorchCallback$new(
     callback_generator = CallbackSetLRScheduler,
     param_set = ps(
-      T_max = p_int(tags = "train"),
+      T_max = p_int(tags = c("train", "required")),
       eta_min = p_dbl(default = 0, lower = 0, tags = "train"),
       last_epoch = p_int(default = -1, tags = "train"),
       verbose = p_lgl(default = FALSE, tags = "train")
@@ -69,7 +79,7 @@ mlr3torch_callbacks$add("lr_scheduler_cosine_annealing", function() {
     id = "lr_scheduler",
     label = "Learning Rate Scheduler",
     man = "mlr3torch::mlr_callback_set.lr_scheduler",
-    additional_args = lr_cosine_annealing
+    additional_args = torch::lr_cosine_annealing
   )
 })
 
@@ -170,28 +180,28 @@ mlr3torch_callbacks$add("lr_scheduler_step", function() {
 
 # end torch-provided schedulers
 
-#' @include TorchCallback.R
-mlr3torch_callbacks$add("lr_scheduler_custom", function() {
-  TorchCallback$new(
-    callback_generator = CallbackSetLRScheduler,
-    param_set = ps(
-      .scheduler = p_uty(tags = c("train", "required"), custom_check = function(input) check_class(input, "LRScheduler")),
-    ),
-    id = "lr_scheduler",
-    label = "Learning Rate Scheduler",
-    man = "mlr3torch::mlr_callback_set.lr_scheduler",
-    # additional_args = lr_cosine_annealing
-  )
-})
+# #' @include TorchCallback.R
+# mlr3torch_callbacks$add("lr_scheduler_custom", function() {
+#   TorchCallback$new(
+#     callback_generator = CallbackSetLRScheduler,
+#     param_set = ps(
+#       .scheduler = p_uty(tags = c("train", "required"), custom_check = function(input) check_class(input, "LRScheduler")),
+#     ),
+#     id = "lr_scheduler",
+#     label = "Learning Rate Scheduler",
+#     man = "mlr3torch::mlr_callback_set.lr_scheduler",
+#     # additional_args = lr_cosine_annealing
+#   )
+# })
 
-# TODO: implement custom schedulers
-as_lr_scheduler = function(lr_scheduler) {
-  # infer the ps from the lr_scheduler signature (using inferps())
-  
-  # alternatively, allow the user to pass in a ps
-}
+# # TODO: implement custom schedulers
+# as_lr_scheduler = function(lr_scheduler) {
+#   # infer the ps from the lr_scheduler signature (using inferps())
 
-t_clbk("lr_step", ...)
+#   # alternatively, allow the user to pass in a ps
+# }
 
-custom_scheduler = function()
-as_lr_scheduler(custom_scheduler)
+# t_clbk("lr_step", ...)
+
+# custom_scheduler = function()
+# as_lr_scheduler(custom_scheduler)
