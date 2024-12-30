@@ -110,6 +110,13 @@ test_same_at_idx = function(idx, ds_mlr3torch, ds_torch) {
   all.equal(as.array(ds_mlr3torch$.getitem(idx)$x), ds_torch$.getitem(idx)$x)
 }
 
+trn_idx = 1:50000
+int_mlr3torch_responses = as.integer(tsk_dt$class[trn_idx])
+get_response = function(idx, ds) {
+  ds$.getitem(idx)$y
+}
+int_tv_responses = map_int(trn_idx, get_response, ds = tv_cifar10_ds)
+
 idx_to_test = c(1, 2, 27, 9999,
   10000, 10001, 10901, 19999,
   20000, 20001, 29999,
