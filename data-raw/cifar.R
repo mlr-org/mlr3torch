@@ -1,6 +1,7 @@
 devtools::load_all()
 library(mlr3misc)
 library(data.table)
+library(torchvision)
 
 # for a specific batch file
 read_cifar_labels_batch = function(file_path) {
@@ -92,4 +93,11 @@ tsk_dt = cbind(data, data.table(image = lt))
 tsk_cifar10 = as_task_classif(tsk_dt, target = "class", id = "cifar10")
 
 # test interactively: look at torchvision version and this version for a few images, they should look the same
+img = cifar10_ds$.getitem(1)$x
+img_uint8 = (img * 255)$to(dtype = torch::torch_uint8())
+torchvision::tensor_image_browse(img_uint8)
 
+# torchvision direct dataset
+
+tv_cifar10_ds = cifar10_dataset(root = path, download = FALSE)
+tv_img = tv_cifar10_ds$.getitem(1)$x
