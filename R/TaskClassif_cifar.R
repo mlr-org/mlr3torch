@@ -27,17 +27,26 @@
 NULL
 
 # for a specific batch file
-read_cifar_labels_batch = function(file_path) {
+read_cifar_labels_batch = function(file_path, type = 10) {
   con = file(file_path, "rb")
   on.exit({close(con)}, add = TRUE)
 
-  labels = integer(length = 10000)
-  for (i in 1:10000) {
-    labels[i] = readBin(con, integer(), n = 1, size = 1, endian="big")
+  batch_size = 10000
+
+  labels = integer(length = batch_size)
+  if (type == 100) {
+    fine_labels = integer(length = batch_size)
+  }
+
+  for (i in 1:batch_size) {
+    labels[i] = readBin(con, integer(), n = 1, size = 1, endian = "big")
+    if (type == 100) {
+      fine_labels[i] = readBin(con, integer(), n = 1, size = 1, endian = "big")
+    }
     seek(con, 32 * 32 * 3, origin = "current")
   }
 
-  labels
+  if (type == 100) fine_labels else labels
 }
 
 # for a specific batch file
@@ -62,8 +71,6 @@ read_cifar_image = function(file_path, i, type = 10) {
   img
 }
 
-# TODO: implement both CIFAR-10 and CIFAR-100 in the same file
-# the torchvision implementation and the PipeOpAdaptiveAvgPool implementations are probably helpful here
 constructor_cifar10 = function(path) {
   require_namespaces("torchvision")
 
@@ -72,7 +79,7 @@ constructor_cifar10 = function(path) {
   train_files = file.path(path, "cifar-10-batches-bin", sprintf("data_batch_%d.bin", 1:5))
   test_file = file.path(path, "cifar-10-batches-bin", "test_batch.bin")
 
-  train_labels = unlist(map(train_files, read_cifar_labels_batch))
+  train_labels = unlist(map(train_files, read_cifar_labels_batch, type = 10))
 
   # TODO: ensure this is all correct, Claude-generated
   data.table(
