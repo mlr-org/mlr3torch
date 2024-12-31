@@ -48,7 +48,7 @@ read_cifar_image = function(file_path, i, type = 10) {
 constructor_cifar10 = function(path) {
   require_namespaces("torchvision")
 
-  torchvision::cifar10_dataset(root = path, download = FALSE)
+  torchvision::cifar10_dataset(root = path, download = TRUE)
 
   train_files = file.path(path, "cifar-10-batches-bin", sprintf("data_batch_%d.bin", 1:5))
   test_file = file.path(path, "cifar-10-batches-bin", "test_batch.bin")
@@ -139,3 +139,65 @@ saveRDS(ci, here::here("inst/col_info/cifar10.rds"))
 # all(map_lgl(.x = idx_to_test, .f = test_same_at_idx, ds_mlr3torch = cifar10_ds, ds_torch = tv_cifar10_ds))
 
 # test_same_at_idx(10001, cifar10_ds, tv_cifar10_ds)
+
+# begin 100
+
+withr::local_options(mlr3torch.cache = TRUE)
+devtools::load_all()
+ci = col_info(get_private(tsk("cifar100")$backend)$.constructor())
+saveRDS(ci, here::here("inst/col_info/cifar100.rds"))
+
+path = file.path(get_cache_dir(), "datasets", "cifar100")
+
+torchvision::cifar100_dataset(root = path, download = TRUE)
+
+train_file = file.path(path, "cifar-100-binary", "train.bin")
+test_file = file.path(path, "cifar-100-batches-bin", "test.bin")
+
+train_labels = read_cifar_labels_batch(train_file, type = 100)
+
+# TODO: ensure this is all correct, Claude-generated
+data = data.table(
+  class = factor(c(train_labels, rep(NA, times = 10000))),
+  file = c(rep(train_file, 50000),
+           rep(test_file, 10000)),
+  idx_in_file = c(1:50000, 1:10000),
+  split = factor(rep(c("train", "test"), c(50000, 10000))),
+  ..row_id = seq_len(60000)
+)
+
+cifar100_ds_generator = torch::dataset(
+  initialize = function() {
+    self$.data = data
+  },
+  .getitem = function(idx) {
+    force(idx)
+
+    x = torch_tensor(read_cifar_image(self$.data$file[idx], self$.data$idx_in_file[idx], type = 100))
+
+    return(list(x = x))
+  },
+  .length = function() {
+    nrow(self$.data)
+  }
+)
+
+cifar100_ds = cifar100_ds_generator()
+
+dd = as_data_descriptor(cifar100_ds, list(x = c(NA, 32, 32, 3)))
+lt = lazy_tensor(dd)
+
+dt = cbind(data, data.table(image = lt))
+
+task = as_task_classif(dt, target = "class")
+
+task$col_roles$feature = "image"
+
+task$man = "mlr3torch::mlr_tasks_cifar100"
+
+task$filter(1:50000)
+
+ci = col_info(task$backend)
+
+saveRDS(ci, here::here("inst/col_info/cifar100.rds"))
+
