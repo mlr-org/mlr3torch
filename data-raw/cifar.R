@@ -152,7 +152,7 @@ path = file.path(get_cache_dir(), "datasets", "cifar100")
 torchvision::cifar100_dataset(root = path, download = TRUE)
 
 train_file = file.path(path, "cifar-100-binary", "train.bin")
-test_file = file.path(path, "cifar-100-batches-bin", "test.bin")
+test_file = file.path(path, "cifar-100-binary", "test.bin")
 
 train_labels = read_cifar_labels_batch(train_file, type = 100)
 
@@ -193,11 +193,18 @@ task = as_task_classif(dt, target = "class")
 
 task$col_roles$feature = "image"
 
-task$man = "mlr3torch::mlr_tasks_cifar100"
-
 task$filter(1:50000)
 
 ci = col_info(task$backend)
 
 saveRDS(ci, here::here("inst/col_info/cifar100.rds"))
+
+task_new = TaskClassif$new(
+  id = "cifar100",
+  backend = task$backend,
+  target = "class"
+)
+
+task_new$data()
+
 

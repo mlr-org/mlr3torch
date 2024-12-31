@@ -164,7 +164,7 @@ constructor_cifar100 = function(path) {
   torchvision::cifar100_dataset(root = path, download = TRUE)
 
   train_file = file.path(path, "cifar-100-binary", "train.bin")
-  test_file = file.path(path, "cifar-100-batches-bin", "test.bin")
+  test_file = file.path(path, "cifar-100-binary", "test.bin")
 
   train_labels = read_cifar_labels_batch(train_file, type = 100)
 
