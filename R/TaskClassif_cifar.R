@@ -51,13 +51,14 @@ read_cifar_labels_batch = function(file_path, type = 10) {
 
 # for a specific batch file
 read_cifar_image = function(file_path, i, type = 10) {
-  record_size = 1 + (32 * 32 * 3)
+  fine_label = as.integer(type == 100)
+  record_size = 1 + fine_label + (32 * 32 * 3)
 
   con = file(file_path, "rb")
   on.exit({close(con)}, add = TRUE)
 
   seek(con, (i - 1) * record_size, origin = "start") # previous labels and images
-  seek(con, 1, origin = "current") # current label
+  seek(con, 1 + fine_label, origin = "current") # seek past the current label(s)
 
   r = as.integer(readBin(con, raw(), size = 1, n = 1024, endian = "big"))
   g = as.integer(readBin(con, raw(), size = 1, n = 1024, endian = "big"))
@@ -81,7 +82,6 @@ constructor_cifar10 = function(path) {
 
   train_labels = unlist(map(train_files, read_cifar_labels_batch, type = 10))
 
-  # TODO: ensure this is all correct, Claude-generated
   data.table(
     class = factor(c(train_labels, rep(NA, times = 10000))),
     file = c(rep(train_files, each = 10000),
@@ -147,3 +147,80 @@ load_task_cifar10 = function(id = "cifar10") {
 }
 
 register_task("cifar10", load_task_cifar10)
+
+constructor_cifar100 = function(path) {
+  require_namespaces("torchvision")
+
+  torchvision::cifar10_dataset(root = path, download = TRUE)
+
+  train_files = file.path(path, "cifar-100-batches-bin", sprintf("data_batch_%d.bin", 1:5))
+  test_file = file.path(path, "cifar-100-batches-bin", "test_batch.bin")
+
+  train_labels = unlist(map(train_files, read_cifar_labels_batch, type = 100))
+
+  # TODO: ensure this is all correct, Claude-generated
+  data.table(
+    class = factor(c(train_labels, rep(NA, times = 10000))),
+    file = c(rep(train_files, each = 10000),
+             rep(test_file, 10000)),
+    idx_in_file = c(rep(1:10000, 5),
+             1:10000),
+    split = factor(rep(c("train", "test"), c(50000, 10000))),
+    ..row_id = seq_len(60000)
+  )
+}
+
+load_task_cifar10 = function(id = "cifar10") {
+  cached_constructor = function(backend) {
+    data = cached(constructor_cifar10, "datasets", "cifar10")$data
+
+    cifar10_ds_generator = torch::dataset(
+      initialize = function() {
+        self$.data = data
+      },
+      .getitem = function(idx) {
+        force(idx)
+
+        x = torch_tensor(read_cifar_image(self$.data$file[idx], self$.data$idx_in_file[idx], type = 100))
+
+        return(list(x = x))
+      },
+      .length = function() {
+        nrow(self$.data)
+      }
+    )
+
+    cifar10_ds = cifar10_ds_generator()
+
+    dd = as_data_descriptor(cifar10_ds, list(x = c(NA, 32, 32, 3)))
+    lt = lazy_tensor(dd)
+
+    dt = cbind(data, data.table(image = lt))
+
+    DataBackendDataTable$new(data = dt, primary_key = "..row_id")
+  }
+
+  backend = DataBackendLazy$new(
+    constructor = cached_constructor,
+    rownames = seq_len(60000),
+    col_info = load_col_info("cifar100"),
+    primary_key = "..row_id"
+  )
+
+  task = TaskClassif$new(
+    backend = backend,
+    id = "cifar100",
+    target = "class",
+    label = "CIFAR-100 Classification"
+  )
+
+  task$col_roles$feature = "image"
+
+  backend$hash = task$man = "mlr3torch::mlr_tasks_cifar100"
+
+  task$filter(1:50000)
+
+  return(task)
+}
+
+register_task("cifar100", load_task_cifar100)
