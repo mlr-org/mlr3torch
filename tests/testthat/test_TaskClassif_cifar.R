@@ -6,13 +6,6 @@ test_that("CIFAR-10 works", {
 
   expect_equal(task$nrow, 50000)
 
-  # idx_to_test = c(1, 2, 27, 9999,
-#   10000, 10001, 10901, 19999,
-#   20000, 20001, 29999,
-#   30000, 30001, 39999,
-#   40000, 40001, 49999,
-#   50000)
-
   task$filter(1:10)
   expect_equal(task$id, "cifar10")
   expect_equal(task$label, "CIFAR-10 Classification")
@@ -31,23 +24,23 @@ test_that("CIFAR-10 data matches the torchvision implementation", {
   task = tsk("cifar10")
   task$data()
 
+  # check the responses
+  train_idx = 1:50000
+  int_mlr3torch_responses = as.integer(task$data()$class[train_idx])
+
   cifar10_ds_train = cifar10_dataset(root = file.path(get_cache_dir(), "datasets", "cifar10", "raw"), train = TRUE,
     download = FALSE)
 
-  train_idx = 1:50000
-  int_mlr3torch_responses = as.integer(task$class[trn_idx])
-
+  # TODO: determine whether a separate function is truly necessary
+  # proably not, if getitem() allows a vector
   get_response = function(idx, ds) {
     ds$.getitem(idx)$y
   }
-  int_tv_responses = map_int(trn_idx, get_response, ds = tv_cifar10_ds)
+  cifar10_ds_responses = map_int(train_idx, get_response, ds = cifar10_ds_train)
 
-  all.equal(int_mlr3torch_responses, int_tv_responses)
-
-  test_same_at_idx = function(idx, lt_col, ds) {
-    all.equal(as.array(lt_col[[idx]]), ds$.getitem(idx)$x)
-  }
+  expect_true(all.equal(int_mlr3torch_responses, cifar10_ds_responses))
   
+  # check a subset of train images
   small_train_idx = c(1, 2, 27, 9999,
     10000, 10001, 10901, 19999,
     20000, 20001, 29999,
@@ -55,23 +48,29 @@ test_that("CIFAR-10 data matches the torchvision implementation", {
     40000, 40001, 49999,
     50000
   )
-  task$filter(train_idx)
-  task$data()
+  task_small = task$clone()
+  task_small$filter(small_train_idx)
 
-  all(map_lgl(.x = small_train_idx, .f = test_same_at_idx, lt = task$image, ds = cifar10_ds_train))
+  test_same_at_idx = function(idx, lt_list, imgs_arr) {
+    all.equal(as.array(lt_list[[idx]]), imgs_arr[idx, , , ])
+  }
 
-  train_idx = c(1, 2, 27, 9999,
-    10000, 10001, 10901, 19999,
-    20000, 20001, 29999,
-    30000, 30001, 39999,
-    40000, 40001, 49999,
-    50000)
+  lt_list = materialize(task_small$data()$image)
+  imgs_arr = cifar10_ds_train$.getitem(small_train_idx)$x
 
-  all(map_lgl(.x = idx_to_test, .f = test_same_at_idx, ds_mlr3torch = cifar10_ds, ds_torch = tv_cifar10_ds))
+  expect_true(all(map_lgl(1:length(small_train_idx), test_same_at_idx, lt_list = lt_list, imgs_arr = imgs_arr)))
 
-  test_same_at_idx(10001, cifar10_ds, tv_cifar10_ds)
+  # check a subset of test images
+  test_idx = c(1, 2, 27, 8484, 9999, 10000)
+  
+  test_dt_from_task = task$backend$data(rows = 50001:60000, cols = task$backend$colnames)
+  expect_true(all(test_dt_from_task$split == "test"))
 
+  lt_list_test = materialize(test_dt_from_task[test_idx, ]$image)
 
-  test_idx = c(50001, 50002, 58484, 59999, 60000)
+  cifar10_ds_test = cifar10_dataset(root = file.path(get_cache_dir(), "datasets", "cifar10", "raw"), train = FALSE,
+    download = FALSE)
+  imgs_arr_test = cifar10_ds_test$.getitem(test_idx)$x
 
+  expect_true(all(map_lgl(1:length(test_idx), test_same_at_idx, lt_list = lt_list, imgs_arr = imgs_arr)))
 })
