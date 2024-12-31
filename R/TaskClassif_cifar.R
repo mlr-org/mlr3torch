@@ -1,10 +1,29 @@
 #' @title CIFAR-10 Classification Task
-#' 
+#'
 #' @name mlr_tasks_cifar_10
-#' 
-#' @description 
+#'
+#' @format [R6::R6Class] inheriting from [mlr3::TaskClassif].
+#' @include aaa.R
+#'
+#' @description
 #' The CIFAR-10 subset of the 80 million tiny images dataset.
 #' The data is obtained from [`torchvision::cifar10_dataset()`].
+#'
+#' @section Construction:
+#' ```
+#' tsk("cifar10")
+#' ```
+#'
+#' @template task_download
+#'
+#' @section Properties:
+#' `r rd_info_task_torch("cifar10", missings = FALSE)`
+#'
+#' @references
+#' `r format_bib("cifar2009")`
+#' @examplesIf torch::torch_is_installed()
+#' task = tsk("cifar10")
+#' task
 NULL
 
 # for a specific batch file
