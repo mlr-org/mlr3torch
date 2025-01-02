@@ -13,7 +13,6 @@
 #'
 #' cb = t_clbk("history")
 #' task = tsk("iris")
-#' task$filter(1:10)
 #'
 #' learner = lrn("classif.mlp", epochs = 3, batch_size = 1,
 #'   callbacks = t_clbk("history"), validate = 0.3)
