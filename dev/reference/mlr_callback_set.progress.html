@@ -150,6 +150,110 @@
 
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">task</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">learner</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"classif.mlp"</span>, epochs <span class="op">=</span> <span class="fl">10</span>, batch_size <span class="op">=</span> <span class="fl">1</span>, </span></span>
+<span class="r-in"><span>  callbacks <span class="op">=</span> <span class="fu"><a href="t_clbk.html">t_clbk</a></span><span class="op">(</span><span class="st">"progress"</span><span class="op">)</span>, validate <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="va">param_set</span><span class="op">$</span><span class="fu">set_values</span><span class="op">(</span></span></span>
+<span class="r-in"><span>measures_train <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msrs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"classif.acc"</span>, <span class="st">"classif.ce"</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  measures_valid <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"classif.ce"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 1]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Train):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.acc = 0.33</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.67</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.60</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 2]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Train):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.acc = 0.42</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.58</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.20</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 3]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Train):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.acc = 0.50</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.50</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.20</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 4]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Train):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.acc = 0.54</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.46</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.33</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 5]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Train):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.acc = 0.64</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.40</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 6]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Train):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.acc = 0.61</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.39</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.40</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 7]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Train):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.acc = 0.61</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.39</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.40</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 8]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Train):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.acc = 0.61</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.39</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.40</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 9]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Train):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.acc = 0.62</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.38</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.40</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 10]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Train):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.acc = 0.64</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.40</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 
