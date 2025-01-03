@@ -19,6 +19,7 @@ test_that("CIFAR-10 works", {
   expect_equal(task$backend$ncol, 6)
 })
 
+# TODO: delete
 test_that("CIFAR-10 data matches the torchvision implementation", {
   withr::local_options(mlr3torch.cache = TRUE)
   task = tsk("cifar10")

@@ -149,7 +149,8 @@ load_task_cifar10 = function(id = "cifar10") {
 
   task$col_roles$feature = "image"
 
-  backend$hash = task$man = "mlr3torch::mlr_tasks_cifar10"
+  # TODO: different hash, same manual
+  backend$hash = task$man = "mlr3torch::mlr_tasks_cifar"
 
   task$filter(1:50000)
 
@@ -252,7 +253,7 @@ load_task_cifar100 = function(id = "cifar100") {
 
   task$col_roles$feature = "image"
 
-  backend$hash = task$man = "mlr3torch::mlr_tasks_cifar100"
+  backend$hash = task$man = "mlr3torch::mlr_tasks_cifar"
 
   task$filter(1:50000)
 
