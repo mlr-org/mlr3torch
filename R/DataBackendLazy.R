@@ -182,7 +182,6 @@ DataBackendLazy = R6Class("DataBackendLazy",
         f(identical, backend$primary_key, self$primary_key, "primary key")
         f(test_permutation, backend$rownames, self$rownames, "row identifiers")
         f(test_permutation, backend$colnames, private$.colnames, "column names")
-        browser()
         f(test_equal_col_info, col_info(backend), private$.col_info, "column information")
         # need to reverse the order for correct error message
         private$.backend = backend

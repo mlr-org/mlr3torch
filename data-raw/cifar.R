@@ -5,27 +5,27 @@ library(data.table)
 library(torchvision)
 
 # cached
-constructor_cifar10 = function(path) {
-  require_namespaces("torchvision")
-
-  torchvision::cifar10_dataset(root = path, download = TRUE)
-
-  train_files = file.path(path, "cifar-10-batches-bin", sprintf("data_batch_%d.bin", 1:5))
-  test_file = file.path(path, "cifar-10-batches-bin", "test_batch.bin")
-
-  # TODO: convert these to the meaningful names
-  train_labels = unlist(map(train_files, read_cifar_labels_batch, type = 10))
-
-  data.table(
-    class = factor(c(train_labels, rep(NA, times = 10000))),
-    file = c(rep(train_files, each = 10000),
-             rep(test_file, 10000)),
-    idx_in_file = c(rep(1:10000, 5),
-             1:10000),
-    split = factor(rep(c("train", "test"), c(50000, 10000))),
-    ..row_id = seq_len(60000)
-  )
-}
+# constructor_cifar10 = function(path) {
+#   require_namespaces("torchvision")
+#
+#   torchvision::cifar10_dataset(root = path, download = TRUE)
+#
+#   train_files = file.path(path, "cifar-10-batches-bin", sprintf("data_batch_%d.bin", 1:5))
+#   test_file = file.path(path, "cifar-10-batches-bin", "test_batch.bin")
+#
+#   # TODO: convert these to the meaningful names
+#   train_labels = unlist(map(train_files, read_cifar_labels_batch, type = 10))
+#
+#   data.table(
+#     class = factor(c(train_labels, rep(NA, times = 10000))),
+#     file = c(rep(train_files, each = 10000),
+#              rep(test_file, 10000)),
+#     idx_in_file = c(rep(1:10000, 5),
+#              1:10000),
+#     split = factor(rep(c("train", "test"), c(50000, 10000))),
+#     ..row_id = seq_len(60000)
+#   )
+# }
 
 path <- here::here("cache")
 

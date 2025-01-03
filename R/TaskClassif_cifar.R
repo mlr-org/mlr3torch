@@ -209,7 +209,7 @@ constructor_cifar100 = function(path) {
 
 load_task_cifar100 = function(id = "cifar100") {
   cached_constructor = function(backend) {
-    data = cached(constructor_cifar10, "datasets", "cifar100")$data
+    data = cached(constructor_cifar100, "datasets", "cifar100")$data
 
     cifar100_ds_generator = torch::dataset(
       initialize = function() {
