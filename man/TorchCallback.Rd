@@ -113,7 +113,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   id = NULL,
   label = NULL,
   packages = NULL,
-  man = NULL
+  man = NULL,
+  additional_args = NULL
 )}\if{html}{\out{</div>}}
 }
 
