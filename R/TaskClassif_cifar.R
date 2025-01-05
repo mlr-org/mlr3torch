@@ -171,7 +171,7 @@ constructor_cifar100 = function(path) {
 
   train_labels_ints = read_cifar_labels_batch(train_file, type = 100)
   class_names = readLines(file.path(path, "cifar-100-binary", "fine_label_names.txt"))
-  browser()
+  
   data.table(
     class = factor(c(train_labels_ints, rep(NA, times = 10000)), labels = class_names),
     file = c(rep(train_file, 50000),
