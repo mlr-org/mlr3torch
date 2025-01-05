@@ -90,10 +90,12 @@ constructor_cifar10 = function(path) {
   test_file = file.path(path, "cifar-10-batches-bin", "test_batch.bin")
 
   # TODO: convert these to the meaningful names
-  train_labels = unlist(map(train_files, read_cifar_labels_batch, type = 10))
+  train_labels_ints = unlist(map(train_files, read_cifar_labels_batch, type = 10))
+  class_names = readLines(file.path(path, "cifar-10-batches-bin", "batches.meta.txt"))
+  class_names = class_names[class_names != ""]
 
   data.table(
-    class = factor(c(train_labels, rep(NA, times = 10000))),
+    class = factor(c(train_labels_ints, rep(NA, times = 10000)), labels = class_names),
     file = c(rep(train_files, each = 10000),
              rep(test_file, 10000)),
     idx_in_file = c(rep(1:10000, 5),
@@ -167,10 +169,11 @@ constructor_cifar100 = function(path) {
   train_file = file.path(path, "cifar-100-binary", "train.bin")
   test_file = file.path(path, "cifar-100-binary", "test.bin")
 
-  train_labels = read_cifar_labels_batch(train_file, type = 100)
-
+  train_labels_ints = read_cifar_labels_batch(train_file, type = 100)
+  class_names = readLines(file.path(path, "cifar-100-binary", "fine_label_names.txt"))
+  browser()
   data.table(
-    class = factor(c(train_labels, rep(NA, times = 10000))),
+    class = factor(c(train_labels_ints, rep(NA, times = 10000)), labels = class_names),
     file = c(rep(train_file, 50000),
              rep(test_file, 10000)),
     idx_in_file = c(1:50000, 1:10000),
