@@ -159,4 +159,3 @@ task$col_roles$feature = "image"
 ci = col_info(task$backend)
 
 saveRDS(ci, here::here("inst/col_info/cifar100.rds"))
-
