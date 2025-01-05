@@ -1,6 +1,6 @@
 #' @title CIFAR Classification Tasks
 #'
-#' @name mlr_tasks_cifar10
+#' @name mlr_tasks_cifar
 #'
 #' @format [R6::R6Class] inheriting from [mlr3::TaskClassif].
 #' @include aaa.R
@@ -158,34 +158,6 @@ load_task_cifar10 = function(id = "cifar10") {
 }
 
 register_task("cifar10", load_task_cifar10)
-
-#' @title CIFAR-100 Classification Task
-#'
-#' @name mlr_tasks_cifar100
-#'
-#' @format [R6::R6Class] inheriting from [mlr3::TaskClassif].
-#' @include aaa.R
-#'
-#' @description
-#' The 0CIFAR-100 subsets0 of the 80 million tiny images dataset.
-#' The data is obtained from [`torchvision::cifar100_dataset()`].
-#'
-#' @section Construction:
-#' ```
-#' tsk("cifar100")
-#' ```
-#'
-#' @template task_download
-#'
-#' @section Properties:
-#' `r rd_info_task_torch("cifar100", missings = FALSE)`
-#'
-#' @references
-#' `r format_bib("cifar2009")`
-#' @examplesIf torch::torch_is_installed()
-#' task_cifar100 = tsk("cifar100")
-#' print(task_cifar100)
-NULL
 
 constructor_cifar100 = function(path) {
   require_namespaces("torchvision")
