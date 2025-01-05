@@ -110,24 +110,34 @@ saveRDS(ci, here::here("inst/col_info/cifar10.rds"))
 constructor_cifar100 = function(path) {
   require_namespaces("torchvision")
 
-  torchvision::cifar100_dataset(root = path, download = TRUE)
+  # torchvision::cifar100_dataset(root = path, download = TRUE)
 
-  train_file = file.path(path, "cifar-100-binary", "train.bin")
-  test_file = file.path(path, "cifar-100-binary", "test.bin")
+  # train_file = file.path(path, "cifar-100-binary", "train.bin")
+  # test_file = file.path(path, "cifar-100-binary", "test.bin")
 
-  train_labels_ints = read_cifar_labels_batch(train_file, type = 100)
+  # train_labels_ints = read_cifar_labels_batch(train_file, type = 100)
+  # class_names = readLines(file.path(path, "cifar-100-binary", "fine_label_names.txt"))
+
+  # class = factor(c(train_labels_ints, rep(NA, times = 10000)), labels = class_names)
+
+  # data.table(
+  #   class = factor(c(train_labels_ints, rep(NA, times = 10000)), labels = class_names),
+  #   file = c(rep(train_file, 50000),
+  #            rep(test_file, 10000)),
+  #   idx_in_file = c(1:50000, 1:10000),
+  #   split = factor(rep(c("train", "test"), c(50000, 10000))),
+  #   ..row_id = seq_len(60000)
+  # )
+  tv_ds = torchvision::cifar100_dataset(root = path, download = TRUE)
   class_names = readLines(file.path(path, "cifar-100-binary", "fine_label_names.txt"))
-  browser()
-  class = factor(c(train_labels_ints, rep(NA, times = 10000)), labels = class_names)
-
-  data.table(
-    class = factor(c(train_labels_ints, rep(NA, times = 10000)), labels = class_names),
-    file = c(rep(train_file, 50000),
-             rep(test_file, 10000)),
-    idx_in_file = c(1:50000, 1:10000),
-    split = factor(rep(c("train", "test"), c(50000, 10000))),
-    ..row_id = seq_len(60000)
-  )
+  
+  # TODO: use $.getitem() instead of $x
+  # data.table(
+  #   class = factor(as.integer(tv_ds$y), labels = class_names),
+  #   image = self$x,
+  #   split = factor(rep(c("train", "test"), c(50000, 10000))),
+  #   ..row_id = seq_len(60000)
+  # )
 }
 
 data = constructor_cifar100(path)
