@@ -8,25 +8,20 @@ library(torchvision)
 constructor_cifar10 = function(path) {
   require_namespaces("torchvision")
 
-  torchvision::cifar10_dataset(root = path, download = TRUE)
+  tv_ds_train = torchvision::cifar10_dataset(root = path, download = TRUE)
+  tv_ds_test = torchvision::cifar10_dataset(root = path, train = fALSE, download = FALSE)
 
-  train_files = file.path(path, "cifar-10-batches-bin", sprintf("data_batch_%d.bin", 1:5))
-  test_file = file.path(path, "cifar-10-batches-bin", "test_batch.bin")
+  tv_data_train = tv_ds$.getitem(1:50000)
+  tv_data$class_names = readLines(file.path(path, "cifar-10-batches-bin", "batches.meta.txt"))
 
-  # TODO: convert these to the meaningful names
-  train_labels_ints = unlist(map(train_files, read_cifar_labels_batch, type = 10))
-  class_names = readLines(file.path(path, "cifar-10-batches-bin", "batches.meta.txt"))
-  class_names = class_names[class_names != ""]
+  tv_data
 
-  data.table(
-    class = factor(c(train_labels_ints, rep(NA, times = 10000)), labels = class_names),
-    file = c(rep(train_files, each = 10000),
-             rep(test_file, 10000)),
-    idx_in_file = c(rep(1:10000, 5),
-             1:10000),
-    split = factor(rep(c("train", "test"), c(50000, 10000))),
-    ..row_id = seq_len(60000)
-  )
+  # return: data.table
+  # nested list
+  # train
+    # x, y, class_names
+  # test
+    # x, y
 }
 
 withr::local_options(mlr3torch.cache = TRUE)
@@ -72,24 +67,6 @@ path <- file.path(get_cache_dir(), "datasets", "cifar100", "raw")
 constructor_cifar100 = function(path) {
   require_namespaces("torchvision")
 
-  # torchvision::cifar100_dataset(root = path, download = TRUE)
-
-  # train_file = file.path(path, "cifar-100-binary", "train.bin")
-  # test_file = file.path(path, "cifar-100-binary", "test.bin")
-
-  # train_labels_ints = read_cifar_labels_batch(train_file, type = 100)
-  # class_names = readLines(file.path(path, "cifar-100-binary", "fine_label_names.txt"))
-
-  # class = factor(c(train_labels_ints, rep(NA, times = 10000)), labels = class_names)
-
-  # data.table(
-  #   class = factor(c(train_labels_ints, rep(NA, times = 10000)), labels = class_names),
-  #   file = c(rep(train_file, 50000),
-  #            rep(test_file, 10000)),
-  #   idx_in_file = c(1:50000, 1:10000),
-  #   split = factor(rep(c("train", "test"), c(50000, 10000))),
-  #   ..row_id = seq_len(60000)
-  # )
   tv_ds = torchvision::cifar100_dataset(root = path, download = TRUE)
   class_names = readLines(file.path(path, "cifar-100-binary", "fine_label_names.txt"))
 
@@ -103,7 +80,7 @@ constructor_cifar100 = function(path) {
 data = constructor_cifar100(path)
 
 cifar100_ds_generator = torch::dataset(
-  initialize = function(data) {
+  initialize = function() {
     self$.img_arr = data$x
   },
   .getitem = function(idx) {
@@ -118,7 +95,7 @@ cifar100_ds_generator = torch::dataset(
   }
 )
 
-cifar100_ds = cifar100_ds_generator(data)
+cifar100_ds = cifar100_ds_generator()
 
 dd = as_data_descriptor(cifar100_ds, list(x = c(NA, 32, 32, 3)))
 lt = lazy_tensor(dd)
