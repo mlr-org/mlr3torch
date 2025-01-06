@@ -8,7 +8,7 @@
 }
 \description{
 The CIFAR-10 and CIFAR-100 subsets of the 80 million tiny images dataset.
-The data is obtained from \code{\link[torchvision:cifar10_dataset]{torchvision::cifar10_dataset()}}.
+The data is obtained from \code{\link[torchvision:cifar10_dataset]{torchvision::cifar10_dataset()}}  or \code{\link[torchvision:cifar100:dataset]{torchvision::cifar100:dataset()}}.
 }
 \section{Construction}{
 
@@ -34,7 +34,7 @@ as the cache directory.
 \item Has Missings: no
 \item Target: \dQuote{class}
 \item Features: \dQuote{image}
-\item Data Dimension: 60000x6
+\item Data Dimension: 60000x4
 }
 }
 

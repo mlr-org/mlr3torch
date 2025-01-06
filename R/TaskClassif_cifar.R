@@ -7,7 +7,7 @@
 #'
 #' @description
 #' The CIFAR-10 and CIFAR-100 subsets of the 80 million tiny images dataset.
-#' The data is obtained from [`torchvision::cifar10_dataset()`].
+#' The data is obtained from [`torchvision::cifar10_dataset()`]  or [`torchvision::cifar100:dataset()`].
 #'
 #' @section Construction:
 #' ```
@@ -32,14 +32,14 @@ NULL
 constructor_cifar10 = function(path) {
   require_namespaces("torchvision")
 
-  tv_ds_train = torchvision::cifar10_dataset(root = path, download = TRUE)
-  tv_data_train = tv_ds_train$.getitem(1:50000)
+  d_train = torchvision::cifar10_dataset(root = path, train = TRUE, download = TRUE)
 
-  tv_ds_test = torchvision::cifar10_dataset(root = path, train = FALSE, download = FALSE)
-  tv_data_test = tv_ds_test$.getitem(1:10000)
+  d_test = torchvision::cifar10_dataset(root = path, train = FALSE, download = FALSE)
 
-  labels = c(tv_data_train$y, tv_data_test$y)
-  images = array(c(tv_data_train$x, tv_data_test$x), dim = c(60000, 32, 32, 3))
+  labels = c(d_train$y, d_test$y)
+  images = array(NA, dim = c(60000, 32, 32, 3))
+  images[1:50000, , , ] = d_train$x
+  images[50001:60000, , , ] = d_test$x
 
   class_names = readLines(file.path(path, "cifar-10-batches-bin", "batches.meta.txt"))
   class_names = class_names[class_names != ""]
@@ -109,14 +109,14 @@ register_task("cifar10", load_task_cifar10)
 constructor_cifar100 = function(path) {
   require_namespaces("torchvision")
 
-  tv_ds_train = torchvision::cifar100_dataset(root = path, download = TRUE)
-  tv_data_train = tv_ds_train$.getitem(1:50000)
+  d_train = torchvision::cifar100_dataset(root = path, train = TRUE, download = TRUE)
 
-  tv_ds_test = torchvision::cifar100_dataset(root = path, train = FALSE, download = FALSE)
-  tv_data_test = tv_ds_test$.getitem(1:10000)
+  d_test = torchvision::cifar100_dataset(root = path, train = FALSE, download = FALSE)
 
-  labels = c(tv_data_train$y, tv_data_test$y)
-  images = array(c(tv_data_train$x, tv_data_test$x), dim = c(60000, 32, 32, 3))
+  labels = c(d_train$y, d_test$y)
+  images = array(NA, dim = c(60000, 32, 32, 3))
+  images[1:50000, , , ] = d_train$x
+  images[50001:60000, , , ] = d_test$x
 
   class_names = readLines(file.path(path, "cifar-100-binary", "fine_label_names.txt"))
 
