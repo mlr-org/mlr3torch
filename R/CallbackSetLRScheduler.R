@@ -41,6 +41,7 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
       self$scheduler$step()
     }
     # TODO: add batches
+    # this does not need to be exposed to the user, we can pass an additional arg
   ),
   private = list(
     .scheduler_args = NULL
@@ -177,30 +178,16 @@ mlr3torch_callbacks$add("lr_scheduler_step", function() {
   )
 })
 
-#' @include TorchCallback.R
-mlr3torch_callbacks$add("lr_scheduler_custom", function() {
-  TorchCallback$new(
-    callback_generator = CallbackSetLRScheduler,
-    param_set = ps(
-      .scheduler = p_uty(tags = c("train", "required"), custom_check = function(input) check_class(input, "LRScheduler")),
-    ),
-    id = "lr_scheduler",
-    label = "Learning Rate Scheduler",
-    man = "mlr3torch::mlr_callback_set.lr_scheduler",
-    # additional_args = lr_cosine_annealing
-  )
-})
+as_lr_scheduler = function(x) {
+  assert_class(x, "LRScheduler")
 
-# TODO: implement custom schedulers
-as_lr_scheduler = function(lr_scheduler) {
-  # alternatively, allow the user to pass in a ps
   TorchCallback$new(
     callback_generator = CallbackSetLRScheduler,
     param_set = inferps(lr_scheduler),
     id = "lr_scheduler",
     label = "Learning Rate Scheduler",
     man = "mlr3torch::mlr_callback_set.lr_scheduler",
-    additional_args = list(.scheduler = lr_scheduler)
+    additional_args = list(.scheduler = x)
   )
 }
 
