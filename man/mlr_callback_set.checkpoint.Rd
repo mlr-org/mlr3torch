@@ -16,7 +16,6 @@ as the model slot is set \emph{after} the last callback step is executed.
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 cb = t_clbk("checkpoint", freq = 1)
 task = tsk("iris")
-task$row_roles$use = 1
 
 pth = tempfile()
 learner = lrn("classif.mlp", epochs = 3, batch_size = 1, callbacks = cb)
