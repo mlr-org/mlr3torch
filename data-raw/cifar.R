@@ -22,7 +22,7 @@ constructor_cifar10 = function(path) {
   class_names = readLines(file.path(path, "cifar-10-batches-bin", "batches.meta.txt"))
   class_names = class_names[class_names != ""]
 
-  return(list(labels = labels, images = images, class_names = class_names))
+  return(list(labels = factor(labels, labels = class_names), images = images))
 }
 
 withr::local_options(mlr3torch.cache = TRUE)
@@ -53,7 +53,7 @@ dd = as_data_descriptor(cifar10_ds, list(x = c(NA, 3, 32, 32)))
 lt = lazy_tensor(dd)
 
 tsk_dt = data.table(
-  class = factor(data$labels, labels = data$class_names),
+  class = data$labels,
   image = lt,
   split = factor(rep(c("train", "test"), c(50000, 10000))),
   ..row_id = seq_len(60000)
@@ -88,7 +88,7 @@ constructor_cifar100 = function(path) {
 
   class_names = readLines(file.path(path, "cifar-100-binary", "fine_label_names.txt"))
 
-  return(list(labels = labels, images = images, class_names = class_names))
+  return(list(labels = factor(labels, levels = class_names), images = images))
 }
 
 data = constructor_cifar100(path)
@@ -115,7 +115,7 @@ dd = as_data_descriptor(cifar100_ds, list(x = c(NA, 3, 32, 32)))
 lt = lazy_tensor(dd)
 
 dt = data.table(
-  class = factor(data$labels, labels = data$class_names),
+  class = data$labels,
   image = lt,
   split = factor(rep(c("train", "test"), c(50000, 10000))),
   ..row_id = seq_len(60000)
