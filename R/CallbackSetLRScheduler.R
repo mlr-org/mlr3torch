@@ -94,7 +94,7 @@ mlr3torch_callbacks$add("lr_scheduler_lambda", function() {
     id = "lr_scheduler",
     label = "Learning Rate Scheduler",
     man = "mlr3torch::mlr_callback_set.lr_scheduler",
-    additional_args = lr_lambda
+    additional_args = list(.scheduler = torch::lr_lambda)
   )
 })
 
@@ -110,7 +110,7 @@ mlr3torch_callbacks$add("lr_scheduler_multiplicative", function() {
     id = "lr_scheduler",
     label = "Learning Rate Scheduler",
     man = "mlr3torch::mlr_callback_set.lr_scheduler",
-    additional_args = lr_multiplicative
+    additional_args = list(.scheduler = torch::lr_multiplicative)
   )
 })
 
@@ -135,7 +135,7 @@ mlr3torch_callbacks$add("lr_scheduler_one_cycle", function() {
     id = "lr_scheduler",
     label = "Learning Rate Scheduler",
     man = "mlr3torch::mlr_callback_set.lr_scheduler",
-    additional_args = lr_one_cycle
+    additional_args = list(.scheduler = torch::lr_one_cycle)
   )
 })
 
@@ -157,7 +157,7 @@ mlr3torch_callbacks$add("lr_scheduler_reduce_on_plateau", function() {
     id = "lr_scheduler",
     label = "Learning Rate Scheduler",
     man = "mlr3torch::mlr_callback_set.lr_scheduler",
-    additional_args = lr_reduce_on_plateau
+    additional_args = list(.scheduler = torch::lr_reduce_on_plateau)
   )
 })
 
@@ -173,27 +173,23 @@ mlr3torch_callbacks$add("lr_scheduler_step", function() {
     id = "lr_scheduler",
     label = "Learning Rate Scheduler",
     man = "mlr3torch::mlr_callback_set.lr_scheduler",
-    additional_args = lr_step
+    additional_args = list(.scheduler = torch::lr_step)
   )
 })
 
-# end torch-provided schedulers
-
-# begin custom LR schedulers
-
-# #' @include TorchCallback.R
-# mlr3torch_callbacks$add("lr_scheduler_custom", function() {
-#   TorchCallback$new(
-#     callback_generator = CallbackSetLRScheduler,
-#     param_set = ps(
-#       .scheduler = p_uty(tags = c("train", "required"), custom_check = function(input) check_class(input, "LRScheduler")),
-#     ),
-#     id = "lr_scheduler",
-#     label = "Learning Rate Scheduler",
-#     man = "mlr3torch::mlr_callback_set.lr_scheduler",
-#     # additional_args = lr_cosine_annealing
-#   )
-# })
+#' @include TorchCallback.R
+mlr3torch_callbacks$add("lr_scheduler_custom", function() {
+  TorchCallback$new(
+    callback_generator = CallbackSetLRScheduler,
+    param_set = ps(
+      .scheduler = p_uty(tags = c("train", "required"), custom_check = function(input) check_class(input, "LRScheduler")),
+    ),
+    id = "lr_scheduler",
+    label = "Learning Rate Scheduler",
+    man = "mlr3torch::mlr_callback_set.lr_scheduler",
+    # additional_args = lr_cosine_annealing
+  )
+})
 
 # # TODO: implement custom schedulers
 # as_lr_scheduler = function(lr_scheduler) {
