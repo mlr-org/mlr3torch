@@ -6,17 +6,18 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       self$patience = assert_int(patience, lower = 1L)
       self$min_delta = assert_double(min_delta, lower = 0, len = 1L, any.missing = FALSE)
       self$stagnation = 0L
+      self$best_score = NULL
     },
     on_valid_end = function() {
-      if (is.null(self$prev_valid_scores)) {
-        self$prev_valid_scores = self$ctx$last_scores_valid
-        return(NULL)
-      }
       if (is.null(self$ctx$last_scores_valid)) {
         return(NULL)
       }
+      if (is.null(self$best_score)) {
+        self$best_score = self$ctx$last_scores_valid[[1L]]
+        return(NULL)
+      }
       multiplier = if (self$ctx$measures_valid[[1L]]$minimize) -1 else 1
-      improvement = multiplier * (self$ctx$last_scores_valid[[1L]] - self$prev_valid_scores[[1L]])
+      improvement = multiplier * (self$ctx$last_scores_valid[[1L]] - self$best_score)
 
       if (is.na(improvement)) {
         lg$warn("Learner %s in epoch %s: Difference between subsequent validation performances is NA",
@@ -32,7 +33,9 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       } else {
         self$stagnation = 0
       }
-      self$prev_valid_scores = self$ctx$last_scores_valid
+      if (improvement > 0) {
+        self$best_score = self$ctx$last_scores_valid[[1L]]
+      }
     }
   )
 )

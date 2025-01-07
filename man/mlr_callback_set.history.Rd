@@ -14,10 +14,9 @@ The first column is always \code{epoch}.
 
 cb = t_clbk("history")
 task = tsk("iris")
-task$filter(1:10)
 
 learner = lrn("classif.mlp", epochs = 3, batch_size = 1,
-              callbacks = t_clbk("history"), validate = 0.1)
+  callbacks = t_clbk("history"), validate = 0.3)
 learner$param_set$set_values(
   measures_train = msrs(c("classif.acc", "classif.ce")),
   measures_valid = msr("classif.ce")
