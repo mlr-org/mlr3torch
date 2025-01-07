@@ -57,11 +57,13 @@ as the cache directory.
 }
 }
 
+\examples{
+task = tsk("melanoma")
+task
+}
 \references{
 Rotemberg, V., Kurtansky, N., Betz-Stablein, B., Caffery, L., Chousakos, E., Codella, N., Combalia, M., Dusza, S., Guitera, P., Gutman, D., Halpern, A., Helba, B., Kittler, H., Kose, K., Langer, S., Lioprys, K., Malvehy, J., Musthaq, S., Nanda, J., Reiter, O., Shih, G., Stratigos, A., Tschandl, P., Weber, J., Soyer, P. (2021).
 \dQuote{A patient-centric dataset of images and metadata for identifying melanomas using clinical context.}
 \emph{Scientific Data}, \bold{8}, 34.
 \doi{10.1038/s41597-021-00815-z}.
-task = tsk("melanoma")
-task
 }

@@ -7,7 +7,14 @@
 \link[R6:R6Class]{R6::R6Class} inheriting from \link[mlr3:TaskClassif]{mlr3::TaskClassif}.
 }
 \description{
-The CIFAR-10 and CIFAR-100 subsets of the 80 million tiny images dataset. TODO: explain the subsets. explain the difference.
+The CIFAR-10 and CIFAR-100 datasets. A subset of the 80 million tiny images dataset
+with noisy labels was supplied to student labelers, who were asked to filter out
+incorrectly labeled images.
+
+CIFAR-10 contains 10 classes. CIFAR-100 contains 100 classes, which may be partitioned into 20 superclasses of 5 classes each.
+The CIFAR-10 and CIFAR-100 classes are mutually exclusive.
+See Chapter 3.1 of \href{https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf}{the technical report} for more details.
+
 The data is obtained from \code{\link[torchvision:cifar10_dataset]{torchvision::cifar10_dataset()}} (or \code{torchvision::cifar100_dataset()}).
 }
 \section{Construction}{
@@ -39,12 +46,10 @@ as the cache directory.
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 task_cifar10 = tsk("cifar10")
 task_cifar100 = tsk("cifar100")
 print(task_cifar10)
 print(task_cifar100)
-\dontshow{\}) # examplesIf}
 }
 \references{
 Krizhevsky, Alex (2009).
