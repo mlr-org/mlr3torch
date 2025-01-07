@@ -191,14 +191,22 @@ mlr3torch_callbacks$add("lr_scheduler_custom", function() {
   )
 })
 
-# # TODO: implement custom schedulers
-# as_lr_scheduler = function(lr_scheduler) {
-#   # infer the ps from the lr_scheduler signature (using inferps())
+# TODO: implement custom schedulers
+as_lr_scheduler = function(lr_scheduler) {
+  # alternatively, allow the user to pass in a ps
+  TorchCallback$new(
+    callback_generator = CallbackSetLRScheduler,
+    param_set = inferps(lr_scheduler),
+    id = "lr_scheduler",
+    label = "Learning Rate Scheduler",
+    man = "mlr3torch::mlr_callback_set.lr_scheduler",
+    additional_args = list(.scheduler = lr_scheduler)
+  )
+}
 
-#   # alternatively, allow the user to pass in a ps
-# }
-
+# for a custom scheduler, instead of the following
 # t_clbk("lr_step", ...)
 
-# custom_scheduler = function()
+# the user would write something like this
+# custom_scheduler = function() 
 # as_lr_scheduler(custom_scheduler)

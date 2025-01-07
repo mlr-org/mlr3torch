@@ -1,5 +1,5 @@
 test_that("autotest", {
-  cb = t_clbk("lr_scheduler_cosine_annealing", T_max = )
+  cb = t_clbk("lr_scheduler_cosine_annealing", T_max = 1)
   expect_torch_callback(cb)
 })
 
@@ -26,17 +26,7 @@ test_that("cosine annealing works") {
     nn_linear(10, 3)
   )
 
-  train_ds = torch::dataset("iris", 
-    initialize = function(df) {
-      self$df = df
-    },
-    .getitem = function(i) {
-      self$df[i, ]
-    },
-    .length = function() {
-      nrow(self$df)
-    }
-  )
+  train_ds = torch::dataset("iris")
 
   opt <- optim_adam(torch_mlp$parameters)
   for (t in seq_len(n_epochs)) {
