@@ -78,7 +78,7 @@ mlr3torch_callbacks$add("lr_scheduler_cosine_annealing", function() {
     id = "lr_scheduler",
     label = "Learning Rate Scheduler",
     man = "mlr3torch::mlr_callback_set.lr_scheduler",
-    additional_args = torch::lr_cosine_annealing
+    additional_args = list(.scheduler = torch::lr_cosine_annealing)
   )
 })
 
