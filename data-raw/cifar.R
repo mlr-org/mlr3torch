@@ -5,33 +5,7 @@ library(data.table)
 library(torchvision)
 
 # cached
-constructor_cifar10 = function(path) {
-  require_namespaces("torchvision")
-
-  d_train = torchvision::cifar10_dataset(root = path, train = TRUE, download = TRUE)
-
-  d_test = torchvision::cifar10_dataset(root = path, train = FALSE, download = FALSE)
-
-  labels = c(d_train$y, d_test$y)
-  images = array(NA, dim = c(60000, 3, 32, 32))
-  # original data has channel dimension at the end
-  perm_idx = c(1, 4, 2, 3)
-  images[1:50000, , , ] = aperm(d_train$x, perm_idx, resize = TRUE)
-  images[50001:60000, , , ] = aperm(d_test$x, perm_idx, resize = TRUE)
-
-  class_names = readLines(file.path(path, "cifar-10-batches-bin", "batches.meta.txt"))
-  class_names = class_names[class_names != ""]
-
-  return(list(labels = factor(labels, labels = class_names), images = images))
-}
-
-withr::local_options(mlr3torch.cache = TRUE)
-path = file.path(get_cache_dir(), "datasets", "cifar10", "raw")
-
-# begin CIFAR-10
-data <- constructor_cifar10(path)
-
-cifar10_ds_generator = torch::dataset(
+cifar_ds_generator = torch::dataset(
   initialize = function(images) {
     self$images = images
   },
@@ -47,13 +21,47 @@ cifar10_ds_generator = torch::dataset(
   }
 )
 
-cifar10_ds = cifar10_ds_generator(data$images)
+constructor_cifar = function(path, type = 10) {
+  if (type == 10) {
+    d_train = torchvision::cifar10_dataset(root = path, train = TRUE, download = TRUE)
+    d_test = torchvision::cifar10_dataset(root = path, train = FALSE, download = FALSE)
+    class_names = readLines(file.path(path, "cifar-10-batches-bin", "batches.meta.txt"))
+    class_names = class_names[class_names != ""]
+  } else if (type == 100) {
+    d_train = torchvision::cifar100_dataset(root = path, train = TRUE, download = TRUE)
+    d_test = torchvision::cifar100_dataset(root = path, train = FALSE, download = FALSE)
+    class_names = readLines(file.path(path, "cifar-100-binary", "fine_label_names.txt"))
+  }
+
+  classes = c(d_train$y, d_test$y)
+  images = array(NA, dim = c(60000, 3, 32, 32))
+  # original data has channel dimension at the end
+  perm_idx = c(1, 4, 2, 3)
+  images[1:50000, , , ] = aperm(d_train$x, perm_idx, resize = TRUE)
+  images[50001:60000, , , ] = aperm(d_test$x, perm_idx, resize = TRUE)
+
+  return(list(class = factor(classes, labels = class_names), images = images))
+}
+
+constructor_cifar10 = function(path) {
+  require_namespaces("torchvision")
+
+  return(constructor_cifar(path, type = 10))
+}
+
+withr::local_options(mlr3torch.cache = TRUE)
+path = file.path(get_cache_dir(), "datasets", "cifar10", "raw")
+
+# begin CIFAR-10
+data <- constructor_cifar10(path)
+
+cifar10_ds = cifar_ds_generator(data$images)
 
 dd = as_data_descriptor(cifar10_ds, list(x = c(NA, 3, 32, 32)))
 lt = lazy_tensor(dd)
 
 tsk_dt = data.table(
-  class = data$labels,
+  class = data$class,
   image = lt,
   split = factor(rep(c("train", "test"), c(50000, 10000))),
   ..row_id = seq_len(60000)
@@ -75,47 +83,18 @@ path = file.path(get_cache_dir(), "datasets", "cifar100", "raw")
 constructor_cifar100 = function(path) {
   require_namespaces("torchvision")
 
-  d_train = torchvision::cifar100_dataset(root = path, train = TRUE, download = TRUE)
-
-  d_test = torchvision::cifar100_dataset(root = path, train = FALSE, download = FALSE)
-
-  labels = c(d_train$y, d_test$y)
-  images = array(NA, dim = c(60000, 3, 32, 32))
-  # original data has channel dimension at the end
-  perm_idx = c(1, 4, 2, 3)
-  images[1:50000, , , ] = aperm(d_train$x, perm_idx, resize = TRUE)
-  images[50001:60000, , , ] = aperm(d_test$x, perm_idx, resize = TRUE)
-
-  class_names = readLines(file.path(path, "cifar-100-binary", "fine_label_names.txt"))
-
-  return(list(labels = factor(labels, levels = class_names), images = images))
+  return(constructor_cifar(path, type = 100))
 }
 
 data = constructor_cifar100(path)
 
-cifar100_ds_generator = torch::dataset(
-  initialize = function(images) {
-    self$images = images
-  },
-  .getitem = function(idx) {
-    force(idx)
-
-    x = torch_tensor(self$images[idx, , , ])
-
-    return(list(x = x))
-  },
-  .length = function() {
-    dim(self$images)[1L]
-  }
-)
-
-cifar100_ds = cifar100_ds_generator(data$images)
+cifar100_ds = cifar_ds_generator(data$images)
 
 dd = as_data_descriptor(cifar100_ds, list(x = c(NA, 3, 32, 32)))
 lt = lazy_tensor(dd)
 
 dt = data.table(
-  class = data$labels,
+  class = data$class,
   image = lt,
   split = factor(rep(c("train", "test"), c(50000, 10000))),
   ..row_id = seq_len(60000)
