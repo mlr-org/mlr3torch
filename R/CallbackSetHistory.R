@@ -9,6 +9,20 @@
 #'
 #' @export
 #' @include CallbackSet.R
+#' @examplesIf torch::torch_is_installed()
+#'
+#' cb = t_clbk("history")
+#' task = tsk("iris")
+#'
+#' learner = lrn("classif.mlp", epochs = 3, batch_size = 1,
+#'   callbacks = t_clbk("history"), validate = 0.3)
+#' learner$param_set$set_values(
+#'   measures_train = msrs(c("classif.acc", "classif.ce")),
+#'   measures_valid = msr("classif.ce")
+#' )
+#' learner$train(task)
+#'
+#' print(learner$model$callbacks$history)
 CallbackSetHistory = R6Class("CallbackSetHistory",
   inherit = CallbackSet,
   lock_objects = FALSE,
