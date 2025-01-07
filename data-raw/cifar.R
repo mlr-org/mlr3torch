@@ -8,14 +8,16 @@ library(torchvision)
 constructor_cifar10 = function(path) {
   require_namespaces("torchvision")
 
-  tv_ds_train = torchvision::cifar10_dataset(root = path, train = TRUE, download = TRUE)
-  tv_data_train = tv_ds_train$.getitem(1:50000)
+  d_train = torchvision::cifar10_dataset(root = path, train = TRUE, download = TRUE)
 
-  tv_ds_test = torchvision::cifar10_dataset(root = path, train = FALSE, download = FALSE)
-  tv_data_test = tv_ds_test$.getitem(1:10000)
+  d_test = torchvision::cifar10_dataset(root = path, train = FALSE, download = FALSE)
 
-  labels = c(tv_data_train$y, tv_data_test$y)
-  images = array(c(tv_data_train$x, tv_data_test$x), dim = c(60000, 32, 32, 3))
+  labels = c(d_train$y, d_test$y)
+  images = array(NA, dim = c(60000, 3, 32, 32))
+  # original data has channel dimension at the end
+  perm_idx = c(1, 4, 2, 3)
+  images[1:50000, , , ] = aperm(d_train$x, perm_idx, resize = TRUE)
+  images[50001:60000, , , ] = aperm(d_test$x, perm_idx, resize = TRUE)
 
   class_names = readLines(file.path(path, "cifar-10-batches-bin", "batches.meta.txt"))
   class_names = class_names[class_names != ""]
@@ -47,7 +49,7 @@ cifar10_ds_generator = torch::dataset(
 
 cifar10_ds = cifar10_ds_generator(data$images)
 
-dd = as_data_descriptor(cifar10_ds, list(x = c(NA, 32, 32, 3)))
+dd = as_data_descriptor(cifar10_ds, list(x = c(NA, 3, 32, 32)))
 lt = lazy_tensor(dd)
 
 tsk_dt = data.table(
@@ -73,14 +75,16 @@ path = file.path(get_cache_dir(), "datasets", "cifar100", "raw")
 constructor_cifar100 = function(path) {
   require_namespaces("torchvision")
 
-  tv_ds_train = torchvision::cifar100_dataset(root = path, train = TRUE, download = TRUE)
-  tv_data_train = tv_ds_train$.getitem(1:50000)
+  d_train = torchvision::cifar100_dataset(root = path, train = TRUE, download = TRUE)
 
-  tv_ds_test = torchvision::cifar100_dataset(root = path, train = FALSE, download = FALSE)
-  tv_data_test = tv_ds_test$.getitem(1:10000)
+  d_test = torchvision::cifar100_dataset(root = path, train = FALSE, download = FALSE)
 
-  labels = c(tv_data_train$y, tv_data_test$y)
-  images = array(c(tv_data_train$x, tv_data_test$x), dim = c(60000, 32, 32, 3))
+  labels = c(d_train$y, d_test$y)
+  images = array(NA, dim = c(60000, 3, 32, 32))
+  # original data has channel dimension at the end
+  perm_idx = c(1, 4, 2, 3)
+  images[1:50000, , , ] = aperm(d_train$x, perm_idx, resize = TRUE)
+  images[50001:60000, , , ] = aperm(d_test$x, perm_idx, resize = TRUE)
 
   class_names = readLines(file.path(path, "cifar-100-binary", "fine_label_names.txt"))
 
@@ -107,7 +111,7 @@ cifar100_ds_generator = torch::dataset(
 
 cifar100_ds = cifar100_ds_generator(data$images)
 
-dd = as_data_descriptor(cifar100_ds, list(x = c(NA, 32, 32, 3)))
+dd = as_data_descriptor(cifar100_ds, list(x = c(NA, 3, 32, 32)))
 lt = lazy_tensor(dd)
 
 dt = data.table(

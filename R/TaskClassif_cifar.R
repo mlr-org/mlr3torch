@@ -6,8 +6,8 @@
 #' @include aaa.R
 #'
 #' @description
-#' The CIFAR-10 and CIFAR-100 subsets of the 80 million tiny images dataset.
-#' The data is obtained from [`torchvision::cifar10_dataset()`]  or [`torchvision::cifar100:dataset()`].
+#' The CIFAR-10 and CIFAR-100 subsets of the 80 million tiny images dataset. TODO: explain the subsets. explain the difference.
+#' The data is obtained from [`torchvision::cifar10_dataset()`] (or `torchvision::cifar100_dataset()`).
 #'
 #' @section Construction:
 #' ```
@@ -22,7 +22,7 @@
 #'
 #' @references
 #' `r format_bib("cifar2009")`
-#' @examplesIf torch::torch_is_installed()
+#' @examples
 #' task_cifar10 = tsk("cifar10")
 #' task_cifar100 = tsk("cifar100")
 #' print(task_cifar10)
@@ -117,6 +117,8 @@ constructor_cifar100 = function(path) {
 
   labels = c(d_train$y, d_test$y)
   images = array(NA, dim = c(60000, 3, 32, 32))
+  # original data has channel dimension at the end
+  perm_idx = c(1, 4, 2, 3)
   images[1:50000, , , ] = aperm(d_train$x, perm_idx, resize = TRUE)
   images[50001:60000, , , ] = aperm(d_test$x, perm_idx, resize = TRUE)
 

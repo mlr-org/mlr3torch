@@ -7,8 +7,8 @@
 \link[R6:R6Class]{R6::R6Class} inheriting from \link[mlr3:TaskClassif]{mlr3::TaskClassif}.
 }
 \description{
-The CIFAR-10 and CIFAR-100 subsets of the 80 million tiny images dataset.
-The data is obtained from \code{\link[torchvision:cifar10_dataset]{torchvision::cifar10_dataset()}}  or \code{\link[torchvision:cifar100:dataset]{torchvision::cifar100:dataset()}}.
+The CIFAR-10 and CIFAR-100 subsets of the 80 million tiny images dataset. TODO: explain the subsets. explain the difference.
+The data is obtained from \code{\link[torchvision:cifar10_dataset]{torchvision::cifar10_dataset()}} (or \code{torchvision::cifar100_dataset()}).
 }
 \section{Construction}{
 
