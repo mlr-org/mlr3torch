@@ -1,10 +1,11 @@
 test_that("autotest", {
-  cb = t_clbk("lr_scheduler_cosine_annealing", T_max = 1)
+  cb = t_clbk("lr_scheduler_cosine_annealing")
+  # TODO: figure out how to set .scheduler and T_max (and similar)
   expect_torch_callback(cb)
 })
 
 test_that("decay works", {
-  cb = t_clbk("lr_scheduler_step")
+  cb = t_clbk("lr_scheduler_step", .scheduler = torch::lr_step)
   task = tsk("iris")
   n_epochs = 10
 
