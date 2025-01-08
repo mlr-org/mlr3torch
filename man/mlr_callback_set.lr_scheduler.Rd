@@ -10,6 +10,17 @@ Changes the learning rate based on the schedule specified by a \code{torch::LRSc
 \section{Super class}{
 \code{\link[mlr3torch:CallbackSet]{mlr3torch::CallbackSet}} -> \code{CallbackSetLRScheduler}
 }
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{scheduler_fn}}{(\code{lr_scheduler_generator})\cr
+The \code{torch} function that creates a learning rate scheduler}
+
+\item{\code{scheduler}}{(\code{LRScheduler})\cr
+The learning rate scheduler wrapped by this callback}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -37,6 +48,17 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \if{html}{\out{<div class="r">}}\preformatted{CallbackSetLRScheduler$new(.scheduler, ...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{.scheduler}}{(\code{function})\cr
+The torch scheduler constructor function (e.g. \code{torch::lr_step}).}
+
+\item{\code{...}}{(\code{list})\cr
+The scheduler-specific arguments}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetLRScheduler-on_begin"></a>}}

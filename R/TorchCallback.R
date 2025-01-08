@@ -192,6 +192,8 @@ TorchCallback = R6Class("TorchCallback",
     #' @template param_label
     #' @template param_packages
     #' @template param_man
+    #' @param additional_args (`any`)\cr
+    #'  Additional arguments if necessary. For learning rate schedulers, this is the torch::LRScheduler.
     initialize = function(callback_generator, param_set = NULL, id = NULL,
       label = NULL, packages = NULL, man = NULL, additional_args = NULL) {
       assert_class(callback_generator, "R6ClassGenerator")

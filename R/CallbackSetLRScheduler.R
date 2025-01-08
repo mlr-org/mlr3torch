@@ -5,20 +5,20 @@
 #' @description
 #' Changes the learning rate based on the schedule specified by a `torch::LRScheduler`.
 #'
-#' @param scheduler_fn (`function`)\cr
-#'   The torch scheduler constructor function (e.g. `torch::lr_scheduler_step_lr`).
-#' @param scheduler_args (`list`)\cr
-#'   A named list specifying the additional arguments
-#' @param step_on (`character(1)`)\cr
-#'   When the scheduler updates the learning rate. Must be:
-#'   * "epoch" - Step after each epoch (default)
-#'
+#' @param .scheduler (`function`)\cr
+#'   The torch scheduler constructor function (e.g. `torch::lr_step`).
+#' @param ... (`list`)\cr
+#'   The scheduler-specific arguments
 #'
 #' @export
 CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
   inherit = CallbackSet,
   public = list(
+    #' @field scheduler_fn (`lr_scheduler_generator`)\cr
+    #' The `torch` function that creates a learning rate scheduler
     scheduler_fn = NULL,
+    #' @field scheduler (`LRScheduler`)\cr
+    #' The learning rate scheduler wrapped by this callback
     scheduler = NULL,
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
@@ -62,8 +62,6 @@ check_class_or_list = function(x, classname) {
     return(paste0("x must be of class ", classname, " or a list of objects of class ", classname))
   }
 }
-
-# begin built-in torch LR schedulers
 
 #' @include TorchCallback.R
 mlr3torch_callbacks$add("lr_scheduler_cosine_annealing", function() {
@@ -179,7 +177,7 @@ mlr3torch_callbacks$add("lr_scheduler_step", function() {
 })
 
 as_lr_scheduler = function(x) {
-  assert_class(x, "LRScheduler")
+  assert_class(x, "lr_scheduler_generator")
 
   TorchCallback$new(
     callback_generator = CallbackSetLRScheduler,
@@ -195,5 +193,5 @@ as_lr_scheduler = function(x) {
 # t_clbk("lr_step", ...)
 
 # the user would write something like this
-# custom_scheduler = function() 
+# custom_scheduler = function()
 # as_lr_scheduler(custom_scheduler)
