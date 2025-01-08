@@ -13,12 +13,14 @@ test_that("decay works", {
             epochs = n_epochs, batch_size = 150, neurons = 10,
             measures_train = msrs(c("classif.acc", "classif.ce"))
   )
-  mlp$param_set$set_values(cb.lr_scheduler.gamma = 0.5)
-  mlp$param_set$set_values(cb.lr_scheduler.step_size = 2)
+  gamma = 0.5
+  step_size = 2
+  mlp$param_set$set_values(cb.lr_scheduler.gamma = gamma)
+  mlp$param_set$set_values(cb.lr_scheduler.step_size = step_size)
 
   mlp$train(task)
 
-  expect_equal(mlp$model$optimizer$param_groups[[1]]$initial_lr * (0.5)^(n_epochs / 2),
+  expect_equal(mlp$model$optimizer$param_groups[[1]]$initial_lr * gamma^(n_epochs / step_size),
                mlp$model$optimizer$param_groups[[1]]$lr)
 })
 
@@ -50,11 +52,12 @@ test_that("custom LR scheduler works", {
             measures_train = msrs(c("classif.acc", "classif.ce"))
   )
   reduction_amt = 0.00001
+  step_size = 2
   mlp$param_set$set_values(cb.lr_scheduler.delta = reduction_amt)
-  mlp$param_set$set_values(cb.lr_scheduler.step_size = 2)
+  mlp$param_set$set_values(cb.lr_scheduler.step_size = step_size)
 
   mlp$train(task)
 
-  expect_equal(mlp$model$optimizer$param_groups[[1]]$initial_lr - ((n_epoch / x) * reduction_amt),
+  expect_equal(mlp$model$optimizer$param_groups[[1]]$initial_lr - ((n_epochs / step_size) * reduction_amt),
                mlp$model$optimizer$param_groups[[1]]$lr)
 })
