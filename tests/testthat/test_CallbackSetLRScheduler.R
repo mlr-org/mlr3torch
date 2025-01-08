@@ -1,15 +1,39 @@
 test_that("autotest", {
-  cb = t_clbk("lr_scheduler")
+  cb = t_clbk("lr_scheduler_cosine_annealing", T_max = 1)
   expect_torch_callback(cb)
 })
 
-# for each lr scheduler
-test_that("") {
-  # set a random seed
+test_that("decay works") {
+  cb = t_clbk("lr_scheduler_decay")
+  task = tsk("iris")
+  n_epochs = 10
 
-  # train a network with just `torch` and the lr scheduler in question
+  mlp = lrn("classif.mlp",
+            callbacks = cb,
+            epochs = n_epochs, batch_size = 150, neurons = 10,
+            measures_train = msrs(c("classif.acc", "classif.ce"))
+  )
+  mlp$param_set$set_values(cb.lr_scheduler.T_max = 10)
 
-  # the sequence of learning rates here is the expected values
+  mlp$train(task)
 
-  # check that the learning rates set by the callback (i.e. the optimizer's learning rate) match this
+  # check the lr at the end
 }
+
+test_that("custom LR scheduler works", {
+    # first: just see if you can train a network
+  cb = t_clbk("lr_scheduler_cosine_annealing")
+  task = tsk("iris")
+  n_epochs = 10
+  set.seed(1)
+  mlp = lrn("classif.mlp",
+            callbacks = cb,
+            epochs = n_epochs, batch_size = 150, neurons = 10,
+            measures_train = msrs(c("classif.acc", "classif.ce"))
+  )
+  mlp$param_set$set_values(cb.lr_scheduler.T_max = 10)
+
+  mlp$train(task)
+
+  # check the lr at the end
+})
