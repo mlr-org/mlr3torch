@@ -31,6 +31,9 @@
 #'   Only needs to be present when there is a lazy tensor input with unknown shape (`NULL`).
 #'   Otherwise the input shape is inferred from the number of numeric features.
 #'
+#' @references
+#' `r format_bib("gorishniy2021revisiting")`
+#'
 #' @export
 LearnerTorchMLP = R6Class("LearnerTorchMLP",
   inherit = LearnerTorch,
