@@ -23,12 +23,14 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(.scheduler, ...) {
+      browser()
       self$scheduler_fn = .scheduler
       private$.scheduler_args = list(...)
     },
     #' @description
     #' Creates the scheduler using the optimizer from the context
     on_begin = function() {
+      browser()
       self$scheduler = invoke(self$scheduler_fn, optimizer = self$ctx$optimizer, .args = private$.scheduler_args)
     },
     #' @description
