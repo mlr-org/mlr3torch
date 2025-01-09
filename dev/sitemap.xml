@@ -144,6 +144,7 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_model_classif.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_model_regr.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_optimizer.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_tasks_cifar.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_tasks_lazy_iris.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_tasks_melanoma.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_tasks_mnist.html</loc></url>

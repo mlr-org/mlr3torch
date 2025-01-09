@@ -140,11 +140,23 @@ as the cache directory.</p>
 “A patient-centric dataset of images and metadata for identifying melanomas using clinical context.”
 <em>Scientific Data</em>, <b>8</b>, 34.
 <a href="https://doi.org/10.1038/s41597-021-00815-z" class="external-link">doi:10.1038/s41597-021-00815-z</a>
-.
-task = tsk("melanoma")
-task</p>
+.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">task</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"melanoma"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">task</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;TaskClassif:melanoma&gt; (32701 x 5): Melanoma Classification</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Target: outcome</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Properties: twoclass, groups</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Features (4):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - fct (2): anatom_site_general_challenge, sex</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - int (1): age_approx</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - lt (1): image</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Groups: patient_id</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 
