@@ -29,6 +29,7 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
     #' @description
     #' Creates the scheduler using the optimizer from the context
     on_begin = function() {
+      # TODO: check that the .scheduler_args do not have the cb prefix (pretty sure this is trues)
       self$scheduler = invoke(self$scheduler_fn, optimizer = self$ctx$optimizer, .args = private$.scheduler_args)
     },
     #' @description
@@ -68,6 +69,7 @@ mlr3torch_callbacks$add("lr_scheduler_cosine_annealing", function() {
   TorchCallback$new(
     callback_generator = CallbackSetLRScheduler,
     param_set = ps(
+      .scheduler = p_uty(tags = c("train", "required")),
       T_max = p_int(tags = c("train", "required")),
       eta_min = p_dbl(default = 0, lower = 0, tags = "train"),
       last_epoch = p_int(default = -1, tags = "train"),
@@ -86,6 +88,7 @@ mlr3torch_callbacks$add("lr_scheduler_lambda", function() {
   TorchCallback$new(
     callback_generator = CallbackSetLRScheduler,
     param_set = ps(
+      .scheduler = p_uty(tags = c("train", "required")),
       lr_lambda = p_uty(tags = c("train"), custom_check = function(x) check_class_or_list(x, "function")), # TODO: assert fn or list of fns
       last_epoch = p_int(default = -1, lower = -1, tags = "train"),
       verbose = p_lgl(default = FALSE, tags = "train")
@@ -102,6 +105,7 @@ mlr3torch_callbacks$add("lr_scheduler_multiplicative", function() {
   TorchCallback$new(
     callback_generator = CallbackSetLRScheduler,
     param_set = ps(
+      .scheduler = p_uty(tags = c("train", "required")),
       lr_lambda = p_uty(tags = c("train"), custom_check = function(x) check_class_or_list(x, "function")),
       last_epoch = p_int(default = -1, lower = -1, tags = "train"),
       verbose = p_lgl(default = FALSE, tags = "train")
@@ -113,11 +117,13 @@ mlr3torch_callbacks$add("lr_scheduler_multiplicative", function() {
   )
 })
 
+# TODO: refactor to operate on batches
 #' @include TorchCallback.R
 mlr3torch_callbacks$add("lr_scheduler_one_cycle", function() {
   TorchCallback$new(
     callback_generator = CallbackSetLRScheduler,
     param_set = ps(
+      .scheduler = p_uty(tags = c("train", "required")),
       max_lr = p_dbl(tags = "train"),
       total_steps = p_int(default = NULL, tags = "train"),
       epochs = p_int(default = NULL, tags = "train"),
@@ -143,6 +149,7 @@ mlr3torch_callbacks$add("lr_scheduler_reduce_on_plateau", function() {
   TorchCallback$new(
     callback_generator = CallbackSetLRScheduler,
     param_set = ps(
+      .scheduler = p_uty(tags = c("train", "required")),
       mode = p_fct(default = "min", levels = c("min", "max"), tags = "train"),
       factor = p_dbl(default = 0.1, tags = "train"),
       patience = p_int(default = 10, tags = "train"),
@@ -165,6 +172,7 @@ mlr3torch_callbacks$add("lr_scheduler_step", function() {
   TorchCallback$new(
     callback_generator = CallbackSetLRScheduler,
     param_set = ps(
+      .scheduler = p_uty(tags = c("train", "required")),
       step_size = p_int(default = 1, lower = 1, tags = "train"),
       gamma = p_dbl(default = 0.1, lower = 0, upper = 1, tags = "train"),
       last_epoch = p_int(default = -1, tags = "train")
