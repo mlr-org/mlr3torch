@@ -121,6 +121,12 @@ bibentries = c(# nolint start
     pages = "34",
     year = "2021",
     doi = "10.1038/s41597-021-00815-z"
+  ),
+  cifar2009 = bibentry("article",
+    title = "Learning Multiple Layers of Features from Tiny Images",
+    author = "Krizhevsky, Alex",
+    journal= "Master's thesis, Department of Computer Science, University of Toronto",,
+    year = "2009",
   )
 ) # nolint end
 

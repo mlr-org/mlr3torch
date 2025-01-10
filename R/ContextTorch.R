@@ -105,6 +105,9 @@ ContextTorch = R6Class("ContextTorch",
     #'   If [`LearnerTorch`] sets `eval_freq` different from `1`, this is `NULL` in all epochs
     #'   that don't evaluate the model.
     last_scores_valid = NULL,
+    #' @field last_loss (`numeric(1)`)\cr
+    #' The loss from the last trainings batch.
+    last_loss = NULL,
     #' @field epoch (`integer(1)`)\cr
     #'   The current epoch.
     epoch = NULL,

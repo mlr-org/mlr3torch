@@ -37,6 +37,7 @@
 #'
 #' @references
 #' `r format_bib("melanoma2021")`
+#' @examples
 #' task = tsk("melanoma")
 #' task
 NULL
