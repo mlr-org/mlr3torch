@@ -40,7 +40,7 @@ The number of blocks.
 The input and output dimension of a block.
 \item \code{d_hidden} :: \code{integer(1)}\cr
 The latent dimension of a block.
-\item \code{d_hidden_multiplier} :: \code{integer(1)}\cr
+\item \code{d_hidden_multiplier} :: \code{numeric(1)}\cr
 Alternative way to specify the latent dimension as \code{d_block * d_hidden_multiplier}.
 \item \code{dropout1} :: \code{numeric(1)}\cr
 First dropout ratio.
@@ -102,6 +102,7 @@ Other Learner:
 <details><summary>Inherited methods</summary>
 <ul>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner"><a href='../../mlr3/html/Learner.html#method-Learner-base_learner'><code>mlr3::Learner$base_learner()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="configure"><a href='../../mlr3/html/Learner.html#method-Learner-configure'><code>mlr3::Learner$configure()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="encapsulate"><a href='../../mlr3/html/Learner.html#method-Learner-encapsulate'><code>mlr3::Learner$encapsulate()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help"><a href='../../mlr3/html/Learner.html#method-Learner-help'><code>mlr3::Learner$help()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict"><a href='../../mlr3/html/Learner.html#method-Learner-predict'><code>mlr3::Learner$predict()</code></a></span></li>

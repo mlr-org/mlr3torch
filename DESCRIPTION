@@ -1,6 +1,6 @@
 Package: mlr3torch
 Title: Deep Learning with 'mlr3'
-Version: 0.1.2
+Version: 0.1.2-9000
 Authors@R:
     c(person(given = "Sebastian",
              family = "Fischer",
@@ -25,7 +25,12 @@ Authors@R:
              family = "Pfisterer",
              role = "ctb",
              email = "pfistererf@googlemail.com",
-             comment = c(ORCID = "0000-0001-8867-762X")))
+             comment = c(ORCID = "0000-0001-8867-762X")),
+      person(given = "Carson",
+             family = "Zhang",
+             role = "ctb",
+             email = "carsonzhang4@gmail.com")
+             )
 Description: Deep Learning library that extends the mlr3 framework by building
   upon the 'torch' package. It allows to conveniently build, train,
   and evaluate deep learning models without having to worry about low level
@@ -51,12 +56,12 @@ Imports:
 	withr
 Suggests:
     callr,
+    curl,
     future,
     ggplot2,
     igraph,
     jsonlite,
     knitr,
-    magick,
     mlr3tuning (>= 1.0.0),
     progress,
     rmarkdown,
@@ -64,22 +69,25 @@ Suggests:
     viridis,
     visNetwork,
     testthat (>= 3.0.0),
+    tfevents,
     torchvision (>= 0.6.0),
     waldo
 Config/testthat/edition: 3
 NeedsCompilation: no
-ByteCompile: no
+ByteCompile: yes
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, r6 = TRUE)
 RoxygenNote: 7.3.2
 Collate:
     'CallbackSet.R'
-    'zzz.R'
+    'aaa.R'
     'TorchCallback.R'
     'CallbackSetCheckpoint.R'
     'CallbackSetEarlyStopping.R'
     'CallbackSetHistory.R'
     'CallbackSetProgress.R'
+    'CallbackSetTB.R'
+    'CallbackSetUnfreeze.R'
     'ContextTorch.R'
     'DataBackendLazy.R'
     'utils.R'
@@ -99,6 +107,7 @@ Collate:
     'PipeOpTorch.R'
     'PipeOpTaskPreprocTorch.R'
     'PipeOpTorchActivation.R'
+    'PipeOpTorchAdaptiveAvgPool.R'
     'PipeOpTorchAvgPool.R'
     'PipeOpTorchBatchNorm.R'
     'PipeOpTorchBlock.R'
@@ -117,7 +126,10 @@ Collate:
     'PipeOpTorchOptimizer.R'
     'PipeOpTorchReshape.R'
     'PipeOpTorchSoftmax.R'
+    'Select.R'
+    'TaskClassif_cifar.R'
     'TaskClassif_lazy_iris.R'
+    'TaskClassif_melanoma.R'
     'TaskClassif_mnist.R'
     'TaskClassif_tiny_imagenet.R'
     'TorchDescriptor.R'
@@ -134,3 +146,4 @@ Collate:
     'preprocess.R'
     'rd_info.R'
     'with_torch_settings.R'
+    'zzz.R'

@@ -153,5 +153,5 @@ PipeOpModule = R6Class("PipeOpModule",
   )
 )
 
-#' @include zzz.R
+#' @include aaa.R
 register_po("module", PipeOpModule)

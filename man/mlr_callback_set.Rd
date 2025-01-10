@@ -68,6 +68,8 @@ Other Callback:
 \code{\link{mlr3torch_callbacks}},
 \code{\link{mlr_callback_set.checkpoint}},
 \code{\link{mlr_callback_set.progress}},
+\code{\link{mlr_callback_set.tb}},
+\code{\link{mlr_callback_set.unfreeze}},
 \code{\link{mlr_context_torch}},
 \code{\link{t_clbk}()},
 \code{\link{torch_callback}()}

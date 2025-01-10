@@ -21,7 +21,7 @@
 #' After loading a marshaled `LearnerTorch` into R again, you then need to call `$unmarshal()` to transform it
 #' into a useable state.
 #'
-#' @section Early Stopping and Tuning:
+#' @section Early Stopping and Internal Tuning:
 #' In order to prevent overfitting, the `LearnerTorch` class allows to use early stopping via the `patience`
 #' and `min_delta` parameters, see the `Learner`'s parameters.
 #' When tuning a `LearnerTorch` it is also possible to combine the explicit tuning via `mlr3tuning`
@@ -384,7 +384,7 @@ LearnerTorch = R6Class("LearnerTorch",
       if (self$state$param_vals$patience == 0) {
         named_list()
       } else {
-        list(epochs = self$model$epochs)
+        list(epochs = self$model$epochs - self$state$param_vals$patience * self$state$param_vals$eval_freq)
       }
     },
     .extract_internal_valid_scores = function() {

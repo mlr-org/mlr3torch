@@ -43,6 +43,8 @@ This is intialized to an empty list.
 \item \code{neurons} :: \code{integer()}\cr
 The number of neurons per hidden layer. By default there is no hidden layer.
 Setting this to \code{c(10, 20)} would have a the first hidden layer with 10 neurons and the second with 20.
+\item \code{n_layers} :: \code{integer()}\cr
+The number of layers. This parameter must only be set when \code{neurons} has length 1.
 \item \code{p} :: \code{numeric(1)}\cr
 The dropout probability. Is initialized to \code{0.5}.
 \item \code{shape} :: \code{integer()} or \code{NULL}\cr
@@ -77,6 +79,11 @@ predictions = learner$predict(task, row_ids = ids$test)
 predictions$score()
 \dontshow{\}) # examplesIf}
 }
+\references{
+Gorishniy Y, Rubachev I, Khrulkov V, Babenko A (2021).
+\dQuote{Revisiting Deep Learning  for Tabular Data.}
+\emph{arXiv}, \bold{2106.11959}.
+}
 \seealso{
 Other Learner: 
 \code{\link{mlr_learners.tab_resnet}},
@@ -100,6 +107,7 @@ Other Learner:
 <details><summary>Inherited methods</summary>
 <ul>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner"><a href='../../mlr3/html/Learner.html#method-Learner-base_learner'><code>mlr3::Learner$base_learner()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="configure"><a href='../../mlr3/html/Learner.html#method-Learner-configure'><code>mlr3::Learner$configure()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="encapsulate"><a href='../../mlr3/html/Learner.html#method-Learner-encapsulate'><code>mlr3::Learner$encapsulate()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help"><a href='../../mlr3/html/Learner.html#method-Learner-help'><code>mlr3::Learner$help()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict"><a href='../../mlr3/html/Learner.html#method-Learner-predict'><code>mlr3::Learner$predict()</code></a></span></li>

@@ -66,7 +66,7 @@ avg_output_shape = function(shape_in, conv_dim, padding, stride, kernel_size, ce
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#' @inherit torch::nnf_adaptive_avg_pool1d description
+#' @inherit torch::nnf_avg_pool1d description
 #'
 #' @section Parameters:
 #' * `kernel_size` :: (`integer()`)\cr
@@ -104,7 +104,7 @@ PipeOpTorchAvgPool1D = R6Class("PipeOpTorchAvgPool1D", inherit = PipeOpTorchAvgP
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#' @inherit torch::nnf_adaptive_avg_pool2d description
+#' @inherit torch::nnf_avg_pool2d description
 #'
 #' @inheritSection mlr_pipeops_nn_avg_pool1d Parameters
 #'
@@ -128,7 +128,7 @@ PipeOpTorchAvgPool2D = R6Class("PipeOpTorchAvgPool2D", inherit = PipeOpTorchAvgP
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#' @inherit torch::nnf_adaptive_avg_pool3d description
+#' @inherit torch::nnf_avg_pool3d description
 #'
 #' @inheritSection mlr_pipeops_nn_avg_pool1d Parameters
 #'
@@ -145,7 +145,7 @@ PipeOpTorchAvgPool3D = R6Class("PipeOpTorchAvgPool3D", inherit = PipeOpTorchAvgP
   )
 )
 
-#' @include zzz.R
+#' @include aaa.R
 register_po("nn_avg_pool1d", PipeOpTorchAvgPool1D)
 register_po("nn_avg_pool2d", PipeOpTorchAvgPool2D)
 register_po("nn_avg_pool3d", PipeOpTorchAvgPool3D)

@@ -29,7 +29,7 @@ After loading a marshaled \code{LearnerTorch} into R again, you then need to cal
 into a useable state.
 }
 
-\section{Early Stopping and Tuning}{
+\section{Early Stopping and Internal Tuning}{
 
 In order to prevent overfitting, the \code{LearnerTorch} class allows to use early stopping via the \code{patience}
 and \code{min_delta} parameters, see the \code{Learner}'s parameters.
@@ -106,7 +106,7 @@ This is initialized to \code{0}, which means no early stopping.
 The first entry from \code{measures_valid} is used as the metric.
 This also requires to specify the \verb{$validate} field of the Learner, as well as \code{measures_valid}.
 \item \code{min_delta} :: \code{double(1)}\cr
-The minimum improvement threshold (\code{>}) for early stopping.
+The minimum improvement threshold for early stopping.
 Is initialized to 0.
 }
 
@@ -269,6 +269,7 @@ which are varied systematically during tuning (parameter values).}
 <details><summary>Inherited methods</summary>
 <ul>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner"><a href='../../mlr3/html/Learner.html#method-Learner-base_learner'><code>mlr3::Learner$base_learner()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="configure"><a href='../../mlr3/html/Learner.html#method-Learner-configure'><code>mlr3::Learner$configure()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="encapsulate"><a href='../../mlr3/html/Learner.html#method-Learner-encapsulate'><code>mlr3::Learner$encapsulate()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help"><a href='../../mlr3/html/Learner.html#method-Learner-help'><code>mlr3::Learner$help()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict"><a href='../../mlr3/html/Learner.html#method-Learner-predict'><code>mlr3::Learner$predict()</code></a></span></li>

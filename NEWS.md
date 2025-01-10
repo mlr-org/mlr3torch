@@ -1,10 +1,21 @@
 # mlr3torch dev
 
+* perf: Use a faster image loader
 * feat: Add parameter `num_interop_threads` to `LearnerTorch`
+* feat: Add adaptive average pooling
+* feat: Added `n_layers` parameter to MLP
+* BREAKING_CHANGE: Early stopping now not uses `epochs - patience` for the internally tuned
+  values instead of the trained number of `epochs` as it was before.
+  Also, the improvement is calcualted as the difference between the current and the best score,
+  not the current and the previous score.
+* feat: Added multimodal melanoma example task
+* feat: Added a callback to iteratively unfreeze parameters for finetuning
+* fix: torch learners can now be used with `AutoTuner`
 
 # mlr3torch 0.1.2
 
 * Don't use deprecated `data_formats` anymore
+* Added `CallbackSetTB`, which allows logging that can be viewed by TensorBoard.
 
 # mlr3torch 0.1.1
 
