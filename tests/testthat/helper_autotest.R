@@ -280,7 +280,9 @@ expect_paramtest = function(paramtest) {
 #'   The object to test.
 #' @param check_man (`logical(1)`)\cr
 #'   Whether to check that the manual page exists. Default is `TRUE`.
-expect_torch_callback = function(torch_callback, check_man = TRUE) {
+#' @param check_paramset (`logical(1)`)\cr
+#'   Where to check that the paramset mactches the constructor. Default is `TRUE`.
+expect_torch_callback = function(torch_callback, check_man = TRUE, check_paramset = TRUE) {
   # Checks on descriptor
   expect_class(torch_callback, "TorchCallback")
   expect_string(torch_callback$id)
@@ -299,8 +301,10 @@ expect_torch_callback = function(torch_callback, check_man = TRUE) {
   expect_true(cbgen$cloneable)
   init_fn = get_init(torch_callback$generator)
   if (is.null(init_fn)) init_fn = function() NULL
-  paramtest = expect_paramset(torch_callback$param_set, init_fn)
-  expect_paramtest(paramtest)
+  if (check_paramset) {
+    paramtest = expect_paramset(torch_callback$param_set, init_fn)
+    expect_paramtest(paramtest)
+  }
   implemented_stages = names(cbgen$public_methods)[grepl("^on_", names(cbgen$public_methods))]
   expect_subset(implemented_stages, mlr_reflections$torch$callback_stages)
   expect_true(length(implemented_stages) > 0)

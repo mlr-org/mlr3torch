@@ -74,7 +74,6 @@ mlr3torch_callbacks$add("lr_scheduler_cosine_annealing", function() {
   TorchCallback$new(
     callback_generator = CallbackSetLRScheduler,
     param_set = ps(
-      .scheduler = p_uty(tags = c("train", "required")),
       T_max = p_int(tags = c("train", "required")),
       eta_min = p_dbl(default = 0, lower = 0, tags = "train"),
       last_epoch = p_int(default = -1, tags = "train"),
@@ -92,7 +91,6 @@ mlr3torch_callbacks$add("lr_scheduler_lambda", function() {
   TorchCallback$new(
     callback_generator = CallbackSetLRScheduler,
     param_set = ps(
-      .scheduler = p_uty(tags = c("train", "required")),
       lr_lambda = p_uty(tags = c("train"), custom_check = function(x) check_class_or_list(x, "function")), # TODO: assert fn or list of fns
       last_epoch = p_int(default = -1, lower = -1, tags = "train"),
       verbose = p_lgl(default = FALSE, tags = "train")
@@ -109,7 +107,6 @@ mlr3torch_callbacks$add("lr_scheduler_multiplicative", function() {
   TorchCallback$new(
     callback_generator = CallbackSetLRScheduler,
     param_set = ps(
-      .scheduler = p_uty(tags = c("train", "required")),
       lr_lambda = p_uty(tags = c("train"), custom_check = function(x) check_class_or_list(x, "function")),
       last_epoch = p_int(default = -1, lower = -1, tags = "train"),
       verbose = p_lgl(default = FALSE, tags = "train")
