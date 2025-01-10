@@ -1,5 +1,6 @@
 library(mlr3torch)
 library(mlr3verse)
+lgr::get_logger("mlr3")
 set.seed(42)
 torch_manual_seed(42)
 
