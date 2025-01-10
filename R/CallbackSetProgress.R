@@ -11,7 +11,7 @@
 #' @examplesIf torch::torch_is_installed()
 #' task = tsk("iris")
 #'
-#' learner = lrn("classif.mlp", epochs = 10, batch_size = 1, 
+#' learner = lrn("classif.mlp", epochs = 5, batch_size = 1,
 #'   callbacks = t_clbk("progress"), validate = 0.3)
 #' learner$param_set$set_values(
 #'   measures_train = msrs(c("classif.acc", "classif.ce")),

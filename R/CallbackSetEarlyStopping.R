@@ -34,8 +34,6 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
         }
       } else {
         self$stagnation = 0
-      }
-      if (improvement > 0) {
         self$best_score = self$ctx$last_scores_valid[[1L]]
         self$epoch_at_best_score = self$ctx$epoch
       }
