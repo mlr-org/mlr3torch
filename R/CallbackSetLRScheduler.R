@@ -184,10 +184,12 @@ as_lr_scheduler = function(x, step_on_epoch) {
   assert_class(x, "lr_scheduler_generator")
   assert_flag(step_on_epoch)
 
+  class_name = setdiff(class(x), c("lr_scheduler", "lr_scheduler_generator"))
+  
   TorchCallback$new(
     callback_generator = CallbackSetLRScheduler,
     param_set = inferps(x),
-    id = "lr_custom",
+    id = if (class_name == "") "lr_custom" else class_name,
     label = "Learning Rate Scheduler using Custom Policy",
     man = "mlr3torch::mlr_callback_set.lr_scheduler",
     additional_args = list(.scheduler = x, step_on_epoch = step_on_epoch)

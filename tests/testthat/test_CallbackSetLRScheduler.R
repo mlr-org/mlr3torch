@@ -56,8 +56,8 @@ test_that("custom LR scheduler works", {
   )
   reduction_amt = 0.00001
   step_size = 2
-  mlp$param_set$set_values(cb.lr_custom.delta = reduction_amt)
-  mlp$param_set$set_values(cb.lr_custom.step_size = step_size)
+  mlp$param_set$set_values(cb.lr_subtract.delta = reduction_amt)
+  mlp$param_set$set_values(cb.lr_subtract.step_size = step_size)
 
   mlp$train(task)
 
