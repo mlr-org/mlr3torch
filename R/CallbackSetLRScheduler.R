@@ -3,7 +3,7 @@
 #' @name mlr_callback_set.lr_scheduler
 #'
 #' @description
-#' Changes the learning rate based on the schedule specified by a `torch::LRScheduler`.
+#' Changes the learning rate based on the schedule specified by a `torch::lr_scheduler`.
 #'
 #' @param .scheduler (`function`)\cr
 #'   The torch scheduler constructor function (e.g. `torch::lr_step`).
@@ -125,7 +125,7 @@ mlr3torch_callbacks$add("lr_scheduler_one_cycle", function() {
     callback_generator = CallbackSetLRScheduler,
     param_set = ps(
       max_lr = p_dbl(tags = "train"),
-      total_steps = p_int(default = NULL, tags = "train"),
+      total_steps = p_int(default = NULL, tags = "train"), # set special vals to NULL
       epochs = p_int(default = NULL, tags = "train"),
       steps_per_epoch = NULL,
       pct_start = p_dbl(default = 0.3, lower = 0, upper = 1, tags = "train"),
