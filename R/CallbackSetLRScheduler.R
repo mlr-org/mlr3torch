@@ -22,14 +22,14 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
     scheduler = NULL,
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(...) {
-      self$scheduler_fn = self$additional_args$.scheduler
+    initialize = function(.scheduler, ...) {
+      self$scheduler_fn = .scheduler
       private$.scheduler_args = list(...)
     },
     #' @description
     #' Creates the scheduler using the optimizer from the context
     on_begin = function() {
-      # TODO: check that the .scheduler_args do not have the cb prefix (pretty sure this is trues)
+      # TODO: check that the .scheduler_args do not have the cb prefix (pretty sure this is true)
       self$scheduler = invoke(self$scheduler_fn, optimizer = self$ctx$optimizer, .args = private$.scheduler_args)
     },
     #' @description
@@ -40,8 +40,13 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
       # but for now let's hope that it does
       self$scheduler$step()
     }
-    # TODO: add batches
+    # TODO: add batches (really only for lr_scheduler_one_cycle)
     # this does not need to be exposed to the user, we can pass an additional arg
+    # on_batch_end = function() {
+    #   if (!self$step_on_epoch) {
+    #     self$scheduler$step()
+    #   }
+    # }
   ),
   private = list(
     .scheduler_args = NULL
@@ -82,7 +87,6 @@ mlr3torch_callbacks$add("lr_scheduler_cosine_annealing", function() {
   )
 })
 
-# custom implemented separately
 #' @include TorchCallback.R
 mlr3torch_callbacks$add("lr_scheduler_lambda", function() {
   TorchCallback$new(
@@ -105,6 +109,7 @@ mlr3torch_callbacks$add("lr_scheduler_multiplicative", function() {
   TorchCallback$new(
     callback_generator = CallbackSetLRScheduler,
     param_set = ps(
+      .scheduler = p_uty(tags = c("train", "required")),
       lr_lambda = p_uty(tags = c("train"), custom_check = function(x) check_class_or_list(x, "function")),
       last_epoch = p_int(default = -1, lower = -1, tags = "train"),
       verbose = p_lgl(default = FALSE, tags = "train")
@@ -138,7 +143,7 @@ mlr3torch_callbacks$add("lr_scheduler_one_cycle", function() {
     id = "lr_scheduler",
     label = "Learning Rate Scheduler",
     man = "mlr3torch::mlr_callback_set.lr_scheduler",
-    additional_args = list(.scheduler = torch::lr_one_cycle)
+    additional_args = list(.scheduler = torch::lr_one_cycle, step_on_epoch = FALSE)
   )
 })
 

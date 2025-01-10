@@ -1,6 +1,5 @@
 test_that("autotest", {
-  cb = t_clbk("lr_scheduler_cosine_annealing", T_max = 1)
-  # TODO: figure out how to set .scheduler and T_max (and similar)
+  cb = t_clbk("lr_scheduler_cosine_annealing", T_max = 10)
   expect_torch_callback(cb)
 })
 

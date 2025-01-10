@@ -184,7 +184,7 @@ collapse_char_list = function(x) {
 # @param fns (`list()` of `function`s)\cr
 #   The functions whose arguments the parameter set implements.
 # @param exclude (`character`)\cr
-#   The parameter ids and arguments of the functions that are exluded from checking.
+#   The parameter ids and arguments of the functions that are excluded from checking.
 # @param exclude_defaults (`character()`)\cr
 #   For which parameters the defaults should not be checked.
 expect_paramset = function(x, fns, exclude = character(0), exclude_defaults = character(0)) {

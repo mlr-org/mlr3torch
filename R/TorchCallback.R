@@ -218,7 +218,7 @@ TorchCallback = R6Class("TorchCallback",
   )
 )
 
-#' @title Create a Callback Desctiptor
+#' @title Create a Callback Descriptor
 #'
 #' @description
 #' Convenience function to create a custom [`TorchCallback`].
