@@ -824,3 +824,56 @@ test_that("early stopping and eval freq", {
   # first eval is after 4, then 10 evaluations every 4 epochs with no improvement -> 44
   expect_equal(at$tuning_instance$archive$resample_result(1)$learners[[1]]$model$epochs, 44L)
 })
+
+test_that("internal tuned values is correct", {
+  task = tsk("iris")
+  # training is not stopped
+  learner = lrn("classif.mlp", measures_valid = msr("classif.ce"),
+    validate = 0.3, patience = 10L, epochs = 1L, batch_size = 16)
+  learner$train(task)
+  expect_equal(learner$internal_tuned_values$epochs, 1L)
+  # training is stopped
+  learner$param_set$set_values(
+    epochs = 10L, min_delta = Inf, patience = 2L, eval_freq = 3L
+  )
+  learner$train(task)
+  expect_equal(learner$internal_tuned_values$epochs, 3L)
+  learner$param_set$set_values(
+    epochs = 10L, min_delta = Inf, patience = 2L, eval_freq = 2L
+  )
+  learner$train(task)
+  expect_equal(learner$internal_tuned_values$epochs, 2L)
+
+  # early stopping triggers in the final validation round
+  learner$param_set$set_values(
+    epochs = 4L, min_delta = Inf, patience = 2L, eval_freq = 3L
+  )
+  learner$train(task)
+  # no improvement after 3 epochs (where we first validate)
+  # because the last epoch always validates, we still terminate,
+  # even though we train for 4 < 6 epochs
+  expect_equal(learner$internal_tuned_values$epochs, 3L)
+  testcb = torch_callback("stagnate_after_6_epochs",
+    on_valid_end = function() {
+      if (self$ctx$epoch <= 6) {
+        self$ctx$last_scores_valid[[1]] = self$ctx$last_scores_valid[[1]] - self$ctx$epoch * 10
+      }
+      if (self$ctx$epoch == 6) {
+        self$score = self$ctx$last_scores_valid[[1L]]
+      }
+      if (self$ctx$epoch > 6) {
+        self$ctx$last_scores_valid[[1L]] = self$score
+      }
+    }
+  )
+  learner$param_set$set_values(
+    epochs = 100L, min_delta = 0, patience = 2
+  )
+
+  learner$callbacks = list(testcb)
+  learner$train(task)
+  expect_equal(learner$internal_tuned_values$epochs, 6L)
+  learner$param_set$set_values(eval_freq = 1)
+  learner$train(task)
+  expect_equal(learner$internal_tuned_values$epochs, 6L)
+})

@@ -111,7 +111,10 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
       graph = private$.make_graph(block, param_vals$n_blocks)
       out = graph$train(inputs, single_input = FALSE)
     },
-    .param_set_base = NULL
+    .param_set_base = NULL,
+    .additional_phash_input = function() {
+      self$block$phash
+    }
   )
 )
 

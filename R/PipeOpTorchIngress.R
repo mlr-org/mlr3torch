@@ -273,9 +273,10 @@ register_po("torch_ingress_categ", PipeOpTorchIngressCategorical)
 #' @inheritSection mlr_pipeops_torch_ingress State
 #'
 #' @section Parameters:
-#' * `shape` :: `integer()`\cr
+#' * `shape` :: `integer()` | `NULL` | `"infer"`\cr
 #'   The shape of the tensor, where the first dimension (batch) must be `NA`.
 #'   When it is not specified, the lazy tensor input column needs to have a known shape.
+#'   When it is set to `"infer"`, the shape is inferred from an example batch.
 #'
 #' @section Internals:
 #' The returned batchgetter materializes the lazy tensor column to a tensor.
@@ -333,11 +334,13 @@ PipeOpTorchIngressLazyTensor = R6Class("PipeOpTorchIngressLazyTensor",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
     initialize = function(id = "torch_ingress_ltnsr", param_vals = list()) {
+      check_fn = crate(function(x) {
+        if (identical(x, "infer")) return(TRUE)
+          check_shape(x, null_ok = TRUE, unknown_batch = TRUE)
+      })
       param_set = ps(
-        shape = p_uty(tags = "train", default = NULL, custom_check = crate(
-          function(x) check_shape(x, null_ok = TRUE, unknown_batch = TRUE),
-            .parent = topenv(), check_shape))
-        )
+        shape = p_uty(tags = "train", default = NULL, custom_check = check_fn)
+      )
       super$initialize(id = id, param_vals = param_vals, feature_types = "lazy_tensor", param_set = param_set)
     }
   ),
@@ -355,10 +358,13 @@ PipeOpTorchIngressLazyTensor = R6Class("PipeOpTorchIngressLazyTensor",
         if (is.null(pv_shape)) {
           stopf("If input shape is unknown, the 'shape' parameter must be set.")
         }
+        if (identical(pv_shape, "infer")) {
+          return(c(NA, dim(materialize(example)[[1L]])))
+        }
         return(pv_shape)
       }
 
-      if (!is.null(pv_shape) && !isTRUE(all.equal(pv_shape, input_shape))) {
+      if (!is.null(pv_shape) && !identical(pv_shape, "infer") && !isTRUE(all.equal(pv_shape, input_shape))) {
         stopf("Parameter 'shape' is set for PipeOp '%s', but differs from the (known) lazy tensor input shape.", self$id) # nolint
       }
 
