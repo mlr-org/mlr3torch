@@ -3,7 +3,7 @@
 #' @aliases <%= class(pipeop)[[1L]] %>
 #' @usage NULL
 #' @name mlr_pipeops_<%= id %>
-#' @rdname <%= class(pipeop)[[1L]] %>
+#' @rdname mlr_pipeops<%= id %>
 #' @format [`R6Class`][R6::R6Class] inheriting from [`PipeOpTaskPreprocTorch`].
 #'
 #' @description
