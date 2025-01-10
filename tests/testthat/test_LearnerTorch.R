@@ -431,11 +431,12 @@ test_that("marshaling", {
 
 test_that("callr encapsulation and marshaling", {
   skip_if_not_installed("callr")
-  task = tsk("mtcars")$filter(1:5)
-  learner = lrn("regr.mlp", batch_size = 150, epochs = 1, device = "cpu",
+  task = tsk("iris")$filter(1:5)
+  learner = lrn("classif.mlp", batch_size = 150, epochs = 1, device = "cpu",
     neurons = 20
   )
-  learner$encapsulate("callr", lrn("regr.featureless"))
+  # we set error predict to ensure that the mlp learner is used for prediction
+  learner$encapsulate("callr", lrn("classif.debug", error_predict = 1))
   learner$train(task)
   expect_prediction(learner$predict(task))
 })
