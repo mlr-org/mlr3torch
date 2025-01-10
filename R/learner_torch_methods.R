@@ -84,7 +84,7 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     )
     es$ctx = ctx
 
-    callbacks = c(callbacks, es)
+    callbacks = c(callbacks, list(early_stopping = es))
   }
 
   model = train_loop(ctx, callbacks)

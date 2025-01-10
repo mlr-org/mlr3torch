@@ -7,6 +7,7 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       self$min_delta = assert_double(min_delta, lower = 0, len = 1L, any.missing = FALSE)
       self$stagnation = 0L
       self$best_score = NULL
+      self$epoch_at_best_score = NULL
     },
     on_valid_end = function() {
       if (is.null(self$ctx$last_scores_valid)) {
@@ -14,6 +15,7 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       }
       if (is.null(self$best_score)) {
         self$best_score = self$ctx$last_scores_valid[[1L]]
+        self$epoch_at_best_score = self$ctx$epoch
         return(NULL)
       }
       multiplier = if (self$ctx$measures_valid[[1L]]$minimize) -1 else 1
@@ -35,7 +37,11 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       }
       if (improvement > 0) {
         self$best_score = self$ctx$last_scores_valid[[1L]]
+        self$epoch_at_best_score = self$ctx$epoch
       }
+    },
+    state_dict = function() {
+      list(best_epochs = self$epoch_at_best_score)
     }
   )
 )

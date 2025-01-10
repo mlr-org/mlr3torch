@@ -95,3 +95,9 @@ test_that("ingress ltnsr: device placement", {
   expect_equal(batch$y$device, torch_device("meta"))
   expect_equal(batch$.index$device, torch_device("meta"))
 })
+
+test_that("shape of lazy tensor ingress can be inferred", {
+  po_ingress = po("torch_ingress_ltnsr", shape = "infer")
+  out = po_ingress$train(list(nano_dogs_vs_cats()))[[1L]]
+  expect_equal(out$pointer_shape, c(NA, 3, 280, 300))
+})

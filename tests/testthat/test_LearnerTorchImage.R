@@ -21,3 +21,10 @@ test_that("LearnerTorchImage works", {
   pred = learner$predict(task)
   expect_class(pred, "PredictionClassif")
 })
+
+test_that("unknown shapes work", {
+  learner = lrn("classif.mobilenet_v2", batch_size = 1, epochs = 1)
+  task = nano_dogs_vs_cats()$filter(1)
+  learner$train(task)
+  expect_prediction(learner$predict(task))
+})

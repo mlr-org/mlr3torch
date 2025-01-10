@@ -64,8 +64,8 @@ LearnerTorchImage = R6Class("LearnerTorchImage",
       return(TRUE)
     },
     .dataset = function(task, param_vals) {
+      param_vals$shape = "infer"
       dataset_ltnsr(task, param_vals)
     }
-
   )
 )
