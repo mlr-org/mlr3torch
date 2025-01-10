@@ -10,7 +10,7 @@
 \description{
 Calls \code{\link[torchvision:transform_random_horizontal_flip]{torchvision::transform_random_horizontal_flip}},
 see there for more information on the parameters.
-The preprocessing is applied row wise (no batch dimension).
+The preprocessing is applied to each element of a batch individually.
 }
 \section{Parameters}{
 \tabular{lllll}{

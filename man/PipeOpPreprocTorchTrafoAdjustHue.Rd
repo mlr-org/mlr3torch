@@ -10,7 +10,7 @@
 \description{
 Calls \code{\link[torchvision:transform_adjust_hue]{torchvision::transform_adjust_hue}},
 see there for more information on the parameters.
-The preprocessing is applied row wise (no batch dimension).
+The preprocessing is applied to each element of a batch individually.
 }
 \section{Parameters}{
 \tabular{lllll}{
