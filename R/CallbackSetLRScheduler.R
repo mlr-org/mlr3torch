@@ -85,7 +85,7 @@ mlr3torch_callbacks$add("lr_lambda", function() {
   TorchCallback$new(
     callback_generator = CallbackSetLRScheduler,
     param_set = ps(
-      lr_lambda = p_uty(tags = c("train"), custom_check = function(x) check_class_or_list(x, "function")), # TODO: assert fn or list of fns
+      lr_lambda = p_uty(tags = c("train", "required"), custom_check = function(x) check_class_or_list(x, "function")),
       last_epoch = p_int(default = -1, tags = "train"),
       verbose = p_lgl(default = FALSE, tags = "train")
     ),
@@ -101,7 +101,7 @@ mlr3torch_callbacks$add("lr_multiplicative", function() {
   TorchCallback$new(
     callback_generator = CallbackSetLRScheduler,
     param_set = ps(
-      lr_lambda = p_uty(tags = c("train"), custom_check = function(x) check_class_or_list(x, "function")),
+      lr_lambda = p_uty(tags = c("train", "required"), custom_check = function(x) check_class_or_list(x, "function")),
       last_epoch = p_int(default = -1, tags = "train"),
       verbose = p_lgl(default = FALSE, tags = "train")
     ),
@@ -118,11 +118,11 @@ mlr3torch_callbacks$add("lr_one_cycle", function() {
   TorchCallback$new(
     callback_generator = CallbackSetLRScheduler,
     param_set = ps(
-      max_lr = p_dbl(tags = "train"),
+      max_lr = p_uty(tags = c("train", "required"), custom_check = function(x) check_class_or_list(x, "numeric")),
       total_steps = p_int(default = NULL, special_vals = list(NULL), tags = "train"),
       epochs = p_int(default = NULL, special_vals = list(NULL), tags = "train"),
       steps_per_epoch = p_int(default = NULL, special_vals = list(NULL), tags = "train"),
-      pct_start = p_dbl(default = 0.3,tags = "train"),
+      pct_start = p_dbl(default = 0.3, tags = "train"),
       anneal_strategy = p_fct(default = "cos", levels = c("cos", "linear")), # this is a string in the torch fn
       cycle_momentum = p_lgl(default = TRUE, tags = "train"),
       base_momentum = p_uty(default = 0.85, tags = "train", custom_check = function(x) check_class_or_list(x, "numeric")),
@@ -165,7 +165,7 @@ mlr3torch_callbacks$add("lr_step", function() {
   TorchCallback$new(
     callback_generator = CallbackSetLRScheduler,
     param_set = ps(
-      step_size = p_int(default = 1, tags = "train"),
+      step_size = p_int(tags = c("train", "required")),
       gamma = p_dbl(default = 0.1, tags = "train"),
       last_epoch = p_int(default = -1, tags = "train")
     ),
@@ -185,7 +185,7 @@ as_lr_scheduler = function(x, step_on_epoch) {
   assert_flag(step_on_epoch)
 
   class_name = setdiff(class(x), c("lr_scheduler", "lr_scheduler_generator"))
-  
+
   TorchCallback$new(
     callback_generator = CallbackSetLRScheduler,
     param_set = inferps(x),
