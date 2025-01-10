@@ -4,9 +4,11 @@
 #'
 #' @description
 #' Changes the learning rate based on the schedule specified by a `torch::lr_scheduler`.
-#' 
+#'
 #' As of this writing, the following are available: [torch::lr_cosine_annealing()], [torch::lr_lambda()], [torch::lr_multiplicative()], [torch::lr_one_cycle()],
 #' [torch::lr_reduce_on_plateau()], [torch::lr_step()], and custom schedulers defined with [torch::lr_scheduler()].
+#'
+#' If the `lr_scheduler` steps on batches, `last_epoch` should be used to indicate the index of the last batch.
 #'
 #' @param .scheduler (`function`)\cr
 #'   The `torch`` scheduler generator (e.g. `torch::lr_step`).
@@ -16,6 +18,7 @@
 #' @export
 CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
   inherit = CallbackSet,
+  lock_objects = FALSE,
   public = list(
     #' @field scheduler_fn (`lr_scheduler_generator`)\cr
     #' The `torch` function that creates a learning rate scheduler
@@ -73,7 +76,7 @@ mlr3torch_callbacks$add("lr_cosine_annealing", function() {
     id = "lr_cosine_annealing",
     label = "Learning Rate Scheduler using Cosine Annealing",
     man = "mlr3torch::mlr_callback_set.lr_scheduler",
-    additional_args = list(.scheduler = torch::lr_cosine_annealing)
+    additional_args = list(.scheduler = torch::lr_cosine_annealing, step_on_epoch = TRUE)
   )
 })
 
@@ -89,7 +92,7 @@ mlr3torch_callbacks$add("lr_lambda", function() {
     id = "lr_scheduler",
     label = "Learning Rate Scheduler using Multplication by a Function",
     man = "mlr3torch::mlr_callback_set.lr_scheduler",
-    additional_args = list(.scheduler = torch::lr_lambda)
+    additional_args = list(.scheduler = torch::lr_lambda, step_on_epoch = TRUE)
   )
 })
 
@@ -105,7 +108,7 @@ mlr3torch_callbacks$add("lr_multiplicative", function() {
     id = "lr_multiplicative",
     label = "Learning Rate Scheduler using Multiplication by a Factor",
     man = "mlr3torch::mlr_callback_set.lr_scheduler",
-    additional_args = list(.scheduler = torch::lr_multiplicative)
+    additional_args = list(.scheduler = torch::lr_multiplicative, step_on_epoch = TRUE)
   )
 })
 
@@ -116,7 +119,7 @@ mlr3torch_callbacks$add("lr_one_cycle", function() {
     callback_generator = CallbackSetLRScheduler,
     param_set = ps(
       max_lr = p_dbl(tags = "train"),
-      total_steps = p_int(default = NULL, special_vals = list(NULL), tags = "train"), 
+      total_steps = p_int(default = NULL, special_vals = list(NULL), tags = "train"),
       epochs = p_int(default = NULL, special_vals = list(NULL), tags = "train"),
       steps_per_epoch = p_int(default = NULL, special_vals = list(NULL), tags = "train"),
       pct_start = p_dbl(default = 0.3,tags = "train"),
@@ -153,7 +156,7 @@ mlr3torch_callbacks$add("lr_reduce_on_plateau", function() {
     id = "lr_reduce_on_plateau",
     label = "Learning Rate Scheduler using Reduction on Plateau",
     man = "mlr3torch::mlr_callback_set.lr_scheduler",
-    additional_args = list(.scheduler = torch::lr_reduce_on_plateau)
+    additional_args = list(.scheduler = torch::lr_reduce_on_plateau, step_on_epoch = TRUE)
   )
 })
 
@@ -169,7 +172,7 @@ mlr3torch_callbacks$add("lr_step", function() {
     id = "lr_step",
     label = "Learning Rate Scheduler using Step Decay",
     man = "mlr3torch::mlr_callback_set.lr_scheduler",
-    additional_args = list(.scheduler = torch::lr_step)
+    additional_args = list(.scheduler = torch::lr_step, step_on_epoch = TRUE)
   )
 })
 
@@ -184,7 +187,7 @@ as_lr_scheduler = function(x, step_on_epoch) {
   TorchCallback$new(
     callback_generator = CallbackSetLRScheduler,
     param_set = inferps(x),
-    id = "lr_scheduler_custom",
+    id = "lr_custom",
     label = "Learning Rate Scheduler using Custom Policy",
     man = "mlr3torch::mlr_callback_set.lr_scheduler",
     additional_args = list(.scheduler = x, step_on_epoch = step_on_epoch)

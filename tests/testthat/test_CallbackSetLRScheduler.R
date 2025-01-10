@@ -5,7 +5,7 @@ test_that("autotest", {
 })
 
 test_that("decay works", {
-  cb = t_clbk("ler_step")
+  cb = t_clbk("lr_step")
   expect_torch_callback(cb, check_paramset = FALSE)
   task = tsk("iris")
   n_epochs = 10
@@ -17,8 +17,8 @@ test_that("decay works", {
   )
   gamma = 0.5
   step_size = 2
-  mlp$param_set$set_values(cb.lr_scheduler.gamma = gamma)
-  mlp$param_set$set_values(cb.lr_scheduler.step_size = step_size)
+  mlp$param_set$set_values(cb.lr_step.gamma = gamma)
+  mlp$param_set$set_values(cb.lr_step.step_size = step_size)
 
   mlp$train(task)
 
@@ -43,7 +43,7 @@ test_that("custom LR scheduler works", {
       sapply(self$optimizer$param_groups, function(x) x$lr - self$delta)
     }
   )
-  cb = as_lr_scheduler(lr_subtract)
+  cb = as_lr_scheduler(lr_subtract, step_on_epoch = TRUE)
   expect_torch_callback(cb, check_paramset = FALSE)
 
   task = tsk("iris")
@@ -56,8 +56,8 @@ test_that("custom LR scheduler works", {
   )
   reduction_amt = 0.00001
   step_size = 2
-  mlp$param_set$set_values(cb.lr_scheduler.delta = reduction_amt)
-  mlp$param_set$set_values(cb.lr_scheduler.step_size = step_size)
+  mlp$param_set$set_values(cb.lr_custom.delta = reduction_amt)
+  mlp$param_set$set_values(cb.lr_custom.step_size = step_size)
 
   mlp$train(task)
 
