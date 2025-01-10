@@ -1,10 +1,11 @@
 test_that("autotest", {
-  cb = t_clbk("lr_scheduler_cosine_annealing", T_max = 10)
+  cb = t_clbk("lr_cosine_annealing", T_max = 10)
+  # each LR scheduler has a different paramset, so we don't test them
   expect_torch_callback(cb, check_paramset = FALSE)
 })
 
 test_that("decay works", {
-  cb = t_clbk("lr_scheduler_step")
+  cb = t_clbk("ler_step")
   expect_torch_callback(cb, check_paramset = FALSE)
   task = tsk("iris")
   n_epochs = 10
@@ -26,6 +27,7 @@ test_that("decay works", {
 })
 
 test_that("custom LR scheduler works", {
+  # modeled after lr_step
   lr_subtract <- lr_scheduler(
     "lr_subtract",
     initialize = function(optimizer, step_size, delta = 0.1, last_epoch = -1) {
