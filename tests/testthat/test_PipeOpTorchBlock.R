@@ -81,3 +81,8 @@ test_that("works when including non-torch pipeop", {
   expect_true("nn_linear" %in% mdout$graph$ids())
 })
 
+test_that("different block changes phash", {
+  x1 = po("nn_block", po("nn_linear"))
+  x2 = po("nn_block", po("nn_relu"))
+  expect_false(x1$phash == x2$phash)
+})

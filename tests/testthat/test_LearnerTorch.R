@@ -824,3 +824,30 @@ test_that("early stopping and eval freq", {
   # first eval is after 4, then 10 evaluations every 4 epochs with no improvement -> 44
   expect_equal(at$tuning_instance$archive$resample_result(1)$learners[[1]]$model$epochs, 44L)
 })
+
+test_that("internal tuned values is correct when exhausting all epochs", {
+  task = tsk("iris")
+  learner = lrn("classif.mlp", measures_valid = msr("classif.acc"),
+    validate = 0.3, patience = 10L, epochs = 1L, batch_size = 16)
+  learner$train(task)
+  learner$internal_tuned_values$epochs
+  expect_equal(learner$internal_tuned_values$epochs, 1L)
+  expect_false(learner$model$callbacks$early_stopping$stopped)
+})
+
+test_that("early stopping is written into model and id is reserved", {
+  task = tsk("iris")
+  learner = lrn("classif.mlp", measures_valid = msr("classif.acc"),
+    validate = 0.3, patience = 1L, epochs = 1L, batch_size = 16)
+  learner$train(task)
+  expect_false(learner$model$callbacks$early_stopping$stopped)
+  learner$param_set$set_values(
+    min_delta = Inf,
+    epochs = 2L
+  )
+  learner$train(task)
+  expect_true(learner$model$callbacks$early_stopping$stopped)
+  cb = t_clbk("history")
+  cb$id = "early_stopping"
+  expect_error(lrn("classif.mlp", callbacks = list(cb)), "'early_stopping' is reserved")
+})

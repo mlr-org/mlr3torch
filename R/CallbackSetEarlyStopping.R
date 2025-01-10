@@ -36,6 +36,9 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       if (improvement > 0) {
         self$best_score = self$ctx$last_scores_valid[[1L]]
       }
+    },
+    state_dict = function() {
+      list(stopped = isTRUE(self$ctx$terminate))
     }
   )
 )

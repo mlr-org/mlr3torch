@@ -182,6 +182,10 @@ LearnerTorch = R6Class("LearnerTorch",
         self$callbacks = callbacks
       }
 
+      if ("early_stopping" %in% ids(self$callbacks)) {
+        stopf("Callback with id 'early_stopping' is reserved.")
+      }
+
       packages = unique(c(
         packages,
         unlist(map(private$.callbacks, "packages")),
@@ -382,10 +386,12 @@ LearnerTorch = R6Class("LearnerTorch",
     .param_set_base = NULL,
     .extract_internal_tuned_values = function() {
       if (self$state$param_vals$patience == 0) {
-        named_list()
-      } else {
-        list(epochs = self$model$epochs - self$state$param_vals$patience * self$state$param_vals$eval_freq)
+        return(named_list())
       }
+      if (!self$model$callbacks$early_stopping$stopped) {
+        return(list(epochs = self$model$epochs))
+      }
+      list(epochs = self$model$epochs - self$state$param_vals$patience * self$state$param_vals$eval_freq)
     },
     .extract_internal_valid_scores = function() {
       if (is.null(self$model$internal_valid_scores)) {
@@ -454,7 +460,7 @@ LearnerTorch = R6Class("LearnerTorch",
       param_vals$device = auto_device(param_vals$device)
       private$.verify_predict_task(task, param_vals)
 
-      with_torch_settings(seed = self$model$seed, num_threads = param_vals$num_threads, 
+      with_torch_settings(seed = self$model$seed, num_threads = param_vals$num_threads,
         num_interop_threads = param_vals$num_interop_threads, expr = {
         learner_torch_predict(self, private, super, task, param_vals)
       })
