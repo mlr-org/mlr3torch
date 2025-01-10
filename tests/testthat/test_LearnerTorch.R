@@ -825,29 +825,32 @@ test_that("early stopping and eval freq", {
   expect_equal(at$tuning_instance$archive$resample_result(1)$learners[[1]]$model$epochs, 44L)
 })
 
-test_that("internal tuned values is correct when exhausting all epochs", {
+test_that("internal tuned values is correct", {
   task = tsk("iris")
+  # training is not stopped
   learner = lrn("classif.mlp", measures_valid = msr("classif.acc"),
     validate = 0.3, patience = 10L, epochs = 1L, batch_size = 16)
   learner$train(task)
-  learner$internal_tuned_values$epochs
   expect_equal(learner$internal_tuned_values$epochs, 1L)
-  expect_false(learner$model$callbacks$early_stopping$stopped)
-})
-
-test_that("early stopping is written into model and id is reserved", {
-  task = tsk("iris")
-  learner = lrn("classif.mlp", measures_valid = msr("classif.acc"),
-    validate = 0.3, patience = 1L, epochs = 1L, batch_size = 16)
-  learner$train(task)
-  expect_false(learner$model$callbacks$early_stopping$stopped)
+  # training is stopped
   learner$param_set$set_values(
-    min_delta = Inf,
-    epochs = 2L
+    epochs = 10L, min_delta = Inf, patience = 2L, eval_freq = 3L
   )
   learner$train(task)
-  expect_true(learner$model$callbacks$early_stopping$stopped)
-  cb = t_clbk("history")
-  cb$id = "early_stopping"
-  expect_error(lrn("classif.mlp", callbacks = list(cb)), "'early_stopping' is reserved")
+  expect_equal(learner$internal_tuned_values$epochs, 3L)
+  learner$param_set$set_values(
+    epochs = 10L, min_delta = Inf, patience = 2L, eval_freq = 2L
+  )
+  learner$train(task)
+  expect_equal(learner$internal_tuned_values$epochs, 2L)
+
+  # early stopping triggers in the final validation round
+  learner$param_set$set_values(
+    epochs = 4L, min_delta = Inf, patience = 2L, eval_freq = 3L
+  )
+  learner$train(task)
+  # no improvement after 3 epochs (where we first validate)
+  # because the last epoch always validates, we still terminate,
+  # even though we train for 4 < 6 epochs
+  expect_equal(learner$internal_tuned_values$epochs, 3L)
 })

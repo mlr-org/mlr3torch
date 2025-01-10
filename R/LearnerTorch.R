@@ -388,10 +388,7 @@ LearnerTorch = R6Class("LearnerTorch",
       if (self$state$param_vals$patience == 0) {
         return(named_list())
       }
-      if (!self$model$callbacks$early_stopping$stopped) {
-        return(list(epochs = self$model$epochs))
-      }
-      list(epochs = self$model$epochs - self$state$param_vals$patience * self$state$param_vals$eval_freq)
+      list(epochs = self$model$callbacks$early_stopping$best_epochs)
     },
     .extract_internal_valid_scores = function() {
       if (is.null(self$model$internal_valid_scores)) {

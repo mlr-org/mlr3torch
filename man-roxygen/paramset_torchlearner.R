@@ -45,6 +45,8 @@
 #'   This is initialized to `0`, which means no early stopping.
 #'   The first entry from `measures_valid` is used as the metric.
 #'   This also requires to specify the `$validate` field of the Learner, as well as `measures_valid`.
+#'   If this is set, the epoch after which no improvement was observed, can be accessed via the `$internal_tuned_values`
+#'   field of the learner.
 #' * `min_delta` :: `double(1)`\cr
 #'   The minimum improvement threshold for early stopping.
 #'   Is initialized to 0.
