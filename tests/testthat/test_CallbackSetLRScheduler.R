@@ -5,8 +5,7 @@ test_that("autotest", {
 })
 
 test_that("decay works", {
-  cb = t_clbk("lr_step")
-  expect_torch_callback(cb, check_paramset = FALSE)
+  cb = t_clbk("lr_step", step_size = 2)
   task = tsk("iris")
   n_epochs = 10
 
@@ -18,7 +17,9 @@ test_that("decay works", {
   gamma = 0.5
   step_size = 2
   mlp$param_set$set_values(cb.lr_step.gamma = gamma)
-  mlp$param_set$set_values(cb.lr_step.step_size = step_size)
+  # mlp$param_set$set_values(cb.lr_step.step_size = step_size)
+
+  expect_torch_callback(cb, check_paramset = FALSE)
 
   mlp$train(task)
 
