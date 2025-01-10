@@ -114,7 +114,9 @@ If the performance of a model does not improve for <code>patience</code> evaluat
 Note that the final model is stored in the learner, not the best model.
 This is initialized to <code>0</code>, which means no early stopping.
 The first entry from <code>measures_valid</code> is used as the metric.
-This also requires to specify the <code>$validate</code> field of the Learner, as well as <code>measures_valid</code>.</p></li>
+This also requires to specify the <code>$validate</code> field of the Learner, as well as <code>measures_valid</code>.
+If this is set, the epoch after which no improvement was observed, can be accessed via the <code>$internal_tuned_values</code>
+field of the learner.</p></li>
 <li><p><code>min_delta</code> :: <code>double(1)</code><br>
 The minimum improvement threshold for early stopping.
 Is initialized to 0.</p></li>
