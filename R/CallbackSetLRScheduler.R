@@ -184,7 +184,7 @@ as_lr_scheduler = function(x, step_on_epoch) {
   assert_class(x, "lr_scheduler_generator")
   assert_flag(step_on_epoch)
 
-  class_name = setdiff(class(x), c("lr_scheduler", "lr_scheduler_generator"))
+  class_name = class(x)[1L]
 
   TorchCallback$new(
     callback_generator = CallbackSetLRScheduler,
