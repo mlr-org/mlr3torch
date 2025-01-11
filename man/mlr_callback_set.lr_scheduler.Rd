@@ -5,7 +5,12 @@
 \alias{CallbackSetLRScheduler}
 \title{Learning Rate Scheduling Callback}
 \description{
-Changes the learning rate based on the schedule specified by a \code{torch::LRScheduler}.
+Changes the learning rate based on the schedule specified by a \code{torch::lr_scheduler}.
+
+As of this writing, the following are available: \code{\link[torch:lr_cosine_annealing]{torch::lr_cosine_annealing()}}, \code{\link[torch:lr_lambda]{torch::lr_lambda()}}, \code{\link[torch:lr_multiplicative]{torch::lr_multiplicative()}}, \code{\link[torch:lr_one_cycle]{torch::lr_one_cycle()}},
+\code{\link[torch:lr_reduce_on_plateau]{torch::lr_reduce_on_plateau()}}, \code{\link[torch:lr_step]{torch::lr_step()}}, and custom schedulers defined with \code{\link[torch:lr_scheduler]{torch::lr_scheduler()}}.
+
+If the \code{lr_scheduler} steps on batches, \code{last_epoch} should be used to indicate the index of the last batch.
 }
 \section{Super class}{
 \code{\link[mlr3torch:CallbackSet]{mlr3torch::CallbackSet}} -> \code{CallbackSetLRScheduler}
@@ -26,7 +31,6 @@ The learning rate scheduler wrapped by this callback}
 \itemize{
 \item \href{#method-CallbackSetLRScheduler-new}{\code{CallbackSetLRScheduler$new()}}
 \item \href{#method-CallbackSetLRScheduler-on_begin}{\code{CallbackSetLRScheduler$on_begin()}}
-\item \href{#method-CallbackSetLRScheduler-on_epoch_end}{\code{CallbackSetLRScheduler$on_epoch_end()}}
 \item \href{#method-CallbackSetLRScheduler-clone}{\code{CallbackSetLRScheduler$clone()}}
 }
 }
@@ -45,14 +49,14 @@ The learning rate scheduler wrapped by this callback}
 \subsection{Method \code{new()}}{
 Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetLRScheduler$new(.scheduler, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackSetLRScheduler$new(.scheduler, step_on_epoch, ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{.scheduler}}{(\code{function})\cr
-The torch scheduler constructor function (e.g. \code{torch::lr_step}).}
+The \verb{torch`` scheduler generator (e.g. }torch::lr_step`).}
 
 \item{\code{...}}{(\code{list})\cr
 The scheduler-specific arguments}
@@ -67,16 +71,6 @@ The scheduler-specific arguments}
 Creates the scheduler using the optimizer from the context
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CallbackSetLRScheduler$on_begin()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackSetLRScheduler-on_epoch_end"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackSetLRScheduler-on_epoch_end}{}}}
-\subsection{Method \code{on_epoch_end()}}{
-Depending on the scheduler, step after each epoch
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetLRScheduler$on_epoch_end()}\if{html}{\out{</div>}}
 }
 
 }
