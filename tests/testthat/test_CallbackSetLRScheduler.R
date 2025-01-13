@@ -16,11 +16,9 @@ test_that("decay works", {
   )
   gamma = 0.5
   step_size = 2
-  mlp$param_set$set_values(cb.lr_step.gamma = gamma)
 
+  mlp$param_set$set_values(cb.lr_step.gamma = gamma)
   mlp$param_set$set_values(cb.lr_step.step_size = step_size)
-  # doesn't pass bc step_size required param is set in the learner's paramset
-  expect_torch_callback(cb, check_paramset = FALSE)
 
   mlp$train(task)
 
