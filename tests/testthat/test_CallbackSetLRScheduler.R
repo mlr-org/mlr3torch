@@ -1,7 +1,25 @@
 test_that("autotest", {
-  cb = t_clbk("lr_cosine_annealing", T_max = 10)
+  cb_ca = t_clbk("lr_cosine_annealing", T_max = 10)
   # each LR scheduler has a different paramset, so we don't test them
-  expect_torch_callback(cb, check_paramset = FALSE)
+  expect_torch_callback(cb_ca, check_paramset = FALSE)
+
+  lambda1 <- function(epoch) epoch %/% 30
+  lambda2 <- function(epoch) 0.95^epoch
+  cb_lambda = t_clbk("lr_lambda", lr_lambda = list(lambda1, lambda2))
+  expect_torch_callback(cb_lambda, check_paramset = FALSE)
+
+  lambda <- function(epoch) 0.95
+  cb_mult = t_clbk("lr_multiplicative", lr_lambda = lambda)
+  expect_torch_callback(cb_mult, check_paramset = FALSE)
+
+  cb_1cycle = t_clbk("lr_one_cycle", max_lr = 0.1)
+  expect_torch_callback(cb_1cycle, check_paramset = FALSE)
+
+  cb_plateau = t_clbk("lr_reduce_on_plateau")
+  expect_torch_callback(cb_plateau, check_paramset = FALSE)
+
+  cb_step = t_clbk("lr_step", step_size = 4)
+  expect_torch_callback(cb_step, check_paramset = FALSE)
 })
 
 test_that("decay works", {

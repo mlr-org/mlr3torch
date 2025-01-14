@@ -9,8 +9,6 @@ Changes the learning rate based on the schedule specified by a \code{torch::lr_s
 
 As of this writing, the following are available: \code{\link[torch:lr_cosine_annealing]{torch::lr_cosine_annealing()}}, \code{\link[torch:lr_lambda]{torch::lr_lambda()}}, \code{\link[torch:lr_multiplicative]{torch::lr_multiplicative()}}, \code{\link[torch:lr_one_cycle]{torch::lr_one_cycle()}},
 \code{\link[torch:lr_reduce_on_plateau]{torch::lr_reduce_on_plateau()}}, \code{\link[torch:lr_step]{torch::lr_step()}}, and custom schedulers defined with \code{\link[torch:lr_scheduler]{torch::lr_scheduler()}}.
-
-If the \code{lr_scheduler} steps on batches, \code{last_epoch} should be used to indicate the index of the last batch.
 }
 \section{Super class}{
 \code{\link[mlr3torch:CallbackSet]{mlr3torch::CallbackSet}} -> \code{CallbackSetLRScheduler}
@@ -55,10 +53,10 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{.scheduler}}{(\code{function})\cr
-The \verb{torch`` scheduler generator (e.g. }torch::lr_step`).}
+\item{\code{.scheduler}}{(\code{lr_scheduler_generator})\cr
+The \code{torch} scheduler generator (e.g. \code{torch::lr_step}).}
 
-\item{\code{...}}{(\code{list})\cr
+\item{\code{...}}{(any)\cr
 The scheduler-specific arguments}
 }
 \if{html}{\out{</div>}}

@@ -37,7 +37,7 @@ TorchDescriptor = R6Class("TorchDescriptor",
     #' @template param_packages
     #' @template param_label
     #' @template param_man
-    #' @param additional_args (`any`)\cr
+    #' @param additional_args (`list()`)\cr
     #'  Additional arguments if necessary. For learning rate schedulers, this is the torch::LRScheduler.
     initialize = function(generator, id = NULL, param_set = NULL, packages = NULL, label = NULL, man = NULL, additional_args = NULL) {
       assert_true(is.function(generator) || inherits(generator, "R6ClassGenerator"))
@@ -65,7 +65,7 @@ TorchDescriptor = R6Class("TorchDescriptor",
       self$id = assert_string(id %??% class(generator)[[1L]], min.chars = 1L)
       self$label = assert_string(label %??% self$id, min.chars = 1L)
       self$packages = assert_names(unique(union(packages, c("torch", "mlr3torch"))), type = "strict")
-      private$.additional_args = additional_args
+      private$.additional_args = assert_list(additional_args, null.ok = TRUE)
     },
     #' @description
     #' Prints the object

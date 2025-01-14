@@ -114,7 +114,7 @@ Label for the new instance.}
 String in the format \verb{[pkg]::[topic]} pointing to a manual page for this object.
 The referenced help package can be opened via method \verb{$help()}.}
 
-\item{\code{additional_args}}{(\code{any})\cr
+\item{\code{additional_args}}{(\code{list()})\cr
 Additional arguments if necessary. For learning rate schedulers, this is the torch::LRScheduler.}
 }
 \if{html}{\out{</div>}}
