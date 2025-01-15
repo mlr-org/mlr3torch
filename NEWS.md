@@ -11,6 +11,7 @@
 * feat: Added multimodal melanoma example task
 * feat: Added a callback to iteratively unfreeze parameters for finetuning
 * fix: torch learners can now be used with `AutoTuner`
+* feat: Added different learning rate schedulers as callbacks
 
 # mlr3torch 0.1.2
 
