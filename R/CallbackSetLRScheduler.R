@@ -123,7 +123,7 @@ mlr3torch_callbacks$add("lr_one_cycle", function() {
       verbose = p_lgl(default = FALSE, tags = "train")
     ),
     id = "lr_one_cycle",
-    label = "1cyle Learning Rate Scheduler",
+    label = "1cyle LR Scheduler",
     man = "mlr3torch::mlr_callback_set.lr_scheduler",
     additional_args = list(.scheduler = torch::lr_one_cycle, step_on_epoch = FALSE)
   )
