@@ -37,7 +37,9 @@ TorchDescriptor = R6Class("TorchDescriptor",
     #' @template param_packages
     #' @template param_label
     #' @template param_man
-    initialize = function(generator, id = NULL, param_set = NULL, packages = NULL, label = NULL, man = NULL) {
+    #' @param additional_args (`list()`)\cr
+    #'  Additional arguments if necessary. For learning rate schedulers, this is the torch::LRScheduler.
+    initialize = function(generator, id = NULL, param_set = NULL, packages = NULL, label = NULL, man = NULL, additional_args = NULL) {
       assert_true(is.function(generator) || inherits(generator, "R6ClassGenerator"))
       self$generator = generator
       self$param_set = assert_r6(param_set, "ParamSet", null.ok = TRUE) %??% inferps(generator)
@@ -63,6 +65,7 @@ TorchDescriptor = R6Class("TorchDescriptor",
       self$id = assert_string(id %??% class(generator)[[1L]], min.chars = 1L)
       self$label = assert_string(label %??% self$id, min.chars = 1L)
       self$packages = assert_names(unique(union(packages, c("torch", "mlr3torch"))), type = "strict")
+      private$.additional_args = assert_list(additional_args, null.ok = TRUE)
     },
     #' @description
     #' Prints the object
@@ -86,9 +89,9 @@ TorchDescriptor = R6Class("TorchDescriptor",
       # The torch generators could also be constructed with the $new() method, but then the return value
       # would be the actual R6 class and not the wrapped function.
       if (is.function(self$generator)) {
-        invoke(self$generator, .args = self$param_set$get_values())
+        invoke(self$generator, .args = c(self$param_set$get_values(), private$.additional_args))
       } else {
-        invoke(self$generator$new, .args = self$param_set$get_values())
+        invoke(self$generator$new, .args = c(self$param_set$get_values(), private$.additional_args))
       }
     },
     #' @description
@@ -107,6 +110,7 @@ TorchDescriptor = R6Class("TorchDescriptor",
     }
   ),
   private = list(
+    .additional_args = NULL,
     .additional_phash_input = function() {
       stopf("Classes inheriting from TorchDescriptor must implement the .additional_phash_input() method.")
     },

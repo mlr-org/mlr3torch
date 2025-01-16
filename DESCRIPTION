@@ -85,6 +85,7 @@ Collate:
     'CallbackSetCheckpoint.R'
     'CallbackSetEarlyStopping.R'
     'CallbackSetHistory.R'
+    'CallbackSetLRScheduler.R'
     'CallbackSetProgress.R'
     'CallbackSetTB.R'
     'CallbackSetUnfreeze.R'
