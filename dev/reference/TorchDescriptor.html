@@ -156,7 +156,8 @@ which are varied systematically (e.g. the parameter values).</p></dd>
 <span>  param_set <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  packages <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  label <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  man <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  man <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  additional_args <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -190,6 +191,11 @@ Label for the new instance.</p></dd>
 <dd><p>(<code>character(1)</code>)<br>
 String in the format <code>[pkg]::[topic]</code> pointing to a manual page for this object.
 The referenced help package can be opened via method <code>$help()</code>.</p></dd>
+
+
+<dt><code>additional_args</code></dt>
+<dd><p>(<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>)<br>
+Additional arguments if necessary. For learning rate schedulers, this is the torch::LRScheduler.</p></dd>
 
 
 </dl><p></p></div>
