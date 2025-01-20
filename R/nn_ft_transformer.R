@@ -297,7 +297,6 @@ nn_ft_ffn = nn_module(
   }
 )
 
-
 nn_ft_head = nn_module(
   "nn_ft_head",
   initialize = function(d_in, bias, activation, normalization, d_out) {
@@ -313,7 +312,6 @@ nn_ft_head = nn_module(
     return(x)
   }
 )
-
 
 nn_ft_transformer_block = nn_module(
   "nn_ft_transformer_block",
@@ -349,10 +347,12 @@ nn_ft_transformer_block = nn_module(
 
     assert_true(kv_compression_sharing %in% c('headwise', 'key_value', 'layerwise') || is.null(kv_compression_sharing))
     if (!prenormalization) {
+      # TODO: remove references to rtdl.Transformer
       warning("prenormalization is set to False. Are you sure about this? The training can become less stable. You can turn off this warning by tweaking the rtdl.Transformer.WARNINGS dictionary.")
-      assert_true(!first_prenormalization)
+      assert_false(first_prenormalization)
     }
     if (prenormalization && first_prenormalization) {
+      # TODO: remove references to rtdl.Transformer
       warning("first_prenormalization is set to True. Are you sure about this? For example, the vanilla FTTransformer with first_prenormalization=True performs SIGNIFICANTLY worse. You can turn off this warning by tweaking the rtdl.Transformer.WARNINGS dictionary.")
     }
     if (!is.null(kv_compression_ratio) && kv_compression_sharing == 'layerwise') {
@@ -463,7 +463,6 @@ nn_ft_transformer_block = nn_module(
     return(x)
   }
 )
-
 
 get_baseline_transformer_subconfig = function() {
   parameters = list(

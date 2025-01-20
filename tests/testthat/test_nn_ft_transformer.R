@@ -1,4 +1,4 @@
-test_that("Numeric Tokenizer works properly", {
+test_that("Numeric tokenizer works properly", {
   x = torch_randn(4, 2)
   n_objects = x$shape[1]
   n_features = x$shape[2]
@@ -8,7 +8,7 @@ test_that("Numeric Tokenizer works properly", {
   expect_true(all(tokens$shape == c(n_objects, n_features, d_token)))
 })
 
-test_that("Categorical Tokenizer works properly", {
+test_that("Categorical tokenizer works properly", {
   cardinalities = c(3, 10)
   mat = matrix(nrow=4, ncol=2)
   mat[1, ] = c(1L, 6L)
@@ -24,7 +24,7 @@ test_that("Categorical Tokenizer works properly", {
   expect_true(all(tokens$shape == c(n_objects, n_features, d_token)))
 })
 
-test_that("Tabular Tokenizer works properly", {
+test_that("Tabular tokenizer works properly", {
   n_objects = 4
   n_num_features = 3
   n_cat_features = 2
