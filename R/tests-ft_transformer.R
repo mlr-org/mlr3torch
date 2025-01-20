@@ -1,5 +1,7 @@
 library(torch)
-
+library(here)
+source(here("R", "activations.R"))
+source(here("R", "nn_ft_transformer.R"))
 # test for numeric tokenizer
 x = torch_randn(4, 2)
 n_objects = x$shape[1]
@@ -51,21 +53,17 @@ cls_token = nn_cls_token(d_token, 'uniform')
 x = torch_randn(batch_size, n_tokens, d_token)
 x = cls_token(x)
 assert_true(all(x$shape == c(batch_size, n_tokens + 1, d_token)))
-assert_true(all(x[, -1, ] == cls_token$expand(x$shape[1]))) # does not work but they are the same
-
-
+assert_true(torch_equal(x[, -1, ] == cls_token$expand(x$shape[1]))) # does not work but they are the same
 
 # test for reglu
 module = nn_reglu()
 x = torch_randn(3, 4)
 assert_true(all(module(x)$shape == c(3, 2)))
 
-
 # test for geglu
 module = nn_geglu()
 x = torch_randn(3, 4)
 assert_true(all(module(x)$shape == c(3, 2)))
-
 
 ### test for multihead attention
 n_objects = 2
@@ -124,5 +122,3 @@ module = make_default(
 )
 x = module(x_num, x_cat)
 assert_true(all(x$shape == c(4, 1)))
-
-
