@@ -126,3 +126,4 @@
 # )
 # x = module(x_num, x_cat)
 # assert_true(all(x$shape == c(4, 1)))
+#

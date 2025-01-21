@@ -18,7 +18,7 @@
 #'   The activation function. Is initialized to [`nn_relu`][torch::nn_relu].
 #' * `activation_args` :: named `list()`\cr
 #'   A named list with initialization arguments for the activation function.
-#'   This is intialized to an empty list.
+#'   This is initialized to an empty list.
 #' * `neurons` :: `integer()`\cr
 #'   The number of neurons per hidden layer. By default there is no hidden layer.
 #'   Setting this to `c(10, 20)` would have a the first hidden layer with 10 neurons and the second with 20.
@@ -132,7 +132,7 @@ single_lazy_tensor = function(task) {
   identical(task$feature_types[, "type"][[1L]], "lazy_tensor")
 }
 
-# shape is (NA, x) if preesnt
+# shape is (NA, x) if present
 make_mlp = function(task, d_in, d_out, activation, neurons = integer(0), p, activation_args, n_layers = NULL, ...) {
   # This way, dropout_args will have length 0 if p is `NULL`
 

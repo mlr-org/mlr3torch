@@ -259,10 +259,9 @@ nn_ft_multi_head_attention = nn_module(
     }
 
     batch_size = q$shape[1]
-    # browser()
-    # TODO: check that data.table::last will give the same result as tail()
-    d_head_key = tail(k$shape, 1) %/% self$n_heads
-    d_head_value = tail(v$shape, 1) %/% self$n_heads
+
+    d_head_key = last(k$shape) %/% self$n_heads
+    d_head_value = last(v$shape) %/% self$n_heads
     n_q_tokens = q$shape[2]
 
     q = self$reshape_(q)
