@@ -191,7 +191,7 @@ nn_cls_token = nn_module(
   }
 )
 
-
+# TODO: add as PipeOp
 nn_reglu = nn_module(
   "nn_reglu",
   forward = function(input) {
@@ -199,7 +199,7 @@ nn_reglu = nn_module(
   }
 )
 
-
+# TODO: add as PipeOp
 nn_geglu = nn_module(
   "nn_geglu",
   forward = function(input) {
@@ -350,12 +350,12 @@ nn_ft_transformer_block = nn_module(
 
     assert_true(kv_compression_sharing %in% c("headwise", "key_value", "layerwise") || is.null(kv_compression_sharing))
     if (!prenormalization) {
-      # TODO: remove references to rtdl.Transformer
+      # TODO: should we refer to rtdl.Transformer?
       warning("prenormalization is set to False. Are you sure about this? The training can become less stable. You can turn off this warning by tweaking the rtdl.Transformer.WARNINGS dictionary.")
       assert_false(first_prenormalization)
     }
     if (prenormalization && first_prenormalization) {
-      # TODO: remove references to rtdl.Transformer
+      # TODO: should we refer to rtdl.Transformer?
       warning("first_prenormalization is set to True. Are you sure about this? For example, the vanilla FTTransformer with first_prenormalization=True performs SIGNIFICANTLY worse. You can turn off this warning by tweaking the rtdl.Transformer.WARNINGS dictionary.")
     }
     if (!is.null(kv_compression_ratio) && kv_compression_sharing == "layerwise") {
