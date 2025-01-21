@@ -258,6 +258,8 @@ nn_ft_multi_head_attention = nn_module(
     }
 
     batch_size = q$shape[1]
+    browser()
+    # TODO: check that data.table::last will give the same result as tail()
     d_head_key = tail(k$shape, 1) %/% self$n_heads
     d_head_value = tail(v$shape, 1) %/% self$n_heads
     n_q_tokens = q$shape[2]
@@ -363,7 +365,7 @@ nn_ft_transformer_block = nn_module(
     self$prenormalization = prenormalization
     self$last_layer_query_idx = last_layer_query_idx
     self$blocks = list()
-    for (layer_idx in 1:n_blocks) {
+    for (layer_idx in seq_len(n_blocks)) {
       layer = list(attention = nn_ft_multi_head_attention(d_token=d_token,
                                                           n_heads=attention_n_heads,
                                                           dropout=attention_dropout,
@@ -397,7 +399,7 @@ nn_ft_transformer_block = nn_module(
     self$head = nn_ft_head(d_in=d_token,
                            d_out=d_out,
                            bias=TRUE,
-                           activation=head_activation, # type: ignore
+                           activation=head_activation, # type: ignore # TODO: figure out what this comment means
                            normalization=if (prenormalization) head_normalization else nn_identity)
   },
   make_kv_compression = function(n_tokens, kv_compression_ratio) {
@@ -538,7 +540,7 @@ make_baseline = function(n_num_features,
                          kv_compression_sharing=NULL,
                          d_out) {
   transformer_config = get_baseline_transformer_subconfig()
-  locals <- as.list(environment())
+  locals = as.list(environment())
   for (arg_name in c('n_blocks',
                      'd_token',
                      'attention_dropout',
@@ -562,7 +564,7 @@ make_default = function(n_num_features,
                         kv_compression_sharing=NULL,
                         d_out) {
   transformer_config = get_default_transformer_config(n_blocks=n_blocks)
-  locals <- as.list(environment())
+  locals = as.list(environment())
   for (arg_name in c('last_layer_query_idx',
                      'kv_compression_ratio',
                      'kv_compression_sharing',
