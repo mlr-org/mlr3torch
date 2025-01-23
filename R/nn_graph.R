@@ -1,4 +1,4 @@
-  #' @title Graph Network
+#' @title Graph Network
 #'
 #' @description
 #' Represents a neural network using a [`Graph`][mlr3pipelines::Graph] that usually costains mostly [`PipeOpModule`]s.
