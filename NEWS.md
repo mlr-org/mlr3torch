@@ -4,6 +4,8 @@
 * perf/BREAKING_CHANGE: Removed some optimizers for which no fast ('ignite') variant exists.
   For other optimizers, the old variant was replaced with the 'ignite' variant which
   leads to significantly faster training times.
+* perf: The `jit_trace` parameter was added to `LearnerTorch` which when activated can lead
+  to significantly faster training times
 * BREAKING_CHANGE: The default optimizer is now AdamW instead of Adam
 * feat: Add parameter `num_interop_threads` to `LearnerTorch`
 * feat: Add adaptive average pooling

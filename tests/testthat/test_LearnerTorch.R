@@ -877,3 +877,51 @@ test_that("internal tuned values is correct", {
   learner$train(task)
   expect_equal(learner$internal_tuned_values$epochs, 6L)
 })
+
+test_that("trace-jitting works", {
+  l1 = lrn("classif.mlp", batch_size = 16, epochs = 2, jit_trace = TRUE)
+  l2 = lrn("classif.mlp", batch_size = 16, epochs = 2, jit_trace = FALSE)
+  task = tsk("iris")
+
+  n1 = with_torch_manual_seed({
+    l1$train(task)$network
+  }, seed = 1)
+
+  n2 = with_torch_manual_seed({
+    l2$train(task)$network
+  }, seed = 1)
+
+  expect_equal(n1$parameters, n2$parameters)
+  expect_class(n1, "script_module")
+  expect_false(inherits(n2, "script_module"))
+
+  # now with more than one inputs
+
+  graph = list(po("torch_ingress_num_1"), po("torch_ingress_num_2")) %>>%
+    po("nn_merge_sum") %>>%
+    po("nn_head") %>>%
+    po("torch_optimizer") %>>%
+    po("torch_loss", "cross_entropy") %>>%
+    po("torch_model_classif", epochs = 1, batch_size = 16, jit_trace = FALSE)
+
+  glrn1 = as_learner(graph, clone = TRUE)
+  glrn2 = as_learner(graph, clone = TRUE)
+  glrn2$configure(
+    torch_model_classif.jit_trace = TRUE
+  )
+
+  n3 = with_torch_manual_seed({
+    glrn1$train(task)$model$torch_model_classif$model$network
+  }, seed = 1)
+
+  n4 = with_torch_manual_seed({
+    glrn2$train(task)$model$torch_model_classif$model$network
+  }, seed = 1)
+
+  expect_equal(n3$parameters, n4$parameters)
+
+  # marshaling is also correctly implemented
+  l1$marshal()
+  l1$unmarshal()
+  expect_prediction(l1$predict(task))
+})

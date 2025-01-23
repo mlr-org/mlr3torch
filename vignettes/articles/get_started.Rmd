@@ -116,7 +116,7 @@ mlr3torch_losses
 ### Optimizer
 
 The optimizer determines how the model's weights are updated based on the calculated loss. It adjusts the parameters of the model to minimize the loss function, optimizing the model's performance.
-Optimizers work analogous to loss functions, i.e. `mlr3torch` provides a thin wrapper -- the `TorchOptimizer` class -- around the optimizers such as Adam (`optim_adam`) or SGD (`optim_sgd`).
+Optimizers work analogous to loss functions, i.e. `mlr3torch` provides a thin wrapper -- the `TorchOptimizer` class -- around the optimizers such as AdamW (`optim_ignite_adamw`) or SGD (`optim_ignite_sgd`).
 `TorchLoss` objects can be constructed using `t_opt(<key>)`.
 For optimizers, the associated `ParamSet` is more interesting as we see below:
 
