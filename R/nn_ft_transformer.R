@@ -163,7 +163,7 @@ nn_tokenizer_categorical = nn_module(
   }
 )
 
-
+# TODO: concise description of what this is
 nn_cls_token = nn_module(
   "nn_cls_token",
   initialize = function(d_token, initialization) {
@@ -214,6 +214,7 @@ all_or_none_ = function(...) {
   return(all_none || all_not_none)
 }
 
+# TODO: concise description of what this is
 nn_ft_multi_head_attention = nn_module(
   "nn_ft_multi_head_attention",
   initialize = function(d_token, n_heads, dropout, bias, initialization) {
@@ -280,7 +281,7 @@ nn_ft_multi_head_attention = nn_module(
   }
 )
 
-
+# TODO: concise description of what this is
 nn_ft_ffn = nn_module(
   "nn_ft_ffn",
   initialize = function(d_token, d_hidden, bias_first, bias_second, dropout, activation) {
@@ -299,6 +300,7 @@ nn_ft_ffn = nn_module(
   }
 )
 
+# TODO: concise description of what this is
 nn_ft_head = nn_module(
   "nn_ft_head",
   initialize = function(d_in, bias, activation, normalization, d_out) {
@@ -315,6 +317,7 @@ nn_ft_head = nn_module(
   }
 )
 
+# "the transformer"
 nn_ft_transformer_block = nn_module(
   "nn_ft_transformer_block",
   initialize = function(d_token,
@@ -574,6 +577,7 @@ make_default = function(n_num_features,
   return (make_(n_num_features, cat_cardinalities, transformer_config))
 }
 
+# the FT-Transformer
 nn_ft_transformer = nn_module(
   "nn_ft_transformer",
   initialize = function(feature_tokenizer, transformer) {
