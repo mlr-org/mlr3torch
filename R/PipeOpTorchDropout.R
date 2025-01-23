@@ -9,7 +9,7 @@
 #'
 #' @section Parameters:
 #' * `p` :: `numeric(1)`\cr
-#'  Probability of an element to be zeroed. Default: 0.5 inplace
+#'  Probability of an element to be zeroed. Default: 0.5.
 #' * `inplace` :: `logical(1)`\cr
 #'   If set to `TRUE`, will do this operation in-place. Default: `FALSE`.
 #'

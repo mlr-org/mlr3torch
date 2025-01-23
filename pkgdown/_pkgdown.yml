@@ -85,7 +85,7 @@ reference:
   - title: Network Layers
     contents:
       - starts_with("mlr_pipeops_nn")
-  - title: Preprocessing Operators
+  - title: Preprocessing & Augmentation
     contents:
       - mlr_pipeops_preproc_torch
       - pipeop_preproc_torch
