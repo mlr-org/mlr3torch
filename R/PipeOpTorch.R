@@ -243,7 +243,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
     #'   If the forward method has the argument `...`, the order of the input channels determines how the tensors
     #'   will be passed to the wrapped `nn_module`.\cr
     #'   If left as `NULL` (default), the argument `module_generator` must be given and the argument names of the
-    #'   `modue_generator`'s forward function are set as `inname`.
+    #'   `module_generator`'s forward function are set as `inname`.
     #' @param outname (`character()`) \cr
     #'   The names of the output channels channels. These will be the ouput channels of the generated [`PipeOpModule`]
     #'   and therefore also the names of the list returned by its `$train()`.

@@ -215,6 +215,8 @@ all_or_none_ = function(...) {
 }
 
 # TODO: concise description of what this is
+# "allows a token's meaning at a position to be influenced by multiple tokens at other positions"
+# allows a feature's {} to be influenced by multiple other features
 nn_ft_multi_head_attention = nn_module(
   "nn_ft_multi_head_attention",
   initialize = function(d_token, n_heads, dropout, bias, initialization) {
@@ -282,6 +284,7 @@ nn_ft_multi_head_attention = nn_module(
 )
 
 # TODO: concise description of what this is
+# ffn: feed-forward network
 nn_ft_ffn = nn_module(
   "nn_ft_ffn",
   initialize = function(d_token, d_hidden, bias_first, bias_second, dropout, activation) {
