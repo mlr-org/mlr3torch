@@ -233,7 +233,7 @@ nn_ft_multi_head_attention = nn_module(
     self$dropout = if (dropout) nn_dropout(dropout) else NULL
 
     weights = c(self$W_q, self$W_k, self$W_v)
-    for (i in 1:length(weights)) {
+    for (i in seq_len(length(weights))) {
       m = weights[[i]]
       if (initialization == "xavier" &&
           (i != length(weights) || !is.null(self$W_out))) {

@@ -831,3 +831,119 @@ PipeOpTorchGLU = R6Class("PipeOpTorchGLU",
 )
 
 register_po("nn_glu", PipeOpTorchGLU)
+
+reglu <- function(x) {
+  assert_true(tail(x$shape, 1) %% 2 == 0)
+  chunked = x$chunk(2, dim=-1)
+  a = chunked[[1]]
+  b = chunked[[2]]
+  return(a * nnf_relu(b))
+}
+
+nn_reglu = nn_module(
+  "nn_reglu",
+  forward = function(input) {
+    return(reglu(input))
+  }
+)
+
+#' @title ReGLU Activation Function
+#'
+#' @templateVar id nn_reglu
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
+#'
+#' @export
+PipeOpTorchReGLU = R6Class("PipeOpTorchReGLU",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_reglu", param_vals = list()) {
+      param_set = ps()
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_reglu,
+        tags = "activation"
+      )
+    }
+  ),
+  private = list(
+    .shapes_out = function(shapes_in, param_vals, task) {
+      shape = shapes_in[[1L]]
+      true_dim = param_vals$dim %??% -1
+      if (true_dim < 0) {
+        true_dim = 1 + length(shape) + true_dim
+      }
+      d_new = shape[true_dim] / 2
+      if (test_integerish(d_new)) {
+        shape[true_dim] = d_new
+      } else {
+        stopf("Dimension %i of input tensor must be divisible by 2.", true_dim)
+      }
+      list(shape)
+    }
+  )
+)
+
+register_po("nn_reglu", PipeOpTorchReGLU)
+
+geglu <- function(x) {
+  assert_true(tail(x$shape, 1) %% 2 == 0)
+  chunked = x$chunk(2, dim=-1)
+  a = chunked[[1]]
+  b = chunked[[2]]
+  return(a * nnf_gelu(b))
+}
+
+nn_geglu = nn_module(
+  "nn_geglu",
+  forward = function(input) {
+    return(geglu(input))
+  }
+)
+
+#' @title GeGLU Activation Function
+#'
+#' @templateVar id nn_reglu
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
+#'
+#' @export
+PipeOpTorchGeGLU = R6Class("PipeOpTorchGeGLU",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_geglu", param_vals = list()) {
+      param_set = ps()
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_geglu,
+        tags = "activation"
+      )
+    }
+  ),
+  private = list(
+    .shapes_out = function(shapes_in, param_vals, task) {
+      shape = shapes_in[[1L]]
+      true_dim = param_vals$dim %??% -1
+      if (true_dim < 0) {
+        true_dim = 1 + length(shape) + true_dim
+      }
+      d_new = shape[true_dim] / 2
+      if (test_integerish(d_new)) {
+        shape[true_dim] = d_new
+      } else {
+        stopf("Dimension %i of input tensor must be divisible by 2.", true_dim)
+      }
+      list(shape)
+    }
+  )
+)

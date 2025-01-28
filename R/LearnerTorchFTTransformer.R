@@ -116,3 +116,8 @@ PipeOpTorchTabTokenizer = R6Class("PipeOpTorchTabTokenizer",
 
 register_learner("regr.ft_transformer", LearnerTorchFTTransformer)
 register_learner("classif.ft_transformer", LearnerTorchFTTransformer)
+
+# TODO: individual PipeOps for categorical and numeric tokenizers
+# TODO: PipeOps for activation functions
+# TODO: PipeOp for multi-head attention
+# TODO: PipeOp for transformer block
