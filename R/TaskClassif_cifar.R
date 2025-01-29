@@ -1,6 +1,7 @@
 #' @title CIFAR Classification Tasks
 #'
 #' @name mlr_tasks_cifar
+#' @aliases mlr_tasks_cifar10 mlr_tasks_cifar100
 #'
 #' @format [R6::R6Class] inheriting from [mlr3::TaskClassif].
 #' @include aaa.R
@@ -171,5 +172,3 @@ load_task_cifar100 = function(id = "cifar100") {
 }
 
 register_task("cifar100", load_task_cifar100)
-
-
