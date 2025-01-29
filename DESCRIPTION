@@ -73,7 +73,7 @@ Suggests:
     torchvision (>= 0.6.0),
     waldo
 Remotes:
-	mlverse/torch
+	sebffischer/torch@fix-ignite
 Config/testthat/edition: 3
 NeedsCompilation: no
 ByteCompile: yes
