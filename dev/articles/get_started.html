@@ -236,7 +236,7 @@ batch.</p>
 <span><span class="co">#&gt;     clone: function (deep = FALSE, ..., replace_values = TRUE) </span></span>
 <span><span class="co">#&gt;   Private:</span></span>
 <span><span class="co">#&gt;     .__clone_r6__: function (deep = FALSE) </span></span>
-<span><span class="co">#&gt;   Parent env: &lt;environment: 0x55edd8be5d60&gt;</span></span>
+<span><span class="co">#&gt;   Parent env: &lt;environment: 0x558e3e094a88&gt;</span></span>
 <span><span class="co">#&gt;   Locked objects: FALSE</span></span>
 <span><span class="co">#&gt;   Locked class: FALSE</span></span>
 <span><span class="co">#&gt;   Portable: TRUE</span></span></code></pre></div>
@@ -415,15 +415,15 @@ lower MAE than the default <code>mlp</code> learner.</p>
 <p>Because we configured the learner to use the history callback, we can
 find the validation history in its <code>$model</code> slot:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">mlp_custom</span><span class="op">$</span><span class="va">model</span><span class="op">$</span><span class="va">callbacks</span><span class="op">$</span><span class="va">history</span><span class="op">$</span><span class="va">valid</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    epoch     regr.mae</span></span>
-<span><span class="co">#&gt;    &lt;num&gt;        &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:     1 1.777395e+04</span></span>
-<span><span class="co">#&gt; 2:     2 3.955504e+08</span></span>
-<span><span class="co">#&gt; 3:     3 1.143863e+04</span></span>
-<span><span class="co">#&gt; 4:     4 1.792927e+01</span></span>
-<span><span class="co">#&gt; 5:     5 1.759594e+01</span></span>
-<span><span class="co">#&gt; 6:     6 1.726260e+01</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">mlp_custom</span><span class="op">$</span><span class="va">model</span><span class="op">$</span><span class="va">callbacks</span><span class="op">$</span><span class="va">history</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    epoch valid.regr.mae</span></span>
+<span><span class="co">#&gt;    &lt;num&gt;          &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:     1   1.777395e+04</span></span>
+<span><span class="co">#&gt; 2:     2   3.955504e+08</span></span>
+<span><span class="co">#&gt; 3:     3   1.143863e+04</span></span>
+<span><span class="co">#&gt; 4:     4   1.792927e+01</span></span>
+<span><span class="co">#&gt; 5:     5   1.759594e+01</span></span>
+<span><span class="co">#&gt; 6:     6   1.726260e+01</span></span></code></pre></div>
 <p>The plot below shows it for the epochs 6 to 30.</p>
 <p><img src="get_started_files/figure-html/unnamed-chunk-21-1.png" width="50%" style="display: block; margin: auto;"></p>
 <p>Other important information that is stored in the
