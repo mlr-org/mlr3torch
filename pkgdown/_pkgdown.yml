@@ -50,7 +50,7 @@ navbar:
       text: Callbacks
       href: articles/callbacks.html
     lazy_tensor:
-      text: Lazy Tensor
+      text: Non-Tabular Data
       href: articles/lazy_tensor.html
     internals:
       text: Internals
