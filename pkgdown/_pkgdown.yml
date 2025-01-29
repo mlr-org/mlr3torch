@@ -50,7 +50,7 @@ navbar:
       text: Callbacks
       href: articles/callbacks.html
     lazy_tensor:
-      text: Lazy Tensor
+      text: Non-Tabular Data
       href: articles/lazy_tensor.html
     internals:
       text: Internals
@@ -85,7 +85,7 @@ reference:
   - title: Network Layers
     contents:
       - starts_with("mlr_pipeops_nn")
-  - title: Preprocessing Operators
+  - title: Preprocessing & Augmentation
     contents:
       - mlr_pipeops_preproc_torch
       - pipeop_preproc_torch
@@ -130,6 +130,7 @@ reference:
       - mlr_pipeops_torch_callbacks
       - mlr3torch_callbacks
       - mlr_context_torch
+      - as_lr_scheduler
   - title: Helper
     contents:
       - TorchDescriptor
