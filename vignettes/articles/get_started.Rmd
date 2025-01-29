@@ -223,7 +223,7 @@ prediction$score(msr("regr.mae"))
 Because we configured the learner to use the history callback, we can find the validation history in its `$model` slot:
 
 ```{r}
-head(mlp_custom$model$callbacks$history$valid)
+head(mlp_custom$model$callbacks$history)
 ```
 
 The plot below shows it for the epochs 6 to 30.
@@ -233,7 +233,7 @@ mlp_custom$param_set$set_values(
   measures_valid = msr("regr.mae")
 )
 
-data = data.table::melt(mlp_custom$model$callbacks$history$valid,
+data = data.table::melt(mlp_custom$model$callbacks$history,
   id.vars = "epoch", variable.name = "measure", value.name = "score")
 ggplot2::ggplot(data = data[6:30, ], ggplot2::aes(x = epoch, y = score)) +
   viridis::scale_color_viridis(discrete = TRUE) +

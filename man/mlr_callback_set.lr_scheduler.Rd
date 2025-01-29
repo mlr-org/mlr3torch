@@ -56,6 +56,9 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \item{\code{.scheduler}}{(\code{lr_scheduler_generator})\cr
 The \code{torch} scheduler generator (e.g. \code{torch::lr_step}).}
 
+\item{\code{step_on_epoch}}{(\code{logical(1)})\cr
+Whether the scheduler steps after every epoch (otherwise every batch).}
+
 \item{\code{...}}{(any)\cr
 The scheduler-specific arguments}
 }

@@ -26,6 +26,8 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
     scheduler = NULL,
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @param step_on_epoch (`logical(1)`)\cr
+    #'   Whether the scheduler steps after every epoch (otherwise every batch).
     initialize = function(.scheduler, step_on_epoch, ...) {
       assert_class(.scheduler, "lr_scheduler_generator")
       assert_flag(step_on_epoch)
@@ -167,10 +169,16 @@ mlr3torch_callbacks$add("lr_step", function() {
   )
 })
 
+#' @title Convert to CallbackSetLRScheduler
+#'
+#' @description
+#' Convert a `torch` scheduler generator to a `CallbackSetLRScheduler`.
+#'
 #' @param x (`function`)\cr
 #'   The `torch` scheduler generator defined using `torch::lr_scheduler()`.
 #' @param step_on_epoch (`logical(1)`)\cr
 #'   Whether the scheduler steps after every epoch
+#' @export
 as_lr_scheduler = function(x, step_on_epoch) {
   assert_class(x, "lr_scheduler_generator")
   assert_flag(step_on_epoch)

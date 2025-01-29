@@ -280,10 +280,11 @@ test_that("train parameters do what they should: classification and regression",
 
     expect_false(ctx$loader_valid$drop_last)
 
-    expect_equal(nrow(learner$model$callbacks$history$valid), epochs)
-    expect_equal(nrow(learner$model$callbacks$history$train), epochs)
-    expect_permutation(c("epoch", ids(measures_train)), colnames(learner$model$callbacks$history$train))
-    expect_permutation(c("epoch", ids(measures_valid)), colnames(learner$model$callbacks$history$valid))
+    expect_equal(nrow(learner$model$callbacks$history), epochs)
+    expect_permutation(
+      c("epoch", paste0("train.", ids(measures_train)), paste0("valid.", ids(measures_valid))),
+      colnames(learner$model$callbacks$history)
+    )
 
     # now without validation
     learner$validate = NULL
@@ -292,7 +293,7 @@ test_that("train parameters do what they should: classification and regression",
     learner$param_set$values$measures_valid = list()
     learner$train(task)
 
-    expect_equal(nrow(learner$model$callbacks$history$valid), 0)
+    expect_equal(nrow(learner$model$callbacks$history), epochs)
 
 
     learner$validate = 0.2
@@ -325,7 +326,7 @@ test_that("predict types work during training and prediction", {
   learner = lrn("classif.torch_featureless", epochs = 1, batch_size = 16, predict_type = "prob",
     measures_train = msr("classif.mbrier"), callbacks = t_clbk("history"))
   learner$train(task)
-  expect_true(!is.na(learner$model$callbacks$history$train[1, "classif.mbrier"][[1L]]))
+  expect_true(!is.na(learner$model$callbacks$history[1, "train.classif.mbrier"][[1L]]))
 
   pred = learner$predict(task)
   expect_true(is.matrix(pred$prob))
@@ -519,8 +520,7 @@ test_that("eval_freq works", {
     measures_train = msrs("regr.mse"), measures_valid = msrs("regr.mse"), validate = 0.3)
   task = tsk("mtcars")
   learner$train(task)
-  expect_equal(learner$model$callbacks$history$valid$epoch, c(4, 8, 10))
-  expect_equal(learner$model$callbacks$history$train$epoch, c(4, 8, 10))
+  expect_equal(learner$model$callbacks$history$epoch, c(4, 8, 10))
 })
 
 test_that("early stopping works", {

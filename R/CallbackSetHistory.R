@@ -4,8 +4,8 @@
 #'
 #' @description
 #' Saves the training and validation history during training.
-#' The history is saved as a data.table in the `$train` and `$valid` slots.
-#' The first column is always `epoch`.
+#' The history is saved as a data.table where the validation measures are prefixed with `"valid."`
+#' and the training measures are prefixed with `"train."`.
 #'
 #' @export
 #' @include CallbackSet.R
@@ -36,20 +36,31 @@ CallbackSetHistory = R6Class("CallbackSetHistory",
     #' @description
     #' Converts the lists to data.tables.
     state_dict = function() {
-      list(
-        train = rbindlist(self$train, fill = TRUE),
-        valid = rbindlist(self$valid, fill = TRUE)
-      )
+      train = rbindlist(self$train, fill = TRUE)
+      colnames(train)[-1L] = paste0("train.", colnames(train)[-1L])
+      valid = rbindlist(self$valid, fill = TRUE)
+      colnames(valid)[-1L] = paste0("valid.", colnames(valid)[-1L])
+      state = if (nrow(valid) == 0 && nrow(train) == 0) {
+        data.table(epoch = numeric(0))
+      } else if (nrow(valid) == 0) {
+        train
+      } else if (nrow(train) == 0) {
+        valid
+      } else {
+        merge(train, valid, by = "epoch")
+      }
+      if (is.null(self$prev_state)) {
+        state
+      } else {
+        rbind(state, self$prev_state)
+      }
     },
     #' @description
     #' Sets the field `$train` and `$valid` to those contained in the state dict.
     #' @param state_dict (`callback_state_history`)\cr
     #'   The state dict as retrieved via `$state_dict()`.
     load_state_dict = function(state_dict) {
-      assert_list(state_dict, "data.table")
-      assert_permutation(names(state_dict), c("train", "valid"))
-      self$train = state_dict$train
-      self$valid = state_dict$valid
+      self$prev_state = state_dict
     },
     #' @description
     #' Add the latest training scores to the history.
