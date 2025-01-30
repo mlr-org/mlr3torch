@@ -210,7 +210,7 @@ deep_learner$train(mnist)
 ## Documentation
 
 * Start by reading one of the vignettes on the package website!
-
+* There is a [course on `(mlr3)torch`](https://mlr-org.github.io/mlr3torch-course/).
 
 ## Contributing:
 
