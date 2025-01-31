@@ -567,7 +567,7 @@ marshal_model.learner_torch_model = function(model, inplace = FALSE, ...) {
 #' @export
 unmarshal_model.learner_torch_model_marshaled = function(model, inplace = FALSE, device = "cpu", ...) {
   model = model$marshaled
-  model$network = if (model$jitted) {
+  model$network = if (isTRUE(model$jitted)) {
     deser = jit_unserialize(model$network)
     deser$to(device = device)
     deser

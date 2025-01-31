@@ -12,12 +12,12 @@
 * feat: Added `n_layers` parameter to MLP
 * BREAKING_CHANGE: Early stopping now not uses `epochs - patience` for the internally tuned
   values instead of the trained number of `epochs` as it was before.
-  Also, the improvement is calcualted as the difference between the current and the best score,
+  Also, the improvement is calculated as the difference between the current and the best score,
   not the current and the previous score.
-* feat: Added multimodal melanoma example task
-* feat: Added a callback to iteratively unfreeze parameters for finetuning
-* fix: torch learners can now be used with `AutoTuner`
-* feat: Added different learning rate schedulers as callbacks
+* feat: Added multimodal melanoma and cifar{10, 100} example tasks.
+* feat: Added a callback to iteratively unfreeze parameters for finetuning.
+* fix: torch learners can now be used with `AutoTuner`.
+* feat: Added different learning rate schedulers as callbacks.
 
 # mlr3torch 0.1.2
 
