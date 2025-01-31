@@ -63,7 +63,7 @@ of PipeOpModules as part of the ModelDescriptor."><meta property="og:image" cont
     </div>
 
     <div class="ref-description section level2">
-    <p><code>PipeOpModule</code> wraps an <code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module</a></code> or <code>function</code> that is being called during the <code>train</code> phase of this
+    <p><code>PipeOpModule</code> wraps an <code><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">nn_module</a></code> or <code>function</code> that is being called during the <code>train</code> phase of this
 <code><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html" class="external-link">mlr3pipelines::PipeOp</a></code>. By doing so, this allows to assemble <code>PipeOpModule</code>s in a computational
 <code><a href="https://mlr3pipelines.mlr-org.com/reference/Graph.html" class="external-link">mlr3pipelines::Graph</a></code> that represents either a neural network or a preprocessing graph of a <code><a href="lazy_tensor.html">lazy_tensor</a></code>.
 In most cases it is easier to create such a network by creating a graph that generates this graph.</p>
@@ -97,7 +97,7 @@ meaningful purpose.</p>
     <h2 id="internals">Internals<a class="anchor" aria-label="anchor" href="#internals"></a></h2>
 
 
-<p>During training, the wrapped <code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module</a></code> / <code>function</code> is called with the provided inputs in the order in which
+<p>During training, the wrapped <code><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">nn_module</a></code> / <code>function</code> is called with the provided inputs in the order in which
 the channels are defined. Arguments are <strong>not</strong> matched by name.</p>
     </div>
     <div class="section level2">
@@ -126,7 +126,7 @@ the channels are defined. Arguments are <strong>not</strong> matched by name.</p
     <div class="section level2">
     <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
     <p></p><div class="r6-fields"><dl><dt><code>module</code></dt>
-<dd><p>(<code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module</a></code>)<br>
+<dd><p>(<code><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">nn_module</a></code>)<br>
 The torch module that is called during the training phase.</p></dd>
 
 
@@ -150,7 +150,7 @@ The torch module that is called during the training phase.</p></dd>
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/mlr_pipeops_module.html">PipeOpModule</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  id <span class="op">=</span> <span class="st">"module"</span>,</span>
-<span>  module <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_identity.html" class="external-link">nn_identity</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  module <span class="op">=</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_identity.html" class="external-link">nn_identity</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  inname <span class="op">=</span> <span class="st">"input"</span>,</span>
 <span>  outname <span class="op">=</span> <span class="st">"output"</span>,</span>
 <span>  param_vals <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -166,7 +166,7 @@ The id for of the new object.</p></dd>
 
 
 <dt><code>module</code></dt>
-<dd><p>(<code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module</a></code> or <code>function()</code>)<br>
+<dd><p>(<code><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">nn_module</a></code> or <code>function()</code>)<br>
 The torch module or function that is being wrapped.</p></dd>
 
 
@@ -177,8 +177,8 @@ The names of the input channels.</p></dd>
 
 <dt><code>outname</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
-The names of the output channels. If this parameter has length 1, the parameter <a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">module</a> must
-return a <a href="https://rdrr.io/pkg/torch/man/torch_tensor.html" class="external-link">tensor</a>. Otherwise it must return a <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of tensors of corresponding length.</p></dd>
+The names of the output channels. If this parameter has length 1, the parameter <a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">module</a> must
+return a <a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">tensor</a>. Otherwise it must return a <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of tensors of corresponding length.</p></dd>
 
 
 <dt><code>param_vals</code></dt>
@@ -221,11 +221,11 @@ The R packages this object depends on.</p></dd>
 <span class="r-in"><span><span class="co"># one input and output channel</span></span></span>
 <span class="r-in"><span><span class="va">po_module</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"module"</span>,</span></span>
 <span class="r-in"><span>  id <span class="op">=</span> <span class="st">"linear"</span>,</span></span>
-<span class="r-in"><span>  module <span class="op">=</span> <span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">20</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  module <span class="op">=</span> <span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">20</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  inname <span class="op">=</span> <span class="st">"input"</span>,</span></span>
 <span class="r-in"><span>  outname <span class="op">=</span> <span class="st">"output"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">x</span> <span class="op">=</span> <span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_randn.html" class="external-link">torch_randn</a></span><span class="op">(</span><span class="fl">16</span>, <span class="fl">10</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">=</span> <span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_randn.html" class="external-link">torch_randn</a></span><span class="op">(</span><span class="fl">16</span>, <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># This calls the forward function of the wrapped module.</span></span></span>
 <span class="r-in"><span><span class="va">y</span> <span class="op">=</span> <span class="va">po_module</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>input <span class="op">=</span> <span class="va">x</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span></span>
@@ -233,13 +233,13 @@ The R packages this object depends on.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ output:Float [1:16, 1:20]</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># multiple input and output channels</span></span></span>
-<span class="r-in"><span><span class="va">nn_custom</span> <span class="op">=</span> <span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module</a></span><span class="op">(</span><span class="st">"nn_custom"</span>,</span></span>
+<span class="r-in"><span><span class="va">nn_custom</span> <span class="op">=</span> <span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">nn_module</a></span><span class="op">(</span><span class="st">"nn_custom"</span>,</span></span>
 <span class="r-in"><span>  initialize <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">in_features</span>, <span class="va">out_features</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>    <span class="va">self</span><span class="op">$</span><span class="va">lin1</span> <span class="op">=</span> <span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="va">in_features</span>, <span class="va">out_features</span><span class="op">)</span></span></span>
-<span class="r-in"><span>    <span class="va">self</span><span class="op">$</span><span class="va">lin2</span> <span class="op">=</span> <span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="va">in_features</span>, <span class="va">out_features</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="va">self</span><span class="op">$</span><span class="va">lin1</span> <span class="op">=</span> <span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="va">in_features</span>, <span class="va">out_features</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="va">self</span><span class="op">$</span><span class="va">lin2</span> <span class="op">=</span> <span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="va">in_features</span>, <span class="va">out_features</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="op">}</span>,</span></span>
 <span class="r-in"><span>  forward <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">z</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>out1 <span class="op">=</span> <span class="va">self</span><span class="op">$</span><span class="fu">lin1</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, out2 <span class="op">=</span> <span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/torch/man/nnf_relu.html" class="external-link">nnf_relu</a></span><span class="op">(</span><span class="va">self</span><span class="op">$</span><span class="fu">lin2</span><span class="op">(</span><span class="va">z</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>out1 <span class="op">=</span> <span class="va">self</span><span class="op">$</span><span class="fu">lin1</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, out2 <span class="op">=</span> <span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/nnf_relu.html" class="external-link">nnf_relu</a></span><span class="op">(</span><span class="va">self</span><span class="op">$</span><span class="fu">lin2</span><span class="op">(</span><span class="va">z</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="op">}</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
@@ -250,8 +250,8 @@ The R packages this object depends on.</p></dd>
 <span class="r-in"><span>  inname <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"z"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  outname <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"out1"</span>, <span class="st">"out2"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">x</span> <span class="op">=</span> <span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_randn.html" class="external-link">torch_randn</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">z</span> <span class="op">=</span> <span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_randn.html" class="external-link">torch_randn</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">=</span> <span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_randn.html" class="external-link">torch_randn</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">z</span> <span class="op">=</span> <span class="fu">torch</span><span class="fu">::</span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_randn.html" class="external-link">torch_randn</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">out</span> <span class="op">=</span> <span class="va">po_module</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, z <span class="op">=</span> <span class="va">z</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> List of 2</span>
@@ -286,7 +286,7 @@ The R packages this object depends on.</p></dd>
 <span class="r-in"><span>  id <span class="op">=</span> <span class="st">"add_one"</span>,</span></span>
 <span class="r-in"><span>  module <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span> <span class="op">+</span> <span class="fl">1</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">input</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_tensor.html" class="external-link">torch_tensor</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">input</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">po_add1</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">input</span><span class="op">)</span><span class="op">$</span><span class="va">output</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  2</span>

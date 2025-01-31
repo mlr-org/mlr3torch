@@ -62,7 +62,7 @@ To create a data descriptor, you can also use the as_data_descriptor() function.
 
     <div class="ref-description section level2">
     <p>A data descriptor is a rather internal data structure used in the <code><a href="lazy_tensor.html">lazy_tensor</a></code> data type.
-In essence it is an annotated <code><a href="https://rdrr.io/pkg/torch/man/dataset.html" class="external-link">torch::dataset</a></code> and a preprocessing graph (consisting mosty of <code><a href="mlr_pipeops_module.html">PipeOpModule</a></code>
+In essence it is an annotated <code><a href="https://torch.mlverse.org/docs/reference/dataset.html" class="external-link">torch::dataset</a></code> and a preprocessing graph (consisting mosty of <code><a href="mlr_pipeops_module.html">PipeOpModule</a></code>
 operators). The additional meta data (e.g. pointer, shapes) allows to preprocess <code><a href="lazy_tensor.html">lazy_tensor</a></code>s in an
 <code><a href="https://mlr3pipelines.mlr-org.com/reference/Graph.html" class="external-link">mlr3pipelines::Graph</a></code> just like any (non-lazy) data types.
 The preprocessing is applied when <code><a href="materialize.html">materialize()</a></code> is called on the <code><a href="lazy_tensor.html">lazy_tensor</a></code>.</p>
@@ -83,7 +83,7 @@ If each row contained a DataDescriptor as an S3 class, this would copy the objec
     <div class="section level2">
     <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
     <p></p><div class="r6-fields"><dl><dt><code>dataset</code></dt>
-<dd><p>(<code><a href="https://rdrr.io/pkg/torch/man/dataset.html" class="external-link">torch::dataset</a></code>)<br>
+<dd><p>(<code><a href="https://torch.mlverse.org/docs/reference/dataset.html" class="external-link">torch::dataset</a></code>)<br>
 The dataset.</p></dd>
 
 
@@ -162,9 +162,9 @@ Internal use only.</p></dd>
 <div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>dataset</code></dt>
-<dd><p>(<code><a href="https://rdrr.io/pkg/torch/man/dataset.html" class="external-link">torch::dataset</a></code>)<br>
+<dd><p>(<code><a href="https://torch.mlverse.org/docs/reference/dataset.html" class="external-link">torch::dataset</a></code>)<br>
 The torch dataset.
-It should return a named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="https://rdrr.io/pkg/torch/man/torch_tensor.html" class="external-link">torch_tensor</a></code> objects.</p></dd>
+It should return a named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></code> objects.</p></dd>
 
 
 <dt><code>dataset_shapes</code></dt>
@@ -253,8 +253,8 @@ Unused</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Create a dataset</span></span></span>
-<span class="r-in"><span><span class="va">ds</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/dataset.html" class="external-link">dataset</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  initialize <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="va">self</span><span class="op">$</span><span class="va">x</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_randn.html" class="external-link">torch_randn</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span><span class="va">ds</span> <span class="op">=</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/dataset.html" class="external-link">dataset</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  initialize <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="va">self</span><span class="op">$</span><span class="va">x</span> <span class="op">=</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_randn.html" class="external-link">torch_randn</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  .getitem <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">self</span><span class="op">$</span><span class="va">x</span><span class="op">[</span><span class="va">i</span>, <span class="op">]</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  .length <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">self</span><span class="op">$</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span><span class="op">(</span><span class="op">)</span></span></span>
@@ -263,14 +263,14 @@ Unused</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;DataDescriptor: 1 ops&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * dataset_shapes: [x: (NA,3,3)]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * input_map: (x) -&gt; Graph</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * pointer: nop.ef8183.x.output</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * pointer: nop.49be3c.x.output</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * shape: [(NA,3,3)]</span>
 <span class="r-in"><span><span class="co"># is the same as using the converter:</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="as_data_descriptor.html">as_data_descriptor</a></span><span class="op">(</span><span class="va">ds</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;DataDescriptor: 1 ops&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * dataset_shapes: [x: (NA,3,3)]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * input_map: (x) -&gt; Graph</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * pointer: nop.ef8183.x.output</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * pointer: nop.49be3c.x.output</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * shape: [(NA,3,3)]</span>
 </code></pre></div>
     </div>

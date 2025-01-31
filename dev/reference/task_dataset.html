@@ -65,7 +65,7 @@ The data is returned on the device specified by the parameter device."><meta pro
     </div>
 
     <div class="ref-description section level2">
-    <p>Creates a torch <a href="https://rdrr.io/pkg/torch/man/dataset.html" class="external-link">dataset</a> from an mlr3 <code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>.
+    <p>Creates a torch <a href="https://torch.mlverse.org/docs/reference/dataset.html" class="external-link">dataset</a> from an mlr3 <code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>.
 The resulting dataset's <code>$.get_batch()</code> method returns a list with elements <code>x</code>, <code>y</code> and <code>index</code>:</p><ul><li><p><code>x</code> is a list with tensors, whose content is defined by the parameter <code>feature_ingress_tokens</code>.</p></li>
 <li><p><code>y</code> is the target variable and its content is defined by the parameter <code>target_batchgetter</code>.</p></li>
 <li><p><code>.index</code> is the index of the batch in the task's data.</p></li>
@@ -83,7 +83,7 @@ The resulting dataset's <code>$.get_batch()</code> method returns a list with el
 
 <dl><dt id="arg-task">task<a class="anchor" aria-label="anchor" href="#arg-task"></a></dt>
 <dd><p>(<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>)<br>
-The task for which to build the <a href="https://rdrr.io/pkg/torch/man/dataset.html" class="external-link">dataset</a>.</p></dd>
+The task for which to build the <a href="https://torch.mlverse.org/docs/reference/dataset.html" class="external-link">dataset</a>.</p></dd>
 
 
 <dt id="arg-feature-ingress-tokens">feature_ingress_tokens<a class="anchor" aria-label="anchor" href="#arg-feature-ingress-tokens"></a></dt>
@@ -94,7 +94,7 @@ Each ingress token defines one item in the <code>$x</code> value of a batch with
 <dt id="arg-target-batchgetter">target_batchgetter<a class="anchor" aria-label="anchor" href="#arg-target-batchgetter"></a></dt>
 <dd><p>(<code>function(data, device)</code>)<br>
 A function taking in arguments <code>data</code>, which is a <code>data.table</code> containing only the target variable, and <code>device</code>.
-It must return the target as a torch <a href="https://rdrr.io/pkg/torch/man/torch_tensor.html" class="external-link">tensor</a> on the selected device.</p></dd>
+It must return the target as a torch <a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">tensor</a> on the selected device.</p></dd>
 
 
 <dt id="arg-device">device<a class="anchor" aria-label="anchor" href="#arg-device"></a></dt>
@@ -104,7 +104,7 @@ The device, e.g. <code>"cuda"</code> or <code>"cpu"</code>.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p><code><a href="https://rdrr.io/pkg/torch/man/dataset.html" class="external-link">torch::dataset</a></code></p>
+    <p><code><a href="https://torch.mlverse.org/docs/reference/dataset.html" class="external-link">torch::dataset</a></code></p>
     </div>
 
     <div class="section level2">
@@ -123,7 +123,7 @@ The device, e.g. <code>"cuda"</code> or <code>"cpu"</code>.</p></dd>
 <span class="r-in"><span><span class="va">ingress_tokens</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sepal <span class="op">=</span> <span class="va">sepal_ingress</span>, petal <span class="op">=</span> <span class="va">petal_ingress</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">target_batchgetter</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span>, <span class="va">device</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_tensor.html" class="external-link">torch_tensor</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span>, dtype <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_dtype.html" class="external-link">torch_float32</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">device</span><span class="op">)</span><span class="op">$</span><span class="fu">unsqueeze</span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span>, dtype <span class="op">=</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch_float32</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">device</span><span class="op">)</span><span class="op">$</span><span class="fu">unsqueeze</span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span><span class="va">dataset</span> <span class="op">=</span> <span class="fu">task_dataset</span><span class="op">(</span><span class="va">task</span>, <span class="va">ingress_tokens</span>, <span class="va">target_batchgetter</span>, <span class="st">"cpu"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">batch</span> <span class="op">=</span> <span class="va">dataset</span><span class="op">$</span><span class="fu">.getbatch</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span></span>

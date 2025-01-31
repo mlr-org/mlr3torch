@@ -158,7 +158,7 @@ well as the <code>lazy_tensor</code>.</p>
 <span><span class="co">#&gt; &lt;LearnerTorchMLP[classif]:classif.mlp&gt;: My Little Powny</span></span>
 <span><span class="co">#&gt; * Model: -</span></span>
 <span><span class="co">#&gt; * Parameters: epochs=10, device=auto, num_threads=1,</span></span>
-<span><span class="co">#&gt;   num_interop_threads=1, seed=random, eval_freq=1,</span></span>
+<span><span class="co">#&gt;   num_interop_threads=1, seed=random, jit_trace=FALSE, eval_freq=1,</span></span>
 <span><span class="co">#&gt;   measures_train=&lt;list&gt;, measures_valid=&lt;list&gt;, patience=0,</span></span>
 <span><span class="co">#&gt;   min_delta=0, batch_size=32, neurons=100,100, p=0.5,</span></span>
 <span><span class="co">#&gt;   activation=&lt;nn_relu&gt;, activation_args=&lt;list&gt;</span></span>
@@ -207,9 +207,9 @@ the flattened mnist task:</p>
 <h2 id="creating-a-lazy-tensor">Creating a Lazy Tensor<a class="anchor" aria-label="anchor" href="#creating-a-lazy-tensor"></a>
 </h2>
 <p>Every <code>lazy_tensor</code> is built on top of a
-<code><a href="https://rdrr.io/pkg/torch/man/dataset.html" class="external-link">torch::dataset</a></code>, so we here assume that you are familiar
+<code><a href="https://torch.mlverse.org/docs/reference/dataset.html" class="external-link">torch::dataset</a></code>, so we here assume that you are familiar
 with it. For more information on how to create
-<code><a href="https://rdrr.io/pkg/torch/man/dataset.html" class="external-link">torch::dataset</a></code>s, we recommend reading the <a href="https://torch.mlverse.org/" class="external-link">torch package documentation</a>. The
+<code><a href="https://torch.mlverse.org/docs/reference/dataset.html" class="external-link">torch::dataset</a></code>s, we recommend reading the <a href="https://torch.mlverse.org/" class="external-link">torch package documentation</a>. The
 only additional restriction that we impose on the dataset is that it
 must have a <code>.getitem</code> or <code>.getbatch</code> method that
 returns a list of named tensors.</p>
@@ -218,11 +218,11 @@ returns a list of named tensors.</p>
 in-memory in this example, this is not necessary and the
 <code>$.getitem()</code> method can e.g. load images from disk.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mydata</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/dataset.html" class="external-link">dataset</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">mydata</span> <span class="op">=</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/dataset.html" class="external-link">dataset</a></span><span class="op">(</span></span>
 <span>  initialize <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">self</span><span class="op">$</span><span class="va">x</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span>  <span class="op">}</span>,</span>
-<span>  .getbatch <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_tensor.html" class="external-link">torch_tensor</a></span><span class="op">(</span><span class="va">self</span><span class="op">$</span><span class="va">x</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span><span class="op">$</span><span class="fu">unsqueeze</span><span class="op">(</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  .getbatch <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></span><span class="op">(</span><span class="va">self</span><span class="op">$</span><span class="va">x</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span><span class="op">$</span><span class="fu">unsqueeze</span><span class="op">(</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  .length <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="fl">1000</span></span>
 <span><span class="op">)</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>In order to create a <code>lazy_tensor</code> from
@@ -254,7 +254,7 @@ before:</p>
 <code>$.getbatch()</code> method on <code>mydata</code> and selecting
 the element <code>x</code>.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_equal.html" class="external-link">torch_equal</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_equal.html" class="external-link">torch_equal</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/materialize.html">materialize</a></span><span class="op">(</span><span class="va">lt</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, rbind <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  <span class="va">mydata</span><span class="op">$</span><span class="fu">.getbatch</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">$</span><span class="va">x</span></span>
 <span><span class="op">)</span></span>
@@ -317,7 +317,7 @@ x^{d_n})\)</span>, where <span class="math inline">\(d\)</span> is the
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">PipeOpPreprocTorchPoly</span> <span class="op">=</span> <span class="fu"><a href="../reference/pipeop_preproc_torch.html">pipeop_preproc_torch</a></span><span class="op">(</span><span class="st">"poly"</span>,</span>
 <span>  fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">degrees</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_cat.html" class="external-link">torch_cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">degrees</span>, <span class="kw">function</span><span class="op">(</span><span class="va">d</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/torch_pow.html" class="external-link">torch_pow</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">d</span><span class="op">)</span><span class="op">)</span>, dim <span class="op">=</span> <span class="fl">2L</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_cat.html" class="external-link">torch_cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">degrees</span>, <span class="kw">function</span><span class="op">(</span><span class="va">d</span><span class="op">)</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_pow.html" class="external-link">torch_pow</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">d</span><span class="op">)</span><span class="op">)</span>, dim <span class="op">=</span> <span class="fl">2L</span><span class="op">)</span></span>
 <span>  <span class="op">}</span>,</span>
 <span>  shapes_out <span class="op">=</span> <span class="st">"infer"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -373,7 +373,7 @@ data-type, so feel free to skip this part.</p>
 preprocessed data. It is very similar to the
 <code>ModelDescriptor</code> class that is used to build up neural
 nerworks using <code>PipeOpTorch</code> objects. The
-<code>DataDescriptor</code> stores a <code><a href="https://rdrr.io/pkg/torch/man/dataset.html" class="external-link">torch::dataset</a></code>, an
+<code>DataDescriptor</code> stores a <code><a href="https://torch.mlverse.org/docs/reference/dataset.html" class="external-link">torch::dataset</a></code>, an
 <code><a href="https://mlr3pipelines.mlr-org.com/reference/Graph.html" class="external-link">mlr3pipelines::Graph</a></code> and some metadata.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">desc</span> <span class="op">=</span> <span class="va"><a href="../reference/DataDescriptor.html">DataDescriptor</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
@@ -387,7 +387,7 @@ nerworks using <code>PipeOpTorch</code> objects. The
 <span><span class="co">#&gt; &lt;DataDescriptor: 1 ops&gt;</span></span>
 <span><span class="co">#&gt; * dataset_shapes: [x: (NA,1)]</span></span>
 <span><span class="co">#&gt; * input_map: (x) -&gt; Graph</span></span>
-<span><span class="co">#&gt; * pointer: nop.7493bf.x.output</span></span>
+<span><span class="co">#&gt; * pointer: nop.634662.x.output</span></span>
 <span><span class="co">#&gt; * shape: [(NA,1)]</span></span></code></pre></div>
 <p>The printed output of the data descriptor informs us about:</p>
 <ul>
@@ -434,7 +434,7 @@ there can only be a single <code>DataDescriptor</code> in a
 <span><span class="co">#&gt; &lt;DataDescriptor: 1 ops&gt;</span></span>
 <span><span class="co">#&gt; * dataset_shapes: [x: (NA,1)]</span></span>
 <span><span class="co">#&gt; * input_map: (x) -&gt; Graph</span></span>
-<span><span class="co">#&gt; * pointer: nop.7493bf.x.output</span></span>
+<span><span class="co">#&gt; * pointer: nop.634662.x.output</span></span>
 <span><span class="co">#&gt; * shape: [(NA,1)]</span></span></code></pre></div>
 <p>What happens during <code>materialize(lt[1])</code> is the
 following:</p>
@@ -484,8 +484,8 @@ feature.</p>
 <span><span class="co">#&gt; Graph with 2 PipeOps:</span></span>
 <span><span class="co">#&gt;            ID         State sccssors    prdcssors</span></span>
 <span><span class="co">#&gt;        &lt;char&gt;        &lt;char&gt;   &lt;char&gt;       &lt;char&gt;</span></span>
-<span><span class="co">#&gt;  nop.7493bf.x        &lt;list&gt;   poly.x             </span></span>
-<span><span class="co">#&gt;        poly.x &lt;&lt;UNTRAINED&gt;&gt;          nop.7493bf.x</span></span></code></pre></div>
+<span><span class="co">#&gt;  nop.634662.x        &lt;list&gt;   poly.x             </span></span>
+<span><span class="co">#&gt;        poly.x &lt;&lt;UNTRAINED&gt;&gt;          nop.634662.x</span></span></code></pre></div>
 <p>We see that the <code>$graph</code> has a new pipeop with id
 <code>"poly.x"</code> and the output <code>pointer</code> points to
 <code>poly.x</code>. Also we see that the shape of the tensor is now

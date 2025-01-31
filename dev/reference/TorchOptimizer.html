@@ -168,7 +168,7 @@ The referenced help package can be opened via method <code>$help()</code>.</p></
 <div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>params</code></dt>
-<dd><p>(named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="https://rdrr.io/pkg/torch/man/torch_tensor.html" class="external-link">torch_tensor</a></code>s)<br>
+<dd><p>(named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></code>s)<br>
 The parameters of the network.</p></dd>
 
 
@@ -202,10 +202,10 @@ The parameters of the network.</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Create a new torch loss</span></span></span>
-<span class="r-in"><span><span class="va">torch_opt</span> <span class="op">=</span> <span class="va">TorchOptimizer</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">optim_adam</span>, label <span class="op">=</span> <span class="st">"adam"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">torch_opt</span> <span class="op">=</span> <span class="va">TorchOptimizer</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">optim_ignite_adam</span>, label <span class="op">=</span> <span class="st">"adam"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">torch_opt</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;TorchOptimizer:optim_adam&gt; adam</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Generator: optim_adam</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;TorchOptimizer:optim_ignite_adam&gt; adam</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Generator: optim_ignite_adam</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: list()</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Packages: torch,mlr3torch</span>
 <span class="r-in"><span><span class="co"># If the param set is not specified, parameters are inferred but are of class ParamUty</span></span></span>
@@ -226,7 +226,7 @@ The parameters of the network.</p></dd>
 <span class="r-in"><span><span class="va">torch_opt</span> <span class="op">=</span> <span class="fu"><a href="t_opt.html">t_opt</a></span><span class="op">(</span><span class="st">"sgd"</span>, lr <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">torch_opt</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;TorchOptimizer:sgd&gt; Stochastic Gradient Descent</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Generator: optim_sgd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Generator: optim_ignite_sgd</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: lr=0.1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Packages: torch,mlr3torch</span>
 <span class="r-in"><span><span class="va">torch_opt</span><span class="op">$</span><span class="va">param_set</span></span></span>
@@ -244,11 +244,11 @@ The parameters of the network.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "sgd"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Create the optimizer for a network</span></span></span>
-<span class="r-in"><span><span class="va">net</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">net</span> <span class="op">=</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">opt</span> <span class="op">=</span> <span class="va">torch_opt</span><span class="op">$</span><span class="fu">generate</span><span class="op">(</span><span class="va">net</span><span class="op">$</span><span class="va">parameters</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># is the same as</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/pkg/torch/man/optim_sgd.html" class="external-link">optim_sgd</a></span><span class="op">(</span><span class="va">net</span><span class="op">$</span><span class="va">parameters</span>, lr <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/optim_sgd.html" class="external-link">optim_sgd</a></span><span class="op">(</span><span class="va">net</span><span class="op">$</span><span class="va">parameters</span>, lr <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;optim_sgd&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Inherits from: &lt;torch_optimizer&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Public:</span>
@@ -261,15 +261,16 @@ The parameters of the network.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     state: State, R6</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     state_dict: function () </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     step: function (closure = NULL) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     zero_grad: function () </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     zero_grad: function (set_to_none = FALSE) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Private:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     deep_clone: function (name, value) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     step_helper: function (closure, loop_fun) </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Use in a learner</span></span></span>
 <span class="r-in"><span><span class="va">learner</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.mlp"</span>, optimizer <span class="op">=</span> <span class="fu"><a href="t_opt.html">t_opt</a></span><span class="op">(</span><span class="st">"sgd"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># The parameters of the optimizer are added to the learner's parameter set</span></span></span>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="va">param_set</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSetCollection(34)&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSetCollection(35)&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                      id    class lower upper nlevels        default</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                  &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;         &lt;list&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  1:              epochs ParamInt     0   Inf     Inf &lt;NoDefault[0]&gt;</span>
@@ -277,35 +278,36 @@ The parameters of the network.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  3:         num_threads ParamInt     1   Inf     Inf &lt;NoDefault[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  4: num_interop_threads ParamInt     1   Inf     Inf &lt;NoDefault[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  5:                seed ParamInt  -Inf   Inf     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6:           eval_freq ParamInt     1   Inf     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  7:      measures_train ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  8:      measures_valid ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  9:            patience ParamInt     0   Inf     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10:           min_delta ParamDbl     0   Inf     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11:          batch_size ParamInt     1   Inf     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12:             shuffle ParamLgl    NA    NA       2          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13:             sampler ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14:       batch_sampler ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15:         num_workers ParamInt     0   Inf     Inf              0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16:          collate_fn ParamUty    NA    NA     Inf         [NULL]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17:          pin_memory ParamLgl    NA    NA       2          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18:           drop_last ParamLgl    NA    NA       2          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19:             timeout ParamDbl  -Inf   Inf     Inf             -1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20:      worker_init_fn ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21:      worker_globals ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 22:     worker_packages ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 23:             neurons ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 24:                   p ParamDbl     0     1     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 25:            n_layers ParamInt     1   Inf     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 26:          activation ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 27:     activation_args ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 28:               shape ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 29:              opt.lr ParamDbl     0   Inf     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 30:        opt.momentum ParamDbl     0     1     Inf              0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 31:       opt.dampening ParamDbl     0     1     Inf              0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 32:    opt.weight_decay ParamDbl     0     1     Inf              0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 33:        opt.nesterov ParamLgl    NA    NA       2          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 34:      loss.reduction ParamFct    NA    NA       2           mean</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6:           jit_trace ParamLgl    NA    NA       2 &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7:           eval_freq ParamInt     1   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  8:      measures_train ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9:      measures_valid ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10:            patience ParamInt     0   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11:           min_delta ParamDbl     0   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12:          batch_size ParamInt     1   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13:             shuffle ParamLgl    NA    NA       2          FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14:             sampler ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15:       batch_sampler ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16:         num_workers ParamInt     0   Inf     Inf              0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17:          collate_fn ParamUty    NA    NA     Inf         [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18:          pin_memory ParamLgl    NA    NA       2          FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19:           drop_last ParamLgl    NA    NA       2          FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20:             timeout ParamDbl  -Inf   Inf     Inf             -1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21:      worker_init_fn ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22:      worker_globals ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23:     worker_packages ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24:             neurons ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25:                   p ParamDbl     0     1     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26:            n_layers ParamInt     1   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27:          activation ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28:     activation_args ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29:               shape ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 30:              opt.lr ParamDbl     0   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 31:        opt.momentum ParamDbl     0     1     Inf              0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 32:       opt.dampening ParamDbl     0     1     Inf              0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 33:    opt.weight_decay ParamDbl     0     1     Inf              0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 34:        opt.nesterov ParamLgl    NA    NA       2          FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 35:      loss.reduction ParamFct    NA    NA       2           mean</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                      id    class lower upper nlevels        default</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            value</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           &lt;list&gt;</span>
@@ -314,12 +316,12 @@ The parameters of the network.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  3:            1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  4:            1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  5:       random</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6:            1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  7:    &lt;list[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6:        FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7:            1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  8:    &lt;list[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  9:            0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9:    &lt;list[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 10:            0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11:            0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 12:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 13:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 14:       [NULL]</span>
@@ -331,18 +333,19 @@ The parameters of the network.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 20:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 21:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 22:       [NULL]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 23:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 24:          0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 25:       [NULL]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 26: &lt;nn_relu[1]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 27:    &lt;list[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 28:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24:             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25:          0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27: &lt;nn_relu[1]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28:    &lt;list[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 29:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 30:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 31:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 32:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 33:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 34:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 35:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            value</span>
 </code></pre></div>
     </div>

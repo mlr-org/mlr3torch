@@ -53,7 +53,7 @@ For classification, the output of the network must be the scores (before the sof
     </div>
 
     <div class="ref-description section level2">
-    <p>Create a torch learner from an instantiated <code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module()</a></code>.
+    <p>Create a torch learner from an instantiated <code><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">nn_module()</a></code>.
 For classification, the output of the network must be the scores (before the softmax).</p>
     </div>
 
@@ -144,8 +144,8 @@ The ingress tokens. Must be non-<code>NULL</code> when calling <code>$train()</c
 <div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>network</code></dt>
-<dd><p>(<code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module</a></code>)<br>
-An instantiated <code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module</a></code>. Is not cloned during construction.
+<dd><p>(<code><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">nn_module</a></code>)<br>
+An instantiated <code><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">nn_module</a></code>. Is not cloned during construction.
 For classification, outputs must be the scores (before the softmax).</p></dd>
 
 
@@ -220,7 +220,7 @@ The feature types. Defaults to all available feature types.</p></dd>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># We show the learner using a classification task</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># The iris task has 4 features and 3 classes</span></span></span>
-<span class="r-in"><span><span class="va">network</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/torch/man/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">network</span> <span class="op">=</span> <span class="fu"><a href="https://torch.mlverse.org/docs/reference/nn_linear.html" class="external-link">nn_linear</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">task</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># This defines the dataloader.</span></span></span>
@@ -244,14 +244,14 @@ The feature types. Defaults to all available feature types.</p></dd>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task</span>, <span class="va">ids</span><span class="op">$</span><span class="va">train</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">task</span>, <span class="va">ids</span><span class="op">$</span><span class="va">test</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;PredictionClassif&gt; for 50 observations:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  row_ids     truth response</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        2    setosa   setosa</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        3    setosa   setosa</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        9    setosa   setosa</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      ---       ---      ---</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      134 virginica   setosa</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      138 virginica   setosa</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      140 virginica   setosa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  row_ids     truth   response</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        2    setosa versicolor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        3    setosa versicolor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        9    setosa versicolor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      ---       ---        ---</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      134 virginica versicolor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      138 virginica versicolor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      140 virginica versicolor</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

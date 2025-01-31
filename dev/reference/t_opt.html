@@ -111,30 +111,30 @@ The keys of the optimizers.</p></dd>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">t_opt</span><span class="op">(</span><span class="st">"adam"</span>, lr <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;TorchOptimizer:adam&gt; Adaptive Moment Estimation</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Generator: optim_adam</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Generator: optim_ignite_adam</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: lr=0.1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Packages: torch,mlr3torch</span>
 <span class="r-in"><span><span class="co"># get the dictionary</span></span></span>
 <span class="r-in"><span><span class="fu">t_opt</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;DictionaryMlr3torchOptimizers&gt; with 7 stored values</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Keys: adadelta, adagrad, adam, asgd, rmsprop, rprop, sgd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;DictionaryMlr3torchOptimizers&gt; with 5 stored values</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Keys: adagrad, adam, adamw, rmsprop, sgd</span>
 <span class="r-in"><span><span class="fu">t_opts</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"adam"</span>, <span class="st">"sgd"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $adam</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;TorchOptimizer:adam&gt; Adaptive Moment Estimation</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Generator: optim_adam</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Generator: optim_ignite_adam</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: list()</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Packages: torch,mlr3torch</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $sgd</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;TorchOptimizer:sgd&gt; Stochastic Gradient Descent</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Generator: optim_sgd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Generator: optim_ignite_sgd</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: list()</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Packages: torch,mlr3torch</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="co"># get the dictionary</span></span></span>
 <span class="r-in"><span><span class="fu">t_opts</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;DictionaryMlr3torchOptimizers&gt; with 7 stored values</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Keys: adadelta, adagrad, adam, asgd, rmsprop, rprop, sgd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;DictionaryMlr3torchOptimizers&gt; with 5 stored values</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Keys: adagrad, adam, adamw, rmsprop, sgd</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

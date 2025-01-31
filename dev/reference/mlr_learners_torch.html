@@ -92,9 +92,9 @@ where <code>&lt;upper&gt;</code> is the maximally allowed number of epochs, and 
     <h2 id="model">Model<a class="anchor" aria-label="anchor" href="#model"></a></h2>
 
 
-<p>The Model is a list of class <code>"learner_torch_model"</code> with the following elements:</p><ul><li><p><code>network</code> :: The trained <a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">network</a>.</p></li>
-<li><p><code>optimizer</code> :: The <code>$state_dict()</code> <a href="https://rdrr.io/pkg/torch/man/optimizer.html" class="external-link">optimizer</a> used to train the network.</p></li>
-<li><p><code>loss_fn</code> :: The <code>$state_dict()</code> of the <a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">loss</a> used to train the network.</p></li>
+<p>The Model is a list of class <code>"learner_torch_model"</code> with the following elements:</p><ul><li><p><code>network</code> :: The trained <a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">network</a>.</p></li>
+<li><p><code>optimizer</code> :: The <code>$state_dict()</code> <a href="https://torch.mlverse.org/docs/reference/optimizer.html" class="external-link">optimizer</a> used to train the network.</p></li>
+<li><p><code>loss_fn</code> :: The <code>$state_dict()</code> of the <a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">loss</a> used to train the network.</p></li>
 <li><p><code>callbacks</code> :: The <a href="mlr_callback_set.html">callbacks</a> used to train the network.</p></li>
 <li><p><code>seed</code> :: The seed that was / is used for training and prediction.</p></li>
 <li><p><code>epochs</code> :: How many epochs the model was trained for (early stopping).</p></li>
@@ -153,9 +153,9 @@ The batch size (required).</p></li>
 <li><p><code>shuffle</code> :: <code>logical(1)</code><br>
 Whether to shuffle the instances in the dataset. Default is <code>FALSE</code>.
 This does not impact validation.</p></li>
-<li><p><code>sampler</code> :: <code><a href="https://rdrr.io/pkg/torch/man/sampler.html" class="external-link">torch::sampler</a></code><br>
+<li><p><code>sampler</code> :: <code><a href="https://torch.mlverse.org/docs/reference/sampler.html" class="external-link">torch::sampler</a></code><br>
 Object that defines how the dataloader draw samples.</p></li>
-<li><p><code>batch_sampler</code> :: <code><a href="https://rdrr.io/pkg/torch/man/sampler.html" class="external-link">torch::sampler</a></code><br>
+<li><p><code>batch_sampler</code> :: <code><a href="https://torch.mlverse.org/docs/reference/sampler.html" class="external-link">torch::sampler</a></code><br>
 Object that defines how the dataloader draws batches.</p></li>
 <li><p><code>num_workers</code> :: <code>integer(1)</code><br>
 The number of workers for data loading (batches are loaded in parallel).
@@ -188,24 +188,24 @@ Which packages to load on the workers.</p></li>
 Instead, the <code>task_type</code> must be specified  as a construction argument.
 Currently, only classification and regression are supported.</p>
 <p>When inheriting from this class, one should overload two private methods:</p><ul><li><p><code>.network(task, param_vals)</code><br>
-(<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module</a></code><br>
-Construct a <code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">torch::nn_module</a></code> object for the given task and parameter values, i.e. the neural network that
+(<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">nn_module</a></code><br>
+Construct a <code><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">torch::nn_module</a></code> object for the given task and parameter values, i.e. the neural network that
 is trained by the learner.
 For classification, the output of this network are expected to be the scores before the application of the
 final softmax layer.</p></li>
 <li><p><code>.dataset(task, param_vals)</code><br>
-(<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code><a href="https://rdrr.io/pkg/torch/man/dataset.html" class="external-link">torch::dataset</a></code><br>
+(<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code><a href="https://torch.mlverse.org/docs/reference/dataset.html" class="external-link">torch::dataset</a></code><br>
 Create the dataset for the task.
 Must respect the parameter value of the device.
 Moreover, one needs to pay attention respect the row ids of the provided task.</p></li>
 </ul><p>It is also possible to overwrite the private <code>.dataloader()</code> method instead of the <code>.dataset()</code> method.
 Per default, a dataloader is constructed using the output from the <code>.dataset()</code> method.
 However, this should respect the dataloader parameters from the <code><a href="https://paradox.mlr-org.com/reference/ParamSet.html" class="external-link">ParamSet</a></code>.</p><ul><li><p><code>.dataloader(task, param_vals)</code><br>
-(<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code><a href="https://rdrr.io/pkg/torch/man/dataloader.html" class="external-link">torch::dataloader</a></code><br>
+(<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code><a href="https://torch.mlverse.org/docs/reference/dataloader.html" class="external-link">torch::dataloader</a></code><br>
 Create a dataloader from the task.
 Needs to respect at least <code>batch_size</code> and <code>shuffle</code> (otherwise predictions can be permuted).</p></li>
 </ul><p>To change the predict types, the private <code>.encode_prediction()</code> method can be overwritten:</p><ul><li><p><code>.encode_prediction(predict_tensor, task, param_vals)</code><br>
-(<code><a href="https://rdrr.io/pkg/torch/man/torch_tensor.html" class="external-link">torch_tensor</a></code>, <code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code><br>
+(<code><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></code>, <code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code><br>
 Take in the raw predictions from <code>self$network</code> (<code>predict_tensor</code>) and encode them into a
 format that can be converted to valid <code>mlr3</code> predictions using <code><a href="https://mlr3.mlr-org.com/reference/as_prediction_data.html" class="external-link">mlr3::as_prediction_data()</a></code>.
 This method must take <code>self$predict_type</code> into account.</p></li>
@@ -272,7 +272,7 @@ Whether the learner is marshaled.</p></dd>
 
 
 <dt><code>network</code></dt>
-<dd><p>(<code><a href="https://rdrr.io/pkg/torch/man/nn_module.html" class="external-link">nn_module()</a></code>)<br>
+<dd><p>(<code><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">nn_module()</a></code>)<br>
 Shortcut for <code>learner$model$network</code>.</p></dd>
 
 
@@ -490,7 +490,7 @@ Additional parameters.</p></dd>
 </div>
 
 </div><p></p><hr><a id="method-LearnerTorch-dataset"></a><div class="section">
-<h3 id="method-dataset-">Method <code><a href="https://rdrr.io/pkg/torch/man/dataset.html" class="external-link">dataset()</a></code><a class="anchor" aria-label="anchor" href="#method-dataset-"></a></h3>
+<h3 id="method-dataset-">Method <code><a href="https://torch.mlverse.org/docs/reference/dataset.html" class="external-link">dataset()</a></code><a class="anchor" aria-label="anchor" href="#method-dataset-"></a></h3>
 <p>Create the dataset for a task.</p><div class="section">
 <h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">LearnerTorch</span><span class="op">$</span><span class="fu">dataset</span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span></code></pre></div><p></p></div>
@@ -507,7 +507,7 @@ The task</p></dd>
 </div>
 <div class="section">
 <h4 id="returns-2">Returns<a class="anchor" aria-label="anchor" href="#returns-2"></a></h4>
-<p><code><a href="https://rdrr.io/pkg/torch/man/dataset.html" class="external-link">dataset</a></code></p>
+<p><code><a href="https://torch.mlverse.org/docs/reference/dataset.html" class="external-link">dataset</a></code></p>
 </div>
 
 </div><p></p><hr><a id="method-LearnerTorch-clone"></a><div class="section">
