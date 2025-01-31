@@ -906,7 +906,7 @@ test_that("trace-jitting works", {
 
   glrn1 = as_learner(graph, clone = TRUE)
   glrn2 = as_learner(graph, clone = TRUE)
-  glrn2$configure(
+  glrn2$param_set$set_values(
     torch_model_classif.jit_trace = TRUE
   )
 
