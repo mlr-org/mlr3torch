@@ -29,7 +29,7 @@ Part of this documentation have been copied or adapted from the documentation of
 
 \itemize{
 \item \code{p} :: \code{numeric(1)}\cr
-Probability of an element to be zeroed. Default: 0.5 inplace
+Probability of an element to be zeroed. Default: 0.5.
 \item \code{inplace} :: \code{logical(1)}\cr
 If set to \code{TRUE}, will do this operation in-place. Default: \code{FALSE}.
 }

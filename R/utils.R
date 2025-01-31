@@ -261,3 +261,29 @@ OptimizerNone = function() {
 CallbacksNone = function() {
   structure(list(), class = "CallbacksNone")
 }
+
+get_example_batch = function(dl) {
+  ds = dl$dataset
+  if (!is.null(ds$.getbatch)) {
+    ds$.getbatch(1)
+  } else {
+    ds$.getitem(1)$unsqueeze(1)
+  }
+}
+
+# l: list containing args
+# f: function to be called
+# returns: l reordered so it can be passed by position
+order_named_args = function(f, l) {
+  args = formalArgs(f)
+  x = match("...", args)
+  f2 = f
+  body(f2) = quote(as.list(match.call())[-1L])
+  l2 = do.call(f2, l)
+  # (function(..., x = 1) {})(1, 2, 3) works
+  # (function(..., x = 1) {})(1, 2, x = 3) DOES NOT WORK
+  if (!is.null(names(l2)) && !is.na(x) && x != length(args)) {
+    stopf("Because arguments are passed to tracer by position, `...` must either be the only or the last argument when named arguments are also passed.")
+  }
+  l2
+}

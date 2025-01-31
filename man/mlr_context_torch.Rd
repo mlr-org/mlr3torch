@@ -20,6 +20,7 @@ Other Callback:
 \code{\link{mlr_callback_set.checkpoint}},
 \code{\link{mlr_callback_set.progress}},
 \code{\link{mlr_callback_set.tb}},
+\code{\link{mlr_callback_set.unfreeze}},
 \code{\link{t_clbk}()},
 \code{\link{torch_callback}()}
 }
@@ -69,6 +70,9 @@ that don't evaluate the model.}
 The scores from the last validation batch. Names are the ids of the validation measures.
 If \code{\link{LearnerTorch}} sets \code{eval_freq} different from \code{1}, this is \code{NULL} in all epochs
 that don't evaluate the model.}
+
+\item{\code{last_loss}}{(\code{numeric(1)})\cr
+The loss from the last trainings batch.}
 
 \item{\code{epoch}}{(\code{integer(1)})\cr
 The current epoch.}

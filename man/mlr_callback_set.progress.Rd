@@ -7,6 +7,20 @@
 \description{
 Prints a progress bar and the metrics for training and validation.
 }
+\examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+task = tsk("iris")
+
+learner = lrn("classif.mlp", epochs = 5, batch_size = 1,
+  callbacks = t_clbk("progress"), validate = 0.3)
+learner$param_set$set_values(
+  measures_train = msrs(c("classif.acc", "classif.ce")),
+  measures_valid = msr("classif.ce")
+)
+
+learner$train(task)
+\dontshow{\}) # examplesIf}
+}
 \seealso{
 Other Callback: 
 \code{\link{TorchCallback}},
@@ -17,6 +31,7 @@ Other Callback:
 \code{\link{mlr_callback_set}},
 \code{\link{mlr_callback_set.checkpoint}},
 \code{\link{mlr_callback_set.tb}},
+\code{\link{mlr_callback_set.unfreeze}},
 \code{\link{mlr_context_torch}},
 \code{\link{t_clbk}()},
 \code{\link{torch_callback}()}

@@ -181,6 +181,10 @@ LearnerTorch = R6Class("LearnerTorch",
         self$callbacks = callbacks
       }
 
+      if ("early_stopping" %in% ids(self$callbacks)) {
+        stopf("Callback with id 'early_stopping' is reserved.")
+      }
+
       packages = unique(c(
         packages,
         unlist(map(private$.callbacks, "packages")),
@@ -381,10 +385,9 @@ LearnerTorch = R6Class("LearnerTorch",
     .param_set_base = NULL,
     .extract_internal_tuned_values = function() {
       if (self$state$param_vals$patience == 0) {
-        named_list()
-      } else {
-        list(epochs = self$model$epochs - self$state$param_vals$patience * self$state$param_vals$eval_freq)
+        return(named_list())
       }
+      list(epochs = self$model$callbacks$early_stopping$best_epochs)
     },
     .extract_internal_valid_scores = function() {
       if (is.null(self$model$internal_valid_scores)) {
@@ -453,7 +456,7 @@ LearnerTorch = R6Class("LearnerTorch",
       param_vals$device = auto_device(param_vals$device)
       private$.verify_predict_task(task, param_vals)
 
-      with_torch_settings(seed = self$model$seed, num_threads = param_vals$num_threads, 
+      with_torch_settings(seed = self$model$seed, num_threads = param_vals$num_threads,
         num_interop_threads = param_vals$num_interop_threads, expr = {
         learner_torch_predict(self, private, super, task, param_vals)
       })
@@ -545,7 +548,12 @@ clone_recurse = function(l) {
 
 #' @export
 marshal_model.learner_torch_model = function(model, inplace = FALSE, ...) {
-  model$network = torch_serialize(model$network)
+  model$jitted = inherits(model$network, "script_module")
+  model$network = if (model$jitted) {
+    jit_serialize(model$network)
+  } else {
+    torch_serialize(model$network)
+  }
   model$loss_fn = torch_serialize(model$loss_fn)
   model$optimizer = torch_serialize(model$optimizer)
 
@@ -558,7 +566,14 @@ marshal_model.learner_torch_model = function(model, inplace = FALSE, ...) {
 #' @export
 unmarshal_model.learner_torch_model_marshaled = function(model, inplace = FALSE, device = "cpu", ...) {
   model = model$marshaled
-  model$network = torch_load(model$network, device = device)
+  model$network = if (isTRUE(model$jitted)) {
+    deser = jit_unserialize(model$network)
+    deser$to(device = device)
+    deser
+  } else {
+    torch_load(model$network, device = device)
+  }
+  model$jitted = NULL
   model$loss_fn = torch_load(model$loss_fn, device = device)
   model$optimizer = torch_load(model$optimizer, device = device)
   return(model)

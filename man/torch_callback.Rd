@@ -2,7 +2,7 @@
 % Please edit documentation in R/TorchCallback.R
 \name{torch_callback}
 \alias{torch_callback}
-\title{Create a Callback Desctiptor}
+\title{Create a Callback Descriptor}
 \usage{
 torch_callback(
   id,
@@ -150,6 +150,7 @@ Other Callback:
 \code{\link{mlr_callback_set.checkpoint}},
 \code{\link{mlr_callback_set.progress}},
 \code{\link{mlr_callback_set.tb}},
+\code{\link{mlr_callback_set.unfreeze}},
 \code{\link{mlr_context_torch}},
 \code{\link{t_clbk}()}
 }

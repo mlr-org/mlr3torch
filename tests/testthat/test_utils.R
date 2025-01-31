@@ -49,3 +49,15 @@ test_that("auto_cache_lazy_tensors", {
   )
   expect_false(auto_cache_lazy_tensors(x2))
 })
+
+test_that("order_named_args works", {
+  expect_equal(list(x = 1, y = 2), order_named_args(function(x, y) NULL, list(y = 2, x = 1)))
+  expect_equal(list(x = 1, y = 2), order_named_args(function(x, y) NULL, list(y = 2, 1)))
+  expect_equal(list(x = 1, y = 2), order_named_args(function(x, y) NULL, list(x = 1, 2)))
+  expect_equal(list(x = 1, 2, 3), order_named_args(function(x, ...) NULL, list(2, 3, x = 1)))
+  expect_equal(list(1, 2, 3), order_named_args(function(...) NULL, list(1, 2, 3)))
+  expect_equal(order_named_args(function(..., x) NULL, list(1, 2)), list(1, 2))
+  # no way to pass specfied argument correctly by position, everything would be eaten by ...
+  expect_error(order_named_args(function(..., x) NULL, list(2, 3, x = 1)), regexp = "`...` must")
+  expect_error(order_named_args(function(y, ..., x) NULL, list(y = 4, 2, 3, x = 1)), regexp = "`...` must")
+})

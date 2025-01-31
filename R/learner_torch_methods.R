@@ -30,6 +30,16 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   }
 
   network = private$.network(task, param_vals)$to(device = param_vals$device)
+  if (param_vals$jit_trace && !inherits(network, "script_module")) {
+    example = get_example_batch(loader_train)$x
+    # tracer requires arguments to be passed by name
+    if (length(example) == 1) {
+      network = jit_trace(network, example[[1L]])
+    } else {
+      example = order_named_args(network, example)
+      network = do.call(jit_trace, c(list(network), unname(example)))
+    }
+  }
   if (is.null(self$optimizer)) stopf("Learner '%s' defines no optimizer", self$id)
   optimizer = self$optimizer$generate(network$parameters)
   if (is.null(self$loss)) stopf("Learner '%s' defines no loss", self$id)
@@ -92,7 +102,7 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     )
     es$ctx = ctx
 
-    callbacks = c(callbacks, es)
+    callbacks = c(callbacks, list(early_stopping = es))
   }
 
   model = train_loop(ctx, callbacks)

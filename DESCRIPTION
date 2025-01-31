@@ -42,7 +42,7 @@ URL: https://mlr3torch.mlr-org.com/, https://github.com/mlr-org/mlr3torch/
 Depends:
     mlr3 (>= 0.20.0),
     mlr3pipelines (>= 0.6.0),
-    torch (>= 0.13.0),
+    torch (>= 0.14.0),
     R (>= 3.5.0)
 Imports:
     backports,
@@ -56,6 +56,7 @@ Imports:
 	withr
 Suggests:
     callr,
+    curl,
     future,
     ggplot2,
     igraph,
@@ -84,8 +85,10 @@ Collate:
     'CallbackSetCheckpoint.R'
     'CallbackSetEarlyStopping.R'
     'CallbackSetHistory.R'
+    'CallbackSetLRScheduler.R'
     'CallbackSetProgress.R'
     'CallbackSetTB.R'
+    'CallbackSetUnfreeze.R'
     'ContextTorch.R'
     'DataBackendLazy.R'
     'utils.R'
@@ -124,7 +127,10 @@ Collate:
     'PipeOpTorchOptimizer.R'
     'PipeOpTorchReshape.R'
     'PipeOpTorchSoftmax.R'
+    'Select.R'
+    'TaskClassif_cifar.R'
     'TaskClassif_lazy_iris.R'
+    'TaskClassif_melanoma.R'
     'TaskClassif_mnist.R'
     'TaskClassif_tiny_imagenet.R'
     'TorchDescriptor.R'

@@ -13,19 +13,15 @@ test_that("CallbackSetHistory works", {
 
   learner$train(task)
 
-  expect_data_table(learner$model$callbacks$history$train, nrows = 0)
-  expect_data_table(learner$model$callbacks$history$valid, nrows = 0)
+  expect_data_table(learner$model$callbacks$history, nrows = 0)
 
   learner$param_set$set_values(
     measures_train = msrs(c("classif.acc", "classif.ce")),
     measures_valid = msr("classif.ce"))
   learner$train(task)
 
-  expect_equal(colnames(learner$model$callbacks$history$train), c("epoch", "classif.acc", "classif.ce"))
-  expect_equal(colnames(learner$model$callbacks$history$valid), c("epoch", "classif.ce"))
-
-  expect_data_table(learner$model$callbacks$history$train, nrows = 3)
-  expect_data_table(learner$model$callbacks$history$valid, nrows = 3)
+  expect_equal(colnames(learner$model$callbacks$history), c("epoch", "train.classif.acc", "train.classif.ce", "valid.classif.ce"))
+  expect_data_table(learner$model$callbacks$history, nrows = 3)
 })
 
 test_that("history works with eval_freq", {
@@ -33,9 +29,9 @@ test_that("history works with eval_freq", {
     measures_train = msrs("regr.mse"))
   task = tsk("mtcars")
   learner$train(task)
-  expect_equal(learner$model$callbacks$history$train$epoch, c(4, 8, 10))
+  expect_equal(learner$model$callbacks$history$epoch, c(4, 8, 10))
 
   learner$param_set$set_values(eval_freq = 5)
   learner$train(task)
-  expect_equal(learner$model$callbacks$history$train$epoch, c(5, 10))
+  expect_equal(learner$model$callbacks$history$epoch, c(5, 10))
 })

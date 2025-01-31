@@ -10,9 +10,10 @@ Ingress for a single \code{\link{lazy_tensor}} column.
 \section{Parameters}{
 
 \itemize{
-\item \code{shape} :: \code{integer()}\cr
+\item \code{shape} :: \code{integer()} | \code{NULL} | \code{"infer"}\cr
 The shape of the tensor, where the first dimension (batch) must be \code{NA}.
 When it is not specified, the lazy tensor input column needs to have a known shape.
+When it is set to \code{"infer"}, the shape is inferred from an example batch.
 }
 }
 

@@ -69,7 +69,7 @@ Finally, in order to make the final value of the moving average accessible in th
 * `state_dict()` method to return this value and the
 * `load_state_dict(state_dict)` method, that takes a previously retrieved state dict and sets it in the callback.
 
-Note that we only do this here to have access to the final `$moving_loss` via the learner, but we would otherwise not have to implement these methods.  
+Note that we only do this here to have access to the final `$moving_loss` via the learner, but we would otherwise not have to implement these methods.
 
 ```{r}
 custom_logger = torch_callback("custom_logger",

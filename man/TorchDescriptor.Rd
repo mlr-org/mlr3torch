@@ -88,7 +88,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   param_set = NULL,
   packages = NULL,
   label = NULL,
-  man = NULL
+  man = NULL,
+  additional_args = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -112,6 +113,9 @@ Label for the new instance.}
 \item{\code{man}}{(\code{character(1)})\cr
 String in the format \verb{[pkg]::[topic]} pointing to a manual page for this object.
 The referenced help package can be opened via method \verb{$help()}.}
+
+\item{\code{additional_args}}{(\code{list()})\cr
+Additional arguments if necessary. For learning rate schedulers, this is the torch::LRScheduler.}
 }
 \if{html}{\out{</div>}}
 }

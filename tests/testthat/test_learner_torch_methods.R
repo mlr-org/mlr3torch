@@ -84,11 +84,8 @@ test_that("Validation Task is respected", {
   )
   learner$train(task)
 
-  expect_data_table(learner$model$callbacks$history$train, nrows = 2)
-  expect_equal(colnames(learner$model$callbacks$history$train), c("epoch", "classif.acc"))
-
-  expect_true(nrow(learner$model$callbacks$history$valid) == 0)
-  expect_equal(colnames(learner$model$callbacks$history$valid), "epoch")
+  expect_data_table(learner$model$callbacks$history, nrows = 2)
+  expect_equal(colnames(learner$model$callbacks$history), c("epoch", "train.classif.acc"))
 
   learner = lrn("classif.torch_featureless", epochs = 2, batch_size = 1, measures_train = msrs(c("classif.acc")),
     measures_valid = msr("classif.bacc"), callbacks = t_clbk("history"), validate = "predefined"
@@ -96,8 +93,8 @@ test_that("Validation Task is respected", {
 
   learner$train(task)
 
-  expect_true(nrow(learner$model$callbacks$history$train) == 2)
-  expect_true(nrow(learner$model$callbacks$history$valid) == 2)
+  expect_data_table(learner$model$callbacks$history, nrows = 2)
+  expect_equal(colnames(learner$model$callbacks$history), c("epoch", "train.classif.acc", "valid.classif.bacc"))
 })
 
 test_that("learner_torch_predict works", {

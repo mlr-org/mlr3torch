@@ -56,6 +56,7 @@ paramset_torchlearner = function(task_type) {
     num_threads           = p_int(lower = 1L, tags = c("train", "predict", "required", "threads"), init = 1L),
     num_interop_threads   = p_int(lower = 1L, tags = c("train", "predict", "required"), init = 1L),
     seed                  = p_int(tags = c("train", "predict", "required"), special_vals = list("random", NULL), init = "random"),
+    jit_trace             = p_lgl(init = FALSE, tags = c("train", "required")),
     # evaluation
     eval_freq             = p_int(lower = 1L, tags = c("train", "required"), init = 1L),
     measures_train        = p_uty(tags = c("train", "required"), custom_check = check_measures, init = list()),

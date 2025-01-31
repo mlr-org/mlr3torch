@@ -4,7 +4,7 @@
 # mlr3torch <a href="https://mlr3torch.mlr-org.com"><img src="man/figures/logo.svg" align="right" height="139" /></a>
 
 Package website: [release](https://mlr3torch.mlr-org.com/) \|
-[dev](https://mlr3torch.mlr-org.com/)
+[dev](https://mlr3torch.mlr-org.com/dev)
 
 Deep Learning with torch and mlr3.
 
@@ -225,6 +225,10 @@ deep_learner$train(mnist)
 ## Documentation
 
 - Start by reading one of the vignettes on the package website!
+- There is a [course on
+  `(mlr3)torch`](https://mlr-org.github.io/mlr3torch-course/).
+- You can check out our [presentation from UseR
+  2024](https://sebffischer.github.io/mlr3torch-UseR-2024/#/).
 
 ## Contributing:
 
