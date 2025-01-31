@@ -227,6 +227,8 @@ deep_learner$train(mnist)
 - Start by reading one of the vignettes on the package website!
 - There is a [course on
   `(mlr3)torch`](https://mlr-org.github.io/mlr3torch-course/).
+- You can check out our [presentation from UseR
+  2024](https://sebffischer.github.io/mlr3torch-UseR-2024/#/).
 
 ## Contributing:
 

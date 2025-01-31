@@ -549,7 +549,12 @@ clone_recurse = function(l) {
 
 #' @export
 marshal_model.learner_torch_model = function(model, inplace = FALSE, ...) {
-  model$network = torch_serialize(model$network)
+  model$jitted = inherits(model$network, "script_module")
+  model$network = if (model$jitted) {
+    jit_serialize(model$network)
+  } else {
+    torch_serialize(model$network)
+  }
   model$loss_fn = torch_serialize(model$loss_fn)
   model$optimizer = torch_serialize(model$optimizer)
 
@@ -562,7 +567,14 @@ marshal_model.learner_torch_model = function(model, inplace = FALSE, ...) {
 #' @export
 unmarshal_model.learner_torch_model_marshaled = function(model, inplace = FALSE, device = "cpu", ...) {
   model = model$marshaled
-  model$network = torch_load(model$network, device = device)
+  model$network = if (isTRUE(model$jitted)) {
+    deser = jit_unserialize(model$network)
+    deser$to(device = device)
+    deser
+  } else {
+    torch_load(model$network, device = device)
+  }
+  model$jitted = NULL
   model$loss_fn = torch_load(model$loss_fn, device = device)
   model$optimizer = torch_load(model$optimizer, device = device)
   return(model)

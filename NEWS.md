@@ -1,17 +1,23 @@
 # mlr3torch dev
 
 * perf: Use a faster image loader
+* perf/BREAKING_CHANGE: Removed some optimizers for which no fast ('ignite') variant exists.
+  For other optimizers, the old variant was replaced with the 'ignite' variant which
+  leads to significantly faster training times.
+* perf: The `jit_trace` parameter was added to `LearnerTorch` which when activated can lead
+  to significantly faster training times
+* BREAKING_CHANGE: The default optimizer is now AdamW instead of Adam
 * feat: Add parameter `num_interop_threads` to `LearnerTorch`
 * feat: Add adaptive average pooling
 * feat: Added `n_layers` parameter to MLP
 * BREAKING_CHANGE: Early stopping now not uses `epochs - patience` for the internally tuned
   values instead of the trained number of `epochs` as it was before.
-  Also, the improvement is calcualted as the difference between the current and the best score,
+  Also, the improvement is calculated as the difference between the current and the best score,
   not the current and the previous score.
-* feat: Added multimodal melanoma example task
-* feat: Added a callback to iteratively unfreeze parameters for finetuning
-* fix: torch learners can now be used with `AutoTuner`
-* feat: Added different learning rate schedulers as callbacks
+* feat: Added multimodal melanoma and cifar{10, 100} example tasks.
+* feat: Added a callback to iteratively unfreeze parameters for finetuning.
+* fix: torch learners can now be used with `AutoTuner`.
+* feat: Added different learning rate schedulers as callbacks.
 
 # mlr3torch 0.1.2
 

@@ -23,7 +23,7 @@ for each argument of the wrapped loss function, where the parametes are then of 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Create a new torch loss
-torch_opt = TorchOptimizer$new(optim_adam, label = "adam")
+torch_opt = TorchOptimizer$new(optim_ignite_adam, label = "adam")
 torch_opt
 # If the param set is not specified, parameters are inferred but are of class ParamUty
 torch_opt$param_set
