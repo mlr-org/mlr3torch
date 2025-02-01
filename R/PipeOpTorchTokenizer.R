@@ -1,54 +1,4 @@
-#' @title Feature-Tokenizer Transformer
-#' 
-#' @templateVar name {}
-#' @templateVar task_types classif, regr
-#' @templateVar param_vals {}
-#' @template params_learner
-#' @template learner
-#' @template learner_example
-#' 
-#' @description 
-#' Feature-tokenizer transformer proposed by {citation}. 
-#' Transforms each feature (numerical and categorical) into an embedding, then applies a stack of Transformer layers to these embeddings.
-#' 
-#' @section Parameters:
-#' Parameters from ['LearnerTorch'], as well as:
-#' 
-#' * `` TODO: determine the parameters
-#' 
-#' @references 
-#' `r format_bib("gorishniy2021revisiting")`
-#' 
-#' @export  
-
-# replaces nn_ft_transformer
-LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
-  inherit = LearnerTorch,
-  public = list(
-
-  ),
-  private = list(
-    # field .network: a graph containing the network?
-    # field feature_tokenizer
-    # field transformer
-  )
-)
-
-# TODO: should this be a PipeOp?
-# just the transformer part
-PipeOpTorchFTTransformerBlock = R6Class("PipeOpTorchFTTransformerBlock",
-  inherit = PipeOpTorch,
-  public = list(
-
-  ),
-  private = list(
-
-  )
-)
-
-# TODO: should this be a PipeOp?
-# TODO: add library dependencies to the package
-
+# TODO: do we want a tabular tokenizer PipeOp? Or only the separate ones for num. and cat. features?
 #' Tabular Tokenizers
 #'
 #' Tokenizes tabular data.
@@ -114,10 +64,36 @@ PipeOpTorchTabTokenizer = R6Class("PipeOpTorchTabTokenizer",
   )
 )
 
-register_learner("regr.ft_transformer", LearnerTorchFTTransformer)
-register_learner("classif.ft_transformer", LearnerTorchFTTransformer)
+PipeOpTorchTokenizerCateg = R6Class("PipeOpTorchTokenizerCateg", 
+  inherit = PipeOpTorch,
+  public = list(
+    param_set = ps(
+      cardinaliaties = p_uty(tags = c("required", "train"), custom_check =  function(x) {
+        assert_integerish(x,
+                          lower = 1L, any.missing = FALSE,
+                          min.len = 1L, coerce = TRUE)
+      }),
+      d_token = p_uty(tags = c("required", "train"), custom_check = function(x) {
+        assert_integerish(x,
+                          lower = 1L, any.missing = FALSE, len = 1,
+                          coerce = TRUE)
+      }),
+      bias = p_lgl(tags = c("required", "train")),
+      # TODO: determine the possible values for `initialization` (factor? levels: uniform, ...)
+      initialization = p_fct(tags = c("required", "train"), levels = )
+    )
+  ),
+  private = list(
 
-# TODO: individual PipeOps for categorical and numeric tokenizers
-# TODO: PipeOps for activation functions
-# TODO: PipeOp for multi-head attention
-# TODO: PipeOp for transformer block
+  )
+)
+
+PipeOpTorchTokenizerNum = R6Class("PipeOpTorchTokenizerNum", 
+  inherit = PipeOpTorch,
+  public = list(
+
+  ),
+  private = list(
+    
+  )
+)
