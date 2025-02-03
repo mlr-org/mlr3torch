@@ -379,7 +379,8 @@ test_that("predict parameters do what they should: classification and regression
 
     learner$param_set$set_values(device = "meta")
 
-    dl = get_private(learner)$.dataloader_predict(task, learner$param_set$values)
+    dl = get_private(learner)$.dataloader_predict(
+      get_private(learner)$.dataset(task, learner$param_set$values), learner$param_set$values)
     expect_equal(dl$batch_size, batch_size)
     expect_class(dl$sampler, "utils_sampler_sequential")
   }

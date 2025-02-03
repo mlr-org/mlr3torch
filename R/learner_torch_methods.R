@@ -22,7 +22,7 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   # Here, all param_vals (like seed = "random" or device = "auto") have already been resolved
   dataset_train = private$.dataset(task, param_vals)
   if (param_vals$tensor_dataset) {
-    dataset_train = tensor_dataset(dataset_train)
+    dataset_train = multi_tensor_dataset(dataset_train)
   }
   loader_train = private$.dataloader(dataset_train, param_vals)
   if (!length(loader_train)) {
@@ -63,7 +63,7 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   loader_valid = if (!is.null(task_valid) && task_valid$nrow) {
     dataset_valid = private$.dataset(task_valid, param_vals)
     if (param_vals$tensor_dataset) {
-      dataset_valid = tensor_dataset(dataset_valid)
+      dataset_valid = multi_tensor_dataset(dataset_valid)
     }
     private$.dataloader_predict(dataset_valid, param_vals)
   }

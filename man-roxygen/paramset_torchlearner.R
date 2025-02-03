@@ -29,15 +29,14 @@
 #' * `tensor_dataset` :: `logical(1)`\cr
 #'   Whether to load all batches at once at the beginning of training and stack them.
 #'   This is initialized to `FALSE`.
-#'   When your dataset fits into memory this will make the loading of batches more efficient.
-#'   When shuffle is `FALSE` (default), this means that each batch is constructed as a view of these tensors.
+#'   When your dataset fits into memory this will make the loading of batches faster.
 #'   Note that this should not be set for datasets that contain [`lazy_tensor`]s with random data augmentation,
 #'   as this augmentation will only be applied once at the beginning of training.
 #'
 #' **Evaluation**:
-#' * `measures_train` :: [`Measure`][mlr3::Measure] or `list()` of [`Measure`][mlr3::Measure]s.\cr
+#' * `measures_train` :: [`Measure`][mlr3::Measure] or `list()` of [`Measure`][mlr3::Measure]s\cr
 #'   Measures to be evaluated during training.
-#' * `measures_valid` :: [`Measure`][mlr3::Measure] or `list()` of [`Measure`][mlr3::Measure]s.\cr
+#' * `measures_valid` :: [`Measure`][mlr3::Measure] or `list()` of [`Measure`][mlr3::Measure]s\cr
 #'   Measures to be evaluated during validation.
 #' * `eval_freq` :: `integer(1)`\cr
 #'   How often the train / validation predictions are evaluated using `measures_train` / `measures_valid`.

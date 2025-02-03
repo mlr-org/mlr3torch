@@ -1,4 +1,4 @@
-tensor_dataset = dataset("tensor_datset",
+multi_tensor_dataset = dataset("multi_tensor_datset",
   initialize = function(dataset) {
     assert_class(dataset, "dataset")
     # the return of dataset is list(x = list<torch_tensor>, y = torch_float, .index = torch_long)

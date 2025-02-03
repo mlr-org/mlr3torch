@@ -85,17 +85,16 @@ If set to \code{NULL}, no seeding will be done.
 \item \code{tensor_dataset} :: \code{logical(1)}\cr
 Whether to load all batches at once at the beginning of training and stack them.
 This is initialized to \code{FALSE}.
-When your dataset fits into memory this will make the loading of batches more efficient.
-When shuffle is \code{FALSE} (default), this means that each batch is constructed as a view of these tensors.
+When your dataset fits into memory this will make the loading of batches faster.
 Note that this should not be set for datasets that contain \code{\link{lazy_tensor}}s with random data augmentation,
 as this augmentation will only be applied once at the beginning of training.
 }
 
 \strong{Evaluation}:
 \itemize{
-\item \code{measures_train} :: \code{\link[mlr3:Measure]{Measure}} or \code{list()} of \code{\link[mlr3:Measure]{Measure}}s.\cr
+\item \code{measures_train} :: \code{\link[mlr3:Measure]{Measure}} or \code{list()} of \code{\link[mlr3:Measure]{Measure}}s\cr
 Measures to be evaluated during training.
-\item \code{measures_valid} :: \code{\link[mlr3:Measure]{Measure}} or \code{list()} of \code{\link[mlr3:Measure]{Measure}}s.\cr
+\item \code{measures_valid} :: \code{\link[mlr3:Measure]{Measure}} or \code{list()} of \code{\link[mlr3:Measure]{Measure}}s\cr
 Measures to be evaluated during validation.
 \item \code{eval_freq} :: \code{integer(1)}\cr
 How often the train / validation predictions are evaluated using \code{measures_train} / \code{measures_valid}.

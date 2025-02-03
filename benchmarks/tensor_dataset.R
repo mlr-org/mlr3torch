@@ -18,7 +18,7 @@ f2 = function() learner2$train(task)
 
 
 x = mark(
-  tensor_dataset = f2(),
+  multi_tensor_dataset = f2(),
   no_tensor_dataset = f1(),
   check = FALSE
 )

@@ -1,4 +1,4 @@
-make_check_measures = function(task_type) {
+make_check_measures = function(task_type = NULL) {
   crate(function(x) {
     if (is.null(x)) {
       return(TRUE)
@@ -17,9 +17,11 @@ make_check_measures = function(task_type) {
     if ("epoch" %in% ids(x)) {
       stopf("Measure must not have id 'epoch'.")
     }
-    # some measures have task_type NA, which means they work with all task types
-    if (!all(map_lgl(map(x, "task_type"), function(x) task_type %in% x || (length(x) == 1L && is.na(x))))) {
-      return(sprintf("Measures must support task type \"%s\".", task_type))
+    if (!is.null(task_type)) {
+      # some measures have task_type NA, which means they work with all task types
+      if (!all(map_lgl(map(x, "task_type"), function(x) task_type %in% x || (length(x) == 1L && is.na(x))))) {
+        return(sprintf("Measures must support task type \"%s\".", task_type))
+      }
     }
     f = function(x) "requires_learner" %in% x || "requires_model" %in% x
     if (any(map_lgl(map(x, "properties"), f))) {
@@ -32,6 +34,7 @@ make_check_measures = function(task_type) {
 
 check_measures_regr = make_check_measures("regr")
 check_measures_classif = make_check_measures("classif")
+check_measures = make_check_measures()
 
 epochs_aggr = function(x) as.integer(ceiling(mean(unlist(x))))
 
@@ -46,7 +49,7 @@ paramset_torchlearner = function(task_type) {
   check_measures = switch(task_type,
     regr = check_measures_regr,
     classif = check_measures_classif,
-    stopf("Unsupported task type \"%s\".", task_type)
+    check_measures
   )
 
   param_set = ps(
