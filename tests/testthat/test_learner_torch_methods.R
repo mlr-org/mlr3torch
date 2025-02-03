@@ -100,7 +100,8 @@ test_that("Validation Task is respected", {
 test_that("learner_torch_predict works", {
   task = tsk("iris")
   learner = lrn("classif.mlp", batch_size = 16, epochs = 1, device = "cpu")
-  dl = get_private(learner)$.dataloader(task, learner$param_set$values)
+  dl = get_private(learner)$.dataloader(
+    get_private(learner)$.dataset(task, learner$param_set$values), learner$param_set$values)
 
   network = get_private(learner)$.network(task, learner$param_set$values)
 
@@ -162,7 +163,8 @@ test_that("learner_torch_dataloader_predict works", {
     epochs = 1, shuffle = TRUE
   )
   task = tsk("iris")
-  dl = get_private(learner)$.dataloader_predict(task, learner$param_set$values)
+  dl = get_private(learner)$.dataloader_predict(
+    get_private(learner)$.dataset(task, learner$param_set$values), learner$param_set$values)
   expect_false(dl$drop_last)
   expect_class(dl$batch_sampler$sampler, "utils_sampler_sequential")
 })

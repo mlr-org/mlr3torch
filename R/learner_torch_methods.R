@@ -13,7 +13,7 @@ learner_torch_predict = function(self, private, super, task, param_vals) {
   # parameter like device "auto" already resolved
   self$network$to(device = param_vals$device)
   self$network$eval()
-  data_loader = private$.dataloader_predict(task, param_vals)
+  data_loader = private$.dataloader_predict(private$.dataset(task, param_vals), param_vals)
   predict_tensor = torch_network_predict(self$network, data_loader)
   private$.encode_prediction(predict_tensor = predict_tensor, task = task)
 }

@@ -489,12 +489,12 @@ LearnerTorch = R6Class("LearnerTorch",
       args = param_vals[names(param_vals) %in% dl_args]
       invoke(dataloader, dataset = dataset)
     },
-    .dataloader_predict = function(task, param_vals) {
+    .dataloader_predict = function(dataset, param_vals) {
       param_vals_test = insert_named(param_vals, list(shuffle = FALSE, drop_last = FALSE))
-      private$.dataloader(task, param_vals_test)
+      private$.dataloader(dataset, param_vals_test)
     },
     .dataset = function(task, param_vals) {
-      stopf(".dataset must be implememnted")
+      stopf(".dataset must be implemented.")
     },
     .optimizer = NULL,
     .loss = NULL,

@@ -28,9 +28,9 @@ LearnerTorchTest1 = R6Class("LearnerTorchTest1",
       nout = get_nout(task)
       nn_linear(length(task$feature_names), nout, bias = param_vals$bias)
     },
-    .dataloader = function(task, param_vals) {
+    .dataset = function(task, param_vals) {
       ingress_token = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, length(task$feature_names)))
-      dataset = task_dataset(
+      task_dataset(
         task,
         feature_ingress_tokens = list(num = ingress_token),
         target_batchgetter = crate(function(data, device) {
@@ -38,6 +38,9 @@ LearnerTorchTest1 = R6Class("LearnerTorchTest1",
         }, .parent = topenv()),
         device = param_vals$device
       )
+
+    },
+    .dataloader = function(dataset, param_vals) {
       dl_args = c(
         "batch_size",
         "shuffle",
