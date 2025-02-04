@@ -29,10 +29,9 @@ test_that("torch_network_predict works", {
   dataset1 = task_dataset(
     task,
     feature_ingress_tokens = ingress1,
-    target_batchgetter = crate(function(data, device) {
-      torch_tensor(data = as.integer(data[[1]]), dtype = torch_long(), device = device)
-    }, .parent = topenv()),
-    device = "cpu"
+    target_batchgetter = crate(function(data) {
+      torch_tensor(data = as.integer(data[[1]]), dtype = torch_long())
+    }, .parent = topenv())
   )
 
   dataloader1 = dataloader(
@@ -52,10 +51,9 @@ test_that("torch_network_predict works", {
   dataset2 = task_dataset(
     task,
     feature_ingress_tokens = ingress2,
-    target_batchgetter = crate(function(data, device) {
-      torch_tensor(data = as.integer(data[[1]]), dtype = torch_long(), device = device)
-    }, .parent = topenv()),
-    device = "cpu"
+    target_batchgetter = crate(function(data) {
+      torch_tensor(data = as.integer(data[[1]]), dtype = torch_long())
+    }, .parent = topenv())
   )
 
   dataloader2 = dataloader(

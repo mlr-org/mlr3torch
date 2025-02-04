@@ -86,7 +86,12 @@
 #' * `.dataset(task, param_vals)`\cr
 #'   ([`Task`][mlr3::Task], `list()`) -> [`torch::dataset`]\cr
 #'   Create the dataset for the task.
-#'   Must respect the parameter value of the device.
+#'   The dataset must return a named list where:
+#'   * `x` is a list of torch tensors that are the input to the network.
+#'     For networks with more than one input, the names must correspond to the inputs of the network.
+#'   * `y` is the target tensor.
+#'   * `.index` are the indices of the batch (`integer()`).
+#'
 #'   Moreover, one needs to pay attention respect the row ids of the provided task.
 #'
 #' It is also possible to overwrite the private `.dataloader()` method.
@@ -97,10 +102,11 @@
 #'   Create a dataloader from the task.
 #'   Needs to respect at least `batch_size` and `shuffle` (otherwise predictions can be permuted).
 #'
-#' To change the predict types, the private `.encode_prediction()` method can be overwritten:
+#' To change the predict types, the it is possible to overwrite the method that converts the
+#' raw predictions into a [`mlr3::Prediction`] object.
 #'
-#' * `.encode_prediction(predict_tensor, task, param_vals)`\cr
-#'   ([`torch_tensor`][torch::torch_tensor], [`Task`][mlr3::Task], `list()`) -> `list()`\cr
+#' * `.encode_prediction(predict_tensor, task)`\cr
+#'   ([`torch_tensor`][torch::torch_tensor], [`Task`][mlr3::Task]) -> `list()`\cr
 #'   Take in the raw predictions from `self$network` (`predict_tensor`) and encode them into a
 #'   format that can be converted to valid `mlr3` predictions using [`mlr3::as_prediction_data()`].
 #'   This method must take `self$predict_type` into account.
@@ -495,7 +501,7 @@ LearnerTorch = R6Class("LearnerTorch",
     },
     .dataset = function(task, param_vals) {
       stopf(".dataset must be implemented.")
-      
+
     },
     .optimizer = NULL,
     .loss = NULL,

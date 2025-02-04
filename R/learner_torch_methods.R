@@ -21,8 +21,10 @@ learner_torch_predict = function(self, private, super, task, param_vals) {
 learner_torch_train = function(self, private, super, task, param_vals) {
   # Here, all param_vals (like seed = "random" or device = "auto") have already been resolved
   dataset_train = private$.dataset(task, param_vals)
-  if (param_vals$tensor_dataset) {
-    dataset_train = multi_tensor_dataset(dataset_train)
+  if (isTRUE(param_vals$tensor_dataset)) {
+    dataset_train = multi_tensor_dataset(dataset_train, device = "cpu")
+  } else if (identical(param_vals$tensor_dataset, "device")) {
+    dataset_train = multi_tensor_dataset(dataset_train, device = param_vals$device)
   }
   loader_train = private$.dataloader(dataset_train, param_vals)
   if (!length(loader_train)) {
@@ -62,8 +64,10 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   task_valid = task$internal_valid_task
   loader_valid = if (!is.null(task_valid) && task_valid$nrow) {
     dataset_valid = private$.dataset(task_valid, param_vals)
-    if (param_vals$tensor_dataset) {
-      dataset_valid = multi_tensor_dataset(dataset_valid)
+    if (isTRUE(param_vals$tensor_dataset)) {
+      dataset_valid = multi_tensor_dataset(dataset_valid, device = "cpu")
+    } else if (identical(param_vals$tensor_dataset, "device")) {
+      dataset_valid = multi_tensor_dataset(dataset_valid, device = param_vals$device)
     }
     private$.dataloader_predict(dataset_valid, param_vals)
   }
@@ -85,7 +89,8 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     loss_fn = loss_fn,
     total_epochs = param_vals$epochs,
     prediction_encoder = private$.encode_prediction,
-    eval_freq = param_vals$eval_freq
+    eval_freq = param_vals$eval_freq,
+    device = param_vals$device
   )
 
   callbacks = set_names(lapply(self$callbacks, function(descriptor) {
@@ -149,6 +154,8 @@ train_loop = function(ctx, cbs) {
     while (ctx$step < length(ctx$loader_train)) {
       ctx$step = ctx$step + 1
       ctx$batch = dataloader_next(train_iterator)
+      ctx$batch$x = lapply(ctx$batch$x, function(x) x$to(device = ctx$device))
+      ctx$batch$y = ctx$batch$y$to(device = ctx$device)
       ctx$optimizer$zero_grad()
 
       call("on_batch_begin")

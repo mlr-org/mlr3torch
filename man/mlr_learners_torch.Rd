@@ -82,9 +82,11 @@ and used during prediction.
 Note that by setting the seed during the training phase this will mean that by default (i.e. when \code{seed} is
 \code{"random"}), clones of the learner will use a different seed.
 If set to \code{NULL}, no seeding will be done.
-\item \code{tensor_dataset} :: \code{logical(1)}\cr
+\item \code{tensor_dataset} :: \code{logical(1)} | \code{"device"}\cr
 Whether to load all batches at once at the beginning of training and stack them.
 This is initialized to \code{FALSE}.
+If set to \code{"device"}, the device of the tensors will be set to the value of \code{device}, which
+can avoid unnecessary moving of tensors between devices.
 When your dataset fits into memory this will make the loading of batches faster.
 Note that this should not be set for datasets that contain \code{\link{lazy_tensor}}s with random data augmentation,
 as this augmentation will only be applied once at the beginning of training.
@@ -172,7 +174,14 @@ final softmax layer.
 \item \code{.dataset(task, param_vals)}\cr
 (\code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{\link[torch:dataset]{torch::dataset}}\cr
 Create the dataset for the task.
-Must respect the parameter value of the device.
+The dataset must return a named list where:
+\itemize{
+\item \code{x} is a list of torch tensors that are the input to the network.
+For networks with more than one input, the names must correspond to the inputs of the network.
+\item \code{y} is the target tensor.
+\item \code{.index} are the indices of the batch (\code{integer()}).
+}
+
 Moreover, one needs to pay attention respect the row ids of the provided task.
 }
 
@@ -185,10 +194,11 @@ Create a dataloader from the task.
 Needs to respect at least \code{batch_size} and \code{shuffle} (otherwise predictions can be permuted).
 }
 
-To change the predict types, the private \code{.encode_prediction()} method can be overwritten:
+To change the predict types, the it is possible to overwrite the method that converts the
+raw predictions into a \code{\link[mlr3:Prediction]{mlr3::Prediction}} object.
 \itemize{
-\item \code{.encode_prediction(predict_tensor, task, param_vals)}\cr
-(\code{\link[torch:torch_tensor]{torch_tensor}}, \code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{list()}\cr
+\item \code{.encode_prediction(predict_tensor, task)}\cr
+(\code{\link[torch:torch_tensor]{torch_tensor}}, \code{\link[mlr3:Task]{Task}}) -> \code{list()}\cr
 Take in the raw predictions from \code{self$network} (\code{predict_tensor}) and encode them into a
 format that can be converted to valid \code{mlr3} predictions using \code{\link[mlr3:as_prediction_data]{mlr3::as_prediction_data()}}.
 This method must take \code{self$predict_type} into account.
