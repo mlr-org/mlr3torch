@@ -12,9 +12,6 @@ batchgetter_categ(data, ...)
 
 \item{...}{(any)\cr
 Unused.}
-
-\item{device}{(\code{character(1)})\cr
-The device.}
 }
 \description{
 Converts a data frame of categorical data into a long tensor by converting the data to integers.

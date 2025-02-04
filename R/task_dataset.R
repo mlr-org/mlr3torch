@@ -211,8 +211,6 @@ dataset_num_categ = function(task, param_vals) {
 #'
 #' @param data (`data.table()`)\cr
 #'   `data.table` to be converted to a `tensor`.
-#' @param device (`character(1)`)\cr
-#'   The device on which the tensor should be created.
 #' @param ... (any)\cr
 #'   Unused.
 #' @export
@@ -232,8 +230,6 @@ batchgetter_num = function(data, ...) {
 #'
 #' @param data (`data.table`)\cr
 #'   `data.table` to be converted to a `tensor`.
-#' @param device (`character(1)`)\cr
-#'   The device.
 #' @param ... (any)\cr
 #'   Unused.
 #' @export

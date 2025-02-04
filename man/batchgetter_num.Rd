@@ -12,9 +12,6 @@ batchgetter_num(data, ...)
 
 \item{...}{(any)\cr
 Unused.}
-
-\item{device}{(\code{character(1)})\cr
-The device on which the tensor should be created.}
 }
 \description{
 Converts a data frame of numeric data into a float tensor by calling \code{as.matrix()}.
