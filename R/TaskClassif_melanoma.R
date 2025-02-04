@@ -59,7 +59,7 @@ constructor_melanoma = function(path) {
   on.exit({file.remove(compressed_tarball_path)}, add = TRUE)
   curl::curl_download(paste0(base_url, compressed_tarball_file_name), compressed_tarball_path)
   if (Sys.info()["sysname"] == "Linux") {
-    utils::untar(compressed_tarball_path, exdir = path, extra = "--warning=no-unknown-keyword")
+    utils::untar(compressed_tarball_path, exdir = path, extras = "--warning=no-unknown-keyword")
   } else {
     utils::untar(compressed_tarball_path, exdir = path)
   }
@@ -80,17 +80,15 @@ constructor_melanoma = function(path) {
   metadata[, "image_name" := NULL]
   metadata[, "target" := NULL]
   setnames(metadata, old = "benign_malignant", new = "outcome")
-  browser()
 
   metadata
 }
 
 load_task_melanoma = function(id = "melanoma") {
   cached_constructor = crate(function(backend) {
-    res = cached(constructor_melanoma, "datasets", "melanoma")
+    res = cached(constructor_melanoma, "datasets", "melanoma", requires_disk = TRUE)
     metadata = res$data
     path = res$path
-    browser()
 
     melanoma_ds_generator = torch::dataset(
       initialize = function(metadata, cache_dir) {
@@ -110,7 +108,7 @@ load_task_melanoma = function(id = "melanoma") {
       }
     )
 
-    melanoma_ds = melanoma_ds_generator(metadata, file.path(path, "datasets", "melanoma"))
+    melanoma_ds = melanoma_ds_generator(metadata, path)
 
     dd = as_data_descriptor(melanoma_ds, list(x = c(NA, 3, 128, 128)))
     lt = lazy_tensor(dd)
