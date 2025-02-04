@@ -34,7 +34,7 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   network = private$.network(task, param_vals)$to(device = param_vals$device)
   if (param_vals$jit_trace && !inherits(network, "script_module")) {
     example = get_example_batch(loader_train)$x
-    example = lapply(example, function(x) x$to(param_vals$device))
+    example = lapply(example, function(x) x$to(device = param_vals$device))
     # tracer requires arguments to be passed by name
     if (length(example) == 1) {
       network = jit_trace(network, example[[1L]])
