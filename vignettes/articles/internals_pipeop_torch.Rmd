@@ -205,8 +205,7 @@ The `target_batchgetter` needs to be created extra (if necessary), since it depe
 ```{r}
 td = task_dataset(
   task = md$task,
-  feature_ingress_tokens = md$ingress,
-  device = "cpu"
+  feature_ingress_tokens = md$ingress
 )
 
 td
@@ -350,8 +349,7 @@ We make multiple observations here:
 
     iris_td = task_dataset(
       task = iris_mds_union$task,
-      feature_ingress_tokens = iris_mds_union$ingress,
-      device = "cpu"
+      feature_ingress_tokens = iris_mds_union$ingress
     )
 
     batch = iris_td$.getbatch(1:2)
