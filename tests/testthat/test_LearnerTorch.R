@@ -817,6 +817,7 @@ test_that("early stopping works with autotuner", {
 })
 
 test_that("early stopping and eval freq", {
+  skip_if_not_installed("mlr3tuning")
   task = tsk("iris")
 
   learner = lrn("classif.mlp", measures_valid = msr("classif.logloss"),

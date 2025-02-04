@@ -40,8 +40,8 @@ test_that("torch_network_predict works", {
     drop_last = FALSE,
     shuffle = TRUE
   )
-  pred = torch_network_predict(net1, dataloader1)
-  expect_error(torch_network_predict(net2, dataloader1))
+  pred = torch_network_predict(net1, dataloader1, device = "cpu")
+  expect_error(torch_network_predict(net2, dataloader1, device = "cpu"))
 
 
   ingress2 = list(
@@ -66,7 +66,7 @@ test_that("torch_network_predict works", {
 
   weight_before = torch_clone(net3$weight)
 
-  pred = torch_network_predict(net3, dataloader2)
+  pred = torch_network_predict(net3, dataloader2, device = "cpu")
 
   expect_true(torch_equal(weight_before, net3$weight))
 
@@ -103,7 +103,7 @@ test_that("learner_torch_predict works", {
 
   network = get_private(learner)$.network(task, learner$param_set$values)
 
-  pred = torch_network_predict(network, dl)
+  pred = torch_network_predict(network, dl, device = "cpu")
 
   expect_class(pred, "torch_tensor")
   expect_true(ncol(pred) == length(task$class_names))

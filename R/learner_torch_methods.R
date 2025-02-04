@@ -14,7 +14,7 @@ learner_torch_predict = function(self, private, super, task, param_vals) {
   self$network$to(device = param_vals$device)
   self$network$eval()
   data_loader = private$.dataloader_predict(private$.dataset(task, param_vals), param_vals)
-  predict_tensor = torch_network_predict(self$network, data_loader)
+  predict_tensor = torch_network_predict(self$network, data_loader, device = param_vals$device)
   private$.encode_prediction(predict_tensor = predict_tensor, task = task)
 }
 
@@ -249,6 +249,8 @@ torch_network_predict_valid = function(ctx, callback_receiver = function(step_na
   while (ctx$step < length(loader)) {
     ctx$step = ctx$step + 1L
     ctx$batch = dataloader_next(valid_iterator)
+    ctx$batch$x = lapply(ctx$batch$x, function(x) x$to(device = ctx$device))
+
     callback_receiver("on_batch_valid_begin")
     predictions[[ctx$step]] = if (one_arg) {
       with_no_grad(network$forward(ctx$batch$x[[1L]]))
@@ -261,7 +263,7 @@ torch_network_predict_valid = function(ctx, callback_receiver = function(step_na
   torch_cat(predictions, dim = 1L)
 }
 
-torch_network_predict = function(network, loader) {
+torch_network_predict = function(network, loader, device) {
   # an unnamed argument
   # TODO: Maybe we should be stricter, but then we need to ensure that the .getbatch() method of the dataset
   # returns a list where the names of x correspond to the argument names of the network
@@ -272,6 +274,7 @@ torch_network_predict = function(network, loader) {
   while (step < length(loader)) {
     step = step + 1L
     batch = dataloader_next(train_iterator)
+    batch$x = lapply(batch$x, function(x) x$to(device = device))
     predictions[[step]] = if (one_arg) {
       with_no_grad(network$forward(batch$x[[1L]]))
     } else {
