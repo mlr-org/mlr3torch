@@ -49,7 +49,7 @@ paramset_torchlearner = function(task_type) {
   check_measures = switch(task_type,
     regr = check_measures_regr,
     classif = check_measures_classif,
-    check_measures
+    make_check_measures(task_type)
   )
 
   param_set = ps(
