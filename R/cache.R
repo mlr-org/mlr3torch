@@ -84,7 +84,7 @@ cached = function(constructor, type, name, requires_disk = FALSE) {
   do_caching = !isFALSE(cache_dir)
 
   if (!do_caching && requires_disk) {
-    lg$warning("Caching (option 'mlr3torch.cache') is disabled, but dataset requires disk storage. This can lead to unexpected behavior.")
+    lg$warn("Caching (option 'mlr3torch.cache') is disabled, but dataset requires disk storage. This can lead to unexpected behavior.")
   }
 
   # Even when we don't cache, we need to store the data somewhere
