@@ -18,6 +18,7 @@
 * feat: Added a callback to iteratively unfreeze parameters for finetuning.
 * fix: torch learners can now be used with `AutoTuner`.
 * feat: Added different learning rate schedulers as callbacks.
+* feat: `PipeOpBlock` should no longer create ID clashes with other PipeOps in the graph (#260)
 
 # mlr3torch 0.1.2
 

@@ -64,11 +64,12 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
     .block = NULL,
     .make_graph = function(block, n_blocks) {
       graph = block
-      for (i in seq_len(n_blocks - 1L)) {
-        block = clone_graph_unique_ids(block)
-        graph = graph %>>% block
-      }
-      graph
+      graph$update_ids(prefix = paste0(self$id, "."))
+      graphs = c(list(graph), replicate(n_blocks - 1L, graph$clone(deep = TRUE)))
+      lapply(seq_len(n_blocks - 1L), function(i) {
+        graphs[[i + 1]]$update_ids(postfix = paste0(".", i))
+      })
+      Reduce(`%>>%`, graphs)
     },
     .shapes_out = function(shapes_in, param_vals, task)  {
       if (is.null(task)) {
@@ -109,6 +110,7 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
       param_vals = self$param_set$get_values(tags = "train")
       block = private$.block$clone(deep = TRUE)
       graph = private$.make_graph(block, param_vals$n_blocks)
+      inputs = set_names(inputs, paste0(self$id, ".", names(inputs)))
       out = graph$train(inputs, single_input = FALSE)
     },
     .param_set_base = NULL,

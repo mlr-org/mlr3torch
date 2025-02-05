@@ -170,7 +170,7 @@ clashes with the linear layer from `po("nn_block")`.
 
 ``` r
 deep_network = po("torch_ingress_ltnsr") %>>%
-  po("nn_linear_0", out_features = 50L) %>>%
+  po("nn_linear", out_features = 50L) %>>%
   po("nn_block", layer, n_blocks = 5L) %>>%
   po("nn_head") %>>%
   po("torch_loss", loss = t_loss("cross_entropy")) %>>%
