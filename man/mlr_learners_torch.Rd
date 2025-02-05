@@ -179,7 +179,7 @@ The dataset must return a named list where:
 \item \code{x} is a list of torch tensors that are the input to the network.
 For networks with more than one input, the names must correspond to the inputs of the network.
 \item \code{y} is the target tensor.
-\item \code{.index} are the indices of the batch (\code{integer()}).
+\item \code{.index} are the indices of the batch (\code{integer()} or a \code{torch_int()}).
 }
 
 Moreover, one needs to pay attention respect the row ids of the provided task.
@@ -194,8 +194,7 @@ Create a dataloader from the task.
 Needs to respect at least \code{batch_size} and \code{shuffle} (otherwise predictions can be permuted).
 }
 
-To change the predict types, the it is possible to overwrite the method that converts the
-raw predictions into a \code{\link[mlr3:Prediction]{mlr3::Prediction}} object.
+To change the predict types, the it is possible to overwrite the method below:
 \itemize{
 \item \code{.encode_prediction(predict_tensor, task)}\cr
 (\code{\link[torch:torch_tensor]{torch_tensor}}, \code{\link[mlr3:Task]{Task}}) -> \code{list()}\cr

@@ -21,11 +21,7 @@ learner_torch_predict = function(self, private, super, task, param_vals) {
 learner_torch_train = function(self, private, super, task, param_vals) {
   # Here, all param_vals (like seed = "random" or device = "auto") have already been resolved
   dataset_train = private$.dataset(task, param_vals)
-  if (isTRUE(param_vals$tensor_dataset)) {
-    dataset_train = multi_tensor_dataset(dataset_train, device = "cpu")
-  } else if (identical(param_vals$tensor_dataset, "device")) {
-    dataset_train = multi_tensor_dataset(dataset_train, device = param_vals$device)
-  }
+  dataset_train = as_multi_tensor_dataset(dataset_train, param_vals)
   loader_train = private$.dataloader(dataset_train, param_vals)
   if (!length(loader_train)) {
     stopf("Training Dataloader of Learner '%s' has length 0", self$id)
@@ -65,11 +61,7 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   task_valid = task$internal_valid_task
   loader_valid = if (!is.null(task_valid) && task_valid$nrow) {
     dataset_valid = private$.dataset(task_valid, param_vals)
-    if (isTRUE(param_vals$tensor_dataset)) {
-      dataset_valid = multi_tensor_dataset(dataset_valid, device = "cpu")
-    } else if (identical(param_vals$tensor_dataset, "device")) {
-      dataset_valid = multi_tensor_dataset(dataset_valid, device = param_vals$device)
-    }
+    dataset_valid = as_multi_tensor_dataset(dataset_valid, param_vals)
     private$.dataloader_predict(dataset_valid, param_vals)
   }
 
@@ -337,4 +329,14 @@ measure_prediction = function(pred_tensor, measures, task, row_ids, prediction_e
       measure$score(prediction, task = task, train_set = task$row_roles$use)
     }
   )
+}
+
+as_multi_tensor_dataset = function(dataset, param_vals) {
+ if (isTRUE(param_vals$tensor_dataset)) {
+    multi_tensor_dataset(dataset, device = "cpu")
+  } else if (identical(param_vals$tensor_dataset, "device")) {
+    multi_tensor_dataset(dataset, device = param_vals$device)
+  } else {
+    dataset
+  }
 }

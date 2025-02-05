@@ -90,7 +90,7 @@
 #'   * `x` is a list of torch tensors that are the input to the network.
 #'     For networks with more than one input, the names must correspond to the inputs of the network.
 #'   * `y` is the target tensor.
-#'   * `.index` are the indices of the batch (`integer()`).
+#'   * `.index` are the indices of the batch (`integer()` or a `torch_int()`).
 #'
 #'   Moreover, one needs to pay attention respect the row ids of the provided task.
 #'
@@ -102,8 +102,7 @@
 #'   Create a dataloader from the task.
 #'   Needs to respect at least `batch_size` and `shuffle` (otherwise predictions can be permuted).
 #'
-#' To change the predict types, the it is possible to overwrite the method that converts the
-#' raw predictions into a [`mlr3::Prediction`] object.
+#' To change the predict types, the it is possible to overwrite the method below:
 #'
 #' * `.encode_prediction(predict_tensor, task)`\cr
 #'   ([`torch_tensor`][torch::torch_tensor], [`Task`][mlr3::Task]) -> `list()`\cr
