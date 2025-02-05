@@ -4,14 +4,11 @@
 \alias{batchgetter_categ}
 \title{Batchgetter for Categorical data}
 \usage{
-batchgetter_categ(data, device, ...)
+batchgetter_categ(data, ...)
 }
 \arguments{
 \item{data}{(\code{data.table})\cr
 \code{data.table} to be converted to a \code{tensor}.}
-
-\item{device}{(\code{character(1)})\cr
-The device.}
 
 \item{...}{(any)\cr
 Unused.}
