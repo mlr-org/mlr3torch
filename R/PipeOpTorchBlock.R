@@ -92,7 +92,7 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
           ingress = set_names(list(
             TorchIngressToken(
               features = "placeholder",
-              batchgetter = function(data, device, ...) NULL,
+              batchgetter = function(data, ...) NULL,
               shape = shapes_in[[1]])),
               paste0("nop.", i, ".input")
           ),

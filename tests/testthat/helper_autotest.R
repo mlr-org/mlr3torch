@@ -86,7 +86,7 @@ expect_pipeop_torch = function(graph, id, task, module_class = id, exclude_args 
   net = model_descriptor_to_module(md, output_pointers = pointers, list_output = TRUE)$to(device = "cpu")
 
 
-  ds = task_dataset(task, md$ingress, device = "cpu")
+  ds = task_dataset(task, md$ingress)
   batch = ds$.getbatch(1)
   out = with_no_grad(invoke(net$forward, .args = batch$x))
 
@@ -436,20 +436,19 @@ expect_learner_torch = function(learner, task, check_man = TRUE, check_id = TRUE
   checkmate::expect_subset(c("mlr3", "mlr3torch", "torch"), learner$packages)
   testthat::expect_true(all(map_lgl(learner$tags, function(tags) "predict" %in% tags || "train" %in% tags)))
 
-  learner$param_set$set_values(device = "meta")
+  learner$param_set$set_values(device = "cpu")
   ds = learner$dataset(task)
   batch = if (is.null(ds$.getbatch)) {
     ds$.getitem(1)
   } else {
     ds$.getbatch(1)
   }
-  lapply(batch$x, function(tnsr) testthat::expect_true(tnsr$device == torch_device("meta")))
-  testthat::expect_true(batch$y$device == torch_device("meta"))
+  lapply(batch$x, function(tnsr) testthat::expect_true(tnsr$device == torch_device("cpu")))
+  testthat::expect_true(batch$y$device == torch_device("cpu"))
   if (task$task_type == "regr") {
     testthat::expect_true(batch$y$dtype == torch_float())
   } else {
     testthat::expect_true(batch$y$dtype == torch_long())
   }
-  testthat::expect_true(batch$.index$device == torch_device("meta"))
   testthat::expect_true(batch$.index$dtype == torch_long())
 }

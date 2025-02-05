@@ -83,7 +83,7 @@ constructor_tiny_imagenet = function(path) {
 #' @include utils.R
 load_task_tiny_imagenet = function(id = "tiny_imagenet") {
   cached_constructor = crate(function(backend) {
-    dt = cached(constructor_tiny_imagenet, "datasets", "tiny_imagenet")$data
+    dt = cached(constructor_tiny_imagenet, "datasets", "tiny_imagenet", requires_disk = TRUE)$data
     setDT(dt)
 
     ci = col_info(backend)

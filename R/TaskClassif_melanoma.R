@@ -58,7 +58,11 @@ constructor_melanoma = function(path) {
   compressed_tarball_path = file.path(path, compressed_tarball_file_name)
   on.exit({file.remove(compressed_tarball_path)}, add = TRUE)
   curl::curl_download(paste0(base_url, compressed_tarball_file_name), compressed_tarball_path)
-  utils::untar(compressed_tarball_path, exdir = path)
+  if (Sys.info()["sysname"] == "Linux") {
+    utils::untar(compressed_tarball_path, exdir = path, extras = "--warning=no-unknown-keyword")
+  } else {
+    utils::untar(compressed_tarball_path, exdir = path)
+  }
 
   training_metadata_file_name = "ISIC_2020_Training_GroundTruth_v2.csv"
   training_metadata = fread(file.path(path, training_metadata_file_name))
@@ -81,8 +85,10 @@ constructor_melanoma = function(path) {
 }
 
 load_task_melanoma = function(id = "melanoma") {
-  cached_constructor = function(backend) {
-    metadata = cached(constructor_melanoma, "datasets", "melanoma")$data
+  cached_constructor = crate(function(backend) {
+    res = cached(constructor_melanoma, "datasets", "melanoma", requires_disk = TRUE)
+    metadata = res$data
+    path = res$path
 
     melanoma_ds_generator = torch::dataset(
       initialize = function(metadata, cache_dir) {
@@ -102,7 +108,7 @@ load_task_melanoma = function(id = "melanoma") {
       }
     )
 
-    melanoma_ds = melanoma_ds_generator(metadata, file.path(get_cache_dir(), "datasets", "melanoma"))
+    melanoma_ds = melanoma_ds_generator(metadata, path)
 
     dd = as_data_descriptor(melanoma_ds, list(x = c(NA, 3, 128, 128)))
     lt = lazy_tensor(dd)
@@ -120,7 +126,7 @@ load_task_melanoma = function(id = "melanoma") {
     )
 
     DataBackendDataTable$new(data = dt, primary_key = "..row_id")
-  }
+  }, .parent = topenv())
 
   backend = DataBackendLazy$new(
     constructor = cached_constructor,

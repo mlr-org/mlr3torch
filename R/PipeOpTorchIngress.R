@@ -148,7 +148,7 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
 #'
 TorchIngressToken = function(features, batchgetter, shape) {
   assert_character(features, any.missing = FALSE)
-  assert_function(batchgetter, args = c("data", "device"))
+  assert_function(batchgetter, args = "data")
   assert_integerish(shape)
   structure(list(
     features = features,
@@ -291,7 +291,7 @@ register_po("torch_ingress_categ", PipeOpTorchIngressCategorical)
 #' md = po_ingress$train(list(task))[[1L]]
 #'
 #' ingress = md$ingress
-#' x_batch = ingress[[1L]]$batchgetter(data = task$data(1, "x"), device = "cpu", cache = NULL)
+#' x_batch = ingress[[1L]]$batchgetter(data = task$data(1, "x"), cache = NULL)
 #' x_batch
 #'
 #' # Now we try a lazy tensor with unknown shape, i.e. the shapes between the rows can differ
@@ -322,7 +322,6 @@ register_po("torch_ingress_categ", PipeOpTorchIngressCategorical)
 #' ingress2 = md2$ingress
 #' x_batch2 = ingress2[[1L]]$batchgetter(
 #'   data = task_unknown_resize$data(1:2, "x"),
-#'   device = "cpu",
 #'   cache = NULL
 #' )
 #'
@@ -376,8 +375,8 @@ PipeOpTorchIngressLazyTensor = R6Class("PipeOpTorchIngressLazyTensor",
   )
 )
 
-batchgetter_lazy_tensor = function(data, device, cache) {
-  materialize_internal(x = data[[1L]], device = device, cache = cache, rbind = TRUE)
+batchgetter_lazy_tensor = function(data, cache) {
+  materialize_internal(x = data[[1L]], cache = cache, rbind = TRUE)
 }
 
 register_po("torch_ingress_ltnsr", PipeOpTorchIngressLazyTensor)

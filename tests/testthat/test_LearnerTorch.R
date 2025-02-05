@@ -379,7 +379,8 @@ test_that("predict parameters do what they should: classification and regression
 
     learner$param_set$set_values(device = "meta")
 
-    dl = get_private(learner)$.dataloader_predict(task, learner$param_set$values)
+    dl = get_private(learner)$.dataloader_predict(
+      get_private(learner)$.dataset(task, learner$param_set$values), learner$param_set$values)
     expect_equal(dl$batch_size, batch_size)
     expect_class(dl$sampler, "utils_sampler_sequential")
   }
@@ -746,21 +747,34 @@ test_that("configure loss, optimizer and callbacks after construction", {
 
 test_that("dataset works", {
   task = tsk("iris")
-  learner = lrn("classif.mlp", device = "meta", batch_size = 10,
-    epochs = 1L)
-  ds = learner$dataset(task)
-  batch = ds$.getbatch(1:2)
-  expect_equal(batch$x$torch_ingress_num.input$device$type, "meta")
-  expect_equal(batch$x$torch_ingress_num.input$shape, c(2, 4))
-  expect_equal(batch$y$device$type, "meta")
-  expect_equal(batch$y$shape, 2)
-  expect_equal(batch$.index$device$type, "meta")
-  expect_equal(batch$.index$shape, 2)
+  testcb1 = torch_callback("test",
+    initialize = function() NULL,
+    on_batch_begin = function() {
+      batch = self$ctx$batch
+      expect_equal(batch$x$torch_ingress_num.input$device$type, "meta")
+      expect_equal(batch$x$torch_ingress_num.input$shape, c(2, 4))
+      expect_equal(batch$y$device$type, "meta")
+      expect_equal(batch$y$shape, 2)
+      expect_equal(batch$.index$shape, 2)
+      stop("everything is fine")
+    }
+  )
+  learner = lrn("classif.mlp", device = "meta", batch_size = 2,
+    epochs = 1L, callbacks = testcb1)
+
+  expect_error(learner$train(task), "everything is fine")
   skip_if(torch::cuda_is_available())
+
   learner$param_set$set_values(device = "auto")
-  ds = learner$dataset(task)
-  batch = ds$.getbatch(1:2)
-  expect_equal(batch$x$torch_ingress_num.input$device$type, "cpu")
+  testcb2 = torch_callback("test2",
+    initialize = function() NULL,
+    on_batch_begin = function() {
+      expect_equal(self$ctx$batch$x$torch_ingress_num.input$device$type, "cpu")
+      stop("everything is fine")
+    }
+  )
+  learner$callbacks = list(testcb2)
+  expect_error(learner$train(task), "everything is fine")
 })
 
 test_that("error when dataloaders have length 0", {
@@ -803,6 +817,7 @@ test_that("early stopping works with autotuner", {
 })
 
 test_that("early stopping and eval freq", {
+  skip_if_not_installed("mlr3tuning")
   task = tsk("iris")
 
   learner = lrn("classif.mlp", measures_valid = msr("classif.logloss"),
@@ -924,4 +939,30 @@ test_that("trace-jitting works", {
   l1$marshal()
   l1$unmarshal()
   expect_prediction(l1$predict(task))
+})
+
+test_that("tensor_dataset works", {
+  testcb = torch_callback("test",
+    state_dict = function() {
+      list(train = self$ctx$loader_train, valid = self$ctx$loader_valid)
+    },
+    load_state_dict = function(state_dict) NULL
+  )
+  l = lrn("classif.mlp", batch_size = 16, epochs = 1, tensor_dataset = "device", validate = 0.3,
+    callbacks = testcb)
+
+  task = tsk("iris")
+
+  l$train(task)
+  expect_error(l$train(task), regexp = NA)
+  expect_class(l$model$callbacks$test$train$dataset, "multi_tensor_dataset")
+  expect_class(l$model$callbacks$test$valid$dataset, "multi_tensor_dataset")
+
+  l = lrn("classif.mlp", batch_size = 16, epochs = 1, tensor_dataset = TRUE, validate = 0.3,
+    callbacks = testcb)
+
+  l$train(task)
+  expect_error(l$train(task), regexp = NA)
+  expect_class(l$model$callbacks$test$train$dataset, "multi_tensor_dataset")
+  expect_class(l$model$callbacks$test$valid$dataset, "multi_tensor_dataset")
 })

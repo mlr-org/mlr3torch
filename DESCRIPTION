@@ -141,6 +141,7 @@ Collate:
     'learner_torch_methods.R'
     'materialize.R'
     'merge_graphs.R'
+    'multi_tensor_dataset.R'
     'nn.R'
     'nn_graph.R'
     'paramset_torchlearner.R'
