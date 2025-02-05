@@ -230,7 +230,7 @@ otherwise be set during construction.</p></dd>
 <span class="r-in"><span><span class="va">md</span> <span class="op">=</span> <span class="va">po_ingress</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">task</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">ingress</span> <span class="op">=</span> <span class="va">md</span><span class="op">$</span><span class="va">ingress</span></span></span>
-<span class="r-in"><span><span class="va">x_batch</span> <span class="op">=</span> <span class="va">ingress</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="fu">batchgetter</span><span class="op">(</span>data <span class="op">=</span> <span class="va">task</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span><span class="fl">1</span>, <span class="st">"x"</span><span class="op">)</span>, device <span class="op">=</span> <span class="st">"cpu"</span>, cache <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">x_batch</span> <span class="op">=</span> <span class="va">ingress</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="fu">batchgetter</span><span class="op">(</span>data <span class="op">=</span> <span class="va">task</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span><span class="fl">1</span>, <span class="st">"x"</span><span class="op">)</span>, cache <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">x_batch</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  5.1000  3.5000  1.4000  0.2000</span>
@@ -268,42 +268,41 @@ otherwise be set during construction.</p></dd>
 <span class="r-in"><span><span class="va">ingress2</span> <span class="op">=</span> <span class="va">md2</span><span class="op">$</span><span class="va">ingress</span></span></span>
 <span class="r-in"><span><span class="va">x_batch2</span> <span class="op">=</span> <span class="va">ingress2</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="fu">batchgetter</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  data <span class="op">=</span> <span class="va">task_unknown_resize</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="st">"x"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  device <span class="op">=</span> <span class="st">"cpu"</span>,</span></span>
 <span class="r-in"><span>  cache <span class="op">=</span> <span class="cn">NULL</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">x_batch2</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (1,1,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.1157  1.0976  1.1233  0.0187  0.8374  0.4145</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.3427  0.0479  0.1392 -0.9491 -0.8408 -0.2257</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0013 -0.1263  0.1295  0.3555 -0.5750 -0.1925</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.3270 -0.0414 -0.5936  0.1480 -0.2274 -0.4217</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.7630  1.2334 -0.4881  0.0257 -0.2153  0.4274</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.3630  0.4331  0.2849 -0.1778 -0.0888 -0.2645</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.4263  0.6428  0.4527 -0.7021 -0.5358 -0.5198</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.4186 -1.2086 -0.0816 -0.7015  1.8514 -0.6820</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.5335 -1.0843 -0.6474  0.1707  0.8470 -0.5071</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0597 -0.5114 -0.7399  0.1594 -0.1746  0.2933</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -1.0214  0.5515 -0.8367 -0.6241 -0.0668  0.7369</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.7200 -0.8923  0.6645 -0.4390  0.6021  0.2433</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (2,1,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0503 -0.4109 -0.5258  0.4337  0.3453  1.0009</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.1133 -1.3750  0.9326  0.1777  0.0649 -0.4965</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.7251 -1.3281  1.4786 -1.0457  0.2287  0.9691</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.7922 -0.2384 -0.4830 -0.2671 -0.2797 -1.1131</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.6713  0.6633  0.2040  0.9530 -0.0636 -0.3000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1.1255  0.5387  0.4688  0.8016 -0.4491 -0.3107</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.8826 -0.6964 -0.0953  0.9155 -0.2111  1.1327</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.4445 -0.1045  1.0766 -0.2880 -0.0643 -0.0216</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -1.3509 -0.0096  0.1924  1.4118 -1.2507  0.0888</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.6611 -0.0863 -0.4965  0.0883  0.0147  0.3333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.5221 -0.2939  0.3891  0.2104  0.5235  0.5340</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.7089 -1.1043  0.1082 -0.2259 -0.2835 -0.3723</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (1,2,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.3631 -0.1021 -0.3005  0.1929  0.9332  0.0015</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.2645  0.8784  0.5237  1.5371  1.6034 -0.4062</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.3903 -0.7010 -0.3269 -1.3302  0.2212 -0.2729</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.7275 -0.9687 -0.2864  0.3484 -0.3389  0.1746</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.2898  2.1013 -1.6055  0.3250  0.0245  1.0999</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.6591  0.1221  0.2200  0.5592  0.8596 -0.4288</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.7216 -0.0012 -0.1896  1.1367 -1.1907  0.3493</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0842  0.2943 -0.4959  0.5415  1.6282  0.6968</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.1632  0.1920 -0.7264 -0.0435 -1.0099  0.3572</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0045 -0.5204  0.6201 -0.0042 -0.2727  0.8772</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.3532 -0.0990 -0.2020  0.4546  0.0572 -0.7636</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.2292 -1.2660 -1.2878 -0.2749 -1.0390  0.2831</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (2,2,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.4241 -0.0360 -1.2602 -1.4216 -0.3594 -1.6517</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.9821  0.5464  0.3835  0.1256  0.5444  0.1963</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.7344 -0.0962 -0.7438 -0.5695  0.1879  1.8916</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0343  0.1610 -1.0367 -0.5902 -0.6556  0.2873</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1.2036  0.2420 -0.4794 -1.1928 -0.2610 -0.2544</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.9472  0.0099  0.4424  0.6061  0.2697  1.6237</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0151  0.2426  0.5300  0.3599 -0.4313  0.8037</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.1155  0.3197 -0.4818 -0.6434  0.1755 -0.6340</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -1.2932  0.3770 -0.3782 -0.2730 -0.3482 -0.8788</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0135 -0.2436  0.4783 -1.0495 -1.1046 -0.4982</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ... [the output was truncated (use n=-1 to disable)]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{2,3,6,6} ]</span>
 </code></pre></div>

@@ -100,9 +100,17 @@ and used during prediction.
 Note that by setting the seed during the training phase this will mean that by default (i.e. when <code>seed</code> is
 <code>"random"</code>), clones of the learner will use a different seed.
 If set to <code>NULL</code>, no seeding will be done.</p></li>
-</ul><p><strong>Evaluation</strong>:</p><ul><li><p><code>measures_train</code> :: <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code>s.<br>
+<li><p><code>tensor_dataset</code> :: <code>logical(1)</code> | <code>"device"</code><br>
+Whether to load all batches at once at the beginning of training and stack them.
+This is initialized to <code>FALSE</code>.
+If set to <code>"device"</code>, the device of the tensors will be set to the value of <code>device</code>, which
+can avoid unnecessary moving of tensors between devices.
+When your dataset fits into memory this will make the loading of batches faster.
+Note that this should not be set for datasets that contain <code><a href="lazy_tensor.html">lazy_tensor</a></code>s with random data augmentation,
+as this augmentation will only be applied once at the beginning of training.</p></li>
+</ul><p><strong>Evaluation</strong>:</p><ul><li><p><code>measures_train</code> :: <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code>s<br>
 Measures to be evaluated during training.</p></li>
-<li><p><code>measures_valid</code> :: <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code>s.<br>
+<li><p><code>measures_valid</code> :: <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="external-link">Measure</a></code>s<br>
 Measures to be evaluated during validation.</p></li>
 <li><p><code>eval_freq</code> :: <code>integer(1)</code><br>
 How often the train / validation predictions are evaluated using <code>measures_train</code> / <code>measures_valid</code>.

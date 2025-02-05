@@ -270,7 +270,7 @@ The parameters of the network.</p></dd>
 <span class="r-in"><span><span class="va">learner</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.mlp"</span>, optimizer <span class="op">=</span> <span class="fu"><a href="t_opt.html">t_opt</a></span><span class="op">(</span><span class="st">"sgd"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># The parameters of the optimizer are added to the learner's parameter set</span></span></span>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="va">param_set</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSetCollection(35)&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSetCollection(36)&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                      id    class lower upper nlevels        default</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                  &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;         &lt;list&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  1:              epochs ParamInt     0   Inf     Inf &lt;NoDefault[0]&gt;</span>
@@ -296,18 +296,19 @@ The parameters of the network.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 21:      worker_init_fn ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 22:      worker_globals ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 23:     worker_packages ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 24:             neurons ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 25:                   p ParamDbl     0     1     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 26:            n_layers ParamInt     1   Inf     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 27:          activation ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 28:     activation_args ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 29:               shape ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 30:              opt.lr ParamDbl     0   Inf     Inf &lt;NoDefault[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 31:        opt.momentum ParamDbl     0     1     Inf              0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 32:       opt.dampening ParamDbl     0     1     Inf              0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 33:    opt.weight_decay ParamDbl     0     1     Inf              0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 34:        opt.nesterov ParamLgl    NA    NA       2          FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 35:      loss.reduction ParamFct    NA    NA       2           mean</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24:      tensor_dataset ParamFct    NA    NA       1 &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25:             neurons ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26:                   p ParamDbl     0     1     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27:            n_layers ParamInt     1   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28:          activation ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29:     activation_args ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 30:               shape ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 31:              opt.lr ParamDbl     0   Inf     Inf &lt;NoDefault[0]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 32:        opt.momentum ParamDbl     0     1     Inf              0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 33:       opt.dampening ParamDbl     0     1     Inf              0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 34:    opt.weight_decay ParamDbl     0     1     Inf              0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 35:        opt.nesterov ParamLgl    NA    NA       2          FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 36:      loss.reduction ParamFct    NA    NA       2           mean</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                      id    class lower upper nlevels        default</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            value</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           &lt;list&gt;</span>
@@ -334,18 +335,19 @@ The parameters of the network.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 21:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 22:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 23:       [NULL]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 24:             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 25:          0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 26:       [NULL]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 27: &lt;nn_relu[1]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 28:    &lt;list[0]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 29:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24:        FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25:             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26:          0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28: &lt;nn_relu[1]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29:    &lt;list[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 30:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 31:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 32:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 33:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 34:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 35:       [NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 36:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            value</span>
 </code></pre></div>
     </div>

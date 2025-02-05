@@ -178,6 +178,11 @@ The current batch.</p></dd>
 If this field is set to <code>TRUE</code> at the end of an epoch, training stops.</p></dd>
 
 
+<dt><code>device</code></dt>
+<dd><p>(<code><a href="https://torch.mlverse.org/docs/reference/torch_device.html" class="external-link">torch::torch_device</a></code>)<br>
+The device.</p></dd>
+
+
 </dl><p></p></div>
     </div>
     <div class="section level2">
@@ -205,7 +210,8 @@ If this field is set to <code>TRUE</code> at the end of an epoch, training stops
 <span>  <span class="va">loss_fn</span>,</span>
 <span>  <span class="va">total_epochs</span>,</span>
 <span>  <span class="va">prediction_encoder</span>,</span>
-<span>  eval_freq <span class="op">=</span> <span class="fl">1L</span></span>
+<span>  eval_freq <span class="op">=</span> <span class="fl">1L</span>,</span>
+<span>  <span class="va">device</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -274,6 +280,11 @@ The learner's prediction encoder.</p></dd>
 <dt><code>eval_freq</code></dt>
 <dd><p>(<code>integer(1)</code>)<br>
 The evaluation frequency.</p></dd>
+
+
+<dt><code>device</code></dt>
+<dd><p>(<code>character(1)</code>)<br>
+The device.</p></dd>
 
 
 </dl><p></p></div>
