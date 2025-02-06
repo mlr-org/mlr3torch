@@ -1,37 +1,25 @@
-library(mlr3)
-library(mlr3learners)
+library(mlr3verse)
 library(mlr3oml)
 library(mlr3torch)
-library(mlr3tuning)
+library(mlr3batchmark)
 library(mlr3mbo)
-library(bbotk)
+library(mlr3tuning)
 
-library(bench)
-library(data.table)
-library(here)
-
-options(mlr3oml.cache = here("benchmarks", "data", "oml"))
-
-# define the tasks
-cc18_small = fread(here(getOption("mlr3oml.cache"), "collections", "cc18_small.csv"))
-
-task_list = mlr3misc::pmap(cc18_small, function(data_id, name, NumberOfFeatures, NumberOfInstances) tsk("oml", data_id = data_id))
+ids = c(1067, 1464, 1485, 1494, 40994)
+task_list = lapply(ids, function(id) tsk("oml", data_id = id))
 
 mlp = lrn("classif.mlp",
   activation = nn_relu,
-  neurons = to_tune(ps(
-    n_layers = p_int(lower = 1, upper = 10), latent = p_int(10, 500),
-    .extra_trafo = function(x, param_set) {
-      list(neurons = rep(x$latent, x$n_layers))
-    })
-  ),
+  n_layers = to_tune(lower = 1, upper = 10),
+  neurons = to_tune(p_int(lower = 10, upper = 1000)),
   batch_size = to_tune(c(64, 128, 256)),
-  p = to_tune(0.1, 0.7),
-  epochs = to_tune(lower = 1, upper = 500L, internal = TRUE),
+  p = to_tune(0.1, 0.9),
+  epochs = to_tune(lower = 1, upper = 1000L, internal = TRUE),
   validate = "test",
-  measures_valid = msr("classif.acc"),
-  patience = 5,
-  device = "cpu"
+  measures_valid = msr("classif.logloss"),
+  patience = 10,
+  device = "auto",
+  predict_type = "prob"
 )
 
 mlp$encapsulate("callr", lrn("classif.featureless"))
@@ -46,34 +34,29 @@ at = auto_tuner(
   learner = mlp,
   tuner = tnr("mbo", surrogate = surrogate),
   resampling = rsmp("cv", folds = 5),
-  measure = msr("classif.acc"),
-  term_evals = 100
+  measure = msr("internal_valid_score", minimize = TRUE),
+  term_evals = 1
 )
 
-future::plan("multisession", workers = 8)
-
 lrn_rf = lrn("classif.ranger")
-
-options(mlr3.exec_random = FALSE)
 
 design = benchmark_grid(
   task_list,
   learners = list(at, lrn_rf),
   resampling = rsmp("cv", folds = 3)
 )
-design = design[order(mlr3misc::ids(learner)), ]
 
-time = bench::system_time(
-  bmr <- benchmark(design)
+design1 = benchmark_grid(
+  task_list[[1]],
+  learners = list(at, lrn_rf),
+  resampling = rsmp("holdout")
 )
 
-bmrdt = as.data.table(bmr)
+benchmark(design1)
 
-bmr$aggregate()[, .(task_id, learner_id, classif.ce)]
+reg = makeExperimentRegistry(
+  file.dir = here("benchmarks", "rf_use_case", "reg"),
+  packages = c("mlr3verse", "mlr3oml", "mlr3torch", "batchmark")
+)
 
-results_dir = here("benchmarks", "rf_use_case", "results")
-if (!dir.exists(results_dir)) {
-  dir.create(results_dir)
-}
-fwrite(bmr$aggregate()[, .(task_id, learner_id, classif.ce)], here(results_dir, "bmr_ce.csv"))
-fwrite(as.data.table(as.list(time)), here(results_dir, "time.csv"))
+batchmark(design)
