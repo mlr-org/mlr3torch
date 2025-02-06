@@ -7,6 +7,15 @@
 \description{
 Applies element-wise, \eqn{Tanhshrink(x) = x - Tanh(x)}
 }
+\section{nn_module}{
+ Calls \code{\link[torch:nn_tanhshrink]{torch::nn_tanhshrink()}} when trained.
+}
+
+\section{Parameters}{
+
+No parameters.
+}
+
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
@@ -21,15 +30,6 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 \section{Credit}{
 
 Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
-}
-
-\section{Parameters}{
-
-No parameters.
-}
-
-\section{Internals}{
- Calls \code{\link[torch:nn_tanhshrink]{torch::nn_tanhshrink()}} when trained.
 }
 
 \examples{

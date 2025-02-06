@@ -5,10 +5,22 @@
 \alias{PipeOpTorchUnsqueeze}
 \title{Unqueeze a Tensor}
 \description{
-Unqueeze a Tensor
-
-Unqueeze a Tensor
+Unsqueezes a tensor by calling \code{\link[torch:torch_unsqueeze]{torch::torch_unsqueeze()}} with the given dimension \code{dim}.
 }
+\section{nn_module}{
+
+Calls \code{\link[=nn_unsqueeze]{nn_unsqueeze()}} when trained.
+This internally calls \code{\link[torch:torch_unsqueeze]{torch::torch_unsqueeze()}}.
+}
+
+\section{Parameters}{
+
+\itemize{
+\item \code{dim} :: \code{integer(1)}\cr
+The dimension which to unsqueeze. Negative values are interpreted downwards from the last dimension.
+}
+}
+
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
@@ -23,20 +35,6 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 \section{Credit}{
 
 Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
-}
-
-\section{Parameters}{
-
-\itemize{
-\item \code{dim} :: \code{integer(1)}\cr
-The dimension which to unsqueeze. Negative values are interpreted downwards from the last dimension.
-}
-}
-
-\section{Internals}{
-
-Calls \code{\link[=nn_unsqueeze]{nn_unsqueeze()}} when trained.
-This internally calls \code{\link[torch:torch_unsqueeze]{torch::torch_unsqueeze()}}.
 }
 
 \examples{

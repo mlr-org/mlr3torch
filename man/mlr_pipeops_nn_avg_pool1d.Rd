@@ -8,20 +8,9 @@
 Applies a 1D average pooling over an input signal composed of several
 input planes.
 }
-\section{Input and Output Channels}{
+\section{nn_module}{
 
-One input channel called \code{"input"} and one output channel called \code{"output"}.
-For an explanation see \code{\link{PipeOpTorch}}.
-}
-
-\section{State}{
-
-The state is the value calculated by the public method \verb{$shapes_out()}.
-}
-
-\section{Credit}{
-
-Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
+Calls \code{\link[torch:nn_avg_pool1d]{nn_avg_pool1d()}} during training.
 }
 
 \section{Parameters}{
@@ -43,9 +32,20 @@ Only available for dimension greater than 1.
 }
 }
 
-\section{Internals}{
+\section{Input and Output Channels}{
 
-Calls \code{\link[torch:nn_avg_pool1d]{nn_avg_pool1d()}} during training.
+One input channel called \code{"input"} and one output channel called \code{"output"}.
+For an explanation see \code{\link{PipeOpTorch}}.
+}
+
+\section{State}{
+
+The state is the value calculated by the public method \verb{$shapes_out()}.
+}
+
+\section{Credit}{
+
+Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
 }
 
 \examples{

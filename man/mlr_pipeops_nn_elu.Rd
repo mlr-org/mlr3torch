@@ -8,6 +8,20 @@
 Applies element-wise,
 \deqn{ELU(x) = max(0,x) + min(0, \alpha * (exp(x) - 1))}.
 }
+\section{nn_module}{
+ Calls \code{\link[torch:nn_elu]{torch::nn_elu()}} when trained.
+}
+
+\section{Parameters}{
+
+\itemize{
+\item \code{alpha} :: \code{numeric(1)}\cr
+The alpha value for the ELU formulation. Default: 1.0
+\item \code{inplace} :: \code{logical(1)}\cr
+Whether to do the operation in-place. Default: \code{FALSE}.
+}
+}
+
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
@@ -22,20 +36,6 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 \section{Credit}{
 
 Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
-}
-
-\section{Parameters}{
-
-\itemize{
-\item \code{alpha} :: \code{numeric(1)}\cr
-The alpha value for the ELU formulation. Default: 1.0
-\item \code{inplace} :: \code{logical(1)}\cr
-Whether to do the operation in-place. Default: \code{FALSE}.
-}
-}
-
-\section{Internals}{
- Calls \code{\link[torch:nn_elu]{torch::nn_elu()}} when trained.
 }
 
 \examples{

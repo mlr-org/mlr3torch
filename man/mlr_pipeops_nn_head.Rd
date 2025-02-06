@@ -6,11 +6,24 @@
 \title{Output Head}
 \description{
 Output head for classification and regresssion.
-
-\strong{NOTE}
-Because the method \verb{$shapes_out()} does not have access to the task, it returns \code{c(NA, NA)}.
+}
+\details{
+When the method \verb{$shapes_out()} does not have access to the task, it returns \code{c(NA, NA)}.
 When this \code{\link[mlr3pipelines:PipeOp]{PipeOp}} is trained however, the model descriptor has the correct output shape.
 }
+\section{nn_module}{
+
+Calls \code{\link[torch:nn_linear]{torch::nn_linear()}} with the input and output features inferred from the input shape / task.
+}
+
+\section{Parameters}{
+
+\itemize{
+\item \code{bias} :: \code{logical(1)}\cr
+Whether to use a bias. Default is \code{TRUE}.
+}
+}
+
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
@@ -25,19 +38,6 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 \section{Credit}{
 
 Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
-}
-
-\section{Parameters}{
-
-\itemize{
-\item \code{bias} :: \code{logical(1)}\cr
-Whether to use a bias. Default is \code{TRUE}.
-}
-}
-
-\section{Internals}{
-
-Calls \code{\link[torch:nn_linear]{torch::nn_linear()}} with the input and output features inferred from the input shape / task.
 }
 
 \examples{

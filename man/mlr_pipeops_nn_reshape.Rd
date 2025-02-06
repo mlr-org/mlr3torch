@@ -7,6 +7,20 @@
 \description{
 Reshape a tensor to the given shape.
 }
+\section{nn_module}{
+
+Calls \code{\link[=nn_reshape]{nn_reshape()}} when trained.
+This internally calls \code{\link[torch:torch_reshape]{torch::torch_reshape()}} with the given \code{shape}.
+}
+
+\section{Parameters}{
+
+\itemize{
+\item \code{shape} :: \code{integer(1)}\cr
+The desired output shape. Unknown dimension (one at most) can either be specified as \code{-1} or \code{NA}.
+}
+}
+
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
@@ -21,20 +35,6 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 \section{Credit}{
 
 Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
-}
-
-\section{Parameters}{
-
-\itemize{
-\item \code{shape} :: \code{integer(1)}\cr
-The desired output shape. Unknown dimension (one at most) can either be specified as \code{-1} or \code{NA}.
-}
-}
-
-\section{Internals}{
-
-Calls \code{\link[=nn_reshape]{nn_reshape()}} when trained.
-This internally calls \code{\link[torch:torch_reshape]{torch::torch_reshape()}} with the given \code{shape}.
 }
 
 \examples{
