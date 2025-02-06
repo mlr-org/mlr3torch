@@ -157,7 +157,7 @@ Note that `po("nn_linear_0")` is equivalent to `po("nn_linear", id = "nn_linear_
 
 ```{r}
 deep_network = po("torch_ingress_ltnsr") %>>%
-  po("nn_linear_0", out_features = 50L) %>>%
+  po("nn_linear", out_features = 50L) %>>%
   po("nn_block", layer, n_blocks = 5L) %>>%
   po("nn_head") %>>%
   po("torch_loss", loss = t_loss("cross_entropy")) %>>%

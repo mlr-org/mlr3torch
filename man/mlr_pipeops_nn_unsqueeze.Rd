@@ -5,19 +5,12 @@
 \alias{PipeOpTorchUnsqueeze}
 \title{Unqueeze a Tensor}
 \description{
-Unqueeze a Tensor
-
-Unqueeze a Tensor
+Unsqueezes a tensor by calling \code{\link[torch:torch_unsqueeze]{torch::torch_unsqueeze()}} with the given dimension \code{dim}.
 }
-\section{Input and Output Channels}{
+\section{nn_module}{
 
-One input channel called \code{"input"} and one output channel called \code{"output"}.
-For an explanation see \code{\link{PipeOpTorch}}.
-}
-
-\section{State}{
-
-The state is the value calculated by the public method \verb{$shapes_out()}.
+Calls \code{\link[=nn_unsqueeze]{nn_unsqueeze()}} when trained.
+This internally calls \code{\link[torch:torch_unsqueeze]{torch::torch_unsqueeze()}}.
 }
 
 \section{Parameters}{
@@ -28,10 +21,15 @@ The dimension which to unsqueeze. Negative values are interpreted downwards from
 }
 }
 
-\section{Internals}{
+\section{Input and Output Channels}{
 
-Calls \code{\link[=nn_unsqueeze]{nn_unsqueeze()}} when trained.
-This internally calls \code{\link[torch:torch_unsqueeze]{torch::torch_unsqueeze()}}.
+One input channel called \code{"input"} and one output channel called \code{"output"}.
+For an explanation see \code{\link{PipeOpTorch}}.
+}
+
+\section{State}{
+
+The state is the value calculated by the public method \verb{$shapes_out()}.
 }
 
 \examples{

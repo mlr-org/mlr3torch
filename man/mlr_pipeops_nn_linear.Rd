@@ -7,15 +7,10 @@
 \description{
 Applies a linear transformation to the incoming data: \eqn{y = xA^T + b}.
 }
-\section{Input and Output Channels}{
+\section{nn_module}{
 
-One input channel called \code{"input"} and one output channel called \code{"output"}.
-For an explanation see \code{\link{PipeOpTorch}}.
-}
-
-\section{State}{
-
-The state is the value calculated by the public method \verb{$shapes_out()}.
+Calls \code{\link[torch:nn_linear]{torch::nn_linear()}} when trained where the parameter \code{in_features} is inferred as the second
+to last dimension of the input tensor.
 }
 
 \section{Parameters}{
@@ -29,10 +24,15 @@ Default is \code{TRUE}.
 }
 }
 
-\section{Internals}{
+\section{Input and Output Channels}{
 
-Calls \code{\link[torch:nn_linear]{torch::nn_linear()}} when trained where the parameter \code{in_features} is inferred as the second
-to last dimension of the input tensor.
+One input channel called \code{"input"} and one output channel called \code{"output"}.
+For an explanation see \code{\link{PipeOpTorch}}.
+}
+
+\section{State}{
+
+The state is the value calculated by the public method \verb{$shapes_out()}.
 }
 
 \examples{

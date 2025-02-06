@@ -10,15 +10,8 @@ Applies element-wise,
 with \eqn{\alpha=1.6732632423543772848170429916717} and
 \eqn{scale=1.0507009873554804934193349852946}.
 }
-\section{Input and Output Channels}{
-
-One input channel called \code{"input"} and one output channel called \code{"output"}.
-For an explanation see \code{\link{PipeOpTorch}}.
-}
-
-\section{State}{
-
-The state is the value calculated by the public method \verb{$shapes_out()}.
+\section{nn_module}{
+ Calls \code{\link[torch:nn_selu]{torch::nn_selu()}} when trained.
 }
 
 \section{Parameters}{
@@ -29,8 +22,15 @@ Whether to do the operation in-place. Default: \code{FALSE}.
 }
 }
 
-\section{Internals}{
- Calls \code{\link[torch:nn_selu]{torch::nn_selu()}} when trained.
+\section{Input and Output Channels}{
+
+One input channel called \code{"input"} and one output channel called \code{"output"}.
+For an explanation see \code{\link{PipeOpTorch}}.
+}
+
+\section{State}{
+
+The state is the value calculated by the public method \verb{$shapes_out()}.
 }
 
 \examples{

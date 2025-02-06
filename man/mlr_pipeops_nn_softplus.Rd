@@ -7,15 +7,8 @@
 \description{
 Applies element-wise, the function \eqn{Softplus(x) = 1/\beta * log(1 + exp(\beta * x))}.
 }
-\section{Input and Output Channels}{
-
-One input channel called \code{"input"} and one output channel called \code{"output"}.
-For an explanation see \code{\link{PipeOpTorch}}.
-}
-
-\section{State}{
-
-The state is the value calculated by the public method \verb{$shapes_out()}.
+\section{nn_module}{
+ Calls \code{\link[torch:nn_softplus]{torch::nn_softplus()}} when trained.
 }
 
 \section{Parameters}{
@@ -28,8 +21,15 @@ Values above this revert to a linear function. Default: 20
 }
 }
 
-\section{Internals}{
- Calls \code{\link[torch:nn_softplus]{torch::nn_softplus()}} when trained.
+\section{Input and Output Channels}{
+
+One input channel called \code{"input"} and one output channel called \code{"output"}.
+For an explanation see \code{\link{PipeOpTorch}}.
+}
+
+\section{State}{
+
+The state is the value calculated by the public method \verb{$shapes_out()}.
 }
 
 \examples{

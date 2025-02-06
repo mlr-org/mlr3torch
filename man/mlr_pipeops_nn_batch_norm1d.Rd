@@ -7,15 +7,10 @@
 \description{
 Applies Batch Normalization for each channel across a batch of data.
 }
-\section{Input and Output Channels}{
+\section{nn_module}{
 
-One input channel called \code{"input"} and one output channel called \code{"output"}.
-For an explanation see \code{\link{PipeOpTorch}}.
-}
-
-\section{State}{
-
-The state is the value calculated by the public method \verb{$shapes_out()}.
+Calls \code{\link[torch:nn_batch_norm1d]{torch::nn_batch_norm1d()}}.
+The parameter \code{num_features} is inferred as the second dimension of the input shape.
 }
 
 \section{Parameters}{
@@ -35,10 +30,15 @@ Default: \code{TRUE}
 }
 }
 
-\section{Internals}{
+\section{Input and Output Channels}{
 
-Calls \code{\link[torch:nn_batch_norm1d]{torch::nn_batch_norm1d()}}.
-The parameter \code{num_features} is inferred as the second dimension of the input shape.
+One input channel called \code{"input"} and one output channel called \code{"output"}.
+For an explanation see \code{\link{PipeOpTorch}}.
+}
+
+\section{State}{
+
+The state is the value calculated by the public method \verb{$shapes_out()}.
 }
 
 \examples{

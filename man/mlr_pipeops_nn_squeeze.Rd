@@ -7,15 +7,9 @@
 \description{
 Squeezes a tensor by calling \code{\link[torch:torch_squeeze]{torch::torch_squeeze()}} with the given dimension \code{dim}.
 }
-\section{Input and Output Channels}{
+\section{nn_module}{
 
-One input channel called \code{"input"} and one output channel called \code{"output"}.
-For an explanation see \code{\link{PipeOpTorch}}.
-}
-
-\section{State}{
-
-The state is the value calculated by the public method \verb{$shapes_out()}.
+Calls \code{\link[=nn_squeeze]{nn_squeeze()}} when trained.
 }
 
 \section{Parameters}{
@@ -27,9 +21,15 @@ Negative values are interpreted downwards from the last dimension.
 }
 }
 
-\section{Internals}{
+\section{Input and Output Channels}{
 
-Calls \code{\link[=nn_squeeze]{nn_squeeze()}} when trained.
+One input channel called \code{"input"} and one output channel called \code{"output"}.
+For an explanation see \code{\link{PipeOpTorch}}.
+}
+
+\section{State}{
+
+The state is the value calculated by the public method \verb{$shapes_out()}.
 }
 
 \examples{

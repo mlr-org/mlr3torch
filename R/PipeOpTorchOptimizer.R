@@ -5,6 +5,9 @@
 #' @description
 #' Configures the optimizer of a deep learning model.
 #'
+#' @section Parameters:
+#' The parameters are defined dynamically from the optimizer that is set during construction.
+#'
 #' @section Input and Output Channels:
 #' There is one input channel `"input"` and one output channel `"output"`.
 #' During *training*, the channels are of class [`ModelDescriptor`].
@@ -12,8 +15,6 @@
 #'
 #' @template pipeop_torch_state_default
 #'
-#' @section Parameters:
-#' The parameters are defined dynamically from the optimizer that is set during construction.
 #' @section Internals:
 #' During training, the optimizer is cloned and added to the [`ModelDescriptor`].
 #' Note that the parameter set of the stored [`TorchOptimizer`] is reference-identical to the parameter set of the

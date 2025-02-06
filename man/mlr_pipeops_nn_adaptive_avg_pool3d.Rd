@@ -8,15 +8,9 @@
 Applies a 3D adaptive average pooling over an input signal composed of
 several input planes.
 }
-\section{Input and Output Channels}{
+\section{nn_module}{
 
-One input channel called \code{"input"} and one output channel called \code{"output"}.
-For an explanation see \code{\link{PipeOpTorch}}.
-}
-
-\section{State}{
-
-The state is the value calculated by the public method \verb{$shapes_out()}.
+Calls \code{\link[torch:nn_adaptive_avg_pool3d]{nn_adaptive_avg_pool3d()}} during training.
 }
 
 \section{Parameters}{
@@ -27,9 +21,15 @@ The target output size. Can be a single number or a vector.
 }
 }
 
-\section{Internals}{
+\section{Input and Output Channels}{
 
-Calls \code{\link[torch:nn_adaptive_avg_pool3d]{nn_adaptive_avg_pool3d()}} during training.
+One input channel called \code{"input"} and one output channel called \code{"output"}.
+For an explanation see \code{\link{PipeOpTorch}}.
+}
+
+\section{State}{
+
+The state is the value calculated by the public method \verb{$shapes_out()}.
 }
 
 \examples{

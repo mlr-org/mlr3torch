@@ -8,6 +8,12 @@
 Applies a 3D convolution over an input image composed of several input
 planes.
 }
+\section{nn_module}{
+
+Calls \code{\link[torch:nn_conv3d]{torch::nn_conv3d()}} when trained.
+The paramter \code{in_channels} is inferred from the second dimension of the input tensor.
+}
+
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
@@ -17,12 +23,6 @@ For an explanation see \code{\link{PipeOpTorch}}.
 \section{State}{
 
 The state is the value calculated by the public method \verb{$shapes_out()}.
-}
-
-\section{Internals}{
-
-Calls \code{\link[torch:nn_conv3d]{torch::nn_conv3d()}} when trained.
-The paramter \code{in_channels} is inferred from the second dimension of the input tensor.
 }
 
 \section{Parameters}{

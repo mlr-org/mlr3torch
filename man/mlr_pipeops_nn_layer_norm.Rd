@@ -7,15 +7,10 @@
 \description{
 Applies Layer Normalization for last certain number of dimensions.
 }
-\section{State}{
+\section{nn_module}{
 
-The state is the value calculated by the public method \verb{$shapes_out()}.
-}
-
-\section{Input and Output Channels}{
-
-One input channel called \code{"input"} and one output channel called \code{"output"}.
-For an explanation see \code{\link{PipeOpTorch}}.
+Calls \code{\link[torch:nn_layer_norm]{torch::nn_layer_norm()}} when trained.
+The parameter \code{normalized_shape} is inferred as the dimensions of the last \code{dims} dimensions of the input shape.
 }
 
 \section{Parameters}{
@@ -31,10 +26,15 @@ A value added to the denominator for numerical stability.
 }
 }
 
-\section{Internals}{
+\section{State}{
 
-Calls \code{\link[torch:nn_layer_norm]{torch::nn_layer_norm()}} when trained.
-The parameter \code{normalized_shape} is inferred as the dimensions of the last \code{dims} dimensions of the input shape.
+The state is the value calculated by the public method \verb{$shapes_out()}.
+}
+
+\section{Input and Output Channels}{
+
+One input channel called \code{"input"} and one output channel called \code{"output"}.
+For an explanation see \code{\link{PipeOpTorch}}.
 }
 
 \examples{

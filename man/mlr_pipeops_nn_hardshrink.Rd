@@ -7,15 +7,8 @@
 \description{
 Applies the hard shrinkage function element-wise
 }
-\section{Input and Output Channels}{
-
-One input channel called \code{"input"} and one output channel called \code{"output"}.
-For an explanation see \code{\link{PipeOpTorch}}.
-}
-
-\section{State}{
-
-The state is the value calculated by the public method \verb{$shapes_out()}.
+\section{nn_module}{
+ Calls \code{\link[torch:nn_hardshrink]{torch::nn_hardshrink()}} when trained.
 }
 
 \section{Parameters}{
@@ -26,8 +19,15 @@ The lambda value for the Hardshrink formulation formulation. Default 0.5.
 }
 }
 
-\section{Internals}{
- Calls \code{\link[torch:nn_hardshrink]{torch::nn_hardshrink()}} when trained.
+\section{Input and Output Channels}{
+
+One input channel called \code{"input"} and one output channel called \code{"output"}.
+For an explanation see \code{\link{PipeOpTorch}}.
+}
+
+\section{State}{
+
+The state is the value calculated by the public method \verb{$shapes_out()}.
 }
 
 \examples{

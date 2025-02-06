@@ -9,15 +9,9 @@ During training, randomly zeroes some of the elements of the input
 tensor with probability \code{p} using samples from a Bernoulli
 distribution.
 }
-\section{Input and Output Channels}{
+\section{nn_module}{
 
-One input channel called \code{"input"} and one output channel called \code{"output"}.
-For an explanation see \code{\link{PipeOpTorch}}.
-}
-
-\section{State}{
-
-The state is the value calculated by the public method \verb{$shapes_out()}.
+Calls \code{\link[torch:nn_dropout]{torch::nn_dropout()}} when trained.
 }
 
 \section{Parameters}{
@@ -30,9 +24,15 @@ If set to \code{TRUE}, will do this operation in-place. Default: \code{FALSE}.
 }
 }
 
-\section{Internals}{
+\section{Input and Output Channels}{
 
-Calls \code{\link[torch:nn_dropout]{torch::nn_dropout()}} when trained.
+One input channel called \code{"input"} and one output channel called \code{"output"}.
+For an explanation see \code{\link{PipeOpTorch}}.
+}
+
+\section{State}{
+
+The state is the value calculated by the public method \verb{$shapes_out()}.
 }
 
 \examples{

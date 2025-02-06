@@ -7,6 +7,15 @@
 \description{
 Applies the element-wise function \eqn{\mbox{Hardsigmoid}(x) = \frac{ReLU6(x + 3)}{6}}
 }
+\section{nn_module}{
+ Calls \code{\link[torch:nn_hardsigmoid]{torch::nn_hardsigmoid()}} when trained.
+}
+
+\section{Parameters}{
+
+No parameters.
+}
+
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
@@ -16,15 +25,6 @@ For an explanation see \code{\link{PipeOpTorch}}.
 \section{State}{
 
 The state is the value calculated by the public method \verb{$shapes_out()}.
-}
-
-\section{Parameters}{
-
-No parameters.
-}
-
-\section{Internals}{
- Calls \code{\link[torch:nn_hardsigmoid]{torch::nn_hardsigmoid()}} when trained.
 }
 
 \examples{

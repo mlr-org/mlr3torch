@@ -8,21 +8,14 @@
 Applies a 2D max pooling over an input signal composed of several input
 planes.
 }
-\section{State}{
-
-The state is the value calculated by the public method \verb{$shapes_out()}.
-}
-
-\section{Internals}{
+\section{nn_module}{
 
 Calls \code{\link[torch:nn_max_pool2d]{torch::nn_max_pool2d()}} during training.
 }
 
-\section{Input and Output Channels}{
+\section{State}{
 
-If \code{return_indices} is \code{FALSE} during construction, there is one input channel 'input' and one output channel 'output'.
-If \code{return_indices} is \code{TRUE}, there are two output channels 'output' and 'indices'.
-For an explanation see \code{\link{PipeOpTorch}}.
+The state is the value calculated by the public method \verb{$shapes_out()}.
 }
 
 \section{Parameters}{
@@ -39,6 +32,13 @@ Controls the spacing between the kernel points; also known as the à trous algor
 \item \code{ceil_mode} :: \code{logical(1)}\cr
 When True, will use ceil instead of floor to compute the output shape. Default: \code{FALSE}
 }
+}
+
+\section{Input and Output Channels}{
+
+If \code{return_indices} is \code{FALSE} during construction, there is one input channel 'input' and one output channel 'output'.
+If \code{return_indices} is \code{TRUE}, there are two output channels 'output' and 'indices'.
+For an explanation see \code{\link{PipeOpTorch}}.
 }
 
 \examples{

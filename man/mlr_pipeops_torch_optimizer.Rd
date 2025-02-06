@@ -7,6 +7,11 @@
 \description{
 Configures the optimizer of a deep learning model.
 }
+\section{Parameters}{
+
+The parameters are defined dynamically from the optimizer that is set during construction.
+}
+
 \section{Input and Output Channels}{
 
 There is one input channel \code{"input"} and one output channel \code{"output"}.
@@ -17,11 +22,6 @@ During \emph{prediction}, the channels are of class \code{\link[mlr3:Task]{Task}
 \section{State}{
 
 The state is the value calculated by the public method \code{shapes_out()}.
-}
-
-\section{Parameters}{
-
-The parameters are defined dynamically from the optimizer that is set during construction.
 }
 
 \section{Internals}{

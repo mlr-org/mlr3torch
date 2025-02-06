@@ -7,15 +7,8 @@
 \description{
 Applies element-wise, \eqn{CELU(x) = max(0,x) + min(0, \alpha * (exp(x \alpha) - 1))}.
 }
-\section{Input and Output Channels}{
-
-One input channel called \code{"input"} and one output channel called \code{"output"}.
-For an explanation see \code{\link{PipeOpTorch}}.
-}
-
-\section{State}{
-
-The state is the value calculated by the public method \verb{$shapes_out()}.
+\section{nn_module}{
+ Calls \code{\link[torch:nn_celu]{torch::nn_celu()}} when trained.
 }
 
 \section{Parameters}{
@@ -28,8 +21,15 @@ Whether to do the operation in-place. Default: \code{FALSE}.
 }
 }
 
-\section{Internals}{
- Calls \code{\link[torch:nn_celu]{torch::nn_celu()}} when trained.
+\section{Input and Output Channels}{
+
+One input channel called \code{"input"} and one output channel called \code{"output"}.
+For an explanation see \code{\link{PipeOpTorch}}.
+}
+
+\section{State}{
+
+The state is the value calculated by the public method \verb{$shapes_out()}.
 }
 
 \examples{

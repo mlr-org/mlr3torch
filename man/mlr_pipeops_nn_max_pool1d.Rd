@@ -8,16 +8,9 @@
 Applies a 1D max pooling over an input signal composed of several input
 planes.
 }
-\section{Input and Output Channels}{
+\section{nn_module}{
 
-If \code{return_indices} is \code{FALSE} during construction, there is one input channel 'input' and one output channel 'output'.
-If \code{return_indices} is \code{TRUE}, there are two output channels 'output' and 'indices'.
-For an explanation see \code{\link{PipeOpTorch}}.
-}
-
-\section{State}{
-
-The state is the value calculated by the public method \verb{$shapes_out()}.
+Calls \code{\link[torch:nn_max_pool1d]{torch::nn_max_pool1d()}} during training.
 }
 
 \section{Parameters}{
@@ -36,9 +29,16 @@ When True, will use ceil instead of floor to compute the output shape. Default: 
 }
 }
 
-\section{Internals}{
+\section{Input and Output Channels}{
 
-Calls \code{\link[torch:nn_max_pool1d]{torch::nn_max_pool1d()}} during training.
+If \code{return_indices} is \code{FALSE} during construction, there is one input channel 'input' and one output channel 'output'.
+If \code{return_indices} is \code{TRUE}, there are two output channels 'output' and 'indices'.
+For an explanation see \code{\link{PipeOpTorch}}.
+}
+
+\section{State}{
+
+The state is the value calculated by the public method \verb{$shapes_out()}.
 }
 
 \examples{

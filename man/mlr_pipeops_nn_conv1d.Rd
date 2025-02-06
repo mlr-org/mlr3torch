@@ -8,15 +8,10 @@
 Applies a 1D convolution over an input signal composed of several input
 planes.
 }
-\section{Input and Output Channels}{
+\section{nn_module}{
 
-One input channel called \code{"input"} and one output channel called \code{"output"}.
-For an explanation see \code{\link{PipeOpTorch}}.
-}
-
-\section{State}{
-
-The state is the value calculated by the public method \verb{$shapes_out()}.
+Calls \code{\link[torch:nn_conv1d]{torch::nn_conv1d()}} when trained.
+The paramter \code{in_channels} is inferred from the second dimension of the input tensor.
 }
 
 \section{Parameters}{
@@ -41,10 +36,15 @@ The padding mode. One of \code{"zeros"}, \code{"reflect"}, \code{"replicate"}, o
 }
 }
 
-\section{Internals}{
+\section{Input and Output Channels}{
 
-Calls \code{\link[torch:nn_conv1d]{torch::nn_conv1d()}} when trained.
-The paramter \code{in_channels} is inferred from the second dimension of the input tensor.
+One input channel called \code{"input"} and one output channel called \code{"output"}.
+For an explanation see \code{\link{PipeOpTorch}}.
+}
+
+\section{State}{
+
+The state is the value calculated by the public method \verb{$shapes_out()}.
 }
 
 \examples{
