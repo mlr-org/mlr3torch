@@ -86,6 +86,7 @@
 <li><p><a href="#method-CallbackSetProgress-on_before_valid"><code>CallbackSetProgress$on_before_valid()</code></a></p></li>
 <li><p><a href="#method-CallbackSetProgress-on_batch_valid_end"><code>CallbackSetProgress$on_batch_valid_end()</code></a></p></li>
 <li><p><a href="#method-CallbackSetProgress-on_epoch_end"><code>CallbackSetProgress$on_epoch_end()</code></a></p></li>
+<li><p><a href="#method-CallbackSetProgress-on_end"><code>CallbackSetProgress$on_end()</code></a></p></li>
 <li><p><a href="#method-CallbackSetProgress-clone"><code>CallbackSetProgress$clone()</code></a></p></li>
 </ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="load_state_dict"><a href="CallbackSet.html#method-load_state_dict"><code>mlr3torch::CallbackSet$load_state_dict()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href="CallbackSet.html#method-print"><code>mlr3torch::CallbackSet$print()</code></a></span></li>
@@ -130,10 +131,18 @@
 </div>
 
 
+</div><p></p><hr><a id="method-CallbackSetProgress-on_end"></a><div class="section">
+<h3 id="method-on-end-">Method <code>on_end()</code><a class="anchor" aria-label="anchor" href="#method-on-end-"></a></h3>
+<p>Prints the time at the end of training.</p><div class="section">
+<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetProgress</span><span class="op">$</span><span class="fu">on_end</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+
 </div><p></p><hr><a id="method-CallbackSetProgress-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
+<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetProgress</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -162,7 +171,7 @@
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 1 started (2025-02-06 08:05:59)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 1]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
@@ -171,7 +180,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.69</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.62</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 2 started (2025-02-06 08:05:59)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 2]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
@@ -180,7 +189,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.69</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.62</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 3 started (2025-02-06 08:06:00)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 3]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
@@ -189,7 +198,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.70</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.44</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 4 started (2025-02-06 08:06:00)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 4]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
@@ -198,7 +207,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.60</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.36</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 5 started (2025-02-06 08:06:00)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 5]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
@@ -207,6 +216,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.51</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Finished training for 5 epochs (2025-02-06 08:06:01)</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
