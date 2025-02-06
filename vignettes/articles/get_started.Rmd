@@ -93,12 +93,6 @@ Its `ParamSet` contains only one parameter, namely `reduction`, which specifies 
 l1$param_set
 ```
 
-The wrapped loss module generator is accessible through the slot `$generator`.
-
-```{r}
-l1$generator
-```
-
 We can pass the `TorchLoss` as the argument `loss` during initialization of the learner.
 The parameters of the loss are added to the learner's `ParamSet`, prefixed with `"loss."`.
 
@@ -126,8 +120,6 @@ sgd
 
 sgd$param_set
 ```
-
-The wrapped torch optimizer can be accessed through the slot `generator`.
 
 Parameters of `TorchOptimizer` (but also `TorchLoss` and `TorchCallback`) can be set in the usual `mlr3` way, i.e. either during construction, or afterwards using the `$set_values()` method of the parameter set.
 

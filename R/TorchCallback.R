@@ -362,7 +362,7 @@ as.data.table.DictionaryMlr3torchCallbacks = function(x, ...) { # nolint
     list(
       key = key,
       label = cb$label,
-      packages = paste0(cb$packages, collapse = ",")
+      packages = list(cb$packages)
     )
   }), "key")[]
 }

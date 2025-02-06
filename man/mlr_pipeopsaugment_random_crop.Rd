@@ -3,7 +3,7 @@
 \name{mlr_pipeops_augment_random_crop}
 \alias{mlr_pipeops_augment_random_crop}
 \alias{PipeOpPreprocTorchAugmentRandomCrop}
-\title{PipeOpPreprocTorchAugmentRandomCrop}
+\title{Random Crop Augmentation}
 \format{
 \code{\link[R6:R6Class]{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
 }

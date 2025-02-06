@@ -165,7 +165,7 @@ as.data.table.DictionaryMlr3torchOptimizers = function(x, ...) {
     list(
       key = key,
       label = opt$label,
-      packages = paste0(opt$packages, collapse = ",")
+      packages = list(opt$packages)
     )}), "key")[]
 }
 
@@ -247,7 +247,7 @@ mlr3torch_optimizers$add("adamw",
       param_set = p,
       id = "adam",
       label = "Decoupled Weight Decay Regularization",
-      man = "torch::optim_adamw"
+      man = "torch::optim_ignite_adamw"
     )
   }
 )
@@ -273,7 +273,7 @@ mlr3torch_optimizers$add("adam",
       param_set = p,
       id = "adam",
       label = "Adaptive Moment Estimation",
-      man = "torch::optim_adam"
+      man = "torch::optim_ignite_adam"
     )
   }
 )
@@ -293,7 +293,7 @@ mlr3torch_optimizers$add("sgd",
       param_set = p,
       id = "sgd",
       label = "Stochastic Gradient Descent",
-      man = "torch::optim_sgd"
+      man = "torch::optim_ignite_sgd"
     )
   }
 )
@@ -315,7 +315,7 @@ mlr3torch_optimizers$add("rmsprop",
       param_set = p,
       id = "rmsprop",
       label = "Root Mean Square Propagation",
-      man = "torch::optim_rmsprop"
+      man = "torch::optim_ignite_rmsprop"
     )
   }
 )
@@ -335,7 +335,7 @@ mlr3torch_optimizers$add("adagrad",
       param_set = p,
       id = "adagrad",
       label = "Adaptive Gradient algorithm",
-      man = "torch::optim_adagrad"
+      man = "torch::optim_ignite_adagrad"
     )
   }
 )

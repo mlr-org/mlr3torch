@@ -3,7 +3,7 @@
 \name{mlr_pipeops_augment_rotate}
 \alias{mlr_pipeops_augment_rotate}
 \alias{PipeOpPreprocTorchAugmentRotate}
-\title{PipeOpPreprocTorchAugmentRotate}
+\title{Rotate Augmentation}
 \format{
 \code{\link[R6:R6Class]{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
 }

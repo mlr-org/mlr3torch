@@ -3,7 +3,7 @@
 \name{mlr_pipeops_trafo_normalize}
 \alias{mlr_pipeops_trafo_normalize}
 \alias{PipeOpPreprocTorchTrafoNormalize}
-\title{PipeOpPreprocTorchTrafoNormalize}
+\title{Normalization Transformation}
 \format{
 \code{\link[R6:R6Class]{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
 }

@@ -3,7 +3,7 @@
 \name{mlr_pipeops_trafo_pad}
 \alias{mlr_pipeops_trafo_pad}
 \alias{PipeOpPreprocTorchTrafoPad}
-\title{PipeOpPreprocTorchTrafoPad}
+\title{Padding Transformation}
 \format{
 \code{\link[R6:R6Class]{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
 }

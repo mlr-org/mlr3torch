@@ -1,0 +1,23 @@
+---
+title: "Vision Learners"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vision Learners}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+Below are the image learners from [`torchvision`](https://github.com/mlverse/torchvision):
+An overview of all learners can also be found on the [mlr-org website](https://mlr-org.com/learners.html).
+
+```{r, echo = FALSE, message = FALSE}
+library(data.table)
+library(mlr3torch)
+content = as.data.table(mlr3::mlr_learners)[, c("key", "label", "task_type", "feature_types", "packages")]
+mlr3torch_ids = names(getFromNamespace("mlr3torch_learners", "mlr3torch"))
+content = content[key %in% mlr3torch_ids]
+is_vision = sapply(content$packages, function(ps) "torchvision" %in% ps)
+content$packages = lapply(content$packages, function(ps) setdiff(ps, c("mlr3torch", "torch", "mlr3")))
+content_vision = content[is_vision, ]
+knitr::kable(content_vision)
+```

@@ -3,7 +3,7 @@
 \name{mlr_pipeops_augment_random_affine}
 \alias{mlr_pipeops_augment_random_affine}
 \alias{PipeOpPreprocTorchAugmentRandomAffine}
-\title{PipeOpPreprocTorchAugmentRandomAffine}
+\title{Random Affine Augmentation}
 \format{
 \code{\link[R6:R6Class]{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
 }

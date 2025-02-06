@@ -27,11 +27,6 @@ it received during construction.
 The state is the value calculated by the public method \verb{$shapes_out()}.
 }
 
-\section{Credit}{
-
-Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
-}
-
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 block = po("nn_linear") \%>>\% po("nn_relu")

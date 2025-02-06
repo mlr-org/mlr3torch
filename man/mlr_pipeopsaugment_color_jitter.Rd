@@ -3,7 +3,7 @@
 \name{mlr_pipeops_augment_color_jitter}
 \alias{mlr_pipeops_augment_color_jitter}
 \alias{PipeOpPreprocTorchAugmentColorJitter}
-\title{PipeOpPreprocTorchAugmentColorJitter}
+\title{Color Jitter Augmentation}
 \format{
 \code{\link[R6:R6Class]{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
 }
