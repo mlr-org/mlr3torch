@@ -16,16 +16,29 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html"><span class="fa fa-file-alt"></span> Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/callbacks.html">Custom Callbacks</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><h6 class="dropdown-header" data-toc-skip>Tutorials</h6></li>
     <li><a class="dropdown-item" href="../articles/get_started.html">Get Started</a></li>
-    <li><a class="dropdown-item" href="../articles/internals_pipeop_torch.html">Internals</a></li>
-    <li><a class="dropdown-item" href="../articles/lazy_tensor.html">Lazy Tensor</a></li>
     <li><a class="dropdown-item" href="../articles/pipeop_torch.html">Defining an Architecture</a></li>
+    <li><a class="dropdown-item" href="../articles/callbacks.html">Callbacks</a></li>
+    <li><a class="dropdown-item" href="../articles/lazy_tensor.html">Non-Tabular Data</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Internals</h6></li>
+    <li><a class="dropdown-item" href="../articles/internals_pipeop_torch.html">Networks as Graphs</a></li>
+  </ul></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-overview" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Overview</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-overview"><li><a class="dropdown-item" href="../articles/task_list.html">Tasks</a></li>
+    <li><a class="dropdown-item" href="../articles/preprocessing_list.html">Preprocessing &amp; Augmentation</a></li>
+    <li><a class="dropdown-item" href="../articles/optimizer_list.html">Optimizers</a></li>
+    <li><a class="dropdown-item" href="../articles/loss_list.html">Losses</a></li>
+    <li><a class="dropdown-item" href="../articles/callback_list.html">Callbacks</a></li>
+    <li><a class="dropdown-item" href="../articles/learner_list.html">Learners</a></li>
+    <li><a class="dropdown-item" href="../articles/layer_list.html">Network Layers</a></li>
   </ul></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://mlr3book.mlr-org.com"><span class="fa fa-link"></span> mlr3book</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/mlr-org/mlr3torch"><span class="fa fa-github"></span></a></li>
@@ -647,151 +660,151 @@
           <code><a href="PipeOpPreprocTorchTrafoNop.html">mlr_pipeops_trafo_nop</a></code> <code><a href="PipeOpPreprocTorchTrafoNop.html">PipeOpPreprocTorchTrafoNop</a></code>
 
         </dt>
-        <dd>PipeOpPreprocTorchTrafoNop</dd>
+        <dd>No Transformation</dd>
       </dl><dl><dt>
 
           <code><a href="PipeOpPreprocTorchTrafoReshape.html">mlr_pipeops_trafo_reshape</a></code> <code><a href="PipeOpPreprocTorchTrafoReshape.html">PipeOpPreprocTorchTrafoReshape</a></code>
 
         </dt>
-        <dd>PipeOpPreprocTorchTrafoReshape</dd>
+        <dd>Reshaping Transformation</dd>
       </dl><dl><dt>
 
           <code><a href="mlr_pipeopsaugment_center_crop.html">mlr_pipeops_augment_center_crop</a></code> <code><a href="mlr_pipeopsaugment_center_crop.html">PipeOpPreprocTorchAugmentCenterCrop</a></code>
 
         </dt>
-        <dd>PipeOpPreprocTorchAugmentCenterCrop</dd>
+        <dd>Center Crop Augmentation</dd>
       </dl><dl><dt>
 
           <code><a href="mlr_pipeopsaugment_color_jitter.html">mlr_pipeops_augment_color_jitter</a></code> <code><a href="mlr_pipeopsaugment_color_jitter.html">PipeOpPreprocTorchAugmentColorJitter</a></code>
 
         </dt>
-        <dd>PipeOpPreprocTorchAugmentColorJitter</dd>
+        <dd>Color Jitter Augmentation</dd>
       </dl><dl><dt>
 
           <code><a href="mlr_pipeopsaugment_crop.html">mlr_pipeops_augment_crop</a></code> <code><a href="mlr_pipeopsaugment_crop.html">PipeOpPreprocTorchAugmentCrop</a></code>
 
         </dt>
-        <dd>PipeOpPreprocTorchAugmentCrop</dd>
+        <dd>Crop Augmentation</dd>
       </dl><dl><dt>
 
           <code><a href="mlr_pipeopsaugment_hflip.html">mlr_pipeops_augment_hflip</a></code> <code><a href="mlr_pipeopsaugment_hflip.html">PipeOpPreprocTorchAugmentHflip</a></code>
 
         </dt>
-        <dd>PipeOpPreprocTorchAugmentHflip</dd>
+        <dd>Horizontal Flip Augmentation</dd>
       </dl><dl><dt>
 
           <code><a href="mlr_pipeopsaugment_random_affine.html">mlr_pipeops_augment_random_affine</a></code> <code><a href="mlr_pipeopsaugment_random_affine.html">PipeOpPreprocTorchAugmentRandomAffine</a></code>
 
         </dt>
-        <dd>PipeOpPreprocTorchAugmentRandomAffine</dd>
+        <dd>Random Affine Augmentation</dd>
       </dl><dl><dt>
 
           <code><a href="mlr_pipeopsaugment_random_choice.html">mlr_pipeops_augment_random_choice</a></code> <code><a href="mlr_pipeopsaugment_random_choice.html">PipeOpPreprocTorchAugmentRandomChoice</a></code>
 
         </dt>
-        <dd>PipeOpPreprocTorchAugmentRandomChoice</dd>
+        <dd>Random Choice Augmentation</dd>
       </dl><dl><dt>
 
           <code><a href="mlr_pipeopsaugment_random_crop.html">mlr_pipeops_augment_random_crop</a></code> <code><a href="mlr_pipeopsaugment_random_crop.html">PipeOpPreprocTorchAugmentRandomCrop</a></code>
 
         </dt>
-        <dd>PipeOpPreprocTorchAugmentRandomCrop</dd>
+        <dd>Random Crop Augmentation</dd>
       </dl><dl><dt>
 
           <code><a href="mlr_pipeopsaugment_random_horizontal_flip.html">mlr_pipeops_augment_random_horizontal_flip</a></code> <code><a href="mlr_pipeopsaugment_random_horizontal_flip.html">PipeOpPreprocTorchAugmentRandomHorizontalFlip</a></code>
 
         </dt>
-        <dd>PipeOpPreprocTorchAugmentRandomHorizontalFlip</dd>
+        <dd>Random Horizontal Flip Augmentation</dd>
       </dl><dl><dt>
 
           <code><a href="mlr_pipeopsaugment_random_order.html">mlr_pipeops_augment_random_order</a></code> <code><a href="mlr_pipeopsaugment_random_order.html">PipeOpPreprocTorchAugmentRandomOrder</a></code>
 
         </dt>
-        <dd>PipeOpPreprocTorchAugmentRandomOrder</dd>
+        <dd>Random Order Augmentation</dd>
       </dl><dl><dt>
 
           <code><a href="mlr_pipeopsaugment_random_resized_crop.html">mlr_pipeops_augment_random_resized_crop</a></code> <code><a href="mlr_pipeopsaugment_random_resized_crop.html">PipeOpPreprocTorchAugmentRandomResizedCrop</a></code>
 
         </dt>
-        <dd>PipeOpPreprocTorchAugmentRandomResizedCrop</dd>
+        <dd>Random Resized Crop Augmentation</dd>
       </dl><dl><dt>
 
           <code><a href="mlr_pipeopsaugment_random_vertical_flip.html">mlr_pipeops_augment_random_vertical_flip</a></code> <code><a href="mlr_pipeopsaugment_random_vertical_flip.html">PipeOpPreprocTorchAugmentRandomVerticalFlip</a></code>
 
         </dt>
-        <dd>PipeOpPreprocTorchAugmentRandomVerticalFlip</dd>
+        <dd>Random Vertical Flip Augmentation</dd>
       </dl><dl><dt>
 
           <code><a href="mlr_pipeopsaugment_resized_crop.html">mlr_pipeops_augment_resized_crop</a></code> <code><a href="mlr_pipeopsaugment_resized_crop.html">PipeOpPreprocTorchAugmentResizedCrop</a></code>
 
         </dt>
-        <dd>PipeOpPreprocTorchAugmentResizedCrop</dd>
+        <dd>Resized Crop Augmentation</dd>
       </dl><dl><dt>
 
           <code><a href="mlr_pipeopsaugment_rotate.html">mlr_pipeops_augment_rotate</a></code> <code><a href="mlr_pipeopsaugment_rotate.html">PipeOpPreprocTorchAugmentRotate</a></code>
 
         </dt>
-        <dd>PipeOpPreprocTorchAugmentRotate</dd>
+        <dd>Rotate Augmentation</dd>
       </dl><dl><dt>
 
           <code><a href="mlr_pipeopsaugment_vflip.html">mlr_pipeops_augment_vflip</a></code> <code><a href="mlr_pipeopsaugment_vflip.html">PipeOpPreprocTorchAugmentVflip</a></code>
 
         </dt>
-        <dd>PipeOpPreprocTorchAugmentVflip</dd>
+        <dd>Vertical Flip Augmentation</dd>
       </dl><dl><dt>
 
           <code><a href="mlr_pipeopstrafo_adjust_brightness.html">mlr_pipeops_trafo_adjust_brightness</a></code> <code><a href="mlr_pipeopstrafo_adjust_brightness.html">PipeOpPreprocTorchTrafoAdjustBrightness</a></code>
 
         </dt>
-        <dd>PipeOpPreprocTorchTrafoAdjustBrightness</dd>
+        <dd>Adjust Brightness Transformation</dd>
       </dl><dl><dt>
 
           <code><a href="mlr_pipeopstrafo_adjust_gamma.html">mlr_pipeops_trafo_adjust_gamma</a></code> <code><a href="mlr_pipeopstrafo_adjust_gamma.html">PipeOpPreprocTorchTrafoAdjustGamma</a></code>
 
         </dt>
-        <dd>PipeOpPreprocTorchTrafoAdjustGamma</dd>
+        <dd>Adjust Gamma Transformation</dd>
       </dl><dl><dt>
 
           <code><a href="mlr_pipeopstrafo_adjust_hue.html">mlr_pipeops_trafo_adjust_hue</a></code> <code><a href="mlr_pipeopstrafo_adjust_hue.html">PipeOpPreprocTorchTrafoAdjustHue</a></code>
 
         </dt>
-        <dd>PipeOpPreprocTorchTrafoAdjustHue</dd>
+        <dd>Adjust Hue Transformation</dd>
       </dl><dl><dt>
 
           <code><a href="mlr_pipeopstrafo_adjust_saturation.html">mlr_pipeops_trafo_adjust_saturation</a></code> <code><a href="mlr_pipeopstrafo_adjust_saturation.html">PipeOpPreprocTorchTrafoAdjustSaturation</a></code>
 
         </dt>
-        <dd>PipeOpPreprocTorchTrafoAdjustSaturation</dd>
+        <dd>Adjust Saturation Transformation</dd>
       </dl><dl><dt>
 
           <code><a href="mlr_pipeopstrafo_grayscale.html">mlr_pipeops_trafo_grayscale</a></code> <code><a href="mlr_pipeopstrafo_grayscale.html">PipeOpPreprocTorchTrafoGrayscale</a></code>
 
         </dt>
-        <dd>PipeOpPreprocTorchTrafoGrayscale</dd>
+        <dd>Grayscale Transformation</dd>
       </dl><dl><dt>
 
           <code><a href="mlr_pipeopstrafo_normalize.html">mlr_pipeops_trafo_normalize</a></code> <code><a href="mlr_pipeopstrafo_normalize.html">PipeOpPreprocTorchTrafoNormalize</a></code>
 
         </dt>
-        <dd>PipeOpPreprocTorchTrafoNormalize</dd>
+        <dd>Normalization Transformation</dd>
       </dl><dl><dt>
 
           <code><a href="mlr_pipeopstrafo_pad.html">mlr_pipeops_trafo_pad</a></code> <code><a href="mlr_pipeopstrafo_pad.html">PipeOpPreprocTorchTrafoPad</a></code>
 
         </dt>
-        <dd>PipeOpPreprocTorchTrafoPad</dd>
+        <dd>Padding Transformation</dd>
       </dl><dl><dt>
 
           <code><a href="mlr_pipeopstrafo_resize.html">mlr_pipeops_trafo_resize</a></code> <code><a href="mlr_pipeopstrafo_resize.html">PipeOpPreprocTorchTrafoResize</a></code>
 
         </dt>
-        <dd>PipeOpPreprocTorchTrafoResize</dd>
+        <dd>Resizing Transformation</dd>
       </dl><dl><dt>
 
           <code><a href="mlr_pipeopstrafo_rgb_to_grayscale.html">mlr_pipeops_trafo_rgb_to_grayscale</a></code> <code><a href="mlr_pipeopstrafo_rgb_to_grayscale.html">PipeOpPreprocTorchTrafoRgbToGrayscale</a></code>
 
         </dt>
-        <dd>PipeOpPreprocTorchTrafoRgbToGrayscale</dd>
+        <dd>RGB to Grayscale Transformation</dd>
       </dl></div><div class="section level2">
       <h2 id="nn-modules">NN Modules<a class="anchor" aria-label="anchor" href="#nn-modules"></a></h2>
 

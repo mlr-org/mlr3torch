@@ -16,16 +16,29 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html"><span class="fa fa-file-alt"></span> Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/callbacks.html">Custom Callbacks</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><h6 class="dropdown-header" data-toc-skip>Tutorials</h6></li>
     <li><a class="dropdown-item" href="../articles/get_started.html">Get Started</a></li>
-    <li><a class="dropdown-item" href="../articles/internals_pipeop_torch.html">Internals</a></li>
-    <li><a class="dropdown-item" href="../articles/lazy_tensor.html">Lazy Tensor</a></li>
     <li><a class="dropdown-item" href="../articles/pipeop_torch.html">Defining an Architecture</a></li>
+    <li><a class="dropdown-item" href="../articles/callbacks.html">Callbacks</a></li>
+    <li><a class="dropdown-item" href="../articles/lazy_tensor.html">Non-Tabular Data</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Internals</h6></li>
+    <li><a class="dropdown-item" href="../articles/internals_pipeop_torch.html">Networks as Graphs</a></li>
+  </ul></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-overview" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Overview</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-overview"><li><a class="dropdown-item" href="../articles/task_list.html">Tasks</a></li>
+    <li><a class="dropdown-item" href="../articles/preprocessing_list.html">Preprocessing &amp; Augmentation</a></li>
+    <li><a class="dropdown-item" href="../articles/optimizer_list.html">Optimizers</a></li>
+    <li><a class="dropdown-item" href="../articles/loss_list.html">Losses</a></li>
+    <li><a class="dropdown-item" href="../articles/callback_list.html">Callbacks</a></li>
+    <li><a class="dropdown-item" href="../articles/learner_list.html">Learners</a></li>
+    <li><a class="dropdown-item" href="../articles/layer_list.html">Network Layers</a></li>
   </ul></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://mlr3book.mlr-org.com"><span class="fa fa-link"></span> mlr3book</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/mlr-org/mlr3torch"><span class="fa fa-github"></span></a></li>
@@ -171,7 +184,7 @@
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">learner</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 1 started (2025-02-06 08:05:59)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 1 started (2025-02-06 15:49:56)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 1]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
@@ -180,7 +193,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.69</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.62</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 2 started (2025-02-06 08:05:59)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 2 started (2025-02-06 15:49:56)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 2]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
@@ -189,7 +202,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.69</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.62</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 3 started (2025-02-06 08:06:00)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 3 started (2025-02-06 15:49:57)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 3]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
@@ -198,7 +211,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.70</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.44</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 4 started (2025-02-06 08:06:00)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 4 started (2025-02-06 15:49:57)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 4]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
@@ -207,7 +220,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.60</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.36</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 5 started (2025-02-06 08:06:00)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Epoch 5 started (2025-02-06 15:49:57)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [Summary epoch 5]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ------------------</span>
@@ -216,7 +229,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.51</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Measures (Valid):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  * classif.ce = 0.36</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Finished training for 5 epochs (2025-02-06 08:06:01)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Finished training for 5 epochs (2025-02-06 15:49:58)</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
