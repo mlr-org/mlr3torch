@@ -1,0 +1,23 @@
+---
+title: "Preprocessing & Augmentation"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Preprocessing & Augmentation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+The table below shows all preprocessing and augmentation operations that are available in `mlr3torch`.
+
+```{r, echo = FALSE, message = FALSE}
+library(data.table)
+library(mlr3torch)
+content = as.data.table(mlr3pipelines::mlr_pipeops)
+content$packages = lapply(content$packages, function(ps) setdiff(ps, c("mlr3torch", "mlr3pipelines")))
+mlr3torch_ids = names(getFromNamespace("mlr3torch_pipeops", "mlr3torch"))
+content = content[key %in% mlr3torch_ids & grepl("^(trafo|augment)", key)]
+content$key = sapply(content$key, function(key) sprintf("[%s](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_%s.html)", key, key))
+content = content[, .(key, label, packages, feature_types)]
+names(content) = c("Key", "Label", "Packages", "Feature Types")
+knitr::kable(content)
+```

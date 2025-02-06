@@ -18,11 +18,6 @@ Calls \code{\link[torch:nn_max_pool2d]{torch::nn_max_pool2d()}} during training.
 The state is the value calculated by the public method \verb{$shapes_out()}.
 }
 
-\section{Credit}{
-
-Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
-}
-
 \section{Parameters}{
 
 \itemize{

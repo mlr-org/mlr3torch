@@ -28,11 +28,6 @@ Can optionally do the operation in-place. Default: \code{FALSE}.
 The state is the value calculated by the public method \verb{$shapes_out()}.
 }
 
-\section{Credit}{
-
-Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
-}
-
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Construct the PipeOp

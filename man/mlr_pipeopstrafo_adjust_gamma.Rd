@@ -3,7 +3,7 @@
 \name{mlr_pipeops_trafo_adjust_gamma}
 \alias{mlr_pipeops_trafo_adjust_gamma}
 \alias{PipeOpPreprocTorchTrafoAdjustGamma}
-\title{PipeOpPreprocTorchTrafoAdjustGamma}
+\title{Adjust Gamma Transformation}
 \format{
 \code{\link[R6:R6Class]{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
 }

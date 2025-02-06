@@ -3,7 +3,7 @@
 \name{mlr_pipeops_trafo_grayscale}
 \alias{mlr_pipeops_trafo_grayscale}
 \alias{PipeOpPreprocTorchTrafoGrayscale}
-\title{PipeOpPreprocTorchTrafoGrayscale}
+\title{Grayscale Transformation}
 \format{
 \code{\link[R6:R6Class]{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
 }

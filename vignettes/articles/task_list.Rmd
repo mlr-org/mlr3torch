@@ -1,0 +1,23 @@
+---
+title: "Tasks"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Tasks}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+The table below shows all tasks that are added by `mlr3torch`.
+An overview of all tasks can also be found on the [mlr-org website](https://mlr-org.com/tasks.html).
+
+```{r, echo = FALSE, message = FALSE}
+library(data.table)
+library(mlr3torch)
+content = as.data.table(mlr3::mlr_tasks)[, .(key, label, task_type, nrow, ncol)]
+mlr3torch_ids = names(getFromNamespace("mlr3torch_tasks", "mlr3torch"))
+content = content[key %in% mlr3torch_ids]
+content$key = sapply(content$key, function(key) sprintf("[%s](https://mlr3torch.mlr-org.com/reference/%s.html)", key, sub("mlr3torch::", "", tsk(key)$man)))
+content = content[, .(key, label, task_type, nrow, ncol)]
+colnames(content) = c("Key", "Label", "Task Type", "Rows", "Columns")
+knitr::kable(content)
+```

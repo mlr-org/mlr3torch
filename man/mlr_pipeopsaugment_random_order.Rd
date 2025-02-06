@@ -3,7 +3,7 @@
 \name{mlr_pipeops_augment_random_order}
 \alias{mlr_pipeops_augment_random_order}
 \alias{PipeOpPreprocTorchAugmentRandomOrder}
-\title{PipeOpPreprocTorchAugmentRandomOrder}
+\title{Random Order Augmentation}
 \format{
 \code{\link[R6:R6Class]{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
 }

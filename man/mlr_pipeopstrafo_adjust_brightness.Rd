@@ -3,7 +3,7 @@
 \name{mlr_pipeops_trafo_adjust_brightness}
 \alias{mlr_pipeops_trafo_adjust_brightness}
 \alias{PipeOpPreprocTorchTrafoAdjustBrightness}
-\title{PipeOpPreprocTorchTrafoAdjustBrightness}
+\title{Adjust Brightness Transformation}
 \format{
 \code{\link[R6:R6Class]{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
 }

@@ -3,7 +3,7 @@
 \name{mlr_pipeops_augment_hflip}
 \alias{mlr_pipeops_augment_hflip}
 \alias{PipeOpPreprocTorchAugmentHflip}
-\title{PipeOpPreprocTorchAugmentHflip}
+\title{Horizontal Flip Augmentation}
 \format{
 \code{\link[R6:R6Class]{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
 }

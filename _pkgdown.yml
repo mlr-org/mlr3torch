@@ -16,7 +16,7 @@ toc:
 
 navbar:
   structure:
-    left:  [reference, news, articles, book]
+    left:  [reference, tutorials, overview, book, news]
     right: [search, github, mattermost, stackoverflow, rss, lightswitch]
   components:
     home: ~
@@ -40,21 +40,42 @@ navbar:
     rss:
       icon: fa-rss
       href: https://mlr-org.com/
-    get_started:
-      text: Get Started
-      href: articles/get_started.html
-    pipeop_torch:
-      text: Defining an Architecture
-      href: articles/pipeop_torch.html
-    callbacks:
-      text: Callbacks
-      href: articles/callbacks.html
-    lazy_tensor:
-      text: Non-Tabular Data
-      href: articles/lazy_tensor.html
-    internals:
-      text: Internals
-      href: articles/internals_pipeop_torch.html
+
+    overview:
+      text: Overview
+      menu:
+      - text: Tasks
+        href: articles/task_list.html
+      - text: Preprocessing & Augmentation
+        href: articles/preprocessing_list.html
+      - text: Optimizers
+        href: articles/optimizer_list.html
+      - text: Losses
+        href: articles/loss_list.html
+      - text: Callbacks
+        href: articles/callback_list.html
+      - text: Learners
+        href: articles/learner_list.html
+      - text: Network Layers
+        href: articles/layer_list.html
+
+    tutorials:
+      text: Articles
+      menu:
+      - text: Tutorials
+      - text: Get Started
+        href: articles/get_started.html
+      - text: Defining an Architecture
+        href: articles/pipeop_torch.html
+      - text: Callbacks
+        href: articles/callbacks.html
+      - text: Non-Tabular Data
+        href: articles/lazy_tensor.html
+      - text: ---
+      - text: Internals
+      - text: Networks as Graphs
+        href: articles/internals_pipeop_torch.html
+
 
 reference:
   - title: Package

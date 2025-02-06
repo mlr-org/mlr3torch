@@ -1,5 +1,4 @@
 #' <% pipeop = po(id) %>
-#' @title <%= class(pipeop)[[1L]] %>
 #' @aliases <%= class(pipeop)[[1L]] %>
 #' @usage NULL
 #' @name mlr_pipeops_<%= id %>

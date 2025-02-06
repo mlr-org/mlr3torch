@@ -3,7 +3,7 @@
 \name{mlr_pipeops_trafo_adjust_hue}
 \alias{mlr_pipeops_trafo_adjust_hue}
 \alias{PipeOpPreprocTorchTrafoAdjustHue}
-\title{PipeOpPreprocTorchTrafoAdjustHue}
+\title{Adjust Hue Transformation}
 \format{
 \code{\link[R6:R6Class]{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
 }

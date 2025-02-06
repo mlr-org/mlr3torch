@@ -170,7 +170,7 @@ as.data.table.DictionaryMlr3torchLosses = function(x, ...) {
       key = key,
       label = loss$label,
       task_types = list(loss$task_types),
-      packages = paste0(loss$packages, collapse = ",")
+      packages = list(loss$packages)
     )}), "key")[]
 }
 

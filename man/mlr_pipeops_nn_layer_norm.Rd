@@ -31,11 +31,6 @@ A value added to the denominator for numerical stability.
 The state is the value calculated by the public method \verb{$shapes_out()}.
 }
 
-\section{Credit}{
-
-Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
-}
-
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.

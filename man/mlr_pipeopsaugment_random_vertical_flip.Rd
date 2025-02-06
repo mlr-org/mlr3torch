@@ -3,7 +3,7 @@
 \name{mlr_pipeops_augment_random_vertical_flip}
 \alias{mlr_pipeops_augment_random_vertical_flip}
 \alias{PipeOpPreprocTorchAugmentRandomVerticalFlip}
-\title{PipeOpPreprocTorchAugmentRandomVerticalFlip}
+\title{Random Vertical Flip Augmentation}
 \format{
 \code{\link[R6:R6Class]{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
 }

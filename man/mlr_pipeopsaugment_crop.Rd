@@ -3,7 +3,7 @@
 \name{mlr_pipeops_augment_crop}
 \alias{mlr_pipeops_augment_crop}
 \alias{PipeOpPreprocTorchAugmentCrop}
-\title{PipeOpPreprocTorchAugmentCrop}
+\title{Crop Augmentation}
 \format{
 \code{\link[R6:R6Class]{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
 }
