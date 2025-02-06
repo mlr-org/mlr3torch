@@ -26,7 +26,9 @@
 #' The [`ParamSet`][paradox::ParamSet] is specified by the child class inheriting from [`PipeOpTorch`].
 #' Usually the parameters are the arguments of the wrapped [`nn_module`][torch::nn_module] minus the auxiliary parameter that can
 #' be automatically inferred from the shapes of the input tensors.
-#' @section Inheriting:
+#'
+#' @section
+#' Inheriting:
 #' When inheriting from this class, one should overload either the `private$.shapes_out()` and the
 #' `private$.shape_dependent_params()` methods, or overload `private$.make_module()`.
 #'
