@@ -24,6 +24,13 @@ During \strong{prediction}, \code{PipeOpTorch} takes in a \code{\link[mlr3:Task]
 \code{\link[mlr3:Task]{Task}} resulting from their \link[mlr3pipelines:mlr_pipeops_featureunion]{feature union} in each channel.
 If there is only one input and output channel, the task is simply piped through.
 }
+\section{Parameters}{
+
+The \code{\link[paradox:ParamSet]{ParamSet}} is specified by the child class inheriting from \code{\link{PipeOpTorch}}.
+Usually the parameters are the arguments of the wrapped \code{\link[torch:nn_module]{nn_module}} minus the auxiliary parameter that can
+be automatically inferred from the shapes of the input tensors.
+}
+
 \section{Inheriting}{
 
 When inheriting from this class, one should overload either the \code{private$.shapes_out()} and the
@@ -61,13 +68,6 @@ During \emph{prediction}, all input and output channels are of class \code{\link
 \section{State}{
 
 The state is the value calculated by the public method \code{shapes_out()}.
-}
-
-\section{Parameters}{
-
-The \code{\link[paradox:ParamSet]{ParamSet}} is specified by the child class inheriting from \code{\link{PipeOpTorch}}.
-Usually the parameters are the arguments of the wrapped \code{\link[torch:nn_module]{nn_module}} minus the auxiliary parameter that can
-be automatically inferred from the shapes of the input tensors.
 }
 
 \section{Internals}{

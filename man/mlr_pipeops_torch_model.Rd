@@ -8,18 +8,6 @@
 Builds a Torch Learner from a \code{\link{ModelDescriptor}} and trains it with the given parameter specification.
 The task type must be specified during construction.
 }
-\section{Input and Output Channels}{
-
-There is one input channel \code{"input"} that takes in \code{ModelDescriptor} during traing and a \code{Task} of the specified
-\code{task_type} during prediction.
-The output is \code{NULL} during training and a \code{Prediction} of given \code{task_type} during prediction.
-}
-
-\section{State}{
-
-A trained \code{\link{LearnerTorchModel}}.
-}
-
 \section{Parameters}{
 
 
@@ -122,6 +110,18 @@ Which packages to load on the workers.
 }
 
 Also see \code{torch::dataloder} for more information.
+}
+
+\section{Input and Output Channels}{
+
+There is one input channel \code{"input"} that takes in \code{ModelDescriptor} during traing and a \code{Task} of the specified
+\code{task_type} during prediction.
+The output is \code{NULL} during training and a \code{Prediction} of given \code{task_type} during prediction.
+}
+
+\section{State}{
+
+A trained \code{\link{LearnerTorchModel}}.
 }
 
 \section{Internals}{

@@ -5,7 +5,7 @@
 #' @description
 #' Builds a Torch Learner from a [`ModelDescriptor`] and trains it with the given parameter specification.
 #' The task type must be specified during construction.
-#'
+#' @template paramset_torchlearner
 #' @section Input and Output Channels:
 #' There is one input channel `"input"` that takes in `ModelDescriptor` during traing and a `Task` of the specified
 #' `task_type` during prediction.
@@ -13,8 +13,6 @@
 #'
 #' @section State:
 #' A trained [`LearnerTorchModel`].
-#'
-#' @template paramset_torchlearner
 #'
 #' @section Internals:
 #' A [`LearnerTorchModel`] is created by calling [`model_descriptor_to_learner()`] on the

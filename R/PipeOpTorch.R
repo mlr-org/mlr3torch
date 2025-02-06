@@ -22,6 +22,10 @@
 #' [`Task`][mlr3::Task] resulting from their [feature union][mlr3pipelines::PipeOpFeatureUnion] in each channel.
 #' If there is only one input and output channel, the task is simply piped through.
 #'
+#' @section Parameters:
+#' The [`ParamSet`][paradox::ParamSet] is specified by the child class inheriting from [`PipeOpTorch`].
+#' Usually the parameters are the arguments of the wrapped [`nn_module`][torch::nn_module] minus the auxiliary parameter that can
+#' be automatically inferred from the shapes of the input tensors.
 #' @section Inheriting:
 #' When inheriting from this class, one should overload either the `private$.shapes_out()` and the
 #' `private$.shape_dependent_params()` methods, or overload `private$.make_module()`.
@@ -56,10 +60,6 @@
 #'
 #' @template pipeop_torch_state_default
 #'
-#' @section Parameters:
-#' The [`ParamSet`][paradox::ParamSet] is specified by the child class inheriting from [`PipeOpTorch`].
-#' Usually the parameters are the arguments of the wrapped [`nn_module`][torch::nn_module] minus the auxiliary parameter that can
-#' be automatically inferred from the shapes of the input tensors.
 #'
 #' @section Internals:
 #' During training, the `PipeOpTorch` creates a [`PipeOpModule`] for the given parameter specification and the
