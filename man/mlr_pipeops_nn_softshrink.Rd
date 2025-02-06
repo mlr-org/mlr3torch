@@ -7,6 +7,18 @@
 \description{
 Applies the soft shrinkage function elementwise
 }
+\section{nn_module}{
+ Calls \code{\link[torch:nn_softshrink]{torch::nn_softshrink()}} when trained.
+}
+
+\section{Parameters}{
+
+\itemize{
+\item \code{lamd} :: \code{numeric(1)}\cr
+The lambda (must be no less than zero) value for the Softshrink formulation. Default: 0.5
+}
+}
+
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
@@ -21,18 +33,6 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 \section{Credit}{
 
 Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
-}
-
-\section{Parameters}{
-
-\itemize{
-\item \code{lamd} :: \code{numeric(1)}\cr
-The lambda (must be no less than zero) value for the Softshrink formulation. Default: 0.5
-}
-}
-
-\section{Internals}{
- Calls \code{\link[torch:nn_softshrink]{torch::nn_softshrink()}} when trained.
 }
 
 \examples{

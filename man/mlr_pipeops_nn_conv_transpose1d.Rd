@@ -5,24 +5,13 @@
 \alias{PipeOpTorchConvTranspose1D}
 \title{Transpose 1D Convolution}
 \description{
-Transpose 1D Convolution
-
-Transpose 1D Convolution
+Applies a 1D transposed convolution operator over an input signal
+composed of several input planes, sometimes also called "deconvolution".
 }
-\section{State}{
+\section{nn_module}{
 
-The state is the value calculated by the public method \verb{$shapes_out()}.
-}
-
-\section{Credit}{
-
-Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
-}
-
-\section{Input and Output Channels}{
-
-One input channel called \code{"input"} and one output channel called \code{"output"}.
-For an explanation see \code{\link{PipeOpTorch}}.
+Calls \code{\link[torch:nn_conv_transpose1d]{nn_conv_transpose1d}}.
+The parameter \code{in_channels} is inferred as the second dimension of the input tensor.
 }
 
 \section{Parameters}{
@@ -49,10 +38,20 @@ The padding mode. One of \code{"zeros"}, \code{"reflect"}, \code{"replicate"}, o
 }
 }
 
-\section{Internals}{
+\section{State}{
 
-Calls \code{\link[torch:nn_conv_transpose1d]{nn_conv_transpose1d}}.
-The parameter \code{in_channels} is inferred as the second dimension of the input tensor.
+The state is the value calculated by the public method \verb{$shapes_out()}.
+}
+
+\section{Credit}{
+
+Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
+}
+
+\section{Input and Output Channels}{
+
+One input channel called \code{"input"} and one output channel called \code{"output"}.
+For an explanation see \code{\link{PipeOpTorch}}.
 }
 
 \examples{

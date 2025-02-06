@@ -7,13 +7,13 @@
 #' Unless you are an advanced user, you should not need to use this directly but [`PipeOpTorchIngressNumeric`],
 #' [`PipeOpTorchIngressCategorical`] or [`PipeOpTorchIngressLazyTensor`].
 #'
+#' @section Parameters:
+#' Defined by the construction argument `param_set`.
+#'
 #' @template pipeop_torch_channels_default
 #' @section State:
 #' The state is set to the input shape.
 #'
-#' @section Parameters:
-#' Defined by the construction argument `param_set`.
-#!'
 #' @section Internals:
 #' Creates an object of class [`TorchIngressToken`] for the given task.
 #' The purpuse of this is to store the information on how to construct the torch dataloader from the task for this

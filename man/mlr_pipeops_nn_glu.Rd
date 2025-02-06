@@ -7,6 +7,18 @@
 \description{
 The gated linear unit. Computes:
 }
+\section{nn_module}{
+ Calls \code{\link[torch:nn_glu]{torch::nn_glu()}} when trained.
+}
+
+\section{Parameters}{
+
+\itemize{
+\item \code{dim} :: \code{integer(1)}\cr
+Dimension on which to split the input. Default: -1
+}
+}
+
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
@@ -21,18 +33,6 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 \section{Credit}{
 
 Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
-}
-
-\section{Parameters}{
-
-\itemize{
-\item \code{dim} :: \code{integer(1)}\cr
-Dimension on which to split the input. Default: -1
-}
-}
-
-\section{Internals}{
- Calls \code{\link[torch:nn_glu]{torch::nn_glu()}} when trained.
 }
 
 \examples{

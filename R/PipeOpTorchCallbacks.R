@@ -5,6 +5,10 @@
 #' @description
 #' Configures the callbacks of a deep learning model.
 #'
+#' @section Parameters:
+#' The parameters are defined dynamically from the callbacks, where the id of the respective callbacks is the
+#' respective set id.
+#'
 #' @section Input and Output Channels:
 #' There is one input channel `"input"` and one output channel `"output"`.
 #' During *training*, the channels are of class [`ModelDescriptor`].
@@ -12,9 +16,6 @@
 #'
 #' @template pipeop_torch_state_default
 #'
-#' @section Parameters:
-#' The parameters are defined dynamically from the callbacks, where the id of the respective callbacks is the
-#' respective set id.
 #' @section Internals:
 #' During training the callbacks are cloned and added to the [`ModelDescriptor`].
 #' @family Model Configuration

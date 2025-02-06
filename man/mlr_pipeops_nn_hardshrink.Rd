@@ -7,6 +7,18 @@
 \description{
 Applies the hard shrinkage function element-wise
 }
+\section{nn_module}{
+ Calls \code{\link[torch:nn_hardshrink]{torch::nn_hardshrink()}} when trained.
+}
+
+\section{Parameters}{
+
+\itemize{
+\item \code{lambd} :: \code{numeric(1)}\cr
+The lambda value for the Hardshrink formulation formulation. Default 0.5.
+}
+}
+
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
@@ -21,18 +33,6 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 \section{Credit}{
 
 Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
-}
-
-\section{Parameters}{
-
-\itemize{
-\item \code{lambd} :: \code{numeric(1)}\cr
-The lambda value for the Hardshrink formulation formulation. Default 0.5.
-}
-}
-
-\section{Internals}{
- Calls \code{\link[torch:nn_hardshrink]{torch::nn_hardshrink()}} when trained.
 }
 
 \examples{

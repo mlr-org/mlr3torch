@@ -7,6 +7,16 @@
 \description{
 Calculates the product of all input tensors.
 }
+\section{nn_module}{
+
+Calls \code{\link[=nn_merge_prod]{nn_merge_prod()}} when trained.
+}
+
+\section{Parameters}{
+
+No parameters.
+}
+
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
@@ -26,16 +36,6 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 \section{Credit}{
 
 Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
-}
-
-\section{Parameters}{
-
-No parameters.
-}
-
-\section{Internals}{
-
-Calls \code{\link[=nn_merge_prod]{nn_merge_prod()}} when trained.
 }
 
 \examples{

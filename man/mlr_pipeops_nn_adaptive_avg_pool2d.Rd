@@ -8,6 +8,19 @@
 Applies a 2D adaptive average pooling over an input signal composed of
 several input planes.
 }
+\section{nn_module}{
+
+Calls \code{\link[torch:nn_adaptive_avg_pool2d]{nn_adaptive_avg_pool2d()}} during training.
+}
+
+\section{Parameters}{
+
+\itemize{
+\item \code{output_size} :: \code{integer()}\cr
+The target output size. Can be a single number or a vector.
+}
+}
+
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
@@ -22,19 +35,6 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 \section{Credit}{
 
 Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
-}
-
-\section{Parameters}{
-
-\itemize{
-\item \code{output_size} :: \code{integer()}\cr
-The target output size. Can be a single number or a vector.
-}
-}
-
-\section{Internals}{
-
-Calls \code{\link[torch:nn_adaptive_avg_pool2d]{nn_adaptive_avg_pool2d()}} during training.
 }
 
 \examples{

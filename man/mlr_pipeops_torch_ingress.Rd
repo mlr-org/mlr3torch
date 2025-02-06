@@ -9,6 +9,11 @@ Use this as entry-point to mlr3torch-networks.
 Unless you are an advanced user, you should not need to use this directly but \code{\link{PipeOpTorchIngressNumeric}},
 \code{\link{PipeOpTorchIngressCategorical}} or \code{\link{PipeOpTorchIngressLazyTensor}}.
 }
+\section{Parameters}{
+
+Defined by the construction argument \code{param_set}.
+}
+
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
@@ -18,11 +23,6 @@ For an explanation see \code{\link{PipeOpTorch}}.
 \section{State}{
 
 The state is set to the input shape.
-}
-
-\section{Parameters}{
-
-Defined by the construction argument \code{param_set}.
 }
 
 \section{Internals}{

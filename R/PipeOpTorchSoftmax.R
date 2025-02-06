@@ -1,18 +1,17 @@
 #' @title Softmax
+#' @inherit torch::nnf_softmax description
+#' @section nn_module:
+#' Calls [`torch::nn_softmax()`] when trained.
+#' @section Parameters:
+#' * `dim` :: `integer(1)`\cr
+#'   A dimension along which Softmax will be computed (so every slice along dim will sum to 1).
 #'
 #' @templateVar id nn_softmax
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#' @inherit torch::nnf_softmax description
 #'
-#' @section Parameters:
-#' * `dim` :: `integer(1)`\cr
-#'   A dimension along which Softmax will be computed (so every slice along dim will sum to 1).
-#'
-#' @section Internals:
-#' Calls [`torch::nn_softmax()`] when trained.
 #' @export
 PipeOpTorchSoftmax = R6::R6Class("PipeOpTorchSoftmax",
   inherit = PipeOpTorch,

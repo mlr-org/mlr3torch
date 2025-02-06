@@ -7,6 +7,18 @@
 \description{
 Applies the rectified linear unit function element-wise.
 }
+\section{nn_module}{
+ Calls \code{\link[torch:nn_relu]{torch::nn_relu()}} when trained.
+}
+
+\section{Parameters}{
+
+\itemize{
+\item \code{inplace} :: \code{logical(1)}\cr
+Whether to do the operation in-place. Default: \code{FALSE}.
+}
+}
+
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
@@ -21,18 +33,6 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 \section{Credit}{
 
 Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
-}
-
-\section{Parameters}{
-
-\itemize{
-\item \code{inplace} :: \code{logical(1)}\cr
-Whether to do the operation in-place. Default: \code{FALSE}.
-}
-}
-
-\section{Internals}{
- Calls \code{\link[torch:nn_relu]{torch::nn_relu()}} when trained.
 }
 
 \examples{
