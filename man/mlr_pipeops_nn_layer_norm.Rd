@@ -7,6 +7,25 @@
 \description{
 Applies Layer Normalization for last certain number of dimensions.
 }
+\section{nn_module}{
+
+Calls \code{\link[torch:nn_layer_norm]{torch::nn_layer_norm()}} when trained.
+The parameter \code{normalized_shape} is inferred as the dimensions of the last \code{dims} dimensions of the input shape.
+}
+
+\section{Parameters}{
+
+\itemize{
+\item \code{dims} :: \code{integer(1)}\cr
+The number of dimensions over which will be normalized (starting from the last dimension).
+\item \code{elementwise_affine} :: \code{logical(1)}\cr
+Whether to learn affine-linear parameters initialized to \code{1} for weights and to \code{0} for biases.
+The default is \code{TRUE}.
+\item \code{eps} :: \code{numeric(1)}\cr
+A value added to the denominator for numerical stability.
+}
+}
+
 \section{State}{
 
 The state is the value calculated by the public method \verb{$shapes_out()}.
@@ -23,25 +42,6 @@ One input channel called \code{"input"} and one output channel called \code{"out
 For an explanation see \code{\link{PipeOpTorch}}.
 }
 
-\section{Parameters}{
-
-\itemize{
-\item \code{dims} :: \code{integer(1)}\cr
-The number of dimensions over which will be normalized (starting from the last dimension).
-\item \code{elementwise_affine} :: \code{logical(1)}\cr
-Whether to learn affine-linear parameters initialized to \code{1} for weights and to \code{0} for biases.
-The default is \code{TRUE}.
-\item \code{eps} :: \code{numeric(1)}\cr
-A value added to the denominator for numerical stability.
-}
-}
-
-\section{Internals}{
-
-Calls \code{\link[torch:nn_layer_norm]{torch::nn_layer_norm()}} when trained.
-The parameter \code{normalized_shape} is inferred as the dimensions of the last \code{dims} dimensions of the input shape.
-}
-
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Construct the PipeOp
@@ -53,6 +53,9 @@ pipeop$param_set
 }
 \seealso{
 Other PipeOps: 
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool1d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool2d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool3d}},
 \code{\link{mlr_pipeops_nn_avg_pool1d}},
 \code{\link{mlr_pipeops_nn_avg_pool2d}},
 \code{\link{mlr_pipeops_nn_avg_pool3d}},

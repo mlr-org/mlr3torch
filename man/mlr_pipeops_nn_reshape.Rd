@@ -7,6 +7,20 @@
 \description{
 Reshape a tensor to the given shape.
 }
+\section{nn_module}{
+
+Calls \code{\link[=nn_reshape]{nn_reshape()}} when trained.
+This internally calls \code{\link[torch:torch_reshape]{torch::torch_reshape()}} with the given \code{shape}.
+}
+
+\section{Parameters}{
+
+\itemize{
+\item \code{shape} :: \code{integer(1)}\cr
+The desired output shape. Unknown dimension (one at most) can either be specified as \code{-1} or \code{NA}.
+}
+}
+
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
@@ -23,20 +37,6 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
 }
 
-\section{Parameters}{
-
-\itemize{
-\item \code{shape} :: \code{integer(1)}\cr
-The desired output shape. Unknown dimension (one at most) can either be specified as \code{-1} or \code{NA}.
-}
-}
-
-\section{Internals}{
-
-Calls \code{\link[=nn_reshape]{nn_reshape()}} when trained.
-This internally calls \code{\link[torch:torch_reshape]{torch::torch_reshape()}} with the given \code{shape}.
-}
-
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Construct the PipeOp
@@ -48,6 +48,9 @@ pipeop$param_set
 }
 \seealso{
 Other PipeOps: 
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool1d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool2d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool3d}},
 \code{\link{mlr_pipeops_nn_avg_pool1d}},
 \code{\link{mlr_pipeops_nn_avg_pool2d}},
 \code{\link{mlr_pipeops_nn_avg_pool3d}},

@@ -7,6 +7,12 @@
 \description{
 Applies Batch Normalization for each channel across a batch of data.
 }
+\section{nn_module}{
+
+Calls \code{\link[torch:nn_batch_norm3d]{torch::nn_batch_norm3d()}}.
+The parameter \code{num_features} is inferred as the second dimension of the input shape.
+}
+
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
@@ -21,12 +27,6 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 \section{Credit}{
 
 Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
-}
-
-\section{Internals}{
-
-Calls \code{\link[torch:nn_batch_norm3d]{torch::nn_batch_norm3d()}}.
-The parameter \code{num_features} is inferred as the second dimension of the input shape.
 }
 
 \section{Parameters}{
@@ -57,6 +57,9 @@ pipeop$param_set
 }
 \seealso{
 Other PipeOps: 
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool1d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool2d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool3d}},
 \code{\link{mlr_pipeops_nn_avg_pool1d}},
 \code{\link{mlr_pipeops_nn_avg_pool2d}},
 \code{\link{mlr_pipeops_nn_avg_pool3d}},

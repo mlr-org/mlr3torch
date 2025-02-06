@@ -7,6 +7,23 @@
 \description{
 Applies a linear transformation to the incoming data: \eqn{y = xA^T + b}.
 }
+\section{nn_module}{
+
+Calls \code{\link[torch:nn_linear]{torch::nn_linear()}} when trained where the parameter \code{in_features} is inferred as the second
+to last dimension of the input tensor.
+}
+
+\section{Parameters}{
+
+\itemize{
+\item \code{out_features} :: \code{integer(1)}\cr
+The output features of the linear layer.
+\item \code{bias} :: \code{logical(1)}\cr
+Whether to use a bias.
+Default is \code{TRUE}.
+}
+}
+
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
@@ -23,23 +40,6 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
 }
 
-\section{Parameters}{
-
-\itemize{
-\item \code{out_features} :: \code{integer(1)}\cr
-The output features of the linear layer.
-\item \code{bias} :: \code{logical(1)}\cr
-Whether to use a bias.
-Default is \code{TRUE}.
-}
-}
-
-\section{Internals}{
-
-Calls \code{\link[torch:nn_linear]{torch::nn_linear()}} when trained where the parameter \code{in_features} is inferred as the second
-to last dimension of the input tensor.
-}
-
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Construct the PipeOp
@@ -51,6 +51,9 @@ pipeop$param_set
 }
 \seealso{
 Other PipeOps: 
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool1d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool2d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool3d}},
 \code{\link{mlr_pipeops_nn_avg_pool1d}},
 \code{\link{mlr_pipeops_nn_avg_pool2d}},
 \code{\link{mlr_pipeops_nn_avg_pool3d}},

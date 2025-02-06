@@ -7,6 +7,20 @@
 \description{
 Applies element-wise, \eqn{CELU(x) = max(0,x) + min(0, \alpha * (exp(x \alpha) - 1))}.
 }
+\section{nn_module}{
+ Calls \code{\link[torch:nn_celu]{torch::nn_celu()}} when trained.
+}
+
+\section{Parameters}{
+
+\itemize{
+\item \code{alpha} :: \code{numeric(1)}\cr
+The alpha value for the ELU formulation. Default: 1.0
+\item \code{inplace} :: \code{logical(1)}\cr
+Whether to do the operation in-place. Default: \code{FALSE}.
+}
+}
+
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
@@ -23,20 +37,6 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
 }
 
-\section{Parameters}{
-
-\itemize{
-\item \code{alpha} :: \code{numeric(1)}\cr
-The alpha value for the ELU formulation. Default: 1.0
-\item \code{inplace} :: \code{logical(1)}\cr
-Whether to do the operation in-place. Default: \code{FALSE}.
-}
-}
-
-\section{Internals}{
- Calls \code{\link[torch:nn_celu]{torch::nn_celu()}} when trained.
-}
-
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Construct the PipeOp
@@ -48,6 +48,9 @@ pipeop$param_set
 }
 \seealso{
 Other PipeOps: 
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool1d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool2d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool3d}},
 \code{\link{mlr_pipeops_nn_avg_pool1d}},
 \code{\link{mlr_pipeops_nn_avg_pool2d}},
 \code{\link{mlr_pipeops_nn_avg_pool3d}},

@@ -9,6 +9,21 @@ During training, randomly zeroes some of the elements of the input
 tensor with probability \code{p} using samples from a Bernoulli
 distribution.
 }
+\section{nn_module}{
+
+Calls \code{\link[torch:nn_dropout]{torch::nn_dropout()}} when trained.
+}
+
+\section{Parameters}{
+
+\itemize{
+\item \code{p} :: \code{numeric(1)}\cr
+Probability of an element to be zeroed. Default: 0.5.
+\item \code{inplace} :: \code{logical(1)}\cr
+If set to \code{TRUE}, will do this operation in-place. Default: \code{FALSE}.
+}
+}
+
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
@@ -25,21 +40,6 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
 }
 
-\section{Parameters}{
-
-\itemize{
-\item \code{p} :: \code{numeric(1)}\cr
-Probability of an element to be zeroed. Default: 0.5 inplace
-\item \code{inplace} :: \code{logical(1)}\cr
-If set to \code{TRUE}, will do this operation in-place. Default: \code{FALSE}.
-}
-}
-
-\section{Internals}{
-
-Calls \code{\link[torch:nn_dropout]{torch::nn_dropout()}} when trained.
-}
-
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Construct the PipeOp
@@ -51,6 +51,9 @@ pipeop$param_set
 }
 \seealso{
 Other PipeOps: 
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool1d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool2d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool3d}},
 \code{\link{mlr_pipeops_nn_avg_pool1d}},
 \code{\link{mlr_pipeops_nn_avg_pool2d}},
 \code{\link{mlr_pipeops_nn_avg_pool3d}},

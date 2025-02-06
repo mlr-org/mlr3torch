@@ -1,20 +1,19 @@
 #' @title Dropout
+#' @inherit torch::nnf_dropout description
+#' @section nn_module:
+#' Calls [`torch::nn_dropout()`] when trained.
+#' @section Parameters:
+#' * `p` :: `numeric(1)`\cr
+#'  Probability of an element to be zeroed. Default: 0.5.
+#' * `inplace` :: `logical(1)`\cr
+#'   If set to `TRUE`, will do this operation in-place. Default: `FALSE`.
 #'
 #' @templateVar id nn_dropout
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#' @inherit torch::nnf_dropout description
 #'
-#' @section Parameters:
-#' * `p` :: `numeric(1)`\cr
-#'  Probability of an element to be zeroed. Default: 0.5 inplace
-#' * `inplace` :: `logical(1)`\cr
-#'   If set to `TRUE`, will do this operation in-place. Default: `FALSE`.
-#'
-#' @section Internals:
-#' Calls [`torch::nn_dropout()`] when trained.
 #' @export
 PipeOpTorchDropout = R6Class("PipeOpTorchDropout",
   inherit = PipeOpTorch,
@@ -37,5 +36,5 @@ PipeOpTorchDropout = R6Class("PipeOpTorchDropout",
   )
 )
 
-#' @include zzz.R
+#' @include aaa.R
 register_po("nn_dropout", PipeOpTorchDropout)

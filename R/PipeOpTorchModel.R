@@ -5,7 +5,7 @@
 #' @description
 #' Builds a Torch Learner from a [`ModelDescriptor`] and trains it with the given parameter specification.
 #' The task type must be specified during construction.
-#'
+#' @template paramset_torchlearner
 #' @section Input and Output Channels:
 #' There is one input channel `"input"` that takes in `ModelDescriptor` during traing and a `Task` of the specified
 #' `task_type` during prediction.
@@ -13,8 +13,6 @@
 #'
 #' @section State:
 #' A trained [`LearnerTorchModel`].
-#'
-#' @template paramset_torchlearner
 #'
 #' @section Internals:
 #' A [`LearnerTorchModel`] is created by calling [`model_descriptor_to_learner()`] on the
@@ -54,12 +52,12 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
       self$input = data.table(
         name = "input",
         train = "ModelDescriptor",
-        predict = mlr_reflections$task_types[private$.task_type, task]
+        predict = mlr_reflections$task_types[private$.task_type, "task"][[1L]]
       )
       self$output = data.table(
         name = "output",
         train = "NULL",
-        predict = mlr_reflections$task_types[private$.task_type, prediction]
+        predict = mlr_reflections$task_types[private$.task_type, "prediction"][[1L]]
       )
     }
   ),
@@ -187,6 +185,6 @@ PipeOpTorchModelRegr = R6Class("PipeOpTorchModelRegr",
   )
 )
 
-#' @include zzz.R
+#' @include aaa.R
 register_po("torch_model_regr", PipeOpTorchModelRegr)
 register_po("torch_model_classif", PipeOpTorchModelClassif)

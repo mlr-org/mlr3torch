@@ -4,14 +4,17 @@ test_that("linear graph", {
   po_block = po("nn_block", block, n_blocks = 2)
   expect_pipeop(po_block)
 
-  comp_graph = po("nn_linear", out_features = 10L) %>>%
-    po("nn_relu") %>>%
-    po("nn_linear_1", out_features = 10L) %>>%
-    po("nn_relu_1")
+  comp_graph = po("nn_linear", out_features = 10L, id = "nn_linear__1") %>>%
+    po("nn_relu", id = "nn_relu__1") %>>%
+    po("nn_linear", out_features = 10L, id = "nn_linear__2") %>>%
+    po("nn_relu", id = "nn_relu__2")
+
+  comp_graph$update_ids(prefix = "nn_block.")
 
   task = tsk("iris")
 
   md1 = po("torch_ingress_num")$train(list(task))
+
   md2 = po("torch_ingress_num")$train(list(task))
 
   gblock = po_block$train(md1)[[1L]]$graph
@@ -42,7 +45,7 @@ test_that("deep clone works", {
   md = po("torch_ingress_num")$train(list(task))
   mdout = po_block_c$train(md)
   expect_equal(mdout[[1L]]$pointer_shape, c(NA, 20L))
-  expect_equal(sum(startsWith(mdout[[1L]]$graph$ids(), "nn_linear")), 2L)
+  expect_equal(sum(startsWith(mdout[[1L]]$graph$ids(), "nn_block.nn_linear")), 2L)
 })
 
 test_that("shapes_out works", {
@@ -77,7 +80,12 @@ test_that("works when including non-torch pipeop", {
   )
   md = po("torch_ingress_num")$train(list(task))[[1L]]
   mdout = po_block$train(list(md))[[1L]]
-  expect_false("nn_relu" %in% mdout$graph$ids())
-  expect_true("nn_linear" %in% mdout$graph$ids())
+  expect_false("nn_block.nn_relu__1" %in% mdout$graph$ids())
+  expect_true("nn_block.nn_linear__1" %in% mdout$graph$ids())
 })
 
+test_that("different block changes phash", {
+  x1 = po("nn_block", po("nn_linear"))
+  x2 = po("nn_block", po("nn_relu"))
+  expect_false(x1$phash == x2$phash)
+})

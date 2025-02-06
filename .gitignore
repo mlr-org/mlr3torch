@@ -15,3 +15,7 @@ inst/doc
 /Meta/
 CRAN-SUBMISSION
 benchmarks/data
+paper/data
+.idea/
+.vsc/
+paper/data

@@ -8,6 +8,17 @@
 #' @family Callback
 #' @include CallbackSet.R
 #' @export
+#' @examplesIf torch::torch_is_installed()
+#' task = tsk("iris")
+#'
+#' learner = lrn("classif.mlp", epochs = 5, batch_size = 1,
+#'   callbacks = t_clbk("progress"), validate = 0.3)
+#' learner$param_set$set_values(
+#'   measures_train = msrs(c("classif.acc", "classif.ce")),
+#'   measures_valid = msr("classif.ce")
+#' )
+#'
+#' learner$train(task)
 CallbackSetProgress = R6Class("CallbackSetProgress",
   inherit = CallbackSet,
   lock_objects = FALSE,
@@ -15,7 +26,7 @@ CallbackSetProgress = R6Class("CallbackSetProgress",
     #' @description
     #' Initializes the progress bar for training.
     on_epoch_begin = function() {
-      catf("Epoch %s", self$ctx$epoch)
+      catf("Epoch %s started (%s)", self$ctx$epoch, format(Sys.time()))
       self$pb_train = progress::progress_bar$new(
         total = length(self$ctx$loader_train),
         format = "Training [:bar]"
@@ -62,6 +73,11 @@ CallbackSetProgress = R6Class("CallbackSetProgress",
           cat(paste(output, collapse = ""))
         }
       }
+    },
+    #' @description
+    #' Prints the time at the end of training.
+    on_end = function() {
+      catf("Finished training for %s epochs (%s)", self$ctx$epoch, format(Sys.time()))
     }
   )
 )

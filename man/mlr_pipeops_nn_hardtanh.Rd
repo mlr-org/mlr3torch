@@ -7,14 +7,8 @@
 \description{
 Applies the HardTanh function element-wise.
 }
-\section{State}{
-
-The state is the value calculated by the public method \verb{$shapes_out()}.
-}
-
-\section{Credit}{
-
-Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
+\section{nn_module}{
+ Calls \code{\link[torch:nn_hardtanh]{torch::nn_hardtanh()}} when trained.
 }
 
 \section{Parameters}{
@@ -29,8 +23,14 @@ Can optionally do the operation in-place. Default: \code{FALSE}.
 }
 }
 
-\section{Internals}{
- Calls \code{\link[torch:nn_hardtanh]{torch::nn_hardtanh()}} when trained.
+\section{State}{
+
+The state is the value calculated by the public method \verb{$shapes_out()}.
+}
+
+\section{Credit}{
+
+Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
 }
 
 \examples{
@@ -44,6 +44,9 @@ pipeop$param_set
 }
 \seealso{
 Other PipeOps: 
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool1d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool2d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool3d}},
 \code{\link{mlr_pipeops_nn_avg_pool1d}},
 \code{\link{mlr_pipeops_nn_avg_pool2d}},
 \code{\link{mlr_pipeops_nn_avg_pool3d}},

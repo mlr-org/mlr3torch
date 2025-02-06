@@ -21,7 +21,7 @@
 #' After loading a marshaled `LearnerTorch` into R again, you then need to call `$unmarshal()` to transform it
 #' into a useable state.
 #'
-#' @section Early Stopping and Tuning:
+#' @section Early Stopping and Internal Tuning:
 #' In order to prevent overfitting, the `LearnerTorch` class allows to use early stopping via the `patience`
 #' and `min_delta` parameters, see the `Learner`'s parameters.
 #' When tuning a `LearnerTorch` it is also possible to combine the explicit tuning via `mlr3tuning`
@@ -86,22 +86,26 @@
 #' * `.dataset(task, param_vals)`\cr
 #'   ([`Task`][mlr3::Task], `list()`) -> [`torch::dataset`]\cr
 #'   Create the dataset for the task.
-#'   Must respect the parameter value of the device.
+#'   The dataset must return a named list where:
+#'   * `x` is a list of torch tensors that are the input to the network.
+#'     For networks with more than one input, the names must correspond to the inputs of the network.
+#'   * `y` is the target tensor.
+#'   * `.index` are the indices of the batch (`integer()` or a `torch_int()`).
+#'
 #'   Moreover, one needs to pay attention respect the row ids of the provided task.
 #'
-#' It is also possible to overwrite the private `.dataloader()` method instead of the `.dataset()` method.
-#' Per default, a dataloader is constructed using the output from the `.dataset()` method.
-#' However, this should respect the dataloader parameters from the [`ParamSet`][paradox::ParamSet].
+#' It is also possible to overwrite the private `.dataloader()` method.
+#' This must respect the dataloader parameters from the [`ParamSet`][paradox::ParamSet].
 #'
-#' * `.dataloader(task, param_vals)`\cr
+#' * `.dataloader(dataset, param_vals)`\cr
 #'   ([`Task`][mlr3::Task], `list()`) -> [`torch::dataloader`]\cr
 #'   Create a dataloader from the task.
 #'   Needs to respect at least `batch_size` and `shuffle` (otherwise predictions can be permuted).
 #'
-#' To change the predict types, the private `.encode_prediction()` method can be overwritten:
+#' To change the predict types, the it is possible to overwrite the method below:
 #'
-#' * `.encode_prediction(predict_tensor, task, param_vals)`\cr
-#'   ([`torch_tensor`][torch::torch_tensor], [`Task`][mlr3::Task], `list()`) -> `list()`\cr
+#' * `.encode_prediction(predict_tensor, task)`\cr
+#'   ([`torch_tensor`][torch::torch_tensor], [`Task`][mlr3::Task]) -> `list()`\cr
 #'   Take in the raw predictions from `self$network` (`predict_tensor`) and encode them into a
 #'   format that can be converted to valid `mlr3` predictions using [`mlr3::as_prediction_data()`].
 #'   This method must take `self$predict_type` into account.
@@ -180,6 +184,10 @@ LearnerTorch = R6Class("LearnerTorch",
 
       if (!inherits(callbacks, "CallbacksNone")) {
         self$callbacks = callbacks
+      }
+
+      if ("early_stopping" %in% ids(self$callbacks)) {
+        stopf("Callback with id 'early_stopping' is reserved.")
       }
 
       packages = unique(c(
@@ -382,10 +390,9 @@ LearnerTorch = R6Class("LearnerTorch",
     .param_set_base = NULL,
     .extract_internal_tuned_values = function() {
       if (self$state$param_vals$patience == 0) {
-        named_list()
-      } else {
-        list(epochs = self$model$epochs)
+        return(named_list())
       }
+      list(epochs = self$model$callbacks$early_stopping$best_epochs)
     },
     .extract_internal_valid_scores = function() {
       if (is.null(self$model$internal_valid_scores)) {
@@ -433,7 +440,8 @@ LearnerTorch = R6Class("LearnerTorch",
       param_vals$device = auto_device(param_vals$device)
       if (identical(param_vals$seed, "random")) param_vals$seed = sample.int(.Machine$integer.max, 1)
 
-      model = with_torch_settings(seed = param_vals$seed, num_threads = param_vals$num_threads, {
+      model = with_torch_settings(seed = param_vals$seed, num_threads = param_vals$num_threads,
+       num_interop_threads = param_vals$num_interop_threads, expr = {
         learner_torch_train(self, private, super, task, param_vals)
       })
       model$task_col_info = copy(task$col_info[c(task$feature_names, task$target_names), c("id", "type", "levels")])
@@ -453,7 +461,8 @@ LearnerTorch = R6Class("LearnerTorch",
       param_vals$device = auto_device(param_vals$device)
       private$.verify_predict_task(task, param_vals)
 
-      with_torch_settings(seed = self$model$seed, num_threads = param_vals$num_threads, {
+      with_torch_settings(seed = self$model$seed, num_threads = param_vals$num_threads,
+        num_interop_threads = param_vals$num_interop_threads, expr = {
         learner_torch_predict(self, private, super, task, param_vals)
       })
     },
@@ -467,7 +476,7 @@ LearnerTorch = R6Class("LearnerTorch",
     .network = function(task, param_vals) stop(".network must be implemented."),
     # the dataloader gets param_vals that may be different from self$param_set$values, e.g.
     # when the dataloader for validation data is loaded, `shuffle` is set to FALSE.
-   .dataloader = function(task, param_vals) {
+   .dataloader = function(dataset, param_vals) {
       dl_args = c(
         "batch_size",
         "shuffle",
@@ -483,14 +492,15 @@ LearnerTorch = R6Class("LearnerTorch",
         "worker_packages"
       )
       args = param_vals[names(param_vals) %in% dl_args]
-      invoke(dataloader, dataset = private$.dataset(task, param_vals), .args = args)
+      invoke(dataloader, dataset = dataset, .args = args)
     },
-    .dataloader_predict = function(task, param_vals) {
+    .dataloader_predict = function(dataset, param_vals) {
       param_vals_test = insert_named(param_vals, list(shuffle = FALSE, drop_last = FALSE))
-      private$.dataloader(task, param_vals_test)
+      private$.dataloader(dataset, param_vals_test)
     },
     .dataset = function(task, param_vals) {
-      stopf(".dataset must be implememnted")
+      stopf(".dataset must be implemented.")
+
     },
     .optimizer = NULL,
     .loss = NULL,
@@ -544,7 +554,12 @@ clone_recurse = function(l) {
 
 #' @export
 marshal_model.learner_torch_model = function(model, inplace = FALSE, ...) {
-  model$network = torch_serialize(model$network)
+  model$jitted = inherits(model$network, "script_module")
+  model$network = if (model$jitted) {
+    jit_serialize(model$network)
+  } else {
+    torch_serialize(model$network)
+  }
   model$loss_fn = torch_serialize(model$loss_fn)
   model$optimizer = torch_serialize(model$optimizer)
 
@@ -557,7 +572,14 @@ marshal_model.learner_torch_model = function(model, inplace = FALSE, ...) {
 #' @export
 unmarshal_model.learner_torch_model_marshaled = function(model, inplace = FALSE, device = "cpu", ...) {
   model = model$marshaled
-  model$network = torch_load(model$network, device = device)
+  model$network = if (isTRUE(model$jitted)) {
+    deser = jit_unserialize(model$network)
+    deser$to(device = device)
+    deser
+  } else {
+    torch_load(model$network, device = device)
+  }
+  model$jitted = NULL
   model$loss_fn = torch_load(model$loss_fn, device = device)
   model$optimizer = torch_load(model$optimizer, device = device)
   return(model)

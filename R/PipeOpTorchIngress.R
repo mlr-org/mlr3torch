@@ -7,13 +7,13 @@
 #' Unless you are an advanced user, you should not need to use this directly but [`PipeOpTorchIngressNumeric`],
 #' [`PipeOpTorchIngressCategorical`] or [`PipeOpTorchIngressLazyTensor`].
 #'
+#' @section Parameters:
+#' Defined by the construction argument `param_set`.
+#'
 #' @template pipeop_torch_channels_default
 #' @section State:
 #' The state is set to the input shape.
 #'
-#' @section Parameters:
-#' Defined by the construction argument `param_set`.
-#!'
 #' @section Internals:
 #' Creates an object of class [`TorchIngressToken`] for the given task.
 #' The purpuse of this is to store the information on how to construct the torch dataloader from the task for this
@@ -148,7 +148,7 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
 #'
 TorchIngressToken = function(features, batchgetter, shape) {
   assert_character(features, any.missing = FALSE)
-  assert_function(batchgetter, args = c("data", "device"))
+  assert_function(batchgetter, args = "data")
   assert_integerish(shape)
   structure(list(
     features = features,
@@ -213,7 +213,7 @@ PipeOpTorchIngressNumeric = R6Class("PipeOpTorchIngressNumeric",
   )
 )
 
-#' @include zzz.R
+#' @include aaa.R
 register_po("torch_ingress_num", PipeOpTorchIngressNumeric)
 
 #' @title Torch Entry Point for Categorical Features
@@ -273,9 +273,10 @@ register_po("torch_ingress_categ", PipeOpTorchIngressCategorical)
 #' @inheritSection mlr_pipeops_torch_ingress State
 #'
 #' @section Parameters:
-#' * `shape` :: `integer()`\cr
+#' * `shape` :: `integer()` | `NULL` | `"infer"`\cr
 #'   The shape of the tensor, where the first dimension (batch) must be `NA`.
 #'   When it is not specified, the lazy tensor input column needs to have a known shape.
+#'   When it is set to `"infer"`, the shape is inferred from an example batch.
 #'
 #' @section Internals:
 #' The returned batchgetter materializes the lazy tensor column to a tensor.
@@ -290,7 +291,7 @@ register_po("torch_ingress_categ", PipeOpTorchIngressCategorical)
 #' md = po_ingress$train(list(task))[[1L]]
 #'
 #' ingress = md$ingress
-#' x_batch = ingress[[1L]]$batchgetter(data = task$data(1, "x"), device = "cpu", cache = NULL)
+#' x_batch = ingress[[1L]]$batchgetter(data = task$data(1, "x"), cache = NULL)
 #' x_batch
 #'
 #' # Now we try a lazy tensor with unknown shape, i.e. the shapes between the rows can differ
@@ -321,7 +322,6 @@ register_po("torch_ingress_categ", PipeOpTorchIngressCategorical)
 #' ingress2 = md2$ingress
 #' x_batch2 = ingress2[[1L]]$batchgetter(
 #'   data = task_unknown_resize$data(1:2, "x"),
-#'   device = "cpu",
 #'   cache = NULL
 #' )
 #'
@@ -333,11 +333,13 @@ PipeOpTorchIngressLazyTensor = R6Class("PipeOpTorchIngressLazyTensor",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
     initialize = function(id = "torch_ingress_ltnsr", param_vals = list()) {
+      check_fn = crate(function(x) {
+        if (identical(x, "infer")) return(TRUE)
+          check_shape(x, null_ok = TRUE, unknown_batch = TRUE)
+      })
       param_set = ps(
-        shape = p_uty(tags = "train", default = NULL, custom_check = crate(
-          function(x) check_shape(x, null_ok = TRUE, unknown_batch = TRUE),
-            .parent = topenv(), check_shape))
-        )
+        shape = p_uty(tags = "train", default = NULL, custom_check = check_fn)
+      )
       super$initialize(id = id, param_vals = param_vals, feature_types = "lazy_tensor", param_set = param_set)
     }
   ),
@@ -355,10 +357,13 @@ PipeOpTorchIngressLazyTensor = R6Class("PipeOpTorchIngressLazyTensor",
         if (is.null(pv_shape)) {
           stopf("If input shape is unknown, the 'shape' parameter must be set.")
         }
+        if (identical(pv_shape, "infer")) {
+          return(c(NA, dim(materialize(example)[[1L]])))
+        }
         return(pv_shape)
       }
 
-      if (!is.null(pv_shape) && !isTRUE(all.equal(pv_shape, input_shape))) {
+      if (!is.null(pv_shape) && !identical(pv_shape, "infer") && !isTRUE(all.equal(pv_shape, input_shape))) {
         stopf("Parameter 'shape' is set for PipeOp '%s', but differs from the (known) lazy tensor input shape.", self$id) # nolint
       }
 
@@ -370,8 +375,8 @@ PipeOpTorchIngressLazyTensor = R6Class("PipeOpTorchIngressLazyTensor",
   )
 )
 
-batchgetter_lazy_tensor = function(data, device, cache) {
-  materialize_internal(x = data[[1L]], device = device, cache = cache, rbind = TRUE)
+batchgetter_lazy_tensor = function(data, cache) {
+  materialize_internal(x = data[[1L]], cache = cache, rbind = TRUE)
 }
 
 register_po("torch_ingress_ltnsr", PipeOpTorchIngressLazyTensor)

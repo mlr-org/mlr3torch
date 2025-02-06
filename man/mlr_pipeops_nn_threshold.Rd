@@ -7,6 +7,22 @@
 \description{
 Thresholds each element of the input Tensor.
 }
+\section{nn_module}{
+ Calls \code{\link[torch:nn_threshold]{torch::nn_threshold()}} when trained.
+}
+
+\section{Parameters}{
+
+\itemize{
+\item \code{threshold} :: \code{numeric(1)}\cr
+The value to threshold at.
+\item \code{value} :: \code{numeric(1)}\cr
+The value to replace with.
+\item \code{inplace} :: \code{logical(1)}\cr
+Can optionally do the operation in-place. Default: ‘FALSE’.
+}
+}
+
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
@@ -23,22 +39,6 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
 }
 
-\section{Parameters}{
-
-\itemize{
-\item \code{threshold} :: \code{numeric(1)}\cr
-The value to threshold at.
-\item \code{value} :: \code{numeric(1)}\cr
-The value to replace with.
-\item \code{inplace} :: \code{logical(1)}\cr
-Can optionally do the operation in-place. Default: ‘FALSE’.
-}
-}
-
-\section{Internals}{
- Calls \code{\link[torch:nn_threshold]{torch::nn_threshold()}} when trained.
-}
-
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Construct the PipeOp
@@ -50,6 +50,9 @@ pipeop$param_set
 }
 \seealso{
 Other PipeOps: 
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool1d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool2d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool3d}},
 \code{\link{mlr_pipeops_nn_avg_pool1d}},
 \code{\link{mlr_pipeops_nn_avg_pool2d}},
 \code{\link{mlr_pipeops_nn_avg_pool3d}},

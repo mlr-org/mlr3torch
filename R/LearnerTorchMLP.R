@@ -22,12 +22,17 @@
 #' * `neurons` :: `integer()`\cr
 #'   The number of neurons per hidden layer. By default there is no hidden layer.
 #'   Setting this to `c(10, 20)` would have a the first hidden layer with 10 neurons and the second with 20.
+#' * `n_layers` :: `integer()`\cr
+#'   The number of layers. This parameter must only be set when `neurons` has length 1.
 #' * `p` :: `numeric(1)`\cr
 #'   The dropout probability. Is initialized to `0.5`.
 #' * `shape` :: `integer()` or `NULL`\cr
 #'   The input shape of length 2, e.g. `c(NA, 5)`.
 #'   Only needs to be present when there is a lazy tensor input with unknown shape (`NULL`).
 #'   Otherwise the input shape is inferred from the number of numeric features.
+#'
+#' @references
+#' `r format_bib("gorishniy2021revisiting")`
 #'
 #' @export
 LearnerTorchMLP = R6Class("LearnerTorchMLP",
@@ -48,6 +53,7 @@ LearnerTorchMLP = R6Class("LearnerTorchMLP",
       param_set = ps(
         neurons         = p_uty(tags = c("train", "predict"), custom_check = check_neurons),
         p               = p_dbl(lower = 0, upper = 1, tags = "train"),
+        n_layers        = p_int(lower = 1L, tags = "train"),
         activation      = p_uty(tags = c("required", "train"), custom_check = check_nn_module),
         activation_args = p_uty(tags = c("required", "train"), custom_check = check_activation_args),
         shape           = p_uty(tags = "train", custom_check = check_shape)
@@ -127,8 +133,16 @@ single_lazy_tensor = function(task) {
 }
 
 # shape is (NA, x) if preesnt
-make_mlp = function(task, d_in, d_out, activation, neurons = integer(0), p, activation_args, ...) {
+make_mlp = function(task, d_in, d_out, activation, neurons = integer(0), p, activation_args, n_layers = NULL, ...) {
   # This way, dropout_args will have length 0 if p is `NULL`
+
+  if (!is.null(n_layers)) {
+    if (length(neurons) != 1L) {
+      stopf("Can only supply `n_layers` when neurons has length 1.")
+    }
+    neurons = rep(neurons, n_layers)
+  }
+
   dropout_args = list()
   dropout_args$p = p
   prev_dim = d_in

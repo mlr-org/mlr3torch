@@ -8,6 +8,11 @@
 Applies a 2D max pooling over an input signal composed of several input
 planes.
 }
+\section{nn_module}{
+
+Calls \code{\link[torch:nn_max_pool2d]{torch::nn_max_pool2d()}} during training.
+}
+
 \section{State}{
 
 The state is the value calculated by the public method \verb{$shapes_out()}.
@@ -16,18 +21,6 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 \section{Credit}{
 
 Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
-}
-
-\section{Internals}{
-
-Calls \code{\link[torch:nn_max_pool2d]{torch::nn_max_pool2d()}} during training.
-}
-
-\section{Input and Output Channels}{
-
-If \code{return_indices} is \code{FALSE} during construction, there is one input channel 'input' and one output channel 'output'.
-If \code{return_indices} is \code{TRUE}, there are two output channels 'output' and 'indices'.
-For an explanation see \code{\link{PipeOpTorch}}.
 }
 
 \section{Parameters}{
@@ -46,6 +39,13 @@ When True, will use ceil instead of floor to compute the output shape. Default: 
 }
 }
 
+\section{Input and Output Channels}{
+
+If \code{return_indices} is \code{FALSE} during construction, there is one input channel 'input' and one output channel 'output'.
+If \code{return_indices} is \code{TRUE}, there are two output channels 'output' and 'indices'.
+For an explanation see \code{\link{PipeOpTorch}}.
+}
+
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Construct the PipeOp
@@ -57,6 +57,9 @@ pipeop$param_set
 }
 \seealso{
 Other PipeOps: 
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool1d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool2d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool3d}},
 \code{\link{mlr_pipeops_nn_avg_pool1d}},
 \code{\link{mlr_pipeops_nn_avg_pool2d}},
 \code{\link{mlr_pipeops_nn_avg_pool3d}},

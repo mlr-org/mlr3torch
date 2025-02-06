@@ -14,6 +14,10 @@
 #' * `num_threads` :: `integer(1)`\cr
 #'   The number of threads for intraop pararallelization (if `device` is `"cpu"`).
 #'   This value is initialized to 1.
+#' * `num_interop_threads` :: `integer(1)`\cr
+#'   The number of threads for intraop and interop pararallelization (if `device` is `"cpu"`).
+#'   This value is initialized to 1.
+#'   Note that this can only be set once during a session and changing the value within an R session will raise a warning.
 #' * `seed` :: `integer(1)` or `"random"` or `NULL`\cr
 #'   The torch seed that is used during training and prediction.
 #'   This value is initialized to `"random"`, which means that a random seed will be sampled at the beginning of the
@@ -22,11 +26,19 @@
 #'   Note that by setting the seed during the training phase this will mean that by default (i.e. when `seed` is
 #'   `"random"`), clones of the learner will use a different seed.
 #'   If set to `NULL`, no seeding will be done.
+#' * `tensor_dataset` :: `logical(1)` | `"device"`\cr
+#'   Whether to load all batches at once at the beginning of training and stack them.
+#'   This is initialized to `FALSE`.
+#'   If set to `"device"`, the device of the tensors will be set to the value of `device`, which
+#'   can avoid unnecessary moving of tensors between devices.
+#'   When your dataset fits into memory this will make the loading of batches faster.
+#'   Note that this should not be set for datasets that contain [`lazy_tensor`]s with random data augmentation,
+#'   as this augmentation will only be applied once at the beginning of training.
 #'
 #' **Evaluation**:
-#' * `measures_train` :: [`Measure`][mlr3::Measure] or `list()` of [`Measure`][mlr3::Measure]s.\cr
+#' * `measures_train` :: [`Measure`][mlr3::Measure] or `list()` of [`Measure`][mlr3::Measure]s\cr
 #'   Measures to be evaluated during training.
-#' * `measures_valid` :: [`Measure`][mlr3::Measure] or `list()` of [`Measure`][mlr3::Measure]s.\cr
+#' * `measures_valid` :: [`Measure`][mlr3::Measure] or `list()` of [`Measure`][mlr3::Measure]s\cr
 #'   Measures to be evaluated during validation.
 #' * `eval_freq` :: `integer(1)`\cr
 #'   How often the train / validation predictions are evaluated using `measures_train` / `measures_valid`.
@@ -41,8 +53,10 @@
 #'   This is initialized to `0`, which means no early stopping.
 #'   The first entry from `measures_valid` is used as the metric.
 #'   This also requires to specify the `$validate` field of the Learner, as well as `measures_valid`.
+#'   If this is set, the epoch after which no improvement was observed, can be accessed via the `$internal_tuned_values`
+#'   field of the learner.
 #' * `min_delta` :: `double(1)`\cr
-#'   The minimum improvement threshold (`>`) for early stopping.
+#'   The minimum improvement threshold for early stopping.
 #'   Is initialized to 0.
 #'
 #' **Dataloader**:

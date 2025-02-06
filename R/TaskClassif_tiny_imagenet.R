@@ -7,7 +7,7 @@
 #' The data is obtained from [`torchvision::tiny_imagenet_dataset()`].
 #'
 #' The underlying [`DataBackend`][mlr3::DataBackend] contains columns `"class"`, `"image"`, `"..row_id"`, `"split"`, where the last column
-#' indicates whether the row belongs to the train, validation or test set that defined provided in torchvision.
+#' indicates whether the row belongs to the train, validation or test set that are provided in torchvision.
 #'
 #' There are no labels for the test rows, so by default, these observations are inactive, which means that the task
 #' uses only 110000 of the 120000 observations that are defined in the underlying data backend.
@@ -83,7 +83,7 @@ constructor_tiny_imagenet = function(path) {
 #' @include utils.R
 load_task_tiny_imagenet = function(id = "tiny_imagenet") {
   cached_constructor = crate(function(backend) {
-    dt = cached(constructor_tiny_imagenet, "datasets", "tiny_imagenet")$data
+    dt = cached(constructor_tiny_imagenet, "datasets", "tiny_imagenet", requires_disk = TRUE)$data
     setDT(dt)
 
     ci = col_info(backend)

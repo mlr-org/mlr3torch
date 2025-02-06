@@ -40,9 +40,11 @@ ContextTorch = R6Class("ContextTorch",
     #'   The learner's prediction encoder.
     #' @param eval_freq (`integer(1)`)\cr
     #'   The evaluation frequency.
+    #' @param device (`character(1)`)\cr
+    #'   The device.
     initialize = function(learner, task_train, task_valid = NULL, loader_train, loader_valid = NULL,
       measures_train = NULL, measures_valid = NULL, network, optimizer, loss_fn, total_epochs, prediction_encoder,
-      eval_freq = 1L) {
+      eval_freq = 1L, device) {
       self$learner = assert_r6(learner, "Learner")
       self$task_train = assert_r6(task_train, "Task")
       self$task_valid = assert_r6(task_valid, "Task", null.ok = TRUE)
@@ -61,6 +63,7 @@ ContextTorch = R6Class("ContextTorch",
       self$prediction_encoder = assert_function(prediction_encoder, args = c("predict_tensor", "task"))
       self$eval_freq = assert_int(eval_freq, lower = 1L)
       self$terminate = FALSE
+      self$device = torch_device(assert_choice(device, mlr_reflections$torch$devices))
     },
     #' @field learner ([`Learner`][mlr3::Learner])\cr
     #'   The torch learner.
@@ -105,6 +108,9 @@ ContextTorch = R6Class("ContextTorch",
     #'   If [`LearnerTorch`] sets `eval_freq` different from `1`, this is `NULL` in all epochs
     #'   that don't evaluate the model.
     last_scores_valid = NULL,
+    #' @field last_loss (`numeric(1)`)\cr
+    #' The loss from the last trainings batch.
+    last_loss = NULL,
     #' @field epoch (`integer(1)`)\cr
     #'   The current epoch.
     epoch = NULL,
@@ -119,6 +125,9 @@ ContextTorch = R6Class("ContextTorch",
     batch = NULL,
     #' @field terminate (`logical(1)`)\cr
     #'   If this field is set to `TRUE` at the end of an epoch, training stops.
-    terminate = NULL
+    terminate = NULL,
+    #' @field device (`torch::torch_device`)\cr
+    #'   The device.
+    device = NULL
   )
 )

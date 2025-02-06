@@ -19,6 +19,18 @@
 #' @family Callback
 #' @export
 #' @include CallbackSet.R
+#' 
+#' @examplesIf torch::torch_is_installed()
+#' cb = t_clbk("checkpoint", freq = 1)
+#' task = tsk("iris")
+#' 
+#' pth = tempfile()
+#' learner = lrn("classif.mlp", epochs = 3, batch_size = 1, callbacks = cb)
+#' learner$param_set$set_values(cb.checkpoint.path = pth)
+#' 
+#' learner$train(task)
+#' 
+#' list.files(pth)
 CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
   inherit = CallbackSet,
   lock_objects = FALSE,

@@ -8,6 +8,19 @@
 Concatenates multiple tensors on a given dimension.
 No broadcasting rules are applied here, you must reshape the tensors before to have the same shape.
 }
+\section{nn_module}{
+
+Calls \code{\link[=nn_merge_cat]{nn_merge_cat()}} when trained.
+}
+
+\section{Parameters}{
+
+\itemize{
+\item \code{dim} :: \code{integer(1)}\cr
+The dimension along which to concatenate the tensors.
+}
+}
+
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
@@ -29,19 +42,6 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
 }
 
-\section{Parameters}{
-
-\itemize{
-\item \code{dim} :: \code{integer(1)}\cr
-The dimension along which to concatenate the tensors.
-}
-}
-
-\section{Internals}{
-
-Calls \code{\link[=nn_merge_cat]{nn_merge_cat()}} when trained.
-}
-
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Construct the PipeOp
@@ -53,6 +53,9 @@ pipeop$param_set
 }
 \seealso{
 Other PipeOps: 
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool1d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool2d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool3d}},
 \code{\link{mlr_pipeops_nn_avg_pool1d}},
 \code{\link{mlr_pipeops_nn_avg_pool2d}},
 \code{\link{mlr_pipeops_nn_avg_pool3d}},

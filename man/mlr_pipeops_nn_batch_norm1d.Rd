@@ -7,20 +7,10 @@
 \description{
 Applies Batch Normalization for each channel across a batch of data.
 }
-\section{Input and Output Channels}{
+\section{nn_module}{
 
-One input channel called \code{"input"} and one output channel called \code{"output"}.
-For an explanation see \code{\link{PipeOpTorch}}.
-}
-
-\section{State}{
-
-The state is the value calculated by the public method \verb{$shapes_out()}.
-}
-
-\section{Credit}{
-
-Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
+Calls \code{\link[torch:nn_batch_norm1d]{torch::nn_batch_norm1d()}}.
+The parameter \code{num_features} is inferred as the second dimension of the input shape.
 }
 
 \section{Parameters}{
@@ -40,10 +30,20 @@ Default: \code{TRUE}
 }
 }
 
-\section{Internals}{
+\section{Input and Output Channels}{
 
-Calls \code{\link[torch:nn_batch_norm1d]{torch::nn_batch_norm1d()}}.
-The parameter \code{num_features} is inferred as the second dimension of the input shape.
+One input channel called \code{"input"} and one output channel called \code{"output"}.
+For an explanation see \code{\link{PipeOpTorch}}.
+}
+
+\section{State}{
+
+The state is the value calculated by the public method \verb{$shapes_out()}.
+}
+
+\section{Credit}{
+
+Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
 }
 
 \examples{
@@ -57,6 +57,9 @@ pipeop$param_set
 }
 \seealso{
 Other PipeOps: 
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool1d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool2d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool3d}},
 \code{\link{mlr_pipeops_nn_avg_pool1d}},
 \code{\link{mlr_pipeops_nn_avg_pool2d}},
 \code{\link{mlr_pipeops_nn_avg_pool3d}},

@@ -112,6 +112,21 @@ bibentries = c(# nolint start
     booktitle = "Proceedings of the IEEE conference on computer vision and pattern recognition ",
     pages     = "2818--2826 ",
     year      = "2016 "
+  ),
+  melanoma2021 = bibentry("article",
+    title = "A patient-centric dataset of images and metadata for identifying melanomas using clinical context",
+    author = "Rotemberg, V. and Kurtansky, N. and Betz-Stablein, B. and Caffery, L. and Chousakos, E. and Codella, N. and Combalia, M. and Dusza, S. and Guitera, P. and Gutman, D. and Halpern, A. and Helba, B. and Kittler, H. and Kose, K. and Langer, S. and Lioprys, K. and Malvehy, J. and Musthaq, S. and Nanda, J. and Reiter, O. and Shih, G. and Stratigos, A. and Tschandl, P. and Weber, J. and Soyer, P.",
+    journal = "Scientific Data",
+    volume = "8",
+    pages = "34",
+    year = "2021",
+    doi = "10.1038/s41597-021-00815-z"
+  ),
+  cifar2009 = bibentry("article",
+    title = "Learning Multiple Layers of Features from Tiny Images",
+    author = "Krizhevsky, Alex",
+    journal= "Master's thesis, Department of Computer Science, University of Toronto",,
+    year = "2009",
   )
 ) # nolint end
 

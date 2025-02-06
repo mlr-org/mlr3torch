@@ -4,7 +4,7 @@
 \alias{task_dataset}
 \title{Create a Dataset from a Task}
 \usage{
-task_dataset(task, feature_ingress_tokens, target_batchgetter = NULL, device)
+task_dataset(task, feature_ingress_tokens, target_batchgetter = NULL)
 }
 \arguments{
 \item{task}{(\code{\link[mlr3:Task]{Task}})\cr
@@ -16,9 +16,6 @@ Each ingress token defines one item in the \verb{$x} value of a batch with corre
 \item{target_batchgetter}{(\verb{function(data, device)})\cr
 A function taking in arguments \code{data}, which is a \code{data.table} containing only the target variable, and \code{device}.
 It must return the target as a torch \link[torch:torch_tensor]{tensor} on the selected device.}
-
-\item{device}{(\code{character()})\cr
-The device, e.g. \code{"cuda"} or \code{"cpu"}.}
 }
 \value{
 \code{\link[torch:dataset]{torch::dataset}}
@@ -49,10 +46,10 @@ petal_ingress = TorchIngressToken(
 )
 ingress_tokens = list(sepal = sepal_ingress, petal = petal_ingress)
 
-target_batchgetter = function(data, device) {
-  torch_tensor(data = data[[1L]], dtype = torch_float32(), device)$unsqueeze(2)
+target_batchgetter = function(data) {
+  torch_tensor(data = data[[1L]], dtype = torch_float32())$unsqueeze(2)
 }
-dataset = task_dataset(task, ingress_tokens, target_batchgetter, "cpu")
+dataset = task_dataset(task, ingress_tokens, target_batchgetter)
 batch = dataset$.getbatch(1:10)
 batch
 \dontshow{\}) # examplesIf}

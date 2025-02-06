@@ -5,9 +5,15 @@
 \alias{PipeOpTorchAvgPool3D}
 \title{3D Average Pooling}
 \description{
-Applies a 3D adaptive average pooling over an input signal composed of
-several input planes.
+Applies 3D average-pooling operation in \eqn{kT * kH * kW} regions by step
+size \eqn{sT * sH * sW} steps. The number of output features is equal to
+\eqn{\lfloor \frac{ \mbox{input planes} }{sT} \rfloor}.
 }
+\section{Internals}{
+
+Calls \code{\link[torch:nn_avg_pool3d]{nn_avg_pool3d()}} during training.
+}
+
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
@@ -22,11 +28,6 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 \section{Credit}{
 
 Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
-}
-
-\section{Internals}{
-
-Calls \code{\link[torch:nn_avg_pool3d]{nn_avg_pool3d()}} during training.
 }
 
 \section{Parameters}{
@@ -59,6 +60,9 @@ pipeop$param_set
 }
 \seealso{
 Other PipeOps: 
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool1d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool2d}},
+\code{\link{mlr_pipeops_nn_adaptive_avg_pool3d}},
 \code{\link{mlr_pipeops_nn_avg_pool1d}},
 \code{\link{mlr_pipeops_nn_avg_pool2d}},
 \code{\link{mlr_pipeops_nn_batch_norm1d}},
