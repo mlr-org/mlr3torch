@@ -48,6 +48,7 @@ Other Callback:
 \item \href{#method-CallbackSetProgress-on_before_valid}{\code{CallbackSetProgress$on_before_valid()}}
 \item \href{#method-CallbackSetProgress-on_batch_valid_end}{\code{CallbackSetProgress$on_batch_valid_end()}}
 \item \href{#method-CallbackSetProgress-on_epoch_end}{\code{CallbackSetProgress$on_epoch_end()}}
+\item \href{#method-CallbackSetProgress-on_end}{\code{CallbackSetProgress$on_end()}}
 \item \href{#method-CallbackSetProgress-clone}{\code{CallbackSetProgress$clone()}}
 }
 }
@@ -107,6 +108,16 @@ Increments the validation progress bar.
 Prints a summary of the training and validation process.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CallbackSetProgress$on_epoch_end()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSetProgress-on_end"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetProgress-on_end}{}}}
+\subsection{Method \code{on_end()}}{
+Prints the time at the end of training.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackSetProgress$on_end()}\if{html}{\out{</div>}}
 }
 
 }
