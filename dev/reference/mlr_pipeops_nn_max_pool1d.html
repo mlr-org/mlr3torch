@@ -59,6 +59,27 @@ planes.</p>
 
 
     <div class="section level2">
+    <h2 id="nn-module">nn_module<a class="anchor" aria-label="anchor" href="#nn-module"></a></h2>
+
+
+<p>Calls <code><a href="https://torch.mlverse.org/docs/reference/nn_max_pool1d.html" class="external-link">torch::nn_max_pool1d()</a></code> during training.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="parameters">Parameters<a class="anchor" aria-label="anchor" href="#parameters"></a></h2>
+
+
+<ul><li><p><code>kernel_size</code> :: <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code><br>
+The size of the window. Can be single number or a vector.</p></li>
+<li><p><code>stride</code> :: (<code>integer(1))</code><br>
+The stride of the window. Can be a single number or a vector. Default: <code>kernel_size</code></p></li>
+<li><p><code>padding</code> :: <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code><br>
+Implicit zero paddings on both sides of the input. Can be a single number or a tuple (padW,). Default: 0</p></li>
+<li><p><code>dilation</code> :: <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code><br>
+Controls the spacing between the kernel points; also known as the à trous algorithm. Default: 1</p></li>
+<li><p><code>ceil_mode</code> :: <code>logical(1)</code><br>
+When True, will use ceil instead of floor to compute the output shape. Default: <code>FALSE</code></p></li>
+</ul></div>
+    <div class="section level2">
     <h2 id="input-and-output-channels">Input and Output Channels<a class="anchor" aria-label="anchor" href="#input-and-output-channels"></a></h2>
 
 
@@ -77,27 +98,6 @@ For an explanation see <code><a href="mlr_pipeops_torch.html">PipeOpTorch</a></c
 
 
 <p>Part of this documentation have been copied or adapted from the documentation of <a href="https://CRAN.R-project.org/package=torch" class="external-link"><span class="pkg">torch</span></a>.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="parameters">Parameters<a class="anchor" aria-label="anchor" href="#parameters"></a></h2>
-
-
-<ul><li><p><code>kernel_size</code> :: <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code><br>
-The size of the window. Can be single number or a vector.</p></li>
-<li><p><code>stride</code> :: (<code>integer(1))</code><br>
-The stride of the window. Can be a single number or a vector. Default: <code>kernel_size</code></p></li>
-<li><p><code>padding</code> :: <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code><br>
-Implicit zero paddings on both sides of the input. Can be a single number or a tuple (padW,). Default: 0</p></li>
-<li><p><code>dilation</code> :: <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code><br>
-Controls the spacing between the kernel points; also known as the à trous algorithm. Default: 1</p></li>
-<li><p><code>ceil_mode</code> :: <code>logical(1)</code><br>
-When True, will use ceil instead of floor to compute the output shape. Default: <code>FALSE</code></p></li>
-</ul></div>
-    <div class="section level2">
-    <h2 id="internals">Internals<a class="anchor" aria-label="anchor" href="#internals"></a></h2>
-
-
-<p>Calls <code><a href="https://torch.mlverse.org/docs/reference/nn_max_pool1d.html" class="external-link">torch::nn_max_pool1d()</a></code> during training.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

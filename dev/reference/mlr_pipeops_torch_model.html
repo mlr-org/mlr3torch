@@ -59,20 +59,6 @@ The task type must be specified during construction.</p>
 
 
     <div class="section level2">
-    <h2 id="input-and-output-channels">Input and Output Channels<a class="anchor" aria-label="anchor" href="#input-and-output-channels"></a></h2>
-
-
-<p>There is one input channel <code>"input"</code> that takes in <code>ModelDescriptor</code> during traing and a <code>Task</code> of the specified
-<code>task_type</code> during prediction.
-The output is <code>NULL</code> during training and a <code>Prediction</code> of given <code>task_type</code> during prediction.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="state">State<a class="anchor" aria-label="anchor" href="#state"></a></h2>
-
-
-<p>A trained <code><a href="mlr_learners_torch_model.html">LearnerTorchModel</a></code>.</p>
-    </div>
-    <div class="section level2">
     <h2 id="parameters">Parameters<a class="anchor" aria-label="anchor" href="#parameters"></a></h2>
 
 
@@ -159,6 +145,20 @@ are copied to the workers.</p></li>
 <li><p><code>worker_packages</code> :: <code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code><br>
 Which packages to load on the workers.</p></li>
 </ul><p>Also see <code>torch::dataloder</code> for more information.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="input-and-output-channels">Input and Output Channels<a class="anchor" aria-label="anchor" href="#input-and-output-channels"></a></h2>
+
+
+<p>There is one input channel <code>"input"</code> that takes in <code>ModelDescriptor</code> during traing and a <code>Task</code> of the specified
+<code>task_type</code> during prediction.
+The output is <code>NULL</code> during training and a <code>Prediction</code> of given <code>task_type</code> during prediction.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="state">State<a class="anchor" aria-label="anchor" href="#state"></a></h2>
+
+
+<p>A trained <code><a href="mlr_learners_torch_model.html">LearnerTorchModel</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="internals">Internals<a class="anchor" aria-label="anchor" href="#internals"></a></h2>

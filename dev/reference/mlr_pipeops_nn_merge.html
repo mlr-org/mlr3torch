@@ -59,6 +59,10 @@
 
 
     <div class="section level2">
+    <h2 id="parameters">Parameters<a class="anchor" aria-label="anchor" href="#parameters"></a></h2>
+    <p>See the respective child class.</p>
+    </div>
+    <div class="section level2">
     <h2 id="state">State<a class="anchor" aria-label="anchor" href="#state"></a></h2>
 
 
@@ -73,16 +77,12 @@ input channels <code>"input1"</code>, ..., <code>"input&lt;innum&gt;"</code>. Th
 For an explanation see <code><a href="mlr_pipeops_torch.html">PipeOpTorch</a></code>.</p>
     </div>
     <div class="section level2">
-    <h2 id="parameters">Parameters<a class="anchor" aria-label="anchor" href="#parameters"></a></h2>
-    <p>See the respective child class.</p>
-    </div>
-    <div class="section level2">
     <h2 id="internals">Internals<a class="anchor" aria-label="anchor" href="#internals"></a></h2>
 
 
 <p>Per default, the <code>private$.shapes_out()</code> method outputs the broadcasted tensors. There are two things to be aware:</p><ol><li><p><code>NA</code>s are assumed to batch (this should almost always be the batch size in the first dimension).</p></li>
 <li><p>Tensors are expected to have the same number of dimensions, i.e. missing dimensions are not filled with 1s.
-The reason is that again that the first dimension should be the batch dimension.
+The reason is again that the first dimension should be the batch dimension.
 This private method can be overwritten by <code><a href="mlr_pipeops_torch.html">PipeOpTorch</a></code>s inheriting from this class.</p></li>
 </ol></div>
     <div class="section level2">

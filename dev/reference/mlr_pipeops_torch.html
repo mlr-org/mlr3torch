@@ -98,6 +98,14 @@ If there is only one input and output channel, the task is simply piped through.
 
 
     <div class="section level2">
+    <h2 id="parameters">Parameters<a class="anchor" aria-label="anchor" href="#parameters"></a></h2>
+
+
+<p>The <code><a href="https://paradox.mlr-org.com/reference/ParamSet.html" class="external-link">ParamSet</a></code> is specified by the child class inheriting from <code>PipeOpTorch</code>.
+Usually the parameters are the arguments of the wrapped <code><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">nn_module</a></code> minus the auxiliary parameter that can
+be automatically inferred from the shapes of the input tensors.</p>
+    </div>
+    <div class="section level2">
     <h2 id="inheriting">Inheriting<a class="anchor" aria-label="anchor" href="#inheriting"></a></h2>
 
 
@@ -135,14 +143,6 @@ During <em>prediction</em>, all input and output channels are of class <code><a 
 
 
 <p>The state is the value calculated by the public method <code>shapes_out()</code>.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="parameters">Parameters<a class="anchor" aria-label="anchor" href="#parameters"></a></h2>
-
-
-<p>The <code><a href="https://paradox.mlr-org.com/reference/ParamSet.html" class="external-link">ParamSet</a></code> is specified by the child class inheriting from <code>PipeOpTorch</code>.
-Usually the parameters are the arguments of the wrapped <code><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">nn_module</a></code> minus the auxiliary parameter that can
-be automatically inferred from the shapes of the input tensors.</p>
     </div>
     <div class="section level2">
     <h2 id="internals">Internals<a class="anchor" aria-label="anchor" href="#internals"></a></h2>

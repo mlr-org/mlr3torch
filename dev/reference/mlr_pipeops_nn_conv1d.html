@@ -59,23 +59,11 @@ planes.</p>
 
 
     <div class="section level2">
-    <h2 id="input-and-output-channels">Input and Output Channels<a class="anchor" aria-label="anchor" href="#input-and-output-channels"></a></h2>
+    <h2 id="nn-module">nn_module<a class="anchor" aria-label="anchor" href="#nn-module"></a></h2>
 
 
-<p>One input channel called <code>"input"</code> and one output channel called <code>"output"</code>.
-For an explanation see <code><a href="mlr_pipeops_torch.html">PipeOpTorch</a></code>.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="state">State<a class="anchor" aria-label="anchor" href="#state"></a></h2>
-
-
-<p>The state is the value calculated by the public method <code>$shapes_out()</code>.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="credit">Credit<a class="anchor" aria-label="anchor" href="#credit"></a></h2>
-
-
-<p>Part of this documentation have been copied or adapted from the documentation of <a href="https://CRAN.R-project.org/package=torch" class="external-link"><span class="pkg">torch</span></a>.</p>
+<p>Calls <code><a href="https://torch.mlverse.org/docs/reference/nn_conv1d.html" class="external-link">torch::nn_conv1d()</a></code> when trained.
+The paramter <code>in_channels</code> is inferred from the second dimension of the input tensor.</p>
     </div>
     <div class="section level2">
     <h2 id="parameters">Parameters<a class="anchor" aria-label="anchor" href="#parameters"></a></h2>
@@ -99,11 +87,23 @@ Spacing between kernel elements. Default: 1.</p></li>
 The padding mode. One of <code>"zeros"</code>, <code>"reflect"</code>, <code>"replicate"</code>, or <code>"circular"</code>. Default is <code>"zeros"</code>.</p></li>
 </ul></div>
     <div class="section level2">
-    <h2 id="internals">Internals<a class="anchor" aria-label="anchor" href="#internals"></a></h2>
+    <h2 id="input-and-output-channels">Input and Output Channels<a class="anchor" aria-label="anchor" href="#input-and-output-channels"></a></h2>
 
 
-<p>Calls <code><a href="https://torch.mlverse.org/docs/reference/nn_conv1d.html" class="external-link">torch::nn_conv1d()</a></code> when trained.
-The paramter <code>in_channels</code> is inferred from the second dimension of the input tensor.</p>
+<p>One input channel called <code>"input"</code> and one output channel called <code>"output"</code>.
+For an explanation see <code><a href="mlr_pipeops_torch.html">PipeOpTorch</a></code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="state">State<a class="anchor" aria-label="anchor" href="#state"></a></h2>
+
+
+<p>The state is the value calculated by the public method <code>$shapes_out()</code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="credit">Credit<a class="anchor" aria-label="anchor" href="#credit"></a></h2>
+
+
+<p>Part of this documentation have been copied or adapted from the documentation of <a href="https://CRAN.R-project.org/package=torch" class="external-link"><span class="pkg">torch</span></a>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

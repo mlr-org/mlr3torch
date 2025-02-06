@@ -59,6 +59,12 @@ planes.</p>
 
 
     <div class="section level2">
+    <h2 id="nn-module">nn_module<a class="anchor" aria-label="anchor" href="#nn-module"></a></h2>
+
+
+<p>Calls <code><a href="https://torch.mlverse.org/docs/reference/nn_max_pool3d.html" class="external-link">torch::nn_max_pool3d()</a></code> during training.</p>
+    </div>
+    <div class="section level2">
     <h2 id="state">State<a class="anchor" aria-label="anchor" href="#state"></a></h2>
 
 
@@ -69,20 +75,6 @@ planes.</p>
 
 
 <p>Part of this documentation have been copied or adapted from the documentation of <a href="https://CRAN.R-project.org/package=torch" class="external-link"><span class="pkg">torch</span></a>.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="internals">Internals<a class="anchor" aria-label="anchor" href="#internals"></a></h2>
-
-
-<p>Calls <code><a href="https://torch.mlverse.org/docs/reference/nn_max_pool3d.html" class="external-link">torch::nn_max_pool3d()</a></code> during training.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="input-and-output-channels">Input and Output Channels<a class="anchor" aria-label="anchor" href="#input-and-output-channels"></a></h2>
-
-
-<p>If <code>return_indices</code> is <code>FALSE</code> during construction, there is one input channel 'input' and one output channel 'output'.
-If <code>return_indices</code> is <code>TRUE</code>, there are two output channels 'output' and 'indices'.
-For an explanation see <code><a href="mlr_pipeops_torch.html">PipeOpTorch</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="parameters">Parameters<a class="anchor" aria-label="anchor" href="#parameters"></a></h2>
@@ -99,6 +91,14 @@ Controls the spacing between the kernel points; also known as the à trous algor
 <li><p><code>ceil_mode</code> :: <code>logical(1)</code><br>
 When True, will use ceil instead of floor to compute the output shape. Default: <code>FALSE</code></p></li>
 </ul></div>
+    <div class="section level2">
+    <h2 id="input-and-output-channels">Input and Output Channels<a class="anchor" aria-label="anchor" href="#input-and-output-channels"></a></h2>
+
+
+<p>If <code>return_indices</code> is <code>FALSE</code> during construction, there is one input channel 'input' and one output channel 'output'.
+If <code>return_indices</code> is <code>TRUE</code>, there are two output channels 'output' and 'indices'.
+For an explanation see <code><a href="mlr_pipeops_torch.html">PipeOpTorch</a></code>.</p>
+    </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other PipeOps:

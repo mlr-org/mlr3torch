@@ -56,6 +56,25 @@
 
 
     <div class="section level2">
+    <h2 id="nn-module">nn_module<a class="anchor" aria-label="anchor" href="#nn-module"></a></h2>
+
+
+<p>Calls <code><a href="https://torch.mlverse.org/docs/reference/nn_layer_norm.html" class="external-link">torch::nn_layer_norm()</a></code> when trained.
+The parameter <code>normalized_shape</code> is inferred as the dimensions of the last <code>dims</code> dimensions of the input shape.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="parameters">Parameters<a class="anchor" aria-label="anchor" href="#parameters"></a></h2>
+
+
+<ul><li><p><code>dims</code> :: <code>integer(1)</code><br>
+The number of dimensions over which will be normalized (starting from the last dimension).</p></li>
+<li><p><code>elementwise_affine</code> :: <code>logical(1)</code><br>
+Whether to learn affine-linear parameters initialized to <code>1</code> for weights and to <code>0</code> for biases.
+The default is <code>TRUE</code>.</p></li>
+<li><p><code>eps</code> :: <code>numeric(1)</code><br>
+A value added to the denominator for numerical stability.</p></li>
+</ul></div>
+    <div class="section level2">
     <h2 id="state">State<a class="anchor" aria-label="anchor" href="#state"></a></h2>
 
 
@@ -73,25 +92,6 @@
 
 <p>One input channel called <code>"input"</code> and one output channel called <code>"output"</code>.
 For an explanation see <code><a href="mlr_pipeops_torch.html">PipeOpTorch</a></code>.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="parameters">Parameters<a class="anchor" aria-label="anchor" href="#parameters"></a></h2>
-
-
-<ul><li><p><code>dims</code> :: <code>integer(1)</code><br>
-The number of dimensions over which will be normalized (starting from the last dimension).</p></li>
-<li><p><code>elementwise_affine</code> :: <code>logical(1)</code><br>
-Whether to learn affine-linear parameters initialized to <code>1</code> for weights and to <code>0</code> for biases.
-The default is <code>TRUE</code>.</p></li>
-<li><p><code>eps</code> :: <code>numeric(1)</code><br>
-A value added to the denominator for numerical stability.</p></li>
-</ul></div>
-    <div class="section level2">
-    <h2 id="internals">Internals<a class="anchor" aria-label="anchor" href="#internals"></a></h2>
-
-
-<p>Calls <code><a href="https://torch.mlverse.org/docs/reference/nn_layer_norm.html" class="external-link">torch::nn_layer_norm()</a></code> when trained.
-The parameter <code>normalized_shape</code> is inferred as the dimensions of the last <code>dims</code> dimensions of the input shape.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
