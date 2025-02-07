@@ -4,7 +4,7 @@
 # mlr3torch <a href="https://mlr3torch.mlr-org.com"><img src="man/figures/logo.svg" align="right" height="139" /></a>
 
 Package website: [release](https://mlr3torch.mlr-org.com/) \|
-[dev](https://mlr3torch.mlr-org.com/dev)
+[dev](https://mlr3torch.mlr-org.com/dev/)
 
 Deep Learning with torch and mlr3.
 
