@@ -1,6 +1,6 @@
 Package: mlr3torch
 Title: Deep Learning with 'mlr3'
-Version: 0.2.0
+Version: 0.2.0-9000
 Authors@R:
     c(person(given = "Sebastian",
              family = "Fischer",
