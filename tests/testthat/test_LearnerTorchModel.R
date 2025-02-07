@@ -78,7 +78,7 @@ test_that("LearnerTorchModel and marshaling", {
     packages = "data.table",
   )
   learner$encapsulate("callr", lrn("classif.featureless"))
-  learner$configure(
+  learner$param_set$set_values(
     batch_size = 50,
     epochs = 1
   )
