@@ -77,6 +77,7 @@ test_that("LearnerTorchModel and marshaling", {
     ingress_tokens = list(x = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, 4L))),
     packages = "data.table",
   )
+  learner$encapsulate("callr", lrn("classif.featureless"))
   learner$configure(
     batch_size = 50,
     epochs = 1

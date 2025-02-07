@@ -18,9 +18,9 @@
 
 * Optimizers now use the faster ('ignite') version of the optimizers,
   which leads to considerable speed improvements.
-* The `jit_trace` parameter was added to `LearnerTorch`, which when set to 
+* The `jit_trace` parameter was added to `LearnerTorch`, which when set to
   `TRUE` can lead to significant speedups.
-  This should only be enabled for 'static' models, see the 
+  This should only be enabled for 'static' models, see the
   [torch tutorial](https://torch.mlverse.org/docs/articles/torchscript)
   for more information.
 * Added parameter `num_interop_threads` to `LearnerTorch`.
