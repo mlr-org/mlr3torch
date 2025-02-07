@@ -2,12 +2,20 @@ pandoc: 3.1.11
 pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
+  articles/callback_list: callback_list.html
   articles/callbacks: callbacks.html
   articles/get_started: get_started.html
   articles/internals_pipeop_torch: internals_pipeop_torch.html
+  articles/layer_list: layer_list.html
   articles/lazy_tensor: lazy_tensor.html
+  articles/loss_list: loss_list.html
+  articles/optimizer_list: optimizer_list.html
   articles/pipeop_torch: pipeop_torch.html
-last_built: 2024-10-18T15:03Z
+  articles/preprocessing_list: preprocessing_list.html
+  articles/tabular_learner_list: tabular_learner_list.html
+  articles/task_list: task_list.html
+  articles/vision_learner_list: vision_learner_list.html
+last_built: 2025-02-07T09:12Z
 urls:
   reference: https://mlr3torch.mlr-org.com/reference
   article: https://mlr3torch.mlr-org.com/articles
