@@ -69,7 +69,7 @@ paramset_torchlearner = function(task_type) {
     min_delta             = p_dbl(lower = 0, tags = c("train", "required"), init = 0),
     # dataloader parameters
     batch_size            = p_int(tags = c("train", "predict", "required"), lower = 1L),
-    shuffle               = p_lgl(tags = "train", default = FALSE),
+    shuffle               = p_lgl(tags = "train", default = FALSE, init = TRUE),
     sampler               = p_uty(tags = c("train", "predict")),
     batch_sampler         = p_uty(tags = c("train", "predict")),
     num_workers           = p_int(lower = 0, default = 0, tags = c("train", "predict")),

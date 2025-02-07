@@ -25,6 +25,7 @@
 * feat: `PipeOpBlock` should no longer create ID clashes with other PipeOps in the graph (#260)
 * fix: `device` is no longer part of the `dataset` which allows for parallel dataloading
   on GPUs.
+* feat: The `shuffle` parameter during model training is now initialized to `TRUE`.
 
 # mlr3torch 0.1.2
 
