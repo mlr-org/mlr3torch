@@ -240,7 +240,7 @@ have to implement these methods.</p>
 <span><span class="co">##     load_state_dict: function (state_dict) </span></span>
 <span><span class="co">##     on_before_valid: function () </span></span>
 <span><span class="co">##     on_batch_end: function () </span></span>
-<span><span class="co">##   Parent env: &lt;environment: 0x5633d64eea20&gt;</span></span>
+<span><span class="co">##   Parent env: &lt;environment: 0x562772bf68b8&gt;</span></span>
 <span><span class="co">##   Locked objects: FALSE</span></span>
 <span><span class="co">##   Locked class: FALSE</span></span>
 <span><span class="co">##   Portable: TRUE</span></span></code></pre>
@@ -258,16 +258,16 @@ parameter <code>alpha</code> to 0.05.</p>
 <span>  epochs <span class="op">=</span> <span class="fl">5</span>, batch_size <span class="op">=</span> <span class="fl">64</span>, neurons <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">mlp</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Epoch 1: 1.22</span></span>
-<span><span class="co">## Epoch 2: 1.27</span></span>
-<span><span class="co">## Epoch 3: 1.48</span></span>
-<span><span class="co">## Epoch 4: 1.07</span></span>
-<span><span class="co">## Epoch 5: 1.09</span></span></code></pre>
+<pre><code><span><span class="co">## Epoch 1: 1.18</span></span>
+<span><span class="co">## Epoch 2: 1.06</span></span>
+<span><span class="co">## Epoch 3: 1.12</span></span>
+<span><span class="co">## Epoch 4: 1.15</span></span>
+<span><span class="co">## Epoch 5: 1.16</span></span></code></pre>
 <p>The information that is returnede by <code>state_dict()</code> is now
 accessible via the <code>Learner</code>’s <code>$model</code>-slot:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mlp</span><span class="op">$</span><span class="va">model</span><span class="op">$</span><span class="va">callbacks</span><span class="op">$</span><span class="va">custom_logger</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] 1.090038</span></span></code></pre>
+<pre><code><span><span class="co">## [1] 1.15931</span></span></code></pre>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

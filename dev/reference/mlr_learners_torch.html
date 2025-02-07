@@ -172,8 +172,8 @@ Is initialized to 0.</p></li>
 </ul><p><strong>Dataloader</strong>:</p><ul><li><p><code>batch_size</code> :: <code>integer(1)</code><br>
 The batch size (required).</p></li>
 <li><p><code>shuffle</code> :: <code>logical(1)</code><br>
-Whether to shuffle the instances in the dataset. Default is <code>FALSE</code>.
-This does not impact validation.</p></li>
+Whether to shuffle the instances in the dataset. This is initialized to <code>TRUE</code>,
+which differs from the default (<code>FALSE</code>).</p></li>
 <li><p><code>sampler</code> :: <code><a href="https://torch.mlverse.org/docs/reference/sampler.html" class="external-link">torch::sampler</a></code><br>
 Object that defines how the dataloader draw samples.</p></li>
 <li><p><code>batch_sampler</code> :: <code><a href="https://torch.mlverse.org/docs/reference/sampler.html" class="external-link">torch::sampler</a></code><br>

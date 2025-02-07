@@ -153,8 +153,8 @@ For a complete description of the available parameters see
 <span><span class="co">#&gt; * Parameters: epochs=30, device=cpu, num_threads=1,</span></span>
 <span><span class="co">#&gt;   num_interop_threads=1, seed=random, jit_trace=FALSE, eval_freq=1,</span></span>
 <span><span class="co">#&gt;   measures_train=&lt;list&gt;, measures_valid=&lt;list&gt;, patience=0,</span></span>
-<span><span class="co">#&gt;   min_delta=0, batch_size=32, tensor_dataset=FALSE, neurons=50,50,</span></span>
-<span><span class="co">#&gt;   p=0.5, activation=&lt;nn_relu&gt;, activation_args=&lt;list&gt;</span></span>
+<span><span class="co">#&gt;   min_delta=0, batch_size=32, shuffle=TRUE, tensor_dataset=FALSE,</span></span>
+<span><span class="co">#&gt;   neurons=50,50, p=0.5, activation=&lt;nn_relu&gt;, activation_args=&lt;list&gt;</span></span>
 <span><span class="co">#&gt; * Validate: NULL</span></span>
 <span><span class="co">#&gt; * Packages: mlr3, mlr3torch, torch</span></span>
 <span><span class="co">#&gt; * Predict Types:  [response]</span></span>
@@ -178,7 +178,7 @@ of the predictions.</p>
 <span><span class="co"># Compute the mse</span></span>
 <span><span class="va">prediction</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mse"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; regr.mse </span></span>
-<span><span class="co">#&gt; 283.8381</span></span></code></pre></div>
+<span><span class="co">#&gt; 294.1396</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="configuring-a-learner">Configuring a Learner<a class="anchor" aria-label="anchor" href="#configuring-a-learner"></a>
@@ -382,9 +382,9 @@ common <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="ex
 <span><span class="co">#&gt; * Parameters: epochs=30, device=cpu, num_threads=1,</span></span>
 <span><span class="co">#&gt;   num_interop_threads=1, seed=random, jit_trace=FALSE, eval_freq=1,</span></span>
 <span><span class="co">#&gt;   measures_train=&lt;list&gt;, measures_valid=&lt;MeasureRegrSimple&gt;,</span></span>
-<span><span class="co">#&gt;   patience=0, min_delta=0, batch_size=32, tensor_dataset=FALSE,</span></span>
-<span><span class="co">#&gt;   neurons=50,50, p=0.5, activation=&lt;nn_relu&gt;, activation_args=&lt;list&gt;,</span></span>
-<span><span class="co">#&gt;   opt.lr=0.5, opt.nesterov=FALSE</span></span>
+<span><span class="co">#&gt;   patience=0, min_delta=0, batch_size=32, shuffle=TRUE,</span></span>
+<span><span class="co">#&gt;   tensor_dataset=FALSE, neurons=50,50, p=0.5, activation=&lt;nn_relu&gt;,</span></span>
+<span><span class="co">#&gt;   activation_args=&lt;list&gt;, opt.lr=0.5, opt.nesterov=FALSE</span></span>
 <span><span class="co">#&gt; * Validate: 0.3</span></span>
 <span><span class="co">#&gt; * Packages: mlr3, mlr3torch, torch</span></span>
 <span><span class="co">#&gt; * Predict Types:  [response]</span></span>
@@ -405,22 +405,22 @@ lower MAE than the default <code>mlp</code> learner.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">prediction_custom</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mae"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; regr.mae </span></span>
-<span><span class="co">#&gt; 7.122374</span></span>
+<span><span class="co">#&gt; 8.543908</span></span>
 <span><span class="va">prediction</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mae"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; regr.mae </span></span>
-<span><span class="co">#&gt; 15.27983</span></span></code></pre></div>
+<span><span class="co">#&gt; 15.54688</span></span></code></pre></div>
 <p>Because we configured the learner to use the history callback, we can
 find the validation history in its <code>$model</code> slot:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">mlp_custom</span><span class="op">$</span><span class="va">model</span><span class="op">$</span><span class="va">callbacks</span><span class="op">$</span><span class="va">history</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    epoch valid.regr.mae</span></span>
 <span><span class="co">#&gt;    &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:     1   1.777395e+04</span></span>
-<span><span class="co">#&gt; 2:     2   3.955503e+08</span></span>
-<span><span class="co">#&gt; 3:     3   1.143863e+04</span></span>
-<span><span class="co">#&gt; 4:     4   1.792927e+01</span></span>
-<span><span class="co">#&gt; 5:     5   1.759594e+01</span></span>
-<span><span class="co">#&gt; 6:     6   1.726260e+01</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:     1   2.310486e+05</span></span>
+<span><span class="co">#&gt; 2:     2   2.009898e+10</span></span>
+<span><span class="co">#&gt; 3:     3   6.967264e+03</span></span>
+<span><span class="co">#&gt; 4:     4   3.220922e+02</span></span>
+<span><span class="co">#&gt; 5:     5   7.638778e+01</span></span>
+<span><span class="co">#&gt; 6:     6   7.588778e+01</span></span></code></pre></div>
 <p>The plot below shows it for the epochs 6 to 30.</p>
 <p><img src="get_started_files/figure-html/unnamed-chunk-20-1.png" width="50%" style="display: block; margin: auto;"></p>
 <p>Other important information that is stored in the
