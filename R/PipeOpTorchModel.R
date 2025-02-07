@@ -69,7 +69,7 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
         output_pointers = list(md$pointer),
         list_output = FALSE
       )
-      private$.learner$network_stored = network
+      get_private(private$.learner, ".network_stored") = torch_serialize(network)
       private$.learner$ingress_tokens = md$ingress
 
       if (is.null(md$loss)) {

@@ -1,5 +1,8 @@
 # mlr3torch dev
 
+* fix: `LearnerTorchModel` can now be parallelized and trained with
+  encapsulation activated.
+
 # mlr3torch 0.2.0
 
 ## Breaking Changes
