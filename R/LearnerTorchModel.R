@@ -112,7 +112,7 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
       if (is.null(private$.network_stored)) {
         stopf("No network stored, did you already train learner '%s' or did not specify a model?", self$id)
       }
-      network = if (test_clrss(private$.network_stored, "nn_module")) {
+      network = if (test_class(private$.network_stored, "nn_module")) {
         # optimization for PipeOpTorchModel, where we control the construction of LearnerTorchModel
         private$.network_stored
       } else {
