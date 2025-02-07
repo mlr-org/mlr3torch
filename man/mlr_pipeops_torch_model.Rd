@@ -80,8 +80,8 @@ Is initialized to 0.
 \item \code{batch_size} :: \code{integer(1)}\cr
 The batch size (required).
 \item \code{shuffle} :: \code{logical(1)}\cr
-Whether to shuffle the instances in the dataset. Default is \code{FALSE}.
-This does not impact validation.
+Whether to shuffle the instances in the dataset. This is initialized to\code{FALSE},
+which differs from the default (\code{TRUE}).
 \item \code{sampler} :: \code{\link[torch:sampler]{torch::sampler}}\cr
 Object that defines how the dataloader draw samples.
 \item \code{batch_sampler} :: \code{\link[torch:sampler]{torch::sampler}}\cr
