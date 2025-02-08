@@ -2,6 +2,7 @@
 
 * fix: `LearnerTorchModel` can now be parallelized and trained with
   encapsulation activated.
+* fix: `jit_trace` now works in combination with batch normalization.
 
 # mlr3torch 0.2.0
 
