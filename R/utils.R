@@ -246,7 +246,7 @@ get_example_batch = function(dl) {
   } else {
     torch_stack(list(
       ds$.getitem(1),
-      ds$.getitem(3)
+      ds$.getitem(2)
     ))
   }
 }
