@@ -238,10 +238,16 @@ CallbacksNone = function() {
 
 get_example_batch = function(dl) {
   ds = dl$dataset
+  if (length(ds) < 2) {
+    stopf("Dataset needs to contain at least 2 observations")
+  }
   if (!is.null(ds$.getbatch)) {
-    ds$.getbatch(1)
+    ds$.getbatch(1:2)
   } else {
-    ds$.getitem(1)$unsqueeze(1)
+    torch_stack(list(
+      ds$.getitem(1),
+      ds$.getitem(2)
+    ))
   }
 }
 
