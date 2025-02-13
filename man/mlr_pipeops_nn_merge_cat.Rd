@@ -8,6 +8,19 @@
 Concatenates multiple tensors on a given dimension.
 No broadcasting rules are applied here, you must reshape the tensors before to have the same shape.
 }
+\section{nn_module}{
+
+Calls \code{\link[=nn_merge_cat]{nn_merge_cat()}} when trained.
+}
+
+\section{Parameters}{
+
+\itemize{
+\item \code{dim} :: \code{integer(1)}\cr
+The dimension along which to concatenate the tensors.
+}
+}
+
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
@@ -27,19 +40,6 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 \section{Credit}{
 
 Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
-}
-
-\section{Parameters}{
-
-\itemize{
-\item \code{dim} :: \code{integer(1)}\cr
-The dimension along which to concatenate the tensors.
-}
-}
-
-\section{Internals}{
-
-Calls \code{\link[=nn_merge_cat]{nn_merge_cat()}} when trained.
 }
 
 \examples{
@@ -104,6 +104,8 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_tanh}},
 \code{\link{mlr_pipeops_nn_tanhshrink}},
 \code{\link{mlr_pipeops_nn_threshold}},
+\code{\link{mlr_pipeops_nn_tokenizer_categ}},
+\code{\link{mlr_pipeops_nn_tokenizer_num}},
 \code{\link{mlr_pipeops_nn_unsqueeze}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},

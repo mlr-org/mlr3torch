@@ -42,7 +42,7 @@ URL: https://mlr3torch.mlr-org.com/, https://github.com/mlr-org/mlr3torch/
 Depends:
     mlr3 (>= 0.20.0),
     mlr3pipelines (>= 0.6.0),
-    torch (>= 0.13.0),
+    torch (>= 0.14.0),
     R (>= 3.5.0)
 Imports:
     backports,
@@ -127,6 +127,7 @@ Collate:
     'PipeOpTorchOptimizer.R'
     'PipeOpTorchReshape.R'
     'PipeOpTorchSoftmax.R'
+    'PipeOpTorchTokenizer.R'
     'Select.R'
     'TaskClassif_cifar.R'
     'TaskClassif_lazy_iris.R'
@@ -141,6 +142,7 @@ Collate:
     'learner_torch_methods.R'
     'materialize.R'
     'merge_graphs.R'
+    'multi_tensor_dataset.R'
     'nn.R'
     'nn_graph.R'
     'paramset_torchlearner.R'

@@ -29,10 +29,9 @@ test_that("torch_network_predict works", {
   dataset1 = task_dataset(
     task,
     feature_ingress_tokens = ingress1,
-    target_batchgetter = crate(function(data, device) {
-      torch_tensor(data = as.integer(data[[1]]), dtype = torch_long(), device = device)
-    }, .parent = topenv()),
-    device = "cpu"
+    target_batchgetter = crate(function(data) {
+      torch_tensor(data = as.integer(data[[1]]), dtype = torch_long())
+    }, .parent = topenv())
   )
 
   dataloader1 = dataloader(
@@ -41,8 +40,8 @@ test_that("torch_network_predict works", {
     drop_last = FALSE,
     shuffle = TRUE
   )
-  pred = torch_network_predict(net1, dataloader1)
-  expect_error(torch_network_predict(net2, dataloader1))
+  pred = torch_network_predict(net1, dataloader1, device = "cpu")
+  expect_error(torch_network_predict(net2, dataloader1, device = "cpu"))
 
 
   ingress2 = list(
@@ -52,10 +51,9 @@ test_that("torch_network_predict works", {
   dataset2 = task_dataset(
     task,
     feature_ingress_tokens = ingress2,
-    target_batchgetter = crate(function(data, device) {
-      torch_tensor(data = as.integer(data[[1]]), dtype = torch_long(), device = device)
-    }, .parent = topenv()),
-    device = "cpu"
+    target_batchgetter = crate(function(data) {
+      torch_tensor(data = as.integer(data[[1]]), dtype = torch_long())
+    }, .parent = topenv())
   )
 
   dataloader2 = dataloader(
@@ -68,7 +66,7 @@ test_that("torch_network_predict works", {
 
   weight_before = torch_clone(net3$weight)
 
-  pred = torch_network_predict(net3, dataloader2)
+  pred = torch_network_predict(net3, dataloader2, device = "cpu")
 
   expect_true(torch_equal(weight_before, net3$weight))
 
@@ -84,11 +82,8 @@ test_that("Validation Task is respected", {
   )
   learner$train(task)
 
-  expect_data_table(learner$model$callbacks$history$train, nrows = 2)
-  expect_equal(colnames(learner$model$callbacks$history$train), c("epoch", "classif.acc"))
-
-  expect_true(nrow(learner$model$callbacks$history$valid) == 0)
-  expect_equal(colnames(learner$model$callbacks$history$valid), "epoch")
+  expect_data_table(learner$model$callbacks$history, nrows = 2)
+  expect_equal(colnames(learner$model$callbacks$history), c("epoch", "train.classif.acc"))
 
   learner = lrn("classif.torch_featureless", epochs = 2, batch_size = 1, measures_train = msrs(c("classif.acc")),
     measures_valid = msr("classif.bacc"), callbacks = t_clbk("history"), validate = "predefined"
@@ -96,18 +91,19 @@ test_that("Validation Task is respected", {
 
   learner$train(task)
 
-  expect_true(nrow(learner$model$callbacks$history$train) == 2)
-  expect_true(nrow(learner$model$callbacks$history$valid) == 2)
+  expect_data_table(learner$model$callbacks$history, nrows = 2)
+  expect_equal(colnames(learner$model$callbacks$history), c("epoch", "train.classif.acc", "valid.classif.bacc"))
 })
 
 test_that("learner_torch_predict works", {
   task = tsk("iris")
   learner = lrn("classif.mlp", batch_size = 16, epochs = 1, device = "cpu")
-  dl = get_private(learner)$.dataloader(task, learner$param_set$values)
+  dl = get_private(learner)$.dataloader(
+    get_private(learner)$.dataset(task, learner$param_set$values), learner$param_set$values)
 
   network = get_private(learner)$.network(task, learner$param_set$values)
 
-  pred = torch_network_predict(network, dl)
+  pred = torch_network_predict(network, dl, device = "cpu")
 
   expect_class(pred, "torch_tensor")
   expect_true(ncol(pred) == length(task$class_names))
@@ -165,7 +161,8 @@ test_that("learner_torch_dataloader_predict works", {
     epochs = 1, shuffle = TRUE
   )
   task = tsk("iris")
-  dl = get_private(learner)$.dataloader_predict(task, learner$param_set$values)
+  dl = get_private(learner)$.dataloader_predict(
+    get_private(learner)$.dataset(task, learner$param_set$values), learner$param_set$values)
   expect_false(dl$drop_last)
   expect_class(dl$batch_sampler$sampler, "utils_sampler_sequential")
 })

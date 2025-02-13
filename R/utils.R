@@ -193,32 +193,6 @@ auto_cache_lazy_tensors = function(lts) {
   any(duplicated(map_chr(lts, function(x) dd(x)$dataset_hash)))
 }
 
-clone_graph_unique_ids = function(g) {
-  prev_ids = ids(g$pipeops)
-  pipeops = map(g$pipeops, function(po) po$clone(deep = TRUE))
-
-  new_ids = uniqueify(ids(pipeops), ids(pipeops))
-  walk(seq_along(pipeops), function(i) {
-    pipeops[[i]]$id = new_ids[i]
-  })
-
-  g1 = Graph$new()
-  walk(pipeops, function(po) {
-    g1$add_pipeop(po, clone = FALSE)
-  })
-  new_edges = copy(g$edges)
-
-  id_map = new_ids
-  names(id_map) = prev_ids
-
-  new_edges$src_id = id_map[new_edges$src_id]
-  new_edges$dst_id = id_map[new_edges$dst_id]
-
-  g1$edges = new_edges
-
-  return(g1)
-}
-
 #' Replace the head of a network
 #' Replaces the head of the network with a linear layer with d_out classes.
 #' @param network ([`torch::nn_module`])\cr
@@ -260,4 +234,30 @@ OptimizerNone = function() {
 
 CallbacksNone = function() {
   structure(list(), class = "CallbacksNone")
+}
+
+get_example_batch = function(dl) {
+  ds = dl$dataset
+  if (!is.null(ds$.getbatch)) {
+    ds$.getbatch(1)
+  } else {
+    ds$.getitem(1)$unsqueeze(1)
+  }
+}
+
+# l: list containing args
+# f: function to be called
+# returns: l reordered so it can be passed by position
+order_named_args = function(f, l) {
+  args = formalArgs(f)
+  x = match("...", args)
+  f2 = f
+  body(f2) = quote(as.list(match.call())[-1L])
+  l2 = do.call(f2, l)
+  # (function(..., x = 1) {})(1, 2, 3) works
+  # (function(..., x = 1) {})(1, 2, x = 3) DOES NOT WORK
+  if (!is.null(names(l2)) && !is.na(x) && x != length(args)) {
+    stopf("Because arguments are passed to tracer by position, `...` must either be the only or the last argument when named arguments are also passed.")
+  }
+  l2
 }

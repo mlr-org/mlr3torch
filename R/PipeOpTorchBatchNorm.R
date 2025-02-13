@@ -41,14 +41,10 @@ PipeOpTorchBatchNorm = R6Class("PipeOpTorchBatchNorm",
 )
 
 #' @title 1D Batch Normalization
-#'
-#' @templateVar id nn_batch_norm1d
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch
-#' @template pipeop_torch_example
-#'
 #' @inherit torch::nnf_batch_norm description
-#'
+#' @section nn_module:
+#' Calls [`torch::nn_batch_norm1d()`].
+#' The parameter `num_features` is inferred as the second dimension of the input shape.
 #' @section Parameters:
 #' * `eps` :: `numeric(1)`\cr
 #'   A value added to the denominator for numerical stability. Default: `1e-5`.
@@ -62,9 +58,12 @@ PipeOpTorchBatchNorm = R6Class("PipeOpTorchBatchNorm",
 #'   this module does not track such statistics and always uses batch statistics in both training and eval modes.
 #'   Default: `TRUE`
 #'
-#' @section Internals:
-#' Calls [`torch::nn_batch_norm1d()`].
-#' The parameter `num_features` is inferred as the second dimension of the input shape.
+#' @templateVar id nn_batch_norm1d
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
+#'
+#'
 #' @export
 PipeOpTorchBatchNorm1D = R6Class("PipeOpTorchBatchNorm1D", inherit = PipeOpTorchBatchNorm,
   public = list(
@@ -78,19 +77,17 @@ PipeOpTorchBatchNorm1D = R6Class("PipeOpTorchBatchNorm1D", inherit = PipeOpTorch
 )
 
 #' @title 2D Batch Normalization
+#' @inherit torch::nnf_batch_norm description
+#' @section nn_module:
+#' Calls [`torch::nn_batch_norm2d()`].
+#' The parameter `num_features` is inferred as the second dimension of the input shape.
+#' @inheritSection mlr_pipeops_nn_batch_norm1d Parameters
 #'
 #' @templateVar id nn_batch_norm2d
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#' @inherit torch::nnf_batch_norm description
-#'
-#' @inheritSection mlr_pipeops_nn_batch_norm1d Parameters
-#'
-#' @section Internals:
-#' Calls [`torch::nn_batch_norm2d()`].
-#' The parameter `num_features` is inferred as the second dimension of the input shape.
 #' @export
 PipeOpTorchBatchNorm2D = R6Class("PipeOpTorchBatchNorm2D", inherit = PipeOpTorchBatchNorm,
   public = list(
@@ -104,19 +101,17 @@ PipeOpTorchBatchNorm2D = R6Class("PipeOpTorchBatchNorm2D", inherit = PipeOpTorch
 )
 
 #' @title 3D Batch Normalization
+#' @inherit torch::nnf_batch_norm description
+#' @section nn_module:
+#' Calls [`torch::nn_batch_norm3d()`].
+#' The parameter `num_features` is inferred as the second dimension of the input shape.
+#' @inheritSection mlr_pipeops_nn_batch_norm1d Parameters
 #'
 #' @templateVar id nn_batch_norm3d
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#' @inherit torch::nnf_batch_norm description
-#'
-#' @inheritSection mlr_pipeops_nn_batch_norm1d Parameters
-#'
-#' @section Internals:
-#' Calls [`torch::nn_batch_norm3d()`].
-#' The parameter `num_features` is inferred as the second dimension of the input shape.
 #' @export
 PipeOpTorchBatchNorm3D = R6Class("PipeOpTorchBatchNorm3D", inherit = PipeOpTorchBatchNorm,
   public = list(

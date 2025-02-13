@@ -41,7 +41,7 @@ task = tsk("lazy_iris")
 md = po_ingress$train(list(task))[[1L]]
 
 ingress = md$ingress
-x_batch = ingress[[1L]]$batchgetter(data = task$data(1, "x"), device = "cpu", cache = NULL)
+x_batch = ingress[[1L]]$batchgetter(data = task$data(1, "x"), cache = NULL)
 x_batch
 
 # Now we try a lazy tensor with unknown shape, i.e. the shapes between the rows can differ
@@ -72,7 +72,6 @@ md2 = po_ingress$train(list(task_unknown_resize))[[1L]]
 ingress2 = md2$ingress
 x_batch2 = ingress2[[1L]]$batchgetter(
   data = task_unknown_resize$data(1:2, "x"),
-  device = "cpu",
   cache = NULL
 )
 
@@ -133,6 +132,8 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_tanh}},
 \code{\link{mlr_pipeops_nn_tanhshrink}},
 \code{\link{mlr_pipeops_nn_threshold}},
+\code{\link{mlr_pipeops_nn_tokenizer_categ}},
+\code{\link{mlr_pipeops_nn_tokenizer_num}},
 \code{\link{mlr_pipeops_nn_unsqueeze}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},

@@ -9,6 +9,21 @@ Applies element-wise the function
 \eqn{PReLU(x) = max(0,x) + weight * min(0,x)}
 where weight is a learnable parameter.
 }
+\section{nn_module}{
+ Calls \code{\link[torch:nn_prelu]{torch::nn_prelu()}} when trained.
+}
+
+\section{Parameters}{
+
+\itemize{
+\item \code{num_parameters} :: \code{integer(1)}:
+Number of a to learn. Although it takes an int as input, there is only two values are legitimate: 1, or the
+number of channels at input. Default: 1.
+\item \code{init} :: \code{numeric(1)}\cr T
+The initial value of a. Default: 0.25.
+}
+}
+
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
@@ -23,21 +38,6 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 \section{Credit}{
 
 Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
-}
-
-\section{Parameters}{
-
-\itemize{
-\item \code{num_parameters} :: \code{integer(1)}:
-Number of a to learn. Although it takes an int as input, there is only two values are legitimate: 1, or the
-number of channels at input. Default: 1.
-\item \code{init} :: \code{numeric(1)}\cr T
-The initial value of a. Default: 0.25.
-}
-}
-
-\section{Internals}{
- Calls \code{\link[torch:nn_prelu]{torch::nn_prelu()}} when trained.
 }
 
 \examples{
@@ -102,6 +102,8 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_tanh}},
 \code{\link{mlr_pipeops_nn_tanhshrink}},
 \code{\link{mlr_pipeops_nn_threshold}},
+\code{\link{mlr_pipeops_nn_tokenizer_categ}},
+\code{\link{mlr_pipeops_nn_tokenizer_num}},
 \code{\link{mlr_pipeops_nn_unsqueeze}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},

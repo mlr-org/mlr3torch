@@ -8,6 +8,10 @@
 Base class for merge operations such as addition (\code{\link{PipeOpTorchMergeSum}}), multiplication
 (\code{\link{PipeOpTorchMergeProd}} or concatenation (\code{\link{PipeOpTorchMergeCat}}).
 }
+\section{Parameters}{
+ See the respective child class.
+}
+
 \section{State}{
 
 The state is the value calculated by the public method \code{shapes_out()}.
@@ -20,17 +24,13 @@ input channels \code{"input1"}, ..., \code{"input<innum>"}. There is one output 
 For an explanation see \code{\link{PipeOpTorch}}.
 }
 
-\section{Parameters}{
- See the respective child class.
-}
-
 \section{Internals}{
 
 Per default, the \code{private$.shapes_out()} method outputs the broadcasted tensors. There are two things to be aware:
 \enumerate{
 \item \code{NA}s are assumed to batch (this should almost always be the batch size in the first dimension).
 \item Tensors are expected to have the same number of dimensions, i.e. missing dimensions are not filled with 1s.
-The reason is that again that the first dimension should be the batch dimension.
+The reason is again that the first dimension should be the batch dimension.
 This private method can be overwritten by \code{\link{PipeOpTorch}}s inheriting from this class.
 }
 }
@@ -88,6 +88,8 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_tanh}},
 \code{\link{mlr_pipeops_nn_tanhshrink}},
 \code{\link{mlr_pipeops_nn_threshold}},
+\code{\link{mlr_pipeops_nn_tokenizer_categ}},
+\code{\link{mlr_pipeops_nn_tokenizer_num}},
 \code{\link{mlr_pipeops_nn_unsqueeze}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},

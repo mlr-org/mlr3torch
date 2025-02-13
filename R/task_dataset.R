@@ -16,8 +16,6 @@
 #' @param target_batchgetter (`function(data, device)`)\cr
 #'   A function taking in arguments `data`, which is a `data.table` containing only the target variable, and `device`.
 #'   It must return the target as a torch [tensor][torch::torch_tensor] on the selected device.
-#' @param device (`character()`)\cr
-#'   The device, e.g. `"cuda"` or `"cpu"`.
 #' @export
 #' @return [`torch::dataset`]
 #' @examplesIf torch::torch_is_installed()
@@ -34,14 +32,14 @@
 #' )
 #' ingress_tokens = list(sepal = sepal_ingress, petal = petal_ingress)
 #'
-#' target_batchgetter = function(data, device) {
-#'   torch_tensor(data = data[[1L]], dtype = torch_float32(), device)$unsqueeze(2)
+#' target_batchgetter = function(data) {
+#'   torch_tensor(data = data[[1L]], dtype = torch_float32())$unsqueeze(2)
 #' }
-#' dataset = task_dataset(task, ingress_tokens, target_batchgetter, "cpu")
+#' dataset = task_dataset(task, ingress_tokens, target_batchgetter)
 #' batch = dataset$.getbatch(1:10)
 #' batch
-task_dataset = dataset(
-  initialize = function(task, feature_ingress_tokens, target_batchgetter = NULL, device) {
+task_dataset = dataset("task_dataset",
+  initialize = function(task, feature_ingress_tokens, target_batchgetter = NULL) {
     self$task = assert_r6(task$clone(deep = TRUE), "Task")
     iwalk(feature_ingress_tokens, function(it, nm) {
       if (length(it$features) == 0) {
@@ -52,9 +50,7 @@ task_dataset = dataset(
     self$feature_ingress_tokens = assert_list(feature_ingress_tokens, types = "TorchIngressToken", names = "unique")
     self$all_features = unique(c(unlist(map(feature_ingress_tokens, "features")), task$target_names))
     assert_subset(self$all_features, c(task$target_names, task$feature_names))
-    self$target_batchgetter = assert_function(target_batchgetter, args = c("data", "device"), null.ok = TRUE)
-    self$device = assert_choice(device, mlr_reflections$torch$devices)
-
+    self$target_batchgetter = assert_function(target_batchgetter, args = "data", null.ok = TRUE)
     lazy_tensor_features = self$task$feature_types[get("type") == "lazy_tensor"][[1L]]
 
     data = self$task$data(cols = lazy_tensor_features)
@@ -76,14 +72,13 @@ task_dataset = dataset(
 
     datapool = self$task$data(rows = self$task$row_ids[index], cols = self$all_features)
     x = lapply(self$feature_ingress_tokens, function(it) {
-      it$batchgetter(datapool[, it$features, with = FALSE], self$device, cache = cache)
+      it$batchgetter(datapool[, it$features, with = FALSE], cache = cache)
     })
 
     y = if (!is.null(self$target_batchgetter)) {
-      self$target_batchgetter(datapool[, self$task$target_names, with = FALSE],
-        self$device)
+      self$target_batchgetter(datapool[, self$task$target_names, with = FALSE])
     }
-    out = list(x = x, .index = torch_tensor(index, device = self$device, dtype = torch_long()))
+    out = list(x = x, .index = torch_tensor(index, dtype = torch_long()))
     if (!is.null(y)) out$y = y
     return(out)
   },
@@ -169,8 +164,7 @@ dataset_ltnsr = function(task, param_vals) {
   task_dataset(
     task = task,
     feature_ingress_tokens = ingress,
-    target_batchgetter = get_target_batchgetter(task$task_type),
-    device = param_vals$device
+    target_batchgetter = get_target_batchgetter(task$task_type)
   )
 }
 
@@ -182,8 +176,7 @@ dataset_num = function(task, param_vals) {
   task_dataset(
     task = task,
     feature_ingress_tokens = md$ingress,
-    target_batchgetter = get_target_batchgetter(task$task_type),
-    device = param_vals$device
+    target_batchgetter = get_target_batchgetter(task$task_type)
   )
 }
 
@@ -205,8 +198,7 @@ dataset_num_categ = function(task, param_vals) {
   task_dataset(
     task,
     feature_ingress_tokens = tokens,
-    target_batchgetter = get_target_batchgetter(task$task_type),
-    device = param_vals$device
+    target_batchgetter = get_target_batchgetter(task$task_type)
   )
 }
 
@@ -219,16 +211,13 @@ dataset_num_categ = function(task, param_vals) {
 #'
 #' @param data (`data.table()`)\cr
 #'   `data.table` to be converted to a `tensor`.
-#' @param device (`character(1)`)\cr
-#'   The device on which the tensor should be created.
 #' @param ... (any)\cr
 #'   Unused.
 #' @export
-batchgetter_num = function(data, device, ...) {
+batchgetter_num = function(data, ...) {
   torch_tensor(
     data = as.matrix(data),
-    dtype = torch_float(),
-    device = device
+    dtype = torch_float()
   )
 }
 
@@ -241,25 +230,22 @@ batchgetter_num = function(data, device, ...) {
 #'
 #' @param data (`data.table`)\cr
 #'   `data.table` to be converted to a `tensor`.
-#' @param device (`character(1)`)\cr
-#'   The device.
 #' @param ... (any)\cr
 #'   Unused.
 #' @export
-batchgetter_categ = function(data, device, ...) {
+batchgetter_categ = function(data, ...) {
   torch_tensor(
     data = as.matrix(data[, lapply(.SD, as.integer)]),
-    dtype = torch_long(),
-    device = device
+    dtype = torch_long()
   )
 }
 
-target_batchgetter_classif = function(data, device) {
-  torch_tensor(data = as.integer(data[[1L]]), dtype = torch_long(), device = device)
+target_batchgetter_classif = function(data) {
+  torch_tensor(data = as.integer(data[[1L]]), dtype = torch_long())
 }
 
-target_batchgetter_regr = function(data, device) {
-  torch_tensor(data = data[[1L]], dtype = torch_float32(), device = device)$unsqueeze(2)
+target_batchgetter_regr = function(data) {
+  torch_tensor(data = data[[1L]], dtype = torch_float32())$unsqueeze(2)
 }
 
 get_target_batchgetter = function(task_type) {

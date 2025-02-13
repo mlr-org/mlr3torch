@@ -8,6 +8,19 @@
 Applies a 3D adaptive average pooling over an input signal composed of
 several input planes.
 }
+\section{nn_module}{
+
+Calls \code{\link[torch:nn_adaptive_avg_pool3d]{nn_adaptive_avg_pool3d()}} during training.
+}
+
+\section{Parameters}{
+
+\itemize{
+\item \code{output_size} :: \code{integer()}\cr
+The target output size. Can be a single number or a vector.
+}
+}
+
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
@@ -22,19 +35,6 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 \section{Credit}{
 
 Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
-}
-
-\section{Parameters}{
-
-\itemize{
-\item \code{output_size} :: \code{integer()}\cr
-The target output size. Can be a single number or a vector.
-}
-}
-
-\section{Internals}{
-
-Calls \code{\link[torch:nn_adaptive_avg_pool3d]{nn_adaptive_avg_pool3d()}} during training.
 }
 
 \examples{
@@ -99,6 +99,8 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_tanh}},
 \code{\link{mlr_pipeops_nn_tanhshrink}},
 \code{\link{mlr_pipeops_nn_threshold}},
+\code{\link{mlr_pipeops_nn_tokenizer_categ}},
+\code{\link{mlr_pipeops_nn_tokenizer_num}},
 \code{\link{mlr_pipeops_nn_unsqueeze}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},

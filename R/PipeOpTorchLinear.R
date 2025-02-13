@@ -1,13 +1,8 @@
 #' @title Linear Layer
-#'
-#' @templateVar id nn_linear
-#' @template pipeop_torch_channels_default
-#' @templateVar param_vals out_features = 10
-#' @template pipeop_torch
-#' @template pipeop_torch_example
-#'
 #' @inherit torch::nnf_linear description
-#'
+#' @section nn_module:
+#' Calls [`torch::nn_linear()`] when trained where the parameter `in_features` is inferred as the second
+#' to last dimension of the input tensor.
 #' @section Parameters:
 #' * `out_features` :: `integer(1)`\cr
 #'   The output features of the linear layer.
@@ -15,9 +10,13 @@
 #'   Whether to use a bias.
 #'   Default is `TRUE`.
 #'
-#' @section Internals:
-#' Calls [`torch::nn_linear()`] when trained where the parameter `in_features` is inferred as the second
-#' to last dimension of the input tensor.
+#' @templateVar id nn_linear
+#' @template pipeop_torch_channels_default
+#' @templateVar param_vals out_features = 10
+#' @template pipeop_torch
+#' @template pipeop_torch_example
+#'
+#'
 #' @export
 PipeOpTorchLinear = R6Class("PipeOpTorchLinear",
   inherit = PipeOpTorch,

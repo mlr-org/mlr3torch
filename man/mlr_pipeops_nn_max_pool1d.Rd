@@ -8,21 +8,9 @@
 Applies a 1D max pooling over an input signal composed of several input
 planes.
 }
-\section{Input and Output Channels}{
+\section{nn_module}{
 
-If \code{return_indices} is \code{FALSE} during construction, there is one input channel 'input' and one output channel 'output'.
-If \code{return_indices} is \code{TRUE}, there are two output channels 'output' and 'indices'.
-For an explanation see \code{\link{PipeOpTorch}}.
-}
-
-\section{State}{
-
-The state is the value calculated by the public method \verb{$shapes_out()}.
-}
-
-\section{Credit}{
-
-Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
+Calls \code{\link[torch:nn_max_pool1d]{torch::nn_max_pool1d()}} during training.
 }
 
 \section{Parameters}{
@@ -41,9 +29,21 @@ When True, will use ceil instead of floor to compute the output shape. Default: 
 }
 }
 
-\section{Internals}{
+\section{Input and Output Channels}{
 
-Calls \code{\link[torch:nn_max_pool1d]{torch::nn_max_pool1d()}} during training.
+If \code{return_indices} is \code{FALSE} during construction, there is one input channel 'input' and one output channel 'output'.
+If \code{return_indices} is \code{TRUE}, there are two output channels 'output' and 'indices'.
+For an explanation see \code{\link{PipeOpTorch}}.
+}
+
+\section{State}{
+
+The state is the value calculated by the public method \verb{$shapes_out()}.
+}
+
+\section{Credit}{
+
+Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
 }
 
 \examples{
@@ -108,6 +108,8 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_tanh}},
 \code{\link{mlr_pipeops_nn_tanhshrink}},
 \code{\link{mlr_pipeops_nn_threshold}},
+\code{\link{mlr_pipeops_nn_tokenizer_categ}},
+\code{\link{mlr_pipeops_nn_tokenizer_num}},
 \code{\link{mlr_pipeops_nn_unsqueeze}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},

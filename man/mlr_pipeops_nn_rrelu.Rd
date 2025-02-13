@@ -7,20 +7,8 @@
 \description{
 Randomized leaky ReLU.
 }
-\section{Input and Output Channels}{
-
-One input channel called \code{"input"} and one output channel called \code{"output"}.
-For an explanation see \code{\link{PipeOpTorch}}.
-}
-
-\section{State}{
-
-The state is the value calculated by the public method \verb{$shapes_out()}.
-}
-
-\section{Credit}{
-
-Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
+\section{nn_module}{
+ Calls \code{\link[torch:nn_rrelu]{torch::nn_rrelu()}} when trained.
 }
 
 \section{Parameters}{
@@ -35,8 +23,20 @@ Whether to do the operation in-place. Default: \code{FALSE}.
 }
 }
 
-\section{Internals}{
- Calls \code{\link[torch:nn_rrelu]{torch::nn_rrelu()}} when trained.
+\section{Input and Output Channels}{
+
+One input channel called \code{"input"} and one output channel called \code{"output"}.
+For an explanation see \code{\link{PipeOpTorch}}.
+}
+
+\section{State}{
+
+The state is the value calculated by the public method \verb{$shapes_out()}.
+}
+
+\section{Credit}{
+
+Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
 }
 
 \examples{
@@ -101,6 +101,8 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_tanh}},
 \code{\link{mlr_pipeops_nn_tanhshrink}},
 \code{\link{mlr_pipeops_nn_threshold}},
+\code{\link{mlr_pipeops_nn_tokenizer_categ}},
+\code{\link{mlr_pipeops_nn_tokenizer_num}},
 \code{\link{mlr_pipeops_nn_unsqueeze}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},

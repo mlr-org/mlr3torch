@@ -13,19 +13,32 @@ learner_torch_predict = function(self, private, super, task, param_vals) {
   # parameter like device "auto" already resolved
   self$network$to(device = param_vals$device)
   self$network$eval()
-  data_loader = private$.dataloader_predict(task, param_vals)
-  predict_tensor = torch_network_predict(self$network, data_loader)
+  data_loader = private$.dataloader_predict(private$.dataset(task, param_vals), param_vals)
+  predict_tensor = torch_network_predict(self$network, data_loader, device = param_vals$device)
   private$.encode_prediction(predict_tensor = predict_tensor, task = task)
 }
 
 learner_torch_train = function(self, private, super, task, param_vals) {
   # Here, all param_vals (like seed = "random" or device = "auto") have already been resolved
-  loader_train = private$.dataloader(task, param_vals)
+  dataset_train = private$.dataset(task, param_vals)
+  dataset_train = as_multi_tensor_dataset(dataset_train, param_vals)
+  loader_train = private$.dataloader(dataset_train, param_vals)
   if (!length(loader_train)) {
     stopf("Training Dataloader of Learner '%s' has length 0", self$id)
   }
 
   network = private$.network(task, param_vals)$to(device = param_vals$device)
+  if (param_vals$jit_trace && !inherits(network, "script_module")) {
+    example = get_example_batch(loader_train)$x
+    example = lapply(example, function(x) x$to(device = param_vals$device))
+    # tracer requires arguments to be passed by name
+    if (length(example) == 1) {
+      network = jit_trace(network, example[[1L]])
+    } else {
+      example = order_named_args(network, example)
+      network = do.call(jit_trace, c(list(network), unname(example)))
+    }
+  }
   if (is.null(self$optimizer)) stopf("Learner '%s' defines no optimizer", self$id)
   optimizer = self$optimizer$generate(network$parameters)
   if (is.null(self$loss)) stopf("Learner '%s' defines no loss", self$id)
@@ -47,7 +60,9 @@ learner_torch_train = function(self, private, super, task, param_vals) {
 
   task_valid = task$internal_valid_task
   loader_valid = if (!is.null(task_valid) && task_valid$nrow) {
-    private$.dataloader_predict(task_valid$clone(deep = TRUE), param_vals)
+    dataset_valid = private$.dataset(task_valid, param_vals)
+    dataset_valid = as_multi_tensor_dataset(dataset_valid, param_vals)
+    private$.dataloader_predict(dataset_valid, param_vals)
   }
 
   if (!is.null(loader_valid) && !length(loader_valid)) {
@@ -67,7 +82,8 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     loss_fn = loss_fn,
     total_epochs = param_vals$epochs,
     prediction_encoder = private$.encode_prediction,
-    eval_freq = param_vals$eval_freq
+    eval_freq = param_vals$eval_freq,
+    device = param_vals$device
   )
 
   callbacks = set_names(lapply(self$callbacks, function(descriptor) {
@@ -131,6 +147,8 @@ train_loop = function(ctx, cbs) {
     while (ctx$step < length(ctx$loader_train)) {
       ctx$step = ctx$step + 1
       ctx$batch = dataloader_next(train_iterator)
+      ctx$batch$x = lapply(ctx$batch$x, function(x) x$to(device = ctx$device))
+      ctx$batch$y = ctx$batch$y$to(device = ctx$device)
       ctx$optimizer$zero_grad()
 
       call("on_batch_begin")
@@ -223,6 +241,8 @@ torch_network_predict_valid = function(ctx, callback_receiver = function(step_na
   while (ctx$step < length(loader)) {
     ctx$step = ctx$step + 1L
     ctx$batch = dataloader_next(valid_iterator)
+    ctx$batch$x = lapply(ctx$batch$x, function(x) x$to(device = ctx$device))
+
     callback_receiver("on_batch_valid_begin")
     predictions[[ctx$step]] = if (one_arg) {
       with_no_grad(network$forward(ctx$batch$x[[1L]]))
@@ -235,7 +255,7 @@ torch_network_predict_valid = function(ctx, callback_receiver = function(step_na
   torch_cat(predictions, dim = 1L)
 }
 
-torch_network_predict = function(network, loader) {
+torch_network_predict = function(network, loader, device) {
   # an unnamed argument
   # TODO: Maybe we should be stricter, but then we need to ensure that the .getbatch() method of the dataset
   # returns a list where the names of x correspond to the argument names of the network
@@ -246,6 +266,7 @@ torch_network_predict = function(network, loader) {
   while (step < length(loader)) {
     step = step + 1L
     batch = dataloader_next(train_iterator)
+    batch$x = lapply(batch$x, function(x) x$to(device = device))
     predictions[[step]] = if (one_arg) {
       with_no_grad(network$forward(batch$x[[1L]]))
     } else {
@@ -308,4 +329,14 @@ measure_prediction = function(pred_tensor, measures, task, row_ids, prediction_e
       measure$score(prediction, task = task, train_set = task$row_roles$use)
     }
   )
+}
+
+as_multi_tensor_dataset = function(dataset, param_vals) {
+ if (isTRUE(param_vals$tensor_dataset)) {
+    multi_tensor_dataset(dataset, device = "cpu")
+  } else if (identical(param_vals$tensor_dataset, "device")) {
+    multi_tensor_dataset(dataset, device = param_vals$device)
+  } else {
+    dataset
+  }
 }

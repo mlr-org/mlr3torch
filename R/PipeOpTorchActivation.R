@@ -1,19 +1,17 @@
 #' @title ELU Activation Function
 #'
-#' @templateVar id nn_elu
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch
-#' @template pipeop_torch_example
-#'
 #' @inherit torch::nnf_elu description
-#'
+#' @section nn_module: Calls [`torch::nn_elu()`] when trained.
 #' @section Parameters:
 #' * `alpha` :: `numeric(1)`\cr
 #'   The alpha value for the ELU formulation. Default: 1.0
 #' * `inplace` :: `logical(1)`\cr
 #'   Whether to do the operation in-place. Default: `FALSE`.
 #'
-#' @section Internals: Calls [`torch::nn_elu()`] when trained.
+#' @templateVar id nn_elu
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
 #' @export
 PipeOpTorchELU = R6Class("PipeOpTorchELU",
   inherit = PipeOpTorch,
@@ -40,19 +38,15 @@ PipeOpTorchELU = R6Class("PipeOpTorchELU",
 register_po("nn_elu", PipeOpTorchELU)
 
 #' @title Hard Shrink Activation Function
-#'
+#' @inherit torch::nnf_hardshrink description
+#' @section nn_module: Calls [`torch::nn_hardshrink()`] when trained.
+#' @section Parameters:
+#' * `lambd` :: `numeric(1)`\cr
+#'   The lambda value for the Hardshrink formulation formulation. Default 0.5.
 #' @templateVar id nn_hardshrink
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
 #' @template pipeop_torch_example
-#'
-#' @inherit torch::nnf_hardshrink description
-#'
-#' @section Parameters:
-#' * `lambd` :: `numeric(1)`\cr
-#'   The lambda value for the Hardshrink formulation formulation. Default 0.5.
-#'
-#' @section Internals: Calls [`torch::nn_hardshrink()`] when trained.
 #' @export
 PipeOpTorchHardShrink = R6Class("PipeOpTorchHardShrink",
   inherit = PipeOpTorch,
@@ -79,17 +73,15 @@ register_po("nn_hardshrink", PipeOpTorchHardShrink)
 
 #' @title Hard Sigmoid Activation Function
 #'
+#' @inherit torch::nnf_hardsigmoid description
+#' @section nn_module: Calls [`torch::nn_hardsigmoid()`] when trained.
+#' @section Parameters:
+#' No parameters.
 #' @templateVar id nn_hardsigmoid
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#' @inherit torch::nnf_hardsigmoid description
-#'
-#' @section Parameters:
-#' No parameters.
-#'
-#' @section Internals: Calls [`torch::nn_hardsigmoid()`] when trained.
 #' @export
 PipeOpTorchHardSigmoid = R6Class("PipeOpTorchHardSigmoid",
   inherit = PipeOpTorch,
@@ -114,13 +106,8 @@ register_po("nn_hardsigmoid", PipeOpTorchHardSigmoid)
 
 #' @title Hard Tanh Activation Function
 #'
-#' @templateVar id nn_hardtanh
-#'
-#' @template pipeop_torch
-#' @template pipeop_torch_example
-#'
 #' @inherit torch::nnf_hardtanh description
-#'
+#' @section nn_module: Calls [`torch::nn_hardtanh()`] when trained.
 #' @section Parameters:
 #' * `min_val` :: `numeric(1)`\cr
 #'   Minimum value of the linear region range. Default: -1.
@@ -128,8 +115,11 @@ register_po("nn_hardsigmoid", PipeOpTorchHardSigmoid)
 #'   Maximum value of the linear region range. Default: 1.
 #' * `inplace` :: `logical(1)`\cr
 #'   Can optionally do the operation in-place. Default: `FALSE`.
+#' @templateVar id nn_hardtanh
 #'
-#' @section Internals: Calls [`torch::nn_hardtanh()`] when trained.
+#' @template pipeop_torch
+#' @template pipeop_torch_example
+#'
 #'
 #' @export
 PipeOpTorchHardTanh = R6Class("PipeOpTorchHardTanh",
@@ -160,20 +150,18 @@ register_po("nn_hardtanh", PipeOpTorchHardTanh)
 
 #' @title Leaky ReLU Activation Function
 #'
-#' @templateVar id nn_leaky_relu
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch
-#' @template pipeop_torch_example
-#'
 #' @inherit torch::nnf_leaky_relu description
-#'
+#' @section nn_module: Calls [`torch::nn_leaky_relu()`] when trained.
 #' @section Parameters:
 #' * `negative_slope` :: `numeric(1)`\cr
 #'   Controls the angle of the negative slope. Default: 1e-2.
 #' * `inplace` :: `logical(1)`\cr
 #'   Can optionally do the operation in-place. Default: ‘FALSE’.
+#' @templateVar id nn_leaky_relu
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
 #'
-#' @section Internals: Calls [`torch::nn_hardswish()`] when trained.
 #' @export
 PipeOpTorchLeakyReLU = R6Class("PipeOpTorchLeakyReLU",
   inherit = PipeOpTorch,
@@ -201,17 +189,17 @@ register_po("nn_leaky_relu", PipeOpTorchLeakyReLU)
 
 #' @title Log Sigmoid Activation Function
 #'
+#' @inherit torch::nnf_logsigmoid description
+#' @section nn_module: Calls [`torch::nn_log_sigmoid()`] when trained.
+#' @section Parameters:
+#' No parameters.
+#'
 #' @templateVar id nn_log_sigmoid
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#' @inherit torch::nnf_logsigmoid description
 #'
-#' @section Parameters:
-#' No parameters.
-#'
-#' @section Internals: Calls [`torch::nn_log_sigmoid()`] when trained.
 #' @export
 PipeOpTorchLogSigmoid = R6Class("PipeOpTorchLogSigmoid",
   inherit = PipeOpTorch,
@@ -236,21 +224,19 @@ register_po("nn_log_sigmoid", PipeOpTorchLogSigmoid)
 
 #' @title PReLU Activation Function
 #'
-#' @templateVar id nn_prelu
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch
-#' @template pipeop_torch_example
-#'
 #' @inherit torch::nnf_prelu description
-#'
+#' @section nn_module: Calls [`torch::nn_prelu()`] when trained.
 #' @section Parameters:
 #' * `num_parameters` :: `integer(1)`:
 #'   Number of a to learn. Although it takes an int as input, there is only two values are legitimate: 1, or the
 #'   number of channels at input. Default: 1.
 #' * `init` :: `numeric(1)`\cr T
 #'   The initial value of a. Default: 0.25.
+#' @templateVar id nn_prelu
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
 #'
-#' @section Internals: Calls [`torch::nn_prelu()`] when trained.
 #' @export
 PipeOpTorchPReLU = R6Class("PipeOpTorchPReLU",
   inherit = PipeOpTorch,
@@ -278,19 +264,17 @@ register_po("nn_prelu", PipeOpTorchPReLU)
 
 #' @title ReLU Activation Function
 #'
+#' @inherit torch::nnf_relu description
+#' @section nn_module: Calls [`torch::nn_relu()`] when trained.
+#' @section Parameters:
+#' * `inplace` :: `logical(1)`\cr
+#'   Whether to do the operation in-place. Default: `FALSE`.
 #' @templateVar id nn_relu
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#' @inherit torch::nnf_relu description
 #'
-#'
-#' @section Parameters:
-#' * `inplace` :: `logical(1)`\cr
-#'   Whether to do the operation in-place. Default: `FALSE`.
-#'
-#' @section Internals: Calls [`torch::nn_relu()`] when trained.
 #' @export
 PipeOpTorchReLU = R6Class("PipeOpTorchReLU",
   inherit = PipeOpTorch,
@@ -317,18 +301,16 @@ register_po("nn_relu", PipeOpTorchReLU)
 
 #' @title ReLU6 Activation Function
 #'
+#' @inherit torch::nnf_relu6 description
+#' @section nn_module: Calls [`torch::nn_relu6()`] when trained.
+#' @section Parameters:
+#' * `inplace` :: `logical(1)`\cr
+#'   Whether to do the operation in-place. Default: `FALSE`.
 #' @templateVar id nn_relu6
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#' @inherit torch::nnf_relu6 description
-#'
-#' @section Parameters:
-#' * `inplace` :: `logical(1)`\cr
-#'   Whether to do the operation in-place. Default: `FALSE`.
-#'
-#' @section Internals: Calls [`torch::nn_relu6()`] when trained.
 #' @export
 PipeOpTorchReLU6 = R6Class("PipeOpTorchReLU6",
   inherit = PipeOpTorch,
@@ -354,14 +336,8 @@ PipeOpTorchReLU6 = R6Class("PipeOpTorchReLU6",
 register_po("nn_relu6", PipeOpTorchReLU6)
 
 #' @title RReLU Activation Function
-#'
-#' @templateVar id nn_rrelu
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch
-#' @template pipeop_torch_example
-#'
 #' @inherit torch::nnf_rrelu description
-#'
+#' @section nn_module: Calls [`torch::nn_rrelu()`] when trained.
 #' @section Parameters:
 #' * `lower`:: `numeric(1)`\cr
 #'   Lower bound of the uniform distribution. Default: 1/8.
@@ -370,7 +346,12 @@ register_po("nn_relu6", PipeOpTorchReLU6)
 #' * `inplace` :: `logical(1)`\cr
 #'   Whether to do the operation in-place. Default: `FALSE`.
 #'
-#' @section Internals: Calls [`torch::nn_rrelu()`] when trained.
+#' @templateVar id nn_rrelu
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
+#'
+#'
 #' @export
 PipeOpTorchRReLU = R6Class("PipeOpTorchRReLU",
   inherit = PipeOpTorch,
@@ -399,18 +380,17 @@ register_po("nn_rrelu", PipeOpTorchRReLU)
 
 #' @title SELU Activation Function
 #'
+#' @inherit torch::nnf_selu description
+#' @section nn_module: Calls [`torch::nn_selu()`] when trained.
+#' @section Parameters:
+#' * `inplace` :: `logical(1)`\cr
+#'   Whether to do the operation in-place. Default: `FALSE`.
 #' @templateVar id nn_selu
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#' @inherit torch::nnf_selu description
 #'
-#' @section Parameters:
-#' * `inplace` :: `logical(1)`\cr
-#'   Whether to do the operation in-place. Default: `FALSE`.
-#'
-#' @section Internals: Calls [`torch::nn_selu()`] when trained.
 #' @export
 PipeOpTorchSELU = R6Class("PipeOpTorchSELU",
   inherit = PipeOpTorch,
@@ -437,20 +417,19 @@ register_po("nn_selu", PipeOpTorchSELU)
 
 #' @title CELU Activation Function
 #'
-#' @templateVar id nn_celu
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch
-#' @template pipeop_torch_example
-#'
 #' @inherit torch::nnf_celu description
-#'
+#' @section nn_module: Calls [`torch::nn_celu()`] when trained.
 #' @section Parameters:
 #' * `alpha` :: `numeric(1)`\cr
 #'   The alpha value for the ELU formulation. Default: 1.0
 #' * `inplace` :: `logical(1)`\cr
 #'   Whether to do the operation in-place. Default: `FALSE`.
+#' @templateVar id nn_celu
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
 #'
-#' @section Internals: Calls [`torch::nn_celu()`] when trained.
+#'
 #' @export
 PipeOpTorchCELU = R6Class("PipeOpTorchCELU",
   inherit = PipeOpTorch,
@@ -478,18 +457,17 @@ register_po("nn_celu", PipeOpTorchCELU)
 
 #' @title GELU Activation Function
 #'
+#' @inherit torch::nnf_gelu description
+#' @section nn_module: Calls [`torch::nn_gelu()`] when trained.
+#' @section Parameters:
+#' * `approximate` :: `character(1)`\cr
+#'   Whether to use an approximation algorithm. Default is `"none"`.
 #' @templateVar id nn_gelu
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#' @inherit torch::nnf_gelu description
 #'
-#' @section Parameters:
-#' * `approximate` :: `character(1)`\cr
-#'   Whether to use an approximation algorithm. Default is `"none"`.
-#'
-#' @section Internals: Calls [`torch::nn_gelu()`] when trained.
 #' @export
 PipeOpTorchGELU = R6Class("PipeOpTorchGELU",
   inherit = PipeOpTorch,
@@ -516,17 +494,16 @@ register_po("nn_gelu", PipeOpTorchGELU)
 
 #' @title Sigmoid Activation Function
 #'
+#' @inherit torch::nnf_sigmoid description
+#' @section nn_module: Calls [`torch::nn_sigmoid()`] when trained.
+#' @section Parameters:
+#' No parameters.
+#'
 #' @templateVar id nn_sigmoid
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#' @inherit torch::nnf_sigmoid description
-#'
-#' @section Parameters:
-#' No parameters.
-#'
-#' @section Internals: Calls [`torch::nn_sigmoid()`] when trained.
 #' @export
 PipeOpTorchSigmoid = R6Class("PipeOpTorchSigmoid",
   inherit = PipeOpTorch,
@@ -551,20 +528,18 @@ register_po("nn_sigmoid", PipeOpTorchSigmoid)
 
 #' @title SoftPlus Activation Function
 #'
-#' @templateVar id nn_softplus
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch
-#' @template pipeop_torch_example
-#'
 #' @inherit torch::nnf_softplus description
-#'
+#' @section nn_module: Calls [`torch::nn_softplus()`] when trained.
 #' @section Parameters:
 #' * `beta` :: `numeric(1)`\cr
 #'   The beta value for the Softplus formulation. Default: 1
 #' * `threshold` :: `numeric(1)`\cr
 #'   Values above this revert to a linear function. Default: 20
+#' @templateVar id nn_softplus
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
 #'
-#' @section Internals: Calls [`torch::nn_softplus()`] when trained.
 #' @export
 PipeOpTorchSoftPlus = R6Class("PipeOpTorchSoftPlus",
   inherit = PipeOpTorch,
@@ -593,18 +568,16 @@ register_po("nn_softplus", PipeOpTorchSoftPlus)
 
 #' @title Soft Shrink Activation Function
 #'
+#' @inherit torch::nnf_softshrink description
+#' @section nn_module: Calls [`torch::nn_softshrink()`] when trained.
+#' @section Parameters:
+#' * `lamd` :: `numeric(1)`\cr
+#'   The lambda (must be no less than zero) value for the Softshrink formulation. Default: 0.5
 #' @templateVar id nn_softshrink
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#' @inherit torch::nnf_softshrink description
-#'
-#' @section Parameters:
-#' * `lamd` :: `numeric(1)`\cr
-#'   The lambda (must be no less than zero) value for the Softshrink formulation. Default: 0.5
-#'
-#' @section Internals: Calls [`torch::nn_softshrink()`] when trained.
 #' @export
 PipeOpTorchSoftShrink = R6Class("PipeOpTorchSoftShrink",
   inherit = PipeOpTorch,
@@ -631,17 +604,15 @@ register_po("nn_softshrink", PipeOpTorchSoftShrink)
 
 #' @title SoftSign Activation Function
 #'
+#' @inherit torch::nnf_softsign description
+#' @section nn_module: Calls [`torch::nn_softsign()`] when trained.
+#' @section Parameters:
+#' No parameters.
 #' @templateVar id nn_softsign
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#' @inherit torch::nnf_softsign description
-#'
-#' @section Parameters:
-#' No parameters.
-#'
-#' @section Internals: Calls [`torch::nn_softsign()`] when trained.
 #' @export
 PipeOpTorchSoftSign = R6Class("PipeOpTorchSoftSign",
   inherit = PipeOpTorch,
@@ -666,17 +637,16 @@ register_po("nn_softsign", PipeOpTorchSoftSign)
 
 #' @title Tanh Activation Function
 #'
+#' @inherit torch::nn_tanh description
+#' @section nn_module: Calls [`torch::nn_tanh()`] when trained.
+#' @section Parameters:
+#' No parameters.
 #' @templateVar id nn_tanh
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#' @inherit torch::nn_tanh description
 #'
-#' @section Parameters:
-#' No parameters.
-#'
-#' @section Internals: Calls [`torch::nn_tanh()`] when trained.
 #' @export
 PipeOpTorchTanh = R6Class("PipeOpTorchTanh",
   inherit = PipeOpTorch,
@@ -701,17 +671,16 @@ register_po("nn_tanh", PipeOpTorchTanh)
 
 #' @title Tanh Shrink Activation Function
 #'
+#' @inherit torch::nnf_tanhshrink description
+#' @section nn_module: Calls [`torch::nn_tanhshrink()`] when trained.
+#' @section Parameters:
+#' No parameters.
 #' @templateVar id nn_tanhshrink
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#' @inherit torch::nnf_tanhshrink description
 #'
-#' @section Parameters:
-#' No parameters.
-#'
-#' @section Internals: Calls [`torch::nn_tanhshrink()`] when trained.
 #' @export
 PipeOpTorchTanhShrink = R6Class("PipeOpTorchTanhShrink",
   inherit = PipeOpTorch,
@@ -736,14 +705,8 @@ register_po("nn_tanhshrink", PipeOpTorchTanhShrink)
 
 #' @title Treshold Activation Function
 #'
-#' @templateVar id nn_threshold
-#' @template pipeop_torch_channels_default
-#' @templateVar param_vals threshold = 1, value = 2
-#' @template pipeop_torch
-#' @template pipeop_torch_example
-#'
 #' @inherit torch::nnf_threshold description
-#'
+#' @section nn_module: Calls [`torch::nn_threshold()`] when trained.
 #' @section Parameters:
 #' * `threshold` :: `numeric(1)`\cr
 #'   The value to threshold at.
@@ -751,8 +714,13 @@ register_po("nn_tanhshrink", PipeOpTorchTanhShrink)
 #'   The value to replace with.
 #' * `inplace` :: `logical(1)`\cr
 #'   Can optionally do the operation in-place. Default: ‘FALSE’.
+#' @templateVar id nn_threshold
+#' @template pipeop_torch_channels_default
+#' @templateVar param_vals threshold = 1, value = 2
+#' @template pipeop_torch
+#' @template pipeop_torch_example
 #'
-#' @section Internals: Calls [`torch::nn_threshold()`] when trained.
+#'
 #' @export
 PipeOpTorchThreshold = R6Class("PipeOpTorchThreshold",
   inherit = PipeOpTorch,
@@ -781,18 +749,17 @@ register_po("nn_threshold", PipeOpTorchThreshold)
 
 #' @title GLU Activation Function
 #'
+#' @inherit torch::nnf_glu description
+#' @section nn_module: Calls [`torch::nn_glu()`] when trained.
+#' @section Parameters:
+#' * `dim` :: `integer(1)`\cr
+#'   Dimension on which to split the input. Default: -1
 #' @templateVar id nn_glu
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#' @inherit torch::nnf_glu description
 #'
-#' @section Parameters:
-#' * `dim` :: `integer(1)`\cr
-#'   Dimension on which to split the input. Default: -1
-#'
-#' @section Internals: Calls [`torch::nn_glu()`] when trained.
 #' @export
 PipeOpTorchGLU = R6Class("PipeOpTorchGLU",
   inherit = PipeOpTorch,

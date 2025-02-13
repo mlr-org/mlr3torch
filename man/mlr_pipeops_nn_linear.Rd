@@ -7,6 +7,23 @@
 \description{
 Applies a linear transformation to the incoming data: \eqn{y = xA^T + b}.
 }
+\section{nn_module}{
+
+Calls \code{\link[torch:nn_linear]{torch::nn_linear()}} when trained where the parameter \code{in_features} is inferred as the second
+to last dimension of the input tensor.
+}
+
+\section{Parameters}{
+
+\itemize{
+\item \code{out_features} :: \code{integer(1)}\cr
+The output features of the linear layer.
+\item \code{bias} :: \code{logical(1)}\cr
+Whether to use a bias.
+Default is \code{TRUE}.
+}
+}
+
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
@@ -21,23 +38,6 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 \section{Credit}{
 
 Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
-}
-
-\section{Parameters}{
-
-\itemize{
-\item \code{out_features} :: \code{integer(1)}\cr
-The output features of the linear layer.
-\item \code{bias} :: \code{logical(1)}\cr
-Whether to use a bias.
-Default is \code{TRUE}.
-}
-}
-
-\section{Internals}{
-
-Calls \code{\link[torch:nn_linear]{torch::nn_linear()}} when trained where the parameter \code{in_features} is inferred as the second
-to last dimension of the input tensor.
 }
 
 \examples{
@@ -102,6 +102,8 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_tanh}},
 \code{\link{mlr_pipeops_nn_tanhshrink}},
 \code{\link{mlr_pipeops_nn_threshold}},
+\code{\link{mlr_pipeops_nn_tokenizer_categ}},
+\code{\link{mlr_pipeops_nn_tokenizer_num}},
 \code{\link{mlr_pipeops_nn_unsqueeze}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},
