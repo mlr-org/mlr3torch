@@ -244,6 +244,8 @@ deep_learner$train(mnist)
   learning framework for R `torch`.
 - Building neural networks using `PipeOpTorch` operators is inspired by
   [keras](https://keras.io/).
+- This R package is developed as part of the [Mathematical Research Data
+  Initiative](https://www.mardi4nfdi.de/about/mission).
 
 ## Bugs, Questions, Feedback
 

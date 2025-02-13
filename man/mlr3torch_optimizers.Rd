@@ -5,7 +5,7 @@
 \alias{mlr3torch_optimizers}
 \title{Optimizers}
 \format{
-An object of class \code{DictionaryMlr3torchOptimizers} (inherits from \code{Dictionary}, \code{R6}) of length 13.
+An object of class \code{DictionaryMlr3torchOptimizers} (inherits from \code{Dictionary}, \code{R6}) of length 12.
 }
 \usage{
 mlr3torch_optimizers
