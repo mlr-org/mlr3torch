@@ -222,6 +222,7 @@ deep_learner$train(mnist)
 * Without the great R package `torch` none of this would have been possible.
 * The names for the callback stages are taken from [luz](https://mlverse.github.io/luz/), another high-level deep learning framework for R `torch`.
 * Building neural networks using `PipeOpTorch` operators is inspired by [keras](https://keras.io/).
+* This R package is developed as part of the [Mathematical Research Data Initiative](https://www.mardi4nfdi.de/about/mission).
 
 ## Bugs, Questions, Feedback
 
