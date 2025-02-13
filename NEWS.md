@@ -5,6 +5,7 @@
 * `LearnerTorchModel` can now be parallelized and trained with
   encapsulation activated.
 * `jit_trace` now works in combination with batch normalization.
+* Ensures compatibility with `R6` version 2.6.0
 
 # mlr3torch 0.2.0
 
