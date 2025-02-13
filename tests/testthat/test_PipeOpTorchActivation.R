@@ -346,3 +346,31 @@ test_that("PipeOpTorchHardTanh paramtest", {
   res = expect_paramset(po("nn_hardtanh"), nn_hardtanh)
   expect_paramtest(res)
 })
+
+# PipeOpTorchReGLU
+test_that("PipeOpTorchReGLU autotest", {
+  po_test = po("nn_reglu")
+  graph = po("torch_ingress_num") %>>% po_test
+  task = tsk("iris")
+
+  expect_pipeop_torch(graph, "nn_reglu", task)
+})
+
+test_that("PipeOpTorchReGLU paramtest", {
+  res = expect_paramset(po("nn_reglu"), nn_reglu)
+  expect_paramtest(res)
+})
+
+# PipeOpTorchGeGLU
+test_that("PipeOpTorchGeGLU autotest", {
+  po_test = po("nn_geglu")
+  graph = po("torch_ingress_num") %>>% po_test
+  task = tsk("iris")
+
+  expect_pipeop_torch(graph, "nn_geglu", task)
+})
+
+test_that("PipeOpTorchGeGLU paramtest", {
+  res = expect_paramset(po("nn_geglu"), nn_reglu)
+  expect_paramtest(res)
+})

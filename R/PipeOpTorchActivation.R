@@ -914,3 +914,5 @@ PipeOpTorchGeGLU = R6Class("PipeOpTorchGeGLU",
     }
   )
 )
+
+register_po("nn_geglu", PipeOpTorchGeGLU)
