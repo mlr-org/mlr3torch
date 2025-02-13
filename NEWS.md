@@ -45,6 +45,16 @@
 * The `dataset` of a learner must no longer return the tensors on the specified `device`,
   which allows for parallel dataloading on GPUs.
 * `PipeOpBlock` should no longer create ID clashes with other PipeOps in the graph (#260).
+  Also, the improvement is calculated as the difference between the current and the best score,
+  not the current and the previous score.
+* feat: Added multimodal melanoma and cifar{10, 100} example tasks.
+* feat: Added a callback to iteratively unfreeze parameters for finetuning.
+* fix: torch learners can now be used with `AutoTuner`.
+* feat: Added different learning rate schedulers as callbacks.
+* feat: `PipeOpBlock` should no longer create ID clashes with other PipeOps in the graph (#260)
+* fix: `device` is no longer part of the `dataset` which allows for parallel dataloading
+  on GPUs.
+* feat: Add tokenizers for numeric and categorical features.
 
 # mlr3torch 0.1.2
 
