@@ -283,7 +283,7 @@ and regression, cannot be a <code>lazy_tensor</code>, but must be a
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
 <span><span class="va">x</span> <span class="op">=</span> <span class="va">mydata</span><span class="op">$</span><span class="va">x</span></span>
 <span><span class="va">y</span> <span class="op">=</span> <span class="fl">0.2</span> <span class="op">+</span> <span class="fl">0.1</span> <span class="op">*</span> <span class="va">x</span> <span class="op">-</span> <span class="fl">0.1</span> <span class="op">*</span> <span class="va">x</span><span class="op">^</span><span class="fl">2</span> <span class="op">-</span> <span class="fl">0.3</span> <span class="op">*</span> <span class="va">x</span><span class="op">^</span><span class="fl">3</span> <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">x</span><span class="op">^</span><span class="fl">4</span> <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">x</span><span class="op">^</span><span class="fl">7</span> <span class="op">+</span> <span class="fl">0.6</span> <span class="op">*</span> <span class="va">x</span><span class="op">^</span><span class="fl">11</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">mydata</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">0.1</span></span>
-<span><span class="va">dt</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, x <span class="op">=</span> <span class="va">lt</span><span class="op">)</span></span>
+<span><span class="va">dt</span> <span class="op">=</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, x <span class="op">=</span> <span class="va">lt</span><span class="op">)</span></span>
 <span><span class="va">task_poly</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/as_task_regr.html" class="external-link">as_task_regr</a></span><span class="op">(</span><span class="va">dt</span>, target <span class="op">=</span> <span class="st">"y"</span>, id <span class="op">=</span> <span class="st">"poly"</span><span class="op">)</span></span>
 <span><span class="va">task_poly</span></span>
 <span><span class="co">#&gt; &lt;TaskRegr:poly&gt; (1000 x 2)</span></span>
@@ -365,7 +365,7 @@ task.</p>
 <p>Below, we visualize the predictions and see that the model captured
 the non-linear relationship reasonably:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dt</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/melt.data.table.html" class="external-link">melt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">dt</span> <span class="op">=</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/melt.data.table.html" class="external-link">melt</a></span><span class="op">(</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
 <span>  truth <span class="op">=</span> <span class="va">pred</span><span class="op">$</span><span class="va">truth</span>,</span>
 <span>  response <span class="op">=</span> <span class="va">pred</span><span class="op">$</span><span class="va">response</span>,</span>
 <span>  x <span class="op">=</span> <span class="va">x</span><span class="op">)</span>,</span>
@@ -402,7 +402,7 @@ nerworks using <code>PipeOpTorch</code> objects. The
 <span><span class="co">#&gt; &lt;DataDescriptor: 1 ops&gt;</span></span>
 <span><span class="co">#&gt; * dataset_shapes: [x: (NA,1)]</span></span>
 <span><span class="co">#&gt; * input_map: (x) -&gt; Graph</span></span>
-<span><span class="co">#&gt; * pointer: nop.b1079f.x.output</span></span>
+<span><span class="co">#&gt; * pointer: nop.c3399a.x.output</span></span>
 <span><span class="co">#&gt; * shape: [(NA,1)]</span></span></code></pre></div>
 <p>The printed output of the data descriptor informs us about:</p>
 <ul>
@@ -449,7 +449,7 @@ there can only be a single <code>DataDescriptor</code> in a
 <span><span class="co">#&gt; &lt;DataDescriptor: 1 ops&gt;</span></span>
 <span><span class="co">#&gt; * dataset_shapes: [x: (NA,1)]</span></span>
 <span><span class="co">#&gt; * input_map: (x) -&gt; Graph</span></span>
-<span><span class="co">#&gt; * pointer: nop.b1079f.x.output</span></span>
+<span><span class="co">#&gt; * pointer: nop.c3399a.x.output</span></span>
 <span><span class="co">#&gt; * shape: [(NA,1)]</span></span></code></pre></div>
 <p>What happens during <code>materialize(lt[1])</code> is the
 following:</p>
@@ -480,7 +480,7 @@ metainformation like the pointer and output shape. To show this, we
 create a simple example task, using the <code>lt</code> vector as a
 feature.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">taskin</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/as_task_regr.html" class="external-link">as_task_regr</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">lt</span>, y <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span>, target <span class="op">=</span> <span class="st">"y"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">taskin</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/as_task_regr.html" class="external-link">as_task_regr</a></span><span class="op">(</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">lt</span>, y <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span>, target <span class="op">=</span> <span class="st">"y"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">taskout</span> <span class="op">=</span> <span class="va">po_poly</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">taskin</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
@@ -499,8 +499,8 @@ feature.</p>
 <span><span class="co">#&gt; Graph with 2 PipeOps:</span></span>
 <span><span class="co">#&gt;            ID         State sccssors    prdcssors</span></span>
 <span><span class="co">#&gt;        &lt;char&gt;        &lt;char&gt;   &lt;char&gt;       &lt;char&gt;</span></span>
-<span><span class="co">#&gt;  nop.b1079f.x        &lt;list&gt;   poly.x             </span></span>
-<span><span class="co">#&gt;        poly.x &lt;&lt;UNTRAINED&gt;&gt;          nop.b1079f.x</span></span></code></pre></div>
+<span><span class="co">#&gt;  nop.c3399a.x        &lt;list&gt;   poly.x             </span></span>
+<span><span class="co">#&gt;        poly.x &lt;&lt;UNTRAINED&gt;&gt;          nop.c3399a.x</span></span></code></pre></div>
 <p>We see that the <code>$graph</code> has a new pipeop with id
 <code>"poly.x"</code> and the output <code>pointer</code> points to
 <code>poly.x</code>. Also we see that the shape of the tensor is now
