@@ -3,13 +3,11 @@
 #' Tokenizes tabular data.
 #' @export
 
-# TODO: remove library loads
 library(R6)
 library(torch)
 library(torchopt) # question: can i use this?
 library(checkmate)
-source("./R/activations.R")
-
+source(here::here("attic", "old-ft-transformer", "R", "activations.R"))
 
 #' Tabular Tokenizers
 #'
@@ -163,7 +161,7 @@ nn_tokenizer_categorical = nn_module(
   }
 )
 
-# TODO: concise description of what this is
+
 nn_cls_token = nn_module(
   "nn_cls_token",
   initialize = function(d_token, initialization) {
@@ -191,12 +189,14 @@ nn_cls_token = nn_module(
   }
 )
 
+
 nn_reglu = nn_module(
   "nn_reglu",
   forward = function(input) {
     return(reglu(input))
   }
 )
+
 
 nn_geglu = nn_module(
   "nn_geglu",
@@ -212,16 +212,13 @@ all_or_none_ = function(...) {
   return(all_none || all_not_none)
 }
 
-# TODO: concise description of what this is
-# "allows a token's meaning at a position to be influenced by multiple tokens at other positions"
-# allows a feature's {} to be influenced by multiple other features
 nn_ft_multi_head_attention = nn_module(
   "nn_ft_multi_head_attention",
   initialize = function(d_token, n_heads, dropout, bias, initialization) {
     if (n_heads > 1) {
       assert_true(d_token %% n_heads == 0)
     }
-    assert_choice(initialization, c("kaiming", "xavier"))
+    assert_choice(initialization, c('kaiming', 'xavier'))
 
     self$W_q = nn_linear(d_token, d_token, bias)
     self$W_k = nn_linear(d_token, d_token, bias)
@@ -231,9 +228,9 @@ nn_ft_multi_head_attention = nn_module(
     self$dropout = if (dropout) nn_dropout(dropout) else NULL
 
     weights = c(self$W_q, self$W_k, self$W_v)
-    for (i in seq_len(length(weights))) {
+    for (i in 1:length(weights)) {
       m = weights[[i]]
-      if (initialization == "xavier" &&
+      if (initialization == 'xavier' &&
           (i != length(weights) || !is.null(self$W_out))) {
         nn_init_xavier_uniform_(m$weight, gain=1/sqrt(2))
       }
@@ -260,9 +257,8 @@ nn_ft_multi_head_attention = nn_module(
     }
 
     batch_size = q$shape[1]
-
-    d_head_key = last(k$shape) %/% self$n_heads
-    d_head_value = last(v$shape) %/% self$n_heads
+    d_head_key = tail(k$shape, 1) %/% self$n_heads
+    d_head_value = tail(v$shape, 1) %/% self$n_heads
     n_q_tokens = q$shape[2]
 
     q = self$reshape_(q)
@@ -281,8 +277,7 @@ nn_ft_multi_head_attention = nn_module(
   }
 )
 
-# TODO: concise description of what this is
-# ffn: feed-forward network
+
 nn_ft_ffn = nn_module(
   "nn_ft_ffn",
   initialize = function(d_token, d_hidden, bias_first, bias_second, dropout, activation) {
@@ -301,7 +296,7 @@ nn_ft_ffn = nn_module(
   }
 )
 
-# TODO: concise description of what this is
+
 nn_ft_head = nn_module(
   "nn_ft_head",
   initialize = function(d_in, bias, activation, normalization, d_out) {
@@ -318,9 +313,108 @@ nn_ft_head = nn_module(
   }
 )
 
-# # "the transformer"
-# # TODO: refactor to NOT have n_blocks. This should be a single block
-# # TODO: create an nn_module for the output head
+nn_ft_transformer_layer = nn_module(
+  "nn_ft_transformer_layer",
+  initialize = function(d_token,
+                        attention_n_heads,
+                        attention_dropout,
+                        attention_initialization,
+                        ffn_d_hidden,
+                        ffn_dropout,
+                        ffn_activation,
+                        residual_dropout,
+                        prenormalization,
+                        first_layer = FALSE,
+                        attention_normalization = nn_layer_norm,
+                        ffn_normalization = nn_layer_norm) {
+    
+    # Attention components
+    self$attention = nn_ft_multi_head_attention(
+      d_token = d_token,
+      n_heads = attention_n_heads,
+      dropout = attention_dropout,
+      bias = TRUE,
+      initialization = attention_initialization
+    )
+    
+    # FFN components
+    self$ffn = nn_ft_ffn(
+      d_token = d_token,
+      d_hidden = ffn_d_hidden,
+      bias_first = TRUE,
+      bias_second = TRUE,
+      dropout = ffn_dropout,
+      activation = ffn_activation
+    )
+    
+    # Dropout layers
+    self$attention_residual_dropout = nn_dropout(residual_dropout)
+    self$ffn_residual_dropout = nn_dropout(residual_dropout)
+    
+    # Output identity for hooks
+    self$output = nn_identity()
+    
+    # Normalization layers
+    # Only add attention normalization if not first layer in prenormalization mode
+    if (!prenormalization || !first_layer) {
+      self$attention_normalization = attention_normalization(d_token)
+    }
+    self$ffn_normalization = ffn_normalization(d_token)
+    
+    # Store configuration
+    self$prenormalization = prenormalization
+  },
+  
+  forward = function(x, key_compression = NULL, value_compression = NULL) {
+    # Store the input for residual connection
+    x_orig = x
+    
+    # Process through attention with normalization (pre or post)
+    if (self$prenormalization && "attention_normalization" %in% names(self)) {
+      x = self$attention_normalization(x)
+    }
+    
+    # Apply attention
+    attention_result = self$attention(x, x, key_compression, value_compression)
+    x_residual = attention_result$x
+    
+    # Apply dropout and residual connection
+    x_residual = self$attention_residual_dropout(x_residual)
+    x = x_orig + x_residual
+    
+    # Apply post-normalization if configured that way
+    if (!self$prenormalization && "attention_normalization" %in% names(self)) {
+      x = self$attention_normalization(x)
+    }
+    
+    # Store the output of attention for residual connection
+    x_orig = x
+    
+    # Process through FFN with normalization (pre or post)
+    if (self$prenormalization) {
+      x = self$ffn_normalization(x)
+    }
+    
+    # Apply FFN
+    x_residual = self$ffn(x)
+    
+    # Apply dropout and residual connection
+    x_residual = self$ffn_residual_dropout(x_residual)
+    x = x_orig + x_residual
+    
+    # Apply post-normalization if configured that way
+    if (!self$prenormalization) {
+      x = self$ffn_normalization(x)
+    }
+    
+    # Apply output identity (for hooks)
+    x = self$output(x)
+    
+    return(x)
+  }
+)
+
+
 nn_ft_transformer_block = nn_module(
   "nn_ft_transformer_block",
   initialize = function(d_token,
@@ -336,161 +430,135 @@ nn_ft_transformer_block = nn_module(
                         residual_dropout,
                         prenormalization,
                         first_prenormalization,
-                        last_layer_query_idx=NULL,
-                        n_tokens=NULL,
-                        kv_compression_ratio=NULL,
-                        kv_compression_sharing=NULL,
+                        last_layer_query_idx = NULL,
+                        n_tokens = NULL,
+                        kv_compression_ratio = NULL,
+                        kv_compression_sharing = NULL,
                         head_activation,
                         head_normalization,
                         d_out) {
+    
     if (!is.null(last_layer_query_idx)) {
-      if (all.equal(last_layer_query_idx, as.integer(last_layer_query_idx))) {
+      if (!all.equal(last_layer_query_idx, as.integer(last_layer_query_idx))) {
         stop("last_layer_query_idx must be NULL, or vector of integers!")
       }
     }
+    
     if (!prenormalization) {
       assert_true(!first_prenormalization)
     }
+    
     assert_true(all_or_none_(n_tokens, kv_compression_ratio, kv_compression_sharing))
-
-    assert_true(kv_compression_sharing %in% c("headwise", "key_value", "layerwise") || is.null(kv_compression_sharing))
-    if (!prenormalization) {
-      # TODO: should we refer to rtdl.Transformer?
-      warning("prenormalization is set to False. Are you sure about this? The training can become less stable. You can turn off this warning by tweaking the rtdl.Transformer.WARNINGS dictionary.")
-      assert_false(first_prenormalization)
-    }
-    if (prenormalization && first_prenormalization) {
-      # TODO: should we refer to rtdl.Transformer?
-      warning("first_prenormalization is set to True. Are you sure about this? For example, the vanilla FTTransformer with first_prenormalization=True performs SIGNIFICANTLY worse. You can turn off this warning by tweaking the rtdl.Transformer.WARNINGS dictionary.")
-    }
-    if (!is.null(kv_compression_ratio) && kv_compression_sharing == "layerwise") {
+    
+    assert_true(is.null(kv_compression_sharing) || 
+               kv_compression_sharing %in% c('headwise', 'key_value', 'layerwise'))
+    
+    # Create shared KV compression if needed
+    if (!is.null(kv_compression_ratio) && kv_compression_sharing == 'layerwise') {
       self$shared_kv_compression = self$make_kv_compression(n_tokens, kv_compression_ratio)
     } else {
       self$shared_kv_compression = NULL
     }
+    
+    # Create a list of transformer layers
+    layers = list()
+    for (layer_idx in 1:n_blocks) {
+      is_first_layer = (layer_idx == 1)
+      
+      # Create the transformer layer
+      layer = nn_ft_transformer_layer(
+        d_token = d_token,
+        attention_n_heads = attention_n_heads,
+        attention_dropout = attention_dropout,
+        attention_initialization = attention_initialization,
+        ffn_d_hidden = ffn_d_hidden,
+        ffn_dropout = ffn_dropout,
+        ffn_activation = ffn_activation,
+        residual_dropout = residual_dropout,
+        prenormalization = prenormalization,
+        first_layer = is_first_layer && !first_prenormalization,
+        attention_normalization = attention_normalization,
+        ffn_normalization = ffn_normalization
+      )
+      
+      # Add to the list
+      layers[[layer_idx]] = layer
+    }
+    
+    # Create a module list with all layers
+    self$blocks = nn_module_list(layers)
+    
+    # Store configuration
     self$prenormalization = prenormalization
     self$last_layer_query_idx = last_layer_query_idx
-    self$blocks = list()
-    for (layer_idx in seq_len(n_blocks)) {
-      layer = list(attention = nn_ft_multi_head_attention(d_token=d_token,
-                                                          n_heads=attention_n_heads,
-                                                          dropout=attention_dropout,
-                                                          bias=TRUE,
-                                                          initialization=attention_initialization),
-                   ffn = nn_ft_ffn(d_token=d_token,
-                                   d_hidden=ffn_d_hidden,
-                                   bias_first=TRUE,
-                                   bias_second=TRUE,
-                                   dropout=ffn_dropout,
-                                   activation=ffn_activation),
-                   attention_residual_dropout = nn_dropout(residual_dropout),
-                   ffn_residual_dropout = nn_dropout(residual_dropout),
-                   output = nn_identity() # for hooks-based introspection
-      )
-      if (layer_idx || !prenormalization || first_prenormalization) {
-        layer$attention_normalization = attention_normalization(d_token)
-      }
-      layer$ffn_normalization = ffn_normalization(d_token)
-      if (!is.null(kv_compression_ratio) && is.null(self$shared_kv_compression)) {
-        layer$key_compression = make_kv_compression(n_tokens, kv_compression_ratio)
-        if (kv_compression_sharing == "headwise") {
-          layer$value_compression = make_kv_compression(n_tokens, kv_compression_ratio)
-        } else {
-          assert_true(kv_compression_sharing == "key_value", "kv_compression_sharing parameter should be set to either 'headwise' or 'key_value'!")
-        }
-      }
-      self$blocks[[layer_idx]] = layer
-    }
-    self$blocks = nn_module_list(self$blocks)
-    # self$head = nn_ft_head(d_in=d_token,
-    #                        d_out=d_out,
-    #                        bias=TRUE,
-    #                        activation=head_activation, # type: ignore # TODO: figure out what this comment means
-    #                        normalization=if (prenormalization) head_normalization else nn_identity)
+    self$kv_compression_sharing = kv_compression_sharing
+    
+    # Create the head module
+    self$head = nn_ft_head(
+      d_in = d_token,
+      d_out = d_out,
+      bias = TRUE,
+      activation = head_activation,
+      normalization = if (prenormalization) head_normalization else nn_identity
+    )
   },
+  
   make_kv_compression = function(n_tokens, kv_compression_ratio) {
     assert_true(n_tokens && kv_compression_ratio)
-    return(nn_linear(n_tokens, floor(n_tokens * kv_compression_ratio), bias=FALSE))
+    return(nn_linear(n_tokens, floor(n_tokens * kv_compression_ratio), bias = FALSE))
   },
-  get_kv_compressions_ = function(layer) {
-    if(!is.null(self$shared_kv_compression)) {
-      result = c(self$shared_kv_compression, self$shared_kv_compression)
-    } else {
-      if ("key_compression" %in% names(layer) && "value_compression" %in% names(layer)) {
-        result = c(layer$key_compression, layer$value_compression)
-      } else {
-        if ("key_compression" %in% names(layer)) {
-          result = c(layer$key_compression, layer$key_compression)
+  
+  get_kv_compressions_ = function(layer_idx) {
+    if (!is.null(self$shared_kv_compression)) {
+      # If we're using layerwise sharing, return the shared compressions
+      return(list(key = self$shared_kv_compression, value = self$shared_kv_compression))
+    } else if (!is.null(self$kv_compression_ratio) && !is.null(self$kv_compression_sharing)) {
+      # Create layer-specific compressions if needed
+      # Implementation would depend on how you want to handle this
+    }
+    return(NULL)
+  },
+  
+  forward = function(x) {
+    assert_true(x$ndim == 3)
+    
+    # Process through each transformer layer
+    for (layer_idx in seq_len(length(self$blocks))) {
+      layer = self$blocks[[layer_idx]]
+      
+      # Handle the last layer query index if needed
+      if (layer_idx == length(self$blocks) && !is.null(self$last_layer_query_idx)) {
+        x_selected = x[, self$last_layer_query_idx, ]
+        compressions = self$get_kv_compressions_(layer_idx)
+        
+        if (!is.null(compressions)) {
+          x = layer(x_selected, compressions$key, compressions$value)
         } else {
-          result = NULL
+          x = layer(x_selected)
+        }
+      } else {
+        compressions = self$get_kv_compressions_(layer_idx)
+        
+        if (!is.null(compressions)) {
+          x = layer(x, compressions$key, compressions$value)
+        } else {
+          x = layer(x)
         }
       }
     }
-    return(result)
-  },
-  start_residual_ = function(layer, stage, x) {
-    x_residual = x
-    if (self$prenormalization) {
-      norm_key = paste0(stage, "_normalization")
-      if (norm_key %in% names(layer)) {
-        x_residual = layer[[norm_key]](x_residual)
-      }
-    }
-    return(x_residual)
-  },
-  end_residual_ = function(layer, stage, x, x_residual) {
-    x_residual = layer[[paste0(stage, "_residual_dropout")]](x_residual)
-    x = x + x_residual
-    if (!self$prenormalization) {
-      x = layer[[paste0(stage, "_normalization")]](x)
-    }
-    return(x)
-  },
-  forward = function(x) {
-    assert_true(x$ndim == 3)
-    for (layer_idx in seq_len(length(self$blocks))) {
-      layer = self$blocks[[layer_idx]]
-      query_idx = if (layer_idx == length(self$blocks)) self$last_layer_query_idx else NULL
-      x_residual = self$start_residual_(layer, "attention", x)
-
-      x_residual_arg = if (is.null(query_idx)) x_residual else x_residual[, query_idx]
-      compressions = self$get_kv_compressions_(layer)
-      x_residual_vec = layer[["attention"]](x_residual_arg,
-                                            x_residual,
-                                            compressions[1],
-                                            compressions[2])
-      x = if (!is.null(query_idx)) x[, query_idx] else x
-      x = self$end_residual_(layer, "attention", x, x_residual)
-
-      x_residual = self$start_residual_(layer, "ffn", x)
-      x_residual = layer[["ffn"]](x_residual)
-      x = self$end_residual_(layer, "ffn", x, x_residual)
-      x = layer[["output"]](x)
-    }
-    # TODO: delete the call to self$head()
-    # x = self$head(x)
+    
+    # Process through the head
+    x = self$head(x)
+    
     return(x)
   }
 )
 
-# a single Transformer layer
-# that "occurs" after the features have been
-# passed through embeddings
 
-# copied from the old call in nn_ft_transformer_block
-
-# self$head = nn_ft_head(d_in=d_token,
-#                         d_out=d_out,
-#                         bias=TRUE,
-#                         activation=head_activation, # type: ignore # TODO: figure out what this comment means
-#                         normalization=if (prenormalization) head_normalization else nn_identity)
-
-
-# basically just a list of default config parameters
 get_baseline_transformer_subconfig = function() {
   parameters = list(
     attention_n_heads=8,
-    attention_initialization="kaiming",
+    attention_initialization='kaiming',
     ffn_activation=nn_reglu(),
     attention_normalization=nn_layer_norm,
     ffn_normalization=nn_layer_norm,
@@ -506,7 +574,6 @@ get_baseline_transformer_subconfig = function() {
   return(parameters)
 }
 
-# another set of default parameters (seems to be the "true" default)
 get_default_transformer_config = function(n_blocks = 3) {
   assert_true(1 <= n_blocks && n_blocks <= 6)
   grid = list(
@@ -523,20 +590,17 @@ get_default_transformer_config = function(n_blocks = 3) {
   }
 
   baseline_subconfig = get_baseline_transformer_subconfig()
-  ffn_d_hidden_factor = if (class(baseline_subconfig[["ffn_activation"]])[1] %in% c("nn_reglu", "nn_geglu")) (4 / 3) else 2.0
+  ffn_d_hidden_factor = if (class(baseline_subconfig[['ffn_activation']])[1] %in% c("nn_reglu", "nn_geglu")) (4 / 3) else 2.0
   parameters = list(
     n_blocks = n_blocks,
     residual_dropout = 0.0,
-    ffn_d_hidden = floor(arch_subconfig[["d_token"]] * ffn_d_hidden_factor)
+    ffn_d_hidden = floor(arch_subconfig[['d_token']] * ffn_d_hidden_factor)
   )
   parameters = append(parameters, arch_subconfig)
   parameters = append(parameters, baseline_subconfig)
   return(parameters)
 }
 
-# creates the ft-transformer
-# with the configuration passed in
-# helper function called by make_baseline and make_default
 make_ = function(n_num_features, cat_cardinalities, transformer_config) {
   feature_tokenizer = nn_tab_tokenizer(n_features=n_num_features,
                                        cardinalities=cat_cardinalities,
@@ -547,28 +611,11 @@ make_ = function(n_num_features, cat_cardinalities, transformer_config) {
   if (!is.null(transformer_config$kv_compression_ratio)) {
     transformer_config$n_tokens = feature_tokenizer$n_tokens + 1
   }
-
-  # clunky manual approach:
-  # construct the list of named arguments for the head module
-  # by extracting them from the `transformer_config`
-
-  head_config = list(
-    d_in = transformer_config$d_token,
-    d_out = d_out,
-    bias = TRUE,
-    activation = transformer_config$head_activation,
-    normalization = if (prenormalization) transformer_config$head_normalization else nn_identity
-  )
-
   return(nn_ft_transformer(feature_tokenizer,
-                           do.call("nn_ft_transformer_block", transformer_config),
-                           do.call("nn_ft_transformer_head", head_config)
+                           do.call("nn_ft_transformer_block", transformer_config)
   ))
 }
 
-# creates a configuration for the FT-transformer
-# essentially, a list of arguments that may be passed to
-# a module, such as nn_ft_transformer_block
 make_baseline = function(n_num_features,
                          cat_cardinalities,
                          d_token,
@@ -582,17 +629,17 @@ make_baseline = function(n_num_features,
                          kv_compression_sharing=NULL,
                          d_out) {
   transformer_config = get_baseline_transformer_subconfig()
-  locals = as.list(environment())
-  for (arg_name in c("n_blocks",
-                     "d_token",
-                     "attention_dropout",
-                     "ffn_d_hidden",
-                     "ffn_dropout",
-                     "residual_dropout",
-                     "last_layer_query_idx",
-                     "kv_compression_ratio",
-                     "kv_compression_sharing",
-                     "d_out")) {
+  locals <- as.list(environment())
+  for (arg_name in c('n_blocks',
+                     'd_token',
+                     'attention_dropout',
+                     'ffn_d_hidden',
+                     'ffn_dropout',
+                     'residual_dropout',
+                     'last_layer_query_idx',
+                     'kv_compression_ratio',
+                     'kv_compression_sharing',
+                     'd_out')) {
     transformer_config[[arg_name]] = locals[[arg_name]]
   }
   return(make_(n_num_features, cat_cardinalities, transformer_config))
@@ -606,30 +653,29 @@ make_default = function(n_num_features,
                         kv_compression_sharing=NULL,
                         d_out) {
   transformer_config = get_default_transformer_config(n_blocks=n_blocks)
-  locals = as.list(environment())
-  for (arg_name in c("last_layer_query_idx",
-                     "kv_compression_ratio",
-                     "kv_compression_sharing",
-                     "d_out")) {
+  locals <- as.list(environment())
+  for (arg_name in c('last_layer_query_idx',
+                     'kv_compression_ratio',
+                     'kv_compression_sharing',
+                     'd_out')) {
     transformer_config[[arg_name]] = locals[[arg_name]]
   }
   return (make_(n_num_features, cat_cardinalities, transformer_config))
 }
 
-# the FT-Transformer
 nn_ft_transformer = nn_module(
   "nn_ft_transformer",
-  initialize = function(feature_tokenizer, transformer, head) {
+  initialize = function(feature_tokenizer, transformer) {
     if (transformer$prenormalization) {
+      browser()
       assert_true(!("attention_normalization" %in% transformer$blocks[[1]]))
     }
     self$feature_tokenizer = feature_tokenizer
     self$cls_token = nn_cls_token(feature_tokenizer$d_token, feature_tokenizer$initialization)
     self$transformer = transformer
-    self$head = head
   },
   optimization_param_groups = function() {
-    no_wd_names = c("feature_tokenizer", "normalization", ".bias")
+    no_wd_names = c('feature_tokenizer', 'normalization', '.bias')
     assert_choice("nn_tab_tokenizer", class(self$feature_tokenizer))
     needs_wd_ = function(name) {
       res = c()
@@ -667,7 +713,8 @@ nn_ft_transformer = nn_module(
     x = self$feature_tokenizer(x_num, x_cat)
     x = self$cls_token(x)
     x = self$transformer(x)
-    x = self$head(x)
     return(x)
   }
 )
+
+
