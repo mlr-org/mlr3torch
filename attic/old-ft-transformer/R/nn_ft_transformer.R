@@ -406,7 +406,7 @@ nn_ft_transformer_block = nn_module(
       }
       self$blocks[[layer_idx]] = layer
     }
-    # browser()
+
     self$blocks = nn_module_list(self$blocks)
     self$head = nn_ft_head(d_in=d_token,
                            d_out=d_out,

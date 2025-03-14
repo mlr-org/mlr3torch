@@ -354,6 +354,7 @@ nn_transformer_layer = nn_module(
     self$output = nn_identity()
     
     # TODO: check this condition
+    # TODO: check the rest of this code, the LLM changed a lot of stuff
     # Normalization layers
     # Only add attention normalization if not first layer in prenormalization mode
     if (!prenormalization || !first_layer) {
@@ -363,7 +364,8 @@ nn_transformer_layer = nn_module(
 
     self$query_idx = query_idx
     
-    # layer_idx was the index variable for the for loop
+    # layer_idx was the looping variable
+    # but except in the degenerate case where its value is 0
     layer_idx = -1
     if (layer_idx || !prenormalization || first_prenormalization) {
       self$attention_normalization = attention_normalization(d_token)
@@ -388,12 +390,8 @@ nn_transformer_layer = nn_module(
     }
     return(x_residual)
   },
-  # TODO: determine whether the kv_compressions should go in the block module
-  # if there is even a block module
-  # but I think this depends on how different things are, i.e. if you want to 
-  # treat the first and/or last transformer layers specially (it seems like they should be)
-  # but for now keeping the block module is okay I think
-  # because there will be fewer moving parts
+
+  # TODO: determine whether to keep the block module: might be nice to treat the first/last layer differently
   # consider factoring out the head before factoring out the block module
   make_kv_compression = function(n_tokens, kv_compression_ratio) {
     assert_true(n_tokens && kv_compression_ratio)
@@ -415,7 +413,6 @@ nn_transformer_layer = nn_module(
     }
     return(result)
   },
-
   end_residual_ = function(stage, x, x_residual) {
     x_residual = self[[paste0(stage, "_residual_dropout")]](x_residual)
     x = x + x_residual
@@ -424,7 +421,6 @@ nn_transformer_layer = nn_module(
     }
     return(x)
   },
-
   forward = function(x, key_compression = NULL, value_compression = NULL) {
     x_residual = self$start_residual_('attention', x)
 
@@ -442,7 +438,6 @@ nn_transformer_layer = nn_module(
     x = self$end_residual_('ffn', x, x_residual)
 
     x = self$output(x)
-    
     return(x)
   }
 )
@@ -541,33 +536,9 @@ nn_ft_transformer_block = nn_module(
       normalization = if (prenormalization) head_normalization else nn_identity
     )
   },
-  
-  make_kv_compression = function(n_tokens, kv_compression_ratio) {
-    assert_true(n_tokens && kv_compression_ratio)
-    return(nn_linear(n_tokens, floor(n_tokens * kv_compression_ratio), bias = FALSE))
-  },
-  
-  get_kv_compressions_ = function(layer) {
-    if(!is.null(self$shared_kv_compression)) {
-      result = c(self$shared_kv_compression, self$shared_kv_compression)
-    } else {
-      if ("key_compression" %in% names(layer) && "value_compression" %in% names(layer)) {
-        result = c(layer$key_compression, layer$value_compression)
-      } else {
-        if ("key_compression" %in% names(layer)) {
-          result = c(layer$key_compression, layer$key_compression)
-        } else {
-          result = NULL
-        }
-      }
-    }
-    return(result)
-  },
-  
   forward = function(x) {
     assert_true(x$ndim == 3)
     
-    # Process through each transformer layer
     for (layer_idx in seq_len(length(self$blocks))) {
       x = self$blocks[[layer_idx]](x)
     }
