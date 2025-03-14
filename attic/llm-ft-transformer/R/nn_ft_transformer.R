@@ -7,7 +7,7 @@ library(R6)
 library(torch)
 library(torchopt) # question: can i use this?
 library(checkmate)
-source(here::here("attic", "old-ft-transformer", "R", "activations.R"))
+source(here::here("attic", "llm-ft-transformer", "R", "activations.R"))
 
 #' Tabular Tokenizers
 #'
@@ -313,8 +313,8 @@ nn_ft_head = nn_module(
   }
 )
 
-nn_ft_transformer_layer = nn_module(
-  "nn_ft_transformer_layer",
+nn_transformer_layer = nn_module(
+  "nn_transformer_layer",
   initialize = function(d_token,
                         attention_n_heads,
                         attention_dropout,
@@ -325,10 +325,10 @@ nn_ft_transformer_layer = nn_module(
                         residual_dropout,
                         prenormalization,
                         first_layer = FALSE,
-                        attention_normalization = nn_layer_norm,
-                        ffn_normalization = nn_layer_norm) {
+                        attention_normalization,
+                        ffn_normalization) {
+    self$prenormalization = prenormalization
     
-    # Attention components
     self$attention = nn_ft_multi_head_attention(
       d_token = d_token,
       n_heads = attention_n_heads,
@@ -337,7 +337,6 @@ nn_ft_transformer_layer = nn_module(
       initialization = attention_initialization
     )
     
-    # FFN components
     self$ffn = nn_ft_ffn(
       d_token = d_token,
       d_hidden = ffn_d_hidden,
@@ -346,27 +345,69 @@ nn_ft_transformer_layer = nn_module(
       dropout = ffn_dropout,
       activation = ffn_activation
     )
-    
-    # Dropout layers
+
     self$attention_residual_dropout = nn_dropout(residual_dropout)
     self$ffn_residual_dropout = nn_dropout(residual_dropout)
-    
-    # Output identity for hooks
+
     self$output = nn_identity()
     
+    # TODO: check this condition
     # Normalization layers
     # Only add attention normalization if not first layer in prenormalization mode
     if (!prenormalization || !first_layer) {
       self$attention_normalization = attention_normalization(d_token)
     }
     self$ffn_normalization = ffn_normalization(d_token)
-    
-    # Store configuration
-    self$prenormalization = prenormalization
   },
   
+  start_residual_ = function(stage, x) {
+    x_residual = x
+    if (self$prenormalization) {
+      norm_key = paste0(stage, "_normalization")
+      if (norm_key %in% names(self)) {
+        x_residual = self[[norm_key]](x_residual)
+      }
+    }
+    return(x_residual)
+  },
+
+  # TODO: determine whether the kv_compressions should go in the block module
+  # if there is even a block module
+  # which at this point I think there may not be
+  # but I think this depends on how different things are, i.e. if you want to 
+  # treat the first and/or last transformer layers specially (it seems like they should be)
+  make_kv_compression = function(n_tokens, kv_compression_ratio) {
+    assert_true(n_tokens && kv_compression_ratio)
+    return(nn_linear(n_tokens, floor(n_tokens * kv_compression_ratio), bias=FALSE))
+  },
+
+  get_kv_compressions_ = function() {
+    if(!is.null(self$shared_kv_compression)) {
+      result = c(self$shared_kv_compression, self$shared_kv_compression)
+    } else {
+      if ("key_compression" %in% names(layer) && "value_compression" %in% names(layer)) {
+        result = c(layer$key_compression, layer$value_compression)
+      } else {
+        if ("key_compression" %in% names(layer)) {
+          result = c(layer$key_compression, layer$key_compression)
+        } else {
+          result = NULL
+        }
+      }
+    }
+    return(result)
+  },
+
+  end_residual_ = function(stage, x, x_residual) {
+    x_residual = self[[paste0(stage, "_residual_dropout")]](x_residual)
+    x = x + x_residual
+    if (!self$prenormalization) {
+      x = layer[[paste0(stage, "_normalization")]](x)
+    }
+    return(x)
+  },
+
   forward = function(x, key_compression = NULL, value_compression = NULL) {
-    # Store the input for residual connection
     x_orig = x
     
     # Process through attention with normalization (pre or post)
@@ -406,14 +447,13 @@ nn_ft_transformer_layer = nn_module(
     if (!self$prenormalization) {
       x = self$ffn_normalization(x)
     }
-    
+
     # Apply output identity (for hooks)
     x = self$output(x)
     
     return(x)
   }
 )
-
 
 nn_ft_transformer_block = nn_module(
   "nn_ft_transformer_block",
@@ -667,8 +707,7 @@ nn_ft_transformer = nn_module(
   "nn_ft_transformer",
   initialize = function(feature_tokenizer, transformer) {
     if (transformer$prenormalization) {
-      browser()
-      assert_true(!("attention_normalization" %in% transformer$blocks[[1]]))
+      assert_true("head" %in% names(transformer$modules))
     }
     self$feature_tokenizer = feature_tokenizer
     self$cls_token = nn_cls_token(feature_tokenizer$d_token, feature_tokenizer$initialization)
