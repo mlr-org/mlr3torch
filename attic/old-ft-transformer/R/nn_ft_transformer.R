@@ -478,7 +478,6 @@ nn_ft_transformer_block = nn_module(
   }
 )
 
-
 get_baseline_transformer_subconfig = function() {
   parameters = list(
     attention_n_heads=8,

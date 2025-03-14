@@ -313,6 +313,7 @@ nn_ft_head = nn_module(
   }
 )
 
+# single layer
 nn_transformer_layer = nn_module(
   "nn_transformer_layer",
   initialize = function(d_token,
@@ -326,7 +327,8 @@ nn_transformer_layer = nn_module(
                         prenormalization,
                         first_layer = FALSE,
                         attention_normalization,
-                        ffn_normalization) {
+                        ffn_normalization,
+                        query_idx) {
     self$prenormalization = prenormalization
     
     self$attention = nn_ft_multi_head_attention(
@@ -358,8 +360,24 @@ nn_transformer_layer = nn_module(
       self$attention_normalization = attention_normalization(d_token)
     }
     self$ffn_normalization = ffn_normalization(d_token)
+
+    self$query_idx = query_idx
+    
+    # layer_idx was the index variable for the for loop
+    layer_idx = -1
+    if (layer_idx || !prenormalization || first_prenormalization) {
+      self$attention_normalization = attention_normalization(d_token)
+    }
+    self$ffn_normalization = ffn_normalization(d_token)
+    if (!is.null(kv_compression_ratio) && is.null(self$shared_kv_compression)) {
+      self$key_compression = make_kv_compression(n_tokens, kv_compression_ratio)
+      if (kv_compression_sharing == 'headwise') {
+        self$value_compression = make_kv_compression(n_tokens, kv_compression_ratio)
+      } else {
+        assert_true(kv_compression_sharing == 'key_value', "kv_compression_sharing parameter should be set to either 'headwise' or 'key_value'!")
+      }
+    }
   },
-  
   start_residual_ = function(stage, x) {
     x_residual = x
     if (self$prenormalization) {
@@ -370,20 +388,17 @@ nn_transformer_layer = nn_module(
     }
     return(x_residual)
   },
-
   # TODO: determine whether the kv_compressions should go in the block module
   # if there is even a block module
-  # which at this point I think there may not be
   # but I think this depends on how different things are, i.e. if you want to 
   # treat the first and/or last transformer layers specially (it seems like they should be)
   # but for now keeping the block module is okay I think
   # because there will be fewer moving parts
-  # we can refactor the head first....???????????????????
+  # consider factoring out the head before factoring out the block module
   make_kv_compression = function(n_tokens, kv_compression_ratio) {
     assert_true(n_tokens && kv_compression_ratio)
     return(nn_linear(n_tokens, floor(n_tokens * kv_compression_ratio), bias=FALSE))
   },
-
   get_kv_compressions_ = function() {
     if(!is.null(self$shared_kv_compression)) {
       result = c(self$shared_kv_compression, self$shared_kv_compression)
@@ -411,47 +426,21 @@ nn_transformer_layer = nn_module(
   },
 
   forward = function(x, key_compression = NULL, value_compression = NULL) {
-    x_orig = x
-    
-    # Process through attention with normalization (pre or post)
-    if (self$prenormalization && "attention_normalization" %in% names(self)) {
-      x = self$attention_normalization(x)
-    }
-    
-    # Apply attention
-    attention_result = self$attention(x, x, key_compression, value_compression)
-    x_residual = attention_result$x
-    
-    # Apply dropout and residual connection
-    x_residual = self$attention_residual_dropout(x_residual)
-    x = x_orig + x_residual
-    
-    # Apply post-normalization if configured that way
-    if (!self$prenormalization && "attention_normalization" %in% names(self)) {
-      x = self$attention_normalization(x)
-    }
-    
-    # Store the output of attention for residual connection
-    x_orig = x
-    
-    # Process through FFN with normalization (pre or post)
-    if (self$prenormalization) {
-      x = self$ffn_normalization(x)
-    }
-    
-    # Apply FFN
-    x_residual = self$ffn(x)
-    
-    # Apply dropout and residual connection
-    x_residual = self$ffn_residual_dropout(x_residual)
-    x = x_orig + x_residual
-    
-    # Apply post-normalization if configured that way
-    if (!self$prenormalization) {
-      x = self$ffn_normalization(x)
-    }
+    x_residual = self$start_residual_('attention', x)
 
-    # Apply output identity (for hooks)
+    x_residual_arg = if (is.null(self$query_idx)) x_residual else x_residual[, self$query_idx]
+    compressions = self$get_kv_compressions_()
+    x_residual_vec = self$attention(x_residual_arg,
+                                      x_residual,
+                                      compressions[1],
+                                      compressions[2])
+    x = if (!is.null(self$query_idx)) x[, self$query_idx] else x
+    x = self$end_residual_(layer, 'attention', x, x_residual)
+
+    x_residual = self$start_residual_('ffn', x)
+    x_residual = self$ffn(x_residual)
+    x = self$end_residual_('ffn', x, x_residual)
+
     x = self$output(x)
     
     return(x)
@@ -480,33 +469,41 @@ nn_ft_transformer_block = nn_module(
                         head_activation,
                         head_normalization,
                         d_out) {
-    
     if (!is.null(last_layer_query_idx)) {
       if (!all.equal(last_layer_query_idx, as.integer(last_layer_query_idx))) {
         stop("last_layer_query_idx must be NULL, or vector of integers!")
       }
-    }
-    
+    }  
     if (!prenormalization) {
-      assert_true(!first_prenormalization)
+      assert_false(first_prenormalization)
     }
-    
     assert_true(all_or_none_(n_tokens, kv_compression_ratio, kv_compression_sharing))
     
-    assert_true(is.null(kv_compression_sharing) || 
-               kv_compression_sharing %in% c('headwise', 'key_value', 'layerwise'))
+    assert_true(kv_compression_sharing %in% c('headwise', 'key_value', 'layerwise') || is.null(kv_compression_sharing))
     
-    # Create shared KV compression if needed
+    if (!prenormalization) {
+      warning("prenormalization is set to False. Are you sure about this? The training can become less stable. You can turn off this warning by tweaking the rtdl.Transformer.WARNINGS dictionary.")
+      assert_true(!first_prenormalization)
+    }
+    if (prenormalization && first_prenormalization) {
+      warning("first_prenormalization is set to True. Are you sure about this? For example, the vanilla FTTransformer with first_prenormalization=True performs SIGNIFICANTLY worse. You can turn off this warning by tweaking the rtdl.Transformer.WARNINGS dictionary.")
+    }
+
     if (!is.null(kv_compression_ratio) && kv_compression_sharing == 'layerwise') {
       self$shared_kv_compression = self$make_kv_compression(n_tokens, kv_compression_ratio)
     } else {
       self$shared_kv_compression = NULL
     }
     
-    # Create a list of transformer layers
+    self$prenormalization = prenormalization
+    self$last_layer_query_idx = last_layer_query_idx
+
     layers = list()
+    # TODO: change to seq_len()?
     for (layer_idx in 1:n_blocks) {
       is_first_layer = (layer_idx == 1)
+
+      query_idx = if (layer_idx == length(self$blocks)) self$last_layer_query_idx else NULL
       
       # Create the transformer layer
       layer = nn_transformer_layer(
@@ -521,22 +518,21 @@ nn_ft_transformer_block = nn_module(
         prenormalization = prenormalization,
         first_layer = is_first_layer && !first_prenormalization,
         attention_normalization = attention_normalization,
-        ffn_normalization = ffn_normalization
+        ffn_normalization = ffn_normalization,
+        query_idx = query_idx
       )
       
-      # Add to the list
       layers[[layer_idx]] = layer
     }
     
-    # Create a module list with all layers
     self$blocks = nn_module_list(layers)
     
+    # block-level parameters, maybe shared across layers
     # Store configuration
     self$prenormalization = prenormalization
     self$last_layer_query_idx = last_layer_query_idx
     self$kv_compression_sharing = kv_compression_sharing
     
-    # Create the head module
     self$head = nn_ft_head(
       d_in = d_token,
       d_out = d_out,
@@ -573,27 +569,7 @@ nn_ft_transformer_block = nn_module(
     
     # Process through each transformer layer
     for (layer_idx in seq_len(length(self$blocks))) {
-      layer = self$blocks[[layer_idx]]
-      
-      # Handle the last layer query index if needed
-      if (layer_idx == length(self$blocks) && !is.null(self$last_layer_query_idx)) {
-        x_selected = x[, self$last_layer_query_idx, ]
-        compressions = self$get_kv_compressions_(layer_idx)
-        
-        if (!is.null(compressions)) {
-          x = layer(x_selected, compressions$key, compressions$value)
-        } else {
-          x = layer(x_selected)
-        }
-      } else {
-        compressions = self$get_kv_compressions_(layer_idx)
-        
-        if (!is.null(compressions)) {
-          x = layer(x, compressions$key, compressions$value)
-        } else {
-          x = layer(x)
-        }
-      }
+      x = self$blocks[[layer_idx]](x)
     }
     x = self$head(x)
     return(x)
@@ -771,5 +747,3 @@ nn_ft_transformer = nn_module(
     return(x)
   }
 )
-
-
