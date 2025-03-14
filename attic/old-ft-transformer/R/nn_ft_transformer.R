@@ -591,7 +591,7 @@ nn_ft_transformer = nn_module(
   "nn_ft_transformer",
   initialize = function(feature_tokenizer, transformer) {
     if (transformer$prenormalization) {
-      # browser()
+      browser()
       # TODO: create an actual assertion on the attention_normalization in this case
 
       # old assertion
@@ -601,7 +601,7 @@ nn_ft_transformer = nn_module(
       # assert_false("attention_normalization" %in% names(transformer$blocks[[1]]))
 
       # placeholder assertion so that the code runs
-      assert_true("head" %in% names(transformer$modules))
+      assert_true("attention_normalization" %in% names(transformer$modules))
     }
     self$feature_tokenizer = feature_tokenizer
     self$cls_token = nn_cls_token(feature_tokenizer$d_token, feature_tokenizer$initialization)

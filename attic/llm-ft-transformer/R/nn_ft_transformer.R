@@ -376,6 +376,9 @@ nn_transformer_layer = nn_module(
   # which at this point I think there may not be
   # but I think this depends on how different things are, i.e. if you want to 
   # treat the first and/or last transformer layers specially (it seems like they should be)
+  # but for now keeping the block module is okay I think
+  # because there will be fewer moving parts
+  # we can refactor the head first....???????????????????
   make_kv_compression = function(n_tokens, kv_compression_ratio) {
     assert_true(n_tokens && kv_compression_ratio)
     return(nn_linear(n_tokens, floor(n_tokens * kv_compression_ratio), bias=FALSE))
@@ -506,7 +509,7 @@ nn_ft_transformer_block = nn_module(
       is_first_layer = (layer_idx == 1)
       
       # Create the transformer layer
-      layer = nn_ft_transformer_layer(
+      layer = nn_transformer_layer(
         d_token = d_token,
         attention_n_heads = attention_n_heads,
         attention_dropout = attention_dropout,
@@ -548,15 +551,21 @@ nn_ft_transformer_block = nn_module(
     return(nn_linear(n_tokens, floor(n_tokens * kv_compression_ratio), bias = FALSE))
   },
   
-  get_kv_compressions_ = function(layer_idx) {
-    if (!is.null(self$shared_kv_compression)) {
-      # If we're using layerwise sharing, return the shared compressions
-      return(list(key = self$shared_kv_compression, value = self$shared_kv_compression))
-    } else if (!is.null(self$kv_compression_ratio) && !is.null(self$kv_compression_sharing)) {
-      # Create layer-specific compressions if needed
-      # Implementation would depend on how you want to handle this
+  get_kv_compressions_ = function(layer) {
+    if(!is.null(self$shared_kv_compression)) {
+      result = c(self$shared_kv_compression, self$shared_kv_compression)
+    } else {
+      if ("key_compression" %in% names(layer) && "value_compression" %in% names(layer)) {
+        result = c(layer$key_compression, layer$value_compression)
+      } else {
+        if ("key_compression" %in% names(layer)) {
+          result = c(layer$key_compression, layer$key_compression)
+        } else {
+          result = NULL
+        }
+      }
     }
-    return(NULL)
+    return(result)
   },
   
   forward = function(x) {
@@ -586,14 +595,10 @@ nn_ft_transformer_block = nn_module(
         }
       }
     }
-    
-    # Process through the head
     x = self$head(x)
-    
     return(x)
   }
 )
-
 
 get_baseline_transformer_subconfig = function() {
   parameters = list(
@@ -707,7 +712,18 @@ nn_ft_transformer = nn_module(
   "nn_ft_transformer",
   initialize = function(feature_tokenizer, transformer) {
     if (transformer$prenormalization) {
-      assert_true("head" %in% names(transformer$modules))
+      # browser()
+      # TODO: create an actual assertion on the attention_normalization in this case
+
+      # old assertion
+      # assert_true(!("attention_normalization" %in% transformer$blocks[[1]]))
+
+      # new assertion, as of Mar 14 I feel good about this
+      assert_false("attention_normalization" %in% names(transformer$blocks[[1]]$modules))
+
+      # placeholder assertion so that the code runs
+      # TODO: fix
+      # assert_true("attention_normalization" %in% names(transformer$modules))
     }
     self$feature_tokenizer = feature_tokenizer
     self$cls_token = nn_cls_token(feature_tokenizer$d_token, feature_tokenizer$initialization)
