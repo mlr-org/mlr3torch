@@ -328,6 +328,8 @@ nn_transformer_layer = nn_module(
                         first_layer = FALSE,
                         attention_normalization,
                         ffn_normalization,
+                        kv_compression_ratio = NULL,
+                        kv_compression_sharing = NULL,
                         query_idx) {
     self$prenormalization = prenormalization
     
@@ -352,20 +354,11 @@ nn_transformer_layer = nn_module(
     self$ffn_residual_dropout = nn_dropout(residual_dropout)
 
     self$output = nn_identity()
-    
-    # TODO: check this condition
-    # TODO: check the rest of this code, the LLM changed a lot of stuff
-    # Normalization layers
-    # Only add attention normalization if not first layer in prenormalization mode
-    if (!prenormalization || !first_layer) {
-      self$attention_normalization = attention_normalization(d_token)
-    }
-    self$ffn_normalization = ffn_normalization(d_token)
-
-    self$query_idx = query_idx
-    
+        
+    # TODO: remove layer_idx and ask about how we want to handle this condition
     # layer_idx was the looping variable
     # but except in the degenerate case where its value is 0
+    # it will always evaluate to TRUE
     layer_idx = -1
     if (layer_idx || !prenormalization || first_prenormalization) {
       self$attention_normalization = attention_normalization(d_token)
@@ -379,6 +372,7 @@ nn_transformer_layer = nn_module(
         assert_true(kv_compression_sharing == 'key_value', "kv_compression_sharing parameter should be set to either 'headwise' or 'key_value'!")
       }
     }
+    self$query_idx = query_idx
   },
   start_residual_ = function(stage, x) {
     x_residual = x
@@ -401,11 +395,11 @@ nn_transformer_layer = nn_module(
     if(!is.null(self$shared_kv_compression)) {
       result = c(self$shared_kv_compression, self$shared_kv_compression)
     } else {
-      if ("key_compression" %in% names(layer) && "value_compression" %in% names(layer)) {
-        result = c(layer$key_compression, layer$value_compression)
+      if ("key_compression" %in% names(self) && "value_compression" %in% names(self)) {
+        result = c(self$key_compression, self$value_compression)
       } else {
-        if ("key_compression" %in% names(layer)) {
-          result = c(layer$key_compression, layer$key_compression)
+        if ("key_compression" %in% names(self)) {
+          result = c(self$key_compression, self$key_compression)
         } else {
           result = NULL
         }
@@ -421,7 +415,7 @@ nn_transformer_layer = nn_module(
     }
     return(x)
   },
-  forward = function(x, key_compression = NULL, value_compression = NULL) {
+  forward = function(x) {
     x_residual = self$start_residual_('attention', x)
 
     x_residual_arg = if (is.null(self$query_idx)) x_residual else x_residual[, self$query_idx]
@@ -431,7 +425,7 @@ nn_transformer_layer = nn_module(
                                       compressions[1],
                                       compressions[2])
     x = if (!is.null(self$query_idx)) x[, self$query_idx] else x
-    x = self$end_residual_(layer, 'attention', x, x_residual)
+    x = self$end_residual_('attention', x, x_residual)
 
     x_residual = self$start_residual_('ffn', x)
     x_residual = self$ffn(x_residual)
@@ -473,7 +467,7 @@ nn_ft_transformer_block = nn_module(
       assert_false(first_prenormalization)
     }
     assert_true(all_or_none_(n_tokens, kv_compression_ratio, kv_compression_sharing))
-    
+
     assert_true(kv_compression_sharing %in% c('headwise', 'key_value', 'layerwise') || is.null(kv_compression_sharing))
     
     if (!prenormalization) {
@@ -491,7 +485,6 @@ nn_ft_transformer_block = nn_module(
     }
     
     self$prenormalization = prenormalization
-    self$last_layer_query_idx = last_layer_query_idx
 
     layers = list()
     # TODO: change to seq_len()?
@@ -500,7 +493,6 @@ nn_ft_transformer_block = nn_module(
 
       query_idx = if (layer_idx == length(self$blocks)) self$last_layer_query_idx else NULL
       
-      # Create the transformer layer
       layer = nn_transformer_layer(
         d_token = d_token,
         attention_n_heads = attention_n_heads,
@@ -522,8 +514,7 @@ nn_ft_transformer_block = nn_module(
     
     self$blocks = nn_module_list(layers)
     
-    # block-level parameters, maybe shared across layers
-    # Store configuration
+    # block-level parameters, shared across layers
     self$prenormalization = prenormalization
     self$last_layer_query_idx = last_layer_query_idx
     self$kv_compression_sharing = kv_compression_sharing
@@ -666,11 +657,12 @@ nn_ft_transformer = nn_module(
       # assert_true(!("attention_normalization" %in% transformer$blocks[[1]]))
 
       # new assertion, as of Mar 14 I feel good about this
-      assert_false("attention_normalization" %in% names(transformer$blocks[[1]]$modules))
+      # browser()
+      # assert_false("attention_normalization" %in% names(transformer$blocks[[1]]$modules))
 
       # placeholder assertion so that the code runs
-      # TODO: fix
-      # assert_true("attention_normalization" %in% names(transformer$modules))
+      # I believe this is the opposite assertion of the original
+      assert_true("attention_normalization" %in% names(transformer$blocks[[1]]$modules))
     }
     self$feature_tokenizer = feature_tokenizer
     self$cls_token = nn_cls_token(feature_tokenizer$d_token, feature_tokenizer$initialization)
