@@ -161,7 +161,6 @@ nn_tokenizer_categorical = nn_module(
   }
 )
 
-
 nn_cls_token = nn_module(
   "nn_cls_token",
   initialize = function(d_token, initialization) {
@@ -195,7 +194,6 @@ nn_reglu = nn_module(
     return(reglu(input))
   }
 )
-
 
 nn_geglu = nn_module(
   "nn_geglu",
@@ -276,7 +274,6 @@ nn_ft_multi_head_attention = nn_module(
   }
 )
 
-
 nn_ft_ffn = nn_module(
   "nn_ft_ffn",
   initialize = function(d_token, d_hidden, bias_first, bias_second, dropout, activation) {
@@ -294,7 +291,6 @@ nn_ft_ffn = nn_module(
     return(x)
   }
 )
-
 
 nn_ft_head = nn_module(
   "nn_ft_head",
@@ -355,9 +351,6 @@ nn_transformer_layer = nn_module(
     self$output = nn_identity()
         
     # TODO: remove layer_idx and ask about how we want to handle this condition
-    # layer_idx was the looping variable
-    # but except in the degenerate case where its value is 0
-    # it will always evaluate to TRUE
     layer_idx = -1
     if (layer_idx || !prenormalization || first_prenormalization) {
       self$attention_normalization = attention_normalization(d_token)
@@ -384,8 +377,6 @@ nn_transformer_layer = nn_module(
     return(x_residual)
   },
 
-  # TODO: determine whether to keep the block module: might be nice to treat the first/last layer differently
-  # consider factoring out the head before factoring out the block module
   make_kv_compression = function(n_tokens, kv_compression_ratio) {
     assert_true(n_tokens && kv_compression_ratio)
     return(nn_linear(n_tokens, floor(n_tokens * kv_compression_ratio), bias=FALSE))
@@ -512,19 +503,6 @@ nn_ft_transformer_block = nn_module(
     }
     
     self$blocks = nn_module_list(layers)
-    
-    # block-level parameters, shared across layers
-    self$prenormalization = prenormalization
-    self$last_layer_query_idx = last_layer_query_idx
-    self$kv_compression_sharing = kv_compression_sharing
-    
-    # self$head = nn_ft_head(
-    #   d_in = d_token,
-    #   d_out = d_out,
-    #   bias = TRUE,
-    #   activation = head_activation,
-    #   normalization = if (prenormalization) head_normalization else nn_identity
-    # )
   },
   forward = function(x) {
     assert_true(x$ndim == 3)
@@ -656,14 +634,12 @@ nn_ft_transformer = nn_module(
   "nn_ft_transformer",
   initialize = function(feature_tokenizer, transformer, head) {
     if (transformer$prenormalization) {
-      # browser()
       # TODO: create an actual assertion on the attention_normalization in this case
 
       # old assertion
       # assert_true(!("attention_normalization" %in% transformer$blocks[[1]]))
 
       # new assertion, as of Mar 14 I feel good about this
-      # browser()
       # assert_false("attention_normalization" %in% names(transformer$blocks[[1]]$modules))
 
       # placeholder assertion so that the code runs
