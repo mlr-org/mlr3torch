@@ -493,7 +493,7 @@ nn_ft_transformer_block = nn_module(
 
       query_idx = if (layer_idx == length(self$blocks)) self$last_layer_query_idx else NULL
       
-      layer = nn_transformer_layer(
+      layers[[layer_idx]] = nn_transformer_layer(
         d_token = d_token,
         attention_n_heads = attention_n_heads,
         attention_dropout = attention_dropout,
@@ -506,10 +506,10 @@ nn_ft_transformer_block = nn_module(
         first_layer = is_first_layer && !first_prenormalization,
         attention_normalization = attention_normalization,
         ffn_normalization = ffn_normalization,
-        query_idx = query_idx
+        query_idx = query_idx,
+        kv_compression_ratio = kv_compression_ratio,
+        kv_compression_sharing = kv_compression_sharing
       )
-      
-      layers[[layer_idx]] = layer
     }
     
     self$blocks = nn_module_list(layers)
@@ -667,6 +667,14 @@ nn_ft_transformer = nn_module(
     self$feature_tokenizer = feature_tokenizer
     self$cls_token = nn_cls_token(feature_tokenizer$d_token, feature_tokenizer$initialization)
     self$transformer = transformer
+    # TODO: figure out how to initialize this
+    # self$head = nn_ft_head(
+    #   d_in = d_token,
+    #   d_out = d_out,
+    #   bias = TRUE,
+    #   activation = head_activation,
+    #   normalization = if (prenormalization) head_normalization else nn_identity
+    # )
   },
   optimization_param_groups = function() {
     no_wd_names = c('feature_tokenizer', 'normalization', '.bias')
@@ -707,6 +715,7 @@ nn_ft_transformer = nn_module(
     x = self$feature_tokenizer(x_num, x_cat)
     x = self$cls_token(x)
     x = self$transformer(x)
+    # x = self$head(x)
     return(x)
   }
 )

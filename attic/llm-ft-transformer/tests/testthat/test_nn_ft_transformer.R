@@ -94,7 +94,7 @@ test_that("FTTransformer works properly with default arguments", {
   mat[3, ] = c(1L, 3L)
   mat[4, ] = c(2L, 2L)
   x_cat = torch_tensor(mat)
-
+  # browser()
   module = make_baseline(
     n_num_features=3,
     cat_cardinalities=c(2, 3),
