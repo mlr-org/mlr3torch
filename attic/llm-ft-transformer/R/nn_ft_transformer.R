@@ -189,7 +189,6 @@ nn_cls_token = nn_module(
   }
 )
 
-
 nn_reglu = nn_module(
   "nn_reglu",
   forward = function(input) {
@@ -519,13 +518,13 @@ nn_ft_transformer_block = nn_module(
     self$last_layer_query_idx = last_layer_query_idx
     self$kv_compression_sharing = kv_compression_sharing
     
-    self$head = nn_ft_head(
-      d_in = d_token,
-      d_out = d_out,
-      bias = TRUE,
-      activation = head_activation,
-      normalization = if (prenormalization) head_normalization else nn_identity
-    )
+    # self$head = nn_ft_head(
+    #   d_in = d_token,
+    #   d_out = d_out,
+    #   bias = TRUE,
+    #   activation = head_activation,
+    #   normalization = if (prenormalization) head_normalization else nn_identity
+    # )
   },
   forward = function(x) {
     assert_true(x$ndim == 3)
@@ -533,7 +532,7 @@ nn_ft_transformer_block = nn_module(
     for (layer_idx in seq_len(length(self$blocks))) {
       x = self$blocks[[layer_idx]](x)
     }
-    x = self$head(x)
+
     return(x)
   }
 )
@@ -595,7 +594,14 @@ make_ = function(n_num_features, cat_cardinalities, transformer_config) {
     transformer_config$n_tokens = feature_tokenizer$n_tokens + 1
   }
   return(nn_ft_transformer(feature_tokenizer,
-                           do.call("nn_ft_transformer_block", transformer_config)
+                           do.call("nn_ft_transformer_block", transformer_config), 
+                           nn_ft_head(
+                            d_in = transformer_config$d_token,
+                            d_out = transformer_config$d_out,
+                            bias = TRUE,
+                            activation = transformer_config$head_activation,
+                            normalization = if (transformer_config$prenormalization) transformer_config$head_normalization else nn_identity
+                          )
   ))
 }
 
@@ -648,7 +654,7 @@ make_default = function(n_num_features,
 
 nn_ft_transformer = nn_module(
   "nn_ft_transformer",
-  initialize = function(feature_tokenizer, transformer) {
+  initialize = function(feature_tokenizer, transformer, head) {
     if (transformer$prenormalization) {
       # browser()
       # TODO: create an actual assertion on the attention_normalization in this case
@@ -667,14 +673,7 @@ nn_ft_transformer = nn_module(
     self$feature_tokenizer = feature_tokenizer
     self$cls_token = nn_cls_token(feature_tokenizer$d_token, feature_tokenizer$initialization)
     self$transformer = transformer
-    # TODO: figure out how to initialize this
-    # self$head = nn_ft_head(
-    #   d_in = d_token,
-    #   d_out = d_out,
-    #   bias = TRUE,
-    #   activation = head_activation,
-    #   normalization = if (prenormalization) head_normalization else nn_identity
-    # )
+    self$head = head
   },
   optimization_param_groups = function() {
     no_wd_names = c('feature_tokenizer', 'normalization', '.bias')
@@ -715,7 +714,7 @@ nn_ft_transformer = nn_module(
     x = self$feature_tokenizer(x_num, x_cat)
     x = self$cls_token(x)
     x = self$transformer(x)
-    # x = self$head(x)
+    x = self$head(x)
     return(x)
   }
 )
