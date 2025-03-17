@@ -225,7 +225,7 @@ nn_ft_multi_head_attention = nn_module(
     self$dropout = if (dropout) nn_dropout(dropout) else NULL
 
     weights = c(self$W_q, self$W_k, self$W_v)
-    for (i in 1:length(weights)) {
+    for (i in seq_along(weights)) {
       m = weights[[i]]
       if (initialization == 'xavier' &&
           (i != length(weights) || !is.null(self$W_out))) {
@@ -254,8 +254,8 @@ nn_ft_multi_head_attention = nn_module(
     }
 
     batch_size = q$shape[1]
-    d_head_key = tail(k$shape, 1) %/% self$n_heads
-    d_head_value = tail(v$shape, 1) %/% self$n_heads
+    d_head_key = data.table::last(k$shape, 1) %/% self$n_heads
+    d_head_value = data.table::last(v$shape, 1) %/% self$n_heads
     n_q_tokens = q$shape[2]
 
     q = self$reshape_(q)
@@ -478,7 +478,7 @@ nn_ft_transformer_block = nn_module(
 
     layers = list()
     # TODO: change to seq_len()?
-    for (layer_idx in 1:n_blocks) {
+    for (layer_idx in seq_len(n_blocks)) {
       is_first_layer = (layer_idx == 1)
 
       query_idx = if (layer_idx == length(self$blocks)) self$last_layer_query_idx else NULL

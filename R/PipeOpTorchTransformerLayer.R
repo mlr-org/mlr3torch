@@ -16,7 +16,7 @@ PipeOpTorchTransformerLayer = R6::R6Class("PipeOpTorchTransformerLayer",
         ffn_dropout = p_dbl(lower = 0, upper = 1, default = 0.1),
         ffn_activation = p_uty(default = nn_reglu()),
         residual_dropout = p_dbl(lower = 0, upper = 1, default = 0.0),
-        prenorm = p_lgl(default = TRUE), 
+        prenormalization = p_lgl(default = TRUE), 
         first_layer = p_lgl(default = FALSE),
         last_layer = p_lgl(default = FALSE)
       )
@@ -42,7 +42,7 @@ PipeOpTorchTransformerLayer = R6::R6Class("PipeOpTorchTransformerLayer",
             ffn_normalization = nn_layer_norm,
             kv_compression_ratio = NULL,
             kv_compression_sharing = NULL,
-            query_idx = if (last_layer) 0 else NULL # Use 0 for CLS token if last layer
+            query_idx = if (last_layer) 1 else NULL # Use 0 for CLS token if last layer
           )
         },
         param_vals = param_vals,
