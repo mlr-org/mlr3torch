@@ -69,13 +69,13 @@ graph_head = po("trafo_normalize") %>>%
   po("nn_linear")
 
 # original proposal 
-graph_tokenizer %>>%
+graph_ft_transformer = graph_tokenizer %>>%
   po("cls") %>>%
   po("nn_block", po_transformer, n_blocks = 5) %>>%
   graph_head
 
 # taking into account the different handlings of the first and last layers
-graph_tokenizer %>>%
+graph_ft_transformer = graph_tokenizer %>>%
   po("cls") %>>%
   po("transformer_layer", prenorm = FALSE) %>>%
   po("nn_block", po_transformer, n_blocks = 3) %>>%
@@ -83,7 +83,7 @@ graph_tokenizer %>>%
   graph_head
 
 # alternative requiring the implementation of a new PipeOpTransformerBlock  
-graph_tokenizer %>>%
+graph_ft_transformer = graph_tokenizer %>>%
   po("cls") %>>%
   po("transformer_block", n_layers = 5) %>>%
   graph_head
