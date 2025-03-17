@@ -9,8 +9,9 @@ PipeOpTorchCLS = R6::R6Class("PipeOpTorchCLS",
     #'   Identifier of the resulting object.
     initialize = function(id = "cls", param_vals = list()) {
       param_set = ps(
-        d_token = p_int(lower = 1L, default = 192L),
-        initialization = p_fct(levels = c("uniform", "normal"), default = "uniform")
+        # d_token = p_uty(custom_check = assert_integerish(...))
+        d_token = p_int(lower = 1L),
+        initialization = p_fct(levels = c("uniform", "normal"))
       )
       
       super$initialize(
