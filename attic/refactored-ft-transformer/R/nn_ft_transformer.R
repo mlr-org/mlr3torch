@@ -220,6 +220,7 @@ nn_ft_multi_head_attention = nn_module(
     self$W_q = nn_linear(d_token, d_token, bias)
     self$W_k = nn_linear(d_token, d_token, bias)
     self$W_v = nn_linear(d_token, d_token, bias)
+    # TODO: determine whether self$W_out implementation needs to be changed
     self$W_out = if (n_heads > 1) nn_linear(d_token, d_token, bias) else NULL
     self$n_heads = n_heads
     self$dropout = if (dropout) nn_dropout(dropout) else NULL
