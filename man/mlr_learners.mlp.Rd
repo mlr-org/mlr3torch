@@ -3,7 +3,7 @@
 \name{mlr_learners.mlp}
 \alias{mlr_learners.mlp}
 \alias{LearnerTorchMLP}
-\title{My Little Pony}
+\title{Multi Layer Perceptron}
 \description{
 Fully connected feed forward network with dropout after each activation function.
 The features can either be a single \code{\link{lazy_tensor}} or one or more numeric columns (but not both).
