@@ -10,7 +10,7 @@ PipeOpTorchCLS = R6::R6Class("PipeOpTorchCLS",
     initialize = function(id = "cls", param_vals = list()) {
       param_set = ps(
         d_token = p_uty(custom_check = function(input) {
-          check_integerish(input, lower = 1L, any.missing = FALSE, len = 1, coerce = TRUE)
+          check_integerish(input, lower = 1L, any.missing = FALSE, len = 1)
         }),
         initialization = p_fct(levels = c("uniform", "normal"))
       )
@@ -32,7 +32,7 @@ PipeOpTorchCLS = R6::R6Class("PipeOpTorchCLS",
     }
   )
 )
-mlr3pipelines::mlr_pipeops$add("torch_cls", PipeOpTorchCLS)
+mlr3pipelines::mlr_pipeops$add("cls", PipeOpTorchCLS)
 
 initialize_token_ = function(x, d, initialization="") {
   assert_choice(initialization, c("uniform", "normal"))

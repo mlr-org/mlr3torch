@@ -1,39 +1,8 @@
-# a bunch of PipeOpModules for everything
-# https://mlr3torch.mlr-org.com/reference/mlr_pipeops_module.html
+devtools::load_all()
 
-# but we also need to write tests for the new... thing.... correct?
+# source(here::here("attic", "refactored-ft-transformer", "R", "nn_ft_transformer.R"))
 
-library(torch)
-library(mlr3)
-library(data.table)
 library(tidytable)
-library(mlr3pipelines)
-library(mlr3torch)
-
-source(here::here("attic", "refactored-ft-transformer", "nn_ft_transformer.R"))
-
-# as first pass, simply use PipeOpModule to wrap the existing nn_modules
-po_ft_transformer = po("module",
-  id = "ft-transformer",
-  module = make_baseline(
-    n_num_features=3,
-    cat_cardinalities=c(2, 3),
-    d_token=8,
-    n_blocks=2,
-    attention_dropout=0.2,
-    ffn_d_hidden=6,
-    ffn_dropout=0.2,
-    residual_dropout=0.0,
-    d_out=1
-  )
-)
-
-po_transformer_block = po("module",
-
-)
-
-po_cls_token = po("module", 
-)
 
 # construct a task matching the pre-implementing tests
 x_num = torch_randn(4, 3)
@@ -55,35 +24,25 @@ dt = bind_cols(y, dt_num, dt_cat) |>
 task = as_task_classif(dt, target = "y")
 
 # sketch what the FT-Transformer as a graph should look like
-path_num = po("select", selector = selector_type("numeric")) %>>% po("torch_ingress_num") %>>% po("nn_tokenizer_num") 
-path_categ = po("select", selector = selector_type("factor")) %>>% po("torch_ingress_categ") %>>% po("nn_tokenizer_categ")
+path_num = po("select", id = "select_num", selector = selector_type("numeric")) %>>% po("torch_ingress_num") %>>% po("nn_tokenizer_num") 
+path_categ = po("select", id = "select_categ", selector = selector_type("factor")) %>>% po("torch_ingress_categ") %>>% po("nn_tokenizer_categ")
 
+# This doesn't work because the tokenizers output a ModelDescriptor
 graph_tokenizer = gunion(list(path_num, path_categ)) %>>%
-  po("featureunion")
-
-po_transformer = po("transformer_layer")
+  po("nn_merge_cat")
 
 # TODO: access x[, -1] first
-graph_head = po("trafo_normalize") %>>%
+# TODO: sometimes there is no normalization, i.e. nn_identity instead of nn_layer_norm, figure out how to handle this
+graph_head = po("nn_layer_norm") %>>%
   po("nn_relu") %>>%
-  po("nn_linear")
-
-# original proposal 
-graph_ft_transformer = graph_tokenizer %>>%
-  po("cls") %>>%
-  po("nn_block", po_transformer, n_blocks = 5) %>>%
-  graph_head
+  po("nn_linear") %>>%
+  po("nn_head")
 
 # taking into account the different handlings of the first and last layers
+# TODO: determine where all those configurations go (i.e. the stuff defined in make_baseline, etc.)
 graph_ft_transformer = graph_tokenizer %>>%
   po("cls") %>>%
-  po("transformer_layer", prenorm = FALSE) %>>%
+  po("transformer_layer", first_layer = TRUE, first_prenormalization = FALSE) %>>%
   po("nn_block", po_transformer, n_blocks = 3) %>>%
-  po("transformer_layer", last_layer = TRUE) %>>%
-  graph_head
-
-# alternative requiring the implementation of a new PipeOpTransformerBlock  
-graph_ft_transformer = graph_tokenizer %>>%
-  po("cls") %>>%
-  po("transformer_block", n_layers = 5) %>>%
+  po("transformer_layer", last_layer_query_idx = 1L) %>>%
   graph_head

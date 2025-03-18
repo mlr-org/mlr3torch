@@ -1,6 +1,6 @@
 library(torch)
 library(here)
-source(here("attic", "old-ft-transformer", "R", "nn_ft_transformer.R"))
+source(here("attic", "refactored-ft-transformer", "R", "nn_ft_transformer.R"))
 
 # test for numeric tokenizer
 x = torch_randn(4, 2)
