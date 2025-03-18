@@ -9,8 +9,9 @@ PipeOpTorchCLS = R6::R6Class("PipeOpTorchCLS",
     #'   Identifier of the resulting object.
     initialize = function(id = "cls", param_vals = list()) {
       param_set = ps(
-        # d_token = p_uty(custom_check = assert_integerish(...))
-        d_token = p_int(lower = 1L),
+        d_token = p_uty(custom_check = function(input) {
+          check_integerish(input, lower = 1L, any.missing = FALSE, len = 1, coerce = TRUE)
+        }),
         initialization = p_fct(levels = c("uniform", "normal"))
       )
       
@@ -24,10 +25,10 @@ PipeOpTorchCLS = R6::R6Class("PipeOpTorchCLS",
   ),
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
-      # Add 1 to the sequence length dimension (for CLS token)
-      shape_out = shapes_in
-      shape_out$sequence_length = shape_out$sequence_length + 1
-      return(shape_out)
+      # TODO: add an assertion on the number of dimensions? 
+      # this should always work for tabular data but maybe wouldn't work if we were trying to do NLP
+      # generally feels hacky
+      return(c(shapes_in[1], shapes_in[1] + 1, shapes_in[3]))
     }
   )
 )
@@ -46,10 +47,7 @@ initialize_token_ = function(x, d, initialization="") {
 nn_cls_token = nn_module(
   "nn_cls_token",
   initialize = function(d_token, initialization) {
-    self$d_token = checkmate::assert_integerish(d_token,
-                                                lower = 1L, any.missing = FALSE, len = 1,
-                                                coerce = TRUE
-    )
+    self$d_token = d_token
     self$weight = nn_parameter(torch_empty(d_token))
     self$initialization = initialization
     self$reset_parameters()
@@ -66,6 +64,7 @@ nn_cls_token = nn_module(
     return(self$weight$view(c(new_dims, -1))$expand(c(leading_dimensions, -1)))
   },
   forward = function(input) {
+    # browser()
     return(torch_cat(list(input, self$expand(input$shape[1], 1)), dim=2)) # the length of tensor, multiplies all dimensions
   }
 )
