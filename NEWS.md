@@ -1,5 +1,7 @@
 # mlr3torch dev
 
+* feat: add `po("nn_identity")`
+
 # mlr3torch 0.2.1
 
 ## Bug Fixes:
