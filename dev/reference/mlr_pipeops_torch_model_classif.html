@@ -124,6 +124,7 @@ its '$train()<code> method is called on the [</code>Task<code>][mlr3::Task] stor
 <code><a href="mlr_pipeops_nn_hardsigmoid.html">mlr_pipeops_nn_hardsigmoid</a></code>,
 <code><a href="mlr_pipeops_nn_hardtanh.html">mlr_pipeops_nn_hardtanh</a></code>,
 <code><a href="mlr_pipeops_nn_head.html">mlr_pipeops_nn_head</a></code>,
+<code><a href="mlr_pipeops_nn_identity.html">mlr_pipeops_nn_identity</a></code>,
 <code><a href="mlr_pipeops_nn_layer_norm.html">mlr_pipeops_nn_layer_norm</a></code>,
 <code><a href="mlr_pipeops_nn_leaky_relu.html">mlr_pipeops_nn_leaky_relu</a></code>,
 <code><a href="mlr_pipeops_nn_linear.html">mlr_pipeops_nn_linear</a></code>,
@@ -284,17 +285,17 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$exp_avg</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1095 -0.0163 -0.4059 -0.2822</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1537  0.0530  0.2927  0.1787</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0442 -0.0368  0.1133  0.1035</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3753  0.1384  0.3567  0.1175</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1060  0.0392  0.2002  0.1293</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.4813 -0.1775 -0.5568 -0.2468</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3,4} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$exp_avg_sq</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.001 *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4885  0.0114  6.7008  3.2369</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1.0871  0.1293  3.7711  1.3625</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.1744  0.0647  0.6780  0.4629</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.01 *</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.5817  0.0786  0.5389  0.0619</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0599  0.0079  0.1933  0.0747</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.9387  0.1279  1.2569  0.2469</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3,4} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$max_exp_avg_sq</span>
@@ -311,17 +312,17 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$exp_avg</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.01 *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -8.1603</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  5.0651</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3.0953</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4.8804</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3.4275</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -8.3079</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$exp_avg_sq</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.0001 *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2.7049</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1.1163</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4267</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.0479</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.5581</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2.7974</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$max_exp_avg_sq</span>
@@ -406,7 +407,7 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Empty data.table (0 rows and 3 cols): stage,class,msg</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $train_time</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.056</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.061</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $task_hash</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "209774f39ea0fcb1"</span>

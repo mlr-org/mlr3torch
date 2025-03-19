@@ -92,6 +92,7 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_hardsigmoid.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_hardtanh.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_head.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_identity.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_layer_norm.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_leaky_relu.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_linear.html</loc></url>
