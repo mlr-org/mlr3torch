@@ -337,7 +337,8 @@ nn_transformer_layer = nn_module(
                         ffn_activation,
                         residual_dropout,
                         prenormalization,
-                        first_layer = FALSE,
+                        is_first_layer = FALSE,
+                        first_prenormalization = FALSE,
                         attention_normalization,
                         ffn_normalization,
                         kv_compression_ratio = NULL,
@@ -368,8 +369,8 @@ nn_transformer_layer = nn_module(
     self$output = nn_identity()
         
     # TODO: remove layer_idx and ask about how we want to handle this condition
-    layer_idx = -1
-    if (layer_idx || !prenormalization || first_prenormalization) {
+    # layer_idx = -1
+    if (!is_first_layer || !prenormalization || first_prenormalization) {
       self$attention_normalization = attention_normalization(d_token)
     }
     self$ffn_normalization = ffn_normalization(d_token)
@@ -510,7 +511,8 @@ nn_ft_transformer_block = nn_module(
         ffn_activation = ffn_activation,
         residual_dropout = residual_dropout,
         prenormalization = prenormalization,
-        first_layer = is_first_layer && !first_prenormalization,
+        is_first_layer = is_first_layer,
+        first_prenormalization = first_prenormalization,
         attention_normalization = attention_normalization,
         ffn_normalization = ffn_normalization,
         query_idx = query_idx,
@@ -657,11 +659,12 @@ nn_ft_transformer = nn_module(
       # assert_true(!("attention_normalization" %in% transformer$blocks[[1]]))
 
       # new assertion, as of Mar 14 I feel good about this
-      # assert_false("attention_normalization" %in% names(transformer$blocks[[1]]$modules))
+      # but maybe we could use grep/stringr::str_detect to catch when a submodule has attention_normalization?
+      assert_false("attention_normalization" %in% names(transformer$blocks[[1]]$modules))
 
       # placeholder assertion so that the code runs
       # I believe this is the opposite assertion of the original
-      assert_true("attention_normalization" %in% names(transformer$blocks[[1]]$modules))
+      # assert_true("attention_normalization" %in% names(transformer$blocks[[1]]$modules))
     }
     self$feature_tokenizer = feature_tokenizer
     self$cls_token = nn_cls_token(feature_tokenizer$d_token, feature_tokenizer$initialization)

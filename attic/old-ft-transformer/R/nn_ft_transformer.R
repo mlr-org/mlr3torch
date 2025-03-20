@@ -392,6 +392,8 @@ nn_ft_transformer_block = nn_module(
       # this will always be true basically (since layer_idx is seldom 0? so we always have attention_normalization in the layer)
       # is that desired?
       # basically `layer_idx` would only ever be 0 if n_blocks was 0... this is an issue I think
+      # but this works in Python because the indexing is 0-based?
+      # but why do we want this when prenormalization is set to false? this matches the paper implementation though....
       if (layer_idx || !prenormalization || first_prenormalization) {
         layer$attention_normalization = attention_normalization(d_token)
       }
