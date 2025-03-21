@@ -38,7 +38,7 @@ When inheriting from this class, one should overload either the \code{private$.s
 \itemize{
 \item \code{.make_module(shapes_in, param_vals, task)}\cr
 (\code{list()}, \code{list()}) -> \code{nn_module}\cr
-This private method is called to generated the \code{nn_module} that is passed as argument \code{module} to
+This private method is called to generate the \code{nn_module} that is passed as argument \code{module} to
 \code{\link{PipeOpModule}}. It must be overwritten, when no \code{module_generator} is provided.
 If left as is, it calls the provided \code{module_generator} with the arguments obtained by
 the private method \code{.shape_dependent_params()}.

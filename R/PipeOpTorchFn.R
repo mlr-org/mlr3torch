@@ -20,19 +20,10 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
     #' @template params_pipelines
     initialize = function(id = "nn_fn", param_vals = list()) {
       param_set = ps(fn = p_uty(tags = "required"))
-      module_generator = nn_module("custom_fn",
-        initialize = function(fn) {
-          self$fn = fn
-        },
-        forward = function(x) {
-          return(self$fn(x))
-        }
-      )
       super$initialize(
         id = id,
         param_set = param_set,
         param_vals = param_vals,
-        module_generator = module_generator
       )
     }
   ),
@@ -58,7 +49,16 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
     },
     # TODO: actually use this
     .make_module = function(shapes_in, param_vals, task) {
-      self$param_set$values$fn
+      private$.fn = param_vals$fn
+
+      return(nn_module("nn_fn",
+        initialize = function(fn) {
+          self$fn = fn
+        },
+        forward = function(x) {
+          return(self$fn(x))
+        }
+      ))
     },
     .fn = NULL
   )
