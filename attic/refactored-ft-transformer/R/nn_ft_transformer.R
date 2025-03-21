@@ -343,7 +343,7 @@ nn_transformer_layer = nn_module(
                         ffn_normalization,
                         kv_compression_ratio = NULL,
                         kv_compression_sharing = NULL,
-                        query_idx) {
+                        last_layer_query_idx) {
     self$prenormalization = prenormalization
     
     self$attention = nn_ft_multi_head_attention(

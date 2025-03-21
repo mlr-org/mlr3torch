@@ -28,7 +28,9 @@ PipeOpTorchCLS = R6::R6Class("PipeOpTorchCLS",
       # TODO: add an assertion on the number of dimensions? 
       # this should always work for tabular data but maybe wouldn't work if we were trying to do NLP
       # generally feels hacky
-      return(c(shapes_in[1], shapes_in[1] + 1, shapes_in[3]))
+      shapes_out = shapes_in$input
+      shapes_out[2] = shapes_out[2] + 1
+      return(list(shapes_out))
     }
   )
 )
