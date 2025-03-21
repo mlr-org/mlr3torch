@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 ```
 
 In this vignette, we will show how to build neural network architectures as `mlr3pipelines::Graphs`s.
-We will create a simple CNN for the tiny-imagenet task, which is a subst of well-known Imagenet benchmark.
+We will create a simple CNN for the tiny-imagenet task, which is a subset of well-known Imagenet benchmark.
 
 ```{r, message = FALSE}
 library(mlr3torch)
@@ -91,7 +91,7 @@ We use the standard cross-entropy loss, SGD as the optimizer and checkpoint our 
 checkpoint = tempfile()
 architecture = architecture %>>%
   po("torch_loss", t_loss("cross_entropy")) %>>%
-  po("torch_optimizer", t_opt("sgd")) %>>%
+  po("torch_optimizer", t_opt("sgd", lr=0.01)) %>>%
   po("torch_callbacks", 
     t_clbk("checkpoint", freq = 20, path = checkpoint)) %>>%
   po("torch_model_classif",
