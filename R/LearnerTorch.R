@@ -219,7 +219,7 @@ LearnerTorch = R6Class("LearnerTorch",
     #' Helper for print outputs.
     #' @param ... (ignored).
     format = function(...) {
-      sprintf("<%s[%s]:%s>", class(self)[1L], self$task_type, self$id)
+      sprintf("<%s:%s>", class(self)[1L], self$id)
     },
 
     #' @description
