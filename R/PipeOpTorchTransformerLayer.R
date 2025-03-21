@@ -172,7 +172,6 @@ nn_transformer_layer = nn_module(
   }
 )
 
-
 nn_ft_multi_head_attention = nn_module(
   "nn_ft_multi_head_attention",
   initialize = function(d_token, n_heads, dropout, bias, initialization) {

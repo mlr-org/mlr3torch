@@ -23,8 +23,8 @@ task = as_task_classif(dt, target = "y")
 
 d_embedding = 32
 
-# # TODO: access x[, -1] first
-# # TODO: sometimes there is no normalization, i.e. nn_identity instead of nn_layer_norm, figure out how to handle this
+# TODO: access x[, -1] first. Implement a PipeOp for this.
+# TODO: sometimes there is no normalization, i.e. nn_identity instead of nn_layer_norm, figure out how to handle this
 graph_head = po("nn_layer_norm", dims = 1) %>>%
   po("nn_relu") %>>%
   po("nn_linear", id = "linear_head", out_features = 1) %>>%
