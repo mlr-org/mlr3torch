@@ -12,3 +12,10 @@ test_that("PipeOpTorchHead paramtest", {
   res = expect_paramset(po_test, torch::nn_linear, exclude = c("out_features", "in_features"))
   expect_paramtest(res)
 })
+
+
+test_that("correct error message", {
+  task = nano_imagenet()
+  graph = po("torch_ingress_ltnsr") %>>% po("nn_head")
+  expect_error(graph$train(task), "expects 2D input")
+})
