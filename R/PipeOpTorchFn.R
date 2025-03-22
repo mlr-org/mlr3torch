@@ -47,7 +47,6 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
 
       list(sout)
     },
-    # TODO: actually use this
     .make_module = function(shapes_in, param_vals, task) {
       private$.fn = param_vals$fn
 
