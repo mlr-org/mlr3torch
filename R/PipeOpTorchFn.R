@@ -19,11 +19,20 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
     initialize = function(id = "nn_fn", param_vals = list()) {
-      param_set = ps(fn = p_uty(tags = "required"))
+      param_set = ps(fn = p_uty(tags = c("train", "required")))
+
       super$initialize(
         id = id,
         param_set = param_set,
         param_vals = param_vals,
+        module_generator = nn_module("nn_fn",
+          initialize = function(fn) {
+            self$fn = fn
+          },
+          forward = function(x) {
+            return(self$fn(x))
+          }
+        )
       )
     }
   ),
@@ -36,7 +45,7 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
         sin[1] = 1L
       }
       tensor_in = mlr3misc::invoke(torch_empty, .args = sin, device = torch_device("meta"))
-      tensor_out = tryCatch(mlr3misc::invoke(private$.fn, tensor_in, .args = param_vals),
+      tensor_out = tryCatch(mlr3misc::invoke(param_vals$fn, tensor_in, .args = param_vals),
         error = function(e) {
           stopf("Input shape '%s' is invalid for PipeOp with id '%s'.", shape_to_str(list(sin)), self$id)
         }
@@ -47,18 +56,18 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
 
       list(sout)
     },
-    .make_module = function(shapes_in, param_vals, task) {
-      private$.fn = param_vals$fn
+    # .make_module = function(shapes_in, param_vals, task) {
+    #   private$.fn = param_vals$fn
 
-      return(nn_module("nn_fn",
-        initialize = function(fn) {
-          self$fn = fn
-        },
-        forward = function(x) {
-          return(self$fn(x))
-        }
-      ))
-    },
+    #   return(nn_module("nn_fn",
+    #     initialize = function(fn) {
+    #       self$fn = fn
+    #     },
+    #     forward = function(x) {
+    #       return(self$fn(x))
+    #     }
+    #   )(private$.fn))
+    # },
     .fn = NULL
   )
 )
