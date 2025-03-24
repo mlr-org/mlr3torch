@@ -25,19 +25,12 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
         id = id,
         param_set = param_set,
         param_vals = param_vals,
-        module_generator = nn_module("nn_fn",
-          initialize = function(fn) {
-            self$fn = fn
-          },
-          forward = function(x) {
-            return(self$fn(x))
-          }
-        )
+        module_generator = NULL
       )
     }
   ),
   private = list(
-    .shapes_out = function(shapes_in, param_vals, task) {
+    .shapes_out = crate(function(shapes_in, param_vals, task) {
       sin = shapes_in[["input"]]
       batch_dim = sin[1L]
       batchdim_is_unknown = is.na(batch_dim)
@@ -55,20 +48,17 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
       sout[1] = NA
 
       list(sout)
-    },
-    # .make_module = function(shapes_in, param_vals, task) {
-    #   private$.fn = param_vals$fn
-
-    #   return(nn_module("nn_fn",
-    #     initialize = function(fn) {
-    #       self$fn = fn
-    #     },
-    #     forward = function(x) {
-    #       return(self$fn(x))
-    #     }
-    #   )(private$.fn))
-    # },
-    .fn = NULL
+    }, .parent = topenv()),
+    .make_module = function(shapes_in, param_vals, task) {
+      return(nn_module("nn_fn",
+        initialize = function(fn) {
+          self$fn = fn
+        },
+        forward = function(x) {
+          return(self$fn(x))
+        }
+      )(self$param_set$values$fn))
+    }
   )
 )
 
