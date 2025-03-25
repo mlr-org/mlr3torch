@@ -101,6 +101,7 @@ Collate:
     'shape.R'
     'PipeOpTorchIngress.R'
     'LearnerTorchModel.R'
+    'LearnerTorchModule.R'
     'LearnerTorchTabResNet.R'
     'LearnerTorchVision.R'
     'ModelDescriptor.R'

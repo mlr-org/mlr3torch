@@ -511,6 +511,8 @@ LearnerTorch = R6Class("LearnerTorch",
       private$.param_set = NULL # required to keep clone identical to original, otherwise tests get really ugly
       if (is.R6(value)) {
         return(value$clone(deep = TRUE))
+      } else if (test_class(value, "nn_module_generator")) {
+        value
       } else if (test_class(value, "nn_module")) {
         value$clone(deep = TRUE)
       } else if (name == ".callbacks") {
