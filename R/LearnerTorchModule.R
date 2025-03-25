@@ -9,19 +9,18 @@
 #' Create a torch learner from a torch module.
 #'
 #' @template param_task_type
-#' @param module_generator (`nn_module_generator`)\cr
-#'   Either an existing `nn_module_generator`, or one created by [`torch::nn_module()`] that must
-#'   take as argument the `task` for which to construct the network.
+#' @param module_generator (`function` or `nn_module_generator`)\cr
+#'   A `nn_module_generator` or `function` returning an `nn_module`.
+#'   Both must take as argument the `task` for which to construct the network.
 #'   Other arguments to its initialize method can be provided as parameters.
-#'   For numeric, categorical, and lazy tensor features, you can use [`ingress_num()`],
-#'   [`ingress_categ()`], and [`ingress_ltnsr()`] to create them.
-#'   The
 #' @param param_set (`NULL` or [`ParamSet`][paradox::ParamSet])\cr
 #'   If provided, contains the parameters for the module_generator.
 #'   If `NULL`, parameters will be inferred from the module_generator.
 #' @param ingress_tokens (`list` of [`TorchIngressToken()`])\cr
 #'   A list with ingress tokens that defines how the dataloader will be defined.
 #'   The names must correspond to the arguments of the network's forward method.
+#'   For numeric, categorical, and lazy tensor features, you can use [`ingress_num()`],
+#'   [`ingress_categ()`], and [`ingress_ltnsr()`] to create them.
 #' @template param_packages
 #' @param feature_types (`NULL` or `character()`)\cr
 #'   The feature types. Defaults to all available feature types.
@@ -34,9 +33,9 @@
 #' @export
 #' @examplesIf torch::torch_is_installed()
 #' nn_one_layer = nn_module("nn_one_layer",
-#'   initialize = function(task, side_hidden) {
-#'     self$first = nn_linear(task$n_features, side_hidden)
-#'     self$second = nn_linear(side_hidden, length(task$class_names))
+#'   initialize = function(task, size_hidden) {
+#'     self$first = nn_linear(task$n_features, size_hidden)
+#'     self$second = nn_linear(size_hidden, length(task$class_names))
 #'   },
 #'   # argument x corresponds to the ingress token x
 #'   forward = function(x) {
@@ -63,7 +62,8 @@ LearnerTorchModule = R6Class("LearnerTorchModule",
     initialize = function(module_generator = NULL, param_set = NULL, ingress_tokens = NULL,
       task_type, properties = NULL, optimizer = NULL, loss = NULL, callbacks = list(),
       packages = character(0), feature_types = NULL) {
-      private$.module_generator = assert_class(module_generator, "nn_module")
+      assert(check_class(module_generator, "nn_module_generator"), check_function(module_generator))
+      private$.module_generator = module_generator
       args = names(formals(module_generator))
       if (!"task" %in% args) {
         stopf("module_generator must have 'task' as a parameter")

@@ -33,9 +33,9 @@ lrn("regr.module", ...)
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 nn_one_layer = nn_module("nn_one_layer",
-  initialize = function(task, side_hidden) {
-    self$first = nn_linear(task$n_features, side_hidden)
-    self$second = nn_linear(side_hidden, length(task$class_names))
+  initialize = function(task, size_hidden) {
+    self$first = nn_linear(task$n_features, size_hidden)
+    self$second = nn_linear(size_hidden, length(task$class_names))
   },
   # argument x corresponds to the ingress token x
   forward = function(x) {
@@ -127,13 +127,10 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{module_generator}}{(\code{nn_module_generator})\cr
-Either an existing \code{nn_module_generator}, or one created by \code{\link[torch:nn_module]{torch::nn_module()}} that must
-take as argument the \code{task} for which to construct the network.
-Other arguments to its initialize method can be provided as parameters.
-For numeric, categorical, and lazy tensor features, you can use \code{\link[=ingress_num]{ingress_num()}},
-\code{\link[=ingress_categ]{ingress_categ()}}, and \code{\link[=ingress_ltnsr]{ingress_ltnsr()}} to create them.
-The}
+\item{\code{module_generator}}{(\code{function} or \code{nn_module_generator})\cr
+A \code{nn_module_generator} or \code{function} returning an \code{nn_module}.
+Both must take as argument the \code{task} for which to construct the network.
+Other arguments to its initialize method can be provided as parameters.}
 
 \item{\code{param_set}}{(\code{NULL} or \code{\link[paradox:ParamSet]{ParamSet}})\cr
 If provided, contains the parameters for the module_generator.
@@ -141,7 +138,9 @@ If \code{NULL}, parameters will be inferred from the module_generator.}
 
 \item{\code{ingress_tokens}}{(\code{list} of \code{\link[=TorchIngressToken]{TorchIngressToken()}})\cr
 A list with ingress tokens that defines how the dataloader will be defined.
-The names must correspond to the arguments of the network's forward method.}
+The names must correspond to the arguments of the network's forward method.
+For numeric, categorical, and lazy tensor features, you can use \code{\link[=ingress_num]{ingress_num()}},
+\code{\link[=ingress_categ]{ingress_categ()}}, and \code{\link[=ingress_ltnsr]{ingress_ltnsr()}} to create them.}
 
 \item{\code{task_type}}{(\code{character(1)})\cr
 The task type, either \verb{"classif}" or \code{"regr"}.}

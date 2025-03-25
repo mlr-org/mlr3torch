@@ -55,3 +55,14 @@ test_that("works with multiple ingress", {
   learner$network
   expect_class(learner$model, "learner_torch_model")
 })
+
+test_that("works with function", {
+  learner = lrn("regr.module", module_generator = function(task) {
+    nn_linear(task$n_features, 1)
+  }, epochs = 1, batch_size = 50, ingress_tokens = list(x = ingress_num()))
+  task = tsk("mtcars")
+  learner$train(task)
+  expect_class(learner$network, "nn_linear")
+  expect_prediction(learner$predict(task))
+})
+
