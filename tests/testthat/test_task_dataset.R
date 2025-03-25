@@ -386,3 +386,78 @@ test_that("y is NULL if no target batchgetter is provided", {
   batch = iter$.next()
   expect_true(is.null(batch$y))
 })
+
+test_that("works with selector", {
+  task = tsk("iris")
+  ingress_token = ingress_num()
+
+  ds = task_dataset(
+    task = task,
+    feature_ingress_tokens = list(features = ingress_token),
+    target_batchgetter = get_target_batchgetter(task$task_type)
+  )
+
+  expect_equal(length(ds), task$nrow)
+
+  batch_single = ds$.getbatch(1)
+
+  # Check structure of the batch
+  expect_list(batch_single)
+  expect_list(batch_single$x)
+  expect_class(batch_single$x$features, "torch_tensor")
+  expect_class(batch_single$y, "torch_tensor")
+  expect_equal(batch_single$.index, torch_tensor(1, dtype = torch_long()))
+
+  # Check tensor properties
+  expect_equal(batch_single$x$features$shape, c(1, 4))
+  expect_true(batch_single$x$features$dtype == torch_float())
+
+  # Check values - should match the first row of the iris dataset
+  first_row = as.numeric(as.matrix(task$data(rows = 1, cols = task$feature_names)))
+  tensor_values = as.numeric(batch_single$x$features)
+  expect_equal(tensor_values, first_row, tolerance = 1e-6)
+
+  # Test with a batch of samples
+  batch_indices = 5:10
+  batch_multiple = ds$.getbatch(batch_indices)
+
+  # Check structure and shape
+  expect_equal(batch_multiple$x$features$shape, c(length(batch_indices), 4))
+  expect_equal(batch_multiple$.index, torch_tensor(batch_indices, dtype = torch_long()))
+
+  # Check values - should match rows 5:10 of the iris dataset
+  rows_data = as.matrix(task$data(rows = batch_indices, cols = task$feature_names))
+  expect_equal(as.matrix(batch_multiple$x$features), unname(rows_data), tolerance = 1e-6)
+})
+
+test_that("task_dataset works with ingress_num, ingress_categ and ingress_ltnsr", {
+  task = tsk("iris")
+
+  ds = task_dataset(
+    task = task,
+    feature_ingress_tokens = list(x = ingress_num()),
+    target_batchgetter = get_target_batchgetter(task$task_type)
+  )
+
+  # Test dataset length
+  expect_equal(length(ds), task$nrow)
+
+  # Get single sample batch
+  batch_single = ds$.getbatch(2:1)
+
+  expect_list(batch_single)
+  expect_list(batch_single$x)
+  expect_class(batch_single$y, "torch_tensor")
+  expect_equal(batch_single$.index, torch_tensor(2:1, dtype = torch_long()))
+  expect_class(batch_single$x$x, "torch_tensor")
+
+  task = as_task_regr(
+    data.table(y = 1:10, x1 = factor(letters[1:10]), x2 = c(TRUE, FALSE), x3 = ordered(1:10)),
+    target = "y"
+  )
+  ds = task_dataset(task, feature_ingress_tokens = list(x = ingress_categ()))
+  expect_equal(length(ds), task$nrow)
+  batch = ds$.getbatch(2:1)
+  expect_equal(batch$x$x$shape, c(2, 3))
+  expect_true(batch$x$x$dtype == torch_long())
+})

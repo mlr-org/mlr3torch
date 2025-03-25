@@ -4,7 +4,7 @@
 \alias{TorchIngressToken}
 \title{Torch Ingress Token}
 \usage{
-TorchIngressToken(features, batchgetter, shape)
+TorchIngressToken(features, batchgetter, shape = NULL)
 }
 \arguments{
 \item{features}{(\code{character})\cr
