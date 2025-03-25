@@ -17,7 +17,7 @@
 #'   If provided, contains the parameters for the module_generator.
 #'   If `NULL`, parameters will be inferred from the module_generator.
 #' @param ingress_tokens (`list` of [`TorchIngressToken()`])\cr
-#'   A list with ingress tokens that defines how the dataloader will be defined.
+#'   A list with ingress tokens that defines how the dataset will be defined.
 #'   The names must correspond to the arguments of the network's forward method.
 #'   For numeric, categorical, and lazy tensor features, you can use [`ingress_num()`],
 #'   [`ingress_categ()`], and [`ingress_ltnsr()`] to create them.
