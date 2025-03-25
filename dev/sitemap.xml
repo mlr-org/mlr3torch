@@ -41,6 +41,9 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/callback_set.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/equals-.lazy_tensor.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/index.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/ingress_categ.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/ingress_ltnsr.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/ingress_num.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/is_lazy_tensor.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/lazy_tensor.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/materialize.html</loc></url>
@@ -59,6 +62,7 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.unfreeze.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_context_torch.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.mlp.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.module.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.tab_resnet.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.torch_featureless.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.torchvision.html</loc></url>

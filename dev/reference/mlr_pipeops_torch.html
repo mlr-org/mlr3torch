@@ -459,7 +459,7 @@ the <code>PipeOp</code>.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $ingress</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $ingress$torch_ingress_num_1.input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Ingress: Task[Sepal.Length,Sepal.Width] --&gt; Tensor(NA, 2)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Ingress: Task[selector_name(c("Sepal.Length", "Sepal.Width"), assert_present = TRUE)] --&gt; Tensor(NA, 2)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $pointer</span>
@@ -484,7 +484,7 @@ the <code>PipeOp</code>.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $ingress</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $ingress$torch_ingress_num_2.input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Ingress: Task[Petal.Length,Petal.Width] --&gt; Tensor(NA, 2)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Ingress: Task[selector_name(c("Petal.Length", "Petal.Width"), assert_present = TRUE)] --&gt; Tensor(NA, 2)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $pointer</span>
@@ -534,10 +534,10 @@ the <code>PipeOp</code>.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-in"><span><span class="va">mds_out</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">ingress</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $torch_ingress_num_1.input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Ingress: Task[Sepal.Length,Sepal.Width] --&gt; Tensor(NA, 2)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Ingress: Task[selector_name(c("Sepal.Length", "Sepal.Width"), assert_present = TRUE)] --&gt; Tensor(NA, 2)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $torch_ingress_num_2.input</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Ingress: Task[Petal.Length,Petal.Width] --&gt; Tensor(NA, 2)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Ingress: Task[selector_name(c("Petal.Length", "Petal.Width"), assert_present = TRUE)] --&gt; Tensor(NA, 2)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># The pointer and pointer_shape slots are different</span></span></span>

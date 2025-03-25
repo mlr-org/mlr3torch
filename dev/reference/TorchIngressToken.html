@@ -75,7 +75,7 @@ of the neural network. It is stored as the <code>ingress</code> field in a <code
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">TorchIngressToken</span><span class="op">(</span><span class="va">features</span>, <span class="va">batchgetter</span>, <span class="va">shape</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">TorchIngressToken</span><span class="op">(</span><span class="va">features</span>, <span class="va">batchgetter</span>, shape <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -83,8 +83,8 @@ of the neural network. It is stored as the <code>ingress</code> field in a <code
 
 
 <dl><dt id="arg-features">features<a class="anchor" aria-label="anchor" href="#arg-features"></a></dt>
-<dd><p>(<code>character</code>)<br>
-Features on which the batchgetter will operate.</p></dd>
+<dd><p>(<code>character</code> or <code><a href="https://mlr3pipelines.mlr-org.com/reference/Selector.html" class="external-link">mlr3pipelines::Selector</a></code>)<br>
+Features on which the batchgetter will operate or a selector (such as <code><a href="https://mlr3pipelines.mlr-org.com/reference/Selector.html" class="external-link">mlr3pipelines::selector_type</a></code>).</p></dd>
 
 
 <dt id="arg-batchgetter">batchgetter<a class="anchor" aria-label="anchor" href="#arg-batchgetter"></a></dt>
@@ -167,7 +167,7 @@ Shape that <code>batchgetter</code> will produce. Batch-dimension should be incl
 <span class="r-in"><span>  shape <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">ingress_token</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Ingress: Task[Sepal.Length,Petal.Length] --&gt; Tensor(NA, 2)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Ingress: Task[selector_name(c("Sepal.Length", "Petal.Length"), assert_present = TRUE)] --&gt; Tensor(NA, 2)</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
