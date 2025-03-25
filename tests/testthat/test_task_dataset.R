@@ -461,3 +461,24 @@ test_that("task_dataset works with ingress_num, ingress_categ and ingress_ltnsr"
   expect_equal(batch$x$x$shape, c(2, 3))
   expect_true(batch$x$x$dtype == torch_long())
 })
+
+test_that("merging tasks also merges validation data", {
+  # this test is needed because of a bug in pipelines, as POFU does not handle internal validation task:
+  # https://github.com/mlr-org/mlr3pipelines/issues/895
+  task = tsk("german_credit")
+
+  graph = list(
+    po("select_1", selector = selector_name("credit_history")) %>>% po("encode") %>>% po("torch_ingress_num_1"),
+    po("select_2", selector = selector_name("age")) %>>% po("torch_ingress_num_2")
+  ) %>>% po("nn_merge_cat") %>>%
+    po("nn_head") %>>%
+    po("torch_optimizer") %>>%
+    po("torch_loss", "cross_entropy") %>>%
+    po("torch_model_classif", epochs = 1, batch_size = 32)
+
+  glrn = as_learner(graph)
+  set_validate(glrn, validate = 0.3)
+
+  glrn$train(task)
+
+})
