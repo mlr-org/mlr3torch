@@ -2,7 +2,7 @@
 % Please edit documentation in R/PipeOpTorchIngress.R
 \name{ingress_ltnsr}
 \alias{ingress_ltnsr}
-\title{Ingress Token for Lazy Tensor FEature}
+\title{Ingress Token for Lazy Tensor Feature}
 \usage{
 ingress_ltnsr(feature_name = NULL)
 }
