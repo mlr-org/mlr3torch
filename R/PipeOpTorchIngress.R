@@ -208,7 +208,7 @@ selector_ltnsr = function(feature_name = NULL) {
   structure(selector, repr = sprintf("selector_ltnsr(\"%s\")", feature_name), class = c("Selector", "function"))
 }
 
-#' @title Ingress Token for Lazy Tensor FEature
+#' @title Ingress Token for Lazy Tensor Feature
 #' @description
 #' Represents an entry point representing a tensor containing a single lazy tensor feature.
 #' @param feature_name (`character(1)`)\cr
