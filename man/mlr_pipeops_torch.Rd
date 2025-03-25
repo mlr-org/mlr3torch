@@ -209,7 +209,7 @@ po_torch$state
 
 # the resulting graphs are identical
 identical(mds_out[[1L]]$graph, mds_out[[2L]]$graph)
-# not that as a side-effect, also one of the input graphs is modified in-place for efficiency
+# note that as a side-effect, also one of the input graphs is modified in-place for efficiency
 mds_in[[1L]]$graph$edges
 
 # The new task has both Sepal and Petal features
