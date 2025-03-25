@@ -31,7 +31,7 @@ task = tsk("german_credit")
 # The output is a model descriptor
 md = graph$train(task)[[1L]]
 ingress = md$ingress[[1L]]
-ingress$batchgetter(task$data(1:5, ingress$features), "cpu")
+ingress$batchgetter(task$data(1:5, ingress$features(task)), "cpu")
 \dontshow{\}) # examplesIf}
 }
 \seealso{

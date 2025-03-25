@@ -112,8 +112,8 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
 #' It contains the (meta-)information of how a batch is generated from a [`Task`][mlr3::Task] and fed into an entry point
 #' of the neural network. It is stored as the `ingress` field in a [`ModelDescriptor`].
 #'
-#' @param features (`character`)\cr
-#'   Features on which the batchgetter will operate.
+#' @param features (`character` or `mlr3pipelines::Selector`)\cr
+#'   Features on which the batchgetter will operate or a selector (such as [`mlr3pipelines::selector_type`]).
 #' @param batchgetter (`function`)\cr
 #'   Function with two arguments: `data` and `device`. This function is given
 #'   the output of `Task$data(rows = batch_indices, cols = features)`
@@ -262,7 +262,7 @@ print.TorchIngressToken = function(x, ...) {
 #' # The output is a model descriptor
 #' md = graph$train(task)[[1L]]
 #' ingress = md$ingress[[1L]]
-#' ingress$batchgetter(task$data(1:5, ingress$features), "cpu")
+#' ingress$batchgetter(task$data(1:5, ingress$features(task)), "cpu")
 PipeOpTorchIngressNumeric = R6Class("PipeOpTorchIngressNumeric",
   inherit = PipeOpTorchIngress,
   public = list(
@@ -312,7 +312,7 @@ register_po("torch_ingress_num", PipeOpTorchIngressNumeric)
 #' # The output is a model descriptor
 #' md = graph$train(task)[[1L]]
 #' ingress = md$ingress[[1L]]
-#' ingress$batchgetter(task$data(1, ingress$features), "cpu")
+#' ingress$batchgetter(task$data(1, ingress$features(task)), "cpu")
 PipeOpTorchIngressCategorical = R6Class("PipeOpTorchIngressCategorical",
   inherit = PipeOpTorchIngress,
   public = list(
