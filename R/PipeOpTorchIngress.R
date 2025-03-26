@@ -426,7 +426,7 @@ PipeOpTorchIngressLazyTensor = R6Class("PipeOpTorchIngressLazyTensor",
 
       if (is.null(input_shape)) {
         if (is.null(pv_shape)) {
-          stopf("If input shape is unknown, the 'shape' parameter must be set.")
+          stopf("Lazy tensor '%s' has unknown shapes and therefore the PipeOp's `shape` parameter must be set, see its documentation.", lazy_cols)
         }
         if (identical(pv_shape, "infer")) {
           return(c(NA, dim(materialize(example)[[1L]])))
