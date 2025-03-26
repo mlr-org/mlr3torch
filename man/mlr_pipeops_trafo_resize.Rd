@@ -12,6 +12,13 @@ Calls \code{\link[torchvision:transform_resize]{torchvision::transform_resize}},
 see there for more information on the parameters.
 The preprocessing is applied to the whole batch.
 }
+\section{Construction}{
+
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{po("trafo_resize"")
+}\if{html}{\out{</div>}}
+}
+
 \section{Parameters}{
 \tabular{llll}{
    Id \tab Type \tab Default \tab Levels \cr

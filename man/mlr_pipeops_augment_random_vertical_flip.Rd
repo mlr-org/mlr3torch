@@ -12,6 +12,13 @@ Calls \code{\link[torchvision:transform_random_vertical_flip]{torchvision::trans
 see there for more information on the parameters.
 The preprocessing is applied to each element of a batch individually.
 }
+\section{Construction}{
+
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{po("augment_random_vertical_flip"")
+}\if{html}{\out{</div>}}
+}
+
 \section{Parameters}{
 \tabular{lllll}{
    Id \tab Type \tab Default \tab Levels \tab Range \cr

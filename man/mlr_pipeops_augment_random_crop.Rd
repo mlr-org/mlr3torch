@@ -12,6 +12,13 @@ Calls \code{\link[torchvision:transform_random_crop]{torchvision::transform_rand
 see there for more information on the parameters.
 The preprocessing is applied to each element of a batch individually.
 }
+\section{Construction}{
+
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{po("augment_random_crop"")
+}\if{html}{\out{</div>}}
+}
+
 \section{Parameters}{
 \tabular{llll}{
    Id \tab Type \tab Default \tab Levels \cr
