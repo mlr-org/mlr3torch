@@ -43,6 +43,7 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   optimizer = self$optimizer$generate(network$parameters)
   if (is.null(self$loss)) stopf("Learner '%s' defines no loss", self$id)
   loss_fn = self$loss$generate()
+  loss_fn$to(device = param_vals$device)
 
   measures_train = normalize_to_list(param_vals$measures_train)
   measures_valid = normalize_to_list(param_vals$measures_valid)
