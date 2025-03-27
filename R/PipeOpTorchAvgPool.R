@@ -31,6 +31,9 @@ PipeOpTorchAvgPool = R6Class("PipeOpTorchAvgPool",
     }
   ),
   private = list(
+    .additional_phash_input = function() {
+      list(private$.d)
+    },
     .shapes_out = function(shapes_in, param_vals, task) {
       list(avg_output_shape(
         shape_in = shapes_in[[1]],
