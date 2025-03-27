@@ -329,6 +329,10 @@ expect_pipeop_torch_preprocess = function(obj, shapes_in, exclude = character(0)
   if (is.null(seed)) {
     seed = sample.int(100000, 1)
   }
+  # overwrites .additional_phash_input where necessary
+  testthat::expect_warning(obj$hash, regexp = NA)
+  testthat::expect_warning(obj$phash, regexp = NA)
+
   expect_pipeop(obj)
   expect_class(obj, "PipeOpTaskPreprocTorch")
   # a) Check that all parameters but stages have tags train and predict (this should hold in basically all cases)
@@ -427,6 +431,11 @@ expect_pipeop_torch_preprocess = function(obj, shapes_in, exclude = character(0)
 
 expect_learner_torch = function(learner, task, check_man = TRUE, check_id = TRUE) {
   checkmate::expect_class(learner, "LearnerTorch")
+
+  # overwrites .additional_phash_input where necessary
+  testthat::expect_warning(learner$hash, regexp = NA)
+  testthat::expect_warning(learner$phash, regexp = NA)
+
   get("expect_learner", envir = .GlobalEnv)(learner)
   # state cloning is tested separately
   learner1 = learner
