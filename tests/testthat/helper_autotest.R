@@ -28,6 +28,10 @@ expect_pipeop_torch = function(graph, id, task, module_class = id, exclude_args 
   result = graph$train(task)
   md = result[[1]]
 
+  # PipeOp overwrites hash and phash if necessary
+  testthat::expect_warning(po_test$hash, regexp = NA)
+  testthat::expect_warning(po_test$phash, regexp = NA)
+
   modulegraph = md$graph
   po_module = modulegraph$pipeops[[id]]
   if (is.null(po_module$module)) {

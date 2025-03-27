@@ -26,6 +26,9 @@ PipeOpTorchConv = R6Class("PipeOpTorchConv",
     }
   ),
   private = list(
+    .additional_phash_input = function() {
+      list(private$.d)
+    },
     .shapes_out = function(shapes_in, param_vals, task) {
       list(conv_output_shape(
         shape_in = shapes_in[[1]],
