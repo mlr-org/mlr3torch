@@ -34,7 +34,7 @@
 #'
 #' * `.make_module(shapes_in, param_vals, task)`\cr
 #'   (`list()`, `list()`) -> `nn_module`\cr
-#'   This private method is called to generated the `nn_module` that is passed as argument `module` to
+#'   This private method is called to generate the `nn_module` that is passed as argument `module` to
 #'   [`PipeOpModule`]. It must be overwritten, when no `module_generator` is provided.
 #'   If left as is, it calls the provided `module_generator` with the arguments obtained by
 #'   the private method `.shape_dependent_params()`.
@@ -200,7 +200,7 @@
 #'
 #' # the resulting graphs are identical
 #' identical(mds_out[[1L]]$graph, mds_out[[2L]]$graph)
-#' # not that as a side-effect, also one of the input graphs is modified in-place for efficiency
+#' # note that as a side-effect, also one of the input graphs is modified in-place for efficiency
 #' mds_in[[1L]]$graph$edges
 #'
 #' # The new task has both Sepal and Petal features
