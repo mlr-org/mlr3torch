@@ -51,7 +51,7 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
     }
   ),
   private = list(
-    .shapes_out =function(shapes_in, param_vals, task) {
+    .shapes_out = function(shapes_in, param_vals, task) {
       sin = shapes_in[["input"]]
       batch_dim = sin[1L]
       batchdim_is_unknown = is.na(batch_dim)
