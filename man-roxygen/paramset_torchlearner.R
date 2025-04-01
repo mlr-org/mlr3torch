@@ -63,8 +63,8 @@
 #' * `batch_size` :: `integer(1)`\cr
 #'   The batch size (required).
 #' * `shuffle` :: `logical(1)`\cr
-#'   Whether to shuffle the instances in the dataset. Default is `FALSE`.
-#'   This does not impact validation.
+#'   Whether to shuffle the instances in the dataset. This is initialized to `TRUE`,
+#'   which differs from the default (`FALSE`).
 #' * `sampler` :: [`torch::sampler`]\cr
 #'   Object that defines how the dataloader draw samples.
 #' * `batch_sampler` :: [`torch::sampler`]\cr

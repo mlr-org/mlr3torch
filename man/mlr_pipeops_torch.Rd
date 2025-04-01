@@ -267,6 +267,7 @@ Do not change this after construction.}
 \itemize{
 \item \href{#method-PipeOpTorch-new}{\code{PipeOpTorch$new()}}
 \item \href{#method-PipeOpTorch-shapes_out}{\code{PipeOpTorch$shapes_out()}}
+\item \href{#method-PipeOpTorch-clone}{\code{PipeOpTorch$clone()}}
 }
 }
 \if{html}{\out{
@@ -361,6 +362,23 @@ The task, which is very rarely used (default is \code{NULL}). An exception is \c
 \subsection{Returns}{
 A named \code{list()} containing the output shapes. The names are the names of the output channels of
 the \code{PipeOp}.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipeOpTorch-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-PipeOpTorch-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorch$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
 }
 }
 }

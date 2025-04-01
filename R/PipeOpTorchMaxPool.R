@@ -31,6 +31,9 @@ PipeOpTorchMaxPool = R6Class("PipeOpTorchMaxPool",
     }
   ),
   private = list(
+    .additional_phash_input = function() {
+      list(d = private$.d)
+    },
     .shapes_out = function(shapes_in, param_vals, task) {
       res = list(max_output_shape(
         shape_in = shapes_in[[1]],

@@ -12,7 +12,7 @@ expect_po_ingress = function(po_ingress, task) {
 
   ingress = token$ingress
   expect_set_equal(
-    ingress[[1L]]$features,
+    ingress[[1L]]$features(task),
     task$feature_types[get("type") %in% po_ingress$feature_types, "id", with = FALSE][[1L]]
   )
 

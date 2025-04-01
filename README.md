@@ -4,7 +4,7 @@
 # mlr3torch <a href="https://mlr3torch.mlr-org.com"><img src="man/figures/logo.svg" align="right" height="139" /></a>
 
 Package website: [release](https://mlr3torch.mlr-org.com/) \|
-[dev](https://mlr3torch.mlr-org.com/dev)
+[dev](https://mlr3torch.mlr-org.com/dev/)
 
 Deep Learning with torch and mlr3.
 
@@ -244,6 +244,8 @@ deep_learner$train(mnist)
   learning framework for R `torch`.
 - Building neural networks using `PipeOpTorch` operators is inspired by
   [keras](https://keras.io/).
+- This R package is developed as part of the [Mathematical Research Data
+  Initiative](https://www.mardi4nfdi.de/about/mission).
 
 ## Bugs, Questions, Feedback
 

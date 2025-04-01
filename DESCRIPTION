@@ -1,6 +1,6 @@
 Package: mlr3torch
 Title: Deep Learning with 'mlr3'
-Version: 0.1.2-9000
+Version: 0.2.1-9000
 Authors@R:
     c(person(given = "Sebastian",
              family = "Fischer",
@@ -53,7 +53,7 @@ Imports:
     mlr3misc (>= 0.14.0),
     paradox (>= 1.0.0),
     R6,
-	withr
+    withr
 Suggests:
     callr,
     curl,
@@ -101,6 +101,7 @@ Collate:
     'shape.R'
     'PipeOpTorchIngress.R'
     'LearnerTorchModel.R'
+    'LearnerTorchModule.R'
     'LearnerTorchTabResNet.R'
     'LearnerTorchVision.R'
     'ModelDescriptor.R'
@@ -117,6 +118,7 @@ Collate:
     'PipeOpTorchConvTranspose.R'
     'PipeOpTorchDropout.R'
     'PipeOpTorchHead.R'
+    'PipeOpTorchIdentity.R'
     'PipeOpTorchLayerNorm.R'
     'PipeOpTorchLinear.R'
     'TorchLoss.R'

@@ -3,7 +3,7 @@
 \name{mlr_pipeops_trafo_nop}
 \alias{mlr_pipeops_trafo_nop}
 \alias{PipeOpPreprocTorchTrafoNop}
-\title{PipeOpPreprocTorchTrafoNop}
+\title{No Transformation}
 \format{
 \code{\link[R6:R6Class]{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
 }

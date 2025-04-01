@@ -3,13 +3,13 @@ rd_info_learner_torch = function(name, task_types = "classif, regr") {
   task_types = strsplit(task_types, split = ",")[[1L]]
   predict_types = c()
   if ("classif" %in% task_types) {
-    learner = lrn_classif = lrn(paste0("classif.", name))
+    learner = mlr_learners$get(paste0("classif.", name), .prototype = TRUE)
     predict_types = c(predict_types,
-      sprintf("  * classif: %s", paste0("'", lrn_classif$predict_types, "'", collapse = ", "))
+      sprintf("  * classif: %s", paste0("'", learner$predict_types, "'", collapse = ", "))
     )
   }
   if ("regr" %in% task_types) {
-    learner = lrn_regr = lrn(paste0("regr.", name))
+    lrn_regr = mlr_learners$get(paste0("regr.", name), .prototype = TRUE)
     predict_types = c(predict_types,
       sprintf("  * regr: %s", paste0("'", lrn_regr$predict_types, "'", collapse = ", "))
     )

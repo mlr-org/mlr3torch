@@ -5,7 +5,7 @@
 \alias{mlr3torch_callbacks}
 \title{Dictionary of Torch Callbacks}
 \format{
-An object of class \code{DictionaryMlr3torchCallbacks} (inherits from \code{Dictionary}, \code{R6}) of length 13.
+An object of class \code{DictionaryMlr3torchCallbacks} (inherits from \code{Dictionary}, \code{R6}) of length 12.
 }
 \usage{
 mlr3torch_callbacks

@@ -69,7 +69,9 @@ PipeOpTorchModel = R6Class("PipeOpTorchModel",
         output_pointers = list(md$pointer),
         list_output = FALSE
       )
-      private$.learner$network_stored = network
+      # Because we control the creation of the LearnerTorchModel, we know that it's fitted in the same
+      # process as the current .train function, hence, we can avoid the serialization round-trip
+      get_private(private$.learner, ".network_stored") = network
       private$.learner$ingress_tokens = md$ingress
 
       if (is.null(md$loss)) {
