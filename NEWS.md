@@ -1,6 +1,9 @@
 # mlr3torch dev
 
 * feat: add `po("nn_identity")`
+* feat: Add `LearnerTorchModule` for easily creating torch learners from torch modules.
+* feat: `TorchIngressToken` now also can take a `Selector` as argument `features`.
+* feat: Added encoders for numericals and categoricals
 
 # mlr3torch 0.2.1
 

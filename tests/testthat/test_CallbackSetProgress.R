@@ -29,6 +29,7 @@ test_that("manual test", {
     " * classif.acc =",
     "Measures (Valid):",
     " * classif.ce =",
+    "",
     "Finished training for 1 epochs"
   )
 

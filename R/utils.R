@@ -155,6 +155,14 @@ uniqueify = function(new, existing) {
 }
 
 shape_to_str = function(x) {
+  assert(test_list(x) || test_integerish(x) || is.null(x))
+  if (is.numeric(x)) { # single shape
+    return(sprintf("(%s)", paste0(x, collapse = ",")))
+  }
+  if (is.null(x)) {
+    return("(<unknown>)")
+  }
+
   shapedescs = map_chr(x, function(y) {
     if (is.null(y)) {
       return("<unknown>")

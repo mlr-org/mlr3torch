@@ -94,6 +94,7 @@ reference:
       - starts_with("model_descriptor")
       - mlr_pipeops_module
       - TorchIngressToken
+      - starts_with("ingress")
       - mlr_pipeops_torch
       - mlr_pipeops_torch_ingress
       - starts_with("mlr_pipeops_torch_model")

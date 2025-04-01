@@ -62,3 +62,9 @@ test_that("shape of lazy tensor ingress can be inferred", {
   out = po_ingress$train(list(nano_dogs_vs_cats()))[[1L]]
   expect_equal(out$pointer_shape, c(NA, 3, 280, 300))
 })
+
+test_that("error message unknown shapes", {
+  task = po("augment_random_crop", size = c(100, 100))$train(list(nano_imagenet()))[[1L]]
+  obj = po("torch_ingress_ltnsr")
+  expect_error(obj$train(list(task)), "see its documentation")
+})

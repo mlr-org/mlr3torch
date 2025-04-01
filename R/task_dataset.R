@@ -41,14 +41,25 @@
 task_dataset = dataset("task_dataset",
   initialize = function(task, feature_ingress_tokens, target_batchgetter = NULL) {
     self$task = assert_r6(task$clone(deep = TRUE), "Task")
+    assert_list(feature_ingress_tokens, types = "TorchIngressToken", names = "unique", min.len = 1L)
+    self$feature_ingress_tokens = set_names(lapply(seq_along(feature_ingress_tokens), function(i) {
+      it = feature_ingress_tokens[[i]]
+      if (inherits(it$features, "Selector")) {
+        it$features = it$features(task)
+      }
+      if (length(it$features) == 0) {
+        stopf("Received a ingress token '%s' with no features.", names(feature_ingress_tokens)[[i]])
+      }
+      it
+    }), names(feature_ingress_tokens))
+
+
     iwalk(feature_ingress_tokens, function(it, nm) {
       if (length(it$features) == 0) {
         stopf("Received ingress token '%s' with no features.", nm)
       }
     })
-    assert_list(feature_ingress_tokens, types = "TorchIngressToken", names = "unique", min.len = 1L)
-    self$feature_ingress_tokens = assert_list(feature_ingress_tokens, types = "TorchIngressToken", names = "unique")
-    self$all_features = unique(c(unlist(map(feature_ingress_tokens, "features")), task$target_names))
+    self$all_features = unique(c(unlist(map(self$feature_ingress_tokens, "features")), task$target_names))
     assert_subset(self$all_features, c(task$target_names, task$feature_names))
     self$target_batchgetter = assert_function(target_batchgetter, args = "data", null.ok = TRUE)
     lazy_tensor_features = self$task$feature_types[get("type") == "lazy_tensor"][[1L]]
