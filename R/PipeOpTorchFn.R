@@ -11,6 +11,11 @@
 #'   (`list()`, `list()`, [`Task`][mlr3::Task] or `NULL`) -> named `list()`\cr
 #'   A function that computes the output shapes of the `fn`. See 
 #'   [PipeOpTorch]'s `.shapes_out()` method for details.
+#'   If NULL, the output shape function is inferred and calculates the output shapes as follows:
+#'   For an input shape of (NA, ...) a meta-tensor of shape (1, ...) is created and the preprocessing function is
+#'   applied. Afterwards the batch dimension (1) is replaced with NA and the shape is returned.
+#'   If the first dimension is not `NA`, the output shape of applying the preprocessing function is returned.
+#'   Method `"infer"` should be correct in most cases, but might fail in some edge cases.
 #' @templateVar id nn_fn
 #' @template pipeop_torch_channels_default
 #'
