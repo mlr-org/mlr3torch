@@ -21,27 +21,15 @@
 #' 
 #' graph = po("torch_ingress_ltnsr") %>>% po
 #'
-#' ds_len = 2
-#' data_tnsr = torch_randn(c(ds_len, 2, 2))
-#' 
-#' ds_gen = dataset(name = "dummy", 
-#'   initialize = function(x) self$x = x, 
-#'   .getitem = function(i) list(x = self$x[i, ]), 
-#'   .length = function() dim(self$x)[1]
-#' )
-#' 
-#' ds = ds_gen(data_tnsr)
-#' 
-#' dd = as_data_descriptor(ds, list(x = c(NA, 2, 2)))
-#' lt = lazy_tensor(dd)
-#' task = as_task_classif(data.table(y = factor(c(0, 1)), x = lt), target = "y")
+#' task = tsk("lazy_iris")$filter(1)
+#' tnsr = materialize(task$data()$x)[[1]]
 #'  
 #' md_trained = graph$train(task)
-#' trained = md_trained[[1]]$graph$train(data_tnsr)
+#' trained = md_trained[[1]]$graph$train(tnsr)
 #'
 #' trained[[1]]
 #' 
-#' custom_fn(data_tnsr)
+#' custom_fn(tnsr)
 #' @export
 PipeOpTorchFn = R6Class("PipeOpTorchFn",
   inherit = PipeOpTorch,
@@ -54,11 +42,9 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
         shapes_out = p_uty(tags = "train", custom_check = function(input) check_function(input, args = c("shapes_in", "param_vals", "task"), null.ok = TRUE))
       )
 
-      ps_fn = inferps(param_vals$fn)
-
       super$initialize(
         id = id,
-        param_set = c(param_set, ps_fn),
+        param_set = c(param_set, inferps(param_vals$fn)),
         param_vals = param_vals,
         module_generator = NULL
       )
