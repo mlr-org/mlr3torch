@@ -11,7 +11,11 @@ Applies a user-supplied function to a tensor.
 
 \itemize{
 \item \code{fn} :: \code{function}\cr
-The function to apply. Takes a \code{torch} tensor as input and returns a \code{torch} tensor.
+The function to apply. Takes a \code{torch} tensor as its first argument and returns a \code{torch} tensor.
+\item \code{shapes_out} :: \code{function}\cr
+(\code{list()}, \code{list()}, \code{\link[mlr3:Task]{Task}} or \code{NULL}) -> named \code{list()}\cr
+A function that computes the output shapes of the \code{fn}. See
+\link{PipeOpTorch}'s \code{.shapes_out()} method for details.
 }
 }
 
@@ -21,6 +25,24 @@ One input channel called \code{"input"} and one output channel called \code{"out
 For an explanation see \code{\link{PipeOpTorch}}.
 }
 
+\examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+drop_dim =  function(x) x[-1, , ]
+po = po("nn_fn", param_vals = list(fn = drop_dim))
+graph = po("torch_ingress_ltnsr") \%>>\% po
+
+task = nano_imagenet()
+task_dt = task$data()
+
+tnsr = materialize(task_dt$image[1])[[1]]
+blue_channel = tnsr[3, , ]
+ 
+md_trained = graph$train(task)
+trained = md_trained[[1]]$graph$train(tnsr)
+
+trained[[1]]
+\dontshow{\}) # examplesIf}
+}
 \section{Super classes}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{mlr3torch::PipeOpTorch}} -> \code{PipeOpTorchFn}
 }
