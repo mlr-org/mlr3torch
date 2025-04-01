@@ -62,6 +62,7 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
       # TODO: factor out this functionality, since it duplicates the "infer"
       # condition in PipeOpTaskPreprocTorch
       sin = shapes_in[["input"]]
+      browser()
       if (!is.null(param_vals$shapes_out)) {
         new_shapes = param_vals$shapes_out(shapes_in = shapes_in, param_vals = param_vals, task = task)
         assert_list(new_shapes, types = "integer", names = self$output$name)
@@ -83,8 +84,7 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
         sout[1] = NA
       }
 
-
-      list(sout)
+      setNames(list(sout), self$output_name)
     },
     .make_module = function(shapes_in, param_vals, task) {
       nn_module("nn_fn",
