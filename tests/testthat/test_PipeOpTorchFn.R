@@ -10,7 +10,7 @@ test_that("PipeOpTorchFn works for a simple function", {
   task_dt = task$data()
 
   tnsr = materialize(task_dt$image[1])[[1]]
-  blue_channel = tnsr[3, , ]
+  blue_channel = drop_dim(tnsr)
   
   md_trained = graph$train(task)[[1]]
   trained = md_trained$graph$train(tnsr)[[1]]

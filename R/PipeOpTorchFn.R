@@ -15,20 +15,33 @@
 #' @template pipeop_torch_channels_default
 #'
 #' @examplesIf torch::torch_is_installed()
-#' drop_dim =  function(x) x[-1, , ]
-#' po = po("nn_fn", param_vals = list(fn = drop_dim))
+#' custom_fn =  function(x) x / 2
+#' po = po("nn_fn", param_vals = list(fn = custom_fn))
+#' po$param_set
+#' 
 #' graph = po("torch_ingress_ltnsr") %>>% po
 #'
-#' task = nano_imagenet()
-#' task_dt = task$data()
-#'
-#' tnsr = materialize(task_dt$image[1])[[1]]
-#' blue_channel = tnsr[3, , ]
+#' ds_len = 2
+#' data_tnsr = torch_randn(c(ds_len, 2, 2))
+#' 
+#' ds_gen = dataset(name = "dummy", 
+#'   initialize = function(x) self$x = x, 
+#'   .getitem = function(i) list(x = self$x[i, ]), 
+#'   .length = function() dim(self$x)[1]
+#' )
+#' 
+#' ds = ds_gen(data_tnsr)
+#' 
+#' dd = as_data_descriptor(ds, list(x = c(NA, 2, 2)))
+#' lt = lazy_tensor(dd)
+#' task = as_task_classif(data.table(y = factor(c(0, 1)), x = lt), target = "y")
 #'  
 #' md_trained = graph$train(task)
-#' trained = md_trained[[1]]$graph$train(tnsr)
+#' trained = md_trained[[1]]$graph$train(data_tnsr)
 #'
 #' trained[[1]]
+#' 
+#' custom_fn(data_tnsr)
 #' @export
 PipeOpTorchFn = R6Class("PipeOpTorchFn",
   inherit = PipeOpTorch,
