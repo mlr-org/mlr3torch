@@ -1,20 +1,81 @@
-# test_that("PipeOpTorchFn works for a simple function", {
-#   withr::local_options(mlr3torch.cache = TRUE)
+test_that("PipeOpTorchFn works for a simple function", {
+  withr::local_options(mlr3torch.cache = TRUE)
   
-#   # for the nano imagenet data, gets the blue channel
-#   drop_dim =  function(x, ...) x[, -1, , ]
-#   po = po("nn_fn", param_vals = list(fn = drop_dim))
-#   graph = po("torch_ingress_ltnsr") %>>% po
+  # for the nano imagenet data, gets the blue channel
+  drop_dim =  function(x) x[-1, , ]
+  po = po("nn_fn", param_vals = list(fn = drop_dim))
+  graph = po("torch_ingress_ltnsr") %>>% po
 
-#   task = nano_imagenet()
-#   task_dt = task$data()
+  task = nano_imagenet()
+  task_dt = task$data()
+
+  tnsr = materialize(task_dt$image[1])[[1]]
   
-#   graph$train(task)
-#   result = graph$predict(task)[[1]]
-#   result_dt = result$data()
+  md_trained = graph$train(task)[[1]]
+  trained = md_trained$graph$train(tnsr)
 
-#   result_dt
-# })
+  trained
+})
+
+test_that("PipeOpTorchFn works on a simple tensor", {
+  data_tnsr <- torch_randn(c(10, 5, 5))
+
+  ds_gen <- dataset(name = "dummy", 
+    initialize = function(x) self$x = x, 
+    .getitem = function(i) list(x = self$x[i, ]), 
+    .length = function() dim(self$x)[1]
+  )
+
+  ds <- ds_gen(data_tnsr)
+
+  orig <- ds$.getitem(1)
+  orig
+
+  expected = torch_sigmoid(ds$.getitem(1)$x)
+  expected
+
+  dd <- as_data_descriptor(ds, list(x = c(NA, 5, 5)))
+  lt <- lazy_tensor(dd)
+  task <- as_task_classif(data.table(y = rbinom(10, 1, 0.5), x = lt), target = "y")
+
+  po_sigmoid = po("nn_sigmoid")
+  graph = po("torch_ingress_ltnsr") %>>% po_sigmoid
+
+  md_trained = graph$train(task)[[1]]
+  trained = md_trained$graph$train(orig$x)
+
+  torch_equal(trained[[1]], expected)
+})
+
+test_that("PipeOpTorchSigmoid works", {
+  data_tnsr <- torch_randn(c(10, 5, 5))
+
+  ds_gen <- dataset(name = "dummy", 
+    initialize = function(x) self$x = x, 
+    .getitem = function(i) list(x = self$x[i, ]), 
+    .length = function() dim(self$x)[1]
+  )
+
+  ds <- ds_gen(data_tnsr)
+
+  orig <- ds$.getitem(1)
+  orig
+
+  expected = torch_sigmoid(ds$.getitem(1)$x)
+  expected
+
+  dd <- as_data_descriptor(ds, list(x = c(NA, 5, 5)))
+  lt <- lazy_tensor(dd)
+  task <- as_task_classif(data.table(y = rbinom(10, 1, 0.5), x = lt), target = "y")
+
+  po_sigmoid = po("nn_sigmoid")
+  graph = po("torch_ingress_ltnsr") %>>% po_sigmoid
+
+  md_trained = graph$train(task)[[1]]
+  trained = md_trained$graph$train(orig$x)
+
+  torch_equal(trained[[1]], expected)
+})
 
 test_that("PipeOpTorchFn works for a simple function", {
   withr::local_options(mlr3torch.cache = TRUE)

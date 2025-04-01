@@ -44,7 +44,7 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
         sin[1] = 1L
       }
       tensor_in = mlr3misc::invoke(torch_empty, .args = sin, device = torch_device("cpu"))
-      tensor_out = tryCatch(mlr3misc::invoke(param_vals$fn, tensor_in, .args = param_vals),
+      tensor_out = tryCatch(mlr3misc::invoke(param_vals$fn, tensor_in),
         error = function(e) {
           stopf("Input shape '%s' is invalid for PipeOp with id '%s'.", shape_to_str(list(sin)), self$id)
         }
