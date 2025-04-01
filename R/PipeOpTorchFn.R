@@ -44,7 +44,9 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
     initialize = function(id = "nn_fn", param_vals = list()) {
       param_set = ps(
         fn = p_uty(tags = c("train", "required"), custom_check = check_function),
-        shapes_out = p_uty(tags = "train", custom_check = function(input) check_function(input, args = c("shapes_in", "param_vals", "task"), null.ok = TRUE))
+        shapes_out = p_uty(tags = "train", custom_check = function(input) {
+          check_function(input, args = c("shapes_in", "param_vals", "task"), null.ok = TRUE)
+        })
       )
 
       super$initialize(
@@ -57,7 +59,14 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
   ),
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
+      # TODO: factor out this functionality, since it duplicates the "infer"
+      # condition in PipeOpTaskPreprocTorch
       sin = shapes_in[["input"]]
+      if (!is.null(param_vals$shapes_out)) {
+        new_shapes = param_vals$shapes_out(shapes_in = shapes_in, param_vals = param_vals, task = task)
+        assert_list(new_shapes, types = "integer", names = self$output$name)
+        return(new_shapes)
+      }
       batch_dim = sin[1L]
       batchdim_is_unknown = is.na(batch_dim)
       if (batchdim_is_unknown) {
@@ -73,6 +82,7 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
       if (batchdim_is_unknown) {
         sout[1] = NA
       }
+
 
       list(sout)
     },

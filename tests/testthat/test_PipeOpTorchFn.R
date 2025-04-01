@@ -17,3 +17,5 @@ test_that("PipeOpTorchFn works for a simple function", {
 
   expect_true(torch_equal(blue_channel, trained))
 })
+
+# TODO: add a test where the user provides their own shapes_out function
