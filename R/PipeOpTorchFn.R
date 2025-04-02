@@ -46,6 +46,9 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
         })
       )
 
+      # TODO: determine whether you want to support arguments to the custom function
+      # will probably require an invoke() call, and for single-parameter functions to have ... as an argument
+
       super$initialize(
         id = id,
         param_set = c(param_set, inferps(param_vals$fn)),
