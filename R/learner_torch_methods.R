@@ -285,6 +285,13 @@ encode_prediction_default = function(predict_tensor, predict_type, task) {
   response = prob = NULL
   if (task$task_type == "classif") {
     if (predict_type == "prob") {
+      if (dim(predict_tensor)[2] == 1) {
+        N_data <- length(predict_tensor)
+        vec_dim <- c(N_data, 1)
+        pos_scores <- predict_tensor$reshape(vec_dim)
+        neg_scores <- torch::torch_zeros(N_data)$reshape(vec_dim)
+        predict_tensor <- torch::torch_cat(list(neg_scores, pos_scores), dim=2)
+      }
       predict_tensor = with_no_grad(nnf_softmax(predict_tensor, dim = 2L))
     }
     # We still execute the argmax on the device before converting to R
