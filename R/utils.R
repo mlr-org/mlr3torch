@@ -275,3 +275,24 @@ order_named_args = function(f, l) {
   }
   l2
 }
+
+infer_shapes = function(shapes_in, param_vals, output_names) {
+  sin = shapes_in[["input"]]
+  batch_dim = sin[1L]
+  batchdim_is_unknown = is.na(batch_dim)
+  if (batchdim_is_unknown) {
+    sin[1] = 1L
+  }
+  tensor_in = mlr3misc::invoke(torch_empty, .args = sin, device = torch_device("cpu"))
+  tensor_out = tryCatch(mlr3misc::invoke(param_vals$fn, tensor_in),
+    error = function(e) {
+      stopf("Input shape '%s' is invalid for PipeOp with id '%s'.", shape_to_str(list(sin)), self$id)
+    }
+  )
+  sout = dim(tensor_out)
+  if (batchdim_is_unknown) {
+    sout[1] = NA
+  }
+
+  setNames(list(sout), output_names)
+}

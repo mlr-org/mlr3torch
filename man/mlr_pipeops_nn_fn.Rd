@@ -15,7 +15,9 @@ The function to apply. Takes a \code{torch} tensor as its first argument and ret
 \item \code{shapes_out} :: \code{function}\cr
 (\code{list()}, \code{list()}, \code{\link[mlr3:Task]{Task}} or \code{NULL}) -> named \code{list()}\cr
 A function that computes the output shapes of the \code{fn}. See
-\link{PipeOpTorch}'s \code{.shapes_out()} method for details.
+\link{PipeOpTorch}'s \code{.shapes_out()} method for details on the parameters,
+and \link{PipeOpTaskPreprocTorch} for deatils on how the shapes are inferred when
+this parameter is NULL.
 }
 }
 

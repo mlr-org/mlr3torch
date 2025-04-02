@@ -10,12 +10,9 @@
 #' * `shapes_out` :: `function`\cr
 #'   (`list()`, `list()`, [`Task`][mlr3::Task] or `NULL`) -> named `list()`\cr
 #'   A function that computes the output shapes of the `fn`. See 
-#'   [PipeOpTorch]'s `.shapes_out()` method for details.
-#'   If NULL, the output shape function is inferred and calculates the output shapes as follows:
-#'   For an input shape of (NA, ...) a meta-tensor of shape (1, ...) is created and the preprocessing function is
-#'   applied. Afterwards the batch dimension (1) is replaced with NA and the shape is returned.
-#'   If the first dimension is not `NA`, the output shape of applying the preprocessing function is returned.
-#'   Method `"infer"` should be correct in most cases, but might fail in some edge cases.
+#'   [PipeOpTorch]'s `.shapes_out()` method for details on the parameters,
+#'   and [PipeOpTaskPreprocTorch] for details on how the shapes are inferred when
+#'   this parameter is NULL.
 #' @templateVar id nn_fn
 #' @template pipeop_torch_channels_default
 #'
@@ -59,32 +56,14 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
   ),
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
-      # TODO: factor out this functionality, since it duplicates the "infer"
-      # condition in PipeOpTaskPreprocTorch
-      sin = shapes_in[["input"]]
-      browser()
       if (!is.null(param_vals$shapes_out)) {
         new_shapes = param_vals$shapes_out(shapes_in = shapes_in, param_vals = param_vals, task = task)
-        assert_list(new_shapes, types = "integer", names = self$output$name)
+        assert_list(new_shapes, types = "integer")
+        assert_subset(names(new_shapes), self$output$name, empty.ok = FALSE)
         return(new_shapes)
       }
-      batch_dim = sin[1L]
-      batchdim_is_unknown = is.na(batch_dim)
-      if (batchdim_is_unknown) {
-        sin[1] = 1L
-      }
-      tensor_in = mlr3misc::invoke(torch_empty, .args = sin, device = torch_device("cpu"))
-      tensor_out = tryCatch(mlr3misc::invoke(param_vals$fn, tensor_in),
-        error = function(e) {
-          stopf("Input shape '%s' is invalid for PipeOp with id '%s'.", shape_to_str(list(sin)), self$id)
-        }
-      )
-      sout = dim(tensor_out)
-      if (batchdim_is_unknown) {
-        sout[1] = NA
-      }
-
-      setNames(list(sout), self$output_name)
+      
+      infer_shapes(shapes_in, param_vals, self$output$name)
     },
     .make_module = function(shapes_in, param_vals, task) {
       nn_module("nn_fn",
