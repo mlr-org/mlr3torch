@@ -1,3 +1,11 @@
+test_that("PipeOpTorchFn autotest", {
+  po_test = po("nn_fn", param_vals = list(fn = function(tnsr) tnsr * 2))
+  task = tsk("iris")
+  graph = po("torch_ingress_num") %>>% po_test
+
+  expect_pipeop_torch(graph, "nn_fn", task)
+})
+
 test_that("PipeOpTorchFn works for a simple function", {
   withr::local_options(mlr3torch.cache = TRUE)
   
