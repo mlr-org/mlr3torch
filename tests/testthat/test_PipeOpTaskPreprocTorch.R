@@ -270,6 +270,7 @@ test_that("can pass variable to fn", {
 })
 
 test_that("predict shapes are added during training", {
+  browser()
   po_test = pipeop_preproc_torch("test", fn = function(x) torch_cat(list(x, x * 2), dim = 2), shapes_out = "infer")$new()
 
   po_test$param_set$set_values(
