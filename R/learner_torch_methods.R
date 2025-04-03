@@ -134,6 +134,8 @@ train_loop = function(ctx, cbs) {
 
   ctx$network$train()
 
+  forward = get_forward(ctx$network)
+
   # if we increment epoch at the end of the loop it has the wrong value
   # during the final two callback stages
   ctx$epoch = 0L
@@ -155,9 +157,9 @@ train_loop = function(ctx, cbs) {
       call("on_batch_begin")
 
       if (length(ctx$batch$x) == 1L) {
-        y_hat = ctx$network(ctx$batch$x[[1L]])
+        y_hat = forward(ctx$batch$x[[1L]])
       } else {
-        y_hat = do.call(ctx$network, ctx$batch$x)
+        y_hat = do.call(forward, ctx$batch$x)
       }
 
       loss = ctx$loss_fn(y_hat, ctx$batch$y)
