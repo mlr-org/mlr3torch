@@ -36,7 +36,9 @@ PipeOpTorchHead = R6Class("PipeOpTorchHead",
   ),
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
-      assert_true(length(shapes_in[[1]]) == 2L)
+      if (length(shapes_in[[1]]) != 2L) {
+        stopf("PipeOpTorchHead expects 2D input, but got %s.", shape_to_str(shapes_in))
+      }
       d = get_nout(task)
       list(c(shapes_in[[1]][[1]], d))
     },

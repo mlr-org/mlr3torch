@@ -61,3 +61,14 @@ test_that("order_named_args works", {
   expect_error(order_named_args(function(..., x) NULL, list(2, 3, x = 1)), regexp = "`...` must")
   expect_error(order_named_args(function(y, ..., x) NULL, list(y = 4, 2, 3, x = 1)), regexp = "`...` must")
 })
+test_that("shape_to_str works", {
+  expect_equal(shape_to_str(1), "(1)")
+  expect_equal(shape_to_str(c(1, 2)), "(1,2)")
+  expect_equal(shape_to_str(NULL), "(<unknown>)")
+  expect_error(shape_to_str("a"))
+
+  # list
+  expect_equal(shape_to_str(list(c(NA, 2), c(2, 3))), c("[(NA,2);(2,3)]"))
+
+  md = po("torch_ingress_ltnsr")$train(list(nano_imagenet()))[[1L]]
+})
