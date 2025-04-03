@@ -31,6 +31,9 @@ PipeOpTorchMaxPool = R6Class("PipeOpTorchMaxPool",
     }
   ),
   private = list(
+    .additional_phash_input = function() {
+      list(d = private$.d)
+    },
     .shapes_out = function(shapes_in, param_vals, task) {
       res = list(max_output_shape(
         shape_in = shapes_in[[1]],
@@ -54,17 +57,9 @@ PipeOpTorchMaxPool = R6Class("PipeOpTorchMaxPool",
 max_output_shape = avg_output_shape
 
 #' @title 1D Max Pooling
-#'
-#' @templateVar id nn_max_pool1d
-#' @section Input and Output Channels:
-#' If `return_indices` is `FALSE` during construction, there is one input channel 'input' and one output channel 'output'.
-#' If `return_indices` is `TRUE`, there are two output channels 'output' and 'indices'.
-#' For an explanation see [`PipeOpTorch`].
-#' @template pipeop_torch
-#' @template pipeop_torch_example
-#'
 #' @inherit torch::nnf_max_pool1d description
-#'
+#' @section nn_module:
+#' Calls [`torch::nn_max_pool1d()`] during training.
 #' @section Parameters:
 #' * `kernel_size` :: `integer()`\cr
 #'   The size of the window. Can be single number or a vector.
@@ -77,8 +72,14 @@ max_output_shape = avg_output_shape
 #' * `ceil_mode` :: `logical(1)`\cr
 #'   When True, will use ceil instead of floor to compute the output shape. Default: `FALSE`
 #'
-#' @section Internals:
-#' Calls [`torch::nn_max_pool1d()`] during training.
+#' @templateVar id nn_max_pool1d
+#' @section Input and Output Channels:
+#' If `return_indices` is `FALSE` during construction, there is one input channel 'input' and one output channel 'output'.
+#' If `return_indices` is `TRUE`, there are two output channels 'output' and 'indices'.
+#' For an explanation see [`PipeOpTorch`].
+#' @template pipeop_torch
+#' @template pipeop_torch_example
+#'
 #' @export
 PipeOpTorchMaxPool1D = R6Class("PipeOpTorchMaxPool1D", inherit = PipeOpTorchMaxPool,
   public = list(
@@ -94,17 +95,16 @@ PipeOpTorchMaxPool1D = R6Class("PipeOpTorchMaxPool1D", inherit = PipeOpTorchMaxP
 )
 
 #' @title 2D Max Pooling
+#' @inherit torch::nnf_max_pool2d description
+#' @section nn_module:
+#' Calls [`torch::nn_max_pool2d()`] during training.
+#' @inheritSection mlr_pipeops_nn_max_pool1d Parameters
 #'
 #' @templateVar id nn_max_pool2d
 #' @inheritSection mlr_pipeops_nn_max_pool1d Input and Output Channels
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#' @inherit torch::nnf_max_pool2d description
-#'
-#' @inheritSection mlr_pipeops_nn_max_pool1d Parameters
-#' @section Internals:
-#' Calls [`torch::nn_max_pool2d()`] during training.
 #' @export
 PipeOpTorchMaxPool2D = R6Class("PipeOpTorchMaxPool2D", inherit = PipeOpTorchMaxPool,
   public = list(
@@ -121,18 +121,15 @@ PipeOpTorchMaxPool2D = R6Class("PipeOpTorchMaxPool2D", inherit = PipeOpTorchMaxP
 
 
 #' @title 3D Max Pooling
-#'
+#' @inherit torch::nnf_max_pool3d description
+#' @section nn_module:
+#' Calls [`torch::nn_max_pool3d()`] during training.
+#' @inheritSection mlr_pipeops_nn_max_pool1d Parameters
 #' @templateVar id nn_max_pool3d
 #' @inheritSection mlr_pipeops_nn_max_pool1d Input and Output Channels
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#' @inherit torch::nnf_max_pool3d description
-#'
-#' @inheritSection mlr_pipeops_nn_max_pool1d Parameters
-#'
-#' @section Internals:
-#' Calls [`torch::nn_max_pool3d()`] during training.
 #'
 #' @export
 PipeOpTorchMaxPool3D = R6Class("PipeOpTorchMaxPool3D", inherit = PipeOpTorchMaxPool,

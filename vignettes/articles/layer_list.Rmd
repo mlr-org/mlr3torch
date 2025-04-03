@@ -1,0 +1,23 @@
+---
+title: "Network Layers"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Network Layers}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+Below is a list of neural network layers that are available in `mlr3torch`.
+
+```{r, echo = FALSE, message = FALSE}
+library(data.table)
+library(mlr3torch)
+content = as.data.table(mlr3pipelines::mlr_pipeops)
+mlr3torch_ids = names(getFromNamespace("mlr3torch_pipeops", "mlr3torch"))
+content = content[key %in% mlr3torch_ids & grepl("^nn_", key)]
+content$packages = lapply(content$packages, function(ps) setdiff(ps, c("mlr3torch", "mlr3pipelines")))
+content$key = sapply(content$key, function(key) sprintf("[%s](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_%s.html)", key, key))
+content = content[, .(key, label)]
+names(content) = c("Key", "Label")
+knitr::kable(content)
+```

@@ -40,7 +40,7 @@ task = tsk("german_credit")
 # The output is a model descriptor
 md = graph$train(task)[[1L]]
 ingress = md$ingress[[1L]]
-ingress$batchgetter(task$data(1, ingress$features), "cpu")
+ingress$batchgetter(task$data(1, ingress$features(task)), "cpu")
 \dontshow{\}) # examplesIf}
 }
 \seealso{
@@ -71,6 +71,7 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_hardsigmoid}},
 \code{\link{mlr_pipeops_nn_hardtanh}},
 \code{\link{mlr_pipeops_nn_head}},
+\code{\link{mlr_pipeops_nn_identity}},
 \code{\link{mlr_pipeops_nn_layer_norm}},
 \code{\link{mlr_pipeops_nn_leaky_relu}},
 \code{\link{mlr_pipeops_nn_linear}},
@@ -97,6 +98,8 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_tanh}},
 \code{\link{mlr_pipeops_nn_tanhshrink}},
 \code{\link{mlr_pipeops_nn_threshold}},
+\code{\link{mlr_pipeops_nn_tokenizer_categ}},
+\code{\link{mlr_pipeops_nn_tokenizer_num}},
 \code{\link{mlr_pipeops_nn_unsqueeze}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_ingress_ltnsr}},

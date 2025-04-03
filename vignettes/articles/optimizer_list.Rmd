@@ -1,0 +1,19 @@
+---
+title: "Optimizers"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Optimizers}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+The table below shows all optimizers that are available in `mlr3torch`:
+
+```{r, echo = FALSE, message = FALSE}
+library(data.table)
+library(mlr3torch)
+content = as.data.table(mlr3torch::mlr3torch_optimizers)[, c("key", "label")]
+content$key = sapply(content$key, function(key) sprintf("[%s](https://torch.mlverse.org/docs/reference/%s)", key, gsub("torch::", "", t_opt(key)$man)))
+names(content) = c("Key", "Label")
+knitr::kable(content)
+```

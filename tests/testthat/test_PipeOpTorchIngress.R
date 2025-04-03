@@ -11,7 +11,6 @@ test_that("ingress fails with 0 features", {
   expect_error(
     po("torch_ingress_cat")$train(list(tsk("iris")))
   )
-
 })
 
 test_that("PipeOpTorchIngressCategorical", {
@@ -34,20 +33,14 @@ test_that("PipeOpTorchIngressLazyTensor", {
   po_ingress = po("torch_ingress_ltnsr")
 
   output = po_ingress$train(list(task))[[1L]]
-  ds = task_dataset(task, output$ingress, device = "cpu",
-    target_batchgetter = target_batchgetter_classif)
+  ds = task_dataset(task, output$ingress, target_batchgetter = target_batchgetter_classif)
 
   batch = ds$.getbatch(1:2)
   expect_permutation(names(batch), c("x", "y", ".index"))
   expect_equal(names(batch$x), "torch_ingress_ltnsr.input")
   expect_class(batch$x[[1L]], "torch_tensor")
   expect_true(batch$x$torch_ingress_ltnsr.input$dtype == torch_float())
-  expect_true(batch$x$torch_ingress_ltnsr.input$device == torch_device("cpu"))
   expect_equal(batch$x$torch_ingress_ltnsr.input$shape, c(2, 1, 28, 28))
-
-  ds_meta = task_dataset(task, output$ingress, device = "meta")
-  batch_meta = ds_meta$.getbatch(2:3)
-  expect_true(batch_meta$x$torch_ingress_ltnsr.input$device == torch_device("meta"))
 
   task_old = task$clone()
   task$cbind(data.frame(row_id = 1:10, x_num = 1:10))
@@ -63,35 +56,15 @@ test_that("target can contain missings for ingress", {
   expect_class(md, "ModelDescriptor")
 })
 
-test_that("ingress cat: device placement", {
-  task = tsk("german_credit")$select(c("job", "credit_history"))
-  md = po("torch_ingress_categ")$train(list(task))[[1L]]
-  iter = dataloader_make_iter(dataloader(task_dataset(task, md$ingress, device = "meta",
-    target_batchgetter = target_batchgetter_regr)))
-  batch = iter$.next()
-  expect_equal(batch$x[[1L]]$device, torch_device("meta"))
-  expect_equal(batch$y$device, torch_device("meta"))
-  expect_equal(batch$.index$device, torch_device("meta"))
+
+test_that("shape of lazy tensor ingress can be inferred", {
+  po_ingress = po("torch_ingress_ltnsr", shape = "infer")
+  out = po_ingress$train(list(nano_dogs_vs_cats()))[[1L]]
+  expect_equal(out$pointer_shape, c(NA, 3, 280, 300))
 })
 
-test_that("ingress num: device placement", {
-  task = tsk("mtcars")
-  md = po("torch_ingress_num")$train(list(task))[[1L]]
-  iter = dataloader_make_iter(dataloader(task_dataset(task, md$ingress, device = "meta",
-    target_batchgetter = target_batchgetter_classif)))
-  batch = iter$.next()
-  expect_equal(batch$x[[1L]]$device, torch_device("meta"))
-  expect_equal(batch$y$device, torch_device("meta"))
-  expect_equal(batch$.index$device, torch_device("meta"))
-})
-
-test_that("ingress ltnsr: device placement", {
-  task = tsk("lazy_iris")
-  md = po("torch_ingress_ltnsr")$train(list(task))[[1L]]
-  iter = dataloader_make_iter(dataloader(task_dataset(task, md$ingress, device = "meta",
-    target_batchgetter = target_batchgetter_regr)))
-  batch = iter$.next()
-  expect_equal(batch$x[[1L]]$device, torch_device("meta"))
-  expect_equal(batch$y$device, torch_device("meta"))
-  expect_equal(batch$.index$device, torch_device("meta"))
+test_that("error message unknown shapes", {
+  task = po("augment_random_crop", size = c(100, 100))$train(list(nano_imagenet()))[[1L]]
+  obj = po("torch_ingress_ltnsr")
+  expect_error(obj$train(list(task)), "see its documentation")
 })

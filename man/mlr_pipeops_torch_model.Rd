@@ -8,18 +8,6 @@
 Builds a Torch Learner from a \code{\link{ModelDescriptor}} and trains it with the given parameter specification.
 The task type must be specified during construction.
 }
-\section{Input and Output Channels}{
-
-There is one input channel \code{"input"} that takes in \code{ModelDescriptor} during traing and a \code{Task} of the specified
-\code{task_type} during prediction.
-The output is \code{NULL} during training and a \code{Prediction} of given \code{task_type} during prediction.
-}
-
-\section{State}{
-
-A trained \code{\link{LearnerTorchModel}}.
-}
-
 \section{Parameters}{
 
 
@@ -49,13 +37,21 @@ and used during prediction.
 Note that by setting the seed during the training phase this will mean that by default (i.e. when \code{seed} is
 \code{"random"}), clones of the learner will use a different seed.
 If set to \code{NULL}, no seeding will be done.
+\item \code{tensor_dataset} :: \code{logical(1)} | \code{"device"}\cr
+Whether to load all batches at once at the beginning of training and stack them.
+This is initialized to \code{FALSE}.
+If set to \code{"device"}, the device of the tensors will be set to the value of \code{device}, which
+can avoid unnecessary moving of tensors between devices.
+When your dataset fits into memory this will make the loading of batches faster.
+Note that this should not be set for datasets that contain \code{\link{lazy_tensor}}s with random data augmentation,
+as this augmentation will only be applied once at the beginning of training.
 }
 
 \strong{Evaluation}:
 \itemize{
-\item \code{measures_train} :: \code{\link[mlr3:Measure]{Measure}} or \code{list()} of \code{\link[mlr3:Measure]{Measure}}s.\cr
+\item \code{measures_train} :: \code{\link[mlr3:Measure]{Measure}} or \code{list()} of \code{\link[mlr3:Measure]{Measure}}s\cr
 Measures to be evaluated during training.
-\item \code{measures_valid} :: \code{\link[mlr3:Measure]{Measure}} or \code{list()} of \code{\link[mlr3:Measure]{Measure}}s.\cr
+\item \code{measures_valid} :: \code{\link[mlr3:Measure]{Measure}} or \code{list()} of \code{\link[mlr3:Measure]{Measure}}s\cr
 Measures to be evaluated during validation.
 \item \code{eval_freq} :: \code{integer(1)}\cr
 How often the train / validation predictions are evaluated using \code{measures_train} / \code{measures_valid}.
@@ -72,6 +68,8 @@ Note that the final model is stored in the learner, not the best model.
 This is initialized to \code{0}, which means no early stopping.
 The first entry from \code{measures_valid} is used as the metric.
 This also requires to specify the \verb{$validate} field of the Learner, as well as \code{measures_valid}.
+If this is set, the epoch after which no improvement was observed, can be accessed via the \verb{$internal_tuned_values}
+field of the learner.
 \item \code{min_delta} :: \code{double(1)}\cr
 The minimum improvement threshold for early stopping.
 Is initialized to 0.
@@ -82,8 +80,8 @@ Is initialized to 0.
 \item \code{batch_size} :: \code{integer(1)}\cr
 The batch size (required).
 \item \code{shuffle} :: \code{logical(1)}\cr
-Whether to shuffle the instances in the dataset. Default is \code{FALSE}.
-This does not impact validation.
+Whether to shuffle the instances in the dataset. This is initialized to \code{TRUE},
+which differs from the default (\code{FALSE}).
 \item \code{sampler} :: \code{\link[torch:sampler]{torch::sampler}}\cr
 Object that defines how the dataloader draw samples.
 \item \code{batch_sampler} :: \code{\link[torch:sampler]{torch::sampler}}\cr
@@ -112,6 +110,18 @@ Which packages to load on the workers.
 }
 
 Also see \code{torch::dataloder} for more information.
+}
+
+\section{Input and Output Channels}{
+
+There is one input channel \code{"input"} that takes in \code{ModelDescriptor} during traing and a \code{Task} of the specified
+\code{task_type} during prediction.
+The output is \code{NULL} during training and a \code{Prediction} of given \code{task_type} during prediction.
+}
+
+\section{State}{
+
+A trained \code{\link{LearnerTorchModel}}.
 }
 
 \section{Internals}{
@@ -150,6 +160,7 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_hardsigmoid}},
 \code{\link{mlr_pipeops_nn_hardtanh}},
 \code{\link{mlr_pipeops_nn_head}},
+\code{\link{mlr_pipeops_nn_identity}},
 \code{\link{mlr_pipeops_nn_layer_norm}},
 \code{\link{mlr_pipeops_nn_leaky_relu}},
 \code{\link{mlr_pipeops_nn_linear}},
@@ -176,6 +187,8 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_tanh}},
 \code{\link{mlr_pipeops_nn_tanhshrink}},
 \code{\link{mlr_pipeops_nn_threshold}},
+\code{\link{mlr_pipeops_nn_tokenizer_categ}},
+\code{\link{mlr_pipeops_nn_tokenizer_num}},
 \code{\link{mlr_pipeops_nn_unsqueeze}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},

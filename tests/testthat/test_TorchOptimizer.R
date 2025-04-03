@@ -1,14 +1,14 @@
 test_that("Basic checks", {
   torch_opt = TorchOptimizer$new(
-    torch_optimizer = optim_adam,
+    torch_optimizer = optim_ignite_adam,
     label = "Adam",
     packages = "mypackage"
   )
-  expect_equal(torch_opt$id, "optim_adam")
+  expect_equal(torch_opt$id, "optim_ignite_adam")
   expect_r6(torch_opt, "TorchOptimizer")
   expect_set_equal(torch_opt$packages, c("mypackage", "torch", "mlr3torch"))
   expect_equal(torch_opt$label, "Adam")
-  expect_set_equal(torch_opt$param_set$ids(), setdiff(formalArgs(optim_adam), "params"))
+  expect_set_equal(torch_opt$param_set$ids(), setdiff(formalArgs(optim_ignite_adam), "params"))
   expect_error(torch_opt$generate(), regexp = "could not be loaded: mypackage", fixed = TRUE)
 
   expect_error(
@@ -50,7 +50,7 @@ test_that("Basic checks", {
 test_that("dictionary retrieval works", {
   torch_opt = t_opt("adam", lr = 0.99)
   expect_r6(torch_opt, "TorchOptimizer")
-  expect_class(torch_opt$generator, "optim_adam")
+  expect_class(torch_opt$generator, "optim_ignite_adam")
   expect_equal(torch_opt$param_set$values$lr, 0.99)
 
   descriptors = t_opts(c("adam", "sgd"))
@@ -79,7 +79,7 @@ test_that("Printer works", {
   observed = capture.output(print(t_opt("adam")))
   expected = c(
    "<TorchOptimizer:adam> Adaptive Moment Estimation",
-   "* Generator: optim_adam",
+   "* Generator: optim_ignite_adam",
    "* Parameters: list()",
    "* Packages: torch,mlr3torch"
   )
@@ -130,22 +130,6 @@ test_that("Parameter test: sgd", {
   expect_paramtest(res)
 })
 
-test_that("Parameter test: asgd", {
-  torch_opt = t_opt("asgd")
-  param_set = torch_opt$param_set
-  fn = torch_opt$generator
-  res = expect_paramset(param_set, fn, exclude = "params")
-  expect_paramtest(res)
-})
-
-test_that("Parameter test: rprop", {
-  torch_opt = t_opt("rprop")
-  param_set = torch_opt$param_set
-  fn = torch_opt$generator
-  res = expect_paramset(param_set, fn, exclude = "params")
-  expect_paramtest(res)
-})
-
 test_that("Parameter test: rmsprop", {
   torch_opt = t_opt("rmsprop")
   param_set = torch_opt$param_set
@@ -161,15 +145,6 @@ test_that("Parameter test: adagrad", {
   res = expect_paramset(param_set, fn, exclude = "params")
   expect_paramtest(res)
 })
-
-test_that("Parameter test: adadelta", {
-  torch_opt = t_opt("adadelta")
-  param_set = torch_opt$param_set
-  fn = torch_opt$generator
-  res = expect_paramset(param_set, fn, exclude = "params")
-  expect_paramtest(res)
-})
-
 
 test_that("phash works", {
   expect_equal(t_opt("adam", lr = 2)$phash, t_opt("adam", lr = 1)$phash)

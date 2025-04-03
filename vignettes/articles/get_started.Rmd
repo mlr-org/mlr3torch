@@ -93,12 +93,6 @@ Its `ParamSet` contains only one parameter, namely `reduction`, which specifies 
 l1$param_set
 ```
 
-The wrapped loss module generator is accessible through the slot `$generator`.
-
-```{r}
-l1$generator
-```
-
 We can pass the `TorchLoss` as the argument `loss` during initialization of the learner.
 The parameters of the loss are added to the learner's `ParamSet`, prefixed with `"loss."`.
 
@@ -116,7 +110,7 @@ mlr3torch_losses
 ### Optimizer
 
 The optimizer determines how the model's weights are updated based on the calculated loss. It adjusts the parameters of the model to minimize the loss function, optimizing the model's performance.
-Optimizers work analogous to loss functions, i.e. `mlr3torch` provides a thin wrapper -- the `TorchOptimizer` class -- around the optimizers such as Adam (`optim_adam`) or SGD (`optim_sgd`).
+Optimizers work analogous to loss functions, i.e. `mlr3torch` provides a thin wrapper -- the `TorchOptimizer` class -- around the optimizers such as AdamW (`optim_ignite_adamw`) or SGD (`optim_ignite_sgd`).
 `TorchLoss` objects can be constructed using `t_opt(<key>)`.
 For optimizers, the associated `ParamSet` is more interesting as we see below:
 
@@ -126,8 +120,6 @@ sgd
 
 sgd$param_set
 ```
-
-The wrapped torch optimizer can be accessed through the slot `generator`.
 
 Parameters of `TorchOptimizer` (but also `TorchLoss` and `TorchCallback`) can be set in the usual `mlr3` way, i.e. either during construction, or afterwards using the `$set_values()` method of the parameter set.
 
@@ -223,7 +215,7 @@ prediction$score(msr("regr.mae"))
 Because we configured the learner to use the history callback, we can find the validation history in its `$model` slot:
 
 ```{r}
-head(mlp_custom$model$callbacks$history$valid)
+head(mlp_custom$model$callbacks$history)
 ```
 
 The plot below shows it for the epochs 6 to 30.
@@ -233,9 +225,7 @@ mlp_custom$param_set$set_values(
   measures_valid = msr("regr.mae")
 )
 
-data = data.table::melt(mlp_custom$model$callbacks$history$valid,
-  id.vars = "epoch", variable.name = "measure", value.name = "score")
-ggplot2::ggplot(data = data[6:30, ], ggplot2::aes(x = epoch, y = score)) +
+ggplot2::ggplot(data = mlp_custom$model$callbacks$history[6:30, ], ggplot2::aes(x = epoch, y = valid.regr.mae)) +
   viridis::scale_color_viridis(discrete = TRUE) +
   ggplot2::geom_line() +
   ggplot2::geom_point() +
@@ -244,7 +234,7 @@ ggplot2::ggplot(data = data[6:30, ], ggplot2::aes(x = epoch, y = score)) +
     y = "MAE",
     title = "Validation Loss"
   ) +
-  ggplot2::theme_bw()
+  ggplot2::theme_minimal()
 ```
 
 Other important information that is stored in the `Learner`'s model is the `$network`, which is the underlying `nn_module`.

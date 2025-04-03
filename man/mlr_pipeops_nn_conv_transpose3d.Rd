@@ -8,6 +8,12 @@
 Applies a 3D transposed convolution operator over an input image
 composed of several input planes, sometimes also called "deconvolution"
 }
+\section{nn_module}{
+
+Calls \code{\link[torch:nn_conv_transpose3d]{nn_conv_transpose3d}}.
+The parameter \code{in_channels} is inferred as the second dimension of the input tensor.
+}
+
 \section{Input and Output Channels}{
 
 One input channel called \code{"input"} and one output channel called \code{"output"}.
@@ -17,17 +23,6 @@ For an explanation see \code{\link{PipeOpTorch}}.
 \section{State}{
 
 The state is the value calculated by the public method \verb{$shapes_out()}.
-}
-
-\section{Credit}{
-
-Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
-}
-
-\section{Internals}{
-
-Calls \code{\link[torch:nn_conv_transpose3d]{nn_conv_transpose3d}}.
-The parameter \code{in_channels} is inferred as the second dimension of the input tensor.
 }
 
 \section{Parameters}{
@@ -90,6 +85,7 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_hardsigmoid}},
 \code{\link{mlr_pipeops_nn_hardtanh}},
 \code{\link{mlr_pipeops_nn_head}},
+\code{\link{mlr_pipeops_nn_identity}},
 \code{\link{mlr_pipeops_nn_layer_norm}},
 \code{\link{mlr_pipeops_nn_leaky_relu}},
 \code{\link{mlr_pipeops_nn_linear}},
@@ -116,6 +112,8 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_tanh}},
 \code{\link{mlr_pipeops_nn_tanhshrink}},
 \code{\link{mlr_pipeops_nn_threshold}},
+\code{\link{mlr_pipeops_nn_tokenizer_categ}},
+\code{\link{mlr_pipeops_nn_tokenizer_num}},
 \code{\link{mlr_pipeops_nn_unsqueeze}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},

@@ -1,6 +1,6 @@
 Package: mlr3torch
 Title: Deep Learning with 'mlr3'
-Version: 0.1.2-9000
+Version: 0.2.1-9000
 Authors@R:
     c(person(given = "Sebastian",
              family = "Fischer",
@@ -42,7 +42,7 @@ URL: https://mlr3torch.mlr-org.com/, https://github.com/mlr-org/mlr3torch/
 Depends:
     mlr3 (>= 0.20.0),
     mlr3pipelines (>= 0.6.0),
-    torch (>= 0.13.0),
+    torch (>= 0.14.0),
     R (>= 3.5.0)
 Imports:
     backports,
@@ -53,7 +53,7 @@ Imports:
     mlr3misc (>= 0.14.0),
     paradox (>= 1.0.0),
     R6,
-	withr
+    withr
 Suggests:
     callr,
     curl,
@@ -85,6 +85,7 @@ Collate:
     'CallbackSetCheckpoint.R'
     'CallbackSetEarlyStopping.R'
     'CallbackSetHistory.R'
+    'CallbackSetLRScheduler.R'
     'CallbackSetProgress.R'
     'CallbackSetTB.R'
     'CallbackSetUnfreeze.R'
@@ -100,6 +101,7 @@ Collate:
     'shape.R'
     'PipeOpTorchIngress.R'
     'LearnerTorchModel.R'
+    'LearnerTorchModule.R'
     'LearnerTorchTabResNet.R'
     'LearnerTorchVision.R'
     'ModelDescriptor.R'
@@ -116,6 +118,7 @@ Collate:
     'PipeOpTorchConvTranspose.R'
     'PipeOpTorchDropout.R'
     'PipeOpTorchHead.R'
+    'PipeOpTorchIdentity.R'
     'PipeOpTorchLayerNorm.R'
     'PipeOpTorchLinear.R'
     'TorchLoss.R'
@@ -126,6 +129,7 @@ Collate:
     'PipeOpTorchOptimizer.R'
     'PipeOpTorchReshape.R'
     'PipeOpTorchSoftmax.R'
+    'PipeOpTorchTokenizer.R'
     'Select.R'
     'TaskClassif_cifar.R'
     'TaskClassif_lazy_iris.R'
@@ -140,6 +144,7 @@ Collate:
     'learner_torch_methods.R'
     'materialize.R'
     'merge_graphs.R'
+    'multi_tensor_dataset.R'
     'nn.R'
     'nn_graph.R'
     'paramset_torchlearner.R'

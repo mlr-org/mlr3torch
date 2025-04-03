@@ -82,13 +82,21 @@ and used during prediction.
 Note that by setting the seed during the training phase this will mean that by default (i.e. when \code{seed} is
 \code{"random"}), clones of the learner will use a different seed.
 If set to \code{NULL}, no seeding will be done.
+\item \code{tensor_dataset} :: \code{logical(1)} | \code{"device"}\cr
+Whether to load all batches at once at the beginning of training and stack them.
+This is initialized to \code{FALSE}.
+If set to \code{"device"}, the device of the tensors will be set to the value of \code{device}, which
+can avoid unnecessary moving of tensors between devices.
+When your dataset fits into memory this will make the loading of batches faster.
+Note that this should not be set for datasets that contain \code{\link{lazy_tensor}}s with random data augmentation,
+as this augmentation will only be applied once at the beginning of training.
 }
 
 \strong{Evaluation}:
 \itemize{
-\item \code{measures_train} :: \code{\link[mlr3:Measure]{Measure}} or \code{list()} of \code{\link[mlr3:Measure]{Measure}}s.\cr
+\item \code{measures_train} :: \code{\link[mlr3:Measure]{Measure}} or \code{list()} of \code{\link[mlr3:Measure]{Measure}}s\cr
 Measures to be evaluated during training.
-\item \code{measures_valid} :: \code{\link[mlr3:Measure]{Measure}} or \code{list()} of \code{\link[mlr3:Measure]{Measure}}s.\cr
+\item \code{measures_valid} :: \code{\link[mlr3:Measure]{Measure}} or \code{list()} of \code{\link[mlr3:Measure]{Measure}}s\cr
 Measures to be evaluated during validation.
 \item \code{eval_freq} :: \code{integer(1)}\cr
 How often the train / validation predictions are evaluated using \code{measures_train} / \code{measures_valid}.
@@ -105,6 +113,8 @@ Note that the final model is stored in the learner, not the best model.
 This is initialized to \code{0}, which means no early stopping.
 The first entry from \code{measures_valid} is used as the metric.
 This also requires to specify the \verb{$validate} field of the Learner, as well as \code{measures_valid}.
+If this is set, the epoch after which no improvement was observed, can be accessed via the \verb{$internal_tuned_values}
+field of the learner.
 \item \code{min_delta} :: \code{double(1)}\cr
 The minimum improvement threshold for early stopping.
 Is initialized to 0.
@@ -115,8 +125,8 @@ Is initialized to 0.
 \item \code{batch_size} :: \code{integer(1)}\cr
 The batch size (required).
 \item \code{shuffle} :: \code{logical(1)}\cr
-Whether to shuffle the instances in the dataset. Default is \code{FALSE}.
-This does not impact validation.
+Whether to shuffle the instances in the dataset. This is initialized to \code{TRUE},
+which differs from the default (\code{FALSE}).
 \item \code{sampler} :: \code{\link[torch:sampler]{torch::sampler}}\cr
 Object that defines how the dataloader draw samples.
 \item \code{batch_sampler} :: \code{\link[torch:sampler]{torch::sampler}}\cr
@@ -164,24 +174,30 @@ final softmax layer.
 \item \code{.dataset(task, param_vals)}\cr
 (\code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{\link[torch:dataset]{torch::dataset}}\cr
 Create the dataset for the task.
-Must respect the parameter value of the device.
+The dataset must return a named list where:
+\itemize{
+\item \code{x} is a list of torch tensors that are the input to the network.
+For networks with more than one input, the names must correspond to the inputs of the network.
+\item \code{y} is the target tensor.
+\item \code{.index} are the indices of the batch (\code{integer()} or a \code{torch_int()}).
+}
+
 Moreover, one needs to pay attention respect the row ids of the provided task.
 }
 
-It is also possible to overwrite the private \code{.dataloader()} method instead of the \code{.dataset()} method.
-Per default, a dataloader is constructed using the output from the \code{.dataset()} method.
-However, this should respect the dataloader parameters from the \code{\link[paradox:ParamSet]{ParamSet}}.
+It is also possible to overwrite the private \code{.dataloader()} method.
+This must respect the dataloader parameters from the \code{\link[paradox:ParamSet]{ParamSet}}.
 \itemize{
-\item \code{.dataloader(task, param_vals)}\cr
+\item \code{.dataloader(dataset, param_vals)}\cr
 (\code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{\link[torch:dataloader]{torch::dataloader}}\cr
 Create a dataloader from the task.
 Needs to respect at least \code{batch_size} and \code{shuffle} (otherwise predictions can be permuted).
 }
 
-To change the predict types, the private \code{.encode_prediction()} method can be overwritten:
+To change the predict types, the it is possible to overwrite the method below:
 \itemize{
-\item \code{.encode_prediction(predict_tensor, task, param_vals)}\cr
-(\code{\link[torch:torch_tensor]{torch_tensor}}, \code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{list()}\cr
+\item \code{.encode_prediction(predict_tensor, task)}\cr
+(\code{\link[torch:torch_tensor]{torch_tensor}}, \code{\link[mlr3:Task]{Task}}) -> \code{list()}\cr
 Take in the raw predictions from \code{self$network} (\code{predict_tensor}) and encode them into a
 format that can be converted to valid \code{mlr3} predictions using \code{\link[mlr3:as_prediction_data]{mlr3::as_prediction_data()}}.
 This method must take \code{self$predict_type} into account.
@@ -202,6 +218,7 @@ to implement the private \verb{$.additional_phash_input()}.
 \seealso{
 Other Learner: 
 \code{\link{mlr_learners.mlp}},
+\code{\link{mlr_learners.module}},
 \code{\link{mlr_learners.tab_resnet}},
 \code{\link{mlr_learners.torch_featureless}},
 \code{\link{mlr_learners_torch_image}},
@@ -275,6 +292,7 @@ which are varied systematically during tuning (parameter values).}
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict"><a href='../../mlr3/html/Learner.html#method-Learner-predict'><code>mlr3::Learner$predict()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata"><a href='../../mlr3/html/Learner.html#method-Learner-predict_newdata'><code>mlr3::Learner$predict_newdata()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset"><a href='../../mlr3/html/Learner.html#method-Learner-reset'><code>mlr3::Learner$reset()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="selected_features"><a href='../../mlr3/html/Learner.html#method-Learner-selected_features'><code>mlr3::Learner$selected_features()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train"><a href='../../mlr3/html/Learner.html#method-Learner-train'><code>mlr3::Learner$train()</code></a></span></li>
 </ul>
 </details>

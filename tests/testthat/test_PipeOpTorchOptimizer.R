@@ -14,7 +14,7 @@ test_that("Basic checks", {
   expect_identical(obj$state, list())
   expect_pipeop(obj)
   expect_class(mdout$optimizer, "TorchOptimizer")
-  expect_class(mdout$optimizer$generator, "optim_sgd")
+  expect_class(mdout$optimizer$generator, "optim_ignite_sgd")
   expect_true(mdout$optimizer$param_set$values$lr == 0.123)
 
   expect_error(po("torch_optimizer", list()))

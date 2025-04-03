@@ -5,7 +5,7 @@
 \alias{mlr3torch_optimizers}
 \title{Optimizers}
 \format{
-An object of class \code{DictionaryMlr3torchOptimizers} (inherits from \code{Dictionary}, \code{R6}) of length 13.
+An object of class \code{DictionaryMlr3torchOptimizers} (inherits from \code{Dictionary}, \code{R6}) of length 12.
 }
 \usage{
 mlr3torch_optimizers
@@ -18,7 +18,7 @@ Can be converted to a \code{\link[data.table:data.table]{data.table}} using
 }
 \section{Available Optimizers}{
 
-adadelta, adagrad, adam, asgd, rmsprop, rprop, sgd
+adagrad, adam, adamw, rmsprop, sgd
 }
 
 \examples{

@@ -31,6 +31,9 @@ PipeOpTorchAvgPool = R6Class("PipeOpTorchAvgPool",
     }
   ),
   private = list(
+    .additional_phash_input = function() {
+      list(private$.d)
+    },
     .shapes_out = function(shapes_in, param_vals, task) {
       list(avg_output_shape(
         shape_in = shapes_in[[1]],
@@ -60,14 +63,9 @@ avg_output_shape = function(shape_in, conv_dim, padding, stride, kernel_size, ce
 }
 
 #' @title 1D Average Pooling
-#'
-#' @templateVar id nn_avg_pool1d
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch
-#' @template pipeop_torch_example
-#'
 #' @inherit torch::nnf_avg_pool1d description
-#'
+#' @section nn_module:
+#' Calls [`nn_avg_pool1d()`][torch::nn_avg_pool1d] during training.
 #' @section Parameters:
 #' * `kernel_size` :: (`integer()`)\cr
 #'   The size of the window. Can be a single number or a vector.
@@ -83,8 +81,12 @@ avg_output_shape = function(shape_in, conv_dim, padding, stride, kernel_size, ce
 #'   If specified, it will be used as divisor, otherwise size of the pooling region will be used. Default: NULL.
 #'   Only available for dimension greater than 1.
 #'
-#' @section Internals:
-#' Calls [`nn_avg_pool1d()`][torch::nn_avg_pool1d] during training.
+#'
+#' @templateVar id nn_avg_pool1d
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
+#'
 #' @export
 PipeOpTorchAvgPool1D = R6Class("PipeOpTorchAvgPool1D", inherit = PipeOpTorchAvgPool,
   public = list(
@@ -98,18 +100,17 @@ PipeOpTorchAvgPool1D = R6Class("PipeOpTorchAvgPool1D", inherit = PipeOpTorchAvgP
 
 
 #' @title 2D Average Pooling
+#' @inherit torch::nnf_avg_pool2d description
+#' @section nn_module:
+#' Calls [`nn_avg_pool2d()`][torch::nn_avg_pool2d] during training.
+#'
+#' @inheritSection mlr_pipeops_nn_avg_pool1d Parameters
 #'
 #' @templateVar id nn_avg_pool2d
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#' @inherit torch::nnf_avg_pool2d description
-#'
-#' @inheritSection mlr_pipeops_nn_avg_pool1d Parameters
-#'
-#' @section Internals:
-#' Calls [`nn_avg_pool2d()`][torch::nn_avg_pool2d] during training.
 #' @export
 PipeOpTorchAvgPool2D = R6Class("PipeOpTorchAvgPool2D", inherit = PipeOpTorchAvgPool,
   public = list(
@@ -122,18 +123,15 @@ PipeOpTorchAvgPool2D = R6Class("PipeOpTorchAvgPool2D", inherit = PipeOpTorchAvgP
 )
 
 #' @title 3D Average Pooling
-#'
+#' @inherit torch::nnf_avg_pool3d description
+#' @inheritSection mlr_pipeops_nn_avg_pool1d Parameters
+#' @section Internals:
+#' Calls [`nn_avg_pool3d()`][torch::nn_avg_pool3d] during training.
 #' @templateVar id nn_avg_pool3d
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#' @inherit torch::nnf_avg_pool3d description
-#'
-#' @inheritSection mlr_pipeops_nn_avg_pool1d Parameters
-#'
-#' @section Internals:
-#' Calls [`nn_avg_pool3d()`][torch::nn_avg_pool3d] during training.
 #' @export
 PipeOpTorchAvgPool3D = R6Class("PipeOpTorchAvgPool3D", inherit = PipeOpTorchAvgPool,
   public = list(

@@ -20,7 +20,7 @@ lgr::get_logger("mlr3")$set_threshold("warn")
 
 # mlr3torch <a href="https://mlr3torch.mlr-org.com"><img src="man/figures/logo.svg" align="right" height="139" /></a>
 
-Package website: [release](https://mlr3torch.mlr-org.com/) | [dev](https://mlr3torch.mlr-org.com/)
+Package website: [release](https://mlr3torch.mlr-org.com/) | [dev](https://mlr3torch.mlr-org.com/dev/)
 
 Deep Learning with torch and mlr3.
 
@@ -157,7 +157,7 @@ Note that `po("nn_linear_0")` is equivalent to `po("nn_linear", id = "nn_linear_
 
 ```{r}
 deep_network = po("torch_ingress_ltnsr") %>>%
-  po("nn_linear_0", out_features = 50L) %>>%
+  po("nn_linear", out_features = 50L) %>>%
   po("nn_block", layer, n_blocks = 5L) %>>%
   po("nn_head") %>>%
   po("torch_loss", loss = t_loss("cross_entropy")) %>>%
@@ -210,7 +210,8 @@ deep_learner$train(mnist)
 ## Documentation
 
 * Start by reading one of the vignettes on the package website!
-
+* There is a [course on `(mlr3)torch`](https://mlr-org.github.io/mlr3torch-course/).
+* You can check out our [presentation from UseR 2024](https://sebffischer.github.io/mlr3torch-UseR-2024/#/).
 
 ## Contributing:
 
@@ -221,6 +222,7 @@ deep_learner$train(mnist)
 * Without the great R package `torch` none of this would have been possible.
 * The names for the callback stages are taken from [luz](https://mlverse.github.io/luz/), another high-level deep learning framework for R `torch`.
 * Building neural networks using `PipeOpTorch` operators is inspired by [keras](https://keras.io/).
+* This R package is developed as part of the [Mathematical Research Data Initiative](https://www.mardi4nfdi.de/about/mission).
 
 ## Bugs, Questions, Feedback
 

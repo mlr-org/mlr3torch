@@ -76,12 +76,16 @@ initialize_cache = function(cache_dir) {
   return(TRUE)
 }
 
-cached = function(constructor, type, name) {
+cached = function(constructor, type, name, requires_disk = FALSE) {
   cache_dir = get_cache_dir()
   initialize_cache(cache_dir)
   assert_choice(type, names(CACHE$versions))
 
   do_caching = !isFALSE(cache_dir)
+
+  if (!do_caching && requires_disk) {
+    lg$warn("Caching (option 'mlr3torch.cache') is disabled, but dataset requires disk storage. This can lead to unexpected behavior.")
+  }
 
   # Even when we don't cache, we need to store the data somewhere
   path = normalizePath(if (do_caching) file.path(cache_dir, type, name) else tempfile(), mustWork = FALSE)

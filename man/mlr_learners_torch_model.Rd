@@ -45,6 +45,7 @@ learner$predict(task, ids$test)
 \seealso{
 Other Learner: 
 \code{\link{mlr_learners.mlp}},
+\code{\link{mlr_learners.module}},
 \code{\link{mlr_learners.tab_resnet}},
 \code{\link{mlr_learners.torch_featureless}},
 \code{\link{mlr_learners_torch}},
@@ -72,10 +73,6 @@ Other Graph Network:
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
-\item{\code{network_stored}}{(\code{nn_module} or \code{NULL})\cr
-The network that will be trained.
-After calling \verb{$train()}, this is \code{NULL}.}
-
 \item{\code{ingress_tokens}}{(named \code{list()} with \code{TorchIngressToken} or \code{NULL})\cr
 The ingress tokens. Must be non-\code{NULL} when calling \verb{$train()}.}
 }
@@ -98,6 +95,7 @@ The ingress tokens. Must be non-\code{NULL} when calling \verb{$train()}.}
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict"><a href='../../mlr3/html/Learner.html#method-Learner-predict'><code>mlr3::Learner$predict()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata"><a href='../../mlr3/html/Learner.html#method-Learner-predict_newdata'><code>mlr3::Learner$predict_newdata()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset"><a href='../../mlr3/html/Learner.html#method-Learner-reset'><code>mlr3::Learner$reset()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="selected_features"><a href='../../mlr3/html/Learner.html#method-Learner-selected_features'><code>mlr3::Learner$selected_features()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train"><a href='../../mlr3/html/Learner.html#method-Learner-train'><code>mlr3::Learner$train()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerTorch" data-id="dataset"><a href='../../mlr3torch/html/LearnerTorch.html#method-LearnerTorch-dataset'><code>mlr3torch::LearnerTorch$dataset()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerTorch" data-id="format"><a href='../../mlr3torch/html/LearnerTorch.html#method-LearnerTorch-format'><code>mlr3torch::LearnerTorch$format()</code></a></span></li>

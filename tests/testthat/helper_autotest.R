@@ -28,6 +28,10 @@ expect_pipeop_torch = function(graph, id, task, module_class = id, exclude_args 
   result = graph$train(task)
   md = result[[1]]
 
+  # PipeOp overwrites hash and phash if necessary
+  testthat::expect_warning(po_test$hash, regexp = NA)
+  testthat::expect_warning(po_test$phash, regexp = NA)
+
   modulegraph = md$graph
   po_module = modulegraph$pipeops[[id]]
   if (is.null(po_module$module)) {
@@ -86,7 +90,7 @@ expect_pipeop_torch = function(graph, id, task, module_class = id, exclude_args 
   net = model_descriptor_to_module(md, output_pointers = pointers, list_output = TRUE)$to(device = "cpu")
 
 
-  ds = task_dataset(task, md$ingress, device = "cpu")
+  ds = task_dataset(task, md$ingress)
   batch = ds$.getbatch(1)
   out = with_no_grad(invoke(net$forward, .args = batch$x))
 
@@ -184,7 +188,7 @@ collapse_char_list = function(x) {
 # @param fns (`list()` of `function`s)\cr
 #   The functions whose arguments the parameter set implements.
 # @param exclude (`character`)\cr
-#   The parameter ids and arguments of the functions that are exluded from checking.
+#   The parameter ids and arguments of the functions that are excluded from checking.
 # @param exclude_defaults (`character()`)\cr
 #   For which parameters the defaults should not be checked.
 expect_paramset = function(x, fns, exclude = character(0), exclude_defaults = character(0)) {
@@ -280,7 +284,9 @@ expect_paramtest = function(paramtest) {
 #'   The object to test.
 #' @param check_man (`logical(1)`)\cr
 #'   Whether to check that the manual page exists. Default is `TRUE`.
-expect_torch_callback = function(torch_callback, check_man = TRUE) {
+#' @param check_paramset (`logical(1)`)\cr
+#'   Where to check that the paramset mactches the constructor. Default is `TRUE`.
+expect_torch_callback = function(torch_callback, check_man = TRUE, check_paramset = TRUE) {
   # Checks on descriptor
   expect_class(torch_callback, "TorchCallback")
   expect_string(torch_callback$id)
@@ -299,8 +305,10 @@ expect_torch_callback = function(torch_callback, check_man = TRUE) {
   expect_true(cbgen$cloneable)
   init_fn = get_init(torch_callback$generator)
   if (is.null(init_fn)) init_fn = function() NULL
-  paramtest = expect_paramset(torch_callback$param_set, init_fn)
-  expect_paramtest(paramtest)
+  if (check_paramset) {
+    paramtest = expect_paramset(torch_callback$param_set, init_fn)
+    expect_paramtest(paramtest)
+  }
   implemented_stages = names(cbgen$public_methods)[grepl("^on_", names(cbgen$public_methods))]
   expect_subset(implemented_stages, mlr_reflections$torch$callback_stages)
   expect_true(length(implemented_stages) > 0)
@@ -321,6 +329,10 @@ expect_pipeop_torch_preprocess = function(obj, shapes_in, exclude = character(0)
   if (is.null(seed)) {
     seed = sample.int(100000, 1)
   }
+  # overwrites .additional_phash_input where necessary
+  testthat::expect_warning(obj$hash, regexp = NA)
+  testthat::expect_warning(obj$phash, regexp = NA)
+
   expect_pipeop(obj)
   expect_class(obj, "PipeOpTaskPreprocTorch")
   # a) Check that all parameters but stages have tags train and predict (this should hold in basically all cases)
@@ -419,6 +431,11 @@ expect_pipeop_torch_preprocess = function(obj, shapes_in, exclude = character(0)
 
 expect_learner_torch = function(learner, task, check_man = TRUE, check_id = TRUE) {
   checkmate::expect_class(learner, "LearnerTorch")
+
+  # overwrites .additional_phash_input where necessary
+  testthat::expect_warning(learner$hash, regexp = NA)
+  testthat::expect_warning(learner$phash, regexp = NA)
+
   get("expect_learner", envir = .GlobalEnv)(learner)
   # state cloning is tested separately
   learner1 = learner
@@ -432,20 +449,19 @@ expect_learner_torch = function(learner, task, check_man = TRUE, check_id = TRUE
   checkmate::expect_subset(c("mlr3", "mlr3torch", "torch"), learner$packages)
   testthat::expect_true(all(map_lgl(learner$tags, function(tags) "predict" %in% tags || "train" %in% tags)))
 
-  learner$param_set$set_values(device = "meta")
+  learner$param_set$set_values(device = "cpu")
   ds = learner$dataset(task)
   batch = if (is.null(ds$.getbatch)) {
     ds$.getitem(1)
   } else {
     ds$.getbatch(1)
   }
-  lapply(batch$x, function(tnsr) testthat::expect_true(tnsr$device == torch_device("meta")))
-  testthat::expect_true(batch$y$device == torch_device("meta"))
+  lapply(batch$x, function(tnsr) testthat::expect_true(tnsr$device == torch_device("cpu")))
+  testthat::expect_true(batch$y$device == torch_device("cpu"))
   if (task$task_type == "regr") {
     testthat::expect_true(batch$y$dtype == torch_float())
   } else {
     testthat::expect_true(batch$y$dtype == torch_long())
   }
-  testthat::expect_true(batch$.index$device == torch_device("meta"))
   testthat::expect_true(batch$.index$dtype == torch_long())
 }

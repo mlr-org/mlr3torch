@@ -28,7 +28,9 @@ test_that("manual test", {
     "Measures (Train):",
     " * classif.acc =",
     "Measures (Valid):",
-    " * classif.ce ="
+    " * classif.ce =",
+    "",
+    "Finished training for 1 epochs"
   )
 
   expect_true(length(stdout) == length(expected))

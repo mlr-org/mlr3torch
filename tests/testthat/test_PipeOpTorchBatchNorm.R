@@ -40,3 +40,16 @@ test_that("PipeOpTorchBatchNorm3D paramtest", {
   res = expect_paramset(po("nn_batch_norm3d"), nn_batch_norm3d, exclude = "num_features")
   expect_paramtest(res)
 })
+
+test_that("jit_trace works (#354)", {
+  graph = po("torch_ingress_num") %>>%
+    nn("batch_norm1d") %>>%
+    nn("head") %>>%
+    po("torch_loss", t_loss("cross_entropy")) %>>%
+    po("torch_optimizer", t_opt("adamw")) %>>%
+    po("torch_model_classif", epochs = 1, batch_size = 50)
+  lrn = as_learner(graph)
+  task = tsk("iris")
+  lrn$train(task)
+  expect_prediction(lrn$predict(task))
+})

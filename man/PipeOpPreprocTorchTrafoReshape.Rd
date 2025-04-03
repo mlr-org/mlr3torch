@@ -3,7 +3,7 @@
 \name{mlr_pipeops_trafo_reshape}
 \alias{mlr_pipeops_trafo_reshape}
 \alias{PipeOpPreprocTorchTrafoReshape}
-\title{PipeOpPreprocTorchTrafoReshape}
+\title{Reshaping Transformation}
 \format{
 \code{\link[R6:R6Class]{R6Class}} inheriting from \code{\link{PipeOpTaskPreprocTorch}}.
 }

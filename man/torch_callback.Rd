@@ -2,7 +2,7 @@
 % Please edit documentation in R/TorchCallback.R
 \name{torch_callback}
 \alias{torch_callback}
-\title{Create a Callback Desctiptor}
+\title{Create a Callback Descriptor}
 \usage{
 torch_callback(
   id,

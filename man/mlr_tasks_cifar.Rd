@@ -2,6 +2,8 @@
 % Please edit documentation in R/TaskClassif_cifar.R
 \name{mlr_tasks_cifar}
 \alias{mlr_tasks_cifar}
+\alias{mlr_tasks_cifar10}
+\alias{mlr_tasks_cifar100}
 \title{CIFAR Classification Tasks}
 \format{
 \link[R6:R6Class]{R6::R6Class} inheriting from \link[mlr3:TaskClassif]{mlr3::TaskClassif}.
@@ -10,6 +12,7 @@
 The CIFAR-10 and CIFAR-100 datasets. A subset of the 80 million tiny images dataset
 with noisy labels was supplied to student labelers, who were asked to filter out
 incorrectly labeled images.
+The images are have datatype \code{torch_long()}.
 
 CIFAR-10 contains 10 classes. CIFAR-100 contains 100 classes, which may be partitioned into 20 superclasses of 5 classes each.
 The CIFAR-10 and CIFAR-100 classes are mutually exclusive.

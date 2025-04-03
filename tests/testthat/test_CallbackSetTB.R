@@ -1,3 +1,5 @@
+skip_if_not_installed("tfevents")
+
 event_tag_is = function(event, tag_name) {
   if (is.null(event)) FALSE else event["tag"] == tag_name
 }

@@ -10,9 +10,10 @@ Ingress for a single \code{\link{lazy_tensor}} column.
 \section{Parameters}{
 
 \itemize{
-\item \code{shape} :: \code{integer()}\cr
+\item \code{shape} :: \code{integer()} | \code{NULL} | \code{"infer"}\cr
 The shape of the tensor, where the first dimension (batch) must be \code{NA}.
 When it is not specified, the lazy tensor input column needs to have a known shape.
+When it is set to \code{"infer"}, the shape is inferred from an example batch.
 }
 }
 
@@ -40,7 +41,7 @@ task = tsk("lazy_iris")
 md = po_ingress$train(list(task))[[1L]]
 
 ingress = md$ingress
-x_batch = ingress[[1L]]$batchgetter(data = task$data(1, "x"), device = "cpu", cache = NULL)
+x_batch = ingress[[1L]]$batchgetter(data = task$data(1, "x"), cache = NULL)
 x_batch
 
 # Now we try a lazy tensor with unknown shape, i.e. the shapes between the rows can differ
@@ -71,7 +72,6 @@ md2 = po_ingress$train(list(task_unknown_resize))[[1L]]
 ingress2 = md2$ingress
 x_batch2 = ingress2[[1L]]$batchgetter(
   data = task_unknown_resize$data(1:2, "x"),
-  device = "cpu",
   cache = NULL
 )
 
@@ -106,6 +106,7 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_hardsigmoid}},
 \code{\link{mlr_pipeops_nn_hardtanh}},
 \code{\link{mlr_pipeops_nn_head}},
+\code{\link{mlr_pipeops_nn_identity}},
 \code{\link{mlr_pipeops_nn_layer_norm}},
 \code{\link{mlr_pipeops_nn_leaky_relu}},
 \code{\link{mlr_pipeops_nn_linear}},
@@ -132,6 +133,8 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_tanh}},
 \code{\link{mlr_pipeops_nn_tanhshrink}},
 \code{\link{mlr_pipeops_nn_threshold}},
+\code{\link{mlr_pipeops_nn_tokenizer_categ}},
+\code{\link{mlr_pipeops_nn_tokenizer_num}},
 \code{\link{mlr_pipeops_nn_unsqueeze}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},

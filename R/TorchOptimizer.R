@@ -59,7 +59,7 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #' @export
 #' @examplesIf torch::torch_is_installed()
 #' # Create a new torch loss
-#' torch_opt = TorchOptimizer$new(optim_adam, label = "adam")
+#' torch_opt = TorchOptimizer$new(optim_ignite_adam, label = "adam")
 #' torch_opt
 #' # If the param set is not specified, parameters are inferred but are of class ParamUty
 #' torch_opt$param_set
@@ -165,7 +165,7 @@ as.data.table.DictionaryMlr3torchOptimizers = function(x, ...) {
     list(
       key = key,
       label = opt$label,
-      packages = paste0(opt$packages, collapse = ",")
+      packages = list(opt$packages)
     )}), "key")[]
 }
 
@@ -226,6 +226,31 @@ t_opts.NULL = function(.keys, ...) { # nolint
   dictionary_sugar_mget(mlr3torch_optimizers)
 }
 
+mlr3torch_optimizers$add("adamw",
+  function() {
+    check_betas = function(x) {
+      if (test_numeric(x, lower = 0, upper = 1, any.missing = FALSE, len = 2L)) {
+        return(TRUE)
+      } else {
+        return("Parameter betas invalid, must be a numeric vector of length 2 in (0, 1).")
+      }
+    }
+    p = ps(
+      lr           = p_dbl(default = 0.001, lower = 0, upper = Inf, tags = "train"),
+      betas        = p_uty(default = c(0.9, 0.999), tags = "train", custom_check = check_betas),
+      eps          = p_dbl(default = 1e-08, lower = 1e-16, upper = 1e-4, tags = "train"),
+      weight_decay = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
+      amsgrad      = p_lgl(default = FALSE, tags = "train")
+    )
+    TorchOptimizer$new(
+      torch_optimizer = torch::optim_ignite_adam,
+      param_set = p,
+      id = "adam",
+      label = "Decoupled Weight Decay Regularization",
+      man = "torch::optim_ignite_adamw"
+    )
+  }
+)
 
 mlr3torch_optimizers$add("adam",
   function() {
@@ -244,11 +269,11 @@ mlr3torch_optimizers$add("adam",
       amsgrad      = p_lgl(default = FALSE, tags = "train")
     )
     TorchOptimizer$new(
-      torch_optimizer = torch::optim_adam,
+      torch_optimizer = torch::optim_ignite_adam,
       param_set = p,
       id = "adam",
       label = "Adaptive Moment Estimation",
-      man = "torch::optim_adam"
+      man = "torch::optim_ignite_adam"
     )
   }
 )
@@ -264,60 +289,15 @@ mlr3torch_optimizers$add("sgd",
       nesterov     = p_lgl(default = FALSE, tags = "train")
     )
     TorchOptimizer$new(
-      torch_optimizer = torch::optim_sgd,
+      torch_optimizer = torch::optim_ignite_sgd,
       param_set = p,
       id = "sgd",
       label = "Stochastic Gradient Descent",
-      man = "torch::optim_sgd"
+      man = "torch::optim_ignite_sgd"
     )
   }
 )
 
-
-mlr3torch_optimizers$add("asgd",
-  function() {
-    p = ps(
-      lr           = p_dbl(default = 1e-2, lower = 0, tags = "train"),
-      lambda       = p_dbl(lower = 0, upper = 1, default = 1e-4, tags = "train"),
-      alpha        = p_dbl(lower = 0, upper = Inf, default = 0.75, tags = "train"),
-      t0           = p_int(lower = 1L, upper = Inf, default = 1e6, tags = "train"),
-      weight_decay = p_dbl(default = 0, lower = 0, upper = 1, tags = "train")
-    )
-    TorchOptimizer$new(
-      torch_optimizer = torch::optim_asgd,
-      param_set = p,
-      id = "asgd",
-      label = "SGD with Adaptive Batch Size",
-      man = "torch::optim_asgd"
-    )
-  }
-)
-
-
-mlr3torch_optimizers$add("rprop",
-  function() {
-    check_etas = function(x) {
-      if (test_numeric(x, lower = 0, upper = Inf, finite = TRUE, len = 2L)) {
-        return(TRUE)
-      } else {
-        return("Parameter etas invalid, must be a numeric vector of length 2 in (0, Inf).")
-      }
-
-    }
-    p = ps(
-      lr         = p_dbl(default = 0.01, lower = 0, tags = "train"),
-      etas       = p_uty(default = c(0.5, 1.2), tags = "train"),
-      step_sizes = p_uty(default = c(1e-06, 50), tags = "train")
-    )
-    TorchOptimizer$new(
-      torch_optimizer = torch::optim_rprop,
-      param_set = p,
-      id = "rprop",
-      label = "Resilient Backpropagation",
-      man = "torch::optim_rprop"
-    )
-  }
-)
 
 
 mlr3torch_optimizers$add("rmsprop",
@@ -331,11 +311,11 @@ mlr3torch_optimizers$add("rmsprop",
       centered     = p_lgl(default = FALSE, tags = "train")
     )
     TorchOptimizer$new(
-      torch_optimizer = torch::optim_rmsprop,
+      torch_optimizer = torch::optim_ignite_rmsprop,
       param_set = p,
       id = "rmsprop",
       label = "Root Mean Square Propagation",
-      man = "torch::optim_rmsprop"
+      man = "torch::optim_ignite_rmsprop"
     )
   }
 )
@@ -351,28 +331,11 @@ mlr3torch_optimizers$add("adagrad",
       eps                       = p_dbl(default = 1e-10, lower = 1e-16, upper = 1e-4, tags = "train")
     )
     TorchOptimizer$new(
-      torch_optimizer = torch::optim_adagrad,
+      torch_optimizer = torch::optim_ignite_adagrad,
       param_set = p,
       id = "adagrad",
       label = "Adaptive Gradient algorithm",
-      man = "torch::optim_adagrad"
-    )
-  }
-)
-
-mlr3torch_optimizers$add("adadelta",
-  function() {
-    p = ps(
-      lr           = p_dbl(default = 1, lower = 0, tags = "train"),
-      rho          = p_dbl(default = 0.9, lower = 0, upper = 1, tags = "train"),
-      eps          = p_dbl(default = 1e-06, lower = 1e-16, upper = 1e-4, tags = "train"),
-      weight_decay = p_dbl(default = 0, lower = 0, upper = 1, tags = "train")
-    )
-    TorchOptimizer$new(torch_optimizer = torch::optim_adadelta,
-      param_set = p,
-      id = "adadelta",
-      label = "Adaptive Learning Rate Method",
-      man = "torch::optim_adadelta"
+      man = "torch::optim_ignite_adagrad"
     )
   }
 )

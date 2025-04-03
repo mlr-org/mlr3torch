@@ -11,7 +11,7 @@ Prints a progress bar and the metrics for training and validation.
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 task = tsk("iris")
 
-learner = lrn("classif.mlp", epochs = 10, batch_size = 1, 
+learner = lrn("classif.mlp", epochs = 5, batch_size = 1,
   callbacks = t_clbk("progress"), validate = 0.3)
 learner$param_set$set_values(
   measures_train = msrs(c("classif.acc", "classif.ce")),
@@ -48,6 +48,7 @@ Other Callback:
 \item \href{#method-CallbackSetProgress-on_before_valid}{\code{CallbackSetProgress$on_before_valid()}}
 \item \href{#method-CallbackSetProgress-on_batch_valid_end}{\code{CallbackSetProgress$on_batch_valid_end()}}
 \item \href{#method-CallbackSetProgress-on_epoch_end}{\code{CallbackSetProgress$on_epoch_end()}}
+\item \href{#method-CallbackSetProgress-on_end}{\code{CallbackSetProgress$on_end()}}
 \item \href{#method-CallbackSetProgress-clone}{\code{CallbackSetProgress$clone()}}
 }
 }
@@ -107,6 +108,16 @@ Increments the validation progress bar.
 Prints a summary of the training and validation process.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CallbackSetProgress$on_epoch_end()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSetProgress-on_end"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetProgress-on_end}{}}}
+\subsection{Method \code{on_end()}}{
+Prints the time at the end of training.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackSetProgress$on_end()}\if{html}{\out{</div>}}
 }
 
 }

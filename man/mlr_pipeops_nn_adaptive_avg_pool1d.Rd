@@ -8,20 +8,9 @@
 Applies a 1D adaptive average pooling over an input signal composed of
 several input planes.
 }
-\section{Input and Output Channels}{
+\section{nn_module}{
 
-One input channel called \code{"input"} and one output channel called \code{"output"}.
-For an explanation see \code{\link{PipeOpTorch}}.
-}
-
-\section{State}{
-
-The state is the value calculated by the public method \verb{$shapes_out()}.
-}
-
-\section{Credit}{
-
-Part of this documentation have been copied or adapted from the documentation of \CRANpkg{torch}.
+Calls \code{\link[torch:nn_adaptive_avg_pool1d]{nn_adaptive_avg_pool1d()}} during training.
 }
 
 \section{Parameters}{
@@ -32,9 +21,15 @@ The target output size. A single number.
 }
 }
 
-\section{Internals}{
+\section{Input and Output Channels}{
 
-Calls \code{\link[torch:nn_adaptive_avg_pool1d]{nn_adaptive_avg_pool1d()}} during training.
+One input channel called \code{"input"} and one output channel called \code{"output"}.
+For an explanation see \code{\link{PipeOpTorch}}.
+}
+
+\section{State}{
+
+The state is the value calculated by the public method \verb{$shapes_out()}.
 }
 
 \examples{
@@ -73,6 +68,7 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_hardsigmoid}},
 \code{\link{mlr_pipeops_nn_hardtanh}},
 \code{\link{mlr_pipeops_nn_head}},
+\code{\link{mlr_pipeops_nn_identity}},
 \code{\link{mlr_pipeops_nn_layer_norm}},
 \code{\link{mlr_pipeops_nn_leaky_relu}},
 \code{\link{mlr_pipeops_nn_linear}},
@@ -99,6 +95,8 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_tanh}},
 \code{\link{mlr_pipeops_nn_tanhshrink}},
 \code{\link{mlr_pipeops_nn_threshold}},
+\code{\link{mlr_pipeops_nn_tokenizer_categ}},
+\code{\link{mlr_pipeops_nn_tokenizer_num}},
 \code{\link{mlr_pipeops_nn_unsqueeze}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},

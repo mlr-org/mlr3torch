@@ -35,6 +35,9 @@ PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",
     }
   ),
   private = list(
+    .additional_phash_input = function() {
+      list(private$.d)
+    },
     .shapes_out = function(shapes_in, param_vals, task) {
       list(conv_transpose_output_shape(
         shape_in = shapes_in[[1]],
@@ -57,12 +60,10 @@ PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",
 
 #' @title Transpose 1D Convolution
 #'
-#' @templateVar id nn_conv_transpose1d
-#' @templateVar param_vals kernel_size = 3, out_channels = 2
-#' @template pipeop_torch
-#' @template pipeop_torch_channels_default
-#' @template pipeop_torch_example
-#'
+#' @inherit torch::nnf_conv_transpose1d description
+#' @section nn_module:
+#' Calls [`nn_conv_transpose1d`][torch::nn_conv_transpose1d].
+#' The parameter `in_channels` is inferred as the second dimension of the input tensor.
 #' @section Parameters:
 #' * `out_channels` :: `integer(1)`\cr
 #'   Number of output channels produce by the convolution.
@@ -82,10 +83,13 @@ PipeOpTorchConvTranspose = R6Class("PipeOpTorchConvTranspose",
 #'   Spacing between kernel elements. Default: 1.
 #' * `padding_mode` :: `character(1)`\cr
 #'   The padding mode. One of `"zeros"`, `"reflect"`, `"replicate"`, or `"circular"`. Default is `"zeros"`.
+#' @templateVar id nn_conv_transpose1d
+#' @templateVar param_vals kernel_size = 3, out_channels = 2
+#' @template pipeop_torch
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch_example
 #'
-#' @section Internals:
-#' Calls [`nn_conv_transpose1d`][torch::nn_conv_transpose1d].
-#' The parameter `in_channels` is inferred as the second dimension of the input tensor.
+#'
 #' @export
 PipeOpTorchConvTranspose1D = R6Class("PipeOpTorchConvTranspose1D", inherit = PipeOpTorchConvTranspose,
   public = list(
@@ -101,19 +105,17 @@ PipeOpTorchConvTranspose1D = R6Class("PipeOpTorchConvTranspose1D", inherit = Pip
 
 #' @title Transpose 2D Convolution
 #'
+#' @inherit torch::nnf_conv_transpose2d description
+#' @section nn_module:
+#' Calls [`nn_conv_transpose2d`][torch::nn_conv_transpose2d].
+#' The parameter `in_channels` is inferred as the second dimension of the input tensor.
+#' @inheritSection mlr_pipeops_nn_conv_transpose1d Parameters
 #' @template pipeop_torch_channels_default
 #' @templateVar param_vals kernel_size = 3, out_channels = 2
 #' @templateVar id nn_conv_transpose2d
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#' @inherit torch::nnf_conv_transpose2d description
-#'
-#' @inheritSection mlr_pipeops_nn_conv_transpose1d Parameters
-#'
-#' @section Internals:
-#' Calls [`nn_conv_transpose2d`][torch::nn_conv_transpose2d].
-#' The parameter `in_channels` is inferred as the second dimension of the input tensor.
 #' @export
 PipeOpTorchConvTranspose2D = R6Class("PipeOpTorchConvTranspose2D", inherit = PipeOpTorchConvTranspose,
   public = list(
@@ -127,6 +129,11 @@ PipeOpTorchConvTranspose2D = R6Class("PipeOpTorchConvTranspose2D", inherit = Pip
 )
 
 #' @title Transpose 3D Convolution
+#' @inherit torch::nnf_conv_transpose3d description
+#' @section nn_module:
+#' Calls [`nn_conv_transpose3d`][torch::nn_conv_transpose3d].
+#' The parameter `in_channels` is inferred as the second dimension of the input tensor.
+#' @inheritSection mlr_pipeops_nn_conv_transpose1d Parameters
 #'
 #' @template pipeop_torch_channels_default
 #' @templateVar param_vals kernel_size = 3, out_channels = 2
@@ -134,13 +141,7 @@ PipeOpTorchConvTranspose2D = R6Class("PipeOpTorchConvTranspose2D", inherit = Pip
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#' @inherit torch::nnf_conv_transpose3d description
 #'
-#' @inheritSection mlr_pipeops_nn_conv_transpose1d Parameters
-#'
-#' @section Internals:
-#' Calls [`nn_conv_transpose3d`][torch::nn_conv_transpose3d].
-#' The parameter `in_channels` is inferred as the second dimension of the input tensor.
 #' @export
 PipeOpTorchConvTranspose3D = R6Class("PipeOpTorchConvTranspose3D", inherit = PipeOpTorchConvTranspose,
   public = list(

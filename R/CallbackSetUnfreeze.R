@@ -49,7 +49,7 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
       walk(self$ctx$network$parameters[frozen_weights], function(param) param$requires_grad_(FALSE))
 
       frozen_weights_str = paste(trainable_weights, collapse = ", ")
-      lg$info(paste0("Training the following weights at the start: ", trainable_weights))
+      lg$info(sprintf("Training the following weights at the start: %s", paste0(trainable_weights, collapse = ", ")))
     },
     #' @description
     #' Unfreezes weights if the training is at the correct epoch

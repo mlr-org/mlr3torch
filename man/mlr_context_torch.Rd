@@ -88,6 +88,9 @@ The current batch.}
 
 \item{\code{terminate}}{(\code{logical(1)})\cr
 If this field is set to \code{TRUE} at the end of an epoch, training stops.}
+
+\item{\code{device}}{(\code{torch::torch_device})\cr
+The device.}
 }
 \if{html}{\out{</div>}}
 }
@@ -117,7 +120,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   loss_fn,
   total_epochs,
   prediction_encoder,
-  eval_freq = 1L
+  eval_freq = 1L,
+  device
 )}\if{html}{\out{</div>}}
 }
 
@@ -158,10 +162,14 @@ The loss function.}
 The total number of epochs the learner is trained for.}
 
 \item{\code{prediction_encoder}}{(\verb{function()})\cr
-The learner's prediction encoder.}
+The learner's prediction encoder.
+See section \emph{Inheriting} of \code{\link{LearnerTorch}}.}
 
 \item{\code{eval_freq}}{(\code{integer(1)})\cr
 The evaluation frequency.}
+
+\item{\code{device}}{(\code{character(1)})\cr
+The device.}
 }
 \if{html}{\out{</div>}}
 }

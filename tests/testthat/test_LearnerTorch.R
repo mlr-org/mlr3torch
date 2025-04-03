@@ -280,10 +280,11 @@ test_that("train parameters do what they should: classification and regression",
 
     expect_false(ctx$loader_valid$drop_last)
 
-    expect_equal(nrow(learner$model$callbacks$history$valid), epochs)
-    expect_equal(nrow(learner$model$callbacks$history$train), epochs)
-    expect_permutation(c("epoch", ids(measures_train)), colnames(learner$model$callbacks$history$train))
-    expect_permutation(c("epoch", ids(measures_valid)), colnames(learner$model$callbacks$history$valid))
+    expect_equal(nrow(learner$model$callbacks$history), epochs)
+    expect_permutation(
+      c("epoch", paste0("train.", ids(measures_train)), paste0("valid.", ids(measures_valid))),
+      colnames(learner$model$callbacks$history)
+    )
 
     # now without validation
     learner$validate = NULL
@@ -292,7 +293,7 @@ test_that("train parameters do what they should: classification and regression",
     learner$param_set$values$measures_valid = list()
     learner$train(task)
 
-    expect_equal(nrow(learner$model$callbacks$history$valid), 0)
+    expect_equal(nrow(learner$model$callbacks$history), epochs)
 
 
     learner$validate = 0.2
@@ -325,7 +326,7 @@ test_that("predict types work during training and prediction", {
   learner = lrn("classif.torch_featureless", epochs = 1, batch_size = 16, predict_type = "prob",
     measures_train = msr("classif.mbrier"), callbacks = t_clbk("history"))
   learner$train(task)
-  expect_true(!is.na(learner$model$callbacks$history$train[1, "classif.mbrier"][[1L]]))
+  expect_true(!is.na(learner$model$callbacks$history[1, "train.classif.mbrier"][[1L]]))
 
   pred = learner$predict(task)
   expect_true(is.matrix(pred$prob))
@@ -378,7 +379,8 @@ test_that("predict parameters do what they should: classification and regression
 
     learner$param_set$set_values(device = "meta")
 
-    dl = get_private(learner)$.dataloader_predict(task, learner$param_set$values)
+    dl = get_private(learner)$.dataloader_predict(
+      get_private(learner)$.dataset(task, learner$param_set$values), learner$param_set$values)
     expect_equal(dl$batch_size, batch_size)
     expect_class(dl$sampler, "utils_sampler_sequential")
   }
@@ -519,8 +521,7 @@ test_that("eval_freq works", {
     measures_train = msrs("regr.mse"), measures_valid = msrs("regr.mse"), validate = 0.3)
   task = tsk("mtcars")
   learner$train(task)
-  expect_equal(learner$model$callbacks$history$valid$epoch, c(4, 8, 10))
-  expect_equal(learner$model$callbacks$history$train$epoch, c(4, 8, 10))
+  expect_equal(learner$model$callbacks$history$epoch, c(4, 8, 10))
 })
 
 test_that("early stopping works", {
@@ -746,21 +747,34 @@ test_that("configure loss, optimizer and callbacks after construction", {
 
 test_that("dataset works", {
   task = tsk("iris")
-  learner = lrn("classif.mlp", device = "meta", batch_size = 10,
-    epochs = 1L)
-  ds = learner$dataset(task)
-  batch = ds$.getbatch(1:2)
-  expect_equal(batch$x$torch_ingress_num.input$device$type, "meta")
-  expect_equal(batch$x$torch_ingress_num.input$shape, c(2, 4))
-  expect_equal(batch$y$device$type, "meta")
-  expect_equal(batch$y$shape, 2)
-  expect_equal(batch$.index$device$type, "meta")
-  expect_equal(batch$.index$shape, 2)
+  testcb1 = torch_callback("test",
+    initialize = function() NULL,
+    on_batch_begin = function() {
+      batch = self$ctx$batch
+      expect_equal(batch$x$torch_ingress_num.input$device$type, "meta")
+      expect_equal(batch$x$torch_ingress_num.input$shape, c(2, 4))
+      expect_equal(batch$y$device$type, "meta")
+      expect_equal(batch$y$shape, 2)
+      expect_equal(batch$.index$shape, 2)
+      stop("everything is fine")
+    }
+  )
+  learner = lrn("classif.mlp", device = "meta", batch_size = 2,
+    epochs = 1L, callbacks = testcb1)
+
+  expect_error(learner$train(task), "everything is fine")
   skip_if(torch::cuda_is_available())
+
   learner$param_set$set_values(device = "auto")
-  ds = learner$dataset(task)
-  batch = ds$.getbatch(1:2)
-  expect_equal(batch$x$torch_ingress_num.input$device$type, "cpu")
+  testcb2 = torch_callback("test2",
+    initialize = function() NULL,
+    on_batch_begin = function() {
+      expect_equal(self$ctx$batch$x$torch_ingress_num.input$device$type, "cpu")
+      stop("everything is fine")
+    }
+  )
+  learner$callbacks = list(testcb2)
+  expect_error(learner$train(task), "everything is fine")
 })
 
 test_that("error when dataloaders have length 0", {
@@ -803,6 +817,7 @@ test_that("early stopping works with autotuner", {
 })
 
 test_that("early stopping and eval freq", {
+  skip_if_not_installed("mlr3tuning")
   task = tsk("iris")
 
   learner = lrn("classif.mlp", measures_valid = msr("classif.logloss"),
@@ -823,4 +838,138 @@ test_that("early stopping and eval freq", {
   expect_equal(at$tuning_instance$archive$data$internal_tuned_values, list(list(epochs = 4L)))
   # first eval is after 4, then 10 evaluations every 4 epochs with no improvement -> 44
   expect_equal(at$tuning_instance$archive$resample_result(1)$learners[[1]]$model$epochs, 44L)
+})
+
+test_that("internal tuned values is correct", {
+  task = tsk("iris")
+  # training is not stopped
+  learner = lrn("classif.mlp", measures_valid = msr("classif.ce"),
+    validate = 0.3, patience = 10L, epochs = 1L, batch_size = 16)
+  learner$train(task)
+  expect_equal(learner$internal_tuned_values$epochs, 1L)
+  # training is stopped
+  learner$param_set$set_values(
+    epochs = 10L, min_delta = Inf, patience = 2L, eval_freq = 3L
+  )
+  learner$train(task)
+  expect_equal(learner$internal_tuned_values$epochs, 3L)
+  learner$param_set$set_values(
+    epochs = 10L, min_delta = Inf, patience = 2L, eval_freq = 2L
+  )
+  learner$train(task)
+  expect_equal(learner$internal_tuned_values$epochs, 2L)
+
+  # early stopping triggers in the final validation round
+  learner$param_set$set_values(
+    epochs = 4L, min_delta = Inf, patience = 2L, eval_freq = 3L
+  )
+  learner$train(task)
+  # no improvement after 3 epochs (where we first validate)
+  # because the last epoch always validates, we still terminate,
+  # even though we train for 4 < 6 epochs
+  expect_equal(learner$internal_tuned_values$epochs, 3L)
+  testcb = torch_callback("stagnate_after_6_epochs",
+    on_valid_end = function() {
+      if (self$ctx$epoch <= 6) {
+        self$ctx$last_scores_valid[[1]] = self$ctx$last_scores_valid[[1]] - self$ctx$epoch * 10
+      }
+      if (self$ctx$epoch == 6) {
+        self$score = self$ctx$last_scores_valid[[1L]]
+      }
+      if (self$ctx$epoch > 6) {
+        self$ctx$last_scores_valid[[1L]] = self$score
+      }
+    }
+  )
+  learner$param_set$set_values(
+    epochs = 100L, min_delta = 0, patience = 2
+  )
+
+  learner$callbacks = list(testcb)
+  learner$train(task)
+  expect_equal(learner$internal_tuned_values$epochs, 6L)
+  learner$param_set$set_values(eval_freq = 1)
+  learner$train(task)
+  expect_equal(learner$internal_tuned_values$epochs, 6L)
+})
+
+test_that("trace-jitting works", {
+  l1 = lrn("classif.mlp", batch_size = 16, epochs = 2, jit_trace = TRUE)
+  l2 = lrn("classif.mlp", batch_size = 16, epochs = 2, jit_trace = FALSE)
+  task = tsk("iris")
+
+  n1 = with_torch_manual_seed({
+    l1$train(task)$network
+  }, seed = 1)
+
+  n2 = with_torch_manual_seed({
+    l2$train(task)$network
+  }, seed = 1)
+
+  expect_equal(n1$parameters, n2$parameters)
+  expect_class(n1, "script_module")
+  expect_false(inherits(n2, "script_module"))
+
+  # now with more than one inputs
+
+  graph = list(po("torch_ingress_num_1"), po("torch_ingress_num_2")) %>>%
+    po("nn_merge_sum") %>>%
+    po("nn_head") %>>%
+    po("torch_optimizer") %>>%
+    po("torch_loss", "cross_entropy") %>>%
+    po("torch_model_classif", epochs = 1, batch_size = 16, jit_trace = FALSE)
+
+  glrn1 = as_learner(graph, clone = TRUE)
+  glrn2 = as_learner(graph, clone = TRUE)
+  glrn2$param_set$set_values(
+    torch_model_classif.jit_trace = TRUE
+  )
+
+  n3 = with_torch_manual_seed({
+    glrn1$train(task)$model$torch_model_classif$model$network
+  }, seed = 1)
+
+  n4 = with_torch_manual_seed({
+    glrn2$train(task)$model$torch_model_classif$model$network
+  }, seed = 1)
+
+  expect_equal(n3$parameters, n4$parameters)
+
+  # marshaling is also correctly implemented
+  l1$marshal()
+  l1$unmarshal()
+  expect_prediction(l1$predict(task))
+})
+
+test_that("tensor_dataset works", {
+  testcb = torch_callback("test",
+    state_dict = function() {
+      list(train = self$ctx$loader_train, valid = self$ctx$loader_valid)
+    },
+    load_state_dict = function(state_dict) NULL
+  )
+  l = lrn("classif.mlp", batch_size = 16, epochs = 1, tensor_dataset = "device", validate = 0.3,
+    callbacks = testcb)
+
+  task = tsk("iris")
+
+  l$train(task)
+  expect_error(l$train(task), regexp = NA)
+  expect_class(l$model$callbacks$test$train$dataset, "multi_tensor_dataset")
+  expect_class(l$model$callbacks$test$valid$dataset, "multi_tensor_dataset")
+
+  l = lrn("classif.mlp", batch_size = 16, epochs = 1, tensor_dataset = TRUE, validate = 0.3,
+    callbacks = testcb)
+
+  l$train(task)
+  expect_error(l$train(task), regexp = NA)
+  expect_class(l$model$callbacks$test$train$dataset, "multi_tensor_dataset")
+  expect_class(l$model$callbacks$test$valid$dataset, "multi_tensor_dataset")
+})
+
+test_that("loss is put on device", {
+  learner = lrn("classif.mlp", epochs = 0, batch_size = 32, device = "meta",
+    loss = t_loss("cross_entropy", weight = torch_tensor(c(1, 2, 3))))
+  learner$train(tsk("iris"))
+  expect_true(learner$model$loss_fn[[1]]$device == torch_device("meta"))
 })
