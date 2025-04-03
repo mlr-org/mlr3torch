@@ -85,6 +85,17 @@ register_mlr3pipelines = function() {
 
   register_namespace_callback(pkgname, "mlr3", register_mlr3)
   register_namespace_callback(pkgname, "mlr3pipelines", register_mlr3pipelines)
+  register_namespace_callback(pkgname, "torch", function() {
+    torch:::nn_ScriptModule$set("private", ".method_cache", list())
+    torch:::nn_ScriptModule$set("private", "find_method", function(name) {
+      # find method is slow, hence we cache it:
+      # https://github.com/mlverse/torch/issues/1298
+      if (name %in% names(private$.method_cache)) {
+        return(private$.method_cache[[name]])
+      }
+      private$.method_cache[[name]] <-  private$ptr$find_method(name)
+    }, overwrite = TRUE)
+  })
 }
 
 
