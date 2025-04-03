@@ -162,7 +162,8 @@ The loss function.}
 The total number of epochs the learner is trained for.}
 
 \item{\code{prediction_encoder}}{(\verb{function()})\cr
-The learner's prediction encoder.}
+The learner's prediction encoder.
+See section \emph{Inheriting} of \code{\link{LearnerTorch}}.}
 
 \item{\code{eval_freq}}{(\code{integer(1)})\cr
 The evaluation frequency.}
