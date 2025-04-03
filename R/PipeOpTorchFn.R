@@ -66,7 +66,7 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
         return(new_shapes)
       }
       
-      infer_shapes(shapes_in = shapes_in, param_vals = param_vals, output_names = self$output$name, id = self$id)
+      infer_shapes(shapes_in = shapes_in, param_vals = param_vals, output_names = self$output$name, rowwise = FALSE, id = self$id)
     },
     .make_module = function(shapes_in, param_vals, task) {
       nn_module("nn_fn",

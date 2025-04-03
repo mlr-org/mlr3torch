@@ -276,7 +276,7 @@ order_named_args = function(f, l) {
   l2
 }
 
-infer_shapes = function(shapes_in, param_vals, output_names, rowwise = FALSE, id) {
+infer_shapes = function(shapes_in, param_vals, output_names, rowwise, id) {
   sin = shapes_in[[1L]]
   batch_dim = sin[1L]
   batchdim_is_unknown = is.na(batch_dim)
