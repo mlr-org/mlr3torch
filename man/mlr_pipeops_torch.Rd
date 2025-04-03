@@ -38,7 +38,7 @@ When inheriting from this class, one should overload either the \code{private$.s
 \itemize{
 \item \code{.make_module(shapes_in, param_vals, task)}\cr
 (\code{list()}, \code{list()}) -> \code{nn_module}\cr
-This private method is called to generated the \code{nn_module} that is passed as argument \code{module} to
+This private method is called to generate the \code{nn_module} that is passed as argument \code{module} to
 \code{\link{PipeOpModule}}. It must be overwritten, when no \code{module_generator} is provided.
 If left as is, it calls the provided \code{module_generator} with the arguments obtained by
 the private method \code{.shape_dependent_params()}.
@@ -209,7 +209,7 @@ po_torch$state
 
 # the resulting graphs are identical
 identical(mds_out[[1L]]$graph, mds_out[[2L]]$graph)
-# not that as a side-effect, also one of the input graphs is modified in-place for efficiency
+# note that as a side-effect, also one of the input graphs is modified in-place for efficiency
 mds_in[[1L]]$graph$edges
 
 # The new task has both Sepal and Petal features
