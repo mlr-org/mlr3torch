@@ -147,6 +147,7 @@ train_loop = function(ctx, cbs) {
     indices = list()
     train_iterator = dataloader_make_iter(ctx$loader_train)
     ctx$step = 0L
+    eval_train = eval_train_in_epoch(ctx)
     while (ctx$step < length(ctx$loader_train)) {
       ctx$step = ctx$step + 1
       ctx$batch = dataloader_next(train_iterator)
@@ -170,13 +171,13 @@ train_loop = function(ctx, cbs) {
 
       ctx$last_loss = loss$item()
       predictions[[length(predictions) + 1]] = y_hat$detach()
-      indices[[length(indices) + 1]] = as.integer(ctx$batch$.index$to(device = "cpu"))
+      if (eval_train)  indices[[length(indices) + 1]] = as.integer(ctx$batch$.index$to(device = "cpu"))
       ctx$optimizer$step()
 
       call("on_batch_end")
     }
 
-    ctx$last_scores_train = if (eval_train_in_epoch(ctx)) {
+    ctx$last_scores_train = if (eval_train) {
       measure_prediction(
         pred_tensor = torch_cat(predictions, dim = 1L),
         measures = ctx$measures_train,
