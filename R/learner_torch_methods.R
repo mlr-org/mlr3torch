@@ -27,7 +27,8 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     stopf("Training Dataloader of Learner '%s' has length 0", self$id)
   }
 
-  network = private$.network(task, param_vals)$to(device = param_vals$device)
+  network = private$.network(task, param_vals)
+  network$to(device = param_vals$device)
   if (param_vals$jit_trace && !inherits(network, "script_module")) {
     example = get_example_batch(loader_train)$x
     example = lapply(example, function(x) x$to(device = param_vals$device))
