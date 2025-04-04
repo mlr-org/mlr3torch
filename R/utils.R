@@ -278,7 +278,16 @@ order_named_args = function(f, l) {
 
 get_forward = function(net) {
   if (inherits(net, "script_module")) {
-    net$trainforward
+    is_training = net$is_training
+    trainforward = net$trainforward
+    evalforward = net$evalforward
+    function(...) {
+      if (is_training()) {
+        trainforward(...)
+      } else {
+        evalforward(...)
+      }
+    }
   } else {
     net$forward
   }
