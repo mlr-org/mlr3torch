@@ -5,8 +5,15 @@
 #' @description
 #' Changes the learning rate based on the schedule specified by a `torch::lr_scheduler`.
 #'
-#' As of this writing, the following are available: [torch::lr_cosine_annealing()], [torch::lr_lambda()], [torch::lr_multiplicative()], [torch::lr_one_cycle()],
-#' [torch::lr_reduce_on_plateau()], [torch::lr_step()], and custom schedulers defined with [torch::lr_scheduler()].
+#' As of this writing, the following are available:
+#'
+#' * [torch::lr_cosine_annealing()]
+#' * [torch::lr_lambda()]
+#' * [torch::lr_multiplicative()]
+#' * [torch::lr_one_cycle()]
+#' * [torch::lr_reduce_on_plateau()]
+#' * [torch::lr_step()]
+#' * Custom schedulers defined with [torch::lr_scheduler()].
 #'
 #' @param .scheduler (`lr_scheduler_generator`)\cr
 #'   The `torch` scheduler generator (e.g. `torch::lr_step`).

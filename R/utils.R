@@ -155,6 +155,14 @@ uniqueify = function(new, existing) {
 }
 
 shape_to_str = function(x) {
+  assert(test_list(x) || test_integerish(x) || is.null(x))
+  if (is.numeric(x)) { # single shape
+    return(sprintf("(%s)", paste0(x, collapse = ",")))
+  }
+  if (is.null(x)) {
+    return("(<unknown>)")
+  }
+
   shapedescs = map_chr(x, function(y) {
     if (is.null(y)) {
       return("<unknown>")
@@ -238,10 +246,16 @@ CallbacksNone = function() {
 
 get_example_batch = function(dl) {
   ds = dl$dataset
+  if (length(ds) < 2) {
+    stopf("Dataset needs to contain at least 2 observations")
+  }
   if (!is.null(ds$.getbatch)) {
-    ds$.getbatch(1)
+    ds$.getbatch(1:2)
   } else {
-    ds$.getitem(1)$unsqueeze(1)
+    torch_stack(list(
+      ds$.getitem(1),
+      ds$.getitem(2)
+    ))
   }
 }
 

@@ -1,4 +1,4 @@
-#' @title My Little Pony
+#' @title Multi Layer Perceptron
 #'
 #' @templateVar name mlp
 #' @templateVar task_types classif, regr
@@ -74,7 +74,7 @@ LearnerTorchMLP = R6Class("LearnerTorchMLP",
         task_type = task_type,
         id = paste0(task_type, ".mlp"),
         properties = properties,
-        label = "My Little Powny",
+        label = "Multi Layer Perceptron",
         param_set = param_set,
         optimizer = optimizer,
         callbacks = callbacks,

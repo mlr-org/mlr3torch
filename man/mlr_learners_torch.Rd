@@ -125,8 +125,8 @@ Is initialized to 0.
 \item \code{batch_size} :: \code{integer(1)}\cr
 The batch size (required).
 \item \code{shuffle} :: \code{logical(1)}\cr
-Whether to shuffle the instances in the dataset. Default is \code{FALSE}.
-This does not impact validation.
+Whether to shuffle the instances in the dataset. This is initialized to \code{TRUE},
+which differs from the default (\code{FALSE}).
 \item \code{sampler} :: \code{\link[torch:sampler]{torch::sampler}}\cr
 Object that defines how the dataloader draw samples.
 \item \code{batch_sampler} :: \code{\link[torch:sampler]{torch::sampler}}\cr
@@ -218,6 +218,7 @@ to implement the private \verb{$.additional_phash_input()}.
 \seealso{
 Other Learner: 
 \code{\link{mlr_learners.mlp}},
+\code{\link{mlr_learners.module}},
 \code{\link{mlr_learners.tab_resnet}},
 \code{\link{mlr_learners.torch_featureless}},
 \code{\link{mlr_learners_torch_image}},
@@ -285,11 +286,13 @@ which are varied systematically during tuning (parameter values).}
 <details><summary>Inherited methods</summary>
 <ul>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner"><a href='../../mlr3/html/Learner.html#method-Learner-base_learner'><code>mlr3::Learner$base_learner()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="configure"><a href='../../mlr3/html/Learner.html#method-Learner-configure'><code>mlr3::Learner$configure()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="encapsulate"><a href='../../mlr3/html/Learner.html#method-Learner-encapsulate'><code>mlr3::Learner$encapsulate()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help"><a href='../../mlr3/html/Learner.html#method-Learner-help'><code>mlr3::Learner$help()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict"><a href='../../mlr3/html/Learner.html#method-Learner-predict'><code>mlr3::Learner$predict()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata"><a href='../../mlr3/html/Learner.html#method-Learner-predict_newdata'><code>mlr3::Learner$predict_newdata()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset"><a href='../../mlr3/html/Learner.html#method-Learner-reset'><code>mlr3::Learner$reset()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="selected_features"><a href='../../mlr3/html/Learner.html#method-Learner-selected_features'><code>mlr3::Learner$selected_features()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train"><a href='../../mlr3/html/Learner.html#method-Learner-train'><code>mlr3::Learner$train()</code></a></span></li>
 </ul>
 </details>

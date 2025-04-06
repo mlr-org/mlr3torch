@@ -66,3 +66,22 @@ test_that("marshaling works for graph learner", {
   learner$unmarshal()
   expect_class(learner$predict(task), "Prediction")
 })
+
+test_that("LearnerTorchModel and marshaling", {
+  # there used to be a marshaling bug resulting from the fact that composed network
+  # is stored in the learner (not part of the model)
+  task = tsk("iris")
+    learner = LearnerTorchModel$new(
+    task_type = "classif",
+    network = testmodule_linear(task),
+    ingress_tokens = list(x = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, 4L))),
+    packages = "data.table",
+  )
+  learner$encapsulate("callr", lrn("classif.featureless"))
+  learner$param_set$set_values(
+    batch_size = 50,
+    epochs = 1
+  )
+  learner$train(task)
+  expect_class(learner$model, "learner_torch_model")
+})

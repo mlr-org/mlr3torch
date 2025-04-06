@@ -224,7 +224,7 @@
 #' identical(tasks_out[[1L]], tasks_out[[2L]])
 PipeOpTorch = R6Class("PipeOpTorch",
   inherit = PipeOp,
-  cloneable = FALSE,
+  cloneable = TRUE,
   public = list(
     #' @field module_generator (`nn_module_generator` or `NULL`)\cr
     #'    The module generator wrapped by this `PipeOpTorch`. If `NULL`, the private method

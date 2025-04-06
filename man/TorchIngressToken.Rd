@@ -4,11 +4,11 @@
 \alias{TorchIngressToken}
 \title{Torch Ingress Token}
 \usage{
-TorchIngressToken(features, batchgetter, shape)
+TorchIngressToken(features, batchgetter, shape = NULL)
 }
 \arguments{
-\item{features}{(\code{character})\cr
-Features on which the batchgetter will operate.}
+\item{features}{(\code{character} or \code{mlr3pipelines::Selector})\cr
+Features on which the batchgetter will operate or a selector (such as \code{\link[mlr3pipelines:Selector]{mlr3pipelines::selector_type}}).}
 
 \item{batchgetter}{(\code{function})\cr
 Function with two arguments: \code{data} and \code{device}. This function is given

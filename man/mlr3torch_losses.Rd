@@ -5,7 +5,7 @@
 \alias{mlr3torch_losses}
 \title{Loss Functions}
 \format{
-An object of class \code{DictionaryMlr3torchLosses} (inherits from \code{Dictionary}, \code{R6}) of length 13.
+An object of class \code{DictionaryMlr3torchLosses} (inherits from \code{Dictionary}, \code{R6}) of length 12.
 }
 \usage{
 mlr3torch_losses

@@ -35,3 +35,4 @@ data-raw
 ^Meta$
 ^CRAN-SUBMISSION$
 ^paper$
+^cran-comments\.md$

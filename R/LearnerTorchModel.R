@@ -60,8 +60,8 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(network = NULL, ingress_tokens = NULL, task_type, properties = NULL, optimizer = NULL, loss = NULL,
       callbacks = list(), packages = character(0), feature_types = NULL) {
-      # TODO: What about the learner properties?
-      if (!is.null(network)) self$network_stored = network
+      # we need to serialize here as otherwise encapsulation and parallelization fails
+      if (!is.null(network)) private$.network_stored = torch_serialize(assert_class(network, "nn_module"))
       if (!is.null(ingress_tokens)) self$ingress_tokens = ingress_tokens
       if (is.null(feature_types)) {
         feature_types = unname(mlr_reflections$task_feature_types)
@@ -89,15 +89,6 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
     }
   ),
   active = list(
-    #' @field network_stored (`nn_module` or `NULL`)\cr
-    #' The network that will be trained.
-    #' After calling `$train()`, this is `NULL`.
-    network_stored = function(rhs) {
-      if (!missing(rhs)) {
-        private$.network_stored = assert_class(rhs, "nn_module")
-      }
-      private$.network_stored
-    },
     #' @field ingress_tokens (named `list()` with `TorchIngressToken` or `NULL`)\cr
     #' The ingress tokens. Must be non-`NULL` when calling `$train()`.
     ingress_tokens = function(rhs) {
@@ -121,7 +112,12 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
       if (is.null(private$.network_stored)) {
         stopf("No network stored, did you already train learner '%s' or did not specify a model?", self$id)
       }
-      network = private$.network_stored
+      network = if (test_class(private$.network_stored, "nn_module")) {
+        # optimization for PipeOpTorchModel, where we control the construction of LearnerTorchModel
+        private$.network_stored
+      } else {
+        torch_load(private$.network_stored)
+      }
       private$.network_stored = NULL
       network
     },
