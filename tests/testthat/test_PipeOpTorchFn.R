@@ -10,15 +10,15 @@ test_that("PipeOpTorchFn works for a simple function", {
   withr::local_options(mlr3torch.cache = TRUE)
   
   # for the nano imagenet data, gets the blue channel
-  drop_dim =  function(x) x[-1, , ]
-  po = po("nn_fn", param_vals = list(fn = drop_dim))
+  extract_channel = function(x, channel_idx) x[ , channel_idx, , ]
+  po = po("nn_fn", param_vals = list(fn = extract_channel))
   graph = po("torch_ingress_ltnsr") %>>% po
 
   task = nano_imagenet()
   task_dt = task$data()
 
   tnsr = materialize(task_dt$image[1])[[1]]
-  blue_channel = drop_dim(tnsr)
+  blue_channel = extract_channel(tnsr, 3)
   
   md_trained = graph$train(task)[[1]]
   trained = md_trained$graph$train(tnsr)[[1]]

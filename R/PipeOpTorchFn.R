@@ -45,10 +45,7 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
           check_function(input, args = c("shapes_in", "param_vals", "task"), null.ok = TRUE)
         })
       )
-
-      # TODO: determine whether you want to support arguments to the custom function
-      # will probably require single-parameter functions to have ... as an argument
-
+      
       super$initialize(
         id = id,
         param_set = c(param_set, inferps(param_vals$fn)),
