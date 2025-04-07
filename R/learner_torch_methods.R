@@ -171,8 +171,10 @@ train_loop = function(ctx, cbs) {
       call("on_after_backward")
 
       ctx$last_loss = loss$item()
-      predictions[[length(predictions) + 1]] = y_hat$detach()
-      if (eval_train)  indices[[length(indices) + 1]] = as.integer(ctx$batch$.index$to(device = "cpu"))
+      if (eval_train) {
+        predictions[[length(predictions) + 1]] = y_hat$detach()
+        indices[[length(indices) + 1]] = as.integer(ctx$batch$.index$to(device = "cpu"))
+      }
       ctx$optimizer$step()
 
       call("on_batch_end")
