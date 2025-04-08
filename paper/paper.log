@@ -1,12 +1,12 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.3.28)  31 MAR 2025 09:27
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.4.1)  8 APR 2025 12:34
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
 **/Users/sebi/mlr/mlr3torch/paper/paper.tex
 (/Users/sebi/mlr/mlr3torch/paper/paper.tex
-LaTeX2e <2023-11-01> patch level 1
-L3 programming layer <2024-02-20>
+LaTeX2e <2024-11-01> patch level 2
+L3 programming layer <2025-01-18>
 
 ! LaTeX Error: File `jss.cls' not found.
 
@@ -23,11 +23,11 @@ l.2 ^^M
 
  
 Here is how much of TeX's memory you used:
- 22 strings out of 475567
- 529 string characters out of 5777889
- 1925187 words of memory out of 5000000
- 22271 multiletter control sequences out of 15000+600000
- 558069 words of font info for 36 fonts, out of 8000000 for 9000
- 319 hyphenation exceptions out of 8191
- 19i,0n,29p,108b,17s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 20 strings out of 473190
+ 490 string characters out of 5715801
+ 391984 words of memory out of 5000000
+ 23372 multiletter control sequences out of 15000+600000
+ 558837 words of font info for 36 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 19i,0n,29p,101b,17s stack positions out of 10000i,1000n,20000p,200000b,200000s
 /Users/sebi/mlr/mlr3torch/paper/paper.tex:2:  ==> Fatal error occurred, no output PDF file produced!

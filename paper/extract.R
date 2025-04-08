@@ -20,18 +20,20 @@ for (line in tex_file) {
   # Check if we're exiting a code block
   if (grepl("\\\\end\\{CodeInput\\}", line)) {
     in_code_block <- FALSE
+    # Add an empty line after each code block
+    code_lines <- c(code_lines, "")
     next
   }
 
   # If we're in a code block, check if the line starts with R> or +
   if (in_code_block) {
     if (grepl("^R>\\s+", line)) {
-      # Remove the "R> " prefix
-      clean_line <- sub("^R>\\s+", "", line)
+      # Remove the "R>" prefix and one following whitespace if it exists
+      clean_line <- sub("^R>\\s", "", line)
       code_lines <- c(code_lines, clean_line)
     } else if (grepl("^\\+\\s+", line)) {
-      # Remove the "+ " prefix
-      clean_line <- sub("^\\+\\s+", "", line)
+      # Remove the "+" prefix and one following whitespace if it exists
+      clean_line <- sub("^\\+\\s", "", line)
       code_lines <- c(code_lines, clean_line)
     }
   }
