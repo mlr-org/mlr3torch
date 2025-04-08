@@ -803,10 +803,10 @@ The graph for the categorical features is constructed analogously.
 \begin{CodeInput}
 R> path_num <- po("select_1", selector = selector_type("numeric")) %>>%
 +    po("torch_ingress_num") %>>%
-+    po("nn_embed_num")
++    po("nn_tokenizer_num")
 R> path_categ <- po("select", selector = selector_type("factor")) %>>%
 +    po("torch_ingress_categ") %>>%
-+    po("nn_embed_categ")
++    po("nn_tokenizer_categ")
 \end{CodeInput}
 
 To combine the two independent branches into a single network, we can merge them again, this time by concatenating the outputs of the input tensors, i.e., the embeddings of the categorical and numeric features.
@@ -2300,10 +2300,10 @@ The graph for the categorical features is constructed analogously.
 \begin{CodeInput}
 R> path_num <- po("select_1", selector = selector_type("numeric")) %>>%
 +    po("torch_ingress_num") %>>%
-+    po("nn_embed_num")
++    po("nn_tokenizer_num")
 R> path_categ <- po("select", selector = selector_type("factor")) %>>%
 +    po("torch_ingress_categ") %>>%
-+    po("nn_embed_categ")
++    po("nn_tokenizer_categ")
 \end{CodeInput}
 
 To combine the two independent branches into a single network, we can merge them again, this time by concatenating the outputs of the input tensors, i.e., the embeddings of the categorical and numeric features.

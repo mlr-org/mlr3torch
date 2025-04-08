@@ -96,10 +96,10 @@ residual_layer
 
 path_num <- po("select_1", selector = selector_type("numeric")) %>>%
    po("torch_ingress_num") %>>%
-   po("nn_embed_num")
+   po("nn_tokenizer_num")
 path_categ <- po("select", selector = selector_type("factor")) %>>%
    po("torch_ingress_categ") %>>%
-   po("nn_embed_categ")
+   po("nn_tokenizer_categ")
 
 graph <- list(path_num, path_categ) %>>% po("nn_merge_cat")
 
@@ -430,10 +430,10 @@ residual_layer
 
 path_num <- po("select_1", selector = selector_type("numeric")) %>>%
    po("torch_ingress_num") %>>%
-   po("nn_embed_num")
+   po("nn_tokenizer_num")
 path_categ <- po("select", selector = selector_type("factor")) %>>%
    po("torch_ingress_categ") %>>%
-   po("nn_embed_categ")
+   po("nn_tokenizer_categ")
 
 graph <- list(path_num, path_categ) %>>% po("nn_merge_cat")
 
