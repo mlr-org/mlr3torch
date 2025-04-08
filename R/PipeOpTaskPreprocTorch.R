@@ -453,7 +453,7 @@ pipeop_preproc_torch = function(id, fn, shapes_out = NULL, param_set = NULL, pac
   if (identical(shapes_out, "infer")) {
     shapes_out = crate(function(shapes_in, param_vals, task) {
       infer_shapes(shapes_in = shapes_in, param_vals = param_vals, output_names = self$output$name, fn = self$fn, rowwise = self$rowwise, id = self$id)
-    }, .parent = topenv())
+    }, infer_shapes, .parent = topenv())
   } else if (is.function(shapes_out) || is.null(shapes_out)) {
     # nothing to do
   } else {
