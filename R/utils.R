@@ -305,5 +305,5 @@ infer_shapes = function(shapes_in, param_vals, output_names, fn, rowwise, id) {
     sout[1] = NA
   }
 
-  setNames(list(sout), output_names)
+  set_names(list(sout), output_names)
 }
