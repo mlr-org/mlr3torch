@@ -159,10 +159,11 @@ lrn_ffn <- lrn("classif.module",
  )
 
 library("mlr3data")
-task <- tsk("bike_sharing")
+task <- tsk("california_housing")
 task
 
-preprocessing <- po("encode", method = "one-hot")
+preprocessing <- po("encode", method = "one-hot") %>>%
+   po("imputehist")
 
 ingress <- po("torch_ingress_num")
 
@@ -185,22 +186,24 @@ pipeline <- preprocessing %>>%
 learner = as_learner(pipeline)
 learner$id = "custom_nn"
 
+library("mlr3tuning")
 learner$param_set$set_values(
    block.linear.out_features = to_tune(20, 500),
    block.n_blocks = to_tune(1, 10),
-   block.branch.type = to_tune(c("relu", "tanh")),
-   block.dropout = to_tune(0.1, 0.9),
-   torch_model_regr.opt.lr = to_tune(10^-4, 10^-1, logscale = TRUE)
+   block.branch.selection = to_tune(c("relu", "tanh")),
+   block.dropout.p = to_tune(0.1, 0.9),
+   torch_optimizer.lr = to_tune(10^-4, 10^-1, logscale = TRUE)
  )
 
 set_validate(learner, "test")
 
 learner$param_set$set_values(
    torch_model_regr.patience = 10,
-   measures_valid = msr("regr.mse"),
+   torch_model_regr.measures_valid = msr("regr.mse"),
    torch_model_regr.epochs = to_tune(upper = 1000, internal = TRUE)
  )
 
+library("mlr3mbo")
 ti <- tune(
    tuner = tnr("mbo"),
    resampling = rsmp("cv", folds = 3),

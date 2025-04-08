@@ -252,6 +252,7 @@ My TODOs:
     \item Run code at the end twice for reproducibility
     \item need torch releaser (caching of jit) and mlr3misc (nn bug)
     \item Should include jit-improvements in torch and make a release, otherwise benchmark result is a little misleading
+    \item in multi-input rename embed to tokenizer in the figures
 \end{itemize}
 
 
@@ -1009,30 +1010,31 @@ We will now demonstrate some of \pkg{mlr3torch}'s features by tuning a \torch{} 
 \subsection{Neural Architecture Search}\label{sec:tuning}
 
 In this section, we will construct a tabular neural network learner and simultaneously tune its architecture, optimizer and number of epochs.
-This will be done using the predefined bike sharing example task where the goal is to predict the number of rented bikes on a given day  \citep{ref-bikesharing-2019}.
+This will be done using the predefined california housing example task, where the goal is to predict the median house value in California (TODO: cite).
+A regression task to predict the median house value in California.
 
 \begin{CodeInput}
 R> library("mlr3data")
-R> task <- tsk("bike_sharing")
+R> task <- tsk("california_housing")
 R> task
 \end{CodeInput}
 \begin{CodeOutput}
-<TaskRegr:bike_sharing> (17379 x 14): Bike Sharing Demand
-* Target: count
+<TaskRegr:california_housing> (20640 x 10): California House Value
+* Target: median_house_value
 * Properties: -
-* Features (13):
-  - dbl (4): apparent_temperature, humidity, temperature, windspeed
-  - int (4): hour, month, weekday, year
-  - lgl (2): holiday, working_day
-  - fct (2): season, weather
-  - chr (1): date
+* Features (9):
+  - dbl (8): households, housing_median_age, latitude, longitude,
+    median_income, population, total_bedrooms, total_rooms
+  - fct (1): ocean_proximity
 \end{CodeOutput}
 
 \subsubsection{Defining the Learning Pipeline}
 The input of our network architecture will be a single numeric tensor, so the first step in the learning pipeline is to encode the categorical features as numeric columns using the one-hot method of \code{PipeOpEncode}.
+We also replace missing values by sampling from the empirical histogram.
 
 \begin{CodeInput}
-R> preprocessing <- po("encode", method = "one-hot")
+R> preprocessing <- po("encode", method = "one-hot") %>>%
++    po("imputehist")
 \end{CodeInput}
 
 The numeric entry-point is initialized by \code{PipeOpTorchIngressNum}.
@@ -1095,12 +1097,13 @@ We will tune the latent dimension between $20$ and $500$, repeat the layer betwe
 For the optimizer, we search for the learning rate within $[10^{-4}, 10^{-1}]$ on a logarithmic scale.
 
 \begin{CodeInput}
+R> library("mlr3tuning")
 R> learner$param_set$set_values(
 +    block.linear.out_features = to_tune(20, 500),
 +    block.n_blocks = to_tune(1, 10),
-+    block.branch.type = to_tune(c("relu", "tanh")),
-+    block.dropout = to_tune(0.1, 0.9),
-+    torch_model_regr.opt.lr = to_tune(10^-4, 10^-1, logscale = TRUE)
++    block.branch.selection = to_tune(c("relu", "tanh")),
++    block.dropout.p = to_tune(0.1, 0.9),
++    torch_optimizer.lr = to_tune(10^-4, 10^-1, logscale = TRUE)
 +  )
 \end{CodeInput}
 
@@ -1118,7 +1121,7 @@ By configuring \code{internal = TRUE}, we specify that the epochs are tuned usin
 \begin{CodeInput}
 R> learner$param_set$set_values(
 +    torch_model_regr.patience = 10,
-+    measures_valid = msr("regr.mse"),
++    torch_model_regr.measures_valid = msr("regr.mse"),
 +    torch_model_regr.epochs = to_tune(upper = 1000, internal = TRUE)
 +  )
 \end{CodeInput}
@@ -1130,6 +1133,7 @@ The tuning process is configured to perform three-fold cross-validation and use 
 We run the bayesian optimization loop for 100 iterations.
 
 \begin{CodeInput}
+R> library("mlr3mbo")
 R> ti <- tune(
 +    tuner = tnr("mbo"),
 +    resampling = rsmp("cv", folds = 3),
@@ -1490,3 +1494,4 @@ Sebastian Fischer is supported by the Deutsche Forschungsgemeinschaft (DFG, Germ
 
 
 \end{document}
+
