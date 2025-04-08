@@ -842,7 +842,7 @@ This pipeop takes in another graph primarily consisting of \code{PipeOpTorch} ob
 During training, the pipeop will attach the network segment repeatedly to the neural network.
 
 \begin{CodeInput}
-R> blocks <- nn("block", graph = residual_layer, n_blocks = 5)
+R> blocks <- nn("block", residual_layer, n_blocks = 5)
 \end{CodeInput}
 
 Because \code{PipeOpTorchBlock} exposes both the number of repetitions (\code{n\_blocks}) as well as the hyperparameters of the composed graph, both can be tuned over.

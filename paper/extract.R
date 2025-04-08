@@ -33,7 +33,7 @@ for (line in tex_file) {
       code_lines <- c(code_lines, clean_line)
     } else if (grepl("^\\+\\s+", line)) {
       # Remove the "+" prefix and one following whitespace if it exists
-      clean_line <- sub("^\\+\\s", "", line)
+      clean_line <- sub("^\\+\\s\\s", "", line)
       code_lines <- c(code_lines, clean_line)
     }
   }
