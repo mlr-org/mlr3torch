@@ -79,5 +79,5 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
   )
 )
 
-#' @include aaa.R
+#' @include aaa.R utils.R
 register_po("nn_fn", PipeOpTorchFn)
