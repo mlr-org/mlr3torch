@@ -16,7 +16,7 @@ The function to apply. Takes a \code{torch} tensor as its first argument and ret
 (\code{list()}, \code{list()}, \code{\link[mlr3:Task]{Task}} or \code{NULL}) -> named \code{list()}\cr
 A function that computes the output shapes of the \code{fn}. See
 \link{PipeOpTorch}'s \code{.shapes_out()} method for details on the parameters,
-and \link{PipeOpTaskPreprocTorch} for deatils on how the shapes are inferred when
+and \link{PipeOpTaskPreprocTorch} for details on how the shapes are inferred when
 this parameter is NULL.
 }
 }
@@ -37,7 +37,7 @@ graph = po("torch_ingress_ltnsr") \%>>\% po
 
 task = tsk("lazy_iris")$filter(1)
 tnsr = materialize(task$data()$x)[[1]]
- 
+
 md_trained = graph$train(task)
 trained = md_trained[[1]]$graph$train(tnsr)
 
