@@ -326,5 +326,3 @@ preprocessing <- po("classbalancing", ratio = 4, reference = "minor",
 glrn$id <- "multimodal"
 rr <- resample(glrn, task, rsmp("cv", folds = 5))
 
-autoplot(rr, type = "roc")
-
