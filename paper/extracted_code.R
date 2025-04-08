@@ -128,8 +128,8 @@ gradient_clipper <- torch_callback("gradient_clipper",
    load_state_dict = function(state_dict) {
      self$norms = state_dict
    }
- )
- gradient_clipper
+)
+gradient_clipper
 
 nn_ffn <- nn_module("nn_ffn",
    initialize = function(task, latent_dim, n_layers) {
@@ -137,7 +137,7 @@ nn_ffn <- nn_module("nn_ffn",
        length(task$class_names))
      modules <- unlist(lapply(seq_len(length(dims) - 1), function(i) {
        if (i < length(dims) - 1) {
-         list(nn_linear(dims[i], dims[i + 1]), nn_relu()
+         list(nn_linear(dims[i], dims[i + 1]), nn_relu())
        } else {
          list(nn_linear(dims[i], dims[i + 1]))
        }
