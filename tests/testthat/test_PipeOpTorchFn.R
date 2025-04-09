@@ -1,5 +1,5 @@
 test_that("PipeOpTorchFn autotest", {
-  po_test = po("nn_fn", param_vals = list(fn = function(tnsr) tnsr * 2))
+  po_test = po("nn_fn", fn = function(tnsr) tnsr * 2)
   task = tsk("iris")
   graph = po("torch_ingress_num") %>>% po_test
 
@@ -11,7 +11,7 @@ test_that("PipeOpTorchFn works for a simple function", {
 
   # for the nano imagenet data, gets the blue channel
   extract_blue_channel = function(x) x[, 3, , ]
-  po = po("nn_fn", param_vals = list(fn = extract_blue_channel))
+  po = po("nn_fn", fn = extract_blue_channel)
   graph = po("torch_ingress_ltnsr") %>>% po
 
   task = nano_imagenet()
@@ -32,7 +32,7 @@ test_that("PipeOpTorchFn works for a function with extra arguments", {
 
   # for the nano imagenet data, gets the blue channel
   extract_channel = function(x, channel_idx) x[, channel_idx, , ]
-  po = po("nn_fn", param_vals = list(fn = extract_channel, channel_idx = 3))
+  po = po("nn_fn", fn = extract_channel, channel_idx = 3)
   graph = po("torch_ingress_ltnsr") %>>% po
 
   task = nano_imagenet()
@@ -65,7 +65,7 @@ test_that("PipeOpTorchFn works with a user-provided shapes_out fn", {
     return(setNames(list(sout_dims), "output"))
   }
 
-  po = po("nn_fn", param_vals = list(fn = extract_channel, channel_idx = 3, shapes_out = so_extract_channel))
+  po = po("nn_fn", fn = extract_channel, channel_idx = 3, shapes_out = so_extract_channel)
   graph = po("torch_ingress_ltnsr") %>>% po
 
   task = nano_imagenet()

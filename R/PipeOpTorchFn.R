@@ -38,9 +38,9 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
-    initialize = function(id = "nn_fn", param_vals = list()) {
+    initialize = function(fn, id = "nn_fn", param_vals = list()) {
+      private$.fn = assert_function(fn)
       param_set = ps(
-        fn = p_uty(tags = c("train", "required"), custom_check = check_function),
         shapes_out = p_uty(tags = "train", custom_check = function(input) {
           check_function(input, args = c("shapes_in", "param_vals", "task"), null.ok = TRUE)
         })
@@ -48,7 +48,7 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
 
       super$initialize(
         id = id,
-        param_set = c(param_set, inferps(param_vals$fn)),
+        param_set = c(param_set, inferps(private$.fn)),
         param_vals = param_vals,
         module_generator = NULL
       )
@@ -63,7 +63,7 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
         return(new_shapes)
       }
 
-      infer_shapes(shapes_in = shapes_in, param_vals = param_vals, output_names = self$output$name, fn = param_vals$fn, rowwise = FALSE, id = self$id)
+      infer_shapes(shapes_in = shapes_in, param_vals = param_vals, output_names = self$output$name, fn = private$.fn, rowwise = FALSE, id = self$id)
     },
     .make_module = function(shapes_in, param_vals, task) {
       nn_module("nn_fn",
@@ -74,10 +74,14 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
         forward = function(x) {
           return(invoke(self$fn, x, .args = self$args))
         }
-      )(param_vals$fn)
+      )(private$.fn)
+    },
+    .fn = NULL,
+    .additional_phash_input = function() {
+      hash_input(private$.fn)
     }
   )
 )
 
 #' @include aaa.R utils.R
-register_po("nn_fn", PipeOpTorchFn)
+register_po("nn_fn", PipeOpTorchFn, metainf = list(fn = identity))
