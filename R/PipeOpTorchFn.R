@@ -50,7 +50,7 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
 
       super$initialize(
         id = id,
-        param_set = c(param_set, inferps(private$.fn)),
+        param_set = c(param_set, inferps(private$.fn, ignore = formalArgs(private$.fn)[1])),
         param_vals = param_vals,
         module_generator = NULL
       )

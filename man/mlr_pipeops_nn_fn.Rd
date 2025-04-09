@@ -79,6 +79,9 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
+\item{\code{fn}}{(\code{function})\cr
+The function to apply. Takes a \code{torch} tensor as its first argument and returns a \code{torch} tensor.}
+
 \item{\code{id}}{(\code{character(1)})\cr
 Identifier of the resulting  object.}
 
