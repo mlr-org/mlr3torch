@@ -40,6 +40,8 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @param fn (`function`)\cr
     #' The function to be applied. Takes a `torch` tensor as first argument and returns a `torch` tensor.
+    #' @param param_set (`ParamSet` or NULL)\cr
+    #' A ParamSet wrapping the arguments to `fn`. If omitted, then the ParamSet for this PipeOp will be inferred from the function signature.
     #' @template params_pipelines
     initialize = function(fn, id = "nn_fn", param_set = ps(), param_vals = list()) {
       private$.fn = assert_function(fn)

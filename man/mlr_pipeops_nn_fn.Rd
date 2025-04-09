@@ -12,6 +12,7 @@ Applies a user-supplied function to a tensor.
 \itemize{
 \item \code{fn} :: \code{function}\cr
 The function to apply. Takes a \code{torch} tensor as its first argument and returns a \code{torch} tensor.
+Additional arguments can be passed in normally or via \code{param_vals}.
 \item \code{shapes_out} :: \code{function}\cr
 (\code{list()}, \code{list()}, \code{\link[mlr3:Task]{Task}} or \code{NULL}) -> named \code{list()}\cr
 A function that computes the output shapes of the \code{fn}. See
@@ -73,17 +74,20 @@ custom_fn(tnsr)
 \subsection{Method \code{new()}}{
 Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchFn$new(fn, id = "nn_fn", param_vals = list())}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchFn$new(fn, id = "nn_fn", param_set = ps(), param_vals = list())}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{fn}}{(\code{function})\cr
-The function to apply. Takes a \code{torch} tensor as its first argument and returns a \code{torch} tensor.}
+The function to be applied. Takes a \code{torch} tensor as first argument and returns a \code{torch} tensor.}
 
 \item{\code{id}}{(\code{character(1)})\cr
 Identifier of the resulting  object.}
+
+\item{\code{param_set}}{(\code{ParamSet} or NULL)\cr
+A ParamSet wrapping the arguments to \code{fn}. If omitted, then the ParamSet for this PipeOp will be inferred from the function signature.}
 
 \item{\code{param_vals}}{(\code{list()})\cr
 List of hyperparameter settings, overwriting the hyperparameter settings that would
