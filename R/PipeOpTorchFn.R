@@ -18,7 +18,7 @@
 #'
 #' @examplesIf torch::torch_is_installed()
 #' custom_fn =  function(x) x / 2
-#' po = po("nn_fn", param_vals = list(fn = custom_fn))
+#' po = po("nn_fn", fn = custom_fn)
 #' po$param_set
 #'
 #' graph = po("torch_ingress_ltnsr") %>>% po

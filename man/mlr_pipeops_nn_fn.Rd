@@ -30,7 +30,7 @@ For an explanation see \code{\link{PipeOpTorch}}.
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 custom_fn =  function(x) x / 2
-po = po("nn_fn", param_vals = list(fn = custom_fn))
+po = po("nn_fn", fn = custom_fn)
 po$param_set
 
 graph = po("torch_ingress_ltnsr") \%>>\% po
@@ -73,7 +73,7 @@ custom_fn(tnsr)
 \subsection{Method \code{new()}}{
 Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchFn$new(id = "nn_fn", param_vals = list())}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchFn$new(fn, id = "nn_fn", param_vals = list())}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
