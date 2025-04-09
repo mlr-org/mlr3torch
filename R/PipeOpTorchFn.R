@@ -7,6 +7,7 @@
 #' @section Parameters:
 #' * `fn` :: `function`\cr
 #'   The function to apply. Takes a `torch` tensor as its first argument and returns a `torch` tensor.
+#'   Additional arguments can be passed in normally or via `param_vals`.
 #' * `shapes_out` :: `function`\cr
 #'   (`list()`, `list()`, [`Task`][mlr3::Task] or `NULL`) -> named `list()`\cr
 #'   A function that computes the output shapes of the `fn`. See
@@ -40,8 +41,11 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
     #' @param fn (`function`)\cr
     #' The function to be applied. Takes a `torch` tensor as first argument and returns a `torch` tensor.
     #' @template params_pipelines
-    initialize = function(fn, id = "nn_fn", param_vals = list()) {
+    initialize = function(fn, id = "nn_fn", param_set = ps(), param_vals = list()) {
       private$.fn = assert_function(fn)
+
+      ps_fn = if (param_set$is_empty) inferps(private$.fn, ignore = formalArgs(private$.fn)[1]) else param_set
+
       param_set = ps(
         shapes_out = p_uty(tags = "train", custom_check = function(input) {
           check_function(input, args = c("shapes_in", "param_vals", "task"), null.ok = TRUE)
@@ -50,7 +54,7 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
 
       super$initialize(
         id = id,
-        param_set = c(param_set, inferps(private$.fn, ignore = formalArgs(private$.fn)[1])),
+        param_set = c(param_set, ps_fn),
         param_vals = param_vals,
         module_generator = NULL
       )

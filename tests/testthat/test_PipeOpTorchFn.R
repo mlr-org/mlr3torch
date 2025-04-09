@@ -48,6 +48,27 @@ test_that("PipeOpTorchFn works for a function with extra arguments", {
   expect_true(torch_equal(blue_channel, trained))
 })
 
+test_that("PipeOpTorchFn works for a user-provided ParamSet", {
+  withr::local_options(mlr3torch.cache = TRUE)
+
+  # for the nano imagenet data, gets the blue channel
+  extract_channel = function(x, channel_idx) x[, channel_idx, , ]
+  po = po("nn_fn", fn = extract_channel, param_set = ps(channel_idx = p_int(tags = "required")), channel_idx = 3)
+  graph = po("torch_ingress_ltnsr") %>>% po
+
+  task = nano_imagenet()
+  task_dt = task$data()
+
+  # create a batch of size 1
+  tnsr = materialize(task_dt$image[1])[[1]]$unsqueeze(dim = 1)
+  blue_channel = extract_channel(tnsr, 3)
+
+  md_trained = graph$train(task)[[1]]
+  trained = md_trained$graph$train(tnsr)[[1]]
+
+  expect_true(torch_equal(blue_channel, trained))
+})
+
 test_that("PipeOpTorchFn works with a user-provided shapes_out fn", {
   withr::local_options(mlr3torch.cache = TRUE)
   extract_channel = function(x, channel_idx) x[, channel_idx, , ]
