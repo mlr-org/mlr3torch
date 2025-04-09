@@ -37,8 +37,6 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
   inherit = PipeOpTorch,
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
-    #' @param fn (`function`)\cr
-    #'   The function to apply. Takes a `torch` tensor as its first argument and returns a `torch` tensor.
     #' @template params_pipelines
     initialize = function(fn, id = "nn_fn", param_vals = list()) {
       private$.fn = assert_function(fn)
