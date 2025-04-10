@@ -7,8 +7,6 @@ test_that("PipeOpTorchFn autotest", {
 })
 
 test_that("PipeOpTorchFn works for a simple function", {
-  withr::local_options(mlr3torch.cache = TRUE)
-
   # for the nano imagenet data, gets the blue channel
   extract_blue_channel = function(x) x[, 3, , ]
   po = po("nn_fn", fn = extract_blue_channel)

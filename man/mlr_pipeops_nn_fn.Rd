@@ -9,17 +9,8 @@ Applies a user-supplied function to a tensor.
 }
 \section{Parameters}{
 
-\itemize{
-\item \code{fn} :: \code{function}\cr
-The function to apply. Takes a \code{torch} tensor as its first argument and returns a \code{torch} tensor.
-Additional arguments can be passed in normally or via \code{param_vals}.
-\item \code{shapes_out} :: \code{function}\cr
-(\code{list()}, \code{list()}, \code{\link[mlr3:Task]{Task}} or \code{NULL}) -> named \code{list()}\cr
-A function that computes the output shapes of the \code{fn}. See
-\link{PipeOpTorch}'s \code{.shapes_out()} method for details on the parameters,
-and \link{PipeOpTaskPreprocTorch} for details on how the shapes are inferred when
-this parameter is NULL.
-}
+By default, these are inferred as all but the first arguments of the function \code{fn}.
+It is also possible to specify these more explicitly via the \code{param_set} constructor argument.
 }
 
 \section{Input and Output Channels}{
@@ -30,11 +21,11 @@ For an explanation see \code{\link{PipeOpTorch}}.
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-custom_fn =  function(x) x / 2
-po = po("nn_fn", fn = custom_fn)
-po$param_set
+custom_fn =  function(x, a) x / a
+obj = po("nn_fn", fn = custom_fn, a = 2)
+obj$param_set
 
-graph = po("torch_ingress_ltnsr") \%>>\% po
+graph = po("torch_ingress_ltnsr") \%>>\% obj
 
 task = tsk("lazy_iris")$filter(1)
 tnsr = materialize(task$data()$x)[[1]]
@@ -72,9 +63,15 @@ custom_fn(tnsr)
 \if{html}{\out{<a id="method-PipeOpTorchFn-new"></a>}}
 \if{latex}{\out{\hypertarget{method-PipeOpTorchFn-new}{}}}
 \subsection{Method \code{new()}}{
-Creates a new instance of this \link[R6:R6Class]{R6} class.
+Creates a new instance of this \code{\link[R6:R6Class]{R6}} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchFn$new(fn, id = "nn_fn", param_set = ps(), param_vals = list())}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchFn$new(
+  fn,
+  id = "nn_fn",
+  param_vals = list(),
+  param_set = NULL,
+  shapes_out = NULL
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -86,12 +83,19 @@ The function to be applied. Takes a \code{torch} tensor as first argument and re
 \item{\code{id}}{(\code{character(1)})\cr
 Identifier of the resulting  object.}
 
-\item{\code{param_set}}{(\code{ParamSet} or NULL)\cr
-A ParamSet wrapping the arguments to \code{fn}. If omitted, then the ParamSet for this PipeOp will be inferred from the function signature.}
-
 \item{\code{param_vals}}{(\code{list()})\cr
 List of hyperparameter settings, overwriting the hyperparameter settings that would
 otherwise be set during construction.}
+
+\item{\code{param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}} or \code{NULL})\cr
+A ParamSet wrapping the arguments to \code{fn}.
+If omitted, then the ParamSet for this PipeOp will be inferred from the function signature.}
+
+\item{\code{shapes_out}}{(\code{function} or \code{NULL})\cr
+A function that computes the output shapes of the \code{fn}. See
+\link{PipeOpTorch}'s \code{.shapes_out()} method for details on the parameters,
+and \link{PipeOpTaskPreprocTorch} for details on how the shapes are inferred when
+this parameter is \code{NULL}.}
 }
 \if{html}{\out{</div>}}
 }
