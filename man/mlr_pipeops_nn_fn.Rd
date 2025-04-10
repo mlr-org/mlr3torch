@@ -35,7 +35,7 @@ trained = md_trained[[1]]$graph$train(tnsr)
 
 trained[[1]]
 
-custom_fn(tnsr)
+custom_fn(tnsr, a = 2)
 \dontshow{\}) # examplesIf}
 }
 \section{Super classes}{

@@ -26,7 +26,7 @@
 #'
 #' trained[[1]]
 #'
-#' custom_fn(tnsr)
+#' custom_fn(tnsr, a = 2)
 #' @export
 PipeOpTorchFn = R6Class("PipeOpTorchFn",
   inherit = PipeOpTorch,
