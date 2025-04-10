@@ -117,11 +117,3 @@ test_that("FTTransformer works properly with default arguments", {
   x = module(x_num, x_cat)
   expect_true(all(x$shape == c(4, 1)))
 })
-
-
-
-
-
-
-
-

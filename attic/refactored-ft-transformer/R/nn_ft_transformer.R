@@ -343,7 +343,8 @@ nn_transformer_layer = nn_module(
                         ffn_normalization,
                         kv_compression_ratio = NULL,
                         kv_compression_sharing = NULL,
-                        last_layer_query_idx) {
+                        last_layer_query_idx,
+                        query_idx) {
     self$prenormalization = prenormalization
     
     self$attention = nn_ft_multi_head_attention(
@@ -495,7 +496,6 @@ nn_ft_transformer_block = nn_module(
     self$prenormalization = prenormalization
 
     layers = list()
-    # TODO: change to seq_len()?
     for (layer_idx in seq_len(n_blocks)) {
       is_first_layer = (layer_idx == 1)
 

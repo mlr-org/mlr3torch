@@ -2,6 +2,12 @@ devtools::load_all()
 
 source(here("attic", "ft-transformer-graph", "create_task.R"))
 
+# prototype what you want the FT-Transformer to look like as a graph
+# this should guide the implementations of the individual PipeOps
+
+# as a first pass, fix some sensible default parameters
+# i.e. 
+
 # TODO: access x[, -1] first. Implement a PipeOp for this.
 # TODO: sometimes there is no normalization, i.e. nn_identity instead of nn_layer_norm, figure out how to handle this
 graph_head = po("nn_layer_norm", dims = 1) %>>%
@@ -96,8 +102,3 @@ graph_ft_transformer = graph_tokenizer %>>%
 # end Copilot
 
 graph_ft_transformer$train(task)
-
-# TODO: fix missing word ("in") in the error message
-# Error in .__PipeOpTorchHead__.shapes_out(self = self, private = private,  : 
-#   Assertion on 'length(shapes_in[[1]]) == 2L' failed: Must be TRUE.
-# This happened PipeOp nn_head's $train()
