@@ -10,7 +10,9 @@ source(here("attic", "ft-transformer-graph", "create_task.R"))
 
 # TODO: access x[, -1] first. Implement a PipeOp for this.
 # TODO: sometimes there is no normalization, i.e. nn_identity instead of nn_layer_norm, figure out how to handle this
-graph_head = po("nn_layer_norm", dims = 1) %>>%
+# analogous: nn_ft_head
+graph_head = po("nn_fn", fn = function(x) x[, -1]) %>>%
+  po("nn_layer_norm", dims = 1) %>>%
   po("nn_relu") %>>%
   po("nn_linear", id = "linear_head", out_features = 1) %>>%
   po("nn_head")
@@ -37,7 +39,6 @@ path_categ = po("select", id = "select_categ", selector = selector_type("factor"
     initialization = "uniform"
   ))
 
-# Create tokenizer graph with proper merge
 graph_tokenizer = gunion(list(path_num, path_categ)) %>>%
   po("nn_merge_cat", param_vals = list(dim = 2))  # merge along sequence dimension
 
@@ -99,6 +100,5 @@ graph_ft_transformer = graph_tokenizer %>>%
     )
   ) %>>%
   graph_head
-# end Copilot
 
 graph_ft_transformer$train(task)

@@ -22,6 +22,7 @@ PipeOpTorchTransformerLayer = R6::R6Class("PipeOpTorchTransformerLayer",
         prenormalization = p_lgl(default = TRUE), 
         first_prenormalization = p_lgl(default = FALSE),
         is_first_layer = p_lgl(default = FALSE),
+        query_idx = p_uty(default = NULL, custom_check = function(input) check_integer(input, null.ok = TRUE)),
         last_layer_query_idx = p_uty(default = NULL, custom_check = function(input) check_integer(input, null.ok = TRUE))
       )
       
