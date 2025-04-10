@@ -1,5 +1,7 @@
 devtools::load_all()
 
+library(here)
+
 source(here("attic", "ft-transformer-graph", "create_task.R"))
 
 # prototype what you want the FT-Transformer to look like as a graph
@@ -56,7 +58,8 @@ po_transformer = po("transformer_layer",
     prenormalization = TRUE,
     attention_initialization = "kaiming",
     ffn_normalization = nn_layer_norm,
-    attention_normalization = nn_layer_norm
+    attention_normalization = nn_layer_norm,
+    query_idx = NULL
   )
 )
 
@@ -78,7 +81,8 @@ graph_ft_transformer = graph_tokenizer %>>%
       first_prenormalization = FALSE,
       attention_initialization = "kaiming",
       ffn_normalization = nn_layer_norm,
-      attention_normalization = nn_layer_norm
+      attention_normalization = nn_layer_norm,
+      query_idx = NULL
     )
   ) %>>%
   po("nn_block", po_transformer, n_blocks = 3) %>>%
@@ -94,6 +98,7 @@ graph_ft_transformer = graph_tokenizer %>>%
       residual_dropout = 0.0,
       prenormalization = TRUE,
       last_layer_query_idx = 1L,
+      query_idx = 1L,
       attention_initialization = "kaiming",
       ffn_normalization = nn_layer_norm,
       attention_normalization = nn_layer_norm
