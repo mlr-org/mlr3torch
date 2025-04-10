@@ -125,7 +125,7 @@ be automatically inferred from the shapes of the input tensors.</p>
 <p>When inheriting from this class, one should overload either the <code>private$.shapes_out()</code> and the
 <code>private$.shape_dependent_params()</code> methods, or overload <code>private$.make_module()</code>.</p><ul><li><p><code>.make_module(shapes_in, param_vals, task)</code><br>
 (<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code>nn_module</code><br>
-This private method is called to generated the <code>nn_module</code> that is passed as argument <code>module</code> to
+This private method is called to generate the <code>nn_module</code> that is passed as argument <code>module</code> to
 <code><a href="mlr_pipeops_module.html">PipeOpModule</a></code>. It must be overwritten, when no <code>module_generator</code> is provided.
 If left as is, it calls the provided <code>module_generator</code> with the arguments obtained by
 the private method <code>.shape_dependent_params()</code>.</p></li>
@@ -512,7 +512,7 @@ the <code>PipeOp</code>.</p>
 <span class="r-in"><span><span class="co"># the resulting graphs are identical</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">mds_out</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">graph</span>, <span class="va">mds_out</span><span class="op">[[</span><span class="fl">2L</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">graph</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
-<span class="r-in"><span><span class="co"># not that as a side-effect, also one of the input graphs is modified in-place for efficiency</span></span></span>
+<span class="r-in"><span><span class="co"># note that as a side-effect, also one of the input graphs is modified in-place for efficiency</span></span></span>
 <span class="r-in"><span><span class="va">mds_in</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">graph</span><span class="op">$</span><span class="va">edges</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 src_id src_channel    dst_id dst_channel</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 &lt;char&gt;      &lt;char&gt;    &lt;char&gt;      &lt;char&gt;</span>

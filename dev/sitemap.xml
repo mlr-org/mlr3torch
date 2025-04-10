@@ -104,6 +104,7 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_dropout.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_elu.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_flatten.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_fn.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_gelu.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_glu.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_hardshrink.html</loc></url>
