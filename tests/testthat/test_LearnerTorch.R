@@ -966,3 +966,10 @@ test_that("tensor_dataset works", {
   expect_class(l$model$callbacks$test$train$dataset, "multi_tensor_dataset")
   expect_class(l$model$callbacks$test$valid$dataset, "multi_tensor_dataset")
 })
+
+test_that("loss is put on device", {
+  learner = lrn("classif.mlp", epochs = 0, batch_size = 32, device = "meta",
+    loss = t_loss("cross_entropy", weight = torch_tensor(c(1, 2, 3))))
+  learner$train(tsk("iris"))
+  expect_true(learner$model$loss_fn[[1]]$device == torch_device("meta"))
+})
