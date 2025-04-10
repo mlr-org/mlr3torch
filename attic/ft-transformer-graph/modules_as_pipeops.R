@@ -8,7 +8,7 @@ source(here("attic", "ft-transformer-graph", "create_task.R"))
 # this should guide the implementations of the individual PipeOps
 
 # as a first pass, fix some sensible default parameters
-# i.e. 
+# i.e.
 
 # TODO: access x[, -1] first. Implement a PipeOp for this.
 # TODO: sometimes there is no normalization, i.e. nn_identity instead of nn_layer_norm, figure out how to handle this
@@ -27,16 +27,16 @@ ffn_d_hidden = 64
 # Update paths with proper parameters
 
 # with selector
-path_num = po("select", id = "select_num", selector = selector_type("numeric")) %>>% 
-  po("torch_ingress_num") %>>% 
+path_num = po("select", id = "select_num", selector = selector_type("numeric")) %>>%
+  po("torch_ingress_num") %>>%
   po("nn_tokenizer_num", param_vals = list(
     d_token = d_token,
     bias = TRUE,
     initialization = "uniform"
   ))
 
-path_categ = po("select", id = "select_categ", selector = selector_type("factor")) %>>% 
-  po("torch_ingress_categ") %>>% 
+path_categ = po("select", id = "select_categ", selector = selector_type("factor")) %>>%
+  po("torch_ingress_categ") %>>%
   po("nn_tokenizer_categ", param_vals = list(
     d_token = d_token,
     bias = TRUE,
@@ -47,14 +47,14 @@ graph_tokenizer = gunion(list(path_num, path_categ)) %>>%
   po("nn_merge_cat", param_vals = list(dim = 2))  # merge along sequence dimension
 
 # without selector
-# path_num = po("torch_ingress_num") %>>% 
+# path_num = po("torch_ingress_num") %>>%
 #   po("nn_tokenizer_num", param_vals = list(
 #     d_token = d_token,
 #     bias = TRUE,
 #     initialization = "uniform"
 #   ))
 
-# path_categ = po("torch_ingress_categ") %>>% 
+# path_categ = po("torch_ingress_categ") %>>%
 #   po("nn_tokenizer_categ", param_vals = list(
 #     d_token = d_token,
 #     bias = TRUE,
@@ -65,7 +65,7 @@ graph_tokenizer = gunion(list(path_num, path_categ)) %>>%
 #   po("nn_merge_cat", param_vals = list(dim = 2))  # merge along sequence dimension
 
 # Update transformer configuration
-po_transformer = po("transformer_layer", 
+po_transformer = po("transformer_layer",
   id = "intermediate_transformer_layer",
   param_vals = list(
     d_token = d_token,
@@ -86,7 +86,7 @@ po_transformer = po("transformer_layer",
 # Update the full transformer graph
 graph_ft_transformer = graph_tokenizer %>>%
   po("cls", d_token = d_token, initialization = "uniform") %>>%
-  po("transformer_layer", 
+  po("transformer_layer",
     id = "first_transformer_layer",
     param_vals = list(
       d_token = d_token,
@@ -140,8 +140,8 @@ n_cat_features = 2
 d_token = 7
 x_num = torch_randn(n_objects, n_num_features)
 
-nn_ft_transformer = nn_graph(md_ft_transformer$graph, 
-  shapes_in = list(torch_ingress_num.input = c(NA, n_num_features), 
+nn_ft_transformer_mlr3torch = nn_graph(md_ft_transformer$graph,
+  shapes_in = list(torch_ingress_num.input = c(NA, n_num_features),
     torch_ingress_categ.input = c(NA, n_cat_features)
   )
 )
@@ -155,5 +155,20 @@ x_cat = torch_tensor(mat)
 
 x = torch_cat(list(x_num, x_cat), dim = 2)
 
-nn_ft_transformer(x_num, x_cat)
+nn_ft_transformer_mlr3torch(x_num, x_cat)
 
+source("attic/old-ft-transformer/R/nn_ft_transformer.R")
+
+nn_ft_transformer_module = make_baseline(
+  n_num_features=3,
+  cat_cardinalities=c(2, 3),
+  d_token=8,
+  n_blocks=2,
+  attention_dropout=0.2,
+  ffn_d_hidden=6,
+  ffn_dropout=0.2,
+  residual_dropout=0.0,
+  d_out=1
+)
+
+old_output = nn_ft_transformer_module(x_num, x_cat)
