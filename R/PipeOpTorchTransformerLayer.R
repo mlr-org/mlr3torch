@@ -71,7 +71,8 @@ nn_transformer_layer = nn_module(
                         ffn_normalization,
                         kv_compression_ratio = NULL,
                         kv_compression_sharing = NULL,
-                        last_layer_query_idx = NULL) {
+                        last_layer_query_idx,
+                        query_idx) {
     self$prenormalization = prenormalization
     
     self$attention = nn_ft_multi_head_attention(
@@ -110,7 +111,7 @@ nn_transformer_layer = nn_module(
         assert_true(kv_compression_sharing == 'key_value', "kv_compression_sharing parameter should be set to either 'headwise' or 'key_value'!")
       }
     }
-    self$last_layer_query_idx = last_layer_query_idx
+    self$query_idx = query_idx
   },
   start_residual_ = function(stage, x) {
     x_residual = x
@@ -154,13 +155,13 @@ nn_transformer_layer = nn_module(
   forward = function(x) {
     x_residual = self$start_residual_('attention', x)
 
-    x_residual_arg = if (is.null(self$last_layer_query_idx)) x_residual else x_residual[, self$last_layer_query_idx]
+    x_residual_arg = if (is.null(self$query_idx)) x_residual else x_residual[, self$query_idx]
     compressions = self$get_kv_compressions_()
     x_residual_vec = self$attention(x_residual_arg,
                                       x_residual,
                                       compressions[1],
                                       compressions[2])
-    x = if (!is.null(self$last_layer_query_idx)) x[, self$last_layer_query_idx] else x
+    x = if (!is.null(self$query_idx)) x[, self$query_idx] else x
     x = self$end_residual_('attention', x, x_residual)
 
     x_residual = self$start_residual_('ffn', x)
