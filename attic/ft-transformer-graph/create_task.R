@@ -19,4 +19,6 @@ dt = bind_cols(y, dt_num, dt_cat) |>
   rename(y = ...1)
 task = as_task_classif(dt, target = "y")
 
+splits = partition(task)
+
 d_embedding = 32

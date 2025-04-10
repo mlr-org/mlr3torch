@@ -257,3 +257,10 @@ nn_ft_ffn = nn_module(
     return(x)
   }
 )
+
+all_or_none_ = function(...) {
+  args = list(...)
+  all_none = all(sapply(args, is.null))
+  all_not_none = all(!sapply(args, is.null))
+  return(all_none || all_not_none)
+}

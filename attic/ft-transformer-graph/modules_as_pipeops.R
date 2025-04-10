@@ -25,6 +25,8 @@ attention_n_heads = 8
 ffn_d_hidden = 64
 
 # Update paths with proper parameters
+
+# with selector
 path_num = po("select", id = "select_num", selector = selector_type("numeric")) %>>% 
   po("torch_ingress_num") %>>% 
   po("nn_tokenizer_num", param_vals = list(
@@ -43,6 +45,24 @@ path_categ = po("select", id = "select_categ", selector = selector_type("factor"
 
 graph_tokenizer = gunion(list(path_num, path_categ)) %>>%
   po("nn_merge_cat", param_vals = list(dim = 2))  # merge along sequence dimension
+
+# without selector
+# path_num = po("torch_ingress_num") %>>% 
+#   po("nn_tokenizer_num", param_vals = list(
+#     d_token = d_token,
+#     bias = TRUE,
+#     initialization = "uniform"
+#   ))
+
+# path_categ = po("torch_ingress_categ") %>>% 
+#   po("nn_tokenizer_categ", param_vals = list(
+#     d_token = d_token,
+#     bias = TRUE,
+#     initialization = "uniform"
+#   ))
+
+# graph_tokenizer = gunion(list(path_num, path_categ)) %>>%
+#   po("nn_merge_cat", param_vals = list(dim = 2))  # merge along sequence dimension
 
 # Update transformer configuration
 po_transformer = po("transformer_layer", 
@@ -106,4 +126,34 @@ graph_ft_transformer = graph_tokenizer %>>%
   ) %>>%
   graph_head
 
-graph_ft_transformer$train(task)
+# lrn_ft_transformer = as_learner(graph_ft_transformer)
+
+md_ft_transformer = graph_ft_transformer$train(task)[[1]]
+# glrn_ft_transformer = as_learner(graph_from_trained_md)
+
+# glrn_ft_transformer$train(task)
+# graph_ft_transformer$predict(task, splits$test)
+
+n_objects = 4
+n_num_features = 3
+n_cat_features = 2
+d_token = 7
+x_num = torch_randn(n_objects, n_num_features)
+
+nn_ft_transformer = nn_graph(md_ft_transformer$graph, 
+  shapes_in = list(torch_ingress_num.input = c(NA, n_num_features), 
+    torch_ingress_categ.input = c(NA, n_cat_features)
+  )
+)
+
+mat = matrix(nrow=4, ncol=2)
+mat[1, ] = c(1L, 2L)
+mat[2, ] = c(2L, 1L)
+mat[3, ] = c(1L, 3L)
+mat[4, ] = c(2L, 2L)
+x_cat = torch_tensor(mat)
+
+x = torch_cat(list(x_num, x_cat), dim = 2)
+
+nn_ft_transformer(x_num, x_cat)
+
