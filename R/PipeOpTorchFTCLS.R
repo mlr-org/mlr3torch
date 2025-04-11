@@ -43,7 +43,7 @@ nn_ft_cls = nn_module(
 #'   The initialization method for the token embedding. 
 #'   Either "uniform" (uniform with range [-1/sqrt(d_token), 1/sqrt(d_token)], calls [`torch::nn_init_uniform_()`])
 #'   or "normal" (Gaussian with mean 0 and std 1/sqrt(d_token), calls [`torch::nn_init_normal_()`]).
-PipeOpTorchCLS = R6::R6Class("PipeOpTorchCLS",
+PipeOpTorchFTCLS = R6::R6Class("PipeOpTorchFTCLS",
   inherit = PipeOpTorch,
   public = list(
     #' @description Create a new instance of this [R6][R6::R6Class] class.
@@ -78,4 +78,4 @@ PipeOpTorchCLS = R6::R6Class("PipeOpTorchCLS",
 )
 
 #' @include aaa.R
-register_po("nn_ft_cls", PipeOpTorchCLS)
+register_po("nn_ft_cls", PipeOpTorchFTCLS)
