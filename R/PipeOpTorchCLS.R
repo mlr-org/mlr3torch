@@ -1,38 +1,3 @@
-#' @title PipeOpTorchCLS
-#' @description Concatenates a CLS token to the input. TODO: explain exactly where this concatenation occurs.
-PipeOpTorchCLS = R6::R6Class("PipeOpTorchCLS",
-  inherit = PipeOpTorch,
-  public = list(
-    #' @description Create a new instance of this [R6][R6::R6Class] class.
-    #' @param id (`character(1)`)\cr
-    #'   Identifier of the resulting object.
-    initialize = function(id = "nn_ft_cls", param_vals = list()) {
-      param_set = ps(
-        d_token = p_uty(custom_check = function(input) {
-          check_integerish(input, lower = 1L, any.missing = FALSE, len = 1)
-        }),
-        initialization = p_fct(levels = c("uniform", "normal"))
-      )
-      
-      super$initialize(
-        id = id,
-        module_generator = nn_ft_cls_token,
-        param_vals = param_vals,
-        param_set = param_set
-      )
-    }
-  ),
-  private = list(
-    .shapes_out = function(shapes_in, param_vals, task) {
-      # TODO: add an assertion on the number of dimensions? 
-      # this solution should always work for tabular data but maybe wouldn't work if we were trying to do NLP
-      # but it feels hacky regardless
-      shapes_out = shapes_in$input
-      shapes_out[2] = shapes_out[2] + 1
-      return(list(shapes_out))
-    }
-  )
-)
 
 initialize_token_ = function(x, d, initialization="") {
   assert_choice(initialization, c("uniform", "normal"))
@@ -44,8 +9,8 @@ initialize_token_ = function(x, d, initialization="") {
   }
 }
 
-nn_ft_cls_token = nn_module(
-  "nn_ft_cls_token",
+nn_ft_cls = nn_module(
+  "nn_ft_cls",
   initialize = function(d_token, initialization) {
     self$d_token = d_token
     self$weight = nn_parameter(torch_empty(d_token))
@@ -68,4 +33,49 @@ nn_ft_cls_token = nn_module(
   }
 )
 
+#' @title PipeOpTorchCLS
+#' @description Concatenates a CLS token to the input. TODO: explain exactly where this concatenation occurs.
+#' 
+#' @section Parameters:
+#' * `d_token` :: `integer(1)`\cr
+#'   The dimensionality of the embedding for the FT-Transformer.
+#' * `initialization` :: `character(1)`\cr
+#'   The initialization method for the token embedding. 
+#'   Either "uniform" (uniform with range [-1/sqrt(d_token), 1/sqrt(d_token)], calls [`torch::nn_init_uniform_()`])
+#'   or "normal" (Gaussian with mean 0 and std 1/sqrt(d_token), calls [`torch::nn_init_normal_()`]).
+PipeOpTorchCLS = R6::R6Class("PipeOpTorchCLS",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description Create a new instance of this [R6][R6::R6Class] class.
+    #' @param id (`character(1)`)\cr
+    #'   Identifier of the resulting object.
+    #' @template params_pipelines
+    initialize = function(id = "nn_ft_cls", param_vals = list()) {
+      param_set = ps(
+        d_token = p_uty(tags = c("train", "required"), custom_check = function(input) {
+          check_integerish(input, lower = 1L, any.missing = FALSE, len = 1)
+        }),
+        initialization = p_fct(tags = c("train", "required"), levels = c("uniform", "normal"))
+      )
+      
+      super$initialize(
+        id = id,
+        module_generator = nn_ft_cls,
+        param_vals = param_vals,
+        param_set = param_set
+      )
+    }
+  ),
+  private = list(
+    .shapes_out = function(shapes_in, param_vals, task) {
+      # TODO: add an assertion on the number of dimensions? 
+      # this solution should always work for tabular data but maybe wouldn't work in other cases
+      shapes_out = shapes_in$input
+      shapes_out[2] = shapes_out[2] + 1
+      return(list(shapes_out))
+    }
+  )
+)
+
+#' @include aaa.R
 register_po("nn_ft_cls", PipeOpTorchCLS)
