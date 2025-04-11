@@ -1,0 +1,71 @@
+#' @title PipeOpTorchCLS
+#' @description Concatenates a CLS token to the input. TODO: explain exactly where this concatenation occurs.
+PipeOpTorchCLS = R6::R6Class("PipeOpTorchCLS",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description Create a new instance of this [R6][R6::R6Class] class.
+    #' @param id (`character(1)`)\cr
+    #'   Identifier of the resulting object.
+    initialize = function(id = "nn_ft_cls", param_vals = list()) {
+      param_set = ps(
+        d_token = p_uty(custom_check = function(input) {
+          check_integerish(input, lower = 1L, any.missing = FALSE, len = 1)
+        }),
+        initialization = p_fct(levels = c("uniform", "normal"))
+      )
+      
+      super$initialize(
+        id = id,
+        module_generator = nn_ft_cls_token,
+        param_vals = param_vals,
+        param_set = param_set
+      )
+    }
+  ),
+  private = list(
+    .shapes_out = function(shapes_in, param_vals, task) {
+      # TODO: add an assertion on the number of dimensions? 
+      # this solution should always work for tabular data but maybe wouldn't work if we were trying to do NLP
+      # but it feels hacky regardless
+      shapes_out = shapes_in$input
+      shapes_out[2] = shapes_out[2] + 1
+      return(list(shapes_out))
+    }
+  )
+)
+
+initialize_token_ = function(x, d, initialization="") {
+  assert_choice(initialization, c("uniform", "normal"))
+  d_sqrt_inv = 1 / sqrt(d)
+  if (initialization == "uniform") {
+    return(nn_init_uniform_(x, a = -d_sqrt_inv, b = d_sqrt_inv))
+  } else {
+    return(nn_init_normal_(x, std=d_sqrt_inv))
+  }
+}
+
+nn_ft_cls_token = nn_module(
+  "nn_ft_cls_token",
+  initialize = function(d_token, initialization) {
+    self$d_token = d_token
+    self$weight = nn_parameter(torch_empty(d_token))
+    self$initialization = initialization
+    self$reset_parameters()
+  },
+  reset_parameters = function() {
+    initialize_token_(self$weight, d = self$d_token, self$initialization)
+  },
+  expand = function(...) {
+    leading_dimensions = list(...)
+    if(length(leading_dimensions) == 0) {
+      return(self$weight)
+    }
+    new_dims = rep(1, length(leading_dimensions) - 1)
+    return(self$weight$view(c(new_dims, -1))$expand(c(leading_dimensions, -1)))
+  },
+  forward = function(input) {
+    return(torch_cat(list(input, self$expand(input$shape[1], 1)), dim=2)) # the length of tensor, multiplies all dimensions
+  }
+)
+
+register_po("nn_ft_cls", PipeOpTorchCLS)
