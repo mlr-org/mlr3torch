@@ -156,13 +156,13 @@ nn_transformer_layer = nn_module(
   forward = function(x) {
     x_residual = self$start_residual_('attention', x)
 
-    x_residual_arg = if (is.null(self$query_idx)) x_residual else x_residual[, self$query_idx]
+    x_residual_arg = if (is.null(self$query_idx)) x_residual else x_residual[, self$query_idx, drop = FALSE]
     compressions = self$get_kv_compressions_()
     x_residual_vec = self$attention(x_residual_arg,
                                       x_residual,
                                       compressions[1],
                                       compressions[2])
-    x = if (!is.null(self$query_idx)) x[, self$query_idx] else x
+    x = if (!is.null(self$query_idx)) x[, self$query_idx, drop = FALSE] else x
     x = self$end_residual_('attention', x, x_residual)
 
     x_residual = self$start_residual_('ffn', x)
