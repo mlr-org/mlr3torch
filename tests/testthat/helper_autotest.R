@@ -80,6 +80,7 @@ expect_pipeop_torch = function(graph, id, task, module_class = id, exclude_args 
   # We need to match the names out the output A1 to the names of A and then get the input channels of B
   # (which is the pipeop we are testing)
 
+  browser()
 
   # input pointer (for po_test)
   ip = pmap(graph$edges[get("dst_id") == id, list(x = get("src_id"), y = get("src_channel"))], function(x, y) c(x, y))
@@ -89,7 +90,7 @@ expect_pipeop_torch = function(graph, id, task, module_class = id, exclude_args 
   pointers = append(ip, op)
   net = model_descriptor_to_module(md, output_pointers = pointers, list_output = TRUE)$to(device = "cpu")
 
-
+  
   ds = task_dataset(task, md$ingress)
   batch = ds$.getbatch(1)
   out = with_no_grad(invoke(net$forward, .args = batch$x))
