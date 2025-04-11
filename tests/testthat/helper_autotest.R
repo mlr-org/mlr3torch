@@ -80,8 +80,6 @@ expect_pipeop_torch = function(graph, id, task, module_class = id, exclude_args 
   # We need to match the names out the output A1 to the names of A and then get the input channels of B
   # (which is the pipeop we are testing)
 
-  browser()
-
   # input pointer (for po_test)
   ip = pmap(graph$edges[get("dst_id") == id, list(x = get("src_id"), y = get("src_channel"))], function(x, y) c(x, y))
 

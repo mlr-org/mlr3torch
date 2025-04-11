@@ -29,7 +29,6 @@ nn_ft_cls = nn_module(
     return(self$weight$view(c(new_dims, -1))$expand(c(leading_dimensions, -1)))
   },
   forward = function(input) {
-    browser()
     return(torch_cat(list(input, self$expand(input$shape[1], 1)), dim=2)) # the length of tensor, multiplies all dimensions
   }
 )
