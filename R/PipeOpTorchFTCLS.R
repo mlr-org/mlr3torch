@@ -20,6 +20,7 @@ nn_ft_cls = nn_module(
     initialize_token_(self$weight, d = self$d_token, self$initialization)
   },
   expand = function(...) {
+    # TODO: add documentation
     leading_dimensions = list(...)
     if(length(leading_dimensions) == 0) {
       return(self$weight)
@@ -28,6 +29,7 @@ nn_ft_cls = nn_module(
     return(self$weight$view(c(new_dims, -1))$expand(c(leading_dimensions, -1)))
   },
   forward = function(input) {
+    browser()
     return(torch_cat(list(input, self$expand(input$shape[1], 1)), dim = 2)) # the length of tensor, multiplies all dimensions
   }
 )
