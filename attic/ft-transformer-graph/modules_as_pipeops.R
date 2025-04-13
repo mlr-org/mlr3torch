@@ -155,6 +155,5 @@ x_cat = torch_tensor(mat)
 
 # x = torch_cat(list(x_num, x_cat), dim = 2)
 
-
 out = nn_ft_transformer_mlr3torch(x_num, x_cat)
 out$shape

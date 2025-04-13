@@ -1,6 +1,6 @@
 #' @title PipeOpTorchTransformerLayer
 #' @description PipeOp for a single transformer layer.
-PipeOpTorchTransformerLayer = R6::R6Class("PipeOpTorchTransformerLayer",
+PipeOpTorchFTTransformerLayer = R6::R6Class("PipeOpTorchFTTransformerLayer",
   inherit = PipeOpTorch,
   lock_objects = FALSE,
   public = list(
@@ -52,7 +52,7 @@ PipeOpTorchTransformerLayer = R6::R6Class("PipeOpTorchTransformerLayer",
     }
   )
 )
-mlr3pipelines::mlr_pipeops$add("transformer_layer", PipeOpTorchTransformerLayer)
+mlr3pipelines::mlr_pipeops$add("nn_ft_transformer_layer", PipeOpTorchFTTransformerLayer)
 
 # TODO: remove default values from here
 nn_transformer_layer = nn_module(
