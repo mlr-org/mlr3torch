@@ -799,9 +799,9 @@ PipeOpTorchGLU = R6Class("PipeOpTorchGLU",
 
 register_po("nn_glu", PipeOpTorchGLU)
 
-reglu <- function(x) {
+reglu = function(x) {
   assert_true(last(x$shape, 1) %% 2 == 0)
-  chunked = x$chunk(2, dim=-1)
+  chunked = x$chunk(2, dim = -1)
   a = chunked[[1]]
   b = chunked[[2]]
   return(a * nnf_relu(b))
@@ -845,7 +845,7 @@ PipeOpTorchReGLU = R6Class("PipeOpTorchReGLU",
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
       shape = shapes_in[[1L]]
-      d_new = tail(shape, 1) / 2
+      d_new = last(shape, 1) / 2
       if (test_integerish(d_new)) {
         shape[length(shape)] = d_new
         list(shape)
@@ -858,9 +858,9 @@ PipeOpTorchReGLU = R6Class("PipeOpTorchReGLU",
 
 register_po("nn_reglu", PipeOpTorchReGLU)
 
-geglu <- function(x) {
-  assert_true(tail(x$shape, 1) %% 2 == 0)
-  chunked = x$chunk(2, dim=-1)
+geglu = function(x) {
+  assert_true(last(x$shape, 1) %% 2 == 0)
+  chunked = x$chunk(2, dim = -1)
   a = chunked[[1]]
   b = chunked[[2]]
   return(a * nnf_gelu(b))
@@ -904,7 +904,7 @@ PipeOpTorchGeGLU = R6Class("PipeOpTorchGeGLU",
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
       shape = shapes_in[[1L]]
-      d_new = tail(shape, 1) / 2
+      d_new = last(shape, 1) / 2
       if (test_integerish(d_new)) {
         shape[length(shape)] = d_new
         list(shape)
