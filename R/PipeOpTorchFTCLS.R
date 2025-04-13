@@ -1,11 +1,10 @@
-
 initialize_token_ = function(x, d, initialization="") {
   assert_choice(initialization, c("uniform", "normal"))
   d_sqrt_inv = 1 / sqrt(d)
   if (initialization == "uniform") {
     return(nn_init_uniform_(x, a = -d_sqrt_inv, b = d_sqrt_inv))
   } else {
-    return(nn_init_normal_(x, std=d_sqrt_inv))
+    return(nn_init_normal_(x, std = d_sqrt_inv))
   }
 }
 
@@ -29,12 +28,12 @@ nn_ft_cls = nn_module(
     return(self$weight$view(c(new_dims, -1))$expand(c(leading_dimensions, -1)))
   },
   forward = function(input) {
-    return(torch_cat(list(input, self$expand(input$shape[1], 1)), dim=2)) # the length of tensor, multiplies all dimensions
+    return(torch_cat(list(input, self$expand(input$shape[1], 1)), dim = 2)) # the length of tensor, multiplies all dimensions
   }
 )
 
-#' @title PipeOpTorchCLS
-#' @description Concatenates a CLS token to the input. TODO: explain exactly where this concatenation occurs.
+#' @title PipeOpTorcFTCLS
+#' @description Concatenates a CLS token to the input. Used in the FT-Transformer. TODO: explain exactly where this concatenation occurs.
 #' 
 #' @section Parameters:
 #' * `d_token` :: `integer(1)`\cr
