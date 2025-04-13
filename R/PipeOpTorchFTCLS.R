@@ -34,7 +34,7 @@ nn_ft_cls = nn_module(
   }
 )
 
-#' @title PipeOpTorcFTCLS
+#' @title PipeOpTorchFTCLS
 #' @description Concatenates a CLS token to the input. Used in the FT-Transformer. TODO: explain exactly where this concatenation occurs.
 #' 
 #' @section Parameters:
@@ -58,7 +58,7 @@ PipeOpTorchFTCLS = R6::R6Class("PipeOpTorchFTCLS",
         }),
         initialization = p_fct(tags = c("train", "required"), levels = c("uniform", "normal"))
       )
-      
+
       super$initialize(
         id = id,
         module_generator = nn_ft_cls,
