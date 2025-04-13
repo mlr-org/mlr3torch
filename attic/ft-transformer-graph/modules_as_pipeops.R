@@ -65,7 +65,7 @@ graph_tokenizer = gunion(list(path_num, path_categ)) %>>%
 #   po("nn_merge_cat", param_vals = list(dim = 2))  # merge along sequence dimension
 
 # Update transformer configuration
-po_transformer = po("transformer_layer",
+po_transformer = po("nn_ft_transformer_layer",
   id = "intermediate_transformer_layer",
   param_vals = list(
     d_token = d_token,
@@ -86,7 +86,7 @@ po_transformer = po("transformer_layer",
 # Update the full transformer graph
 graph_ft_transformer = graph_tokenizer %>>%
   po("cls", d_token = d_token, initialization = "uniform") %>>%
-  po("transformer_layer",
+  po("nn_ft_transformer_layer",
     id = "first_transformer_layer",
     param_vals = list(
       d_token = d_token,
@@ -106,7 +106,7 @@ graph_ft_transformer = graph_tokenizer %>>%
     )
   ) %>>%
   po("nn_block", po_transformer, n_blocks = 3) %>>%
-  po("transformer_layer",
+  po("nn_ft_transformer_layer",
     id = "last_transformer_layer",
     param_vals = list(
       d_token = d_token,
