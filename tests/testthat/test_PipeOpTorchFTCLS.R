@@ -6,6 +6,7 @@ test_that("PipeOpTorchFTCLS autotest", {
   # autotest appears to be failing on an input with shape c(1, 4)
   # the PipeOp attempts to concatenate a tensor with shape c(1, 1, d_token) to this input tensor
   # and this fails because they need to have the same number of dimensions
+  # TODO: add the feature tokenizer to the graph for this test?
   expect_pipeop_torch(graph, "nn_ft_cls", task)
 })
 
