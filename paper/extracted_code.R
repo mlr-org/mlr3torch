@@ -5,11 +5,15 @@ learner <- lrn("regr.rpart")
 split <- partition(task, ratio = 2/3)
 learner$train(task, split$train)
 pred <- learner$predict(task, split$test)
-measure <- msr("regr.rmse")
-pred$score(measure)
+rmse <- msr("regr.rmse")
+pred$score(rmse)
 
 library("mlr3pipelines")
 graph_learner <- as_learner(po("pca") %>>% lrn("regr.rpart"))
+
+resampling <- rsmp("cv", folds = 3)
+rr <- resample(task, graph_learner, resampling)
+rr$aggregate(rmse)
 
 library("torch")
 torch_manual_seed(42)
@@ -40,9 +44,9 @@ mlp <- lrn("classif.mlp",
 )
 
 mlp$param_set$set_values(
-  epochs = 10, batch_size = 32, device = "cpu",
   neurons = c(100, 200), activation = torch::nn_relu,
-  p = 0.3, opt.weight_decay = 0.01
+  p = 0.3, opt.weight_decay = 0.01, measures_train = msr("classif.logloss"),
+  epochs = 10, batch_size = 32, device = "cpu"
 )
 
 mlp$configure(
@@ -52,6 +56,8 @@ mlp$configure(
 mlp$train(mnist_flat, row_ids = 1:60000)
 
 mlp$model$network
+
+head(mlp$model$callbacks$history)
 
 pred <- mlp$predict(mnist_flat, row_ids = 60001:70000)
 pred$score(msr("classif.ce"))
@@ -89,19 +95,19 @@ glrn <- as_learner(graph)
 glrn$train(mnist_flat)
 
 path_lin <- nn("linear_1")
-path_nonlin <- nn("linear_2") %>>% po("nn_relu")
+path_nonlin <- nn("linear_2") %>>% nn("relu")
 
-residual_layer <- list(path_lin, path_nonlin) %>>% po("nn_merge_sum")
+residual_layer <- list(path_lin, path_nonlin) %>>% nn("merge_sum")
 residual_layer
 
 path_num <- po("select_1", selector = selector_type("numeric")) %>>%
   po("torch_ingress_num") %>>%
-  po("nn_tokenizer_num")
+  nn("tokenizer_num")
 path_categ <- po("select", selector = selector_type("factor")) %>>%
   po("torch_ingress_categ") %>>%
-  po("nn_tokenizer_categ")
+  nn("tokenizer_categ")
 
-graph <- list(path_num, path_categ) %>>% po("nn_merge_cat")
+graph <- list(path_num, path_categ) %>>% nn("merge_cat")
 
 blocks <- nn("block", residual_layer, n_blocks = 5)
 
@@ -130,7 +136,6 @@ gradient_clipper <- torch_callback("gradient_clipper",
     self$norms = state_dict
   }
 )
-gradient_clipper
 
 nn_ffn <- nn_module("nn_ffn",
   initialize = function(task, latent_dim, n_layers) {
@@ -178,7 +183,7 @@ architecture <- nn("block", block) %>>%
 config <- po("torch_loss", loss = t_loss("mse")) %>>%
   po("torch_optimizer", optimizer = t_opt("adamw"))
 
-model <- po("torch_model_regr", device = "cuda", batch_size = 128)
+model <- po("torch_model_regr", device = "cuda", batch_size = 512)
 
 pipeline <- preprocessing %>>%
   ingress %>>%
@@ -191,7 +196,7 @@ learner$id = "custom_nn"
 library("mlr3tuning")
 learner$param_set$set_values(
   block.linear.out_features = to_tune(20, 500),
-  block.n_blocks = to_tune(1, 10),
+  block.n_blocks = to_tune(1, 5),
   block.branch.selection = to_tune(c("relu", "tanh")),
   block.dropout.p = to_tune(0.1, 0.9),
   torch_optimizer.lr = to_tune(10^-4, 10^-1, logscale = TRUE)
@@ -200,7 +205,7 @@ learner$param_set$set_values(
 set_validate(learner, "test")
 
 learner$param_set$set_values(
-  torch_model_regr.patience = 10,
+  torch_model_regr.patience = 5,
   torch_model_regr.measures_valid = msr("regr.mse"),
   torch_model_regr.epochs = to_tune(upper = 100, internal = TRUE)
 )
@@ -208,16 +213,16 @@ learner$param_set$set_values(
 library("mlr3mbo")
 ti <- tune(
   tuner = tnr("mbo"),
-  resampling = rsmp("cv", folds = 3),
+  resampling = rsmp("holdout"),
   measure = msr("internal_valid_score", minimize = TRUE),
   learner = learner,
-  term_evals = 100,
+  term_evals = 40,
   task = task
 )
 ti
 
 library("torchdatasets")
-data_dir = here::here("data")
+data_dir = "data"
 dogs_vs_cats_dataset(data_dir, download = TRUE)
 
 ds <- torch::dataset("dogs_vs_cats",
@@ -328,7 +333,8 @@ preprocessing <- po("classbalancing", ratio = 4, reference = "minor",
   po("augment_random_crop", size = c(128, 128), pad_if_needed = TRUE)
 glrn <- as_learner(preprocessing %>>% model)
 
+library("mlr3viz")
 glrn$id <- "multimodal"
-rr <- resample(task, glrn, rsmp("cv", folds = 5))
+rr <- resample(glrn, task, rsmp("cv", folds = 5))
 autoplot(rr, type = "roc")
 
