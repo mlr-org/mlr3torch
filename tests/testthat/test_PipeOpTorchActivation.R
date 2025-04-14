@@ -109,7 +109,7 @@ test_that("PipeOpTorchReGLU autotest", {
 })
 
 test_that("PipeOpTorchReGLU paramtest", {
-  res = expect_paramset(po("nn_reglu"), nn_glu)
+  res = expect_paramset(po("nn_reglu"), nn_reglu)
   expect_paramtest(res)
 })
 
