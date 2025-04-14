@@ -13,7 +13,7 @@ initialize_token_ = function(x, d, initialization) {
 #' @title Numeric Tokenizer
 #' @inherit nn_tokenizer_num description
 #' @section nn_module:
-#' Calls [`nn_tokenizer_numeric()`] when trained where the parameter `n_features` is inferred.
+#' Calls [`nn_tokenizer_num()`] when trained where the parameter `n_features` is inferred.
 #' The output shape is `(batch, n_features, d_token)`.
 #'
 #' @section Parameters:
@@ -47,7 +47,7 @@ PipeOpTorchTokenizerNum = R6Class("PipeOpTorchTokenizerNum",
         id = id,
         param_set = param_set,
         param_vals = param_vals,
-        module_generator = nn_tokenizer_numeric
+        module_generator = nn_tokenizer_num
       )
     }
   ),
@@ -81,7 +81,7 @@ PipeOpTorchTokenizerNum = R6Class("PipeOpTorchTokenizerNum",
 #' @references
 #' `r format_bib("gorishniy2021revisiting")`
 #' @export
-nn_tokenizer_numeric = nn_module(
+nn_tokenizer_num = nn_module(
   "nn_tokenizer_num",
   initialize = function(n_features, d_token, bias, initialization) {
     self$n_features = assert_int(n_features, lower = 1L)

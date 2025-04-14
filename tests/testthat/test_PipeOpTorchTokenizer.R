@@ -1,9 +1,9 @@
-test_that("nn_tokenizer_numeric works properly", {
+test_that("nn_tokenizer_num works properly", {
   x = torch_randn(4, 2)
   n_objects = x$shape[1]
   n_features = x$shape[2]
   d_token = 3
-  tokenizer = nn_tokenizer_numeric(n_features, d_token, TRUE, "uniform")
+  tokenizer = nn_tokenizer_num(n_features, d_token, TRUE, "uniform")
   tokens = tokenizer(x)
   expect_true(all(tokens$shape == c(n_objects, n_features, d_token)))
 })
@@ -13,7 +13,7 @@ test_that("pipeop numeric tokenizer", {
   graph = po("torch_ingress_num") %>>% po_tokenize
   task = tsk("iris")
   expect_pipeop_torch(graph, "nn_tokenizer_num", task, "nn_tokenizer_num")
-  res = expect_paramset(po_tokenize, nn_tokenizer_numeric, exclude = "n_features")
+  res = expect_paramset(po_tokenize, nn_tokenizer_num, exclude = "n_features")
   expect_paramtest(res)
 })
 

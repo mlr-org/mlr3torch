@@ -88,6 +88,57 @@ test_that("PipeOpTorchGLU paramtest", {
   expect_paramtest(res)
 })
 
+# PipeOpTorchReGLU
+
+test_that("nn_reglu", {
+  x = torch_randn(10, 10)
+  reglu = nn_reglu()
+  expect_equal(reglu(x)$shape, c(10, 5))
+  expect_error(nn_reglu()(torch_randn(10, 9)))
+
+  graph = po("torch_ingress_num") %>>% nn("linear", out_features = 11) %>>% nn("reglu")
+  task = tsk("iris")
+  expect_error(graph$train(task), "must be divisible by 2")
+})
+
+test_that("PipeOpTorchReGLU autotest", {
+  po_test = po("nn_reglu")
+  graph = po("torch_ingress_num") %>>% po_test
+  task = tsk("iris")
+  expect_pipeop_torch(graph, "nn_reglu", task)
+})
+
+test_that("PipeOpTorchReGLU paramtest", {
+  res = expect_paramset(po("nn_reglu"), nn_reglu)
+  expect_paramtest(res)
+})
+
+# PipeOpTorchGeGLU
+
+test_that("nn_geglu", {
+  x = torch_randn(10, 10)
+  glu = nn_geglu()
+  expect_equal(glu(x)$shape, c(10, 5))
+  expect_error(nn_geglu()(torch_randn(10, 9)))
+
+  graph = po("torch_ingress_num") %>>% nn("linear", out_features = 11) %>>% nn("geglu")
+  task = tsk("iris")
+  expect_error(graph$train(task), "must be divisible by 2")
+})
+
+
+test_that("PipeOpTorchGeGLU autotest", {
+  po_test = po("nn_geglu")
+  graph = po("torch_ingress_num") %>>% po_test
+  task = tsk("iris")
+  expect_pipeop_torch(graph, "nn_geglu", task)
+})
+
+test_that("PipeOpTorchGeGLU paramtest", {
+  res = expect_paramset(po("nn_geglu"), nn_geglu)
+  expect_paramtest(res)
+})
+
 # PipeOpTorchCelu
 
 test_that("PipeOpTorchCelu autotest", {

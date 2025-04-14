@@ -2,10 +2,9 @@
 % Please edit documentation in R/PipeOpTorchTokenizer.R
 \name{nn_tokenizer_num}
 \alias{nn_tokenizer_num}
-\alias{nn_tokenizer_numeric}
 \title{Numeric Tokenizer}
 \usage{
-nn_tokenizer_numeric(n_features, d_token, bias, initialization)
+nn_tokenizer_num(n_features, d_token, bias, initialization)
 }
 \arguments{
 \item{n_features}{(\code{integer(1)})\cr
