@@ -42,6 +42,7 @@ nn_ft_cls = nn_module(
 #' @inherit nn_ft_cls description
 #' @section nn_module:
 #' Calls [`nn_ft_cls()`] when trained.
+#' The input shape is `(batch, n_features, d_token)`.
 #' The output shape is `(batch, n_features + 1, d_token)`.
 #' @templateVar id nn_ft_cls
 #' @templateVar param_vals d_token = 10
