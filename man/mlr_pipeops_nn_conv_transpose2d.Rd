@@ -79,6 +79,7 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_dropout}},
 \code{\link{mlr_pipeops_nn_elu}},
 \code{\link{mlr_pipeops_nn_flatten}},
+\code{\link{mlr_pipeops_nn_ft_cls}},
 \code{\link{mlr_pipeops_nn_geglu}},
 \code{\link{mlr_pipeops_nn_gelu}},
 \code{\link{mlr_pipeops_nn_glu}},
