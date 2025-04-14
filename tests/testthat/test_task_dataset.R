@@ -479,6 +479,5 @@ test_that("merging tasks also merges validation data", {
   glrn = as_learner(graph)
   set_validate(glrn, validate = 0.3)
 
-  glrn$train(task)
-
+  expect_error(glrn$train(task), regexp = NA)
 })

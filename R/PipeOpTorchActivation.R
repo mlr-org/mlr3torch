@@ -798,3 +798,149 @@ PipeOpTorchGLU = R6Class("PipeOpTorchGLU",
 )
 
 register_po("nn_glu", PipeOpTorchGLU)
+
+reglu = function(x) {
+  assert_true(last(x$shape, 1) %% 2 == 0)
+  chunked = x$chunk(2, dim = -1)
+  a = chunked[[1]]
+  b = chunked[[2]]
+  return(a * nnf_relu(b))
+}
+
+#' @title ReGLU Module
+#'
+#' @description
+#' Rectified Gated Linear Unit (ReGLU) module.
+#' Computes the output as \eqn{\text{ReGLU}(x, g) = x \cdot \text{ReLU}(g)}
+#' where \(x\) and \(g\) are created by splitting the input tensor in half along the last dimension.
+#'
+#' @export
+#' @references
+#' `r format_bib("shazeer2020glu")`
+#' @examplesIf torch::torch_is_installed()
+#' x = torch::torch_randn(10, 10)
+#' reglu = nn_reglu()
+#' reglu(x)
+nn_reglu = nn_module(
+  "nn_reglu",
+  forward = function(input) {
+    return(reglu(input))
+  }
+)
+
+#' @title ReGLU Activation Function
+#'
+#' @description
+#' Rectified Gated Linear Unit (ReGLU) activation function.
+#' See [`nn_reglu`] for details.
+#' @section Parameters:
+#' No parameters.
+#' @templateVar id nn_reglu
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
+#' @export
+PipeOpTorchReGLU = R6Class("PipeOpTorchReGLU",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_reglu", param_vals = list()) {
+      param_set = ps()
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_reglu,
+        tags = "activation"
+      )
+    }
+  ),
+  private = list(
+    .shapes_out = function(shapes_in, param_vals, task) {
+      shape = shapes_in[[1L]]
+      d_new = last(shape, 1) / 2
+      if (test_integerish(d_new)) {
+        shape[length(shape)] = d_new
+        list(shape)
+      } else {
+        stopf("Last dimension of input tensor must be divisible by 2.")
+      }
+    }
+  )
+)
+
+register_po("nn_reglu", PipeOpTorchReGLU)
+
+geglu = function(x) {
+  assert_true(last(x$shape, 1) %% 2 == 0)
+  chunked = x$chunk(2, dim = -1)
+  a = chunked[[1]]
+  b = chunked[[2]]
+  return(a * nnf_gelu(b))
+}
+
+#' @title GeGLU Module
+#' @description
+#' This module implements the Gaussian Error Linear Unit Gated Linear Unit (GeGLU) activation function.
+#' It computes \eqn{\text{GeGLU}(x, g) = x \cdot \text{GELU}(g)}
+#' where \(x\) and \(g\) are created by splitting the input tensor in half along the last dimension.
+#'
+#' @export
+#' @references
+#' `r format_bib("shazeer2020glu")`
+#' @examplesIf torch::torch_is_installed()
+#' x = torch::torch_randn(10, 10)
+#' glu = nn_geglu()
+#' glu(x)
+nn_geglu = nn_module(
+  "nn_geglu",
+  forward = function(input) {
+    return(geglu(input))
+  }
+)
+
+#' @title GeGLU Activation Function
+#'
+#' @description
+#' Gaussian Error Linear Unit Gated Linear Unit (GeGLU) activation function, see
+#' [`nn_geglu`] for details.
+#' @section Parameters:
+#' No parameters.
+#' @templateVar id nn_geglu
+#' @template pipeop_torch_channels_default
+#' @template pipeop_torch
+#' @template pipeop_torch_example
+#'
+#' @export
+PipeOpTorchGeGLU = R6Class("PipeOpTorchGeGLU",
+  inherit = PipeOpTorch,
+  public = list(
+    #' @description Creates a new instance of this [R6][R6::R6Class] class.
+    #' @template params_pipelines
+    initialize = function(id = "nn_geglu", param_vals = list()) {
+      param_set = ps()
+      super$initialize(
+        id = id,
+        param_set = param_set,
+        param_vals = param_vals,
+        module_generator = nn_geglu,
+        tags = "activation"
+      )
+    }
+  ),
+  private = list(
+    .shapes_out = function(shapes_in, param_vals, task) {
+      shape = shapes_in[[1L]]
+      d_new = last(shape, 1) / 2
+      if (test_integerish(d_new)) {
+        shape[length(shape)] = d_new
+        list(shape)
+      } else {
+        stopf("Last dimension of input tensor must be divisible by 2.")
+      }
+    }
+  )
+)
+
+register_po("nn_geglu", PipeOpTorchGeGLU)
