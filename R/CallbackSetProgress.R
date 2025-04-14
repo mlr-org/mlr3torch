@@ -73,6 +73,7 @@ CallbackSetProgress = R6Class("CallbackSetProgress",
           cat(paste(output, collapse = ""))
         }
       }
+      cat("\n")
     },
     #' @description
     #' Prints the time at the end of training.

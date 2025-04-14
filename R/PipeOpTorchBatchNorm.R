@@ -30,6 +30,9 @@ PipeOpTorchBatchNorm = R6Class("PipeOpTorchBatchNorm",
   private = list(
     .min_dim = NULL,
     .max_dim = NULL,
+    .additional_phash_input = function() {
+      list(private$.min_dim, private$.max_dim)
+    },
     .shapes_out = function(shapes_in, param_vals, task) {
       list(assert_numeric(shapes_in[[1]], min.len = private$.min_dim, max.len = private$.max_dim))
     },
@@ -62,7 +65,6 @@ PipeOpTorchBatchNorm = R6Class("PipeOpTorchBatchNorm",
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
 #' @template pipeop_torch_example
-#'
 #'
 #' @export
 PipeOpTorchBatchNorm1D = R6Class("PipeOpTorchBatchNorm1D", inherit = PipeOpTorchBatchNorm,

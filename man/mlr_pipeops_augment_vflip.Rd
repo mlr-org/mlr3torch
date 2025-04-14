@@ -12,6 +12,13 @@ Calls \code{\link[torchvision:transform_vflip]{torchvision::transform_vflip}},
 see there for more information on the parameters.
 The preprocessing is applied to each element of a batch individually.
 }
+\section{Construction}{
+
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{po("augment_vflip"")
+}\if{html}{\out{</div>}}
+}
+
 \section{Parameters}{
 \tabular{llll}{
    Id \tab Type \tab Default \tab Levels \cr

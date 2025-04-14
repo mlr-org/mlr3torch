@@ -38,6 +38,7 @@ ContextTorch = R6Class("ContextTorch",
     #'   The total number of epochs the learner is trained for.
     #' @param prediction_encoder (`function()`)\cr
     #'   The learner's prediction encoder.
+    #'   See section *Inheriting* of [`LearnerTorch`].
     #' @param eval_freq (`integer(1)`)\cr
     #'   The evaluation frequency.
     #' @param device (`character(1)`)\cr

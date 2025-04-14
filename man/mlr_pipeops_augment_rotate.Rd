@@ -12,6 +12,13 @@ Calls \code{\link[torchvision:transform_rotate]{torchvision::transform_rotate}},
 see there for more information on the parameters.
 The preprocessing is applied to each element of a batch individually.
 }
+\section{Construction}{
+
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{po("augment_rotate"")
+}\if{html}{\out{</div>}}
+}
+
 \section{Parameters}{
 \tabular{lllll}{
    Id \tab Type \tab Default \tab Levels \tab Range \cr

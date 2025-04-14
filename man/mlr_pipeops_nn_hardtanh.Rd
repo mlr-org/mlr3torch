@@ -64,6 +64,7 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_hardshrink}},
 \code{\link{mlr_pipeops_nn_hardsigmoid}},
 \code{\link{mlr_pipeops_nn_head}},
+\code{\link{mlr_pipeops_nn_identity}},
 \code{\link{mlr_pipeops_nn_layer_norm}},
 \code{\link{mlr_pipeops_nn_leaky_relu}},
 \code{\link{mlr_pipeops_nn_linear}},
