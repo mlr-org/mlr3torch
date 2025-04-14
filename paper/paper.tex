@@ -1412,7 +1412,7 @@ Finally, we change the ID of the learner and resample it on the task using five-
 
 \begin{CodeInput}
 R> glrn$id <- "multimodal"
-R> rr <- resample(glrn, task, rsmp("cv", folds = 5))
+R> rr <- resample(task, glrn, rsmp("cv", folds = 5))
 R> autoplot(rr, type = "roc")
 \end{CodeInput}
 
