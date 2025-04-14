@@ -9,7 +9,7 @@ Tokenizes numeric features into a dense embedding.
 }
 \section{nn_module}{
 
-Calls \code{\link[=nn_tokenizer_numeric]{nn_tokenizer_numeric()}} when trained where the parameter \code{n_features} is inferred.
+Calls \code{\link[=nn_tokenizer_num]{nn_tokenizer_num()}} when trained where the parameter \code{n_features} is inferred.
 The output shape is \verb{(batch, n_features, d_token)}.
 }
 
