@@ -145,86 +145,86 @@ The hash key for b) is the hash of the indices, dataset and preprocessing graph.
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">lt1</span> <span class="op">=</span> <span class="fu"><a href="as_lazy_tensor.html">as_lazy_tensor</a></span><span class="op">(</span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_randn.html" class="external-link">torch_randn</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">materialize</span><span class="op">(</span><span class="va">lt1</span>, rbind <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.0263 -0.9499  0.6363</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.8789 -1.2059 -0.6531</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.6375 -0.1619 -0.4746</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1.1507  0.6292 -0.2484</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.6982 -1.5912  0.0564</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0140 -1.9054  2.9008</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0391  1.2011 -0.4365</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4606  1.1061  1.3940</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.3714  0.1815  0.9629</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0589 -0.5295  0.4780</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0363  0.1836  2.3558</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4061 -1.3524 -1.9944</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.7402 -0.4801  0.7382</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.0825 -0.1602  1.9510</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.9488  0.7677 -0.8498</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.6930  1.5459 -0.5640</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1391 -0.9836  0.9770</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.5269  1.2217  1.1455</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3511 -0.3071  0.7753</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3439 -0.2237  0.4402</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{10,3} ]</span>
 <span class="r-in"><span><span class="fu">materialize</span><span class="op">(</span><span class="va">lt1</span>, rbind <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.0263</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.9499</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.6363</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0363</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1836</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2.3558</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[2]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.8789</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.2059</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.6531</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4061</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.3524</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.9944</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[3]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.6375</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1619</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.4746</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.7402</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.4801</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.7382</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[4]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1.1507</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.6292</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2484</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.0825</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1602</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.9510</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[5]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.6982</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.5912</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0564</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.9488</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.7677</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.8498</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[6]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0140</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.9054</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2.9008</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.6930</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.5459</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.5640</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[7]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0391</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1.2011</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.4365</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1391</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.9836</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.9770</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[8]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4606</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1.1061</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1.3940</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.5269</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.2217</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.1455</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[9]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.3714</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1815</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.9629</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3511</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.3071</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.7753</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[10]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0589</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.5295</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4780</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3439</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2237</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4402</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="va">lt2</span> <span class="op">=</span> <span class="fu"><a href="as_lazy_tensor.html">as_lazy_tensor</a></span><span class="op">(</span><span class="fu"><a href="https://torch.mlverse.org/docs/reference/torch_randn.html" class="external-link">torch_randn</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -232,185 +232,184 @@ The hash key for b) is the hash of the indices, dataset and preprocessing graph.
 <span class="r-in"><span><span class="fu">materialize</span><span class="op">(</span><span class="va">d</span>, rbind <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lt1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.0263 -0.9499  0.6363</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.8789 -1.2059 -0.6531</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.6375 -0.1619 -0.4746</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1.1507  0.6292 -0.2484</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.6982 -1.5912  0.0564</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0140 -1.9054  2.9008</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0391  1.2011 -0.4365</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4606  1.1061  1.3940</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.3714  0.1815  0.9629</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0589 -0.5295  0.4780</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0363  0.1836  2.3558</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4061 -1.3524 -1.9944</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.7402 -0.4801  0.7382</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.0825 -0.1602  1.9510</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.9488  0.7677 -0.8498</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.6930  1.5459 -0.5640</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1391 -0.9836  0.9770</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.5269  1.2217  1.1455</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3511 -0.3071  0.7753</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3439 -0.2237  0.4402</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{10,3} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lt2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.7794 -0.6170 -0.1198 -0.9603</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2105 -0.0992 -0.9932  1.2568</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.7598 -1.2514  0.4104  0.3626</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3821  0.1041  0.4555 -0.8881</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1.1453 -0.1446 -0.1684 -0.3323</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1.0164  0.3283  1.1738 -1.1066</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0649 -0.6874 -0.3386 -0.7106</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.3255  0.5355 -0.0608 -1.3734</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2984 -0.4548  0.2804 -0.0264</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0996 -0.3996 -0.2822  0.5721</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.1254 -0.1640  0.0042  1.6265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.6053  0.5916  0.3056 -1.1263</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1018 -0.7177 -0.3733  0.1852</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.4463 -2.5244 -1.6154 -1.2548</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1422 -1.3727 -1.2293  0.9033</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1151  1.3171  0.3967 -1.3687</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2899  0.3729  0.7754  0.7404</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.1944  0.6007  0.2768  1.1279</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2431 -0.1471 -1.4432 -0.0033</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2784  1.9463 -0.6119 -0.6039</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{10,4} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu">materialize</span><span class="op">(</span><span class="va">d</span>, rbind <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lt1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lt1[[1]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.0263</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.9499</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.6363</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0363</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1836</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2.3558</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lt1[[2]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.8789</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.2059</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.6531</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4061</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.3524</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.9944</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lt1[[3]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.6375</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1619</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.4746</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.7402</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.4801</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.7382</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lt1[[4]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1.1507</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.6292</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2484</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.0825</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1602</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.9510</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lt1[[5]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.6982</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.5912</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0564</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.9488</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.7677</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.8498</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lt1[[6]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0140</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.9054</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2.9008</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.6930</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.5459</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.5640</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lt1[[7]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0391</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1.2011</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.4365</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1391</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.9836</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.9770</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lt1[[8]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4606</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1.1061</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1.3940</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.5269</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.2217</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.1455</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lt1[[9]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.3714</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1815</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.9629</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3511</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.3071</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.7753</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lt1[[10]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0589</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.5295</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4780</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3439</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2237</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4402</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lt2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lt2[[1]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.7794</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.6170</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1198</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.9603</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.1254</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1640</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0042</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.6265</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{4} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lt2[[2]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2105</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0992</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.9932</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1.2568</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.6053</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.5916</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3056</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.1263</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{4} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lt2[[3]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.7598</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.2514</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4104</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3626</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1018</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.7177</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.3733</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1852</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{4} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lt2[[4]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3821</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1041</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4555</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.8881</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.4463</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -2.5244</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.6154</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.2548</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{4} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lt2[[5]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1.1453</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1446</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1684</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.3323</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1422</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.3727</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.2293</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.9033</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{4} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lt2[[6]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1.0164</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3283</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1.1738</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.1066</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1151</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.3171</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3967</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.3687</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{4} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lt2[[7]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.01 *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6.4874</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -68.7431</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -33.8626</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -71.0574</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2899</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3729</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.7754</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.7404</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{4} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lt2[[8]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.3255</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.5355</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0608</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -1.3734</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.1944</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.6007</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2768</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.1279</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{4} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lt2[[9]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2984</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.4548</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2804</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0264</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2431</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1471</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.4432</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0033</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{4} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lt2[[10]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0996</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.3996</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2822</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.5721</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2784</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.9463</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.6119</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.6039</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{4} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
