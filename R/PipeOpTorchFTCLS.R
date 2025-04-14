@@ -1,13 +1,16 @@
-# initialize_token_ = function(x, d, initialization="") {
-#   assert_choice(initialization, c("uniform", "normal"))
-#   d_sqrt_inv = 1 / sqrt(d)
-#   if (initialization == "uniform") {
-#     return(nn_init_uniform_(x, a = -d_sqrt_inv, b = d_sqrt_inv))
-#   } else {
-#     return(nn_init_normal_(x, std = d_sqrt_inv))
-#   }
-# }
-
+#' @title CLS Token for FT-Transformer
+#' @description Concatenates a CLS token to the input as the last feature. Used in the FT-Transformer.
+#' 
+#' @param d_token (`integer(1)`)\cr
+#'   The dimension of the embedding.
+#' @param initialization (`character(1)`)\cr
+#'   The initialization method for the embedding weights. Possible values are `"uniform"`
+#'   and `"normal"`.
+#'
+#' @references
+#' `r format_bib("gorishniy2021revisiting")`
+#'
+#' @export
 nn_ft_cls = nn_module(
   "nn_ft_cls",
   initialize = function(d_token, initialization) {
@@ -22,41 +25,37 @@ nn_ft_cls = nn_module(
   expand = function(...) {
     # TODO: add documentation
     leading_dimensions = list(...)
-    if(length(leading_dimensions) == 0) {
+    if (length(leading_dimensions) == 0) {
       return(self$weight)
     }
     new_dims = rep(1, length(leading_dimensions) - 1)
     return(self$weight$view(c(new_dims, -1))$expand(c(leading_dimensions, -1)))
   },
   forward = function(input) {
-    browser()
     return(torch_cat(list(input, self$expand(input$shape[1], 1)), dim = 2)) # the length of tensor, multiplies all dimensions
   }
 )
 
-#' @title PipeOpTorchFTCLS
-#' @description Concatenates a CLS token to the input. Used in the FT-Transformer. TODO: explain exactly where this concatenation occurs.
-#' 
-#' @section Parameters:
-#' * `d_token` :: `integer(1)`\cr
-#'   The dimensionality of the embedding for the FT-Transformer.
-#' * `initialization` :: `character(1)`\cr
-#'   The initialization method for the token embedding. 
-#'   Either "uniform" (uniform with range [-1/sqrt(d_token), 1/sqrt(d_token)], calls [`torch::nn_init_uniform_()`])
-#'   or "normal" (Gaussian with mean 0 and std 1/sqrt(d_token), calls [`torch::nn_init_normal_()`]).
+#' @title CLS Token for FT-Transformer
+#' @inherit nn_ft_cls description
+#' @section nn_module:
+#' Calls [`nn_ft_cls()`] when trained.
+#' @templateVar id nn_ft_cls
+#' @templateVar param_vals d_token = 10
+#' @template pipeop_torch
+#' @template pipeop_torch_example
+#' @export
 PipeOpTorchFTCLS = R6::R6Class("PipeOpTorchFTCLS",
   inherit = PipeOpTorch,
   public = list(
-    #' @description Create a new instance of this [R6][R6::R6Class] class.
-    #' @param id (`character(1)`)\cr
-    #'   Identifier of the resulting object.
+    #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
     initialize = function(id = "nn_ft_cls", param_vals = list()) {
       param_set = ps(
         d_token = p_uty(tags = c("train", "required"), custom_check = function(input) {
           check_integerish(input, lower = 1L, any.missing = FALSE, len = 1)
         }),
-        initialization = p_fct(tags = c("train", "required"), levels = c("uniform", "normal"))
+        initialization = p_fct(tags = c("train", "required"), levels = c("uniform", "normal"), default = "uniform")
       )
 
       super$initialize(
