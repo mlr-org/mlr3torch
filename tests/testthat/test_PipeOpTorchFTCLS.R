@@ -10,7 +10,7 @@ test_that("PipeOpTorchFTCLS autotest", {
 test_that("PipeOpTorchFTCLS works for tensors of specified dimensions", {
   # the canonical case: tensor of shape c(batch_size, n_features, d_token)
   task = tsk("iris")
-  batch_size = 1
+  batch_size = 3
   d_token = 10
   tnsr = torch_tensor(as.matrix(task$data()[seq_len(batch_size), .(Petal.Width, Petal.Length, Sepal.Width, Sepal.Length)]))
 

@@ -15,6 +15,7 @@ nn_ft_cls = nn_module(
   "nn_ft_cls",
   initialize = function(d_token, initialization) {
     self$d_token = d_token
+    # an individual CLS token
     self$weight = nn_parameter(torch_empty(d_token))
     self$initialization = initialization
     self$reset_parameters()
@@ -22,8 +23,9 @@ nn_ft_cls = nn_module(
   reset_parameters = function() {
     initialize_token_(self$weight, d = self$d_token, self$initialization)
   },
+  # Repeats the underlying CLS token to create a tensor with the given leading dimensions.
+  # Used for creating a batch of CLS tokens
   expand = function(...) {
-    # TODO: add documentation
     leading_dimensions = list(...)
     if (length(leading_dimensions) == 0) {
       return(self$weight)
@@ -32,7 +34,7 @@ nn_ft_cls = nn_module(
     return(self$weight$view(c(new_dims, -1))$expand(c(leading_dimensions, -1)))
   },
   forward = function(input) {
-    return(torch_cat(list(input, self$expand(input$shape[1], 1)), dim = 2)) # the length of tensor, multiplies all dimensions
+    return(torch_cat(list(input, self$expand(input$shape[1], 1)), dim = 2))
   }
 )
 
