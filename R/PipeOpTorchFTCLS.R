@@ -8,7 +8,7 @@
 #'   and `"normal"`.
 #'
 #' @references
-#' `r format_bib("gorishniy2021revisiting")`
+#' `r format_bib("devlin2018bert")`
 #'
 #' @export
 nn_ft_cls = nn_module(
