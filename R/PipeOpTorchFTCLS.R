@@ -40,6 +40,7 @@ nn_ft_cls = nn_module(
 #' @inherit nn_ft_cls description
 #' @section nn_module:
 #' Calls [`nn_ft_cls()`] when trained.
+#' The output shape is `(batch, n_features + 1, d_token)`.
 #' @templateVar id nn_ft_cls
 #' @templateVar param_vals d_token = 10
 #' @template pipeop_torch
@@ -55,7 +56,7 @@ PipeOpTorchFTCLS = R6::R6Class("PipeOpTorchFTCLS",
         d_token = p_uty(tags = c("train", "required"), custom_check = function(input) {
           check_integerish(input, lower = 1L, any.missing = FALSE, len = 1)
         }),
-        initialization = p_fct(tags = c("train", "required"), levels = c("uniform", "normal"), default = "uniform")
+        initialization = p_fct(tags = c("train"), levels = c("uniform", "normal"), default = "uniform")
       )
 
       super$initialize(

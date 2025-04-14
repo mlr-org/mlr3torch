@@ -88,7 +88,6 @@ expect_pipeop_torch = function(graph, id, task, module_class = id, exclude_args 
   pointers = append(ip, op)
   net = model_descriptor_to_module(md, output_pointers = pointers, list_output = TRUE)$to(device = "cpu")
 
-  browser()
   ds = task_dataset(task, md$ingress)
   batch = ds$.getbatch(1)
   out = with_no_grad(invoke(net$forward, .args = batch$x))
