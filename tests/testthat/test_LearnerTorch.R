@@ -456,6 +456,10 @@ test_that("future and marshaling", {
 })
 
 test_that("Input verification works during `$train()` (train-predict shapes work together)", {
+  # some weird future warnings appears in tests
+  prev_debug = getOption("mlr3.debug")
+  on.exit({mlr3.debug = prev_debug})
+  options(mlr3.debug = TRUE)
   task = nano_mnist()
 
   task_invalid = po("trafo_resize", size = c(10, 10), stages = "train") $train(list(task))[[1L]]
