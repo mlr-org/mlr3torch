@@ -10,6 +10,7 @@ Concatenates a CLS token to the input as the last feature. Used in the FT-Transf
 \section{nn_module}{
 
 Calls \code{\link[=nn_ft_cls]{nn_ft_cls()}} when trained.
+The input shape is \verb{(batch, n_features, d_token)}.
 The output shape is \verb{(batch, n_features + 1, d_token)}.
 }
 
