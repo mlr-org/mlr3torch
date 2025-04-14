@@ -69,9 +69,7 @@ PipeOpTorchFTCLS = R6::R6Class("PipeOpTorchFTCLS",
   ),
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
-      # TODO: add an assertion on the number of dimensions? 
-      # this solution should always work for tabular data but maybe wouldn't work in other cases
-      shapes_out = shapes_in$input
+      shapes_out = assert_integer(shapes_in$input, len = 3)
       shapes_out[2] = shapes_out[2] + 1
       return(list(shapes_out))
     }
