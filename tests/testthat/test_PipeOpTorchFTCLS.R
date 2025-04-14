@@ -1,13 +1,9 @@
 test_that("PipeOpTorchFTCLS autotest", {
-  # TODO: determine whether the autotest will require a specific d_token
   po_cls = po("nn_ft_cls", d_token = 10, initialization = "uniform")
   task = tsk("iris")
-  graph = po("torch_ingress_num") %>>% po_cls
-  # autotest appears to be failing on an input with shape c(1, 4)
-  # the PipeOp attempts to concatenate a tensor with shape c(1, 1, d_token) to this input tensor
-  # and this fails because they need to have the same number of dimensions
-  # TODO: add the feature tokenizer to the graph for this test?
-  expect_pipeop_torch(graph, "nn_ft_cls", task)
+  graph = po("torch_ingress_num") %>>% %>>% po("nn_tokenizer_num", d_token = 10) %>>% po_cls
+
+  expect_pipeop_torch(graph_w_tokenizer, "nn_ft_cls", task)
 })
 
 test_that("PipeOpTorchFTCLS works for tensors of specified dimensions", {

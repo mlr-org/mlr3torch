@@ -1,12 +1,12 @@
-initialize_token_ = function(x, d, initialization="") {
-  assert_choice(initialization, c("uniform", "normal"))
-  d_sqrt_inv = 1 / sqrt(d)
-  if (initialization == "uniform") {
-    return(nn_init_uniform_(x, a = -d_sqrt_inv, b = d_sqrt_inv))
-  } else {
-    return(nn_init_normal_(x, std = d_sqrt_inv))
-  }
-}
+# initialize_token_ = function(x, d, initialization="") {
+#   assert_choice(initialization, c("uniform", "normal"))
+#   d_sqrt_inv = 1 / sqrt(d)
+#   if (initialization == "uniform") {
+#     return(nn_init_uniform_(x, a = -d_sqrt_inv, b = d_sqrt_inv))
+#   } else {
+#     return(nn_init_normal_(x, std = d_sqrt_inv))
+#   }
+# }
 
 nn_ft_cls = nn_module(
   "nn_ft_cls",
