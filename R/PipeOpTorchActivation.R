@@ -807,6 +807,20 @@ reglu = function(x) {
   return(a * nnf_relu(b))
 }
 
+#' @title ReGLU Module
+#'
+#' @description
+#' Rectified Gated Linear Unit (ReGLU) module.
+#' Computes the output as \eqn{\text{ReGLU}(x, g) = x \cdot \text{ReLU}(g)}
+#' where \(x\) and \(g\) are created by splitting the input tensor in half along the last dimension.
+#'
+#' @export
+#' @references
+#' `r format_bib("shazeer2020glu")`
+#' @examplesIf torch::torch_is_installed()
+#' x = torch::torch_randn(10, 10)
+#' reglu = nn_reglu()
+#' reglu(x)
 nn_reglu = nn_module(
   "nn_reglu",
   forward = function(input) {
@@ -817,14 +831,14 @@ nn_reglu = nn_module(
 #' @title ReGLU Activation Function
 #'
 #' @description
-#' Regularized Gated Linear Unit (ReGLU) activation function.
+#' Rectified Gated Linear Unit (ReGLU) activation function.
+#' See [`nn_reglu`] for details.
 #' @section Parameters:
 #' No parameters.
 #' @templateVar id nn_reglu
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
 #' @template pipeop_torch_example
-#'
 #' @export
 PipeOpTorchReGLU = R6Class("PipeOpTorchReGLU",
   inherit = PipeOpTorch,
@@ -866,6 +880,19 @@ geglu = function(x) {
   return(a * nnf_gelu(b))
 }
 
+#' @title GeGLU Module
+#' @description
+#' This module implements the Gaussian Error Linear Unit Gated Linear Unit (GeGLU) activation function.
+#' It computes \eqn{\text{GeGLU}(x, g) = x \cdot \text{GELU}(g)}
+#' where \(x\) and \(g\) are created by splitting the input tensor in half along the last dimension.
+#'
+#' @export
+#' @references
+#' `r format_bib("shazeer2020glu")`
+#' @examplesIf torch::torch_is_installed()
+#' x = torch::torch_randn(10, 10)
+#' glu = nn_geglu()
+#' glu(x)
 nn_geglu = nn_module(
   "nn_geglu",
   forward = function(input) {
@@ -876,7 +903,8 @@ nn_geglu = nn_module(
 #' @title GeGLU Activation Function
 #'
 #' @description
-#' Gaussian Error Linear Unit Gated Linear Unit (GeGLU) activation function.
+#' Gaussian Error Linear Unit Gated Linear Unit (GeGLU) activation function, see
+#' [`nn_geglu`] for details.
 #' @section Parameters:
 #' No parameters.
 #' @templateVar id nn_geglu
