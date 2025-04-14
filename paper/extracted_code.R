@@ -202,7 +202,7 @@ set_validate(learner, "test")
 learner$param_set$set_values(
   torch_model_regr.patience = 10,
   torch_model_regr.measures_valid = msr("regr.mse"),
-  torch_model_regr.epochs = to_tune(upper = 1000, internal = TRUE)
+  torch_model_regr.epochs = to_tune(upper = 100, internal = TRUE)
 )
 
 library("mlr3mbo")
@@ -248,10 +248,10 @@ task
 
 augment <- po("augment_random_vertical_flip", p = 0.5)
 
-preprocess <- po("trafo_resize", shape = c(-1, 3, 224, 224))
+preprocess <- po("trafo_resize", size = c(224, 224))
 
 unfreezer <- t_clbk("unfreeze",
-  starting_weights = select_name(c("fc.weights", "fc.bias")),
+  starting_weights = select_name(c("fc.weight", "fc.bias")),
   unfreeze = data.table(
     epoch = 3, weights = select_all()
   )
@@ -291,6 +291,7 @@ path_tabular <- po("select_1",
   nn("block_1", block = block_ffn, n_blocks = 3)
 
 path_image <- po("select_2", selector = selector_name("image")) %>>%
+  po("torch_ingress_ltnsr", shape = c(NA, 3, 128, 128)) %>>%
   nn("conv2d_1", out_channels = 64, kernel_size = 7, stride = 2,
     padding = 3) %>>%
   nn("batch_norm2d_1") %>>%
