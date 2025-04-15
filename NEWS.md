@@ -5,6 +5,7 @@
 * feat: `TorchIngressToken` now also can take a `Selector` as argument `features`.
 * feat: Added encoders for numericals and categoricals
 * feat: Added `po("nn_fn")` for calling custom functions in a network.
+* feat: Added `po("nn_ft_cls")` for concatenating a CLS token to a tokenized input.
 
 # mlr3torch 0.2.1
 
