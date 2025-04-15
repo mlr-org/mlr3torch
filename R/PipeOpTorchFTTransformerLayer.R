@@ -210,7 +210,7 @@ nn_ft_multi_head_attention = nn_module(
     d_head = d %/% self$n_heads
     return(input$reshape(c(batch_size, n_tokens, self$n_heads, d_head))$transpose(2, 3)$reshape(c(batch_size * self$n_heads, n_tokens, d_head)))
   },
-  forward = function(x_q, x_kv, key_compression=NULL, value_compression=NULL) {
+  forward = function(x_q, x_kv, key_compression = NULL, value_compression = NULL) {
     assert_true(all_or_none_(key_compression, value_compression))
     q = self$W_q(x_q)
     k = self$W_k(x_kv)
@@ -229,7 +229,7 @@ nn_ft_multi_head_attention = nn_module(
     q = self$reshape_(q)
     k = self$reshape_(k)
     attention_logits = torch_matmul(q, k$transpose(2, 3)) / sqrt(d_head_key)
-    attention_probs = nnf_softmax(attention_logits, dim=-1)
+    attention_probs = nnf_softmax(attention_logits, dim = -1)
     if (!is.null(self$dropout)) {
       attention_probs = self$dropout(attention_probs)
     }
