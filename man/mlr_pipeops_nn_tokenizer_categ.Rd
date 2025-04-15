@@ -6,6 +6,7 @@
 \title{Categorical Tokenizer}
 \description{
 Tokenizes categorical features into a dense embedding.
+For an input of shape \verb{(batch, n_features)} the output shape is \verb{(batch, n_features, d_token)}.
 }
 \section{nn_module}{
 

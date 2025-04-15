@@ -1,6 +1,11 @@
 #' @title CLS Token for FT-Transformer
-#' @description Concatenates a CLS token to the input as the last feature. Used in the FT-Transformer.
-#' 
+#' @description
+#' Concatenates a CLS token to the input as the last feature.
+#' The input shape is expected to be `(batch, n_features, d_token)` and the output shape is
+#' `(batch, n_features + 1, d_token)`.
+#'
+#' This is used in the FT-Transformer.
+#'
 #' @param d_token (`integer(1)`)\cr
 #'   The dimension of the embedding.
 #' @param initialization (`character(1)`)\cr
@@ -42,23 +47,17 @@ nn_ft_cls = nn_module(
 #' @inherit nn_ft_cls description
 #' @section nn_module:
 #' Calls [`nn_ft_cls()`] when trained.
-#' The input shape is `(batch, n_features, d_token)`.
-#' The output shape is `(batch, n_features + 1, d_token)`.
 #' @templateVar id nn_ft_cls
-#' @templateVar param_vals d_token = 10
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #' @export
 PipeOpTorchFTCLS = R6::R6Class("PipeOpTorchFTCLS",
-  inherit = PipeOpTorch,
+inherit = PipeOpTorch,
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
     initialize = function(id = "nn_ft_cls", param_vals = list()) {
       param_set = ps(
-        d_token = p_uty(tags = c("train", "required"), custom_check = function(input) {
-          check_integerish(input, lower = 1L, any.missing = FALSE, len = 1)
-        }),
         initialization = p_fct(tags = c("train"), levels = c("uniform", "normal"), default = "uniform")
       )
 
@@ -72,9 +71,15 @@ PipeOpTorchFTCLS = R6::R6Class("PipeOpTorchFTCLS",
   ),
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
-      shapes_out = assert_integer(shapes_in$input, len = 3)
-      shapes_out[2] = shapes_out[2] + 1
-      return(list(shapes_out))
+      if (length(shapes_in$input) != 3) {
+        stop("Input tensor must have 3 dimensions.")
+      }
+      shapes_in[[1]][2] = shapes_in[[1]][2] + 1
+      return(shapes_in)
+    },
+    .shape_dependent_params = function(shapes_in, param_vals, task) {
+      param_vals$d_token = shapes_in$input[3]
+      return(param_vals)
     }
   )
 )

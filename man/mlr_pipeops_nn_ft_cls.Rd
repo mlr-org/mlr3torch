@@ -5,13 +5,15 @@
 \alias{PipeOpTorchFTCLS}
 \title{CLS Token for FT-Transformer}
 \description{
-Concatenates a CLS token to the input as the last feature. Used in the FT-Transformer.
+Concatenates a CLS token to the input as the last feature.
+The input shape is expected to be \verb{(batch, n_features, d_token)} and the output shape is
+\verb{(batch, n_features + 1, d_token)}.
+
+This is used in the FT-Transformer.
 }
 \section{nn_module}{
 
 Calls \code{\link[=nn_ft_cls]{nn_ft_cls()}} when trained.
-The input shape is \verb{(batch, n_features, d_token)}.
-The output shape is \verb{(batch, n_features + 1, d_token)}.
 }
 
 \section{State}{
@@ -22,7 +24,7 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Construct the PipeOp
-pipeop = po("nn_ft_cls", d_token = 10)
+pipeop = po("nn_ft_cls")
 pipeop
 # The available parameters
 pipeop$param_set
