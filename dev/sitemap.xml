@@ -105,6 +105,7 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_elu.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_flatten.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_fn.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_ft_cls.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_geglu.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_gelu.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_glu.html</loc></url>
@@ -173,6 +174,7 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/model_descriptor_to_module.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/model_descriptor_union.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/nn.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/nn_ft_cls.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/nn_geglu.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/nn_graph.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/nn_merge_cat.html</loc></url>
