@@ -87,7 +87,7 @@
 #'   * binary classification: `c(batch_size, 1)`
 #'   * multiclass classification: `c(batch_size, n_classes)`
 #'   * regression: `c(batch_size, 1)`
-#'   You can use the [`output_dim_for`] function to obtain the correct output dimension for the task.
+#'   You can use [`output_dim_for()`] to obtain the correct output dimension for a given task.
 #' * `.dataset(task, param_vals)`\cr
 #'   ([`Task`][mlr3::Task], `list()`) -> [`torch::dataset`]\cr
 #'   Create the dataset for the task.
