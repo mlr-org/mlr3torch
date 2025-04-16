@@ -131,6 +131,7 @@ reference:
       - mlr_pipeops_torch_loss
       - as_torch_loss
       - mlr3torch_losses
+      - cross_entropy
   - title: Optimizer
     contents:
       - t_opt

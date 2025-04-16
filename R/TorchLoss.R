@@ -306,12 +306,12 @@ mlr3torch_losses$add("cross_entropy", function() {
     param_set = p,
     id = "cross_entropy",
     label = "Cross Entropy",
-    man = "mlr3torch::loss_cross_entropy"
+    man = "mlr3torch::cross_entropy"
   )
 })
 
 #' @title Cross Entropy Loss
-#' @name loss_cross_entropy
+#' @name cross_entropy
 #' @description
 #' The `cross_entropy` loss function selects the multi-class ([`nn_cross_entropy_loss`][torch::nn_cross_entropy_loss])
 #' or binary ([`nn_bce_with_logits_loss`][torch::nn_bce_with_logits_loss]) cross entropy
