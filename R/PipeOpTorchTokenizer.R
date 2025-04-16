@@ -68,6 +68,7 @@ PipeOpTorchTokenizerNum = R6Class("PipeOpTorchTokenizerNum",
 #' @name nn_tokenizer_num
 #' @description
 #' Tokenizes numeric features into a dense embedding.
+#' For an input of shape `(batch, n_features)` the output shape is `(batch, n_features, d_token)`.
 #' @param n_features (`integer(1)`)\cr
 #'   The number of features.
 #' @param d_token (`integer(1)`)\cr
@@ -119,6 +120,7 @@ nn_tokenizer_num = nn_module(
 #' @name nn_tokenizer_categ
 #' @description
 #' Tokenizes categorical features into a dense embedding.
+#' For an input of shape `(batch, n_features)` the output shape is `(batch, n_features, d_token)`.
 #' @param cardinalities (`integer()`)\cr
 #'   The number of categories for each feature.
 #' @param d_token (`integer(1)`)\cr

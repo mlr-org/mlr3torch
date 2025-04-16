@@ -5,6 +5,7 @@
 * feat: `TorchIngressToken` now also can take a `Selector` as argument `features`.
 * feat: Added encoders for numericals and categoricals
 * feat: Added `po("nn_fn")` for calling custom functions in a network.
+* feat: Added `po("nn_ft_cls")` for concatenating a CLS token to a tokenized input.
 * BREAKING_CHANGE: The output dimension of neural networks for binary classification tasks is now
   expected to be 1 and not 2 as before. The behavior of `nn("head")` was also changed to match this.
   This means that for binary classification tasks, `t_loss("cross_entropy")` now generates

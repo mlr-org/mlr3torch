@@ -117,6 +117,7 @@ Collate:
     'PipeOpTorchConv.R'
     'PipeOpTorchConvTranspose.R'
     'PipeOpTorchDropout.R'
+    'PipeOpTorchFTCLS.R'
     'PipeOpTorchFn.R'
     'PipeOpTorchHead.R'
     'PipeOpTorchIdentity.R'
