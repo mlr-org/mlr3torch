@@ -1,7 +1,7 @@
 #' @title Graph Network
 #'
 #' @description
-#' Represents a neural network using a [`Graph`][mlr3pipelines::Graph] that usually costains mostly [`PipeOpModule`]s.
+#' Represents a neural network using a [`Graph`][mlr3pipelines::Graph] that costains mostly [`PipeOpModule`]s.
 #'
 #' @section Fields:
 #' * `graph` :: [`Graph`][mlr3pipelines::Graph]\cr

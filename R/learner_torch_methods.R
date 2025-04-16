@@ -302,10 +302,12 @@ encode_prediction_default = function(predict_tensor, predict_type, task) {
     levels(response) = task$class_names
     return(list(response = response, prob = prob))
   } else if (task$task_type == "classif") {
-    # binary
-    response = as.integer(with_no_grad(predict_tensor >= 0)$to(device = "cpu"))
+    # binary:
+    # (first factor level is positive class)
+    response = as.integer(with_no_grad(predict_tensor < 0)$to(device = "cpu") + 1)
     class(response) = "factor"
     levels(response) = task$class_names
+
     prob = if (predict_type == "prob") {
       # convert score to prob
       predict_tensor = with_no_grad(nnf_sigmoid(predict_tensor))

@@ -178,7 +178,7 @@ test_that("learner_torch_dataloader_predict works", {
 })
 
 test_that("correct prob predictions for classification", {
-  learner = lrn("classif.mlp", batch_size = 150, epochs = 1, device = "cpu", neurons = 10,
+  learner = lrn("classif.mlp", batch_size = 150, epochs = 0, device = "cpu", neurons = c(),
     predict_type = "prob")
 
   rr_multi = resample(tsk("iris"), learner, rsmp("cv", folds = 2))
