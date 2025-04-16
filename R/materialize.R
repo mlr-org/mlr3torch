@@ -44,13 +44,6 @@
 materialize = function(x, device = "cpu", rbind = FALSE, ...) {
   assert_choice(device, mlr_reflections$torch$devices)
   assert_flag(rbind)
-  if (length(x) == 0L) {
-    if (rbind) {
-      return(torch_empty(0L))
-    } else {
-      return(list())
-    }
-  }
   UseMethod("materialize")
 }
 
@@ -70,6 +63,13 @@ materialize.list = function(x, device = "cpu", rbind = FALSE, cache = "auto", ..
 
   map(x, function(col) {
     if (is_lazy_tensor(col)) {
+      if (length(col) == 0L) {
+        if (rbind) {
+          return(torch_empty(0L))
+        } else {
+          return(list())
+        }
+      }
       materialize_internal(col, device = device, cache = cache, rbind = rbind)
     } else {
       col
@@ -83,12 +83,26 @@ materialize.list = function(x, device = "cpu", rbind = FALSE, cache = "auto", ..
 #' @method materialize data.frame
 #' @export
 materialize.data.frame = function(x, device = "cpu", rbind = FALSE, cache = "auto", ...) { # nolint
+  if (nrow(x) == 0L) {
+    if (rbind) {
+      set_names(replicate(ncol(x), torch_empty(0L)), names(x))
+    } else {
+      set_names(replicate(ncol(x), list()), names(x))
+    }
+  }
   materialize(as.list(x), device = device, rbind = rbind, cache = cache)
 }
 
 
 #' @export
 materialize.lazy_tensor = function(x, device = "cpu", rbind = FALSE, ...) { # nolint
+  if (length(x) == 0L) {
+    if (rbind) {
+      return(torch_empty(0L))
+    } else {
+      return(list())
+    }
+  }
   materialize_internal(x = x, device = device, cache = NULL, rbind = rbind)
 }
 

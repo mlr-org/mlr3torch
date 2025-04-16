@@ -352,3 +352,13 @@ rep.lazy_tensor = function(x, ...) {
 rep_len.lazy_tensor = function(x, ...) {
   set_class(NextMethod(), c("lazy_tensor", "list"))
 }
+
+
+#' @export
+distinct_values.lazy_tensor = function(x, drop = TRUE, na_rm = TRUE) {
+  if (!length(x)) {
+    return(x)
+  }
+  ids = distinct_values(map_int(x, 1))
+  lazy_tensor(dd(x), ids)
+}
