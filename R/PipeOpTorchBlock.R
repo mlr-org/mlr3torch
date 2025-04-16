@@ -44,7 +44,7 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
     initialize = function(block, id = "nn_block", param_vals = list()) {
       private$.block = as_graph(block)
       private$.param_set_base = ps(
-        n_blocks = p_int(lower = 1L, tags = c("train", "required"))
+        n_blocks = p_int(lower = 0L, tags = c("train", "required"))
       )
       super$initialize(
         id = id,
@@ -112,6 +112,9 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
       map(mdouts, "pointer_shape")
     },
     .train = function(inputs) {
+      if (self$param_set$values$n_blocks == 0L) {
+        return(inputs)
+      }
       param_vals = self$param_set$get_values(tags = "train")
       block = private$.block$clone(deep = TRUE)
       graph = private$.make_graph(block, param_vals$n_blocks)

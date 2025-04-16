@@ -22,6 +22,7 @@ and \code{"normal"}.}
 }
 \description{
 Tokenizes categorical features into a dense embedding.
+For an input of shape \verb{(batch, n_features)} the output shape is \verb{(batch, n_features, d_token)}.
 }
 \references{
 Gorishniy Y, Rubachev I, Khrulkov V, Babenko A (2021).

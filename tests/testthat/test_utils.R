@@ -22,11 +22,6 @@ test_that("test_equal_col_info works", {
   expect_false(test_equal_col_info(ci, ci4))
 })
 
-test_that("get_nout works", {
-  expect_equal(get_nout(tsk("iris")), 3)
-  expect_equal(get_nout(tsk("mtcars")), 1)
-})
-
 test_that("uniqueify works", {
   expect_equal(uniqueify("a", "a"), "a_1")
 })
