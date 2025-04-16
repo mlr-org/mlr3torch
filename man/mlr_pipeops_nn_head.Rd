@@ -18,7 +18,7 @@ For
 \itemize{
 \item binary classification, the output dimension is 1.
 \item multiclass classification, the output dimension is the number of classes.
-\item regression, the output dimension is the same as the number of target features.
+\item regression, the output dimension is 1.
 }
 }
 

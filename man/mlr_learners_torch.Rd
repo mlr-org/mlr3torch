@@ -39,6 +39,27 @@ To do so, you just need to include \verb{epochs = to_tune(upper = <upper>, inter
 where \verb{<upper>} is the maximally allowed number of epochs, and configure the early stopping.
 }
 
+\section{Network Head and Target Encoding}{
+
+Torch learners are expected to have the following output:
+\itemize{
+\item binary classification: \code{c(batch_size, 1)}, representing the logits for the positive class.
+\item multiclass classification: \code{c(batch_size, n_classes)}, representing the logits for all classes.
+\item regression: \code{c(batch_size, 1)} representing the response prediction.
+}
+
+Furthermore, the target encoding is expected to be as follows:
+\itemize{
+\item regression: The \code{numeric} target variable of a \code{\link[mlr3:TaskRegr]{TaskRegr}} is encoded as a
+\code{\link[torch:torch_dtype]{torch_float}} with shape \code{c(batch_size, 1)}.
+\item binary classification: The \code{factor} target variable of a \code{\link[mlr3:TaskClassif]{TaskClassif}} is encoded as a
+\code{\link[torch:torch_dtype]{torch_float}} with shape \verb{(batch_size, 1)} where the positive class is \code{1} and the negative
+class is \code{0}.
+\item multi-class classification: The \code{factor} target variable of a \code{\link[mlr3:TaskClassif]{TaskClassif}} is a label-encoded
+\code{\link[torch:torch_dtype]{torch_long}} with shape \verb{(batch_size, n_classes)} starting at \code{1} and ending at \code{n_classes}.
+}
+}
+
 \section{Model}{
 
 The Model is a list of class \code{"learner_torch_model"} with the following elements:
@@ -169,15 +190,8 @@ When inheriting from this class, one should overload two private methods:
 (\code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{\link[torch:nn_module]{nn_module}}\cr
 Construct a \code{\link[torch:nn_module]{torch::nn_module}} object for the given task and parameter values, i.e. the neural network that
 is trained by the learner.
-For classification, the output of this network are expected to be the scores before the application of the
-final softmax layer.
-The expected output dimenions are as follows:
-\itemize{
-\item binary classification: \code{c(batch_size, 1)}
-\item multiclass classification: \code{c(batch_size, n_classes)}
-\item regression: \code{c(batch_size, 1)}
+Note that a specific output shape is expected from the returned network, see section \emph{Network Head and Target Encoding}.
 You can use \code{\link[=output_dim_for]{output_dim_for()}} to obtain the correct output dimension for a given task.
-}
 \item \code{.dataset(task, param_vals)}\cr
 (\code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{\link[torch:dataset]{torch::dataset}}\cr
 Create the dataset for the task.
@@ -189,7 +203,9 @@ For networks with more than one input, the names must correspond to the inputs o
 \item \code{.index} are the indices of the batch (\code{integer()} or a \code{torch_int()}).
 }
 
+For information on the expected target encoding of \code{y}, see section \emph{Network Head and Target Encoding}.
 Moreover, one needs to pay attention respect the row ids of the provided task.
+It is recommended to relu on \code{\link{task_dataset}} for creating the \code{\link[torch:dataset]{dataset}}.
 }
 
 It is also possible to overwrite the private \code{.dataloader()} method.
@@ -198,10 +214,10 @@ This must respect the dataloader parameters from the \code{\link[paradox:ParamSe
 \item \code{.dataloader(dataset, param_vals)}\cr
 (\code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{\link[torch:dataloader]{torch::dataloader}}\cr
 Create a dataloader from the task.
-Needs to respect at least \code{batch_size} and \code{shuffle} (otherwise predictions can be permuted).
+Needs to respect at least \code{batch_size} and \code{shuffle} (otherwise predictions will be incorrectly ordered).
 }
 
-To change the predict types, the it is possible to overwrite the method below:
+To change the predict types, it is possible to overwrite the method below:
 \itemize{
 \item \code{.encode_prediction(predict_tensor, task)}\cr
 (\code{\link[torch:torch_tensor]{torch_tensor}}, \code{\link[mlr3:Task]{Task}}) -> \code{list()}\cr

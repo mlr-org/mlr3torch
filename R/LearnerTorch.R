@@ -29,6 +29,21 @@
 #' To do so, you just need to include `epochs = to_tune(upper = <upper>, internal = TRUE)` in the search space,
 #' where `<upper>` is the maximally allowed number of epochs, and configure the early stopping.
 #'
+#' @section Network Head and Target Encoding:
+#' Torch learners are expected to have the following output:
+#' * binary classification: `c(batch_size, 1)`, representing the logits for the positive class.
+#' * multiclass classification: `c(batch_size, n_classes)`, representing the logits for all classes.
+#' * regression: `c(batch_size, 1)` representing the response prediction.
+#'
+#' Furthermore, the target encoding is expected to be as follows:
+#' * regression: The `numeric` target variable of a [`TaskRegr`][mlr3::TaskRegr] is encoded as a
+#'   [`torch_float`][torch::torch_float] with shape `c(batch_size, 1)`.
+#' * binary classification: The `factor` target variable of a [`TaskClassif`][mlr3::TaskClassif] is encoded as a
+#'   [`torch_float`][torch::torch_float] with shape `(batch_size, 1)` where the positive class is `1` and the negative
+#'   class is `0`.
+#' * multi-class classification: The `factor` target variable of a [`TaskClassif`][mlr3::TaskClassif] is a label-encoded
+#'   [`torch_long`][torch::torch_long] with shape `(batch_size, n_classes)` starting at `1` and ending at `n_classes`.
+#'
 #' @template param_id
 #' @template param_task_type
 #' @template param_param_vals
@@ -81,12 +96,7 @@
 #'   ([`Task`][mlr3::Task], `list()`) -> [`nn_module`][torch::nn_module]\cr
 #'   Construct a [`torch::nn_module`] object for the given task and parameter values, i.e. the neural network that
 #'   is trained by the learner.
-#'   For classification, the output of this network are expected to be the scores before the application of the
-#'   final softmax layer.
-#'   The expected output dimenions are as follows:
-#'   * binary classification: `c(batch_size, 1)`
-#'   * multiclass classification: `c(batch_size, n_classes)`
-#'   * regression: `c(batch_size, 1)`
+#'   Note that a specific output shape is expected from the returned network, see section *Network Head and Target Encoding*.
 #'   You can use [`output_dim_for()`] to obtain the correct output dimension for a given task.
 #' * `.dataset(task, param_vals)`\cr
 #'   ([`Task`][mlr3::Task], `list()`) -> [`torch::dataset`]\cr
@@ -97,7 +107,9 @@
 #'   * `y` is the target tensor.
 #'   * `.index` are the indices of the batch (`integer()` or a `torch_int()`).
 #'
+#'   For information on the expected target encoding of `y`, see section *Network Head and Target Encoding*.
 #'   Moreover, one needs to pay attention respect the row ids of the provided task.
+#'   It is recommended to relu on [`task_dataset`] for creating the [`dataset`][torch::dataset].
 #'
 #' It is also possible to overwrite the private `.dataloader()` method.
 #' This must respect the dataloader parameters from the [`ParamSet`][paradox::ParamSet].
@@ -105,9 +117,9 @@
 #' * `.dataloader(dataset, param_vals)`\cr
 #'   ([`Task`][mlr3::Task], `list()`) -> [`torch::dataloader`]\cr
 #'   Create a dataloader from the task.
-#'   Needs to respect at least `batch_size` and `shuffle` (otherwise predictions can be permuted).
+#'   Needs to respect at least `batch_size` and `shuffle` (otherwise predictions will be incorrectly ordered).
 #'
-#' To change the predict types, the it is possible to overwrite the method below:
+#' To change the predict types, it is possible to overwrite the method below:
 #'
 #' * `.encode_prediction(predict_tensor, task)`\cr
 #'   ([`torch_tensor`][torch::torch_tensor], [`Task`][mlr3::Task]) -> `list()`\cr

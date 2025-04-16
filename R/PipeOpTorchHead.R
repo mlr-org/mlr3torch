@@ -7,7 +7,7 @@
 #' For
 #' * binary classification, the output dimension is 1.
 #' * multiclass classification, the output dimension is the number of classes.
-#' * regression, the output dimension is the same as the number of target features.
+#' * regression, the output dimension is 1.
 #'
 #' @section Parameters:
 #' * `bias` :: `logical(1)`\cr
