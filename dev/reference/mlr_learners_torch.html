@@ -102,6 +102,21 @@ To do so, you just need to include <code>epochs = to_tune(upper = &lt;upper&gt;,
 where <code>&lt;upper&gt;</code> is the maximally allowed number of epochs, and configure the early stopping.</p>
     </div>
     <div class="section level2">
+    <h2 id="network-head-and-target-encoding">Network Head and Target Encoding<a class="anchor" aria-label="anchor" href="#network-head-and-target-encoding"></a></h2>
+
+
+<p>Torch learners are expected to have the following output:</p><ul><li><p>binary classification: <code>c(batch_size, 1)</code>, representing the logits for the positive class.</p></li>
+<li><p>multiclass classification: <code>c(batch_size, n_classes)</code>, representing the logits for all classes.</p></li>
+<li><p>regression: <code>c(batch_size, 1)</code> representing the response prediction.</p></li>
+</ul><p>Furthermore, the target encoding is expected to be as follows:</p><ul><li><p>regression: The <code>numeric</code> target variable of a <code><a href="https://mlr3.mlr-org.com/reference/TaskRegr.html" class="external-link">TaskRegr</a></code> is encoded as a
+<code><a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch_float</a></code> with shape <code>c(batch_size, 1)</code>.</p></li>
+<li><p>binary classification: The <code>factor</code> target variable of a <code><a href="https://mlr3.mlr-org.com/reference/TaskClassif.html" class="external-link">TaskClassif</a></code> is encoded as a
+<code><a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch_float</a></code> with shape <code>(batch_size, 1)</code> where the positive class is <code>1</code> and the negative
+class is <code>0</code>.</p></li>
+<li><p>multi-class classification: The <code>factor</code> target variable of a <code><a href="https://mlr3.mlr-org.com/reference/TaskClassif.html" class="external-link">TaskClassif</a></code> is a label-encoded
+<code><a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch_long</a></code> with shape <code>(batch_size, n_classes)</code> starting at <code>1</code> and ending at <code>n_classes</code>.</p></li>
+</ul></div>
+    <div class="section level2">
     <h2 id="model">Model<a class="anchor" aria-label="anchor" href="#model"></a></h2>
 
 
@@ -212,8 +227,8 @@ Currently, only classification and regression are supported.</p>
 (<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">nn_module</a></code><br>
 Construct a <code><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">torch::nn_module</a></code> object for the given task and parameter values, i.e. the neural network that
 is trained by the learner.
-For classification, the output of this network are expected to be the scores before the application of the
-final softmax layer.</p></li>
+Note that a specific output shape is expected from the returned network, see section <em>Network Head and Target Encoding</em>.
+You can use <code><a href="output_dim_for.html">output_dim_for()</a></code> to obtain the correct output dimension for a given task.</p></li>
 <li><p><code>.dataset(task, param_vals)</code><br>
 (<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code><a href="https://torch.mlverse.org/docs/reference/dataset.html" class="external-link">torch::dataset</a></code><br>
 Create the dataset for the task.
@@ -221,13 +236,15 @@ The dataset must return a named list where:</p><ul><li><p><code>x</code> is a li
 For networks with more than one input, the names must correspond to the inputs of the network.</p></li>
 <li><p><code>y</code> is the target tensor.</p></li>
 <li><p><code>.index</code> are the indices of the batch (<code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code> or a <code><a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch_int()</a></code>).</p></li>
-</ul><p>Moreover, one needs to pay attention respect the row ids of the provided task.</p></li>
+</ul><p>For information on the expected target encoding of <code>y</code>, see section <em>Network Head and Target Encoding</em>.
+Moreover, one needs to pay attention respect the row ids of the provided task.
+It is recommended to relu on <code><a href="task_dataset.html">task_dataset</a></code> for creating the <code><a href="https://torch.mlverse.org/docs/reference/dataset.html" class="external-link">dataset</a></code>.</p></li>
 </ul><p>It is also possible to overwrite the private <code>.dataloader()</code> method.
 This must respect the dataloader parameters from the <code><a href="https://paradox.mlr-org.com/reference/ParamSet.html" class="external-link">ParamSet</a></code>.</p><ul><li><p><code>.dataloader(dataset, param_vals)</code><br>
 (<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code><a href="https://torch.mlverse.org/docs/reference/dataloader.html" class="external-link">torch::dataloader</a></code><br>
 Create a dataloader from the task.
-Needs to respect at least <code>batch_size</code> and <code>shuffle</code> (otherwise predictions can be permuted).</p></li>
-</ul><p>To change the predict types, the it is possible to overwrite the method below:</p><ul><li><p><code>.encode_prediction(predict_tensor, task)</code><br>
+Needs to respect at least <code>batch_size</code> and <code>shuffle</code> (otherwise predictions will be incorrectly ordered).</p></li>
+</ul><p>To change the predict types, it is possible to overwrite the method below:</p><ul><li><p><code>.encode_prediction(predict_tensor, task)</code><br>
 (<code><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></code>, <code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>) -&gt; <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code><br>
 Take in the raw predictions from <code>self$network</code> (<code>predict_tensor</code>) and encode them into a
 format that can be converted to valid <code>mlr3</code> predictions using <code><a href="https://mlr3.mlr-org.com/reference/as_prediction_data.html" class="external-link">mlr3::as_prediction_data()</a></code>.

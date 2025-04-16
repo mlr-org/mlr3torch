@@ -39,6 +39,7 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/batchgetter_categ.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/batchgetter_num.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/callback_set.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/cross_entropy.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/equals-.lazy_tensor.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/index.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/ingress_categ.html</loc></url>
@@ -186,6 +187,7 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/nn_tokenizer_categ.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/nn_tokenizer_num.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/nn_unsqueeze.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/output_dim_for.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/pipeop_preproc_torch.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/replace_head.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/t_clbk.html</loc></url>

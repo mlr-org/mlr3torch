@@ -201,7 +201,7 @@ readability:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">cnn</span><span class="op">$</span><span class="va">param_set</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">32</span>, <span class="fl">34</span>, <span class="fl">42</span><span class="op">)</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span></span>
 <span><span class="co">#&gt;                             id    class lower upper</span></span>
 <span><span class="co">#&gt;                         &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:           nn_block.n_blocks ParamInt     1   Inf</span></span>
+<span><span class="co">#&gt; 1:           nn_block.n_blocks ParamInt     0   Inf</span></span>
 <span><span class="co">#&gt; 2: nn_block.nn_dropout.inplace ParamLgl    NA    NA</span></span>
 <span><span class="co">#&gt; 3:          torch_optimizer.lr ParamDbl     0   Inf</span></span></code></pre></div>
 <p>We can still change them, or if we wanted to, even tune them! Below,

@@ -77,8 +77,11 @@ When this <code><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html
     <h2 id="nn-module">nn_module<a class="anchor" aria-label="anchor" href="#nn-module"></a></h2>
 
 
-<p>Calls <code><a href="https://torch.mlverse.org/docs/reference/nn_linear.html" class="external-link">torch::nn_linear()</a></code> with the input and output features inferred from the input shape / task.</p>
-    </div>
+<p>Calls <code><a href="https://torch.mlverse.org/docs/reference/nn_linear.html" class="external-link">torch::nn_linear()</a></code> with the input and output features inferred from the input shape / task.
+For</p><ul><li><p>binary classification, the output dimension is 1.</p></li>
+<li><p>multiclass classification, the output dimension is the number of classes.</p></li>
+<li><p>regression, the output dimension is 1.</p></li>
+</ul></div>
     <div class="section level2">
     <h2 id="parameters">Parameters<a class="anchor" aria-label="anchor" href="#parameters"></a></h2>
 
