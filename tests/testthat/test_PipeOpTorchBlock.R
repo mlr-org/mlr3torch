@@ -89,3 +89,9 @@ test_that("different block changes phash", {
   x2 = po("nn_block", po("nn_relu"))
   expect_false(x1$phash == x2$phash)
 })
+
+test_that("0 blocks are possible", {
+  md = po("torch_ingress_num")$train(list(tsk("iris")))[[1L]]
+  mdout = nn("block", block = nn("linear", out_features = 10), n_blocks = 0)$train(list(md))[[1L]]
+  expect_equal(mdout$pointer_shape, c(NA, 4))
+})

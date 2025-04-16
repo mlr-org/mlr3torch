@@ -46,3 +46,11 @@ test_that("cloning also keeps parameter values", {
   expect_equal(learner$param_set$values$n_blocks, 2)
   expect_equal(learnerc$param_set$values$n_blocks, 2)
 })
+
+test_that("task types", {
+  learner = lrn("classif.tab_resnet", n_blocks = 0, epochs = 0, batch_size = 16, d_block = 5, d_hidden = 10, dropout1 = 0.3, dropout2 = 0.3)
+  expect_learner_torch(learner, tsk("iris"))
+  expect_learner_torch(learner, tsk("sonar"))
+  learner = lrn("regr.tab_resnet", n_blocks = 0, epochs = 0, batch_size = 16, d_block = 5, d_hidden = 10, dropout1 = 0.3, dropout2 = 0.3)
+  expect_learner_torch(learner, tsk("mtcars"))
+})

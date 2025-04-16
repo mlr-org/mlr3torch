@@ -33,7 +33,7 @@ test_that("PipeOpTorchIngressLazyTensor", {
   po_ingress = po("torch_ingress_ltnsr")
 
   output = po_ingress$train(list(task))[[1L]]
-  ds = task_dataset(task, output$ingress, target_batchgetter = target_batchgetter_classif)
+  ds = task_dataset(task, output$ingress, target_batchgetter = target_batchgetter_classif_binary)
 
   batch = ds$.getbatch(1:2)
   expect_permutation(names(batch), c("x", "y", ".index"))
