@@ -43,9 +43,9 @@ where \verb{<upper>} is the maximally allowed number of epochs, and configure th
 
 Torch learners are expected to have the following output:
 \itemize{
-\item binary classification: \code{c(batch_size, 1)}, representing the logits for the positive class.
-\item multiclass classification: \code{c(batch_size, n_classes)}, representing the logits for all classes.
-\item regression: \code{c(batch_size, 1)} representing the response prediction.
+\item binary classification: \verb{(batch_size, 1)}, representing the logits for the positive class.
+\item multiclass classification: \verb{(batch_size, n_classes)}, representing the logits for all classes.
+\item regression: \verb{(batch_size, 1)} representing the response prediction.
 }
 
 Furthermore, the target encoding is expected to be as follows:
@@ -56,7 +56,7 @@ Furthermore, the target encoding is expected to be as follows:
 \code{\link[torch:torch_dtype]{torch_float}} with shape \verb{(batch_size, 1)} where the positive class is \code{1} and the negative
 class is \code{0}.
 \item multi-class classification: The \code{factor} target variable of a \code{\link[mlr3:TaskClassif]{TaskClassif}} is a label-encoded
-\code{\link[torch:torch_dtype]{torch_long}} with shape \verb{(batch_size, n_classes)} starting at \code{1} and ending at \code{n_classes}.
+\code{\link[torch:torch_dtype]{torch_long}} with shape \code{(batch_size)} where the label-encoding goes from \code{1} to \code{n_classes}.
 }
 }
 

@@ -31,9 +31,9 @@
 #'
 #' @section Network Head and Target Encoding:
 #' Torch learners are expected to have the following output:
-#' * binary classification: `c(batch_size, 1)`, representing the logits for the positive class.
-#' * multiclass classification: `c(batch_size, n_classes)`, representing the logits for all classes.
-#' * regression: `c(batch_size, 1)` representing the response prediction.
+#' * binary classification: `(batch_size, 1)`, representing the logits for the positive class.
+#' * multiclass classification: `(batch_size, n_classes)`, representing the logits for all classes.
+#' * regression: `(batch_size, 1)` representing the response prediction.
 #'
 #' Furthermore, the target encoding is expected to be as follows:
 #' * regression: The `numeric` target variable of a [`TaskRegr`][mlr3::TaskRegr] is encoded as a
@@ -42,7 +42,7 @@
 #'   [`torch_float`][torch::torch_float] with shape `(batch_size, 1)` where the positive class is `1` and the negative
 #'   class is `0`.
 #' * multi-class classification: The `factor` target variable of a [`TaskClassif`][mlr3::TaskClassif] is a label-encoded
-#'   [`torch_long`][torch::torch_long] with shape `(batch_size, n_classes)` starting at `1` and ending at `n_classes`.
+#'   [`torch_long`][torch::torch_long] with shape `(batch_size)` where the label-encoding goes from `1` to `n_classes`.
 #'
 #' @template param_id
 #' @template param_task_type
