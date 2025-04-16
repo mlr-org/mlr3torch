@@ -71,3 +71,8 @@ test_that("neurons and n_layers", {
   expect_error(l1$train(task), "Can only supply")
 })
 
+test_that("task types", {
+  expect_learner_torch(lrn("classif.mlp", neurons = 10, batch_size = 16, epochs = 0), tsk("iris"))
+  expect_learner_torch(lrn("classif.mlp", neurons = 10, batch_size = 16, epochs = 0), tsk("sonar"))
+  expect_learner_torch(lrn("regr.mlp", neurons = 10, batch_size = 16, epochs = 0), tsk("mtcars"))
+})

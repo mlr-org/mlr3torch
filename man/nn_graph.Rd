@@ -24,6 +24,7 @@ Whether output should be a list of tensors. If \code{FALSE} (default), then \cod
 }
 \description{
 Represents a neural network using a \code{\link[mlr3pipelines:Graph]{Graph}} that usually costains mostly \code{\link{PipeOpModule}}s.
+You can get the input arguments of the network via \verb{$args}.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}

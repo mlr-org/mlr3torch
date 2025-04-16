@@ -35,7 +35,7 @@
 #' nn_one_layer = nn_module("nn_one_layer",
 #'   initialize = function(task, size_hidden) {
 #'     self$first = nn_linear(task$n_features, size_hidden)
-#'     self$second = nn_linear(size_hidden, length(task$class_names))
+#'     self$second = nn_linear(size_hidden, output_dim_for(task))
 #'   },
 #'   # argument x corresponds to the ingress token x
 #'   forward = function(x) {
@@ -117,7 +117,7 @@ LearnerTorchModule = R6Class("LearnerTorchModule",
       dataset = task_dataset(
         task,
         feature_ingress_tokens = ingress_tokens,
-        target_batchgetter = get_target_batchgetter(self$task_type)
+        target_batchgetter = get_target_batchgetter(task)
       )
     },
 

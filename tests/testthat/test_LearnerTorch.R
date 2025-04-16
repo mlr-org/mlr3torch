@@ -133,9 +133,9 @@ test_that("Parameters cannot start with {loss, opt, cb}.", {
     )$new()
   }
 
-  expect_error(helper(ps(loss.weight = p_dbl())), "are reserved for")
-  expect_error(helper(ps(opt.weight = p_dbl())), "are reserved for")
-  expect_error(helper(ps(cb.weight = p_dbl())), "are reserved for")
+  expect_error(helper(ps(loss.class_weight = p_dbl())), "are reserved for")
+  expect_error(helper(ps(opt.class_weight = p_dbl())), "are reserved for")
+  expect_error(helper(ps(cb.class_weight = p_dbl())), "are reserved for")
 })
 
 test_that("ParamSet reference identities are preserved after a deep clone", {
@@ -150,8 +150,8 @@ test_that("ParamSet reference identities are preserved after a deep clone", {
 
   learner1$param_set$set_values(opt.lr = 9.99)
   expect_true(get_private(learner1)$.optimizer$param_set$values$lr == 9.99)
-  learner1$param_set$set_values(loss.weight = 0.11)
-  expect_true(get_private(learner1)$.loss$param_set$values$weight == 0.11)
+  learner1$param_set$set_values(loss.class_weight = 0.11)
+  expect_true(get_private(learner1)$.loss$param_set$values$class_weight == 0.11)
 })
 
 test_that("Learner inherits packages from optimizer, loss, and callbacks", {
@@ -755,8 +755,8 @@ test_that("dataset works", {
     initialize = function() NULL,
     on_batch_begin = function() {
       batch = self$ctx$batch
-      expect_equal(batch$x$torch_ingress_num.input$device$type, "meta")
-      expect_equal(batch$x$torch_ingress_num.input$shape, c(2, 4))
+      expect_equal(batch$x$input$device$type, "meta")
+      expect_equal(batch$x$input$shape, c(2, 4))
       expect_equal(batch$y$device$type, "meta")
       expect_equal(batch$y$shape, 2)
       expect_equal(batch$.index$shape, 2)
@@ -773,7 +773,7 @@ test_that("dataset works", {
   testcb2 = torch_callback("test2",
     initialize = function() NULL,
     on_batch_begin = function() {
-      expect_equal(self$ctx$batch$x$torch_ingress_num.input$device$type, "cpu")
+      expect_equal(self$ctx$batch$x$input$device$type, "cpu")
       stop("everything is fine")
     }
   )
@@ -973,7 +973,7 @@ test_that("tensor_dataset works", {
 
 test_that("loss is put on device", {
   learner = lrn("classif.mlp", epochs = 0, batch_size = 32, device = "meta",
-    loss = t_loss("cross_entropy", weight = torch_tensor(c(1, 2, 3))))
+    loss = t_loss("cross_entropy", class_weight = torch_tensor(c(1, 2, 3))))
   learner$train(tsk("iris"))
   expect_true(learner$model$loss_fn[[1]]$device == torch_device("meta"))
 })

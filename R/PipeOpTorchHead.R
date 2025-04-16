@@ -39,13 +39,13 @@ PipeOpTorchHead = R6Class("PipeOpTorchHead",
       if (length(shapes_in[[1]]) != 2L) {
         stopf("PipeOpTorchHead expects 2D input, but got %s.", shape_to_str(shapes_in))
       }
-      d = get_nout(task)
+      d = output_dim_for(task)
       list(c(shapes_in[[1]][[1]], d))
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {
       param_vals$in_features = shapes_in[[1L]][2L]
 
-      param_vals$out_features = get_nout(task)
+      param_vals$out_features = output_dim_for(task)
 
       param_vals
     }

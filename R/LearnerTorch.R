@@ -83,6 +83,11 @@
 #'   is trained by the learner.
 #'   For classification, the output of this network are expected to be the scores before the application of the
 #'   final softmax layer.
+#'   The expected output dimenions are as follows:
+#'   * binary classification: `c(batch_size, 1)`
+#'   * multiclass classification: `c(batch_size, n_classes)`
+#'   * regression: `c(batch_size, 1)`
+#'   You can use the [`output_dim_for`] function to obtain the correct output dimension for the task.
 #' * `.dataset(task, param_vals)`\cr
 #'   ([`Task`][mlr3::Task], `list()`) -> [`torch::dataset`]\cr
 #'   Create the dataset for the task.

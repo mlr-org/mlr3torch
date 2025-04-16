@@ -98,7 +98,7 @@
 #'     self$output = if (task$task_type == "regr") {
 #'       torch::nn_linear(d_hidden, 1)
 #'     } else if (task$task_type == "classif") {
-#'       torch::nn_linear(d_hidden, length(task$class_names))
+#'       torch::nn_linear(d_hidden, output_dim_for(task))
 #'     }
 #'   },
 #'   forward = function(x) {

@@ -171,6 +171,13 @@ Construct a \code{\link[torch:nn_module]{torch::nn_module}} object for the given
 is trained by the learner.
 For classification, the output of this network are expected to be the scores before the application of the
 final softmax layer.
+The expected output dimenions are as follows:
+\itemize{
+\item binary classification: \code{c(batch_size, 1)}
+\item multiclass classification: \code{c(batch_size, n_classes)}
+\item regression: \code{c(batch_size, 1)}
+You can use the \code{\link{output_dim_for}} function to obtain the correct output dimension for the task.
+}
 \item \code{.dataset(task, param_vals)}\cr
 (\code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{\link[torch:dataset]{torch::dataset}}\cr
 Create the dataset for the task.

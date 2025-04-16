@@ -2,6 +2,7 @@
 #'
 #' @description
 #' Represents a neural network using a [`Graph`][mlr3pipelines::Graph] that usually costains mostly [`PipeOpModule`]s.
+#' You can get the input arguments of the network via `$args`.
 #'
 #' @param graph ([`Graph`][mlr3pipelines::Graph])\cr
 #'   The [`Graph`][mlr3pipelines::Graph] to wrap. Is **not** cloned.
@@ -32,14 +33,14 @@ nn_graph = nn_module(
   "nn_graph",
   initialize = function(graph, shapes_in, output_map = graph$output$name, list_output = FALSE) {
     self$graph = as_graph(graph, clone = FALSE)
-    self$graph_input_name = graph$input$name  # cache this, it is expensive
+    self$args = graph$input$name  # cache this, it is expensive
 
     # we do NOT verify the input and type of the graph to be `"torch_tensor"`.
     # The reason for this is that the graph, when constructed with the PipeOpTorch Machinery, contains PipeOpNOPs,
     # which have input and output type *.
 
     self$list_output = assert_flag(list_output)
-    assert_names(names(shapes_in), permutation.of = self$graph_input_name)
+    assert_names(names(shapes_in), permutation.of = self$args)
     self$shapes_in = assert_list(shapes_in, types = "integerish")
     self$output_map = assert_subset(output_map, self$graph$output$name)
     if (!list_output && length(output_map) != 1) {

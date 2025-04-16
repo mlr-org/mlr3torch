@@ -92,8 +92,9 @@ TorchLoss = R6::R6Class("TorchLoss",
     task_types = NULL,
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    #' @param torch_loss (`nn_loss`)\cr
-    #'   The loss module.
+    #' @param torch_loss (`nn_loss` or `function`)\cr
+    #'   The loss module or function that generates the loss module.
+    #'   Can have arguments `task` that will be provided when the loss is instantiated.
     #' @param task_types (`character()`)\cr
     #'   The task types supported by this loss.
     #' @param param_set ([`ParamSet`][paradox::ParamSet] or `NULL`)\cr
@@ -110,8 +111,9 @@ TorchLoss = R6::R6Class("TorchLoss",
       } else {
         c("classif", "regr")
       }
-      torch_loss = assert_class(torch_loss, "nn_module")
+      assert(check_class(torch_loss, "nn_module_generator"), check_class(torch_loss, "function"))
 
+      param_set = assert_r6(param_set, "ParamSet", null.ok = TRUE) %??% inferps(torch_loss, ignore = "task")
       super$initialize(
         generator = torch_loss,
         id = id,
@@ -128,6 +130,20 @@ TorchLoss = R6::R6Class("TorchLoss",
       super$print(...)
       catn(str_indent("* Task Types:", as_short_string(self$task_types, 1000L)))
       invisible(self)
+    },
+    #' @description
+    #' Instantiates the loss function.
+    #' @param task (`Task`)\cr
+    #'   The task. Must be provided if the loss function requires a task.
+    #' @return `torch_loss`
+    generate = function(task = NULL) {
+      require_namespaces(self$packages)
+      args = self$param_set$get_values()
+      if ("task" %in% formalArgs(self$generator)) {
+        assert_true(!is.null(task))
+        args = insert_named(args, list(task = task))
+      }
+      do.call(self$generator, args)
     }
   ),
   private = list(
@@ -259,16 +275,68 @@ mlr3torch_losses$add("l1", function() {
 
 mlr3torch_losses$add("cross_entropy", function() {
   p = ps(
-    weight = p_uty(default = NULL, tags = "train"),
+    class_weight = p_uty(default = NULL, tags = "train"),
     ignore_index = p_int(default = -100, tags = "train"),
     reduction = p_fct(levels = c("mean", "sum"), default = "mean", tags = "train")
   )
   TorchLoss$new(
-    torch_loss = torch::nn_cross_entropy_loss,
+    torch_loss = function(task, ...) {
+      if (task$task_type != "classif") {
+        stopf("Cross entropy loss is only defined for classification tasks, but task is of type '%s'", task$task_type)
+      }
+      args = list(...)
+      is_binary = "twoclass" %in% task$properties
+      if (is_binary) {
+        if (!is.null(args$ignore_index)) {
+          stopf("ignore_index is not supported for binary cross entropy loss")
+        }
+        if (!is.null(args$class_weight)) {
+          args$pos_weight = args$class_weight
+          args$class_weight = NULL
+        }
+        return(invoke(nn_bce_with_logits_loss, .args = args))
+      }
+      if (!is.null(args$class_weight)) {
+        args$weight = args$class_weight
+        args$class_weight = NULL
+      }
+      invoke(nn_cross_entropy_loss, .args = args)
+    },
     task_types = "classif",
     param_set = p,
     id = "cross_entropy",
     label = "Cross Entropy",
-    man = "torch::nn_cross_entropy_loss"
+    man = "mlr3torch::loss_cross_entropy"
   )
 })
+
+#' @title Cross Entropy Loss
+#' @name loss_cross_entropy
+#' @description
+#' The `cross_entropy` loss function selects the multi-class ([`nn_cross_entropy_loss`][torch::nn_cross_entropy_loss])
+#' or binary ([`nn_bce_with_logits_loss`][torch::nn_bce_with_logits_loss]) cross entropy
+#' loss based on the number of classes.
+#' Because of this, there is a slight parameterization of the loss arguments, see *Parameters*.
+#' @section Parameters:
+#' * `class_weight`:: [`torch_tensor`]\cr
+#'    The class weights. For multi-class problems, this must be a `torch_tensor` of length `num_classes`
+#'    (and is passed as argument `weight` to [`nn_cross_entropy_loss`][torch::nn_cross_entropy_loss]).
+#'    For binary problems, this must be a scalar (and is passed as argument `pos_weight` to
+#'    [`nn_bce_with_logits_loss`][torch::nn_bce_with_logits_loss]).
+#' - `ignore_index`:: `integer(1)`\cr
+#'    Index of the class which to ignore and which does not contribute to the gradient.
+#'    This is only available for multi-class loss.
+#' - `reduction` :: `character(1)`\cr
+#'    The reduction to apply. Is either `"mean"` or `"sum"` and passed as argument `reduction`
+#'    to either loss function.
+#' @examplesIf torch::torch_is_installed()
+#' loss = t_loss("cross_entropy")
+#' # multi-class
+#' loss$generate(tsk("iris"))
+#'
+#' # binary
+#' loss$generate(tsk("sonar"))
+#'
+#' # is the same as
+#' t_loss("cross_entropy", reduction = "mean")
+NULL

@@ -35,7 +35,7 @@ lrn("regr.module", ...)
 nn_one_layer = nn_module("nn_one_layer",
   initialize = function(task, size_hidden) {
     self$first = nn_linear(task$n_features, size_hidden)
-    self$second = nn_linear(size_hidden, length(task$class_names))
+    self$second = nn_linear(size_hidden, output_dim_for(task))
   },
   # argument x corresponds to the ingress token x
   forward = function(x) {
