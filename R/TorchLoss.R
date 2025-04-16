@@ -332,11 +332,10 @@ mlr3torch_losses$add("cross_entropy", function() {
 #' @examplesIf torch::torch_is_installed()
 #' loss = t_loss("cross_entropy")
 #' # multi-class
-#' loss$generate(tsk("iris"))
+#' multi_ce = loss$generate(tsk("iris"))
+#' multi_ce
 #'
 #' # binary
-#' loss$generate(tsk("sonar"))
-#'
-#' # is the same as
-#' t_loss("cross_entropy", reduction = "mean")
+#' binary_ce = loss$generate(tsk("sonar"))
+#' binary_ce
 NULL

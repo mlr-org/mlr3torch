@@ -32,12 +32,11 @@ to either loss function.
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 loss = t_loss("cross_entropy")
 # multi-class
-loss$generate(tsk("iris"))
+multi_ce = loss$generate(tsk("iris"))
+multi_ce
 
 # binary
-loss$generate(tsk("sonar"))
-
-# is the same as
-t_loss("cross_entropy", reduction = "mean")
+binary_ce = loss$generate(tsk("sonar"))
+binary_ce
 \dontshow{\}) # examplesIf}
 }

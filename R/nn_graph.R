@@ -2,7 +2,22 @@
 #'
 #' @description
 #' Represents a neural network using a [`Graph`][mlr3pipelines::Graph] that usually costains mostly [`PipeOpModule`]s.
-#' You can get the input arguments of the network via `$args`.
+#'
+#' @section Fields:
+#' * `graph` :: [`Graph`][mlr3pipelines::Graph]\cr
+#'   The graph (consisting primarily of [`PipeOpModule`]s) that is wrapped by the network.
+#' * `args` :: `character()`\cr
+#'   The names of the input arguments of the network.
+#' * `shapes_in` :: `list()`\cr
+#'   The shapes of the input tensors of the network.
+#' * `output_map` :: `character()`\cr
+#'   Which output elements of the graph are returned by the `$forward()` method.
+#' * `list_output` :: `logical(1)`\cr
+#'   Whether the output is a list of tensors.
+#' * `module_list` :: [`nn_module_list`][torch::nn_module_list]\cr
+#'   The list of modules in the network.
+#' * `list_output` :: `logical(1)`\cr
+#'   Whether the output is a list of tensors.
 #'
 #' @param graph ([`Graph`][mlr3pipelines::Graph])\cr
 #'   The [`Graph`][mlr3pipelines::Graph] to wrap. Is **not** cloned.

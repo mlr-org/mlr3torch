@@ -176,3 +176,31 @@ test_that("learner_torch_dataloader_predict works", {
   expect_false(dl$drop_last)
   expect_class(dl$batch_sampler$sampler, "utils_sampler_sequential")
 })
+
+test_that("correct prob predictions for classification", {
+  learner = lrn("classif.mlp", batch_size = 150, epochs = 1, device = "cpu", neurons = 10,
+    predict_type = "prob")
+
+  rr_multi = resample(tsk("iris"), learner, rsmp("cv", folds = 2))
+  pred_multi = rr_multi$prediction()
+  prob_multi = pred_multi$prob
+  expect_prediction_classif(pred_multi)
+  # for each row, give the column name with the highest probability
+  response_multi = apply(prob_multi, 1, function(x) colnames(prob_multi)[which.max(x)])
+  expect_equal(as.character(pred_multi$response), response_multi)
+  # ensure that the response prediction is the one with highest probability
+
+
+  rr_binary = resample(tsk("sonar"), learner, rsmp("cv", folds = 2))
+  pred_binary = rr_binary$prediction()
+  prob_binary = pred_binary$prob
+  expect_prediction_classif(pred_binary)
+  # for each row, give the column name with the highest probability
+  response_binary = apply(prob_binary, 1, function(x) colnames(prob_binary)[which.max(x)])
+  expect_equal(as.character(pred_binary$response), response_binary)
+  # ensure that the response prediction is the one with highest probability
+  # for each row, give the column name with the highest probability
+  response = apply(prob_binary, 1, function(x) colnames(prob_binary)[which.max(x)])
+  expect_equal(as.character(pred_binary$response), response)
+  # ensure that the response prediction is the one with highest probability
+})

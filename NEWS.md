@@ -6,7 +6,7 @@
 * feat: Added encoders for numericals and categoricals
 * feat: Added `po("nn_fn")` for calling custom functions in a network.
 * BREAKING_CHANGE: The output dimension of neural networks for binary classification tasks is now
-  expected to be 1 and not 2 as before.
+  expected to be 1 and not 2 as before. The behavior of `nn("head")` was also changed to match this.
   This means that for binary classification tasks, `t_loss("cross_entropy")` now generates
   `nn_bce_with_logits_loss` instead of `nn_cross_entropy_loss`.
   This also came with a reparametrization of the `t_loss("cross_entropy")` loss (thanks to @tdhock, #374).

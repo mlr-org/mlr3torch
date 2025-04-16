@@ -4,6 +4,10 @@
 #'
 #' @section nn_module:
 #' Calls [`torch::nn_linear()`] with the input and output features inferred from the input shape / task.
+#' For
+#' * binary classification, the output dimension is 1.
+#' * multiclass classification, the output dimension is the number of classes.
+#' * regression, the output dimension is the same as the number of target features.
 #'
 #' @section Parameters:
 #' * `bias` :: `logical(1)`\cr

@@ -14,6 +14,12 @@ When this \code{\link[mlr3pipelines:PipeOp]{PipeOp}} is trained however, the mod
 \section{nn_module}{
 
 Calls \code{\link[torch:nn_linear]{torch::nn_linear()}} with the input and output features inferred from the input shape / task.
+For
+\itemize{
+\item binary classification, the output dimension is 1.
+\item multiclass classification, the output dimension is the number of classes.
+\item regression, the output dimension is the same as the number of target features.
+}
 }
 
 \section{Parameters}{

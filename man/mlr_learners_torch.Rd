@@ -176,7 +176,7 @@ The expected output dimenions are as follows:
 \item binary classification: \code{c(batch_size, 1)}
 \item multiclass classification: \code{c(batch_size, n_classes)}
 \item regression: \code{c(batch_size, 1)}
-You can use the \code{\link{output_dim_for}} function to obtain the correct output dimension for the task.
+You can use \code{\link[=output_dim_for]{output_dim_for()}} to obtain the correct output dimension for a given task.
 }
 \item \code{.dataset(task, param_vals)}\cr
 (\code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{\link[torch:dataset]{torch::dataset}}\cr
