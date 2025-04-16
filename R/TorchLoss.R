@@ -318,7 +318,7 @@ mlr3torch_losses$add("cross_entropy", function() {
 #' loss based on the number of classes.
 #' Because of this, there is a slight parameterization of the loss arguments, see *Parameters*.
 #' @section Parameters:
-#' * `class_weight`:: [`torch_tensor`]\cr
+#' * `class_weight`:: [`torch_tensor`][torch::torch_tensor]\cr
 #'    The class weights. For multi-class problems, this must be a `torch_tensor` of length `num_classes`
 #'    (and is passed as argument `weight` to [`nn_cross_entropy_loss`][torch::nn_cross_entropy_loss]).
 #'    For binary problems, this must be a scalar (and is passed as argument `pos_weight` to

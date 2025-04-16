@@ -12,7 +12,7 @@ Because of this, there is a slight parameterization of the loss arguments, see \
 \section{Parameters}{
 
 \itemize{
-\item \code{class_weight}:: \code{\link{torch_tensor}}\cr
+\item \code{class_weight}:: \code{\link[torch:torch_tensor]{torch_tensor}}\cr
 The class weights. For multi-class problems, this must be a \code{torch_tensor} of length \code{num_classes}
 (and is passed as argument \code{weight} to \code{\link[torch:nn_cross_entropy_loss]{nn_cross_entropy_loss}}).
 For binary problems, this must be a scalar (and is passed as argument \code{pos_weight} to
