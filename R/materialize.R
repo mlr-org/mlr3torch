@@ -44,6 +44,13 @@
 materialize = function(x, device = "cpu", rbind = FALSE, ...) {
   assert_choice(device, mlr_reflections$torch$devices)
   assert_flag(rbind)
+  if (length(x) == 0L) {
+    if (rbind) {
+      return(torch_empty(0L))
+    } else {
+      return(list())
+    }
+  }
   UseMethod("materialize")
 }
 
@@ -154,9 +161,6 @@ get_output = function(input, graph, varying_shapes, rbind, device) {
 #' @return [`lazy_tensor()`]
 #' @keywords internal
 materialize_internal = function(x, device = "cpu", cache = NULL, rbind) {
-  if (!length(x)) {
-    stopf("Cannot materialize lazy tensor of length 0.")
-  }
   do_caching = !is.null(cache)
   ids = map_int(x, 1)
 

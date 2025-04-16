@@ -61,6 +61,7 @@ test_that("order_named_args works", {
   expect_error(order_named_args(function(..., x) NULL, list(2, 3, x = 1)), regexp = "`...` must")
   expect_error(order_named_args(function(y, ..., x) NULL, list(y = 4, 2, 3, x = 1)), regexp = "`...` must")
 })
+
 test_that("shape_to_str works", {
   expect_equal(shape_to_str(1), "(1)")
   expect_equal(shape_to_str(c(1, 2)), "(1,2)")

@@ -93,6 +93,7 @@
 #'   * `.index` are the indices of the batch (`integer()` or a `torch_int()`).
 #'
 #'   Moreover, one needs to pay attention respect the row ids of the provided task.
+#'   It is strongly recommended to use the [`task_dataset`] class to create the dataset.
 #'
 #' It is also possible to overwrite the private `.dataloader()` method.
 #' This must respect the dataloader parameters from the [`ParamSet`][paradox::ParamSet].

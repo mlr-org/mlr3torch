@@ -197,6 +197,19 @@ as_lazy_tensor.torch_tensor = function(x, ...) { # nolint
   as_lazy_tensor(ds, dataset_shapes = list(x = c(NA, dim(x)[-1])))
 }
 
+#' @export
+as_lazy_tensors = function(x, ...) {
+  UseMethod("as_lazy_tensors")
+}
+
+#' @export
+as_lazy_tensors.dataset = function(x, dataset_shapes = NULL, ...) {
+  dataset_shapes = get_or_check_dataset_shapes(x, dataset_shapes)
+  set_names(map_dtc(names(dataset_shapes), function(shape) {
+    as_lazy_tensor(x, dataset_shapes = dataset_shapes, input_map = shape)
+  }), names(dataset_shapes))
+}
+
 #' Assert Lazy Tensor
 #'
 #' Asserts whether something is a lazy tensor.
