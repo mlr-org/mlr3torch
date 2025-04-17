@@ -53,8 +53,8 @@ Furthermore, the target encoding is expected to be as follows:
 \item regression: The \code{numeric} target variable of a \code{\link[mlr3:TaskRegr]{TaskRegr}} is encoded as a
 \code{\link[torch:torch_dtype]{torch_float}} with shape \code{c(batch_size, 1)}.
 \item binary classification: The \code{factor} target variable of a \code{\link[mlr3:TaskClassif]{TaskClassif}} is encoded as a
-\code{\link[torch:torch_dtype]{torch_float}} with shape \verb{(batch_size, 1)} where the positive class is \code{1} and the negative
-class is \code{0}.
+\code{\link[torch:torch_dtype]{torch_float}} with shape \verb{(batch_size, 1)} where the positive class (\code{Task$positive}, which
+is also ensured to be the first factor level) is \code{1} and the negative class is \code{0}.
 \item multi-class classification: The \code{factor} target variable of a \code{\link[mlr3:TaskClassif]{TaskClassif}} is a label-encoded
 \code{\link[torch:torch_dtype]{torch_long}} with shape \code{(batch_size)} where the label-encoding goes from \code{1} to \code{n_classes}.
 }

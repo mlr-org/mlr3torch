@@ -39,8 +39,8 @@
 #' * regression: The `numeric` target variable of a [`TaskRegr`][mlr3::TaskRegr] is encoded as a
 #'   [`torch_float`][torch::torch_float] with shape `c(batch_size, 1)`.
 #' * binary classification: The `factor` target variable of a [`TaskClassif`][mlr3::TaskClassif] is encoded as a
-#'   [`torch_float`][torch::torch_float] with shape `(batch_size, 1)` where the positive class is `1` and the negative
-#'   class is `0`.
+#'   [`torch_float`][torch::torch_float] with shape `(batch_size, 1)` where the positive class (`Task$positive`, which
+#'   is also ensured to be the first factor level) is `1` and the negative class is `0`.
 #' * multi-class classification: The `factor` target variable of a [`TaskClassif`][mlr3::TaskClassif] is a label-encoded
 #'   [`torch_long`][torch::torch_long] with shape `(batch_size)` where the label-encoding goes from `1` to `n_classes`.
 #'

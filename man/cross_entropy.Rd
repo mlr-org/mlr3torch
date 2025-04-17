@@ -7,7 +7,7 @@
 The \code{cross_entropy} loss function selects the multi-class (\code{\link[torch:nn_cross_entropy_loss]{nn_cross_entropy_loss}})
 or binary (\code{\link[torch:nn_bce_with_logits_loss]{nn_bce_with_logits_loss}}) cross entropy
 loss based on the number of classes.
-Because of this, there is a slight parameterization of the loss arguments, see \emph{Parameters}.
+Because of this, there is a slight reparameterization of the loss arguments, see \emph{Parameters}.
 }
 \section{Parameters}{
 
@@ -24,7 +24,7 @@ Index of the class which to ignore and which does not contribute to the gradient
 This is only available for multi-class loss.
 \item \code{reduction} :: \code{character(1)}\cr
 The reduction to apply. Is either \code{"mean"} or \code{"sum"} and passed as argument \code{reduction}
-to either loss function.
+to either loss function. The default is \code{"mean"}.
 }
 }
 

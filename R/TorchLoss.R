@@ -316,7 +316,7 @@ mlr3torch_losses$add("cross_entropy", function() {
 #' The `cross_entropy` loss function selects the multi-class ([`nn_cross_entropy_loss`][torch::nn_cross_entropy_loss])
 #' or binary ([`nn_bce_with_logits_loss`][torch::nn_bce_with_logits_loss]) cross entropy
 #' loss based on the number of classes.
-#' Because of this, there is a slight parameterization of the loss arguments, see *Parameters*.
+#' Because of this, there is a slight reparameterization of the loss arguments, see *Parameters*.
 #' @section Parameters:
 #' * `class_weight`:: [`torch_tensor`][torch::torch_tensor]\cr
 #'    The class weights. For multi-class problems, this must be a `torch_tensor` of length `num_classes`
@@ -328,7 +328,7 @@ mlr3torch_losses$add("cross_entropy", function() {
 #'    This is only available for multi-class loss.
 #' - `reduction` :: `character(1)`\cr
 #'    The reduction to apply. Is either `"mean"` or `"sum"` and passed as argument `reduction`
-#'    to either loss function.
+#'    to either loss function. The default is `"mean"`.
 #' @examplesIf torch::torch_is_installed()
 #' loss = t_loss("cross_entropy")
 #' # multi-class
