@@ -304,6 +304,7 @@ infer_shapes = function(shapes_in, param_vals, output_names, fn, rowwise, id) {
 }
 
 get_or_check_dataset_shapes = function(dataset, dataset_shapes) {
+  dataset_shapes = map(dataset_shapes, as.integer)
   if (is.null(dataset_shapes)) {
     if (is.null(dataset$.getbatch)) {
       stopf("dataset_shapes must be provided if dataset does not have a `.getbatch` method.")

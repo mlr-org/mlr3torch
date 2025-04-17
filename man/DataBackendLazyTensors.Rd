@@ -2,10 +2,10 @@
 % Please edit documentation in R/DataBackendLazyTensors.R
 \name{DataBackendLazyTensors}
 \alias{DataBackendLazyTensors}
-\title{Data Backend for Lazy Tensors}
+\title{Special Backend for Lazy Tensors}
 \description{
-Special \strong{experimental} data backend that converts \code{\link{lazy_tensor}} columns to their R representation.
-However, \code{\link{LearnerTorch}} can directly operate on the lazy tensors.
+This backend essentially allows you to use a \code{\link[torch:dataset]{torch::dataset}} directly with
+an \code{\link[mlr3:Learner]{mlr3::Learner}}.
 \itemize{
 \item The data cannot contain missing values, as \code{\link{lazy_tensor}}s do not support them.
 For this reason, calling \verb{$missings()} will always return \code{0} for all columns.
@@ -15,9 +15,27 @@ This means, that it might be underreporting the number of distinct values of laz
 }
 }
 \examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+# used as feature in all backends
+x = torch_randn(100, 10)
 # regression
-ds = tensor_dataset(x = torch_randn(100, 10), y = torch_randn(100, 1))
-tbl = as
+ds_regr = tensor_dataset(x = x, y = torch_randn(100, 1))
+be_regr = as_data_backend(ds_regr, converter = list(y = as.numeric))
+be_regr$head()
+
+
+# binary classification: underlying target tensor must be float in [0, 1]
+ds_binary = tensor_dataset(x = x, y = torch_randint(0, 2, c(100, 1))$float())
+be_binary = as_data_backend(ds_binary, converter = list(
+  y = function(x) factor(as.integer(x), levels = c(0, 1), labels = c("A", "yes"))
+))
+be_binary$head()
+
+# multi-class classification: underlying target tensor must be integer in [1, K]
+ds_multiclass = tensor_dataset(x = x, y = torch_randint(1, 4, size = c(100, 1)))
+be_multiclass = as_data_backend(ds_multiclass, converter = list(y = as.numeric))
+be_multiclass$head()
+\dontshow{\}) # examplesIf}
 }
 \section{Super classes}{
 \code{\link[mlr3:DataBackend]{mlr3::DataBackend}} -> \code{\link[mlr3:DataBackendDataTable]{mlr3::DataBackendDataTable}} -> \code{DataBackendLazyTensors}

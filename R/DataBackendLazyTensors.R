@@ -105,8 +105,6 @@ DataBackendLazyTensors = R6Class("DataBackendLazyTensors",
       tbl_to_mat = tbl[, cols_to_convert, with = FALSE]
       tbl_mat = materialize(tbl_to_mat, rbind = TRUE)
 
-      if (!length(rows)) browser()
-
       for (nm in cols_to_convert) {
         converted = private$.converter[[nm]](tbl_mat[[nm]])
         tbl[[nm]] = converted

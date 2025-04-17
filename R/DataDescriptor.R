@@ -234,12 +234,10 @@ assert_compatible_shapes = function(shapes, dataset) {
     }
   })
 
-  if (is.null(dataset$.getbatch)) {
-    example = map(example, function(x) x$unsqueeze(1))
-  }
-
   iwalk(shapes, function(dataset_shape, name) {
-    if (!is.null(dataset_shape) && !test_equal(shapes[[name]][-1], example[[name]]$shape[-1L])) {
+    observed_shape = example[[name]]$shape
+    observed_shape[1] = NA
+    if (!is.null(dataset_shape) && !test_equal(shapes[[name]], observed_shape)) {
       expected_shape = example[[name]]$shape
       expected_shape[1] = NA
       stopf(paste0("First batch from dataset is incompatible with the provided shape of %s:\n",
