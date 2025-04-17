@@ -111,8 +111,8 @@ where <code>&lt;upper&gt;</code> is the maximally allowed number of epochs, and 
 </ul><p>Furthermore, the target encoding is expected to be as follows:</p><ul><li><p>regression: The <code>numeric</code> target variable of a <code><a href="https://mlr3.mlr-org.com/reference/TaskRegr.html" class="external-link">TaskRegr</a></code> is encoded as a
 <code><a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch_float</a></code> with shape <code>c(batch_size, 1)</code>.</p></li>
 <li><p>binary classification: The <code>factor</code> target variable of a <code><a href="https://mlr3.mlr-org.com/reference/TaskClassif.html" class="external-link">TaskClassif</a></code> is encoded as a
-<code><a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch_float</a></code> with shape <code>(batch_size, 1)</code> where the positive class is <code>1</code> and the negative
-class is <code>0</code>.</p></li>
+<code><a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch_float</a></code> with shape <code>(batch_size, 1)</code> where the positive class (<code>Task$positive</code>, which
+is also ensured to be the first factor level) is <code>1</code> and the negative class is <code>0</code>.</p></li>
 <li><p>multi-class classification: The <code>factor</code> target variable of a <code><a href="https://mlr3.mlr-org.com/reference/TaskClassif.html" class="external-link">TaskClassif</a></code> is a label-encoded
 <code><a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch_long</a></code> with shape <code>(batch_size)</code> where the label-encoding goes from <code>1</code> to <code>n_classes</code>.</p></li>
 </ul></div>
