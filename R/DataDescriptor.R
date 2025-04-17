@@ -60,14 +60,7 @@ DataDescriptor = R6Class("DataDescriptor",
       # For simplicity we here require the first dimension of the shape to be NA so we don't have to deal with it,
       # e.g. during subsetting
 
-      if (is.null(dataset_shapes)) {
-        if (is.null(dataset$.getbatch)) {
-          stopf("dataset_shapes must be provided if dataset does not have a `.getbatch` method.")
-        }
-        dataset_shapes = infer_shapes_from_getbatch(dataset)
-      } else {
-        assert_compatible_shapes(dataset_shapes, dataset)
-      }
+      dataset_shapes = get_or_check_dataset_shapes(dataset, dataset_shapes)
 
       if (is.null(graph)) {
         # avoid name conflicts
@@ -84,8 +77,7 @@ DataDescriptor = R6Class("DataDescriptor",
         assert_true(length(graph$pipeops) >= 1L)
       }
       # no preprocessing, dataset returns only a single element (there we can infer a lot)
-      simple_case = length(graph$pipeops) == 1L && inherits(graph$pipeops[[1L]], "PipeOpNOP") &&
-        length(dataset_shapes) == 1L
+      simple_case = (length(graph$pipeops) == 1L) && inherits(graph$pipeops[[1L]], "PipeOpNOP")
 
       if (is.null(input_map) && nrow(graph$input) == 1L && length(dataset_shapes) == 1L) {
         input_map = names(dataset_shapes)
@@ -100,7 +92,7 @@ DataDescriptor = R6Class("DataDescriptor",
         assert_choice(pointer[[2]], graph$pipeops[[pointer[[1]]]]$output$name)
       }
       if (is.null(pointer_shape) && simple_case) {
-        pointer_shape = dataset_shapes[[1L]]
+        pointer_shape = dataset_shapes[[input_map]]
       } else {
         assert_shape(pointer_shape, null_ok = TRUE)
       }
@@ -225,13 +217,14 @@ infer_shapes_from_getbatch = function(ds) {
 }
 
 assert_compatible_shapes = function(shapes, dataset) {
-  assert_shapes(shapes, null_ok = TRUE, unknown_batch = TRUE, named = TRUE)
+  shapes = assert_shapes(shapes, null_ok = TRUE, unknown_batch = TRUE, named = TRUE, coerce = TRUE)
 
   # prevent user from e.g. forgetting to wrap the return in a list
-  example = if (is.null(dataset$.getbatch)) {
-    dataset$.getitem(1L)
-  } else {
+  has_getbatch = !is.null(dataset$.getbatch)
+  example = if (has_getbatch) {
     dataset$.getbatch(1L)
+  } else {
+    dataset$.getitem(1L)
   }
   if (!test_list(example, names = "unique") || !test_permutation(names(example), names(shapes))) {
     stopf("Dataset must return a list with named elements that are a permutation of the dataset_shapes names.")
@@ -242,17 +235,17 @@ assert_compatible_shapes = function(shapes, dataset) {
     }
   })
 
-  if (is.null(dataset$.getbatch)) {
-    example = map(example, function(x) x$unsqueeze(1))
-  }
-
   iwalk(shapes, function(dataset_shape, name) {
-    if (!is.null(dataset_shape) && !test_equal(shapes[[name]][-1], example[[name]]$shape[-1L])) {
-      expected_shape = example[[name]]$shape
-      expected_shape[1] = NA
+    observed_shape = example[[name]]$shape
+    if (has_getbatch) {
+      observed_shape[1L] = NA_integer_
+    } else {
+      observed_shape = c(NA_integer_, observed_shape)
+    }
+    if (!is.null(dataset_shape) && !test_equal(observed_shape, dataset_shape)) {
       stopf(paste0("First batch from dataset is incompatible with the provided shape of %s:\n",
-        "* Provided shape: %s.\n* Expected shape: %s."), name,
-        shape_to_str(unname(shapes[name])), shape_to_str(list(expected_shape)))
+        "* Provided shape: %s.\n* Observed shape: %s."), name,
+        shape_to_str(unname(shapes[name])), shape_to_str(list(observed_shape)))
     }
   })
 }

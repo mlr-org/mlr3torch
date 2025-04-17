@@ -17,8 +17,6 @@ test_that("materialize works on lazy_tensor", {
 
   expect_equal(torch_cat(map(output_meta_list, function(x) x$unsqueeze(1)), dim = 1L)$shape, output_meta_tnsr$shape)
   expect_true(output_meta_tnsr$device == torch_device("meta"))
-
-  expect_error(materialize(lazy_tensor()), "Cannot materialize ")
 })
 
 test_that("materialize works with differing shapes (hence uses .getitem)", {
@@ -75,7 +73,7 @@ test_that("materialize works with same shapes and .getitem method", {
 })
 
 test_that("materialize_internal works", {
-  expect_error(materialize_internal(lazy_tensor()), "Cannot materialize ")
+  expect_error(materialize_internal(lazy_tensor()), "Cannot access data descriptor")
   task = tsk("lazy_iris")
   x = task$data(1:2, cols = "x")[[1L]]
   res1 = materialize(x)
@@ -183,4 +181,9 @@ test_that("PipeOpFeatureUnion can properly check whether two lazy tensors are id
     po("featureunion")
 
   expect_error(graph$train(task), "cannot aggregate different features sharing")
+})
+
+test_that("0-length", {
+  expect_equal(torch_empty(0L), materialize(lazy_tensor(), rbind = TRUE))
+  expect_equal(list(), materialize(lazy_tensor(), rbind = FALSE))
 })

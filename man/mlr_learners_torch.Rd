@@ -205,7 +205,7 @@ For networks with more than one input, the names must correspond to the inputs o
 
 For information on the expected target encoding of \code{y}, see section \emph{Network Head and Target Encoding}.
 Moreover, one needs to pay attention respect the row ids of the provided task.
-It is recommended to relu on \code{\link{task_dataset}} for creating the \code{\link[torch:dataset]{dataset}}.
+It is strongly recommended to use the \code{\link{task_dataset}} class to create the dataset.
 }
 
 It is also possible to overwrite the private \code{.dataloader()} method.

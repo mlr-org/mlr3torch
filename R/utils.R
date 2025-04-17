@@ -190,7 +190,10 @@ list_to_batch = function(tensors) {
 }
 
 auto_cache_lazy_tensors = function(lts) {
-  any(duplicated(map_chr(lts, function(x) dd(x)$dataset_hash)))
+  if (length(lts) <= 1L) {
+    return(FALSE)
+  }
+  anyDuplicated(unlist(map_if(lts, function(x) length(x) > 0, function(x) dd(x)$dataset_hash))) > 0L
 }
 
 #' Replace the head of a network
@@ -298,6 +301,18 @@ infer_shapes = function(shapes_in, param_vals, output_names, fn, rowwise, id) {
   }
 
   set_names(list(sout), output_names)
+}
+
+get_or_check_dataset_shapes = function(dataset, dataset_shapes) {
+  if (is.null(dataset_shapes)) {
+    if (is.null(dataset$.getbatch)) {
+      stopf("dataset_shapes must be provided if dataset does not have a `.getbatch` method.")
+    }
+    dataset_shapes = infer_shapes_from_getbatch(dataset)
+  } else {
+    assert_compatible_shapes(dataset_shapes, dataset)
+  }
+  dataset_shapes
 }
 
 #' @title Network Output Dimension

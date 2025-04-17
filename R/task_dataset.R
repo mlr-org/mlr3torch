@@ -81,13 +81,21 @@ task_dataset = dataset("task_dataset",
   .getbatch = function(index) {
     cache = if (self$cache_lazy_tensors) new.env()
 
-    datapool = self$task$data(rows = self$task$row_ids[index], cols = self$all_features)
+    datapool = withr::with_options(list(mlr3torch.data_loading = TRUE), {
+      self$task$data(rows = self$task$row_ids[index], cols = self$all_features)
+    })
+
     x = lapply(self$feature_ingress_tokens, function(it) {
       it$batchgetter(datapool[, it$features, with = FALSE], cache = cache)
     })
 
     y = if (!is.null(self$target_batchgetter)) {
-      self$target_batchgetter(datapool[, self$task$target_names, with = FALSE])
+      target = datapool[, self$task$target_names, with = FALSE]
+      if (!inherits(target[[1L]], "lazy_tensor")) {
+        self$target_batchgetter(target)
+      } else {
+        materialize(target[[1L]], rbind = TRUE)
+      }
     }
     out = list(x = x, .index = torch_tensor(index, dtype = torch_long()))
     if (!is.null(y)) out$y = y

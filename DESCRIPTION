@@ -91,6 +91,7 @@ Collate:
     'CallbackSetUnfreeze.R'
     'ContextTorch.R'
     'DataBackendLazy.R'
+    'DataBackendLazyTensors.R'
     'utils.R'
     'DataDescriptor.R'
     'LearnerTorch.R'
