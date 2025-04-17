@@ -18,8 +18,10 @@ learner_torch_predict = function(self, private, super, task, param_vals) {
   private$.encode_prediction(predict_tensor = predict_tensor, task = task)
 }
 
+
 learner_torch_train = function(self, private, super, task, param_vals) {
   # Here, all param_vals (like seed = "random" or device = "auto") have already been resolved
+  check_lazy_tensors_backend(task$backend, c(task$feature_names, task$target_names))
   dataset_train = private$.dataset(task, param_vals)
   dataset_train = as_multi_tensor_dataset(dataset_train, param_vals)
   loader_train = private$.dataloader(dataset_train, param_vals)
@@ -356,3 +358,5 @@ as_multi_tensor_dataset = function(dataset, param_vals) {
     dataset
   }
 }
+
+

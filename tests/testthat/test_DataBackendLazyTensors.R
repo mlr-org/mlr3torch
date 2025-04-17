@@ -53,7 +53,7 @@ test_that("main API works", {
 
   # head
   tbl = be$head(n = 3)
-  expect_data_table(tbl, nrow = 3, ncol = 3)
+  expect_data_table(tbl, nrows = 3, ncols = 3)
   expect_class(tbl$x, "lazy_tensor")
   expect_equal(materialize(tbl$x, rbind = TRUE), torch_tensor(matrix(100:98, nrow = 3, ncol = 1)))
   expect_class(tbl$y, "numeric")
@@ -136,8 +136,12 @@ test_that("caching works", {
     observed_n = ds$counter - counter_prev
     expect_equal(observed_n, n)
 
-    expect_equal(materialize(tbl$x, rbind = TRUE), ds$x[rows])
-    expect_equal(tbl$y, as.integer(ds$y[rows]))
+    if ("x" %in% cols) {
+      expect_equal(materialize(tbl$x, rbind = TRUE), ds$x[rows])
+    }
+    if ("y" %in% cols) {
+      expect_equal(tbl$y, as.integer(ds$y[rows]))
+    }
   }
   check(be, ds, 1, c("x", "y"), 1)
   # y is no in the cache, so .getitem() is not called on $data()
@@ -145,6 +149,8 @@ test_that("caching works", {
 
   # but x is not cached, so we still need to call .getitem below
   check(be, ds, 1, c("x", "y"), 1)
+  # lazy tensor causes no materialization
+  check(be, ds, 1, "x", 0)
 
   # more than one row also works
   check(be, ds, 2:1, "y", 1)
@@ -172,46 +178,72 @@ test_that("caching works", {
 })
 
 test_that("can train a regression learner", {
+  x = torch_randn(100, 1)
+  y = x + torch_randn(100, 1)
   ds = tensor_dataset(
-    x = torch_tensor(matrix(100:1, nrow = 100, ncol = 1))$float(),
-    y = torch_tensor(as.matrix(1:100, nrow = 100, ncol = 1))$float()
+    x = x,
+    y = y
   )
 
   be = as_data_backend(ds, dataset_shapes = list(x = c(NA, 1), y = c(NA, 1)),
     converter = list(y = as.numeric))
   task = as_task_regr(be, target = "y")
 
-  learner = lrn("regr.mlp", epochs = 200, batch_size = 100, jit_trace = TRUE, opt.lr = 1, seed = 1)
+  learner = lrn("regr.mlp", epochs = 10, batch_size = 100, jit_trace = TRUE, opt.lr = 1, seed = 1)
   rr = resample(task, learner, rsmp("insample"))
-  expect_true(rr$aggregate(msr("regr.rmse")) < 3)
+  expect_true(rr$aggregate(msr("regr.rmse")) < 1.5)
 })
 
 test_that("can train a binary classification learner", {
   ds = tensor_dataset(
     x = torch_tensor(matrix(100:1, nrow = 100, ncol = 1))$float(),
-    y = torch_tensor(as.matrix(1:100, nrow = 100, ncol = 1))$float()
+    y = torch_tensor(rep(0:1, each = 50))$float()$unsqueeze(2L)
   )
 
   be = as_data_backend(ds, dataset_shapes = list(x = c(NA, 1), y = c(NA, 1)),
-    converter = list(y = as.numeric))
-  task = as_task_regr(be, target = "y")
+    converter = list(y = function(x) factor(as.integer(x), levels = c(1, 0), labels = c("yes", "no"))))
+  task = as_task_classif(be, target = "y")
 
-  learner = lrn("regr.mlp", epochs = 200, batch_size = 100, jit_trace = TRUE, opt.lr = 1, seed = 1)
+  learner = lrn("classif.mlp", epochs = 10, batch_size = 100, jit_trace = TRUE, opt.lr = 10, seed = 1)
   rr = resample(task, learner, rsmp("insample"))
-  expect_true(rr$aggregate(msr("regr.rmse")) < 3)
+  expect_true(rr$aggregate(msr("classif.ce")) < 0.1)
 })
 
 test_that("can train a multiclass classification learner", {
   ds = tensor_dataset(
     x = torch_tensor(matrix(100:1, nrow = 100, ncol = 1))$float(),
-    y = torch_tensor(matrix(rep(c(0, 1), each = 50), nrow = 100, ncol = 1))$float()
+    y = torch_tensor(rep(1:4, each = 25))
+  )
+
+  be = as_data_backend(ds, dataset_shapes = list(x = c(NA, 1), y = NA),
+    converter = list(y = function(x) factor(as.integer(x), levels = 1:4, labels = c("a", "b", "c", "d"))))
+  task = as_task_classif(be, target = "y")
+
+  learner = lrn("classif.mlp", epochs = 10, batch_size = 100, jit_trace = TRUE, opt.lr = 0.2, seed = 1,
+    neurons = 100)
+  rr = resample(task, learner, rsmp("insample"))
+  # just ensures that we lear something
+  expect_true(rr$aggregate(msr("classif.ce")) < 0.6)
+})
+
+test_that("check_lazy_tensors_backend works", {
+  ds = tensor_dataset(
+    x = torch_tensor(matrix(100:1, nrow = 100, ncol = 1))$float(),
+    y = torch_tensor(as.matrix(1:100, nrow = 100, ncol = 1))$float()
   )
 
   be = as_data_backend(ds, dataset_shapes = list(x = c(NA, 1), y = c(NA, 1)),
-    converter = list(y = function(x) factor(as.integer(x), levels = c(0, 1), labels = c("yes", "no"))))
-  task = as_task_classif(be, target = "y")
+    converter = list(y = as.numeric))
+  task_orig = as_task_regr(be, target = "y")
 
-  learner = lrn("classif.mlp", epochs = 200, batch_size = 100, jit_trace = TRUE, opt.lr = 1, seed = 1)
-  rr = resample(task, learner, rsmp("insample"))
-  expect_true(rr$aggregate(msr("regr.rmse")) < 3)
+  expect_error(check_lazy_tensors_backend(task_orig$backend, c("x", "y")),
+    regexp = NA)
+
+  task1 = task_orig$clone(deep = TRUE)$cbind(data.table(y = 1:100))
+  expect_error(check_lazy_tensors_backend(task1$backend, c("x", "y")),
+    regexp = "A converter column ('y')", fixed = TRUE)
+
+  task2 = task_orig$clone(deep = TRUE)$rbind(data.table(x = as_lazy_tensor(1), y = 2, row_id = 999))
+  expect_error(check_lazy_tensors_backend(task2$backend, c("x", "y")),
+    regexp = "A converter column ('y')", fixed = TRUE)
 })

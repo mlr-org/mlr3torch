@@ -191,9 +191,9 @@ list_to_batch = function(tensors) {
 
 auto_cache_lazy_tensors = function(lts) {
   if (length(lts) <= 1L) {
-    FALSE
+    return(FALSE)
   }
-  anyDuplicated(unlist(map_if(lts, function(x) length(x) > 0, function(x) dd(x)$dataset_hash)))
+  anyDuplicated(unlist(map_if(lts, function(x) length(x) > 0, function(x) dd(x)$dataset_hash))) > 0L
 }
 
 #' Replace the head of a network
@@ -304,7 +304,6 @@ infer_shapes = function(shapes_in, param_vals, output_names, fn, rowwise, id) {
 }
 
 get_or_check_dataset_shapes = function(dataset, dataset_shapes) {
-  dataset_shapes = map(dataset_shapes, as.integer)
   if (is.null(dataset_shapes)) {
     if (is.null(dataset$.getbatch)) {
       stopf("dataset_shapes must be provided if dataset does not have a `.getbatch` method.")

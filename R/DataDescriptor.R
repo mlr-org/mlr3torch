@@ -217,13 +217,14 @@ infer_shapes_from_getbatch = function(ds) {
 }
 
 assert_compatible_shapes = function(shapes, dataset) {
-  assert_shapes(shapes, null_ok = TRUE, unknown_batch = TRUE, named = TRUE)
+  shapes = assert_shapes(shapes, null_ok = TRUE, unknown_batch = TRUE, named = TRUE, coerce = TRUE)
 
   # prevent user from e.g. forgetting to wrap the return in a list
-  example = if (is.null(dataset$.getbatch)) {
-    dataset$.getitem(1L)
-  } else {
+  has_getbatch = !is.null(dataset$.getbatch)
+  example = if (has_getbatch) {
     dataset$.getbatch(1L)
+  } else {
+    dataset$.getitem(1L)
   }
   if (!test_list(example, names = "unique") || !test_permutation(names(example), names(shapes))) {
     stopf("Dataset must return a list with named elements that are a permutation of the dataset_shapes names.")
@@ -236,13 +237,15 @@ assert_compatible_shapes = function(shapes, dataset) {
 
   iwalk(shapes, function(dataset_shape, name) {
     observed_shape = example[[name]]$shape
-    observed_shape[1] = NA
-    if (!is.null(dataset_shape) && !test_equal(shapes[[name]], observed_shape)) {
-      expected_shape = example[[name]]$shape
-      expected_shape[1] = NA
+    if (has_getbatch) {
+      observed_shape[1L] = NA_integer_
+    } else {
+      observed_shape = c(NA_integer_, observed_shape)
+    }
+    if (!is.null(dataset_shape) && !test_equal(observed_shape, dataset_shape)) {
       stopf(paste0("First batch from dataset is incompatible with the provided shape of %s:\n",
-        "* Provided shape: %s.\n* Expected shape: %s."), name,
-        shape_to_str(unname(shapes[name])), shape_to_str(list(expected_shape)))
+        "* Provided shape: %s.\n* Observed shape: %s."), name,
+        shape_to_str(unname(shapes[name])), shape_to_str(list(observed_shape)))
     }
   })
 }

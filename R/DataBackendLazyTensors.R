@@ -96,6 +96,12 @@ DataBackendLazyTensors = R6Class("DataBackendLazyTensors",
       set_names(rep(0L, length(cols)), cols)
     }
   ),
+  active = list(
+    converter = function(rhs) {
+      assert_ro_binding(rhs)
+      private$.converter
+    }
+  ),
   private = list(
     # call this function only with rows that are not in the cache yet
     .load_and_cache = function(rows, cols) {
@@ -145,4 +151,30 @@ col_info.DataBackendLazyTensors = function(x, ...) { # nolint
   discrete = setdiff(names(types)[types %chin% c("factor", "ordered")], x$primary_key)
   levels = insert_named(named_list(names(types)), map(first_row[, discrete, with = FALSE], levels))
   data.table(id = names(types), type = unname(types), levels = levels, key = "id")
+}
+
+
+# conservative check that avoids that a pseudo-lazy-tensor is preprocessed by some pipeop
+# @param be
+#   the backend
+# @param candidates
+#   the feature and target names
+# @param visited
+#  Union of all colnames already visited
+# @return visited
+check_lazy_tensors_backend = function(be, candidates, visited = character()) {
+  if (inherits(be, "DataBackendRbind") || inherits(be, "DataBackendCbind")) {
+    bs = be$.__enclos_env__$private$.data
+    # first we check b2, then b1, because b2 possibly overshadows some b1 rows/cols
+    visited = check_lazy_tensors_backend(bs$b2, candidates, visited)
+    check_lazy_tensors_backend(bs$b1, candidates, visited)
+  } else {
+    if (inherits(be, "DataBackendLazyTensors")) {
+      if (any(names(be$converter) %in% visited)) {
+        converter_cols = names(be$converter)[names(be$converter) %in% visited]
+        stopf("A converter column ('%s') from a DataBackendLazyTensors was presumably preprocessed by some PipeOp. This can cause inefficiencies and is therefore not allowed. If you want to preprocess them, please directly encode them as R types.", paste0(converter_cols, collapse = ", ")) # nolint
+      }
+    }
+    union(visited, intersect(candidates, be$colnames))
+  }
 }
