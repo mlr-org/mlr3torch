@@ -10,14 +10,15 @@ PipeOpTorchFTTransformerLayer = R6::R6Class("PipeOpTorchFTTransformerLayer",
     initialize = function(id = "nn_ft_transformer_layer", param_vals = list()) {
       # TODO: double-check the parameter specification
       param_set = ps(
+        # TODO: factor out d_token to be inferred
         d_token = p_int(lower = 1L, default = 192L),
         attention_n_heads = p_int(lower = 1L, default = 8L),
         attention_dropout = p_dbl(lower = 0, upper = 1, default = 0.2),
         attention_initialization = p_fct(levels = c("kaiming", "xavier"), default = "kaiming"),
         attention_normalization = p_uty(default = nn_layer_norm),
         ffn_d_hidden = p_int(lower = 1L, default = 256L),
-        ffn_dropout = p_dbl(lower = 0, upper = 1, default = 0.1),
-        ffn_activation = p_uty(),
+        ffn_dropout = p_dbl(lower = 0, upper = 1, default = 0.2),
+        ffn_activation = p_uty(default = nn_reglu()),
         ffn_normalization = p_uty(default = nn_layer_norm),
         residual_dropout = p_dbl(lower = 0, upper = 1, default = 0.0),
         prenormalization = p_lgl(default = TRUE), 
