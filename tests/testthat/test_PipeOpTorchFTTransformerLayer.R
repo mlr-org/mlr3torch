@@ -5,11 +5,14 @@ test_that("PipeOpTorchFTTransformerLayer works on a simple example", {
 test_that("Entire FT-Transformer can be constructed as a graph", {
   # construct task
   torch_manual_seed(1)
+  n_obs = 4
+  n_num_features = 3
+  n_cat_features = 2
 
-  x_num = torch_randn(4, 3)
+  x_num = torch_randn(n_obs, n_num_features)
   dt_num = setNames(as.data.table(as_array(x_num)), c("Num1", "Num2", "Num3"))
 
-  mat = matrix(nrow=4, ncol=2)
+  mat = matrix(nrow = n_obs, ncol = n_cat_features)
   mat[1, ] = c(1L, 2L)
   mat[2, ] = c(2L, 1L)
   mat[3, ] = c(1L, 3L)
@@ -18,16 +21,13 @@ test_that("Entire FT-Transformer can be constructed as a graph", {
   dt_cat = as.data.table(as_array(x_cat))
   dt_cat = dt_cat[, lapply(.SD, as.factor)]
   dt_cat = set_names(dt_cat, c("Cat1", "Cat2"))
+
   set.seed(1)
   y = factor(rbinom(n = 4, size = 1, prob = 0.5), levels = c(0, 1))
-  # dt_cat[, y := y]
   dt = cbind(y, dt_num, dt_cat)
   task = as_task_classif(dt, target = "y")
 
-  set.seed(1)
-  splits = partition(task)
-
-  d_token = 10
+  d_token = 32
   attention_n_heads = 8
   ffn_d_hidden = 64
 
@@ -126,5 +126,5 @@ test_that("Entire FT-Transformer can be constructed as a graph", {
 
   out = nn_ft_transformer_mlr3torch(x_num, x_cat)
 
-  expect_equal(out$shape, c(4, 2))
+  expect_equal(out$shape, c(4, 1))
 })
