@@ -22,11 +22,11 @@ PipeOpTorchFTTransformerLayer = R6::R6Class("PipeOpTorchFTTransformerLayer",
         first_prenormalization = p_lgl(default = FALSE, tags = "train"),
         is_first_layer = p_lgl(default = FALSE, tags = "train"),
         # TODO: determine whether you can factor this out
-        query_idx = p_uty(default = NULL, custom_check = function(input) check_integer(input, null.ok = TRUE), tags = "train"),
+        query_idx = p_uty(default = NULL, custom_check = function(input) check_integerish(input, null.ok = TRUE), tags = "train"),
         # TODO: determine whether you can factor this out
-        last_layer_query_idx = p_uty(default = NULL, custom_check = function(input) check_integer(input, null.ok = TRUE), tags = "train"),
-        kv_compression_ratio = p_dbl(default = NULL, special_vals = list(NULL), tags = "train"),
-        kv_compression_sharing = p_fct(levels = c("headwise", "key_value", "layerwise"), special_vals = list(NULL, tags = "train"))
+        last_layer_query_idx = p_uty(default = NULL, custom_check = function(input) check_integerish(input, null.ok = TRUE), tags = "train"),
+        kv_compression_ratio = p_uty(default = NULL, custom_check = function(input) check_number(input, null.ok = TRUE), tags = "train"),
+        kv_compression_sharing = p_fct(levels = c("headwise", "key_value", "layerwise"), special_vals = list(NULL), tags = "train")
       )
 
       super$initialize(
@@ -113,9 +113,9 @@ nn_ft_transformer_layer = nn_module(
     }
     self$ffn_normalization = ffn_normalization(d_token)
     if (!is.null(kv_compression_ratio) && is.null(self$shared_kv_compression)) {
-      self$key_compression = make_kv_compression(n_tokens, kv_compression_ratio)
+      self$key_compression = self$make_kv_compression(n_tokens, kv_compression_ratio)
       if (kv_compression_sharing == "headwise") {
-        self$value_compression = make_kv_compression(n_tokens, kv_compression_ratio)
+        self$value_compression = self$make_kv_compression(n_tokens, kv_compression_ratio)
       } else {
         assert_true(kv_compression_sharing == "key_value", "kv_compression_sharing parameter should be set to either 'headwise' or 'key_value'!")
       }
@@ -134,7 +134,7 @@ nn_ft_transformer_layer = nn_module(
   },
   make_kv_compression = function(n_tokens, kv_compression_ratio) {
     assert_true(n_tokens && kv_compression_ratio)
-    return(nn_linear(n_tokens, floor(n_tokens * kv_compression_ratio), bias=FALSE))
+    return(nn_linear(n_tokens, floor(n_tokens * kv_compression_ratio), bias = FALSE))
   },
   get_kv_compressions_ = function() {
     if(!is.null(self$shared_kv_compression)) {

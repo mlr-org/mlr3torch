@@ -53,7 +53,6 @@ test_that("Entire FT-Transformer can be constructed as a graph", {
   po_transformer = po("nn_ft_transformer_layer",
     id = "intermediate_transformer_layer",
     param_vals = list(
-      d_token = d_token,
       attention_n_heads = attention_n_heads,
       attention_dropout = 0.1,
       ffn_activation = nn_reglu(), # TODO: factor out
@@ -64,7 +63,9 @@ test_that("Entire FT-Transformer can be constructed as a graph", {
       attention_initialization = "kaiming",
       ffn_normalization = nn_layer_norm,
       attention_normalization = nn_layer_norm,
-      query_idx = NULL
+      query_idx = NULL,
+      kv_compression_ratio = 1.0,
+      kv_compression_sharing = "headwise"
     )
   )
 
@@ -79,7 +80,6 @@ test_that("Entire FT-Transformer can be constructed as a graph", {
     po("nn_ft_transformer_layer",
       id = "first_transformer_layer",
       param_vals = list(
-        d_token = d_token,
         attention_n_heads = attention_n_heads,
         attention_dropout = 0.1,
         ffn_d_hidden = ffn_d_hidden,
@@ -92,14 +92,15 @@ test_that("Entire FT-Transformer can be constructed as a graph", {
         attention_initialization = "kaiming",
         ffn_normalization = nn_layer_norm,
         attention_normalization = nn_layer_norm,
-        query_idx = NULL
+        query_idx = NULL,
+        kv_compression_ratio = 1.0,
+        kv_compression_sharing = "headwise"
       )
     ) %>>%
     po("nn_block", po_transformer, n_blocks = 3) %>>%
     po("nn_ft_transformer_layer",
       id = "last_transformer_layer",
       param_vals = list(
-        d_token = d_token,
         attention_n_heads = attention_n_heads,
         attention_dropout = 0.1,
         ffn_d_hidden = ffn_d_hidden,
@@ -111,7 +112,9 @@ test_that("Entire FT-Transformer can be constructed as a graph", {
         query_idx = 1L,
         attention_initialization = "kaiming",
         ffn_normalization = nn_layer_norm,
-        attention_normalization = nn_layer_norm
+        attention_normalization = nn_layer_norm,
+        kv_compression_ratio = 1.0,
+        kv_compression_sharing = "headwise"
       )
     ) %>>%
     graph_output_head
