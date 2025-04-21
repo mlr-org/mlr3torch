@@ -327,3 +327,10 @@ output_dim_for.TaskClassif = function(x, ...) {
 output_dim_for.TaskRegr = function(x, ...) {
   1L
 }
+
+all_or_none_ = function(...) {
+  args = list(...)
+  all_none = all(sapply(args, is.null))
+  all_not_none = all(!sapply(args, is.null))
+  return(all_none || all_not_none)
+}

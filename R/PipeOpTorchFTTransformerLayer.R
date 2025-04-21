@@ -8,27 +8,28 @@ PipeOpTorchFTTransformerLayer = R6::R6Class("PipeOpTorchFTTransformerLayer",
     #' @param id (`character(1)`)\cr
     #'   Identifier of the resulting object.
     initialize = function(id = "nn_ft_transformer_layer", param_vals = list()) {
-      # TODO: double-check the parameter specification
       param_set = ps(
-        # TODO: factor out d_token to be inferred
+        # TODO: factor out d_token
         d_token = p_int(lower = 1L, default = 192L),
-        attention_n_heads = p_int(lower = 1L, default = 8L),
-        attention_dropout = p_dbl(lower = 0, upper = 1, default = 0.2),
-        attention_initialization = p_fct(levels = c("kaiming", "xavier"), default = "kaiming"),
-        attention_normalization = p_uty(default = nn_layer_norm),
-        ffn_d_hidden = p_int(lower = 1L, default = 256L),
-        ffn_dropout = p_dbl(lower = 0, upper = 1, default = 0.2),
-        ffn_activation = p_uty(default = nn_reglu()),
-        ffn_normalization = p_uty(default = nn_layer_norm),
-        residual_dropout = p_dbl(lower = 0, upper = 1, default = 0.0),
-        prenormalization = p_lgl(default = TRUE), 
-        first_prenormalization = p_lgl(default = FALSE),
-        is_first_layer = p_lgl(default = FALSE),
+        attention_n_heads = p_int(lower = 1L, default = 8L, tags = "train"),
+        attention_dropout = p_dbl(lower = 0, upper = 1, default = 0.2, tags = "train"),
+        attention_initialization = p_fct(levels = c("kaiming", "xavier"), default = "kaiming", tags = "train"),
+        attention_normalization = p_uty(default = nn_layer_norm, tags = "train"),
+        ffn_d_hidden = p_int(lower = 1L, default = 256L, tags = "train"),
+        ffn_dropout = p_dbl(lower = 0, upper = 1, default = 0.2, tags = "train"),
+        ffn_activation = p_uty(default = nn_reglu(), tags = "train"),
+        ffn_normalization = p_uty(default = nn_layer_norm, tags = "train"),
+        residual_dropout = p_dbl(lower = 0, upper = 1, default = 0.0, tags = "train"),
+        prenormalization = p_lgl(default = TRUE, tags = "train"),
+        first_prenormalization = p_lgl(default = FALSE, tags = "train"),
+        is_first_layer = p_lgl(default = FALSE, tags = "train"),
         # TODO: determine whether you can factor out last_layer_query_idx
-        query_idx = p_uty(default = NULL, custom_check = function(input) check_integer(input, null.ok = TRUE)),
-        last_layer_query_idx = p_uty(default = NULL, custom_check = function(input) check_integer(input, null.ok = TRUE))
+        query_idx = p_uty(default = NULL, custom_check = function(input) check_integer(input, null.ok = TRUE), tags = "train"),
+        last_layer_query_idx = p_uty(default = NULL, custom_check = function(input) check_integer(input, null.ok = TRUE), tags = "train"),
+        kv_compression_ratio = p_dbl(default = NULL, special_vals = list(NULL), tags = "train"),
+        kv_compression_sharing = p_fct(levels = c("headwise", "key_value", "layerwise"), special_vals = list(NULL, tags = "train"))
       )
-      
+
       super$initialize(
         id = id,
         module_generator = nn_ft_transformer_layer,
@@ -57,7 +58,6 @@ PipeOpTorchFTTransformerLayer = R6::R6Class("PipeOpTorchFTTransformerLayer",
 )
 mlr3pipelines::mlr_pipeops$add("nn_ft_transformer_layer", PipeOpTorchFTTransformerLayer)
 
-# TODO: remove default values from here
 nn_ft_transformer_layer = nn_module(
   "nn_transformer_layer",
   initialize = function(d_token,
@@ -69,16 +69,17 @@ nn_ft_transformer_layer = nn_module(
                         ffn_activation,
                         residual_dropout,
                         prenormalization,
-                        is_first_layer = FALSE,
-                        first_prenormalization = FALSE,
+                        is_first_layer,
+                        first_prenormalization,
                         attention_normalization,
                         ffn_normalization,
-                        kv_compression_ratio = NULL,
-                        kv_compression_sharing = NULL,
+                        kv_compression_ratio,
+                        kv_compression_sharing,
                         last_layer_query_idx,
                         query_idx) {
     self$prenormalization = prenormalization
 
+    # TODO: determine whether we should set defaults
     self$attention = nn_ft_multi_head_attention(
       d_token = d_token,
       n_heads = attention_n_heads,
@@ -87,6 +88,7 @@ nn_ft_transformer_layer = nn_module(
       initialization = attention_initialization
     )
 
+    # TODO: determine whether we should set defaults
     self$ffn = nn_ft_ffn(
       d_token = d_token,
       d_hidden = ffn_d_hidden,
@@ -100,7 +102,7 @@ nn_ft_transformer_layer = nn_module(
     self$ffn_residual_dropout = nn_dropout(residual_dropout)
 
     self$output = nn_identity()
- 
+
     # TODO: remove layer_idx and ask about how we want to handle this condition
     # layer_idx = -1
     if (!is_first_layer || !prenormalization || first_prenormalization) {
@@ -260,10 +262,3 @@ nn_ft_ffn = nn_module(
     return(x)
   }
 )
-
-all_or_none_ = function(...) {
-  args = list(...)
-  all_none = all(sapply(args, is.null))
-  all_not_none = all(!sapply(args, is.null))
-  return(all_none || all_not_none)
-}
