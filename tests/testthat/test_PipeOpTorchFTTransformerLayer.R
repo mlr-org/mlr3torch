@@ -15,25 +15,29 @@ test_that("Entire FT-Transformer can be constructed as a graph", {
   mat[3, ] = c(1L, 3L)
   mat[4, ] = c(2L, 2L)
   x_cat = torch_tensor(mat)
-  dt_cat = as.data.table(as_array(x_cat)) |>
-    mutate(across(everything(), as.factor)) |>
-    setNames(c("Cat1", "Cat2"))
-
+  dt_cat = as.data.table(as_array(x_cat))
+  dt_cat = dt_cat[, lapply(.SD, as.factor)]
+  dt_cat = set_names(dt_cat, c("Cat1", "Cat2"))
+  set.seed(1)
   y = factor(rbinom(n = 4, size = 1, prob = 0.5), levels = c(0, 1))
-  dt = bind_cols(y, dt_num, dt_cat) |>
-    rename(y = ...1)
+  # dt_cat[, y := y]
+  dt = cbind(y, dt_num, dt_cat)
   task = as_task_classif(dt, target = "y")
 
   set.seed(1)
   splits = partition(task)
 
+  d_token = 10
+  attention_n_heads = 8
+  ffn_d_hidden = 64
+
   path_num = po("select", id = "select_num", selector = selector_type("numeric")) %>>%
-  po("torch_ingress_num") %>>%
-  po("nn_tokenizer_num", param_vals = list(
-    d_token = d_token,
-    bias = TRUE,
-    initialization = "uniform"
-  ))
+    po("torch_ingress_num") %>>%
+    po("nn_tokenizer_num", param_vals = list(
+      d_token = d_token,
+      bias = TRUE,
+      initialization = "uniform"
+    ))
 
   path_categ = po("select", id = "select_categ", selector = selector_type("factor")) %>>%
     po("torch_ingress_categ") %>>%
@@ -71,7 +75,7 @@ test_that("Entire FT-Transformer can be constructed as a graph", {
     po("nn_head")
 
   graph_ft_transformer = graph_tokenizer %>>%
-    po("cls", initialization = "uniform") %>>%
+    po("nn_ft_cls", initialization = "uniform") %>>%
     po("nn_ft_transformer_layer",
       id = "first_transformer_layer",
       param_vals = list(

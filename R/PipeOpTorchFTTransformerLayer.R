@@ -7,7 +7,7 @@ PipeOpTorchFTTransformerLayer = R6::R6Class("PipeOpTorchFTTransformerLayer",
     #' @description Create a new instance of this [R6][R6::R6Class] class.
     #' @param id (`character(1)`)\cr
     #'   Identifier of the resulting object.
-    initialize = function(id = "nn_ft_transformer_layer", param_vals = list()) {\
+    initialize = function(id = "nn_ft_transformer_layer", param_vals = list()) {
       # TODO: double-check the parameter specification
       param_set = ps(
         d_token = p_int(lower = 1L, default = 192L),
