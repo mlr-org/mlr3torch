@@ -9,8 +9,6 @@ PipeOpTorchFTTransformerLayer = R6::R6Class("PipeOpTorchFTTransformerLayer",
     #'   Identifier of the resulting object.
     initialize = function(id = "nn_ft_transformer_layer", param_vals = list()) {
       param_set = ps(
-        # TODO: factor out d_token
-        d_token = p_int(lower = 1L, default = 192L),
         attention_n_heads = p_int(lower = 1L, default = 8L, tags = "train"),
         attention_dropout = p_dbl(lower = 0, upper = 1, default = 0.2, tags = "train"),
         attention_initialization = p_fct(levels = c("kaiming", "xavier"), default = "kaiming", tags = "train"),
@@ -23,8 +21,9 @@ PipeOpTorchFTTransformerLayer = R6::R6Class("PipeOpTorchFTTransformerLayer",
         prenormalization = p_lgl(default = TRUE, tags = "train"),
         first_prenormalization = p_lgl(default = FALSE, tags = "train"),
         is_first_layer = p_lgl(default = FALSE, tags = "train"),
-        # TODO: determine whether you can factor out last_layer_query_idx
+        # TODO: determine whether you can factor this out
         query_idx = p_uty(default = NULL, custom_check = function(input) check_integer(input, null.ok = TRUE), tags = "train"),
+        # TODO: determine whether you can factor this out
         last_layer_query_idx = p_uty(default = NULL, custom_check = function(input) check_integer(input, null.ok = TRUE), tags = "train"),
         kv_compression_ratio = p_dbl(default = NULL, special_vals = list(NULL), tags = "train"),
         kv_compression_sharing = p_fct(levels = c("headwise", "key_value", "layerwise"), special_vals = list(NULL, tags = "train"))
@@ -53,6 +52,10 @@ PipeOpTorchFTTransformerLayer = R6::R6Class("PipeOpTorchFTTransformerLayer",
       shapes_out = shapes_in
       shapes_out[[2]] = length(param_vals$last_layer_query_idx)
       return(shapes_out)
+    },
+    .shape_dependent_params = function(shapes_in, param_vals, task) {
+      param_vals$d_token = shapes_in$input[3]
+      return(param_vals)
     }
   )
 )
@@ -129,7 +132,6 @@ nn_ft_transformer_layer = nn_module(
     }
     return(x_residual)
   },
-
   make_kv_compression = function(n_tokens, kv_compression_ratio) {
     assert_true(n_tokens && kv_compression_ratio)
     return(nn_linear(n_tokens, floor(n_tokens * kv_compression_ratio), bias=FALSE))
