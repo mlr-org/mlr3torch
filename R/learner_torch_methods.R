@@ -42,7 +42,7 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   if (is.null(self$optimizer)) stopf("Learner '%s' defines no optimizer", self$id)
   optimizer = self$optimizer$generate(network$parameters)
   if (is.null(self$loss)) stopf("Learner '%s' defines no loss", self$id)
-  loss_fn = self$loss$generate()
+  loss_fn = self$loss$generate(task)
   loss_fn$to(device = param_vals$device)
 
   measures_train = normalize_to_list(param_vals$measures_train)
@@ -284,7 +284,7 @@ encode_prediction_default = function(predict_tensor, predict_type, task) {
   # Currently this check is done in mlr3torch but should at some point be handled in mlr3 / mlr3pipelines
 
   response = prob = NULL
-  if (task$task_type == "classif") {
+  if (task$task_type == "classif" && "multiclass" %in% task$properties) {
     if (predict_type == "prob") {
       predict_tensor = with_no_grad(nnf_softmax(predict_tensor, dim = 2L))
     }
@@ -292,15 +292,31 @@ encode_prediction_default = function(predict_tensor, predict_type, task) {
     response = as.integer(with_no_grad(predict_tensor$argmax(dim = 2L))$to(device = "cpu"))
 
     predict_tensor = predict_tensor$to(device = "cpu")
-    if (predict_type == "prob") {
+    prob = if (predict_type == "prob") {
       prob = as.matrix(predict_tensor)
       colnames(prob) = task$class_names
-    } else {
-      prob = NULL
+      prob
     }
 
     class(response) = "factor"
     levels(response) = task$class_names
+    return(list(response = response, prob = prob))
+  } else if (task$task_type == "classif") {
+    # binary:
+    # (first factor level is positive class)
+    response = as.integer(with_no_grad(predict_tensor < 0)$to(device = "cpu") + 1)
+    class(response) = "factor"
+    levels(response) = task$class_names
+
+    prob = if (predict_type == "prob") {
+      # convert score to prob
+      predict_tensor = with_no_grad(nnf_sigmoid(predict_tensor))
+      prob = as.numeric(predict_tensor)
+      prob = as.matrix(data.frame(prob, 1 - prob))
+      colnames(prob) = task$class_names
+      prob
+    }
+
     return(list(response = response, prob = prob))
   } else if (task$task_type == "regr") {
     if (predict_type == "response") {
@@ -311,7 +327,6 @@ encode_prediction_default = function(predict_tensor, predict_type, task) {
   } else {
     stopf("Invalid task_type.")
   }
-
 }
 
 

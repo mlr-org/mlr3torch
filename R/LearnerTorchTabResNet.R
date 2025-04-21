@@ -43,7 +43,7 @@ LearnerTorchTabResNet = R6Class("LearnerTorchTabResNet",
       )
 
       private$.param_set_base =  ps(
-        n_blocks = p_int(1, tags = c("train", "required")),
+        n_blocks = p_int(0, tags = c("train", "required")),
         d_block = p_int(1, tags = c("train", "required"))
       )
       param_set = alist(private$.block$param_set, private$.param_set_base)
@@ -65,10 +65,10 @@ LearnerTorchTabResNet = R6Class("LearnerTorchTabResNet",
   private = list(
     .block = NULL,
     .dataset = function(task, param_vals) {
-      dataset_num(task, param_vals)
+      dataset_num(task, param_vals, argname = "num.input")
     },
     .network = function(task, param_vals) {
-      graph = po("torch_ingress_num") %>>%
+      graph = po("torch_ingress_num", id = "num") %>>%
         po("nn_linear", out_features = param_vals$d_block) %>>%
         po("nn_block", private$.block, n_blocks = param_vals$n_blocks) %>>%
         po("nn_head")

@@ -87,7 +87,7 @@ LearnerTorchMLP = R6Class("LearnerTorchMLP",
   private = list(
     .network = function(task, param_vals) {
       # verify_train_task was already called beforehand, so we can make some assumptions
-      d_out = get_nout(task)
+      d_out = output_dim_for(task)
       d_in = if (single_lazy_tensor(task)) {
         private$.get_input_shape(task, param_vals$shape)[2L]
       } else {

@@ -107,14 +107,6 @@ load_col_info = function(name) {
   readRDS(system.file("col_info", paste0(name, ".rds"), package = "mlr3torch"))
 }
 
-get_nout = function(task) {
-  switch(task$task_type,
-    regr = 1,
-    classif = length(task$class_names),
-    stopf("Unknown task type '%s'.", task$task_type)
-  )
-}
-
 
 test_equal_col_info = function(x, y) {
   nms = c("id", "type", "levels")
@@ -306,4 +298,32 @@ infer_shapes = function(shapes_in, param_vals, output_names, fn, rowwise, id) {
   }
 
   set_names(list(sout), output_names)
+}
+
+#' @title Network Output Dimension
+#' @description
+#' Calculates the output dimension of a neural network for a given task that is expected by
+#' \pkg{mlr3torch}.
+#' For classification, this is the number of classes (unless it is a binary classification task,
+#' where it is 1). For regression, it is 1.
+#' @param x (any)\cr
+#'   The task.
+#' @param ... (any)\cr
+#'   Additional arguments. Not used yet.
+#' @export
+output_dim_for = function(x, ...) {
+  UseMethod("output_dim_for")
+}
+
+#' @export
+output_dim_for.TaskClassif = function(x, ...) {
+  if ("twoclass" %in% x$properties) {
+    return(1L)
+  }
+  length(x$class_names)
+}
+
+#' @export
+output_dim_for.TaskRegr = function(x, ...) {
+  1L
 }
