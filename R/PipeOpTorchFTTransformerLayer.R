@@ -25,6 +25,7 @@ PipeOpTorchFTTransformerLayer = R6::R6Class("PipeOpTorchFTTransformerLayer",
         query_idx = p_uty(default = NULL, custom_check = function(input) check_integerish(input, null.ok = TRUE), tags = "train"),
         # TODO: determine whether you can factor this out
         last_layer_query_idx = p_uty(default = NULL, custom_check = function(input) check_integerish(input, null.ok = TRUE), tags = "train"),
+        n_tokens = p_int(special_vals = list(NULL), tags = "train"),
         kv_compression_ratio = p_uty(default = NULL, custom_check = function(input) check_number(input, null.ok = TRUE), tags = "train"),
         kv_compression_sharing = p_fct(levels = c("headwise", "key_value", "layerwise"), special_vals = list(NULL), tags = "train")
       )
@@ -55,12 +56,15 @@ PipeOpTorchFTTransformerLayer = R6::R6Class("PipeOpTorchFTTransformerLayer",
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {
       param_vals$d_token = shapes_in$input[3]
+      # TODO: determine the exact meaning of n_tokens
+      param_vals$n_tokens = shapes_in$input[2]
       return(param_vals)
     }
   )
 )
 mlr3pipelines::mlr_pipeops$add("nn_ft_transformer_layer", PipeOpTorchFTTransformerLayer)
 
+# TODO: determine what n_tokens should be
 nn_ft_transformer_layer = nn_module(
   "nn_transformer_layer",
   initialize = function(d_token,
@@ -78,6 +82,7 @@ nn_ft_transformer_layer = nn_module(
                         ffn_normalization,
                         kv_compression_ratio,
                         kv_compression_sharing,
+                        n_tokens = NULL,
                         last_layer_query_idx,
                         query_idx) {
     self$prenormalization = prenormalization
@@ -137,7 +142,7 @@ nn_ft_transformer_layer = nn_module(
     return(nn_linear(n_tokens, floor(n_tokens * kv_compression_ratio), bias = FALSE))
   },
   get_kv_compressions_ = function() {
-    if(!is.null(self$shared_kv_compression)) {
+    if (!is.null(self$shared_kv_compression)) {
       result = c(self$shared_kv_compression, self$shared_kv_compression)
     } else {
       if ("key_compression" %in% names(self) && "value_compression" %in% names(self)) {
