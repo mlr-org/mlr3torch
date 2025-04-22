@@ -8,9 +8,40 @@
 #'
 #' @param d_token (`integer(1)`)\cr
 #'   The dimension of the embedding.
-#' @param initialization (`character(1)`)\cr
-#'   The initialization method for the embedding weights. Possible values are `"uniform"`
-#'   and `"normal"`.
+#' @param attention_n_heads (`integer(1)`)\cr
+#'   Number of attention heads.
+#' @param attention_dropout (`numeric(1)`)\cr
+#'   Dropout probability in the attention mechanism.
+#' @param attention_initialization (`character(1)`)\cr
+#'   Initialization method for attention weights. Either "kaiming" or "xavier".
+#' @param ffn_d_hidden (`integer(1)`)\cr
+#'   Hidden dimension of the feed-forward network.
+#' @param ffn_dropout (`numeric(1)`)\cr
+#'   Dropout probability in the feed-forward network. TODO: explain further
+#' @param ffn_activation (`nn_module`)\cr
+#'   Instantiated activation function for the feed-forward network. Default value is `nn_reglu()`.
+#' @param residual_dropout (`numeric(1)`)\cr
+#'   Dropout probability for residual connections.
+#' @param prenormalization (`logical(1)`)\cr
+#'   Whether to apply normalization before attention and FFN (TRUE) or after (FALSE).
+#' @param is_first_layer (`logical(1)`)\cr
+#'   Whether this is the first layer in the transformer stack.
+#' @param first_prenormalization (`logical(1)`)\cr
+#'   Whether to apply prenormalization in the first layer.
+#' @param attention_normalization (`function`)\cr
+#'   Normalization function to use for attention. Default value is `nn_layer_norm`.
+#' @param ffn_normalization (`function`)\cr
+#'   Normalization function to use for the feed-forward network. Default value is `nn_layer_norm`.
+#' @param kv_compression_ratio (`numeric(1)` or `NULL`)\cr
+#'   Ratio for key-value compression. If NULL, no compression is applied.
+#' @param kv_compression_sharing (`character(1)` or `NULL`)\cr
+#'   How to share compression weights. Options: "headwise", "key_value", or "layerwise".
+#' @param n_tokens (`integer(1)` or `NULL`)\cr
+#'   Number of tokens in the input sequence.
+#' @param last_layer_query_idx (`integer()` or `NULL`)\cr
+#'   Indices to select for the query in the last layer.
+#' @param query_idx (`integer()` or `NULL`)\cr
+#'   Indices to select for the query.
 #'
 #' @references
 #' `r format_bib("devlin2018bert")`
@@ -33,7 +64,7 @@ nn_ft_transformer_layer = nn_module(
                         ffn_normalization,
                         kv_compression_ratio,
                         kv_compression_sharing,
-                        n_tokens = NULL,
+                        n_tokens = NULL, # TODO: determine whether this should be set (it is set in the old code, but I think we always overwrite this)
                         last_layer_query_idx,
                         query_idx) {
     self$prenormalization = prenormalization
@@ -62,8 +93,7 @@ nn_ft_transformer_layer = nn_module(
 
     self$output = nn_identity()
 
-    # TODO: remove layer_idx and ask about how we want to handle this condition
-    # layer_idx = -1
+    # TODO: document this condition
     if (!is_first_layer || !prenormalization || first_prenormalization) {
       self$attention_normalization = attention_normalization(d_token)
     }
