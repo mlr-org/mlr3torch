@@ -1,8 +1,7 @@
-#' @title CLS Token for FT-Transformer
+#' @title Single Transformer Layer for FT-Transformer
 #' @description
-#' Concatenates a CLS token to the input as the last feature.
-#' The input shape is expected to be `(batch, n_features, d_token)` and the output shape is
-#' `(batch, n_features + 1, d_token)`.
+#' A transformer layer, consisting of a multi-head self-attention mechanism followed by a feed-forward
+#' network
 #'
 #' This is used in the FT-Transformer.
 #'
