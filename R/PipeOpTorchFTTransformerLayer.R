@@ -89,7 +89,7 @@ nn_ft_transformer_layer = nn_module(
 
     self$output = nn_identity()
 
-    # TODO: document this condition
+    # TODO: document this condition, and make sure to update the documentation of the respective parameters
     if (!prenormalization || first_prenormalization) {
       self$attention_normalization = attention_normalization(d_token)
     }
