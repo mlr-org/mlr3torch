@@ -55,7 +55,7 @@ test_that("Entire FT-Transformer can be constructed as a graph", {
     param_vals = list(
       attention_n_heads = attention_n_heads,
       attention_dropout = 0.1,
-      ffn_activation = nn_reglu(), # TODO: document that this needs to be instantiated
+      ffn_activation = nn_reglu(),
       ffn_d_hidden = ffn_d_hidden,
       ffn_dropout = 0.1,
       residual_dropout = 0.0,

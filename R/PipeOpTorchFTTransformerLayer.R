@@ -160,7 +160,13 @@ PipeOpTorchFTTransformerLayer = R6::R6Class("PipeOpTorchFTTransformerLayer",
         attention_normalization = p_uty(default = nn_layer_norm, tags = "train"),
         ffn_d_hidden = p_int(lower = 1L, default = 256L, tags = "train"),
         ffn_dropout = p_dbl(lower = 0, upper = 1, default = 0.2, tags = "train"),
-        ffn_activation = p_uty(default = nn_reglu(), tags = "train"),
+        # TODO: implement custom check for nn_module
+        # ffn_activation = p_uty(default = nn_reglu(), custom_check = function(input) {
+        #   assert(check_true(length(class(input)) == 2), check_true(class(input)[2L] == "nn_module"), combine = "and")
+        # },
+        # tags = "train"),
+        ffn_activation = p_uty(default = nn_reglu()),
+        # TODO: implement custom check for nn_module_generator
         ffn_normalization = p_uty(default = nn_layer_norm, tags = "train"),
         residual_dropout = p_dbl(lower = 0, upper = 1, default = 0.0, tags = "train"),
         prenormalization = p_lgl(default = TRUE, tags = "train"),
