@@ -24,11 +24,11 @@
 #' @param residual_dropout (`numeric(1)`)\cr
 #'   Dropout probability for residual connections.
 #' @param prenormalization (`logical(1)`)\cr
-#'   Whether to apply normalization before attention and FFN (TRUE) or after (FALSE).
+#'   Whether to apply normalization before attention and FFN (TRUE) or after (FALSE). When this is FALSE, `first_prenormalization` must also be FALSE.
 #' @param is_first_layer (`logical(1)`)\cr
 #'   Whether this is the first layer in the transformer stack. Default value is FALSE.
 #' @param first_prenormalization (`logical(1)`)\cr
-#'   Whether to apply prenormalization in the first layer.
+#'   Whether to apply prenormalization in the first layer. It is recommended to set this to FALSE.
 #' @param attention_normalization (`function`)\cr
 #'   Normalization function to use for attention. Default value is `nn_layer_norm`.
 #' @param ffn_normalization (`function`)\cr
@@ -102,7 +102,7 @@ nn_ft_transformer_layer = nn_module(
     if (prenormalization && first_prenormalization) {
       warning("first_prenormalization is set to TRUE. Are you sure about this? For example, the vanilla FTTransformer with first_prenormalization = TRUE performs CONSIDERABLY worse.")
     }
-
+    # TODO: review this condition in the source code. It is really weird.
     if (!is_first_layer || !prenormalization || first_prenormalization) {
       self$attention_normalization = attention_normalization(d_token)
     }
