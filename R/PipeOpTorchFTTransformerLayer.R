@@ -25,6 +25,8 @@
 #'   Dropout probability for residual connections.
 #' @param prenormalization (`logical(1)`)\cr
 #'   Whether to apply normalization before attention and FFN (TRUE) or after (FALSE).
+#' @param is_first_layer (`logical(1)`)\cr
+#'   Whether this is the first layer in the transformer stack. Default value is FALSE.
 #' @param first_prenormalization (`logical(1)`)\cr
 #'   Whether to apply prenormalization in the first layer.
 #' @param attention_normalization (`function`)\cr
@@ -57,6 +59,7 @@ nn_ft_transformer_layer = nn_module(
                         ffn_activation,
                         residual_dropout,
                         prenormalization,
+                        is_first_layer,
                         first_prenormalization,
                         attention_normalization,
                         ffn_normalization,
@@ -100,7 +103,7 @@ nn_ft_transformer_layer = nn_module(
       warning("first_prenormalization is set to TRUE. Are you sure about this? For example, the vanilla FTTransformer with first_prenormalization = TRUE performs CONSIDERABLY worse.")
     }
 
-    if (!prenormalization || first_prenormalization) {
+    if (!is_first_layer || !prenormalization || first_prenormalization) {
       self$attention_normalization = attention_normalization(d_token)
     }
     self$ffn_normalization = ffn_normalization(d_token)
@@ -207,6 +210,7 @@ PipeOpTorchFTTransformerLayer = R6::R6Class("PipeOpTorchFTTransformerLayer",
         residual_dropout = p_dbl(lower = 0, upper = 1, default = 0.0, tags = "train"),
         prenormalization = p_lgl(default = TRUE, tags = "train"),
         first_prenormalization = p_lgl(default = FALSE, tags = "train"),
+        is_first_layer = p_lgl(default = FALSE, tags = "train"),
         # TODO: determine whether you can factor this out
         query_idx = p_uty(default = NULL, custom_check = function(input) check_integerish(input, null.ok = TRUE), tags = "train"),
         # TODO: determine whether you can factor this out
