@@ -4,6 +4,8 @@
 #' network
 #'
 #' This is used in the FT-Transformer.
+#' 
+#' TODO: re-introduce is_first_layer, since there are enough checks based on first_prenormalization that I think this is useful to have, even though it leads to a clunky interface.
 #'
 #' @param d_token (`integer(1)`)\cr
 #'   The dimension of the embedding.
@@ -90,6 +92,14 @@ nn_ft_transformer_layer = nn_module(
     self$output = nn_identity()
 
     # TODO: document this condition, and make sure to update the documentation of the respective parameters
+    if (!prenormalization) {
+      warning("prenormalization is set to FALSE. Are you sure about this? The training can become less stable.")
+      assert_true(!first_prenormalization)
+    }
+    if (prenormalization && first_prenormalization) {
+      warning("first_prenormalization is set to TRUE. Are you sure about this? For example, the vanilla FTTransformer with first_prenormalization = TRUE performs CONSIDERABLY worse.")
+    }
+
     if (!prenormalization || first_prenormalization) {
       self$attention_normalization = attention_normalization(d_token)
     }
@@ -258,9 +268,8 @@ nn_ft_multi_head_attention = nn_module(
     weights = c(self$W_q, self$W_k, self$W_v)
     for (i in seq_along(weights)) {
       m = weights[[i]]
-      if (initialization == "xavier" &&
-          (i != length(weights) || !is.null(self$W_out))) {
-        nn_init_xavier_uniform_(m$weight, gain=1/sqrt(2))
+      if (initialization == "xavier" && (i != length(weights) || !is.null(self$W_out))) {
+        nn_init_xavier_uniform_(m$weight, gain = 1 / sqrt(2))
       }
       if (!is.null(m$bias)) nn_init_zeros_(m$bias)
     }
