@@ -31,6 +31,21 @@ test_that("basic functionality", {
   learner$train(task)
 })
 
+test_that("jitting works and is the same as non-jitted", {
+  # TODO: For some reason this fails.
+  # When I remove the ft_cls token
+  # This is because the $expand() method of CLS does some reshaping dynamically.
+  # Maybe we can rewrite this
+
+  # TOOD: Also check that the results of jitting and non jitting are the same
+  # IF not, disable the jit_trace parameter
+
+  learner = make_ft_transformer("classif", jit_trace = TRUE, n_blocks = 1, drop_last = FALSE)
+  task = tsk("german_credit")$filter(1:10)
+  learner$train(task)
+
+})
+
 test_that("works with only categorical/only numeric", {
   # TODO:
 })
