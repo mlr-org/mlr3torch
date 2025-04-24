@@ -1,7 +1,3 @@
-test_that("correct input checks", {
-
-})
-
 test_that("main API works", {
   # regression target
   ds = tensor_dataset(
@@ -102,11 +98,71 @@ test_that("classif target works", {
 })
 
 test_that("errors when weird preprocessing", {
-  # test following example pipeops:
-  # - target trafo
-  # - fix factors
-  # - smote
+})
 
+test_that("chunking works ", {
+  ds = dataset(
+    initialize = function() {
+      self$x = torch_tensor(matrix(100:1, nrow = 100, ncol = 1))
+      self$y = torch_tensor(as.matrix(1:100, nrow = 100, ncol = 1))
+      self$counter = 0
+    },
+    .getbatch = function(i) {
+      self$counter = self$counter + 1
+      list(x = self$x[i, drop = FALSE], y = self$y[i, drop = FALSE])
+    },
+    .length = function() {
+      nrow(self$x)
+    }
+  )()
+
+  be = as_data_backend(ds, dataset_shapes = list(x = c(NA, 1), y = c(NA, 1)), chunk_size = 3,
+    converter = list(y = as.numeric))
+
+  counter_prev = ds$counter
+  be$data(1:3, c("x", "y"))
+  expect_equal(ds$counter, counter_prev + 1)
+  counter_prev = ds$counter
+  be$data(4:10, c("x", "y"))
+  expect_equal(ds$counter, counter_prev + 3)
+})
+
+test_that("can retrieve 0 rows", {
+  ds = tensor_dataset(
+    x = torch_tensor(matrix(100:1, nrow = 100, ncol = 1)),
+    y = torch_tensor(as.matrix(1:100, nrow = 100, ncol = 1))
+  )
+  be = as_data_backend(ds, dataset_shapes = list(x = c(NA, 1), y = c(NA, 1)),
+    converter = list(y = as.numeric))
+  res = be$data(integer(0), c("x", "y", "row_id"))
+  expect_data_table(res, nrows = 0, ncols = 3)
+  expect_class(res$x, "lazy_tensor")
+  expect_class(res$y, "numeric")
+  expect_equal(res$row_id, integer(0))
+})
+
+test_that("task converters work", {
+  # regression target
+  ds = tensor_dataset(
+    x = torch_tensor(matrix(100:1, nrow = 100, ncol = 1))$float(),
+    y = torch_tensor(as.matrix(1:100, nrow = 100, ncol = 1))$float()
+  )
+  task = as_task_regr(ds, target = "y", converter = list(y = as.numeric))
+  task$data(integer(0))
+  expect_equal(task$head(2)$y, 1:2)
+  expect_equal(task$feature_names, "x")
+  expect_equal(task$target_names, "y")
+  expect_task(task)
+
+
+  # binary classification
+  ds = tensor_dataset(
+    x = torch_tensor(matrix(100:1, nrow = 100, ncol = 1))$float(),
+    y = torch_tensor(rep(0:1, times = 50))$float()$unsqueeze(2L)
+  )
+  task = as_task_classif(ds, target = "y", levels = c("yes", "no"))
+  expect_task(task)
+  expect_equal(task$head()$y, factor(rep(c("yes", "no"), times = 3), levels = c("yes", "no")))
 })
 
 test_that("caching works", {
@@ -147,8 +203,8 @@ test_that("caching works", {
   # y is no in the cache, so .getitem() is not called on $data()
   check(be, ds, 1, "y", 0)
 
-  # but x is not cached, so we still need to call .getitem below
-  check(be, ds, 1, c("x", "y"), 1)
+  # everything is in the cache
+  check(be, ds, 1, c("x", "y"), 0)
   # lazy tensor causes no materialization
   check(be, ds, 1, "x", 0)
 
@@ -246,4 +302,32 @@ test_that("check_lazy_tensors_backend works", {
   task2 = task_orig$clone(deep = TRUE)$rbind(data.table(x = as_lazy_tensor(1), y = 2, row_id = 999))
   expect_error(check_lazy_tensors_backend(task2$backend, c("x", "y")),
     regexp = "A converter column ('y')", fixed = TRUE)
+})
+
+
+test_that("...", {
+  ds = dataset(
+    initialize = function(x, y) {
+      self$x = torch_randn(100, 3)
+      self$y = torch_randn(100, 1)
+      self$counter = 0
+    },
+    .getbatch = function(i) {
+      print("hallo")
+      self$counter = self$counter + 1L
+      list(x = self$x[i, drop = FALSE], y = self$y[i, drop = FALSE])
+    },
+    .length = function() 100
+  )()
+
+task = as_task_regr(ds, target = "y")
+
+counter = ds$counter
+task$head()
+print(ds$counter - counter)
+counter = ds$counter
+task$head()
+expec
+print(ds$counter - counter)
+
 })

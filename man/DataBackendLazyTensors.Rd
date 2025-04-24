@@ -68,7 +68,8 @@ Create a new instance of this \link[R6:R6Class]{R6} class.
   data,
   primary_key,
   converter,
-  cache = names(converter)
+  cache = names(converter),
+  chunk_size = 100
 )}\if{html}{\out{</div>}}
 }
 

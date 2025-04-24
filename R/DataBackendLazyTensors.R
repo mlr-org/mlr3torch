@@ -36,6 +36,7 @@ DataBackendLazyTensors = R6Class("DataBackendLazyTensors",
   cloneable = FALSE,
   inherit = DataBackendDataTable,
   public = list(
+    chunk_size = NULL,
     #' @description
     #' Create a new instance of this [R6][R6::R6Class] class.
     #' @param data (`data.table`)\cr
@@ -48,10 +49,12 @@ DataBackendLazyTensors = R6Class("DataBackendLazyTensors",
     #' @param cache (`character()`)\cr
     #'   Names of the columns that should be cached.
     #'   Per default, all columns that are converted are cached.
-    initialize = function(data, primary_key, converter, cache = names(converter)) {
+    initialize = function(data, primary_key, converter, cache = names(converter), chunk_size = 100) {
       private$.converter = assert_list(converter, types = "function", any.missing = FALSE)
       assert_subset(names(converter), colnames(data))
+      assert_subset(cache, names(converter), empty.ok = TRUE)
       private$.cached_cols = assert_subset(cache, names(converter))
+      self$chunk_size = assert_int(chunk_size, lower = 1L)
       walk(names(private$.converter), function(nm) {
         if (!inherits(data[[nm]], "lazy_tensor")) {
           stopf("Column '%s' is not a lazy tensor.", nm)
@@ -69,18 +72,25 @@ DataBackendLazyTensors = R6Class("DataBackendLazyTensors",
         # no caching, no materialization as this is called in the training loop
         return(super$data(rows, cols))
       }
-      if (all(cols %in% names(private$.data_cache))) {
-        cache_hit = private$.data_cache[list(rows), cols, on = self$primary_key, with = FALSE]
+      if (all(intersect(cols, private$.cached_cols) %in% names(private$.data_cache))) {
+        expensive_cols = intersect(cols, private$.cached_cols)
+        other_cols = setdiff(cols, expensive_cols)
+        cache_hit = private$.data_cache[list(rows), expensive_cols, on = self$primary_key, with = FALSE]
         complete = complete.cases(cache_hit)
         cache_hit = cache_hit[complete]
         if (nrow(cache_hit) == length(rows)) {
-          return(cache_hit)
+          tbl = cbind(cache_hit, super$data(rows, other_cols))
+          setcolorder(tbl, cols)
+          return(tbl)
         }
-        combined = rbindlist(list(cache_hit, private$.load_and_cache(rows[!complete], cols)))
+        combined = rbindlist(list(cache_hit, private$.load_and_cache(rows[!complete], expensive_cols)))
         reorder = vector("integer", nrow(combined))
         reorder[complete] = seq_len(nrow(cache_hit))
         reorder[!complete] = nrow(cache_hit) + seq_len(nrow(combined) - nrow(cache_hit))
-        return(combined[reorder])
+
+        tbl = cbind(combined[reorder], super$data(rows, other_cols))
+        setcolorder(tbl, cols)
+        return(tbl)
       }
 
       private$.load_and_cache(rows, cols)
@@ -109,7 +119,17 @@ DataBackendLazyTensors = R6Class("DataBackendLazyTensors",
       tbl = super$data(rows, cols)
       cols_to_convert = intersect(names(private$.converter), names(tbl))
       tbl_to_mat = tbl[, cols_to_convert, with = FALSE]
-      tbl_mat = materialize(tbl_to_mat, rbind = TRUE)
+      # chunk the rows of tbl_to_mat into chunks of size self$chunk_size, apply materialize
+      n = nrow(tbl_to_mat)
+      chunks = split(seq_len(n), rep(seq_len(ceiling(n / self$chunk_size)), each = self$chunk_size, length.out = n))
+
+      tbl_mat = if (n == 0) {
+        set_names(list(torch_empty(0)), names(tbl_to_mat))
+      } else {
+        set_names(lapply(transpose_list(lapply(chunks, function(chunk) {
+          materialize(tbl_to_mat[chunk, ], rbind = TRUE)
+        })), torch_cat, dim = 1L), names(tbl_to_mat))
+      }
 
       for (nm in cols_to_convert) {
         converted = private$.converter[[nm]](tbl_mat[[nm]])
@@ -135,13 +155,62 @@ as_data_backend.dataset = function(x, dataset_shapes, ...) {
 }
 
 #' @export
-as_task_classif.dataset = function(x, dataset_shapes, target, ...) {
-  # TODO
+as_task_classif.dataset = function(x, target, levels, converter = NULL, dataset_shapes = NULL, chunk_size = 100, cache = names(converter), ...) {
+  if (length(x) < 2) {
+    stopf("Dataset must have at least 2 rows.")
+  }
+  batch = dataloader(x, batch_size = 2)$.iter()$.next()
+  if (is.null(converter)) {
+    if (length(levels) == 2) {
+      if (batch[[target]]$dtype != torch_float()) {
+        stopf("Target must be a float tensor, but has dtype %s", batch[[target]]$dtype)
+      }
+      if (test_equal(batch[[target]]$shape, c(2L, 1L))) {
+        converter = set_names(list(crate(function(x) factor(as.integer(x), levels = 0:1, labels = levels), levels)), target)
+      } else {
+        stopf("Target must be a float tensor of shape (batch_size, 1), but has shape (batch_size, %s)",
+          paste(batch[[target]]$shape[-1L], collapse = ", "))
+      }
+      converter = set_names(list(crate(function(x) factor(as.integer(x), levels = 0:1, labels = levels), levels)), target)
+    } else {
+      if (batch[[target]]$dtype != torch_int()) {
+        stopf("Target must be an integer tensor, but has dtype %s", batch[[target]]$dtype)
+      }
+      if (test_equal(batch[[target]]$shape, 2L)) {
+        converter = set_names(list(crate(function(x) factor(as.integer(x), labels = levels), levels)), target)
+      } else {
+        stopf("Target must be an integer tensor of shape (batch_size), but has shape (batch_size, %s)",
+          paste(batch[[target]]$shape[-1L], collapse = ", "))
+      }
+      converter = set_names(list(crate(function(x) factor(as.integer(x), labels = levels), levels)), target)
+    }
+  }
+  be = as_data_backend(x, dataset_shapes, converter = converter, cache = cache, chunk_size = chunk_size)
+  as_task_classif(be, target = target, ...)
 }
 
 #' @export
-as_task_regr.dataset = function(x, dataset_shapes, target, converter, ...) {
-  # TODO
+as_task_regr.dataset = function(x, target, converter = NULL, dataset_shapes = NULL, chunk_size = 100, cache = names(converter), ...) {
+  if (length(x) < 2) {
+    stopf("Dataset must have at least 2 rows.")
+  }
+  if (is.null(converter)) {
+    converter = set_names(list(as.numeric), target)
+  }
+  batch = dataloader(x, batch_size = 2)$.iter()$.next()
+
+  if (batch[[target]]$dtype != torch_float()) {
+    stopf("Target must be a float tensor, but has dtype %s", batch[[target]]$dtype)
+  }
+
+  if (!test_equal(batch[[target]]$shape, c(2L, 1L))) {
+    stopf("Target must be a float tensor of shape (batch_size, 1), but has shape (batch_size, %s)",
+      paste(batch[[target]]$shape[-1L], collapse = ", "))
+  }
+
+  dataset_shapes = get_or_check_dataset_shapes(x, dataset_shapes)
+  be = as_data_backend(x, dataset_shapes, converter = converter, cache = cache, chunk_size = chunk_size)
+  as_task_regr(be, target = target, ...)
 }
 
 #' @export

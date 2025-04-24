@@ -22,3 +22,4 @@
 * Add checks on usage of `DataBackendLazyTensors` in `task_dataset`
 * Add optimization that truths values don't have to be loaded twice during resampling, i.e.
   once for making the predictions and once for retrieving the truth column.
+* only allow caching converter columns in `DataBackendLazyTensors` (probably just remove the `cache` parameter)

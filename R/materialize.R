@@ -106,7 +106,7 @@ materialize.lazy_tensor = function(x, device = "cpu", rbind = FALSE, ...) { # no
   materialize_internal(x = x, device = device, cache = NULL, rbind = rbind)
 }
 
-get_input = function(ds, ids, varying_shapes, rbind) {
+get_input = function(ds, ids, varying_shapes) {
   if (is.null(ds$.getbatch)) { # .getindex is never NULL but a function that errs if it was not defined
     x = map(ids, function(id) map(ds$.getitem(id), function(x) x$unsqueeze(1)))
     if (varying_shapes) {
@@ -201,7 +201,7 @@ materialize_internal = function(x, device = "cpu", cache = NULL, rbind) {
   }
 
   if (!do_caching || !input_hit) {
-    input = get_input(ds, ids, varying_shapes, rbind)
+    input = get_input(ds, ids, varying_shapes)
   }
 
   if (do_caching && !input_hit) {
