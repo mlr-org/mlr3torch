@@ -30,7 +30,6 @@
 #'
 #' @references
 #' `r format_bib("gorishniy2021revisiting")`
-#'
 #' @export
 LearnerTorchTabResNet = R6Class("LearnerTorchTabResNet",
   inherit = LearnerTorch,
@@ -39,11 +38,6 @@ LearnerTorchTabResNet = R6Class("LearnerTorchTabResNet",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(task_type, optimizer = NULL, loss = NULL, callbacks = list()) {
       private$.block = PipeOpTorchTabResNetBlock$new()
-
-      properties = switch(task_type,
-        regr = character(0),
-        classif = c("twoclass", "multiclass")
-      )
 
       check_shape = crate(function(x) check_shape(x, null_ok = TRUE, len = 2L))
 
@@ -57,7 +51,6 @@ LearnerTorchTabResNet = R6Class("LearnerTorchTabResNet",
       super$initialize(
         task_type = task_type,
         id = paste0(task_type, ".tab_resnet"),
-        properties = properties,
         label = "Tabular ResNet",
         param_set = param_set,
         optimizer = optimizer,

@@ -155,7 +155,7 @@ LearnerTorch = R6Class("LearnerTorch",
   inherit = Learner,
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(id, task_type, param_set, properties, man, label, feature_types,
+    initialize = function(id, task_type, param_set, properties = character(), man, label, feature_types,
       optimizer = NULL, loss = NULL, packages = character(), predict_types = NULL, callbacks = list()) {
       assert_choice(task_type, c("regr", "classif"))
 
@@ -166,6 +166,9 @@ LearnerTorch = R6Class("LearnerTorch",
 
       assert_subset(properties, mlr_reflections$learner_properties[[task_type]])
       properties = union(properties, c("marshal", "validation", "internal_tuning"))
+      if (task_type == "classif") {
+        properties = union(properties, c("twoclass", "multiclass"))
+      }
       assert_subset(predict_types, names(mlr_reflections$learner_predict_types[[task_type]]))
       packages = assert_character(packages, any.missing = FALSE, min.chars = 1L)
       packages = union(c("mlr3", "mlr3torch"), packages)

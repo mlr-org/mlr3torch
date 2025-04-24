@@ -61,15 +61,10 @@ LearnerTorchMLP = R6Class("LearnerTorchMLP",
         neurons = integer(0),
         p = 0.5
       )
-      properties = switch(task_type,
-        regr = character(0),
-        classif = c("twoclass", "multiclass")
-      )
 
       super$initialize(
         task_type = task_type,
         id = paste0(task_type, ".mlp"),
-        properties = properties,
         label = "Multi Layer Perceptron",
         param_set = param_set,
         optimizer = optimizer,

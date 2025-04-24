@@ -31,18 +31,12 @@ LearnerTorchImage = R6Class("LearnerTorchImage",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id, task_type, param_set = ps(), label, optimizer = NULL, loss = NULL,
-      callbacks = list(), packages, man, properties = NULL,
-      predict_types = NULL) {
-      properties = properties %??% switch(task_type,
-        regr = c(),
-        classif = c("twoclass", "multiclass")
-      )
+      callbacks = list(), packages, man, properties = NULL, predict_types = NULL) {
       super$initialize(
         id = id,
         task_type = task_type,
         label = label,
         optimizer = optimizer,
-        properties = properties,
         loss = loss,
         param_set = param_set,
         packages = packages,
