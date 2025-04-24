@@ -6,7 +6,7 @@
 #' @section Fields:
 #' * `graph` :: [`Graph`][mlr3pipelines::Graph]\cr
 #'   The graph (consisting primarily of [`PipeOpModule`]s) that is wrapped by the network.
-#' * `args` :: `character()`\cr
+#' * `input_map` :: `character()`\cr
 #'   The names of the input arguments of the network.
 #' * `shapes_in` :: `list()`\cr
 #'   The shapes of the input tensors of the network.
@@ -48,21 +48,21 @@ nn_graph = nn_module(
   "nn_graph",
   initialize = function(graph, shapes_in, output_map = graph$output$name, list_output = FALSE) {
     self$graph = as_graph(graph, clone = FALSE)
-    self$args = graph$input$name  # cache this, it is expensive
+    self$input_map = graph$input$name  # cache this, it is expensive
 
     # we do NOT verify the input and type of the graph to be `"torch_tensor"`.
     # The reason for this is that the graph, when constructed with the PipeOpTorch Machinery, contains PipeOpNOPs,
     # which have input and output type *.
 
     self$list_output = assert_flag(list_output)
-    assert_names(names(shapes_in), permutation.of = self$args)
+    assert_names(names(shapes_in), permutation.of = self$input_map)
     self$shapes_in = assert_list(shapes_in, types = "integerish")
     self$output_map = assert_subset(output_map, self$graph$output$name)
     if (!list_output && length(output_map) != 1) {
       stopf("If list_output is FALSE, output_map must have length 1.")
     }
 
-    self$argument_matcher = argument_matcher(names(self$shapes_in))
+    self$argument_matcher = argument_matcher(self$graph$input$name)
 
     # the following is necessary to make torch aware of all the included parameters
     # (some operators in the graph could be different from PipeOpModule, e.g. PipeOpBranch or PipeOpNOP

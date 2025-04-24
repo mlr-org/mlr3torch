@@ -4,7 +4,11 @@
 \alias{ingress_num}
 \title{Ingress Token for Numeric Features}
 \usage{
-ingress_num()
+ingress_num(shape = NULL)
+}
+\arguments{
+\item{shape}{(\code{integer()})\cr
+Shape that \code{batchgetter} will produce. Batch-dimension should be included as \code{NA}.}
 }
 \value{
 \code{\link{TorchIngressToken}}

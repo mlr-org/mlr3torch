@@ -228,6 +228,9 @@ eval_valid_in_epoch = function(ctx) {
 }
 
 has_one_arg = function(network) {
+  if (inherits(network, "nn_graph")) {
+    return(length(network$input_map) == 1L)
+  }
   fargs = formalArgs(network)
   length(fargs) == 1L && !fargs == "..."
 }

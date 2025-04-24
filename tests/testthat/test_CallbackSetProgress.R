@@ -21,7 +21,8 @@ test_that("manual test", {
   stdout = suppressMessages(capture.output(learner$train(task)))
 
   expected = c(
-    "Epoch 1",
+    "Epoch 1 started",
+    "Validation for epoch 1 started",
     "",
     "[Summary epoch 1]",
     "------------------",

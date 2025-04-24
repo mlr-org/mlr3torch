@@ -28,3 +28,12 @@ test_that("unknown shapes work", {
   learner$train(task)
   expect_prediction(learner$predict(task))
 })
+
+
+test_that("single lazy tensor is expected", {
+  task = as_task_regr(data.table(
+    x1 = as_lazy_tensor(matrix(1:4, 2, 2)),
+    x2 = as_lazy_tensor(matrix(1:4, 2, 2)),
+    y = 1:4
+  ), target = "y")
+})

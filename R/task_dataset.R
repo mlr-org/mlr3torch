@@ -127,12 +127,12 @@ merge_compatible_lazy_tensor_graphs = function(lts) {
   # now we need to calculate the new input map, some of the graphs that were merged have different,
   # others the same input pipeops
   input_map = Reduce(c, map(lts, function(lt) {
-    set_names(list(dd(lt)$input_map), dd(lt)$graph$input$name)
+    set_names(list(dd(lt)$input_map), dd(lt)$graph$input$op.id)
   }))
   # all input pipeops that share IDs must be identical and hence receive the same data,
   # therefore we can remove duplicates
   input_map = input_map[unique(names(input_map))]
-  input_map = unname(unlist(input_map[graph$input$name]))
+  input_map = unname(unlist(input_map[graph$input$op.id]))
 
   map_dtc(lts, function(lt) {
     pointer_name = paste0(dd(lt)$pointer, collapse = ".")

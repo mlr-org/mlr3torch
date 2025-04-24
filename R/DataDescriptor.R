@@ -113,7 +113,7 @@ DataDescriptor = R6Class("DataDescriptor",
       }
 
       assert_subset(paste0(pointer, collapse = "."), graph$output$name)
-      assert_true(length(input_map) == length(graph$input$name))
+      assert_true(length(input_map) == length(graph$input$op.id))
 
       # We hash the address of the environment, because the hashes of an environment are not stable,
       # even with a .dataset (that should usually not really have a state), hashes might change due to byte-code

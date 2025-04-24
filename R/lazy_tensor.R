@@ -339,3 +339,21 @@ rep.lazy_tensor = function(x, ...) {
 rep_len.lazy_tensor = function(x, ...) {
   set_class(NextMethod(), c("lazy_tensor", "list"))
 }
+
+
+#' @title Shape of Lazy Tensor
+#' @description
+#' Shape of a lazy tensor. Might be `NULL` if the shapes is not known or varying between rows.
+#' Batch dimension is always `NA`.
+#' @param x ([`lazy_tensor`])\cr
+#'   Lazy tensor.
+#' @export
+#' @return (`integer()` or `NULL`)
+#' @examplesIf torch::torch_is_installed()
+#' lt = as_lazy_tensor(1:10)
+#' lazy_shape(lt)
+#' lt = as_lazy_tensor(matrix(1:10, nrow = 2))
+#' lazy_shape(lt)
+lazy_shape = function(x) {
+  dd(x)$pointer_shape
+}

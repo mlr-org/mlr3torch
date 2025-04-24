@@ -51,7 +51,8 @@ LearnerTorchVision = R6Class("LearnerTorchVision",
         optimizer = optimizer,
         loss = loss,
         callbacks = callbacks,
-        label = label
+        label = label,
+        packages = "torchvision"
       )
     }
   ),

@@ -327,3 +327,7 @@ output_dim_for.TaskClassif = function(x, ...) {
 output_dim_for.TaskRegr = function(x, ...) {
   1L
 }
+
+single_lazy_tensor = function(task) {
+  identical(task$feature_types[, "type"][[1L]], "lazy_tensor")
+}

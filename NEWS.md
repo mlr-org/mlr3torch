@@ -11,6 +11,9 @@
   This means that for binary classification tasks, `t_loss("cross_entropy")` now generates
   `nn_bce_with_logits_loss` instead of `nn_cross_entropy_loss`.
   This also came with a reparametrization of the `t_loss("cross_entropy")` loss (thanks to @tdhock, #374).
+* feat: Added function `lazy_shape()` to get the shape of a lazy tensor.
+* feat: Better error messages for MLP and TabResNet learners.
+* feat: TabResNet learner now supports lazy tensors.
 
 # mlr3torch 0.2.1
 
