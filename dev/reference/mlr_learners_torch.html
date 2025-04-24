@@ -223,15 +223,24 @@ Which packages to load on the workers.</p></li>
 <p>There are no seperate classes for classification and regression to inherit from.
 Instead, the <code>task_type</code> must be specified  as a construction argument.
 Currently, only classification and regression are supported.</p>
-<p>When inheriting from this class, one should overload two private methods:</p><ul><li><p><code>.network(task, param_vals)</code><br>
+<p>When inheriting from this class, one should overload the following methods:</p><ul><li><p><code>.network(task, param_vals)</code><br>
 (<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">nn_module</a></code><br>
 Construct a <code><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">torch::nn_module</a></code> object for the given task and parameter values, i.e. the neural network that
 is trained by the learner.
 Note that a specific output shape is expected from the returned network, see section <em>Network Head and Target Encoding</em>.
 You can use <code><a href="output_dim_for.html">output_dim_for()</a></code> to obtain the correct output dimension for a given task.</p></li>
+<li><p><code>.ingress_tokens(task, param_vals)</code><br>
+(<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> with <code><a href="TorchIngressToken.html">TorchIngressToken</a></code>s<br>
+Create the <code><a href="TorchIngressToken.html">TorchIngressToken</a></code>s that are passed to the <code><a href="task_dataset.html">task_dataset</a></code> constructor.
+The number of ingress tokens must correspond to the number of input parameters of the network.
+If there is more than one input, the names must correspond to the inputs of the network.
+See <code><a href="ingress_num.html">ingress_num</a></code>, <code><a href="ingress_categ.html">ingress_categ</a></code>, and <code><a href="ingress_ltnsr.html">ingress_ltnsr</a></code> on how to easily create the correct tokens.
+For more flexibility, you can also directly implement the <code>.dataset(task, param_vals)</code> method,
+see below.</p></li>
 <li><p><code>.dataset(task, param_vals)</code><br>
 (<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code><a href="https://torch.mlverse.org/docs/reference/dataset.html" class="external-link">torch::dataset</a></code><br>
 Create the dataset for the task.
+Don't implement this if the <code>.ingress_tokens()</code> method is defined.
 The dataset must return a named list where:</p><ul><li><p><code>x</code> is a list of torch tensors that are the input to the network.
 For networks with more than one input, the names must correspond to the inputs of the network.</p></li>
 <li><p><code>y</code> is the target tensor.</p></li>
@@ -253,8 +262,9 @@ This method must take <code>self$predict_type</code> into account.</p></li>
 not possible to remove existing parameters, i.e. those listed in section <em>Parameters</em>.
 None of the parameters provided in <code>param_set</code> can have an id that starts with <code>"loss."</code>, <code>"opt.", or </code>"cb."`, as these are preserved for the dynamically constructed parameters of the optimizer, the loss function,
 and the callbacks.</p>
-<p>To perform additional input checks on the task, the private <code>.verify_train_task(task, param_vals)</code> and
-<code>.verify_predict_task(task, param_vals)</code> can be overwritten.</p>
+<p>To perform additional input checks on the task, the private <code>.check_train_task(task, param_vals)</code> and
+<code>.check_predict_task(task, param_vals)</code> can be overwritten.
+These should return <code>TRUE</code> if the input task is valid and otherwise a string with an error message.</p>
 <p>For learners that have other construction arguments that should change the hash of a learner, it is required
 to implement the private <code>$.additional_phash_input()</code>.</p>
     </div>

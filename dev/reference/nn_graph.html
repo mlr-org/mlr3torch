@@ -106,7 +106,7 @@ Whether output should be a list of tensors. If <code>FALSE</code> (default), the
 
 <ul><li><p><code>graph</code> :: <code><a href="https://mlr3pipelines.mlr-org.com/reference/Graph.html" class="external-link">Graph</a></code><br>
 The graph (consisting primarily of <code><a href="mlr_pipeops_module.html">PipeOpModule</a></code>s) that is wrapped by the network.</p></li>
-<li><p><code>args</code> :: <code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code><br>
+<li><p><code>input_map</code> :: <code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code><br>
 The names of the input arguments of the network.</p></li>
 <li><p><code>shapes_in</code> :: <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code><br>
 The shapes of the input tensors of the network.</p></li>
@@ -151,22 +151,22 @@ Whether the output is a list of tensors.</p></li>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">network</span><span class="op">(</span>module_1.input <span class="op">=</span> <span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4602</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1863</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0636</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0127</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.5271</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0183</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1106</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0579</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1196</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.5049</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0441</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4570</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1983</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.6179</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3100</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1358</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.5067</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.9184</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.4980</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1641</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.5475</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.5100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.0782</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.6011</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.7360</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.5279</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.1066</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.5573</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.5333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2910</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.7594</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.6093</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{16,1} ][ grad_fn = &lt;AddmmBackward0&gt; ]</span>
 </code></pre></div>
     </div>

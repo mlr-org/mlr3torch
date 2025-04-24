@@ -84,7 +84,7 @@
 <li><p>Predict Types:</p><ul><li><p>classif: 'response', 'prob'</p></li>
 <li><p>regr: 'response'</p></li>
 </ul></li>
-<li><p>Feature Types: “integer”, “numeric”</p></li>
+<li><p>Feature Types: “integer”, “numeric”, “lazy_tensor”</p></li>
 <li><p>Required Packages: <a href="https://CRAN.R-project.org/package=mlr3" class="external-link"><span class="pkg">mlr3</span></a>, <a href="https://CRAN.R-project.org/package=mlr3torch" class="external-link"><span class="pkg">mlr3torch</span></a>, <a href="https://CRAN.R-project.org/package=torch" class="external-link"><span class="pkg">torch</span></a></p></li>
 </ul></div>
     <div class="section level2">
@@ -103,6 +103,9 @@ Alternative way to specify the latent dimension as <code>d_block * d_hidden_mult
 First dropout ratio.</p></li>
 <li><p><code>dropout2</code> :: <code>numeric(1)</code><br>
 Second dropout ratio.</p></li>
+<li><p><code>shape</code> :: <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code> or <code>NULL</code><br>
+Shape of the input tensor. Only needs to be provided if the input is a lazy tensor with
+unknown shape.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

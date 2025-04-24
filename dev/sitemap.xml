@@ -46,6 +46,7 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/ingress_ltnsr.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/ingress_num.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/is_lazy_tensor.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/lazy_shape.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/lazy_tensor.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/materialize.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/materialize_internal.html</loc></url>
