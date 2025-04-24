@@ -41,6 +41,7 @@ CallbackSetProgress = R6Class("CallbackSetProgress",
     #' @description
     #' Creates the progress bar for validation.
     on_before_valid = function() {
+      catf("Validation for epoch %s started (%s)", self$ctx$epoch, format(Sys.time()))
       self$pb_valid = progress::progress_bar$new(
         total = length(self$ctx$loader_valid),
         format = "Validation: [:bar]"

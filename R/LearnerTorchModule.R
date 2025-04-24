@@ -69,7 +69,7 @@ LearnerTorchModule = R6Class("LearnerTorchModule",
         stopf("module_generator must have 'task' as a parameter")
       }
 
-      private$.ingress_tokens = assert_list(ingress_tokens, types = "TorchIngressToken", names = "unique", min.len = 1L)
+      private$.ingress_tokens_ = assert_list(ingress_tokens, types = "TorchIngressToken", names = "unique", min.len = 1L)
 
       if (is.null(feature_types)) {
         feature_types = unname(mlr_reflections$task_feature_types)
@@ -104,7 +104,7 @@ LearnerTorchModule = R6Class("LearnerTorchModule",
     }
   ),
   private = list(
-    .ingress_tokens = NULL,
+    .ingress_tokens_ = NULL,
     .module_generator = NULL,
 
     .network = function(task, param_vals) {
@@ -112,13 +112,8 @@ LearnerTorchModule = R6Class("LearnerTorchModule",
       invoke(private$.module_generator, task = task, .args = module_params)
     },
 
-    .dataset = function(task, param_vals) {
-      ingress_tokens = private$.ingress_tokens
-      dataset = task_dataset(
-        task,
-        feature_ingress_tokens = ingress_tokens,
-        target_batchgetter = get_target_batchgetter(task)
-      )
+    .ingress_tokens = function(task, param_vals) {
+      private$.ingress_tokens_
     },
 
     .additional_phash_input = function() {

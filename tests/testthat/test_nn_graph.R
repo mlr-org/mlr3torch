@@ -7,12 +7,12 @@ test_that("nn_graph basic checks", {
 
   # a very basic check with list_output = FALSE (the default)
   network = nn_graph(graph, shapes_in)
-  expect_equal(network$args, "torch_ingress_num.input")
+  expect_equal(network$input_map, "torch_ingress_num.input")
   expect_class(network, "nn_graph")
   output = invoke(network, .args = input)
   expect_identical(input[[1L]], output)
   expect_identical(network$graph, graph)
-  expect_identical(network$args, graph$input$name)
+  expect_identical(network$input_map, graph$input$name)
   expect_identical(network$list_output, FALSE)
 
   # a very basic check with list_output = TRUE

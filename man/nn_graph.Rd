@@ -30,7 +30,7 @@ Represents a neural network using a \code{\link[mlr3pipelines:Graph]{Graph}} tha
 \itemize{
 \item \code{graph} :: \code{\link[mlr3pipelines:Graph]{Graph}}\cr
 The graph (consisting primarily of \code{\link{PipeOpModule}}s) that is wrapped by the network.
-\item \code{args} :: \code{character()}\cr
+\item \code{input_map} :: \code{character()}\cr
 The names of the input arguments of the network.
 \item \code{shapes_in} :: \code{list()}\cr
 The shapes of the input tensors of the network.

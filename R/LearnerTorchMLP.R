@@ -41,14 +41,10 @@ LearnerTorchMLP = R6Class("LearnerTorchMLP",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(task_type, optimizer = NULL, loss = NULL, callbacks = list()) {
-      check_activation = crate(function(x) check_class(x, "nn_module"),
-        .parent = topenv())
-      check_activation_args = crate(function(x) check_list(x, names = "unique"),
-        .parent = topenv())
-      check_neurons = crate(function(x) check_integerish(x, any.missing = FALSE, lower = 1),
-        .parent = topenv())
-      check_shape = crate(function(x) check_shape(x, null_ok = TRUE, len = 2L),
-        .parent = topenv(), check_shape)
+      check_activation = crate(function(x) check_class(x, "nn_module"))
+      check_activation_args = crate(function(x) check_list(x, names = "unique"))
+      check_neurons = crate(function(x) check_integerish(x, any.missing = FALSE, lower = 1))
+      check_shape = crate(function(x) check_shape(x, null_ok = TRUE, len = 2L))
 
       param_set = ps(
         neurons         = p_uty(tags = c("train", "predict"), custom_check = check_neurons),
@@ -86,51 +82,31 @@ LearnerTorchMLP = R6Class("LearnerTorchMLP",
   ),
   private = list(
     .network = function(task, param_vals) {
-      # verify_train_task was already called beforehand, so we can make some assumptions
       d_out = output_dim_for(task)
-      d_in = if (single_lazy_tensor(task)) {
-        private$.get_input_shape(task, param_vals$shape)[2L]
-      } else {
-        length(task$feature_names)
-      }
+      d_in = private$.ingress_tokens(task, param_vals)[[1L]]$shape[2L]
       network = invoke(make_mlp, .args = param_vals, d_in = d_in, d_out = d_out)
       network
     },
-    .dataset = function(task, param_vals) {
-      if (single_lazy_tensor(task)) {
-        param_vals$shape = private$.get_input_shape(task, param_vals$shape)
-        dataset_ltnsr(task, param_vals)
+    .ingress_tokens = function(task, param_vals) {
+      token = if (single_lazy_tensor(task)) {
+        shape = param_vals$shape %??% lazy_shape(task$head(1L)[[task$feature_names]])
+        if (is.null(shape)) {
+          stopf("Learner '%s' received task '%s' with lazy tensor feature '%s' with unknown shape. Please specify the learner's `shape` parameter.", self$id, task$id, task$feature_names) # nolint
+        } else if (is.null(param_vals$shape)) {
+          msg = check_shape(shape, len = 2L)
+          if (!isTRUE(msg)) {
+            stopf("Learner '%s' received task '%s' with lazy_tensor column of shape '%s', but the learner expects an input shape of length 2.", self$id, task$id, shape_to_str(shape))
+          }
+        }
+        ingress_ltnsr(shape = shape)
       } else {
-        dataset_num(task, param_vals)
+        ingress_num(shape = c(NA, length(task$feature_names)))
       }
-    },
-    .verify_train_task = function(task, param_vals) {
-      features = task$feature_types[, "type"][[1L]]
-      lazy_tensor_input = identical(features, "lazy_tensor")
-      assert(check_true(lazy_tensor_input), check_false(some(features, function(x) x == "lazy_tensor")))
-
-      if (lazy_tensor_input) {
-        shape = private$.get_input_shape(task, param_vals$shape)
-        assert_shape(shape, len = 2L)
-      }
-    },
-    .get_input_shape = function(s1, s2) {
-      if (test_class(s1, "Task")) {
-        assert_true(identical(s1$feature_types[, "type"][[1L]], "lazy_tensor"))
-        s1 = dd(s1$data(s1$row_roles$use[1L], s1$feature_names)[[1L]])$pointer_shape
-      }
-      assert_shape(s1, null_ok = TRUE)
-      assert_shape(s2, null_ok = TRUE)
-      s = unique(discard(list(s1, s2), is.null))
-      assert_true(length(s) == 1L)
-      s[[1L]]
+      list(input = token)
     }
   )
 )
 
-single_lazy_tensor = function(task) {
-  identical(task$feature_types[, "type"][[1L]], "lazy_tensor")
-}
 
 # shape is (NA, x) if preesnt
 make_mlp = function(task, d_in, d_out, activation, neurons = integer(0), p, activation_args, n_layers = NULL, ...) {
