@@ -14,6 +14,8 @@
 * feat: Added function `lazy_shape()` to get the shape of a lazy tensor.
 * feat: Better error messages for MLP and TabResNet learners.
 * feat: TabResNet learner now supports lazy tensors.
+* feat: The `LearnerTorch` base class now supports the private method `$.ingress_tokens(task, param_vals)`
+  for generating the `torch::dataset`.
 
 # mlr3torch 0.2.1
 
