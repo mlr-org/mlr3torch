@@ -11,6 +11,8 @@
   This means that for binary classification tasks, `t_loss("cross_entropy")` now generates
   `nn_bce_with_logits_loss` instead of `nn_cross_entropy_loss`.
   This also came with a reparametrization of the `t_loss("cross_entropy")` loss (thanks to @tdhock, #374).
+* fix: `NA` is now a valid shape for lazy tensors.
+* feat: `lazy_tensor`s of length 0 can now be materialized.
 
 # mlr3torch 0.2.1
 

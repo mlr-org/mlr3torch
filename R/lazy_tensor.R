@@ -197,6 +197,19 @@ as_lazy_tensor.torch_tensor = function(x, ...) { # nolint
   as_lazy_tensor(ds, dataset_shapes = list(x = c(NA, dim(x)[-1])))
 }
 
+#' @export
+as_lazy_tensors = function(x, ...) {
+  UseMethod("as_lazy_tensors")
+}
+
+#' @export
+as_lazy_tensors.dataset = function(x, dataset_shapes = NULL, ...) {
+  dataset_shapes = get_or_check_dataset_shapes(x, dataset_shapes)
+  set_names(map_dtc(names(dataset_shapes), function(shape) {
+    as_lazy_tensor(x, dataset_shapes = dataset_shapes, input_map = shape)
+  }), names(dataset_shapes))
+}
+
 #' Assert Lazy Tensor
 #'
 #' Asserts whether something is a lazy tensor.
@@ -338,4 +351,14 @@ rep.lazy_tensor = function(x, ...) {
 #' @export
 rep_len.lazy_tensor = function(x, ...) {
   set_class(NextMethod(), c("lazy_tensor", "list"))
+}
+
+
+#' @export
+distinct_values.lazy_tensor = function(x, drop = TRUE, na_rm = TRUE) {
+  if (!length(x)) {
+    return(x)
+  }
+  ids = distinct_values(map_int(x, 1))
+  lazy_tensor(dd(x), ids)
 }

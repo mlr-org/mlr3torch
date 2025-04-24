@@ -3,8 +3,6 @@ test_that("prototype", {
   expect_class(proto, "lazy_tensor")
   expect_true(length(proto) == 0L)
   expect_error(dd(proto))
-
-  expect_error(materialize(lazy_tensor()), "Cannot materialize")
 })
 
 test_that("input checks", {
