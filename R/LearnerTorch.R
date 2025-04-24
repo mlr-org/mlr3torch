@@ -542,7 +542,7 @@ LearnerTorch = R6Class("LearnerTorch",
           target_batchgetter = get_target_batchgetter(task)
         )
       } else {
-        stopf("Private method `$.dataset()` must be implemented or `ingress_tokens` set.")
+        stopf("Private method `$.dataset()` or `$.ingress_tokens()` must be implemented.")
       }
     },
     .optimizer = NULL,

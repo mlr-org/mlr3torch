@@ -165,7 +165,7 @@ TorchIngressToken = function(features, batchgetter, shape = NULL) {
 #' @description
 #' Represents an entry point representing a tensor containing all numeric (`integer()` and `double()`)
 #' features of a task.
-#' @param shape (`integer()`)\cr
+#' @param shape (`integer()` or `NULL`)\cr
 #'   Shape that `batchgetter` will produce. Batch-dimension should be included as `NA`.
 #' @return [`TorchIngressToken`]
 #' @export
@@ -181,7 +181,7 @@ ingress_num = function(shape = NULL) {
 #' @description
 #' Represents an entry point representing a tensor containing all categorical (`factor()`, `ordered()`, `logical()`)
 #' features of a task.
-#' @param shape (`integer()`)\cr
+#' @param shape (`integer()` or `NULL`)\cr
 #'   Shape that `batchgetter` will produce. Batch-dimension should be included as `NA`.
 #' @return [`TorchIngressToken`]
 #' @export
@@ -219,7 +219,7 @@ selector_ltnsr = function(feature_name = NULL) {
 #' Represents an entry point representing a tensor containing a single lazy tensor feature.
 #' @param feature_name (`character(1)`)\cr
 #'   Which lazy tensor feature to select if there is more than one.
-#' @param shape (`integer()`)\cr
+#' @param shape (`integer()` or `NULL`)\cr
 #'   Shape that `batchgetter` will produce. Batch-dimension should be included as `NA`.
 #' @return [`TorchIngressToken`]
 #' @export

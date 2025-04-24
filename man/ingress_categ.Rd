@@ -7,7 +7,7 @@
 ingress_categ(shape = NULL)
 }
 \arguments{
-\item{shape}{(\code{integer()})\cr
+\item{shape}{(\code{integer()} or \code{NULL})\cr
 Shape that \code{batchgetter} will produce. Batch-dimension should be included as \code{NA}.}
 }
 \value{
