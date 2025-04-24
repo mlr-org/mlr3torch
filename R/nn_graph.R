@@ -62,7 +62,7 @@ nn_graph = nn_module(
       stopf("If list_output is FALSE, output_map must have length 1.")
     }
 
-    self$argument_matcher = argument_matcher(self$graph$input$name)
+    self$argument_matcher = argument_matcher(names(self$shapes_in))
 
     # the following is necessary to make torch aware of all the included parameters
     # (some operators in the graph could be different from PipeOpModule, e.g. PipeOpBranch or PipeOpNOP
