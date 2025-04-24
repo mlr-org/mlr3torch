@@ -6,6 +6,8 @@
 #' This is used in the FT-Transformer.
 #' 
 #' TODO: re-introduce is_first_layer, since there are enough checks based on first_prenormalization that I think this is useful to have, even though it leads to a clunky interface.
+#' However, this can be factored out once we create the Learner, since we can keep first_prenormalization and prenormalization as parameters for the learner, then
+#' figure out a cleaner interface for the transformer layer based on how they actually get used.
 #'
 #' @param d_token (`integer(1)`)\cr
 #'   The dimension of the embedding.
