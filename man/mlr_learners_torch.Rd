@@ -184,7 +184,7 @@ There are no seperate classes for classification and regression to inherit from.
 Instead, the \code{task_type} must be specified  as a construction argument.
 Currently, only classification and regression are supported.
 
-When inheriting from this class, one should overload two private methods:
+When inheriting from this class, one should overload the following methods:
 \itemize{
 \item \code{.network(task, param_vals)}\cr
 (\code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{\link[torch:nn_module]{nn_module}}\cr
@@ -192,9 +192,18 @@ Construct a \code{\link[torch:nn_module]{torch::nn_module}} object for the given
 is trained by the learner.
 Note that a specific output shape is expected from the returned network, see section \emph{Network Head and Target Encoding}.
 You can use \code{\link[=output_dim_for]{output_dim_for()}} to obtain the correct output dimension for a given task.
+\item \code{.ingress_tokens(task, param_vals)}\cr
+(\code{\link[mlr3:Task]{Task}}, \code{list()}) -> named \code{list()} with \code{\link{TorchIngressToken}}s\cr
+Create the \code{\link{TorchIngressToken}}s that are passed to the \code{\link{task_dataset}} constructor.
+The number of ingress tokens must correspond to the number of input parameters of the network.
+If there is more than one input, the names must correspond to the inputs of the network.
+See \code{\link{ingress_num}}, \code{\link{ingress_categ}}, and \code{\link{ingress_ltnsr}} on how to easily create the correct tokens.
+For more flexibility, you can also directly implement the \code{.dataset(task, param_vals)} method,
+see below.
 \item \code{.dataset(task, param_vals)}\cr
 (\code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{\link[torch:dataset]{torch::dataset}}\cr
 Create the dataset for the task.
+Don't implement this if the \code{.ingress_tokens()} method is defined.
 The dataset must return a named list where:
 \itemize{
 \item \code{x} is a list of torch tensors that are the input to the network.
@@ -231,8 +240,9 @@ not possible to remove existing parameters, i.e. those listed in section \emph{P
 None of the parameters provided in \code{param_set} can have an id that starts with \code{"loss."}, \verb{"opt.", or }"cb."`, as these are preserved for the dynamically constructed parameters of the optimizer, the loss function,
 and the callbacks.
 
-To perform additional input checks on the task, the private \code{.verify_train_task(task, param_vals)} and
-\code{.verify_predict_task(task, param_vals)} can be overwritten.
+To perform additional input checks on the task, the private \code{.check_train_task(task, param_vals)} and
+\code{.check_predict_task(task, param_vals)} can be overwritten.
+These should return \code{TRUE} if the input task is valid and otherwise a string with an error message.
 
 For learners that have other construction arguments that should change the hash of a learner, it is required
 to implement the private \verb{$.additional_phash_input()}.

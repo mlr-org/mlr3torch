@@ -118,6 +118,7 @@ reference:
   - title: Lazy Tensor
     contents:
       - lazy_tensor
+      - lazy_shape
       - DataDescriptor
       - as_lazy_tensor
       - as_data_descriptor

@@ -31,7 +31,7 @@ LearnerTorchImage = R6Class("LearnerTorchImage",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id, task_type, param_set = ps(), label, optimizer = NULL, loss = NULL,
-      callbacks = list(), packages = "torchvision", man, properties = NULL,
+      callbacks = list(), packages, man, properties = NULL,
       predict_types = NULL) {
       properties = properties %??% switch(task_type,
         regr = c(),
@@ -54,18 +54,11 @@ LearnerTorchImage = R6Class("LearnerTorchImage",
     }
   ),
   private = list(
-    .verify_train_task = function(task, param_vals) {
-      if (!isTRUE(all.equal(task$feature_types$type, "lazy_tensor"))) {
-        stopf("Must have exactly one feature of type lazy_tensor.")
+    .ingress_tokens = function(task, param_vals) {
+      if (task$n_features != 1L) {
+        stopf("Learner '%s' received task '%s' with %i features, but the learner expects exactly one feature.", self$id, task$id, length(task$feature_names))
       }
-      assert_rgb_shape(c(
-        c(NA, materialize(task$data(task$row_ids[1L], task$feature_names)[[1L]])[[1L]]$shape))
-      )
-      return(TRUE)
-    },
-    .dataset = function(task, param_vals) {
-      param_vals$shape = "infer"
-      dataset_ltnsr(task, param_vals)
+      list(input = ingress_ltnsr(feature_name = task$feature_names))
     }
   )
 )

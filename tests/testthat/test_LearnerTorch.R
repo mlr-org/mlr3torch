@@ -977,3 +977,39 @@ test_that("loss is put on device", {
   learner$train(tsk("iris"))
   expect_true(learner$model$loss_fn[[1]]$device == torch_device("meta"))
 })
+
+test_that("check train and predict task works", {
+  l = R6Class("LearnerTest",
+    inherit = LearnerTorchFeatureless,
+    public = list(
+      initialize = function() {
+        super$initialize(task_type = "classif")
+      },
+      err = TRUE
+    ),
+    private = list(
+      .check_predict_task = function(task, param_vals) {
+        if (self$err) {
+          return("predict_error")
+        }
+        TRUE
+      },
+      .check_train_task = function(task, param_vals) {
+        if (self$err) {
+          return("train_error")
+        }
+        TRUE
+      }
+    )
+  )$new()
+  l$configure(
+    epochs = 1L, batch_size = 30
+  )
+  task = tsk("iris")$filter(c(1:10, 51:60, 101:110))
+  expect_error(l$train(task), "Training task 'iris' is invalid")
+  l$err = FALSE
+  expect_error(l$train(task), regexp = NA)
+  expect_error(l$predict(task), regexp = NA)
+  l$err = TRUE
+  expect_error(l$predict(task), regexp = "Prediction task 'iris' is invalid")
+})

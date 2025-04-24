@@ -93,13 +93,13 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
     #' The ingress tokens. Must be non-`NULL` when calling `$train()`.
     ingress_tokens = function(rhs) {
       if (!missing(rhs)) {
-        private$.ingress_tokens = assert_list(rhs, types = "TorchIngressToken", min.len = 1L, names = "unique")
+        private$.ingress_tokens_ = assert_list(rhs, types = "TorchIngressToken", min.len = 1L, names = "unique")
       }
-      private$.ingress_tokens
+      private$.ingress_tokens_
     }
   ),
   private = list(
-    .ingress_tokens = NULL,
+    .ingress_tokens_ = NULL,
     deep_clone = function(name, value) {
       if (name == ".network_stored" && is.null(value) && !is.null(self$state)) {
         # the initial network state is lost after training a LearnerTorchModel

@@ -90,7 +90,7 @@
 #' Instead, the `task_type` must be specified  as a construction argument.
 #' Currently, only classification and regression are supported.
 #'
-#' When inheriting from this class, one should overload two private methods:
+#' When inheriting from this class, one should overload the following methods:
 #'
 #' * `.network(task, param_vals)`\cr
 #'   ([`Task`][mlr3::Task], `list()`) -> [`nn_module`][torch::nn_module]\cr
@@ -98,9 +98,18 @@
 #'   is trained by the learner.
 #'   Note that a specific output shape is expected from the returned network, see section *Network Head and Target Encoding*.
 #'   You can use [`output_dim_for()`] to obtain the correct output dimension for a given task.
+#' * `.ingress_tokens(task, param_vals)`\cr
+#'   ([`Task`][mlr3::Task], `list()`) -> named `list()` with [`TorchIngressToken`]s\cr
+#'   Create the [`TorchIngressToken`]s that are passed to the [`task_dataset`] constructor.
+#'   The number of ingress tokens must correspond to the number of input parameters of the network.
+#'   If there is more than one input, the names must correspond to the inputs of the network.
+#'   See [`ingress_num`], [`ingress_categ`], and [`ingress_ltnsr`] on how to easily create the correct tokens.
+#'   For more flexibility, you can also directly implement the `.dataset(task, param_vals)` method,
+#'   see below.
 #' * `.dataset(task, param_vals)`\cr
 #'   ([`Task`][mlr3::Task], `list()`) -> [`torch::dataset`]\cr
 #'   Create the dataset for the task.
+#'   Don't implement this if the `.ingress_tokens()` method is defined.
 #'   The dataset must return a named list where:
 #'   * `x` is a list of torch tensors that are the input to the network.
 #'     For networks with more than one input, the names must correspond to the inputs of the network.
@@ -133,8 +142,9 @@
 #' or `"cb."`, as these are preserved for the dynamically constructed parameters of the optimizer, the loss function,
 #' and the callbacks.
 #'
-#' To perform additional input checks on the task, the private `.verify_train_task(task, param_vals)` and
-#' `.verify_predict_task(task, param_vals)` can be overwritten.
+#' To perform additional input checks on the task, the private `.check_train_task(task, param_vals)` and
+#' `.check_predict_task(task, param_vals)` can be overwritten.
+#' These should return `TRUE` if the input task is valid and otherwise a string with an error message.
 #'
 #' For learners that have other construction arguments that should change the hash of a learner, it is required
 #' to implement the private `$.additional_phash_input()`.
@@ -452,7 +462,10 @@ LearnerTorch = R6Class("LearnerTorch",
             nm, paste0(train_shape, collapse = "x"), paste0(predict_shape, collapse = "x"))
         }
       })
-      private$.verify_train_task(task, param_vals)
+      msg = private$.check_train_task(task, param_vals)
+      if (!isTRUE(msg)) {
+        stopf("Training task '%s' is invalid for learner '%s': %s", task$id, self$id, msg)
+      }
 
       param_vals$device = auto_device(param_vals$device)
       if (identical(param_vals$seed, "random")) param_vals$seed = sample.int(.Machine$integer.max, 1)
@@ -476,7 +489,10 @@ LearnerTorch = R6Class("LearnerTorch",
       # Ideally we could rely on state$train_task, but there is this complication
       # https://github.com/mlr-org/mlr3/issues/947
       param_vals$device = auto_device(param_vals$device)
-      private$.verify_predict_task(task, param_vals)
+      msg = private$.check_predict_task(task, param_vals)
+      if (!isTRUE(msg)) {
+        stopf("Prediction task '%s' is invalid for learner '%s': %s", task$id, self$id, msg)
+      }
 
       with_torch_settings(seed = self$model$seed, num_threads = param_vals$num_threads,
         num_interop_threads = param_vals$num_interop_threads, expr = {
@@ -515,15 +531,25 @@ LearnerTorch = R6Class("LearnerTorch",
       param_vals_test = insert_named(param_vals, list(shuffle = FALSE, drop_last = FALSE))
       private$.dataloader(dataset, param_vals_test)
     },
+    .ingress_tokens = function(task, param_vals)  {
+      stopf("Private method `$.ingress_tokens()` must be implemented.")
+    },
     .dataset = function(task, param_vals) {
-      stopf(".dataset must be implemented.")
-
+      if (!is.null(private$.ingress_tokens)) {
+        task_dataset(
+          task = task,
+          feature_ingress_tokens = private$.ingress_tokens(task, param_vals),
+          target_batchgetter = get_target_batchgetter(task)
+        )
+      } else {
+        stopf("Private method `$.dataset()` or `$.ingress_tokens()` must be implemented.")
+      }
     },
     .optimizer = NULL,
     .loss = NULL,
     .callbacks = NULL,
-    .verify_train_task = function(task, param_vals) NULL,
-    .verify_predict_task = function(task, param_vals) NULL,
+    .check_train_task = function(task, param_vals) TRUE,
+    .check_predict_task = function(task, param_vals) TRUE,
     deep_clone = function(name, value) {
       private$.param_set = NULL # required to keep clone identical to original, otherwise tests get really ugly
       if (is.R6(value)) {

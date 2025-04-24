@@ -65,7 +65,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   optimizer = NULL,
   loss = NULL,
   callbacks = list(),
-  packages = "torchvision",
+  packages,
   man,
   properties = NULL,
   predict_types = NULL

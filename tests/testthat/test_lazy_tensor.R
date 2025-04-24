@@ -279,3 +279,9 @@ test_that("rep_len for lazy_tensor", {
     torch_tensor(matrix(c(1, 2, 1), ncol = 1))
   )
 })
+
+test_that("lazy_shape", {
+  expect_equal(lazy_shape(as_lazy_tensor(1:2)), c(NA, 1))
+  expect_equal(lazy_shape(as_lazy_tensor(matrix(1:4, 2))), c(NA, 2))
+  expect_equal(lazy_shape(as_lazy_tensor(matrix(1:4, 2, 2))), c(NA, 2))
+})

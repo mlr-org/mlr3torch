@@ -64,9 +64,23 @@ assert_shapes = function(shapes, coerce = TRUE, named = FALSE, null_ok = FALSE, 
   map(shapes, assert_shape, coerce = coerce, null_ok = null_ok, unknown_batch = unknown_batch)
 }
 
+check_rgb_shape = function(shape) {
+  msg = check_shape(shape, len = 4L, null_ok = FALSE)
+  if (!isTRUE(msg)) {
+    return(msg)
+  }
+  if (shape[2L] != 3L) {
+    return("Second dimension must be 3 for RGB images.")
+  }
+  return(TRUE)
+}
+
 assert_rgb_shape = function(shape) {
-  assert_shape(shape, len = 4L, null_ok = FALSE)
-  assert_true(shape[2L] == 3L)
+  msg = check_rgb_shape(shape)
+  if (!isTRUE(msg)) {
+    stopf(msg)
+  }
+  shape
 }
 
 # grayscale or rgb image
