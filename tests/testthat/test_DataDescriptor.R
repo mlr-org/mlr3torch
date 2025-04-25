@@ -17,7 +17,8 @@ test_that("Basic checks", {
 test_that("input verification", {
   dataset = make_dataset(list(x = c(10, 5, 3)), getbatch = FALSE)
   expect_error(DataDescriptor$new(dataset, list(y = c(NA, 5, 3))), "must return a list")
-  expect_error(DataDescriptor$new(dataset, list(x = c(NA, 10, 5, 4))), "First batch")
+  expect_error(DataDescriptor$new(dataset, list(x = c(NA, 10, 5))), "The specified number")
+  expect_error(DataDescriptor$new(dataset, list(x = c(NA, 10, 4, 3))), "First example batch")
   expect_error(DataDescriptor$new(dataset, list(x = c(NA, 10, 5, 3)), input_map = "aaa"), "aaa")
   dataset1 = make_dataset(list(x = 1, y = 1), getbatch = FALSE)
   expect_error(DataDescriptor$new(dataset1, list(x = c(NA, 10, 5, 3)), input_map = c("x", "y")),
@@ -70,6 +71,8 @@ test_that("infer shapes from dataset", {
 test_that("assert_compatible_shapes", {
   ds = make_dataset(list(x = c(2, 3)), getbatch = TRUE)
   expect_error(assert_compatible_shapes(list(x = c(NA, 2, 3)), ds), regexp = NA)
+  expect_error(assert_compatible_shapes(list(x = c(NA, NA, NA)), ds), regexp = NA)
+  expect_error(assert_compatible_shapes(list(x = c(NA, NA, NA, NA)), ds), "returned 3")
   expect_error(assert_compatible_shapes(list(x = c(NA, 2, 1)), ds), regexp = "(NA,2,1)")
   ds = make_dataset(list(x = c(2, 3)), getbatch = FALSE)
   expect_error(assert_compatible_shapes(list(x = c(NA, 2, 3)), ds), regexp = NA)
