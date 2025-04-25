@@ -142,7 +142,7 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
           block$param_set$values$is_first_layer = FALSE
         }
         if (i == param_vals$n_blocks) {
-          block$param_set$values$query_idx = 1L
+          block$param_set$values$query_idx = -1L
         }
         block
       })

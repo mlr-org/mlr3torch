@@ -9,6 +9,7 @@
 #' However, this can be factored out once we create the Learner, since we can keep first_prenormalization and prenormalization as parameters for the learner, then
 #' figure out a cleaner interface for the transformer layer based on how they actually get used.
 #'
+#' TODO: verify all documentation (LLM-generated)
 #' @param d_token (`integer(1)`)\cr
 #'   The dimension of the embedding.
 #' @param attention_n_heads (`integer(1)`)\cr
@@ -20,7 +21,7 @@
 #' @param ffn_d_hidden (`integer(1)`)\cr
 #'   Hidden dimension of the feed-forward network.
 #' @param ffn_dropout (`numeric(1)`)\cr
-#'   Dropout probability in the feed-forward network. TODO: explain further
+#'   Dropout probability in the feed-forward network.
 #' @param ffn_activation (`nn_module`)\cr
 #'   Instantiated activation function for the feed-forward network. Default value is `nn_reglu()`.
 #' @param residual_dropout (`numeric(1)`)\cr
