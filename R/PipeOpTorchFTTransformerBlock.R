@@ -5,8 +5,7 @@
 #'
 #' This is used in the FT-Transformer.
 #' 
-#' TODO: re-introduce is_first_layer, since there are enough checks based on first_prenormalization that I think this is useful to have, even though it leads to a clunky interface.
-#' However, this can be factored out once we create the Learner, since we can keep first_prenormalization and prenormalization as parameters for the learner, then
+#' TODO: should we factor out `is_first_layer`, `first_prenormalization, `prenormalization`? Once we create the Learner, since we can keep first_prenormalization and prenormalization as parameters for the learner, then
 #' figure out a cleaner interface for the transformer layer based on how they actually get used.
 #'
 #' TODO: verify all documentation (LLM-generated)
@@ -101,7 +100,7 @@ nn_ft_transformer_block = nn_module(
       assert_true(!first_prenormalization)
     }
     if (prenormalization && first_prenormalization) {
-      warning("first_prenormalization is set to TRUE. Are you sure about this? For example, the vanilla FTTransformer with first_prenormalization = TRUE performs CONSIDERABLY worse.")
+      warning("first_prenormalization is set to TRUE. The vanilla FTTransformer with first_prenormalization = TRUE performs considerably worse.")
     }
     # TODO: review this condition in the source code. It is really weird.
     if (!is_first_layer || !prenormalization || first_prenormalization) {
@@ -177,6 +176,7 @@ nn_ft_transformer_block = nn_module(
   }
 )
 
+
 #' @title Single Transformer Layer for the FT-Transformer
 #' @inherit nn_ft_transformer_block description
 #' @section nn_module:
@@ -200,14 +200,8 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
         attention_normalization = p_uty(default = nn_layer_norm, tags = "train"),
         ffn_d_hidden = p_int(lower = 1L, default = 256L, tags = "train"),
         ffn_dropout = p_dbl(lower = 0, upper = 1, default = 0.2, tags = "train"),
-        # TODO: implement custom check for nn_module
-        # ffn_activation = p_uty(default = nn_reglu(), custom_check = function(input) {
-        #   assert(check_true(length(class(input)) == 2), check_true(class(input)[2L] == "nn_module"), combine = "and")
-        # },
-        # tags = "train"),
-        ffn_activation = p_uty(default = nn_reglu),
-        # TODO: implement custom check for nn_module_generator
-        ffn_normalization = p_uty(default = nn_layer_norm, tags = "train"),
+        ffn_activation = p_uty(default = nn_reglu, custom_check = check_nn_module_generator, tags = "train"),
+        ffn_normalization = p_uty(default = nn_layer_norm, custom_check = check_nn_module_generator, tags = "train"),
         residual_dropout = p_dbl(lower = 0, upper = 1, default = 0.0, tags = "train"),
         prenormalization = p_lgl(default = TRUE, tags = "train"),
         first_prenormalization = p_lgl(default = FALSE, tags = "train"),
@@ -229,13 +223,12 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
       if (is.null(param_vals$query_idx)) {
-        return(list(shapes_in[[1L]]))
+        return(shapes_in[1])
       }
 
       shapes_out = shapes_in$input
-      # TODO: would this work for all index types? for example a boolean index that has the length of that dimension?
-      # maybe it's better to hard-code a 1 here?
-      shapes_out[[2L]] = length(param_vals$query_idx)
+      # only operate on the CLS token
+      shapes_out[[2L]] = 1
       return(list(shapes_out))
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {

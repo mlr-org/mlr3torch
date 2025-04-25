@@ -209,6 +209,10 @@ check_nn_module = function(x) {
   check_class(x, "nn_module")
 }
 
+check_nn_module_generator = function(x) {
+  check_class(x, "nn_module_generator")
+}
+
 check_callbacks = function(x) {
   if (test_class(x, "TorchCallback")) {
     x = list(x)
