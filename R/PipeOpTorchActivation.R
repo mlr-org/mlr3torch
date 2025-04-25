@@ -293,7 +293,8 @@ PipeOpTorchReLU = R6Class("PipeOpTorchReLU",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_relu,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )

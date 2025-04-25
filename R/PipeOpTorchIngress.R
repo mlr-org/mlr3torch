@@ -119,7 +119,7 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
 #'   the output of `Task$data(rows = batch_indices, cols = features)`
 #'   and it should produce a tensor of shape `shape_out`.
 #' @param shape (`integer`)\cr
-#'   Shape that `batchgetter` will produce. Batch-dimension should be included as `NA`.
+#'   Shape that `batchgetter` will produce. At least the batch dimension should be included as `NA`.
 #' @return `TorchIngressToken` object.
 #' @family Graph Network
 #' @export

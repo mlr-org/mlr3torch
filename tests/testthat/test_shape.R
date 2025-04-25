@@ -51,13 +51,13 @@ test_that("infer_shapes works", {
 
   # names
   expect_equal(
-    names(infer_shapes(list(x = c(NA, 4)), list(), output_names = "out", identity, TRUE)),
+    names(infer_shapes(list(x = c(NA, 4)), list(), output_names = "out", identity, TRUE, "a")),
     "out"
   )
 
   # multiple inputs
   expect_equal(
-    infer_shapes(list(x = c(NA, 3, 4), y = c(NA, 3)), list(), output_names = c("out1", "out2"), function(x) x[.., 1:2], TRUE), # nolint
+    infer_shapes(list(x = c(NA, 3, 4), y = c(NA, 3)), list(), output_names = c("out1", "out2"), function(x) x[.., 1:2], TRUE, "a"), # nolint
     list(
       out1 = c(NA, 3, 2),
       out2 = c(NA, 2)
@@ -65,13 +65,13 @@ test_that("infer_shapes works", {
   )
   # param_vals
   expect_equal(
-    infer_shapes(list(x = c(NA, 4)), fn = function(x, d) x[, d], param_vals = list(d = 1:2), output_names = "out", rowwise = FALSE), # nolint
+    infer_shapes(list(x = c(NA, 4)), fn = function(x, d) x[, d], param_vals = list(d = 1:2), output_names = "out", rowwise = FALSE, "a"), # nolint
     list(
       out = c(NA, 2)
     )
   )
   expect_equal(
-    infer_shapes(list(x = c(NA, 4)), fn = function(x, d) x[, d], param_vals = list(d = 1:3), output_names = "out", rowwise = FALSE), # nolint
+    infer_shapes(list(x = c(NA, 4)), fn = function(x, d) x[, d], param_vals = list(d = 1:3), output_names = "out", rowwise = FALSE, "a"), # nolint
     list(
       out = c(NA, 3)
     )

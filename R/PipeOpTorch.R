@@ -301,8 +301,6 @@ PipeOpTorch = R6Class("PipeOpTorch",
       }
       set_names(private$.shapes_out(shapes_in, self$param_set$get_values(), task = task), self$output$name)
     }
-
-    # TODO: printer that calls the nn_module's printer
   ),
   private = list(
     .only_batch_unknown = TRUE,

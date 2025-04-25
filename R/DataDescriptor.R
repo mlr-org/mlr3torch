@@ -255,10 +255,14 @@ assert_compatible_shapes = function(shapes, dataset) {
     if (length(shape_specified) != length(shape_example)) {
       stopf("The specified number of dimensions for element '%s' is %s, but the dataset returned %s",
         name, length(shape_specified), length(shape_example))
-
     }
-    shape_example[is.na(shape_specified)] = NA
 
+    if (all(is.na(shape_specified))) {
+      # compatible with any shape
+      return(NULL)
+    }
+
+    shape_example[is.na(shape_specified)] = NA
     if (!test_equal(shape_specified, shape_example)) {
       stopf(paste0("First example batch from dataset is incompatible with the provided shape of %s:\n",
         "* Observed shape: %s.\n* Specified shape: %s."), name,
