@@ -32,7 +32,7 @@ test_that("NA in second dimension", {
 
   graph = po("torch_ingress_ltnsr") %>>% po("nn_linear", out_features = 10)
 
-  expect_error(graph$train(task), "Please provide a known shape")
+  expect_error(graph$train(task), "Please provide an input with a known last dimension")
 
   task = as_task_regr(data.table(
     x = as_lazy_tensor(ds, dataset_shapes = list(x = c(NA, NA, 10))),
