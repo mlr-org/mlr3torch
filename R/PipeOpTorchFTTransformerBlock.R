@@ -1,8 +1,13 @@
-#' @title Transformer Block for FTTransformer
+#' @title Single Transformer Layer for FT-Transformer
 #' @description
-#' A stack of transformer layers, where the first and last layers in the stack can be configured differently.
+#' A transformer layer, consisting of a multi-head self-attention mechanism followed by a feed-forward
+#' network
 #'
 #' This is used in the FT-Transformer.
+#' 
+#' TODO: re-introduce is_first_layer, since there are enough checks based on first_prenormalization that I think this is useful to have, even though it leads to a clunky interface.
+#' However, this can be factored out once we create the Learner, since we can keep first_prenormalization and prenormalization as parameters for the learner, then
+#' figure out a cleaner interface for the transformer layer based on how they actually get used.
 #'
 #' TODO: verify all documentation (LLM-generated)
 #' @param d_token (`integer(1)`)\cr
@@ -23,6 +28,8 @@
 #'   Dropout probability for residual connections.
 #' @param prenormalization (`logical(1)`)\cr
 #'   Whether to apply normalization before attention and FFN (TRUE) or after (FALSE). When this is FALSE, `first_prenormalization` must also be FALSE.
+#' @param is_first_layer (`logical(1)`)\cr
+#'   Whether this is the first layer in the transformer stack. Default value is FALSE.
 #' @param first_prenormalization (`logical(1)`)\cr
 #'   Whether to apply prenormalization in the first layer. It is recommended to set this to FALSE.
 #' @param attention_normalization (`function`)\cr
@@ -35,8 +42,6 @@
 #'   How to share compression weights. Options: "headwise", "key_value", or "layerwise".
 #' @param n_tokens (`integer(1)` or `NULL`)\cr
 #'   Number of tokens in the input sequence.
-#' @param last_layer_query_idx (`integer()` or `NULL`)\cr
-#'   Indices to select for the query in the last layer.
 #' @param query_idx (`integer()` or `NULL`)\cr
 #'   Indices to select for the query.
 #'
@@ -44,8 +49,8 @@
 #' `r format_bib("devlin2018bert")`
 #'
 #' @export
-nn_ft_transformer_layer = nn_module(
-  "nn_ft_transformer_layer",
+nn_ft_transformer_block = nn_module(
+  "nn_ft_transformer_block",
   initialize = function(d_token,
                         attention_n_heads,
                         attention_dropout,
@@ -55,13 +60,13 @@ nn_ft_transformer_layer = nn_module(
                         ffn_activation,
                         residual_dropout,
                         prenormalization,
+                        is_first_layer,
                         first_prenormalization,
                         attention_normalization,
                         ffn_normalization,
                         kv_compression_ratio,
                         kv_compression_sharing,
                         n_tokens = NULL, # TODO: determine whether this should be set (it is set in the old code, but I think we always overwrite this)
-                        last_layer_query_idx,
                         query_idx) {
     self$prenormalization = prenormalization
 
@@ -172,10 +177,10 @@ nn_ft_transformer_layer = nn_module(
 )
 
 #' @title Single Transformer Layer for the FT-Transformer
-#' @inherit nn_ft_transformer_layer description
+#' @inherit nn_ft_transformer_block description
 #' @section nn_module:
-#' Calls [`nn_ft_transformer_layer()`] when trained.
-#' @templateVar id nn_ft_transformer_layer
+#' Calls [`nn_ft_transformer_block()`] when trained.
+#' @templateVar id nn_ft_transformer_block
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #' @export
@@ -186,7 +191,7 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
     #' @description Create a new instance of this [R6][R6::R6Class] class.
     #' @param id (`character(1)`)\cr
     #'   Identifier of the resulting object.
-    initialize = function(id = "nn_ft_transformer_layer", param_vals = list()) {
+    initialize = function(id = "nn_ft_transformer_block", param_vals = list()) {
       param_set = ps(
         attention_n_heads = p_int(lower = 1L, default = 8L, tags = "train"),
         attention_dropout = p_dbl(lower = 0, upper = 1, default = 0.2, tags = "train"),
@@ -206,10 +211,7 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
         prenormalization = p_lgl(default = TRUE, tags = "train"),
         first_prenormalization = p_lgl(default = FALSE, tags = "train"),
         is_first_layer = p_lgl(default = FALSE, tags = "train"),
-        # TODO: determine whether you can factor this out
         query_idx = p_uty(default = NULL, custom_check = function(input) check_integerish(input, null.ok = TRUE), tags = "train"),
-        # TODO: determine whether you can factor this out
-        last_layer_query_idx = p_uty(default = NULL, custom_check = function(input) check_integerish(input, null.ok = TRUE), tags = "train"),
         n_tokens = p_int(special_vals = list(NULL), tags = "train"),
         kv_compression_ratio = p_uty(default = NULL, custom_check = function(input) check_number(input, null.ok = TRUE), tags = "train"),
         kv_compression_sharing = p_fct(levels = c("headwise", "key_value", "layerwise"), special_vals = list(NULL), tags = "train")
@@ -217,27 +219,23 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
 
       super$initialize(
         id = id,
-        module_generator = nn_ft_transformer_layer,
+        module_generator = nn_ft_transformer_block,
         param_vals = param_vals,
         param_set = param_set
       )
-
-      self$last_layer_query_idx = param_vals$last_layer_query_idx
     }
   ),
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
-      if (is.null(param_vals$last_layer_query_idx)) {
-        return(shapes_in)
+      if (is.null(param_vals$query_idx)) {
+        return(list(shapes_in[[1L]]))
       }
 
-      if (self$last_layer_query_idx) {
-        return(shapes_in[length(shapes_in)])
-      }
-
-      shapes_out = shapes_in
-      shapes_out[[2]] = length(param_vals$last_layer_query_idx)
-      return(shapes_out)
+      shapes_out = shapes_in$input
+      # TODO: would this work for all index types? for example a boolean index that has the length of that dimension?
+      # maybe it's better to hard-code a 1 here?
+      shapes_out[[2L]] = length(param_vals$query_idx)
+      return(list(shapes_out))
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {
       param_vals$d_token = shapes_in$input[3]
@@ -246,7 +244,7 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
     }
   )
 )
-mlr3pipelines::mlr_pipeops$add("nn_ft_transformer_layer", PipeOpTorchFTTransformerBlock)
+mlr3pipelines::mlr_pipeops$add("nn_ft_transformer_block", PipeOpTorchFTTransformerBlock)
 
 nn_ft_multi_head_attention = nn_module(
   "nn_ft_multi_head_attention",
