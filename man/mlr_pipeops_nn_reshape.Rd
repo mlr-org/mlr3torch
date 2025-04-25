@@ -17,7 +17,7 @@ This internally calls \code{\link[torch:torch_reshape]{torch::torch_reshape()}} 
 
 \itemize{
 \item \code{shape} :: \code{integer(1)}\cr
-The desired output shape. Unknown dimension (one at most) can either be specified as \code{-1} or \code{NA}.
+The desired output shape. Unknown dimension (one at most) can either be specified as \code{-1}.
 }
 }
 

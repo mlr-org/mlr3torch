@@ -231,6 +231,7 @@ is_lazy_tensor = function(x) {
 #'   Is not cloned, so should be cloned beforehand.
 #' @param shape (`integer()` or `NULL`)\cr
 #'   The shape of the lazy tensor.
+#'   `NA`s indicate dimensions where the shape is not known.
 #' @param shape_predict (`integer()` or `NULL`)\cr
 #'   The shape of the lazy tensor if it was applied during `$predict()`.
 #'

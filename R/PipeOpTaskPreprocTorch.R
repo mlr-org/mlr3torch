@@ -404,12 +404,9 @@ create_ps = function(fn) {
 #' @param shapes_out (`function` or `NULL` or `"infer"`)\cr
 #'   The private `.shapes_out(shapes_in, param_vals, task)` method of [`PipeOpTaskPreprocTorch`]
 #'   (see section Inheriting).
-#'   Special values are `NULL` and `infer`:
+#'   Special values are `NULL` and `"infer"`:
 #'   If `NULL`, the output shapes are unknown.
-#'   If "infer", the output shape function is inferred and calculates the output shapes as follows:
-#'   For an input shape of (NA, ...) a meta-tensor of shape (1, ...) is created and the preprocessing function is
-#'   applied. Afterwards the batch dimension (1) is replaced with NA and the shape is returned.
-#'   If the first dimension is not `NA`, the output shape of applying the preprocessing function is returned.
+#'   Option `"infer"` uses [`infer_shapes`].
 #'   Method `"infer"` should be correct in most cases, but might fail in some edge cases.
 #' @param param_set ([`ParamSet`][paradox::ParamSet] or `NULL`)\cr
 #'   The parameter set.
@@ -452,7 +449,7 @@ pipeop_preproc_torch = function(id, fn, shapes_out = NULL, param_set = NULL, pac
   # we e.g. want torchvision in suggests, so we cannot already access the function.
   if (identical(shapes_out, "infer")) {
     shapes_out = crate(function(shapes_in, param_vals, task) {
-      getFromNamespace("infer_shapes", "mlr3torch")(shapes_in = shapes_in, param_vals = param_vals, output_names = self$output$name, fn = self$fn, rowwise = self$rowwise, id = self$id)
+      getFromNamespace("infer_shapes", "mlr3torch")(shapes_in = shapes_in, param_vals = param_vals, output_names = self$output$name, fn = self$fn, rowwise = self$rowwise, id = self$id) # nolint
     })
   } else if (is.function(shapes_out) || is.null(shapes_out)) {
     # nothing to do
