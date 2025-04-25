@@ -23,7 +23,7 @@
 #' @param ffn_dropout (`numeric(1)`)\cr
 #'   Dropout probability in the feed-forward network.
 #' @param ffn_activation (`nn_module`)\cr
-#'   Instantiated activation function for the feed-forward network. Default value is `nn_reglu()`.
+#'   Activation function for the feed-forward network. Default value is `nn_reglu`.
 #' @param residual_dropout (`numeric(1)`)\cr
 #'   Dropout probability for residual connections.
 #' @param prenormalization (`logical(1)`)\cr
@@ -52,22 +52,23 @@
 nn_ft_transformer_block = nn_module(
   "nn_ft_transformer_block",
   initialize = function(d_token,
-                        attention_n_heads,
-                        attention_dropout,
-                        attention_initialization,
-                        ffn_d_hidden,
-                        ffn_dropout,
-                        ffn_activation,
-                        residual_dropout,
-                        prenormalization,
-                        is_first_layer,
-                        first_prenormalization,
-                        attention_normalization,
-                        ffn_normalization,
-                        kv_compression_ratio,
-                        kv_compression_sharing,
-                        n_tokens = NULL, # TODO: determine whether this should be set (it is set in the old code, but I think we always overwrite this)
-                        query_idx) {
+    attention_n_heads,
+    attention_dropout,
+    attention_initialization,
+    ffn_d_hidden,
+    ffn_dropout,
+    ffn_activation,
+    residual_dropout,
+    prenormalization,
+    is_first_layer,
+    first_prenormalization,
+    attention_normalization,
+    ffn_normalization,
+    kv_compression_ratio,
+    kv_compression_sharing,
+    n_tokens = NULL, # TODO: determine whether this should be set (it is set in the old code, but I think we always overwrite this)
+    query_idx
+  ) {
     self$prenormalization = prenormalization
 
     # TODO: determine whether we should set defaults
@@ -204,7 +205,7 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
         #   assert(check_true(length(class(input)) == 2), check_true(class(input)[2L] == "nn_module"), combine = "and")
         # },
         # tags = "train"),
-        ffn_activation = p_uty(default = nn_reglu()),
+        ffn_activation = p_uty(default = nn_reglu),
         # TODO: implement custom check for nn_module_generator
         ffn_normalization = p_uty(default = nn_layer_norm, tags = "train"),
         residual_dropout = p_dbl(lower = 0, upper = 1, default = 0.0, tags = "train"),
@@ -316,7 +317,7 @@ nn_ft_ffn = nn_module(
   initialize = function(d_token, d_hidden, bias_first, bias_second, dropout, activation) {
     coef = if (class(activation)[1] %in% c("nn_reglu", "nn_geglu")) 2 else 1
     self$linear_first = nn_linear(d_token, d_hidden * coef, bias_first)
-    self$activation = activation
+    self$activation = activation()
     self$dropout = nn_dropout(dropout)
     self$linear_second = nn_linear(d_hidden, d_token, bias_second)
   },

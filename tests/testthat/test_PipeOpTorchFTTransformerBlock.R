@@ -52,7 +52,7 @@
 #       n_layers = 5,
 #       attention_n_heads = attention_n_heads,
 #       attention_dropout = 0.1,
-#       ffn_activation = nn_reglu(),
+#       ffn_activation = nn_reglu,
 #       ffn_d_hidden = ffn_d_hidden,
 #       ffn_dropout = 0.1,
 #       residual_dropout = 0.0,
@@ -144,7 +144,7 @@ test_that("Entire FT-Transformer can be constructed as a graph", {
     param_vals = list(
       attention_n_heads = attention_n_heads,
       attention_dropout = 0.1,
-      ffn_activation = nn_reglu(),
+      ffn_activation = nn_reglu,
       ffn_d_hidden = ffn_d_hidden,
       ffn_dropout = 0.1,
       residual_dropout = 0.0,
@@ -175,7 +175,7 @@ test_that("Entire FT-Transformer can be constructed as a graph", {
         attention_dropout = 0.1,
         ffn_d_hidden = ffn_d_hidden,
         ffn_dropout = 0.1,
-        ffn_activation = nn_reglu(),
+        ffn_activation = nn_reglu,
         residual_dropout = 0.0,
         prenormalization = TRUE,
         first_prenormalization = FALSE,
@@ -191,13 +191,13 @@ test_that("Entire FT-Transformer can be constructed as a graph", {
     po("nn_block", po_transformer, n_blocks = 3) %>>%
     po("nn_ft_transformer_block",
       id = "last_transformer_block",
-      # TODO: Is there a reason nn_layer_norm is passed as class but nn_reglu() as instantiated object?
+      # TODO: Is there a reason nn_layer_norm is passed as class but nn_reglu as instantiated object?
       param_vals = list(
         attention_n_heads = attention_n_heads,
         attention_dropout = 0.1,
         ffn_d_hidden = ffn_d_hidden,
         ffn_dropout = 0.1,
-        ffn_activation = nn_reglu(),
+        ffn_activation = nn_reglu,
         residual_dropout = 0.0,
         prenormalization = TRUE,
         is_first_layer = FALSE,

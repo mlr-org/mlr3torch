@@ -1,7 +1,7 @@
 
 #' @title FT-Transformer
 #' @description
-#' Feature-Tokenizer Transformer for tabular data that can either work on [`lazy_tesor`] inputs
+#' Feature-Tokenizer Transformer for tabular data that can either work on [`lazy_tensor`] inputs
 #' or on standard tabular features.
 #' @references
 #' `r format_bib("gorishniy2021revisiting")`
