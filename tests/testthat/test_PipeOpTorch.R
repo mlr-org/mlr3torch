@@ -128,16 +128,22 @@ test_that("shapes_out", {
   expect_error(obj1$shapes_out(list(c(NA, 99))), regexp = "number of input")
 })
 
-test_that("PipeOpTorch errs when there are unexpected NAs in the shape", {
+test_that("Multiple NAs are allowed in the shape", {
   graph = as_graph(po("torch_ingress_num"))
 
   task = tsk("iris")
   md = graph$train(task)[[1L]]
 
   md$pointer_shape = c(4, NA)
-  expect_error(po("nn_relu")$train(list(md)), regexp = "Invalid shape")
+  expect_error(po("nn_relu")$train(list(md)), regexp = NA)
 
   md$pointer_shape = c(NA, NA, 4)
-  expect_error(po("nn_relu")$train(list(md)), regexp = "Invalid shape")
+  expect_error(nn("relu_1")$train(list(md)), regexp = NA)
+})
 
+test_that("only_batch_unknown", {
+  obj = nn("linear", out_features = 10)
+  expect_equal(obj$shapes_out(list(c(NA, NA, 1))), list(output = c(NA, NA, 10)))
+  obj$.__enclos_env__$private$.only_batch_unknown = TRUE
+  expect_error(obj$shapes_out(list(c(NA, NA, 1))), regexp = "Invalid shape: (NA,NA,1)", fixed = TRUE)
 })

@@ -70,6 +70,6 @@ test_that("error message unknown shapes", {
 })
 
 test_that("allow for flexible shapes", {
+  task =
   ingress = po("torch_ingress_ltnsr", shape = c(NA, NA))
-  task
 })

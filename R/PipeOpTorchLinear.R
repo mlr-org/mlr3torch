@@ -32,7 +32,8 @@ PipeOpTorchLinear = R6Class("PipeOpTorchLinear",
         id = id,
         param_set = param_set,
         param_vals = param_vals,
-        module_generator = nn_linear
+        module_generator = nn_linear,
+        only_batch_unknown = FALSE
       )
     }
   ),

@@ -19,12 +19,13 @@ register_preproc("trafo_resize", torchvision::transform_resize,
     )
   ),
   shapes_out = function(shapes_in, param_vals, task) {
-    assert_true(length(shape) > 2)
-    size = if (length(size) == 1L) rep(size, 2L)
-    list(c(shapes_in[[1L]][seq_len(length(shapes_in[[1L]] - 2))]), size)
+    assert_true(length(shapes_in[[1L]]) >= 2L)
+    size = rep(param_vals$size, length.out = 2L)
+    list(c(shapes_in[[1L]][seq_len(length(shapes_in[[1L]]) - 2)], size))
   },
   rowwise = FALSE
 )
+
 
 unchanged_shapes_rgb = function(shapes_in, param_vals, task) {
   assert_rgb_shape(shapes_in[[1L]])
@@ -64,7 +65,7 @@ register_preproc("trafo_nop", identity, rowwise = FALSE, shapes_out = unchanged_
 #' @description
 #' Reshapes the tensor according to the parameter `shape`, by calling `torch_reshape()`.
 #' This preprocessing function is applied batch-wise.
-register_preproc("trafo_reshape", torch_reshape, rowwise = FALSE, shapes_out = NULL,
+register_preproc("trafo_reshape", torch_reshape, rowwise = FALSE, shapes_out = "infer",
   param_set = ps(
     shape = p_uty(tags = c("train", "required"), custom_check = check_integerish)
   )
@@ -73,7 +74,7 @@ register_preproc("trafo_reshape", torch_reshape, rowwise = FALSE, shapes_out = N
 #' @title Adjust Gamma Transformation
 #' @template preprocess_torchvision
 #' @templateVar id trafo_adjust_gamma
-register_preproc("trafo_adjust_gamma", torchvision::transform_adjust_gamma, packages = "torchvision", shapes_out = NULL, rowwise = TRUE,
+register_preproc("trafo_adjust_gamma", torchvision::transform_adjust_gamma, packages = "torchvision", shapes_out = "infer", rowwise = TRUE,
   param_set = ps(
     gamma = p_dbl(lower = 0, tags = c("train", "required")),
     gain = p_dbl(default = 1, tags = "train")
@@ -84,7 +85,7 @@ register_preproc("trafo_adjust_gamma", torchvision::transform_adjust_gamma, pack
 #' @template preprocess_torchvision
 #' @templateVar id trafo_adjust_brightness
 register_preproc("trafo_adjust_brightness", torchvision::transform_adjust_brightness, packages = "torchvision",
-  shapes_out = NULL, rowwise = TRUE,
+  shapes_out = "infer", rowwise = TRUE,
   param_set = ps(
     brightness_factor = p_dbl(lower = 0, tags = c("train", "required"))
   )
@@ -104,7 +105,7 @@ register_preproc("trafo_adjust_hue", torchvision::transform_adjust_hue, packages
 #' @template preprocess_torchvision
 #' @templateVar id trafo_adjust_saturation
 register_preproc("trafo_adjust_saturation", torchvision::transform_adjust_saturation, packages = "torchvision",
-  shapes_out = NULL, rowwise = TRUE,
+  shapes_out = "infer", rowwise = TRUE,
   param_set = ps(
     saturation_factor = p_dbl(tags = c("train", "required"))
   )
@@ -113,7 +114,7 @@ register_preproc("trafo_adjust_saturation", torchvision::transform_adjust_satura
 #' @title Grayscale Transformation
 #' @template preprocess_torchvision
 #' @templateVar id trafo_grayscale
-register_preproc("trafo_grayscale", torchvision::transform_grayscale, packages = "torchvision", shapes_out = NULL, rowwise = TRUE,
+register_preproc("trafo_grayscale", torchvision::transform_grayscale, packages = "torchvision", shapes_out = "infer", rowwise = TRUE,
   param_set = ps(
     num_output_channels = p_int(lower = 1L, upper = 3L, tags = c("train", "required"))
   )
@@ -122,7 +123,7 @@ register_preproc("trafo_grayscale", torchvision::transform_grayscale, packages =
 #' @title RGB to Grayscale Transformation
 #' @template preprocess_torchvision
 #' @templateVar id trafo_rgb_to_grayscale
-register_preproc("trafo_rgb_to_grayscale", torchvision::transform_rgb_to_grayscale, packages = "torchvision", shapes_out = NULL, rowwise = TRUE,
+register_preproc("trafo_rgb_to_grayscale", torchvision::transform_rgb_to_grayscale, packages = "torchvision", shapes_out = "infer", rowwise = TRUE,
   param_set = ps()
 )
 
@@ -146,7 +147,7 @@ register_preproc("trafo_normalize", torchvision::transform_normalize, packages =
 #' @title Padding Transformation
 #' @template preprocess_torchvision
 #' @templateVar id trafo_pad
-register_preproc("trafo_pad", torchvision::transform_pad, packages = "torchvision", shapes_out = NULL, rowwise = TRUE,
+register_preproc("trafo_pad", torchvision::transform_pad, packages = "torchvision", shapes_out = "infer", rowwise = TRUE,
   param_set = ps(
     padding = p_uty(tags = c("train", "required")),
     fill = p_uty(default = 0, tags = "train"),
@@ -159,7 +160,7 @@ register_preproc("trafo_pad", torchvision::transform_pad, packages = "torchvisio
 #' @title Resized Crop Augmentation
 #' @template preprocess_torchvision
 #' @templateVar id augment_resized_crop
-register_preproc("augment_resized_crop", torchvision::transform_resized_crop, packages = "torchvision", shapes_out = NULL, rowwise = TRUE,
+register_preproc("augment_resized_crop", torchvision::transform_resized_crop, packages = "torchvision", shapes_out = "infer", rowwise = TRUE,
   param_set = ps(
     top = p_int(tags = c("train", "required")),
     left = p_int(tags = c("train", "required")),
@@ -173,7 +174,7 @@ register_preproc("augment_resized_crop", torchvision::transform_resized_crop, pa
 #' @title Color Jitter Augmentation
 #' @template preprocess_torchvision
 #' @templateVar id augment_color_jitter
-register_preproc("augment_color_jitter", torchvision::transform_color_jitter, packages = "torchvision", shapes_out = NULL, rowwise = TRUE,
+register_preproc("augment_color_jitter", torchvision::transform_color_jitter, packages = "torchvision", shapes_out = "infer", rowwise = TRUE,
   param_set = ps(
     brightness = p_dbl(default = 0, lower = 0, tags = "train"),
     contrast = p_dbl(default = 0, lower = 0, tags = "train"),
@@ -230,7 +231,7 @@ register_preproc("augment_random_horizontal_flip", torchvision::transform_random
 #' @title Crop Augmentation
 #' @template preprocess_torchvision
 #' @templateVar id augment_crop
-register_preproc("augment_crop", torchvision::transform_crop, packages = "torchvision", shapes_out = NULL, rowwise = TRUE,
+register_preproc("augment_crop", torchvision::transform_crop, packages = "torchvision", shapes_out = "infer", rowwise = TRUE,
   param_set = ps(
     top = p_int(tags = c("train", "required")),
     left = p_int(tags = c("train", "required")),
@@ -290,7 +291,7 @@ register_preproc("augment_rotate", torchvision::transform_rotate, packages = "to
 #' @title Center Crop Augmentation
 #' @template preprocess_torchvision
 #' @templateVar id augment_center_crop
-register_preproc("augment_center_crop", torchvision::transform_center_crop, packages = "torchvision", shapes_out = NULL, rowwise = TRUE,
+register_preproc("augment_center_crop", torchvision::transform_center_crop, packages = "torchvision", shapes_out = "infer", rowwise = TRUE,
   param_set = ps(
     size = p_uty(tags = c("train", "required"))
   )
@@ -326,25 +327,25 @@ register_preproc("augment_random_choice", torchvision::transform_random_choice, 
 ##' @title Random Erasing Augmentation
 ##' @name PipeOpPreprocTorchAugmentRandomErasing
 ##' @rdname mlr_pipeops_preproc_torch_overview
-#register_preproc("augment_random_erasing", torchvision::transform_random_erasing, packages = "torchvision", shapes_out = NULL, rowwise = TRUE)
+#register_preproc("augment_random_erasing", torchvision::transform_random_erasing, packages = "torchvision", shapes_out = "infer", rowwise = TRUE)
 
 ##' @title Perspective Augmentation
 ##' @name PipeOpPreprocTorchAugmentPerspective
 ##' @rdname mlr_pipeops_preproc_torch_overview
-#register_preproc("augment_perspective", torchvision::transform_perspective, packages = "torchvision", shapes_out = NULL, rowwise = TRUE)
+#register_preproc("augment_perspective", torchvision::transform_perspective, packages = "torchvision", shapes_out = "infer", rowwise = TRUE)
 
 
 # not implemented for tensor
 ##' @title Random Grayscale Augmentation
 ##' @name PipeOpPreprocTorchAugmentRandomGrayscale
 ##' @rdname mlr_pipeops_preproc_torch_overview
-#register_preproc("augment_random_grayscale", torchvision::transform_random_grayscale, packages = "torchvision", shapes_out = NULL, rowwise = TRUE)
+#register_preproc("augment_random_grayscale", torchvision::transform_random_grayscale, packages = "torchvision", shapes_out = "infer", rowwise = TRUE)
 
 # infering shape does not work, we could do it manually
 ##' @title Linear Transformation Augmentation
 ##' @name PipeOpPreprocTorchAugmentLinearTransformation
 ##' @rdname mlr_pipeops_preproc_torch_overview
-#register_preproc("augment_linear_transformation", torchvision::transform_linear_transformation, packages = "torchvision", shapes_out = NULL, rowwise = TRUE)
+#register_preproc("augment_linear_transformation", torchvision::transform_linear_transformation, packages = "torchvision", shapes_out = "infer", rowwise = TRUE)
 
 ##' @title Random Perspective Augmentation
 ##' @template preprocess_torchvision

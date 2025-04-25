@@ -26,12 +26,9 @@ The preprocessing function.}
 \item{shapes_out}{(\code{function} or \code{NULL} or \code{"infer"})\cr
 The private \code{.shapes_out(shapes_in, param_vals, task)} method of \code{\link{PipeOpTaskPreprocTorch}}
 (see section Inheriting).
-Special values are \code{NULL} and \code{infer}:
+Special values are \code{NULL} and \code{"infer"}:
 If \code{NULL}, the output shapes are unknown.
-If "infer", the output shape function is inferred and calculates the output shapes as follows:
-For an input shape of (NA, ...) a meta-tensor of shape (1, ...) is created and the preprocessing function is
-applied. Afterwards the batch dimension (1) is replaced with NA and the shape is returned.
-If the first dimension is not \code{NA}, the output shape of applying the preprocessing function is returned.
+Option \code{"infer"} uses \code{\link{infer_shapes}}.
 Method \code{"infer"} should be correct in most cases, but might fail in some edge cases.}
 
 \item{param_set}{(\code{\link[paradox:ParamSet]{ParamSet}} or \code{NULL})\cr

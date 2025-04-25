@@ -66,8 +66,8 @@ DataDescriptor = R6Class("DataDescriptor",
         }
         dataset_shapes = infer_shapes_from_getbatch(dataset)
       } else {
-        assert_shapes(dataset_shapes, null_ok = TRUE, unknown_batch = TRUE, named = TRUE)
-        #assert_compatible_shapes(dataset_shapes, dataset)
+        #assert_shapes(dataset_shapes, null_ok = TRUE, unknown_batch = TRUE, named = TRUE)
+        assert_compatible_shapes(dataset_shapes, dataset)
       }
 
       if (is.null(graph)) {
@@ -225,37 +225,45 @@ infer_shapes_from_getbatch = function(ds) {
   })
 }
 
-#assert_compatible_shapes = function(shapes, dataset) {
-#  assert_shapes(shapes, null_ok = TRUE, unknown_batch = TRUE, named = TRUE)
-#
-#  # prevent user from e.g. forgetting to wrap the return in a list
-#  example = if (is.null(dataset$.getbatch)) {
-#    dataset$.getitem(1L)
-#  } else {
-#    dataset$.getbatch(1L)
-#  }
-#  if (!test_list(example, names = "unique") || !test_permutation(names(example), names(shapes))) {
-#    stopf("Dataset must return a list with named elements that are a permutation of the dataset_shapes names.")
-#  }
-#  iwalk(example, function(x, nm) {
-#    if (!test_class(x, "torch_tensor")) {
-#      stopf("The dataset must return torch tensors, but element '%s' is of class %s", nm, class(x)[[1L]])
-#    }
-#  })
-#
-#  if (is.null(dataset$.getbatch)) {
-#    example = map(example, function(x) x$unsqueeze(1))
-#  }
-#
-#  return(TRUE)
-#
-#  iwalk(shapes, function(dataset_shape, name) {
-#    if (!is.null(dataset_shape) && !test_equal(shapes[[name]][-1], example[[name]]$shape[-1L])) {
-#      expected_shape = example[[name]]$shape
-#      expected_shape[1] = NA
-#      stopf(paste0("First batch from dataset is incompatible with the provided shape of %s:\n",
-#        "* Provided shape: %s.\n* Expected shape: %s."), name,
-#        shape_to_str(unname(shapes[name])), shape_to_str(list(expected_shape)))
-#    }
-#  })
-#}
+assert_compatible_shapes = function(shapes, dataset) {
+  assert_shapes(shapes, null_ok = TRUE, unknown_batch = TRUE, named = TRUE)
+
+  # prevent user from e.g. forgetting to wrap the return in a list
+  example = if (is.null(dataset$.getbatch)) {
+    dataset$.getitem(1L)
+  } else {
+    dataset$.getbatch(1L)
+  }
+  if (!test_list(example, names = "unique") || !test_permutation(names(example), names(shapes))) {
+    stopf("Dataset must return a list with named elements that are a permutation of the dataset_shapes names.")
+  }
+  iwalk(example, function(x, nm) {
+    if (!test_class(x, "torch_tensor")) {
+      stopf("The dataset must return torch tensors, but element '%s' is of class %s", nm, class(x)[[1L]])
+    }
+  })
+
+  if (is.null(dataset$.getbatch)) {
+    example = map(example, function(x) x$unsqueeze(1))
+  }
+
+  iwalk(shapes, function(dataset_shape, name) {
+    if (is.null(dataset_shape)) {
+      return(NULL)
+    }
+    shape_specified = shapes[[name]]
+    shape_example = example[[name]]$shape
+    if (length(shape_specified) != length(shape_example)) {
+      stopf("The specified number of dimensions for element '%s' is %s, but the dataset returned %s",
+        name, length(shape_specified), length(shape_example))
+
+    }
+    shape_example[is.na(shape_specified)] = NA
+
+    if (!test_equal(shape_specified, shape_example)) {
+      stopf(paste0("First example batch from dataset is incompatible with the provided shape of %s:\n",
+        "* Observed shape: %s.\n* Specified shape: %s."), name,
+        shape_to_str(example[[name]]$shape), shape_to_str(shape_specified))
+    }
+  })
+}
