@@ -30,15 +30,12 @@ test_shape = function(shape, null_ok = FALSE, unknown_batch = NULL, len = NULL) 
   if (is.null(shape) && null_ok) {
     return(TRUE)
   }
-  ok = test_integerish(shape, min.len = 2L, all.missing = FALSE, any.missing = TRUE, len = len)
+  ok = test_integerish(shape, min.len = 2L, any.missing = TRUE, len = len)
 
   if (!ok) {
     return(FALSE)
   }
 
-  if (anyNA(shape[-1L])) {
-    return(FALSE)
-  }
   if (is.null(unknown_batch)) {
     # first dim can be present or missing
     return(TRUE)
