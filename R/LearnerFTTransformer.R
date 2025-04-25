@@ -124,8 +124,14 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
         )
       }
 
-      graph_tokenizer = gunion(list(path_num, path_categ)) %>>%
-        nn("merge_cat", param_vals = list(dim = 2))
+      input_paths = discard(list(path_num, path_categ), is.null)
+
+      graph_tokenizer = if (length(input_paths) == 1L) {
+        input_paths[[1L]]
+      } else {
+        gunion(input_paths) %>>%
+          nn("merge_cat", param_vals = list(dim = 2))
+      }
 
       blocks = map(seq_len(param_vals$n_blocks), function(i) {
         block = private$.block$clone(deep = TRUE)

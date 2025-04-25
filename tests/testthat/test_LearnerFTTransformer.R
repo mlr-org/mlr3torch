@@ -32,7 +32,9 @@ test_that("basic functionality", {
 })
 
 test_that("works with only numeric input", {
-  # TODO:
+  learner = make_ft_transformer("classif")
+  task = tsk("iris")
+  learner$train(task)
 })
 
 test_that("works with only categorical input", {
@@ -50,7 +52,8 @@ test_that("works with lazy tensors", {
     ingress_tokens = list(
       num.input = ingress_ltnsr("x_num"),
       categ.input = ingress_ltnsr("x_categ")
-    )
+    ),
+    cardinalities = 20
   )
   learner$train(task)
 })
