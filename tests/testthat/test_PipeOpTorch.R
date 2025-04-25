@@ -135,10 +135,11 @@ test_that("Multiple NAs are allowed in the shape", {
   md = graph$train(task)[[1L]]
 
   md$pointer_shape = c(4, NA)
-  expect_error(po("nn_relu")$train(list(md)), regexp = NA)
+  md = po("nn_relu")$train(list(md))[[1L]]
+  expect_equal(md$pointer_shape, c(4, NA))
 
   md$pointer_shape = c(NA, NA, 4)
-  expect_error(nn("relu_1")$train(list(md)), regexp = NA)
+  expect_equal(md$pointer_shape, c(NA, NA, 4))
 })
 
 test_that("only_batch_unknown", {
