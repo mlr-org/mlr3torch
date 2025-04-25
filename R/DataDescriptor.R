@@ -66,7 +66,6 @@ DataDescriptor = R6Class("DataDescriptor",
         }
         dataset_shapes = infer_shapes_from_getbatch(dataset)
       } else {
-        #assert_shapes(dataset_shapes, null_ok = TRUE, unknown_batch = TRUE, named = TRUE)
         assert_compatible_shapes(dataset_shapes, dataset)
       }
 
