@@ -1,7 +1,8 @@
 
 #' @title FT-Transformer
 #' @description
-#' Feature-Tokenizer Transformer.
+#' Feature-Tokenizer Transformer for tabular data that can either work on [`lazy_tesor`] inputs
+#' or on standard tabular features.
 #' @references
 #' `r format_bib("gorishniy2021revisiting")`
 #' @export
@@ -13,22 +14,23 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
     initialize = function(task_type, optimizer = NULL, loss = NULL, callbacks = list()) {
       private$.block = PipeOpTorchFTTransformerBlock$new()
 
-      check_input_map = crate(function(input_map, task) {
-        if (is.null(input_map)) {
+      check_ingress_tokens = crate(function(ingress_tokens, task) {
+        if (is.null(ingress_tokens)) {
           return(TRUE)
         }
-        if (!is.character(input_map) || length(input_map) > 2L || !all(names(input_map) %in% c("num.input", "categ.input"))) {
-          return("Parameter `input_map` must be a named `character()` of length 2, with names `num.input` and `categ.input`.")
+        msg = check_list(ingress_tokens, types = "TorchIngressToken", min.len = 1L, names = "unique")
+        if (!isTRUE(msg)) {
+          return(msg)
         }
-        return(TRUE)
+        check_subset(names(ingress_tokens), c("num.input", "categ.input"))
       })
 
       private$.param_set_base = ps(
         n_blocks = p_int(lower = 0, tags = c("train", "required")),
         d_token = p_int(lower = 1L, tags = c("train", "required")),
+        cardinalities = p_int(lower = 1L, tags = "train"),
         init_token = p_fct(init = "uniform", levels = c("uniform", "normal"), tags = c("train", "required")),
-        input_map = p_uty(tags = "train", custom_check = check_input_map),
-        shapes = p_uty(tags = "train")
+        ingress_tokens = p_uty(tags = "train", custom_check = check_ingress_tokens)
       )
       param_set = alist(private$.block$param_set, private$.param_set_base)
 
@@ -42,41 +44,42 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
         loss = loss,
         man = "mlr3torch::mlr_learners.ft_transformer",
         feature_types = c("numeric", "integer", "logical", "factor", "ordered", "lazy_tensor"),
+        # Because the CLS token does resizing that depends dynamically on the input shape,
+        # specifically, the batch size
+        jittable = FALSE
       )
     }
   ),
   private = list(
     .block = NULL,
     .ingress_tokens = function(task, param_vals) {
-      if ("lazy_tensor" %in% task$feature_types) {
+      if ("lazy_tensor" %in% task$feature_types$type) {
         if (!all(task$feature_types$type == "lazy_tensor")) {
           stopf("Learner '%s' received an input task '%s' that is mixing lazy_tensors with other feature types.", self$id, task$id) # nolint
         }
         if (task$n_features > 2L) {
           stopf("Learner '%s' received an input task '%s' that has more than two lazy tensors.", self$id, task$id) # nolint
         }
-        if (is.null(param_vals$input_map)) {
-          stopf("Learner '%s' received an input task '%s' with lazy tensors, but no parameter 'input_map' was specified.", self$id, task$id) # nolint
-        }
-        output = list()
-
-        # @SEBI: Continue here
-        shape_num = param_vals$shapes[[]]
-        shape_categ = param_vals$shapes$categ.input
-
-        if (!is.null(shape_num)) {
-          output$num.input = ingress_ltnsr(feature_name = task$feature_names, shape = shape_num)
+        if (is.null(param_vals$ingress_tokens)) {
+          stopf("Learner '%s' received an input task '%s' with lazy tensors, but no parameter 'ingress_tokens' was specified.", self$id, task$id) # nolint
         }
 
-
-        shape = param_vals$shapes
-        set_names(list(
-          ingress_ltnsr(feature_name = task$feature_names)
-        ), param_vals$input_map)
+        ingress_tokens = param_vals$ingress_tokens
+        row = task$head(1L)
+        for (i in seq_along(ingress_tokens)) {
+          feat = ingress_tokens[[i]]$features(task)
+          if (!length(feat) == 1L) {
+            stopf("Learner '%s' received an input task '%s' with lazy tensors, but the ingress token '%s' does not select exactly one feature.", self$id, task$id, names(ingress_tokens)[[i]]) # nolint
+          }
+          if (is.null(ingress_tokens[[i]]$shape)) {
+            ingress_tokens[[i]]$shape = lazy_shape(row[[feat]])
+          }
+          if (is.null(ingress_tokens[[i]]$shape)) {
+            stopf("Learner '%s' received an input task '%s' with lazy tensors, but neither the ingress token for '%s', nor the 'lazy_tensor' specify the shape, which makes it impossible to build the network.", self$id, task$id, feat) # nolint
+          }
+        }
+        return(ingress_tokens)
       }
-      # TODO: Here we also need to handle lazy tensors.
-      # In this case, we somehow need to have a parameter that specifies which lazy tensor
-      # is the categorical one and which the numeric one.
       num_features = n_num_features(task)
       categ_features = n_categ_features(task)
       output = list()
@@ -89,27 +92,37 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
       output
     },
     .network = function(task, param_vals) {
-      path_num = if (n_num_features(task) > 0L) {
-        po("select", id = "select_num", selector = selector_type(c("numeric", "integer"))) %>>%
-          po("torch_ingress_num", id = "num") %>>%
-          nn("tokenizer_num", param_vals = list(
-            d_token = param_vals$d_token,
-            bias = TRUE,
-            initialization = param_vals$init_token
-          ))
+      its = private$.ingress_tokens(task, param_vals)
+      mds = list()
+      path_num = if (!is.null(its$num.input)) {
+        mds$tokenizer_num.input = ModelDescriptor(
+          po("nop", id = "num"),
+          its["num.input"],
+          task$clone(deep = TRUE)$select(its[["num.input"]]$feature(task)),
+          pointer = c("num", "output"),
+          pointer_shape = its[["num.input"]]$shape
+        )
+        nn("tokenizer_num",
+          d_token = param_vals$d_token,
+          bias = TRUE,
+          initialization = param_vals$init_token
+        )
       }
-
-      path_categ = if (n_categ_features(task) > 0L) {
-        po("select", id = "select_categ", selector = selector_type(c("factor", "ordered", "logical"))) %>>%
-          po("torch_ingress_categ", id = "categ") %>>%
-          nn("tokenizer_categ", param_vals = list(
-            d_token = param_vals$d_token,
-            bias = TRUE,
-            initialization = param_vals$init_token
-          ))
+      path_categ = if (!is.null(its$categ.input)) {
+        mds$tokenizer_categ.input = ModelDescriptor(
+          po("nop", id = "categ"),
+          its["categ.input"],
+          task$clone(deep = TRUE)$select(its[["categ.input"]]$feature(task)),
+          pointer = c("categ", "output"),
+          pointer_shape = its[["categ.input"]]$shape
+        )
+        nn("tokenizer_categ",
+          d_token = param_vals$d_token,
+          bias = TRUE,
+          initialization = param_vals$init_token,
+          param_vals = discard(param_vals["cardinalities"], is.null)
+        )
       }
-
-      browser()
 
       graph_tokenizer = gunion(list(path_num, path_categ)) %>>%
         nn("merge_cat", param_vals = list(dim = 2))
@@ -140,7 +153,7 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
         nn("relu") %>>%
         nn("head")
 
-      model_descriptor_to_module(graph$train(task)[[1L]])
+      model_descriptor_to_module(graph$train(mds, FALSE)[[1L]])
     }
   )
 )

@@ -72,6 +72,8 @@
 #' @param callbacks (`list()` of [`TorchCallback`]s)\cr
 #'   The callbacks to use for training.
 #'   Defaults to an empty` list()`, i.e. no callbacks.
+#' @param jittable (`logical(1)`)\cr
+#'   Whether the model can be jit-traced. Default is `FALSE`.
 #'
 #' @section Model:
 #' The Model is a list of class `"learner_torch_model"` with the following elements:
@@ -156,7 +158,8 @@ LearnerTorch = R6Class("LearnerTorch",
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id, task_type, param_set, properties = character(), man, label, feature_types,
-      optimizer = NULL, loss = NULL, packages = character(), predict_types = NULL, callbacks = list()) {
+      optimizer = NULL, loss = NULL, packages = character(), predict_types = NULL, callbacks = list(),
+      jittable = FALSE) {
       assert_choice(task_type, c("regr", "classif"))
 
       predict_types = predict_types %??% switch(task_type,
@@ -173,7 +176,7 @@ LearnerTorch = R6Class("LearnerTorch",
       packages = assert_character(packages, any.missing = FALSE, min.chars = 1L)
       packages = union(c("mlr3", "mlr3torch"), packages)
 
-      private$.param_set_torch = paramset_torchlearner(task_type)
+      private$.param_set_torch = paramset_torchlearner(task_type, jittable = jittable)
 
       check_ps = function(param_set) {
         assert_param_set(param_set)

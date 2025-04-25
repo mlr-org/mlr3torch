@@ -31,32 +31,26 @@ test_that("basic functionality", {
   learner$train(task)
 })
 
-test_that("jitting works and is the same as non-jitted", {
-  # TODO: For some reason this fails.
-  # When I remove the ft_cls token
-  # This is because the $expand() method of CLS does some reshaping dynamically.
-  # Maybe we can rewrite this
-
-  # TOOD: Also check that the results of jitting and non jitting are the same
-  # IF not, disable the jit_trace parameter
-
-  learner = make_ft_transformer("classif", jit_trace = TRUE, n_blocks = 1, drop_last = FALSE)
-  task = tsk("german_credit")$filter(1:10)
-  learner$train(task)
-
+test_that("works with only numeric input", {
+  # TODO:
 })
 
-test_that("works with only categorical/only numeric", {
+test_that("works with only categorical input", {
   # TODO:
 })
 
 test_that("works with lazy tensors", {
   task = as_task_regr(data.table(
-      x_categ = as_lazy_tensor(matrix(1:100, ncol = 1)),
+      x_categ = as_lazy_tensor(matrix(rep(1:10, 20), ncol = 1)),
       x_num = as_lazy_tensor(matrix(runif(200), ncol = 2)),
       y = rnorm(100)
     ), target = "y", id = "test")
 
-  learner = make_ft_transformer("regr", input_map = c(num.input = "x_num", categ.input = "x_categ"))
+  learner = make_ft_transformer("regr",
+    ingress_tokens = list(
+      num.input = ingress_ltnsr("x_num"),
+      categ.input = ingress_ltnsr("x_categ")
+    )
+  )
   learner$train(task)
 })

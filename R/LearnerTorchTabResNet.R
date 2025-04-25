@@ -58,6 +58,7 @@ LearnerTorchTabResNet = R6Class("LearnerTorchTabResNet",
         loss = loss,
         man = "mlr3torch::mlr_learners.tab_resnet",
         feature_types = c("numeric", "integer", "lazy_tensor"),
+        jittable = TRUE
       )
     }
   ),

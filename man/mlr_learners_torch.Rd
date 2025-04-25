@@ -348,7 +348,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   loss = NULL,
   packages = character(),
   predict_types = NULL,
-  callbacks = list()
+  callbacks = list(),
+  jittable = FALSE
 )}\if{html}{\out{</div>}}
 }
 
@@ -404,6 +405,9 @@ method, see section \emph{Inheriting}.}
 \item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
 The callbacks to use for training.
 Defaults to an empty\code{ list()}, i.e. no callbacks.}
+
+\item{\code{jittable}}{(\code{logical(1)})\cr
+Whether the model can be jit-traced. Default is \code{FALSE}.}
 }
 \if{html}{\out{</div>}}
 }

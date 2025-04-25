@@ -71,7 +71,8 @@ LearnerTorchMLP = R6Class("LearnerTorchMLP",
         callbacks = callbacks,
         loss = loss,
         man = "mlr3torch::mlr_learners.mlp",
-        feature_types = c("numeric", "integer", "lazy_tensor")
+        feature_types = c("numeric", "integer", "lazy_tensor"),
+        jittable = TRUE
       )
     }
   ),

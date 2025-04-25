@@ -4,7 +4,8 @@
 \alias{LearnerTorchFTTransformer}
 \title{FT-Transformer}
 \description{
-Feature-Tokenizer Transformer.
+Feature-Tokenizer Transformer for tabular data that can either work on \code{\link{lazy_tesor}} inputs
+or on standard tabular features.
 }
 \references{
 Gorishniy Y, Rubachev I, Khrulkov V, Babenko A (2021).

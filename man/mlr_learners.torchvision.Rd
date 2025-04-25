@@ -28,6 +28,20 @@ number of classes inferred from the \code{\link[mlr3:Task]{Task}}.
 }
 }
 
+\references{
+Krizhevsky, Alex, Sutskever, Ilya, Hinton, E. G (2017).
+\dQuote{Imagenet classification with deep convolutional neural networks.}
+\emph{Communications of the ACM}, \bold{60}(6), 84--90.
+Sandler, Mark, Howard, Andrew, Zhu, Menglong, Zhmoginov, Andrey, Chen, Liang-Chieh (2018).
+\dQuote{Mobilenetv2: Inverted residuals and linear bottlenecks.}
+In \emph{Proceedings of the IEEE conference on computer vision and pattern recognition}, 4510--4520.
+He, Kaiming, Zhang, Xiangyu, Ren, Shaoqing, Sun, Jian (2016).
+\dQuote{Deep residual learning for image recognition.}
+In \emph{Proceedings of the IEEE conference on computer vision and pattern recognition}, 770--778.
+Simonyan, Karen, Zisserman, Andrew (2014).
+\dQuote{Very deep convolutional networks for large-scale image recognition.}
+\emph{arXiv preprint arXiv:1409.1556}.
+}
 \section{Super classes}{
 \code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3torch:LearnerTorch]{mlr3torch::LearnerTorch}} -> \code{\link[mlr3torch:LearnerTorchImage]{mlr3torch::LearnerTorchImage}} -> \code{LearnerTorchVision}
 }
@@ -70,7 +84,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   label,
   optimizer = NULL,
   loss = NULL,
-  callbacks = list()
+  callbacks = list(),
+  jittable = FALSE
 )}\if{html}{\out{</div>}}
 }
 
@@ -84,20 +99,7 @@ The name of the network.}
 Function that generates the network.}
 
 \item{\code{label}}{(\code{character(1)})\cr
-The label of the network.
-#' @references
-Krizhevsky, Alex, Sutskever, Ilya, Hinton, E. G (2017).
-\dQuote{Imagenet classification with deep convolutional neural networks.}
-\emph{Communications of the ACM}, \bold{60}(6), 84--90.
-Sandler, Mark, Howard, Andrew, Zhu, Menglong, Zhmoginov, Andrey, Chen, Liang-Chieh (2018).
-\dQuote{Mobilenetv2: Inverted residuals and linear bottlenecks.}
-In \emph{Proceedings of the IEEE conference on computer vision and pattern recognition}, 4510--4520.
-He, Kaiming, Zhang, Xiangyu, Ren, Shaoqing, Sun, Jian (2016).
-\dQuote{Deep residual learning for image recognition.}
-In \emph{Proceedings of the IEEE conference on computer vision and pattern recognition}, 770--778.
-Simonyan, Karen, Zisserman, Andrew (2014).
-\dQuote{Very deep convolutional networks for large-scale image recognition.}
-\emph{arXiv preprint arXiv:1409.1556}.}
+The label of the network.}
 
 \item{\code{optimizer}}{(\code{\link{TorchOptimizer}})\cr
 The optimizer to use for training.
@@ -109,6 +111,9 @@ Per default, \emph{mse} is used for regression and \emph{cross_entropy} for clas
 
 \item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
 The callbacks. Must have unique ids.}
+
+\item{\code{jittable}}{(\code{logical(1)})\cr
+Whether to use jitting.}
 }
 \if{html}{\out{</div>}}
 }
