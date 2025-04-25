@@ -131,12 +131,16 @@ If left as is, it calls the provided <code>module_generator</code> with the argu
 the private method <code>.shape_dependent_params()</code>.</p></li>
 <li><p><code>.shapes_out(shapes_in, param_vals, task)</code><br>
 (<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>, <code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code> or <code>NULL</code>) -&gt; named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code><br>
-This private method gets a list of <code>numeric</code> vectors (<code>shapes_in</code>), the parameter values (<code>param_vals</code>),
+This private method gets a list of <code>integer</code> vectors (<code>shapes_in</code>), the parameter values (<code>param_vals</code>),
 as well as an (optional) <code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>.
 The <code>shapes_in</code> can be assumed to be in the same order as the input names of the <code>PipeOp</code>.
 The output shapes must be in the same order as the output names of the <code>PipeOp</code>.
 In case the output shapes depends on the task (as is the case for <code><a href="mlr_pipeops_nn_head.html">PipeOpTorchHead</a></code>), the function should return
-valid output shapes (possibly containing <code>NA</code>s) if the <code>task</code> argument is provided or not.</p></li>
+valid output shapes (possibly containing <code>NA</code>s) if the <code>task</code> argument is provided or not.
+It is important to properly handle the presence of <code>NA</code>s in the input shapes.
+By default (if construction argument <code>only_batch_unknown</code> is <code>TRUE</code>), only the batch dimension can be <code>NA</code>.
+If you set this to <code>FALSE</code>, you need to take other unknown dimensions into account.
+The method can also throw an error if the input shapes violate some assumptions.</p></li>
 <li><p><code>.shape_dependent_params(shapes_in, param_vals, task)</code><br>
 (<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code><br>
 This private method has the same inputs as <code>.shapes_out</code>.
@@ -234,7 +238,8 @@ Do not change this after construction.</p></dd>
 <span>  inname <span class="op">=</span> <span class="st">"input"</span>,</span>
 <span>  outname <span class="op">=</span> <span class="st">"output"</span>,</span>
 <span>  packages <span class="op">=</span> <span class="st">"torch"</span>,</span>
-<span>  tags <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  tags <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  only_batch_unknown <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -289,6 +294,13 @@ The R packages this object depends on.</p></dd>
 <dt><code>tags</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
 The tags of the <code><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html" class="external-link">PipeOp</a></code>. The tags <code>"torch"</code> is always added.</p></dd>
+
+
+<dt><code>only_batch_unknown</code></dt>
+<dd><p>(<code>logical(1)</code>)<br>
+Whether only the batch dimension can be missing in the input shapes or whether other
+dimensions can also be unknown.
+Default is <code>TRUE</code>.</p></dd>
 
 
 </dl><p></p></div>
