@@ -41,8 +41,6 @@
 #'   How to share compression weights. Options: "headwise", "key_value", or "layerwise".
 #' @param n_tokens (`integer(1)` or `NULL`)\cr
 #'   Number of tokens in the input sequence.
-#' @param last_layer_query_idx (`integer()` or `NULL`)\cr
-#'   Indices to select for the query in the last layer.
 #' @param query_idx (`integer()` or `NULL`)\cr
 #'   Indices to select for the query.
 #'
@@ -68,7 +66,6 @@ nn_ft_transformer_layer = nn_module(
                         kv_compression_ratio,
                         kv_compression_sharing,
                         n_tokens = NULL, # TODO: determine whether this should be set (it is set in the old code, but I think we always overwrite this)
-                        last_layer_query_idx,
                         query_idx) {
     self$prenormalization = prenormalization
 
@@ -213,10 +210,7 @@ PipeOpTorchFTTransformerLayer = R6::R6Class("PipeOpTorchFTTransformerLayer",
         prenormalization = p_lgl(default = TRUE, tags = "train"),
         first_prenormalization = p_lgl(default = FALSE, tags = "train"),
         is_first_layer = p_lgl(default = FALSE, tags = "train"),
-        # TODO: determine whether you can factor this out
         query_idx = p_uty(default = NULL, custom_check = function(input) check_integerish(input, null.ok = TRUE), tags = "train"),
-        # TODO: determine whether you can factor this out
-        last_layer_query_idx = p_uty(default = NULL, custom_check = function(input) check_integerish(input, null.ok = TRUE), tags = "train"),
         n_tokens = p_int(special_vals = list(NULL), tags = "train"),
         kv_compression_ratio = p_uty(default = NULL, custom_check = function(input) check_number(input, null.ok = TRUE), tags = "train"),
         kv_compression_sharing = p_fct(levels = c("headwise", "key_value", "layerwise"), special_vals = list(NULL), tags = "train")
@@ -228,23 +222,19 @@ PipeOpTorchFTTransformerLayer = R6::R6Class("PipeOpTorchFTTransformerLayer",
         param_vals = param_vals,
         param_set = param_set
       )
-
-      self$last_layer_query_idx = param_vals$last_layer_query_idx
     }
   ),
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
-      if (is.null(param_vals$last_layer_query_idx)) {
-        return(shapes_in)
+      if (is.null(param_vals$query_idx)) {
+        return(list(shapes_in[[1L]]))
       }
 
-      if (self$last_layer_query_idx) {
-        return(shapes_in[length(shapes_in)])
-      }
-
-      shapes_out = shapes_in
-      shapes_out[[2]] = length(param_vals$last_layer_query_idx)
-      return(shapes_out)
+      shapes_out = shapes_in$input
+      # TODO: would this work for all index types? for example a boolean index that has the length of that dimension?
+      # maybe it's better to hard-code a 1 here?
+      shapes_out[[2L]] = length(param_vals$query_idx)
+      return(list(shapes_out))
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {
       param_vals$d_token = shapes_in$input[3]

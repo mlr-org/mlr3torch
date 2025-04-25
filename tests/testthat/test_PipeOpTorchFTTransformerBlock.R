@@ -113,7 +113,6 @@ test_that("Entire FT-Transformer can be constructed as a graph", {
         prenormalization = TRUE,
         is_first_layer = FALSE,
         first_prenormalization = FALSE,
-        last_layer_query_idx = 1L,
         query_idx = 1L,
         attention_initialization = "kaiming",
         ffn_normalization = nn_layer_norm,
