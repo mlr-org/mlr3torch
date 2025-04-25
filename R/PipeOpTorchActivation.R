@@ -139,7 +139,8 @@ PipeOpTorchHardTanh = R6Class("PipeOpTorchHardTanh",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_hardtanh,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -179,7 +180,8 @@ PipeOpTorchLeakyReLU = R6Class("PipeOpTorchLeakyReLU",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_leaky_relu,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -199,7 +201,6 @@ register_po("nn_leaky_relu", PipeOpTorchLeakyReLU)
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#'
 #' @export
 PipeOpTorchLogSigmoid = R6Class("PipeOpTorchLogSigmoid",
   inherit = PipeOpTorch,
@@ -214,7 +215,8 @@ PipeOpTorchLogSigmoid = R6Class("PipeOpTorchLogSigmoid",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_log_sigmoid,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -254,7 +256,8 @@ PipeOpTorchPReLU = R6Class("PipeOpTorchPReLU",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_prelu,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -273,7 +276,6 @@ register_po("nn_prelu", PipeOpTorchPReLU)
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
 #' @template pipeop_torch_example
-#'
 #'
 #' @export
 PipeOpTorchReLU = R6Class("PipeOpTorchReLU",
@@ -327,7 +329,8 @@ PipeOpTorchReLU6 = R6Class("PipeOpTorchReLU6",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_relu6,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -370,7 +373,8 @@ PipeOpTorchRReLU = R6Class("PipeOpTorchRReLU",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_rrelu,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -407,7 +411,8 @@ PipeOpTorchSELU = R6Class("PipeOpTorchSELU",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_selu,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -447,7 +452,8 @@ PipeOpTorchCELU = R6Class("PipeOpTorchCELU",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_celu,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -484,7 +490,8 @@ PipeOpTorchGELU = R6Class("PipeOpTorchGELU",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_gelu,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -518,7 +525,8 @@ PipeOpTorchSigmoid = R6Class("PipeOpTorchSigmoid",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_sigmoid,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -557,7 +565,8 @@ PipeOpTorchSoftPlus = R6Class("PipeOpTorchSoftPlus",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_softplus,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -594,7 +603,8 @@ PipeOpTorchSoftShrink = R6Class("PipeOpTorchSoftShrink",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_softshrink,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -627,7 +637,8 @@ PipeOpTorchSoftSign = R6Class("PipeOpTorchSoftSign",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_softsign,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -661,7 +672,8 @@ PipeOpTorchTanh = R6Class("PipeOpTorchTanh",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_tanh,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -695,7 +707,8 @@ PipeOpTorchTanhShrink = R6Class("PipeOpTorchTanhShrink",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_tanhshrink,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -739,7 +752,8 @@ PipeOpTorchThreshold = R6Class("PipeOpTorchThreshold",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_threshold,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
