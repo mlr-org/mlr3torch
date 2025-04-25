@@ -77,5 +77,4 @@ test_that("infer_shapes works", {
     )
   )
 
-  # TODO: more tests,  param_vals
 })
