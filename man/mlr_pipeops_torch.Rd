@@ -51,6 +51,9 @@ The output shapes must be in the same order as the output names of the \code{Pip
 In case the output shapes depends on the task (as is the case for \code{\link{PipeOpTorchHead}}), the function should return
 valid output shapes (possibly containing \code{NA}s) if the \code{task} argument is provided or not.
 It is important to properly handle the presence of \code{NA}s in the input shapes.
+By default (if construction argument \code{only_batch_unknown} is \code{TRUE}), only the batch dimension can be \code{NA}.
+If you set this to \code{FALSE}, you need to take other unknown dimensions into account.
+The method can also throw an error if the input shapes violate some assumptions.
 \item \code{.shape_dependent_params(shapes_in, param_vals, task)}\cr
 (\code{list()}, \code{list()}) -> named \code{list()}\cr
 This private method has the same inputs as \code{.shapes_out}.

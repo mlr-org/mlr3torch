@@ -50,6 +50,9 @@
 #'   In case the output shapes depends on the task (as is the case for [`PipeOpTorchHead`]), the function should return
 #'   valid output shapes (possibly containing `NA`s) if the `task` argument is provided or not.
 #'   It is important to properly handle the presence of `NA`s in the input shapes.
+#'   By default (if construction argument `only_batch_unknown` is `TRUE`), only the batch dimension can be `NA`.
+#'   If you set this to `FALSE`, you need to take other unknown dimensions into account.
+#'   The method can also throw an error if the input shapes violate some assumptions.
 #' * `.shape_dependent_params(shapes_in, param_vals, task)`\cr
 #'   (`list()`, `list()`) -> named `list()`\cr
 #'   This private method has the same inputs as `.shapes_out`.
@@ -260,7 +263,7 @@ PipeOpTorch = R6Class("PipeOpTorch",
     initialize = function(id, module_generator, param_set = ps(), param_vals = list(),
       inname = "input", outname = "output", packages = "torch", tags = NULL, only_batch_unknown = TRUE) {
       self$module_generator = assert_class(module_generator, "nn_module_generator", null.ok = TRUE)
-    assert_character(inname, .var.name = "input channel names")
+      assert_character(inname, .var.name = "input channel names")
       assert_character(outname, .var.name = "output channel names", min.len = 1L)
       assert_character(tags, null.ok = TRUE)
       assert_character(packages, any.missing = FALSE)
