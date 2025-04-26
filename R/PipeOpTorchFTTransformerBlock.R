@@ -1,11 +1,12 @@
-#' @title Single Transformer Layer for FT-Transformer
+#' @title Single Transformer Block for FT-Transformer
 #' @description
-#' A transformer layer, consisting of a multi-head self-attention mechanism followed by a feed-forward
+#' A transformer block, consisting of a multi-head self-attention mechanism followed by a feed-forward
 #' network
 #'
 #' This is used in the FT-Transformer.
 #' 
-#' TODO: should we factor out `is_first_layer`, `first_prenormalization, `prenormalization`? Once we create the Learner, since we can keep first_prenormalization and prenormalization as parameters for the learner, then
+#' TODO: should we factor out `is_first_layer`, `first_prenormalization, `prenormalization`? 
+#' Once we create the Learner, since we can keep first_prenormalization and prenormalization as parameters for the learner, then
 #' figure out a cleaner interface for the transformer layer based on how they actually get used.
 #'
 #' TODO: verify all documentation (LLM-generated)
@@ -43,6 +44,12 @@
 #'   Number of tokens in the input sequence.
 #' @param query_idx (`integer()` or `NULL`)\cr
 #'   Indices to select for the query.
+#' @param attention_bias (`logical(1)`)\cr
+#'   Whether attention is biased. Default is TRUE.
+#' @param ffn_bias_first (`logical(1)`)\cr
+#'   Whether the first layer in the FFN has a bias. Default is TRUE.
+#' @param ffn_bias_second (`logical(1)`)\cr
+#'   Whether the second layer in the FFN has a bias. Default is TRUE.
 #'
 #' @references
 #' `r format_bib("devlin2018bert")`
@@ -65,26 +72,54 @@ nn_ft_transformer_block = nn_module(
     ffn_normalization,
     kv_compression_ratio,
     kv_compression_sharing,
-    n_tokens = NULL, # TODO: determine whether this should be set (it is set in the old code, but I think we always overwrite this)
-    query_idx
+    n_tokens = NULL, # TODO: determine whether this should be set (it is set in the old code, but I think we always overwrite this now)
+    query_idx,
+    attention_bias,
+    ffn_bias_first,
+    ffn_bias_second
   ) {
+
+    # TODO: document this condition, and make sure to update the documentation of the respective parameters
+    if (!prenormalization) {
+      warning("prenormalization is set to FALSE. Are you sure about this? The training can become less stable.")
+      assert_true(!first_prenormalization)
+      # TODO: add an error message explaning 'If prenormalization is False, then first_prenormalization is ignored and must be set to False'
+    }
+
+    if (prenormalization && first_prenormalization) {
+      warning("first_prenormalization is set to TRUE. The vanilla FTTransformer with first_prenormalization = TRUE performs considerably worse.")
+    }
+
+    if ( (!is_first_layer) || (!prenormalization) || first_prenormalization ) {
+      self$attention_normalization = attention_normalization(d_token)
+    }
+
+    self$ffn_normalization = ffn_normalization(d_token)
+
+    if (!is.null(kv_compression_ratio) && is.null(self$shared_kv_compression)) {
+      self$key_compression = self$make_kv_compression(n_tokens, kv_compression_ratio)
+      if (kv_compression_sharing == "headwise") {
+        self$value_compression = self$make_kv_compression(n_tokens, kv_compression_ratio)
+      } else {
+        assert_true(kv_compression_sharing == "key_value", "kv_compression_sharing parameter should be set to either 'headwise' or 'key_value'!")
+      }
+    }
+
     self$prenormalization = prenormalization
 
-    # TODO: determine whether we should set defaults
     self$attention = nn_ft_multi_head_attention(
       d_token = d_token,
       n_heads = attention_n_heads,
       dropout = attention_dropout,
-      bias = TRUE,
+      bias = attention_bias,
       initialization = attention_initialization
     )
 
-    # TODO: determine whether we should set defaults
     self$ffn = nn_ft_ffn(
       d_token = d_token,
       d_hidden = ffn_d_hidden,
-      bias_first = TRUE,
-      bias_second = TRUE,
+      bias_first = ffn_bias_first,
+      bias_second = ffn_bias_second,
       dropout = ffn_dropout,
       activation = ffn_activation
     )
@@ -94,27 +129,6 @@ nn_ft_transformer_block = nn_module(
 
     self$output = nn_identity()
 
-    # TODO: document this condition, and make sure to update the documentation of the respective parameters
-    if (!prenormalization) {
-      warning("prenormalization is set to FALSE. Are you sure about this? The training can become less stable.")
-      assert_true(!first_prenormalization)
-    }
-    if (prenormalization && first_prenormalization) {
-      warning("first_prenormalization is set to TRUE. The vanilla FTTransformer with first_prenormalization = TRUE performs considerably worse.")
-    }
-    # TODO: review this condition in the source code. It is really weird.
-    if (!is_first_layer || !prenormalization || first_prenormalization) {
-      self$attention_normalization = attention_normalization(d_token)
-    }
-    self$ffn_normalization = ffn_normalization(d_token)
-    if (!is.null(kv_compression_ratio) && is.null(self$shared_kv_compression)) {
-      self$key_compression = self$make_kv_compression(n_tokens, kv_compression_ratio)
-      if (kv_compression_sharing == "headwise") {
-        self$value_compression = self$make_kv_compression(n_tokens, kv_compression_ratio)
-      } else {
-        assert_true(kv_compression_sharing == "key_value", "kv_compression_sharing parameter should be set to either 'headwise' or 'key_value'!")
-      }
-    }
     self$query_idx = query_idx
   },
   start_residual_ = function(stage, x) {
@@ -176,8 +190,7 @@ nn_ft_transformer_block = nn_module(
   }
 )
 
-
-#' @title Single Transformer Layer for the FT-Transformer
+#' @title Single Transformer Block for the FT-Transformer
 #' @inherit nn_ft_transformer_block description
 #' @section nn_module:
 #' Calls [`nn_ft_transformer_block()`] when trained.
@@ -207,9 +220,11 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
         first_prenormalization = p_lgl(default = FALSE, tags = "train"),
         is_first_layer = p_lgl(default = FALSE, tags = "train"),
         query_idx = p_uty(default = NULL, custom_check = function(input) check_integerish(input, null.ok = TRUE), tags = "train"),
-        n_tokens = p_int(special_vals = list(NULL), tags = "train"),
         kv_compression_ratio = p_uty(default = NULL, custom_check = function(input) check_number(input, null.ok = TRUE), tags = "train"),
-        kv_compression_sharing = p_fct(levels = c("headwise", "key_value", "layerwise"), special_vals = list(NULL), tags = "train")
+        kv_compression_sharing = p_fct(levels = c("headwise", "key_value", "layerwise"), special_vals = list(NULL), tags = "train"),
+        attention_bias = p_lgl(default = TRUE, tags = "train"),
+        ffn_bias_first = p_lgl(default = TRUE, tags = "train"),
+        ffn_bias_second = p_lgl(default = TRUE, tags = "train")
       )
 
       super$initialize(

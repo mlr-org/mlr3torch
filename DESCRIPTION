@@ -120,7 +120,6 @@ Collate:
     'PipeOpTorchDropout.R'
     'PipeOpTorchFTCLS.R'
     'PipeOpTorchFTTransformerBlock.R'
-    'PipeOpTorchFTTransformerLayer.R'
     'PipeOpTorchFn.R'
     'PipeOpTorchHead.R'
     'PipeOpTorchIdentity.R'

@@ -157,7 +157,10 @@ test_that("Entire FT-Transformer can be constructed as a graph", {
       is_first_layer = FALSE,
       query_idx = NULL,
       kv_compression_ratio = 1.0,
-      kv_compression_sharing = "headwise"
+      kv_compression_sharing = "headwise",
+      attention_bias =  TRUE,
+      ffn_bias_first = TRUE,
+      ffn_bias_second = TRUE
     )
   )
 
@@ -185,7 +188,10 @@ test_that("Entire FT-Transformer can be constructed as a graph", {
         attention_normalization = nn_layer_norm,
         query_idx = NULL,
         kv_compression_ratio = 1.0,
-        kv_compression_sharing = "headwise"
+        kv_compression_sharing = "headwise",
+        attention_bias =  TRUE,
+        ffn_bias_first = TRUE,
+        ffn_bias_second = TRUE
       )
     ) %>>%
     po("nn_block", po_transformer, n_blocks = 3) %>>%
@@ -207,7 +213,10 @@ test_that("Entire FT-Transformer can be constructed as a graph", {
         ffn_normalization = nn_layer_norm,
         attention_normalization = nn_layer_norm,
         kv_compression_ratio = 1.0,
-        kv_compression_sharing = "headwise"
+        kv_compression_sharing = "headwise",
+        attention_bias =  TRUE,
+        ffn_bias_first = TRUE,
+        ffn_bias_second = TRUE
       )
     ) %>>%
     graph_output_head
