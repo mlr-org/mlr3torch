@@ -4,6 +4,9 @@
 #' network
 #'
 #' This is used in the FT-Transformer.
+#' 
+#' TODO: verify that all of the assertions are present
+#' (although they will be factored out once we implement the learner)
 #'
 #' TODO: verify all documentation (LLM-generated)
 #' @param d_token (`integer(1)`)\cr
@@ -84,7 +87,7 @@ nn_ft_transformer_block = nn_module(
       warning("first_prenormalization is set to TRUE. The vanilla FTTransformer with first_prenormalization = TRUE performs considerably worse.")
     }
 
-    if ( (!is_first_layer) || (!prenormalization) || first_prenormalization ) {
+    if ((!is_first_layer) || (!prenormalization) || first_prenormalization) {
       self$attention_normalization = attention_normalization(d_token)
     }
 
@@ -236,7 +239,7 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
       }
 
       shapes_out = shapes_in$input
-      # only operate on the CLS token
+      # only apply the last transformer block to the CLS token
       shapes_out[[2L]] = 1
       return(list(shapes_out))
     },
