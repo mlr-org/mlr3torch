@@ -5,9 +5,10 @@
 #'
 #' This is used in the FT-Transformer.
 #' 
-#' TODO: should we factor out `is_first_layer`, `first_prenormalization, `prenormalization`? 
+#' TODO: should we factor out `is_first_layer`, `first_prenormalization, `prenormalization`?
 #' Once we create the Learner, since we can keep first_prenormalization and prenormalization as parameters for the learner, then
 #' figure out a cleaner interface for the transformer layer based on how they actually get used.
+#' Then, we put the assertions in the Learner.
 #'
 #' TODO: verify all documentation (LLM-generated)
 #' @param d_token (`integer(1)`)\cr
@@ -72,18 +73,16 @@ nn_ft_transformer_block = nn_module(
     ffn_normalization,
     kv_compression_ratio,
     kv_compression_sharing,
-    n_tokens = NULL, # TODO: determine whether this should be set (it is set in the old code, but I think we always overwrite this now)
+    n_tokens,
     query_idx,
     attention_bias,
     ffn_bias_first,
     ffn_bias_second
   ) {
 
-    # TODO: document this condition, and make sure to update the documentation of the respective parameters
     if (!prenormalization) {
       warning("prenormalization is set to FALSE. Are you sure about this? The training can become less stable.")
-      assert_true(!first_prenormalization)
-      # TODO: add an error message explaning 'If prenormalization is False, then first_prenormalization is ignored and must be set to False'
+      assert_that(!first_prenormalization, msg = "If prenormalization is FALSE, then first_prenormalization is ignored and must be set to FALSE")
     }
 
     if (prenormalization && first_prenormalization) {
@@ -266,7 +265,6 @@ nn_ft_multi_head_attention = nn_module(
     self$W_q = nn_linear(d_token, d_token, bias)
     self$W_k = nn_linear(d_token, d_token, bias)
     self$W_v = nn_linear(d_token, d_token, bias)
-    # TODO: determine whether self$W_out implementation needs to be changed
     self$W_out = if (n_heads > 1) nn_linear(d_token, d_token, bias) else NULL
     self$n_heads = n_heads
     self$dropout = if (dropout) nn_dropout(dropout) else NULL

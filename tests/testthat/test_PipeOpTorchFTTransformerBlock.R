@@ -196,7 +196,6 @@ test_that("Entire FT-Transformer can be constructed as a graph", {
     po("nn_block", po_transformer, n_blocks = 3) %>>%
     po("nn_ft_transformer_block",
       id = "last_transformer_block",
-      # TODO: Is there a reason nn_layer_norm is passed as class but nn_reglu as instantiated object?
       param_vals = list(
         attention_n_heads = attention_n_heads,
         attention_dropout = 0.1,
@@ -232,4 +231,3 @@ test_that("Entire FT-Transformer can be constructed as a graph", {
 
   expect_equal(out$shape, c(4, 1))
 })
-
