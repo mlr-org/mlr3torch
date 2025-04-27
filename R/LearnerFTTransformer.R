@@ -148,7 +148,7 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
         block
       })
 
-      blocks = if (length(blocks) == 1L) {
+      blocks = if (length(blocks) > 1L) {
         Reduce(`%>>%`, blocks)
       }
 
