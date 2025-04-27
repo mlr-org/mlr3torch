@@ -159,7 +159,8 @@ test_that("Entire FT-Transformer can be constructed as a graph", {
       kv_compression_ratio = 1.0,
       kv_compression_sharing = "headwise",
       attention_bias =  TRUE,
-      ffn_bias_first = TRUE
+      ffn_bias_first = TRUE,
+      ffn_bias_second = TRUE
     )
   )
 

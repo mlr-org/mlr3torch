@@ -4,11 +4,6 @@
 #' network
 #'
 #' This is used in the FT-Transformer.
-#' 
-#' TODO: should we factor out `is_first_layer`, `first_prenormalization, `prenormalization`?
-#' Once we create the Learner, since we can keep first_prenormalization and prenormalization as parameters for the learner, then
-#' figure out a cleaner interface for the transformer layer based on how they actually get used.
-#' Then, we put the assertions in the Learner.
 #'
 #' TODO: verify all documentation (LLM-generated)
 #' @param d_token (`integer(1)`)\cr
@@ -100,7 +95,7 @@ nn_ft_transformer_block = nn_module(
       if (kv_compression_sharing == "headwise") {
         self$value_compression = self$make_kv_compression(n_tokens, kv_compression_ratio)
       } else {
-        assert_true(kv_compression_sharing == "key_value", "kv_compression_sharing parameter should be set to either 'headwise' or 'key_value'!")
+        assert_true(kv_compression_sharing == "key_value", "kv_compression_sharing parameter should be set to either \"headwise\" or \"key_value\"!")
       }
     }
 

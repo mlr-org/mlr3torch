@@ -25,7 +25,9 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
         check_subset(names(ingress_tokens), c("num.input", "categ.input"))
       })
 
-      # TODO: add some more 
+      # TODO: factor out learner-level parameters (parameters that hvae to do with relationships between layers, etc.)
+      # from the PipeOpTorchFTTransformerBlock into here
+      # and their respective assertions
       private$.param_set_base = ps(
         n_blocks = p_int(lower = 0, tags = c("train", "required")),
         d_token = p_int(lower = 1L, tags = c("train", "required")),
