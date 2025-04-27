@@ -25,6 +25,7 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
         check_subset(names(ingress_tokens), c("num.input", "categ.input"))
       })
 
+      # TODO: add some more 
       private$.param_set_base = ps(
         n_blocks = p_int(lower = 0, tags = c("train", "required")),
         d_token = p_int(lower = 1L, tags = c("train", "required")),
