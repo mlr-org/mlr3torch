@@ -62,7 +62,7 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
       private$.param_set_base = ps(
         n_blocks = p_int(lower = 0L, tags = c("train", "required")),
         trafo = p_uty(tags = "train", custom_check = crate(function(x) {
-          check_function(x, args = c("param_vals", "param_set"))
+          check_function(x, args = c("i", "param_vals", "param_set"))
         }))
       )
 
@@ -90,7 +90,7 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
     .make_graph = function(block, n_blocks) {
       trafo = self$param_set$get_values()$trafo
       graph = block
-      graphs = c(list(graph), replicate(n_blocks - 1L, graph$clone(deep = TRUE)))
+      graphs = c(replicate(n_blocks, graph$clone(deep = TRUE)))
       if (!is.null(trafo)) {
         param_vals = map(graphs, function(graph) graph$param_set$get_values())
         walk(seq_along(param_vals), function(i) {
@@ -98,8 +98,8 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
           graphs[[i]]$param_set$values = vals
         })
       }
-      graph$update_ids(prefix = paste0(self$id, "."))
       lapply(seq_len(n_blocks), function(i) {
+        graphs[[i]]$update_ids(prefix = paste0(self$id, "."))
         graphs[[i]]$update_ids(postfix = paste0("__", i))
       })
       Reduce(`%>>%`, graphs)
