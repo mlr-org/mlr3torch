@@ -11,7 +11,6 @@
 #' # is the same as:
 #' po2 = nn("linear")
 nn = function(.key, ...) {
-  # check whether ... contains named arg id
   args = list(...)
   if (is.null(args$id)) {
     args$id = .key

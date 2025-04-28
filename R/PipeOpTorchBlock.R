@@ -99,8 +99,7 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
         })
       }
       lapply(seq_len(n_blocks), function(i) {
-        graphs[[i]]$update_ids(prefix = paste0(self$id, "."))
-        graphs[[i]]$update_ids(postfix = paste0("__", i))
+        graphs[[i]]$update_ids(prefix = paste0(self$id, "."), postfix = paste0("__", i))
       })
       Reduce(`%>>%`, graphs)
     },
