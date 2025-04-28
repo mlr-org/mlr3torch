@@ -84,8 +84,7 @@ DataDescriptor = R6Class("DataDescriptor",
         assert_true(length(graph$pipeops) >= 1L)
       }
       # no preprocessing, dataset returns only a single element (there we can infer a lot)
-      simple_case = length(graph$pipeops) == 1L && inherits(graph$pipeops[[1L]], "PipeOpNOP") &&
-        length(dataset_shapes) == 1L
+      simple_case = length(graph$pipeops) == 1L && inherits(graph$pipeops[[1L]], "PipeOpNOP")
 
       if (is.null(input_map) && nrow(graph$input) == 1L && length(dataset_shapes) == 1L) {
         input_map = names(dataset_shapes)
@@ -100,7 +99,7 @@ DataDescriptor = R6Class("DataDescriptor",
         assert_choice(pointer[[2]], graph$pipeops[[pointer[[1]]]]$output$name)
       }
       if (is.null(pointer_shape) && simple_case) {
-        pointer_shape = dataset_shapes[[1L]]
+        pointer_shape = dataset_shapes[[input_map]]
       } else {
         assert_shape(pointer_shape, null_ok = TRUE)
       }
@@ -225,7 +224,7 @@ infer_shapes_from_getbatch = function(ds) {
 }
 
 assert_compatible_shapes = function(shapes, dataset) {
-  assert_shapes(shapes, null_ok = TRUE, unknown_batch = TRUE, named = TRUE)
+  shapes = assert_shapes(shapes, null_ok = TRUE, unknown_batch = TRUE, named = TRUE)
 
   # prevent user from e.g. forgetting to wrap the return in a list
   example = if (is.null(dataset$.getbatch)) {
