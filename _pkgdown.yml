@@ -162,6 +162,7 @@ reference:
       - task_dataset
       - Select
       - output_dim_for
+      - infer_shapes
 
 
 

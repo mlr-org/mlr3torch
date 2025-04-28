@@ -283,3 +283,21 @@ test_that("lazy_shape", {
   expect_equal(lazy_shape(as_lazy_tensor(matrix(1:4, 2))), c(NA, 2))
   expect_equal(lazy_shape(as_lazy_tensor(matrix(1:4, 2, 2))), c(NA, 2))
 })
+
+test_that("flexible shape", {
+  ds = dataset(
+    initialize = function() {
+      self$xs = list(torch_randn(2, 5), torch_randn(3, 5))
+    },
+    .getitem = function(i) {
+      list(x = self$xs[[i]])
+    },
+    .length = function() {
+      length(self$xs)
+    }
+  )()
+
+  lt = as_lazy_tensor(ds, dataset_shapes = list(x = c(NA, NA, 5)))
+  expect_equal(lazy_shape(lt), c(NA, NA, 5))
+
+})

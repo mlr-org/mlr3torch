@@ -68,3 +68,8 @@ test_that("error message unknown shapes", {
   obj = po("torch_ingress_ltnsr")
   expect_error(obj$train(list(task)), "see its documentation")
 })
+
+test_that("allow for flexible shapes", {
+  task =
+  ingress = po("torch_ingress_ltnsr", shape = c(NA, NA))
+})

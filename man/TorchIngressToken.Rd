@@ -16,7 +16,7 @@ the output of \code{Task$data(rows = batch_indices, cols = features)}
 and it should produce a tensor of shape \code{shape_out}.}
 
 \item{shape}{(\code{integer})\cr
-Shape that \code{batchgetter} will produce. Batch-dimension should be included as \code{NA}.}
+Shape that \code{batchgetter} will produce. Batch dimension must be included as \code{NA} (but other dimensions can also be \code{NA}, i.e., unknown).}
 }
 \value{
 \code{TorchIngressToken} object.
