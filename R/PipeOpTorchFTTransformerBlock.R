@@ -124,8 +124,6 @@ nn_ft_transformer_block = nn_module(
     self$attention_residual_dropout = nn_dropout(residual_dropout)
     self$ffn_residual_dropout = nn_dropout(residual_dropout)
 
-    self$output = nn_identity()
-
     self$query_idx = query_idx
   },
   start_residual_ = function(stage, x) {
@@ -182,7 +180,6 @@ nn_ft_transformer_block = nn_module(
     x_residual = self$ffn(x_residual)
     x = self$end_residual_("ffn", x, x_residual)
 
-    x = self$output(x)
     return(x)
   }
 )
