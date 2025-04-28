@@ -40,7 +40,7 @@
 #' @param kv_compression_sharing (`character(1)` or `NULL`)\cr
 #'   How to share compression weights. Options: "headwise", "key_value", or "layerwise".
 #' @param n_tokens (`integer(1)` or `NULL`)\cr
-#'   Number of tokens in the input sequence.
+#'   Number of tokens in the input sequence. If this is set, then `kv_compression_ratio` and `kv_compression_sharing` must also be set.
 #' @param query_idx (`integer()` or `NULL`)\cr
 #'   Indices to select for the query.
 #' @param attention_bias (`logical(1)`)\cr
@@ -78,10 +78,22 @@ nn_ft_transformer_block = nn_module(
     ffn_bias_second
   ) {
 
-    if (!prenormalization) {
-      warning("prenormalization is set to FALSE. Are you sure about this? The training can become less stable.")
-      assert_that(!first_prenormalization, msg = "If prenormalization is FALSE, then first_prenormalization is ignored and must be set to FALSE")
+    coll = makeAssertCollection()
+
+    if (prenormalization) {
+      assert_true(!first_prenormalization)
+      if (first_prenormalization) {
+        coll$push("The FT-Transformer does not allow `first_prenormalization` to be TRUE in the prenormalization setting.")
+      }
     }
+
+    if (!prenormalization) {
+      warning("`prenormalization` is set to FALSE. Are you sure about this? The training can become less stable.")
+      assert_true(!first_prenormalization)
+      coll$push("If `prenormalization` is FALSE, then `first_prenormalization` is ignored and must be set to FALSE")
+    }
+
+    assert_true(all_or_none_(n_tokens, kv_compression_ratio, kv_compression_sharing))
 
     if (prenormalization && first_prenormalization) {
       warning("first_prenormalization is set to TRUE. The vanilla FTTransformer with first_prenormalization = TRUE performs considerably worse.")
@@ -125,6 +137,8 @@ nn_ft_transformer_block = nn_module(
     self$ffn_residual_dropout = nn_dropout(residual_dropout)
 
     self$query_idx = query_idx
+
+    reportAssertions(coll)
   },
   start_residual_ = function(stage, x) {
     x_residual = x
