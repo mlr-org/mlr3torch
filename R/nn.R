@@ -11,5 +11,10 @@
 #' # is the same as:
 #' po2 = nn("linear")
 nn = function(.key, ...) {
-  invoke(po, .obj = paste0("nn_", .key), .args = insert_named(list(id = .key), list(...)))
+  # check whether ... contains named arg id
+  args = list(...)
+  if (is.null(args$id)) {
+    args$id = .key
+  }
+  invoke(po, .obj = paste0("nn_", .key), .args = args)
 }

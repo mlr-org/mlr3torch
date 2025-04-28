@@ -7,9 +7,21 @@
 #' `__<layer>`.
 #'
 #' @section Parameters:
-#' The parameters available for the block itself, as well as
+#' The parameters available for the provided `block`, as well as
 #' * `n_blocks` :: `integer(1)`\cr
 #'   How often to repeat the block.
+#' * `trafo` :: `function(i, param_vals, param_set) -> list()`\cr
+#'   A function that allows to transform the parameters vaues of each layer (`block`).
+#'   Here,
+#'   * `i` :: `integer(1)`\cr
+#'       is the index of the layer, ranging from `1` to `n_blocks`.
+#'   * `param_vals` :: named `list()`\cr
+#'       are the parameter values of the layer `i`.
+#'   * `param_set` :: [`ParamSet`][paradox::ParamSet]\cr
+#'       is the parameter set of the whole `PipeOpTorchBlock`.
+#'
+#'   The function must return the modified parameter values for the given layer.
+#'   This, e.g., allows for special behavior of the first or last layer.
 #' @section Input and Output Channels:
 #' The `PipeOp` sets its input and output channels to those from the `block` (Graph)
 #' it received during construction.
@@ -17,20 +29,24 @@
 #' @template pipeop_torch
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' block = po("nn_linear") %>>% po("nn_relu")
-#' po_block = po("nn_block", block,
-#' nn_linear.out_features = 10L, n_blocks = 3)
-#' network = po("torch_ingress_num") %>>%
-#' po_block %>>%
-#' po("nn_head") %>>%
-#' po("torch_loss", t_loss("cross_entropy")) %>>%
-#' po("torch_optimizer", t_opt("adam")) %>>%
-#' po("torch_model_classif",
-#'   batch_size = 50,
-#'   epochs = 3)
+#' # repeat a simple linear layer with ReLU activation 3 times, but set the bias for the last
+#' # layer to `FALSE`
+#' block = nn("linear") %>>% nn("relu")
 #'
-#' task = tsk("iris")
-#' network$train(task)
+#' blocks = nn("block", block,
+#'   linear.out_features = 10L, linear.bias = TRUE, n_blocks = 3,
+#'   trafo = function(i, param_vals, param_set) {
+#'     if (i  == param_set$get_values()$n_blocks) {
+#'       param_vals$linear.bias = FALSE
+#'     }
+#'     param_vals
+#'   })
+#' graph = po("torch_ingress_num") %>>%
+#'   blocks %>>%
+#'   nn("head")
+#' md = graph$train(tsk("iris"))[[1L]]
+#' network = model_descriptor_to_module(md)
+#' network
 PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
   inherit = PipeOpTorch,
   public = list(
@@ -44,8 +60,12 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
     initialize = function(block, id = "nn_block", param_vals = list()) {
       private$.block = as_graph(block)
       private$.param_set_base = ps(
-        n_blocks = p_int(lower = 0L, tags = c("train", "required"))
+        n_blocks = p_int(lower = 0L, tags = c("train", "required")),
+        trafo = p_uty(tags = "train", custom_check = crate(function(x) {
+          check_function(x, args = c("param_vals", "param_set"))
+        }))
       )
+
       super$initialize(
         id = id,
         param_vals = param_vals,
@@ -68,9 +88,17 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
   private = list(
     .block = NULL,
     .make_graph = function(block, n_blocks) {
+      trafo = self$param_set$get_values()$trafo
       graph = block
-      graph$update_ids(prefix = paste0(self$id, "."))
       graphs = c(list(graph), replicate(n_blocks - 1L, graph$clone(deep = TRUE)))
+      if (!is.null(trafo)) {
+        param_vals = map(graphs, function(graph) graph$param_set$get_values())
+        walk(seq_along(param_vals), function(i) {
+          vals = trafo(i = i, param_vals = param_vals[[i]], param_set = self$param_set)
+          graphs[[i]]$param_set$values = vals
+        })
+      }
+      graph$update_ids(prefix = paste0(self$id, "."))
       lapply(seq_len(n_blocks), function(i) {
         graphs[[i]]$update_ids(postfix = paste0("__", i))
       })
@@ -112,10 +140,10 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
       map(mdouts, "pointer_shape")
     },
     .train = function(inputs) {
-      if (self$param_set$values$n_blocks == 0L) {
+      param_vals = self$param_set$get_values()
+      if (param_vals$n_blocks == 0L) {
         return(inputs)
       }
-      param_vals = self$param_set$get_values(tags = "train")
       block = private$.block$clone(deep = TRUE)
       graph = private$.make_graph(block, param_vals$n_blocks)
       inputs = set_names(inputs, graph$input$name)
