@@ -8,7 +8,6 @@
 auto_device = function(device = NULL) {
   if (device == "auto") {
     device = if (cuda_is_available()) "cuda" else "cpu"
-    lg$debug("Auto-detected device '%s'.", device)
   }
   return(device)
 }

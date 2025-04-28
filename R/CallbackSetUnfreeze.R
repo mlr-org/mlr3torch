@@ -10,6 +10,8 @@
 #' @param unfreeze (`data.table`)\cr
 #'  A `data.table` with a column `weights` (a list column of `Select`s) and a column `epoch` or `batch`.
 #'  The selector indicates which parameters to unfreeze, while the `epoch` or `batch` column indicates when to do so.
+#' @param verbose (`logical(1)`)\cr
+#'  Whether to print messages to the console.
 #'
 #' @family Callback
 #' @export
@@ -35,9 +37,10 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(starting_weights, unfreeze) {
+    initialize = function(starting_weights, unfreeze, verbose) {
       self$starting_weights = starting_weights
       self$unfreeze = unfreeze
+      self$verbose = verbose
       private$.batchwise = "batch" %in% names(self$unfreeze)
     },
     #' @description
@@ -49,7 +52,9 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
       walk(self$ctx$network$parameters[frozen_weights], function(param) param$requires_grad_(FALSE))
 
       frozen_weights_str = paste(trainable_weights, collapse = ", ")
-      lg$info(sprintf("Training the following weights at the start: %s", paste0(trainable_weights, collapse = ", ")))
+      if (self$verbose) {
+        messagef("Training the following weights at the start: %s", paste0(trainable_weights, collapse = ", "))
+      }
     },
     #' @description
     #' Unfreezes weights if the training is at the correct epoch
@@ -58,11 +63,13 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
         if (self$ctx$epoch %in% self$unfreeze$epoch) {
           weights = (self$unfreeze[get("epoch") == self$ctx$epoch]$weights)[[1]](names(self$ctx$network$parameters))
           if (!length(weights)) {
-            lg$warn(paste0("No weights unfrozen at epoch ", self$ctx$epoch, " , check the specification of the Selector"))
+            warningf(paste0("No weights unfrozen at epoch ", self$ctx$epoch, " , check the specification of the Selector"))
           } else {
             walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(TRUE))
             weights_str = paste(weights, collapse = ", ")
-            lg$info(paste0("Unfreezing at epoch ", self$ctx$epoch, ": ", weights_str))
+            if (self$verbose) {
+              messagef(paste0("Unfreezing at epoch ", self$ctx$epoch, ": ", weights_str))
+            }
           }
 
         }
@@ -76,11 +83,13 @@ CallbackSetUnfreeze = R6Class("CallbackSetUnfreeze",
         if (batch_num %in% self$unfreeze$batch) {
           weights = (self$unfreeze[get("batch") == batch_num]$weights)[[1]](names(self$ctx$network$parameters))
           if (!length(weights)) {
-            lg$warn(paste0("No weights unfrozen at batch ", batch_num, " , check the specification of the Selector"))
+            warningf(paste0("No weights unfrozen at batch ", batch_num, " , check the specification of the Selector"))
           } else {
             walk(self$ctx$network$parameters[weights], function(param) param$requires_grad_(TRUE))
             weights_str = paste(weights, collapse = ", ")
-            lg$info(paste0("Unfreezing at batch ", batch_num, ": ", weights_str))
+            if (self$verbose) {
+              messagef(paste0("Unfreezing at batch ", batch_num, ": ", weights_str))
+            }
           }
         }
       }
@@ -100,7 +109,8 @@ mlr3torch_callbacks$add("unfreeze", function() {
       unfreeze = p_uty(
         tags = c("train", "required"),
         custom_check = check_unfreeze_dt
-      )
+      ),
+      verbose = p_lgl(init = FALSE, tags = c("train", "required"))
     ),
     id = "unfreeze",
     label = "Unfreeze",
