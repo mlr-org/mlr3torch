@@ -101,7 +101,7 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
         mds$tokenizer_num.input = ModelDescriptor(
           po("nop", id = "num"),
           its["num.input"],
-          task$clone(deep = TRUE)$select(its[["num.input"]]$feature(task)),
+          task$clone(deep = TRUE)$select(its[["num.input"]]$features(task)),
           pointer = c("num", "output"),
           pointer_shape = its[["num.input"]]$shape
         )
@@ -115,7 +115,7 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
         mds$tokenizer_categ.input = ModelDescriptor(
           po("nop", id = "categ"),
           its["categ.input"],
-          task$clone(deep = TRUE)$select(its[["categ.input"]]$feature(task)),
+          task$clone(deep = TRUE)$select(its[["categ.input"]]$features(task)),
           pointer = c("categ", "output"),
           pointer_shape = its[["categ.input"]]$shape
         )
@@ -150,8 +150,8 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
         block
       })
 
-      blocks = if (length(blocks) > 1L) {
-        Reduce(`%>>%`, blocks)
+      if (length(blocks) > 1L) {
+        blocks = Reduce(`%>>%`, blocks)
       }
 
       graph = graph_tokenizer %>>%

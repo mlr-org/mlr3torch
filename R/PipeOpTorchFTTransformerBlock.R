@@ -4,11 +4,7 @@
 #' network
 #'
 #' This is used in the FT-Transformer.
-#' 
-#' TODO: verify that all of the assertions are present
-#' (although they will be factored out once we implement the learner)
 #'
-#' TODO: verify all documentation (LLM-generated)
 #' @param d_token (`integer(1)`)\cr
 #'   The dimension of the embedding.
 #' @param attention_n_heads (`integer(1)`)\cr
@@ -36,9 +32,9 @@
 #' @param ffn_normalization (`function`)\cr
 #'   Normalization function to use for the feed-forward network. Default value is `nn_layer_norm`.
 #' @param kv_compression_ratio (`numeric(1)` or `NULL`)\cr
-#'   Ratio for key-value compression. If NULL, no compression is applied.
+#'   Ratio for key-value compression. If NULL, no compression is applied. If this is set, then `n_tokens` and `kv_compression_sharing` must also be set.
 #' @param kv_compression_sharing (`character(1)` or `NULL`)\cr
-#'   How to share compression weights. Options: "headwise", "key_value", or "layerwise".
+#'   How to share compression weights. Options: "headwise", "key_value", or "layerwise". If this is set, then `kv_compression_ratio` and `kv_compression_sharing` must also be set.
 #' @param n_tokens (`integer(1)` or `NULL`)\cr
 #'   Number of tokens in the input sequence. If this is set, then `kv_compression_ratio` and `kv_compression_sharing` must also be set.
 #' @param query_idx (`integer()` or `NULL`)\cr
@@ -183,10 +179,10 @@ nn_ft_transformer_block = nn_module(
 
     x_residual_arg = if (is.null(self$query_idx)) x_residual else x_residual[, self$query_idx, drop = FALSE]
     compressions = self$get_kv_compressions_()
-    x_residual_vec = self$attention(x_residual_arg,
+    x_residual = self$attention(x_residual_arg,
                                       x_residual,
                                       compressions[1],
-                                      compressions[2])
+                                      compressions[2])[[1L]]
     x = if (!is.null(self$query_idx)) x[, self$query_idx, drop = FALSE] else x
     x = self$end_residual_("attention", x, x_residual)
 

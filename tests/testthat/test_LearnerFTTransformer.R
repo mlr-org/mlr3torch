@@ -1,4 +1,5 @@
 make_ft_transformer = function(task_type, ...) {
+  # TODO: update the parameters
   params = list(
      attention_n_heads = 1,
      attention_dropout = 0.1,
@@ -15,6 +16,9 @@ make_ft_transformer = function(task_type, ...) {
      query_idx = NULL,
      kv_compression_ratio = 1.0,
      kv_compression_sharing = "headwise",
+     attention_bias = TRUE,
+     ffn_bias_first = TRUE,
+     ffn_bias_second = TRUE,
 
      # training
      epochs = 1L,
@@ -29,12 +33,16 @@ test_that("basic functionality", {
   learner = make_ft_transformer("classif")
   task = tsk("german_credit")$filter(1:10)
   learner$train(task)
+
+  expect_learner(learner)
 })
 
 test_that("works with only numeric input", {
   learner = make_ft_transformer("classif")
   task = tsk("iris")
   learner$train(task)
+
+  expect_learner(learner)
 })
 
 test_that("works with only categorical input", {
@@ -56,4 +64,6 @@ test_that("works with lazy tensors", {
     cardinalities = 20
   )
   learner$train(task)
+
+  expect_learner(learner)
 })
