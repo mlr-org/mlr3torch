@@ -62,6 +62,9 @@ LearnerTorchModule = R6Class("LearnerTorchModule",
     initialize = function(module_generator = NULL, param_set = NULL, ingress_tokens = NULL,
       task_type, properties = NULL, optimizer = NULL, loss = NULL, callbacks = list(),
       packages = character(0), feature_types = NULL) {
+      if (is.null(task_type)) {
+        stopf("task_type must be provided")
+      }
       assert(check_class(module_generator, "nn_module_generator"), check_function(module_generator))
       private$.module_generator = module_generator
       args = names(formals(module_generator))
