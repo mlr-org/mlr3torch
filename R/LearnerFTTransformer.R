@@ -1,8 +1,33 @@
 
 #' @title FT-Transformer
+#' @templateVar name ft_transformer
+#' @templateVar task_types classif, regr
+#' @templateVar param_vals n_blocks = 2, d_block = 10, d_hidden = 20, dropout1 = 0.3, dropout2 = 0.3
+#' @template params_learner
+#' @template learner
+#' @template learner_example
+#'
 #' @description
 #' Feature-Tokenizer Transformer for tabular data that can either work on [`lazy_tensor`] inputs
 #' or on standard tabular features.
+#'
+#' @section Parameters:
+#' Parameters from [`LearnerTorch`], as well as:
+#' * `n_blocks` :: `integer(1)`\cr
+#'   The number of blocks.
+#' * `d_block` :: `integer(1)`\cr
+#'   The input and output dimension of a block.
+#' * `d_hidden` :: `integer(1)`\cr
+#'   The latent dimension of a block.
+#' * `d_hidden_multiplier` :: `numeric(1)`\cr
+#'   Alternative way to specify the latent dimension as `d_block * d_hidden_multiplier`.
+#' * `dropout1` :: `numeric(1)`\cr
+#'   First dropout ratio.
+#' * `dropout2` :: `numeric(1)`\cr
+#'    Second dropout ratio.
+#' * `shape` :: `integer()` or `NULL`\cr
+#'   Shape of the input tensor. Only needs to be provided if the input is a lazy tensor with
+#'   unknown shape.
 #' @references
 #' `r format_bib("gorishniy2021revisiting")`
 #' @export
@@ -148,14 +173,10 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
         block$id = sprintf("block_%i", i)
 
         if (i >= 1 && i <= 6) {
-          # get the parameters that are NULL
           null_block_dependent_params_idx = map_lgl(block_dependent_params, function(param_name) {
             is.null(param_vals[[param_name]])
           })
           null_block_dependent_params = block_dependent_params[null_block_dependent_params_idx]
-
-          # set default parameters that depend on n_blocks
-          block_dependent_params[[param_name]][i]
 
           map(null_block_dependent_params, function(param_name) {
             block$param_set$values[[param_name]] = block_dependent_defaults[[param_name]][i]
@@ -223,10 +244,6 @@ make_ft_transformer = function(task_type, ...) {
      batch_size = 32L,
      n_blocks = 1L,
      d_token = 10L
-
-     if (parameter is NULL) {
-      parameter = default_value
-     }
   )
   params = insert_named(params, list(...))
   invoke(lrn, .key = sprintf("%s.ft_transformer", task_type), .args = params)
