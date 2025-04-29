@@ -4,6 +4,8 @@
 #' network
 #'
 #' This is used in the FT-Transformer.
+#' 
+#' TODO: add the "attention_normalization" %in%...
 #'
 #' @param d_token (`integer(1)`)\cr
 #'   The dimension of the embedding.

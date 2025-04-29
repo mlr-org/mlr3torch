@@ -29,6 +29,7 @@ make_ft_transformer = function(task_type, ...) {
   params = insert_named(params, list(...))
   invoke(lrn, .key = sprintf("%s.ft_transformer", task_type), .args = params)
 }
+
 test_that("basic functionality", {
   learner = make_ft_transformer("classif")
   task = tsk("german_credit")$filter(1:10)
