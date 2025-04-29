@@ -184,3 +184,27 @@ test_that("PipeOpFeatureUnion can properly check whether two lazy tensors are id
 
   expect_error(graph$train(task), "cannot aggregate different features sharing")
 })
+
+test_that("materialize with shape (NA, NA) and .getbatch implementation", {
+  # this can e.g. happen when we do padding in the dataset
+  ds = dataset(
+    initialize = function() {
+      self$x = torch_randn(10, 3)
+    },
+    .getbatch = function(i) {
+      list(x = self$x[i, , drop = FALSE])
+    },
+    .length = function() 10
+  )()
+  lt = as_lazy_tensor(ds, dataset_shapes = list(x = c(NA, NA)))
+  expect_class(materialize(lt, rbind = TRUE), "torch_tensor")
+
+  mod = nn_module(
+    forward = function(x) {
+      torch_reshape(x, c(-1, 3, 1))
+    }
+  )()
+  po_module = po("module", module = mod, id = "mod")
+  lt1 = transform_lazy_tensor(lt, po_module, shape = c(NA, NA, 1))
+  expect_equal(materialize(lt1[1])[[1L]]$shape, c(3, 1))
+})
