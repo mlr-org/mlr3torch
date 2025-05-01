@@ -24,11 +24,9 @@
 #' @param residual_dropout (`numeric(1)`)\cr
 #'   Dropout probability for residual connections.
 #' @param prenormalization (`logical(1)`)\cr
-#'   Whether to apply normalization before attention and FFN (TRUE) or after (FALSE). When this is FALSE, `first_prenormalization` must also be FALSE.
+#'   Whether to apply normalization before attention and FFN (TRUE) or after (FALSE).
 #' @param is_first_layer (`logical(1)`)\cr
 #'   Whether this is the first layer in the transformer stack. Default value is FALSE.
-#' @param first_prenormalization (`logical(1)`)\cr
-#'   Whether to apply prenormalization in the first layer. It is recommended to set this to FALSE.
 #' @param attention_normalization (`function`)\cr
 #'   Normalization function to use for attention. Default value is `nn_layer_norm`.
 #' @param ffn_normalization (`function`)\cr
@@ -64,7 +62,6 @@ nn_ft_transformer_block = nn_module(
     residual_dropout,
     prenormalization,
     is_first_layer,
-    first_prenormalization,
     attention_normalization,
     ffn_normalization,
     kv_compression_ratio,
@@ -75,30 +72,10 @@ nn_ft_transformer_block = nn_module(
     ffn_bias_first,
     ffn_bias_second
   ) {
-    
-    # TODO: use .var.name instead
-    coll = makeAssertCollection()
-
-    if (prenormalization) {
-      assert_true(!first_prenormalization)
-      if (first_prenormalization) {
-        coll$push("The FT-Transformer does not allow `first_prenormalization` to be TRUE in the prenormalization setting.")
-      }
-    }
-
-    if (!prenormalization) {
-      warning("`prenormalization` is set to FALSE. Are you sure about this? The training can become less stable.")
-      assert_true(!first_prenormalization)
-      coll$push("If `prenormalization` is FALSE, then `first_prenormalization` is ignored and must be set to FALSE")
-    }
 
     assert_true(all_or_none_(n_tokens, kv_compression_ratio, kv_compression_sharing))
 
-    if (prenormalization && first_prenormalization) {
-      warning("first_prenormalization is set to TRUE. The vanilla FTTransformer with first_prenormalization = TRUE performs considerably worse.")
-    }
-
-    if ((!is_first_layer) || (!prenormalization) || first_prenormalization) {
+    if ((!is_first_layer) || (!prenormalization)) {
       self$attention_normalization = attention_normalization(d_token)
     }
 
@@ -109,7 +86,7 @@ nn_ft_transformer_block = nn_module(
       if (kv_compression_sharing == "headwise") {
         self$value_compression = self$make_kv_compression(n_tokens, kv_compression_ratio)
       } else {
-        assert_true(kv_compression_sharing == "key_value", "kv_compression_sharing parameter should be set to either \"headwise\" or \"key_value\"!")
+        assert_true(kv_compression_sharing == "key_value", .var.name = "kv_compression_sharing parameter is set to either \"headwise\" or \"key_value\"")
       }
     }
 
@@ -136,8 +113,6 @@ nn_ft_transformer_block = nn_module(
     self$ffn_residual_dropout = nn_dropout(residual_dropout)
 
     self$query_idx = query_idx
-
-    reportAssertions(coll)
   },
   start_residual_ = function(stage, x) {
     x_residual = x
@@ -224,7 +199,6 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
         ffn_normalization = p_uty(default = nn_layer_norm, custom_check = check_nn_module_generator, tags = "train"),
         residual_dropout = p_dbl(lower = 0, upper = 1, default = 0.0, tags = "train"),
         prenormalization = p_lgl(default = TRUE, tags = "train"),
-        first_prenormalization = p_lgl(default = FALSE, tags = "train"),
         is_first_layer = p_lgl(default = FALSE, tags = "train"),
         query_idx = p_uty(default = NULL, custom_check = function(input) check_integerish(input, null.ok = TRUE), tags = "train"),
         kv_compression_ratio = p_uty(default = NULL, custom_check = function(input) check_number(input, null.ok = TRUE), tags = "train"),
