@@ -171,6 +171,13 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
         })
       }
 
+      if (is.null(param_vals$ffn_d_hidden)) {
+        if (class(param_vals$activation)[1] %in% c("nn_reglu", "nn_geglu")) {
+          param_vals$ffn_d_hidden = 4 / 3
+        } else {
+          param_vals$ffn_d_hidden = 2.0
+        }
+      }
 
       blocks = map(seq_len(param_vals$n_blocks), function(i) {
         block = private$.block$clone(deep = TRUE)
