@@ -75,7 +75,8 @@ nn_ft_transformer_block = nn_module(
     ffn_bias_first,
     ffn_bias_second
   ) {
-
+    
+    # TODO: use .var.name instead
     coll = makeAssertCollection()
 
     if (prenormalization) {
