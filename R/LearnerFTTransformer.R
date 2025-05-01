@@ -11,24 +11,19 @@
 #' Feature-Tokenizer Transformer for tabular data that can either work on [`lazy_tensor`] inputs
 #' or on standard tabular features.
 #'
-#' TODO: update this, since it comes from the package implemented not the implementation in the rtdl repo.
 #' @section Parameters:
 #' Parameters from [`LearnerTorch`], as well as:
 #' * `n_blocks` :: `integer(1)`\cr
-#'   The number of blocks.
-#' * `d_block` :: `integer(1)`\cr
-#'   The input and output dimension of a block.
-#' * `d_hidden` :: `integer(1)`\cr
-#'   The latent dimension of a block.
-#' * `d_hidden_multiplier` :: `numeric(1)`\cr
-#'   Alternative way to specify the latent dimension as `d_block * d_hidden_multiplier`.
-#' * `dropout1` :: `numeric(1)`\cr
-#'   First dropout ratio.
-#' * `dropout2` :: `numeric(1)`\cr
-#'    Second dropout ratio.
-#' * `shape` :: `integer()` or `NULL`\cr
-#'   Shape of the input tensor. Only needs to be provided if the input is a lazy tensor with
-#'   unknown shape.
+#'   The number of transformer blocks.
+#' * `d_token` :: `integer(1)`\cr
+#'   The dimension of the embedding.
+#' * `cardinalities` :: `integer(1)`\cr
+#'   The number of categories for each feature.
+#' * `init_token` :: `character(1)`\cr
+#'   The initialization method for the embedding weights. Either "uniform" or "normal".
+#' * `ingress_tokens` :: `numeric(1)`\cr
+#'   A list of `TorchIngressToken`s.
+#'  
 #' @references
 #' `r format_bib("gorishniy2021revisiting")`
 #' @export
@@ -51,9 +46,6 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
         check_subset(names(ingress_tokens), c("num.input", "categ.input"))
       })
 
-      # TODO: factor out learner-level parameters (parameters that have to do with relationships between layers, etc.)
-      # from the PipeOpTorchFTTransformerBlock into here
-      # and their respective assertions
       private$.param_set_base = ps(
         n_blocks = p_int(lower = 0, tags = c("train", "required")),
         d_token = p_int(lower = 1L, tags = c("train", "required")),
