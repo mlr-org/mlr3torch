@@ -154,6 +154,7 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
           nn("merge_cat", param_vals = list(dim = 2))
       }
 
+      # heuristically defined default parameters that depend on the number of blocks
       block_dependent_params = c("d_token", "attention_dropout", "ffn_dropout")
       block_dependent_defaults = list(
         d_token = c(96, 128, 192, 256, 320, 384),
