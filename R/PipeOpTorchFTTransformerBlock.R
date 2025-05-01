@@ -34,7 +34,7 @@
 #' @param kv_compression_sharing (`character(1)` or `NULL`)\cr
 #'   How to share compression weights. Options: "headwise", "key_value", or "layerwise". If this is set, then `kv_compression_ratio` and `kv_compression_sharing` must also be set.
 #' @param n_tokens (`integer(1)` or `NULL`)\cr
-#'   Number of tokens in the input sequence. If this is set, then `kv_compression_ratio` and `kv_compression_sharing` must also be set.
+#'   Number of tokens in the input sequence. Used for attention linearization. If this is set, then `kv_compression_ratio` and `kv_compression_sharing` must also be set.
 #' @param query_idx (`integer()` or `NULL`)\cr
 #'   Indices to select for the query.
 #' @param attention_bias (`logical(1)`)\cr
@@ -156,9 +156,7 @@ nn_ft_transformer_block = nn_module(
     x_residual_arg = if (is.null(self$query_idx)) x_residual else x_residual[, self$query_idx, drop = FALSE]
     compressions = self$get_kv_compressions_()
     x_residual = self$attention(x_residual_arg,
-                                      x_residual,
-                                      compressions[1],
-                                      compressions[2])[[1L]]
+                                      x_residual)[[1L]]
     x = if (!is.null(self$query_idx)) x[, self$query_idx, drop = FALSE] else x
     x = self$end_residual_("attention", x, x_residual)
 
@@ -265,16 +263,10 @@ nn_ft_multi_head_attention = nn_module(
     d_head = d %/% self$n_heads
     return(input$reshape(c(batch_size, n_tokens, self$n_heads, d_head))$transpose(2, 3)$reshape(c(batch_size * self$n_heads, n_tokens, d_head)))
   },
-  forward = function(x_q, x_kv, key_compression = NULL, value_compression = NULL) {
-    assert_true(all_or_none_(key_compression, value_compression))
+  forward = function(x_q, x_kv) {
     q = self$W_q(x_q)
     k = self$W_k(x_kv)
     v = self$W_v(x_kv)
-
-    if (!is.null(key_compression)) {
-      k = key_compression(k$transpose(2, 3))$transpose(2, 3)
-      v = value_compression(v$transpose(2, 3))$transpose(2, 3)
-    }
 
     batch_size = q$shape[1]
     d_head_key = data.table::last(k$shape, 1) %/% self$n_heads
