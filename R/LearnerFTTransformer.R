@@ -47,10 +47,10 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
       })
 
       private$.param_set_base = ps(
-        n_blocks = p_int(lower = 0, tags = c("train", "required")),
-        d_token = p_int(lower = 1L, tags = c("train", "required")),
+        n_blocks = p_int(lower = 0, default = 3, tags = "train"),
+        d_token = p_int(lower = 1L, default = 192L, tags = "train"),
         cardinalities = p_int(lower = 1L, tags = "train"),
-        init_token = p_fct(init = "uniform", levels = c("uniform", "normal"), tags = c("train", "required")),
+        init_token = p_fct(init = "uniform", levels = c("uniform", "normal"), tags = "train"),
         ingress_tokens = p_uty(tags = "train", custom_check = check_ingress_tokens)
       )
       param_set = alist(private$.block$param_set, private$.param_set_base)
@@ -160,21 +160,21 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
         attention_dropout = c(0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
         ffn_dropout = c(0.0, 0.05, 0.1, 0.15, 0.2, 0.25)
       )
+      if (param_vals$n_blocks >= 1 && param_vals$n_blocks <= 6) {
+        null_block_dependent_params_idx = map_lgl(block_dependent_params, function(param_name) {
+          is.null(param_vals[[param_name]])
+        })
+        null_block_dependent_params = block_dependent_params[null_block_dependent_params_idx]
+
+        map(null_block_dependent_params, function(param_name) {
+          private$.block$param_set$values[[param_name]] = block_dependent_defaults[[param_name]][i]
+        })
+      }
+
 
       blocks = map(seq_len(param_vals$n_blocks), function(i) {
         block = private$.block$clone(deep = TRUE)
         block$id = sprintf("block_%i", i)
-
-        if (i >= 1 && i <= 6) {
-          null_block_dependent_params_idx = map_lgl(block_dependent_params, function(param_name) {
-            is.null(param_vals[[param_name]])
-          })
-          null_block_dependent_params = block_dependent_params[null_block_dependent_params_idx]
-
-          map(null_block_dependent_params, function(param_name) {
-            block$param_set$values[[param_name]] = block_dependent_defaults[[param_name]][i]
-          })
-        }
 
         if (i == 1) {
           block$param_set$values$is_first_layer = TRUE
@@ -208,32 +208,3 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
 
 register_learner("regr.ft_transformer", LearnerTorchFTTransformer)
 register_learner("classif.ft_transformer", LearnerTorchFTTransformer)
-
-make_ft_transformer = function(task_type, ...) {
-  params = list(
-    # transformer block
-     attention_n_heads = 1,
-     attention_dropout = 0.1,
-     ffn_d_hidden = 100,
-     ffn_dropout = 0.1,
-     ffn_activation = nn_reglu,
-     residual_dropout = 0.0,
-     prenormalization = TRUE,
-     is_first_layer = TRUE,
-     attention_initialization = "kaiming",
-     ffn_normalization = nn_layer_norm,
-     attention_normalization = nn_layer_norm,
-     query_idx = NULL,
-     attention_bias = TRUE,
-     ffn_bias_first = TRUE,
-     ffn_bias_second = TRUE,
-
-     # training
-     epochs = 1L,
-     batch_size = 32L,
-     n_blocks = 1L,
-     d_token = 10L
-  )
-  params = insert_named(params, list(...))
-  invoke(lrn, .key = sprintf("%s.ft_transformer", task_type), .args = params)
-}

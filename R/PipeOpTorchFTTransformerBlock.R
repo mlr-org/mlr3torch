@@ -144,11 +144,11 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
     initialize = function(id = "nn_ft_transformer_block", param_vals = list()) {
       param_set = ps(
         attention_n_heads = p_int(lower = 1L, default = 8L, tags = "train"),
-        attention_dropout = p_dbl(lower = 0, upper = 1, tags = "train"),
+        attention_dropout = p_dbl(lower = 0, upper = 1, default = 0.2, tags = "train"),
         attention_initialization = p_fct(levels = c("kaiming", "xavier"), default = "kaiming", tags = "train"),
         attention_normalization = p_uty(default = nn_layer_norm, tags = "train"),
-        ffn_d_hidden = p_int(lower = 1L, default = 256L, tags = "train"),
-        ffn_dropout = p_dbl(lower = 0, upper = 1, tags = "train"),
+        ffn_d_hidden = p_int(lower = 1L, tags = "train"),
+        ffn_dropout = p_dbl(lower = 0, upper = 1, default = 0.1, tags = "train"),
         ffn_activation = p_uty(default = nn_reglu, custom_check = check_nn_module_generator, tags = "train"),
         ffn_normalization = p_uty(default = nn_layer_norm, custom_check = check_nn_module_generator, tags = "train"),
         residual_dropout = p_dbl(lower = 0, upper = 1, default = 0.0, tags = "train"),
@@ -175,7 +175,7 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
       }
 
       shapes_out = shapes_in$input
-      # only apply the last transformer block to the CLS token
+      # to save computation, apply the last transformer block to only the CLS token
       shapes_out[[2L]] = 1
       return(list(shapes_out))
     },
