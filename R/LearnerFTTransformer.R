@@ -11,6 +11,7 @@
 #' Feature-Tokenizer Transformer for tabular data that can either work on [`lazy_tensor`] inputs
 #' or on standard tabular features.
 #'
+#' TODO: update this, since it comes from the package implemented not the implementation in the rtdl repo.
 #' @section Parameters:
 #' Parameters from [`LearnerTorch`], as well as:
 #' * `n_blocks` :: `integer(1)`\cr
@@ -217,10 +218,7 @@ register_learner("regr.ft_transformer", LearnerTorchFTTransformer)
 register_learner("classif.ft_transformer", LearnerTorchFTTransformer)
 
 make_ft_transformer = function(task_type, ...) {
-  # TODO: update the parameters
   params = list(
-    # learner
-
     # transformer block
      attention_n_heads = 1,
      attention_dropout = 0.1,

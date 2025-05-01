@@ -29,12 +29,6 @@
 #'   Normalization function to use for attention. Default value is `nn_layer_norm`.
 #' @param ffn_normalization (`function`)\cr
 #'   Normalization function to use for the feed-forward network. Default value is `nn_layer_norm`.
-#' @param kv_compression_ratio (`numeric(1)` or `NULL`)\cr
-#'   Ratio for key-value compression. If NULL, no compression is applied. If this is set, then `n_tokens` and `kv_compression_sharing` must also be set.
-#' @param kv_compression_sharing (`character(1)` or `NULL`)\cr
-#'   How to share compression weights. Options: "headwise", "key_value", or "layerwise". If this is set, then `kv_compression_ratio` and `kv_compression_sharing` must also be set.
-#' @param n_tokens (`integer(1)` or `NULL`)\cr
-#'   Number of tokens in the input sequence. Used for attention linearization. If this is set, then `kv_compression_ratio` and `kv_compression_sharing` must also be set.
 #' @param query_idx (`integer()` or `NULL`)\cr
 #'   Indices to select for the query.
 #' @param attention_bias (`logical(1)`)\cr
@@ -62,31 +56,17 @@ nn_ft_transformer_block = nn_module(
     is_first_layer,
     attention_normalization,
     ffn_normalization,
-    kv_compression_ratio,
-    kv_compression_sharing,
-    n_tokens,
     query_idx,
     attention_bias,
     ffn_bias_first,
     ffn_bias_second
   ) {
 
-    assert_true(all_or_none_(n_tokens, kv_compression_ratio, kv_compression_sharing))
-
     if ((!is_first_layer) || (!prenormalization)) {
       self$attention_normalization = attention_normalization(d_token)
     }
 
     self$ffn_normalization = ffn_normalization(d_token)
-
-    if (!is.null(kv_compression_ratio) && is.null(self$shared_kv_compression)) {
-      self$key_compression = self$make_kv_compression(n_tokens, kv_compression_ratio)
-      if (kv_compression_sharing == "headwise") {
-        self$value_compression = self$make_kv_compression(n_tokens, kv_compression_ratio)
-      } else {
-        assert_true(kv_compression_sharing == "key_value", .var.name = "kv_compression_sharing parameter is set to either \"headwise\" or \"key_value\"")
-      }
-    }
 
     self$prenormalization = prenormalization
 
@@ -122,26 +102,6 @@ nn_ft_transformer_block = nn_module(
     }
     return(x_residual)
   },
-  make_kv_compression = function(n_tokens, kv_compression_ratio) {
-    assert_true(n_tokens && kv_compression_ratio)
-    return(nn_linear(n_tokens, floor(n_tokens * kv_compression_ratio), bias = FALSE))
-  },
-  get_kv_compressions_ = function() {
-    if (!is.null(self$shared_kv_compression)) {
-      result = c(self$shared_kv_compression, self$shared_kv_compression)
-    } else {
-      if ("key_compression" %in% names(self) && "value_compression" %in% names(self)) {
-        result = c(self$key_compression, self$value_compression)
-      } else {
-        if ("key_compression" %in% names(self)) {
-          result = c(self$key_compression, self$key_compression)
-        } else {
-          result = NULL
-        }
-      }
-    }
-    return(result)
-  },
   end_residual_ = function(stage, x, x_residual) {
     x_residual = self[[paste0(stage, "_residual_dropout")]](x_residual)
     x = x + x_residual
@@ -154,7 +114,6 @@ nn_ft_transformer_block = nn_module(
     x_residual = self$start_residual_("attention", x)
 
     x_residual_arg = if (is.null(self$query_idx)) x_residual else x_residual[, self$query_idx, drop = FALSE]
-    compressions = self$get_kv_compressions_()
     x_residual = self$attention(x_residual_arg,
                                       x_residual)[[1L]]
     x = if (!is.null(self$query_idx)) x[, self$query_idx, drop = FALSE] else x
@@ -196,8 +155,6 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
         prenormalization = p_lgl(default = TRUE, tags = "train"),
         is_first_layer = p_lgl(default = FALSE, tags = "train"),
         query_idx = p_uty(default = NULL, custom_check = function(input) check_integerish(input, null.ok = TRUE), tags = "train"),
-        kv_compression_ratio = p_uty(default = NULL, custom_check = function(input) check_number(input, null.ok = TRUE), tags = "train"),
-        kv_compression_sharing = p_fct(levels = c("headwise", "key_value", "layerwise"), special_vals = list(NULL), tags = "train"),
         attention_bias = p_lgl(default = TRUE, tags = "train"),
         ffn_bias_first = p_lgl(default = TRUE, tags = "train"),
         ffn_bias_second = p_lgl(default = TRUE, tags = "train")
@@ -224,7 +181,6 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {
       param_vals$d_token = shapes_in$input[3]
-      param_vals$n_tokens = shapes_in$input[2]
       return(param_vals)
     }
   )

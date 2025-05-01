@@ -153,8 +153,6 @@ test_that("Entire FT-Transformer can be constructed as a graph", {
       attention_normalization = nn_layer_norm,
       is_first_layer = FALSE,
       query_idx = NULL,
-      kv_compression_ratio = 1.0,
-      kv_compression_sharing = "headwise",
       attention_bias =  TRUE,
       ffn_bias_first = TRUE,
       ffn_bias_second = TRUE
@@ -183,8 +181,6 @@ test_that("Entire FT-Transformer can be constructed as a graph", {
         ffn_normalization = nn_layer_norm,
         attention_normalization = nn_layer_norm,
         query_idx = NULL,
-        kv_compression_ratio = 1.0,
-        kv_compression_sharing = "headwise",
         attention_bias =  TRUE,
         ffn_bias_first = TRUE,
         ffn_bias_second = TRUE
@@ -206,8 +202,6 @@ test_that("Entire FT-Transformer can be constructed as a graph", {
         attention_initialization = "kaiming",
         ffn_normalization = nn_layer_norm,
         attention_normalization = nn_layer_norm,
-        kv_compression_ratio = 1.0,
-        kv_compression_sharing = "headwise",
         attention_bias =  TRUE,
         ffn_bias_first = TRUE,
         ffn_bias_second = TRUE
