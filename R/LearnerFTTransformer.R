@@ -190,6 +190,8 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
         }
         if (i == param_vals$n_blocks) {
           block$param_set$values$query_idx = -1L
+        } else {
+          block$param_set$values$query_idx = NULL
         }
         block
       })
@@ -205,6 +207,8 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
         nn("layer_norm", dims = 1) %>>%
         nn("relu") %>>%
         nn("head")
+
+      browser()
 
       model_descriptor_to_module(graph$train(mds, FALSE)[[1L]])
     }
@@ -227,7 +231,6 @@ make_ft_transformer = function(task_type, ...) {
      ffn_activation = nn_reglu,
      residual_dropout = 0.0,
      prenormalization = TRUE,
-     first_prenormalization = FALSE,
      is_first_layer = TRUE,
      attention_initialization = "kaiming",
      ffn_normalization = nn_layer_norm,

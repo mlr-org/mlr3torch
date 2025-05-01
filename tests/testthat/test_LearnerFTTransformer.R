@@ -1,5 +1,4 @@
 make_ft_transformer = function(task_type, ...) {
-  # TODO: update the parameters
   params = list(
      attention_n_heads = 1,
      attention_dropout = 0.1,
@@ -8,7 +7,6 @@ make_ft_transformer = function(task_type, ...) {
      ffn_activation = nn_reglu,
      residual_dropout = 0.0,
      prenormalization = TRUE,
-     first_prenormalization = FALSE,
      is_first_layer = TRUE,
      attention_initialization = "kaiming",
      ffn_normalization = nn_layer_norm,

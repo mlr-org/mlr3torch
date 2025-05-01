@@ -4,8 +4,6 @@
 #' network
 #'
 #' This is used in the FT-Transformer.
-#' 
-#' TODO: add the "attention_normalization" %in%... assertion
 #'
 #' @param d_token (`integer(1)`)\cr
 #'   The dimension of the embedding.
@@ -185,16 +183,15 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
   lock_objects = FALSE,
   public = list(
     #' @description Create a new instance of this [R6][R6::R6Class] class.
-    #' @param id (`character(1)`)\cr
-    #'   Identifier of the resulting object.
+    #' @template params_pipelines
     initialize = function(id = "nn_ft_transformer_block", param_vals = list()) {
       param_set = ps(
         attention_n_heads = p_int(lower = 1L, default = 8L, tags = "train"),
-        attention_dropout = p_dbl(lower = 0, upper = 1, default = 0.2, tags = "train"), # TODO: use block-dependent default?
+        attention_dropout = p_dbl(lower = 0, upper = 1, tags = "train"),
         attention_initialization = p_fct(levels = c("kaiming", "xavier"), default = "kaiming", tags = "train"),
         attention_normalization = p_uty(default = nn_layer_norm, tags = "train"),
         ffn_d_hidden = p_int(lower = 1L, default = 256L, tags = "train"),
-        ffn_dropout = p_dbl(lower = 0, upper = 1, default = 0.2, tags = "train"), # TODO: use block-dependent default?
+        ffn_dropout = p_dbl(lower = 0, upper = 1, tags = "train"),
         ffn_activation = p_uty(default = nn_reglu, custom_check = check_nn_module_generator, tags = "train"),
         ffn_normalization = p_uty(default = nn_layer_norm, custom_check = check_nn_module_generator, tags = "train"),
         residual_dropout = p_dbl(lower = 0, upper = 1, default = 0.0, tags = "train"),
@@ -303,8 +300,9 @@ nn_ft_multi_head_attention = nn_module(
 nn_ft_ffn = nn_module(
   "nn_ft_ffn",
   initialize = function(d_token, d_hidden, bias_first, bias_second, dropout, activation) {
-    coef = if (class(activation)[1] %in% c("nn_reglu", "nn_geglu")) 2 else 1
-    self$linear_first = nn_linear(d_token, d_hidden * coef, bias_first)
+    # ReGLU, GeGLU activations change the size of their input
+    ffn_d_hidden_multiplier = if (class(activation)[1] %in% c("nn_reglu", "nn_geglu")) 2 else 1
+    self$linear_first = nn_linear(d_token, d_hidden * ffn_d_hidden_multiplier, bias_first)
     self$activation = activation()
     self$dropout = nn_dropout(dropout)
     self$linear_second = nn_linear(d_hidden, d_token, bias_second)

@@ -86,6 +86,7 @@ Gorishniy Y, Rubachev I, Khrulkov V, Babenko A (2021).
 }
 \seealso{
 Other Learner: 
+\code{\link{mlr_learners.ft_transformer}},
 \code{\link{mlr_learners.module}},
 \code{\link{mlr_learners.tab_resnet}},
 \code{\link{mlr_learners.torch_featureless}},

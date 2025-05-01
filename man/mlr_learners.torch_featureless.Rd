@@ -65,6 +65,7 @@ predictions$score()
 }
 \seealso{
 Other Learner: 
+\code{\link{mlr_learners.ft_transformer}},
 \code{\link{mlr_learners.mlp}},
 \code{\link{mlr_learners.module}},
 \code{\link{mlr_learners.tab_resnet}},
