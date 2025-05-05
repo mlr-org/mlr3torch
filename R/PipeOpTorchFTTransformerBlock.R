@@ -143,21 +143,21 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
     #' @template params_pipelines
     initialize = function(id = "nn_ft_transformer_block", param_vals = list()) {
       param_set = ps(
-        attention_n_heads = p_int(lower = 1L, default = 8L, tags = "train"),
-        attention_dropout = p_dbl(lower = 0, upper = 1, default = 0.2, tags = "train"),
-        attention_initialization = p_fct(levels = c("kaiming", "xavier"), default = "kaiming", tags = "train"),
-        attention_normalization = p_uty(default = nn_layer_norm, tags = "train"),
-        ffn_d_hidden = p_int(lower = 1L, tags = "train"),
-        ffn_dropout = p_dbl(lower = 0, upper = 1, default = 0.1, tags = "train"),
-        ffn_activation = p_uty(default = nn_reglu, custom_check = check_nn_module_generator, tags = "train"),
-        ffn_normalization = p_uty(default = nn_layer_norm, custom_check = check_nn_module_generator, tags = "train"),
-        residual_dropout = p_dbl(lower = 0, upper = 1, default = 0.0, tags = "train"),
-        prenormalization = p_lgl(default = TRUE, tags = "train"),
-        is_first_layer = p_lgl(default = FALSE, tags = "train"),
-        query_idx = p_uty(default = NULL, custom_check = function(input) check_integerish(input, null.ok = TRUE), tags = "train"),
-        attention_bias = p_lgl(default = TRUE, tags = "train"),
-        ffn_bias_first = p_lgl(default = TRUE, tags = "train"),
-        ffn_bias_second = p_lgl(default = TRUE, tags = "train")
+        attention_n_heads = p_int(lower = 1L, init = 8L, tags = "train"),
+        attention_dropout = p_dbl(lower = 0, upper = 1, init = 0.2, tags = "train"),
+        attention_initialization = p_fct(levels = c("kaiming", "xavier"), init = "kaiming", tags = "train"),
+        attention_normalization = p_uty(init = nn_layer_norm, tags = "train"),
+        ffn_d_hidden = p_dbl(lower = 1, tags = "train"),
+        ffn_dropout = p_dbl(lower = 0, upper = 1, init = 0.1, tags = "train"),
+        ffn_activation = p_uty(init = nn_reglu, custom_check = check_nn_module_generator, tags = "train"),
+        ffn_normalization = p_uty(init = nn_layer_norm, custom_check = check_nn_module_generator, tags = "train"),
+        residual_dropout = p_dbl(lower = 0, upper = 1, init = 0.0, tags = "train"),
+        prenormalization = p_lgl(init = TRUE, tags = "train"),
+        is_first_layer = p_lgl(init = FALSE, tags = "train"),
+        query_idx = p_uty(init = NULL, custom_check = function(input) check_integerish(input, null.ok = TRUE), tags = "train"),
+        attention_bias = p_lgl(init = TRUE, tags = "train"),
+        ffn_bias_first = p_lgl(init = TRUE, tags = "train"),
+        ffn_bias_second = p_lgl(init = TRUE, tags = "train")
       )
 
       super$initialize(

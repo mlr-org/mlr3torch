@@ -154,6 +154,9 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
           nn("merge_cat", param_vals = list(dim = 2))
       }
 
+      # TODO: create a separate list for these default parameters
+      # then, in the "for loop" set them for the individual blocks
+
       # heuristically defined default parameters that depend on the number of blocks
       block_dependent_params = c("d_token", "attention_dropout", "ffn_dropout")
       block_dependent_defaults = list(
@@ -168,15 +171,15 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
         null_block_dependent_params = block_dependent_params[null_block_dependent_params_idx]
 
         map(null_block_dependent_params, function(param_name) {
-          private$.block$param_set$values[[param_name]] = block_dependent_defaults[[param_name]][i]
+          private$.block$param_set$values[[param_name]] = block_dependent_defaults[[param_name]][param_vals$n_blocks]
         })
       }
 
       if (is.null(param_vals$ffn_d_hidden)) {
-        if (class(param_vals$activation)[1] %in% c("nn_reglu", "nn_geglu")) {
-          param_vals$ffn_d_hidden = 4 / 3
+        if (class(param_vals$ffn_activation)[1] %in% c("nn_reglu", "nn_geglu")) {
+          private$.block$param_set$values$ffn_d_hidden = 4 / 3
         } else {
-          param_vals$ffn_d_hidden = 2.0
+          private$.block$param_set$values$ffn_d_hidden = 2.0
         }
       }
 

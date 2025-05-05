@@ -64,3 +64,35 @@ test_that("works with lazy tensors", {
 
   expect_learner(learner)
 })
+
+# test_that("works with mixed input", {
+#   withr::local_options(mlr3torch.cache = TRUE)
+
+#   learner = make_ft_transformer("classif")
+#   task = tsk("melanoma")$filter(1:10)
+#   learner$train(task)
+
+#   expect_learner(learner)
+# })
+
+make_ft_transformer_default = function(task_type, ...) {
+  params = list(
+     epochs = 1L,
+     batch_size = 32L,
+     n_blocks = 1L,
+     d_token = 32L
+  )
+  params = insert_named(params, list(...))
+  invoke(lrn, .key = sprintf("%s.ft_transformer", task_type), .args = params)
+}
+
+test_that("defaults work", {
+  lrn = make_ft_transformer_default("classif")
+
+  # Test with a small dataset
+  task = tsk("iris")$filter(1:20)
+
+  lrn$train(task)
+
+  expect_learner(lrn)
+})
