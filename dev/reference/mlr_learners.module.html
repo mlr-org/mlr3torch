@@ -150,7 +150,8 @@
 <span>  loss <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  callbacks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  packages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
-<span>  feature_types <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  feature_types <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  predict_types <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -218,6 +219,12 @@ The R packages this object depends on.</p></dd>
 <dt><code>feature_types</code></dt>
 <dd><p>(<code>NULL</code> or <code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
 The feature types. Defaults to all available feature types.</p></dd>
+
+
+<dt><code>predict_types</code></dt>
+<dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
+The predict types.
+See <code><a href="https://mlr3.mlr-org.com/reference/mlr_reflections.html" class="external-link">mlr_reflections$learner_predict_types</a></code> for available values.</p></dd>
 
 
 </dl><p></p></div>
