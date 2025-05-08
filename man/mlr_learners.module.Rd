@@ -120,7 +120,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   loss = NULL,
   callbacks = list(),
   packages = character(0),
-  feature_types = NULL
+  feature_types = NULL,
+  predict_types = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -168,6 +169,10 @@ The R packages this object depends on.}
 
 \item{\code{feature_types}}{(\code{NULL} or \code{character()})\cr
 The feature types. Defaults to all available feature types.}
+
+\item{\code{predict_types}}{(\code{character()})\cr
+The predict types.
+See \code{\link[mlr3:mlr_reflections]{mlr_reflections$learner_predict_types}} for available values.}
 }
 \if{html}{\out{</div>}}
 }

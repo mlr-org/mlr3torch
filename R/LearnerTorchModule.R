@@ -27,6 +27,7 @@
 #' @param properties (`NULL` or `character()`)\cr
 #'   The properties of the learner.
 #'   Defaults to all available properties for the given task type.
+#' @template param_predict_types
 # @section Parameters: See [`LearnerTorch`] and constructor argument `param_set`.
 #' @family Learner
 #' @include LearnerTorch.R
@@ -61,7 +62,7 @@ LearnerTorchModule = R6Class("LearnerTorchModule",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(module_generator = NULL, param_set = NULL, ingress_tokens = NULL,
       task_type, properties = NULL, optimizer = NULL, loss = NULL, callbacks = list(),
-      packages = character(0), feature_types = NULL) {
+      packages = character(0), feature_types = NULL, predict_types = NULL) {
       if (is.null(task_type)) {
         stopf("task_type must be provided")
       }
@@ -102,6 +103,7 @@ LearnerTorchModule = R6Class("LearnerTorchModule",
         packages = packages,
         param_set = param_set,
         feature_types = feature_types,
+        predict_types = predict_types,
         man = "mlr3torch::mlr_learners.module"
       )
     }
