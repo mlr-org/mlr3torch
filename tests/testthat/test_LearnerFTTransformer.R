@@ -43,7 +43,13 @@ test_that("works with only numeric input", {
 })
 
 test_that("works with only categorical input", {
-  # TODO:
+  learner = make_ft_transformer("classif")
+  task = tsk("german_credit")$filter(1:10)
+  task$select(c("credit_history", "employment_duration", "foreign_worker"))
+
+  learner$train(task)
+
+  expect_learner(learner)
 })
 
 test_that("works with lazy tensors", {
