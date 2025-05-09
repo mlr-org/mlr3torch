@@ -1,7 +1,7 @@
 #' @title Single Transformer Block for FT-Transformer
 #' @description
 #' A transformer block, consisting of a multi-head self-attention mechanism followed by a feed-forward
-#' network
+#' network.
 #'
 #' This is used in the FT-Transformer.
 #'

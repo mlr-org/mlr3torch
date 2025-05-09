@@ -10,6 +10,9 @@
 #' @description
 #' Feature-Tokenizer Transformer for tabular data that can either work on [`lazy_tensor`] inputs
 #' or on standard tabular features.
+#' 
+#' Some differences from the paper implementation: no attention compression, no prenormalization in the first layer. 
+#' TODO: ensure a comprehensive list of differences.
 #'
 #' @section Parameters:
 #' Parameters from [`LearnerTorch`], as well as:
@@ -114,6 +117,7 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
     },
     .network = function(task, param_vals) {
       its = private$.ingress_tokens(task, param_vals)
+      browser()
       mds = list()
       path_num = if (!is.null(its$num.input)) {
         mds$tokenizer_num.input = ModelDescriptor(
@@ -153,7 +157,7 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
         gunion(input_paths) %>>%
           nn("merge_cat", param_vals = list(dim = 2))
       }
-      
+
       # heuristically defined default parameters that depend on the number of blocks
       block_dependent_params = c("d_token", "attention_dropout", "ffn_dropout")
       block_dependent_defaults = list(
