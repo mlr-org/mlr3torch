@@ -153,10 +153,7 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
         gunion(input_paths) %>>%
           nn("merge_cat", param_vals = list(dim = 2))
       }
-
-      # TODO: create a separate list for these default parameters
-      # then, in the "for loop" set them for the individual blocks
-
+      
       # heuristically defined default parameters that depend on the number of blocks
       block_dependent_params = c("d_token", "attention_dropout", "ffn_dropout")
       block_dependent_defaults = list(
