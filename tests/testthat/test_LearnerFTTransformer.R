@@ -78,8 +78,6 @@ make_ft_transformer_default = function(task_type, ...) {
 
 test_that("defaults work", {
   lrn = make_ft_transformer_default("classif")
-  
-  print(lrn$param_set$values)
 
   # Test with a small dataset
   task = tsk("iris")$filter(1:20)
