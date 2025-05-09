@@ -69,7 +69,7 @@ make_ft_transformer_default = function(task_type, ...) {
   params = list(
      epochs = 1L,
      batch_size = 32L,
-     n_blocks = 1L,
+     n_blocks = 3L,
      d_token = 32L
   )
   params = insert_named(params, list(...))
@@ -78,6 +78,8 @@ make_ft_transformer_default = function(task_type, ...) {
 
 test_that("defaults work", {
   lrn = make_ft_transformer_default("classif")
+  
+  print(lrn$param_set$values)
 
   # Test with a small dataset
   task = tsk("iris")$filter(1:20)

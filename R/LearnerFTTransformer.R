@@ -117,7 +117,6 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
     },
     .network = function(task, param_vals) {
       its = private$.ingress_tokens(task, param_vals)
-      browser()
       mds = list()
       path_num = if (!is.null(its$num.input)) {
         mds$tokenizer_num.input = ModelDescriptor(
