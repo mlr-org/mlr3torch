@@ -6,9 +6,9 @@
 \title{Single Transformer Block for the FT-Transformer}
 \description{
 A transformer block, consisting of a multi-head self-attention mechanism followed by a feed-forward
-network
+network.
 
-This is used in the FT-Transformer.
+This is used in the \link{LearnerFTTransformer}.
 }
 \section{nn_module}{
 

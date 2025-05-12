@@ -17,7 +17,7 @@ nn_ft_transformer_block(
   is_first_layer,
   attention_normalization,
   ffn_normalization,
-  query_idx,
+  query_idx = NULL,
   attention_bias,
   ffn_bias_first,
   ffn_bias_second
@@ -74,9 +74,9 @@ Whether the second layer in the FFN has a bias. Default is TRUE.}
 }
 \description{
 A transformer block, consisting of a multi-head self-attention mechanism followed by a feed-forward
-network
+network.
 
-This is used in the FT-Transformer.
+This is used in the \link{LearnerFTTransformer}.
 }
 \references{
 Devlin, Jacob, Chang, Ming-Wei, Lee, Kenton, Toutanova, Kristina (2018).

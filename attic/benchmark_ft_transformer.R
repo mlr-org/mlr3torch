@@ -35,34 +35,27 @@ glrn_xgboost = as_learner(po("imputesample") %>>% lrn("classif.xgboost"))
 # lrn_ft_transformer = make_ft_transformer_default("classif")
 
 lrn_ft_transformer = lrn("classif.ft_transformer",
-                         epochs = 1L,
-                         batch_size = 32L,
-                         n_blocks = 3L,
-                         d_token = 32L)
-
-# lrn_ft_transformer = lrn("classif.ft_transformer",
-#   attention_n_heads = 4,
-#   attention_dropout = 0.1,
-#   ffn_d_hidden = 100,
-#   ffn_dropout = 0.1,
-#   ffn_activation = nn_reglu,
-#   residual_dropout = 0.0,
-#   prenormalization = TRUE,
-#   is_first_layer = TRUE,
-#   attention_initialization = "kaiming",
-#   ffn_normalization = nn_layer_norm,
-#   attention_normalization = nn_layer_norm,
-#   query_idx = NULL,
-#   attention_bias = TRUE,
-#   ffn_bias_first = TRUE,
-#   ffn_bias_second = TRUE,
-
-#   # training
-#   epochs = 100L,
-#   batch_size = 32L,
-#   n_blocks = 3L,
-#   d_token = 32L
-# )
+  attention_n_heads = 4,
+  attention_dropout = 0.1,
+  ffn_d_hidden = 100,
+  ffn_dropout = 0.1,
+  ffn_activation = nn_reglu,
+  residual_dropout = 0.0,
+  prenormalization = TRUE,
+  is_first_layer = TRUE,
+  attention_initialization = "kaiming",
+  ffn_normalization = nn_layer_norm,
+  attention_normalization = nn_layer_norm,
+  query_idx = NULL,
+  attention_bias = TRUE,
+  ffn_bias_first = TRUE,
+  ffn_bias_second = TRUE,
+  # training
+  epochs = 100L,
+  batch_size = 32L,
+  n_blocks = 3L,
+  d_token = 32L
+)
 glrn_ft_transformer = as_learner(po("imputesample") %>>% lrn_ft_transformer)
 
 learners = list(glrn_xgboost, glrn_ft_transformer)

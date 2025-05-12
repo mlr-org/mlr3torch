@@ -11,8 +11,7 @@
 #' Feature-Tokenizer Transformer for tabular data that can either work on [`lazy_tensor`] inputs
 #' or on standard tabular features.
 #' 
-#' Some differences from the paper implementation: no attention compression, no prenormalization in the first layer. 
-#' TODO: ensure a comprehensive list of differences.
+#' Some differences from the paper implementation: no attention compression, no prenormalization in the first layer.
 #'
 #' @section Parameters:
 #' Parameters from [`LearnerTorch`], as well as:
