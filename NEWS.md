@@ -16,6 +16,8 @@
 * feat: TabResNet learner now supports lazy tensors.
 * feat: The `LearnerTorch` base class now supports the private method `$.ingress_tokens(task, param_vals)`
   for generating the `torch::dataset`.
+* fix: `NA` is now a valid shape for lazy tensors
+* feat: lazy tensors of length 0 can now be materialized.
 * feat: `nn("block")` (which allows to repeat the same network segment multiple
   times) now has an extra argument `trafo`, which allows to modify the
   parameter values per layer.

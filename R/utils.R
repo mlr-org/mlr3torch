@@ -190,7 +190,10 @@ list_to_batch = function(tensors) {
 }
 
 auto_cache_lazy_tensors = function(lts) {
-  any(duplicated(map_chr(lts, function(x) dd(x)$dataset_hash)))
+  if (length(lts) <= 1L) {
+    return(FALSE)
+  }
+  anyDuplicated(unlist(map_if(lts, function(x) length(x) > 0, function(x) dd(x)$dataset_hash))) > 0L
 }
 
 #' Replace the head of a network
