@@ -181,7 +181,7 @@ materialize_internal = function(x, device = "cpu", cache = NULL, rbind) {
   data_descriptor = dd(x)
   ds = data_descriptor$dataset
   graph = data_descriptor$graph
-  varying_shapes = some(data_descriptor$dataset_shapes, is.null)
+  varying_shapes = is.null(data_descriptor$dataset$.getbatch) && some(data_descriptor$dataset_shapes, function(x) is.null(x) || anyNA(x[-1]))
 
   pointer_name = paste0(data_descriptor$pointer, collapse = ".")
   if (do_caching) {
