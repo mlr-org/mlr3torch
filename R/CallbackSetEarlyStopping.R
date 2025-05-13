@@ -22,7 +22,7 @@ CallbackSetEarlyStopping = R6Class("CallbackSetEarlyStopping",
       improvement = multiplier * (self$ctx$last_scores_valid[[1L]] - self$best_score)
 
       if (is.na(improvement)) {
-        lg$warn("Learner %s in epoch %s: Difference between subsequent validation performances is NA",
+        warningf("Learner %s in epoch %s: Difference between subsequent validation performances is NA",
           self$ctx$learner$id, self$ctx$epoch)
         return(NULL)
       }
