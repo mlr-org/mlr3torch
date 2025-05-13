@@ -4,12 +4,12 @@ devtools::load_all()
 library(mlr3learners)
 
 library(here)
-
+library(mlr3oml)
 task_pima = tsk("pima")
 task_sonar = tsk("sonar")
 task_spam = tsk("spam")
 tasks = list(task_pima, task_sonar, task_spam)
-# task_mammographic_mass = as_task(otsk(id = 45557))
+task_mammographic_mass = as_task(otsk(id = 45557))
 # tasks = list(task_breast_cancer, task_cali_housing, task_mammographic_mass)
 
 glrn_xgboost = as_learner(po("imputesample") %>>% lrn("classif.xgboost"))
@@ -70,7 +70,9 @@ time = bench::system_time(
   bmr <- benchmark(design)
 )
 
-fwrite(time, here("attic", "bmr_time.csv"))
+print(time)
+
+# fwrite(time, here("attic", "bmr_time.csv"))
 
 print(as.data.table(bmr))
 saveRDS(bmr, here("attic", "bmr.RDS"))

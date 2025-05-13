@@ -20,7 +20,7 @@
 #' * `d_token` :: `integer(1)`\cr
 #'   The dimension of the embedding.
 #' * `cardinalities` :: `integer(1)`\cr
-#'   The number of categories for each feature.
+#'   The number of categories for each categorical feature.
 #' * `init_token` :: `character(1)`\cr
 #'   The initialization method for the embedding weights. Either "uniform" or "normal".
 #' * `ingress_tokens` :: `numeric(1)`\cr
@@ -49,9 +49,9 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
       })
 
       private$.param_set_base = ps(
-        n_blocks = p_int(lower = 0, default = 3, tags = "train"),
+        n_blocks = p_int(lower = 0L, default = 3L, tags = "train"),
         d_token = p_int(lower = 1L, default = 192L, tags = "train"),
-        cardinalities = p_int(lower = 1L, tags = "train"),
+        cardinalities = p_uty(custom_check = function(input) check_integerish(input, null.ok = TRUE), tags = "train"),
         init_token = p_fct(init = "uniform", levels = c("uniform", "normal"), tags = "train"),
         ingress_tokens = p_uty(tags = "train", custom_check = check_ingress_tokens)
       )
