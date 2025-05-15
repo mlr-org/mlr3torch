@@ -114,8 +114,11 @@ nn_ft_transformer_block = nn_module(
     x_residual = self$start_residual_("attention", x)
 
     x_residual_arg = if (is.null(self$query_idx)) x_residual else x_residual[, self$query_idx, drop = FALSE]
-    x_residual = self$attention(x_residual_arg,
-                                      x_residual)[[1L]]
+    x_residual = self$attention(
+      query = x_residual_arg,
+      key = x_residual,
+      value = x_residual
+    )[[1L]]
     x = if (!is.null(self$query_idx)) x[, self$query_idx, drop = FALSE] else x
     x = self$end_residual_("attention", x, x_residual)
 
