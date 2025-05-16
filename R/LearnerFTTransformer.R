@@ -1,4 +1,3 @@
-
 #' @title FT-Transformer
 #' @templateVar name ft_transformer
 #' @templateVar task_types classif, regr
@@ -11,10 +10,12 @@
 #' Feature-Tokenizer Transformer for tabular data that can either work on [`lazy_tensor`] inputs
 #' or on standard tabular features.
 #' 
+#' Defaults for `d_token`, `attention_dropout`, and `ffn_dropout` are set as a function of `n_blocks` using the heuristic defined in the paper.
+#' 
 #' Some differences from the paper implementation: no attention compression, no prenormalization in the first layer.
 #'
 #' @section Parameters:
-#' Parameters from [`LearnerTorch`], as well as:
+#' Parameters from [`LearnerTorch`] and [`PipeOpTorchFTTransformerBlock`], as well as:
 #' * `n_blocks` :: `integer(1)`\cr
 #'   The number of transformer blocks.
 #' * `d_token` :: `integer(1)`\cr
@@ -22,10 +23,11 @@
 #' * `cardinalities` :: `integer(1)`\cr
 #'   The number of categories for each categorical feature.
 #' * `init_token` :: `character(1)`\cr
-#'   The initialization method for the embedding weights. Either "uniform" or "normal".
-#' * `ingress_tokens` :: `numeric(1)`\cr
-#'   A list of `TorchIngressToken`s.
-#'  
+#'   The initialization method for the embedding weights. Either "uniform" or "normal". "Uniform" by default.
+#' * `ingress_tokens` :: named `list()` or `NULL`\cr
+#'   A list of `TorchIngressToken`s. Only required when using lazy tensor features.
+#'   The names are either "num.input" or "categ.input", and the values are lazy tensor ingress tokens constructed by, e.g. `ingress_ltnsr(num_feat_name)`.
+#'
 #' @references
 #' `r format_bib("gorishniy2021revisiting")`
 #' @export
@@ -170,15 +172,15 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
         null_block_dependent_params = block_dependent_params[null_block_dependent_params_idx]
 
         map(null_block_dependent_params, function(param_name) {
-          private$.block$param_set$values[[param_name]] = block_dependent_defaults[[param_name]][param_vals$n_blocks]
+          param_vals[[param_name]] = block_dependent_defaults[[param_name]][param_vals$n_blocks]
         })
       }
 
       if (is.null(param_vals$ffn_d_hidden)) {
         if (class(param_vals$ffn_activation)[1] %in% c("nn_reglu", "nn_geglu")) {
-          private$.block$param_set$values$ffn_d_hidden = 4 / 3
+          param_vals$ffn_d_hidden = 4 / 3
         } else {
-          private$.block$param_set$values$ffn_d_hidden = 2.0
+          param_vals$ffn_d_hidden = 2.0
         }
       }
 

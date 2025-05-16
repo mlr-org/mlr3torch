@@ -147,7 +147,7 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
     initialize = function(id = "nn_ft_transformer_block", param_vals = list()) {
       param_set = ps(
         attention_n_heads = p_int(lower = 1L, init = 8L, tags = "train"),
-        attention_dropout = p_dbl(lower = 0, upper = 1, default = 0.2, tags = "train"),
+        attention_dropout = p_dbl(lower = 0, upper = 1, tags = "train"),
         attention_initialization = p_fct(levels = c("kaiming", "xavier"), init = "kaiming", tags = "train"),
         attention_normalization = p_uty(init = nn_layer_norm, tags = "train"),
         ffn_d_hidden = p_dbl(lower = 1, tags = "train"),
@@ -192,6 +192,8 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
 )
 mlr3pipelines::mlr_pipeops$add("nn_ft_transformer_block", PipeOpTorchFTTransformerBlock)
 
+# TODO: should we factor this out? This looks like a standard feed-forward network 
+# where the size of the hidden layer is affected by the choice of activation
 nn_ft_ffn = nn_module(
   "nn_ft_ffn",
   initialize = function(d_token, d_hidden, bias_first, bias_second, dropout, activation) {
