@@ -10,8 +10,6 @@
 #' Feature-Tokenizer Transformer for tabular data that can either work on [`lazy_tensor`] inputs
 #' or on standard tabular features.
 #'
-#' Defaults for `d_token`, `attention_dropout`, and `ffn_dropout` are set as a function of `n_blocks` using the heuristic defined in the paper.
-#'
 #' Some differences from the paper implementation: no attention compression, no prenormalization in the first layer.
 #'
 #' @section Parameters:
