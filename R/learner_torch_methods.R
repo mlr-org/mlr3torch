@@ -339,13 +339,16 @@ measure_prediction = function(pred_tensor, measures, task, row_ids, prediction_e
   }
 
   prediction = prediction_encoder(predict_tensor = pred_tensor, task = task)
-  prediction = as_prediction_data(prediction, task = task, check = TRUE, row_ids = row_ids)
-  prediction = as_prediction(prediction, task = task)
+  prediction = as_prediction_data(prediction, task = task, check = FALSE, row_ids = row_ids)
+  prediction = as_prediction(prediction, task = task, check = FALSE)
 
   lapply(
     measures,
     function(measure) {
-      measure$score(prediction, task = task, train_set = task$row_roles$use)
+      tryCatch(
+        measure$score(prediction, task = task, train_set = task$row_roles$use),
+        error = function(e) NaN
+      )
     }
   )
 }
