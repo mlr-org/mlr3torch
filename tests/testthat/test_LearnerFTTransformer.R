@@ -75,8 +75,8 @@ make_ft_transformer_default = function(task_type, ...) {
   params = list(
      epochs = 1L,
      batch_size = 32L,
-     n_blocks = 3L,
-     d_token = 32L
+     n_blocks = 4L,
+     d_token = 192L
   )
   params = insert_named(params, list(...))
   invoke(lrn, .key = sprintf("%s.ft_transformer", task_type), .args = params)
@@ -91,4 +91,12 @@ test_that("defaults work", {
   lrn$train(task)
 
   expect_learner(lrn)
+
+  # test the values of the learner are properly set based on the herusitics
+  # how can we do this when we specifically did not modify the param_set of the learner?
+  # furthermore d_token is a required parameter for the tokenizer, so I don't think
+  # the heuristically applied default works anyway.
+  # expect_equal(lrn$param_set$values$d_token, 256L)
+  # expect_equal(lrn$param_set$values$attention_dropout, 0.25)
+  # expect_equal(lrn$param_set$values$ffn_dropout, 0.15)
 })

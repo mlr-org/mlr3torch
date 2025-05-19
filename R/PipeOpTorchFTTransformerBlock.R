@@ -22,24 +22,28 @@
 #' @param residual_dropout (`numeric(1)`)\cr
 #'   Dropout probability for residual connections.
 #' @param prenormalization (`logical(1)`)\cr
-#'   Whether to apply normalization before attention and FFN (TRUE) or after (FALSE).
+#'   Whether to apply normalization before attention and FFN (`TRUE`) or after (`TRUE`).
 #' @param is_first_layer (`logical(1)`)\cr
-#'   Whether this is the first layer in the transformer stack. Default value is FALSE.
-#' @param attention_normalization (`function`)\cr
-#'   Normalization function to use for attention. Default value is `nn_layer_norm`.
-#' @param ffn_normalization (`function`)\cr
-#'   Normalization function to use for the feed-forward network. Default value is `nn_layer_norm`.
+#'   Whether this is the first layer in the transformer stack. Default value is `FALSE`.
+#' @param attention_normalization (`nn_module`)\cr
+#'   Normalization module to use for attention. Default value is `nn_layer_norm`.
+#' @param ffn_normalization (`nn_module`)\cr
+#'   Normalization module to use for the feed-forward network. Default value is `nn_layer_norm`.
 #' @param query_idx (`integer()` or `NULL`)\cr
-#'   Indices to select for the query.
+#'   Indices of the tensor to apply attention to. Should not be set manually.
+#'   If NULL, then attention is applied to the entire tensor.
+#'   In the last block in a stack of transformers, this is set to `-1`
+#'   so that attention is applied only to the embedding of the CLS token.
 #' @param attention_bias (`logical(1)`)\cr
-#'   Whether attention is biased. Default is TRUE.
+#'   Whether attention has a bias. Default is `TRUE`
 #' @param ffn_bias_first (`logical(1)`)\cr
-#'   Whether the first layer in the FFN has a bias. Default is TRUE.
+#'   Whether the first layer in the FFN has a bias. Default is `TRUE`
 #' @param ffn_bias_second (`logical(1)`)\cr
-#'   Whether the second layer in the FFN has a bias. Default is TRUE.
+#'   Whether the second layer in the FFN has a bias. Default is `TRUE`
 #'
 #' @references
 #' `r format_bib("devlin2018bert")`
+#' `r format_bib("gorishniy2021revisiting")`
 #'
 #' @export
 nn_ft_transformer_block = nn_module(
@@ -147,18 +151,16 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
     initialize = function(id = "nn_ft_transformer_block", param_vals = list()) {
       param_set = ps(
         attention_n_heads = p_int(lower = 1L, init = 8L, tags = "train"),
-        attention_dropout = p_dbl(lower = 0, upper = 1, tags = "train"),
+        attention_dropout = p_dbl(lower = 0, upper = 1, init = 0.2, tags = "train"),
         attention_initialization = p_fct(levels = c("kaiming", "xavier"), init = "kaiming", tags = "train"),
-        attention_normalization = p_uty(init = nn_layer_norm, tags = "train"),
-        ffn_d_hidden = p_dbl(lower = 1, tags = "train"),
-        ffn_dropout = p_dbl(lower = 0, upper = 1, tags = "train"),
+        attention_normalization = p_uty(init = nn_layer_norm, custom_check = check_nn_module_generator, tags = "train"),
+        ffn_d_hidden = p_dbl(lower = 1, init = 4 / 3, tags = "train"),
+        ffn_dropout = p_dbl(lower = 0, upper = 1, init = 0.1, tags = "train"),
         ffn_activation = p_uty(init = nn_reglu, custom_check = check_nn_module_generator, tags = "train"),
         ffn_normalization = p_uty(init = nn_layer_norm, custom_check = check_nn_module_generator, tags = "train"),
         residual_dropout = p_dbl(lower = 0, upper = 1, init = 0.0, tags = "train"),
         prenormalization = p_lgl(init = TRUE, tags = "train"),
         is_first_layer = p_lgl(init = FALSE, tags = "train"),
-        # query_idx = p_int(special_vals = list(NULL), default = NULL, tags = "train"),
-        # query_idx = p_uty(custom_check = function(input) check_integerish(input, null.ok = TRUE), tags = "train"),
         query_idx = p_uty(init = NULL, custom_check = function(input) check_integerish(input, null.ok = TRUE), tags = "train"),
         attention_bias = p_lgl(init = TRUE, tags = "train"),
         ffn_bias_first = p_lgl(init = TRUE, tags = "train"),
@@ -192,7 +194,7 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
 )
 mlr3pipelines::mlr_pipeops$add("nn_ft_transformer_block", PipeOpTorchFTTransformerBlock)
 
-# TODO: should we factor this out? This looks like a standard feed-forward network 
+# TODO: should we factor this out? This looks like a standard feed-forward network
 # where the size of the hidden layer is affected by the choice of activation
 nn_ft_ffn = nn_module(
   "nn_ft_ffn",

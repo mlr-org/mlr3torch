@@ -9,9 +9,9 @@
 #' @description
 #' Feature-Tokenizer Transformer for tabular data that can either work on [`lazy_tensor`] inputs
 #' or on standard tabular features.
-#' 
+#'
 #' Defaults for `d_token`, `attention_dropout`, and `ffn_dropout` are set as a function of `n_blocks` using the heuristic defined in the paper.
-#' 
+#'
 #' Some differences from the paper implementation: no attention compression, no prenormalization in the first layer.
 #'
 #' @section Parameters:
@@ -51,7 +51,7 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
       })
 
       private$.param_set_base = ps(
-        n_blocks = p_int(lower = 0, tags = c("train", "required")),
+        n_blocks = p_int(lower = 0L, default = 3L, tags = "train"),
         d_token = p_int(lower = 1L, default = 192L, tags = "train"),
         cardinalities = p_uty(custom_check = function(input) check_integerish(input, null.ok = TRUE), tags = "train"),
         init_token = p_fct(init = "uniform", levels = c("uniform", "normal"), tags = "train"),
@@ -119,6 +119,7 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
     .network = function(task, param_vals) {
       its = private$.ingress_tokens(task, param_vals)
       mds = list()
+
       path_num = if (!is.null(its$num.input)) {
         mds$tokenizer_num.input = ModelDescriptor(
           po("nop", id = "num"),
@@ -156,32 +157,6 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
       } else {
         gunion(input_paths) %>>%
           nn("merge_cat", param_vals = list(dim = 2))
-      }
-
-      # heuristically defined default parameters that depend on the number of blocks
-      block_dependent_params = c("d_token", "attention_dropout", "ffn_dropout")
-      block_dependent_defaults = list(
-        d_token = c(96, 128, 192, 256, 320, 384),
-        attention_dropout = c(0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
-        ffn_dropout = c(0.0, 0.05, 0.1, 0.15, 0.2, 0.25)
-      )
-      if (param_vals$n_blocks >= 1 && param_vals$n_blocks <= 6) {
-        null_block_dependent_params_idx = map_lgl(block_dependent_params, function(param_name) {
-          is.null(param_vals[[param_name]])
-        })
-        null_block_dependent_params = block_dependent_params[null_block_dependent_params_idx]
-
-        map(null_block_dependent_params, function(param_name) {
-          param_vals[[param_name]] = block_dependent_defaults[[param_name]][param_vals$n_blocks]
-        })
-      }
-
-      if (is.null(param_vals$ffn_d_hidden)) {
-        if (class(param_vals$ffn_activation)[1] %in% c("nn_reglu", "nn_geglu")) {
-          param_vals$ffn_d_hidden = 4 / 3
-        } else {
-          param_vals$ffn_d_hidden = 2.0
-        }
       }
 
       blocks = map(seq_len(param_vals$n_blocks), function(i) {
