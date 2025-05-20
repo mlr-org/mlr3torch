@@ -74,6 +74,9 @@ that don't evaluate the model.}
 \item{\code{last_loss}}{(\code{numeric(1)})\cr
 The loss from the last trainings batch.}
 
+\item{\code{y_hat}}{(\code{torch_tensor})\cr
+The model's prediction for the current batch.}
+
 \item{\code{epoch}}{(\code{integer(1)})\cr
 The current epoch.}
 

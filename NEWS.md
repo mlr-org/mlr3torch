@@ -26,6 +26,7 @@
   with which validation/training scores are logged.
 * feat: Training now does not fail anymore when encountering a missing value
   during validation but uses `NA` instead.
+* feat: The context for callbacks now includes the network prediction (`y_hat`).
 
 # mlr3torch 0.2.1
 
