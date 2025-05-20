@@ -12,7 +12,7 @@
 #'
 #' Some differences from the paper implementation: no attention compression, no prenormalization in the first layer.
 #' 
-#' It is recommended to standardize features, e.g. using `po("scale")`.
+#' It is recommended to standardize features, e.g. using `po("scale")`, especially if the training process produces `NA` predictions.
 #'
 #' @section Parameters:
 #' Parameters from [`LearnerTorch`] and [`PipeOpTorchFTTransformerBlock`], as well as:
