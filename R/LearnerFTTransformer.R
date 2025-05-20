@@ -11,6 +11,8 @@
 #' or on standard tabular features.
 #'
 #' Some differences from the paper implementation: no attention compression, no prenormalization in the first layer.
+#' 
+#' It is recommended to standardize features, e.g. using `po("scale")`.
 #'
 #' @section Parameters:
 #' Parameters from [`LearnerTorch`] and [`PipeOpTorchFTTransformerBlock`], as well as:
