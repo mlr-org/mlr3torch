@@ -24,6 +24,8 @@ test_that("assert_shape and friends", {
   expect_error(assert_shape(c(NA, 1, 2), len = 2))
   # NULL is ok even when len is specified
   expect_true(check_shape(NULL, null_ok = TRUE, len = 2))
+  # NA is valid shape
+  expect_true(check_shape(NA))
 })
 
 test_that("infer_shapes works", {

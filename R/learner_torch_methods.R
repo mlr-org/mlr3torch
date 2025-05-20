@@ -155,19 +155,19 @@ train_loop = function(ctx, cbs) {
       call("on_batch_begin")
 
       if (length(ctx$batch$x) == 1L) {
-        y_hat = ctx$network(ctx$batch$x[[1L]])
+        ctx$y_hat = ctx$network(ctx$batch$x[[1L]])
       } else {
-        y_hat = do.call(ctx$network, ctx$batch$x)
+        ctx$y_hat = do.call(ctx$network, ctx$batch$x)
       }
 
-      loss = ctx$loss_fn(y_hat, ctx$batch$y)
+      loss = ctx$loss_fn(ctx$y_hat, ctx$batch$y)
 
       loss$backward()
 
       call("on_after_backward")
 
       ctx$last_loss = loss$item()
-      predictions[[length(predictions) + 1]] = y_hat$detach()
+      predictions[[length(predictions) + 1]] = ctx$y_hat$detach()
       indices[[length(indices) + 1]] = as.integer(ctx$batch$.index$to(device = "cpu"))
       ctx$optimizer$step()
 
@@ -339,13 +339,16 @@ measure_prediction = function(pred_tensor, measures, task, row_ids, prediction_e
   }
 
   prediction = prediction_encoder(predict_tensor = pred_tensor, task = task)
-  prediction = as_prediction_data(prediction, task = task, check = TRUE, row_ids = row_ids)
-  prediction = as_prediction(prediction, task = task)
+  prediction = as_prediction_data(prediction, task = task, check = FALSE, row_ids = row_ids)
+  prediction = as_prediction(prediction, task = task, check = FALSE)
 
   lapply(
     measures,
     function(measure) {
-      measure$score(prediction, task = task, train_set = task$row_roles$use)
+      tryCatch(
+        measure$score(prediction, task = task, train_set = task$row_roles$use),
+        error = function(e) NaN
+      )
     }
   )
 }

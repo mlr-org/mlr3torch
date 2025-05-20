@@ -1013,3 +1013,31 @@ test_that("check train and predict task works", {
   l$err = TRUE
   expect_error(l$predict(task), regexp = "Prediction task 'iris' is invalid")
 })
+
+test_that("NA prediction during validation does not cause issues.", {
+  mod = nn_module("nn_test",
+    initialize = function(task) {
+      self$linear = nn_linear(task$n_features, 1L)
+    },
+    forward = function(x) {
+      if (self$training) {
+        self$linear(x)
+      } else {
+        torch_tensor(rep(NaN, nrow(x)))$reshape(c(nrow(x), 1L))
+      }
+    }
+  )
+
+  learner = lrn("regr.module", module_generator = mod, ingress_tokens = list(x = ingress_num()),
+    epochs = 1,
+    validate = 0.3,
+    batch_size = 32,
+    measures_valid = msr("regr.mse"),
+    callbacks = t_clbk("history")
+  )
+  task = tsk("mtcars")
+  learner$train(task)
+  expect_true(
+    is.na(learner$model$callbacks$history$valid.regr.mse[1L]),
+  )
+})
