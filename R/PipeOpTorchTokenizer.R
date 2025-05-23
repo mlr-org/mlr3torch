@@ -181,7 +181,17 @@ nn_tokenizer_categ = nn_module(
 #' @section nn_module:
 #' Calls [`nn_tokenizer_categ()`] when trained where the parameter `cardinalities` is inferred.
 #' The output shape is `(batch, n_features, d_token)`.
-#' @inheritSection mlr_pipeops_nn_tokenizer_num Parameters
+#' @section Parameters:
+#' * `d_token` :: `integer(1)`\cr
+#'   The dimension of the embedding.
+#' * `bias` :: `logical(1)`\cr
+#'   Whether to use a bias. Is initialized to `TRUE`.
+#' * `initialization` :: `character(1)`\cr
+#'   The initialization method for the embedding weights. Possible values are `"uniform"` (default)
+#'   and `"normal"`.
+#' * `cardinalities` :: `integer()`\cr
+#'   The number of categories for each feature.
+#'   Only needs to be provided when working with [`lazy_tensor`] inputs.
 #' @templateVar id nn_tokenizer_categ
 #' @template pipeop_torch_channels_default
 #' @templateVar param_vals d_token = 10
@@ -198,7 +208,8 @@ PipeOpTorchTokenizerCateg = R6Class("PipeOpTorchTokenizerCateg",
       param_set = ps(
         d_token = p_int(lower = 1, tags = c("train", "required")),
         bias = p_lgl(init = TRUE, tags = "train"),
-        initialization = p_fct(init = "uniform", levels = c("uniform", "normal"), tags = "train")
+        initialization = p_fct(init = "uniform", levels = c("uniform", "normal"), tags = "train"),
+        cardinalities = p_int(lower = 1, tags = "train")
       )
       super$initialize(
         id = id,
@@ -210,6 +221,15 @@ PipeOpTorchTokenizerCateg = R6Class("PipeOpTorchTokenizerCateg",
   ),
   private = list(
     .shape_dependent_params = function(shapes_in, param_vals, task) {
+      if ("lazy_tensor" %in% task$feature_types$type) {
+        if (!single_lazy_tensor(task)) {
+          stopf("Categorical tokenizer can only work with a single lazy tensor, but got %i", sum(task$feature_types$type == "lazy_tensor"))
+        }
+        if (is.null(param_vals$cardinalities)) {
+          stopf("Categorical tokenizer received a lazy tensor input, but no parameter 'cardinalities' was specified.")
+        }
+        return(param_vals)
+      }
       c(param_vals, list(cardinalities = lengths(task$levels(task$feature_names))))
     },
     .shapes_out = function(shapes_in, param_vals, task) {

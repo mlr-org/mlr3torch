@@ -4,10 +4,6 @@ LearnerTorchTest1 = R6Class("LearnerTorchTest1",
   inherit = LearnerTorch,
   public = list(
     initialize = function(task_type, optimizer = NULL, loss = NULL, callbacks = list()) {
-      properties = switch(task_type,
-        regr = c(),
-        classif = c("multiclass", "twoclass")
-      )
       param_set = ps(bias = p_lgl(tags = c("required", "train")))
       param_set$values = list(bias = FALSE)
       super$initialize(
@@ -16,7 +12,6 @@ LearnerTorchTest1 = R6Class("LearnerTorchTest1",
         label = "Test1 Learner",
         feature_types = c("numeric", "integer"),
         param_set = param_set,
-        properties = properties,
         optimizer = optimizer,
         loss = loss,
         man = "mlr3torch::mlr_learners.test1"

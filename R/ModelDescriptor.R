@@ -46,6 +46,7 @@
 #' @export
 ModelDescriptor = function(graph, ingress, task, optimizer = NULL, loss = NULL, callbacks = NULL, pointer = NULL,
   pointer_shape = NULL) {
+  graph = as_graph(graph)
   assert_r6(graph, "Graph")
   innames = graph$input$name  # graph$input$name access is slow
 

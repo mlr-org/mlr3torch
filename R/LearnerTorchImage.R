@@ -17,6 +17,8 @@
 #' @template param_properties
 #' @template param_label
 #' @template param_predict_types
+#' @param jittable (`logical(1)`)\cr
+#'   Whether the model can be jit-traced.
 #'
 #' @section Parameters:
 #' Parameters include those inherited from [`LearnerTorch`] and the `param_set` construction argument.
@@ -31,25 +33,20 @@ LearnerTorchImage = R6Class("LearnerTorchImage",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id, task_type, param_set = ps(), label, optimizer = NULL, loss = NULL,
-      callbacks = list(), packages, man, properties = NULL,
-      predict_types = NULL) {
-      properties = properties %??% switch(task_type,
-        regr = c(),
-        classif = c("twoclass", "multiclass")
-      )
+      callbacks = list(), packages, man, properties = NULL, predict_types = NULL, jittable = FALSE) {
       super$initialize(
         id = id,
         task_type = task_type,
         label = label,
         optimizer = optimizer,
-        properties = properties,
         loss = loss,
         param_set = param_set,
         packages = packages,
         callbacks = callbacks,
         predict_types = predict_types,
         feature_types = "lazy_tensor",
-        man = man
+        man = man,
+        jittable = jittable
       )
     }
   ),

@@ -14,17 +14,6 @@ Calls \code{\link[=nn_tokenizer_categ]{nn_tokenizer_categ()}} when trained where
 The output shape is \verb{(batch, n_features, d_token)}.
 }
 
-\section{Input and Output Channels}{
-
-One input channel called \code{"input"} and one output channel called \code{"output"}.
-For an explanation see \code{\link{PipeOpTorch}}.
-}
-
-\section{State}{
-
-The state is the value calculated by the public method \verb{$shapes_out()}.
-}
-
 \section{Parameters}{
 
 \itemize{
@@ -35,7 +24,21 @@ Whether to use a bias. Is initialized to \code{TRUE}.
 \item \code{initialization} :: \code{character(1)}\cr
 The initialization method for the embedding weights. Possible values are \code{"uniform"} (default)
 and \code{"normal"}.
+\item \code{cardinalities} :: \code{integer()}\cr
+The number of categories for each feature.
+Only needs to be provided when working with \code{\link{lazy_tensor}} inputs.
 }
+}
+
+\section{Input and Output Channels}{
+
+One input channel called \code{"input"} and one output channel called \code{"output"}.
+For an explanation see \code{\link{PipeOpTorch}}.
+}
+
+\section{State}{
+
+The state is the value calculated by the public method \verb{$shapes_out()}.
 }
 
 \examples{
@@ -70,6 +73,7 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_elu}},
 \code{\link{mlr_pipeops_nn_flatten}},
 \code{\link{mlr_pipeops_nn_ft_cls}},
+\code{\link{mlr_pipeops_nn_ft_transformer_block}},
 \code{\link{mlr_pipeops_nn_geglu}},
 \code{\link{mlr_pipeops_nn_gelu}},
 \code{\link{mlr_pipeops_nn_glu}},
