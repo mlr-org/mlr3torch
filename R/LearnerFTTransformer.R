@@ -14,7 +14,8 @@
 #' 
 #' It is recommended to standardize features, e.g. using `po("scale")`, especially if the training process produces `NA` predictions.
 #' 
-#' If training is unstable, consider using a different optimizer (Adam seems to be more stable), reducing the learning rate, or using a learning rate scheduler (see [`CallbackSetLRScheduler`] for options).
+#' If training is unstable, consider using a different optimizer (Adam seems to be more stable), reducing the learning rate,
+#' or using a learning rate scheduler (see [`CallbackSetLRScheduler`] for options).
 #'
 #' @section Parameters:
 #' Parameters from [`LearnerTorch`] and [`PipeOpTorchFTTransformerBlock`], as well as:
