@@ -28,14 +28,15 @@ CallbackSetTB = R6Class("CallbackSetTB",
         dir.create(path, recursive = TRUE)
       }
       self$log_train_loss = assert_flag(log_train_loss)
+      if (self$log_train_loss) {
+        self$on_batch_end = function() {
+          private$.log_train_loss()
+        }
+      }
     },
     #' @description
     #' Logs the training loss, training measures, and validation measures as TensorBoard events.
     on_epoch_end = function() {
-      if (self$log_train_loss) {
-        private$.log_train_loss()
-      }
-
       if (length(self$ctx$last_scores_train)) {
         walk(names(self$ctx$measures_train), private$.log_train_score)
       }
