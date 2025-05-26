@@ -241,14 +241,14 @@ torch_network_predict_valid = function(ctx, callback_receiver = function(step_na
   one_arg = has_one_arg(network)
   predictions = vector("list", length = length(loader))
   valid_iterator = dataloader_make_iter(loader)
-  ctx$step = 0L
-  while (ctx$step < length(loader)) {
-    ctx$step = ctx$step + 1L
+  ctx$step_valid = 0L
+  while (ctx$step_valid < length(loader)) {
+    ctx$step_valid = ctx$step_valid + 1L
     ctx$batch = dataloader_next(valid_iterator)
     ctx$batch$x = lapply(ctx$batch$x, function(x) x$to(device = ctx$device))
 
     callback_receiver("on_batch_valid_begin")
-    predictions[[ctx$step]] = if (one_arg) {
+    predictions[[ctx$step_valid]] = if (one_arg) {
       with_no_grad(network$forward(ctx$batch$x[[1L]]))
     } else {
       with_no_grad(invoke(network$forward, .args = ctx$batch$x))
