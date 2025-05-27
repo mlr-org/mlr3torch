@@ -49,37 +49,43 @@ Activation function for the feed-forward network. Default value is \code{nn_regl
 Dropout probability for residual connections.}
 
 \item{prenormalization}{(\code{logical(1)})\cr
-Whether to apply normalization before attention and FFN (TRUE) or after (FALSE).}
+Whether to apply normalization before attention and FFN (\code{TRUE}) or after (\code{TRUE}).}
 
 \item{is_first_layer}{(\code{logical(1)})\cr
-Whether this is the first layer in the transformer stack. Default value is FALSE.}
+Whether this is the first layer in the transformer stack. Default value is \code{FALSE}.}
 
-\item{attention_normalization}{(\code{function})\cr
-Normalization function to use for attention. Default value is \code{nn_layer_norm}.}
+\item{attention_normalization}{(\code{nn_module})\cr
+Normalization module to use for attention. Default value is \code{nn_layer_norm}.}
 
-\item{ffn_normalization}{(\code{function})\cr
-Normalization function to use for the feed-forward network. Default value is \code{nn_layer_norm}.}
+\item{ffn_normalization}{(\code{nn_module})\cr
+Normalization module to use for the feed-forward network. Default value is \code{nn_layer_norm}.}
 
 \item{query_idx}{(\code{integer()} or \code{NULL})\cr
-Indices to select for the query.}
+Indices of the tensor to apply attention to. Should not be set manually.
+If NULL, then attention is applied to the entire tensor.
+In the last block in a stack of transformers, this is set to \code{-1}
+so that attention is applied only to the embedding of the CLS token.}
 
 \item{attention_bias}{(\code{logical(1)})\cr
-Whether attention is biased. Default is TRUE.}
+Whether attention has a bias. Default is \code{TRUE}}
 
 \item{ffn_bias_first}{(\code{logical(1)})\cr
-Whether the first layer in the FFN has a bias. Default is TRUE.}
+Whether the first layer in the FFN has a bias. Default is \code{TRUE}}
 
 \item{ffn_bias_second}{(\code{logical(1)})\cr
-Whether the second layer in the FFN has a bias. Default is TRUE.}
+Whether the second layer in the FFN has a bias. Default is \code{TRUE}}
 }
 \description{
-A transformer block, consisting of a multi-head self-attention mechanism followed by a feed-forward
+A transformer block consisting of a multi-head self-attention mechanism followed by a feed-forward
 network.
 
-This is used in the \link{LearnerFTTransformer}.
+This is used in \code{\link{LearnerFTTransformer}}.
 }
 \references{
 Devlin, Jacob, Chang, Ming-Wei, Lee, Kenton, Toutanova, Kristina (2018).
 \dQuote{Bert: Pre-training of deep bidirectional transformers for language understanding.}
 \emph{arXiv preprint arXiv:1810.04805}.
+Gorishniy Y, Rubachev I, Khrulkov V, Babenko A (2021).
+\dQuote{Revisiting Deep Learning  for Tabular Data.}
+\emph{arXiv}, \bold{2106.11959}.
 }

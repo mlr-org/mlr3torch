@@ -192,7 +192,9 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
     }
   )
 )
-mlr3pipelines::mlr_pipeops$add("nn_ft_transformer_block", PipeOpTorchFTTransformerBlock)
+
+#' @include aaa.R
+register_po("nn_ft_transformer_block", PipeOpTorchFTTransformerBlock)
 
 # TODO: should we factor this out? This looks like a standard feed-forward network
 # where the size of the hidden layer is affected by the choice of activation

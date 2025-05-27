@@ -1,7 +1,7 @@
 #' @title FT-Transformer
 #' @templateVar name ft_transformer
 #' @templateVar task_types classif, regr
-#' @templateVar param_vals n_blocks = 2, d_block = 10, d_hidden = 20, dropout1 = 0.3, dropout2 = 0.3
+#' @templateVar param_vals n_blocks = 2, d_token = 32
 #' @template params_learner
 #' @template learner
 #' @template learner_example
@@ -34,7 +34,7 @@
 #' @references
 #' `r format_bib("gorishniy2021revisiting")`
 #' @export
-LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
+LearnerFTTransformer = R6Class("LearnerFTTransformer",
   inherit = LearnerTorch,
   public = list(
     #' @description
@@ -196,5 +196,5 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
   )
 )
 
-register_learner("regr.ft_transformer", LearnerTorchFTTransformer)
-register_learner("classif.ft_transformer", LearnerTorchFTTransformer)
+register_learner("regr.ft_transformer", LearnerFTTransformer)
+register_learner("classif.ft_transformer", LearnerFTTransformer)

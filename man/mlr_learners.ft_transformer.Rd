@@ -2,13 +2,18 @@
 % Please edit documentation in R/LearnerFTTransformer.R
 \name{mlr_learners.ft_transformer}
 \alias{mlr_learners.ft_transformer}
-\alias{LearnerTorchFTTransformer}
+\alias{LearnerFTTransformer}
 \title{FT-Transformer}
 \description{
 Feature-Tokenizer Transformer for tabular data that can either work on \code{\link{lazy_tensor}} inputs
 or on standard tabular features.
 
-Some differences from the paper implementation: no attention compression, no prenormalization in the first layer.
+Some differences from the paper implementation: no attention compression, no option to have prenormalization in the first layer.
+
+It is recommended to standardize features, e.g. using \code{po("scale")}, especially if the training process produces \code{NA} predictions.
+
+If training is unstable, consider using a different optimizer (Adam seems to be more stable), reducing the learning rate,
+or using a learning rate scheduler (see \code{\link{CallbackSetLRScheduler}} for options).
 }
 \section{Dictionary}{
 
@@ -35,18 +40,19 @@ lrn("regr.ft_transformer", ...)
 
 \section{Parameters}{
 
-Parameters from \code{\link{LearnerTorch}}, as well as:
+Parameters from \code{\link{LearnerTorch}} and \code{\link{PipeOpTorchFTTransformerBlock}}, as well as:
 \itemize{
 \item \code{n_blocks} :: \code{integer(1)}\cr
 The number of transformer blocks.
 \item \code{d_token} :: \code{integer(1)}\cr
 The dimension of the embedding.
 \item \code{cardinalities} :: \code{integer(1)}\cr
-The number of categories for each feature.
+The number of categories for each categorical feature.
 \item \code{init_token} :: \code{character(1)}\cr
-The initialization method for the embedding weights. Either "uniform" or "normal".
-\item \code{ingress_tokens} :: \code{numeric(1)}\cr
-A list of \code{TorchIngressToken}s.
+The initialization method for the embedding weights. Either "uniform" or "normal". "Uniform" by default.
+\item \code{ingress_tokens} :: named \code{list()} or \code{NULL}\cr
+A list of \code{TorchIngressToken}s. Only required when using lazy tensor features.
+The names are either "num.input" or "categ.input", and the values are lazy tensor ingress tokens constructed by, e.g. \code{ingress_ltnsr(num_feat_name)}.
 }
 }
 
@@ -56,7 +62,7 @@ A list of \code{TorchIngressToken}s.
 learner = lrn("classif.ft_transformer")
 learner$param_set$set_values(
   epochs = 1, batch_size = 16, device = "cpu",
-  n_blocks = 2, d_block = 10, d_hidden = 20, dropout1 = 0.3, dropout2 = 0.3
+  n_blocks = 2, d_token = 32
 )
 
 # Define a Task
@@ -92,13 +98,13 @@ Other Learner:
 }
 \concept{Learner}
 \section{Super classes}{
-\code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3torch:LearnerTorch]{mlr3torch::LearnerTorch}} -> \code{LearnerTorchFTTransformer}
+\code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3torch:LearnerTorch]{mlr3torch::LearnerTorch}} -> \code{LearnerFTTransformer}
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-LearnerTorchFTTransformer-new}{\code{LearnerTorchFTTransformer$new()}}
-\item \href{#method-LearnerTorchFTTransformer-clone}{\code{LearnerTorchFTTransformer$clone()}}
+\item \href{#method-LearnerFTTransformer-new}{\code{LearnerFTTransformer$new()}}
+\item \href{#method-LearnerFTTransformer-clone}{\code{LearnerFTTransformer$clone()}}
 }
 }
 \if{html}{\out{
@@ -120,12 +126,12 @@ Other Learner:
 </details>
 }}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-LearnerTorchFTTransformer-new"></a>}}
-\if{latex}{\out{\hypertarget{method-LearnerTorchFTTransformer-new}{}}}
+\if{html}{\out{<a id="method-LearnerFTTransformer-new"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerFTTransformer-new}{}}}
 \subsection{Method \code{new()}}{
 Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LearnerTorchFTTransformer$new(
+\if{html}{\out{<div class="r">}}\preformatted{LearnerFTTransformer$new(
   task_type,
   optimizer = NULL,
   loss = NULL,
@@ -154,12 +160,12 @@ The callbacks. Must have unique ids.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-LearnerTorchFTTransformer-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-LearnerTorchFTTransformer-clone}{}}}
+\if{html}{\out{<a id="method-LearnerFTTransformer-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerFTTransformer-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LearnerTorchFTTransformer$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LearnerFTTransformer$clone(deep = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
