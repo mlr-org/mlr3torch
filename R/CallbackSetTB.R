@@ -50,16 +50,16 @@ CallbackSetTB = R6Class("CallbackSetTB",
       event_list = set_names(list(score, self$ctx$epoch), c(paste0(prefix, measure_name), "step"))
 
       tfevents::with_logdir(self$path, {
-        do.call(tfevents::log_event, event_list)
+        do.call(tfevents::log_event, set_names(list(event_list), prefix))
       })
     },
     .log_valid_score = function(measure_name) {
       valid_score = self$ctx$last_scores_valid[[measure_name]]
-      private$.log_score("valid.", measure_name, valid_score)
+      private$.log_score("valid", measure_name, valid_score)
     },
     .log_train_score = function(measure_name) {
       train_score = self$ctx$last_scores_train[[measure_name]]
-      private$.log_score("train.", measure_name, train_score)
+      private$.log_score("train", measure_name, train_score)
     },
     .log_train_loss = function() {
       tfevents::with_logdir(self$path, {
