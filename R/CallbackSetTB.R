@@ -63,7 +63,7 @@ CallbackSetTB = R6Class("CallbackSetTB",
     },
     .log_train_loss = function() {
       tfevents::with_logdir(self$path, {
-        tfevents::log_event(train.loss = self$ctx$last_loss)
+        tfevents::log_event(loss = self$ctx$last_loss)
       })
     }
   )
