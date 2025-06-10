@@ -17,8 +17,8 @@
 #'
 #' @param .scheduler (`lr_scheduler_generator`)\cr
 #'   The `torch` scheduler generator (e.g. `torch::lr_step`).
-#' @param scheduler_step_args (`list()`) or NULL\cr
-#'   A named list of arguments taken by the scheduler's `$step()` function. As of this writing, relevant only for `lr_reduce_on_plateau`.
+#' @param step_takes_valid_metric (`logical(1)`)\cr
+#'   Whether the learning rate scheduler's `$step()` function takes the validation metric as an argument. As of this writing, `lr_reduce_on_plateau` is the only one that does this.
 #' @param ... (any)\cr
 #'   The scheduler-specific initialization arguments.
 #'
@@ -37,18 +37,28 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #' @param step_on_epoch (`logical(1)`)\cr
     #'   Whether the scheduler steps after every epoch (otherwise every batch).
-    initialize = function(.scheduler, step_on_epoch, scheduler_step_args = NULL, ...) {
+    initialize = function(.scheduler, step_on_epoch, step_takes_valid_metric, ...) {
       assert_class(.scheduler, "lr_scheduler_generator")
       assert_flag(step_on_epoch)
-      # TODO: add a more robust check for `scheduler_step_args`
-      assert_list(scheduler_step_args, null.ok = TRUE)
+      assert_flag(step_takes_valid_metric)
 
       self$scheduler_fn = .scheduler
       private$.scheduler_args = list(...)
+
+      private$.step_args = step_args
+
       if (step_on_epoch) {
-        self$on_epoch_end = function() self$scheduler$step()
+        if (step_takes_valid_metric) {
+          self$on_epoch_end = function() self$scheduler$step(self$ctx$measures_valid[[1L]])
+        } else {
+          self$on_epoch_end = function() self$scheduler$step()
+        }
       } else {
-        self$on_batch_end = function() self$scheduler$step()
+        if (step_takes_valid_metric) {
+          self$on_batch_end = function() function() self$scheduler$step(self$ctx$measures_valid[[1L]])
+        } else {
+          self$on_batch_end = function() self$scheduler$step()
+        }
       }
     },
     #' @description

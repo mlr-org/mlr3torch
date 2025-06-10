@@ -350,7 +350,7 @@ LearnerTorch = R6Class("LearnerTorch",
       self$state$internal_valid_scores
     },
     #' @field internal_tuned_values
-    #' When early stopping is activate, this returns a named list with the early-stopped epochs,
+    #' When early stopping is active, this returns a named list with the early-stopped epochs,
     #' otherwise an empty list is returned.
     #' Returns `NULL` if learner is not trained yet.
     internal_tuned_values = function() {
