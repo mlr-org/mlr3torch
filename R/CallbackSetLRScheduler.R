@@ -17,8 +17,10 @@
 #'
 #' @param .scheduler (`lr_scheduler_generator`)\cr
 #'   The `torch` scheduler generator (e.g. `torch::lr_step`).
+#' @param scheduler_step_args (`list()`) or NULL\cr
+#'   A named list of arguments taken by the scheduler's `$step()` function. As of this writing, relevant only for `lr_reduce_on_plateau`.
 #' @param ... (any)\cr
-#'   The scheduler-specific arguments
+#'   The scheduler-specific initialization arguments.
 #'
 #' @export
 CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
@@ -35,9 +37,11 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #' @param step_on_epoch (`logical(1)`)\cr
     #'   Whether the scheduler steps after every epoch (otherwise every batch).
-    initialize = function(.scheduler, step_on_epoch, ...) {
+    initialize = function(.scheduler, step_on_epoch, scheduler_step_args = NULL, ...) {
       assert_class(.scheduler, "lr_scheduler_generator")
       assert_flag(step_on_epoch)
+      # TODO: add a more robust check for `scheduler_step_args`
+      assert_list(scheduler_step_args, null.ok = TRUE)
 
       self$scheduler_fn = .scheduler
       private$.scheduler_args = list(...)
