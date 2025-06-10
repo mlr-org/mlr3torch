@@ -25,12 +25,13 @@ test_that("autotest", {
 test_that("decay works", {
   cb = t_clbk("lr_step")
   task = tsk("iris")
+
   n_epochs = 10
 
   mlp = lrn("classif.mlp",
-            callbacks = cb,
-            epochs = n_epochs, batch_size = 150, neurons = 10,
-            measures_train = msrs(c("classif.acc", "classif.ce"))
+    callbacks = cb,
+    epochs = n_epochs, batch_size = 150, neurons = 10,
+    measures_train = msrs(c("classif.acc", "classif.ce"))
   )
   gamma = 0.5
   step_size = 2
@@ -42,6 +43,43 @@ test_that("decay works", {
 
   expect_equal(mlp$model$optimizer$param_groups[[1]]$initial_lr * gamma^(n_epochs / step_size),
                mlp$model$optimizer$param_groups[[1]]$lr)
+})
+
+test_that("plateau works", {
+
+  verify_network = function(learner) {
+    tab = table(map_chr(learner$network$children, function(x) class(x)[[1L]]))
+    act = class(learner$param_set$values$activation)[[1L]]
+
+    l = length(learner$param_set$values$neurons)
+
+    expect_true(tab["nn_linear"] == l + 1)
+    if (l > 0) {
+      expect_true(tab[act] == l)
+      expect_true(tab["nn_dropout"] == l)
+    } else {
+      # only one nn linear
+      expect_true(length(tab) == 1)
+    }
+  }
+  
+  cb = t_clbk("lr_reduce_on_plateau")
+
+  task = tsk("iris")
+
+  mlp = lrn("classif.mlp",
+    callbacks = cb,
+    epochs = 10, batch_size = 150, neurons = 10,
+    measures_train = msrs(c("classif.acc", "classif.ce")),
+    measures_valid = msr(c("classif.ce")),
+    validate = 0.2
+  )
+
+  mlp$train(task)
+
+  expect_learner(mlp)
+  expect_class(mlp$network, c("nn_sequential", "nn_module"))
+  verify_network(mlp)
 })
 
 test_that("custom LR scheduler works", {
@@ -61,7 +99,7 @@ test_that("custom LR scheduler works", {
       sapply(self$optimizer$param_groups, function(x) x$lr - self$delta)
     }
   )
-  cb = as_lr_scheduler(lr_subtract, step_on_epoch = TRUE)
+  cb = as_lr_scheduler(lr_subtract, step_on_epoch = TRUE, step_takes_valid_metric = FALSE)
   expect_torch_callback(cb, check_paramset = FALSE)
 
   task = tsk("iris")

@@ -17,8 +17,6 @@
 #'
 #' @param .scheduler (`lr_scheduler_generator`)\cr
 #'   The `torch` scheduler generator (e.g. `torch::lr_step`).
-#' @param step_takes_valid_metric (`logical(1)`)\cr
-#'   Whether the learning rate scheduler's `$step()` function takes the validation metric as an argument. As of this writing, `lr_reduce_on_plateau` is the only one that does this.
 #' @param ... (any)\cr
 #'   The scheduler-specific initialization arguments.
 #'
@@ -37,6 +35,8 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #' @param step_on_epoch (`logical(1)`)\cr
     #'   Whether the scheduler steps after every epoch (otherwise every batch).
+    #' @param step_takes_valid_metric (`logical(1)`)\cr
+    #'   Whether the learning rate scheduler's `$step()` function takes the validation metric as an argument. As of this writing, `lr_reduce_on_plateau` is the only one that does this.
     initialize = function(.scheduler, step_on_epoch, step_takes_valid_metric, ...) {
       assert_class(.scheduler, "lr_scheduler_generator")
       assert_flag(step_on_epoch)
@@ -45,17 +45,17 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
       self$scheduler_fn = .scheduler
       private$.scheduler_args = list(...)
 
-      private$.step_args = step_args
-
       if (step_on_epoch) {
         if (step_takes_valid_metric) {
-          self$on_epoch_end = function() self$scheduler$step(self$ctx$measures_valid[[1L]])
+          self$on_epoch_end = function() {
+            self$scheduler$step(self$ctx$last_scores_valid[[1]])
+          }
         } else {
           self$on_epoch_end = function() self$scheduler$step()
         }
       } else {
         if (step_takes_valid_metric) {
-          self$on_batch_end = function() function() self$scheduler$step(self$ctx$measures_valid[[1L]])
+          self$on_batch_end = function() self$scheduler$step(self$ctx$last_scores_valid[[self$ctx$measures_valid[[1L]]]])
         } else {
           self$on_batch_end = function() self$scheduler$step()
         }
@@ -91,7 +91,7 @@ mlr3torch_callbacks$add("lr_cosine_annealing", function() {
     id = "lr_cosine_annealing",
     label = "Cosine Annealing LR Scheduler",
     man = "mlr3torch::mlr_callback_set.lr_scheduler",
-    additional_args = list(.scheduler = torch::lr_cosine_annealing, step_on_epoch = TRUE)
+    additional_args = list(.scheduler = torch::lr_cosine_annealing, step_on_epoch = TRUE, step_takes_valid_metric = FALSE)
   )
 })
 
@@ -107,7 +107,7 @@ mlr3torch_callbacks$add("lr_lambda", function() {
     id = "lr_scheduler",
     label = "Multiplication by Function LR Scheduler",
     man = "mlr3torch::mlr_callback_set.lr_scheduler",
-    additional_args = list(.scheduler = torch::lr_lambda, step_on_epoch = TRUE)
+    additional_args = list(.scheduler = torch::lr_lambda, step_on_epoch = TRUE, step_takes_valid_metric = FALSE)
   )
 })
 
@@ -123,7 +123,7 @@ mlr3torch_callbacks$add("lr_multiplicative", function() {
     id = "lr_multiplicative",
     label = "Multiplication by Factor LR Scheduler",
     man = "mlr3torch::mlr_callback_set.lr_scheduler",
-    additional_args = list(.scheduler = torch::lr_multiplicative, step_on_epoch = TRUE)
+    additional_args = list(.scheduler = torch::lr_multiplicative, step_on_epoch = TRUE, step_takes_valid_metric = FALSE)
   )
 })
 
@@ -148,7 +148,7 @@ mlr3torch_callbacks$add("lr_one_cycle", function() {
     id = "lr_one_cycle",
     label = "1cyle LR Scheduler",
     man = "mlr3torch::mlr_callback_set.lr_scheduler",
-    additional_args = list(.scheduler = torch::lr_one_cycle, step_on_epoch = FALSE)
+    additional_args = list(.scheduler = torch::lr_one_cycle, step_on_epoch = FALSE, step_takes_valid_metric = FALSE)
   )
 })
 
@@ -170,7 +170,7 @@ mlr3torch_callbacks$add("lr_reduce_on_plateau", function() {
     id = "lr_reduce_on_plateau",
     label = "Reduce on Plateau LR Scheduler",
     man = "mlr3torch::mlr_callback_set.lr_scheduler",
-    additional_args = list(.scheduler = torch::lr_reduce_on_plateau, step_on_epoch = TRUE)
+    additional_args = list(.scheduler = torch::lr_reduce_on_plateau, step_on_epoch = TRUE, step_takes_valid_metric = TRUE)
   )
 })
 
@@ -186,7 +186,7 @@ mlr3torch_callbacks$add("lr_step", function() {
     id = "lr_step",
     label = "Step Decay LR Scheduler",
     man = "mlr3torch::mlr_callback_set.lr_scheduler",
-    additional_args = list(.scheduler = torch::lr_step, step_on_epoch = TRUE)
+    additional_args = list(.scheduler = torch::lr_step, step_on_epoch = TRUE, step_takes_valid_metric = FALSE)
   )
 })
 
@@ -199,10 +199,13 @@ mlr3torch_callbacks$add("lr_step", function() {
 #'   The `torch` scheduler generator defined using `torch::lr_scheduler()`.
 #' @param step_on_epoch (`logical(1)`)\cr
 #'   Whether the scheduler steps after every epoch
+#' @param step_takes_valid_metric (`logical(1)`)\cr
+#'   Whether the scheduler's `$step()` function takes a validation metric as an argument.
 #' @export
-as_lr_scheduler = function(x, step_on_epoch) {
+as_lr_scheduler = function(x, step_on_epoch, step_takes_valid_metric) {
   assert_class(x, "lr_scheduler_generator")
   assert_flag(step_on_epoch)
+  assert_flag(step_takes_valid_metric)
 
   class_name = class(x)[1L]
 
@@ -212,6 +215,6 @@ as_lr_scheduler = function(x, step_on_epoch) {
     id = if (class_name == "") "lr_custom" else class_name,
     label = "Custom LR Scheduler",
     man = "mlr3torch::mlr_callback_set.lr_scheduler",
-    additional_args = list(.scheduler = x, step_on_epoch = step_on_epoch)
+    additional_args = list(.scheduler = x, step_on_epoch = step_on_epoch, step_takes_valid_metric = step_takes_valid_metric)
   )
 }
