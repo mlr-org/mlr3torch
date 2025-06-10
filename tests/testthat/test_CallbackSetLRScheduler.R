@@ -46,7 +46,6 @@ test_that("decay works", {
 })
 
 test_that("plateau works", {
-
   verify_network = function(learner) {
     tab = table(map_chr(learner$network$children, function(x) class(x)[[1L]]))
     act = class(learner$param_set$values$activation)[[1L]]
@@ -62,7 +61,7 @@ test_that("plateau works", {
       expect_true(length(tab) == 1)
     }
   }
-  
+
   cb = t_clbk("lr_reduce_on_plateau")
 
   task = tsk("iris")
@@ -74,6 +73,8 @@ test_that("plateau works", {
     measures_valid = msr(c("classif.ce")),
     validate = 0.2
   )
+
+  mlp$param_set$set_values(cb.lr_reduce_on_plateau.mode = "min")
 
   mlp$train(task)
 

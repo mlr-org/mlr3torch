@@ -55,7 +55,7 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
         }
       } else {
         if (step_takes_valid_metric) {
-          self$on_batch_end = function() self$scheduler$step(self$ctx$last_scores_valid[[self$ctx$measures_valid[[1L]]]])
+          self$on_batch_end = function() self$scheduler$step(self$ctx$last_scores_valid[[1L]])
         } else {
           self$on_batch_end = function() self$scheduler$step()
         }
@@ -64,6 +64,7 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
     #' @description
     #' Creates the scheduler using the optimizer from the context
     on_begin = function() {
+      # TODO: at this point `measures_valid` has not been initialized, so we cannot access it to infer whether to minimize the measure
       self$scheduler = invoke(self$scheduler_fn, optimizer = self$ctx$optimizer, .args = private$.scheduler_args)
     }
   ),
