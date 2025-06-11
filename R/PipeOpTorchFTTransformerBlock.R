@@ -154,6 +154,10 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
         attention_dropout = p_dbl(lower = 0, upper = 1, init = 0.2, tags = "train"),
         attention_initialization = p_fct(levels = c("kaiming", "xavier"), init = "kaiming", tags = "train"),
         attention_normalization = p_uty(init = nn_layer_norm, custom_check = check_nn_module_generator, tags = "train"),
+        # TODO: investigate the precise meaning of ffn_d_hidden
+        # I think it is supposed to set the dimension of the hidden layers directly
+        # so the initial value is wrong
+        # TODO: refactor to include ffn_d_hidden_multiplier, as in LearnerTorchTabResnet
         ffn_d_hidden = p_dbl(lower = 1, init = 4 / 3, tags = "train"),
         ffn_dropout = p_dbl(lower = 0, upper = 1, init = 0.1, tags = "train"),
         ffn_activation = p_uty(init = nn_reglu, custom_check = check_nn_module_generator, tags = "train"),
@@ -196,8 +200,6 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
 #' @include aaa.R
 register_po("nn_ft_transformer_block", PipeOpTorchFTTransformerBlock)
 
-# TODO: should we factor this out? This looks like a standard feed-forward network
-# where the size of the hidden layer is affected by the choice of activation
 nn_ft_ffn = nn_module(
   "nn_ft_ffn",
   initialize = function(d_token, d_hidden, bias_first, bias_second, dropout, activation) {
