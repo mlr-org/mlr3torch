@@ -1,3 +1,19 @@
+verify_network = function(learner) {
+  tab = table(map_chr(learner$network$children, function(x) class(x)[[1L]]))
+  act = class(learner$param_set$values$activation)[[1L]]
+
+  l = length(learner$param_set$values$neurons)
+
+  expect_true(tab["nn_linear"] == l + 1)
+  if (l > 0) {
+    expect_true(tab[act] == l)
+    expect_true(tab["nn_dropout"] == l)
+  } else {
+    # only one nn linear
+    expect_true(length(tab) == 1)
+  }
+}
+
 test_that("autotest", {
   cb_ca = t_clbk("lr_cosine_annealing", T_max = 10)
   # each LR scheduler has a different paramset, so we don't test them
@@ -46,22 +62,6 @@ test_that("decay works", {
 })
 
 test_that("plateau works", {
-  verify_network = function(learner) {
-    tab = table(map_chr(learner$network$children, function(x) class(x)[[1L]]))
-    act = class(learner$param_set$values$activation)[[1L]]
-
-    l = length(learner$param_set$values$neurons)
-
-    expect_true(tab["nn_linear"] == l + 1)
-    if (l > 0) {
-      expect_true(tab[act] == l)
-      expect_true(tab["nn_dropout"] == l)
-    } else {
-      # only one nn linear
-      expect_true(length(tab) == 1)
-    }
-  }
-
   cb = t_clbk("lr_reduce_on_plateau")
 
   task = tsk("iris")
@@ -75,6 +75,37 @@ test_that("plateau works", {
   )
 
   mlp$param_set$set_values(cb.lr_reduce_on_plateau.mode = "min")
+
+  mlp$train(task)
+
+  expect_learner(mlp)
+  expect_class(mlp$network, c("nn_sequential", "nn_module"))
+  verify_network(mlp)
+})
+
+test_that("1cycle works", {
+  cb = t_clbk("lr_one_cycle")
+
+  task = tsk("iris")
+
+  mlp = lrn("classif.mlp",
+    callbacks = cb,
+    epochs = 10, batch_size = 150, neurons = 10,
+    measures_train = msrs(c("classif.acc", "classif.ce")),
+    measures_valid = msr(c("classif.ce")),
+    validate = 0.2
+  )
+
+  # mlp$param_set$set_values(cb.lr_reduce_on_plateau.mode = "min")
+
+  # logic sketch
+  # epochs is always set in the learner
+  # so we should automatically set total_steps to n_epochs
+  # with a DOCUMENTED default of 1 step per epoch
+  # however, we should also allow the user to override this
+  # and if epochs and steps_per_epoch get set in the callback,
+  # then we set the epochs param in the callback to NULL
+  # but I suspect this won't work, and maybe we just expose a simple version with the default that was just first described
 
   mlp$train(task)
 

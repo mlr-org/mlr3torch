@@ -36,7 +36,7 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
     #' @param step_on_epoch (`logical(1)`)\cr
     #'   Whether the scheduler steps after every epoch (otherwise every batch).
     #' @param step_takes_valid_metric (`logical(1)`)\cr
-    #'   Whether the learning rate scheduler's `$step()` function takes the validation metric as an argument. As of this writing, `lr_reduce_on_plateau` is the only one that does this.
+    #'   Whether the learning rate scheduler's `$step()` function takes a validation metric as an argument. As of this writing, only applicable to `lr_reduce_on_plateau`.
     initialize = function(.scheduler, step_on_epoch, step_takes_valid_metric, ...) {
       assert_class(.scheduler, "lr_scheduler_generator")
       assert_flag(step_on_epoch)
@@ -44,6 +44,8 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
 
       self$scheduler_fn = .scheduler
       private$.scheduler_args = list(...)
+      
+      browser()
 
       if (step_on_epoch) {
         if (step_takes_valid_metric) {
