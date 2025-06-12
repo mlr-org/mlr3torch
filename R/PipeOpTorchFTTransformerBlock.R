@@ -14,7 +14,9 @@
 #' @param attention_initialization (`character(1)`)\cr
 #'   Initialization method for attention weights. Either "kaiming" or "xavier".
 #' @param ffn_d_hidden (`integer(1)`)\cr
-#'   Hidden dimension of the feed-forward network.
+#'   Hidden dimension of the feed-forward network. Multiplied by 2 if using ReGLU or GeGLU activation.
+#' @param ffn_d_hidden_multiplier (`numeric(1)`)\cr
+#'   Alternative way to specify the hidden dimension of the feed-forward network as `d_token * d_hidden_multiplier`.
 #' @param ffn_dropout (`numeric(1)`)\cr
 #'   Dropout probability in the feed-forward network.
 #' @param ffn_activation (`nn_module`)\cr
@@ -87,6 +89,7 @@ nn_ft_transformer_block = nn_module(
       d_hidden = d_hidden_multiplier * d_token
     } else {
       assert_int(ffn_d_hidden, lower = 1L)
+      assert_true(is.null(d_hidden_multiplier))
       d_hidden = ffn_d_hidden
     }
 
