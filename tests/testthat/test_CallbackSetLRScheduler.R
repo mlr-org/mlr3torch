@@ -50,12 +50,10 @@ test_that("cosine annealing works", {
     epochs = n_epochs, batch_size = 150, neurons = 10,
     measures_train = msrs(c("classif.acc", "classif.ce"))
   )
-  gamma = 0.5
-  step_size = 2
 
   # TODO: change to match cosine annealing params
-  mlp$param_set$set_values(cb.lr_step.gamma = gamma)
-  mlp$param_set$set_values(cb.lr_step.step_size = step_size)
+  mlp$param_set$set_values(cb.lr_cosine_annealing. = gamma)
+  mlp$param_set$set_values(cb.lr_cosine_annealing. = step_size)
 
   mlp$train(task)
 
@@ -74,12 +72,10 @@ test_that("multiplicative works", {
     epochs = n_epochs, batch_size = 150, neurons = 10,
     measures_train = msrs(c("classif.acc", "classif.ce"))
   )
-  gamma = 0.5
-  step_size = 2
 
   # TODO: change 
-  mlp$param_set$set_values(cb.lr_step.gamma = gamma)
-  mlp$param_set$set_values(cb.lr_step.step_size = step_size)
+  mlp$param_set$set_values(cb.lr_multiplicative = gamma)
+  mlp$param_set$set_values(cb.lr_multiplicative = step_size)
 
   mlp$train(task)
 

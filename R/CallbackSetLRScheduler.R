@@ -44,7 +44,9 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
 
       self$scheduler_fn = .scheduler
       private$.scheduler_args = list(...)
-      
+
+      # for investigating whether the number of epochs is available in the context
+      # for lr_one_cycle
       browser()
 
       if (step_on_epoch) {
