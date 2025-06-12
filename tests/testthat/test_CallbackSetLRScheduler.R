@@ -39,7 +39,55 @@ test_that("autotest", {
   expect_torch_callback(cb_step, check_paramset = FALSE)
 })
 
-test_that("decay works", {
+test_that("cosine annealing works", {
+  cb = t_clbk("lr_cosine_annealing")
+  task = tsk("iris")
+
+  n_epochs = 10
+
+  mlp = lrn("classif.mlp",
+    callbacks = cb,
+    epochs = n_epochs, batch_size = 150, neurons = 10,
+    measures_train = msrs(c("classif.acc", "classif.ce"))
+  )
+  gamma = 0.5
+  step_size = 2
+
+  # TODO: change to match cosine annealing params
+  mlp$param_set$set_values(cb.lr_step.gamma = gamma)
+  mlp$param_set$set_values(cb.lr_step.step_size = step_size)
+
+  mlp$train(task)
+
+  expect_equal(mlp$model$optimizer$param_groups[[1]]$initial_lr * gamma^(n_epochs / step_size),
+               mlp$model$optimizer$param_groups[[1]]$lr)
+})
+
+test_that("multiplicative works", {
+  cb = t_clbk("lr_multiplicative")
+  task = tsk("iris")
+
+  n_epochs = 10
+
+  mlp = lrn("classif.mlp",
+    callbacks = cb,
+    epochs = n_epochs, batch_size = 150, neurons = 10,
+    measures_train = msrs(c("classif.acc", "classif.ce"))
+  )
+  gamma = 0.5
+  step_size = 2
+
+  # TODO: change 
+  mlp$param_set$set_values(cb.lr_step.gamma = gamma)
+  mlp$param_set$set_values(cb.lr_step.step_size = step_size)
+
+  mlp$train(task)
+
+  expect_equal(mlp$model$optimizer$param_groups[[1]]$initial_lr * gamma^(n_epochs / step_size),
+               mlp$model$optimizer$param_groups[[1]]$lr)
+})
+
+test_that("step decay works", {
   cb = t_clbk("lr_step")
   task = tsk("iris")
 
@@ -84,6 +132,7 @@ test_that("plateau works", {
   verify_network(mlp)
 })
 
+# TODO: complete
 test_that("1cycle works", {
   cb = t_clbk("lr_one_cycle")
 
