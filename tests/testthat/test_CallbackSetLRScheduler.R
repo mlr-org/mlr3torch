@@ -1,3 +1,4 @@
+# TODO: move this to maybe utils? then find the other usages and delete them
 verify_network = function(learner) {
   tab = table(map_chr(learner$network$children, function(x) class(x)[[1L]]))
   act = class(learner$param_set$values$activation)[[1L]]
