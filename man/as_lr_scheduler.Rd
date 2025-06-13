@@ -4,7 +4,7 @@
 \alias{as_lr_scheduler}
 \title{Convert to CallbackSetLRScheduler}
 \usage{
-as_lr_scheduler(x, step_on_epoch)
+as_lr_scheduler(x, step_on_epoch, step_takes_valid_metric)
 }
 \arguments{
 \item{x}{(\code{function})\cr
@@ -12,6 +12,9 @@ The \code{torch} scheduler generator defined using \code{torch::lr_scheduler()}.
 
 \item{step_on_epoch}{(\code{logical(1)})\cr
 Whether the scheduler steps after every epoch}
+
+\item{step_takes_valid_metric}{(\code{logical(1)})\cr
+Whether the scheduler's \verb{$step()} function takes a validation metric as an argument.}
 }
 \description{
 Convert a \code{torch} scheduler generator to a \code{CallbackSetLRScheduler}.

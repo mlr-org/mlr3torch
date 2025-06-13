@@ -281,7 +281,7 @@ The ids will be set as the names.}
 Specify the \verb{$validate} field and the \code{measures_valid} parameter to configure this.
 Returns \code{NULL} if learner is not trained yet.}
 
-\item{\code{internal_tuned_values}}{When early stopping is activate, this returns a named list with the early-stopped epochs,
+\item{\code{internal_tuned_values}}{When early stopping is active, this returns a named list with the early-stopped epochs,
 otherwise an empty list is returned.
 Returns \code{NULL} if learner is not trained yet.}
 

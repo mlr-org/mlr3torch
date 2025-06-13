@@ -51,14 +51,38 @@ test_that("cosine annealing works", {
     measures_train = msrs(c("classif.acc", "classif.ce"))
   )
 
-  # TODO: change to match cosine annealing params
-  mlp$param_set$set_values(cb.lr_cosine_annealing. = gamma)
-  mlp$param_set$set_values(cb.lr_cosine_annealing. = step_size)
+  T_max = 2
+  mlp$param_set$set_values(cb.lr_cosine_annealing.T_max = T_max)
 
   mlp$train(task)
 
-  expect_equal(mlp$model$optimizer$param_groups[[1]]$initial_lr * gamma^(n_epochs / step_size),
-               mlp$model$optimizer$param_groups[[1]]$lr)
+  # TODO: compute what the learning rate should be, then add the expectation
+  expect_learner(mlp)
+  expect_class(mlp$network, c("nn_sequential", "nn_module"))
+  verify_network(mlp)
+})
+
+test_that("lambda works", {
+  cb = t_clbk("lr_lambda")
+  task = tsk("iris")
+
+  n_epochs = 10
+
+  mlp = lrn("classif.mlp",
+    callbacks = cb,
+    epochs = n_epochs, batch_size = 150, neurons = 10,
+    measures_train = msrs(c("classif.acc", "classif.ce"))
+  )
+
+  lambda1 <- function(epoch) epoch %/% 30
+  mlp$param_set$set_values(cb.lr_lambda.lr_lambda = list(lambda1))
+
+  mlp$train(task)
+
+  # TODO: compute what the learning rate should be, then add the expectation
+  expect_learner(mlp)
+  expect_class(mlp$network, c("nn_sequential", "nn_module"))
+  verify_network(mlp)
 })
 
 test_that("multiplicative works", {
@@ -73,14 +97,15 @@ test_that("multiplicative works", {
     measures_train = msrs(c("classif.acc", "classif.ce"))
   )
 
-  # TODO: change 
-  mlp$param_set$set_values(cb.lr_multiplicative = gamma)
-  mlp$param_set$set_values(cb.lr_multiplicative = step_size)
+  lambda <- function(epoch) 0.95
+  mlp$param_set$set_values(cb.lr_multiplicative.lr_lambda = lambda)
 
   mlp$train(task)
 
-  expect_equal(mlp$model$optimizer$param_groups[[1]]$initial_lr * gamma^(n_epochs / step_size),
-               mlp$model$optimizer$param_groups[[1]]$lr)
+  # TODO: compute what the learning rate should be, then add the expectation
+  expect_learner(mlp)
+  expect_class(mlp$network, c("nn_sequential", "nn_module"))
+  verify_network(mlp)
 })
 
 test_that("step decay works", {
@@ -128,9 +153,8 @@ test_that("plateau works", {
   verify_network(mlp)
 })
 
-# TODO: complete
 test_that("1cycle works", {
-  cb = t_clbk("lr_one_cycle")
+  cb = t_clbk("lr_one_cycle", max_lr = 0.01)
 
   task = tsk("iris")
 
@@ -141,8 +165,6 @@ test_that("1cycle works", {
     measures_valid = msr(c("classif.ce")),
     validate = 0.2
   )
-
-  # mlp$param_set$set_values(cb.lr_reduce_on_plateau.mode = "min")
 
   # logic sketch
   # epochs is always set in the learner

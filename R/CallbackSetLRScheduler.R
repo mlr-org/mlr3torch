@@ -47,7 +47,8 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
 
       # for investigating whether the number of epochs is available in the context
       # for lr_one_cycle
-      browser()
+
+      # for lr_one_cycle, you must either specify total_steps or epochs and steps_per_epoch
 
       if (step_on_epoch) {
         if (step_takes_valid_metric) {
@@ -68,7 +69,17 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
     #' @description
     #' Creates the scheduler using the optimizer from the context
     on_begin = function() {
-      # TODO: at this point `measures_valid` has not been initialized, so we cannot access it to infer whether to minimize the measure
+      if (class(self$scheduler_fn)[[1L]] == "lr_one_cycle") {
+        if (
+          !(
+            "total_steps" %in% names(private$.scheduler_args) ||
+            ("epochs" %in% names(private$.scheduler_args) && "steps_per_epoch" %in% names(private$.scheduler_args))
+          )
+        ) {
+          private$.scheduler_args[["total_steps"]] = self$ctx$total_epochs
+        }
+      }
+
       self$scheduler = invoke(self$scheduler_fn, optimizer = self$ctx$optimizer, .args = private$.scheduler_args)
     }
   ),
@@ -109,7 +120,7 @@ mlr3torch_callbacks$add("lr_lambda", function() {
       last_epoch = p_int(default = -1, tags = "train"),
       verbose = p_lgl(default = FALSE, tags = "train")
     ),
-    id = "lr_scheduler",
+    id = "lr_lambda",
     label = "Multiplication by Function LR Scheduler",
     man = "mlr3torch::mlr_callback_set.lr_scheduler",
     additional_args = list(.scheduler = torch::lr_lambda, step_on_epoch = TRUE, step_takes_valid_metric = FALSE)
@@ -151,7 +162,7 @@ mlr3torch_callbacks$add("lr_one_cycle", function() {
       verbose = p_lgl(default = FALSE, tags = "train")
     ),
     id = "lr_one_cycle",
-    label = "1cyle LR Scheduler",
+    label = "1cycle LR Scheduler",
     man = "mlr3torch::mlr_callback_set.lr_scheduler",
     additional_args = list(.scheduler = torch::lr_one_cycle, step_on_epoch = FALSE, step_takes_valid_metric = FALSE)
   )
