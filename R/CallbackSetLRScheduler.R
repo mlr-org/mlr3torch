@@ -10,7 +10,7 @@
 #' * [torch::lr_cosine_annealing()]
 #' * [torch::lr_lambda()]
 #' * [torch::lr_multiplicative()]
-#' * [torch::lr_one_cycle()]
+#' * [torch::lr_one_cycle()] (where the default value for `total_steps` is the number of training epochs)
 #' * [torch::lr_reduce_on_plateau()]
 #' * [torch::lr_step()]
 #' * Custom schedulers defined with [torch::lr_scheduler()].
@@ -70,14 +70,7 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
     #' Creates the scheduler using the optimizer from the context
     on_begin = function() {
       if (class(self$scheduler_fn)[[1L]] == "lr_one_cycle") {
-        if (
-          !(
-            "total_steps" %in% names(private$.scheduler_args) ||
-            ("epochs" %in% names(private$.scheduler_args) && "steps_per_epoch" %in% names(private$.scheduler_args))
-          )
-        ) {
-          private$.scheduler_args[["total_steps"]] = self$ctx$total_epochs
-        }
+        private$.scheduler_args = add_default_total_steps(private$.scheduler_args, self$ctx$total_epochs)
       }
 
       self$scheduler = invoke(self$scheduler_fn, optimizer = self$ctx$optimizer, .args = private$.scheduler_args)
@@ -87,6 +80,18 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
     .scheduler_args = NULL
   )
 )
+
+add_default_total_steps = function(scheduler_args, total_steps) {
+  if (
+    !(
+        "total_steps" %in% names(scheduler_args) ||
+        ("epochs" %in% names(scheduler_args) && "steps_per_epoch" %in% names(scheduler_args))
+      )
+    ) {
+      scheduler_args[["total_steps"]] = total_steps
+    }
+    scheduler_args
+}
 
 # some of the schedulers accept lists
 # so they can treat different parameter groups differently

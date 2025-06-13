@@ -74,15 +74,15 @@ test_that("lambda works", {
     measures_train = msrs(c("classif.acc", "classif.ce"))
   )
 
-  lambda1 <- function(epoch) epoch %/% 30
+  lambda1 <- function(epoch) 0.95 ^ epoch
   mlp$param_set$set_values(cb.lr_lambda.lr_lambda = list(lambda1))
 
   mlp$train(task)
 
   # TODO: compute what the learning rate should be, then add the expectation
-  expect_learner(mlp)
-  expect_class(mlp$network, c("nn_sequential", "nn_module"))
-  verify_network(mlp)
+
+  expect_equal(mlp$model$optimizer$param_groups[[1]]$initial_lr * 0.95^(n_epochs),
+              mlp$model$optimizer$param_groups[[1]]$lr)
 })
 
 test_that("multiplicative works", {
@@ -102,10 +102,8 @@ test_that("multiplicative works", {
 
   mlp$train(task)
 
-  # TODO: compute what the learning rate should be, then add the expectation
-  expect_learner(mlp)
-  expect_class(mlp$network, c("nn_sequential", "nn_module"))
-  verify_network(mlp)
+  expect_equal(mlp$model$optimizer$param_groups[[1]]$initial_lr * 0.95^(n_epochs),
+              mlp$model$optimizer$param_groups[[1]]$lr)
 })
 
 test_that("step decay works", {
@@ -148,6 +146,7 @@ test_that("plateau works", {
 
   mlp$train(task)
 
+  # TODO: figure out how to test this
   expect_learner(mlp)
   expect_class(mlp$network, c("nn_sequential", "nn_module"))
   verify_network(mlp)
@@ -177,6 +176,7 @@ test_that("1cycle works", {
 
   mlp$train(task)
 
+  # TODO: figure out how to test this
   expect_learner(mlp)
   expect_class(mlp$network, c("nn_sequential", "nn_module"))
   verify_network(mlp)
