@@ -75,7 +75,8 @@ make_ft_transformer_default = function(task_type, ...) {
      epochs = 1L,
      batch_size = 32L,
      n_blocks = 4L,
-     d_token = 192L
+     d_token = 192L,
+     ffn_d_hidden_multiplier = 4 / 3
   )
   params = insert_named(params, list(...))
   invoke(lrn, .key = sprintf("%s.ft_transformer", task_type), .args = params)

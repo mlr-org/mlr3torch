@@ -54,7 +54,8 @@ nn_ft_transformer_block = nn_module(
     attention_n_heads,
     attention_dropout,
     attention_initialization,
-    ffn_d_hidden,
+    ffn_d_hidden = NULL,
+    ffn_d_hidden_multiplier = NULL,
     ffn_dropout,
     ffn_activation,
     residual_dropout,
@@ -83,13 +84,13 @@ nn_ft_transformer_block = nn_module(
       bias = attention_bias,
       batch_first = TRUE
     )
-
+    
     if (is.null(ffn_d_hidden)) {
-      assert_numeric(d_hidden_multiplier, lower = 0)
-      d_hidden = d_hidden_multiplier * d_token
+      assert_numeric(ffn_d_hidden_multiplier, lower = 0, .var.name = "Exactly one of ffn_d_hidden and ffn_d_hidden_multiplier must be set.")
+      d_hidden = ffn_d_hidden_multiplier * d_token
     } else {
       assert_int(ffn_d_hidden, lower = 1L)
-      assert_true(is.null(d_hidden_multiplier))
+      assert_true(is.null(ffn_d_hidden_multiplier), .var.name = "Both ffn_d_hidden and ffn_d_hidden_multiplier are set. Please remove one.")
       d_hidden = ffn_d_hidden
     }
 
@@ -165,12 +166,8 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
         attention_dropout = p_dbl(lower = 0, upper = 1, init = 0.2, tags = "train"),
         attention_initialization = p_fct(levels = c("kaiming", "xavier"), init = "kaiming", tags = "train"),
         attention_normalization = p_uty(init = nn_layer_norm, custom_check = check_nn_module_generator, tags = "train"),
-        # TODO: investigate the precise meaning of ffn_d_hidden
-        # I think it is supposed to set the dimension of the hidden layers directly
-        # so the initial value is wrong
-        # TODO: refactor to include ffn_d_hidden_multiplier, as in LearnerTorchTabResnet
         ffn_d_hidden = p_int(lower = 1, tags = "train"),
-        ffn_d_hidden_multiplier = p_dbl(lower = 0, init = 4 / 3, tags = "train")
+        ffn_d_hidden_multiplier = p_dbl(lower = 0, tags = "train"),
         ffn_dropout = p_dbl(lower = 0, upper = 1, init = 0.1, tags = "train"),
         ffn_activation = p_uty(init = nn_reglu, custom_check = check_nn_module_generator, tags = "train"),
         ffn_normalization = p_uty(init = nn_layer_norm, custom_check = check_nn_module_generator, tags = "train"),
@@ -215,13 +212,9 @@ register_po("nn_ft_transformer_block", PipeOpTorchFTTransformerBlock)
 nn_ft_ffn = nn_module(
   "nn_ft_ffn",
   initialize = function(d_token, d_hidden, bias_first, bias_second, dropout, activation) {
-    # TODO: assert that one of d_hidden, d_hidden_multiplier
-
-
-
     # ReGLU, GeGLU activations change the size of their input
-    ffn_d_hidden_multiplier = if (class(activation)[1] %in% c("nn_reglu", "nn_geglu")) 2 else 1
-    self$linear_first = nn_linear(d_token, d_hidden * ffn_d_hidden_multiplier, bias_first)
+    activation_coef = if (class(activation)[1] %in% c("nn_reglu", "nn_geglu")) 2 else 1
+    self$linear_first = nn_linear(d_token, d_hidden * activation_coef, bias_first)
     self$activation = activation()
     self$dropout = nn_dropout(dropout)
     self$linear_second = nn_linear(d_hidden, d_token, bias_second)
