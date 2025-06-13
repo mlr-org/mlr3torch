@@ -16,7 +16,7 @@
 #' @param ffn_d_hidden (`integer(1)`)\cr
 #'   Hidden dimension of the feed-forward network. Multiplied by 2 if using ReGLU or GeGLU activation.
 #' @param ffn_d_hidden_multiplier (`numeric(1)`)\cr
-#'   Alternative way to specify the hidden dimension of the feed-forward network as `d_token * d_hidden_multiplier`.
+#'   Alternative way to specify the hidden dimension of the feed-forward network as `d_token * d_hidden_multiplier`. Also multiplied by 2 if using RegLU or GeGLU activation.
 #' @param ffn_dropout (`numeric(1)`)\cr
 #'   Dropout probability in the feed-forward network.
 #' @param ffn_activation (`nn_module`)\cr
