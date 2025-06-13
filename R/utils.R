@@ -212,6 +212,10 @@ check_nn_module = function(x) {
   check_class(x, "nn_module")
 }
 
+check_nn_module_generator = function(x) {
+  check_class(x, "nn_module_generator")
+}
+
 check_callbacks = function(x) {
   if (test_class(x, "TorchCallback")) {
     x = list(x)
@@ -300,6 +304,25 @@ output_dim_for.TaskRegr = function(x, ...) {
   1L
 }
 
+all_or_none_ = function(...) {
+  args = list(...)
+  all_none = all(sapply(args, is.null))
+  all_not_none = all(!sapply(args, is.null))
+  return(all_none || all_not_none)
+}
+
 single_lazy_tensor = function(task) {
   identical(task$feature_types[, "type"][[1L]], "lazy_tensor")
+}
+                              
+n_num_features = function(task) {
+  sum(task$feature_types$type %in% c("numeric", "integer"))
+}
+
+n_categ_features = function(task) {
+  sum(task$feature_types$type %in% c("factor", "ordered", "logical"))
+}
+
+n_ltnsr_features = function(task) {
+  sum(task$feature_types$type == "lazy_tensor")
 }
