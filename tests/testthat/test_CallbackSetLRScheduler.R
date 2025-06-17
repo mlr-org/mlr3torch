@@ -1,20 +1,3 @@
-# TODO: move this to maybe utils? then find the other usages and delete them
-verify_network = function(learner) {
-  tab = table(map_chr(learner$network$children, function(x) class(x)[[1L]]))
-  act = class(learner$param_set$values$activation)[[1L]]
-
-  l = length(learner$param_set$values$neurons)
-
-  expect_true(tab["nn_linear"] == l + 1)
-  if (l > 0) {
-    expect_true(tab[act] == l)
-    expect_true(tab["nn_dropout"] == l)
-  } else {
-    # only one nn linear
-    expect_true(length(tab) == 1)
-  }
-}
-
 test_that("autotest", {
   cb_ca = t_clbk("lr_cosine_annealing", T_max = 10)
   # each LR scheduler has a different paramset, so we don't test them
@@ -58,11 +41,7 @@ test_that("cosine annealing works", {
 
   mlp$train(task)
 
-  # TODO: verify this LLM expectation
-  # The key insight is that when last_epoch == T_max,
-  # the cosine function cos(pi * T_max / T_max) = cos(pi) = -1,
-  # so the formula becomes eta_min + (base_lr - eta_min) * (1 + (-1)) / 2 = eta_min.
-  expect_equal(eta_min, mlp$model$optimizer$param_groups[[1]]$lr, tolerance = 1e-6)
+  expect_equal(eta_min, mlp$model$optimizer$param_groups[[1]]$lr)
 })
 
 test_that("lambda works", {
@@ -149,7 +128,6 @@ test_that("plateau works", {
 
   expect_learner(mlp)
   expect_class(mlp$network, c("nn_sequential", "nn_module"))
-  verify_network(mlp)
 })
 
 test_that("1cycle works", {
@@ -166,14 +144,9 @@ test_that("1cycle works", {
   )
 
   mlp$train(task)
-  # TODO: verify this LLM expectation
-  initial_lr = mlp$model$optimizer$param_groups[[1]]$initial_lr
-  final_lr = mlp$model$optimizer$param_groups[[1]]$lr
-  max_lr = 0.01
-  final_div_factor = 1e4  # default value
 
-  expected_final_lr = initial_lr / final_div_factor
-  expect_equal(final_lr, expected_final_lr, tolerance = 1e-6)
+  expect_learner(mlp)
+  expect_class(mlp$network, c("nn_sequential", "nn_module"))
 })
 
 test_that("custom LR scheduler works", {

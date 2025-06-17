@@ -42,11 +42,6 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
       self$scheduler_fn = .scheduler
       private$.scheduler_args = list(...)
 
-      # for investigating whether the number of epochs is available in the context
-      # for lr_one_cycle
-
-      # for lr_one_cycle, you must either specify total_steps or epochs and steps_per_epoch
-
       if (step_on_epoch) {
         if (class(self$scheduler_fn)[[1L]] == "lr_reduce_on_plateau") {
           self$on_epoch_end = function() {
@@ -57,7 +52,6 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
         }
       } else {
           self$on_batch_end = function() {
-            browser()
             self$scheduler$step()
           }
       }
