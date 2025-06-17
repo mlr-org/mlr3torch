@@ -81,9 +81,7 @@ test_that("ModelDescriptor basic checks", {
     graph = a,
     ingress = list(torch_ingress_num.input = ingress),
     task = task
-  ),
-    fixed = TRUE
-  )
+  ))
 
   expect_error(ModelDescriptor(
     graph = g,
