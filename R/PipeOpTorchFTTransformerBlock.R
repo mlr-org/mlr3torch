@@ -3,7 +3,7 @@
 #' A transformer block consisting of a multi-head self-attention mechanism followed by a feed-forward
 #' network.
 #'
-#' This is used in [`LearnerFTTransformer`].
+#' This is used in [`LearnerTorchFTTransformer`].
 #'
 #' @param d_token (`integer(1)`)\cr
 #'   The dimension of the embedding.
@@ -87,7 +87,7 @@ nn_ft_transformer_block = nn_module(
     
     if (is.null(ffn_d_hidden)) {
       assert_numeric(ffn_d_hidden_multiplier, lower = 0, .var.name = "Exactly one of ffn_d_hidden and ffn_d_hidden_multiplier must be set.")
-      d_hidden = ffn_d_hidden_multiplier * d_token
+      d_hidden = round(ffn_d_hidden_multiplier * d_token)
     } else {
       assert_int(ffn_d_hidden, lower = 1L)
       assert_true(is.null(ffn_d_hidden_multiplier), .var.name = "Both ffn_d_hidden and ffn_d_hidden_multiplier are set. Please remove one.")
@@ -133,7 +133,8 @@ nn_ft_transformer_block = nn_module(
     x_residual = self$attention(
       query = x_residual_arg,
       key = x_residual,
-      value = x_residual
+      value = x_residual,
+      need_weights = FALSE
     )[[1L]]
     x = if (!is.null(self$query_idx)) x[, self$query_idx, drop = FALSE] else x
     x = self$end_residual_("attention", x, x_residual)

@@ -22,17 +22,17 @@
 #' * `d_token` :: `integer(1)`\cr
 #'   The dimension of the embedding.
 #' * `cardinalities` :: `integer(1)`\cr
-#'   The number of categories for each categorical feature.
+#'   The number of categories for each categorical feature. This only needs to be specified when working with [`lazy_tensor`] inputs.
 #' * `init_token` :: `character(1)`\cr
 #'   The initialization method for the embedding weights. Either "uniform" or "normal". "Uniform" by default.
 #' * `ingress_tokens` :: named `list()` or `NULL`\cr
 #'   A list of `TorchIngressToken`s. Only required when using lazy tensor features.
-#'   The names are either "num.input" or "categ.input", and the values are lazy tensor ingress tokens constructed by, e.g. `ingress_ltnsr(num_feat_name)`.
+#'   The names are either "num.input" or "categ.input", and the values are lazy tensor ingress tokens constructed by, e.g. `ingress_ltnsr(<num_feat_name>)`.
 #'
 #' @references
 #' `r format_bib("gorishniy2021revisiting")`
 #' @export
-LearnerFTTransformer = R6Class("LearnerFTTransformer",
+LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
   inherit = LearnerTorch,
   public = list(
     #' @description
@@ -194,5 +194,5 @@ LearnerFTTransformer = R6Class("LearnerFTTransformer",
   )
 )
 
-register_learner("regr.ft_transformer", LearnerFTTransformer)
-register_learner("classif.ft_transformer", LearnerFTTransformer)
+register_learner("regr.ft_transformer", LearnerTorchFTTransformer)
+register_learner("classif.ft_transformer", LearnerTorchFTTransformer)
