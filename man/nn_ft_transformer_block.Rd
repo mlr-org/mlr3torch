@@ -9,7 +9,8 @@ nn_ft_transformer_block(
   attention_n_heads,
   attention_dropout,
   attention_initialization,
-  ffn_d_hidden,
+  ffn_d_hidden = NULL,
+  ffn_d_hidden_multiplier = NULL,
   ffn_dropout,
   ffn_activation,
   residual_dropout,
@@ -37,7 +38,10 @@ Dropout probability in the attention mechanism.}
 Initialization method for attention weights. Either "kaiming" or "xavier".}
 
 \item{ffn_d_hidden}{(\code{integer(1)})\cr
-Hidden dimension of the feed-forward network.}
+Hidden dimension of the feed-forward network. Multiplied by 2 if using ReGLU or GeGLU activation.}
+
+\item{ffn_d_hidden_multiplier}{(\code{numeric(1)})\cr
+Alternative way to specify the hidden dimension of the feed-forward network as \code{d_token * d_hidden_multiplier}. Also multiplied by 2 if using RegLU or GeGLU activation.}
 
 \item{ffn_dropout}{(\code{numeric(1)})\cr
 Dropout probability in the feed-forward network.}
