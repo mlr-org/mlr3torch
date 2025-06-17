@@ -10,7 +10,7 @@
 #' * [torch::lr_cosine_annealing()]
 #' * [torch::lr_lambda()]
 #' * [torch::lr_multiplicative()]
-#' * [torch::lr_one_cycle()] (where the default value for `total_steps` is the number of training epochs)
+#' * [torch::lr_one_cycle()] (where the default values for `epochs` and `steps_per_epoch` are the number of training epochs and the number of batches per epoch)
 #' * [torch::lr_reduce_on_plateau()]
 #' * [torch::lr_step()]
 #' * Custom schedulers defined with [torch::lr_scheduler()].
@@ -73,18 +73,6 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
     .scheduler_args = NULL
   )
 )
-
-add_default_total_steps = function(scheduler_args, total_steps) {
-  if (
-    !(
-        "total_steps" %in% names(scheduler_args) ||
-        ("epochs" %in% names(scheduler_args) && "steps_per_epoch" %in% names(scheduler_args))
-      )
-    ) {
-      scheduler_args[["total_steps"]] = total_steps
-    }
-    scheduler_args
-}
 
 # some of the schedulers accept lists
 # so they can treat different parameter groups differently
