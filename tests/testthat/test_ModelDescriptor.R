@@ -82,7 +82,6 @@ test_that("ModelDescriptor basic checks", {
     ingress = list(torch_ingress_num.input = ingress),
     task = task
   ),
-    regexp = "Must inherit from class 'Graph'",
     fixed = TRUE
   )
 

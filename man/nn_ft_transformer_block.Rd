@@ -83,7 +83,7 @@ Whether the second layer in the FFN has a bias. Default is \code{TRUE}}
 A transformer block consisting of a multi-head self-attention mechanism followed by a feed-forward
 network.
 
-This is used in \code{\link{LearnerFTTransformer}}.
+This is used in \code{\link{LearnerTorchFTTransformer}}.
 }
 \references{
 Devlin, Jacob, Chang, Ming-Wei, Lee, Kenton, Toutanova, Kristina (2018).

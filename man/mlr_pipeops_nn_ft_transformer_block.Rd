@@ -8,7 +8,7 @@
 A transformer block consisting of a multi-head self-attention mechanism followed by a feed-forward
 network.
 
-This is used in \code{\link{LearnerFTTransformer}}.
+This is used in \code{\link{LearnerTorchFTTransformer}}.
 }
 \section{nn_module}{
 

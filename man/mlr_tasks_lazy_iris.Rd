@@ -22,7 +22,14 @@ Just like the iris task, but the features are represented as one lazy tensor col
 
 \section{Properties}{
 
-\verb{r rd_info_task_torch("lazy_iris", missings = FALSE)}
+\itemize{
+\item Task type: \dQuote{classif}
+\item Properties: \dQuote{multiclass}
+\item Has Missings: no
+\item Target: \dQuote{Species}
+\item Features: \dQuote{x}
+\item Data Dimension: 150x3
+}
 }
 
 \examples{

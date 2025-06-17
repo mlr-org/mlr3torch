@@ -1,7 +1,7 @@
 #' @title FT-Transformer
 #' @templateVar name ft_transformer
 #' @templateVar task_types classif, regr
-#' @templateVar param_vals n_blocks = 2, d_token = 32
+#' @templateVar param_vals n_blocks = 2, d_token = 32, ffn_d_hidden_multiplier = 4/3
 #' @template params_learner
 #' @template learner
 #' @template learner_example
@@ -11,7 +11,7 @@
 #' or on standard tabular features.
 #'
 #' Some differences from the paper implementation: no attention compression, no option to have prenormalization in the first layer.
-#' 
+#'
 #' If training is unstable, consider a combination of standardizing features (e.g. using `po("scale")`), using an adaptive optimizer (e.g. Adam), reducing the learning rate,
 #' and using a learning rate scheduler (see [`CallbackSetLRScheduler`] for options).
 #'

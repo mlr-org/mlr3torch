@@ -2,7 +2,7 @@
 % Please edit documentation in R/LearnerFTTransformer.R
 \name{mlr_learners.ft_transformer}
 \alias{mlr_learners.ft_transformer}
-\alias{LearnerFTTransformer}
+\alias{LearnerTorchFTTransformer}
 \title{FT-Transformer}
 \description{
 Feature-Tokenizer Transformer for tabular data that can either work on \code{\link{lazy_tensor}} inputs
@@ -45,12 +45,12 @@ The number of transformer blocks.
 \item \code{d_token} :: \code{integer(1)}\cr
 The dimension of the embedding.
 \item \code{cardinalities} :: \code{integer(1)}\cr
-The number of categories for each categorical feature.
+The number of categories for each categorical feature. This only needs to be specified when working with \code{\link{lazy_tensor}} inputs.
 \item \code{init_token} :: \code{character(1)}\cr
 The initialization method for the embedding weights. Either "uniform" or "normal". "Uniform" by default.
 \item \code{ingress_tokens} :: named \code{list()} or \code{NULL}\cr
 A list of \code{TorchIngressToken}s. Only required when using lazy tensor features.
-The names are either "num.input" or "categ.input", and the values are lazy tensor ingress tokens constructed by, e.g. \code{ingress_ltnsr(num_feat_name)}.
+The names are either "num.input" or "categ.input", and the values are lazy tensor ingress tokens constructed by, e.g. \verb{ingress_ltnsr(<num_feat_name>)}.
 }
 }
 
@@ -60,7 +60,7 @@ The names are either "num.input" or "categ.input", and the values are lazy tenso
 learner = lrn("classif.ft_transformer")
 learner$param_set$set_values(
   epochs = 1, batch_size = 16, device = "cpu",
-  n_blocks = 2, d_token = 32
+  n_blocks = 2, d_token = 32, ffn_d_hidden_multiplier = 4/3
 )
 
 # Define a Task
@@ -96,13 +96,13 @@ Other Learner:
 }
 \concept{Learner}
 \section{Super classes}{
-\code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3torch:LearnerTorch]{mlr3torch::LearnerTorch}} -> \code{LearnerFTTransformer}
+\code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3torch:LearnerTorch]{mlr3torch::LearnerTorch}} -> \code{LearnerTorchFTTransformer}
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-LearnerFTTransformer-new}{\code{LearnerFTTransformer$new()}}
-\item \href{#method-LearnerFTTransformer-clone}{\code{LearnerFTTransformer$clone()}}
+\item \href{#method-LearnerTorchFTTransformer-new}{\code{LearnerTorchFTTransformer$new()}}
+\item \href{#method-LearnerTorchFTTransformer-clone}{\code{LearnerTorchFTTransformer$clone()}}
 }
 }
 \if{html}{\out{
@@ -126,12 +126,12 @@ Other Learner:
 </details>
 }}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-LearnerFTTransformer-new"></a>}}
-\if{latex}{\out{\hypertarget{method-LearnerFTTransformer-new}{}}}
+\if{html}{\out{<a id="method-LearnerTorchFTTransformer-new"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerTorchFTTransformer-new}{}}}
 \subsection{Method \code{new()}}{
 Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LearnerFTTransformer$new(
+\if{html}{\out{<div class="r">}}\preformatted{LearnerTorchFTTransformer$new(
   task_type,
   optimizer = NULL,
   loss = NULL,
@@ -160,12 +160,12 @@ The callbacks. Must have unique ids.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-LearnerFTTransformer-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-LearnerFTTransformer-clone}{}}}
+\if{html}{\out{<a id="method-LearnerTorchFTTransformer-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-LearnerTorchFTTransformer-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{LearnerFTTransformer$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{LearnerTorchFTTransformer$clone(deep = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
