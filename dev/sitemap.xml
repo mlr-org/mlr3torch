@@ -64,6 +64,7 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.tb.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.unfreeze.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_context_torch.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.ft_transformer.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.mlp.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.module.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.tab_resnet.html</loc></url>
@@ -109,6 +110,7 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_flatten.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_fn.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_ft_cls.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_ft_transformer_block.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_geglu.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_gelu.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_glu.html</loc></url>
@@ -178,6 +180,7 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/model_descriptor_union.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/nn.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/nn_ft_cls.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/nn_ft_transformer_block.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/nn_geglu.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/nn_graph.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/nn_merge_cat.html</loc></url>

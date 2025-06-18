@@ -277,6 +277,7 @@ to implement the private <code>$.additional_phash_input()</code>.</p>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other Learner:
+<code><a href="mlr_learners.ft_transformer.html">mlr_learners.ft_transformer</a></code>,
 <code><a href="mlr_learners.mlp.html">mlr_learners.mlp</a></code>,
 <code><a href="mlr_learners.module.html">mlr_learners.module</a></code>,
 <code><a href="mlr_learners.tab_resnet.html">mlr_learners.tab_resnet</a></code>,
@@ -381,7 +382,7 @@ which are varied systematically during tuning (parameter values).</p></dd>
 <span>  <span class="va">id</span>,</span>
 <span>  <span class="va">task_type</span>,</span>
 <span>  <span class="va">param_set</span>,</span>
-<span>  <span class="va">properties</span>,</span>
+<span>  properties <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">man</span>,</span>
 <span>  <span class="va">label</span>,</span>
 <span>  <span class="va">feature_types</span>,</span>
@@ -389,7 +390,8 @@ which are varied systematically during tuning (parameter values).</p></dd>
 <span>  loss <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  packages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  predict_types <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  callbacks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  callbacks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  jittable <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -467,6 +469,11 @@ method, see section <em>Inheriting</em>.</p></dd>
 <dd><p>(<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="TorchCallback.html">TorchCallback</a></code>s)<br>
 The callbacks to use for training.
 Defaults to an empty<code><a href="https://rdrr.io/r/base/list.html" class="external-link"> list()</a></code>, i.e. no callbacks.</p></dd>
+
+
+<dt><code>jittable</code></dt>
+<dd><p>(<code>logical(1)</code>)<br>
+Whether the model can be jit-traced. Default is <code>FALSE</code>.</p></dd>
 
 
 </dl><p></p></div>

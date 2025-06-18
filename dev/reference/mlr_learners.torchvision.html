@@ -93,6 +93,21 @@ number of classes inferred from the <code><a href="https://mlr3.mlr-org.com/refe
 <li><p>Required packages: <code>"mlr3torch"</code>, <code>"torch"</code>, <code>"torchvision"</code></p></li>
 </ul></div>
     <div class="section level2">
+    <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
+    <p>Krizhevsky, Alex, Sutskever, Ilya, Hinton, E. G (2017).
+“Imagenet classification with deep convolutional neural networks.”
+<em>Communications of the ACM</em>, <b>60</b>(6), 84–90.
+Sandler, Mark, Howard, Andrew, Zhu, Menglong, Zhmoginov, Andrey, Chen, Liang-Chieh (2018).
+“Mobilenetv2: Inverted residuals and linear bottlenecks.”
+In <em>Proceedings of the IEEE conference on computer vision and pattern recognition</em>, 4510–4520.
+He, Kaiming, Zhang, Xiangyu, Ren, Shaoqing, Sun, Jian (2016).
+“Deep residual learning for image recognition.”
+In <em>Proceedings of the IEEE conference on computer vision and pattern recognition</em>, 770–778.
+Simonyan, Karen, Zisserman, Andrew (2014).
+“Very deep convolutional networks for large-scale image recognition.”
+<em>arXiv preprint arXiv:1409.1556</em>.</p>
+    </div>
+    <div class="section level2">
     <h2 id="super-classes">Super classes<a class="anchor" aria-label="anchor" href="#super-classes"></a></h2>
     <p><code><a href="https://mlr3.mlr-org.com/reference/Learner.html" class="external-link">mlr3::Learner</a></code> -&gt; <code><a href="mlr_learners_torch.html">mlr3torch::LearnerTorch</a></code> -&gt; <code><a href="mlr_learners_torch_image.html">mlr3torch::LearnerTorchImage</a></code> -&gt; <code>LearnerTorchVision</code></p>
     </div>
@@ -128,7 +143,8 @@ number of classes inferred from the <code><a href="https://mlr3.mlr-org.com/refe
 <span>  <span class="va">label</span>,</span>
 <span>  optimizer <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  loss <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  callbacks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  callbacks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  jittable <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -146,20 +162,7 @@ Function that generates the network.</p></dd>
 
 <dt><code>label</code></dt>
 <dd><p>(<code>character(1)</code>)<br>
-The label of the network.
-#' @references
-Krizhevsky, Alex, Sutskever, Ilya, Hinton, E. G (2017).
-“Imagenet classification with deep convolutional neural networks.”
-<em>Communications of the ACM</em>, <b>60</b>(6), 84–90.
-Sandler, Mark, Howard, Andrew, Zhu, Menglong, Zhmoginov, Andrey, Chen, Liang-Chieh (2018).
-“Mobilenetv2: Inverted residuals and linear bottlenecks.”
-In <em>Proceedings of the IEEE conference on computer vision and pattern recognition</em>, 4510–4520.
-He, Kaiming, Zhang, Xiangyu, Ren, Shaoqing, Sun, Jian (2016).
-“Deep residual learning for image recognition.”
-In <em>Proceedings of the IEEE conference on computer vision and pattern recognition</em>, 770–778.
-Simonyan, Karen, Zisserman, Andrew (2014).
-“Very deep convolutional networks for large-scale image recognition.”
-<em>arXiv preprint arXiv:1409.1556</em>.</p></dd>
+The label of the network.</p></dd>
 
 
 <dt><code>optimizer</code></dt>
@@ -177,6 +180,11 @@ Per default, <em>mse</em> is used for regression and <em>cross_entropy</em> for 
 <dt><code>callbacks</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="TorchCallback.html">TorchCallback</a></code>s)<br>
 The callbacks. Must have unique ids.</p></dd>
+
+
+<dt><code>jittable</code></dt>
+<dd><p>(<code>logical(1)</code>)<br>
+Whether to use jitting.</p></dd>
 
 
 </dl><p></p></div>

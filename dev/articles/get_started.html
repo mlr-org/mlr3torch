@@ -156,10 +156,11 @@ For a complete description of the available parameters see
 <span><span class="co">#&gt; &lt;LearnerTorchMLP:regr.mlp&gt;: Multi Layer Perceptron</span></span>
 <span><span class="co">#&gt; * Model: -</span></span>
 <span><span class="co">#&gt; * Parameters: epochs=30, device=cpu, num_threads=1,</span></span>
-<span><span class="co">#&gt;   num_interop_threads=1, seed=random, jit_trace=FALSE, eval_freq=1,</span></span>
+<span><span class="co">#&gt;   num_interop_threads=1, seed=random, eval_freq=1,</span></span>
 <span><span class="co">#&gt;   measures_train=&lt;list&gt;, measures_valid=&lt;list&gt;, patience=0,</span></span>
 <span><span class="co">#&gt;   min_delta=0, batch_size=32, shuffle=TRUE, tensor_dataset=FALSE,</span></span>
-<span><span class="co">#&gt;   neurons=50,50, p=0.5, activation=&lt;nn_relu&gt;, activation_args=&lt;list&gt;</span></span>
+<span><span class="co">#&gt;   jit_trace=FALSE, neurons=50,50, p=0.5, activation=&lt;nn_relu&gt;,</span></span>
+<span><span class="co">#&gt;   activation_args=&lt;list&gt;</span></span>
 <span><span class="co">#&gt; * Validate: NULL</span></span>
 <span><span class="co">#&gt; * Packages: mlr3, mlr3torch, torch</span></span>
 <span><span class="co">#&gt; * Predict Types:  [response]</span></span>
@@ -385,11 +386,12 @@ common <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="ex
 <span><span class="co">#&gt; &lt;LearnerTorchMLP:regr.mlp&gt;: Multi Layer Perceptron</span></span>
 <span><span class="co">#&gt; * Model: -</span></span>
 <span><span class="co">#&gt; * Parameters: epochs=30, device=cpu, num_threads=1,</span></span>
-<span><span class="co">#&gt;   num_interop_threads=1, seed=random, jit_trace=FALSE, eval_freq=1,</span></span>
+<span><span class="co">#&gt;   num_interop_threads=1, seed=random, eval_freq=1,</span></span>
 <span><span class="co">#&gt;   measures_train=&lt;list&gt;, measures_valid=&lt;MeasureRegrSimple&gt;,</span></span>
 <span><span class="co">#&gt;   patience=0, min_delta=0, batch_size=32, shuffle=TRUE,</span></span>
-<span><span class="co">#&gt;   tensor_dataset=FALSE, neurons=50,50, p=0.5, activation=&lt;nn_relu&gt;,</span></span>
-<span><span class="co">#&gt;   activation_args=&lt;list&gt;, opt.lr=0.5, opt.nesterov=FALSE</span></span>
+<span><span class="co">#&gt;   tensor_dataset=FALSE, jit_trace=FALSE, neurons=50,50, p=0.5,</span></span>
+<span><span class="co">#&gt;   activation=&lt;nn_relu&gt;, activation_args=&lt;list&gt;, opt.lr=0.5,</span></span>
+<span><span class="co">#&gt;   opt.nesterov=FALSE</span></span>
 <span><span class="co">#&gt; * Validate: 0.3</span></span>
 <span><span class="co">#&gt; * Packages: mlr3, mlr3torch, torch</span></span>
 <span><span class="co">#&gt; * Predict Types:  [response]</span></span>
