@@ -444,6 +444,7 @@ test_that("callr encapsulation and marshaling", {
 })
 
 test_that("future and marshaling", {
+  skip_if(running_on_mac())
   skip_if_not_installed("future")
   task = tsk("mtcars")$filter(1:5)
   learner = lrn("regr.mlp", batch_size = 150, epochs = 1, device = "cpu",
