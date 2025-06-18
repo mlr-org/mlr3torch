@@ -31,7 +31,7 @@
 #'
 #' @references
 #' `r format_bib("cifar2009")`
-#' @examples
+#' @examplesIf torch::torch_is_installed()
 #' task_cifar10 = tsk("cifar10")
 #' task_cifar100 = tsk("cifar100")
 #' print(task_cifar10)
