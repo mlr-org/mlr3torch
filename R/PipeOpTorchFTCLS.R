@@ -4,7 +4,7 @@
 #' The input shape is expected to be `(batch, n_features, d_token)` and the output shape is
 #' `(batch, n_features + 1, d_token)`.
 #'
-#' This is used in the FT-Transformer.
+#' This is used in the [`LearnerTorchFTTransformer`].
 #'
 #' @param d_token (`integer(1)`)\cr
 #'   The dimension of the embedding.

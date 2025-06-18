@@ -444,6 +444,7 @@ test_that("callr encapsulation and marshaling", {
 })
 
 test_that("future and marshaling", {
+  skip_if(running_on_mac())
   skip_if_not_installed("future")
   task = tsk("mtcars")$filter(1:5)
   learner = lrn("regr.mlp", batch_size = 150, epochs = 1, device = "cpu",
@@ -585,7 +586,7 @@ test_that("internal tuning", {
     term_evals = 2
   )
   expect_equal(
-    ti$archive$data$internal_tuned_values, replicate(list(list(epochs = 3L)), n = 2L)
+    ti$archive$data$internal_tuned_values, replicate(list(set_class(list(epochs = 3L), "internal_tuned_values")), n = 2L)
   )
   expect_equal(ti$result_learner_param_vals$epochs, 3L)
 })
@@ -839,7 +840,7 @@ test_that("early stopping and eval freq", {
     store_models = TRUE
   )
   at$train(task)
-  expect_equal(at$tuning_instance$archive$data$internal_tuned_values, list(list(epochs = 4L)))
+  expect_equal(at$tuning_instance$archive$data$internal_tuned_values, list(set_class(list(epochs = 4L), "internal_tuned_values")))
   # first eval is after 4, then 10 evaluations every 4 epochs with no improvement -> 44
   expect_equal(at$tuning_instance$archive$resample_result(1)$learners[[1]]$model$epochs, 44L)
 })

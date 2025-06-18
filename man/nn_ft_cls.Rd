@@ -19,7 +19,7 @@ Concatenates a CLS token to the input as the last feature.
 The input shape is expected to be \verb{(batch, n_features, d_token)} and the output shape is
 \verb{(batch, n_features + 1, d_token)}.
 
-This is used in the FT-Transformer.
+This is used in the \code{\link{LearnerTorchFTTransformer}}.
 }
 \references{
 Devlin, Jacob, Chang, Ming-Wei, Lee, Kenton, Toutanova, Kristina (2018).

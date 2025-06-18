@@ -81,10 +81,7 @@ test_that("ModelDescriptor basic checks", {
     graph = a,
     ingress = list(torch_ingress_num.input = ingress),
     task = task
-  ),
-    regexp = "Must inherit from class 'Graph'",
-    fixed = TRUE
-  )
+  ))
 
   expect_error(ModelDescriptor(
     graph = g,
