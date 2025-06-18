@@ -9,7 +9,7 @@ Concatenates a CLS token to the input as the last feature.
 The input shape is expected to be \verb{(batch, n_features, d_token)} and the output shape is
 \verb{(batch, n_features + 1, d_token)}.
 
-This is used in the FT-Transformer.
+This is used in the \code{\link{LearnerTorchFTTransformer}}.
 }
 \section{nn_module}{
 
@@ -52,6 +52,7 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_dropout}},
 \code{\link{mlr_pipeops_nn_elu}},
 \code{\link{mlr_pipeops_nn_flatten}},
+\code{\link{mlr_pipeops_nn_ft_transformer_block}},
 \code{\link{mlr_pipeops_nn_geglu}},
 \code{\link{mlr_pipeops_nn_gelu}},
 \code{\link{mlr_pipeops_nn_glu}},
