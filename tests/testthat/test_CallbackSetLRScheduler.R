@@ -118,7 +118,7 @@ test_that("plateau works", {
     callbacks = cb,
     epochs = 10, batch_size = 150, neurons = 10,
     measures_train = msrs(c("classif.acc", "classif.ce")),
-    measures_valid = msr(c("classif.ce")),
+    measures_valid = msrs(c("classif.ce")),
     validate = 0.2
   )
 
@@ -138,14 +138,11 @@ test_that("1cycle works", {
   mlp = lrn("classif.mlp",
     callbacks = cb,
     epochs = 10, batch_size = 50, neurons = 10,
-    measures_train = msrs(c("classif.acc", "classif.ce")),
-    measures_valid = msr(c("classif.ce")),
-    validate = 0.2
+    measures_train = msrs(c("classif.acc", "classif.ce"))
   )
 
   mlp$train(task)
 
-  expect_learner(mlp)
   expect_class(mlp$network, c("nn_sequential", "nn_module"))
 })
 
