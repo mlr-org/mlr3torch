@@ -47,9 +47,7 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
       if (step_on_epoch) {
         self$on_epoch_end = function() self$scheduler$step()
       } else {
-          self$on_batch_end = function() {
-            self$scheduler$step()
-          }
+        self$on_batch_end = function() self$scheduler$step()
       }
     },
     #' @description
