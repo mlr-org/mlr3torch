@@ -82,6 +82,8 @@ CallbackSetLRSchedulerReduceOnPlateau = R6Class("CallbackSetLRSchedulerReduceOnP
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
+    #' @param .scheduler (`LRScheduler`)\cr
+    #' The learning rate scheduler wrapped by this callback.
     #' @param step_on_epoch (`logical(1)`)\cr
     #'   Whether the scheduler steps after every epoch (otherwise every batch).
     initialize = function(.scheduler, step_on_epoch, ...) {
