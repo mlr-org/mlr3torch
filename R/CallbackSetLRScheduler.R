@@ -70,6 +70,21 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
   )
 )
 
+CallbackSetLRSchedulerOneCycle = R6Class("CallbackSetLRSchedulerOneCycle",
+  inherit = CallbackSetLRScheduler,
+  lock_objects = FALSE,
+  private = list(
+    on_begin = function() {
+      private$.scheduler_args = insert_named(
+        private$.scheduler_args,
+        list(epochs = self$ctx$total_epochs, steps_per_epoch = self$ctx$loader_train$.length())
+      )
+
+      self$scheduler = invoke(self$scheduler_fn, optimizer = self$ctx$optimizer, .args = private$.scheduler_args)
+    }
+  )
+)
+
 CallbackSetLRSchedulerReduceOnPlateau = R6Class("CallbackSetLRSchedulerReduceOnPlateau",
   inherit = CallbackSetLRScheduler,
   lock_objects = FALSE,
@@ -171,7 +186,7 @@ mlr3torch_callbacks$add("lr_multiplicative", function() {
 #' @include TorchCallback.R
 mlr3torch_callbacks$add("lr_one_cycle", function() {
   TorchCallback$new(
-    callback_generator = CallbackSetLRScheduler,
+    callback_generator = CallbackSetLRSchedulerOneCycle,
     param_set = ps(
       max_lr = p_uty(tags = c("train", "required"), custom_check = function(x) check_class_or_list(x, "numeric")),
       total_steps = p_int(default = NULL, special_vals = list(NULL), tags = "train"),
