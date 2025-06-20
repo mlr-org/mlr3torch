@@ -53,13 +53,6 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
     #' @description
     #' Creates the scheduler using the optimizer from the context
     on_begin = function() {
-      if (class(self$scheduler_fn)[[1L]] == "lr_one_cycle") {
-        private$.scheduler_args = insert_named(
-          private$.scheduler_args,
-          list(epochs = self$ctx$total_epochs, steps_per_epoch = self$ctx$loader_train$.length())
-        )
-      }
-
       self$scheduler = invoke(self$scheduler_fn, optimizer = self$ctx$optimizer, .args = private$.scheduler_args)
     }
   ),
@@ -71,7 +64,7 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
 CallbackSetLRSchedulerOneCycle = R6Class("CallbackSetLRSchedulerOneCycle",
   inherit = CallbackSetLRScheduler,
   lock_objects = FALSE,
-  private = list(
+  public = list(
     on_begin = function() {
       private$.scheduler_args = insert_named(
         private$.scheduler_args,
