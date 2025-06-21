@@ -58,7 +58,7 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #' @family Torch Descriptor
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' # Create a new torch loss
+#' # Create a new torch optimizer
 #' torch_opt = TorchOptimizer$new(optim_ignite_adam, label = "adam")
 #' torch_opt
 #' # If the param set is not specified, parameters are inferred but are of class ParamUty
