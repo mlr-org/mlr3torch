@@ -164,3 +164,6 @@ test_that("can train with every optimizer", {
     test_optimizer(opt_id)
   }
 })
+
+# TODO: possibly modify all of these tests to work with the new param_groups argument
+# TODO: ensure backwards compatibility for this feature

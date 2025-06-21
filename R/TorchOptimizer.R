@@ -41,11 +41,11 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #' @title Torch Optimizer
 #'
 #' @description
-#' This wraps a `torch::torch_optimizer_generator`a and annotates it with metadata, most importantly a [`ParamSet`][paradox::ParamSet].
+#' This wraps a `torch::torch_optimizer_generator` and annotates it with metadata, most importantly a [`ParamSet`][paradox::ParamSet].
 #' The optimizer is created for the given parameter values by calling the `$generate()` method.
 #'
 #' This class is usually used to configure the optimizer of a torch learner, e.g.
-#' when construcing a learner or in a [`ModelDescriptor`].
+#' when constructing a learner or in a [`ModelDescriptor`].
 #'
 #' For a list of available optimizers, see [`mlr3torch_optimizers`].
 #' Items from this dictionary can be retrieved using [`t_opt()`].
@@ -123,6 +123,9 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
     #' @param params (named `list()` of [`torch_tensor`][torch::torch_tensor]s)\cr
     #'   The parameters of the network.
     #' @return `torch_optimizer`
+    # TODO: modify this function to also work on param groups
+    # do we want a separate function that calls its own param_groups() function to get the param_groups
+    # and then passes these param_groups to this function?
     generate = function(params) {
       require_namespaces(self$packages)
       invoke(self$generator, .args = self$param_set$get_values(), params = params)
@@ -240,7 +243,8 @@ mlr3torch_optimizers$add("adamw",
       betas        = p_uty(default = c(0.9, 0.999), tags = "train", custom_check = check_betas),
       eps          = p_dbl(default = 1e-08, lower = 1e-16, upper = 1e-4, tags = "train"),
       weight_decay = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
-      amsgrad      = p_lgl(default = FALSE, tags = "train")
+      amsgrad      = p_lgl(default = FALSE, tags = "train"),
+      param_groups = p_uty(custom_check = check_function, default = function(net) net$parameters)
     )
     TorchOptimizer$new(
       torch_optimizer = torch::optim_ignite_adam,
@@ -266,7 +270,8 @@ mlr3torch_optimizers$add("adam",
       betas        = p_uty(default = c(0.9, 0.999), tags = "train", custom_check = check_betas),
       eps          = p_dbl(default = 1e-08, lower = 1e-16, upper = 1e-4, tags = "train"),
       weight_decay = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
-      amsgrad      = p_lgl(default = FALSE, tags = "train")
+      amsgrad      = p_lgl(default = FALSE, tags = "train"),
+      param_groups = p_uty(custom_check = check_function, default = function(net) net$parameters)
     )
     TorchOptimizer$new(
       torch_optimizer = torch::optim_ignite_adam,
@@ -286,7 +291,8 @@ mlr3torch_optimizers$add("sgd",
       momentum     = p_dbl(0, 1, default = 0, tags = "train"),
       dampening    = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
       weight_decay = p_dbl(0, 1, default = 0, tags = "train"),
-      nesterov     = p_lgl(default = FALSE, tags = "train")
+      nesterov     = p_lgl(default = FALSE, tags = "train"),
+      param_groups = p_uty(custom_check = check_function, default = function(net) net$parameters)
     )
     TorchOptimizer$new(
       torch_optimizer = torch::optim_ignite_sgd,
@@ -308,7 +314,8 @@ mlr3torch_optimizers$add("rmsprop",
       eps          = p_dbl(default = 1e-08, lower = 0, upper = Inf, tags = "train"),
       weight_decay = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
       momentum     = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
-      centered     = p_lgl(default = FALSE, tags = "train")
+      centered     = p_lgl(default = FALSE, tags = "train"),
+      param_groups = p_uty(custom_check = check_function, default = function(net) net$parameters)
     )
     TorchOptimizer$new(
       torch_optimizer = torch::optim_ignite_rmsprop,
@@ -328,7 +335,8 @@ mlr3torch_optimizers$add("adagrad",
       lr_decay                  = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
       weight_decay              = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
       initial_accumulator_value = p_dbl(default = 0, lower = 0, tags = "train"),
-      eps                       = p_dbl(default = 1e-10, lower = 1e-16, upper = 1e-4, tags = "train")
+      eps                       = p_dbl(default = 1e-10, lower = 1e-16, upper = 1e-4, tags = "train"),
+      param_groups = p_uty(custom_check = check_function, default = function(net) net$parameters)
     )
     TorchOptimizer$new(
       torch_optimizer = torch::optim_ignite_adagrad,
