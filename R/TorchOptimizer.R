@@ -112,6 +112,7 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
         if ("param_groups" %nin% param_set$ids()) {
           param_set = c(
             param_set,
+            # TODO: change this to use `default = ` if possible
             ps(param_groups = p_uty(custom_check = check_function, init = single_param_group))
           )
         }
@@ -130,14 +131,11 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
     #' @param params (named `list()` of [`torch_tensor`][torch::torch_tensor]s)\cr
     #'   The parameters of the network.
     #' @return `torch_optimizer`
-    # TODO: modify this function to also work on param groups
-    # do we want a separate function that calls its own param_groups() function to get the param_groups
-    # and then passes these param_groups to this function?
     generate = function(params) {
       require_namespaces(self$packages)
 
+      # use `init = ` in the ParamSet so that `param_groups()` would be available here
       param_groups = self$param_set$get_values()$param_groups(params)
-
       invoke(self$generator, .args = remove_named(self$param_set$get_values(), "param_groups"), params = param_groups)
     }
   ),
@@ -239,8 +237,8 @@ t_opts.NULL = function(.keys, ...) { # nolint
   dictionary_sugar_mget(mlr3torch_optimizers)
 }
 
-single_param_group = function(net) {
-  net$parameters
+single_param_group = function(params) {
+  return(params)
 }
 
 mlr3torch_optimizers$add("adamw",
@@ -297,7 +295,6 @@ mlr3torch_optimizers$add("adam",
   }
 )
 
-
 mlr3torch_optimizers$add("sgd",
   function() {
     p = ps(
@@ -317,8 +314,6 @@ mlr3torch_optimizers$add("sgd",
     )
   }
 )
-
-
 
 mlr3torch_optimizers$add("rmsprop",
   function() {
@@ -340,7 +335,6 @@ mlr3torch_optimizers$add("rmsprop",
     )
   }
 )
-
 
 mlr3torch_optimizers$add("adagrad",
   function() {

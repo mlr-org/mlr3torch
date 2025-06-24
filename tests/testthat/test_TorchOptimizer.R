@@ -8,7 +8,7 @@ test_that("Basic checks", {
   expect_r6(torch_opt, "TorchOptimizer")
   expect_set_equal(torch_opt$packages, c("mypackage", "torch", "mlr3torch"))
   expect_equal(torch_opt$label, "Adam")
-  expect_set_equal(torch_opt$param_set$ids(), setdiff(formalArgs(optim_ignite_adam), "params"))
+  expect_set_equal(setdiff(torch_opt$param_set$ids(), "param_groups"), setdiff(formalArgs(optim_ignite_adam), c("params")))
   expect_error(torch_opt$generate(), regexp = "could not be loaded: mypackage", fixed = TRUE)
 
   expect_error(
@@ -85,7 +85,6 @@ test_that("Printer works", {
   )
   expect_identical(observed, expected)
 })
-
 
 test_that("Converters are correctly implemented", {
   expect_r6(as_torch_optimizer("adam"), "TorchOptimizer")
@@ -195,8 +194,6 @@ test_that("idk", {
     # predict type (required by logloss)
     predict_type = "prob"
   )
-
-  browser()
 
   expect_true(TRUE)
 })

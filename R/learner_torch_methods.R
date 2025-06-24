@@ -39,10 +39,8 @@ learner_torch_train = function(self, private, super, task, param_vals) {
       network = do.call(jit_trace, c(list(network), unname(example)))
     }
   }
-
   if (is.null(self$optimizer)) stopf("Learner '%s' defines no optimizer", self$id)
   optimizer = self$optimizer$generate(network$parameters)
-
   if (is.null(self$loss)) stopf("Learner '%s' defines no loss", self$id)
   loss_fn = self$loss$generate(task)
   loss_fn$to(device = param_vals$device)
