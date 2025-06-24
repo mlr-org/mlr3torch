@@ -227,8 +227,6 @@ mlr3torch_callbacks$add("lr_step", function() {
 #'   The `torch` scheduler generator defined using `torch::lr_scheduler()`.
 #' @param step_on_epoch (`logical(1)`)\cr
 #'   Whether the scheduler steps after every epoch
-#' @param step_takes_valid_metric (`logical(1)`)\cr
-#'   Whether the scheduler's `$step()` function takes a validation metric as an argument.
 #' @export
 as_lr_scheduler = function(x, step_on_epoch) {
   assert_class(x, "lr_scheduler_generator")

@@ -308,6 +308,7 @@ expect_torch_callback = function(torch_callback, check_man = TRUE, check_paramse
     expect_paramtest(paramtest)
   }
 
+  # TODO: do this check recursively, for all levels of inheritance
   super_cbgen_public_methods = cbgen$get_inherit()$public_methods 
   superclass_implemented_stages = names(super_cbgen_public_methods)[grepl("^on_", names(super_cbgen_public_methods))]
   implemented_stages = union(superclass_implemented_stages, names(cbgen$public_methods)[grepl("^on_", names(cbgen$public_methods))])
