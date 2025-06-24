@@ -57,7 +57,9 @@ TorchDescriptor = R6Class("TorchDescriptor",
           args = formalArgs(init)
         }
       }
-      if ("..." %nin% args && !test_subset(self$param_set$ids(), args)) {
+
+      if ("..." %nin% args && 
+          !test_subset(setdiff(self$param_set$ids(), "param_groups"), args)) {
         missing = setdiff(self$param_set$ids(), args)
         stopf("Parameter values with ids %s are missing in generator.", paste0("'", missing, "'", collapse = ", "))
       }

@@ -167,3 +167,29 @@ test_that("can train with every optimizer", {
 
 # TODO: possibly modify all of these tests to work with the new param_groups argument
 # TODO: ensure backwards compatibility for this feature
+test_that("idk", {
+  learner_mlp = lrn("classif.mlp",
+    # defining network parameters
+    activation     = nn_relu,
+    neurons        = c(20, 20),
+    # training parameters
+    batch_size     = 16,
+    epochs         = 50,
+    device         = "cpu",
+    # Proportion of data to use for validation
+    validate = 0.3,
+    # Defining the optimizer, loss, and callbacks
+    optimizer      = t_opt("adam", lr = 0.1),
+    loss           = t_loss("cross_entropy"),
+    callbacks      = t_clbk("history"), # this saves the history in the learner
+    # Measures to track
+    measures_valid = msrs(c("classif.logloss", "classif.ce")),
+    measures_train = msrs(c("classif.acc")),
+    # predict type (required by logloss)
+    predict_type = "prob"
+  )
+
+  browser()
+
+  expect_true(TRUE)
+})

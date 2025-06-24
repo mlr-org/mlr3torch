@@ -53,7 +53,7 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
 #' If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
-#' for each argument of the wrapped loss function, where the parametes are then of type [`ParamUty`][paradox::Domain].
+#' for each argument of the wrapped loss function, where the parameters are then of type [`ParamUty`][paradox::Domain].
 #'
 #' @family Torch Descriptor
 #' @export
@@ -128,7 +128,10 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
     # and then passes these param_groups to this function?
     generate = function(params) {
       require_namespaces(self$packages)
-      invoke(self$generator, .args = self$param_set$get_values(), params = params)
+
+      param_groups = self$param_set$get_values()$param_groups(params)
+
+      invoke(self$generator, .args = self$param_set$get_values(), params = param_groups)
     }
   ),
   private = list(
@@ -229,6 +232,10 @@ t_opts.NULL = function(.keys, ...) { # nolint
   dictionary_sugar_mget(mlr3torch_optimizers)
 }
 
+single_param_group = function(net) {
+  net$parameters
+}
+
 mlr3torch_optimizers$add("adamw",
   function() {
     check_betas = function(x) {
@@ -244,7 +251,7 @@ mlr3torch_optimizers$add("adamw",
       eps          = p_dbl(default = 1e-08, lower = 1e-16, upper = 1e-4, tags = "train"),
       weight_decay = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
       amsgrad      = p_lgl(default = FALSE, tags = "train"),
-      param_groups = p_uty(custom_check = check_function, default = function(net) net$parameters)
+      param_groups = p_uty(custom_check = check_function, default = single_param_group)
     )
     TorchOptimizer$new(
       torch_optimizer = torch::optim_ignite_adam,
@@ -271,7 +278,7 @@ mlr3torch_optimizers$add("adam",
       eps          = p_dbl(default = 1e-08, lower = 1e-16, upper = 1e-4, tags = "train"),
       weight_decay = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
       amsgrad      = p_lgl(default = FALSE, tags = "train"),
-      param_groups = p_uty(custom_check = check_function, default = function(net) net$parameters)
+      param_groups = p_uty(custom_check = check_function, default = single_param_group)
     )
     TorchOptimizer$new(
       torch_optimizer = torch::optim_ignite_adam,
@@ -292,7 +299,7 @@ mlr3torch_optimizers$add("sgd",
       dampening    = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
       weight_decay = p_dbl(0, 1, default = 0, tags = "train"),
       nesterov     = p_lgl(default = FALSE, tags = "train"),
-      param_groups = p_uty(custom_check = check_function, default = function(net) net$parameters)
+      param_groups = p_uty(custom_check = check_function, default = single_param_group)
     )
     TorchOptimizer$new(
       torch_optimizer = torch::optim_ignite_sgd,
@@ -315,7 +322,7 @@ mlr3torch_optimizers$add("rmsprop",
       weight_decay = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
       momentum     = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
       centered     = p_lgl(default = FALSE, tags = "train"),
-      param_groups = p_uty(custom_check = check_function, default = function(net) net$parameters)
+      param_groups = p_uty(custom_check = check_function, default = single_param_group)
     )
     TorchOptimizer$new(
       torch_optimizer = torch::optim_ignite_rmsprop,
@@ -336,7 +343,7 @@ mlr3torch_optimizers$add("adagrad",
       weight_decay              = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
       initial_accumulator_value = p_dbl(default = 0, lower = 0, tags = "train"),
       eps                       = p_dbl(default = 1e-10, lower = 1e-16, upper = 1e-4, tags = "train"),
-      param_groups = p_uty(custom_check = check_function, default = function(net) net$parameters)
+      param_groups = p_uty(custom_check = check_function, default = single_param_group)
     )
     TorchOptimizer$new(
       torch_optimizer = torch::optim_ignite_adagrad,
