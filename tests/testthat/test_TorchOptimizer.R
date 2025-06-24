@@ -112,12 +112,19 @@ test_that("Converters are correctly implemented", {
   expect_equal(torch_opt3$label, "optim_adam")
 })
 
+test_that("Parameter test: adamw", {
+  torch_opt = t_opt("adamw")
+  param_set = torch_opt$param_set
+  fn = torch_opt$generator
+  res = expect_paramset(param_set, fn, exclude = c("params", "param_groups"))
+  expect_paramtest(res)
+})
 
 test_that("Parameter test: adam", {
   torch_opt = t_opt("adam")
   param_set = torch_opt$param_set
   fn = torch_opt$generator
-  res = expect_paramset(param_set, fn, exclude = "params")
+  res = expect_paramset(param_set, fn, exclude = c("params", "param_groups"))
   expect_paramtest(res)
 })
 
@@ -126,7 +133,7 @@ test_that("Parameter test: sgd", {
   param_set = torch_opt$param_set
   # lr is set to `optim_required()`
   fn = torch_opt$generator
-  res = expect_paramset(param_set, fn, exclude = c("params", "lr"))
+  res = expect_paramset(param_set, fn, exclude = c("params", "param_groups", "lr"))
   expect_paramtest(res)
 })
 
@@ -134,7 +141,7 @@ test_that("Parameter test: rmsprop", {
   torch_opt = t_opt("rmsprop")
   param_set = torch_opt$param_set
   fn = torch_opt$generator
-  res = expect_paramset(param_set, fn, exclude = "params")
+  res = expect_paramset(param_set, fn, exclude = c("params", "param_groups"))
   expect_paramtest(res)
 })
 
@@ -142,7 +149,7 @@ test_that("Parameter test: adagrad", {
   torch_opt = t_opt("adagrad")
   param_set = torch_opt$param_set
   fn = torch_opt$generator
-  res = expect_paramset(param_set, fn, exclude = "params")
+  res = expect_paramset(param_set, fn, exclude = c("params", "param_groups"))
   expect_paramtest(res)
 })
 
