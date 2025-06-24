@@ -107,15 +107,7 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
           stopf("The name 'params' is reserved for the network parameters.")
         }
       } else {
-        param_set = c(inferps(torch_optimizer, ignore = "params"))
-
-        if ("param_groups" %nin% param_set$ids()) {
-          param_set = c(
-            param_set,
-            # TODO: change this to use `default = ` if possible
-            ps(param_groups = p_uty(custom_check = check_function, init = single_param_group))
-          )
-        }
+        param_set = inferps(torch_optimizer, ignore = "params")
       }
       super$initialize(
         generator = torch_optimizer,
@@ -134,8 +126,13 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
     generate = function(params) {
       require_namespaces(self$packages)
 
-      # use `init = ` in the ParamSet so that `param_groups()` would be available here
-      param_groups = self$param_set$get_values()$param_groups(params)
+      param_vals = self$param_set$get_values()
+      if ("param_groups" %in% param_vals) {
+        param_groups = param_vals$param_groups(params)
+      } else {
+        param_groups = single_param_group(params)
+      }
+
       invoke(self$generator, .args = remove_named(self$param_set$get_values(), "param_groups"), params = param_groups)
     }
   ),
@@ -256,7 +253,7 @@ mlr3torch_optimizers$add("adamw",
       eps          = p_dbl(default = 1e-08, lower = 1e-16, upper = 1e-4, tags = "train"),
       weight_decay = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
       amsgrad      = p_lgl(default = FALSE, tags = "train"),
-      param_groups = p_uty(custom_check = check_function, init = single_param_group)
+      param_groups = p_uty(custom_check = check_function, default = single_param_group, tags = "train")
     )
     TorchOptimizer$new(
       torch_optimizer = torch::optim_ignite_adam,
@@ -283,7 +280,7 @@ mlr3torch_optimizers$add("adam",
       eps          = p_dbl(default = 1e-08, lower = 1e-16, upper = 1e-4, tags = "train"),
       weight_decay = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
       amsgrad      = p_lgl(default = FALSE, tags = "train"),
-      param_groups = p_uty(custom_check = check_function, init = single_param_group)
+      param_groups = p_uty(custom_check = check_function, default = single_param_group, tags = "train")
     )
     TorchOptimizer$new(
       torch_optimizer = torch::optim_ignite_adam,
@@ -303,7 +300,7 @@ mlr3torch_optimizers$add("sgd",
       dampening    = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
       weight_decay = p_dbl(0, 1, default = 0, tags = "train"),
       nesterov     = p_lgl(default = FALSE, tags = "train"),
-      param_groups = p_uty(custom_check = check_function, init = single_param_group)
+      param_groups = p_uty(custom_check = check_function, default = single_param_group, tags = "train")
     )
     TorchOptimizer$new(
       torch_optimizer = torch::optim_ignite_sgd,
@@ -324,7 +321,7 @@ mlr3torch_optimizers$add("rmsprop",
       weight_decay = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
       momentum     = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
       centered     = p_lgl(default = FALSE, tags = "train"),
-      param_groups = p_uty(custom_check = check_function, init = single_param_group)
+      param_groups = p_uty(custom_check = check_function, default = single_param_group, tags = "train")
     )
     TorchOptimizer$new(
       torch_optimizer = torch::optim_ignite_rmsprop,
@@ -344,7 +341,7 @@ mlr3torch_optimizers$add("adagrad",
       weight_decay              = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
       initial_accumulator_value = p_dbl(default = 0, lower = 0, tags = "train"),
       eps                       = p_dbl(default = 1e-10, lower = 1e-16, upper = 1e-4, tags = "train"),
-      param_groups = p_uty(custom_check = check_function, init = single_param_group)
+      param_groups = p_uty(custom_check = check_function, default = single_param_group, tags = "train")
     )
     TorchOptimizer$new(
       torch_optimizer = torch::optim_ignite_adagrad,
