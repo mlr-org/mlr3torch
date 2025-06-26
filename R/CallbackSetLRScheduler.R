@@ -19,6 +19,8 @@
 #'   The `torch` scheduler generator (e.g. `torch::lr_step`).
 #' @param ... (any)\cr
 #'   The scheduler-specific initialization arguments.
+#' @param step_on_epoch (`logical(1)`)\cr
+#'   Whether the scheduler steps after every epoch (otherwise every batch).
 #'
 #' @export
 CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
@@ -33,10 +35,6 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
     scheduler = NULL,
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    #' @param .scheduler (`LRScheduler`)\cr
-    #' The learning rate scheduler wrapped by this callback.
-    #' @param step_on_epoch (`logical(1)`)\cr
-    #'   Whether the scheduler steps after every epoch (otherwise every batch).
     initialize = function(.scheduler, step_on_epoch, ...) {
       assert_class(.scheduler, "lr_scheduler_generator")
       assert_flag(step_on_epoch)
