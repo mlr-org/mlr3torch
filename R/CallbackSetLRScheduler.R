@@ -61,6 +61,21 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
   )
 )
 
+#' @title OneCycle Learning Rate Scheduling Callback
+#'
+#' @name mlr_callback_set.lr_scheduler_one_cycle
+#'
+#' @description
+#' Changes the learning rate based on the 1cycle learning rate policy.
+#'
+#' Wraps [torch::lr_one_cycle()], where the default values for `epochs` and `steps_per_epoch` are the number of training epochs and the number of batches per epoch.
+#'
+#' @param .scheduler (`lr_scheduler_generator`)\cr
+#'   The `torch` scheduler generator (e.g. `torch::lr_one_cycle`).
+#' @param ... (any)\cr
+#'   The scheduler-specific initialization arguments.
+#'
+#' @export
 CallbackSetLRSchedulerOneCycle = R6Class("CallbackSetLRSchedulerOneCycle",
   inherit = CallbackSetLRScheduler,
   lock_objects = FALSE,
@@ -76,6 +91,19 @@ CallbackSetLRSchedulerOneCycle = R6Class("CallbackSetLRSchedulerOneCycle",
   )
 )
 
+#' @title Reduce On Plateau Learning Rate Scheduler
+#'
+#' @name mlr_callback_set.lr_scheduler_reduce_on_plateau
+#'
+#' @description
+#' Reduces the learning rate when the validation metric stops improving for `patience` epochs. Wraps [torch::lr_reduce_on_plateau()]
+#'
+#' @param .scheduler (`lr_scheduler_generator`)\cr
+#'   The `torch` scheduler generator (e.g. `torch::lr_reduce_on_plateau`).
+#' @param ... (any)\cr
+#'   The scheduler-specific initialization arguments.
+#'
+#' @export
 CallbackSetLRSchedulerReduceOnPlateau = R6Class("CallbackSetLRSchedulerReduceOnPlateau",
   inherit = CallbackSetLRScheduler,
   lock_objects = FALSE,
