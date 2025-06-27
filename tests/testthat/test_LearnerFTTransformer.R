@@ -37,9 +37,9 @@ no_wd = function(name) {
   )
 
   # implementation in https://github.com/yandex-research/rtdl-revisiting-models/blob/main/package/rtdl_revisiting_models.py
-  # other_no_wd_params = c("embedding", "_normalization", ".bias")
+  # no_wd_params = c("embedding", "_normalization", ".bias")
 
-  # return(any(map_lgl(other_no_wd_params, function(pattern) grepl(pattern, name, fixed = TRUE))))
+  # return(any(map_lgl(no_wd_params, function(pattern) grepl(pattern, name, fixed = TRUE))))
 }
 
 rtdl_param_groups = function(parameters) {

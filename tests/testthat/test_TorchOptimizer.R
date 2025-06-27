@@ -170,3 +170,25 @@ test_that("can train with every optimizer", {
     test_optimizer(opt_id)
   }
 })
+
+test_that("param groups work", {
+  learner = lrn("classif.mlp", neurons = 5, n_layers = 4, epochs = 3, batch_size = 150)
+  default_weight_decay = 0.37
+  second_weight_decay = 0.11
+  learner$param_set$set_values(opt.weight_decay = default_weight_decay)
+  learner$param_set$set_values(opt.param_groups = function(params) {
+    list(
+      list(params = params[1:2]),
+      list(params = params[3:length(params)], weight_decay = second_weight_decay)
+    )
+  })
+
+  task = tsk("iris")$filter(1:10)
+  learner$train(task)
+
+  expect_equal(length(learner$model$optimizer$param_groups), 2L)
+  expect_equal(learner$model$optimizer$param_groups[[1L]]$weight_decay, default_weight_decay)
+  expect_equal(learner$model$optimizer$param_groups[[2L]]$weight_decay, second_weight_decay)
+
+  expect_learner(learner)
+})
