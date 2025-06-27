@@ -130,11 +130,14 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
     generate = function(params) {
       require_namespaces(self$packages)
 
-      param_vals = self$param_set$get_values()
       if ("param_groups" %in% self$param_set$ids()) {
-        param_groups = param_vals$param_groups(params)
+        if (is.null(self$param_set$get_values()$param_groups)) {
+          param_groups = self$param_set$data[id == "param_groups", default][[1L]](params)
+        } else {
+          param_groups = self$param_set$get_values()$param_groups(params)
+        }
       } else {
-        param_groups = single_param_group(params)
+        param_groups = params
       }
 
       invoke(self$generator, .args = remove_named(self$param_set$get_values(), "param_groups"), params = param_groups)
