@@ -308,33 +308,27 @@ expect_torch_callback = function(torch_callback, check_man = TRUE, check_paramse
     expect_paramtest(paramtest)
   }
 
-  # TODO: do this check recursively, for all levels of inheritance
   get_all_implemented_stages = function(cbgen) {
     implemented_stages = character(0)
     current_gen = cbgen
-    
-    # Walk up the inheritance chain
+
     while (!is.null(current_gen)) {
-      # Get stages from current level
       current_stages = names(current_gen$public_methods)[grepl("^on_", names(current_gen$public_methods))]
       implemented_stages = union(implemented_stages, current_stages)
-      
-      # Move to parent class
+
       current_gen = current_gen$get_inherit()
     }
-    
+
     return(implemented_stages)
   }
   
   implemented_stages = get_all_implemented_stages(cbgen)
   expect_subset(implemented_stages, mlr_reflections$torch$callback_stages)
   expect_true(length(implemented_stages) > 0)
-  
-  # Check that all implemented stages are functions with 0 arguments
-  # We need to find which class level each stage is defined at
+
   check_stage_function = function(stage, cbgen) {
     current_gen = cbgen
-    
+
     while (!is.null(current_gen)) {
       if (stage %in% names(current_gen$public_methods)) {
         expect_function(current_gen$public_methods[[stage]], nargs = 0)
@@ -342,11 +336,8 @@ expect_torch_callback = function(torch_callback, check_man = TRUE, check_paramse
       }
       current_gen = current_gen$get_inherit()
     }
-    
-    # This should never happen if implemented_stages was built correctly
-    stop("Stage '", stage, "' not found in inheritance chain")
   }
-  
+
   walk(implemented_stages, function(stage) {
     check_stage_function(stage, cbgen)
   })
