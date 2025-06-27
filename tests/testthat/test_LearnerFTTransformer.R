@@ -56,11 +56,16 @@ rtdl_param_groups = function(parameters) {
 
 test_that("param groups work", {
   learner = make_ft_transformer("classif")
-  learner$param_set$set_values(opt.weight_decay = 0.23)
+  default_weight_decay = 0.23
+  learner$param_set$set_values(opt.weight_decay = default_weight_decay)
   learner$param_set$set_values(opt.param_groups = rtdl_param_groups)
 
   task = tsk("german_credit")$filter(1:10)
   learner$train(task)
+
+  expect_equal(length(learner$model$optimizer$param_groups), 2L)
+  expect_equal(learner$model$optimizer$param_groups[[1L]]$weight_decay, default_weight_decay)
+  expect_equal(learner$model$optimizer$param_groups[[2L]]$weight_decay, 0)
 
   expect_learner(learner)
 })

@@ -341,7 +341,7 @@ mlr3torch_optimizers$add("adagrad",
       weight_decay              = p_dbl(default = 0, lower = 0, upper = 1, tags = "train"),
       initial_accumulator_value = p_dbl(default = 0, lower = 0, tags = "train"),
       eps                       = p_dbl(default = 1e-10, lower = 1e-16, upper = 1e-4, tags = "train"),
-      param_groups = p_uty(custom_check = check_function, default = single_param_group, tags = "train")
+      param_groups              = p_uty(custom_check = check_function, default = single_param_group, tags = "train")
     )
     TorchOptimizer$new(
       torch_optimizer = torch::optim_ignite_adagrad,
