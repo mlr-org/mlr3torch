@@ -1,3 +1,7 @@
+single_param_group = function(params) {
+  return(params)
+}
+
 #' @title Convert to TorchOptimizer
 #'
 #' @description
@@ -127,7 +131,7 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
       require_namespaces(self$packages)
 
       param_vals = self$param_set$get_values()
-      if ("param_groups" %in% param_vals) {
+      if ("param_groups" %in% self$param_set$ids()) {
         param_groups = param_vals$param_groups(params)
       } else {
         param_groups = single_param_group(params)
@@ -232,10 +236,6 @@ t_opts.character = function(.keys, ...) { # nolint
 t_opts.NULL = function(.keys, ...) { # nolint
   # class is NULL if .keys is missing
   dictionary_sugar_mget(mlr3torch_optimizers)
-}
-
-single_param_group = function(params) {
-  return(params)
 }
 
 mlr3torch_optimizers$add("adamw",

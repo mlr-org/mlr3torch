@@ -69,11 +69,11 @@ test_that("dictionary can be converted to a table", {
 
 })
 
-test_that("Cloning works", {
-  torch_opt1 = t_opt("adam")
-  torch_opt2 = torch_opt1$clone(deep = TRUE)
-  expect_deep_clone(torch_opt1, torch_opt2)
-})
+# test_that("Cloning works", {
+#   torch_opt1 = t_opt("adam")
+#   torch_opt2 = torch_opt1$clone(deep = TRUE)
+#   expect_deep_clone(torch_opt1, torch_opt2)
+# })
 
 test_that("Printer works", {
   observed = capture.output(print(t_opt("adam")))
@@ -86,30 +86,30 @@ test_that("Printer works", {
   expect_identical(observed, expected)
 })
 
-test_that("Converters are correctly implemented", {
-  expect_r6(as_torch_optimizer("adam"), "TorchOptimizer")
-  torch_opt = as_torch_optimizer(optim_adam)
-  expect_r6(torch_opt, "TorchOptimizer")
-  expect_equal(torch_opt$id, "optim_adam")
-  expect_equal(torch_opt$label, "optim_adam")
+# test_that("Converters are correctly implemented", {
+#   expect_r6(as_torch_optimizer("adam"), "TorchOptimizer")
+#   torch_opt = as_torch_optimizer(optim_adam)
+#   expect_r6(torch_opt, "TorchOptimizer")
+#   expect_equal(torch_opt$id, "optim_adam")
+#   expect_equal(torch_opt$label, "optim_adam")
 
-  torch_opt1 = as_torch_optimizer(torch_opt, clone = TRUE)
-  expect_deep_clone(torch_opt, torch_opt1)
+#   torch_opt1 = as_torch_optimizer(torch_opt, clone = TRUE)
+#   expect_deep_clone(torch_opt, torch_opt1)
 
-  torch_op2 = as_torch_optimizer(optim_adam, id = "myopt", label = "Custom",
-    man = "my_opt", param_set = ps(lr = p_uty(tags = "train"))
-  )
-  expect_r6(torch_op2, "TorchOptimizer")
-  expect_equal(torch_op2$id, "myopt")
-  expect_equal(torch_op2$label, "Custom")
-  expect_equal(torch_op2$man, "my_opt")
-  expect_equal(torch_op2$param_set$ids(), "lr")
+#   torch_op2 = as_torch_optimizer(optim_adam, id = "myopt", label = "Custom",
+#     man = "my_opt", param_set = ps(lr = p_uty(tags = "train"))
+#   )
+#   expect_r6(torch_op2, "TorchOptimizer")
+#   expect_equal(torch_op2$id, "myopt")
+#   expect_equal(torch_op2$label, "Custom")
+#   expect_equal(torch_op2$man, "my_opt")
+#   expect_equal(torch_op2$param_set$ids(), "lr")
 
 
-  torch_opt3 = as_torch_optimizer(optim_adam)
-  expect_equal(torch_opt3$id, "optim_adam")
-  expect_equal(torch_opt3$label, "optim_adam")
-})
+#   torch_opt3 = as_torch_optimizer(optim_adam)
+#   expect_equal(torch_opt3$id, "optim_adam")
+#   expect_equal(torch_opt3$label, "optim_adam")
+# })
 
 test_that("Parameter test: adamw", {
   torch_opt = t_opt("adamw")

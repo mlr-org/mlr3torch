@@ -25,6 +25,46 @@ make_ft_transformer = function(task_type, ...) {
   invoke(lrn, .key = sprintf("%s.ft_transformer", task_type), .args = params)
 }
 
+no_wd = function(name) {
+  # implementation from paper description
+  linear_bias_param = grepl("linear_", name, fixed = TRUE) && grepl(".bias", name, fixed = TRUE)
+
+  other_no_wd_params = c("embedding", "_normalization")
+
+  return(
+    any(map_lgl(other_no_wd_params, function(pattern) grepl(pattern, name, fixed = TRUE)))
+    || linear_bias_param
+  )
+
+  # implementation in https://github.com/yandex-research/rtdl-revisiting-models/blob/main/package/rtdl_revisiting_models.py
+  # other_no_wd_params = c("embedding", "_normalization", ".bias")
+
+  # return(any(map_lgl(other_no_wd_params, function(pattern) grepl(pattern, name, fixed = TRUE))))
+}
+
+rtdl_param_groups = function(parameters) {
+  no_wd_idx = map_lgl(names(parameters), no_wd)
+  no_wd_group = parameters[no_wd_idx]
+
+  main_group = parameters[!no_wd_idx]
+
+  list(
+    list(params = main_group),
+    list(params = no_wd_group, weight_decay = 0)
+  )
+}
+
+test_that("param groups work", {
+  learner = make_ft_transformer("classif")
+  learner$param_set$set_values(opt.weight_decay = 0.23)
+  learner$param_set$set_values(opt.param_groups = rtdl_param_groups)
+
+  task = tsk("german_credit")$filter(1:10)
+  learner$train(task)
+
+  expect_learner(learner)
+})
+
 test_that("basic functionality", {
   learner = make_ft_transformer("classif")
   task = tsk("german_credit")$filter(1:10)
