@@ -26,7 +26,6 @@ make_ft_transformer = function(task_type, ...) {
 }
 
 no_wd = function(name) {
-  # implementation from paper description
   linear_bias_param = grepl("linear_", name, fixed = TRUE) && grepl(".bias", name, fixed = TRUE)
 
   other_no_wd_params = c("embedding", "_normalization")
@@ -35,11 +34,6 @@ no_wd = function(name) {
     any(map_lgl(other_no_wd_params, function(pattern) grepl(pattern, name, fixed = TRUE)))
     || linear_bias_param
   )
-
-  # implementation in https://github.com/yandex-research/rtdl-revisiting-models/blob/main/package/rtdl_revisiting_models.py
-  # no_wd_params = c("embedding", "_normalization", ".bias")
-
-  # return(any(map_lgl(no_wd_params, function(pattern) grepl(pattern, name, fixed = TRUE))))
 }
 
 rtdl_param_groups = function(parameters) {
