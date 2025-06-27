@@ -12,7 +12,7 @@ As of this writing, the following are available:
 \item \code{\link[torch:lr_cosine_annealing]{torch::lr_cosine_annealing()}}
 \item \code{\link[torch:lr_lambda]{torch::lr_lambda()}}
 \item \code{\link[torch:lr_multiplicative]{torch::lr_multiplicative()}}
-\item \code{\link[torch:lr_one_cycle]{torch::lr_one_cycle()}}
+\item \code{\link[torch:lr_one_cycle]{torch::lr_one_cycle()}} (where the default values for \code{epochs} and \code{steps_per_epoch} are the number of training epochs and the number of batches per epoch)
 \item \code{\link[torch:lr_reduce_on_plateau]{torch::lr_reduce_on_plateau()}}
 \item \code{\link[torch:lr_step]{torch::lr_step()}}
 \item Custom schedulers defined with \code{\link[torch:lr_scheduler]{torch::lr_scheduler()}}.
@@ -55,12 +55,7 @@ The learning rate scheduler wrapped by this callback}
 \subsection{Method \code{new()}}{
 Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetLRScheduler$new(
-  .scheduler,
-  step_on_epoch,
-  step_takes_valid_metric,
-  ...
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackSetLRScheduler$new(.scheduler, step_on_epoch, ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -71,9 +66,6 @@ The \code{torch} scheduler generator (e.g. \code{torch::lr_step}).}
 
 \item{\code{step_on_epoch}}{(\code{logical(1)})\cr
 Whether the scheduler steps after every epoch (otherwise every batch).}
-
-\item{\code{step_takes_valid_metric}}{(\code{logical(1)})\cr
-Whether the learning rate scheduler's \verb{$step()} function takes a validation metric as an argument. As of this writing, only applicable to \code{lr_reduce_on_plateau}.}
 
 \item{\code{...}}{(any)\cr
 The scheduler-specific initialization arguments.}
