@@ -14,6 +14,7 @@ inst/doc
 /doc/
 /Meta/
 CRAN-SUBMISSION
+benchmarks/data
 paper/data
 .idea/
 .vsc/
