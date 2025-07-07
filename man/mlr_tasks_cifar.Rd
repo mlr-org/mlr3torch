@@ -49,11 +49,9 @@ as the cache directory.
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if () (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 task_cifar10 = tsk("cifar10")
 task_cifar100 = tsk("cifar100")
-print(task_cifar10)
-print(task_cifar100)
 \dontshow{\}) # examplesIf}
 }
 \references{
