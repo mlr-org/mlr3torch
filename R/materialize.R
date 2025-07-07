@@ -63,6 +63,13 @@ materialize.list = function(x, device = "cpu", rbind = FALSE, cache = "auto", ..
 
   map(x, function(col) {
     if (is_lazy_tensor(col)) {
+      if (length(col) == 0L) {
+        if (rbind) {
+          return(torch_empty(0L, device = device))
+        } else {
+          return(list())
+        }
+      }
       materialize_internal(col, device = device, cache = cache, rbind = rbind)
     } else {
       col
@@ -76,16 +83,30 @@ materialize.list = function(x, device = "cpu", rbind = FALSE, cache = "auto", ..
 #' @method materialize data.frame
 #' @export
 materialize.data.frame = function(x, device = "cpu", rbind = FALSE, cache = "auto", ...) { # nolint
+  if (nrow(x) == 0L) {
+    if (rbind) {
+      set_names(replicate(ncol(x), torch_empty(0L)), names(x))
+    } else {
+      set_names(replicate(ncol(x), list()), names(x))
+    }
+  }
   materialize(as.list(x), device = device, rbind = rbind, cache = cache)
 }
 
 
 #' @export
 materialize.lazy_tensor = function(x, device = "cpu", rbind = FALSE, ...) { # nolint
+  if (length(x) == 0L) {
+    if (rbind) {
+      return(torch_empty(0L))
+    } else {
+      return(list())
+    }
+  }
   materialize_internal(x = x, device = device, cache = NULL, rbind = rbind)
 }
 
-get_input = function(ds, ids, varying_shapes, rbind) {
+get_input = function(ds, ids, varying_shapes) {
   if (is.null(ds$.getbatch)) { # .getindex is never NULL but a function that errs if it was not defined
     x = map(ids, function(id) map(ds$.getitem(id), function(x) x$unsqueeze(1)))
     if (varying_shapes) {
@@ -154,16 +175,13 @@ get_output = function(input, graph, varying_shapes, rbind, device) {
 #' @return [`lazy_tensor()`]
 #' @keywords internal
 materialize_internal = function(x, device = "cpu", cache = NULL, rbind) {
-  if (!length(x)) {
-    stopf("Cannot materialize lazy tensor of length 0.")
-  }
   do_caching = !is.null(cache)
   ids = map_int(x, 1)
 
   data_descriptor = dd(x)
   ds = data_descriptor$dataset
   graph = data_descriptor$graph
-  varying_shapes = some(data_descriptor$dataset_shapes, is.null)
+  varying_shapes = is.null(data_descriptor$dataset$.getbatch) && some(data_descriptor$dataset_shapes, function(x) is.null(x) || anyNA(x[-1]))
 
   pointer_name = paste0(data_descriptor$pointer, collapse = ".")
   if (do_caching) {
@@ -183,7 +201,7 @@ materialize_internal = function(x, device = "cpu", cache = NULL, rbind) {
   }
 
   if (!do_caching || !input_hit) {
-    input = get_input(ds, ids, varying_shapes, rbind)
+    input = get_input(ds, ids, varying_shapes)
   }
 
   if (do_caching && !input_hit) {

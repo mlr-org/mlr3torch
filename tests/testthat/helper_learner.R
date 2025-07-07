@@ -25,7 +25,7 @@ LearnerTorchTest1 = R6Class("LearnerTorchTest1",
   ),
   private = list(
     .network = function(task, param_vals) {
-      nout = get_nout(task)
+      nout = output_dim_for(task)
       nn_linear(length(task$feature_names), nout, bias = param_vals$bias)
     },
     .dataset = function(task, param_vals) {
@@ -84,7 +84,7 @@ LearnerTorchImageTest = R6Class("LearnerTorchImageTest",
     .network = function(task, param_vals) {
       shape = dd(task$data(task$row_ids[1L], task$feature_names)[[1L]])$pointer_shape
       d = prod(shape[-1])
-      nout = get_nout(task)
+      nout = output_dim_for(task)
       nn_sequential(
         nn_flatten(),
         nn_linear(d, nout, bias = param_vals$bias)

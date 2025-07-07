@@ -44,12 +44,16 @@ If left as is, it calls the provided \code{module_generator} with the arguments 
 the private method \code{.shape_dependent_params()}.
 \item \code{.shapes_out(shapes_in, param_vals, task)}\cr
 (\code{list()}, \code{list()}, \code{\link[mlr3:Task]{Task}} or \code{NULL}) -> named \code{list()}\cr
-This private method gets a list of \code{numeric} vectors (\code{shapes_in}), the parameter values (\code{param_vals}),
+This private method gets a list of \code{integer} vectors (\code{shapes_in}), the parameter values (\code{param_vals}),
 as well as an (optional) \code{\link[mlr3:Task]{Task}}.
 The \code{shapes_in} can be assumed to be in the same order as the input names of the \code{PipeOp}.
 The output shapes must be in the same order as the output names of the \code{PipeOp}.
 In case the output shapes depends on the task (as is the case for \code{\link{PipeOpTorchHead}}), the function should return
 valid output shapes (possibly containing \code{NA}s) if the \code{task} argument is provided or not.
+It is important to properly handle the presence of \code{NA}s in the input shapes.
+By default (if construction argument \code{only_batch_unknown} is \code{TRUE}), only the batch dimension can be \code{NA}.
+If you set this to \code{FALSE}, you need to take other unknown dimensions into account.
+The method can also throw an error if the input shapes violate some assumptions.
 \item \code{.shape_dependent_params(shapes_in, param_vals, task)}\cr
 (\code{list()}, \code{list()}) -> named \code{list()}\cr
 This private method has the same inputs as \code{.shapes_out}.
@@ -107,7 +111,7 @@ network_generator = torch::nn_module(
     self$output = if (task$task_type == "regr") {
       torch::nn_linear(d_hidden, 1)
     } else if (task$task_type == "classif") {
-      torch::nn_linear(d_hidden, length(task$class_names))
+      torch::nn_linear(d_hidden, output_dim_for(task))
     }
   },
   forward = function(x) {
@@ -294,7 +298,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   inname = "input",
   outname = "output",
   packages = "torch",
-  tags = NULL
+  tags = NULL,
+  only_batch_unknown = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -335,6 +340,11 @@ The R packages this object depends on.}
 
 \item{\code{tags}}{(\code{character()})\cr
 The tags of the \code{\link[mlr3pipelines:PipeOp]{PipeOp}}. The tags \code{"torch"} is always added.}
+
+\item{\code{only_batch_unknown}}{(\code{logical(1)})\cr
+Whether only the batch dimension can be missing in the input shapes or whether other
+dimensions can also be unknown.
+Default is \code{TRUE}.}
 }
 \if{html}{\out{</div>}}
 }

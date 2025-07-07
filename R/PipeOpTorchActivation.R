@@ -139,7 +139,8 @@ PipeOpTorchHardTanh = R6Class("PipeOpTorchHardTanh",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_hardtanh,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -179,7 +180,8 @@ PipeOpTorchLeakyReLU = R6Class("PipeOpTorchLeakyReLU",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_leaky_relu,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -199,7 +201,6 @@ register_po("nn_leaky_relu", PipeOpTorchLeakyReLU)
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#'
 #' @export
 PipeOpTorchLogSigmoid = R6Class("PipeOpTorchLogSigmoid",
   inherit = PipeOpTorch,
@@ -214,7 +215,8 @@ PipeOpTorchLogSigmoid = R6Class("PipeOpTorchLogSigmoid",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_log_sigmoid,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -254,7 +256,8 @@ PipeOpTorchPReLU = R6Class("PipeOpTorchPReLU",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_prelu,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -274,7 +277,6 @@ register_po("nn_prelu", PipeOpTorchPReLU)
 #' @template pipeop_torch
 #' @template pipeop_torch_example
 #'
-#'
 #' @export
 PipeOpTorchReLU = R6Class("PipeOpTorchReLU",
   inherit = PipeOpTorch,
@@ -291,7 +293,8 @@ PipeOpTorchReLU = R6Class("PipeOpTorchReLU",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_relu,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -327,7 +330,8 @@ PipeOpTorchReLU6 = R6Class("PipeOpTorchReLU6",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_relu6,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -370,7 +374,8 @@ PipeOpTorchRReLU = R6Class("PipeOpTorchRReLU",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_rrelu,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -407,7 +412,8 @@ PipeOpTorchSELU = R6Class("PipeOpTorchSELU",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_selu,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -447,7 +453,8 @@ PipeOpTorchCELU = R6Class("PipeOpTorchCELU",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_celu,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -484,7 +491,8 @@ PipeOpTorchGELU = R6Class("PipeOpTorchGELU",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_gelu,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -518,7 +526,8 @@ PipeOpTorchSigmoid = R6Class("PipeOpTorchSigmoid",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_sigmoid,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -557,7 +566,8 @@ PipeOpTorchSoftPlus = R6Class("PipeOpTorchSoftPlus",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_softplus,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -594,7 +604,8 @@ PipeOpTorchSoftShrink = R6Class("PipeOpTorchSoftShrink",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_softshrink,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -627,7 +638,8 @@ PipeOpTorchSoftSign = R6Class("PipeOpTorchSoftSign",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_softsign,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -661,7 +673,8 @@ PipeOpTorchTanh = R6Class("PipeOpTorchTanh",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_tanh,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -695,7 +708,8 @@ PipeOpTorchTanhShrink = R6Class("PipeOpTorchTanhShrink",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_tanhshrink,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -739,7 +753,8 @@ PipeOpTorchThreshold = R6Class("PipeOpTorchThreshold",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_threshold,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -799,22 +814,28 @@ PipeOpTorchGLU = R6Class("PipeOpTorchGLU",
 
 register_po("nn_glu", PipeOpTorchGLU)
 
-reglu <- function(x) {
-  assert_true(tail(x$shape, 1) %% 2 == 0)
-  chunked = x$chunk(2, dim=-1)
+reglu = function(x) {
+  assert_true(last(x$shape, 1) %% 2 == 0)
+  chunked = x$chunk(2, dim = -1)
   a = chunked[[1]]
   b = chunked[[2]]
   return(a * nnf_relu(b))
 }
 
-geglu <- function(x) {
-  assert_true(tail(x$shape, 1) %% 2 == 0)
-  chunked = x$chunk(2, dim=-1)
-  a = chunked[[1]]
-  b = chunked[[2]]
-  return(a * nnf_gelu(b))
-}
-
+#' @title ReGLU Module
+#'
+#' @description
+#' Rectified Gated Linear Unit (ReGLU) module.
+#' Computes the output as \eqn{\text{ReGLU}(x, g) = x \cdot \text{ReLU}(g)}
+#' where \(x\) and \(g\) are created by splitting the input tensor in half along the last dimension.
+#'
+#' @export
+#' @references
+#' `r format_bib("shazeer2020glu")`
+#' @examplesIf torch::torch_is_installed()
+#' x = torch::torch_randn(10, 10)
+#' reglu = nn_reglu()
+#' reglu(x)
 nn_reglu = nn_module(
   "nn_reglu",
   forward = function(input) {
@@ -822,24 +843,17 @@ nn_reglu = nn_module(
   }
 )
 
-nn_geglu = nn_module(
-  "nn_geglu",
-  forward = function(input) {
-    return(geglu(input))
-  }
-)
-
 #' @title ReGLU Activation Function
 #'
 #' @description
-#' Regularized Gated Linear Unit (ReGLU) activation function.
+#' Rectified Gated Linear Unit (ReGLU) activation function.
+#' See [`nn_reglu`] for details.
 #' @section Parameters:
 #' No parameters.
 #' @templateVar id nn_reglu
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
 #' @template pipeop_torch_example
-#'
 #' @export
 PipeOpTorchReGLU = R6Class("PipeOpTorchReGLU",
   inherit = PipeOpTorch,
@@ -860,7 +874,7 @@ PipeOpTorchReGLU = R6Class("PipeOpTorchReGLU",
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
       shape = shapes_in[[1L]]
-      d_new = tail(shape, 1) / 2
+      d_new = last(shape, 1) / 2
       if (test_integerish(d_new)) {
         shape[length(shape)] = d_new
         list(shape)
@@ -873,10 +887,39 @@ PipeOpTorchReGLU = R6Class("PipeOpTorchReGLU",
 
 register_po("nn_reglu", PipeOpTorchReGLU)
 
+geglu = function(x) {
+  assert_true(last(x$shape, 1) %% 2 == 0)
+  chunked = x$chunk(2, dim = -1)
+  a = chunked[[1]]
+  b = chunked[[2]]
+  return(a * nnf_gelu(b))
+}
+
+#' @title GeGLU Module
+#' @description
+#' This module implements the Gaussian Error Linear Unit Gated Linear Unit (GeGLU) activation function.
+#' It computes \eqn{\text{GeGLU}(x, g) = x \cdot \text{GELU}(g)}
+#' where \(x\) and \(g\) are created by splitting the input tensor in half along the last dimension.
+#'
+#' @export
+#' @references
+#' `r format_bib("shazeer2020glu")`
+#' @examplesIf torch::torch_is_installed()
+#' x = torch::torch_randn(10, 10)
+#' glu = nn_geglu()
+#' glu(x)
+nn_geglu = nn_module(
+  "nn_geglu",
+  forward = function(input) {
+    return(geglu(input))
+  }
+)
+
 #' @title GeGLU Activation Function
 #'
 #' @description
-#' Gaussian Error Linear Unit Gated Linear Unit (GeGLU) activation function.
+#' Gaussian Error Linear Unit Gated Linear Unit (GeGLU) activation function, see
+#' [`nn_geglu`] for details.
 #' @section Parameters:
 #' No parameters.
 #' @templateVar id nn_geglu
@@ -904,7 +947,7 @@ PipeOpTorchGeGLU = R6Class("PipeOpTorchGeGLU",
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
       shape = shapes_in[[1L]]
-      d_new = tail(shape, 1) / 2
+      d_new = last(shape, 1) / 2
       if (test_integerish(d_new)) {
         shape[length(shape)] = d_new
         list(shape)

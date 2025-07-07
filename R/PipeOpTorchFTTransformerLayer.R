@@ -1,12 +1,7 @@
-#' @title PipeOpTorchFTTransformerLayer
-#' @description PipeOp for a single transformer layer.
 PipeOpTorchFTTransformerLayer = R6::R6Class("PipeOpTorchFTTransformerLayer",
   inherit = PipeOpTorch,
   lock_objects = FALSE,
   public = list(
-    #' @description Create a new instance of this [R6][R6::R6Class] class.
-    #' @param id (`character(1)`)\cr
-    #'   Identifier of the resulting object.
     initialize = function(id = "nn_ft_transformer_layer", param_vals = list()) {
       param_set = ps(
         d_token = p_int(lower = 1L, default = 192L),
@@ -19,13 +14,13 @@ PipeOpTorchFTTransformerLayer = R6::R6Class("PipeOpTorchFTTransformerLayer",
         ffn_activation = p_uty(),
         ffn_normalization = p_uty(default = nn_layer_norm),
         residual_dropout = p_dbl(lower = 0, upper = 1, default = 0.0),
-        prenormalization = p_lgl(default = TRUE), 
+        prenormalization = p_lgl(default = TRUE),
         first_prenormalization = p_lgl(default = FALSE),
         is_first_layer = p_lgl(default = FALSE),
         query_idx = p_uty(default = NULL, custom_check = function(input) check_integer(input, null.ok = TRUE)),
         last_layer_query_idx = p_uty(default = NULL, custom_check = function(input) check_integer(input, null.ok = TRUE))
       )
-      
+
       super$initialize(
         id = id,
         module_generator = nn_ft_transformer_layer,
@@ -45,7 +40,7 @@ PipeOpTorchFTTransformerLayer = R6::R6Class("PipeOpTorchFTTransformerLayer",
       if (self$last_layer_query_idx) {
         return(shapes_in[length(shapes_in)])
       }
-      
+
       shapes_out = shapes_in
       shapes_out[[2]] = length(param_vals$last_layer_query_idx)
       return(shapes_out)
@@ -75,7 +70,7 @@ nn_ft_transformer_layer = nn_module(
                         last_layer_query_idx,
                         query_idx) {
     self$prenormalization = prenormalization
-    
+
     self$attention = nn_ft_multi_head_attention(
       d_token = d_token,
       n_heads = attention_n_heads,
@@ -83,7 +78,7 @@ nn_ft_transformer_layer = nn_module(
       bias = TRUE,
       initialization = attention_initialization
     )
-    
+
     self$ffn = nn_ft_ffn(
       d_token = d_token,
       d_hidden = ffn_d_hidden,
@@ -97,7 +92,7 @@ nn_ft_transformer_layer = nn_module(
     self$ffn_residual_dropout = nn_dropout(residual_dropout)
 
     self$output = nn_identity()
-        
+
     # TODO: remove layer_idx and ask about how we want to handle this condition
     # layer_idx = -1
     if (!is_first_layer || !prenormalization || first_prenormalization) {

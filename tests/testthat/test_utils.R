@@ -22,11 +22,6 @@ test_that("test_equal_col_info works", {
   expect_false(test_equal_col_info(ci, ci4))
 })
 
-test_that("get_nout works", {
-  expect_equal(get_nout(tsk("iris")), 3)
-  expect_equal(get_nout(tsk("mtcars")), 1)
-})
-
 test_that("uniqueify works", {
   expect_equal(uniqueify("a", "a"), "a_1")
 })
@@ -62,6 +57,7 @@ test_that("order_named_args works", {
   expect_error(order_named_args(function(y, ..., x) NULL, list(y = 4, 2, 3, x = 1)), regexp = "`...` must")
 })
 test_that("shape_to_str works", {
+  expect_equal(shape_to_str(c(NA, NA)), "(NA,NA)")
   expect_equal(shape_to_str(1), "(1)")
   expect_equal(shape_to_str(c(1, 2)), "(1,2)")
   expect_equal(shape_to_str(NULL), "(<unknown>)")
@@ -72,3 +68,4 @@ test_that("shape_to_str works", {
 
   md = po("torch_ingress_ltnsr")$train(list(nano_imagenet()))[[1L]]
 })
+

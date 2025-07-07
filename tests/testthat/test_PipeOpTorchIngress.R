@@ -33,7 +33,7 @@ test_that("PipeOpTorchIngressLazyTensor", {
   po_ingress = po("torch_ingress_ltnsr")
 
   output = po_ingress$train(list(task))[[1L]]
-  ds = task_dataset(task, output$ingress, target_batchgetter = target_batchgetter_classif)
+  ds = task_dataset(task, output$ingress, target_batchgetter = target_batchgetter_classif_binary)
 
   batch = ds$.getbatch(1:2)
   expect_permutation(names(batch), c("x", "y", ".index"))
@@ -67,4 +67,9 @@ test_that("error message unknown shapes", {
   task = po("augment_random_crop", size = c(100, 100))$train(list(nano_imagenet()))[[1L]]
   obj = po("torch_ingress_ltnsr")
   expect_error(obj$train(list(task)), "see its documentation")
+})
+
+test_that("allow for flexible shapes", {
+  task =
+  ingress = po("torch_ingress_ltnsr", shape = c(NA, NA))
 })

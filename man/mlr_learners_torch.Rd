@@ -39,6 +39,27 @@ To do so, you just need to include \verb{epochs = to_tune(upper = <upper>, inter
 where \verb{<upper>} is the maximally allowed number of epochs, and configure the early stopping.
 }
 
+\section{Network Head and Target Encoding}{
+
+Torch learners are expected to have the following output:
+\itemize{
+\item binary classification: \verb{(batch_size, 1)}, representing the logits for the positive class.
+\item multiclass classification: \verb{(batch_size, n_classes)}, representing the logits for all classes.
+\item regression: \verb{(batch_size, 1)} representing the response prediction.
+}
+
+Furthermore, the target encoding is expected to be as follows:
+\itemize{
+\item regression: The \code{numeric} target variable of a \code{\link[mlr3:TaskRegr]{TaskRegr}} is encoded as a
+\code{\link[torch:torch_dtype]{torch_float}} with shape \code{c(batch_size, 1)}.
+\item binary classification: The \code{factor} target variable of a \code{\link[mlr3:TaskClassif]{TaskClassif}} is encoded as a
+\code{\link[torch:torch_dtype]{torch_float}} with shape \verb{(batch_size, 1)} where the positive class (\code{Task$positive}, which
+is also ensured to be the first factor level) is \code{1} and the negative class is \code{0}.
+\item multi-class classification: The \code{factor} target variable of a \code{\link[mlr3:TaskClassif]{TaskClassif}} is a label-encoded
+\code{\link[torch:torch_dtype]{torch_long}} with shape \code{(batch_size)} where the label-encoding goes from \code{1} to \code{n_classes}.
+}
+}
+
 \section{Model}{
 
 The Model is a list of class \code{"learner_torch_model"} with the following elements:
@@ -163,17 +184,26 @@ There are no seperate classes for classification and regression to inherit from.
 Instead, the \code{task_type} must be specified  as a construction argument.
 Currently, only classification and regression are supported.
 
-When inheriting from this class, one should overload two private methods:
+When inheriting from this class, one should overload the following methods:
 \itemize{
 \item \code{.network(task, param_vals)}\cr
 (\code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{\link[torch:nn_module]{nn_module}}\cr
 Construct a \code{\link[torch:nn_module]{torch::nn_module}} object for the given task and parameter values, i.e. the neural network that
 is trained by the learner.
-For classification, the output of this network are expected to be the scores before the application of the
-final softmax layer.
+Note that a specific output shape is expected from the returned network, see section \emph{Network Head and Target Encoding}.
+You can use \code{\link[=output_dim_for]{output_dim_for()}} to obtain the correct output dimension for a given task.
+\item \code{.ingress_tokens(task, param_vals)}\cr
+(\code{\link[mlr3:Task]{Task}}, \code{list()}) -> named \code{list()} with \code{\link{TorchIngressToken}}s\cr
+Create the \code{\link{TorchIngressToken}}s that are passed to the \code{\link{task_dataset}} constructor.
+The number of ingress tokens must correspond to the number of input parameters of the network.
+If there is more than one input, the names must correspond to the inputs of the network.
+See \code{\link{ingress_num}}, \code{\link{ingress_categ}}, and \code{\link{ingress_ltnsr}} on how to easily create the correct tokens.
+For more flexibility, you can also directly implement the \code{.dataset(task, param_vals)} method,
+see below.
 \item \code{.dataset(task, param_vals)}\cr
 (\code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{\link[torch:dataset]{torch::dataset}}\cr
 Create the dataset for the task.
+Don't implement this if the \code{.ingress_tokens()} method is defined.
 The dataset must return a named list where:
 \itemize{
 \item \code{x} is a list of torch tensors that are the input to the network.
@@ -182,7 +212,9 @@ For networks with more than one input, the names must correspond to the inputs o
 \item \code{.index} are the indices of the batch (\code{integer()} or a \code{torch_int()}).
 }
 
+For information on the expected target encoding of \code{y}, see section \emph{Network Head and Target Encoding}.
 Moreover, one needs to pay attention respect the row ids of the provided task.
+It is recommended to relu on \code{\link{task_dataset}} for creating the \code{\link[torch:dataset]{dataset}}.
 }
 
 It is also possible to overwrite the private \code{.dataloader()} method.
@@ -191,10 +223,10 @@ This must respect the dataloader parameters from the \code{\link[paradox:ParamSe
 \item \code{.dataloader(dataset, param_vals)}\cr
 (\code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{\link[torch:dataloader]{torch::dataloader}}\cr
 Create a dataloader from the task.
-Needs to respect at least \code{batch_size} and \code{shuffle} (otherwise predictions can be permuted).
+Needs to respect at least \code{batch_size} and \code{shuffle} (otherwise predictions will be incorrectly ordered).
 }
 
-To change the predict types, the it is possible to overwrite the method below:
+To change the predict types, it is possible to overwrite the method below:
 \itemize{
 \item \code{.encode_prediction(predict_tensor, task)}\cr
 (\code{\link[torch:torch_tensor]{torch_tensor}}, \code{\link[mlr3:Task]{Task}}) -> \code{list()}\cr
@@ -208,8 +240,9 @@ not possible to remove existing parameters, i.e. those listed in section \emph{P
 None of the parameters provided in \code{param_set} can have an id that starts with \code{"loss."}, \verb{"opt.", or }"cb."`, as these are preserved for the dynamically constructed parameters of the optimizer, the loss function,
 and the callbacks.
 
-To perform additional input checks on the task, the private \code{.verify_train_task(task, param_vals)} and
-\code{.verify_predict_task(task, param_vals)} can be overwritten.
+To perform additional input checks on the task, the private \code{.check_train_task(task, param_vals)} and
+\code{.check_predict_task(task, param_vals)} can be overwritten.
+These should return \code{TRUE} if the input task is valid and otherwise a string with an error message.
 
 For learners that have other construction arguments that should change the hash of a learner, it is required
 to implement the private \verb{$.additional_phash_input()}.
@@ -217,6 +250,7 @@ to implement the private \verb{$.additional_phash_input()}.
 
 \seealso{
 Other Learner: 
+\code{\link{mlr_learners.ft_transformer}},
 \code{\link{mlr_learners.mlp}},
 \code{\link{mlr_learners.module}},
 \code{\link{mlr_learners.tab_resnet}},
@@ -286,11 +320,13 @@ which are varied systematically during tuning (parameter values).}
 <details><summary>Inherited methods</summary>
 <ul>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner"><a href='../../mlr3/html/Learner.html#method-Learner-base_learner'><code>mlr3::Learner$base_learner()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="configure"><a href='../../mlr3/html/Learner.html#method-Learner-configure'><code>mlr3::Learner$configure()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="encapsulate"><a href='../../mlr3/html/Learner.html#method-Learner-encapsulate'><code>mlr3::Learner$encapsulate()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help"><a href='../../mlr3/html/Learner.html#method-Learner-help'><code>mlr3::Learner$help()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict"><a href='../../mlr3/html/Learner.html#method-Learner-predict'><code>mlr3::Learner$predict()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata"><a href='../../mlr3/html/Learner.html#method-Learner-predict_newdata'><code>mlr3::Learner$predict_newdata()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset"><a href='../../mlr3/html/Learner.html#method-Learner-reset'><code>mlr3::Learner$reset()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="selected_features"><a href='../../mlr3/html/Learner.html#method-Learner-selected_features'><code>mlr3::Learner$selected_features()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train"><a href='../../mlr3/html/Learner.html#method-Learner-train'><code>mlr3::Learner$train()</code></a></span></li>
 </ul>
 </details>
@@ -305,7 +341,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   id,
   task_type,
   param_set,
-  properties,
+  properties = character(),
   man,
   label,
   feature_types,
@@ -313,7 +349,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   loss = NULL,
   packages = character(),
   predict_types = NULL,
-  callbacks = list()
+  callbacks = list(),
+  jittable = FALSE
 )}\if{html}{\out{</div>}}
 }
 
@@ -369,6 +406,9 @@ method, see section \emph{Inheriting}.}
 \item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
 The callbacks to use for training.
 Defaults to an empty\code{ list()}, i.e. no callbacks.}
+
+\item{\code{jittable}}{(\code{logical(1)})\cr
+Whether the model can be jit-traced. Default is \code{FALSE}.}
 }
 \if{html}{\out{</div>}}
 }

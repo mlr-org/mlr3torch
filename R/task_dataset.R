@@ -167,41 +167,41 @@ merge_compatible_lazy_tensor_graphs = function(lts) {
   })
 }
 
-dataset_ltnsr = function(task, param_vals) {
+dataset_ltnsr = function(task, param_vals, argname = "input") {
   po_ingress = po("torch_ingress_ltnsr", shape = param_vals$shape)
   md = po_ingress$train(list(task))[[1L]]
   ingress = md$ingress
-  names(ingress) = "input"
+  names(ingress) = argname
   task_dataset(
     task = task,
     feature_ingress_tokens = ingress,
-    target_batchgetter = get_target_batchgetter(task$task_type)
+    target_batchgetter = get_target_batchgetter(task)
   )
 }
 
-dataset_num = function(task, param_vals) {
+dataset_num = function(task, param_vals, argname = "input") {
   po_ingress = po("torch_ingress_num")
   md = po_ingress$train(list(task))[[1L]]
   ingress = md$ingress
-  names(ingress) = "input"
+  names(ingress) = argname
   task_dataset(
     task = task,
-    feature_ingress_tokens = md$ingress,
-    target_batchgetter = get_target_batchgetter(task$task_type)
+    feature_ingress_tokens = ingress,
+    target_batchgetter = get_target_batchgetter(task)
   )
 }
 
-dataset_num_categ = function(task, param_vals) {
+dataset_num_categ = function(task, param_vals, argname_num = "num.input", argname_categ = "categ.input") {
   features_num = task$feature_types[get("type") %in% c("numeric", "integer"), "id"][[1L]]
   features_categ = task$feature_types[get("type") %in% c("factor", "ordered", "logical"), "id"][[1L]]
 
   tokens = list()
 
   if (length(features_num)) {
-    tokens$input_num = TorchIngressToken(features_num, batchgetter_num, c(NA, length(features_num)))
+    tokens[[argname_num]] = TorchIngressToken(features_num, batchgetter_num, c(NA, length(features_num)))
   }
   if (length(features_categ)) {
-    tokens$input_categ = TorchIngressToken(features_categ, batchgetter_categ, c(NA, length(features_categ)))
+    tokens[[argname_categ]] = TorchIngressToken(features_categ, batchgetter_categ, c(NA, length(features_categ)))
   }
 
   assert_true(length(tokens) >= 1)
@@ -209,7 +209,7 @@ dataset_num_categ = function(task, param_vals) {
   task_dataset(
     task,
     feature_ingress_tokens = tokens,
-    target_batchgetter = get_target_batchgetter(task$task_type)
+    target_batchgetter = get_target_batchgetter(task)
   )
 }
 
@@ -251,17 +251,27 @@ batchgetter_categ = function(data, ...) {
   )
 }
 
-target_batchgetter_classif = function(data) {
+target_batchgetter_classif_multi = function(data) {
   torch_tensor(data = as.integer(data[[1L]]), dtype = torch_long())
+}
+
+target_batchgetter_classif_binary = function(data) {
+  torch_tensor(data[[1L]] == levels(data[[1L]])[1L], torch_float())$unsqueeze(2)
 }
 
 target_batchgetter_regr = function(data) {
   torch_tensor(data = data[[1L]], dtype = torch_float32())$unsqueeze(2)
 }
 
-get_target_batchgetter = function(task_type) {
+get_target_batchgetter = function(task) {
+  task_type = task$task_type
   switch(task_type,
-    classif = target_batchgetter_classif,
-    regr = target_batchgetter_regr
+    classif = if ("twoclass" %in% task$properties) {
+      target_batchgetter_classif_binary
+    } else {
+      target_batchgetter_classif_multi
+    },
+    regr = target_batchgetter_regr,
+    stopf("Invalid task type: %s", task_type)
   )
 }

@@ -28,6 +28,20 @@ number of classes inferred from the \code{\link[mlr3:Task]{Task}}.
 }
 }
 
+\references{
+Krizhevsky, Alex, Sutskever, Ilya, Hinton, E. G (2017).
+\dQuote{Imagenet classification with deep convolutional neural networks.}
+\emph{Communications of the ACM}, \bold{60}(6), 84--90.
+Sandler, Mark, Howard, Andrew, Zhu, Menglong, Zhmoginov, Andrey, Chen, Liang-Chieh (2018).
+\dQuote{Mobilenetv2: Inverted residuals and linear bottlenecks.}
+In \emph{Proceedings of the IEEE conference on computer vision and pattern recognition}, 4510--4520.
+He, Kaiming, Zhang, Xiangyu, Ren, Shaoqing, Sun, Jian (2016).
+\dQuote{Deep residual learning for image recognition.}
+In \emph{Proceedings of the IEEE conference on computer vision and pattern recognition}, 770--778.
+Simonyan, Karen, Zisserman, Andrew (2014).
+\dQuote{Very deep convolutional networks for large-scale image recognition.}
+\emph{arXiv preprint arXiv:1409.1556}.
+}
 \section{Super classes}{
 \code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3torch:LearnerTorch]{mlr3torch::LearnerTorch}} -> \code{\link[mlr3torch:LearnerTorchImage]{mlr3torch::LearnerTorchImage}} -> \code{LearnerTorchVision}
 }
@@ -42,11 +56,13 @@ number of classes inferred from the \code{\link[mlr3:Task]{Task}}.
 <details><summary>Inherited methods</summary>
 <ul>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="base_learner"><a href='../../mlr3/html/Learner.html#method-Learner-base_learner'><code>mlr3::Learner$base_learner()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="configure"><a href='../../mlr3/html/Learner.html#method-Learner-configure'><code>mlr3::Learner$configure()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="encapsulate"><a href='../../mlr3/html/Learner.html#method-Learner-encapsulate'><code>mlr3::Learner$encapsulate()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="help"><a href='../../mlr3/html/Learner.html#method-Learner-help'><code>mlr3::Learner$help()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict"><a href='../../mlr3/html/Learner.html#method-Learner-predict'><code>mlr3::Learner$predict()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="predict_newdata"><a href='../../mlr3/html/Learner.html#method-Learner-predict_newdata'><code>mlr3::Learner$predict_newdata()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="reset"><a href='../../mlr3/html/Learner.html#method-Learner-reset'><code>mlr3::Learner$reset()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="selected_features"><a href='../../mlr3/html/Learner.html#method-Learner-selected_features'><code>mlr3::Learner$selected_features()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3" data-topic="Learner" data-id="train"><a href='../../mlr3/html/Learner.html#method-Learner-train'><code>mlr3::Learner$train()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerTorch" data-id="dataset"><a href='../../mlr3torch/html/LearnerTorch.html#method-LearnerTorch-dataset'><code>mlr3torch::LearnerTorch$dataset()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="LearnerTorch" data-id="format"><a href='../../mlr3torch/html/LearnerTorch.html#method-LearnerTorch-format'><code>mlr3torch::LearnerTorch$format()</code></a></span></li>
@@ -68,7 +84,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   label,
   optimizer = NULL,
   loss = NULL,
-  callbacks = list()
+  callbacks = list(),
+  jittable = FALSE
 )}\if{html}{\out{</div>}}
 }
 
@@ -82,20 +99,7 @@ The name of the network.}
 Function that generates the network.}
 
 \item{\code{label}}{(\code{character(1)})\cr
-The label of the network.
-#' @references
-Krizhevsky, Alex, Sutskever, Ilya, Hinton, E. G (2017).
-\dQuote{Imagenet classification with deep convolutional neural networks.}
-\emph{Communications of the ACM}, \bold{60}(6), 84--90.
-Sandler, Mark, Howard, Andrew, Zhu, Menglong, Zhmoginov, Andrey, Chen, Liang-Chieh (2018).
-\dQuote{Mobilenetv2: Inverted residuals and linear bottlenecks.}
-In \emph{Proceedings of the IEEE conference on computer vision and pattern recognition}, 4510--4520.
-He, Kaiming, Zhang, Xiangyu, Ren, Shaoqing, Sun, Jian (2016).
-\dQuote{Deep residual learning for image recognition.}
-In \emph{Proceedings of the IEEE conference on computer vision and pattern recognition}, 770--778.
-Simonyan, Karen, Zisserman, Andrew (2014).
-\dQuote{Very deep convolutional networks for large-scale image recognition.}
-\emph{arXiv preprint arXiv:1409.1556}.}
+The label of the network.}
 
 \item{\code{optimizer}}{(\code{\link{TorchOptimizer}})\cr
 The optimizer to use for training.
@@ -107,6 +111,9 @@ Per default, \emph{mse} is used for regression and \emph{cross_entropy} for clas
 
 \item{\code{callbacks}}{(\code{list()} of \code{\link{TorchCallback}}s)\cr
 The callbacks. Must have unique ids.}
+
+\item{\code{jittable}}{(\code{logical(1)})\cr
+Whether to use jitting.}
 }
 \if{html}{\out{</div>}}
 }

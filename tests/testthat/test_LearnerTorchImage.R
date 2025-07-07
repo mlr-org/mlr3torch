@@ -28,3 +28,13 @@ test_that("unknown shapes work", {
   learner$train(task)
   expect_prediction(learner$predict(task))
 })
+
+test_that("single lazy tensor is expected", {
+  task = as_task_classif(data.table(
+    x1 = as_lazy_tensor(matrix(1:4, 2, 2)),
+    x2 = as_lazy_tensor(matrix(1:4, 2, 2)),
+    y = as.factor(rep(c("a", "b"), each = 2))
+  ), target = "y", id = "test")
+  learner = lrn("classif.mobilenet_v2", batch_size = 1, epochs = 1, pretrained = FALSE)
+  expect_error(learner$train(task), "expects exactly one feature")
+})

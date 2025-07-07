@@ -21,21 +21,21 @@ test_that("basic", {
   ds = task_dataset(
     task = task,
     feature_ingress_tokens = list(x_num = ingress_num, x_categ = ingress_categ),
-    target_batchgetter = get_target_batchgetter(task$task_type)
+    target_batchgetter = get_target_batchgetter(task)
   )
 
   batch = ds$.getbatch(7)
 
   expect_permutation(names(batch), c("x", "y", ".index"))
   expect_equal(batch$.index, torch_tensor(7L))
-  expect_equal(batch$y$shape, 1)
+  expect_equal(batch$y$shape, c(1, 1))
   expect_equal(batch$x$x_num$shape, c(1, ingress_num$shape[2]))
   expect_equal(batch$x$x_categ$shape, c(1, ingress_categ$shape[2]))
 
   batch2 = ds$.getbatch(7:8)
   expect_permutation(names(batch2), c("x", "y", ".index"))
   expect_equal(batch2$.index, torch_tensor(7:8))
-  expect_equal(batch2$y$shape, 2)
+  expect_equal(batch2$y$shape, c(2, 1))
   expect_equal(batch2$x$x_num$shape, c(2, ingress_num$shape[2]))
   expect_equal(batch2$x$x_categ$shape, c(2, ingress_categ$shape[2]))
 
@@ -84,7 +84,7 @@ test_that("task_dataset returns the correct data (even with non-standard row ids
   ds = task_dataset(
     task = task,
     feature_ingress_tokens = list(x1 = TorchIngressToken(features = "x", batchgetter_num, c(NA, 1))),
-    target_batchgetter = get_target_batchgetter("regr")
+    target_batchgetter = get_target_batchgetter(task)
   )
 
   # the first batch should be row_id 2 of the task, whose x value is 1 and y value is 3
@@ -160,13 +160,13 @@ test_that("dataset_num_categ works for classification and regression", {
 
   batch = ds$.getbatch(10:14)
 
-  expect_permutation(names(batch$x), c("input_num", "input_categ"))
-  expect_equal(batch$x$input_num$shape, c(5, sum(task$feature_types$type %in% c("numeric", "integer"))))
-  expect_equal(batch$x$input_categ$shape, c(5, sum(task$feature_types$type %in% c("logical", "factor", "ordered"))))
+  expect_permutation(names(batch$x), c("num.input", "categ.input"))
+  expect_equal(batch$x$num.input$shape, c(5, sum(task$feature_types$type %in% c("numeric", "integer"))))
+  expect_equal(batch$x$categ.input$shape, c(5, sum(task$feature_types$type %in% c("logical", "factor", "ordered"))))
 
   # test on the target
-  expect_equal(batch$y$shape, 5)
-  expect_true(batch$y$dtype == torch_long())
+  expect_equal(batch$y$shape, c(5, 1))
+  expect_true(batch$y$dtype == torch_float())
 
   # test what happens when there are no categoricals / numerics
 
@@ -184,30 +184,8 @@ test_that("dataset_num_categ works for classification and regression", {
   expect_true(is.null(batch_categ$x$input_num))
 })
 
-#test_that("target_batchgetter works for classification", {
-#  task = tsk("iris")
-#  ds = task_dataset(
-#    task = task,
-#    feature_ingress_tokens = list(x = TorchIngressToken(features = task$feature_names, batchgetter_num, c(NA, 4))),
-#    target_batchgetter = get_target_batchgetter("classif"),
-#    device = "cpu"
-#  )
-#
-#  ids = task$row_ids[task$truth() != "Setosa"]
-#  task$filter(ids)
-#
-#  expect_permutation(task$col_info["Species", "levels", on = "id"][[1L]][1L][1L], c("setosa", "versicolor", "virginica"))
-#
-#  fct1 = factor(1:3, levels = 3:1, labels = letters[3:1])
-#  fct2 = factor(1:3, levels = 1:3, labels = letters[1:3])
-#
-#  expect_true(all(fct1 == fct2))
-#
-#  as.integer(fct1) == as.integer(fct2)
-#})
-
 test_that("default target batchgetter works: regression", {
-  target_batchgetter1 = get_target_batchgetter("regr")
+  target_batchgetter1 = get_target_batchgetter(tsk("mtcars"))
   y = data.table(y = 1:5)
   y_loaded = target_batchgetter1(y)
   expect_equal(y_loaded$shape, c(5, 1))
@@ -216,12 +194,22 @@ test_that("default target batchgetter works: regression", {
 })
 
 test_that("default target batchgetter works: classification", {
-  target_batchgetter2 = get_target_batchgetter("classif")
-  y = data.table(y = factor(c("a", "b", "a", "b")))
+  # multiclass
+  target_batchgetter2 = get_target_batchgetter(tsk("iris"))
+  y = data.table(y = factor(c("setosa", "versicolor", "virginica", "setosa", "versicolor")))
   y_loaded = target_batchgetter2(y)
-  expect_equal(y_loaded$shape, 4)
+  expect_equal(y_loaded$shape, 5)
   expect_class(y_loaded, "torch_tensor")
   expect_equal(y_loaded$device$type, "cpu")
+
+  # binary
+  target_batchgetter2 = get_target_batchgetter(tsk("sonar"))
+  y = data.table(y = factor(c("M", "R", "M", "R")))
+  y_loaded = target_batchgetter2(y)
+  expect_equal(y_loaded$shape, c(4, 1))
+  expect_class(y_loaded, "torch_tensor")
+  expect_equal(y_loaded$device$type, "cpu")
+
 })
 
 test_that("caching of graph", {
@@ -394,7 +382,7 @@ test_that("works with selector", {
   ds = task_dataset(
     task = task,
     feature_ingress_tokens = list(features = ingress_token),
-    target_batchgetter = get_target_batchgetter(task$task_type)
+    target_batchgetter = get_target_batchgetter(task)
   )
 
   expect_equal(length(ds), task$nrow)
@@ -436,7 +424,7 @@ test_that("task_dataset works with ingress_num, ingress_categ and ingress_ltnsr"
   ds = task_dataset(
     task = task,
     feature_ingress_tokens = list(x = ingress_num()),
-    target_batchgetter = get_target_batchgetter(task$task_type)
+    target_batchgetter = get_target_batchgetter(task)
   )
 
   # Test dataset length
@@ -479,6 +467,12 @@ test_that("merging tasks also merges validation data", {
   glrn = as_learner(graph)
   set_validate(glrn, validate = 0.3)
 
-  glrn$train(task)
+  expect_error(glrn$train(task), regexp = NA)
+})
 
+test_that("ensure that mlr3 ensures that positive class is the first level", {
+  task = tsk("sonar", positive = "M")
+  expect_equal(levels(task$truth())[1L], "M")
+  task$positive = "R"
+  expect_equal(levels(task$truth())[1L], "R")
 })

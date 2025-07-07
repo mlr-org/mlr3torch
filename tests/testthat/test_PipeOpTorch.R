@@ -128,16 +128,52 @@ test_that("shapes_out", {
   expect_error(obj1$shapes_out(list(c(NA, 99))), regexp = "number of input")
 })
 
-test_that("PipeOpTorch errs when there are unexpected NAs in the shape", {
+test_that("Multiple NAs are allowed in the shape", {
   graph = as_graph(po("torch_ingress_num"))
 
   task = tsk("iris")
   md = graph$train(task)[[1L]]
 
   md$pointer_shape = c(4, NA)
-  expect_error(po("nn_relu")$train(list(md)), regexp = "Invalid shape")
+  md = po("nn_relu")$train(list(md))[[1L]]
+  expect_equal(md$pointer_shape, c(4, NA))
 
   md$pointer_shape = c(NA, NA, 4)
-  expect_error(po("nn_relu")$train(list(md)), regexp = "Invalid shape")
+  expect_equal(md$pointer_shape, c(NA, NA, 4))
+})
 
+test_that("only_batch_unknown", {
+  obj = nn("linear", out_features = 10)
+  expect_equal(obj$shapes_out(list(c(NA, NA, 1))), list(output = c(NA, NA, 10)))
+  obj$.__enclos_env__$private$.only_batch_unknown = TRUE
+  expect_error(obj$shapes_out(list(c(NA, NA, 1))), regexp = "Invalid shape: (NA,NA,1)", fixed = TRUE)
+})
+
+test_that("NA in second dimension", {
+  ds = dataset(
+    initialize = function() {
+      self$xs = lapply(1:10, function(i) torch_randn(sample(1:10, 1), 3))
+    },
+    .getitem = function(i) {
+      list(x = self$xs[[i]])
+    },
+    .length = function() {
+      length(self$xs)
+    }
+  )()
+
+  task = as_task_regr(data.table(
+    x = as_lazy_tensor(ds, dataset_shapes = list(x = c(NA, NA, 3))),
+    y = rnorm(10)
+  ), target = "y", id = "test")
+
+  graph = po("torch_ingress_ltnsr") %>>% po("nn_linear", out_features = 10)
+
+  md = graph$train(task)[[1L]]
+
+  expect_equal(md$pointer_shape, c(NA, NA, 10))
+
+  net = model_descriptor_to_module(md)
+  expect_equal(net(torch_randn(1, 2, 3))$shape, c(1, 2, 10))
+  expect_equal(net(torch_randn(2, 1, 3))$shape, c(2, 1, 10))
 })

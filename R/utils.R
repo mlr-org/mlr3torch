@@ -107,14 +107,6 @@ load_col_info = function(name) {
   readRDS(system.file("col_info", paste0(name, ".rds"), package = "mlr3torch"))
 }
 
-get_nout = function(task) {
-  switch(task$task_type,
-    regr = 1,
-    classif = length(task$class_names),
-    stopf("Unknown task type '%s'.", task$task_type)
-  )
-}
-
 
 test_equal_col_info = function(x, y) {
   nms = c("id", "type", "levels")
@@ -156,7 +148,7 @@ uniqueify = function(new, existing) {
 
 shape_to_str = function(x) {
   assert(test_list(x) || test_integerish(x) || is.null(x))
-  if (is.numeric(x)) { # single shape
+  if (test_integerish(x)) { # single shape
     return(sprintf("(%s)", paste0(x, collapse = ",")))
   }
   if (is.null(x)) {
@@ -198,7 +190,10 @@ list_to_batch = function(tensors) {
 }
 
 auto_cache_lazy_tensors = function(lts) {
-  any(duplicated(map_chr(lts, function(x) dd(x)$dataset_hash)))
+  if (length(lts) <= 1L) {
+    return(FALSE)
+  }
+  anyDuplicated(unlist(map_if(lts, function(x) length(x) > 0, function(x) dd(x)$dataset_hash))) > 0L
 }
 
 #' Replace the head of a network
@@ -215,6 +210,10 @@ replace_head = function(network, d_out) {
 
 check_nn_module = function(x) {
   check_class(x, "nn_module")
+}
+
+check_nn_module_generator = function(x) {
+  check_class(x, "nn_module_generator")
 }
 
 check_callbacks = function(x) {
@@ -276,34 +275,54 @@ order_named_args = function(f, l) {
   l2
 }
 
-infer_shapes = function(shapes_in, param_vals, output_names, fn, rowwise, id) {
-  sin = shapes_in[[1L]]
-  batch_dim = sin[1L]
-  batchdim_is_unknown = is.na(batch_dim)
-  if (batchdim_is_unknown) {
-    sin[1] = 1L
+
+#' @title Network Output Dimension
+#' @description
+#' Calculates the output dimension of a neural network for a given task that is expected by
+#' \pkg{mlr3torch}.
+#' For classification, this is the number of classes (unless it is a binary classification task,
+#' where it is 1). For regression, it is 1.
+#' @param x (any)\cr
+#'   The task.
+#' @param ... (any)\cr
+#'   Additional arguments. Not used yet.
+#' @export
+output_dim_for = function(x, ...) {
+  UseMethod("output_dim_for")
+}
+
+#' @export
+output_dim_for.TaskClassif = function(x, ...) {
+  if ("twoclass" %in% x$properties) {
+    return(1L)
   }
-  if (rowwise) {
-    sin = sin[-1L]
-  }
-  tensor_in = mlr3misc::invoke(torch_empty, .args = sin, device = torch_device("cpu"))
+  length(x$class_names)
+}
 
-  fn_args = names(formals(fn))
-  filtered_params = param_vals[intersect(names(param_vals), fn_args)]
+#' @export
+output_dim_for.TaskRegr = function(x, ...) {
+  1L
+}
 
-  tensor_out = tryCatch(invoke(fn, tensor_in, .args = filtered_params),
-    error = function(e) {
-      stopf("Input shape '%s' is invalid for PipeOp with id '%s'.", shape_to_str(list(sin)), id)
-    }
-  )
+all_or_none_ = function(...) {
+  args = list(...)
+  all_none = all(sapply(args, is.null))
+  all_not_none = all(!sapply(args, is.null))
+  return(all_none || all_not_none)
+}
 
-  sout = dim(tensor_out)
+single_lazy_tensor = function(task) {
+  identical(task$feature_types[, "type"][[1L]], "lazy_tensor")
+}
+                              
+n_num_features = function(task) {
+  sum(task$feature_types$type %in% c("numeric", "integer"))
+}
 
-  if (rowwise) {
-    sout = c(batch_dim, sout)
-  } else if (batchdim_is_unknown) {
-    sout[1] = NA
-  }
+n_categ_features = function(task) {
+  sum(task$feature_types$type %in% c("factor", "ordered", "logical"))
+}
 
-  set_names(list(sout), output_names)
+n_ltnsr_features = function(task) {
+  sum(task$feature_types$type == "lazy_tensor")
 }

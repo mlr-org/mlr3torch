@@ -42,9 +42,8 @@ as the cache directory.
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if () (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 task = tsk("mnist")
-task
 \dontshow{\}) # examplesIf}
 }
 \references{

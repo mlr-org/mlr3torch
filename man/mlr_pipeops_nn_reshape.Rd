@@ -17,7 +17,7 @@ This internally calls \code{\link[torch:torch_reshape]{torch::torch_reshape()}} 
 
 \itemize{
 \item \code{shape} :: \code{integer(1)}\cr
-The desired output shape. Unknown dimension (one at most) can either be specified as \code{-1} or \code{NA}.
+The desired output shape. Unknown dimension (one at most) can either be specified as \code{-1}.
 }
 }
 
@@ -63,6 +63,8 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_dropout}},
 \code{\link{mlr_pipeops_nn_elu}},
 \code{\link{mlr_pipeops_nn_flatten}},
+\code{\link{mlr_pipeops_nn_ft_cls}},
+\code{\link{mlr_pipeops_nn_ft_transformer_block}},
 \code{\link{mlr_pipeops_nn_geglu}},
 \code{\link{mlr_pipeops_nn_gelu}},
 \code{\link{mlr_pipeops_nn_glu}},

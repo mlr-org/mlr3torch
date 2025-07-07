@@ -17,7 +17,7 @@ Calls \code{\link[=nn_merge_cat]{nn_merge_cat()}} when trained.
 
 \itemize{
 \item \code{dim} :: \code{integer(1)}\cr
-The dimension along which to concatenate the tensors.
+The dimension along which to concatenate the tensors. The default is -1, i.e., the last dimension.
 }
 }
 
@@ -68,6 +68,8 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_dropout}},
 \code{\link{mlr_pipeops_nn_elu}},
 \code{\link{mlr_pipeops_nn_flatten}},
+\code{\link{mlr_pipeops_nn_ft_cls}},
+\code{\link{mlr_pipeops_nn_ft_transformer_block}},
 \code{\link{mlr_pipeops_nn_geglu}},
 \code{\link{mlr_pipeops_nn_gelu}},
 \code{\link{mlr_pipeops_nn_glu}},

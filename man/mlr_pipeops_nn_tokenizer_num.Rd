@@ -6,10 +6,11 @@
 \title{Numeric Tokenizer}
 \description{
 Tokenizes numeric features into a dense embedding.
+For an input of shape \verb{(batch, n_features)} the output shape is \verb{(batch, n_features, d_token)}.
 }
 \section{nn_module}{
 
-Calls \code{\link[=nn_tokenizer_numeric]{nn_tokenizer_numeric()}} when trained where the parameter \code{n_features} is inferred.
+Calls \code{\link[=nn_tokenizer_num]{nn_tokenizer_num()}} when trained where the parameter \code{n_features} is inferred.
 The output shape is \verb{(batch, n_features, d_token)}.
 }
 
@@ -68,6 +69,9 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_dropout}},
 \code{\link{mlr_pipeops_nn_elu}},
 \code{\link{mlr_pipeops_nn_flatten}},
+\code{\link{mlr_pipeops_nn_ft_cls}},
+\code{\link{mlr_pipeops_nn_ft_transformer_block}},
+\code{\link{mlr_pipeops_nn_geglu}},
 \code{\link{mlr_pipeops_nn_gelu}},
 \code{\link{mlr_pipeops_nn_glu}},
 \code{\link{mlr_pipeops_nn_hardshrink}},
@@ -87,6 +91,7 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_merge_prod}},
 \code{\link{mlr_pipeops_nn_merge_sum}},
 \code{\link{mlr_pipeops_nn_prelu}},
+\code{\link{mlr_pipeops_nn_reglu}},
 \code{\link{mlr_pipeops_nn_relu}},
 \code{\link{mlr_pipeops_nn_relu6}},
 \code{\link{mlr_pipeops_nn_reshape}},
