@@ -6,20 +6,25 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Get Started • mlr3torch</title>
-<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
-<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
-<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
-<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
-<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
-<script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Roboto-0.4.9/font.css" rel="stylesheet">
-<link href="../deps/JetBrains_Mono-0.4.9/font.css" rel="stylesheet">
-<link href="../deps/Roboto_Slab-0.4.9/font.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Roboto-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/Roboto_Slab-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="../deps/MathJax-3.2.2/tex-chtml.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Get Started">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Get Started">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -29,7 +34,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mlr3torch</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.2.1</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,7 +103,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>Get Started</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/mlr-org/mlr3torch/blob/v0.2.1/vignettes/articles/get_started.Rmd" class="external-link"><code>vignettes/articles/get_started.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/mlr-org/mlr3torch/blob/main/vignettes/articles/get_started.Rmd" class="external-link"><code>vignettes/articles/get_started.Rmd</code></a></small>
       <div class="d-none name"><code>get_started.Rmd</code></div>
     </div>
 
@@ -147,18 +152,21 @@ For a complete description of the available parameters see
 <span>  batch_size <span class="op">=</span> <span class="fl">32</span>, epochs <span class="op">=</span> <span class="fl">30</span>, device <span class="op">=</span> <span class="st">"cpu"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">mlp</span></span>
-<span><span class="co">#&gt; &lt;LearnerTorchMLP[regr]:regr.mlp&gt;: My Little Powny</span></span>
-<span><span class="co">#&gt; * Model: -</span></span>
-<span><span class="co">#&gt; * Parameters: epochs=30, device=cpu, num_threads=1,</span></span>
-<span><span class="co">#&gt;   num_interop_threads=1, seed=random, jit_trace=FALSE, eval_freq=1,</span></span>
-<span><span class="co">#&gt;   measures_train=&lt;list&gt;, measures_valid=&lt;list&gt;, patience=0,</span></span>
-<span><span class="co">#&gt;   min_delta=0, batch_size=32, shuffle=TRUE, tensor_dataset=FALSE,</span></span>
-<span><span class="co">#&gt;   neurons=50,50, p=0.5, activation=&lt;nn_relu&gt;, activation_args=&lt;list&gt;</span></span>
-<span><span class="co">#&gt; * Validate: NULL</span></span>
-<span><span class="co">#&gt; * Packages: mlr3, mlr3torch, torch</span></span>
-<span><span class="co">#&gt; * Predict Types:  [response]</span></span>
-<span><span class="co">#&gt; * Feature Types: integer, numeric, lazy_tensor</span></span>
-<span><span class="co">#&gt; * Properties: internal_tuning, marshal, validation</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="color: #0000BB; font-weight: bold;">&lt;LearnerTorchMLP&gt;</span><span style="font-weight: bold;"> (regr.mlp): Multi Layer Perceptron</span> <span style="color: #00BBBB;">────────────────────────</span></span></span>
+<span><span class="co">#&gt; • Model: -</span></span>
+<span><span class="co">#&gt; • Parameters: epochs=30, device=cpu, num_threads=1, num_interop_threads=1,</span></span>
+<span><span class="co">#&gt; seed=random, eval_freq=1, measures_train=&lt;list&gt;, measures_valid=&lt;list&gt;,</span></span>
+<span><span class="co">#&gt; patience=0, min_delta=0, batch_size=32, shuffle=TRUE, tensor_dataset=FALSE,</span></span>
+<span><span class="co">#&gt; jit_trace=FALSE, neurons=50,50, p=0.5, activation=&lt;nn_relu&gt;,</span></span>
+<span><span class="co">#&gt; activation_args=&lt;list&gt;</span></span>
+<span><span class="co">#&gt; • Validate: NULL</span></span>
+<span><span class="co">#&gt; • Packages: <span style="color: #0000BB;">mlr3</span>, <span style="color: #0000BB;">mlr3torch</span>, and <span style="color: #0000BB;">torch</span></span></span>
+<span><span class="co">#&gt; • Predict Types: [response]</span></span>
+<span><span class="co">#&gt; • Feature Types: integer, numeric, and lazy_tensor</span></span>
+<span><span class="co">#&gt; • Encapsulation: none (fallback: -)</span></span>
+<span><span class="co">#&gt; • Properties: internal_tuning, marshal, and validation</span></span>
+<span><span class="co">#&gt; • Other settings: use_weights = 'error'</span></span>
 <span><span class="co">#&gt; * Optimizer: adam</span></span>
 <span><span class="co">#&gt; * Loss: mse</span></span>
 <span><span class="co">#&gt; * Callbacks: -</span></span></code></pre></div>
@@ -275,14 +283,15 @@ below:</p>
 <span><span class="co">#&gt; * Packages: torch,mlr3torch</span></span>
 <span></span>
 <span><span class="va">sgd</span><span class="op">$</span><span class="va">param_set</span></span>
-<span><span class="co">#&gt; &lt;ParamSet(5)&gt;</span></span>
+<span><span class="co">#&gt; &lt;ParamSet(6)&gt;</span></span>
 <span><span class="co">#&gt;              id    class lower upper nlevels        default  value</span></span>
 <span><span class="co">#&gt;          &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;         &lt;list&gt; &lt;list&gt;</span></span>
 <span><span class="co">#&gt; 1:           lr ParamDbl     0   Inf     Inf &lt;NoDefault[0]&gt; [NULL]</span></span>
 <span><span class="co">#&gt; 2:     momentum ParamDbl     0     1     Inf              0 [NULL]</span></span>
 <span><span class="co">#&gt; 3:    dampening ParamDbl     0     1     Inf              0 [NULL]</span></span>
 <span><span class="co">#&gt; 4: weight_decay ParamDbl     0     1     Inf              0 [NULL]</span></span>
-<span><span class="co">#&gt; 5:     nesterov ParamLgl    NA    NA       2          FALSE [NULL]</span></span></code></pre></div>
+<span><span class="co">#&gt; 5:     nesterov ParamLgl    NA    NA       2          FALSE [NULL]</span></span>
+<span><span class="co">#&gt; 6: param_groups ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt; [NULL]</span></span></code></pre></div>
 <p>Parameters of <code>TorchOptimizer</code> (but also
 <code>TorchLoss</code> and <code>TorchCallback</code>) can be set in the
 usual <code>mlr3</code> way, i.e. either during construction, or
@@ -298,10 +307,10 @@ learner’s <code>ParamSet</code> (prefixed with <code>"opt."</code>) and
 that the values are set to the values we specified.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mlp_sgd</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">lrn</a></span><span class="op">(</span><span class="st">"regr.mlp"</span>, optimizer <span class="op">=</span> <span class="va">sgd</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">mlp_sgd</span><span class="op">$</span><span class="va">param_set</span><span class="op">)</span><span class="op">[</span></span>
+<span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">mlp_sgd</span><span class="op">$</span><span class="va">param_set</span><span class="op">)</span><span class="op">[</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/startsWith.html" class="external-link">startsWith</a></span><span class="op">(</span><span class="va">id</span>, <span class="st">"opt."</span><span class="op">)</span><span class="op">]</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="co">#&gt; [1] "opt.lr"           "opt.momentum"     "opt.dampening"    "opt.weight_decay"</span></span>
-<span><span class="co">#&gt; [5] "opt.nesterov"</span></span>
+<span><span class="co">#&gt; [5] "opt.nesterov"     "opt.param_groups"</span></span>
 <span><span class="va">mlp_sgd</span><span class="op">$</span><span class="va">param_set</span><span class="op">$</span><span class="va">values</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"opt.lr"</span>, <span class="st">"opt.nesterov"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt; $opt.lr</span></span>
 <span><span class="co">#&gt; [1] 0.5</span></span>
@@ -376,19 +385,21 @@ common <code><a href="https://mlr3.mlr-org.com/reference/Measure.html" class="ex
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">mlp_custom</span></span>
-<span><span class="co">#&gt; &lt;LearnerTorchMLP[regr]:regr.mlp&gt;: My Little Powny</span></span>
-<span><span class="co">#&gt; * Model: -</span></span>
-<span><span class="co">#&gt; * Parameters: epochs=30, device=cpu, num_threads=1,</span></span>
-<span><span class="co">#&gt;   num_interop_threads=1, seed=random, jit_trace=FALSE, eval_freq=1,</span></span>
-<span><span class="co">#&gt;   measures_train=&lt;list&gt;, measures_valid=&lt;MeasureRegrSimple&gt;,</span></span>
-<span><span class="co">#&gt;   patience=0, min_delta=0, batch_size=32, shuffle=TRUE,</span></span>
-<span><span class="co">#&gt;   tensor_dataset=FALSE, neurons=50,50, p=0.5, activation=&lt;nn_relu&gt;,</span></span>
-<span><span class="co">#&gt;   activation_args=&lt;list&gt;, opt.lr=0.5, opt.nesterov=FALSE</span></span>
-<span><span class="co">#&gt; * Validate: 0.3</span></span>
-<span><span class="co">#&gt; * Packages: mlr3, mlr3torch, torch</span></span>
-<span><span class="co">#&gt; * Predict Types:  [response]</span></span>
-<span><span class="co">#&gt; * Feature Types: integer, numeric, lazy_tensor</span></span>
-<span><span class="co">#&gt; * Properties: internal_tuning, marshal, validation</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="color: #0000BB; font-weight: bold;">&lt;LearnerTorchMLP&gt;</span><span style="font-weight: bold;"> (regr.mlp): Multi Layer Perceptron</span> <span style="color: #00BBBB;">────────────────────────</span></span></span>
+<span><span class="co">#&gt; • Model: -</span></span>
+<span><span class="co">#&gt; • Parameters: epochs=30, device=cpu, num_threads=1, num_interop_threads=1,</span></span>
+<span><span class="co">#&gt; seed=random, eval_freq=1, measures_train=&lt;list&gt;,</span></span>
+<span><span class="co">#&gt; measures_valid=&lt;MeasureRegrSimple&gt;, patience=0, min_delta=0, batch_size=32,</span></span>
+<span><span class="co">#&gt; shuffle=TRUE, tensor_dataset=FALSE, jit_trace=FALSE, neurons=50,50, p=0.5,</span></span>
+<span><span class="co">#&gt; activation=&lt;nn_relu&gt;, activation_args=&lt;list&gt;, opt.lr=0.5, opt.nesterov=FALSE</span></span>
+<span><span class="co">#&gt; • Validate: 0.3</span></span>
+<span><span class="co">#&gt; • Packages: <span style="color: #0000BB;">mlr3</span>, <span style="color: #0000BB;">mlr3torch</span>, and <span style="color: #0000BB;">torch</span></span></span>
+<span><span class="co">#&gt; • Predict Types: [response]</span></span>
+<span><span class="co">#&gt; • Feature Types: integer, numeric, and lazy_tensor</span></span>
+<span><span class="co">#&gt; • Encapsulation: none (fallback: -)</span></span>
+<span><span class="co">#&gt; • Properties: internal_tuning, marshal, and validation</span></span>
+<span><span class="co">#&gt; • Other settings: use_weights = 'error'</span></span>
 <span><span class="co">#&gt; * Optimizer: sgd</span></span>
 <span><span class="co">#&gt; * Loss: l1</span></span>
 <span><span class="co">#&gt; * Callbacks: history</span></span></code></pre></div>
@@ -439,7 +450,7 @@ see <code><a href="../reference/mlr_learners_torch.html">?LearnerTorch</a></code
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>

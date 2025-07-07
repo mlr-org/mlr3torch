@@ -6,20 +6,25 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Defining an Architecture • mlr3torch</title>
-<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
-<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
-<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
-<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
-<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
-<script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Roboto-0.4.9/font.css" rel="stylesheet">
-<link href="../deps/JetBrains_Mono-0.4.9/font.css" rel="stylesheet">
-<link href="../deps/Roboto_Slab-0.4.9/font.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Roboto-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/Roboto_Slab-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="../deps/MathJax-3.2.2/tex-chtml.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Defining an Architecture">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Defining an Architecture">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -29,7 +34,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mlr3torch</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.2.1</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,7 +103,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>Defining an Architecture</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/mlr-org/mlr3torch/blob/v0.2.1/vignettes/articles/pipeop_torch.Rmd" class="external-link"><code>vignettes/articles/pipeop_torch.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/mlr-org/mlr3torch/blob/main/vignettes/articles/pipeop_torch.Rmd" class="external-link"><code>vignettes/articles/pipeop_torch.Rmd</code></a></small>
       <div class="d-none name"><code>pipeop_torch.Rmd</code></div>
     </div>
 
@@ -106,17 +111,92 @@
     
 <p>In this vignette, we will show how to build neural network
 architectures as <code>mlr3pipelines::Graphs</code>s. We will create a
-simple CNN for the tiny-imagenet task, which is a subst of well-known
+simple CNN for the tiny-imagenet task, which is a subset of well-known
 Imagenet benchmark.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3torch.mlr-org.com/">mlr3torch</a></span><span class="op">)</span></span>
 <span><span class="va">imagenet</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"tiny_imagenet"</span><span class="op">)</span></span>
 <span><span class="va">imagenet</span></span>
-<span><span class="co">#&gt; &lt;TaskClassif:tiny_imagenet&gt; (110000 x 2): ImageNet Subset</span></span>
-<span><span class="co">#&gt; * Target: class</span></span>
-<span><span class="co">#&gt; * Properties: multiclass</span></span>
-<span><span class="co">#&gt; * Features (1):</span></span>
-<span><span class="co">#&gt;   - lt (1): image</span></span></code></pre></div>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="color: #0000BB; font-weight: bold;">&lt;TaskClassif&gt;</span><span style="font-weight: bold;"> (110000x2): ImageNet Subset</span> <span style="color: #00BBBB;">───────────────────────────────────</span></span></span>
+<span><span class="co">#&gt; • Target: class</span></span>
+<span><span class="co">#&gt; <span style="color: #FFD75F;">WARN </span> [12:51:47.407] Caching (option 'mlr3torch.cache') is disabled, but dataset requires disk storage. This can lead to unexpected behavior.</span></span>
+<span><span class="co">#&gt; • Target classes: abacus (0%), academic gown, academic robe, judge's robe (0%),</span></span>
+<span><span class="co">#&gt; acorn (0%), African elephant, Loxodonta africana (0%), albatross, mollymawk</span></span>
+<span><span class="co">#&gt; (0%), alp (0%), altar (0%), American alligator, Alligator mississipiensis (0%),</span></span>
+<span><span class="co">#&gt; American lobster, Northern lobster, Maine lobster, Homarus americanus (0%),</span></span>
+<span><span class="co">#&gt; apron (0%), Arabian camel, dromedary, Camelus dromedarius (0%), baboon (0%),</span></span>
+<span><span class="co">#&gt; backpack, back pack, knapsack, packsack, rucksack, haversack (0%), banana (0%),</span></span>
+<span><span class="co">#&gt; bannister, banister, balustrade, balusters, handrail (0%), barbershop (0%),</span></span>
+<span><span class="co">#&gt; barn (0%), barrel, cask (0%), basketball (0%), bathtub, bathing tub, bath, tub</span></span>
+<span><span class="co">#&gt; (0%), beach wagon, station wagon, wagon, estate car, beach waggon, station</span></span>
+<span><span class="co">#&gt; waggon, waggon (0%), beacon, lighthouse, beacon light, pharos (0%), beaker</span></span>
+<span><span class="co">#&gt; (0%), bee (0%), beer bottle (0%), bell pepper (0%), bighorn, bighorn sheep,</span></span>
+<span><span class="co">#&gt; cimarron, Rocky Mountain bighorn, Rocky Mountain sheep, Ovis canadensis (0%),</span></span>
+<span><span class="co">#&gt; bikini, two-piece (0%), binoculars, field glasses, opera glasses (0%),</span></span>
+<span><span class="co">#&gt; birdhouse (0%), bison (0%), black stork, Ciconia nigra (0%), black widow,</span></span>
+<span><span class="co">#&gt; Latrodectus mactans (0%), boa constrictor, Constrictor constrictor (0%), bow</span></span>
+<span><span class="co">#&gt; tie, bow-tie, bowtie (0%), brain coral (0%), brass, memorial tablet, plaque</span></span>
+<span><span class="co">#&gt; (0%), broom (0%), brown bear, bruin, Ursus arctos (0%), bucket, pail (0%),</span></span>
+<span><span class="co">#&gt; bullet train, bullet (0%), bullfrog, Rana catesbeiana (0%), butcher shop, meat</span></span>
+<span><span class="co">#&gt; market (0%), candle, taper, wax light (0%), cannon (0%), cardigan (0%), cash</span></span>
+<span><span class="co">#&gt; machine, cash dispenser, automated teller machine, automatic teller machine,</span></span>
+<span><span class="co">#&gt; automated teller, automatic teller, ATM (0%), cauliflower (0%), CD player (0%),</span></span>
+<span><span class="co">#&gt; centipede (0%), chain (0%), chest (0%), Chihuahua (0%), chimpanzee, chimp, Pan</span></span>
+<span><span class="co">#&gt; troglodytes (0%), Christmas stocking (0%), cliff dwelling (0%), cliff, drop,</span></span>
+<span><span class="co">#&gt; drop-off (0%), cockroach, roach (0%), comic book (0%), computer keyboard,</span></span>
+<span><span class="co">#&gt; keypad (0%), confectionery, confectionary, candy store (0%), convertible (0%),</span></span>
+<span><span class="co">#&gt; coral reef (0%), cougar, puma, catamount, mountain lion, painter, panther,</span></span>
+<span><span class="co">#&gt; Felis concolor (0%), crane (0%), dam, dike, dyke (0%), desk (0%), dining table,</span></span>
+<span><span class="co">#&gt; board (0%), dragonfly, darning needle, devil's darning needle, sewing needle,</span></span>
+<span><span class="co">#&gt; snake feeder, snake doctor, mosquito hawk, skeeter hawk (0%), drumstick (0%),</span></span>
+<span><span class="co">#&gt; dugong, Dugong dugon (0%), dumbbell (0%), Egyptian cat (0%), espresso (0%),</span></span>
+<span><span class="co">#&gt; European fire salamander, Salamandra salamandra (0%), flagpole, flagstaff (0%),</span></span>
+<span><span class="co">#&gt; fly (0%), fountain (0%), freight car (0%), frying pan, frypan, skillet (0%),</span></span>
+<span><span class="co">#&gt; fur coat (0%), gasmask, respirator, gas helmet (0%), gazelle (0%), German</span></span>
+<span><span class="co">#&gt; shepherd, German shepherd dog, German police dog, alsatian (0%), go-kart (0%),</span></span>
+<span><span class="co">#&gt; golden retriever (0%), goldfish, Carassius auratus (0%), gondola (0%), goose</span></span>
+<span><span class="co">#&gt; (0%), grasshopper, hopper (0%), guacamole (0%), guinea pig, Cavia cobaya (0%),</span></span>
+<span><span class="co">#&gt; hog, pig, grunter, squealer, Sus scrofa (0%), hourglass (0%), ice cream,</span></span>
+<span><span class="co">#&gt; icecream (0%), ice lolly, lolly, lollipop, popsicle (0%), iPod (0%), jellyfish</span></span>
+<span><span class="co">#&gt; (0%), jinrikisha, ricksha, rickshaw (0%), kimono (0%), king penguin,</span></span>
+<span><span class="co">#&gt; Aptenodytes patagonica (0%), koala, koala bear, kangaroo bear, native bear,</span></span>
+<span><span class="co">#&gt; Phascolarctos cinereus (0%), Labrador retriever (0%), ladybug, ladybeetle, lady</span></span>
+<span><span class="co">#&gt; beetle, ladybird, ladybird beetle (0%), lakeside, lakeshore (0%), lampshade,</span></span>
+<span><span class="co">#&gt; lamp shade (0%), lawn mower, mower (0%), lemon (0%), lesser panda, red panda,</span></span>
+<span><span class="co">#&gt; panda, bear cat, cat bear, Ailurus fulgens (0%), lifeboat (0%), limousine, limo</span></span>
+<span><span class="co">#&gt; (0%), lion, king of beasts, Panthera leo (0%), magnetic compass (0%), mantis,</span></span>
+<span><span class="co">#&gt; mantid (0%), mashed potato (0%), maypole (0%), meat loaf, meatloaf (0%),</span></span>
+<span><span class="co">#&gt; military uniform (0%), miniskirt, mini (0%), monarch, monarch butterfly,</span></span>
+<span><span class="co">#&gt; milkweed butterfly, Danaus plexippus (0%), moving van (0%), mushroom (0%), nail</span></span>
+<span><span class="co">#&gt; (0%), neck brace (0%), obelisk (0%), oboe, hautboy, hautbois (0%), orange (0%),</span></span>
+<span><span class="co">#&gt; orangutan, orang, orangutang, Pongo pygmaeus (0%), organ, pipe organ (0%), ox</span></span>
+<span><span class="co">#&gt; (0%), parking meter (0%), pay-phone, pay-station (0%), Persian cat (0%), picket</span></span>
+<span><span class="co">#&gt; fence, paling (0%), pill bottle (0%), pizza, pizza pie (0%), plate (0%),</span></span>
+<span><span class="co">#&gt; plunger, plumber's helper (0%), pole (0%), police van, police wagon, paddy</span></span>
+<span><span class="co">#&gt; wagon, patrol wagon, wagon, black Maria (0%), pomegranate (0%), poncho (0%),</span></span>
+<span><span class="co">#&gt; pop bottle, soda bottle (0%), potpie (0%), potter's wheel (0%), pretzel (0%),</span></span>
+<span><span class="co">#&gt; projectile, missile (0%), punching bag, punch bag, punching ball, punchball</span></span>
+<span><span class="co">#&gt; (0%), reel (0%), refrigerator, icebox (0%), remote control, remote (0%),</span></span>
+<span><span class="co">#&gt; rocking chair, rocker (0%), rugby ball (0%), sandal (0%), school bus (0%),</span></span>
+<span><span class="co">#&gt; scoreboard (0%), scorpion (0%), sea cucumber, holothurian (0%), sea slug,</span></span>
+<span><span class="co">#&gt; nudibranch (0%), seashore, coast, seacoast, sea-coast (0%), sewing machine</span></span>
+<span><span class="co">#&gt; (0%), slug (0%), snail (0%), snorkel (0%), sock (0%), sombrero (0%), space</span></span>
+<span><span class="co">#&gt; heater (0%), spider web, spider's web (0%), spiny lobster, langouste, rock</span></span>
+<span><span class="co">#&gt; lobster, crawfish, crayfish, sea crawfish (0%), sports car, sport car (0%),</span></span>
+<span><span class="co">#&gt; standard poodle (0%), steel arch bridge (0%), stopwatch, stop watch (0%),</span></span>
+<span><span class="co">#&gt; sulphur butterfly, sulfur butterfly (0%), sunglasses, dark glasses, shades</span></span>
+<span><span class="co">#&gt; (0%), suspension bridge (0%), swimming trunks, bathing trunks (0%), syringe</span></span>
+<span><span class="co">#&gt; (0%), tabby, tabby cat (0%), tailed frog, bell toad, ribbed toad, tailed toad,</span></span>
+<span><span class="co">#&gt; Ascaphus trui (0%), tarantula (0%), teapot (0%), teddy, teddy bear (0%),</span></span>
+<span><span class="co">#&gt; thatch, thatched roof (0%), torch (0%), tractor (0%), trilobite (0%), triumphal</span></span>
+<span><span class="co">#&gt; arch (0%), trolleybus, trolley coach, trackless trolley (0%), turnstile (0%),</span></span>
+<span><span class="co">#&gt; umbrella (0%), vestment (0%), viaduct (0%), volleyball (0%), walking stick,</span></span>
+<span><span class="co">#&gt; walkingstick, stick insect (0%), water jug (0%), water tower (0%), wok (0%),</span></span>
+<span><span class="co">#&gt; wooden spoon (0%), Yorkshire terrier (0%)</span></span>
+<span><span class="co">#&gt; • Properties: multiclass</span></span>
+<span><span class="co">#&gt; • Features (1):</span></span>
+<span><span class="co">#&gt;   • lt (1): image</span></span></code></pre></div>
 <p>The central ingredients for creating such graphs are
 <code>PipeOpTorch</code> operators.</p>
 <p>To mark the entry-point of the neural network, we use a
@@ -184,7 +264,7 @@ loss, SGD as the optimizer and checkpoint our model every 20 epochs.</p>
 <code class="sourceCode R"><span><span class="va">checkpoint</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">architecture</span> <span class="op">=</span> <span class="va">architecture</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_loss"</span>, <span class="fu"><a href="../reference/t_loss.html">t_loss</a></span><span class="op">(</span><span class="st">"cross_entropy"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_optimizer"</span>, <span class="fu"><a href="../reference/t_opt.html">t_opt</a></span><span class="op">(</span><span class="st">"sgd"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_optimizer"</span>, <span class="fu"><a href="../reference/t_opt.html">t_opt</a></span><span class="op">(</span><span class="st">"sgd"</span>, lr<span class="op">=</span><span class="fl">0.01</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_callbacks"</span>, </span>
 <span>    <span class="fu"><a href="../reference/t_clbk.html">t_clbk</a></span><span class="op">(</span><span class="st">"checkpoint"</span>, freq <span class="op">=</span> <span class="fl">20</span>, path <span class="op">=</span> <span class="va">checkpoint</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://mlr3pipelines.mlr-org.com/reference/grapes-greater-than-greater-than-grapes.html" class="external-link">%&gt;&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"torch_model_classif"</span>,</span>
@@ -197,12 +277,12 @@ options of the individual <code>PipeOp</code>s in its
 <code>$param_set</code>, from which we show only a subset for
 readability:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">cnn</span><span class="op">$</span><span class="va">param_set</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">32</span>, <span class="fl">34</span>, <span class="fl">42</span><span class="op">)</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span></span>
-<span><span class="co">#&gt;                             id    class lower upper</span></span>
-<span><span class="co">#&gt;                         &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:           nn_block.n_blocks ParamInt     1   Inf</span></span>
-<span><span class="co">#&gt; 2: nn_block.nn_dropout.inplace ParamLgl    NA    NA</span></span>
-<span><span class="co">#&gt; 3:          torch_optimizer.lr ParamDbl     0   Inf</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">cnn</span><span class="op">$</span><span class="va">param_set</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">32</span>, <span class="fl">34</span>, <span class="fl">42</span><span class="op">)</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span></span>
+<span><span class="co">#&gt;                       id    class lower upper</span></span>
+<span><span class="co">#&gt;                   &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:     nn_block.n_blocks ParamInt     0   Inf</span></span>
+<span><span class="co">#&gt; 2: nn_block.nn_dropout.p ParamDbl     0     1</span></span>
+<span><span class="co">#&gt; 3:  torch_loss.reduction ParamFct    NA    NA</span></span></code></pre></div>
 <p>We can still change them, or if we wanted to, even tune them! Below,
 we increase the number of blocks and latent dimension of the dense part,
 as well as change the learning rate of the SGD optimizer.</p>
@@ -225,7 +305,7 @@ as well as change the learning rate of the SGD optimizer.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>
