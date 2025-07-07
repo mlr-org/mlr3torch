@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mlr3torch</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.2.1-9000</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.3.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,6 +68,53 @@
       <small>Source: <a href="https://github.com/mlr-org/mlr3torch/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="mlr3torch-development-version">mlr3torch (development version)<a class="anchor" aria-label="anchor" href="#mlr3torch-development-version"></a></h2>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.0" id="mlr3torch-030">mlr3torch 0.3.0<a class="anchor" aria-label="anchor" href="#mlr3torch-030"></a></h2>
+<div class="section level3">
+<h3 id="breaking-changes-0-3-0">Breaking Changes:<a class="anchor" aria-label="anchor" href="#breaking-changes-0-3-0"></a></h3>
+<ul><li>The output dimension of neural networks for binary classification tasks is now expected to be 1 and not 2 as before. The behavior of <code>nn("head")</code> was also changed to match this. This means that for binary classification tasks, <code>t_loss("cross_entropy")</code> now generates <code>nn_bce_with_logits_loss</code> instead of <code>nn_cross_entropy_loss</code>. This also came with a reparametrization of the <code>t_loss("cross_entropy")</code> loss (thanks to <a href="https://github.com/tdhock" class="external-link">@tdhock</a>, <a href="https://github.com/mlr-org/mlr3torch/issues/374" class="external-link">#374</a>).</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-features-0-3-0">New Features:<a class="anchor" aria-label="anchor" href="#new-features-0-3-0"></a></h3>
+<div class="section level4">
+<h4 id="pipeops--learners-0-3-0">PipeOps &amp; Learners:<a class="anchor" aria-label="anchor" href="#pipeops--learners-0-3-0"></a></h4>
+<ul><li>Added <code>po("nn_identity")</code>
+</li>
+<li>Added <code>po("nn_fn")</code> for calling custom functions in a network.</li>
+<li>Added the FT Transformer model for tabular data.</li>
+<li>Added encoders for numericals and categoricals</li>
+<li>
+<code>nn("block")</code> (which allows to repeat the same network segment multiple times) now has an extra argument <code>trafo</code>, which allows to modify the parameter values per layer.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="callbacks-0-3-0">Callbacks:<a class="anchor" aria-label="anchor" href="#callbacks-0-3-0"></a></h4>
+<ul><li>The context for callbacks now includes the network prediction (<code>y_hat</code>).</li>
+<li>The <code>lr_one_cycle</code> callback now infers the total number of steps.</li>
+<li>Progress callback got argument <code>digits</code> for controlling the precision with which validation/training scores are logged.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="other-0-3-0">Other:<a class="anchor" aria-label="anchor" href="#other-0-3-0"></a></h4>
+<ul><li>
+<code>TorchIngressToken</code> now also can take a <code>Selector</code> as argument <code>features</code>.</li>
+<li>Added function <code><a href="../reference/lazy_shape.html">lazy_shape()</a></code> to get the shape of a lazy tensor.</li>
+<li>Better error messages for MLP and TabResNet learners.</li>
+<li>TabResNet learner now supports lazy tensors.</li>
+<li>The <code>LearnerTorch</code> base class now supports the private method <code>$.ingress_tokens(task, param_vals)</code> for generating the <code><a href="https://torch.mlverse.org/docs/reference/dataset.html" class="external-link">torch::dataset</a></code>.</li>
+<li>Shapes can now have multiple <code>NA</code>s and not only the batch dimension can be missing. However, most <code><a href="../reference/nn.html">nn()</a></code> operators still expect only one missing values and will throw an error if multiple dimensions are unknown.</li>
+<li>Training now does not fail anymore when encountering a missing value during validation but uses <code>NA</code> instead.</li>
+<li>It is now possible to specify parameter groups for optimizers via the <code>param_groups</code> parameter.</li>
+</ul></div>
+</div>
+<div class="section level3">
+<h3 id="bug-fixes-0-3-0">Bug Fixes:<a class="anchor" aria-label="anchor" href="#bug-fixes-0-3-0"></a></h3>
+<ul><li>fix: lazy tensors of length 0 can now be materialized.</li>
+<li>fix: <code>NA</code> is now a valid shape for lazy tensors</li>
+<li>fix: The <code>lr_reduce_on_plateau</code> callback now works.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.1" id="mlr3torch-021">mlr3torch 0.2.1<a class="anchor" aria-label="anchor" href="#mlr3torch-021"></a></h2><p class="text-muted">CRAN release: 2025-02-13</p>
 <div class="section level3">
