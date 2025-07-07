@@ -1,35 +1,54 @@
-# mlr3torch dev
+# mlr3torch 0.3.0
 
-* feat: add `po("nn_identity")`
-* feat: Add `LearnerTorchModule` for easily creating torch learners from torch modules.
-* feat: `TorchIngressToken` now also can take a `Selector` as argument `features`.
-* feat: Added encoders for numericals and categoricals
-* feat: Added `po("nn_fn")` for calling custom functions in a network.
-* feat: Added `po("nn_ft_cls")` for concatenating a CLS token to a tokenized input.
-* BREAKING_CHANGE: The output dimension of neural networks for binary classification tasks is now
+## Breaking Changes:
+
+* The output dimension of neural networks for binary classification tasks is now
   expected to be 1 and not 2 as before. The behavior of `nn("head")` was also changed to match this.
   This means that for binary classification tasks, `t_loss("cross_entropy")` now generates
   `nn_bce_with_logits_loss` instead of `nn_cross_entropy_loss`.
   This also came with a reparametrization of the `t_loss("cross_entropy")` loss (thanks to @tdhock, #374).
-* feat: Added function `lazy_shape()` to get the shape of a lazy tensor.
-* feat: Better error messages for MLP and TabResNet learners.
-* feat: TabResNet learner now supports lazy tensors.
-* feat: The `LearnerTorch` base class now supports the private method `$.ingress_tokens(task, param_vals)`
-  for generating the `torch::dataset`.
-* fix: `NA` is now a valid shape for lazy tensors
-* feat: lazy tensors of length 0 can now be materialized.
-* feat: `nn("block")` (which allows to repeat the same network segment multiple
+
+## New Features:
+
+
+### PipeOps & Learners:
+
+* Added `po("nn_identity")`
+* Added `po("nn_fn")` for calling custom functions in a network.
+* Added the FT Transformer model for tabular data.
+* Added encoders for numericals and categoricals
+* `nn("block")` (which allows to repeat the same network segment multiple
   times) now has an extra argument `trafo`, which allows to modify the
   parameter values per layer.
-* feat: Shapes can now have multiple `NA`s and not only the batch dimension can be missing. However, most `nn()` operators still expect only one missing values and will throw an error if multiple dimensions are unknown.
-* feat: Progress callback got argument `digits` for controlling the precision
+
+### Callbacks:
+
+* The context for callbacks now includes the network prediction (`y_hat`).
+* The `lr_one_cycle` callback now infers the total number of steps.
+* Progress callback got argument `digits` for controlling the precision
   with which validation/training scores are logged.
-* feat: Training now does not fail anymore when encountering a missing value
+
+### Other:
+
+* `TorchIngressToken` now also can take a `Selector` as argument `features`.
+* Added function `lazy_shape()` to get the shape of a lazy tensor.
+* Better error messages for MLP and TabResNet learners.
+* TabResNet learner now supports lazy tensors.
+* The `LearnerTorch` base class now supports the private method `$.ingress_tokens(task, param_vals)`
+  for generating the `torch::dataset`.
+* Shapes can now have multiple `NA`s and not only the batch dimension can be missing. However, most `nn()` operators
+  still expect only one missing values and will throw an error if multiple dimensions are unknown.
+* Training now does not fail anymore when encountering a missing value
   during validation but uses `NA` instead.
-* feat: The context for callbacks now includes the network prediction (`y_hat`).
-* feat: It is now possible to specify parameter groups
+* It is now possible to specify parameter groups for optimizers via the
+`param_groups` parameter.
+
+
+## Bug Fixes:
+
+* fix: lazy tensors of length 0 can now be materialized.
+* fix: `NA` is now a valid shape for lazy tensors
 * fix: The `lr_reduce_on_plateau` callback now works.
-* feat: The `lr_one_cycle` callback now infers the total number of steps.
 
 # mlr3torch 0.2.1
 
