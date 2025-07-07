@@ -126,8 +126,7 @@ test_that("plateau works", {
 
   mlp$train(task)
 
-  # TODO: uncomment once Learner printer is fixed
-  # expect_learner(mlp)
+  expect_learner(mlp)
   expect_class(mlp$network, c("nn_sequential", "nn_module"))
 })
 
@@ -186,3 +185,4 @@ test_that("custom LR scheduler works", {
   expect_equal(mlp$model$optimizer$param_groups[[1]]$initial_lr - ((n_epochs / step_size) * reduction_amt),
                mlp$model$optimizer$param_groups[[1]]$lr)
 })
+

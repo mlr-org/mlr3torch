@@ -117,7 +117,12 @@ CallbackSetLRSchedulerReduceOnPlateau = R6Class("CallbackSetLRSchedulerReduceOnP
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(...) {
-      private$.scheduler_args = list(...)
+      super$initialize(
+        .scheduler = torch::lr_reduce_on_plateau,
+        step_on_epoch = TRUE,
+        ...
+      )
+
       self$on_epoch_end = function() {
         self$scheduler$step(self$ctx$last_scores_valid[[1L]])
       }
@@ -200,8 +205,7 @@ mlr3torch_callbacks$add("lr_one_cycle", function() {
     ),
     id = "lr_one_cycle",
     label = "1cycle LR Scheduler",
-    man = "mlr3torch::mlr_callback_set.lr_scheduler",
-    additional_args = list(.scheduler = torch::lr_one_cycle, step_on_epoch = FALSE)
+    man = "mlr3torch::mlr_callback_set.lr_scheduler"
   )
 })
 
@@ -222,8 +226,7 @@ mlr3torch_callbacks$add("lr_reduce_on_plateau", function() {
     ),
     id = "lr_reduce_on_plateau",
     label = "Reduce on Plateau LR Scheduler",
-    man = "mlr3torch::mlr_callback_set.lr_scheduler",
-    additional_args = list(.scheduler = torch::lr_reduce_on_plateau, step_on_epoch = TRUE)
+    man = "mlr3torch::mlr_callback_set.lr_scheduler"
   )
 })
 
