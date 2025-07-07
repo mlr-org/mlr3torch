@@ -15,6 +15,7 @@ Wraps \code{\link[torch:lr_one_cycle]{torch::lr_one_cycle()}}, where the default
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
+\item \href{#method-CallbackSetLRSchedulerOneCycle-new}{\code{CallbackSetLRSchedulerOneCycle$new()}}
 \item \href{#method-CallbackSetLRSchedulerOneCycle-on_begin}{\code{CallbackSetLRSchedulerOneCycle$on_begin()}}
 \item \href{#method-CallbackSetLRSchedulerOneCycle-clone}{\code{CallbackSetLRSchedulerOneCycle$clone()}}
 }
@@ -25,10 +26,27 @@ Wraps \code{\link[torch:lr_one_cycle]{torch::lr_one_cycle()}}, where the default
 <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="load_state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-load_state_dict'><code>mlr3torch::CallbackSet$load_state_dict()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-print'><code>mlr3torch::CallbackSet$print()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-state_dict'><code>mlr3torch::CallbackSet$state_dict()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSetLRScheduler" data-id="initialize"><a href='../../mlr3torch/html/CallbackSetLRScheduler.html#method-CallbackSetLRScheduler-initialize'><code>mlr3torch::CallbackSetLRScheduler$initialize()</code></a></span></li>
 </ul>
 </details>
 }}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSetLRSchedulerOneCycle-new"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetLRSchedulerOneCycle-new}{}}}
+\subsection{Method \code{new()}}{
+Creates a new instance of this \link[R6:R6Class]{R6} class.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CallbackSetLRSchedulerOneCycle$new(...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{(any)\cr
+The scheduler-specific initialization arguments.}
+}
+\if{html}{\out{</div>}}
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetLRSchedulerOneCycle-on_begin"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetLRSchedulerOneCycle-on_begin}{}}}

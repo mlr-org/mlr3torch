@@ -5,7 +5,8 @@
 \alias{CallbackSetLRSchedulerReduceOnPlateau}
 \title{Reduce On Plateau Learning Rate Scheduler}
 \description{
-Reduces the learning rate when the validation metric stops improving for \code{patience} epochs. Wraps \code{\link[torch:lr_reduce_on_plateau]{torch::lr_reduce_on_plateau()}}
+Reduces the learning rate when the first validation metric stops improving for \code{patience} epochs.
+Wraps \code{\link[torch:lr_reduce_on_plateau]{torch::lr_reduce_on_plateau()}}
 }
 \section{Super classes}{
 \code{\link[mlr3torch:CallbackSet]{mlr3torch::CallbackSet}} -> \code{\link[mlr3torch:CallbackSetLRScheduler]{mlr3torch::CallbackSetLRScheduler}} -> \code{CallbackSetLRSchedulerReduceOnPlateau}
@@ -33,18 +34,12 @@ Reduces the learning rate when the validation metric stops improving for \code{p
 \subsection{Method \code{new()}}{
 Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetLRSchedulerReduceOnPlateau$new(.scheduler, step_on_epoch, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CallbackSetLRSchedulerReduceOnPlateau$new(...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{.scheduler}}{(\code{LRScheduler})\cr
-The learning rate scheduler wrapped by this callback.}
-
-\item{\code{step_on_epoch}}{(\code{logical(1)})\cr
-Whether the scheduler steps after every epoch (otherwise every batch).}
-
 \item{\code{...}}{(any)\cr
 The scheduler-specific initialization arguments.}
 }

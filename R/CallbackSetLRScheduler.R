@@ -68,8 +68,6 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
 #'
 #' Wraps [torch::lr_one_cycle()], where the default values for `epochs` and `steps_per_epoch` are the number of training epochs and the number of batches per epoch.
 #'
-#' @param .scheduler (`lr_scheduler_generator`)\cr
-#'   The `torch` scheduler generator (e.g. `torch::lr_one_cycle`).
 #' @param ... (any)\cr
 #'   The scheduler-specific initialization arguments.
 #'
@@ -78,6 +76,15 @@ CallbackSetLRSchedulerOneCycle = R6Class("CallbackSetLRSchedulerOneCycle",
   inherit = CallbackSetLRScheduler,
   lock_objects = FALSE,
   public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    initialize = function(...) {
+      super$initialize(
+        .scheduler = torch::lr_one_cycle,
+        step_on_epoch = FALSE,
+        ...
+        )
+    },
     #' @description
     #' Creates the scheduler using the optimizer from the context
     on_begin = function() {
@@ -96,10 +103,9 @@ CallbackSetLRSchedulerOneCycle = R6Class("CallbackSetLRSchedulerOneCycle",
 #' @name mlr_callback_set.lr_scheduler_reduce_on_plateau
 #'
 #' @description
-#' Reduces the learning rate when the validation metric stops improving for `patience` epochs. Wraps [torch::lr_reduce_on_plateau()]
+#' Reduces the learning rate when the first validation metric stops improving for `patience` epochs.
+#' Wraps [torch::lr_reduce_on_plateau()]
 #'
-#' @param .scheduler (`lr_scheduler_generator`)\cr
-#'   The `torch` scheduler generator (e.g. `torch::lr_reduce_on_plateau`).
 #' @param ... (any)\cr
 #'   The scheduler-specific initialization arguments.
 #'
@@ -110,17 +116,8 @@ CallbackSetLRSchedulerReduceOnPlateau = R6Class("CallbackSetLRSchedulerReduceOnP
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    #' @param .scheduler (`LRScheduler`)\cr
-    #' The learning rate scheduler wrapped by this callback.
-    #' @param step_on_epoch (`logical(1)`)\cr
-    #'   Whether the scheduler steps after every epoch (otherwise every batch).
-    initialize = function(.scheduler, step_on_epoch, ...) {
-      assert_class(.scheduler, "lr_scheduler_generator")
-      assert_flag(step_on_epoch)
-
-      self$scheduler_fn = .scheduler
+    initialize = function(...) {
       private$.scheduler_args = list(...)
-
       self$on_epoch_end = function() {
         self$scheduler$step(self$ctx$last_scores_valid[[1L]])
       }
