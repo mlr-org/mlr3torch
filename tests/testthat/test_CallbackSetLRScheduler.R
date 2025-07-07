@@ -22,15 +22,80 @@ test_that("autotest", {
   expect_torch_callback(cb_step, check_paramset = FALSE)
 })
 
-test_that("decay works", {
-  cb = t_clbk("lr_step")
+test_that("cosine annealing works", {
+  cb = t_clbk("lr_cosine_annealing")
   task = tsk("iris")
+
   n_epochs = 10
 
   mlp = lrn("classif.mlp",
-            callbacks = cb,
-            epochs = n_epochs, batch_size = 150, neurons = 10,
-            measures_train = msrs(c("classif.acc", "classif.ce"))
+    callbacks = cb,
+    epochs = n_epochs, batch_size = 150, neurons = 10,
+    measures_train = msrs(c("classif.acc", "classif.ce"))
+  )
+
+  T_max = 2
+  eta_min = 0.0001
+  mlp$param_set$set_values(cb.lr_cosine_annealing.T_max = T_max)
+  mlp$param_set$set_values(cb.lr_cosine_annealing.eta_min = eta_min)
+
+  mlp$train(task)
+
+  expect_equal(eta_min, mlp$model$optimizer$param_groups[[1]]$lr)
+})
+
+test_that("lambda works", {
+  cb = t_clbk("lr_lambda")
+  task = tsk("iris")
+
+  n_epochs = 10
+
+  mlp = lrn("classif.mlp",
+    callbacks = cb,
+    epochs = n_epochs, batch_size = 150, neurons = 10,
+    measures_train = msrs(c("classif.acc", "classif.ce"))
+  )
+
+  lambda1 <- function(epoch) 0.95 ^ epoch
+  mlp$param_set$set_values(cb.lr_lambda.lr_lambda = list(lambda1))
+
+  mlp$train(task)
+
+  expect_equal(mlp$model$optimizer$param_groups[[1]]$initial_lr * 0.95^(n_epochs),
+              mlp$model$optimizer$param_groups[[1]]$lr)
+})
+
+test_that("multiplicative works", {
+  cb = t_clbk("lr_multiplicative")
+  task = tsk("iris")
+
+  n_epochs = 10
+
+  mlp = lrn("classif.mlp",
+    callbacks = cb,
+    epochs = n_epochs, batch_size = 150, neurons = 10,
+    measures_train = msrs(c("classif.acc", "classif.ce"))
+  )
+
+  lambda <- function(epoch) 0.95
+  mlp$param_set$set_values(cb.lr_multiplicative.lr_lambda = lambda)
+
+  mlp$train(task)
+
+  expect_equal(mlp$model$optimizer$param_groups[[1]]$initial_lr * 0.95^(n_epochs),
+              mlp$model$optimizer$param_groups[[1]]$lr)
+})
+
+test_that("step decay works", {
+  cb = t_clbk("lr_step")
+  task = tsk("iris")
+
+  n_epochs = 10
+
+  mlp = lrn("classif.mlp",
+    callbacks = cb,
+    epochs = n_epochs, batch_size = 150, neurons = 10,
+    measures_train = msrs(c("classif.acc", "classif.ce"))
   )
   gamma = 0.5
   step_size = 2
@@ -42,6 +107,44 @@ test_that("decay works", {
 
   expect_equal(mlp$model$optimizer$param_groups[[1]]$initial_lr * gamma^(n_epochs / step_size),
                mlp$model$optimizer$param_groups[[1]]$lr)
+})
+
+test_that("plateau works", {
+  cb = t_clbk("lr_reduce_on_plateau")
+
+  task = tsk("iris")
+
+  mlp = lrn("classif.mlp",
+    callbacks = cb,
+    epochs = 10, batch_size = 150, neurons = 10,
+    measures_train = msrs(c("classif.acc", "classif.ce")),
+    measures_valid = msrs(c("classif.ce")),
+    validate = 0.2
+  )
+
+  mlp$param_set$set_values(cb.lr_reduce_on_plateau.mode = "min")
+
+  mlp$train(task)
+
+  expect_learner(mlp)
+  expect_class(mlp$network, c("nn_sequential", "nn_module"))
+})
+
+test_that("1cycle works", {
+  cb = t_clbk("lr_one_cycle", max_lr = 0.01)
+
+  task = tsk("iris")
+
+  mlp = lrn("classif.mlp",
+    callbacks = cb,
+    epochs = 10, batch_size = 50, neurons = 10,
+    measures_train = msrs(c("classif.acc", "classif.ce"))
+  )
+
+  mlp$train(task)
+
+  expect_learner(mlp)
+  expect_class(mlp$network, c("nn_sequential", "nn_module"))
 })
 
 test_that("custom LR scheduler works", {
@@ -82,3 +185,4 @@ test_that("custom LR scheduler works", {
   expect_equal(mlp$model$optimizer$param_groups[[1]]$initial_lr - ((n_epochs / step_size) * reduction_amt),
                mlp$model$optimizer$param_groups[[1]]$lr)
 })
+

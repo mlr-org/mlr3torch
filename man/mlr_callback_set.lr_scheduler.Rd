@@ -12,7 +12,7 @@ As of this writing, the following are available:
 \item \code{\link[torch:lr_cosine_annealing]{torch::lr_cosine_annealing()}}
 \item \code{\link[torch:lr_lambda]{torch::lr_lambda()}}
 \item \code{\link[torch:lr_multiplicative]{torch::lr_multiplicative()}}
-\item \code{\link[torch:lr_one_cycle]{torch::lr_one_cycle()}}
+\item \code{\link[torch:lr_one_cycle]{torch::lr_one_cycle()}} (where the default values for \code{epochs} and \code{steps_per_epoch} are the number of training epochs and the number of batches per epoch)
 \item \code{\link[torch:lr_reduce_on_plateau]{torch::lr_reduce_on_plateau()}}
 \item \code{\link[torch:lr_step]{torch::lr_step()}}
 \item Custom schedulers defined with \code{\link[torch:lr_scheduler]{torch::lr_scheduler()}}.
@@ -68,7 +68,7 @@ The \code{torch} scheduler generator (e.g. \code{torch::lr_step}).}
 Whether the scheduler steps after every epoch (otherwise every batch).}
 
 \item{\code{...}}{(any)\cr
-The scheduler-specific arguments}
+The scheduler-specific initialization arguments.}
 }
 \if{html}{\out{</div>}}
 }

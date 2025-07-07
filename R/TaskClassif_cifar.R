@@ -31,7 +31,7 @@
 #'
 #' @references
 #' `r format_bib("cifar2009")`
-#' @examplesIf
+#' @examples
 #' task_cifar10 = tsk("cifar10")
 #' task_cifar100 = tsk("cifar100")
 NULL
