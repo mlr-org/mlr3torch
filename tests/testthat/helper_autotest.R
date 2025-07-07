@@ -307,10 +307,40 @@ expect_torch_callback = function(torch_callback, check_man = TRUE, check_paramse
     paramtest = expect_paramset(torch_callback$param_set, init_fn)
     expect_paramtest(paramtest)
   }
-  implemented_stages = names(cbgen$public_methods)[grepl("^on_", names(cbgen$public_methods))]
+
+  get_all_implemented_stages = function(cbgen) {
+    implemented_stages = character(0)
+    current_gen = cbgen
+
+    while (!is.null(current_gen)) {
+      current_stages = names(current_gen$public_methods)[grepl("^on_", names(current_gen$public_methods))]
+      implemented_stages = union(implemented_stages, current_stages)
+
+      current_gen = current_gen$get_inherit()
+    }
+
+    return(implemented_stages)
+  }
+  
+  implemented_stages = get_all_implemented_stages(cbgen)
   expect_subset(implemented_stages, mlr_reflections$torch$callback_stages)
   expect_true(length(implemented_stages) > 0)
-  walk(implemented_stages, function(stage) expect_function(cbgen$public_methods[[stage]], nargs = 0))
+
+  check_stage_function = function(stage, cbgen) {
+    current_gen = cbgen
+
+    while (!is.null(current_gen)) {
+      if (stage %in% names(current_gen$public_methods)) {
+        expect_function(current_gen$public_methods[[stage]], nargs = 0)
+        return()
+      }
+      current_gen = current_gen$get_inherit()
+    }
+  }
+
+  walk(implemented_stages, function(stage) {
+    check_stage_function(stage, cbgen)
+  })
 
   cb = torch_callback$generate()
   expect_deep_clone(cb, cb$clone(deep = TRUE))

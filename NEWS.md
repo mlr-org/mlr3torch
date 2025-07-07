@@ -28,6 +28,8 @@
   during validation but uses `NA` instead.
 * feat: The context for callbacks now includes the network prediction (`y_hat`).
 * feat: It is now possible to specify parameter groups
+* fix: The `lr_reduce_on_plateau` callback now works.
+* feat: The `lr_one_cycle` callback now infers the total number of steps.
 
 # mlr3torch 0.2.1
 

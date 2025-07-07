@@ -24,9 +24,8 @@
 #'
 #' @references
 #' `r format_bib("imagenet2009")`
-#' @examplesIf torch::torch_is_installed()
+#' @examples
 #' task = tsk("tiny_imagenet")
-#' task
 NULL
 
 # @param path (`character(1)`)\cr
