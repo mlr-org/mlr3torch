@@ -138,40 +138,6 @@ as the cache directory.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">task_cifar10</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"cifar10"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">task_cifar100</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"cifar100"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">task_cifar10</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="color: #0000BB; font-weight: bold;">&lt;TaskClassif&gt;</span><span style="font-weight: bold;"> (60000x2): CIFAR-10 Classification</span> <span style="color: #00BBBB;">────────────────────────────</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • Target: class</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • Target classes: airplane (10%), automobile (10%), bird (10%), cat (10%), deer</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (10%), dog (10%), frog (10%), horse (10%), ship (10%), truck (10%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • Properties: multiclass</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • Features (1):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   • lt (1): image</span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">task_cifar100</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="color: #0000BB; font-weight: bold;">&lt;TaskClassif&gt;</span><span style="font-weight: bold;"> (60000x2): CIFAR-100 Classification</span> <span style="color: #00BBBB;">───────────────────────────</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • Target: class</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • Target classes: apple (1%), aquarium_fish (1%), baby (1%), bear (1%), beaver</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (1%), bed (1%), bee (1%), beetle (1%), bicycle (1%), bottle (1%), bowl (1%),</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> boy (1%), bridge (1%), bus (1%), butterfly (1%), camel (1%), can (1%), castle</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (1%), caterpillar (1%), cattle (1%), chair (1%), chimpanzee (1%), clock (1%),</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> cloud (1%), cockroach (1%), couch (1%), crab (1%), crocodile (1%), cup (1%),</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> dinosaur (1%), dolphin (1%), elephant (1%), flatfish (1%), forest (1%), fox</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (1%), girl (1%), hamster (1%), house (1%), kangaroo (1%), keyboard (1%), lamp</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (1%), lawn_mower (1%), leopard (1%), lion (1%), lizard (1%), lobster (1%), man</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (1%), maple_tree (1%), motorcycle (1%), mountain (1%), mouse (1%), mushroom</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (1%), oak_tree (1%), orange (1%), orchid (1%), otter (1%), palm_tree (1%), pear</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (1%), pickup_truck (1%), pine_tree (1%), plain (1%), plate (1%), poppy (1%),</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> porcupine (1%), possum (1%), rabbit (1%), raccoon (1%), ray (1%), road (1%),</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> rocket (1%), rose (1%), sea (1%), seal (1%), shark (1%), shrew (1%), skunk</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (1%), skyscraper (1%), snail (1%), snake (1%), spider (1%), squirrel (1%),</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> streetcar (1%), sunflower (1%), sweet_pepper (1%), table (1%), tank (1%),</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> telephone (1%), television (1%), tiger (1%), tractor (1%), train (1%), trout</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (1%), tulip (1%), turtle (1%), wardrobe (1%), whale (1%), willow_tree (1%),</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> wolf (1%), woman (1%), worm (1%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • Properties: multiclass</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> • Features (1):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   • lt (1): image</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

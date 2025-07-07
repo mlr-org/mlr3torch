@@ -60,6 +60,8 @@
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.history.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.lr_scheduler.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.lr_scheduler_one_cycle.html</loc></url>
+<url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.lr_scheduler_reduce_on_plateau.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.progress.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.tb.html</loc></url>
 <url><loc>https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.unfreeze.html</loc></url>
