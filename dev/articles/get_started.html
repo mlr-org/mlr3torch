@@ -284,14 +284,15 @@ below:</p>
 <span><span class="co">#&gt; * Packages: torch,mlr3torch</span></span>
 <span></span>
 <span><span class="va">sgd</span><span class="op">$</span><span class="va">param_set</span></span>
-<span><span class="co">#&gt; &lt;ParamSet(5)&gt;</span></span>
+<span><span class="co">#&gt; &lt;ParamSet(6)&gt;</span></span>
 <span><span class="co">#&gt;              id    class lower upper nlevels        default  value</span></span>
 <span><span class="co">#&gt;          &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;         &lt;list&gt; &lt;list&gt;</span></span>
 <span><span class="co">#&gt; 1:           lr ParamDbl     0   Inf     Inf &lt;NoDefault[0]&gt; [NULL]</span></span>
 <span><span class="co">#&gt; 2:     momentum ParamDbl     0     1     Inf              0 [NULL]</span></span>
 <span><span class="co">#&gt; 3:    dampening ParamDbl     0     1     Inf              0 [NULL]</span></span>
 <span><span class="co">#&gt; 4: weight_decay ParamDbl     0     1     Inf              0 [NULL]</span></span>
-<span><span class="co">#&gt; 5:     nesterov ParamLgl    NA    NA       2          FALSE [NULL]</span></span></code></pre></div>
+<span><span class="co">#&gt; 5:     nesterov ParamLgl    NA    NA       2          FALSE [NULL]</span></span>
+<span><span class="co">#&gt; 6: param_groups ParamUty    NA    NA     Inf &lt;NoDefault[0]&gt; [NULL]</span></span></code></pre></div>
 <p>Parameters of <code>TorchOptimizer</code> (but also
 <code>TorchLoss</code> and <code>TorchCallback</code>) can be set in the
 usual <code>mlr3</code> way, i.e. either during construction, or
@@ -310,7 +311,7 @@ that the values are set to the values we specified.</p>
 <span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">mlp_sgd</span><span class="op">$</span><span class="va">param_set</span><span class="op">)</span><span class="op">[</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/startsWith.html" class="external-link">startsWith</a></span><span class="op">(</span><span class="va">id</span>, <span class="st">"opt."</span><span class="op">)</span><span class="op">]</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="co">#&gt; [1] "opt.lr"           "opt.momentum"     "opt.dampening"    "opt.weight_decay"</span></span>
-<span><span class="co">#&gt; [5] "opt.nesterov"</span></span>
+<span><span class="co">#&gt; [5] "opt.nesterov"     "opt.param_groups"</span></span>
 <span><span class="va">mlp_sgd</span><span class="op">$</span><span class="va">param_set</span><span class="op">$</span><span class="va">values</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"opt.lr"</span>, <span class="st">"opt.nesterov"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt; $opt.lr</span></span>
 <span><span class="co">#&gt; [1] 0.5</span></span>
