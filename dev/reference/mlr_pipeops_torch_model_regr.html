@@ -297,16 +297,14 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$exp_avg</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 1 to 7    1.1830    45.9186   106.7371  4892.2661    43.8300    44.3928  2682.6328</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 8 to 10  237.0992     1.3768    56.1857</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -6.5977 -59.9693 -143.0992 -5839.7197 -75.3870 -76.3326 -3339.1326 -387.9420 -7.6658 -75.3163</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1,10} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$exp_avg_sq</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 1 to 6 9.4624e-02  1.2079e+02  6.3277e+02  1.3242e+06  1.0660e+02  1.0966e+02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 1 to 6 2.4057e+00  2.0133e+02  1.1318e+03  1.8833e+06  3.1401e+02  3.2202e+02</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 7 to 10 4.0665e+05  3.1055e+03  1.6645e-01  1.7518e+02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 7 to 10 6.2194e+05  8.3115e+03  3.2475e+00  3.1336e+02</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1,10} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$max_exp_avg_sq</span>
@@ -322,12 +320,12 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$exp_avg</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  13.7873</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -21.7959</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$exp_avg_sq</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  10.5150</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  26.2352</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$max_exp_avg_sq</span>
@@ -417,10 +415,10 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Empty data.table (0 rows and 3 cols): stage,class,msg</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $train_time</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.055</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.041</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $task_hash</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "07e0772998188e95"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "c7c4f02878d51895"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $feature_names</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "am"   "carb" "cyl"  "disp" "drat" "gear" "hp"   "qsec" "vs"   "wt"  </span>
@@ -429,7 +427,7 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $mlr3_version</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] ‘0.23.0’</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] ‘1.0.1’</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $internal_tuned_values</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> named list()</span>
@@ -441,11 +439,12 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Empty data.table (0 rows and 11 cols): mpg,am,carb,cyl,disp,drat...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $train_task</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;TaskRegr:mtcars&gt; (32 x 11): Motor Trends</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Target: mpg</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Properties: -</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Features (10):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - dbl (10): am, carb, cyl, disp, drat, gear, hp, qsec, vs, wt</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="color: #0000BB; font-weight: bold;">&lt;TaskRegr&gt;</span><span style="font-weight: bold;"> (32x11): Motor Trends</span> <span style="color: #00BBBB;">────────────────────────────────────────────</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • Target: mpg</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • Properties: -</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • Features (10):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   • dbl (10): am, carb, cyl, disp, drat, gear, hp, qsec, vs, wt</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "learner_state" "list"         </span>

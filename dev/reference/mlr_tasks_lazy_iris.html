@@ -116,11 +116,13 @@ Just like the iris task, but the features are represented as one lazy tensor col
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">task</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"lazy_iris"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">task</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;TaskClassif:lazy_iris&gt; (150 x 2): Iris Flowers</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Target: Species</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Properties: multiclass</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Features (1):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - lt (1): x</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="color: #0000BB; font-weight: bold;">&lt;TaskClassif&gt;</span><span style="font-weight: bold;"> (150x2): Iris Flowers</span> <span style="color: #00BBBB;">─────────────────────────────────────────</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • Target: Species</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • Target classes: setosa (33%), versicolor (33%), virginica (33%)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • Properties: multiclass</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> • Features (1):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   • lt (1): x</span>
 <span class="r-in"><span><span class="va">df</span> <span class="op">=</span> <span class="va">task</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="materialize.html">materialize</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">x</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>, rbind <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
