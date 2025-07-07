@@ -8,7 +8,7 @@ test_that("Basic checks", {
   expect_r6(torch_opt, "TorchOptimizer")
   expect_set_equal(torch_opt$packages, c("mypackage", "torch", "mlr3torch"))
   expect_equal(torch_opt$label, "Adam")
-  expect_set_equal(torch_opt$param_set$ids(), setdiff(formalArgs(optim_ignite_adam), "params"))
+  expect_set_equal(setdiff(torch_opt$param_set$ids(), "param_groups"), setdiff(formalArgs(optim_ignite_adam), c("params")))
   expect_error(torch_opt$generate(), regexp = "could not be loaded: mypackage", fixed = TRUE)
 
   expect_error(
@@ -17,10 +17,6 @@ test_that("Basic checks", {
       param_set = ps(lr = p_uty(), params = p_uty())
     ),
     regexp = "The name 'params' is reserved for the network parameters.", fixed = TRUE
-  )
-
-  expect_error(TorchOptimizer$new(optim_adam, id = "mse", param_set = ps(par = p_uty())),
-    regexp = "Parameter values with ids 'par' are missing in generator.", fixed = TRUE
   )
 
   torch_opt1 = TorchOptimizer$new(
@@ -43,7 +39,7 @@ test_that("Basic checks", {
     torch_optimizer = optim_sgd,
     param_set = ps(lr = p_uty())
   )
-  expect_equal(torch_opt2$param_set$ids(), "lr")
+  expect_permutation(torch_opt2$param_set$ids(), c("lr", "param_groups"))
 })
 
 
@@ -86,7 +82,6 @@ test_that("Printer works", {
   expect_identical(observed, expected)
 })
 
-
 test_that("Converters are correctly implemented", {
   expect_r6(as_torch_optimizer("adam"), "TorchOptimizer")
   torch_opt = as_torch_optimizer(optim_adam)
@@ -104,7 +99,7 @@ test_that("Converters are correctly implemented", {
   expect_equal(torch_op2$id, "myopt")
   expect_equal(torch_op2$label, "Custom")
   expect_equal(torch_op2$man, "my_opt")
-  expect_equal(torch_op2$param_set$ids(), "lr")
+  expect_permutation(torch_op2$param_set$ids(), c("lr", "param_groups"))
 
 
   torch_opt3 = as_torch_optimizer(optim_adam)
@@ -112,12 +107,19 @@ test_that("Converters are correctly implemented", {
   expect_equal(torch_opt3$label, "optim_adam")
 })
 
+test_that("Parameter test: adamw", {
+  torch_opt = t_opt("adamw")
+  param_set = torch_opt$param_set
+  fn = torch_opt$generator
+  res = expect_paramset(param_set, fn, exclude = c("params", "param_groups"))
+  expect_paramtest(res)
+})
 
 test_that("Parameter test: adam", {
   torch_opt = t_opt("adam")
   param_set = torch_opt$param_set
   fn = torch_opt$generator
-  res = expect_paramset(param_set, fn, exclude = "params")
+  res = expect_paramset(param_set, fn, exclude = c("params", "param_groups"))
   expect_paramtest(res)
 })
 
@@ -126,7 +128,7 @@ test_that("Parameter test: sgd", {
   param_set = torch_opt$param_set
   # lr is set to `optim_required()`
   fn = torch_opt$generator
-  res = expect_paramset(param_set, fn, exclude = c("params", "lr"))
+  res = expect_paramset(param_set, fn, exclude = c("params", "param_groups", "lr"))
   expect_paramtest(res)
 })
 
@@ -134,7 +136,7 @@ test_that("Parameter test: rmsprop", {
   torch_opt = t_opt("rmsprop")
   param_set = torch_opt$param_set
   fn = torch_opt$generator
-  res = expect_paramset(param_set, fn, exclude = "params")
+  res = expect_paramset(param_set, fn, exclude = c("params", "param_groups"))
   expect_paramtest(res)
 })
 
@@ -142,7 +144,7 @@ test_that("Parameter test: adagrad", {
   torch_opt = t_opt("adagrad")
   param_set = torch_opt$param_set
   fn = torch_opt$generator
-  res = expect_paramset(param_set, fn, exclude = "params")
+  res = expect_paramset(param_set, fn, exclude = c("params", "param_groups"))
   expect_paramtest(res)
 })
 
@@ -163,4 +165,26 @@ test_that("can train with every optimizer", {
   for (opt_id in names(mlr3torch_optimizers$items)) {
     test_optimizer(opt_id)
   }
+})
+
+test_that("param groups work", {
+  learner = lrn("classif.mlp", neurons = 5, n_layers = 4, epochs = 3, batch_size = 150)
+  default_weight_decay = 0.37
+  second_weight_decay = 0.11
+  learner$param_set$set_values(opt.weight_decay = default_weight_decay)
+  learner$param_set$set_values(opt.param_groups = function(params) {
+    list(
+      list(params = params[1:2]),
+      list(params = params[3:length(params)], weight_decay = second_weight_decay)
+    )
+  })
+
+  task = tsk("iris")$filter(1:10)
+  learner$train(task)
+
+  expect_equal(length(learner$model$optimizer$param_groups), 2L)
+  expect_equal(learner$model$optimizer$param_groups[[1L]]$weight_decay, default_weight_decay)
+  expect_equal(learner$model$optimizer$param_groups[[2L]]$weight_decay, second_weight_decay)
+
+  expect_learner(learner)
 })
