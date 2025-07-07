@@ -23,7 +23,7 @@
 #'
 #' @references
 #' `r format_bib("mnist")`
-#' @examplesIf
+#' @examples
 #' task = tsk("mnist")
 NULL
 

@@ -42,9 +42,7 @@ as the cache directory.
 }
 
 \examples{
-\dontshow{if () (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 task = tsk("mnist")
-\dontshow{\}) # examplesIf}
 }
 \references{
 Lecun, Y., Bottou, L., Bengio, Y., Haffner, P. (1998).
