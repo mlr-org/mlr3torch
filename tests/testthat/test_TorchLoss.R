@@ -32,10 +32,6 @@ test_that("Basic Checks", {
   expect_class(loss, c("nn_cross_entropy_loss", "nn_module"))
   expect_true(loss$ignore_index == 123)
 
-  expect_error(TorchLoss$new(torch::nn_mse_loss, id = "mse", task_types = "regr", param_set = ps(par = p_uty())),
-    regexp = "Parameter values with ids 'par' are missing in generator.", fixed = TRUE
-  )
-
   torchloss2 = TorchLoss$new(torch::nn_mse_loss, id = "mse", task_types = "regr", param_set = ps(reduction = p_uty()))
 
   expect_equal(torchloss2$param_set$ids(), "reduction")

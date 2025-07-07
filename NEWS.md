@@ -27,6 +27,7 @@
 * feat: Training now does not fail anymore when encountering a missing value
   during validation but uses `NA` instead.
 * feat: The context for callbacks now includes the network prediction (`y_hat`).
+* feat: It is now possible to specify parameter groups
 
 # mlr3torch 0.2.1
 

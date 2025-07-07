@@ -58,11 +58,6 @@ TorchDescriptor = R6Class("TorchDescriptor",
         }
       }
 
-      if ("..." %nin% args && 
-          !test_subset(setdiff(self$param_set$ids(), "param_groups"), args)) {
-        missing = setdiff(self$param_set$ids(), args)
-        stopf("Parameter values with ids %s are missing in generator.", paste0("'", missing, "'", collapse = ", "))
-      }
       self$man = assert_string(man, null.ok = TRUE)
       self$id = assert_string(id %??% class(generator)[[1L]], min.chars = 1L)
       self$label = assert_string(label %??% self$id, min.chars = 1L)

@@ -4,11 +4,11 @@
 \alias{TorchOptimizer}
 \title{Torch Optimizer}
 \description{
-This wraps a \code{torch::torch_optimizer_generator}a and annotates it with metadata, most importantly a \code{\link[paradox:ParamSet]{ParamSet}}.
+This wraps a \code{torch::torch_optimizer_generator} and annotates it with metadata, most importantly a \code{\link[paradox:ParamSet]{ParamSet}}.
 The optimizer is created for the given parameter values by calling the \verb{$generate()} method.
 
 This class is usually used to configure the optimizer of a torch learner, e.g.
-when construcing a learner or in a \code{\link{ModelDescriptor}}.
+when constructing a learner or in a \code{\link{ModelDescriptor}}.
 
 For a list of available optimizers, see \code{\link{mlr3torch_optimizers}}.
 Items from this dictionary can be retrieved using \code{\link[=t_opt]{t_opt()}}.
@@ -17,12 +17,12 @@ Items from this dictionary can be retrieved using \code{\link[=t_opt]{t_opt()}}.
 
 Defined by the constructor argument \code{param_set}.
 If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
-for each argument of the wrapped loss function, where the parametes are then of type \code{\link[paradox:Domain]{ParamUty}}.
+for each argument of the wrapped loss function, where the parameters are then of type \code{\link[paradox:Domain]{ParamUty}}.
 }
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-# Create a new torch loss
+# Create a new torch optimizer
 torch_opt = TorchOptimizer$new(optim_ignite_adam, label = "adam")
 torch_opt
 # If the param set is not specified, parameters are inferred but are of class ParamUty

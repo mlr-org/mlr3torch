@@ -19,10 +19,6 @@ test_that("Basic checks", {
     regexp = "The name 'params' is reserved for the network parameters.", fixed = TRUE
   )
 
-  expect_error(TorchOptimizer$new(optim_adam, id = "mse", param_set = ps(par = p_uty())),
-    regexp = "Parameter values with ids 'par' are missing in generator.", fixed = TRUE
-  )
-
   torch_opt1 = TorchOptimizer$new(
     torch_optimizer = optim_sgd,
     label = "Stochastic Gradient Descent",
@@ -43,7 +39,7 @@ test_that("Basic checks", {
     torch_optimizer = optim_sgd,
     param_set = ps(lr = p_uty())
   )
-  expect_equal(torch_opt2$param_set$ids(), "lr")
+  expect_permutation(torch_opt2$param_set$ids(), c("lr", "param_groups"))
 })
 
 
@@ -103,7 +99,7 @@ test_that("Converters are correctly implemented", {
   expect_equal(torch_op2$id, "myopt")
   expect_equal(torch_op2$label, "Custom")
   expect_equal(torch_op2$man, "my_opt")
-  expect_equal(torch_op2$param_set$ids(), "lr")
+  expect_permutation(torch_op2$param_set$ids(), c("lr", "param_groups"))
 
 
   torch_opt3 = as_torch_optimizer(optim_adam)
