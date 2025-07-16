@@ -1,0 +1,196 @@
+#0 building with "mlr3torch-builder" instance using docker-container driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.48kB 0.0s done
+#1 DONE 0.1s
+
+#2 [internal] load metadata for nvcr.io/nvidia/cuda:12.4.1-devel-ubuntu22.04
+#2 DONE 0.8s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 DONE 0.0s
+
+#5 [1/6] FROM nvcr.io/nvidia/cuda:12.4.1-devel-ubuntu22.04@sha256:da6791294b0b04d7e65d87b7451d6f2390b4d36225ab0701ee7dfec5769829f5
+#5 resolve nvcr.io/nvidia/cuda:12.4.1-devel-ubuntu22.04@sha256:da6791294b0b04d7e65d87b7451d6f2390b4d36225ab0701ee7dfec5769829f5 0.0s done
+#5 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 68B 0.0s done
+#4 DONE 0.0s
+
+#6 [2/6] RUN apt-get update &&     apt-get install -y --no-install-recommends         r-base r-base-dev wget locales curl &&     locale-gen en_US.UTF-8 &&     rm -rf /var/lib/apt/lists/*
+#6 CACHED
+
+#7 [3/6] COPY .Rprofile /etc/R/Rprofile.site
+#7 CACHED
+
+#8 [4/6] RUN R -q -e "install.packages('torch'); torch::install_torch()"
+#8 CACHED
+
+#9 [5/6] RUN R -q -e "install.packages('remotes')"
+#9 CACHED
+
+#10 [6/6] RUN R -q -e "remotes::install_github('mlr-org/mlr3torch')"
+#10 1.767 > remotes::install_github('mlr-org/mlr3torch')
+#10 2.979 curl: HTTP 200 https://api.github.com/repos/mlr-org/mlr3torch/contents/DESCRIPTION?ref=HEAD
+#10 3.958 curl: HTTP 200 https://api.github.com/repos/mlr-org/mlr3torch/commits/HEAD
+#10 3.989 Downloading GitHub repo mlr-org/mlr3torch@HEAD
+#10 4.992 curl: HTTP 200 https://codeload.github.com/mlr-org/mlr3torch/legacy.tar.gz/HEAD
+#10 6.889 curl: HTTP 200 https://packagemanager.posit.co/cran/__linux__/jammy/latest/src/contrib/PACKAGES.rds
+#10 8.360 PRROC        (NA -> 1.4   ) [CRAN]
+#10 8.360 listenv      (NA -> 0.9.1 ) [CRAN]
+#10 8.360 globals      (NA -> 0.18.0) [CRAN]
+#10 8.360 digest       (NA -> 0.6.37) [CRAN]
+#10 8.360 uuid         (NA -> 1.2-1 ) [CRAN]
+#10 8.360 paradox      (NA -> 1.0.1 ) [CRAN]
+#10 8.360 palmerpen... (NA -> 0.1.1 ) [CRAN]
+#10 8.360 parallelly   (NA -> 1.45.0) [CRAN]
+#10 8.360 mlr3misc     (NA -> 0.18.0) [CRAN]
+#10 8.360 mlr3measures (NA -> 1.0.0 ) [CRAN]
+#10 8.360 mlbench      (NA -> 2.1-6 ) [CRAN]
+#10 8.360 lgr          (NA -> 0.4.4 ) [CRAN]
+#10 8.360 future.apply (NA -> 1.20.0) [CRAN]
+#10 8.360 future       (NA -> 1.58.0) [CRAN]
+#10 8.360 evaluate     (NA -> 1.0.4 ) [CRAN]
+#10 8.360 data.table   (NA -> 1.17.6) [CRAN]
+#10 8.360 checkmate    (NA -> 2.3.2 ) [CRAN]
+#10 8.360 backports    (NA -> 1.5.0 ) [CRAN]
+#10 8.360 mlr3         (NA -> 1.0.1 ) [CRAN]
+#10 8.360 mlr3pipel... (NA -> 0.8.0 ) [CRAN]
+#10 8.363 Installing 20 packages: PRROC, listenv, globals, digest, uuid, paradox, palmerpenguins, parallelly, mlr3misc, mlr3measures, mlbench, lgr, future.apply, future, evaluate, data.table, checkmate, backports, mlr3, mlr3pipelines
+#10 8.366 Installing packages into ‘/usr/local/lib/R/site-library’
+#10 8.366 (as ‘lib’ is unspecified)
+#10 9.979 curl: HTTP 200 https://rspm-sync.rstudio.com/bin/4.1-jammy/49659571a8975f94f785bd35634d868cf324364e0390a9b447b22a7cfd6e71d7.tar.gz
+#10 10.92 curl: HTTP 200 https://rspm-sync.rstudio.com/bin/4.1-jammy/275452cc1094377152356b884a26fba55d58bb41184be5e7c1fea608829383f5.tar.gz
+#10 11.81 curl: HTTP 200 https://rspm-sync.rstudio.com/bin/4.1-jammy/325fd3ae7ca4c5dcb5c1c1693b031972166ed712395fe9cd3b88ba9543112095.tar.gz
+#10 12.77 curl: HTTP 200 https://rspm-sync.rstudio.com/bin/4.1-jammy/32b7981e68b57f42cbc79c47c14a13fd960cb6e152b7b3fb9d71829366ee34db.tar.gz
+#10 13.62 curl: HTTP 200 https://rspm-sync.rstudio.com/bin/4.1-jammy/83971b802c24bc8b6fa7595dd13ae5a6369e4e51acafff1b77f0f65dd98e3935.tar.gz
+#10 14.55 curl: HTTP 200 https://rspm-sync.rstudio.com/bin/4.1-jammy/8b5f69473b61561311f25948ee6e71b3d1b07d44c637e092e4c0356aebcf272e.tar.gz
+#10 15.68 curl: HTTP 200 https://rspm-sync.rstudio.com/bin/4.1-jammy/95aeb35202cc7a7528779ec4a874072b52856e99ff54b7174860cbeccb4fec76.tar.gz
+#10 16.55 curl: HTTP 200 https://rspm-sync.rstudio.com/bin/4.1-jammy/64cf2454d9c0411f655069a17eb78b6ea1f6fe858462c0cdbc070560dc3927da.tar.gz
+#10 17.43 curl: HTTP 200 https://rspm-sync.rstudio.com/bin/4.1-jammy/50052c5e9c08219bc2d95602b07dfc73e09a90a03142c54e9adb954f97eb5b47.tar.gz
+#10 18.31 curl: HTTP 200 https://rspm-sync.rstudio.com/bin/4.1-jammy/aaf155d7890c231b22ae7ef3c654240d97f75af1d86aae40b03213a74b245672.tar.gz
+#10 19.24 curl: HTTP 200 https://rspm-sync.rstudio.com/bin/4.1-jammy/7fd8d8d6f7e4b85660b02e70390456f83ee6cf48009f5783e67c04f94fec3490.tar.gz
+#10 20.15 curl: HTTP 200 https://rspm-sync.rstudio.com/bin/4.1-jammy/4d381778e4a1e4e78b87ae3736f585d3fa84a4650ff82795ef52a8607ffbb0b2.tar.gz
+#10 21.03 curl: HTTP 200 https://rspm-sync.rstudio.com/bin/4.1-jammy/9c8e337f3d861b31f798d909a40b22a14bec608408a1a128d6e5e8d8aff20111.tar.gz
+#10 21.94 curl: HTTP 200 https://rspm-sync.rstudio.com/bin/4.1-jammy/ffa41b287ecf0b0993e85694e257825ff6d12603dcf966b6b832a15077f61e40.tar.gz
+#10 22.78 curl: HTTP 200 https://rspm-sync.rstudio.com/bin/4.1-jammy/b795df6c42d1763ebd7d1bf316ca5de3266d2e32efc4941530fb225791a90d49.tar.gz
+#10 23.82 curl: HTTP 200 https://rspm-sync.rstudio.com/bin/4.1-jammy/a16e8425995b5884ceba1243ff9abfb91effddf2ea804c39b675b5eb4799e173.tar.gz
+#10 24.71 curl: HTTP 200 https://rspm-sync.rstudio.com/bin/4.1-jammy/6b291e9cd960880e830aaf6900b6fd93a17a7fa21727c057a9ca6f34ec001ba0.tar.gz
+#10 25.59 curl: HTTP 200 https://rspm-sync.rstudio.com/bin/4.1-jammy/33169476efc2cd046a25f683885dfe8b0bbe46bc86fa180c2589e83a7f075e6f.tar.gz
+#10 26.65 curl: HTTP 200 https://rspm-sync.rstudio.com/bin/4.1-jammy/d7dc482d52b8b07b36c23d77924dd059d7636352ddf5dad7d3575764d46ed4b0.tar.gz
+#10 27.69 curl: HTTP 200 https://rspm-sync.rstudio.com/bin/4.1-jammy/711bd1c109070d3e740d75c5eeab8d66a8d9849457a408aca01283184370da63.tar.gz
+#10 28.55 * installing *binary* package ‘PRROC’ ...
+#10 28.61 * DONE (PRROC)
+#10 29.24 * installing *binary* package ‘listenv’ ...
+#10 29.29 * DONE (listenv)
+#10 29.99 * installing *binary* package ‘globals’ ...
+#10 30.04 * DONE (globals)
+#10 30.70 * installing *binary* package ‘digest’ ...
+#10 30.75 * DONE (digest)
+#10 31.37 * installing *binary* package ‘uuid’ ...
+#10 31.41 * DONE (uuid)
+#10 32.13 * installing *binary* package ‘palmerpenguins’ ...
+#10 32.19 * DONE (palmerpenguins)
+#10 32.97 * installing *binary* package ‘parallelly’ ...
+#10 33.04 * DONE (parallelly)
+#10 33.76 * installing *binary* package ‘mlbench’ ...
+#10 33.84 * DONE (mlbench)
+#10 34.73 * installing *binary* package ‘lgr’ ...
+#10 34.78 * DONE (lgr)
+#10 35.44 * installing *binary* package ‘evaluate’ ...
+#10 35.50 * DONE (evaluate)
+#10 36.37 * installing *binary* package ‘data.table’ ...
+#10 36.44 * DONE (data.table)
+#10 37.13 * installing *binary* package ‘backports’ ...
+#10 37.18 * DONE (backports)
+#10 38.04 * installing *binary* package ‘future’ ...
+#10 38.12 * DONE (future)
+#10 39.07 * installing *binary* package ‘checkmate’ ...
+#10 39.12 * DONE (checkmate)
+#10 40.18 * installing *binary* package ‘mlr3misc’ ...
+#10 40.24 * DONE (mlr3misc)
+#10 41.08 * installing *binary* package ‘future.apply’ ...
+#10 41.15 * DONE (future.apply)
+#10 41.90 * installing *binary* package ‘paradox’ ...
+#10 41.95 * DONE (paradox)
+#10 42.71 * installing *binary* package ‘mlr3measures’ ...
+#10 42.76 * DONE (mlr3measures)
+#10 44.03 * installing *binary* package ‘mlr3’ ...
+#10 44.10 * DONE (mlr3)
+#10 45.02 * installing *binary* package ‘mlr3pipelines’ ...
+#10 45.10 * DONE (mlr3pipelines)
+#10 45.16 
+#10 45.16 The downloaded source packages are in
+#10 45.16 	‘/tmp/RtmpTxyHNM/downloaded_packages’
+#10 45.20 Running `R CMD build`...
+#10 57.75 * checking for file ‘/tmp/RtmpTxyHNM/remotes7138a2865/mlr-org-mlr3torch-5fb7f61/DESCRIPTION’ ... OK
+#10 57.75 * preparing ‘mlr3torch’:
+#10 57.75 * checking DESCRIPTION meta-information ... OK
+#10 57.75 * installing the package to process help pages
+#10 57.75       -----------------------------------
+#10 57.75 * installing *source* package ‘mlr3torch’ ...
+#10 57.75 ** using staged installation
+#10 57.75 ** R
+#10 57.75 ** inst
+#10 57.75 ** byte-compile and prepare package for lazy loading
+#10 57.75 Error in ps_union(list(...), tag_sets = .tag_sets, tag_params = .tag_params) : 
+#10 57.75   Assertion on 'sets' failed: May only contain the following types: {ParamSet}, but element 2 has type 'list'.
+#10 57.75 Calls: <Anonymous> ... c.ParamSet -> ps_union -> assert_list -> makeAssertion -> mstop
+#10 57.75 Execution halted
+#10 57.75 ERROR: lazy loading failed for package ‘mlr3torch’
+#10 57.75 * removing ‘/tmp/RtmpWgrBp8/Rinst1ab2ede642/mlr3torch’
+#10 57.75       -----------------------------------
+#10 57.75 ERROR: package installation failed
+#10 57.75 STDOUT:
+#10 57.75 * checking for file ‘/tmp/RtmpTxyHNM/remotes7138a2865/mlr-org-mlr3torch-5fb7f61/DESCRIPTION’ ... OK
+#10 57.75 * preparing ‘mlr3torch’:
+#10 57.75 * checking DESCRIPTION meta-information ... OK
+#10 57.75 * installing the package to process help pages
+#10 57.75       -----------------------------------
+#10 57.75 * installing *source* package ‘mlr3torch’ ...
+#10 57.75 ** using staged installation
+#10 57.75 ** R
+#10 57.75 ** inst
+#10 57.75 ** byte-compile and prepare package for lazy loading
+#10 57.75 Error in ps_union(list(...), tag_sets = .tag_sets, tag_params = .tag_params) : 
+#10 57.75   Assertion on 'sets' failed: May only contain the following types: {ParamSet}, but element 2 has type 'list'.
+#10 57.75 Calls: <Anonymous> ... c.ParamSet -> ps_union -> assert_list -> makeAssertion -> mstop
+#10 57.75 Execution halted
+#10 57.75 ERROR: lazy loading failed for package ‘mlr3torch’
+#10 57.75 * removing ‘/tmp/RtmpWgrBp8/Rinst1ab2ede642/mlr3torch’
+#10 57.75       -----------------------------------
+#10 57.75 ERROR: package installation failed
+#10 57.75 STDERR:
+#10 57.75 
+#10 58.39 curl: HTTP 200 https://api.github.com/repos/mlr-org/mlr3torch/contents/DESCRIPTION?ref=HEAD
+#10 58.62 Error: Failed to install 'mlr3torch' from GitHub:
+#10 58.62   Failed to `R CMD build` package, try `build = FALSE`.
+#10 58.63 Execution halted
+#10 ERROR: process "/bin/sh -c R -q -e \"remotes::install_github('mlr-org/mlr3torch')\"" did not complete successfully: exit code: 1
+------
+ > [6/6] RUN R -q -e "remotes::install_github('mlr-org/mlr3torch')":
+57.75 ERROR: lazy loading failed for package ‘mlr3torch’
+57.75 * removing ‘/tmp/RtmpWgrBp8/Rinst1ab2ede642/mlr3torch’
+57.75       -----------------------------------
+57.75 ERROR: package installation failed
+57.75 STDERR:
+57.75 
+https://api.github.com/repos/mlr-org/mlr3torch/contents/DESCRIPTION?ref=HEAD
+58.62 Error: Failed to install 'mlr3torch' from GitHub:
+58.62   Failed to `R CMD build` package, try `build = FALSE`.
+58.63 Execution halted
+------
+Dockerfile:25
+--------------------
+  23 |     RUN R -q -e "install.packages('remotes')"
+  24 |     
+  25 | >>> RUN R -q -e "remotes::install_github('mlr-org/mlr3torch')"
+  26 |     
+  27 |     #RUN R -q -e "Sys.sleep(100L)"
+--------------------
+ERROR: failed to solve: process "/bin/sh -c R -q -e \"remotes::install_github('mlr-org/mlr3torch')\"" did not complete successfully: exit code: 1
