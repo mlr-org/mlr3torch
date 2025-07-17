@@ -147,7 +147,7 @@ nn_tokenizer_categ = nn_module(
     cardinalities_cs = cumsum(cardinalities)
     category_offsets = torch_tensor(c(0, cardinalities_cs[-length(cardinalities_cs)]),
       dtype = torch_long())
-    self$register_buffer("category_offsets", category_offsets, persistent = FALSE)
+    self$category_offsets = nn_buffer(category_offsets)
     n_embeddings = cardinalities_cs[length(cardinalities_cs)]
 
     self$embeddings = nn_embedding(n_embeddings, d_token)
