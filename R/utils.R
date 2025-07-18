@@ -330,7 +330,7 @@ all_or_none_ = function(...) {
 single_lazy_tensor = function(task) {
   identical(task$feature_types[, "type"][[1L]], "lazy_tensor")
 }
-                              
+
 n_num_features = function(task) {
   sum(task$feature_types$type %in% c("numeric", "integer"))
 }
