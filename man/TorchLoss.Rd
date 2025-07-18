@@ -83,13 +83,13 @@ The task types this loss supports.}
 \itemize{
 \item \href{#method-TorchLoss-new}{\code{TorchLoss$new()}}
 \item \href{#method-TorchLoss-print}{\code{TorchLoss$print()}}
-\item \href{#method-TorchLoss-generate}{\code{TorchLoss$generate()}}
 \item \href{#method-TorchLoss-clone}{\code{TorchLoss$clone()}}
 }
 }
 \if{html}{\out{
 <details open><summary>Inherited methods</summary>
 <ul>
+<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchDescriptor" data-id="generate"><a href='../../mlr3torch/html/TorchDescriptor.html#method-TorchDescriptor-generate'><code>mlr3torch::TorchDescriptor$generate()</code></a></span></li>
 <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchDescriptor" data-id="help"><a href='../../mlr3torch/html/TorchDescriptor.html#method-TorchDescriptor-help'><code>mlr3torch::TorchDescriptor$help()</code></a></span></li>
 </ul>
 </details>
@@ -114,9 +114,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{torch_loss}}{(\code{nn_loss} or \code{function})\cr
-The loss module or function that generates the loss module.
-Can have arguments \code{task} that will be provided when the loss is instantiated.}
+\item{\code{torch_loss}}{(\code{nn_loss})\cr
+The loss module.}
 
 \item{\code{task_types}}{(\code{character()})\cr
 The task types supported by this loss.}
@@ -155,27 +154,6 @@ Prints the object
 \item{\code{...}}{any}
 }
 \if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TorchLoss-generate"></a>}}
-\if{latex}{\out{\hypertarget{method-TorchLoss-generate}{}}}
-\subsection{Method \code{generate()}}{
-Instantiates the loss function.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchLoss$generate(task = NULL)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{task}}{(\code{Task})\cr
-The task. Must be provided if the loss function requires a task.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-\code{torch_loss}
 }
 }
 \if{html}{\out{<hr>}}

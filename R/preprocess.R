@@ -7,9 +7,7 @@ NULL
 register_preproc("trafo_resize", torchvision::transform_resize,
   packages = "torchvision",
   param_set = ps(
-    size = p_uty(tags = c("train", "required"), custom_check = crate(function(x) {
-      check_integerish(x, min.len = 1L, max.len = 2L)
-    })),
+    size = p_uty(tags = c("train", "required")),
     interpolation = p_fct(levels = c("Undefined", "Bartlett", "Blackman", "Bohman", "Box", "Catrom", "Cosine", "Cubic",
       "Gaussian", "Hamming", "Hann", "Hanning", "Hermite", "Jinc", "Kaiser", "Lagrange", "Lanczos", "Lanczos2",
       "Lanczos2Sharp", "LanczosRadius", "LanczosSharp", "Mitchell", "Parzen", "Point", "Quadratic", "Robidoux",
@@ -19,13 +17,16 @@ register_preproc("trafo_resize", torchvision::transform_resize,
     )
   ),
   shapes_out = function(shapes_in, param_vals, task) {
-    assert_true(length(shapes_in[[1L]]) >= 2L)
-    size = rep(param_vals$size, length.out = 2L)
-    list(c(shapes_in[[1L]][seq_len(length(shapes_in[[1L]]) - 2)], size))
+    size = param_vals$size
+    shape = shapes_in[[1L]]
+    assert_true(length(shape) > 2)
+    height = shape[[length(shape) - 1L]]
+    width = shape[[length(shape)]]
+    s = torchvision::transform_resize(torch_ones(c(1, height, width), device = "meta"), size = size)$shape[2:3]
+    list(c(shape[seq_len(length(shape) - 2L)], s))
   },
   rowwise = FALSE
 )
-
 
 unchanged_shapes_rgb = function(shapes_in, param_vals, task) {
   assert_rgb_shape(shapes_in[[1L]])

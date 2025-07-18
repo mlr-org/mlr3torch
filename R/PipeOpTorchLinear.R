@@ -32,18 +32,13 @@ PipeOpTorchLinear = R6Class("PipeOpTorchLinear",
         id = id,
         param_set = param_set,
         param_vals = param_vals,
-        module_generator = nn_linear,
-        only_batch_unknown = FALSE
+        module_generator = nn_linear
       )
     }
   ),
   private = list(
     .shape_dependent_params = function(shapes_in, param_vals, task) {
-      d_in = tail(shapes_in[[1]], 1)
-      if (is.na(d_in)) {
-        stopf("PipeOpLinear received an input shape where the last dimension is unknown. Please provide an input with a known last dimension.")
-      }
-      c(param_vals, list(in_features = d_in))
+      c(param_vals, list(in_features = tail(shapes_in[[1]], 1)))
     },
     .shapes_out = function(shapes_in, param_vals, task) list(c(head(shapes_in[[1]], -1), param_vals$out_features))
   )

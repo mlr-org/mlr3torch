@@ -84,7 +84,6 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
         packages = packages,
         param_set = ps(),
         feature_types = feature_types,
-        jittable = TRUE,
         man = "mlr3torch::mlr_learners.torch_model"
       )
     }
@@ -94,13 +93,13 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
     #' The ingress tokens. Must be non-`NULL` when calling `$train()`.
     ingress_tokens = function(rhs) {
       if (!missing(rhs)) {
-        private$.ingress_tokens_ = assert_list(rhs, types = "TorchIngressToken", min.len = 1L, names = "unique")
+        private$.ingress_tokens = assert_list(rhs, types = "TorchIngressToken", min.len = 1L, names = "unique")
       }
-      private$.ingress_tokens_
+      private$.ingress_tokens
     }
   ),
   private = list(
-    .ingress_tokens_ = NULL,
+    .ingress_tokens = NULL,
     deep_clone = function(name, value) {
       if (name == ".network_stored" && is.null(value) && !is.null(self$state)) {
         # the initial network state is lost after training a LearnerTorchModel
@@ -130,7 +129,7 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
       dataset = task_dataset(
         task,
         feature_ingress_tokens = ingress_tokens,
-        target_batchgetter = get_target_batchgetter(task)
+        target_batchgetter = get_target_batchgetter(self$task_type)
       )
     },
     .network_stored = NULL,

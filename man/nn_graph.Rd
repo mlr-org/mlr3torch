@@ -23,28 +23,8 @@ Whether output should be a list of tensors. If \code{FALSE} (default), then \cod
 \code{\link{nn_graph}}
 }
 \description{
-Represents a neural network using a \code{\link[mlr3pipelines:Graph]{Graph}} that contains mostly \code{\link{PipeOpModule}}s.
+Represents a neural network using a \code{\link[mlr3pipelines:Graph]{Graph}} that usually costains mostly \code{\link{PipeOpModule}}s.
 }
-\section{Fields}{
-
-\itemize{
-\item \code{graph} :: \code{\link[mlr3pipelines:Graph]{Graph}}\cr
-The graph (consisting primarily of \code{\link{PipeOpModule}}s) that is wrapped by the network.
-\item \code{input_map} :: \code{character()}\cr
-The names of the input arguments of the network.
-\item \code{shapes_in} :: \code{list()}\cr
-The shapes of the input tensors of the network.
-\item \code{output_map} :: \code{character()}\cr
-Which output elements of the graph are returned by the \verb{$forward()} method.
-\item \code{list_output} :: \code{logical(1)}\cr
-Whether the output is a list of tensors.
-\item \code{module_list} :: \code{\link[torch:nn_module_list]{nn_module_list}}\cr
-The list of modules in the network.
-\item \code{list_output} :: \code{logical(1)}\cr
-Whether the output is a list of tensors.
-}
-}
-
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 graph = mlr3pipelines::Graph$new()

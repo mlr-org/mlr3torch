@@ -27,8 +27,9 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     stopf("Training Dataloader of Learner '%s' has length 0", self$id)
   }
 
-  network = private$.network(task, param_vals)$to(device = param_vals$device)
-  if (isTRUE(param_vals$jit_trace) && !inherits(network, "script_module")) {
+  network = private$.network(task, param_vals)
+  network$to(device = param_vals$device)
+  if (param_vals$jit_trace && !inherits(network, "script_module")) {
     example = get_example_batch(loader_train)$x
     example = lapply(example, function(x) x$to(device = param_vals$device))
     # tracer requires arguments to be passed by name
@@ -42,7 +43,7 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   if (is.null(self$optimizer)) stopf("Learner '%s' defines no optimizer", self$id)
   optimizer = self$optimizer$generate(network$parameters)
   if (is.null(self$loss)) stopf("Learner '%s' defines no loss", self$id)
-  loss_fn = self$loss$generate(task)
+  loss_fn = self$loss$generate()
   loss_fn$to(device = param_vals$device)
 
   measures_train = normalize_to_list(param_vals$measures_train)
@@ -134,6 +135,8 @@ train_loop = function(ctx, cbs) {
 
   ctx$network$train()
 
+  forward = get_forward(ctx$network)
+
   # if we increment epoch at the end of the loop it has the wrong value
   # during the final two callback stages
   ctx$epoch = 0L
@@ -145,6 +148,7 @@ train_loop = function(ctx, cbs) {
     indices = list()
     train_iterator = dataloader_make_iter(ctx$loader_train)
     ctx$step = 0L
+    eval_train = eval_train_in_epoch(ctx)
     while (ctx$step < length(ctx$loader_train)) {
       ctx$step = ctx$step + 1
       ctx$batch = dataloader_next(train_iterator)
@@ -155,26 +159,28 @@ train_loop = function(ctx, cbs) {
       call("on_batch_begin")
 
       if (length(ctx$batch$x) == 1L) {
-        ctx$y_hat = ctx$network(ctx$batch$x[[1L]])
+        y_hat = forward(ctx$batch$x[[1L]])
       } else {
-        ctx$y_hat = do.call(ctx$network, ctx$batch$x)
+        y_hat = do.call(forward, ctx$batch$x)
       }
 
-      loss = ctx$loss_fn(ctx$y_hat, ctx$batch$y)
+      loss = ctx$loss_fn(y_hat, ctx$batch$y)
 
       loss$backward()
 
       call("on_after_backward")
 
       ctx$last_loss = loss$item()
-      predictions[[length(predictions) + 1]] = ctx$y_hat$detach()
-      indices[[length(indices) + 1]] = as.integer(ctx$batch$.index$to(device = "cpu"))
+      if (eval_train) {
+        predictions[[length(predictions) + 1]] = y_hat$detach()
+        indices[[length(indices) + 1]] = as.integer(ctx$batch$.index$to(device = "cpu"))
+      }
       ctx$optimizer$step()
 
       call("on_batch_end")
     }
 
-    ctx$last_scores_train = if (eval_train_in_epoch(ctx)) {
+    ctx$last_scores_train = if (eval_train) {
       measure_prediction(
         pred_tensor = torch_cat(predictions, dim = 1L),
         measures = ctx$measures_train,
@@ -228,9 +234,6 @@ eval_valid_in_epoch = function(ctx) {
 }
 
 has_one_arg = function(network) {
-  if (inherits(network, "nn_graph")) {
-    return(length(network$input_map) == 1L)
-  }
   fargs = formalArgs(network)
   length(fargs) == 1L && !fargs == "..."
 }
@@ -241,14 +244,14 @@ torch_network_predict_valid = function(ctx, callback_receiver = function(step_na
   one_arg = has_one_arg(network)
   predictions = vector("list", length = length(loader))
   valid_iterator = dataloader_make_iter(loader)
-  ctx$step_valid = 0L
-  while (ctx$step_valid < length(loader)) {
-    ctx$step_valid = ctx$step_valid + 1L
+  ctx$step = 0L
+  while (ctx$step < length(loader)) {
+    ctx$step = ctx$step + 1L
     ctx$batch = dataloader_next(valid_iterator)
     ctx$batch$x = lapply(ctx$batch$x, function(x) x$to(device = ctx$device))
 
     callback_receiver("on_batch_valid_begin")
-    predictions[[ctx$step_valid]] = if (one_arg) {
+    predictions[[ctx$step]] = if (one_arg) {
       with_no_grad(network$forward(ctx$batch$x[[1L]]))
     } else {
       with_no_grad(invoke(network$forward, .args = ctx$batch$x))
@@ -287,7 +290,7 @@ encode_prediction_default = function(predict_tensor, predict_type, task) {
   # Currently this check is done in mlr3torch but should at some point be handled in mlr3 / mlr3pipelines
 
   response = prob = NULL
-  if (task$task_type == "classif" && "multiclass" %in% task$properties) {
+  if (task$task_type == "classif") {
     if (predict_type == "prob") {
       predict_tensor = with_no_grad(nnf_softmax(predict_tensor, dim = 2L))
     }
@@ -295,31 +298,15 @@ encode_prediction_default = function(predict_tensor, predict_type, task) {
     response = as.integer(with_no_grad(predict_tensor$argmax(dim = 2L))$to(device = "cpu"))
 
     predict_tensor = predict_tensor$to(device = "cpu")
-    prob = if (predict_type == "prob") {
+    if (predict_type == "prob") {
       prob = as.matrix(predict_tensor)
       colnames(prob) = task$class_names
-      prob
+    } else {
+      prob = NULL
     }
 
     class(response) = "factor"
     levels(response) = task$class_names
-    return(list(response = response, prob = prob))
-  } else if (task$task_type == "classif") {
-    # binary:
-    # (first factor level is positive class)
-    response = as.integer(with_no_grad(predict_tensor < 0)$to(device = "cpu") + 1)
-    class(response) = "factor"
-    levels(response) = task$class_names
-
-    prob = if (predict_type == "prob") {
-      # convert score to prob
-      predict_tensor = with_no_grad(nnf_sigmoid(predict_tensor))
-      prob = as.numeric(predict_tensor)
-      prob = as.matrix(data.frame(prob, 1 - prob))
-      colnames(prob) = task$class_names
-      prob
-    }
-
     return(list(response = response, prob = prob))
   } else if (task$task_type == "regr") {
     if (predict_type == "response") {
@@ -330,6 +317,7 @@ encode_prediction_default = function(predict_tensor, predict_type, task) {
   } else {
     stopf("Invalid task_type.")
   }
+
 }
 
 
@@ -339,16 +327,13 @@ measure_prediction = function(pred_tensor, measures, task, row_ids, prediction_e
   }
 
   prediction = prediction_encoder(predict_tensor = pred_tensor, task = task)
-  prediction = as_prediction_data(prediction, task = task, check = FALSE, row_ids = row_ids)
-  prediction = as_prediction(prediction, task = task, check = FALSE)
+  prediction = as_prediction_data(prediction, task = task, check = TRUE, row_ids = row_ids)
+  prediction = as_prediction(prediction, task = task)
 
   lapply(
     measures,
     function(measure) {
-      tryCatch(
-        measure$score(prediction, task = task, train_set = task$row_roles$use),
-        error = function(e) NaN
-      )
+      measure$score(prediction, task = task, train_set = task$row_roles$use)
     }
   )
 }

@@ -1,7 +1,3 @@
-single_param_group = function(params) {
-  return(params)
-}
-
 #' @title Convert to TorchOptimizer
 #'
 #' @description
@@ -45,11 +41,11 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #' @title Torch Optimizer
 #'
 #' @description
-#' This wraps a `torch::torch_optimizer_generator` and annotates it with metadata, most importantly a [`ParamSet`][paradox::ParamSet].
+#' This wraps a `torch::torch_optimizer_generator`a and annotates it with metadata, most importantly a [`ParamSet`][paradox::ParamSet].
 #' The optimizer is created for the given parameter values by calling the `$generate()` method.
 #'
 #' This class is usually used to configure the optimizer of a torch learner, e.g.
-#' when constructing a learner or in a [`ModelDescriptor`].
+#' when construcing a learner or in a [`ModelDescriptor`].
 #'
 #' For a list of available optimizers, see [`mlr3torch_optimizers`].
 #' Items from this dictionary can be retrieved using [`t_opt()`].
@@ -57,12 +53,12 @@ as_torch_optimizer.character = function(x, clone = FALSE, ...) { # nolint
 #' @section Parameters:
 #' Defined by the constructor argument `param_set`.
 #' If no parameter set is provided during construction, the parameter set is constructed by creating a parameter
-#' for each argument of the wrapped loss function, where the parameters are then of type [`ParamUty`][paradox::Domain].
+#' for each argument of the wrapped loss function, where the parametes are then of type [`ParamUty`][paradox::Domain].
 #'
 #' @family Torch Descriptor
 #' @export
 #' @examplesIf torch::torch_is_installed()
-#' # Create a new torch optimizer
+#' # Create a new torch loss
 #' torch_opt = TorchOptimizer$new(optim_ignite_adam, label = "adam")
 #' torch_opt
 #' # If the param set is not specified, parameters are inferred but are of class ParamUty
@@ -113,9 +109,6 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
       } else {
         param_set = inferps(torch_optimizer, ignore = "params")
       }
-      param_set = c(param_set,
-        ps(param_groups = p_uty(custom_check = check_function, tags = "train"))
-      )
       super$initialize(
         generator = torch_optimizer,
         id = id,
@@ -132,15 +125,7 @@ TorchOptimizer = R6::R6Class("TorchOptimizer",
     #' @return `torch_optimizer`
     generate = function(params) {
       require_namespaces(self$packages)
-      pvs = self$param_set$get_values()
-      param_groups_fn = pvs$param_groups
-
-      if (!is.null(param_groups_fn)) {
-        pvs$param_groups = NULL
-        params = param_groups_fn(params)
-      }
-
-      invoke(self$generator, .args = pvs, params = params)
+      invoke(self$generator, .args = self$param_set$get_values(), params = params)
     }
   ),
   private = list(
@@ -293,6 +278,7 @@ mlr3torch_optimizers$add("adam",
   }
 )
 
+
 mlr3torch_optimizers$add("sgd",
   function() {
     p = ps(
@@ -311,6 +297,8 @@ mlr3torch_optimizers$add("sgd",
     )
   }
 )
+
+
 
 mlr3torch_optimizers$add("rmsprop",
   function() {
@@ -331,6 +319,7 @@ mlr3torch_optimizers$add("rmsprop",
     )
   }
 )
+
 
 mlr3torch_optimizers$add("adagrad",
   function() {

@@ -41,7 +41,10 @@ as the cache directory.
 }
 
 \examples{
+\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 task = tsk("tiny_imagenet")
+task
+\dontshow{\}) # examplesIf}
 }
 \references{
 Deng, Jia, Dong, Wei, Socher, Richard, Li, Li-Jia, Li, Kai, Fei-Fei, Li (2009).

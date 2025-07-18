@@ -29,21 +29,6 @@
 #' To do so, you just need to include `epochs = to_tune(upper = <upper>, internal = TRUE)` in the search space,
 #' where `<upper>` is the maximally allowed number of epochs, and configure the early stopping.
 #'
-#' @section Network Head and Target Encoding:
-#' Torch learners are expected to have the following output:
-#' * binary classification: `(batch_size, 1)`, representing the logits for the positive class.
-#' * multiclass classification: `(batch_size, n_classes)`, representing the logits for all classes.
-#' * regression: `(batch_size, 1)` representing the response prediction.
-#'
-#' Furthermore, the target encoding is expected to be as follows:
-#' * regression: The `numeric` target variable of a [`TaskRegr`][mlr3::TaskRegr] is encoded as a
-#'   [`torch_float`][torch::torch_float] with shape `c(batch_size, 1)`.
-#' * binary classification: The `factor` target variable of a [`TaskClassif`][mlr3::TaskClassif] is encoded as a
-#'   [`torch_float`][torch::torch_float] with shape `(batch_size, 1)` where the positive class (`Task$positive`, which
-#'   is also ensured to be the first factor level) is `1` and the negative class is `0`.
-#' * multi-class classification: The `factor` target variable of a [`TaskClassif`][mlr3::TaskClassif] is a label-encoded
-#'   [`torch_long`][torch::torch_long] with shape `(batch_size)` where the label-encoding goes from `1` to `n_classes`.
-#'
 #' @template param_id
 #' @template param_task_type
 #' @template param_param_vals
@@ -72,8 +57,6 @@
 #' @param callbacks (`list()` of [`TorchCallback`]s)\cr
 #'   The callbacks to use for training.
 #'   Defaults to an empty` list()`, i.e. no callbacks.
-#' @param jittable (`logical(1)`)\cr
-#'   Whether the model can be jit-traced. Default is `FALSE`.
 #'
 #' @section Model:
 #' The Model is a list of class `"learner_torch_model"` with the following elements:
@@ -92,35 +75,24 @@
 #' Instead, the `task_type` must be specified  as a construction argument.
 #' Currently, only classification and regression are supported.
 #'
-#' When inheriting from this class, one should overload the following methods:
+#' When inheriting from this class, one should overload two private methods:
 #'
 #' * `.network(task, param_vals)`\cr
 #'   ([`Task`][mlr3::Task], `list()`) -> [`nn_module`][torch::nn_module]\cr
 #'   Construct a [`torch::nn_module`] object for the given task and parameter values, i.e. the neural network that
 #'   is trained by the learner.
-#'   Note that a specific output shape is expected from the returned network, see section *Network Head and Target Encoding*.
-#'   You can use [`output_dim_for()`] to obtain the correct output dimension for a given task.
-#' * `.ingress_tokens(task, param_vals)`\cr
-#'   ([`Task`][mlr3::Task], `list()`) -> named `list()` with [`TorchIngressToken`]s\cr
-#'   Create the [`TorchIngressToken`]s that are passed to the [`task_dataset`] constructor.
-#'   The number of ingress tokens must correspond to the number of input parameters of the network.
-#'   If there is more than one input, the names must correspond to the inputs of the network.
-#'   See [`ingress_num`], [`ingress_categ`], and [`ingress_ltnsr`] on how to easily create the correct tokens.
-#'   For more flexibility, you can also directly implement the `.dataset(task, param_vals)` method,
-#'   see below.
+#'   For classification, the output of this network are expected to be the scores before the application of the
+#'   final softmax layer.
 #' * `.dataset(task, param_vals)`\cr
 #'   ([`Task`][mlr3::Task], `list()`) -> [`torch::dataset`]\cr
 #'   Create the dataset for the task.
-#'   Don't implement this if the `.ingress_tokens()` method is defined.
 #'   The dataset must return a named list where:
 #'   * `x` is a list of torch tensors that are the input to the network.
 #'     For networks with more than one input, the names must correspond to the inputs of the network.
 #'   * `y` is the target tensor.
 #'   * `.index` are the indices of the batch (`integer()` or a `torch_int()`).
 #'
-#'   For information on the expected target encoding of `y`, see section *Network Head and Target Encoding*.
 #'   Moreover, one needs to pay attention respect the row ids of the provided task.
-#'   It is recommended to relu on [`task_dataset`] for creating the [`dataset`][torch::dataset].
 #'
 #' It is also possible to overwrite the private `.dataloader()` method.
 #' This must respect the dataloader parameters from the [`ParamSet`][paradox::ParamSet].
@@ -128,9 +100,9 @@
 #' * `.dataloader(dataset, param_vals)`\cr
 #'   ([`Task`][mlr3::Task], `list()`) -> [`torch::dataloader`]\cr
 #'   Create a dataloader from the task.
-#'   Needs to respect at least `batch_size` and `shuffle` (otherwise predictions will be incorrectly ordered).
+#'   Needs to respect at least `batch_size` and `shuffle` (otherwise predictions can be permuted).
 #'
-#' To change the predict types, it is possible to overwrite the method below:
+#' To change the predict types, the it is possible to overwrite the method below:
 #'
 #' * `.encode_prediction(predict_tensor, task)`\cr
 #'   ([`torch_tensor`][torch::torch_tensor], [`Task`][mlr3::Task]) -> `list()`\cr
@@ -144,9 +116,8 @@
 #' or `"cb."`, as these are preserved for the dynamically constructed parameters of the optimizer, the loss function,
 #' and the callbacks.
 #'
-#' To perform additional input checks on the task, the private `.check_train_task(task, param_vals)` and
-#' `.check_predict_task(task, param_vals)` can be overwritten.
-#' These should return `TRUE` if the input task is valid and otherwise a string with an error message.
+#' To perform additional input checks on the task, the private `.verify_train_task(task, param_vals)` and
+#' `.verify_predict_task(task, param_vals)` can be overwritten.
 #'
 #' For learners that have other construction arguments that should change the hash of a learner, it is required
 #' to implement the private `$.additional_phash_input()`.
@@ -157,9 +128,8 @@ LearnerTorch = R6Class("LearnerTorch",
   inherit = Learner,
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(id, task_type, param_set, properties = character(), man, label, feature_types,
-      optimizer = NULL, loss = NULL, packages = character(), predict_types = NULL, callbacks = list(),
-      jittable = FALSE) {
+    initialize = function(id, task_type, param_set, properties, man, label, feature_types,
+      optimizer = NULL, loss = NULL, packages = character(), predict_types = NULL, callbacks = list()) {
       assert_choice(task_type, c("regr", "classif"))
 
       predict_types = predict_types %??% switch(task_type,
@@ -169,14 +139,11 @@ LearnerTorch = R6Class("LearnerTorch",
 
       assert_subset(properties, mlr_reflections$learner_properties[[task_type]])
       properties = union(properties, c("marshal", "validation", "internal_tuning"))
-      if (task_type == "classif") {
-        properties = union(properties, c("twoclass", "multiclass"))
-      }
       assert_subset(predict_types, names(mlr_reflections$learner_predict_types[[task_type]]))
       packages = assert_character(packages, any.missing = FALSE, min.chars = 1L)
       packages = union(c("mlr3", "mlr3torch"), packages)
 
-      private$.param_set_torch = paramset_torchlearner(task_type, jittable = jittable)
+      private$.param_set_torch = paramset_torchlearner(task_type)
 
       check_ps = function(param_set) {
         assert_param_set(param_set)
@@ -356,7 +323,7 @@ LearnerTorch = R6Class("LearnerTorch",
       self$state$internal_valid_scores
     },
     #' @field internal_tuned_values
-    #' When early stopping is active, this returns a named list with the early-stopped epochs,
+    #' When early stopping is activate, this returns a named list with the early-stopped epochs,
     #' otherwise an empty list is returned.
     #' Returns `NULL` if learner is not trained yet.
     internal_tuned_values = function() {
@@ -468,10 +435,7 @@ LearnerTorch = R6Class("LearnerTorch",
             nm, paste0(train_shape, collapse = "x"), paste0(predict_shape, collapse = "x"))
         }
       })
-      msg = private$.check_train_task(task, param_vals)
-      if (!isTRUE(msg)) {
-        stopf("Training task '%s' is invalid for learner '%s': %s", task$id, self$id, msg)
-      }
+      private$.verify_train_task(task, param_vals)
 
       param_vals$device = auto_device(param_vals$device)
       if (identical(param_vals$seed, "random")) param_vals$seed = sample.int(.Machine$integer.max, 1)
@@ -495,10 +459,7 @@ LearnerTorch = R6Class("LearnerTorch",
       # Ideally we could rely on state$train_task, but there is this complication
       # https://github.com/mlr-org/mlr3/issues/947
       param_vals$device = auto_device(param_vals$device)
-      msg = private$.check_predict_task(task, param_vals)
-      if (!isTRUE(msg)) {
-        stopf("Prediction task '%s' is invalid for learner '%s': %s", task$id, self$id, msg)
-      }
+      private$.verify_predict_task(task, param_vals)
 
       with_torch_settings(seed = self$model$seed, num_threads = param_vals$num_threads,
         num_interop_threads = param_vals$num_interop_threads, expr = {
@@ -537,25 +498,15 @@ LearnerTorch = R6Class("LearnerTorch",
       param_vals_test = insert_named(param_vals, list(shuffle = FALSE, drop_last = FALSE))
       private$.dataloader(dataset, param_vals_test)
     },
-    .ingress_tokens = function(task, param_vals)  {
-      stopf("Private method `$.ingress_tokens()` must be implemented.")
-    },
     .dataset = function(task, param_vals) {
-      if (!is.null(private$.ingress_tokens)) {
-        task_dataset(
-          task = task,
-          feature_ingress_tokens = private$.ingress_tokens(task, param_vals),
-          target_batchgetter = get_target_batchgetter(task)
-        )
-      } else {
-        stopf("Private method `$.dataset()` or `$.ingress_tokens()` must be implemented.")
-      }
+      stopf(".dataset must be implemented.")
+
     },
     .optimizer = NULL,
     .loss = NULL,
     .callbacks = NULL,
-    .check_train_task = function(task, param_vals) TRUE,
-    .check_predict_task = function(task, param_vals) TRUE,
+    .verify_train_task = function(task, param_vals) NULL,
+    .verify_predict_task = function(task, param_vals) NULL,
     deep_clone = function(name, value) {
       private$.param_set = NULL # required to keep clone identical to original, otherwise tests get really ugly
       if (is.R6(value)) {

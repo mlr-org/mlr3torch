@@ -84,7 +84,8 @@ DataDescriptor = R6Class("DataDescriptor",
         assert_true(length(graph$pipeops) >= 1L)
       }
       # no preprocessing, dataset returns only a single element (there we can infer a lot)
-      simple_case = length(graph$pipeops) == 1L && inherits(graph$pipeops[[1L]], "PipeOpNOP")
+      simple_case = length(graph$pipeops) == 1L && inherits(graph$pipeops[[1L]], "PipeOpNOP") &&
+        length(dataset_shapes) == 1L
 
       if (is.null(input_map) && nrow(graph$input) == 1L && length(dataset_shapes) == 1L) {
         input_map = names(dataset_shapes)
@@ -99,7 +100,7 @@ DataDescriptor = R6Class("DataDescriptor",
         assert_choice(pointer[[2]], graph$pipeops[[pointer[[1]]]]$output$name)
       }
       if (is.null(pointer_shape) && simple_case) {
-        pointer_shape = dataset_shapes[[input_map]]
+        pointer_shape = dataset_shapes[[1L]]
       } else {
         assert_shape(pointer_shape, null_ok = TRUE)
       }
@@ -224,7 +225,7 @@ infer_shapes_from_getbatch = function(ds) {
 }
 
 assert_compatible_shapes = function(shapes, dataset) {
-  shapes = assert_shapes(shapes, null_ok = TRUE, unknown_batch = TRUE, named = TRUE)
+  assert_shapes(shapes, null_ok = TRUE, unknown_batch = TRUE, named = TRUE)
 
   # prevent user from e.g. forgetting to wrap the return in a list
   example = if (is.null(dataset$.getbatch)) {
@@ -246,26 +247,12 @@ assert_compatible_shapes = function(shapes, dataset) {
   }
 
   iwalk(shapes, function(dataset_shape, name) {
-    if (is.null(dataset_shape)) {
-      return(NULL)
-    }
-    shape_specified = shapes[[name]]
-    shape_example = example[[name]]$shape
-    if (length(shape_specified) != length(shape_example)) {
-      stopf("The specified number of dimensions for element '%s' is %s, but the dataset returned %s",
-        name, length(shape_specified), length(shape_example))
-    }
-
-    if (all(is.na(shape_specified))) {
-      # compatible with any shape
-      return(NULL)
-    }
-
-    shape_example[is.na(shape_specified)] = NA
-    if (!test_equal(shape_specified, shape_example)) {
-      stopf(paste0("First example batch from dataset is incompatible with the provided shape of %s:\n",
-        "* Observed shape: %s.\n* Specified shape: %s."), name,
-        shape_to_str(example[[name]]$shape), shape_to_str(shape_specified))
+    if (!is.null(dataset_shape) && !test_equal(shapes[[name]][-1], example[[name]]$shape[-1L])) {
+      expected_shape = example[[name]]$shape
+      expected_shape[1] = NA
+      stopf(paste0("First batch from dataset is incompatible with the provided shape of %s:\n",
+        "* Provided shape: %s.\n* Expected shape: %s."), name,
+        shape_to_str(unname(shapes[name])), shape_to_str(list(expected_shape)))
     }
   })
 }

@@ -4,11 +4,7 @@
 \alias{ingress_categ}
 \title{Ingress Token for Categorical Features}
 \usage{
-ingress_categ(shape = NULL)
-}
-\arguments{
-\item{shape}{(\code{integer()} or \code{NULL})\cr
-Shape that \code{batchgetter} will produce. Batch-dimension should be included as \code{NA}.}
+ingress_categ()
 }
 \value{
 \code{\link{TorchIngressToken}}

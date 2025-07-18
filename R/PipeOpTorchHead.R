@@ -4,10 +4,6 @@
 #'
 #' @section nn_module:
 #' Calls [`torch::nn_linear()`] with the input and output features inferred from the input shape / task.
-#' For
-#' * binary classification, the output dimension is 1.
-#' * multiclass classification, the output dimension is the number of classes.
-#' * regression, the output dimension is 1.
 #'
 #' @section Parameters:
 #' * `bias` :: `logical(1)`\cr
@@ -43,13 +39,13 @@ PipeOpTorchHead = R6Class("PipeOpTorchHead",
       if (length(shapes_in[[1]]) != 2L) {
         stopf("PipeOpTorchHead expects 2D input, but got %s.", shape_to_str(shapes_in))
       }
-      d = output_dim_for(task)
+      d = get_nout(task)
       list(c(shapes_in[[1]][[1]], d))
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {
       param_vals$in_features = shapes_in[[1L]][2L]
 
-      param_vals$out_features = output_dim_for(task)
+      param_vals$out_features = get_nout(task)
 
       param_vals
     }

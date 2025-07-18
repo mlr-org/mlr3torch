@@ -15,7 +15,6 @@ Parameters include those inherited from \code{\link{LearnerTorch}} and the \code
 
 \seealso{
 Other Learner: 
-\code{\link{mlr_learners.ft_transformer}},
 \code{\link{mlr_learners.mlp}},
 \code{\link{mlr_learners.module}},
 \code{\link{mlr_learners.tab_resnet}},
@@ -68,11 +67,10 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   optimizer = NULL,
   loss = NULL,
   callbacks = list(),
-  packages,
+  packages = "torchvision",
   man,
   properties = NULL,
-  predict_types = NULL,
-  jittable = FALSE
+  predict_types = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -116,9 +114,6 @@ See \code{\link[mlr3:mlr_reflections]{mlr_reflections$learner_properties}} for a
 \item{\code{predict_types}}{(\code{character()})\cr
 The predict types.
 See \code{\link[mlr3:mlr_reflections]{mlr_reflections$learner_predict_types}} for available values.}
-
-\item{\code{jittable}}{(\code{logical(1)})\cr
-Whether the model can be jit-traced.}
 }
 \if{html}{\out{</div>}}
 }

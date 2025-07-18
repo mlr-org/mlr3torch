@@ -119,7 +119,7 @@ PipeOpTorchIngress = R6Class("PipeOpTorchIngress",
 #'   the output of `Task$data(rows = batch_indices, cols = features)`
 #'   and it should produce a tensor of shape `shape_out`.
 #' @param shape (`integer`)\cr
-#'   Shape that `batchgetter` will produce. Batch dimension must be included as `NA` (but other dimensions can also be `NA`, i.e., unknown).
+#'   Shape that `batchgetter` will produce. Batch-dimension should be included as `NA`.
 #' @return `TorchIngressToken` object.
 #' @family Graph Network
 #' @export
@@ -165,15 +165,12 @@ TorchIngressToken = function(features, batchgetter, shape = NULL) {
 #' @description
 #' Represents an entry point representing a tensor containing all numeric (`integer()` and `double()`)
 #' features of a task.
-#' @param shape (`integer()` or `NULL`)\cr
-#'   Shape that `batchgetter` will produce. Batch-dimension should be included as `NA`.
 #' @return [`TorchIngressToken`]
 #' @export
-ingress_num = function(shape = NULL) {
+ingress_num = function() {
   TorchIngressToken(
     selector_type(c("numeric", "integer")),
-    batchgetter_num,
-    shape = shape
+    batchgetter_num
   )
 }
 
@@ -181,15 +178,12 @@ ingress_num = function(shape = NULL) {
 #' @description
 #' Represents an entry point representing a tensor containing all categorical (`factor()`, `ordered()`, `logical()`)
 #' features of a task.
-#' @param shape (`integer()` or `NULL`)\cr
-#'   Shape that `batchgetter` will produce. Batch-dimension should be included as `NA`.
 #' @return [`TorchIngressToken`]
 #' @export
-ingress_categ = function(shape = NULL) {
+ingress_categ = function() {
   TorchIngressToken(
     selector_type(c("factor", "ordered", "logical")),
-    batchgetter_categ,
-    shape = shape
+    batchgetter_categ
   )
 }
 
@@ -219,15 +213,12 @@ selector_ltnsr = function(feature_name = NULL) {
 #' Represents an entry point representing a tensor containing a single lazy tensor feature.
 #' @param feature_name (`character(1)`)\cr
 #'   Which lazy tensor feature to select if there is more than one.
-#' @param shape (`integer()` or `NULL`)\cr
-#'   Shape that `batchgetter` will produce. Batch-dimension should be included as `NA`.
 #' @return [`TorchIngressToken`]
 #' @export
-ingress_ltnsr = function(feature_name = NULL, shape = NULL) {
+ingress_ltnsr = function(feature_name = NULL) {
   TorchIngressToken(
     selector_ltnsr(feature_name),
-    batchgetter_lazy_tensor,
-    shape = shape
+    batchgetter_lazy_tensor
   )
 }
 

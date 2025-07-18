@@ -127,15 +127,6 @@ bibentries = c(# nolint start
     author = "Krizhevsky, Alex",
     journal= "Master's thesis, Department of Computer Science, University of Toronto",,
     year = "2009",
-  ),
-  shazeer2020glu = bibentry("misc",
-    title = "GLU Variants Improve Transformer",
-    author = "Noam Shazeer",
-    year = "2020",
-    eprint = "2002.05202",
-    archivePrefix = "arXiv",
-    primaryClass = "cs.LG",
-    url = "https://arxiv.org/abs/2002.05202"
   )
 ) # nolint end
 

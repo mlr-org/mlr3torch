@@ -34,6 +34,8 @@
 #' @examples
 #' task_cifar10 = tsk("cifar10")
 #' task_cifar100 = tsk("cifar100")
+#' print(task_cifar10)
+#' print(task_cifar100)
 NULL
 
 cifar_ds_generator = torch::dataset(

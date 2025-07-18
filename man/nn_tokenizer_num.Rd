@@ -2,9 +2,10 @@
 % Please edit documentation in R/PipeOpTorchTokenizer.R
 \name{nn_tokenizer_num}
 \alias{nn_tokenizer_num}
+\alias{nn_tokenizer_numeric}
 \title{Numeric Tokenizer}
 \usage{
-nn_tokenizer_num(n_features, d_token, bias, initialization)
+nn_tokenizer_numeric(n_features, d_token, bias, initialization)
 }
 \arguments{
 \item{n_features}{(\code{integer(1)})\cr
@@ -22,7 +23,6 @@ and \code{"normal"}.}
 }
 \description{
 Tokenizes numeric features into a dense embedding.
-For an input of shape \verb{(batch, n_features)} the output shape is \verb{(batch, n_features, d_token)}.
 }
 \references{
 Gorishniy Y, Rubachev I, Khrulkov V, Babenko A (2021).

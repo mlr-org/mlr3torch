@@ -163,3 +163,4 @@ conv_output_shape = function(shape_in, conv_dim, padding, dilation, stride, kern
     (if (ceil_mode) base::ceiling else base::floor)((shape_tail + 2 * padding - dilation * (kernel_size - 1) - 1) / stride + 1)
   )
 }
+

@@ -45,7 +45,7 @@ epochs_tune_fn = function(domain, param_vals) {
 }
 
 
-paramset_torchlearner = function(task_type, jittable = FALSE) {
+paramset_torchlearner = function(task_type) {
   check_measures = switch(task_type,
     regr = check_measures_regr,
     classif = check_measures_classif,
@@ -59,6 +59,7 @@ paramset_torchlearner = function(task_type, jittable = FALSE) {
     num_threads           = p_int(lower = 1L, tags = c("train", "predict", "required", "threads"), init = 1L),
     num_interop_threads   = p_int(lower = 1L, tags = c("train", "predict", "required"), init = 1L),
     seed                  = p_int(tags = c("train", "predict", "required"), special_vals = list("random", NULL), init = "random"),
+    jit_trace             = p_lgl(init = FALSE, tags = c("train", "required")),
     # evaluation
     eval_freq             = p_int(lower = 1L, tags = c("train", "required"), init = 1L),
     measures_train        = p_uty(tags = c("train", "required"), custom_check = check_measures, init = list()),
@@ -81,12 +82,6 @@ paramset_torchlearner = function(task_type, jittable = FALSE) {
     worker_packages       = p_uty(tags = c("train", "predict"), custom_check = check_character, special_vals = list(NULL)),
     tensor_dataset        = p_fct(levels = "device", init = FALSE, tags = c("train", "predict"), special_vals = list(FALSE, TRUE))
   )
-  if (jittable) {
-    param_set = c(
-      param_set,
-      ps(jit_trace = p_lgl(init = FALSE, tags = c("train", "required")))
-    )
-  }
   return(param_set)
 }
 

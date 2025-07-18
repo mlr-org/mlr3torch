@@ -112,9 +112,6 @@ ContextTorch = R6Class("ContextTorch",
     #' @field last_loss (`numeric(1)`)\cr
     #' The loss from the last trainings batch.
     last_loss = NULL,
-    #' @field y_hat (`torch_tensor`)\cr
-    #' The model's prediction for the current batch.
-    y_hat = NULL,
     #' @field epoch (`integer(1)`)\cr
     #'   The current epoch.
     epoch = NULL,

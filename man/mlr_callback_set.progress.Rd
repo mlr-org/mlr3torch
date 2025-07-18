@@ -43,7 +43,6 @@ Other Callback:
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-CallbackSetProgress-new}{\code{CallbackSetProgress$new()}}
 \item \href{#method-CallbackSetProgress-on_epoch_begin}{\code{CallbackSetProgress$on_epoch_begin()}}
 \item \href{#method-CallbackSetProgress-on_batch_end}{\code{CallbackSetProgress$on_batch_end()}}
 \item \href{#method-CallbackSetProgress-on_before_valid}{\code{CallbackSetProgress$on_before_valid()}}
@@ -62,24 +61,6 @@ Other Callback:
 </ul>
 </details>
 }}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackSetProgress-new"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackSetProgress-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of this \link[R6:R6Class]{R6} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetProgress$new(digits = 2)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{digits}}{\code{integer(1)}\cr
-The number of digits to print for the measures.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetProgress-on_epoch_begin"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetProgress-on_epoch_begin}{}}}

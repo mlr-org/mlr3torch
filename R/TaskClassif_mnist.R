@@ -23,8 +23,9 @@
 #'
 #' @references
 #' `r format_bib("mnist")`
-#' @examples
+#' @examplesIf torch::torch_is_installed()
 #' task = tsk("mnist")
+#' task
 NULL
 
 # @param path (`character(1)`)\cr

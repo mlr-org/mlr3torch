@@ -7,8 +7,6 @@
 #'
 #' @family Callback
 #' @include CallbackSet.R
-#' @param digits `integer(1)`\cr
-#'   The number of digits to print for the measures.
 #' @export
 #' @examplesIf torch::torch_is_installed()
 #' task = tsk("iris")
@@ -25,11 +23,6 @@ CallbackSetProgress = R6Class("CallbackSetProgress",
   inherit = CallbackSet,
   lock_objects = FALSE,
   public = list(
-    #' @description
-    #' Creates a new instance of this [R6][R6::R6Class] class.
-    initialize = function(digits = 2) {
-      self$digits = assert_int(digits, lower = 0)
-    },
     #' @description
     #' Initializes the progress bar for training.
     on_epoch_begin = function() {
@@ -48,7 +41,6 @@ CallbackSetProgress = R6Class("CallbackSetProgress",
     #' @description
     #' Creates the progress bar for validation.
     on_before_valid = function() {
-      catf("Validation for epoch %s started (%s)", self$ctx$epoch, format(Sys.time()))
       self$pb_valid = progress::progress_bar$new(
         total = length(self$ctx$loader_valid),
         format = "Validation: [:bar]"
@@ -77,7 +69,7 @@ CallbackSetProgress = R6Class("CallbackSetProgress",
         for (phase in names(scores)) {
           catf("Measures (%s):", capitalize(phase))
           curscore = scores[[phase]]
-          output = sprintf(paste0(" * %s = %.", self$digits, "f\n"), names(curscore), unlist(curscore))
+          output = sprintf(" * %s = %.2f\n", names(curscore), unlist(curscore))
           cat(paste(output, collapse = ""))
         }
       }
@@ -95,9 +87,7 @@ CallbackSetProgress = R6Class("CallbackSetProgress",
 mlr3torch_callbacks$add("progress", function() {
   TorchCallback$new(
     callback_generator = CallbackSetProgress,
-    param_set = ps(
-      digits = p_int(lower = 1, default = 2, tags = "train")
-    ),
+    param_set = ps(),
     id = "progress",
     label = "Progress",
     man = "mlr3torch::mlr_callback_set.progress",

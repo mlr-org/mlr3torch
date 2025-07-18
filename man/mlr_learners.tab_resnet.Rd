@@ -25,7 +25,7 @@ lrn("regr.tab_resnet", ...)
 \item classif: 'response', 'prob'
 \item regr: 'response'
 }
-\item Feature Types: \dQuote{integer}, \dQuote{numeric}, \dQuote{lazy_tensor}
+\item Feature Types: \dQuote{integer}, \dQuote{numeric}
 \item Required Packages: \CRANpkg{mlr3}, \CRANpkg{mlr3torch}, \CRANpkg{torch}
 }
 }
@@ -46,9 +46,6 @@ Alternative way to specify the latent dimension as \code{d_block * d_hidden_mult
 First dropout ratio.
 \item \code{dropout2} :: \code{numeric(1)}\cr
 Second dropout ratio.
-\item \code{shape} :: \code{integer()} or \code{NULL}\cr
-Shape of the input tensor. Only needs to be provided if the input is a lazy tensor with
-unknown shape.
 }
 }
 
@@ -84,7 +81,6 @@ Gorishniy Y, Rubachev I, Khrulkov V, Babenko A (2021).
 }
 \seealso{
 Other Learner: 
-\code{\link{mlr_learners.ft_transformer}},
 \code{\link{mlr_learners.mlp}},
 \code{\link{mlr_learners.module}},
 \code{\link{mlr_learners.torch_featureless}},

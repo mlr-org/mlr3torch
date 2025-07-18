@@ -5,7 +5,7 @@
 #' This internally calls [`torch::torch_reshape()`] with the given `shape`.
 #' @section Parameters:
 #' * `shape` :: `integer(1)`\cr
-#'   The desired output shape. Unknown dimension (one at most) can either be specified as `-1`.
+#'   The desired output shape. Unknown dimension (one at most) can either be specified as `-1` or `NA`.
 #' @templateVar id nn_reshape
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch

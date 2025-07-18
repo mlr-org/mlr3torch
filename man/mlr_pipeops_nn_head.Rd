@@ -14,12 +14,6 @@ When this \code{\link[mlr3pipelines:PipeOp]{PipeOp}} is trained however, the mod
 \section{nn_module}{
 
 Calls \code{\link[torch:nn_linear]{torch::nn_linear()}} with the input and output features inferred from the input shape / task.
-For
-\itemize{
-\item binary classification, the output dimension is 1.
-\item multiclass classification, the output dimension is the number of classes.
-\item regression, the output dimension is 1.
-}
 }
 
 \section{Parameters}{
@@ -72,9 +66,6 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_dropout}},
 \code{\link{mlr_pipeops_nn_elu}},
 \code{\link{mlr_pipeops_nn_flatten}},
-\code{\link{mlr_pipeops_nn_ft_cls}},
-\code{\link{mlr_pipeops_nn_ft_transformer_block}},
-\code{\link{mlr_pipeops_nn_geglu}},
 \code{\link{mlr_pipeops_nn_gelu}},
 \code{\link{mlr_pipeops_nn_glu}},
 \code{\link{mlr_pipeops_nn_hardshrink}},
@@ -93,7 +84,6 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_merge_prod}},
 \code{\link{mlr_pipeops_nn_merge_sum}},
 \code{\link{mlr_pipeops_nn_prelu}},
-\code{\link{mlr_pipeops_nn_reglu}},
 \code{\link{mlr_pipeops_nn_relu}},
 \code{\link{mlr_pipeops_nn_relu6}},
 \code{\link{mlr_pipeops_nn_reshape}},

@@ -51,6 +51,8 @@ as the cache directory.
 \examples{
 task_cifar10 = tsk("cifar10")
 task_cifar100 = tsk("cifar100")
+print(task_cifar10)
+print(task_cifar100)
 }
 \references{
 Krizhevsky, Alex (2009).

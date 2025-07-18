@@ -17,8 +17,6 @@
 #' @template param_properties
 #' @template param_label
 #' @template param_predict_types
-#' @param jittable (`logical(1)`)\cr
-#'   Whether the model can be jit-traced.
 #'
 #' @section Parameters:
 #' Parameters include those inherited from [`LearnerTorch`] and the `param_set` construction argument.
@@ -33,29 +31,41 @@ LearnerTorchImage = R6Class("LearnerTorchImage",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     initialize = function(id, task_type, param_set = ps(), label, optimizer = NULL, loss = NULL,
-      callbacks = list(), packages, man, properties = NULL, predict_types = NULL, jittable = FALSE) {
+      callbacks = list(), packages = "torchvision", man, properties = NULL,
+      predict_types = NULL) {
+      properties = properties %??% switch(task_type,
+        regr = c(),
+        classif = c("twoclass", "multiclass")
+      )
       super$initialize(
         id = id,
         task_type = task_type,
         label = label,
         optimizer = optimizer,
+        properties = properties,
         loss = loss,
         param_set = param_set,
         packages = packages,
         callbacks = callbacks,
         predict_types = predict_types,
         feature_types = "lazy_tensor",
-        man = man,
-        jittable = jittable
+        man = man
       )
     }
   ),
   private = list(
-    .ingress_tokens = function(task, param_vals) {
-      if (task$n_features != 1L) {
-        stopf("Learner '%s' received task '%s' with %i features, but the learner expects exactly one feature.", self$id, task$id, length(task$feature_names))
+    .verify_train_task = function(task, param_vals) {
+      if (!isTRUE(all.equal(task$feature_types$type, "lazy_tensor"))) {
+        stopf("Must have exactly one feature of type lazy_tensor.")
       }
-      list(input = ingress_ltnsr(feature_name = task$feature_names))
+      assert_rgb_shape(c(
+        c(NA, materialize(task$data(task$row_ids[1L], task$feature_names)[[1L]])[[1L]]$shape))
+      )
+      return(TRUE)
+    },
+    .dataset = function(task, param_vals) {
+      param_vals$shape = "infer"
+      dataset_ltnsr(task, param_vals)
     }
   )
 )
