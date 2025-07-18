@@ -118,6 +118,7 @@ reference:
   - title: Lazy Tensor
     contents:
       - lazy_tensor
+      - lazy_shape
       - DataDescriptor
       - as_lazy_tensor
       - as_data_descriptor
@@ -131,6 +132,7 @@ reference:
       - mlr_pipeops_torch_loss
       - as_torch_loss
       - mlr3torch_losses
+      - cross_entropy
   - title: Optimizer
     contents:
       - t_opt
@@ -159,6 +161,8 @@ reference:
       - auto_device
       - task_dataset
       - Select
+      - output_dim_for
+      - infer_shapes
 
 
 

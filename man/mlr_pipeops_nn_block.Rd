@@ -16,10 +16,24 @@ IDs of the \code{n_blocks} layers with the ID of the \code{PipeOpTorchBlock} and
 
 \section{Parameters}{
 
-The parameters available for the block itself, as well as
+The parameters available for the provided \code{block}, as well as
 \itemize{
 \item \code{n_blocks} :: \code{integer(1)}\cr
 How often to repeat the block.
+\item \code{trafo} :: \verb{function(i, param_vals, param_set) -> list()}\cr
+A function that allows to transform the parameters vaues of each layer (\code{block}).
+Here,
+\itemize{
+\item \code{i} :: \code{integer(1)}\cr
+is the index of the layer, ranging from \code{1} to \code{n_blocks}.
+\item \code{param_vals} :: named \code{list()}\cr
+are the parameter values of the layer \code{i}.
+\item \code{param_set} :: \code{\link[paradox:ParamSet]{ParamSet}}\cr
+is the parameter set of the whole \code{PipeOpTorchBlock}.
+}
+
+The function must return the modified parameter values for the given layer.
+This, e.g., allows for special behavior of the first or last layer.
 }
 }
 
@@ -36,20 +50,24 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 
 \examples{
 \dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-block = po("nn_linear") \%>>\% po("nn_relu")
-po_block = po("nn_block", block,
-nn_linear.out_features = 10L, n_blocks = 3)
-network = po("torch_ingress_num") \%>>\%
-po_block \%>>\%
-po("nn_head") \%>>\%
-po("torch_loss", t_loss("cross_entropy")) \%>>\%
-po("torch_optimizer", t_opt("adam")) \%>>\%
-po("torch_model_classif",
-  batch_size = 50,
-  epochs = 3)
+# repeat a simple linear layer with ReLU activation 3 times, but set the bias for the last
+# layer to `FALSE`
+block = nn("linear") \%>>\% nn("relu")
 
-task = tsk("iris")
-network$train(task)
+blocks = nn("block", block,
+  linear.out_features = 10L, linear.bias = TRUE, n_blocks = 3,
+  trafo = function(i, param_vals, param_set) {
+    if (i  == param_set$get_values()$n_blocks) {
+      param_vals$linear.bias = FALSE
+    }
+    param_vals
+  })
+graph = po("torch_ingress_num") \%>>\%
+  blocks \%>>\%
+  nn("head")
+md = graph$train(tsk("iris"))[[1L]]
+network = model_descriptor_to_module(md)
+network
 \dontshow{\}) # examplesIf}
 }
 \seealso{
@@ -73,6 +91,9 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_dropout}},
 \code{\link{mlr_pipeops_nn_elu}},
 \code{\link{mlr_pipeops_nn_flatten}},
+\code{\link{mlr_pipeops_nn_ft_cls}},
+\code{\link{mlr_pipeops_nn_ft_transformer_block}},
+\code{\link{mlr_pipeops_nn_geglu}},
 \code{\link{mlr_pipeops_nn_gelu}},
 \code{\link{mlr_pipeops_nn_glu}},
 \code{\link{mlr_pipeops_nn_hardshrink}},
@@ -92,6 +113,7 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_merge_prod}},
 \code{\link{mlr_pipeops_nn_merge_sum}},
 \code{\link{mlr_pipeops_nn_prelu}},
+\code{\link{mlr_pipeops_nn_reglu}},
 \code{\link{mlr_pipeops_nn_relu}},
 \code{\link{mlr_pipeops_nn_relu6}},
 \code{\link{mlr_pipeops_nn_reshape}},

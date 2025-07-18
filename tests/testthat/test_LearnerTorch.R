@@ -133,9 +133,9 @@ test_that("Parameters cannot start with {loss, opt, cb}.", {
     )$new()
   }
 
-  expect_error(helper(ps(loss.weight = p_dbl())), "are reserved for")
-  expect_error(helper(ps(opt.weight = p_dbl())), "are reserved for")
-  expect_error(helper(ps(cb.weight = p_dbl())), "are reserved for")
+  expect_error(helper(ps(loss.class_weight = p_dbl())), "are reserved for")
+  expect_error(helper(ps(opt.class_weight = p_dbl())), "are reserved for")
+  expect_error(helper(ps(cb.class_weight = p_dbl())), "are reserved for")
 })
 
 test_that("ParamSet reference identities are preserved after a deep clone", {
@@ -150,8 +150,8 @@ test_that("ParamSet reference identities are preserved after a deep clone", {
 
   learner1$param_set$set_values(opt.lr = 9.99)
   expect_true(get_private(learner1)$.optimizer$param_set$values$lr == 9.99)
-  learner1$param_set$set_values(loss.weight = 0.11)
-  expect_true(get_private(learner1)$.loss$param_set$values$weight == 0.11)
+  learner1$param_set$set_values(loss.class_weight = 0.11)
+  expect_true(get_private(learner1)$.loss$param_set$values$class_weight == 0.11)
 })
 
 test_that("Learner inherits packages from optimizer, loss, and callbacks", {
@@ -444,6 +444,7 @@ test_that("callr encapsulation and marshaling", {
 })
 
 test_that("future and marshaling", {
+  skip_if(running_on_mac())
   skip_if_not_installed("future")
   task = tsk("mtcars")$filter(1:5)
   learner = lrn("regr.mlp", batch_size = 150, epochs = 1, device = "cpu",
@@ -456,6 +457,10 @@ test_that("future and marshaling", {
 })
 
 test_that("Input verification works during `$train()` (train-predict shapes work together)", {
+  # some weird future warnings appears in tests
+  prev_debug = getOption("mlr3.debug")
+  on.exit({mlr3.debug = prev_debug})
+  options(mlr3.debug = TRUE)
   task = nano_mnist()
 
   task_invalid = po("trafo_resize", size = c(10, 10), stages = "train") $train(list(task))[[1L]]
@@ -581,7 +586,7 @@ test_that("internal tuning", {
     term_evals = 2
   )
   expect_equal(
-    ti$archive$data$internal_tuned_values, replicate(list(list(epochs = 3L)), n = 2L)
+    ti$archive$data$internal_tuned_values, replicate(list(set_class(list(epochs = 3L), "internal_tuned_values")), n = 2L)
   )
   expect_equal(ti$result_learner_param_vals$epochs, 3L)
 })
@@ -751,8 +756,8 @@ test_that("dataset works", {
     initialize = function() NULL,
     on_batch_begin = function() {
       batch = self$ctx$batch
-      expect_equal(batch$x$torch_ingress_num.input$device$type, "meta")
-      expect_equal(batch$x$torch_ingress_num.input$shape, c(2, 4))
+      expect_equal(batch$x$input$device$type, "meta")
+      expect_equal(batch$x$input$shape, c(2, 4))
       expect_equal(batch$y$device$type, "meta")
       expect_equal(batch$y$shape, 2)
       expect_equal(batch$.index$shape, 2)
@@ -769,7 +774,7 @@ test_that("dataset works", {
   testcb2 = torch_callback("test2",
     initialize = function() NULL,
     on_batch_begin = function() {
-      expect_equal(self$ctx$batch$x$torch_ingress_num.input$device$type, "cpu")
+      expect_equal(self$ctx$batch$x$input$device$type, "cpu")
       stop("everything is fine")
     }
   )
@@ -835,7 +840,7 @@ test_that("early stopping and eval freq", {
     store_models = TRUE
   )
   at$train(task)
-  expect_equal(at$tuning_instance$archive$data$internal_tuned_values, list(list(epochs = 4L)))
+  expect_equal(at$tuning_instance$archive$data$internal_tuned_values, list(set_class(list(epochs = 4L), "internal_tuned_values")))
   # first eval is after 4, then 10 evaluations every 4 epochs with no improvement -> 44
   expect_equal(at$tuning_instance$archive$resample_result(1)$learners[[1]]$model$epochs, 44L)
 })
@@ -969,7 +974,71 @@ test_that("tensor_dataset works", {
 
 test_that("loss is put on device", {
   learner = lrn("classif.mlp", epochs = 0, batch_size = 32, device = "meta",
-    loss = t_loss("cross_entropy", weight = torch_tensor(c(1, 2, 3))))
+    loss = t_loss("cross_entropy", class_weight = torch_tensor(c(1, 2, 3))))
   learner$train(tsk("iris"))
   expect_true(learner$model$loss_fn[[1]]$device == torch_device("meta"))
+})
+
+test_that("check train and predict task works", {
+  l = R6Class("LearnerTest",
+    inherit = LearnerTorchFeatureless,
+    public = list(
+      initialize = function() {
+        super$initialize(task_type = "classif")
+      },
+      err = TRUE
+    ),
+    private = list(
+      .check_predict_task = function(task, param_vals) {
+        if (self$err) {
+          return("predict_error")
+        }
+        TRUE
+      },
+      .check_train_task = function(task, param_vals) {
+        if (self$err) {
+          return("train_error")
+        }
+        TRUE
+      }
+    )
+  )$new()
+  l$configure(
+    epochs = 1L, batch_size = 30
+  )
+  task = tsk("iris")$filter(c(1:10, 51:60, 101:110))
+  expect_error(l$train(task), "Training task 'iris' is invalid")
+  l$err = FALSE
+  expect_error(l$train(task), regexp = NA)
+  expect_error(l$predict(task), regexp = NA)
+  l$err = TRUE
+  expect_error(l$predict(task), regexp = "Prediction task 'iris' is invalid")
+})
+
+test_that("NA prediction during validation does not cause issues.", {
+  mod = nn_module("nn_test",
+    initialize = function(task) {
+      self$linear = nn_linear(task$n_features, 1L)
+    },
+    forward = function(x) {
+      if (self$training) {
+        self$linear(x)
+      } else {
+        torch_tensor(rep(NaN, nrow(x)))$reshape(c(nrow(x), 1L))
+      }
+    }
+  )
+
+  learner = lrn("regr.module", module_generator = mod, ingress_tokens = list(x = ingress_num()),
+    epochs = 1,
+    validate = 0.3,
+    batch_size = 32,
+    measures_valid = msr("regr.mse"),
+    callbacks = t_clbk("history")
+  )
+  task = tsk("mtcars")
+  learner$train(task)
+  expect_true(
+    is.na(learner$model$callbacks$history$valid.regr.mse[1L]),
+  )
 })

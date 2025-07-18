@@ -2,7 +2,7 @@ test_that("works with one ingress", {
   nn_one_layer = nn_module("nn_one_layer",
     initialize = function(task, size_hidden) {
       self$first = nn_linear(task$n_features, size_hidden)
-      self$second = nn_linear(size_hidden, length(task$class_names))
+      self$second = nn_linear(size_hidden, output_dim_for(task))
     },
     forward = function(x) {
       x = self$first(x)
@@ -31,7 +31,7 @@ test_that("works with multiple ingress", {
       types = task$feature_types$type
       self$first_num = nn_linear(length(types[types %in% c("numeric", "integer")]), size_hidden)
       self$first_categ = nn_linear(length(types[types %in% c("factor", "ordered", "logical")]), size_hidden)
-      self$head = nn_linear(size_hidden * 2, length(task$class_names))
+      self$head = nn_linear(size_hidden * 2, output_dim_for(task))
     },
     forward = function(x_num, x_categ) {
       x_num = self$first_num(x_num)

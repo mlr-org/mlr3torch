@@ -89,3 +89,25 @@ test_that("different block changes phash", {
   x2 = po("nn_block", po("nn_relu"))
   expect_false(x1$phash == x2$phash)
 })
+
+test_that("0 blocks are possible", {
+  md = po("torch_ingress_num")$train(list(tsk("iris")))[[1L]]
+  mdout = nn("block", block = nn("linear", out_features = 10), n_blocks = 0)$train(list(md))[[1L]]
+  expect_equal(mdout$pointer_shape, c(NA, 4))
+})
+
+test_that("trafo works", {
+  graph = po("torch_ingress_num") %>>%
+    po("nn_block", nn("linear", out_features = 10),
+      n_blocks = 2L,
+      trafo = function(i, param_vals, param_set) {
+      if (i == 2) {
+        param_vals$linear.bias = FALSE
+      }
+      param_vals
+    })
+
+  network = model_descriptor_to_module(graph$train(tsk("iris"))[[1L]])
+  expect_class(network$module_list$`0`$bias, "torch_tensor")
+  expect_true(is.null(network$module_list$`1`$bias))
+})

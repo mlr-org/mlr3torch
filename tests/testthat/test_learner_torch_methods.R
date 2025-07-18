@@ -96,37 +96,47 @@ test_that("Validation Task is respected", {
 })
 
 test_that("learner_torch_predict works", {
-  task = tsk("iris")
-  learner = lrn("classif.mlp", batch_size = 16, epochs = 1, device = "cpu")
-  dl = get_private(learner)$.dataloader(
-    get_private(learner)$.dataset(task, learner$param_set$values), learner$param_set$values)
+  check = function(task, ncol) {
+    learner = lrn("classif.mlp", batch_size = 16, epochs = 1, device = "cpu")
+    dl = get_private(learner)$.dataloader(
+      get_private(learner)$.dataset(task, learner$param_set$values), learner$param_set$values)
 
-  network = get_private(learner)$.network(task, learner$param_set$values)
+    network = get_private(learner)$.network(task, learner$param_set$values)
 
-  pred = torch_network_predict(network, dl, device = "cpu")
+    pred = torch_network_predict(network, dl, device = "cpu")
 
-  expect_class(pred, "torch_tensor")
-  expect_true(ncol(pred) == length(task$class_names))
-  expect_true(nrow(pred) == task$nrow)
-
+    expect_class(pred, "torch_tensor")
+    expect_equal(ncol(pred), ncol)
+    expect_equal(nrow(pred), task$nrow)
+  }
+  check(tsk("iris"), 3)
+  check(tsk("sonar"), 1)
+  check(tsk("mtcars"), 1)
 })
 
 test_that("encode_prediction_default works", {
-  task = tsk("iris")
+  check_classif = function(task, ncol) {
+    pt = torch_rand(task$nrow, output_dim_for(task))
+    pt = pt / torch_sum(pt, 2L)$reshape(c(task$nrow, 1))
 
-  # classif
-  pt = torch_rand(task$nrow, length(task$class_names))
-  pt = pt / torch_sum(pt, 2L)$reshape(c(150, 1))
+    p1 = encode_prediction_default(pt, "response", task)
+    p2 = encode_prediction_default(pt, "prob", task)
 
-  p1 = encode_prediction_default(pt, "response", task)
-  p2 = encode_prediction_default(pt, "prob", task)
+    pd1 = as_prediction_data(p1, task)
+    pd2 = as_prediction_data(p2, task)
 
-  pd1 = as_prediction_data(p1, task)
-  pd2 = as_prediction_data(p2, task)
+    expect_identical(pd1$response, pd2$response)
+    expect_identical(p1$response, p2$response)
+  }
+  check_classif(tsk("iris"), 3)
+  check_classif(tsk("sonar"), 1)
 
-  expect_identical(pd1$response, pd2$response)
-
-  expect_identical(p1$response, p2$response)
+  check_regr = function(task, ncol) {
+    pt = torch_rand(task$nrow, 1)
+    p = encode_prediction_default(pt, "response", task)
+    expect_equal(as.numeric(p$response), as.numeric(pt))
+  }
+  check_regr(tsk("mtcars"), 1)
 })
 
 test_that("Train and predict are reproducible and seeds work as expected", {
@@ -165,4 +175,32 @@ test_that("learner_torch_dataloader_predict works", {
     get_private(learner)$.dataset(task, learner$param_set$values), learner$param_set$values)
   expect_false(dl$drop_last)
   expect_class(dl$batch_sampler$sampler, "utils_sampler_sequential")
+})
+
+test_that("correct prob predictions for classification", {
+  learner = lrn("classif.mlp", batch_size = 150, epochs = 0, device = "cpu", neurons = integer(),
+    predict_type = "prob")
+
+  rr_multi = resample(tsk("iris"), learner, rsmp("cv", folds = 2))
+  pred_multi = rr_multi$prediction()
+  prob_multi = pred_multi$prob
+  expect_prediction_classif(pred_multi)
+  # for each row, give the column name with the highest probability
+  response_multi = apply(prob_multi, 1, function(x) colnames(prob_multi)[which.max(x)])
+  expect_equal(as.character(pred_multi$response), response_multi)
+  # ensure that the response prediction is the one with highest probability
+
+
+  rr_binary = resample(tsk("sonar"), learner, rsmp("cv", folds = 2))
+  pred_binary = rr_binary$prediction()
+  prob_binary = pred_binary$prob
+  expect_prediction_classif(pred_binary)
+  # for each row, give the column name with the highest probability
+  response_binary = apply(prob_binary, 1, function(x) colnames(prob_binary)[which.max(x)])
+  expect_equal(as.character(pred_binary$response), response_binary)
+  # ensure that the response prediction is the one with highest probability
+  # for each row, give the column name with the highest probability
+  response = apply(prob_binary, 1, function(x) colnames(prob_binary)[which.max(x)])
+  expect_equal(as.character(pred_binary$response), response)
+  # ensure that the response prediction is the one with highest probability
 })

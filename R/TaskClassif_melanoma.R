@@ -39,7 +39,6 @@
 #' `r format_bib("melanoma2021")`
 #' @examples
 #' task = tsk("melanoma")
-#' task
 NULL
 
 # @param path (`character(1)`)\cr

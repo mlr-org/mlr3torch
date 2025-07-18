@@ -43,7 +43,7 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   if (is.null(self$optimizer)) stopf("Learner '%s' defines no optimizer", self$id)
   optimizer = self$optimizer$generate(network$parameters)
   if (is.null(self$loss)) stopf("Learner '%s' defines no loss", self$id)
-  loss_fn = self$loss$generate()
+  loss_fn = self$loss$generate(task)
   loss_fn$to(device = param_vals$device)
 
   measures_train = normalize_to_list(param_vals$measures_train)
@@ -164,7 +164,7 @@ train_loop = function(ctx, cbs) {
         y_hat = do.call(forward, ctx$batch$x)
       }
 
-      loss = ctx$loss_fn(y_hat, ctx$batch$y)
+      loss = ctx$loss_fn(ctx$y_hat, ctx$batch$y)
 
       loss$backward()
 
@@ -234,6 +234,9 @@ eval_valid_in_epoch = function(ctx) {
 }
 
 has_one_arg = function(network) {
+  if (inherits(network, "nn_graph")) {
+    return(length(network$input_map) == 1L)
+  }
   fargs = formalArgs(network)
   length(fargs) == 1L && !fargs == "..."
 }
@@ -244,14 +247,14 @@ torch_network_predict_valid = function(ctx, callback_receiver = function(step_na
   one_arg = has_one_arg(network)
   predictions = vector("list", length = length(loader))
   valid_iterator = dataloader_make_iter(loader)
-  ctx$step = 0L
-  while (ctx$step < length(loader)) {
-    ctx$step = ctx$step + 1L
+  ctx$step_valid = 0L
+  while (ctx$step_valid < length(loader)) {
+    ctx$step_valid = ctx$step_valid + 1L
     ctx$batch = dataloader_next(valid_iterator)
     ctx$batch$x = lapply(ctx$batch$x, function(x) x$to(device = ctx$device))
 
     callback_receiver("on_batch_valid_begin")
-    predictions[[ctx$step]] = if (one_arg) {
+    predictions[[ctx$step_valid]] = if (one_arg) {
       with_no_grad(network$forward(ctx$batch$x[[1L]]))
     } else {
       with_no_grad(invoke(network$forward, .args = ctx$batch$x))
@@ -290,7 +293,7 @@ encode_prediction_default = function(predict_tensor, predict_type, task) {
   # Currently this check is done in mlr3torch but should at some point be handled in mlr3 / mlr3pipelines
 
   response = prob = NULL
-  if (task$task_type == "classif") {
+  if (task$task_type == "classif" && "multiclass" %in% task$properties) {
     if (predict_type == "prob") {
       predict_tensor = with_no_grad(nnf_softmax(predict_tensor, dim = 2L))
     }
@@ -298,15 +301,31 @@ encode_prediction_default = function(predict_tensor, predict_type, task) {
     response = as.integer(with_no_grad(predict_tensor$argmax(dim = 2L))$to(device = "cpu"))
 
     predict_tensor = predict_tensor$to(device = "cpu")
-    if (predict_type == "prob") {
+    prob = if (predict_type == "prob") {
       prob = as.matrix(predict_tensor)
       colnames(prob) = task$class_names
-    } else {
-      prob = NULL
+      prob
     }
 
     class(response) = "factor"
     levels(response) = task$class_names
+    return(list(response = response, prob = prob))
+  } else if (task$task_type == "classif") {
+    # binary:
+    # (first factor level is positive class)
+    response = as.integer(with_no_grad(predict_tensor < 0)$to(device = "cpu") + 1)
+    class(response) = "factor"
+    levels(response) = task$class_names
+
+    prob = if (predict_type == "prob") {
+      # convert score to prob
+      predict_tensor = with_no_grad(nnf_sigmoid(predict_tensor))
+      prob = as.numeric(predict_tensor)
+      prob = as.matrix(data.frame(prob, 1 - prob))
+      colnames(prob) = task$class_names
+      prob
+    }
+
     return(list(response = response, prob = prob))
   } else if (task$task_type == "regr") {
     if (predict_type == "response") {
@@ -317,7 +336,6 @@ encode_prediction_default = function(predict_tensor, predict_type, task) {
   } else {
     stopf("Invalid task_type.")
   }
-
 }
 
 
@@ -327,13 +345,16 @@ measure_prediction = function(pred_tensor, measures, task, row_ids, prediction_e
   }
 
   prediction = prediction_encoder(predict_tensor = pred_tensor, task = task)
-  prediction = as_prediction_data(prediction, task = task, check = TRUE, row_ids = row_ids)
-  prediction = as_prediction(prediction, task = task)
+  prediction = as_prediction_data(prediction, task = task, check = FALSE, row_ids = row_ids)
+  prediction = as_prediction(prediction, task = task, check = FALSE)
 
   lapply(
     measures,
     function(measure) {
-      measure$score(prediction, task = task, train_set = task$row_roles$use)
+      tryCatch(
+        measure$score(prediction, task = task, train_set = task$row_roles$use),
+        error = function(e) NaN
+      )
     }
   )
 }

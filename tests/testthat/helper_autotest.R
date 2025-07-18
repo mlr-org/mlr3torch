@@ -80,7 +80,6 @@ expect_pipeop_torch = function(graph, id, task, module_class = id, exclude_args 
   # We need to match the names out the output A1 to the names of A and then get the input channels of B
   # (which is the pipeop we are testing)
 
-
   # input pointer (for po_test)
   ip = pmap(graph$edges[get("dst_id") == id, list(x = get("src_id"), y = get("src_channel"))], function(x, y) c(x, y))
 
@@ -88,7 +87,6 @@ expect_pipeop_torch = function(graph, id, task, module_class = id, exclude_args 
   op = pmap(graph$output[, c("op.id", "channel.name")], function(op.id, channel.name) c(op.id, channel.name)) # nolint
   pointers = append(ip, op)
   net = model_descriptor_to_module(md, output_pointers = pointers, list_output = TRUE)$to(device = "cpu")
-
 
   ds = task_dataset(task, md$ingress)
   batch = ds$.getbatch(1)
@@ -309,10 +307,40 @@ expect_torch_callback = function(torch_callback, check_man = TRUE, check_paramse
     paramtest = expect_paramset(torch_callback$param_set, init_fn)
     expect_paramtest(paramtest)
   }
-  implemented_stages = names(cbgen$public_methods)[grepl("^on_", names(cbgen$public_methods))]
+
+  get_all_implemented_stages = function(cbgen) {
+    implemented_stages = character(0)
+    current_gen = cbgen
+
+    while (!is.null(current_gen)) {
+      current_stages = names(current_gen$public_methods)[grepl("^on_", names(current_gen$public_methods))]
+      implemented_stages = union(implemented_stages, current_stages)
+
+      current_gen = current_gen$get_inherit()
+    }
+
+    return(implemented_stages)
+  }
+  
+  implemented_stages = get_all_implemented_stages(cbgen)
   expect_subset(implemented_stages, mlr_reflections$torch$callback_stages)
   expect_true(length(implemented_stages) > 0)
-  walk(implemented_stages, function(stage) expect_function(cbgen$public_methods[[stage]], nargs = 0))
+
+  check_stage_function = function(stage, cbgen) {
+    current_gen = cbgen
+
+    while (!is.null(current_gen)) {
+      if (stage %in% names(current_gen$public_methods)) {
+        expect_function(current_gen$public_methods[[stage]], nargs = 0)
+        return()
+      }
+      current_gen = current_gen$get_inherit()
+    }
+  }
+
+  walk(implemented_stages, function(stage) {
+    check_stage_function(stage, cbgen)
+  })
 
   cb = torch_callback$generate()
   expect_deep_clone(cb, cb$clone(deep = TRUE))
@@ -441,13 +469,15 @@ expect_learner_torch = function(learner, task, check_man = TRUE, check_id = TRUE
   learner1 = learner
   learner1$state = NULL
   expect_deep_clone(learner1, learner1$clone(deep = TRUE))
-  rr = resample(task, learner, rsmp("holdout"))
+  rr = resample(task, learner, rsmp("holdout"), store_models = TRUE)
   expect_double(rr$aggregate())
   checkmate::expect_class(rr, "ResampleResult")
   if (check_id) testthat::expect_true(startsWith(learner$id, learner$task_type))
   checkmate::expect_subset(c("loss", "optimizer", "callbacks"), formalArgs(learner$initialize))
   checkmate::expect_subset(c("mlr3", "mlr3torch", "torch"), learner$packages)
   testthat::expect_true(all(map_lgl(learner$tags, function(tags) "predict" %in% tags || "train" %in% tags)))
+
+  learner = rr$learners[[1L]]
 
   learner$param_set$set_values(device = "cpu")
   ds = learner$dataset(task)
@@ -460,8 +490,28 @@ expect_learner_torch = function(learner, task, check_man = TRUE, check_id = TRUE
   testthat::expect_true(batch$y$device == torch_device("cpu"))
   if (task$task_type == "regr") {
     testthat::expect_true(batch$y$dtype == torch_float())
-  } else {
+  } else if (task$task_type == "classif" && "twoclass" %in% task$properties) {
+    testthat::expect_true(batch$y$dtype == torch_float())
+  } else if (task$task_type == "classif") {
     testthat::expect_true(batch$y$dtype == torch_long())
+  } else {
+    stopf("Task type %s not yet implemented", task$task_type)
   }
   testthat::expect_true(batch$.index$dtype == torch_long())
+
+  pred = if (length(batch$x) == 1L) {
+    invoke(learner$model$network, .args = unname(batch$x))
+  } else {
+    invoke(learner$model$network, .args = batch$x)
+  }
+
+  if (task$task_type == "classif" && "twoclass" %in% task$properties) {
+    testthat::expect_equal(pred$shape, c(1, 1))
+  } else if (task$task_type == "classif") {
+    testthat::expect_equal(pred$shape, c(1, length(task$class_names)))
+  } else if (task$task_type == "regr") {
+    testthat::expect_equal(pred$shape, c(1, 1))
+  } else {
+    stopf("Task type %s not yet implemented", task$task_type)
+  }
 }

@@ -27,16 +27,4 @@ test_that("TorchDescriptor basic checks", {
     "* Packages: R6,torch,mlr3torch"
   )
   expect_identical(observed, expected)
-
-  expect_error(TorchDescriptor$new(
-    generator = nn_mse_loss,
-    id = "mse",
-    param_set = ps(reduction = p_uty(), x = p_uty()),
-    packages = "R6",
-    label = "MSE Loss",
-    man = "torch::nn_mse_loss"
-    ),
-    regexp = "Parameter values with ids 'x' are missing in generator.",
-    fixed = TRUE
-    )
 })

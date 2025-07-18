@@ -35,7 +35,7 @@ lrn("regr.module", ...)
 nn_one_layer = nn_module("nn_one_layer",
   initialize = function(task, size_hidden) {
     self$first = nn_linear(task$n_features, size_hidden)
-    self$second = nn_linear(size_hidden, length(task$class_names))
+    self$second = nn_linear(size_hidden, output_dim_for(task))
   },
   # argument x corresponds to the ingress token x
   forward = function(x) {
@@ -58,6 +58,7 @@ learner$network
 }
 \seealso{
 Other Learner: 
+\code{\link{mlr_learners.ft_transformer}},
 \code{\link{mlr_learners.mlp}},
 \code{\link{mlr_learners.tab_resnet}},
 \code{\link{mlr_learners.torch_featureless}},
@@ -66,6 +67,7 @@ Other Learner:
 \code{\link{mlr_learners_torch_model}}
 
 Other Learner: 
+\code{\link{mlr_learners.ft_transformer}},
 \code{\link{mlr_learners.mlp}},
 \code{\link{mlr_learners.tab_resnet}},
 \code{\link{mlr_learners.torch_featureless}},
@@ -120,7 +122,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   loss = NULL,
   callbacks = list(),
   packages = character(0),
-  feature_types = NULL
+  feature_types = NULL,
+  predict_types = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -168,6 +171,10 @@ The R packages this object depends on.}
 
 \item{\code{feature_types}}{(\code{NULL} or \code{character()})\cr
 The feature types. Defaults to all available feature types.}
+
+\item{\code{predict_types}}{(\code{character()})\cr
+The predict types.
+See \code{\link[mlr3:mlr_reflections]{mlr_reflections$learner_predict_types}} for available values.}
 }
 \if{html}{\out{</div>}}
 }

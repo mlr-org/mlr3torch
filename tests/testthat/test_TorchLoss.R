@@ -13,8 +13,8 @@ test_that("Basic Checks", {
   expect_true(torchloss$task_types == "classif")
   expect_set_equal(torchloss$param_set$ids(), formalArgs(torch::nn_cross_entropy_loss))
 
-  expect_error(torchloss$generate(),
-    regexp = "The following packages could not be loaded: mypackage", fixed = TRUE
+  expect_error(torchloss$generate(tsk("iris")),
+    regexp = "The following packages could not be loaded: mypackage"
   )
 
   torchloss1 = TorchLoss$new(
@@ -32,10 +32,6 @@ test_that("Basic Checks", {
   expect_class(loss, c("nn_cross_entropy_loss", "nn_module"))
   expect_true(loss$ignore_index == 123)
 
-  expect_error(TorchLoss$new(torch::nn_mse_loss, id = "mse", task_types = "regr", param_set = ps(par = p_uty())),
-    regexp = "Parameter values with ids 'par' are missing in generator.", fixed = TRUE
-  )
-
   torchloss2 = TorchLoss$new(torch::nn_mse_loss, id = "mse", task_types = "regr", param_set = ps(reduction = p_uty()))
 
   expect_equal(torchloss2$param_set$ids(), "reduction")
@@ -46,7 +42,7 @@ test_that("Basic Checks", {
 test_that("dictionary retrieval works", {
   torchloss = t_loss("cross_entropy", ignore_index = 1)
   expect_class(torchloss, "TorchLoss")
-  expect_class(torchloss$generator, "nn_cross_entropy_loss")
+  expect_class(torchloss$generator, "function")
   expect_equal(torchloss$param_set$values$ignore_index, 1)
 
   torchlosses = t_losses(c("cross_entropy", "mse"))
@@ -74,7 +70,7 @@ test_that("Printer works", {
 
   expected = c(
     "<TorchLoss:cross_entropy> Cross Entropy",
-    "* Generator: nn_cross_entropy_loss",
+    "* Generator: function",
     "* Parameters: list()",
     "* Packages: torch,mlr3torch",
     "* Task Types: classif"
@@ -129,15 +125,6 @@ test_that("Parameter test: l1", {
   expect_paramtest(res)
 })
 
-test_that("Parameter test: cross_entropy", {
-  loss = t_loss("cross_entropy")
-  param_set = loss$param_set
-  fn = loss$generator
-  # ignore_index has param
-  res = expect_paramset(param_set, fn)
-  expect_paramtest(res)
-})
-
 test_that("phash works", {
   expect_equal(t_loss("mse", reduction = "mean")$phash, t_loss("mse", reduction = "sum")$phash)
   expect_false(t_loss("mse")$phash == t_loss("l1")$phash)
@@ -162,4 +149,40 @@ test_that("all regr losses can be used to train", {
   for (loss_id in regr_losses) {
     expect_learner(lrn("regr.mlp", loss = t_loss(loss_id), epochs = 1L, batch_size = 1L)$train(task))
   }
+})
+
+test_that("cross entropy", {
+  loss_binary = t_loss("cross_entropy")
+  loss_multi = t_loss("cross_entropy")
+
+  tsk_binary = tsk("iris")$filter(1:100)$droplevels()
+  tsk_multi = tsk("iris")
+
+  expect_class(fn <<- loss_binary$generate(tsk_binary), "nn_bce_with_logits_loss")
+  expect_equal(fn, nn_bce_with_logits_loss())
+
+  loss_binary$param_set$set_values(class_weight = torch_tensor(1))
+  expect_class(fn <<- loss_binary$generate(tsk_binary), "nn_bce_with_logits_loss")
+  expect_equal(fn, nn_bce_with_logits_loss(pos_weight = 1))
+
+  loss_binary$param_set$set_values(ignore_index = 1)
+  expect_error(loss_binary$generate(tsk_binary), "ignore_index is not supported for binary cross entropy loss")
+  loss_binary$param_set$set_values(ignore_index = NULL, reduction = "sum")
+  expect_class(loss_binary$generate(tsk_binary), "nn_bce_with_logits_loss")
+
+  l_multi = loss_multi$generate(tsk_multi)
+  expect_class(fn <- l_multi, "nn_cross_entropy_loss")
+  expect_equal(fn, nn_cross_entropy_loss())
+
+  loss_multi$param_set$set_values(class_weight = torch_tensor(1))
+  expect_class(fn <<- loss_multi$generate(tsk_multi), "nn_cross_entropy_loss")
+  expect_equal(fn, nn_cross_entropy_loss(weight = 1))
+
+  loss_multi$param_set$set_values(ignore_index = 3)
+  expect_class(fn <- loss_multi$generate(tsk_multi), "nn_cross_entropy_loss")
+  expect_equal(fn, nn_cross_entropy_loss(ignore_index = 3))
+
+  loss_multi$param_set$set_values(ignore_index = NULL, reduction = "sum")
+  expect_class(fn <- loss_multi$generate(tsk_multi), "nn_cross_entropy_loss")
+  expect_equal(fn, nn_cross_entropy_loss(reduction = "sum"))
 })

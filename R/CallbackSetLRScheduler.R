@@ -10,7 +10,7 @@
 #' * [torch::lr_cosine_annealing()]
 #' * [torch::lr_lambda()]
 #' * [torch::lr_multiplicative()]
-#' * [torch::lr_one_cycle()]
+#' * [torch::lr_one_cycle()] (where the default values for `epochs` and `steps_per_epoch` are the number of training epochs and the number of batches per epoch)
 #' * [torch::lr_reduce_on_plateau()]
 #' * [torch::lr_step()]
 #' * Custom schedulers defined with [torch::lr_scheduler()].
@@ -18,7 +18,9 @@
 #' @param .scheduler (`lr_scheduler_generator`)\cr
 #'   The `torch` scheduler generator (e.g. `torch::lr_step`).
 #' @param ... (any)\cr
-#'   The scheduler-specific arguments
+#'   The scheduler-specific initialization arguments.
+#' @param step_on_epoch (`logical(1)`)\cr
+#'   Whether the scheduler steps after every epoch (otherwise every batch).
 #'
 #' @export
 CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
@@ -33,14 +35,13 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
     scheduler = NULL,
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
-    #' @param step_on_epoch (`logical(1)`)\cr
-    #'   Whether the scheduler steps after every epoch (otherwise every batch).
     initialize = function(.scheduler, step_on_epoch, ...) {
       assert_class(.scheduler, "lr_scheduler_generator")
       assert_flag(step_on_epoch)
 
       self$scheduler_fn = .scheduler
       private$.scheduler_args = list(...)
+
       if (step_on_epoch) {
         self$on_epoch_end = function() self$scheduler$step()
       } else {
@@ -55,6 +56,77 @@ CallbackSetLRScheduler = R6Class("CallbackSetLRScheduler",
   ),
   private = list(
     .scheduler_args = NULL
+  )
+)
+
+#' @title OneCycle Learning Rate Scheduling Callback
+#'
+#' @name mlr_callback_set.lr_scheduler_one_cycle
+#'
+#' @description
+#' Changes the learning rate based on the 1cycle learning rate policy.
+#'
+#' Wraps [torch::lr_one_cycle()], where the default values for `epochs` and `steps_per_epoch` are the number of training epochs and the number of batches per epoch.
+#'
+#' @param ... (any)\cr
+#'   The scheduler-specific initialization arguments.
+#'
+#' @export
+CallbackSetLRSchedulerOneCycle = R6Class("CallbackSetLRSchedulerOneCycle",
+  inherit = CallbackSetLRScheduler,
+  lock_objects = FALSE,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    initialize = function(...) {
+      super$initialize(
+        .scheduler = torch::lr_one_cycle,
+        step_on_epoch = FALSE,
+        ...
+        )
+    },
+    #' @description
+    #' Creates the scheduler using the optimizer from the context
+    on_begin = function() {
+      private$.scheduler_args = insert_named(
+        private$.scheduler_args,
+        list(epochs = self$ctx$total_epochs, steps_per_epoch = self$ctx$loader_train$.length())
+      )
+
+      self$scheduler = invoke(self$scheduler_fn, optimizer = self$ctx$optimizer, .args = private$.scheduler_args)
+    }
+  )
+)
+
+#' @title Reduce On Plateau Learning Rate Scheduler
+#'
+#' @name mlr_callback_set.lr_scheduler_reduce_on_plateau
+#'
+#' @description
+#' Reduces the learning rate when the first validation metric stops improving for `patience` epochs.
+#' Wraps [torch::lr_reduce_on_plateau()]
+#'
+#' @param ... (any)\cr
+#'   The scheduler-specific initialization arguments.
+#'
+#' @export
+CallbackSetLRSchedulerReduceOnPlateau = R6Class("CallbackSetLRSchedulerReduceOnPlateau",
+  inherit = CallbackSetLRScheduler,
+  lock_objects = FALSE,
+  public = list(
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    initialize = function(...) {
+      super$initialize(
+        .scheduler = torch::lr_reduce_on_plateau,
+        step_on_epoch = TRUE,
+        ...
+      )
+
+      self$on_epoch_end = function() {
+        self$scheduler$step(self$ctx$last_scores_valid[[1L]])
+      }
+    }
   )
 )
 
@@ -90,7 +162,7 @@ mlr3torch_callbacks$add("lr_lambda", function() {
       last_epoch = p_int(default = -1, tags = "train"),
       verbose = p_lgl(default = FALSE, tags = "train")
     ),
-    id = "lr_scheduler",
+    id = "lr_lambda",
     label = "Multiplication by Function LR Scheduler",
     man = "mlr3torch::mlr_callback_set.lr_scheduler",
     additional_args = list(.scheduler = torch::lr_lambda, step_on_epoch = TRUE)
@@ -116,7 +188,7 @@ mlr3torch_callbacks$add("lr_multiplicative", function() {
 #' @include TorchCallback.R
 mlr3torch_callbacks$add("lr_one_cycle", function() {
   TorchCallback$new(
-    callback_generator = CallbackSetLRScheduler,
+    callback_generator = CallbackSetLRSchedulerOneCycle,
     param_set = ps(
       max_lr = p_uty(tags = c("train", "required"), custom_check = function(x) check_class_or_list(x, "numeric")),
       total_steps = p_int(default = NULL, special_vals = list(NULL), tags = "train"),
@@ -132,16 +204,15 @@ mlr3torch_callbacks$add("lr_one_cycle", function() {
       verbose = p_lgl(default = FALSE, tags = "train")
     ),
     id = "lr_one_cycle",
-    label = "1cyle LR Scheduler",
-    man = "mlr3torch::mlr_callback_set.lr_scheduler",
-    additional_args = list(.scheduler = torch::lr_one_cycle, step_on_epoch = FALSE)
+    label = "1cycle LR Scheduler",
+    man = "mlr3torch::mlr_callback_set.lr_scheduler"
   )
 })
 
 #' @include TorchCallback.R
 mlr3torch_callbacks$add("lr_reduce_on_plateau", function() {
   TorchCallback$new(
-    callback_generator = CallbackSetLRScheduler,
+    callback_generator = CallbackSetLRSchedulerReduceOnPlateau,
     param_set = ps(
       mode = p_fct(default = "min", levels = c("min", "max"), tags = "train"),
       factor = p_dbl(default = 0.1, tags = "train"),
@@ -155,8 +226,7 @@ mlr3torch_callbacks$add("lr_reduce_on_plateau", function() {
     ),
     id = "lr_reduce_on_plateau",
     label = "Reduce on Plateau LR Scheduler",
-    man = "mlr3torch::mlr_callback_set.lr_scheduler",
-    additional_args = list(.scheduler = torch::lr_reduce_on_plateau, step_on_epoch = TRUE)
+    man = "mlr3torch::mlr_callback_set.lr_scheduler"
   )
 })
 
