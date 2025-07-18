@@ -1,0 +1,63 @@
+
+==========
+== CUDA ==
+==========
+
+CUDA Version 12.4.1
+
+Container image Copyright (c) 2016-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
+This container image and its contents are governed by the NVIDIA Deep Learning Container License.
+By pulling and using the container, you accept the terms and conditions of this license:
+https://developer.nvidia.com/ngc/nvidia-deep-learning-container-license
+
+A copy of this license is made available in this container at /NGC-DL-CONTAINER-LICENSE for your convenience.
+
+# Setting HTTP User Agent to identify OS, such that P3M can detect compatibility
+options(HTTPUserAgent = sprintf("R/%s R (%s)", getRversion(), paste(getRversion(), R.version["platform"], R.version["arch"], R.version["os"])))
+
+# Ensure curl is used for downloading packages
+options(download.file.method = "curl")
+
+# Enable verbose output for curl and again set HHTP user agent
+options(download.file.extra = paste(
+  # Follow redirects, show errors, and display the HTTP status and URL
+  '-fsSL -w "%{stderr}curl: HTTP %{http_code} %{url_effective}\n"',
+  # Configure the R user agent header to install Linux binary packages
+  sprintf('--header "User-Agent: R (%s)"', paste(getRversion(), R.version["platform"], R.version["arch"], R.version["os"]))
+))
+
+# Package manager configuration
+options(
+    repos = c(CRAN = Sys.getenv("RSPM"))
+)
+
+.libPaths("/root/R/x86_64-pc-linux-gnu-library/4.5")
+
+Attaching package: ‘mlr3misc’
+
+The following object is masked from ‘package:batchtools’:
+
+    chunk
+
+Sourcing configuration file '/dss/dsshome1/lxc0C/ru48nas2/mlr3torch/paper/batchtools.conf.R' ...
+Loading required package: checkmate
+Created registry in '~/torchbenchmark' using cluster functions 'Interactive'
+Exporting new objects: 'time_rtorch' ...
+Adding problem 'runtime_train'
+Adding algorithm 'pytorch'
+Adding algorithm 'rtorch'
+Adding algorithm 'mlr3torch'
+Adding 192 experiments ('runtime_train'[48] x 'rtorch'[2] x repls[2]) ...
+Adding 192 experiments ('runtime_train'[48] x 'mlr3torch'[2] x repls[2]) ...
+Adding 192 experiments ('runtime_train'[48] x 'pytorch'[2] x repls[2]) ...
+Adding 192 experiments ('runtime_train'[48] x 'rtorch'[2] x repls[2]) ...
+Adding 192 experiments ('runtime_train'[48] x 'mlr3torch'[2] x repls[2]) ...
+Adding 192 experiments ('runtime_train'[48] x 'pytorch'[2] x repls[2]) ...
+Submitting 1152 jobs in 1152 chunks using cluster functions 'Interactive' ...
+Error in gzfile(file, mode) : cannot open the connection
+Calls: source ... submitJobs -> saveRegistry -> writeRDS -> saveRDS -> gzfile
+In addition: Warning message:
+In gzfile(file, mode) :
+  cannot open compressed file '/dss/dsshome1/lxc0C/ru48nas2/torchbenchmark/registry.new.rds', probable reason 'No such file or directory'
+Execution halted

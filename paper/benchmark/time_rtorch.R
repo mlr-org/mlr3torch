@@ -24,7 +24,6 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
   Y = X$matmul(beta) + torch_randn(n, 1, device = device) * 0.1^2
 
   net = make_network(p, latent, n_layers)
-  net$to(device = device)
 
   opt_class = switch(optimizer,
     "ignite_adamw" = optim_ignite_adamw,
@@ -36,13 +35,11 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
 
   loss_fn = nn_mse_loss()
   net_parameters = net$parameters
-  if (jit) {
-    net = if (mlr3torch) {
-      jit_trace(net, torch_randn(1, p, device = device), respect_mode = TRUE)
-    } else {
-      jit_trace(net, torch_randn(1, p, device = device), respect_mode = TRUE)$trainforward
-    }
+  if (jit && !mlr3torch) {
+    net = jit_trace(net, torch_randn(1, p), respect_mode = TRUE)
   }
+
+  net$to(device = device)
 
   steps = ceiling(n / batch_size)
 
@@ -115,7 +112,7 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
 
     function(epochs) {
       learner$.__enclos_env__$private$.network_stored = net
-      learner$configure(epochs = epochs, callbacks = timer)
+      learner$configure(epochs = epochs, callbacks = timer, jit_trace = jit)
       learner$train(task)
       ts = learner$model$callbacks$timer
       as.numeric(difftime(ts[2], ts[1], units = "secs"))

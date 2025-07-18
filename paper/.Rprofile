@@ -17,4 +17,4 @@ options(
     repos = c(CRAN = Sys.getenv("RSPM"))
 )
 
-.libPaths("/root/R/x86_64-pc-linux-gnu-library/4.5")'
+.libPaths("/root/R/x86_64-pc-linux-gnu-library/4.5")

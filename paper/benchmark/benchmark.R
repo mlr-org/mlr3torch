@@ -1,17 +1,13 @@
 library(batchtools)
 library(mlr3misc)
 
-if (dir.exists("~/torchbenchmark2")) {
-  unlink("~/torchbenchmark2", recursive = TRUE)
-}
-
 reg = makeExperimentRegistry(
-  file.dir = "~/torchbenchmark2",
-  packages = c("checkmate")
+  file.dir = here::here("paper", "benchmark", "registry"),
+  packages = "checkmate"
 )
+reg$cluster.functions = makeClusterFunctionsInteractive()
 
-# this defines the time_pytorch function
-source("~/torchbench/time_rtorch.R")
+source(here::here("paper/benchmark/time_rtorch.R"))
 
 batchExport(list(
   time_rtorch = time_rtorch
@@ -42,8 +38,8 @@ addAlgorithm("pytorch",
     f = function(...) {
       library(reticulate)
       x = try({
-        reticulate::use_condaenv("mlr3torch", required = TRUE)
-        reticulate::source_python("~/torchbench/time_pytorch.py")
+        reticulate::use_python("/usr/bin/python3", required = TRUE)
+        reticulate::source_python(here::here("paper/benchmark/time_pytorch.py"))
         print(reticulate::py_config())
         time_pytorch(...)
       }, silent = TRUE)
@@ -72,8 +68,8 @@ addAlgorithm("mlr3torch",
     if (opt_type == "ignite") {
       instance$optimizer = paste0("ignite_", instance$optimizer)
     }
-    #do.call(time_rtorch, args = c(instance, list(seed = job$seed, mlr3torch = TRUE, jit = jit)))
-    callr::r(time_rtorch, args = c(instance, list(seed = job$seed, mlr3torch = TRUE, jit = jit)))
+    do.call(time_rtorch, args = c(instance, list(seed = job$seed, mlr3torch = TRUE, jit = jit)))
+    #callr::r(time_rtorch, args = c(instance, list(seed = job$seed, mlr3torch = TRUE, jit = jit)))
   }
 )
 
@@ -159,56 +155,4 @@ addExperiments(
   repls = REPLS
 )
 
-
-# ignite vs non-ignite
-# here we don't need to run so many experiments, just need to show that one is clearly faster
-
-#problem_design = expand.grid(list(
-#  n          = N,
-#  p          = P,
-#  epochs = EPOCHS,
-#  latent = c(1000, 2500, 5000),
-#  optimizer = c("sgd", "adamw"),
-#  batch_size = 32L,
-#  device     = c("cpu", "cuda"),
-#  n_layers = 16L
-#), stringsAsFactors = FALSE)
-#
-#addExperiments(
-#  prob.designs = list(
-#    runtime_train = problem_design
-#  ),
-#  algo.designs = list(
-#    rtorch = data.frame(
-#      jit = FALSE,
-#      opt_type = c("standard", "ignite"),
-#      tag = "ignite_exp"
-#    ),
-#    mlr3torch = data.frame(
-#      jit = FALSE,
-#      opt_type = c("standard", "ignite"),
-#      tag = "ignite_exp"
-#    )
-#  ),
-#  repls = REPLS
-#)
-#
-get_result = function(ids, what) {
-  if (is.null(ids)) ids = findDone()[[1]]
-  sapply(ids, function(i) {
-    res = loadResult(i)[[what]]
-    if (is.null(res)) return(NA)
-    res
-  })
-}
-
-summarize = function(ids = NULL) {
-  jt = getJobTable() |> unwrap()
-  if (!is.null(ids)) jt = jt[ids, ]
-  jt = jt[, c("n_layers", "jit", "optimizer", "batch_size", "device", "opt_type", "algorithm", "repl", "tag", "latent", "epochs", "n", "p")]
-  jt$time_total = get_result(ids, "time")
-  jt$time_per_batch = jt$time_total / (ceiling(jt$n / jt$batch_size) * jt$epochs)
-  jt$loss = get_result(ids, "loss")
-  jt$memory = get_result(ids, "memory") / 2^30
-  return(jt)
-}
+submitJobs(1)
