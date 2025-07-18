@@ -29,7 +29,7 @@ learner_torch_train = function(self, private, super, task, param_vals) {
 
   network = private$.network(task, param_vals)
   network$to(device = param_vals$device)
-  if (param_vals$jit_trace && !inherits(network, "script_module")) {
+  if (isTRUE(param_vals$jit_trace) && !inherits(network, "script_module")) {
     example = get_example_batch(loader_train)$x
     example = lapply(example, function(x) x$to(device = param_vals$device))
     # tracer requires arguments to be passed by name
@@ -157,9 +157,9 @@ train_loop = function(ctx, cbs) {
       call("on_batch_begin")
 
       if (length(ctx$batch$x) == 1L) {
-        y_hat = ctx$network(ctx$batch$x[[1L]])
+        ctx$y_hat = ctx$network(ctx$batch$x[[1L]])
       } else {
-        y_hat = do.call(ctx$network, ctx$batch$x)
+        ctx$y_hat = do.call(ctx$network, ctx$batch$x)
       }
 
       loss = ctx$loss_fn(ctx$y_hat, ctx$batch$y)
@@ -170,7 +170,7 @@ train_loop = function(ctx, cbs) {
 
       ctx$last_loss = loss$item()
       if (eval_train) {
-        predictions[[length(predictions) + 1]] = y_hat$detach()
+        predictions[[length(predictions) + 1]] = ctx$y_hat$detach()
         indices[[length(indices) + 1]] = as.integer(ctx$batch$.index$to(device = "cpu"))
       }
       ctx$optimizer$step()
