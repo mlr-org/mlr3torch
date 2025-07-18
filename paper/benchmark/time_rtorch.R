@@ -34,7 +34,6 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
 
 
   loss_fn = nn_mse_loss()
-  net_parameters = net$parameters
   if (jit && !mlr3torch) {
     net = jit_trace(net, torch_randn(1, p), respect_mode = TRUE)
   }
@@ -57,7 +56,7 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
 
 
     function(epochs) {
-      opt = opt_class(net_parameters, lr = lr)
+      opt = opt_class(net$parameters, lr = lr)
       dataloader = torch::dataloader(dataset, batch_size = batch_size, shuffle = FALSE)
       t0 = Sys.time()
       for (epoch in seq(epochs)) {
@@ -117,7 +116,7 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
       ts = learner$model$callbacks$timer
       as.numeric(difftime(ts[2], ts[1], units = "secs"))
     }
-    
+
   }
 
   eval_run = function() {

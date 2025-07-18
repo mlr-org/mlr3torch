@@ -21,17 +21,6 @@ RUN curl -Ls https://github.com/r-lib/rig/releases/download/latest/rig-linux-lat
   rm -rf /tmp/rig && \
   apt-get clean
 
-# ---------- R defaults: PPM + binaries-only ----------
-COPY .Rprofile /etc/R/Rprofile.site
-
-# -------- install R packages
-RUN R -q -e "install.packages('torch'); torch::install_torch()"
-RUN R -q -e "install.packages('mlr3torch')"
-RUN R -q -e "install.packages('mlr3mbo')"
-RUN R -q -e "install.packages('torchdatasets')"
-RUN R -q -e "install.packages('mlr3viz')"
-RUN R -q -e "install.packages('batchtools')"
-
 # -------- install Python and pip packages --------
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -43,5 +32,18 @@ RUN apt-get update && \
 RUN pip3 install \
     torch --index-url https://download.pytorch.org/whl/cu124 \
     numpy
+
+# ---------- R defaults: PPM + binaries-only ----------
+COPY .Rprofile /etc/R/Rprofile.site
+
+# -------- install R packages
+RUN R -q -e "install.packages('torch'); torch::install_torch()"
+RUN R -q -e "install.packages('mlr3mbo')"
+RUN R -q -e "install.packages('torchdatasets')"
+RUN R -q -e "install.packages('mlr3viz')"
+RUN R -q -e "install.packages('batchtools')"
+RUN R -q -e "install.packages('here')"
+RUN R -q -e "install.packages('reticulate')"
+RUN R -q -e "install.packages('mlr3torch')"
 
 CMD ["bash"]
