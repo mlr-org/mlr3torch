@@ -11,9 +11,5 @@
 #' # is the same as:
 #' po2 = nn("linear")
 nn = function(.key, ...) {
-  args = list(...)
-  if (is.null(args$id)) {
-    args$id = .key
-  }
-  invoke(po, .obj = paste0("nn_", .key), .args = args)
+  invoke(po, .obj = paste0("nn_", .key), id = .key, ...)
 }
