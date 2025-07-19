@@ -275,6 +275,23 @@ order_named_args = function(f, l) {
   l2
 }
 
+get_forward = function(net) {
+  if (inherits(net, "script_module")) {
+    is_training = net$is_training
+    trainforward = net$trainforward
+    evalforward = net$evalforward
+    function(...) {
+      if (is_training()) {
+        trainforward(...)
+      } else {
+        evalforward(...)
+      }
+    }
+  } else {
+    net$forward
+  }
+}
+
 
 
 #' @title Network Output Dimension
