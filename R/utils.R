@@ -292,6 +292,7 @@ get_forward = function(net) {
   }
 }
 
+
 #' @title Network Output Dimension
 #' @description
 #' Calculates the output dimension of a neural network for a given task that is expected by

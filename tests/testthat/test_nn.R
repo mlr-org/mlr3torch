@@ -23,3 +23,7 @@ test_that("unnamed arg", {
   expect_equal(network$module_list[[1]]$out_features, 3)
   expect_equal(network$module_list[[2]]$out_features, 3)
 })
+
+test_that("nn works with cov", {
+  expect_equal(nn("conv3d")$id, "conv3d")
+})

@@ -44,6 +44,7 @@ RUN R -q -e "install.packages('mlr3viz')"
 RUN R -q -e "install.packages('batchtools')"
 RUN R -q -e "install.packages('here')"
 RUN R -q -e "install.packages('reticulate')"
-RUN R -q -e "install.packages('mlr3torch')"
+RUN R -q -e "install.packages('remotes')"
+RUN R -q -e "remotes::install_github('mlr-org/mlr3torch@53c0262')"
 
 CMD ["bash"]
