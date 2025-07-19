@@ -42,7 +42,7 @@ def time_pytorch(epochs, batch_size, n_layers, latent, n, p, device, seed, optim
     if jit:
         net = torch.jit.script(net)
 
-    lr = 0.001
+    lr = 0.0001
 
     # Define optimizer and loss function
     if optimizer == "adamw":

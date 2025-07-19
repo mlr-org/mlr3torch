@@ -4,7 +4,7 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
   torch_set_num_threads(1)
   torch_manual_seed(seed)
 
-  lr = 0.001
+  lr = 0.0001
 
   make_network = function(p, latent, n_layers) {
     if (n_layers == 0) return(nn_linear(p, 1))

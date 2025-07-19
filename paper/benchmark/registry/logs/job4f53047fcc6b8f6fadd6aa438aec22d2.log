@@ -1,0 +1,10 @@
+### [bt]: This is batchtools v0.9.17
+### [bt]: Starting calculation of 1 jobs
+### [bt]: Setting working directory to '/dss/dsshome1/lxc0C/ru48nas2/mlr3torch/paper'
+### [bt]: Memory measurement disabled
+### [bt]: Starting job [batchtools job.id=246]
+### [bt]: Generating problem instance for problem 'runtime_train' ...
+### [bt]: Applying algorithm 'mlr3torch' on problem 'runtime_train' for job 246 (seed = 8768) ...
+
+### [bt]: Job terminated successfully [batchtools job.id=246]
+### [bt]: Calculation finished!

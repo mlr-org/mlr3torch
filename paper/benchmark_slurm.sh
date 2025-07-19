@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=mlr3torch-benchmark
-#SBATCH --partition=mcml-dgx-a100-40x8
+#SBATCH --partition=mcml-hgx-a100-80x4
 #SBATCH --gres=gpu:1
 #SBATCH --qos=mcml
 #SBATCH --ntasks=1
