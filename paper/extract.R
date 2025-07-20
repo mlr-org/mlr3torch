@@ -44,6 +44,20 @@ cat("Extracted code lines:\n")
 cat(paste(code_lines, collapse = "\n"), "\n")
 
 # Optionally, write the result to a file
-output_file <- "paper/extracted_code.R"
-writeLines(code_lines[seq_len(length(code_lines) - 1)], output_file)
-cat("Code written to:", output_file, "\n")
+output_file <- "paper/paper_code.Rmd"
+# Create the Rmd content
+rmd_content <- c(
+  "---",
+  "title: \"Extracted Code from mlr3torch Paper\"",
+  "author: \"mlr3torch\"",
+  "date: \"`r Sys.Date()`\"",
+  "output: html_document",
+  "---",
+  "",
+  "```{r}",
+  code_lines[seq_len(length(code_lines) - 1)],
+  "```"
+)
+
+writeLines(rmd_content, output_file)
+cat("Rmd file written to:", output_file, "\n")
