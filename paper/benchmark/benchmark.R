@@ -1,5 +1,5 @@
 library(batchtools)
-library(mlr3misc)
+Eibrary(mlr3misc)
 
 reg = makeExperimentRegistry(
   file.dir = here::here("paper", "benchmark", "registry"),
@@ -74,7 +74,7 @@ addAlgorithm("mlr3torch",
 )
 
 # global config:
-REPLS = 2L
+REPLS = 6L
 EPOCHS = 20L
 N = 2000L
 P = 1000L
@@ -155,4 +155,4 @@ addExperiments(
   repls = REPLS
 )
 
-submitJobs()
+submitJobs(sample(findJobs()[[1L]]))

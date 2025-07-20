@@ -1,10 +1,11 @@
 #!/bin/bash
 #SBATCH --job-name=mlr3torch-benchmark
 #SBATCH --partition=mcml-hgx-a100-80x4
-#SBATCH --gres=gpu:1
+#SBATCH --gres=gpu:4
 #SBATCH --qos=mcml
 #SBATCH --ntasks=1
 #SBATCH --time=24:00:00
+#SBATCH --exclusive
 #SBATCH --output=mlr3torch-benchmark-%j.out
 
 # Run the benchmark script
