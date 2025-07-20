@@ -358,3 +358,4 @@ glrn <- as_learner(preprocessing %>>% model)
 library("mlr3viz")
 glrn$id <- "multimodal"
 rr <- resample(task, glrn, rsmp("cv", folds = 5))
+autoplot(rr, type = "roc")

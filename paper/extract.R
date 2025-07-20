@@ -45,5 +45,5 @@ cat(paste(code_lines, collapse = "\n"), "\n")
 
 # Optionally, write the result to a file
 output_file <- "paper/extracted_code.R"
-writeLines(code_lines[seq_len(length(code_lines) - 2)], output_file)
+writeLines(code_lines[seq_len(length(code_lines) - 1)], output_file)
 cat("Code written to:", output_file, "\n")
