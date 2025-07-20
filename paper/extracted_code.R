@@ -36,7 +36,6 @@ po_flat <- po("trafo_reshape", shape = c(-1, 28 * 28))
 mnist_flat <- po_flat$train(list(mnist))[[1L]]
 mnist_flat$head(2)
 
-library("mlr3torch")
 mlp <- lrn("classif.mlp",
  loss = t_loss("cross_entropy"),
  optimizer = t_opt("adamw", lr = 0.01),
@@ -46,18 +45,19 @@ mlp <- lrn("classif.mlp",
 mlp$param_set$set_values(
   neurons = c(100, 200), activation = torch::nn_relu,
   p = 0.3, opt.weight_decay = 0.01, measures_train = msr("classif.logloss"),
-  epochs = 10, batch_size = 32, device = "cpu"
+  epochs = 5, batch_size = 32, device = "cpu"
 )
 
 mlp$configure(
-  predict_type = "prob"
+  predict_type = "prob",
+  epochs = 10
 )
 
 mlp$train(mnist_flat, row_ids = 1:60000)
 
 mlp$model$network
 
-head(mlp$model$callbacks$history)
+head(mlp$model$callbacks$history, n = 2)
 
 pred <- mlp$predict(mnist_flat, row_ids = 60001:70000)
 pred$score(msr("classif.ce"))
@@ -69,6 +69,23 @@ mlp2 <- readRDS(pth)
 mlp2$unmarshal()
 
 set_validate(mlp, validate = 0.3)
+
+nn_simple <- nn_module("nn_simple",
+  initialize = function(d_in, d_latent, d_out) {
+    self$linear1 = nn_linear(d_in, d_latent)
+    self$activation = nn_relu()
+    self$linear2 = nn_linear(d_latent, d_out)
+  },
+  forward = function(x) {
+    x = self$linear1(x)
+    x = self$activation(x)
+    self$linear2(x)
+  }
+)
+
+net <- nn_simple(10, 100, 1)
+
+net(torch_randn(1, 10))
 
 module_graph <- po("module_1", module = nn_linear(10, 100)) %>>%
  po("module_2", module = nn_relu()) %>>%
@@ -98,25 +115,30 @@ path_lin <- nn("linear_1")
 path_nonlin <- nn("linear_2") %>>% nn("relu")
 
 residual_layer <- list(path_lin, path_nonlin) %>>% nn("merge_sum")
-residual_layer
 
 path_num <- po("select_1", selector = selector_type("numeric")) %>>%
   po("torch_ingress_num") %>>%
-  nn("tokenizer_num")
-path_categ <- po("select", selector = selector_type("factor")) %>>%
+  nn("tokenizer_num", d_token = 10)
+path_categ <- po("select_2", selector = selector_type("factor")) %>>%
   po("torch_ingress_categ") %>>%
-  nn("tokenizer_categ")
+  nn("tokenizer_categ", d_token = 10)
 
-graph <- list(path_num, path_categ) %>>% nn("merge_cat")
+graph <- list(path_num, path_categ) %>>% nn("merge_cat", dim = 2)
 
 blocks <- nn("block", residual_layer, n_blocks = 5)
 
-tloss <- as_torch_loss(torch::nn_l1_loss)
+nn_winsorized_mse <- nn_module(c("nn_winsorized_mse", "nn_loss"),
+  initialize = function(max_loss) {
+    self$max_loss <- max_loss
+  },
+  forward = function(input, target) {
+    loss <- nnf_mse_loss(input, target)
+    loss <- torch_clamp(loss, max = self$max_loss)
+    loss
+  }
+)
+tloss <- as_torch_loss(nn_winsorized_mse)
 tloss
-
-topt <- as_torch_optimizer(torch::optim_adam)
-topt
-
 
 gradient_clipper <- torch_callback("gradient_clipper",
   initialize = function(max_norm, norm_type) {
@@ -164,7 +186,6 @@ lrn_ffn <- lrn("classif.module",
   latent_dim = 100, n_layers = 5
 )
 
-library("mlr3data")
 task <- tsk("california_housing")
 task
 
@@ -174,7 +195,7 @@ preprocessing <- po("encode", method = "one-hot") %>>%
 ingress <- po("torch_ingress_num")
 
 block <- nn("linear", out_features = 32) %>>%
-  ppl("branch", list(relu = nn("relu"), tanh = nn("sigmoid"))) %>>%
+  ppl("branch", list(relu = nn("relu"), sigmoid = nn("sigmoid"))) %>>%
   nn("dropout")
 
 architecture <- nn("block", block) %>>%
@@ -219,7 +240,7 @@ ti <- tune(
   term_evals = 40,
   task = task
 )
-ti
+ti$result_learner_param_vals[2:7]
 
 library("torchdatasets")
 data_dir = "data"
@@ -263,8 +284,9 @@ unfreezer <- t_clbk("unfreeze",
 )
 
 resnet <- lrn("classif.resnet18",
-  pretrained = TRUE, epochs = 10,
+  pretrained = TRUE, epochs = 5,
   device = "cuda", batch_size = 32,
+  opt.lr = 1e-4,
   measures_valid = msr("classif.acc"),
   callbacks = list(unfreezer, t_clbk("history"))
 )
@@ -274,7 +296,7 @@ learner <- as_learner(augment %>>% preprocess %>>% resnet)
 learner$id <- "resnet"
 set_validate(learner, 1 / 3)
 learner$train(task)
-history <- learner$model$classif.alexnet$callbacks$history
+history <- learner$model$classif.resnet18$model$callbacks$history
 ggplot(history, aes(x = epoch, y = valid.classif.acc)) +
   geom_point()
 
@@ -335,6 +357,4 @@ glrn <- as_learner(preprocessing %>>% model)
 
 library("mlr3viz")
 glrn$id <- "multimodal"
-rr <- resample(glrn, task, rsmp("cv", folds = 5))
-autoplot(rr, type = "roc")
-
+rr <- resample(task, glrn, rsmp("cv", folds = 5))
