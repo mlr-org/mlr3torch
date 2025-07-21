@@ -36,11 +36,10 @@ def time_pytorch(epochs, batch_size, n_layers, latent, n, p, device, seed, optim
     except Exception as e:
         print(f"Error occurred while creating the network: {e}")
 
-    net.to(device)
-
-
     if jit:
         net = torch.jit.script(net)
+
+    net.to(device)
 
     lr = 0.0001
 
@@ -52,7 +51,6 @@ def time_pytorch(epochs, batch_size, n_layers, latent, n, p, device, seed, optim
     else:
         raise ValueError(f"Optimizer {optimizer} not supported")
     loss_fn = nn.MSELoss()
-
 
     dataset = torch.utils.data.TensorDataset(X, Y)
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=False)
@@ -89,7 +87,7 @@ def time_pytorch(epochs, batch_size, n_layers, latent, n, p, device, seed, optim
     mean_loss /= steps
 
     # Get peak reserved bytes
-    # for some reason we need to convert to float as otherwise we have some 
+    # for some reason we need to convert to float as otherwise we have some
     # type conversion issues from python -> R
     memory = float(torch.cuda.memory_reserved())
 
