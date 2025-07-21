@@ -1,5 +1,5 @@
 library(batchtools)
-Eibrary(mlr3misc)
+library(mlr3misc)
 
 reg = makeExperimentRegistry(
   file.dir = here::here("paper", "benchmark", "registry"),
@@ -155,4 +155,10 @@ addExperiments(
   repls = REPLS
 )
 
-submitJobs(sample(findJobs()[[1L]]))
+ids = sample(findJobs()[[1L]])
+# there is a bug in batchtools that sorts the IDs
+# when submitting them together
+for (id in ids) {
+  submitJobs(id)
+  Sys.sleep(0.1)
+}
