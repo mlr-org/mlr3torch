@@ -25,19 +25,25 @@ make_ft_transformer = function(task_type, ...) {
   invoke(lrn, .key = sprintf("%s.ft_transformer", task_type), .args = params)
 }
 
+# make sure this matches mlr3tuningspaces
 no_wd = function(name) {
-  linear_bias_param = grepl("linear_", name, fixed = TRUE) && grepl(".bias", name, fixed = TRUE)
+  # TODO: refactor, since we call it "Tokenizer", so the module does not have "embedding" in the name
+  # furthermore, the tokenizer modules seem to end up unnamed anyway
+  # this will also disable weight decay for the input projection bias of the attention heads
+  # ()
+  no_wd_params = c("_normalization", "bias")
 
-  other_no_wd_params = c("embedding", "_normalization")
-
-  return(
-    any(map_lgl(other_no_wd_params, function(pattern) grepl(pattern, name, fixed = TRUE)))
-    || linear_bias_param
-  )
+  return(any(map_lgl(no_wd_params, function(pattern) grepl(pattern, name, fixed = TRUE))))
 }
 
 rtdl_param_groups = function(parameters) {
-  no_wd_idx = map_lgl(names(parameters), no_wd)
+  ffn_norm_idx = grepl("ffn_normalization", names(parameters), fixed = TRUE)
+  ffn_norm_num_in_module_list = as.integer(strsplit(names(parameters)[ffn_norm_idx][1], ".", fixed = TRUE)[[1]][2])
+  cls_num_in_module_list = ffn_norm_num_in_module_list - 1
+  nums_in_module_list = sapply(strsplit(names(parameters), ".", fixed = TRUE), function(x) as.integer(x[2]))
+  tokenizer_idx = nums_in_module_list < cls_num_in_module_list
+
+  no_wd_idx = map_lgl(names(parameters), no_wd) | tokenizer_idx
   no_wd_group = parameters[no_wd_idx]
 
   main_group = parameters[!no_wd_idx]
@@ -53,10 +59,27 @@ test_that("param groups work", {
   default_weight_decay = 0.23
   learner$param_set$set_values(opt.weight_decay = default_weight_decay)
   learner$param_set$set_values(opt.param_groups = rtdl_param_groups)
-
+  
+  # german credit: both categorical and numeric
   task = tsk("german_credit")$filter(1:10)
   learner$train(task)
 
+  # mtcars: only numeric
+  learner_regr = make_ft_transformer("regr")
+  learner_regr$param_set$set_values(opt.weight_decay = default_weight_decay)
+  learner_regr$param_set$set_values(opt.param_groups = rtdl_param_groups)
+  task_num = tsk("mtcars")
+  learner_regr$train(task_num)
+
+  task_categ = tsk("penguins")$select(c("island", "sex"))
+  complete_cases_idx = which(complete.cases(task_categ$data()))
+  task_categ$filter(complete_cases_idx)
+  learner$train(task_categ)
+
+  # TODO: add an assertion on the indices for the params
+  # it should be clear which params end up in which param groups
+  # and this will test that "everything" ends up in the right place
+  # or at the very least, 
   expect_equal(length(learner$model$optimizer$param_groups), 2L)
   expect_equal(learner$model$optimizer$param_groups[[1L]]$weight_decay, default_weight_decay)
   expect_equal(learner$model$optimizer$param_groups[[2L]]$weight_decay, 0)
