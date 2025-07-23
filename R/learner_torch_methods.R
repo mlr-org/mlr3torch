@@ -50,7 +50,7 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   measures_valid = normalize_to_list(param_vals$measures_valid)
 
   if (length(measures_valid) && is.null(self$validate)) {
-    stopf("Learner '%s' has measures_valid set, but its validate field is NULL`", self$id)
+    stopf("Learner '%s' has measures_valid set, but its validate field is NULL. If this is happening in an AutoTuner, you probably forgot to set epochs = to_tune(upper = <max_epochs>, internal = TRUE).", self$id) # nolint
   }
   if (!length(measures_valid) && param_vals$patience != 0) {
     stopf("Learner '%s' has a non 0 patience parameter but has no measures_valid set.", self$id)

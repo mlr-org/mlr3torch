@@ -51,10 +51,10 @@ test_that("assignment", {
     materialize(x[2], rbind = TRUE)
   )
   # cannot assign beyond vector length
-  expect_error({x[3] = as_lazy_tensor(1)}, "max") # nolint
+  expect_error({x[3] = as_lazy_tensor(1)}, "Don't assign beyond n-th element") # nolint
   expect_error({x[2] = 1}, "class") # nolint
   # indices must be ints
-  expect_error({x["hallo"] = as_lazy_tensor(1)}, "integerish") # nolint
+  expect_error({x["hallo"] = as_lazy_tensor(1)}, "integerish")
   expect_error({x[1] = as_lazy_tensor(10)}, "data descriptor") # nolint
 
 

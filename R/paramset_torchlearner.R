@@ -39,8 +39,12 @@ check_measures = make_check_measures()
 epochs_aggr = function(x) as.integer(ceiling(mean(unlist(x))))
 
 epochs_tune_fn = function(domain, param_vals) {
-  checkmate::assert_true(param_vals$patience > 0L, .var.name = "patience parameter for LearnerTorch")
-  checkmate::assert_true(domain$lower <= 1)
+  checkmate::assert(
+    checkmate::check_true(param_vals$patience > 0L),
+    checkmate::check_true(domain$lower <= 1),
+    combine = "and",
+    .var.name = "When using early stopping, patience is set to a value > 0 and no lower bound for epochs is set."
+  )
   domain$upper
 }
 

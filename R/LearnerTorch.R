@@ -196,7 +196,8 @@ LearnerTorch = R6Class("LearnerTorch",
         lapply(param_set, function(x) {
           # otherwise cloning can fail when parameter values are set in the param_set constructed
           # from expressions in alist()
-          assert_true(grepl("^(self|private|super)", deparse(x)))
+          assert_true(grepl("^(self|private|super)", deparse(x)),
+            .var.name = "Don't use self, private, or super in param_set")
           check_ps(eval(x))
         })
         private$.param_set_source = param_set

@@ -9,7 +9,7 @@ test_that("callback_set is working", {
   expect_subset(mlr_reflections$torch$callback_stages, formalArgs(callback_set))
   expect_subset(formalArgs(callback_set), formalArgs(torch_callback))
 
-  expect_error(callback_set("A"), regexp = "startsWith")
+  expect_error(callback_set("A"), regexp = "must start with 'CallbackSet'")
   tcb = callback_set("CallbackSetA")
   expect_class(tcb, "R6ClassGenerator")
   expect_warning(callback_set("CallbackSetA", public = list(on_edn = function() NULL)), regexp = "on_edn")

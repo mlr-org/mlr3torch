@@ -79,7 +79,8 @@ CallbackSet = R6Class("CallbackSet",
     #' @param state_dict (any)\cr
     #'   The state dict as retrieved via `$state_dict()`.
     load_state_dict = function(state_dict) {
-      assert_true(is.null(state_dict))
+      assert_true(is.null(state_dict),
+        .var.name = "state_dict method not implemented and state_dict must hence not be provided")
       NULL
     }
   ),
@@ -173,7 +174,7 @@ callback_set = function(
   public = NULL, private = NULL, active = NULL, parent_env = parent.frame(), inherit = CallbackSet,
   lock_objects = FALSE
   ) {
-  assert_true(startsWith(classname, "CallbackSet"))
+  assert_true(startsWith(classname, "CallbackSet"), .var.name = "classname must start with 'CallbackSet'")
   assert_false(xor(is.null(state_dict), is.null(load_state_dict)),
     .var.name = "Implement both state_dict and load_state_dict")
   assert_function(state_dict, nargs = 0, null.ok = TRUE)
@@ -196,7 +197,7 @@ callback_set = function(
   assert_function(initialize, null.ok = TRUE)
 
   if (!is.null(initialize)) {
-    assert_true("initialize" %nin% names(public))
+    assert_true("initialize" %nin% names(public), .var.name = "Don't specify initialize() method twice")
     public$initialize = initialize
   }
 

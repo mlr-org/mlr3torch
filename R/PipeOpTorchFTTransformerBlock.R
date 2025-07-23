@@ -84,13 +84,15 @@ nn_ft_transformer_block = nn_module(
       bias = attention_bias,
       batch_first = TRUE
     )
-    
+
     if (is.null(ffn_d_hidden)) {
-      assert_numeric(ffn_d_hidden_multiplier, lower = 0, .var.name = "Exactly one of ffn_d_hidden and ffn_d_hidden_multiplier must be set.")
+      assert_numeric(ffn_d_hidden_multiplier, lower = 0,
+        .var.name = "Exactly one of ffn_d_hidden and ffn_d_hidden_multiplier is set")
       d_hidden = round(ffn_d_hidden_multiplier * d_token)
     } else {
       assert_int(ffn_d_hidden, lower = 1L)
-      assert_true(is.null(ffn_d_hidden_multiplier), .var.name = "Both ffn_d_hidden and ffn_d_hidden_multiplier are set. Please remove one.")
+      assert_true(is.null(ffn_d_hidden_multiplier),
+        .var.name = "Exactly one of ffn_d_hidden and ffn_d_hidden_multiplier is set")
       d_hidden = ffn_d_hidden
     }
 

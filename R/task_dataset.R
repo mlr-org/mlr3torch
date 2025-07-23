@@ -204,7 +204,7 @@ dataset_num_categ = function(task, param_vals, argname_num = "num.input", argnam
     tokens[[argname_categ]] = TorchIngressToken(features_categ, batchgetter_categ, c(NA, length(features_categ)))
   }
 
-  assert_true(length(tokens) >= 1)
+  assert_true(length(tokens) >= 1, .var.name = "At least one ingress token is provided")
 
   task_dataset(
     task,
