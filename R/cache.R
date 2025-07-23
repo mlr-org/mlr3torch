@@ -16,7 +16,8 @@ CACHE$initialized = character()
 #' @noRd
 get_cache_dir = function(cache = NULL) {
   if (is.null(cache)) cache = getOption("mlr3torch.cache", FALSE)
-  assert_true(is.logical(cache) || is.character(cache))
+  assert_true(is.logical(cache) || is.character(cache),
+    .var.name = "Cache is either a logical value or a path")
   if (isFALSE(cache)) {
     return(FALSE)
   }
@@ -24,7 +25,8 @@ get_cache_dir = function(cache = NULL) {
     cache = R_user_dir("mlr3torch", "cache")
   }
 
-  assert(check_directory_exists(cache), check_path_for_output(cache))
+  assert(check_directory_exists(cache), check_path_for_output(cache),
+    .var.name = "cache is a valid path")
   normalizePath(cache, mustWork = FALSE)
 }
 

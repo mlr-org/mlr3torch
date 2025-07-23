@@ -143,7 +143,8 @@ nn_tab_resnet_block = nn_module("nn_tab_resnet_block",
       d_hidden = as.integer(d_block * d_hidden_multiplier)
     } else {
       assert_int(d_hidden, lower = 1L)
-      assert_true(is.null(d_hidden_multiplier))
+      assert_true(is.null(d_hidden_multiplier),
+        .var.name = "d_hidden and d_hidden_multiplier cannot both be provided")
     }
     self$normalization = invoke(nn_batch_norm1d, num_features = d_block)
     self$activation = nn_relu()

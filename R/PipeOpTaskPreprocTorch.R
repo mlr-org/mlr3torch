@@ -449,7 +449,8 @@ pipeop_preproc_torch = function(id, fn, shapes_out = NULL, param_set = NULL, pac
   # we e.g. want torchvision in suggests, so we cannot already access the function.
   if (identical(shapes_out, "infer")) {
     shapes_out = crate(function(shapes_in, param_vals, task) {
-      getFromNamespace("infer_shapes", "mlr3torch")(shapes_in = shapes_in, param_vals = param_vals, output_names = self$output$name, fn = self$fn, rowwise = self$rowwise, id = self$id) # nolint
+      getFromNamespace("infer_shapes", "mlr3torch")(shapes_in = shapes_in, param_vals = param_vals,
+      output_names = self$output$name, fn = self$fn, rowwise = self$rowwise, id = self$id) # nolint
     })
   } else if (is.function(shapes_out) || is.null(shapes_out)) {
     # nothing to do
@@ -460,7 +461,8 @@ pipeop_preproc_torch = function(id, fn, shapes_out = NULL, param_set = NULL, pac
     pars = setdiff(param_set$ids(), c("stages", "affect_columns"))
     fn_args = formalArgs(fn)
     # there needs to be a parameter for the tensor
-    assert_true(length(fn_args) > length(pars))
+    assert_true(length(fn_args) > length(pars),
+      .var.name = "The provided function fn has an argument for the input tensor")
     assert_subset(pars, fn_args)
   }
   param_set = param_set %??% create_ps(fn)

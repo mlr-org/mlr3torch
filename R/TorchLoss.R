@@ -140,7 +140,7 @@ TorchLoss = R6::R6Class("TorchLoss",
       require_namespaces(self$packages)
       args = self$param_set$get_values()
       if ("task" %in% formalArgs(self$generator)) {
-        assert_true(!is.null(task))
+        assert_true(!is.null(task), .var.name = "task is provided if required by loss function")
         args = insert_named(args, list(task = task))
       }
       do.call(self$generator, args)
