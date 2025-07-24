@@ -14,7 +14,7 @@ options(download.file.extra = paste(
 
 # Package manager configuration
 options(
-    repos = c(CRAN = Sys.getenv("RSPM"))
+    repos = c(CRAN = "https://packagemanager.posit.co/cran/__linux__/jammy/latest")
 )
 
 .libPaths("/root/R/x86_64-pc-linux-gnu-library/4.5")
