@@ -11,12 +11,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # -------- system packages & R --------
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        wget locales curl software-properties-common tzdata && \
-    locale-gen en_US.UTF-8
-
-# -------- build toolchain, MKL, and R from source (linked to MKL) --------
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+        wget locales curl software-properties-common tzdata \
         build-essential \
         gfortran \
         libcurl4-openssl-dev \
@@ -35,27 +30,23 @@ RUN apt-get update && \
         zlib1g-dev \
         libbz2-dev \
         liblzma-dev \
-        libpcre2-dev && \
-    rm -rf /var/lib/apt/lists/*
-
-# -------- install Python and pip packages --------
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+        libpcre2-dev \
         python3 \
         python3-pip \
         python3-dev && \
+    locale-gen en_US.UTF-8 && \
     rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install \
     torch --index-url https://download.pytorch.org/whl/cu124 \
     numpy
 
-# -------- install R --------
+# -------- install R ----------------------------------
 RUN wget -q https://cran.r-project.org/src/base/R-4/R-4.5.0.tar.gz -O /tmp/R-4.5.0.tar.gz && \
     tar -xzf /tmp/R-4.5.0.tar.gz -C /tmp && rm /tmp/R-4.5.0.tar.gz
 
 RUN cd /tmp/R-4.5.0 && \
-    ./configure --enable-R-shlib&& \
+    ./configure --enable-R-shlib && \
     make -j"$(nproc)" && make install && \
     cd / && rm -rf /tmp/R-4.5.0
 
@@ -65,7 +56,7 @@ RUN Rscript -e "print(sessionInfo());"
 COPY .Rprofile /usr/local/lib/R/etc/Rprofile.site
 ENV LD_LIBRARY_PATH=/usr/local/lib/R/lib:$LD_LIBRARY_PATH
 
-# -------- install R packages
+# -------- install R packages---------------------------
 RUN R -q -e "install.packages('torch'); torch::install_torch()"
 RUN R -q -e "install.packages('mlr3mbo')"
 RUN R -q -e "install.packages('torchdatasets')"

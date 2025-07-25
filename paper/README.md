@@ -2,7 +2,7 @@
 
 ## Computational Environment
 
-To recreate the computational environment, you can download docker container
+To recreate the computational environment, you can download the docker image
 `sebffischer/mlr3torch-jss:latest` from dockerhub.
 
 ```bash
@@ -81,7 +81,7 @@ This will create the `benchmark/results.rds` file.
 
 ### Generating the Plots
 
-Simply run: 
+Simply run:
 
 ```r
 Rscript paper/plot_benchmark.R
@@ -100,7 +100,7 @@ knitr::knit('paper_code.Rmd')
 We also provide a version of the paper code that runs on CPU only.
 There, we set the epochs to 0 everywhere and the device to "cpu".
 
-TODOOOO 
+TODOOOO
 
 ```r
 knitr::knit('paper_code_cheap.Rmd')

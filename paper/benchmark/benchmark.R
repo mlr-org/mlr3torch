@@ -13,7 +13,6 @@ batchExport(list(
   time_rtorch = time_rtorch
 ))
 
-# The algorithm should return the total runtime needed for training, the SD, but also the performance of the training losses so we know it is all working
 addProblem("runtime_train",
   data = NULL,
   fun = function(epochs, batch_size, n_layers, latent, n, p, optimizer, device, ...) {
@@ -32,7 +31,6 @@ addProblem("runtime_train",
   }
 )
 
-# pytorch needs to be submitted with an active pytorch environment
 addAlgorithm("pytorch",
   fun = function(instance, job, data, jit, ...) {
     f = function(...) {
@@ -58,7 +56,6 @@ addAlgorithm("rtorch",
     if (opt_type == "ignite") {
       instance$optimizer = paste0("ignite_", instance$optimizer)
     }
-    #do.call(time_rtorch, args = c(instance, list(seed = job$seed, jit = jit)))
     callr::r(time_rtorch, args = c(instance, list(seed = job$seed, jit = jit)))
   }
 )
@@ -69,7 +66,6 @@ addAlgorithm("mlr3torch",
       instance$optimizer = paste0("ignite_", instance$optimizer)
     }
     do.call(time_rtorch, args = c(instance, list(seed = job$seed, mlr3torch = TRUE, jit = jit)))
-    #callr::r(time_rtorch, args = c(instance, list(seed = job$seed, mlr3torch = TRUE, jit = jit)))
   }
 )
 
@@ -80,7 +76,6 @@ N = 2000L
 P = 1000L
 
 # cuda experiments:
-
 
 problem_design = expand.grid(list(
   n          = N,
