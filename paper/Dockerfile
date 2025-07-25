@@ -14,13 +14,6 @@ RUN apt-get update && \
         wget locales curl software-properties-common tzdata && \
     locale-gen en_US.UTF-8
 
-# -------- add Intel oneAPI APT repo (for MKL) --------
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends ca-certificates gnupg wget && \
-    mkdir -p /usr/share/keyrings && \
-    wget -qO- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | gpg --dearmor -o /usr/share/keyrings/oneapi-archive-keyring.gpg && \
-    echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" > /etc/apt/sources.list.d/oneapi.list
-
 # -------- build toolchain, MKL, and R from source (linked to MKL) --------
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -42,31 +35,8 @@ RUN apt-get update && \
         zlib1g-dev \
         libbz2-dev \
         liblzma-dev \
-        libpcre2-dev \
-        intel-oneapi-mkl-devel intel-oneapi-mkl && \
+        libpcre2-dev && \
     rm -rf /var/lib/apt/lists/*
-
-
-ENV MKLROOT=/opt/intel/oneapi/mkl/latest
-RUN ls $MKLROOT/lib/
-
-ENV LD_LIBRARY_PATH=${MKLROOT}/lib/:${LD_LIBRARY_PATH}
-ENV LIBRARY_PATH=${MKLROOT}/lib/:${LIBRARY_PATH}
-ENV PKG_CONFIG_PATH=${MKLROOT}/lib/pkgconfig:${PKG_CONFIG_PATH}
-
-RUN wget -q https://cran.r-project.org/src/base/R-4/R-4.5.0.tar.gz -O /tmp/R-4.5.0.tar.gz && \
-    tar -xzf /tmp/R-4.5.0.tar.gz -C /tmp && rm /tmp/R-4.5.0.tar.gz
-
-ENV MKL_LINKLINE="-L${MKLROOT}/lib/ \
-  -Wl,--start-group -lmkl_gf_lp64 -lmkl_core -lmkl_gnu_thread -Wl,--end-group \
-  -lpthread -lm -ldl -fopenmp -Wl,-rpath,${MKLROOT}/lib/"
-
-RUN cd /tmp/R-4.5.0 && \
-    ./configure --with-blas="$MKL_LINKLINE" --with-lapack="$MKL_LINKLINE" --enable-R-shlib&& \
-    make -j"$(nproc)" && make install && \
-    cd / && rm -rf /tmp/R-4.5.0
-
-RUN Rscript -e "print(sessionInfo());"
 
 # -------- install Python and pip packages --------
 RUN apt-get update && \
@@ -80,14 +50,20 @@ RUN pip3 install \
     torch --index-url https://download.pytorch.org/whl/cu124 \
     numpy
 
+# -------- install R --------
+RUN wget -q https://cran.r-project.org/src/base/R-4/R-4.5.0.tar.gz -O /tmp/R-4.5.0.tar.gz && \
+    tar -xzf /tmp/R-4.5.0.tar.gz -C /tmp && rm /tmp/R-4.5.0.tar.gz
+
+RUN cd /tmp/R-4.5.0 && \
+    ./configure --enable-R-shlib&& \
+    make -j"$(nproc)" && make install && \
+    cd / && rm -rf /tmp/R-4.5.0
+
+RUN Rscript -e "print(sessionInfo());"
+
 # ---------- R defaults: PPM + binaries-only ----------
 COPY .Rprofile /usr/local/lib/R/etc/Rprofile.site
-
-RUN which R
-ENV R_HOME=/usr/local/lib/R
-ENV LD_LIBRARY_PATH=$R_HOME/lib:$LD_LIBRARY_PATH
-
-#RUN R -q -e "options(repos = c(CRAN='${RSPM}')); install.packages('torch'); torch::install_torch()"
+ENV LD_LIBRARY_PATH=/usr/local/lib/R/lib:$LD_LIBRARY_PATH
 
 # -------- install R packages
 RUN R -q -e "install.packages('torch'); torch::install_torch()"
@@ -100,6 +76,7 @@ RUN R -q -e "install.packages('reticulate')"
 RUN R -q -e "install.packages('cowplot')"
 RUN R -q -e "install.packages('remotes')"
 RUN R -q -e "install.packages('precrec')"
+RUN R -q -e "install.packages('knitr')"
 RUN R -q -e "remotes::install_github('mlr-org/mlr3torch@53c0262')"
 
 CMD ["bash"]
