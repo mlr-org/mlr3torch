@@ -74,7 +74,7 @@ addAlgorithm("mlr3torch",
 )
 
 # global config:
-REPLS = 6L
+REPLS = 4L
 EPOCHS = 20L
 N = 2000L
 P = 1000L
@@ -154,11 +154,3 @@ addExperiments(
   ),
   repls = REPLS
 )
-
-ids = sample(findJobs()[[1L]])
-# there is a bug in batchtools that sorts the IDs
-# when submitting them together
-for (id in ids) {
-  submitJobs(id)
-  Sys.sleep(0.1)
-}

@@ -68,10 +68,12 @@ def time_pytorch(epochs, batch_size, n_layers, latent, n, p, device, seed, optim
 
 
     train_run(epochs = 5)
-    torch.cuda.synchronize()
+    if device == "cuda":
+        torch.cuda.synchronize()
     t0 = time.time()
     train_run(epochs = epochs)
-    torch.cuda.synchronize()
+    if device == "cuda":
+        torch.cuda.synchronize()
     t = time.time() - t0
 
     net.eval()
@@ -89,7 +91,11 @@ def time_pytorch(epochs, batch_size, n_layers, latent, n, p, device, seed, optim
     # Get peak reserved bytes
     # for some reason we need to convert to float as otherwise we have some
     # type conversion issues from python -> R
-    memory = float(torch.cuda.memory_reserved())
+    if device == "cuda":
+        memory = float(torch.cuda.memory_reserved())
+    else:
+        memory = None
+
 
     return {'time': t, 'loss': mean_loss, 'memory': memory}
 

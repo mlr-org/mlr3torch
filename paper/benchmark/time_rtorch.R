@@ -135,14 +135,18 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
   # warmup
   train_run(5)
 
-  cuda_synchronize()
+  if (device == "cuda") cuda_synchronize()
   #gc.time(TRUE)
   time = train_run(epochs)
-  cuda_synchronize()
+  if (device == "cuda") cuda_synchronize()
   #gc_time = gc.time()[3]
 
-  stats = cuda_memory_stats()
-  memory = stats$reserved_bytes$all$current
+  if (device == "cuda") {
+    stats = cuda_memory_stats()
+    memory = stats$reserved_bytes$all$current
+  } else {
+    memory = NA	  
+  }
 
   list(time = time, loss = eval_run(), memory = memory)
 }
