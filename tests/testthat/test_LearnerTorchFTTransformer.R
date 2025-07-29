@@ -18,7 +18,7 @@ make_ft_transformer = function(task_type, ...) {
 
      epochs = 1L,
      batch_size = 32L,
-     n_blocks = 1L,
+     n_blocks = 3L,
      d_token = 10L
   )
   params = insert_named(params, list(...))
@@ -27,23 +27,29 @@ make_ft_transformer = function(task_type, ...) {
 
 # make sure this matches mlr3tuningspaces
 no_wd = function(name) {
-  # TODO: refactor, since we call it "Tokenizer", so the module does not have "embedding" in the name
-  # furthermore, the tokenizer modules seem to end up unnamed anyway
   # this will also disable weight decay for the input projection bias of the attention heads
-  # ()
+  # TODO: get normalization layers even when unnamed
+  # based on their position in the module_list
   no_wd_params = c("_normalization", "bias")
 
   return(any(map_lgl(no_wd_params, function(pattern) grepl(pattern, name, fixed = TRUE))))
 }
 
 rtdl_param_groups = function(parameters) {
+  split_param_names = strsplit(names(parameters), ".", fixed = TRUE)
+
   ffn_norm_idx = grepl("ffn_normalization", names(parameters), fixed = TRUE)
-  ffn_norm_num_in_module_list = as.integer(strsplit(names(parameters)[ffn_norm_idx][1], ".", fixed = TRUE)[[1]][2])
-  cls_num_in_module_list = ffn_norm_num_in_module_list - 1
-  nums_in_module_list = sapply(strsplit(names(parameters), ".", fixed = TRUE), function(x) as.integer(x[2]))
+  first_ffn_norm_num_in_module_list = as.integer(split_param_names[ffn_norm_idx][[1]][2])
+  cls_num_in_module_list = first_ffn_norm_num_in_module_list - 1
+  nums_in_module_list = sapply(split_param_names, function(x) as.integer(x[2]))
   tokenizer_idx = nums_in_module_list < cls_num_in_module_list
 
-  no_wd_idx = map_lgl(names(parameters), no_wd) | tokenizer_idx
+  last_module_num_in_module_list = as.integer(split_param_names[[length(split_param_names)]][2])
+
+  last_norm_num_in_module_list = last_module_num_in_module_list - 2
+  last_norm_idx = nums_in_module_list == last_norm_num_in_module_list
+
+  no_wd_idx = map_lgl(names(parameters), no_wd) | tokenizer_idx | last_norm_idx
   no_wd_group = parameters[no_wd_idx]
 
   main_group = parameters[!no_wd_idx]
@@ -62,6 +68,7 @@ test_that("param groups work", {
   
   # german credit: both categorical and numeric
   task = tsk("german_credit")$filter(1:10)
+  
   learner$train(task)
 
   # mtcars: only numeric
@@ -76,10 +83,6 @@ test_that("param groups work", {
   task_categ$filter(complete_cases_idx)
   learner$train(task_categ)
 
-  # TODO: add an assertion on the indices for the params
-  # it should be clear which params end up in which param groups
-  # and this will test that "everything" ends up in the right place
-  # or at the very least, 
   expect_equal(length(learner$model$optimizer$param_groups), 2L)
   expect_equal(learner$model$optimizer$param_groups[[1L]]$weight_decay, default_weight_decay)
   expect_equal(learner$model$optimizer$param_groups[[2L]]$weight_decay, 0)

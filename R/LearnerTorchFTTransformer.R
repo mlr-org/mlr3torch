@@ -185,7 +185,7 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
         nn("ft_cls", initialization = "uniform") %>>%
         blocks %>>%
         nn("fn", fn = function(x) x[, -1]) %>>%
-        nn("layer_norm", dims = 1) %>>%
+        nn("layer_norm", dims = 1, id = "pre_head_norm") %>>%
         nn("relu") %>>%
         nn("head")
 
