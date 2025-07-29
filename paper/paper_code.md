@@ -1,7 +1,7 @@
 ---
 title: "Extracted Code from mlr3torch Paper"
 author: "mlr3torch"
-date: "2025-07-20"
+date: "2025-07-25"
 output: html_document
 ---
 
@@ -29,15 +29,6 @@ graph_learner <- as_learner(po("pca") %>>% lrn("regr.rpart"))
 
 resampling <- rsmp("cv", folds = 3)
 rr <- resample(task, graph_learner, resampling)
-```
-
-```
-## INFO  [16:45:36.873] [mlr3] Applying learner 'pca.regr.rpart' on task 'mtcars' (iter 1/3)
-## INFO  [16:45:37.022] [mlr3] Applying learner 'pca.regr.rpart' on task 'mtcars' (iter 2/3)
-## INFO  [16:45:37.132] [mlr3] Applying learner 'pca.regr.rpart' on task 'mtcars' (iter 3/3)
-```
-
-``` r
 rr$aggregate(rmse)
 ```
 
@@ -75,8 +66,13 @@ mnist
 ```
 
 ```
-## Processing...
-## Done!
+## Dataset <mnist> (~12 MB) will be downloaded and processed if not already
+## available.
+## Downloading <mnist> ...
+## Processing <mnist>...
+## Dataset <mnist> downloaded and extracted successfully.
+## Dataset <mnist> loaded with 60000 images.
+## Dataset <mnist> loaded with 10000 images.
 ```
 
 ```
@@ -463,13 +459,6 @@ dogs_vs_cats_dataset(data_dir, download = TRUE)
 ```
 
 ```
-## Warning in utils::unzip(path, exdir = exdir): write error in extracting from
-## zip file
-## Warning in utils::unzip(path, exdir = exdir): write error in extracting from
-## zip file
-```
-
-```
 ## <dataset>
 ##   Public:
 ##     .getitem: function (i) 
@@ -511,32 +500,24 @@ table(labels)
 
 ```
 ## labels
-##  cat 
-## 7576
+##   cat   dog 
+## 12500  5490
 ```
 
 ``` r
 tbl <- data.table(image = lt, class = labels)
 task <- as_task_classif(tbl, target = "class", id = "dogs_vs_cats")
-```
-
-```
-## Error in update_classif_property(self, private): Target column 'class' must have at least two levels
-```
-
-``` r
 task
 ```
 
 ```
 ## 
-## ── <TaskRegr> (20640x10): California House Value ───────────────────────────────
-## • Target: median_house_value
-## • Properties: -
-## • Features (9):
-##   • dbl (8): households, housing_median_age, latitude, longitude,
-##   median_income, population, total_bedrooms, total_rooms
-##   • fct (1): ocean_proximity
+## ── <TaskClassif> (17990x2) ─────────────────────────────────────────────────────
+## • Target: class
+## • Target classes: cat (positive class, 69%), dog (31%)
+## • Properties: twoclass
+## • Features (1):
+##   • lt (1): image
 ```
 
 ``` r
@@ -567,7 +548,8 @@ learner$train(task)
 ```
 
 ```
-## Error in assert_task_learner(task, learner, param_values): Type 'regr' of <TaskRegr:california_housing> does not match type 'classif' of <GraphLearner:resnet>
+## Error in jpeg::readJPEG(path): JPEG decompression error: Empty input file
+## This happened PipeOp classif.resnet18's $train()
 ```
 
 ``` r
@@ -593,8 +575,6 @@ task
 ## 
 ## ── <TaskClassif> (32701x5): Melanoma Classification ────────────────────────────
 ## • Target: outcome
-## WARN  [17:41:35.651] Caching (option 'mlr3torch.cache') is disabled, but dataset requires disk storage. This can lead to unexpected behavior.
-## INFO  [17:41:35.663] Downloading the dataset
 ## • Target classes: malignant (positive class, 2%), benign (98%)
 ## • Properties: twoclass, groups
 ## • Features (4):
@@ -690,14 +670,6 @@ rr <- resample(task, glrn, rsmp("cv", folds = 5))
 ```
 
 ```
-## INFO  [17:41:42.648] [mlr3] Applying learner 'multimodal' on task 'melanoma' (iter 1/5)
-## INFO  [17:41:42.790] [mlr3] Applying learner 'multimodal' on task 'melanoma' (iter 2/5)
-## INFO  [17:41:42.921] [mlr3] Applying learner 'multimodal' on task 'melanoma' (iter 3/5)
-## INFO  [17:41:43.021] [mlr3] Applying learner 'multimodal' on task 'melanoma' (iter 4/5)
-## INFO  [17:41:43.116] [mlr3] Applying learner 'multimodal' on task 'melanoma' (iter 5/5)
-```
-
-```
 ## Warning: Caught mlr3error. Canceling all iterations ...
 ```
 
@@ -711,5 +683,5 @@ autoplot(rr, type = "roc")
 ```
 
 ```
-## Error: The following packages could not be loaded: precrec
+## Error in FUN(X[[i]], ...): Need a binary classification problem to plot a ROC curve
 ```
