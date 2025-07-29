@@ -19,7 +19,8 @@ register_preproc("trafo_resize", torchvision::transform_resize,
     )
   ),
   shapes_out = function(shapes_in, param_vals, task) {
-    assert_true(length(shapes_in[[1L]]) >= 2L)
+    assert_true(length(shapes_in[[1L]]) >= 2L,
+      .var.name = "Input tensor must have at least 2 dimensions")
     size = rep(param_vals$size, length.out = 2L)
     list(c(shapes_in[[1L]][seq_len(length(shapes_in[[1L]]) - 2)], size))
   },
@@ -139,7 +140,7 @@ register_preproc("trafo_normalize", torchvision::transform_normalize, packages =
   ),
   shapes_out = function(shapes_in, param_vals, task) {
     s = shapes_in[[1L]]
-    assert_true(length(s) >= 2)
+    assert_true(length(s) >= 2, .var.name = "Input tensor must have at least 2 dimensions")
     shapes_in
   }
 )

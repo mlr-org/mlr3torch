@@ -47,7 +47,8 @@ new_lazy_tensor = function(data_descriptor, ids) {
   # avoid degenerate lazy tensors after assignment
   assert_lazy_tensor(value)
   assert_integerish(i)
-  assert_true(max(i) <= length(x)) # otherwise checks get ugly
+  assert_true(max(i) <= length(x),
+    .var.name = "Don't assign beyond n-th element") # otherwise checks get ugly
 
   if (!(length(x) == 0 || length(value) == 0) && !identical(dd(x), dd(value))) {
     stopf("Cannot assign lazy tensor with different data descriptor")
@@ -62,9 +63,9 @@ new_lazy_tensor = function(data_descriptor, ids) {
 `[[<-.lazy_tensor` = function(x, i, value) {
   # We ensure that there are no degenerate entries in a lazy tensor
   assert_lazy_tensor(value)
-  assert_true(length(value) == 1L)
+  assert_true(length(value) == 1L, .var.name = "Assignment to lazy tensor must be of length 1")
   assert_int(i)
-  assert_true(i <= length(x) + 1L)
+  assert_true(i <= length(x) + 1L, .var.name = "Don't assign beyond (n+1)th element")
   assert(check_true(length(x) == 0), check_true(identical(dd(x), dd(value))), combine = "or")
   x = unclass(x)
   x[[i]] = value
@@ -262,8 +263,8 @@ transform_lazy_tensor = function(lt, pipeop, shape, shape_predict = NULL) {
   assert_lazy_tensor(lt)
   assert_class(pipeop, "PipeOpModule")
   # keep it simple for now
-  assert_true(nrow(pipeop$input) == 1L)
-  assert_true(nrow(pipeop$output) == 1L)
+  assert_true(nrow(pipeop$input) == 1L, .var.name = "pipeop must have exactly one input")
+  assert_true(nrow(pipeop$output) == 1L, .var.name = "pipeop must have exactly one output")
   assert_shape(shape, null_ok = TRUE, unknown_batch = TRUE)
   # shape_predict can be NULL if we transform a tensor during `$predict()` in PipeOpTaskPreprocTorch
   assert_shape(shape_predict, null_ok = TRUE, unknown_batch = TRUE)
@@ -321,7 +322,6 @@ hash_input.lazy_tensor = function(x) {
   if (length(x) == 0L && length(y) == 0L) {
     return(logical(0))
   }
-  assert_true(length(x) >= 0 && length(y) >= 0)
   n = max(length(x), length(y))
 
   if (dd(x)$hash != dd(y)$hash) {

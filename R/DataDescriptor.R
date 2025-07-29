@@ -72,7 +72,8 @@ DataDescriptor = R6Class("DataDescriptor",
       if (is.null(graph)) {
         # avoid name conflicts
         if (is.null(input_map)) {
-          assert_true(length(dataset_shapes) == 1L)
+          assert_true(length(dataset_shapes) == 1L,
+            .var.name = "Argument input_map is provided when dataset returns more than one element") # nolint
           input_map = names(dataset_shapes)
         }
         # get unique ID for input PipeOp
@@ -81,7 +82,8 @@ DataDescriptor = R6Class("DataDescriptor",
         ), clone = FALSE)
       } else {
         graph = as_graph(graph, clone = clone_graph)
-        assert_true(length(graph$pipeops) >= 1L)
+        assert_true(length(graph$pipeops) >= 1L,
+          .var.name = "graph has at least one PipeOp")
       }
       # no preprocessing, dataset returns only a single element (there we can infer a lot)
       simple_case = length(graph$pipeops) == 1L && inherits(graph$pipeops[[1L]], "PipeOpNOP")
@@ -106,13 +108,13 @@ DataDescriptor = R6Class("DataDescriptor",
       if (is.null(pointer_shape_predict) && simple_case) {
         pointer_shape_predict = pointer_shape
       } else if (simple_case) {
-        assert_true(isTRUE(all.equal(pointer_shape, pointer_shape_predict)))
+        assert_true(isTRUE(all.equal(pointer_shape, pointer_shape_predict)), .var.name = "pointer_shape and pointer_shape_predict are equal") # nolint
       } else {
         assert_shape(pointer_shape_predict, null_ok = TRUE)
       }
 
       assert_subset(paste0(pointer, collapse = "."), graph$output$name)
-      assert_true(length(input_map) == length(graph$input$name))
+      assert_true(length(input_map) == length(graph$input$name), .var.name = "Number of graph input channels must match length of input_map") # nolint
 
       # We hash the address of the environment, because the hashes of an environment are not stable,
       # even with a .dataset (that should usually not really have a state), hashes might change due to byte-code

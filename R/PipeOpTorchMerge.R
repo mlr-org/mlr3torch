@@ -51,7 +51,8 @@ PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
     .shapes_out = function(shapes_in, param_vals, task) {
       # note that this slightly deviates from the actual broadcasting rules implemented by torch, i.e. we don't fill
       # up missing dimension with 1s because the first dimension is usually the batch dimension.
-      assert_true(length(unique(map_int(shapes_in, length))) == 1)
+      assert_true(length(unique(map_int(shapes_in, length))) == 1,
+        .var.name = "All input shapes have the same number of dimensions")
       uniques = apply(as.data.frame(shapes_in), 1, function(row) {
         if (all(is.na(row))) {
           return(1)
@@ -61,7 +62,7 @@ PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
         row = unique(row)
         sum(!is.na(row))
       })
-      assert_true(all(uniques <= 1))
+      assert_true(all(uniques <= 1), .var.name = "There is at most one non-NA dimension")
       shapes_in[1]
     }
   )
@@ -173,7 +174,7 @@ PipeOpTorchMergeCat = R6Class("PipeOpTorchMergeCat", inherit = PipeOpTorchMerge,
   ),
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
-      assert_true(length(unique(map_int(shapes_in, length))) == 1)
+      assert_true(length(unique(map_int(shapes_in, length))) == 1, .var.name = "All input shapes have the same number of dimensions")
 
       # dim can be negative (counting back from the last element which would be -1)
       true_dim = param_vals$dim %??% -1
@@ -195,7 +196,7 @@ PipeOpTorchMergeCat = R6Class("PipeOpTorchMergeCat", inherit = PipeOpTorchMerge,
       })
 
       # Dimensions don't have to match along the dimension along which we concatenate.
-      assert_true(all(uniques[-true_dim] <= 1))
+      assert_true(all(uniques[-true_dim] <= 1), .var.name = "After broadcasting, dimension match along the non-concatenated dimension") # nolint
 
       returnshape = apply(shapes_matrix, 1, function(row) {
         row = unique(row)

@@ -139,3 +139,12 @@ test_that("defaults work", {
 
   expect_learner(lrn)
 })
+
+test_that("marshaling works (#412)", {
+  lrn = make_ft_transformer("classif")
+  task = tsk("german_credit")$select("credit_history")
+  lrn$train(task)
+  lrn$marshal()$unmarshal()
+  gc()
+  expect_class(lrn$network$buffers[[1L]], "torch_tensor")
+})

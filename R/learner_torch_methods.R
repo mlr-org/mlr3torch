@@ -27,7 +27,8 @@ learner_torch_train = function(self, private, super, task, param_vals) {
     stopf("Training Dataloader of Learner '%s' has length 0", self$id)
   }
 
-  network = private$.network(task, param_vals)$to(device = param_vals$device)
+  network = private$.network(task, param_vals)
+  network$to(device = param_vals$device)
   if (isTRUE(param_vals$jit_trace) && !inherits(network, "script_module")) {
     example = get_example_batch(loader_train)$x
     example = lapply(example, function(x) x$to(device = param_vals$device))
@@ -49,7 +50,7 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   measures_valid = normalize_to_list(param_vals$measures_valid)
 
   if (length(measures_valid) && is.null(self$validate)) {
-    stopf("Learner '%s' has measures_valid set, but its validate field is NULL`", self$id)
+    stopf("Learner '%s' has measures_valid set, but its validate field is NULL. If this is happening in an AutoTuner, you probably forgot to set epochs = to_tune(upper = <max_epochs>, internal = TRUE).", self$id) # nolint
   }
   if (!length(measures_valid) && param_vals$patience != 0) {
     stopf("Learner '%s' has a non 0 patience parameter but has no measures_valid set.", self$id)
@@ -145,6 +146,7 @@ train_loop = function(ctx, cbs) {
     indices = list()
     train_iterator = dataloader_make_iter(ctx$loader_train)
     ctx$step = 0L
+    eval_train = eval_train_in_epoch(ctx)
     while (ctx$step < length(ctx$loader_train)) {
       ctx$step = ctx$step + 1
       ctx$batch = dataloader_next(train_iterator)
@@ -167,14 +169,16 @@ train_loop = function(ctx, cbs) {
       call("on_after_backward")
 
       ctx$last_loss = loss$item()
-      predictions[[length(predictions) + 1]] = ctx$y_hat$detach()
-      indices[[length(indices) + 1]] = as.integer(ctx$batch$.index$to(device = "cpu"))
+      if (eval_train) {
+        predictions[[length(predictions) + 1]] = ctx$y_hat$detach()
+        indices[[length(indices) + 1]] = as.integer(ctx$batch$.index$to(device = "cpu"))
+      }
       ctx$optimizer$step()
 
       call("on_batch_end")
     }
 
-    ctx$last_scores_train = if (eval_train_in_epoch(ctx)) {
+    ctx$last_scores_train = if (eval_train) {
       measure_prediction(
         pred_tensor = torch_cat(predictions, dim = 1L),
         measures = ctx$measures_train,

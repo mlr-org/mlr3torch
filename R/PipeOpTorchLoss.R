@@ -51,7 +51,6 @@ PipeOpTorchLoss = R6Class("PipeOpTorchLoss",
       if (!test_null(inputs[[1L]]$loss)) {
         stopf("The loss of the model descriptor is already configured.")
       }
-      assert_true(is.null(inputs[[1L]]$loss))
       inputs[[1]]$loss = private$.loss$clone(deep = TRUE)
       self$state = list()
       inputs

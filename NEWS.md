@@ -1,5 +1,13 @@
 # mlr3torch (development version)
 
+## Bug Fixes:
+
+* FT Transformer can now be (un-)marshaled after being trained on categorical data (#412).
+
+## Features:
+
+* Better error messages for some cases.
+
 # mlr3torch 0.3.0
 
 ## Breaking Changes:

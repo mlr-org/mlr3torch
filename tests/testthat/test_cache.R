@@ -116,7 +116,7 @@ test_that("cache initialization and versioning are correct", {
   expect_true(cache_version$datasets == CACHE$versions$datasets)
   expect_true(normalizePath(cache_dir, mustWork = FALSE) %in% CACHE$initialized)
   # the subfolder is created
-  assert_true(name %in% list.files(cache_dir))
+  expect_true(name %in% list.files(cache_dir))
 
   # ceate another file in a different cache subdirector (cache_dir/datasets/test_data)
   cached(test_constructor, "datasets", "test_data")
