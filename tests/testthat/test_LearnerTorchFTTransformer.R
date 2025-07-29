@@ -28,8 +28,6 @@ make_ft_transformer = function(task_type, ...) {
 # make sure this matches mlr3tuningspaces
 no_wd = function(name) {
   # this will also disable weight decay for the input projection bias of the attention heads
-  # TODO: get normalization layers even when unnamed
-  # based on their position in the module_list
   no_wd_params = c("_normalization", "bias")
 
   return(any(map_lgl(no_wd_params, function(pattern) grepl(pattern, name, fixed = TRUE))))
@@ -44,8 +42,8 @@ rtdl_param_groups = function(parameters) {
   nums_in_module_list = sapply(split_param_names, function(x) as.integer(x[2]))
   tokenizer_idx = nums_in_module_list < cls_num_in_module_list
 
+  # the last normalization layer is unnamed, so we need to find it based on its position in the module list
   last_module_num_in_module_list = as.integer(split_param_names[[length(split_param_names)]][2])
-
   last_norm_num_in_module_list = last_module_num_in_module_list - 2
   last_norm_idx = nums_in_module_list == last_norm_num_in_module_list
 
