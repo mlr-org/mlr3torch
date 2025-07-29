@@ -534,7 +534,7 @@ LearnerTorch = R6Class("LearnerTorch",
       args = param_vals[names(param_vals) %in% dl_args]
       for(param_name in c("sampler", "batch_sampler")){
         param_val <- args[[param_name]]
-        if(!is.null(param_val)){
+        if (!is.null(param_val)) {
           # instantiate these params which should be classes.
           args[[param_name]] = param_val(dataset)
         }
