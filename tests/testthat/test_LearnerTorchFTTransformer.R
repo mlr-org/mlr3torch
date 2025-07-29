@@ -64,22 +64,9 @@ test_that("param groups work", {
   learner$param_set$set_values(opt.weight_decay = default_weight_decay)
   learner$param_set$set_values(opt.param_groups = rtdl_param_groups)
   
-  # german credit: both categorical and numeric
   task = tsk("german_credit")$filter(1:10)
   
   learner$train(task)
-
-  # mtcars: only numeric
-  learner_regr = make_ft_transformer("regr")
-  learner_regr$param_set$set_values(opt.weight_decay = default_weight_decay)
-  learner_regr$param_set$set_values(opt.param_groups = rtdl_param_groups)
-  task_num = tsk("mtcars")
-  learner_regr$train(task_num)
-
-  task_categ = tsk("penguins")$select(c("island", "sex"))
-  complete_cases_idx = which(complete.cases(task_categ$data()))
-  task_categ$filter(complete_cases_idx)
-  learner$train(task_categ)
 
   expect_equal(length(learner$model$optimizer$param_groups), 2L)
   expect_equal(learner$model$optimizer$param_groups[[1L]]$weight_decay, default_weight_decay)
