@@ -25,9 +25,6 @@
 \usepackage{comment}
 
 
-%arxiv
-\usepackage{lmodern}
-
 % track changes
 \usepackage[]{changes}
 
@@ -322,10 +319,10 @@ The impact of neural networks on fields such as computer vision, text generation
 The simplest architecture is the multi-layer perceptron (MLP), which combines (affine-)linear transformations with non-linear activation functions:
 
 \begin{align}
-f_{\boldsymbol{\theta}}(x) &=
+f_{\boldsymbol{\theta}}(\mathbf{x}) &=
   \phi_{L}\!\bigl(
     W_{L}\,\phi_{L-1}\!\bigl(
-      W_{L-1}\,\dotsm\phi_{1}(W_{1}\mathbf{x}+b_{1})
+      W_{L-1}\,\dotsm\phi_{1}(W_{1}\mathbf{x}+b_{1}) + b_{L - 1}
     \bigr)+b_{L}
   \bigr),
 \end{align}
@@ -884,7 +881,7 @@ R> graph <- list(path_num, path_categ) %>>% nn("merge_cat", dim = 2)
     \centering
     \begin{subfigure}{0.38\textwidth}
         \centering
-        \includegraphics[width=\textwidth, height = 56]{figures/residual-layer.pdf}
+        \includegraphics[width=\textwidth, height = 56pt]{figures/residual-layer.pdf}
         \caption{Residual layer.}
         \label{fig:residual-layer}
     \end{subfigure}
@@ -1192,7 +1189,8 @@ R> ti <- tune(
 +    learner = learner,
 +    term_evals = 40,
 +    task = task)
-R> cat("*", paste(names(lst), "=", ti$result_learner_param_vals[2:7],
++  pvals <- ti$result_learner_param_vals[2:7]
+R> cat("*", paste(names(pvals), "=", pvals,
 +   collapse = "\n"), "\n")
 \end{CodeInput}
 \begin{CodeOutput}
@@ -1443,7 +1441,7 @@ R> model <- architecture %>>%
 +      predict_type = "prob")
 \end{CodeInput}
 
-As further measures to address the unbalanced class distribution, we upsample the minority class by a factor of 4 and use random vertical and horizontal flipping, as well as random cropping for data augmentation.
+As further measures to address the imbalanced class distribution, we upsample the minority class by a factor of 4 and use random vertical and horizontal flipping, as well as random cropping for data augmentation.
 
 \begin{CodeInput}
 R> preprocessing <- po("classbalancing", ratio = 4, reference = "minor",
@@ -1496,17 +1494,15 @@ Therefore, it is not applicable to all architectures.
     \begin{subfigure}{0.48\textwidth}
         \centering
         \includegraphics[width=\textwidth]{figures/plot_adamw.png}
-        \caption{Runtime results for the AdamW optimizer. The facets represent different latent dimensions.}
         \label{fig:adamw-benchmark}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.48\textwidth}
         \centering
         \includegraphics[width=\textwidth]{figures/plot_sgd.png}
-        \caption{Runtime results for the SGD optimizer. The facets represent different latent dimensions.}
         \label{fig:sgd-benchmark}
     \end{subfigure}
-    \caption{Comparison of runtime results for AdamW and SGD optimizers.}
+    \caption{Runtime results for AdamW (left) and SGD (right). The facets correspond to different latent dimensions.}
     \label{fig:optimizer-benchmark}
 \end{figure}
 

@@ -230,7 +230,8 @@ ti <- tune(
   learner = learner,
   term_evals = 40,
   task = task)
-cat("*", paste(names(lst), "=", ti$result_learner_param_vals[2:7],
+pvals <- ti$result_learner_param_vals[2:7]
+cat("*", paste(names(pvals), "=", pvals,
  collapse = "\n"), "\n")
 
 library("torchdatasets")
