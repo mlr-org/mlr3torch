@@ -1155,7 +1155,7 @@ R> library("mlr3tuning")
 R> learner$param_set$set_values(
 +    block.linear.out_features = to_tune(20, 500),
 +    block.n_blocks = to_tune(1, 5),
-+    block.branch.selection = to_tune(c("relu", "tanh")),
++    block.branch.selection = to_tune(c("relu", "sigmoid")),
 +    block.dropout.p = to_tune(0.1, 0.9),
 +    torch_optimizer.lr = to_tune(10^-4, 10^-1, logscale = TRUE)
 +  )

@@ -1,7 +1,7 @@
 ---
 title: "Extracted Code from mlr3torch Paper"
 author: "mlr3torch"
-date: "2025-07-25"
+date: "2025-07-29"
 output: html_document
 ---
 
@@ -399,28 +399,11 @@ library("mlr3tuning")
 learner$param_set$set_values(
   block.linear.out_features = to_tune(20, 500),
   block.n_blocks = to_tune(1, 5),
-  block.branch.selection = to_tune(c("relu", "tanh")),
+  block.branch.selection = to_tune(c("relu", "sigmoid")),
   block.dropout.p = to_tune(0.1, 0.9),
   torch_optimizer.lr = to_tune(10^-4, 10^-1, logscale = TRUE)
 )
-```
 
-```
-## Error in self$assert(xs, sanitize = TRUE): Assertion on 'xs' failed: tune token invalid: to_tune(c("relu", "tanh")) generates points that are not compatible with param block.branch.selection.
-## Bad value:
-## [1] "tanh"
-## Parameter:
-## Param of class "ParamFct":
-## 
-##                        id      cls         grouping  cargo lower upper
-##                    <char>   <char>           <char> <list> <num> <num>
-## 1: block.branch.selection ParamFct "relu","sigmoid" [NULL]    NA    NA
-##    tolerance       levels special_vals        default storage_type
-##        <num>       <list>       <list>         <list>       <char>
-## 1:        NA relu,sigmoid    <list[0]> <NoDefault[0]>    character.
-```
-
-``` r
 set_validate(learner, "test")
 
 learner$param_set$set_values(
@@ -441,7 +424,7 @@ ti <- tune(
 ```
 
 ```
-## Error in .__ParamSet__get_values(self = self, private = private, super = super, : Missing required parameters: block.n_blocks
+## Error: The following packages could not be loaded: mlr3learners
 ```
 
 ``` r
@@ -501,7 +484,7 @@ table(labels)
 ```
 ## labels
 ##   cat   dog 
-## 12500  5490
+## 12500 12500
 ```
 
 ``` r
@@ -512,9 +495,9 @@ task
 
 ```
 ## 
-## ── <TaskClassif> (17990x2) ─────────────────────────────────────────────────────
+## ── <TaskClassif> (25000x2) ─────────────────────────────────────────────────────
 ## • Target: class
-## • Target classes: cat (positive class, 69%), dog (31%)
+## • Target classes: cat (positive class, 50%), dog (50%)
 ## • Properties: twoclass
 ## • Features (1):
 ##   • lt (1): image
@@ -545,26 +528,12 @@ learner <- as_learner(augment %>>% preprocess %>>% resnet)
 learner$id <- "resnet"
 set_validate(learner, 1 / 3)
 learner$train(task)
-```
-
-```
-## Error in jpeg::readJPEG(path): JPEG decompression error: Empty input file
-## This happened PipeOp classif.resnet18's $train()
-```
-
-``` r
 history <- learner$model$classif.resnet18$model$callbacks$history
 ggplot(history, aes(x = epoch, y = valid.classif.acc)) +
   geom_point()
 ```
 
-```
-## Error in `geom_point()`:
-## ! Problem while computing aesthetics.
-## ℹ Error occurred in the 1st layer.
-## Caused by error:
-## ! object 'epoch' not found
-```
+![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1-1.svg)
 
 ``` r
 task <- tsk("melanoma")

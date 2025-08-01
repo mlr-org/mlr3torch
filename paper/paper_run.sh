@@ -7,10 +7,13 @@
 #SBATCH --time=24:00:00
 #SBATCH --output=mlr3torch-paper-%j.out
 
-enroot create --force --name mlr3torch-jss /dss/dssmcmlfs01/pr74ze/pr74ze-dss-0001/ru48nas2/sebffischer+mlr3torch-jss+latest.sqsh
+cd /dss/dssmcmlfs01/pr74ze/pr74ze-dss-0001/ru48nas2/
+enroot create --force --name mlr3torch-jss sebffischer+mlr3torch-jss+latest.sqsh
 
-enroot start mlr3torch-jss bash -c "
-  cd ~/mlr3torch/paper
+enroot start \
+  --mount  /dss/dssmcmlfs01/pr74ze/pr74ze-dss-0001/ru48nas2/:/mnt/data \
+  mlr3torch-jss bash -c "
+  cd /mnt/data/mlr3torch/paper
   Rscript -e \"
     source('.Rprofile')
     knitr::knit('paper_code.Rmd')
