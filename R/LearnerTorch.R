@@ -532,6 +532,13 @@ LearnerTorch = R6Class("LearnerTorch",
         "worker_packages"
       )
       args = param_vals[names(param_vals) %in% dl_args]
+      for(param_name in c("sampler", "batch_sampler")){
+        param_val <- args[[param_name]]
+        if (!is.null(param_val)) {
+          # instantiate these params which should be classes.
+          args[[param_name]] = param_val(dataset)
+        }
+      }
       invoke(dataloader, dataset = dataset, .args = args)
     },
     .dataloader_predict = function(dataset, param_vals) {
