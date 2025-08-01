@@ -68,6 +68,10 @@ RUN R -q -e "install.packages('cowplot')"
 RUN R -q -e "install.packages('remotes')"
 RUN R -q -e "install.packages('precrec')"
 RUN R -q -e "install.packages('knitr')"
+RUN R -q -e "install.packages('mlr3learners')"
+RUN R -q -e "install.packages('ranger')"
+RUN R -q -e "install.packages('rgenoud')"
+RUN R -q -e "install.packages('DiceKriging')"
 RUN R -q -e "remotes::install_github('mlr-org/mlr3torch@53c0262')"
 
 CMD ["bash"]

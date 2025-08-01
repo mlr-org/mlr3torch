@@ -140,9 +140,7 @@ nn_winsorized_mse <- nn_module(c("nn_winsorized_mse", "nn_loss"),
     self$max_loss <- max_loss
   },
   forward = function(input, target) {
-    loss <- nnf_mse_loss(input, target)
-    loss <- torch_clamp(loss, max = self$max_loss)
-    loss
+    torch_clamp(nnf_mse_loss(input, target), max = self$max_loss)
   }
 )
 tloss <- as_torch_loss(nn_winsorized_mse)
@@ -226,7 +224,7 @@ library("mlr3tuning")
 learner$param_set$set_values(
   block.linear.out_features = to_tune(20, 500),
   block.n_blocks = to_tune(1, 5),
-  block.branch.selection = to_tune(c("relu", "sigmoid")),
+  block.branch.selection = to_tune(c("relu", "tanh")),
   block.dropout.p = to_tune(0.1, 0.9),
   torch_optimizer.lr = to_tune(10^-4, 10^-1, logscale = TRUE)
 )
@@ -351,7 +349,7 @@ architecture <- list(path_tabular, path_image) %>>%
 
 model <- architecture %>>%
   po("torch_loss",
-    t_loss("cross_entropy", weight = torch_tensor(c(10, 1)))) %>>%
+    t_loss("cross_entropy", class_weight = torch_tensor(c(10, 1)))) %>>%
   po("torch_optimizer", t_opt("adamw", lr = 0.0005)) %>>%
   po("torch_model_classif", epochs = 4, batch_size = 32, device = "cuda",
     predict_type = "prob")
