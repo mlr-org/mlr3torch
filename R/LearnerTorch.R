@@ -532,7 +532,20 @@ LearnerTorch = R6Class("LearnerTorch",
         "worker_packages"
       )
       args = param_vals[names(param_vals) %in% dl_args]
-      for(param_name in c("sampler", "batch_sampler")){
+
+      ok = sum(is.null(args$sampler), is.null(args$batch_sampler), is.null(args$batch_size)) == 2L
+
+      if (!ok) {
+        stopf("Provide either 'sampler', 'batch_sampler', or 'batch_size'.")
+      }
+
+      if (is.null(args$batch_size)) {
+        if (!is.null(args$shuffle) || !is.null(args$drop_last)) {
+          stopf("'shuffle' and 'drop_last' are only allowed when 'batch_size' is provided.")
+        }
+      }
+
+      for (param_name in c("sampler", "batch_sampler")){
         param_val <- args[[param_name]]
         if (!is.null(param_val)) {
           # instantiate these params which should be classes.
@@ -542,6 +555,9 @@ LearnerTorch = R6Class("LearnerTorch",
       invoke(dataloader, dataset = dataset, .args = args)
     },
     .dataloader_predict = function(dataset, param_vals) {
+      if (is.null(param_vals$batch_size)) {
+        stop("'batch_size' must be provided for prediction.")
+      }
       param_vals_test = insert_named(param_vals, list(shuffle = FALSE, drop_last = FALSE))
       private$.dataloader(dataset, param_vals_test)
     },
