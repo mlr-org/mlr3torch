@@ -264,7 +264,7 @@ Deep learning (DL) has profoundly influenced diverse fields ranging from compute
 In recent years, there has also been an increased focus on the application of DL to tabular data \citep{ref-borisov2022deep}.
 To train deep neural networks, software is needed that supports hardware-accelerated tensor operations and automatic differentiation.
 Together, these two components enable the definition of neural network architectures and train them using gradient-based optimization.
-However, the usage of such DL frameworks it not restricted to the training of deep neural networks and can, e.g., also be used to estimate statistical models, such as L1-regularized linear regression \citep{rugamer2024semi}.
+However, the usage of such DL frameworks it not restricted to the training of deep neural networks and can, e.g., also be used for gaussian processes as is done in \pkg{GPyTorch} \citep{gardner2018gpytorch}.
 
 The dominant programming language for DL is \proglang{Python} \citep{ref-van1995python}, for which the libraries \pkg{TensorFlow} \citep{ref-abadi2016tensorflow}, \pkg{PyTorch} \citep{ref-pytorch}, and \pkg{JAX} \citep{ref-jax2018github} are primarily developed.
 Historically, \pkg{TensorFlow} popularized static computation graphs, enabling optimized deployment, while \pkg{PyTorch} gained traction due to its dynamic graph approach, prioritizing flexibility and allowing for easier debugging.
@@ -319,15 +319,29 @@ We summarize the package and future directions in \Cref{sec:conclusion}.
 
 Deep learning is an area of machine learning that uses neural networks to model complex patterns in data.
 The impact of neural networks on fields such as computer vision, text generation, and speech recognition in the last years can hardly be overstated.
-Essentially all neural network architectures can be represented as directed acyclic graphs (DAGs).
+The simplest architecture is the multi-layer perceptron (MLP), which combines (affine-)linear transformations with non-linear activation functions:
+
+\begin{align}
+f_{\boldsymbol{\theta}}(x) &=
+  \phi_{L}\!\bigl(
+    W_{L}\,\phi_{L-1}\!\bigl(
+      W_{L-1}\,\dotsm\phi_{1}(W_{1}\mathbf{x}+b_{1})
+    \bigr)+b_{L}
+  \bigr),
+\end{align}
+
+\noindent
+with \(W_{\ell}\in\mathbb{R}^{d_{\ell}\times d_{\ell-1}}\), \(b_{\ell}\in\mathbb{R}^{d_{\ell}}\) and \(\theta = \{W_1, \ldots, W_L, b_1, \ldots, b_L\}\) for \(\ell=1,\dots,L\).
+
+More generally, almost all neural network architectures can be represented as directed acyclic graphs (DAGs).
 Each node in the graph represents a possible parametrized differentiable transformation that takes in one or more tensors and outputs one or more tensors.
 The edges go from layer outputs to layer inputs and define the data-flow between the operations.
 
 One such graph -- a simple transformer-based neural network -- is depicted in \Cref{fig:intro-network}.
-First, the input (which can be, e.g., a text string) is tokenized, i.e. converted into a vector representation.
+First, the input (e.g., a text string) is tokenized into subwords, and these tokens are then converted into vector representations through embedding.
 This output tensor is then fed into an attention module and subsequently added to the original tokenized input, in a technique which is commonly called a skip-connection.
 Note that the addition layer has no learnable parameters.
-The output is then normalized (e.g. using layer normalization) and followed by a linear layer, a ReLU activation, and a dropout layer, the output of which is again added to the output of the normalization layer, creating another skip-connection.
+The output is then processed using layer normalization and followed by a linear layer, a ReLU activation, and a dropout layer, the output of which is again added to the output of the normalization layer, creating another skip-connection.
 Finally, a second linear layer represents the network's output head.
 
 \begin{figure}[h]
@@ -370,8 +384,7 @@ R> learner <- lrn("regr.rpart")
 R> split <- partition(task, ratio = 2/3)
 R> learner$train(task, split$train)
 R> pred <- learner$predict(task, split$test)
-R> rmse <- msr("regr.rmse")
-R> pred$score(rmse)
+R> pred$score(msr("regr.rmse"))
 \end{CodeInput}
 \begin{CodeOutput}
 regr.rmse
@@ -395,7 +408,7 @@ To evaluate the performance of the above pipeline, we can \code{resample} it usi
 \begin{CodeInput}
 R> resampling <- rsmp("cv", folds = 3)
 R> rr <- resample(task, graph_learner, resampling)
-R> rr$aggregate(rmse)
+R> rr$aggregate(msr("regr.rmse"))
 \end{CodeInput}
 \begin{CodeOutput}
 regr.rmse
@@ -508,7 +521,7 @@ They only differ with respect to the stages during which they are active: prepro
 
 The \code{LearnerTorch} \pkg{R6} class is the abstract base class that inherits from the \code{mlr3::Learner} class and defines the train and predict logic, currently only for supervised classification and regression.
 Each learner in \pkg{mlr3torch} inherits from this base class and additionally defines the network architecture, the hyperparameters, supported feature types, and other meta-information, as well as how to construct the \code{torch::dataset} from the input \code{Task} during training.
-One simple example is the \code{LearnerTorchMLP}, which represents a simple multi layer perceptron (MLP) with dropout.
+One simple example is the \code{LearnerTorchMLP}, which represents a simple multi layer perceptron with dropout.
 
 \subsubsection{Configuration}
 
@@ -530,8 +543,7 @@ Below, we construct a \code{LearnerTorchMLP} classifier that uses cross-entropy 
 R> mlp <- lrn("classif.mlp",
 +   loss = t_loss("cross_entropy"),
 +   optimizer = t_opt("adamw", lr = 0.01),
-+   callbacks = t_clbk("history")
-+  )
++   callbacks = t_clbk("history"))
 \end{CodeInput}
 
 The hyperparameters of the learner are represented as a \code{ParamSet} as defined in the \pkg{paradox} package, which provides a comprehensive framework for defining parameter spaces \citep{ref-paradox2024}.
@@ -549,8 +561,7 @@ We also specify the weight decay for the optimizer and monitor the log loss thro
 R> mlp$param_set$set_values(
 +    neurons = c(100, 200), activation = torch::nn_relu,
 +    p = 0.3, opt.weight_decay = 0.01, measures_train = msr("classif.logloss"),
-+    epochs = 5, batch_size = 32, device = "cpu"
-+  )
++    epochs = 5, batch_size = 32, device = "cpu")
 \end{CodeInput}
 
 Furthermore, \torch{} learners can be configured through fields, which distinguish themselves from hyperparameters as they have predefined semantics that are shared between all \code{mlr3::Learner}s.
@@ -560,8 +571,7 @@ Below, we configure the learner to make probability predictions via the \code{\$
 \begin{CodeInput}
 R> mlp$configure(
 +    predict_type = "prob",
-+    epochs = 10
-+  )
++    epochs = 10)
 \end{CodeInput}
 
 \subsubsection{Training and prediction}
@@ -645,21 +655,21 @@ R> mlp2$unmarshal()
 
 \paragraph{Validation}
 
-When training iterative learning procedures such as deep neural networks, one often wants to monitor the validation performance of the model during training.
-In \mlrt{}, this is possible through a standardized mechanism available for learners with the validation property.
+When training iterative learning procedures such as deep neural networks, one often wants to monitor the generalization performance of the model during training.
+In \mlrt{}, this is possible through a standardized mechanism available for learners with the \code{"validation"} property.
 Such learners have a \code{\$validate} field to configure how to create the validation data.
-One possibility is to set this to a ratio representing the proportion of data to use for validation.
+One possibility is to set this to a ratio, e.g. below, we will only use $70\%$ of the data for training.
 
 \begin{CodeInput}
 R> set_validate(mlp, validate = 0.3)
 \end{CodeInput}
 
-This validation split is also taken into account by preprocessing \code{PipeOp}s, which ensures that the prediction logic of a preprocessing \code{PipeOp} is applied to the validation data during training.
+This setting is also taken into account by preprocessing \code{PipeOp}s, which ensures that the prediction logic of a preprocessing \code{PipeOp} is applied to the validation data during training.
 
 \paragraph{Internal Tuning}
 
 While \mlrt{} has extensive support for standard offline hyperparameter tuning through its extensions such as \pkg{mlr3tuning} \citep{ref-mlr3tuning2024}, some learning algorithms can also internally optimize hyperparameters during training.
-For deep neural networks, this is possible for the \code{"epochs"} hyperparameter and done by early stopping based on the validation performance.
+For deep neural networks, this is possible for the \code{epochs} hyperparameter and done by early stopping based on the validation performance.
 While such internal tuning can be considered as just another hyperparameter of a learner, the standardization of this property in the \mlrt{} base package allows to conveniently combine such learner-internal hyperparameter tuning with standard offline tuning.
 In \Cref{sec:tuning} we will demonstrate how to do so in the context of neural architecture search.
 
@@ -751,9 +761,7 @@ Note that we do not need to specify the input dimension for the first layer or t
 
 \begin{CodeInput}
 R> graph <- po("torch_ingress_ltnsr") %>>%
-+    nn("linear", out_features = 10) %>>%
-+    nn("relu") %>>%
-+    nn("head")
++    nn("linear", out_features = 10) %>>% nn("relu") %>>% nn("head")
 \end{CodeInput}
 
 While the module graph operates on tensors, which usually represent individual batches during a training run, the input type of the generating graph is a \code{Task} during both the training and prediction stage.
@@ -822,7 +830,7 @@ R> glrn$train(mnist_flat)
 The \code{ParamSet} of the resulting learner contains the hyperparameters of all individual \code{PipeOp}s from which it is built up.
 This means they can be altered after construction, but most importantly, they can be tuned over by utilizing the \pkg{mlr3tuning} extension, see \Cref{sec:tuning}.
 
-\subsubsection{More complex architectures}\label{sec:complex-architectures}
+\subsubsection{Non-linear graphs}\label{sec:complex-architectures}
 
 In the previous example, we were building a simple linear network with one input, where each \code{PipeOpTorch} added one layer (i.e., a \code{PipeOpModule}) to the underlying module graph.
 In this section we will show how to go beyond these restrictions.
@@ -842,6 +850,7 @@ This residual layer is visualized in~\Cref{fig:residual-layer}.
 R> residual_layer <- list(path_lin, path_nonlin) %>>% nn("merge_sum")
 \end{CodeInput}
 
+\subsubsection{Multi-input architectures}
 
 Networks with more than one input (ingress) are also supported.
 This can be used to define multi-modal architectures such as neural networks operating on both tables and images (c.f.~\Cref{sec:multimodal}).
@@ -950,7 +959,7 @@ Hooks can be triggered before or after certain actions (such as after processing
 Information from the training loop is communicated to the callback via a \code{ContextTorch} object that, e.g., contains the network and optimizer or the current training or validation batch.
 A callback can also store information in the learner after training by implementing the \code{\$state\_dict} and \code{\$load\_state\_dict} methods.
 
-The \code{torch\_callback} helper function simplifies the creation of a \code{TorchCallback} object.
+A \code{TorchCallback} object is created via the \code{torch\_callback} function.
 We demonstrate it below by implementing gradient clipping, which has two hyperparameters representing the maximally allowed norm value and the type of norm.
 It only implements the hook that is run after the backward call.
 After training, it keeps the history of norms in the learner state.
@@ -1015,12 +1024,9 @@ R> nn_ffn <- nn_module("nn_ffn",
 +          list(nn_linear(dims[i], dims[i + 1]))
 +        }
 +      }), recursive = FALSE)
-+
 +      self$network <- do.call(nn_sequential, modules)
 +    },
-+    forward = function(x) {
-+      self$network(x)
-+    }
++    forward = function(x) self$network(x)
 +  )
 \end{CodeInput}
 
@@ -1045,8 +1051,7 @@ Next, we construct the learner, which also includes specification of the archite
 R> lrn_ffn <- lrn("classif.module",
 +    module_generator = nn_ffn,
 +    ingress_tokens = num_input,
-+    latent_dim = 100, n_layers = 5
-+  )
++    latent_dim = 100, n_layers = 5)
 \end{CodeInput}
 
 We could now train this learner on any \mlrt{} classification task, but the network would only make use of the numeric features.
@@ -1112,8 +1117,7 @@ This also demonstrates one of the strengths of \pkg{mlr3torch}: because \code{Pi
 To repeat the above defined segment one or more times, we can use \code{PipeOpTorchBlock} which we have already covered earlier.
 
 \begin{CodeInput}
-R> architecture <- nn("block", block) %>>%
-+    nn("head")
+R> architecture <- nn("block", block) %>>% nn("head")
 \end{CodeInput}
 
 Next, we set the loss function to MSE and the optimizer to AdamW:
@@ -1132,11 +1136,8 @@ R> model <- po("torch_model_regr", device = "cuda", batch_size = 512)
 We can now assemble these pieces into the complete learning pipeline and convert it to a \code{Learner}:
 
 \begin{CodeInput}
-R> pipeline <- preprocessing %>>%
-+    ingress %>>%
-+    architecture %>>%
-+    config %>>%
-+    model
+R> pipeline <- preprocessing %>>% ingress %>>%
++    architecture %>>% config %>>% model
 R> learner = as_learner(pipeline)
 R> learner$id = "custom_nn"
 \end{CodeInput}
@@ -1155,8 +1156,7 @@ R> learner$param_set$set_values(
 +    block.n_blocks = to_tune(1, 5),
 +    block.branch.selection = to_tune(c("relu", "tanh")),
 +    block.dropout.p = to_tune(0.1, 0.9),
-+    torch_optimizer.lr = to_tune(10^-4, 10^-1, logscale = TRUE)
-+  )
++    torch_optimizer.lr = to_tune(10^-4, 10^-1, logscale = TRUE))
 \end{CodeInput}
 
 All the above parameters will be tuned in the standard offline way using Bayesian optimization.
@@ -1174,8 +1174,7 @@ By configuring \code{internal = TRUE}, we specify that the epochs are tuned usin
 R> learner$param_set$set_values(
 +    torch_model_regr.patience = 5,
 +    torch_model_regr.measures_valid = msr("regr.mse"),
-+    torch_model_regr.epochs = to_tune(upper = 100, internal = TRUE)
-+  )
++    torch_model_regr.epochs = to_tune(upper = 100, internal = TRUE))
 \end{CodeInput}
 
 \subsubsection{Running the tuning procedure}
@@ -1192,23 +1191,17 @@ R> ti <- tune(
 +    measure = msr("internal_valid_score", minimize = TRUE),
 +    learner = learner,
 +    term_evals = 40,
-+    task = task
-+  )
-R> ti$result_learner_param_vals[2:7]
++    task = task)
+R> cat("*", paste(names(lst), "=", ti$result_learner_param_vals[2:7],
++   collapse = "\n"), "\n")
 \end{CodeInput}
 \begin{CodeOutput}
-$block.n_blocks
-[1] 4
-$block.linear.out_features
-[1] 335
-$block.branch.selection
-1] "relu"
-$block.dropout.p
-[1] 0.449124
-$torch_optimizer.lr
-[1] 0.001817172
-$torch_model_regr.epochs
-[1] 80
+* block.n_blocks = 4
+* block.linear.out_features = 335
+* block.branch.selection = relu
+* block.dropout.p = 0.449124
+* torch_optimizer.lr = 0.001817172
+* torch_model_regr.epochs = 80
 \end{CodeOutput}
 
 We could now re-fit our learner on the whole data with the configuration found above to obtain our final model.
@@ -1230,8 +1223,7 @@ As a first step, we will show how to construct the classification task, the data
 
 \begin{CodeInput}
 R> library("torchdatasets")
-R> data_dir = "data"
-R> dogs_vs_cats_dataset(data_dir, download = TRUE)
+R> dogs_vs_cats_dataset("data", download = TRUE)
 \end{CodeInput}
 
 Next, we will create a \code{lazy\_tensor} vector that represents these images.
@@ -1257,7 +1249,7 @@ R> ds <- torch::dataset("dogs_vs_cats",
 In order to initialize this dataset, we need to create the vector containing the image paths.
 
 \begin{CodeInput}
-R> paths <- list.files(file.path(data_dir, "dogs-vs-cats/train"),
+R> paths <- list.files(file.path("data", "dogs-vs-cats/train"),
 +    full.names = TRUE)
 R> dogs_vs_cats <- ds(paths)
 \end{CodeInput}
@@ -1320,22 +1312,16 @@ This is possible using the \code{"unfreeze"} callback, where we specify which pa
 \begin{CodeInput}
 R> unfreezer <- t_clbk("unfreeze",
 +    starting_weights = select_name(c("fc.weight", "fc.bias")),
-+    unfreeze = data.table(
-+      epoch = 3, weights = select_all()
-+    )
-+  )
++    unfreeze = data.table(epoch = 3, weights = select_all()))
 \end{CodeInput}
 
 The final step is the construction of the ResNet-18 learner which has a parameter \code{pretrained} that determines whether to use the pretrained weights.
 
 \begin{CodeInput}
 R> resnet <- lrn("classif.resnet18",
-+    pretrained = TRUE, epochs = 5,
-+    device = "cuda", batch_size = 32,
-+    opt.lr = 1e-4,
-+    measures_valid = msr("classif.acc"),
-+    callbacks = list(unfreezer, t_clbk("history"))
-+  )
++    pretrained = TRUE, epochs = 5, device = "cuda", batch_size = 32,
++    opt.lr = 1e-4, measures_valid = msr("classif.acc"),
++    callbacks = list(unfreezer, t_clbk("history")))
 \end{CodeInput}
 
 By instructing the learner to use the pretrained weights, \pkg{torchvision} will download (and optionally cache) those weights upon first use and the torch learner will replace the output layer of the network with a new head with the correct output dimension for the task at hand.
@@ -1350,17 +1336,11 @@ R> learner <- as_learner(augment %>>% preprocess %>>% resnet)
 R> learner$id <- "resnet"
 R> set_validate(learner, 1 / 3)
 R> learner$train(task)
-R> history <- learner$model$classif.resnet18$model$callbacks$history
-R> ggplot(history, aes(x = epoch, y = valid.classif.acc)) +
-+    geom_point()
+R> learner$model$classif.resnet18$model$callbacks$history
 \end{CodeInput}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{figures/history.png}
-    \caption{Validation accuracy of ResNet-18 model during training.}
-    \label{fig:resnet-acc}
-\end{figure}
+\begin{CodeOutput}
+TODO     
+\end{CodeOutput}
 
 \subsection{Multi-modal data}\label{sec:multimodal}
 
@@ -1412,8 +1392,7 @@ The three features are then fed as a single tensor into the network, where we re
 
 \begin{CodeInput}
 R> block_ffn <- nn("linear", out_features = 500) %>>%
-+    nn("relu") %>>%
-+    nn("dropout")
++    nn("relu") %>>% nn("dropout")
 R> path_tabular <- po("select_1",
 +      selector = selector_type(c("integer", "factor"))) %>>%
 +    po("imputehist") %>>%
@@ -1447,11 +1426,8 @@ Next, we merge the two branches by concatenation and afterwards add one more den
 
 \begin{CodeInput}
 R> architecture <- list(path_tabular, path_image) %>>%
-+    nn("merge_cat") %>>%
-+    nn("linear_1", out_features = 500) %>>%
-+    nn("relu_4") %>>%
-+    nn("dropout_2") %>>%
-+    nn("head")
++    nn("merge_cat") %>>% nn("linear_1", out_features = 500) %>>%
++    nn("relu_4") %>>% nn("dropout_2") %>>% nn("head")
 \end{CodeInput}
 
 To finalize the model configuration, we specify the loss, optimizer and remaining training arguments.
@@ -1461,7 +1437,7 @@ For the optimizer we use again AdamW and train for 4 epochs with a batch size of
 \begin{CodeInput}
 R> model <- architecture %>>%
 +    po("torch_loss",
-+      t_loss("cross_entropy", class_weight = torch_tensor(c(10, 1)))) %>>%
++      t_loss("cross_entropy", class_weight = torch_tensor(10))) %>>%
 +    po("torch_optimizer", t_opt("adamw", lr = 0.0005)) %>>%
 +    po("torch_model_classif", epochs = 4, batch_size = 32, device = "cuda",
 +      predict_type = "prob")
@@ -1490,7 +1466,7 @@ R> autoplot(rr, type = "roc")
 \begin{figure}[H]
     \centering
     % Placeholder for ROC curve output
-    \includegraphics[width=0.8\textwidth]{figures/roc.png}
+    \includegraphics[width=0.6\textwidth]{figures/roc.png}
     \caption{ROC curve for multi-modal neural network evaluated using 5-fold cross-validation.}
     \label{fig:roc-curve}
 \end{figure}
@@ -1501,7 +1477,7 @@ Besides functionality, another important consideration of DL frameworks is their
 In this section, we present some benchmark results comparing \mlrttorch{} with \torch{} and \pytorch{} code.
 The difference between \mlrttorch{} and \torch{} is only the implementation of the training loop, as \mlrttorch{} relies on \torch{} as a backend.
 We train a simple multi-layer perceptron with ReLU activation and different number of layers and latent dimension on a synthetically generated dataset for 20 epochs and present the time per batch.
-Before starting the measurement of those 20 epochs, the networks are trained for 5 epochs as a warm-up.
+We perform a 5 epoch warmup phase to mitigate the impact of fixed overheads on timing measurements, ensuring that our reported runtimes more accurately reflect realistic, long-duration training scenarios.
 Beyond the architecture characteristics, we also vary the device (CPU and GPU), the optimizer (SGD and AdamW), and whether we JIT compile the network.
 The computational details are presented in \Cref{app:comp-details}.
 For the optimizers in \rlang{}, we use \texttt{optim\_ignite\_adamw} and \texttt{optim\_ignite\_sgd} which wrap the \libtorch{} \cpp{} implementation of these optimizers.
@@ -1515,6 +1491,25 @@ The latter works by executing the module using an example input and recording al
 Dynamic control flow causes issues for tracing because it records a fixed execution path and cannot capture data-dependent branching.
 Therefore, it is not applicable to all architectures.
 
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/plot_adamw.png}
+        \caption{Runtime results for the AdamW optimizer. The facets represent different latent dimensions.}
+        \label{fig:adamw-benchmark}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/plot_sgd.png}
+        \caption{Runtime results for the SGD optimizer. The facets represent different latent dimensions.}
+        \label{fig:sgd-benchmark}
+    \end{subfigure}
+    \caption{Comparison of runtime results for AdamW and SGD optimizers.}
+    \label{fig:optimizer-benchmark}
+\end{figure}
+
 \Cref{fig:adamw-benchmark} shows the results for the AdamW optimizer on both the CPU and GPU.
 The difference between \torch{} and \mlrttorch{} is relatively small and can be attributed to typical framework overhead.
 Especially for larger networks, the difference is negligible.
@@ -1527,24 +1522,12 @@ In \pytorch{}, JIT compiling barely has an effect on the runtime.
 Interestingly, JIT compiling does not only seem to reduce runtime by a constant factor, but also change the slope of the scaling of the runtime with the latent dimension.
 
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{figures/plot_adamw.png}
-    \caption{Runtime results for the AdamW optimizer. The facets represent different latent dimensions.}
-    \label{fig:adamw-benchmark}
-\end{figure}
 
 Next, \Cref{fig:sgd-benchmark} presents the same runtime benchmarks when using the SGD optimizer.
 In this scenario, \pytorch{} achieves the best performance for all configurations.
 Because the SGD optimizer is simpler than AdamW, using the \libtorch{} implementation has less of an effect on the runtime.
 Apart from that, the results are similar to those for the AdamW optimizer.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{figures/plot_sgd.png}
-    \caption{Runtime results for the SGD optimizer. The facets represent different latent dimension.}
-    \label{fig:sgd-benchmark}
-\end{figure}
 
 In summary, we recommend using the ignite versions of the optimizer to obtain good runtime performance and, if possible, JIT compiling the network.
 
@@ -1590,5 +1573,6 @@ Sebastian Fischer is supported by the Deutsche Forschungsgemeinschaft (DFG, Germ
 \end{itemize}
 
 \end{appendix}
+
 
 \end{document}

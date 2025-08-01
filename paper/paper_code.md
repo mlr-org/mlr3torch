@@ -19,7 +19,7 @@ pred$score(rmse)
 ```
 
 ```
-## regr.rmse 
+## regr.rmse
 ##  4.736051
 ```
 
@@ -33,7 +33,7 @@ rr$aggregate(rmse)
 ```
 
 ```
-## regr.rmse 
+## regr.rmse
 ##  4.274766
 ```
 
@@ -60,7 +60,7 @@ mnist
 ```
 
 ```
-## 
+##
 ## ── <TaskClassif> (70000x2): MNIST Digit Classification ─────────────────────────
 ## • Target: label
 ```
@@ -143,7 +143,7 @@ mlp$model$network
 
 ```
 ## An `nn_module` containing 100,710 parameters.
-## 
+##
 ## ── Modules ─────────────────────────────────────────────────────────────────────
 ## • 0: <nn_linear> #78,500 parameters
 ## • 1: <nn_relu> #0 parameters
@@ -171,7 +171,7 @@ pred$score(msr("classif.ce"))
 ```
 
 ```
-## classif.ce 
+## classif.ce
 ##      0.902
 ```
 
@@ -350,7 +350,7 @@ task
 ```
 
 ```
-## 
+##
 ## ── <TaskRegr> (20640x10): California House Value ───────────────────────────────
 ## • Target: median_house_value
 ## • Properties: -
@@ -409,7 +409,7 @@ learner$param_set$set_values(
 ## [1] "tanh"
 ## Parameter:
 ## Param of class "ParamFct":
-## 
+##
 ##                        id      cls         grouping  cargo lower upper
 ##                    <char>   <char>           <char> <list> <num> <num>
 ## 1: block.branch.selection ParamFct "relu","sigmoid" [NULL]    NA    NA
@@ -459,14 +459,14 @@ dogs_vs_cats_dataset(data_dir, download = TRUE)
 ```
 ## <dataset>
 ##   Public:
-##     .getitem: function (i) 
-##     .length: function () 
+##     .getitem: function (i)
+##     .length: function ()
 ##     classes: dog cat
-##     clone: function (deep = FALSE) 
+##     clone: function (deep = FALSE)
 ##     images: data/dogs-vs-cats/train/cat.0.jpg data/dogs-vs-cats/trai ...
-##     initialize: function (root, split = "train", download = FALSE, ..., transform = NULL, 
-##     load_state_dict: function (x, ..., .refer_to_state_dict = FALSE) 
-##     state_dict: function () 
+##     initialize: function (root, split = "train", download = FALSE, ..., transform = NULL,
+##     load_state_dict: function (x, ..., .refer_to_state_dict = FALSE)
+##     state_dict: function ()
 ##     target_transform: NULL
 ##     targets: 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2  ...
 ##     transform: NULL
@@ -498,7 +498,7 @@ table(labels)
 
 ```
 ## labels
-##   cat   dog 
+##   cat   dog
 ## 12500 12500
 ```
 
@@ -509,7 +509,7 @@ task
 ```
 
 ```
-## 
+##
 ## ── <TaskClassif> (25000x2) ─────────────────────────────────────────────────────
 ## • Target: class
 ## • Target classes: cat (positive class, 50%), dog (50%)
@@ -556,7 +556,7 @@ task
 ```
 
 ```
-## 
+##
 ## ── <TaskClassif> (32701x5): Melanoma Classification ────────────────────────────
 ## • Target: outcome
 ## • Target classes: malignant (positive class, 2%), benign (98%)
@@ -573,8 +573,8 @@ table(task$truth())
 ```
 
 ```
-## 
-## malignant    benign 
+##
+## malignant    benign
 ##       581     32120
 ```
 
@@ -583,7 +583,7 @@ task$missings("age_approx")
 ```
 
 ```
-## age_approx 
+## age_approx
 ##         44
 ```
 
@@ -624,7 +624,7 @@ architecture <- list(path_tabular, path_image) %>>%
 
 model <- architecture %>>%
   po("torch_loss",
-    t_loss("cross_entropy", class_weight = torch_tensor(c(10, 1)))) %>>%
+    t_loss("cross_entropy", class_weight = torch_tensor(10))) %>>%
   po("torch_optimizer", t_opt("adamw", lr = 0.0005)) %>>%
   po("torch_model_classif", epochs = 4, batch_size = 32, device = "cuda",
     predict_type = "prob")
@@ -711,7 +711,7 @@ rr <- resample(task, glrn, rsmp("cv", folds = 5))
 ## frame #60: Rf_eval + 0x17b (0x7f9e99979b4b in /usr/local/lib/R/lib/libR.so)
 ## frame #61: <unknown function> + 0x150d7f (0x7f9e9997bd7f in /usr/local/lib/R/lib/libR.so)
 ## frame #62: <unknown function> + 0x151b57 (0x7f9e9997cb57 in /usr/local/lib/R/lib/libR.so)
-## 
+##
 ## This happened in PipeOp torch_model_classif's $train()
 ```
 
