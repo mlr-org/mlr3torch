@@ -3,6 +3,7 @@
 ## Bug Fixes:
 
 * FT Transformer can now be (un-)marshaled after being trained on categorical data (#412).
+* Parameters (batch)-sampler now work (#420, thanks @tdhock)
 
 ## Features:
 
