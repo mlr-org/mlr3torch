@@ -1,7 +1,7 @@
 ---
 title: "Extracted Code from mlr3torch Paper"
 author: "mlr3torch"
-date: "2025-07-29"
+date: "2025-08-01"
 output: html_document
 ---
 
@@ -276,9 +276,7 @@ nn_winsorized_mse <- nn_module(c("nn_winsorized_mse", "nn_loss"),
     self$max_loss <- max_loss
   },
   forward = function(input, target) {
-    loss <- nnf_mse_loss(input, target)
-    loss <- torch_clamp(loss, max = self$max_loss)
-    loss
+    torch_clamp(nnf_mse_loss(input, target), max = self$max_loss)
   }
 )
 tloss <- as_torch_loss(nn_winsorized_mse)
@@ -399,11 +397,28 @@ library("mlr3tuning")
 learner$param_set$set_values(
   block.linear.out_features = to_tune(20, 500),
   block.n_blocks = to_tune(1, 5),
-  block.branch.selection = to_tune(c("relu", "sigmoid")),
+  block.branch.selection = to_tune(c("relu", "tanh")),
   block.dropout.p = to_tune(0.1, 0.9),
   torch_optimizer.lr = to_tune(10^-4, 10^-1, logscale = TRUE)
 )
+```
 
+```
+## Error in self$assert(xs, sanitize = TRUE): Assertion on 'xs' failed: tune token invalid: to_tune(c("relu", "tanh")) generates points that are not compatible with param block.branch.selection.
+## Bad value:
+## [1] "tanh"
+## Parameter:
+## Param of class "ParamFct":
+## 
+##                        id      cls         grouping  cargo lower upper
+##                    <char>   <char>           <char> <list> <num> <num>
+## 1: block.branch.selection ParamFct "relu","sigmoid" [NULL]    NA    NA
+##    tolerance       levels special_vals        default storage_type
+##        <num>       <list>       <list>         <list>       <char>
+## 1:        NA relu,sigmoid    <list[0]> <NoDefault[0]>    character.
+```
+
+``` r
 set_validate(learner, "test")
 
 learner$param_set$set_values(
@@ -424,7 +439,7 @@ ti <- tune(
 ```
 
 ```
-## Error: The following packages could not be loaded: mlr3learners
+## Error in .__ParamSet__get_values(self = self, private = private, super = super, : Missing required parameters: block.n_blocks
 ```
 
 ``` r
@@ -609,42 +624,95 @@ architecture <- list(path_tabular, path_image) %>>%
 
 model <- architecture %>>%
   po("torch_loss",
-    t_loss("cross_entropy", weight = torch_tensor(c(10, 1)))) %>>%
+    t_loss("cross_entropy", class_weight = torch_tensor(c(10, 1)))) %>>%
   po("torch_optimizer", t_opt("adamw", lr = 0.0005)) %>>%
   po("torch_model_classif", epochs = 4, batch_size = 32, device = "cuda",
     predict_type = "prob")
-```
 
-```
-## Error in dictionary_sugar_get(dict = dict, .key = .key, ..., .dicts_suggest = .dicts_suggest): Cannot set argument 'weight' for 'TorchLoss' (not a constructor argument, not a parameter, not a field). Did you mean 'class_weight'?
-```
-
-``` r
 preprocessing <- po("classbalancing", ratio = 4, reference = "minor",
     adjust = "minor") %>>%
   po("augment_random_horizontal_flip") %>>%
   po("augment_random_vertical_flip") %>>%
   po("augment_random_crop", size = c(128, 128), pad_if_needed = TRUE)
 glrn <- as_learner(preprocessing %>>% model)
-```
 
-```
-## Error in concat_graphs(g1, g2, in_place = FALSE): Output type of PipeOp augment_random_crop during training (Task) incompatible with input type of PipeOp torch_model_regr (ModelDescriptor)
-```
-
-``` r
 library("mlr3viz")
 glrn$id <- "multimodal"
 rr <- resample(task, glrn, rsmp("cv", folds = 5))
 ```
 
 ```
-## Warning: Caught mlr3error. Canceling all iterations ...
+## Warning: Caught Rcpp::exception. Canceling all iterations ...
 ```
 
 ```
-## Error in private$.train(input): No missing values allowed in task 'melanoma'.
-## This happened PipeOp torch_ingress_ltnsr's $train()
+## Error in (function (self, target, weight, pos_weight, reduction) : output with shape [32, 1] doesn't match the broadcast shape [32, 2]
+## Exception raised from mark_resize_outputs at ../aten/src/ATen/TensorIterator.cpp:1207 (most recent call first):
+## frame #0: c10::Error::Error(c10::SourceLocation, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) + 0xb0 (0x7f9e8ea85950 in /usr/local/lib/R/library/torch/lib/libc10.so)
+## frame #1: c10::detail::torchCheckFail(char const*, char const*, unsigned int, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) + 0xfa (0x7f9e8ea2944a in /usr/local/lib/R/library/torch/lib/libc10.so)
+## frame #2: at::TensorIteratorBase::mark_resize_outputs(at::TensorIteratorConfig const&) + 0x21d (0x7f9e7a8482bd in /usr/local/lib/R/library/torch/lib/libtorch_cpu.so)
+## frame #3: at::TensorIteratorBase::build(at::TensorIteratorConfig&) + 0x78 (0x7f9e7a848358 in /usr/local/lib/R/library/torch/lib/libtorch_cpu.so)
+## frame #4: at::TensorIteratorBase::build_borrowing_binary_op(at::TensorBase const&, at::TensorBase const&, at::TensorBase const&) + 0x100 (0x7f9e7a849790 in /usr/local/lib/R/library/torch/lib/libtorch_cpu.so)
+## frame #5: <unknown function> + 0x3a17da3 (0x7f9e1eb9ada3 in /usr/local/lib/R/library/torch/lib/libtorch_cuda.so)
+## frame #6: at::_ops::mul__Tensor::call(at::Tensor&, at::Tensor const&) + 0x14a (0x7f9e7b57648a in /usr/local/lib/R/library/torch/lib/libtorch_cpu.so)
+## frame #7: at::native::binary_cross_entropy_with_logits(at::Tensor const&, at::Tensor const&, std::optional<at::Tensor> const&, std::optional<at::Tensor> const&, long) + 0x1d4 (0x7f9e7ad671c4 in /usr/local/lib/R/library/torch/lib/libtorch_cpu.so)
+## frame #8: <unknown function> + 0x30769d5 (0x7f9e7bf1d9d5 in /usr/local/lib/R/library/torch/lib/libtorch_cpu.so)
+## frame #9: at::_ops::binary_cross_entropy_with_logits::redispatch(c10::DispatchKeySet, at::Tensor const&, at::Tensor const&, std::optional<at::Tensor> const&, std::optional<at::Tensor> const&, long) + 0xa0 (0x7f9e7b8bc4f0 in /usr/local/lib/R/library/torch/lib/libtorch_cpu.so)
+## frame #10: <unknown function> + 0x5048ca2 (0x7f9e7deefca2 in /usr/local/lib/R/library/torch/lib/libtorch_cpu.so)
+## frame #11: <unknown function> + 0x50499f7 (0x7f9e7def09f7 in /usr/local/lib/R/library/torch/lib/libtorch_cpu.so)
+## frame #12: at::_ops::binary_cross_entropy_with_logits::call(at::Tensor const&, at::Tensor const&, std::optional<at::Tensor> const&, std::optional<at::Tensor> const&, long) + 0x1d9 (0x7f9e7b91b309 in /usr/local/lib/R/library/torch/lib/libtorch_cpu.so)
+## frame #13: at::binary_cross_entropy_with_logits(at::Tensor const&, at::Tensor const&, std::optional<at::Tensor> const&, std::optional<at::Tensor> const&, long) + 0x59 (0x7f9e8f760b1a in /usr/local/lib/R/library/torch/lib/liblantern.so)
+## frame #14: _lantern_binary_cross_entropy_with_logits_tensor_tensor_tensor_tensor_intt + 0x9f (0x7f9e8f280eca in /usr/local/lib/R/library/torch/lib/liblantern.so)
+## frame #15: cpp_torch_namespace_binary_cross_entropy_with_logits_self_Tensor_target_Tensor(XPtrTorchTensor, XPtrTorchTensor, XPtrTorchOptionalTensor, XPtrTorchOptionalTensor, XPtrTorchint64_t) + 0x41 (0x7f9e904665a1 in /usr/local/lib/R/library/torch/libs/torchpkg.so)
+## frame #16: _torch_cpp_torch_namespace_binary_cross_entropy_with_logits_self_Tensor_target_Tensor + 0xd8 (0x7f9e901e6578 in /usr/local/lib/R/library/torch/libs/torchpkg.so)
+## frame #17: <unknown function> + 0x1020ee (0x7f9e9992d0ee in /usr/local/lib/R/lib/libR.so)
+## frame #18: <unknown function> + 0x13ddca (0x7f9e99968dca in /usr/local/lib/R/lib/libR.so)
+## frame #19: <unknown function> + 0x14e77d (0x7f9e9997977d in /usr/local/lib/R/lib/libR.so)
+## frame #20: Rf_eval + 0x17b (0x7f9e99979b4b in /usr/local/lib/R/lib/libR.so)
+## frame #21: <unknown function> + 0x150d7f (0x7f9e9997bd7f in /usr/local/lib/R/lib/libR.so)
+## frame #22: <unknown function> + 0x151b57 (0x7f9e9997cb57 in /usr/local/lib/R/lib/libR.so)
+## frame #23: Rf_eval + 0x2ac (0x7f9e99979c7c in /usr/local/lib/R/lib/libR.so)
+## frame #24: <unknown function> + 0xcae0f (0x7f9e998f5e0f in /usr/local/lib/R/lib/libR.so)
+## frame #25: <unknown function> + 0x1420cf (0x7f9e9996d0cf in /usr/local/lib/R/lib/libR.so)
+## frame #26: <unknown function> + 0x14e77d (0x7f9e9997977d in /usr/local/lib/R/lib/libR.so)
+## frame #27: Rf_eval + 0x17b (0x7f9e99979b4b in /usr/local/lib/R/lib/libR.so)
+## frame #28: <unknown function> + 0x150d7f (0x7f9e9997bd7f in /usr/local/lib/R/lib/libR.so)
+## frame #29: <unknown function> + 0x151b57 (0x7f9e9997cb57 in /usr/local/lib/R/lib/libR.so)
+## frame #30: Rf_eval + 0x2ac (0x7f9e99979c7c in /usr/local/lib/R/lib/libR.so)
+## frame #31: <unknown function> + 0x152934 (0x7f9e9997d934 in /usr/local/lib/R/lib/libR.so)
+## frame #32: Rf_eval + 0x566 (0x7f9e99979f36 in /usr/local/lib/R/lib/libR.so)
+## frame #33: <unknown function> + 0x150d7f (0x7f9e9997bd7f in /usr/local/lib/R/lib/libR.so)
+## frame #34: <unknown function> + 0x151b57 (0x7f9e9997cb57 in /usr/local/lib/R/lib/libR.so)
+## frame #35: <unknown function> + 0x143fbf (0x7f9e9996efbf in /usr/local/lib/R/lib/libR.so)
+## frame #36: <unknown function> + 0x14e77d (0x7f9e9997977d in /usr/local/lib/R/lib/libR.so)
+## frame #37: Rf_eval + 0x17b (0x7f9e99979b4b in /usr/local/lib/R/lib/libR.so)
+## frame #38: <unknown function> + 0x150d7f (0x7f9e9997bd7f in /usr/local/lib/R/lib/libR.so)
+## frame #39: <unknown function> + 0x151b57 (0x7f9e9997cb57 in /usr/local/lib/R/lib/libR.so)
+## frame #40: Rf_eval + 0x2ac (0x7f9e99979c7c in /usr/local/lib/R/lib/libR.so)
+## frame #41: <unknown function> + 0x150d7f (0x7f9e9997bd7f in /usr/local/lib/R/lib/libR.so)
+## frame #42: <unknown function> + 0x151b57 (0x7f9e9997cb57 in /usr/local/lib/R/lib/libR.so)
+## frame #43: <unknown function> + 0x143fbf (0x7f9e9996efbf in /usr/local/lib/R/lib/libR.so)
+## frame #44: <unknown function> + 0x14e77d (0x7f9e9997977d in /usr/local/lib/R/lib/libR.so)
+## frame #45: Rf_eval + 0x17b (0x7f9e99979b4b in /usr/local/lib/R/lib/libR.so)
+## frame #46: <unknown function> + 0x150d7f (0x7f9e9997bd7f in /usr/local/lib/R/lib/libR.so)
+## frame #47: <unknown function> + 0x151b57 (0x7f9e9997cb57 in /usr/local/lib/R/lib/libR.so)
+## frame #48: Rf_eval + 0x2ac (0x7f9e99979c7c in /usr/local/lib/R/lib/libR.so)
+## frame #49: <unknown function> + 0x15541d (0x7f9e9998041d in /usr/local/lib/R/lib/libR.so)
+## frame #50: <unknown function> + 0x1420cf (0x7f9e9996d0cf in /usr/local/lib/R/lib/libR.so)
+## frame #51: <unknown function> + 0x14e77d (0x7f9e9997977d in /usr/local/lib/R/lib/libR.so)
+## frame #52: Rf_eval + 0x17b (0x7f9e99979b4b in /usr/local/lib/R/lib/libR.so)
+## frame #53: <unknown function> + 0x150d7f (0x7f9e9997bd7f in /usr/local/lib/R/lib/libR.so)
+## frame #54: <unknown function> + 0x151b57 (0x7f9e9997cb57 in /usr/local/lib/R/lib/libR.so)
+## frame #55: Rf_eval + 0x2ac (0x7f9e99979c7c in /usr/local/lib/R/lib/libR.so)
+## frame #56: <unknown function> + 0x150d7f (0x7f9e9997bd7f in /usr/local/lib/R/lib/libR.so)
+## frame #57: <unknown function> + 0x151b57 (0x7f9e9997cb57 in /usr/local/lib/R/lib/libR.so)
+## frame #58: <unknown function> + 0x143fbf (0x7f9e9996efbf in /usr/local/lib/R/lib/libR.so)
+## frame #59: <unknown function> + 0x14e77d (0x7f9e9997977d in /usr/local/lib/R/lib/libR.so)
+## frame #60: Rf_eval + 0x17b (0x7f9e99979b4b in /usr/local/lib/R/lib/libR.so)
+## frame #61: <unknown function> + 0x150d7f (0x7f9e9997bd7f in /usr/local/lib/R/lib/libR.so)
+## frame #62: <unknown function> + 0x151b57 (0x7f9e9997cb57 in /usr/local/lib/R/lib/libR.so)
+## 
+## This happened in PipeOp torch_model_classif's $train()
 ```
 
 ``` r
