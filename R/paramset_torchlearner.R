@@ -71,10 +71,14 @@ paramset_torchlearner = function(task_type, jittable = FALSE) {
     patience              = p_int(lower = 0L, tags = c("train", "required"), init = 0L),
     min_delta             = p_dbl(lower = 0, tags = c("train", "required"), init = 0),
     # dataloader parameters
-    batch_size            = p_int(tags = c("train", "predict", "required"), lower = 1L),
+    batch_size            = p_int(tags = c("train", "predict"), lower = 1L),
     shuffle               = p_lgl(tags = "train", default = FALSE, init = TRUE),
-    sampler               = p_uty(tags = c("train", "predict")),
-    batch_sampler         = p_uty(tags = c("train", "predict")),
+    sampler               = p_uty(tags = c("train", "predict"), custom_check = crate(function(x) {
+      checkmate::check_class(x, "torch_sampler")
+    })),
+    batch_sampler         = p_uty(tags = c("train", "predict"), custom_check = crate(function(x) {
+      checkmate::check_class(x, "torch_sampler")
+    })),
     num_workers           = p_int(lower = 0, default = 0, tags = c("train", "predict")),
     collate_fn            = p_uty(tags = c("train", "predict"), default = NULL),
     pin_memory            = p_lgl(default = FALSE, tags = c("train", "predict")),
