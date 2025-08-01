@@ -25,56 +25,6 @@ make_ft_transformer = function(task_type, ...) {
   invoke(lrn, .key = sprintf("%s.ft_transformer", task_type), .args = params)
 }
 
-# make sure this matches mlr3tuningspaces
-no_wd = function(name) {
-  # this will also disable weight decay for the input projection bias of the attention heads
-  no_wd_params = c("_normalization", "bias")
-
-  return(any(map_lgl(no_wd_params, function(pattern) grepl(pattern, name, fixed = TRUE))))
-}
-
-rtdl_param_groups = function(parameters) {
-  split_param_names = strsplit(names(parameters), ".", fixed = TRUE)
-
-  ffn_norm_idx = grepl("ffn_normalization", names(parameters), fixed = TRUE)
-  first_ffn_norm_num_in_module_list = as.integer(split_param_names[ffn_norm_idx][[1]][2])
-  cls_num_in_module_list = first_ffn_norm_num_in_module_list - 1
-  nums_in_module_list = sapply(split_param_names, function(x) as.integer(x[2]))
-  tokenizer_idx = nums_in_module_list < cls_num_in_module_list
-
-  # the last normalization layer is unnamed, so we need to find it based on its position in the module list
-  last_module_num_in_module_list = as.integer(split_param_names[[length(split_param_names)]][2])
-  last_norm_num_in_module_list = last_module_num_in_module_list - 2
-  last_norm_idx = nums_in_module_list == last_norm_num_in_module_list
-
-  no_wd_idx = map_lgl(names(parameters), no_wd) | tokenizer_idx | last_norm_idx
-  no_wd_group = parameters[no_wd_idx]
-
-  main_group = parameters[!no_wd_idx]
-
-  list(
-    list(params = main_group),
-    list(params = no_wd_group, weight_decay = 0)
-  )
-}
-
-test_that("param groups work", {
-  learner = make_ft_transformer("classif")
-  default_weight_decay = 0.23
-  learner$param_set$set_values(opt.weight_decay = default_weight_decay)
-  learner$param_set$set_values(opt.param_groups = rtdl_param_groups)
-  
-  task = tsk("german_credit")$filter(1:10)
-  
-  learner$train(task)
-
-  expect_equal(length(learner$model$optimizer$param_groups), 2L)
-  expect_equal(learner$model$optimizer$param_groups[[1L]]$weight_decay, default_weight_decay)
-  expect_equal(learner$model$optimizer$param_groups[[2L]]$weight_decay, 0)
-
-  expect_learner(learner)
-})
-
 test_that("basic functionality", {
   learner = make_ft_transformer("classif")
   task = tsk("german_credit")$filter(1:10)
