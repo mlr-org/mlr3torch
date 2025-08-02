@@ -111,3 +111,10 @@ test_that("trafo works", {
   expect_class(network$module_list$`0`$bias, "torch_tensor")
   expect_true(is.null(network$module_list$`1`$bias))
 })
+
+test_that("state", {
+  md = po("torch_ingress_num")$train(list(tsk("iris")))
+  block = nn("block", nn("relu"), n_blocks = 1L)
+  block$train(md)
+  expect_true(block$is_trained)
+})

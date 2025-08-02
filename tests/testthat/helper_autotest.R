@@ -26,6 +26,7 @@ expect_pipeop_torch = function(graph, id, task, module_class = id, exclude_args 
   require_namespaces(c("testthat"))
   po_test = graph$pipeops[[id]]
   result = graph$train(task)
+  expect_true(graph$is_trained)
   md = result[[1]]
 
   # PipeOp overwrites hash and phash if necessary
@@ -321,7 +322,7 @@ expect_torch_callback = function(torch_callback, check_man = TRUE, check_paramse
 
     return(implemented_stages)
   }
-  
+
   implemented_stages = get_all_implemented_stages(cbgen)
   expect_subset(implemented_stages, mlr_reflections$torch$callback_stages)
   expect_true(length(implemented_stages) > 0)
