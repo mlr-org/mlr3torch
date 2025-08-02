@@ -19,3 +19,4 @@ paper/data
 .vsc/
 paper/data
 paper/benchmark/registry
+.vscode/
