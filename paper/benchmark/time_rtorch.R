@@ -145,7 +145,7 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
     stats = cuda_memory_stats()
     memory = stats$reserved_bytes$all$current
   } else {
-    memory = NA	  
+    memory = NA
   }
 
   list(time = time, loss = eval_run(), memory = memory)

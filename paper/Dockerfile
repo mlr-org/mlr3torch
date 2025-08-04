@@ -72,6 +72,6 @@ RUN R -q -e "install.packages('mlr3learners')"
 RUN R -q -e "install.packages('ranger')"
 RUN R -q -e "install.packages('rgenoud')"
 RUN R -q -e "install.packages('DiceKriging')"
-RUN R -q -e "remotes::install_github('mlr-org/mlr3torch@53c0262')"
+RUN R -q -e "remotes::install_github('mlr-org/mlr3torch@4f43857')"
 
 CMD ["bash"]

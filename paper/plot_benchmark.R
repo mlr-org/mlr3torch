@@ -42,7 +42,7 @@ plt <- function(opt_name, cuda) {
     )
   ) +
     geom_point(size = 0.5) +
-    geom_smooth(method = "lm", se = FALSE) +
+    geom_smooth() +
     facet_wrap(~latent, scales = "free_y") +
     labs(
       y = "Time per batch (ms)",

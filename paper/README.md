@@ -18,7 +18,9 @@ enroot create --name mlr3torch-jss sebffischer+mlr3torch-jss+latest.sqsh
 To start the container, run:
 
 ```bash
-enroot start mlr3torch-jss
+enroot start \
+  --mount <parent-dir-to-mlr3torch>:/mnt/data \
+  mlr3torch-jss bash
 ```
 
 ## Running the Benchmark
