@@ -52,6 +52,7 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
       loss = loss_fn(net(input), target)
       loss$backward()
       opt$step()
+      loss$item()
     }
 
 
