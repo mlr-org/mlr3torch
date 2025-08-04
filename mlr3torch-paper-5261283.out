@@ -1,0 +1,36 @@
+[INFO] Extracting squashfs filesystem...
+Parallel unsquashfs: Using 20 processors
+57832 inodes (209999 blocks) to write
+
+
+created 55975 files
+created 6137 directories
+created 1735 symlinks
+created 0 devices
+created 0 fifos
+created 0 sockets
+
+==========
+== CUDA ==
+==========
+
+CUDA Version 12.4.1
+
+Container image Copyright (c) 2016-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
+This container image and its contents are governed by the NVIDIA Deep Learning Container License.
+By pulling and using the container, you accept the terms and conditions of this license:
+https://developer.nvidia.com/ngc/nvidia-deep-learning-container-license
+
+A copy of this license is made available in this container at /NGC-DL-CONTAINER-LICENSE for your convenience.
+
+
+
+processing file: paper_code.Rmd
+1/2                  
+2/2 [unnamed-chunk-1]
+INFO  [12:02:00.373] [mlr3] Applying learner 'pca.regr.rpart' on task 'mtcars' (iter 1/3)
+INFO  [12:02:00.523] [mlr3] Applying learner 'pca.regr.rpart' on task 'mtcars' (iter 2/3)
+INFO  [12:02:00.634] [mlr3] Applying learner 'pca.regr.rpart' on task 'mtcars' (iter 3/3)
+INFO  [12:57:16.639] Training the following weights at the start: fc.weight, fc.bias
+slurmstepd: error: *** JOB 5261283 ON mcml-hgx-a100-005 CANCELLED AT 2025-08-01T15:24:37 ***

@@ -1,10 +1,10 @@
 [INFO] Extracting squashfs filesystem...
-Parallel unsquashfs: Using 18 processors
-57136 inodes (209274 blocks) to write
+Parallel unsquashfs: Using 92 processors
+57832 inodes (209999 blocks) to write
 
 
-created 55279 files
-created 6018 directories
+created 55975 files
+created 6137 directories
 created 1735 symlinks
 created 0 devices
 created 0 fifos
@@ -23,10 +23,6 @@ By pulling and using the container, you accept the terms and conditions of this 
 https://developer.nvidia.com/ngc/nvidia-deep-learning-container-license
 
 A copy of this license is made available in this container at /NGC-DL-CONTAINER-LICENSE for your convenience.
-
-WARNING: The NVIDIA Driver was not detected.  GPU functionality will not be available.
-   Use the NVIDIA Container Toolkit to start this container with GPU support; see
-   https://docs.nvidia.com/datacenter/cloud-native/ .
 
 Reading registry in read-write mode
 Loading required package: checkmate

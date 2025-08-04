@@ -1,7 +1,7 @@
 ---
 title: "Extracted Code from mlr3torch Paper"
 author: "mlr3torch"
-date: "2025-08-01"
+date: "2025-08-03"
 output: html_document
 ---
 
@@ -14,12 +14,11 @@ learner <- lrn("regr.rpart")
 split <- partition(task, ratio = 2/3)
 learner$train(task, split$train)
 pred <- learner$predict(task, split$test)
-rmse <- msr("regr.rmse")
-pred$score(rmse)
+pred$score(msr("regr.rmse"))
 ```
 
 ```
-## regr.rmse
+## regr.rmse 
 ##  4.736051
 ```
 
@@ -29,11 +28,11 @@ graph_learner <- as_learner(po("pca") %>>% lrn("regr.rpart"))
 
 resampling <- rsmp("cv", folds = 3)
 rr <- resample(task, graph_learner, resampling)
-rr$aggregate(rmse)
+rr$aggregate(msr("regr.rmse"))
 ```
 
 ```
-## regr.rmse
+## regr.rmse 
 ##  4.274766
 ```
 
@@ -60,7 +59,7 @@ mnist
 ```
 
 ```
-##
+## 
 ## ── <TaskClassif> (70000x2): MNIST Digit Classification ─────────────────────────
 ## • Target: label
 ```
@@ -122,19 +121,16 @@ mnist_flat$head(2)
 mlp <- lrn("classif.mlp",
  loss = t_loss("cross_entropy"),
  optimizer = t_opt("adamw", lr = 0.01),
- callbacks = t_clbk("history")
-)
+ callbacks = t_clbk("history"))
 
 mlp$param_set$set_values(
   neurons = c(100, 200), activation = torch::nn_relu,
   p = 0.3, opt.weight_decay = 0.01, measures_train = msr("classif.logloss"),
-  epochs = 5, batch_size = 32, device = "cpu"
-)
+  epochs = 5, batch_size = 32, device = "cpu")
 
 mlp$configure(
   predict_type = "prob",
-  epochs = 10
-)
+  epochs = 10)
 
 mlp$train(mnist_flat, row_ids = 1:60000)
 
@@ -143,7 +139,7 @@ mlp$model$network
 
 ```
 ## An `nn_module` containing 100,710 parameters.
-##
+## 
 ## ── Modules ─────────────────────────────────────────────────────────────────────
 ## • 0: <nn_linear> #78,500 parameters
 ## • 1: <nn_relu> #0 parameters
@@ -171,7 +167,7 @@ pred$score(msr("classif.ce"))
 ```
 
 ```
-## classif.ce
+## classif.ce 
 ##      0.902
 ```
 
@@ -227,9 +223,7 @@ net(torch_randn(2, 10))
 
 ``` r
 graph <- po("torch_ingress_ltnsr") %>>%
-  nn("linear", out_features = 10) %>>%
-  nn("relu") %>>%
-  nn("head")
+  nn("linear", out_features = 10) %>>% nn("relu") %>>% nn("head")
 
 md <- graph$train(mnist_flat)[[1L]]
 md
@@ -324,9 +318,7 @@ nn_ffn <- nn_module("nn_ffn",
     }), recursive = FALSE)
     self$network <- do.call(nn_sequential, modules)
   },
-  forward = function(x) {
-    self$network(x)
-  }
+  forward = function(x) self$network(x)
 )
 
 num_input <- list(x = ingress_num())
@@ -342,15 +334,14 @@ num_input
 lrn_ffn <- lrn("classif.module",
   module_generator = nn_ffn,
   ingress_tokens = num_input,
-  latent_dim = 100, n_layers = 5
-)
+  latent_dim = 100, n_layers = 5)
 
 task <- tsk("california_housing")
 task
 ```
 
 ```
-##
+## 
 ## ── <TaskRegr> (20640x10): California House Value ───────────────────────────────
 ## • Target: median_house_value
 ## • Properties: -
@@ -370,19 +361,15 @@ block <- nn("linear", out_features = 32) %>>%
   ppl("branch", list(relu = nn("relu"), sigmoid = nn("sigmoid"))) %>>%
   nn("dropout")
 
-architecture <- nn("block", block) %>>%
-  nn("head")
+architecture <- nn("block", block) %>>% nn("head")
 
 config <- po("torch_loss", loss = t_loss("mse")) %>>%
   po("torch_optimizer", optimizer = t_opt("adamw"))
 
 model <- po("torch_model_regr", device = "cuda", batch_size = 512)
 
-pipeline <- preprocessing %>>%
-  ingress %>>%
-  architecture %>>%
-  config %>>%
-  model
+pipeline <- preprocessing %>>% ingress %>>%
+  architecture %>>% config %>>% model
 learner = as_learner(pipeline)
 learner$id = "custom_nn"
 
@@ -397,35 +384,16 @@ library("mlr3tuning")
 learner$param_set$set_values(
   block.linear.out_features = to_tune(20, 500),
   block.n_blocks = to_tune(1, 5),
-  block.branch.selection = to_tune(c("relu", "tanh")),
+  block.branch.selection = to_tune(c("relu", "sigmoid")),
   block.dropout.p = to_tune(0.1, 0.9),
-  torch_optimizer.lr = to_tune(10^-4, 10^-1, logscale = TRUE)
-)
-```
+  torch_optimizer.lr = to_tune(10^-4, 10^-1, logscale = TRUE))
 
-```
-## Error in self$assert(xs, sanitize = TRUE): Assertion on 'xs' failed: tune token invalid: to_tune(c("relu", "tanh")) generates points that are not compatible with param block.branch.selection.
-## Bad value:
-## [1] "tanh"
-## Parameter:
-## Param of class "ParamFct":
-##
-##                        id      cls         grouping  cargo lower upper
-##                    <char>   <char>           <char> <list> <num> <num>
-## 1: block.branch.selection ParamFct "relu","sigmoid" [NULL]    NA    NA
-##    tolerance       levels special_vals        default storage_type
-##        <num>       <list>       <list>         <list>       <char>
-## 1:        NA relu,sigmoid    <list[0]> <NoDefault[0]>    character.
-```
-
-``` r
 set_validate(learner, "test")
 
 learner$param_set$set_values(
   torch_model_regr.patience = 5,
   torch_model_regr.measures_valid = msr("regr.mse"),
-  torch_model_regr.epochs = to_tune(upper = 100, internal = TRUE)
-)
+  torch_model_regr.epochs = to_tune(upper = 100, internal = TRUE))
 
 library("mlr3mbo")
 ti <- tune(
@@ -434,39 +402,37 @@ ti <- tune(
   measure = msr("internal_valid_score", minimize = TRUE),
   learner = learner,
   term_evals = 40,
-  task = task
-)
+  task = task)
+pvals <- ti$result_learner_param_vals[2:7]
+cat("*", paste(names(pvals), "=", pvals,
+ collapse = "\n"), "\n")
 ```
 
 ```
-## Error in .__ParamSet__get_values(self = self, private = private, super = super, : Missing required parameters: block.n_blocks
-```
-
-``` r
-ti$result_learner_param_vals[2:7]
-```
-
-```
-## Error in ti$result_learner_param_vals: object of type 'closure' is not subsettable
+## * block.n_blocks = 4
+## block.linear.out_features = 472
+## block.branch.selection = relu
+## block.dropout.p = 0.433924715034664
+## torch_optimizer.lr = 0.00389585750785255
+## torch_model_regr.epochs = 49
 ```
 
 ``` r
 library("torchdatasets")
-data_dir = "data"
-dogs_vs_cats_dataset(data_dir, download = TRUE)
+dogs_vs_cats_dataset("data", download = TRUE)
 ```
 
 ```
 ## <dataset>
 ##   Public:
-##     .getitem: function (i)
-##     .length: function ()
+##     .getitem: function (i) 
+##     .length: function () 
 ##     classes: dog cat
-##     clone: function (deep = FALSE)
+##     clone: function (deep = FALSE) 
 ##     images: data/dogs-vs-cats/train/cat.0.jpg data/dogs-vs-cats/trai ...
-##     initialize: function (root, split = "train", download = FALSE, ..., transform = NULL,
-##     load_state_dict: function (x, ..., .refer_to_state_dict = FALSE)
-##     state_dict: function ()
+##     initialize: function (root, split = "train", download = FALSE, ..., transform = NULL, 
+##     load_state_dict: function (x, ..., .refer_to_state_dict = FALSE) 
+##     state_dict: function () 
 ##     target_transform: NULL
 ##     targets: 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2  ...
 ##     transform: NULL
@@ -486,7 +452,7 @@ ds <- torch::dataset("dogs_vs_cats",
   }
 )
 
-paths <- list.files(file.path(data_dir, "dogs-vs-cats/train"),
+paths <- list.files(file.path("data", "dogs-vs-cats/train"),
   full.names = TRUE)
 dogs_vs_cats <- ds(paths)
 
@@ -498,7 +464,7 @@ table(labels)
 
 ```
 ## labels
-##   cat   dog
+##   cat   dog 
 ## 12500 12500
 ```
 
@@ -509,7 +475,7 @@ task
 ```
 
 ```
-##
+## 
 ## ── <TaskClassif> (25000x2) ─────────────────────────────────────────────────────
 ## • Target: class
 ## • Target classes: cat (positive class, 50%), dog (50%)
@@ -525,30 +491,30 @@ preprocess <- po("trafo_resize", size = c(224, 224))
 
 unfreezer <- t_clbk("unfreeze",
   starting_weights = select_name(c("fc.weight", "fc.bias")),
-  unfreeze = data.table(
-    epoch = 3, weights = select_all()
-  )
-)
+  unfreeze = data.table(epoch = 3, weights = select_all()))
 
 resnet <- lrn("classif.resnet18",
-  pretrained = TRUE, epochs = 5,
-  device = "cuda", batch_size = 32,
-  opt.lr = 1e-4,
-  measures_valid = msr("classif.acc"),
-  callbacks = list(unfreezer, t_clbk("history"))
-)
+  pretrained = TRUE, epochs = 5, device = "cuda", batch_size = 32,
+  opt.lr = 1e-4, measures_valid = msr("classif.acc"),
+  callbacks = list(unfreezer, t_clbk("history")))
 
 library("ggplot2")
 learner <- as_learner(augment %>>% preprocess %>>% resnet)
 learner$id <- "resnet"
 set_validate(learner, 1 / 3)
 learner$train(task)
-history <- learner$model$classif.resnet18$model$callbacks$history
-ggplot(history, aes(x = epoch, y = valid.classif.acc)) +
-  geom_point()
+learner$model$classif.resnet18$model$callbacks$history
 ```
 
-![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1-1.svg)
+```
+##    epoch valid.classif.acc
+##    <num>             <num>
+## 1:     1         0.9504380
+## 2:     2         0.9618385
+## 3:     3         0.9797192
+## 4:     4         0.9805592
+## 5:     5         0.9801992
+```
 
 ``` r
 task <- tsk("melanoma")
@@ -556,7 +522,7 @@ task
 ```
 
 ```
-##
+## 
 ## ── <TaskClassif> (32701x5): Melanoma Classification ────────────────────────────
 ## • Target: outcome
 ## • Target classes: malignant (positive class, 2%), benign (98%)
@@ -573,8 +539,8 @@ table(task$truth())
 ```
 
 ```
-##
-## malignant    benign
+## 
+## malignant    benign 
 ##       581     32120
 ```
 
@@ -583,14 +549,13 @@ task$missings("age_approx")
 ```
 
 ```
-## age_approx
+## age_approx 
 ##         44
 ```
 
 ``` r
 block_ffn <- nn("linear", out_features = 500) %>>%
-  nn("relu") %>>%
-  nn("dropout")
+  nn("relu") %>>% nn("dropout")
 path_tabular <- po("select_1",
     selector = selector_type(c("integer", "factor"))) %>>%
   po("imputehist") %>>%
@@ -616,11 +581,8 @@ path_image <- po("select_2", selector = selector_name("image")) %>>%
   nn("flatten")
 
 architecture <- list(path_tabular, path_image) %>>%
-  nn("merge_cat") %>>%
-  nn("linear_1", out_features = 500) %>>%
-  nn("relu_4") %>>%
-  nn("dropout_2") %>>%
-  nn("head")
+  nn("merge_cat") %>>% nn("linear_1", out_features = 500) %>>%
+  nn("relu_4") %>>% nn("dropout_2") %>>% nn("head")
 
 model <- architecture %>>%
   po("torch_loss",
@@ -639,86 +601,7 @@ glrn <- as_learner(preprocessing %>>% model)
 library("mlr3viz")
 glrn$id <- "multimodal"
 rr <- resample(task, glrn, rsmp("cv", folds = 5))
-```
-
-```
-## Warning: Caught Rcpp::exception. Canceling all iterations ...
-```
-
-```
-## Error in (function (self, target, weight, pos_weight, reduction) : output with shape [32, 1] doesn't match the broadcast shape [32, 2]
-## Exception raised from mark_resize_outputs at ../aten/src/ATen/TensorIterator.cpp:1207 (most recent call first):
-## frame #0: c10::Error::Error(c10::SourceLocation, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) + 0xb0 (0x7f9e8ea85950 in /usr/local/lib/R/library/torch/lib/libc10.so)
-## frame #1: c10::detail::torchCheckFail(char const*, char const*, unsigned int, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) + 0xfa (0x7f9e8ea2944a in /usr/local/lib/R/library/torch/lib/libc10.so)
-## frame #2: at::TensorIteratorBase::mark_resize_outputs(at::TensorIteratorConfig const&) + 0x21d (0x7f9e7a8482bd in /usr/local/lib/R/library/torch/lib/libtorch_cpu.so)
-## frame #3: at::TensorIteratorBase::build(at::TensorIteratorConfig&) + 0x78 (0x7f9e7a848358 in /usr/local/lib/R/library/torch/lib/libtorch_cpu.so)
-## frame #4: at::TensorIteratorBase::build_borrowing_binary_op(at::TensorBase const&, at::TensorBase const&, at::TensorBase const&) + 0x100 (0x7f9e7a849790 in /usr/local/lib/R/library/torch/lib/libtorch_cpu.so)
-## frame #5: <unknown function> + 0x3a17da3 (0x7f9e1eb9ada3 in /usr/local/lib/R/library/torch/lib/libtorch_cuda.so)
-## frame #6: at::_ops::mul__Tensor::call(at::Tensor&, at::Tensor const&) + 0x14a (0x7f9e7b57648a in /usr/local/lib/R/library/torch/lib/libtorch_cpu.so)
-## frame #7: at::native::binary_cross_entropy_with_logits(at::Tensor const&, at::Tensor const&, std::optional<at::Tensor> const&, std::optional<at::Tensor> const&, long) + 0x1d4 (0x7f9e7ad671c4 in /usr/local/lib/R/library/torch/lib/libtorch_cpu.so)
-## frame #8: <unknown function> + 0x30769d5 (0x7f9e7bf1d9d5 in /usr/local/lib/R/library/torch/lib/libtorch_cpu.so)
-## frame #9: at::_ops::binary_cross_entropy_with_logits::redispatch(c10::DispatchKeySet, at::Tensor const&, at::Tensor const&, std::optional<at::Tensor> const&, std::optional<at::Tensor> const&, long) + 0xa0 (0x7f9e7b8bc4f0 in /usr/local/lib/R/library/torch/lib/libtorch_cpu.so)
-## frame #10: <unknown function> + 0x5048ca2 (0x7f9e7deefca2 in /usr/local/lib/R/library/torch/lib/libtorch_cpu.so)
-## frame #11: <unknown function> + 0x50499f7 (0x7f9e7def09f7 in /usr/local/lib/R/library/torch/lib/libtorch_cpu.so)
-## frame #12: at::_ops::binary_cross_entropy_with_logits::call(at::Tensor const&, at::Tensor const&, std::optional<at::Tensor> const&, std::optional<at::Tensor> const&, long) + 0x1d9 (0x7f9e7b91b309 in /usr/local/lib/R/library/torch/lib/libtorch_cpu.so)
-## frame #13: at::binary_cross_entropy_with_logits(at::Tensor const&, at::Tensor const&, std::optional<at::Tensor> const&, std::optional<at::Tensor> const&, long) + 0x59 (0x7f9e8f760b1a in /usr/local/lib/R/library/torch/lib/liblantern.so)
-## frame #14: _lantern_binary_cross_entropy_with_logits_tensor_tensor_tensor_tensor_intt + 0x9f (0x7f9e8f280eca in /usr/local/lib/R/library/torch/lib/liblantern.so)
-## frame #15: cpp_torch_namespace_binary_cross_entropy_with_logits_self_Tensor_target_Tensor(XPtrTorchTensor, XPtrTorchTensor, XPtrTorchOptionalTensor, XPtrTorchOptionalTensor, XPtrTorchint64_t) + 0x41 (0x7f9e904665a1 in /usr/local/lib/R/library/torch/libs/torchpkg.so)
-## frame #16: _torch_cpp_torch_namespace_binary_cross_entropy_with_logits_self_Tensor_target_Tensor + 0xd8 (0x7f9e901e6578 in /usr/local/lib/R/library/torch/libs/torchpkg.so)
-## frame #17: <unknown function> + 0x1020ee (0x7f9e9992d0ee in /usr/local/lib/R/lib/libR.so)
-## frame #18: <unknown function> + 0x13ddca (0x7f9e99968dca in /usr/local/lib/R/lib/libR.so)
-## frame #19: <unknown function> + 0x14e77d (0x7f9e9997977d in /usr/local/lib/R/lib/libR.so)
-## frame #20: Rf_eval + 0x17b (0x7f9e99979b4b in /usr/local/lib/R/lib/libR.so)
-## frame #21: <unknown function> + 0x150d7f (0x7f9e9997bd7f in /usr/local/lib/R/lib/libR.so)
-## frame #22: <unknown function> + 0x151b57 (0x7f9e9997cb57 in /usr/local/lib/R/lib/libR.so)
-## frame #23: Rf_eval + 0x2ac (0x7f9e99979c7c in /usr/local/lib/R/lib/libR.so)
-## frame #24: <unknown function> + 0xcae0f (0x7f9e998f5e0f in /usr/local/lib/R/lib/libR.so)
-## frame #25: <unknown function> + 0x1420cf (0x7f9e9996d0cf in /usr/local/lib/R/lib/libR.so)
-## frame #26: <unknown function> + 0x14e77d (0x7f9e9997977d in /usr/local/lib/R/lib/libR.so)
-## frame #27: Rf_eval + 0x17b (0x7f9e99979b4b in /usr/local/lib/R/lib/libR.so)
-## frame #28: <unknown function> + 0x150d7f (0x7f9e9997bd7f in /usr/local/lib/R/lib/libR.so)
-## frame #29: <unknown function> + 0x151b57 (0x7f9e9997cb57 in /usr/local/lib/R/lib/libR.so)
-## frame #30: Rf_eval + 0x2ac (0x7f9e99979c7c in /usr/local/lib/R/lib/libR.so)
-## frame #31: <unknown function> + 0x152934 (0x7f9e9997d934 in /usr/local/lib/R/lib/libR.so)
-## frame #32: Rf_eval + 0x566 (0x7f9e99979f36 in /usr/local/lib/R/lib/libR.so)
-## frame #33: <unknown function> + 0x150d7f (0x7f9e9997bd7f in /usr/local/lib/R/lib/libR.so)
-## frame #34: <unknown function> + 0x151b57 (0x7f9e9997cb57 in /usr/local/lib/R/lib/libR.so)
-## frame #35: <unknown function> + 0x143fbf (0x7f9e9996efbf in /usr/local/lib/R/lib/libR.so)
-## frame #36: <unknown function> + 0x14e77d (0x7f9e9997977d in /usr/local/lib/R/lib/libR.so)
-## frame #37: Rf_eval + 0x17b (0x7f9e99979b4b in /usr/local/lib/R/lib/libR.so)
-## frame #38: <unknown function> + 0x150d7f (0x7f9e9997bd7f in /usr/local/lib/R/lib/libR.so)
-## frame #39: <unknown function> + 0x151b57 (0x7f9e9997cb57 in /usr/local/lib/R/lib/libR.so)
-## frame #40: Rf_eval + 0x2ac (0x7f9e99979c7c in /usr/local/lib/R/lib/libR.so)
-## frame #41: <unknown function> + 0x150d7f (0x7f9e9997bd7f in /usr/local/lib/R/lib/libR.so)
-## frame #42: <unknown function> + 0x151b57 (0x7f9e9997cb57 in /usr/local/lib/R/lib/libR.so)
-## frame #43: <unknown function> + 0x143fbf (0x7f9e9996efbf in /usr/local/lib/R/lib/libR.so)
-## frame #44: <unknown function> + 0x14e77d (0x7f9e9997977d in /usr/local/lib/R/lib/libR.so)
-## frame #45: Rf_eval + 0x17b (0x7f9e99979b4b in /usr/local/lib/R/lib/libR.so)
-## frame #46: <unknown function> + 0x150d7f (0x7f9e9997bd7f in /usr/local/lib/R/lib/libR.so)
-## frame #47: <unknown function> + 0x151b57 (0x7f9e9997cb57 in /usr/local/lib/R/lib/libR.so)
-## frame #48: Rf_eval + 0x2ac (0x7f9e99979c7c in /usr/local/lib/R/lib/libR.so)
-## frame #49: <unknown function> + 0x15541d (0x7f9e9998041d in /usr/local/lib/R/lib/libR.so)
-## frame #50: <unknown function> + 0x1420cf (0x7f9e9996d0cf in /usr/local/lib/R/lib/libR.so)
-## frame #51: <unknown function> + 0x14e77d (0x7f9e9997977d in /usr/local/lib/R/lib/libR.so)
-## frame #52: Rf_eval + 0x17b (0x7f9e99979b4b in /usr/local/lib/R/lib/libR.so)
-## frame #53: <unknown function> + 0x150d7f (0x7f9e9997bd7f in /usr/local/lib/R/lib/libR.so)
-## frame #54: <unknown function> + 0x151b57 (0x7f9e9997cb57 in /usr/local/lib/R/lib/libR.so)
-## frame #55: Rf_eval + 0x2ac (0x7f9e99979c7c in /usr/local/lib/R/lib/libR.so)
-## frame #56: <unknown function> + 0x150d7f (0x7f9e9997bd7f in /usr/local/lib/R/lib/libR.so)
-## frame #57: <unknown function> + 0x151b57 (0x7f9e9997cb57 in /usr/local/lib/R/lib/libR.so)
-## frame #58: <unknown function> + 0x143fbf (0x7f9e9996efbf in /usr/local/lib/R/lib/libR.so)
-## frame #59: <unknown function> + 0x14e77d (0x7f9e9997977d in /usr/local/lib/R/lib/libR.so)
-## frame #60: Rf_eval + 0x17b (0x7f9e99979b4b in /usr/local/lib/R/lib/libR.so)
-## frame #61: <unknown function> + 0x150d7f (0x7f9e9997bd7f in /usr/local/lib/R/lib/libR.so)
-## frame #62: <unknown function> + 0x151b57 (0x7f9e9997cb57 in /usr/local/lib/R/lib/libR.so)
-##
-## This happened in PipeOp torch_model_classif's $train()
-```
-
-``` r
 autoplot(rr, type = "roc")
 ```
 
-```
-## Error in FUN(X[[i]], ...): Need a binary classification problem to plot a ROC curve
-```
+![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1-1.svg)

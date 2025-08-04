@@ -1,0 +1,450 @@
+[INFO] Extracting squashfs filesystem...
+Parallel unsquashfs: Using 20 processors
+57832 inodes (209999 blocks) to write
+
+
+created 55975 files
+created 6137 directories
+created 1735 symlinks
+created 0 devices
+created 0 fifos
+created 0 sockets
+
+==========
+== CUDA ==
+==========
+
+CUDA Version 12.4.1
+
+Container image Copyright (c) 2016-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
+This container image and its contents are governed by the NVIDIA Deep Learning Container License.
+By pulling and using the container, you accept the terms and conditions of this license:
+https://developer.nvidia.com/ngc/nvidia-deep-learning-container-license
+
+A copy of this license is made available in this container at /NGC-DL-CONTAINER-LICENSE for your convenience.
+
+
+
+processing file: paper_code.Rmd
+1/2                  
+2/2 [unnamed-chunk-1]
+INFO  [17:39:29.450] [mlr3] Applying learner 'pca.regr.rpart' on task 'mtcars' (iter 1/3)
+INFO  [17:39:29.604] [mlr3] Applying learner 'pca.regr.rpart' on task 'mtcars' (iter 2/3)
+INFO  [17:39:29.717] [mlr3] Applying learner 'pca.regr.rpart' on task 'mtcars' (iter 3/3)
+INFO  [18:36:23.462] [bbotk] Starting to optimize 5 parameter(s) with '<OptimizerMbo>' and '<TerminatorEvals> [n_evals=40, k=0]'
+INFO  [18:36:23.468] [bbotk] Evaluating 20 configuration(s)
+INFO  [18:36:23.530] [mlr3] Running benchmark with 20 resampling iterations
+INFO  [18:36:23.560] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [18:39:51.943] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [18:47:06.734] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [18:47:51.331] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [18:53:48.121] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [18:56:06.337] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [19:00:47.147] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [19:06:45.927] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [19:10:13.636] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [19:10:32.898] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [19:17:46.296] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [19:23:41.777] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [19:27:11.521] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [19:27:36.970] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [19:36:08.472] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [19:38:13.807] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [19:41:42.458] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [19:47:43.027] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [19:51:12.607] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [19:55:35.463] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [20:00:15.467] [mlr3] Finished benchmark
+INFO  [20:00:17.243] [bbotk] Result of batch 1:
+INFO  [20:00:17.250] [bbotk]  block.n_blocks block.linear.out_features block.branch.selection
+INFO  [20:00:17.250] [bbotk]               1                       242                   relu
+INFO  [20:00:17.250] [bbotk]               4                       483                sigmoid
+INFO  [20:00:17.250] [bbotk]               5                       122                   relu
+INFO  [20:00:17.250] [bbotk]               3                       363                sigmoid
+INFO  [20:00:17.250] [bbotk]               5                       303                   relu
+INFO  [20:00:17.250] [bbotk]               2                        62                sigmoid
+INFO  [20:00:17.250] [bbotk]               3                       182                sigmoid
+INFO  [20:00:17.250] [bbotk]               1                       423                   relu
+INFO  [20:00:17.250] [bbotk]               2                       453                   relu
+INFO  [20:00:17.250] [bbotk]               4                       212                sigmoid
+INFO  [20:00:17.250] [bbotk]               3                       333                   relu
+INFO  [20:00:17.250] [bbotk]               1                        92                sigmoid
+INFO  [20:00:17.250] [bbotk]               2                       152                   relu
+INFO  [20:00:17.250] [bbotk]               5                       393                sigmoid
+INFO  [20:00:17.250] [bbotk]               4                        32                   relu
+INFO  [20:00:17.250] [bbotk]               1                       273                sigmoid
+INFO  [20:00:17.250] [bbotk]               3                       107                sigmoid
+INFO  [20:00:17.250] [bbotk]               1                       348                   relu
+INFO  [20:00:17.250] [bbotk]               4                       468                   relu
+INFO  [20:00:17.250] [bbotk]               2                       227                sigmoid
+INFO  [20:00:17.250] [bbotk]  block.dropout.p torch_optimizer.lr internal_valid_score warnings errors
+INFO  [20:00:17.250] [bbotk]        0.4359934          -8.010365          24010804232        0      0
+INFO  [20:00:17.250] [bbotk]        0.8359934          -4.556487          52168889965        0      0
+INFO  [20:00:17.250] [bbotk]        0.2359934          -2.829548          16077615874        0      0
+INFO  [20:00:17.250] [bbotk]        0.6359934          -6.283426          54856169053        0      0
+INFO  [20:00:17.250] [bbotk]        0.1359934          -3.693018           5484128573        0      0
+INFO  [20:00:17.250] [bbotk]        0.5359934          -7.146895          55395979516        0      0
+INFO  [20:00:17.250] [bbotk]        0.7359934          -5.419956          54608052859        0      0
+INFO  [20:00:17.250] [bbotk]        0.3359934          -8.873834          25231586045        0      0
+INFO  [20:00:17.250] [bbotk]        0.7859934          -2.397813          30192592338        0      0
+INFO  [20:00:17.250] [bbotk]        0.3859934          -5.851691          54848994395        0      0
+INFO  [20:00:17.250] [bbotk]        0.5859934          -7.578630           7291147877        0      0
+INFO  [20:00:17.250] [bbotk]        0.1859934          -4.124752          54008038822        0      0
+INFO  [20:00:17.250] [bbotk]        0.8859934          -3.261283          16203864946        0      0
+INFO  [20:00:17.250] [bbotk]        0.4859934          -6.715161          55059387462        0      0
+INFO  [20:00:17.250] [bbotk]        0.6859934          -8.442099          28438105615        0      0
+INFO  [20:00:17.250] [bbotk]        0.2859934          -4.988222          53462675422        0      0
+INFO  [20:00:17.250] [bbotk]        0.4109934          -3.908885          53266534483        0      0
+INFO  [20:00:17.250] [bbotk]        0.8109934          -7.362763          18230566258        0      0
+INFO  [20:00:17.250] [bbotk]        0.6109934          -5.635824           4250483022        0      0
+INFO  [20:00:17.250] [bbotk]        0.2109934          -9.089701          55430864959        0      0
+INFO  [20:00:17.250] [bbotk]  runtime_learners       internal_tuned_values
+INFO  [20:00:17.250] [bbotk]           208.335 torch_model_regr.epochs=100
+INFO  [20:00:17.250] [bbotk]           434.742 torch_model_regr.epochs=100
+INFO  [20:00:17.250] [bbotk]            44.548   torch_model_regr.epochs=3
+INFO  [20:00:17.250] [bbotk]           356.741 torch_model_regr.epochs=100
+INFO  [20:00:17.250] [bbotk]           138.167  torch_model_regr.epochs=21
+INFO  [20:00:17.250] [bbotk]           280.759 torch_model_regr.epochs=100
+INFO  [20:00:17.250] [bbotk]           358.729 torch_model_regr.epochs=100
+INFO  [20:00:17.250] [bbotk]           207.655 torch_model_regr.epochs=100
+INFO  [20:00:17.250] [bbotk]            19.209   torch_model_regr.epochs=1
+INFO  [20:00:17.250] [bbotk]           433.346 torch_model_regr.epochs=100
+INFO  [20:00:17.250] [bbotk]           355.432  torch_model_regr.epochs=98
+INFO  [20:00:17.250] [bbotk]           209.696 torch_model_regr.epochs=100
+INFO  [20:00:17.250] [bbotk]            25.401   torch_model_regr.epochs=3
+INFO  [20:00:17.250] [bbotk]           511.453 torch_model_regr.epochs=100
+INFO  [20:00:17.250] [bbotk]           125.285  torch_model_regr.epochs=23
+INFO  [20:00:17.250] [bbotk]           208.598 torch_model_regr.epochs=100
+INFO  [20:00:17.250] [bbotk]           360.504 torch_model_regr.epochs=100
+INFO  [20:00:17.250] [bbotk]           209.519 torch_model_regr.epochs=100
+INFO  [20:00:17.250] [bbotk]           262.809  torch_model_regr.epochs=55
+INFO  [20:00:17.250] [bbotk]           279.954 torch_model_regr.epochs=100
+INFO  [20:00:17.250] [bbotk]                                 uhash
+INFO  [20:00:17.250] [bbotk]  d05c9e2c-7192-44e8-aa12-fc4be64f14b6
+INFO  [20:00:17.250] [bbotk]  53af946b-1969-44ba-9610-f6f301bb25ee
+INFO  [20:00:17.250] [bbotk]  427dde1c-496a-420d-85a0-eeb35d0fcd16
+INFO  [20:00:17.250] [bbotk]  5ff891e0-b74e-4425-94a6-a5653d51c25d
+INFO  [20:00:17.250] [bbotk]  43e54c45-a314-49b9-b23d-547739e30377
+INFO  [20:00:17.250] [bbotk]  539b04d9-56e9-472e-b20a-79a87bbfe425
+INFO  [20:00:17.250] [bbotk]  aff5ae53-2c69-4e26-9aaa-295d22b7e489
+INFO  [20:00:17.250] [bbotk]  67a6f5a4-20bc-41ac-b852-0e75badb8809
+INFO  [20:00:17.250] [bbotk]  bcd1758b-9e54-43f5-b06a-e8c0b710db09
+INFO  [20:00:17.250] [bbotk]  43c433af-f90c-417f-aaec-5d0b10b0573b
+INFO  [20:00:17.250] [bbotk]  6171de77-50d6-4aa8-9cde-7466c667ff68
+INFO  [20:00:17.250] [bbotk]  d27567a7-6d65-4f76-b1fb-12e81de9bae3
+INFO  [20:00:17.250] [bbotk]  2d33f693-ee82-4673-a055-fcc3006574b8
+INFO  [20:00:17.250] [bbotk]  c0a09a50-11cc-4972-b06d-8a37b74a96d6
+INFO  [20:00:17.250] [bbotk]  26af9e26-6cf3-4f7b-9ae4-d7c492be7a43
+INFO  [20:00:17.250] [bbotk]  74f97c7f-dddb-4ee1-95b8-d27942f7f51d
+INFO  [20:00:17.250] [bbotk]  7938d5f7-f737-4a5a-bfb6-7489157bd23b
+INFO  [20:00:17.250] [bbotk]  2747fbd1-a994-4426-95e1-2c7df5b2c274
+INFO  [20:00:17.250] [bbotk]  31e8270b-13a4-4255-a408-20be8bef443b
+INFO  [20:00:17.250] [bbotk]  cf6dbd2e-cea9-4025-900a-156489e3ded0
+INFO  [20:00:17.346] [mlr3] Calling train method of fallback 'regr.ranger' on task 'surrogate_task' with 20 observations {learner: <LearnerRegrRanger/LearnerRegr/Learner/R6>}
+INFO  [20:00:18.845] [bbotk] Evaluating 1 configuration(s)
+INFO  [20:00:18.859] [mlr3] Running benchmark with 1 resampling iterations
+INFO  [20:00:18.871] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [20:07:34.074] [mlr3] Finished benchmark
+INFO  [20:07:34.203] [bbotk] Result of batch 2:
+INFO  [20:07:34.208] [bbotk]  block.n_blocks block.linear.out_features block.branch.selection
+INFO  [20:07:34.208] [bbotk]               4                       446                   relu
+INFO  [20:07:34.208] [bbotk]  block.dropout.p torch_optimizer.lr    acq_ei  x_domain .already_evaluated
+INFO  [20:07:34.208] [bbotk]         0.601914          -7.269026 831134215 <list[5]>              FALSE
+INFO  [20:07:34.208] [bbotk]  internal_valid_score warnings errors runtime_learners
+INFO  [20:07:34.208] [bbotk]            4768430498        0      0          435.158
+INFO  [20:07:34.208] [bbotk]        internal_tuned_values                                uhash
+INFO  [20:07:34.208] [bbotk]  torch_model_regr.epochs=100 27057f89-2eeb-4505-bf57-f4e0f9c5f276
+INFO  [20:07:34.249] [mlr3] Calling train method of fallback 'regr.ranger' on task 'surrogate_task' with 21 observations {learner: <LearnerRegrRanger/LearnerRegr/Learner/R6>}
+INFO  [20:07:35.670] [bbotk] Evaluating 1 configuration(s)
+INFO  [20:07:35.683] [mlr3] Running benchmark with 1 resampling iterations
+INFO  [20:07:35.694] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [20:09:35.825] [mlr3] Finished benchmark
+INFO  [20:09:35.951] [bbotk] Result of batch 3:
+INFO  [20:09:35.956] [bbotk]  block.n_blocks block.linear.out_features block.branch.selection
+INFO  [20:09:35.956] [bbotk]               4                       330                   relu
+INFO  [20:09:35.956] [bbotk]  block.dropout.p torch_optimizer.lr    acq_ei  x_domain .already_evaluated
+INFO  [20:09:35.956] [bbotk]        0.1344203          -3.745081 704654734 <list[5]>              FALSE
+INFO  [20:09:35.956] [bbotk]  internal_valid_score warnings errors runtime_learners
+INFO  [20:09:35.956] [bbotk]            6004984321        0      0          120.088
+INFO  [20:09:35.956] [bbotk]       internal_tuned_values                                uhash
+INFO  [20:09:35.956] [bbotk]  torch_model_regr.epochs=22 e85564ff-8b28-4f09-bf6e-e643abf018c4
+INFO  [20:09:35.987] [mlr3] Calling train method of fallback 'regr.ranger' on task 'surrogate_task' with 22 observations {learner: <LearnerRegrRanger/LearnerRegr/Learner/R6>}
+INFO  [20:09:37.537] [bbotk] Evaluating 1 configuration(s)
+INFO  [20:09:37.551] [mlr3] Running benchmark with 1 resampling iterations
+INFO  [20:09:37.563] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [20:16:53.312] [mlr3] Finished benchmark
+INFO  [20:16:53.439] [bbotk] Result of batch 4:
+INFO  [20:16:53.444] [bbotk]  block.n_blocks block.linear.out_features block.branch.selection
+INFO  [20:16:53.444] [bbotk]               4                       475                   relu
+INFO  [20:16:53.444] [bbotk]  block.dropout.p torch_optimizer.lr    acq_ei  x_domain .already_evaluated
+INFO  [20:16:53.444] [bbotk]        0.5644639          -3.806902 901352445 <list[5]>              FALSE
+INFO  [20:16:53.444] [bbotk]  internal_valid_score warnings errors runtime_learners
+INFO  [20:16:53.444] [bbotk]           55428133080        0      0          435.703
+INFO  [20:16:53.444] [bbotk]        internal_tuned_values                                uhash
+INFO  [20:16:53.444] [bbotk]  torch_model_regr.epochs=100 eb3f813b-e622-4b89-a569-ae4893e9d746
+INFO  [20:16:53.472] [mlr3] Calling train method of fallback 'regr.ranger' on task 'surrogate_task' with 23 observations {learner: <LearnerRegrRanger/LearnerRegr/Learner/R6>}
+INFO  [20:16:54.938] [bbotk] Evaluating 1 configuration(s)
+INFO  [20:16:54.951] [mlr3] Running benchmark with 1 resampling iterations
+INFO  [20:16:54.962] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [20:19:22.503] [mlr3] Finished benchmark
+INFO  [20:19:22.627] [bbotk] Result of batch 5:
+INFO  [20:19:22.631] [bbotk]  block.n_blocks block.linear.out_features block.branch.selection
+INFO  [20:19:22.631] [bbotk]               5                       470                   relu
+INFO  [20:19:22.631] [bbotk]  block.dropout.p torch_optimizer.lr     acq_ei  x_domain .already_evaluated
+INFO  [20:19:22.631] [bbotk]        0.5582475          -4.915579 1439212273 <list[5]>              FALSE
+INFO  [20:19:22.631] [bbotk]  internal_valid_score warnings errors runtime_learners
+INFO  [20:19:22.631] [bbotk]           12400500266        0      0          147.497
+INFO  [20:19:22.631] [bbotk]       internal_tuned_values                                uhash
+INFO  [20:19:22.631] [bbotk]  torch_model_regr.epochs=23 a3bd9e6c-fe00-4328-bf8d-477723e1be4c
+INFO  [20:19:22.661] [mlr3] Calling train method of fallback 'regr.ranger' on task 'surrogate_task' with 24 observations {learner: <LearnerRegrRanger/LearnerRegr/Learner/R6>}
+INFO  [20:19:24.084] [bbotk] Evaluating 1 configuration(s)
+INFO  [20:19:24.098] [mlr3] Running benchmark with 1 resampling iterations
+INFO  [20:19:24.109] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [20:27:56.802] [mlr3] Finished benchmark
+INFO  [20:27:56.945] [bbotk] Result of batch 6:
+INFO  [20:27:56.950] [bbotk]  block.n_blocks block.linear.out_features block.branch.selection
+INFO  [20:27:56.950] [bbotk]               5                       466                   relu
+INFO  [20:27:56.950] [bbotk]  block.dropout.p torch_optimizer.lr     acq_ei  x_domain .already_evaluated
+INFO  [20:27:56.950] [bbotk]        0.6025383          -6.891702 1869180605 <list[5]>              FALSE
+INFO  [20:27:56.950] [bbotk]  internal_valid_score warnings errors runtime_learners
+INFO  [20:27:56.950] [bbotk]            4469603773        0      0          512.642
+INFO  [20:27:56.950] [bbotk]       internal_tuned_values                                uhash
+INFO  [20:27:56.950] [bbotk]  torch_model_regr.epochs=99 21740d73-1c96-40cc-b3da-a44362259172
+INFO  [20:27:56.981] [mlr3] Calling train method of fallback 'regr.ranger' on task 'surrogate_task' with 25 observations {learner: <LearnerRegrRanger/LearnerRegr/Learner/R6>}
+INFO  [20:27:58.529] [bbotk] Evaluating 1 configuration(s)
+INFO  [20:27:58.549] [mlr3] Running benchmark with 1 resampling iterations
+INFO  [20:27:58.564] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [20:31:56.213] [mlr3] Finished benchmark
+INFO  [20:31:56.400] [bbotk] Result of batch 7:
+INFO  [20:31:56.405] [bbotk]  block.n_blocks block.linear.out_features block.branch.selection
+INFO  [20:31:56.405] [bbotk]               4                       468                   relu
+INFO  [20:31:56.405] [bbotk]  block.dropout.p torch_optimizer.lr     acq_ei  x_domain .already_evaluated
+INFO  [20:31:56.405] [bbotk]        0.5614483          -5.226213 1164260472 <list[5]>              FALSE
+INFO  [20:31:56.405] [bbotk]  internal_valid_score warnings errors runtime_learners
+INFO  [20:31:56.405] [bbotk]            4476972735        0      0          237.596
+INFO  [20:31:56.405] [bbotk]       internal_tuned_values                                uhash
+INFO  [20:31:56.405] [bbotk]  torch_model_regr.epochs=49 6de47531-8aa7-4e49-91e7-14d79fcdd187
+INFO  [20:31:56.436] [mlr3] Calling train method of fallback 'regr.ranger' on task 'surrogate_task' with 26 observations {learner: <LearnerRegrRanger/LearnerRegr/Learner/R6>}
+INFO  [20:31:57.876] [bbotk] Evaluating 1 configuration(s)
+INFO  [20:31:57.890] [mlr3] Running benchmark with 1 resampling iterations
+INFO  [20:31:57.901] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [20:33:32.251] [mlr3] Finished benchmark
+INFO  [20:33:32.374] [bbotk] Result of batch 8:
+INFO  [20:33:32.379] [bbotk]  block.n_blocks block.linear.out_features block.branch.selection
+INFO  [20:33:32.379] [bbotk]               4                       321                   relu
+INFO  [20:33:32.379] [bbotk]  block.dropout.p torch_optimizer.lr    acq_ei  x_domain .already_evaluated
+INFO  [20:33:32.379] [bbotk]        0.1015871          -3.062704 881492086 <list[5]>              FALSE
+INFO  [20:33:32.379] [bbotk]  internal_valid_score warnings errors runtime_learners
+INFO  [20:33:32.379] [bbotk]            7252732683        0      0           94.304
+INFO  [20:33:32.379] [bbotk]       internal_tuned_values                                uhash
+INFO  [20:33:32.379] [bbotk]  torch_model_regr.epochs=16 42d6bb78-50e5-438c-aa03-6f9ff28fe168
+INFO  [20:33:32.408] [mlr3] Calling train method of fallback 'regr.ranger' on task 'surrogate_task' with 27 observations {learner: <LearnerRegrRanger/LearnerRegr/Learner/R6>}
+INFO  [20:33:33.747] [bbotk] Evaluating 1 configuration(s)
+INFO  [20:33:33.768] [mlr3] Running benchmark with 1 resampling iterations
+INFO  [20:33:33.784] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [20:37:30.511] [mlr3] Finished benchmark
+INFO  [20:37:30.635] [bbotk] Result of batch 9:
+INFO  [20:37:30.639] [bbotk]  block.n_blocks block.linear.out_features block.branch.selection
+INFO  [20:37:30.639] [bbotk]               4                       472                   relu
+INFO  [20:37:30.639] [bbotk]  block.dropout.p torch_optimizer.lr     acq_ei  x_domain .already_evaluated
+INFO  [20:37:30.639] [bbotk]        0.4339247          -5.547841 1088791903 <list[5]>              FALSE
+INFO  [20:37:30.639] [bbotk]  internal_valid_score warnings errors runtime_learners
+INFO  [20:37:30.639] [bbotk]            4140055418        0      0          236.677
+INFO  [20:37:30.639] [bbotk]       internal_tuned_values                                uhash
+INFO  [20:37:30.639] [bbotk]  torch_model_regr.epochs=49 ab878960-40e8-4569-94b2-b8d7e0e6baa1
+INFO  [20:37:30.669] [mlr3] Calling train method of fallback 'regr.ranger' on task 'surrogate_task' with 28 observations {learner: <LearnerRegrRanger/LearnerRegr/Learner/R6>}
+INFO  [20:37:32.133] [bbotk] Evaluating 1 configuration(s)
+INFO  [20:37:32.147] [mlr3] Running benchmark with 1 resampling iterations
+INFO  [20:37:32.159] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [20:39:01.995] [mlr3] Finished benchmark
+INFO  [20:39:02.127] [bbotk] Result of batch 10:
+INFO  [20:39:02.132] [bbotk]  block.n_blocks block.linear.out_features block.branch.selection
+INFO  [20:39:02.132] [bbotk]               4                       473                   relu
+INFO  [20:39:02.132] [bbotk]  block.dropout.p torch_optimizer.lr     acq_ei  x_domain .already_evaluated
+INFO  [20:39:02.132] [bbotk]        0.2315725          -4.151553 2114875710 <list[5]>              FALSE
+INFO  [20:39:02.132] [bbotk]  internal_valid_score warnings errors runtime_learners
+INFO  [20:39:02.132] [bbotk]            6939958869        0      0            89.79
+INFO  [20:39:02.132] [bbotk]       internal_tuned_values                                uhash
+INFO  [20:39:02.132] [bbotk]  torch_model_regr.epochs=15 d5737dc4-87de-48bd-9bcd-75cd96575d93
+INFO  [20:39:02.161] [mlr3] Calling train method of fallback 'regr.ranger' on task 'surrogate_task' with 29 observations {learner: <LearnerRegrRanger/LearnerRegr/Learner/R6>}
+INFO  [20:39:03.700] [bbotk] Evaluating 1 configuration(s)
+INFO  [20:39:03.714] [mlr3] Running benchmark with 1 resampling iterations
+INFO  [20:39:03.725] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [20:40:02.680] [mlr3] Finished benchmark
+INFO  [20:40:02.808] [bbotk] Result of batch 11:
+INFO  [20:40:02.813] [bbotk]  block.n_blocks block.linear.out_features block.branch.selection
+INFO  [20:40:02.813] [bbotk]               4                       476                   relu
+INFO  [20:40:02.813] [bbotk]  block.dropout.p torch_optimizer.lr     acq_ei  x_domain .already_evaluated
+INFO  [20:40:02.813] [bbotk]         0.564804          -3.604569 1671373283 <list[5]>              FALSE
+INFO  [20:40:02.813] [bbotk]  internal_valid_score warnings errors runtime_learners
+INFO  [20:40:02.813] [bbotk]           23823537568        0      0           58.911
+INFO  [20:40:02.813] [bbotk]      internal_tuned_values                                uhash
+INFO  [20:40:02.813] [bbotk]  torch_model_regr.epochs=8 2328c7b1-a95d-4eb9-9da7-062fade505ac
+INFO  [20:40:02.842] [mlr3] Calling train method of fallback 'regr.ranger' on task 'surrogate_task' with 30 observations {learner: <LearnerRegrRanger/LearnerRegr/Learner/R6>}
+INFO  [20:40:04.320] [bbotk] Evaluating 1 configuration(s)
+INFO  [20:40:04.334] [mlr3] Running benchmark with 1 resampling iterations
+INFO  [20:40:04.345] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [20:44:08.847] [mlr3] Finished benchmark
+INFO  [20:44:08.973] [bbotk] Result of batch 12:
+INFO  [20:44:08.978] [bbotk]  block.n_blocks block.linear.out_features block.branch.selection
+INFO  [20:44:08.978] [bbotk]               4                       474                   relu
+INFO  [20:44:08.978] [bbotk]  block.dropout.p torch_optimizer.lr     acq_ei  x_domain .already_evaluated
+INFO  [20:44:08.978] [bbotk]        0.4648008           -5.37056 1374988914 <list[5]>              FALSE
+INFO  [20:44:08.978] [bbotk]  internal_valid_score warnings errors runtime_learners
+INFO  [20:44:08.978] [bbotk]            5048397625        0      0          244.457
+INFO  [20:44:08.978] [bbotk]       internal_tuned_values                                uhash
+INFO  [20:44:08.978] [bbotk]  torch_model_regr.epochs=51 60029ffd-f3a2-4668-bb69-0284e3aa218e
+INFO  [20:44:09.007] [mlr3] Calling train method of fallback 'regr.ranger' on task 'surrogate_task' with 31 observations {learner: <LearnerRegrRanger/LearnerRegr/Learner/R6>}
+INFO  [20:44:10.504] [bbotk] Evaluating 1 configuration(s)
+INFO  [20:44:10.519] [mlr3] Running benchmark with 1 resampling iterations
+INFO  [20:44:10.533] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [20:46:32.027] [mlr3] Finished benchmark
+INFO  [20:46:32.159] [bbotk] Result of batch 13:
+INFO  [20:46:32.163] [bbotk]  block.n_blocks block.linear.out_features block.branch.selection
+INFO  [20:46:32.163] [bbotk]               5                       474                   relu
+INFO  [20:46:32.163] [bbotk]  block.dropout.p torch_optimizer.lr     acq_ei  x_domain .already_evaluated
+INFO  [20:46:32.163] [bbotk]        0.1445092          -4.020024 1207595637 <list[5]>              FALSE
+INFO  [20:46:32.163] [bbotk]  internal_valid_score warnings errors runtime_learners
+INFO  [20:46:32.163] [bbotk]            5808242878        0      0          141.443
+INFO  [20:46:32.163] [bbotk]       internal_tuned_values                                uhash
+INFO  [20:46:32.163] [bbotk]  torch_model_regr.epochs=22 bc31b4b0-5603-404f-a7c8-253ef21b37dc
+INFO  [20:46:32.193] [mlr3] Calling train method of fallback 'regr.ranger' on task 'surrogate_task' with 32 observations {learner: <LearnerRegrRanger/LearnerRegr/Learner/R6>}
+INFO  [20:46:33.845] [bbotk] Evaluating 1 configuration(s)
+INFO  [20:46:33.860] [mlr3] Running benchmark with 1 resampling iterations
+INFO  [20:46:33.871] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [20:49:34.791] [mlr3] Finished benchmark
+INFO  [20:49:34.908] [bbotk] Result of batch 14:
+INFO  [20:49:34.913] [bbotk]  block.n_blocks block.linear.out_features block.branch.selection
+INFO  [20:49:34.913] [bbotk]               3                       474                   relu
+INFO  [20:49:34.913] [bbotk]  block.dropout.p torch_optimizer.lr     acq_ei  x_domain .already_evaluated
+INFO  [20:49:34.913] [bbotk]        0.1545071          -5.453626 1370155821 <list[5]>              FALSE
+INFO  [20:49:34.913] [bbotk]  internal_valid_score warnings errors runtime_learners
+INFO  [20:49:34.913] [bbotk]            4212899314        0      0          180.874
+INFO  [20:49:34.913] [bbotk]       internal_tuned_values                                uhash
+INFO  [20:49:34.913] [bbotk]  torch_model_regr.epochs=45 9c217c9d-f161-43ed-b3bb-2bb1c3ca7632
+INFO  [20:49:34.941] [mlr3] Calling train method of fallback 'regr.ranger' on task 'surrogate_task' with 33 observations {learner: <LearnerRegrRanger/LearnerRegr/Learner/R6>}
+INFO  [20:49:36.558] [bbotk] Evaluating 1 configuration(s)
+INFO  [20:49:36.574] [mlr3] Running benchmark with 1 resampling iterations
+INFO  [20:49:36.585] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [20:54:10.664] [mlr3] Finished benchmark
+INFO  [20:54:10.791] [bbotk] Result of batch 15:
+INFO  [20:54:10.796] [bbotk]  block.n_blocks block.linear.out_features block.branch.selection
+INFO  [20:54:10.796] [bbotk]               5                       475                   relu
+INFO  [20:54:10.796] [bbotk]  block.dropout.p torch_optimizer.lr     acq_ei  x_domain .already_evaluated
+INFO  [20:54:10.796] [bbotk]        0.5848673           -7.10174 1321655801 <list[5]>              FALSE
+INFO  [20:54:10.796] [bbotk]  internal_valid_score warnings errors runtime_learners
+INFO  [20:54:10.796] [bbotk]            7263804719        0      0          274.036
+INFO  [20:54:10.796] [bbotk]       internal_tuned_values                                uhash
+INFO  [20:54:10.796] [bbotk]  torch_model_regr.epochs=48 dd26c4cf-542f-4a5b-95bc-4d05f7c94ad7
+INFO  [20:54:10.826] [mlr3] Calling train method of fallback 'regr.ranger' on task 'surrogate_task' with 34 observations {learner: <LearnerRegrRanger/LearnerRegr/Learner/R6>}
+INFO  [20:54:12.350] [bbotk] Evaluating 1 configuration(s)
+INFO  [20:54:12.369] [mlr3] Running benchmark with 1 resampling iterations
+INFO  [20:54:12.385] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [21:00:10.385] [mlr3] Finished benchmark
+INFO  [21:00:10.544] [bbotk] Result of batch 16:
+INFO  [21:00:10.549] [bbotk]  block.n_blocks block.linear.out_features block.branch.selection
+INFO  [21:00:10.549] [bbotk]               3                       458                   relu
+INFO  [21:00:10.549] [bbotk]  block.dropout.p torch_optimizer.lr    acq_ei  x_domain .already_evaluated
+INFO  [21:00:10.549] [bbotk]        0.1318087          -7.680254 842718704 <list[5]>              FALSE
+INFO  [21:00:10.549] [bbotk]  internal_valid_score warnings errors runtime_learners
+INFO  [21:00:10.549] [bbotk]            4910490491        0      0          357.953
+INFO  [21:00:10.549] [bbotk]        internal_tuned_values                                uhash
+INFO  [21:00:10.549] [bbotk]  torch_model_regr.epochs=100 da65e213-42cb-4e0f-beed-7f4037e55d8f
+INFO  [21:00:10.578] [mlr3] Calling train method of fallback 'regr.ranger' on task 'surrogate_task' with 35 observations {learner: <LearnerRegrRanger/LearnerRegr/Learner/R6>}
+INFO  [21:00:12.135] [bbotk] Evaluating 1 configuration(s)
+INFO  [21:00:12.150] [mlr3] Running benchmark with 1 resampling iterations
+INFO  [21:00:12.162] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [21:03:22.284] [mlr3] Finished benchmark
+INFO  [21:03:22.410] [bbotk] Result of batch 17:
+INFO  [21:03:22.414] [bbotk]  block.n_blocks block.linear.out_features block.branch.selection
+INFO  [21:03:22.414] [bbotk]               4                       439                   relu
+INFO  [21:03:22.414] [bbotk]  block.dropout.p torch_optimizer.lr     acq_ei  x_domain .already_evaluated
+INFO  [21:03:22.414] [bbotk]         0.533089          -5.229898 1762473811 <list[5]>              FALSE
+INFO  [21:03:22.414] [bbotk]  internal_valid_score warnings errors runtime_learners
+INFO  [21:03:22.414] [bbotk]            4624240988        0      0          190.049
+INFO  [21:03:22.414] [bbotk]       internal_tuned_values                                uhash
+INFO  [21:03:22.414] [bbotk]  torch_model_regr.epochs=38 ce9cf40c-9288-4bf4-bffc-56814d864f82
+INFO  [21:03:22.443] [mlr3] Calling train method of fallback 'regr.ranger' on task 'surrogate_task' with 36 observations {learner: <LearnerRegrRanger/LearnerRegr/Learner/R6>}
+INFO  [21:03:23.924] [bbotk] Evaluating 1 configuration(s)
+INFO  [21:03:23.938] [mlr3] Running benchmark with 1 resampling iterations
+INFO  [21:03:23.950] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [21:08:29.678] [mlr3] Finished benchmark
+INFO  [21:08:29.809] [bbotk] Result of batch 18:
+INFO  [21:08:29.813] [bbotk]  block.n_blocks block.linear.out_features block.branch.selection
+INFO  [21:08:29.813] [bbotk]               5                       479                   relu
+INFO  [21:08:29.813] [bbotk]  block.dropout.p torch_optimizer.lr     acq_ei  x_domain .already_evaluated
+INFO  [21:08:29.813] [bbotk]        0.6154951          -5.704089 1528904542 <list[5]>              FALSE
+INFO  [21:08:29.813] [bbotk]  internal_valid_score warnings errors runtime_learners
+INFO  [21:08:29.813] [bbotk]            4708816058        0      0          305.683
+INFO  [21:08:29.813] [bbotk]       internal_tuned_values                                uhash
+INFO  [21:08:29.813] [bbotk]  torch_model_regr.epochs=54 83b99cf2-a848-48c8-9f28-09c74c023576
+INFO  [21:08:29.843] [mlr3] Calling train method of fallback 'regr.ranger' on task 'surrogate_task' with 37 observations {learner: <LearnerRegrRanger/LearnerRegr/Learner/R6>}
+INFO  [21:08:31.216] [bbotk] Evaluating 1 configuration(s)
+INFO  [21:08:31.230] [mlr3] Running benchmark with 1 resampling iterations
+INFO  [21:08:31.240] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [21:14:30.176] [mlr3] Finished benchmark
+INFO  [21:14:30.302] [bbotk] Result of batch 19:
+INFO  [21:14:30.306] [bbotk]  block.n_blocks block.linear.out_features block.branch.selection
+INFO  [21:14:30.306] [bbotk]               3                       446                   relu
+INFO  [21:14:30.306] [bbotk]  block.dropout.p torch_optimizer.lr     acq_ei  x_domain .already_evaluated
+INFO  [21:14:30.306] [bbotk]        0.5064499          -7.157314 1417719871 <list[5]>              FALSE
+INFO  [21:14:30.306] [bbotk]  internal_valid_score warnings errors runtime_learners
+INFO  [21:14:30.306] [bbotk]            4435961865        0      0          358.893
+INFO  [21:14:30.306] [bbotk]        internal_tuned_values                                uhash
+INFO  [21:14:30.306] [bbotk]  torch_model_regr.epochs=100 5b9a4e19-7807-4046-9905-2d2886d7dc88
+INFO  [21:14:30.338] [mlr3] Calling train method of fallback 'regr.ranger' on task 'surrogate_task' with 38 observations {learner: <LearnerRegrRanger/LearnerRegr/Learner/R6>}
+INFO  [21:14:31.863] [bbotk] Evaluating 1 configuration(s)
+INFO  [21:14:31.877] [mlr3] Running benchmark with 1 resampling iterations
+INFO  [21:14:31.888] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [21:17:26.384] [mlr3] Finished benchmark
+INFO  [21:17:26.508] [bbotk] Result of batch 20:
+INFO  [21:17:26.512] [bbotk]  block.n_blocks block.linear.out_features block.branch.selection
+INFO  [21:17:26.512] [bbotk]               3                       453                   relu
+INFO  [21:17:26.512] [bbotk]  block.dropout.p torch_optimizer.lr     acq_ei  x_domain .already_evaluated
+INFO  [21:17:26.512] [bbotk]         0.581197          -4.670216 1096256256 <list[5]>              FALSE
+INFO  [21:17:26.512] [bbotk]  internal_valid_score warnings errors runtime_learners
+INFO  [21:17:26.512] [bbotk]            4929509037        0      0          174.445
+INFO  [21:17:26.512] [bbotk]       internal_tuned_values                                uhash
+INFO  [21:17:26.512] [bbotk]  torch_model_regr.epochs=43 3862ca44-52f8-4abf-a948-9dc87cf31ba1
+INFO  [21:17:26.542] [mlr3] Calling train method of fallback 'regr.ranger' on task 'surrogate_task' with 39 observations {learner: <LearnerRegrRanger/LearnerRegr/Learner/R6>}
+INFO  [21:17:27.999] [bbotk] Evaluating 1 configuration(s)
+INFO  [21:17:28.016] [mlr3] Running benchmark with 1 resampling iterations
+INFO  [21:17:28.028] [mlr3] Applying learner 'custom_nn' on task 'california_housing' (iter 1/1)
+INFO  [21:21:03.407] [mlr3] Finished benchmark
+INFO  [21:21:03.580] [bbotk] Result of batch 21:
+INFO  [21:21:03.585] [bbotk]  block.n_blocks block.linear.out_features block.branch.selection
+INFO  [21:21:03.585] [bbotk]               4                       478                   relu
+INFO  [21:21:03.585] [bbotk]  block.dropout.p torch_optimizer.lr     acq_ei  x_domain .already_evaluated
+INFO  [21:21:03.585] [bbotk]        0.4494225          -4.299768 1859939463 <list[5]>              FALSE
+INFO  [21:21:03.585] [bbotk]  internal_valid_score warnings errors runtime_learners
+INFO  [21:21:03.585] [bbotk]            7021920829        0      0          215.328
+INFO  [21:21:03.585] [bbotk]       internal_tuned_values                                uhash
+INFO  [21:21:03.585] [bbotk]  torch_model_regr.epochs=44 7e63b521-a99f-4b68-b1c4-23a386c55d3d
+INFO  [21:21:03.615] [mlr3] Calling train method of fallback 'regr.ranger' on task 'surrogate_task' with 40 observations {learner: <LearnerRegrRanger/LearnerRegr/Learner/R6>}
+INFO  [21:21:03.735] [bbotk] Finished optimizing after 40 evaluation(s)
+INFO  [21:21:03.736] [bbotk] Result:
+INFO  [21:21:03.739] [bbotk]  block.n_blocks block.linear.out_features block.branch.selection
+INFO  [21:21:03.739] [bbotk]           <num>                     <num>                 <char>
+INFO  [21:21:03.739] [bbotk]               4                       472                   relu
+INFO  [21:21:03.739] [bbotk]  block.dropout.p torch_optimizer.lr      internal_tuned_values
+INFO  [21:21:03.739] [bbotk]            <num>              <num>                     <list>
+INFO  [21:21:03.739] [bbotk]        0.4339247          -5.547841 torch_model_regr.epochs=49
+INFO  [21:21:03.739] [bbotk]  learner_param_vals  x_domain internal_valid_score
+INFO  [21:21:03.739] [bbotk]              <list>    <list>                <num>
+INFO  [21:21:03.739] [bbotk]          <list[20]> <list[5]>           4140055418
+INFO  [21:21:07.867] Training the following weights at the start: fc.weight, fc.bias
+INFO  [21:49:50.293] Unfreezing at epoch 3: conv1.weight, bn1.weight, bn1.bias, layer1.0.conv1.weight, layer1.0.bn1.weight, layer1.0.bn1.bias, layer1.0.conv2.weight, layer1.0.bn2.weight, layer1.0.bn2.bias, layer1.1.conv1.weight, layer1.1.bn1.weight, layer1.1.bn1.bias, layer1.1.conv2.weight, layer1.1.bn2.weight, layer1.1.bn2.bias, layer2.0.conv1.weight, layer2.0.bn1.weight, layer2.0.bn1.bias, layer2.0.conv2.weight, layer2.0.bn2.weight, layer2.0.bn2.bias, layer2.0.downsample.0.weight, layer2.0.downsample.1.weight, layer2.0.downsample.1.bias, layer2.1.conv1.weight, layer2.1.bn1.weight, layer2.1.bn1.bias, layer2.1.conv2.weight, layer2.1.bn2.weight, layer2.1.bn2.bias, layer3.0.conv1.weight, layer3.0.bn1.weight, layer3.0.bn1.bias, layer3.0.conv2.weight, layer3.0.bn2.weight, layer3.0.bn2.bias, layer3.0.downsample.0.weight, layer3.0.downsample.1.weight, layer3.0.downsample.1.bias, layer3.1.conv1.weight, layer3.1.bn1.weight, layer3.1.bn1.bias, layer3.1.conv2.weight, layer3.1.bn2.weight, layer3.1.bn2.bias, layer4.0.conv1.weight, layer4.0.bn1.weight, layer4.0.bn1.bias, layer4.0.conv2.weight, layer4.0.bn2.weight, layer4.0.bn2.bias, layer4.0.downsample.0.weight, layer4.0.downsample.1.weight, layer4.0.downsample.1.bias, layer4.1.conv1.weight, layer4.1.bn1.weight, layer4.1.bn1.bias, layer4.1.conv2.weight, layer4.1.bn2.weight, layer4.1.bn2.bias, fc.weight, fc.bias
+WARN  [22:32:27.958] Caching (option 'mlr3torch.cache') is disabled, but dataset requires disk storage. This can lead to unexpected behavior.
+INFO  [22:32:27.971] Downloading the dataset
+INFO  [22:32:34.877] [mlr3] Applying learner 'multimodal' on task 'melanoma' (iter 1/5)
+INFO  [22:52:26.735] [mlr3] Applying learner 'multimodal' on task 'melanoma' (iter 2/5)
+INFO  [23:11:57.092] [mlr3] Applying learner 'multimodal' on task 'melanoma' (iter 3/5)
+INFO  [23:31:18.654] [mlr3] Applying learner 'multimodal' on task 'melanoma' (iter 4/5)
+INFO  [23:50:43.423] [mlr3] Applying learner 'multimodal' on task 'melanoma' (iter 5/5)
+output file: paper_code.md
+
+[1] "paper_code.md"
+Warning message:
+In png(..., res = dpi, units = "in") :
+  unable to open connection to X11 display ''
