@@ -6,7 +6,6 @@ library(cowplot)
 
 tbl = readRDS(here::here("paper", "benchmark", "result.rds"))
 
-
 tbl_med = tbl[,
   .(time_per_batch_med = median(time_per_batch), loss_med = median(loss)),
   by = .(n_layers, optimizer, algorithm, jit, latent)
@@ -21,7 +20,7 @@ tbl_cuda_med = tbl_cuda[,
   ),
   by = .(n_layers, optimizer, algorithm, jit, latent)
 ]
-tbl_cpu_med = tbl_cp[,
+tbl_cpu_med = tbl_cpu[,
   .(
     time_per_batch_med = median(time_per_batch, na.rm = TRUE),
     loss_med = median(loss)
@@ -42,7 +41,7 @@ plt <- function(opt_name, cuda) {
     )
   ) +
     geom_point(size = 0.5) +
-    geom_smooth(method = "gam") +
+    geom_line() +
     facet_wrap(~latent, scales = "free_y") +
     labs(
       y = "Time per batch (ms)",
@@ -73,10 +72,7 @@ plot_adamw <- plot_grid(
 )
 plot_adamw
 
-plot_cuda_sgd <- plt("sgd", TRUE) +
-  ggtitle("CUDA") +
-  theme(legend.position = "none") +
-  labs(x = "")
+plot_cuda_sgd <- plt("sgd", TRUE) + ggtitle("CUDA")
 plot_cpu_sgd <- plt("sgd", FALSE) + ggtitle("CPU")
 
 plot_sgd <- plot_grid(
