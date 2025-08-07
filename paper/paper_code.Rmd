@@ -231,7 +231,7 @@ ti <- tune(
   term_evals = 40,
   task = task)
 pvals <- ti$result_learner_param_vals[2:7]
-cat("*", paste(names(pvals), "=", pvals,
+cat(paste("*", names(pvals), "=", pvals,
  collapse = "\n"), "\n")
 
 library("torchdatasets")
@@ -337,5 +337,7 @@ glrn <- as_learner(preprocessing %>>% model)
 library("mlr3viz")
 glrn$id <- "multimodal"
 rr <- resample(task, glrn, rsmp("cv", folds = 5))
-autoplot(rr, type = "roc")
+plt = autoplot(rr, type = "roc")
+print(plt)
+saveRDS(plt, "roc.rds")
 ```

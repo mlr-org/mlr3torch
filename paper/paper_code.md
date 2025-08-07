@@ -1,7 +1,7 @@
 ---
 title: "Extracted Code from mlr3torch Paper"
 author: "mlr3torch"
-date: "2025-08-03"
+date: "2025-08-04"
 output: html_document
 ---
 
@@ -404,17 +404,17 @@ ti <- tune(
   term_evals = 40,
   task = task)
 pvals <- ti$result_learner_param_vals[2:7]
-cat("*", paste(names(pvals), "=", pvals,
+cat(paste("*", names(pvals), "=", pvals,
  collapse = "\n"), "\n")
 ```
 
 ```
 ## * block.n_blocks = 4
-## block.linear.out_features = 472
-## block.branch.selection = relu
-## block.dropout.p = 0.433924715034664
-## torch_optimizer.lr = 0.00389585750785255
-## torch_model_regr.epochs = 49
+## * block.linear.out_features = 472
+## * block.branch.selection = relu
+## * block.dropout.p = 0.433924715034664
+## * torch_optimizer.lr = 0.00389585750785255
+## * torch_model_regr.epochs = 49
 ```
 
 ``` r
@@ -511,9 +511,9 @@ learner$model$classif.resnet18$model$callbacks$history
 ##    <num>             <num>
 ## 1:     1         0.9504380
 ## 2:     2         0.9618385
-## 3:     3         0.9797192
-## 4:     4         0.9805592
-## 5:     5         0.9801992
+## 3:     3         0.9777991
+## 4:     4         0.9791192
+## 5:     5         0.9807992
 ```
 
 ``` r
@@ -601,7 +601,12 @@ glrn <- as_learner(preprocessing %>>% model)
 library("mlr3viz")
 glrn$id <- "multimodal"
 rr <- resample(task, glrn, rsmp("cv", folds = 5))
-autoplot(rr, type = "roc")
+plt = autoplot(rr, type = "roc")
+print(plt)
 ```
 
 ![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1-1.svg)
+
+``` r
+saveRDS(plt, "roc.rds")
+```
