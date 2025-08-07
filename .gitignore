@@ -17,6 +17,6 @@ CRAN-SUBMISSION
 paper/data
 .idea/
 .vsc/
-paper/data
+paper/data/
 paper/benchmark/registry
 .vscode/

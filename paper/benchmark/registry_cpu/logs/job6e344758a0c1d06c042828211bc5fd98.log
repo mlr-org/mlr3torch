@@ -1,0 +1,10 @@
+### [bt]: This is batchtools v0.9.17
+### [bt]: Starting calculation of 1 jobs
+### [bt]: Setting working directory to '/home/fischers/mlr3torch'
+### [bt]: Memory measurement disabled
+### [bt]: Starting job [batchtools job.id=2271]
+### [bt]: Generating problem instance for problem 'runtime_train' ...
+### [bt]: Applying algorithm 'pytorch' on problem 'runtime_train' for job 2271 (seed = 24715) ...
+
+### [bt]: Job terminated successfully [batchtools job.id=2271]
+### [bt]: Calculation finished!

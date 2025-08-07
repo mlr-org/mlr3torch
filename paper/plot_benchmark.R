@@ -21,7 +21,7 @@ tbl_cuda_med = tbl_cuda[,
   ),
   by = .(n_layers, optimizer, algorithm, jit, latent)
 ]
-tbl_cpu_med = tbl_cpu[,
+tbl_cpu_med = tbl_cp[,
   .(
     time_per_batch_med = median(time_per_batch, na.rm = TRUE),
     loss_med = median(loss)
@@ -42,7 +42,7 @@ plt <- function(opt_name, cuda) {
     )
   ) +
     geom_point(size = 0.5) +
-    geom_smooth() +
+    geom_smooth(method = "gam") +
     facet_wrap(~latent, scales = "free_y") +
     labs(
       y = "Time per batch (ms)",

@@ -168,3 +168,11 @@ addExperiments(
   ),
   repls = REPLS
 )
+
+
+tbl = unwrap(getJobTable())
+tbl = tbl[device == "cpu", ]
+for (id in sample(tbl$job.id)) {
+  print(id)
+  submitJobs(id)
+}
