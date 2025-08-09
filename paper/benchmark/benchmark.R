@@ -95,11 +95,11 @@ problem_design = expand.grid(
     n = N,
     p = P,
     epochs = EPOCHS,
-    latent = c(1000L, 2000L, 4000L),
+    latent = c(1000, 2500, 5000)
     optimizer = c("sgd", "adamw"),
     batch_size = 32L,
     device = "cuda",
-    n_layers = c(0L, 4L, 8L, 12L, 16L)
+    n_layers = c(2L, 4L, 6L, 8L, 10L, 12L, 14L, 16L)
   ),
   stringsAsFactors = FALSE
 )
@@ -137,11 +137,11 @@ problem_design = expand.grid(
     p = P,
     epochs = EPOCHS,
     # factor 10 smaller than cuda
-    latent = c(100L, 200L, 400L),
+    latent = c(100, 250, 500),
     optimizer = c("sgd", "adamw"),
     batch_size = 32L,
     device = "cpu",
-    n_layers = c(1L, 4L, 8L, 12L, 16L)
+    n_layers = c(2L, 4L, 6L, 8L, 10L, 12L, 14L, 16L)
   ),
   stringsAsFactors = FALSE
 )
