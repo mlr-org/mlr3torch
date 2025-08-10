@@ -9,7 +9,6 @@ mlr3torch*.tgz
 *~
 docs
 inst/doc
-*.html
 **/.DS_Store
 /doc/
 /Meta/
