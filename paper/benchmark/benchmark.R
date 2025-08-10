@@ -70,6 +70,7 @@ addAlgorithm("rtorch", fun = function(instance, job, opt_type, jit, ...) {
     instance$optimizer = paste0("ignite_", instance$optimizer)
   }
   callr::r(time_rtorch, args = c(instance, list(seed = job$seed, jit = jit)))
+  #do.call(time_rtorch, args = c(instance, list(seed = job$seed, jit = jit)))
 })
 
 addAlgorithm("mlr3torch", fun = function(instance, job, opt_type, jit, ...) {
@@ -80,6 +81,7 @@ addAlgorithm("mlr3torch", fun = function(instance, job, opt_type, jit, ...) {
     time_rtorch,
     args = c(instance, list(seed = job$seed, mlr3torch = TRUE, jit = jit))
   )
+  #do.call(time_rtorch, args = c(instance, list(seed = job$seed, mlr3torch = TRUE, jit = jit)))
 })
 
 # global config:
@@ -95,11 +97,7 @@ problem_design = expand.grid(
     n = N,
     p = P,
     epochs = EPOCHS,
-<<<<<<< Updated upstream
-    latent = c(1000, 2000, 4000),
-=======
     latent = c(1000L, 2000L, 4000L),
->>>>>>> Stashed changes
     optimizer = c("sgd", "adamw"),
     batch_size = 32L,
     device = "cuda",
@@ -141,19 +139,11 @@ problem_design = expand.grid(
     p = P,
     epochs = EPOCHS,
     # factor 10 smaller than cuda
-<<<<<<< Updated upstream
-    latent = c(100, 200, 400),
     optimizer = c("sgd", "adamw"),
     batch_size = 32L,
     device = "cpu",
-    n_layers = c(0L, 4L, 8L, 12L, 16L)
-=======
-    latent = c(100L, 200L, 400L),
-    optimizer = c("sgd", "adamw"),
-    batch_size = 32L,
-    device = "cpu",
-    n_layers = c(1L, 4L, 8L, 12L, 16L)
->>>>>>> Stashed changes
+    n_layers = c(0L, 4L, 8L, 12L, 16L),
+    latent = c(100L, 200L, 400L)
   ),
   stringsAsFactors = FALSE
 )
@@ -180,3 +170,8 @@ addExperiments(
   ),
   repls = REPLS
 )
+
+tbl = unwrap(getJobTable())
+
+ids = tbl[repl == 1 & optimizer == "sgd" & !jit & latent == 400 & device == "cpu" & n_layers == 8 & algorithm  != "pytorch",]
+submitJobs(ids$job.id)

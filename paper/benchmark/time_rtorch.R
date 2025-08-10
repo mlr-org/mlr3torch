@@ -1,6 +1,9 @@
 time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, seed, optimizer, mlr3torch = FALSE) {
   library(mlr3torch)
   library(torch)
+  mlr3pipelines::po
+  mlr3torch::LearnerTorch
+  mlr3::lrn
   torch_set_num_threads(1)
   torch_manual_seed(seed)
 
@@ -42,14 +45,25 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
 
   steps = ceiling(n / batch_size)
 
-  dataset = torch::tensor_dataset(X, Y)
+  dataset = torch::dataset(
+    initialize = function(X, Y) {
+      self$X = X
+      self$Y = Y
+    },
+    .getbatch = function(i) {
+      list(x = self$X[i, drop = FALSE], y = self$Y[i, drop = FALSE])
+    },
+    .length = function() {
+      nrow(self$X)
+    }
+  )(X, Y)
 
 
   # this function should train the network for the given number of epochs and return the final training loss
   train_run = if (!mlr3torch) {
     do_step = function(input, target, opt) {
       opt$zero_grad()
-      loss = loss_fn(net(input), target)
+      loss = loss_fn(net$forward(input), target)
       loss$backward()
       opt$step()
       loss$item()
@@ -60,12 +74,18 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
       opt = opt_class(net$parameters, lr = lr)
       dataloader = torch::dataloader(dataset, batch_size = batch_size, shuffle = FALSE)
       t0 = Sys.time()
+      ctx = new.env()
       for (epoch in seq(epochs)) {
         step = 0
         iter = dataloader_make_iter(dataloader)
         while (step < length(dataloader)) {
-          batch = dataloader_next(iter)
-          do_step(batch[[1]], batch[[2]], opt)
+          ctx$batch = dataloader_next(iter)
+          ctx$batch = lapply(ctx$batch, function(x) x$to(device = device))
+          ctx$y_hat = net$forward(ctx$batch$x)
+          opt$zero_grad()
+          ctx$loss = loss_fn(ctx$y_hat, ctx$batch$y)
+          ctx$loss$backward()
+          opt$step()
           step = step + 1
         }
       }
@@ -79,21 +99,6 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
       ingress_tokens = list(x = ingress_ltnsr()),
       loss = as_torch_loss(nn_mse_loss)
     )
-    learner$param_set$set_values(
-      opt.lr = lr,
-      device = device,
-      drop_last = FALSE,
-      jit_trace = FALSE,
-      batch_size = batch_size,
-      shuffle = FALSE,
-      tensor_dataset = "device"
-    )
-
-    task = as_task_regr(data.table(
-      x = as_lazy_tensor(X),
-      y = as.numeric(Y)
-    ), target = "y")
-
     timer = torch_callback("timer",
       on_begin = function() {
         self$t0 = Sys.time()
@@ -109,10 +114,26 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
       }
     )
 
+    learner$configure(
+      opt.lr = lr,
+      device = device,
+      drop_last = FALSE,
+      batch_size = batch_size,
+      shuffle = FALSE,
+      callbacks = timer,
+      jit_trace = jit,
+      tensor_dataset = "device"
+    )
+
+    task = as_task_regr(data.table(
+      x = as_lazy_tensor(X),
+      y = as.numeric(Y)
+    ), target = "y")
+
 
     function(epochs) {
       learner$.__enclos_env__$private$.network_stored = net
-      learner$configure(epochs = epochs, callbacks = timer, jit_trace = jit)
+      learner$configure(epochs = epochs)
       learner$train(task)
       ts = learner$model$callbacks$timer
       as.numeric(difftime(ts[2], ts[1], units = "secs"))
@@ -126,7 +147,7 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
       with_no_grad({
         dataloader = torch::dataloader(dataset, batch_size = batch_size, shuffle = FALSE)
         coro::loop(for (batch in dataloader) {
-          y_hat = net(batch[[1]])
+          y_hat = net$forward(batch[[1]])
           loss = loss_fn(y_hat, batch[[2]])
           mean_loss = mean_loss + loss$item()
         })
@@ -137,10 +158,18 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
   train_run(5)
 
   if (device == "cuda") cuda_synchronize()
-  #gc.time(TRUE)
-  time = train_run(epochs)
+  time = 0
+  p = profvis::profvis({
+    time <<- train_run(epochs)
+  })
   if (device == "cuda") cuda_synchronize()
-  #gc_time = gc.time()[3]
+
+  if (mlr3torch) {
+    htmlwidgets::saveWidget(p, here::here("paper", "benchmark", "mlr3torch.html"), selfcontained = TRUE)
+  } else {
+    htmlwidgets::saveWidget(p, here::here("paper", "benchmark", "torch.html"), selfcontained = TRUE)
+
+  }
 
   if (device == "cuda") {
     stats = cuda_memory_stats()
