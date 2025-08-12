@@ -52,7 +52,7 @@ jobs:
           echo "TORCH_TEST=1" >> $env:GITHUB_ENV
           echo "INCLUDE_IGNORED=1" >> $env:GITHUB_ENV
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: r-lib/actions/setup-pandoc@v2
 
