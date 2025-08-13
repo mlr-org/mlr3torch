@@ -262,9 +262,11 @@ LearnerTorch = R6Class("LearnerTorch",
     #'   Currently unused.
     print = function(...) {
       super$print(...)
-      catn(str_indent("* Optimizer:", private$.optimizer$id))
-      catn(str_indent("* Loss:", private$.loss$id))
-      catn(str_indent("* Callbacks:", if (length(private$.callbacks)) as_short_string(paste0(ids(private$.callbacks), collapse = ","), 1000L) else "-"))
+      mlr3misc::cat_cli({
+        cli::cli_li("Optimizer: {private$.optimizer$id}")
+        cli::cli_li("Loss: {private$.loss$id}")
+        cli::cli_li(paste0("Callbacks: ", if (length(private$.callbacks)) as_short_string(paste0(ids(private$.callbacks), collapse = ","), 1000L) else "-"))
+      })
     },
     #' @description
     #' Marshal the learner.

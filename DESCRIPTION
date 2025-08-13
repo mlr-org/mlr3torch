@@ -46,6 +46,7 @@ Depends:
     R (>= 3.5.0)
 Imports:
     backports,
+    cli,
     checkmate (>= 2.2.0),
     data.table,
     lgr,

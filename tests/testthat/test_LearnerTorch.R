@@ -1042,3 +1042,8 @@ test_that("NA prediction during validation does not cause issues.", {
     is.na(learner$model$callbacks$history$valid.regr.mse[1L]),
   )
 })
+
+test_that("printer", {
+  expect_snapshot(lrn("classif.mlp",
+    callbacks = list(t_clbk("history"), t_clbk("progress"))))
+})
