@@ -60,7 +60,7 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
 
 
   # this function should train the network for the given number of epochs and return the final training loss
-  train_run = if (!mlr3torch) {
+  train_run_torch = {
     do_step = function(input, target, opt) {
       opt$zero_grad()
       loss = loss_fn(net$forward(input), target)
@@ -74,25 +74,24 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
       opt = opt_class(net$parameters, lr = lr)
       dataloader = torch::dataloader(dataset, batch_size = batch_size, shuffle = FALSE)
       t0 = Sys.time()
-      ctx = new.env()
       for (epoch in seq(epochs)) {
         step = 0
         iter = dataloader_make_iter(dataloader)
         while (step < length(dataloader)) {
-          ctx$batch = dataloader_next(iter)
-          ctx$batch = lapply(ctx$batch, function(x) x$to(device = device))
-          ctx$y_hat = net$forward(ctx$batch$x)
+          batch = dataloader_next(iter)
+          y_hat = net$forward(batch$x)
           opt$zero_grad()
-          ctx$loss = loss_fn(ctx$y_hat, ctx$batch$y)
-          ctx$loss$backward()
+          loss = loss_fn(y_hat, batch$y)
+          loss$backward()
           opt$step()
           step = step + 1
         }
       }
       as.numeric(difftime(Sys.time(), t0, units = "secs"))
     }
+  }
 
-  } else {
+  train_run_mlr3torch = {
     learner = LearnerTorchModel$new(
       task_type = "regr",
       optimizer = as_torch_optimizer(opt_class),
@@ -155,21 +154,18 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
       mean_loss / steps
   }
   # warmup
-  train_run(5)
+  # If we don't run the same warump code we get weird artifcats
+  # because one has more RAM than the other
+  train_run_torch(2)
+  train_run_mlr3torch(2)
 
   if (device == "cuda") cuda_synchronize()
-  time = 0
-  p = profvis::profvis({
-    time <<- train_run(epochs)
-  })
-  if (device == "cuda") cuda_synchronize()
-
-  if (mlr3torch) {
-    htmlwidgets::saveWidget(p, here::here("paper", "benchmark", "mlr3torch.html"), selfcontained = TRUE)
+  time = if (mlr3torch) {
+    train_run_mlr3torch(epochs)
   } else {
-    htmlwidgets::saveWidget(p, here::here("paper", "benchmark", "torch.html"), selfcontained = TRUE)
-
+    train_run_torch(epochs)
   }
+  if (device == "cuda") cuda_synchronize()
 
   if (device == "cuda") {
     stats = cuda_memory_stats()

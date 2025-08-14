@@ -170,8 +170,3 @@ addExperiments(
   ),
   repls = REPLS
 )
-
-tbl = unwrap(getJobTable())
-
-ids = tbl[repl == 1 & optimizer == "sgd" & !jit & latent == 400 & device == "cpu" & n_layers == 8 & algorithm  != "pytorch",]
-submitJobs(ids$job.id)
