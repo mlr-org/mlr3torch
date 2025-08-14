@@ -113,17 +113,17 @@ addExperiments(
   ),
   algo.designs = list(
     rtorch = data.frame(
-      jit = c(FALSE, TRUE),
+      jit = c(FALSE),
       opt_type = c("ignite"),
       tag = "cuda_exp"
     ),
     mlr3torch = data.frame(
-      jit = c(FALSE, TRUE),
+      jit = c(FALSE),
       opt_type = c("ignite"),
       tag = "cuda_exp"
     ),
     pytorch = data.frame(
-      jit = c(FALSE, TRUE),
+      jit = c(FALSE),
       tag = "cuda_exp"
     )
   ),
@@ -154,17 +154,17 @@ addExperiments(
   ),
   algo.designs = list(
     rtorch = data.frame(
-      jit = c(FALSE, TRUE),
+      jit = c(FALSE),
       opt_type = c("ignite"),
       tag = "cpu_exp"
     ),
     mlr3torch = data.frame(
-      jit = c(FALSE, TRUE),
+      jit = c(FALSE),
       opt_type = c("ignite"),
       tag = "cpu_exp"
     ),
     pytorch = data.frame(
-      jit = c(FALSE, TRUE),
+      jit = c(FALSE),
       tag = "cpu_exp"
     )
   ),

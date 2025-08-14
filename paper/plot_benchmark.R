@@ -3,8 +3,8 @@ library(here)
 library(data.table)
 library(cowplot)
 
-
 tbl = readRDS(here::here("paper", "benchmark", "result.rds"))
+tbl = tbl[jit == FALSE, ]
 
 tbl_med = tbl[,
   .(time_per_batch_med = median(time_per_batch), loss_med = median(loss)),
@@ -34,15 +34,14 @@ plt <- function(opt_name, cuda) {
   ggplot(
     tbl[optimizer == opt_name, ],
     aes(
-      x = latent,
+      x = n_layers,
       y = time_per_batch_med * 1000,
-      color = algorithm,
-      linetype = jit
+      color = algorithm
     )
   ) +
     geom_point(size = 0.5) +
     geom_line() +
-    facet_wrap(~n_layers, scales = "free_y") +
+    facet_wrap(~latent, scales = "free_y") +
     labs(
       y = "Time per batch (ms)",
       linetype = "JIT",
