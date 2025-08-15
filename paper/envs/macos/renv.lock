@@ -1,0 +1,103 @@
+{
+  "R": {
+    "Version": "4.5.1",
+    "Repositories": [
+      {
+        "Name": "CRAN",
+        "URL": "https://ftp.fau.de/cran"
+      }
+    ]
+  },
+  "Packages": {
+    "DiceKriging": {
+      "Package": "DiceKriging",
+      "Version": "1.6.0",
+      "Source": "Repository"
+    },
+    "batchtools": {
+      "Package": "batchtools",
+      "Version": "0.9.17",
+      "Source": "Repository"
+    },
+    "cowplot": {
+      "Package": "cowplot",
+      "Version": "1.2.0",
+      "Source": "Repository"
+    },
+    "here": {
+      "Package": "here",
+      "Version": "1.0.1",
+      "Source": "Repository"
+    },
+    "knitr": {
+      "Package": "knitr",
+      "Version": "1.50",
+      "Source": "Repository"
+    },
+    "mlr3learners": {
+      "Package": "mlr3learners",
+      "Version": "0.12.0",
+      "Source": "Repository"
+    },
+    "mlr3mbo": {
+      "Package": "mlr3mbo",
+      "Version": "0.3.0",
+      "Source": "Repository"
+    },
+    "mlr3torch": {
+      "Package": "mlr3torch",
+      "Version": "0.3.0",
+      "Source": "Repository"
+    },
+    "mlr3viz": {
+      "Package": "mlr3viz",
+      "Version": "0.10.1",
+      "Source": "Repository"
+    },
+    "precrec": {
+      "Package": "precrec",
+      "Version": "0.14.5",
+      "Source": "Repository"
+    },
+    "ranger": {
+      "Package": "ranger",
+      "Version": "0.17.0",
+      "Source": "Repository"
+    },
+    "remotes": {
+      "Package": "remotes",
+      "Version": "2.5.0",
+      "Source": "Repository"
+    },
+    "renv": {
+      "Package": "renv",
+      "Version": "1.0.7",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "utils"
+      ],
+      "Hash": "397b7b2a265bc5a7a06852524dabae20"
+    },
+    "reticulate": {
+      "Package": "reticulate",
+      "Version": "1.43.0",
+      "Source": "Repository"
+    },
+    "rgenoud": {
+      "Package": "rgenoud",
+      "Version": "5.9-0.11",
+      "Source": "Repository"
+    },
+    "torch": {
+      "Package": "torch",
+      "Version": "0.15.1",
+      "Source": "Repository"
+    },
+    "torchdatasets": {
+      "Package": "torchdatasets",
+      "Version": "0.3.1",
+      "Source": "Repository"
+    }
+  }
+}

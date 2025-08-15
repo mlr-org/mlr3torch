@@ -12,9 +12,11 @@ options(download.file.extra = paste(
   sprintf('--header "User-Agent: R (%s)"', paste(getRversion(), R.version["platform"], R.version["arch"], R.version["os"]))
 ))
 
-# Package manager configuration
-options(
-    repos = c(CRAN = "https://packagemanager.posit.co/cran/__linux__/jammy/latest")
-)
 
-.libPaths("/root/R/x86_64-pc-linux-gnu-library/4.5")
+# for ubuntu:
+options(
+  repos = c(CRAN = "https://packagemanager.posit.co/cran/__linux__/jammy/latest")
+)
+#
+#  .libPaths("/root/R/x86_64-apple-darwin13.4.0-library/4.5")
+#}

@@ -157,7 +157,7 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
   # If we don't run the same warump code we get weird artifcats
   # because one has more RAM than the other
   train_run_torch(2)
-  #train_run_mlr3torch(2)
+  train_run_mlr3torch(2)
 
   if (device == "cuda") cuda_synchronize()
   time = if (mlr3torch) {
@@ -167,12 +167,12 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
   }
   if (device == "cuda") cuda_synchronize()
 
-  if (device == "cuda") {
+  cuda_memory = if (device == "cuda") {
     stats = cuda_memory_stats()
-    memory = stats$reserved_bytes$all$current
+    stats$reserved_bytes$all$current
   } else {
-    memory = NA
+    NA
   }
 
-  list(time = time, loss = eval_run(), memory = memory)
+  list(time = time, loss = eval_run(), cuda_memory = cuda_memory)
 }

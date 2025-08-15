@@ -1,8 +1,6 @@
 library(batchtools)
 library(data.table)
 
-reg = loadRegistry("/registry")
-
 get_result = function(ids, what) {
   if (is.null(ids)) ids = findDone()[[1]]
   sapply(ids, function(i) {
@@ -21,6 +19,3 @@ summarize = function(ids) {
   jt$memory = get_result(ids, "memory") / 2^30
   return(jt)
 }
-
-result = summarize(findDone()[[1L]])
-saveRDS(result, here::here("paper", "benchmark", "result.rds"))
