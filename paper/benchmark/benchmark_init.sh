@@ -18,6 +18,6 @@ enroot start \
   Rscript -e \"print(sessionInfo())\"
   Rscript -e \"
     source('.Rprofile');
-    source('benchmark/benchmark.R')
+  source('benchmark/benchmark.R')
   \"
 "
