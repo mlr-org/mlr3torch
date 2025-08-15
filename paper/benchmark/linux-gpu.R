@@ -1,13 +1,7 @@
 library(here)
 
-setwd(here("paper", "renv"))
+setwd(here("paper", "envs", "macos"))
 source(here("paper", "benchmark", "benchmark.R"))
-
-setup(
-  here("paper", "benchmark", "registry-linux-gpu"),
-  # This path is relative to the docker container, so no need to change it
- "/opt/venv/bin/python3"
-)
 
 problem_design = expand.grid(
   list(
@@ -21,6 +15,13 @@ problem_design = expand.grid(
     latent = c(1000L, 2000L, 4000L)
   ),
   stringsAsFactors = FALSE
+)
+
+setup(
+  here("paper", "benchmark", "registry-linux-gpu"),
+  # This path is relative to the docker container, so no need to change it
+ "/opt/venv/bin/python3",
+ here("paper")
 )
 
 addExperiments(

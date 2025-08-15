@@ -6,7 +6,8 @@ source(here("paper", "benchmark", "benchmark.R"))
 setup(
   here("paper", "benchmark", "registry-linux-cpu"),
   # This path is relative to the docker container, so no need to change it
- "/opt/venv/bin/python3"
+ "/opt/venv/bin/python3",
+ here("paper")
 )
 
 problem_design = expand.grid(

@@ -23,7 +23,6 @@ problem_design = expand.grid(
   stringsAsFactors = FALSE
 )
 
-
 setup(
   reg_path = here("paper", "benchmark", "registry-macos"),
   python_path = PYTHON_PATH,
