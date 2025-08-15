@@ -3,30 +3,21 @@ library(here)
 library(data.table)
 library(cowplot)
 
+
 tbl = readRDS(here::here("paper", "benchmark", "result.rds"))
-tbl = tbl[jit == FALSE, ]
 
 tbl_med = tbl[,
   .(time_per_batch_med = median(time_per_batch), loss_med = median(loss)),
-  by = .(n_layers, optimizer, algorithm, jit, latent)
+  by = .(n_layers, optimizer, algorithm, jit, latent, device)
 ]
 
-tbl_cuda = tbl[tag == "cuda_exp", ]
-tbl_cpu = tbl[tag == "cpu_exp", ]
-tbl_cuda_med = tbl_cuda[,
-  .(
-    time_per_batch_med = median(time_per_batch, na.rm = TRUE),
-    loss_med = median(loss)
-  ),
-  by = .(n_layers, optimizer, algorithm, jit, latent)
+tbl_med[,
+  time_per_batch_med_rel := (.SD$time_per_batch_med / .SD[algorithm == "pytorch", ]$time_per_batch_med),
+  by = .(n_layers, optimizer, latent, jit, device)
 ]
-tbl_cpu_med = tbl_cpu[,
-  .(
-    time_per_batch_med = median(time_per_batch, na.rm = TRUE),
-    loss_med = median(loss)
-  ),
-  by = .(n_layers, optimizer, algorithm, jit, latent)
-]
+
+tbl_cuda_med = tbl_med[device == "cuda", ]
+tbl_cpu_med = tbl_med[device == "cpu", ]
 
 plt <- function(opt_name, cuda) {
   tbl = if (cuda) tbl_cuda_med else tbl_cpu_med
@@ -36,12 +27,13 @@ plt <- function(opt_name, cuda) {
     aes(
       x = n_layers,
       y = time_per_batch_med * 1000,
-      color = algorithm
+      color = algorithm,
+      linetype = jit
     )
   ) +
-    geom_point(size = 0.5) +
+    #geom_point(size = 0.5) +
     geom_line() +
-    facet_wrap(~latent, scales = "free_y") +
+    #facet_wrap(~latent, scales = "free_y") +
     labs(
       y = "Time per batch (ms)",
       linetype = "JIT",

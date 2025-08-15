@@ -2,7 +2,7 @@ library(batchtools)
 library(mlr3misc)
 
 reg = makeExperimentRegistry(
-  file.dir = here::here("paper", "benchmark", "registry"),
+  file.dir = "/registry",
   packages = "checkmate"
 )
 reg$cluster.functions = makeClusterFunctionsInteractive()
@@ -50,7 +50,7 @@ addAlgorithm("pytorch", fun = function(instance, job, data, jit, ...) {
     library(reticulate)
     x = try(
       {
-        reticulate::use_python("/usr/bin/python3", required = TRUE)
+        reticulate::use_python("/opt/venv/bin/python3", required = TRUE)
         reticulate::source_python(here::here("paper/benchmark/time_pytorch.py"))
         print(reticulate::py_config())
         time_pytorch(...)
@@ -113,17 +113,17 @@ addExperiments(
   ),
   algo.designs = list(
     rtorch = data.frame(
-      jit = c(FALSE),
+      jit = c(FALSE, TRUE),
       opt_type = c("ignite"),
       tag = "cuda_exp"
     ),
     mlr3torch = data.frame(
-      jit = c(FALSE),
+      jit = c(FALSE, TRUE),
       opt_type = c("ignite"),
       tag = "cuda_exp"
     ),
     pytorch = data.frame(
-      jit = c(FALSE),
+      jit = c(FALSE, TRUE),
       tag = "cuda_exp"
     )
   ),
@@ -154,17 +154,17 @@ addExperiments(
   ),
   algo.designs = list(
     rtorch = data.frame(
-      jit = c(FALSE),
+      jit = c(FALSE, TRUE),
       opt_type = c("ignite"),
       tag = "cpu_exp"
     ),
     mlr3torch = data.frame(
-      jit = c(FALSE),
+      jit = c(FALSE, TRUE),
       opt_type = c("ignite"),
       tag = "cpu_exp"
     ),
     pytorch = data.frame(
-      jit = c(FALSE),
+      jit = c(FALSE, TRUE),
       tag = "cpu_exp"
     )
   ),

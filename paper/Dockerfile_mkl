@@ -91,15 +91,23 @@ ENV LD_LIBRARY_PATH=$R_HOME/lib:$LD_LIBRARY_PATH
 
 # -------- install R packages
 RUN R -q -e "install.packages('torch'); torch::install_torch()"
-RUN R -q -e "install.packages('mlr3mbo')"
-RUN R -q -e "install.packages('torchdatasets')"
-RUN R -q -e "install.packages('mlr3viz')"
-RUN R -q -e "install.packages('batchtools')"
-RUN R -q -e "install.packages('here')"
-RUN R -q -e "install.packages('reticulate')"
-RUN R -q -e "install.packages('cowplot')"
-RUN R -q -e "install.packages('remotes')"
-RUN R -q -e "install.packages('precrec')"
-RUN R -q -e "remotes::install_github('mlr-org/mlr3torch@53c0262')"
+RUN R -q -e "install.packages(c( \
+  'mlr3mbo', \
+  'torchdatasets', \
+  'mlr3viz', \
+  'batchtools', \
+  'here', \
+  'reticulate', \
+  'cowplot', \
+  'remotes', \
+  'precrec', \
+  'knitr', \
+  'mlr3learners', \
+  'ranger', \
+  'rgenoud', \
+  'DiceKriging' \
+))"
+
+RUN R -q -e "remotes::install_github('mlr-org/mlr3torch@4f43857')"
 
 CMD ["bash"]

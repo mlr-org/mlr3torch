@@ -156,8 +156,8 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
   # warmup
   # If we don't run the same warump code we get weird artifcats
   # because one has more RAM than the other
-  #train_run_torch(2)
-  train_run_mlr3torch(2)
+  train_run_torch(2)
+  #train_run_mlr3torch(2)
 
   if (device == "cuda") cuda_synchronize()
   time = if (mlr3torch) {

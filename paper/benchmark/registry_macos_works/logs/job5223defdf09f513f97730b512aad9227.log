@@ -1,0 +1,10 @@
+### [bt]: This is batchtools v0.9.17.9000
+### [bt]: Starting calculation of 1 jobs
+### [bt]: Setting working directory to '/Users/sebi/mlr/mlr3torch'
+### [bt]: Memory measurement disabled
+### [bt]: Starting job [batchtools job.id=772]
+### [bt]: Generating problem instance for problem 'runtime_train' ...
+### [bt]: Applying algorithm 'mlr3torch' on problem 'runtime_train' for job 772 (seed = 27478) ...
+
+### [bt]: Job terminated successfully [batchtools job.id=772]
+### [bt]: Calculation finished!

@@ -1,7 +1,7 @@
 library(batchtools)
 library(data.table)
 
-reg = loadRegistry(here::here("paper", "benchmark", "registry"))
+reg = loadRegistry("/registry")
 
 get_result = function(ids, what) {
   if (is.null(ids)) ids = findDone()[[1]]
