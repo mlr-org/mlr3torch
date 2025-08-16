@@ -12,7 +12,7 @@ get_result = function(ids, what) {
 
 summarize = function(ids) {
   jt = getJobTable(ids) |> unwrap()
-  jt = jt[, c("n_layers", "jit", "optimizer", "batch_size", "device", "opt_type", "algorithm", "repl", "tag", "latent", "epochs", "n", "p")]
+  jt = jt[, c("n_layers", "jit", "optimizer", "batch_size", "device", "opt_type", "algorithm", "repl", "latent", "epochs", "n", "p")]
   jt$time_total = get_result(ids, "time")
   jt$time_per_batch = jt$time_total / (ceiling(jt$n / jt$batch_size) * jt$epochs)
   jt$loss = get_result(ids, "loss")
