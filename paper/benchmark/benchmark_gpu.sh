@@ -4,7 +4,7 @@
 #SBATCH --gres=gpu:4
 #SBATCH --qos=mcml
 #SBATCH --ntasks=1
-#SBATCH --time=12:00:00
+#SBATCH --time=48:00:00
 #SBATCH --exclusive
 #SBATCH --output=mlr3torch-benchmark-%j.out
 
