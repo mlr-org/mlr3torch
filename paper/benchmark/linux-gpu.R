@@ -1,6 +1,6 @@
 library(here)
 
-setwd(here("paper", "envs", "macos"))
+setwd(here("paper"))
 source(here("paper", "benchmark", "benchmark.R"))
 
 problem_design = expand.grid(
