@@ -89,7 +89,7 @@ setup = function(reg_path, python_path, work_dir) {
 }
 
 # global config:
-REPLS = 3L
+REPLS = 10L
 EPOCHS = 20L
 N = 2000L
 P = 1000L

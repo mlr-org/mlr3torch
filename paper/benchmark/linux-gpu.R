@@ -12,7 +12,7 @@ problem_design = expand.grid(
     batch_size = 32L,
     device = "cuda",
     n_layers = c(0L, 4L, 8L, 12L, 16L),
-    latent = c(1000L, 2000L, 4000L)
+    latent = c(1000L, 3000L, 9000L)
   ),
   stringsAsFactors = FALSE
 )
