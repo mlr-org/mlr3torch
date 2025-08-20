@@ -480,23 +480,14 @@ library("ggplot2")
 learner <- as_learner(augment %>>% preprocess %>>% resnet)
 learner$id <- "resnet"
 set_validate(learner, 1 / 3)
-learner$train(task, row_ids = 1L)
-```
-
-```
-## Warning in (function (rhs) : Internal validation task has 0 observations.
-```
-
-```
-## Error in learner_train(learner, task, train_row_ids = train_row_ids, mode = mode): Internal validation task for task 'dogs_vs_cats' has 0 observations
-```
-
-``` r
+learner$train(task, row_ids = 1:4)
 learner$model$classif.resnet18$model$callbacks$history
 ```
 
 ```
-## NULL
+##    epoch valid.classif.acc
+##    <num>             <num>
+## 1:     1                 1
 ```
 
 ``` r

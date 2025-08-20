@@ -281,7 +281,7 @@ library("ggplot2")
 learner <- as_learner(augment %>>% preprocess %>>% resnet)
 learner$id <- "resnet"
 set_validate(learner, 1 / 3)
-learner$train(task, row_ids = 1L)
+learner$train(task, row_ids = 1:4)
 learner$model$classif.resnet18$model$callbacks$history
 
 task <- tsk("melanoma")
