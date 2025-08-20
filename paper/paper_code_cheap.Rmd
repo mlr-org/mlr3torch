@@ -7,6 +7,8 @@ output: html_document
 
 ```{r}
 library("mlr3")
+# otherwise we get a warning
+options(mlr3torch.cache = TRUE)
 lgr::get_logger("mlr3")$set_threshold("warn")
 set.seed(42)
 task <- tsk("mtcars")
@@ -52,19 +54,19 @@ mlp <- lrn("classif.mlp",
 mlp$param_set$set_values(
   neurons = c(100, 200), activation = torch::nn_relu,
   p = 0.3, opt.weight_decay = 0.01, measures_train = msr("classif.logloss"),
-  epochs = 0, batch_size = 32, device = "cpu")
+  epochs = 0, batch_size = 1, device = "cpu")
 
 mlp$configure(
   predict_type = "prob",
-  epochs = 0)
+  epochs = 1)
 
-mlp$train(mnist_flat, row_ids = 1:60000)
+mlp$train(mnist_flat, row_ids = 1)
 
 mlp$model$network
 
 head(mlp$model$callbacks$history, n = 2)
 
-pred <- mlp$predict(mnist_flat, row_ids = 60001:70000)
+pred <- mlp$predict(mnist_flat, row_ids = 2)
 pred$score(msr("classif.ce"))
 
 pth <- tempfile()

@@ -7,6 +7,10 @@ output: html_document
 
 ```{r}
 library("mlr3")
+# otherwise we get a warning
+options(mlr3torch.cache = TRUE)
+# less verbose output
+lgr::get_logger("mlr3")$set_threshold("warn")
 set.seed(42)
 task <- tsk("mtcars")
 learner <- lrn("regr.rpart")

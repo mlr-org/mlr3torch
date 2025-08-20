@@ -20,3 +20,4 @@ paper/data/
 paper/benchmark/registry
 .vscode/
 paper/benchmark/registry-macos
+paper/benchmark/registry-linux-cpu
