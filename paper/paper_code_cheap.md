@@ -1,15 +1,13 @@
 ---
-title: "Extracted Code from mlr3torch Paper"
+title: "Extracted Code from mlr3torch Paper - Cheap Version"
 author: "mlr3torch"
-date: "2025-08-20"
 output: html_document
 ---
 
 
 ``` r
 library("mlr3")
-# otherwise we get a warning
-options(mlr3torch.cache = TRUE)
+options(mlr3torch.cache = "/mnt/data/mlr3torch_cache")
 lgr::get_logger("mlr3")$set_threshold("warn")
 set.seed(42)
 task <- tsk("mtcars")
@@ -65,29 +63,14 @@ mnist
 ## 
 ## ── <TaskClassif> (70000x2): MNIST Digit Classification ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: label
-```
-
-```
-## Error: Assertion on 'cache is a valid path' failed: One of the following must apply:
-##  * check_directory_exists(cache is a valid path): Directory
-##  * '/root/.cache/R/mlr3torch' does not exist
-##  * check_path_for_output(cache is a valid path): Path to file (dirname)
-##  * does not exist: '/root/.cache/R' of '/root/.cache/R/mlr3torch'.
+## • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0 (10%), 6 (10%), 8 (10%), 4 (10%), 5 (9%)
+## • Properties: multiclass
+## • Features (1):
+##   • lt (1): image
 ```
 
 ``` r
 rows <- mnist$data(1:2)
-```
-
-```
-## Error: Assertion on 'cache is a valid path' failed: One of the following must apply:
-##  * check_directory_exists(cache is a valid path): Directory
-##  * '/root/.cache/R/mlr3torch' does not exist
-##  * check_path_for_output(cache is a valid path): Path to file (dirname)
-##  * does not exist: '/root/.cache/R' of '/root/.cache/R/mlr3torch'.
-```
-
-``` r
 rows
 ```
 
@@ -111,18 +94,6 @@ str(materialize(rows$image))
 ``` r
 po_flat <- po("trafo_reshape", shape = c(-1, 28 * 28))
 mnist_flat <- po_flat$train(list(mnist))[[1L]]
-```
-
-```
-## Error: Assertion on 'cache is a valid path' failed: One of the following must apply:
-##  * check_directory_exists(cache is a valid path): Directory
-##  * '/root/.cache/R/mlr3torch' does not exist
-##  * check_path_for_output(cache is a valid path): Path to file (dirname)
-##  * does not exist: '/root/.cache/R' of '/root/.cache/R/mlr3torch'.
-## This happened in PipeOp trafo_reshape's $train()
-```
-
-``` r
 mnist_flat$head(2)
 ```
 
@@ -259,10 +230,10 @@ graph <- graph %>>%
   po("torch_loss", t_loss("cross_entropy")) %>>%
   po("torch_optimizer", t_opt("adamw", lr = 0.001))
 
-graph <- graph %>>% po("torch_model_classif", epochs = 0, batch_size = 16)
+graph <- graph %>>% po("torch_model_classif", epochs = 1L, batch_size = 1L)
 
 glrn <- as_learner(graph)
-glrn$train(mnist_flat)
+glrn$train(mnist_flat, row_ids = 1L)
 
 path_lin <- nn("linear_1")
 path_nonlin <- nn("linear_2") %>>% nn("relu")
@@ -380,7 +351,7 @@ architecture <- nn("block", block) %>>% nn("head")
 config <- po("torch_loss", loss = t_loss("mse")) %>>%
   po("torch_optimizer", optimizer = t_opt("adamw"))
 
-model <- po("torch_model_regr", device = "cuda", batch_size = 512)
+model <- po("torch_model_regr", device = "cpu", batch_size = 512)
 
 pipeline <- preprocessing %>>% ingress %>>%
   architecture %>>% config %>>% model
@@ -398,109 +369,30 @@ learner$param_set$set_values(
 set_validate(learner, "test")
 
 learner$param_set$set_values(
-  torch_model_regr.patience = 5,
+  torch_model_regr.patience = 1L,
   torch_model_regr.measures_valid = msr("regr.mse"),
-  torch_model_regr.epochs = to_tune(upper = 0, internal = TRUE))
+  torch_model_regr.epochs = to_tune(upper = 1L, internal = TRUE))
 
 library("mlr3mbo")
 ti <- tune(
-  tuner = tnr("mbo"),
+  tuner = tnr("random_search"),
   resampling = rsmp("holdout"),
   measure = msr("internal_valid_score", minimize = TRUE),
   learner = learner,
-  term_evals = 20,
+  term_evals = 1L,
   task = task)
-```
-
-```
-## Warning: Caught Rcpp::exception. Canceling all iterations ...
-```
-
-```
-## Error in (function (self, device, dtype, non_blocking, copy, memory_format) : PyTorch is not linked with support for cuda devices
-## Exception raised from getDeviceGuardImpl at ../c10/core/impl/DeviceGuardImplInterface.h:356 (most recent call first):
-## frame #0: c10::Error::Error(c10::SourceLocation, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) + 0xb0 (0x7fe897cf1120 in /usr/local/lib/R/site-library/torch/lib/libc10.so)
-## frame #1: c10::detail::torchCheckFail(char const*, char const*, unsigned int, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) + 0xfa (0x7fe897c94a5a in /usr/local/lib/R/site-library/torch/lib/libc10.so)
-## frame #2: <unknown function> + 0x1b8bf42 (0x7fe884885f42 in /usr/local/lib/R/site-library/torch/lib/libtorch_cpu.so)
-## frame #3: at::native::to(at::Tensor const&, c10::Device, c10::ScalarType, bool, bool, std::optional<c10::MemoryFormat>) + 0x10c (0x7fe884dbf72c in /usr/local/lib/R/site-library/torch/lib/libtorch_cpu.so)
-## frame #4: <unknown function> + 0x32b67ed (0x7fe885fb07ed in /usr/local/lib/R/site-library/torch/lib/libtorch_cpu.so)
-## frame #5: at::_ops::to_device::call(at::Tensor const&, c10::Device, c10::ScalarType, bool, bool, std::optional<c10::MemoryFormat>) + 0x1ce (0x7fe8855c2f8e in /usr/local/lib/R/site-library/torch/lib/libtorch_cpu.so)
-## frame #6: at::Tensor::to(c10::Device, c10::ScalarType, bool, bool, std::optional<c10::MemoryFormat>) const + 0x67 (0x7fe898996eb1 in /usr/local/lib/R/site-library/torch/lib/liblantern.so)
-## frame #7: _lantern_Tensor_to_tensor_device_scalartype_bool_bool_memoryformat + 0xda (0x7fe8986d23dc in /usr/local/lib/R/site-library/torch/lib/liblantern.so)
-## frame #8: cpp_torch_method_to_self_Tensor_device_Device_dtype_ScalarType(XPtrTorchTensor, XPtrTorchDevice, XPtrTorchDtype, XPtrTorchbool, XPtrTorchbool, XPtrTorchoptional_memory_format) + 0x3c (0x7fe899673fcc in /usr/local/lib/R/site-library/torch/libs/torchpkg.so)
-## frame #9: _torch_cpp_torch_method_to_self_Tensor_device_Device_dtype_ScalarType + 0x11e (0x7fe8993a886e in /usr/local/lib/R/site-library/torch/libs/torchpkg.so)
-## frame #10: <unknown function> + 0x1034da (0x7feabd2ee4da in /usr/local/lib/R/lib/libR.so)
-## frame #11: <unknown function> + 0x149718 (0x7feabd334718 in /usr/local/lib/R/lib/libR.so)
-## frame #12: <unknown function> + 0x151a5a (0x7feabd33ca5a in /usr/local/lib/R/lib/libR.so)
-## frame #13: Rf_eval + 0x17b (0x7feabd33ce2b in /usr/local/lib/R/lib/libR.so)
-## frame #14: <unknown function> + 0x15406e (0x7feabd33f06e in /usr/local/lib/R/lib/libR.so)
-## frame #15: <unknown function> + 0x154dc7 (0x7feabd33fdc7 in /usr/local/lib/R/lib/libR.so)
-## frame #16: Rf_eval + 0x2b6 (0x7feabd33cf66 in /usr/local/lib/R/lib/libR.so)
-## frame #17: <unknown function> + 0xcb26f (0x7feabd2b626f in /usr/local/lib/R/lib/libR.so)
-## frame #18: <unknown function> + 0x144dd5 (0x7feabd32fdd5 in /usr/local/lib/R/lib/libR.so)
-## frame #19: <unknown function> + 0x151a5a (0x7feabd33ca5a in /usr/local/lib/R/lib/libR.so)
-## frame #20: Rf_eval + 0x17b (0x7feabd33ce2b in /usr/local/lib/R/lib/libR.so)
-## frame #21: <unknown function> + 0x15406e (0x7feabd33f06e in /usr/local/lib/R/lib/libR.so)
-## frame #22: <unknown function> + 0x154dc7 (0x7feabd33fdc7 in /usr/local/lib/R/lib/libR.so)
-## frame #23: Rf_eval + 0x2b6 (0x7feabd33cf66 in /usr/local/lib/R/lib/libR.so)
-## frame #24: <unknown function> + 0x155b4c (0x7feabd340b4c in /usr/local/lib/R/lib/libR.so)
-## frame #25: Rf_eval + 0x560 (0x7feabd33d210 in /usr/local/lib/R/lib/libR.so)
-## frame #26: Rf_eval + 0x560 (0x7feabd33d210 in /usr/local/lib/R/lib/libR.so)
-## frame #27: <unknown function> + 0x155b4c (0x7feabd340b4c in /usr/local/lib/R/lib/libR.so)
-## frame #28: Rf_eval + 0x560 (0x7feabd33d210 in /usr/local/lib/R/lib/libR.so)
-## frame #29: <unknown function> + 0x15406e (0x7feabd33f06e in /usr/local/lib/R/lib/libR.so)
-## frame #30: <unknown function> + 0x154dc7 (0x7feabd33fdc7 in /usr/local/lib/R/lib/libR.so)
-## frame #31: Rf_eval + 0x2b6 (0x7feabd33cf66 in /usr/local/lib/R/lib/libR.so)
-## frame #32: <unknown function> + 0x157174 (0x7feabd342174 in /usr/local/lib/R/lib/libR.so)
-## frame #33: Rf_eval + 0x560 (0x7feabd33d210 in /usr/local/lib/R/lib/libR.so)
-## frame #34: <unknown function> + 0x155b4c (0x7feabd340b4c in /usr/local/lib/R/lib/libR.so)
-## frame #35: Rf_eval + 0x560 (0x7feabd33d210 in /usr/local/lib/R/lib/libR.so)
-## frame #36: <unknown function> + 0x15279b (0x7feabd33d79b in /usr/local/lib/R/lib/libR.so)
-## frame #37: <unknown function> + 0x152a91 (0x7feabd33da91 in /usr/local/lib/R/lib/libR.so)
-## frame #38: <unknown function> + 0x149be3 (0x7feabd334be3 in /usr/local/lib/R/lib/libR.so)
-## frame #39: <unknown function> + 0x151a5a (0x7feabd33ca5a in /usr/local/lib/R/lib/libR.so)
-## frame #40: Rf_eval + 0x17b (0x7feabd33ce2b in /usr/local/lib/R/lib/libR.so)
-## frame #41: <unknown function> + 0x15406e (0x7feabd33f06e in /usr/local/lib/R/lib/libR.so)
-## frame #42: <unknown function> + 0x154dc7 (0x7feabd33fdc7 in /usr/local/lib/R/lib/libR.so)
-## frame #43: Rf_eval + 0x2b6 (0x7feabd33cf66 in /usr/local/lib/R/lib/libR.so)
-## frame #44: <unknown function> + 0x155b4c (0x7feabd340b4c in /usr/local/lib/R/lib/libR.so)
-## frame #45: Rf_eval + 0x560 (0x7feabd33d210 in /usr/local/lib/R/lib/libR.so)
-## frame #46: Rf_eval + 0x560 (0x7feabd33d210 in /usr/local/lib/R/lib/libR.so)
-## frame #47: <unknown function> + 0x155b4c (0x7feabd340b4c in /usr/local/lib/R/lib/libR.so)
-## frame #48: Rf_eval + 0x560 (0x7feabd33d210 in /usr/local/lib/R/lib/libR.so)
-## frame #49: <unknown function> + 0x15a65b (0x7feabd34565b in /usr/local/lib/R/lib/libR.so)
-## frame #50: Rf_eval + 0x560 (0x7feabd33d210 in /usr/local/lib/R/lib/libR.so)
-## frame #51: <unknown function> + 0x155b4c (0x7feabd340b4c in /usr/local/lib/R/lib/libR.so)
-## frame #52: Rf_eval + 0x560 (0x7feabd33d210 in /usr/local/lib/R/lib/libR.so)
-## frame #53: <unknown function> + 0x15406e (0x7feabd33f06e in /usr/local/lib/R/lib/libR.so)
-## frame #54: <unknown function> + 0x154dc7 (0x7feabd33fdc7 in /usr/local/lib/R/lib/libR.so)
-## frame #55: Rf_eval + 0x2b6 (0x7feabd33cf66 in /usr/local/lib/R/lib/libR.so)
-## frame #56: <unknown function> + 0x155b4c (0x7feabd340b4c in /usr/local/lib/R/lib/libR.so)
-## frame #57: Rf_eval + 0x560 (0x7feabd33d210 in /usr/local/lib/R/lib/libR.so)
-## frame #58: <unknown function> + 0x15a65b (0x7feabd34565b in /usr/local/lib/R/lib/libR.so)
-## frame #59: Rf_eval + 0x560 (0x7feabd33d210 in /usr/local/lib/R/lib/libR.so)
-## frame #60: <unknown function> + 0x155b4c (0x7feabd340b4c in /usr/local/lib/R/lib/libR.so)
-## frame #61: Rf_eval + 0x560 (0x7feabd33d210 in /usr/local/lib/R/lib/libR.so)
-## frame #62: <unknown function> + 0x15406e (0x7feabd33f06e in /usr/local/lib/R/lib/libR.so)
-## 
-## This happened in PipeOp torch_model_regr's $train()
-```
-
-``` r
 pvals <- ti$result_learner_param_vals[2:7]
-```
-
-```
-## Error in ti$result_learner_param_vals: object of type 'closure' is not subsettable
-```
-
-``` r
 cat(paste("*", names(pvals), "=", pvals,
  collapse = "\n"), "\n")
 ```
 
 ```
-## Error: object 'pvals' not found
+## * block.n_blocks = 1
+## * block.linear.out_features = 446
+## * block.branch.selection = sigmoid
+## * block.dropout.p = 0.849683136679232
+## * torch_optimizer.lr = 0.00145029336662848
+## * torch_model_regr.epochs = 1
 ```
 
 ``` r
@@ -580,7 +472,7 @@ unfreezer <- t_clbk("unfreeze",
   unfreeze = data.table(epoch = 3, weights = select_all()))
 
 resnet <- lrn("classif.resnet18",
-  pretrained = TRUE, epochs = 5, device = "cuda", batch_size = 32,
+  pretrained = TRUE, epochs = 1L, device = "cpu", batch_size = 1L,
   opt.lr = 1e-4, measures_valid = msr("classif.acc"),
   callbacks = list(unfreezer, t_clbk("history")))
 
@@ -588,77 +480,15 @@ library("ggplot2")
 learner <- as_learner(augment %>>% preprocess %>>% resnet)
 learner$id <- "resnet"
 set_validate(learner, 1 / 3)
-learner$train(task)
+learner$train(task, row_ids = 1L)
 ```
 
 ```
-## Error in (function (self, device, dtype, non_blocking, copy, memory_format) : PyTorch is not linked with support for cuda devices
-## Exception raised from getDeviceGuardImpl at ../c10/core/impl/DeviceGuardImplInterface.h:356 (most recent call first):
-## frame #0: c10::Error::Error(c10::SourceLocation, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) + 0xb0 (0x7fe897cf1120 in /usr/local/lib/R/site-library/torch/lib/libc10.so)
-## frame #1: c10::detail::torchCheckFail(char const*, char const*, unsigned int, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) + 0xfa (0x7fe897c94a5a in /usr/local/lib/R/site-library/torch/lib/libc10.so)
-## frame #2: <unknown function> + 0x1b8bf42 (0x7fe884885f42 in /usr/local/lib/R/site-library/torch/lib/libtorch_cpu.so)
-## frame #3: at::native::to(at::Tensor const&, c10::Device, c10::ScalarType, bool, bool, std::optional<c10::MemoryFormat>) + 0x10c (0x7fe884dbf72c in /usr/local/lib/R/site-library/torch/lib/libtorch_cpu.so)
-## frame #4: <unknown function> + 0x32b67ed (0x7fe885fb07ed in /usr/local/lib/R/site-library/torch/lib/libtorch_cpu.so)
-## frame #5: at::_ops::to_device::call(at::Tensor const&, c10::Device, c10::ScalarType, bool, bool, std::optional<c10::MemoryFormat>) + 0x1ce (0x7fe8855c2f8e in /usr/local/lib/R/site-library/torch/lib/libtorch_cpu.so)
-## frame #6: at::Tensor::to(c10::Device, c10::ScalarType, bool, bool, std::optional<c10::MemoryFormat>) const + 0x67 (0x7fe898996eb1 in /usr/local/lib/R/site-library/torch/lib/liblantern.so)
-## frame #7: _lantern_Tensor_to_tensor_device_scalartype_bool_bool_memoryformat + 0xda (0x7fe8986d23dc in /usr/local/lib/R/site-library/torch/lib/liblantern.so)
-## frame #8: cpp_torch_method_to_self_Tensor_device_Device_dtype_ScalarType(XPtrTorchTensor, XPtrTorchDevice, XPtrTorchDtype, XPtrTorchbool, XPtrTorchbool, XPtrTorchoptional_memory_format) + 0x3c (0x7fe899673fcc in /usr/local/lib/R/site-library/torch/libs/torchpkg.so)
-## frame #9: _torch_cpp_torch_method_to_self_Tensor_device_Device_dtype_ScalarType + 0x11e (0x7fe8993a886e in /usr/local/lib/R/site-library/torch/libs/torchpkg.so)
-## frame #10: <unknown function> + 0x1034da (0x7feabd2ee4da in /usr/local/lib/R/lib/libR.so)
-## frame #11: <unknown function> + 0x149718 (0x7feabd334718 in /usr/local/lib/R/lib/libR.so)
-## frame #12: <unknown function> + 0x151a5a (0x7feabd33ca5a in /usr/local/lib/R/lib/libR.so)
-## frame #13: Rf_eval + 0x17b (0x7feabd33ce2b in /usr/local/lib/R/lib/libR.so)
-## frame #14: <unknown function> + 0x15406e (0x7feabd33f06e in /usr/local/lib/R/lib/libR.so)
-## frame #15: <unknown function> + 0x154dc7 (0x7feabd33fdc7 in /usr/local/lib/R/lib/libR.so)
-## frame #16: Rf_eval + 0x2b6 (0x7feabd33cf66 in /usr/local/lib/R/lib/libR.so)
-## frame #17: <unknown function> + 0xcb26f (0x7feabd2b626f in /usr/local/lib/R/lib/libR.so)
-## frame #18: <unknown function> + 0x144dd5 (0x7feabd32fdd5 in /usr/local/lib/R/lib/libR.so)
-## frame #19: <unknown function> + 0x151a5a (0x7feabd33ca5a in /usr/local/lib/R/lib/libR.so)
-## frame #20: Rf_eval + 0x17b (0x7feabd33ce2b in /usr/local/lib/R/lib/libR.so)
-## frame #21: <unknown function> + 0x15406e (0x7feabd33f06e in /usr/local/lib/R/lib/libR.so)
-## frame #22: <unknown function> + 0x154dc7 (0x7feabd33fdc7 in /usr/local/lib/R/lib/libR.so)
-## frame #23: Rf_eval + 0x2b6 (0x7feabd33cf66 in /usr/local/lib/R/lib/libR.so)
-## frame #24: <unknown function> + 0x155b4c (0x7feabd340b4c in /usr/local/lib/R/lib/libR.so)
-## frame #25: Rf_eval + 0x560 (0x7feabd33d210 in /usr/local/lib/R/lib/libR.so)
-## frame #26: Rf_eval + 0x560 (0x7feabd33d210 in /usr/local/lib/R/lib/libR.so)
-## frame #27: <unknown function> + 0x155b4c (0x7feabd340b4c in /usr/local/lib/R/lib/libR.so)
-## frame #28: Rf_eval + 0x560 (0x7feabd33d210 in /usr/local/lib/R/lib/libR.so)
-## frame #29: <unknown function> + 0x15406e (0x7feabd33f06e in /usr/local/lib/R/lib/libR.so)
-## frame #30: <unknown function> + 0x154dc7 (0x7feabd33fdc7 in /usr/local/lib/R/lib/libR.so)
-## frame #31: Rf_eval + 0x2b6 (0x7feabd33cf66 in /usr/local/lib/R/lib/libR.so)
-## frame #32: <unknown function> + 0x157174 (0x7feabd342174 in /usr/local/lib/R/lib/libR.so)
-## frame #33: Rf_eval + 0x560 (0x7feabd33d210 in /usr/local/lib/R/lib/libR.so)
-## frame #34: <unknown function> + 0x155b4c (0x7feabd340b4c in /usr/local/lib/R/lib/libR.so)
-## frame #35: Rf_eval + 0x560 (0x7feabd33d210 in /usr/local/lib/R/lib/libR.so)
-## frame #36: <unknown function> + 0x15279b (0x7feabd33d79b in /usr/local/lib/R/lib/libR.so)
-## frame #37: <unknown function> + 0x152a91 (0x7feabd33da91 in /usr/local/lib/R/lib/libR.so)
-## frame #38: <unknown function> + 0x149be3 (0x7feabd334be3 in /usr/local/lib/R/lib/libR.so)
-## frame #39: <unknown function> + 0x151a5a (0x7feabd33ca5a in /usr/local/lib/R/lib/libR.so)
-## frame #40: Rf_eval + 0x17b (0x7feabd33ce2b in /usr/local/lib/R/lib/libR.so)
-## frame #41: <unknown function> + 0x15406e (0x7feabd33f06e in /usr/local/lib/R/lib/libR.so)
-## frame #42: <unknown function> + 0x154dc7 (0x7feabd33fdc7 in /usr/local/lib/R/lib/libR.so)
-## frame #43: Rf_eval + 0x2b6 (0x7feabd33cf66 in /usr/local/lib/R/lib/libR.so)
-## frame #44: <unknown function> + 0x155b4c (0x7feabd340b4c in /usr/local/lib/R/lib/libR.so)
-## frame #45: Rf_eval + 0x560 (0x7feabd33d210 in /usr/local/lib/R/lib/libR.so)
-## frame #46: Rf_eval + 0x560 (0x7feabd33d210 in /usr/local/lib/R/lib/libR.so)
-## frame #47: <unknown function> + 0x155b4c (0x7feabd340b4c in /usr/local/lib/R/lib/libR.so)
-## frame #48: Rf_eval + 0x560 (0x7feabd33d210 in /usr/local/lib/R/lib/libR.so)
-## frame #49: <unknown function> + 0x15a65b (0x7feabd34565b in /usr/local/lib/R/lib/libR.so)
-## frame #50: Rf_eval + 0x560 (0x7feabd33d210 in /usr/local/lib/R/lib/libR.so)
-## frame #51: <unknown function> + 0x155b4c (0x7feabd340b4c in /usr/local/lib/R/lib/libR.so)
-## frame #52: Rf_eval + 0x560 (0x7feabd33d210 in /usr/local/lib/R/lib/libR.so)
-## frame #53: <unknown function> + 0x15406e (0x7feabd33f06e in /usr/local/lib/R/lib/libR.so)
-## frame #54: <unknown function> + 0x154dc7 (0x7feabd33fdc7 in /usr/local/lib/R/lib/libR.so)
-## frame #55: Rf_eval + 0x2b6 (0x7feabd33cf66 in /usr/local/lib/R/lib/libR.so)
-## frame #56: <unknown function> + 0x155b4c (0x7feabd340b4c in /usr/local/lib/R/lib/libR.so)
-## frame #57: Rf_eval + 0x560 (0x7feabd33d210 in /usr/local/lib/R/lib/libR.so)
-## frame #58: <unknown function> + 0x15a65b (0x7feabd34565b in /usr/local/lib/R/lib/libR.so)
-## frame #59: Rf_eval + 0x560 (0x7feabd33d210 in /usr/local/lib/R/lib/libR.so)
-## frame #60: <unknown function> + 0x155b4c (0x7feabd340b4c in /usr/local/lib/R/lib/libR.so)
-## frame #61: Rf_eval + 0x560 (0x7feabd33d210 in /usr/local/lib/R/lib/libR.so)
-## frame #62: <unknown function> + 0x15406e (0x7feabd33f06e in /usr/local/lib/R/lib/libR.so)
-## 
-## This happened in PipeOp classif.resnet18's $train()
+## Warning in (function (rhs) : Internal validation task has 0 observations.
+```
+
+```
+## Error in learner_train(learner, task, train_row_ids = train_row_ids, mode = mode): Internal validation task for task 'dogs_vs_cats' has 0 observations
 ```
 
 ``` r
@@ -678,14 +508,13 @@ task
 ## 
 ## ── <TaskClassif> (32701x5): Melanoma Classification ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: outcome
-```
-
-```
-## Error: Assertion on 'cache is a valid path' failed: One of the following must apply:
-##  * check_directory_exists(cache is a valid path): Directory
-##  * '/root/.cache/R/mlr3torch' does not exist
-##  * check_path_for_output(cache is a valid path): Path to file (dirname)
-##  * does not exist: '/root/.cache/R' of '/root/.cache/R/mlr3torch'.
+## • Target classes: malignant (positive class, 2%), benign (98%)
+## • Properties: twoclass, groups
+## • Features (4):
+##   • fct (2): anatom_site_general_challenge, sex
+##   • int (1): age_approx
+##   • lt (1): image
+## • Groups: patient_id
 ```
 
 ``` r
@@ -693,11 +522,9 @@ table(task$truth())
 ```
 
 ```
-## Error: Assertion on 'cache is a valid path' failed: One of the following must apply:
-##  * check_directory_exists(cache is a valid path): Directory
-##  * '/root/.cache/R/mlr3torch' does not exist
-##  * check_path_for_output(cache is a valid path): Path to file (dirname)
-##  * does not exist: '/root/.cache/R' of '/root/.cache/R/mlr3torch'.
+## 
+## malignant    benign 
+##       581     32120
 ```
 
 ``` r
@@ -705,11 +532,8 @@ task$missings("age_approx")
 ```
 
 ```
-## Error: Assertion on 'cache is a valid path' failed: One of the following must apply:
-##  * check_directory_exists(cache is a valid path): Directory
-##  * '/root/.cache/R/mlr3torch' does not exist
-##  * check_path_for_output(cache is a valid path): Path to file (dirname)
-##  * does not exist: '/root/.cache/R' of '/root/.cache/R/mlr3torch'.
+## age_approx 
+##         44
 ```
 
 ``` r
@@ -747,7 +571,7 @@ model <- architecture %>>%
   po("torch_loss",
     t_loss("cross_entropy", class_weight = torch_tensor(10))) %>>%
   po("torch_optimizer", t_opt("adamw", lr = 0.0005)) %>>%
-  po("torch_model_classif", epochs = 0, batch_size = 32, device = "cuda",
+  po("torch_model_classif", epochs = 1L, batch_size = 1L, device = "cpu",
     predict_type = "prob")
 
 preprocessing <- po("classbalancing", ratio = 4, reference = "minor",
@@ -759,37 +583,13 @@ glrn <- as_learner(preprocessing %>>% model)
 
 library("mlr3viz")
 glrn$id <- "multimodal"
-rr <- resample(task, glrn, rsmp("cv", folds = 5))
-```
-
-```
-## Error: Assertion on 'cache is a valid path' failed: One of the following must apply:
-##  * check_directory_exists(cache is a valid path): Directory
-##  * '/root/.cache/R/mlr3torch' does not exist
-##  * check_path_for_output(cache is a valid path): Path to file (dirname)
-##  * does not exist: '/root/.cache/R' of '/root/.cache/R/mlr3torch'.
-```
-
-``` r
+rr <- resample(task$filter(c(1, 2, 3, 4, 5, 92, 236, 315, 400, 460)), glrn, rsmp("holdout"))
 plt = autoplot(rr, type = "roc")
-```
-
-```
-## Error in FUN(X[[i]], ...): Need a binary classification problem to plot a ROC curve
-```
-
-``` r
 print(plt)
 ```
 
-```
-## Error: object 'plt' not found
-```
+![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1-1.png)
 
 ``` r
 saveRDS(plt, "roc.rds")
-```
-
-```
-## Error: object 'plt' not found
 ```

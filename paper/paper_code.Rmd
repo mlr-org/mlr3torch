@@ -8,7 +8,7 @@ output: html_document
 ```{r}
 library("mlr3")
 # otherwise we get a warning
-options(mlr3torch.cache = TRUE)
+options(mlr3torch.cache = "/mnt/data/mlr3torch_cache")
 # less verbose output
 lgr::get_logger("mlr3")$set_threshold("warn")
 set.seed(42)

@@ -1,14 +1,12 @@
 ---
-title: "Extracted Code from mlr3torch Paper"
+title: "Extracted Code from mlr3torch Paper - Cheap Version"
 author: "mlr3torch"
-date: "`r Sys.Date()`"
 output: html_document
 ---
 
 ```{r}
 library("mlr3")
-# otherwise we get a warning
-options(mlr3torch.cache = TRUE)
+options(mlr3torch.cache = "/mnt/data/mlr3torch_cache")
 lgr::get_logger("mlr3")$set_threshold("warn")
 set.seed(42)
 task <- tsk("mtcars")
@@ -111,10 +109,10 @@ graph <- graph %>>%
   po("torch_loss", t_loss("cross_entropy")) %>>%
   po("torch_optimizer", t_opt("adamw", lr = 0.001))
 
-graph <- graph %>>% po("torch_model_classif", epochs = 0, batch_size = 16)
+graph <- graph %>>% po("torch_model_classif", epochs = 1L, batch_size = 1L)
 
 glrn <- as_learner(graph)
-glrn$train(mnist_flat)
+glrn$train(mnist_flat, row_ids = 1L)
 
 path_lin <- nn("linear_1")
 path_nonlin <- nn("linear_2") %>>% nn("relu")
@@ -203,7 +201,7 @@ architecture <- nn("block", block) %>>% nn("head")
 config <- po("torch_loss", loss = t_loss("mse")) %>>%
   po("torch_optimizer", optimizer = t_opt("adamw"))
 
-model <- po("torch_model_regr", device = "cuda", batch_size = 512)
+model <- po("torch_model_regr", device = "cpu", batch_size = 512)
 
 pipeline <- preprocessing %>>% ingress %>>%
   architecture %>>% config %>>% model
@@ -221,17 +219,17 @@ learner$param_set$set_values(
 set_validate(learner, "test")
 
 learner$param_set$set_values(
-  torch_model_regr.patience = 5,
+  torch_model_regr.patience = 1L,
   torch_model_regr.measures_valid = msr("regr.mse"),
-  torch_model_regr.epochs = to_tune(upper = 0, internal = TRUE))
+  torch_model_regr.epochs = to_tune(upper = 1L, internal = TRUE))
 
 library("mlr3mbo")
 ti <- tune(
-  tuner = tnr("mbo"),
+  tuner = tnr("random_search"),
   resampling = rsmp("holdout"),
   measure = msr("internal_valid_score", minimize = TRUE),
   learner = learner,
-  term_evals = 20,
+  term_evals = 1L,
   task = task)
 pvals <- ti$result_learner_param_vals[2:7]
 cat(paste("*", names(pvals), "=", pvals,
@@ -275,7 +273,7 @@ unfreezer <- t_clbk("unfreeze",
   unfreeze = data.table(epoch = 3, weights = select_all()))
 
 resnet <- lrn("classif.resnet18",
-  pretrained = TRUE, epochs = 5, device = "cuda", batch_size = 32,
+  pretrained = TRUE, epochs = 1L, device = "cpu", batch_size = 1L,
   opt.lr = 1e-4, measures_valid = msr("classif.acc"),
   callbacks = list(unfreezer, t_clbk("history")))
 
@@ -283,7 +281,7 @@ library("ggplot2")
 learner <- as_learner(augment %>>% preprocess %>>% resnet)
 learner$id <- "resnet"
 set_validate(learner, 1 / 3)
-learner$train(task)
+learner$train(task, row_ids = 1L)
 learner$model$classif.resnet18$model$callbacks$history
 
 task <- tsk("melanoma")
@@ -327,7 +325,7 @@ model <- architecture %>>%
   po("torch_loss",
     t_loss("cross_entropy", class_weight = torch_tensor(10))) %>>%
   po("torch_optimizer", t_opt("adamw", lr = 0.0005)) %>>%
-  po("torch_model_classif", epochs = 0, batch_size = 32, device = "cuda",
+  po("torch_model_classif", epochs = 1L, batch_size = 1L, device = "cpu",
     predict_type = "prob")
 
 preprocessing <- po("classbalancing", ratio = 4, reference = "minor",
@@ -339,7 +337,7 @@ glrn <- as_learner(preprocessing %>>% model)
 
 library("mlr3viz")
 glrn$id <- "multimodal"
-rr <- resample(task, glrn, rsmp("cv", folds = 5))
+rr <- resample(task$filter(c(1, 2, 3, 4, 5, 92, 236, 315, 400, 460)), glrn, rsmp("holdout"))
 plt = autoplot(rr, type = "roc")
 print(plt)
 saveRDS(plt, "roc.rds")
