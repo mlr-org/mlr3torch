@@ -19,7 +19,7 @@ To start the container, run:
 
 ```bash
 enroot start \
-  --mount <parent-dir-to-mlr3torch>:/mnt/data \
+  --mount < parent-dir-to-mlr3torch>:/mnt/data \
   mlr3torch-jss bash
 ```
 

@@ -67,7 +67,7 @@ def time_pytorch(epochs, batch_size, n_layers, latent, n, p, device, seed, optim
                 optimizer.step()
 
 
-    train_run(epochs = 5)
+    train_run(epochs = 4)
     if device == "cuda":
         torch.cuda.synchronize()
     t0 = time.time()
