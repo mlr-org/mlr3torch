@@ -11,9 +11,18 @@ enroot import docker://index.docker.io#sebffischer/mlr3torch-jss:latest
 
 Next, you can create a docker container from the image:
 
+For GPU:
+
 ```bash
-enroot create --name mlr3torch-jss sebffischer+mlr3torch-jss+latest.sqsh
+enroot create --name mlr3torch-jss sebffischer+mlr3torch-jss+gpu.sqsh
 ```
+
+For CPU:
+
+```bash
+enroot create --name mlr3torch-jss sebffischer+mlr3torch-jss+cpu.sqsh
+```
+
 
 To start the container, run:
 
