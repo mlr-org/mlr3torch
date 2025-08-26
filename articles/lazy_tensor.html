@@ -34,7 +34,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mlr3torch</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.0</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -190,9 +190,9 @@ well as the <code>lazy_tensor</code>.</p>
 <span><span class="co">#&gt; • Encapsulation: none (fallback: -)</span></span>
 <span><span class="co">#&gt; • Properties: internal_tuning, marshal, multiclass, twoclass, and validation</span></span>
 <span><span class="co">#&gt; • Other settings: use_weights = 'error'</span></span>
-<span><span class="co">#&gt; * Optimizer: adam</span></span>
-<span><span class="co">#&gt; * Loss: cross_entropy</span></span>
-<span><span class="co">#&gt; * Callbacks: -</span></span></code></pre></div>
+<span><span class="co">#&gt; • Optimizer: adam</span></span>
+<span><span class="co">#&gt; • Loss: cross_entropy</span></span>
+<span><span class="co">#&gt; • Callbacks: -</span></span></code></pre></div>
 <p>However, because <code>lazy_tensor</code>s also have a specific
 shape, we also must ensure that the shape of the
 <code>lazy_tensor</code> matches the expected input shape of the
@@ -410,7 +410,7 @@ nerworks using <code>PipeOpTorch</code> objects. The
 <span><span class="co">#&gt; &lt;DataDescriptor: 1 ops&gt;</span></span>
 <span><span class="co">#&gt; * dataset_shapes: [x: (NA,1)]</span></span>
 <span><span class="co">#&gt; * input_map: (x) -&gt; Graph</span></span>
-<span><span class="co">#&gt; * pointer: nop.4ce394.x.output</span></span>
+<span><span class="co">#&gt; * pointer: nop.fad3e0.x.output</span></span>
 <span><span class="co">#&gt; * shape: [(NA,1)]</span></span></code></pre></div>
 <p>The printed output of the data descriptor informs us about:</p>
 <ul>
@@ -457,7 +457,7 @@ there can only be a single <code>DataDescriptor</code> in a
 <span><span class="co">#&gt; &lt;DataDescriptor: 1 ops&gt;</span></span>
 <span><span class="co">#&gt; * dataset_shapes: [x: (NA,1)]</span></span>
 <span><span class="co">#&gt; * input_map: (x) -&gt; Graph</span></span>
-<span><span class="co">#&gt; * pointer: nop.4ce394.x.output</span></span>
+<span><span class="co">#&gt; * pointer: nop.fad3e0.x.output</span></span>
 <span><span class="co">#&gt; * shape: [(NA,1)]</span></span></code></pre></div>
 <p>What happens during <code>materialize(lt[1])</code> is the
 following:</p>
@@ -507,8 +507,8 @@ feature.</p>
 <span><span class="co">#&gt; Graph with 2 PipeOps:</span></span>
 <span><span class="co">#&gt;            ID         State sccssors    prdcssors</span></span>
 <span><span class="co">#&gt;        &lt;char&gt;        &lt;char&gt;   &lt;char&gt;       &lt;char&gt;</span></span>
-<span><span class="co">#&gt;  nop.4ce394.x        &lt;list&gt;   poly.x             </span></span>
-<span><span class="co">#&gt;        poly.x &lt;&lt;UNTRAINED&gt;&gt;          nop.4ce394.x</span></span></code></pre></div>
+<span><span class="co">#&gt;  nop.fad3e0.x        &lt;list&gt;   poly.x             </span></span>
+<span><span class="co">#&gt;        poly.x &lt;&lt;UNTRAINED&gt;&gt;          nop.fad3e0.x</span></span></code></pre></div>
 <p>We see that the <code>$graph</code> has a new pipeop with id
 <code>"poly.x"</code> and the output <code>pointer</code> points to
 <code>poly.x</code>. Also we see that the shape of the tensor is now
