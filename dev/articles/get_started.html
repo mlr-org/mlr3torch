@@ -186,7 +186,7 @@ of the predictions.</p>
 <span><span class="co"># Compute the mse</span></span>
 <span><span class="va">prediction</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mse"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; regr.mse </span></span>
-<span><span class="co">#&gt; 294.1396</span></span></code></pre></div>
+<span><span class="co">#&gt; 289.5967</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="configuring-a-learner">Configuring a Learner<a class="anchor" aria-label="anchor" href="#configuring-a-learner"></a>
@@ -416,22 +416,22 @@ lower MAE than the default <code>mlp</code> learner.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">prediction_custom</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mae"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; regr.mae </span></span>
-<span><span class="co">#&gt; 8.543908</span></span>
+<span><span class="co">#&gt; 13.14184</span></span>
 <span><span class="va">prediction</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">msr</a></span><span class="op">(</span><span class="st">"regr.mae"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; regr.mae </span></span>
-<span><span class="co">#&gt; 15.54688</span></span></code></pre></div>
+<span><span class="co">#&gt; 15.44357</span></span></code></pre></div>
 <p>Because we configured the learner to use the history callback, we can
 find the validation history in its <code>$model</code> slot:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">mlp_custom</span><span class="op">$</span><span class="va">model</span><span class="op">$</span><span class="va">callbacks</span><span class="op">$</span><span class="va">history</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    epoch valid.regr.mae</span></span>
 <span><span class="co">#&gt;    &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:     1   2.310486e+05</span></span>
-<span><span class="co">#&gt; 2:     2   2.009898e+10</span></span>
-<span><span class="co">#&gt; 3:     3   6.967264e+03</span></span>
-<span><span class="co">#&gt; 4:     4   3.220922e+02</span></span>
-<span><span class="co">#&gt; 5:     5   7.638778e+01</span></span>
-<span><span class="co">#&gt; 6:     6   7.588778e+01</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:     1   1.952632e+04</span></span>
+<span><span class="co">#&gt; 2:     2   1.480274e+10</span></span>
+<span><span class="co">#&gt; 3:     3   1.907161e+09</span></span>
+<span><span class="co">#&gt; 4:     4   6.248891e+04</span></span>
+<span><span class="co">#&gt; 5:     5   8.702154e+01</span></span>
+<span><span class="co">#&gt; 6:     6   3.612310e+01</span></span></code></pre></div>
 <p>The plot below shows it for the epochs 6 to 30.</p>
 <p><img src="get_started_files/figure-html/unnamed-chunk-20-1.png" width="50%" style="display: block; margin: auto;"></p>
 <p>Other important information that is stored in the
