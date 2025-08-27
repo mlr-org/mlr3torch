@@ -21,3 +21,6 @@ paper/benchmark/registry
 .vscode/
 paper/benchmark/registry-linux-cpu/
 paper/benchmark/registry-macos/
+paper/benchmark/registry-linux-gpu/
+paper/benchmark/registry-linux-gpu-optimizer/
+paper/benchmark/registry-linux-gpu-old/

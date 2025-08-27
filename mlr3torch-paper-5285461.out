@@ -1,0 +1,27 @@
+[ERROR] No such file or directory: /dss/dssmcmlfs01/pr74ze/pr74ze-dss-0001/ru48nas2/sebffischer+mlr3torch-jss+latest.sqsh
+
+==========
+== CUDA ==
+==========
+
+CUDA Version 12.4.1
+
+Container image Copyright (c) 2016-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
+This container image and its contents are governed by the NVIDIA Deep Learning Container License.
+By pulling and using the container, you accept the terms and conditions of this license:
+https://developer.nvidia.com/ngc/nvidia-deep-learning-container-license
+
+A copy of this license is made available in this container at /NGC-DL-CONTAINER-LICENSE for your convenience.
+
+
+
+processing file: paper_code.Rmd
+1/2                  
+2/2 [unnamed-chunk-1]
+output file: paper_code.md
+
+[1] "paper_code.md"
+Warning message:
+In png(..., res = dpi, units = "in") :
+  unable to open connection to X11 display ''

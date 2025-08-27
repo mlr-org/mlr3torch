@@ -144,7 +144,7 @@ head(mlp$model$callbacks$history, n = 2)
 ```
 ##    epoch train.classif.logloss
 ##    <num>                 <num>
-## 1:     1           0.001275458
+## 1:     1              7.700684
 ```
 
 ``` r
@@ -359,6 +359,13 @@ learner = as_learner(pipeline)
 learner$id = "custom_nn"
 
 library("mlr3tuning")
+```
+
+```
+## Loading required package: paradox
+```
+
+``` r
 learner$param_set$set_values(
   block.linear.out_features = to_tune(20, 500),
   block.n_blocks = to_tune(1, 5),
@@ -579,7 +586,7 @@ plt = autoplot(rr, type = "roc")
 print(plt)
 ```
 
-![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1-1.png)
+![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1-1.svg)
 
 ``` r
 saveRDS(plt, "roc.rds")

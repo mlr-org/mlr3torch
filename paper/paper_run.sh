@@ -14,6 +14,7 @@ enroot start \
   --mount  /dss/dssmcmlfs01/pr74ze/pr74ze-dss-0001/ru48nas2/:/mnt/data \
   mlr3torch-jss bash -c "
   cd /mnt/data/mlr3torch/paper
+  conda deactivate
   Rscript -e \"
     source('.Rprofile')
     knitr::knit('paper_code.Rmd')
