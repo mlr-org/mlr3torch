@@ -7,10 +7,6 @@ output: html_document
 
 ```{r}
 library("mlr3")
-# otherwise we get a warning
-options(mlr3torch.cache = "/mnt/data/mlr3torch_cache")
-# less verbose output
-lgr::get_logger("mlr3")$set_threshold("warn")
 set.seed(42)
 task <- tsk("mtcars")
 learner <- lrn("regr.rpart")
@@ -55,11 +51,9 @@ mlp <- lrn("classif.mlp",
 mlp$param_set$set_values(
   neurons = c(100, 200), activation = torch::nn_relu,
   p = 0.3, opt.weight_decay = 0.01, measures_train = msr("classif.logloss"),
-  epochs = 5, batch_size = 32, device = "cpu")
+  epochs = 10, batch_size = 32, device = "cpu")
 
-mlp$configure(
-  predict_type = "prob",
-  epochs = 10)
+mlp$configure(predict_type = "prob")
 
 mlp$train(mnist_flat, row_ids = 1:60000)
 
@@ -134,13 +128,13 @@ graph <- list(path_num, path_categ) %>>% nn("merge_cat", dim = 2)
 blocks <- nn("block", residual_layer, n_blocks = 5)
 
 nn_winsorized_mse <- nn_module(c("nn_winsorized_mse", "nn_loss"),
-  initialize = function(max_loss) {
-    self$max_loss <- max_loss
-  },
-  forward = function(input, target) {
-    torch_clamp(nnf_mse_loss(input, target), max = self$max_loss)
-  }
-)
+ initialize = function(max_loss) {
+   self$max_loss <- max_loss
+ },
+ forward = function(input, target) {
+   torch_clamp(nnf_mse_loss(input, target), max = self$max_loss)
+ }
++ )
 tloss <- as_torch_loss(nn_winsorized_mse)
 tloss
 
@@ -341,7 +335,5 @@ glrn <- as_learner(preprocessing %>>% model)
 library("mlr3viz")
 glrn$id <- "multimodal"
 rr <- resample(task, glrn, rsmp("cv", folds = 5))
-plt = autoplot(rr, type = "roc")
-print(plt)
-saveRDS(plt, "roc.rds")
+autoplot(rr, type = "roc")
 ```

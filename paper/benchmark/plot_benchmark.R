@@ -173,7 +173,7 @@ plt_relative <- function(opt_name, gpu, os, show_y_label = TRUE, show_x_label = 
 }
 plot_cuda_adamw <- plt_relative("adamw", TRUE, "linux", show_x_label = FALSE) + ggtitle("AdamW / CUDA") + theme(plot.title = element_text(size = 10)) +
   labs(
-    y = "Relative median time per batch"
+    y = "Relative median time\n per batch"
   )
 plot_cuda_adamw
 plot_cuda_sgd <- plt_relative("sgd", TRUE, "linux", show_y_label = FALSE, show_x_label = FALSE) + ggtitle("SGD / CUDA") + theme(plot.title = element_text(size = 10))
@@ -186,7 +186,7 @@ plot_cuda <- plot_grid(
 
 plot_cpu_adamw <- plt_relative("adamw", FALSE, "linux") + ggtitle("AdamW / CPU") + theme(legend.position = "none", plot.title = element_text(size = 10)) +
   labs(
-    y = "Relative median time per batch"
+    y = "Relative median time\n per batch"
   )
 plot_cpu_sgd <- plt_relative("sgd", FALSE, "linux", show_y_label = FALSE) + ggtitle("SGD / CPU") + theme(plot.title = element_text(size = 10)) + theme(legend.position = "none")
 plot_legend = plt_relative("adamw", FALSE, "linux") + theme(legend.position = "bottom")
@@ -211,3 +211,41 @@ plot_combined
 
 ggsave(here::here("paper", "benchmark", "plot_benchmark_relative.png"),
   plot_combined, width = 12, height = 4, dpi = 300)
+
+
+tbl3 = readRDS(here::here("paper", "benchmark", "result-linux-gpu-optimizer.rds"))
+tbl3
+
+tbl3_summary = tbl3[,
+    .(time_per_batch_med = median(time_per_batch * 1000),
+      time_per_batch_q10 = quantile(time_per_batch * 1000, 0.2),
+      time_per_batch_q90 = quantile(time_per_batch * 1000, 0.9)),
+    by = .(n_layers, algorithm, jit, latent, optimizer, opt_type)]
+
+ggplot(tbl3_summary, aes(x = n_layers, y = time_per_batch_med, color = opt_type)) +
+  geom_ribbon(aes(ymin = time_per_batch_q10, ymax = time_per_batch_q90, fill = opt_type), alpha = 0.2, color = NA) +
+  geom_line() +
+  facet_wrap(vars(optimizer)) +
+  geom_point() +
+  theme_bw() +
+  labs(
+    y = "Time per batch (ms)",
+    x = "Optimizer"
+  )
+
+
+# ignite relative to standard
+
+tbl3_summary_relative = tbl3_summary
+tbl3_summary_relative[, time_per_batch_med_rel := time_per_batch_med / time_per_batch_med[opt_type == "ignite"], by = .(n_layers, optimizer, jit, latent)]
+tbl3_summary_relative
+
+ggplot(tbl3_summary_relative, aes(x = n_layers, y = time_per_batch_med_rel, color = opt_type)) +
+  geom_line() +
+  facet_wrap(vars(optimizer)) +
+  geom_point() +
+  theme_bw() +
+  labs(
+    y = "Time per batch (ms)",
+    x = "Optimizer"
+  )
