@@ -150,6 +150,12 @@ train_loop = function(ctx, cbs) {
     while (ctx$step < length(ctx$loader_train)) {
       ctx$step = ctx$step + 1
       ctx$batch = dataloader_next(train_iterator)
+      print(ctx$step)
+      print(ctx$batch)
+      browser(expr=tryCatch({
+        ctx$batch$y$to(device = ctx$device)
+        FALSE
+      }, error=function(e)TRUE))
       ctx$batch$x = lapply(ctx$batch$x, function(x) x$to(device = ctx$device))
       ctx$batch$y = ctx$batch$y$to(device = ctx$device)
       ctx$optimizer$zero_grad()
