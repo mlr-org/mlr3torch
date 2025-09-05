@@ -151,7 +151,7 @@ train_loop = function(ctx, cbs) {
       ctx$step = ctx$step + 1
       ctx$batch = dataloader_next(train_iterator)
       if (is.null(ctx$batch)) {
-        stop("dataloader_next returned NULL, which means there are no more samples/batches. Typically this occurs when sampler/batch_sampler$length() is greater than the number of samples/batches. Please modify .length() method to return the correct number (samples for sampler, batches for batch_sampler), which should be equal to the number of times that .iter() can be called before returning coro::exhausted()")
+        stop("dataloader_next() returned NULL, which means there are no more samples/batches. Typically this occurs when length of sampler/batch_sampler is greater than the number of samples/batches. Please modify .length() method to return the correct number (samples for sampler, batches for batch_sampler), which should be equal to the number of times that .iter() can be called before returning coro::exhausted()")
       }
       ctx$batch$x = lapply(ctx$batch$x, function(x) x$to(device = ctx$device))
       ctx$batch$y = ctx$batch$y$to(device = ctx$device)
