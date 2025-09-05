@@ -150,12 +150,9 @@ train_loop = function(ctx, cbs) {
     while (ctx$step < length(ctx$loader_train)) {
       ctx$step = ctx$step + 1
       ctx$batch = dataloader_next(train_iterator)
-      print(ctx$step)
-      print(ctx$batch)
-      browser(expr=tryCatch({
-        ctx$batch$y$to(device = ctx$device)
-        FALSE
-      }, error=function(e)TRUE))
+      if (is.null(ctx$batch)) {
+        stop("dataloader_next returned NULL, which means there are no more samples/batches. Typically this occurs when sampler/batch_sampler$length() is greater than the number of samples/batches. Please modify .length() method to return the correct number (samples for sampler, batches for batch_sampler), which should be equal to the number of times that .iter() can be called before returning coro::exhausted()")
+      }
       ctx$batch$x = lapply(ctx$batch$x, function(x) x$to(device = ctx$device))
       ctx$batch$y = ctx$batch$y$to(device = ctx$device)
       ctx$optimizer$zero_grad()
