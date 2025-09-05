@@ -338,7 +338,7 @@ One such graph, a simple transformer-based neural network, is depicted in \Cref{
 First, the input (e.g., a text string) is tokenized into subwords. These tokens are then converted into vector representations through embedding.
 The output tensor is then fed into an attention module and subsequently added to the original tokenized input, in a technique commonly called a "skip connection".
 Note that the addition layer has no learnable parameters.
-The output is then processed using layer normalization, followed by a linear layer, a ReLU activation, and a dropout layer, whose output is again added to the output of the normalization layer. 
+The output is then processed using layer normalization, followed by a linear layer, a ReLU activation, and a dropout layer, whose output is again added to the output of the normalization layer.
 The output of this layer is added to the output of the normalization layer, creating another skip connection.
 Finally, a second linear layer represents the network's output head.
 
@@ -1517,7 +1517,7 @@ The number of threads for the CPU measurements was set to $1$.
     \label{fig:optimizer-benchmark-relative}
 \end{figure}
 
-% 1. torch in R zu verwenden gibt einem sehr schnelles DL. 
+% 1. torch in R zu verwenden gibt einem sehr schnelles DL.
 % 2. wie groß und substrantiell ist OH von mlr3torch im vgl zu rtoch und zu pytorch
 % hängt er von besponderen aspekten wie größe des NNs und device, (aber auch n und p? das verändern wir leider nicht....)
 % wie viel schneller ist GPU vs CPU?
@@ -1528,7 +1528,7 @@ In all experiments, the results of \torch{} and \mlrttorch{} are relatively simi
 % CUDA
 For the CUDA device, the relative results for latent dimensions of 1000 and 3000 range between 1.25 and 1.75 for the two optimizers.
 Furthermore, the results for these two configurations are very similar, indicating that the latent layer is not the bottleneck.
-For the hidden size of 9000, the relative overhead approaches 1  with an increase in the number of layers. 
+For the hidden size of 9000, the relative overhead approaches 1  with an increase in the number of layers.
 Surprisingly, \mlrttorch{} is slightly faster than \torch{} for the AdamW optimizer when there are many layers and the number of latent dimensions is 9000, but this is likely an artifact explained by some internal mechanism of \torch{} or \libtorch{}.
 
 On the CPU, both the relative and absolute overhead of the \rlang{} implementations is larger for the SGD than it is for the more compute and memory intensive AdamW optimizer.
@@ -1584,6 +1584,5 @@ While \libtorch{} offers deterministic, albeit slower, versions for some algorit
 Therefore, the results are not exactly reproducible after the second epoch (because during the first two epochs, only the output head is trained), and performance differences of about 0.2\% can be observed when reproducing the results.
 For this reason, we also include a script that contains a simplified version of the code from the paper that is running on the CPU and which is fully reproducible and -- due to the simplification -- runs very quickly.
 \end{appendix}
-
 
 \end{document}

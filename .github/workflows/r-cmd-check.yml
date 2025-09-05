@@ -82,7 +82,7 @@ jobs:
         if: runner.os == 'Windows'
         id: get_package_version_windows
         run: |
-          $version = Rscript -e 'cat(as.character(packageVersion("torchvision")))' 
+          $version = Rscript -e 'cat(as.character(packageVersion("torchvision")))'
           echo "TORCHVISION_PACKAGE_VERSION=$version" >> $env:GITHUB_ENV
 
       - name: Get torch cache path (Linux/macOS)
