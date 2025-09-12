@@ -8,6 +8,8 @@ tbl1$os = "linux"
 tbl2 = readRDS(here::here("paper", "benchmark", "result-linux-gpu.rds"))
 tbl2$os = "linux"
 
+TEXT_SIZE = 12
+
 # TODO: Uncertainty bands with upper and lower quantiles
 
 tbl = rbindlist(list(tbl1, tbl2))
@@ -90,8 +92,8 @@ plt <- function(opt_name, gpu, os, show_y_label = TRUE, show_x_label = TRUE) {
 }
 
 
-plot_cuda_adamw <- plt("adamw", TRUE, "linux", show_x_label = FALSE) + ggtitle("AdamW / CUDA") + theme(plot.title = element_text(size = 10))
-plot_cuda_sgd <- plt("sgd", TRUE, "linux", show_y_label = FALSE, show_x_label = FALSE) + ggtitle("SGD / CUDA") + theme(plot.title = element_text(size = 10))
+plot_cuda_adamw <- plt("adamw", TRUE, "linux", show_x_label = FALSE) + ggtitle("AdamW / CUDA") + theme(plot.title = element_text(size = TEXT_SIZE))
+plot_cuda_sgd <- plt("sgd", TRUE, "linux", show_y_label = FALSE, show_x_label = FALSE) + ggtitle("SGD / CUDA") + theme(plot.title = element_text(size = TEXT_SIZE))
 
 plot_cuda <- plot_grid(
   plot_cuda_adamw,
@@ -99,8 +101,8 @@ plot_cuda <- plot_grid(
   ncol = 2
 )
 
-plot_cpu_adamw <- plt("adamw", FALSE, "linux") + ggtitle("AdamW / CPU") + theme(legend.position = "none", plot.title = element_text(size = 10))
-plot_cpu_sgd <- plt("sgd", FALSE, "linux", show_y_label = FALSE) + ggtitle("SGD / CPU") + theme(plot.title = element_text(size = 10)) + theme(legend.position = "none")
+plot_cpu_adamw <- plt("adamw", FALSE, "linux") + ggtitle("AdamW / CPU") + theme(legend.position = "none", plot.title = element_text(size = TEXT_SIZE))
+plot_cpu_sgd <- plt("sgd", FALSE, "linux", show_y_label = FALSE) + ggtitle("SGD / CPU") + theme(plot.title = element_text(size = TEXT_SIZE)) + theme(legend.position = "none")
 plot_legend = plt("adamw", FALSE, "linux") + theme(legend.position = "bottom")
 
 
@@ -171,12 +173,12 @@ plt_relative <- function(opt_name, gpu, os, show_y_label = TRUE, show_x_label = 
       values = c("rtorch" = "#66C2A5", "mlr3torch" = "#FC8D62")
     )
 }
-plot_cuda_adamw <- plt_relative("adamw", TRUE, "linux", show_x_label = FALSE) + ggtitle("AdamW / CUDA") + theme(plot.title = element_text(size = 10)) +
+plot_cuda_adamw <- plt_relative("adamw", TRUE, "linux", show_x_label = FALSE) + ggtitle("AdamW / CUDA") + theme(plot.title = element_text(size = TEXT_SIZE)) +
   labs(
     y = "Relative median time\n per batch"
   ) + geom_hline(yintercept = 1, linetype = "dashed", alpha = 0.9, color = "grey")
 plot_cuda_adamw
-plot_cuda_sgd <- plt_relative("sgd", TRUE, "linux", show_y_label = FALSE, show_x_label = FALSE) + ggtitle("SGD / CUDA") + theme(plot.title = element_text(size = 10)) + geom_hline(yintercept = 1, linetype = "dashed", alpha = 0.9, color = "grey")
+plot_cuda_sgd <- plt_relative("sgd", TRUE, "linux", show_y_label = FALSE, show_x_label = FALSE) + ggtitle("SGD / CUDA") + theme(plot.title = element_text(size = TEXT_SIZE)) + geom_hline(yintercept = 1, linetype = "dashed", alpha = 0.9, color = "grey")
 
 plot_cuda <- plot_grid(
   plot_cuda_adamw,
@@ -184,11 +186,11 @@ plot_cuda <- plot_grid(
   ncol = 2
 )
 
-plot_cpu_adamw <- plt_relative("adamw", FALSE, "linux") + ggtitle("AdamW / CPU") + theme(legend.position = "none", plot.title = element_text(size = 10)) +
+plot_cpu_adamw <- plt_relative("adamw", FALSE, "linux") + ggtitle("AdamW / CPU") + theme(legend.position = "none", plot.title = element_text(size = TEXT_SIZE)) +
   labs(
     y = "Relative median time\n per batch"
   ) + geom_hline(yintercept = 1, linetype = "dashed", alpha = 0.9, color = "grey")
-plot_cpu_sgd <- plt_relative("sgd", FALSE, "linux", show_y_label = FALSE) + ggtitle("SGD / CPU") + theme(plot.title = element_text(size = 10)) + theme(legend.position = "none") + geom_hline(yintercept = 1, linetype = "dashed", alpha = 0.9, color = "grey")
+plot_cpu_sgd <- plt_relative("sgd", FALSE, "linux", show_y_label = FALSE) + ggtitle("SGD / CPU") + theme(plot.title = element_text(size = TEXT_SIZE)) + theme(legend.position = "none") + geom_hline(yintercept = 1, linetype = "dashed", alpha
 plot_legend = plt_relative("adamw", FALSE, "linux") + theme(legend.position = "bottom")
 
 
