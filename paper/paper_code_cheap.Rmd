@@ -5,11 +5,12 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
+Setup:
+
 ```{r}
 options(mlr3torch.cache = TRUE)
 lgr::get_logger("mlr3")$set_threshold("warn")
 ```
-
 
 ```{r}
 library("mlr3")
@@ -18,7 +19,7 @@ task <- tsk("mtcars")
 learner <- lrn("regr.rpart")
 split <- partition(task, ratio = 2/3)
 learner$train(task, split$train)
-pred <- learner$predict(task, split$test)
+pred <- learner$predict(task,split$test)
 pred$score(msr("regr.rmse"))
 
 library("mlr3pipelines")
@@ -59,6 +60,7 @@ mlp$param_set$set_values(
   p = 0.3, opt.weight_decay = 0.01, measures_train = msr("classif.logloss"),
   epochs = 10, batch_size = 32, device = "cpu")
 
+mlp$configure(predict_type = "prob")
 
 mlp$train(mnist_flat, row_ids = 1:60000)
 
@@ -133,13 +135,13 @@ graph <- list(path_num, path_categ) %>>% nn("merge_cat", dim = 2)
 blocks <- nn("block", residual_layer, n_blocks = 5)
 
 nn_winsorized_mse <- nn_module(c("nn_winsorized_mse", "nn_loss"),
-  initialize = function(max_loss) {
-    self$max_loss <- max_loss
-  },
-  forward = function(input, target) {
-    torch_clamp(nnf_mse_loss(input, target), max = self$max_loss)
-  }
-)
+ initialize = function(max_loss) {
+   self$max_loss <- max_loss
+ },
+ forward = function(input, target) {
+   torch_clamp(nnf_mse_loss(input, target), max = self$max_loss)
+ }
++ )
 tloss <- as_torch_loss(nn_winsorized_mse)
 tloss
 
@@ -203,12 +205,12 @@ architecture <- nn("block", block) %>>% nn("head")
 config <- po("torch_loss", loss = t_loss("mse")) %>>%
   po("torch_optimizer", optimizer = t_opt("adamw"))
 
-model <- po("torch_model_regr", device = "cuda", batch_size = 512)
+model <- po("torch_model_regr", device = "cpu", batch_size = 512)
 
 pipeline <- preprocessing %>>% ingress %>>%
   architecture %>>% config %>>% model
-learner <- as_learner(pipeline)
-learner$id <- "custom_nn"
+learner = as_learner(pipeline)
+learner$id = "custom_nn"
 
 library("mlr3tuning")
 learner$param_set$set_values(
@@ -275,7 +277,7 @@ unfreezer <- t_clbk("unfreeze",
   unfreeze = data.table(epoch = 3, weights = select_all()))
 
 resnet <- lrn("classif.resnet18",
-  pretrained = TRUE, epochs = 5, device = "cuda", batch_size = 32,
+  pretrained = TRUE, epochs = 5, device = "cpu", batch_size = 32,
   opt.lr = 1e-4, measures_valid = msr("classif.acc"),
   callbacks = list(unfreezer, t_clbk("history")))
 
@@ -327,7 +329,7 @@ model <- architecture %>>%
   po("torch_loss",
     t_loss("cross_entropy", class_weight = torch_tensor(10))) %>>%
   po("torch_optimizer", t_opt("adamw", lr = 0.0005)) %>>%
-  po("torch_model_classif", epochs = 4, batch_size = 32, device = "cuda",
+  po("torch_model_classif", epochs = 4, batch_size = 32, device = "cpu",
     predict_type = "prob")
 
 preprocessing <- po("classbalancing", ratio = 4, reference = "minor",
