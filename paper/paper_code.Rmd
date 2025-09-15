@@ -5,11 +5,11 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
+
 ```{r}
 options(mlr3torch.cache = TRUE)
 lgr::get_logger("mlr3")$set_threshold("warn")
 ```
-
 
 ```{r}
 library("mlr3")
@@ -59,6 +59,7 @@ mlp$param_set$set_values(
   p = 0.3, opt.weight_decay = 0.01, measures_train = msr("classif.logloss"),
   epochs = 10, batch_size = 32, device = "cpu")
 
+mlp$configure(predict_type = "prob")
 
 mlp$train(mnist_flat, row_ids = 1:60000)
 
