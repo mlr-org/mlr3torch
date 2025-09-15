@@ -8,7 +8,7 @@
 #SBATCH --output=mlr3torch-paper-%j.out
 
 cd /dss/dssmcmlfs01/pr74ze/pr74ze-dss-0001/ru48nas2/
-enroot create --force --name mlr3torch-jss sebffischer+mlr3torch-jss+latest.sqsh
+enroot create --force --name mlr3torch-jss sebffischer+mlr3torch-jss+gpu.sqsh
 
 enroot start \
   --mount  /dss/dssmcmlfs01/pr74ze/pr74ze-dss-0001/ru48nas2/:/mnt/data \
