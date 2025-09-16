@@ -1,7 +1,7 @@
 ---
 title: "Extracted Code from mlr3torch Paper"
 author: "mlr3torch"
-date: "2025-09-12"
+date: "2025-09-16"
 output: html_document
 ---
 
@@ -69,19 +69,6 @@ mnist
 ## 
 ## ── <TaskClassif> (70000x2): MNIST Digit Classification ─────────────────────────
 ## • Target: label
-```
-
-```
-## Dataset <mnist> (~12 MB) will be downloaded and processed if not already
-## available.
-## Downloading <mnist> ...
-## Processing <mnist>...
-## Dataset <mnist> downloaded and extracted successfully.
-## Dataset <mnist> loaded with 60000 images.
-## Dataset <mnist> loaded with 10000 images.
-```
-
-```
 ## • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0 (10%), 6
 ## (10%), 8 (10%), 4 (10%), 5 (9%)
 ## • Properties: multiclass
@@ -516,9 +503,9 @@ learner$model$classif.resnet18$model$callbacks$history
 ##    <num>             <num>
 ## 1:     1         0.9504380
 ## 2:     2         0.9618385
-## 3:     3         0.9797192
-## 4:     4         0.9789992
-## 5:     5         0.9818793
+## 3:     3         0.9785191
+## 4:     4         0.9788792
+## 5:     5         0.9830793
 ```
 
 ``` r
@@ -649,24 +636,23 @@ sessionInfo()
 ## loaded via a namespace (and not attached):
 ##  [1] gtable_0.3.6         xfun_0.52            processx_3.8.6      
 ##  [4] lattice_0.22-6       callr_3.7.6          vctrs_0.6.5         
-##  [7] tools_4.5.0          ps_1.9.1             curl_6.4.0          
-## [10] parallel_4.5.0       tibble_3.3.0         pkgconfig_2.0.3     
-## [13] Matrix_1.7-3         data.table_1.17.8    checkmate_2.3.2     
-## [16] RColorBrewer_1.1-3   assertthat_0.2.1     uuid_1.2-1          
-## [19] lifecycle_1.0.4      compiler_4.5.0       farver_2.1.2        
-## [22] stringr_1.5.1        precrec_0.14.5       codetools_0.2-20    
-## [25] bbotk_1.6.0          pillar_1.11.0        crayon_1.5.3        
-## [28] rpart_4.1.24         parallelly_1.45.1    digest_0.6.37       
-## [31] stringi_1.8.7        listenv_0.9.1        labeling_0.4.3      
-## [34] mlr3measures_1.0.0   grid_4.5.0           cli_3.6.5           
-## [37] magrittr_2.0.3       future.apply_1.20.0  withr_3.0.2         
-## [40] scales_1.4.0         backports_1.5.0      rappdirs_0.3.3      
-## [43] bit64_4.6.0-1        spacefillr_0.4.0     globals_0.18.0      
-## [46] jpeg_0.1-11          bit_4.6.0            ranger_0.17.0       
-## [49] evaluate_1.0.4       knitr_1.50           torchvision_0.7.0   
-## [52] viridisLite_0.4.2    mlr3misc_0.18.0      rlang_1.1.6         
-## [55] Rcpp_1.1.0           zeallot_0.2.0        glue_1.8.0          
-## [58] palmerpenguins_0.1.1 coro_1.1.0           jsonlite_2.0.0      
-## [61] lgr_0.5.0            R6_2.6.1             fs_1.6.6            
-## [64] mlr3learners_0.12.0
+##  [7] tools_4.5.0          ps_1.9.1             parallel_4.5.0      
+## [10] tibble_3.3.0         pkgconfig_2.0.3      Matrix_1.7-3        
+## [13] data.table_1.17.8    checkmate_2.3.2      RColorBrewer_1.1-3  
+## [16] assertthat_0.2.1     uuid_1.2-1           lifecycle_1.0.4     
+## [19] compiler_4.5.0       farver_2.1.2         stringr_1.5.1       
+## [22] precrec_0.14.5       codetools_0.2-20     bbotk_1.6.0         
+## [25] pillar_1.11.0        crayon_1.5.3         rpart_4.1.24        
+## [28] parallelly_1.45.1    digest_0.6.37        stringi_1.8.7       
+## [31] listenv_0.9.1        labeling_0.4.3       mlr3measures_1.0.0  
+## [34] grid_4.5.0           cli_3.6.5            magrittr_2.0.3      
+## [37] future.apply_1.20.0  withr_3.0.2          rappdirs_0.3.3      
+## [40] scales_1.4.0         backports_1.5.0      bit64_4.6.0-1       
+## [43] spacefillr_0.4.0     globals_0.18.0       jpeg_0.1-11         
+## [46] bit_4.6.0            ranger_0.17.0        evaluate_1.0.4      
+## [49] knitr_1.50           torchvision_0.7.0    viridisLite_0.4.2   
+## [52] mlr3misc_0.18.0      rlang_1.1.6          Rcpp_1.1.0          
+## [55] zeallot_0.2.0        glue_1.8.0           palmerpenguins_0.1.1
+## [58] coro_1.1.0           jsonlite_2.0.0       lgr_0.5.0           
+## [61] R6_2.6.1             fs_1.6.6             mlr3learners_0.12.0
 ```
