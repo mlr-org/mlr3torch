@@ -22,6 +22,7 @@ paper/benchmark/registry
 paper/benchmark/registry-linux-cpu/
 paper/benchmark/registry-macos/
 paper/benchmark/registry-linux-gpu/
+paper/benchmark/registry-linux-gpu/**
 paper/benchmark/registry-linux-gpu-optimizer/
 paper/benchmark/registry-linux-gpu-old/
 paper/paper.aux

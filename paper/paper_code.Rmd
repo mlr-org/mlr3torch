@@ -13,6 +13,8 @@ lgr::get_logger("mlr3")$set_threshold("warn")
 
 ```{r}
 library("mlr3")
+# make less verbose
+lgr::get_logger("mlr3")$set_threshold("warn")
 set.seed(42)
 task <- tsk("mtcars")
 learner <- lrn("regr.rpart")
