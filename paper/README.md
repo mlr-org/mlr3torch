@@ -2,35 +2,53 @@
 
 ## Computational Environment
 
-To recreate the computational environment, you can download the docker image
-`sebffischer/mlr3torch-jss:latest` from dockerhub.
+For reproducibility, two linux docker images are provided for CPU and CUDA GPU:
+https://zenodo.org/records/17140855
+
+You can, e.g., download the images via the [zenodo-client](https://pypi.org/project/zenodo-client/) library:
 
 ```bash
-enroot import docker://index.docker.io#sebffischer/mlr3torch-jss:latest
+# pip install zenodo-client
+export ZENODO_API_TOKEN=<your-token>
+zenodo-client download 17140855 IMAGE_CPU.tar.gz
+zenodo-client download 17140855 IMAGE_GPU.tar.gz
 ```
 
-Next, you can create a docker container from the image:
+By default, the downloaded files are stored in `~/.data/zenodo`.
 
-For GPU:
+At the time of writing, the images are also hosted on dockerhub, but this is not a permanent storage:
+https://hub.docker.com/repository/docker/sebffischer/mlr3torch-jss/general
+
+The `Dockerfile`s used to create the images are available in the `paper/envs` directory.
+
+After downloading the images, you can load them into Docker, e.g. via:
 
 ```bash
-enroot create --name mlr3torch-jss sebffischer+mlr3torch-jss+gpu.sqsh
+docker load -i IMAGE_CPU.tar.gz
 ```
 
-For CPU:
+When using another container manager such as `enroot`, a workaround is to import the image using `Docker` on a system that has it installed and then push it to a dockerhub repository and then pull it from there using `enroot`, via:
 
 ```bash
-enroot create --name mlr3torch-jss sebffischer+mlr3torch-jss+cpu.sqsh
+enroot import docker://sebffischer/mlr3torch-jss:cpu
+enroot create --name mlr3torch-jss:cpu sebffischer+mlr3torch-jss+cpu.sqsh
 ```
 
+To start the container using `Docker`, run:
 
-To start the container, run:
+```bash
+docker run -it --rm -v <parent-dir-to-mlr3torch>:/mnt/data/mlr3torch sebffischer/mlr3torch-jss:cpu
+```
+
+To start the container using `enroot`, run:
 
 ```bash
 enroot start \
-  --mount < parent-dir-to-mlr3torch>:/mnt/data \
-  mlr3torch-jss bash
+  --mount <parent-dir-to-mlr3torch>:/mnt/data \
+  mlr3torch-jss:cpu bash
 ```
+
+Some code expects this directory structure, so make sure to mount the directory properly as is done in the above instructions.
 
 ## Running the Benchmark
 
@@ -38,32 +56,32 @@ Note that while the benchmark uses `batchtools` for experiment management, we do
 
 ### Running locally
 
-To run the benchmarks locally, go into `./paper` (to have the right `.Rprofile`).
-
-To initialize the benchmark experiment, run:
-
-```bash
-Rscript benchmark/benchmark.R
-```
-
-To start the CPU experiments, run:
 Note that it's important to have enough RAM, otherwise the benchmarks will be incomparable.
 
-```bash
-Rscript benchmark/run_cpu.R
-```
+To run the benchmarks locally, go into `./paper` (to have the right `.Rprofile`).
 
-To start the GPU experiments, run:
+To run the GPU benchmarks on linux, run:
 
 ```bash
-Rscript benchmark/run_gpu.R
+Rscript benchmark/linux-gpu.R
 ```
 
+To run the CPU benchmarks on linux, run:
 
-### Running on the cluster
+```bash
+Rscript benchmark/linux-cpu.R
+```
 
-Exemplary slurm scripts are provided via `benchmark_init.sh`, `benchmark_cpu.sh`, and `benchmark_gpu.sh`.
-These need to be adapted to the specific cluster and job submission system.
+To run the benchmark that compares "ignite" with standard optimizers on linux, run:
+
+```bash
+Rscript benchmark/linux-gpu-optimizer.R
+```
+
+There are also some exemplary slurm scripts that need to be adapted to the specific cluster and job submission system.
+
+* `paper/benchmark/benchmark_gpu.sh`
+* `paper/benchmark/benchmark_gpu_optimizer.sh`
 
 ### Running a subset of the Jobs
 
@@ -79,25 +97,19 @@ for (id in sample(ids)) {
 }
 ```
 
-### Collecting the Results
-
-Once the benchmark experiments are finished, you can collect the results by running:
-
-```bash
-Rscript benchmark/summarize.R
-```
-
-This will create the `benchmark/results.rds` file.
-
-
 ### Generating the Plots
 
-Simply run:
+For the main benchmark shown in the paper, run:
 
 ```r
 Rscript paper/plot_benchmark.R
 ```
 
+For the comparison of "ignite" with standard optimizers, run:
+
+```r
+Rscript paper/plot_optimizer.R
+```
 
 ## Running the Paper Code
 
@@ -108,11 +120,15 @@ This requires access to an NVIDIA GPU.
 knitr::knit('paper_code.Rmd')
 ```
 
-We also provide a version of the paper code that runs on CPU only.
-There, we set the epochs to 0 everywhere and the device to "cpu".
+The file `paper_code.Rmd` is extracted from the tex file of the paper using `extract.R`, only the first and last chunk are added manually.
 
-TODOOOO
+Due to the non-reproducbility of the paper (see the appendix), we include two different runs of the paper code, i.e. `paper_code1.md` and `paper_code2.md`, which were obtained by running the exact same code twice on the same machine.
+
+In order to demonstrate reprodicbility of the code on CPU, we include a considerably simplified version of the paper code, where the tasks are subset to only contain a few rows.
+This means the results are not meaningful, but it allows to run the code easily on a CPU:
 
 ```r
 knitr::knit('paper_code_cheap.Rmd')
 ```
+
+The results of running this on the CPU container are included in `paper_code_cheap.md` TODOOOOOO.
