@@ -6,15 +6,17 @@ output: html_document
 ---
 
 
+
 ``` r
 options(mlr3torch.cache = TRUE)
 lgr::get_logger("mlr3")$set_threshold("warn")
 ```
 
 
-
 ``` r
 library("mlr3")
+# make less verbose
+lgr::get_logger("mlr3")$set_threshold("warn")
 set.seed(42)
 task <- tsk("mtcars")
 learner <- lrn("regr.rpart")
@@ -67,10 +69,9 @@ mnist
 
 ```
 ## 
-## ── <TaskClassif> (70000x2): MNIST Digit Classification ─────────────────────────
+## ── <TaskClassif> (70000x2): MNIST Digit Classification ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: label
-## • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0 (10%), 6
-## (10%), 8 (10%), 4 (10%), 5 (9%)
+## • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0 (10%), 6 (10%), 8 (10%), 4 (10%), 5 (9%)
 ## • Properties: multiclass
 ## • Features (1):
 ##   • lt (1): image
@@ -122,21 +123,24 @@ mlp$param_set$set_values(
   p = 0.3, opt.weight_decay = 0.01, measures_train = msr("classif.logloss"),
   epochs = 10, batch_size = 32, device = "cpu")
 
+mlp$configure(predict_type = "prob")
 
 mlp$train(mnist_flat, row_ids = 1:60000)
-```
 
-```
-## Error in .f(.xi, ...): Measure 'classif.logloss' requires predict type 'prob' but learner has 'response'.
-## Change the predict type or select other measures.
-```
-
-``` r
 mlp$model$network
 ```
 
 ```
-## NULL
+## An `nn_module` containing 100,710 parameters.
+## 
+## ── Modules ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## • 0: <nn_linear> #78,500 parameters
+## • 1: <nn_relu> #0 parameters
+## • 2: <nn_dropout> #0 parameters
+## • 3: <nn_linear> #20,200 parameters
+## • 4: <nn_relu> #0 parameters
+## • 5: <nn_dropout> #0 parameters
+## • 6: <nn_linear> #2,010 parameters
 ```
 
 ``` r
@@ -144,23 +148,20 @@ head(mlp$model$callbacks$history, n = 2)
 ```
 
 ```
-## NULL
+##    epoch train.classif.logloss
+##    <num>                 <num>
+## 1:     1              2.301241
+## 2:     2              2.326201
 ```
 
 ``` r
 pred <- mlp$predict(mnist_flat, row_ids = 60001:70000)
-```
-
-```
-## Error in mlp$predict(mnist_flat, row_ids = 60001:70000): Cannot predict, Learner 'classif.mlp' has not been trained yet
-```
-
-``` r
 pred$score(msr("classif.ce"))
 ```
 
 ```
-## Error in m$score(prediction = self, task = task, learner = learner, train_set = train_set): Measure 'classif.ce' incompatible with task type 'regr'
+## classif.ce 
+##      0.895
 ```
 
 ``` r
@@ -334,12 +335,11 @@ task
 
 ```
 ## 
-## ── <TaskRegr> (20640x10): California House Value ───────────────────────────────
+## ── <TaskRegr> (20640x10): California House Value ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: median_house_value
 ## • Properties: -
 ## • Features (9):
-##   • dbl (8): households, housing_median_age, latitude, longitude,
-##   median_income, population, total_bedrooms, total_rooms
+##   • dbl (8): households, housing_median_age, latitude, longitude, median_income, population, total_bedrooms, total_rooms
 ##   • fct (1): ocean_proximity
 ```
 
@@ -402,11 +402,11 @@ cat(paste("*", names(pvals), "=", pvals,
 
 ```
 ## * block.n_blocks = 4
-## * block.linear.out_features = 353
+## * block.linear.out_features = 398
 ## * block.branch.selection = relu
-## * block.dropout.p = 0.615568515472114
-## * torch_optimizer.lr = 0.00268199101208897
-## * torch_model_regr.epochs = 62
+## * block.dropout.p = 0.47203406188637
+## * torch_optimizer.lr = 0.00102468640057548
+## * torch_model_regr.epochs = 85
 ```
 
 ``` r
@@ -468,7 +468,7 @@ task
 
 ```
 ## 
-## ── <TaskClassif> (25000x2) ─────────────────────────────────────────────────────
+## ── <TaskClassif> (25000x2) ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: class
 ## • Target classes: cat (positive class, 50%), dog (50%)
 ## • Properties: twoclass
@@ -503,9 +503,9 @@ learner$model$classif.resnet18$model$callbacks$history
 ##    <num>             <num>
 ## 1:     1         0.9504380
 ## 2:     2         0.9618385
-## 3:     3         0.9785191
-## 4:     4         0.9788792
-## 5:     5         0.9830793
+## 3:     3         0.9795992
+## 4:     4         0.9797192
+## 5:     5         0.9823593
 ```
 
 ``` r
@@ -515,7 +515,7 @@ task
 
 ```
 ## 
-## ── <TaskClassif> (32701x5): Melanoma Classification ────────────────────────────
+## ── <TaskClassif> (32701x5): Melanoma Classification ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: outcome
 ## • Target classes: malignant (positive class, 2%), benign (98%)
 ## • Properties: twoclass, groups
@@ -636,23 +636,24 @@ sessionInfo()
 ## loaded via a namespace (and not attached):
 ##  [1] gtable_0.3.6         xfun_0.52            processx_3.8.6      
 ##  [4] lattice_0.22-6       callr_3.7.6          vctrs_0.6.5         
-##  [7] tools_4.5.0          ps_1.9.1             parallel_4.5.0      
-## [10] tibble_3.3.0         pkgconfig_2.0.3      Matrix_1.7-3        
-## [13] data.table_1.17.8    checkmate_2.3.2      RColorBrewer_1.1-3  
-## [16] assertthat_0.2.1     uuid_1.2-1           lifecycle_1.0.4     
-## [19] compiler_4.5.0       farver_2.1.2         stringr_1.5.1       
-## [22] precrec_0.14.5       codetools_0.2-20     bbotk_1.6.0         
-## [25] pillar_1.11.0        crayon_1.5.3         rpart_4.1.24        
-## [28] parallelly_1.45.1    digest_0.6.37        stringi_1.8.7       
-## [31] listenv_0.9.1        labeling_0.4.3       mlr3measures_1.0.0  
-## [34] grid_4.5.0           cli_3.6.5            magrittr_2.0.3      
-## [37] future.apply_1.20.0  withr_3.0.2          rappdirs_0.3.3      
-## [40] scales_1.4.0         backports_1.5.0      bit64_4.6.0-1       
-## [43] spacefillr_0.4.0     globals_0.18.0       jpeg_0.1-11         
-## [46] bit_4.6.0            ranger_0.17.0        evaluate_1.0.4      
-## [49] knitr_1.50           torchvision_0.7.0    viridisLite_0.4.2   
-## [52] mlr3misc_0.18.0      rlang_1.1.6          Rcpp_1.1.0          
-## [55] zeallot_0.2.0        glue_1.8.0           palmerpenguins_0.1.1
-## [58] coro_1.1.0           jsonlite_2.0.0       lgr_0.5.0           
-## [61] R6_2.6.1             fs_1.6.6             mlr3learners_0.12.0
+##  [7] tools_4.5.0          ps_1.9.1             safetensors_0.1.2   
+## [10] parallel_4.5.0       tibble_3.3.0         pkgconfig_2.0.3     
+## [13] Matrix_1.7-3         data.table_1.17.8    checkmate_2.3.2     
+## [16] RColorBrewer_1.1-3   assertthat_0.2.1     uuid_1.2-1          
+## [19] lifecycle_1.0.4      compiler_4.5.0       farver_2.1.2        
+## [22] stringr_1.5.1        precrec_0.14.5       codetools_0.2-20    
+## [25] bbotk_1.6.0          pillar_1.11.0        crayon_1.5.3        
+## [28] rpart_4.1.24         parallelly_1.45.1    digest_0.6.37       
+## [31] stringi_1.8.7        listenv_0.9.1        labeling_0.4.3      
+## [34] mlr3measures_1.0.0   grid_4.5.0           cli_3.6.5           
+## [37] magrittr_2.0.3       future.apply_1.20.0  withr_3.0.2         
+## [40] rappdirs_0.3.3       scales_1.4.0         backports_1.5.0     
+## [43] bit64_4.6.0-1        spacefillr_0.4.0     globals_0.18.0      
+## [46] jpeg_0.1-11          bit_4.6.0            ranger_0.17.0       
+## [49] evaluate_1.0.4       knitr_1.50           torchvision_0.7.0   
+## [52] viridisLite_0.4.2    mlr3misc_0.18.0      rlang_1.1.6         
+## [55] Rcpp_1.1.0           zeallot_0.2.0        glue_1.8.0          
+## [58] palmerpenguins_0.1.1 coro_1.1.0           jsonlite_2.0.0      
+## [61] lgr_0.5.0            R6_2.6.1             fs_1.6.6            
+## [64] mlr3learners_0.12.0
 ```
