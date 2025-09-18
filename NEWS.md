@@ -1,5 +1,9 @@
 # mlr3torch (development version)
 
+## Bug Fixes
+
+* `t_opt("adamw")` now actually uses AdamW and not Adam.
+
 # mlr3torch 0.3.1
 
 ## Bug Fixes

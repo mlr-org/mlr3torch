@@ -258,9 +258,9 @@ mlr3torch_optimizers$add("adamw",
       amsgrad      = p_lgl(default = FALSE, tags = "train")
     )
     TorchOptimizer$new(
-      torch_optimizer = torch::optim_ignite_adam,
+      torch_optimizer = torch::optim_ignite_adamw,
       param_set = p,
-      id = "adam",
+      id = "adamw",
       label = "Decoupled Weight Decay Regularization",
       man = "torch::optim_ignite_adamw"
     )
