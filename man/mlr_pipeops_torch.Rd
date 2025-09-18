@@ -98,7 +98,7 @@ For the output, a shallow copy of the \code{\link{ModelDescriptor}} is created a
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 ## Creating a neural network
 # In torch
 

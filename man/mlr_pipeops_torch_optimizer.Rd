@@ -32,7 +32,7 @@ pipeop itself.
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 po_opt = po("torch_optimizer", "sgd", lr = 0.01)
 po_opt$param_set
 mdin = po("torch_ingress_num")$train(list(tsk("iris")))

@@ -55,7 +55,7 @@ The names are either "num.input" or "categ.input", and the values are lazy tenso
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 # Define the Learner and set parameter values
 learner = lrn("classif.ft_transformer")
 learner$param_set$set_values(

@@ -12,7 +12,7 @@ It computes \eqn{\text{GeGLU}(x, g) = x \cdot \text{GELU}(g)}
 where \(x\) and \(g\) are created by splitting the input tensor in half along the last dimension.
 }
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 x = torch::torch_randn(10, 10)
 glu = nn_geglu()
 glu(x)

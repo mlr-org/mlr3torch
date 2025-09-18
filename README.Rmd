@@ -231,7 +231,7 @@ questions, suggestions or feedback, please do not hesitate to open an
 “issue” about it on the GitHub page\!
 
 In case of problems / bugs, it is often helpful if you provide a
-“minimum working example” that showcases the behaviour (but don’t
+"minimum working example" that showcases the behaviour (but don't
 worry about this if the bug is obvious).
 
 Please understand that the resources of the project are limited:

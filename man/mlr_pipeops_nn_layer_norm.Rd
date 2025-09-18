@@ -38,7 +38,7 @@ For an explanation see \code{\link{PipeOpTorch}}.
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 # Construct the PipeOp
 pipeop = po("nn_layer_norm", dims = 1)
 pipeop

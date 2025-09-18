@@ -157,7 +157,7 @@ register_po("nn_hardtanh", PipeOpTorchHardTanh)
 #' * `negative_slope` :: `numeric(1)`\cr
 #'   Controls the angle of the negative slope. Default: 1e-2.
 #' * `inplace` :: `logical(1)`\cr
-#'   Can optionally do the operation in-place. Default: ‘FALSE’.
+#'   Can optionally do the operation in-place. Default: `FALSE`.
 #' @templateVar id nn_leaky_relu
 #' @template pipeop_torch_channels_default
 #' @template pipeop_torch
@@ -727,7 +727,7 @@ register_po("nn_tanhshrink", PipeOpTorchTanhShrink)
 #' * `value` :: `numeric(1)`\cr
 #'   The value to replace with.
 #' * `inplace` :: `logical(1)`\cr
-#'   Can optionally do the operation in-place. Default: ‘FALSE’.
+#'   Can optionally do the operation in-place. Default: `FALSE`.
 #' @templateVar id nn_threshold
 #' @template pipeop_torch_channels_default
 #' @templateVar param_vals threshold = 1, value = 2

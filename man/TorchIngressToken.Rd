@@ -27,7 +27,7 @@ It contains the (meta-)information of how a batch is generated from a \code{\lin
 of the neural network. It is stored as the \code{ingress} field in a \code{\link{ModelDescriptor}}.
 }
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 # Define a task for which we want to define an ingress token
 task = tsk("iris")
 

@@ -20,7 +20,7 @@ For an explanation see \code{\link{PipeOpTorch}}.
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 custom_fn =  function(x, a) x / a
 obj = po("nn_fn", fn = custom_fn, a = 2)
 obj$param_set

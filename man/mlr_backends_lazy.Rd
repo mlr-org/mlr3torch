@@ -34,7 +34,7 @@ When the constructor generates \code{factor()} variables it is important that th
 corresponds to the ordering of the levels in the \code{col_info} argument.
 }
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 # We first define a backend constructor
 constructor = function(backend) {
   cat("Data is constructed!\n")

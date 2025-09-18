@@ -32,7 +32,7 @@ its '$train()\verb{ method is called on the [}Task\verb{][mlr3::Task] stored in 
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 # simple linear regression
 
 # build the model descriptor

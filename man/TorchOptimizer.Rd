@@ -21,7 +21,7 @@ for each argument of the wrapped loss function, where the parameters are then of
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 # Create a new torch optimizer
 torch_opt = TorchOptimizer$new(optim_ignite_adam, label = "adam")
 torch_opt

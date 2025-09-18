@@ -17,7 +17,7 @@ Can be converted to a \code{\link[data.table:data.table]{data.table}} using
 \code{\link[data.table:as.data.table]{as.data.table}}.
 }
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 mlr3torch_callbacks$get("checkpoint")
 # is the same as
 t_clbk("checkpoint")

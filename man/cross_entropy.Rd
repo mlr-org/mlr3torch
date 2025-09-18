@@ -29,7 +29,7 @@ to either loss function. The default is \code{"mean"}.
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 loss = t_loss("cross_entropy")
 # multi-class
 multi_ce = loss$generate(tsk("iris"))

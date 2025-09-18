@@ -115,7 +115,7 @@ then wraps this generator in a \code{\link{TorchCallback}} that can be passed to
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 custom_tcb = torch_callback("custom",
   initialize = function(name) {
     self$name = name

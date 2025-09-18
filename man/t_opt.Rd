@@ -27,12 +27,12 @@ Retrieves one or more \code{\link{TorchOptimizer}}s from \code{\link{mlr3torch_o
 Works like \code{\link[mlr3:mlr_sugar]{mlr3::lrn()}} and \code{\link[mlr3:mlr_sugar]{mlr3::lrns()}}.
 }
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 t_opt("adam", lr = 0.1)
 # get the dictionary
 t_opt()
 \dontshow{\}) # examplesIf}
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 t_opts(c("adam", "sgd"))
 # get the dictionary
 t_opts()

@@ -33,7 +33,7 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 # Construct the PipeOp
 pipeop = po("nn_adaptive_avg_pool3d")
 pipeop

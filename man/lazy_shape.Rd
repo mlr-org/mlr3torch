@@ -18,7 +18,7 @@ Shape of a lazy tensor. Might be \code{NULL} if the shapes is not known or varyi
 Batch dimension is always \code{NA}.
 }
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 lt = as_lazy_tensor(1:10)
 lazy_shape(lt)
 lt = as_lazy_tensor(matrix(1:10, nrow = 2))

@@ -49,7 +49,7 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 # repeat a simple linear layer with ReLU activation 3 times, but set the bias for the last
 # layer to `FALSE`
 block = nn("linear") \%>>\% nn("relu")

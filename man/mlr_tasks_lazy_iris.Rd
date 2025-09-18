@@ -33,7 +33,7 @@ Just like the iris task, but the features are represented as one lazy tensor col
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 task = tsk("lazy_iris")
 task
 df = task$data()

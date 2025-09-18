@@ -18,7 +18,7 @@ trouble of serializing S3 objects.
 If each row contained a DataDescriptor as an S3 class, this would copy the object when serializing.
 }
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 # Create a dataset
 ds = dataset(
   initialize = function() self$x = torch_randn(10, 3, 3),

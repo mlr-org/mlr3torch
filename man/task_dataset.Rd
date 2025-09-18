@@ -32,7 +32,7 @@ The resulting dataset's \verb{$.get_batch()} method returns a list with elements
 The data is returned on the device specified by the parameter \code{device}.
 }
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 task = tsk("iris")
 sepal_ingress = TorchIngressToken(
   features = c("Sepal.Length", "Sepal.Width"),

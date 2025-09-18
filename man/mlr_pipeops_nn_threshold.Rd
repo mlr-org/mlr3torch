@@ -19,7 +19,7 @@ The value to threshold at.
 \item \code{value} :: \code{numeric(1)}\cr
 The value to replace with.
 \item \code{inplace} :: \code{logical(1)}\cr
-Can optionally do the operation in-place. Default: ‘FALSE’.
+Can optionally do the operation in-place. Default: \code{FALSE}.
 }
 }
 
@@ -35,7 +35,7 @@ The state is the value calculated by the public method \verb{$shapes_out()}.
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 # Construct the PipeOp
 pipeop = po("nn_threshold", threshold = 1, value = 2)
 pipeop

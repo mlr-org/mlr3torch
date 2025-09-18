@@ -23,14 +23,13 @@ Number of output channels produce by the convolution.
 Size of the convolving kernel.
 \item \code{stride} :: \code{integer()}\cr
 Stride of the convolution. Default: 1.
-\item \code{padding} :: \verb{ }integer()`\cr
-‘dilation * (kernel_size - 1) - padding’ zero-padding will be added to both sides of the input. Default: 0.
+\item \code{padding} :: \verb{ }integer()\verb{\\cr  }dilation * (kernel_size - 1) - padding` zero-padding will be added to both sides of the input. Default: 0.
 \item \code{output_padding} ::\code{integer()}\cr
 Additional size added to one side of the output shape. Default: 0.
 \item \code{groups} :: \code{integer()}\cr
 Number of blocked connections from input channels to output channels. Default: 1
 \item \code{bias} :: \code{logical(1)}\cr
-If ‘True’, adds a learnable bias to the output. Default: ‘TRUE’.
+If \code{True}, adds a learnable bias to the output. Default: \code{TRUE}.
 \item \code{dilation} :: \code{integer()}\cr
 Spacing between kernel elements. Default: 1.
 \item \code{padding_mode} :: \code{character(1)}\cr
@@ -50,7 +49,7 @@ For an explanation see \code{\link{PipeOpTorch}}.
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 # Construct the PipeOp
 pipeop = po("nn_conv_transpose1d", kernel_size = 3, out_channels = 2)
 pipeop

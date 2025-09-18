@@ -22,7 +22,7 @@ cross_entropy, l1, mse
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 mlr3torch_losses$get("mse")
 # is equivalent to
 t_loss("mse")

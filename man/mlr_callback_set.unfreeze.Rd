@@ -8,7 +8,7 @@
 Unfreeze some weights (parameters of the network) after some number of steps or epochs.
 }
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 task = tsk("iris")
 cb = t_clbk("unfreeze")
 mlp = lrn("classif.mlp", callbacks = cb,
