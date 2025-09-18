@@ -10,6 +10,7 @@ test_that("autotest", {
 })
 
 test_that("metrics are logged correctly", {
+  skip_if_not_installed("tibble")
   cb = t_clbk("tb")
 
   task = tsk("iris")
@@ -44,6 +45,7 @@ test_that("metrics are logged correctly", {
 })
 
 test_that("eval_freq works", {
+  skip_if_not_installed("tibble")
   task = tsk("iris")
 
   n_epochs = 9
@@ -78,6 +80,7 @@ test_that("eval_freq works", {
 })
 
 test_that("we can disable training loss tracking", {
+  skip_if_not_installed("tibble")
   task = tsk("iris")
 
   mlp = lrn("classif.mlp",
