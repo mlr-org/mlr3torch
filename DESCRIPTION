@@ -70,6 +70,7 @@ Suggests:
     viridis,
     visNetwork,
     testthat (>= 3.0.0),
+    tibble,
     tfevents,
     torchvision (>= 0.6.0),
     waldo
