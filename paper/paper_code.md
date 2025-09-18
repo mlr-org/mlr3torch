@@ -1,7 +1,7 @@
 ---
 title: "Extracted Code from mlr3torch Paper"
 author: "mlr3torch"
-date: "2025-09-17"
+date: "2025-09-18"
 output: html_document
 ---
 
@@ -115,7 +115,7 @@ mnist_flat$head(2)
 ``` r
 mlp <- lrn("classif.mlp",
  loss = t_loss("cross_entropy"),
- optimizer = t_opt("adamw", lr = 0.01),
+ optimizer = t_opt("adamw", lr = 0.001),
  callbacks = t_clbk("history"))
 
 mlp$param_set$set_values(
@@ -150,8 +150,8 @@ head(mlp$model$callbacks$history, n = 2)
 ```
 ##    epoch train.classif.logloss
 ##    <num>                 <num>
-## 1:     1              2.375005
-## 2:     2              2.325265
+## 1:     1             0.6931728
+## 2:     2             0.4092444
 ```
 
 ``` r
@@ -160,8 +160,13 @@ pred$score(msr("classif.ce"))
 ```
 
 ```
+<<<<<<< Updated upstream
 ## classif.ce
 ##     0.9042
+=======
+## classif.ce 
+##     0.0479
+>>>>>>> Stashed changes
 ```
 
 ``` r
@@ -402,11 +407,11 @@ cat(paste("*", names(pvals), "=", pvals,
 
 ```
 ## * block.n_blocks = 4
-## * block.linear.out_features = 472
+## * block.linear.out_features = 394
 ## * block.branch.selection = relu
-## * block.dropout.p = 0.433924715034664
-## * torch_optimizer.lr = 0.00389585750785255
-## * torch_model_regr.epochs = 49
+## * block.dropout.p = 0.526923747174442
+## * torch_optimizer.lr = 0.000929559084734832
+## * torch_model_regr.epochs = 98
 ```
 
 ``` r
@@ -502,9 +507,9 @@ learner$model$classif.resnet18$model$callbacks$history
 ##    <num>             <num>
 ## 1:     1         0.9504380
 ## 2:     2         0.9618385
-## 3:     3         0.9798392
-## 4:     4         0.9804392
-## 5:     5         0.9809192
+## 3:     3         0.9765991
+## 4:     4         0.9786391
+## 5:     5         0.9804392
 ```
 
 ``` r
@@ -592,8 +597,30 @@ glrn <- as_learner(preprocessing %>>% model)
 library("mlr3viz")
 glrn$id <- "multimodal"
 rr <- resample(task, glrn, rsmp("cv", folds = 5))
+```
+
+```
+## Warning: Caught FutureInterruptError. Canceling all iterations ...
+```
+
+```
+## Error: A future ('future_mapply-5') of class SequentialFuture was interrupted at 2025-09-18T16:41:52, while running on 'mcml-hgx-a100-015' (pid 393252)
+```
+
+``` r
 plt <- autoplot(rr, type = "roc")
+```
+
+```
+## Error: Need a binary classification problem to plot a ROC curve
+```
+
+``` r
 saveRDS(plt, here::here("paper/roc.rds"))
+```
+
+```
+## Error: object 'plt' not found
 ```
 
 
@@ -625,6 +652,7 @@ sessionInfo()
 ## [1] stats     graphics  grDevices utils     datasets  methods   base
 ##
 ## other attached packages:
+<<<<<<< Updated upstream
 ##  [1] mlr3viz_0.10.1       torchdatasets_0.3.1  mlr3mbo_0.3.0
 ##  [4] mlr3tuning_1.4.0     paradox_1.0.1        mlr3torch_0.3.0.9000
 ##  [7] torch_0.15.1         future_1.67.0        mlr3pipelines_0.9.0
@@ -652,5 +680,34 @@ sessionInfo()
 ## [55] rlang_1.1.6          Rcpp_1.1.0           zeallot_0.2.0
 ## [58] glue_1.8.0           palmerpenguins_0.1.1 coro_1.1.0
 ## [61] jsonlite_2.0.0       lgr_0.5.0            R6_2.6.1
+=======
+##  [1] mlr3viz_0.10.1       torchdatasets_0.3.1  mlr3mbo_0.3.1       
+##  [4] mlr3tuning_1.4.0     paradox_1.0.1        mlr3torch_0.3.1.9000
+##  [7] torch_0.16.0         future_1.67.0        mlr3pipelines_0.9.0 
+## [10] mlr3_1.2.0          
+## 
+## loaded via a namespace (and not attached):
+##  [1] gtable_0.3.6         xfun_0.53            ggplot2_4.0.0       
+##  [4] processx_3.8.6       lattice_0.22-6       callr_3.7.6         
+##  [7] vctrs_0.6.5          tools_4.5.0          ps_1.9.1            
+## [10] safetensors_0.2.0    parallel_4.5.0       tibble_3.3.0        
+## [13] pkgconfig_2.0.3      Matrix_1.7-3         data.table_1.17.8   
+## [16] checkmate_2.3.3      RColorBrewer_1.1-3   S7_0.2.0            
+## [19] uuid_1.2-1           lifecycle_1.0.4      farver_2.1.2        
+## [22] compiler_4.5.0       stringr_1.5.2        precrec_0.14.5      
+## [25] codetools_0.2-20     bbotk_1.6.0          pillar_1.11.1       
+## [28] crayon_1.5.3         rpart_4.1.24         parallelly_1.45.1   
+## [31] digest_0.6.37        stringi_1.8.7        listenv_0.9.1       
+## [34] mlr3measures_1.1.0   rprojroot_2.1.1      grid_4.5.0          
+## [37] here_1.0.2           cli_3.6.5            magrittr_2.0.4      
+## [40] future.apply_1.20.0  withr_3.0.2          scales_1.4.0        
+## [43] backports_1.5.0      rappdirs_0.3.3       bit64_4.6.0-1       
+## [46] spacefillr_0.4.0     globals_0.18.0       jpeg_0.1-11         
+## [49] bit_4.6.0            ranger_0.17.0        evaluate_1.0.5      
+## [52] knitr_1.50           torchvision_0.7.0    mlr3misc_0.19.0     
+## [55] rlang_1.1.6          Rcpp_1.1.0           zeallot_0.2.0       
+## [58] glue_1.8.0           palmerpenguins_0.1.1 coro_1.1.0          
+## [61] jsonlite_2.0.0       lgr_0.5.0            R6_2.6.1            
+>>>>>>> Stashed changes
 ## [64] fs_1.6.6             mlr3learners_0.12.0
 ```
