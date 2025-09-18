@@ -1,7 +1,7 @@
 ---
 title: "Extracted Code from mlr3torch Paper"
 author: "mlr3torch"
-date: "2025-09-16"
+date: "2025-09-17"
 output: html_document
 ---
 
@@ -121,7 +121,7 @@ mlp <- lrn("classif.mlp",
 mlp$param_set$set_values(
   neurons = c(100, 200), activation = torch::nn_relu,
   p = 0.3, opt.weight_decay = 0.01, measures_train = msr("classif.logloss"),
-  epochs = 10, batch_size = 32, device = "cpu")
+  epochs = 10, batch_size = 32, device = "cuda")
 
 mlp$configure(predict_type = "prob")
 
@@ -150,8 +150,8 @@ head(mlp$model$callbacks$history, n = 2)
 ```
 ##    epoch train.classif.logloss
 ##    <num>                 <num>
-## 1:     1              2.301241
-## 2:     2              2.326201
+## 1:     1              2.375005
+## 2:     2              2.325265
 ```
 
 ``` r
@@ -161,7 +161,7 @@ pred$score(msr("classif.ce"))
 
 ```
 ## classif.ce 
-##      0.895
+##     0.9042
 ```
 
 ``` r
@@ -402,11 +402,11 @@ cat(paste("*", names(pvals), "=", pvals,
 
 ```
 ## * block.n_blocks = 4
-## * block.linear.out_features = 398
+## * block.linear.out_features = 472
 ## * block.branch.selection = relu
-## * block.dropout.p = 0.47203406188637
-## * torch_optimizer.lr = 0.00102468640057548
-## * torch_model_regr.epochs = 85
+## * block.dropout.p = 0.433924715034664
+## * torch_optimizer.lr = 0.00389585750785255
+## * torch_model_regr.epochs = 49
 ```
 
 ``` r
@@ -490,7 +490,6 @@ resnet <- lrn("classif.resnet18",
   opt.lr = 1e-4, measures_valid = msr("classif.acc"),
   callbacks = list(unfreezer, t_clbk("history")))
 
-library("ggplot2")
 learner <- as_learner(augment %>>% preprocess %>>% resnet)
 learner$id <- "resnet"
 set_validate(learner, 1 / 3)
@@ -503,9 +502,9 @@ learner$model$classif.resnet18$model$callbacks$history
 ##    <num>             <num>
 ## 1:     1         0.9504380
 ## 2:     2         0.9618385
-## 3:     3         0.9795992
-## 4:     4         0.9797192
-## 5:     5         0.9823593
+## 3:     3         0.9798392
+## 4:     4         0.9804392
+## 5:     5         0.9809192
 ```
 
 ``` r
@@ -593,11 +592,9 @@ glrn <- as_learner(preprocessing %>>% model)
 library("mlr3viz")
 glrn$id <- "multimodal"
 rr <- resample(task, glrn, rsmp("cv", folds = 5))
-autoplot(rr, type = "roc")
+plt <- autoplot(rr, type = "roc")
+saveRDS(plt, here::here("paper/roc.rds"))
 ```
-
-![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2-1.svg)
-
 
 
 ``` r
@@ -628,32 +625,32 @@ sessionInfo()
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] mlr3viz_0.10.1       ggplot2_3.5.2        torchdatasets_0.3.1 
-##  [4] mlr3mbo_0.3.0        mlr3tuning_1.4.0     paradox_1.0.1       
-##  [7] mlr3torch_0.3.0.9000 torch_0.15.1         future_1.67.0       
-## [10] mlr3pipelines_0.9.0  mlr3_1.1.0          
+##  [1] mlr3viz_0.10.1       torchdatasets_0.3.1  mlr3mbo_0.3.0       
+##  [4] mlr3tuning_1.4.0     paradox_1.0.1        mlr3torch_0.3.0.9000
+##  [7] torch_0.15.1         future_1.67.0        mlr3pipelines_0.9.0 
+## [10] mlr3_1.1.0          
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] gtable_0.3.6         xfun_0.52            processx_3.8.6      
-##  [4] lattice_0.22-6       callr_3.7.6          vctrs_0.6.5         
-##  [7] tools_4.5.0          ps_1.9.1             safetensors_0.1.2   
-## [10] parallel_4.5.0       tibble_3.3.0         pkgconfig_2.0.3     
-## [13] Matrix_1.7-3         data.table_1.17.8    checkmate_2.3.2     
-## [16] RColorBrewer_1.1-3   assertthat_0.2.1     uuid_1.2-1          
-## [19] lifecycle_1.0.4      compiler_4.5.0       farver_2.1.2        
-## [22] stringr_1.5.1        precrec_0.14.5       codetools_0.2-20    
-## [25] bbotk_1.6.0          pillar_1.11.0        crayon_1.5.3        
-## [28] rpart_4.1.24         parallelly_1.45.1    digest_0.6.37       
-## [31] stringi_1.8.7        listenv_0.9.1        labeling_0.4.3      
-## [34] mlr3measures_1.0.0   grid_4.5.0           cli_3.6.5           
-## [37] magrittr_2.0.3       future.apply_1.20.0  withr_3.0.2         
-## [40] rappdirs_0.3.3       scales_1.4.0         backports_1.5.0     
-## [43] bit64_4.6.0-1        spacefillr_0.4.0     globals_0.18.0      
-## [46] jpeg_0.1-11          bit_4.6.0            ranger_0.17.0       
-## [49] evaluate_1.0.4       knitr_1.50           torchvision_0.7.0   
-## [52] viridisLite_0.4.2    mlr3misc_0.18.0      rlang_1.1.6         
-## [55] Rcpp_1.1.0           zeallot_0.2.0        glue_1.8.0          
-## [58] palmerpenguins_0.1.1 coro_1.1.0           jsonlite_2.0.0      
-## [61] lgr_0.5.0            R6_2.6.1             fs_1.6.6            
-## [64] mlr3learners_0.12.0
+##  [1] gtable_0.3.6         xfun_0.52            ggplot2_3.5.2       
+##  [4] processx_3.8.6       lattice_0.22-6       callr_3.7.6         
+##  [7] vctrs_0.6.5          tools_4.5.0          ps_1.9.1            
+## [10] safetensors_0.1.2    parallel_4.5.0       tibble_3.3.0        
+## [13] pkgconfig_2.0.3      Matrix_1.7-3         data.table_1.17.8   
+## [16] checkmate_2.3.2      RColorBrewer_1.1-3   assertthat_0.2.1    
+## [19] uuid_1.2-1           lifecycle_1.0.4      farver_2.1.2        
+## [22] compiler_4.5.0       stringr_1.5.1        precrec_0.14.5      
+## [25] codetools_0.2-20     bbotk_1.6.0          pillar_1.11.0       
+## [28] crayon_1.5.3         rpart_4.1.24         parallelly_1.45.1   
+## [31] digest_0.6.37        stringi_1.8.7        listenv_0.9.1       
+## [34] mlr3measures_1.0.0   rprojroot_2.1.0      grid_4.5.0          
+## [37] here_1.0.1           cli_3.6.5            magrittr_2.0.3      
+## [40] future.apply_1.20.0  withr_3.0.2          scales_1.4.0        
+## [43] backports_1.5.0      rappdirs_0.3.3       bit64_4.6.0-1       
+## [46] spacefillr_0.4.0     globals_0.18.0       jpeg_0.1-11         
+## [49] bit_4.6.0            ranger_0.17.0        evaluate_1.0.4      
+## [52] knitr_1.50           torchvision_0.7.0    mlr3misc_0.18.0     
+## [55] rlang_1.1.6          Rcpp_1.1.0           zeallot_0.2.0       
+## [58] glue_1.8.0           palmerpenguins_0.1.1 coro_1.1.0          
+## [61] jsonlite_2.0.0       lgr_0.5.0            R6_2.6.1            
+## [64] fs_1.6.6             mlr3learners_0.12.0
 ```

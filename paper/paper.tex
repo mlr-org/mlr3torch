@@ -530,7 +530,7 @@ We also specify the weight decay for the optimizer and monitor the log loss thro
 R> mlp$param_set$set_values(
 +    neurons = c(100, 200), activation = torch::nn_relu,
 +    p = 0.3, opt.weight_decay = 0.01, measures_train = msr("classif.logloss"),
-+    epochs = 10, batch_size = 32, device = "cpu")
++    epochs = 10, batch_size = 32, device = "cuda")
 \end{CodeInput}
 
 Furthermore, \torch{} learners can be configured through fields, which distinguish themselves from hyperparameters as they have predefined semantics that are shared between all \code{Learner}s.
