@@ -23,7 +23,7 @@ Further arguments passed to the \code{\link{DataDescriptor}} constructor.}
 Converts the input to a \code{\link{DataDescriptor}}.
 }
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 ds = dataset("example",
   initialize = function() self$iris = iris[, -5],
   .getitem = function(i) list(x = torch_tensor(as.numeric(self$iris[i, ]))),

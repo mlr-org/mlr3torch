@@ -8,7 +8,7 @@
 Prints a progress bar and the metrics for training and validation.
 }
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 task = tsk("iris")
 
 learner = lrn("classif.mlp", epochs = 5, batch_size = 1,

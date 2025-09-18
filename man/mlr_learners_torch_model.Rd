@@ -13,7 +13,7 @@ For classification, the output of the network must be the scores (before the sof
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 # We show the learner using a classification task
 
 # The iris task has 4 features and 3 classes

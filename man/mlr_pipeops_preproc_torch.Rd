@@ -82,7 +82,7 @@ Otherwise, this mechanism is very similar to the \code{\link{ModelDescriptor}} c
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 # Creating a simple task
 d = data.table(
   x1 = as_lazy_tensor(rnorm(10)),

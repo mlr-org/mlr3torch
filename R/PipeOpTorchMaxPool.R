@@ -68,7 +68,7 @@ max_output_shape = avg_output_shape
 #' * `padding` :: `integer()`\cr
 #'  Implicit zero paddings on both sides of the input. Can be a single number or a tuple (padW,). Default: 0
 #' * `dilation` :: `integer()`\cr
-#'   Controls the spacing between the kernel points; also known as the à trous algorithm. Default: 1
+#'   Controls the spacing between the kernel points; also known as the a trous algorithm. Default: 1
 #' * `ceil_mode` :: `logical(1)`\cr
 #'   When True, will use ceil instead of floor to compute the output shape. Default: `FALSE`
 #'

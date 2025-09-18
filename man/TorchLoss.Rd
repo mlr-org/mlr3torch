@@ -21,7 +21,7 @@ for each argument of the wrapped loss function, where the parametes are then of 
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 # Create a new torch loss
 torch_loss = TorchLoss$new(torch_loss = nn_mse_loss, task_types = "regr")
 torch_loss

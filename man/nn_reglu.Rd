@@ -12,7 +12,7 @@ Computes the output as \eqn{\text{ReGLU}(x, g) = x \cdot \text{ReLU}(g)}
 where \(x\) and \(g\) are created by splitting the input tensor in half along the last dimension.
 }
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 x = torch::torch_randn(10, 10)
 reglu = nn_reglu()
 reglu(x)

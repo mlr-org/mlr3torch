@@ -38,7 +38,7 @@ the channels are defined. Arguments are \strong{not} matched by name.
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 ## creating an PipeOpModule manually
 
 # one input and output channel

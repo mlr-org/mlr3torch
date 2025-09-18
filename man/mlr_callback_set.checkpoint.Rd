@@ -13,7 +13,7 @@ Saving the learner itself in the callback with a trained model is impossible,
 as the model slot is set \emph{after} the last callback step is executed.
 }
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 cb = t_clbk("checkpoint", freq = 1)
 task = tsk("iris")
 

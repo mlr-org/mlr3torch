@@ -39,7 +39,7 @@ Only those from \code{\link{LearnerTorch}}.
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 # Define the Learner and set parameter values
 learner = lrn("classif.torch_featureless")
 learner$param_set$set_values(

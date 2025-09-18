@@ -31,7 +31,7 @@ lrn("regr.module", ...)
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 nn_one_layer = nn_module("nn_one_layer",
   initialize = function(task, size_hidden) {
     self$first = nn_linear(task$n_features, size_hidden)

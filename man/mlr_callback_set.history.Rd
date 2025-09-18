@@ -10,7 +10,7 @@ The history is saved as a data.table where the validation measures are prefixed 
 and the training measures are prefixed with \code{"train."}.
 }
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 
 cb = t_clbk("history")
 task = tsk("iris")

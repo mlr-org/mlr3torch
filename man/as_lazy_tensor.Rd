@@ -29,7 +29,7 @@ Which ids to include in the lazy tensor.}
 Convert a object to a \code{\link{lazy_tensor}}.
 }
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 iris_ds = dataset("iris",
   initialize = function() {
     self$iris = iris[, -5]

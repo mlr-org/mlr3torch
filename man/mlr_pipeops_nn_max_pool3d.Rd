@@ -28,7 +28,7 @@ The stride of the window. Can be a single number or a vector. Default: \code{ker
 \item \code{padding} :: \code{integer()}\cr
 Implicit zero paddings on both sides of the input. Can be a single number or a tuple (padW,). Default: 0
 \item \code{dilation} :: \code{integer()}\cr
-Controls the spacing between the kernel points; also known as the à trous algorithm. Default: 1
+Controls the spacing between the kernel points; also known as the a trous algorithm. Default: 1
 \item \code{ceil_mode} :: \code{logical(1)}\cr
 When True, will use ceil instead of floor to compute the output shape. Default: \code{FALSE}
 }
@@ -42,7 +42,7 @@ For an explanation see \code{\link{PipeOpTorch}}.
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 # Construct the PipeOp
 pipeop = po("nn_max_pool3d")
 pipeop

@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=mlr3torch-paper
-#SBATCH --partition=mcml-hgx-a100-80x4
+#SBATCH --partition=
 #SBATCH --gres=gpu:1
 #SBATCH --qos=mcml
 #SBATCH --ntasks=1

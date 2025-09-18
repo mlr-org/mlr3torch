@@ -46,7 +46,7 @@ Whether the output is a list of tensors.
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 graph = mlr3pipelines::Graph$new()
 graph$add_pipeop(po("module_1", module = nn_linear(10, 20)), clone = FALSE)
 graph$add_pipeop(po("module_2", module = nn_relu()), clone = FALSE)

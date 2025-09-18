@@ -22,7 +22,7 @@ adagrad, adam, adamw, rmsprop, sgd
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 mlr3torch_optimizers$get("adam")
 # is equivalent to
 t_opt("adam")

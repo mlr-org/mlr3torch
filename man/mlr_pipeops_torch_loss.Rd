@@ -29,7 +29,7 @@ During training the loss is cloned and added to the \code{\link{ModelDescriptor}
 }
 
 \examples{
-\dontshow{if (torch::torch_is_installed()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
 po_loss = po("torch_loss", loss = t_loss("cross_entropy"))
 po_loss$param_set
 mdin = po("torch_ingress_num")$train(list(tsk("iris")))
