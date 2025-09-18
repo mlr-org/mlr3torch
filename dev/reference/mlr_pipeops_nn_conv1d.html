@@ -94,12 +94,11 @@ Number of channels produced by the convolution.</p></li>
 Size of the convolving kernel.</p></li>
 <li><p><code>stride</code> :: <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code><br>
 Stride of the convolution. The default is 1.</p></li>
-<li><p><code>padding</code> :: <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code><br>
-‘dilation * (kernel_size - 1) - padding’ zero-padding will be added to both sides of the input. Default: 0.</p></li>
+<li><p><code>padding</code> :: <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code><br><code>dilation * (kernel_size - 1) - padding</code> zero-padding will be added to both sides of the input. Default: 0.</p></li>
 <li><p><code>groups</code> :: <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code><br>
 Number of blocked connections from input channels to output channels. Default: 1</p></li>
 <li><p><code>bias</code> :: <code>logical(1)</code><br>
-If ‘TRUE’, adds a learnable bias to the output. Default: ‘TRUE’.</p></li>
+If <code>TRUE</code>, adds a learnable bias to the output. Default: <code>TRUE</code>.</p></li>
 <li><p><code>dilation</code> :: <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code><br>
 Spacing between kernel elements. Default: 1.</p></li>
 <li><p><code>padding_mode</code> :: <code>character(1)</code><br>
