@@ -53,7 +53,7 @@ mnist_flat$head(2)
 
 mlp <- lrn("classif.mlp",
  loss = t_loss("cross_entropy"),
- optimizer = t_opt("adamw", lr = 0.01),
+ optimizer = t_opt("adamw", lr = 0.001),
  callbacks = t_clbk("history"))
 
 mlp$param_set$set_values(
