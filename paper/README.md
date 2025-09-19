@@ -3,7 +3,7 @@
 ## Computational Environment
 
 For reproducibility, two linux docker images are provided for CPU and CUDA GPU:
-https://doi.org/10.5281/zenodo.17152009
+<ZENODO LINK>
 
 You can, e.g., download the images via the [zenodo-client](https://pypi.org/project/zenodo-client/) library:
 
@@ -48,7 +48,7 @@ enroot start \
   mlr3torch-jss:cpu bash
 ```
 
-Some code expects this directory structure, so make sure to mount the directory properly as is done in the above instructions.
+Some code expects this directory structure, so make sure to mount the directory like above.
 
 ## Running the Benchmark
 
@@ -58,25 +58,31 @@ Note that while the benchmark uses `batchtools` for experiment management, we do
 
 Note that it's important to have enough RAM, otherwise the benchmarks will be incomparable.
 
-To run the benchmarks locally, go into `./paper` (to have the right `.Rprofile`).
+To run the benchmarks locally, go into `./paper`:
 
-To run the GPU benchmarks on linux, run:
+To run the GPU benchmarks (using the CUDA docker image) on linux, run:
 
 ```bash
 Rscript benchmark/linux-gpu.R
 ```
 
-To run the CPU benchmarks on linux, run:
+To run the CPU benchmarks (using the CPU docker image) on linux, run:
 
 ```bash
 Rscript benchmark/linux-cpu.R
 ```
 
-To run the benchmark that compares "ignite" with standard optimizers on linux, run:
+To run the benchmark that compares "ignite" with standard optimizers (using the CUDA docker image) on linux, run:
 
 ```bash
 Rscript benchmark/linux-gpu-optimizer.R
 ```
+
+The results are stored in:
+
+* `paper/benchmark/result-linux-gpu.rds`
+* `paper/benchmark/result-linux-cpu.rds`
+* `paper/benchmark/result-linux-gpu-optimizer.rds`
 
 There are also some exemplary slurm scripts that need to be adapted to the specific cluster and job submission system.
 
@@ -102,31 +108,41 @@ for (id in sample(ids)) {
 For the main benchmark shown in the paper, run:
 
 ```r
-Rscript paper/plot_benchmark.R
+Rscript paper/benchmark/plot_benchmark.R
 ```
 
 For the comparison of "ignite" with standard optimizers, run:
 
 ```r
-Rscript paper/plot_optimizer.R
+Rscript paper/benchmark/plot_optimizer.R
 ```
+
+These commands generate the files:
+
+* `paper/benchmark/plot_benchmark.png`
+* `paper/benchmark/plot_benchmark_relative.png`
+* `paper/benchmark/plot_optimizer.png`
+
+The ROC plot is postprocessed using the `roc.R` script.
 
 ## Running the Paper Code
 
 In the docker container, run the following code from the `./paper` directory.
-This requires access to an NVIDIA GPU.
+This requires access to an NVIDIA GPU and usage of the CUDA docker image.
 
 ```r
 knitr::knit('paper_code.Rmd')
 ```
 
-The result of the above is in `paper_code.md`.
+The result of the above is `paper_code.md`.
+The ROC plot is postprocessed using the `roc.R` script.
 
 In order to demonstrate reprodicbility of the code on CPU (see paper Appendix A), we include a considerably simplified version of the paper code, where the tasks are subset to only contain a few rows and some other hyperparameters are adjusted.
-This means the results are not meaningful, but it allows to run the code easily on a CPU:
+This means the results are not meaningful, but it allows to run the code easily on a CPU.
+Use the linux docker image for CPU for this.
 
 ```r
 knitr::knit('paper_code_cheap_cpu.Rmd')
 ```
 
-The results of running this on the CPU container are included in `paper_code_cheap.md` TODOOOOOO.
+The results of running this on the CPU container are included in `paper_code_cheap_cpu.md`

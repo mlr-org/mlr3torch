@@ -10,27 +10,12 @@ tbl2$os = "linux"
 
 TEXT_SIZE = 12
 
-# TODO: Uncertainty bands with upper and lower quantiles
-
 tbl = rbindlist(list(tbl1, tbl2))
 
-#tbl_med = tbl[,
-#  .(time_per_batch_med = median(time_per_batch), loss_med = median(loss)),
-#  by = .(n_layers, optimizer, algorithm, jit, latent, device, os)
-#]
-
-tbl_med = tbl
-
-#tbl_med[,
-#  time_per_batch_med_rel := (.SD$time_per_batch_med / .SD[algorithm == "pytorch", ]$time_per_batch_med),
-#  by = .(n_layers, optimizer, latent, jit, device, os)
-#]
-
-
-tbl_linux_cuda = tbl_med[device == "cuda" & os == "linux", ]
-tbl_linux_cpu = tbl_med[device == "cpu" & os == "linux", ]
-tbl_macos_mps = tbl_med[device == "mps" & os == "macos", ]
-tbl_macos_cpu = tbl_med[device == "cpu" & os == "macos", ]
+tbl_linux_cuda = tbl[device == "cuda" & os == "linux", ]
+tbl_linux_cpu = tbl[device == "cpu" & os == "linux", ]
+tbl_macos_mps = tbl[device == "mps" & os == "macos", ]
+tbl_macos_cpu = tbl[device == "cpu" & os == "macos", ]
 
 plt <- function(opt_name, gpu, os, show_y_label = TRUE, show_x_label = TRUE) {
   tbl = if (os == "linux" && gpu) {
@@ -50,7 +35,7 @@ plt <- function(opt_name, gpu, os, show_y_label = TRUE, show_x_label = TRUE) {
     .(time_per_batch_med = median(time_per_batch * 1000),
       time_per_batch_q10 = quantile(time_per_batch * 1000, 0.2),
       time_per_batch_q90 = quantile(time_per_batch * 1000, 0.9)),
-    by = .(n_layers, algorithm, jit, latent)]
+    by = .(n_layers, algorithm, latent)]
 
   ggplot(
     tbl_summary,
@@ -70,9 +55,7 @@ plt <- function(opt_name, gpu, os, show_y_label = TRUE, show_x_label = TRUE) {
     facet_wrap(~latent, scales = "free_y") +
     labs(
       y = if (show_y_label) "Time per batch (ms)" else NULL,
-      linetype = "JIT",
       color = "Algorithm",
-      fill = "Algorithm",
       x = if (show_x_label) "Number of hidden layers" else NULL
     ) +
     theme_bw() +
@@ -141,11 +124,11 @@ plt_relative <- function(opt_name, gpu, os, show_y_label = TRUE, show_x_label = 
   # Calculate quantiles for each group
   tbl_summary = tbl[optimizer == opt_name,
     .(time_per_batch_med = median(time_per_batch * 1000)),
-    by = .(n_layers, algorithm, jit, latent)]
+    by = .(n_layers, algorithm, latent)]
 
 
   # not relative to pytorch
-  tbl_summary[, time_per_batch_med_rel := time_per_batch_med / time_per_batch_med[algorithm == "pytorch"], by = .(n_layers, jit, latent)]
+  tbl_summary[, time_per_batch_med_rel := time_per_batch_med / time_per_batch_med[algorithm == "pytorch"], by = .(n_layers, latent)]
   tbl_summary = tbl_summary[algorithm != "pytorch", ]
 
   ggplot(
@@ -161,9 +144,7 @@ plt_relative <- function(opt_name, gpu, os, show_y_label = TRUE, show_x_label = 
     facet_wrap(~latent) +
     labs(
       y = if (show_y_label) "Time per batch (ms)" else NULL,
-      linetype = "JIT",
       color = "Algorithm",
-      fill = "Algorithm",
       x = if (show_x_label) "Number of hidden layers" else NULL
     ) +
     theme_bw() +
@@ -190,7 +171,7 @@ plot_cpu_adamw <- plt_relative("adamw", FALSE, "linux") + ggtitle("AdamW / CPU")
   labs(
     y = "Relative median time\n per batch"
   ) + geom_hline(yintercept = 1, linetype = "dashed", alpha = 0.9, color = "grey")
-plot_cpu_sgd <- plt_relative("sgd", FALSE, "linux", show_y_label = FALSE) + ggtitle("SGD / CPU") + theme(plot.title = element_text(size = TEXT_SIZE)) + theme(legend.position = "none") + geom_hline(yintercept = 1, linetype = "dashed", alpha
+plot_cpu_sgd <- plt_relative("sgd", FALSE, "linux", show_y_label = FALSE) + ggtitle("SGD / CPU") + theme(plot.title = element_text(size = TEXT_SIZE)) + theme(legend.position = "none") + geom_hline(yintercept = 1, linetype = "dashed", alpha = 0.9, color = "grey")
 plot_legend = plt_relative("adamw", FALSE, "linux") + theme(legend.position = "bottom")
 
 
