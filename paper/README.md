@@ -120,15 +120,13 @@ This requires access to an NVIDIA GPU.
 knitr::knit('paper_code.Rmd')
 ```
 
-The file `paper_code.Rmd` is extracted from the tex file of the paper using `extract.R`, only the first and last chunk are added manually.
+The result of the above is in `paper_code.md`.
 
-Due to the non-reproducbility of the paper (see the appendix), we include two different runs of the paper code, i.e. `paper_code1.md` and `paper_code2.md`, which were obtained by running the exact same code twice on the same machine.
-
-In order to demonstrate reprodicbility of the code on CPU, we include a considerably simplified version of the paper code, where the tasks are subset to only contain a few rows.
+In order to demonstrate reprodicbility of the code on CPU (see paper Appendix A), we include a considerably simplified version of the paper code, where the tasks are subset to only contain a few rows and some other hyperparameters are adjusted.
 This means the results are not meaningful, but it allows to run the code easily on a CPU:
 
 ```r
-knitr::knit('paper_code_cheap.Rmd')
+knitr::knit('paper_code_cheap_cpu.Rmd')
 ```
 
 The results of running this on the CPU container are included in `paper_code_cheap.md` TODOOOOOO.
