@@ -1,7 +1,7 @@
 ---
 title: "Extracted Code from mlr3torch Paper"
 author: "mlr3torch"
-date: "2025-09-18"
+date: "2025-09-19"
 output: html_document
 ---
 
@@ -27,7 +27,7 @@ pred$score(msr("regr.rmse"))
 ```
 
 ```
-## regr.rmse
+## regr.rmse 
 ##  4.736051
 ```
 
@@ -41,7 +41,7 @@ rr$aggregate(msr("regr.rmse"))
 ```
 
 ```
-## regr.rmse
+## regr.rmse 
 ##  4.274766
 ```
 
@@ -68,10 +68,11 @@ mnist
 ```
 
 ```
-##
-## ── <TaskClassif> (70000x2): MNIST Digit Classification ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## 
+## ── <TaskClassif> (70000x2): MNIST Digit Classification ─────────────────────────
 ## • Target: label
-## • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0 (10%), 6 (10%), 8 (10%), 4 (10%), 5 (9%)
+## • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0 (10%), 6
+## (10%), 8 (10%), 4 (10%), 5 (9%)
 ## • Properties: multiclass
 ## • Features (1):
 ##   • lt (1): image
@@ -132,8 +133,8 @@ mlp$model$network
 
 ```
 ## An `nn_module` containing 100,710 parameters.
-##
-## ── Modules ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## 
+## ── Modules ─────────────────────────────────────────────────────────────────────
 ## • 0: <nn_linear> #78,500 parameters
 ## • 1: <nn_relu> #0 parameters
 ## • 2: <nn_dropout> #0 parameters
@@ -160,7 +161,7 @@ pred$score(msr("classif.ce"))
 ```
 
 ```
-## classif.ce
+## classif.ce 
 ##     0.0479
 ```
 
@@ -334,12 +335,13 @@ task
 ```
 
 ```
-##
-## ── <TaskRegr> (20640x10): California House Value ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## 
+## ── <TaskRegr> (20640x10): California House Value ───────────────────────────────
 ## • Target: median_house_value
 ## • Properties: -
 ## • Features (9):
-##   • dbl (8): households, housing_median_age, latitude, longitude, median_income, population, total_bedrooms, total_rooms
+##   • dbl (8): households, housing_median_age, latitude, longitude,
+##   median_income, population, total_bedrooms, total_rooms
 ##   • fct (1): ocean_proximity
 ```
 
@@ -417,14 +419,14 @@ dogs_vs_cats_dataset("data", download = TRUE)
 ```
 ## <dataset>
 ##   Public:
-##     .getitem: function (i)
-##     .length: function ()
+##     .getitem: function (i) 
+##     .length: function () 
 ##     classes: dog cat
-##     clone: function (deep = FALSE)
+##     clone: function (deep = FALSE) 
 ##     images: data/dogs-vs-cats/train/cat.0.jpg data/dogs-vs-cats/trai ...
-##     initialize: function (root, split = "train", download = FALSE, ..., transform = NULL,
-##     load_state_dict: function (x, ..., .refer_to_state_dict = FALSE)
-##     state_dict: function ()
+##     initialize: function (root, split = "train", download = FALSE, ..., transform = NULL, 
+##     load_state_dict: function (x, ..., .refer_to_state_dict = FALSE) 
+##     state_dict: function () 
 ##     target_transform: NULL
 ##     targets: 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2  ...
 ##     transform: NULL
@@ -456,7 +458,7 @@ table(labels)
 
 ```
 ## labels
-##   cat   dog
+##   cat   dog 
 ## 12500 12500
 ```
 
@@ -467,8 +469,8 @@ task
 ```
 
 ```
-##
-## ── <TaskClassif> (25000x2) ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## 
+## ── <TaskClassif> (25000x2) ─────────────────────────────────────────────────────
 ## • Target: class
 ## • Target classes: cat (positive class, 50%), dog (50%)
 ## • Properties: twoclass
@@ -513,8 +515,8 @@ task
 ```
 
 ```
-##
-## ── <TaskClassif> (32701x5): Melanoma Classification ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## 
+## ── <TaskClassif> (32701x5): Melanoma Classification ────────────────────────────
 ## • Target: outcome
 ## • Target classes: malignant (positive class, 2%), benign (98%)
 ## • Properties: twoclass, groups
@@ -530,8 +532,8 @@ table(task$truth())
 ```
 
 ```
-##
-## malignant    benign
+## 
+## malignant    benign 
 ##       581     32120
 ```
 
@@ -540,7 +542,7 @@ task$missings("age_approx")
 ```
 
 ```
-## age_approx
+## age_approx 
 ##         44
 ```
 
@@ -593,7 +595,7 @@ library("mlr3viz")
 glrn$id <- "multimodal"
 rr <- resample(task, glrn, rsmp("cv", folds = 5))
 plt <- autoplot(rr, type = "roc")
-saveRDS(plt, here::here("paper/roc2.rds"))
+saveRDS(plt, here::here("paper/roc.rds"))
 ```
 
 
@@ -605,52 +607,52 @@ sessionInfo()
 ## R version 4.5.0 (2025-04-11)
 ## Platform: x86_64-pc-linux-gnu
 ## Running under: Ubuntu 22.04.4 LTS
-##
+## 
 ## Matrix products: default
-## BLAS:   /usr/local/lib/R/lib/libRblas.so
+## BLAS:   /usr/local/lib/R/lib/libRblas.so 
 ## LAPACK: /usr/local/lib/R/lib/libRlapack.so;  LAPACK version 3.12.1
-##
+## 
 ## locale:
-##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C
-##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8
-##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8
-##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C
-##  [9] LC_ADDRESS=C               LC_TELEPHONE=C
-## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C
-##
+##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+## 
 ## time zone: Etc/UTC
 ## tzcode source: system (glibc)
-##
+## 
 ## attached base packages:
-## [1] stats     graphics  grDevices utils     datasets  methods   base
-##
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
 ## other attached packages:
-##  [1] mlr3viz_0.10.1       torchdatasets_0.3.1  mlr3mbo_0.3.1
+##  [1] mlr3viz_0.10.1       torchdatasets_0.3.1  mlr3mbo_0.3.1       
 ##  [4] mlr3tuning_1.4.0     paradox_1.0.1        mlr3torch_0.3.1.9000
-##  [7] torch_0.16.0         future_1.67.0        mlr3pipelines_0.9.0
-## [10] mlr3_1.2.0
-##
+##  [7] torch_0.16.0         future_1.67.0        mlr3pipelines_0.9.0 
+## [10] mlr3_1.2.0          
+## 
 ## loaded via a namespace (and not attached):
-##  [1] gtable_0.3.6         xfun_0.53            ggplot2_4.0.0
-##  [4] processx_3.8.6       lattice_0.22-6       callr_3.7.6
-##  [7] vctrs_0.6.5          tools_4.5.0          ps_1.9.1
-## [10] safetensors_0.2.0    parallel_4.5.0       tibble_3.3.0
-## [13] pkgconfig_2.0.3      Matrix_1.7-3         data.table_1.17.8
-## [16] checkmate_2.3.3      RColorBrewer_1.1-3   S7_0.2.0
-## [19] assertthat_0.2.1     uuid_1.2-1           lifecycle_1.0.4
-## [22] farver_2.1.2         compiler_4.5.0       stringr_1.5.2
-## [25] precrec_0.14.5       codetools_0.2-20     bbotk_1.6.0
-## [28] pillar_1.11.1        crayon_1.5.3         rpart_4.1.24
-## [31] parallelly_1.45.1    digest_0.6.37        stringi_1.8.7
-## [34] listenv_0.9.1        mlr3measures_1.1.0   rprojroot_2.1.1
-## [37] grid_4.5.0           here_1.0.2           cli_3.6.5
-## [40] magrittr_2.0.4       future.apply_1.20.0  withr_3.0.2
-## [43] scales_1.4.0         backports_1.5.0      rappdirs_0.3.3
-## [46] bit64_4.6.0-1        spacefillr_0.4.0     globals_0.18.0
-## [49] jpeg_0.1-11          bit_4.6.0            ranger_0.17.0
-## [52] evaluate_1.0.5       knitr_1.50           torchvision_0.7.0
-## [55] mlr3misc_0.19.0      rlang_1.1.6          Rcpp_1.1.0
+##  [1] gtable_0.3.6         xfun_0.53            ggplot2_4.0.0       
+##  [4] processx_3.8.6       lattice_0.22-6       callr_3.7.6         
+##  [7] vctrs_0.6.5          tools_4.5.0          ps_1.9.1            
+## [10] safetensors_0.2.0    parallel_4.5.0       tibble_3.3.0        
+## [13] pkgconfig_2.0.3      Matrix_1.7-3         data.table_1.17.8   
+## [16] checkmate_2.3.3      RColorBrewer_1.1-3   S7_0.2.0            
+## [19] assertthat_0.2.1     uuid_1.2-1           lifecycle_1.0.4     
+## [22] farver_2.1.2         compiler_4.5.0       stringr_1.5.2       
+## [25] precrec_0.14.5       codetools_0.2-20     bbotk_1.6.0         
+## [28] pillar_1.11.1        crayon_1.5.3         rpart_4.1.24        
+## [31] parallelly_1.45.1    digest_0.6.37        stringi_1.8.7       
+## [34] listenv_0.9.1        mlr3measures_1.1.0   rprojroot_2.1.1     
+## [37] grid_4.5.0           here_1.0.2           cli_3.6.5           
+## [40] magrittr_2.0.4       future.apply_1.20.0  withr_3.0.2         
+## [43] scales_1.4.0         backports_1.5.0      rappdirs_0.3.3      
+## [46] bit64_4.6.0-1        spacefillr_0.4.0     globals_0.18.0      
+## [49] jpeg_0.1-11          bit_4.6.0            ranger_0.17.0       
+## [52] evaluate_1.0.5       knitr_1.50           torchvision_0.7.0   
+## [55] mlr3misc_0.19.0      rlang_1.1.6          Rcpp_1.1.0          
 ## [58] zeallot_0.2.0        glue_1.8.0           palmerpenguins_0.1.1
-## [61] coro_1.1.0           jsonlite_2.0.0       lgr_0.5.0
+## [61] coro_1.1.0           jsonlite_2.0.0       lgr_0.5.0           
 ## [64] R6_2.6.1             fs_1.6.6             mlr3learners_0.12.0
 ```
