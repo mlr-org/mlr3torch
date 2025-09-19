@@ -20,8 +20,6 @@ ggplot(tbl_summary, aes(x = n_layers, y = time_per_batch_med, color = opt_type))
     x = "Optimizer"
   )
 
-tbl_summary[opt_type == "standard" & optimizer == "sgd", range(time_per_batch_med_rel)]
-tbl_summary[opt_type == "standard" & optimizer == "adamw", range(time_per_batch_med_rel)]
 
 
 ggsave(here::here("paper", "benchmark", "plot_optimizer.png"), width = 12, height = 4, dpi = 300)
@@ -32,6 +30,10 @@ ggsave(here::here("paper", "benchmark", "plot_optimizer.png"), width = 12, heigh
 tbl_summary_relative = tbl_summary
 tbl_summary_relative[, time_per_batch_med_rel := time_per_batch_med / time_per_batch_med[opt_type == "ignite"], by = .(n_layers, optimizer, jit, latent)]
 tbl_summary_relative
+
+tbl_summary[opt_type == "standard" & optimizer == "sgd", range(time_per_batch_med_rel)]
+tbl_summary[opt_type == "standard" & optimizer == "adamw", range(time_per_batch_med_rel)]
+
 
 ggplot(tbl_summary_relative, aes(x = n_layers, y = time_per_batch_med_rel, color = opt_type)) +
   geom_line() +
