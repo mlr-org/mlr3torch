@@ -5,6 +5,7 @@
 * `t_opt("adamw")` now actually uses AdamW and not Adam.
 * Caching: Cache directory is now created, even if its parent
   directory does not exist.
+* Add `mlr3torch` to `mlr_reflections$loaded_packages` to fix errors when using `mlr3torch` in parallel.
 
 # mlr3torch 0.3.1
 
