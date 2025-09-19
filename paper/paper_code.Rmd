@@ -13,8 +13,6 @@ lgr::get_logger("mlr3")$set_threshold("warn")
 
 ```{r}
 library("mlr3")
-# make less verbose
-lgr::get_logger("mlr3")$set_threshold("warn")
 set.seed(42)
 task <- tsk("mtcars")
 learner <- lrn("regr.rpart")
@@ -343,7 +341,7 @@ library("mlr3viz")
 glrn$id <- "multimodal"
 rr <- resample(task, glrn, rsmp("cv", folds = 5))
 plt <- autoplot(rr, type = "roc")
-saveRDS(plt, here::here("paper/roc.rds"))
+saveRDS(plt, here::here("paper/roc2.rds"))
 ```
 
 ```{r}
