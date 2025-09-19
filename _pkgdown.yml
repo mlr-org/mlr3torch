@@ -54,8 +54,10 @@ navbar:
         href: articles/loss_list.html
       - text: Callbacks
         href: articles/callback_list.html
-      - text: Learners
-        href: articles/learner_list.html
+      - text: Tabular Learners
+        href: articles/tabular_learner_list.html
+      - text: Vision Learners
+        href: articles/vision_learner_list.html
       - text: Network Layers
         href: articles/layer_list.html
 
