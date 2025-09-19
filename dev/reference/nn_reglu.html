@@ -44,7 +44,8 @@ where \(x\) and \(g\) are created by splitting the input tensor in half along th
     <li><a class="dropdown-item" href="../articles/optimizer_list.html">Optimizers</a></li>
     <li><a class="dropdown-item" href="../articles/loss_list.html">Losses</a></li>
     <li><a class="dropdown-item" href="../articles/callback_list.html">Callbacks</a></li>
-    <li><a class="dropdown-item" href="../articles/learner_list.html">Learners</a></li>
+    <li><a class="dropdown-item" href="../articles/tabular_learner_list.html">Tabular Learners</a></li>
+    <li><a class="dropdown-item" href="../articles/vision_learner_list.html">Vision Learners</a></li>
     <li><a class="dropdown-item" href="../articles/layer_list.html">Network Layers</a></li>
   </ul></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://mlr3book.mlr-org.com"><span class="fa fa-link"></span> mlr3book</a></li>
@@ -97,16 +98,16 @@ where \(x\) and \(g\) are created by splitting the input tensor in half along th
 <span class="r-in"><span><span class="va">reglu</span> <span class="op">=</span> <span class="fu">nn_reglu</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">reglu</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0000  0.6654 -0.0000  0.0711  0.6182</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.3306  0.3616  0.0427  0.0336 -0.0000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3167  0.0000 -0.0341  0.8628  0.0211</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2450 -0.0000  0.0000 -0.9140 -0.1048</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1.1029  0.0000  0.0000  0.0000 -1.6588</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0000  0.3575 -0.8738 -0.0000  0.0420</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0000  0.0396 -1.2163 -0.3958 -0.2839</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0520 -0.7134 -0.0000 -0.0000 -0.3058</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0809 -0.0297 -0.0000 -0.0819 -1.4519</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -2.1198 -0.0010 -0.0000 -0.1304  0.5026</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0434 -4.0298  0.0000 -0.0613  0.0332</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0000 -0.3829 -0.5017  0.0000 -0.7483</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.5266 -1.0487 -0.0000 -0.0000 -0.2394</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0000  0.0000 -0.5970 -0.8535  0.0000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0000 -0.0000 -0.1075  0.0000 -0.6928</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0319 -1.3259  0.0000 -0.0000  1.3838</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0000  0.0000  0.0000  0.0000 -0.0000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6.4647 -0.0000  1.0483 -0.0000  0.2316</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0000  0.0000  0.0000 -0.0000  0.0000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0000  1.2340 -0.2171  1.1245  0.2931</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{10,5} ]</span>
 </code></pre></div>
     </div>

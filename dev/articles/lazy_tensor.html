@@ -66,7 +66,8 @@
     <li><a class="dropdown-item" href="../articles/optimizer_list.html">Optimizers</a></li>
     <li><a class="dropdown-item" href="../articles/loss_list.html">Losses</a></li>
     <li><a class="dropdown-item" href="../articles/callback_list.html">Callbacks</a></li>
-    <li><a class="dropdown-item" href="../articles/learner_list.html">Learners</a></li>
+    <li><a class="dropdown-item" href="../articles/tabular_learner_list.html">Tabular Learners</a></li>
+    <li><a class="dropdown-item" href="../articles/vision_learner_list.html">Vision Learners</a></li>
     <li><a class="dropdown-item" href="../articles/layer_list.html">Network Layers</a></li>
   </ul>
 </li>
@@ -411,7 +412,7 @@ nerworks using <code>PipeOpTorch</code> objects. The
 <span><span class="co">#&gt; &lt;DataDescriptor: 1 ops&gt;</span></span>
 <span><span class="co">#&gt; * dataset_shapes: [x: (NA,1)]</span></span>
 <span><span class="co">#&gt; * input_map: (x) -&gt; Graph</span></span>
-<span><span class="co">#&gt; * pointer: nop.85b3db.x.output</span></span>
+<span><span class="co">#&gt; * pointer: nop.7b3b70.x.output</span></span>
 <span><span class="co">#&gt; * shape: [(NA,1)]</span></span></code></pre></div>
 <p>The printed output of the data descriptor informs us about:</p>
 <ul>
@@ -458,7 +459,7 @@ there can only be a single <code>DataDescriptor</code> in a
 <span><span class="co">#&gt; &lt;DataDescriptor: 1 ops&gt;</span></span>
 <span><span class="co">#&gt; * dataset_shapes: [x: (NA,1)]</span></span>
 <span><span class="co">#&gt; * input_map: (x) -&gt; Graph</span></span>
-<span><span class="co">#&gt; * pointer: nop.85b3db.x.output</span></span>
+<span><span class="co">#&gt; * pointer: nop.7b3b70.x.output</span></span>
 <span><span class="co">#&gt; * shape: [(NA,1)]</span></span></code></pre></div>
 <p>What happens during <code>materialize(lt[1])</code> is the
 following:</p>
@@ -508,8 +509,8 @@ feature.</p>
 <span><span class="co">#&gt; Graph with 2 PipeOps:</span></span>
 <span><span class="co">#&gt;            ID         State sccssors    prdcssors</span></span>
 <span><span class="co">#&gt;        &lt;char&gt;        &lt;char&gt;   &lt;char&gt;       &lt;char&gt;</span></span>
-<span><span class="co">#&gt;  nop.85b3db.x        &lt;list&gt;   poly.x             </span></span>
-<span><span class="co">#&gt;        poly.x &lt;&lt;UNTRAINED&gt;&gt;          nop.85b3db.x</span></span></code></pre></div>
+<span><span class="co">#&gt;  nop.7b3b70.x        &lt;list&gt;   poly.x             </span></span>
+<span><span class="co">#&gt;        poly.x &lt;&lt;UNTRAINED&gt;&gt;          nop.7b3b70.x</span></span></code></pre></div>
 <p>We see that the <code>$graph</code> has a new pipeop with id
 <code>"poly.x"</code> and the output <code>pointer</code> points to
 <code>poly.x</code>. Also we see that the shape of the tensor is now

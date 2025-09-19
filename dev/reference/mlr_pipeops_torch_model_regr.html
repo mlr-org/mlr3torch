@@ -40,7 +40,8 @@
     <li><a class="dropdown-item" href="../articles/optimizer_list.html">Optimizers</a></li>
     <li><a class="dropdown-item" href="../articles/loss_list.html">Losses</a></li>
     <li><a class="dropdown-item" href="../articles/callback_list.html">Callbacks</a></li>
-    <li><a class="dropdown-item" href="../articles/learner_list.html">Learners</a></li>
+    <li><a class="dropdown-item" href="../articles/tabular_learner_list.html">Tabular Learners</a></li>
+    <li><a class="dropdown-item" href="../articles/vision_learner_list.html">Vision Learners</a></li>
     <li><a class="dropdown-item" href="../articles/layer_list.html">Network Layers</a></li>
   </ul></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://mlr3book.mlr-org.com"><span class="fa fa-link"></span> mlr3book</a></li>
@@ -297,16 +298,14 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$exp_avg</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 1 to 7   -0.2149    13.9369    23.6249  1176.4109     6.0491     6.9141   758.6040</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 8 to 10   31.1147    -1.4583    11.5846</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -2.5811 -19.6106 -54.9277 -2214.1189 -31.0534 -30.7057 -1144.2843 -163.4273 -4.1276 -29.7504</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1,10} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$exp_avg_sq</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 1 to 6 4.9585e-02  1.5495e+01  4.0962e+01  9.1174e+04  4.1628e+00  5.8462e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 1 to 6 3.9040e-01  2.2034e+01  1.7092e+02  2.8032e+05  5.4295e+01  5.3609e+01</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 7 to 10 4.2247e+04  9.5746e+01  1.1751e-01  1.0010e+01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns 7 to 10 7.4030e+04  1.5101e+03  9.4764e-01  5.0125e+01</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1,10} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$max_exp_avg_sq</span>
@@ -322,12 +321,12 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$exp_avg</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2.1889</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -8.9136</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$exp_avg_sq</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4323</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4.4991</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{1} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$max_exp_avg_sq</span>
@@ -417,7 +416,7 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Empty data.table (0 rows and 3 cols): stage,class,msg</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $train_time</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.051</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $task_hash</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "c7c4f02878d51895"</span>
