@@ -52,7 +52,7 @@
     LMU Munich \\
     MCML \\
     \And Lukas Burk~\orcidlink{0000-0001-7528-3795} \\
-    LMU Munich, MCML \\
+    LMU Munich \\ MCML \\
     Leibniz Institute for\\Prevention Research and\\Epidemiology - BIPS \\
     University of Bremen
     \AND Carson Zhang \\
@@ -168,22 +168,20 @@ References:
 Code:
 
 \begin{itemize}
-    \item [ ] Run code one more time and copy results to script
-    \item [ ] We need to provide a simplified version of the script reproducing the results that can run on a regular PC. (https://www.jstatsoft.org/authors#manuscript-preparation) -> maybe I can just run this on GitHub actions CI?
-    \item [ ] to facilitate review, authors are strongly encouraged to provide an output file that shows the results from running the single standalone replication script so that this can be compared against the results presented in the manuscript. For R submissions, this should be done by providing a file "code.html" created by running knitr::spin("code.R") on the replication script "code.R" which should include a call to sessionInfo() at the end.
+    \item [x] Run code one more time and copy results to script
+    \item [x] to facilitate review, authors are strongly encouraged to provide an output file that shows the results from running the single standalone replication script so that this can be compared against the results presented in the manuscript. For R submissions, this should be done by providing a file "code.html" created by running knitr::spin("code.R") on the replication script "code.R" which should include a call to sessionInfo() at the end.
     \item [x] Check that networks / learners that are not trained here still can be trained and are correctly constructed
     \item [x] Check that we are citing the correct R packages for those packages without a paper (sessionINfo))
-    \item [ ] Run code at the end twice for reproducibility
     \item [x] sessionInfo in code
     \item [x] ensure that caching is enabled in code because otherwise temp directory might be deleted for the melanoma dataset on linux
-    \item [ ] check whether results are really different on different hardware  ??? really?
+    \item [x] We need to provide a simplified version of the script reproducing the results that can run on a regular PC. (https://www.jstatsoft.org/authors#manuscript-preparation) -> maybe I can just run this on GitHub actions CI?
 \end{itemize}
 
 \begin{itemize}
-    \item 1. [ ] one more grammarly
-    \item 2. [ ] one more read (also focus on citation display and go through citations at the end
+    \item 1. [x] citations at the end
+    \item 2. [x] one more read
     \item 3. [ ] manuscript can be compiled using pdflatex
-    \item 4. [ ] Nothing goes beyond left and right margin
+    \item 4. [x] Nothing goes beyond left and right margin
 \end{itemize}
 
 Final submission:
@@ -191,8 +189,8 @@ Final submission:
 \begin{itemize}
     \item [ ] Correct mlr3torch version
     \item [ ] release jss branch in mlr3torch as submission
+    \item [ ] release mlr3torch to CRAN
     \item [ ] Size limit: Upload not more than 50 MB
-    \item [ ] add paper subdirectory also to zenodo
     \item [ ] submission must contain: pdf manuscript, source code, replication materials
     \item [x] Source code must be submitted in ASCII files
     \item [x] Add containers on zotero
@@ -226,7 +224,7 @@ These libraries focus primarily on the core building blocks of DL, leaving highe
 One example of such a framework is \pkg{Keras} \citep{ref-chollet2018keras}, which offers a high-level API that is both integrated into \tensorflow{} but also available as a standalone multi-backend library with support for \pytorch{}, \tensorflow{}, and \pkg{JAX}. Furthermore, \pkg{PyTorch Lightning} \citep{ref-lightning2019} and \pkg{fastai} provide higher-level DL toolboxes exclusively for \pytorch{}, and \pkg{Flax} \citep{ref-flax} offers similar capabilities for \pkg{JAX}.
 
 Languages other than \python{} also have DL libraries of their own.
-These include \julia{} \citep{ref-bezanson2017julia}, which offers a full DL stack via \flux{} \citep{ref-innes2018flux}, \rust{} \citep{ref-matsakis2014rust} with its crates \pkg{Burn} \citep{ref-burn} and \pkg{Candle} \citep{ref-candle}, and \proglang{Go} \citep{ref-go} with \pkg{gomlx} \citep{ref-gomlx}.
+These include \julia{} \citep{ref-bezanson2017julia}, which offers a full DL stack via \flux{} \citep{ref-innes2018flux}, \rust{} \citep{ref-matsakis2014rust} with its crates \pkg{Burn} \citep{ref-burn} and \pkg{Candle} \citep{ref-candle}, and \proglang{Go} \citep{ref-go} with \pkg{GoMLX} \citep{ref-gomlx}.
 In \cpp{} there is \pkg{LibTorch}, the \cpp{} backend for \pytorch{}, which can also be used as a stand-alone \cpp{} library.
 
 In the \rlang{} language \citep{ref-R-base}, many DL packages are available, but modern practice has consolidated on a few highly expressive, modular frameworks with corresponding counterparts in the \python{} ecosystem.
@@ -248,7 +246,7 @@ In addition to specialized DL toolkits, there are other, more general-purpose ma
 In \python, there is \sklearn{} \citep{ref-pedregosa2011scikit-learn}, in \julia{} there is \mlj{} \citep{ref-blaom2020mlj}, and \rlang{} has \tidymodels{} \citep{ref-kuhn2020tidymodels} and \pkg{mlr3} \citep{ref-mlr32019} with their respective predecessors \pkg{caret} \citep{ref-kuhn2021caret} and \pkg{mlr} \citep{ref-bischl2016mlr}, both of which are still widely used.
 From the perspective of these general ML frameworks, neural networks are just one type of learning method, alongside other approaches, such as statistical models, support vector machines, and tree-based systems.
 Connector packages exist to connect DL methods to these generic APIs.
-For example, the \pkg{skorch} package \citep{ref-skorch} for integrating \pytorch{} into \sklearn{}, \pkg{MLJflux} \citep{ref-MLJFlux} for \flux{} and \mlj{}, and \pkg{brulee} \citep{ref-brulee2025} for \torch{} and \tidymodels{}.
+For example, the \pkg{skorch} package \citep{ref-skorch} for integrating \pytorch{} into \sklearn{}, \pkg{MLJFlux} \citep{ref-MLJFlux} for \flux{} and \mlj{}, and \pkg{brulee} \citep{ref-brulee2025} for \torch{} and \tidymodels{}.
 
 The core idea of \mlrttorch{} is to extend the \mlrt{} ecosystem with comprehensive DL capabilities tailored to its user base.
 For example, other ML models can be seamlessly replaced by DL approaches, and out-of-memory data can be preprocessed in a manner analogous to the standard preprocessing of tabular data in \mlrt{}.
@@ -256,12 +254,12 @@ Through this integration, \mlrttorch{} inherits the full range of \mlrt{}’s fe
 \mlrttorch{} provides high-level infrastructure, including training and evaluation loops, that substantially simplify the training of neural networks compared to directly using \pkg{torch} or \pkg{tensorflow}.
 Although \pkg{cito} offers similar functionality, it is built around a much simpler and thus less expressive interface, resembling the specialized libraries discussed above, but using \pkg{torch} as a backend.
 The comparison with \pkg{brulee} is similar, as the package only supports relatively simple architectures.
-\pkg{luz}, by contrast, is currently more flexible than \mlrttorch{}, and allows to define custom training loops, e.g., to train variational autoencoders, whereas \mlrttorch{} is currently restricted to regression and classification.
+\pkg{luz}, by contrast, is currently more flexible than \mlrttorch{}, and allows to define custom training loops, e.g., to train variational autoencoders, whereas \mlrttorch{} is currently focused on supervised learning, namely regression and classification.
 However, in cases where \mlrttorch{} is applicable, it offers a richer feature set, including predefined tabular architectures and more evaluation measures.
 The package most closely related in spirit to \mlrttorch{} is \pkg{keras3}, which wraps the corresponding \python{} library and provides a more mature, feature-complete framework than \mlrttorch{} and its \torch{} backend.
 For example, it also supports text processing, for which there is currently no proper support in \mlrttorch{}.
 Nevertheless, the reliance on \python{} introduces the disadvantages discussed earlier, including more challenging debugging.
-Moreover, \mlrttorch{} distinguishes itself from \pkg{keras3} by offering a unified graph language for expressing ML workflows that extend beyond neural networks, enabling, for example, straightforward integration of neural networks with other ML models via stacking \citep{ref-mlr3book-chap8}.
+Moreover, \mlrttorch{} distinguishes itself from \pkg{keras3} by offering a unified graph language for expressing ML workflows that goes beyond neural networks, enabling, for example, straightforward integration of neural networks with other ML models via stacking \citep{ref-mlr3book-chap8}.
 The comparison to \pkg{fastai} is similar: as a \python{} wrapper, it inherits the strengths and limitations of building on a mature \python{} library.
 Both of these packages also do not offer the extensive hyperparameter tuning capabilities available for \mlrttorch{}.
 
@@ -274,7 +272,7 @@ Furthermore, \mlrttorch{} allows one to represent neural network architectures u
 Finally, the package is designed with extensibility in mind. The training loop is customizable via a callback mechanism, and it is easy to inherit from predefined classes for full control.
 
 In the following sections, we provide an overview of the package. First, we give a brief overview of DL and the main \rlang{} packages \mlrttorch{} builds upon, as discussed in~\Cref{sec:background}.
-Next, \Cref{sec:building-blocks} will summarize the package's main building blocks, including the data representation, the learner class, and neural network graph representation.
+Next, \Cref{sec:building-blocks} will summarize the package's main building blocks, including the data representation, the \code{Learner} class, and neural network \code{Graph} representation.
 \Cref{sec:extending} will show how to extend the package. This is followed by some practical use cases in \Cref{sec:use-cases}.
 There, we will cover hyperparameter tuning, fine-tuning, and constructing neural networks for multimodal problems.
 To provide insight into the package's runtime performance, we will present benchmarks in~\Cref{sec:benchmarks}.
@@ -321,7 +319,7 @@ Finally, a second linear layer represents the network's output head.
     \label{fig:intro-network}
 \end{figure}
 
-With $f_\theta$ denoting the whole network, where $\theta$ represents the union of all the parameters of the individual layers, the objective of training a neural network is to find a parameter vector $\theta^*$ that minimizes the loss function $\mathcal{L}$ given a data-generating process $\P$.
+With $f_\theta$ denoting the whole network, where $\theta$ represents the union of all the parameters of the individual layers, the objective of training a neural network is to find a parameter vector $\theta^*$ that minimizes a loss function $\mathcal{L}$ given a data-generating process $\P$.
 
 \begin{equation}
 \theta^* \in \operatorname{argmin}_{\theta \in \Theta} \mathbb{E}_{(x, y) \sim \P} \left[ \mathcal{L}(f_{\theta}(x), y) \right]
@@ -363,9 +361,9 @@ The \pkg{mlr3pipelines} extension facilitates the construction of learning pipel
 This makes it easier to integrate preprocessing steps into the modeling workflow, among other things.
 The nodes in such a \code{Graph} inherit from the \code{PipeOp} class, which, just like the \code{Learner} class, has a train and predict method.
 Each \code{PipeOp} has one or more typed input channels and one or more typed output channels. Output channels can be connected to input channels of succeeding \code{PipeOp}s, and the types of these channels may differ between training and prediction.
-We can construct such a graph by combining components using the graph concatenation operator \code{\%>>\%}.
+We can construct such a \code{Graph} by combining components using the \code{Graph} concatenation operator \code{\%\text{>}\text{>}\%}.
 A \code{Graph} can be converted to a \code{GraphLearner}, which inherits from \code{mlr3::Learner} and can be used as such.
-Below, we combine a principal component preprocessing step with the decision tree learner.
+Below, we combine a principal component preprocessing step with the decision tree.
 
 \begin{CodeInput}
 R> library("mlr3pipelines")
@@ -480,7 +478,7 @@ R> mnist_flat$head(2)
 
 The same reshaping would also be applied when calling the \code{\$predict()} method of the \code{PipeOp}.
 Just like loading the data, these preprocessing steps are not applied eagerly, but lazily.
-They build up an internal preprocessing graph that will be executed when the lazy tensor is materialized.
+They build up an internal preprocessing graph that will be executed when the \code{lazy\_tensor} is materialized.
 
 Similarly, data augmentation steps are also available as \code{PipeOp}s, but their identifiers are prefixed with \code{"augment\_"} instead of \code{"trafo\_"}.
 The full list of currently available operators can be found on the package website, but it is straightforward to create a custom one using the function \code{pipeop\_preproc\_torch}.\footnote{\url{https://mlr3torch.mlr-org.com/articles/preprocessing_list.html}}.
@@ -517,7 +515,7 @@ R> mlp <- lrn("classif.mlp",
 +   callbacks = t_clbk("history"))
 \end{CodeInput}
 
-The hyperparameters of the learner are represented as a \code{ParamSet}, as defined in the \pkg{paradox} package, which provides a comprehensive framework for defining parameter spaces \citep{ref-paradox2024}.
+The hyperparameters of the \code{Learner} are represented as a \code{ParamSet}, as defined in the \pkg{paradox} package, which provides a comprehensive framework for defining parameter spaces \citep{ref-paradox2024}.
 The package supports various parameter types, hierarchical dependencies, and constraint handling, making it a powerful tool for hyperparameter optimization and configuration management.
 
 The hyperparameter space of the constructed learner contains the union of parameters from the specified loss, optimizer, and callbacks; some parameters shared by all \code{LearnerTorch} classes; and learner-specific options that parameterize the network architecture, for example.
@@ -532,10 +530,10 @@ We also specify the weight decay for the optimizer and monitor the log loss thro
 R> mlp$param_set$set_values(
 +    neurons = c(100, 200), activation = torch::nn_relu,
 +    p = 0.3, opt.weight_decay = 0.01, measures_train = msr("classif.logloss"),
-+    epochs = 10, batch_size = 32, device = "cpu")
++    epochs = 10, batch_size = 32, device = "cuda")
 \end{CodeInput}
 
-Furthermore, \torch{} learners can be configured through fields, which distinguish themselves from hyperparameters as they have predefined semantics that are shared between all \code{Learner}s.
+Furthermore, \pkg{mlr3torch} \code{Learner}s can be configured through fields, which distinguish themselves from hyperparameters as they have predefined semantics that are shared between all \code{Learner}s.
 These include the predict type (\code{\$predict\_type}), how to construct the validation data \newline \noindent (\code{\$validate}), whether to conduct the model training in an external process (\code{\$encapsulation}), and which learner to use when the primary learner fails (\code{\$fallback}).
 Below, we configure the learner to make probability predictions via the \code{\$configure()} setter, which can set fields and hyperparameters simultaneously.
 
@@ -548,13 +546,13 @@ R> mlp$configure(predict_type = "prob")
 The primary way to use a \code{LearnerTorch} is through its \code{\$train()} and \code{\$predict()} methods.
 The former takes a \code{Task} as input and stores the trained model in the \code{\$model} field.
 The \code{\$predict()} method also takes a \code{Task} as input, but outputs an \code{mlr3::Prediction} object.
-Below, we train the MLP learner on the first 60,000 rows of the flattened MNIST task from above:
+Below, we train the MLP on the first 60,000 rows of the flattened MNIST task from above:
 
 \begin{CodeInput}
 R> mlp$train(mnist_flat, row_ids = 1:60000)
 \end{CodeInput}
 
-After training, we can access the training results via the \code{\$model} slot of the learner.
+After training, we can access the training results via the \code{\$model} slot.
 Most importantly, the model contains the trained network (a \code{nn\_module}), the optimizer state, and the states of the callbacks.
 
 \begin{CodeInput}
@@ -563,13 +561,13 @@ R> mlp$model$network
 \begin{CodeOutput}
 An `nn_module` containing 100,710 parameters.
   Modules
-• 0: <nn_linear> #78,500 parameters
-• 1: <nn_relu> #0 parameters
-• 2: <nn_dropout> #0 parameters
-• 3: <nn_linear> #20,200 parameters
-• 4: <nn_relu> #0 parameters
-• 5: <nn_dropout> #0 parameters
-• 6: <nn_linear> #2,010 parameters
+* 0: <nn_linear> #78,500 parameters
+* 1: <nn_relu> #0 parameters
+* 2: <nn_dropout> #0 parameters
+* 3: <nn_linear> #20,200 parameters
+* 4: <nn_relu> #0 parameters
+* 5: <nn_dropout> #0 parameters
+* 6: <nn_linear> #2,010 parameters
 \end{CodeOutput}
 \begin{CodeInput}
 R> head(mlp$model$callbacks$history, n = 2)
@@ -577,8 +575,8 @@ R> head(mlp$model$callbacks$history, n = 2)
 \begin{CodeOutput}
    epoch train.classif.logloss
    <num>                 <num>
-1:     1              2.299611
-2:     2              2.307922>
+1:     1             0.6931728
+2:     2             0.4092444
 \end{CodeOutput}
 
 After training, it can be used to make predictions on unseen data.
@@ -591,7 +589,7 @@ R> pred$score(msr("classif.ce"))
 
 \begin{CodeOutput}
 classif.ce
-     0.095
+    0.0479
 \end{CodeOutput}
 
 \subsubsection[Learner characteristics]{\code{Learner} characteristics}\label{sec:learner-characteristics}
@@ -599,21 +597,21 @@ classif.ce
 As with any other \code{Learner}, learners in \pkg{mlr3torch} are annotated with metadata that characterizes their capabilities.
 This enables correctness and compatibility checks, which prevent user errors and provide informative error messages.
 The available options for these characteristics are defined in the \pkg{mlr3} base package, but they can be extended via a reflection mechanism.
-These learner characteristics include the task type, prediction types, feature types, and properties.
+They include the task type, prediction types, feature types, and properties.
 
 
 \begin{itemize}
-    \item The \code{task\_type} defines the type of task on which the learner operates. Currently, \pkg{mlr3torch} only supports regression and classification.
-    \item The \code{predict\_types} indicates the types of predictions the learner can make. \torch{} regression learners can currently only make response predictions, while classifiers can make both response and probability predictions.
-    \item The \code{feature\_types} specifies which features the learner can handle. Here, \mlrttorch{} extends the available types with the \code{lazy\_tensor}.
-    \item The \code{properties} are special requirements or abilities of the learner. For example, a learner may have the ability to perform feature selection or to handle observation weights. We will cover the selected properties \code{"marshal"} and \code{"validation"}, as well as \code{"internal_tuning"} below.
+    \item The \code{task\_type} defines the type of \code{Task} on which the \code{Learner} operates. Currently, \pkg{mlr3torch} only supports regression and classification.
+    \item The \code{predict\_types} indicates the types of predictions the \code{Learner} can make. \torch{} regression \code{Learner}s can currently only make response predictions, while classifiers can make both response and probability predictions.
+    \item The \code{feature\_types} specifies which features the \code{Learner} can handle. Here, \mlrttorch{} extends the available types with the \code{lazy\_tensor}.
+    \item The \code{properties} are special requirements or abilities. For example, a \code{Learner} may have the ability to perform feature selection or to handle observation weights. We will cover the selected properties \code{"marshal"} and \code{"validation"}, as well as \code{"internal_tuning"} below.
 \end{itemize}
 
 
 \paragraph{Marshaling} is the process of converting an in-memory object so that it can be (de)-serialized without loss of information.
-Learners with this property require such processing before and after (de-)serialization.
-This is necessary for \torch{} learners because their weights are \code{torch\_tensor}s, which are external pointers that are not natively handled by \rlang{}'s serialization mechanism.
-Therefore, to save an \mlrttorch{} learner, one must call \code{\$marshal()} before saving, and \code{\$unmarshal()} after reading.
+\code{Learner}s with this property require such processing before and after (de-)serialization.
+This is necessary for \mlrttorch{} \code{Learner}s because their weights are \code{torch\_tensor}s, which are external pointers that are not natively handled by \rlang{}'s serialization mechanism.
+Therefore, to save an \mlrttorch{} \code{Learner}, one must call \code{\$marshal()} before saving, and \code{\$unmarshal()} after reading.
 
 \begin{CodeInput}
 R> pth <- tempfile()
@@ -626,8 +624,8 @@ R> mlp2$unmarshal()
 \paragraph{Validation}
 
 When training iterative learning procedures such as deep neural networks, it can be necessary to monitor the model's generalization performance during training.
-In \mlrt{}, this is possible through a standardized mechanism available for learners with the \code{"validation"} property.
-These learners have a \code{\$validate} field to configure how to create the validation data.
+In \mlrt{}, this is possible through a standardized mechanism available for \code{Learner}s with the \code{"validation"} property.
+These \code{Learner}s have a \code{\$validate} field to configure how to create the validation \code{Task}.
 One option is to set this field to a ratio; for example, below, we will only use $70\%$ of the data for training.
 
 \begin{CodeInput}
@@ -639,7 +637,7 @@ This setting is also taken into account by preprocessing \code{PipeOp}s, which e
 \paragraph{Internal tuning}
 
 While \mlrt{} has extensive support for standard offline hyperparameter tuning through its extensions such as \pkg{mlr3tuning} \citep{ref-mlr3tuning2024}, some learning algorithms can also optimize hyperparameters internally during training.
-For deep neural networks, this is possible for the \code{epochs} hyperparameter and is achieved through early stopping based on the validation performance.
+For deep neural networks, this is possible for the \code{epochs} hyperparameter and is achieved through early stopping on the validation performance.
 Although internal tuning can be considered just another hyperparameter of a learner, standardizing this property in the \mlrt{} base package allows for convenient combination with standard offline tuning.
 In \Cref{sec:tuning}, we will demonstrate how to do so in the context of simple neural architecture search.
 
@@ -650,7 +648,9 @@ For an in-depth coverage of the validation and internal tuning mechanisms, refer
 In \pkg{torch}, neural networks are represented by the \code{nn\_module} class.
 To implement a custom module, a constructor method needs to be defined that initializes the network weights and submodules, as well as a forward method that defines how the network transforms its inputs.
 While this allows for great flexibility, there is little structure to the underlying architecture.
-Below, we create a simple neural network with one latent layer and ReLU activation.
+Next, we create a simple neural network with one latent layer and ReLU activation.
+
+\newpage
 
 \begin{CodeInput}
 R> nn_simple <- nn_module("nn_simple",
@@ -691,7 +691,7 @@ torch_tensor
 
 While \pkg{mlr3torch} also allows the construction of \code{Learner}s from generic \code{nn\_module}s (see~\Cref{sec:extending-learner}), it also offers a systematic representation via directed acyclic graphs. This representation makes it easier to inspect or change individual components, for example.
 Such an architecture is built by assembling \code{PipeOpModule}s in an \code{mlr3pipelines::Graph}.
-Each \code{PipeOpModule} wraps an instantiated \code{nn\_module} and the edges of the graph define the data flow between the layers.
+Each \code{PipeOpModule} wraps an instantiated \code{nn\_module} and the edges of the \code{Graph} define the data flow between the layers.
 
 Note that this uses \code{Graph} objects in an unusual way, as
 \pkg{mlr3pipelines} \code{Graph}s are usually used to define preprocessing or stacking pipelines that are executed exactly once per model training run, on the entire dataset.
@@ -708,9 +708,9 @@ R> module_graph <- po("module_1", module = nn_linear(10, 100)) %>>%
 
 To perform a forward pass, we can call its \code{\$train()} method.
 In this case, the method expects one input tensor and returns one output tensor.
-Currently, the \code{\$predict()} phase of the graph does nothing.
+Currently, the \code{\$predict()} phase of the \code{Graph} does nothing.
 
-To work with this graph using a more familiar interface, we can convert it into an \code{nn\_graph} which inherits from \code{nn\_module}.
+To work with this \code{Graph} using a more familiar interface, we can convert it into an \code{nn\_graph} which inherits from \code{nn\_module}.
 When doing so, we only need to specify the input shapes. Here, \code{NA} indicates that the first (batch) dimension is of an unknown shape.
 The names of \code{shapes\_in} are given by \code{module\_graph\$input}.
 Below, we evaluate the resulting module on two randomly generated observations.
@@ -729,9 +729,9 @@ torch_tensor
 \subsubsection[Generating Graph]{Generating \code{Graph}}
 
 Although constructing module graphs by hand is possible, it requires specifying auxiliary parameters that can be inferred, such as the input dimension of a linear layer.
-Therefore, \pkg{mlr3torch} makes it convenient to construct such a module graph via another generating graph.
-This graph primarily consists of \code{PipeOpTorch} objects, but it can also contain other components.
-The generating graph for the above module graph is specified below, where \code{nn("<key>")} is short for \code{po("nn_<key>", id = "<key>")}.
+Therefore, \pkg{mlr3torch} makes it convenient to construct such a module \code{Graph} via another generating \code{Graph}.
+This \code{Graph} primarily consists of \code{PipeOpTorch} objects, but it can also contain other components.
+The generating \code{Graph} for the above module \code{Graph} is specified below, where \code{nn("<key>")} is short for \code{po("nn_<key>", id = "<key>")}.
 Note that we do not need to specify the input dimension for the first layer or the output dimension for the final layer.
 
 
@@ -741,18 +741,18 @@ R> graph <- po("torch_ingress_ltnsr") %>>%
 \end{CodeInput}
 
 While the module graph operates on tensors, which typically represent individual batches during a training run, the input type of the generating graph is a \code{Task} during both the training and prediction stages.
-During the training stage, the output type is a list containing a \code{ModelDescriptor} that is initialized by the \code{"torch_ingress_ltnsr"} ingress operator.
-The model descriptor is the intercommunication object between the different \code{PipeOpTorch} operators.
-The model descriptor contains, among other things, the neural network (a graph consisting of \code{PipeOpModule}s, similar to the one we built manually earlier), the \code{Task}, data loading specifications, as well as other metadata.
-When the graph is trained, the network layers (\code{nn("<key>")}) generate a \code{PipeOpModule}, attach it to the graph, and update the metadata stored inside the \code{ModelDescriptor}.
+During the training stage, the output type is a list containing a \code{ModelDescriptor} that is initialized by the \code{"torch_ingress_ltnsr"} operator.
+The \code{ModelDescriptor} is the intercommunication object between the different \code{PipeOpTorch} operators.
+The model descriptor contains, among other things, the neural network (a module \code{Graph}), the \code{Task}, data loading specifications, as well as other metadata.
+When the generating \code{Graph} is trained, the network layers (\code{nn("<key>")}) generate a \code{PipeOpModule}, attach it to the module \code{Graph}, and update the metadata stored inside the \code{ModelDescriptor}.
 Auxiliary parameters, such as the input dimension of a linear layer, are inferred from the metadata, which includes the current output shapes of the network.
 Note that the weights of the neural network that is being built up are not yet fit to the data at this point.
 
 Different ingress operators exist for different feature types, including for numeric and categorical features, as well as lazy tensors.
 An ingress operator is an entry point into a neural network and specifies how the input tensor for this specific entry point is generated from the \code{Task} during training.
-For instance, \code{po("torch\_ingress\_categ")} loads the categorical features from the task and converts them into a label-encoded, integer-valued tensor.
+For instance, \code{po("torch\_ingress\_categ")} loads the categorical features from the \code{Task} and converts them into a label-encoded, integer-valued tensor.
 It is also possible to have more than one entry point into the neural network, as we will see later.
-Below, we will train the graph on the flattened MNIST task from earlier.
+Below, we will train the generating \code{Graph} on the flattened MNIST \code{Task} from earlier.
 
 \begin{CodeInput}
 R> md <- graph$train(mnist_flat)[[1L]]
@@ -768,7 +768,7 @@ R> md
 * pointer:  nn_head.output [(NA,10)]
 \end{CodeOutput}
 
-We can extend this graph to not only build up the model descriptor but also to actually fit the weights of the network to the given input task.
+We can extend this \code{Graph} to not only build up the model descriptor but also to actually fit the weights of the network to the given input data.
 This requires configuring at least the optimizer and loss function in the \code{ModelDescriptor}, but we could also set some callbacks using \code{po("torch\_callbacks")}.
 
 \begin{CodeInput}
@@ -778,25 +778,25 @@ R> graph <- graph %>>%
 \end{CodeInput}
 
 Adding the \code{PipeOpTorchModel} operator to the graph specifies that the neural network stored in the \code{ModelDescriptor} should be fit to the data in a training loop.
-The operator takes in the \code{ModelDescriptor} as an input, but does not output a modified version; instead, it converts the descriptor into a \code{LearnerTorchModel} and trains it on the input task.
+The operator takes in the \code{ModelDescriptor} as an input, but does not output a modified version; instead, it converts the descriptor into a \code{LearnerTorchModel} and trains it on the input \code{Task}.
 Through its hyperparameters, the \code{PipeOp} also allows the specification of training parameters such as the batch size or the number of epochs.
 
 \begin{CodeInput}
 R> graph <- graph %>>% po("torch_model_classif", epochs = 10, batch_size = 16)
 \end{CodeInput}
 
-During the prediction phase of the above graph,  \code{PipeOpTorch} operators primarily forward the input task, possibly after combining different input tasks with a \code{PipeOpFeatureUnion}.
+During the prediction phase of the above \code{Graph},  \code{PipeOpTorch} operators primarily forward the input \code{Task}, possibly after combining multiple ones via a \code{PipeOpFeatureUnion}.
 Only the \code{PipeOpTorchModel} will call the \code{\$predict()} method of the \code{LearnerTorchModel} that was stored in its state during the training phase.
 This process is visualized in~\Cref{fig:pipeop-torch}.
 
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{figures/pipeop-torch.pdf}
-    \caption{Training and prediction phase for a neural network learner represented as an \code{mlr3pipelines::Graph}.}
+    \caption{Training and prediction phase for a generating \code{Graph}.}
     \label{fig:pipeop-torch}
 \end{figure}
 
-This graph can be converted to an \code{mlr3::Learner}, making it interoperable with all other components from the \pkg{mlr3} ecosystem.
+This \code{mlr3pipelines::Graph} can be converted to an \code{mlr3::Learner}, making it interoperable with all other components from the \pkg{mlr3} ecosystem.
 
 \begin{CodeInput}
 R> glrn <- as_learner(graph)
@@ -833,11 +833,11 @@ This can be used to define multimodal architectures such as neural networks that
 Here, we demonstrate how to build a tabular neural network that accepts both categorical and numeric features.
 
 First, we implement two independent entry points into the network.
-For the numeric path, we first select only the numeric features of the task.
-This is a standard \code{PipeOp} from \code{mlr3pipelines} and it simply outputs a modified task.
-Next, the \code{po("torch\_ingress\_num")} initializes the \code{ModelDescriptor} that represents the numeric entry point to the network.
+For the numeric path, we first select the numeric features.
+This is a standard \code{PipeOp} from \code{mlr3pipelines} and it simply outputs a modified \code{Task}.
+Next, \code{po("torch\_ingress\_num")} initializes the \code{ModelDescriptor} that represents the numeric entry point to the network.
 The \code{nn("tokenizer_num")} \citep{gorishniy2021revisiting} then adds the first network layer, embedding the numeric features in a 10-dimensional vector.
-The graph for the categorical features is constructed analogously.
+The pipeline for the categorical features is constructed analogously.
 
 \begin{CodeInput}
 R> path_num <- po("select_1", selector = selector_type("numeric")) %>>%
@@ -849,9 +849,9 @@ R> path_categ <- po("select_2", selector = selector_type("factor")) %>>%
 \end{CodeInput}
 
 % Here academic
-The two independent branches can be integrated into a single network by means of concatenating the outputs of the input tensors along the second dimension.
+The two independent branches can be integrated into a single network by means of concatenating their output tensors along the second dimension.
 The resulting network has two inputs, where the first one expects a floating-point tensor and the second one an integer-valued tensor representing the categorical features.
-The graph is displayed in~\Cref{fig:multi-inputs}.
+The structure is displayed in~\Cref{fig:multi-inputs}.
 
 \begin{CodeInput}
 R> graph <- list(path_num, path_categ) %>>% nn("merge_cat", dim = 2)
@@ -878,21 +878,20 @@ R> graph <- list(path_num, path_categ) %>>% nn("merge_cat", dim = 2)
 
 Another common characteristic of neural network architectures is the repetition of a specific segment.
 This can be achieved by using the \code{PipeOpTorchBlock} operator.
-This \code{PipeOp} takes in another graph primarily consisting of \code{PipeOpTorch} objects.
+This \code{PipeOp} takes in another \code{Graph} primarily consisting of \code{PipeOpTorch} objects.
 During training, the \code{PipeOp} will repeatedly attach the same network segment to the neural network.
 
 \begin{CodeInput}
 R> blocks <- nn("block", residual_layer, n_blocks = 5)
 \end{CodeInput}
 
-As both the number of repetitions (\code{n\_blocks}) as well as the hyperparameters of the wrapped graph are exposed through the \code{PipeOpBlock}'s parameter set, both can be tuned over.
+As both the number of repetitions (\code{n\_blocks}) as well as the hyperparameters of the wrapped \code{Graph} are exposed through the \code{PipeOpBlock}'s parameter set, both can be tuned over.
 
-\newpage
 
 \section{Extending the package}\label{sec:extending}
 
 While the configuration options shown in the previous section already cover a lot of ground, it is also essential to be able to customize the training further.
-Consequently, \pkg{mlr3torch} allows users to customize losses, optimizers, callbacks, and full learners.
+Consequently, \pkg{mlr3torch} allows users to customize losses, optimizers, callbacks, and complete \code{Learner}s.
 
 \subsection{Loss and optimizer}\label{sec:extending-loss-opt}
 
@@ -924,7 +923,7 @@ R> tloss
 * Task Types: classif,regr
 \end{CodeOutput}
 
-This object could now be passed as a construction argument \code{loss} when initializing a new \code{LearnerTorch}.
+This object could now be passed as construction argument \code{loss} when initializing a new \code{LearnerTorch}.
 
 \subsection{Callbacks}\label{sec:extending-callbacks}
 
@@ -937,12 +936,12 @@ A \code{CallbackSet} is a collection of callback functions, also called hooks, w
 Hooks can be triggered before or after certain actions (such as after processing a batch).
 Information from the training loop is communicated to the callback via a \code{ContextTorch}.
 This object contains the network and optimizer, or the current training or validation batch.
-A callback can also store information in the learner after training by implementing the \code{\$state\_dict} and \code{\$load\_state\_dict} methods.
+A callback can also store information in the \code{Learner} after training by implementing the \code{\$state\_dict} and \code{\$load\_state\_dict} methods.
 
 A \code{TorchCallback} object is created via the \code{torch\_callback} function.
 We demonstrate this below by implementing gradient clipping, which has two hyperparameters representing the maximally allowed norm value and the type of norm.
 It only implements the hook that is run after the backward call.
-After training, it keeps the history of norms in the learner's state.
+After training, it keeps the history of norms.
 
 \begin{CodeInput}
 R> gradient_clipper <- torch_callback("gradient_clipper",
@@ -965,28 +964,28 @@ R> gradient_clipper <- torch_callback("gradient_clipper",
 +  )
 \end{CodeInput}
 
-This object could now be passed via the \code{callbacks} construction argument to a \code{Learner} and would ensure that the norms of the gradients used for the weight updates do not exceed the specified value \code{max\_norm}.
+This object could now be passed via the \code{callbacks} construction argument to a \code{LearnerTorch} and would ensure that the norms of the gradients used for the weight updates do not exceed the specified value \code{max\_norm}.
 
 \subsection[Learners and task types]{\code{Learner}s and task types}\label{sec:extending-learner-task}
 
-When the construction of custom architectures, as shown in \Cref{sec:complex-architectures}, is not enough, it is also possible to implement custom learners by inheriting from \code{LearnerTorch}.
+When the construction of custom architectures, as shown in \Cref{sec:complex-architectures}, is not enough, it is also possible to inherit from \code{LearnerTorch}.
 While it is in principle possible to overwrite the whole training and prediction logic (private methods \code{\$.train()} and \code{\$.predict()}), it is usually sufficient to overwrite one or more of the following methods:
 
 \begin{itemize}
     \item \code{\$initialize(id, loss, optimizer, callbacks, ...)}, which needs to define learner-specific hyperparameters, as well as other metadata such as the supported feature types and task type.
-    \item \code{\$.network(task, param\_vals)}, which is called at the beginning of the training loop to instantiate an \code{nn\_module} for the specified hyperparameters and tailored to the given input task.
-    \item \code{\$.dataset(task, param\_vals)}, which must create a \code{torch::dataset} for the given input task and parameter values. The dataset must return a named list, where \code{x} is a list of feature tensors, \code{y} is the target tensor, and \code{.index} contains the batch indices.
+    \item \code{\$.network(task, param\_vals)}, which is called at the beginning of the training loop to instantiate an \code{nn\_module} for the specified hyperparameters and tailored to the given input \code{Task}.
+    \item \code{\$.dataset(task, param\_vals)}, which must create a \code{torch::dataset} for the given input \code{Task} and parameter values. The dataset must return a named list, where \code{x} is a list of feature tensors, \code{y} is the target tensor, and \code{.index} contains the batch indices.
 \end{itemize}
 
 The process of constructing such a class is described in the help page of \code{LearnerTorch}.
 
 \subsubsection[Custom Learners for classification and regression]{Custom \code{Learner}s for classification and regression}\label{sec:extending-learner}
 
-In many cases, it is possible to construct a custom learner from a module constructor without defining a new class.
+In many cases, it is possible to construct a \code{LearnerTorch} from a module generator without defining a new class.
 This is possible via the \code{LearnerTorchModule} class, which has two construction arguments besides the standard ones:
 \begin{itemize}
     \item \code{module\_generator}, which must be a \code{nn\_module\_generator} that takes as construction argument a \code{task} and possibly other parameters.
-    \item \code{ingress\_tokens}, which is a named list of \code{TorchIngressToken}s that define how the data is loaded from the input task. The names must correspond to the arguments of the \code{module\_generator}'s \code{\$forward} method.
+    \item \code{ingress\_tokens}, which is a named list of \code{TorchIngressToken}s that define how the data is loaded from the input \code{Task}. The names must correspond to the arguments of the \code{module\_generator}'s \code{\$forward} method.
 \end{itemize}
 
 We demonstrate this by defining a simple feed-forward network with two architecture parameters: the latent dimension and the number of layers.
@@ -1010,7 +1009,7 @@ R> nn_ffn <- nn_module("nn_ffn",
 +  )
 \end{CodeInput}
 
-Next, we need to define how the training task is converted to \code{torch\_tensor}s during training.
+Next, we need to define how a \code{Task} is converted to \code{torch\_tensor}s during training and prediction.
 In our case, our model will load all numeric columns (integers and doubles) as a single tensor into the network as argument \code{x}.
 The names of the tokens specify by which argument they will be passed to the \code{$forward} method of the module.
 In this case, there is a single element that will be passed as argument \code{x} to the \code{nn\_ffn} from above.
@@ -1025,7 +1024,7 @@ $x
 Ingress: Task[selector_type(c("numeric", "integer"))] --> Tensor()
 \end{CodeOutput}
 
-Next, we construct the learner, which also includes specification of the architecture's hyperparameters, which are part of the learner's \code{ParamSet}.
+Next, we construct the \code{LearnerTorchModule}, which also includes specification of the architecture's hyperparameters, which become part of the \code{Learner}'s \code{ParamSet}.
 
 \begin{CodeInput}
 R> lrn_ffn <- lrn("classif.module",
@@ -1034,21 +1033,20 @@ R> lrn_ffn <- lrn("classif.module",
 +    latent_dim = 100, n_layers = 5)
 \end{CodeInput}
 
-We could now train this learner on an \mlrt{} classification task with numeric features.
+We could now train this object on an \mlrt{} classification \code{Task} with numeric features.
 
 \subsubsection{Other task types}
 
-Extending the package to other supervised learning problems, such as survival analysis, is straightforward and could be achieved by implementing the required loss functions, as shown in~\Cref{sec:extending-loss-opt}, and implementing custom dataset constructors, network architectures, and prediction encoders, as is documented in the help page of \code{LearnerTorch}.
-Because the focus of \pkg{mlr3torch} is currently on supervised learning, extending the package to non-supervised tasks would require more effort, including the definition of a custom \code{Task} class, implementation of the respective \code{Measure}s, and creating a new \code{LearnerTorchUnsupervised} base class.
+Because the focus of \pkg{mlr3torch} is currently on supervised learning, extending the package to non-supervised task types would require more effort, including the definition of a custom \code{Task} class, implementation of the respective \code{Measure}s, and creating a new base class, e.g. \code{LearnerTorchUnsupervised}.
 
 \section{Use cases}\label{sec:use-cases}
 
-We will now demonstrate some of \pkg{mlr3torch}'s features by tuning a neural network learner on a tabular regression problem (\Cref{sec:tuning}), finetuning a pre-trained image network from \pkg{torchvision} (\Cref{sec:finetuning}) and by constructing a network architecture for a multimodal task that contains both tabular features and images (\Cref{sec:multimodal}).
+We will now demonstrate some of \pkg{mlr3torch}'s features by tuning a neural network on a tabular regression problem (\Cref{sec:tuning}), finetuning a pre-trained image network from \pkg{torchvision} (\Cref{sec:finetuning}) and by constructing a network architecture for a problem that contains both tabular features and images (\Cref{sec:multimodal}).
 
 \subsection{Simple neural architecture search}\label{sec:tuning}
 
-In this section, we will construct a tabular neural network learner and simultaneously tune its architecture, optimizer, and number of epochs.
-This will be done using the predefined \code{"california\_housing"} example task \citep{ref-pace1997sparse}, where the goal is to predict the median house value in California.
+In this section, we will construct a tabular neural network and simultaneously tune its architecture, optimizer, and number of epochs.
+This will be done using the predefined \code{"california\_housing"} example problem \citep{ref-pace1997sparse}, where the goal is to predict the median house value in California.
 
 \begin{CodeInput}
 R> task <- tsk("california_housing")
@@ -1056,12 +1054,12 @@ R> task
 \end{CodeInput}
 \begin{CodeOutput}
 <TaskRegr> (20640x10): California House Value
-• Target: median_house_value
-• Properties: -
-• Features (9):
-  • dbl (8): households, housing_median_age, latitude, longitude,
-  median_income, population, total_bedrooms, total_rooms
-  • fct (1): ocean_proximity
+ * Target: median_house_value
+ * Properties: -
+ * Features (9):
+   * dbl (8): households, housing_median_age, latitude, longitude,
+   median_income, population, total_bedrooms, total_rooms
+   * fct (1): ocean_proximity
 \end{CodeOutput}
 
 \subsubsection{Defining the learning pipeline}
@@ -1107,7 +1105,7 @@ R> config <- po("torch_loss", loss = t_loss("mse")) %>>%
 +    po("torch_optimizer", optimizer = t_opt("adamw"))
 \end{CodeInput}
 
-The final step in the graph is the \code{PipeOpTorchModelRegr}, which takes in a \code{ModelDescriptor} and does the actual training:
+The final step is the \code{PipeOpTorchModelRegr}, which takes in a \code{ModelDescriptor} and does the actual training:
 
 \begin{CodeInput}
 R> model <- po("torch_model_regr", device = "cuda", batch_size = 512)
@@ -1139,7 +1137,7 @@ R> learner$param_set$set_values(
 +    torch_optimizer.lr = to_tune(10^-4, 10^-1, logscale = TRUE))
 \end{CodeInput}
 
-We will tune all the above parameters in the standard offline way using Bayesian optimization.
+We will tune all the above hyperparameters in the standard offline way using Bayesian optimization.
 In contrast, we will tune the \code{epochs} hyperparameter using the learner-internal early stopping procedure that was covered in \Cref{sec:learner-characteristics}.
 By setting the \code{\$validate} field to \code{"test"}, we will early stop on the test set of the resampling used for the offline hyperparameter tuning, i.e., the validation data of the tuning process.
 
@@ -1178,14 +1176,14 @@ R> cat(paste("*", names(pvals), "=", pvals,
 \end{CodeInput}
 \begin{CodeOutput}
 * block.n_blocks = 4
-* block.linear.out_features = 472
+* block.linear.out_features = 394
 * block.branch.selection = relu
-* block.dropout.p = 0.433924715034664
-* torch_optimizer.lr = 0.00389585750785255
-* torch_model_regr.epochs = 49
+* block.dropout.p = 0.526923747174442
+* torch_optimizer.lr = 0.000929559084734832
+* torch_model_regr.epochs = 98
 \end{CodeOutput}
 
-We could now re-fit our learner on the whole data with the configuration found above to obtain our final model.
+We could now re-fit our network on the whole data with the configuration found above to obtain our final model.
 
 \subsection{Fine-tuning an image network}\label{sec:finetuning}
 
@@ -1200,7 +1198,7 @@ We will fine-tune the ResNet-18 model \citep{he2016deep} on the dogs vs. cats da
 
 \subsubsection[Task definition]{\code{Task} definition}
 
-As a first step, we will show how to construct the classification task, the data for which we will download with the help of the \pkg{torchdatasets} \rlang{} package \citep{torchdatasets}.
+As a first step, we will show how to construct the classification \code{Task}, the data for which we will download with the help of the \pkg{torchdatasets} \rlang{} package \citep{torchdatasets}.
 
 \begin{CodeInput}
 R> library("torchdatasets")
@@ -1274,7 +1272,7 @@ R> task
 
 \subsubsection{Learning pipeline}
 
-The pipeline we will use to solve this task will consist of data augmentation, preprocessing, and the neural network.
+The pipeline we will use to solve this problem will consist of data augmentation, preprocessing, and the neural network.
 For the problem at hand, we will vertically flip the images using a probability of $0.5$.
 
 \begin{CodeInput}
@@ -1297,7 +1295,7 @@ R> unfreezer <- t_clbk("unfreeze",
 +    unfreeze = data.table(epoch = 3, weights = select_all()))
 \end{CodeInput}
 
-The final step is the construction of the ResNet-18 learner, which has a parameter \code{pretrained} that determines whether to use the pre-trained weights.
+The final step is the construction of the ResNet-18, which has a parameter \code{pretrained} that determines whether to use the pre-trained weights.
 
 \begin{CodeInput}
 R> resnet <- lrn("classif.resnet18",
@@ -1306,11 +1304,11 @@ R> resnet <- lrn("classif.resnet18",
 +    callbacks = list(unfreezer, t_clbk("history")))
 \end{CodeInput}
 
-By instructing the learner to use the pre-trained weights, \pkg{torchvision} will download (and optionally cache) those weights upon first use, and the \torch{} learner will replace the output layer of the network with a new head with the correct output dimension for the task at hand.
+By instructing the \code{Learner} to use the pre-trained weights, \pkg{torchvision} will download (and optionally cache) those weights upon first use, and the \mlrttorch{} learner will replace the output layer of the network with a new head with the correct output dimension for the problem at hand.
 
 \subsubsection{Training}
 
-Now, we combine the three steps into a single new \code{GraphLearner}, configure its validation data, train it on the task, and print the validation loss.
+Now, we combine the three steps into a single new \code{GraphLearner}, configure its validation data, train it, and print the validation loss.
 
 \begin{CodeInput}
 R> learner <- as_learner(augment %>>% preprocess %>>% resnet)
@@ -1324,9 +1322,9 @@ R> learner$model$classif.resnet18$model$callbacks$history
    <num>             <num>
 1:     1         0.9504380
 2:     2         0.9618385
-3:     3         0.9797192
-4:     4         0.9805592
-5:     5         0.9801992
+3:     3         0.9765991
+4:     4         0.9786391
+5:     5         0.9804392
 \end{CodeOutput}
 
 \subsection{Multimodal data}\label{sec:multimodal}
@@ -1375,7 +1373,7 @@ age_approx
 
 The network architecture we will create for this dataset will take one tensor input for the tabular features and one for the image, similarly to \Cref{fig:multi-inputs}.
 
-We start by defining the graph segment for the tabular features, which consists of first subsetting the task to contain only those features, followed by sampling the missing values from their empirical distribution, and then encoding them one-hot.
+We start by defining the segment for the tabular features, which consists of first selecting the tabular features, followed by sampling the missing values from their empirical distribution, and then encoding them one-hot.
 The three features are then fed as a single tensor into the network, where we repeat a block consisting of a linear layer, a ReLU activation, and a dropout layer, three times.
 
 \begin{CodeInput}
@@ -1442,7 +1440,7 @@ R> preprocessing <- po("classbalancing", ratio = 4, reference = "minor",
 +  glrn <- as_learner(preprocessing %>>% model)
 \end{CodeInput}
 
-Finally, we change the ID of the learner, resample it on the task using five-fold cross-validation (which will respect the grouping variable \code{patient\_id}), and display the resulting ROC curve in \Cref{fig:roc-curve} using \pkg{mlr3viz} \citep{ref-mlr3viz2025, ref-ggplot2}.
+Finally, we resample the pipeline on the melanoma data using five-fold cross-validation (which will respect the grouping variable \code{patient\_id}), and display the resulting ROC curve in \Cref{fig:roc-curve} using \pkg{mlr3viz} \citep{ref-mlr3viz2025, ref-ggplot2}.
 
 \begin{CodeInput}
 R> library("mlr3viz")
@@ -1479,7 +1477,7 @@ We also vary various aspects of the training setup, where the main computational
     \item performing the optimization step to update the network weights.
 \end{itemize}
 
-We train a simple MLP with ReLU activation, different numbers of layers, and latent dimensions on a synthetically generated regression dataset.
+We train a simple MLP with ReLU activation, different numbers of layers, and latent dimensions.
 Note that the number of floating point operations (FLOPs) scales linearly with the number of layers, but quadratically with the latent dimension.
 Moreover, increasing the number of layers causes the creation of more intermediate tensors that are managed by \rlang{} and have to eventually be cleaned up by the \rlang{} garbage collector.
 
@@ -1500,7 +1498,7 @@ The difference between the two versions is especially prevalent for the more exp
 For the same scenario using SGD, the overhead is only around 1.1.
 Usually, however, more complex optimizers like AdamW are used to train neural networks.
 
-\Cref{fig:optimizer-benchmark} displays the absolute time per batch and \Cref{fig:optimizer-benchmark-relative} shows relative results for the "ignite" optimizer version.
+\Cref{fig:optimizer-benchmark} displays the absolute time per batch and \Cref{fig:optimizer-benchmark-relative} shows relative results for the ignite optimizer version.
 
 \begin{figure}[h]
     \centering
@@ -1594,7 +1592,8 @@ While \libtorch{} offers deterministic, albeit slower, versions for some algorit
 Therefore, the results are not exactly reproducible after the second epoch (because during the first two epochs, only the output head is trained), and performance differences of about 0.1\% can be observed when reproducing the results.
 For this reason, we also include a script that contains a simplified version of the code from the paper that is running on the CPU and which is fully reproducible and -- due to the simplification -- runs very quickly.
 
-When reproducing results on different GPUs, results may vary beyond those of the ResNet-18 model due to differences in floating-point arithmetic.
+When reproducing results on different GPUs, results may vary beyond those of the ResNet-18 model.
+
 \end{appendix}
 
 
