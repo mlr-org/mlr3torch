@@ -3,15 +3,15 @@
 ## Computational Environment
 
 For reproducibility, two linux docker images are provided for CPU and CUDA GPU:
-https://zenodo.org/records/17140855
+https://doi.org/10.5281/zenodo.17152009
 
 You can, e.g., download the images via the [zenodo-client](https://pypi.org/project/zenodo-client/) library:
 
 ```bash
 # pip install zenodo-client
 export ZENODO_API_TOKEN=<your-token>
+# for CPU:
 zenodo-client download 17140855 IMAGE_CPU.tar.gz
-zenodo-client download 17140855 IMAGE_GPU.tar.gz
 ```
 
 By default, the downloaded files are stored in `~/.data/zenodo`.
