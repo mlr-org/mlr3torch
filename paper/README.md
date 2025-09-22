@@ -131,8 +131,16 @@ This requires access to an NVIDIA GPU and usage of the CUDA docker image.
 knitr::knit('paper_code.Rmd')
 ```
 
+Note that this Rmd file was extracted from the tex source using `extract.R`.
+However, we added some minor modifications, which includes:
+
+* Activating caching for `mlr3torch`
+* Changing the `mlr3` logging level to `warn` for cleaner output
+* Saving the ROC plot for postprocessing
+* Adding a `sessionInfo()` call at the end
+
 The result of the above is `paper_code.md`.
-The ROC plot is postprocessed using the `roc.R` script.
+The ROC plot is postprocessed using the `roc.R` script and saved in `paper/roc.rds`.
 
 In order to demonstrate reprodicbility of the code on CPU (see paper Appendix A), we include a considerably simplified version of the paper code, where the tasks are subset to only contain a few rows and some other hyperparameters are adjusted.
 This means the results are not meaningful, but it allows to run the code easily on a CPU in a short amount of time.
