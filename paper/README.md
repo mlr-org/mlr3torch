@@ -2,8 +2,7 @@
 
 ## Computational Environment
 
-For reproducibility, two linux docker images are provided for CPU and CUDA GPU:
-<ZENODO LINK>
+For reproducibility, two linux docker images are provided for CPU and CUDA GPU: https://doi.org/10.5281/zenodo.17152009.
 
 You can, e.g., download the images via the [zenodo-client](https://pypi.org/project/zenodo-client/) library:
 
@@ -52,7 +51,7 @@ Some code expects this directory structure, so make sure to mount the directory 
 
 ## Running the Benchmark
 
-Note that while the benchmark uses `batchtools` for experiment management, we don't use it for job submission in order to ensure that all GPU and CPU benchmarks respectively are run on the same machine.
+Note that while the benchmark uses `batchtools` for experiment definition, we don't use it for job submission in order to ensure that all GPU and CPU benchmarks respectively are run on the same machine.
 
 ### Running locally
 
@@ -123,8 +122,6 @@ These commands generate the files:
 * `paper/benchmark/plot_benchmark_relative.png`
 * `paper/benchmark/plot_optimizer.png`
 
-The ROC plot is postprocessed using the `roc.R` script.
-
 ## Running the Paper Code
 
 In the docker container, run the following code from the `./paper` directory.
@@ -138,7 +135,7 @@ The result of the above is `paper_code.md`.
 The ROC plot is postprocessed using the `roc.R` script.
 
 In order to demonstrate reprodicbility of the code on CPU (see paper Appendix A), we include a considerably simplified version of the paper code, where the tasks are subset to only contain a few rows and some other hyperparameters are adjusted.
-This means the results are not meaningful, but it allows to run the code easily on a CPU.
+This means the results are not meaningful, but it allows to run the code easily on a CPU in a short amount of time.
 Use the linux docker image for CPU for this.
 
 ```r
