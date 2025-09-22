@@ -1,7 +1,7 @@
 ---
 title: "Extracted Code from mlr3torch Paper"
 author: "mlr3torch"
-date: "2025-09-19"
+date: "2025-09-21"
 output: html_document
 ---
 
@@ -15,8 +15,6 @@ lgr::get_logger("mlr3")$set_threshold("warn")
 
 ``` r
 library("mlr3")
-# make less verbose
-lgr::get_logger("mlr3")$set_threshold("warn")
 set.seed(42)
 task <- tsk("mtcars")
 learner <- lrn("regr.rpart")
@@ -69,10 +67,9 @@ mnist
 
 ```
 ## 
-## ── <TaskClassif> (70000x2): MNIST Digit Classification ─────────────────────────
+## ── <TaskClassif> (70000x2): MNIST Digit Classification ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: label
-## • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0 (10%), 6
-## (10%), 8 (10%), 4 (10%), 5 (9%)
+## • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0 (10%), 6 (10%), 8 (10%), 4 (10%), 5 (9%)
 ## • Properties: multiclass
 ## • Features (1):
 ##   • lt (1): image
@@ -134,7 +131,7 @@ mlp$model$network
 ```
 ## An `nn_module` containing 100,710 parameters.
 ## 
-## ── Modules ─────────────────────────────────────────────────────────────────────
+## ── Modules ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • 0: <nn_linear> #78,500 parameters
 ## • 1: <nn_relu> #0 parameters
 ## • 2: <nn_dropout> #0 parameters
@@ -336,12 +333,11 @@ task
 
 ```
 ## 
-## ── <TaskRegr> (20640x10): California House Value ───────────────────────────────
+## ── <TaskRegr> (20640x10): California House Value ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: median_house_value
 ## • Properties: -
 ## • Features (9):
-##   • dbl (8): households, housing_median_age, latitude, longitude,
-##   median_income, population, total_bedrooms, total_rooms
+##   • dbl (8): households, housing_median_age, latitude, longitude, median_income, population, total_bedrooms, total_rooms
 ##   • fct (1): ocean_proximity
 ```
 
@@ -470,7 +466,7 @@ task
 
 ```
 ## 
-## ── <TaskClassif> (25000x2) ─────────────────────────────────────────────────────
+## ── <TaskClassif> (25000x2) ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: class
 ## • Target classes: cat (positive class, 50%), dog (50%)
 ## • Properties: twoclass
@@ -516,7 +512,7 @@ task
 
 ```
 ## 
-## ── <TaskClassif> (32701x5): Melanoma Classification ────────────────────────────
+## ── <TaskClassif> (32701x5): Melanoma Classification ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: outcome
 ## • Target classes: malignant (positive class, 2%), benign (98%)
 ## • Properties: twoclass, groups
@@ -595,7 +591,7 @@ library("mlr3viz")
 glrn$id <- "multimodal"
 rr <- resample(task, glrn, rsmp("cv", folds = 5))
 plt <- autoplot(rr, type = "roc")
-saveRDS(plt, here::here("paper/roc.rds"))
+saveRDS(plt, here::here("paper/roc2.rds"))
 ```
 
 
