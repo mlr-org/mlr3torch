@@ -25,8 +25,6 @@ get_cache_dir = function(cache = NULL) {
     cache = R_user_dir("mlr3torch", "cache")
   }
 
-  assert(check_directory_exists(cache), check_path_for_output(cache),
-    .var.name = "cache is a valid path")
   normalizePath(cache, mustWork = FALSE)
 }
 

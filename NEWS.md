@@ -3,6 +3,8 @@
 ## Bug Fixes
 
 * `t_opt("adamw")` now actually uses AdamW and not Adam.
+* Caching: Cache directory is now created, even if its parent
+  directory does not exist.
 
 # mlr3torch 0.3.1
 
