@@ -341,7 +341,7 @@ library("mlr3viz")
 glrn$id <- "multimodal"
 rr <- resample(task, glrn, rsmp("cv", folds = 5))
 plt <- autoplot(rr, type = "roc")
-saveRDS(plt, here::here("paper/roc2.rds"))
+saveRDS(plt, here::here("paper/roc.rds"))
 ```
 
 ```{r}
