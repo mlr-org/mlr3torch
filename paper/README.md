@@ -143,8 +143,8 @@ The result of the above is `paper_code.md`.
 The ROC plot is postprocessed using the `roc.R` script and saved in `paper/roc.rds`.
 
 In order to demonstrate reprodicbility of the code on CPU (see paper Appendix A), we include a considerably simplified version of the paper code, where the tasks are subset to only contain a few rows and some other hyperparameters are adjusted.
-This means the results are not meaningful, but it allows to run the code easily on a CPU in a short amount of time.
-Use the linux docker image for CPU for this.
+This means the results are "worse" and less realistic, but it allows to run the code easily on a CPU in a reasonable amount of time.
+Use the linux Docker image for CPU for this.
 
 ```r
 knitr::knit('paper_code_cheap_cpu.Rmd')
