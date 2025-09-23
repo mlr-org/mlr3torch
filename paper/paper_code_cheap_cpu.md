@@ -1,7 +1,7 @@
 ---
 title: "Extracted Code from mlr3torch Paper"
 author: "mlr3torch"
-date: "2025-09-19"
+date: "2025-09-23"
 output: html_document
 ---
 
@@ -67,8 +67,20 @@ mnist
 
 ```
 ## 
-## ── <TaskClassif> (70000x2): MNIST Digit Classification ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── <TaskClassif> (70000x2): MNIST Digit Classification ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: label
+```
+
+```
+## Dataset <mnist> (~12 MB) will be downloaded and processed if not already available.
+## Downloading <mnist> ...
+## Processing <mnist>...
+## Dataset <mnist> downloaded and extracted successfully.
+## Dataset <mnist> loaded with 60000 images.
+## Dataset <mnist> loaded with 10000 images.
+```
+
+```
 ## • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0 (10%), 6 (10%), 8 (10%), 4 (10%), 5 (9%)
 ## • Properties: multiclass
 ## • Features (1):
@@ -119,11 +131,11 @@ mlp <- lrn("classif.mlp",
 mlp$param_set$set_values(
   neurons = c(100, 200), activation = torch::nn_relu,
   p = 0.3, opt.weight_decay = 0.01, measures_train = msr("classif.logloss"),
-  epochs = 10, batch_size = 32, device = "cpu")
+  epochs = 1, batch_size = 32, device = "cpu")
 
 mlp$configure(predict_type = "prob")
 
-mlp$train(mnist_flat, row_ids = 1:8)
+mlp$train(mnist_flat, row_ids = 1:5000)
 
 mlp$model$network
 ```
@@ -131,7 +143,7 @@ mlp$model$network
 ```
 ## An `nn_module` containing 100,710 parameters.
 ## 
-## ── Modules ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Modules ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • 0: <nn_linear> #78,500 parameters
 ## • 1: <nn_relu> #0 parameters
 ## • 2: <nn_dropout> #0 parameters
@@ -148,18 +160,17 @@ head(mlp$model$callbacks$history, n = 2)
 ```
 ##    epoch train.classif.logloss
 ##    <num>                 <num>
-## 1:     1              14.06106
-## 2:     2              10.73518
+## 1:     1              1.819389
 ```
 
 ``` r
-pred <- mlp$predict(mnist_flat, row_ids = 9:10)
+pred <- mlp$predict(mnist_flat, row_ids = 5001:6000)
 pred$score(msr("classif.ce"))
 ```
 
 ```
 ## classif.ce 
-##        0.5
+##      0.185
 ```
 
 ``` r
@@ -238,7 +249,7 @@ graph <- graph %>>%
 graph <- graph %>>% po("torch_model_classif", epochs = 10, batch_size = 16)
 
 glrn <- as_learner(graph)
-glrn$train(mnist_flat, row_ids = 1:8)
+glrn$train(mnist_flat, row_ids = 1:5000)
 
 path_lin <- nn("linear_1")
 path_nonlin <- nn("linear_2") %>>% nn("relu")
@@ -333,7 +344,7 @@ task
 
 ```
 ## 
-## ── <TaskRegr> (20640x10): California House Value ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── <TaskRegr> (20640x10): California House Value ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: median_house_value
 ## • Properties: -
 ## • Features (9):
@@ -383,7 +394,7 @@ set_validate(learner, "test")
 learner$param_set$set_values(
   torch_model_regr.patience = 1,
   torch_model_regr.measures_valid = msr("regr.mse"),
-  torch_model_regr.epochs = to_tune(upper = 2, internal = TRUE))
+  torch_model_regr.epochs = to_tune(upper = 10, internal = TRUE))
 
 library("mlr3mbo")
 ti <- tune(
@@ -392,19 +403,19 @@ ti <- tune(
   measure = msr("internal_valid_score", minimize = TRUE),
   learner = learner,
   term_evals = 40,
-  task = task$clone(deep = TRUE)$filter(1:20))
+  task = task$clone(deep = TRUE)$filter(partition(task, ratio = 0.1)$train))
 pvals <- ti$result_learner_param_vals[2:7]
 cat(paste("*", names(pvals), "=", pvals,
  collapse = "\n"), "\n")
 ```
 
 ```
-## * block.n_blocks = 5
-## * block.linear.out_features = 464
+## * block.n_blocks = 2
+## * block.linear.out_features = 246
 ## * block.branch.selection = relu
-## * block.dropout.p = 0.464042329974473
-## * torch_optimizer.lr = 0.00806592190578796
-## * torch_model_regr.epochs = 2
+## * block.dropout.p = 0.618325507640839
+## * torch_optimizer.lr = 0.0497128234183484
+## * torch_model_regr.epochs = 5
 ```
 
 ``` r
@@ -466,7 +477,7 @@ task
 
 ```
 ## 
-## ── <TaskClassif> (25000x2) ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── <TaskClassif> (25000x2) ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: class
 ## • Target classes: cat (positive class, 50%), dog (50%)
 ## • Properties: twoclass
@@ -491,18 +502,19 @@ resnet <- lrn("classif.resnet18",
 learner <- as_learner(augment %>>% preprocess %>>% resnet)
 learner$id <- "resnet"
 set_validate(learner, 1 / 3)
-learner$train(task, 1:10)
+learner$train(task, c(1:3000, 25001:28000))
+```
+
+```
+## Error: The provided row ids do not exist in task 'dogs_vs_cats'
+```
+
+``` r
 learner$model$classif.resnet18$model$callbacks$history
 ```
 
 ```
-##    epoch valid.classif.acc
-##    <num>             <num>
-## 1:     1                 1
-## 2:     2                 1
-## 3:     3                 1
-## 4:     4                 1
-## 5:     5                 1
+## NULL
 ```
 
 ``` r
@@ -512,7 +524,7 @@ task
 
 ```
 ## 
-## ── <TaskClassif> (32701x5): Melanoma Classification ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── <TaskClassif> (32701x5): Melanoma Classification ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: outcome
 ## • Target classes: malignant (positive class, 2%), benign (98%)
 ## • Properties: twoclass, groups
@@ -589,7 +601,7 @@ glrn <- as_learner(preprocessing %>>% model)
 
 library("mlr3viz")
 glrn$id <- "multimodal"
-task <- task$clone(deep = TRUE)$filter(c(1, 2, 3, 4, 5, 92, 236, 315, 400, 460))
+task <- task$clone(deep = TRUE)$filter(partition(task, ratio = 0.1)$train)
 rr <- resample(task, glrn, rsmp("holdout"))
 plt <- autoplot(rr, type = "roc")
 ```
@@ -643,23 +655,24 @@ sessionInfo()
 ##  [1] gtable_0.3.6         xfun_0.53            ggplot2_4.0.0       
 ##  [4] processx_3.8.6       lattice_0.22-7       callr_3.7.6         
 ##  [7] vctrs_0.6.5          tools_4.5.1          ps_1.9.1            
-## [10] safetensors_0.2.0    parallel_4.5.1       tibble_3.3.0        
-## [13] pkgconfig_2.0.3      Matrix_1.7-3         data.table_1.17.8   
-## [16] checkmate_2.3.3      RColorBrewer_1.1-3   S7_0.2.0            
-## [19] assertthat_0.2.1     uuid_1.2-1           lifecycle_1.0.4     
-## [22] farver_2.1.2         compiler_4.5.1       stringr_1.5.2       
-## [25] precrec_0.14.5       codetools_0.2-20     bbotk_1.6.0         
-## [28] pillar_1.11.1        crayon_1.5.3         rpart_4.1.24        
-## [31] parallelly_1.45.1    digest_0.6.37        stringi_1.8.7       
-## [34] listenv_0.9.1        mlr3measures_1.1.0   rprojroot_2.1.1     
-## [37] grid_4.5.1           here_1.0.2           cli_3.6.5           
-## [40] magrittr_2.0.4       future.apply_1.20.0  withr_3.0.2         
-## [43] scales_1.4.0         backports_1.5.0      rappdirs_0.3.3      
-## [46] bit64_4.6.0-1        spacefillr_0.4.0     globals_0.18.0      
-## [49] jpeg_0.1-11          bit_4.6.0            ranger_0.17.0       
-## [52] evaluate_1.0.5       knitr_1.50           torchvision_0.7.0   
-## [55] mlr3misc_0.19.0      rlang_1.1.6          Rcpp_1.1.0          
-## [58] zeallot_0.2.0        glue_1.8.0           palmerpenguins_0.1.1
-## [61] coro_1.1.0           jsonlite_2.0.0       lgr_0.5.0           
-## [64] R6_2.6.1             fs_1.6.6             mlr3learners_0.12.0
+## [10] safetensors_0.2.0    curl_7.0.0           parallel_4.5.1      
+## [13] tibble_3.3.0         pkgconfig_2.0.3      Matrix_1.7-3        
+## [16] data.table_1.17.8    checkmate_2.3.3      RColorBrewer_1.1-3  
+## [19] S7_0.2.0             assertthat_0.2.1     uuid_1.2-1          
+## [22] lifecycle_1.0.4      farver_2.1.2         compiler_4.5.1      
+## [25] stringr_1.5.2        precrec_0.14.5       codetools_0.2-20    
+## [28] bbotk_1.6.0          pillar_1.11.1        crayon_1.5.3        
+## [31] rpart_4.1.24         parallelly_1.45.1    digest_0.6.37       
+## [34] stringi_1.8.7        listenv_0.9.1        mlr3measures_1.1.0  
+## [37] rprojroot_2.1.1      grid_4.5.1           here_1.0.2          
+## [40] cli_3.6.5            magrittr_2.0.4       future.apply_1.20.0 
+## [43] withr_3.0.2          scales_1.4.0         backports_1.5.0     
+## [46] rappdirs_0.3.3       bit64_4.6.0-1        spacefillr_0.4.0    
+## [49] globals_0.18.0       jpeg_0.1-11          bit_4.6.0           
+## [52] ranger_0.17.0        evaluate_1.0.5       knitr_1.50          
+## [55] torchvision_0.7.0    mlr3misc_0.19.0      rlang_1.1.6         
+## [58] Rcpp_1.1.0           zeallot_0.2.0        glue_1.8.0          
+## [61] palmerpenguins_0.1.1 coro_1.1.0           jsonlite_2.0.0      
+## [64] lgr_0.5.0            R6_2.6.1             fs_1.6.6            
+## [67] mlr3learners_0.12.0
 ```
