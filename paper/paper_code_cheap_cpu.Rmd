@@ -283,7 +283,7 @@ resnet <- lrn("classif.resnet18",
 learner <- as_learner(augment %>>% preprocess %>>% resnet)
 learner$id <- "resnet"
 set_validate(learner, 1 / 3)
-learner$train(task, c(1:3000, 25001:28000))
+learner$train(task, partition(task, ratio = 0.1)$train)
 learner$model$classif.resnet18$model$callbacks$history
 
 task <- tsk("melanoma")
