@@ -2,7 +2,7 @@
 
 ## Computational Environment
 
-For reproducibility, two linux docker images are provided for CPU and CUDA GPU: https://doi.org/10.5281/zenodo.17152009.
+For reproducibility, two linux docker images are provided for CPU and CUDA GPU, see the Zenodo link in the appendix of the paper.
 
 You can, e.g., download the images via the [zenodo-client](https://pypi.org/project/zenodo-client/) library:
 
