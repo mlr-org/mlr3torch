@@ -1,4 +1,4 @@
-# mlr3torch (development version)
+# mlr3torch 0.3.2
 
 ## Bug Fixes
 
