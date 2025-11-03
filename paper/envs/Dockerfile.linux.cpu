@@ -38,6 +38,6 @@ RUN R -q -e "install.packages(c( \
   'DiceKriging' \
 ))"
 
-RUN R -q -e "remotes::install_github('mlr-org/mlr3torch@f49909a')"
+RUN R -q -e "install.packages('mlr3torch')"
 
 CMD ["bash"]
