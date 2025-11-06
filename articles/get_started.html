@@ -34,7 +34,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mlr3torch</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.1</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,7 +65,8 @@
     <li><a class="dropdown-item" href="../articles/optimizer_list.html">Optimizers</a></li>
     <li><a class="dropdown-item" href="../articles/loss_list.html">Losses</a></li>
     <li><a class="dropdown-item" href="../articles/callback_list.html">Callbacks</a></li>
-    <li><a class="dropdown-item" href="../articles/learner_list.html">Learners</a></li>
+    <li><a class="dropdown-item" href="../articles/tabular_learner_list.html">Tabular Learners</a></li>
+    <li><a class="dropdown-item" href="../articles/vision_learner_list.html">Vision Learners</a></li>
     <li><a class="dropdown-item" href="../articles/layer_list.html">Network Layers</a></li>
   </ul>
 </li>
@@ -432,7 +433,7 @@ find the validation history in its <code>$model</code> slot:</p>
 <span><span class="co">#&gt; 5:     5   8.702154e+01</span></span>
 <span><span class="co">#&gt; 6:     6   3.612310e+01</span></span></code></pre></div>
 <p>The plot below shows it for the epochs 6 to 30.</p>
-<p><img src="get_started_files/figure-html/unnamed-chunk-20-1.png" width="50%" style="display: block; margin: auto;"></p>
+<p><img src="get_started_files/figure-html/unnamed-chunk-20-1.png" class="r-plt" width="50%" style="display: block; margin: auto;"></p>
 <p>Other important information that is stored in the
 <code>Learner</code>’s model is the <code>$network</code>, which is the
 underlying <code>nn_module</code>. For a full description of the model,
@@ -450,7 +451,7 @@ see <code><a href="../reference/mlr_learners_torch.html">?LearnerTorch</a></code
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mlr3torch</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.1</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,7 +40,8 @@
     <li><a class="dropdown-item" href="../articles/optimizer_list.html">Optimizers</a></li>
     <li><a class="dropdown-item" href="../articles/loss_list.html">Losses</a></li>
     <li><a class="dropdown-item" href="../articles/callback_list.html">Callbacks</a></li>
-    <li><a class="dropdown-item" href="../articles/learner_list.html">Learners</a></li>
+    <li><a class="dropdown-item" href="../articles/tabular_learner_list.html">Tabular Learners</a></li>
+    <li><a class="dropdown-item" href="../articles/vision_learner_list.html">Vision Learners</a></li>
     <li><a class="dropdown-item" href="../articles/layer_list.html">Network Layers</a></li>
   </ul></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://mlr3book.mlr-org.com"><span class="fa fa-link"></span> mlr3book</a></li>
@@ -297,17 +298,17 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$exp_avg</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1158 -0.0169 -0.4291 -0.2984</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.3664 -0.1146 -0.5016 -0.2305</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4822  0.1316  0.9307  0.5290</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2508  0.0949  0.1998  0.0466</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2791 -0.0884 -0.3429 -0.1401</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0283 -0.0065  0.1431  0.0935</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3,4} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$exp_avg_sq</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.01 *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0546  0.0012  0.7501  0.3624</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.5650  0.0553  1.0629  0.2265</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.9633  0.0725  3.5523  1.1439</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.001 *</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2.6252  0.3722  1.7958  0.1287</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3.3336  0.3332  5.1432  0.8977</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0696  0.0052  0.9096  0.3808</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3,4} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$max_exp_avg_sq</span>
@@ -323,17 +324,18 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$exp_avg</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0864</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0838</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1702</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.01 *</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2.4208</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -5.5430</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3.1223</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$exp_avg_sq</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.001 *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3034</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2987</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1.1871</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.0001 *</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2847</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.3673</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4211</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$max_exp_avg_sq</span>
@@ -418,7 +420,7 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Empty data.table (0 rows and 3 cols): stage,class,msg</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $train_time</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.056</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.076</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $task_hash</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "abc694dd29a7a8ce"</span>
@@ -430,7 +432,7 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $mlr3_version</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] ‘1.1.0’</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] ‘1.2.0’</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $internal_tuned_values</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> named list()</span>
@@ -463,7 +465,7 @@ otherwise be set during construction.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

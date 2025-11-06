@@ -23,7 +23,7 @@ To conveniently retrieve a TorchCallback, use t_clbk()."><meta property="og:imag
 
     <a class="navbar-brand me-2" href="../index.html">mlr3torch</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.1</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,7 +50,8 @@ To conveniently retrieve a TorchCallback, use t_clbk()."><meta property="og:imag
     <li><a class="dropdown-item" href="../articles/optimizer_list.html">Optimizers</a></li>
     <li><a class="dropdown-item" href="../articles/loss_list.html">Losses</a></li>
     <li><a class="dropdown-item" href="../articles/callback_list.html">Callbacks</a></li>
-    <li><a class="dropdown-item" href="../articles/learner_list.html">Learners</a></li>
+    <li><a class="dropdown-item" href="../articles/tabular_learner_list.html">Tabular Learners</a></li>
+    <li><a class="dropdown-item" href="../articles/vision_learner_list.html">Vision Learners</a></li>
     <li><a class="dropdown-item" href="../articles/layer_list.html">Network Layers</a></li>
   </ul></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://mlr3book.mlr-org.com"><span class="fa fa-link"></span> mlr3book</a></li>
@@ -100,9 +101,9 @@ for each argument of the wrapped loss function, where the parametes are then of 
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other Callback:
-<code><a href="as_torch_callback.html">as_torch_callback</a>()</code>,
-<code><a href="as_torch_callbacks.html">as_torch_callbacks</a>()</code>,
-<code><a href="callback_set.html">callback_set</a>()</code>,
+<code><a href="as_torch_callback.html">as_torch_callback()</a></code>,
+<code><a href="as_torch_callbacks.html">as_torch_callbacks()</a></code>,
+<code><a href="callback_set.html">callback_set()</a></code>,
 <code><a href="mlr3torch_callbacks.html">mlr3torch_callbacks</a></code>,
 <code><a href="mlr_callback_set.html">mlr_callback_set</a></code>,
 <code><a href="mlr_callback_set.checkpoint.html">mlr_callback_set.checkpoint</a></code>,
@@ -110,20 +111,20 @@ for each argument of the wrapped loss function, where the parametes are then of 
 <code><a href="mlr_callback_set.tb.html">mlr_callback_set.tb</a></code>,
 <code><a href="mlr_callback_set.unfreeze.html">mlr_callback_set.unfreeze</a></code>,
 <code><a href="mlr_context_torch.html">mlr_context_torch</a></code>,
-<code><a href="t_clbk.html">t_clbk</a>()</code>,
-<code><a href="torch_callback.html">torch_callback</a>()</code></p>
+<code><a href="t_clbk.html">t_clbk()</a></code>,
+<code><a href="torch_callback.html">torch_callback()</a></code></p>
 <p>Other Torch Descriptor:
 <code><a href="TorchDescriptor.html">TorchDescriptor</a></code>,
 <code><a href="TorchLoss.html">TorchLoss</a></code>,
 <code><a href="TorchOptimizer.html">TorchOptimizer</a></code>,
-<code><a href="as_torch_callbacks.html">as_torch_callbacks</a>()</code>,
-<code><a href="as_torch_loss.html">as_torch_loss</a>()</code>,
-<code><a href="as_torch_optimizer.html">as_torch_optimizer</a>()</code>,
+<code><a href="as_torch_callbacks.html">as_torch_callbacks()</a></code>,
+<code><a href="as_torch_loss.html">as_torch_loss()</a></code>,
+<code><a href="as_torch_optimizer.html">as_torch_optimizer()</a></code>,
 <code><a href="mlr3torch_losses.html">mlr3torch_losses</a></code>,
 <code><a href="mlr3torch_optimizers.html">mlr3torch_optimizers</a></code>,
-<code><a href="t_clbk.html">t_clbk</a>()</code>,
-<code><a href="t_loss.html">t_loss</a>()</code>,
-<code><a href="t_opt.html">t_opt</a>()</code></p></div>
+<code><a href="t_clbk.html">t_clbk()</a></code>,
+<code><a href="t_loss.html">t_loss()</a></code>,
+<code><a href="t_opt.html">t_opt()</a></code></p></div>
     </div>
     <div class="section level2">
     <h2 id="super-class">Super class<a class="anchor" aria-label="anchor" href="#super-class"></a></h2>
@@ -236,7 +237,7 @@ Additional arguments if necessary. For learning rate schedulers, this is the tor
 <span class="r-in"><span><span class="va">torch_callback</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;TorchCallback:checkpoint&gt; Checkpoint</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Generator: CallbackSetCheckpoint</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: path=/tmp/RtmpnXVdfm/file2060126faadf, freq=1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: path=/tmp/Rtmp39UxUn/file36f63fda606d, freq=1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Packages: mlr3torch,torch</span>
 <span class="r-in"><span><span class="va">torch_callback</span><span class="op">$</span><span class="va">label</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Checkpoint"</span>
@@ -360,7 +361,7 @@ Additional arguments if necessary. For learning rate schedulers, this is the tor
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>
