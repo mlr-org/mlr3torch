@@ -100,7 +100,6 @@ graph <- po("torch_ingress_ltnsr") %>>%
   nn("linear", out_features = 10) %>>% nn("relu") %>>% nn("head")
 
 md <- graph$train(mnist_flat)[[1L]]
-print("a")
 md
 
 graph <- graph %>>%
@@ -111,7 +110,6 @@ graph <- graph %>>% po("torch_model_classif", epochs = 10, batch_size = 16)
 
 glrn <- as_learner(graph)
 glrn$train(mnist_flat, row_ids = 1:1000)
-print("b")
 
 path_lin <- nn("linear_1")
 path_nonlin <- nn("linear_2") %>>% nn("relu")
@@ -227,7 +225,6 @@ ti <- tune(
   learner = learner,
   term_evals = 30,
   task = task)
-print("c")
 pvals <- ti$result_learner_param_vals[2:6]
 cat(paste("*", names(pvals), "=", pvals,
  collapse = "\n"), "\n")
@@ -278,7 +275,6 @@ learner <- as_learner(augment %>>% preprocess %>>% resnet)
 learner$id <- "resnet"
 set_validate(learner, 1 / 3)
 learner$train(task, c(12400:12600))
-print("d")
 learner$model$classif.resnet18$model$callbacks$history
 
 task <- tsk("melanoma")
