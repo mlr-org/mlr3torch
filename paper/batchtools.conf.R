@@ -1,1 +1,0 @@
-cluster.functions = batchtools::makeClusterFunctionsInteractive()
