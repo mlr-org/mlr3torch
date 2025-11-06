@@ -6,7 +6,7 @@ Sys.time()
 ```
 
 ```
-## [1] "2025-11-06 13:27:36 CET"
+## [1] "2025-11-06 14:17:32 CET"
 ```
 
 ``` r
@@ -379,9 +379,9 @@ learner$param_set$set_values(
   torch_model_regr.measures_valid = msr("regr.mse"),
   torch_model_regr.epochs = to_tune(upper = 100, internal = TRUE))
 
-library("mlr3mbo")
+library("mlr3tuning")
 ti <- tune(
-  tuner = tnr("mbo"),
+  tuner = tnr("random_search"),
   resampling = rsmp("holdout"),
   measure = msr("internal_valid_score", minimize = TRUE),
   learner = learner,
@@ -393,11 +393,11 @@ cat(paste("*", names(pvals), "=", pvals,
 ```
 
 ```
-## * block.linear.out_features = 464
+## * block.linear.out_features = 248
 ## * block.branch.selection = sigmoid
-## * block.dropout.p = 0.375850691832602
-## * torch_optimizer.lr = 0.00145715908440791
-## * torch_model_regr.epochs = 100
+## * block.dropout.p = 0.861211954243481
+## * torch_optimizer.lr = 0.00310737353560635
+## * torch_model_regr.epochs = 44
 ```
 
 ``` r
@@ -492,18 +492,18 @@ learner$train(task, c(12400:12600))
 ## already available.
 ```
 
-```
-## Error in `runtime_error()` at torchvision/R/models-resnet.R:247:5:
-## ! Corrupt file! Delete the file in ~/Library/Caches/torch/resnet18.pth and try again.
-## This happened in PipeOp classif.resnet18's $train()
-```
-
 ``` r
 learner$model$classif.resnet18$model$callbacks$history
 ```
 
 ```
-## NULL
+##    epoch valid.classif.acc
+##    <num>             <num>
+## 1:     1         0.4179104
+## 2:     2         0.4626866
+## 3:     3         0.8955224
+## 4:     4         0.8955224
+## 5:     5         0.9253731
 ```
 
 ``` r
@@ -630,35 +630,33 @@ sessionInfo()
 ## [1] stats     graphics  grDevices datasets  utils     methods   base     
 ## 
 ## other attached packages:
-##  [1] mlr3viz_0.10.1      torchdatasets_0.3.1 mlr3mbo_0.3.3      
-##  [4] mlr3tuning_1.4.0    paradox_1.0.1       mlr3torch_0.3.2    
-##  [7] torch_0.16.3        future_1.67.0       mlr3pipelines_0.9.0
-## [10] mlr3_1.2.0         
+## [1] mlr3viz_0.10.1      torchdatasets_0.3.1 mlr3tuning_1.4.0   
+## [4] paradox_1.0.1       mlr3torch_0.3.2     torch_0.16.3       
+## [7] future_1.67.0       mlr3pipelines_0.9.0 mlr3_1.2.0         
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] gtable_0.3.6         ggplot2_4.0.0        xfun_0.54           
-##  [4] processx_3.8.6       lattice_0.22-7       callr_3.7.6         
-##  [7] vctrs_0.6.5          tools_4.5.1          ps_1.9.1            
-## [10] safetensors_0.2.0    parallel_4.5.1       tibble_3.3.0        
-## [13] pkgconfig_2.0.3      Matrix_1.7-3         data.table_1.17.8   
-## [16] checkmate_2.3.3      RColorBrewer_1.1-3   S7_0.2.0            
-## [19] assertthat_0.2.1     uuid_1.2-1           lifecycle_1.0.4     
-## [22] farver_2.1.2         compiler_4.5.1       stringr_1.6.0       
-## [25] precrec_0.14.5       codetools_0.2-20     bbotk_1.7.1         
-## [28] pillar_1.11.1        crayon_1.5.3         rpart_4.1.24        
-## [31] parallelly_1.45.1    digest_0.6.37        stringi_1.8.7       
-## [34] listenv_0.10.0       labeling_0.4.3       mlr3measures_1.1.0  
-## [37] rprojroot_2.1.1      grid_4.5.1           here_1.0.2          
-## [40] cli_3.6.5            magrittr_2.0.4       future.apply_1.20.0 
-## [43] withr_3.0.2          scales_1.4.0         backports_1.5.0     
-## [46] rappdirs_0.3.3       bit64_4.6.0-1        spacefillr_0.4.0    
-## [49] globals_0.18.0       jpeg_0.1-11          bit_4.6.0           
-## [52] ranger_0.17.0        evaluate_1.0.5       knitr_1.50          
-## [55] torchvision_0.8.0    viridisLite_0.4.2    mlr3misc_0.19.0     
-## [58] rlang_1.1.6          Rcpp_1.1.0           zeallot_0.2.0       
-## [61] glue_1.8.0           renv_1.1.5           palmerpenguins_0.1.1
-## [64] coro_1.1.0           jsonlite_2.0.0       lgr_0.5.0           
-## [67] R6_2.6.1             fs_1.6.6             mlr3learners_0.13.0
+##  [1] gtable_0.3.6         xfun_0.54            ggplot2_4.0.0       
+##  [4] processx_3.8.6       callr_3.7.6          vctrs_0.6.5         
+##  [7] tools_4.5.1          ps_1.9.1             safetensors_0.2.0   
+## [10] parallel_4.5.1       tibble_3.3.0         pkgconfig_2.0.3     
+## [13] data.table_1.17.8    checkmate_2.3.3      RColorBrewer_1.1-3  
+## [16] S7_0.2.0             assertthat_0.2.1     uuid_1.2-1          
+## [19] lifecycle_1.0.4      compiler_4.5.1       farver_2.1.2        
+## [22] stringr_1.6.0        precrec_0.14.5       codetools_0.2-20    
+## [25] bbotk_1.7.1          pillar_1.11.1        crayon_1.5.3        
+## [28] rpart_4.1.24         parallelly_1.45.1    digest_0.6.37       
+## [31] stringi_1.8.7        listenv_0.10.0       labeling_0.4.3      
+## [34] mlr3measures_1.1.0   rprojroot_2.1.1      grid_4.5.1          
+## [37] here_1.0.2           cli_3.6.5            magrittr_2.0.4      
+## [40] future.apply_1.20.0  withr_3.0.2          scales_1.4.0        
+## [43] backports_1.5.0      rappdirs_0.3.3       bit64_4.6.0-1       
+## [46] globals_0.18.0       jpeg_0.1-11          bit_4.6.0           
+## [49] evaluate_1.0.5       knitr_1.50           torchvision_0.8.0   
+## [52] viridisLite_0.4.2    mlr3misc_0.19.0      rlang_1.1.6         
+## [55] Rcpp_1.1.0           zeallot_0.2.0        glue_1.8.0          
+## [58] renv_1.1.5           palmerpenguins_0.1.1 coro_1.1.0          
+## [61] jsonlite_2.0.0       lgr_0.5.0            R6_2.6.1            
+## [64] fs_1.6.6
 ```
 
 ``` r
@@ -666,6 +664,6 @@ Sys.time()
 ```
 
 ```
-## [1] "2025-11-06 13:33:10 CET"
+## [1] "2025-11-06 14:25:04 CET"
 ```
 

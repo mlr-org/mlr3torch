@@ -168,4 +168,9 @@ If (2) fails, download `dogs-vs-cats.tar.gz` from Zenodo, untar it and put it in
 
 ### Other errors
 
-When reproducing the results with `knitr` in the docker container, we also encountered issues with the weight downloads for the ResNet-18 model.
+When reproducing the results with `knitr` in the docker container, we sometimes encountered issues with the weight downloads for the ResNet-18 model.
+If you also encounter this, delete the problematic model file and download it by running
+
+```r
+torchvision::model_resnet18(pretrained = TRUE)
+```

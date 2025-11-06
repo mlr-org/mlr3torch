@@ -1,7 +1,9 @@
 library(batchtools)
 library(mlr3misc)
 
-setup = function(reg_path, python_path, work_dir) {
+PYTHON_PATH = "/opt/venv/bin/python"
+
+setup = function(reg_path, work_dir) {
   reg = makeExperimentRegistry(
     file.dir = reg_path,
     work.dir = work_dir,
@@ -62,7 +64,7 @@ setup = function(reg_path, python_path, work_dir) {
       )
       print(x)
     }
-    args = c(instance, list(seed = job$seed, jit = jit, python_path = python_path))
+    args = c(instance, list(seed = job$seed, jit = jit, python_path = PYTHON_PATH))
     #do.call(f, args)
     callr::r(f, args = args)
   })

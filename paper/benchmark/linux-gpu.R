@@ -20,8 +20,8 @@ problem_design = expand.grid(
 setup(
   here("paper", "benchmark", "registry-linux-gpu"),
   # This path is relative to the docker container, so no need to change it
- "/usr/bin/python3",
- here("paper")
+  PYTHON_PATH,
+  here("paper")
 )
 
 addExperiments(
