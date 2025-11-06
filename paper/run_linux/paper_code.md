@@ -6,7 +6,7 @@ Sys.time()
 ```
 
 ```
-## [1] "2025-11-04 10:11:04 CET"
+## [1] "2025-11-06 12:53:54 UTC"
 ```
 
 ``` r
@@ -65,7 +65,7 @@ mnist
 
 ```
 ## 
-## ── <TaskClassif> (70000x2): MNIST Digit Classification ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── <TaskClassif> (70000x2): MNIST Digit Classification ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: label
 ```
 
@@ -141,7 +141,7 @@ mlp$model$network
 ```
 ## An `nn_module` containing 100,710 parameters.
 ## 
-## ── Modules ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Modules ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • 0: <nn_linear> #78,500 parameters
 ## • 1: <nn_relu> #0 parameters
 ## • 2: <nn_dropout> #0 parameters
@@ -158,8 +158,8 @@ head(mlp$model$callbacks$history, n = 2)
 ```
 ##    epoch train.classif.logloss
 ##    <num>                 <num>
-## 1:     1              4.504887
-## 2:     2              1.270129
+## 1:     1              4.504909
+## 2:     2              1.270763
 ```
 
 ``` r
@@ -169,7 +169,7 @@ pred$score(msr("classif.ce"))
 
 ```
 ## classif.ce 
-##       0.19
+##       0.18
 ```
 
 ``` r
@@ -227,14 +227,6 @@ graph <- po("torch_ingress_ltnsr") %>>%
   nn("linear", out_features = 10) %>>% nn("relu") %>>% nn("head")
 
 md <- graph$train(mnist_flat)[[1L]]
-print("a")
-```
-
-```
-## [1] "a"
-```
-
-``` r
 md
 ```
 
@@ -257,14 +249,7 @@ graph <- graph %>>% po("torch_model_classif", epochs = 10, batch_size = 16)
 
 glrn <- as_learner(graph)
 glrn$train(mnist_flat, row_ids = 1:1000)
-print("b")
-```
 
-```
-## [1] "b"
-```
-
-``` r
 path_lin <- nn("linear_1")
 path_nonlin <- nn("linear_2") %>>% nn("relu")
 
@@ -358,7 +343,7 @@ task
 
 ```
 ## 
-## ── <TaskRegr> (32x11): Motor Trends ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── <TaskRegr> (32x11): Motor Trends ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: mpg
 ## • Properties: -
 ## • Features (10):
@@ -406,33 +391,25 @@ learner$param_set$set_values(
   torch_model_regr.measures_valid = msr("regr.mse"),
   torch_model_regr.epochs = to_tune(upper = 100, internal = TRUE))
 
-library("mlr3mbo")
+library("mlr3tuning")
 ti <- tune(
-  tuner = tnr("mbo"),
+  tuner = tnr("random_search"),
   resampling = rsmp("holdout"),
   measure = msr("internal_valid_score", minimize = TRUE),
   learner = learner,
   term_evals = 30,
   task = task)
-print("c")
-```
-
-```
-## [1] "c"
-```
-
-``` r
 pvals <- ti$result_learner_param_vals[2:6]
 cat(paste("*", names(pvals), "=", pvals,
  collapse = "\n"), "\n")
 ```
 
 ```
-## * block.linear.out_features = 464
+## * block.linear.out_features = 248
 ## * block.branch.selection = sigmoid
-## * block.dropout.p = 0.375850691832602
-## * torch_optimizer.lr = 0.00145715908440791
-## * torch_model_regr.epochs = 100
+## * block.dropout.p = 0.861211954243481
+## * torch_optimizer.lr = 0.00310737353560635
+## * torch_model_regr.epochs = 44
 ```
 
 ``` r
@@ -494,7 +471,7 @@ task
 
 ```
 ## 
-## ── <TaskClassif> (25000x2) ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── <TaskClassif> (25000x2) ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: class
 ## • Target classes: cat (positive class, 50%), dog (50%)
 ## • Properties: twoclass
@@ -520,11 +497,11 @@ learner <- as_learner(augment %>>% preprocess %>>% resnet)
 learner$id <- "resnet"
 set_validate(learner, 1 / 3)
 learner$train(task, c(12400:12600))
-print("d")
 ```
 
 ```
-## [1] "d"
+## Model weights for <resnet18> (~45 MB) will be downloaded and processed if not
+## already available.
 ```
 
 ``` r
@@ -534,11 +511,11 @@ learner$model$classif.resnet18$model$callbacks$history
 ```
 ##    epoch valid.classif.acc
 ##    <num>             <num>
-## 1:     1         0.4776119
-## 2:     2         0.5074627
+## 1:     1         0.4179104
+## 2:     2         0.4477612
 ## 3:     3         0.8955224
-## 4:     4         0.9402985
-## 5:     5         0.9701493
+## 4:     4         0.8955224
+## 5:     5         0.9253731
 ```
 
 ``` r
@@ -548,7 +525,7 @@ task
 
 ```
 ## 
-## ── <TaskClassif> (32701x5): Melanoma Classification ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── <TaskClassif> (32701x5): Melanoma Classification ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: outcome
 ## • Target classes: malignant (positive class, 2%), benign (98%)
 ## • Properties: twoclass, groups
@@ -648,53 +625,55 @@ sessionInfo()
 
 ```
 ## R version 4.5.1 (2025-06-13)
-## Platform: aarch64-apple-darwin20
-## Running under: macOS Sequoia 15.2
+## Platform: x86_64-pc-linux-gnu
+## Running under: Ubuntu 24.04.3 LTS
 ## 
 ## Matrix products: default
-## BLAS:   /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRblas.0.dylib 
-## LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+## BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 
+## LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.26.so;  LAPACK version 3.12.0
 ## 
 ## locale:
-## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
 ## 
-## time zone: Europe/Berlin
-## tzcode source: internal
+## time zone: Etc/UTC
+## tzcode source: system (glibc)
 ## 
 ## attached base packages:
-## [1] stats     graphics  grDevices datasets  utils     methods   base     
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] mlr3viz_0.10.1      torchdatasets_0.3.1 mlr3mbo_0.3.3      
-##  [4] mlr3tuning_1.4.0    paradox_1.0.1       mlr3torch_0.3.2    
-##  [7] torch_0.16.3        future_1.67.0       mlr3pipelines_0.9.0
-## [10] mlr3_1.2.0         
+## [1] mlr3viz_0.10.1      torchdatasets_0.3.1 mlr3tuning_1.4.0   
+## [4] paradox_1.0.1       mlr3torch_0.3.2     torch_0.16.3       
+## [7] future_1.67.0       mlr3pipelines_0.9.0 mlr3_1.2.0         
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] gtable_0.3.6         xfun_0.54            ggplot2_4.0.0       
-##  [4] processx_3.8.6       lattice_0.22-7       callr_3.7.6         
-##  [7] vctrs_0.6.5          tools_4.5.1          ps_1.9.1            
-## [10] safetensors_0.2.0    curl_7.0.0           parallel_4.5.1      
-## [13] tibble_3.3.0         pkgconfig_2.0.3      Matrix_1.7-3        
-## [16] data.table_1.17.8    checkmate_2.3.3      RColorBrewer_1.1-3  
-## [19] S7_0.2.0             assertthat_0.2.1     uuid_1.2-1          
-## [22] lifecycle_1.0.4      farver_2.1.2         compiler_4.5.1      
-## [25] stringr_1.5.2        precrec_0.14.5       codetools_0.2-20    
-## [28] bbotk_1.7.1          pillar_1.11.1        crayon_1.5.3        
-## [31] rpart_4.1.24         parallelly_1.45.1    digest_0.6.37       
-## [34] stringi_1.8.7        listenv_0.10.0       labeling_0.4.3      
-## [37] mlr3measures_1.1.0   rprojroot_2.1.1      grid_4.5.1          
-## [40] here_1.0.2           cli_3.6.5            magrittr_2.0.4      
-## [43] future.apply_1.20.0  withr_3.0.2          scales_1.4.0        
-## [46] backports_1.5.0      rappdirs_0.3.3       bit64_4.6.0-1       
-## [49] spacefillr_0.4.0     globals_0.18.0       jpeg_0.1-11         
-## [52] bit_4.6.0            ranger_0.17.0        evaluate_1.0.5      
-## [55] knitr_1.50           torchvision_0.7.0    viridisLite_0.4.2   
-## [58] mlr3misc_0.19.0      rlang_1.1.6          Rcpp_1.1.0          
-## [61] zeallot_0.2.0        glue_1.8.0           renv_1.1.5          
-## [64] palmerpenguins_0.1.1 coro_1.1.0           jsonlite_2.0.0      
-## [67] lgr_0.5.0            R6_2.6.1             fs_1.6.6            
-## [70] mlr3learners_0.13.0
+##  [4] processx_3.8.6       callr_3.7.6          vctrs_0.6.5         
+##  [7] tools_4.5.1          ps_1.9.1             safetensors_0.2.0   
+## [10] curl_7.0.0           parallel_4.5.1       tibble_3.3.0        
+## [13] pkgconfig_2.0.3      data.table_1.17.8    checkmate_2.3.3     
+## [16] RColorBrewer_1.1-3   S7_0.2.0             assertthat_0.2.1    
+## [19] uuid_1.2-1           lifecycle_1.0.4      compiler_4.5.1      
+## [22] farver_2.1.2         stringr_1.6.0        precrec_0.14.5      
+## [25] codetools_0.2-20     bbotk_1.7.1          pillar_1.11.1       
+## [28] crayon_1.5.3         rpart_4.1.24         parallelly_1.45.1   
+## [31] digest_0.6.37        stringi_1.8.7        listenv_0.10.0      
+## [34] labeling_0.4.3       mlr3measures_1.1.0   rprojroot_2.1.1     
+## [37] grid_4.5.1           here_1.0.2           cli_3.6.5           
+## [40] magrittr_2.0.4       future.apply_1.20.0  withr_3.0.2         
+## [43] scales_1.4.0         backports_1.5.0      rappdirs_0.3.3      
+## [46] bit64_4.6.0-1        globals_0.18.0       jpeg_0.1-11         
+## [49] bit_4.6.0            evaluate_1.0.5       knitr_1.50          
+## [52] torchvision_0.8.0    viridisLite_0.4.2    mlr3misc_0.19.0     
+## [55] rlang_1.1.6          Rcpp_1.1.0           zeallot_0.2.0       
+## [58] glue_1.8.0           palmerpenguins_0.1.1 coro_1.1.0          
+## [61] jsonlite_2.0.0       lgr_0.5.0            R6_2.6.1            
+## [64] fs_1.6.6
 ```
 
 ``` r
@@ -702,6 +681,6 @@ Sys.time()
 ```
 
 ```
-## [1] "2025-11-04 10:23:47 CET"
+## [1] "2025-11-06 13:06:51 UTC"
 ```
 
