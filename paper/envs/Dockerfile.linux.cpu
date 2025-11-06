@@ -18,27 +18,10 @@ RUN pip  install --no-cache-dir --upgrade pip \
 RUN Rscript --vanilla -e 'options(repos = c(CRAN = "https://cloud.r-project.org")); install.packages("stringi")'
 
 COPY .Rprofile /usr/local/lib/R/etc/Rprofile.site
+COPY envs/renv/renv.lock . 
 
-RUN R -q -e "install.packages('torch'); torch::install_torch() "
-
-RUN R -q -e "install.packages(c( \
-  'mlr3mbo', \
-  'torchdatasets', \
-  'mlr3viz', \
-  'batchtools', \
-  'here', \
-  'reticulate', \
-  'cowplot', \
-  'remotes', \
-  'precrec', \
-  'knitr', \
-  'mlr3learners', \
-  'ranger', \
-  'rgenoud', \
-  'DiceKriging', \
-  'markdown' \
-))"
-
-RUN R -q -e "install.packages('mlr3torch')"
+RUN R -q -e "install.packages('renv')"
+RUN R -q -e "options(renv.config.repos.override = c(CRAN = 'https://packagemanager.posit.co/cran/latest')); renv::restore(lockfile = 'renv.lock', library = .libPaths()[1], prompt = FALSE)"
+RUN R -q -e "torch::install_torch()"
 
 CMD ["bash"]
