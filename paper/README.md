@@ -152,7 +152,7 @@ knitr::knit('paper_code_cheap_cpu.Rmd')
 
 The results of running this on the CPU container are included in `paper_code_cheap_cpu.md`
 
-### Possible Data Inavailability
+### Possible Data Unavailability
 
 The code shown in the paper downloads various datasets from standard resources.
 In the unlikely, but possible event that these datasets are not available anymore, we include:
@@ -164,4 +164,4 @@ in the Zenodo data.
 
 If one of the downloads (1) fails, download the `cache.tar.gz` file from zenodo, untar it and put it in the location where the cache is (put it as `/root/.cache/` when using the docker images).
 
-If (2) fails, move download `dogs-vs-cats.tar.gz` from Zenodo, untar it and put it into `./paper/data`.
+If (2) fails, download `dogs-vs-cats.tar.gz` from Zenodo, untar it and put it into `./paper/data`.

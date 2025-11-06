@@ -6,7 +6,7 @@ Sys.time()
 ```
 
 ```
-## [1] "2025-11-06 11:04:28 CET"
+## [1] "2025-11-06 09:39:55 UTC"
 ```
 
 ``` r
@@ -67,6 +67,18 @@ mnist
 ## 
 ## ── <TaskClassif> (70000x2): MNIST Digit Classification ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: label
+```
+
+```
+## Dataset <mnist> (~12 MB) will be downloaded and processed if not already available.
+## Downloading <mnist> ...
+## Processing <mnist>...
+## Dataset <mnist> downloaded and extracted successfully.
+## Dataset <mnist> loaded with 60000 images.
+## Dataset <mnist> loaded with 10000 images.
+```
+
+```
 ## • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0 (10%), 6 (10%), 8 (10%), 4 (10%), 5 (9%)
 ## • Properties: multiclass
 ## • Features (1):
@@ -146,8 +158,8 @@ head(mlp$model$callbacks$history, n = 2)
 ```
 ##    epoch train.classif.logloss
 ##    <num>                 <num>
-## 1:     1              4.504887
-## 2:     2              1.270129
+## 1:     1              4.504909
+## 2:     2              1.270763
 ```
 
 ``` r
@@ -157,7 +169,7 @@ pred$score(msr("classif.ce"))
 
 ```
 ## classif.ce 
-##       0.19
+##       0.18
 ```
 
 ``` r
@@ -393,11 +405,11 @@ cat(paste("*", names(pvals), "=", pvals,
 ```
 
 ```
-## * block.linear.out_features = 464
+## * block.linear.out_features = 416
 ## * block.branch.selection = sigmoid
-## * block.dropout.p = 0.375850691832602
-## * torch_optimizer.lr = 0.00145715908440791
-## * torch_model_regr.epochs = 100
+## * block.dropout.p = 0.870652055740356
+## * torch_optimizer.lr = 0.00135355895715398
+## * torch_model_regr.epochs = 76
 ```
 
 ``` r
@@ -494,7 +506,7 @@ learner$model$classif.resnet18$model$callbacks$history
 ## 1:     1         0.4776119
 ## 2:     2         0.5074627
 ## 3:     3         0.8955224
-## 4:     4         0.9402985
+## 4:     4         0.9552239
 ## 5:     5         0.9701493
 ```
 
@@ -605,18 +617,23 @@ sessionInfo()
 
 ```
 ## R version 4.5.1 (2025-06-13)
-## Platform: aarch64-apple-darwin20
-## Running under: macOS Sequoia 15.2
+## Platform: x86_64-pc-linux-gnu
+## Running under: Ubuntu 24.04.3 LTS
 ## 
 ## Matrix products: default
-## BLAS:   /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRblas.0.dylib 
-## LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+## BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 
+## LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.26.so;  LAPACK version 3.12.0
 ## 
 ## locale:
-## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
 ## 
-## time zone: Europe/Berlin
-## tzcode source: internal
+## time zone: Etc/UTC
+## tzcode source: system (glibc)
 ## 
 ## attached base packages:
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
@@ -624,35 +641,33 @@ sessionInfo()
 ## other attached packages:
 ##  [1] mlr3viz_0.10.1      torchdatasets_0.3.1 mlr3mbo_0.3.3      
 ##  [4] mlr3tuning_1.4.0    paradox_1.0.1       mlr3torch_0.3.2    
-##  [7] torch_0.16.3        future_1.67.0       mlr3pipelines_0.9.0
-## [10] mlr3_1.2.0         
+##  [7] torch_0.16.2        future_1.67.0       mlr3pipelines_0.9.0
+## [10] mlr3_1.2.0          markdown_2.0       
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] gtable_0.3.6         ggplot2_4.0.0        xfun_0.54           
+##  [1] gtable_0.3.6         xfun_0.54            ggplot2_4.0.0       
 ##  [4] processx_3.8.6       lattice_0.22-7       callr_3.7.6         
-##  [7] generics_0.1.4       vctrs_0.6.5          tools_4.5.1         
-## [10] ps_1.9.1             safetensors_0.2.0    parallel_4.5.1      
+##  [7] vctrs_0.6.5          tools_4.5.1          ps_1.9.1            
+## [10] safetensors_0.2.0    curl_7.0.0           parallel_4.5.1      
 ## [13] tibble_3.3.0         pkgconfig_2.0.3      Matrix_1.7-3        
 ## [16] data.table_1.17.8    checkmate_2.3.3      RColorBrewer_1.1-3  
 ## [19] S7_0.2.0             assertthat_0.2.1     uuid_1.2-1          
 ## [22] lifecycle_1.0.4      farver_2.1.2         compiler_4.5.1      
-## [25] stringr_1.5.1        precrec_0.14.5       codetools_0.2-20    
-## [28] bbotk_1.6.0          pillar_1.10.2        crayon_1.5.3        
-## [31] rpart_4.1.24         parallelly_1.45.1    tidyselect_1.2.1    
-## [34] zip_2.3.3            digest_0.6.37        stringi_1.8.7       
-## [37] dplyr_1.1.4          listenv_0.9.1        labeling_0.4.3      
-## [40] mlr3measures_1.0.0   rprojroot_2.1.1      grid_4.5.1          
-## [43] here_1.0.2           cli_3.6.5            magrittr_2.0.3      
-## [46] future.apply_1.20.0  withr_3.0.2          scales_1.4.0        
-## [49] backports_1.5.0      rappdirs_0.3.3       bit64_4.6.0-1       
-## [52] spacefillr_0.4.0     globals_0.18.0       jpeg_0.1-11         
-## [55] bit_4.6.0            ranger_0.17.0        evaluate_1.0.4      
-## [58] knitr_1.50           torchvision_0.7.0    viridisLite_0.4.2   
-## [61] mlr3misc_0.19.0      rlang_1.1.6          Rcpp_1.1.0          
-## [64] zeallot_0.2.0        glue_1.8.0           renv_1.1.5          
-## [67] palmerpenguins_0.1.1 coro_1.1.0           jsonlite_2.0.0      
-## [70] lgr_0.5.0            R6_2.6.1             fs_1.6.6            
-## [73] mlr3learners_0.13.0
+## [25] stringr_1.6.0        precrec_0.14.5       codetools_0.2-20    
+## [28] bbotk_1.7.1          pillar_1.11.1        crayon_1.5.3        
+## [31] rpart_4.1.24         parallelly_1.45.1    digest_0.6.37       
+## [34] stringi_1.8.7        listenv_0.10.0       labeling_0.4.3      
+## [37] mlr3measures_1.1.0   rprojroot_2.1.1      grid_4.5.1          
+## [40] here_1.0.2           cli_3.6.5            magrittr_2.0.4      
+## [43] future.apply_1.20.0  withr_3.0.2          scales_1.4.0        
+## [46] backports_1.5.0      rappdirs_0.3.3       bit64_4.6.0-1       
+## [49] spacefillr_0.4.0     globals_0.18.0       jpeg_0.1-11         
+## [52] bit_4.6.0            ranger_0.17.0        evaluate_1.0.5      
+## [55] knitr_1.50           torchvision_0.7.0    viridisLite_0.4.2   
+## [58] mlr3misc_0.19.0      rlang_1.1.6          Rcpp_1.1.0          
+## [61] zeallot_0.2.0        glue_1.8.0           palmerpenguins_0.1.1
+## [64] coro_1.1.0           jsonlite_2.0.0       lgr_0.5.0           
+## [67] R6_2.6.1             fs_1.6.6             mlr3learners_0.13.0
 ```
 
 ``` r
@@ -660,6 +675,6 @@ Sys.time()
 ```
 
 ```
-## [1] "2025-11-06 11:15:22 CET"
+## [1] "2025-11-06 09:51:01 UTC"
 ```
 
