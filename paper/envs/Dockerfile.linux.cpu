@@ -35,7 +35,8 @@ RUN R -q -e "install.packages(c( \
   'mlr3learners', \
   'ranger', \
   'rgenoud', \
-  'DiceKriging' \
+  'DiceKriging', \
+  'markdown'
 ))"
 
 RUN R -q -e "install.packages('mlr3torch')"
