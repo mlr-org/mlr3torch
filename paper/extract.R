@@ -44,7 +44,7 @@ cat("Extracted code lines:\n")
 cat(paste(code_lines, collapse = "\n"), "\n")
 
 # Optionally, write the result to a file
-output_file <- "paper/paper_code.Rmd"
+output_file <- "paper/paper_code.R"
 # Create the Rmd content
 rmd_content <- c(
   "---",
@@ -59,5 +59,12 @@ rmd_content <- c(
   "```"
 )
 
-writeLines(rmd_content, output_file)
-cat("Rmd file written to:", output_file, "\n")
+code_lines <- c(
+  "options(mlr3torch.cache = TRUE)",
+  "lgr::get_logger('mlr3')$set_threshold('warn')",
+  code_lines,
+  "saveRDS(.Last.value, here::here(\"paper\", \"roc.rds\"))",
+  "sessionInfo()"
+)
+
+writeLines(code_lines, output_file)
