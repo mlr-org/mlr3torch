@@ -66,5 +66,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     liblapack3 libblas3 gfortran && \
     rm -rf /var/lib/apt/lists/*
 RUN R -q -e "options(renv.config.repos.override = c(pppm = 'https://packagemanager.posit.co/cran/latest', cran = 'https://cloud.r-project.org/')); renv::restore(lockfile = 'renv.lock', library = .libPaths()[1], prompt = FALSE)"
-RUN R -q -e "torch::install_torch()"
+RUN R -q -e "torch::install_torch() "
 CMD ["bash"]
