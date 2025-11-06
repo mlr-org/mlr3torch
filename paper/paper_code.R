@@ -1,17 +1,11 @@
----
-title: "Extracted Code from mlr3torch Paper"
-author: "mlr3torch"
-date: "`r Sys.Date()`"
-output: html_document
----
+#' ```{r setup, include=FALSE}
+#' knitr::opts_chunk$set(cache = FALSE)
+#' ```
 
 
-```{r}
+Sys.time()
 options(mlr3torch.cache = TRUE)
-lgr::get_logger("mlr3")$set_threshold("warn")
-```
-
-```{r}
+lgr::get_logger('mlr3')$set_threshold('warn')
 library("mlr3")
 set.seed(42)
 task <- tsk("mtcars")
@@ -57,17 +51,17 @@ mlp <- lrn("classif.mlp",
 mlp$param_set$set_values(
   neurons = c(100, 200), activation = torch::nn_relu,
   p = 0.3, opt.weight_decay = 0.01, measures_train = msr("classif.logloss"),
-  epochs = 10, batch_size = 32, device = "cuda")
+  epochs = 10, batch_size = 32, device = "cpu")
 
 mlp$configure(predict_type = "prob")
 
-mlp$train(mnist_flat, row_ids = 1:60000)
+mlp$train(mnist_flat, row_ids = 1:1001)
 
 mlp$model$network
 
 head(mlp$model$callbacks$history, n = 2)
 
-pred <- mlp$predict(mnist_flat, row_ids = 60001:70000)
+pred <- mlp$predict(mnist_flat, row_ids = 1001:1100)
 pred$score(msr("classif.ce"))
 
 pth <- tempfile()
@@ -106,6 +100,7 @@ graph <- po("torch_ingress_ltnsr") %>>%
   nn("linear", out_features = 10) %>>% nn("relu") %>>% nn("head")
 
 md <- graph$train(mnist_flat)[[1L]]
+print("a")
 md
 
 graph <- graph %>>%
@@ -115,7 +110,8 @@ graph <- graph %>>%
 graph <- graph %>>% po("torch_model_classif", epochs = 10, batch_size = 16)
 
 glrn <- as_learner(graph)
-glrn$train(mnist_flat)
+glrn$train(mnist_flat, row_ids = 1:1000)
+print("b")
 
 path_lin <- nn("linear_1")
 path_nonlin <- nn("linear_2") %>>% nn("relu")
@@ -187,11 +183,8 @@ lrn_ffn <- lrn("classif.module",
   ingress_tokens = num_input,
   latent_dim = 100, n_layers = 5)
 
-task <- tsk("california_housing")
+task <- tsk("mtcars")
 task
-
-preprocessing <- po("encode", method = "one-hot") %>>%
-  po("imputehist")
 
 ingress <- po("torch_ingress_num")
 
@@ -204,9 +197,9 @@ architecture <- nn("block", block) %>>% nn("head")
 config <- po("torch_loss", loss = t_loss("mse")) %>>%
   po("torch_optimizer", optimizer = t_opt("adamw"))
 
-model <- po("torch_model_regr", device = "cuda", batch_size = 512)
+model <- po("torch_model_regr", device = "cpu", batch_size = 512)
 
-pipeline <- preprocessing %>>% ingress %>>%
+pipeline <- ingress %>>%
   architecture %>>% config %>>% model
 learner <- as_learner(pipeline)
 learner$id <- "custom_nn"
@@ -232,9 +225,10 @@ ti <- tune(
   resampling = rsmp("holdout"),
   measure = msr("internal_valid_score", minimize = TRUE),
   learner = learner,
-  term_evals = 40,
+  term_evals = 30,
   task = task)
-pvals <- ti$result_learner_param_vals[2:7]
+print("c")
+pvals <- ti$result_learner_param_vals[2:6]
 cat(paste("*", names(pvals), "=", pvals,
  collapse = "\n"), "\n")
 
@@ -276,14 +270,15 @@ unfreezer <- t_clbk("unfreeze",
   unfreeze = data.table(epoch = 3, weights = select_all()))
 
 resnet <- lrn("classif.resnet18",
-  pretrained = TRUE, epochs = 5, device = "cuda", batch_size = 32,
+  pretrained = TRUE, epochs = 5, device = "cpu", batch_size = 32,
   opt.lr = 1e-4, measures_valid = msr("classif.acc"),
   callbacks = list(unfreezer, t_clbk("history")))
 
 learner <- as_learner(augment %>>% preprocess %>>% resnet)
 learner$id <- "resnet"
 set_validate(learner, 1 / 3)
-learner$train(task)
+learner$train(task, c(12400:12600))
+print("d")
 learner$model$classif.resnet18$model$callbacks$history
 
 task <- tsk("melanoma")
@@ -304,16 +299,16 @@ path_tabular <- po("select_1",
 
 path_image <- po("select_2", selector = selector_name("image")) %>>%
   po("torch_ingress_ltnsr", shape = c(NA, 3, 128, 128)) %>>%
-  nn("conv2d_1", out_channels = 64, kernel_size = 7, stride = 2,
+  nn("conv2d_1", out_channels = 16, kernel_size = 7, stride = 2,
     padding = 3) %>>%
   nn("batch_norm2d_1") %>>%
   nn("relu_1") %>>%
   nn("max_pool2d_1", kernel_size = 3, stride = 2, padding = 1) %>>%
-  nn("conv2d_2", out_channels = 128, kernel_size = 3, stride = 1,
+  nn("conv2d_2", out_channels = 32, kernel_size = 3, stride = 1,
     padding = 1) %>>%
   nn("batch_norm2d_2") %>>%
   nn("relu_2") %>>%
-  nn("conv2d_3", out_channels = 256, kernel_size = 3, stride = 1,
+  nn("conv2d_3", out_channels = 64, kernel_size = 3, stride = 1,
     padding = 1) %>>%
   nn("batch_norm2d_3") %>>%
   nn("relu_3") %>>%
@@ -327,7 +322,7 @@ model <- architecture %>>%
   po("torch_loss",
     t_loss("cross_entropy", class_weight = torch_tensor(10))) %>>%
   po("torch_optimizer", t_opt("adamw", lr = 0.0005)) %>>%
-  po("torch_model_classif", epochs = 4, batch_size = 32, device = "cuda",
+  po("torch_model_classif", epochs = 4, batch_size = 32, device = "cpu",
     predict_type = "prob")
 
 preprocessing <- po("classbalancing", ratio = 4, reference = "minor",
@@ -339,11 +334,12 @@ glrn <- as_learner(preprocessing %>>% model)
 
 library("mlr3viz")
 glrn$id <- "multimodal"
-rr <- resample(task, glrn, rsmp("cv", folds = 5))
-plt <- autoplot(rr, type = "roc")
-saveRDS(plt, here::here("paper/roc.rds"))
-```
+task_subset <- task$clone(deep = TRUE)
+subset <- partition(task_subset, ratio = 0.1)$train
+task_subset$filter(subset)
+rr <- resample(task_subset, glrn, rsmp("holdout"))
+autoplot(rr, type = "roc")
 
-```{r}
+saveRDS(.Last.value, here::here("paper", "roc.rds"))
 sessionInfo()
-```
+Sys.time()
