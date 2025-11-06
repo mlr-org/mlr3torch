@@ -217,9 +217,9 @@ learner$param_set$set_values(
   torch_model_regr.measures_valid = msr("regr.mse"),
   torch_model_regr.epochs = to_tune(upper = 100, internal = TRUE))
 
-library("mlr3mbo")
+library("mlr3tuning")
 ti <- tune(
-  tuner = tnr("mbo"),
+  tuner = tnr("random_search"),
   resampling = rsmp("holdout"),
   measure = msr("internal_valid_score", minimize = TRUE),
   learner = learner,

@@ -165,3 +165,7 @@ in the Zenodo data.
 If one of the downloads (1) fails, download the `cache.tar.gz` file from zenodo, untar it and put it in the location where the cache is (put it as `/root/.cache/` when using the docker images).
 
 If (2) fails, download `dogs-vs-cats.tar.gz` from Zenodo, untar it and put it into `./paper/data`.
+
+### Other errors
+
+When reproducing the results with `knitr` in the docker container, we also encountered issues with the weight downloads for the ResNet-18 model.
