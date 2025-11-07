@@ -1,8 +1,6 @@
 #' ```{r setup, include=FALSE}
 #' knitr::opts_chunk$set(cache = FALSE)
 #' ```
-
-
 Sys.time()
 options(mlr3torch.cache = TRUE)
 lgr::get_logger('mlr3')$set_threshold('warn')
@@ -55,7 +53,7 @@ mlp$param_set$set_values(
 
 mlp$configure(predict_type = "prob")
 
-mlp$train(mnist_flat, row_ids = 1:1001)
+mlp$train(mnist_flat, row_ids = 1:1000)
 
 mlp$model$network
 
@@ -225,7 +223,7 @@ ti <- tune(
   learner = learner,
   term_evals = 30,
   task = task)
-pvals <- ti$result_learner_param_vals[2:6]
+pvals <- ti$result_learner_param_vals[1:6]
 cat(paste("*", names(pvals), "=", pvals,
  collapse = "\n"), "\n")
 
@@ -334,8 +332,8 @@ task_subset <- task$clone(deep = TRUE)
 subset <- partition(task_subset, ratio = 0.1)$train
 task_subset$filter(subset)
 rr <- resample(task_subset, glrn, rsmp("holdout"))
-autoplot(rr, type = "roc")
+plt <- autoplot(rr, type = "roc")
 
-saveRDS(.Last.value, here::here("paper", "roc.rds"))
-sessionInfo()
+saveRDS(plt, here::here("paper", "roc.rds"))
 Sys.time()
+sessionInfo()

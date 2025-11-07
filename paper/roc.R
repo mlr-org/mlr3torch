@@ -3,7 +3,7 @@ library(here)
 
 # Just postproceses the ROC curve plot for better readability
 
-plt = readRDS(here("paper", "roc.rds"))
+plt = readRDS(here("paper", "paper_results", "roc.rds"))
 # increase the size of x axis and x labels and y axis and y labels
 
 plt = plt +

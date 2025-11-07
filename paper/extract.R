@@ -59,12 +59,19 @@ rmd_content <- c(
   "```"
 )
 
+code_lines[startsWith(code_lines, "autoplot")] <- paste0("plt <- ", code_lines[startsWith(code_lines, "autoplot")])
 code_lines <- c(
+  "#' ```{r setup, include=FALSE}",
+  "#' knitr::opts_chunk$set(cache = FALSE)",
+  "#' ```",
+  "Sys.time()",
   "options(mlr3torch.cache = TRUE)",
   "lgr::get_logger('mlr3')$set_threshold('warn')",
   code_lines,
-  "saveRDS(.Last.value, here::here(\"paper\", \"roc.rds\"))",
+  "saveRDS(plt, here::here(\"paper\", \"roc.rds\"))",
+  "Sys.time()",
   "sessionInfo()"
 )
+
 
 writeLines(code_lines, output_file)
