@@ -2,7 +2,16 @@
 
 ## Computational Environment
 
-For reproducibility, two linux docker images are provided for CPU and CUDA GPU, see the Zenodo link in the appendix of the paper.
+In order to reproduce the results, you can either use the provided docker images or recreate the `renv` environment that is located in `./paper/envs/renv`.
+
+You can do this by going into the `./paper/envs/renv` directory and running:
+
+```r
+renv::init()
+```
+
+We are also providing two docker images for CPU and CUDA GPU that have the same packages from the `renv.lock` file installed.
+They can be downloaded from Zenodo: INSERT LINK HERE.
 
 You can, e.g., download the images via the [zenodo-client](https://pypi.org/project/zenodo-client/) library:
 
@@ -53,7 +62,14 @@ Some code expects this directory structure, so make sure to mount the directory 
 
 Note that while the benchmark uses `batchtools` for experiment definition, we don't use it for job submission in order to ensure that all GPU and CPU benchmarks respectively are run on the same machine.
 
-### Running locally
+For running the benchmarks, we strongly recommend using the docker images, because we need both PyTorch and (R-)torch, which can be somewhat tricky to setup, especially when using CUDA.
+
+If you want to run it without the docker image, you need to ajust the `PYTHON_PATH` variable in `./paper/benchmark/benchmark.R` to the path to your Python installation and ensure that `pytorch` is installed and the `"pytorch"` algorithm in `./paper/benchmark/benchmark.R` initializes the correct python environment.
+
+You can still reproduce the results that compare (R) `torch` with `mlr3torch` without the python environment.
+See further down how to run only a subset of the jobs.
+
+### Running the Benchmarks
 
 Note that it's important to have enough RAM, otherwise the benchmarks will be incomparable.
 
@@ -122,35 +138,33 @@ These commands generate the files:
 * `paper/benchmark/plot_benchmark_relative.png`
 * `paper/benchmark/plot_optimizer.png`
 
-## Running the Paper Code
+## Recreating the Paper Code
 
-In the docker container, run the following code from the `./paper` directory.
-This requires access to an NVIDIA GPU and usage of the CUDA docker image.
+The file `./paper/paper_code.R` contains the code from the paper.
+
+You can reproduce it by running:
 
 ```r
-knitr::knit('paper_code.Rmd')
+knitr::spin("paper_code.R")
 ```
 
-Note that this Rmd file was extracted from the tex source using `extract.R`.
-However, we added some minor modifications, which includes:
+We provide the results of running this in `./paper/paper_results`.
 
+The results in the paper are those from the CPU docker image and they were fully reproducible when we re-ran them on the same machine.
+There were some minor differences in results when re-running the code on a different machine (macOS with M1 CPU vs Linux Intel CPU).
+
+The file `paper_code.R` contains some very minor differences to the paper we omitted in the paper for brevity:
+It was extracted from the tex manuscript fully programmatically using `extract.R`.
+
+* Time measurements (`Sys.time()`)
+* Deactivate knitr caching
 * Activating caching for `mlr3torch`
 * Changing the `mlr3` logging level to `warn` for cleaner output
 * Saving the ROC plot for postprocessing
 * Adding a `sessionInfo()` call at the end
 
-The result of the above is `paper_code.md`.
+The results are stored in `./paper/paper_results/paper_code.md`.
 The ROC plot is postprocessed using the `roc.R` script and saved in `paper/roc.rds`.
-
-In order to demonstrate reprodicbility of the code on CPU (see paper Appendix A), we include a considerably simplified version of the paper code, where the tasks are subset to only contain a few rows and some other hyperparameters are adjusted.
-This means the results are "worse" and less realistic, but it allows to run the code easily on a CPU in a reasonable amount of time.
-Use the linux Docker image for CPU for this.
-
-```r
-knitr::knit('paper_code_cheap_cpu.Rmd')
-```
-
-The results of running this on the CPU container are included in `paper_code_cheap_cpu.md`
 
 ### Possible Data Unavailability
 
@@ -164,12 +178,13 @@ in the Zenodo data.
 
 If one of the downloads (1) fails, download the `cache.tar.gz` file from zenodo, untar it and put it in the location where the cache is (put it as `/root/.cache/` when using the docker images).
 
-If (2) fails, download `dogs-vs-cats.tar.gz` from Zenodo, untar it and put it into `./paper/data`.
+If (2) fails, download `dogs-vs-cats.tar.gz` from Zenodo, untar it and put it into the directory where you are running the `paper_code.R`.
 
 ### Other errors
 
 When reproducing the results with `knitr` in the docker container, we sometimes encountered issues with the weight downloads for the ResNet-18 model.
-If you also encounter this, delete the problematic model file and download it by running
+This was not an issue when reproducing without `knitr`.
+If you also encounter this, delete the problematic model file (you can determine the torch cache directory via `rappdirs::user_cache_dir("torch")`) and download it by running:
 
 ```r
 torchvision::model_resnet18(pretrained = TRUE)

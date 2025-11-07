@@ -14,18 +14,12 @@ tbl = rbindlist(list(tbl1, tbl2))
 
 tbl_linux_cuda = tbl[device == "cuda" & os == "linux", ]
 tbl_linux_cpu = tbl[device == "cpu" & os == "linux", ]
-tbl_macos_mps = tbl[device == "mps" & os == "macos", ]
-tbl_macos_cpu = tbl[device == "cpu" & os == "macos", ]
 
 plt <- function(opt_name, gpu, os, show_y_label = TRUE, show_x_label = TRUE) {
   tbl = if (os == "linux" && gpu) {
     tbl_linux_cuda
   } else if (os == "linux" && !gpu) {
     tbl_linux_cpu
-  } else if (os == "macos" && gpu) {
-    tbl_macos_mps
-  } else if (os == "macos" && !gpu) {
-    tbl_macos_cpu
   } else {
     stop()
   }
@@ -113,10 +107,6 @@ plt_relative <- function(opt_name, gpu, os, show_y_label = TRUE, show_x_label = 
     tbl_linux_cuda
   } else if (os == "linux" && !gpu) {
     tbl_linux_cpu
-  } else if (os == "macos" && gpu) {
-    tbl_macos_mps
-  } else if (os == "macos" && !gpu) {
-    tbl_macos_cpu
   } else {
     stop()
   }
