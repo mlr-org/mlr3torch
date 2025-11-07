@@ -11,7 +11,7 @@ renv::init()
 ```
 
 We are also providing two docker images for CPU and CUDA GPU that have the same packages from the `renv.lock` file installed.
-They can be downloaded from Zenodo: INSERT LINK HERE.
+They can be downloaded from Zenodo: https://doi.org/10.5281/zenodo.17151890.
 
 You can, e.g., download the images via the [zenodo-client](https://pypi.org/project/zenodo-client/) library:
 
@@ -46,6 +46,8 @@ To start the container using `Docker`, run:
 
 ```bash
 docker run -it --rm -v <parent-dir-to-mlr3torch>:/mnt/data/mlr3torch sebffischer/mlr3torch-jss:cpu
+# go into the mlr3torch directory
+cd /mnt/data/mlr3torch
 ```
 
 To start the container using `enroot`, run:
