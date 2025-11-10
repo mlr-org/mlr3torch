@@ -3,6 +3,9 @@ library(here)
 setwd(here("paper"))
 source(here("paper", "benchmark", "benchmark.R"))
 
+# Change this when not running this in the docker image
+PYTHON_PATH = "/usr/bin/python3"
+
 problem_design = expand.grid(
   list(
     n = N,
@@ -19,6 +22,7 @@ problem_design = expand.grid(
 
 setup(
   here("paper", "benchmark", "registry-linux-gpu"),
+  PYTHON_PATH,
   here("paper")
 )
 

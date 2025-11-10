@@ -3,8 +3,12 @@ library(here)
 setwd(here("paper"))
 source(here("paper", "benchmark", "benchmark.R"))
 
+# Change this when not running this in the docker image
+PYTHON_PATH = "/opt/venv/bin/python"
+
 setup(
   here("paper", "benchmark", "registry-linux-cpu"),
+  PYTHON_PATH,
   here("paper")
 )
 
