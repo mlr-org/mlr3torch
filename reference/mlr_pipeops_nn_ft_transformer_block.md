@@ -159,12 +159,24 @@ The objects of this class are cloneable with this method.
 # Construct the PipeOp
 pipeop = po("nn_ft_transformer_block")
 pipeop
-#> PipeOp: <nn_ft_transformer_block> (not trained)
-#> values: <attention_n_heads=8, attention_dropout=0.2, attention_initialization=kaiming, attention_normalization=<nn_layer_norm>, ffn_dropout=0.1, ffn_activation=<nn_reglu>, ffn_normalization=<nn_layer_norm>, residual_dropout=0, prenormalization=TRUE, is_first_layer=FALSE, query_idx=<NULL>, attention_bias=TRUE, ffn_bias_first=TRUE, ffn_bias_second=TRUE>
-#> Input channels <name [train type, predict type]>:
-#>   input [ModelDescriptor,Task]
-#> Output channels <name [train type, predict type]>:
-#>   output [ModelDescriptor,Task]
+#> 
+#> ── PipeOp <nn_ft_transformer_block>: not trained ───────────────────────────────
+#> Values: attention_n_heads=8, attention_dropout=0.2,
+#> attention_initialization=kaiming, attention_normalization=<nn_layer_norm>,
+#> ffn_dropout=0.1, ffn_activation=<nn_reglu>, ffn_normalization=<nn_layer_norm>,
+#> residual_dropout=0, prenormalization=TRUE, is_first_layer=FALSE,
+#> query_idx=<NULL>, attention_bias=TRUE, ffn_bias_first=TRUE,
+#> ffn_bias_second=TRUE
+#> 
+#> ── Input channels: 
+#>    name           train predict
+#>  <char>          <char>  <char>
+#>   input ModelDescriptor    Task
+#> 
+#> ── Output channels: 
+#>    name           train predict
+#>  <char>          <char>  <char>
+#>  output ModelDescriptor    Task
 # The available parameters
 pipeop$param_set
 #> <ParamSet(16)>

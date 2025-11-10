@@ -70,7 +70,7 @@ size \(sT * sH * sW\) steps. The number of output features is equal to
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>3D Average Pooling</h1>
-      <small class="dont-index">Source: <a href="https://github.com/mlr-org/mlr3torch/blob/v0.3.2/R/PipeOpTorchAvgPool.R" class="external-link"><code>R/PipeOpTorchAvgPool.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/mlr-org/mlr3torch/blob/main/R/PipeOpTorchAvgPool.R" class="external-link"><code>R/PipeOpTorchAvgPool.R</code></a></small>
       <div class="d-none name"><code>mlr_pipeops_nn_avg_pool3d.Rd</code></div>
     </div>
 
@@ -254,12 +254,19 @@ otherwise be set during construction.</p></dd>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Construct the PipeOp</span></span></span>
 <span class="r-in"><span><span class="va">pipeop</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_avg_pool3d"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pipeop</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> PipeOp: &lt;nn_avg_pool3d&gt; (not trained)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> values: &lt;list()&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Input channels &lt;name [train type, predict type]&gt;:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   input [ModelDescriptor,Task]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Output channels &lt;name [train type, predict type]&gt;:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   output [ModelDescriptor,Task]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">PipeOp </span><span style="color: #0000BB; font-weight: bold;">&lt;nn_avg_pool3d&gt;</span><span style="font-weight: bold;">: not trained</span> <span style="color: #00BBBB;">─────────────────────────────────────────</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Values: list()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Input channels:</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    name           train predict</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  &lt;char&gt;          &lt;char&gt;  &lt;char&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   input ModelDescriptor    Task</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Output channels:</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    name           train predict</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  &lt;char&gt;          &lt;char&gt;  &lt;char&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  output ModelDescriptor    Task</span>
 <span class="r-in"><span><span class="co"># The available parameters</span></span></span>
 <span class="r-in"><span><span class="va">pipeop</span><span class="op">$</span><span class="va">param_set</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSet(6)&gt;</span>

@@ -78,7 +78,7 @@ of PipeOpModules as part of the ModelDescriptor."><meta property="og:image" cont
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Class for Torch Module Wrappers</h1>
-      <small class="dont-index">Source: <a href="https://github.com/mlr-org/mlr3torch/blob/v0.3.2/R/PipeOpModule.R" class="external-link"><code>R/PipeOpModule.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/mlr-org/mlr3torch/blob/main/R/PipeOpModule.R" class="external-link"><code>R/PipeOpModule.R</code></a></small>
       <div class="d-none name"><code>mlr_pipeops_module.Rd</code></div>
     </div>
 
@@ -283,19 +283,29 @@ The R packages this object depends on.</p></dd>
 <span class="r-in"><span><span class="va">result</span> <span class="op">=</span> <span class="va">graph</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># The PipeOpTorchLinear generates a PipeOpModule and adds it to a new (module) graph</span></span></span>
 <span class="r-in"><span><span class="va">result</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">graph</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Graph with 2 PipeOps:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Graph with 2 PipeOps:</span> <span style="color: #00BBBB;">───────────────────────────────────────────────────────</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 ID         State  sccssors         prdcssors</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             &lt;char&gt;        &lt;char&gt;    &lt;char&gt;            &lt;char&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  torch_ingress_num &lt;&lt;UNTRAINED&gt;&gt; nn_linear                  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          nn_linear &lt;&lt;UNTRAINED&gt;&gt;           torch_ingress_num</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ── Pipeline: <span style="font-weight: bold;">&lt;INPUT&gt; -&gt; torch_ingress_num -&gt; nn_linear -&gt; &lt;OUTPUT&gt;</span> </span>
 <span class="r-in"><span><span class="va">linear_module</span> <span class="op">=</span> <span class="va">result</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">graph</span><span class="op">$</span><span class="va">pipeops</span><span class="op">$</span><span class="va">nn_linear</span></span></span>
 <span class="r-in"><span><span class="va">linear_module</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> PipeOp: &lt;nn_linear&gt; (not trained)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> values: &lt;list()&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Input channels &lt;name [train type, predict type]&gt;:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   input [torch_tensor,NULL]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Output channels &lt;name [train type, predict type]&gt;:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   output [torch_tensor,NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">PipeOp </span><span style="color: #0000BB; font-weight: bold;">&lt;nn_linear&gt;</span><span style="font-weight: bold;">: not trained</span> <span style="color: #00BBBB;">─────────────────────────────────────────────</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Values: list()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Input channels:</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    name        train predict</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  &lt;char&gt;       &lt;char&gt;  &lt;char&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   input torch_tensor    NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Output channels:</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    name        train predict</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  &lt;char&gt;       &lt;char&gt;  &lt;char&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  output torch_tensor    NULL</span>
 <span class="r-in"><span><span class="fu">formalArgs</span><span class="op">(</span><span class="va">linear_module</span><span class="op">$</span><span class="va">module</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "input"</span>
 <span class="r-in"><span><span class="va">linear_module</span><span class="op">$</span><span class="va">input</span><span class="op">$</span><span class="va">name</span></span></span>

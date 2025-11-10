@@ -169,12 +169,19 @@ The objects of this class are cloneable with this method.
 # Construct the PipeOp
 pipeop = po("nn_rrelu")
 pipeop
-#> PipeOp: <nn_rrelu> (not trained)
-#> values: <list()>
-#> Input channels <name [train type, predict type]>:
-#>   input [ModelDescriptor,Task]
-#> Output channels <name [train type, predict type]>:
-#>   output [ModelDescriptor,Task]
+#> 
+#> ── PipeOp <nn_rrelu>: not trained ──────────────────────────────────────────────
+#> Values: list()
+#> 
+#> ── Input channels: 
+#>    name           train predict
+#>  <char>          <char>  <char>
+#>   input ModelDescriptor    Task
+#> 
+#> ── Output channels: 
+#>    name           train predict
+#>  <char>          <char>  <char>
+#>  output ModelDescriptor    Task
 # The available parameters
 pipeop$param_set
 #> <ParamSet(3)>

@@ -173,12 +173,19 @@ The objects of this class are cloneable with this method.
 # Construct the PipeOp
 pipeop = po("nn_tokenizer_num", d_token = 10)
 pipeop
-#> PipeOp: <nn_tokenizer_num> (not trained)
-#> values: <d_token=10, bias=TRUE, initialization=uniform>
-#> Input channels <name [train type, predict type]>:
-#>   input [ModelDescriptor,Task]
-#> Output channels <name [train type, predict type]>:
-#>   output [ModelDescriptor,Task]
+#> 
+#> ── PipeOp <nn_tokenizer_num>: not trained ──────────────────────────────────────
+#> Values: d_token=10, bias=TRUE, initialization=uniform
+#> 
+#> ── Input channels: 
+#>    name           train predict
+#>  <char>          <char>  <char>
+#>   input ModelDescriptor    Task
+#> 
+#> ── Output channels: 
+#>    name           train predict
+#>  <char>          <char>  <char>
+#>  output ModelDescriptor    Task
 # The available parameters
 pipeop$param_set
 #> <ParamSet(3)>

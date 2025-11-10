@@ -68,7 +68,7 @@ For an input of shape (batch, n_features) the output shape is (batch, n_features
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Categorical Tokenizer</h1>
-      <small class="dont-index">Source: <a href="https://github.com/mlr-org/mlr3torch/blob/v0.3.2/R/PipeOpTorchTokenizer.R" class="external-link"><code>R/PipeOpTorchTokenizer.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/mlr-org/mlr3torch/blob/main/R/PipeOpTorchTokenizer.R" class="external-link"><code>R/PipeOpTorchTokenizer.R</code></a></small>
       <div class="d-none name"><code>mlr_pipeops_nn_tokenizer_categ.Rd</code></div>
     </div>
 
@@ -249,12 +249,19 @@ otherwise be set during construction.</p></dd>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Construct the PipeOp</span></span></span>
 <span class="r-in"><span><span class="va">pipeop</span> <span class="op">=</span> <span class="fu"><a href="https://mlr3pipelines.mlr-org.com/reference/po.html" class="external-link">po</a></span><span class="op">(</span><span class="st">"nn_tokenizer_categ"</span>, d_token <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pipeop</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> PipeOp: &lt;nn_tokenizer_categ&gt; (not trained)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> values: &lt;d_token=10, bias=TRUE, initialization=uniform&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Input channels &lt;name [train type, predict type]&gt;:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   input [ModelDescriptor,Task]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Output channels &lt;name [train type, predict type]&gt;:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   output [ModelDescriptor,Task]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">PipeOp </span><span style="color: #0000BB; font-weight: bold;">&lt;nn_tokenizer_categ&gt;</span><span style="font-weight: bold;">: not trained</span> <span style="color: #00BBBB;">────────────────────────────────────</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Values: d_token=10, bias=TRUE, initialization=uniform</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Input channels:</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    name           train predict</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  &lt;char&gt;          &lt;char&gt;  &lt;char&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   input ModelDescriptor    Task</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Output channels:</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    name           train predict</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  &lt;char&gt;          &lt;char&gt;  &lt;char&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  output ModelDescriptor    Task</span>
 <span class="r-in"><span><span class="co"># The available parameters</span></span></span>
 <span class="r-in"><span><span class="va">pipeop</span><span class="op">$</span><span class="va">param_set</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ParamSet(4)&gt;</span>

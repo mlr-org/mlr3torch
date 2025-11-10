@@ -192,12 +192,19 @@ The objects of this class are cloneable with this method.
 # Construct the PipeOp
 pipeop = po("nn_merge_cat")
 pipeop
-#> PipeOp: <nn_merge_cat> (not trained)
-#> values: <list()>
-#> Input channels <name [train type, predict type]>:
-#>   ... [ModelDescriptor,Task]
-#> Output channels <name [train type, predict type]>:
-#>   output [ModelDescriptor,Task]
+#> 
+#> ── PipeOp <nn_merge_cat>: not trained ──────────────────────────────────────────
+#> Values: list()
+#> 
+#> ── Input channels: 
+#>    name           train predict
+#>  <char>          <char>  <char>
+#>     ... ModelDescriptor    Task
+#> 
+#> ── Output channels: 
+#>    name           train predict
+#>  <char>          <char>  <char>
+#>  output ModelDescriptor    Task
 # The available parameters
 pipeop$param_set
 #> <ParamSet(1)>

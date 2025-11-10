@@ -456,10 +456,13 @@ mds_in = graph$train(list(task1, task2), single_input = FALSE)
 
 mds_in[[1L]][c("graph", "task", "ingress", "pointer", "pointer_shape")]
 #> $graph
-#> Graph with 1 PipeOps:
+#> 
+#> ── Graph with 1 PipeOps: ───────────────────────────────────────────────────────
 #>                   ID         State sccssors prdcssors
 #>               <char>        <char>   <char>    <char>
 #>  torch_ingress_num_1 <<UNTRAINED>>                   
+#> 
+#> ── Pipeline: <INPUT> -> torch_ingress_num_1 -> <OUTPUT> 
 #> 
 #> $task
 #> 
@@ -483,10 +486,13 @@ mds_in[[1L]][c("graph", "task", "ingress", "pointer", "pointer_shape")]
 #> 
 mds_in[[2L]][c("graph", "task", "ingress", "pointer", "pointer_shape")]
 #> $graph
-#> Graph with 1 PipeOps:
+#> 
+#> ── Graph with 1 PipeOps: ───────────────────────────────────────────────────────
 #>                   ID         State sccssors prdcssors
 #>               <char>        <char>   <char>    <char>
 #>  torch_ingress_num_2 <<UNTRAINED>>                   
+#> 
+#> ── Pipeline: <INPUT> -> torch_ingress_num_2 -> <OUTPUT> 
 #> 
 #> $task
 #> 

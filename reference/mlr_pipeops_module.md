@@ -213,19 +213,29 @@ graph = po("torch_ingress_num") %>>% po("nn_linear", out_features = 10L)
 result = graph$train(tsk("iris"))
 # The PipeOpTorchLinear generates a PipeOpModule and adds it to a new (module) graph
 result[[1]]$graph
-#> Graph with 2 PipeOps:
+#> 
+#> ── Graph with 2 PipeOps: ───────────────────────────────────────────────────────
 #>                 ID         State  sccssors         prdcssors
 #>             <char>        <char>    <char>            <char>
 #>  torch_ingress_num <<UNTRAINED>> nn_linear                  
 #>          nn_linear <<UNTRAINED>>           torch_ingress_num
+#> 
+#> ── Pipeline: <INPUT> -> torch_ingress_num -> nn_linear -> <OUTPUT> 
 linear_module = result[[1L]]$graph$pipeops$nn_linear
 linear_module
-#> PipeOp: <nn_linear> (not trained)
-#> values: <list()>
-#> Input channels <name [train type, predict type]>:
-#>   input [torch_tensor,NULL]
-#> Output channels <name [train type, predict type]>:
-#>   output [torch_tensor,NULL]
+#> 
+#> ── PipeOp <nn_linear>: not trained ─────────────────────────────────────────────
+#> Values: list()
+#> 
+#> ── Input channels: 
+#>    name        train predict
+#>  <char>       <char>  <char>
+#>   input torch_tensor    NULL
+#> 
+#> ── Output channels: 
+#>    name        train predict
+#>  <char>       <char>  <char>
+#>  output torch_tensor    NULL
 formalArgs(linear_module$module)
 #> [1] "input"
 linear_module$input$name
