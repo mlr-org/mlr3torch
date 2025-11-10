@@ -17,4 +17,4 @@ plt = plt +
 
 print(plt)
 
-ggsave(here("paper", "roc.png"), plt, width = 4, height = 4, dpi = 300)
+ggsave(here("paper", "paper_results", "roc.png"), plt, width = 4, height = 4, dpi = 300)
