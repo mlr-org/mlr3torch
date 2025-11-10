@@ -3,8 +3,6 @@ library(here)
 setwd(here("paper"))
 source(here("paper", "benchmark", "benchmark.R"))
 
-PYTHON_PATH = "/opt/venv/bin/python"
-
 setup(
   here("paper", "benchmark", "registry-linux-cpu"),
   here("paper")
