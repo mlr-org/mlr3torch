@@ -12,13 +12,15 @@ renv::init()
 
 We are providing two docker images, one for CPU and one for CUDA GPU, that have the same packages from the `renv.lock` file installed.
 The images can be downloaded from Zenodo: https://doi.org/10.5281/zenodo.17130368.
-You can, for example, use the [zenodo-client](https://pypi.org/project/zenodo-client/) library to download the images:
+You can, for example, use the [zenodo_client](https://pypi.org/project/zenodo-client/) library to download the images:
+
+Note that below, we are using a different ID than the one from above, as the uploaded data has different versions.
+The DOI above always resolves to the latest version of the data,
 
 ```bash
 # pip install zenodo-client
 export ZENODO_API_TOKEN=<your-token>
-# for CPU:
-zenodo-client download 17130368 IMAGE_CPU.tar.gz
+zenodo_client download 17130368 IMAGE_CPU.tar.gz
 ```
 
 By default, the downloaded files are stored in `~/.data/zenodo`.
@@ -76,7 +78,7 @@ We show further down how to run only a subset of the jobs.
 ### Running the Benchmarks
 
 Note that it's important to have enough RAM, otherwise the benchmarks will be non-comparable.
-However, there are many other factors, such as the exact hardware that make it generally difficult to reproduce the exact same results.
+However, there are many other factors, such as the exact hardware that make it generally difficult to reproduce the runtime results.
 
 To run the benchmarks locally, go into `./paper`:
 
