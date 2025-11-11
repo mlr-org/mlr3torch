@@ -83,7 +83,7 @@ prediction = mlp$predict(task, row_ids = splits$test)
 # Compute the mse
 prediction$score(msr("regr.mse"))
 #> regr.mse 
-#> 289.5966
+#> 289.5967
 ```
 
 ## Configuring a Learner
@@ -359,11 +359,11 @@ head(mlp_custom$model$callbacks$history)
 #>    epoch valid.regr.mae
 #>    <num>          <num>
 #> 1:     1   1.952632e+04
-#> 2:     2   1.480273e+10
+#> 2:     2   1.480274e+10
 #> 3:     3   1.907161e+09
 #> 4:     4   6.248891e+04
-#> 5:     5   8.702156e+01
-#> 6:     6   3.612308e+01
+#> 5:     5   8.702154e+01
+#> 6:     6   3.612310e+01
 ```
 
 The plot below shows it for the epochs 6 to 30.

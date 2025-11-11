@@ -192,7 +192,8 @@ field of the learner.</p></li>
 The minimum improvement threshold for early stopping.
 Is initialized to 0.</p></li>
 </ul><p><strong>Dataloader</strong>:</p><ul><li><p><code>batch_size</code> :: <code>integer(1)</code><br>
-The batch size (required).</p></li>
+The batch size (required).
+When working with small models or datasets, choosing a larger batch size can considerably speed up training.</p></li>
 <li><p><code>shuffle</code> :: <code>logical(1)</code><br>
 Whether to shuffle the instances in the dataset. This is initialized to <code>TRUE</code>,
 which differs from the default (<code>FALSE</code>).</p></li>
