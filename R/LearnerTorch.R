@@ -44,6 +44,17 @@
 #' * multi-class classification: The `factor` target variable of a [`TaskClassif`][mlr3::TaskClassif] is a label-encoded
 #'   [`torch_long`][torch::torch_long] with shape `(batch_size)` where the label-encoding goes from `1` to `n_classes`.
 #'
+#' @section Important Runtime Considerations:
+#' There are a few hyperparameters settings that can have a considerable impact on the runtime of the learner.
+#' These include:
+#'
+#' * `device`: Use a GPU if possible.
+#' * `num_threads`: Set this to the number of CPU cores available if training on CPU.
+#' * `tensor_dataset`: Set this to `TRUE` (or `"device"` if on a GPU) if the dataset fits into memory.
+#' * `batch_size`: Especially for very small models, choose a larger batch size.
+#'
+#' Also, see the *Early Stopping and Internal Tuning* section for how to terminate training early.
+#'
 #' @template param_id
 #' @template param_task_type
 #' @template param_param_vals

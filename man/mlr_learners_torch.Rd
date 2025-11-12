@@ -60,6 +60,20 @@ is also ensured to be the first factor level) is \code{1} and the negative class
 }
 }
 
+\section{Important Runtime Considerations}{
+
+There are a few hyperparameters settings that can have a considerable impact on the runtime of the learner.
+These include:
+\itemize{
+\item \code{device}: Use a GPU if possible.
+\item \code{num_threads}: Set this to the number of CPU cores available if training on CPU.
+\item \code{tensor_dataset}: Set this to \code{TRUE} (or \code{"device"} if on a GPU) if the dataset fits into memory.
+\item \code{batch_size}: Especially for very small models, choose a larger batch size.
+}
+
+Also, see the \emph{Early Stopping and Internal Tuning} section for how to terminate training early.
+}
+
 \section{Model}{
 
 The Model is a list of class \code{"learner_torch_model"} with the following elements:
@@ -145,7 +159,6 @@ Is initialized to 0.
 \itemize{
 \item \code{batch_size} :: \code{integer(1)}\cr
 The batch size (required).
-When working with small models or datasets, choosing a larger batch size can considerably speed up training.
 \item \code{shuffle} :: \code{logical(1)}\cr
 Whether to shuffle the instances in the dataset. This is initialized to \code{TRUE},
 which differs from the default (\code{FALSE}).
