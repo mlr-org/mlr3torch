@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="generator" content="litedown 0.8">
+<title></title>
+<style type="text/css">
+body {
+  font-family: sans-serif;
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 1.5;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+body, .abstract, code, .footnotes, footer, #refs, .caption { font-size: .9em; }
+li li { font-size: .95em; }
+ul:has(li > input[type="checkbox"]) { list-style: none; padding-left: 1em; }
+*, :before, :after { box-sizing: border-box; }
+a { color: steelblue; }
+pre, img { max-width: 100%; }
+pre { white-space: pre-wrap; word-break: break-word; }
+pre code { display: block; padding: 1em; overflow-x: auto; }
+code { font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace; }
+:not(pre, th) > code, code[class], div > .caption { background: #f8f8f8; }
+pre > code:is(:not([class]), .language-plain, .language-none, .plain), .box, .figure, .table { background: inherit; border: 1px solid #eee; }
+pre > code {
+  &.message { border-color: #9eeaf9; }
+  &.warning { background: #fff3cd; border-color: #fff3cd; }
+  &.error { background: #f8d7da; border-color: #f8d7da; }
+}
+.fenced-chunk { border-left: 1px solid #666; }
+.code-fence {
+  opacity: .4;
+  border: 1px dashed #666;
+  border-left: 2px solid;
+  &:hover { opacity: inherit; }
+}
+.box, .figure, .table, table { margin: 1em auto; }
+div > .caption { padding: 1px 1em; }
+.figure { p:has(img, svg), pre:has(svg) { text-align: center; } }
+.flex-col { display: flex; justify-content: space-between; }
+table {
+  &:only-child:not(.table > *) { margin: auto; }
+  th, td { padding: 5px; font-variant-numeric: tabular-nums; }
+  thead, tfoot, tr:nth-child(even) { background: whitesmoke; }
+  thead th { border-bottom: 1px solid #ddd; }
+  &:not(.datatable-table) {
+    border-top: 1px solid #666;
+    border-bottom: 1px solid #666;
+  }
+}
+blockquote {
+  color: #666;
+  margin: 0;
+  padding: 1px 1em;
+  border-left: .5em solid #eee;
+}
+hr, .footnotes::before { border: 1px dashed #ddd; }
+.frontmatter { text-align: center; }
+#TOC {
+  a { text-decoration: none; }
+  ul { list-style: none; padding-left: 1em; }
+  & > ul { padding: 0; }
+  ul ul { border-left: 1px solid lightsteelblue; }
+}
+.body h2 { border-bottom: 1px solid #666; }
+.body .appendix, .appendix ~ h2 { border-bottom-style: dashed; }
+.main-number::after { content: "."; }
+span[class^="ref-number-"] { font-weight: bold; }
+.ref-number-fig::after, .ref-number-tab::after { content: ":"; }
+.cross-ref-chp::before { content: "Chapter "; }
+.cross-ref-sec::before { content: "Section "; }
+.cross-ref-fig::before, .ref-number-fig::before { content: "Figure "; }
+.cross-ref-tab::before, .ref-number-tab::before { content: "Table "; }
+.cross-ref-eqn::before, .MathJax_ref:has(mjx-mtext > mjx-c + mjx-c)::before { content: "Equation "; }
+.abstract, #refs {
+  &::before { display: block; margin: 1em auto; font-weight: bold; }
+}
+.abstract::before { content: "Abstract"; text-align: center; }
+#refs::before { content: "Bibliography"; font-size: 1.5em; }
+.ref-paren-open::before { content: "("; }
+.ref-paren-close::after { content: ")"; }
+.ref-semicolon::after { content: "; "; }
+.ref-and::after { content: " and "; }
+.ref-et-al::after { content: " et al."; font-style: italic; }
+.footnote-ref a {
+  &::before { content: "["; }
+  &::after { content: "]"; }
+}
+section.footnotes {
+  margin-top: 2em;
+  &::before { content: ""; display: block; max-width: 20em; }
+}
+.fade {
+  background: repeating-linear-gradient(135deg, white, white 30px, #ddd 32px, #ddd 32px);
+  opacity: 0.6;
+}
+
+@media print {
+  body { max-width: 100%; }
+  tr, img { break-inside: avoid; }
+}
+@media only screen and (min-width: 992px) {
+  body:not(.pagesjs) pre:has(.line-numbers):not(:hover) { white-space: pre; }
+}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.14/css/prism-xcode.min.css">
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+</head>
+<body>
+<div class="frontmatter">
+</div>
+<div class="body">
+<pre><code class="language-r">Sys.time()
+</code></pre>
+<pre><code>## [1] &quot;2025-11-06 09:39:55 UTC&quot;
+</code></pre>
+<pre><code class="language-r">options(mlr3torch.cache = TRUE)
+lgr::get_logger('mlr3')$set_threshold('warn')
+library(&quot;mlr3&quot;)
+set.seed(42)
+task &lt;- tsk(&quot;mtcars&quot;)
+learner &lt;- lrn(&quot;regr.rpart&quot;)
+split &lt;- partition(task, ratio = 2/3)
+learner$train(task, split$train)
+pred &lt;- learner$predict(task, split$test)
+pred$score(msr(&quot;regr.rmse&quot;))
+</code></pre>
+<pre><code>## regr.rmse 
+##  4.736051
+</code></pre>
+<pre><code class="language-r">library(&quot;mlr3pipelines&quot;)
+graph_learner &lt;- as_learner(po(&quot;pca&quot;) %&gt;&gt;% lrn(&quot;regr.rpart&quot;))
+
+resampling &lt;- rsmp(&quot;cv&quot;, folds = 3)
+rr &lt;- resample(task, graph_learner, resampling)
+rr$aggregate(msr(&quot;regr.rmse&quot;))
+</code></pre>
+<pre><code>## regr.rmse 
+##  4.274766
+</code></pre>
+<pre><code class="language-r">library(&quot;torch&quot;)
+torch_manual_seed(42)
+x &lt;- torch_tensor(1, device = &quot;cpu&quot;)
+w &lt;- torch_tensor(2, requires_grad = TRUE, device = &quot;cpu&quot;)
+y &lt;- w * x
+y$backward()
+w$grad
+</code></pre>
+<pre><code>## torch_tensor
+##  1
+## [ CPUFloatType{1} ]
+</code></pre>
+<pre><code class="language-r">library(&quot;mlr3torch&quot;)
+mnist &lt;- tsk(&quot;mnist&quot;)
+mnist
+</code></pre>
+<pre><code>## 
+## ── &lt;TaskClassif&gt; (70000x2): MNIST Digit Classification ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## • Target: label
+</code></pre>
+<pre><code>## Dataset &lt;mnist&gt; (~12 MB) will be downloaded and processed if not already available.
+## Downloading &lt;mnist&gt; ...
+## Processing &lt;mnist&gt;...
+## Dataset &lt;mnist&gt; downloaded and extracted successfully.
+## Dataset &lt;mnist&gt; loaded with 60000 images.
+## Dataset &lt;mnist&gt; loaded with 10000 images.
+</code></pre>
+<pre><code>## • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0 (10%), 6 (10%), 8 (10%), 4 (10%), 5 (9%)
+## • Properties: multiclass
+## • Features (1):
+##   • lt (1): image
+</code></pre>
+<pre><code class="language-r">rows &lt;- mnist$data(1:2)
+rows
+</code></pre>
+<pre><code>##     label           image
+##    &lt;fctr&gt;   &lt;lazy_tensor&gt;
+## 1:      5 &lt;tnsr[1x28x28]&gt;
+## 2:      0 &lt;tnsr[1x28x28]&gt;
+</code></pre>
+<pre><code class="language-r">str(materialize(rows$image))
+</code></pre>
+<pre><code>## List of 2
+##  $ :Float [1:1, 1:28, 1:28]
+##  $ :Float [1:1, 1:28, 1:28]
+</code></pre>
+<pre><code class="language-r">po_flat &lt;- po(&quot;trafo_reshape&quot;, shape = c(-1, 28 * 28))
+mnist_flat &lt;- po_flat$train(list(mnist))[[1L]]
+mnist_flat$head(2)
+</code></pre>
+<pre><code>##     label         image
+##    &lt;fctr&gt; &lt;lazy_tensor&gt;
+## 1:      5   &lt;tnsr[784]&gt;
+## 2:      0   &lt;tnsr[784]&gt;
+</code></pre>
+<pre><code class="language-r">mlp &lt;- lrn(&quot;classif.mlp&quot;,
+ loss = t_loss(&quot;cross_entropy&quot;),
+ optimizer = t_opt(&quot;adamw&quot;, lr = 0.001),
+ callbacks = t_clbk(&quot;history&quot;))
+
+mlp$param_set$set_values(
+  neurons = c(100, 200), activation = torch::nn_relu,
+  p = 0.3, opt.weight_decay = 0.01, measures_train = msr(&quot;classif.logloss&quot;),
+  epochs = 10, batch_size = 32, device = &quot;cpu&quot;)
+
+mlp$configure(predict_type = &quot;prob&quot;)
+
+mlp$train(mnist_flat, row_ids = 1:1001)
+
+mlp$model$network
+</code></pre>
+<pre><code>## An `nn_module` containing 100,710 parameters.
+## 
+## ── Modules ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## • 0: &lt;nn_linear&gt; #78,500 parameters
+## • 1: &lt;nn_relu&gt; #0 parameters
+## • 2: &lt;nn_dropout&gt; #0 parameters
+## • 3: &lt;nn_linear&gt; #20,200 parameters
+## • 4: &lt;nn_relu&gt; #0 parameters
+## • 5: &lt;nn_dropout&gt; #0 parameters
+## • 6: &lt;nn_linear&gt; #2,010 parameters
+</code></pre>
+<pre><code class="language-r">head(mlp$model$callbacks$history, n = 2)
+</code></pre>
+<pre><code>##    epoch train.classif.logloss
+##    &lt;num&gt;                 &lt;num&gt;
+## 1:     1              4.504909
+## 2:     2              1.270763
+</code></pre>
+<pre><code class="language-r">pred &lt;- mlp$predict(mnist_flat, row_ids = 1001:1100)
+pred$score(msr(&quot;classif.ce&quot;))
+</code></pre>
+<pre><code>## classif.ce 
+##       0.18
+</code></pre>
+<pre><code class="language-r">pth &lt;- tempfile()
+mlp$marshal()
+saveRDS(mlp, pth)
+mlp2 &lt;- readRDS(pth)
+mlp2$unmarshal()
+
+set_validate(mlp, validate = 0.3)
+
+nn_simple &lt;- nn_module(&quot;nn_simple&quot;,
+  initialize = function(d_in, d_latent, d_out) {
+    self$linear1 = nn_linear(d_in, d_latent)
+    self$activation = nn_relu()
+    self$linear2 = nn_linear(d_latent, d_out)
+  },
+  forward = function(x) {
+    x = self$linear1(x)
+    x = self$activation(x)
+    self$linear2(x)
+  }
+)
+
+net &lt;- nn_simple(10, 100, 1)
+
+net(torch_randn(1, 10))
+</code></pre>
+<pre><code>## torch_tensor
+## 0.01 *
+## -9.4603
+## [ CPUFloatType{1,1} ][ grad_fn = &lt;AddmmBackward0&gt; ]
+</code></pre>
+<pre><code class="language-r">module_graph &lt;- po(&quot;module_1&quot;, module = nn_linear(10, 100)) %&gt;&gt;%
+ po(&quot;module_2&quot;, module = nn_relu()) %&gt;&gt;%
+ po(&quot;module_3&quot;, module = nn_linear(100, 1))
+
+net &lt;- nn_graph(module_graph, shapes_in = list(module_1.input = c(NA, 10)))
+net(torch_randn(2, 10))
+</code></pre>
+<pre><code>## torch_tensor
+## -0.1218
+## -0.0636
+## [ CPUFloatType{2,1} ][ grad_fn = &lt;AddmmBackward0&gt; ]
+</code></pre>
+<pre><code class="language-r">graph &lt;- po(&quot;torch_ingress_ltnsr&quot;) %&gt;&gt;%
+  nn(&quot;linear&quot;, out_features = 10) %&gt;&gt;% nn(&quot;relu&quot;) %&gt;&gt;% nn(&quot;head&quot;)
+
+md &lt;- graph$train(mnist_flat)[[1L]]
+md
+</code></pre>
+<pre><code>## &lt;ModelDescriptor: 4 ops&gt;
+## * Ingress:  torch_ingress_ltnsr.input: [(NA,784)]
+## * Task:  mnist [classif]
+## * Callbacks:  N/A
+## * Optimizer:  N/A
+## * Loss:  N/A
+## * pointer:  head.output [(NA,10)]
+</code></pre>
+<pre><code class="language-r">graph &lt;- graph %&gt;&gt;%
+  po(&quot;torch_loss&quot;, t_loss(&quot;cross_entropy&quot;)) %&gt;&gt;%
+  po(&quot;torch_optimizer&quot;, t_opt(&quot;adamw&quot;, lr = 0.001))
+
+graph &lt;- graph %&gt;&gt;% po(&quot;torch_model_classif&quot;, epochs = 10, batch_size = 16)
+
+glrn &lt;- as_learner(graph)
+glrn$train(mnist_flat, row_ids = 1:1000)
+
+path_lin &lt;- nn(&quot;linear_1&quot;)
+path_nonlin &lt;- nn(&quot;linear_2&quot;) %&gt;&gt;% nn(&quot;relu&quot;)
+
+residual_layer &lt;- list(path_lin, path_nonlin) %&gt;&gt;% nn(&quot;merge_sum&quot;)
+
+path_num &lt;- po(&quot;select_1&quot;, selector = selector_type(&quot;numeric&quot;)) %&gt;&gt;%
+  po(&quot;torch_ingress_num&quot;) %&gt;&gt;%
+  nn(&quot;tokenizer_num&quot;, d_token = 10)
+path_categ &lt;- po(&quot;select_2&quot;, selector = selector_type(&quot;factor&quot;)) %&gt;&gt;%
+  po(&quot;torch_ingress_categ&quot;) %&gt;&gt;%
+  nn(&quot;tokenizer_categ&quot;, d_token = 10)
+
+graph &lt;- list(path_num, path_categ) %&gt;&gt;% nn(&quot;merge_cat&quot;, dim = 2)
+
+blocks &lt;- nn(&quot;block&quot;, residual_layer, n_blocks = 5)
+
+nn_winsorized_mse &lt;- nn_module(c(&quot;nn_winsorized_mse&quot;, &quot;nn_loss&quot;),
+  initialize = function(max_loss) {
+    self$max_loss &lt;- max_loss
+  },
+  forward = function(input, target) {
+    torch_clamp(nnf_mse_loss(input, target), max = self$max_loss)
+  }
+)
+tloss &lt;- as_torch_loss(nn_winsorized_mse)
+tloss
+</code></pre>
+<pre><code>## &lt;TorchLoss:nn_winsorized_mse&gt; nn_winsorized_mse
+## * Generator: nn_winsorized_mse
+## * Parameters: list()
+## * Packages: torch,mlr3torch
+## * Task Types: classif,regr
+</code></pre>
+<pre><code class="language-r">gradient_clipper &lt;- torch_callback(&quot;gradient_clipper&quot;,
+  initialize = function(max_norm, norm_type) {
+    self$norms &lt;- numeric()
+    self$max_norm &lt;- max_norm
+    self$norm_type &lt;- norm_type
+  },
+  on_after_backward = function() {
+    norm &lt;- nn_utils_clip_grad_norm_(self$ctx$network$parameters,
+      self$max_norm, self$norm_type)
+    self$norms &lt;- c(self$norms, norm$item())
+  },
+  state_dict = function() {
+    self$norms
+  },
+  load_state_dict = function(state_dict) {
+    self$norms = state_dict
+  }
+)
+
+nn_ffn &lt;- nn_module(&quot;nn_ffn&quot;,
+  initialize = function(task, latent_dim, n_layers) {
+    dims &lt;- c(task$n_features, rep(latent_dim, n_layers),
+      length(task$class_names))
+    modules &lt;- unlist(lapply(seq_len(length(dims) - 1), function(i) {
+      if (i &lt; length(dims) - 1) {
+        list(nn_linear(dims[i], dims[i + 1]), nn_relu())
+      } else {
+        list(nn_linear(dims[i], dims[i + 1]))
+      }
+    }), recursive = FALSE)
+    self$network &lt;- do.call(nn_sequential, modules)
+  },
+  forward = function(x) self$network(x)
+)
+
+num_input &lt;- list(x = ingress_num())
+num_input
+</code></pre>
+<pre><code>## $x
+## Ingress: Task[selector_type(c(&quot;numeric&quot;, &quot;integer&quot;))] --&gt; Tensor()
+</code></pre>
+<pre><code class="language-r">lrn_ffn &lt;- lrn(&quot;classif.module&quot;,
+  module_generator = nn_ffn,
+  ingress_tokens = num_input,
+  latent_dim = 100, n_layers = 5)
+
+task &lt;- tsk(&quot;mtcars&quot;)
+task
+</code></pre>
+<pre><code>## 
+## ── &lt;TaskRegr&gt; (32x11): Motor Trends ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## • Target: mpg
+## • Properties: -
+## • Features (10):
+##   • dbl (10): am, carb, cyl, disp, drat, gear, hp, qsec, vs, wt
+</code></pre>
+<pre><code class="language-r">ingress &lt;- po(&quot;torch_ingress_num&quot;)
+
+block &lt;- nn(&quot;linear&quot;, out_features = 32) %&gt;&gt;%
+  ppl(&quot;branch&quot;, list(relu = nn(&quot;relu&quot;), sigmoid = nn(&quot;sigmoid&quot;))) %&gt;&gt;%
+  nn(&quot;dropout&quot;)
+
+architecture &lt;- nn(&quot;block&quot;, block) %&gt;&gt;% nn(&quot;head&quot;)
+
+config &lt;- po(&quot;torch_loss&quot;, loss = t_loss(&quot;mse&quot;)) %&gt;&gt;%
+  po(&quot;torch_optimizer&quot;, optimizer = t_opt(&quot;adamw&quot;))
+
+model &lt;- po(&quot;torch_model_regr&quot;, device = &quot;cpu&quot;, batch_size = 512)
+
+pipeline &lt;- ingress %&gt;&gt;%
+  architecture %&gt;&gt;% config %&gt;&gt;% model
+learner &lt;- as_learner(pipeline)
+learner$id &lt;- &quot;custom_nn&quot;
+
+library(&quot;mlr3tuning&quot;)
+</code></pre>
+<pre><code>## Loading required package: paradox
+</code></pre>
+<pre><code class="language-r">learner$param_set$set_values(
+  block.linear.out_features = to_tune(20, 500),
+  block.n_blocks = to_tune(1, 5),
+  block.branch.selection = to_tune(c(&quot;relu&quot;, &quot;sigmoid&quot;)),
+  block.dropout.p = to_tune(0.1, 0.9),
+  torch_optimizer.lr = to_tune(10^-4, 10^-1, logscale = TRUE))
+
+set_validate(learner, &quot;test&quot;)
+
+learner$param_set$set_values(
+  torch_model_regr.patience = 5,
+  torch_model_regr.measures_valid = msr(&quot;regr.mse&quot;),
+  torch_model_regr.epochs = to_tune(upper = 100, internal = TRUE))
+
+library(&quot;mlr3mbo&quot;)
+ti &lt;- tune(
+  tuner = tnr(&quot;mbo&quot;),
+  resampling = rsmp(&quot;holdout&quot;),
+  measure = msr(&quot;internal_valid_score&quot;, minimize = TRUE),
+  learner = learner,
+  term_evals = 30,
+  task = task)
+pvals &lt;- ti$result_learner_param_vals[2:6]
+cat(paste(&quot;*&quot;, names(pvals), &quot;=&quot;, pvals,
+ collapse = &quot;\n&quot;), &quot;\n&quot;)
+</code></pre>
+<pre><code>## * block.linear.out_features = 416
+## * block.branch.selection = sigmoid
+## * block.dropout.p = 0.870652055740356
+## * torch_optimizer.lr = 0.00135355895715398
+## * torch_model_regr.epochs = 76
+</code></pre>
+<pre><code class="language-r">library(&quot;torchdatasets&quot;)
+dogs_vs_cats_dataset(&quot;data&quot;, download = TRUE)
+</code></pre>
+<pre><code>## &lt;dataset&gt;
+##   Public:
+##     .getitem: function (i) 
+##     .length: function () 
+##     classes: dog cat
+##     clone: function (deep = FALSE) 
+##     images: data/dogs-vs-cats/train/cat.0.jpg data/dogs-vs-cats/trai ...
+##     initialize: function (root, split = &quot;train&quot;, download = FALSE, ..., transform = NULL, 
+##     load_state_dict: function (x, ..., .refer_to_state_dict = FALSE) 
+##     state_dict: function () 
+##     target_transform: NULL
+##     targets: 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2  ...
+##     transform: NULL
+</code></pre>
+<pre><code class="language-r">ds &lt;- torch::dataset(&quot;dogs_vs_cats&quot;,
+  initialize = function(pths) {
+    self$pths &lt;- pths
+  },
+  .getitem = function(i) {
+    image &lt;- torchvision::base_loader(self$pths[i])
+    list(image = torch_tensor(image)$permute(c(3, 1, 2)))
+  },
+  .length = function() {
+    length(self$pths)
+  }
+)
+
+paths &lt;- list.files(file.path(&quot;data&quot;, &quot;dogs-vs-cats/train&quot;),
+  full.names = TRUE)
+dogs_vs_cats &lt;- ds(paths)
+
+lt &lt;- as_lazy_tensor(dogs_vs_cats, list(image = NULL))
+
+labels &lt;- ifelse(grepl(&quot;dog\\.\\d+\\.jpg&quot;, paths), &quot;dog&quot;, &quot;cat&quot;)
+table(labels)
+</code></pre>
+<pre><code>## labels
+##   cat   dog 
+## 12500 12500
+</code></pre>
+<pre><code class="language-r">tbl &lt;- data.table(image = lt, class = labels)
+task &lt;- as_task_classif(tbl, target = &quot;class&quot;, id = &quot;dogs_vs_cats&quot;)
+task
+</code></pre>
+<pre><code>## 
+## ── &lt;TaskClassif&gt; (25000x2) ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## • Target: class
+## • Target classes: cat (positive class, 50%), dog (50%)
+## • Properties: twoclass
+## • Features (1):
+##   • lt (1): image
+</code></pre>
+<pre><code class="language-r">augment &lt;- po(&quot;augment_random_vertical_flip&quot;, p = 0.5)
+
+preprocess &lt;- po(&quot;trafo_resize&quot;, size = c(224, 224))
+
+unfreezer &lt;- t_clbk(&quot;unfreeze&quot;,
+  starting_weights = select_name(c(&quot;fc.weight&quot;, &quot;fc.bias&quot;)),
+  unfreeze = data.table(epoch = 3, weights = select_all()))
+
+resnet &lt;- lrn(&quot;classif.resnet18&quot;,
+  pretrained = TRUE, epochs = 5, device = &quot;cpu&quot;, batch_size = 32,
+  opt.lr = 1e-4, measures_valid = msr(&quot;classif.acc&quot;),
+  callbacks = list(unfreezer, t_clbk(&quot;history&quot;)))
+
+learner &lt;- as_learner(augment %&gt;&gt;% preprocess %&gt;&gt;% resnet)
+learner$id &lt;- &quot;resnet&quot;
+set_validate(learner, 1 / 3)
+learner$train(task, c(12400:12600))
+learner$model$classif.resnet18$model$callbacks$history
+</code></pre>
+<pre><code>##    epoch valid.classif.acc
+##    &lt;num&gt;             &lt;num&gt;
+## 1:     1         0.4776119
+## 2:     2         0.5074627
+## 3:     3         0.8955224
+## 4:     4         0.9552239
+## 5:     5         0.9701493
+</code></pre>
+<pre><code class="language-r">task &lt;- tsk(&quot;melanoma&quot;)
+task
+</code></pre>
+<pre><code>## 
+## ── &lt;TaskClassif&gt; (32701x5): Melanoma Classification ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## • Target: outcome
+## • Target classes: malignant (positive class, 2%), benign (98%)
+## • Properties: twoclass, groups
+## • Features (4):
+##   • fct (2): anatom_site_general_challenge, sex
+##   • int (1): age_approx
+##   • lt (1): image
+## • Groups: patient_id
+</code></pre>
+<pre><code class="language-r">table(task$truth())
+</code></pre>
+<pre><code>## 
+## malignant    benign 
+##       581     32120
+</code></pre>
+<pre><code class="language-r">task$missings(&quot;age_approx&quot;)
+</code></pre>
+<pre><code>## age_approx 
+##         44
+</code></pre>
+<pre><code class="language-r">block_ffn &lt;- nn(&quot;linear&quot;, out_features = 500) %&gt;&gt;%
+  nn(&quot;relu&quot;) %&gt;&gt;% nn(&quot;dropout&quot;)
+path_tabular &lt;- po(&quot;select_1&quot;,
+    selector = selector_type(c(&quot;integer&quot;, &quot;factor&quot;))) %&gt;&gt;%
+  po(&quot;imputehist&quot;) %&gt;&gt;%
+  po(&quot;encode&quot;, method = &quot;one-hot&quot;) %&gt;&gt;%
+  po(&quot;torch_ingress_num&quot;) %&gt;&gt;%
+  nn(&quot;block_1&quot;, block = block_ffn, n_blocks = 3)
+
+path_image &lt;- po(&quot;select_2&quot;, selector = selector_name(&quot;image&quot;)) %&gt;&gt;%
+  po(&quot;torch_ingress_ltnsr&quot;, shape = c(NA, 3, 128, 128)) %&gt;&gt;%
+  nn(&quot;conv2d_1&quot;, out_channels = 16, kernel_size = 7, stride = 2,
+    padding = 3) %&gt;&gt;%
+  nn(&quot;batch_norm2d_1&quot;) %&gt;&gt;%
+  nn(&quot;relu_1&quot;) %&gt;&gt;%
+  nn(&quot;max_pool2d_1&quot;, kernel_size = 3, stride = 2, padding = 1) %&gt;&gt;%
+  nn(&quot;conv2d_2&quot;, out_channels = 32, kernel_size = 3, stride = 1,
+    padding = 1) %&gt;&gt;%
+  nn(&quot;batch_norm2d_2&quot;) %&gt;&gt;%
+  nn(&quot;relu_2&quot;) %&gt;&gt;%
+  nn(&quot;conv2d_3&quot;, out_channels = 64, kernel_size = 3, stride = 1,
+    padding = 1) %&gt;&gt;%
+  nn(&quot;batch_norm2d_3&quot;) %&gt;&gt;%
+  nn(&quot;relu_3&quot;) %&gt;&gt;%
+  nn(&quot;flatten&quot;)
+
+architecture &lt;- list(path_tabular, path_image) %&gt;&gt;%
+  nn(&quot;merge_cat&quot;) %&gt;&gt;% nn(&quot;linear_1&quot;, out_features = 500) %&gt;&gt;%
+  nn(&quot;relu_4&quot;) %&gt;&gt;% nn(&quot;dropout_2&quot;) %&gt;&gt;% nn(&quot;head&quot;)
+
+model &lt;- architecture %&gt;&gt;%
+  po(&quot;torch_loss&quot;,
+    t_loss(&quot;cross_entropy&quot;, class_weight = torch_tensor(10))) %&gt;&gt;%
+  po(&quot;torch_optimizer&quot;, t_opt(&quot;adamw&quot;, lr = 0.0005)) %&gt;&gt;%
+  po(&quot;torch_model_classif&quot;, epochs = 4, batch_size = 32, device = &quot;cpu&quot;,
+    predict_type = &quot;prob&quot;)
+
+preprocessing &lt;- po(&quot;classbalancing&quot;, ratio = 4, reference = &quot;minor&quot;,
+    adjust = &quot;minor&quot;) %&gt;&gt;%
+  po(&quot;augment_random_horizontal_flip&quot;) %&gt;&gt;%
+  po(&quot;augment_random_vertical_flip&quot;) %&gt;&gt;%
+  po(&quot;augment_random_crop&quot;, size = c(128, 128), pad_if_needed = TRUE)
+glrn &lt;- as_learner(preprocessing %&gt;&gt;% model)
+
+library(&quot;mlr3viz&quot;)
+glrn$id &lt;- &quot;multimodal&quot;
+task_subset &lt;- task$clone(deep = TRUE)
+subset &lt;- partition(task_subset, ratio = 0.1)$train
+task_subset$filter(subset)
+rr &lt;- resample(task_subset, glrn, rsmp(&quot;holdout&quot;))
+autoplot(rr, type = &quot;roc&quot;)
+</code></pre>
+<pre><code>## Warning in ggplot2::fortify(object, raw_curves = raw_curves, reduce_points = reduce_points): Arguments in `...` must be used.
+## ✖ Problematic argument:
+## • raw_curves = raw_curves
+## ℹ Did you misspell an argument name?
+</code></pre>
+<p><img src="data:image/png;base64,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" alt="plot of chunk unnamed-chunk-1" /></p>
+<pre><code class="language-r">saveRDS(.Last.value, here::here(&quot;paper&quot;, &quot;roc.rds&quot;))
+sessionInfo()
+</code></pre>
+<pre><code>## R version 4.5.1 (2025-06-13)
+## Platform: x86_64-pc-linux-gnu
+## Running under: Ubuntu 24.04.3 LTS
+## 
+## Matrix products: default
+## BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 
+## LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.26.so;  LAPACK version 3.12.0
+## 
+## locale:
+##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+## 
+## time zone: Etc/UTC
+## tzcode source: system (glibc)
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+##  [1] mlr3viz_0.10.1      torchdatasets_0.3.1 mlr3mbo_0.3.3      
+##  [4] mlr3tuning_1.4.0    paradox_1.0.1       mlr3torch_0.3.2    
+##  [7] torch_0.16.2        future_1.67.0       mlr3pipelines_0.9.0
+## [10] mlr3_1.2.0          markdown_2.0       
+## 
+## loaded via a namespace (and not attached):
+##  [1] gtable_0.3.6         xfun_0.54            ggplot2_4.0.0       
+##  [4] processx_3.8.6       lattice_0.22-7       callr_3.7.6         
+##  [7] vctrs_0.6.5          tools_4.5.1          ps_1.9.1            
+## [10] safetensors_0.2.0    curl_7.0.0           parallel_4.5.1      
+## [13] tibble_3.3.0         pkgconfig_2.0.3      Matrix_1.7-3        
+## [16] data.table_1.17.8    checkmate_2.3.3      RColorBrewer_1.1-3  
+## [19] S7_0.2.0             assertthat_0.2.1     uuid_1.2-1          
+## [22] lifecycle_1.0.4      farver_2.1.2         compiler_4.5.1      
+## [25] stringr_1.6.0        precrec_0.14.5       codetools_0.2-20    
+## [28] bbotk_1.7.1          pillar_1.11.1        crayon_1.5.3        
+## [31] rpart_4.1.24         parallelly_1.45.1    digest_0.6.37       
+## [34] stringi_1.8.7        listenv_0.10.0       labeling_0.4.3      
+## [37] mlr3measures_1.1.0   rprojroot_2.1.1      grid_4.5.1          
+## [40] here_1.0.2           cli_3.6.5            magrittr_2.0.4      
+## [43] future.apply_1.20.0  withr_3.0.2          scales_1.4.0        
+## [46] backports_1.5.0      rappdirs_0.3.3       bit64_4.6.0-1       
+## [49] spacefillr_0.4.0     globals_0.18.0       jpeg_0.1-11         
+## [52] bit_4.6.0            ranger_0.17.0        evaluate_1.0.5      
+## [55] knitr_1.50           torchvision_0.7.0    viridisLite_0.4.2   
+## [58] mlr3misc_0.19.0      rlang_1.1.6          Rcpp_1.1.0          
+## [61] zeallot_0.2.0        glue_1.8.0           palmerpenguins_0.1.1
+## [64] coro_1.1.0           jsonlite_2.0.0       lgr_0.5.0           
+## [67] R6_2.6.1             fs_1.6.6             mlr3learners_0.13.0
+</code></pre>
+<pre><code class="language-r">Sys.time()
+</code></pre>
+<pre><code>## [1] &quot;2025-11-06 09:51:01 UTC&quot;
+</code></pre>
+</div>
+</body>
+</html>
