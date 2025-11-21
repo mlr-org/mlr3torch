@@ -23,7 +23,7 @@ pred$score(msr("regr.rmse"))
 ```
 
 ```
-## regr.rmse 
+## regr.rmse
 ##  4.736051
 ```
 
@@ -37,7 +37,7 @@ rr$aggregate(msr("regr.rmse"))
 ```
 
 ```
-## regr.rmse 
+## regr.rmse
 ##  4.274766
 ```
 
@@ -64,7 +64,7 @@ mnist
 ```
 
 ```
-## 
+##
 ## ── <TaskClassif> (70000x2): MNIST Digit Classification ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: label
 ## • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0 (10%), 6 (10%), 8 (10%), 4 (10%), 5 (9%)
@@ -128,7 +128,7 @@ mlp$model$network
 
 ```
 ## An `nn_module` containing 100,710 parameters.
-## 
+##
 ## ── Modules ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • 0: <nn_linear> #78,500 parameters
 ## • 1: <nn_relu> #0 parameters
@@ -156,7 +156,7 @@ pred$score(msr("classif.ce"))
 ```
 
 ```
-## classif.ce 
+## classif.ce
 ##       0.19
 ```
 
@@ -330,7 +330,7 @@ task
 ```
 
 ```
-## 
+##
 ## ── <TaskRegr> (32x11): Motor Trends ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: mpg
 ## • Properties: -
@@ -350,7 +350,7 @@ architecture <- nn("block", block) %>>% nn("head")
 config <- po("torch_loss", loss = t_loss("mse")) %>>%
   po("torch_optimizer", optimizer = t_opt("adamw"))
 
-model <- po("torch_model_regr", device = "cpu", batch_size = 512)
+model <- po("torch_model_regr", device = "cpu", batch_size = 32)
 
 pipeline <- ingress %>>%
   architecture %>>% config %>>% model
@@ -409,14 +409,14 @@ dogs_vs_cats_dataset("data", download = TRUE)
 ```
 ## <dataset>
 ##   Public:
-##     .getitem: function (i) 
-##     .length: function () 
+##     .getitem: function (i)
+##     .length: function ()
 ##     classes: dog cat
-##     clone: function (deep = FALSE) 
+##     clone: function (deep = FALSE)
 ##     images: data/dogs-vs-cats/train/cat.0.jpg data/dogs-vs-cats/trai ...
-##     initialize: function (root, split = "train", download = FALSE, ..., transform = NULL, 
-##     load_state_dict: function (x, ..., .refer_to_state_dict = FALSE) 
-##     state_dict: function () 
+##     initialize: function (root, split = "train", download = FALSE, ..., transform = NULL,
+##     load_state_dict: function (x, ..., .refer_to_state_dict = FALSE)
+##     state_dict: function ()
 ##     target_transform: NULL
 ##     targets: 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2  ...
 ##     transform: NULL
@@ -448,7 +448,7 @@ table(labels)
 
 ```
 ## labels
-##   cat   dog 
+##   cat   dog
 ## 12500 12500
 ```
 
@@ -459,7 +459,7 @@ task
 ```
 
 ```
-## 
+##
 ## ── <TaskClassif> (25000x2) ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: class
 ## • Target classes: cat (positive class, 50%), dog (50%)
@@ -513,7 +513,7 @@ task
 ```
 
 ```
-## 
+##
 ## ── <TaskClassif> (32701x5): Melanoma Classification ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: outcome
 ## • Target classes: malignant (positive class, 2%), benign (98%)
@@ -530,8 +530,8 @@ table(task$truth())
 ```
 
 ```
-## 
-## malignant    benign 
+##
+## malignant    benign
 ##       581     32120
 ```
 
@@ -540,7 +540,7 @@ task$missings("age_approx")
 ```
 
 ```
-## age_approx 
+## age_approx
 ##         44
 ```
 
@@ -622,46 +622,46 @@ sessionInfo()
 ## R version 4.5.1 (2025-06-13)
 ## Platform: aarch64-apple-darwin20
 ## Running under: macOS Sequoia 15.2
-## 
+##
 ## Matrix products: default
-## BLAS:   /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRblas.0.dylib 
+## BLAS:   /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRblas.0.dylib
 ## LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
-## 
+##
 ## locale:
 ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
-## 
+##
 ## time zone: Europe/Berlin
 ## tzcode source: internal
-## 
+##
 ## attached base packages:
-## [1] stats     graphics  grDevices datasets  utils     methods   base     
-## 
+## [1] stats     graphics  grDevices datasets  utils     methods   base
+##
 ## other attached packages:
-## [1] mlr3viz_0.10.1      torchdatasets_0.3.1 mlr3tuning_1.4.0   
-## [4] paradox_1.0.1       mlr3torch_0.3.2     torch_0.16.3       
-## [7] future_1.67.0       mlr3pipelines_0.9.0 mlr3_1.2.0         
-## 
+## [1] mlr3viz_0.10.1      torchdatasets_0.3.1 mlr3tuning_1.4.0
+## [4] paradox_1.0.1       mlr3torch_0.3.2     torch_0.16.3
+## [7] future_1.67.0       mlr3pipelines_0.9.0 mlr3_1.2.0
+##
 ## loaded via a namespace (and not attached):
-##  [1] gtable_0.3.6         xfun_0.54            ggplot2_4.0.0       
-##  [4] processx_3.8.6       callr_3.7.6          vctrs_0.6.5         
-##  [7] tools_4.5.1          ps_1.9.1             safetensors_0.2.0   
-## [10] parallel_4.5.1       tibble_3.3.0         pkgconfig_2.0.3     
-## [13] data.table_1.17.8    checkmate_2.3.3      RColorBrewer_1.1-3  
-## [16] S7_0.2.0             assertthat_0.2.1     uuid_1.2-1          
-## [19] lifecycle_1.0.4      compiler_4.5.1       farver_2.1.2        
-## [22] stringr_1.6.0        precrec_0.14.5       codetools_0.2-20    
-## [25] bbotk_1.7.1          pillar_1.11.1        crayon_1.5.3        
-## [28] rpart_4.1.24         parallelly_1.45.1    digest_0.6.37       
-## [31] stringi_1.8.7        listenv_0.10.0       mlr3measures_1.1.0  
-## [34] rprojroot_2.1.1      grid_4.5.1           here_1.0.2          
-## [37] cli_3.6.5            magrittr_2.0.4       future.apply_1.20.0 
-## [40] withr_3.0.2          scales_1.4.0         backports_1.5.0     
-## [43] rappdirs_0.3.3       bit64_4.6.0-1        globals_0.18.0      
-## [46] jpeg_0.1-11          bit_4.6.0            evaluate_1.0.5      
-## [49] knitr_1.50           torchvision_0.8.0    mlr3misc_0.19.0     
-## [52] rlang_1.1.6          Rcpp_1.1.0           zeallot_0.2.0       
+##  [1] gtable_0.3.6         xfun_0.54            ggplot2_4.0.0
+##  [4] processx_3.8.6       callr_3.7.6          vctrs_0.6.5
+##  [7] tools_4.5.1          ps_1.9.1             safetensors_0.2.0
+## [10] parallel_4.5.1       tibble_3.3.0         pkgconfig_2.0.3
+## [13] data.table_1.17.8    checkmate_2.3.3      RColorBrewer_1.1-3
+## [16] S7_0.2.0             assertthat_0.2.1     uuid_1.2-1
+## [19] lifecycle_1.0.4      compiler_4.5.1       farver_2.1.2
+## [22] stringr_1.6.0        precrec_0.14.5       codetools_0.2-20
+## [25] bbotk_1.7.1          pillar_1.11.1        crayon_1.5.3
+## [28] rpart_4.1.24         parallelly_1.45.1    digest_0.6.37
+## [31] stringi_1.8.7        listenv_0.10.0       mlr3measures_1.1.0
+## [34] rprojroot_2.1.1      grid_4.5.1           here_1.0.2
+## [37] cli_3.6.5            magrittr_2.0.4       future.apply_1.20.0
+## [40] withr_3.0.2          scales_1.4.0         backports_1.5.0
+## [43] rappdirs_0.3.3       bit64_4.6.0-1        globals_0.18.0
+## [46] jpeg_0.1-11          bit_4.6.0            evaluate_1.0.5
+## [49] knitr_1.50           torchvision_0.8.0    mlr3misc_0.19.0
+## [52] rlang_1.1.6          Rcpp_1.1.0           zeallot_0.2.0
 ## [55] glue_1.8.0           renv_1.1.5           palmerpenguins_0.1.1
-## [58] coro_1.1.0           jsonlite_2.0.0       lgr_0.5.0           
+## [58] coro_1.1.0           jsonlite_2.0.0       lgr_0.5.0
 ## [61] R6_2.6.1             fs_1.6.6
 ```
 

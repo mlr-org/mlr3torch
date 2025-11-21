@@ -222,7 +222,7 @@ architecture <- nn("block", block) %>>% nn("head")
 config <- po("torch_loss", loss = t_loss("mse")) %>>%
   po("torch_optimizer", optimizer = t_opt("adamw"))
 
-model <- po("torch_model_regr", device = "cpu", batch_size = 512)
+model <- po("torch_model_regr", device = "cpu", batch_size = 32)
 
 pipeline <- ingress %>>%
   architecture %>>% config %>>% model
