@@ -62,6 +62,7 @@
 #' **Dataloader**:
 #' * `batch_size` :: `integer(1)`\cr
 #'   The batch size (required).
+#'   When working with small models or datasets, choosing a larger batch size can considerably speed up training.
 #' * `shuffle` :: `logical(1)`\cr
 #'   Whether to shuffle the instances in the dataset. This is initialized to `TRUE`,
 #'   which differs from the default (`FALSE`).
