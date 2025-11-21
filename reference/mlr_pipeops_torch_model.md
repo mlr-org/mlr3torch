@@ -91,8 +91,7 @@ The parameters of the optimizer, loss and callbacks, prefixed with
 **Dataloader**:
 
 - `batch_size` :: `integer(1)`  
-  The batch size (required). When working with small models or datasets,
-  choosing a larger batch size can considerably speed up training.
+  The batch size (required).
 
 - `shuffle` :: `logical(1)`  
   Whether to shuffle the instances in the dataset. This is initialized

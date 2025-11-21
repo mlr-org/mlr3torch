@@ -77,6 +77,25 @@ Furthermore, the target encoding is expected to be as follows:
   with shape `(batch_size)` where the label-encoding goes from `1` to
   `n_classes`.
 
+## Important Runtime Considerations
+
+There are a few hyperparameters settings that can have a considerable
+impact on the runtime of the learner. These include:
+
+- `device`: Use a GPU if possible.
+
+- `num_threads`: Set this to the number of CPU cores available if
+  training on CPU.
+
+- `tensor_dataset`: Set this to `TRUE` (or `"device"` if on a GPU) if
+  the dataset fits into memory.
+
+- `batch_size`: Especially for very small models, choose a larger batch
+  size.
+
+Also, see the *Early Stopping and Internal Tuning* section for how to
+terminate training early.
+
 ## Model
 
 The Model is a list of class `"learner_torch_model"` with the following
@@ -192,8 +211,7 @@ The parameters of the optimizer, loss and callbacks, prefixed with
 **Dataloader**:
 
 - `batch_size` :: `integer(1)`  
-  The batch size (required). When working with small models or datasets,
-  choosing a larger batch size can considerably speed up training.
+  The batch size (required).
 
 - `shuffle` :: `logical(1)`  
   Whether to shuffle the instances in the dataset. This is initialized

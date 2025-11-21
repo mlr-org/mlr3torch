@@ -124,6 +124,17 @@ is also ensured to be the first factor level) is <code>1</code> and the negative
 <code><a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch_long</a></code> with shape <code>(batch_size)</code> where the label-encoding goes from <code>1</code> to <code>n_classes</code>.</p></li>
 </ul></div>
     <div class="section level2">
+    <h2 id="important-runtime-considerations">Important Runtime Considerations<a class="anchor" aria-label="anchor" href="#important-runtime-considerations"></a></h2>
+
+
+<p>There are a few hyperparameters settings that can have a considerable impact on the runtime of the learner.
+These include:</p><ul><li><p><code>device</code>: Use a GPU if possible.</p></li>
+<li><p><code>num_threads</code>: Set this to the number of CPU cores available if training on CPU.</p></li>
+<li><p><code>tensor_dataset</code>: Set this to <code>TRUE</code> (or <code>"device"</code> if on a GPU) if the dataset fits into memory.</p></li>
+<li><p><code>batch_size</code>: Especially for very small models, choose a larger batch size.</p></li>
+</ul><p>Also, see the <em>Early Stopping and Internal Tuning</em> section for how to terminate training early.</p>
+    </div>
+    <div class="section level2">
     <h2 id="model">Model<a class="anchor" aria-label="anchor" href="#model"></a></h2>
 
 
@@ -192,8 +203,7 @@ field of the learner.</p></li>
 The minimum improvement threshold for early stopping.
 Is initialized to 0.</p></li>
 </ul><p><strong>Dataloader</strong>:</p><ul><li><p><code>batch_size</code> :: <code>integer(1)</code><br>
-The batch size (required).
-When working with small models or datasets, choosing a larger batch size can considerably speed up training.</p></li>
+The batch size (required).</p></li>
 <li><p><code>shuffle</code> :: <code>logical(1)</code><br>
 Whether to shuffle the instances in the dataset. This is initialized to <code>TRUE</code>,
 which differs from the default (<code>FALSE</code>).</p></li>
