@@ -66,7 +66,7 @@ code_lines <- c(
   "#' ```",
   "Sys.time()",
   "options(mlr3torch.cache = TRUE)",
-  "lgr::get_logger('mlr3')$set_threshold('warn')",
+  "lgr::get_logger(\"mlr3\")$set_threshold(\"warn\")",
   code_lines,
   "saveRDS(plt, here::here(\"paper\", \"roc.rds\"))",
   "Sys.time()",

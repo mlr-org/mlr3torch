@@ -1,9 +1,15 @@
 #' ```{r setup, include=FALSE}
 #' knitr::opts_chunk$set(cache = FALSE)
 #' ```
+
+# Some setup code
 Sys.time()
 options(mlr3torch.cache = TRUE)
 lgr::get_logger('mlr3')$set_threshold('warn')
+
+# 2.2 Main dependencies
+
+# mlr3
 library("mlr3")
 set.seed(42)
 task <- tsk("mtcars")
@@ -13,6 +19,7 @@ learner$train(task, split$train)
 pred <- learner$predict(task, split$test)
 pred$score(msr("regr.rmse"))
 
+# mlr3pipelines
 library("mlr3pipelines")
 graph_learner <- as_learner(po("pca") %>>% lrn("regr.rpart"))
 
@@ -20,6 +27,7 @@ resampling <- rsmp("cv", folds = 3)
 rr <- resample(task, graph_learner, resampling)
 rr$aggregate(msr("regr.rmse"))
 
+# torch
 library("torch")
 torch_manual_seed(42)
 x <- torch_tensor(1, device = "cpu")
@@ -28,6 +36,9 @@ y <- w * x
 y$backward()
 w$grad
 
+# 3. Building Blocks
+
+# 3.1 Data representation
 library("mlr3torch")
 mnist <- tsk("mnist")
 mnist
@@ -40,6 +51,9 @@ str(materialize(rows$image))
 po_flat <- po("trafo_reshape", shape = c(-1, 28 * 28))
 mnist_flat <- po_flat$train(list(mnist))[[1L]]
 mnist_flat$head(2)
+
+
+# 3.2 The LearnerTorch class
 
 mlp <- lrn("classif.mlp",
  loss = t_loss("cross_entropy"),
@@ -69,6 +83,8 @@ mlp2 <- readRDS(pth)
 mlp2$unmarshal()
 
 set_validate(mlp, validate = 0.3)
+
+# 3.3 Neural networks as Graphs
 
 nn_simple <- nn_module("nn_simple",
   initialize = function(d_in, d_latent, d_out) {
@@ -125,6 +141,10 @@ graph <- list(path_num, path_categ) %>>% nn("merge_cat", dim = 2)
 
 blocks <- nn("block", residual_layer, n_blocks = 5)
 
+# 4. Extending the package
+
+# 4.1 Loss and optimizer
+
 nn_winsorized_mse <- nn_module(c("nn_winsorized_mse", "nn_loss"),
   initialize = function(max_loss) {
     self$max_loss <- max_loss
@@ -135,6 +155,8 @@ nn_winsorized_mse <- nn_module(c("nn_winsorized_mse", "nn_loss"),
 )
 tloss <- as_torch_loss(nn_winsorized_mse)
 tloss
+
+# 4.2 Callbacks
 
 gradient_clipper <- torch_callback("gradient_clipper",
   initialize = function(max_norm, norm_type) {
@@ -154,6 +176,8 @@ gradient_clipper <- torch_callback("gradient_clipper",
     self$norms = state_dict
   }
 )
+
+# 4.3 Learners and task types
 
 nn_ffn <- nn_module("nn_ffn",
   initialize = function(task, latent_dim, n_layers) {
@@ -178,6 +202,11 @@ lrn_ffn <- lrn("classif.module",
   module_generator = nn_ffn,
   ingress_tokens = num_input,
   latent_dim = 100, n_layers = 5)
+
+
+# 5. Use cases
+
+# 5.1 Simple neural architecture search
 
 task <- tsk("mtcars")
 task
@@ -215,7 +244,6 @@ learner$param_set$set_values(
   torch_model_regr.measures_valid = msr("regr.mse"),
   torch_model_regr.epochs = to_tune(upper = 100, internal = TRUE))
 
-library("mlr3tuning")
 ti <- tune(
   tuner = tnr("random_search"),
   resampling = rsmp("holdout"),
@@ -226,6 +254,8 @@ ti <- tune(
 pvals <- ti$result_learner_param_vals[1:6]
 cat(paste("*", names(pvals), "=", pvals,
  collapse = "\n"), "\n")
+
+# 5.2 Fine-tuning an image network
 
 library("torchdatasets")
 dogs_vs_cats_dataset("data", download = TRUE)
@@ -274,6 +304,9 @@ learner$id <- "resnet"
 set_validate(learner, 1 / 3)
 learner$train(task, c(12400:12600))
 learner$model$classif.resnet18$model$callbacks$history
+
+
+# 5.3 Multi-modal data
 
 task <- tsk("melanoma")
 task
@@ -334,6 +367,7 @@ task_subset$filter(subset)
 rr <- resample(task_subset, glrn, rsmp("holdout"))
 plt <- autoplot(rr, type = "roc")
 
+# Save plot so it can be modified later
 saveRDS(plt, here::here("paper", "roc.rds"))
 Sys.time()
 sessionInfo()

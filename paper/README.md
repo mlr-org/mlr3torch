@@ -14,9 +14,6 @@ We are providing two docker images, one for CPU and one for CUDA GPU, that have 
 The images can be downloaded from Zenodo: https://doi.org/10.5281/zenodo.17130368.
 You can, for example, use the [zenodo_client](https://pypi.org/project/zenodo-client/) library to download the images:
 
-Note that below, we are using a different ID than the one from above, as the uploaded data has different versions.
-The DOI above always resolves to the latest version of the data,
-
 ```bash
 # pip install zenodo-client
 export ZENODO_API_TOKEN=<your-token>
@@ -46,7 +43,7 @@ enroot create --name mlr3torch-jss:cpu sebffischer+mlr3torch-jss+cpu.sqsh
 To start the container using `Docker`, run:
 
 ```bash
-docker run -it --rm -v <parent-dir-to-mlr3torch>:/mnt/data/mlr3torch sebffischer/mlr3torch-jss:cpu
+docker run -it --rm -v <parent-dir-to-mlr3torch>:/mnt/data/ sebffischer/mlr3torch-jss:cpu
 # go into the mlr3torch directory
 cd /mnt/data/mlr3torch
 ```
@@ -106,6 +103,8 @@ The results are stored in:
 * `paper/benchmark/result-linux-cpu.rds`
 * `paper/benchmark/result-linux-gpu-optimizer.rds`
 
+The scripts can, of course, also be run on different machines. The linux names just emphasizes that the provided results are for the linux docker images.
+
 There are also some exemplary slurm scripts that need to be adapted to the specific cluster and job submission system.
 
 * `paper/benchmark/benchmark_gpu.sh`
@@ -143,6 +142,7 @@ These commands generate the files:
 * `paper/benchmark/plot_benchmark.png`
 * `paper/benchmark/plot_benchmark_relative.png`
 * `paper/benchmark/plot_optimizer.png`
+* `paper/benchmark/plot_optimizer_relative.png`
 
 ## Recreating the Paper Code
 
@@ -160,7 +160,7 @@ The results in the paper are those from the CPU docker image and they were fully
 There were some minor differences in results when re-running the code on a different machine (macOS with M1 CPU vs Linux with Intel CPU).
 
 The file `paper_code.R` contains some very minor differences to the paper we omitted in the paper for brevity:
-It was extracted from the tex manuscript fully programmatically but adjusted with the following modifications:
+It was extracted from the tex manuscript almost fully programmatically but adjusted with the following modifications:
 
 * Time measurements (`Sys.time()`)
 * Deactivate knitr caching
@@ -169,22 +169,32 @@ It was extracted from the tex manuscript fully programmatically but adjusted wit
 * Saving the ROC plot for postprocessing
 * Adding a `sessionInfo()` call at the end
 
-The results are stored in `./paper/paper_results/`
+We also added some additional comments to make it easier to associate the code with the paper.
+
+The results of `knitr::spin()` are stored in `./paper/paper_results/`
 The ROC plot is postprocessed using the `roc.R` script, which results in the file `paper/paper_results/roc.png`.
 
 ### Possible Data Unavailability
 
 The code shown in the paper downloads various datasets from standard resources.
-In the unlikely, but possible event that these datasets are not available anymore, we include:
+In the unlikely but possible event that these datasets are not available anymore, we include:
 
 1. the cache directory for `torch` (MNIST, ResNet-18) and `mlr3torch` (postprocessed MNIST, Melanoma)
 2. the dogs-vs-cats dataset
 
 in the Zenodo data.
 
-If one of the downloads (1) fails, download the `cache.tar.gz` file from zenodo, untar it and put it in the location where the cache is (put it as `/root/.cache/` when using the docker images).
+If one of the downloads (1) fails, download the `cache.tar.gz` file from zenodo, untar it and put it in the location where the cache is (put the `R` folder of the cache into `/root/.cache/R` and the `torch` folder into `/root/.cache/torch` when using the docker images).
 
-If (2) fails, download `dogs-vs-cats.tar.gz` from Zenodo, untar it and put it into the directory where you are running the `paper_code.R`.
+If (2) fails, download `dogs-vs-cats.tar.gz` from Zenodo, untar it and put it into the `./data` subdirectory where you are running the `paper_code.R` (so the directory structure is `./data/dogs-vs-cats`).
+
+To do this in the Docker image you can, e.g., put the files into the parent directory of the `mlr3torch` directory (which will be mounted) and then after starting the container, copy the files into the correct location.
+Assuming the unpacked cache files are in `/mnt/data/cache`, you can copy them into the correct location with:
+
+```bash
+cp -r /mnt/data/cache/R/mlr3torch /root/.cache/R
+cp -r /mnt/data/cache/torch /root/.cache/torch
+```
 
 ### Other errors
 

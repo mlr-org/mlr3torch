@@ -4,6 +4,7 @@ setwd(here("paper"))
 source(here("paper", "benchmark", "benchmark.R"))
 
 # Change this when not running this in the docker image
+# Below is the correct python path for the CPU docker image.
 PYTHON_PATH = "/opt/venv/bin/python"
 
 setup(
