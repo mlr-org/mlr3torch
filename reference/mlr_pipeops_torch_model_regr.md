@@ -233,16 +233,14 @@ po_model$state
 #> $optimizer$state$`1`
 #> $optimizer$state$`1`$exp_avg
 #> torch_tensor
-#> Columns 1 to 7    0.6291    26.7751    54.9101  2533.8630    20.7688    21.7206  1502.4535
-#> 
-#> Columns 8 to 10  109.2389    -0.3349    28.1205
+#> -4.8541 -30.1956 -70.0823 -2627.7754 -41.6887 -42.4697 -1597.0687 -208.2469 -5.2770 -36.6617
 #> [ CPUFloatType{1,10} ]
 #> 
 #> $optimizer$state$`1`$exp_avg_sq
 #> torch_tensor
-#> Columns 1 to 6 7.1111e-02  4.5781e+01  1.7720e+02  3.6815e+05  2.5979e+01  2.9319e+01
+#> Columns 1 to 6 1.3021e+00  5.1401e+01  2.7209e+02  3.8153e+05  9.6206e+01  9.9915e+01
 #> 
-#> Columns 7 to 10 1.3819e+05  6.9363e+02  1.0135e-02  4.6335e+01
+#> Columns 7 to 10 1.4337e+05  2.3966e+03  1.5476e+00  7.4347e+01
 #> [ CPUFloatType{1,10} ]
 #> 
 #> $optimizer$state$`1`$max_exp_avg_sq
@@ -258,12 +256,12 @@ po_model$state
 #> $optimizer$state$`2`
 #> $optimizer$state$`2`$exp_avg
 #> torch_tensor
-#>  6.6201
+#> -11.5813
 #> [ CPUFloatType{1} ]
 #> 
 #> $optimizer$state$`2`$exp_avg_sq
 #> torch_tensor
-#>  2.5720
+#>  7.4161
 #> [ CPUFloatType{1} ]
 #> 
 #> $optimizer$state$`2`$max_exp_avg_sq
@@ -353,7 +351,7 @@ po_model$state
 #> Empty data.table (0 rows and 3 cols): stage,class,msg
 #> 
 #> $train_time
-#> [1] 0.047
+#> [1] 0.072
 #> 
 #> $task_hash
 #> [1] "c7c4f02878d51895"
