@@ -1,0 +1,27 @@
+# -------- CPU-only base image (R 4.5) --------
+FROM rocker/r-ver:4.5.1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      python3 python3-venv python3-dev python3-pip ca-certificates curl \
+ && rm -rf /var/lib/apt/lists/*
+
+# Create and use venv
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:${PATH}"
+
+RUN pip  install --no-cache-dir --upgrade pip \
+ && pip install --no-cache-dir \
+      torch --index-url https://download.pytorch.org/whl/cpu \
+      numpy
+
+# otherwise wrong libicui
+RUN Rscript --vanilla -e 'options(repos = c(CRAN = "https://cloud.r-project.org")); install.packages("stringi")'
+
+COPY .Rprofile /usr/local/lib/R/etc/Rprofile.site
+COPY envs/renv/renv.lock . 
+
+RUN R -q -e "install.packages('renv')"
+RUN R -q -e "options(renv.config.repos.override = c(pppm = 'https://packagemanager.posit.co/cran/latest', cran = 'https://cloud.r-project.org/')); renv::restore(lockfile = 'renv.lock', library = .libPaths()[1], prompt = FALSE)"
+RUN R -q -e "torch::install_torch()"
+
+CMD ["bash"]
