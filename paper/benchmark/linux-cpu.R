@@ -1,19 +1,19 @@
 library(here)
 
-source(here("paper", "benchmark", "benchmark.R"))
+source(here("benchmark", "benchmark.R"))
 
 # Change this when not running this in the docker image
 # Below is the correct python path for the CPU docker image.
 PYTHON_PATH = "/opt/venv/bin/python"
 
-if (dir.exists(here("paper", "benchmark", "registry-linux-gpu"))) {
+if (dir.exists(here("benchmark", "registry-linux-gpu"))) {
   stop("Registry already exists. Delete it to run the benchmark again.")
 }
 
 setup(
-  here("paper", "benchmark", "registry-linux-cpu"),
+  here("benchmark", "registry-linux-cpu"),
   PYTHON_PATH,
-  here("paper")
+  here()
 )
 
 problem_design = expand.grid(
@@ -57,6 +57,6 @@ for (id in sample(tbl$job.id)) {
   Sys.sleep(0.1)
 }
 
-source(here("paper", "benchmark", "summarize.R"))
+source(here("benchmark", "summarize.R"))
 result = summarize(tbl$job.id)
-saveRDS(result, here("paper", "benchmark", "result-linux-cpu.rds"))
+saveRDS(result, here("benchmark", "result-linux-cpu.rds"))

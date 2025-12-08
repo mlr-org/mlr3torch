@@ -1,6 +1,6 @@
 library(here)
 
-source(here("paper", "benchmark", "benchmark.R"))
+source(here("benchmark", "benchmark.R"))
 
 # Change this when not running this in the docker image
 # Below is the correct python path for the CUDA docker image
@@ -20,14 +20,14 @@ problem_design = expand.grid(
   stringsAsFactors = FALSE
 )
 
-if (dir.exists(here("paper", "benchmark", "registry-linux-gpu-optimizer"))) {
+if (dir.exists(here("benchmark", "registry-linux-gpu-optimizer"))) {
   stop("Registry already exists. Delete it to run the benchmark again.")
 }
 
 setup(
-  here("paper", "benchmark", "registry-linux-gpu-optimizer"),
+  here("benchmark", "registry-linux-gpu-optimizer"),
   PYTHON_PATH,
-  here("paper")
+  here()
 )
 
 addExperiments(
@@ -50,6 +50,6 @@ for (id in sample(tbl$job.id)) {
   Sys.sleep(0.1)
 }
 
-source(here("paper", "benchmark", "summarize.R"))
+source(here("benchmark", "summarize.R"))
 result = summarize(tbl$job.id)
-saveRDS(result, here("paper", "benchmark", "result-linux-gpu-optimizer.rds"))
+saveRDS(result, here("benchmark", "result-linux-gpu-optimizer.rds"))

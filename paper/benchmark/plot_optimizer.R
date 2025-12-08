@@ -1,7 +1,7 @@
 library(ggplot2)
 library(data.table)
 
-tbl = readRDS(here::here("paper", "benchmark", "result-linux-gpu-optimizer.rds"))
+tbl = readRDS(here::here("benchmark", "result-linux-gpu-optimizer.rds"))
 
 tbl_summary = tbl[,
     .(time_per_batch_med = median(time_per_batch * 1000),
@@ -22,7 +22,7 @@ ggplot(tbl_summary, aes(x = n_layers, y = time_per_batch_med, color = opt_type))
 
 
 
-ggsave(here::here("paper", "benchmark", "plot_optimizer.png"), width = 12, height = 4, dpi = 300)
+ggsave(here::here("benchmark", "plot_optimizer.png"), width = 12, height = 4, dpi = 300)
 
 
 # ignite relative to standard
@@ -46,4 +46,4 @@ ggplot(tbl_summary_relative, aes(x = n_layers, y = time_per_batch_med_rel, color
   )
 
 
-ggsave(here::here("paper", "benchmark", "plot_optimizer_relative.png"), width = 12, height = 4, dpi = 300)
+ggsave(here::here("benchmark", "plot_optimizer_relative.png"), width = 12, height = 4, dpi = 300)

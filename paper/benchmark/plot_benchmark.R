@@ -3,9 +3,9 @@ library(here)
 library(data.table)
 library(cowplot)
 
-tbl1 = readRDS(here::here("paper", "benchmark", "result-linux-cpu.rds"))
+tbl1 = readRDS(here::here("benchmark", "result-linux-cpu.rds"))
 tbl1$os = "linux"
-tbl2 = readRDS(here::here("paper", "benchmark", "result-linux-gpu.rds"))
+tbl2 = readRDS(here::here("benchmark", "result-linux-gpu.rds"))
 tbl2$os = "linux"
 
 TEXT_SIZE = 12
@@ -99,7 +99,7 @@ plot_combined <- plot_grid(
   rel_heights = c(1, 0.1, 1)
 )
 
-ggsave(here::here("paper", "benchmark", "plot_benchmark.png"),
+ggsave(here::here("benchmark", "plot_benchmark.png"),
   plot_combined, width = 12, height = 4, dpi = 300)
 
 plt_relative <- function(opt_name, gpu, os, show_y_label = TRUE, show_x_label = TRUE) {
@@ -182,7 +182,7 @@ plot_combined <- plot_grid(
 )
 plot_combined
 
-ggsave(here::here("paper", "benchmark", "plot_benchmark_relative.png"),
+ggsave(here::here("benchmark", "plot_benchmark_relative.png"),
   plot_combined, width = 12, height = 4, dpi = 300)
 
 tbl_linux_cuda[optimizer == "adamw", mean(median(time_per_batch * 1000))]

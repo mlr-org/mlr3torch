@@ -369,7 +369,7 @@ rr <- resample(task_subset, glrn, rsmp("holdout"))
 plt <- autoplot(rr, type = "roc")
 
 # Save plot so it can be modified later
-saveRDS(plt, here::here("paper", "roc.rds"))
+saveRDS(plt, "roc.rds")
 Sys.time()
 sessionInfo()
 ````

@@ -2,16 +2,21 @@
 
 
 ``` r
+# Some setup code
 Sys.time()
 ```
 
 ```
-## [1] "2025-11-07 11:26:56 UTC"
+## [1] "2025-12-08 12:26:50 CET"
 ```
 
 ``` r
 options(mlr3torch.cache = TRUE)
 lgr::get_logger('mlr3')$set_threshold('warn')
+
+# 2.2 Main dependencies
+
+# mlr3
 library("mlr3")
 set.seed(42)
 task <- tsk("mtcars")
@@ -28,6 +33,7 @@ pred$score(msr("regr.rmse"))
 ```
 
 ``` r
+# mlr3pipelines
 library("mlr3pipelines")
 graph_learner <- as_learner(po("pca") %>>% lrn("regr.rpart"))
 
@@ -42,6 +48,7 @@ rr$aggregate(msr("regr.rmse"))
 ```
 
 ``` r
+# torch
 library("torch")
 torch_manual_seed(42)
 x <- torch_tensor(1, device = "cpu")
@@ -58,6 +65,9 @@ w$grad
 ```
 
 ``` r
+# 3. Building Blocks
+
+# 3.1 Data representation
 library("mlr3torch")
 mnist <- tsk("mnist")
 mnist
@@ -65,7 +75,7 @@ mnist
 
 ```
 ##
-## ── <TaskClassif> (70000x2): MNIST Digit Classification ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── <TaskClassif> (70000x2): MNIST Digit Classification ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: label
 ## • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0 (10%), 6 (10%), 8 (10%), 4 (10%), 5 (9%)
 ## • Properties: multiclass
@@ -109,6 +119,8 @@ mnist_flat$head(2)
 ```
 
 ``` r
+# 3.2 The LearnerTorch class
+
 mlp <- lrn("classif.mlp",
  loss = t_loss("cross_entropy"),
  optimizer = t_opt("adamw", lr = 0.001),
@@ -129,7 +141,7 @@ mlp$model$network
 ```
 ## An `nn_module` containing 100,710 parameters.
 ##
-## ── Modules ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Modules ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • 0: <nn_linear> #78,500 parameters
 ## • 1: <nn_relu> #0 parameters
 ## • 2: <nn_dropout> #0 parameters
@@ -146,7 +158,7 @@ head(mlp$model$callbacks$history, n = 2)
 ```
 ##    epoch train.classif.logloss
 ##    <num>                 <num>
-## 1:     1              4.266895
+## 1:     1              4.266896
 ## 2:     2              1.296983
 ```
 
@@ -157,7 +169,7 @@ pred$score(msr("classif.ce"))
 
 ```
 ## classif.ce
-##       0.21
+##       0.19
 ```
 
 ``` r
@@ -168,6 +180,8 @@ mlp2 <- readRDS(pth)
 mlp2$unmarshal()
 
 set_validate(mlp, validate = 0.3)
+
+# 3.3 Neural networks as Graphs
 
 nn_simple <- nn_module("nn_simple",
   initialize = function(d_in, d_latent, d_out) {
@@ -254,6 +268,10 @@ graph <- list(path_num, path_categ) %>>% nn("merge_cat", dim = 2)
 
 blocks <- nn("block", residual_layer, n_blocks = 5)
 
+# 4. Extending the package
+
+# 4.1 Loss and optimizer
+
 nn_winsorized_mse <- nn_module(c("nn_winsorized_mse", "nn_loss"),
   initialize = function(max_loss) {
     self$max_loss <- max_loss
@@ -275,6 +293,8 @@ tloss
 ```
 
 ``` r
+# 4.2 Callbacks
+
 gradient_clipper <- torch_callback("gradient_clipper",
   initialize = function(max_norm, norm_type) {
     self$norms <- numeric()
@@ -293,6 +313,8 @@ gradient_clipper <- torch_callback("gradient_clipper",
     self$norms = state_dict
   }
 )
+
+# 4.3 Learners and task types
 
 nn_ffn <- nn_module("nn_ffn",
   initialize = function(task, latent_dim, n_layers) {
@@ -325,13 +347,18 @@ lrn_ffn <- lrn("classif.module",
   ingress_tokens = num_input,
   latent_dim = 100, n_layers = 5)
 
+
+# 5. Use cases
+
+# 5.1 Simple neural architecture search
+
 task <- tsk("mtcars")
 task
 ```
 
 ```
 ##
-## ── <TaskRegr> (32x11): Motor Trends ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── <TaskRegr> (32x11): Motor Trends ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: mpg
 ## • Properties: -
 ## • Features (10):
@@ -379,7 +406,6 @@ learner$param_set$set_values(
   torch_model_regr.measures_valid = msr("regr.mse"),
   torch_model_regr.epochs = to_tune(upper = 100, internal = TRUE))
 
-library("mlr3tuning")
 ti <- tune(
   tuner = tnr("random_search"),
   resampling = rsmp("holdout"),
@@ -402,6 +428,8 @@ cat(paste("*", names(pvals), "=", pvals,
 ```
 
 ``` r
+# 5.2 Fine-tuning an image network
+
 library("torchdatasets")
 dogs_vs_cats_dataset("data", download = TRUE)
 ```
@@ -460,7 +488,7 @@ task
 
 ```
 ##
-## ── <TaskClassif> (25000x2) ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── <TaskClassif> (25000x2) ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: class
 ## • Target classes: cat (positive class, 50%), dog (50%)
 ## • Properties: twoclass
@@ -501,20 +529,22 @@ learner$model$classif.resnet18$model$callbacks$history
 ##    epoch valid.classif.acc
 ##    <num>             <num>
 ## 1:     1         0.4179104
-## 2:     2         0.4477612
+## 2:     2         0.4626866
 ## 3:     3         0.8955224
 ## 4:     4         0.8955224
 ## 5:     5         0.9253731
 ```
 
 ``` r
+# 5.3 Multi-modal data
+
 task <- tsk("melanoma")
 task
 ```
 
 ```
 ##
-## ── <TaskClassif> (32701x5): Melanoma Classification ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── <TaskClassif> (32701x5): Melanoma Classification ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: outcome
 ## • Target classes: malignant (positive class, 2%), benign (98%)
 ## • Properties: twoclass, groups
@@ -596,22 +626,27 @@ subset <- partition(task_subset, ratio = 0.1)$train
 task_subset$filter(subset)
 rr <- resample(task_subset, glrn, rsmp("holdout"))
 plt <- autoplot(rr, type = "roc")
+
+# Save plot so it can be modified later
+saveRDS(plt, "roc.rds")
 ```
 
 ```
-## Warning in ggplot2::fortify(object, raw_curves = raw_curves, reduce_points = reduce_points): Arguments in `...` must be used.
-## ✖ Problematic argument:
-## • raw_curves = raw_curves
-## ℹ Did you misspell an argument name?
+## Warning in gzfile(file, mode): cannot open compressed file
+## '/Users/sebi/mlr/mlr3torch/paper/paper/roc.rds', probable reason 'No such file
+## or directory'
+```
+
+```
+## Error in gzfile(file, mode): cannot open the connection
 ```
 
 ``` r
-saveRDS(plt, "roc.rds")
 Sys.time()
 ```
 
 ```
-## [1] "2025-11-07 11:38:22 UTC"
+## [1] "2025-12-08 12:34:20 CET"
 ```
 
 ``` r
@@ -620,29 +655,24 @@ sessionInfo()
 
 ```
 ## R version 4.5.1 (2025-06-13)
-## Platform: x86_64-pc-linux-gnu
-## Running under: Ubuntu 24.04.3 LTS
+## Platform: aarch64-apple-darwin20
+## Running under: macOS Sequoia 15.2
 ##
 ## Matrix products: default
-## BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3
-## LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.26.so;  LAPACK version 3.12.0
+## BLAS:   /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRblas.0.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
 ##
 ## locale:
-##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C
-##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8
-##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8
-##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C
-##  [9] LC_ADDRESS=C               LC_TELEPHONE=C
-## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C
+## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
 ##
-## time zone: Etc/UTC
-## tzcode source: system (glibc)
+## time zone: Europe/Berlin
+## tzcode source: internal
 ##
 ## attached base packages:
-## [1] stats     graphics  grDevices utils     datasets  methods   base
+## [1] stats     graphics  grDevices datasets  utils     methods   base
 ##
 ## other attached packages:
-## [1] mlr3viz_0.10.1      torchdatasets_0.3.1 mlr3tuning_1.4.0
+## [1] mlr3viz_0.10.1.9000 torchdatasets_0.3.1 mlr3tuning_1.4.0
 ## [4] paradox_1.0.1       mlr3torch_0.3.2     torch_0.16.3
 ## [7] future_1.67.0       mlr3pipelines_0.9.0 mlr3_1.2.0
 ##
@@ -665,8 +695,8 @@ sessionInfo()
 ## [46] jpeg_0.1-11          bit_4.6.0            evaluate_1.0.5
 ## [49] knitr_1.50           torchvision_0.8.0    mlr3misc_0.19.0
 ## [52] rlang_1.1.6          Rcpp_1.1.0           zeallot_0.2.0
-## [55] glue_1.8.0           palmerpenguins_0.1.1 coro_1.1.0
-## [58] jsonlite_2.0.0       lgr_0.5.0            R6_2.6.1
-## [61] fs_1.6.6
+## [55] glue_1.8.0           renv_1.1.5           palmerpenguins_0.1.1
+## [58] coro_1.1.0           jsonlite_2.0.0       lgr_0.5.0
+## [61] R6_2.6.1             fs_1.6.6
 ```
 
