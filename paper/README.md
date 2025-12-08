@@ -1,16 +1,17 @@
 # Reproducing the Results
 
+In this document, the root directory (`./`) always refers to the `mlr3torch` directory, which can either be the [GitHub repository](https://github.com/mlr-org/mlr3torch) or the `mlr3torch` folder containing a `paper` directory with the replication material.
+
 ## Computational Environment
 
 In order to reproduce the results, you can either use the provided docker images or recreate the `renv` environment that is described in `./paper/renv.lock`.
-
-You can recreate the `renv` environment by going into the `./paper/envs/renv` directory and running:
+To work with the renv environment, go into the `./paper` directory, which will bootstrap the environment, and then run:
 
 ```r
-renv::init()
+renv::restore()
 ```
 
-We are providing two docker images, one for CPU and one for CUDA GPU, that have the same packages from the `renv.lock` file installed.
+We are providing two docker images, one for CPU and one for CUDA GPU that have the same packages from the `renv.lock` file installed.
 The images can be downloaded from Zenodo: https://doi.org/10.5281/zenodo.17130368.
 You can, for example, use the [zenodo_client](https://pypi.org/project/zenodo-client/) library to download the images:
 
@@ -40,6 +41,8 @@ docker run -it --rm -v <parent-dir-to-mlr3torch>:/mnt/data/ sebffischer/mlr3torc
 # go into the mlr3torch directory
 cd /mnt/data/mlr3torch
 ```
+
+Note that the `./paper/.Rprofile` file ensures that when running R programs from the `./paper` directory, the renv environment will be used unless the code is run in the docker container.
 
 ## Running the Benchmark
 
@@ -83,9 +86,9 @@ Rscript benchmark/linux-gpu-optimizer.R
 
 The results are stored in:
 
-* `paper/benchmark/result-linux-gpu.rds`
-* `paper/benchmark/result-linux-cpu.rds`
-* `paper/benchmark/result-linux-gpu-optimizer.rds`
+* `./paper/benchmark/result-linux-gpu.rds`
+* `./paper/benchmark/result-linux-cpu.rds`
+* `./paper/benchmark/result-linux-gpu-optimizer.rds`
 
 The scripts can, of course, also be run on different machines. The linux names just emphasizes that the provided results are for the linux docker images.
 
@@ -109,30 +112,30 @@ for (id in sample(ids)) {
 
 ### Generating the Benchmark Plots
 
-For the main benchmark shown in the paper, run:
+For the main benchmark shown in the paper, run the following command from the `./paper` directory:
 
 ```r
-Rscript paper/benchmark/plot_benchmark.R
+Rscript benchmark/plot_benchmark.R
 ```
 
 For the comparison of "ignite" with standard optimizers, run:
 
 ```r
-Rscript paper/benchmark/plot_optimizer.R
+Rscript benchmark/plot_optimizer.R
 ```
 
 These commands generate the files:
 
-* `paper/benchmark/plot_benchmark.png`
-* `paper/benchmark/plot_benchmark_relative.png`
-* `paper/benchmark/plot_optimizer.png`
-* `paper/benchmark/plot_optimizer_relative.png`
+* `./paper/benchmark/plot_benchmark.png`
+* `./paper/benchmark/plot_benchmark_relative.png`
+* `./paper/benchmark/plot_optimizer.png`
+* `./paper/benchmark/plot_optimizer_relative.png`
 
 ## Recreating the Paper Code
 
 The file `./paper/paper_code.R` contains the code from the paper.
 
-You can reproduce it by running:
+You can reproduce it by running the command below from the `./paper` directory:
 
 ```r
 knitr::spin("paper_code.R")
@@ -156,7 +159,7 @@ It was extracted from the tex manuscript almost fully programmatically but adjus
 We also added some additional comments to make it easier to associate the code with the paper.
 
 The results of `knitr::spin()` are stored in `./paper/paper_results/`
-The ROC plot is postprocessed using the `roc.R` script, which results in the file `paper/paper_results/roc.png`.
+The ROC plot is postprocessed using the `roc.R` script, which results in the file `./paper/paper_results/roc.png`.
 
 ### Possible Data Unavailability
 
