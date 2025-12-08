@@ -2,7 +2,7 @@
 
 ## Computational Environment
 
-In order to reproduce the results, you can either use the provided docker images or recreate the `renv` environment that is located in `./paper/envs/renv`.
+In order to reproduce the results, you can either use the provided docker images or recreate the `renv` environment that is described in `./paper/renv.lock`.
 
 You can recreate the `renv` environment by going into the `./paper/envs/renv` directory and running:
 
