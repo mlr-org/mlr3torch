@@ -1,11 +1,9 @@
 # Reproducing the Results
 
-In this document, the root directory (`./`) always refers to the `mlr3torch` directory, which can either be the [GitHub repository](https://github.com/mlr-org/mlr3torch) or the `mlr3torch` folder containing a `paper` directory with the replication material.
-
 ## Computational Environment
 
-In order to reproduce the results, you can either use the provided docker images or recreate the `renv` environment that is described in `./paper/renv.lock`.
-To work with the renv environment, go into the `./paper` directory, which will bootstrap the environment, and then run:
+In order to reproduce the results, you can either use the provided docker images or recreate the `renv` environment that is described in `paper/renv.lock`.
+To work with the renv environment, go into the `paper` directory, which will bootstrap the environment, and then run:
 
 ```r
 renv::restore()
@@ -38,24 +36,24 @@ To start the container using `Docker`, run:
 
 ```bash
 # from anywhere on your machine
-docker run -it --rm -v <parent-dir-to-mlr3torch>:/mnt/data/ sebffischer/mlr3torch-jss:cpu
-# go into the mlr3torch directory
-cd /mnt/data/mlr3torch
+docker run -it --rm -v <parent-dir-to-paper>:/mnt/data/ sebffischer/mlr3torch-jss:cpu
+# go into the directory that contains the paper code
+cd /mnt/data/paper
 ```
 
-Note that the `./paper/.Rprofile` file ensures that when running R programs from the `./paper` directory, the renv environment will be used unless the code is run in the docker container.
+Note that the `.Rprofile` file ensures that when running R programs from the `paper` directory, the renv environment will be used unless the code is run in the docker container.
 
 ## Running the Benchmark
 
 Note that while the benchmark uses `batchtools` for experiment definition, we don't use it for job submission in order to ensure that all GPU and CPU benchmarks respectively are run on the same machine.
 For running the benchmarks, we strongly recommend using the docker images, because we need both PyTorch and (R-)torch, which can be somewhat tricky to setup, especially when using CUDA.
 
-If you want to run it without the docker image, you need to ajust the `PYTHON_PATH` variable in the benchmarking scripts to the path to your Python installation, ensure that `pytorch` is installed and the `"pytorch"` algorithm in `./paper/benchmark/benchmark.R` initializes the correct python environment.
+If you want to run it without the docker image, you need to ajust the `PYTHON_PATH` variable in the benchmarking scripts to the path to your Python installation, ensure that `pytorch` is installed and the `"pytorch"` algorithm in `paper/benchmark/benchmark.R` initializes the correct python environment.
 But again, we strongly recommend using the provided docker images for the benchmarks.
 
 You can still reproduce the results that compare (R) `torch` with `mlr3torch` without the python environment.
 To do so, you can subset the experiments that are run to not include the `"pytorch"` algorithm.
-This has to be done in the benchmarking scripts, e.g. `./paper/benchmark/linux-gpu.R`.
+This has to be done in the benchmarking scripts, e.g. `paper/benchmark/linux-gpu.R`.
 We show further down how to run only a subset of the jobs.
 
 ### Running the Benchmarks
@@ -65,8 +63,7 @@ For running a subset of the configurations, see the next section.
 Also note that it's important to have enough RAM, otherwise the benchmarks will be non-comparable.
 However, there are many other factors, such as the exact hardware that make it generally difficult to reproduce the runtime results.
 
-To run the benchmarks locally, go into `./paper`:
-
+To run the benchmarks locally, ensure that you are in the `paper` directory.
 To run the GPU benchmarks (using the CUDA docker image) on linux, run:
 
 ```bash
@@ -87,9 +84,9 @@ Rscript benchmark/linux-gpu-optimizer.R
 
 The results are stored in:
 
-* `./paper/benchmark/result-linux-gpu.rds`
-* `./paper/benchmark/result-linux-cpu.rds`
-* `./paper/benchmark/result-linux-gpu-optimizer.rds`
+* `paper/benchmark/result-linux-gpu.rds`
+* `paper/benchmark/result-linux-cpu.rds`
+* `paper/benchmark/result-linux-gpu-optimizer.rds`
 
 The scripts can, of course, also be run on different machines. The linux names just emphasizes that the provided results are for the linux docker images.
 
@@ -100,7 +97,7 @@ There are also some exemplary slurm scripts that need to be adapted to the speci
 
 ### Running a subset of the Jobs
 
-To run a subset of the jobs, modify the table `tbl` in scripts such as `./paper/benchmark/linux-gpu.R` to only include the jobs that you want to run.
+To run a subset of the jobs, modify the table `tbl` in scripts such as `paper/benchmark/linux-gpu.R` to only include the jobs that you want to run.
 For example:
 
 ```r
@@ -113,7 +110,7 @@ for (id in sample(ids)) {
 
 ### Generating the Benchmark Plots
 
-For the main benchmark shown in the paper, run the following command from the `./paper` directory:
+For the main benchmark shown in the paper, run the following command from the `paper` directory:
 
 ```r
 Rscript benchmark/plot_benchmark.R
@@ -127,22 +124,22 @@ Rscript benchmark/plot_optimizer.R
 
 These commands generate the files:
 
-* `./paper/benchmark/plot_benchmark.png`
-* `./paper/benchmark/plot_benchmark_relative.png`
-* `./paper/benchmark/plot_optimizer.png`
-* `./paper/benchmark/plot_optimizer_relative.png`
+* `paper/benchmark/plot_benchmark.png`
+* `paper/benchmark/plot_benchmark_relative.png`
+* `paper/benchmark/plot_optimizer.png`
+* `paper/benchmark/plot_optimizer_relative.png`
 
 ## Recreating the Paper Code
 
-The file `./paper/paper_code.R` contains the code from the paper.
+The file `paper/paper_code.R` contains the code from the paper.
 
-You can reproduce it by running the command below from the `./paper` directory:
+You can reproduce it by running the command below from the `paper` directory:
 
 ```r
 knitr::spin("paper_code.R")
 ```
 
-We provide the results of running this in `./paper/paper_results`.
+We provide the results of running this in `paper/paper_results`.
 
 The results in the paper are those from the CPU docker image and they were fully reproducible when we re-ran them on the same machine.
 There were some minor differences in results when re-running the code on a different machine (macOS with M1 CPU vs Linux with Intel CPU).
@@ -159,8 +156,8 @@ It was extracted from the tex manuscript almost fully programmatically but adjus
 
 We also added some additional comments to make it easier to associate the code with the paper.
 
-The results of `knitr::spin()` are stored in `./paper/paper_results/`
-The ROC plot is postprocessed using the `roc.R` script, which results in the file `./paper/paper_results/roc.png`.
+The results of `knitr::spin()` are stored in `paper/paper_results/`
+The ROC plot is postprocessed using the `roc.R` script, which results in the file `paper/paper_results/roc.png`.
 
 ### Possible Data Unavailability
 
@@ -174,7 +171,7 @@ in the Zenodo data.
 
 If one of the downloads (1) fails, download the `cache.tar.gz` file from zenodo, untar it and put it in the location where the cache is (put the `R` folder of the cache into `/root/.cache/R` and the `torch` folder into `/root/.cache/torch` when using the docker images).
 
-If (2) fails, download `dogs-vs-cats.tar.gz` from Zenodo, untar it and put it into the `./data` subdirectory where you are running the `paper_code.R` (so the directory structure is `./data/dogs-vs-cats`).
+If (2) fails, download `dogs-vs-cats.tar.gz` from Zenodo, untar it and put it into the `paper/data` subdirectory where you are running the `paper_code.R` (so the directory structure is `paper/data/dogs-vs-cats`).
 
 To do this in the Docker image you can, e.g., put the files into the parent directory of the `mlr3torch` directory (which will be mounted) and then after starting the container, copy the files into the correct location.
 Assuming the unpacked cache files are in `/mnt/data/cache`, you can copy them into the correct location with:
