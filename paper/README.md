@@ -41,7 +41,7 @@ docker run -it --rm -v <parent-dir-to-paper>:/mnt/data/ sebffischer/mlr3torch-js
 cd /mnt/data/paper
 ```
 
-Note that the `.Rprofile` file ensures that when running R programs from the `paper` directory, the renv environment will be used unless the code is run in the docker container.
+Note that the `.Rprofile` file ensures that when running R programs from the `paper` directory, the renv environment will be used unless the code is run in the docker container, where we are not relying on renv directly.
 
 ## Running the Benchmark
 
@@ -173,7 +173,7 @@ If one of the downloads (1) fails, download the `cache.tar.gz` file from zenodo,
 
 If (2) fails, download `dogs-vs-cats.tar.gz` from Zenodo, untar it and put it into the `paper/data` subdirectory where you are running the `paper_code.R` (so the directory structure is `paper/data/dogs-vs-cats`).
 
-To do this in the Docker image you can, e.g., put the files into the parent directory of the `mlr3torch` directory (which will be mounted) and then after starting the container, copy the files into the correct location.
+To do this in the Docker image you can, e.g., put the files into the parent directory of the `paper` directory (which will be mounted) and then after starting the container, copy the files into the correct location.
 Assuming the unpacked cache files are in `/mnt/data/cache`, you can copy them into the correct location with:
 
 ```bash
