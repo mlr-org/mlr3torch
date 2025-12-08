@@ -1,6 +1,5 @@
 library(here)
 
-setwd(here("paper"))
 source(here("paper", "benchmark", "benchmark.R"))
 
 # Change this when not running this in the docker image
