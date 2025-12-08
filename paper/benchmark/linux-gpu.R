@@ -21,6 +21,10 @@ problem_design = expand.grid(
   stringsAsFactors = FALSE
 )
 
+if (dir.exists(here("paper", "benchmark", "registry-linux-gpu"))) {
+  stop("Registry already exists. Delete it to run the benchmark again.")
+}
+
 setup(
   here("paper", "benchmark", "registry-linux-gpu"),
   PYTHON_PATH,

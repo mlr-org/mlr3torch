@@ -25,19 +25,12 @@ By default, the downloaded files are stored in `~/.data/zenodo`.
 At the time of writing, the images are also hosted on dockerhub, but this is not a permanent storage:
 https://hub.docker.com/repository/docker/sebffischer/mlr3torch-jss/general
 
-The `Dockerfile`s used to create the images are available in the `paper/envs` directory.
+The `Dockerfile`s used to create the images are available in the `./paper/envs` directory.
 
 After downloading the images, you can load them into Docker, e.g. via:
 
 ```bash
 docker load -i IMAGE_CPU.tar.gz
-```
-
-When using another container manager such as `enroot`, a workaround is to import the image using `Docker` on a system that has it installed and then push it to a dockerhub repository and then pull it from there using `enroot`, along the lines of:
-
-```bash
-enroot import docker://sebffischer/mlr3torch-jss:cpu
-enroot create --name mlr3torch-jss:cpu sebffischer+mlr3torch-jss+cpu.sqsh
 ```
 
 To start the container using `Docker`, run:
@@ -48,20 +41,9 @@ docker run -it --rm -v <parent-dir-to-mlr3torch>:/mnt/data/ sebffischer/mlr3torc
 cd /mnt/data/mlr3torch
 ```
 
-To start the container using `enroot`, run:
-
-```bash
-enroot start \
-  --mount <parent-dir-to-mlr3torch>:/mnt/data \
-  mlr3torch-jss:cpu bash
-# go into the mlr3torch directory
-cd /mnt/data/mlr3torch
-```
-
 ## Running the Benchmark
 
 Note that while the benchmark uses `batchtools` for experiment definition, we don't use it for job submission in order to ensure that all GPU and CPU benchmarks respectively are run on the same machine.
-
 For running the benchmarks, we strongly recommend using the docker images, because we need both PyTorch and (R-)torch, which can be somewhat tricky to setup, especially when using CUDA.
 
 If you want to run it without the docker image, you need to ajust the `PYTHON_PATH` variable in the benchmarking scripts to the path to your Python installation, ensure that `pytorch` is installed and the `"pytorch"` algorithm in `./paper/benchmark/benchmark.R` initializes the correct python environment.
@@ -74,7 +56,9 @@ We show further down how to run only a subset of the jobs.
 
 ### Running the Benchmarks
 
-Note that it's important to have enough RAM, otherwise the benchmarks will be non-comparable.
+Note that the benchmarks take quite some time, which was required to ensure results with high precision that cover many different configurations.
+For running a subset of the configurations, see the next section.
+Also note that it's important to have enough RAM, otherwise the benchmarks will be non-comparable.
 However, there are many other factors, such as the exact hardware that make it generally difficult to reproduce the runtime results.
 
 To run the benchmarks locally, go into `./paper`:

@@ -7,6 +7,10 @@ source(here("paper", "benchmark", "benchmark.R"))
 # Below is the correct python path for the CPU docker image.
 PYTHON_PATH = "/opt/venv/bin/python"
 
+if (dir.exists(here("paper", "benchmark", "registry-linux-gpu"))) {
+  stop("Registry already exists. Delete it to run the benchmark again.")
+}
+
 setup(
   here("paper", "benchmark", "registry-linux-cpu"),
   PYTHON_PATH,
