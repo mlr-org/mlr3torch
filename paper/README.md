@@ -144,7 +144,7 @@ We provide the results of running this in `paper/paper_results`.
 The results in the paper are those from the CPU docker image and they were fully reproducible when we re-ran them on the same machine.
 There were some minor differences in results when re-running the code on a different machine (macOS with M1 CPU vs Linux with Intel CPU).
 
-The file `paper_code.R` contains some very minor differences to the paper we omitted in the paper for brevity:
+The file `paper_code.R` contains some very minor differences to the paper we omitted in the paper for brevity.
 It was extracted from the tex manuscript almost fully programmatically but adjusted with the following modifications:
 
 * Time measurements (`Sys.time()`)
@@ -156,8 +156,8 @@ It was extracted from the tex manuscript almost fully programmatically but adjus
 
 We also added some additional comments to make it easier to associate the code with the paper.
 
-The results of `knitr::spin()` are stored in `paper/paper_results/`
-The ROC plot is postprocessed using the `roc.R` script, which results in the file `paper/paper_results/roc.png`.
+The results we obtained via `knitr::spin()` are stored in `paper/paper_results/`
+The ROC plot is postprocessed using the `roc.R` script and we have also provided the resulting `roc.png` from the paper in the `paper/paper_results` directory.
 
 ### Possible Data Unavailability
 
