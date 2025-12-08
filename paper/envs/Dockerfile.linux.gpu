@@ -61,7 +61,7 @@ ENV LD_LIBRARY_PATH=/usr/local/lib/R/lib:$LD_LIBRARY_PATH
 
 COPY renv.lock .
 
-RUN R -q -e "install.packages('renv')"
+RUN R -q -e "options(repos = c(CRAN = 'https://cloud.r-project.org')); install.packages('renv')"
 RUN apt-get update && apt-get install -y --no-install-recommends \
     liblapack3 libblas3 gfortran && \
     rm -rf /var/lib/apt/lists/*
