@@ -37,6 +37,7 @@ docker load -i IMAGE_CPU.tar.gz
 To start the container using `Docker`, run:
 
 ```bash
+# from anywhere on your machine
 docker run -it --rm -v <parent-dir-to-mlr3torch>:/mnt/data/ sebffischer/mlr3torch-jss:cpu
 # go into the mlr3torch directory
 cd /mnt/data/mlr3torch
