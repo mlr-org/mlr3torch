@@ -15,6 +15,4 @@ plt = plt +
   )
 
 
-print(plt)
-
 ggsave(here("roc.png"), plt, width = 4, height = 4, dpi = 300)
