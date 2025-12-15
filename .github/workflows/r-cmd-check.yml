@@ -99,7 +99,7 @@ jobs:
           echo "TORCH_CACHE_PATH=$cachePath" >> $env:GITHUB_ENV
 
       - name: Cache Torchvision Downloads
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ env.TORCH_CACHE_PATH }}
           key: ${{ runner.os }}-r-${{ env.TORCHVISION_PACKAGE_VERSION }}
