@@ -233,17 +233,17 @@ po_model$state
 #> $optimizer$state$`1`
 #> $optimizer$state$`1`$exp_avg
 #> torch_tensor
-#>  0.3043  0.1100  0.3177  0.1208
-#> -0.3503 -0.1091 -0.4802 -0.2202
-#>  0.0460 -0.0009  0.1625  0.0994
+#> -0.1262 -0.0204 -0.4419 -0.3042
+#>  0.6243  0.2028  1.0273  0.5674
+#> -0.4981 -0.1825 -0.5854 -0.2633
 #> [ CPUFloatType{3,4} ]
 #> 
 #> $optimizer$state$`1`$exp_avg_sq
 #> torch_tensor
-#> 0.001 *
-#>  3.8307  0.4976  4.2604  0.6281
-#>   5.1763  0.5019  9.7668  2.0726
-#>   0.1349  0.0047  1.1718  0.4325
+#> 0.01 *
+#>  0.0647  0.0017  0.7953  0.3763
+#>   1.5888  0.1679  4.2838  1.3048
+#>   1.0171  0.1361  1.4073  0.2838
 #> [ CPUFloatType{3,4} ]
 #> 
 #> $optimizer$state$`1`$max_exp_avg_sq
@@ -259,18 +259,17 @@ po_model$state
 #> $optimizer$state$`2`
 #> $optimizer$state$`2`$exp_avg
 #> torch_tensor
-#> 0.01 *
-#>  4.6232
-#> -8.0365
-#>  3.4133
+#> -0.0884
+#>  0.1769
+#> -0.0885
 #> [ CPUFloatType{3} ]
 #> 
 #> $optimizer$state$`2`$exp_avg_sq
 #> torch_tensor
-#> 0.0001 *
-#>  0.9106
-#>  2.7510
-#>  0.5048
+#> 0.001 *
+#>  0.3181
+#>  1.2691
+#>  0.3201
 #> [ CPUFloatType{3} ]
 #> 
 #> $optimizer$state$`2`$max_exp_avg_sq
@@ -355,7 +354,7 @@ po_model$state
 #> Empty data.table (0 rows and 3 cols): stage,class,msg
 #> 
 #> $train_time
-#> [1] 0.062
+#> [1] 0.073
 #> 
 #> $task_hash
 #> [1] "abc694dd29a7a8ce"
@@ -367,7 +366,7 @@ po_model$state
 #> NULL
 #> 
 #> $mlr3_version
-#> [1] ‘1.2.0’
+#> [1] ‘1.3.0’
 #> 
 #> $internal_tuned_values
 #> named list()
