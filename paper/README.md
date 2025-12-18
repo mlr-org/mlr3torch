@@ -1,5 +1,7 @@
 # Reproducing the Results
 
+Note that there is also a brief section on reproducibility in the appendix of the paper, which includes a description of the hardware.
+
 ## Computational Environment
 
 In order to reproduce the results, you can either use the provided docker images or recreate the `renv` environment that is described in `paper/renv.lock`.
@@ -7,6 +9,12 @@ To work with the renv environment, go into the `paper` directory, which will boo
 
 ```r
 renv::restore()
+```
+
+Afterwards, you need to install torch:
+
+```{r}
+torch::install_torch()
 ```
 
 We are providing two docker images, one for CPU and one for CUDA GPU that have the same packages from the `renv.lock` file installed.
@@ -26,13 +34,13 @@ https://hub.docker.com/repository/docker/sebffischer/mlr3torch-jss/general
 
 The `Dockerfile`s used to create the images are available in the `./paper/envs` directory.
 
-After downloading the images, you can load them into Docker, e.g. via:
+If you have downloaded the images like shown above, you can load them into Docker, e.g. via the command below (or otherwise adjust the path accordingly).
 
 ```bash
-docker load -i IMAGE_CPU.tar.gz
+docker load -i ~/.data/zenodo/17130368/v1/IMAGE_CPU.tar.gz
 ```
 
-To start the container using `Docker`, run:
+To start the CPU docker container, run:
 
 ```bash
 # from anywhere on your machine
@@ -41,20 +49,30 @@ docker run -it --rm -v <parent-dir-to-paper>:/mnt/data/ sebffischer/mlr3torch-js
 cd /mnt/data/paper
 ```
 
+The CUDA image can be started with the command below, which requires the [nvidia extension](https://docs.nvidia.com/ai-enterprise/deployment/vmware/latest/docker.html).
+
+```bash
+docker run -it --gpus all --rm -v ../:/mnt/data sebffischer/mlr3torch-jss:gpu
+cd /mnt/data/paper
+```
+
 Note that the `.Rprofile` file ensures that when running R programs from the `paper` directory, the renv environment will be used unless the code is run in the docker container, where we are not relying on renv directly.
 
 ## Running the Benchmark
 
-Note that while the benchmark uses `batchtools` for experiment definition, we don't use it for job submission in order to ensure that all GPU and CPU benchmarks respectively are run on the same machine.
+While the benchmark uses `batchtools` for experiment definition, we don't use it for job submission in order to ensure that all GPU and CPU benchmarks respectively are run on the same machine.
 For running the benchmarks, we strongly recommend using the docker images, because we need both PyTorch and (R-)torch, which can be somewhat tricky to setup, especially when using CUDA.
 
-If you want to run it without the docker image, you need to ajust the `PYTHON_PATH` variable in the benchmarking scripts to the path to your Python installation, ensure that `pytorch` is installed and the `"pytorch"` algorithm in `paper/benchmark/benchmark.R` initializes the correct python environment.
+If you want to run it without the docker image, you need to adjust the `PYTHON_PATH` variable in the benchmarking scripts to the path to your Python installation, ensure that `pytorch` is installed and the `"pytorch"` algorithm in `paper/benchmark/benchmark.R` initializes the correct python environment.
 But again, we strongly recommend using the provided docker images for the benchmarks.
 
 You can still reproduce the results that compare (R) `torch` with `mlr3torch` without the python environment.
 To do so, you can subset the experiments that are run to not include the `"pytorch"` algorithm.
 This has to be done in the benchmarking scripts, e.g. `paper/benchmark/linux-gpu.R`.
 We show further down how to run only a subset of the jobs.
+
+Note that the CUDA benchmarks were run on a machine with 80 GB VRAM, so errors are expected if you have less.
+To address this, you can filter the jobs to restrict the number of layers or latent dimensions as shown further down.
 
 ### Running the Benchmarks
 
@@ -114,20 +132,8 @@ For the main benchmark shown in the paper, run the following command from the `p
 
 ```r
 Rscript benchmark/plot_benchmark.R
-```
-
-For the comparison of "ignite" with standard optimizers, run:
-
-```r
 Rscript benchmark/plot_optimizer.R
 ```
-
-These commands generate the files:
-
-* `paper/benchmark/plot_benchmark.png`
-* `paper/benchmark/plot_benchmark_relative.png`
-* `paper/benchmark/plot_optimizer.png`
-* `paper/benchmark/plot_optimizer_relative.png`
 
 ## Recreating the Paper Code
 
