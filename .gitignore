@@ -30,3 +30,13 @@ paper/paper.fdb_latexmk
 paper/paper.fls
 paper/paper.log
 paper/envs/renv/data/
+
+paper/renv/library/
+paper/renv/local/
+paper/renv/cellar/
+paper/renv/lock/
+paper/renv/python/
+paper/renv/sandbox/
+paper/renv/staging/
+
+

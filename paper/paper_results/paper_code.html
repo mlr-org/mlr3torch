@@ -107,7 +107,7 @@ section.footnotes {
   body:not(.pagesjs) pre:has(.line-numbers):not(:hover) { white-space: pre; }
 }
 </style>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.14/css/prism-xcode.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.17/css/prism-xcode.min.css">
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
 </head>
@@ -115,12 +115,17 @@ section.footnotes {
 <div class="frontmatter">
 </div>
 <div class="body">
-<pre><code class="language-r">Sys.time()
+<pre><code class="language-r"># Some setup code
+Sys.time()
 </code></pre>
-<pre><code>## [1] &quot;2025-11-07 11:26:56 UTC&quot;
+<pre><code>## [1] &quot;2025-12-08 12:07:55 UTC&quot;
 </code></pre>
 <pre><code class="language-r">options(mlr3torch.cache = TRUE)
 lgr::get_logger('mlr3')$set_threshold('warn')
+
+# 2.2 Main dependencies
+
+# mlr3
 library(&quot;mlr3&quot;)
 set.seed(42)
 task &lt;- tsk(&quot;mtcars&quot;)
@@ -130,20 +135,22 @@ learner$train(task, split$train)
 pred &lt;- learner$predict(task, split$test)
 pred$score(msr(&quot;regr.rmse&quot;))
 </code></pre>
-<pre><code>## regr.rmse
+<pre><code>## regr.rmse 
 ##  4.736051
 </code></pre>
-<pre><code class="language-r">library(&quot;mlr3pipelines&quot;)
+<pre><code class="language-r"># mlr3pipelines
+library(&quot;mlr3pipelines&quot;)
 graph_learner &lt;- as_learner(po(&quot;pca&quot;) %&gt;&gt;% lrn(&quot;regr.rpart&quot;))
 
 resampling &lt;- rsmp(&quot;cv&quot;, folds = 3)
 rr &lt;- resample(task, graph_learner, resampling)
 rr$aggregate(msr(&quot;regr.rmse&quot;))
 </code></pre>
-<pre><code>## regr.rmse
+<pre><code>## regr.rmse 
 ##  4.274766
 </code></pre>
-<pre><code class="language-r">library(&quot;torch&quot;)
+<pre><code class="language-r"># torch
+library(&quot;torch&quot;)
 torch_manual_seed(42)
 x &lt;- torch_tensor(1, device = &quot;cpu&quot;)
 w &lt;- torch_tensor(2, requires_grad = TRUE, device = &quot;cpu&quot;)
@@ -155,14 +162,25 @@ w$grad
 ##  1
 ## [ CPUFloatType{1} ]
 </code></pre>
-<pre><code class="language-r">library(&quot;mlr3torch&quot;)
+<pre><code class="language-r"># 3. Building Blocks
+
+# 3.1 Data representation
+library(&quot;mlr3torch&quot;)
 mnist &lt;- tsk(&quot;mnist&quot;)
 mnist
 </code></pre>
-<pre><code>##
-## ── &lt;TaskClassif&gt; (70000x2): MNIST Digit Classification ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+<pre><code>## 
+## ── &lt;TaskClassif&gt; (70000x2): MNIST Digit Classification ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: label
-## • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0 (10%), 6 (10%), 8 (10%), 4 (10%), 5 (9%)
+</code></pre>
+<pre><code>## Dataset &lt;mnist&gt; (~12 MB) will be downloaded and processed if not already available.
+## Downloading &lt;mnist&gt; ...
+## Processing &lt;mnist&gt;...
+## Dataset &lt;mnist&gt; downloaded and extracted successfully.
+## Dataset &lt;mnist&gt; loaded with 60000 images.
+## Dataset &lt;mnist&gt; loaded with 10000 images.
+</code></pre>
+<pre><code>## • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0 (10%), 6 (10%), 8 (10%), 4 (10%), 5 (9%)
 ## • Properties: multiclass
 ## • Features (1):
 ##   • lt (1): image
@@ -190,7 +208,9 @@ mnist_flat$head(2)
 ## 1:      5   &lt;tnsr[784]&gt;
 ## 2:      0   &lt;tnsr[784]&gt;
 </code></pre>
-<pre><code class="language-r">mlp &lt;- lrn(&quot;classif.mlp&quot;,
+<pre><code class="language-r"># 3.2 The LearnerTorch class
+
+mlp &lt;- lrn(&quot;classif.mlp&quot;,
  loss = t_loss(&quot;cross_entropy&quot;),
  optimizer = t_opt(&quot;adamw&quot;, lr = 0.001),
  callbacks = t_clbk(&quot;history&quot;))
@@ -207,8 +227,8 @@ mlp$train(mnist_flat, row_ids = 1:1000)
 mlp$model$network
 </code></pre>
 <pre><code>## An `nn_module` containing 100,710 parameters.
-##
-## ── Modules ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## 
+## ── Modules ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • 0: &lt;nn_linear&gt; #78,500 parameters
 ## • 1: &lt;nn_relu&gt; #0 parameters
 ## • 2: &lt;nn_dropout&gt; #0 parameters
@@ -227,7 +247,7 @@ mlp$model$network
 <pre><code class="language-r">pred &lt;- mlp$predict(mnist_flat, row_ids = 1001:1100)
 pred$score(msr(&quot;classif.ce&quot;))
 </code></pre>
-<pre><code>## classif.ce
+<pre><code>## classif.ce 
 ##       0.21
 </code></pre>
 <pre><code class="language-r">pth &lt;- tempfile()
@@ -237,6 +257,8 @@ mlp2 &lt;- readRDS(pth)
 mlp2$unmarshal()
 
 set_validate(mlp, validate = 0.3)
+
+# 3.3 Neural networks as Graphs
 
 nn_simple &lt;- nn_module(&quot;nn_simple&quot;,
   initialize = function(d_in, d_latent, d_out) {
@@ -311,6 +333,10 @@ graph &lt;- list(path_num, path_categ) %&gt;&gt;% nn(&quot;merge_cat&quot;, dim 
 
 blocks &lt;- nn(&quot;block&quot;, residual_layer, n_blocks = 5)
 
+# 4. Extending the package
+
+# 4.1 Loss and optimizer
+
 nn_winsorized_mse &lt;- nn_module(c(&quot;nn_winsorized_mse&quot;, &quot;nn_loss&quot;),
   initialize = function(max_loss) {
     self$max_loss &lt;- max_loss
@@ -328,7 +354,9 @@ tloss
 ## * Packages: torch,mlr3torch
 ## * Task Types: classif,regr
 </code></pre>
-<pre><code class="language-r">gradient_clipper &lt;- torch_callback(&quot;gradient_clipper&quot;,
+<pre><code class="language-r"># 4.2 Callbacks
+
+gradient_clipper &lt;- torch_callback(&quot;gradient_clipper&quot;,
   initialize = function(max_norm, norm_type) {
     self$norms &lt;- numeric()
     self$max_norm &lt;- max_norm
@@ -346,6 +374,8 @@ tloss
     self$norms = state_dict
   }
 )
+
+# 4.3 Learners and task types
 
 nn_ffn &lt;- nn_module(&quot;nn_ffn&quot;,
   initialize = function(task, latent_dim, n_layers) {
@@ -374,11 +404,16 @@ num_input
   ingress_tokens = num_input,
   latent_dim = 100, n_layers = 5)
 
+
+# 5. Use cases
+
+# 5.1 Simple neural architecture search
+
 task &lt;- tsk(&quot;mtcars&quot;)
 task
 </code></pre>
-<pre><code>##
-## ── &lt;TaskRegr&gt; (32x11): Motor Trends ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+<pre><code>## 
+## ── &lt;TaskRegr&gt; (32x11): Motor Trends ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: mpg
 ## • Properties: -
 ## • Features (10):
@@ -420,7 +455,6 @@ learner$param_set$set_values(
   torch_model_regr.measures_valid = msr(&quot;regr.mse&quot;),
   torch_model_regr.epochs = to_tune(upper = 100, internal = TRUE))
 
-library(&quot;mlr3tuning&quot;)
 ti &lt;- tune(
   tuner = tnr(&quot;random_search&quot;),
   resampling = rsmp(&quot;holdout&quot;),
@@ -439,19 +473,21 @@ cat(paste(&quot;*&quot;, names(pvals), &quot;=&quot;, pvals,
 ## * torch_optimizer.lr = 0.00310737353560635
 ## * torch_model_regr.epochs = 44
 </code></pre>
-<pre><code class="language-r">library(&quot;torchdatasets&quot;)
+<pre><code class="language-r"># 5.2 Fine-tuning an image network
+
+library(&quot;torchdatasets&quot;)
 dogs_vs_cats_dataset(&quot;data&quot;, download = TRUE)
 </code></pre>
 <pre><code>## &lt;dataset&gt;
 ##   Public:
-##     .getitem: function (i)
-##     .length: function ()
+##     .getitem: function (i) 
+##     .length: function () 
 ##     classes: dog cat
-##     clone: function (deep = FALSE)
+##     clone: function (deep = FALSE) 
 ##     images: data/dogs-vs-cats/train/cat.0.jpg data/dogs-vs-cats/trai ...
-##     initialize: function (root, split = &quot;train&quot;, download = FALSE, ..., transform = NULL,
-##     load_state_dict: function (x, ..., .refer_to_state_dict = FALSE)
-##     state_dict: function ()
+##     initialize: function (root, split = &quot;train&quot;, download = FALSE, ..., transform = NULL, 
+##     load_state_dict: function (x, ..., .refer_to_state_dict = FALSE) 
+##     state_dict: function () 
 ##     target_transform: NULL
 ##     targets: 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2  ...
 ##     transform: NULL
@@ -479,15 +515,15 @@ labels &lt;- ifelse(grepl(&quot;dog\\.\\d+\\.jpg&quot;, paths), &quot;dog&quot;,
 table(labels)
 </code></pre>
 <pre><code>## labels
-##   cat   dog
+##   cat   dog 
 ## 12500 12500
 </code></pre>
 <pre><code class="language-r">tbl &lt;- data.table(image = lt, class = labels)
 task &lt;- as_task_classif(tbl, target = &quot;class&quot;, id = &quot;dogs_vs_cats&quot;)
 task
 </code></pre>
-<pre><code>##
-## ── &lt;TaskClassif&gt; (25000x2) ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+<pre><code>## 
+## ── &lt;TaskClassif&gt; (25000x2) ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: class
 ## • Target classes: cat (positive class, 50%), dog (50%)
 ## • Properties: twoclass
@@ -525,11 +561,13 @@ learner$train(task, c(12400:12600))
 ## 4:     4         0.8955224
 ## 5:     5         0.9253731
 </code></pre>
-<pre><code class="language-r">task &lt;- tsk(&quot;melanoma&quot;)
+<pre><code class="language-r"># 5.3 Multi-modal data
+
+task &lt;- tsk(&quot;melanoma&quot;)
 task
 </code></pre>
-<pre><code>##
-## ── &lt;TaskClassif&gt; (32701x5): Melanoma Classification ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+<pre><code>## 
+## ── &lt;TaskClassif&gt; (32701x5): Melanoma Classification ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: outcome
 ## • Target classes: malignant (positive class, 2%), benign (98%)
 ## • Properties: twoclass, groups
@@ -541,13 +579,13 @@ task
 </code></pre>
 <pre><code class="language-r">table(task$truth())
 </code></pre>
-<pre><code>##
-## malignant    benign
+<pre><code>## 
+## malignant    benign 
 ##       581     32120
 </code></pre>
 <pre><code class="language-r">task$missings(&quot;age_approx&quot;)
 </code></pre>
-<pre><code>## age_approx
+<pre><code>## age_approx 
 ##         44
 </code></pre>
 <pre><code class="language-r">block_ffn &lt;- nn(&quot;linear&quot;, out_features = 500) %&gt;&gt;%
@@ -601,68 +639,63 @@ subset &lt;- partition(task_subset, ratio = 0.1)$train
 task_subset$filter(subset)
 rr &lt;- resample(task_subset, glrn, rsmp(&quot;holdout&quot;))
 plt &lt;- autoplot(rr, type = &quot;roc&quot;)
-</code></pre>
-<pre><code>## Warning in ggplot2::fortify(object, raw_curves = raw_curves, reduce_points = reduce_points): Arguments in `...` must be used.
-## ✖ Problematic argument:
-## • raw_curves = raw_curves
-## ℹ Did you misspell an argument name?
-</code></pre>
-<pre><code class="language-r">saveRDS(plt, here::here(&quot;paper&quot;, &quot;roc.rds&quot;))
+
+# Save plot so it can be modified later
+saveRDS(plt, &quot;roc.rds&quot;)
 Sys.time()
 </code></pre>
-<pre><code>## [1] &quot;2025-11-07 11:38:22 UTC&quot;
+<pre><code>## [1] &quot;2025-12-08 12:23:12 UTC&quot;
 </code></pre>
 <pre><code class="language-r">sessionInfo()
 </code></pre>
 <pre><code>## R version 4.5.1 (2025-06-13)
 ## Platform: x86_64-pc-linux-gnu
 ## Running under: Ubuntu 24.04.3 LTS
-##
+## 
 ## Matrix products: default
-## BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3
+## BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 
 ## LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.26.so;  LAPACK version 3.12.0
-##
+## 
 ## locale:
-##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C
-##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8
-##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8
-##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C
-##  [9] LC_ADDRESS=C               LC_TELEPHONE=C
-## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C
-##
+##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+## 
 ## time zone: Etc/UTC
 ## tzcode source: system (glibc)
-##
+## 
 ## attached base packages:
-## [1] stats     graphics  grDevices utils     datasets  methods   base
-##
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
 ## other attached packages:
-## [1] mlr3viz_0.10.1      torchdatasets_0.3.1 mlr3tuning_1.4.0
-## [4] paradox_1.0.1       mlr3torch_0.3.2     torch_0.16.3
-## [7] future_1.67.0       mlr3pipelines_0.9.0 mlr3_1.2.0
-##
+## [1] mlr3viz_0.10.1.9000 torchdatasets_0.3.1 mlr3tuning_1.4.0   
+## [4] paradox_1.0.1       mlr3torch_0.3.2     torch_0.16.3       
+## [7] future_1.67.0       mlr3pipelines_0.9.0 mlr3_1.2.0         
+## 
 ## loaded via a namespace (and not attached):
-##  [1] gtable_0.3.6         xfun_0.54            ggplot2_4.0.0
-##  [4] processx_3.8.6       callr_3.7.6          vctrs_0.6.5
-##  [7] tools_4.5.1          ps_1.9.1             safetensors_0.2.0
-## [10] parallel_4.5.1       tibble_3.3.0         pkgconfig_2.0.3
-## [13] data.table_1.17.8    checkmate_2.3.3      RColorBrewer_1.1-3
-## [16] S7_0.2.0             assertthat_0.2.1     uuid_1.2-1
-## [19] lifecycle_1.0.4      compiler_4.5.1       farver_2.1.2
-## [22] stringr_1.6.0        precrec_0.14.5       codetools_0.2-20
-## [25] bbotk_1.7.1          pillar_1.11.1        crayon_1.5.3
-## [28] rpart_4.1.24         parallelly_1.45.1    digest_0.6.37
-## [31] stringi_1.8.7        listenv_0.10.0       mlr3measures_1.1.0
-## [34] rprojroot_2.1.1      grid_4.5.1           here_1.0.2
-## [37] cli_3.6.5            magrittr_2.0.4       future.apply_1.20.0
-## [40] withr_3.0.2          scales_1.4.0         backports_1.5.0
-## [43] rappdirs_0.3.3       bit64_4.6.0-1        globals_0.18.0
-## [46] jpeg_0.1-11          bit_4.6.0            evaluate_1.0.5
-## [49] knitr_1.50           torchvision_0.8.0    mlr3misc_0.19.0
-## [52] rlang_1.1.6          Rcpp_1.1.0           zeallot_0.2.0
-## [55] glue_1.8.0           palmerpenguins_0.1.1 coro_1.1.0
-## [58] jsonlite_2.0.0       lgr_0.5.0            R6_2.6.1
-## [61] fs_1.6.6
+##  [1] rappdirs_0.3.3       jpeg_0.1-11          stringi_1.8.7       
+##  [4] listenv_0.10.0       digest_0.6.37        magrittr_2.0.4      
+##  [7] RColorBrewer_1.1-3   grid_4.5.1           evaluate_1.0.5      
+## [10] precrec_0.14.5       jsonlite_2.0.0       processx_3.8.6      
+## [13] safetensors_0.2.0    backports_1.5.0      ps_1.9.1            
+## [16] scales_1.4.0         coro_1.1.0           codetools_0.2-20    
+## [19] mlr3measures_1.1.0   palmerpenguins_0.1.1 cli_3.6.5           
+## [22] rlang_1.1.6          crayon_1.5.3         parallelly_1.45.1   
+## [25] future.apply_1.20.0  bit64_4.6.0-1        withr_3.0.2         
+## [28] tools_4.5.1          parallel_4.5.1       uuid_1.2-1          
+## [31] checkmate_2.3.3      ggplot2_4.0.0        zeallot_0.2.0       
+## [34] globals_0.18.0       bbotk_1.7.1          assertthat_0.2.1    
+## [37] curl_7.0.0           vctrs_0.6.5          R6_2.6.1            
+## [40] rpart_4.1.24         lifecycle_1.0.4      stringr_1.6.0       
+## [43] fs_1.6.6             bit_4.6.0            mlr3misc_0.19.0     
+## [46] pkgconfig_2.0.3      callr_3.7.6          gtable_0.3.6        
+## [49] pillar_1.11.1        torchvision_0.8.0    data.table_1.17.8   
+## [52] glue_1.8.0           Rcpp_1.1.0           lgr_0.5.0           
+## [55] xfun_0.54            tibble_3.3.0         knitr_1.50          
+## [58] farver_2.1.2         compiler_4.5.1       S7_0.2.0
 </code></pre>
 </div>
 </body>

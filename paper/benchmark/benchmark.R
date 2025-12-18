@@ -9,7 +9,7 @@ setup = function(reg_path, python_path, work_dir) {
   )
   reg$cluster.functions = makeClusterFunctionsInteractive()
 
-  source(here::here("paper/benchmark/time_rtorch.R"))
+  source(here::here("benchmark", "time_rtorch.R"))
 
   batchExport(list(
     time_rtorch = time_rtorch # nolint
@@ -54,7 +54,7 @@ setup = function(reg_path, python_path, work_dir) {
         {
           #reticulate::use_python("/opt/homebrew/Caskroom/mambaforge/base/bin/python3", required = TRUE)
           reticulate::use_python(python_path, required = TRUE)
-          reticulate::source_python(here::here("paper/benchmark/time_pytorch.py"))
+          reticulate::source_python(here::here("benchmark", "time_pytorch.py"))
           print(reticulate::py_config())
           time_pytorch(...) # nolint
         },
