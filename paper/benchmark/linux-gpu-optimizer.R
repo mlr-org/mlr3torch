@@ -27,7 +27,7 @@ problem_design = expand.grid(
 )
 
 if (dir.exists(here("benchmark", "registry-linux-gpu-optimizer"))) {
-  stop("Registry already exists. Delete it to run the benchmark again.")
+  stop("Registry benchmark/registry-linux-gpu-optimizer already exists. Delete it to run the benchmark again.")
 }
 
 setup(
@@ -52,7 +52,6 @@ addExperiments(
 tbl = unwrap(getJobTable())
 
 for (id in sample(tbl$job.id)) {
-  print(tbl[job.id == id, ])
   submitJobs(id)
   Sys.sleep(0.1)
 }
