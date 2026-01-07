@@ -119,7 +119,6 @@ print_setup_info = function(reg_path, python_path, work_dir) {
   cat("  Python Path:", python_path, " (", if (file.exists(python_path)) "exists" else "does not exist", ")\n")
   cat("  Work Directory:", work_dir, "\n\n")
   cat("Cuda is available:", torch::cuda_is_available(), "\n")
-  cat("Torch install path:", torch::install_path(), "\n")
   reticulate::use_python(python_path, required = TRUE)
   reticulate::source_python(here::here("benchmark", "time_pytorch.py"))
   print(reticulate::py_config())
