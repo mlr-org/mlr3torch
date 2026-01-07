@@ -5,7 +5,8 @@ setup = function(reg_path, python_path, work_dir) {
   reg = makeExperimentRegistry(
     file.dir = reg_path,
     work.dir = work_dir,
-    packages = "checkmate"
+    packages = "checkmate",
+    seed = 123
   )
   reg$cluster.functions = makeClusterFunctionsInteractive()
 

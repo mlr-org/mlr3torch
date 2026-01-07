@@ -82,6 +82,14 @@ Also note that it's important to have enough RAM, otherwise the benchmarks will 
 However, there are many other factors, such as the exact hardware that make it generally difficult to reproduce the runtime results.
 
 To run the benchmarks locally, ensure that you are in the `paper` directory.
+There are three scripts:
+
+* `paper/benchmark/linux-gpu.R`, which creates the folder `paper/benchmark/registry-linux-gpu`
+* `paper/benchmark/linux-cpu.R`, which creates the folder `paper/benchmark/registry-linux-cpu`
+* `paper/benchmark/linux-gpu-optimizer.R`, which creates the folder `paper/benchmark/registry-linux-gpu-optimizer`
+
+If one of the folders already exists and you want to re-run the benchmarks, you need to delete or move the folder.
+
 To run the GPU benchmarks (using the CUDA docker image) on linux, run:
 
 ```bash
@@ -100,7 +108,7 @@ To run the benchmark that compares "ignite" with standard optimizers (using the 
 Rscript benchmark/linux-gpu-optimizer.R
 ```
 
-The results are stored in:
+The postprocessd results are stored in:
 
 * `paper/benchmark/result-linux-gpu.rds`
 * `paper/benchmark/result-linux-cpu.rds`
