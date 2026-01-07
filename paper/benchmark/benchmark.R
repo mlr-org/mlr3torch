@@ -2,6 +2,9 @@ library(batchtools)
 library(mlr3misc)
 
 setup = function(reg_path, python_path, work_dir) {
+
+  print_setup_info(reg_path, python_path, work_dir)
+
   reg = makeExperimentRegistry(
     file.dir = reg_path,
     work.dir = work_dir,
@@ -69,6 +72,7 @@ setup = function(reg_path, python_path, work_dir) {
   })
 
   addAlgorithm("rtorch", fun = function(instance, job, opt_type, jit, ...) {
+    print
     assert_choice(opt_type, c("standard", "ignite"))
     if (opt_type == "ignite") {
       instance$optimizer = paste0("ignite_", instance$optimizer)
@@ -94,3 +98,29 @@ REPLS = 10L
 EPOCHS = 20L
 N = 2000L
 P = 1000L
+
+print_setup_info = function(reg_path, python_path, work_dir) {
+  cat("Session Info:\n")
+  print(sessionInfo())
+  cat("Library Paths:\n")
+  for (path in .libPaths()) {
+    cat("  -", path, "\n")
+  }
+  cat("Working Directory:", getwd(), "\n")
+
+  cat("Subfolders of working directory:\n")
+  for (folder in list.files(work_dir)) {
+    cat("  -", folder, "\n")
+  }
+
+  # Function arguments
+  cat("--- FUNCTION ARGUMENTS ---\n")
+  cat("  Registry Path:", reg_path, "\n")
+  cat("  Python Path:", python_path, " (", if (file.exists(python_path)) "exists" else "does not exist", ")\n")
+  cat("  Work Directory:", work_dir, "\n\n")
+  cat("Cuda is available:", torch::cuda_is_available(), "\n")
+  cat("Torch install path:", torch::install_path(), "\n")
+  reticulate::use_python(python_path, required = TRUE)
+  reticulate::source_python(here::here("benchmark", "time_pytorch.py"))
+  print(reticulate::py_config())
+}

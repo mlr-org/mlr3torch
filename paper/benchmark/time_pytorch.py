@@ -6,6 +6,17 @@ import numpy as np
 
 # 3. Define the timing function
 def time_pytorch(epochs, batch_size, n_layers, latent, n, p, device, seed, optimizer, jit):
+    print(f"epochs: {epochs}")
+    print(f"batch_size: {batch_size}")
+    print(f"n_layers: {n_layers}")
+    print(f"latent: {latent}")
+    print(f"n: {n}")
+    print(f"p: {p}")
+    print(f"device: {device}")
+    print(f"seed: {seed}")
+    print(f"optimizer: {optimizer}")
+    print(f"jit: {jit}")
+
     torch.manual_seed(seed)
     torch.set_num_threads(1)
     # convert latentn, n_layers to int
