@@ -189,6 +189,22 @@ test_that("0-length", {
   expect_equal(list(), materialize(lazy_tensor(), rbind = FALSE))
 })
 
+test_that("materialize.data.frame with empty data.frame", {
+  lt = as_lazy_tensor(torch_randn(5, 3))
+  df = data.frame(x = I(lt[integer(0)]))
+
+  res_rbind = materialize(df, rbind = TRUE)
+  expect_list(res_rbind)
+  expect_equal(names(res_rbind), "x")
+  expect_class(res_rbind$x, "torch_tensor")
+  expect_equal(res_rbind$x$shape, 0L)
+
+  res_list = materialize(df, rbind = FALSE)
+  expect_list(res_list)
+  expect_equal(names(res_list), "x")
+  expect_list(res_list$x, len = 0)
+})
+
 test_that("materialize with shape (NA, NA) and .getbatch implementation", {
   # this can e.g. happen when we do padding in the dataset
   ds = dataset(
