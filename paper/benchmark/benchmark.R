@@ -73,7 +73,7 @@ setup = function(reg_path, python_path, work_dir) {
   })
 
   addAlgorithm("rtorch", fun = function(instance, job, opt_type, jit, ...) {
-    print(intance)
+    print(instance)
     assert_choice(opt_type, c("standard", "ignite"))
     if (opt_type == "ignite") {
       instance$optimizer = paste0("ignite_", instance$optimizer)
@@ -83,7 +83,7 @@ setup = function(reg_path, python_path, work_dir) {
   })
 
   addAlgorithm("mlr3torch", fun = function(instance, job, opt_type, jit, ...) {
-    print(intance)
+    print(instance)
     if (opt_type == "ignite") {
       instance$optimizer = paste0("ignite_", instance$optimizer)
     }
