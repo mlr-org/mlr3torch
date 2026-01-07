@@ -119,11 +119,15 @@ print_setup_info = function(reg_path, python_path, work_dir) {
   cat("  Python Path:", python_path, " (", if (file.exists(python_path)) "exists" else "does not exist", ")\n")
   cat("  Work Directory:", work_dir, "\n\n")
   cat("Cuda is available:", torch::cuda_is_available(), "\n")
-  out <- callr::r(function() {
+  out <- try(callr::r(function(python_path) {
     reticulate::use_python(python_path, required = TRUE)
-    reticulate::source_python(here::here("benchmark", "time_pytorch.py"))
     return(reticulate::py_config())
-  }, show = TRUE)
-  cat("Python configuration:\n")
-  print(out)
+  }, show = TRUE, args = list(python_path = python_path)), silent = TRUE)
+  if (inherits(out, "try-error")) {
+    cat("Error occurred while calling Python:\n")
+    print(out)
+  } else {
+    cat("Python configuration:\n")
+    print(out)
+  }
 }
