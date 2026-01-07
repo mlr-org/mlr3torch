@@ -52,8 +52,8 @@ setup = function(reg_path, python_path, work_dir) {
   )
 
   addAlgorithm("pytorch", fun = function(instance, job, data, jit, ...) {
+    print(instance)
     f = function(..., python_path) {
-      print(instance)
       library(reticulate)
       x = try(
         {
