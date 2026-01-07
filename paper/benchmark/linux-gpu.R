@@ -59,6 +59,7 @@ addExperiments(
 tbl = unwrap(getJobTable())
 
 for (id in sample(tbl$job.id)) {
+  print(tbl[job.id == id, ])
   submitJobs(id)
   Sys.sleep(0.1)
 }

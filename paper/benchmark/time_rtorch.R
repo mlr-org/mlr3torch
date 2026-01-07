@@ -4,18 +4,6 @@ time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, 
   torch_set_num_threads(1)
   torch_manual_seed(seed)
 
-  cat("epochs: ", epochs, "\n")
-  cat("batch_size: ", batch_size, "\n")
-  cat("n_layers: ", n_layers, "\n")
-  cat("latent: ", latent, "\n")
-  cat("n: ", n, "\n")
-  cat("p: ", p, "\n")
-  cat("device: ", device, "\n")
-  cat("jit: ", jit, "\n")
-  cat("seed: ", seed, "\n")
-  cat("optimizer: ", optimizer, "\n")
-  cat("mlr3torch: ", mlr3torch, "\n")
-
   lr = 0.0001
 
   make_network = function(p, latent, n_layers) {
