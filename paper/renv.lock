@@ -2584,14 +2584,14 @@
     },
     "mlr3torch": {
       "Package": "mlr3torch",
-      "Version": "0.3.2",
+      "Version": "0.3.2-9000",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "mlr-org",
       "RemoteRepo": "mlr3torch",
       "RemoteRef": "main",
-      "RemoteSha": "4393104dab406ea6203e8396ecc858f035b354a8"
+      "RemoteSha": "a20ac27501d158c15bfc77816c7ee3ae3120e62f"
     },
     "mlr3tuning": {
       "Package": "mlr3tuning",
