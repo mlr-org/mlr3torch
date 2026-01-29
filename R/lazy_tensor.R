@@ -88,22 +88,31 @@ c.lazy_tensor = function(...) {
 
 #' @export
 format.lazy_tensor = function(x, ...) { # nolint
+  if (!length(x)) return(character(0))
+  shape = dd(x)$pointer_shape
+  shape = if (is.null(shape)) {
+    return(rep("<tnsr[]>", length(x)))
+  }
+  shape = paste0(dd(x)$pointer_shape[-1L], collapse = "x")
+
+  map_chr(x, function(elt) {
+    sprintf("<tnsr[%s]>", shape)
+  })
+}
+#' @export
+print.lazy_tensor = function(x, ...) { # nolint
   if (length(x) == 0) {
-    return("<ltnsr[len=0]>")
+    cat("<ltnsr[len=0]>\n")
+    return(invisible(x))
   }
   shape = dd(x)$pointer_shape
   if (is.null(shape)) {
-    return(sprintf("<ltnsr[len=%d, shapes=unknown]>", length(x)))
+    cat(sprintf("<ltnsr[len=%d, shapes=unknown]>\n", length(x)))
   } else {
     shape_str = paste0(shape[-1L], collapse = ",")
-    return(sprintf("<ltnsr[len=%d, shapes=(%s)]>", length(x), shape_str))
+    cat(sprintf("<ltnsr[len=%d, shapes=(%s)]>\n", length(x), shape_str))
   }
-  sprintf("<ltnsr[len=%d, shapes=(%s)]>", length(x), shape_str)
-}
-
-#' @export
-print.lazy_tensor = function(x, ...) {
-  cat(format(x, ...), "\n")
+  invisible(x)
 }
 
 dd = function(x) {
