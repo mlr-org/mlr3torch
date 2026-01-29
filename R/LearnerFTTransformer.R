@@ -94,7 +94,7 @@ LearnerTorchFTTransformer = R6Class("LearnerTorchFTTransformer",
         row = task$head(1L)
         for (i in seq_along(ingress_tokens)) {
           feat = ingress_tokens[[i]]$features(task)
-          if (!length(feat) == 1L) {
+          if (length(feat) != 1L) {
             stopf("Learner '%s' received an input task '%s' with lazy tensors, but the ingress token '%s' does not select exactly one feature.", self$id, task$id, names(ingress_tokens)[[i]]) # nolint
           }
           if (is.null(ingress_tokens[[i]]$shape)) {
