@@ -102,11 +102,17 @@ format.lazy_tensor = function(x, ...) { # nolint
 
 #' @export
 print.lazy_tensor = function(x, ...) {
-  cat(paste0("<ltnsr[", length(x), "]>", "\n", collapse = ""))
-  if (length(x) == 0) return(invisible(x))
-
-  out <- stats::setNames(format(x), names(x))
-  print(out, quote = FALSE)
+  if (length(x) == 0) {
+    cat("<ltnsr[len=0]>\n")
+    return(invisible(x))
+  }
+  shape = dd(x)$pointer_shape
+  if (is.null(shape)) {
+    cat(sprintf("<ltnsr[len=%d, shapes=unknown]>\n", length(x)))
+  } else {
+    shape_str = paste0(shape[-1L], collapse = ",")
+    cat(sprintf("<ltnsr[len=%d, shapes=(%s)]>\n", length(x), shape_str))
+  }
   invisible(x)
 }
 
@@ -181,9 +187,6 @@ as_lazy_tensor.numeric = function(x, ...) { # nolint
 
 #' @export
 as_lazy_tensor.torch_tensor = function(x, ...) { # nolint
-  if (length(dim(x)) == 1L) {
-    x = x$unsqueeze(2)
-  }
   ds = dataset(
     initialize = function(x) {
       self$x = x

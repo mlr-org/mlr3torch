@@ -194,10 +194,7 @@ test_that("format", {
 })
 
 test_that("printer", {
-  expect_equal(
-    capture.output(as_lazy_tensor(1:2)),
-    c("<ltnsr[2]>", "[1] <tnsr[1]> <tnsr[1]>")
-  )
+  expect_snapshot(as_lazy_tensor(1:2))
 })
 
 test_that("comparison", {
