@@ -195,6 +195,15 @@ test_that("format", {
 
 test_that("printer", {
   expect_snapshot(as_lazy_tensor(1:2))
+  expect_snapshot(lazy_tensor())
+
+  ds = dataset(
+    initialize = function() self$x = torch_randn(3, 2, 3),
+    .getbatch = function(i) list(x = self$x[i, , , drop = FALSE]),
+    .length = function() nrow(self$x)
+  )()
+  expect_snapshot(as_lazy_tensor(ds, dataset_shapes = list(x = c(NA, 2, 3))))
+  expect_snapshot(as_lazy_tensor(ds, dataset_shapes = list(x = NULL)))
 })
 
 test_that("comparison", {
