@@ -11,7 +11,7 @@ mlr_helpers = list.files(system.file("testthat", package = "mlr3pipelines"), pat
 lapply(mlr_helpers, FUN = source)
 
 # expect that 'one' is a deep clone of 'two'
-expect_deep_clone = function(one, two) {
+expect_deep_clone_mlr3torch = function(one, two) {
   # is equal
   expect_equal(one, two)
   visited = new.env()

@@ -345,7 +345,7 @@ expect_torch_callback = function(torch_callback, check_man = TRUE, check_paramse
   })
 
   cb = torch_callback$generate()
-  expect_deep_clone(cb, cb$clone(deep = TRUE))
+  expect_deep_clone_mlr3torch(cb, cb$clone(deep = TRUE))
 }
 
 #' @title Autotest for PipeOpTaskPreprocTorch
@@ -470,7 +470,7 @@ expect_learner_torch = function(learner, task, check_man = TRUE, check_id = TRUE
   # state cloning is tested separately
   learner1 = learner
   learner1$state = NULL
-  expect_deep_clone(learner1, learner1$clone(deep = TRUE))
+  expect_deep_clone_mlr3torch(learner1, learner1$clone(deep = TRUE))
   rr = resample(task, learner, rsmp("holdout"), store_models = TRUE)
   expect_double(rr$aggregate())
   checkmate::expect_class(rr, "ResampleResult")

@@ -42,7 +42,7 @@ test_that("The optimizer is cloned during construction", {
 test_that("PipeOpTorchOptimizer can be cloned", {
   obj1 = po("torch_optimizer")
   obj2 = obj1$clone(deep = TRUE)
-  expect_deep_clone(obj1, obj2)
+  expect_deep_clone_mlr3torch(obj1, obj2)
   # parameter set references are preserved
   expect_equal(address(obj2$param_set), address(get_private(obj2)$.optimizer$param_set))
 })

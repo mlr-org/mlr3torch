@@ -68,7 +68,7 @@ test_that("dictionary can be converted to a table", {
 test_that("Cloning works", {
   torch_opt1 = t_opt("adam")
   torch_opt2 = torch_opt1$clone(deep = TRUE)
-  expect_deep_clone(torch_opt1, torch_opt2)
+  expect_deep_clone_mlr3torch(torch_opt1, torch_opt2)
 })
 
 test_that("Printer works", {
@@ -90,7 +90,7 @@ test_that("Converters are correctly implemented", {
   expect_equal(torch_opt$label, "optim_adam")
 
   torch_opt1 = as_torch_optimizer(torch_opt, clone = TRUE)
-  expect_deep_clone(torch_opt, torch_opt1)
+  expect_deep_clone_mlr3torch(torch_opt, torch_opt1)
 
   torch_op2 = as_torch_optimizer(optim_adam, id = "myopt", label = "Custom",
     man = "my_opt", param_set = ps(lr = p_uty(tags = "train"))

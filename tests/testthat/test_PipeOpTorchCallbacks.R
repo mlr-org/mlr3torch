@@ -59,5 +59,5 @@ test_that("The callbacks are cloned during construction", {
 test_that("Cloning works", {
   obj1 = po("torch_callbacks", callbacks = c("progress", "history"))
   obj2 = obj1$clone(deep = TRUE)
-  expect_deep_clone(obj1, obj2)
+  expect_deep_clone_mlr3torch(obj1, obj2)
 })
