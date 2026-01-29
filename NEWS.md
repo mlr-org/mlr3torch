@@ -1,5 +1,8 @@
 # mlr3torch (development version)
 
+* Feat: Improve `lazy_tensor` printing.
+* Fix: Improve consistency in `as_lazy_tensor()` when converting 1D tensors to lazy tensors.
+
 # mlr3torch 0.3.2
 
 ## Bug Fixes

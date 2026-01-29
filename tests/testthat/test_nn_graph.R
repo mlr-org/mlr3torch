@@ -206,10 +206,10 @@ test_that("cloning", {
   # the first list entry of module list is the module list itself
   expect_true(identical(network1$graph$pipeops$nn_linear$module, network1$module_list$modules[[2]]))
 
-  expect_deep_clone(network$graph, network1$graph)
+  expect_deep_clone_mlr3torch(network$graph, network1$graph)
   network$graph = NULL
   network1$graph = NULL
-  expect_deep_clone(network, network1)
+  expect_deep_clone_mlr3torch(network, network1)
 })
 
 test_that("cloning", {
@@ -224,7 +224,7 @@ test_that("cloning", {
   nn_test1 = nn_test$clone(deep = TRUE)
   nn_test = nn_test$clone(deep = TRUE)$clone(deep = TRUE)
 
-  expect_deep_clone(nn_test, nn_test1)
+  expect_deep_clone_mlr3torch(nn_test, nn_test1)
   nn_test = nn_module("test", initialize = function() {
     self$l = nn_module_list(list(nn_linear(1, 1)))
     },

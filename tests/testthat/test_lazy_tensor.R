@@ -187,17 +187,16 @@ test_that("as_lazy_tensor for numeric", {
   expect_equal(1:10, as.numeric(as_array(materialize(x, rbind = TRUE))))
 })
 
-test_that("format", {
-  expect_equal(format(lazy_tensor()), character(0))
-  expect_equal(format(as_lazy_tensor(1)), "<tnsr[1]>")
-  expect_equal(format(as_lazy_tensor(1:2)), c("<tnsr[1]>", "<tnsr[1]>"))
-})
-
-test_that("printer", {
-  expect_equal(
-    capture.output(as_lazy_tensor(1:2)),
-    c("<ltnsr[2]>", "[1] <tnsr[1]> <tnsr[1]>")
-  )
+test_that("print/format", {
+  expect_snapshot(lazy_tensor())
+  expect_snapshot(as_lazy_tensor(1))
+  expect_snapshot(as_lazy_tensor(matrix(1:10, ncol = 1)))
+  ds = dataset(
+    initialize = function() self$x = torch_randn(10, 3, 3),
+    .getbatch = function(i) list(x = self$x[i, , drop = FALSE]),
+    .length = function() nrow(self$x)
+  )()
+  expect_snapshot(as_lazy_tensor(ds, dataset_shapes = list(x = NULL)))
 })
 
 test_that("comparison", {
@@ -279,7 +278,7 @@ test_that("rep_len for lazy_tensor", {
 })
 
 test_that("lazy_shape", {
-  expect_equal(lazy_shape(as_lazy_tensor(1:2)), c(NA, 1))
+  expect_equal(lazy_shape(as_lazy_tensor(1:2)), NA_integer_)
   expect_equal(lazy_shape(as_lazy_tensor(matrix(1:4, 2))), c(NA, 2))
   expect_equal(lazy_shape(as_lazy_tensor(matrix(1:4, 2, 2))), c(NA, 2))
 })
