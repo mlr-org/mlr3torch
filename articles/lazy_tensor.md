@@ -168,8 +168,7 @@ unknown, i.e. it varies between elements.
 ``` r
 lt = as_lazy_tensor(mydata, dataset_shapes = list(x = c(NA, 1)))
 lt[1:5]
-#> <ltnsr[5]>
-#> [1] <tnsr[1]> <tnsr[1]> <tnsr[1]> <tnsr[1]> <tnsr[1]>
+#> <ltnsr[len=5, shapes=(1)]>
 ```
 
 Note that in this case, because we implemented the `.getbatch` method,
@@ -343,7 +342,7 @@ desc
 #> <DataDescriptor: 1 ops>
 #> * dataset_shapes: [x: (NA,1)]
 #> * input_map: (x) -> Graph
-#> * pointer: nop.4b54a8.x.output
+#> * pointer: nop.59bf7d.x.output
 #> * shape: [(NA,1)]
 ```
 
@@ -390,7 +389,7 @@ unclass(lt[[1]])
 #> <DataDescriptor: 1 ops>
 #> * dataset_shapes: [x: (NA,1)]
 #> * input_map: (x) -> Graph
-#> * pointer: nop.4b54a8.x.output
+#> * pointer: nop.59bf7d.x.output
 #> * shape: [(NA,1)]
 ```
 
@@ -445,10 +444,10 @@ descout$graph
 #> ── Graph with 2 PipeOps: ───────────────────────────────────────────────────────
 #>            ID         State sccssors    prdcssors
 #>        <char>        <char>   <char>       <char>
-#>  nop.4b54a8.x        <list>   poly.x             
-#>        poly.x <<UNTRAINED>>          nop.4b54a8.x
+#>  nop.59bf7d.x        <list>   poly.x             
+#>        poly.x <<UNTRAINED>>          nop.59bf7d.x
 #> 
-#> ── Pipeline: <INPUT> -> nop.4b54a8.x -> poly.x -> <OUTPUT>
+#> ── Pipeline: <INPUT> -> nop.59bf7d.x -> poly.x -> <OUTPUT>
 ```
 
 We see that the `$graph` has a new pipeop with id `"poly.x"` and the

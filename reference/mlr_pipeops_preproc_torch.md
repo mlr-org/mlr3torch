@@ -260,9 +260,9 @@ The objects of this class are cloneable with this method.
 ``` r
 # Creating a simple task
 d = data.table(
-  x1 = as_lazy_tensor(rnorm(10)),
-  x2 = as_lazy_tensor(rnorm(10)),
-  x3 = as_lazy_tensor(as.double(1:10)),
+  x1 = as_lazy_tensor(matrix(rnorm(10), ncol = 1)),
+  x2 = as_lazy_tensor(matrix(rnorm(10), ncol = 1)),
+  x3 = as_lazy_tensor(matrix(as.double(1:10), ncol = 1)),
   y = rnorm(10)
 )
 

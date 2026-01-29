@@ -25,7 +25,7 @@ lazy_shape(x)
 ``` r
 lt = as_lazy_tensor(1:10)
 lazy_shape(lt)
-#> [1] NA  1
+#> [1] NA
 lt = as_lazy_tensor(matrix(1:10, nrow = 2))
 lazy_shape(lt)
 #> [1] NA  5

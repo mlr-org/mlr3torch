@@ -257,8 +257,7 @@ unknown, i.e. it varies between elements.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lt</span> <span class="op">=</span> <span class="fu"><a href="../reference/as_lazy_tensor.html">as_lazy_tensor</a></span><span class="op">(</span><span class="va">mydata</span>, dataset_shapes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">lt</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span>
-<span><span class="co">#&gt; &lt;ltnsr[5]&gt;</span></span>
-<span><span class="co">#&gt; [1] &lt;tnsr[1]&gt; &lt;tnsr[1]&gt; &lt;tnsr[1]&gt; &lt;tnsr[1]&gt; &lt;tnsr[1]&gt;</span></span></code></pre></div>
+<span><span class="co">#&gt; &lt;ltnsr[len=5, shapes=(1)]&gt;</span></span></code></pre></div>
 <p>Note that in this case, because we implemented the
 <code>.getbatch</code> method, we could have even omitted specifying the
 <code>dataset_shapes</code> as they could have been auto-inferred.</p>
@@ -411,7 +410,7 @@ nerworks using <code>PipeOpTorch</code> objects. The
 <span><span class="co">#&gt; &lt;DataDescriptor: 1 ops&gt;</span></span>
 <span><span class="co">#&gt; * dataset_shapes: [x: (NA,1)]</span></span>
 <span><span class="co">#&gt; * input_map: (x) -&gt; Graph</span></span>
-<span><span class="co">#&gt; * pointer: nop.4b54a8.x.output</span></span>
+<span><span class="co">#&gt; * pointer: nop.59bf7d.x.output</span></span>
 <span><span class="co">#&gt; * shape: [(NA,1)]</span></span></code></pre></div>
 <p>The printed output of the data descriptor informs us about:</p>
 <ul>
@@ -458,7 +457,7 @@ there can only be a single <code>DataDescriptor</code> in a
 <span><span class="co">#&gt; &lt;DataDescriptor: 1 ops&gt;</span></span>
 <span><span class="co">#&gt; * dataset_shapes: [x: (NA,1)]</span></span>
 <span><span class="co">#&gt; * input_map: (x) -&gt; Graph</span></span>
-<span><span class="co">#&gt; * pointer: nop.4b54a8.x.output</span></span>
+<span><span class="co">#&gt; * pointer: nop.59bf7d.x.output</span></span>
 <span><span class="co">#&gt; * shape: [(NA,1)]</span></span></code></pre></div>
 <p>What happens during <code>materialize(lt[1])</code> is the
 following:</p>
@@ -509,10 +508,10 @@ feature.</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Graph with 2 PipeOps:</span> <span style="color: #00BBBB;">───────────────────────────────────────────────────────</span></span></span>
 <span><span class="co">#&gt;            ID         State sccssors    prdcssors</span></span>
 <span><span class="co">#&gt;        &lt;char&gt;        &lt;char&gt;   &lt;char&gt;       &lt;char&gt;</span></span>
-<span><span class="co">#&gt;  nop.4b54a8.x        &lt;list&gt;   poly.x             </span></span>
-<span><span class="co">#&gt;        poly.x &lt;&lt;UNTRAINED&gt;&gt;          nop.4b54a8.x</span></span>
+<span><span class="co">#&gt;  nop.59bf7d.x        &lt;list&gt;   poly.x             </span></span>
+<span><span class="co">#&gt;        poly.x &lt;&lt;UNTRAINED&gt;&gt;          nop.59bf7d.x</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── Pipeline: <span style="font-weight: bold;">&lt;INPUT&gt; -&gt; nop.4b54a8.x -&gt; poly.x -&gt; &lt;OUTPUT&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt; ── Pipeline: <span style="font-weight: bold;">&lt;INPUT&gt; -&gt; nop.59bf7d.x -&gt; poly.x -&gt; &lt;OUTPUT&gt;</span></span></span></code></pre></div>
 <p>We see that the <code>$graph</code> has a new pipeop with id
 <code>"poly.x"</code> and the output <code>pointer</code> points to
 <code>poly.x</code>. Also we see that the shape of the tensor is now

@@ -54,12 +54,10 @@ iris_ds = dataset("iris",
 # no need to specify the dataset shapes as they can be inferred from the .getbatch method
 # only first 5 observations
 as_lazy_tensor(iris_ds, ids = 1:5)
-#> <ltnsr[5]>
-#> [1] <tnsr[4]> <tnsr[4]> <tnsr[4]> <tnsr[4]> <tnsr[4]>
+#> <ltnsr[len=5, shapes=(4)]>
 # all observations
 head(as_lazy_tensor(iris_ds))
-#> <ltnsr[6]>
-#> [1] <tnsr[4]> <tnsr[4]> <tnsr[4]> <tnsr[4]> <tnsr[4]> <tnsr[4]>
+#> <ltnsr[len=6, shapes=(4)]>
 
 iris_ds2 = dataset("iris",
   initialize = function() self$iris = iris[, -5],
@@ -69,8 +67,7 @@ iris_ds2 = dataset("iris",
 # if .getitem is implemented we cannot infer the shapes as they might vary,
 # so we have to annotate them explicitly
 as_lazy_tensor(iris_ds2, dataset_shapes = list(x = c(NA, 4L)))[1:5]
-#> <ltnsr[5]>
-#> [1] <tnsr[4]> <tnsr[4]> <tnsr[4]> <tnsr[4]> <tnsr[4]>
+#> <ltnsr[len=5, shapes=(4)]>
 
 # Convert a matrix
 lt = as_lazy_tensor(matrix(rnorm(100), nrow = 20))
