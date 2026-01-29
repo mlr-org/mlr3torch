@@ -5,9 +5,8 @@ A
 of torch callbacks. Use
 [`t_clbk()`](https://mlr3torch.mlr-org.com/reference/t_clbk.md) to
 conveniently retrieve callbacks. Can be converted to a
-[`data.table`](https://rdatatable.gitlab.io/data.table/reference/data.table.html)
-using
-[`as.data.table`](https://rdatatable.gitlab.io/data.table/reference/as.data.table.html).
+[`data.table`](https://rdrr.io/pkg/data.table/man/data.table.html) using
+[`as.data.table`](https://rdrr.io/pkg/data.table/man/as.data.table.html).
 
 ## Usage
 

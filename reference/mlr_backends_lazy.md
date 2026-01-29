@@ -126,7 +126,7 @@ Creates a new instance of this
 
 - `col_info`:
 
-  ([`data.table::data.table()`](https://rdatatable.gitlab.io/data.table/reference/data.table.html))  
+  ([`data.table::data.table()`](https://rdrr.io/pkg/data.table/man/data.table.html))  
   A data.table with columns `id`, `type` and `levels` containing the
   column id, type and levels. Note that the levels must be provided in
   the correct order.
@@ -186,7 +186,7 @@ backend.
 
 #### Returns
 
-[`data.table::data.table()`](https://rdatatable.gitlab.io/data.table/reference/data.table.html)
+[`data.table::data.table()`](https://rdrr.io/pkg/data.table/man/data.table.html)
 of the first `n` rows.
 
 ------------------------------------------------------------------------

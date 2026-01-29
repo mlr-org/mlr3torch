@@ -168,7 +168,7 @@ torch_callback = t_clbk("checkpoint",
 torch_callback
 #> <TorchCallback:checkpoint> Checkpoint
 #> * Generator: CallbackSetCheckpoint
-#> * Parameters: path=/tmp/RtmpWenm6a/file232e2202b5a0, freq=1
+#> * Parameters: path=/tmp/RtmpbSHbz1/file7bd918f23ff7, freq=1
 #> * Packages: mlr3torch,torch
 torch_callback$label
 #> [1] "Checkpoint"
@@ -238,6 +238,7 @@ learner$param_set
 #> 39:      cb.checkpoint.freq ParamInt 1e+00   Inf     Inf <NoDefault[0]>
 #> 40: cb.checkpoint.freq_type ParamFct    NA    NA       2          epoch
 #>                          id    class lower upper nlevels        default
+#>                      <char>   <char> <num> <num>   <num>         <list>
 #>            value
 #>           <list>
 #>  1:       [NULL]
@@ -281,4 +282,5 @@ learner$param_set
 #> 39:       [NULL]
 #> 40:       [NULL]
 #>            value
+#>           <list>
 ```

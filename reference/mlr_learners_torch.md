@@ -122,7 +122,7 @@ elements:
   stopping).
 
 - `task_col_info` :: A
-  [`data.table()`](https://rdatatable.gitlab.io/data.table/reference/data.table.html)
+  [`data.table()`](https://rdrr.io/pkg/data.table/man/data.table.html)
   containing information about the train-task.
 
 ## Parameters

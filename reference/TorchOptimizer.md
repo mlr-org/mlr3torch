@@ -264,6 +264,7 @@ learner$param_set
 #> 36:    opt.param_groups ParamUty    NA    NA     Inf <NoDefault[0]>
 #> 37:      loss.reduction ParamFct    NA    NA       2           mean
 #>                      id    class lower upper nlevels        default
+#>                  <char>   <char> <num> <num>   <num>         <list>
 #>            value
 #>           <list>
 #>  1:       [NULL]
@@ -304,4 +305,5 @@ learner$param_set
 #> 36:       [NULL]
 #> 37:       [NULL]
 #>            value
+#>           <list>
 ```

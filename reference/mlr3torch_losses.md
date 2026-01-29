@@ -3,9 +3,8 @@
 Dictionary of torch loss descriptors. See
 [`t_loss()`](https://mlr3torch.mlr-org.com/reference/t_loss.md) for
 conveniently retrieving a loss function. Can be converted to a
-[`data.table`](https://rdatatable.gitlab.io/data.table/reference/data.table.html)
-using
-[`as.data.table`](https://rdatatable.gitlab.io/data.table/reference/as.data.table.html).
+[`data.table`](https://rdrr.io/pkg/data.table/man/data.table.html) using
+[`as.data.table`](https://rdrr.io/pkg/data.table/man/as.data.table.html).
 
 ## Usage
 

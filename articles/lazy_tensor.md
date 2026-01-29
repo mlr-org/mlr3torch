@@ -31,14 +31,14 @@ the target variable, and an `image` which is the input feature.
 
 ``` r
 mnist$head()
-#>     label           image
-#>    <fctr>   <lazy_tensor>
-#> 1:      5 <tnsr[1x28x28]>
-#> 2:      0 <tnsr[1x28x28]>
-#> 3:      4 <tnsr[1x28x28]>
-#> 4:      1 <tnsr[1x28x28]>
-#> 5:      9 <tnsr[1x28x28]>
-#> 6:      2 <tnsr[1x28x28]>
+#>     label         image
+#>    <fctr> <lazy_tensor>
+#> 1:      5     <list[2]>
+#> 2:      0     <list[2]>
+#> 3:      4     <list[2]>
+#> 4:      1     <list[2]>
+#> 5:      9     <list[2]>
+#> 6:      2     <list[2]>
 ```
 
 If we wanted to obtain the actual tensors representing the images, we
@@ -108,12 +108,12 @@ mnist_flat = reshaper$train(list(mnist))[[1L]]
 mnist_flat$head()
 #>     label         image
 #>    <fctr> <lazy_tensor>
-#> 1:      5   <tnsr[784]>
-#> 2:      0   <tnsr[784]>
-#> 3:      4   <tnsr[784]>
-#> 4:      1   <tnsr[784]>
-#> 5:      9   <tnsr[784]>
-#> 6:      2   <tnsr[784]>
+#> 1:      5     <list[2]>
+#> 2:      0     <list[2]>
+#> 3:      4     <list[2]>
+#> 4:      1     <list[2]>
+#> 5:      9     <list[2]>
+#> 6:      2     <list[2]>
 ```
 
 Note that this does not *actually* reshape all the tensors in-memory,
@@ -343,7 +343,7 @@ desc
 #> <DataDescriptor: 1 ops>
 #> * dataset_shapes: [x: (NA,1)]
 #> * input_map: (x) -> Graph
-#> * pointer: nop.51bac6.x.output
+#> * pointer: nop.7a36e3.x.output
 #> * shape: [(NA,1)]
 ```
 
@@ -390,7 +390,7 @@ unclass(lt[[1]])
 #> <DataDescriptor: 1 ops>
 #> * dataset_shapes: [x: (NA,1)]
 #> * input_map: (x) -> Graph
-#> * pointer: nop.51bac6.x.output
+#> * pointer: nop.7a36e3.x.output
 #> * shape: [(NA,1)]
 ```
 
@@ -445,10 +445,10 @@ descout$graph
 #> ── Graph with 2 PipeOps: ───────────────────────────────────────────────────────
 #>            ID         State sccssors    prdcssors
 #>        <char>        <char>   <char>       <char>
-#>  nop.51bac6.x        <list>   poly.x             
-#>        poly.x <<UNTRAINED>>          nop.51bac6.x
+#>  nop.7a36e3.x        <list>   poly.x             
+#>        poly.x <<UNTRAINED>>          nop.7a36e3.x
 #> 
-#> ── Pipeline: <INPUT> -> nop.51bac6.x -> poly.x -> <OUTPUT>
+#> ── Pipeline: <INPUT> -> nop.7a36e3.x -> poly.x -> <OUTPUT>
 ```
 
 We see that the `$graph` has a new pipeop with id `"poly.x"` and the
