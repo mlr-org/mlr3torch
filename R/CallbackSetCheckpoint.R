@@ -81,7 +81,7 @@ CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
           # already saved
           return(NULL)
         } else {
-          private$.save(self$ctx$epoch)
+          private$.save(self$ctx$step)
         }
       }
     }
