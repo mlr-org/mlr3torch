@@ -222,7 +222,7 @@ test_that("pipeop_preproc_torch", {
 
   task = as_task_regr(data.table(
     y = 2,
-    x = as_lazy_tensor(3)
+    x = as_lazy_tensor(matrix(3, nrow = 1))
   ), target = "y")
 
   po_test$param_set$set_values(
