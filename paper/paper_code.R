@@ -363,6 +363,7 @@ task_subset$filter(subset)
 rr <- resample(task_subset, glrn, rsmp("holdout"))
 plt <- autoplot(rr, type = "roc")
 
+library("ggplot2")
 plt = plt +
   theme(
     axis.text.x = element_text(size = 12),
@@ -371,6 +372,6 @@ plt = plt +
     axis.title.y = element_text(size = 12)
   )
 print(plt)
-ggsave(here("roc.png"), plt, width = 4, height = 4, dpi = 300)
+ggsave(here::here("roc.png"), plt, width = 4, height = 4, dpi = 300)
 Sys.time()
 sessionInfo()

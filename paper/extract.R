@@ -68,6 +68,7 @@ code_lines <- c(
   "options(mlr3torch.cache = TRUE)",
   "lgr::get_logger(\"mlr3\")$set_threshold(\"warn\")",
   code_lines,
+  "library(\"ggplot2\")",
   "plt = plt +",
   "  theme(",
   "    axis.text.x = element_text(size = 12),",
@@ -76,7 +77,7 @@ code_lines <- c(
   "    axis.title.y = element_text(size = 12)",
   "  )",
   "print(plt)",
-  "ggsave(here(\"roc.png\"), plt, width = 4, height = 4, dpi = 300)",
+  "ggsave(here::here(\"roc.png\"), plt, width = 4, height = 4, dpi = 300)",
   "Sys.time()",
   "sessionInfo()"
 )
