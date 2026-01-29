@@ -14,7 +14,7 @@ renv::restore()
 
 which will ask you whether you want to proceed installing the missing packages, which you have to confirm.
 
-Afterwards, you need to install torch:
+Afterwards, after restarting R just to be sure, you need to run the command below to install torch:
 
 ```{r}
 torch::install_torch()
