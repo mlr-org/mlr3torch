@@ -271,7 +271,8 @@ expect_paramset = function(x, fns, exclude = character(0), exclude_defaults = ch
 }
 
 expect_paramtest = function(paramtest) {
-  expect_true(paramtest$ok, info = paramtest$info)
+  info = if (length(paramtest$info)) paste(unlist(paramtest$info), collapse = "; ") else NULL
+  expect_true(paramtest$ok, info = info)
 }
 
 
