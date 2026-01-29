@@ -161,13 +161,12 @@ It was extracted from the tex manuscript almost fully programmatically but adjus
 * Deactivate knitr caching
 * Activating caching for `mlr3torch`
 * Changing the `mlr3` logging level to `warn` for cleaner output
-* Saving the ROC plot for postprocessing
+* Processing the ROC plot for better readability and saving it as `roc.png`, as well as printing it.
 * Adding a `sessionInfo()` call at the end
 
 We also added some additional comments to make it easier to associate the code with the paper.
 
 The results we obtained via `knitr::spin()` are stored in `paper/paper_results/`
-The ROC plot is postprocessed using the `roc.R` script and we have also provided the resulting `roc.png` from the paper in the `paper/paper_results` directory.
 
 ### Possible Data Unavailability
 

@@ -5,11 +5,7 @@
 # Some setup code
 Sys.time()
 options(mlr3torch.cache = TRUE)
-lgr::get_logger('mlr3')$set_threshold('warn')
-
-# 2.2 Main dependencies
-
-# mlr3
+lgr::get_logger("mlr3")$set_threshold("warn")
 library("mlr3")
 set.seed(42)
 task <- tsk("mtcars")
@@ -367,7 +363,14 @@ task_subset$filter(subset)
 rr <- resample(task_subset, glrn, rsmp("holdout"))
 plt <- autoplot(rr, type = "roc")
 
-# Save plot so it can be modified later
-saveRDS(plt, "roc.rds")
+plt = plt +
+  theme(
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(size = 12),
+    axis.title.y = element_text(size = 12)
+  )
+print(plt)
+ggsave(here("roc.png"), plt, width = 4, height = 4, dpi = 300)
 Sys.time()
 sessionInfo()

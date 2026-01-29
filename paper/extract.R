@@ -68,8 +68,15 @@ code_lines <- c(
   "options(mlr3torch.cache = TRUE)",
   "lgr::get_logger(\"mlr3\")$set_threshold(\"warn\")",
   code_lines,
+  "plt = plt +",
+  "  theme(",
+  "    axis.text.x = element_text(size = 12),",
+  "    axis.text.y = element_text(size = 12),",
+  "    axis.title.x = element_text(size = 12),",
+  "    axis.title.y = element_text(size = 12)",
+  "  )",
   "print(plt)",
-  "saveRDS(plt, \"roc.rds\")",
+  "ggsave(here(\"roc.png\"), plt, width = 4, height = 4, dpi = 300)",
   "Sys.time()",
   "sessionInfo()"
 )
