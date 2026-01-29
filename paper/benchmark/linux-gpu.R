@@ -27,7 +27,7 @@ problem_design = expand.grid(
 )
 
 if (dir.exists(here("benchmark", "registry-linux-gpu"))) {
-  stop("Registry benchmark/registry-linux-gpu already exists. Delete it to run the benchmark again.")
+  stop("Registry benchmark/registry-linux-gpu already exists. Delete the folder to run the benchmark again.")
 }
 
 setup(

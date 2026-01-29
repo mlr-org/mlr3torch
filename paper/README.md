@@ -18,26 +18,21 @@ torch::install_torch()
 ```
 
 We are providing two docker images, one for CPU and one for CUDA GPU that have the same packages from the `renv.lock` file installed.
-The images can be downloaded from Zenodo: https://doi.org/10.5281/zenodo.17130368.
-You can, for example, use the [zenodo_client](https://pypi.org/project/zenodo-client/) library to download the images:
+The images can be downloaded from Zenodo: https://doi.org/10.5281/zenodo.17130368, either via the web interface, or, for example, using wget:
 
 ```bash
-# pip install zenodo-client
-export ZENODO_API_TOKEN=<your-token>
-zenodo_client download 17130368 IMAGE_CPU.tar.gz
+# Docker images
+wget https://zenodo.org/records/17864153/files/IMAGE_CPU.tar.gz
+wget https://zenodo.org/records/17864153/files/IMAGE_GPU.tar.gz
 ```
-
-By default, the downloaded files are stored in `~/.data/zenodo`.
 
 At the time of writing, the images are also hosted on dockerhub, but this is not a permanent storage:
 https://hub.docker.com/repository/docker/sebffischer/mlr3torch-jss/general
 
 The `Dockerfile`s used to create the images are available in the `./paper/envs` directory.
 
-If you have downloaded the images like shown above, you can load them into Docker, e.g. via the command below (or otherwise adjust the path accordingly).
-
 ```bash
-docker load -i ~/.data/zenodo/17130368/v1/IMAGE_CPU.tar.gz
+docker load -i /path/to/IMAGE_CPU.tar.gz
 ```
 
 To start the CPU docker container, run:
@@ -88,7 +83,8 @@ There are three scripts:
 * `paper/benchmark/linux-cpu.R`, which creates the folder `paper/benchmark/registry-linux-cpu`
 * `paper/benchmark/linux-gpu-optimizer.R`, which creates the folder `paper/benchmark/registry-linux-gpu-optimizer`
 
-If one of the folders already exists and you want to re-run the benchmarks, you need to delete or move the folder.
+**Important**:If one of the folders already exists and you want to re-run the benchmarks, you need to delete or move the folder, otherwise you will get an error.
+This is to ensure that the benchmark results are not accidentally overwritten.
 
 To run the GPU benchmarks (using the CUDA docker image) on linux, run:
 

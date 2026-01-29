@@ -9,7 +9,7 @@ set.seed(42)
 PYTHON_PATH = "/opt/venv/bin/python"
 
 if (dir.exists(here("benchmark", "registry-linux-gpu"))) {
-  stop("Registry benchmark/registry-linux-cpu already exists. Delete it to run the benchmark again.")
+  stop("Registry benchmark/registry-linux-cpu already exists. Delete the folder to run the benchmark again.")
 }
 
 setup(

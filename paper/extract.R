@@ -68,6 +68,7 @@ code_lines <- c(
   "options(mlr3torch.cache = TRUE)",
   "lgr::get_logger(\"mlr3\")$set_threshold(\"warn\")",
   code_lines,
+  "print(plt)",
   "saveRDS(plt, \"roc.rds\")",
   "Sys.time()",
   "sessionInfo()"
