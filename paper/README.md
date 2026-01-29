@@ -5,11 +5,14 @@ Note that there is also a brief section on reproducibility in the appendix of th
 ## Computational Environment
 
 In order to reproduce the results, you can either use the provided docker images or recreate the `renv` environment that is described in `paper/renv.lock`.
-To work with the renv environment, go into the `paper` directory, which will bootstrap the environment, and then run:
+To work with the renv environment, go into the `paper` directory and start an interactive R session, which will bootstrap the environment.
+Then, run:
 
 ```r
 renv::restore()
 ```
+
+which will ask you whether you want to proceed installing the missing packages, which you have to confirm.
 
 Afterwards, you need to install torch:
 
