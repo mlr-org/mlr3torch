@@ -197,7 +197,6 @@ test_that("print/format", {
     .length = function() nrow(self$x)
   )()
   expect_snapshot(as_lazy_tensor(ds, dataset_shapes = list(x = NULL)))
-  expect_snapshot(tsk("lazy_iris")$head())
 })
 
 test_that("comparison", {

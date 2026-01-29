@@ -91,7 +91,7 @@ format.lazy_tensor = function(x, ...) { # nolint
   if (!length(x)) return(character(0))
   shape = dd(x)$pointer_shape
   shape = if (is.null(shape)) {
-    return(rep("<tnsr[]>", length(x)))
+    return(rep("<tnsr[?]>", length(x)))
   }
   shape = paste0(dd(x)$pointer_shape[-1L], collapse = "x")
 
