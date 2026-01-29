@@ -23,7 +23,7 @@ To conveniently retrieve a TorchCallback, use t_clbk()."><meta property="og:imag
 
     <a class="navbar-brand me-2" href="../index.html">mlr3torch</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.3.1.9000</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.3.2-9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -101,9 +101,9 @@ for each argument of the wrapped loss function, where the parametes are then of 
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other Callback:
-<code><a href="as_torch_callback.html">as_torch_callback</a>()</code>,
-<code><a href="as_torch_callbacks.html">as_torch_callbacks</a>()</code>,
-<code><a href="callback_set.html">callback_set</a>()</code>,
+<code><a href="as_torch_callback.html">as_torch_callback()</a></code>,
+<code><a href="as_torch_callbacks.html">as_torch_callbacks()</a></code>,
+<code><a href="callback_set.html">callback_set()</a></code>,
 <code><a href="mlr3torch_callbacks.html">mlr3torch_callbacks</a></code>,
 <code><a href="mlr_callback_set.html">mlr_callback_set</a></code>,
 <code><a href="mlr_callback_set.checkpoint.html">mlr_callback_set.checkpoint</a></code>,
@@ -111,20 +111,20 @@ for each argument of the wrapped loss function, where the parametes are then of 
 <code><a href="mlr_callback_set.tb.html">mlr_callback_set.tb</a></code>,
 <code><a href="mlr_callback_set.unfreeze.html">mlr_callback_set.unfreeze</a></code>,
 <code><a href="mlr_context_torch.html">mlr_context_torch</a></code>,
-<code><a href="t_clbk.html">t_clbk</a>()</code>,
-<code><a href="torch_callback.html">torch_callback</a>()</code></p>
+<code><a href="t_clbk.html">t_clbk()</a></code>,
+<code><a href="torch_callback.html">torch_callback()</a></code></p>
 <p>Other Torch Descriptor:
 <code><a href="TorchDescriptor.html">TorchDescriptor</a></code>,
 <code><a href="TorchLoss.html">TorchLoss</a></code>,
 <code><a href="TorchOptimizer.html">TorchOptimizer</a></code>,
-<code><a href="as_torch_callbacks.html">as_torch_callbacks</a>()</code>,
-<code><a href="as_torch_loss.html">as_torch_loss</a>()</code>,
-<code><a href="as_torch_optimizer.html">as_torch_optimizer</a>()</code>,
+<code><a href="as_torch_callbacks.html">as_torch_callbacks()</a></code>,
+<code><a href="as_torch_loss.html">as_torch_loss()</a></code>,
+<code><a href="as_torch_optimizer.html">as_torch_optimizer()</a></code>,
 <code><a href="mlr3torch_losses.html">mlr3torch_losses</a></code>,
 <code><a href="mlr3torch_optimizers.html">mlr3torch_optimizers</a></code>,
-<code><a href="t_clbk.html">t_clbk</a>()</code>,
-<code><a href="t_loss.html">t_loss</a>()</code>,
-<code><a href="t_opt.html">t_opt</a>()</code></p></div>
+<code><a href="t_clbk.html">t_clbk()</a></code>,
+<code><a href="t_loss.html">t_loss()</a></code>,
+<code><a href="t_opt.html">t_opt()</a></code></p></div>
     </div>
     <div class="section level2">
     <h2 id="super-class">Super class<a class="anchor" aria-label="anchor" href="#super-class"></a></h2>
@@ -237,7 +237,7 @@ Additional arguments if necessary. For learning rate schedulers, this is the tor
 <span class="r-in"><span><span class="va">torch_callback</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;TorchCallback:checkpoint&gt; Checkpoint</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Generator: CallbackSetCheckpoint</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: path=/tmp/Rtmp0V4dJD/file1fd46887e3f6, freq=1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * Parameters: path=/tmp/RtmpgO1MX5/file7e4d7acb80ea, freq=1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * Packages: mlr3torch,torch</span>
 <span class="r-in"><span><span class="va">torch_callback</span><span class="op">$</span><span class="va">label</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Checkpoint"</span>
@@ -307,6 +307,7 @@ Additional arguments if necessary. For learning rate schedulers, this is the tor
 <span class="r-out co"><span class="r-pr">#&gt;</span> 39:      cb.checkpoint.freq ParamInt 1e+00   Inf     Inf &lt;NoDefault[0]&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 40: cb.checkpoint.freq_type ParamFct    NA    NA       2          epoch</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                          id    class lower upper nlevels        default</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                      &lt;char&gt;   &lt;char&gt; &lt;num&gt; &lt;num&gt;   &lt;num&gt;         &lt;list&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            value</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           &lt;list&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  1:       [NULL]</span>
@@ -350,6 +351,7 @@ Additional arguments if necessary. For learning rate schedulers, this is the tor
 <span class="r-out co"><span class="r-pr">#&gt;</span> 39:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 40:       [NULL]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           &lt;list&gt;</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -361,7 +363,7 @@ Additional arguments if necessary. For learning rate schedulers, this is the tor
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

@@ -25,7 +25,7 @@ of PipeOpModules as part of the ModelDescriptor."><meta property="og:image" cont
 
     <a class="navbar-brand me-2" href="../index.html">mlr3torch</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.3.1.9000</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">0.3.2-9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -123,18 +123,18 @@ the channels are defined. Arguments are <strong>not</strong> matched by name.</p
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other Graph Network:
-<code><a href="ModelDescriptor.html">ModelDescriptor</a>()</code>,
-<code><a href="TorchIngressToken.html">TorchIngressToken</a>()</code>,
+<code><a href="ModelDescriptor.html">ModelDescriptor()</a></code>,
+<code><a href="TorchIngressToken.html">TorchIngressToken()</a></code>,
 <code><a href="mlr_learners_torch_model.html">mlr_learners_torch_model</a></code>,
 <code><a href="mlr_pipeops_torch.html">mlr_pipeops_torch</a></code>,
 <code><a href="mlr_pipeops_torch_ingress.html">mlr_pipeops_torch_ingress</a></code>,
 <code><a href="mlr_pipeops_torch_ingress_categ.html">mlr_pipeops_torch_ingress_categ</a></code>,
 <code><a href="mlr_pipeops_torch_ingress_ltnsr.html">mlr_pipeops_torch_ingress_ltnsr</a></code>,
 <code><a href="mlr_pipeops_torch_ingress_num.html">mlr_pipeops_torch_ingress_num</a></code>,
-<code><a href="model_descriptor_to_learner.html">model_descriptor_to_learner</a>()</code>,
-<code><a href="model_descriptor_to_module.html">model_descriptor_to_module</a>()</code>,
-<code><a href="model_descriptor_union.html">model_descriptor_union</a>()</code>,
-<code><a href="nn_graph.html">nn_graph</a>()</code></p>
+<code><a href="model_descriptor_to_learner.html">model_descriptor_to_learner()</a></code>,
+<code><a href="model_descriptor_to_module.html">model_descriptor_to_module()</a></code>,
+<code><a href="model_descriptor_union.html">model_descriptor_union()</a></code>,
+<code><a href="nn_graph.html">nn_graph()</a></code></p>
 <p>Other PipeOp:
 <code><a href="mlr_pipeops_torch_callbacks.html">mlr_pipeops_torch_callbacks</a></code>,
 <code><a href="mlr_pipeops_torch_optimizer.html">mlr_pipeops_torch_optimizer</a></code></p></div>
@@ -283,19 +283,29 @@ The R packages this object depends on.</p></dd>
 <span class="r-in"><span><span class="va">result</span> <span class="op">=</span> <span class="va">graph</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://mlr3.mlr-org.com/reference/mlr_sugar.html" class="external-link">tsk</a></span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># The PipeOpTorchLinear generates a PipeOpModule and adds it to a new (module) graph</span></span></span>
 <span class="r-in"><span><span class="va">result</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">graph</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Graph with 2 PipeOps:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Graph with 2 PipeOps:</span> <span style="color: #00BBBB;">───────────────────────────────────────────────────────</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 ID         State  sccssors         prdcssors</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             &lt;char&gt;        &lt;char&gt;    &lt;char&gt;            &lt;char&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  torch_ingress_num &lt;&lt;UNTRAINED&gt;&gt; nn_linear                  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          nn_linear &lt;&lt;UNTRAINED&gt;&gt;           torch_ingress_num</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ── Pipeline: <span style="font-weight: bold;">&lt;INPUT&gt; -&gt; torch_ingress_num -&gt; nn_linear -&gt; &lt;OUTPUT&gt;</span> </span>
 <span class="r-in"><span><span class="va">linear_module</span> <span class="op">=</span> <span class="va">result</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">graph</span><span class="op">$</span><span class="va">pipeops</span><span class="op">$</span><span class="va">nn_linear</span></span></span>
 <span class="r-in"><span><span class="va">linear_module</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> PipeOp: &lt;nn_linear&gt; (not trained)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> values: &lt;list()&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Input channels &lt;name [train type, predict type]&gt;:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   input [torch_tensor,NULL]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Output channels &lt;name [train type, predict type]&gt;:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   output [torch_tensor,NULL]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">PipeOp </span><span style="color: #0000BB; font-weight: bold;">&lt;nn_linear&gt;</span><span style="font-weight: bold;">: not trained</span> <span style="color: #00BBBB;">─────────────────────────────────────────────</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Values: list()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Input channels:</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    name        train predict</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  &lt;char&gt;       &lt;char&gt;  &lt;char&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   input torch_tensor    NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ── <span style="font-weight: bold;">Output channels:</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    name        train predict</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  &lt;char&gt;       &lt;char&gt;  &lt;char&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  output torch_tensor    NULL</span>
 <span class="r-in"><span><span class="fu">formalArgs</span><span class="op">(</span><span class="va">linear_module</span><span class="op">$</span><span class="va">module</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "input"</span>
 <span class="r-in"><span><span class="va">linear_module</span><span class="op">$</span><span class="va">input</span><span class="op">$</span><span class="va">name</span></span></span>
@@ -322,7 +332,7 @@ The R packages this object depends on.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>
