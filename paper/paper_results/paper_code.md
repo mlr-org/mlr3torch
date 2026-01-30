@@ -7,16 +7,12 @@ Sys.time()
 ```
 
 ```
-## [1] "2025-12-08 12:07:55 UTC"
+## [1] "2026-01-30 10:34:06 UTC"
 ```
 
 ``` r
 options(mlr3torch.cache = TRUE)
-lgr::get_logger('mlr3')$set_threshold('warn')
-
-# 2.2 Main dependencies
-
-# mlr3
+lgr::get_logger("mlr3")$set_threshold("warn")
 library("mlr3")
 set.seed(42)
 task <- tsk("mtcars")
@@ -75,20 +71,8 @@ mnist
 
 ```
 ## 
-## ── <TaskClassif> (70000x2): MNIST Digit Classification ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── <TaskClassif> (70000x2): MNIST Digit Classification ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: label
-```
-
-```
-## Dataset <mnist> (~12 MB) will be downloaded and processed if not already available.
-## Downloading <mnist> ...
-## Processing <mnist>...
-## Dataset <mnist> downloaded and extracted successfully.
-## Dataset <mnist> loaded with 60000 images.
-## Dataset <mnist> loaded with 10000 images.
-```
-
-```
 ## • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0 (10%), 6 (10%), 8 (10%), 4 (10%), 5 (9%)
 ## • Properties: multiclass
 ## • Features (1):
@@ -153,7 +137,7 @@ mlp$model$network
 ```
 ## An `nn_module` containing 100,710 parameters.
 ## 
-## ── Modules ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Modules ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • 0: <nn_linear> #78,500 parameters
 ## • 1: <nn_relu> #0 parameters
 ## • 2: <nn_dropout> #0 parameters
@@ -370,7 +354,7 @@ task
 
 ```
 ## 
-## ── <TaskRegr> (32x11): Motor Trends ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── <TaskRegr> (32x11): Motor Trends ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: mpg
 ## • Properties: -
 ## • Features (10):
@@ -500,7 +484,7 @@ task
 
 ```
 ## 
-## ── <TaskClassif> (25000x2) ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── <TaskClassif> (25000x2) ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: class
 ## • Target classes: cat (positive class, 50%), dog (50%)
 ## • Properties: twoclass
@@ -556,7 +540,7 @@ task
 
 ```
 ## 
-## ── <TaskClassif> (32701x5): Melanoma Classification ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── <TaskClassif> (32701x5): Melanoma Classification ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: outcome
 ## • Target classes: malignant (positive class, 2%), benign (98%)
 ## • Properties: twoclass, groups
@@ -639,13 +623,26 @@ task_subset$filter(subset)
 rr <- resample(task_subset, glrn, rsmp("holdout"))
 plt <- autoplot(rr, type = "roc")
 
-# Save plot so it can be modified later
-saveRDS(plt, "roc.rds")
+library("ggplot2")
+plt = plt +
+  theme(
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(size = 12),
+    axis.title.y = element_text(size = 12)
+  )
+print(plt)
+```
+
+![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1-1.png)
+
+``` r
+ggsave(here::here("roc.png"), plt, width = 4, height = 4, dpi = 300)
 Sys.time()
 ```
 
 ```
-## [1] "2025-12-08 12:23:12 UTC"
+## [1] "2026-01-30 10:47:48 UTC"
 ```
 
 ``` r
@@ -676,30 +673,32 @@ sessionInfo()
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] mlr3viz_0.10.1.9000 torchdatasets_0.3.1 mlr3tuning_1.4.0   
-## [4] paradox_1.0.1       mlr3torch_0.3.2     torch_0.16.3       
-## [7] future_1.67.0       mlr3pipelines_0.9.0 mlr3_1.2.0         
+##  [1] ggplot2_4.0.0        mlr3viz_0.10.1.9000  torchdatasets_0.3.1 
+##  [4] mlr3tuning_1.4.0     paradox_1.0.1        mlr3torch_0.3.2-9000
+##  [7] torch_0.16.3         future_1.67.0        mlr3pipelines_0.9.0 
+## [10] mlr3_1.2.0          
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] rappdirs_0.3.3       jpeg_0.1-11          stringi_1.8.7       
-##  [4] listenv_0.10.0       digest_0.6.37        magrittr_2.0.4      
-##  [7] RColorBrewer_1.1-3   grid_4.5.1           evaluate_1.0.5      
-## [10] precrec_0.14.5       jsonlite_2.0.0       processx_3.8.6      
-## [13] safetensors_0.2.0    backports_1.5.0      ps_1.9.1            
-## [16] scales_1.4.0         coro_1.1.0           codetools_0.2-20    
-## [19] mlr3measures_1.1.0   palmerpenguins_0.1.1 cli_3.6.5           
-## [22] rlang_1.1.6          crayon_1.5.3         parallelly_1.45.1   
-## [25] future.apply_1.20.0  bit64_4.6.0-1        withr_3.0.2         
-## [28] tools_4.5.1          parallel_4.5.1       uuid_1.2-1          
-## [31] checkmate_2.3.3      ggplot2_4.0.0        zeallot_0.2.0       
-## [34] globals_0.18.0       bbotk_1.7.1          assertthat_0.2.1    
-## [37] curl_7.0.0           vctrs_0.6.5          R6_2.6.1            
-## [40] rpart_4.1.24         lifecycle_1.0.4      stringr_1.6.0       
-## [43] fs_1.6.6             bit_4.6.0            mlr3misc_0.19.0     
-## [46] pkgconfig_2.0.3      callr_3.7.6          gtable_0.3.6        
-## [49] pillar_1.11.1        torchvision_0.8.0    data.table_1.17.8   
-## [52] glue_1.8.0           Rcpp_1.1.0           lgr_0.5.0           
-## [55] xfun_0.54            tibble_3.3.0         knitr_1.50          
-## [58] farver_2.1.2         compiler_4.5.1       S7_0.2.0
+##  [1] gtable_0.3.6         xfun_0.54            processx_3.8.6      
+##  [4] callr_3.7.6          vctrs_0.6.5          tools_4.5.1         
+##  [7] ps_1.9.1             safetensors_0.2.0    parallel_4.5.1      
+## [10] tibble_3.3.0         pkgconfig_2.0.3      data.table_1.17.8   
+## [13] checkmate_2.3.3      RColorBrewer_1.1-3   S7_0.2.0            
+## [16] assertthat_0.2.1     uuid_1.2-1           lifecycle_1.0.4     
+## [19] compiler_4.5.1       farver_2.1.2         stringr_1.6.0       
+## [22] precrec_0.14.5       codetools_0.2-20     bbotk_1.7.1         
+## [25] pillar_1.11.1        crayon_1.5.3         rpart_4.1.24        
+## [28] parallelly_1.45.1    digest_0.6.37        stringi_1.8.7       
+## [31] listenv_0.10.0       labeling_0.4.3       mlr3measures_1.1.0  
+## [34] rprojroot_2.1.1      grid_4.5.1           here_1.0.2          
+## [37] cli_3.6.5            magrittr_2.0.4       future.apply_1.20.0 
+## [40] withr_3.0.2          scales_1.4.0         backports_1.5.0     
+## [43] rappdirs_0.3.3       bit64_4.6.0-1        globals_0.18.0      
+## [46] jpeg_0.1-11          bit_4.6.0            evaluate_1.0.5      
+## [49] knitr_1.50           torchvision_0.8.0    viridisLite_0.4.2   
+## [52] mlr3misc_0.19.0      rlang_1.1.6          Rcpp_1.1.0          
+## [55] zeallot_0.2.0        glue_1.8.0           palmerpenguins_0.1.1
+## [58] coro_1.1.0           jsonlite_2.0.0       lgr_0.5.0           
+## [61] R6_2.6.1             fs_1.6.6
 ```
 

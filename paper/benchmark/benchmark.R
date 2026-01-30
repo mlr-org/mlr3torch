@@ -4,6 +4,20 @@ library(mlr3misc)
 setup = function(reg_path, python_path, work_dir) {
 
   print_setup_info(reg_path, python_path, work_dir)
+  
+  
+  if (file.exists(reg_path)) {
+    msg <- sprintf("Registry already exists at path %s. Delete the folder it to run the benchmark again.", reg_path)
+    if (!interactive()) {
+      stop(msg)
+    }
+    answer <- readline(sprintf("Registry already exists at path %s. Delete it to run the benchmark again? (y/n)", reg_path))
+     if (answer == "y") {
+       unlink(reg_path, recursive = TRUE)
+     } else {
+       stop(msg)
+     }
+  }
 
   reg = makeExperimentRegistry(
     file.dir = reg_path,

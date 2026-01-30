@@ -26,9 +26,6 @@ problem_design = expand.grid(
   stringsAsFactors = FALSE
 )
 
-if (dir.exists(here("benchmark", "registry-linux-gpu-optimizer"))) {
-  stop("Registry benchmark/registry-linux-gpu-optimizer already exists. Delete the folder to run the benchmark again.")
-}
 
 setup(
   here("benchmark", "registry-linux-gpu-optimizer"),
