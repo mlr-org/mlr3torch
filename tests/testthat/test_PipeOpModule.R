@@ -54,11 +54,11 @@ test_that("Cloning works", {
   get_private(po_nn, ".additional_phash_input") = function(...) NULL
   get_private(po_nn1, ".additional_phash_input") = function(...) NULL
 
-  expect_deep_clone(po_nn, po_nn1)
+  expect_deep_clone_mlr3torch(po_nn, po_nn1)
 
   po_fn = po("module", module = function(x) x + 1)
   po_fn1 = po_fn$clone(deep = TRUE)
-  expect_deep_clone(po_fn, po_fn1)
+  expect_deep_clone_mlr3torch(po_fn, po_fn1)
 })
 
 test_that("phash for PipeOpModule works", {

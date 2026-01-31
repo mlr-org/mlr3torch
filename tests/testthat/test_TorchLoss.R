@@ -62,7 +62,7 @@ test_that("dictionary can be converted to table", {
 test_that("Cloning works", {
   torchloss1 = t_loss("cross_entropy")
   torchloss2 = torchloss1$clone(deep = TRUE)
-  expect_deep_clone(torchloss1, torchloss2)
+  expect_deep_clone_mlr3torch(torchloss1, torchloss2)
 })
 
 test_that("Printer works", {
@@ -92,7 +92,7 @@ test_that("Converters are correctly implemented", {
   expect_r6(as_torch_loss(t_loss("l1")), "TorchLoss")
 
   loss1 = as_torch_loss(loss, clone = TRUE)
-  expect_deep_clone(loss, loss1)
+  expect_deep_clone_mlr3torch(loss, loss1)
 
   loss2 = as_torch_loss(torch::nn_mse_loss, id = "ce", label = "CE", man = "nn_cross_entropy_loss",
     param_set = ps(reduction = p_uty()), task_types = "regr"

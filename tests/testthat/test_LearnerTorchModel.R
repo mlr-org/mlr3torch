@@ -9,7 +9,7 @@ test_that("LearnerTorchModel works", {
   learner$ingress_tokens = list(x = TorchIngressToken(task$feature_names, batchgetter_num, c(NA, 4L)))
 
 
-  expect_deep_clone(
+  expect_deep_clone_mlr3torch(
     learner, learner$clone(deep = TRUE)
   )
 
@@ -17,7 +17,7 @@ test_that("LearnerTorchModel works", {
 
   expect_learner(learner)
 
-  expect_deep_clone(
+  expect_deep_clone_mlr3torch(
     learner, learner$clone(deep = TRUE)
   )
   learner$train(task)

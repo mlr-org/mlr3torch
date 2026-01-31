@@ -239,7 +239,7 @@ has_one_arg = function(network) {
     return(length(network$input_map) == 1L)
   }
   fargs = formalArgs(network)
-  length(fargs) == 1L && !fargs == "..."
+  length(fargs) == 1L && fargs != "..."
 }
 
 torch_network_predict_valid = function(ctx, callback_receiver = function(step_name) NULL) {

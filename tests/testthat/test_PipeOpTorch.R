@@ -20,7 +20,7 @@ test_that("cloning works", {
   # can't use PipeOpTorchDebug because it then fails for some reason because of a  missing help page
   obj = PipeOpTorchReLU$new()
   obj1 = obj$clone(deep = TRUE)
-  expect_deep_clone(obj, obj1)
+  expect_deep_clone_mlr3torch(obj, obj1)
 })
 
 test_that("single input and output", {

@@ -6,7 +6,7 @@ task = as_task_classif(data.table(
 
 test_that("LearnerTorchVision basic checks", {
   alexnet = lrn("classif.alexnet", epochs = 1L, batch_size = 1L, pretrained = FALSE)
-  expect_deep_clone(alexnet, alexnet$clone(deep = TRUE))
+  expect_deep_clone_mlr3torch(alexnet, alexnet$clone(deep = TRUE))
 
   alexnet$train(task)
   expect_class(alexnet$predict(task), "PredictionClassif")

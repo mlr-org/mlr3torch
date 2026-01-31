@@ -108,7 +108,7 @@ expect_pipeop_class = function(poclass, constargs = list(), check_ps_default_val
   expect_pipeop(po, check_ps_default_values = check_ps_default_values)
 
   poclone = po$clone(deep = TRUE)
-  expect_deep_clone(po, poclone)
+  expect_deep_clone_mlr3torch(po, poclone)
 
   in_nop = rep(list(NO_OP), po$innum)
   in_nonnop = rep(list(NULL), po$innum)
@@ -126,7 +126,7 @@ expect_pipeop_class = function(poclass, constargs = list(), check_ps_default_val
   # check again with no_op-trained PO
   expect_pipeop(po, check_ps_default_values = check_ps_default_values)
   poclone = po$clone(deep = TRUE)
-  expect_deep_clone(po, poclone)
+  expect_deep_clone_mlr3torch(po, poclone)
 
 }
 

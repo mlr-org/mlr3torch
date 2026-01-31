@@ -98,7 +98,7 @@ test_that("S3 converter work as expected", {
   expect_equal(tcb2$id, "Cbt1")
   expect_equal(tcb2$label, "Cbt1")
   tcb3 = as_torch_callback(tcb2, clone = TRUE)
-  expect_deep_clone(tcb2, tcb3)
+  expect_deep_clone_mlr3torch(tcb2, tcb3)
 
   test = R6Class("CallbackSetTest2", public = list(initialize = function(a) NULL))
   tcb4 = as_torch_callback(test)
@@ -111,5 +111,5 @@ test_that("S3 converter work as expected", {
 test_that("Cloning works", {
   tcb1 = t_clbk("progress")
   tcb2 = tcb1$clone(deep = TRUE)
-  expect_deep_clone(tcb1, tcb2)
+  expect_deep_clone_mlr3torch(tcb1, tcb2)
 })

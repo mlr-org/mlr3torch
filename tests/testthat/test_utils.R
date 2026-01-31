@@ -1,3 +1,12 @@
+test_that("auto_device handles NULL and 'auto'", {
+  # NULL should be returned as-is
+  expect_null(auto_device(NULL))
+  # explicit device should be returned as-is
+  expect_equal(auto_device("cpu"), "cpu")
+  # "auto" should return either "cuda" or "cpu"
+  expect_true(auto_device("auto") %in% c("cuda", "cpu"))
+})
+
 test_that("make_check_vector works", {
   check_vector1 = make_check_vector(1)
   expect_true(check_vector1(1))

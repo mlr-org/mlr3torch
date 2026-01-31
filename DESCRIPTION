@@ -1,6 +1,6 @@
 Package: mlr3torch
 Title: Deep Learning with 'mlr3'
-Version: 0.3.2
+Version: 0.3.3
 Authors@R:
     c(person(given = "Sebastian",
              family = "Fischer",
@@ -79,7 +79,7 @@ NeedsCompilation: no
 ByteCompile: yes
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, r6 = TRUE)
-RoxygenNote: 7.3.2.9000
+RoxygenNote: 7.3.3
 Collate:
     'CallbackSet.R'
     'aaa.R'

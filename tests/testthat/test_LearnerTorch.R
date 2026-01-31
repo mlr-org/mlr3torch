@@ -11,7 +11,7 @@ test_that("deep cloning", {
   learner$state$train_task = NULL
 
   learner_cloned = learner$clone(deep = TRUE)
-  expect_deep_clone(learner, learner_cloned)
+  expect_deep_clone_mlr3torch(learner, learner_cloned)
 
   network = learner$network
   network_cloned = learner_cloned$network
@@ -498,7 +498,7 @@ test_that("col_info is propertly subset when comparing task validity during pred
 test_that("deep clone works", {
   l1 = lrn("classif.mlp")
   l2 = l1$clone(deep = TRUE)
-  expect_deep_clone(l1, l2)
+  expect_deep_clone_mlr3torch(l1, l2)
 })
 
 test_that("param set is read-only", {
@@ -630,7 +630,7 @@ test_that("param_set source works", {
 
   l1 = l$clone(deep = TRUE)
 
-  expect_deep_clone(l, l1)
+  expect_deep_clone_mlr3torch(l, l1)
   l1$param_set$set_values(
     a = 17,
     epochs = 18,
@@ -744,7 +744,7 @@ test_that("configure loss, optimizer and callbacks after construction", {
     cb.checkpoint.freq = 456
   )
   learner1 = learner$clone(deep = TRUE)
-  expect_deep_clone(learner, learner1)
+  expect_deep_clone_mlr3torch(learner, learner1)
   expect_equal(learner1$param_set$values$loss.reduction, "mean")
   expect_equal(learner1$param_set$values$opt.lr, 123)
   expect_equal(learner1$param_set$values$cb.checkpoint.freq, 456)

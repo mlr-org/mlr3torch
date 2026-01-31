@@ -34,7 +34,7 @@ test_that("deep clone works", {
   block = po("nn_linear", out_features = 10) %>>% po("nn_relu")
   po_block = po("nn_block", block, n_blocks = 2)
   po_block_c = po_block$clone(deep = TRUE)
-  expect_deep_clone(po_block, po_block_c)
+  expect_deep_clone_mlr3torch(po_block, po_block_c)
 
   # check that parameters are still passed correctly
   po_block_c$param_set$set_values(

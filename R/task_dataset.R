@@ -141,7 +141,7 @@ merge_compatible_lazy_tensor_graphs = function(lts) {
     pointer = if (pointer_name %nin% graph$output$name) {
       po_terminal = po("nop", id = uniqueify(pointer_name, graph$ids()))
       graph$add_pipeop(po_terminal, clone = FALSE)
-      graph$add_pipeop(
+      graph$add_edge(
         src_id = dd(lt)$pointer[1L],
         dst_id = po_terminal$id,
         src_channel = dd(lt)$pointer[2L],

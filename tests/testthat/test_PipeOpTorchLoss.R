@@ -44,7 +44,7 @@ test_that("The loss is cloned during construction", {
 test_that("Cloning works", {
   obj1 = po("torch_loss", "mse")
   obj2 = obj1$clone(deep = TRUE)
-  expect_deep_clone(obj1, obj2)
+  expect_deep_clone_mlr3torch(obj1, obj2)
   # parameter set references are preserved
   expect_equal(address(obj2$param_set), address(get_private(obj2)$.loss$param_set))
 

@@ -85,9 +85,9 @@ materialize.list = function(x, device = "cpu", rbind = FALSE, cache = "auto", ..
 materialize.data.frame = function(x, device = "cpu", rbind = FALSE, cache = "auto", ...) { # nolint
   if (nrow(x) == 0L) {
     if (rbind) {
-      set_names(replicate(ncol(x), torch_empty(0L)), names(x))
+      return(set_names(replicate(ncol(x), torch_empty(0L)), names(x)))
     } else {
-      set_names(replicate(ncol(x), list()), names(x))
+      return(set_names(replicate(ncol(x), list()), names(x)))
     }
   }
   materialize(as.list(x), device = device, rbind = rbind, cache = cache)
