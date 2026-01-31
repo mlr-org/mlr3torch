@@ -5,39 +5,36 @@ Note that there is also a brief section on reproducibility in the appendix of th
 ## Computational Environment
 
 In order to reproduce the results, you can either use the provided docker images or recreate the `renv` environment that is described in `paper/renv.lock`.
-To work with the renv environment, go into the `paper` directory, which will bootstrap the environment, and then run:
+To work with the renv environment, go into the `paper` directory and start an interactive R session, which will bootstrap the environment.
+Then, run:
 
 ```r
 renv::restore()
 ```
 
-Afterwards, you need to install torch:
+which will ask you whether you want to proceed installing the missing packages, which you have to confirm.
+
 
 ```{r}
 torch::install_torch()
 ```
 
 We are providing two docker images, one for CPU and one for CUDA GPU that have the same packages from the `renv.lock` file installed.
-The images can be downloaded from Zenodo: https://doi.org/10.5281/zenodo.17130368.
-You can, for example, use the [zenodo_client](https://pypi.org/project/zenodo-client/) library to download the images:
+The images can be downloaded from Zenodo: https://doi.org/10.5281/zenodo.17130368, either via the web interface, or, for example, using wget:
 
 ```bash
-# pip install zenodo-client
-export ZENODO_API_TOKEN=<your-token>
-zenodo_client download 17130368 IMAGE_CPU.tar.gz
+# Docker images
+wget https://zenodo.org/records/17864153/files/IMAGE_CPU.tar.gz
+wget https://zenodo.org/records/17864153/files/IMAGE_GPU.tar.gz
 ```
-
-By default, the downloaded files are stored in `~/.data/zenodo`.
 
 At the time of writing, the images are also hosted on dockerhub, but this is not a permanent storage:
 https://hub.docker.com/repository/docker/sebffischer/mlr3torch-jss/general
 
 The `Dockerfile`s used to create the images are available in the `./paper/envs` directory.
 
-If you have downloaded the images like shown above, you can load them into Docker, e.g. via the command below (or otherwise adjust the path accordingly).
-
 ```bash
-docker load -i ~/.data/zenodo/17130368/v1/IMAGE_CPU.tar.gz
+docker load -i /path/to/IMAGE_CPU.tar.gz
 ```
 
 To start the CPU docker container, run:
@@ -82,6 +79,15 @@ Also note that it's important to have enough RAM, otherwise the benchmarks will 
 However, there are many other factors, such as the exact hardware that make it generally difficult to reproduce the runtime results.
 
 To run the benchmarks locally, ensure that you are in the `paper` directory.
+There are three scripts:
+
+* `paper/benchmark/linux-gpu.R`, which creates the folder `paper/benchmark/registry-linux-gpu`
+* `paper/benchmark/linux-cpu.R`, which creates the folder `paper/benchmark/registry-linux-cpu`
+* `paper/benchmark/linux-gpu-optimizer.R`, which creates the folder `paper/benchmark/registry-linux-gpu-optimizer`
+
+**Important**:If one of the folders already exists and you want to re-run the benchmarks, you need to delete or move the folder, otherwise you will get an error.
+This is to ensure that the benchmark results are not accidentally overwritten.
+
 To run the GPU benchmarks (using the CUDA docker image) on linux, run:
 
 ```bash
@@ -100,7 +106,7 @@ To run the benchmark that compares "ignite" with standard optimizers (using the 
 Rscript benchmark/linux-gpu-optimizer.R
 ```
 
-The results are stored in:
+The postprocessd results are stored in:
 
 * `paper/benchmark/result-linux-gpu.rds`
 * `paper/benchmark/result-linux-cpu.rds`
@@ -157,13 +163,12 @@ It was extracted from the tex manuscript almost fully programmatically but adjus
 * Deactivate knitr caching
 * Activating caching for `mlr3torch`
 * Changing the `mlr3` logging level to `warn` for cleaner output
-* Saving the ROC plot for postprocessing
+* Processing the ROC plot for better readability and saving it as `roc.png`, as well as printing it.
 * Adding a `sessionInfo()` call at the end
 
 We also added some additional comments to make it easier to associate the code with the paper.
 
 The results we obtained via `knitr::spin()` are stored in `paper/paper_results/`
-The ROC plot is postprocessed using the `roc.R` script and we have also provided the resulting `roc.png` from the paper in the `paper/paper_results` directory.
 
 ### Possible Data Unavailability
 
