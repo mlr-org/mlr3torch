@@ -36,3 +36,4 @@ data-raw
 ^CRAN-SUBMISSION$
 ^paper$
 ^cran-comments\.md$
+^\.claude$
