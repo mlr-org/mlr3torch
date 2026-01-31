@@ -2584,14 +2584,9 @@
     },
     "mlr3torch": {
       "Package": "mlr3torch",
-      "Version": "0.3.2-9000",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteUsername": "mlr-org",
-      "RemoteRepo": "mlr3torch",
-      "RemoteRef": "main",
-      "RemoteSha": "a20ac27501d158c15bfc77816c7ee3ae3120e62f"
+      "Version": "0.3.3",
+      "Source": "Repository",
+      "Repository": "CRAN"
     },
     "mlr3tuning": {
       "Package": "mlr3tuning",
