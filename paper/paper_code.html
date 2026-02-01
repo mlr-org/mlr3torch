@@ -107,7 +107,7 @@ section.footnotes {
   body:not(.pagesjs) pre:has(.line-numbers):not(:hover) { white-space: pre; }
 }
 </style>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.23/css/prism-xcode.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.24/css/prism-xcode.min.css">
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
 </head>
@@ -118,7 +118,7 @@ section.footnotes {
 <pre><code class="language-r"># Some setup code
 Sys.time()
 </code></pre>
-<pre><code>## [1] &quot;2026-01-30 10:49:44 UTC&quot;
+<pre><code>## [1] &quot;2026-02-01 06:37:01 UTC&quot;
 </code></pre>
 <pre><code class="language-r">options(mlr3torch.cache = TRUE)
 lgr::get_logger(&quot;mlr3&quot;)$set_threshold(&quot;warn&quot;)
@@ -166,7 +166,7 @@ mnist &lt;- tsk(&quot;mnist&quot;)
 mnist
 </code></pre>
 <pre><code>## 
-## ── &lt;TaskClassif&gt; (70000x2): MNIST Digit Classification ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── &lt;TaskClassif&gt; (70000x2): MNIST Digit Classification ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: label
 ## • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0 (10%), 6 (10%), 8 (10%), 4 (10%), 5 (9%)
 ## • Properties: multiclass
@@ -216,7 +216,7 @@ mlp$model$network
 </code></pre>
 <pre><code>## An `nn_module` containing 100,710 parameters.
 ## 
-## ── Modules ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Modules ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • 0: &lt;nn_linear&gt; #78,500 parameters
 ## • 1: &lt;nn_relu&gt; #0 parameters
 ## • 2: &lt;nn_dropout&gt; #0 parameters
@@ -401,7 +401,7 @@ task &lt;- tsk(&quot;mtcars&quot;)
 task
 </code></pre>
 <pre><code>## 
-## ── &lt;TaskRegr&gt; (32x11): Motor Trends ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── &lt;TaskRegr&gt; (32x11): Motor Trends ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: mpg
 ## • Properties: -
 ## • Features (10):
@@ -511,7 +511,7 @@ task &lt;- as_task_classif(tbl, target = &quot;class&quot;, id = &quot;dogs_vs_c
 task
 </code></pre>
 <pre><code>## 
-## ── &lt;TaskClassif&gt; (25000x2) ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── &lt;TaskClassif&gt; (25000x2) ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: class
 ## • Target classes: cat (positive class, 50%), dog (50%)
 ## • Properties: twoclass
@@ -555,7 +555,7 @@ task &lt;- tsk(&quot;melanoma&quot;)
 task
 </code></pre>
 <pre><code>## 
-## ── &lt;TaskClassif&gt; (32701x5): Melanoma Classification ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── &lt;TaskClassif&gt; (32701x5): Melanoma Classification ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: outcome
 ## • Target classes: malignant (positive class, 2%), benign (98%)
 ## • Properties: twoclass, groups
@@ -642,7 +642,7 @@ print(plt)
 <pre><code class="language-r">ggsave(here::here(&quot;roc.png&quot;), plt, width = 4, height = 4, dpi = 300)
 Sys.time()
 </code></pre>
-<pre><code>## [1] &quot;2026-01-30 11:04:48 UTC&quot;
+<pre><code>## [1] &quot;2026-02-01 06:48:50 UTC&quot;
 </code></pre>
 <pre><code class="language-r">sessionInfo()
 </code></pre>
@@ -669,10 +669,10 @@ Sys.time()
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] ggplot2_4.0.0        mlr3viz_0.10.1.9000  torchdatasets_0.3.1 
-##  [4] mlr3tuning_1.4.0     paradox_1.0.1        mlr3torch_0.3.2-9000
-##  [7] torch_0.16.3         future_1.67.0        mlr3pipelines_0.9.0 
-## [10] mlr3_1.2.0          
+##  [1] ggplot2_4.0.0       mlr3viz_0.10.1.9000 torchdatasets_0.3.1
+##  [4] mlr3tuning_1.4.0    paradox_1.0.1       mlr3torch_0.3.3    
+##  [7] torch_0.16.3        future_1.67.0       mlr3pipelines_0.9.0
+## [10] mlr3_1.2.0         
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] gtable_0.3.6         xfun_0.54            processx_3.8.6      

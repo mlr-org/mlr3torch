@@ -107,7 +107,7 @@ section.footnotes {
   body:not(.pagesjs) pre:has(.line-numbers):not(:hover) { white-space: pre; }
 }
 </style>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.23/css/prism-xcode.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.24/css/prism-xcode.min.css">
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
 </head>
@@ -118,7 +118,7 @@ section.footnotes {
 <pre><code class="language-r"># Some setup code
 Sys.time()
 </code></pre>
-<pre><code>## [1] &quot;2026-01-30 10:34:06 UTC&quot;
+<pre><code>## [1] &quot;2026-01-31 13:20:12 UTC&quot;
 </code></pre>
 <pre><code class="language-r">options(mlr3torch.cache = TRUE)
 lgr::get_logger(&quot;mlr3&quot;)$set_threshold(&quot;warn&quot;)
@@ -166,9 +166,17 @@ mnist &lt;- tsk(&quot;mnist&quot;)
 mnist
 </code></pre>
 <pre><code>## 
-## ── &lt;TaskClassif&gt; (70000x2): MNIST Digit Classification ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── &lt;TaskClassif&gt; (70000x2): MNIST Digit Classification ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: label
-## • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0 (10%), 6 (10%), 8 (10%), 4 (10%), 5 (9%)
+</code></pre>
+<pre><code>## Dataset &lt;mnist&gt; (~12 MB) will be downloaded and processed if not already available.
+## Downloading &lt;mnist&gt; ...
+## Processing &lt;mnist&gt;...
+## Dataset &lt;mnist&gt; downloaded and extracted successfully.
+## Dataset &lt;mnist&gt; loaded with 60000 images.
+## Dataset &lt;mnist&gt; loaded with 10000 images.
+</code></pre>
+<pre><code>## • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0 (10%), 6 (10%), 8 (10%), 4 (10%), 5 (9%)
 ## • Properties: multiclass
 ## • Features (1):
 ##   • lt (1): image
@@ -216,7 +224,7 @@ mlp$model$network
 </code></pre>
 <pre><code>## An `nn_module` containing 100,710 parameters.
 ## 
-## ── Modules ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Modules ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • 0: &lt;nn_linear&gt; #78,500 parameters
 ## • 1: &lt;nn_relu&gt; #0 parameters
 ## • 2: &lt;nn_dropout&gt; #0 parameters
@@ -401,7 +409,7 @@ task &lt;- tsk(&quot;mtcars&quot;)
 task
 </code></pre>
 <pre><code>## 
-## ── &lt;TaskRegr&gt; (32x11): Motor Trends ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── &lt;TaskRegr&gt; (32x11): Motor Trends ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: mpg
 ## • Properties: -
 ## • Features (10):
@@ -511,7 +519,7 @@ task &lt;- as_task_classif(tbl, target = &quot;class&quot;, id = &quot;dogs_vs_c
 task
 </code></pre>
 <pre><code>## 
-## ── &lt;TaskClassif&gt; (25000x2) ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── &lt;TaskClassif&gt; (25000x2) ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: class
 ## • Target classes: cat (positive class, 50%), dog (50%)
 ## • Properties: twoclass
@@ -555,7 +563,7 @@ task &lt;- tsk(&quot;melanoma&quot;)
 task
 </code></pre>
 <pre><code>## 
-## ── &lt;TaskClassif&gt; (32701x5): Melanoma Classification ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── &lt;TaskClassif&gt; (32701x5): Melanoma Classification ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## • Target: outcome
 ## • Target classes: malignant (positive class, 2%), benign (98%)
 ## • Properties: twoclass, groups
@@ -642,7 +650,7 @@ print(plt)
 <pre><code class="language-r">ggsave(here::here(&quot;roc.png&quot;), plt, width = 4, height = 4, dpi = 300)
 Sys.time()
 </code></pre>
-<pre><code>## [1] &quot;2026-01-30 10:47:48 UTC&quot;
+<pre><code>## [1] &quot;2026-01-31 13:36:35 UTC&quot;
 </code></pre>
 <pre><code class="language-r">sessionInfo()
 </code></pre>
@@ -669,33 +677,33 @@ Sys.time()
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] ggplot2_4.0.0        mlr3viz_0.10.1.9000  torchdatasets_0.3.1 
-##  [4] mlr3tuning_1.4.0     paradox_1.0.1        mlr3torch_0.3.2-9000
-##  [7] torch_0.16.3         future_1.67.0        mlr3pipelines_0.9.0 
-## [10] mlr3_1.2.0          
+##  [1] ggplot2_4.0.0       mlr3viz_0.10.1.9000 torchdatasets_0.3.1
+##  [4] mlr3tuning_1.4.0    paradox_1.0.1       mlr3torch_0.3.3    
+##  [7] torch_0.16.3        future_1.67.0       mlr3pipelines_0.9.0
+## [10] mlr3_1.2.0         
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] gtable_0.3.6         xfun_0.54            processx_3.8.6      
 ##  [4] callr_3.7.6          vctrs_0.6.5          tools_4.5.1         
-##  [7] ps_1.9.1             safetensors_0.2.0    parallel_4.5.1      
-## [10] tibble_3.3.0         pkgconfig_2.0.3      data.table_1.17.8   
-## [13] checkmate_2.3.3      RColorBrewer_1.1-3   S7_0.2.0            
-## [16] assertthat_0.2.1     uuid_1.2-1           lifecycle_1.0.4     
-## [19] compiler_4.5.1       farver_2.1.2         stringr_1.6.0       
-## [22] precrec_0.14.5       codetools_0.2-20     bbotk_1.7.1         
-## [25] pillar_1.11.1        crayon_1.5.3         rpart_4.1.24        
-## [28] parallelly_1.45.1    digest_0.6.37        stringi_1.8.7       
-## [31] listenv_0.10.0       labeling_0.4.3       mlr3measures_1.1.0  
-## [34] rprojroot_2.1.1      grid_4.5.1           here_1.0.2          
-## [37] cli_3.6.5            magrittr_2.0.4       future.apply_1.20.0 
-## [40] withr_3.0.2          scales_1.4.0         backports_1.5.0     
-## [43] rappdirs_0.3.3       bit64_4.6.0-1        globals_0.18.0      
-## [46] jpeg_0.1-11          bit_4.6.0            evaluate_1.0.5      
-## [49] knitr_1.50           torchvision_0.8.0    viridisLite_0.4.2   
-## [52] mlr3misc_0.19.0      rlang_1.1.6          Rcpp_1.1.0          
-## [55] zeallot_0.2.0        glue_1.8.0           palmerpenguins_0.1.1
-## [58] coro_1.1.0           jsonlite_2.0.0       lgr_0.5.0           
-## [61] R6_2.6.1             fs_1.6.6
+##  [7] ps_1.9.1             safetensors_0.2.0    curl_7.0.0          
+## [10] parallel_4.5.1       tibble_3.3.0         pkgconfig_2.0.3     
+## [13] data.table_1.17.8    checkmate_2.3.3      RColorBrewer_1.1-3  
+## [16] S7_0.2.0             assertthat_0.2.1     uuid_1.2-1          
+## [19] lifecycle_1.0.4      compiler_4.5.1       farver_2.1.2        
+## [22] stringr_1.6.0        precrec_0.14.5       codetools_0.2-20    
+## [25] bbotk_1.7.1          pillar_1.11.1        crayon_1.5.3        
+## [28] rpart_4.1.24         parallelly_1.45.1    digest_0.6.37       
+## [31] stringi_1.8.7        listenv_0.10.0       labeling_0.4.3      
+## [34] mlr3measures_1.1.0   rprojroot_2.1.1      grid_4.5.1          
+## [37] here_1.0.2           cli_3.6.5            magrittr_2.0.4      
+## [40] future.apply_1.20.0  withr_3.0.2          scales_1.4.0        
+## [43] backports_1.5.0      rappdirs_0.3.3       bit64_4.6.0-1       
+## [46] globals_0.18.0       jpeg_0.1-11          bit_4.6.0           
+## [49] evaluate_1.0.5       knitr_1.50           torchvision_0.8.0   
+## [52] viridisLite_0.4.2    mlr3misc_0.19.0      rlang_1.1.6         
+## [55] Rcpp_1.1.0           zeallot_0.2.0        glue_1.8.0          
+## [58] palmerpenguins_0.1.1 coro_1.1.0           jsonlite_2.0.0      
+## [61] lgr_0.5.0            R6_2.6.1             fs_1.6.6
 </code></pre>
 </div>
 </body>
