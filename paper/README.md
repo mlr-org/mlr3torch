@@ -20,18 +20,20 @@ torch::install_torch()
 ```
 
 We are providing two docker images, one for CPU and one for CUDA GPU that have the same packages from the `renv.lock` file installed.
-The images can be downloaded from Zenodo: https://doi.org/10.5281/zenodo.17130368, either via the web interface, or, for example, using `wget` or a similar tool:
+The images can be downloaded from Zenodo: [https://doi.org/10.5281/zenodo.17130368](https://doi.org/10.5281/zenodo.17130368), either via the web interface, or, for example, using `wget` or a similar tool:
 
 ```bash
 # Docker images
-wget https://zenodo.org/records/18456360/files/IMAGE_CPU.tar.gz
-wget https://zenodo.org/records/18456360/files/IMAGE_GPU.tar.gz
+wget https://zenodo.org/records/18466801/files/IMAGE_CPU.tar.gz
+wget https://zenodo.org/records/18466801/files/IMAGE_GPU.tar.gz
 ```
 
 At the time of writing, the images are also hosted on dockerhub, but this is not a permanent storage:
-https://hub.docker.com/repository/docker/sebffischer/mlr3torch-jss/general
+[https://hub.docker.com/repository/docker/sebffischer/mlr3torch-jss/general](https://hub.docker.com/repository/docker/sebffischer/mlr3torch-jss/general)
 
 The `Dockerfile`s used to create the images are available in the `./paper/envs` directory.
+
+When downloading the image from zenodo, you can register them with docker as follows:
 
 ```bash
 docker load -i /path/to/IMAGE_CPU.tar.gz
@@ -85,11 +87,11 @@ There are three scripts:
 * `paper/benchmark/linux-cpu.R`, which creates the folder `paper/benchmark/registry-linux-cpu`
 * `paper/benchmark/linux-gpu-optimizer.R`, which creates the folder `paper/benchmark/registry-linux-gpu-optimizer`
 
-**Important**:If one of the folders already exists and you want to re-run the benchmarks, you need to delete or move the folder, otherwise you will get an error.
+**Important**: If one of the folders already exists and you want to re-run the benchmarks, you need to delete or move the folder, otherwise you will get an error.
 This is to ensure that the benchmark results are not accidentally overwritten.
 
 To run the GPU benchmarks (using the CUDA docker image) on linux, either start it via Rscript or source it interactively:
-If you source it interactively and the folder already exists, it will ask you whether you want to delete it, which you have to confirm.
+If you source it interactively and the registry folder already exists, it will ask you whether you want to delete it, which you have to confirm.
 
 ```bash
 Rscript benchmark/linux-gpu.R
@@ -157,7 +159,7 @@ We provide the results of running this in `paper/paper_results`.
 The results in the paper are those from the CPU docker image and they were fully reproducible when we re-ran them on the same machine.
 There were some minor differences in results when re-running the code on a different machine (macOS with M1 CPU vs Linux with Intel CPU).
 
-The file `paper_code.R` contains some very minor differences to the paper we omitted in the paper for brevity.
+The file `paper_code.R` contains some very minor differences to the paper, which we omitted in the paper for brevity.
 It was extracted from the tex manuscript almost fully programmatically but adjusted with the following modifications:
 
 * Time measurements (`Sys.time()`)
@@ -183,17 +185,16 @@ If one of the downloads (1) fails, do the following (before starting the docker 
 
 1. Download the `cache.tar.gz` file, e.g. via:
    ```bash
-   wget https://zenodo.org/records/18456360/files/cache.tar.gz
+   wget https://zenodo.org/records/18466801/files/cache.tar.gz
    ```
-2. Create a `cache` folder in the parent directory of `paper` (name `cache` is arbitrary) and move the `cache.tar.gz` file there
-3. Untar the `cache.tar.gz` folder using `tar -xzf cache.tar.gz`
-4. There should now be a `.cache` sub-directory in the `cache` folder.
+2. Unpack the file using `tar -xzf cache.tar.gz` which creates a folder named `cache`
+3. Move this folder into the parent directory of `paper`
 
-After starting the docker container with the correct mount instructions, (like shown earlier), run:
+After starting the docker container with the correct mount instructions (like shown earlier) run:
 
 ```bash
-cp -r /mnt/data/cache/.cache/R/mlr3torch /root/.cache/R
-cp -r /mnt/data/cache/.cache/torch /root/.cache/torch
+cp -r /mnt/data/cache/R/mlr3torch /root/.cache/R
+cp -r /mnt/data/cache/torch /root/.cache/torch
 ```
 
 If (2) fails, download `dogs-vs-cats.tar.gz` from Zenodo, untar it and put it into the `paper/data` subdirectory where you are running the `paper_code.R` (so the directory structure is `paper/data/dogs-vs-cats/`).
