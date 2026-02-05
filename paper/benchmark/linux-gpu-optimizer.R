@@ -2,9 +2,15 @@ library(here)
 
 source(here("benchmark", "benchmark.R"))
 
+set.seed(43)
+
 # Change this when not running this in the docker image
 # Below is the correct python path for the CUDA docker image
 PYTHON_PATH = "/usr/bin/python3"
+
+if (!torch::cuda_is_available()) {
+  stop("Cuda is not available for R-torch, please use the correct docker image.")
+}
 
 problem_design = expand.grid(
   list(
@@ -20,9 +26,6 @@ problem_design = expand.grid(
   stringsAsFactors = FALSE
 )
 
-if (dir.exists(here("benchmark", "registry-linux-gpu-optimizer"))) {
-  stop("Registry already exists. Delete it to run the benchmark again.")
-}
 
 setup(
   here("benchmark", "registry-linux-gpu-optimizer"),
