@@ -5,39 +5,38 @@ Note that there is also a brief section on reproducibility in the appendix of th
 ## Computational Environment
 
 In order to reproduce the results, you can either use the provided docker images or recreate the `renv` environment that is described in `paper/renv.lock`.
-To work with the renv environment, go into the `paper` directory, which will bootstrap the environment, and then run:
+To work with the renv environment, go into the `paper` directory and start an interactive R session, which will bootstrap the `renv` package.
+Then, restore the environment by running:
 
 ```r
 renv::restore()
 ```
 
-Afterwards, you need to install torch:
+It will prompt ask you whether you want to proceed installing the missing packages, which you have to confirm.
+Afterwards, you need to install torch via:
 
-```{r}
+```r
 torch::install_torch()
 ```
 
 We are providing two docker images, one for CPU and one for CUDA GPU that have the same packages from the `renv.lock` file installed.
-The images can be downloaded from Zenodo: https://doi.org/10.5281/zenodo.17130368.
-You can, for example, use the [zenodo_client](https://pypi.org/project/zenodo-client/) library to download the images:
+The images can be downloaded from Zenodo: [https://doi.org/10.5281/zenodo.17130368](https://doi.org/10.5281/zenodo.17130368), either via the web interface, or, for example, using `wget` or a similar tool:
 
 ```bash
-# pip install zenodo-client
-export ZENODO_API_TOKEN=<your-token>
-zenodo_client download 17130368 IMAGE_CPU.tar.gz
+# Docker images
+wget https://zenodo.org/records/18466801/files/IMAGE_CPU.tar.gz
+wget https://zenodo.org/records/18466801/files/IMAGE_GPU.tar.gz
 ```
 
-By default, the downloaded files are stored in `~/.data/zenodo`.
-
 At the time of writing, the images are also hosted on dockerhub, but this is not a permanent storage:
-https://hub.docker.com/repository/docker/sebffischer/mlr3torch-jss/general
+[https://hub.docker.com/repository/docker/sebffischer/mlr3torch-jss/general](https://hub.docker.com/repository/docker/sebffischer/mlr3torch-jss/general)
 
 The `Dockerfile`s used to create the images are available in the `./paper/envs` directory.
 
-If you have downloaded the images like shown above, you can load them into Docker, e.g. via the command below (or otherwise adjust the path accordingly).
+When downloading the image from zenodo, you can register them with docker as follows:
 
 ```bash
-docker load -i ~/.data/zenodo/17130368/v1/IMAGE_CPU.tar.gz
+docker load -i /path/to/IMAGE_CPU.tar.gz
 ```
 
 To start the CPU docker container, run:
@@ -52,11 +51,11 @@ cd /mnt/data/paper
 The CUDA image can be started with the command below, which requires the [nvidia extension](https://docs.nvidia.com/ai-enterprise/deployment/vmware/latest/docker.html).
 
 ```bash
-docker run -it --gpus all --rm -v ../:/mnt/data sebffischer/mlr3torch-jss:gpu
+docker run -it --gpus all --rm -v <parent-dir-to-paper>:/mnt/data sebffischer/mlr3torch-jss:gpu
 cd /mnt/data/paper
 ```
 
-Note that the `.Rprofile` file ensures that when running R programs from the `paper` directory, the renv environment will be used unless the code is run in the docker container, where we are not relying on renv directly.
+Note that the `.Rprofile` file in `paper` ensures that when running R programs from the `paper` directory, the renv environment will be used unless the code is run in the docker container, where we are not relying on renv directly.
 
 ## Running the Benchmark
 
@@ -82,7 +81,19 @@ Also note that it's important to have enough RAM, otherwise the benchmarks will 
 However, there are many other factors, such as the exact hardware that make it generally difficult to reproduce the runtime results.
 
 To run the benchmarks locally, ensure that you are in the `paper` directory.
-To run the GPU benchmarks (using the CUDA docker image) on linux, run:
+There are three scripts:
+
+* `paper/benchmark/linux-gpu.R`, which creates the folder `paper/benchmark/registry-linux-gpu`
+* `paper/benchmark/linux-cpu.R`, which creates the folder `paper/benchmark/registry-linux-cpu`
+* `paper/benchmark/linux-gpu-optimizer.R`, which creates the folder `paper/benchmark/registry-linux-gpu-optimizer`
+
+**Important**: If one of the folders already exists and you want to re-run the benchmarks, you need to delete or move the folder, otherwise you will get an error.
+This is to ensure that the benchmark results are not accidentally overwritten.
+
+To run the benchmarks, either start it via Rscript or source it interactively.
+If you source it interactively and the registry folder already exists, it will ask you whether you want to delete it, which you have to confirm.
+
+Below is the command for the GPU benchmark which needs to be run within the CUDA docker image.
 
 ```bash
 Rscript benchmark/linux-gpu.R
@@ -100,7 +111,7 @@ To run the benchmark that compares "ignite" with standard optimizers (using the 
 Rscript benchmark/linux-gpu-optimizer.R
 ```
 
-The results are stored in:
+The postprocessd results are stored in:
 
 * `paper/benchmark/result-linux-gpu.rds`
 * `paper/benchmark/result-linux-cpu.rds`
@@ -150,20 +161,17 @@ We provide the results of running this in `paper/paper_results`.
 The results in the paper are those from the CPU docker image and they were fully reproducible when we re-ran them on the same machine.
 There were some minor differences in results when re-running the code on a different machine (macOS with M1 CPU vs Linux with Intel CPU).
 
-The file `paper_code.R` contains some very minor differences to the paper we omitted in the paper for brevity.
+The file `paper_code.R` contains some very minor differences to the paper, which we omitted in the paper for brevity.
 It was extracted from the tex manuscript almost fully programmatically but adjusted with the following modifications:
 
 * Time measurements (`Sys.time()`)
 * Deactivate knitr caching
 * Activating caching for `mlr3torch`
 * Changing the `mlr3` logging level to `warn` for cleaner output
-* Saving the ROC plot for postprocessing
+* Processing the ROC plot for better readability and saving it as `roc.png`, as well as printing it.
 * Adding a `sessionInfo()` call at the end
 
 We also added some additional comments to make it easier to associate the code with the paper.
-
-The results we obtained via `knitr::spin()` are stored in `paper/paper_results/`
-The ROC plot is postprocessed using the `roc.R` script and we have also provided the resulting `roc.png` from the paper in the `paper/paper_results` directory.
 
 ### Possible Data Unavailability
 
@@ -175,17 +183,24 @@ In the unlikely but possible event that these datasets are not available anymore
 
 in the Zenodo data.
 
-If one of the downloads (1) fails, download the `cache.tar.gz` file from zenodo, untar it and put it in the location where the cache is (put the `R` folder of the cache into `/root/.cache/R` and the `torch` folder into `/root/.cache/torch` when using the docker images).
+If one of the downloads (1) fails, do the following (before starting the docker container):
 
-If (2) fails, download `dogs-vs-cats.tar.gz` from Zenodo, untar it and put it into the `paper/data` subdirectory where you are running the `paper_code.R` (so the directory structure is `paper/data/dogs-vs-cats`).
+1. Download the `cache.tar.gz` file, e.g. via:
+   ```bash
+   wget https://zenodo.org/records/18466801/files/cache.tar.gz
+   ```
+2. Unpack the file using `tar -xzf cache.tar.gz` which creates a folder named `cache`
+3. Move this folder into the parent directory of `paper`
 
-To do this in the Docker image you can, e.g., put the files into the parent directory of the `paper` directory (which will be mounted) and then after starting the container, copy the files into the correct location.
-Assuming the unpacked cache files are in `/mnt/data/cache`, you can copy them into the correct location with:
+After starting the docker container with the correct mount instructions (like shown earlier) run:
 
 ```bash
 cp -r /mnt/data/cache/R/mlr3torch /root/.cache/R
 cp -r /mnt/data/cache/torch /root/.cache/torch
 ```
+
+If (2) fails, download `dogs-vs-cats.tar.gz` from Zenodo, untar it and put it into the `paper/data` subdirectory where you are running the `paper_code.R` (so the directory structure is `paper/data/dogs-vs-cats/`).
+
 
 ### Other errors
 
