@@ -1,9 +1,6 @@
 time_rtorch = function(epochs, batch_size, n_layers, latent, n, p, device, jit, seed, optimizer, mlr3torch = FALSE) {
   library(mlr3torch)
   library(torch)
-  mlr3pipelines::po
-  mlr3torch::LearnerTorch
-  mlr3::lrn
   torch_set_num_threads(1)
   torch_manual_seed(seed)
 

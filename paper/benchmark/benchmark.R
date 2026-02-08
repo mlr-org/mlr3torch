@@ -2,10 +2,28 @@ library(batchtools)
 library(mlr3misc)
 
 setup = function(reg_path, python_path, work_dir) {
+
+  print_setup_info(reg_path, python_path, work_dir)
+  
+  
+  if (file.exists(reg_path)) {
+    msg <- sprintf("Registry already exists at path %s. Delete the folder it to run the benchmark again.", reg_path)
+    if (!interactive()) {
+      stop(msg)
+    }
+    answer <- readline(sprintf("Registry already exists at path %s. Delete it to run the benchmark again? (y/n)", reg_path))
+     if (answer == "y") {
+       unlink(reg_path, recursive = TRUE)
+     } else {
+       stop(msg)
+     }
+  }
+
   reg = makeExperimentRegistry(
     file.dir = reg_path,
     work.dir = work_dir,
-    packages = "checkmate"
+    packages = "checkmate",
+    seed = 123
   )
   reg$cluster.functions = makeClusterFunctionsInteractive()
 
@@ -48,6 +66,7 @@ setup = function(reg_path, python_path, work_dir) {
   )
 
   addAlgorithm("pytorch", fun = function(instance, job, data, jit, ...) {
+    print(instance)
     f = function(..., python_path) {
       library(reticulate)
       x = try(
@@ -68,6 +87,7 @@ setup = function(reg_path, python_path, work_dir) {
   })
 
   addAlgorithm("rtorch", fun = function(instance, job, opt_type, jit, ...) {
+    print(instance)
     assert_choice(opt_type, c("standard", "ignite"))
     if (opt_type == "ignite") {
       instance$optimizer = paste0("ignite_", instance$optimizer)
@@ -77,6 +97,7 @@ setup = function(reg_path, python_path, work_dir) {
   })
 
   addAlgorithm("mlr3torch", fun = function(instance, job, opt_type, jit, ...) {
+    print(instance)
     if (opt_type == "ignite") {
       instance$optimizer = paste0("ignite_", instance$optimizer)
     }
@@ -93,3 +114,36 @@ REPLS = 10L
 EPOCHS = 20L
 N = 2000L
 P = 1000L
+
+print_setup_info = function(reg_path, python_path, work_dir) {
+  cat("Session Info:\n")
+  print(sessionInfo())
+  cat("Library Paths:\n")
+  for (path in .libPaths()) {
+    cat("  -", path, "\n")
+  }
+  cat("Working Directory:", getwd(), "\n")
+
+  cat("Subfolders of working directory:\n")
+  for (folder in list.files(work_dir)) {
+    cat("  -", folder, "\n")
+  }
+
+  # Function arguments
+  cat("--- FUNCTION ARGUMENTS ---\n")
+  cat("  Registry Path:", reg_path, "\n")
+  cat("  Python Path:", python_path, " (", if (file.exists(python_path)) "exists" else "does not exist", ")\n")
+  cat("  Work Directory:", work_dir, "\n\n")
+  cat("Cuda is available:", torch::cuda_is_available(), "\n")
+  out <- try(callr::r(function(python_path) {
+    reticulate::use_python(python_path, required = TRUE)
+    return(reticulate::py_config())
+  }, show = TRUE, args = list(python_path = python_path)), silent = TRUE)
+  if (inherits(out, "try-error")) {
+    cat("Error occurred while calling Python:\n")
+    print(out)
+  } else {
+    cat("Python configuration:\n")
+    print(out)
+  }
+}
