@@ -20,7 +20,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/mlr-org/mlr3torch/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/mlr-org/mlr3torch/blob/v0.3.3/DESCRIPTION)
 
 Fischer S, Binder M (2026). *mlr3torch: Deep Learning with 'mlr3'*. R
 package version 0.3.3, <https://mlr3torch.mlr-org.com/>.
