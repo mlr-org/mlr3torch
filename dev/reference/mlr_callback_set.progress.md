@@ -156,60 +156,60 @@ learner$param_set$set_values(
 )
 
 learner$train(task)
-#> Epoch 1 started (2026-02-08 06:15:06)
-#> Validation for epoch 1 started (2026-02-08 06:15:07)
+#> Epoch 1 started (2026-04-20 12:48:57)
+#> Validation for epoch 1 started (2026-04-20 12:48:58)
 #> 
 #> [Summary epoch 1]
 #> ------------------
 #> Measures (Train):
-#>  * classif.acc = 0.36
-#>  * classif.ce = 0.64
+#>  * classif.acc = 0.31
+#>  * classif.ce = 0.69
 #> Measures (Valid):
-#>  * classif.ce = 0.73
+#>  * classif.ce = 0.62
 #> 
-#> Epoch 2 started (2026-02-08 06:15:07)
-#> Validation for epoch 2 started (2026-02-08 06:15:07)
+#> Epoch 2 started (2026-04-20 12:48:58)
+#> Validation for epoch 2 started (2026-04-20 12:48:58)
 #> 
 #> [Summary epoch 2]
 #> ------------------
 #> Measures (Train):
-#>  * classif.acc = 0.36
-#>  * classif.ce = 0.64
+#>  * classif.acc = 0.31
+#>  * classif.ce = 0.69
 #> Measures (Valid):
-#>  * classif.ce = 0.73
+#>  * classif.ce = 0.56
 #> 
-#> Epoch 3 started (2026-02-08 06:15:07)
-#> Validation for epoch 3 started (2026-02-08 06:15:08)
+#> Epoch 3 started (2026-04-20 12:48:58)
+#> Validation for epoch 3 started (2026-04-20 12:48:59)
 #> 
 #> [Summary epoch 3]
 #> ------------------
 #> Measures (Train):
-#>  * classif.acc = 0.36
-#>  * classif.ce = 0.64
+#>  * classif.acc = 0.55
+#>  * classif.ce = 0.45
 #> Measures (Valid):
-#>  * classif.ce = 0.73
+#>  * classif.ce = 0.44
 #> 
-#> Epoch 4 started (2026-02-08 06:15:08)
-#> Validation for epoch 4 started (2026-02-08 06:15:08)
+#> Epoch 4 started (2026-04-20 12:48:59)
+#> Validation for epoch 4 started (2026-04-20 12:48:59)
 #> 
 #> [Summary epoch 4]
 #> ------------------
 #> Measures (Train):
-#>  * classif.acc = 0.36
-#>  * classif.ce = 0.64
+#>  * classif.acc = 0.57
+#>  * classif.ce = 0.43
 #> Measures (Valid):
-#>  * classif.ce = 0.73
+#>  * classif.ce = 0.49
 #> 
-#> Epoch 5 started (2026-02-08 06:15:08)
-#> Validation for epoch 5 started (2026-02-08 06:15:09)
+#> Epoch 5 started (2026-04-20 12:48:59)
+#> Validation for epoch 5 started (2026-04-20 12:49:00)
 #> 
 #> [Summary epoch 5]
 #> ------------------
 #> Measures (Train):
-#>  * classif.acc = 0.36
-#>  * classif.ce = 0.64
+#>  * classif.acc = 0.51
+#>  * classif.ce = 0.49
 #> Measures (Valid):
-#>  * classif.ce = 0.73
+#>  * classif.ce = 0.60
 #> 
-#> Finished training for 5 epochs (2026-02-08 06:15:09)
+#> Finished training for 5 epochs (2026-04-20 12:49:00)
 ```

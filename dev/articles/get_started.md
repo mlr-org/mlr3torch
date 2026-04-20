@@ -61,7 +61,7 @@ mlp
 #> • Feature Types: integer, numeric, and lazy_tensor
 #> • Encapsulation: none (fallback: -)
 #> • Properties: internal_tuning, marshal, and validation
-#> • Other settings: use_weights = 'error'
+#> • Other settings: use_weights = 'error', predict_raw = 'FALSE'
 #> • Optimizer: adam
 #> • Loss: mse
 #> • Callbacks: -
@@ -323,7 +323,7 @@ mlp_custom
 #> • Feature Types: integer, numeric, and lazy_tensor
 #> • Encapsulation: none (fallback: -)
 #> • Properties: internal_tuning, marshal, and validation
-#> • Other settings: use_weights = 'error'
+#> • Other settings: use_weights = 'error', predict_raw = 'FALSE'
 #> • Optimizer: sgd
 #> • Loss: l1
 #> • Callbacks: history

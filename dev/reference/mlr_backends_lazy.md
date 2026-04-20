@@ -310,12 +310,12 @@ col_info(backend_lazy)
 # Only now the backend is constructed
 backend_lazy$data(1, "x")
 #> Data is constructed!
-#>            x
-#>        <num>
-#> 1: 0.4248584
+#>             x
+#>         <num>
+#> 1: -0.3872136
 # Is the same as:
 backend_lazy$backend$data(1, "x")
-#>            x
-#>        <num>
-#> 1: 0.4248584
+#>             x
+#>         <num>
+#> 1: -0.3872136
 ```
