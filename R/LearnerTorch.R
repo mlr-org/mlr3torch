@@ -357,7 +357,7 @@ LearnerTorch = R6Class("LearnerTorch",
         }
         private$.callbacks = callbacks
         private$.param_set = NULL
-        self$packages = unique(c(self$packages, unlist(map(private$.callbacks, "packages"))))
+        self$packages = unique(c(self$packages, unlist(map(private$.callbacks, "packages")))) %??% character(0)
       }
       private$.callbacks
     },
