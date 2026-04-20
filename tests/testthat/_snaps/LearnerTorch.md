@@ -16,7 +16,7 @@
       * Feature Types: integer, numeric, and lazy_tensor
       * Encapsulation: none (fallback: -)
       * Properties: internal_tuning, marshal, multiclass, twoclass, and validation
-      * Other settings: use_weights = 'error'
+      * Other settings: use_weights = 'error', predict_raw = 'FALSE'
       * Optimizer: adam
       * Loss: cross_entropy
       * Callbacks: history,progress
