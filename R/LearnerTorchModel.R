@@ -135,7 +135,7 @@ LearnerTorchModel = R6Class("LearnerTorchModel",
     },
     .network_stored = NULL,
     .additional_phash_input = function() {
-      list(self$properties, self$feature_types, private$.network_stored, self$packages, private$.ingress_tokens)
+      list(self$properties, self$feature_types, private$.network_stored, self$packages, private$.ingress_tokens_)
      }
   )
 )

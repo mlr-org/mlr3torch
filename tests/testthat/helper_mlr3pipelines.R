@@ -5,8 +5,6 @@ library("R6")
 library("mlr3misc")
 library("paradox")
 
-lapply(list.files(system.file("testthat", package = "mlr3pipelines"), pattern = "^helper.*\\.[rR]", full.names = TRUE), source)
-
 mlr_helpers = list.files(system.file("testthat", package = "mlr3pipelines"), pattern = "^helper.*\\.[rR]", full.names = TRUE)
 lapply(mlr_helpers, FUN = source)
 
@@ -96,5 +94,4 @@ expect_deep_clone_mlr3torch = function(one, two) {
   }
   expect_references_differ(one, two, "ROOT")
 }
-
 
