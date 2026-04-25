@@ -66,8 +66,11 @@ register_mlr3pipelines = function() {
   mlr_pipeops = utils::getFromNamespace("mlr_pipeops", ns = "mlr3pipelines")
   add = mlr_pipeops$add # nolint
   iwalk(as.list(mlr3torch_pipeops), function(value, name) {
-    # metainf is quoted by pipelines
-    eval(call("add", quote(name), quote(value$constructor), value$metainf))
+    # metainf must be pre-evaluated so the dictionary stores a value, not an expression.
+    # Otherwise as.data.table(mlr_pipeops) fails when mlr3torch is loaded via requireNamespace()
+    # because eval(metainf, envir = topenv()) cannot find mlr3torch functions.
+    metainf = if (!is.null(value$metainf)) eval(value$metainf)
+    do.call(add, c(list(name, value$constructor), if (!is.null(metainf)) list(metainf = metainf)))
   })
   mlr_reflections$pipeops$valid_tags = unique(c(mlr_reflections$pipeops$valid_tags, mlr3torch_pipeop_tags))
   lapply(mlr3torch_pipeops, eval)
