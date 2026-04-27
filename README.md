@@ -246,6 +246,17 @@ deep_learner$train(mnist)
 - This R package is developed as part of the [Mathematical Research Data
   Initiative](https://www.mardi4nfdi.de/about/mission).
 
+## Citation
+
+If you use `mlr3torch` in a scientific publication, please cite it as:
+
+    @article{fischer2026mlr3torch,
+      title={mlr3torch: A Deep Learning Framework in R based on mlr3 and torch},
+      author={Fischer, Sebastian and Burk, Lukas and Zhang, Carson and Bischl, Bernd and Binder, Martin},
+      journal={arXiv preprint arXiv:2604.18152},
+      year={2026}
+    }
+
 ## Bugs, Questions, Feedback
 
 *mlr3torch* is a free and open source software project that encourages
