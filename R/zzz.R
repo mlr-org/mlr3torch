@@ -30,7 +30,7 @@ mlr3torch_feature_types = c(lt = "lazy_tensor")
 # silence static checker
 withr::with_seed
 
-register_mlr3 = function() {
+register_mlr3 = function(...) {
   mlr_learners = utils::getFromNamespace("mlr_learners", ns = "mlr3")
   iwalk(as.list(mlr3torch_learners), function(x, nm) mlr_learners$add(nm, x$fn, .prototype_args = x$prototype_args))
 
@@ -61,7 +61,7 @@ register_mlr3 = function() {
 
 }
 
-register_mlr3pipelines = function() {
+register_mlr3pipelines = function(...) {
   mlr_reflections = utils::getFromNamespace("mlr_reflections", ns = "mlr3")
   mlr_pipeops = utils::getFromNamespace("mlr_pipeops", ns = "mlr3pipelines")
   add = mlr_pipeops$add # nolint
