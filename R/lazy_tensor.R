@@ -100,12 +100,6 @@ format.lazy_tensor = function(x, ...) { # nolint
   })
 }
 
-# A lazy_tensor is a list under the hood, so data.table's default column formatter
-# takes its list branch and formats each element individually (printing "<list[2]>")
-# instead of deferring to format.lazy_tensor. Registering a format_col method makes
-# data.table format the column as a whole. Note that a format_list_item method would
-# not work here, because the individual elements are plain lists and hence would
-# never dispatch on lazy_tensor.
 #' @exportS3Method data.table::format_col
 format_col.lazy_tensor = function(x, ...) { # nolint
   format(x, ...)
