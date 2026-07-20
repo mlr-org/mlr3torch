@@ -233,16 +233,16 @@ po_model$state
 #> $optimizer$state$`1`
 #> $optimizer$state$`1`$exp_avg
 #> torch_tensor
-#> Columns 1 to 8  -0.2027    0.6057   -9.0640 -361.3962   -6.7069   -5.7450  -52.8495  -39.9061
+#> Columns 1 to 7   -9.4827   -77.6534  -169.8215 -6651.3442   -92.5505   -95.3446 -4209.5923
 #> 
-#> Columns 9 to 10  -1.7488   -5.7166
+#> Columns 8 to 10 -458.6774    -9.6260   -86.8999
 #> [ CPUFloatType{1,10} ]
 #> 
 #> $optimizer$state$`1`$exp_avg_sq
 #> torch_tensor
-#> Columns 1 to 6 2.2686e-03  5.9565e-01  5.1372e+00  7.7875e+03  2.5998e+00  2.0831e+00
+#> Columns 1 to 6 5.1616e+00  3.5498e+02  1.6263e+03  2.4981e+06  4.7666e+02  5.0760e+02
 #> 
-#> Columns 7 to 10 9.1387e+02  9.2434e+01  1.7316e-01  1.9869e+00
+#> Columns 7 to 10 1.0095e+06  1.1713e+04  5.2740e+00  4.2839e+02
 #> [ CPUFloatType{1,10} ]
 #> 
 #> $optimizer$state$`1`$max_exp_avg_sq
@@ -258,12 +258,12 @@ po_model$state
 #> $optimizer$state$`2`
 #> $optimizer$state$`2`$exp_avg
 #> torch_tensor
-#> -1.9333
+#> -26.0613
 #> [ CPUFloatType{1} ]
 #> 
 #> $optimizer$state$`2`$exp_avg_sq
 #> torch_tensor
-#>  0.2209
+#>  37.9373
 #> [ CPUFloatType{1} ]
 #> 
 #> $optimizer$state$`2`$max_exp_avg_sq
@@ -354,7 +354,7 @@ po_model$state
 #> 
 #> $train_time
 #> elapsed 
-#>   0.055 
+#>   0.064 
 #> 
 #> $task_hash
 #> [1] "c7c4f02878d51895"
@@ -366,15 +366,12 @@ po_model$state
 #> NULL
 #> 
 #> $mlr3_version
-#> [1] ‘1.6.0’
+#> [1] ‘1.7.1’
 #> 
 #> $internal_tuned_values
 #> named list()
 #> 
 #> $data_prototype
-#> Empty data.table (0 rows and 11 cols): mpg,am,carb,cyl,disp,drat...
-#> 
-#> $task_prototype
 #> Empty data.table (0 rows and 11 cols): mpg,am,carb,cyl,disp,drat...
 #> 
 #> $train_task

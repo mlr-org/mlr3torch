@@ -16,12 +16,12 @@ applied to each element of a batch individually.
 
 ## Parameters
 
-|                |           |                |                      |                  |
-|----------------|-----------|----------------|----------------------|------------------|
-| Id             | Type      | Default        | Levels               | Range            |
-| brightness     | numeric   | 0              |                      | \\\[0, \infty)\\ |
-| contrast       | numeric   | 0              |                      | \\\[0, \infty)\\ |
-| saturation     | numeric   | 0              |                      | \\\[0, \infty)\\ |
-| hue            | numeric   | 0              |                      | \\\[0, \infty)\\ |
-| stages         | character | \-             | train, predict, both | \-               |
-| affect_columns | untyped   | selector_all() |                      | \-               |
+|  |  |  |  |  |
+|----|----|----|----|----|
+| Id | Type | Default | Levels | Range |
+| brightness | numeric | 0 |  | \\\[0, \infty)\\ |
+| contrast | numeric | 0 |  | \\\[0, \infty)\\ |
+| saturation | numeric | 0 |  | \\\[0, \infty)\\ |
+| hue | numeric | 0 |  | \\\[0, \infty)\\ |
+| stages | character | \- | train, predict, both | \- |
+| affect_columns | untyped | selector_all() |  | \- |

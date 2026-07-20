@@ -15,6 +15,7 @@ first set a seed for reproducibility, load the library and construct the
 task.
 
 ``` r
+
 set.seed(314)
 library(mlr3torch)
 task = tsk("mtcars")
@@ -40,6 +41,7 @@ available parameters see
 [`?mlr3torch::LearnerTorchMLP`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.mlp.md).
 
 ``` r
+
 mlp = lrn("regr.mlp",
   # architecture parameters
   neurons = c(50, 50),
@@ -74,6 +76,7 @@ for the test set. Finally, we compute the mean squared error of the
 predictions.
 
 ``` r
+
 # Split the obersevations into training and test set
 splits = partition(task)
 # Train the learner on the train set
@@ -129,6 +132,7 @@ the configured parameters, the packages it depends on and for which task
 types it can be used.
 
 ``` r
+
 l1 = t_loss("l1")
 l1
 #> <TorchLoss:l1> Absolute Error
@@ -142,6 +146,7 @@ Its `ParamSet` contains only one parameter, namely `reduction`, which
 specifies how the loss is reduced over the batch.
 
 ``` r
+
 # the paradox::ParamSet of the loss
 l1$param_set
 #> <ParamSet(1)>
@@ -155,6 +160,7 @@ of the learner. The parameters of the loss are added to the learner’s
 `ParamSet`, prefixed with `"loss."`.
 
 ``` r
+
 mlp_l1 = lrn("regr.mlp", loss = l1)
 mlp_l1$param_set$values$loss.reduction
 #> NULL
@@ -164,6 +170,7 @@ All predefined loss functions are stored in the `mlr3torch_losses`
 dictionary, from which they can be retrieved using `t_loss(<key>)`.
 
 ``` r
+
 mlr3torch_losses
 #> <DictionaryMlr3torchLosses> with 3 stored values
 #> Keys: cross_entropy, l1, mse
@@ -181,6 +188,7 @@ can be constructed using `t_opt(<key>)`. For optimizers, the associated
 `ParamSet` is more interesting as we see below:
 
 ``` r
+
 sgd = t_opt("sgd")
 sgd
 #> <TorchOptimizer:sgd> Stochastic Gradient Descent
@@ -206,6 +214,7 @@ construction, or afterwards using the `$set_values()` method of the
 parameter set.
 
 ``` r
+
 sgd$param_set$set_values(
   lr = 0.5, # increase learning rate
   nesterov = FALSE # no nesterov momentum
@@ -217,6 +226,7 @@ Below we see that the optimizer’s parameters are added to the learner’s
 values we specified.
 
 ``` r
+
 mlp_sgd = lrn("regr.mlp", optimizer = sgd)
 as.data.table(mlp_sgd$param_set)[
   startsWith(id, "opt.")][[1L]]
@@ -237,6 +247,7 @@ All available optimizers are stored in the `mlr3torch_optimizers`
 dictionary.
 
 ``` r
+
 mlr3torch_optimizers
 #> <DictionaryMlr3torchOptimizers> with 5 stored values
 #> Keys: adagrad, adam, adamw, rmsprop, sgd
@@ -256,6 +267,7 @@ which has no parameters and merely saves the training and validation
 history in the learner so it can be accessed afterwards.
 
 ``` r
+
 history = t_clbk("history")
 history
 #> <TorchCallback:history> History
@@ -269,6 +281,7 @@ help page of the wrapped object using the `$help()` method. Note that
 this is also possible for the loss and optimizer.
 
 ``` r
+
 history$help()
 ```
 
@@ -276,6 +289,7 @@ All predefined callbacks are stored in the `mlr3torch_callbacks`
 dictionary.
 
 ``` r
+
 mlr3torch_callbacks
 #> <DictionaryMlr3torchCallbacks> with 11 stored values
 #> Keys: checkpoint, history, lr_cosine_annealing, lr_lambda,
@@ -294,6 +308,7 @@ parameters of `LearnerTorch` take common
 whereas the loss function must be a `TorchLoss`.
 
 ``` r
+
 mlp_custom = lrn("regr.mlp",
   # construction arguments
   optimizer = sgd, loss = l1, callbacks = history,
@@ -333,6 +348,7 @@ We now train the learner on the “mtcars” task again and use the same
 train-test split as before.
 
 ``` r
+
 mlp_custom$train(task, row_ids = splits$train)
 prediction_custom = mlp_custom$predict(task, row_ids = splits$test)
 ```
@@ -343,6 +359,7 @@ the learning rate, our configured `mlp_custom` learner has a lower MAE
 than the default `mlp` learner.
 
 ``` r
+
 prediction_custom$score(msr("regr.mae"))
 #> regr.mae 
 #> 13.14184
@@ -355,6 +372,7 @@ Because we configured the learner to use the history callback, we can
 find the validation history in its `$model` slot:
 
 ``` r
+
 head(mlp_custom$model$callbacks$history)
 #>    epoch valid.regr.mae
 #>    <num>          <num>

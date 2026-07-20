@@ -16,9 +16,9 @@ applied to each element of a batch individually.
 
 ## Parameters
 
-|                   |           |                |                      |                       |
-|-------------------|-----------|----------------|----------------------|-----------------------|
-| Id                | Type      | Default        | Levels               | Range                 |
-| saturation_factor | numeric   | \-             |                      | \\(-\infty, \infty)\\ |
-| stages            | character | \-             | train, predict, both | \-                    |
-| affect_columns    | untyped   | selector_all() |                      | \-                    |
+|  |  |  |  |  |
+|----|----|----|----|----|
+| Id | Type | Default | Levels | Range |
+| saturation_factor | numeric | \- |  | \\(-\infty, \infty)\\ |
+| stages | character | \- | train, predict, both | \- |
+| affect_columns | untyped | selector_all() |  | \- |

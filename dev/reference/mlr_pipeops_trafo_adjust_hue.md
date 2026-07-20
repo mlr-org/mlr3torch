@@ -16,9 +16,9 @@ applied to each element of a batch individually.
 
 ## Parameters
 
-|                |           |                |                      |                   |
-|----------------|-----------|----------------|----------------------|-------------------|
-| Id             | Type      | Default        | Levels               | Range             |
-| hue_factor     | numeric   | \-             |                      | \\\[-0.5, 0.5\]\\ |
-| stages         | character | \-             | train, predict, both | \-                |
-| affect_columns | untyped   | selector_all() |                      | \-                |
+|  |  |  |  |  |
+|----|----|----|----|----|
+| Id | Type | Default | Levels | Range |
+| hue_factor | numeric | \- |  | \\\[-0.5, 0.5\]\\ |
+| stages | character | \- | train, predict, both | \- |
+| affect_columns | untyped | selector_all() |  | \- |

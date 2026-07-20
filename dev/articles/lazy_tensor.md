@@ -8,6 +8,7 @@ has one feature `image` of class `"lazy_tensor"`. The images display the
 digits 0, …, 9, and the goal is to classify them correctly.
 
 ``` r
+
 library(mlr3torch)
 
 mnist = tsk("mnist")
@@ -15,11 +16,11 @@ mnist
 #> 
 #> ── <TaskClassif> (70000x2): MNIST Digit Classification ─────────────────────────
 #> • Target: label
-#> • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0 (10%), 6
-#> (10%), 8 (10%), 4 (10%), 5 (9%)
 #> • Properties: multiclass
 #> • Features (1):
 #>   • lt (1): image
+#> • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0 (10%), 6
+#> (10%), 8 (10%), 4 (10%), 5 (9%)
 ```
 
 The name `"lazy_tensor"` stems from the fact, that the tensors are not
@@ -30,15 +31,16 @@ data-loading. We see that the data contains one column *label*, which is
 the target variable, and an `image` which is the input feature.
 
 ``` r
+
 mnist$head()
-#>     label         image
-#>    <fctr> <lazy_tensor>
-#> 1:      5     <list[2]>
-#> 2:      0     <list[2]>
-#> 3:      4     <list[2]>
-#> 4:      1     <list[2]>
-#> 5:      9     <list[2]>
-#> 6:      2     <list[2]>
+#>     label           image
+#>    <fctr>   <lazy_tensor>
+#> 1:      5 <tnsr[1x28x28]>
+#> 2:      0 <tnsr[1x28x28]>
+#> 3:      4 <tnsr[1x28x28]>
+#> 4:      1 <tnsr[1x28x28]>
+#> 5:      9 <tnsr[1x28x28]>
+#> 6:      2 <tnsr[1x28x28]>
 ```
 
 If we wanted to obtain the actual tensors representing the images, we
@@ -49,6 +51,7 @@ the same shape. Here, we only show a slice of the tensor for
 readability.
 
 ``` r
+
 lt = mnist$data(cols = "image")[[1L]]
 materialize(lt[1])[[1]][1, 12:16, 12:16]
 #> torch_tensor
@@ -69,6 +72,7 @@ for the multi layer perceptron, which works both with `numeric` types,
 as well as the `lazy_tensor`.
 
 ``` r
+
 mlp = lrn("classif.mlp",
   neurons = c(100, 100),
   epochs = 10, batch_size = 32
@@ -103,17 +107,18 @@ that this is not the case for MNIST, where each element has shape
 here do using `po("trafo_reshape")`:
 
 ``` r
+
 reshaper = po("trafo_reshape", shape = c(-1, 28 * 28))
 mnist_flat = reshaper$train(list(mnist))[[1L]]
 mnist_flat$head()
 #>     label         image
 #>    <fctr> <lazy_tensor>
-#> 1:      5     <list[2]>
-#> 2:      0     <list[2]>
-#> 3:      4     <list[2]>
-#> 4:      1     <list[2]>
-#> 5:      9     <list[2]>
-#> 6:      2     <list[2]>
+#> 1:      5   <tnsr[784]>
+#> 2:      0   <tnsr[784]>
+#> 3:      4   <tnsr[784]>
+#> 4:      1   <tnsr[784]>
+#> 5:      9   <tnsr[784]>
+#> 6:      2   <tnsr[784]>
 ```
 
 Note that this does not *actually* reshape all the tensors in-memory,
@@ -125,6 +130,7 @@ We can now proceed to train the a simple multi-layer perceptron on the
 flattened mnist task:
 
 ``` r
+
 mlp = lrn("classif.mlp",
   neurons = c(100, 100),
   epochs = 10, batch_size = 32
@@ -150,6 +156,7 @@ the data is stored in-memory in this example, this is not necessary and
 the `$.getitem()` method can e.g. load images from disk.
 
 ``` r
+
 mydata = dataset(
   initialize = function() {
     self$x = runif(1000, -1, 1)
@@ -166,6 +173,7 @@ dimension. We can also set a shape to `NULL` to indicate that it is
 unknown, i.e. it varies between elements.
 
 ``` r
+
 lt = as_lazy_tensor(mydata, dataset_shapes = list(x = c(NA, 1)))
 lt[1:5]
 #> <ltnsr[len=5, shapes=(1)]>
@@ -178,6 +186,7 @@ have been auto-inferred.
 We can convert this vector to a `torch_tensor` just like before:
 
 ``` r
+
 materialize(lt[1:5], rbind = TRUE)
 #> torch_tensor
 #> -0.9852
@@ -192,6 +201,7 @@ Because we added no preprocessing, this is the same as calling the
 `$.getbatch()` method on `mydata` and selecting the element `x`.
 
 ``` r
+
 torch_equal(
   materialize(lt[1], rbind = TRUE),
   mydata$.getbatch(1)$x
@@ -205,6 +215,7 @@ the target variable, both for classification and regression, cannot be a
 `lazy_tensor`, but must be a `factor` or `numeric` respectively.
 
 ``` r
+
 library(data.table)
 x = mydata$x
 y = 0.2 + 0.1 * x - 0.1 * x^2 - 0.3 * x^3 + 0.5 * x^4 + 0.5 * x^7 + 0.6 * x^11 + rnorm(length(mydata)) * 0.1
@@ -222,6 +233,7 @@ task_poly
 Below, we plot the data:
 
 ``` r
+
 library(ggplot2)
 ggplot(data = data.frame(x = x, y = y)) +
   geom_point(aes(x = x, y = y), alpha = 0.5)
@@ -256,6 +268,7 @@ Below, we create a `PipeOp`, that transforms a vector `x` into a matrix
 the `PipeOp`.
 
 ``` r
+
 PipeOpPreprocTorchPoly = pipeop_preproc_torch("poly",
   fn = function(x, degrees) {
     torch_cat(lapply(degrees, function(d) torch_pow(x, d)), dim = 2L)
@@ -272,6 +285,7 @@ applied during training and prediction. For data augmentation this can
 be set to `"train"`.
 
 ``` r
+
 po_poly = PipeOpPreprocTorchPoly$new()
 
 po_poly$param_set$set_values(
@@ -285,6 +299,7 @@ preprocessor with a `lrn("regr.mlp")` with no hidden layer (i.e. a
 linear model) and train the learner on the task.
 
 ``` r
+
 lrn_poly = as_learner(
   po_poly %>>% lrn("regr.mlp", batch_size = 256, epochs = 100,
   neurons = integer(0))
@@ -298,6 +313,7 @@ Below, we visualize the predictions and see that the model captured the
 non-linear relationship reasonably:
 
 ``` r
+
 dt = melt(data.table(
   truth = pred$truth,
   response = pred$response,
@@ -328,6 +344,7 @@ an
 and some metadata.
 
 ``` r
+
 desc = DataDescriptor$new(
   dataset = mydata,
   dataset_shapes = list(x = c(NA, 1))
@@ -338,11 +355,12 @@ Per default, the preprocessing graph contains only a single `PipOpNop`
 that does nothing.
 
 ``` r
+
 desc
 #> <DataDescriptor: 1 ops>
 #> * dataset_shapes: [x: (NA,1)]
 #> * input_map: (x) -> Graph
-#> * pointer: nop.62eaea.x.output
+#> * pointer: nop.c6d754.x.output
 #> * shape: [(NA,1)]
 ```
 
@@ -367,6 +385,7 @@ elements of the `lazy_tensor` vector represent the same element of the
 element. Note that all indices refer to the same `DataDescriptor`.
 
 ``` r
+
 lt = lazy_tensor(desc, ids = c(1, 1, 2))
 materialize(lt, rbind = TRUE)
 #> torch_tensor
@@ -381,6 +400,7 @@ element containing an id and a `DataDescriptor` Currently, there can
 only be a single `DataDescriptor` in a `lazy_tensor` vector.
 
 ``` r
+
 unclass(lt[[1]])
 #> [[1]]
 #> [1] 1
@@ -389,13 +409,14 @@ unclass(lt[[1]])
 #> <DataDescriptor: 1 ops>
 #> * dataset_shapes: [x: (NA,1)]
 #> * input_map: (x) -> Graph
-#> * pointer: nop.62eaea.x.output
+#> * pointer: nop.c6d754.x.output
 #> * shape: [(NA,1)]
 ```
 
 What happens during `materialize(lt[1])` is the following:
 
 ``` r
+
 # get index and data descriptor
 desc = lt[[1]][[2]]
 id = lt[[1]][[1]]
@@ -424,6 +445,7 @@ output shape. To show this, we create a simple example task, using the
 `lt` vector as a feature.
 
 ``` r
+
 taskin = as_task_regr(data.table(x = lt, y = 1:3), target = "y")
 
 taskout = po_poly$train(list(taskin))[[1L]]
@@ -444,10 +466,10 @@ descout$graph
 #> ── Graph with 2 PipeOps: ───────────────────────────────────────────────────────
 #>            ID         State sccssors    prdcssors
 #>        <char>        <char>   <char>       <char>
-#>  nop.62eaea.x        <list>   poly.x             
-#>        poly.x <<UNTRAINED>>          nop.62eaea.x
+#>  nop.c6d754.x        <list>   poly.x             
+#>        poly.x <<UNTRAINED>>          nop.c6d754.x
 #> 
-#> ── Pipeline: <INPUT> -> nop.62eaea.x -> poly.x -> <OUTPUT>
+#> ── Pipeline: <INPUT> -> nop.c6d754.x -> poly.x -> <OUTPUT>
 ```
 
 We see that the `$graph` has a new pipeop with id `"poly.x"` and the
@@ -458,6 +480,7 @@ verify by calling
 again:
 
 ``` r
+
 materialize(lt_out[1:2], rbind = TRUE)
 #> torch_tensor
 #>  1.0000 -0.9852  0.9706 -0.9563  0.9421 -0.9009 -0.8487

@@ -233,17 +233,17 @@ po_model$state
 #> $optimizer$state$`1`
 #> $optimizer$state$`1`$exp_avg
 #> torch_tensor
-#> -0.1188 -0.0187 -0.4232 -0.2926
-#>  0.5004  0.1658  0.8049  0.4407
-#> -0.3816 -0.1471 -0.3817 -0.1482
+#>  0.4951  0.1800  0.5159  0.1956
+#> -0.1748 -0.0556 -0.1856 -0.0613
+#> -0.3203 -0.1244 -0.3304 -0.1343
 #> [ CPUFloatType{3,4} ]
 #> 
 #> $optimizer$state$`1`$exp_avg_sq
 #> torch_tensor
 #> 0.01 *
-#>  0.0580  0.0015  0.7376  0.3515
-#>   1.0324  0.1140  2.6497  0.7922
-#>   0.6110  0.0910  0.6256  0.0956
+#>  0.9963  0.1315  1.0808  0.1555
+#>   0.1548  0.0157  0.1929  0.0255
+#>   0.4359  0.0657  0.4767  0.0797
 #> [ CPUFloatType{3,4} ]
 #> 
 #> $optimizer$state$`1`$max_exp_avg_sq
@@ -259,17 +259,18 @@ po_model$state
 #> $optimizer$state$`2`
 #> $optimizer$state$`2`$exp_avg
 #> torch_tensor
-#> -0.0849
-#>  0.1367
-#> -0.0517
+#> 0.01 *
+#>  7.4668
+#> -2.8991
+#> -4.5677
 #> [ CPUFloatType{3} ]
 #> 
 #> $optimizer$state$`2`$exp_avg_sq
 #> torch_tensor
 #> 0.0001 *
-#>  2.9609
-#>  7.6160
-#>  1.1645
+#>  2.2675
+#>  0.4777
+#>  0.9256
 #> [ CPUFloatType{3} ]
 #> 
 #> $optimizer$state$`2`$max_exp_avg_sq
@@ -355,7 +356,7 @@ po_model$state
 #> 
 #> $train_time
 #> elapsed 
-#>   0.079 
+#>    0.07 
 #> 
 #> $task_hash
 #> [1] "abc694dd29a7a8ce"
@@ -367,7 +368,7 @@ po_model$state
 #> NULL
 #> 
 #> $mlr3_version
-#> [1] ‘1.6.0’
+#> [1] ‘1.7.1’
 #> 
 #> $internal_tuned_values
 #> named list()
@@ -375,17 +376,14 @@ po_model$state
 #> $data_prototype
 #> Empty data.table (0 rows and 5 cols): Species,Petal.Length,Petal.Width,Sepal.Length,Sepal.Width
 #> 
-#> $task_prototype
-#> Empty data.table (0 rows and 5 cols): Species,Petal.Length,Petal.Width,Sepal.Length,Sepal.Width
-#> 
 #> $train_task
 #> 
 #> ── <TaskClassif> (150x5): Iris Flowers ─────────────────────────────────────────
 #> • Target: Species
-#> • Target classes: setosa, versicolor, virginica
 #> • Properties: multiclass
 #> • Features (4):
 #>   • dbl (4): Petal.Length, Petal.Width, Sepal.Length, Sepal.Width
+#> • Target classes: setosa, versicolor, virginica
 #> 
 #> attr(,"class")
 #> [1] "learner_state" "list"         

@@ -8,6 +8,7 @@ Deep Learning with torch and mlr3.
 ## Installation
 
 ``` r
+
 # Install from CRAN
 install.packages("mlr3torch")
 # Install the development version from GitHub:
@@ -17,6 +18,7 @@ pak::pak("mlr-org/mlr3torch")
 Afterwards, you also need to run the command below:
 
 ``` r
+
 torch::install_torch()
 ```
 
@@ -38,6 +40,7 @@ Using predefined learners such as a simple multi layer perceptron (MLP)
 works just like any other mlr3 `Learner`.
 
 ``` r
+
 library(mlr3torch)
 learner_mlp = lrn("classif.mlp",
   # defining network parameters
@@ -64,6 +67,7 @@ learner_mlp = lrn("classif.mlp",
 Below, we train this learner on the sonar example task:
 
 ``` r
+
 learner_mlp$train(tsk("sonar"))
 ```
 
@@ -72,6 +76,7 @@ The first pipeop – a `PipeOpTorchIngress` – defines the entrypoint of
 the network. All subsequent pipeops define the neural network layers.
 
 ``` r
+
 architecture = po("torch_ingress_num") %>>%
   po("nn_linear", out_features = 20) %>>%
   po("nn_relu") %>>%
@@ -82,6 +87,7 @@ To turn this into a learner, we configure the loss, optimizer, callbacks
 as well as the training arguments.
 
 ``` r
+
 graph_mlp = architecture %>>%
   po("torch_loss", loss = t_loss("cross_entropy")) %>>%
   po("torch_optimizer", optimizer = t_opt("adam", lr = 0.1)) %>>%
@@ -101,6 +107,7 @@ perceptron on it. Note that this does *not* transform the data
 in-memory, but is only applied when the data is actually loaded.
 
 ``` r
+
 # load the predefined mnist task
 mnist = tsk("mnist")
 mnist$head(3L)
@@ -127,6 +134,7 @@ To actually access the tensors, we can call
 We only show a slice of the resulting tensor for readability:
 
 ``` r
+
 materialize(
   mnist_flat$data(1:2, cols = "image")[[1L]],
   rbind = TRUE
@@ -142,6 +150,7 @@ which is a `lazy_tensor`. For that, we first define a single residual
 block:
 
 ``` r
+
 layer = list(
   po("nop"),
   po("nn_linear", out_features = 50L) %>>%
@@ -158,6 +167,7 @@ the training parameters. Note that `po("nn_linear_0")` is equivalent to
 clashes with the linear layer from `po("nn_block")`.
 
 ``` r
+
 deep_network = po("torch_ingress_ltnsr") %>>%
   po("nn_linear", out_features = 50L) %>>%
   po("nn_block", layer, n_blocks = 5L) %>>%
@@ -173,6 +183,7 @@ Next, we prepend the preprocessing step that flattens the images so we
 can directly apply this learner to the unflattened MNIST task.
 
 ``` r
+
 deep_learner = as_learner(
   flattener %>>% deep_network
 )
@@ -183,6 +194,7 @@ In order to keep track of the performance during training, we use 20% of
 the data and evaluate it using classification accuracy.
 
 ``` r
+
 set_validate(deep_learner, 0.2)
 deep_learner$param_set$set_values(
   torch_model_classif.measures_valid = msr("classif.acc")
@@ -192,6 +204,7 @@ deep_learner$param_set$set_values(
 All that is left is to train the learner:
 
 ``` r
+
 deep_learner$train(mnist)
 ```
 

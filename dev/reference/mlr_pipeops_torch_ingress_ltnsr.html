@@ -5,7 +5,7 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Roboto-0.4.10/font.css" rel="stylesheet"><link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet"><link href="../deps/Roboto_Slab-0.4.10/font.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Ingress for Lazy Tensor — mlr_pipeops_torch_ingress_ltnsr"><meta name="description" content="Ingress for a single lazy_tensor column."><meta property="og:description" content="Ingress for a single lazy_tensor column."><meta property="og:image" content="https://mlr3torch.mlr-org.com/logo.svg"><meta name="robots" content="noindex"></head><body>
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Roboto-0.4.10/font.css" rel="stylesheet"><link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet"><link href="../deps/Roboto_Slab-0.4.10/font.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Ingress for Lazy Tensor — mlr_pipeops_torch_ingress_ltnsr"><meta name="description" content="Ingress for a single lazy_tensor column."><meta property="og:description" content="Ingress for a single lazy_tensor column."><meta property="og:image" content="https://mlr3torch.mlr-org.com/logo.svg"><meta name="robots" content="noindex"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -286,8 +286,8 @@ otherwise be set during construction.</p></dd>
 <span class="r-in"><span><span class="va">task_unknown_resize</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="st">"x"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                x</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    &lt;lazy_tensor&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:     &lt;list[2]&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:     &lt;list[2]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:     &lt;tnsr[?]&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:     &lt;tnsr[?]&gt;</span>
 <span class="r-in"><span><span class="va">po_ingress</span><span class="op">$</span><span class="va">param_set</span><span class="op">$</span><span class="fu">set_values</span><span class="op">(</span>shape <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">3</span>, <span class="fl">6</span>, <span class="fl">6</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">md2</span> <span class="op">=</span> <span class="va">po_ingress</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">task_unknown_resize</span><span class="op">)</span><span class="op">)</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span></span></span>
@@ -301,35 +301,35 @@ otherwise be set during construction.</p></dd>
 <span class="r-in"><span><span class="va">x_batch2</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (1,1,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0770 -0.3746 -0.1591  0.7731  0.1953  0.6961</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.7085 -0.9304  0.8569  0.9830 -0.2792 -0.1867</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.3155 -1.1763  0.4572 -0.5281  0.4865  0.3580</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.2972 -0.2821  0.8098 -1.0581 -0.5985 -0.3743</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.1614  0.8044 -0.6764  0.1308 -0.7041  0.2760</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.7831 -0.8217 -0.8414 -0.6143 -0.2806  0.2025</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.2281 -0.2572  0.8549 -0.5190  0.8482 -0.4669</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -1.2266 -2.1321 -1.1925  0.8498 -0.7833  0.5034</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.4792  0.8309  0.0480 -0.2284 -0.6700  0.3438</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.9314  0.1574  1.1051 -0.0836 -0.5942 -0.1821</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.9914  0.1005 -0.0943  0.1873  0.3246  0.3276</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0638 -0.4272 -0.6505 -0.1502  0.7924  0.3295</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (2,1,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1300  0.4139  0.8865  1.0334 -0.0070 -0.3564</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.4829 -0.1205 -0.0019  0.3427  0.2053  0.5708</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0699 -0.1334  0.9669 -0.3330  0.5869 -0.1112</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.1623 -0.0002  0.1348 -0.9148  0.1123  0.1514</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.1900  0.6384  0.2882 -1.0029  0.3101 -0.1465</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.9911  1.4236 -0.1680 -0.2364 -0.5087  0.6207</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.7847  0.2467 -0.3817 -0.1294  0.3442  0.6809</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.9902  0.0243 -0.4692 -0.2986  0.1349  0.6891</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.5804 -0.0720 -0.2171 -0.8900 -0.5289 -0.7290</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1.1139  0.7635  1.3444 -1.1337 -0.2388 -0.0457</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.3741  0.5046 -0.1564 -0.2031  0.7331 -1.5365</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.1604 -0.4424 -0.3999  0.2863  0.3039  0.1691</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (1,2,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1126 -0.2719  0.4092 -0.6391  1.3394 -0.2028</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.6622 -0.6291 -1.3522 -0.4825  0.1541 -0.6973</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.2393  0.1463  0.4367  0.6867 -0.1046 -0.4378</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.4348  0.3186  1.2576 -0.6275 -0.0584  0.0751</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -1.1041  0.4649 -0.3190 -0.8005  1.5324  0.4549</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.1745  0.6838  0.6414  0.9140 -1.4190  0.4999</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.4730  0.6080 -0.1933  0.5381 -0.4473  0.3579</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -1.0309 -0.2494 -0.8022 -0.8018  0.4562 -0.2156</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0048 -0.0591  0.0386  1.1176  0.3737 -1.0026</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.8325  0.0279 -0.9636 -0.1717 -0.1413  0.4877</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.7821 -1.7573  0.3207 -0.6054  1.0142 -0.4855</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0675  0.5860 -0.0086  0.1280  0.7111 -0.4856</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (2,2,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.7566 -0.1505 -1.8487 -0.7965  0.3920 -0.3710</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.5486  0.3701 -0.1154 -0.6741  0.1317  1.1331</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -1.1807 -0.5970  0.1124  1.3430  0.6725  0.9652</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.3161  0.1413  0.5892 -0.1141  1.0176  0.5717</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.4662 -0.1141 -0.8257  0.3015 -0.1469 -0.6220</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.0894  0.1533  0.7734 -0.0319  0.8484  0.3907</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.5891  1.2422 -0.2462 -0.1000  0.4199  0.4913</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.8564  0.7707  0.4571 -0.6789  0.0941 -0.3598</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.6311  0.6861 -0.4054 -0.7112  0.4698 -0.9420</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.7109  0.2923  0.1751  0.1324 -0.8649 -0.5746</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ... [the output was truncated (use n=-1 to disable)]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{2,3,6,6} ]</span>
 </code></pre></div>
@@ -343,7 +343,7 @@ otherwise be set during construction.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

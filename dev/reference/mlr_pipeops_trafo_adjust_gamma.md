@@ -16,10 +16,10 @@ applied to each element of a batch individually.
 
 ## Parameters
 
-|                |           |                |                      |                       |
-|----------------|-----------|----------------|----------------------|-----------------------|
-| Id             | Type      | Default        | Levels               | Range                 |
-| gamma          | numeric   | \-             |                      | \\\[0, \infty)\\      |
-| gain           | numeric   | 1              |                      | \\(-\infty, \infty)\\ |
-| stages         | character | \-             | train, predict, both | \-                    |
-| affect_columns | untyped   | selector_all() |                      | \-                    |
+|  |  |  |  |  |
+|----|----|----|----|----|
+| Id | Type | Default | Levels | Range |
+| gamma | numeric | \- |  | \\\[0, \infty)\\ |
+| gain | numeric | 1 |  | \\(-\infty, \infty)\\ |
+| stages | character | \- | train, predict, both | \- |
+| affect_columns | untyped | selector_all() |  | \- |

@@ -106,6 +106,7 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
+
 cb = t_clbk("history")
 task = tsk("iris")
 

@@ -16,13 +16,13 @@ applied to each element of a batch individually.
 
 ## Parameters
 
-|                |           |                |                      |                       |
-|----------------|-----------|----------------|----------------------|-----------------------|
-| Id             | Type      | Default        | Levels               | Range                 |
-| degrees        | untyped   | \-             |                      | \-                    |
-| translate      | untyped   | NULL           |                      | \-                    |
-| scale          | untyped   | NULL           |                      | \-                    |
-| resample       | integer   | 0              |                      | \\(-\infty, \infty)\\ |
-| fillcolor      | untyped   | 0              |                      | \-                    |
-| stages         | character | \-             | train, predict, both | \-                    |
-| affect_columns | untyped   | selector_all() |                      | \-                    |
+|  |  |  |  |  |
+|----|----|----|----|----|
+| Id | Type | Default | Levels | Range |
+| degrees | untyped | \- |  | \- |
+| translate | untyped | NULL |  | \- |
+| scale | untyped | NULL |  | \- |
+| resample | integer | 0 |  | \\(-\infty, \infty)\\ |
+| fillcolor | untyped | 0 |  | \- |
+| stages | character | \- | train, predict, both | \- |
+| affect_columns | untyped | selector_all() |  | \- |

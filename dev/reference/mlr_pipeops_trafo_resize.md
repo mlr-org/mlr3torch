@@ -16,10 +16,10 @@ applied to the whole batch.
 
 ## Parameters
 
-|                |           |                |                                                                                                                               |
-|----------------|-----------|----------------|-------------------------------------------------------------------------------------------------------------------------------|
-| Id             | Type      | Default        | Levels                                                                                                                        |
-| size           | untyped   | \-             |                                                                                                                               |
-| interpolation  | character | 2              | Undefined, Bartlett, Blackman, Bohman, Box, Catrom, Cosine, Cubic, Gaussian, Hamming, [...](https://rdrr.io/r/base/dots.html) |
-| stages         | character | \-             | train, predict, both                                                                                                          |
-| affect_columns | untyped   | selector_all() |                                                                                                                               |
+|  |  |  |  |
+|----|----|----|----|
+| Id | Type | Default | Levels |
+| size | untyped | \- |  |
+| interpolation | character | 2 | Undefined, Bartlett, Blackman, Bohman, Box, Catrom, Cosine, Cubic, Gaussian, Hamming, [...](https://rdrr.io/r/base/dots.html) |
+| stages | character | \- | train, predict, both |
+| affect_columns | untyped | selector_all() |  |

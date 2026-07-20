@@ -5,20 +5,21 @@ as `mlr3pipelines::Graphs`s. We will create a simple CNN for the
 tiny-imagenet task, which is a subset of well-known Imagenet benchmark.
 
 ``` r
+
 library(mlr3torch)
 imagenet = tsk("tiny_imagenet")
 imagenet
 #> 
 #> ── <TaskClassif> (110000x2): ImageNet Subset ───────────────────────────────────
 #> • Target: class
+#> • Properties: multiclass
+#> • Features (1):
+#>   • lt (1): image
 #> • Target classes: abacus (0%), academic gown, academic robe, judge's robe (0%),
 #> acorn (0%), African elephant, Loxodonta africana (0%), albatross, mollymawk
 #> (0%), alp (0%), altar (0%), American alligator, Alligator mississipiensis (0%),
 #> American lobster, Northern lobster, Maine lobster, Homarus americanus (0%),
 #> apron (0%) + 190 more
-#> • Properties: multiclass
-#> • Features (1):
-#>   • lt (1): image
 ```
 
 The central ingredients for creating such graphs are `PipeOpTorch`
@@ -35,6 +36,7 @@ Because the imagenet task contains only one feature of type
 `lazy_tensor`, we go for the last option:
 
 ``` r
+
 architecture = po("torch_ingress_ltnsr")
 ```
 
@@ -51,6 +53,7 @@ tasks with different image sizes, each time building up the correct
 network structure.
 
 ``` r
+
 architecture = architecture %>>%
   po("nn_conv2d_1", out_channels = 64, kernel_size = 11, stride = 4, padding = 2) %>>%
   po("nn_relu_1", inplace = TRUE) %>>%
@@ -64,6 +67,7 @@ We can now continue with specifying the classification part of the
 network, which is a dense network that repeats a layer twice:
 
 ``` r
+
 dense_layer = po("nn_dropout") %>>%
   po("nn_linear", out_features = 4096) %>>%
   po("nn_relu_6")
@@ -75,6 +79,7 @@ output head of the network, where we don’t have to specify the number of
 classes, as they can also be inferred from the task
 
 ``` r
+
 classifier = po("nn_block", dense_layer, n_blocks = 2L) %>>%
   po("nn_head")
 ```
@@ -82,6 +87,7 @@ classifier = po("nn_block", dense_layer, n_blocks = 2L) %>>%
 Next, we can combine the convolutional part with the dense head:
 
 ``` r
+
 architecture = architecture %>>%
   po("nn_flatten") %>>%
   classifier
@@ -90,6 +96,7 @@ architecture = architecture %>>%
 Below, we display the network:
 
 ``` r
+
 architecture$plot(html = TRUE)
 ```
 
@@ -100,6 +107,7 @@ training arguments, which we do now: We use the standard cross-entropy
 loss, SGD as the optimizer and checkpoint our model every 20 epochs.
 
 ``` r
+
 checkpoint = tempfile()
 architecture = architecture %>>%
   po("torch_loss", t_loss("cross_entropy")) %>>%
@@ -118,6 +126,7 @@ individual `PipeOp`s in its `$param_set`, from which we show only a
 subset for readability:
 
 ``` r
+
 as.data.table(cnn$param_set)[c(32, 34, 42), 1:4]
 #>                       id    class lower upper
 #>                   <char>   <char> <num> <num>
@@ -131,6 +140,7 @@ increase the number of blocks and latent dimension of the dense part, as
 well as change the learning rate of the SGD optimizer.
 
 ``` r
+
 cnn$param_set$set_values(
   nn_block.n_blocks = 4L,
   nn_block.nn_linear.out_features = 4096 * 2,
@@ -141,5 +151,6 @@ cnn$param_set$set_values(
 Finally, we train the learner on the task:
 
 ``` r
+
 cnn$train(imagenet)
 ```

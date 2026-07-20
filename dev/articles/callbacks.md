@@ -20,6 +20,7 @@ When using predefined callbacks, one usually only interacts with the
 `TorchCallback` class, which is constructed using `t_clbk(<id>)`:
 
 ``` r
+
 tc_hist = t_clbk("history")
 tc_hist
 ```
@@ -33,6 +34,7 @@ The wrapped `CallbackSet` is accessible via the field `$generator`, and
 we can create a new instance by calling `$new()`
 
 ``` r
+
 cbs_hist = tc_hist$generator$new()
 ```
 
@@ -42,6 +44,7 @@ available, but they are also described in the documentation of
 `CallbackSet`.
 
 ``` r
+
 mlr_reflections$torch$callback_stages
 ```
 
@@ -54,6 +57,7 @@ For the history callback, we see that it runs code at the beginning,
 before validation starts, and at the end of an epoch.
 
 ``` r
+
 cbs_hist
 ```
 
@@ -94,6 +98,7 @@ Note that we only do this here to have access to the final
 implement these methods.
 
 ``` r
+
 custom_logger = torch_callback("custom_logger",
   initialize = function(alpha = 0.1) {
     self$alpha = alpha
@@ -122,6 +127,7 @@ This created a `TorchCallback` object and and associated `CallbackSet`
 R6-class for us:
 
 ``` r
+
 custom_logger
 ```
 
@@ -131,6 +137,7 @@ custom_logger
     ## * Packages: mlr3torch,torch
 
 ``` r
+
 custom_logger$generator
 ```
 
@@ -142,7 +149,7 @@ custom_logger$generator
     ##     load_state_dict: function (state_dict) 
     ##     on_before_valid: function () 
     ##     on_batch_end: function () 
-    ##   Parent env: <environment: 0x5624fbdaa410>
+    ##   Parent env: <environment: 0x5580df4c73a0>
     ##   Locked objects: FALSE
     ##   Locked class: FALSE
     ##   Portable: TRUE
@@ -154,6 +161,7 @@ perceptron and pass it the callback. We set the smoothing parameter
 `alpha` to 0.05.
 
 ``` r
+
 task = tsk("iris")
 mlp = lrn("classif.mlp",
   callbacks = custom_logger, cb.custom_logger.alpha = 0.05,
@@ -172,6 +180,7 @@ The information that is returnede by `state_dict()` is now accessible
 via the `Learner`’s `$model`-slot:
 
 ``` r
+
 mlp$model$callbacks$custom_logger
 ```
 

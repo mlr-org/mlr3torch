@@ -18,8 +18,8 @@
     }
   };
 </script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Roboto-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Roboto-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/Roboto_Slab-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -127,11 +127,11 @@ correctly.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="color: #0000BB; font-weight: bold;">&lt;TaskClassif&gt;</span><span style="font-weight: bold;"> (70000x2): MNIST Digit Classification</span> <span style="color: #00BBBB;">─────────────────────────</span></span></span>
 <span><span class="co">#&gt; • Target: label</span></span>
-<span><span class="co">#&gt; • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0 (10%), 6</span></span>
-<span><span class="co">#&gt; (10%), 8 (10%), 4 (10%), 5 (9%)</span></span>
 <span><span class="co">#&gt; • Properties: multiclass</span></span>
 <span><span class="co">#&gt; • Features (1):</span></span>
-<span><span class="co">#&gt;   • lt (1): image</span></span></code></pre></div>
+<span><span class="co">#&gt;   • lt (1): image</span></span>
+<span><span class="co">#&gt; • Target classes: 1 (11%), 7 (10%), 3 (10%), 2 (10%), 9 (10%), 0 (10%), 6</span></span>
+<span><span class="co">#&gt; (10%), 8 (10%), 4 (10%), 5 (9%)</span></span></code></pre></div>
 <p>The name <code>"lazy_tensor"</code> stems from the fact, that the
 tensors are not necessarily stored in memory, as this is often
 impossible when working with large image datasets.<br>
@@ -141,14 +141,14 @@ which is the target variable, and an <code>image</code> which is the
 input feature.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mnist</span><span class="op">$</span><span class="fu">head</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt;     label         image</span></span>
-<span><span class="co">#&gt;    &lt;fctr&gt; &lt;lazy_tensor&gt;</span></span>
-<span><span class="co">#&gt; 1:      5     &lt;list[2]&gt;</span></span>
-<span><span class="co">#&gt; 2:      0     &lt;list[2]&gt;</span></span>
-<span><span class="co">#&gt; 3:      4     &lt;list[2]&gt;</span></span>
-<span><span class="co">#&gt; 4:      1     &lt;list[2]&gt;</span></span>
-<span><span class="co">#&gt; 5:      9     &lt;list[2]&gt;</span></span>
-<span><span class="co">#&gt; 6:      2     &lt;list[2]&gt;</span></span></code></pre></div>
+<span><span class="co">#&gt;     label           image</span></span>
+<span><span class="co">#&gt;    &lt;fctr&gt;   &lt;lazy_tensor&gt;</span></span>
+<span><span class="co">#&gt; 1:      5 &lt;tnsr[1x28x28]&gt;</span></span>
+<span><span class="co">#&gt; 2:      0 &lt;tnsr[1x28x28]&gt;</span></span>
+<span><span class="co">#&gt; 3:      4 &lt;tnsr[1x28x28]&gt;</span></span>
+<span><span class="co">#&gt; 4:      1 &lt;tnsr[1x28x28]&gt;</span></span>
+<span><span class="co">#&gt; 5:      9 &lt;tnsr[1x28x28]&gt;</span></span>
+<span><span class="co">#&gt; 6:      2 &lt;tnsr[1x28x28]&gt;</span></span></code></pre></div>
 <p>If we wanted to obtain the actual tensors representing the images, we
 can do so by calling <code><a href="../reference/materialize.html">materialize()</a></code>, which will return a
 list of <code>torch_tensor</code>s, not necessarily all with the same
@@ -210,12 +210,12 @@ not the case for MNIST, where each element has shape
 <span><span class="va">mnist_flat</span><span class="op">$</span><span class="fu">head</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     label         image</span></span>
 <span><span class="co">#&gt;    &lt;fctr&gt; &lt;lazy_tensor&gt;</span></span>
-<span><span class="co">#&gt; 1:      5     &lt;list[2]&gt;</span></span>
-<span><span class="co">#&gt; 2:      0     &lt;list[2]&gt;</span></span>
-<span><span class="co">#&gt; 3:      4     &lt;list[2]&gt;</span></span>
-<span><span class="co">#&gt; 4:      1     &lt;list[2]&gt;</span></span>
-<span><span class="co">#&gt; 5:      9     &lt;list[2]&gt;</span></span>
-<span><span class="co">#&gt; 6:      2     &lt;list[2]&gt;</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:      5   &lt;tnsr[784]&gt;</span></span>
+<span><span class="co">#&gt; 2:      0   &lt;tnsr[784]&gt;</span></span>
+<span><span class="co">#&gt; 3:      4   &lt;tnsr[784]&gt;</span></span>
+<span><span class="co">#&gt; 4:      1   &lt;tnsr[784]&gt;</span></span>
+<span><span class="co">#&gt; 5:      9   &lt;tnsr[784]&gt;</span></span>
+<span><span class="co">#&gt; 6:      2   &lt;tnsr[784]&gt;</span></span></code></pre></div>
 <p>Note that this does not <em>actually</em> reshape all the tensors
 in-memory, this will again only happen once <code><a href="../reference/materialize.html">materialize()</a></code>
 is called.</p>
@@ -411,7 +411,7 @@ nerworks using <code>PipeOpTorch</code> objects. The
 <span><span class="co">#&gt; &lt;DataDescriptor: 1 ops&gt;</span></span>
 <span><span class="co">#&gt; * dataset_shapes: [x: (NA,1)]</span></span>
 <span><span class="co">#&gt; * input_map: (x) -&gt; Graph</span></span>
-<span><span class="co">#&gt; * pointer: nop.62eaea.x.output</span></span>
+<span><span class="co">#&gt; * pointer: nop.c6d754.x.output</span></span>
 <span><span class="co">#&gt; * shape: [(NA,1)]</span></span></code></pre></div>
 <p>The printed output of the data descriptor informs us about:</p>
 <ul>
@@ -458,7 +458,7 @@ there can only be a single <code>DataDescriptor</code> in a
 <span><span class="co">#&gt; &lt;DataDescriptor: 1 ops&gt;</span></span>
 <span><span class="co">#&gt; * dataset_shapes: [x: (NA,1)]</span></span>
 <span><span class="co">#&gt; * input_map: (x) -&gt; Graph</span></span>
-<span><span class="co">#&gt; * pointer: nop.62eaea.x.output</span></span>
+<span><span class="co">#&gt; * pointer: nop.c6d754.x.output</span></span>
 <span><span class="co">#&gt; * shape: [(NA,1)]</span></span></code></pre></div>
 <p>What happens during <code>materialize(lt[1])</code> is the
 following:</p>
@@ -509,10 +509,10 @@ feature.</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Graph with 2 PipeOps:</span> <span style="color: #00BBBB;">───────────────────────────────────────────────────────</span></span></span>
 <span><span class="co">#&gt;            ID         State sccssors    prdcssors</span></span>
 <span><span class="co">#&gt;        &lt;char&gt;        &lt;char&gt;   &lt;char&gt;       &lt;char&gt;</span></span>
-<span><span class="co">#&gt;  nop.62eaea.x        &lt;list&gt;   poly.x             </span></span>
-<span><span class="co">#&gt;        poly.x &lt;&lt;UNTRAINED&gt;&gt;          nop.62eaea.x</span></span>
+<span><span class="co">#&gt;  nop.c6d754.x        &lt;list&gt;   poly.x             </span></span>
+<span><span class="co">#&gt;        poly.x &lt;&lt;UNTRAINED&gt;&gt;          nop.c6d754.x</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── Pipeline: <span style="font-weight: bold;">&lt;INPUT&gt; -&gt; nop.62eaea.x -&gt; poly.x -&gt; &lt;OUTPUT&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt; ── Pipeline: <span style="font-weight: bold;">&lt;INPUT&gt; -&gt; nop.c6d754.x -&gt; poly.x -&gt; &lt;OUTPUT&gt;</span></span></span></code></pre></div>
 <p>We see that the <code>$graph</code> has a new pipeop with id
 <code>"poly.x"</code> and the output <code>pointer</code> points to
 <code>poly.x</code>. Also we see that the shape of the tensor is now
@@ -536,7 +536,7 @@ can verify by calling <code><a href="../reference/materialize.html">materialize(
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

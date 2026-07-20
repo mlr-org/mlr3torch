@@ -468,10 +468,10 @@ mds_in[[1L]][c("graph", "task", "ingress", "pointer", "pointer_shape")]
 #> 
 #> ── <TaskClassif> (150x3): Iris Flowers ─────────────────────────────────────────
 #> • Target: Species
-#> • Target classes: setosa (33%), versicolor (33%), virginica (33%)
 #> • Properties: multiclass
 #> • Features (2):
 #>   • dbl (2): Sepal.Length, Sepal.Width
+#> • Target classes: setosa (33%), versicolor (33%), virginica (33%)
 #> 
 #> $ingress
 #> $ingress$torch_ingress_num_1.input
@@ -498,10 +498,10 @@ mds_in[[2L]][c("graph", "task", "ingress", "pointer", "pointer_shape")]
 #> 
 #> ── <TaskClassif> (150x3): Iris Flowers ─────────────────────────────────────────
 #> • Target: Species
-#> • Target classes: setosa (33%), versicolor (33%), virginica (33%)
 #> • Properties: multiclass
 #> • Features (2):
 #>   • dbl (2): Petal.Length, Petal.Width
+#> • Target classes: setosa (33%), versicolor (33%), virginica (33%)
 #> 
 #> $ingress
 #> $ingress$torch_ingress_num_2.input
@@ -547,10 +547,10 @@ mds_out[[2L]]$task
 #> 
 #> ── <TaskClassif> (150x5): Iris Flowers ─────────────────────────────────────────
 #> • Target: Species
-#> • Target classes: setosa (33%), versicolor (33%), virginica (33%)
 #> • Properties: multiclass
 #> • Features (4):
 #>   • dbl (4): Petal.Length, Petal.Width, Sepal.Length, Sepal.Width
+#> • Target classes: setosa (33%), versicolor (33%), virginica (33%)
 
 # The new ingress slot contains all ingressors
 identical(mds_out[[1L]]$ingress, mds_out[[2L]]$ingress)

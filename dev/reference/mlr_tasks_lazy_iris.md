@@ -47,10 +47,10 @@ task
 #> 
 #> ── <TaskClassif> (150x2): Iris Flowers ─────────────────────────────────────────
 #> • Target: Species
-#> • Target classes: setosa (33%), versicolor (33%), virginica (33%)
 #> • Properties: multiclass
 #> • Features (1):
 #>   • lt (1): x
+#> • Target classes: setosa (33%), versicolor (33%), virginica (33%)
 df = task$data()
 materialize(df$x[1:6], rbind = TRUE)
 #> torch_tensor
