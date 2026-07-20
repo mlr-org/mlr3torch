@@ -1,5 +1,12 @@
 # mlr3torch (development version)
 
+* Feat: Added `PipeOpTorchMultiheadAttention` (`po("nn_multihead_attention")`), which wraps
+  `torch::nn_multihead_attention()`. The construction argument `innum` determines the number of
+  input channels and thereby whether self-attention (`innum = 1`) or cross-attention
+  (`innum = 2` or `innum = 3`) is performed. The construction argument `outnum` determines whether
+  only the attention output (`outnum = 1`) or also the attention weights (`outnum = 2`) are
+  returned.
+
 # mlr3torch 0.3.3
 
 * Feat: Improve `lazy_tensor` printing.

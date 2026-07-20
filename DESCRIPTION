@@ -133,6 +133,7 @@ Collate:
     'PipeOpTorchMaxPool.R'
     'PipeOpTorchMerge.R'
     'PipeOpTorchModel.R'
+    'PipeOpTorchMultiheadAttention.R'
     'PipeOpTorchOptimizer.R'
     'PipeOpTorchReshape.R'
     'PipeOpTorchSoftmax.R'
