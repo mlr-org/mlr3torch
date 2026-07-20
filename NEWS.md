@@ -1,5 +1,8 @@
 # mlr3torch (development version)
 
+* Fix: `lazy_tensor` columns are now printed correctly inside `data.table`s
+  (previously shown as `<list[2]>`).
+
 # mlr3torch 0.3.3
 
 * Feat: Improve `lazy_tensor` printing.
