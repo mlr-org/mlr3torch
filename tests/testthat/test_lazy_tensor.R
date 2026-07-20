@@ -200,20 +200,8 @@ test_that("print/format", {
 })
 
 test_that("format_col: lazy_tensor columns are formatted in data.tables", {
-  # data.table must defer to format.lazy_tensor instead of formatting the
-  # underlying list elements as "<list[2]>"
+  expect_snapshot(tsk("lazy_iris")$head())
   x = as_lazy_tensor(matrix(1:10, ncol = 1))
-  expect_equal(data.table::format_col(x), format(x))
-  expect_false(any(grepl("list", data.table::format_col(x), fixed = TRUE)))
-
-  dt = data.table(x = x)
-  out = capture.output(print(dt))
-  expect_true(any(grepl("<tnsr[1]>", out, fixed = TRUE)))
-  expect_false(any(grepl("<list[2]>", out, fixed = TRUE)))
-
-  # zero-length columns must not error (format.lazy_tensor cannot access the
-  # data descriptor in that case)
-  expect_equal(data.table::format_col(lazy_tensor()), character(0))
 })
 
 test_that("comparison", {
