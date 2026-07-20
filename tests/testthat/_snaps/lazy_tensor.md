@@ -26,3 +26,17 @@
     Output
       <ltnsr[len=10, shapes=unknown]>
 
+# format_col: lazy_tensor columns are formatted in data.tables
+
+    Code
+      tsk("lazy_iris")$head()
+    Output
+         Species             x
+          <fctr> <lazy_tensor>
+      1:  setosa     <tnsr[4]>
+      2:  setosa     <tnsr[4]>
+      3:  setosa     <tnsr[4]>
+      4:  setosa     <tnsr[4]>
+      5:  setosa     <tnsr[4]>
+      6:  setosa     <tnsr[4]>
+
