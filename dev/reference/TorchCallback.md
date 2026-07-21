@@ -168,7 +168,7 @@ torch_callback = t_clbk("checkpoint",
 torch_callback
 #> <TorchCallback:checkpoint> Checkpoint
 #> * Generator: CallbackSetCheckpoint
-#> * Parameters: path=/tmp/Rtmp8HeZu1/file1e6f1b06a20d, freq=1
+#> * Parameters: path=/tmp/RtmpAbMMpC/file1c025a93e0ed, freq=1
 #> * Packages: mlr3torch,torch
 torch_callback$label
 #> [1] "Checkpoint"
