@@ -221,3 +221,29 @@ test_that("informative errors for unsupported input", {
   expect_error(learner$train(tsk("lazy_iris")), "lazy_tensor")
   expect_error(learner$train(nano_imagenet()), "lazy_tensor")
 })
+
+test_that("categorical cardinalities follow the ingress column order", {
+  # Regression test: `Task$feature_names` and `Task$feature_types` are not always in the
+  # same order (e.g. after `po("scale")`, which moves the scaled numerics to the front).
+  # Deriving the categorical features by subsetting `feature_names` with a mask built from
+  # `feature_types` therefore misaligned the cardinalities with the actual columns, which
+  # made the one-hot encoding index out of range ("Class values must be smaller than
+  # num_classes").
+  task = tsk("german_credit")$filter(1:100)
+  scaled = po("scale", affect_columns = selector_type(c("integer", "numeric")))$train(list(task))[[1L]]
+  expect_false(identical(scaled$feature_names, scaled$feature_types$id))
+
+  features = ingress_categ()$features(scaled)
+  expected = lengths(scaled$levels(features))[features]
+  expected[expected == 0L] = 2L
+  expect_equal(tabm_cardinalities(scaled), as.integer(expected))
+
+  # and it actually trains inside a graph that reorders the columns
+  learner = lrn("classif.tabm", epochs = 1L, batch_size = 32L, k = 2L, n_blocks = 1L,
+    d_block = 8L, predict_type = "prob")
+  glrn = as_learner(
+    po("scale", affect_columns = selector_type(c("integer", "numeric"))) %>>% po("learner", learner)
+  )
+  glrn$train(task)
+  expect_prediction(glrn$predict(task))
+})

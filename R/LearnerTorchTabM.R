@@ -626,11 +626,14 @@ tabm_wrap_loss = function(loss) {
 # The learner
 # --------------------------------------------------------------------------------------
 
-# The categorical cardinalities in the column order produced by
-# `selector_type(c("factor", "ordered", "logical"))`, i.e. in task feature order.
+# The categorical cardinalities in the column order produced by `ingress_categ()`.
+# NB: we must ask the ingress token for the feature order, *not* subset `task$feature_names`
+# by a mask built from `task$feature_types`: those two are not always in the same order
+# (e.g. after `po("scale")`), which would silently misalign the cardinalities with the
+# columns and make the one-hot encoding index out of range.
 # `Task$levels()` returns `NULL` for logical features, whose cardinality is 2.
 tabm_cardinalities = function(task) {
-  categ = task$feature_names[task$feature_types$type %in% c("factor", "ordered", "logical")]
+  categ = ingress_categ()$features(task)
   if (!length(categ)) {
     return(integer(0))
   }

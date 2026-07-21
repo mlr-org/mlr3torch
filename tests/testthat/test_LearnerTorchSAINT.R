@@ -196,3 +196,26 @@ test_that("informative errors for unsupported input", {
   expect_error(nn_saint(n_features_num = 1L, cardinalities = 1L, d_out = 1L,
     attention_type = "rowcol"), "attention_type")
 })
+
+test_that("works inside a graph that reorders the feature columns", {
+  # `po("scale")` moves the scaled numerics to the front, so `Task$feature_names` and
+  # `Task$feature_types` end up in different orders. The categorical cardinalities must
+  # follow the order that `ingress_categ()` produces, not `feature_names`.
+  task = tsk("german_credit")$filter(1:100)
+  scaled = po("scale", affect_columns = selector_type(c("integer", "numeric")))$train(list(task))[[1L]]
+  expect_false(identical(scaled$feature_names, scaled$feature_types$id))
+
+  info = saint_categ_info(scaled)
+  features = ingress_categ()$features(scaled)
+  expected = ifelse(scaled$feature_types[get("id") %in% features][match(features, get("id")), get("type")] == "logical",
+    2L, lengths(scaled$levels(features))[features])
+  expect_equal(info$cardinalities, as.integer(expected))
+
+  learner = invoke(lrn, "classif.saint", epochs = 1L, batch_size = 32L,
+    .args = small(attention_type = "col"))
+  glrn = as_learner(
+    po("scale", affect_columns = selector_type(c("integer", "numeric"))) %>>% po("learner", learner)
+  )
+  glrn$train(task)
+  expect_prediction(glrn$predict(task))
+})

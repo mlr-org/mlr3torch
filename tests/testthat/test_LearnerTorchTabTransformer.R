@@ -164,3 +164,23 @@ test_that("error messages", {
   expect_error(nn_tab_transformer(cardinalities = integer(0), n_features_num = 0, d_out = 1),
     "at least one feature")
 })
+
+test_that("works inside a graph that reorders the feature columns", {
+  # `po("scale")` moves the scaled numerics to the front, so `Task$feature_names` and
+  # `Task$feature_types` end up in different orders. The categorical cardinalities must
+  # follow the order that `ingress_categ()` produces, not `feature_names`.
+  task = tsk("german_credit")$filter(1:100)
+  scaled = po("scale", affect_columns = selector_type(c("integer", "numeric")))$train(list(task))[[1L]]
+  expect_false(identical(scaled$feature_names, scaled$feature_types$id))
+
+  features = ingress_categ()$features(scaled)
+  expect_equal(names(categ_cardinalities(scaled)), features)
+
+  learner = lrn("classif.tab_transformer", epochs = 1L, batch_size = 32L, d_token = 8L,
+    depth = 1L, n_heads = 2L, dim_head = 4L, predict_type = "prob")
+  glrn = as_learner(
+    po("scale", affect_columns = selector_type(c("integer", "numeric"))) %>>% po("learner", learner)
+  )
+  glrn$train(task)
+  expect_prediction(glrn$predict(task))
+})
