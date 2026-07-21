@@ -136,6 +136,16 @@ bibentries = c(# nolint start
     archivePrefix = "arXiv",
     primaryClass = "cs.LG",
     url = "https://arxiv.org/abs/2002.05202"
+  ),
+  somepalli2021saint = bibentry("inproceedings",
+    title        = "SAINT: Improved Neural Networks for Tabular Data via Row Attention and Contrastive Pre-Training",
+    author       = "Gowthami Somepalli and Avi Schwarzschild and Micah Goldblum and C. Bayan Bruss and Tom Goldstein",
+    booktitle    = "NeurIPS 2022 First Table Representation Workshop",
+    year         = "2022",
+    eprint       = "2106.01342",
+    archivePrefix = "arXiv",
+    primaryClass = "cs.LG",
+    url          = "https://arxiv.org/abs/2106.01342"
   )
 ) # nolint end
 
