@@ -53,7 +53,7 @@ as \verb{(sequence, batch, feature)} (\code{FALSE}).
 Default is \code{FALSE}, as in \code{torch}.
 \item \code{avg_weights} :: \code{logical(1)}\cr
 Whether the returned attention weights are averaged over the attention heads.
-Default is \code{TRUE}. Only has an effect when the construction argument \code{outnum} is 2.
+Default is \code{TRUE}. Only has an effect when the construction argument \code{need_weights} is \code{TRUE}.
 }
 
 Note that \code{embed_dim}, \code{kdim} and \code{vdim} are \emph{not} parameters, as they are inferred from the
@@ -62,21 +62,22 @@ shapes of the input tensors.
 
 \section{Input and Output Channels}{
 
-The number of input channels is determined by the construction argument \code{innum}:
+The number of input channels is determined by the construction argument \code{mode}:
 \itemize{
-\item \code{innum = 1} (default): one input channel \code{"input"}, which is used as query, key and value,
+\item \code{mode = "self"} (default): one input channel \code{"input"}, which is used as query, key and value,
 i.e. the \code{PipeOp} performs \emph{self-attention}.
-\item \code{innum = 2}: input channels \code{"query"} and \code{"key_value"}, i.e. the \code{PipeOp} performs
+\item \code{mode = "cross"}: input channels \code{"query"} and \code{"key_value"}, i.e. the \code{PipeOp} performs
 \emph{cross-attention}, where the second input is used as both key and value.
-\item \code{innum = 3}: input channels \code{"query"}, \code{"key"} and \code{"value"}, i.e. the \code{PipeOp} performs
+\item \code{mode = "general"}: input channels \code{"query"}, \code{"key"} and \code{"value"}, i.e. the \code{PipeOp} performs
 \emph{cross-attention} with separate key and value inputs.
 }
 
-The number of output channels is determined by the construction argument \code{outnum}:
+The number of output channels is determined by the construction argument \code{need_weights}:
 \itemize{
-\item \code{outnum = 1} (default): one output channel \code{"output"}, containing the attention output.
-\item \code{outnum = 2}: output channels \code{"output"} and \code{"weights"}, where the latter contains the
-attention weights.
+\item \code{need_weights = FALSE} (default): one output channel \code{"output"}, containing the attention
+output.
+\item \code{need_weights = TRUE}: output channels \code{"output"} and \code{"weights"}, where the latter contains
+the attention weights.
 }
 
 For an explanation see \code{\link{PipeOpTorch}}.
@@ -134,8 +135,8 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchMultiheadAttention$new(
   id = "nn_multihead_attention",
-  innum = 1,
-  outnum = 1,
+  mode = "self",
+  need_weights = FALSE,
   param_vals = list()
 )}\if{html}{\out{</div>}}
 }
@@ -146,18 +147,20 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \item{\code{id}}{(\code{character(1)})\cr
 Identifier of the resulting  object.}
 
-\item{\code{innum}}{(\code{integer(1)})\cr
-The number of input channels, which must be between 1 and 3.
+\item{\code{mode}}{(\code{character(1)})\cr
+The attention mode, which determines the input channels. One of \code{"self"}, \code{"cross"} or
+\code{"general"}.
 This is a \emph{construction} argument (and not a hyperparameter), because it determines the
 structure of the \code{\link[mlr3pipelines:Graph]{Graph}}.
-The default is 1, which means that the \code{PipeOp} performs self-attention.
+The default is \code{"self"}, which means that the \code{PipeOp} performs self-attention.
 See section \emph{Input and Output Channels} for more information.}
 
-\item{\code{outnum}}{(\code{integer(1)})\cr
-The number of output channels, which must be 1 or 2.
+\item{\code{need_weights}}{(\code{logical(1)})\cr
+Whether the attention weights are returned in addition to the attention output, i.e. whether
+there is a second output channel \code{"weights"}.
 This is a \emph{construction} argument (and not a hyperparameter), because it determines the
 structure of the \code{\link[mlr3pipelines:Graph]{Graph}}.
-The default is 1, which means that only the attention output is returned.
+The default is \code{FALSE}, which means that only the attention output is returned.
 See section \emph{Input and Output Channels} for more information.}
 
 \item{\code{param_vals}}{(\code{list()})\cr

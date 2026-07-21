@@ -110,24 +110,25 @@ nn_attention = nn_module(
 #'   Default is `FALSE`, as in `torch`.
 #' * `avg_weights` :: `logical(1)`\cr
 #'   Whether the returned attention weights are averaged over the attention heads.
-#'   Default is `TRUE`. Only has an effect when the construction argument `outnum` is 2.
+#'   Default is `TRUE`. Only has an effect when the construction argument `need_weights` is `TRUE`.
 #'
 #' Note that `embed_dim`, `kdim` and `vdim` are *not* parameters, as they are inferred from the
 #' shapes of the input tensors.
 #'
 #' @section Input and Output Channels:
-#' The number of input channels is determined by the construction argument `innum`:
-#' * `innum = 1` (default): one input channel `"input"`, which is used as query, key and value,
+#' The number of input channels is determined by the construction argument `mode`:
+#' * `mode = "self"` (default): one input channel `"input"`, which is used as query, key and value,
 #'   i.e. the `PipeOp` performs *self-attention*.
-#' * `innum = 2`: input channels `"query"` and `"key_value"`, i.e. the `PipeOp` performs
+#' * `mode = "cross"`: input channels `"query"` and `"key_value"`, i.e. the `PipeOp` performs
 #'   *cross-attention*, where the second input is used as both key and value.
-#' * `innum = 3`: input channels `"query"`, `"key"` and `"value"`, i.e. the `PipeOp` performs
+#' * `mode = "general"`: input channels `"query"`, `"key"` and `"value"`, i.e. the `PipeOp` performs
 #'   *cross-attention* with separate key and value inputs.
 #'
-#' The number of output channels is determined by the construction argument `outnum`:
-#' * `outnum = 1` (default): one output channel `"output"`, containing the attention output.
-#' * `outnum = 2`: output channels `"output"` and `"weights"`, where the latter contains the
-#'   attention weights.
+#' The number of output channels is determined by the construction argument `need_weights`:
+#' * `need_weights = FALSE` (default): one output channel `"output"`, containing the attention
+#'   output.
+#' * `need_weights = TRUE`: output channels `"output"` and `"weights"`, where the latter contains
+#'   the attention weights.
 #'
 #' For an explanation see [`PipeOpTorch`].
 #'
@@ -159,32 +160,29 @@ PipeOpTorchMultiheadAttention = R6Class("PipeOpTorchMultiheadAttention",
   public = list(
     #' @description Creates a new instance of this [R6][R6::R6Class] class.
     #' @template params_pipelines
-    #' @param innum (`integer(1)`)\cr
-    #'   The number of input channels, which must be between 1 and 3.
+    #' @param mode (`character(1)`)\cr
+    #'   The attention mode, which determines the input channels. One of `"self"`, `"cross"` or
+    #'   `"general"`.
     #'   This is a *construction* argument (and not a hyperparameter), because it determines the
     #'   structure of the [`Graph`][mlr3pipelines::Graph].
-    #'   The default is 1, which means that the `PipeOp` performs self-attention.
+    #'   The default is `"self"`, which means that the `PipeOp` performs self-attention.
     #'   See section *Input and Output Channels* for more information.
-    #' @param outnum (`integer(1)`)\cr
-    #'   The number of output channels, which must be 1 or 2.
+    #' @param need_weights (`logical(1)`)\cr
+    #'   Whether the attention weights are returned in addition to the attention output, i.e. whether
+    #'   there is a second output channel `"weights"`.
     #'   This is a *construction* argument (and not a hyperparameter), because it determines the
     #'   structure of the [`Graph`][mlr3pipelines::Graph].
-    #'   The default is 1, which means that only the attention output is returned.
+    #'   The default is `FALSE`, which means that only the attention output is returned.
     #'   See section *Input and Output Channels* for more information.
-    initialize = function(id = "nn_multihead_attention", innum = 1, outnum = 1, param_vals = list()) {
-      assert_int(innum, lower = 1, upper = 3)
-      assert_int(outnum, lower = 1, upper = 2)
-      private$.innum = as.integer(innum)
-      private$.outnum = as.integer(outnum)
-      inname = switch(private$.innum,
-        "input",
-        c("query", "key_value"),
-        c("query", "key", "value")
+    initialize = function(id = "nn_multihead_attention", mode = "self", need_weights = FALSE, param_vals = list()) {
+      private$.mode = assert_choice(mode, c("self", "cross", "general"))
+      private$.need_weights = assert_flag(need_weights)
+      inname = switch(private$.mode,
+        self = "input",
+        cross = c("query", "key_value"),
+        general = c("query", "key", "value")
       )
-      outname = switch(private$.outnum,
-        "output",
-        c("output", "weights")
-      )
+      outname = if (private$.need_weights) c("output", "weights") else "output"
       param_set = ps(
         num_heads = p_int(lower = 1L, tags = c("train", "required")),
         dropout = p_dbl(lower = 0, upper = 1, default = 0, tags = "train"),
@@ -207,21 +205,26 @@ PipeOpTorchMultiheadAttention = R6Class("PipeOpTorchMultiheadAttention",
     }
   ),
   private = list(
-    .innum = NULL,
-    .outnum = NULL,
-    .additional_phash_input = function() {
-      list(private$.innum, private$.outnum)
+    .mode = NULL,
+    .need_weights = NULL,
+    # index of the value input channel: query/key/value for "general", query/key_value for "cross",
+    # and the single "input" channel for "self"
+    .value_index = function() {
+      switch(private$.mode, self = 1L, cross = 2L, general = 3L)
     },
-    # the shape of the key input, which for `innum == 1` is the query itself
+    .additional_phash_input = function() {
+      list(private$.mode, private$.need_weights)
+    },
+    # the shape of the key input, which for `mode == "self"` is the query itself
     .key_shape = function(shapes_in) {
-      if (private$.innum == 1L) shapes_in[[1L]] else shapes_in[[2L]]
+      if (private$.mode == "self") shapes_in[[1L]] else shapes_in[[2L]]
     },
     # whether torch takes the `qkv_same_embed_dim_` branch, which is the only one that forwards
     # `avg_weights` to `nnf_multi_head_attention_forward()`
     .qkv_same_embed_dim = function(shapes_in) {
       embed_dim = tail(shapes_in[[1L]], 1L)
       kdim = tail(private$.key_shape(shapes_in), 1L)
-      vdim = tail(shapes_in[[private$.innum]], 1L)
+      vdim = tail(shapes_in[[private$.value_index()]], 1L)
       isTRUE(kdim == embed_dim) && isTRUE(vdim == embed_dim)
     },
     .shapes_out = function(shapes_in, param_vals, task) {
@@ -239,7 +242,7 @@ PipeOpTorchMultiheadAttention = R6Class("PipeOpTorchMultiheadAttention",
         stopf("PipeOpTorchMultiheadAttention: the embedding dimension (%i) must be divisible by 'num_heads' (%i).", embed_dim, param_vals$num_heads) # nolint
       }
       # the attention output has the same shape as the query, in both layouts
-      if (private$.outnum == 1L) {
+      if (!private$.need_weights) {
         return(list(query_shape))
       }
 
@@ -262,12 +265,12 @@ PipeOpTorchMultiheadAttention = R6Class("PipeOpTorchMultiheadAttention",
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {
       param_vals$embed_dim = tail(shapes_in[[1L]], 1L)
-      if (private$.innum > 1L) {
-        # for innum == 2, the second channel provides both the keys and the values
+      if (private$.mode != "self") {
+        # for mode == "cross", the second channel provides both the keys and the values
         param_vals$kdim = tail(shapes_in[[2L]], 1L)
-        param_vals$vdim = tail(shapes_in[[private$.innum]], 1L)
+        param_vals$vdim = tail(shapes_in[[private$.value_index()]], 1L)
       }
-      param_vals$need_weights = private$.outnum == 2L
+      param_vals$need_weights = private$.need_weights
       param_vals
     }
   )

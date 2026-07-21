@@ -9,55 +9,54 @@ test_that("PipeOpTorchMultiheadAttention works for self-attention", {
 
 test_that("PipeOpTorchMultiheadAttention paramtest", {
   po_attention = po("nn_multihead_attention", num_heads = 2)
-  # embed_dim, kdim and vdim are inferred from the input shapes, need_weights is derived from outnum
+  # embed_dim, kdim and vdim are inferred from the input shapes, need_weights is a construction arg
   res = expect_paramset(po_attention, nn_attention,
     exclude = c("embed_dim", "kdim", "vdim", "need_weights"))
   expect_paramtest(res)
 })
 
-test_that("PipeOpTorchMultiheadAttention innum determines the input channels", {
+test_that("PipeOpTorchMultiheadAttention mode determines the input channels", {
   po1 = po("nn_multihead_attention", num_heads = 2)
   expect_equal(po1$input$name, "input")
 
-  po2 = po("nn_multihead_attention", innum = 2, num_heads = 2)
+  po2 = po("nn_multihead_attention", mode = "cross", num_heads = 2)
   expect_equal(po2$input$name, c("query", "key_value"))
 
-  po3 = po("nn_multihead_attention", innum = 3, num_heads = 2)
+  po3 = po("nn_multihead_attention", mode = "general", num_heads = 2)
   expect_equal(po3$input$name, c("query", "key", "value"))
 
-  # innum is a construction argument and not a hyperparameter
-  expect_true("innum" %nin% po1$param_set$ids())
+  # mode is a construction argument and not a hyperparameter
+  expect_true("mode" %nin% po1$param_set$ids())
 
-  expect_error(po("nn_multihead_attention", innum = 0), "innum")
-  expect_error(po("nn_multihead_attention", innum = 4), "innum")
+  expect_error(po("nn_multihead_attention", mode = "bogus"), "mode")
 })
 
-test_that("PipeOpTorchMultiheadAttention outnum determines the output channels", {
+test_that("PipeOpTorchMultiheadAttention need_weights determines the output channels", {
   po1 = po("nn_multihead_attention", num_heads = 2)
   expect_equal(po1$output$name, "output")
 
-  po2 = po("nn_multihead_attention", outnum = 2, num_heads = 2)
+  po2 = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2)
   expect_equal(po2$output$name, c("output", "weights"))
 
-  # outnum is a construction argument and not a hyperparameter
-  expect_true("outnum" %nin% po1$param_set$ids())
+  # need_weights is a construction argument and not a hyperparameter
+  expect_true("need_weights" %nin% po1$param_set$ids())
 
-  expect_error(po("nn_multihead_attention", outnum = 0), "outnum")
-  expect_error(po("nn_multihead_attention", outnum = 3), "outnum")
+  expect_error(po("nn_multihead_attention", need_weights = 2), "need_weights")
 })
 
-test_that("PipeOpTorchMultiheadAttention innum and outnum influence the phash", {
+test_that("PipeOpTorchMultiheadAttention mode and need_weights influence the phash", {
   po1 = po("nn_multihead_attention", num_heads = 2)
-  po2 = po("nn_multihead_attention", innum = 2, num_heads = 2)
-  po3 = po("nn_multihead_attention", innum = 3, num_heads = 2)
-  po4 = po("nn_multihead_attention", outnum = 2, num_heads = 2)
-  po5 = po("nn_multihead_attention", innum = 2, outnum = 2, num_heads = 2)
+  po2 = po("nn_multihead_attention", mode = "cross", num_heads = 2)
+  po3 = po("nn_multihead_attention", mode = "general", num_heads = 2)
+  po4 = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2)
+  po5 = po("nn_multihead_attention", mode = "cross", need_weights = TRUE, num_heads = 2)
 
   hashes = c(po1$phash, po2$phash, po3$phash, po4$phash, po5$phash)
   expect_equal(length(unique(hashes)), 5L)
 
   expect_equal(po1$phash, po("nn_multihead_attention", num_heads = 2)$phash)
-  expect_equal(po5$phash, po("nn_multihead_attention", innum = 2, outnum = 2, num_heads = 2)$phash)
+  expect_equal(po5$phash,
+    po("nn_multihead_attention", mode = "cross", need_weights = TRUE, num_heads = 2)$phash)
 })
 
 test_that("PipeOpTorchMultiheadAttention shapes_out for the output channel", {
