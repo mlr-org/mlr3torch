@@ -1,5 +1,8 @@
 # mlr3torch (development version)
 
+* Feat: Added the `TabM` learner (`lrn("classif.tabm")` / `lrn("regr.tabm")`) and the
+  corresponding `nn_tabm()` module, a port of the official TabM reference implementation.
+
 # mlr3torch 0.3.3
 
 * Feat: Improve `lazy_tensor` printing.
