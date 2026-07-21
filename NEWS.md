@@ -5,6 +5,8 @@
 * Feat: Added the SAINT learner (`lrn("classif.saint")`, `lrn("regr.saint")`) and the
   corresponding network `nn_saint()`, a port of the supervised path of the official
   implementation (https://github.com/somepago/saint).
+* Feat: Added the TabTransformer architecture as `lrn("classif.tab_transformer")` /
+  `lrn("regr.tab_transformer")` and the corresponding module generator `nn_tab_transformer()`.
 
 # mlr3torch 0.3.3
 
