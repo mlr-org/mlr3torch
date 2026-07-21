@@ -2,6 +2,9 @@
 
 * Feat: Added the `TabM` learner (`lrn("classif.tabm")` / `lrn("regr.tabm")`) and the
   corresponding `nn_tabm()` module, a port of the official TabM reference implementation.
+* Feat: Added the SAINT learner (`lrn("classif.saint")`, `lrn("regr.saint")`) and the
+  corresponding network `nn_saint()`, a port of the supervised path of the official
+  implementation (https://github.com/somepago/saint).
 
 # mlr3torch 0.3.3
 
