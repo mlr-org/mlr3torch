@@ -32,6 +32,36 @@ test_that("nn_saint works with only numeric or only categorical features", {
     "at least one feature")
 })
 
+test_that("the CLS token is a constant learned embedding", {
+  # Upstream emulates the CLS token by prepending a constant categorical column of cardinality 1,
+  # so token 0 of the sequence is always the same learned embedding, independent of the data.
+  # Here it is an explicit parameter; this test asserts the defining property.
+  net = invoke(nn_saint, n_features_num = 2L, cardinalities = c(3L, 4L), d_out = 2L, .args = small())
+  net$eval()
+  net$transformer = nn_identity()
+  out1 = net(x_num = torch_randn(4, 2), x_cat = torch_ones(4, 2, dtype = torch_long()))
+  out2 = net(x_num = torch_randn(4, 2), x_cat = torch_ones(4, 2, dtype = torch_long()) * 2L)
+  expected = net$head(net$cls_token$view(c(1L, -1L)))
+  expect_true(as.logical(torch_allclose(out1, out2)))
+  expect_true(as.logical(torch_allclose(out1[1, ], expected[1, ])))
+})
+
+test_that("nn_saint can be traced with jit_trace and generalizes over batch sizes", {
+  for (at in c("col", "row", "colrow")) {
+    net = invoke(nn_saint, n_features_num = 2L, cardinalities = c(3L, 4L), d_out = 2L,
+      .args = small(attention_type = at))
+    net$eval()
+    x_num = torch_randn(6, 2)
+    x_cat = torch_ones(6, 2, dtype = torch_long())
+    traced = jit_trace(net, x_num, x_cat)
+    for (b in c(6L, 1L, 5L)) {
+      xn = torch_randn(b, 2)
+      xc = torch_ones(b, 2, dtype = torch_long())
+      expect_true(as.logical(torch_allclose(traced(xn, xc), net(xn, xc))))
+    }
+  }
+})
+
 test_that("nn_saint can be constructed from a task", {
   task = tsk("german_credit")
   net = invoke(nn_saint, task = task, .args = small())
@@ -98,6 +128,20 @@ test_that("all attention types can be trained", {
       .args = small(attention_type = at))
     expect_error(learner$train(tsk("iris")), regexp = NA)
     expect_prediction(learner$predict(tsk("iris")))
+  }
+})
+
+test_that("the learner can be trained with jit_trace", {
+  # 150 rows with batch_size 32 gives a ragged final batch, which is where a baked-in batch size
+  # would show up
+  task = tsk("german_credit")$filter(1:150)
+  for (at in c("col", "row", "colrow")) {
+    learner = invoke(lrn, "classif.saint", epochs = 1L, batch_size = 32L, jit_trace = TRUE,
+      .args = small(attention_type = at))
+    expect_error(learner$train(task), regexp = NA)
+    pred = learner$predict(task)
+    expect_prediction(pred)
+    expect_equal(length(pred$response), 150L)
   }
 })
 

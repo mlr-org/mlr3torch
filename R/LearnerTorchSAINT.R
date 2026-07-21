@@ -61,6 +61,11 @@
 # * Not ported: upstream standardizes the numeric features with the training mean / standard
 #   deviation inside `DataSetCatCon`. In mlr3 this belongs into a preprocessing pipeline
 #   (`po("scale")`), so it is not part of the network.
+# * Shape handling: upstream uses `einops.rearrange()` with explicit sizes. Here the equivalent
+#   reshapes are written so that the batch size stays symbolic (`unflatten()` / `flatten()` /
+#   `reshape(-1, ...)` / `expand_as()`) so that the network can be traced with `jit_trace()` and
+#   reused with a different batch size (`jittable = TRUE`). This does not change the numerics --
+#   the equivalence check against PyTorch is exact for all three attention types.
 # ------------------------------------------------------------------------------------------------
 
 # GEGLU (models/model.py::GEGLU)
@@ -95,17 +100,18 @@ nn_saint_attention = nn_module("nn_saint_attention",
   initialize = function(dim, heads = 8L, dim_head = 16L, dropout = 0) {
     inner_dim = dim_head * heads
     self$heads = heads
+    self$dim_head = dim_head
     self$scale = dim_head^(-0.5)
     self$to_qkv = nn_linear(dim, inner_dim * 3L, bias = FALSE)
     self$to_out = nn_linear(inner_dim, dim)
   },
   forward = function(input) {
     h = self$heads
+    d = self$dim_head
     qkv = self$to_qkv(input)$chunk(3L, dim = -1L)
-    # rearrange(t, "b n (h d) -> b h n d")
-    split_heads = function(t) {
-      t$view(c(t$shape[1L], t$shape[2L], h, -1L))$permute(c(1L, 3L, 2L, 4L))
-    }
+    # rearrange(t, "b n (h d) -> b h n d"); `unflatten()` keeps the leading dimensions symbolic so
+    # that the module can be traced with `jit_trace()` and reused with other batch sizes.
+    split_heads = function(t) t$unflatten(-1L, c(h, d))$permute(c(1L, 3L, 2L, 4L))
     q = split_heads(qkv[[1L]])
     k = split_heads(qkv[[2L]])
     v = split_heads(qkv[[3L]])
@@ -113,7 +119,7 @@ nn_saint_attention = nn_module("nn_saint_attention",
     attn = nnf_softmax(sim, dim = -1L)
     out = torch_matmul(attn, v)
     # rearrange(out, "b h n d -> b n (h d)")
-    out = out$permute(c(1L, 3L, 2L, 4L))$reshape(c(out$shape[1L], out$shape[3L], -1L))
+    out = out$permute(c(1L, 3L, 2L, 4L))$flatten(start_dim = 3L)
     self$to_out(out)
   }
 )
@@ -212,13 +218,12 @@ nn_saint_rowcol_transformer = nn_module("nn_saint_rowcol_transformer",
         x = self$layers[[off + 1L]](x)
         x = self$layers[[off + 2L]](x)
       }
-      b = x$shape[1L]
-      # rearrange(x, "b n d -> 1 b (n d)")
-      x = x$reshape(c(1L, b, n * d))
+      # rearrange(x, "b n d -> 1 b (n d)"); `-1` keeps the batch size symbolic under `jit_trace()`
+      x = x$reshape(c(1L, -1L, n * d))
       x = self$layers[[off + k - 1L]](x)
       x = self$layers[[off + k]](x)
       # rearrange(x, "1 b (n d) -> b n d")
-      x = x$reshape(c(b, n, d))
+      x = x$reshape(c(-1L, n, d))
     }
     x
   }
@@ -380,18 +385,21 @@ nn_saint = nn_module("nn_saint",
       x_cat = x_num
       x_num = NULL
     }
-    batch_size = if (!is.null(x_num)) x_num$shape[1L] else x_cat$shape[1L]
-    tokens = list(self$cls_token$expand(c(batch_size, 1L, self$d_token)))
+    tokens = list()
     if (self$n_features_categ > 0L) {
       tokens[[length(tokens) + 1L]] = self$categ_embeddings(x_cat + self$categ_offsets)
     }
     if (self$n_features_num > 0L) {
       num_tokens = lapply(seq_len(self$n_features_num), function(i) {
-        self$num_embeddings[[i]](x_num$narrow(2L, i, 1L))
+        # `[` rather than `$narrow()`: `narrow()` does not trace correctly with `jit_trace()`
+        self$num_embeddings[[i]](x_num[, i, drop = FALSE])
       })
       tokens[[length(tokens) + 1L]] = torch_stack(num_tokens, dim = 2L)
     }
     x = if (length(tokens) == 1L) tokens[[1L]] else torch_cat(tokens, dim = 2L)
+    # prepend the CLS token; `expand_as()` derives the batch size from the feature tokens, which
+    # keeps it symbolic under `jit_trace()`
+    x = torch_cat(list(self$cls_token$expand_as(x[, 1L, , drop = FALSE]), x), dim = 2L)
     x = self$transformer(x)
     # upstream: y_reps = reps[:, 0, :]; y_outs = model.mlpfory(y_reps)
     self$head(x[, 1L, ])
@@ -522,11 +530,11 @@ LearnerTorchSAINT = R6Class("LearnerTorchSAINT",
         loss = loss,
         man = "mlr3torch::mlr_learners.saint",
         feature_types = c("numeric", "integer", "logical", "factor", "ordered"),
-        # Not jittable: the CLS token is expanded to the batch size and the intersample attention
-        # folds the batch dimension into the token dimension, both via `x$shape[1L]`.
-        # Verified empirically: `jit_trace()` succeeds but bakes in the batch size of the example
-        # input, and the traced module then errors for any other batch size.
-        jittable = FALSE
+        # Verified empirically for all three attention types (and for ragged final batches):
+        # the traced module reproduces the eager module exactly for batch sizes other than the
+        # one it was traced with. This requires all reshapes to keep the batch size symbolic,
+        # see the comments in `nn_saint_attention` / `nn_saint_rowcol_transformer` / `nn_saint`.
+        jittable = TRUE
       )
     }
   ),
