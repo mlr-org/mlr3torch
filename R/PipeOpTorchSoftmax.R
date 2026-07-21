@@ -27,7 +27,8 @@ PipeOpTorchSoftmax = R6::R6Class("PipeOpTorchSoftmax",
         id = id,
         module_generator = nn_softmax,
         param_set = param_set,
-        param_vals = param_vals
+        param_vals = param_vals,
+        only_batch_unknown = FALSE
       )
     }
   )

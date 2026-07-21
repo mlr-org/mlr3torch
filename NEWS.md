@@ -1,5 +1,13 @@
 # mlr3torch (development version)
 
+* Feat: Many `PipeOp`s now accept input shapes in which dimensions other than the batch
+  dimension are unknown (`NA`). This affects operators that never inspect the unknown
+  dimension when building their module: the activation functions, `nn_dropout`,
+  `nn_identity`, `nn_softmax`, the `nn_merge_*` operators, all pooling operators and the
+  reshaping operators. Previously only the batch dimension was allowed to be unknown.
+  Notably, `nn_adaptive_avg_pool*` can now resolve an unknown input extent to a fully
+  known output shape.
+
 * Feat: Added the `TabM` learner (`lrn("classif.tabm")` / `lrn("regr.tabm")`) and the
   corresponding `nn_tabm()` module, a port of the official TabM reference implementation.
 * Feat: Added the SAINT learner (`lrn("classif.saint")`, `lrn("regr.saint")`) and the

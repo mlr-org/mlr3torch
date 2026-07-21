@@ -29,7 +29,8 @@ PipeOpTorchELU = R6Class("PipeOpTorchELU",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_elu,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -63,7 +64,8 @@ PipeOpTorchHardShrink = R6Class("PipeOpTorchHardShrink",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_hardshrink,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -96,7 +98,8 @@ PipeOpTorchHardSigmoid = R6Class("PipeOpTorchHardSigmoid",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_hardsigmoid,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   )
@@ -790,7 +793,8 @@ PipeOpTorchGLU = R6Class("PipeOpTorchGLU",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_glu,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   ),
@@ -867,7 +871,8 @@ PipeOpTorchReGLU = R6Class("PipeOpTorchReGLU",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_reglu,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   ),
@@ -940,7 +945,8 @@ PipeOpTorchGeGLU = R6Class("PipeOpTorchGeGLU",
         param_set = param_set,
         param_vals = param_vals,
         module_generator = nn_geglu,
-        tags = "activation"
+        tags = "activation",
+        only_batch_unknown = FALSE
       )
     }
   ),
