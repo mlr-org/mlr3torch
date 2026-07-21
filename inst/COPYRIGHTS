@@ -21,3 +21,41 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+
+The TabTransformer implementation in R/LearnerTorchTabTransformer.R was ported from the
+TALENT project (file TALENT/model/models/tabtransformer.py), which comes with the MIT License.
+
+  Project: LAMDA-Tabular/TALENT
+  URL: https://github.com/LAMDA-Tabular/TALENT
+  Commit: 08301d670a7c854bcf3a73298763484ba58eecdb
+
+It was cross-checked against the tab-transformer-pytorch project (file
+tab_transformer_pytorch/tab_transformer_pytorch.py), which also comes with the MIT License.
+
+  Project: lucidrains/tab-transformer-pytorch
+  URL: https://github.com/lucidrains/tab-transformer-pytorch
+  Tag: 0.2.6 (commit 742ac84f3a4dcdfc46b18b6d29db28afaf3048a0)
+
+# MIT License
+
+Copyright (c) 2024 LAMDA-Tabular
+Copyright (c) 2020 Phil Wang
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

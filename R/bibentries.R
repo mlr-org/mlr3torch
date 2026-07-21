@@ -136,6 +136,15 @@ bibentries = c(# nolint start
     archivePrefix = "arXiv",
     primaryClass = "cs.LG",
     url = "https://arxiv.org/abs/2002.05202"
+  ),
+  huang2020tabtransformer = bibentry("misc",
+    title = "TabTransformer: Tabular Data Modeling Using Contextual Embeddings",
+    author = "Xin Huang and Ashish Khetan and Milan Cvitkovic and Zohar Karnin",
+    year = "2020",
+    eprint = "2012.06678",
+    archivePrefix = "arXiv",
+    primaryClass = "cs.LG",
+    url = "https://arxiv.org/abs/2012.06678"
   )
 ) # nolint end
 

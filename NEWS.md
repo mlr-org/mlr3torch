@@ -1,5 +1,8 @@
 # mlr3torch (development version)
 
+* Feat: Added the TabTransformer architecture as `lrn("classif.tab_transformer")` /
+  `lrn("regr.tab_transformer")` and the corresponding module generator `nn_tab_transformer()`.
+
 # mlr3torch 0.3.3
 
 * Feat: Improve `lazy_tensor` printing.

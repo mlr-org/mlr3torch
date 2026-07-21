@@ -107,6 +107,7 @@ Collate:
     'LearnerTorchModel.R'
     'LearnerTorchModule.R'
     'LearnerTorchTabResNet.R'
+    'LearnerTorchTabTransformer.R'
     'LearnerTorchVision.R'
     'ModelDescriptor.R'
     'PipeOpModule.R'
