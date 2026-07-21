@@ -20,7 +20,8 @@ PipeOpTorchIdentity = R6Class("PipeOpTorchIdentity",
         id = id,
         param_set = param_set,
         param_vals = param_vals,
-        module_generator = nn_identity
+        module_generator = nn_identity,
+        only_batch_unknown = FALSE
       )
     }
   ),

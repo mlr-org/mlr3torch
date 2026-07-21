@@ -27,6 +27,7 @@ PipeOpTorchMaxPool = R6Class("PipeOpTorchMaxPool",
         param_vals = param_vals,
         param_set = param_set,
         outname = if (return_indices) c("output", "indices") else "output",
+        only_batch_unknown = FALSE
       )
     }
   ),

@@ -25,7 +25,8 @@ PipeOpTorchReshape = R6Class("PipeOpTorchReshape",
         id = id,
         param_set = param_set,
         param_vals = param_vals,
-        module_generator = nn_reshape
+        module_generator = nn_reshape,
+        only_batch_unknown = FALSE
       )
     }
   ),
@@ -128,7 +129,8 @@ PipeOpTorchUnsqueeze = R6Class("PipeOpTorchUnsqueeze",
         id = id,
         param_set = param_set,
         param_vals = param_vals,
-        module_generator = nn_unsqueeze
+        module_generator = nn_unsqueeze,
+        only_batch_unknown = FALSE
       )
     }
   ),
@@ -176,7 +178,8 @@ PipeOpTorchFlatten = R6Class("PipeOpTorchFlatten",
         id = id,
         param_set = param_set,
         param_vals = param_vals,
-        module_generator = nn_flatten
+        module_generator = nn_flatten,
+        only_batch_unknown = FALSE
       )
     }
   ),

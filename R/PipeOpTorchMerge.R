@@ -39,7 +39,8 @@ PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
         param_set = param_set,
         param_vals = param_vals,
         inname = inname,
-        tags = "abstract"
+        tags = "abstract",
+        only_batch_unknown = FALSE
       )
     }
   ),

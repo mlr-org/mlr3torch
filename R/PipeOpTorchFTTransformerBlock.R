@@ -187,7 +187,8 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
         id = id,
         module_generator = nn_ft_transformer_block,
         param_vals = param_vals,
-        param_set = param_set
+        param_set = param_set,
+        only_batch_unknown = FALSE
       )
     }
   ),

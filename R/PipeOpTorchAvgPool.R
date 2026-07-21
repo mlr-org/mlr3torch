@@ -26,7 +26,8 @@ PipeOpTorchAvgPool = R6Class("PipeOpTorchAvgPool",
         id = id,
         param_vals = param_vals,
         param_set = param_set,
-        module_generator = module_generator
+        module_generator = module_generator,
+        only_batch_unknown = FALSE
       )
     }
   ),
