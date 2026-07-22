@@ -9,7 +9,7 @@
 neural network layers in a \code{\link[mlr3pipelines:Graph]{Graph}}.
 During \strong{training}, it generates a \code{\link{PipeOpModule}} that wraps an \code{\link[torch:nn_module]{nn_module}} and attaches it
 to the architecture, which is also represented as a \code{\link[mlr3pipelines:Graph]{Graph}} consisting mostly of \code{\link{PipeOpModule}}s
-an \code{\link[mlr3pipelines:mlr_pipeops_nop]{PipeOpNOP}}s.
+an \code{\link[mlr3pipelines:PipeOpNOP]{PipeOpNOP}}s.
 
 While the former \code{\link[mlr3pipelines:Graph]{Graph}} operates on \code{\link{ModelDescriptor}}s, the latter operates on \link[torch:torch_tensor]{tensors}.
 
@@ -21,7 +21,7 @@ A crucial difference is that the \code{PipeOpTorch} infers auxiliary parameters 
 \code{\link{ModelDescriptor}}.
 
 During \strong{prediction}, \code{PipeOpTorch} takes in a \code{\link[mlr3:Task]{Task}} in each channel and outputs the same new
-\code{\link[mlr3:Task]{Task}} resulting from their \link[mlr3pipelines:mlr_pipeops_featureunion]{feature union} in each channel.
+\code{\link[mlr3:Task]{Task}} resulting from their \link[mlr3pipelines:PipeOpFeatureUnion]{feature union} in each channel.
 If there is only one input and output channel, the task is simply piped through.
 }
 \section{Parameters}{
@@ -238,59 +238,58 @@ identical(tasks_out[[1L]], tasks_out[[2L]])
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-Other Graph Network: 
-\code{\link{ModelDescriptor}()},
-\code{\link{TorchIngressToken}()},
+Other Graph Network:
+\code{\link[=ModelDescriptor]{ModelDescriptor()}},
+\code{\link[=TorchIngressToken]{TorchIngressToken()}},
 \code{\link{mlr_learners_torch_model}},
 \code{\link{mlr_pipeops_module}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},
 \code{\link{mlr_pipeops_torch_ingress_ltnsr}},
 \code{\link{mlr_pipeops_torch_ingress_num}},
-\code{\link{model_descriptor_to_learner}()},
-\code{\link{model_descriptor_to_module}()},
-\code{\link{model_descriptor_union}()},
-\code{\link{nn_graph}()}
+\code{\link[=model_descriptor_to_learner]{model_descriptor_to_learner()}},
+\code{\link[=model_descriptor_to_module]{model_descriptor_to_module()}},
+\code{\link[=model_descriptor_union]{model_descriptor_union()}},
+\code{\link[=nn_graph]{nn_graph()}}
 }
 \concept{Graph Network}
 \section{Super class}{
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{PipeOpTorch}
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{module_generator}}{(\code{nn_module_generator} or \code{NULL})\cr
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{module_generator}}{(\code{nn_module_generator} or \code{NULL})\cr
 The module generator wrapped by this \code{PipeOpTorch}. If \code{NULL}, the private method
 \code{private$.make_module(shapes_in, param_vals)} must be overwritte, see section 'Inheriting'.
 Do not change this after construction.}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-PipeOpTorch-new}{\code{PipeOpTorch$new()}}
-\item \href{#method-PipeOpTorch-shapes_out}{\code{PipeOpTorch$shapes_out()}}
-\item \href{#method-PipeOpTorch-clone}{\code{PipeOpTorch$clone()}}
+  \itemize{
+    \item \href{#method-PipeOpTorch-initialize}{\code{PipeOpTorch$new()}}
+    \item \href{#method-PipeOpTorch-shapes_out}{\code{PipeOpTorch$shapes_out()}}
+    \item \href{#method-PipeOpTorch-clone}{\code{PipeOpTorch$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-print'><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-print'><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-PipeOpTorch-new"></a>}}
-\if{latex}{\out{\hypertarget{method-PipeOpTorch-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of this \link[R6:R6Class]{R6} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorch$new(
+\if{html}{\out{<a id="method-PipeOpTorch-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-PipeOpTorch-initialize}{}}}
+\subsection{\code{PipeOpTorch$new()}}{
+  Creates a new instance of this \link[R6:R6Class]{R6} class.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipeOpTorch$new(
   id,
   module_generator,
   param_set = ps(),
@@ -300,26 +299,22 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   packages = "torch",
   tags = NULL,
   only_batch_unknown = TRUE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{id}}{(\code{character(1)})\cr
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{id}}{(\code{character(1)})\cr
 Identifier of the resulting  object.}
-
-\item{\code{module_generator}}{(\code{nn_module_generator})\cr
+      \item{\code{module_generator}}{(\code{nn_module_generator})\cr
 The torch module generator.}
-
-\item{\code{param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}})\cr
+      \item{\code{param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}})\cr
 The parameter set.}
-
-\item{\code{param_vals}}{(\code{list()})\cr
+      \item{\code{param_vals}}{(\code{list()})\cr
 List of hyperparameter settings, overwriting the hyperparameter settings that would
 otherwise be set during construction.}
-
-\item{\code{inname}}{(\code{character()})\cr
+      \item{\code{inname}}{(\code{character()})\cr
 The names of the \code{\link[mlr3pipelines:PipeOp]{PipeOp}}'s input channels. These will be the input channels of the generated \code{\link{PipeOpModule}}.
 Unless the wrapped \code{module_generator}'s forward method (if present) has the argument \code{...}, \code{inname} must be
 identical to those argument names in order to avoid any ambiguity.\cr
@@ -327,68 +322,68 @@ If the forward method has the argument \code{...}, the order of the input channe
 will be passed to the wrapped \code{nn_module}.\cr
 If left as \code{NULL} (default), the argument \code{module_generator} must be given and the argument names of the
 \code{modue_generator}'s forward function are set as \code{inname}.}
-
-\item{\code{outname}}{(\code{character()}) \cr
+      \item{\code{outname}}{(\code{character()}) \cr
 The names of the output channels channels. These will be the ouput channels of the generated \code{\link{PipeOpModule}}
 and therefore also the names of the list returned by its \verb{$train()}.
 In case there is more than one output channel, the \code{nn_module} that is constructed by this
 \code{\link[mlr3pipelines:PipeOp]{PipeOp}} during training must return a named \code{list()}, where the names of the list are the
 names out the output channels. The default is \code{"output"}.}
-
-\item{\code{packages}}{(\code{character()})\cr
+      \item{\code{packages}}{(\code{character()})\cr
 The R packages this object depends on.}
-
-\item{\code{tags}}{(\code{character()})\cr
+      \item{\code{tags}}{(\code{character()})\cr
 The tags of the \code{\link[mlr3pipelines:PipeOp]{PipeOp}}. The tags \code{"torch"} is always added.}
-
-\item{\code{only_batch_unknown}}{(\code{logical(1)})\cr
+      \item{\code{only_batch_unknown}}{(\code{logical(1)})\cr
 Whether only the batch dimension can be missing in the input shapes or whether other
 dimensions can also be unknown.
 Default is \code{TRUE}.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipeOpTorch-shapes_out"></a>}}
 \if{latex}{\out{\hypertarget{method-PipeOpTorch-shapes_out}{}}}
-\subsection{Method \code{shapes_out()}}{
-Calculates the output shapes for the given input shapes, parameters and task.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorch$shapes_out(shapes_in, task = NULL)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{shapes_in}}{(\code{list()} of \code{integer()})\cr
+\subsection{\code{PipeOpTorch$shapes_out()}}{
+  Calculates the output shapes for the given input shapes, parameters and task.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipeOpTorch$shapes_out(shapes_in, task = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{shapes_in}}{(\code{list()} of \code{integer()})\cr
 The input input shapes, which must be in the same order as the input channel names of the \code{PipeOp}.}
-
-\item{\code{task}}{(\code{\link[mlr3:Task]{Task}} or \code{NULL})\cr
+      \item{\code{task}}{(\code{\link[mlr3:Task]{Task}} or \code{NULL})\cr
 The task, which is very rarely used (default is \code{NULL}). An exception is \code{\link{PipeOpTorchHead}}.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A named \code{list()} containing the output shapes. The names are the names of the output channels of
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A named \code{list()} containing the output shapes. The names are the names of the output channels of
 the \code{PipeOp}.
+  }
 }
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipeOpTorch-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-PipeOpTorch-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorch$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{PipeOpTorch$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipeOpTorch$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

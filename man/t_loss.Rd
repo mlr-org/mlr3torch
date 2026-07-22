@@ -24,7 +24,7 @@ A \code{\link{TorchLoss}}
 }
 \description{
 Retrieve one or more \code{\link{TorchLoss}}es from \code{\link{mlr3torch_losses}}.
-Works like \code{\link[mlr3:mlr_sugar]{mlr3::lrn()}} and \code{\link[mlr3:mlr_sugar]{mlr3::lrns()}}.
+Works like \code{\link[mlr3:lrn]{mlr3::lrn()}} and \code{\link[mlr3:lrns]{mlr3::lrns()}}.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
@@ -39,17 +39,17 @@ t_losses()
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-Other Torch Descriptor: 
+Other Torch Descriptor:
 \code{\link{TorchCallback}},
 \code{\link{TorchDescriptor}},
 \code{\link{TorchLoss}},
 \code{\link{TorchOptimizer}},
-\code{\link{as_torch_callbacks}()},
-\code{\link{as_torch_loss}()},
-\code{\link{as_torch_optimizer}()},
+\code{\link[=as_torch_callbacks]{as_torch_callbacks()}},
+\code{\link[=as_torch_loss]{as_torch_loss()}},
+\code{\link[=as_torch_optimizer]{as_torch_optimizer()}},
 \code{\link{mlr3torch_losses}},
 \code{\link{mlr3torch_optimizers}},
-\code{\link{t_clbk}()},
-\code{\link{t_opt}()}
+\code{\link[=t_clbk]{t_clbk()}},
+\code{\link[=t_opt]{t_opt()}}
 }
 \concept{Torch Descriptor}

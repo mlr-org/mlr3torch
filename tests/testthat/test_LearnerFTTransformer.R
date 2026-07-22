@@ -137,3 +137,26 @@ test_that("marshaling works (#412)", {
   gc()
   expect_class(lrn$network$buffers[[1L]], "torch_tensor")
 })
+test_that("logical features work", {
+  # Regression test: with the previous 0/1 encoding of logical features, this errored with
+  # "Assertion on 'cardinalities' failed: Element 2 is not >= 1", and would then have indexed
+  # row 0 of the (1-based) categorical embedding.
+  learner = lrn("classif.ft_transformer", epochs = 1L, batch_size = 4L, n_blocks = 1L,
+    d_token = 8L, ffn_d_hidden_multiplier = 2, attention_n_heads = 2L,
+    attention_dropout = 0, ffn_dropout = 0, residual_dropout = 0)
+
+  d = data.frame(
+    y = factor(rep(c("a", "b"), 10)),
+    lg = rep(c(TRUE, FALSE), 10),
+    f = factor(rep(c("x", "y"), 10))
+  )
+  task = mlr3::as_task_classif(d, target = "y")
+  learner$train(task)
+  expect_prediction(learner$predict(task))
+
+  # logical-only task
+  d2 = data.frame(y = factor(rep(c("a", "b"), 10)), lg = rep(c(TRUE, FALSE), 10))
+  learner2 = learner$clone(deep = TRUE)
+  learner2$train(mlr3::as_task_classif(d2, target = "y"))
+  expect_prediction(learner2$predict(mlr3::as_task_classif(d2, target = "y")))
+})

@@ -6,6 +6,8 @@
 \alias{mlr3torch-package}
 \title{mlr3torch: Deep Learning with 'mlr3'}
 \description{
+\if{html}{\figure{logo.svg}{options: style='float: right' alt='logo' width='120'}}
+
 Deep Learning library that extends the mlr3 framework by building upon the 'torch' package. It allows to conveniently build, train, and evaluate deep learning models without having to worry about low level details. Custom architectures can be created using the graph language defined in 'mlr3pipelines'.
 }
 \section{Options}{
@@ -31,6 +33,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Sebastian Fischer \email{sebf.fischer@gmail.com} (\href{https://orcid.org/0000-0002-9609-3197}{ORCID})
   \item Martin Binder \email{mlr.developer@mb706.com}
 }
 

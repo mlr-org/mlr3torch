@@ -7,6 +7,12 @@
   `nn_piecewise_linear_embeddings()` modules (a port of the `rtdl_num_embeddings`
   package), whose bin edges can be computed with the new `compute_bins()`.
 
+## Bug fixes
+
+* `logical()` features are now encoded as `c(1, 2)` by the
+`batchgetter_categ()` and their cardinality is correctly computed.
+* Fix: `lazy_tensor` columns are now again printed correctly inside `data.table`s
+
 # mlr3torch 0.3.3
 
 * Feat: Improve `lazy_tensor` printing.
