@@ -108,7 +108,7 @@ Other Model Configuration:
 
 ### Public methods
 
-- [`PipeOpTorchLoss$new()`](#method-PipeOpTorchLoss-new)
+- [`PipeOpTorchLoss$new()`](#method-PipeOpTorchLoss-initialize)
 
 - [`PipeOpTorchLoss$clone()`](#method-PipeOpTorchLoss-clone)
 
@@ -121,7 +121,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PipeOpTorchLoss$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -152,7 +152,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `PipeOpTorchLoss$clone()`
 
 The objects of this class are cloneable with this method.
 

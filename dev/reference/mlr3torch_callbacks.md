@@ -14,11 +14,6 @@ conveniently retrieve callbacks. Can be converted to a
 mlr3torch_callbacks
 ```
 
-## Format
-
-An object of class `DictionaryMlr3torchCallbacks` (inherits from
-`Dictionary`, `R6`) of length 12.
-
 ## See also
 
 Other Callback:

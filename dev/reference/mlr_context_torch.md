@@ -143,13 +143,13 @@ Other Callback:
 
 ### Public methods
 
-- [`ContextTorch$new()`](#method-ContextTorch-new)
+- [`ContextTorch$new()`](#method-ContextTorch-initialize)
 
 - [`ContextTorch$clone()`](#method-ContextTorch-clone)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `ContextTorch$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -253,7 +253,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `ContextTorch$clone()`
 
 The objects of this class are cloneable with this method.
 

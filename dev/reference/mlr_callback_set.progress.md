@@ -20,14 +20,14 @@ Other Callback:
 
 ## Super class
 
-[`mlr3torch::CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md)
+[`CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md)
 -\> `CallbackSetProgress`
 
 ## Methods
 
 ### Public methods
 
-- [`CallbackSetProgress$new()`](#method-CallbackSetProgress-new)
+- [`CallbackSetProgress$new()`](#method-CallbackSetProgress-initialize)
 
 - [`CallbackSetProgress$on_epoch_begin()`](#method-CallbackSetProgress-on_epoch_begin)
 
@@ -45,13 +45,13 @@ Other Callback:
 
 Inherited methods
 
-- [`mlr3torch::CallbackSet$load_state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-load_state_dict)
-- [`mlr3torch::CallbackSet$print()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-print)
-- [`mlr3torch::CallbackSet$state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-state_dict)
+- [`CallbackSet$load_state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-load_state_dict)
+- [`CallbackSet$print()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-print)
+- [`CallbackSet$state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-state_dict)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `CallbackSetProgress$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -69,7 +69,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `on_epoch_begin()`
+### `CallbackSetProgress$on_epoch_begin()`
 
 Initializes the progress bar for training.
 
@@ -79,7 +79,7 @@ Initializes the progress bar for training.
 
 ------------------------------------------------------------------------
 
-### Method `on_batch_end()`
+### `CallbackSetProgress$on_batch_end()`
 
 Increments the training progress bar.
 
@@ -89,7 +89,7 @@ Increments the training progress bar.
 
 ------------------------------------------------------------------------
 
-### Method `on_before_valid()`
+### `CallbackSetProgress$on_before_valid()`
 
 Creates the progress bar for validation.
 
@@ -99,7 +99,7 @@ Creates the progress bar for validation.
 
 ------------------------------------------------------------------------
 
-### Method `on_batch_valid_end()`
+### `CallbackSetProgress$on_batch_valid_end()`
 
 Increments the validation progress bar.
 
@@ -109,7 +109,7 @@ Increments the validation progress bar.
 
 ------------------------------------------------------------------------
 
-### Method `on_epoch_end()`
+### `CallbackSetProgress$on_epoch_end()`
 
 Prints a summary of the training and validation process.
 
@@ -119,7 +119,7 @@ Prints a summary of the training and validation process.
 
 ------------------------------------------------------------------------
 
-### Method `on_end()`
+### `CallbackSetProgress$on_end()`
 
 Prints the time at the end of training.
 
@@ -129,7 +129,7 @@ Prints the time at the end of training.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `CallbackSetProgress$clone()`
 
 The objects of this class are cloneable with this method.
 
@@ -156,8 +156,8 @@ learner$param_set$set_values(
 )
 
 learner$train(task)
-#> Epoch 1 started (2026-07-21 14:39:11)
-#> Validation for epoch 1 started (2026-07-21 14:39:11)
+#> Epoch 1 started (2026-07-22 07:21:22)
+#> Validation for epoch 1 started (2026-07-22 07:21:22)
 #> 
 #> [Summary epoch 1]
 #> ------------------
@@ -167,8 +167,8 @@ learner$train(task)
 #> Measures (Valid):
 #>  * classif.ce = 0.62
 #> 
-#> Epoch 2 started (2026-07-21 14:39:11)
-#> Validation for epoch 2 started (2026-07-21 14:39:12)
+#> Epoch 2 started (2026-07-22 07:21:23)
+#> Validation for epoch 2 started (2026-07-22 07:21:23)
 #> 
 #> [Summary epoch 2]
 #> ------------------
@@ -178,8 +178,8 @@ learner$train(task)
 #> Measures (Valid):
 #>  * classif.ce = 0.56
 #> 
-#> Epoch 3 started (2026-07-21 14:39:12)
-#> Validation for epoch 3 started (2026-07-21 14:39:12)
+#> Epoch 3 started (2026-07-22 07:21:23)
+#> Validation for epoch 3 started (2026-07-22 07:21:24)
 #> 
 #> [Summary epoch 3]
 #> ------------------
@@ -189,8 +189,8 @@ learner$train(task)
 #> Measures (Valid):
 #>  * classif.ce = 0.44
 #> 
-#> Epoch 4 started (2026-07-21 14:39:12)
-#> Validation for epoch 4 started (2026-07-21 14:39:12)
+#> Epoch 4 started (2026-07-22 07:21:24)
+#> Validation for epoch 4 started (2026-07-22 07:21:25)
 #> 
 #> [Summary epoch 4]
 #> ------------------
@@ -200,8 +200,8 @@ learner$train(task)
 #> Measures (Valid):
 #>  * classif.ce = 0.49
 #> 
-#> Epoch 5 started (2026-07-21 14:39:13)
-#> Validation for epoch 5 started (2026-07-21 14:39:13)
+#> Epoch 5 started (2026-07-22 07:21:25)
+#> Validation for epoch 5 started (2026-07-22 07:21:25)
 #> 
 #> [Summary epoch 5]
 #> ------------------
@@ -211,5 +211,5 @@ learner$train(task)
 #> Measures (Valid):
 #>  * classif.ce = 0.60
 #> 
-#> Finished training for 5 epochs (2026-07-21 14:39:13)
+#> Finished training for 5 epochs (2026-07-22 07:21:25)
 ```

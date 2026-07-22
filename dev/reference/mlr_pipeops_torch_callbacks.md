@@ -45,7 +45,7 @@ Other PipeOp:
 
 ### Public methods
 
-- [`PipeOpTorchCallbacks$new()`](#method-PipeOpTorchCallbacks-new)
+- [`PipeOpTorchCallbacks$new()`](#method-PipeOpTorchCallbacks-initialize)
 
 - [`PipeOpTorchCallbacks$clone()`](#method-PipeOpTorchCallbacks-clone)
 
@@ -58,7 +58,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PipeOpTorchCallbacks$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -94,7 +94,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `PipeOpTorchCallbacks$clone()`
 
 The objects of this class are cloneable with this method.
 

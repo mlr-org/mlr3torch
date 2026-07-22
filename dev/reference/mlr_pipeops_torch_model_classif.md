@@ -108,14 +108,14 @@ Other PipeOps:
 -\>
 [`mlr3pipelines::PipeOpLearner`](https://mlr3pipelines.mlr-org.com/reference/mlr_pipeops_learner.html)
 -\>
-[`mlr3torch::PipeOpTorchModel`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_model.md)
+[`PipeOpTorchModel`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_model.md)
 -\> `PipeOpTorchModelClassif`
 
 ## Methods
 
 ### Public methods
 
-- [`PipeOpTorchModelClassif$new()`](#method-PipeOpTorchModelClassif-new)
+- [`PipeOpTorchModelClassif$new()`](#method-PipeOpTorchModelClassif-initialize)
 
 - [`PipeOpTorchModelClassif$clone()`](#method-PipeOpTorchModelClassif-clone)
 
@@ -128,7 +128,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PipeOpTorchModelClassif$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -152,7 +152,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `PipeOpTorchModelClassif$clone()`
 
 The objects of this class are cloneable with this method.
 
@@ -233,17 +233,17 @@ po_model$state
 #> $optimizer$state$`1`
 #> $optimizer$state$`1`$exp_avg
 #> torch_tensor
-#> -0.0945 -0.0101 -0.3977 -0.2827
-#>  0.2308  0.0748  0.4655  0.2901
-#> -0.1363 -0.0647 -0.0678 -0.0073
+#> -0.1255 -0.0207 -0.4359 -0.2998
+#>  0.2933  0.1021  0.4423  0.2361
+#> -0.1678 -0.0814 -0.0064  0.0637
 #> [ CPUFloatType{3,4} ]
 #> 
 #> $optimizer$state$`1`$exp_avg_sq
 #> torch_tensor
 #> 0.001 *
-#>  0.3691  0.0046  6.5199  3.2844
-#>   2.3640  0.2533  9.0708  3.4669
-#>   1.0054  0.2027  0.6855  0.1052
+#>  0.6469  0.0178  7.8194  3.6893
+#>   3.6957  0.4515  8.2135  2.3065
+#>   1.4025  0.3043  0.5503  0.2811
 #> [ CPUFloatType{3,4} ]
 #> 
 #> $optimizer$state$`1`$max_exp_avg_sq
@@ -260,17 +260,17 @@ po_model$state
 #> $optimizer$state$`2`$exp_avg
 #> torch_tensor
 #> 0.01 *
-#> -8.1132
-#>  8.3302
-#> -0.2170
+#> -8.7256
+#>  7.2725
+#>  1.4531
 #> [ CPUFloatType{3} ]
 #> 
 #> $optimizer$state$`2`$exp_avg_sq
 #> torch_tensor
 #> 0.0001 *
-#>  2.7025
-#>  2.8741
-#>  0.1296
+#>  3.1235
+#>  2.2022
+#>  0.2263
 #> [ CPUFloatType{3} ]
 #> 
 #> $optimizer$state$`2`$max_exp_avg_sq
@@ -356,7 +356,7 @@ po_model$state
 #> 
 #> $train_time
 #> elapsed 
-#>   0.075 
+#>   0.073 
 #> 
 #> $task_hash
 #> [1] "abc694dd29a7a8ce"

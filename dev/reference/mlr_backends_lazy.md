@@ -82,7 +82,7 @@ ordering of the levels in the `col_info` argument.
 
 ### Public methods
 
-- [`DataBackendLazy$new()`](#method-DataBackendLazy-new)
+- [`DataBackendLazy$new()`](#method-DataBackendLazy-initialize)
 
 - [`DataBackendLazy$data()`](#method-DataBackendLazy-data)
 
@@ -100,7 +100,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `DataBackendLazy$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -138,7 +138,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method [`data()`](https://rdrr.io/r/utils/data.html)
+### `DataBackendLazy$data()`
 
 Returns a slice of the data in the specified format. The rows must be
 addressed as vector of primary key values, columns must be referred to
@@ -168,7 +168,7 @@ Accessing the data triggers the construction of the backend.
 
 ------------------------------------------------------------------------
 
-### Method [`head()`](https://rdrr.io/r/utils/head.html)
+### `DataBackendLazy$head()`
 
 Retrieve the first `n` rows. This triggers the construction of the
 backend.
@@ -191,7 +191,7 @@ of the first `n` rows.
 
 ------------------------------------------------------------------------
 
-### Method `distinct()`
+### `DataBackendLazy$distinct()`
 
 Returns a named list of vectors of distinct values for each column
 specified. If `na_rm` is `TRUE`, missing values are removed from the
@@ -227,7 +227,7 @@ Named [`list()`](https://rdrr.io/r/base/list.html) of distinct values.
 
 ------------------------------------------------------------------------
 
-### Method `missings()`
+### `DataBackendLazy$missings()`
 
 Returns the number of missing values per column in the specified slice
 of data. Non-existing rows and columns are silently ignored.
@@ -257,7 +257,7 @@ Total of missing values per column (named
 
 ------------------------------------------------------------------------
 
-### Method [`print()`](https://rdrr.io/r/base/print.html)
+### `DataBackendLazy$print()`
 
 Printer.
 

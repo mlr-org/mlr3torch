@@ -175,19 +175,16 @@ The active stages of this callback set.</p></dd>
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-CallbackSet-print"><code>CallbackSet$print()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-CallbackSet-print"><code>CallbackSet$print()</code></a></p></li>
 <li><p><a href="#method-CallbackSet-state_dict"><code>CallbackSet$state_dict()</code></a></p></li>
 <li><p><a href="#method-CallbackSet-load_state_dict"><code>CallbackSet$load_state_dict()</code></a></p></li>
 <li><p><a href="#method-CallbackSet-clone"><code>CallbackSet$clone()</code></a></p></li>
 </ul></div><p></p><hr><a id="method-CallbackSet-print"></a><div class="section">
-<h3 id="method-print-">Method <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code><a class="anchor" aria-label="anchor" href="#method-print-"></a></h3>
+<h3 id="callbackset-print-"><code>CallbackSet$print()</code><a class="anchor" aria-label="anchor" href="#callbackset-print-"></a></h3>
 <p>Prints the object.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSet</span><span class="op">$</span><span class="fu">print</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>...</code></dt>
 <dd><p>(any)<br>
@@ -197,8 +194,10 @@ Currently unused.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-CallbackSet-state_dict"></a><div class="section">
-<h3 id="method-state-dict-">Method <code>state_dict()</code><a class="anchor" aria-label="anchor" href="#method-state-dict-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-CallbackSet-state_dict"></a><div class="section">
+<h3 id="callbackset-state-dict-"><code>CallbackSet$state_dict()</code><a class="anchor" aria-label="anchor" href="#callbackset-state-dict-"></a></h3>
 <p>Returns information that is kept in the the <code><a href="mlr_learners_torch.html">LearnerTorch</a></code>'s state after training.
 This information should be loadable into the callback using <code>$load_state_dict()</code> to be able to continue training.
 This returns <code>NULL</code> by default.</p><div class="section">
@@ -206,15 +205,14 @@ This returns <code>NULL</code> by default.</p><div class="section">
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSet</span><span class="op">$</span><span class="fu">state_dict</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
+</div>
 
-</div><p></p><hr><a id="method-CallbackSet-load_state_dict"></a><div class="section">
-<h3 id="method-load-state-dict-">Method <code><a href="https://torch.mlverse.org/docs/reference/load_state_dict.html" class="external-link">load_state_dict()</a></code><a class="anchor" aria-label="anchor" href="#method-load-state-dict-"></a></h3>
+<p></p><hr><a id="method-CallbackSet-load_state_dict"></a><div class="section">
+<h3 id="callbackset-load-state-dict-"><code>CallbackSet$load_state_dict()</code><a class="anchor" aria-label="anchor" href="#callbackset-load-state-dict-"></a></h3>
 <p>Loads the state dict into the callback to continue training.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSet</span><span class="op">$</span><span class="fu">load_state_dict</span><span class="op">(</span><span class="va">state_dict</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>state_dict</code></dt>
 <dd><p>(any)<br>
@@ -224,14 +222,14 @@ The state dict as retrieved via <code>$state_dict()</code>.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-CallbackSet-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-CallbackSet-clone"></a><div class="section">
+<h3 id="callbackset-clone-"><code>CallbackSet$clone()</code><a class="anchor" aria-label="anchor" href="#callbackset-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSet</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -241,6 +239,7 @@ The state dict as retrieved via <code>$state_dict()</code>.</p></dd>
 </div>
 
 </div>
+
 
     </div>
 

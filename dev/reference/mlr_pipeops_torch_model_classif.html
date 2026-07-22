@@ -175,35 +175,31 @@ its '$train()<code> method is called on the [</code>Task<code>][mlr3::Task] stor
     </div>
     <div class="section level2">
     <h2 id="super-classes">Super classes<a class="anchor" aria-label="anchor" href="#super-classes"></a></h2>
-    <p><code><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html" class="external-link">mlr3pipelines::PipeOp</a></code> -&gt; <code><a href="https://mlr3pipelines.mlr-org.com/reference/mlr_pipeops_learner.html" class="external-link">mlr3pipelines::PipeOpLearner</a></code> -&gt; <code><a href="mlr_pipeops_torch_model.html">mlr3torch::PipeOpTorchModel</a></code> -&gt; <code>PipeOpTorchModelClassif</code></p>
+    <p><code><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html" class="external-link">mlr3pipelines::PipeOp</a></code> -&gt; <code><a href="https://mlr3pipelines.mlr-org.com/reference/mlr_pipeops_learner.html" class="external-link">mlr3pipelines::PipeOpLearner</a></code> -&gt; <code><a href="mlr_pipeops_torch_model.html">PipeOpTorchModel</a></code> -&gt; <code>PipeOpTorchModelClassif</code></p>
     </div>
     <div class="section level2">
     <h2 id="methods">Methods<a class="anchor" aria-label="anchor" href="#methods"></a></h2>
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-PipeOpTorchModelClassif-new"><code>PipeOpTorchModelClassif$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-PipeOpTorchModelClassif-initialize"><code>PipeOpTorchModelClassif$new()</code></a></p></li>
 <li><p><a href="#method-PipeOpTorchModelClassif-clone"><code>PipeOpTorchModelClassif$clone()</code></a></p></li>
 </ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-help"><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-predict"><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-print"><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-train"><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
-</ul></details></p><hr><a id="method-PipeOpTorchModelClassif-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-predict"><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-print"><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-train"><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
+</ul></details></p><hr><a id="method-PipeOpTorchModelClassif-initialize"></a><div class="section">
+<h3 id="pipeoptorchmodelclassif-new-"><code>PipeOpTorchModelClassif$new()</code><a class="anchor" aria-label="anchor" href="#pipeoptorchmodelclassif-new-"></a></h3>
 <p>Creates a new instance of this <a href="https://r6.r-lib.org/reference/R6Class.html" class="external-link">R6</a> class.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/mlr_pipeops_torch_model_classif.html">PipeOpTorchModelClassif</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="st">"torch_model_classif"</span>, param_vals <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>id</code></dt>
 <dd><p>(<code>character(1)</code>)<br>
 Identifier of the resulting  object.</p></dd>
 
-
-<dt><code>param_vals</code></dt>
+      <dt><code>param_vals</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>)<br>
 List of hyperparameter settings, overwriting the hyperparameter settings that would
 otherwise be set during construction.</p></dd>
@@ -212,14 +208,14 @@ otherwise be set during construction.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-PipeOpTorchModelClassif-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-PipeOpTorchModelClassif-clone"></a><div class="section">
+<h3 id="pipeoptorchmodelclassif-clone-"><code>PipeOpTorchModelClassif$clone()</code><a class="anchor" aria-label="anchor" href="#pipeoptorchmodelclassif-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipeOpTorchModelClassif</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -229,6 +225,7 @@ otherwise be set during construction.</p></dd>
 </div>
 
 </div>
+
 
     </div>
 
@@ -298,17 +295,17 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$exp_avg</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0945 -0.0101 -0.3977 -0.2827</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2308  0.0748  0.4655  0.2901</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1363 -0.0647 -0.0678 -0.0073</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1255 -0.0207 -0.4359 -0.2998</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2933  0.1021  0.4423  0.2361</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1678 -0.0814 -0.0064  0.0637</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3,4} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$exp_avg_sq</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.001 *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.3691  0.0046  6.5199  3.2844</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   2.3640  0.2533  9.0708  3.4669</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1.0054  0.2027  0.6855  0.1052</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.6469  0.0178  7.8194  3.6893</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3.6957  0.4515  8.2135  2.3065</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1.4025  0.3043  0.5503  0.2811</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3,4} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`1`$max_exp_avg_sq</span>
@@ -325,17 +322,17 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$exp_avg</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.01 *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -8.1132</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  8.3302</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.2170</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -8.7256</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7.2725</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1.4531</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$exp_avg_sq</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.0001 *</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2.7025</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2.8741</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1296</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3.1235</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2.2022</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.2263</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{3} ]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $optimizer$state$`2`$max_exp_avg_sq</span>
@@ -421,7 +418,7 @@ otherwise be set during construction.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $train_time</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> elapsed </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.075 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.073 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $task_hash</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "abc694dd29a7a8ce"</span>

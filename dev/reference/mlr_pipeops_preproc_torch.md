@@ -117,7 +117,7 @@ construct.
 
 ### Public methods
 
-- [`PipeOpTaskPreprocTorch$new()`](#method-PipeOpTaskPreprocTorch-new)
+- [`PipeOpTaskPreprocTorch$new()`](#method-PipeOpTaskPreprocTorch-initialize)
 
 - [`PipeOpTaskPreprocTorch$shapes_out()`](#method-PipeOpTaskPreprocTorch-shapes_out)
 
@@ -132,7 +132,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PipeOpTaskPreprocTorch$new()`
 
 Creates a new instance of this
 [`R6`](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -204,7 +204,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `shapes_out()`
+### `PipeOpTaskPreprocTorch$shapes_out()`
 
 Calculates the output shapes that would result in applying the
 preprocessing to one or more lazy tensor columns with the provided
@@ -241,7 +241,7 @@ values that are currently set.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `PipeOpTaskPreprocTorch$clone()`
 
 The objects of this class are cloneable with this method.
 

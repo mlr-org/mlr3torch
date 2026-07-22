@@ -101,43 +101,38 @@ as the model slot is set <em>after</em> the last callback step is executed.</p>
     </div>
     <div class="section level2">
     <h2 id="super-class">Super class<a class="anchor" aria-label="anchor" href="#super-class"></a></h2>
-    <p><code><a href="mlr_callback_set.html">mlr3torch::CallbackSet</a></code> -&gt; <code>CallbackSetCheckpoint</code></p>
+    <p><code><a href="mlr_callback_set.html">CallbackSet</a></code> -&gt; <code>CallbackSetCheckpoint</code></p>
     </div>
     <div class="section level2">
     <h2 id="methods">Methods<a class="anchor" aria-label="anchor" href="#methods"></a></h2>
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-CallbackSetCheckpoint-new"><code>CallbackSetCheckpoint$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-CallbackSetCheckpoint-initialize"><code>CallbackSetCheckpoint$new()</code></a></p></li>
 <li><p><a href="#method-CallbackSetCheckpoint-on_epoch_end"><code>CallbackSetCheckpoint$on_epoch_end()</code></a></p></li>
 <li><p><a href="#method-CallbackSetCheckpoint-on_batch_end"><code>CallbackSetCheckpoint$on_batch_end()</code></a></p></li>
 <li><p><a href="#method-CallbackSetCheckpoint-on_exit"><code>CallbackSetCheckpoint$on_exit()</code></a></p></li>
 <li><p><a href="#method-CallbackSetCheckpoint-clone"><code>CallbackSetCheckpoint$clone()</code></a></p></li>
-</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="load_state_dict"><a href="CallbackSet.html#method-load_state_dict"><code>mlr3torch::CallbackSet$load_state_dict()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href="CallbackSet.html#method-print"><code>mlr3torch::CallbackSet$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="state_dict"><a href="CallbackSet.html#method-state_dict"><code>mlr3torch::CallbackSet$state_dict()</code></a></span></li>
-</ul></details></p><hr><a id="method-CallbackSetCheckpoint-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="load_state_dict"><a href="CallbackSet.html#method-load_state_dict"><code>CallbackSet$load_state_dict()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href="CallbackSet.html#method-print"><code>CallbackSet$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="state_dict"><a href="CallbackSet.html#method-state_dict"><code>CallbackSet$state_dict()</code></a></span></li>
+</ul></details></p><hr><a id="method-CallbackSetCheckpoint-initialize"></a><div class="section">
+<h3 id="callbacksetcheckpoint-new-"><code>CallbackSetCheckpoint$new()</code><a class="anchor" aria-label="anchor" href="#callbacksetcheckpoint-new-"></a></h3>
 <p>Creates a new instance of this <a href="https://r6.r-lib.org/reference/R6Class.html" class="external-link">R6</a> class.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/mlr_callback_set.checkpoint.html">CallbackSetCheckpoint</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">path</span>, <span class="va">freq</span>, freq_type <span class="op">=</span> <span class="st">"epoch"</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>path</code></dt>
 <dd><p>(<code>character(1)</code>)<br>
 The path to a folder where the models are saved.</p></dd>
 
-
-<dt><code>freq</code></dt>
+      <dt><code>freq</code></dt>
 <dd><p>(<code>integer(1)</code>)<br>
 The frequency how often the model is saved.
 Frequency is either per step or epoch, which can be configured through the <code>freq_type</code> parameter.</p></dd>
 
-
-<dt><code>freq_type</code></dt>
+      <dt><code>freq_type</code></dt>
 <dd><p>(<code>character(1)</code>)<br>
 Can be be either <code>"epoch"</code> (default) or <code>"step"</code>.</p></dd>
 
@@ -145,40 +140,43 @@ Can be be either <code>"epoch"</code> (default) or <code>"step"</code>.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-CallbackSetCheckpoint-on_epoch_end"></a><div class="section">
-<h3 id="method-on-epoch-end-">Method <code>on_epoch_end()</code><a class="anchor" aria-label="anchor" href="#method-on-epoch-end-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-CallbackSetCheckpoint-on_epoch_end"></a><div class="section">
+<h3 id="callbacksetcheckpoint-on-epoch-end-"><code>CallbackSetCheckpoint$on_epoch_end()</code><a class="anchor" aria-label="anchor" href="#callbacksetcheckpoint-on-epoch-end-"></a></h3>
 <p>Saves the network and optimizer state dict.
 Does nothing if <code>freq_type</code> or <code>freq</code> are not met.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetCheckpoint</span><span class="op">$</span><span class="fu">on_epoch_end</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
+</div>
 
-</div><p></p><hr><a id="method-CallbackSetCheckpoint-on_batch_end"></a><div class="section">
-<h3 id="method-on-batch-end-">Method <code>on_batch_end()</code><a class="anchor" aria-label="anchor" href="#method-on-batch-end-"></a></h3>
+<p></p><hr><a id="method-CallbackSetCheckpoint-on_batch_end"></a><div class="section">
+<h3 id="callbacksetcheckpoint-on-batch-end-"><code>CallbackSetCheckpoint$on_batch_end()</code><a class="anchor" aria-label="anchor" href="#callbacksetcheckpoint-on-batch-end-"></a></h3>
 <p>Saves the selected objects defined in <code>save</code>.
 Does nothing if freq_type or freq are not met.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetCheckpoint</span><span class="op">$</span><span class="fu">on_batch_end</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
+</div>
 
-</div><p></p><hr><a id="method-CallbackSetCheckpoint-on_exit"></a><div class="section">
-<h3 id="method-on-exit-">Method <code>on_exit()</code><a class="anchor" aria-label="anchor" href="#method-on-exit-"></a></h3>
+<p></p><hr><a id="method-CallbackSetCheckpoint-on_exit"></a><div class="section">
+<h3 id="callbacksetcheckpoint-on-exit-"><code>CallbackSetCheckpoint$on_exit()</code><a class="anchor" aria-label="anchor" href="#callbacksetcheckpoint-on-exit-"></a></h3>
 <p>Saves the learner.</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetCheckpoint</span><span class="op">$</span><span class="fu">on_exit</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
+</div>
 
-</div><p></p><hr><a id="method-CallbackSetCheckpoint-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+<p></p><hr><a id="method-CallbackSetCheckpoint-clone"></a><div class="section">
+<h3 id="callbacksetcheckpoint-clone-"><code>CallbackSetCheckpoint$clone()</code><a class="anchor" aria-label="anchor" href="#callbacksetcheckpoint-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetCheckpoint</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -188,6 +186,7 @@ Does nothing if freq_type or freq are not met.</p><div class="section">
 </div>
 
 </div>
+
 
     </div>
 

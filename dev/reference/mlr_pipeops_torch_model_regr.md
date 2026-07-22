@@ -108,14 +108,14 @@ Other PipeOps:
 -\>
 [`mlr3pipelines::PipeOpLearner`](https://mlr3pipelines.mlr-org.com/reference/mlr_pipeops_learner.html)
 -\>
-[`mlr3torch::PipeOpTorchModel`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_model.md)
+[`PipeOpTorchModel`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_model.md)
 -\> `PipeOpTorchModelRegr`
 
 ## Methods
 
 ### Public methods
 
-- [`PipeOpTorchModelRegr$new()`](#method-PipeOpTorchModelRegr-new)
+- [`PipeOpTorchModelRegr$new()`](#method-PipeOpTorchModelRegr-initialize)
 
 - [`PipeOpTorchModelRegr$clone()`](#method-PipeOpTorchModelRegr-clone)
 
@@ -128,7 +128,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PipeOpTorchModelRegr$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -152,7 +152,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `PipeOpTorchModelRegr$clone()`
 
 The objects of this class are cloneable with this method.
 
@@ -233,16 +233,16 @@ po_model$state
 #> $optimizer$state$`1`
 #> $optimizer$state$`1`$exp_avg
 #> torch_tensor
-#> Columns 1 to 7    0.9816    25.0581    50.5440  2274.5378    19.7504    20.9238  1415.4468
+#> Columns 1 to 7    4.4364    69.2607   154.8137  6675.2808    70.7292    72.6287  3963.7415
 #> 
-#> Columns 8 to 10   99.2114    -0.3048    25.0424
+#> Columns 8 to 10  361.6705     3.8881    79.0814
 #> [ CPUFloatType{1,10} ]
 #> 
 #> $optimizer$state$`1`$exp_avg_sq
 #> torch_tensor
-#> Columns 1 to 6 5.8737e-02  3.9707e+01  1.5068e+02  3.0779e+05  2.2304e+01  2.5214e+01
+#> Columns 1 to 6 1.0916e+00  2.8678e+02  1.3660e+03  2.5661e+06  2.7883e+02  2.9454e+02
 #> 
-#> Columns 7 to 10 1.1917e+05  5.8318e+02  1.1467e-02  3.9216e+01
+#> Columns 7 to 10 9.0454e+05  7.3556e+03  9.8466e-01  3.6584e+02
 #> [ CPUFloatType{1,10} ]
 #> 
 #> $optimizer$state$`1`$max_exp_avg_sq
@@ -258,12 +258,12 @@ po_model$state
 #> $optimizer$state$`2`
 #> $optimizer$state$`2`$exp_avg
 #> torch_tensor
-#>  6.0966
+#>  21.0564
 #> [ CPUFloatType{1} ]
 #> 
 #> $optimizer$state$`2`$exp_avg_sq
 #> torch_tensor
-#>  2.1809
+#>  24.9544
 #> [ CPUFloatType{1} ]
 #> 
 #> $optimizer$state$`2`$max_exp_avg_sq
@@ -354,7 +354,7 @@ po_model$state
 #> 
 #> $train_time
 #> elapsed 
-#>   0.048 
+#>   0.054 
 #> 
 #> $task_hash
 #> [1] "c7c4f02878d51895"

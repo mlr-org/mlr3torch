@@ -6,7 +6,7 @@ is saved as a data.table where the validation measures are prefixed with
 
 ## Super class
 
-[`mlr3torch::CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md)
+[`CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md)
 -\> `CallbackSetHistory`
 
 ## Methods
@@ -27,11 +27,11 @@ is saved as a data.table where the validation measures are prefixed with
 
 Inherited methods
 
-- [`mlr3torch::CallbackSet$print()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-print)
+- [`CallbackSet$print()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-print)
 
 ------------------------------------------------------------------------
 
-### Method `on_begin()`
+### `CallbackSetHistory$on_begin()`
 
 Initializes lists where the train and validation metrics are stored.
 
@@ -41,7 +41,7 @@ Initializes lists where the train and validation metrics are stored.
 
 ------------------------------------------------------------------------
 
-### Method `state_dict()`
+### `CallbackSetHistory$state_dict()`
 
 Converts the lists to data.tables.
 
@@ -51,7 +51,7 @@ Converts the lists to data.tables.
 
 ------------------------------------------------------------------------
 
-### Method [`load_state_dict()`](https://torch.mlverse.org/docs/reference/load_state_dict.html)
+### `CallbackSetHistory$load_state_dict()`
 
 Sets the field `$train` and `$valid` to those contained in the state
 dict.
@@ -69,7 +69,7 @@ dict.
 
 ------------------------------------------------------------------------
 
-### Method `on_before_valid()`
+### `CallbackSetHistory$on_before_valid()`
 
 Add the latest training scores to the history.
 
@@ -79,7 +79,7 @@ Add the latest training scores to the history.
 
 ------------------------------------------------------------------------
 
-### Method `on_epoch_end()`
+### `CallbackSetHistory$on_epoch_end()`
 
 Add the latest validation scores to the history.
 
@@ -89,7 +89,7 @@ Add the latest validation scores to the history.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `CallbackSetHistory$clone()`
 
 The objects of this class are cloneable with this method.
 

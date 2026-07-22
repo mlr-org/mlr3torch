@@ -128,15 +128,14 @@ Other PipeOps:
 
 [`mlr3pipelines::PipeOp`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html)
 -\>
-[`mlr3torch::PipeOpTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch.md)
--\> `mlr3torch::PipeOpTorchConvTranspose` -\>
-`PipeOpTorchConvTranspose1D`
+[`PipeOpTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch.md)
+-\> `PipeOpTorchConvTranspose` -\> `PipeOpTorchConvTranspose1D`
 
 ## Methods
 
 ### Public methods
 
-- [`PipeOpTorchConvTranspose1D$new()`](#method-PipeOpTorchConvTranspose1D-new)
+- [`PipeOpTorchConvTranspose1D$new()`](#method-PipeOpTorchConvTranspose1D-initialize)
 
 - [`PipeOpTorchConvTranspose1D$clone()`](#method-PipeOpTorchConvTranspose1D-clone)
 
@@ -146,11 +145,11 @@ Inherited methods
 - [`mlr3pipelines::PipeOp$predict()`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-predict)
 - [`mlr3pipelines::PipeOp$print()`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-print)
 - [`mlr3pipelines::PipeOp$train()`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-train)
-- [`mlr3torch::PipeOpTorch$shapes_out()`](https://mlr3torch.mlr-org.com/dev/reference/PipeOpTorch.html#method-shapes_out)
+- [`PipeOpTorch$shapes_out()`](https://mlr3torch.mlr-org.com/dev/reference/PipeOpTorch.html#method-shapes_out)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PipeOpTorchConvTranspose1D$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -174,7 +173,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `PipeOpTorchConvTranspose1D$clone()`
 
 The objects of this class are cloneable with this method.
 

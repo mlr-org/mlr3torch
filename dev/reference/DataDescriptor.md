@@ -88,7 +88,7 @@ ModelDescriptor, lazy_tensor
 
 ### Public methods
 
-- [`DataDescriptor$new()`](#method-DataDescriptor-new)
+- [`DataDescriptor$new()`](#method-DataDescriptor-initialize)
 
 - [`DataDescriptor$print()`](#method-DataDescriptor-print)
 
@@ -96,7 +96,7 @@ ModelDescriptor, lazy_tensor
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `DataDescriptor$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -173,7 +173,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method [`print()`](https://rdrr.io/r/base/print.html)
+### `DataDescriptor$print()`
 
 Prints the object
 
@@ -190,7 +190,7 @@ Prints the object
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `DataDescriptor$clone()`
 
 The objects of this class are cloneable with this method.
 
@@ -218,13 +218,13 @@ dd
 #> <DataDescriptor: 1 ops>
 #> * dataset_shapes: [x: (NA,3,3)]
 #> * input_map: (x) -> Graph
-#> * pointer: nop.9ebf74.x.output
+#> * pointer: nop.b79f75.x.output
 #> * shape: [(NA,3,3)]
 # is the same as using the converter:
 as_data_descriptor(ds, list(x = c(NA, 3, 3)))
 #> <DataDescriptor: 1 ops>
 #> * dataset_shapes: [x: (NA,3,3)]
 #> * input_map: (x) -> Graph
-#> * pointer: nop.9ebf74.x.output
+#> * pointer: nop.b79f75.x.output
 #> * shape: [(NA,3,3)]
 ```

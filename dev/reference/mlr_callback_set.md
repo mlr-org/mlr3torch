@@ -122,7 +122,7 @@ Other Callback:
 
 ------------------------------------------------------------------------
 
-### Method [`print()`](https://rdrr.io/r/base/print.html)
+### `CallbackSet$print()`
 
 Prints the object.
 
@@ -139,7 +139,7 @@ Prints the object.
 
 ------------------------------------------------------------------------
 
-### Method `state_dict()`
+### `CallbackSet$state_dict()`
 
 Returns information that is kept in the the
 [`LearnerTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch.md)'s
@@ -153,7 +153,7 @@ This returns `NULL` by default.
 
 ------------------------------------------------------------------------
 
-### Method [`load_state_dict()`](https://torch.mlverse.org/docs/reference/load_state_dict.html)
+### `CallbackSet$load_state_dict()`
 
 Loads the state dict into the callback to continue training.
 
@@ -170,7 +170,7 @@ Loads the state dict into the callback to continue training.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `CallbackSet$clone()`
 
 The objects of this class are cloneable with this method.
 

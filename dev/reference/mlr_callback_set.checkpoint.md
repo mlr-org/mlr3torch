@@ -27,14 +27,14 @@ Other Callback:
 
 ## Super class
 
-[`mlr3torch::CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md)
+[`CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md)
 -\> `CallbackSetCheckpoint`
 
 ## Methods
 
 ### Public methods
 
-- [`CallbackSetCheckpoint$new()`](#method-CallbackSetCheckpoint-new)
+- [`CallbackSetCheckpoint$new()`](#method-CallbackSetCheckpoint-initialize)
 
 - [`CallbackSetCheckpoint$on_epoch_end()`](#method-CallbackSetCheckpoint-on_epoch_end)
 
@@ -46,13 +46,13 @@ Other Callback:
 
 Inherited methods
 
-- [`mlr3torch::CallbackSet$load_state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-load_state_dict)
-- [`mlr3torch::CallbackSet$print()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-print)
-- [`mlr3torch::CallbackSet$state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-state_dict)
+- [`CallbackSet$load_state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-load_state_dict)
+- [`CallbackSet$print()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-print)
+- [`CallbackSet$state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-state_dict)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `CallbackSetCheckpoint$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -82,7 +82,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `on_epoch_end()`
+### `CallbackSetCheckpoint$on_epoch_end()`
 
 Saves the network and optimizer state dict. Does nothing if `freq_type`
 or `freq` are not met.
@@ -93,7 +93,7 @@ or `freq` are not met.
 
 ------------------------------------------------------------------------
 
-### Method `on_batch_end()`
+### `CallbackSetCheckpoint$on_batch_end()`
 
 Saves the selected objects defined in `save`. Does nothing if freq_type
 or freq are not met.
@@ -104,7 +104,7 @@ or freq are not met.
 
 ------------------------------------------------------------------------
 
-### Method `on_exit()`
+### `CallbackSetCheckpoint$on_exit()`
 
 Saves the learner.
 
@@ -114,7 +114,7 @@ Saves the learner.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `CallbackSetCheckpoint$clone()`
 
 The objects of this class are cloneable with this method.
 

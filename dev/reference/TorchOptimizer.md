@@ -40,14 +40,14 @@ Other Torch Descriptor:
 
 ## Super class
 
-[`mlr3torch::TorchDescriptor`](https://mlr3torch.mlr-org.com/dev/reference/TorchDescriptor.md)
+[`TorchDescriptor`](https://mlr3torch.mlr-org.com/dev/reference/TorchDescriptor.md)
 -\> `TorchOptimizer`
 
 ## Methods
 
 ### Public methods
 
-- [`TorchOptimizer$new()`](#method-TorchOptimizer-new)
+- [`TorchOptimizer$new()`](#method-TorchOptimizer-initialize)
 
 - [`TorchOptimizer$generate()`](#method-TorchOptimizer-generate)
 
@@ -55,12 +55,12 @@ Other Torch Descriptor:
 
 Inherited methods
 
-- [`mlr3torch::TorchDescriptor$help()`](https://mlr3torch.mlr-org.com/dev/reference/TorchDescriptor.html#method-help)
-- [`mlr3torch::TorchDescriptor$print()`](https://mlr3torch.mlr-org.com/dev/reference/TorchDescriptor.html#method-print)
+- [`TorchDescriptor$help()`](https://mlr3torch.mlr-org.com/dev/reference/TorchDescriptor.html#method-help)
+- [`TorchDescriptor$print()`](https://mlr3torch.mlr-org.com/dev/reference/TorchDescriptor.html#method-print)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `TorchOptimizer$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -113,7 +113,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `generate()`
+### `TorchOptimizer$generate()`
 
 Instantiates the optimizer.
 
@@ -135,7 +135,7 @@ Instantiates the optimizer.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `TorchOptimizer$clone()`
 
 The objects of this class are cloneable with this method.
 

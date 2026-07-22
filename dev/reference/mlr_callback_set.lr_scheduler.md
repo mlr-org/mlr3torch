@@ -24,7 +24,7 @@ As of this writing, the following are available:
 
 ## Super class
 
-[`mlr3torch::CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md)
+[`CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md)
 -\> `CallbackSetLRScheduler`
 
 ## Public fields
@@ -43,7 +43,7 @@ As of this writing, the following are available:
 
 ### Public methods
 
-- [`CallbackSetLRScheduler$new()`](#method-CallbackSetLRScheduler-new)
+- [`CallbackSetLRScheduler$new()`](#method-CallbackSetLRScheduler-initialize)
 
 - [`CallbackSetLRScheduler$on_begin()`](#method-CallbackSetLRScheduler-on_begin)
 
@@ -51,13 +51,13 @@ As of this writing, the following are available:
 
 Inherited methods
 
-- [`mlr3torch::CallbackSet$load_state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-load_state_dict)
-- [`mlr3torch::CallbackSet$print()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-print)
-- [`mlr3torch::CallbackSet$state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-state_dict)
+- [`CallbackSet$load_state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-load_state_dict)
+- [`CallbackSet$print()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-print)
+- [`CallbackSet$state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-state_dict)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `CallbackSetLRScheduler$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -86,7 +86,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `on_begin()`
+### `CallbackSetLRScheduler$on_begin()`
 
 Creates the scheduler using the optimizer from the context
 
@@ -96,7 +96,7 @@ Creates the scheduler using the optimizer from the context
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `CallbackSetLRScheduler$clone()`
 
 The objects of this class are cloneable with this method.
 

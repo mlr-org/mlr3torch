@@ -456,7 +456,7 @@ Other Learner:
 
 ### Public methods
 
-- [`LearnerTorch$new()`](#method-LearnerTorch-new)
+- [`LearnerTorch$new()`](#method-LearnerTorch-initialize)
 
 - [`LearnerTorch$format()`](#method-LearnerTorch-format)
 
@@ -484,7 +484,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `LearnerTorch$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -599,7 +599,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method [`format()`](https://rdrr.io/r/base/format.html)
+### `LearnerTorch$format()`
 
 Helper for print outputs.
 
@@ -615,7 +615,7 @@ Helper for print outputs.
 
 ------------------------------------------------------------------------
 
-### Method [`print()`](https://rdrr.io/r/base/print.html)
+### `LearnerTorch$print()`
 
 Prints the object.
 
@@ -632,7 +632,7 @@ Prints the object.
 
 ------------------------------------------------------------------------
 
-### Method `marshal()`
+### `LearnerTorch$marshal()`
 
 Marshal the learner.
 
@@ -653,7 +653,7 @@ self
 
 ------------------------------------------------------------------------
 
-### Method `unmarshal()`
+### `LearnerTorch$unmarshal()`
 
 Unmarshal the learner.
 
@@ -674,7 +674,7 @@ self
 
 ------------------------------------------------------------------------
 
-### Method [`dataset()`](https://torch.mlverse.org/docs/reference/dataset.html)
+### `LearnerTorch$dataset()`
 
 Create the dataset for a task.
 
@@ -695,7 +695,7 @@ Create the dataset for a task.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `LearnerTorch$clone()`
 
 The objects of this class are cloneable with this method.
 

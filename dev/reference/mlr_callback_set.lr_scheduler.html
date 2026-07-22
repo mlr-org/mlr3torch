@@ -104,7 +104,7 @@ Custom schedulers defined with torch::lr_scheduler().
 
     <div class="section level2">
     <h2 id="super-class">Super class<a class="anchor" aria-label="anchor" href="#super-class"></a></h2>
-    <p><code><a href="mlr_callback_set.html">mlr3torch::CallbackSet</a></code> -&gt; <code>CallbackSetLRScheduler</code></p>
+    <p><code><a href="mlr_callback_set.html">CallbackSet</a></code> -&gt; <code>CallbackSetLRScheduler</code></p>
     </div>
     <div class="section level2">
     <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
@@ -113,7 +113,7 @@ Custom schedulers defined with torch::lr_scheduler().
 The <code>torch</code> function that creates a learning rate scheduler</p></dd>
 
 
-<dt><code>scheduler</code></dt>
+    <dt><code>scheduler</code></dt>
 <dd><p>(<code>LRScheduler</code>)<br>
 The learning rate scheduler wrapped by this callback</p></dd>
 
@@ -125,33 +125,28 @@ The learning rate scheduler wrapped by this callback</p></dd>
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-CallbackSetLRScheduler-new"><code>CallbackSetLRScheduler$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-CallbackSetLRScheduler-initialize"><code>CallbackSetLRScheduler$new()</code></a></p></li>
 <li><p><a href="#method-CallbackSetLRScheduler-on_begin"><code>CallbackSetLRScheduler$on_begin()</code></a></p></li>
 <li><p><a href="#method-CallbackSetLRScheduler-clone"><code>CallbackSetLRScheduler$clone()</code></a></p></li>
-</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="load_state_dict"><a href="CallbackSet.html#method-load_state_dict"><code>mlr3torch::CallbackSet$load_state_dict()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href="CallbackSet.html#method-print"><code>mlr3torch::CallbackSet$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="state_dict"><a href="CallbackSet.html#method-state_dict"><code>mlr3torch::CallbackSet$state_dict()</code></a></span></li>
-</ul></details></p><hr><a id="method-CallbackSetLRScheduler-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="load_state_dict"><a href="CallbackSet.html#method-load_state_dict"><code>CallbackSet$load_state_dict()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href="CallbackSet.html#method-print"><code>CallbackSet$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="state_dict"><a href="CallbackSet.html#method-state_dict"><code>CallbackSet$state_dict()</code></a></span></li>
+</ul></details></p><hr><a id="method-CallbackSetLRScheduler-initialize"></a><div class="section">
+<h3 id="callbacksetlrscheduler-new-"><code>CallbackSetLRScheduler$new()</code><a class="anchor" aria-label="anchor" href="#callbacksetlrscheduler-new-"></a></h3>
 <p>Creates a new instance of this <a href="https://r6.r-lib.org/reference/R6Class.html" class="external-link">R6</a> class.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/mlr_callback_set.lr_scheduler.html">CallbackSetLRScheduler</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">.scheduler</span>, <span class="va">step_on_epoch</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>.scheduler</code></dt>
 <dd><p>(<code>lr_scheduler_generator</code>)<br>
 The <code>torch</code> scheduler generator (e.g. <code><a href="https://torch.mlverse.org/docs/reference/lr_step.html" class="external-link">torch::lr_step</a></code>).</p></dd>
 
-
-<dt><code>step_on_epoch</code></dt>
+      <dt><code>step_on_epoch</code></dt>
 <dd><p>(<code>logical(1)</code>)<br>
 Whether the scheduler steps after every epoch (otherwise every batch).</p></dd>
 
-
-<dt><code>...</code></dt>
+      <dt><code>...</code></dt>
 <dd><p>(any)<br>
 The scheduler-specific initialization arguments.</p></dd>
 
@@ -159,22 +154,23 @@ The scheduler-specific initialization arguments.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-CallbackSetLRScheduler-on_begin"></a><div class="section">
-<h3 id="method-on-begin-">Method <code>on_begin()</code><a class="anchor" aria-label="anchor" href="#method-on-begin-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-CallbackSetLRScheduler-on_begin"></a><div class="section">
+<h3 id="callbacksetlrscheduler-on-begin-"><code>CallbackSetLRScheduler$on_begin()</code><a class="anchor" aria-label="anchor" href="#callbacksetlrscheduler-on-begin-"></a></h3>
 <p>Creates the scheduler using the optimizer from the context</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetLRScheduler</span><span class="op">$</span><span class="fu">on_begin</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
+</div>
 
-</div><p></p><hr><a id="method-CallbackSetLRScheduler-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+<p></p><hr><a id="method-CallbackSetLRScheduler-clone"></a><div class="section">
+<h3 id="callbacksetlrscheduler-clone-"><code>CallbackSetLRScheduler$clone()</code><a class="anchor" aria-label="anchor" href="#callbacksetlrscheduler-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetLRScheduler</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -184,6 +180,7 @@ The scheduler-specific initialization arguments.</p></dd>
 </div>
 
 </div>
+
 
     </div>
 

@@ -107,47 +107,47 @@ If each row contained a DataDescriptor as an S3 class, this would copy the objec
 The dataset.</p></dd>
 
 
-<dt><code>graph</code></dt>
+    <dt><code>graph</code></dt>
 <dd><p>(<code><a href="https://mlr3pipelines.mlr-org.com/reference/Graph.html" class="external-link">Graph</a></code>)<br>
 The preprocessing graph.</p></dd>
 
 
-<dt><code>dataset_shapes</code></dt>
+    <dt><code>dataset_shapes</code></dt>
 <dd><p>(named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of (<code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code> or <code>NULL</code>))<br>
 The shapes of the output.</p></dd>
 
 
-<dt><code>input_map</code></dt>
+    <dt><code>input_map</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
 The input map from the dataset to the preprocessing graph.</p></dd>
 
 
-<dt><code>pointer</code></dt>
+    <dt><code>pointer</code></dt>
 <dd><p>(<code>character(2)</code>)<br>
 The output pointer.</p></dd>
 
 
-<dt><code>pointer_shape</code></dt>
+    <dt><code>pointer_shape</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code> | <code>NULL</code>)<br>
 The shape of the output indicated by <code>pointer</code>.</p></dd>
 
 
-<dt><code>dataset_hash</code></dt>
+    <dt><code>dataset_hash</code></dt>
 <dd><p>(<code>character(1)</code>)<br>
 Hash for the wrapped dataset.</p></dd>
 
 
-<dt><code>hash</code></dt>
+    <dt><code>hash</code></dt>
 <dd><p>(<code>character(1)</code>)<br>
 Hash for the data descriptor.</p></dd>
 
 
-<dt><code>graph_input</code></dt>
+    <dt><code>graph_input</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
 The input channels of the preprocessing graph (cached to save time).</p></dd>
 
 
-<dt><code>pointer_shape_predict</code></dt>
+    <dt><code>pointer_shape_predict</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code> or <code>NULL</code>)<br>
 Internal use only.</p></dd>
 
@@ -159,12 +159,11 @@ Internal use only.</p></dd>
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-DataDescriptor-new"><code>DataDescriptor$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-DataDescriptor-initialize"><code>DataDescriptor$new()</code></a></p></li>
 <li><p><a href="#method-DataDescriptor-print"><code>DataDescriptor$print()</code></a></p></li>
 <li><p><a href="#method-DataDescriptor-clone"><code>DataDescriptor$clone()</code></a></p></li>
-</ul></div><p></p><hr><a id="method-DataDescriptor-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+</ul></div><p></p><hr><a id="method-DataDescriptor-initialize"></a><div class="section">
+<h3 id="datadescriptor-new-"><code>DataDescriptor$new()</code><a class="anchor" aria-label="anchor" href="#datadescriptor-new-"></a></h3>
 <p>Creates a new instance of this <a href="https://r6.r-lib.org/reference/R6Class.html" class="external-link">R6</a> class.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/DataDescriptor.html">DataDescriptor</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
@@ -177,55 +176,46 @@ Internal use only.</p></dd>
 <span>  pointer_shape_predict <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  clone_graph <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>dataset</code></dt>
 <dd><p>(<code><a href="https://torch.mlverse.org/docs/reference/dataset.html" class="external-link">torch::dataset</a></code>)<br>
 The torch dataset.
 It should return a named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></code> objects.</p></dd>
 
-
-<dt><code>dataset_shapes</code></dt>
+      <dt><code>dataset_shapes</code></dt>
 <dd><p>(named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of (<code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code> or <code>NULL</code>))<br>
 The shapes of the output.
 Names are the elements of the list returned by the dataset.
 If the shape is not <code>NULL</code> (unknown, e.g. for images of different sizes) the first dimension must be <code>NA</code> to
 indicate the batch dimension.</p></dd>
 
-
-<dt><code>graph</code></dt>
+      <dt><code>graph</code></dt>
 <dd><p>(<code><a href="https://mlr3pipelines.mlr-org.com/reference/Graph.html" class="external-link">Graph</a></code>)<br>
 The preprocessing graph.
 If left <code>NULL</code>, no preprocessing is applied to the data and <code>input_map</code>, <code>pointer</code>, <code>pointer_shape</code>, and
 <code>pointer_shape_predict</code> are inferred in case the dataset returns only one element.</p></dd>
 
-
-<dt><code>input_map</code></dt>
+      <dt><code>input_map</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
 Character vector that must have the same length as the input of the graph.
 Specifies how the data from the <code>dataset</code> is fed into the preprocessing graph.</p></dd>
 
-
-<dt><code>pointer</code></dt>
+      <dt><code>pointer</code></dt>
 <dd><p>(<code>character(2)</code> | <code>NULL</code>)<br>
 Points to an output channel within <code>graph</code>:
 Element 1 is the <code>PipeOp</code>'s id and element 2 is that <code>PipeOp</code>'s output channel.</p></dd>
 
-
-<dt><code>pointer_shape</code></dt>
+      <dt><code>pointer_shape</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code> | <code>NULL</code>)<br>
 Shape of the output indicated by <code>pointer</code>.</p></dd>
 
-
-<dt><code>pointer_shape_predict</code></dt>
+      <dt><code>pointer_shape_predict</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code> or <code>NULL</code>)<br>
 Internal use only.
 Used in a <code><a href="https://mlr3pipelines.mlr-org.com/reference/Graph.html" class="external-link">Graph</a></code> to anticipate possible mismatches between train and predict shapes.</p></dd>
 
-
-<dt><code>clone_graph</code></dt>
+      <dt><code>clone_graph</code></dt>
 <dd><p>(<code>logical(1)</code>)<br>
 Whether to clone the preprocessing graph.</p></dd>
 
@@ -233,14 +223,14 @@ Whether to clone the preprocessing graph.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-DataDescriptor-print"></a><div class="section">
-<h3 id="method-print-">Method <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code><a class="anchor" aria-label="anchor" href="#method-print-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-DataDescriptor-print"></a><div class="section">
+<h3 id="datadescriptor-print-"><code>DataDescriptor$print()</code><a class="anchor" aria-label="anchor" href="#datadescriptor-print-"></a></h3>
 <p>Prints the object</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DataDescriptor</span><span class="op">$</span><span class="fu">print</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>...</code></dt>
 <dd><p>(any)<br>
@@ -250,14 +240,14 @@ Unused</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-DataDescriptor-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-DataDescriptor-clone"></a><div class="section">
+<h3 id="datadescriptor-clone-"><code>DataDescriptor$clone()</code><a class="anchor" aria-label="anchor" href="#datadescriptor-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DataDescriptor</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -267,6 +257,7 @@ Unused</p></dd>
 </div>
 
 </div>
+
 
     </div>
 
@@ -283,14 +274,14 @@ Unused</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;DataDescriptor: 1 ops&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * dataset_shapes: [x: (NA,3,3)]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * input_map: (x) -&gt; Graph</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * pointer: nop.9ebf74.x.output</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * pointer: nop.b79f75.x.output</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * shape: [(NA,3,3)]</span>
 <span class="r-in"><span><span class="co"># is the same as using the converter:</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="as_data_descriptor.html">as_data_descriptor</a></span><span class="op">(</span><span class="va">ds</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;DataDescriptor: 1 ops&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * dataset_shapes: [x: (NA,3,3)]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * input_map: (x) -&gt; Graph</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> * pointer: nop.9ebf74.x.output</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> * pointer: nop.b79f75.x.output</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> * shape: [(NA,3,3)]</span>
 </code></pre></div>
     </div>

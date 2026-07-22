@@ -29,6 +29,9 @@ Useful links:
 
 Authors:
 
+- Sebastian Fischer <sebf.fischer@gmail.com>
+  ([ORCID](https://orcid.org/0000-0002-9609-3197))
+
 - Martin Binder <mlr.developer@mb706.com>
 
 Other contributors:

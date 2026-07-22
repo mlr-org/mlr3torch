@@ -104,14 +104,14 @@ Other PipeOps:
 
 [`mlr3pipelines::PipeOp`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html)
 -\>
-[`mlr3torch::PipeOpTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch.md)
+[`PipeOpTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch.md)
 -\> `PipeOpTorchRReLU`
 
 ## Methods
 
 ### Public methods
 
-- [`PipeOpTorchRReLU$new()`](#method-PipeOpTorchRReLU-new)
+- [`PipeOpTorchRReLU$new()`](#method-PipeOpTorchRReLU-initialize)
 
 - [`PipeOpTorchRReLU$clone()`](#method-PipeOpTorchRReLU-clone)
 
@@ -121,11 +121,11 @@ Inherited methods
 - [`mlr3pipelines::PipeOp$predict()`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-predict)
 - [`mlr3pipelines::PipeOp$print()`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-print)
 - [`mlr3pipelines::PipeOp$train()`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-train)
-- [`mlr3torch::PipeOpTorch$shapes_out()`](https://mlr3torch.mlr-org.com/dev/reference/PipeOpTorch.html#method-shapes_out)
+- [`PipeOpTorch$shapes_out()`](https://mlr3torch.mlr-org.com/dev/reference/PipeOpTorch.html#method-shapes_out)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PipeOpTorchRReLU$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -149,7 +149,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `PipeOpTorchRReLU$clone()`
 
 The objects of this class are cloneable with this method.
 

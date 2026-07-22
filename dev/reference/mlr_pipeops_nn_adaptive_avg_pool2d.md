@@ -99,15 +99,14 @@ Other PipeOps:
 
 [`mlr3pipelines::PipeOp`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html)
 -\>
-[`mlr3torch::PipeOpTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch.md)
--\> `mlr3torch::PipeOpTorchAdaptiveAvgPool` -\>
-`PipeOpTorchAdaptiveAvgPool2D`
+[`PipeOpTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch.md)
+-\> `PipeOpTorchAdaptiveAvgPool` -\> `PipeOpTorchAdaptiveAvgPool2D`
 
 ## Methods
 
 ### Public methods
 
-- [`PipeOpTorchAdaptiveAvgPool2D$new()`](#method-PipeOpTorchAdaptiveAvgPool2D-new)
+- [`PipeOpTorchAdaptiveAvgPool2D$new()`](#method-PipeOpTorchAdaptiveAvgPool2D-initialize)
 
 - [`PipeOpTorchAdaptiveAvgPool2D$clone()`](#method-PipeOpTorchAdaptiveAvgPool2D-clone)
 
@@ -117,11 +116,11 @@ Inherited methods
 - [`mlr3pipelines::PipeOp$predict()`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-predict)
 - [`mlr3pipelines::PipeOp$print()`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-print)
 - [`mlr3pipelines::PipeOp$train()`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-train)
-- [`mlr3torch::PipeOpTorch$shapes_out()`](https://mlr3torch.mlr-org.com/dev/reference/PipeOpTorch.html#method-shapes_out)
+- [`PipeOpTorch$shapes_out()`](https://mlr3torch.mlr-org.com/dev/reference/PipeOpTorch.html#method-shapes_out)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PipeOpTorchAdaptiveAvgPool2D$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -148,7 +147,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `PipeOpTorchAdaptiveAvgPool2D$clone()`
 
 The objects of this class are cloneable with this method.
 

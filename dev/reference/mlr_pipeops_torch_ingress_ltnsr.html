@@ -189,38 +189,34 @@ For an explanation see <code><a href="mlr_pipeops_torch.html">PipeOpTorch</a></c
     </div>
     <div class="section level2">
     <h2 id="super-classes">Super classes<a class="anchor" aria-label="anchor" href="#super-classes"></a></h2>
-    <p><code><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html" class="external-link">mlr3pipelines::PipeOp</a></code> -&gt; <code><a href="mlr_pipeops_torch_ingress.html">mlr3torch::PipeOpTorchIngress</a></code> -&gt; <code>PipeOpTorchIngressLazyTensor</code></p>
+    <p><code><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html" class="external-link">mlr3pipelines::PipeOp</a></code> -&gt; <code><a href="mlr_pipeops_torch_ingress.html">PipeOpTorchIngress</a></code> -&gt; <code>PipeOpTorchIngressLazyTensor</code></p>
     </div>
     <div class="section level2">
     <h2 id="methods">Methods<a class="anchor" aria-label="anchor" href="#methods"></a></h2>
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-PipeOpTorchIngressLazyTensor-new"><code>PipeOpTorchIngressLazyTensor$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-PipeOpTorchIngressLazyTensor-initialize"><code>PipeOpTorchIngressLazyTensor$new()</code></a></p></li>
 <li><p><a href="#method-PipeOpTorchIngressLazyTensor-clone"><code>PipeOpTorchIngressLazyTensor$clone()</code></a></p></li>
 </ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-help"><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-predict"><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-print"><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-train"><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
-</ul></details></p><hr><a id="method-PipeOpTorchIngressLazyTensor-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-predict"><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-print"><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-train"><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
+</ul></details></p><hr><a id="method-PipeOpTorchIngressLazyTensor-initialize"></a><div class="section">
+<h3 id="pipeoptorchingresslazytensor-new-"><code>PipeOpTorchIngressLazyTensor$new()</code><a class="anchor" aria-label="anchor" href="#pipeoptorchingresslazytensor-new-"></a></h3>
 <p>Creates a new instance of this <a href="https://r6.r-lib.org/reference/R6Class.html" class="external-link">R6</a> class.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/mlr_pipeops_torch_ingress_ltnsr.html">PipeOpTorchIngressLazyTensor</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  id <span class="op">=</span> <span class="st">"torch_ingress_ltnsr"</span>,</span>
 <span>  param_vals <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>id</code></dt>
 <dd><p>(<code>character(1)</code>)<br>
 Identifier of the resulting  object.</p></dd>
 
-
-<dt><code>param_vals</code></dt>
+      <dt><code>param_vals</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>)<br>
 List of hyperparameter settings, overwriting the hyperparameter settings that would
 otherwise be set during construction.</p></dd>
@@ -229,14 +225,14 @@ otherwise be set during construction.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-PipeOpTorchIngressLazyTensor-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-PipeOpTorchIngressLazyTensor-clone"></a><div class="section">
+<h3 id="pipeoptorchingresslazytensor-clone-"><code>PipeOpTorchIngressLazyTensor$clone()</code><a class="anchor" aria-label="anchor" href="#pipeoptorchingresslazytensor-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipeOpTorchIngressLazyTensor</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -246,6 +242,7 @@ otherwise be set during construction.</p></dd>
 </div>
 
 </div>
+
 
     </div>
 
@@ -301,35 +298,35 @@ otherwise be set during construction.</p></dd>
 <span class="r-in"><span><span class="va">x_batch2</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> torch_tensor</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (1,1,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.7092 -0.8170 -0.0200 -0.0368 -1.1885 -0.3829</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.2718  0.4850 -1.3700 -0.6255 -1.2586 -0.4394</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1.0231 -0.9946 -0.3701 -0.0533  0.1449  0.4131</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.5018 -0.1929  0.5250 -0.5034 -0.5395  1.9517</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0096  0.4101 -0.5111  0.3306 -2.1316  0.1143</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0325  0.4581 -0.2744 -0.5858 -0.9126 -0.0948</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0819  1.2807 -0.6229  0.2601 -0.9577 -1.3169</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.7490  0.7190  0.4869 -0.0328  0.2625 -0.3346</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0723  1.1645 -0.2890 -0.4427  0.7713  0.8597</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.4540 -0.0222  0.3990  0.7719 -1.1065  0.1481</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.3343  0.1517 -0.0696  0.1213 -1.0136 -0.1226</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.5898 -0.4096  0.4989 -0.2509  0.2653 -0.2929</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (2,1,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.5206  0.0796 -0.3494 -0.5789 -0.0151  0.3336</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.2683  0.0269 -0.8418 -0.2865  0.3708  0.0366</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.6206 -0.9436 -0.2183 -0.8142 -0.2762  0.1357</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.2127 -0.5618 -0.4594  0.0671  0.9844 -0.6705</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.7351 -0.0033  0.0318  0.4025  0.6947 -0.3246</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.4316  0.1264 -1.1144  0.9238  1.1908  0.0032</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.6876  0.0232  0.1362  0.4111  0.2774  0.5331</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.4085  0.3232 -0.1366 -0.3579 -0.4558 -0.2668</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.2195  0.5543 -0.8343  0.7760 -0.3113 -0.6118</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.4966  0.7580  0.4982  0.8365 -0.3791 -0.4032</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.1594  0.1693  0.4925  0.7466  0.0322  1.5400</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -1.0954  0.4977  0.9598  1.0781  1.0490 -0.0103</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (1,2,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1462 -0.2796  1.2390  0.8655 -0.4888  0.1803</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.6601  1.1872 -0.3997  0.3062  0.4566 -1.3411</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.3811  0.7355  0.4059  0.1973  0.0474  0.6274</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.3289  0.4876  0.6367 -0.5422 -0.8341 -0.7107</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.1024  0.4978  0.3497  0.5947 -0.2358  1.4302</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.5158 -0.9792 -0.8792 -0.4402  0.7894  1.2981</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.7017  0.4261  0.2390 -0.2733  0.1672  0.0067</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.2124 -0.8788  0.9117 -0.5466  0.3792  0.6891</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.2831  0.3933 -0.0486 -0.6647 -0.5131 -0.2622</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0885  0.0919 -0.4016 -0.0633  0.2741  0.6056</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.2779 -0.5562  0.5538 -0.6504  0.8417  0.1327</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.0449 -0.5875  0.1591  0.3156 -0.1169  0.0046</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (2,2,.,.) = </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.1394 -0.3170 -0.3287 -0.3541  0.3826  0.2885</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.6000 -0.5322  0.1540 -1.1379 -0.0420 -0.2575</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.0329  0.6070  0.6555 -1.2993 -0.2868 -0.5544</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1.1690  0.2617  0.3054  0.1133  0.6368  0.2157</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.6278  0.2490  1.0732  0.6169  0.4840  0.0312</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.7908  0.1178  0.2241 -0.3277 -0.2082  0.6692</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.6445  0.5392 -0.6033 -0.6215  0.5808 -0.4857</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.1469 -0.2573 -1.7294 -1.0085 -0.3242  0.2306</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.6544 -0.2930  0.5427 -0.4044 -0.6020 -0.7699</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.2095 -0.4697  1.2936 -0.0625 -0.3242  1.0658</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ... [the output was truncated (use n=-1 to disable)]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [ CPUFloatType{2,3,6,6} ]</span>
 </code></pre></div>

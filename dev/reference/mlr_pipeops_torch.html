@@ -225,16 +225,15 @@ Do not change this after construction.</p></dd>
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-PipeOpTorch-new"><code>PipeOpTorch$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-PipeOpTorch-initialize"><code>PipeOpTorch$new()</code></a></p></li>
 <li><p><a href="#method-PipeOpTorch-shapes_out"><code>PipeOpTorch$shapes_out()</code></a></p></li>
 <li><p><a href="#method-PipeOpTorch-clone"><code>PipeOpTorch$clone()</code></a></p></li>
 </ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-help"><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-predict"><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-print"><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-train"><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
-</ul></details></p><hr><a id="method-PipeOpTorch-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-predict"><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-print"><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-train"><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
+</ul></details></p><hr><a id="method-PipeOpTorch-initialize"></a><div class="section">
+<h3 id="pipeoptorch-new-"><code>PipeOpTorch$new()</code><a class="anchor" aria-label="anchor" href="#pipeoptorch-new-"></a></h3>
 <p>Creates a new instance of this <a href="https://r6.r-lib.org/reference/R6Class.html" class="external-link">R6</a> class.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/mlr_pipeops_torch.html">PipeOpTorch</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
@@ -248,32 +247,26 @@ Do not change this after construction.</p></dd>
 <span>  tags <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  only_batch_unknown <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>id</code></dt>
 <dd><p>(<code>character(1)</code>)<br>
 Identifier of the resulting  object.</p></dd>
 
-
-<dt><code>module_generator</code></dt>
+      <dt><code>module_generator</code></dt>
 <dd><p>(<code>nn_module_generator</code>)<br>
 The torch module generator.</p></dd>
 
-
-<dt><code>param_set</code></dt>
+      <dt><code>param_set</code></dt>
 <dd><p>(<code><a href="https://paradox.mlr-org.com/reference/ParamSet.html" class="external-link">ParamSet</a></code>)<br>
 The parameter set.</p></dd>
 
-
-<dt><code>param_vals</code></dt>
+      <dt><code>param_vals</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>)<br>
 List of hyperparameter settings, overwriting the hyperparameter settings that would
 otherwise be set during construction.</p></dd>
 
-
-<dt><code>inname</code></dt>
+      <dt><code>inname</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
 The names of the <code><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html" class="external-link">PipeOp</a></code>'s input channels. These will be the input channels of the generated <code><a href="mlr_pipeops_module.html">PipeOpModule</a></code>.
 Unless the wrapped <code>module_generator</code>'s forward method (if present) has the argument <code>...</code>, <code>inname</code> must be
@@ -283,8 +276,7 @@ will be passed to the wrapped <code>nn_module</code>.<br>
 If left as <code>NULL</code> (default), the argument <code>module_generator</code> must be given and the argument names of the
 <code>modue_generator</code>'s forward function are set as <code>inname</code>.</p></dd>
 
-
-<dt><code>outname</code></dt>
+      <dt><code>outname</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>) <br>
 The names of the output channels channels. These will be the ouput channels of the generated <code><a href="mlr_pipeops_module.html">PipeOpModule</a></code>
 and therefore also the names of the list returned by its <code>$train()</code>.
@@ -292,18 +284,15 @@ In case there is more than one output channel, the <code>nn_module</code> that i
 <code><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html" class="external-link">PipeOp</a></code> during training must return a named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>, where the names of the list are the
 names out the output channels. The default is <code>"output"</code>.</p></dd>
 
-
-<dt><code>packages</code></dt>
+      <dt><code>packages</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
 The R packages this object depends on.</p></dd>
 
-
-<dt><code>tags</code></dt>
+      <dt><code>tags</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
 The tags of the <code><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html" class="external-link">PipeOp</a></code>. The tags <code>"torch"</code> is always added.</p></dd>
 
-
-<dt><code>only_batch_unknown</code></dt>
+      <dt><code>only_batch_unknown</code></dt>
 <dd><p>(<code>logical(1)</code>)<br>
 Whether only the batch dimension can be missing in the input shapes or whether other
 dimensions can also be unknown.
@@ -313,41 +302,39 @@ Default is <code>TRUE</code>.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-PipeOpTorch-shapes_out"></a><div class="section">
-<h3 id="method-shapes-out-">Method <code>shapes_out()</code><a class="anchor" aria-label="anchor" href="#method-shapes-out-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-PipeOpTorch-shapes_out"></a><div class="section">
+<h3 id="pipeoptorch-shapes-out-"><code>PipeOpTorch$shapes_out()</code><a class="anchor" aria-label="anchor" href="#pipeoptorch-shapes-out-"></a></h3>
 <p>Calculates the output shapes for the given input shapes, parameters and task.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipeOpTorch</span><span class="op">$</span><span class="fu">shapes_out</span><span class="op">(</span><span class="va">shapes_in</span>, task <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>shapes_in</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code>)<br>
 The input input shapes, which must be in the same order as the input channel names of the <code>PipeOp</code>.</p></dd>
 
-
-<dt><code>task</code></dt>
+      <dt><code>task</code></dt>
 <dd><p>(<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code> or <code>NULL</code>)<br>
 The task, which is very rarely used (default is <code>NULL</code>). An exception is <code><a href="mlr_pipeops_nn_head.html">PipeOpTorchHead</a></code>.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
 <p>A named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> containing the output shapes. The names are the names of the output channels of
 the <code>PipeOp</code>.</p>
 </div>
 
-</div><p></p><hr><a id="method-PipeOpTorch-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-PipeOpTorch-clone"></a><div class="section">
+<h3 id="pipeoptorch-clone-"><code>PipeOpTorch$clone()</code><a class="anchor" aria-label="anchor" href="#pipeoptorch-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipeOpTorch</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -357,6 +344,7 @@ the <code>PipeOp</code>.</p>
 </div>
 
 </div>
+
 
     </div>
 

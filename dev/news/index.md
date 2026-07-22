@@ -2,6 +2,12 @@
 
 ## mlr3torch (development version)
 
+### Bug fixes
+
+- [`logical()`](https://rdrr.io/r/base/logical.html) features are now
+  encoded as `c(1, 2)` by the
+  [`batchgetter_categ()`](https://mlr3torch.mlr-org.com/dev/reference/batchgetter_categ.md)
+  and their cardinality is correctly computed.
 - Fix: `lazy_tensor` columns are now again printed correctly inside
   `data.table`s
 

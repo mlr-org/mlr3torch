@@ -48,7 +48,7 @@ Other Model Configuration:
 
 ### Public methods
 
-- [`PipeOpTorchOptimizer$new()`](#method-PipeOpTorchOptimizer-new)
+- [`PipeOpTorchOptimizer$new()`](#method-PipeOpTorchOptimizer-initialize)
 
 - [`PipeOpTorchOptimizer$clone()`](#method-PipeOpTorchOptimizer-clone)
 
@@ -61,7 +61,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PipeOpTorchOptimizer$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -96,7 +96,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `PipeOpTorchOptimizer$clone()`
 
 The objects of this class are cloneable with this method.
 

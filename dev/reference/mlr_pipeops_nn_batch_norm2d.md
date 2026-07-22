@@ -115,14 +115,14 @@ Other PipeOps:
 
 [`mlr3pipelines::PipeOp`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html)
 -\>
-[`mlr3torch::PipeOpTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch.md)
--\> `mlr3torch::PipeOpTorchBatchNorm` -\> `PipeOpTorchBatchNorm2D`
+[`PipeOpTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch.md)
+-\> `PipeOpTorchBatchNorm` -\> `PipeOpTorchBatchNorm2D`
 
 ## Methods
 
 ### Public methods
 
-- [`PipeOpTorchBatchNorm2D$new()`](#method-PipeOpTorchBatchNorm2D-new)
+- [`PipeOpTorchBatchNorm2D$new()`](#method-PipeOpTorchBatchNorm2D-initialize)
 
 - [`PipeOpTorchBatchNorm2D$clone()`](#method-PipeOpTorchBatchNorm2D-clone)
 
@@ -132,11 +132,11 @@ Inherited methods
 - [`mlr3pipelines::PipeOp$predict()`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-predict)
 - [`mlr3pipelines::PipeOp$print()`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-print)
 - [`mlr3pipelines::PipeOp$train()`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-train)
-- [`mlr3torch::PipeOpTorch$shapes_out()`](https://mlr3torch.mlr-org.com/dev/reference/PipeOpTorch.html#method-shapes_out)
+- [`PipeOpTorch$shapes_out()`](https://mlr3torch.mlr-org.com/dev/reference/PipeOpTorch.html#method-shapes_out)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PipeOpTorchBatchNorm2D$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -160,7 +160,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `PipeOpTorchBatchNorm2D$clone()`
 
 The objects of this class are cloneable with this method.
 

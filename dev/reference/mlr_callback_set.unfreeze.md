@@ -21,14 +21,14 @@ Other Callback:
 
 ## Super class
 
-[`mlr3torch::CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md)
+[`CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md)
 -\> `CallbackSetUnfreeze`
 
 ## Methods
 
 ### Public methods
 
-- [`CallbackSetUnfreeze$new()`](#method-CallbackSetUnfreeze-new)
+- [`CallbackSetUnfreeze$new()`](#method-CallbackSetUnfreeze-initialize)
 
 - [`CallbackSetUnfreeze$on_begin()`](#method-CallbackSetUnfreeze-on_begin)
 
@@ -40,13 +40,13 @@ Other Callback:
 
 Inherited methods
 
-- [`mlr3torch::CallbackSet$load_state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-load_state_dict)
-- [`mlr3torch::CallbackSet$print()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-print)
-- [`mlr3torch::CallbackSet$state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-state_dict)
+- [`CallbackSet$load_state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-load_state_dict)
+- [`CallbackSet$print()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-print)
+- [`CallbackSet$state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-state_dict)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `CallbackSetUnfreeze$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -72,7 +72,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `on_begin()`
+### `CallbackSetUnfreeze$on_begin()`
 
 Sets the starting weights
 
@@ -82,7 +82,7 @@ Sets the starting weights
 
 ------------------------------------------------------------------------
 
-### Method `on_epoch_begin()`
+### `CallbackSetUnfreeze$on_epoch_begin()`
 
 Unfreezes weights if the training is at the correct epoch
 
@@ -92,7 +92,7 @@ Unfreezes weights if the training is at the correct epoch
 
 ------------------------------------------------------------------------
 
-### Method `on_batch_begin()`
+### `CallbackSetUnfreeze$on_batch_begin()`
 
 Unfreezes weights if the training is at the correct batch
 
@@ -102,7 +102,7 @@ Unfreezes weights if the training is at the correct batch
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `CallbackSetUnfreeze$clone()`
 
 The objects of this class are cloneable with this method.
 

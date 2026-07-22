@@ -12,11 +12,6 @@ conveniently retrieving a loss function. Can be converted to a
 mlr3torch_losses
 ```
 
-## Format
-
-An object of class `DictionaryMlr3torchLosses` (inherits from
-`Dictionary`, `R6`) of length 12.
-
 ## Available Loss Functions
 
 cross_entropy, l1, mse

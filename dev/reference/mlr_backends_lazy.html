@@ -146,27 +146,27 @@ corresponds to the ordering of the levels in the <code>col_info</code> argument.
 The wrapped backend that is lazily constructed when first accessed.</p></dd>
 
 
-<dt><code>nrow</code></dt>
+    <dt><code>nrow</code></dt>
 <dd><p>(<code>integer(1)</code>)<br>
 Number of rows (observations).</p></dd>
 
 
-<dt><code>ncol</code></dt>
+    <dt><code>ncol</code></dt>
 <dd><p>(<code>integer(1)</code>)<br>
 Number of columns (variables), including the primary key column.</p></dd>
 
 
-<dt><code>rownames</code></dt>
+    <dt><code>rownames</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code>)<br>
 Returns vector of all distinct row identifiers, i.e. the contents of the primary key column.</p></dd>
 
 
-<dt><code>colnames</code></dt>
+    <dt><code>colnames</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
 Returns vector of all column names, including the primary key column.</p></dd>
 
 
-<dt><code>is_constructed</code></dt>
+    <dt><code>is_constructed</code></dt>
 <dd><p>(<code>logical(1)</code>)<br>
 Whether the backend has already been constructed.</p></dd>
 
@@ -178,41 +178,35 @@ Whether the backend has already been constructed.</p></dd>
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-DataBackendLazy-new"><code>DataBackendLazy$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-DataBackendLazy-initialize"><code>DataBackendLazy$new()</code></a></p></li>
 <li><p><a href="#method-DataBackendLazy-data"><code>DataBackendLazy$data()</code></a></p></li>
 <li><p><a href="#method-DataBackendLazy-head"><code>DataBackendLazy$head()</code></a></p></li>
 <li><p><a href="#method-DataBackendLazy-distinct"><code>DataBackendLazy$distinct()</code></a></p></li>
 <li><p><a href="#method-DataBackendLazy-missings"><code>DataBackendLazy$missings()</code></a></p></li>
 <li><p><a href="#method-DataBackendLazy-print"><code>DataBackendLazy$print()</code></a></p></li>
 </ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="mlr3" data-topic="DataBackend" data-id="format"><a href="https://mlr3.mlr-org.com/reference/DataBackend.html#method-format"><code>mlr3::DataBackend$format()</code></a></span></li>
-</ul></details></p><hr><a id="method-DataBackendLazy-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+</ul></details></p><hr><a id="method-DataBackendLazy-initialize"></a><div class="section">
+<h3 id="databackendlazy-new-"><code>DataBackendLazy$new()</code><a class="anchor" aria-label="anchor" href="#databackendlazy-new-"></a></h3>
 <p>Creates a new instance of this <a href="https://r6.r-lib.org/reference/R6Class.html" class="external-link">R6</a> class.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/mlr_backends_lazy.html">DataBackendLazy</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">constructor</span>, <span class="va">rownames</span>, <span class="va">col_info</span>, <span class="va">primary_key</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>constructor</code></dt>
 <dd><p>(<code>function</code>)<br>
 A function with argument <code>backend</code> (the lazy backend), whose return value must be the actual backend.
 This function is called the first time the field <code>$backend</code> is accessed.</p></dd>
 
-
-<dt><code>rownames</code></dt>
+      <dt><code>rownames</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code>)<br>
 The row names. Must be a permutation of the rownames of the lazily constructed backend.</p></dd>
 
-
-<dt><code>col_info</code></dt>
+      <dt><code>col_info</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table::data.table()</a></code>)<br>
 A data.table with columns <code>id</code>, <code>type</code> and <code>levels</code> containing the column id, type and levels.
 Note that the levels must be provided in the correct order.</p></dd>
 
-
-<dt><code>primary_key</code></dt>
+      <dt><code>primary_key</code></dt>
 <dd><p>(<code>character(1)</code>)<br>
 Name of the primary key column.</p></dd>
 
@@ -220,8 +214,10 @@ Name of the primary key column.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-DataBackendLazy-data"></a><div class="section">
-<h3 id="method-data-">Method <code><a href="https://rdrr.io/r/utils/data.html" class="external-link">data()</a></code><a class="anchor" aria-label="anchor" href="#method-data-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-DataBackendLazy-data"></a><div class="section">
+<h3 id="databackendlazy-data-"><code>DataBackendLazy$data()</code><a class="anchor" aria-label="anchor" href="#databackendlazy-data-"></a></h3>
 <p>Returns a slice of the data in the specified format.
 The rows must be addressed as vector of primary key values, columns must be referred to via column names.
 Queries for rows with no matching row id and queries for columns with no matching column name are silently ignored.
@@ -230,16 +226,13 @@ Duplicated row ids result in duplicated rows, duplicated column names lead to an
 <p>Accessing the data triggers the construction of the backend.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DataBackendLazy</span><span class="op">$</span><span class="fu">data</span><span class="op">(</span><span class="va">rows</span>, <span class="va">cols</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>rows</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code>)<br>
 Row indices.</p></dd>
 
-
-<dt><code>cols</code></dt>
+      <dt><code>cols</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
 Column names.</p></dd>
 
@@ -247,15 +240,15 @@ Column names.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-DataBackendLazy-head"></a><div class="section">
-<h3 id="method-head-">Method <code><a href="https://rdrr.io/r/utils/head.html" class="external-link">head()</a></code><a class="anchor" aria-label="anchor" href="#method-head-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-DataBackendLazy-head"></a><div class="section">
+<h3 id="databackendlazy-head-"><code>DataBackendLazy$head()</code><a class="anchor" aria-label="anchor" href="#databackendlazy-head-"></a></h3>
 <p>Retrieve the first <code>n</code> rows.
 This triggers the construction of the backend.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DataBackendLazy</span><span class="op">$</span><span class="fu">head</span><span class="op">(</span>n <span class="op">=</span> <span class="fl">6L</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>n</code></dt>
 <dd><p>(<code>integer(1)</code>)<br>
@@ -263,14 +256,15 @@ Number of rows.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
 <p><code><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table::data.table()</a></code> of the first <code>n</code> rows.</p>
 </div>
 
-</div><p></p><hr><a id="method-DataBackendLazy-distinct"></a><div class="section">
-<h3 id="method-distinct-">Method <code>distinct()</code><a class="anchor" aria-label="anchor" href="#method-distinct-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-DataBackendLazy-distinct"></a><div class="section">
+<h3 id="databackendlazy-distinct-"><code>DataBackendLazy$distinct()</code><a class="anchor" aria-label="anchor" href="#databackendlazy-distinct-"></a></h3>
 <p>Returns a named list of vectors of distinct values for each column
 specified. If <code>na_rm</code> is <code>TRUE</code>, missing values are removed from the
 returned vectors of distinct values. Non-existing rows and columns are
@@ -278,69 +272,64 @@ silently ignored.</p>
 <p>This triggers the construction of the backend.</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DataBackendLazy</span><span class="op">$</span><span class="fu">distinct</span><span class="op">(</span><span class="va">rows</span>, <span class="va">cols</span>, na_rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>rows</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code>)<br>
 Row indices.</p></dd>
 
-
-<dt><code>cols</code></dt>
+      <dt><code>cols</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
 Column names.</p></dd>
 
-
-<dt><code>na_rm</code></dt>
+      <dt><code>na_rm</code></dt>
 <dd><p>(<code>logical(1)</code>)<br>
 Whether to remove NAs or not.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns-1">Returns<a class="anchor" aria-label="anchor" href="#returns-1"></a></h4>
 <p>Named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of distinct values.</p>
 </div>
 
-</div><p></p><hr><a id="method-DataBackendLazy-missings"></a><div class="section">
-<h3 id="method-missings-">Method <code>missings()</code><a class="anchor" aria-label="anchor" href="#method-missings-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-DataBackendLazy-missings"></a><div class="section">
+<h3 id="databackendlazy-missings-"><code>DataBackendLazy$missings()</code><a class="anchor" aria-label="anchor" href="#databackendlazy-missings-"></a></h3>
 <p>Returns the number of missing values per column in the specified slice
 of data. Non-existing rows and columns are silently ignored.</p>
 <p>This triggers the construction of the backend.</p><div class="section">
 <h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DataBackendLazy</span><span class="op">$</span><span class="fu">missings</span><span class="op">(</span><span class="va">rows</span>, <span class="va">cols</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>rows</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code>)<br>
 Row indices.</p></dd>
 
-
-<dt><code>cols</code></dt>
+      <dt><code>cols</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
 Column names.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns-2">Returns<a class="anchor" aria-label="anchor" href="#returns-2"></a></h4>
 <p>Total of missing values per column (named <code><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric()</a></code>).</p>
 </div>
 
-</div><p></p><hr><a id="method-DataBackendLazy-print"></a><div class="section">
-<h3 id="method-print-">Method <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code><a class="anchor" aria-label="anchor" href="#method-print-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-DataBackendLazy-print"></a><div class="section">
+<h3 id="databackendlazy-print-"><code>DataBackendLazy$print()</code><a class="anchor" aria-label="anchor" href="#databackendlazy-print-"></a></h3>
 <p>Printer.</p><div class="section">
 <h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">DataBackendLazy</span><span class="op">$</span><span class="fu">print</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
-
 </div>
+
 
     </div>
 

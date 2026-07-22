@@ -196,7 +196,7 @@ Other Graph Network:
 
 ### Public methods
 
-- [`PipeOpTorch$new()`](#method-PipeOpTorch-new)
+- [`PipeOpTorch$new()`](#method-PipeOpTorch-initialize)
 
 - [`PipeOpTorch$shapes_out()`](#method-PipeOpTorch-shapes_out)
 
@@ -211,7 +211,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PipeOpTorch$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -304,7 +304,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `shapes_out()`
+### `PipeOpTorch$shapes_out()`
 
 Calculates the output shapes for the given input shapes, parameters and
 task.
@@ -337,7 +337,7 @@ output shapes. The names are the names of the output channels of the
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `PipeOpTorch$clone()`
 
 The objects of this class are cloneable with this method.
 

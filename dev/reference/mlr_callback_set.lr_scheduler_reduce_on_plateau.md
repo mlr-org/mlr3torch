@@ -6,29 +6,29 @@ improving for `patience` epochs. Wraps
 
 ## Super classes
 
-[`mlr3torch::CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md)
+[`CallbackSet`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.md)
 -\>
-[`mlr3torch::CallbackSetLRScheduler`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.lr_scheduler.md)
+[`CallbackSetLRScheduler`](https://mlr3torch.mlr-org.com/dev/reference/mlr_callback_set.lr_scheduler.md)
 -\> `CallbackSetLRSchedulerReduceOnPlateau`
 
 ## Methods
 
 ### Public methods
 
-- [`CallbackSetLRSchedulerReduceOnPlateau$new()`](#method-CallbackSetLRSchedulerReduceOnPlateau-new)
+- [`CallbackSetLRSchedulerReduceOnPlateau$new()`](#method-CallbackSetLRSchedulerReduceOnPlateau-initialize)
 
 - [`CallbackSetLRSchedulerReduceOnPlateau$clone()`](#method-CallbackSetLRSchedulerReduceOnPlateau-clone)
 
 Inherited methods
 
-- [`mlr3torch::CallbackSet$load_state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-load_state_dict)
-- [`mlr3torch::CallbackSet$print()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-print)
-- [`mlr3torch::CallbackSet$state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-state_dict)
-- [`mlr3torch::CallbackSetLRScheduler$on_begin()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSetLRScheduler.html#method-on_begin)
+- [`CallbackSet$load_state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-load_state_dict)
+- [`CallbackSet$print()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-print)
+- [`CallbackSet$state_dict()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSet.html#method-state_dict)
+- [`CallbackSetLRScheduler$on_begin()`](https://mlr3torch.mlr-org.com/dev/reference/CallbackSetLRScheduler.html#method-on_begin)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `CallbackSetLRSchedulerReduceOnPlateau$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -46,7 +46,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `CallbackSetLRSchedulerReduceOnPlateau$clone()`
 
 The objects of this class are cloneable with this method.
 

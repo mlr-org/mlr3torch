@@ -117,14 +117,14 @@ Other Graph Network:
 
 [`mlr3pipelines::PipeOp`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html)
 -\>
-[`mlr3torch::PipeOpTorchIngress`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_ingress.md)
+[`PipeOpTorchIngress`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch_ingress.md)
 -\> `PipeOpTorchIngressCategorical`
 
 ## Methods
 
 ### Public methods
 
-- [`PipeOpTorchIngressCategorical$new()`](#method-PipeOpTorchIngressCategorical-new)
+- [`PipeOpTorchIngressCategorical$new()`](#method-PipeOpTorchIngressCategorical-initialize)
 
 - [`PipeOpTorchIngressCategorical$clone()`](#method-PipeOpTorchIngressCategorical-clone)
 
@@ -137,7 +137,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PipeOpTorchIngressCategorical$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -164,7 +164,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `PipeOpTorchIngressCategorical$clone()`
 
 The objects of this class are cloneable with this method.
 

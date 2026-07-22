@@ -117,14 +117,14 @@ Other PipeOps:
 
 [`mlr3pipelines::PipeOp`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html)
 -\>
-[`mlr3torch::PipeOpTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch.md)
--\> `mlr3torch::PipeOpTorchMaxPool` -\> `PipeOpTorchMaxPool3D`
+[`PipeOpTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_torch.md)
+-\> `PipeOpTorchMaxPool` -\> `PipeOpTorchMaxPool3D`
 
 ## Methods
 
 ### Public methods
 
-- [`PipeOpTorchMaxPool3D$new()`](#method-PipeOpTorchMaxPool3D-new)
+- [`PipeOpTorchMaxPool3D$new()`](#method-PipeOpTorchMaxPool3D-initialize)
 
 - [`PipeOpTorchMaxPool3D$clone()`](#method-PipeOpTorchMaxPool3D-clone)
 
@@ -134,11 +134,11 @@ Inherited methods
 - [`mlr3pipelines::PipeOp$predict()`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-predict)
 - [`mlr3pipelines::PipeOp$print()`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-print)
 - [`mlr3pipelines::PipeOp$train()`](https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-train)
-- [`mlr3torch::PipeOpTorch$shapes_out()`](https://mlr3torch.mlr-org.com/dev/reference/PipeOpTorch.html#method-shapes_out)
+- [`PipeOpTorch$shapes_out()`](https://mlr3torch.mlr-org.com/dev/reference/PipeOpTorch.html#method-shapes_out)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PipeOpTorchMaxPool3D$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -172,7 +172,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `PipeOpTorchMaxPool3D$clone()`
 
 The objects of this class are cloneable with this method.
 

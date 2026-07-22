@@ -78,7 +78,7 @@ Other PipeOp:
 
 ### Public methods
 
-- [`PipeOpModule$new()`](#method-PipeOpModule-new)
+- [`PipeOpModule$new()`](#method-PipeOpModule-initialize)
 
 - [`PipeOpModule$clone()`](#method-PipeOpModule-clone)
 
@@ -91,7 +91,7 @@ Inherited methods
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PipeOpModule$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -149,7 +149,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `PipeOpModule$clone()`
 
 The objects of this class are cloneable with this method.
 

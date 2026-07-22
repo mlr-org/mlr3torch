@@ -80,28 +80,25 @@ Wraps <code><a href="https://torch.mlverse.org/docs/reference/lr_reduce_on_plate
 
     <div class="section level2">
     <h2 id="super-classes">Super classes<a class="anchor" aria-label="anchor" href="#super-classes"></a></h2>
-    <p><code><a href="mlr_callback_set.html">mlr3torch::CallbackSet</a></code> -&gt; <code><a href="mlr_callback_set.lr_scheduler.html">mlr3torch::CallbackSetLRScheduler</a></code> -&gt; <code>CallbackSetLRSchedulerReduceOnPlateau</code></p>
+    <p><code><a href="mlr_callback_set.html">CallbackSet</a></code> -&gt; <code><a href="mlr_callback_set.lr_scheduler.html">CallbackSetLRScheduler</a></code> -&gt; <code>CallbackSetLRSchedulerReduceOnPlateau</code></p>
     </div>
     <div class="section level2">
     <h2 id="methods">Methods<a class="anchor" aria-label="anchor" href="#methods"></a></h2>
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-CallbackSetLRSchedulerReduceOnPlateau-new"><code>CallbackSetLRSchedulerReduceOnPlateau$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-CallbackSetLRSchedulerReduceOnPlateau-initialize"><code>CallbackSetLRSchedulerReduceOnPlateau$new()</code></a></p></li>
 <li><p><a href="#method-CallbackSetLRSchedulerReduceOnPlateau-clone"><code>CallbackSetLRSchedulerReduceOnPlateau$clone()</code></a></p></li>
-</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="load_state_dict"><a href="CallbackSet.html#method-load_state_dict"><code>mlr3torch::CallbackSet$load_state_dict()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href="CallbackSet.html#method-print"><code>mlr3torch::CallbackSet$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="state_dict"><a href="CallbackSet.html#method-state_dict"><code>mlr3torch::CallbackSet$state_dict()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSetLRScheduler" data-id="on_begin"><a href="CallbackSetLRScheduler.html#method-on_begin"><code>mlr3torch::CallbackSetLRScheduler$on_begin()</code></a></span></li>
-</ul></details></p><hr><a id="method-CallbackSetLRSchedulerReduceOnPlateau-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="load_state_dict"><a href="CallbackSet.html#method-load_state_dict"><code>CallbackSet$load_state_dict()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href="CallbackSet.html#method-print"><code>CallbackSet$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="state_dict"><a href="CallbackSet.html#method-state_dict"><code>CallbackSet$state_dict()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSetLRScheduler" data-id="on_begin"><a href="CallbackSetLRScheduler.html#method-on_begin"><code>CallbackSetLRScheduler$on_begin()</code></a></span></li>
+</ul></details></p><hr><a id="method-CallbackSetLRSchedulerReduceOnPlateau-initialize"></a><div class="section">
+<h3 id="callbacksetlrschedulerreduceonplateau-new-"><code>CallbackSetLRSchedulerReduceOnPlateau$new()</code><a class="anchor" aria-label="anchor" href="#callbacksetlrschedulerreduceonplateau-new-"></a></h3>
 <p>Creates a new instance of this <a href="https://r6.r-lib.org/reference/R6Class.html" class="external-link">R6</a> class.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/mlr_callback_set.lr_scheduler_reduce_on_plateau.html">CallbackSetLRSchedulerReduceOnPlateau</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>...</code></dt>
 <dd><p>(any)<br>
@@ -111,14 +108,14 @@ The scheduler-specific initialization arguments.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-CallbackSetLRSchedulerReduceOnPlateau-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-CallbackSetLRSchedulerReduceOnPlateau-clone"></a><div class="section">
+<h3 id="callbacksetlrschedulerreduceonplateau-clone-"><code>CallbackSetLRSchedulerReduceOnPlateau$clone()</code><a class="anchor" aria-label="anchor" href="#callbacksetlrschedulerreduceonplateau-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetLRSchedulerReduceOnPlateau</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -128,6 +125,7 @@ The scheduler-specific initialization arguments.</p></dd>
 </div>
 
 </div>
+
 
     </div>
 

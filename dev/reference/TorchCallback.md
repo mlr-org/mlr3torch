@@ -54,26 +54,26 @@ Other Torch Descriptor:
 
 ## Super class
 
-[`mlr3torch::TorchDescriptor`](https://mlr3torch.mlr-org.com/dev/reference/TorchDescriptor.md)
+[`TorchDescriptor`](https://mlr3torch.mlr-org.com/dev/reference/TorchDescriptor.md)
 -\> `TorchCallback`
 
 ## Methods
 
 ### Public methods
 
-- [`TorchCallback$new()`](#method-TorchCallback-new)
+- [`TorchCallback$new()`](#method-TorchCallback-initialize)
 
 - [`TorchCallback$clone()`](#method-TorchCallback-clone)
 
 Inherited methods
 
-- [`mlr3torch::TorchDescriptor$generate()`](https://mlr3torch.mlr-org.com/dev/reference/TorchDescriptor.html#method-generate)
-- [`mlr3torch::TorchDescriptor$help()`](https://mlr3torch.mlr-org.com/dev/reference/TorchDescriptor.html#method-help)
-- [`mlr3torch::TorchDescriptor$print()`](https://mlr3torch.mlr-org.com/dev/reference/TorchDescriptor.html#method-print)
+- [`TorchDescriptor$generate()`](https://mlr3torch.mlr-org.com/dev/reference/TorchDescriptor.html#method-generate)
+- [`TorchDescriptor$help()`](https://mlr3torch.mlr-org.com/dev/reference/TorchDescriptor.html#method-help)
+- [`TorchDescriptor$print()`](https://mlr3torch.mlr-org.com/dev/reference/TorchDescriptor.html#method-print)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `TorchCallback$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -133,7 +133,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `TorchCallback$clone()`
 
 The objects of this class are cloneable with this method.
 
@@ -168,7 +168,7 @@ torch_callback = t_clbk("checkpoint",
 torch_callback
 #> <TorchCallback:checkpoint> Checkpoint
 #> * Generator: CallbackSetCheckpoint
-#> * Parameters: path=/tmp/RtmpAbMMpC/file1c025a93e0ed, freq=1
+#> * Parameters: path=/tmp/RtmpgULu7b/file1df212dce8b8, freq=1
 #> * Packages: mlr3torch,torch
 torch_callback$label
 #> [1] "Checkpoint"

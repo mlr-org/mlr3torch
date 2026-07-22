@@ -39,7 +39,7 @@ Other Torch Descriptor:
 
 ## Super class
 
-[`mlr3torch::TorchDescriptor`](https://mlr3torch.mlr-org.com/dev/reference/TorchDescriptor.md)
+[`TorchDescriptor`](https://mlr3torch.mlr-org.com/dev/reference/TorchDescriptor.md)
 -\> `TorchLoss`
 
 ## Public fields
@@ -53,7 +53,7 @@ Other Torch Descriptor:
 
 ### Public methods
 
-- [`TorchLoss$new()`](#method-TorchLoss-new)
+- [`TorchLoss$new()`](#method-TorchLoss-initialize)
 
 - [`TorchLoss$print()`](#method-TorchLoss-print)
 
@@ -63,11 +63,11 @@ Other Torch Descriptor:
 
 Inherited methods
 
-- [`mlr3torch::TorchDescriptor$help()`](https://mlr3torch.mlr-org.com/dev/reference/TorchDescriptor.html#method-help)
+- [`TorchDescriptor$help()`](https://mlr3torch.mlr-org.com/dev/reference/TorchDescriptor.html#method-help)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `TorchLoss$new()`
 
 Creates a new instance of this
 [R6](https://r6.r-lib.org/reference/R6Class.html) class.
@@ -128,7 +128,7 @@ Creates a new instance of this
 
 ------------------------------------------------------------------------
 
-### Method [`print()`](https://rdrr.io/r/base/print.html)
+### `TorchLoss$print()`
 
 Prints the object
 
@@ -144,7 +144,7 @@ Prints the object
 
 ------------------------------------------------------------------------
 
-### Method `generate()`
+### `TorchLoss$generate()`
 
 Instantiates the loss function.
 
@@ -165,7 +165,7 @@ Instantiates the loss function.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `TorchLoss$clone()`
 
 The objects of this class are cloneable with this method.
 

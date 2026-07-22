@@ -83,45 +83,44 @@ and the training measures are prefixed with <code>"train."</code>.</p>
 
     <div class="section level2">
     <h2 id="super-class">Super class<a class="anchor" aria-label="anchor" href="#super-class"></a></h2>
-    <p><code><a href="mlr_callback_set.html">mlr3torch::CallbackSet</a></code> -&gt; <code>CallbackSetHistory</code></p>
+    <p><code><a href="mlr_callback_set.html">CallbackSet</a></code> -&gt; <code>CallbackSetHistory</code></p>
     </div>
     <div class="section level2">
     <h2 id="methods">Methods<a class="anchor" aria-label="anchor" href="#methods"></a></h2>
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-CallbackSetHistory-on_begin"><code>CallbackSetHistory$on_begin()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-CallbackSetHistory-on_begin"><code>CallbackSetHistory$on_begin()</code></a></p></li>
 <li><p><a href="#method-CallbackSetHistory-state_dict"><code>CallbackSetHistory$state_dict()</code></a></p></li>
 <li><p><a href="#method-CallbackSetHistory-load_state_dict"><code>CallbackSetHistory$load_state_dict()</code></a></p></li>
 <li><p><a href="#method-CallbackSetHistory-on_before_valid"><code>CallbackSetHistory$on_before_valid()</code></a></p></li>
 <li><p><a href="#method-CallbackSetHistory-on_epoch_end"><code>CallbackSetHistory$on_epoch_end()</code></a></p></li>
 <li><p><a href="#method-CallbackSetHistory-clone"><code>CallbackSetHistory$clone()</code></a></p></li>
-</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href="CallbackSet.html#method-print"><code>mlr3torch::CallbackSet$print()</code></a></span></li>
+</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href="CallbackSet.html#method-print"><code>CallbackSet$print()</code></a></span></li>
 </ul></details></p><hr><a id="method-CallbackSetHistory-on_begin"></a><div class="section">
-<h3 id="method-on-begin-">Method <code>on_begin()</code><a class="anchor" aria-label="anchor" href="#method-on-begin-"></a></h3>
+<h3 id="callbacksethistory-on-begin-"><code>CallbackSetHistory$on_begin()</code><a class="anchor" aria-label="anchor" href="#callbacksethistory-on-begin-"></a></h3>
 <p>Initializes lists where the train and validation metrics are stored.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetHistory</span><span class="op">$</span><span class="fu">on_begin</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
+</div>
 
-</div><p></p><hr><a id="method-CallbackSetHistory-state_dict"></a><div class="section">
-<h3 id="method-state-dict-">Method <code>state_dict()</code><a class="anchor" aria-label="anchor" href="#method-state-dict-"></a></h3>
+<p></p><hr><a id="method-CallbackSetHistory-state_dict"></a><div class="section">
+<h3 id="callbacksethistory-state-dict-"><code>CallbackSetHistory$state_dict()</code><a class="anchor" aria-label="anchor" href="#callbacksethistory-state-dict-"></a></h3>
 <p>Converts the lists to data.tables.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetHistory</span><span class="op">$</span><span class="fu">state_dict</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
+</div>
 
-</div><p></p><hr><a id="method-CallbackSetHistory-load_state_dict"></a><div class="section">
-<h3 id="method-load-state-dict-">Method <code><a href="https://torch.mlverse.org/docs/reference/load_state_dict.html" class="external-link">load_state_dict()</a></code><a class="anchor" aria-label="anchor" href="#method-load-state-dict-"></a></h3>
+<p></p><hr><a id="method-CallbackSetHistory-load_state_dict"></a><div class="section">
+<h3 id="callbacksethistory-load-state-dict-"><code>CallbackSetHistory$load_state_dict()</code><a class="anchor" aria-label="anchor" href="#callbacksethistory-load-state-dict-"></a></h3>
 <p>Sets the field <code>$train</code> and <code>$valid</code> to those contained in the state dict.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetHistory</span><span class="op">$</span><span class="fu">load_state_dict</span><span class="op">(</span><span class="va">state_dict</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>state_dict</code></dt>
 <dd><p>(<code>callback_state_history</code>)<br>
@@ -131,30 +130,32 @@ The state dict as retrieved via <code>$state_dict()</code>.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-CallbackSetHistory-on_before_valid"></a><div class="section">
-<h3 id="method-on-before-valid-">Method <code>on_before_valid()</code><a class="anchor" aria-label="anchor" href="#method-on-before-valid-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-CallbackSetHistory-on_before_valid"></a><div class="section">
+<h3 id="callbacksethistory-on-before-valid-"><code>CallbackSetHistory$on_before_valid()</code><a class="anchor" aria-label="anchor" href="#callbacksethistory-on-before-valid-"></a></h3>
 <p>Add the latest training scores to the history.</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetHistory</span><span class="op">$</span><span class="fu">on_before_valid</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
+</div>
 
-</div><p></p><hr><a id="method-CallbackSetHistory-on_epoch_end"></a><div class="section">
-<h3 id="method-on-epoch-end-">Method <code>on_epoch_end()</code><a class="anchor" aria-label="anchor" href="#method-on-epoch-end-"></a></h3>
+<p></p><hr><a id="method-CallbackSetHistory-on_epoch_end"></a><div class="section">
+<h3 id="callbacksethistory-on-epoch-end-"><code>CallbackSetHistory$on_epoch_end()</code><a class="anchor" aria-label="anchor" href="#callbacksethistory-on-epoch-end-"></a></h3>
 <p>Add the latest validation scores to the history.</p><div class="section">
 <h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetHistory</span><span class="op">$</span><span class="fu">on_epoch_end</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
+</div>
 
-</div><p></p><hr><a id="method-CallbackSetHistory-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+<p></p><hr><a id="method-CallbackSetHistory-clone"></a><div class="section">
+<h3 id="callbacksethistory-clone-"><code>CallbackSetHistory$clone()</code><a class="anchor" aria-label="anchor" href="#callbacksethistory-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CallbackSetHistory</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -164,6 +165,7 @@ The state dict as retrieved via <code>$state_dict()</code>.</p></dd>
 </div>
 
 </div>
+
 
     </div>
 

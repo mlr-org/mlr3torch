@@ -163,7 +163,7 @@ compatibility before starting the training.</p>
 <dd><p>The preprocessing function.</p></dd>
 
 
-<dt><code>rowwise</code></dt>
+    <dt><code>rowwise</code></dt>
 <dd><p>Whether the preprocessing is applied rowwise.</p></dd>
 
 
@@ -174,16 +174,15 @@ compatibility before starting the training.</p>
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-PipeOpTaskPreprocTorch-new"><code>PipeOpTaskPreprocTorch$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-PipeOpTaskPreprocTorch-initialize"><code>PipeOpTaskPreprocTorch$new()</code></a></p></li>
 <li><p><a href="#method-PipeOpTaskPreprocTorch-shapes_out"><code>PipeOpTaskPreprocTorch$shapes_out()</code></a></p></li>
 <li><p><a href="#method-PipeOpTaskPreprocTorch-clone"><code>PipeOpTaskPreprocTorch$clone()</code></a></p></li>
 </ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-help"><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-predict"><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-print"><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-train"><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
-</ul></details></p><hr><a id="method-PipeOpTaskPreprocTorch-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-predict"><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-print"><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href="https://mlr3pipelines.mlr-org.com/reference/PipeOp.html#method-train"><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
+</ul></details></p><hr><a id="method-PipeOpTaskPreprocTorch-initialize"></a><div class="section">
+<h3 id="pipeoptaskpreproctorch-new-"><code>PipeOpTaskPreprocTorch$new()</code><a class="anchor" aria-label="anchor" href="#pipeoptaskpreproctorch-new-"></a></h3>
 <p>Creates a new instance of this <code><a href="https://r6.r-lib.org/reference/R6Class.html" class="external-link">R6</a></code> class.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/mlr_pipeops_preproc_torch.html">PipeOpTaskPreprocTorch</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
@@ -196,9 +195,7 @@ compatibility before starting the training.</p>
 <span>  stages_init <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  tags <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>fn</code></dt>
 <dd><p>(<code>function</code> or <code>character(2)</code>)<br>
@@ -207,41 +204,34 @@ If it is a <code>character(2)</code>, the first element should be the namespace 
 When the preprocessing function is applied to the tensor, the tensor will be passed by position as the first argument.
 If the <code>param_set</code> is inferred (left as <code>NULL</code>) it is assumed that the first argument is the <code>torch_tensor</code>.</p></dd>
 
-
-<dt><code>id</code></dt>
+      <dt><code>id</code></dt>
 <dd><p>(<code>character(1)</code>)<br>
 The id for of the new object.</p></dd>
 
-
-<dt><code>param_vals</code></dt>
+      <dt><code>param_vals</code></dt>
 <dd><p>(named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>)<br>
 Parameter values to be set after construction.</p></dd>
 
-
-<dt><code>param_set</code></dt>
+      <dt><code>param_set</code></dt>
 <dd><p>(<code><a href="https://paradox.mlr-org.com/reference/ParamSet.html" class="external-link">ParamSet</a></code>)<br>
 In case the function <code>fn</code> takes additional parameter besides a <code><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></code> they can be
 specfied as parameters. None of the parameters can have the <code>"predict"</code> tag.
 All tags should include <code>"train"</code>.</p></dd>
 
-
-<dt><code>packages</code></dt>
+      <dt><code>packages</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
 The packages the preprocessing function depends on.</p></dd>
 
-
-<dt><code>rowwise</code></dt>
+      <dt><code>rowwise</code></dt>
 <dd><p>(<code>logical(1)</code>)<br>
 Whether the preprocessing function is applied rowwise (and then concatenated by row) or directly to the whole
 tensor. In the first case there is no batch dimension.</p></dd>
 
-
-<dt><code>stages_init</code></dt>
+      <dt><code>stages_init</code></dt>
 <dd><p>(<code>character(1)</code>)<br>
 Initial value for the <code>stages</code> parameter.</p></dd>
 
-
-<dt><code>tags</code></dt>
+      <dt><code>tags</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>)<br>
 Tags for the pipeop.</p></dd>
 
@@ -249,17 +239,17 @@ Tags for the pipeop.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-PipeOpTaskPreprocTorch-shapes_out"></a><div class="section">
-<h3 id="method-shapes-out-">Method <code>shapes_out()</code><a class="anchor" aria-label="anchor" href="#method-shapes-out-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-PipeOpTaskPreprocTorch-shapes_out"></a><div class="section">
+<h3 id="pipeoptaskpreproctorch-shapes-out-"><code>PipeOpTaskPreprocTorch$shapes_out()</code><a class="anchor" aria-label="anchor" href="#pipeoptaskpreproctorch-shapes-out-"></a></h3>
 <p>Calculates the output shapes that would result in applying the preprocessing to one or more
 lazy tensor columns with the provided shape.
 Names are ignored and only order matters.
 It uses the parameter values that are currently set.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipeOpTaskPreprocTorch</span><span class="op">$</span><span class="fu">shapes_out</span><span class="op">(</span><span class="va">shapes_in</span>, stage <span class="op">=</span> <span class="cn">NULL</span>, task <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>shapes_in</code></dt>
 <dd><p>(<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of (<code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code> or <code>NULL</code>))<br>
@@ -267,32 +257,29 @@ The input input shapes of the lazy tensors.
 <code>NULL</code> indicates that the shape is unknown.
 First dimension must be <code>NA</code> (if it is not <code>NULL</code>).</p></dd>
 
-
-<dt><code>stage</code></dt>
+      <dt><code>stage</code></dt>
 <dd><p>(<code>character(1)</code>)<br>
 The stage: either <code>"train"</code> or <code>"predict"</code>.</p></dd>
 
-
-<dt><code>task</code></dt>
+      <dt><code>task</code></dt>
 <dd><p>(<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code> or <code>NULL</code>)<br>
 The task, which is very rarely needed.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
 <p><code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of (<code><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer()</a></code> or <code>NULL</code>)</p>
 </div>
 
-</div><p></p><hr><a id="method-PipeOpTaskPreprocTorch-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-PipeOpTaskPreprocTorch-clone"></a><div class="section">
+<h3 id="pipeoptaskpreproctorch-clone-"><code>PipeOpTaskPreprocTorch$clone()</code><a class="anchor" aria-label="anchor" href="#pipeoptaskpreproctorch-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipeOpTaskPreprocTorch</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -302,6 +289,7 @@ The task, which is very rarely needed.</p></dd>
 </div>
 
 </div>
+
 
     </div>
 
