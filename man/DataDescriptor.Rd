@@ -35,55 +35,56 @@ as_data_descriptor(ds, list(x = c(NA, 3, 3)))
 ModelDescriptor, lazy_tensor
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{dataset}}{(\code{\link[torch:dataset]{torch::dataset}})\cr
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{dataset}}{(\code{\link[torch:dataset]{torch::dataset}})\cr
 The dataset.}
 
-\item{\code{graph}}{(\code{\link[mlr3pipelines:Graph]{Graph}})\cr
+    \item{\code{graph}}{(\code{\link[mlr3pipelines:Graph]{Graph}})\cr
 The preprocessing graph.}
 
-\item{\code{dataset_shapes}}{(named \code{list()} of (\code{integer()} or \code{NULL}))\cr
+    \item{\code{dataset_shapes}}{(named \code{list()} of (\code{integer()} or \code{NULL}))\cr
 The shapes of the output.}
 
-\item{\code{input_map}}{(\code{character()})\cr
+    \item{\code{input_map}}{(\code{character()})\cr
 The input map from the dataset to the preprocessing graph.}
 
-\item{\code{pointer}}{(\code{character(2)})\cr
+    \item{\code{pointer}}{(\code{character(2)})\cr
 The output pointer.}
 
-\item{\code{pointer_shape}}{(\code{integer()} | \code{NULL})\cr
+    \item{\code{pointer_shape}}{(\code{integer()} | \code{NULL})\cr
 The shape of the output indicated by \code{pointer}.}
 
-\item{\code{dataset_hash}}{(\code{character(1)})\cr
+    \item{\code{dataset_hash}}{(\code{character(1)})\cr
 Hash for the wrapped dataset.}
 
-\item{\code{hash}}{(\code{character(1)})\cr
+    \item{\code{hash}}{(\code{character(1)})\cr
 Hash for the data descriptor.}
 
-\item{\code{graph_input}}{(\code{character()})\cr
+    \item{\code{graph_input}}{(\code{character()})\cr
 The input channels of the preprocessing graph (cached to save time).}
 
-\item{\code{pointer_shape_predict}}{(\code{integer()} or \code{NULL})\cr
+    \item{\code{pointer_shape_predict}}{(\code{integer()} or \code{NULL})\cr
 Internal use only.}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-DataDescriptor-new}{\code{DataDescriptor$new()}}
-\item \href{#method-DataDescriptor-print}{\code{DataDescriptor$print()}}
-\item \href{#method-DataDescriptor-clone}{\code{DataDescriptor$clone()}}
-}
+  \itemize{
+    \item \href{#method-DataDescriptor-initialize}{\code{DataDescriptor$new()}}
+    \item \href{#method-DataDescriptor-print}{\code{DataDescriptor$print()}}
+    \item \href{#method-DataDescriptor-clone}{\code{DataDescriptor$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DataDescriptor-new"></a>}}
-\if{latex}{\out{\hypertarget{method-DataDescriptor-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of this \link[R6:R6Class]{R6} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataDescriptor$new(
+\if{html}{\out{<a id="method-DataDescriptor-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-DataDescriptor-initialize}{}}}
+\subsection{\code{DataDescriptor$new()}}{
+  Creates a new instance of this \link[R6:R6Class]{R6} class.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DataDescriptor$new(
   dataset,
   dataset_shapes = NULL,
   graph = NULL,
@@ -92,81 +93,79 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   pointer_shape = NULL,
   pointer_shape_predict = NULL,
   clone_graph = TRUE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{dataset}}{(\code{\link[torch:dataset]{torch::dataset}})\cr
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{dataset}}{(\code{\link[torch:dataset]{torch::dataset}})\cr
 The torch dataset.
 It should return a named \code{list()} of \code{\link[torch:torch_tensor]{torch_tensor}} objects.}
-
-\item{\code{dataset_shapes}}{(named \code{list()} of (\code{integer()} or \code{NULL}))\cr
+      \item{\code{dataset_shapes}}{(named \code{list()} of (\code{integer()} or \code{NULL}))\cr
 The shapes of the output.
 Names are the elements of the list returned by the dataset.
 If the shape is not \code{NULL} (unknown, e.g. for images of different sizes) the first dimension must be \code{NA} to
 indicate the batch dimension.}
-
-\item{\code{graph}}{(\code{\link[mlr3pipelines:Graph]{Graph}})\cr
+      \item{\code{graph}}{(\code{\link[mlr3pipelines:Graph]{Graph}})\cr
 The preprocessing graph.
 If left \code{NULL}, no preprocessing is applied to the data and \code{input_map}, \code{pointer}, \code{pointer_shape}, and
 \code{pointer_shape_predict} are inferred in case the dataset returns only one element.}
-
-\item{\code{input_map}}{(\code{character()})\cr
+      \item{\code{input_map}}{(\code{character()})\cr
 Character vector that must have the same length as the input of the graph.
 Specifies how the data from the \code{dataset} is fed into the preprocessing graph.}
-
-\item{\code{pointer}}{(\code{character(2)} | \code{NULL})\cr
+      \item{\code{pointer}}{(\code{character(2)} | \code{NULL})\cr
 Points to an output channel within \code{graph}:
 Element 1 is the \code{PipeOp}'s id and element 2 is that \code{PipeOp}'s output channel.}
-
-\item{\code{pointer_shape}}{(\code{integer()} | \code{NULL})\cr
+      \item{\code{pointer_shape}}{(\code{integer()} | \code{NULL})\cr
 Shape of the output indicated by \code{pointer}.}
-
-\item{\code{pointer_shape_predict}}{(\code{integer()} or \code{NULL})\cr
+      \item{\code{pointer_shape_predict}}{(\code{integer()} or \code{NULL})\cr
 Internal use only.
 Used in a \code{\link[mlr3pipelines:Graph]{Graph}} to anticipate possible mismatches between train and predict shapes.}
-
-\item{\code{clone_graph}}{(\code{logical(1)})\cr
+      \item{\code{clone_graph}}{(\code{logical(1)})\cr
 Whether to clone the preprocessing graph.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DataDescriptor-print"></a>}}
 \if{latex}{\out{\hypertarget{method-DataDescriptor-print}{}}}
-\subsection{Method \code{print()}}{
-Prints the object
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataDescriptor$print(...)}\if{html}{\out{</div>}}
+\subsection{\code{DataDescriptor$print()}}{
+  Prints the object
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DataDescriptor$print(...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{...}}{(any)\cr
+Unused}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{(any)\cr
-Unused}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DataDescriptor-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-DataDescriptor-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataDescriptor$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{DataDescriptor$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DataDescriptor$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

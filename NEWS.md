@@ -1,5 +1,15 @@
 # mlr3torch (development version)
 
+## Bug fixes
+
+* The CIFAR tasks now use a longer, configurable timeout when downloading their archives
+  (`options(mlr3torch.cifar_download_timeout = <seconds>)`, 5400 by default). The host serving
+  them is frequently throttled to a few kB/s, and the previous timeout aborted the download
+  before it could finish. The timeout is raised only around that download, so other downloads
+  still fail fast.
+
+* `logical()` features are now encoded as `c(1, 2)` by the
+`batchgetter_categ()` and their cardinality is correctly computed.
 * Fix: `lazy_tensor` columns are now again printed correctly inside `data.table`s
 
 # mlr3torch 0.3.3

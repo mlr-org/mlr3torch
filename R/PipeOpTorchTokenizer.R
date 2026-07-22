@@ -230,7 +230,7 @@ PipeOpTorchTokenizerCateg = R6Class("PipeOpTorchTokenizerCateg",
         }
         return(param_vals)
       }
-      c(param_vals, list(cardinalities = lengths(task$levels(task$feature_names))))
+      c(param_vals, list(cardinalities = unname(categ_cardinalities(task))))
     },
     .shapes_out = function(shapes_in, param_vals, task) {
       if (length(shapes_in[[1]]) != 2) {

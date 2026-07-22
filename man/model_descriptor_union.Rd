@@ -25,7 +25,7 @@ It creates the union of multiple \code{\link{ModelDescriptor}}s:
 reference.
 \item \code{PipeOp}s with the same ID must be identical. No new input edges may be added to \code{PipeOp}s.
 \item Drops \code{pointer} / \code{pointer_shape} entries.
-\item The new task is the \link[mlr3pipelines:mlr_pipeops_featureunion]{feature union} of the two incoming tasks.
+\item The new task is the \link[mlr3pipelines:PipeOpFeatureUnion]{feature union} of the two incoming tasks.
 \item The \code{optimizer} and \code{loss} of both \code{\link{ModelDescriptor}}s must be identical.
 \item Ingress tokens and callbacks are merged, where objects with the same \code{"id"} must be identical.
 }
@@ -36,9 +36,9 @@ we assume that ModelDescriptor is being built from beginning to end (i.e. \code{
 can make this assumption and simplify things. Otherwise we'd need to treat "..."-inputs special.)
 }
 \seealso{
-Other Graph Network: 
-\code{\link{ModelDescriptor}()},
-\code{\link{TorchIngressToken}()},
+Other Graph Network:
+\code{\link[=ModelDescriptor]{ModelDescriptor()}},
+\code{\link[=TorchIngressToken]{TorchIngressToken()}},
 \code{\link{mlr_learners_torch_model}},
 \code{\link{mlr_pipeops_module}},
 \code{\link{mlr_pipeops_torch}},
@@ -46,12 +46,12 @@ Other Graph Network:
 \code{\link{mlr_pipeops_torch_ingress_categ}},
 \code{\link{mlr_pipeops_torch_ingress_ltnsr}},
 \code{\link{mlr_pipeops_torch_ingress_num}},
-\code{\link{model_descriptor_to_learner}()},
-\code{\link{model_descriptor_to_module}()},
-\code{\link{nn_graph}()}
+\code{\link[=model_descriptor_to_learner]{model_descriptor_to_learner()}},
+\code{\link[=model_descriptor_to_module]{model_descriptor_to_module()}},
+\code{\link[=nn_graph]{nn_graph()}}
 
-Other Model Configuration: 
-\code{\link{ModelDescriptor}()},
+Other Model Configuration:
+\code{\link[=ModelDescriptor]{ModelDescriptor()}},
 \code{\link{mlr_pipeops_torch_callbacks}},
 \code{\link{mlr_pipeops_torch_loss}},
 \code{\link{mlr_pipeops_torch_optimizer}}
