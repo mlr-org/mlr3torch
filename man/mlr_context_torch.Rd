@@ -10,107 +10,108 @@ This is the - mostly read-only - information callbacks have access to through th
 For more information on callbacks, see \code{\link{CallbackSet}}.
 }
 \seealso{
-Other Callback: 
+Other Callback:
 \code{\link{TorchCallback}},
-\code{\link{as_torch_callback}()},
-\code{\link{as_torch_callbacks}()},
-\code{\link{callback_set}()},
+\code{\link[=as_torch_callback]{as_torch_callback()}},
+\code{\link[=as_torch_callbacks]{as_torch_callbacks()}},
+\code{\link[=callback_set]{callback_set()}},
 \code{\link{mlr3torch_callbacks}},
 \code{\link{mlr_callback_set}},
 \code{\link{mlr_callback_set.checkpoint}},
 \code{\link{mlr_callback_set.progress}},
 \code{\link{mlr_callback_set.tb}},
 \code{\link{mlr_callback_set.unfreeze}},
-\code{\link{t_clbk}()},
-\code{\link{torch_callback}()}
+\code{\link[=t_clbk]{t_clbk()}},
+\code{\link[=torch_callback]{torch_callback()}}
 }
 \concept{Callback}
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{learner}}{(\code{\link[mlr3:Learner]{Learner}})\cr
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{learner}}{(\code{\link[mlr3:Learner]{Learner}})\cr
 The torch learner.}
 
-\item{\code{task_train}}{(\code{\link[mlr3:Task]{Task}})\cr
+    \item{\code{task_train}}{(\code{\link[mlr3:Task]{Task}})\cr
 The training task.}
 
-\item{\code{task_valid}}{(\code{\link[mlr3:Task]{Task}} or \code{NULL})\cr
+    \item{\code{task_valid}}{(\code{\link[mlr3:Task]{Task}} or \code{NULL})\cr
 The validation task.}
 
-\item{\code{loader_train}}{(\code{\link[torch:dataloader]{torch::dataloader}})\cr
+    \item{\code{loader_train}}{(\code{\link[torch:dataloader]{torch::dataloader}})\cr
 The data loader for training.}
 
-\item{\code{loader_valid}}{(\code{\link[torch:dataloader]{torch::dataloader}})\cr
+    \item{\code{loader_valid}}{(\code{\link[torch:dataloader]{torch::dataloader}})\cr
 The data loader for validation.}
 
-\item{\code{measures_train}}{(\code{list()} of \code{\link[mlr3:Measure]{Measure}}s)\cr
+    \item{\code{measures_train}}{(\code{list()} of \code{\link[mlr3:Measure]{Measure}}s)\cr
 Measures used for training.}
 
-\item{\code{measures_valid}}{(\code{list()} of \code{\link[mlr3:Measure]{Measure}}s)\cr
+    \item{\code{measures_valid}}{(\code{list()} of \code{\link[mlr3:Measure]{Measure}}s)\cr
 Measures used for validation.}
 
-\item{\code{network}}{(\code{\link[torch:nn_module]{torch::nn_module}})\cr
+    \item{\code{network}}{(\code{\link[torch:nn_module]{torch::nn_module}})\cr
 The torch network.}
 
-\item{\code{optimizer}}{(\code{\link[torch:optimizer]{torch::optimizer}})\cr
+    \item{\code{optimizer}}{(\code{\link[torch:optimizer]{torch::optimizer}})\cr
 The optimizer.}
 
-\item{\code{loss_fn}}{(\code{\link[torch:nn_module]{torch::nn_module}})\cr
+    \item{\code{loss_fn}}{(\code{\link[torch:nn_module]{torch::nn_module}})\cr
 The loss function.}
 
-\item{\code{total_epochs}}{(\code{integer(1)})\cr
+    \item{\code{total_epochs}}{(\code{integer(1)})\cr
 The total number of epochs the learner is trained for.}
 
-\item{\code{last_scores_train}}{(named \code{list()} or \code{NULL})\cr
+    \item{\code{last_scores_train}}{(named \code{list()} or \code{NULL})\cr
 The scores from the last training batch. Names are the ids of the training measures.
 If \code{\link{LearnerTorch}} sets \code{eval_freq} different from \code{1}, this is \code{NULL} in all epochs
 that don't evaluate the model.}
 
-\item{\code{last_scores_valid}}{(\code{list()})\cr
+    \item{\code{last_scores_valid}}{(\code{list()})\cr
 The scores from the last validation batch. Names are the ids of the validation measures.
 If \code{\link{LearnerTorch}} sets \code{eval_freq} different from \code{1}, this is \code{NULL} in all epochs
 that don't evaluate the model.}
 
-\item{\code{last_loss}}{(\code{numeric(1)})\cr
+    \item{\code{last_loss}}{(\code{numeric(1)})\cr
 The loss from the last trainings batch.}
 
-\item{\code{y_hat}}{(\code{torch_tensor})\cr
+    \item{\code{y_hat}}{(\code{torch_tensor})\cr
 The model's prediction for the current batch.}
 
-\item{\code{epoch}}{(\code{integer(1)})\cr
+    \item{\code{epoch}}{(\code{integer(1)})\cr
 The current epoch.}
 
-\item{\code{step}}{(\code{integer(1)})\cr
+    \item{\code{step}}{(\code{integer(1)})\cr
 The current iteration.}
 
-\item{\code{prediction_encoder}}{(\verb{function()})\cr
+    \item{\code{prediction_encoder}}{(\verb{function()})\cr
 The learner's prediction encoder.}
 
-\item{\code{batch}}{(named \code{list()} of \code{torch_tensor}s)\cr
+    \item{\code{batch}}{(named \code{list()} of \code{torch_tensor}s)\cr
 The current batch.}
 
-\item{\code{terminate}}{(\code{logical(1)})\cr
+    \item{\code{terminate}}{(\code{logical(1)})\cr
 If this field is set to \code{TRUE} at the end of an epoch, training stops.}
 
-\item{\code{device}}{(\code{torch::torch_device})\cr
+    \item{\code{device}}{(\code{torch::torch_device})\cr
 The device.}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-ContextTorch-new}{\code{ContextTorch$new()}}
-\item \href{#method-ContextTorch-clone}{\code{ContextTorch$clone()}}
-}
+  \itemize{
+    \item \href{#method-ContextTorch-initialize}{\code{ContextTorch$new()}}
+    \item \href{#method-ContextTorch-clone}{\code{ContextTorch$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-ContextTorch-new"></a>}}
-\if{latex}{\out{\hypertarget{method-ContextTorch-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of this \link[R6:R6Class]{R6} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ContextTorch$new(
+\if{html}{\out{<a id="method-ContextTorch-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-ContextTorch-initialize}{}}}
+\subsection{\code{ContextTorch$new()}}{
+  Creates a new instance of this \link[R6:R6Class]{R6} class.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ContextTorch$new(
   learner,
   task_train,
   task_valid = NULL,
@@ -125,73 +126,63 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   prediction_encoder,
   eval_freq = 1L,
   device
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{learner}}{(\code{\link[mlr3:Learner]{Learner}})\cr
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{learner}}{(\code{\link[mlr3:Learner]{Learner}})\cr
 The torch learner.}
-
-\item{\code{task_train}}{(\code{\link[mlr3:Task]{Task}})\cr
+      \item{\code{task_train}}{(\code{\link[mlr3:Task]{Task}})\cr
 The training task.}
-
-\item{\code{task_valid}}{(\code{\link[mlr3:Task]{Task}} or \code{NULL})\cr
+      \item{\code{task_valid}}{(\code{\link[mlr3:Task]{Task}} or \code{NULL})\cr
 The validation task.}
-
-\item{\code{loader_train}}{(\code{\link[torch:dataloader]{torch::dataloader}})\cr
+      \item{\code{loader_train}}{(\code{\link[torch:dataloader]{torch::dataloader}})\cr
 The data loader for training.}
-
-\item{\code{loader_valid}}{(\code{\link[torch:dataloader]{torch::dataloader}} or \code{NULL})\cr
+      \item{\code{loader_valid}}{(\code{\link[torch:dataloader]{torch::dataloader}} or \code{NULL})\cr
 The data loader for validation.}
-
-\item{\code{measures_train}}{(\code{list()} of \code{\link[mlr3:Measure]{Measure}}s or \code{NULL})\cr
+      \item{\code{measures_train}}{(\code{list()} of \code{\link[mlr3:Measure]{Measure}}s or \code{NULL})\cr
 Measures used for training. Default is \code{NULL}.}
-
-\item{\code{measures_valid}}{(\code{list()} of \code{\link[mlr3:Measure]{Measure}}s or \code{NULL})\cr
+      \item{\code{measures_valid}}{(\code{list()} of \code{\link[mlr3:Measure]{Measure}}s or \code{NULL})\cr
 Measures used for validation.}
-
-\item{\code{network}}{(\code{\link[torch:nn_module]{torch::nn_module}})\cr
+      \item{\code{network}}{(\code{\link[torch:nn_module]{torch::nn_module}})\cr
 The torch network.}
-
-\item{\code{optimizer}}{(\code{\link[torch:optimizer]{torch::optimizer}})\cr
+      \item{\code{optimizer}}{(\code{\link[torch:optimizer]{torch::optimizer}})\cr
 The optimizer.}
-
-\item{\code{loss_fn}}{(\code{\link[torch:nn_module]{torch::nn_module}})\cr
+      \item{\code{loss_fn}}{(\code{\link[torch:nn_module]{torch::nn_module}})\cr
 The loss function.}
-
-\item{\code{total_epochs}}{(\code{integer(1)})\cr
+      \item{\code{total_epochs}}{(\code{integer(1)})\cr
 The total number of epochs the learner is trained for.}
-
-\item{\code{prediction_encoder}}{(\verb{function()})\cr
+      \item{\code{prediction_encoder}}{(\verb{function()})\cr
 The learner's prediction encoder.
 See section \emph{Inheriting} of \code{\link{LearnerTorch}}.}
-
-\item{\code{eval_freq}}{(\code{integer(1)})\cr
+      \item{\code{eval_freq}}{(\code{integer(1)})\cr
 The evaluation frequency.}
-
-\item{\code{device}}{(\code{character(1)})\cr
+      \item{\code{device}}{(\code{character(1)})\cr
 The device.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ContextTorch-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-ContextTorch-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ContextTorch$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{ContextTorch$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{ContextTorch$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

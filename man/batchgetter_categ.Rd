@@ -16,4 +16,7 @@ Unused.}
 \description{
 Converts a data frame of categorical data into a long tensor by converting the data to integers.
 No input checks are performed.
+
+All columns are encoded with \strong{1-based} codes, i.e. the values of a feature with cardinality
+\code{k} are \verb{1, ..., k}.
 }

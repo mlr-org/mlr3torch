@@ -96,21 +96,21 @@ po_add1$train(input)$output
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-Other Graph Network: 
-\code{\link{ModelDescriptor}()},
-\code{\link{TorchIngressToken}()},
+Other Graph Network:
+\code{\link[=ModelDescriptor]{ModelDescriptor()}},
+\code{\link[=TorchIngressToken]{TorchIngressToken()}},
 \code{\link{mlr_learners_torch_model}},
 \code{\link{mlr_pipeops_torch}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},
 \code{\link{mlr_pipeops_torch_ingress_ltnsr}},
 \code{\link{mlr_pipeops_torch_ingress_num}},
-\code{\link{model_descriptor_to_learner}()},
-\code{\link{model_descriptor_to_module}()},
-\code{\link{model_descriptor_union}()},
-\code{\link{nn_graph}()}
+\code{\link[=model_descriptor_to_learner]{model_descriptor_to_learner()}},
+\code{\link[=model_descriptor_to_module]{model_descriptor_to_module()}},
+\code{\link[=model_descriptor_union]{model_descriptor_union()}},
+\code{\link[=nn_graph]{nn_graph()}}
 
-Other PipeOp: 
+Other PipeOp:
 \code{\link{mlr_pipeops_torch_callbacks}},
 \code{\link{mlr_pipeops_torch_optimizer}}
 }
@@ -120,86 +120,83 @@ Other PipeOp:
 \code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{PipeOpModule}
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{module}}{(\code{\link[torch:nn_module]{nn_module}})\cr
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{module}}{(\code{\link[torch:nn_module]{nn_module}})\cr
 The torch module that is called during the training phase.}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-PipeOpModule-new}{\code{PipeOpModule$new()}}
-\item \href{#method-PipeOpModule-clone}{\code{PipeOpModule$clone()}}
+  \itemize{
+    \item \href{#method-PipeOpModule-initialize}{\code{PipeOpModule$new()}}
+    \item \href{#method-PipeOpModule-clone}{\code{PipeOpModule$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-print'><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-print'><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-PipeOpModule-new"></a>}}
-\if{latex}{\out{\hypertarget{method-PipeOpModule-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of this \link[R6:R6Class]{R6} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipeOpModule$new(
+\if{html}{\out{<a id="method-PipeOpModule-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-PipeOpModule-initialize}{}}}
+\subsection{\code{PipeOpModule$new()}}{
+  Creates a new instance of this \link[R6:R6Class]{R6} class.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipeOpModule$new(
   id = "module",
   module = nn_identity(),
   inname = "input",
   outname = "output",
   param_vals = list(),
   packages = character(0)
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{id}}{(\code{character(1)})\cr
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{id}}{(\code{character(1)})\cr
 The id for of the new object.}
-
-\item{\code{module}}{(\code{\link[torch:nn_module]{nn_module}} or \verb{function()})\cr
+      \item{\code{module}}{(\code{\link[torch:nn_module]{nn_module}} or \verb{function()})\cr
 The torch module or function that is being wrapped.}
-
-\item{\code{inname}}{(\code{character()})\cr
+      \item{\code{inname}}{(\code{character()})\cr
 The names of the input channels.}
-
-\item{\code{outname}}{(\code{character()})\cr
+      \item{\code{outname}}{(\code{character()})\cr
 The names of the output channels. If this parameter has length 1, the parameter \link[torch:nn_module]{module} must
 return a \link[torch:torch_tensor]{tensor}. Otherwise it must return a \code{list()} of tensors of corresponding length.}
-
-\item{\code{param_vals}}{(named \code{list()})\cr
+      \item{\code{param_vals}}{(named \code{list()})\cr
 Parameter values to be set after construction.}
-
-\item{\code{packages}}{(\code{character()})\cr
+      \item{\code{packages}}{(\code{character()})\cr
 The R packages this object depends on.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipeOpModule-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-PipeOpModule-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipeOpModule$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{PipeOpModule$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipeOpModule$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

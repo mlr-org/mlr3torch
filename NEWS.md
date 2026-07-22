@@ -1,5 +1,9 @@
 # mlr3torch (development version)
 
+## Bug fixes
+
+* `logical()` features are now encoded as `c(1, 2)` by the
+`batchgetter_categ()` and their cardinality is correctly computed.
 * Fix: `lazy_tensor` columns are now again printed correctly inside `data.table`s
 
 # mlr3torch 0.3.3

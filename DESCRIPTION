@@ -80,7 +80,6 @@ NeedsCompilation: no
 ByteCompile: yes
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, r6 = TRUE)
-RoxygenNote: 7.3.3
 Collate:
     'CallbackSet.R'
     'aaa.R'
@@ -159,3 +158,4 @@ Collate:
     'rd_info.R'
     'with_torch_settings.R'
     'zzz.R'
+Config/roxygen2/version: 8.0.0

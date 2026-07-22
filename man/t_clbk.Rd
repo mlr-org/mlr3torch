@@ -26,7 +26,7 @@ The keys of the callbacks.}
 }
 \description{
 Retrieves one or more \code{\link{TorchCallback}}s from \code{\link{mlr3torch_callbacks}}.
-Works like \code{\link[mlr3:mlr_sugar]{mlr3::lrn()}} and \code{\link[mlr3:mlr_sugar]{mlr3::lrns()}}.
+Works like \code{\link[mlr3:lrn]{mlr3::lrn()}} and \code{\link[mlr3:lrns]{mlr3::lrns()}}.
 }
 \examples{
 \dontshow{if (torch::torch_is_installed()) withAutoprint(\{ # examplesIf}
@@ -34,11 +34,11 @@ t_clbk("progress")
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-Other Callback: 
+Other Callback:
 \code{\link{TorchCallback}},
-\code{\link{as_torch_callback}()},
-\code{\link{as_torch_callbacks}()},
-\code{\link{callback_set}()},
+\code{\link[=as_torch_callback]{as_torch_callback()}},
+\code{\link[=as_torch_callbacks]{as_torch_callbacks()}},
+\code{\link[=callback_set]{callback_set()}},
 \code{\link{mlr3torch_callbacks}},
 \code{\link{mlr_callback_set}},
 \code{\link{mlr_callback_set.checkpoint}},
@@ -46,20 +46,20 @@ Other Callback:
 \code{\link{mlr_callback_set.tb}},
 \code{\link{mlr_callback_set.unfreeze}},
 \code{\link{mlr_context_torch}},
-\code{\link{torch_callback}()}
+\code{\link[=torch_callback]{torch_callback()}}
 
-Other Torch Descriptor: 
+Other Torch Descriptor:
 \code{\link{TorchCallback}},
 \code{\link{TorchDescriptor}},
 \code{\link{TorchLoss}},
 \code{\link{TorchOptimizer}},
-\code{\link{as_torch_callbacks}()},
-\code{\link{as_torch_loss}()},
-\code{\link{as_torch_optimizer}()},
+\code{\link[=as_torch_callbacks]{as_torch_callbacks()}},
+\code{\link[=as_torch_loss]{as_torch_loss()}},
+\code{\link[=as_torch_optimizer]{as_torch_optimizer()}},
 \code{\link{mlr3torch_losses}},
 \code{\link{mlr3torch_optimizers}},
-\code{\link{t_loss}()},
-\code{\link{t_opt}()}
+\code{\link[=t_loss]{t_loss()}},
+\code{\link[=t_opt]{t_opt()}}
 }
 \concept{Callback}
 \concept{Torch Descriptor}

@@ -75,191 +75,194 @@ backend_lazy$backend$data(1, "x")
 \code{\link[mlr3:DataBackend]{mlr3::DataBackend}} -> \code{DataBackendLazy}
 }
 \section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{backend}}{(\code{DataBackend})\cr
+  \if{html}{\out{<div class="r6-active-bindings">}}
+  \describe{
+    \item{\code{backend}}{(\code{DataBackend})\cr
 The wrapped backend that is lazily constructed when first accessed.}
 
-\item{\code{nrow}}{(\code{integer(1)})\cr
+    \item{\code{nrow}}{(\code{integer(1)})\cr
 Number of rows (observations).}
 
-\item{\code{ncol}}{(\code{integer(1)})\cr
+    \item{\code{ncol}}{(\code{integer(1)})\cr
 Number of columns (variables), including the primary key column.}
 
-\item{\code{rownames}}{(\code{integer()})\cr
+    \item{\code{rownames}}{(\code{integer()})\cr
 Returns vector of all distinct row identifiers, i.e. the contents of the primary key column.}
 
-\item{\code{colnames}}{(\code{character()})\cr
+    \item{\code{colnames}}{(\code{character()})\cr
 Returns vector of all column names, including the primary key column.}
 
-\item{\code{is_constructed}}{(\code{logical(1)})\cr
+    \item{\code{is_constructed}}{(\code{logical(1)})\cr
 Whether the backend has already been constructed.}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-DataBackendLazy-new}{\code{DataBackendLazy$new()}}
-\item \href{#method-DataBackendLazy-data}{\code{DataBackendLazy$data()}}
-\item \href{#method-DataBackendLazy-head}{\code{DataBackendLazy$head()}}
-\item \href{#method-DataBackendLazy-distinct}{\code{DataBackendLazy$distinct()}}
-\item \href{#method-DataBackendLazy-missings}{\code{DataBackendLazy$missings()}}
-\item \href{#method-DataBackendLazy-print}{\code{DataBackendLazy$print()}}
+  \itemize{
+    \item \href{#method-DataBackendLazy-initialize}{\code{DataBackendLazy$new()}}
+    \item \href{#method-DataBackendLazy-data}{\code{DataBackendLazy$data()}}
+    \item \href{#method-DataBackendLazy-head}{\code{DataBackendLazy$head()}}
+    \item \href{#method-DataBackendLazy-distinct}{\code{DataBackendLazy$distinct()}}
+    \item \href{#method-DataBackendLazy-missings}{\code{DataBackendLazy$missings()}}
+    \item \href{#method-DataBackendLazy-print}{\code{DataBackendLazy$print()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3" data-topic="DataBackend" data-id="format"><a href='../../mlr3/html/DataBackend.html#method-DataBackend-format'><code>mlr3::DataBackend$format()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3" data-topic="DataBackend" data-id="format"><a href='../../mlr3/html/DataBackend.html#method-DataBackend-format'><code>mlr3::DataBackend$format()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DataBackendLazy-new"></a>}}
-\if{latex}{\out{\hypertarget{method-DataBackendLazy-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of this \link[R6:R6Class]{R6} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataBackendLazy$new(constructor, rownames, col_info, primary_key)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{constructor}}{(\code{function})\cr
+\if{html}{\out{<a id="method-DataBackendLazy-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBackendLazy-initialize}{}}}
+\subsection{\code{DataBackendLazy$new()}}{
+  Creates a new instance of this \link[R6:R6Class]{R6} class.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DataBackendLazy$new(constructor, rownames, col_info, primary_key)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{constructor}}{(\code{function})\cr
 A function with argument \code{backend} (the lazy backend), whose return value must be the actual backend.
 This function is called the first time the field \verb{$backend} is accessed.}
-
-\item{\code{rownames}}{(\code{integer()})\cr
+      \item{\code{rownames}}{(\code{integer()})\cr
 The row names. Must be a permutation of the rownames of the lazily constructed backend.}
-
-\item{\code{col_info}}{(\code{\link[data.table:data.table]{data.table::data.table()}})\cr
+      \item{\code{col_info}}{(\code{\link[data.table:data.table]{data.table::data.table()}})\cr
 A data.table with columns \code{id}, \code{type} and \code{levels} containing the column id, type and levels.
 Note that the levels must be provided in the correct order.}
-
-\item{\code{primary_key}}{(\code{character(1)})\cr
+      \item{\code{primary_key}}{(\code{character(1)})\cr
 Name of the primary key column.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DataBackendLazy-data"></a>}}
 \if{latex}{\out{\hypertarget{method-DataBackendLazy-data}{}}}
-\subsection{Method \code{data()}}{
-Returns a slice of the data in the specified format.
+\subsection{\code{DataBackendLazy$data()}}{
+  Returns a slice of the data in the specified format.
 The rows must be addressed as vector of primary key values, columns must be referred to via column names.
 Queries for rows with no matching row id and queries for columns with no matching column name are silently ignored.
 Rows are guaranteed to be returned in the same order as \code{rows}, columns may be returned in an arbitrary order.
 Duplicated row ids result in duplicated rows, duplicated column names lead to an exception.
 
 Accessing the data triggers the construction of the backend.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataBackendLazy$data(rows, cols)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{rows}}{(\code{integer()})\cr
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DataBackendLazy$data(rows, cols)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{rows}}{(\code{integer()})\cr
 Row indices.}
-
-\item{\code{cols}}{(\code{character()})\cr
+      \item{\code{cols}}{(\code{character()})\cr
 Column names.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DataBackendLazy-head"></a>}}
 \if{latex}{\out{\hypertarget{method-DataBackendLazy-head}{}}}
-\subsection{Method \code{head()}}{
-Retrieve the first \code{n} rows.
+\subsection{\code{DataBackendLazy$head()}}{
+  Retrieve the first \code{n} rows.
 This triggers the construction of the backend.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataBackendLazy$head(n = 6L)}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DataBackendLazy$head(n = 6L)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{n}}{(\code{integer(1)})\cr
+Number of rows.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    \code{\link[data.table:data.table]{data.table::data.table()}} of the first \code{n} rows.
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{n}}{(\code{integer(1)})\cr
-Number of rows.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-\code{\link[data.table:data.table]{data.table::data.table()}} of the first \code{n} rows.
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DataBackendLazy-distinct"></a>}}
 \if{latex}{\out{\hypertarget{method-DataBackendLazy-distinct}{}}}
-\subsection{Method \code{distinct()}}{
-Returns a named list of vectors of distinct values for each column
+\subsection{\code{DataBackendLazy$distinct()}}{
+  Returns a named list of vectors of distinct values for each column
 specified. If \code{na_rm} is \code{TRUE}, missing values are removed from the
 returned vectors of distinct values. Non-existing rows and columns are
 silently ignored.
 
 This triggers the construction of the backend.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataBackendLazy$distinct(rows, cols, na_rm = TRUE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{rows}}{(\code{integer()})\cr
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DataBackendLazy$distinct(rows, cols, na_rm = TRUE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{rows}}{(\code{integer()})\cr
 Row indices.}
-
-\item{\code{cols}}{(\code{character()})\cr
+      \item{\code{cols}}{(\code{character()})\cr
 Column names.}
-
-\item{\code{na_rm}}{(\code{logical(1)})\cr
+      \item{\code{na_rm}}{(\code{logical(1)})\cr
 Whether to remove NAs or not.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Named \code{list()} of distinct values.
+  }
 }
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Named \code{list()} of distinct values.
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DataBackendLazy-missings"></a>}}
 \if{latex}{\out{\hypertarget{method-DataBackendLazy-missings}{}}}
-\subsection{Method \code{missings()}}{
-Returns the number of missing values per column in the specified slice
+\subsection{\code{DataBackendLazy$missings()}}{
+  Returns the number of missing values per column in the specified slice
 of data. Non-existing rows and columns are silently ignored.
 
 This triggers the construction of the backend.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataBackendLazy$missings(rows, cols)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{rows}}{(\code{integer()})\cr
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DataBackendLazy$missings(rows, cols)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{rows}}{(\code{integer()})\cr
 Row indices.}
-
-\item{\code{cols}}{(\code{character()})\cr
+      \item{\code{cols}}{(\code{character()})\cr
 Column names.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Total of missing values per column (named \code{numeric()}).
+  }
 }
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Total of missing values per column (named \code{numeric()}).
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DataBackendLazy-print"></a>}}
 \if{latex}{\out{\hypertarget{method-DataBackendLazy-print}{}}}
-\subsection{Method \code{print()}}{
-Printer.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataBackendLazy$print()}\if{html}{\out{</div>}}
+\subsection{\code{DataBackendLazy$print()}}{
+  Printer.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{DataBackendLazy$print()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 }
