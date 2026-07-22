@@ -45,12 +45,18 @@ jobs:
         run: |
           echo "TORCH_TEST=1" >> $GITHUB_ENV
           echo "INCLUDE_IGNORED=1" >> $GITHUB_ENV
+          # The dataset hosts (e.g. cs.toronto.edu for CIFAR) are frequently throttled to a
+          # few kB/s. R's default download timeout of 60s -- and torchvision's floor of 600s --
+          # is far too short for a ~170 MB archive at that rate, which is what turns a slow
+          # host into a red build. Give a cold cache enough room to succeed once.
+          echo "R_DEFAULT_INTERNET_TIMEOUT=3600" >> $GITHUB_ENV
 
       - name: Set test environment variables (windows)
         if: runner.os == 'Windows'
         run: |
           echo "TORCH_TEST=1" >> $env:GITHUB_ENV
           echo "INCLUDE_IGNORED=1" >> $env:GITHUB_ENV
+          echo "R_DEFAULT_INTERNET_TIMEOUT=3600" >> $env:GITHUB_ENV
 
       - uses: actions/checkout@v5
 
@@ -91,6 +97,7 @@ jobs:
         id: get_cache_path_unix
         run: |
           echo "TORCH_CACHE_PATH=$(Rscript -e 'cat(rappdirs::user_cache_dir("torch"))')" >> $GITHUB_ENV
+          echo "MLR3TORCH_CACHE_PATH=$(Rscript -e 'cat(tools::R_user_dir("mlr3torch", "cache"))')" >> $GITHUB_ENV
 
       - name: Get torch cache path (Windows)
         if: runner.os == 'Windows'
@@ -98,14 +105,40 @@ jobs:
         run: |
           $cachePath = Rscript -e 'cat(rappdirs::user_cache_dir("torch"))'
           echo "TORCH_CACHE_PATH=$cachePath" >> $env:GITHUB_ENV
+          $mlr3torchCachePath = Rscript -e 'cat(tools::R_user_dir("mlr3torch", "cache"))'
+          echo "MLR3TORCH_CACHE_PATH=$mlr3torchCachePath" >> $env:GITHUB_ENV
 
-      - name: Cache Torchvision Downloads
-        uses: actions/cache@v4
+      # The dataset archives (CIFAR, MNIST, tiny-imagenet, ...) are downloaded from external
+      # hosts that are regularly slow. Restore and save are deliberately split:
+      # `actions/cache` only saves in a post step guarded by `post-if: success()`, so a job
+      # that failed for any reason never repopulates the cache. That is self-perpetuating:
+      # once the entry is evicted (GitHub drops entries not accessed for 7 days, and this
+      # workflow only runs weekly), the job can never get back to green on its own.
+      # `actions/cache/save` with `if: always()` persists whatever was downloaded even when
+      # the check failed, so one slow-but-successful download warms the cache permanently.
+      - name: Restore Torchvision Downloads
+        id: torch_cache
+        uses: actions/cache/restore@v4
         with:
-          path: ${{ env.TORCH_CACHE_PATH }}
+          path: |
+            ${{ env.TORCH_CACHE_PATH }}
+            ${{ env.MLR3TORCH_CACHE_PATH }}
           key: ${{ runner.os }}-r-${{ env.TORCHVISION_PACKAGE_VERSION }}
+          # Fall back to an entry from a previous torchvision version: the cached dataset
+          # archives do not depend on it, so a version bump should not cold-start every runner.
+          restore-keys: |
+            ${{ runner.os }}-r-
 
       - uses: r-lib/actions/check-r-package@v2
+
+      - name: Save Torchvision Downloads
+        uses: actions/cache/save@v4
+        if: always() && steps.torch_cache.outputs.cache-hit != 'true'
+        with:
+          path: |
+            ${{ env.TORCH_CACHE_PATH }}
+            ${{ env.MLR3TORCH_CACHE_PATH }}
+          key: ${{ runner.os }}-r-${{ env.TORCHVISION_PACKAGE_VERSION }}
 
       - uses: mxschmitt/action-tmate@v3
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
