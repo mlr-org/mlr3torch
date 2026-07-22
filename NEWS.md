@@ -2,6 +2,10 @@
 
 * Feat: Added the `TabM` learner (`lrn("classif.tabm")` / `lrn("regr.tabm")`) and the
   corresponding `nn_tabm()` module, a port of the official TabM reference implementation.
+  It can optionally embed numerical features using the new `nn_linear_embeddings()`,
+  `nn_linear_relu_embeddings()`, `nn_periodic_embeddings()` and
+  `nn_piecewise_linear_embeddings()` modules (a port of the `rtdl_num_embeddings`
+  package), whose bin edges can be computed with the new `compute_bins()`.
 
 # mlr3torch 0.3.3
 

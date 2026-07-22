@@ -9,9 +9,10 @@ nn_tabm(
   n_num_features = NULL,
   cat_cardinalities = NULL,
   d_out = NULL,
+  num_embeddings = NULL,
   arch_type = "tabm",
   k = 32L,
-  n_blocks = 3L,
+  n_blocks = NULL,
   d_block = 512L,
   dropout = 0.1,
   activation = "relu",
@@ -33,14 +34,23 @@ The number of categories of each categorical feature.}
 \item{d_out}{(\code{integer(1)} or \code{NULL})\cr
 The output dimension. If \code{NULL}, the output of the \code{k} backbones is returned.}
 
+\item{num_embeddings}{(\code{\link[torch:nn_module]{nn_module}} or \code{NULL})\cr
+Embeddings for the numerical features, applied before the backbone and shared
+between the \code{k} submodels. Must provide a \code{get_output_shape()} method returning
+\code{c(n_num_features, d_embedding)}; \code{\link[=nn_linear_relu_embeddings]{nn_linear_relu_embeddings()}},
+\code{\link[=nn_periodic_embeddings]{nn_periodic_embeddings()}} and \code{\link[=nn_piecewise_linear_embeddings]{nn_piecewise_linear_embeddings()}} (with
+\code{version = "B"}) do. If \code{NULL} (default), the numerical features enter the backbone
+unchanged.}
+
 \item{arch_type}{(\code{character(1)})\cr
-One of \code{"tabm"} (default), \code{"tabm-mini"}, \code{"tabm-packed"} or \code{"plain"}.}
+One of \code{"tabm"} (default), \code{"tabm-mini"} or \code{"tabm-packed"}.}
 
 \item{k}{(\code{integer(1)})\cr
-The number of ensemble members. Ignored for \code{arch_type = "plain"}.}
+The number of ensemble members.}
 
 \item{n_blocks}{(\code{integer(1)})\cr
-The number of blocks (depth) of the MLP backbone.}
+The number of blocks (depth) of the MLP backbone.
+If \code{NULL}, \code{2} is used when \code{num_embeddings} is given and \code{3} otherwise.}
 
 \item{d_block}{(\code{integer(1)})\cr
 The width of the MLP backbone.}
@@ -48,29 +58,33 @@ The width of the MLP backbone.}
 \item{dropout}{(\code{numeric(1)})\cr
 The dropout rate.}
 
-\item{activation}{(\code{character(1)})\cr
-The activation function, one of \code{"relu"} (default), \code{"gelu"}, \code{"elu"}, \code{"selu"},
-\code{"leaky_relu"}, \code{"tanh"} or \code{"sigmoid"}.}
+\item{activation}{(\code{character(1)}, \code{nn_module_generator} or \code{function})\cr
+The activation function. Either the name of an activation of the \code{torch} package
+(e.g. \code{"relu"}, \code{"nn_relu"} or \code{"ReLU"}), an
+\code{\link[torch:nn_module]{nn_module_generator}} such as \code{\link[torch:nn_relu]{nn_relu}}, or a
+function returning an \code{\link[torch:nn_module]{nn_module}}. Default is \code{"relu"}.}
 
 \item{start_scaling_init}{(\code{character(1)} or \code{NULL})\cr
 The initialization of the very first (non-shared) scaling, either \code{"random-signs"}
-or \code{"normal"}. Must be \code{NULL} for \code{arch_type} \code{"tabm-packed"} and \code{"plain"}.
-If \code{NULL} and the architecture requires it, \code{"random-signs"} is used.}
+or \code{"normal"}. Must be \code{NULL} for \code{arch_type = "tabm-packed"}.
+If \code{NULL} otherwise, \code{"normal"} is used when \code{num_embeddings} is given and
+\code{"random-signs"} otherwise (this is upstream's \code{TabM.make()} heuristic).}
 }
 \description{
 TabM -- a tabular deep learning model that makes \strong{M}ultiple predictions.
 One \code{nn_tabm} efficiently represents an ensemble of \code{k} MLPs that are trained in
 parallel and that share most of their weights.
 
-Numerical features enter the network unchanged, categorical features are one-hot
-encoded (their integer codes must be 1-based, which is what
-\code{\link[=batchgetter_categ]{batchgetter_categ()}} produces for \code{factor()} and \code{ordered()} features).
+Numerical features enter the network unchanged, or, if \code{num_embeddings} is given, are
+first embedded feature-wise (see \code{\link[=nn_linear_relu_embeddings]{nn_linear_relu_embeddings()}},
+\code{\link[=nn_periodic_embeddings]{nn_periodic_embeddings()}} and \code{\link[=nn_piecewise_linear_embeddings]{nn_piecewise_linear_embeddings()}}).
+Categorical features are one-hot encoded (their integer codes must be 1-based, which
+is what \code{\link[=batchgetter_categ]{batchgetter_categ()}} produces).
 The concatenated flat representation is then processed by \code{k} (mostly shared) MLP
 backbones.
 
 For an input of shape \verb{(batch, n_num_features)} / \verb{(batch, n_cat_features)} the output
 shape is \verb{(batch, k, d_out)}, i.e. one prediction per ensemble member.
-For \code{arch_type = "plain"} the output shape is \verb{(batch, 1, d_out)}.
 }
 \section{Ensemble Output}{
 
@@ -93,6 +107,11 @@ x_cat = torch::torch_stack(list(
   torch::torch_randint(1, 2, 5, dtype = torch::torch_long())
 ), dim = 2)
 net(x_num = x_num, x_cat = x_cat)$shape
+
+# with periodic embeddings for the numerical features
+net = nn_tabm(n_num_features = 4, d_out = 3, k = 4, n_blocks = 2, d_block = 8,
+  num_embeddings = nn_periodic_embeddings(4, d_embedding = 6, lite = FALSE))
+net(x_num = x_num)$shape
 \dontshow{\}) # examplesIf}
 }
 \references{

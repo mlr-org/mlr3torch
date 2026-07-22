@@ -12,9 +12,9 @@ The network produces \code{k} predictions per observation; the learner averages 
 predicted \emph{probabilities} (classification) or the predicted values (regression)
 over the \code{k} submodels, and its loss function trains all \code{k} submodels jointly.
 
-Numerical features are used as-is, categorical features are one-hot encoded.
-The piecewise-linear / periodic numerical embeddings of the reference implementation
-are not available.
+Numerical features are used as-is, or -- if the \code{num_embeddings} parameter is set --
+embedded feature-wise first, which usually improves the performance considerably.
+Categorical features are one-hot encoded.
 }
 \section{Dictionary}{
 
@@ -51,21 +51,54 @@ multiplicative adapters except the very first one are initialized with ones.
 \item \code{"tabm-mini"} -- all non-shared parameters are concentrated in a single
 elementwise affine transformation applied to the input.
 \item \code{"tabm-packed"} -- \code{k} fully independent (packed) MLPs.
-\item \code{"plain"} -- a plain MLP without any ensembling (\code{k} is ignored).
 }
 \item \code{k} :: \code{integer(1)}\cr
 The number of ensemble members. Default is \code{32}.
 \item \code{n_blocks} :: \code{integer(1)}\cr
-The number of blocks of the MLP backbone. Default is \code{3}.
+The number of blocks of the MLP backbone.
+If unset, \code{2} is used when \code{num_embeddings} is set and \code{3} otherwise.
 \item \code{d_block} :: \code{integer(1)}\cr
 The width of the MLP backbone. Default is \code{512}.
 \item \code{dropout} :: \code{numeric(1)}\cr
 The dropout rate. Default is \code{0.1}.
-\item \code{activation} :: \code{character(1)}\cr
-The activation function. Default is \code{"relu"}.
+\item \code{activation} :: \code{character(1)}, \code{nn_module_generator} or \code{function}\cr
+The activation function of the MLP backbone. Either the name of an activation of
+the \code{torch} package (e.g. \code{"relu"}, \code{"nn_relu"} or \code{"ReLU"}), an
+\code{\link[torch:nn_module]{nn_module_generator}} such as \code{\link[torch:nn_relu]{nn_relu}}, or a
+function returning an \code{\link[torch:nn_module]{nn_module}}. Default is \code{"relu"}.
 \item \code{start_scaling_init} :: \code{character(1)}\cr
 The initialization of the very first (non-shared) scaling, either \code{"random-signs"}
-(default) or \code{"normal"}. Ignored for \code{arch_type} \code{"tabm-packed"} and \code{"plain"}.
+or \code{"normal"}. Ignored for \code{arch_type = "tabm-packed"}. If unset, \code{"normal"} is
+used when \code{num_embeddings} is set and \code{"random-signs"} otherwise.
+}
+
+Parameters of the embeddings for the numerical features:
+\itemize{
+\item \code{num_embeddings} :: \code{character(1)}\cr
+The type of the numerical feature embeddings, one of \code{"none"} (default),
+\code{"linear_relu"} (\code{\link[=nn_linear_relu_embeddings]{nn_linear_relu_embeddings()}}), \code{"periodic"}
+(\code{\link[=nn_periodic_embeddings]{nn_periodic_embeddings()}}) or \code{"piecewise_linear"}
+(\code{\link[=nn_piecewise_linear_embeddings]{nn_piecewise_linear_embeddings()}} with \code{version = "B"}, the variant required by
+TabM). The last two usually perform best.
+\item \code{d_embedding} :: \code{integer(1)}\cr
+The embedding size. If unset, \code{32} is used for \code{"linear_relu"}, \code{24} for
+\code{"periodic"} and \code{16} for \code{"piecewise_linear"}.
+\item \code{n_frequencies} :: \code{integer(1)}\cr
+\code{"periodic"} only: the number of frequencies per feature. Default is \code{48}.
+\item \code{frequency_init_scale} :: \code{numeric(1)}\cr
+\code{"periodic"} only: the initialization scale of the frequencies. This is an
+important hyperparameter. Default is \code{0.01}.
+\item \code{lite} :: \code{logical(1)}\cr
+\code{"periodic"} only: whether the outer linear layer is shared between all features.
+Default is \code{FALSE}.
+\item \code{embedding_activation} :: \code{logical(1)}\cr
+\code{"periodic"} and \code{"piecewise_linear"} only: whether a ReLU is applied at the end of
+the embedding. If unset, \code{TRUE} is used for \code{"periodic"} and \code{FALSE} for
+\code{"piecewise_linear"}.
+\item \code{n_bins} :: \code{integer(1)}\cr
+\code{"piecewise_linear"} only: the number of quantile bins, computed from the training
+data with \code{\link[=compute_bins]{compute_bins()}}. Must be smaller than the number of training
+observations. Default is \code{48}.
 }
 }
 
