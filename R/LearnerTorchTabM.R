@@ -508,7 +508,7 @@ nn_tabm = nn_module("nn_tabm",
     if (!is.null(task)) {
       assert_class(task, "Task")
       if (is.null(n_num_features)) n_num_features = n_num_features(task)
-      if (is.null(cat_cardinalities)) cat_cardinalities = tabm_cardinalities(task)
+      if (is.null(cat_cardinalities)) cat_cardinalities = unname(categ_cardinalities(task))
       if (is.null(d_out)) d_out = output_dim_for(task)
     }
     n_num_features = assert_int(n_num_features %??% 0L, lower = 0L, coerce = TRUE)
@@ -673,36 +673,6 @@ tabm_wrap_loss = function(loss) {
 # --------------------------------------------------------------------------------------
 # The learner
 # --------------------------------------------------------------------------------------
-
-# The categorical cardinalities in the column order produced by
-# `selector_type(c("factor", "ordered", "logical"))`, i.e. in task feature order.
-# `Task$levels()` returns `NULL` for logical features, whose cardinality is 2.
-tabm_cardinalities = function(task) {
-  categ = task$feature_names[task$feature_types$type %in% c("factor", "ordered", "logical")]
-  if (!length(categ)) {
-    return(integer(0))
-  }
-  cardinalities = lengths(task$levels(categ))[categ]
-  cardinalities[cardinalities == 0L] = 2L
-  as.integer(cardinalities)
-}
-
-#' @title Batchgetter for Categorical Data (1-based)
-#' @description
-#' Like [`batchgetter_categ()`], but shifts `logical()` columns by one so that *all*
-#' columns contain 1-based integer codes (`as.integer()` maps `logical()` to `0`/`1`,
-#' but to `1:n` for `factor()`).
-#' @param data (`data.table`)\cr
-#'   `data.table` to be converted to a `tensor`.
-#' @param ... (any)\cr
-#'   Unused.
-#' @noRd
-batchgetter_categ_tabm = function(data, ...) {
-  torch_tensor(
-    data = as.matrix(data[, lapply(.SD, function(x) if (is.logical(x)) as.integer(x) + 1L else as.integer(x))]),
-    dtype = torch_long()
-  )
-}
 
 # Build the `num_embeddings` module from the learner's parameter values.
 # The defaults follow the official TabM usage example
@@ -916,11 +886,7 @@ LearnerTorchTabM = R6Class("LearnerTorchTabM",
         out$x_num = ingress_num(shape = c(NA, n_num))
       }
       if (n_categ > 0L) {
-        out$x_cat = TorchIngressToken(
-          features = selector_type(c("factor", "ordered", "logical")),
-          batchgetter = batchgetter_categ_tabm,
-          shape = c(NA, n_categ)
-        )
+        out$x_cat = ingress_categ(shape = c(NA, n_categ))
       }
       out
     },
@@ -930,14 +896,16 @@ LearnerTorchTabM = R6Class("LearnerTorchTabM",
 
       # the bins of the piecewise-linear embeddings must be computed on the training data
       x_num = if (identical(param_vals$num_embeddings, "piecewise_linear") && n_num > 0L) {
-        num_features = task$feature_names[task$feature_types$type %in% c("numeric", "integer")]
+        # the ingress token defines the column order the network will see, and it is not
+        # always the order of `task$feature_names` (e.g. after `po("scale")`)
+        num_features = ingress_num()$features(task)
         batchgetter_num(task$data(cols = num_features))
       }
       num_embeddings = tabm_make_num_embeddings(param_vals$num_embeddings, n_num, param_vals, x_num)
 
       nn_tabm(
         n_num_features = n_num,
-        cat_cardinalities = tabm_cardinalities(task),
+        cat_cardinalities = unname(categ_cardinalities(task)),
         d_out = output_dim_for(task),
         num_embeddings = num_embeddings,
         arch_type = arch_type,
