@@ -26,110 +26,117 @@ mlp$train(task)
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-Other Callback: 
+Other Callback:
 \code{\link{TorchCallback}},
-\code{\link{as_torch_callback}()},
-\code{\link{as_torch_callbacks}()},
-\code{\link{callback_set}()},
+\code{\link[=as_torch_callback]{as_torch_callback()}},
+\code{\link[=as_torch_callbacks]{as_torch_callbacks()}},
+\code{\link[=callback_set]{callback_set()}},
 \code{\link{mlr3torch_callbacks}},
 \code{\link{mlr_callback_set}},
 \code{\link{mlr_callback_set.checkpoint}},
 \code{\link{mlr_callback_set.progress}},
 \code{\link{mlr_callback_set.tb}},
 \code{\link{mlr_context_torch}},
-\code{\link{t_clbk}()},
-\code{\link{torch_callback}()}
+\code{\link[=t_clbk]{t_clbk()}},
+\code{\link[=torch_callback]{torch_callback()}}
 }
 \concept{Callback}
 \section{Super class}{
-\code{\link[mlr3torch:CallbackSet]{mlr3torch::CallbackSet}} -> \code{CallbackSetUnfreeze}
+\code{\link[mlr3torch:CallbackSet]{CallbackSet}} -> \code{CallbackSetUnfreeze}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-CallbackSetUnfreeze-new}{\code{CallbackSetUnfreeze$new()}}
-\item \href{#method-CallbackSetUnfreeze-on_begin}{\code{CallbackSetUnfreeze$on_begin()}}
-\item \href{#method-CallbackSetUnfreeze-on_epoch_begin}{\code{CallbackSetUnfreeze$on_epoch_begin()}}
-\item \href{#method-CallbackSetUnfreeze-on_batch_begin}{\code{CallbackSetUnfreeze$on_batch_begin()}}
-\item \href{#method-CallbackSetUnfreeze-clone}{\code{CallbackSetUnfreeze$clone()}}
+  \itemize{
+    \item \href{#method-CallbackSetUnfreeze-initialize}{\code{CallbackSetUnfreeze$new()}}
+    \item \href{#method-CallbackSetUnfreeze-on_begin}{\code{CallbackSetUnfreeze$on_begin()}}
+    \item \href{#method-CallbackSetUnfreeze-on_epoch_begin}{\code{CallbackSetUnfreeze$on_epoch_begin()}}
+    \item \href{#method-CallbackSetUnfreeze-on_batch_begin}{\code{CallbackSetUnfreeze$on_batch_begin()}}
+    \item \href{#method-CallbackSetUnfreeze-clone}{\code{CallbackSetUnfreeze$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="load_state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-load_state_dict'><code>mlr3torch::CallbackSet$load_state_dict()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-print'><code>mlr3torch::CallbackSet$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-state_dict'><code>mlr3torch::CallbackSet$state_dict()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="load_state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-load_state_dict'><code>CallbackSet$load_state_dict()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-print'><code>CallbackSet$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-state_dict'><code>CallbackSet$state_dict()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackSetUnfreeze-new"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackSetUnfreeze-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of this \link[R6:R6Class]{R6} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetUnfreeze$new(starting_weights, unfreeze)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{starting_weights}}{(\code{Select})\cr
+\if{html}{\out{<a id="method-CallbackSetUnfreeze-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetUnfreeze-initialize}{}}}
+\subsection{\code{CallbackSetUnfreeze$new()}}{
+  Creates a new instance of this \link[R6:R6Class]{R6} class.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetUnfreeze$new(starting_weights, unfreeze)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{starting_weights}}{(\code{Select})\cr
 A \code{Select} denoting the weights that are trainable from the start.}
-
-\item{\code{unfreeze}}{(\code{data.table})\cr
+      \item{\code{unfreeze}}{(\code{data.table})\cr
 A \code{data.table} with a column \code{weights} (a list column of \code{Select}s) and a column \code{epoch} or \code{batch}.
 The selector indicates which parameters to unfreeze, while the \code{epoch} or \code{batch} column indicates when to do so.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetUnfreeze-on_begin"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetUnfreeze-on_begin}{}}}
-\subsection{Method \code{on_begin()}}{
-Sets the starting weights
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetUnfreeze$on_begin()}\if{html}{\out{</div>}}
+\subsection{\code{CallbackSetUnfreeze$on_begin()}}{
+  Sets the starting weights
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetUnfreeze$on_begin()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetUnfreeze-on_epoch_begin"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetUnfreeze-on_epoch_begin}{}}}
-\subsection{Method \code{on_epoch_begin()}}{
-Unfreezes weights if the training is at the correct epoch
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetUnfreeze$on_epoch_begin()}\if{html}{\out{</div>}}
+\subsection{\code{CallbackSetUnfreeze$on_epoch_begin()}}{
+  Unfreezes weights if the training is at the correct epoch
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetUnfreeze$on_epoch_begin()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetUnfreeze-on_batch_begin"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetUnfreeze-on_batch_begin}{}}}
-\subsection{Method \code{on_batch_begin()}}{
-Unfreezes weights if the training is at the correct batch
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetUnfreeze$on_batch_begin()}\if{html}{\out{</div>}}
+\subsection{\code{CallbackSetUnfreeze$on_batch_begin()}}{
+  Unfreezes weights if the training is at the correct batch
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetUnfreeze$on_batch_begin()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetUnfreeze-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetUnfreeze-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetUnfreeze$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{CallbackSetUnfreeze$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetUnfreeze$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

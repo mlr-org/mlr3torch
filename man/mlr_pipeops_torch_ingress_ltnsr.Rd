@@ -79,7 +79,7 @@ x_batch2
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-Other PipeOps: 
+Other PipeOps:
 \code{\link{mlr_pipeops_nn_adaptive_avg_pool1d}},
 \code{\link{mlr_pipeops_nn_adaptive_avg_pool2d}},
 \code{\link{mlr_pipeops_nn_adaptive_avg_pool3d}},
@@ -148,82 +148,83 @@ Other PipeOps:
 \code{\link{mlr_pipeops_torch_model_classif}},
 \code{\link{mlr_pipeops_torch_model_regr}}
 
-Other Graph Network: 
-\code{\link{ModelDescriptor}()},
-\code{\link{TorchIngressToken}()},
+Other Graph Network:
+\code{\link[=ModelDescriptor]{ModelDescriptor()}},
+\code{\link[=TorchIngressToken]{TorchIngressToken()}},
 \code{\link{mlr_learners_torch_model}},
 \code{\link{mlr_pipeops_module}},
 \code{\link{mlr_pipeops_torch}},
 \code{\link{mlr_pipeops_torch_ingress}},
 \code{\link{mlr_pipeops_torch_ingress_categ}},
 \code{\link{mlr_pipeops_torch_ingress_num}},
-\code{\link{model_descriptor_to_learner}()},
-\code{\link{model_descriptor_to_module}()},
-\code{\link{model_descriptor_union}()},
-\code{\link{nn_graph}()}
+\code{\link[=model_descriptor_to_learner]{model_descriptor_to_learner()}},
+\code{\link[=model_descriptor_to_module]{model_descriptor_to_module()}},
+\code{\link[=model_descriptor_union]{model_descriptor_union()}},
+\code{\link[=nn_graph]{nn_graph()}}
 }
 \concept{Graph Network}
 \concept{PipeOps}
 \section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorchIngress]{mlr3torch::PipeOpTorchIngress}} -> \code{PipeOpTorchIngressLazyTensor}
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorchIngress]{PipeOpTorchIngress}} -> \code{PipeOpTorchIngressLazyTensor}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-PipeOpTorchIngressLazyTensor-new}{\code{PipeOpTorchIngressLazyTensor$new()}}
-\item \href{#method-PipeOpTorchIngressLazyTensor-clone}{\code{PipeOpTorchIngressLazyTensor$clone()}}
+  \itemize{
+    \item \href{#method-PipeOpTorchIngressLazyTensor-initialize}{\code{PipeOpTorchIngressLazyTensor$new()}}
+    \item \href{#method-PipeOpTorchIngressLazyTensor-clone}{\code{PipeOpTorchIngressLazyTensor$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-print'><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-print'><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-PipeOpTorchIngressLazyTensor-new"></a>}}
-\if{latex}{\out{\hypertarget{method-PipeOpTorchIngressLazyTensor-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of this \link[R6:R6Class]{R6} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchIngressLazyTensor$new(
+\if{html}{\out{<a id="method-PipeOpTorchIngressLazyTensor-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-PipeOpTorchIngressLazyTensor-initialize}{}}}
+\subsection{\code{PipeOpTorchIngressLazyTensor$new()}}{
+  Creates a new instance of this \link[R6:R6Class]{R6} class.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipeOpTorchIngressLazyTensor$new(
   id = "torch_ingress_ltnsr",
   param_vals = list()
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{id}}{(\code{character(1)})\cr
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{id}}{(\code{character(1)})\cr
 Identifier of the resulting  object.}
-
-\item{\code{param_vals}}{(\code{list()})\cr
+      \item{\code{param_vals}}{(\code{list()})\cr
 List of hyperparameter settings, overwriting the hyperparameter settings that would
 otherwise be set during construction.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipeOpTorchIngressLazyTensor-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-PipeOpTorchIngressLazyTensor-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchIngressLazyTensor$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{PipeOpTorchIngressLazyTensor$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipeOpTorchIngressLazyTensor$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

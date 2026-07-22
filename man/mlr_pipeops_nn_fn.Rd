@@ -39,82 +39,80 @@ custom_fn(tnsr, a = 2)
 \dontshow{\}) # examplesIf}
 }
 \section{Super classes}{
-\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{mlr3torch::PipeOpTorch}} -> \code{PipeOpTorchFn}
+\code{\link[mlr3pipelines:PipeOp]{mlr3pipelines::PipeOp}} -> \code{\link[mlr3torch:PipeOpTorch]{PipeOpTorch}} -> \code{PipeOpTorchFn}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-PipeOpTorchFn-new}{\code{PipeOpTorchFn$new()}}
-\item \href{#method-PipeOpTorchFn-clone}{\code{PipeOpTorchFn$clone()}}
+  \itemize{
+    \item \href{#method-PipeOpTorchFn-initialize}{\code{PipeOpTorchFn$new()}}
+    \item \href{#method-PipeOpTorchFn-clone}{\code{PipeOpTorchFn$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-print'><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="PipeOpTorch" data-id="shapes_out"><a href='../../mlr3torch/html/PipeOpTorch.html#method-PipeOpTorch-shapes_out'><code>mlr3torch::PipeOpTorch$shapes_out()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-print'><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="PipeOpTorch" data-id="shapes_out"><a href='../../mlr3torch/html/PipeOpTorch.html#method-PipeOpTorch-shapes_out'><code>PipeOpTorch$shapes_out()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-PipeOpTorchFn-new"></a>}}
-\if{latex}{\out{\hypertarget{method-PipeOpTorchFn-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of this \code{\link[R6:R6Class]{R6}} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchFn$new(
+\if{html}{\out{<a id="method-PipeOpTorchFn-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-PipeOpTorchFn-initialize}{}}}
+\subsection{\code{PipeOpTorchFn$new()}}{
+  Creates a new instance of this \code{\link[R6:R6Class]{R6}} class.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipeOpTorchFn$new(
   fn,
   id = "nn_fn",
   param_vals = list(),
   param_set = NULL,
   shapes_out = NULL
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{fn}}{(\code{function})\cr
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{fn}}{(\code{function})\cr
 The function to be applied. Takes a \code{torch} tensor as first argument and returns a \code{torch} tensor.}
-
-\item{\code{id}}{(\code{character(1)})\cr
+      \item{\code{id}}{(\code{character(1)})\cr
 Identifier of the resulting  object.}
-
-\item{\code{param_vals}}{(\code{list()})\cr
+      \item{\code{param_vals}}{(\code{list()})\cr
 List of hyperparameter settings, overwriting the hyperparameter settings that would
 otherwise be set during construction.}
-
-\item{\code{param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}} or \code{NULL})\cr
+      \item{\code{param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}} or \code{NULL})\cr
 A ParamSet wrapping the arguments to \code{fn}.
 If omitted, then the ParamSet for this PipeOp will be inferred from the function signature.}
-
-\item{\code{shapes_out}}{(\code{function} or \code{NULL})\cr
+      \item{\code{shapes_out}}{(\code{function} or \code{NULL})\cr
 A function that computes the output shapes of the \code{fn}. See
 \link{PipeOpTorch}'s \code{.shapes_out()} method for details on the parameters,
 and \link{PipeOpTaskPreprocTorch} for details on how the shapes are inferred when
 this parameter is \code{NULL}.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipeOpTorchFn-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-PipeOpTorchFn-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchFn$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{PipeOpTorchFn$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipeOpTorchFn$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

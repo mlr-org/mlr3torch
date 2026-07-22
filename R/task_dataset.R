@@ -240,13 +240,7 @@ batchgetter_num = function(data, ...) {
 #' No input checks are performed.
 #'
 #' All columns are encoded with **1-based** codes, i.e. the values of a feature with cardinality
-#' `k` are `1, ..., k`. For `factor()` and `ordered()` features this is what [`as.integer()`]
-#' returns anyway. `logical()` features are encoded as `FALSE = 1` and `TRUE = 2`, matching the
-#' level order of `factor(c(FALSE, TRUE))`; this differs from [`as.integer()`], which would map
-#' them to `0`/`1`.
-#'
-#' The uniform 1-based encoding means the codes can be used directly as indices into
-#' [`torch::nn_embedding()`], which is 1-based in R.
+#' `k` are `1, ..., k`.
 #'
 #' @param data (`data.table`)\cr
 #'   `data.table` to be converted to a `tensor`.
