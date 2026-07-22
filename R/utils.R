@@ -327,3 +327,22 @@ n_categ_features = function(task) {
 n_ltnsr_features = function(task) {
   sum(task$feature_types$type == "lazy_tensor")
 }
+
+# Cardinalities of the categorical features of a task, in the column order that
+# `ingress_categ()` produces.
+# Two things this must get right and that are easy to get wrong:
+#  * `Task$levels()` returns `NULL` for `logical()` features, so their cardinality has to be
+#    supplied explicitly (it is always 2). Taking `lengths(task$levels(...))` alone yields 0.
+#  * `task$feature_names` and `task$feature_types` are not always in the same order (e.g. after
+#    `po("scale")`), so the feature order must come from the ingress token, not from
+#    `task$feature_names`. Otherwise the cardinalities silently desync from the columns.
+categ_cardinalities = function(task) {
+  features = ingress_categ()$features(task)
+  if (!length(features)) {
+    return(integer(0))
+  }
+  types = task$feature_types[list(features), "type", on = "id"][[1L]]
+  cardinalities = lengths(task$levels(features))[features]
+  cardinalities[types == "logical"] = 2L
+  set_names(as.integer(cardinalities), features)
+}

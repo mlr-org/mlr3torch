@@ -1,5 +1,16 @@
 # mlr3torch (development version)
 
+* Fix: `logical()` features are now encoded as `1` / `2` by `batchgetter_categ()` instead of
+  `0` / `1`, so that all categorical feature types use the same 1-based codes. The previous
+  encoding produced index `0`, which is invalid for the 1-based `nn_embedding()` of R `torch`.
+  Together with the fix below this makes `logical()` features usable in `nn_tokenizer_categ()`
+  and hence in `lrn("classif.ft_transformer")` / `lrn("regr.ft_transformer")`.
+  This is a user-visible change for custom modules written against `ingress_categ()`.
+* Fix: The cardinality of `logical()` features is now inferred correctly (as 2). Previously
+  `Task$levels()` returned `NULL` for them, which yielded a cardinality of 0 and an error.
+  Cardinalities are also derived in the column order that `ingress_categ()` produces, which is
+  not always the order of `Task$feature_names`.
+
 * Fix: `lazy_tensor` columns are now again printed correctly inside `data.table`s
 
 # mlr3torch 0.3.3

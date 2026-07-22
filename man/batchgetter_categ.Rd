@@ -16,4 +16,13 @@ Unused.}
 \description{
 Converts a data frame of categorical data into a long tensor by converting the data to integers.
 No input checks are performed.
+
+All columns are encoded with \strong{1-based} codes, i.e. the values of a feature with cardinality
+\code{k} are \verb{1, ..., k}. For \code{factor()} and \code{ordered()} features this is what \code{\link[=as.integer]{as.integer()}}
+returns anyway. \code{logical()} features are encoded as \code{FALSE = 1} and \code{TRUE = 2}, matching the
+level order of \code{factor(c(FALSE, TRUE))}; this differs from \code{\link[=as.integer]{as.integer()}}, which would map
+them to \code{0}/\code{1}.
+
+The uniform 1-based encoding means the codes can be used directly as indices into
+\code{\link[torch:nn_embedding]{torch::nn_embedding()}}, which is 1-based in R.
 }
