@@ -136,6 +136,36 @@ bibentries = c(# nolint start
     archivePrefix = "arXiv",
     primaryClass = "cs.LG",
     url = "https://arxiv.org/abs/2002.05202"
+  ),
+  gorishniy2025tabm = bibentry("inproceedings",
+    title = "TabM: Advancing Tabular Deep Learning with Parameter-Efficient Ensembling",
+    author = "Yury Gorishniy and Akim Kotelnikov and Artem Babenko",
+    booktitle = "The Thirteenth International Conference on Learning Representations (ICLR)",
+    year = "2025",
+    eprint = "2410.24210",
+    archivePrefix = "arXiv",
+    primaryClass = "cs.LG",
+    url = "https://openreview.net/forum?id=Sd4wYYOhmY"
+  ),
+  gorishniy2022embeddings = bibentry("inproceedings",
+    title = "On Embeddings for Numerical Features in Tabular Deep Learning",
+    author = "Yury Gorishniy and Ivan Rubachev and Artem Babenko",
+    booktitle = "Advances in Neural Information Processing Systems 35 (NeurIPS)",
+    year = "2022",
+    eprint = "2203.05556",
+    archivePrefix = "arXiv",
+    primaryClass = "cs.LG",
+    url = "https://arxiv.org/abs/2203.05556"
+  ),
+  wen2020batchensemble = bibentry("inproceedings",
+    title = "BatchEnsemble: An Alternative Approach to Efficient Ensemble and Lifelong Learning",
+    author = "Yeming Wen and Dustin Tran and Jimmy Ba",
+    booktitle = "The Eighth International Conference on Learning Representations (ICLR)",
+    year = "2020",
+    eprint = "2002.06715",
+    archivePrefix = "arXiv",
+    primaryClass = "cs.LG",
+    url = "https://openreview.net/forum?id=Sklf1yrYDr"
   )
 ) # nolint end
 
