@@ -117,7 +117,7 @@ jobs:
       # the check failed, so one slow-but-successful download warms the cache permanently.
       - name: Restore Torchvision Downloads
         id: torch_cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: |
             ${{ env.TORCH_CACHE_PATH }}
@@ -131,7 +131,7 @@ jobs:
       - uses: r-lib/actions/check-r-package@v2
 
       - name: Save Torchvision Downloads
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         if: always() && steps.torch_cache.outputs.cache-hit != 'true'
         with:
           path: |
