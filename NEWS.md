@@ -8,10 +8,12 @@
   as the batch sampler already determines the batches (#420).
   A `batch_size` (or `batch_size_predict`) is still required for prediction, where the (batch)
   sampler is not used.
-* The `sampler` and `batch_sampler` parameters are now checked to be `torch::sampler()` generators.
 * The dataloader parameters are now validated with typed conditions: misconfigurations are signaled
-  as `Mlr3ErrorConfig` (see `mlr3misc::error_config()`), so they can be caught by class.
-
+  as `Mlr3ErrorConfig` (see `mlr3misc::error_config()`), so they can be caught by class and do not
+  trigger the fallback learner anymore.
+* Added `PipeOpTorchMultiheadAttention` (`po("nn_multihead_attention")`), which wraps
+  `torch::nn_multihead_attention()`.
+  
 ## Bug fixes
 
 * The `sampler` and `batch_sampler` parameters are no longer used during prediction, where they
