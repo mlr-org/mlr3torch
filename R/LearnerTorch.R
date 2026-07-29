@@ -579,8 +579,7 @@ LearnerTorch = R6Class("LearnerTorch",
     .dataloader_predict = function(dataset, param_vals) {
       batch_size = get_batch_size(param_vals, "predict")
       if (is.null(batch_size)) {
-        error_config(paste0("Parameter 'batch_size' or 'batch_size_predict' must be set for ",
-          "prediction (this includes the validation data during training)."))
+        error_config("Parameter 'batch_size' or 'batch_size_predict' must be set for prediction (this includes the validation data during training).")
       }
       param_vals_test = insert_named(param_vals,
         list(batch_size = batch_size, shuffle = FALSE, drop_last = FALSE))
