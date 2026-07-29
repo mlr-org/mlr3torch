@@ -58,7 +58,7 @@ jobs:
           echo "INCLUDE_IGNORED=1" >> $env:GITHUB_ENV
           echo "R_DEFAULT_INTERNET_TIMEOUT=3600" >> $env:GITHUB_ENV
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - uses: r-lib/actions/setup-pandoc@v2
 
