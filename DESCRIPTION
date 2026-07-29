@@ -57,6 +57,7 @@ Imports:
     withr
 Suggests:
     callr,
+    coro,
     curl,
     future,
     ggplot2,
