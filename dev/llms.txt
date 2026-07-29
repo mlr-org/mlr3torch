@@ -522,6 +522,9 @@ vision behind the project.
 - [`mlr_pipeops_nn_merge_sum`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_merge_sum.md)
   [`PipeOpTorchMergeSum`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_merge_sum.md)
   : Merge by Summation
+- [`mlr_pipeops_nn_multihead_attention`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_multihead_attention.md)
+  [`PipeOpTorchMultiheadAttention`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_multihead_attention.md)
+  : Multi-Head Attention
 - [`mlr_pipeops_nn_prelu`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_prelu.md)
   [`PipeOpTorchPReLU`](https://mlr3torch.mlr-org.com/dev/reference/mlr_pipeops_nn_prelu.md)
   : PReLU Activation Function

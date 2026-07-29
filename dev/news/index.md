@@ -2,6 +2,12 @@
 
 ## mlr3torch (development version)
 
+### Features
+
+- Added `PipeOpTorchMultiheadAttention`
+  (`po("nn_multihead_attention")`), which wraps
+  [`torch::nn_multihead_attention()`](https://torch.mlverse.org/docs/reference/nn_multihead_attention.html).
+
 ### Bug fixes
 
 - [`logical()`](https://rdrr.io/r/base/logical.html) features are now

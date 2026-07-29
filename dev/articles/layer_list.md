@@ -46,6 +46,7 @@ Below is a list of neural network layers that are available in
 | [nn_merge_cat](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_merge_cat.html) | Merge by Concatenation |
 | [nn_merge_prod](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_merge_prod.html) | Merge by Product |
 | [nn_merge_sum](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_merge_sum.html) | Merge by Summation |
+| [nn_multihead_attention](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_multihead_attention.html) | Multi-Head Attention |
 | [nn_prelu](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_prelu.html) | PReLU Activation Function |
 | [nn_reglu](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_reglu.html) | ReGLU Activation Function |
 | [nn_relu](https://mlr3torch.mlr-org.com/reference/mlr_pipeops_nn_relu.html) | ReLU Activation Function |
