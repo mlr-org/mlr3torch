@@ -53,54 +53,53 @@ learner$param_set
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-Other Torch Descriptor: 
+Other Torch Descriptor:
 \code{\link{TorchCallback}},
 \code{\link{TorchDescriptor}},
 \code{\link{TorchOptimizer}},
-\code{\link{as_torch_callbacks}()},
-\code{\link{as_torch_loss}()},
-\code{\link{as_torch_optimizer}()},
+\code{\link[=as_torch_callbacks]{as_torch_callbacks()}},
+\code{\link[=as_torch_loss]{as_torch_loss()}},
+\code{\link[=as_torch_optimizer]{as_torch_optimizer()}},
 \code{\link{mlr3torch_losses}},
 \code{\link{mlr3torch_optimizers}},
-\code{\link{t_clbk}()},
-\code{\link{t_loss}()},
-\code{\link{t_opt}()}
+\code{\link[=t_clbk]{t_clbk()}},
+\code{\link[=t_loss]{t_loss()}},
+\code{\link[=t_opt]{t_opt()}}
 }
 \concept{Torch Descriptor}
 \section{Super class}{
-\code{\link[mlr3torch:TorchDescriptor]{mlr3torch::TorchDescriptor}} -> \code{TorchLoss}
+\code{\link[mlr3torch:TorchDescriptor]{TorchDescriptor}} -> \code{TorchLoss}
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{task_types}}{(\code{character()})\cr
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{task_types}}{(\code{character()})\cr
 The task types this loss supports.}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-TorchLoss-new}{\code{TorchLoss$new()}}
-\item \href{#method-TorchLoss-print}{\code{TorchLoss$print()}}
-\item \href{#method-TorchLoss-generate}{\code{TorchLoss$generate()}}
-\item \href{#method-TorchLoss-clone}{\code{TorchLoss$clone()}}
+  \itemize{
+    \item \href{#method-TorchLoss-initialize}{\code{TorchLoss$new()}}
+    \item \href{#method-TorchLoss-print}{\code{TorchLoss$print()}}
+    \item \href{#method-TorchLoss-generate}{\code{TorchLoss$generate()}}
+    \item \href{#method-TorchLoss-clone}{\code{TorchLoss$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchDescriptor" data-id="help"><a href='../../mlr3torch/html/TorchDescriptor.html#method-TorchDescriptor-help'><code>mlr3torch::TorchDescriptor$help()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchDescriptor" data-id="help"><a href='../../mlr3torch/html/TorchDescriptor.html#method-TorchDescriptor-help'><code>TorchDescriptor$help()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TorchLoss-new"></a>}}
-\if{latex}{\out{\hypertarget{method-TorchLoss-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of this \link[R6:R6Class]{R6} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchLoss$new(
+\if{html}{\out{<a id="method-TorchLoss-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchLoss-initialize}{}}}
+\subsection{\code{TorchLoss$new()}}{
+  Creates a new instance of this \link[R6:R6Class]{R6} class.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TorchLoss$new(
   torch_loss,
   task_types = NULL,
   param_set = NULL,
@@ -108,91 +107,92 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   label = NULL,
   packages = NULL,
   man = NULL
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{torch_loss}}{(\code{nn_loss} or \code{function})\cr
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{torch_loss}}{(\code{nn_loss} or \code{function})\cr
 The loss module or function that generates the loss module.
 Can have arguments \code{task} that will be provided when the loss is instantiated.}
-
-\item{\code{task_types}}{(\code{character()})\cr
+      \item{\code{task_types}}{(\code{character()})\cr
 The task types supported by this loss.}
-
-\item{\code{param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}} or \code{NULL})\cr
+      \item{\code{param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}} or \code{NULL})\cr
 The parameter set. If \code{NULL} (default) it is inferred from \code{torch_loss}.}
-
-\item{\code{id}}{(\code{character(1)})\cr
+      \item{\code{id}}{(\code{character(1)})\cr
 The id for of the new object.}
-
-\item{\code{label}}{(\code{character(1)})\cr
+      \item{\code{label}}{(\code{character(1)})\cr
 Label for the new instance.}
-
-\item{\code{packages}}{(\code{character()})\cr
+      \item{\code{packages}}{(\code{character()})\cr
 The R packages this object depends on.}
-
-\item{\code{man}}{(\code{character(1)})\cr
+      \item{\code{man}}{(\code{character(1)})\cr
 String in the format \verb{[pkg]::[topic]} pointing to a manual page for this object.
 The referenced help package can be opened via method \verb{$help()}.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TorchLoss-print"></a>}}
 \if{latex}{\out{\hypertarget{method-TorchLoss-print}{}}}
-\subsection{Method \code{print()}}{
-Prints the object
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchLoss$print(...)}\if{html}{\out{</div>}}
+\subsection{\code{TorchLoss$print()}}{
+  Prints the object
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TorchLoss$print(...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{...}}{any}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{any}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TorchLoss-generate"></a>}}
 \if{latex}{\out{\hypertarget{method-TorchLoss-generate}{}}}
-\subsection{Method \code{generate()}}{
-Instantiates the loss function.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchLoss$generate(task = NULL)}\if{html}{\out{</div>}}
+\subsection{\code{TorchLoss$generate()}}{
+  Instantiates the loss function.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TorchLoss$generate(task = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{task}}{(\code{Task})\cr
+The task. Must be provided if the loss function requires a task.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    \code{torch_loss}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{task}}{(\code{Task})\cr
-The task. Must be provided if the loss function requires a task.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-\code{torch_loss}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TorchLoss-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-TorchLoss-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchLoss$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{TorchLoss$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TorchLoss$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

@@ -1,11 +1,16 @@
 # mlr3torch (development version)
 
-* Feat: Added `PipeOpTorchMultiheadAttention` (`po("nn_multihead_attention")`), which wraps
-  `torch::nn_multihead_attention()`. The construction argument `mode` determines the input channels
-  and thereby whether self-attention (`mode = "self"`) or cross-attention (`mode = "cross"` or
-  `mode = "general"`) is performed. The construction argument `need_weights` determines whether only
-  the attention output (`need_weights = FALSE`) or also the attention weights (`need_weights = TRUE`)
-  are returned.
+
+## Features
+
+* Added `PipeOpTorchMultiheadAttention` (`po("nn_multihead_attention")`), which wraps
+  `torch::nn_multihead_attention()`.
+  
+## Bug fixes
+
+* `logical()` features are now encoded as `c(1, 2)` by the
+`batchgetter_categ()` and their cardinality is correctly computed.
+* Fix: `lazy_tensor` columns are now again printed correctly inside `data.table`s
 
 # mlr3torch 0.3.3
 

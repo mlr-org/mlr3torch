@@ -476,3 +476,40 @@ test_that("ensure that mlr3 ensures that positive class is the first level", {
   task$positive = "R"
   expect_equal(levels(task$truth())[1L], "R")
 })
+
+test_that("batchgetter_categ encodes all categorical types with 1-based codes", {
+  # `as.integer()` maps logicals to 0/1, which is not a valid index into R torch's
+  # 1-based `nn_embedding()`. All categorical feature types must be encoded uniformly
+  # as 1, ..., cardinality.
+  d = data.frame(
+    f = factor(c("x", "y", "x")),
+    o = ordered(c("lo", "hi", "lo"), levels = c("lo", "hi")),
+    lg = c(TRUE, FALSE, TRUE)
+  )
+  tensor = batchgetter_categ(data.table::as.data.table(d))
+  expect_equal(tensor$dtype, torch_long())
+  expect_equal(as.matrix(tensor), matrix(c(1L, 2L, 1L, 1L, 2L, 1L, 2L, 1L, 2L), ncol = 3))
+  # FALSE -> 1 and TRUE -> 2, i.e. the level order of factor(c(FALSE, TRUE))
+  expect_true(all(as.matrix(tensor) >= 1L))
+})
+
+test_that("categ_cardinalities handles logicals and follows the ingress column order", {
+  d = data.frame(
+    y = factor(rep(c("a", "b"), 5)),
+    num = as.numeric(1:10),
+    lg = rep(c(TRUE, FALSE), 5),
+    f = factor(rep(c("x", "y", "z", "x", "y"), 2))
+  )
+  task = mlr3::as_task_classif(d, target = "y")
+  # Task$levels() returns NULL for logicals, so a naive lengths() would give 0 here.
+  # The order follows ingress_categ(), i.e. the order of Task$feature_types.
+  expect_equal(categ_cardinalities(task), c(f = 3L, lg = 2L))
+
+  # the order must follow ingress_categ(), which is not always task$feature_names order
+  scaled = mlr3pipelines::po("scale",
+    affect_columns = mlr3pipelines::selector_type(c("integer", "numeric")))$train(list(task))[[1L]]
+  expect_equal(names(categ_cardinalities(scaled)), ingress_categ()$features(scaled))
+
+  # a task without categorical features yields an empty integer vector, not an error
+  expect_equal(categ_cardinalities(mlr3::tsk("iris")), integer(0))
+})

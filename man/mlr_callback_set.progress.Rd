@@ -22,139 +22,153 @@ learner$train(task)
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-Other Callback: 
+Other Callback:
 \code{\link{TorchCallback}},
-\code{\link{as_torch_callback}()},
-\code{\link{as_torch_callbacks}()},
-\code{\link{callback_set}()},
+\code{\link[=as_torch_callback]{as_torch_callback()}},
+\code{\link[=as_torch_callbacks]{as_torch_callbacks()}},
+\code{\link[=callback_set]{callback_set()}},
 \code{\link{mlr3torch_callbacks}},
 \code{\link{mlr_callback_set}},
 \code{\link{mlr_callback_set.checkpoint}},
 \code{\link{mlr_callback_set.tb}},
 \code{\link{mlr_callback_set.unfreeze}},
 \code{\link{mlr_context_torch}},
-\code{\link{t_clbk}()},
-\code{\link{torch_callback}()}
+\code{\link[=t_clbk]{t_clbk()}},
+\code{\link[=torch_callback]{torch_callback()}}
 }
 \concept{Callback}
 \section{Super class}{
-\code{\link[mlr3torch:CallbackSet]{mlr3torch::CallbackSet}} -> \code{CallbackSetProgress}
+\code{\link[mlr3torch:CallbackSet]{CallbackSet}} -> \code{CallbackSetProgress}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-CallbackSetProgress-new}{\code{CallbackSetProgress$new()}}
-\item \href{#method-CallbackSetProgress-on_epoch_begin}{\code{CallbackSetProgress$on_epoch_begin()}}
-\item \href{#method-CallbackSetProgress-on_batch_end}{\code{CallbackSetProgress$on_batch_end()}}
-\item \href{#method-CallbackSetProgress-on_before_valid}{\code{CallbackSetProgress$on_before_valid()}}
-\item \href{#method-CallbackSetProgress-on_batch_valid_end}{\code{CallbackSetProgress$on_batch_valid_end()}}
-\item \href{#method-CallbackSetProgress-on_epoch_end}{\code{CallbackSetProgress$on_epoch_end()}}
-\item \href{#method-CallbackSetProgress-on_end}{\code{CallbackSetProgress$on_end()}}
-\item \href{#method-CallbackSetProgress-clone}{\code{CallbackSetProgress$clone()}}
+  \itemize{
+    \item \href{#method-CallbackSetProgress-initialize}{\code{CallbackSetProgress$new()}}
+    \item \href{#method-CallbackSetProgress-on_epoch_begin}{\code{CallbackSetProgress$on_epoch_begin()}}
+    \item \href{#method-CallbackSetProgress-on_batch_end}{\code{CallbackSetProgress$on_batch_end()}}
+    \item \href{#method-CallbackSetProgress-on_before_valid}{\code{CallbackSetProgress$on_before_valid()}}
+    \item \href{#method-CallbackSetProgress-on_batch_valid_end}{\code{CallbackSetProgress$on_batch_valid_end()}}
+    \item \href{#method-CallbackSetProgress-on_epoch_end}{\code{CallbackSetProgress$on_epoch_end()}}
+    \item \href{#method-CallbackSetProgress-on_end}{\code{CallbackSetProgress$on_end()}}
+    \item \href{#method-CallbackSetProgress-clone}{\code{CallbackSetProgress$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="load_state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-load_state_dict'><code>mlr3torch::CallbackSet$load_state_dict()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-print'><code>mlr3torch::CallbackSet$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-state_dict'><code>mlr3torch::CallbackSet$state_dict()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="load_state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-load_state_dict'><code>CallbackSet$load_state_dict()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-print'><code>CallbackSet$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-state_dict'><code>CallbackSet$state_dict()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackSetProgress-new"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackSetProgress-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of this \link[R6:R6Class]{R6} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetProgress$new(digits = 2)}\if{html}{\out{</div>}}
+\if{html}{\out{<a id="method-CallbackSetProgress-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetProgress-initialize}{}}}
+\subsection{\code{CallbackSetProgress$new()}}{
+  Creates a new instance of this \link[R6:R6Class]{R6} class.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetProgress$new(digits = 2)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{digits}}{\code{integer(1)}\cr
+The number of digits to print for the measures.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{digits}}{\code{integer(1)}\cr
-The number of digits to print for the measures.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetProgress-on_epoch_begin"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetProgress-on_epoch_begin}{}}}
-\subsection{Method \code{on_epoch_begin()}}{
-Initializes the progress bar for training.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetProgress$on_epoch_begin()}\if{html}{\out{</div>}}
+\subsection{\code{CallbackSetProgress$on_epoch_begin()}}{
+  Initializes the progress bar for training.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetProgress$on_epoch_begin()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetProgress-on_batch_end"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetProgress-on_batch_end}{}}}
-\subsection{Method \code{on_batch_end()}}{
-Increments the training progress bar.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetProgress$on_batch_end()}\if{html}{\out{</div>}}
+\subsection{\code{CallbackSetProgress$on_batch_end()}}{
+  Increments the training progress bar.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetProgress$on_batch_end()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetProgress-on_before_valid"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetProgress-on_before_valid}{}}}
-\subsection{Method \code{on_before_valid()}}{
-Creates the progress bar for validation.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetProgress$on_before_valid()}\if{html}{\out{</div>}}
+\subsection{\code{CallbackSetProgress$on_before_valid()}}{
+  Creates the progress bar for validation.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetProgress$on_before_valid()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetProgress-on_batch_valid_end"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetProgress-on_batch_valid_end}{}}}
-\subsection{Method \code{on_batch_valid_end()}}{
-Increments the validation progress bar.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetProgress$on_batch_valid_end()}\if{html}{\out{</div>}}
+\subsection{\code{CallbackSetProgress$on_batch_valid_end()}}{
+  Increments the validation progress bar.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetProgress$on_batch_valid_end()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetProgress-on_epoch_end"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetProgress-on_epoch_end}{}}}
-\subsection{Method \code{on_epoch_end()}}{
-Prints a summary of the training and validation process.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetProgress$on_epoch_end()}\if{html}{\out{</div>}}
+\subsection{\code{CallbackSetProgress$on_epoch_end()}}{
+  Prints a summary of the training and validation process.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetProgress$on_epoch_end()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetProgress-on_end"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetProgress-on_end}{}}}
-\subsection{Method \code{on_end()}}{
-Prints the time at the end of training.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetProgress$on_end()}\if{html}{\out{</div>}}
+\subsection{\code{CallbackSetProgress$on_end()}}{
+  Prints the time at the end of training.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetProgress$on_end()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetProgress-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetProgress-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetProgress$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{CallbackSetProgress$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetProgress$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

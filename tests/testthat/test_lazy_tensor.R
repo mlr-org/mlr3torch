@@ -199,6 +199,11 @@ test_that("print/format", {
   expect_snapshot(as_lazy_tensor(ds, dataset_shapes = list(x = NULL)))
 })
 
+test_that("format_col: lazy_tensor columns are formatted in data.tables", {
+  expect_snapshot(tsk("lazy_iris")$head())
+  x = as_lazy_tensor(matrix(1:10, ncol = 1))
+})
+
 test_that("comparison", {
   x = as_lazy_tensor(1:2)
   # diffe

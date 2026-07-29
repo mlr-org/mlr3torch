@@ -27,115 +27,121 @@ list.files(pth)
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-Other Callback: 
+Other Callback:
 \code{\link{TorchCallback}},
-\code{\link{as_torch_callback}()},
-\code{\link{as_torch_callbacks}()},
-\code{\link{callback_set}()},
+\code{\link[=as_torch_callback]{as_torch_callback()}},
+\code{\link[=as_torch_callbacks]{as_torch_callbacks()}},
+\code{\link[=callback_set]{callback_set()}},
 \code{\link{mlr3torch_callbacks}},
 \code{\link{mlr_callback_set}},
 \code{\link{mlr_callback_set.progress}},
 \code{\link{mlr_callback_set.tb}},
 \code{\link{mlr_callback_set.unfreeze}},
 \code{\link{mlr_context_torch}},
-\code{\link{t_clbk}()},
-\code{\link{torch_callback}()}
+\code{\link[=t_clbk]{t_clbk()}},
+\code{\link[=torch_callback]{torch_callback()}}
 }
 \concept{Callback}
 \section{Super class}{
-\code{\link[mlr3torch:CallbackSet]{mlr3torch::CallbackSet}} -> \code{CallbackSetCheckpoint}
+\code{\link[mlr3torch:CallbackSet]{CallbackSet}} -> \code{CallbackSetCheckpoint}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-CallbackSetCheckpoint-new}{\code{CallbackSetCheckpoint$new()}}
-\item \href{#method-CallbackSetCheckpoint-on_epoch_end}{\code{CallbackSetCheckpoint$on_epoch_end()}}
-\item \href{#method-CallbackSetCheckpoint-on_batch_end}{\code{CallbackSetCheckpoint$on_batch_end()}}
-\item \href{#method-CallbackSetCheckpoint-on_exit}{\code{CallbackSetCheckpoint$on_exit()}}
-\item \href{#method-CallbackSetCheckpoint-clone}{\code{CallbackSetCheckpoint$clone()}}
+  \itemize{
+    \item \href{#method-CallbackSetCheckpoint-initialize}{\code{CallbackSetCheckpoint$new()}}
+    \item \href{#method-CallbackSetCheckpoint-on_epoch_end}{\code{CallbackSetCheckpoint$on_epoch_end()}}
+    \item \href{#method-CallbackSetCheckpoint-on_batch_end}{\code{CallbackSetCheckpoint$on_batch_end()}}
+    \item \href{#method-CallbackSetCheckpoint-on_exit}{\code{CallbackSetCheckpoint$on_exit()}}
+    \item \href{#method-CallbackSetCheckpoint-clone}{\code{CallbackSetCheckpoint$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="load_state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-load_state_dict'><code>mlr3torch::CallbackSet$load_state_dict()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-print'><code>mlr3torch::CallbackSet$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-state_dict'><code>mlr3torch::CallbackSet$state_dict()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="load_state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-load_state_dict'><code>CallbackSet$load_state_dict()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-print'><code>CallbackSet$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-state_dict'><code>CallbackSet$state_dict()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CallbackSetCheckpoint-new"></a>}}
-\if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of this \link[R6:R6Class]{R6} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetCheckpoint$new(path, freq, freq_type = "epoch")}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{path}}{(\code{character(1)})\cr
+\if{html}{\out{<a id="method-CallbackSetCheckpoint-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-initialize}{}}}
+\subsection{\code{CallbackSetCheckpoint$new()}}{
+  Creates a new instance of this \link[R6:R6Class]{R6} class.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetCheckpoint$new(path, freq, freq_type = "epoch")}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{path}}{(\code{character(1)})\cr
 The path to a folder where the models are saved.}
-
-\item{\code{freq}}{(\code{integer(1)})\cr
+      \item{\code{freq}}{(\code{integer(1)})\cr
 The frequency how often the model is saved.
 Frequency is either per step or epoch, which can be configured through the \code{freq_type} parameter.}
-
-\item{\code{freq_type}}{(\code{character(1)})\cr
+      \item{\code{freq_type}}{(\code{character(1)})\cr
 Can be be either \code{"epoch"} (default) or \code{"step"}.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetCheckpoint-on_epoch_end"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-on_epoch_end}{}}}
-\subsection{Method \code{on_epoch_end()}}{
-Saves the network and optimizer state dict.
+\subsection{\code{CallbackSetCheckpoint$on_epoch_end()}}{
+  Saves the network and optimizer state dict.
 Does nothing if \code{freq_type} or \code{freq} are not met.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetCheckpoint$on_epoch_end()}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetCheckpoint$on_epoch_end()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetCheckpoint-on_batch_end"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-on_batch_end}{}}}
-\subsection{Method \code{on_batch_end()}}{
-Saves the selected objects defined in \code{save}.
+\subsection{\code{CallbackSetCheckpoint$on_batch_end()}}{
+  Saves the selected objects defined in \code{save}.
 Does nothing if freq_type or freq are not met.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetCheckpoint$on_batch_end()}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetCheckpoint$on_batch_end()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetCheckpoint-on_exit"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-on_exit}{}}}
-\subsection{Method \code{on_exit()}}{
-Saves the learner.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetCheckpoint$on_exit()}\if{html}{\out{</div>}}
+\subsection{\code{CallbackSetCheckpoint$on_exit()}}{
+  Saves the learner.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetCheckpoint$on_exit()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetCheckpoint-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetCheckpoint-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetCheckpoint$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{CallbackSetCheckpoint$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetCheckpoint$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

@@ -42,15 +42,15 @@ mdout[[1L]]$optimizer
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-Other PipeOp: 
+Other PipeOp:
 \code{\link{mlr_pipeops_module}},
 \code{\link{mlr_pipeops_torch_callbacks}}
 
-Other Model Configuration: 
-\code{\link{ModelDescriptor}()},
+Other Model Configuration:
+\code{\link[=ModelDescriptor]{ModelDescriptor()}},
 \code{\link{mlr_pipeops_torch_callbacks}},
 \code{\link{mlr_pipeops_torch_loss}},
-\code{\link{model_descriptor_union}()}
+\code{\link[=model_descriptor_union]{model_descriptor_union()}}
 }
 \concept{Model Configuration}
 \concept{PipeOp}
@@ -59,65 +59,65 @@ Other Model Configuration:
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-PipeOpTorchOptimizer-new}{\code{PipeOpTorchOptimizer$new()}}
-\item \href{#method-PipeOpTorchOptimizer-clone}{\code{PipeOpTorchOptimizer$clone()}}
+  \itemize{
+    \item \href{#method-PipeOpTorchOptimizer-initialize}{\code{PipeOpTorchOptimizer$new()}}
+    \item \href{#method-PipeOpTorchOptimizer-clone}{\code{PipeOpTorchOptimizer$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-print'><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="help"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-help'><code>mlr3pipelines::PipeOp$help()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="predict"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-predict'><code>mlr3pipelines::PipeOp$predict()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="print"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-print'><code>mlr3pipelines::PipeOp$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3pipelines" data-topic="PipeOp" data-id="train"><a href='../../mlr3pipelines/html/PipeOp.html#method-PipeOp-train'><code>mlr3pipelines::PipeOp$train()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-PipeOpTorchOptimizer-new"></a>}}
-\if{latex}{\out{\hypertarget{method-PipeOpTorchOptimizer-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of this \link[R6:R6Class]{R6} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchOptimizer$new(
+\if{html}{\out{<a id="method-PipeOpTorchOptimizer-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-PipeOpTorchOptimizer-initialize}{}}}
+\subsection{\code{PipeOpTorchOptimizer$new()}}{
+  Creates a new instance of this \link[R6:R6Class]{R6} class.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipeOpTorchOptimizer$new(
   optimizer = t_opt("adam"),
   id = "torch_optimizer",
   param_vals = list()
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{optimizer}}{(\code{\link{TorchOptimizer}} or \code{character(1)} or \code{torch_optimizer_generator})\cr
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{optimizer}}{(\code{\link{TorchOptimizer}} or \code{character(1)} or \code{torch_optimizer_generator})\cr
 The optimizer (or something convertible via \code{\link[=as_torch_optimizer]{as_torch_optimizer()}}).}
-
-\item{\code{id}}{(\code{character(1)})\cr
+      \item{\code{id}}{(\code{character(1)})\cr
 Identifier of the resulting  object.}
-
-\item{\code{param_vals}}{(\code{list()})\cr
+      \item{\code{param_vals}}{(\code{list()})\cr
 List of hyperparameter settings, overwriting the hyperparameter settings that would
 otherwise be set during construction.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipeOpTorchOptimizer-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-PipeOpTorchOptimizer-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipeOpTorchOptimizer$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{PipeOpTorchOptimizer$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipeOpTorchOptimizer$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

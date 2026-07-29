@@ -23,10 +23,10 @@ Additional arguments.}
 Converts an object to a list of \code{\link{TorchCallback}}.
 }
 \seealso{
-Other Callback: 
+Other Callback:
 \code{\link{TorchCallback}},
-\code{\link{as_torch_callback}()},
-\code{\link{callback_set}()},
+\code{\link[=as_torch_callback]{as_torch_callback()}},
+\code{\link[=callback_set]{callback_set()}},
 \code{\link{mlr3torch_callbacks}},
 \code{\link{mlr_callback_set}},
 \code{\link{mlr_callback_set.checkpoint}},
@@ -34,21 +34,21 @@ Other Callback:
 \code{\link{mlr_callback_set.tb}},
 \code{\link{mlr_callback_set.unfreeze}},
 \code{\link{mlr_context_torch}},
-\code{\link{t_clbk}()},
-\code{\link{torch_callback}()}
+\code{\link[=t_clbk]{t_clbk()}},
+\code{\link[=torch_callback]{torch_callback()}}
 
-Other Torch Descriptor: 
+Other Torch Descriptor:
 \code{\link{TorchCallback}},
 \code{\link{TorchDescriptor}},
 \code{\link{TorchLoss}},
 \code{\link{TorchOptimizer}},
-\code{\link{as_torch_loss}()},
-\code{\link{as_torch_optimizer}()},
+\code{\link[=as_torch_loss]{as_torch_loss()}},
+\code{\link[=as_torch_optimizer]{as_torch_optimizer()}},
 \code{\link{mlr3torch_losses}},
 \code{\link{mlr3torch_optimizers}},
-\code{\link{t_clbk}()},
-\code{\link{t_loss}()},
-\code{\link{t_opt}()}
+\code{\link[=t_clbk]{t_clbk()}},
+\code{\link[=t_loss]{t_loss()}},
+\code{\link[=t_opt]{t_opt()}}
 }
 \concept{Callback}
 \concept{Torch Descriptor}

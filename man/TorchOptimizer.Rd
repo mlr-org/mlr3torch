@@ -52,116 +52,115 @@ learner$param_set
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-Other Torch Descriptor: 
+Other Torch Descriptor:
 \code{\link{TorchCallback}},
 \code{\link{TorchDescriptor}},
 \code{\link{TorchLoss}},
-\code{\link{as_torch_callbacks}()},
-\code{\link{as_torch_loss}()},
-\code{\link{as_torch_optimizer}()},
+\code{\link[=as_torch_callbacks]{as_torch_callbacks()}},
+\code{\link[=as_torch_loss]{as_torch_loss()}},
+\code{\link[=as_torch_optimizer]{as_torch_optimizer()}},
 \code{\link{mlr3torch_losses}},
 \code{\link{mlr3torch_optimizers}},
-\code{\link{t_clbk}()},
-\code{\link{t_loss}()},
-\code{\link{t_opt}()}
+\code{\link[=t_clbk]{t_clbk()}},
+\code{\link[=t_loss]{t_loss()}},
+\code{\link[=t_opt]{t_opt()}}
 }
 \concept{Torch Descriptor}
 \section{Super class}{
-\code{\link[mlr3torch:TorchDescriptor]{mlr3torch::TorchDescriptor}} -> \code{TorchOptimizer}
+\code{\link[mlr3torch:TorchDescriptor]{TorchDescriptor}} -> \code{TorchOptimizer}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-TorchOptimizer-new}{\code{TorchOptimizer$new()}}
-\item \href{#method-TorchOptimizer-generate}{\code{TorchOptimizer$generate()}}
-\item \href{#method-TorchOptimizer-clone}{\code{TorchOptimizer$clone()}}
+  \itemize{
+    \item \href{#method-TorchOptimizer-initialize}{\code{TorchOptimizer$new()}}
+    \item \href{#method-TorchOptimizer-generate}{\code{TorchOptimizer$generate()}}
+    \item \href{#method-TorchOptimizer-clone}{\code{TorchOptimizer$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchDescriptor" data-id="help"><a href='../../mlr3torch/html/TorchDescriptor.html#method-TorchDescriptor-help'><code>mlr3torch::TorchDescriptor$help()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchDescriptor" data-id="print"><a href='../../mlr3torch/html/TorchDescriptor.html#method-TorchDescriptor-print'><code>mlr3torch::TorchDescriptor$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchDescriptor" data-id="help"><a href='../../mlr3torch/html/TorchDescriptor.html#method-TorchDescriptor-help'><code>TorchDescriptor$help()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="TorchDescriptor" data-id="print"><a href='../../mlr3torch/html/TorchDescriptor.html#method-TorchDescriptor-print'><code>TorchDescriptor$print()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TorchOptimizer-new"></a>}}
-\if{latex}{\out{\hypertarget{method-TorchOptimizer-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of this \link[R6:R6Class]{R6} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchOptimizer$new(
+\if{html}{\out{<a id="method-TorchOptimizer-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchOptimizer-initialize}{}}}
+\subsection{\code{TorchOptimizer$new()}}{
+  Creates a new instance of this \link[R6:R6Class]{R6} class.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TorchOptimizer$new(
   torch_optimizer,
   param_set = NULL,
   id = NULL,
   label = NULL,
   packages = NULL,
   man = NULL
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{torch_optimizer}}{(\code{torch_optimizer_generator})\cr
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{torch_optimizer}}{(\code{torch_optimizer_generator})\cr
 The torch optimizer.}
-
-\item{\code{param_set}}{(\code{ParamSet} or \code{NULL})\cr
+      \item{\code{param_set}}{(\code{ParamSet} or \code{NULL})\cr
 The parameter set. If \code{NULL} (default) it is inferred from \code{torch_optimizer}.}
-
-\item{\code{id}}{(\code{character(1)})\cr
+      \item{\code{id}}{(\code{character(1)})\cr
 The id for of the new object.}
-
-\item{\code{label}}{(\code{character(1)})\cr
+      \item{\code{label}}{(\code{character(1)})\cr
 Label for the new instance.}
-
-\item{\code{packages}}{(\code{character()})\cr
+      \item{\code{packages}}{(\code{character()})\cr
 The R packages this object depends on.}
-
-\item{\code{man}}{(\code{character(1)})\cr
+      \item{\code{man}}{(\code{character(1)})\cr
 String in the format \verb{[pkg]::[topic]} pointing to a manual page for this object.
 The referenced help package can be opened via method \verb{$help()}.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TorchOptimizer-generate"></a>}}
 \if{latex}{\out{\hypertarget{method-TorchOptimizer-generate}{}}}
-\subsection{Method \code{generate()}}{
-Instantiates the optimizer.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchOptimizer$generate(params)}\if{html}{\out{</div>}}
+\subsection{\code{TorchOptimizer$generate()}}{
+  Instantiates the optimizer.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TorchOptimizer$generate(params)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{params}}{(named \code{list()} of \code{\link[torch:torch_tensor]{torch_tensor}}s)\cr
+The parameters of the network.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    \code{torch_optimizer}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{params}}{(named \code{list()} of \code{\link[torch:torch_tensor]{torch_tensor}}s)\cr
-The parameters of the network.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-\code{torch_optimizer}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TorchOptimizer-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-TorchOptimizer-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchOptimizer$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{TorchOptimizer$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TorchOptimizer$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

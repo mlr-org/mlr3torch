@@ -99,6 +99,12 @@ format.lazy_tensor = function(x, ...) { # nolint
     sprintf("<tnsr[%s]>", shape)
   })
 }
+
+#' @exportS3Method data.table::format_col
+format_col.lazy_tensor = function(x, ...) { # nolint
+  format(x, ...)
+}
+
 #' @export
 print.lazy_tensor = function(x, ...) { # nolint
   if (length(x) == 0) {

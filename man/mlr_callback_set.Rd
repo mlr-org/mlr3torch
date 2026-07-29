@@ -60,110 +60,118 @@ This can for example be used to implement custom early stopping.
 }
 
 \seealso{
-Other Callback: 
+Other Callback:
 \code{\link{TorchCallback}},
-\code{\link{as_torch_callback}()},
-\code{\link{as_torch_callbacks}()},
-\code{\link{callback_set}()},
+\code{\link[=as_torch_callback]{as_torch_callback()}},
+\code{\link[=as_torch_callbacks]{as_torch_callbacks()}},
+\code{\link[=callback_set]{callback_set()}},
 \code{\link{mlr3torch_callbacks}},
 \code{\link{mlr_callback_set.checkpoint}},
 \code{\link{mlr_callback_set.progress}},
 \code{\link{mlr_callback_set.tb}},
 \code{\link{mlr_callback_set.unfreeze}},
 \code{\link{mlr_context_torch}},
-\code{\link{t_clbk}()},
-\code{\link{torch_callback}()}
+\code{\link[=t_clbk]{t_clbk()}},
+\code{\link[=torch_callback]{torch_callback()}}
 }
 \concept{Callback}
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{ctx}}{(\code{\link{ContextTorch}} or \code{NULL})\cr
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{ctx}}{(\code{\link{ContextTorch}} or \code{NULL})\cr
 The evaluation context for the callback.
 This field should always be \code{NULL} except during the \verb{$train()} call of the torch learner.}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{stages}}{(\code{character()})\cr
+  \if{html}{\out{<div class="r6-active-bindings">}}
+  \describe{
+    \item{\code{stages}}{(\code{character()})\cr
 The active stages of this callback set.}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-CallbackSet-print}{\code{CallbackSet$print()}}
-\item \href{#method-CallbackSet-state_dict}{\code{CallbackSet$state_dict()}}
-\item \href{#method-CallbackSet-load_state_dict}{\code{CallbackSet$load_state_dict()}}
-\item \href{#method-CallbackSet-clone}{\code{CallbackSet$clone()}}
-}
+  \itemize{
+    \item \href{#method-CallbackSet-print}{\code{CallbackSet$print()}}
+    \item \href{#method-CallbackSet-state_dict}{\code{CallbackSet$state_dict()}}
+    \item \href{#method-CallbackSet-load_state_dict}{\code{CallbackSet$load_state_dict()}}
+    \item \href{#method-CallbackSet-clone}{\code{CallbackSet$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSet-print"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSet-print}{}}}
-\subsection{Method \code{print()}}{
-Prints the object.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSet$print(...)}\if{html}{\out{</div>}}
+\subsection{\code{CallbackSet$print()}}{
+  Prints the object.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSet$print(...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{...}}{(any)\cr
+Currently unused.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{(any)\cr
-Currently unused.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSet-state_dict"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSet-state_dict}{}}}
-\subsection{Method \code{state_dict()}}{
-Returns information that is kept in the the \code{\link{LearnerTorch}}'s state after training.
+\subsection{\code{CallbackSet$state_dict()}}{
+  Returns information that is kept in the the \code{\link{LearnerTorch}}'s state after training.
 This information should be loadable into the callback using \verb{$load_state_dict()} to be able to continue training.
 This returns \code{NULL} by default.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSet$state_dict()}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSet$state_dict()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSet-load_state_dict"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSet-load_state_dict}{}}}
-\subsection{Method \code{load_state_dict()}}{
-Loads the state dict into the callback to continue training.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSet$load_state_dict(state_dict)}\if{html}{\out{</div>}}
+\subsection{\code{CallbackSet$load_state_dict()}}{
+  Loads the state dict into the callback to continue training.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSet$load_state_dict(state_dict)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{state_dict}}{(any)\cr
+The state dict as retrieved via \verb{$state_dict()}.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{state_dict}}{(any)\cr
-The state dict as retrieved via \verb{$state_dict()}.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSet-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSet-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSet$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{CallbackSet$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSet$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

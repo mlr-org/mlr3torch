@@ -239,6 +239,9 @@ batchgetter_num = function(data, ...) {
 #' Converts a data frame of categorical data into a long tensor by converting the data to integers.
 #' No input checks are performed.
 #'
+#' All columns are encoded with **1-based** codes, i.e. the values of a feature with cardinality
+#' `k` are `1, ..., k`.
+#'
 #' @param data (`data.table`)\cr
 #'   `data.table` to be converted to a `tensor`.
 #' @param ... (any)\cr
@@ -246,7 +249,7 @@ batchgetter_num = function(data, ...) {
 #' @export
 batchgetter_categ = function(data, ...) {
   torch_tensor(
-    data = as.matrix(data[, lapply(.SD, as.integer)]),
+    data = as.matrix(data[, lapply(.SD, function(x) if (is.logical(x)) as.integer(x) + 1L else as.integer(x))]),
     dtype = torch_long()
   )
 }

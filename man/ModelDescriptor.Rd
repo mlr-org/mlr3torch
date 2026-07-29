@@ -17,7 +17,7 @@ ModelDescriptor(
 }
 \arguments{
 \item{graph}{(\code{\link[mlr3pipelines:Graph]{Graph}})\cr
-\code{Graph} of \code{\link{PipeOpModule}} and \code{\link[mlr3pipelines:mlr_pipeops_nop]{PipeOpNOP}} operators.}
+\code{Graph} of \code{\link{PipeOpModule}} and \code{\link[mlr3pipelines:PipeOpNOP]{PipeOpNOP}} operators.}
 
 \item{ingress}{(uniquely named \code{list} of \code{TorchIngressToken})\cr
 List of inputs that go into \code{graph}. Names of this must be a subset of \code{graph$input$name}.}
@@ -67,14 +67,14 @@ operators \code{\link{PipeOpTorchIngress}}, \code{\link{PipeOpTorch}}, \code{\li
 A \code{ModelDescriptor} can be converted to a \code{\link{nn_graph}} via \code{\link{model_descriptor_to_module}}.
 }
 \seealso{
-Other Model Configuration: 
+Other Model Configuration:
 \code{\link{mlr_pipeops_torch_callbacks}},
 \code{\link{mlr_pipeops_torch_loss}},
 \code{\link{mlr_pipeops_torch_optimizer}},
-\code{\link{model_descriptor_union}()}
+\code{\link[=model_descriptor_union]{model_descriptor_union()}}
 
-Other Graph Network: 
-\code{\link{TorchIngressToken}()},
+Other Graph Network:
+\code{\link[=TorchIngressToken]{TorchIngressToken()}},
 \code{\link{mlr_learners_torch_model}},
 \code{\link{mlr_pipeops_module}},
 \code{\link{mlr_pipeops_torch}},
@@ -82,10 +82,10 @@ Other Graph Network:
 \code{\link{mlr_pipeops_torch_ingress_categ}},
 \code{\link{mlr_pipeops_torch_ingress_ltnsr}},
 \code{\link{mlr_pipeops_torch_ingress_num}},
-\code{\link{model_descriptor_to_learner}()},
-\code{\link{model_descriptor_to_module}()},
-\code{\link{model_descriptor_union}()},
-\code{\link{nn_graph}()}
+\code{\link[=model_descriptor_to_learner]{model_descriptor_to_learner()}},
+\code{\link[=model_descriptor_to_module]{model_descriptor_to_module()}},
+\code{\link[=model_descriptor_union]{model_descriptor_union()}},
+\code{\link[=nn_graph]{nn_graph()}}
 }
 \concept{Graph Network}
 \concept{Model Configuration}

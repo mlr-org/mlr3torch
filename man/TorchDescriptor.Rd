@@ -18,71 +18,72 @@ All parameters are tagged with \code{"train"}, but this is done automatically du
 }
 
 \seealso{
-Other Torch Descriptor: 
+Other Torch Descriptor:
 \code{\link{TorchCallback}},
 \code{\link{TorchLoss}},
 \code{\link{TorchOptimizer}},
-\code{\link{as_torch_callbacks}()},
-\code{\link{as_torch_loss}()},
-\code{\link{as_torch_optimizer}()},
+\code{\link[=as_torch_callbacks]{as_torch_callbacks()}},
+\code{\link[=as_torch_loss]{as_torch_loss()}},
+\code{\link[=as_torch_optimizer]{as_torch_optimizer()}},
 \code{\link{mlr3torch_losses}},
 \code{\link{mlr3torch_optimizers}},
-\code{\link{t_clbk}()},
-\code{\link{t_loss}()},
-\code{\link{t_opt}()}
+\code{\link[=t_clbk]{t_clbk()}},
+\code{\link[=t_loss]{t_loss()}},
+\code{\link[=t_opt]{t_opt()}}
 }
 \concept{Torch Descriptor}
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{label}}{(\code{character(1)})\cr
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{label}}{(\code{character(1)})\cr
 Label for this object.
 Can be used in tables, plot and text output instead of the ID.}
 
-\item{\code{param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}})\cr
+    \item{\code{param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}})\cr
 Set of hyperparameters.}
 
-\item{\code{packages}}{(\code{character(1)})\cr
+    \item{\code{packages}}{(\code{character(1)})\cr
 Set of required packages.
 These packages are loaded, but not attached.}
 
-\item{\code{id}}{(\code{character(1)})\cr
+    \item{\code{id}}{(\code{character(1)})\cr
 Identifier of the object.
 Used in tables, plot and text output.}
 
-\item{\code{generator}}{The wrapped generator that is described.}
+    \item{\code{generator}}{The wrapped generator that is described.}
 
-\item{\code{man}}{(\code{character(1)})\cr
+    \item{\code{man}}{(\code{character(1)})\cr
 String in the format \verb{[pkg]::[topic]} pointing to a manual page for this object.}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{phash}}{(\code{character(1)})\cr
+  \if{html}{\out{<div class="r6-active-bindings">}}
+  \describe{
+    \item{\code{phash}}{(\code{character(1)})\cr
 Hash (unique identifier) for this partial object, excluding some components
 which are varied systematically (e.g. the parameter values).}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-TorchDescriptor-new}{\code{TorchDescriptor$new()}}
-\item \href{#method-TorchDescriptor-print}{\code{TorchDescriptor$print()}}
-\item \href{#method-TorchDescriptor-generate}{\code{TorchDescriptor$generate()}}
-\item \href{#method-TorchDescriptor-help}{\code{TorchDescriptor$help()}}
-\item \href{#method-TorchDescriptor-clone}{\code{TorchDescriptor$clone()}}
-}
+  \itemize{
+    \item \href{#method-TorchDescriptor-initialize}{\code{TorchDescriptor$new()}}
+    \item \href{#method-TorchDescriptor-print}{\code{TorchDescriptor$print()}}
+    \item \href{#method-TorchDescriptor-generate}{\code{TorchDescriptor$generate()}}
+    \item \href{#method-TorchDescriptor-help}{\code{TorchDescriptor$help()}}
+    \item \href{#method-TorchDescriptor-clone}{\code{TorchDescriptor$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TorchDescriptor-new"></a>}}
-\if{latex}{\out{\hypertarget{method-TorchDescriptor-new}{}}}
-\subsection{Method \code{new()}}{
-Creates a new instance of this \link[R6:R6Class]{R6} class.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchDescriptor$new(
+\if{html}{\out{<a id="method-TorchDescriptor-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-TorchDescriptor-initialize}{}}}
+\subsection{\code{TorchDescriptor$new()}}{
+  Creates a new instance of this \link[R6:R6Class]{R6} class.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TorchDescriptor$new(
   generator,
   id = NULL,
   param_set = NULL,
@@ -90,88 +91,91 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   label = NULL,
   man = NULL,
   additional_args = NULL
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{generator}}{The wrapped generator that is described.}
-
-\item{\code{id}}{(\code{character(1)})\cr
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{generator}}{The wrapped generator that is described.}
+      \item{\code{id}}{(\code{character(1)})\cr
 The id for of the new object.}
-
-\item{\code{param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}})\cr
+      \item{\code{param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}})\cr
 The parameter set.}
-
-\item{\code{packages}}{(\code{character()})\cr
+      \item{\code{packages}}{(\code{character()})\cr
 The R packages this object depends on.}
-
-\item{\code{label}}{(\code{character(1)})\cr
+      \item{\code{label}}{(\code{character(1)})\cr
 Label for the new instance.}
-
-\item{\code{man}}{(\code{character(1)})\cr
+      \item{\code{man}}{(\code{character(1)})\cr
 String in the format \verb{[pkg]::[topic]} pointing to a manual page for this object.
 The referenced help package can be opened via method \verb{$help()}.}
-
-\item{\code{additional_args}}{(\code{list()})\cr
+      \item{\code{additional_args}}{(\code{list()})\cr
 Additional arguments if necessary. For learning rate schedulers, this is the torch::LRScheduler.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TorchDescriptor-print"></a>}}
 \if{latex}{\out{\hypertarget{method-TorchDescriptor-print}{}}}
-\subsection{Method \code{print()}}{
-Prints the object
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchDescriptor$print(...)}\if{html}{\out{</div>}}
+\subsection{\code{TorchDescriptor$print()}}{
+  Prints the object
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TorchDescriptor$print(...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{...}}{any}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{any}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TorchDescriptor-generate"></a>}}
 \if{latex}{\out{\hypertarget{method-TorchDescriptor-generate}{}}}
-\subsection{Method \code{generate()}}{
-Calls the generator with the given parameter values.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchDescriptor$generate()}\if{html}{\out{</div>}}
+\subsection{\code{TorchDescriptor$generate()}}{
+  Calls the generator with the given parameter values.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TorchDescriptor$generate()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TorchDescriptor-help"></a>}}
 \if{latex}{\out{\hypertarget{method-TorchDescriptor-help}{}}}
-\subsection{Method \code{help()}}{
-Displays the help file of the wrapped object.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchDescriptor$help()}\if{html}{\out{</div>}}
+\subsection{\code{TorchDescriptor$help()}}{
+  Displays the help file of the wrapped object.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TorchDescriptor$help()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-TorchDescriptor-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-TorchDescriptor-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{TorchDescriptor$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{TorchDescriptor$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{TorchDescriptor$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

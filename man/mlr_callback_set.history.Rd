@@ -27,99 +27,109 @@ print(learner$model$callbacks$history)
 \dontshow{\}) # examplesIf}
 }
 \section{Super class}{
-\code{\link[mlr3torch:CallbackSet]{mlr3torch::CallbackSet}} -> \code{CallbackSetHistory}
+\code{\link[mlr3torch:CallbackSet]{CallbackSet}} -> \code{CallbackSetHistory}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-CallbackSetHistory-on_begin}{\code{CallbackSetHistory$on_begin()}}
-\item \href{#method-CallbackSetHistory-state_dict}{\code{CallbackSetHistory$state_dict()}}
-\item \href{#method-CallbackSetHistory-load_state_dict}{\code{CallbackSetHistory$load_state_dict()}}
-\item \href{#method-CallbackSetHistory-on_before_valid}{\code{CallbackSetHistory$on_before_valid()}}
-\item \href{#method-CallbackSetHistory-on_epoch_end}{\code{CallbackSetHistory$on_epoch_end()}}
-\item \href{#method-CallbackSetHistory-clone}{\code{CallbackSetHistory$clone()}}
+  \itemize{
+    \item \href{#method-CallbackSetHistory-on_begin}{\code{CallbackSetHistory$on_begin()}}
+    \item \href{#method-CallbackSetHistory-state_dict}{\code{CallbackSetHistory$state_dict()}}
+    \item \href{#method-CallbackSetHistory-load_state_dict}{\code{CallbackSetHistory$load_state_dict()}}
+    \item \href{#method-CallbackSetHistory-on_before_valid}{\code{CallbackSetHistory$on_before_valid()}}
+    \item \href{#method-CallbackSetHistory-on_epoch_end}{\code{CallbackSetHistory$on_epoch_end()}}
+    \item \href{#method-CallbackSetHistory-clone}{\code{CallbackSetHistory$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-print'><code>mlr3torch::CallbackSet$print()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-print'><code>CallbackSet$print()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetHistory-on_begin"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetHistory-on_begin}{}}}
-\subsection{Method \code{on_begin()}}{
-Initializes lists where the train and validation metrics are stored.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetHistory$on_begin()}\if{html}{\out{</div>}}
+\subsection{\code{CallbackSetHistory$on_begin()}}{
+  Initializes lists where the train and validation metrics are stored.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetHistory$on_begin()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetHistory-state_dict"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetHistory-state_dict}{}}}
-\subsection{Method \code{state_dict()}}{
-Converts the lists to data.tables.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetHistory$state_dict()}\if{html}{\out{</div>}}
+\subsection{\code{CallbackSetHistory$state_dict()}}{
+  Converts the lists to data.tables.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetHistory$state_dict()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetHistory-load_state_dict"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetHistory-load_state_dict}{}}}
-\subsection{Method \code{load_state_dict()}}{
-Sets the field \verb{$train} and \verb{$valid} to those contained in the state dict.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetHistory$load_state_dict(state_dict)}\if{html}{\out{</div>}}
+\subsection{\code{CallbackSetHistory$load_state_dict()}}{
+  Sets the field \verb{$train} and \verb{$valid} to those contained in the state dict.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetHistory$load_state_dict(state_dict)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{state_dict}}{(\code{callback_state_history})\cr
+The state dict as retrieved via \verb{$state_dict()}.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{state_dict}}{(\code{callback_state_history})\cr
-The state dict as retrieved via \verb{$state_dict()}.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetHistory-on_before_valid"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetHistory-on_before_valid}{}}}
-\subsection{Method \code{on_before_valid()}}{
-Add the latest training scores to the history.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetHistory$on_before_valid()}\if{html}{\out{</div>}}
+\subsection{\code{CallbackSetHistory$on_before_valid()}}{
+  Add the latest training scores to the history.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetHistory$on_before_valid()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetHistory-on_epoch_end"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetHistory-on_epoch_end}{}}}
-\subsection{Method \code{on_epoch_end()}}{
-Add the latest validation scores to the history.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetHistory$on_epoch_end()}\if{html}{\out{</div>}}
+\subsection{\code{CallbackSetHistory$on_epoch_end()}}{
+  Add the latest validation scores to the history.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetHistory$on_epoch_end()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CallbackSetHistory-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-CallbackSetHistory-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CallbackSetHistory$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{CallbackSetHistory$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetHistory$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }
