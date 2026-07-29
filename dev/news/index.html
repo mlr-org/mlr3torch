@@ -73,11 +73,15 @@
 <h2 class="pkg-version" data-toc-text="development version" id="mlr3torch-development-version">mlr3torch (development version)<a class="anchor" aria-label="anchor" href="#mlr3torch-development-version"></a></h2>
 <div class="section level3">
 <h3 id="features-development-version">Features<a class="anchor" aria-label="anchor" href="#features-development-version"></a></h3>
-<ul><li>Added <code>PipeOpTorchMultiheadAttention</code> (<code>po("nn_multihead_attention")</code>), which wraps <code><a href="https://torch.mlverse.org/docs/reference/nn_multihead_attention.html" class="external-link">torch::nn_multihead_attention()</a></code>.</li>
+<ul><li>New parameter <code>batch_size_predict</code> for <code>LearnerTorch</code>, which overrides <code>batch_size</code> for prediction (including the validation data during training) when it is set.</li>
+<li>The <code>batch_sampler</code> parameter can now be used without setting <code>batch_size</code> for training, as the batch sampler already determines the batches (<a href="https://github.com/mlr-org/mlr3torch/issues/420" class="external-link">#420</a>). A <code>batch_size</code> (or <code>batch_size_predict</code>) is still required for prediction, where the (batch) sampler is not used.</li>
+<li>The dataloader parameters are now validated with typed conditions: misconfigurations are signaled as <code>Mlr3ErrorConfig</code> (see <code><a href="https://mlr3misc.mlr-org.com/reference/mlr_conditions.html" class="external-link">mlr3misc::error_config()</a></code>), so they can be caught by class and do not trigger the fallback learner anymore.</li>
+<li>Added <code>PipeOpTorchMultiheadAttention</code> (<code>po("nn_multihead_attention")</code>), which wraps <code><a href="https://torch.mlverse.org/docs/reference/nn_multihead_attention.html" class="external-link">torch::nn_multihead_attention()</a></code>.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
-<ul><li>
+<ul><li>The <code>sampler</code> and <code>batch_sampler</code> parameters are no longer used during prediction, where they could silently misalign the predictions with the rows of the task. They are now tagged with <code>"train"</code> only.</li>
+<li>
 <code><a href="https://rdrr.io/r/base/logical.html" class="external-link">logical()</a></code> features are now encoded as <code>c(1, 2)</code> by the <code><a href="../reference/batchgetter_categ.html">batchgetter_categ()</a></code> and their cardinality is correctly computed.</li>
 <li>Fix: <code>lazy_tensor</code> columns are now again printed correctly inside <code>data.table</code>s</li>
 </ul></div>

@@ -534,6 +534,8 @@
   : Base Class for Torch Descriptors
 - [`auto_device()`](https://mlr3torch.mlr-org.com/dev/reference/auto_device.md)
   : Auto Device
+- [`get_batch_size()`](https://mlr3torch.mlr-org.com/dev/reference/get_batch_size.md)
+  : Extract the Batch Size for a Given Phase
 - [`task_dataset()`](https://mlr3torch.mlr-org.com/dev/reference/task_dataset.md)
   : Create a Dataset from a Task
 - [`select_all()`](https://mlr3torch.mlr-org.com/dev/reference/Select.md)

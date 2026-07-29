@@ -4,12 +4,28 @@
 
 ### Features
 
+- New parameter `batch_size_predict` for `LearnerTorch`, which overrides
+  `batch_size` for prediction (including the validation data during
+  training) when it is set.
+- The `batch_sampler` parameter can now be used without setting
+  `batch_size` for training, as the batch sampler already determines the
+  batches ([\#420](https://github.com/mlr-org/mlr3torch/issues/420)). A
+  `batch_size` (or `batch_size_predict`) is still required for
+  prediction, where the (batch) sampler is not used.
+- The dataloader parameters are now validated with typed conditions:
+  misconfigurations are signaled as `Mlr3ErrorConfig` (see
+  [`mlr3misc::error_config()`](https://mlr3misc.mlr-org.com/reference/mlr_conditions.html)),
+  so they can be caught by class and do not trigger the fallback learner
+  anymore.
 - Added `PipeOpTorchMultiheadAttention`
   (`po("nn_multihead_attention")`), which wraps
   [`torch::nn_multihead_attention()`](https://torch.mlverse.org/docs/reference/nn_multihead_attention.html).
 
 ### Bug fixes
 
+- The `sampler` and `batch_sampler` parameters are no longer used during
+  prediction, where they could silently misalign the predictions with
+  the rows of the task. They are now tagged with `"train"` only.
 - [`logical()`](https://rdrr.io/r/base/logical.html) features are now
   encoded as `c(1, 2)` by the
   [`batchgetter_categ()`](https://mlr3torch.mlr-org.com/dev/reference/batchgetter_categ.md)

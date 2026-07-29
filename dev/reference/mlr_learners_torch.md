@@ -211,19 +211,37 @@ The parameters of the optimizer, loss and callbacks, prefixed with
 **Dataloader**:
 
 - `batch_size` :: `integer(1)`  
-  The batch size (required).
+  The batch size used by the training and prediction dataloader. It is
+  required for training (unless a `batch_sampler` is provided, which
+  already determines the batches) and it is required for prediction
+  (unless `batch_size_predict` is set).
+
+- `batch_size_predict` :: `integer(1)`  
+  The batch size used by the prediction dataloader (this includes the
+  validation data during training). When set, it overrides `batch_size`
+  for prediction. The batch size does not change the predictions, but
+  smaller batches take longer and require less memory.
 
 - `shuffle` :: `logical(1)`  
   Whether to shuffle the instances in the dataset. This is initialized
-  to `TRUE`, which differs from the default (`FALSE`).
+  to `TRUE`, which differs from the default (`FALSE`). It is ignored
+  when a `sampler` or `batch_sampler` is provided.
 
 - `sampler` ::
   [`torch::sampler`](https://torch.mlverse.org/docs/reference/sampler.html)  
-  Object that defines how the dataloader draw samples.
+  Object that defines how the dataloader draws samples, i.e. the order
+  in which the observations are drawn. This must be the sampler
+  *generator* (as returned by
+  [`torch::sampler()`](https://torch.mlverse.org/docs/reference/sampler.html)),
+  not an instance, as it is instantiated with the training dataset
+  internally.
 
 - `batch_sampler` ::
   [`torch::sampler`](https://torch.mlverse.org/docs/reference/sampler.html)  
-  Object that defines how the dataloader draws batches.
+  Object that defines how the dataloader draws batches. As for
+  `sampler`, this must be the generator. When it is provided, the
+  parameters `batch_size`, `shuffle` and `drop_last` are ignored during
+  training, because the batch sampler already determines the batches.
 
 - `num_workers` :: `integer(1)`  
   The number of workers for data loading (batches are loaded in
@@ -239,7 +257,7 @@ The parameters of the optimizer, loss and callbacks, prefixed with
 
 - `drop_last` :: `logical(1)`  
   Whether to drop the last training batch in each epoch during training.
-  Default is `FALSE`.
+  Default is `FALSE`. It is ignored when a `batch_sampler` is provided.
 
 - `timeout` :: `numeric(1)`  
   The timeout value for collecting a batch from workers. Negative values
@@ -340,7 +358,9 @@ This must respect the dataloader parameters from the
   [`torch::dataloader`](https://torch.mlverse.org/docs/reference/dataloader.html)  
   Create a dataloader from the task. Needs to respect at least
   `batch_size` and `shuffle` (otherwise predictions will be incorrectly
-  ordered).
+  ordered). Use `get_batch_size(param_vals, "train")` to obtain the
+  batch size for the respective phase, which takes the
+  `batch_size_predict` parameter into account.
 
 To change the predict types, it is possible to overwrite the method
 below:

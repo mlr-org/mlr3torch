@@ -203,14 +203,26 @@ field of the learner.</p></li>
 The minimum improvement threshold for early stopping.
 Is initialized to 0.</p></li>
 </ul><p><strong>Dataloader</strong>:</p><ul><li><p><code>batch_size</code> :: <code>integer(1)</code><br>
-The batch size (required).</p></li>
+The batch size used by the training and prediction dataloader.
+It is required for training (unless a <code>batch_sampler</code> is provided, which already determines the
+batches) and it is required for prediction (unless <code>batch_size_predict</code> is set).</p></li>
+<li><p><code>batch_size_predict</code> :: <code>integer(1)</code><br>
+The batch size used by the prediction dataloader (this includes the validation data during
+training). When set, it overrides <code>batch_size</code> for prediction.
+The batch size does not change the predictions, but smaller batches take longer and require less
+memory.</p></li>
 <li><p><code>shuffle</code> :: <code>logical(1)</code><br>
 Whether to shuffle the instances in the dataset. This is initialized to <code>TRUE</code>,
-which differs from the default (<code>FALSE</code>).</p></li>
+which differs from the default (<code>FALSE</code>).
+It is ignored when a <code>sampler</code> or <code>batch_sampler</code> is provided.</p></li>
 <li><p><code>sampler</code> :: <code><a href="https://torch.mlverse.org/docs/reference/sampler.html" class="external-link">torch::sampler</a></code><br>
-Object that defines how the dataloader draw samples.</p></li>
+Object that defines how the dataloader draws samples, i.e. the order in which the observations are
+drawn. This must be the sampler <em>generator</em> (as returned by <code><a href="https://torch.mlverse.org/docs/reference/sampler.html" class="external-link">torch::sampler()</a></code>), not an instance,
+as it is instantiated with the training dataset internally.</p></li>
 <li><p><code>batch_sampler</code> :: <code><a href="https://torch.mlverse.org/docs/reference/sampler.html" class="external-link">torch::sampler</a></code><br>
-Object that defines how the dataloader draws batches.</p></li>
+Object that defines how the dataloader draws batches. As for <code>sampler</code>, this must be the generator.
+When it is provided, the parameters <code>batch_size</code>, <code>shuffle</code> and <code>drop_last</code> are ignored during
+training, because the batch sampler already determines the batches.</p></li>
 <li><p><code>num_workers</code> :: <code>integer(1)</code><br>
 The number of workers for data loading (batches are loaded in parallel).
 The default is <code>0</code>, which means that data will be loaded in the main process.</p></li>
@@ -219,7 +231,8 @@ How to merge a list of samples to form a batch.</p></li>
 <li><p><code>pin_memory</code> :: <code>logical(1)</code><br>
 Whether the dataloader copies tensors into CUDA pinned memory before returning them.</p></li>
 <li><p><code>drop_last</code> :: <code>logical(1)</code><br>
-Whether to drop the last training batch in each epoch during training. Default is <code>FALSE</code>.</p></li>
+Whether to drop the last training batch in each epoch during training. Default is <code>FALSE</code>.
+It is ignored when a <code>batch_sampler</code> is provided.</p></li>
 <li><p><code>timeout</code> :: <code>numeric(1)</code><br>
 The timeout value for collecting a batch from workers.
 Negative values mean no timeout and the default is <code>-1</code>.</p></li>
@@ -270,7 +283,9 @@ It is recommended to relu on <code><a href="task_dataset.html">task_dataset</a><
 This must respect the dataloader parameters from the <code><a href="https://paradox.mlr-org.com/reference/ParamSet.html" class="external-link">ParamSet</a></code>.</p><ul><li><p><code>.dataloader(dataset, param_vals)</code><br>
 (<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code><a href="https://torch.mlverse.org/docs/reference/dataloader.html" class="external-link">torch::dataloader</a></code><br>
 Create a dataloader from the task.
-Needs to respect at least <code>batch_size</code> and <code>shuffle</code> (otherwise predictions will be incorrectly ordered).</p></li>
+Needs to respect at least <code>batch_size</code> and <code>shuffle</code> (otherwise predictions will be incorrectly ordered).
+Use <code>get_batch_size(param_vals, "train")</code> to obtain the batch size for the respective phase,
+which takes the <code>batch_size_predict</code> parameter into account.</p></li>
 </ul><p>To change the predict types, it is possible to overwrite the method below:</p><ul><li><p><code>.encode_prediction(predict_tensor, task)</code><br>
 (<code><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></code>, <code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>) -&gt; <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code><br>
 Take in the raw predictions from <code>self$network</code> (<code>predict_tensor</code>) and encode them into a
