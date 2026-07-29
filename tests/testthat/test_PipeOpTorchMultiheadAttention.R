@@ -84,8 +84,51 @@ test_that("PipeOpTorchMultiheadAttention shapes_out for the output channel", {
   # only three-dimensional inputs are allowed
   expect_error(po1$shapes_out(list(c(NA, 4))), "three-dimensional")
 
-  # the feature dimension must be known
-  expect_error(po1$shapes_out(list(c(NA, 5, NA))), "last dimension is unknown")
+  # the feature dimension must be known -- on every input channel, not just on the query, because
+  # the last dimension of the key and value inputs becomes kdim and vdim respectively
+  expect_error(po1$shapes_out(list(c(NA, 5, NA))), "last dimension is unknown.*'input'")
+  expect_error(po2$shapes_out(list(c(NA, 5, 4), c(NA, 7, NA))), "last dimension is unknown.*'key_value'") # nolint
+  expect_error(po3$shapes_out(list(c(NA, 5, 4), c(NA, 7, NA), c(NA, 7, 8))), "last dimension is unknown.*'key'") # nolint
+  expect_error(po3$shapes_out(list(c(NA, 5, 4), c(NA, 7, 6), c(NA, 7, NA))), "last dimension is unknown.*'value'") # nolint
+})
+
+test_that("PipeOpTorchMultiheadAttention shapes_out propagates unknown sequence lengths", {
+  # the batch dimension is not the only one that can be unknown (only_batch_unknown = FALSE), so an
+  # unknown sequence length must propagate into both the output and the weights
+  po_bf = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2, batch_first = TRUE)
+  expect_equal(
+    po_bf$shapes_out(list(c(3, NA, 4))),
+    list(output = c(3, NA, 4), weights = c(3, NA, NA))
+  )
+  expect_equal(
+    po_bf$shapes_out(list(c(NA, NA, 4))),
+    # NA_real_, because the shape vector keeps the type it was given
+    list(output = c(NA, NA, 4), weights = rep(NA_real_, 3))
+  )
+
+  # sequence-first: the unknown sequence is dimension 1, the known batch dimension 2, and the
+  # weights are batch-first, so the known batch size reappears in front
+  po_sf = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2, batch_first = FALSE)
+  expect_equal(
+    po_sf$shapes_out(list(c(NA, 3, 4))),
+    list(output = c(NA, 3, 4), weights = c(3, NA, NA))
+  )
+
+  # an unknown key sequence stays unknown even when add_bias_kv/add_zero_attn extend it
+  po_bias = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2, batch_first = TRUE,
+    add_bias_kv = TRUE, add_zero_attn = TRUE)
+  expect_equal(po_bias$shapes_out(list(c(3, NA, 4)))$weights, c(3, NA, NA))
+
+  # cross-attention: query and key sequences are tracked separately
+  po_cross = po("nn_multihead_attention", mode = "cross", need_weights = TRUE, num_heads = 2,
+    batch_first = TRUE)
+  expect_equal(po_cross$shapes_out(list(c(3, 5, 4), c(3, NA, 4)))$weights, c(3, 5, NA))
+  expect_equal(po_cross$shapes_out(list(c(3, NA, 4), c(3, 7, 4)))$weights, c(3, NA, 7))
+
+  # the head dimension is known even when both sequence lengths are not
+  po_noavg = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2, batch_first = TRUE,
+    avg_weights = FALSE)
+  expect_equal(po_noavg$shapes_out(list(c(3, NA, 4)))$weights, c(3, 2, NA, NA))
 })
 
 test_that("PipeOpTorchMultiheadAttention shapes_out for the weights channel", {

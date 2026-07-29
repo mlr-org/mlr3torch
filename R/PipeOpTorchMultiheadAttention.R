@@ -1,54 +1,3 @@
-#' @title Multi-Head Attention
-#'
-#' @description
-#' Multi-head attention as described in *Attention Is All You Need*.
-#'
-#' This is a thin wrapper around [`torch::nn_multihead_attention()`] that makes it usable as a
-#' building block of a [`Graph`][mlr3pipelines::Graph] of tensor operations:
-#' 1. The `forward()` method accepts between one and three tensors, so that both self-attention and
-#'    cross-attention can be expressed.
-#' 2. The `forward()` method returns a bare tensor when `need_weights` is `FALSE` and a named
-#'    `list()` with elements `"output"` and `"weights"` when `need_weights` is `TRUE`.
-#'
-#' The `forward()` method accepts between one and three tensors:
-#' * one tensor `(query)`: self-attention, i.e. the tensor is used as query, key and value.
-#' * two tensors `(query, key_value)`: cross-attention, where the second tensor is used as both key
-#'   and value.
-#' * three tensors `(query, key, value)`: cross-attention with separate key and value tensors.
-#'
-#' @param embed_dim (`integer(1)`)\cr
-#'   Total dimension of the model, i.e. the size of the last dimension of the query tensor.
-#' @param num_heads (`integer(1)`)\cr
-#'   Number of parallel attention heads. `embed_dim` must be divisible by `num_heads`.
-#' @param dropout (`numeric(1)`)\cr
-#'   Dropout probability on the attention weights. Default is `0`.
-#' @param bias (`logical(1)`)\cr
-#'   Whether to add a bias to the input and output projections. Default is `TRUE`.
-#' @param add_bias_kv (`logical(1)`)\cr
-#'   Whether to add a bias to the key and value sequences at dimension 1. Default is `FALSE`.
-#' @param add_zero_attn (`logical(1)`)\cr
-#'   Whether to add a new batch of zeros to the key and value sequences at dimension 1.
-#'   Default is `FALSE`.
-#' @param kdim (`integer(1)`)\cr
-#'   Total number of features for the keys. Default is `NULL`, which means `embed_dim`.
-#' @param vdim (`integer(1)`)\cr
-#'   Total number of features for the values. Default is `NULL`, which means `embed_dim`.
-#' @param batch_first (`logical(1)`)\cr
-#'   Whether the input and output tensors are provided as `(batch, sequence, feature)` (`TRUE`) or
-#'   as `(sequence, batch, feature)` (`FALSE`). Default is `FALSE`, as in `torch`.
-#' @param need_weights (`logical(1)`)\cr
-#'   Whether the attention weights are returned in addition to the attention output.
-#'   Default is `FALSE`.
-#' @param avg_weights (`logical(1)`)\cr
-#'   Whether the returned attention weights are averaged over the attention heads.
-#'   Default is `TRUE`. Only has an effect when `need_weights` is `TRUE`.\cr
-#'   Note that [`torch::nn_multihead_attention()`] silently ignores this argument (and behaves as if
-#'   it were `TRUE`) whenever `kdim` or `vdim` differ from `embed_dim`.
-#'
-#' @references
-#' `r format_bib("vaswani2017attention")`
-#'
-#' @export
 nn_attention = nn_module(
   "nn_attention",
   initialize = function(embed_dim, num_heads, dropout = 0, bias = TRUE, add_bias_kv = FALSE,
@@ -85,10 +34,16 @@ nn_attention = nn_module(
 
 #' @title Multi-Head Attention
 #'
-#' @inherit nn_attention description
+#' @description
+#' Multi-head attention as described in *Attention Is All You Need*.
+#'
+#' This is a thin wrapper around [`torch::nn_multihead_attention()`] that makes it usable as a
+#' building block of a [`Graph`][mlr3pipelines::Graph] of tensor operations, where both
+#' self-attention and cross-attention can be expressed, see section *Input and Output Channels*.
+#'
 #' @section nn_module:
-#' Calls [`nn_attention()`] when trained, where the parameters `embed_dim`, `kdim` and `vdim` are
-#' inferred as the last dimension of the query, key and value tensors respectively.
+#' Calls [`torch::nn_multihead_attention()`] when trained, where the parameters `embed_dim`, `kdim`
+#' and `vdim` are inferred as the last dimension of the query, key and value tensors respectively.
 #' @section Parameters:
 #' * `num_heads` :: `integer(1)`\cr
 #'   Number of parallel attention heads. The embedding dimension must be divisible by `num_heads`.
@@ -132,22 +87,8 @@ nn_attention = nn_module(
 #'
 #' For an explanation see [`PipeOpTorch`].
 #'
-#' @section Internals:
-#' All input tensors must be three-dimensional. Depending on the parameter `batch_first`, they are
-#' interpreted as `(batch, sequence, feature)` or as `(sequence, batch, feature)`.
-#' The feature dimension is the last dimension in both layouts.
-#'
-#' The shape of the attention output is identical to the shape of the query tensor (in both
-#' layouts). The attention weights, on the other hand, are **always** batch-first, irrespective of
-#' `batch_first`, because [`torch::nnf_multi_head_attention_forward()`] transposes its inputs to a
-#' sequence-first layout before extracting the batch size. Their shape is
-#' `(batch, query_sequence, key_sequence)` if the weights are averaged over the heads and
-#' `(batch, num_heads, query_sequence, key_sequence)` otherwise, where `key_sequence` is increased
-#' by 1 for each of `add_bias_kv` and `add_zero_attn`.
-#'
-#' Because [`torch::nn_multihead_attention()`] does not forward `avg_weights` when `kdim` or `vdim`
-#' differ from `embed_dim`, the weights are averaged in that case even if `avg_weights` is `FALSE`.
-#' The shape inference accounts for this.
+#' @references
+#' `r format_bib("vaswani2017attention")`
 #'
 #' @templateVar id nn_multihead_attention
 #' @templateVar param_vals num_heads = 4
@@ -232,12 +173,14 @@ PipeOpTorchMultiheadAttention = R6Class("PipeOpTorchMultiheadAttention",
         if (length(shapes_in[[i]]) != 3L) {
           stopf("PipeOpTorchMultiheadAttention expects three-dimensional inputs, but input %i has %i dimensions.", i, length(shapes_in[[i]])) # nolint
         }
+        # the last dimension of every input becomes embed_dim, kdim or vdim, none of which can be
+        # inferred lazily, so an unknown feature dimension must be caught here for all channels
+        if (is.na(tail(shapes_in[[i]], 1L))) {
+          stopf("PipeOpTorchMultiheadAttention received an input shape where the last dimension is unknown (input channel '%s'). Please provide an input with a known last dimension.", self$input$name[[i]]) # nolint
+        }
       })
       query_shape = shapes_in[[1L]]
       embed_dim = tail(query_shape, 1L)
-      if (is.na(embed_dim)) {
-        stopf("PipeOpTorchMultiheadAttention received an input shape where the last dimension is unknown. Please provide an input with a known last dimension.") # nolint
-      }
       if (embed_dim %% param_vals$num_heads != 0) {
         stopf("PipeOpTorchMultiheadAttention: the embedding dimension (%i) must be divisible by 'num_heads' (%i).", embed_dim, param_vals$num_heads) # nolint
       }

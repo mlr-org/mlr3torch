@@ -8,26 +8,13 @@
 Multi-head attention as described in \emph{Attention Is All You Need}.
 
 This is a thin wrapper around \code{\link[torch:nn_multihead_attention]{torch::nn_multihead_attention()}} that makes it usable as a
-building block of a \code{\link[mlr3pipelines:Graph]{Graph}} of tensor operations:
-\enumerate{
-\item The \code{forward()} method accepts between one and three tensors, so that both self-attention and
-cross-attention can be expressed.
-\item The \code{forward()} method returns a bare tensor when \code{need_weights} is \code{FALSE} and a named
-\code{list()} with elements \code{"output"} and \code{"weights"} when \code{need_weights} is \code{TRUE}.
-}
-
-The \code{forward()} method accepts between one and three tensors:
-\itemize{
-\item one tensor \verb{(query)}: self-attention, i.e. the tensor is used as query, key and value.
-\item two tensors \verb{(query, key_value)}: cross-attention, where the second tensor is used as both key
-and value.
-\item three tensors \verb{(query, key, value)}: cross-attention with separate key and value tensors.
-}
+building block of a \code{\link[mlr3pipelines:Graph]{Graph}} of tensor operations, where both
+self-attention and cross-attention can be expressed, see section \emph{Input and Output Channels}.
 }
 \section{nn_module}{
 
-Calls \code{\link[=nn_attention]{nn_attention()}} when trained, where the parameters \code{embed_dim}, \code{kdim} and \code{vdim} are
-inferred as the last dimension of the query, key and value tensors respectively.
+Calls \code{\link[torch:nn_multihead_attention]{torch::nn_multihead_attention()}} when trained, where the parameters \code{embed_dim}, \code{kdim}
+and \code{vdim} are inferred as the last dimension of the query, key and value tensors respectively.
 }
 
 \section{Parameters}{
@@ -83,25 +70,6 @@ the attention weights.
 For an explanation see \code{\link{PipeOpTorch}}.
 }
 
-\section{Internals}{
-
-All input tensors must be three-dimensional. Depending on the parameter \code{batch_first}, they are
-interpreted as \verb{(batch, sequence, feature)} or as \verb{(sequence, batch, feature)}.
-The feature dimension is the last dimension in both layouts.
-
-The shape of the attention output is identical to the shape of the query tensor (in both
-layouts). The attention weights, on the other hand, are \strong{always} batch-first, irrespective of
-\code{batch_first}, because \code{\link[torch:nnf_multi_head_attention_forward]{torch::nnf_multi_head_attention_forward()}} transposes its inputs to a
-sequence-first layout before extracting the batch size. Their shape is
-\verb{(batch, query_sequence, key_sequence)} if the weights are averaged over the heads and
-\verb{(batch, num_heads, query_sequence, key_sequence)} otherwise, where \code{key_sequence} is increased
-by 1 for each of \code{add_bias_kv} and \code{add_zero_attn}.
-
-Because \code{\link[torch:nn_multihead_attention]{torch::nn_multihead_attention()}} does not forward \code{avg_weights} when \code{kdim} or \code{vdim}
-differ from \code{embed_dim}, the weights are averaged in that case even if \code{avg_weights} is \code{FALSE}.
-The shape inference accounts for this.
-}
-
 \section{State}{
 
 The state is the value calculated by the public method \verb{$shapes_out()}.
@@ -115,6 +83,11 @@ pipeop
 # The available parameters
 pipeop$param_set
 \dontshow{\}) # examplesIf}
+}
+\references{
+Vaswani, Ashish, Shazeer, Noam, Parmar, Niki, Uszkoreit, Jakob, Jones, Llion, Gomez, N A, Kaiser, Łukasz, Polosukhin, Illia (2017).
+\dQuote{Attention is all you need.}
+\emph{Advances in neural information processing systems}, \bold{30}.
 }
 \concept{PipeOps}
 \section{Super class}{
