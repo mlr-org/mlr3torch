@@ -61,14 +61,26 @@
 #'
 #' **Dataloader**:
 #' * `batch_size` :: `integer(1)`\cr
-#'   The batch size (required).
+#'   The batch size used by the training and prediction dataloader.
+#'   It is required for training (unless a `batch_sampler` is provided, which already determines the
+#'   batches) and it is required for prediction (unless `batch_size_predict` is set).
+#' * `batch_size_predict` :: `integer(1)`\cr
+#'   The batch size used by the prediction dataloader (this includes the validation data during
+#'   training). When set, it overrides `batch_size` for prediction.
+#'   The batch size does not change the predictions, but smaller batches take longer and require less
+#'   memory.
 #' * `shuffle` :: `logical(1)`\cr
 #'   Whether to shuffle the instances in the dataset. This is initialized to `TRUE`,
 #'   which differs from the default (`FALSE`).
+#'   It is ignored when a `sampler` or `batch_sampler` is provided.
 #' * `sampler` :: [`torch::sampler`]\cr
-#'   Object that defines how the dataloader draw samples.
+#'   Object that defines how the dataloader draws samples, i.e. the order in which the observations are
+#'   drawn. This must be the sampler *generator* (as returned by [`torch::sampler()`]), not an instance,
+#'   as it is instantiated with the training dataset internally.
 #' * `batch_sampler` :: [`torch::sampler`]\cr
-#'   Object that defines how the dataloader draws batches.
+#'   Object that defines how the dataloader draws batches. As for `sampler`, this must be the generator.
+#'   When it is provided, the parameters `batch_size`, `shuffle` and `drop_last` are ignored during
+#'   training, because the batch sampler already determines the batches.
 #' * `num_workers` :: `integer(1)`\cr
 #'   The number of workers for data loading (batches are loaded in parallel).
 #'   The default is `0`, which means that data will be loaded in the main process.
@@ -78,6 +90,7 @@
 #'   Whether the dataloader copies tensors into CUDA pinned memory before returning them.
 #' * `drop_last` :: `logical(1)`\cr
 #'   Whether to drop the last training batch in each epoch during training. Default is `FALSE`.
+#'   It is ignored when a `batch_sampler` is provided.
 #' * `timeout` :: `numeric(1)`\cr
 #'   The timeout value for collecting a batch from workers.
 #'   Negative values mean no timeout and the default is `-1`.
