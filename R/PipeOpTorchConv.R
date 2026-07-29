@@ -21,7 +21,10 @@ PipeOpTorchConv = R6Class("PipeOpTorchConv",
         id = id,
         module_generator = module_generator,
         param_vals = param_vals,
-        param_set = param_set
+        param_set = param_set,
+        # only the number of input channels is needed to build the module, the spatial
+        # dimensions may be unknown
+        only_batch_unknown = FALSE
       )
     }
   ),
@@ -30,7 +33,8 @@ PipeOpTorchConv = R6Class("PipeOpTorchConv",
       list(private$.d)
     },
     .shapes_out = function(shapes_in, param_vals, task) {
-      list(conv_output_shape(
+      # conv_output_shape() also validates the number of dimensions, so we let it run first
+      shape_out = conv_output_shape(
         shape_in = shapes_in[[1]],
         conv_dim = private$.d,
         padding = param_vals$padding %??% 0,
@@ -39,7 +43,9 @@ PipeOpTorchConv = R6Class("PipeOpTorchConv",
         kernel_size = param_vals$kernel_size,
         out_channels = param_vals$out_channels,
         ceil_mode = FALSE
-      ))
+      )
+      assert_known_dims(shapes_in[[1L]], 2L, "the channel dimension (dimension 2)", self$id)
+      list(shape_out)
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {
       c(param_vals, in_channels = unname(shapes_in[[1L]][2L]))

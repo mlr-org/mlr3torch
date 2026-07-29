@@ -8,11 +8,22 @@
   Notably, `nn_adaptive_avg_pool*` can now resolve an unknown input extent to a fully
   known output shape.
 
+* Feat: `PipeOp`s that read only *some* dimensions of the input shape now require only those
+  dimensions to be known: `nn_conv*` and `nn_conv_transpose*` need the channel dimension,
+  `nn_batch_norm*` the feature dimension, `nn_layer_norm` the last `dims` dimensions,
+  `nn_ft_cls` the token dimension and `nn_squeeze` the squeezed dimension. Convolutional
+  networks can therefore now be built for images whose height and width are unknown.
+  `nn_fn` and `nn_block` accept unknown dimensions whenever the wrapped function or the
+  wrapped `PipeOp`s do. When a required dimension is unknown, the resulting error message
+  now names that dimension instead of failing inside `libtorch`.
+
 ## Bug fixes
 
 * `logical()` features are now encoded as `c(1, 2)` by the
 `batchgetter_categ()` and their cardinality is correctly computed.
 * Fix: `lazy_tensor` columns are now again printed correctly inside `data.table`s
+* Fix: `nn_layer_norm` could not be used with `dims > 1`, because the parameter was checked
+  against the number of input channels instead of the number of input dimensions.
 
 # mlr3torch 0.3.3
 

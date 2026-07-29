@@ -73,7 +73,10 @@ PipeOpTorchBlock = R6Class("PipeOpTorchBlock",
         inname = private$.block$input$name,
         outname = private$.block$output$name,
         packages = private$.block$packages,
-        module_generator = NULL
+        module_generator = NULL,
+        # this PipeOp has no shape logic of its own, the wrapped PipeOps enforce their own
+        # constraints when the block's shapes are computed
+        only_batch_unknown = FALSE
       )
     }
   ),
