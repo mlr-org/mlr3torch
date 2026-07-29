@@ -574,7 +574,7 @@ test_that("internal tuning", {
   lgr::get_logger("bbotk")$set_threshold("warn")
   learner = lrn("classif.torch_featureless",
     epochs = to_tune(upper = 10, internal = TRUE),
-    batch_size = to_tune(p_int(10, 20)), eval_freq = 3, measures_valid = msr("classif.ce"),
+    batch_size = to_tune(10, 20), eval_freq = 3, measures_valid = msr("classif.ce"),
     validate = 0.3, patience = 2, min_delta = 2
   )
 
@@ -1048,9 +1048,9 @@ test_that("printer", {
     callbacks = list(t_clbk("history"), t_clbk("progress"))))
 })
 
-test_that("batch_size can be set per phase", {
+test_that("batch_size_predict overrides batch_size for prediction", {
   task = tsk("iris")
-  learner = lrn("classif.torch_featureless", epochs = 1, batch_size = c(train = 16, predict = 32),
+  learner = lrn("classif.torch_featureless", epochs = 1, batch_size = 16, batch_size_predict = 32,
     device = "cpu")
 
   dataset = get_private(learner)$.dataset(task, learner$param_set$values)
@@ -1060,30 +1060,35 @@ test_that("batch_size can be set per phase", {
   expect_equal(dl_train$batch_size, 16)
   expect_equal(dl_predict$batch_size, 32)
 
-  # a scalar is used for both phases
-  learner$param_set$set_values(batch_size = 8)
+  # batch_size is used for both phases when batch_size_predict is not set
+  learner$param_set$set_values(batch_size_predict = NULL, batch_size = 8)
   expect_equal(get_private(learner)$.dataloader(dataset, learner$param_set$values)$batch_size, 8)
   expect_equal(get_private(learner)$.dataloader_predict(dataset, learner$param_set$values)$batch_size, 8)
 
   # end-to-end
-  learner$param_set$set_values(batch_size = c(train = 16, predict = 32))
+  learner$param_set$set_values(batch_size = 16, batch_size_predict = 32)
   learner$train(task)
   expect_class(learner$predict(task), "PredictionClassif")
+
+  # it also applies to the validation data during training
+  callback = torch_callback(id = "loaders",
+    on_begin = function() self$ctx1 = self$ctx,
+    load_state_dict = function(state_dict) NULL,
+    state_dict = function() {
+      list(train = self$ctx1$loader_train$batch_size, valid = self$ctx1$loader_valid$batch_size)
+    }
+  )
+  learner_valid = lrn("classif.torch_featureless", epochs = 1, device = "cpu",
+    batch_size = 16, batch_size_predict = 32, callbacks = callback,
+    measures_valid = msr("classif.acc"), validate = 0.3)
+  learner_valid$train(task)
+  expect_equal(learner_valid$model$callbacks$loaders$train, 16)
+  expect_equal(learner_valid$model$callbacks$loaders$valid, 32)
 })
 
-test_that("batch_size is checked", {
-  learner = lrn("classif.torch_featureless")
-  expect_error(learner$param_set$set_values(batch_size = 0), "positive integer")
-  expect_error(learner$param_set$set_values(batch_size = c(16, 32)), "positive integer")
-  expect_error(learner$param_set$set_values(batch_size = c(train = 16, foo = 32)), "positive integer")
-  expect_error(learner$param_set$set_values(batch_size = c(train = 16, train = 32)), "positive integer")
-  expect_error(learner$param_set$set_values(batch_size = "16"), "positive integer")
-
-  learner$param_set$set_values(batch_size = 16)
-  learner$param_set$set_values(batch_size = c(train = 16))
-  learner$param_set$set_values(batch_size = c(predict = 32))
-  learner$param_set$set_values(batch_size = c(predict = 32, train = 16))
-  expect_equal(learner$param_set$values$batch_size, c(predict = 32, train = 16))
+test_that("batch_size is still tunable with a range tune token", {
+  learner = lrn("classif.torch_featureless", batch_size = to_tune(10, 20))
+  expect_equal(learner$param_set$search_space()$class[["batch_size"]], "ParamInt")
 })
 
 test_that("batch_size is required for train and predict", {
@@ -1091,12 +1096,13 @@ test_that("batch_size is required for train and predict", {
   learner = lrn("classif.torch_featureless", epochs = 1, device = "cpu")
   expect_error_config(learner$train(task), "must be set for training")
 
-  learner$param_set$set_values(batch_size = c(train = 16))
+  learner$param_set$set_values(batch_size = 16)
   learner$train(task)
-  expect_error_config(learner$predict(task), "must be set for prediction")
-
-  learner$param_set$set_values(batch_size = c(train = 16, predict = 32))
   expect_class(learner$predict(task), "PredictionClassif")
+
+  # batch_size_predict alone is not enough for training
+  learner$param_set$set_values(batch_size = NULL, batch_size_predict = 32)
+  expect_error_config(learner$train(task), "must be set for training")
 })
 
 test_that("batch_sampler works without batch_size", {
@@ -1137,7 +1143,7 @@ test_that("batch_sampler works without batch_size", {
   learner_valid$param_set$set_values(measures_valid = msr("classif.acc"))
   expect_error_config(learner_valid$train(task), "must be set for prediction")
 
-  learner$param_set$set_values(batch_size = c(predict = 50))
+  learner$param_set$set_values(batch_size_predict = 50)
   pred = learner$predict(task)
   expect_class(pred, "PredictionClassif")
   expect_equal(pred$row_ids, task$row_ids)
@@ -1150,7 +1156,7 @@ test_that("batch_sampler works without batch_size", {
   expect_class(dl_predict$sampler, "utils_sampler_sequential")
 
   # batch_size for training is ignored when a batch_sampler is provided
-  learner$param_set$set_values(batch_size = c(train = 1, predict = 50))
+  learner$param_set$set_values(batch_size = 1)
   dl_train = get_private(learner)$.dataloader(
     get_private(learner)$.dataset(task, learner$param_set$values), learner$param_set$values)
   expect_class(dl_train$batch_sampler, "TwoBatchSampler")

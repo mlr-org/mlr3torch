@@ -2,14 +2,12 @@
 
 ## Features
 
-* The `batch_size` parameter of `LearnerTorch` can now be set per phase, e.g.
-  `batch_size = c(train = 16, predict = 32)`.
-  Because of this, `batch_size` is now a `p_uty()` and to tune it, the search space must be given
-  explicitly, i.e. `batch_size = to_tune(p_int(16, 128))` instead of `batch_size = to_tune(16, 128)`.
+* New parameter `batch_size_predict` for `LearnerTorch`, which overrides `batch_size` for prediction
+  (including the validation data during training) when it is set.
 * The `batch_sampler` parameter can now be used without setting `batch_size` for training,
   as the batch sampler already determines the batches (#420).
-  A `batch_size` is still required for prediction, where the (batch) sampler is not used.
-  It can be set via e.g. `batch_size = c(predict = 32)`.
+  A `batch_size` (or `batch_size_predict`) is still required for prediction, where the (batch)
+  sampler is not used.
 * The `sampler` and `batch_sampler` parameters are now checked to be `torch::sampler()` generators.
 * The dataloader parameters are now validated with typed conditions: misconfigurations are signaled
   as `Mlr3ErrorConfig` (see `mlr3misc::error_config()`), so they can be caught by class.

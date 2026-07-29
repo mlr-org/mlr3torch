@@ -36,55 +36,37 @@ check_measures_regr = make_check_measures("regr")
 check_measures_classif = make_check_measures("classif")
 check_measures = make_check_measures()
 
-check_batch_size = crate(function(x) {
-  msg = paste0("must either be a single positive integer or a positive integer vector with names ",
-    "'train' and/or 'predict'")
-  if (!test_integerish(x, lower = 1L, min.len = 1L, max.len = 2L, any.missing = FALSE)) {
-    return(msg)
-  }
-  nms = names(x)
-  if (is.null(nms)) {
-    if (length(x) != 1L) return(msg)
-    return(TRUE)
-  }
-  if (!test_subset(nms, c("train", "predict")) || anyDuplicated(nms)) {
-    return(msg)
-  }
-  TRUE
-}, .parent = topenv())
-
-check_sampler = crate(function(x) {
-  # samplers are passed as generators (and not as instances), because they are instantiated with the
-  # dataset that is created internally
-  check_class(x, "torch_sampler")
-}, .parent = topenv())
+# samplers are passed as generators (and not as instances), because they are instantiated with the
+# dataset that is created internally
+check_sampler = make_check_class("torch_sampler")
 
 #' @title Extract the Batch Size for a Given Phase
 #' @description
-#' The `batch_size` parameter of a [`LearnerTorch`] is either a single integer that is used for both
-#' training and prediction, or a named vector such as `c(train = 16, predict = 32)` that specifies
-#' different values for the two phases.
-#' This helper extracts the value for one phase and is useful when overwriting the private
+#' A [`LearnerTorch`] uses the `batch_size` parameter for both training and prediction, unless
+#' `batch_size_predict` is set, which then takes precedence during prediction.
+#' This helper resolves the batch size for one phase and is useful when overwriting the private
 #' `.dataloader()` method of a [`LearnerTorch`].
-#' @param batch_size (`integer()` or `NULL`)\cr
-#'   The value of the `batch_size` parameter.
+#' @param param_vals (named `list()`)\cr
+#'   The parameter values, containing `batch_size` and/or `batch_size_predict`.
 #' @param phase (`character(1)`)\cr
 #'   Either `"train"` or `"predict"`.
 #' @return (`integer(1)` or `NULL`)\cr
-#'   The batch size for the given phase or `NULL` if it is not available.
+#'   The batch size for the given phase or `NULL` if none is set.
 #' @export
 #' @examples
-#' get_batch_size(16, "train")
-#' get_batch_size(c(train = 16, predict = 32), "predict")
-#' get_batch_size(c(predict = 32), "train")
-get_batch_size = function(batch_size, phase) {
-  if (is.null(batch_size) || is.null(names(batch_size))) {
-    return(batch_size)
+#' get_batch_size(list(batch_size = 16), "train")
+#' get_batch_size(list(batch_size = 16, batch_size_predict = 32), "predict")
+#' get_batch_size(list(batch_size_predict = 32), "train")
+get_batch_size = function(param_vals, phase) {
+  assert_list(param_vals, names = "unique")
+  assert_choice(phase, c("train", "predict"))
+  # `[[` and not `$`, as the latter partially matches 'batch_size' to 'batch_size_predict'
+  batch_size = if (phase == "train") {
+    param_vals[["batch_size"]]
+  } else {
+    param_vals[["batch_size_predict"]] %??% param_vals[["batch_size"]]
   }
-  if (phase %nin% names(batch_size)) {
-    return(NULL)
-  }
-  batch_size[[phase]]
+  assert_int(batch_size, lower = 1L, null.ok = TRUE)
 }
 
 epochs_aggr = function(x) as.integer(ceiling(mean(unlist(x))))
@@ -122,7 +104,8 @@ paramset_torchlearner = function(task_type, jittable = FALSE) {
     patience              = p_int(lower = 0L, tags = c("train", "required"), init = 0L),
     min_delta             = p_dbl(lower = 0, tags = c("train", "required"), init = 0),
     # dataloader parameters
-    batch_size            = p_uty(tags = c("train", "predict"), custom_check = check_batch_size),
+    batch_size            = p_int(tags = c("train", "predict"), lower = 1L),
+    batch_size_predict    = p_int(tags = c("train", "predict"), lower = 1L),
     shuffle               = p_lgl(tags = "train", default = FALSE, init = TRUE),
     sampler               = p_uty(tags = "train", custom_check = check_sampler),
     batch_sampler         = p_uty(tags = "train", custom_check = check_sampler),

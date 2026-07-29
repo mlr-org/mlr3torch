@@ -4,28 +4,27 @@
 \alias{get_batch_size}
 \title{Extract the Batch Size for a Given Phase}
 \usage{
-get_batch_size(batch_size, phase)
+get_batch_size(param_vals, phase)
 }
 \arguments{
-\item{batch_size}{(\code{integer()} or \code{NULL})\cr
-The value of the \code{batch_size} parameter.}
+\item{param_vals}{(named \code{list()})\cr
+The parameter values, containing \code{batch_size} and/or \code{batch_size_predict}.}
 
 \item{phase}{(\code{character(1)})\cr
 Either \code{"train"} or \code{"predict"}.}
 }
 \value{
 (\code{integer(1)} or \code{NULL})\cr
-The batch size for the given phase or \code{NULL} if it is not available.
+The batch size for the given phase or \code{NULL} if none is set.
 }
 \description{
-The \code{batch_size} parameter of a \code{\link{LearnerTorch}} is either a single integer that is used for both
-training and prediction, or a named vector such as \code{c(train = 16, predict = 32)} that specifies
-different values for the two phases.
-This helper extracts the value for one phase and is useful when overwriting the private
+A \code{\link{LearnerTorch}} uses the \code{batch_size} parameter for both training and prediction, unless
+\code{batch_size_predict} is set, which then takes precedence during prediction.
+This helper resolves the batch size for one phase and is useful when overwriting the private
 \code{.dataloader()} method of a \code{\link{LearnerTorch}}.
 }
 \examples{
-get_batch_size(16, "train")
-get_batch_size(c(train = 16, predict = 32), "predict")
-get_batch_size(c(predict = 32), "train")
+get_batch_size(list(batch_size = 16), "train")
+get_batch_size(list(batch_size = 16, batch_size_predict = 32), "predict")
+get_batch_size(list(batch_size_predict = 32), "train")
 }

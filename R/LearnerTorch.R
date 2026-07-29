@@ -140,8 +140,8 @@
 #'   ([`Task`][mlr3::Task], `list()`) -> [`torch::dataloader`]\cr
 #'   Create a dataloader from the task.
 #'   Needs to respect at least `batch_size` and `shuffle` (otherwise predictions will be incorrectly ordered).
-#'   Note that `batch_size` can also be a named vector such as `c(train = 16, predict = 32)`, use
-#'   `get_batch_size(param_vals$batch_size, "train")` to obtain the value for the respective phase.
+#'   Use `get_batch_size(param_vals, "train")` to obtain the batch size for the respective phase,
+#'   which takes the `batch_size_predict` parameter into account.
 #'
 #' To change the predict types, it is possible to overwrite the method below:
 #'
@@ -547,7 +547,7 @@ LearnerTorch = R6Class("LearnerTorch",
         "worker_packages"
       )
       args = param_vals[names(param_vals) %in% dl_args]
-      args$batch_size = get_batch_size(args$batch_size, "train")
+      args$batch_size = get_batch_size(param_vals, "train")
 
       if (!is.null(args$sampler) && !is.null(args$batch_sampler)) {
         error_config("Providing both a 'sampler' and a 'batch_sampler' is not supported, set only one of them.")
@@ -577,14 +577,14 @@ LearnerTorch = R6Class("LearnerTorch",
       invoke(dataloader, dataset = dataset, .args = args)
     },
     .dataloader_predict = function(dataset, param_vals) {
-      batch_size = get_batch_size(param_vals$batch_size, "predict")
+      batch_size = get_batch_size(param_vals, "predict")
       if (is.null(batch_size)) {
-        error_config(paste0("Parameter 'batch_size' must be set for prediction (this includes the ",
-          "validation data during training). When a 'sampler' or 'batch_sampler' is used for ",
-          "training, you can set e.g. `batch_size = c(predict = 32)`."))
+        error_config(paste0("Parameter 'batch_size' or 'batch_size_predict' must be set for ",
+          "prediction (this includes the validation data during training)."))
       }
       param_vals_test = insert_named(param_vals,
         list(batch_size = batch_size, shuffle = FALSE, drop_last = FALSE))
+      param_vals_test$batch_size_predict = NULL
       # samplers are only used during training, as they can change the order of the observations,
       # which would misalign the predictions with the rows of the task
       param_vals_test$sampler = NULL

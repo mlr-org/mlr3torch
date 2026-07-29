@@ -49,33 +49,31 @@ test_that("make_check_measures works", {
 })
 
 test_that("get_batch_size works", {
-  expect_equal(get_batch_size(16, "train"), 16)
-  expect_equal(get_batch_size(16, "predict"), 16)
-  expect_equal(get_batch_size(c(train = 16, predict = 32), "train"), 16)
-  expect_equal(get_batch_size(c(train = 16, predict = 32), "predict"), 32)
-  expect_null(get_batch_size(c(predict = 32), "train"))
-  expect_null(get_batch_size(c(train = 16), "predict"))
-  expect_null(get_batch_size(NULL, "train"))
-  # the phase name is dropped
-  expect_null(names(get_batch_size(c(train = 16), "train")))
+  expect_equal(get_batch_size(list(batch_size = 16), "train"), 16)
+  expect_equal(get_batch_size(list(batch_size = 16), "predict"), 16)
+  expect_equal(get_batch_size(list(batch_size = 16, batch_size_predict = 32), "train"), 16)
+  expect_equal(get_batch_size(list(batch_size = 16, batch_size_predict = 32), "predict"), 32)
+  expect_null(get_batch_size(list(batch_size_predict = 32), "train"))
+  expect_null(get_batch_size(list(), "predict"))
+  expect_null(get_batch_size(list(batch_size = NULL), "train"))
+
+  # arguments are asserted
+  expect_error(get_batch_size(16, "train"), "list")
+  expect_error(get_batch_size(list(batch_size = 16), "valid"), "element of set")
+  expect_error(get_batch_size(list(batch_size = 0), "train"), ">= 1")
+  expect_error(get_batch_size(list(batch_size = c(16, 32)), "train"), "length 1")
+  expect_error(get_batch_size(list(batch_size = "16"), "train"), "integerish")
 })
 
-test_that("check_batch_size works", {
-  expect_true(check_batch_size(16))
-  expect_true(check_batch_size(1L))
-  expect_true(check_batch_size(c(train = 16)))
-  expect_true(check_batch_size(c(predict = 32)))
-  expect_true(check_batch_size(c(train = 16, predict = 32)))
-
-  expect_grepl = function(x) expect_true(grepl("positive integer", check_batch_size(x)))
-  expect_grepl(0)
-  expect_grepl(-1)
-  expect_grepl(1.5)
-  expect_grepl("16")
-  expect_grepl(NA_integer_)
-  expect_grepl(integer(0))
-  expect_grepl(c(16, 32))
-  expect_grepl(c(train = 16, train = 32))
-  expect_grepl(c(train = 16, foo = 32))
-  expect_grepl(c(train = 16, predict = 32, foo = 8))
+test_that("make_check_class works", {
+  check = make_check_class("torch_sampler")
+  sampler = torch::sampler("S",
+    initialize = function(data_source) NULL,
+    .iter = function() function() coro::exhausted(),
+    .length = function() 0L
+  )
+  expect_true(check(sampler))
+  expect_string(check(1))
+  expect_string(check(sampler(1)))
+  expect_error(make_check_class(1), "character")
 })
