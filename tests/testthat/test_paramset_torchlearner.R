@@ -47,3 +47,35 @@ test_that("make_check_measures works", {
   # has property "requires_learner"
   expect_grepl_classif(msrs(c("time_predict")), "require a learner or model")
 })
+
+test_that("get_batch_size works", {
+  expect_equal(get_batch_size(16, "train"), 16)
+  expect_equal(get_batch_size(16, "predict"), 16)
+  expect_equal(get_batch_size(c(train = 16, predict = 32), "train"), 16)
+  expect_equal(get_batch_size(c(train = 16, predict = 32), "predict"), 32)
+  expect_null(get_batch_size(c(predict = 32), "train"))
+  expect_null(get_batch_size(c(train = 16), "predict"))
+  expect_null(get_batch_size(NULL, "train"))
+  # the phase name is dropped
+  expect_null(names(get_batch_size(c(train = 16), "train")))
+})
+
+test_that("check_batch_size works", {
+  expect_true(check_batch_size(16))
+  expect_true(check_batch_size(1L))
+  expect_true(check_batch_size(c(train = 16)))
+  expect_true(check_batch_size(c(predict = 32)))
+  expect_true(check_batch_size(c(train = 16, predict = 32)))
+
+  expect_grepl = function(x) expect_true(grepl("positive integer", check_batch_size(x)))
+  expect_grepl(0)
+  expect_grepl(-1)
+  expect_grepl(1.5)
+  expect_grepl("16")
+  expect_grepl(NA_integer_)
+  expect_grepl(integer(0))
+  expect_grepl(c(16, 32))
+  expect_grepl(c(train = 16, train = 32))
+  expect_grepl(c(train = 16, foo = 32))
+  expect_grepl(c(train = 16, predict = 32, foo = 8))
+})

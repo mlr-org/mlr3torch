@@ -1,7 +1,22 @@
 # mlr3torch (development version)
 
+## Features
+
+* The `batch_size` parameter of `LearnerTorch` can now be set per phase, e.g.
+  `batch_size = c(train = 16, predict = 32)`.
+  Because of this, `batch_size` is now a `p_uty()` and to tune it, the search space must be given
+  explicitly, i.e. `batch_size = to_tune(p_int(16, 128))` instead of `batch_size = to_tune(16, 128)`.
+* The `batch_sampler` parameter can now be used without setting `batch_size` for training,
+  as the batch sampler already determines the batches (#420).
+  A `batch_size` is still required for prediction, where the (batch) sampler is not used.
+  It can be set via e.g. `batch_size = c(predict = 32)`.
+* The `sampler` and `batch_sampler` parameters are now checked to be `torch::sampler()` generators.
+
 ## Bug fixes
 
+* The `sampler` and `batch_sampler` parameters are no longer used during prediction, where they
+  could silently misalign the predictions with the rows of the task.
+  They are now tagged with `"train"` only.
 * `logical()` features are now encoded as `c(1, 2)` by the
 `batchgetter_categ()` and their cardinality is correctly computed.
 * Fix: `lazy_tensor` columns are now again printed correctly inside `data.table`s

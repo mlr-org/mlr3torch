@@ -157,15 +157,31 @@ Is initialized to 0.
 
 \strong{Dataloader}:
 \itemize{
-\item \code{batch_size} :: \code{integer(1)}\cr
-The batch size (required).
+\item \code{batch_size} :: \code{integer()}\cr
+The batch size used by the training and prediction dataloader.
+Either a single positive integer that is used for both, or a named vector to use different values
+for the two phases, e.g. \code{batch_size = c(train = 16, predict = 32)}.
+It is required for training (unless a \code{batch_sampler} is provided, which already determines the
+batches) and it is always required for prediction.
+The batch size does not change the predictions, but smaller batches take longer and require less
+memory.
+To tune this parameter, the search space has to be given explicitly, e.g.
+\code{batch_size = to_tune(p_int(16, 128))}.
 \item \code{shuffle} :: \code{logical(1)}\cr
 Whether to shuffle the instances in the dataset. This is initialized to \code{TRUE},
 which differs from the default (\code{FALSE}).
+It is ignored when a \code{sampler} or \code{batch_sampler} is provided.
 \item \code{sampler} :: \code{\link[torch:sampler]{torch::sampler}}\cr
-Object that defines how the dataloader draw samples.
+Object that defines how the dataloader draws samples, i.e. the order in which the observations are
+drawn. This must be the sampler \emph{generator} (as returned by \code{\link[torch:sampler]{torch::sampler()}}), not an instance,
+as it is instantiated with the training dataset internally.
+It is only used during training, because a sampler can change the order of the observations, which
+would misalign the predictions with the rows of the task.
 \item \code{batch_sampler} :: \code{\link[torch:sampler]{torch::sampler}}\cr
-Object that defines how the dataloader draws batches.
+Object that defines how the dataloader draws batches. As for \code{sampler}, this must be the generator
+and is only used during training.
+When it is provided, the parameters \code{batch_size}, \code{shuffle} and \code{drop_last} are ignored during
+training, because the batch sampler already determines the batches.
 \item \code{num_workers} :: \code{integer(1)}\cr
 The number of workers for data loading (batches are loaded in parallel).
 The default is \code{0}, which means that data will be loaded in the main process.
@@ -175,6 +191,7 @@ How to merge a list of samples to form a batch.
 Whether the dataloader copies tensors into CUDA pinned memory before returning them.
 \item \code{drop_last} :: \code{logical(1)}\cr
 Whether to drop the last training batch in each epoch during training. Default is \code{FALSE}.
+It is ignored when a \code{batch_sampler} is provided.
 \item \code{timeout} :: \code{numeric(1)}\cr
 The timeout value for collecting a batch from workers.
 Negative values mean no timeout and the default is \code{-1}.
@@ -238,6 +255,8 @@ This must respect the dataloader parameters from the \code{\link[paradox:ParamSe
 (\code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{\link[torch:dataloader]{torch::dataloader}}\cr
 Create a dataloader from the task.
 Needs to respect at least \code{batch_size} and \code{shuffle} (otherwise predictions will be incorrectly ordered).
+Note that \code{batch_size} can also be a named vector such as \code{c(train = 16, predict = 32)}, use
+\code{get_batch_size(param_vals$batch_size, "train")} to obtain the value for the respective phase.
 }
 
 To change the predict types, it is possible to overwrite the method below:

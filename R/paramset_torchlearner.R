@@ -36,6 +36,57 @@ check_measures_regr = make_check_measures("regr")
 check_measures_classif = make_check_measures("classif")
 check_measures = make_check_measures()
 
+check_batch_size = crate(function(x) {
+  msg = paste0("must either be a single positive integer or a positive integer vector with names ",
+    "'train' and/or 'predict'")
+  if (!test_integerish(x, lower = 1L, min.len = 1L, max.len = 2L, any.missing = FALSE)) {
+    return(msg)
+  }
+  nms = names(x)
+  if (is.null(nms)) {
+    if (length(x) != 1L) return(msg)
+    return(TRUE)
+  }
+  if (!test_subset(nms, c("train", "predict")) || anyDuplicated(nms)) {
+    return(msg)
+  }
+  TRUE
+}, .parent = topenv())
+
+check_sampler = crate(function(x) {
+  # samplers are passed as generators (and not as instances), because they are instantiated with the
+  # dataset that is created internally
+  check_class(x, "torch_sampler")
+}, .parent = topenv())
+
+#' @title Extract the Batch Size for a Given Phase
+#' @description
+#' The `batch_size` parameter of a [`LearnerTorch`] is either a single integer that is used for both
+#' training and prediction, or a named vector such as `c(train = 16, predict = 32)` that specifies
+#' different values for the two phases.
+#' This helper extracts the value for one phase and is useful when overwriting the private
+#' `.dataloader()` method of a [`LearnerTorch`].
+#' @param batch_size (`integer()` or `NULL`)\cr
+#'   The value of the `batch_size` parameter.
+#' @param phase (`character(1)`)\cr
+#'   Either `"train"` or `"predict"`.
+#' @return (`integer(1)` or `NULL`)\cr
+#'   The batch size for the given phase or `NULL` if it is not available.
+#' @export
+#' @examples
+#' get_batch_size(16, "train")
+#' get_batch_size(c(train = 16, predict = 32), "predict")
+#' get_batch_size(c(predict = 32), "train")
+get_batch_size = function(batch_size, phase) {
+  if (is.null(batch_size) || is.null(names(batch_size))) {
+    return(batch_size)
+  }
+  if (phase %nin% names(batch_size)) {
+    return(NULL)
+  }
+  batch_size[[phase]]
+}
+
 epochs_aggr = function(x) as.integer(ceiling(mean(unlist(x))))
 
 epochs_tune_fn = function(domain, param_vals) {
@@ -71,10 +122,10 @@ paramset_torchlearner = function(task_type, jittable = FALSE) {
     patience              = p_int(lower = 0L, tags = c("train", "required"), init = 0L),
     min_delta             = p_dbl(lower = 0, tags = c("train", "required"), init = 0),
     # dataloader parameters
-    batch_size            = p_int(tags = c("train", "predict", "required"), lower = 1L),
+    batch_size            = p_uty(tags = c("train", "predict"), custom_check = check_batch_size),
     shuffle               = p_lgl(tags = "train", default = FALSE, init = TRUE),
-    sampler               = p_uty(tags = c("train", "predict")),
-    batch_sampler         = p_uty(tags = c("train", "predict")),
+    sampler               = p_uty(tags = "train", custom_check = check_sampler),
+    batch_sampler         = p_uty(tags = "train", custom_check = check_sampler),
     num_workers           = p_int(lower = 0, default = 0, tags = c("train", "predict")),
     collate_fn            = p_uty(tags = c("train", "predict"), default = NULL),
     pin_memory            = p_lgl(default = FALSE, tags = c("train", "predict")),
