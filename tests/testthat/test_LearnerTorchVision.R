@@ -4,11 +4,17 @@ task = as_task_classif(data.table(
   x = as_lazy_tensor(torch_randn(6, 3, 64, 64))
 ), id = "test_task", target = "y")
 
-# some networks (the vision transformers, MaxViT, Inception v3) require a larger input,
-# see the `input` column of `torchvision_models`
-task_for = function(id) {
-  input = torchvision_models[list(id), on = "id"]$input
-  size = if (is.na(input)) 64L else if (input == "518x518") 518L else if (input == "224x224") 224L else 96L
+# Not every network runs on the 64x64 images of `task`, see the `min_size` and `exact_size` columns
+# of `torchvision_models`. We use the smallest size that the network accepts, but at least 64.
+# The argument must not be called `id`, because data.table would resolve it to the column of that
+# name instead of to the argument.
+task_for = function(vision_id) {
+  info = torchvision_models[list(vision_id), on = "id"]
+  size = if (!is.na(info$exact_size)) {
+    info$exact_size
+  } else {
+    max(info$min_size, 64L, na.rm = TRUE)
+  }
   if (size == 64L) {
     return(task)
   }
@@ -41,10 +47,14 @@ test_that("LearnerTorchVision basic checks", {
 
 test_that("all torchvision networks are registered and attributed", {
   info = torchvision_models
-  expect_names(names(info),
-    permutation.of = c("id", "generator", "label", "arch", "bib", "file", "input", "jittable"))
+  expect_names(names(info), permutation.of = c("id", "generator", "label", "arch", "bib", "file",
+    "min_size", "exact_size", "jittable"))
   expect_character(info$id, unique = TRUE, any.missing = FALSE)
   expect_character(info$label, unique = TRUE, any.missing = FALSE)
+  # a network has either a minimum input size, or exactly one accepted input size, or neither
+  expect_integer(info$min_size, lower = 1L)
+  expect_integer(info$exact_size, lower = 1L)
+  expect_true(all(is.na(info$min_size) | is.na(info$exact_size)))
   expect_true(all(paste0("classif.", info$id) %in% mlr_learners$keys()))
 
   # every architecture is attributed to a paper for which we have a bibentry

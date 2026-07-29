@@ -53,7 +53,7 @@ task_cifar10 = tsk("cifar10")
 task_cifar100 = tsk("cifar100")
 }
 \references{
-Krizhevsky, Alex (2009).
+Krizhevsky A (2009).
 \dQuote{Learning Multiple Layers of Features from Tiny Images.}
 \emph{Master's thesis, Department of Computer Science, University of Toronto}.
 }

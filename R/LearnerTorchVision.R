@@ -14,13 +14,18 @@
 #' @eval torchvision_learner_section()
 #'
 #' @section Input Size:
-#' Most of these networks accept inputs of any (sufficiently large) spatial size, because they
-#' reduce the feature map to a fixed size via adaptive pooling.
-#' The exceptions are shown in the *Input Size* column of the table above:
-#' the vision transformers do not interpolate their position embeddings and therefore require
-#' exactly the size that they were configured with, `MaxViT` requires an input size that its
-#' window partitioning can handle, and `Inception v3` downsamples so aggressively that smaller
-#' inputs vanish before reaching the classifier.
+#' The *Input Size* column of the table above states which spatial input sizes a network accepts.
+#' Inputs do not have to be square, and any size at or above the stated minimum works.
+#'
+#' * `any`: the convolutional networks that pool their feature map to a fixed size before the
+#'   classifier accept arbitrarily small inputs.
+#' * A minimum (`at least NxN`): `AlexNet`, `VGG`, `ConvNeXt` and `Inception v3` shrink the feature
+#'   map below one pixel for smaller inputs. Note that these are the sizes at which the networks
+#'   still run, not the sizes at which they were trained, which is 224x224 for `AlexNet`, `VGG` and
+#'   `ConvNeXt` and 299x299 for `Inception v3`.
+#' * A fixed size (`NxN`): the vision transformers do not interpolate their position embeddings and
+#'   `MaxViT` needs an input that its window partitioning divides evenly, so these require exactly
+#'   the size that they were configured with.
 #'
 #' @section Parameters:
 #' Parameters from [`LearnerTorchImage`] and
@@ -194,35 +199,47 @@ maxvit_generator = function(...) {
 # * bib       : keys into `bibentries` of the paper(s) that introduced the architecture, separated
 #               by ",".
 # * file      : file in https://github.com/mlverse/torchvision that implements the network.
-# * input     : required spatial input size, NA if the network handles arbitrary input sizes.
+# * min_size  : smallest spatial input size that the network accepts, NA if it accepts any size.
+# * exact_size: the only spatial input size that the network accepts, NA if it accepts more than
+#               one size. At most one of `min_size` and `exact_size` is given.
 # * jittable  : whether the network can be traced with `torch::jit_trace()`.
 torchvision_models = local({
-  tvm = function(id, generator, label, arch, bib, file, input = NA_character_, jittable = TRUE) {
+  tvm = function(id, generator, label, arch, bib, file, min_size = NA_integer_,
+    exact_size = NA_integer_, jittable = TRUE) {
     list(id = id, generator = generator, label = label, arch = arch, bib = bib, file = file,
-      input = input, jittable = jittable)
+      min_size = min_size, exact_size = exact_size, jittable = jittable)
   }
   rbindlist(list(
     # torchvision implements the AlexNet variant of the "One weird trick" paper.
     tvm("alexnet", "model_alexnet", "AlexNet",
-      "AlexNet", "krizhevsky2017imagenet,krizhevsky2014one", "models-alexnet.R"),
+      "AlexNet", "krizhevsky2017imagenet,krizhevsky2014one", "models-alexnet.R",
+      min_size = 63L),
 
     tvm("convnext_tiny_1k", "model_convnext_tiny_1k", "ConvNeXt-T (ImageNet-1k)",
-      "ConvNeXt", "liu2022convnet", "models-convnext.R"),
+      "ConvNeXt", "liu2022convnet", "models-convnext.R",
+      min_size = 32L),
     tvm("convnext_tiny_22k", "model_convnext_tiny_22k", "ConvNeXt-T (ImageNet-22k)",
-      "ConvNeXt", "liu2022convnet", "models-convnext.R"),
+      "ConvNeXt", "liu2022convnet", "models-convnext.R",
+      min_size = 32L),
     tvm("convnext_small_22k", "model_convnext_small_22k", "ConvNeXt-S (ImageNet-22k)",
-      "ConvNeXt", "liu2022convnet", "models-convnext.R"),
+      "ConvNeXt", "liu2022convnet", "models-convnext.R",
+      min_size = 32L),
     tvm("convnext_small_22k1k", "model_convnext_small_22k1k",
       "ConvNeXt-S (ImageNet-22k, fine-tuned on ImageNet-1k)",
-      "ConvNeXt", "liu2022convnet", "models-convnext.R"),
+      "ConvNeXt", "liu2022convnet", "models-convnext.R",
+      min_size = 32L),
     tvm("convnext_base_1k", "model_convnext_base_1k", "ConvNeXt-B (ImageNet-1k)",
-      "ConvNeXt", "liu2022convnet", "models-convnext.R"),
+      "ConvNeXt", "liu2022convnet", "models-convnext.R",
+      min_size = 32L),
     tvm("convnext_base_22k", "model_convnext_base_22k", "ConvNeXt-B (ImageNet-22k)",
-      "ConvNeXt", "liu2022convnet", "models-convnext.R"),
+      "ConvNeXt", "liu2022convnet", "models-convnext.R",
+      min_size = 32L),
     tvm("convnext_large_1k", "model_convnext_large_1k", "ConvNeXt-L (ImageNet-1k)",
-      "ConvNeXt", "liu2022convnet", "models-convnext.R"),
+      "ConvNeXt", "liu2022convnet", "models-convnext.R",
+      min_size = 32L),
     tvm("convnext_large_22k", "model_convnext_large_22k", "ConvNeXt-L (ImageNet-22k)",
-      "ConvNeXt", "liu2022convnet", "models-convnext.R"),
+      "ConvNeXt", "liu2022convnet", "models-convnext.R",
+      min_size = 32L),
 
     tvm("efficientnet_b0", "model_efficientnet_b0", "EfficientNet-B0",
       "EfficientNet", "tan2019efficientnet", "models-efficientnet.R"),
@@ -248,10 +265,10 @@ torchvision_models = local({
       "EfficientNetV2", "tan2021efficientnetv2", "models-efficientnetv2.R"),
 
     tvm("inception_v3", "inception_v3_generator", "Inception v3",
-      "Inception v3", "szegedy2016rethinking", "models-inception.R", input = "at least 75x75"),
+      "Inception v3", "szegedy2016rethinking", "models-inception.R", min_size = 75L),
 
     tvm("maxvit", "maxvit_generator", "MaxViT-T",
-      "MaxViT", "tu2022maxvit", "models-maxvit.R", input = "224x224"),
+      "MaxViT", "tu2022maxvit", "models-maxvit.R", exact_size = 224L),
 
     tvm("mobilenet_v2", "model_mobilenet_v2", "MobileNetV2",
       "MobileNetV2", "sandler2018mobilenetv2", "models-mobilenetv2.R"),
@@ -280,38 +297,46 @@ torchvision_models = local({
       "Wide ResNet", "he2016deep,zagoruyko2016wide", "models-resnet.R"),
 
     tvm("vgg11", "model_vgg11", "VGG-11",
-      "VGG", "simonyan2014very", "models-vgg.R"),
+      "VGG", "simonyan2014very", "models-vgg.R",
+      min_size = 32L),
     tvm("vgg11_bn", "model_vgg11_bn", "VGG-11 with batch normalization",
-      "VGG", "simonyan2014very", "models-vgg.R"),
+      "VGG", "simonyan2014very", "models-vgg.R",
+      min_size = 32L),
     tvm("vgg13", "model_vgg13", "VGG-13",
-      "VGG", "simonyan2014very", "models-vgg.R"),
+      "VGG", "simonyan2014very", "models-vgg.R",
+      min_size = 32L),
     tvm("vgg13_bn", "model_vgg13_bn", "VGG-13 with batch normalization",
-      "VGG", "simonyan2014very", "models-vgg.R"),
+      "VGG", "simonyan2014very", "models-vgg.R",
+      min_size = 32L),
     tvm("vgg16", "model_vgg16", "VGG-16",
-      "VGG", "simonyan2014very", "models-vgg.R"),
+      "VGG", "simonyan2014very", "models-vgg.R",
+      min_size = 32L),
     tvm("vgg16_bn", "model_vgg16_bn", "VGG-16 with batch normalization",
-      "VGG", "simonyan2014very", "models-vgg.R"),
+      "VGG", "simonyan2014very", "models-vgg.R",
+      min_size = 32L),
     tvm("vgg19", "model_vgg19", "VGG-19",
-      "VGG", "simonyan2014very", "models-vgg.R"),
+      "VGG", "simonyan2014very", "models-vgg.R",
+      min_size = 32L),
     tvm("vgg19_bn", "model_vgg19_bn", "VGG-19 with batch normalization",
-      "VGG", "simonyan2014very", "models-vgg.R"),
+      "VGG", "simonyan2014very", "models-vgg.R",
+      min_size = 32L),
 
     # torch::jit_trace() cannot trace the attention blocks of the vision transformers.
     tvm("vit_b_16", "model_vit_b_16", "ViT-B/16",
       "Vision Transformer (ViT)", "dosovitskiy2021image", "models-vit.R",
-      input = "224x224", jittable = FALSE),
+      exact_size = 224L, jittable = FALSE),
     tvm("vit_b_32", "model_vit_b_32", "ViT-B/32",
       "Vision Transformer (ViT)", "dosovitskiy2021image", "models-vit.R",
-      input = "224x224", jittable = FALSE),
+      exact_size = 224L, jittable = FALSE),
     tvm("vit_l_16", "model_vit_l_16", "ViT-L/16",
       "Vision Transformer (ViT)", "dosovitskiy2021image", "models-vit.R",
-      input = "224x224", jittable = FALSE),
+      exact_size = 224L, jittable = FALSE),
     tvm("vit_l_32", "model_vit_l_32", "ViT-L/32",
       "Vision Transformer (ViT)", "dosovitskiy2021image", "models-vit.R",
-      input = "224x224", jittable = FALSE),
+      exact_size = 224L, jittable = FALSE),
     tvm("vit_h_14", "model_vit_h_14", "ViT-H/14",
       "Vision Transformer (ViT)", "dosovitskiy2021image", "models-vit.R",
-      input = "518x518", jittable = FALSE)
+      exact_size = 518L, jittable = FALSE)
   ))
 })
 
@@ -364,19 +389,29 @@ short_cite = function(key) {
   sprintf("%s (%s)", authors, trimws(entry$year))
 }
 
+# Human-readable form of the `min_size` / `exact_size` columns of `torchvision_models`.
+torchvision_input_size = function(min_size, exact_size) {
+  if (!is.na(exact_size)) {
+    sprintf("%1$ix%1$i", exact_size)
+  } else if (!is.na(min_size)) {
+    sprintf("at least %1$ix%1$i", min_size)
+  } else {
+    "any"
+  }
+}
+
 # Roxygen block listing which original model each learner implements, which paper introduced it,
 # and where its implementation can be found. Used via `@eval`.
 torchvision_learner_section = function() {
   rows = map_chr(seq_len(nrow(torchvision_models)), function(i) {
     keys = torchvision_bib_keys(torchvision_models$bib[i])
-    input = torchvision_models$input[i]
     sprintf("| `classif.%s` | %s | %s | [%s](%s) | %s |",
       torchvision_models$id[i],
       torchvision_models$arch[i],
       paste(map_chr(keys, short_cite), collapse = ", "),
       torchvision_models$file[i],
       torchvision_source_url(torchvision_models$file[i]),
-      if (is.na(input)) "any" else input
+      torchvision_input_size(torchvision_models$min_size[i], torchvision_models$exact_size[i])
     )
   })
   c(
