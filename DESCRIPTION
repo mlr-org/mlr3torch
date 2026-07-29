@@ -48,6 +48,7 @@ Imports:
     backports,
     cli,
     checkmate (>= 2.2.0),
+    coro,
     data.table,
     lgr,
     methods,
@@ -57,7 +58,6 @@ Imports:
     withr
 Suggests:
     callr,
-    coro,
     curl,
     future,
     ggplot2,
