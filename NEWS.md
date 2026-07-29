@@ -1,5 +1,11 @@
 # mlr3torch (development version)
 
+
+## Features
+
+* Added `PipeOpTorchMultiheadAttention` (`po("nn_multihead_attention")`), which wraps
+  `torch::nn_multihead_attention()`.
+  
 ## Bug fixes
 
 * `logical()` features are now encoded as `c(1, 2)` by the
