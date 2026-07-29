@@ -61,7 +61,10 @@ PipeOpTorchFn = R6Class("PipeOpTorchFn",
         id = id,
         param_set = param_set,
         param_vals = param_vals,
-        module_generator = NULL
+        module_generator = NULL,
+        # the module does not depend on the shape at all and `infer_shapes()` handles
+        # unknown dimensions by filling in different values and comparing the results
+        only_batch_unknown = FALSE
       )
     }
   ),

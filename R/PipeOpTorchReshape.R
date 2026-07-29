@@ -73,7 +73,9 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
         id = id,
         param_set = param_set,
         param_vals = param_vals,
-        module_generator = nn_squeeze
+        module_generator = nn_squeeze,
+        # only the squeezed dimension must be known, see `.shapes_out()`
+        only_batch_unknown = FALSE
       )
     }
   ),
@@ -83,6 +85,10 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
       true_dim = param_vals$dim
 
       if (is.null(true_dim)) {
+        # We cannot tell whether an unknown dimension is 1, i.e. whether it is squeezed away,
+        # so not even the number of output dimensions would be known.
+        assert_known_dims(shape, seq_along(shape)[-1L],
+          "all non-batch dimensions (because 'dim' is not specified)", self$id)
         # if dim is left unspecified we squeeze everything.
         shape = shape[shape != 1]
         if (length(shape) < 2) {
@@ -94,7 +100,7 @@ PipeOpTorchSqueeze = R6Class("PipeOpTorchSqueeze",
       }
       assert_int(true_dim, lower = 1, upper = length(shape))
 
-      if (is.na(shape[[true_dim]])) stop("input shape for 'dim' dimension must be known.")
+      assert_known_dims(shape, true_dim, sprintf("the squeezed dimension (dimension %i)", true_dim), self$id)
       if (shape[[true_dim]] == 1) shape = shape[-true_dim]
 
       list(shape)

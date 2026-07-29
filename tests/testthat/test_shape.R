@@ -152,10 +152,133 @@ test_that("adaptive pooling resolves an unknown input dimension to a known outpu
 })
 
 test_that("PipeOps that need a specific dimension still reject unknown shapes", {
-  # These genuinely read the unknown dimension when constructing the module, so the strict
-  # default is correct for them and must not be relaxed along with the rest.
-  for (id in c("nn_head", "nn_tokenizer_num", "nn_batch_norm1d", "nn_layer_norm", "nn_conv1d")) {
+  # Their input shape is (batch, n_features), so the only dimension that could be unknown is
+  # the one they read. Relaxing them would gain nothing.
+  for (id in c("nn_head", "nn_tokenizer_num", "nn_tokenizer_categ")) {
     expect_true(get_private(po(id))$.only_batch_unknown, label = sprintf("%s stays strict", id))
   }
-  expect_error(po("nn_batch_norm1d")$shapes_out(list(c(NA, NA, 6))), "Invalid shape")
+  expect_error(po("nn_head")$shapes_out(list(c(NA, NA))), "Invalid shape")
+})
+
+test_that("PipeOps that read only some dimensions accept unknown shapes elsewhere", {
+  # These build their module from a specific dimension but never inspect the others, so only
+  # the dimension they read has to be known. See `assert_known_dims()`.
+  expect_relaxed = function(id, param_vals, shape, na_idx, task = NULL) {
+    obj = po(id)
+    if (length(param_vals)) obj$param_set$set_values(.values = param_vals)
+    testthat::expect_false(get_private(obj)$.only_batch_unknown,
+      label = sprintf("%s only_batch_unknown", id))
+
+    shape_na = as.integer(shape)
+    shape_na[na_idx] = NA_integer_
+    shapes_in = set_names(list(shape_na), obj$input$name)
+    shape_out = obj$shapes_out(shapes_in, task = task)[[1L]]
+
+    # the module builds from the partially unknown shape and runs on a concrete tensor
+    module = get_private(obj)$.make_module(shapes_in, obj$param_set$get_values(), task)
+    concrete = as.integer(shape)
+    concrete[1L] = 2L
+    out = module(torch_randn(concrete))
+
+    # every dimension the pipeop claimed to know must match reality
+    expect_equal(length(shape_out), length(dim(out)))
+    known = !is.na(shape_out)
+    expect_equal(shape_out[known], dim(out)[known],
+      label = sprintf("%s known output dims", id))
+  }
+
+  # convolutions only need the channel dimension, not the spatial extent
+  expect_relaxed("nn_conv1d", list(out_channels = 5, kernel_size = 3), c(NA, 3, 17), 3)
+  expect_relaxed("nn_conv2d", list(out_channels = 5, kernel_size = 3), c(NA, 3, 17, 19), 3:4)
+  expect_relaxed("nn_conv3d", list(out_channels = 5, kernel_size = 3), c(NA, 3, 9, 9, 9), 3:5)
+  expect_relaxed("nn_conv_transpose1d", list(out_channels = 5, kernel_size = 3), c(NA, 3, 17), 3)
+  expect_relaxed("nn_conv_transpose2d", list(out_channels = 5, kernel_size = 3), c(NA, 3, 17, 19), 3:4)
+  # batch norm only needs the feature dimension
+  expect_relaxed("nn_batch_norm1d", list(), c(NA, 3, 17), 3)
+  expect_relaxed("nn_batch_norm2d", list(), c(NA, 3, 17, 19), 3:4)
+  expect_relaxed("nn_batch_norm3d", list(), c(NA, 3, 5, 5, 5), 3:5)
+  # layer norm only needs the last `dims` dimensions
+  expect_relaxed("nn_layer_norm", list(dims = 1), c(NA, 7, 16), 2)
+  expect_relaxed("nn_layer_norm", list(dims = 2), c(NA, 4, 7, 16), 2)
+  # the CLS token only needs the token dimension, not the number of tokens
+  expect_relaxed("nn_ft_cls", list(initialization = "uniform"), c(NA, 7, 16), 2)
+  # squeeze only needs the dimension that is squeezed
+  expect_relaxed("nn_squeeze", list(dim = 3), c(NA, 5, 1), 2)
+  # linear only needs the last dimension
+  expect_relaxed("nn_linear", list(out_features = 3), c(NA, 7, 16), 2)
+
+  # nn_fn does not depend on the shape at all: `infer_shapes()` fills in different values for
+  # the unknown dimensions and marks those that vary as unknown again
+  obj = po("nn_fn", fn = function(x) x * 2)
+  expect_false(get_private(obj)$.only_batch_unknown)
+  expect_equal(obj$shapes_out(list(c(NA, NA, 16L)))[[1L]], c(NA, NA, 16L))
+})
+
+test_that("relaxed PipeOps give a readable error when the needed dimension is unknown", {
+  # Without the check, `NA_integer_` reaches libtorch and fails with a C++ error such as
+  # "IntArrayRef contains an int that cannot be represented as a SymInt".
+  expect_error(po("nn_conv2d", out_channels = 5, kernel_size = 3)$shapes_out(list(c(NA, NA, 17, 19))),
+    "requires the channel dimension (dimension 2) of the input shape to be known", fixed = TRUE)
+  expect_error(po("nn_batch_norm2d")$shapes_out(list(c(NA, NA, 17, 19))),
+    "requires the feature dimension (dimension 2) of the input shape to be known", fixed = TRUE)
+  expect_error(po("nn_layer_norm", dims = 1)$shapes_out(list(c(NA, 7, NA))),
+    "requires the last 1 dimension(s), which make up 'normalized_shape', of the input shape", fixed = TRUE)
+  expect_error(po("nn_ft_cls")$shapes_out(list(input = c(NA, 7, NA))),
+    "requires the token dimension (dimension 3) of the input shape to be known", fixed = TRUE)
+  expect_error(po("nn_linear", out_features = 3)$shapes_out(list(c(NA, 7, NA))),
+    "requires the last dimension (the number of input features)", fixed = TRUE)
+  # without `dim`, squeeze cannot even know the number of output dimensions
+  expect_error(po("nn_squeeze")$shapes_out(list(c(NA, NA, 1, 5))),
+    "requires all non-batch dimensions (because 'dim' is not specified)", fixed = TRUE)
+  expect_error(po("nn_squeeze", dim = 3)$shapes_out(list(c(NA, 5, NA))),
+    "requires the squeezed dimension (dimension 3) of the input shape to be known", fixed = TRUE)
+})
+
+test_that("nn_block defers to the shape constraints of the PipeOps it wraps", {
+  task = tsk("iris")
+  block = po("nn_relu") %>>% po("nn_dropout")
+  obj = po("nn_block", block, n_blocks = 2)
+  # the wrapped PipeOps accept unknown dimensions, so the block must not reject them
+  expect_equal(obj$shapes_out(list(c(NA, NA, 16L)), task = task)[[1L]], c(NA, NA, 16L))
+
+  # ... but a wrapped PipeOp that needs a dimension still rejects it
+  obj = po("nn_block", po("nn_batch_norm1d"), n_blocks = 1)
+  expect_error(obj$shapes_out(list(c(NA, NA, 16L)), task = task),
+    "requires the feature dimension", fixed = TRUE)
+})
+
+test_that("nn_layer_norm accepts 'dims' up to the number of input dimensions", {
+  # the bound used to be the number of input *channels* (always 1), so `dims > 1` failed
+  obj = po("nn_layer_norm", dims = 3)
+  shape_in = list(c(NA, 4L, 7L, 16L))
+  expect_equal(obj$shapes_out(shape_in)[[1L]], c(NA, 4L, 7L, 16L))
+  module = get_private(obj)$.make_module(shape_in, obj$param_set$get_values(), NULL)
+  expect_equal(unlist(module$normalized_shape), c(4L, 7L, 16L))
+  expect_equal(dim(module(torch_randn(2, 4, 7, 16))), c(2, 4, 7, 16))
+  # `dims` may not exceed the number of dimensions
+  expect_error(po("nn_layer_norm", dims = 5)$shapes_out(shape_in), "dims")
+})
+
+test_that("a CNN can be built for images of unknown size", {
+  graph = po("nn_conv2d", out_channels = 4, kernel_size = 3) %>>%
+    po("nn_batch_norm2d") %>>%
+    po("nn_adaptive_avg_pool2d", output_size = c(2, 2)) %>>%
+    po("nn_flatten") %>>%
+    po("nn_head")
+
+  shape = c(NA, 3L, NA, NA)
+  md = ModelDescriptor(
+    graph = as_graph(po("nop")),
+    ingress = list(nop.input = TorchIngressToken("x", batchgetter_num, shape)),
+    task = tsk("iris"),
+    pointer = c("nop", "output"),
+    pointer_shape = shape
+  )
+  md_out = graph$train(md)[[1L]]
+  # the adaptive pooling resolves the unknown spatial extent to a known output shape
+  expect_equal(md_out$pointer_shape, c(NA, 3L))
+
+  network = model_descriptor_to_module(md_out)
+  expect_equal(dim(network(torch_randn(2, 3, 11, 13))), c(2, 3))
+  expect_equal(dim(network(torch_randn(2, 3, 32, 32))), c(2, 3))
 })

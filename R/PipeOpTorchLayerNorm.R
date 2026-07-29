@@ -30,12 +30,26 @@ PipeOpTorchLayerNorm = R6Class("PipeOpTorchLayerNorm",
         elementwise_affine = p_lgl(default = TRUE, tags = "train"),
         eps                = p_dbl(default = 1e-5, lower = 0, tags = "train")
       )
-      super$initialize(id = id, param_vals = param_vals, param_set = param_set, module_generator = nn_layer_norm)
+      super$initialize(id = id, param_vals = param_vals, param_set = param_set,
+        module_generator = nn_layer_norm,
+        # only the last `dims` dimensions make up `normalized_shape`, the leading ones
+        # (e.g. a sequence length) may be unknown
+        only_batch_unknown = FALSE
+      )
     }
   ),
   private = list(
+    .shapes_out = function(shapes_in, param_vals, task) {
+      shape = shapes_in[[1L]]
+      dims = assert_int(param_vals$dims, lower = 1L, upper = length(shape))
+      assert_known_dims(shape, seq(to = length(shape), length.out = dims),
+        sprintf("the last %i dimension(s), which make up 'normalized_shape',", dims), self$id)
+      shapes_in
+    },
     .shape_dependent_params = function(shapes_in, param_vals, task) {
-      assert_int(param_vals$dims, upper = length(shapes_in))
+      # note that the bound is the number of dimensions of the input shape, not the number
+      # of input channels (of which there is exactly one)
+      assert_int(param_vals$dims, upper = length(shapes_in[[1L]]))
       param_vals$normalized_shape = utils::tail(shapes_in[[1L]], param_vals$dims)
       param_vals$dims = NULL
       param_vals

@@ -68,6 +68,20 @@ assert_shapes = function(shapes, coerce = TRUE, named = FALSE, null_ok = FALSE, 
   map(shapes, assert_shape, coerce = coerce, null_ok = null_ok, unknown_batch = unknown_batch, only_batch_unknown = only_batch_unknown) # nolint
 }
 
+# Some PipeOps set `only_batch_unknown = FALSE` although they do read *some* dimension of the
+# input shape when constructing their module: a convolution needs the number of input channels,
+# but not the spatial extent. They use this to reject an unknown value in the dimensions they
+# actually need, instead of letting `NA_integer_` reach libtorch, which fails with an
+# unreadable C++ error.
+# `dims` are the indices of the required dimensions and `what` describes them for the message.
+assert_known_dims = function(shape, dims, what, id) {
+  if (!anyNA(shape[dims])) {
+    return(invisible(shape))
+  }
+  stopf("PipeOp '%s' requires %s of the input shape to be known, but got shape %s.",
+    id, what, shape_to_str(shape))
+}
+
 check_rgb_shape = function(shape) {
   msg = check_shape(shape, len = 4L, null_ok = FALSE)
   if (!isTRUE(msg)) {
