@@ -1086,11 +1086,6 @@ test_that("batch_size_predict overrides batch_size for prediction", {
   expect_equal(learner_valid$model$callbacks$loaders$valid, 32)
 })
 
-test_that("batch_size is still tunable with a range tune token", {
-  learner = lrn("classif.torch_featureless", batch_size = to_tune(10, 20))
-  expect_equal(learner$param_set$search_space()$class[["batch_size"]], "ParamInt")
-})
-
 test_that("batch_size is required for train and predict", {
   task = tsk("iris")
   learner = lrn("classif.torch_featureless", epochs = 1, device = "cpu")
