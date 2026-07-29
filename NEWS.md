@@ -2,13 +2,15 @@
 
 ## Features
 
-* Feat: Added learners for the remaining image classification networks of `torchvision`:
+* Added learners for the remaining image classification networks of `torchvision`:
   ConvNeXt (`classif.convnext_*`), EfficientNet (`classif.efficientnet_b0` to
   `classif.efficientnet_b7`), EfficientNetV2 (`classif.efficientnet_v2_{s,m,l}`),
   Inception v3 (`classif.inception_v3`), MaxViT (`classif.maxvit`), MobileNetV3
   (`classif.mobilenet_v3_{large,small}`), Vision Transformers (`classif.vit_*`) and
   Wide ResNet (`classif.wide_resnet{50_2,101_2}`).
-
+* Added `PipeOpTorchMultiheadAttention` (`po("nn_multihead_attention")`), which wraps
+  `torch::nn_multihead_attention()`.
+  
 ## Bug fixes
 
 * `logical()` features are now encoded as `c(1, 2)` by the

@@ -13,6 +13,11 @@ An overview of all tasks can also be found on the [mlr-org website](https://mlr-
 ```{r, echo = FALSE, message = FALSE}
 library(data.table)
 library(mlr3torch)
+# as.data.table() constructs every task in the dictionary, and 'pima' currently fails to
+# construct because mlbench no longer ships PimaIndiansDiabetes2. Drop it beforehand; it is not
+# an mlr3torch task, so it never appears in the table below anyway.
+# TODO: remove once this is fixed upstream in mlr3
+if ("pima" %in% mlr3::mlr_tasks$keys()) mlr3::mlr_tasks$remove("pima")
 content = as.data.table(mlr3::mlr_tasks)[, .(key, label, task_type, nrow, ncol)]
 mlr3torch_ids = names(getFromNamespace("mlr3torch_tasks", "mlr3torch"))
 content = content[key %in% mlr3torch_ids]
