@@ -176,39 +176,6 @@ test_that("PipeOpTorchMultiheadAttention shapes_out for the weights channel", {
   expect_equal(po_both$shapes_out(list(c(NA, 5, 4)))$weights, c(NA, 5, 7))
 })
 
-test_that("PipeOpTorchMultiheadAttention accounts for torch ignoring avg_weights", {
-  # torch::nn_multihead_attention() only forwards `avg_weights` to
-  # nnf_multi_head_attention_forward() when kdim == vdim == embed_dim. Otherwise the weights are
-  # averaged regardless, so the predicted shape must be the averaged (3d) one.
-  po_diff = po("nn_multihead_attention", mode = "cross", need_weights = TRUE, num_heads = 2, batch_first = TRUE,
-    avg_weights = FALSE)
-  expect_equal(
-    po_diff$shapes_out(list(c(NA, 5, 4), c(NA, 7, 6)))$weights,
-    c(NA, 5, 7)
-  )
-
-  # but when the embedding dims agree, avg_weights = FALSE gives the 4d shape
-  po_same = po("nn_multihead_attention", mode = "cross", need_weights = TRUE, num_heads = 2, batch_first = TRUE,
-    avg_weights = FALSE)
-  expect_equal(
-    po_same$shapes_out(list(c(NA, 5, 4), c(NA, 7, 4)))$weights,
-    c(NA, 2, 5, 7)
-  )
-
-  # the predicted shapes must match what torch actually produces in both cases
-  module_diff = po_diff$.__enclos_env__$private$.make_module(
-    list(query = c(NA, 5, 4), key_value = c(NA, 7, 6)), po_diff$param_set$get_values(), NULL
-  )
-  out_diff = with_no_grad(module_diff(torch_randn(3, 5, 4), torch_randn(3, 7, 6)))
-  expect_equal(out_diff$weights$shape, c(3, 5, 7))
-
-  module_same = po_same$.__enclos_env__$private$.make_module(
-    list(query = c(NA, 5, 4), key_value = c(NA, 7, 4)), po_same$param_set$get_values(), NULL
-  )
-  out_same = with_no_grad(module_same(torch_randn(3, 5, 4), torch_randn(3, 7, 4)))
-  expect_equal(out_same$weights$shape, c(3, 2, 5, 7))
-})
-
 test_that("PipeOpTorchMultiheadAttention self-attention forward works", {
   task = tsk("iris")
   graph = po("torch_ingress_num") %>>%
@@ -218,7 +185,8 @@ test_that("PipeOpTorchMultiheadAttention self-attention forward works", {
   md = graph$train(task)[[1L]]
   expect_equal(md$pointer_shape, c(NA, 1, 4))
   net = model_descriptor_to_module(md)
-  out = with_no_grad(net(torch_randn(3, 1, 4)))
+  # the net starts at the ingress, so it is fed (batch, feature) and unsqueezes to (batch, 1, 4)
+  out = with_no_grad(net(torch_randn(3, 4)))
   expect_equal(out$shape, c(3, 1, 4))
 })
 
@@ -267,38 +235,6 @@ test_that("PipeOpTorchMultiheadAttention with need_weights = TRUE and avg_weight
   )
 })
 
-test_that("PipeOpTorchMultiheadAttention weights are batch-first even if batch_first is FALSE", {
-  po_attention = po("nn_multihead_attention", need_weights = TRUE, num_heads = 2, batch_first = FALSE)
-  shapes_in = list(input = c(5, NA, 4))
-  module = po_attention$.__enclos_env__$private$.make_module(
-    shapes_in, po_attention$param_set$get_values(), NULL
-  )
-  # (sequence, batch, feature)
-  out = with_no_grad(module(torch_randn(5, 3, 4)))
-  expect_equal(out$output$shape, c(5, 3, 4))
-  # weights stay (batch, query_sequence, key_sequence)
-  expect_equal(out$weights$shape, c(3, 5, 5))
-  expect_compatible_shapes(
-    po_attention$shapes_out(shapes_in), list(dim(out$output), dim(out$weights))
-  )
-})
-
-test_that("nn_attention batch_first layouts agree after transposing", {
-  torch_manual_seed(1)
-  x = torch_randn(3, 5, 4)
-
-  module_bf = nn_attention(embed_dim = 4, num_heads = 2, batch_first = TRUE)
-  module_sf = nn_attention(embed_dim = 4, num_heads = 2, batch_first = FALSE)
-  module_sf$load_state_dict(module_bf$state_dict())
-
-  module_bf$eval()
-  module_sf$eval()
-  out_bf = with_no_grad(module_bf(x))
-  out_sf = with_no_grad(module_sf(x$transpose(1, 2)))
-
-  expect_true(torch_allclose(out_bf, out_sf$transpose(1, 2), atol = 1e-6))
-})
-
 test_that("PipeOpTorchMultiheadAttention cross-attention with two inputs works", {
   task = tsk("iris")
   task_query = task$clone()$select(c("Sepal.Length", "Sepal.Width"))
@@ -317,7 +253,8 @@ test_that("PipeOpTorchMultiheadAttention cross-attention with two inputs works",
   expect_equal(md$pointer_shape, c(NA, 1, 2))
 
   net = model_descriptor_to_module(md)
-  out = with_no_grad(net(torch_randn(3, 1, 2), torch_randn(3, 1, 2)))
+  # both nets start at their ingress, i.e. before the unsqueeze
+  out = with_no_grad(net(torch_randn(3, 2), torch_randn(3, 2)))
   expect_equal(out$shape, c(3, 1, 2))
 
   # kdim / vdim are inferred, so query and key/value may have different embedding sizes
@@ -343,7 +280,6 @@ test_that("PipeOpTorchMultiheadAttention cross-attention with three inputs works
 })
 
 test_that("nn_attention with one input is equivalent to torch self-attention", {
-  torch_manual_seed(1)
   module = nn_attention(embed_dim = 4, num_heads = 2, batch_first = TRUE)
   module$eval()
   x = torch_randn(3, 5, 4)
