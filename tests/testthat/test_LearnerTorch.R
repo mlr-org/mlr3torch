@@ -1047,3 +1047,170 @@ test_that("printer", {
   expect_snapshot(lrn("classif.mlp",
     callbacks = list(t_clbk("history"), t_clbk("progress"))))
 })
+
+test_that("batch_size_predict overrides batch_size for prediction", {
+  task = tsk("iris")
+  learner = lrn("classif.torch_featureless", epochs = 1, batch_size = 16, batch_size_predict = 32,
+    device = "cpu")
+
+  dataset = get_private(learner)$.dataset(task, learner$param_set$values)
+  dl_train = get_private(learner)$.dataloader(dataset, learner$param_set$values)
+  dl_predict = get_private(learner)$.dataloader_predict(dataset, learner$param_set$values)
+
+  expect_equal(dl_train$batch_size, 16)
+  expect_equal(dl_predict$batch_size, 32)
+
+  # batch_size is used for both phases when batch_size_predict is not set
+  learner$param_set$set_values(batch_size_predict = NULL, batch_size = 8)
+  expect_equal(get_private(learner)$.dataloader(dataset, learner$param_set$values)$batch_size, 8)
+  expect_equal(get_private(learner)$.dataloader_predict(dataset, learner$param_set$values)$batch_size, 8)
+
+  # end-to-end
+  learner$param_set$set_values(batch_size = 16, batch_size_predict = 32)
+  learner$train(task)
+  expect_class(learner$predict(task), "PredictionClassif")
+
+  # it also applies to the validation data during training
+  callback = torch_callback(id = "loaders",
+    on_begin = function() self$ctx1 = self$ctx,
+    load_state_dict = function(state_dict) NULL,
+    state_dict = function() {
+      list(train = self$ctx1$loader_train$batch_size, valid = self$ctx1$loader_valid$batch_size)
+    }
+  )
+  learner_valid = lrn("classif.torch_featureless", epochs = 1, device = "cpu",
+    batch_size = 16, batch_size_predict = 32, callbacks = callback,
+    measures_valid = msr("classif.acc"), validate = 0.3)
+  learner_valid$train(task)
+  expect_equal(learner_valid$model$callbacks$loaders$train, 16)
+  expect_equal(learner_valid$model$callbacks$loaders$valid, 32)
+})
+
+test_that("batch_size is required for train and predict", {
+  task = tsk("iris")
+  learner = lrn("classif.torch_featureless", epochs = 1, device = "cpu")
+  expect_error_config(learner$train(task), "must be set for training")
+
+  learner$param_set$set_values(batch_size = 16)
+  learner$train(task)
+  expect_class(learner$predict(task), "PredictionClassif")
+
+  # batch_size_predict alone is not enough for training
+  learner$param_set$set_values(batch_size = NULL, batch_size_predict = 32)
+  expect_error_config(learner$train(task), "must be set for training")
+})
+
+test_that("batch_sampler works without batch_size", {
+  task = tsk("iris")
+  batch_sampler = torch::sampler("TwoBatchSampler",
+    initialize = function(data_source) {
+      self$data_source = data_source
+    },
+    .iter = function() {
+      batches = split(seq_len(length(self$data_source)), rep(1:2, length.out = length(self$data_source)))
+      count = 0L
+      function() {
+        count <<- count + 1L
+        if (count > length(batches)) return(coro::exhausted())
+        batches[[count]]
+      }
+    },
+    .length = function() 2L
+  )
+
+  learner = lrn("classif.torch_featureless", epochs = 1, device = "cpu",
+    batch_sampler = batch_sampler)
+  # no batch_size, no shuffle set by the user: training just works
+  learner$train(task)
+  expect_class(learner$model, "learner_torch_model")
+
+  dl_train = get_private(learner)$.dataloader(
+    get_private(learner)$.dataset(task, learner$param_set$values), learner$param_set$values)
+  expect_class(dl_train$batch_sampler, "TwoBatchSampler")
+  expect_equal(length(dl_train), 2L)
+
+  # prediction requires a batch size, because the batch sampler is not used there
+  expect_error_config(learner$predict(task), "must be set for prediction")
+
+  # the same holds for the validation data during training
+  learner_valid = learner$clone(deep = TRUE)
+  learner_valid$validate = 0.3
+  learner_valid$param_set$set_values(measures_valid = msr("classif.acc"))
+  expect_error_config(learner_valid$train(task), "must be set for prediction")
+
+  learner$param_set$set_values(batch_size_predict = 50)
+  pred = learner$predict(task)
+  expect_class(pred, "PredictionClassif")
+  expect_equal(pred$row_ids, task$row_ids)
+
+  # the batch sampler is not used for prediction (it would misalign the predictions)
+  dl_predict = get_private(learner)$.dataloader_predict(
+    get_private(learner)$.dataset(task, learner$param_set$values), learner$param_set$values)
+  expect_class(dl_predict$batch_sampler, "utils_sampler_batch")
+  expect_equal(dl_predict$batch_size, 50)
+  expect_class(dl_predict$sampler, "utils_sampler_sequential")
+
+  # batch_size for training is ignored when a batch_sampler is provided
+  learner$param_set$set_values(batch_size = 1)
+  dl_train = get_private(learner)$.dataloader(
+    get_private(learner)$.dataset(task, learner$param_set$values), learner$param_set$values)
+  expect_class(dl_train$batch_sampler, "TwoBatchSampler")
+  expect_equal(length(dl_train), 2L)
+})
+
+test_that("sampler works and is only used during training", {
+  task = tsk("iris")
+  sampler = torch::sampler("ReverseSampler",
+    initialize = function(data_source) {
+      self$data_source = data_source
+    },
+    .iter = function() {
+      ii = rev(seq_len(length(self$data_source)))
+      count = 0L
+      function() {
+        count <<- count + 1L
+        if (count > length(ii)) return(coro::exhausted())
+        ii[count]
+      }
+    },
+    .length = function() length(self$data_source)
+  )
+
+  learner = lrn("classif.torch_featureless", epochs = 1, device = "cpu",
+    batch_size = 16, sampler = sampler)
+  learner$train(task)
+
+  dataset = get_private(learner)$.dataset(task, learner$param_set$values)
+  dl_train = get_private(learner)$.dataloader(dataset, learner$param_set$values)
+  # shuffle (initialized to TRUE) is ignored in favor of the sampler
+  expect_class(dl_train$sampler, "ReverseSampler")
+  expect_equal(dl_train$batch_size, 16)
+
+  dl_predict = get_private(learner)$.dataloader_predict(dataset, learner$param_set$values)
+  expect_class(dl_predict$sampler, "utils_sampler_sequential")
+
+  pred = learner$predict(task)
+  expect_equal(pred$row_ids, task$row_ids)
+
+  # a sampler still requires a batch size
+  learner$param_set$set_values(batch_size = NULL)
+  expect_error_config(learner$train(task), "must be set for training")
+
+  # sampler and batch_sampler are mutually exclusive
+  learner$param_set$set_values(batch_size = 16, batch_sampler = sampler)
+  expect_error_config(learner$train(task), "not supported")
+})
+
+test_that("sampler and batch_sampler are checked", {
+  learner = lrn("classif.torch_featureless")
+  expect_error(learner$param_set$set_values(sampler = 1), "torch_sampler")
+  expect_error(learner$param_set$set_values(batch_sampler = 1), "torch_sampler")
+  # instances are not allowed, only the generators
+  sampler = torch::sampler("S",
+    initialize = function(data_source) NULL,
+    .iter = function() function() coro::exhausted(),
+    .length = function() 0L
+  )
+  expect_error(learner$param_set$set_values(sampler = sampler(1)), "torch_sampler")
+  learner$param_set$set_values(sampler = sampler)
+})

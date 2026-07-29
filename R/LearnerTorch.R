@@ -140,6 +140,8 @@
 #'   ([`Task`][mlr3::Task], `list()`) -> [`torch::dataloader`]\cr
 #'   Create a dataloader from the task.
 #'   Needs to respect at least `batch_size` and `shuffle` (otherwise predictions will be incorrectly ordered).
+#'   Use `get_batch_size(param_vals, "train")` to obtain the batch size for the respective phase,
+#'   which takes the `batch_size_predict` parameter into account.
 #'
 #' To change the predict types, it is possible to overwrite the method below:
 #'
@@ -545,8 +547,28 @@ LearnerTorch = R6Class("LearnerTorch",
         "worker_packages"
       )
       args = param_vals[names(param_vals) %in% dl_args]
-      for(param_name in c("sampler", "batch_sampler")){
-        param_val <- args[[param_name]]
+      args$batch_size = get_batch_size(param_vals, "train")
+
+      if (!is.null(args$sampler) && !is.null(args$batch_sampler)) {
+        error_config("Providing both a 'sampler' and a 'batch_sampler' is not supported, set only one of them.")
+      }
+      if (is.null(args$batch_sampler)) {
+        if (is.null(args$batch_size)) {
+          error_config("Parameter 'batch_size' must be set for training, unless a 'batch_sampler' is provided.")
+        }
+      } else {
+        # the batch sampler already determines the batches, so these are ignored by torch::dataloader()
+        args$batch_size = NULL
+        args$shuffle = NULL
+        args$drop_last = NULL
+      }
+      if (!is.null(args$sampler)) {
+        # the sampler determines the order in which the observations are drawn
+        args$shuffle = NULL
+      }
+
+      for (param_name in c("sampler", "batch_sampler")) {
+        param_val = args[[param_name]]
         if (!is.null(param_val)) {
           # instantiate these params which should be classes.
           args[[param_name]] = param_val(dataset)
@@ -555,7 +577,17 @@ LearnerTorch = R6Class("LearnerTorch",
       invoke(dataloader, dataset = dataset, .args = args)
     },
     .dataloader_predict = function(dataset, param_vals) {
-      param_vals_test = insert_named(param_vals, list(shuffle = FALSE, drop_last = FALSE))
+      batch_size = get_batch_size(param_vals, "predict")
+      if (is.null(batch_size)) {
+        error_config("Parameter 'batch_size' or 'batch_size_predict' must be set for prediction (this includes the validation data during training).")
+      }
+      param_vals_test = insert_named(param_vals,
+        list(batch_size = batch_size, shuffle = FALSE, drop_last = FALSE))
+      param_vals_test$batch_size_predict = NULL
+      # samplers are only used during training, as they can change the order of the observations,
+      # which would misalign the predictions with the rows of the task
+      param_vals_test$sampler = NULL
+      param_vals_test$batch_sampler = NULL
       private$.dataloader(dataset, param_vals_test)
     },
     .ingress_tokens = function(task, param_vals)  {

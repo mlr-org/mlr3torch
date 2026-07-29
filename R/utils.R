@@ -208,6 +208,16 @@ replace_head = function(network, d_out) {
   UseMethod("replace_head")
 }
 
+# Creates a check function (as expected by `custom_check`) that asserts that `x` inherits from
+# `classes`. Named `make_check_class()` and not `check_class()` to avoid masking
+# `checkmate::check_class()`.
+make_check_class = function(classes) {
+  assert_character(classes, any.missing = FALSE, min.len = 1L)
+  crate(function(x) {
+    check_class(x, classes)
+  }, classes, .parent = topenv())
+}
+
 check_nn_module = function(x) {
   check_class(x, "nn_module")
 }
