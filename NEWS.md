@@ -1,6 +1,22 @@
 # mlr3torch (development version)
 
+## Features
+
+* Feat: New callback `t_clbk("resume")` to continue training from a checkpoint, also in a new R
+  session (#423). The learner's `epochs` is the total number of epochs, i.e. it includes the epochs
+  that the checkpoint was already trained for.
+* Feat: `t_clbk("checkpoint")` additionally saves the current epoch and the states of the other
+  callbacks as `state<n>.rds`, so that a resumed run continues e.g. the training history and the
+  learning rate schedule. It can now also write into a folder that already contains checkpoints.
+* Feat: The learning rate scheduler, early stopping and unfreezing callbacks implement
+  `$state_dict()` and `$load_state_dict()` and can therefore be resumed.
+* Feat: `ContextTorch` has a new field `$callbacks`, giving callbacks access to the other callbacks
+  of the training run.
+
 ## Bug fixes
+
+* Fix: `CallbackSetHistory` no longer errors when a resumed run adds no new scores to a previously
+  loaded history.
 
 * `logical()` features are now encoded as `c(1, 2)` by the
 `batchgetter_categ()` and their cardinality is correctly computed.

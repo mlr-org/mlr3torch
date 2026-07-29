@@ -19,6 +19,7 @@ Other Callback:
 \code{\link{mlr_callback_set}},
 \code{\link{mlr_callback_set.checkpoint}},
 \code{\link{mlr_callback_set.progress}},
+\code{\link{mlr_callback_set.resume}},
 \code{\link{mlr_callback_set.tb}},
 \code{\link{mlr_callback_set.unfreeze}},
 \code{\link[=t_clbk]{t_clbk()}},
@@ -91,6 +92,11 @@ The current batch.}
 
     \item{\code{terminate}}{(\code{logical(1)})\cr
 If this field is set to \code{TRUE} at the end of an epoch, training stops.}
+
+    \item{\code{callbacks}}{(named \code{list()} of \code{\link{CallbackSet}}s)\cr
+The callbacks that are active during training, named by their ids.
+This allows callbacks to access the state of other callbacks, which is for example used by
+\code{\link{CallbackSetCheckpoint}} to save their states and by \code{\link{CallbackSetResume}} to restore them.}
 
     \item{\code{device}}{(\code{torch::torch_device})\cr
 The device.}

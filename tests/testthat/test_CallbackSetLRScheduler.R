@@ -186,3 +186,91 @@ test_that("custom LR scheduler works", {
                mlp$model$optimizer$param_groups[[1]]$lr)
 })
 
+
+test_that("the scheduler state is restored when resuming", {
+  task = tsk("iris")
+  path = tempfile()
+  make = function(epochs, callbacks) {
+    learner = lrn("classif.mlp", epochs = epochs, batch_size = 50, neurons = 10,
+      callbacks = callbacks)
+    learner$param_set$set_values(opt.lr = 0.1, cb.lr_step.step_size = 1, cb.lr_step.gamma = 0.5)
+    learner
+  }
+
+  # a single uninterrupted run of 4 epochs is the reference
+  reference = make(4L, t_clbk("lr_step"))
+  reference$train(task)
+
+  learner = make(2L, list(t_clbk("lr_step"), t_clbk("checkpoint", freq = 1)))
+  learner$param_set$set_values(cb.checkpoint.path = path)
+  learner$train(task)
+
+  resumed = make(4L, list(t_clbk("resume"), t_clbk("lr_step")))
+  resumed$param_set$set_values(cb.resume.path = path)
+  resumed$train(task)
+
+  # without the restored scheduler state the schedule would start over and the lr would be too high
+  expect_equal(
+    resumed$model$optimizer$param_groups[[1]]$lr,
+    reference$model$optimizer$param_groups[[1]]$lr
+  )
+})
+
+test_that("lr_one_cycle and lr_reduce_on_plateau also restore their state", {
+  task = tsk("iris")
+  # a run that is interrupted after 2 of 4 epochs, as happens when a job hits a time limit.
+  # The resumed run is configured with the same `epochs`, which matters for schedules such as
+  # lr_one_cycle that are defined over the total number of steps.
+  cb_interrupt = torch_callback("Interrupt",
+    on_epoch_end = function() if (self$ctx$epoch >= 2L) self$ctx$terminate = TRUE
+  )
+
+  walk(c("lr_one_cycle", "lr_reduce_on_plateau"), function(id) {
+    path = tempfile()
+    args = if (id == "lr_one_cycle") list(max_lr = 0.1) else list()
+    make = function(callbacks) {
+      lrn("classif.mlp", epochs = 4L, batch_size = 50, neurons = 10,
+        validate = 0.3, measures_valid = msrs("classif.acc"), callbacks = callbacks)
+    }
+
+    learner = make(list(invoke(t_clbk, .args = c(list(id), args)), t_clbk("checkpoint", freq = 1),
+      cb_interrupt))
+    learner$param_set$set_values(cb.checkpoint.path = path)
+    learner$train(task)
+    expect_equal(learner$model$epochs, 2L)
+
+    state = readRDS(file.path(path, "state2.rds"))
+    expect_names(names(state$callbacks), must.include = id)
+    expect_equal(state$callbacks[[id]]$last_epoch, learner$model$callbacks[[id]]$last_epoch)
+
+    resumed = make(list(t_clbk("resume"), invoke(t_clbk, .args = c(list(id), args))))
+    resumed$param_set$set_values(cb.resume.path = path)
+    resumed$train(task)
+    expect_equal(resumed$model$epochs, 4L)
+    # the schedule continued instead of starting over
+    expect_gt(resumed$model$callbacks[[id]]$last_epoch, state$callbacks[[id]]$last_epoch)
+  })
+})
+
+test_that("resuming lr_one_cycle with a different number of epochs errors immediately", {
+  task = tsk("iris")
+  path = tempfile()
+  interrupt = torch_callback("Interrupt",
+    on_epoch_end = function() if (self$ctx$epoch >= 2L) self$ctx$terminate = TRUE)
+
+  learner = lrn("classif.mlp", epochs = 4L, batch_size = 50, neurons = 10,
+    callbacks = list(t_clbk("lr_one_cycle", max_lr = 0.1), t_clbk("checkpoint", freq = 1), interrupt))
+  learner$param_set$set_values(cb.checkpoint.path = path)
+  learner$train(task)
+
+  # the checkpoint was written for a 4-epoch schedule
+  resumed = lrn("classif.mlp", epochs = 6L, batch_size = 50, neurons = 10,
+    callbacks = list(t_clbk("resume"), t_clbk("lr_one_cycle", max_lr = 0.1)))
+  resumed$param_set$set_values(cb.resume.path = path)
+  expect_error(resumed$train(task), "Cannot resume the one cycle learning rate schedule")
+
+  # the error is raised before any epoch is trained, not somewhere in the middle of the run
+  expect_null(resumed$model)
+  expect_set_equal(list.files(path),
+    c(paste0("network", 1:2, ".pt"), paste0("optimizer", 1:2, ".pt"), paste0("state", 1:2, ".rds")))
+})

@@ -75,3 +75,32 @@ test_that("input checks work", {
   expect_error(t_clbk("unfreeze", starting_weights = select_name("a"), unfreeze = data.table(
     weights = list(select_all()), epoch = 1L)), NA)
 })
+
+test_that("weights that were already unfrozen stay unfrozen when resuming", {
+  task = tsk("iris")
+  path = tempfile()
+  make = function(epochs, callbacks) {
+    lrn("classif.mlp", epochs = epochs, batch_size = 150, neurons = c(1, 1, 1),
+      callbacks = callbacks,
+      cb.unfreeze.starting_weights = select_invert(select_name(c("0.weight", "3.weight"))),
+      cb.unfreeze.unfreeze = data.table(epoch = 2, weights = list(select_name("0.weight")))
+    )
+  }
+
+  learner = make(2L, list(t_clbk("unfreeze"), t_clbk("checkpoint", freq = 1)))
+  learner$param_set$set_values(cb.checkpoint.path = path)
+  learner$train(task)
+
+  state = readRDS(file.path(path, "state2.rds"))
+  expect_true("0.weight" %in% state$callbacks$unfreeze$trainable)
+  expect_true("3.weight" %nin% state$callbacks$unfreeze$trainable)
+
+  # epoch 2 is not reached again, so '0.weight' would be frozen again without the restored state
+  resumed = make(3L, list(t_clbk("resume"), t_clbk("unfreeze")))
+  resumed$param_set$set_values(cb.resume.path = path)
+  resumed$train(task)
+
+  trainable = names(which(map_lgl(resumed$model$network$parameters, function(p) p$requires_grad)))
+  expect_true("0.weight" %in% trainable)
+  expect_true("3.weight" %nin% trainable)
+})

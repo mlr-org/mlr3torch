@@ -7,6 +7,18 @@
 \description{
 Saves the optimizer and network states during training.
 The final network and optimizer are always stored.
+
+For a checkpoint written after \verb{<n>} epochs (or steps, see \code{freq_type}), three files are created
+in \code{path}:
+\itemize{
+\item \verb{network<n>.pt} :: The \verb{$state_dict()} of the network.
+\item \verb{optimizer<n>.pt} :: The \verb{$state_dict()} of the optimizer.
+\item \verb{state<n>.rds} :: The epoch and step the checkpoint was written in, as well as the
+\verb{$state_dict()}s of the other callbacks.
+}
+
+Training can be continued from such a checkpoint -- also in a new R session -- using
+\code{\link{CallbackSetResume}}, see the example below.
 }
 \details{
 Saving the learner itself in the callback with a trained model is impossible,
@@ -24,6 +36,13 @@ learner$param_set$set_values(cb.checkpoint.path = pth)
 learner$train(task)
 
 list.files(pth)
+
+# continue training for 3 more epochs, starting from the last checkpoint
+learner_resumed = lrn("classif.mlp", epochs = 6, batch_size = 1,
+  callbacks = t_clbk("resume"))
+learner_resumed$param_set$set_values(cb.resume.path = pth)
+learner_resumed$train(task)
+learner_resumed$model$epochs
 \dontshow{\}) # examplesIf}
 }
 \seealso{
@@ -35,6 +54,7 @@ Other Callback:
 \code{\link{mlr3torch_callbacks}},
 \code{\link{mlr_callback_set}},
 \code{\link{mlr_callback_set.progress}},
+\code{\link{mlr_callback_set.resume}},
 \code{\link{mlr_callback_set.tb}},
 \code{\link{mlr_callback_set.unfreeze}},
 \code{\link{mlr_context_torch}},

@@ -89,6 +89,7 @@ Collate:
     'CallbackSetHistory.R'
     'CallbackSetLRScheduler.R'
     'CallbackSetProgress.R'
+    'CallbackSetResume.R'
     'CallbackSetTB.R'
     'CallbackSetUnfreeze.R'
     'ContextTorch.R'

@@ -37,14 +37,14 @@ The learning rate scheduler wrapped by this callback}
   \itemize{
     \item \href{#method-CallbackSetLRScheduler-initialize}{\code{CallbackSetLRScheduler$new()}}
     \item \href{#method-CallbackSetLRScheduler-on_begin}{\code{CallbackSetLRScheduler$on_begin()}}
+    \item \href{#method-CallbackSetLRScheduler-state_dict}{\code{CallbackSetLRScheduler$state_dict()}}
+    \item \href{#method-CallbackSetLRScheduler-load_state_dict}{\code{CallbackSetLRScheduler$load_state_dict()}}
     \item \href{#method-CallbackSetLRScheduler-clone}{\code{CallbackSetLRScheduler$clone()}}
   }
 }
 \if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="load_state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-load_state_dict'><code>CallbackSet$load_state_dict()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="print"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-print'><code>CallbackSet$print()</code></a></span></li>
-  <li><span class="pkg-link" data-pkg="mlr3torch" data-topic="CallbackSet" data-id="state_dict"><a href='../../mlr3torch/html/CallbackSet.html#method-CallbackSet-state_dict'><code>CallbackSet$state_dict()</code></a></span></li>
 </ul>
 </details>}}
 \if{html}{\out{<hr>}}
@@ -79,6 +79,40 @@ The scheduler-specific initialization arguments.}
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{CallbackSetLRScheduler$on_begin()}
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSetLRScheduler-state_dict"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetLRScheduler-state_dict}{}}}
+\subsection{\code{CallbackSetLRScheduler$state_dict()}}{
+  Returns the state of the wrapped \code{torch} scheduler, so that a resumed run continues the
+schedule instead of starting it over.
+Returns \code{NULL} if the scheduler was not created yet.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetLRScheduler$state_dict()}
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CallbackSetLRScheduler-load_state_dict"></a>}}
+\if{latex}{\out{\hypertarget{method-CallbackSetLRScheduler-load_state_dict}{}}}
+\subsection{\code{CallbackSetLRScheduler$load_state_dict()}}{
+  Loads the state of the wrapped \code{torch} scheduler.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CallbackSetLRScheduler$load_state_dict(state_dict)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{state_dict}}{(named \code{list()})\cr
+The state dict as retrieved via \verb{$state_dict()}.}
+    }
     \if{html}{\out{</div>}}
   }
 }
