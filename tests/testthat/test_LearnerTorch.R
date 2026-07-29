@@ -1089,11 +1089,11 @@ test_that("batch_size is checked", {
 test_that("batch_size is required for train and predict", {
   task = tsk("iris")
   learner = lrn("classif.torch_featureless", epochs = 1, device = "cpu")
-  expect_error(learner$train(task), "must be set for training")
+  expect_error_config(learner$train(task), "must be set for training")
 
   learner$param_set$set_values(batch_size = c(train = 16))
   learner$train(task)
-  expect_error(learner$predict(task), "must be set for prediction")
+  expect_error_config(learner$predict(task), "must be set for prediction")
 
   learner$param_set$set_values(batch_size = c(train = 16, predict = 32))
   expect_class(learner$predict(task), "PredictionClassif")
@@ -1129,13 +1129,13 @@ test_that("batch_sampler works without batch_size", {
   expect_equal(length(dl_train), 2L)
 
   # prediction requires a batch size, because the batch sampler is not used there
-  expect_error(learner$predict(task), "must be set for prediction")
+  expect_error_config(learner$predict(task), "must be set for prediction")
 
   # the same holds for the validation data during training
   learner_valid = learner$clone(deep = TRUE)
   learner_valid$validate = 0.3
   learner_valid$param_set$set_values(measures_valid = msr("classif.acc"))
-  expect_error(learner_valid$train(task), "must be set for prediction")
+  expect_error_config(learner_valid$train(task), "must be set for prediction")
 
   learner$param_set$set_values(batch_size = c(predict = 50))
   pred = learner$predict(task)
@@ -1193,11 +1193,11 @@ test_that("sampler works and is only used during training", {
 
   # a sampler still requires a batch size
   learner$param_set$set_values(batch_size = NULL)
-  expect_error(learner$train(task), "must be set for training")
+  expect_error_config(learner$train(task), "must be set for training")
 
   # sampler and batch_sampler are mutually exclusive
   learner$param_set$set_values(batch_size = 16, batch_sampler = sampler)
-  expect_error(learner$train(task), "not supported")
+  expect_error_config(learner$train(task), "not supported")
 })
 
 test_that("sampler and batch_sampler are checked", {

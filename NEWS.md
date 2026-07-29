@@ -11,6 +11,8 @@
   A `batch_size` is still required for prediction, where the (batch) sampler is not used.
   It can be set via e.g. `batch_size = c(predict = 32)`.
 * The `sampler` and `batch_sampler` parameters are now checked to be `torch::sampler()` generators.
+* The dataloader parameters are now validated with typed conditions: misconfigurations are signaled
+  as `Mlr3ErrorConfig` (see `mlr3misc::error_config()`), so they can be caught by class.
 
 ## Bug fixes
 

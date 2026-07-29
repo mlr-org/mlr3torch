@@ -550,11 +550,11 @@ LearnerTorch = R6Class("LearnerTorch",
       args$batch_size = get_batch_size(args$batch_size, "train")
 
       if (!is.null(args$sampler) && !is.null(args$batch_sampler)) {
-        stopf("Providing both a 'sampler' and a 'batch_sampler' is not supported, set only one of them.")
+        error_config("Providing both a 'sampler' and a 'batch_sampler' is not supported, set only one of them.")
       }
       if (is.null(args$batch_sampler)) {
         if (is.null(args$batch_size)) {
-          stopf("Parameter 'batch_size' must be set for training, unless a 'batch_sampler' is provided.")
+          error_config("Parameter 'batch_size' must be set for training, unless a 'batch_sampler' is provided.")
         }
       } else {
         # the batch sampler already determines the batches, so these are ignored by torch::dataloader()
@@ -579,9 +579,9 @@ LearnerTorch = R6Class("LearnerTorch",
     .dataloader_predict = function(dataset, param_vals) {
       batch_size = get_batch_size(param_vals$batch_size, "predict")
       if (is.null(batch_size)) {
-        stopf(paste0("Parameter 'batch_size' must be set for prediction (this includes the validation ",
-          "data during training). When a 'sampler' or 'batch_sampler' is used for training, you can ",
-          "set e.g. `batch_size = c(predict = 32)`."))
+        error_config(paste0("Parameter 'batch_size' must be set for prediction (this includes the ",
+          "validation data during training). When a 'sampler' or 'batch_sampler' is used for ",
+          "training, you can set e.g. `batch_size = c(predict = 32)`."))
       }
       param_vals_test = insert_named(param_vals,
         list(batch_size = batch_size, shuffle = FALSE, drop_last = FALSE))
