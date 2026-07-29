@@ -13,8 +13,8 @@
 #' * `state<n>.rds` :: The epoch and step the checkpoint was written in, as well as the
 #'   `$state_dict()`s of the other callbacks.
 #'
-#' Training can be continued from such a checkpoint -- also in a new R session -- using
-#' [`CallbackSetResume`], see the example below.
+#' Training can be continued from such a checkpoint -- also in a new R session -- via the
+#' `path` parameter of [`LearnerTorch`], see the example below.
 #' @details
 #' Saving the learner itself in the callback with a trained model is impossible,
 #' as the model slot is set *after* the last callback step is executed.
@@ -43,9 +43,7 @@
 #' list.files(pth)
 #'
 #' # continue training for 3 more epochs, starting from the last checkpoint
-#' learner_resumed = lrn("classif.mlp", epochs = 6, batch_size = 1,
-#'   callbacks = t_clbk("resume"))
-#' learner_resumed$param_set$set_values(cb.resume.path = pth)
+#' learner_resumed = lrn("classif.mlp", epochs = 6, batch_size = 1, path = pth)
 #' learner_resumed$train(task)
 #' learner_resumed$model$epochs
 CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
@@ -59,8 +57,8 @@ CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
       self$freq = assert_int(freq, lower = 1L)
       self$freq_type = assert_choice(freq_type, c("epoch", "step"))
       # a folder that already contains checkpoints may be continued in, which is what happens when
-      # a run is resumed via CallbackSetResume. Any other existing path is rejected, so that
-      # unrelated data is never written into.
+      # a run is resumed via the learner's 'path' parameter. Any other existing path is rejected,
+      # so that unrelated data is never written into.
       self$path = if (is_checkpoint_dir(path)) path else assert_path_for_output(path)
       if (!dir.exists(path)) {
         dir.create(path, recursive = TRUE)
@@ -110,7 +108,7 @@ CallbackSetCheckpoint = R6Class("CallbackSetCheckpoint",
     .save = function(suffix) {
       torch_save(self$ctx$network$state_dict(), file.path(self$path, paste0("network", suffix, ".pt")))
       torch_save(self$ctx$optimizer$state_dict(), file.path(self$path, paste0("optimizer", suffix, ".pt")))
-      # the training state is what [`CallbackSetResume`] needs on top of the network and optimizer:
+      # the training state is what resuming needs on top of the network and optimizer:
       # the epoch to continue from and the states of the other callbacks.
       # Callback states are plain R objects -- they are not torch-serialized when a learner is
       # marshaled either -- so they are saved with saveRDS(), which (unlike torch_save()) keeps
@@ -141,6 +139,21 @@ checkpoint_suffixes = function(path) {
   # a checkpoint is only usable if the matching optimizer was written as well, which is not the
   # case when a run was interrupted between the two
   sort(suffixes[file.exists(file.path(path, paste0("optimizer", suffixes, ".pt")))], decreasing = TRUE)
+}
+
+# The files of the most recent complete checkpoint in `path`, or NULL if there is none.
+latest_checkpoint = function(path) {
+  suffixes = checkpoint_suffixes(path)
+  if (!length(suffixes)) return(NULL)
+
+  suffix = suffixes[1L]
+  state = file.path(path, paste0("state", suffix, ".rds"))
+  list(
+    network   = file.path(path, paste0("network", suffix, ".pt")),
+    optimizer = file.path(path, paste0("optimizer", suffix, ".pt")),
+    state     = if (file.exists(state)) state,
+    suffix    = suffix
+  )
 }
 
 #' @include TorchCallback.R

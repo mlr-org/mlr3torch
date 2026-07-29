@@ -205,8 +205,8 @@ test_that("the scheduler state is restored when resuming", {
   learner$param_set$set_values(cb.checkpoint.path = path)
   learner$train(task)
 
-  resumed = make(4L, list(t_clbk("resume"), t_clbk("lr_step")))
-  resumed$param_set$set_values(cb.resume.path = path)
+  resumed = make(4L, list(t_clbk("lr_step")))
+  resumed$param_set$set_values(path = path)
   resumed$train(task)
 
   # without the restored scheduler state the schedule would start over and the lr would be too high
@@ -243,8 +243,8 @@ test_that("lr_one_cycle and lr_reduce_on_plateau also restore their state", {
     expect_names(names(state$callbacks), must.include = id)
     expect_equal(state$callbacks[[id]]$last_epoch, learner$model$callbacks[[id]]$last_epoch)
 
-    resumed = make(list(t_clbk("resume"), invoke(t_clbk, .args = c(list(id), args))))
-    resumed$param_set$set_values(cb.resume.path = path)
+    resumed = make(list(invoke(t_clbk, .args = c(list(id), args))))
+    resumed$param_set$set_values(path = path)
     resumed$train(task)
     expect_equal(resumed$model$epochs, 4L)
     # the schedule continued instead of starting over
@@ -265,8 +265,8 @@ test_that("resuming lr_one_cycle with a different number of epochs errors immedi
 
   # the checkpoint was written for a 4-epoch schedule
   resumed = lrn("classif.mlp", epochs = 6L, batch_size = 50, neurons = 10,
-    callbacks = list(t_clbk("resume"), t_clbk("lr_one_cycle", max_lr = 0.1)))
-  resumed$param_set$set_values(cb.resume.path = path)
+    callbacks = list(t_clbk("lr_one_cycle", max_lr = 0.1)))
+  resumed$param_set$set_values(path = path)
   expect_error(resumed$train(task), "Cannot resume the one cycle learning rate schedule")
 
   # the error is raised before any epoch is trained, not somewhere in the middle of the run

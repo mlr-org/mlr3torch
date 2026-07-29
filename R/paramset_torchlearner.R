@@ -32,6 +32,13 @@ make_check_measures = function(task_type = NULL) {
 
 }
 
+check_resume_path = function(x) {
+  if (is.null(x) || isTRUE(x)) {
+    return(TRUE)
+  }
+  check_string(x, na.ok = FALSE)
+}
+
 check_measures_regr = make_check_measures("regr")
 check_measures_classif = make_check_measures("classif")
 check_measures = make_check_measures()
@@ -63,6 +70,7 @@ paramset_torchlearner = function(task_type, jittable = FALSE) {
     num_threads           = p_int(lower = 1L, tags = c("train", "predict", "required", "threads"), init = 1L),
     num_interop_threads   = p_int(lower = 1L, tags = c("train", "predict", "required"), init = 1L),
     seed                  = p_int(tags = c("train", "predict", "required"), special_vals = list("random", NULL), init = "random"),
+    path                  = p_uty(tags = "train", default = NULL, custom_check = check_resume_path),
     # evaluation
     eval_freq             = p_int(lower = 1L, tags = c("train", "required"), init = 1L),
     measures_train        = p_uty(tags = c("train", "required"), custom_check = check_measures, init = list()),

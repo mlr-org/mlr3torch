@@ -2,9 +2,10 @@
 
 ## Features
 
-* Feat: New callback `t_clbk("resume")` to continue training from a checkpoint, also in a new R
-  session (#423). The learner's `epochs` is the total number of epochs, i.e. it includes the epochs
-  that the checkpoint was already trained for.
+* Feat: New `LearnerTorch` parameter `path` to continue training from a checkpoint, also in a new
+  R session (#423). It is either the path of a folder written by `t_clbk("checkpoint")` or `TRUE`,
+  which takes the path from the checkpoint callback of the learner. `epochs` is the total number of
+  epochs, i.e. it includes the epochs that the checkpoint was already trained for.
 * Feat: `t_clbk("checkpoint")` additionally saves the current epoch and the states of the other
   callbacks as `state<n>.rds`, so that a resumed run continues e.g. the training history and the
   learning rate schedule. It can now also write into a folder that already contains checkpoints.

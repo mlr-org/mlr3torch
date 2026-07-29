@@ -133,7 +133,7 @@ ContextTorch = R6Class("ContextTorch",
     #' @field callbacks (named `list()` of [`CallbackSet`]s)\cr
     #'   The callbacks that are active during training, named by their ids.
     #'   This allows callbacks to access the state of other callbacks, which is for example used by
-    #'   [`CallbackSetCheckpoint`] to save their states and by [`CallbackSetResume`] to restore them.
+    #'   [`CallbackSetCheckpoint`] to save their states.
     callbacks = NULL,
     #' @field device (`torch::torch_device`)\cr
     #'   The device.

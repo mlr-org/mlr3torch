@@ -48,8 +48,8 @@ test_that("the history of a previous run is continued when resuming", {
   learner$param_set$set_values(cb.checkpoint.path = path)
   learner$train(task)
 
-  resumed = make(4L, list(t_clbk("resume"), t_clbk("history")))
-  resumed$param_set$set_values(cb.resume.path = path)
+  resumed = make(4L, list(t_clbk("history")))
+  resumed$param_set$set_values(path = path)
   resumed$train(task)
 
   history = resumed$model$callbacks$history[order(get("epoch"))]

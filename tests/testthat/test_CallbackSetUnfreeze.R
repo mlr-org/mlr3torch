@@ -96,8 +96,8 @@ test_that("weights that were already unfrozen stay unfrozen when resuming", {
   expect_true("3.weight" %nin% state$callbacks$unfreeze$trainable)
 
   # epoch 2 is not reached again, so '0.weight' would be frozen again without the restored state
-  resumed = make(3L, list(t_clbk("resume"), t_clbk("unfreeze")))
-  resumed$param_set$set_values(cb.resume.path = path)
+  resumed = make(3L, list(t_clbk("unfreeze")))
+  resumed$param_set$set_values(path = path)
   resumed$train(task)
 
   trainable = names(which(map_lgl(resumed$model$network$parameters, function(p) p$requires_grad)))

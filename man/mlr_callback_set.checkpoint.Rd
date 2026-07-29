@@ -17,8 +17,8 @@ in \code{path}:
 \verb{$state_dict()}s of the other callbacks.
 }
 
-Training can be continued from such a checkpoint -- also in a new R session -- using
-\code{\link{CallbackSetResume}}, see the example below.
+Training can be continued from such a checkpoint -- also in a new R session -- via the
+\code{path} parameter of \code{\link{LearnerTorch}}, see the example below.
 }
 \details{
 Saving the learner itself in the callback with a trained model is impossible,
@@ -38,9 +38,7 @@ learner$train(task)
 list.files(pth)
 
 # continue training for 3 more epochs, starting from the last checkpoint
-learner_resumed = lrn("classif.mlp", epochs = 6, batch_size = 1,
-  callbacks = t_clbk("resume"))
-learner_resumed$param_set$set_values(cb.resume.path = pth)
+learner_resumed = lrn("classif.mlp", epochs = 6, batch_size = 1, path = pth)
 learner_resumed$train(task)
 learner_resumed$model$epochs
 \dontshow{\}) # examplesIf}

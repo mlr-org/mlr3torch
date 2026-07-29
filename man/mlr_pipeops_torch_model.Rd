@@ -59,6 +59,24 @@ This is initialized to \code{1}.
 Note that the final model is always evaluated.
 }
 
+\strong{Resuming}:
+\itemize{
+\item \code{path} :: \code{character(1)} or \code{logical(1)}\cr
+Continues training from a checkpoint as written by \code{\link[=mlr_callback_set.checkpoint]{t_clbk("checkpoint")}},
+also in a new R session.
+Either the path to the folder that the checkpoint callback wrote to -- the most recent
+checkpoint in it is used -- or \code{TRUE}, which takes the path from the checkpoint callback of
+this learner.
+The network, the optimizer and the states of the callbacks are restored, and training then
+continues until \code{epochs} is reached.
+Note that \code{epochs} is the \emph{total} number of epochs, i.e. it includes the epochs the checkpoint
+was already trained for: resuming a checkpoint from epoch 5 with \code{epochs = 8} trains 3 more
+epochs.
+If the folder contains no checkpoint, training starts from scratch, so that the same script can
+be used to start a run and to continue it after an interruption.
+This is initialized to \code{NULL}, i.e. no resuming.
+}
+
 \strong{Early Stopping}:
 \itemize{
 \item \code{patience} :: \code{integer(1)}\cr

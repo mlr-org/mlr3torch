@@ -96,7 +96,7 @@ If this field is set to \code{TRUE} at the end of an epoch, training stops.}
     \item{\code{callbacks}}{(named \code{list()} of \code{\link{CallbackSet}}s)\cr
 The callbacks that are active during training, named by their ids.
 This allows callbacks to access the state of other callbacks, which is for example used by
-\code{\link{CallbackSetCheckpoint}} to save their states and by \code{\link{CallbackSetResume}} to restore them.}
+\code{\link{CallbackSetCheckpoint}} to save their states.}
 
     \item{\code{device}}{(\code{torch::torch_device})\cr
 The device.}
