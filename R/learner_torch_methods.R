@@ -43,7 +43,7 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   if (is.null(self$optimizer)) stopf("Learner '%s' defines no optimizer", self$id)
   optimizer = self$optimizer$generate(network$parameters)
   if (is.null(self$loss)) stopf("Learner '%s' defines no loss", self$id)
-  loss_fn = self$loss$generate(task)
+  loss_fn = private$.loss_fn(task, param_vals)
   loss_fn$to(device = param_vals$device)
 
   measures_train = normalize_to_list(param_vals$measures_train)
@@ -159,13 +159,17 @@ train_loop = function(ctx, cbs) {
 
       call("on_batch_begin")
 
-      if (length(ctx$batch$x) == 1L) {
-        ctx$y_hat = ctx$network(ctx$batch$x[[1L]])
+      ctx$y_hats = if (length(ctx$batch$x) == 1L) {
+        ctx$network(ctx$batch$x[[1L]])
       } else {
-        ctx$y_hat = do.call(ctx$network, ctx$batch$x)
+        do.call(ctx$network, ctx$batch$x)
       }
+      # A network with auxiliary classifiers returns one prediction per classifier, of which the
+      # first one is the primary prediction, see the section 'Network Head and Target Encoding'
+      # of `LearnerTorch`. `y_hat` is always that primary prediction, `y_hats` the complete output.
+      ctx$y_hat = if (is.list(ctx$y_hats)) ctx$y_hats[[1L]] else ctx$y_hats
 
-      loss = ctx$loss_fn(ctx$y_hat, ctx$batch$y)
+      loss = ctx$loss_fn(ctx$y_hats, ctx$batch$y)
 
       loss$backward()
 

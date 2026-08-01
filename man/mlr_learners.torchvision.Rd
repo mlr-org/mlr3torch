@@ -3,10 +3,71 @@
 \name{mlr_learners.torchvision}
 \alias{mlr_learners.torchvision}
 \alias{LearnerTorchVision}
-\title{AlexNet Image Classifier}
+\title{Image Classification Networks from torchvision}
 \description{
-Classic image classification networks from \code{torchvision}.
+Well-known image classification networks from the
+\href{https://github.com/mlverse/torchvision}{\code{torchvision}} package.
+
+Each of these learners wraps one of the \verb{model_*()} generators of \code{torchvision}.
+The section \emph{Available Learners} below lists for every learner the original architecture that it
+implements, the paper that introduced this architecture, and the file in \code{torchvision} that
+contains the implementation, so the architecture can be inspected directly.
 }
+\section{Available Learners}{
+
+The table below lists for each learner the original architecture that it implements, the
+paper that introduced this architecture, and the file in \code{torchvision} that contains the
+implementation.\tabular{llll}{
+   Learner \tab Architecture \tab Reference \tab Implementation \cr
+   \code{classif.alexnet} \tab AlexNet \tab Krizhevsky (2017) and Krizhevsky (2014) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-alexnet.R}{models-alexnet.R} \cr
+   \code{classif.convnext_tiny_1k} \tab ConvNeXt \tab Liu (2022) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-convnext.R}{models-convnext.R} \cr
+   \code{classif.convnext_tiny_22k} \tab ConvNeXt \tab Liu (2022) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-convnext.R}{models-convnext.R} \cr
+   \code{classif.convnext_small_22k} \tab ConvNeXt \tab Liu (2022) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-convnext.R}{models-convnext.R} \cr
+   \code{classif.convnext_base_1k} \tab ConvNeXt \tab Liu (2022) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-convnext.R}{models-convnext.R} \cr
+   \code{classif.convnext_base_22k} \tab ConvNeXt \tab Liu (2022) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-convnext.R}{models-convnext.R} \cr
+   \code{classif.convnext_large_1k} \tab ConvNeXt \tab Liu (2022) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-convnext.R}{models-convnext.R} \cr
+   \code{classif.convnext_large_22k} \tab ConvNeXt \tab Liu (2022) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-convnext.R}{models-convnext.R} \cr
+   \code{classif.efficientnet_b0} \tab EfficientNet \tab Tan (2019) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-efficientnet.R}{models-efficientnet.R} \cr
+   \code{classif.efficientnet_b1} \tab EfficientNet \tab Tan (2019) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-efficientnet.R}{models-efficientnet.R} \cr
+   \code{classif.efficientnet_b2} \tab EfficientNet \tab Tan (2019) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-efficientnet.R}{models-efficientnet.R} \cr
+   \code{classif.efficientnet_b3} \tab EfficientNet \tab Tan (2019) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-efficientnet.R}{models-efficientnet.R} \cr
+   \code{classif.efficientnet_b4} \tab EfficientNet \tab Tan (2019) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-efficientnet.R}{models-efficientnet.R} \cr
+   \code{classif.efficientnet_b5} \tab EfficientNet \tab Tan (2019) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-efficientnet.R}{models-efficientnet.R} \cr
+   \code{classif.efficientnet_b6} \tab EfficientNet \tab Tan (2019) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-efficientnet.R}{models-efficientnet.R} \cr
+   \code{classif.efficientnet_b7} \tab EfficientNet \tab Tan (2019) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-efficientnet.R}{models-efficientnet.R} \cr
+   \code{classif.efficientnet_v2_s} \tab EfficientNetV2 \tab Tan (2021) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-efficientnetv2.R}{models-efficientnetv2.R} \cr
+   \code{classif.efficientnet_v2_m} \tab EfficientNetV2 \tab Tan (2021) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-efficientnetv2.R}{models-efficientnetv2.R} \cr
+   \code{classif.efficientnet_v2_l} \tab EfficientNetV2 \tab Tan (2021) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-efficientnetv2.R}{models-efficientnetv2.R} \cr
+   \code{classif.inception_v3} \tab Inception v3 \tab Szegedy (2016) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-inception.R}{models-inception.R} \cr
+   \code{classif.maxvit} \tab MaxViT \tab Tu (2022) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-maxvit.R}{models-maxvit.R} \cr
+   \code{classif.mobilenet_v2} \tab MobileNetV2 \tab Sandler (2018) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-mobilenetv2.R}{models-mobilenetv2.R} \cr
+   \code{classif.mobilenet_v3_large} \tab MobileNetV3 \tab Howard (2019) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-mobilenetv3.R}{models-mobilenetv3.R} \cr
+   \code{classif.mobilenet_v3_small} \tab MobileNetV3 \tab Howard (2019) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-mobilenetv3.R}{models-mobilenetv3.R} \cr
+   \code{classif.resnet18} \tab ResNet \tab He (2016) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-resnet.R}{models-resnet.R} \cr
+   \code{classif.resnet34} \tab ResNet \tab He (2016) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-resnet.R}{models-resnet.R} \cr
+   \code{classif.resnet50} \tab ResNet \tab He (2016) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-resnet.R}{models-resnet.R} \cr
+   \code{classif.resnet101} \tab ResNet \tab He (2016) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-resnet.R}{models-resnet.R} \cr
+   \code{classif.resnet152} \tab ResNet \tab He (2016) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-resnet.R}{models-resnet.R} \cr
+   \code{classif.resnext50_32x4d} \tab ResNeXt \tab He (2016) and Xie (2017) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-resnet.R}{models-resnet.R} \cr
+   \code{classif.resnext101_32x8d} \tab ResNeXt \tab He (2016) and Xie (2017) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-resnet.R}{models-resnet.R} \cr
+   \code{classif.wide_resnet50_2} \tab Wide ResNet \tab He (2016) and Zagoruyko (2016) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-resnet.R}{models-resnet.R} \cr
+   \code{classif.wide_resnet101_2} \tab Wide ResNet \tab He (2016) and Zagoruyko (2016) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-resnet.R}{models-resnet.R} \cr
+   \code{classif.vgg11} \tab VGG \tab Simonyan (2014) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-vgg.R}{models-vgg.R} \cr
+   \code{classif.vgg11_bn} \tab VGG \tab Simonyan (2014) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-vgg.R}{models-vgg.R} \cr
+   \code{classif.vgg13} \tab VGG \tab Simonyan (2014) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-vgg.R}{models-vgg.R} \cr
+   \code{classif.vgg13_bn} \tab VGG \tab Simonyan (2014) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-vgg.R}{models-vgg.R} \cr
+   \code{classif.vgg16} \tab VGG \tab Simonyan (2014) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-vgg.R}{models-vgg.R} \cr
+   \code{classif.vgg16_bn} \tab VGG \tab Simonyan (2014) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-vgg.R}{models-vgg.R} \cr
+   \code{classif.vgg19} \tab VGG \tab Simonyan (2014) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-vgg.R}{models-vgg.R} \cr
+   \code{classif.vgg19_bn} \tab VGG \tab Simonyan (2014) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-vgg.R}{models-vgg.R} \cr
+   \code{classif.vit_b_16} \tab Vision Transformer (ViT) \tab Dosovitskiy (2021) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-vit.R}{models-vit.R} \cr
+   \code{classif.vit_b_32} \tab Vision Transformer (ViT) \tab Dosovitskiy (2021) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-vit.R}{models-vit.R} \cr
+   \code{classif.vit_l_16} \tab Vision Transformer (ViT) \tab Dosovitskiy (2021) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-vit.R}{models-vit.R} \cr
+   \code{classif.vit_l_32} \tab Vision Transformer (ViT) \tab Dosovitskiy (2021) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-vit.R}{models-vit.R} \cr
+   \code{classif.vit_h_14} \tab Vision Transformer (ViT) \tab Dosovitskiy (2021) \tab \href{https://github.com/mlverse/torchvision/blob/main/R/models-vit.R}{models-vit.R} \cr
+}
+}
+
 \section{Parameters}{
 
 Parameters from \code{\link{LearnerTorchImage}} and
@@ -15,6 +76,21 @@ Parameters from \code{\link{LearnerTorchImage}} and
 Whether to use the pretrained model.
 The final linear layer will be replaced with a new \code{nn_linear} with the
 number of classes inferred from the \code{\link[mlr3:Task]{Task}}.
+}
+
+\code{classif.inception_v3} additionally has
+\itemize{
+\item \code{aux_logits} :: \code{logical(1)}\cr
+Whether to enable the auxiliary classifier, which acts as a regularizer during training and
+is not applied when predicting. Defaults to \code{FALSE}.
+The configured loss is applied to the predictions of both classifiers and does not have to
+be changed for this.
+Note that the auxiliary classifier raises the minimum input size from 75x75 to 299x299,
+because it pools and convolves the feature map further than the main classifier does.
+\item \code{aux_weight} :: \code{numeric(1)}\cr
+The weight with which the loss of the auxiliary classifier is added to the loss of the main
+classifier. Defaults to \code{0.4}, the value used by the Inception v3 paper.
+Only has an effect if \code{aux_logits} is \code{TRUE}.
 }
 }
 
@@ -29,18 +105,52 @@ number of classes inferred from the \code{\link[mlr3:Task]{Task}}.
 }
 
 \references{
-Krizhevsky, Alex, Sutskever, Ilya, Hinton, E. G (2017).
+Krizhevsky A, Sutskever I, Hinton G (2017).
 \dQuote{Imagenet classification with deep convolutional neural networks.}
 \emph{Communications of the ACM}, \bold{60}(6), 84--90.
-Sandler, Mark, Howard, Andrew, Zhu, Menglong, Zhmoginov, Andrey, Chen, Liang-Chieh (2018).
+Krizhevsky A (2014).
+\dQuote{One weird trick for parallelizing convolutional neural networks.}
+\emph{arXiv preprint arXiv:1404.5997}.
+Liu Z, Mao H, Wu C, Feichtenhofer C, Darrell T, Xie S (2022).
+\dQuote{A ConvNet for the 2020s.}
+In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}, 11976--11986.
+Tan M, Le Q (2019).
+\dQuote{EfficientNet: Rethinking model scaling for convolutional neural networks.}
+In \emph{Proceedings of the 36th International Conference on Machine Learning (ICML)}, 6105--6114.
+PMLR.
+Tan M, Le Q (2021).
+\dQuote{EfficientNetV2: Smaller models and faster training.}
+In \emph{Proceedings of the 38th International Conference on Machine Learning (ICML)}, 10096--10106.
+PMLR.
+Szegedy C, Vanhoucke V, Ioffe S, Shlens J, Wojna Z (2016).
+\dQuote{Rethinking the inception architecture for computer vision.}
+In \emph{Proceedings of the IEEE conference on computer vision and pattern recognition}, 2818--2826.
+Tu Z, Talebi H, Zhang H, Yang F, Milanfar P, Bovik A, Li Y (2022).
+\dQuote{MaxViT: Multi-axis vision transformer.}
+In \emph{Proceedings of the European Conference on Computer Vision (ECCV)}, 459--479.
+Sandler M, Howard A, Zhu M, Zhmoginov A, Chen L (2018).
 \dQuote{Mobilenetv2: Inverted residuals and linear bottlenecks.}
 In \emph{Proceedings of the IEEE conference on computer vision and pattern recognition}, 4510--4520.
-He, Kaiming, Zhang, Xiangyu, Ren, Shaoqing, Sun, Jian (2016).
+Howard A, Sandler M, Chu G, Chen L, Chen B, Tan M, Wang W, Zhu Y, Pang R, Vasudevan V, Le Q, Adam H (2019).
+\dQuote{Searching for MobileNetV3.}
+In \emph{Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)}, 1314--1324.
+He K, Zhang X, Ren S, Sun J (2016).
 \dQuote{Deep residual learning for image recognition.}
 In \emph{Proceedings of the IEEE conference on computer vision and pattern recognition}, 770--778.
-Simonyan, Karen, Zisserman, Andrew (2014).
+Xie S, Girshick R, Dollár P, Tu Z, He K (2017).
+\dQuote{Aggregated residual transformations for deep neural networks.}
+In \emph{Proceedings of the IEEE conference on computer vision and pattern recognition}, 1492--1500.
+Zagoruyko S, Komodakis N (2016).
+\dQuote{Wide residual networks.}
+In \emph{Proceedings of the British Machine Vision Conference (BMVC)}.
+1605.07146, \url{https://arxiv.org/abs/1605.07146}.
+Simonyan K, Zisserman A (2014).
 \dQuote{Very deep convolutional networks for large-scale image recognition.}
 \emph{arXiv preprint arXiv:1409.1556}.
+Dosovitskiy A, Beyer L, Kolesnikov A, Weissenborn D, Zhai X, Unterthiner T, Dehghani M, Minderer M, Heigold G, Gelly S, Uszkoreit J, Houlsby N (2021).
+\dQuote{An image is worth 16x16 words: Transformers for image recognition at scale.}
+In \emph{The Ninth International Conference on Learning Representations (ICLR)}.
+2010.11929, \url{https://arxiv.org/abs/2010.11929}.
 }
 \section{Super classes}{
 \code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3torch:LearnerTorch]{LearnerTorch}} -> \code{\link[mlr3torch:LearnerTorchImage]{LearnerTorchImage}} -> \code{LearnerTorchVision}
@@ -84,7 +194,9 @@ Simonyan, Karen, Zisserman, Andrew (2014).
   optimizer = NULL,
   loss = NULL,
   callbacks = list(),
-  jittable = FALSE
+  jittable = FALSE,
+  extra_param_set = NULL,
+  network_args = character(0)
 )}
     \if{html}{\out{</div>}}
   }
@@ -107,6 +219,13 @@ Per default, \emph{mse} is used for regression and \emph{cross_entropy} for clas
 The callbacks. Must have unique ids.}
       \item{\code{jittable}}{(\code{logical(1)})\cr
 Whether to use jitting.}
+      \item{\code{extra_param_set}}{(\code{\link[paradox:ParamSet]{ParamSet}} or \code{NULL})\cr
+Parameters that this network has in addition to \code{pretrained}, or \code{NULL} if it has none.
+They are added to the learner's \code{\link[paradox:ParamSet]{ParamSet}}.}
+      \item{\code{network_args}}{(\code{character()})\cr
+The ids of those parameters of \code{extra_param_set} that are passed on to \code{module_generator}.
+The remaining ones are interpreted by the learner itself, such as \code{aux_weight}, which is
+used to wrap the loss and never reaches the network.}
     }
     \if{html}{\out{</div>}}
   }
