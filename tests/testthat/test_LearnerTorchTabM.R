@@ -100,28 +100,22 @@ test_that("compute_bins works", {
 
 test_that("nn_piecewise_linear_embeddings works", {
   bins = compute_bins(matrix(rnorm(1000), ncol = 5L), n_bins = 10L)
-  m = nn_piecewise_linear_embeddings(bins, d_embedding = 8L, activation = FALSE,
-    version = "B")
+  m = nn_piecewise_linear_embeddings(bins, d_embedding = 8L, activation = FALSE)
   expect_equal(m$get_output_shape(), c(5L, 8L))
   expect_equal(m(torch_randn(6, 5))$shape, c(6, 5, 8))
-  # version "B" adds the linear shortcut and zero-initializes the piecewise-linear part,
-  # so the module starts out as a plain linear embedding
+  # the linear shortcut plus the zero-initialized piecewise-linear part mean the module
+  # starts out as a plain linear embedding
   expect_class(m$linear0, "nn_linear_embeddings")
   expect_true(as.logical((m$linear$weight == 0)$all()))
   x = torch_randn(4, 5)
   expect_true(as.logical((torch_abs(m(x) - m$linear0(x)) < 1e-6)$all()))
 
-  m = nn_piecewise_linear_embeddings(bins, d_embedding = 8L, activation = TRUE,
-    version = "A")
-  expect_null(m$linear0)
+  # the activation applies to the piecewise-linear branch only, so the sum with the linear
+  # shortcut is not itself non-negative
+  m = nn_piecewise_linear_embeddings(bins, d_embedding = 8L, activation = TRUE)
+  expect_class(m$activation, "nn_relu")
   out = m(torch_randn(6, 5))
   expect_equal(out$shape, c(6, 5, 8))
-  expect_true(as.logical((out >= 0)$all()))
-
-  expect_error(nn_piecewise_linear_embeddings(bins, 8L, activation = TRUE, version = "C"),
-    "version")
-  expect_error(nn_piecewise_linear_embeddings(bins, 8L, activation = TRUE),
-    "argument \"version\" is missing")
   expect_error(m(torch_randn(2, 6, 5)), "exactly one batch dimension")
 })
 
@@ -151,7 +145,7 @@ test_that("all embedding modules can be jit traced", {
     nn_linear_relu_embeddings(4L, 6L),
     nn_periodic_embeddings(4L, 6L, n_frequencies = 5L, lite = FALSE),
     nn_periodic_embeddings(4L, 6L, n_frequencies = 5L, lite = TRUE),
-    nn_piecewise_linear_embeddings(bins, 6L, activation = FALSE, version = "B")
+    nn_piecewise_linear_embeddings(bins, 6L, activation = FALSE)
   )
   for (m in modules) {
     m$eval()
@@ -168,7 +162,7 @@ test_that("gradients reach every parameter of the embedding modules", {
     nn_linear_embeddings(4L, 6L),
     nn_linear_relu_embeddings(4L, 6L),
     nn_periodic_embeddings(4L, 6L, n_frequencies = 5L, lite = FALSE),
-    nn_piecewise_linear_embeddings(bins, 6L, activation = FALSE, version = "A")
+    nn_piecewise_linear_embeddings(bins, 6L, activation = FALSE)
   )
   for (m in modules) {
     m(torch_randn(8, 4))$sum()$backward()
@@ -467,7 +461,7 @@ test_that("nn_tabm works with numerical feature embeddings", {
     linear_relu = nn_linear_relu_embeddings(4L, 6L),
     periodic = nn_periodic_embeddings(4L, 6L, lite = FALSE),
     periodic_lite = nn_periodic_embeddings(4L, 6L, lite = TRUE),
-    piecewise_linear = nn_piecewise_linear_embeddings(bins, 6L, activation = FALSE, version = "B")
+    piecewise_linear = nn_piecewise_linear_embeddings(bins, 6L, activation = FALSE)
   )
   for (nm in names(embeddings)) {
     net = nn_tabm(n_num_features = 4L, cat_cardinalities = c(3L, 2L), d_out = 3L,
@@ -494,11 +488,6 @@ test_that("nn_tabm validates num_embeddings", {
     nn_tabm(n_num_features = 3L, d_out = 1L,
       num_embeddings = nn_linear_relu_embeddings(4L, 6L)),
     "created for 4 features")
-  # TabM requires version "B" of the piecewise-linear embeddings
-  expect_error(
-    nn_tabm(n_num_features = 4L, d_out = 1L,
-      num_embeddings = nn_piecewise_linear_embeddings(bins, 6L, activation = TRUE, version = "A")),
-    "version = \"B\"")
   expect_error(nn_tabm(n_num_features = 4L, d_out = 1L, num_embeddings = nn_relu()),
     "get_output_shape")
 })

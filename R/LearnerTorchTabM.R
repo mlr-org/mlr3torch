@@ -29,7 +29,7 @@
 #  * `activation` additionally accepts an `nn_module_generator` or a function returning an
 #    `nn_module`, instead of only a name looked up in `torch`.
 #  * `nn_tabm()` accepts any `nn_module` with a `get_output_shape()` method as
-#    `num_embeddings`. The check that piecewise-linear embeddings use `version = "B"` is kept.
+#    `num_embeddings`.
 #  * Not ported, because `TabM` never reaches them: `BatchNorm1dEnsemble`,
 #    `LayerNormEnsemble`, `MLPBackbone`, the in-place layer replacement helpers and the
 #    `from_*()` constructors. `TabM.make()`'s defaults are implemented by `nn_tabm()` and the
@@ -56,20 +56,11 @@
 #  * `compute_bins()` implements the quantile-based binning only (Section 3.2.1). The
 #    tree-based binning (Section 3.2.2) would need `sklearn.tree`, so the `tree_kwargs` /
 #    `y` / `regression` / `verbose` arguments do not exist.
-#  * `nn_piecewise_linear_embeddings()` requires `version` to be given explicitly; upstream
-#    still defaults to `"A"` with a deprecation warning.
-#  * The frequencies of `nn_periodic_embeddings()` are drawn with R torch's
-#    `nn_init_trunc_normal_()`, whose sampling algorithm differs from PyTorch's. The
-#    distribution is the same, but a given manual seed does not reproduce the same numbers
-#    in both languages. Every other module here does reproduce PyTorch's init exactly.
 #  * Not ported: the standalone `PiecewiseLinearEncoding` (unused by TabM) and the `mask`
 #    buffer that only it reads. `_PiecewiseLinearEncodingImpl` itself *is* ported.
-#  * `compute_bins()` additionally accepts a `matrix` / `data.frame` and reports the
-#    offending column indices in its error messages.
 #
 # ======================================================================================
 
-# Upstream: `_check_input_shape()`.
 check_num_embeddings_input = function(x, n_features) {
   if (x$dim() < 1L) {
     stopf("The input must have at least one dimension, but has %i.", x$dim())
@@ -81,24 +72,8 @@ check_num_embeddings_input = function(x, n_features) {
   invisible(x)
 }
 
-#' @title Linear Embeddings for Numerical Features
-#' @name nn_linear_embeddings
-#'
-#' @description
-#' Embeds each numerical feature with its own (scalar) linear transformation, i.e.
-#' feature `i` is mapped to `x[i] * weight[i, ] + bias[i, ]`.
-#' For an input of shape `(*, n_features)` the output shape is
-#' `(*, n_features, d_embedding)`.
-#'
-#' @param n_features (`integer(1)`)\cr
-#'   The number of numerical features.
-#' @param d_embedding (`integer(1)`)\cr
-#'   The embedding size.
-#'
-#' @references
-#' `r format_bib("gorishniy2022embeddings")`
-#'
-#' @noRd
+# Embeds each numerical feature with its own scalar linear transformation, i.e. feature `i`
+# is mapped to `x[i] * weight[i, ] + bias[i, ]`: `(*, n_features)` -> `(*, n_features, d)`.
 #' @examplesIf torch::torch_is_installed()
 #' m = nn_linear_embeddings(3, 4)
 #' m(torch::torch_randn(2, 3))$shape
@@ -124,23 +99,7 @@ nn_linear_embeddings = nn_module("nn_linear_embeddings",
   }
 )
 
-#' @title Linear-ReLU Embeddings for Numerical Features
-#' @name nn_linear_relu_embeddings
-#'
-#' @description
-#' [`nn_linear_embeddings()`] followed by a ReLU activation.
-#' For an input of shape `(*, n_features)` the output shape is
-#' `(*, n_features, d_embedding)`.
-#'
-#' @param n_features (`integer(1)`)\cr
-#'   The number of numerical features.
-#' @param d_embedding (`integer(1)`)\cr
-#'   The embedding size. Default is `32`.
-#'
-#' @references
-#' `r format_bib("gorishniy2022embeddings")`
-#'
-#' @noRd
+# `nn_linear_embeddings()` followed by a ReLU.
 #' @examplesIf torch::torch_is_installed()
 #' m = nn_linear_relu_embeddings(3, 8)
 #' m(torch::torch_randn(2, 3))$shape
@@ -157,7 +116,6 @@ nn_linear_relu_embeddings = nn_module("nn_linear_relu_embeddings",
   }
 )
 
-# Upstream: `_Periodic`. Must not be used directly.
 nn_periodic = nn_module("nn_periodic",
   initialize = function(n_features, k, sigma) {
     assert_number(sigma, lower = .Machine$double.eps)
@@ -179,7 +137,7 @@ nn_periodic = nn_module("nn_periodic",
   }
 )
 
-# Upstream: `_NLinear`, i.e. n separate linear layers, one per feature embedding.
+# n separate linear layers, one per feature embedding.
 nn_nlinear = nn_module("nn_nlinear",
   initialize = function(n, in_features, out_features, bias = TRUE) {
     self$n = assert_int(n, lower = 1L, coerce = TRUE)
@@ -273,7 +231,6 @@ nn_periodic_embeddings = nn_module("nn_periodic_embeddings",
   }
 )
 
-# Upstream: `_check_bins()`.
 check_bins = function(bins) {
   assert_list(bins, min.len = 1L, types = "torch_tensor",
     .var.name = "bins (a list of torch tensors)")
@@ -362,8 +319,6 @@ compute_bins = function(x, n_bins = 48L) {
   bins
 }
 
-# Upstream: `_PiecewiseLinearEncodingImpl`. Must not be used directly (it adds no
-# positional information to the feature encodings).
 nn_piecewise_linear_encoding_impl = nn_module("nn_piecewise_linear_encoding_impl",
   initialize = function(bins) {
     check_bins(bins)
@@ -443,12 +398,6 @@ nn_piecewise_linear_encoding_impl = nn_module("nn_piecewise_linear_encoding_impl
 #'   The embedding size.
 #' @param activation (`logical(1)`)\cr
 #'   Whether to apply a ReLU activation in the end.
-#' @param version (`character(1)`)\cr
-#'   Either `"A"` (the version of the original paper) or `"B"` (introduced by the TabM
-#'   paper; adds a [`nn_linear_embeddings()`] shortcut and zero-initializes the
-#'   piecewise-linear part, so that the module behaves like a linear embedding at
-#'   initialization). `"B"` is required by [`nn_tabm()`].
-#'   Unlike upstream, this argument must be given explicitly.
 #'
 #' @references
 #' `r format_bib("gorishniy2022embeddings", "gorishniy2025tabm")`
@@ -456,30 +405,22 @@ nn_piecewise_linear_encoding_impl = nn_module("nn_piecewise_linear_encoding_impl
 #' @noRd
 #' @examplesIf torch::torch_is_installed()
 #' bins = compute_bins(matrix(rnorm(200), ncol = 2), n_bins = 4)
-#' m = nn_piecewise_linear_embeddings(bins, d_embedding = 8, activation = FALSE,
-#'   version = "B")
+#' m = nn_piecewise_linear_embeddings(bins, d_embedding = 8, activation = FALSE)
 #' m(torch::torch_randn(3, 2))$shape
 nn_piecewise_linear_embeddings = nn_module("nn_piecewise_linear_embeddings",
-  initialize = function(bins, d_embedding, activation, version) {
+  initialize = function(bins, d_embedding, activation) {
     d_embedding = assert_int(d_embedding, lower = 1L, coerce = TRUE)
     assert_flag(activation)
-    version = assert_choice(version, c("A", "B"))
     check_bins(bins)
 
     n_features = length(bins)
-    # NOTE[DIFF] (upstream): version "B" was introduced by the TabM paper.
-    is_version_b = version == "B"
-
-    self$linear0 = if (is_version_b) nn_linear_embeddings(n_features, d_embedding) else NULL
+    self$linear0 = nn_linear_embeddings(n_features, d_embedding)
     self$impl = nn_piecewise_linear_encoding_impl(bins)
-    self$linear = nn_nlinear(n_features, self$impl$get_max_n_bins(), d_embedding,
-      # for version "B" the bias is already part of linear0
-      bias = !is_version_b)
-    if (is_version_b) {
-      # Because of this, the whole embedding behaves like a linear embedding at
-      # initialization; the piecewise-linear component is learnt incrementally.
-      nn_init_zeros_(self$linear$weight)
-    }
+    # the bias is already part of linear0
+    self$linear = nn_nlinear(n_features, self$impl$get_max_n_bins(), d_embedding, bias = FALSE)
+    # zero-initialized, so the whole embedding behaves like a linear embedding at
+    # initialization and the piecewise-linear component is learnt incrementally
+    nn_init_zeros_(self$linear$weight)
     self$activation = if (activation) nn_relu() else NULL
     self$out_shape = c(n_features, d_embedding)
   },
@@ -490,11 +431,10 @@ nn_piecewise_linear_embeddings = nn_module("nn_piecewise_linear_embeddings",
     if (input$dim() != 2L) {
       stopf("nn_piecewise_linear_embeddings() only supports inputs with exactly one batch dimension, but the input has %i dimensions.", input$dim()) # nolint
     }
-    x_linear = if (is.null(self$linear0)) NULL else self$linear0(input)
-    x_ple = self$impl(input)
-    x_ple = self$linear(x_ple)
+    x_linear = self$linear0(input)
+    x_ple = self$linear(self$impl(input))
     if (!is.null(self$activation)) x_ple = self$activation(x_ple)
-    if (is.null(x_linear)) x_ple else x_linear + x_ple
+    x_linear + x_ple
   }
 )
 
@@ -549,7 +489,6 @@ tabm_init_scaling_ = function(x, distribution, chunks = NULL) {
 # Basic modules (upstream section "Basics modules")
 # --------------------------------------------------------------------------------------
 
-# Upstream: `_OneHotEncoding`.
 # Deviation: the input codes are 1-based, i.e. the i-th feature takes values in
 # `1:cardinalities[i]` (upstream: `0:(cardinalities[i] - 1)`).
 nn_tabm_one_hot = nn_module("nn_tabm_one_hot",
@@ -571,7 +510,6 @@ nn_tabm_one_hot = nn_module("nn_tabm_one_hot",
   }
 )
 
-# Upstream: `ElementwiseAffine`.
 nn_tabm_elementwise_affine = nn_module("nn_tabm_elementwise_affine",
   initialize = function(shape, bias, scaling_init, scaling_init_chunks = NULL) {
     self$scaling_init = scaling_init
@@ -595,7 +533,7 @@ nn_tabm_elementwise_affine = nn_module("nn_tabm_elementwise_affine",
 # Ensemble modules (upstream section "Ensemble modules")
 # --------------------------------------------------------------------------------------
 
-# Upstream: `ensemble_view()`. Turns `(batch, d)` into `(batch, k, d)` without copying.
+# Turns `(batch, d)` into `(batch, k, d)` without copying.
 tabm_ensemble_view = function(x, k) {
   if (x$dim() != 2L) {
     stopf("The input must have two dimensions, but has %i.", x$dim())
@@ -603,7 +541,6 @@ tabm_ensemble_view = function(x, k) {
   x$unsqueeze(2L)$expand(c(-1L, k, -1L))
 }
 
-# Upstream: `EnsembleView`.
 nn_tabm_ensemble_view = nn_module("nn_tabm_ensemble_view",
   initialize = function(k) {
     self$k = assert_int(k, lower = 1L, coerce = TRUE)
@@ -613,7 +550,7 @@ nn_tabm_ensemble_view = nn_module("nn_tabm_ensemble_view",
   }
 )
 
-# Upstream: `LinearEnsemble`. k independent linear layers applied to k inputs.
+# k independent linear layers applied to k inputs.
 nn_tabm_linear_ensemble = nn_module("nn_tabm_linear_ensemble",
   initialize = function(in_features, out_features, bias = TRUE, k) {
     self$in_features = assert_int(in_features, lower = 1L, coerce = TRUE)
@@ -638,7 +575,7 @@ nn_tabm_linear_ensemble = nn_module("nn_tabm_linear_ensemble",
   }
 )
 
-# Upstream: `LinearBatchEnsemble`, i.e. equation (5) of the BatchEnsemble paper with the
+# equation (5) of the BatchEnsemble paper with the
 # TabM-specific initialization options for the R and S matrices.
 nn_tabm_linear_batch_ensemble = nn_module("nn_tabm_linear_batch_ensemble",
   initialize = function(in_features, out_features, bias = TRUE, k, scaling_init,
@@ -724,7 +661,7 @@ tabm_activation = function(activation) {
   stopf("Cannot resolve the activation '%s'. Provide the name of an activation of the torch package (e.g. \"relu\", \"nn_relu\" or \"ReLU\"), an `nn_module_generator` (e.g. `nn_relu`), or a function returning an `nn_module`.", activation) # nolint
 }
 
-# Upstream: `_MLPBackboneBase.__init__()`. `make_linear(index, in_features, out_features)`
+# `make_linear(index, in_features, out_features)`
 # is the `_make_linear()` hook of the respective subclass (index is 1-based here).
 tabm_make_blocks = function(d_in, n_blocks, d_block, dropout, activation, make_linear) {
   assert_int(d_in, lower = 1L)
@@ -739,7 +676,7 @@ tabm_make_blocks = function(d_in, n_blocks, d_block, dropout, activation, make_l
   }))
 }
 
-# Upstream: `MLPBackboneEnsemble` (used by arch_type "tabm-packed").
+# Used by arch_type "tabm-packed".
 nn_tabm_mlp_backbone_ensemble = nn_module("nn_tabm_mlp_backbone_ensemble",
   initialize = function(d_in, n_blocks, d_block, dropout, activation = "relu", k) {
     self$n_blocks = n_blocks
@@ -759,7 +696,7 @@ nn_tabm_mlp_backbone_ensemble = nn_module("nn_tabm_mlp_backbone_ensemble",
   }
 )
 
-# Upstream: `MLPBackboneMiniEnsemble` (used by arch_type "tabm-mini").
+# Used by arch_type "tabm-mini".
 nn_tabm_mlp_backbone_mini_ensemble = nn_module("nn_tabm_mlp_backbone_mini_ensemble",
   initialize = function(d_in, n_blocks, d_block, dropout, activation = "relu", k,
     affine_bias, affine_scaling_init, affine_scaling_init_chunks = NULL) {
@@ -785,7 +722,7 @@ nn_tabm_mlp_backbone_mini_ensemble = nn_module("nn_tabm_mlp_backbone_mini_ensemb
   }
 )
 
-# Upstream: `MLPBackboneBatchEnsemble` (used by arch_type "tabm").
+# Used by arch_type "tabm".
 nn_tabm_mlp_backbone_batch_ensemble = nn_module("nn_tabm_mlp_backbone_batch_ensemble",
   initialize = function(d_in, n_blocks, d_block, dropout, activation = "relu", k,
     tabm_init, scaling_init, start_scaling_init_chunks = NULL) {
@@ -814,7 +751,6 @@ nn_tabm_mlp_backbone_batch_ensemble = nn_module("nn_tabm_mlp_backbone_batch_ense
   }
 )
 
-# Upstream: `make_tabm_backbone()`.
 tabm_make_backbone = function(d_in, n_blocks, d_block, dropout, activation, k, arch_type,
   start_scaling_init, start_scaling_init_chunks) {
   if (arch_type == "tabm-packed") {
@@ -895,7 +831,7 @@ tabm_make_backbone = function(d_in, n_blocks, d_block, dropout, activation, k, a
 #'   between the `k` submodels. Must provide a `get_output_shape()` method returning
 #'   `c(n_num_features, d_embedding)`; [`nn_linear_relu_embeddings()`],
 #'   [`nn_periodic_embeddings()`] and [`nn_piecewise_linear_embeddings()`] (with
-#'   `version = "B"`) do. If `NULL` (default), the numerical features enter the backbone
+#'   do. If `NULL` (default), the numerical features enter the backbone
 #'   unchanged.
 #' @param arch_type (`character(1)`)\cr
 #'   One of `"tabm"` (default), `"tabm-mini"` or `"tabm-packed"`.
@@ -976,9 +912,6 @@ nn_tabm = nn_module("nn_tabm",
       if (shape[[1L]] != n_num_features) {
         stopf("The `num_embeddings` module was created for %i features, but n_num_features is %i.", shape[[1L]], n_num_features) # nolint
       }
-      if (inherits(num_embeddings, "nn_piecewise_linear_embeddings") && is.null(num_embeddings$linear0)) { # nolint
-        stopf("When using nn_piecewise_linear_embeddings() as `num_embeddings`, set version = \"B\".") # nolint
-      }
       rep(as.integer(shape[[2L]]), n_num_features)
     }
     d_features = c(d_features, cat_cardinalities)
@@ -1049,7 +982,7 @@ nn_tabm = nn_module("nn_tabm",
 # Loss adapter
 # --------------------------------------------------------------------------------------
 
-# Upstream: `loss_fn()` in `paper/bin/model.py`.
+# Ported from `loss_fn()` in `paper/bin/model.py`.
 #' @title Ensemble Loss Adapter for TabM
 #'
 #' @description
@@ -1121,7 +1054,7 @@ tabm_wrap_loss = function(loss) {
 # (https://github.com/yandex-research/tabm/blob/main/example.ipynb):
 #   LinearReLUEmbeddings(n)                                   -> d_embedding = 32 (upstream default)
 #   PeriodicEmbeddings(n, lite = FALSE)                       -> d_embedding = 24 (upstream default)
-#   PiecewiseLinearEmbeddings(bins, 16, activation = FALSE, version = "B")
+#   PiecewiseLinearEmbeddings(bins, 16, activation = FALSE)
 tabm_make_num_embeddings = function(type, n_num_features, param_vals, x_num = NULL) {
   if (is.null(type) || identical(type, "none")) {
     return(NULL)
@@ -1150,9 +1083,7 @@ tabm_make_num_embeddings = function(type, n_num_features, param_vals, x_num = NU
       nn_piecewise_linear_embeddings(
         bins,
         d_embedding = param_vals$d_embedding %??% 16L,
-        activation = param_vals$embedding_activation %??% FALSE,
-        # TabM requires version "B"
-        version = "B"
+        activation = param_vals$embedding_activation %??% FALSE
       )
     },
     stopf("Unknown num_embeddings type '%s'.", type)
@@ -1211,8 +1142,7 @@ tabm_make_num_embeddings = function(type, n_num_features, param_vals, x_num = NU
 #' Parameters of the embeddings for the numerical features:
 #' * `num_embeddings` :: `character(1)`\cr
 #'   The type of the numerical feature embeddings, one of `"none"` (default),
-#'   `"linear_relu"`, `"periodic"` or `"piecewise_linear"` (in the `version = "B"` variant
-#'   that TabM requires). The last two usually perform best.
+#'   `"linear_relu"`, `"periodic"` or `"piecewise_linear"`. The last two usually perform best.
 #' * `d_embedding` :: `integer(1)`\cr
 #'   The embedding size. If unset, `32` is used for `"linear_relu"`, `24` for
 #'   `"periodic"` and `16` for `"piecewise_linear"`.

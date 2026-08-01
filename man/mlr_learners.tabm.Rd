@@ -76,8 +76,7 @@ Parameters of the embeddings for the numerical features:
 \itemize{
 \item \code{num_embeddings} :: \code{character(1)}\cr
 The type of the numerical feature embeddings, one of \code{"none"} (default),
-\code{"linear_relu"}, \code{"periodic"} or \code{"piecewise_linear"} (in the \code{version = "B"} variant
-that TabM requires). The last two usually perform best.
+\code{"linear_relu"}, \code{"periodic"} or \code{"piecewise_linear"}. The last two usually perform best.
 \item \code{d_embedding} :: \code{integer(1)}\cr
 The embedding size. If unset, \code{32} is used for \code{"linear_relu"}, \code{24} for
 \code{"periodic"} and \code{16} for \code{"piecewise_linear"}.
