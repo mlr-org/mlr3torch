@@ -54,7 +54,7 @@ as the cache directory.
 
 ## References
 
-Krizhevsky, Alex (2009). “Learning Multiple Layers of Features from Tiny
+Krizhevsky A (2009). “Learning Multiple Layers of Features from Tiny
 Images.” *Master's thesis, Department of Computer Science, University of
 Toronto*.
 

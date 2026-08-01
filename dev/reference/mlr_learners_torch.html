@@ -115,7 +115,20 @@ where <code>&lt;upper&gt;</code> is the maximally allowed number of epochs, and 
 <p>Torch learners are expected to have the following output:</p><ul><li><p>binary classification: <code>(batch_size, 1)</code>, representing the logits for the positive class.</p></li>
 <li><p>multiclass classification: <code>(batch_size, n_classes)</code>, representing the logits for all classes.</p></li>
 <li><p>regression: <code>(batch_size, 1)</code> representing the response prediction.</p></li>
-</ul><p>Furthermore, the target encoding is expected to be as follows:</p><ul><li><p>regression: The <code>numeric</code> target variable of a <code><a href="https://mlr3.mlr-org.com/reference/TaskRegr.html" class="external-link">TaskRegr</a></code> is encoded as a
+</ul><p>A network may return more than one prediction during training, which is what networks with
+auxiliary classifiers such as <code><a href="mlr_learners.torchvision.html">Inception v3</a></code> do.
+In this case the network returns a <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of tensors, each with the shape given above, and
+the following convention applies:</p><ul><li><p>The <strong>first</strong> element is the primary prediction. It is the one that is scored by
+<code>measures_train</code> and the one that the network is expected to return when it is in evaluation
+mode, i.e. when predicting and when calculating the validation scores.</p></li>
+<li><p>The remaining elements are the predictions of the auxiliary classifiers. They only exist to
+contribute to the loss during training and are never scored.</p></li>
+</ul><p>During training, <code><a href="mlr_context_torch.html">ContextTorch</a></code> makes both available: <code>ctx$y_hats</code> is the complete output of
+the network, i.e. what the loss is applied to, and <code>ctx$y_hat</code> is always the primary
+prediction. For a network that returns a single tensor the two are identical.</p>
+<p>Because the configured loss is applied to a single tensor, a learner whose network returns a
+list has to wrap it by overloading <code>.loss_fn()</code>, see the list of methods below.</p>
+<p>Furthermore, the target encoding is expected to be as follows:</p><ul><li><p>regression: The <code>numeric</code> target variable of a <code><a href="https://mlr3.mlr-org.com/reference/TaskRegr.html" class="external-link">TaskRegr</a></code> is encoded as a
 <code><a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch_float</a></code> with shape <code>c(batch_size, 1)</code>.</p></li>
 <li><p>binary classification: The <code>factor</code> target variable of a <code><a href="https://mlr3.mlr-org.com/reference/TaskClassif.html" class="external-link">TaskClassif</a></code> is encoded as a
 <code><a href="https://torch.mlverse.org/docs/reference/torch_dtype.html" class="external-link">torch_float</a></code> with shape <code>(batch_size, 1)</code> where the positive class (<code>Task$positive</code>, which
@@ -259,7 +272,16 @@ Currently, only classification and regression are supported.</p>
 Construct a <code><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">torch::nn_module</a></code> object for the given task and parameter values, i.e. the neural network that
 is trained by the learner.
 Note that a specific output shape is expected from the returned network, see section <em>Network Head and Target Encoding</em>.
+That section also describes how a network can return more than one prediction during training.
 You can use <code><a href="output_dim_for.html">output_dim_for()</a></code> to obtain the correct output dimension for a given task.</p></li>
+<li><p><code>.loss_fn(task, param_vals)</code><br>
+(<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; <code><a href="https://torch.mlverse.org/docs/reference/nn_module.html" class="external-link">nn_module</a></code><br>
+Construct the loss that is applied to the output of the network.
+The default implementation generates the loss that was configured by the user, i.e.
+<code>self$loss$generate(task)</code>.
+Overload this if the network returns more than one prediction and the configured loss has to
+be wrapped, see the <code>aux_logits</code> parameter of
+<code><a href="mlr_learners.torchvision.html">classif.inception_v3</a></code>.</p></li>
 <li><p><code>.ingress_tokens(task, param_vals)</code><br>
 (<code><a href="https://mlr3.mlr-org.com/reference/Task.html" class="external-link">Task</a></code>, <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>) -&gt; named <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> with <code><a href="TorchIngressToken.html">TorchIngressToken</a></code>s<br>
 Create the <code><a href="TorchIngressToken.html">TorchIngressToken</a></code>s that are passed to the <code><a href="task_dataset.html">task_dataset</a></code> constructor.

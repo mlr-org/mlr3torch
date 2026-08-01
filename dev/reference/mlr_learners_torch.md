@@ -54,6 +54,33 @@ Torch learners are expected to have the following output:
 
 - regression: `(batch_size, 1)` representing the response prediction.
 
+A network may return more than one prediction during training, which is
+what networks with auxiliary classifiers such as
+[`Inception v3`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.torchvision.md)
+do. In this case the network returns a
+[`list()`](https://rdrr.io/r/base/list.html) of tensors, each with the
+shape given above, and the following convention applies:
+
+- The **first** element is the primary prediction. It is the one that is
+  scored by `measures_train` and the one that the network is expected to
+  return when it is in evaluation mode, i.e. when predicting and when
+  calculating the validation scores.
+
+- The remaining elements are the predictions of the auxiliary
+  classifiers. They only exist to contribute to the loss during training
+  and are never scored.
+
+During training,
+[`ContextTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_context_torch.md)
+makes both available: `ctx$y_hats` is the complete output of the
+network, i.e. what the loss is applied to, and `ctx$y_hat` is always the
+primary prediction. For a network that returns a single tensor the two
+are identical.
+
+Because the configured loss is applied to a single tensor, a learner
+whose network returns a list has to wrap it by overloading `.loss_fn()`,
+see the list of methods below.
+
 Furthermore, the target encoding is expected to be as follows:
 
 - regression: The `numeric` target variable of a
@@ -298,9 +325,21 @@ methods:
   object for the given task and parameter values, i.e. the neural
   network that is trained by the learner. Note that a specific output
   shape is expected from the returned network, see section *Network Head
-  and Target Encoding*. You can use
+  and Target Encoding*. That section also describes how a network can
+  return more than one prediction during training. You can use
   [`output_dim_for()`](https://mlr3torch.mlr-org.com/dev/reference/output_dim_for.md)
   to obtain the correct output dimension for a given task.
+
+- `.loss_fn(task, param_vals)`  
+  ([`Task`](https://mlr3.mlr-org.com/reference/Task.html),
+  [`list()`](https://rdrr.io/r/base/list.html)) -\>
+  [`nn_module`](https://torch.mlverse.org/docs/reference/nn_module.html)  
+  Construct the loss that is applied to the output of the network. The
+  default implementation generates the loss that was configured by the
+  user, i.e. `self$loss$generate(task)`. Overload this if the network
+  returns more than one prediction and the configured loss has to be
+  wrapped, see the `aux_logits` parameter of
+  [`classif.inception_v3`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.torchvision.md).
 
 - `.ingress_tokens(task, param_vals)`  
   ([`Task`](https://mlr3.mlr-org.com/reference/Task.html),

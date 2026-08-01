@@ -174,8 +174,17 @@ The loss from the last trainings batch.</p></dd>
 
 
     <dt><code>y_hat</code></dt>
-<dd><p>(<code>torch_tensor</code>)<br>
-The model's prediction for the current batch.</p></dd>
+<dd><p>(<code><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></code>)<br>
+The model's primary prediction for the current batch.
+If the network has auxiliary classifiers, this is the first of the predictions it
+returns, i.e. the one that is scored and returned when predicting.</p></dd>
+
+
+    <dt><code>y_hats</code></dt>
+<dd><p>(<code><a href="https://torch.mlverse.org/docs/reference/torch_tensor.html" class="external-link">torch_tensor</a></code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>)<br>
+The complete output of the network for the current batch, i.e. what the loss is applied
+to. This is a <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> of predictions if the network has auxiliary classifiers and
+identical to <code>y_hat</code> otherwise.</p></dd>
 
 
     <dt><code>epoch</code></dt>

@@ -306,7 +306,7 @@ vision behind the project.
   : Featureless Torch Learner
 - [`mlr_learners.torchvision`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.torchvision.md)
   [`LearnerTorchVision`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners.torchvision.md)
-  : AlexNet Image Classifier
+  : Image Classification Networks from torchvision
 - [`mlr_learners_torch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch.md)
   [`LearnerTorch`](https://mlr3torch.mlr-org.com/dev/reference/mlr_learners_torch.md)
   : Base Class for Torch Learners

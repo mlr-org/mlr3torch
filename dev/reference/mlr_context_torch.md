@@ -105,8 +105,19 @@ Other Callback:
 
 - `y_hat`:
 
-  (`torch_tensor`)  
-  The model's prediction for the current batch.
+  ([`torch_tensor`](https://torch.mlverse.org/docs/reference/torch_tensor.html))  
+  The model's primary prediction for the current batch. If the network
+  has auxiliary classifiers, this is the first of the predictions it
+  returns, i.e. the one that is scored and returned when predicting.
+
+- `y_hats`:
+
+  ([`torch_tensor`](https://torch.mlverse.org/docs/reference/torch_tensor.html)
+  or [`list()`](https://rdrr.io/r/base/list.html))  
+  The complete output of the network for the current batch, i.e. what
+  the loss is applied to. This is a
+  [`list()`](https://rdrr.io/r/base/list.html) of predictions if the
+  network has auxiliary classifiers and identical to `y_hat` otherwise.
 
 - `epoch`:
 

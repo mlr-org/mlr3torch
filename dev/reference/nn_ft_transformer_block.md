@@ -131,8 +131,8 @@ nn_ft_transformer_block(
 
 ## References
 
-Devlin, Jacob, Chang, Ming-Wei, Lee, Kenton, Toutanova, Kristina (2018).
-“Bert: Pre-training of deep bidirectional transformers for language
-understanding.” *arXiv preprint arXiv:1810.04805*. Gorishniy Y, Rubachev
-I, Khrulkov V, Babenko A (2021). “Revisiting Deep Learning for Tabular
-Data.” *arXiv*, **2106.11959**.
+Devlin J, Chang M, Lee K, Toutanova K (2018). “Bert: Pre-training of
+deep bidirectional transformers for language understanding.” *arXiv
+preprint arXiv:1810.04805*. Gorishniy Y, Rubachev I, Khrulkov V, Babenko
+A (2021). “Revisiting Deep Learning for Tabular Data.” *arXiv*,
+**2106.11959**.
