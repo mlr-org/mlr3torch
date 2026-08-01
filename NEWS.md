@@ -21,11 +21,6 @@
   current batch, i.e. what the loss is applied to. `y_hat` now always holds the *primary*
   prediction, so callbacks that read it keep working for networks with auxiliary classifiers.
   For a network that returns a single tensor the two are identical.
-* Fix: `LearnerTorchVision` did not pass its `jittable` argument on to its parent class, so none
-  of the `torchvision` learners had a `jit_trace` parameter and none of them could be traced.
-  `jit_trace` is now available for all of them except the vision transformers, whose attention
-  blocks cannot be traced, and Inception v3, whose auxiliary classifier makes the network return
-  more than one prediction.
 * New parameter `batch_size_predict` for `LearnerTorch`, which overrides `batch_size` for prediction
   (including the validation data during training) when it is set.
 * The `batch_sampler` parameter can now be used without setting `batch_size` for training,
@@ -37,7 +32,7 @@
   trigger the fallback learner anymore.
 * Added `PipeOpTorchMultiheadAttention` (`po("nn_multihead_attention")`), which wraps
   `torch::nn_multihead_attention()`.
-  
+
 ## Bug fixes
 
 * The `sampler` and `batch_sampler` parameters are no longer used during prediction, where they
@@ -45,7 +40,12 @@
   They are now tagged with `"train"` only.
 * `logical()` features are now encoded as `c(1, 2)` by the
 `batchgetter_categ()` and their cardinality is correctly computed.
-* Fix: `lazy_tensor` columns are now again printed correctly inside `data.table`s
+* `lazy_tensor` columns are now again printed correctly inside `data.table`s
+* `LearnerTorchVision` did not pass its `jittable` argument on to its parent class, so none
+  of the `torchvision` learners had a `jit_trace` parameter and none of them could be traced.
+  `jit_trace` is now available for all of them except the vision transformers, whose attention
+  blocks cannot be traced, and Inception v3, whose auxiliary classifier makes the network return
+  more than one prediction.
 
 # mlr3torch 0.3.3
 
