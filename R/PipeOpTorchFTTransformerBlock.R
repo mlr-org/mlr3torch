@@ -194,17 +194,21 @@ PipeOpTorchFTTransformerBlock = R6::R6Class("PipeOpTorchFTTransformerBlock",
   ),
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
+      # `d_token` is read from dimension 3 below, so it must be known: otherwise NA_integer_ is
+      # passed to libtorch, which fails with an unreadable C++ error
+      assert_known_dims(shapes_in[[1L]], 3L, "the token dimension (dimension 3)", self$id)
       if (is.null(param_vals$query_idx)) {
         return(shapes_in[1])
       }
 
-      shapes_out = shapes_in$input
+      # `shapes_in` is only named when called from `$train()`, so index positionally
+      shapes_out = shapes_in[[1L]]
       # to save computation, apply the last transformer block to only the CLS token
       shapes_out[[2L]] = 1
       return(list(shapes_out))
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {
-      param_vals$d_token = shapes_in$input[3]
+      param_vals$d_token = shapes_in[[1L]][3L]
       return(param_vals)
     }
   )

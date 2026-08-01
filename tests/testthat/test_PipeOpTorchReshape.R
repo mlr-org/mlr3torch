@@ -54,3 +54,27 @@ test_that("PipeOpTorchFlatten", {
   res = expect_paramset(po("nn_flatten"), nn_flatten)
   expect_paramtest(res)
 })
+
+test_that("nn_unsqueeze interprets negative dim like torch", {
+  x = torch_randn(3L, 4L, 6L)
+  for (d in c(-1L, -2L, -3L, -4L)) {
+    inferred = po("nn_unsqueeze", dim = d)$shapes_out(list(c(NA, 4L, 6L)))[[1L]]
+    actual = dim(x$unsqueeze(d))
+    expect_equal(length(inferred), length(actual), info = as.character(d))
+    # the batch dimension is NA, compare the remaining ones
+    expect_equal(inferred[!is.na(inferred)], actual[!is.na(inferred)], info = as.character(d))
+  }
+  expect_error(po("nn_unsqueeze", dim = 9L)$shapes_out(list(c(NA, 4L, 6L))))
+})
+
+test_that("nn_squeeze without dim squeezes all non-batch dimensions", {
+  # `nn_squeeze()` had no default for `dim`, so the documented `dim = NULL` behaviour could be
+  # inferred but never trained
+  expect_equal(po("nn_squeeze")$shapes_out(list(c(NA, 1L, 4L, 1L)))[[1L]], c(NA, 4L))
+
+  net = nn_squeeze()
+  expect_equal(dim(net(torch_randn(3L, 1L, 4L, 1L))), c(3L, 4L))
+  # the batch dimension is kept even when it is 1, so that the output matches the inferred shape
+  expect_equal(dim(net(torch_randn(1L, 1L, 4L, 1L))), c(1L, 4L))
+  expect_equal(dim(nn_squeeze(dim = 2L)(torch_randn(3L, 1L, 4L))), c(3L, 4L))
+})

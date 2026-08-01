@@ -52,19 +52,10 @@ PipeOpTorchMerge = R6Class("PipeOpTorchMerge",
     .shapes_out = function(shapes_in, param_vals, task) {
       # note that this slightly deviates from the actual broadcasting rules implemented by torch, i.e. we don't fill
       # up missing dimension with 1s because the first dimension is usually the batch dimension.
-      assert_true(length(unique(map_int(shapes_in, length))) == 1,
-        .var.name = "All input shapes have the same number of dimensions")
-      uniques = apply(as.data.frame(shapes_in), 1, function(row) {
-        if (all(is.na(row))) {
-          return(1)
-        }
-        max_dim = max(row, na.rm = TRUE)
-        row[row == 1] = max_dim
-        row = unique(row)
-        sum(!is.na(row))
-      })
-      assert_true(all(uniques <= 1), .var.name = "There is at most one non-NA dimension")
-      shapes_in[1]
+      assert_same_ndim(shapes_in, self$id)
+      # the output is the *broadcast* of the inputs, not the first input: broadcasting a (NA, 1)
+      # against a (NA, 6) yields a (NA, 6) tensor at runtime
+      list(broadcast_shapes(shapes_in, self$id))
     }
   )
 )
@@ -175,7 +166,7 @@ PipeOpTorchMergeCat = R6Class("PipeOpTorchMergeCat", inherit = PipeOpTorchMerge,
   ),
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
-      assert_true(length(unique(map_int(shapes_in, length))) == 1, .var.name = "All input shapes have the same number of dimensions")
+      assert_same_ndim(shapes_in, self$id)
 
       # dim can be negative (counting back from the last element which would be -1)
       true_dim = param_vals$dim %??% -1
@@ -184,28 +175,15 @@ PipeOpTorchMergeCat = R6Class("PipeOpTorchMergeCat", inherit = PipeOpTorchMerge,
       }
       assert_int(true_dim, lower = 1, upper = length(shapes_in[[1]]))
 
-      shapes_matrix = as.matrix(as.data.frame(shapes_in))
-
-      uniques = apply(shapes_matrix, 1, function(row) {
-        if (all(is.na(row))) { # this is usually the batch dimension.
-          return(1)
-        }
-        max_dim = max(row, na.rm = TRUE)
-        row[row == 1] = max_dim
-        row = unique(row)
-        sum(!is.na(row))
+      # The sizes along the concatenated dimension are summed rather than broadcast, so that
+      # dimension is set to 1 (which broadcasts with everything) before broadcasting the rest.
+      shapes_bc = map(shapes_in, function(shape) {
+        shape[true_dim] = 1L
+        shape
       })
-
-      # Dimensions don't have to match along the dimension along which we concatenate.
-      assert_true(all(uniques[-true_dim] <= 1), .var.name = "After broadcasting, dimension match along the non-concatenated dimension") # nolint
-
-      returnshape = apply(shapes_matrix, 1, function(row) {
-        row = unique(row)
-        row = row[!is.na(row)]
-        if (length(row)) max(row) else NA
-      })
-      returnshape[true_dim] = sum(shapes_matrix[true_dim, ])
-      list(returnshape)
+      returnshape = broadcast_shapes(shapes_bc, self$id)
+      returnshape[true_dim] = sum(map_dbl(shapes_in, function(shape) shape[true_dim]))
+      list(as.integer(returnshape))
     }
   )
 )

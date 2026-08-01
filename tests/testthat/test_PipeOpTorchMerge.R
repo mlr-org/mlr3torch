@@ -138,3 +138,43 @@ test_that("Broadcasting is correctly implemented for concatenation", {
 
   }
 })
+
+test_that("merge infers the broadcast shape, not the shape of the first input", {
+  # returning `shapes_in[1]` made a (NA,1) + (NA,6) merge infer (NA,1) while the network really
+  # produces (b,6), so the next layer was built with the wrong number of input features
+  expect_equal(po("nn_merge_sum", innum = 2)$shapes_out(list(c(NA, 1L), c(NA, 6L)))[[1L]],
+    c(NA, 6L))
+  expect_equal(po("nn_merge_prod", innum = 2)$shapes_out(list(c(NA, 6L), c(NA, 1L)))[[1L]],
+    c(NA, 6L))
+
+  # a known size is not lost when another input is unknown in that dimension
+  expect_equal(po("nn_merge_sum", innum = 2)$shapes_out(list(c(NA, NA, 4L), c(NA, 3L, 4L)))[[1L]],
+    c(NA, 3L, 4L))
+  # ... but stays unknown when every input is unknown there
+  expect_equal(po("nn_merge_sum", innum = 2)$shapes_out(list(c(NA, NA, 4L), c(NA, NA, 4L)))[[1L]],
+    c(NA, NA, 4L))
+
+  expect_error(po("nn_merge_sum", innum = 2)$shapes_out(list(c(NA, 3L), c(NA, 5L))),
+    "incompatible sizes")
+  expect_error(po("nn_merge_sum", innum = 2)$shapes_out(list(c(NA, 3L), c(NA, 3L, 4L))),
+    "same number of dimensions")
+})
+
+test_that("the inferred merge shape matches the shape the network produces", {
+  # `$train()` mutates the ModelDescriptor's graph, so a fresh one is needed per iteration
+  make_md = function() {
+    ModelDescriptor(graph = as_graph(po("nop")),
+      ingress = list(nop.input = TorchIngressToken("x", batchgetter_num, c(NA, 4L))),
+      task = tsk("iris"), pointer = c("nop", "output"), pointer_shape = c(NA, 4L))
+  }
+  for (op in c("nn_merge_sum", "nn_merge_prod", "nn_merge_cat")) {
+    graph = po("nn_identity") %>>% gunion(list(
+      po("nn_linear", id = "a", out_features = 1L),
+      po("nn_linear", id = "b", out_features = 6L))) %>>% po(op, innum = 2L)
+    mdo = graph$train(make_md())[[1L]]
+    actual = dim(model_descriptor_to_module(mdo)(torch_randn(3L, 4L)))
+    inferred = mdo$pointer_shape
+    expect_equal(length(inferred), length(actual), info = op)
+    expect_equal(inferred[-1L], actual[-1L], info = op)
+  }
+})

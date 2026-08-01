@@ -145,7 +145,8 @@ PipeOpTorchUnsqueeze = R6Class("PipeOpTorchUnsqueeze",
       shape = shapes_in[[1]]
       true_dim = param_vals$dim
       if (true_dim < 0) {
-        true_dim = 1 + length(shape) - true_dim
+        # -1 appends a new last dimension, -2 inserts before the last one, etc.
+        true_dim = 2 + length(shape) + true_dim
       }
       assert_int(true_dim, lower = 1, upper = length(shape) + 1)
       list(append(shape, 1, after = true_dim - 1))
@@ -230,12 +231,20 @@ nn_reshape = nn_module(
 #' @export
 nn_squeeze = nn_module(
   "nn_squeeze",
-  initialize = function(dim) {
-    assert_int(dim)
-    self$dim = dim
+  initialize = function(dim = NULL) {
+    self$dim = if (is.null(dim)) NULL else assert_int(dim)
   },
   forward = function(input) {
-    input$squeeze(self$dim)
+    if (!is.null(self$dim)) {
+      return(input$squeeze(self$dim))
+    }
+    # All dimensions of size 1 are squeezed, except the batch dimension: `PipeOpTorchSqueeze`
+    # cannot know the batch size, so squeezing it would not match the inferred output shape.
+    dims = which(input$shape[-1L] == 1L) + 1L
+    for (d in rev(dims)) {
+      input = input$squeeze(d)
+    }
+    input
   }
 )
 

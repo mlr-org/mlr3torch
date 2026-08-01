@@ -74,7 +74,8 @@ inherit = PipeOpTorch,
   ),
   private = list(
     .shapes_out = function(shapes_in, param_vals, task) {
-      if (length(shapes_in$input) != 3) {
+      # `shapes_in` is only named when called from `$train()`, so index positionally
+      if (length(shapes_in[[1L]]) != 3) {
         stop("Input tensor must have 3 dimensions.")
       }
       assert_known_dims(shapes_in[[1L]], 3L, "the token dimension (dimension 3)", self$id)
@@ -83,7 +84,7 @@ inherit = PipeOpTorch,
       return(shapes_in)
     },
     .shape_dependent_params = function(shapes_in, param_vals, task) {
-      param_vals$d_token = shapes_in$input[3]
+      param_vals$d_token = shapes_in[[1L]][3L]
       return(param_vals)
     }
   )

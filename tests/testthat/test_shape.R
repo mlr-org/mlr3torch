@@ -282,3 +282,49 @@ test_that("a CNN can be built for images of unknown size", {
   expect_equal(dim(network(torch_randn(2, 3, 11, 13))), c(2, 3))
   expect_equal(dim(network(torch_randn(2, 3, 32, 32))), c(2, 3))
 })
+
+test_that("every relaxed PipeOp either guards the dimensions it reads or tolerates NA", {
+  # `nn_ft_transformer_block` was relaxed without a guard, so `NA_integer_` reached libtorch and
+  # produced an unreadable C++ error. This checks the whole class of bug rather than that one op:
+  # for every PipeOpTorch that allows unknown non-batch dimensions, building the module from a
+  # partially unknown shape must either work or fail with a readable R error.
+  relaxed = Filter(function(key) {
+    obj = suppressWarnings(try(po(key), silent = TRUE))
+    if (inherits(obj, "try-error") || !inherits(obj, "PipeOpTorch")) return(FALSE)
+    isFALSE(get_private(obj)$.only_batch_unknown)
+  }, mlr_pipeops$keys())
+  expect_true(length(relaxed) > 10L)
+
+  for (key in relaxed) {
+    obj = po(key)
+    for (shape in list(c(NA, NA, 8L, 8L), c(NA, 7L, NA), c(NA, NA))) {
+      res = suppressWarnings(try(obj$shapes_out(list(shape)), silent = TRUE))
+      if (!inherits(res, "try-error")) next
+      msg = conditionMessage(attr(res, "condition"))
+      # a C++ error from libtorch means an NA was passed through instead of being rejected
+      expect_false(grepl("SymInt|IntArrayRef|Exception raised", msg),
+        info = sprintf("%s with shape %s: %s", key, shape_to_str(shape), msg))
+    }
+  }
+})
+
+test_that("shape_to_str formats named shape lists as a single string", {
+  # names(x) is a vector, so pasting it against the collapsed shapes recycled and returned a
+  # character vector, which made every multi-input error message print once per input
+  repr = shape_to_str(list(input1 = c(NA, 3L), input2 = c(NA, 5L)))
+  expect_string(repr)
+  expect_true(grepl("input1", repr, fixed = TRUE))
+  expect_true(grepl("input2", repr, fixed = TRUE))
+  expect_string(shape_to_str(list(c(NA, 3L), c(NA, 5L))))
+  expect_string(shape_to_str(c(NA, 3L)))
+})
+
+test_that("infer_shapes reports the error of the function it called", {
+  # the error handler referred to `sin` instead of the shapes, so it errored itself and swallowed
+  # the real failure
+  res = try(po("nn_fn", fn = function(x) stop("boom"))$shapes_out(list(c(NA, 4L))), silent = TRUE)
+  expect_true(inherits(res, "try-error"))
+  msg = conditionMessage(attr(res, "condition"))
+  expect_true(grepl("boom", msg, fixed = TRUE))
+  expect_false(grepl("cannot coerce", msg, fixed = TRUE))
+})

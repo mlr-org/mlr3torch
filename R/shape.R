@@ -82,6 +82,37 @@ assert_known_dims = function(shape, dims, what, id) {
     id, what, shape_to_str(shape))
 }
 
+# Broadcasting rules of torch, generalized to shapes that may contain NA (unknown).
+# All shapes must already have the same number of dimensions: mlr3torch does not left-pad shorter
+# shapes with 1s, because the first dimension is the batch dimension.
+# Per dimension a known size != 1 wins; if all known sizes are 1 and some input is unknown, the
+# result is unknown, because the unknown one may be > 1 and would then determine the size.
+broadcast_shapes = function(shapes, id) {
+  mat = do.call(rbind, shapes)
+  as.integer(map_int(seq_len(ncol(mat)), function(i) {
+    vals = mat[, i]
+    known = unique(vals[!is.na(vals)])
+    non1 = known[known != 1L]
+    if (length(non1) > 1L) {
+      stopf("PipeOp '%s' cannot broadcast its input shapes %s: dimension %i has the incompatible sizes %s. Dimensions must be equal or 1.", # nolint
+        id, shape_to_str(shapes), i, paste0(non1, collapse = " and "))
+    }
+    if (length(non1) == 1L) {
+      return(as.integer(non1))
+    }
+    if (anyNA(vals)) NA_integer_ else 1L
+  }))
+}
+
+assert_same_ndim = function(shapes, id) {
+  ndim = map_int(shapes, length)
+  if (length(unique(ndim)) == 1L) {
+    return(invisible(shapes))
+  }
+  stopf("PipeOp '%s' requires all its inputs to have the same number of dimensions, but got the shapes %s (with %s dimensions).", # nolint
+    id, shape_to_str(shapes), paste0(ndim, collapse = ", "))
+}
+
 check_rgb_shape = function(shape) {
   msg = check_shape(shape, len = 4L, null_ok = FALSE)
   if (!isTRUE(msg)) {
@@ -156,7 +187,8 @@ infer_shapes = function(shapes_in, param_vals, output_names, fn, rowwise, id) {
 
       tensor_out = tryCatch(invoke(fn, tensor_in, .args = filtered_params),
         error = function(e) {
-          stopf("Input shape '%s' is invalid for PipeOp with id '%s'.", shape_to_str(list(sin)), id)
+          stopf("Input shape '%s' is invalid for PipeOp with id '%s': %s", shape_to_str(shapes), id,
+            conditionMessage(e))
         }
       )
       dim(tensor_out)

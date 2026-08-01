@@ -162,7 +162,9 @@ shape_to_str = function(x) {
     paste0("(", paste(y, collapse = ",", recycle0 = TRUE), ")")
   })
   if (test_named(x)) {
-    repr = paste0("[", names(x), ": ",  paste(shapedescs, collapse = ";", recycle0 = TRUE), "]")
+    # names(x) is a vector, so names and shapes must be pasted together *before* the shapes are
+    # collapsed into a single string, otherwise the result is a character vector
+    repr = paste0("[", paste(paste0(names(x), ": ", shapedescs), collapse = "; ", recycle0 = TRUE), "]")
     return(repr)
   }
   paste0("[",  paste(shapedescs, collapse = ";", recycle0 = TRUE), "]")

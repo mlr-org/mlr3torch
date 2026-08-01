@@ -57,7 +57,8 @@ PipeOpTorchTokenizerNum = R6Class("PipeOpTorchTokenizerNum",
     },
     .shapes_out = function(shapes_in, param_vals, task) {
       if (length(shapes_in[[1]]) != 2) {
-        stopf("Numeric tokenizer expects 2 input dimensions, but got %i", length(shapes_in))
+        stopf("PipeOp '%s' expects an input with 2 dimensions (batch, n_features), but got shape %s.",
+          self$id, shape_to_str(shapes_in[[1L]]))
       }
       list(c(shapes_in[[1]], param_vals$d_token))
     }
@@ -234,7 +235,8 @@ PipeOpTorchTokenizerCateg = R6Class("PipeOpTorchTokenizerCateg",
     },
     .shapes_out = function(shapes_in, param_vals, task) {
       if (length(shapes_in[[1]]) != 2) {
-        stopf("Numeric tokenizer expects 2 input dimensions, but got %i", length(shapes_in))
+        stopf("PipeOp '%s' expects an input with 2 dimensions (batch, n_features), but got shape %s.",
+          self$id, shape_to_str(shapes_in[[1L]]))
       }
       list(c(shapes_in[[1]], param_vals$d_token))
     }
