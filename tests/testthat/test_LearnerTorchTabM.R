@@ -253,7 +253,7 @@ test_that("categorical features incl. logicals are handled correctly", {
 
 test_that("the learner works on tasks without numerical features", {
   # When a task has a single input tensor, `learner_torch_train()` calls the network by
-  # *position*, so a purely categorical task arrives in nn_tabm's first formal, `x_num`.
+  # position, so a purely categorical task arrives in nn_tabm's first formal, `x_num`.
   # The module-level tests above pass `x_cat` by name and therefore cannot catch this.
   tabm = function() {
     lrn("classif.tabm", epochs = 1L, batch_size = 10L, k = 2L, n_blocks = 1L, d_block = 8L)
@@ -278,7 +278,7 @@ test_that("the learner works on tasks without numerical features", {
   expect_error(learner$train(logical_only), regexp = NA)
   expect_prediction(learner$predict(logical_only))
 
-  # the informative error is still raised when a network that *does* expect numerical features
+  # the informative error is still raised when a network that does expect numerical features
   # gets none
   net = nn_tabm(n_num_features = 2L, cat_cardinalities = integer(0), d_out = 2L, k = 2L,
     n_blocks = 1L, d_block = 8L)
@@ -322,7 +322,7 @@ test_that("predicted probabilities are the mean of the per-submodel probabilitie
   batch = learner$dataset(task)$.getbatch(seq_len(task$nrow))
   raw = with_no_grad(invoke(network$forward, .args = batch$x))
   expect_equal(raw$shape, c(task$nrow, 4L, 3L))
-  # averaging probabilities, *not* logits
+  # averaging probabilities, not logits
   manual = as.matrix(nnf_softmax(raw, dim = 3L)$mean(dim = 2L))
   colnames(manual) = task$class_names
   expect_lt(max(abs(pred$prob - manual)), 1e-6)
@@ -586,7 +586,7 @@ test_that("a non-default activation works in the learner and affects the hash", 
   l1 = lrn("classif.tabm", activation = "relu")
   l2 = lrn("classif.tabm", activation = nn_gelu)
   expect_true(l1$hash != l2$hash)
-  # the parameter *values* are not part of the phash
+  # the parameter values are not part of the phash
   expect_true(l1$phash == l2$phash)
   l2c = l2$clone(deep = TRUE)
   expect_deep_clone_mlr3torch(l2, l2c)
@@ -607,4 +607,15 @@ test_that("the learner encodes all categorical features with 1-based codes", {
   expect_true(as.logical((batch$x$x_cat <= torch_tensor(c(3L, 2L)))$all()))
   learner$train(task)
   expect_prediction(learner$predict(task))
+})
+
+test_that("a frequency_init_scale of 0 is rejected when the network is built", {
+  # The ParamSet cannot express "strictly positive": paradox accepts values within
+  # `sqrt(.Machine$double.eps)` of a bound, so `set_values()` lets 0 through and the
+  # assertion of `nn_periodic()` is what catches it.
+  learner = lrn("classif.tabm", num_embeddings = "periodic", epochs = 1L, batch_size = 50L,
+    k = 2L, n_blocks = 1L, d_block = 8L, d_embedding = 4L, n_frequencies = 4L)
+  expect_error(learner$param_set$set_values(frequency_init_scale = -1), "frequency_init_scale")
+  expect_error(learner$param_set$set_values(frequency_init_scale = 0), regexp = NA)
+  expect_error(learner$train(tsk("iris")), "sigma")
 })

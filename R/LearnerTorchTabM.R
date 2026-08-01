@@ -57,7 +57,7 @@
 #    tree-based binning (Section 3.2.2) would need `sklearn.tree`, so the `tree_kwargs` /
 #    `y` / `regression` / `verbose` arguments do not exist.
 #  * Not ported: the standalone `PiecewiseLinearEncoding` (unused by TabM) and the `mask`
-#    buffer that only it reads. `_PiecewiseLinearEncodingImpl` itself *is* ported.
+#    buffer that only it reads. `_PiecewiseLinearEncodingImpl` itself is ported.
 #
 # ======================================================================================
 
@@ -126,7 +126,7 @@ nn_periodic = nn_module("nn_periodic",
     self$reset_parameters()
   },
   reset_parameters = function() {
-    # NOTE[DIFF] (upstream): extreme values (~0.3% probability) are explicitly avoided.
+    # Unlike upstream, extreme values (~0.3% probability) are explicitly avoided.
     bound = self$sigma * 3
     nn_init_trunc_normal_(self$weight, mean = 0, std = self$sigma, a = -bound, b = bound)
   },
@@ -209,7 +209,7 @@ nn_periodic_embeddings = nn_module("nn_periodic_embeddings",
     d_embedding = assert_int(d_embedding, lower = 1L, coerce = TRUE)
     self$periodic = nn_periodic(n_features, n_frequencies, frequency_init_scale)
     self$linear = if (lite) {
-      # NOTE[DIFF] (upstream): the lite variation was introduced by the TabR paper.
+      # The lite variation was introduced by the TabR paper.
       if (!activation) {
         stopf("lite = TRUE is allowed only when activation = TRUE.")
       }
@@ -308,7 +308,7 @@ compute_bins = function(x, n_bins = 48L) {
     stopf("`n_bins` must be smaller than the number of rows of `x`, but n_bins = %i and nrow = %i.", n_bins, n) # nolint
   }
 
-  # NOTE (upstream): removing identical quantiles *after* computing them is not the same
+  # Removing identical quantiles after computing them is not the same
   # as limiting the number of quantiles by the number of distinct values.
   quantiles = torch_quantile(x, torch_linspace(0, 1, n_bins + 1L)$to(dtype = x$dtype), dim = 1L)
   bins = lapply(seq_len(p), function(j) {
@@ -619,7 +619,7 @@ nn_tabm_linear_batch_ensemble = nn_module("nn_tabm_linear_batch_ensemble",
 
 # Upstream resolves `activation` via `getattr(torch.nn, activation)`. Here, in addition
 # to a name, a module generator (e.g. `nn_relu`) or any function returning an `nn_module`
-# is accepted. A *fresh* module is constructed on every call, because each block needs
+# is accepted. A fresh module is constructed on every call, because each block needs
 # its own activation instance.
 tabm_activation = function(activation) {
   if (is.function(activation)) {
@@ -1126,12 +1126,15 @@ LearnerTorchTabM = R6Class("LearnerTorchTabM",
         activation = p_uty(init = "relu", tags = "train", custom_check = check_activation),
         # no init: the default depends on `num_embeddings` (upstream `TabM.make()`)
         start_scaling_init = p_fct(levels = c("random-signs", "normal"), tags = "train"),
-        # embeddings for the numerical features
         num_embeddings = p_fct(
           levels = c("none", "linear_relu", "periodic", "piecewise_linear"),
           init = "none", tags = "train"),
         d_embedding = p_int(lower = 1L, tags = "train"),
         n_frequencies = p_int(lower = 1L, init = 48L, tags = "train"),
+        # `nn_periodic()` requires a strictly positive scale, but that cannot be expressed
+        # here: paradox accepts values within `sqrt(.Machine$double.eps)` of a bound, so any
+        # bound small enough to be honest is ignored, and `tolerance = 0` cannot be combined
+        # with `init`. A scale of 0 is therefore only rejected when the network is built.
         frequency_init_scale = p_dbl(lower = 0, init = 0.01, tags = "train"),
         lite = p_lgl(init = FALSE, tags = "train"),
         embedding_activation = p_lgl(tags = "train"),
@@ -1203,7 +1206,7 @@ LearnerTorchTabM = R6Class("LearnerTorchTabM",
       )
     },
     # The network returns one prediction per submodel, i.e. a tensor of shape
-    # (batch, k, d_out). Upstream averages the *probabilities* of the k submodels
+    # (batch, k, d_out). Upstream averages the probabilities of the k submodels
     # (see `paper/bin/model.py`), which is not the same as averaging the logits.
     # `encode_prediction_default()` expects scores, so the averaged probabilities are
     # mapped back to the score scale (log / logit); this roundtrip is exact up to
