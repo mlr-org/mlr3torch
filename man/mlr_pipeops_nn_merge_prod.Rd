@@ -84,6 +84,7 @@ Other PipeOps:
 \code{\link{mlr_pipeops_nn_merge}},
 \code{\link{mlr_pipeops_nn_merge_cat}},
 \code{\link{mlr_pipeops_nn_merge_sum}},
+\code{\link{mlr_pipeops_nn_multihead_attention}},
 \code{\link{mlr_pipeops_nn_prelu}},
 \code{\link{mlr_pipeops_nn_reglu}},
 \code{\link{mlr_pipeops_nn_relu}},

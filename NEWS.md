@@ -1,14 +1,30 @@
 # mlr3torch (development version)
 
+## Features
+
 * Feat: Added the `TabM` learner (`lrn("classif.tabm")` / `lrn("regr.tabm")`) and the
   corresponding `nn_tabm()` module, a port of the official TabM reference implementation.
   It can optionally embed numerical features using the new `nn_linear_embeddings()`,
   `nn_linear_relu_embeddings()`, `nn_periodic_embeddings()` and
   `nn_piecewise_linear_embeddings()` modules (a port of the `rtdl_num_embeddings`
   package), whose bin edges can be computed with the new `compute_bins()`.
-
+* New parameter `batch_size_predict` for `LearnerTorch`, which overrides `batch_size` for prediction
+  (including the validation data during training) when it is set.
+* The `batch_sampler` parameter can now be used without setting `batch_size` for training,
+  as the batch sampler already determines the batches (#420).
+  A `batch_size` (or `batch_size_predict`) is still required for prediction, where the (batch)
+  sampler is not used.
+* The dataloader parameters are now validated with typed conditions: misconfigurations are signaled
+  as `Mlr3ErrorConfig` (see `mlr3misc::error_config()`), so they can be caught by class and do not
+  trigger the fallback learner anymore.
+* Added `PipeOpTorchMultiheadAttention` (`po("nn_multihead_attention")`), which wraps
+  `torch::nn_multihead_attention()`.
+  
 ## Bug fixes
 
+* The `sampler` and `batch_sampler` parameters are no longer used during prediction, where they
+  could silently misalign the predictions with the rows of the task.
+  They are now tagged with `"train"` only.
 * `logical()` features are now encoded as `c(1, 2)` by the
 `batchgetter_categ()` and their cardinality is correctly computed.
 * Fix: `lazy_tensor` columns are now again printed correctly inside `data.table`s

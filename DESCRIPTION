@@ -48,10 +48,11 @@ Imports:
     backports,
     cli,
     checkmate (>= 2.2.0),
+    coro,
     data.table,
     lgr,
     methods,
-    mlr3misc (>= 0.14.0),
+    mlr3misc (>= 0.19.0),
     paradox (>= 1.0.0),
     R6,
     withr
@@ -133,6 +134,7 @@ Collate:
     'PipeOpTorchMaxPool.R'
     'PipeOpTorchMerge.R'
     'PipeOpTorchModel.R'
+    'PipeOpTorchMultiheadAttention.R'
     'PipeOpTorchOptimizer.R'
     'PipeOpTorchReshape.R'
     'PipeOpTorchSoftmax.R'

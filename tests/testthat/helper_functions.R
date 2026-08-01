@@ -205,3 +205,12 @@ make_dataset = function(shapes, n = 5, getbatch = TRUE) {
     )(shapes)
   }
 }
+
+# Expect an `Mlr3ErrorConfig` (see `mlr3misc::error_config()`).
+# The message of `Mlr3Error`s is line-wrapped by cli, so `pattern` is matched against the
+# unwrapped `raw_message`.
+expect_error_config = function(expr, pattern) {
+  err = expect_error(expr, class = "Mlr3ErrorConfig")
+  expect_match(err$raw_message, pattern)
+  invisible(err)
+}
