@@ -46,7 +46,8 @@ specific language governing permissions and limitations under the License.
 
 --------------------------------------------------------------------------------
 
-The embeddings for numerical features (`R/num_embeddings.R`) are a port of the
+The embeddings for numerical features (in `R/LearnerTorchTabM.R`, under the header
+"Embeddings for numerical features") are a port of the
 official reference implementation, the single-file Python package
 `rtdl_num_embeddings.py` (version 0.0.12) from
 

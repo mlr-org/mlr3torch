@@ -4,70 +4,39 @@
 #
 # Upstream repository : https://github.com/yandex-research/tabm
 # Ported from         : the official single-file package `tabm.py`, version 0.0.3,
-#                       commit 28e47ae301c92ec37787dde1ce923a0793f405b4
-#                       (the installed wheel `tabm==0.0.3` is byte-identical to `main`).
+#                       commit 28e47ae301c92ec37787dde1ce923a0793f405b4.
 #                       `paper/bin/model.py` of the same commit was used as a cross
 #                       reference for the `arch_type` semantics, the loss and the
 #                       prediction aggregation.
 # Upstream license    : Apache License 2.0
 #                       (https://github.com/yandex-research/tabm/blob/main/LICENSE)
 #
-# Ported components (upstream name -> name here):
-#   _init_rsqrt_uniform_        -> tabm_init_rsqrt_uniform_
-#   _init_random_signs_         -> tabm_init_random_signs_
-#   init_scaling_               -> tabm_init_scaling_
-#   _OneHotEncoding             -> nn_tabm_one_hot
-#   ElementwiseAffine           -> nn_tabm_elementwise_affine
-#   ensemble_view / EnsembleView-> tabm_ensemble_view / nn_tabm_ensemble_view
-#   LinearEnsemble              -> nn_tabm_linear_ensemble
-#   LinearBatchEnsemble         -> nn_tabm_linear_batch_ensemble
-#   MLPBackboneEnsemble         -> nn_tabm_mlp_backbone_ensemble
-#   MLPBackboneMiniEnsemble     -> nn_tabm_mlp_backbone_mini_ensemble
-#   MLPBackboneBatchEnsemble    -> nn_tabm_mlp_backbone_batch_ensemble
-#   make_tabm_backbone          -> tabm_make_backbone
-#   TabM                        -> nn_tabm
-#
 # The `num_embeddings` modules are a separate port of the `rtdl_num_embeddings` package
 # (MIT) and follow immediately below, under their own header.
 #
 # Intentional deviations from upstream:
 #
+#  * Categorical features are encoded with **1-based** integer codes, because that is what
+#    mlr3torch's `batchgetter_categ()` produces and what R torch's `nnf_one_hot()` expects.
+#    Upstream uses 0-based codes.
+#  * The one-hot encoding is cast to float. Upstream returns a `long` tensor, which is
+#    implicitly promoted when numerical features are concatenated, but makes purely
+#    categorical input fail for `arch_type = "tabm-packed"` ("expected scalar type Long but
+#    found Float"). Casting unconditionally, as `paper/bin/model.py` does, fixes that case
+#    and is a no-op everywhere else.
 #  * `share_training_batches = FALSE` is NOT supported: `forward()` only accepts
 #    two-dimensional `x_num` / `x_cat`, so all k submodels always see the same batch.
-#    (Upstream additionally accepts three-dimensional `(batch, k, d)` inputs.)
-#  * Categorical features are encoded with **1-based** integer codes (this is what
-#    mlr3torch's `batchgetter_categ()` produces and what R torch's `nnf_one_hot()`
-#    expects); upstream uses 0-based codes.
-#  * The one-hot encoding is cast to float. Upstream's `_OneHotEncoding.forward()`
-#    returns a `long` tensor and `TabM.forward()` never casts it; when numerical
-#    features are present, `torch.column_stack()` implicitly promotes the concatenation
-#    to float, so the cast is a no-op there. For purely categorical input, however,
-#    upstream genuinely fails ("expected scalar type Long but found Float") for
-#    `arch_type = "tabm-packed"`, whose first operation is a matmul against a float
-#    weight. Casting unconditionally (which is what `paper/bin/model.py` does) is
-#    therefore a fix for the categorical-only case and a no-op everywhere else.
-#  * `activation` accepts an `nn_module_generator`, any function returning an
-#    `nn_module`, or a name resolved against the `torch` package, instead of upstream's
-#    `getattr(torch.nn, activation)` lookup.
-#  * The following upstream objects are NOT ported because `TabM` does not depend on
-#    them: `BatchNorm1dEnsemble`, `LayerNormEnsemble`, `MLPBackbone` (the non-ensembled
-#    backbone, which `make_tabm_backbone()` never constructs), the in-place layer
-#    replacement helpers (`_replace_layers_`, `ensemble_linear_layers_`,
-#    `batchensemble_linear_layers_`, `ensemble_batchnorm1d_layers_`,
-#    `ensemble_layernorm_layers_`) and the `from_linear()` / `from_batchnorm1d()` /
-#    `from_layernorm()` constructors.
-#  * `TabM.make()` is not ported as a separate entry point; its default values (which
-#    depend on whether `num_embeddings` is used) are implemented by `nn_tabm()` and by
-#    the learner's `.network()`.
+#  * `activation` additionally accepts an `nn_module_generator` or a function returning an
+#    `nn_module`, instead of only a name looked up in `torch`.
 #  * `nn_tabm()` accepts any `nn_module` with a `get_output_shape()` method as
-#    `num_embeddings`, whereas upstream only accepts `LinearReLUEmbeddings`,
-#    `PeriodicEmbeddings` and `PiecewiseLinearEmbeddings`. The check that
-#    piecewise-linear embeddings use `version = "B"` is kept.
-#  * `ensemble_view()` does not warn when a three-dimensional input is passed in eval
-#    mode, because three-dimensional inputs are not supported here at all.
+#    `num_embeddings`. The check that piecewise-linear embeddings use `version = "B"` is kept.
+#  * Not ported, because `TabM` never reaches them: `BatchNorm1dEnsemble`,
+#    `LayerNormEnsemble`, `MLPBackbone`, the in-place layer replacement helpers and the
+#    `from_*()` constructors. `TabM.make()`'s defaults are implemented by `nn_tabm()` and the
+#    learner's `.network()` instead of by a separate entry point.
 #  * The loss adapter (`nn_tabm_loss`) and the probability averaging in
-#    `.encode_prediction()` are ported from `paper/bin/model.py` (the packaged
-#    `tabm.py` contains the model only).
+#    `.encode_prediction()` come from `paper/bin/model.py`; the packaged `tabm.py` contains
+#    the model only.
 #
 # ======================================================================================
 
@@ -78,49 +47,25 @@
 #
 # Upstream repository : https://github.com/yandex-research/rtdl-num-embeddings
 # Ported from         : the single-file package `rtdl_num_embeddings.py`, version 0.0.12,
-#                       commit a8fc25025c83f2321c63ff127a3bcef83bb1bfb5
-#                       (the installed wheel `rtdl_num_embeddings==0.0.12` is
-#                       byte-identical to `main`).
+#                       commit a8fc25025c83f2321c63ff127a3bcef83bb1bfb5.
 # Upstream license    : MIT
 #                       (https://github.com/yandex-research/rtdl-num-embeddings/blob/main/LICENSE)
 #
-# Ported components (upstream name -> name here):
-#   LinearEmbeddings              -> nn_linear_embeddings
-#   LinearReLUEmbeddings          -> nn_linear_relu_embeddings
-#   _Periodic                     -> nn_periodic
-#   _NLinear                      -> nn_nlinear
-#   PeriodicEmbeddings            -> nn_periodic_embeddings
-#   _PiecewiseLinearEncodingImpl  -> nn_piecewise_linear_encoding_impl
-#   PiecewiseLinearEmbeddings     -> nn_piecewise_linear_embeddings
-#   compute_bins                  -> compute_bins
-#
 # Intentional deviations from upstream:
 #
-#  * `compute_bins()` implements the **quantile-based** binning only (Section 3.2.1 of
-#    the paper). The tree-based binning (Section 3.2.2) requires
-#    `sklearn.tree.DecisionTree{Regressor,Classifier}` and is therefore not portable
-#    without adding a new package dependency, which is not allowed here. The
-#    `tree_kwargs` / `y` / `regression` / `verbose` arguments do not exist.
-#  * The standalone `PiecewiseLinearEncoding` module is not ported: it is not used by
-#    TabM (which uses `PiecewiseLinearEmbeddings`), and its masked-flatten forward pass
-#    relies on boolean advanced indexing that has no clean R torch equivalent. The
-#    encoding itself (`_PiecewiseLinearEncodingImpl`) *is* ported, since
-#    `PiecewiseLinearEmbeddings` needs it.
-#  * `nn_piecewise_linear_embeddings()` requires `version` to be given explicitly.
-#    Upstream falls back to `version = "A"` with a deprecation warning and states that
-#    "In future, omitting this argument will result in an exception".
-#  * `compute_bins()` additionally accepts a `matrix` / `data.frame` and reports the
-#    offending column *indices* in its error messages.
+#  * `compute_bins()` implements the quantile-based binning only (Section 3.2.1). The
+#    tree-based binning (Section 3.2.2) would need `sklearn.tree`, so the `tree_kwargs` /
+#    `y` / `regression` / `verbose` arguments do not exist.
+#  * `nn_piecewise_linear_embeddings()` requires `version` to be given explicitly; upstream
+#    still defaults to `"A"` with a deprecation warning.
 #  * The frequencies of `nn_periodic_embeddings()` are drawn with R torch's
-#    `nn_init_trunc_normal_()`, which implements a different sampling algorithm than
-#    PyTorch's `nn.init.trunc_normal_()`. The *distribution* is the same (a normal with
-#    mean 0 and standard deviation `frequency_init_scale`, truncated at +/- 3 standard
-#    deviations), but the two do not consume the RNG stream identically, so a given
-#    manual seed does not reproduce the same numbers in both languages. All other
-#    modules of this file do reproduce PyTorch's initialization exactly.
-#  * `nn_piecewise_linear_encoding_impl()` does not register the `mask` buffer of
-#    upstream's `_PiecewiseLinearEncodingImpl`; it is only read by the unported
-#    `PiecewiseLinearEncoding` wrapper, never in the forward pass.
+#    `nn_init_trunc_normal_()`, whose sampling algorithm differs from PyTorch's. The
+#    distribution is the same, but a given manual seed does not reproduce the same numbers
+#    in both languages. Every other module here does reproduce PyTorch's init exactly.
+#  * Not ported: the standalone `PiecewiseLinearEncoding` (unused by TabM) and the `mask`
+#    buffer that only it reads. `_PiecewiseLinearEncodingImpl` itself *is* ported.
+#  * `compute_bins()` additionally accepts a `matrix` / `data.frame` and reports the
+#    offending column indices in its error messages.
 #
 # ======================================================================================
 
@@ -614,6 +559,12 @@ nn_tabm_one_hot = nn_module("nn_tabm_one_hot",
   },
   forward = function(input) {
     cards = self$cardinalities
+    # without this, additional columns would be dropped silently, because only the first
+    # `length(cards)` are read
+    if (input$shape[length(input$shape)] != length(cards)) {
+      stopf("Expected %i categorical features, but got %i.", length(cards),
+        input$shape[length(input$shape)])
+    }
     torch_cat(lapply(seq_along(cards), function(i) {
       nnf_one_hot(input[, i], num_classes = cards[i])
     }), dim = -1L)$to(dtype = torch_float())
@@ -922,9 +873,12 @@ tabm_make_backbone = function(d_in, n_blocks, d_block, dropout, activation, k, a
 #' fed into a standard loss function, and it must be aggregated before it can be
 #' interpreted as a prediction.
 #' [`LearnerTorchTabM`] (`lrn("classif.tabm")` / `lrn("regr.tabm")`) takes care of both.
-#' When plugging `nn_tabm` into [`LearnerTorchModule`] (`lrn("classif.module")`) instead,
-#' the loss must be wrapped in [`nn_tabm_loss()`], and the predictions of the resulting
-#' learner are *not* aggregated over the `k` submodels.
+#' `nn_tabm` can also be plugged into [`LearnerTorchModule`] (`lrn("classif.module")`) for
+#' training, in which case the loss has to be wrapped with `nn_tabm_loss()`. Predicting with
+#' such a learner does *not* work out of the box, because the default prediction encoder
+#' expects a `(batch, d_out)` output and would interpret the `k` dimension as additional
+#' observations. Aggregating over the ensemble members requires a custom prediction encoder;
+#' use [`LearnerTorchTabM`] if you just want predictions.
 #'
 #' @param task ([`Task`][mlr3::Task] or `NULL`)\cr
 #'   If provided, `n_num_features`, `cat_cardinalities` and `d_out` are inferred from
