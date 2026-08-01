@@ -21,6 +21,10 @@
   current batch, i.e. what the loss is applied to. `y_hat` now always holds the *primary*
   prediction, so callbacks that read it keep working for networks with auxiliary classifiers.
   For a network that returns a single tensor the two are identical.
+* Feat: Added the `TabM` learner (`lrn("classif.tabm")` / `lrn("regr.tabm")`), a port of the
+  official TabM reference implementation. Numerical features can optionally be embedded via the
+  `num_embeddings` parameter, which supports the linear-ReLU, periodic and piecewise-linear
+  embeddings of the `rtdl_num_embeddings` package.
 * New parameter `batch_size_predict` for `LearnerTorch`, which overrides `batch_size` for prediction
   (including the validation data during training) when it is set.
 * The `batch_sampler` parameter can now be used without setting `batch_size` for training,
