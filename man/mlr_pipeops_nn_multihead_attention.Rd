@@ -85,7 +85,7 @@ pipeop$param_set
 \dontshow{\}) # examplesIf}
 }
 \references{
-Vaswani, Ashish, Shazeer, Noam, Parmar, Niki, Uszkoreit, Jakob, Jones, Llion, Gomez, N A, Kaiser, Łukasz, Polosukhin, Illia (2017).
+Vaswani A, Shazeer N, Parmar N, Uszkoreit J, Jones L, Gomez A, Kaiser Ł, Polosukhin I (2017).
 \dQuote{Attention is all you need.}
 \emph{Advances in neural information processing systems}, \bold{30}.
 }

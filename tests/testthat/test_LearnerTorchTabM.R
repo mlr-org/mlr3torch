@@ -362,7 +362,7 @@ test_that("predicted probabilities are the mean of the per-submodel probabilitie
 
 test_that("the loss folds the ensemble dimension into the batch dimension", {
   # multiclass
-  loss_fn = tabm_wrap_loss(t_loss("cross_entropy"))$generate(tsk("iris"))
+  loss_fn = nn_tabm_loss(t_loss("cross_entropy")$generate(tsk("iris")))
   expect_class(loss_fn, "nn_tabm_loss")
   input = torch_randn(6, 4, 3)
   target = torch_randint(1L, 3L, 6, dtype = torch_long())
@@ -374,7 +374,7 @@ test_that("the loss folds the ensemble dimension into the batch dimension", {
   )
 
   # binary
-  loss_fn = tabm_wrap_loss(t_loss("cross_entropy"))$generate(tsk("sonar"))
+  loss_fn = nn_tabm_loss(t_loss("cross_entropy")$generate(tsk("sonar")))
   input = torch_randn(6, 4, 1)
   target = torch_randint(0L, 1L, 6, dtype = torch_long())$to(dtype = torch_float())$unsqueeze(2L)
   expect_equal(
@@ -385,7 +385,7 @@ test_that("the loss folds the ensemble dimension into the batch dimension", {
   )
 
   # regression
-  loss_fn = tabm_wrap_loss(t_loss("mse"))$generate(tsk("mtcars"))
+  loss_fn = nn_tabm_loss(t_loss("mse")$generate(tsk("mtcars")))
   input = torch_randn(6, 4, 1)
   target = torch_randn(6, 1)
   expect_equal(
@@ -396,18 +396,26 @@ test_that("the loss folds the ensemble dimension into the batch dimension", {
   )
 })
 
-test_that("a user-supplied loss is wrapped as well", {
+test_that("the configured loss is folded over the ensemble dimension at training time", {
+  # `$loss` stays exactly what the user configured; the folding happens in `.loss_fn()`,
+  # so it applies to the default loss and to one assigned after construction alike
   learner = lrn("regr.tabm", loss = t_loss("l1"), epochs = 1L, batch_size = 16L, k = 3L,
     n_blocks = 1L, d_block = 8L)
   expect_equal(learner$loss$id, "l1")
-  expect_class(learner$loss$generate(tsk("mtcars")), "nn_tabm_loss")
-  expect_error(learner$train(tsk("mtcars")), regexp = NA)
+  expect_class(learner$loss$generate(tsk("mtcars")), "nn_l1_loss")
 
-  # assignment after construction is wrapped, too, and wrapping is idempotent
+  task = tsk("mtcars")
+  loss_fn = get_private(learner)$.loss_fn(task, learner$param_set$values)
+  expect_class(loss_fn, "nn_tabm_loss")
+  expect_class(loss_fn$loss, "nn_l1_loss")
+  expect_error(learner$train(task), regexp = NA)
+
   learner$loss = t_loss("mse")
-  expect_class(learner$loss$generate(tsk("mtcars")), "nn_tabm_loss")
-  learner$loss = learner$loss
-  expect_class(learner$loss$generate(tsk("mtcars")), "nn_tabm_loss")
+  expect_class(get_private(learner)$.loss_fn(task, learner$param_set$values)$loss, "nn_mse_loss")
+
+  # the default loss is folded too, although it never passes through `$loss<-`
+  default = lrn("regr.tabm", epochs = 1L, batch_size = 16L, k = 2L, n_blocks = 1L, d_block = 8L)
+  expect_class(get_private(default)$.loss_fn(task, default$param_set$values), "nn_tabm_loss")
 })
 
 test_that("nn_tabm can be used with lrn('classif.module')", {

@@ -1020,30 +1020,6 @@ nn_tabm_loss = nn_module("nn_tabm_loss",
   }
 )
 
-# Wraps a `TorchLoss` so that the generated loss module folds the ensemble dimension.
-tabm_wrap_loss = function(loss) {
-  loss = as_torch_loss(loss, clone = TRUE)
-  if (isTRUE(attr(loss$generator, "tabm_wrapped"))) {
-    return(loss)
-  }
-  inner = loss$generator
-  needs_task = is.function(inner) && "task" %in% formalArgs(inner)
-  generator = function(task, ...) {
-    args = list(...)
-    if (needs_task) args$task = task
-    nn_tabm_loss(invoke(inner, .args = args))
-  }
-  attr(generator, "tabm_wrapped") = TRUE
-  TorchLoss$new(
-    torch_loss = generator,
-    task_types = loss$task_types,
-    param_set = loss$param_set,
-    id = loss$id,
-    label = loss$label,
-    packages = loss$packages,
-    man = loss$man
-  )
-}
 
 # --------------------------------------------------------------------------------------
 # The learner
@@ -1164,9 +1140,9 @@ tabm_make_num_embeddings = function(type, n_num_features, param_vals, x_num = NU
 #'
 #' @section Loss and Prediction:
 #' The network output has shape `(batch, k, d_out)`.
-#' The learner therefore wraps the configured loss function (the default, or one passed
-#' via the `loss` construction argument) such that the ensemble dimension is folded into
-#' the batch dimension and each target is repeated `k` times.
+#' At training time the learner therefore applies the configured loss to the `k` predictions
+#' separately: the ensemble dimension is folded into the batch dimension and each target is
+#' repeated `k` times. `$loss` itself is left untouched and stays whatever was configured.
 #' For prediction, the per-submodel probabilities (softmax for multiclass, sigmoid for
 #' binary) are averaged over the `k` submodels; for regression the outputs are averaged.
 #'
@@ -1209,10 +1185,6 @@ LearnerTorchTabM = R6Class("LearnerTorchTabM",
         n_bins = p_int(lower = 2L, init = 48L, tags = "train")
       )
 
-      if (is.null(loss)) {
-        loss = t_loss(switch(task_type, classif = "cross_entropy", regr = "mse"))
-      }
-
       super$initialize(
         task_type = task_type,
         id = paste0(task_type, ".tabm"),
@@ -1227,23 +1199,12 @@ LearnerTorchTabM = R6Class("LearnerTorchTabM",
       )
     }
   ),
-  active = list(
-    #' @field loss ([`TorchLoss`])\cr
-    #' The torch loss. Whatever loss is assigned is wrapped such that the ensemble
-    #' dimension of the network output is folded into the batch dimension, see section
-    #' *Loss and Prediction*.
-    loss = function(rhs) {
-      if (!missing(rhs)) {
-        private$.param_set = NULL
-        loss = tabm_wrap_loss(rhs)
-        assert_choice(self$task_type, loss$task_types)
-        private$.loss = loss
-        self$packages = unique(c(self$packages, loss$packages))
-      }
-      private$.loss
-    }
-  ),
   private = list(
+    # The network returns one prediction per ensemble member, so the configured loss is
+    # applied to the `k` predictions separately, see the *Loss and Prediction* section.
+    .loss_fn = function(task, param_vals) {
+      nn_tabm_loss(super$.loss_fn(task, param_vals))
+    },
     .ingress_tokens = function(task, param_vals) {
       n_num = n_num_features(task)
       n_categ = n_categ_features(task)

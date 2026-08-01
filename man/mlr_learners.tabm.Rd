@@ -101,9 +101,9 @@ data. Must be smaller than the number of training observations. Default is \code
 \section{Loss and Prediction}{
 
 The network output has shape \verb{(batch, k, d_out)}.
-The learner therefore wraps the configured loss function (the default, or one passed
-via the \code{loss} construction argument) such that the ensemble dimension is folded into
-the batch dimension and each target is repeated \code{k} times.
+At training time the learner therefore applies the configured loss to the \code{k} predictions
+separately: the ensemble dimension is folded into the batch dimension and each target is
+repeated \code{k} times. \verb{$loss} itself is left untouched and stays whatever was configured.
 For prediction, the per-submodel probabilities (softmax for multiclass, sigmoid for
 binary) are averaged over the \code{k} submodels; for regression the outputs are averaged.
 }
@@ -158,16 +158,6 @@ Other Learner:
 \concept{Learner}
 \section{Super classes}{
 \code{\link[mlr3:Learner]{mlr3::Learner}} -> \code{\link[mlr3torch:LearnerTorch]{LearnerTorch}} -> \code{LearnerTorchTabM}
-}
-\section{Active bindings}{
-  \if{html}{\out{<div class="r6-active-bindings">}}
-  \describe{
-    \item{\code{loss}}{(\code{\link{TorchLoss}})\cr
-The torch loss. Whatever loss is assigned is wrapped such that the ensemble
-dimension of the network output is folded into the batch dimension, see section
-\emph{Loss and Prediction}.}
-  }
-  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{

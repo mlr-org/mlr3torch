@@ -44,7 +44,7 @@ as the cache directory.
 task = tsk("tiny_imagenet")
 }
 \references{
-Deng, Jia, Dong, Wei, Socher, Richard, Li, Li-Jia, Li, Kai, Fei-Fei, Li (2009).
+Deng J, Dong W, Socher R, Li L, Li K, Fei-Fei L (2009).
 \dQuote{Imagenet: A large-scale hierarchical image database.}
 In \emph{2009 IEEE conference on computer vision and pattern recognition}, 248--255.
 IEEE.

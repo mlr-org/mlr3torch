@@ -22,7 +22,7 @@ The input shape is expected to be \verb{(batch, n_features, d_token)} and the ou
 This is used in the \code{\link{LearnerTorchFTTransformer}}.
 }
 \references{
-Devlin, Jacob, Chang, Ming-Wei, Lee, Kenton, Toutanova, Kristina (2018).
+Devlin J, Chang M, Lee K, Toutanova K (2018).
 \dQuote{Bert: Pre-training of deep bidirectional transformers for language understanding.}
 \emph{arXiv preprint arXiv:1810.04805}.
 }

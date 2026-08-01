@@ -86,7 +86,7 @@ network.
 This is used in \code{\link{LearnerTorchFTTransformer}}.
 }
 \references{
-Devlin, Jacob, Chang, Ming-Wei, Lee, Kenton, Toutanova, Kristina (2018).
+Devlin J, Chang M, Lee K, Toutanova K (2018).
 \dQuote{Bert: Pre-training of deep bidirectional transformers for language understanding.}
 \emph{arXiv preprint arXiv:1810.04805}.
 Gorishniy Y, Rubachev I, Khrulkov V, Babenko A (2021).

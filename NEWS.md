@@ -2,6 +2,25 @@
 
 ## Features
 
+* Added learners for the remaining image classification networks of `torchvision`:
+  ConvNeXt (`classif.convnext_*`), EfficientNet (`classif.efficientnet_b0` to
+  `classif.efficientnet_b7`), EfficientNetV2 (`classif.efficientnet_v2_{s,m,l}`),
+  Inception v3 (`classif.inception_v3`), MaxViT (`classif.maxvit`), MobileNetV3
+  (`classif.mobilenet_v3_{large,small}`), Vision Transformers (`classif.vit_*`) and
+  Wide ResNet (`classif.wide_resnet{50_2,101_2}`).
+* `LearnerTorch` gained a private `.loss_fn(task, param_vals)` method, which constructs the loss
+  that is applied to the output of the network and by default returns `self$loss$generate(task)`.
+  Learners can overload it to wrap the loss that was configured by the user, instead of the loss
+  being generated inline in the training loop.
+* A network can now return more than one prediction during training: it may return a `list()` of
+  tensors, where the first element is the primary prediction that is scored by `measures_train` and
+  returned when predicting, and the remaining elements are the predictions of auxiliary classifiers
+  that only contribute to the loss.
+  This is documented in the "Network Head and Target Encoding" section of `LearnerTorch`.
+* `ContextTorch` gained the field `y_hats`, which holds the complete output of the network for the
+  current batch, i.e. what the loss is applied to. `y_hat` now always holds the *primary*
+  prediction, so callbacks that read it keep working for networks with auxiliary classifiers.
+  For a network that returns a single tensor the two are identical.
 * Feat: Added the `TabM` learner (`lrn("classif.tabm")` / `lrn("regr.tabm")`), a port of the
   official TabM reference implementation. Numerical features can optionally be embedded via the
   `num_embeddings` parameter, which supports the linear-ReLU, periodic and piecewise-linear
@@ -17,7 +36,7 @@
   trigger the fallback learner anymore.
 * Added `PipeOpTorchMultiheadAttention` (`po("nn_multihead_attention")`), which wraps
   `torch::nn_multihead_attention()`.
-  
+
 ## Bug fixes
 
 * The `sampler` and `batch_sampler` parameters are no longer used during prediction, where they
@@ -25,7 +44,12 @@
   They are now tagged with `"train"` only.
 * `logical()` features are now encoded as `c(1, 2)` by the
 `batchgetter_categ()` and their cardinality is correctly computed.
-* Fix: `lazy_tensor` columns are now again printed correctly inside `data.table`s
+* `lazy_tensor` columns are now again printed correctly inside `data.table`s
+* `LearnerTorchVision` did not pass its `jittable` argument on to its parent class, so none
+  of the `torchvision` learners had a `jit_trace` parameter and none of them could be traced.
+  `jit_trace` is now available for all of them except the vision transformers, whose attention
+  blocks cannot be traced, and Inception v3, whose auxiliary classifier makes the network return
+  more than one prediction.
 
 # mlr3torch 0.3.3
 

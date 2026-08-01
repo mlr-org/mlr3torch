@@ -45,7 +45,7 @@ as the cache directory.
 task = tsk("mnist")
 }
 \references{
-Lecun, Y., Bottou, L., Bengio, Y., Haffner, P. (1998).
+Lecun Y, Bottou L, Bengio Y, Haffner P (1998).
 \dQuote{Gradient-based learning applied to document recognition.}
 \emph{Proceedings of the IEEE}, \bold{86}(11), 2278-2324.
 \doi{10.1109/5.726791}.

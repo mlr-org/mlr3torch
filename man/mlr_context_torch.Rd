@@ -74,8 +74,15 @@ that don't evaluate the model.}
     \item{\code{last_loss}}{(\code{numeric(1)})\cr
 The loss from the last trainings batch.}
 
-    \item{\code{y_hat}}{(\code{torch_tensor})\cr
-The model's prediction for the current batch.}
+    \item{\code{y_hat}}{(\code{\link[torch:torch_tensor]{torch_tensor}})\cr
+The model's primary prediction for the current batch.
+If the network has auxiliary classifiers, this is the first of the predictions it
+returns, i.e. the one that is scored and returned when predicting.}
+
+    \item{\code{y_hats}}{(\code{\link[torch:torch_tensor]{torch_tensor}} or \code{list()})\cr
+The complete output of the network for the current batch, i.e. what the loss is applied
+to. This is a \code{list()} of predictions if the network has auxiliary classifiers and
+identical to \code{y_hat} otherwise.}
 
     \item{\code{epoch}}{(\code{integer(1)})\cr
 The current epoch.}
