@@ -8,6 +8,10 @@
   Inception v3 (`classif.inception_v3`), MaxViT (`classif.maxvit`), MobileNetV3
   (`classif.mobilenet_v3_{large,small}`), Vision Transformers (`classif.vit_*`) and
   Wide ResNet (`classif.wide_resnet{50_2,101_2}`).
+* `classif.inception_v3` gained the parameters `aux_logits` and `aux_weight`, which enable the
+  auxiliary classifier of Inception v3 and weight its loss. The configured loss is applied to the
+  predictions of both classifiers and does not have to be adapted for this.
+  Note that the auxiliary classifier raises the minimum input size from 75x75 to 299x299.
 * New parameter `batch_size_predict` for `LearnerTorch`, which overrides `batch_size` for prediction
   (including the validation data during training) when it is set.
 * The `batch_sampler` parameter can now be used without setting `batch_size` for training,

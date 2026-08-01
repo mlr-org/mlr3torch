@@ -43,7 +43,7 @@ learner_torch_train = function(self, private, super, task, param_vals) {
   if (is.null(self$optimizer)) stopf("Learner '%s' defines no optimizer", self$id)
   optimizer = self$optimizer$generate(network$parameters)
   if (is.null(self$loss)) stopf("Learner '%s' defines no loss", self$id)
-  loss_fn = self$loss$generate(task)
+  loss_fn = private$.loss_fn(task, param_vals)
   loss_fn$to(device = param_vals$device)
 
   measures_train = normalize_to_list(param_vals$measures_train)
@@ -173,7 +173,11 @@ train_loop = function(ctx, cbs) {
 
       ctx$last_loss = loss$item()
       if (eval_train) {
-        predictions[[length(predictions) + 1]] = ctx$y_hat$detach()
+        # A network with auxiliary classifiers returns one prediction per classifier, of which the
+        # first one is the primary prediction that is scored, see the section
+        # 'Network Head and Target Encoding' of `LearnerTorch`.
+        y_hat = if (is.list(ctx$y_hat)) ctx$y_hat[[1L]] else ctx$y_hat
+        predictions[[length(predictions) + 1]] = y_hat$detach()
         indices[[length(indices) + 1]] = as.integer(ctx$batch$.index$to(device = "cpu"))
       }
       ctx$optimizer$step()

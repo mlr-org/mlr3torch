@@ -87,20 +87,74 @@ test_that("alexnet", {
   expect_class(pred, "PredictionClassif")
 })
 
-test_that("inception_v3 has no auxiliary classifier", {
-  # otherwise the network returns a list of (logits, aux_logits) during training, which the
-  # training loop cannot handle
-  network = inception_v3_generator(pretrained = FALSE, num_classes = 3L)
-  expect_false(network$aux_logits)
-  network$train()
-  expect_class(network(torch_randn(2, 3, 96, 96)), "torch_tensor")
-})
-
 test_that("maxvit gets a class for replace_head()", {
   # the module returned by torchvision has no class of its own
   network = maxvit_generator(pretrained = FALSE, num_classes = 10L)
   expect_class(network, "maxvit")
   expect_equal(replace_head(network, 3L)$classifier$`5`$out_features, 3L)
+})
+
+test_that("aux_logits and aux_weight are only exposed by inception_v3", {
+  learner = lrn("classif.inception_v3")
+  expect_true(all(c("aux_logits", "aux_weight") %in% learner$param_set$ids()))
+  expect_false(any(c("aux_logits", "aux_weight") %in% lrn("classif.resnet18")$param_set$ids()))
+  # the auxiliary classifier is off by default
+  expect_null(learner$param_set$values$aux_logits)
+})
+
+test_that("inception_v3 has no auxiliary classifier by default", {
+  # otherwise the network returns a list of (logits, aux_logits) during training, which the
+  # default loss cannot handle
+  network = inception_v3_generator(pretrained = FALSE, num_classes = 3L)
+  expect_false(network$aux_logits)
+  # the parameters of the auxiliary classifier are deregistered, not just ignored. Assigning
+  # NULL would leave them registered and hand them to the optimizer without a gradient.
+  reference = inception_v3_generator(pretrained = FALSE, aux_logits = FALSE, num_classes = 3L)
+  expect_equal(length(network$parameters), length(reference$parameters))
+
+  network$train()
+  expect_class(network(torch_randn(1, 3, 75, 75)), "torch_tensor")
+})
+
+test_that("nn_aux_loss combines the predictions of the auxiliary classifiers", {
+  base = nn_cross_entropy_loss()
+  loss = nn_aux_loss(base, aux_weight = 0.4)
+  target = torch_tensor(c(1L, 2L), dtype = torch_long())
+  main = torch_randn(2, 3)
+  aux = torch_randn(2, 3)
+
+  # the loss is only applied during training, where the auxiliary classifiers are active, so it
+  # only has to handle a list. A tensor would otherwise be indexed by row without an error.
+  expect_error(loss(main, target), "list")
+
+  expect_equal(as.numeric(loss(list(main, aux), target)),
+    as.numeric(base(main, target) + 0.4 * base(aux, target)), tolerance = 1e-6)
+
+  # a weight of zero reduces to the primary prediction
+  expect_equal(as.numeric(nn_aux_loss(base, aux_weight = 0)(list(main, aux), target)),
+    as.numeric(base(main, target)), tolerance = 1e-6)
+
+  expect_error(nn_aux_loss(base, aux_weight = -1), "aux_weight")
+})
+
+test_that("inception_v3 wraps the configured loss when aux_logits is enabled", {
+  task_aux = as_task_classif(data.table(
+    y = as.factor(rep(c("a", "b", "c"), each = 2)),
+    x = as_lazy_tensor(torch_randn(6, 3, 299, 299))
+  ), id = "test_task_aux", target = "y")
+
+  # the user configures an ordinary loss, the learner wraps it
+  learner = lrn("classif.inception_v3", pretrained = FALSE, aux_logits = TRUE, epochs = 1L,
+    batch_size = 2L, loss = t_loss("cross_entropy"), aux_weight = 0.2, predict_type = "prob")
+  loss_fn = get_private(learner)$.loss_fn(task_aux, learner$param_set$values)
+  expect_class(loss_fn, "nn_aux_loss")
+  expect_class(loss_fn$base_loss, "nn_cross_entropy_loss")
+  expect_equal(loss_fn$aux_weight, 0.2)
+
+  # without the auxiliary classifier the loss is left alone
+  learner_plain = lrn("classif.inception_v3", pretrained = FALSE, loss = t_loss("cross_entropy"))
+  expect_class(get_private(learner_plain)$.loss_fn(task_aux, learner_plain$param_set$values),
+    "nn_cross_entropy_loss")
 })
 
 # these tests are run the CI, but they should basically never fail, so
@@ -149,3 +203,35 @@ for (vision_id in pretrained_ids) {
     expect_equal(ncol(pred$prob), length(t$class_names))
   })
 }
+
+test_that("inception_v3 can be trained with an auxiliary classifier", {
+  # the auxiliary classifier pools and convolves the feature map further than the main
+  # classifier, which raises the minimum input size from 75x75 to 299x299
+  task_aux = as_task_classif(data.table(
+    y = as.factor(rep(c("a", "b", "c"), each = 2)),
+    x = as_lazy_tensor(torch_randn(6, 3, 299, 299))
+  ), id = "test_task_aux", target = "y")
+
+  learner = lrn("classif.inception_v3", pretrained = FALSE, aux_logits = TRUE, epochs = 1L,
+    batch_size = 2L, predict_type = "prob")
+  learner$train(task_aux)
+  expect_true(learner$network$aux_logits)
+
+  # both heads predict the number of classes of the task, not the 1000 of the generator default
+  learner$network$train()
+  out = learner$network(torch_randn(1, 3, 299, 299))
+  expect_list(out, len = 2L)
+  expect_equal(dim(out$logits)[2L], 3L)
+  expect_equal(dim(out$aux_logits)[2L], 3L)
+
+  # only the primary prediction is returned when predicting
+  pred = learner$predict(task_aux)
+  expect_class(pred, "PredictionClassif")
+  expect_equal(ncol(pred$prob), 3L)
+
+  # measures_train scores the primary prediction, see learner_torch_train(). Without this the
+  # training loop calls $detach() on a list and fails.
+  learner_measured = lrn("classif.inception_v3", pretrained = FALSE, aux_logits = TRUE,
+    epochs = 1L, batch_size = 2L, measures_train = msrs("classif.acc"))
+  expect_no_error(learner_measured$train(task_aux))
+})

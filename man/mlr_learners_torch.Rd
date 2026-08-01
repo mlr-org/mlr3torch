@@ -48,6 +48,21 @@ Torch learners are expected to have the following output:
 \item regression: \verb{(batch_size, 1)} representing the response prediction.
 }
 
+A network may return more than one prediction during training, which is what networks with
+auxiliary classifiers such as \code{\link[=mlr_learners.torchvision]{Inception v3}} do.
+In this case the network returns a \code{list()} of tensors, each with the shape given above, and
+the following convention applies:
+\itemize{
+\item The \strong{first} element is the primary prediction. It is the one that is scored by
+\code{measures_train} and the one that the network is expected to return when it is in evaluation
+mode, i.e. when predicting and when calculating the validation scores.
+\item The remaining elements are the predictions of the auxiliary classifiers. They only exist to
+contribute to the loss during training and are never scored.
+}
+
+Because the configured loss is applied to a single tensor, a learner whose network returns a
+list has to wrap it by overloading \code{.loss_fn()}, see the list of methods below.
+
 Furthermore, the target encoding is expected to be as follows:
 \itemize{
 \item regression: The \code{numeric} target variable of a \code{\link[mlr3:TaskRegr]{TaskRegr}} is encoded as a
@@ -218,7 +233,16 @@ When inheriting from this class, one should overload the following methods:
 Construct a \code{\link[torch:nn_module]{torch::nn_module}} object for the given task and parameter values, i.e. the neural network that
 is trained by the learner.
 Note that a specific output shape is expected from the returned network, see section \emph{Network Head and Target Encoding}.
+That section also describes how a network can return more than one prediction during training.
 You can use \code{\link[=output_dim_for]{output_dim_for()}} to obtain the correct output dimension for a given task.
+\item \code{.loss_fn(task, param_vals)}\cr
+(\code{\link[mlr3:Task]{Task}}, \code{list()}) -> \code{\link[torch:nn_module]{nn_module}}\cr
+Construct the loss that is applied to the output of the network.
+The default implementation generates the loss that was configured by the user, i.e.
+\code{self$loss$generate(task)}.
+Overload this if the network returns more than one prediction and the configured loss has to
+be wrapped, see the \code{aux_logits} parameter of
+\code{\link[=mlr_learners.torchvision]{classif.inception_v3}}.
 \item \code{.ingress_tokens(task, param_vals)}\cr
 (\code{\link[mlr3:Task]{Task}}, \code{list()}) -> named \code{list()} with \code{\link{TorchIngressToken}}s\cr
 Create the \code{\link{TorchIngressToken}}s that are passed to the \code{\link{task_dataset}} constructor.

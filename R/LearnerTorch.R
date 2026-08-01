@@ -35,6 +35,19 @@
 #' * multiclass classification: `(batch_size, n_classes)`, representing the logits for all classes.
 #' * regression: `(batch_size, 1)` representing the response prediction.
 #'
+#' A network may return more than one prediction during training, which is what networks with
+#' auxiliary classifiers such as [`Inception v3`][mlr_learners.torchvision] do.
+#' In this case the network returns a `list()` of tensors, each with the shape given above, and
+#' the following convention applies:
+#' * The **first** element is the primary prediction. It is the one that is scored by
+#'   `measures_train` and the one that the network is expected to return when it is in evaluation
+#'   mode, i.e. when predicting and when calculating the validation scores.
+#' * The remaining elements are the predictions of the auxiliary classifiers. They only exist to
+#'   contribute to the loss during training and are never scored.
+#'
+#' Because the configured loss is applied to a single tensor, a learner whose network returns a
+#' list has to wrap it by overloading `.loss_fn()`, see the list of methods below.
+#'
 #' Furthermore, the target encoding is expected to be as follows:
 #' * regression: The `numeric` target variable of a [`TaskRegr`][mlr3::TaskRegr] is encoded as a
 #'   [`torch_float`][torch::torch_float] with shape `c(batch_size, 1)`.
@@ -110,7 +123,16 @@
 #'   Construct a [`torch::nn_module`] object for the given task and parameter values, i.e. the neural network that
 #'   is trained by the learner.
 #'   Note that a specific output shape is expected from the returned network, see section *Network Head and Target Encoding*.
+#'   That section also describes how a network can return more than one prediction during training.
 #'   You can use [`output_dim_for()`] to obtain the correct output dimension for a given task.
+#' * `.loss_fn(task, param_vals)`\cr
+#'   ([`Task`][mlr3::Task], `list()`) -> [`nn_module`][torch::nn_module]\cr
+#'   Construct the loss that is applied to the output of the network.
+#'   The default implementation generates the loss that was configured by the user, i.e.
+#'   `self$loss$generate(task)`.
+#'   Overload this if the network returns more than one prediction and the configured loss has to
+#'   be wrapped, see the `aux_logits` parameter of
+#'   [`classif.inception_v3`][mlr_learners.torchvision].
 #' * `.ingress_tokens(task, param_vals)`\cr
 #'   ([`Task`][mlr3::Task], `list()`) -> named `list()` with [`TorchIngressToken`]s\cr
 #'   Create the [`TorchIngressToken`]s that are passed to the [`task_dataset`] constructor.
@@ -529,6 +551,12 @@ LearnerTorch = R6Class("LearnerTorch",
       )
     },
     .network = function(task, param_vals) stop(".network must be implemented."),
+    # Constructs the loss that is applied to the output of the network. Learners whose network
+    # returns more than one prediction can overwrite this to wrap the loss that was configured
+    # by the user, see e.g. the auxiliary classifier of `classif.inception_v3`.
+    .loss_fn = function(task, param_vals) {
+      self$loss$generate(task)
+    },
     # the dataloader gets param_vals that may be different from self$param_set$values, e.g.
     # when the dataloader for validation data is loaded, `shuffle` is set to FALSE.
    .dataloader = function(dataset, param_vals) {
