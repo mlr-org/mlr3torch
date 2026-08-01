@@ -581,6 +581,12 @@ nn_tabm = nn_module("nn_tabm",
     }
   },
   forward = function(x_num = NULL, x_cat = NULL) {
+    # When a task has only one input tensor, mlr3torch calls the network *by position*
+    # (see `learner_torch_train()`), so a purely categorical task arrives in `x_num`.
+    if (self$n_num_features == 0L && is.null(x_cat)) {
+      x_cat = x_num
+      x_num = NULL
+    }
     if (self$n_num_features > 0L && is.null(x_num)) {
       stopf("nn_tabm was built with %i numerical features, but x_num is NULL.", self$n_num_features)
     }

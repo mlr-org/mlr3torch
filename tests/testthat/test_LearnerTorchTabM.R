@@ -68,6 +68,40 @@ test_that("categorical features incl. logicals are handled correctly", {
   expect_prediction(learner$predict(task_l))
 })
 
+test_that("the learner works on tasks without numerical features", {
+  # When a task has a single input tensor, `learner_torch_train()` calls the network by
+  # *position*, so a purely categorical task arrives in nn_tabm's first formal, `x_num`.
+  # The module-level tests above pass `x_cat` by name and therefore cannot catch this.
+  tabm = function() {
+    lrn("classif.tabm", epochs = 1L, batch_size = 10L, k = 2L, n_blocks = 1L, d_block = 8L)
+  }
+  n = 20L
+
+  categ_only = as_task_classif(data.frame(
+    y = factor(rep(c("a", "b"), n / 2)),
+    f1 = factor(rep(c("u", "v", "w"), length.out = n)),
+    f2 = factor(rep(c("p", "q"), length.out = n))
+  ), target = "y")
+  learner = tabm()
+  expect_error(learner$train(categ_only), regexp = NA)
+  expect_prediction(learner$predict(categ_only))
+
+  logical_only = as_task_classif(data.frame(
+    y = factor(rep(c("a", "b"), n / 2)),
+    l1 = rep(c(TRUE, FALSE), n / 2),
+    l2 = rep(c(TRUE, TRUE, FALSE, FALSE), n / 4)
+  ), target = "y")
+  learner = tabm()
+  expect_error(learner$train(logical_only), regexp = NA)
+  expect_prediction(learner$predict(logical_only))
+
+  # the informative error is still raised when a network that *does* expect numerical features
+  # gets none
+  net = nn_tabm(n_num_features = 2L, cat_cardinalities = integer(0), d_out = 2L, k = 2L,
+    n_blocks = 1L, d_block = 8L)
+  expect_error(net(x_cat = NULL), "x_num is NULL")
+})
+
 test_that("LearnerTorchTabM works for all architecture types", {
   task = tsk("iris")
   for (arch_type in c("tabm", "tabm-mini", "tabm-packed")) {
